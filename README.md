@@ -1,4 +1,5 @@
-Formally BackTrack scripts.  For use with Kali Linux or BackTrack - custom bash scripts used to automate various pentesting tasks. For use with Kali Linux or BackTrack - custom bash scripts used to automate various pentesting tasks.
+Formally BackTrack scripts.  
+For use with Kali Linux or BackTrack - custom bash scripts used to automate various pentesting tasks.
 
 
 RECON
