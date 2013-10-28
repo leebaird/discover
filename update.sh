@@ -8,15 +8,8 @@ distro=$(uname -n)
 echo -e "\e[1;34mUpdating $distro.\e[0m"
 apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
 
-if [ ! -f /opt/scripts/discover-bt.sh ]; then
-     mv /opt/scripts/ opt/scripts-old/
-     git clone https://github.com/leebaird/discover /opt/scripts/
-     echo -e "\e[1;31m[*] Please note the project repo is now located at https://github.com/leebaird/discover.\e[0m"
-     echo -e "\e[1;31m[*] This is to avoid confusion that the scripts are only compatible with BackTrack.\e[0m"
-else
-     echo -e "\e[1;34mUpdating scripts.\e[0m"
-     cd /opt/scripts/ ; git pull ; echo
-fi
+echo -e "\e[1;34mUpdating scripts.\e[0m"
+cd /opt/scripts/ ; git pull ; echo
 
 cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
 
