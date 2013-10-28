@@ -577,16 +577,16 @@ else
      echo
 fi
 
-if [ -d /pentest/sniffers/mitmproxy/.git ]; then
-     echo -e "\e[1;34mUpdating mitmproxy.\e[0m"
-     cd /pentest/sniffers/mitmproxy/ ; git pull
-     echo
-else
-     echo -e "\e[1;33mInstalling mitmproxy.\e[0m"
-     rm -rf /pentest/sniffers/mitmproxy/
-     git clone http://github.com/cortesi/mitmproxy.git /pentest/sniffers/mitmproxy/
-     echo
-fi
+#if [ -d /pentest/sniffers/mitmproxy/.git ]; then
+#     echo -e "\e[1;34mUpdating mitmproxy.\e[0m"
+#     cd /pentest/sniffers/mitmproxy/ ; git pull
+#     echo
+#else
+#     echo -e "\e[1;33mInstalling mitmproxy.\e[0m"
+#     rm -rf /pentest/sniffers/mitmproxy/
+#     git clone http://github.com/cortesi/mitmproxy.git /pentest/sniffers/mitmproxy/
+#     echo
+#fi
 
 if [ -f /opt/nessus/sbin/nessus-update-plugins ]; then
      echo -e "\e[1;34mUpdating Nessus.\e[0m"
