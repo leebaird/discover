@@ -55,20 +55,6 @@ fi
 
 ##############################################################################################################
 
-echo -e "\e[1;31mIf you are having problems with updating the following tools:\e[0m"
-echo
-echo -e "\e[1;31mBeEF:       rm -rf /pentest/web/beef/\e[0m"
-echo -e "\e[1;31mBed:        rm -rf /pentest/fuzzers/bed/\e[0m"
-echo -e "\e[1;31mgolismero:  rm -rf /pentest/web/golismero/\e[0m"
-echo -e "\e[1;31mMetasploit: rm -rf /opt/metasploit/msf3/\e[0m"
-echo -e "\e[1;31mnikto:      rm -rf /pentest/web/nikto/\e[0m"
-echo -e "\e[1;31mRFIDIOt:    rm -rf /pentest/rfid/RFIDIOt/\e[0m"
-echo -e "\e[1;31msqlmap:     rm -rf /pentest/database/sqlmap/\e[0m"
-echo -e "\e[1;31mSSLyze:     rm -rf /pentest/web/sslyze/\e[0m"
-echo -e "\e[1;31mw3af:       rm -rf /pentest/web/w3af/\e[0m"
-echo
-echo
-
 if [ -d /pentest/wireless/aircrack-ng/.git ]; then
      echo -e "\e[1;34mUpdating aircrack-ng.\e[0m"
      cd /pentest/wireless/aircrack-ng/ ; git pull
