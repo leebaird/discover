@@ -1,0 +1,348 @@
+CIDR:           1.0.0.0/8
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           3.0.0.0/8
+OrgName:        General Electric Company
+
+CIDR:           4.0.0.0/8
+OrgName:        Level 3 Communications, Inc.
+
+CIDR:           5.0.0.0/8
+OrgName:        RIPE Network Coordination Centre
+
+CIDR:           6.0.0.0/8
+OrgName:        Headquarters, USAISC
+
+CIDR:           7.0.0.0/8
+OrgName:        DoD Network Information Center
+
+CIDR:           8.0.0.0/8
+OrgName:        Level 3 Communications, Inc.
+
+CIDR:           9.0.0.0/8
+OrgName:        IBM
+
+CIDR:           10.0.0.0/8
+OrgName:        Internet Assigned Numbers Authority
+
+CIDR:           11.0.0.0/8
+OrgName:        DoD Network Information Center
+
+CIDR:           13.0.0.0/8
+OrgName:        Xerox Corporation
+
+CIDR:           14.0.0.0/8
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           15.0.0.0/8
+OrgName:        Hewlett-Packard Company
+
+CIDR:           16.0.0.0/8
+OrgName:        Hewlett-Packard Company
+
+CIDR:           17.0.0.0/8
+OrgName:        Apple Inc.
+
+CIDR:           18.0.0.0/8
+OrgName:        Massachusetts Institute of Technology
+
+CIDR:           19.0.0.0/8
+OrgName:        Ford Motor Company
+
+CIDR:           20.0.0.0/8
+OrgName:        Computer Sciences Corporation
+
+CIDR:           21.0.0.0/8
+OrgName:        DoD Network Information Center
+
+CIDR:           22.0.0.0/8
+OrgName:        DoD Network Information Center
+
+CIDR:           23.0.0.0/12
+OrgName:        Akamai Technologies, Inc.
+
+CIDR:           25.0.0.0/8
+OrgName:        RIPE Network Coordination Centre
+
+CIDR:           26.0.0.0/8
+OrgName:        DoD Network Information Center
+
+CIDR:           27.0.0.0/8
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           28.0.0.0/8
+OrgName:        DoD Network Information Center
+
+CIDR:           29.0.0.0/8
+OrgName:        DoD Network Information Center
+
+CIDR:           30.0.0.0/8
+OrgName:        DoD Network Information Center
+
+CIDR:           31.0.0.0/8
+OrgName:        RIPE Network Coordination Centre
+
+CIDR:           32.0.0.0/8
+OrgName:        AT&T Global Network Services, LLC
+
+CIDR:           33.0.0.0/8
+OrgName:        DoD Network Information Center
+
+CIDR:           34.0.0.0/8
+OrgName:        Halliburton Company
+
+CIDR:           36.0.0.0/8
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           37.0.0.0/8
+OrgName:        RIPE Network Coordination Centre
+
+CIDR:           38.0.0.0/8
+OrgName:        PSINet, Inc.
+
+CIDR:           39.0.0.0/8
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           40.0.0.0/9
+OrgName:        Eli Lilly and Company
+
+CIDR:           42.0.0.0/8
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           44.0.0.0/8
+OrgName:        Amateur Radio Digital Communications
+
+CIDR:           45.0.0.0/15
+OrgName:        Interop Show Network
+
+CIDR:           47.0.0.0/12
+OrgName:        Bell-Northern Research
+
+CIDR:           48.0.0.0/8
+OrgName:        The Prudential Insurance Company of America
+
+CIDR:           49.0.0.0/8
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           50.0.0.0/15
+OrgName:        SONIC.NET, INC.
+
+CIDR:           52.0.0.0/8
+OrgName:        E.I. du Pont de Nemours and Co., Inc.
+
+CIDR:           53.0.0.0/8
+OrgName:        cap debis ccs
+
+CIDR:           54.128.0.0/10, 54.0.0.0/9
+OrgName:        Merck and Co., Inc.
+
+CIDR:           55.0.0.0/8
+OrgName:        Headquarters, USAISC
+
+CIDR:           56.0.0.0/8
+OrgName:        United States Postal Service.
+
+CIDR:           57.0.0.0/8
+OrgName:        SITA-Societe Internationale de Telecommunications Aeronautiques
+
+CIDR:           63.0.0.0/10
+OrgName:        UUNET Technologies, Inc.
+
+CIDR:           64.0.0.0/14
+OrgName:        XO Communications
+
+CIDR:           67.0.0.0/13
+OrgName:        Qwest Communications Company, LLC
+
+CIDR:           70.12.0.0/15, 70.14.0.0/16, 70.8.0.0/14, 70.0.0.0/13
+OrgName:        Sprint Nextel Corporation
+
+CIDR:           71.0.0.0/14
+OrgName:        Embarq Corporation
+
+CIDR:           72.0.0.0/19
+OrgName:        CITISTREET
+
+CIDR:           74.3.0.0/17, 74.0.0.0/15, 74.2.0.0/16
+OrgName:        Covad Communications Co.
+
+CIDR:           76.0.0.0/13
+OrgName:        Embarq Corporation
+
+CIDR:           96.0.0.0/16
+OrgName:        Ecommerce Corporation
+
+CIDR:           97.0.0.0/10
+OrgName:        Cellco Partnership DBA Verizon Wireless
+
+CIDR:           98.0.0.0/12
+OrgName:        Time Warner Cable Internet LLC
+
+CIDR:           99.0.0.0/9
+OrgName:        AT&T Internet Services
+
+CIDR:           108.56.0.0/15, 108.0.0.0/11, 108.48.0.0/13, 108.32.0.0/12
+OrgName:        Verizon Online LLC
+
+netname:        FBDC-CIDR-BLK-JP
+
+CIDR:           127.0.0.0/8
+OrgName:        Internet Assigned Numbers Authority
+
+CIDR:           128.0.0.0/16
+OrgName:        RIPE Network Coordination Centre
+
+CIDR:           129.0.0.0/16
+OrgName:        African Network Information Center
+
+CIDR:           130.0.0.0/16
+OrgName:        RIPE Network Coordination Centre
+
+CIDR:           131.0.0.0/16
+OrgName:        Latin American and Caribbean IP address Regional Registry
+
+CIDR:           132.0.0.0/16
+OrgName:        754th Electronic Systems Group
+
+CIDR:           134.0.0.0/16
+OrgName:        RIPE Network Coordination Centre
+
+CIDR:           135.0.0.0/16
+OrgName:        CIK Telecom INC
+
+CIDR:           137.0.0.0/16
+OrgName:        754th Electronic Systems Group
+
+CIDR:           138.0.0.0/16
+OrgName:        Latin American and Caribbean IP address Regional Registry
+
+CIDR:           139.0.0.0/16
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           140.0.0.0/16
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           143.0.0.0/16
+OrgName:        Latin American and Caribbean IP address Regional Registry
+
+CIDR:           144.0.0.0/16
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           146.0.0.0/16
+OrgName:        RIPE Network Coordination Centre
+
+CIDR:           147.0.0.0/16
+OrgName:        INSIGHT COMMUNICATIONS COMPANY, L.P.
+
+CIDR:           148.0.0.0/16
+OrgName:        Latin American and Caribbean IP address Regional Registry
+
+CIDR:           149.0.0.0/16
+OrgName:        RIPE Network Coordination Centre
+
+CIDR:           152.0.0.0/16
+OrgName:        Latin American and Caribbean IP address Regional Registry
+
+CIDR:           153.0.0.0/8
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           155.0.0.0/16
+OrgName:        African Network Information Center
+
+CIDR:           156.0.0.0/16
+OrgName:        African Network Information Center
+
+CIDR:           157.0.0.0/16
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           158.0.0.0/16
+OrgName:        DoD Network Information Center
+
+CIDR:           159.0.0.0/16
+OrgName:        RIPE Network Coordination Centre
+
+CIDR:           160.0.0.0/16
+OrgName:        African Network Information Center
+
+CIDR:           161.0.0.0/16
+OrgName:        Latin American and Caribbean IP address Regional Registry
+
+CIDR:           162.0.0.0/16
+OrgName:        AirComPlus Inc.
+
+CIDR:           163.0.0.0/8
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           165.0.0.0/16
+OrgName:        African Network Information Center
+
+CIDR:           166.0.0.0/15
+OrgName:        Ace Data Centers, Inc.
+
+CIDR:           167.0.0.0/16
+OrgName:        Latin American and Caribbean IP address Regional Registry
+
+CIDR:           168.0.0.0/16
+OrgName:        Latin American and Caribbean IP address Regional Registry
+
+CIDR:           169.0.0.0/16
+OrgName:        African Network Information Center
+
+CIDR:           170.0.0.0/16
+OrgName:        Latin American and Caribbean IP address Regional Registry
+
+CIDR:           171.0.0.0/8
+OrgName:        Asia Pacific Network Information Centre
+
+CIDR:           172.0.0.0/12
+OrgName:        AT&T Internet Services
+
+CIDR:           173.0.0.0/20
+OrgName:        proXPN Direct LLC
+
+CIDR:           174.0.0.0/13
+OrgName:        Shaw Communications Inc.
+
+CIDR:           176.0.0.0/8
+OrgName:        RIPE Network Coordination Centre
+
+CIDR:           177.0.0.0/8
+OrgName:        Latin American and Caribbean IP address Regional Registry
+
+CIDR:           179.0.0.0/8
+OrgName:        Latin American and Caribbean IP address Regional Registry
+
+CIDR:           181.0.0.0/8
+OrgName:        Latin American and Caribbean IP address Regional Registry
+
+CIDR:           185.0.0.0/8
+OrgName:        RIPE Network Coordination Centre
+
+CIDR:           199.0.0.0/14
+OrgName:        Sprint
+
+CIDR:           205.32.0.0/12, 205.48.0.0/13, 205.0.0.0/11
+OrgName:        DoD Network Information Center
+
+CIDR:           206.2.0.0/16, 206.0.0.0/15
+OrgName:        PSINet, Inc.
+
+CIDR:           207.2.0.0/18, 207.0.0.0/15, 207.2.64.0/19
+OrgName:        Savvis
+
+CIDR:           208.0.0.0/11, 208.32.0.0/14
+OrgName:        Sprint
+
+CIDR:           209.0.0.0/16
+NetName:        LEVEL6-CIDR
+OrgName:        Level 3 Communications, Inc.
+
+CIDR:           214.0.0.0/8
+OrgName:        DoD Network Information Center
+
+CIDR:           215.0.0.0/8
+OrgName:        DoD Network Information Center
+
+CIDR:           216.4.0.0/15, 216.0.0.0/14
+OrgName:        XO Communications
+

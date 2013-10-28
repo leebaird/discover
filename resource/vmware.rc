@@ -1,0 +1,7 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 8222
+
+use auxiliary/scanner/http/vmware_server_dir_trav
+run
+

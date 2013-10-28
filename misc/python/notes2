@@ -1,0 +1,71 @@
+Python notes.
+
+tutorialspoint.com/python/index.htm
+thenewboston.org/list.php?cat=36
+learnpythonthehardway.org/book/
+pythonforbeginners.com
+
+crummy.com/software/BeautifulSoup/bs4/doc/
+
+##############################
+
+Color
+
+colorred = '\033[01;31m{0}\033[00m'
+colorgreen = '\033[01;32m{0}\033[00m'
+coloryellow = '\033[01;33m{0}\033[00m'
+colorblue = '\033[01;34m{0}\033[00m'
+colorpurple = '\033[01;35m{0}\033[00m'
+
+print colorblue.format('Test')
+
+##############################
+
+import os
+
+os.system('clear')                           # Clear the screen
+os.chdir('newdir')                           # Change directory
+os.mkdir('/root/test/')                      # Create a directory
+os.rmdir('tmp')                              # Remove a directory
+os.remove('tmp')                             # Remove a file
+os.rename('tmp' 'tmp2')                      # Rename a file
+
+##############################
+
+import sys
+
+sys.exit(0)                                  # Exit program OK
+sys.exit(1)                                  # Exit program with error
+
+##############################
+
+if firstname == "":                          # Check for no input
+     error()
+
+firstname = raw_input('First name: ')        # Get input from user
+
+if not os.path.exists('/root/test'):         # If folder doesn't exist, create it
+     os.mkdir('/root/test')
+
+webbrowser.open('http://www.apple.com/')     # Open a URL
+
+time.sleep(1)                                # Sleep for 1 sec
+
+if int(port) in range(1,65535):              # Validate port range
+
+##############################
+
+f = open ('tmp','w')                         # Setup a write connection to a file
+f.write('These are my notes.')               # Write data to file
+f.close()                                    # Close the connection
+
+f = open('tmp','r')                          # Setup a read connection to a file
+filedata = f.read()                          # Read the file
+f.close()                                    # Close the connection
+filedata = filedata.split('\n')              # Turn into a list
+
+##############################
+
+execfile('recon.py')                         # Run a python script
+subprocess.call('crack-wifi.sh')             # Run a bash script
+

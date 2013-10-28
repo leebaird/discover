@@ -1,0 +1,7 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 5900
+
+use auxiliary/scanner/vnc/vnc_none_auth
+run
+

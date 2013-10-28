@@ -1,0 +1,26 @@
+# To enable these aliases or when you modify this file:
+# cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
+
+dhcp=$(grep 'dhcp-server' /var/lib/dhcp/dhclient.leases | awk '{print $3}' | cut -d ';' -f1 | head -n1)
+dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
+
+alias c='clear'
+alias cl='clear ; ls -l'
+alias d='cd /root/Desktop/ ; clear'
+alias e='exit'
+alias i='echo ; echo ; echo "DHCP     " $dhcp ; echo "DNS      " $dns ; echo ; ifconfig ; ping google.com -c3 ; echo ; echo'
+alias l='ls -l'
+alias n='echo ; netstat -antup | egrep -v "(Active|p6)" ; echo ;
+echo -n "Interface:    " ; ifconfig | grep -B10 'Loopback' | grep 'Ethernet' | cut -d " " -f1 ;
+echo -n "MAC address:  " ; ifconfig | grep -B10 'Loopback' | grep 'Ethernet' | cut -d " " -f11 ;
+echo -n "Internal IP:  " ; ifconfig | grep -B10 'Loopback' | grep 'Bcast' | cut -d ':' -f2 | cut -d " " -f1 ;
+echo -n "External IP:  " ; curl ifconfig.me ; echo'
+alias r='cd /root/ ; clear'
+alias s='cd /opt/scripts/ ; clear'
+
+alias nexpose='cd /opt/nexpose/nsc ; ./nsc.sh'
+
+alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
+
+alias update='/opt/scripts/update.sh'
+

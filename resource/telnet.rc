@@ -1,0 +1,13 @@
+setg RHOSTS file:/opt/scripts/gsoc/23.txt
+setg THREADS 255
+setg RPORT 23
+
+use auxiliary/scanner/telnet/telnet_version
+run
+
+use auxiliary/scanner/telnet/telnet_encrypt_overflow
+run
+
+use auxiliary/scanner/telnet/telnet_ruggedcom
+run
+

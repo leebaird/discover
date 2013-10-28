@@ -1,0 +1,85 @@
+  Discovery
+  ---------
+    discovery/exploitable/http/dnn_fcklinkgallery			db
+    discovery/exploitable/http/generic_restaurantmenu			db
+    discovery/exploitable/http/webwiz_rte				db
+    discovery/info_disclosure/dns/cache_snoop				nameserver
+    discovery/info_disclosure/http/backup_finder			db
+    discovery/info_disclosure/http/google_ids				url
+    discovery/info_disclosure/http/interesting_files			db
+
+  Experimental
+  ------------
+    experimental/rce							base_url, parameters, post
+
+  Recon
+  -----
+    recon/contacts/enum/http/web/dev_diver				username
+    recon/contacts/enum/http/web/namechk				username
+    recon/contacts/enum/http/web/pwnedlist				db
+    recon/contacts/enum/http/web/should_change_password			db
+    recon/contacts/gather/http/api/jigsaw/point_usage			API
+    recon/contacts/gather/http/api/jigsaw/purchase_contact		API
+    recon/contacts/gather/http/api/jigsaw/search_contacts		API
+    recon/contacts/gather/http/api/linkedin_auth			API
+    recon/contacts/gather/http/api/twitter				API
+    recon/contacts/gather/http/api/whois_pocs				API
+    recon/contacts/gather/http/web/jigsaw				company, *run, choose number
+    recon/contacts/gather/http/web/pgp_search				domain
+    recon/contacts/support/add_contact					modify db
+    recon/contacts/support/mangle					db
+    recon/creds/enum/http/api/leakdb					db
+    recon/creds/enum/http/api/noisette					db
+    recon/creds/gather/http/api/pwnedlist/account_creds			API
+    recon/creds/gather/http/api/pwnedlist/api_usage			API
+    recon/creds/gather/http/api/pwnedlist/domain_creds			API
+    recon/creds/gather/http/api/pwnedlist/domain_ispwned		API
+    recon/creds/gather/http/api/pwnedlist/leak_lookup			API
+    recon/creds/gather/http/api/pwnedlist/leaks_dump			API
+    recon/hosts/enum/dns/resolve					nameserver
+    recon/hosts/enum/http/api/builtwith					API
+    recon/hosts/enum/http/api/punkspider				API
+    recon/hosts/enum/http/api/wascompanyhacked				API
+    recon/hosts/enum/http/api/whatweb					API
+    recon/hosts/enum/http/api/whois_lookup				API
+    recon/hosts/enum/http/web/age_analyzer				host
+    recon/hosts/enum/http/web/asafaweb					host
+    recon/hosts/enum/http/web/gender_analyzer				host
+    recon/hosts/enum/http/web/ipvoid					db
+    recon/hosts/enum/http/web/malwaredomain				domain
+    recon/hosts/enum/http/web/mywot					domain
+    recon/hosts/enum/http/web/netbios					db
+    recon/hosts/enum/http/web/netcraft_history				db
+    recon/hosts/enum/http/web/open_resolvers				db
+    recon/hosts/enum/http/web/urlvoid					db
+    recon/hosts/enum/http/web/web_archive				domain
+    recon/hosts/enum/http/web/xssed					domain
+    recon/hosts/gather/dns/brute_force					domain, nameserver
+    recon/hosts/gather/dns/reverse_resolve				subnet
+    recon/hosts/gather/http/api/bing_ip					API
+    recon/hosts/gather/http/api/google_site				API
+    recon/hosts/gather/http/api/shodan_hostname				API
+    recon/hosts/gather/http/web/baidu_site				domain
+    recon/hosts/gather/http/web/bing_domain				domain
+    recon/hosts/gather/http/web/census_2012				range
+    recon/hosts/gather/http/web/google_site				domain
+    recon/hosts/gather/http/web/ip_neighbor				db
+    recon/hosts/gather/http/web/netcraft				domain
+    recon/hosts/gather/http/web/yahoo_site				domain
+    recon/hosts/geo/http/api/hostip					API
+    recon/hosts/geo/http/api/ipinfodb					API
+    recon/hosts/geo/http/api/uniapple					API
+    recon/hosts/geo/http/web/wigle					latitude, longitude, password, radius, username
+    recon/hosts/support/add_host					modify db
+    recon/pushpin/flickr						latitude, longitude, radius
+    recon/pushpin/picasa						latitude, longitude, radius
+    recon/pushpin/shodan						latitude, longitude, radius
+    recon/pushpin/twitter						latitude, longitude, radius
+    recon/pushpin/youtube						latitude, longitude, radius
+
+  Reporting
+  ---------
+    reporting/csv_file							filename
+    reporting/html_report						company, filename
+    reporting/list							filename
+    reporting/pushpin							latitude, longitude, map_filename, media_filename, radius

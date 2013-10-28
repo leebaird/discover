@@ -1,0 +1,12 @@
+setg RHOSTS file:/opt/scripts/ibm/web.txt
+setg THREADS 255
+
+use auxiliary/scanner/http/http_version
+run
+
+use auxiliary/scanner/http/options
+run
+
+use auxiliary/scanner/http/webdav_scanner
+run
+

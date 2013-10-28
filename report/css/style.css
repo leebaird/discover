@@ -1,0 +1,185 @@
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing:         border-box;
+}
+
+html { overflow-y:scroll; }
+
+body {
+	background: #fff;
+	color: #333333;
+	font-family: sans-serif;
+	font-size: 1em;
+}
+
+/* Headings */
+h1,h2,h3,h4,h5,h6 { 
+	font-weight: normal;
+	margin: 0;
+	padding: 0;
+}
+
+h1 { font-size: 40px; }
+h2 { font-size: 30px; }
+h3 { font-size: 20px; }
+h4 { font-size: 16px; }
+h5 { font-size: 14px; }
+h6 { font-size: 12px; }
+
+h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
+	font-weight: normal;
+	line-height: 1.4;
+	color: #999999;
+}
+
+h2 small {
+	font-size: 20px;
+}
+
+h2 small.lg-text {
+	font-size: 26px;
+}
+
+ul, ol {
+	margin: 0 0 15px 30px;
+	padding: 0;
+}
+
+li {
+	line-height: 1.3em;
+	margin: 0 0 15px;
+	list-style: disc;
+}
+
+/* Links */
+a, a:visited {
+	text-decoration: underline;
+}
+
+a:hover, a:focus {
+	text-decoration: none;
+}
+
+a:focus { 
+     outline: none;
+}
+
+.float-left, .alignleft {
+	float: left;
+	margin: 0 15px 10px 0;
+}
+
+.float-right, .alignright {
+	float: right;
+	margin: 0 0 10px 15px;
+}
+
+.text-center {
+	text-align: center;
+}
+
+/* Header / Primary / Secondary Navigation */
+.header-wrap {
+	overflow: hidden;
+}
+
+.nav {
+	width: 100%;         /* Spans the width of the page */
+	height: 50px;
+	margin: 0;           /* Ensures there is no space between sides of the screen and the menu */
+	z-index: 99;         /* Makes sure that your menu remains on top of other page elements */
+	position: relative; 
+	background-color: #ededed;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f2f2f2), to(#ededed));
+	background-image: -webkit-linear-gradient(top, #f2f2f2, #ededed); 
+	background-image:    -moz-linear-gradient(top, #f2f2f2, #ededed);
+	background-image:     -ms-linear-gradient(top, #f2f2f2, #ededed);
+	background-image:      -o-linear-gradient(top, #f2f2f2, #ededed);
+	border-top: 1px solid white;
+	border-bottom: 2px solid #d4d4d4;
+}
+
+.navbar {
+     padding: 1;
+	margin: 1;
+	position: absolute;  /* Ensures that the menu doesn’t affect other elements */
+	border-right: 1px solid #fff; 
+}
+
+ul.navbar {
+	margin: 0;
+	padding: 0; 
+}
+
+.navbar li {
+	height: auto;
+	width: 160px;        /* Each menu item */
+	float: left;         /* This lines up the menu items horizontally */
+	text-align: center;  /* All text is placed in the center of the box */
+	list-style: none;    /* Removes the default styling (bullets) for the list */
+	font: normal bold 14px/1.2em sans-serif;  
+	padding: 0;
+	margin: 0;
+}
+
+.navbar a {							
+	padding: 18px 0;     /* Adds a padding on the top and bottom so the text appears centered vertically */
+	border-left: 1px solid #fff; /* Creates a border in a slightly lighter shade of blue than the background.  Combined with the right border, this creates a nice effect. */
+	border-right: 1px solid #ededed; /* Creates a border in a slightly darker shade of blue than the background.  Combined with the left border, this creates a nice effect. */
+	text-decoration: none;  /* Removes the default hyperlink styling. */
+	color: #3C3B3B;      /* Text color is white */
+	display: block;
+	text-shadow: 1px 1px 1px #C6C3C3;
+}
+
+.navbar li:hover, a:hover,
+li.current {
+	background-color: #fff;
+} 
+
+.navbar li ul {
+	display: none;       /* Hides the drop-down menu */
+	height: auto;								
+	margin: 0;           /* Aligns drop-down box underneath the menu item */
+	padding: 0;          /* Aligns drop-down box underneath the menu item */			
+}				
+
+.navbar li:hover ul {
+	display: block;      /* Displays the drop-down box when the menu item is hovered over */
+}
+
+.navbar li ul li {
+	background-color: #fff;
+	width: 160px;        /* Width of the drop-down box when the menu item is hovered over */ 
+}
+
+.navbar li ul li a {
+	border-left: 1px solid #d4d4d4; 
+	border-right: 1px solid #d4d4d4;
+	border-top: 1px solid #d4d4d4;
+	border-bottom: 1px solid #d4d4d4;
+	padding: 15px 20px;
+	text-align: left;
+}
+				
+.navbar li ul li a:hover	{background-color: #eee;}
+
+.wrapper {
+	width: 1160px;
+	margin: 0 auto;
+	padding: 2em 0;
+}
+
+.page-header {
+	padding-bottom: 5px;
+	border-bottom: 1px solid #eeeeee;
+}
+
+iframe {
+	height: 808px;
+	width: 1160px;
+	border: none;
+}
+

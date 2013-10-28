@@ -1,0 +1,11 @@
+#wrapper, #wrap-header, #main, #main-fullwidth, #wrap-footer, .clearfix { 
+	display:inline-block; 
+}
+
+* html #wrapper, * html #wrap-header, * html #main, * html #main-fullwidth, * html #wrap-footer, * html .clearfix{ height:1%; }
+
+hr  { margin:-8px auto 11px; }
+
+html>body p code { *white-space: normal; }
+
+img { -ms-interpolation-mode:bicubic; }

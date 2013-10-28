@@ -1,0 +1,267 @@
+Notes
+
+3 May 2013 by jason@ihackstuff.com - How to fix msfconsole after updating BackTrack
+
+Note: Follow the below steps, copying and pasting one line at a time to ensure no errors at each step. The steps
+do not work in a script, they must be run manually (at this time). I am not responsible for anything that happens
+to your BT5 install if you follow these steps, YMMV. If you run BT in a VM, suggest taking a snapshot before running
+the fix so you can back out in the event of issues.
+
+Launch a terminal, then issue the below commands (root user assumed given it's BT5):
+
+/bin/bash --login
+
+echo 'APT::Cache-Limit "100000000";' >> /etc/apt/apt.conf.d/70debconf
+apt-get install libpq-dev
+
+# Note the following command has a starting \ character - ensure you include it!
+\curl -L https://get.rvm.io | bash -s -- --version latest
+
+source /etc/profile.d/rvm.sh
+
+rvm autolibs enable
+rvm requirements
+rvm install ruby-1.9.2-p320
+
+cd /opt/metasploit/msf3
+bundle install
+
+# Check your Ruby version - should be: ruby 1.9.2p320 (2012-04-20 revision 35421) [i686-linux]
+# (as of this writing)
+ruby -v
+
+# Now run msfconsole - it should work. :]
+./msfconsole
+
+##############################
+
+nmap2csv:  https://github.com/maaaaz/nmaptocsv
+
+Discover
+     Scan delay (default=0), --scan-delay 3
+     Randomize IPs (y/N), sort -R
+
+Add color to certain findings in the report.
+     Anonymous access: READ
+     VULNERABLE
+
+Text
+     Find lines that start with FOO, if the line before it is blank, delete it           # Service Info:, | smb-mbenum:
+     Find lines that start with FOO, if the line after it is blank, delete original line
+
+##############################
+
+1.  On the Hosts tab, hide all columns except IP, Port and Service.
+2.  Copy the text.
+3.  Use nano to create a new tmp file, paste in the text and save.
+4.  grep 'HTTP' tmp | awk '{print $1,":",$2}' | sed 's/ //g' > web.txt
+5.  grep 'HTTPS' tmp | awk '{print $1,":",$2}' | sed 's/ //g' > ssl.txt
+6.  web.txt will feed options 7 Firefox and 8 Nikto.
+7.  ssl.txt will feed option 9 SSL Check.
+
+##############################
+
+sed -e 's/^/FOO/'                                   # Add FOO to the beginning of each line
+sed -e 's/$/FOO/'                                   # Add FOO to the end of each line
+column -t                                           # Align columns
+
+sed 's/\b\(.\)/\u\1/g'                              # Capitalize the first letter of every word
+tr '[A-Z]' '[a-z]'                                  # Change to lower case
+sed /^$/d                                           # Compress blank lines
+paste -s -d" "                                      # Convert a list into a single line
+
+grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' -o   # Find IPs
+perl -pe 's/\d{2}\/\d{2}\/\d{2}//g'                 # Find dates mm/dd/yy
+sed 's/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g'       # Find dates mm/dd/yy
+
+sed '/FOO/I,+12 d'                                  # Find lines that contain FOO, and delete that and the next 12 lines
+sed -i '/FOO/,${D}' file                            # Find lines that contain FOO, and delete to the end of file
+sed '1N;N;/\(.*\n\)\{2\}.*FOO/P;$d;D'               # Find lines that contain FOO, and print the second line before that
+sed '/[[:blank:]]/d'                                # Find lines that contain a single word
+
+grep 'FOO$'                                         # Find lines that end with FOO
+
+grep '^FOO'                                         # Find lines that start with FOO
+sed '/^FOO/{n;d;}'                                  # Find lines that start with FOO, and delete the following line
+printf '%s\n' 'g/^FOO/-1d' w | ed -s                # Find lines that start with FOO, and delete the previous line
+sed '/^FOO/i\ '                                     # Find lines that start with FOO, and insert a line before
+sed '/^FOO/a\ '                                     # Find lines that start with FOO, and insert a line after
+
+awk '{print $2 " " $1}'                             # Move the second column to the first position
+
+sed -n '/FOO/,$p'                                   # Print from FOO to the end of the file
+sed -n '5,/^$/p'                                    # Print from the 5th line to the first blank line
+sed -n '/FOO/,/BAR/p'                               # Print lines between FOO and BAR
+
+sed 's/[A-Z]\{2\},//g'                              # Remove any 2 capital letters followed by a comma
+sed '/^$/d'                                         # Remove blank lines
+cat -s                                              # Remove double spacing
+sed 's/^....//'                                     # Remove first 4 characters from each line
+sed '1,5d'                                          # Remove first 5 lines
+sed 's/^[ \t]*//;s/[ \t]*$//'                       # Remove leading and trailing whitespace from each line
+sed 's/^[ \t]*//'                                   # Remove leading whitespace from each line
+sed 's/[ \t]*$//'                                   # Remove trailing whitespace from each line
+for a in z*; do grep -vE '^[\/\#\(\_\[\|\<\.\,\`\%\@]' "$a" > "$a.tmp"; mv "$a.tmp" "$a"; done    
+                                                    # Remove lines starting with various non-characters
+sed '/FOO/,/BAR/d'                                  # Remove lines between FOO and BAR
+sed '/[[:blank:]]/!d'                               # Remove lines that contain a single word
+sed '/@.*@/d'                                       # Remove lines that contain two @ symbols
+sed '/^[0-9]/d'                                     # Remove lines that start with a number
+sed '/[0-9]$/d'                                     # Remove lines that end with a number
+sed '/^FOO/d'                                       # Remove lines that start with FOO
+sed '/FOO$/d'                                       # Remove lines that end with FOO
+printf '%s\n' 'g/FOO/d\' '-d' w | ed -s             # Remove lines that contain FOO and the previous line
+
+sed 's/FOO/BAR/g'                                   # Replace FOO with BAR
+sed '/TEST/s/FOO/BAR/g'                             # Replace FOO with BAR, on lines that contain TEST
+sed '/TEST/!s/FOO/BAR/g'                            # Replace FOO with BAR, except on lines that contain TEST
+sed 's/FOO//g'                                      # Replace FOO with nothing
+sed 's/\.\.\.//g'                                   # Replace 3 periods with nothing                
+cat tmp | tr ';' '\n'                               # Replace semicolon with a new line
+
+sort -k2                                            # Sort by the second column
+sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4         # Sort IPs
+sed "s/$FOO./$FOO/g"                                # Variables - when using sed or grep, use double quotes
+
+##############################
+
+# Compare two dates
+
+date1=$(date +"%s")
+date2=$(date +"%s")
+diff=$(($date2-$date1))
+echo "$(($diff / 60)) min and $(($diff % 60)) sec."
+
+##############################
+
+# Color
+
+31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 
+
+echo -e "\e[1;34mThis is a blue text.\e[0m"
+
+##############################
+
+# Check for no answer
+if [ -z $location ]; then
+     f_Error
+     return 0
+fi
+
+# Check for wrong answer
+if [ ! -f $location ]; then
+     f_Error
+     return 0
+fi
+
+if [ -d /root/test ]; then
+     echo "This folder exists."
+fi
+
+if [ -f /root/test ]; then
+     echo "This file exists."
+fi
+
+# If folder doesn't exist, create it
+if [ ! -d /root/test ]; then
+     mkdir /root/test
+fi
+
+if [ ! -s test ]; then 
+     echo "This file is empty."
+fi
+
+if [ $(whoami) = "root" ]; then echo "You are running as root."; fi
+
+##############################
+
+# DNS cache poisioning
+for i in `53.txt`; do dig @"$i" +short porttest.dns-oarc.net TXT; done; > CachePoison.txt
+
+# Non-recursive DNS queries
+for i in `cat 53.txt`; do dig @"$i" www.google.com A +norecurse; done > NonRecurive.txt
+
+# Spoofed request amplification DDoS
+for i in `cat 53.txt`; do dig @"$i" . NS; done > AmpDDoS.txt
+
+##############################
+
+# HTTP TRACE or TRACK methods allowed
+paste 80.txt | while read IP port; do echo "----START "$IP":"$port"----"; echo -e "TRACE / HTTP/1.0\n\n" | ncat --ssl "$IP" "$port"; echo -e "\n----END "$IP":"$port"----\n"; done > trace.txt
+
+# SSL renegotiation
+paste 443.txt | while read IP port; do echo "----START "$IP":"$port"----"; echo -e "HEAD / HTTP/1.0\nR\n\n" | ncat --ssl "$IP" "$port"; echo -e "\$
+
+##############################
+
+#!/bin/bash
+clear
+
+echo "SMTP open mail relay checker."
+
+if [[ $1 == "" ]]; then
+     echo "ERROR - Specify host."
+else
+     if [[ $2 == "" ]]; then
+          PORT=25
+     else
+          PORT=$2
+     fi
+
+     cat >> tmp << EOF
+     mail from: root@target.com
+     rcpt to: joesmith@gmail.com
+     data
+     Subject: Testing open mail relay.
+     Testing SMTP open mail relay from $1. 
+     Have a nice day.
+     .
+     quit
+     EOF
+
+     echo "[*] Using target $1:$PORT"
+     cat tmp | nc $1 $PORT 
+     rm tmp
+fi     
+
+##############################
+
+Maltego
+
+Use the scroll wheel to zoom in and out.
+Hold down the right mouse button to move around.
+
+Example 1
+Select Domain from the Entities palette on the left and drag the icon to the right.
+Edit the domain to your target.
+Right click > Run Transform > ...
+Email addresses from Domain > All
+
+DNS from Domain > All
+ctrl + down to select servers > Resolve to IP > All
+ctrl + down to select IPs > DNS from IP > All
+ctrl + down to select servers > Convert to Domain > All
+ctrl + down to select domains > Email addresses from Domain > All
+Select all emails > Other transforms > To Person, emailToMyspaceAccount, emailToFlickerAccount
+
+Example 2
+Select IPv4 Address from the Entities palette on the left and drag the icon to the right.
+Edit the IP address to your target.
+Right click > Run Transform > ...
+DNS from IP > All in this set
+
+##############################
+
+pid=`ps ax | grep ping | grep -v grep | awk '{print $1}'`
+
+if [ -n "$pid" ] ; then
+     kill $pid
+fi
+
+##############################
+
+http://www.ipvoid.com/scan/targetIP
+http://www.urlvoid.com/scan/$domain
+http://www.fortiguard.com
+
+nmap -p80 --script dns-brute $domain
