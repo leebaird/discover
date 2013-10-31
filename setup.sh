@@ -29,11 +29,15 @@ if [ $distro = kali ]; then
      echo "# Bleeding edge repos" >> /etc/apt/sources.list
      echo "deb http://repo.kali.org/kali kali-bleeding-edge main" >> /etc/apt/sources.list
 
+     echo
      echo -e "\e[1;33mSetting postgresql and Metasploit to run at startup.\e[0m"
      update-rc.d postgresql enable && update-rc.d metasploit enable
 
+     echo
      echo -e "\e[1;33mInstalling gedit.\e[0m"
-     apt-get -y install gedit ; echo ; echo
+     apt-get -y install gedit
+     echo
+     echo
      exit
 fi
 
