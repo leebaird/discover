@@ -2907,8 +2907,7 @@ echo -e "\e[1;34mRECON\e[0m"
 echo "1.  Domain"
 echo "2.  Person"
 echo
-echo -e "\e[1;34mSCANNING\e[0m" "- Host discovery, port scanning, service enumeration"
-echo "and OS identification using Nmap, NSE and Metasploit scanners."
+echo -e "\e[1;34mSCANNING\e[0m"
 echo "3.  Generate target list"
 echo "4.  CIDR"
 echo "5.  List"
@@ -2954,4 +2953,3 @@ esac
 ##############################################################################################################
 
 while true; do f_main; done
-
