@@ -17,7 +17,7 @@ apt-get -y install xdotool ; echo
 distro=$(uname -n)
 
 if [ $distro = kali ]; then
-     echo -e "\e[1;33mSetting up repos.\e[0m"
+     echo -e "\e[1;33mUpdating repositories.\e[0m"
      echo "# Regular repos" > /etc/apt/sources.list
      echo "deb http://http.kali.org/kali kali main non-free contrib" >> /etc/apt/sources.list
      echo "deb http://security.kali.org/kali-security kali/updates main contrib non-free" >> /etc/apt/sources.list
@@ -26,12 +26,13 @@ if [ $distro = kali ]; then
      echo "deb-src http://http.kali.org/kali kali main non-free contrib" >> /etc/apt/sources.list
      echo "deb-src http://security.kali.org/kali-security kali/updates main contrib non-free" >> /etc/apt/sources.list
      echo >> /etc/apt/sources.list
-     echo "# Bleeding edge repos" >> /etc/apt/sources.list
+     echo "# Bleeding Edge repos" >> /etc/apt/sources.list
      echo "deb http://repo.kali.org/kali kali-bleeding-edge main" >> /etc/apt/sources.list
 
      echo
      echo -e "\e[1;33mSetting postgresql and Metasploit to run at startup.\e[0m"
-     update-rc.d postgresql enable && update-rc.d metasploit enable
+     update-rc.d postgresql enable && service postgresql start
+     update-rc.d metasploit enable && service metasploit start
 
      echo
      echo -e "\e[1;33mInstalling gedit.\e[0m"
@@ -48,4 +49,3 @@ mv /root/tmp /root/.bashrc
 
 echo
 echo
-
