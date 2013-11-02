@@ -853,7 +853,7 @@ firefox -new-tab http://www.peekyou.com/$fireName%5F$lastName &
 sleep 1
 firefox -new-tab http://phonenumbers.addresses.com/people/$firstName+$lastName &
 sleep 1
-firefox -new-tab http://search.nndb.com/search/nndb.cgi?type=unspecified&query=$firstName+$lastName &
+firefox -new-tab https://pipl.com/search/?q=$firstName+$lastName&l=&sloc=&in=10 &
 sleep 1
 firefox -new-tab http://www.spokeo.com/search?q=$firstName+$lastName&s3=t24 &
 sleep 1
@@ -880,7 +880,7 @@ echo -n "Choice: "
 read choice
 
 case $choice in
-     1) ipscan;;
+     1) ipscan &;;
      2) arp-scan -l | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' > /$user/hosts-arp.txt
      echo
      echo $line
