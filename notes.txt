@@ -1,65 +1,14 @@
 Notes
 
-3 May 2013 by jason@ihackstuff.com - How to fix msfconsole after updating BackTrack
 
-Note: Follow the below steps, copying and pasting one line at a time to ensure no errors at each step. The steps
-do not work in a script, they must be run manually (at this time). I am not responsible for anything that happens
-to your BT5 install if you follow these steps, YMMV. If you run BT in a VM, suggest taking a snapshot before running
-the fix so you can back out in the event of issues.
+1.  worksheet.xlsx > Hosts tab, hide all columns except IP, Port and Service.
+2.  Copy the text and paste into new file.
+3.  grep 'HTTP' tmp | awk '{print $1,":",$2}' | sed 's/ //g' > web.txt
+4.  grep 'HTTPS' tmp | awk '{print $1,":",$2}' | sed 's/ //g' > ssl.txt
+5.  web.txt will feed options 7 Firefox and 8 Nikto.
+6.  ssl.txt will feed option 9 SSL Check.
 
-Launch a terminal, then issue the below commands (root user assumed given it's BT5):
-
-/bin/bash --login
-
-echo 'APT::Cache-Limit "100000000";' >> /etc/apt/apt.conf.d/70debconf
-apt-get install libpq-dev
-
-# Note the following command has a starting \ character - ensure you include it!
-\curl -L https://get.rvm.io | bash -s -- --version latest
-
-source /etc/profile.d/rvm.sh
-
-rvm autolibs enable
-rvm requirements
-rvm install ruby-1.9.2-p320
-
-cd /opt/metasploit/msf3
-bundle install
-
-# Check your Ruby version - should be: ruby 1.9.2p320 (2012-04-20 revision 35421) [i686-linux]
-# (as of this writing)
-ruby -v
-
-# Now run msfconsole - it should work. :]
-./msfconsole
-
-##############################
-
-nmap2csv:  https://github.com/maaaaz/nmaptocsv
-
-Discover
-     Scan delay (default=0), --scan-delay 3
-     Randomize IPs (y/N), sort -R
-
-Add color to certain findings in the report.
-     Anonymous access: READ
-     VULNERABLE
-
-Text
-     Find lines that start with FOO, if the line before it is blank, delete it           # Service Info:, | smb-mbenum:
-     Find lines that start with FOO, if the line after it is blank, delete original line
-
-##############################
-
-1.  On the Hosts tab, hide all columns except IP, Port and Service.
-2.  Copy the text.
-3.  Use nano to create a new tmp file, paste in the text and save.
-4.  grep 'HTTP' tmp | awk '{print $1,":",$2}' | sed 's/ //g' > web.txt
-5.  grep 'HTTPS' tmp | awk '{print $1,":",$2}' | sed 's/ //g' > ssl.txt
-6.  web.txt will feed options 7 Firefox and 8 Nikto.
-7.  ssl.txt will feed option 9 SSL Check.
-
-##############################
+#####################################################
 
 sed -e 's/^/FOO/'                                   # Add FOO to the beginning of each line
 sed -e 's/$/FOO/'                                   # Add FOO to the end of each line
@@ -70,7 +19,7 @@ tr '[A-Z]' '[a-z]'                                  # Change to lower case
 sed /^$/d                                           # Compress blank lines
 paste -s -d" "                                      # Convert a list into a single line
 
-grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' -o   # Find IPs
+grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'    # Find IPs
 perl -pe 's/\d{2}\/\d{2}\/\d{2}//g'                 # Find dates mm/dd/yy
 sed 's/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g'       # Find dates mm/dd/yy
 
@@ -123,7 +72,7 @@ sort -k2                                            # Sort by the second column
 sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4         # Sort IPs
 sed "s/$FOO./$FOO/g"                                # Variables - when using sed or grep, use double quotes
 
-##############################
+#####################################################
 
 # Compare two dates
 
@@ -132,7 +81,7 @@ date2=$(date +"%s")
 diff=$(($date2-$date1))
 echo "$(($diff / 60)) min and $(($diff % 60)) sec."
 
-##############################
+#####################################################
 
 # Color
 
@@ -140,7 +89,7 @@ echo "$(($diff / 60)) min and $(($diff % 60)) sec."
 
 echo -e "\e[1;34mThis is a blue text.\e[0m"
 
-##############################
+#####################################################
 
 # Check for no answer
 if [ -z $location ]; then
@@ -173,7 +122,7 @@ fi
 
 if [ $(whoami) = "root" ]; then echo "You are running as root."; fi
 
-##############################
+#####################################################
 
 # DNS cache poisioning
 for i in `53.txt`; do dig @"$i" +short porttest.dns-oarc.net TXT; done; > CachePoison.txt
@@ -184,7 +133,7 @@ for i in `cat 53.txt`; do dig @"$i" www.google.com A +norecurse; done > NonRecur
 # Spoofed request amplification DDoS
 for i in `cat 53.txt`; do dig @"$i" . NS; done > AmpDDoS.txt
 
-##############################
+#####################################################
 
 # HTTP TRACE or TRACK methods allowed
 paste 80.txt | while read IP port; do echo "----START "$IP":"$port"----"; echo -e "TRACE / HTTP/1.0\n\n" | ncat --ssl "$IP" "$port"; echo -e "\n----END "$IP":"$port"----\n"; done > trace.txt
@@ -192,7 +141,7 @@ paste 80.txt | while read IP port; do echo "----START "$IP":"$port"----"; echo -
 # SSL renegotiation
 paste 443.txt | while read IP port; do echo "----START "$IP":"$port"----"; echo -e "HEAD / HTTP/1.0\nR\n\n" | ncat --ssl "$IP" "$port"; echo -e "\$
 
-##############################
+#####################################################
 
 #!/bin/bash
 clear
@@ -224,7 +173,7 @@ else
      rm tmp
 fi     
 
-##############################
+#####################################################
 
 Maltego
 
@@ -250,7 +199,7 @@ Edit the IP address to your target.
 Right click > Run Transform > ...
 DNS from IP > All in this set
 
-##############################
+#####################################################
 
 pid=`ps ax | grep ping | grep -v grep | awk '{print $1}'`
 
@@ -258,7 +207,7 @@ if [ -n "$pid" ] ; then
      kill $pid
 fi
 
-##############################
+#####################################################
 
 http://www.ipvoid.com/scan/targetIP
 http://www.urlvoid.com/scan/$domain
