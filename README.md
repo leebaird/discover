@@ -7,11 +7,9 @@ RECON
 * Person
 
 SCANNING
-
 * Generate target list
 * CIDR
 * List
-* Local area network
 * Single IP, URL or range
 
 WEB
@@ -59,4 +57,3 @@ Overview
 * Parse the results of a query on salesfore.
 * Start a Metasploit listener.
 * Update the distro, scripts and various tools.
-
