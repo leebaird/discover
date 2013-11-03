@@ -10,7 +10,7 @@ SCANNING
 * Generate target list
 * CIDR
 * List
-* Single IP, URL or range
+* Single IP or URL
 
 WEB
 * Open multiple tabs in Firefox
