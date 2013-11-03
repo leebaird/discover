@@ -871,7 +871,7 @@ f_banner
 echo -e "\e[1;34mSCANNING\e[0m"
 echo
 echo "1.  Angry IP Scanner"
-echo "2.  LAN"
+echo "2.  Local area network"
 echo "3.  netdiscover"
 echo "4.  Ping sweep"
 echo "5.  Previous menu"
@@ -1038,106 +1038,6 @@ mkdir -p $name
 
 ##############################################################################################################
 
-f_single(){
-clear
-f_banner
-f_scanname
-
-echo
-echo -n "Single IP, URL or Range: "
-read target
-
-# Check for no answer
-if [ -z $target ]; then
-     rm -rf $name
-     f_error
-fi
-
-echo $target > tmp-list
-location=tmp-list
-
-START=$(date +%r\ %Z)
-
-f_discovery
-f_numhosts
-f_scan
-f_ports
-f_scripts
-f_metasploit
-f_report
-}
-
-##############################################################################################################
-
-f_lan(){
-clear
-f_banner
-f_scanname
-
-START=$(date +%r\ %Z)
-
-arp-scan -localnet | egrep -v '(Ending|Interface|packets|Starting)' | awk '{print $1}' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > tmp
-
-# Remove blank lines
-sed '/^$/d' tmp > $name/hosts.txt
-
-if [ ! -s $name/hosts.txt ]; then
-     rm -rf "$name" tmp*
-     echo
-     echo $line
-     echo
-     echo "***Scan complete.***"
-     echo
-     echo -e "\e[1;33mNo hosts found with open ports.\e[0m"
-     echo
-     echo
-     exit
-fi
-
-# Number of hosts
-number=$(wc -l $name/hosts.txt | cut -d ' ' -f1)
-
-if [ $number -eq 1 ]; then
-     echo
-     echo $line
-     echo
-     echo -e "\e[1;33mHost discovered.\e[0m"
-else
-     echo
-     echo $line
-     echo
-     echo -e "\e[1;33m$number hosts discovered.\e[0m"
-fi
-
-f_scan
-f_ports
-f_scripts
-f_metasploit
-f_report
-}
-
-##############################################################################################################
-
-f_lists(){
-clear
-f_banner
-f_scanname
-
-f_location
-
-START=$(date +%r\ %Z)
-
-f_discovery
-f_numhosts
-f_scan
-f_ports
-f_scripts
-f_metasploit
-f_report
-}
-
-##############################################################################################################
-
 f_cidr(){
 clear
 f_banner
@@ -1208,6 +1108,57 @@ else
      f_discovery
 fi
 
+f_numhosts
+f_scan
+f_ports
+f_scripts
+f_metasploit
+f_report
+}
+
+##############################################################################################################
+
+f_list(){
+clear
+f_banner
+f_scanname
+
+f_location
+
+START=$(date +%r\ %Z)
+
+f_discovery
+f_numhosts
+f_scan
+f_ports
+f_scripts
+f_metasploit
+f_report
+}
+
+##############################################################################################################
+
+f_single(){
+clear
+f_banner
+f_scanname
+
+echo
+echo -n "Single IP, URL or Range: "
+read target
+
+# Check for no answer
+if [ -z $target ]; then
+     rm -rf $name
+     f_error
+fi
+
+echo $target > tmp-list
+location=tmp-list
+
+START=$(date +%r\ %Z)
+
+f_discovery
 f_numhosts
 f_scan
 f_ports
@@ -2925,20 +2876,19 @@ echo -e "\e[1;34mSCANNING\e[0m"
 echo "3.  Generate target list"
 echo "4.  CIDR"
 echo "5.  List"
-echo "6.  Local area network"
-echo "7.  Single IP, URL or range"
+echo "6.  Single IP or domain"
 echo
 echo -e "\e[1;34mWEB\e[0m"
-echo "8.  Open multiple tabs in Firefox"
-echo "9.  Nikto"
-echo "10. SSL Check"
+echo "7.  Open multiple tabs in Firefox"
+echo "8.  Nikto"
+echo "9.  SSL Check"
 echo
 echo -e "\e[1;34mMISC\e[0m"
-echo "11. Crack WiFi"
-echo "12. Parse salesforce"
-echo "13. Start a Metasploit listener"
-echo "14. Update"
-echo "15. Exit"
+echo "10. Crack WiFi"
+echo "11. Parse salesforce"
+echo "12. Start a Metasploit listener"
+echo "13. Update"
+echo "14. Exit"
 echo
 echo -n "Choice: "
 read choice
@@ -2948,17 +2898,16 @@ case $choice in
      2) f_person;;
      3) f_generateTargetList;;
      4) f_cidr;;
-     5) f_lists;;
-     6) f_lan;;
-     7) f_single;;
-     8) f_multitabs;;
-     9) f_nikto;;
-     10) f_sslcheck;;
-     11) /opt/scripts/crack-wifi.sh;;
-     12) f_salesforce;;
-     13) f_listener;;
-     14) /opt/scripts/update.sh && exit;;
-     15) clear && exit;;
+     5) f_list;;
+     6) f_single;;
+     7) f_multitabs;;
+     8) f_nikto;;
+     9) f_sslcheck;;
+     10) /opt/scripts/crack-wifi.sh;;
+     11) f_salesforce;;
+     12) f_listener;;
+     13) /opt/scripts/update.sh && exit;;
+     14) clear && exit;;
      99) f_updates;;
      *) f_error;;
 esac
@@ -2967,3 +2916,4 @@ esac
 ##############################################################################################################
 
 while true; do f_main; done
+
