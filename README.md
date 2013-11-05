@@ -27,7 +27,7 @@ MISC
  
 Download
 ===================
-* git clone git://github.com/leebaird/backtrack-scripts.git /opt/scripts/
+* git clone git://github.com/leebaird/discover.git /opt/scripts/
 * All scripts must be ran from this location.
 
 
