@@ -18,7 +18,7 @@ echo -n "External IP:  " ; curl ifconfig.me ; echo'
 alias r='cd /root/ ; clear'
 alias s='cd /opt/scripts/ ; clear'
 
-alias nexpose='cd /opt/rapid7/nexpose/nsc ; ./nsc.sh'
+alias nexpose='service postgresql stop ; cd /opt/rapid7/nexpose/nsc ; ./nsc.sh'
 
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
