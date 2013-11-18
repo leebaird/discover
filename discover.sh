@@ -2456,7 +2456,6 @@ exit
 
 ##############################################################################################################
 # Jason
-# Need a better way to see if a host is live and has an SSL port open. Try using nmap -p 443.
 # Need a better way to locate hosts running SSL on alternate ports. Try using the nmap.grep file.
 
 f_sslcheck(){
@@ -2606,7 +2605,7 @@ while read -r line; do
                # echo datenow=$datenow
                datenowstamp=$(date2stamp "$datenow")
                # echo datenowstamp=$datenowstamp
-               monthconv $(grep "Not valid after:" ssltmp_$line | awk -F" " {'print $4'})
+               monthconv=$(grep "Not valid after:" ssltmp_$line | awk -F" " {'print $4'})
                # echo monthnum=$monthnum
                expyear=$(grep "Not valid after:" ssltmp_$line | awk -F" " {'print $7'})
                # echo expyear=$expyear
@@ -2620,14 +2619,14 @@ while read -r line; do
                # echo numdaysdiff=$numdaysdiff
 
                if (($expdatestamp < $datenowstamp)); then
-                    echo [*] X.509 Server Certificate is Invalid/Expired >> ssl_$line.txt
+                    echo "[*] X.509 Server Certificate is Invalid/Expired" >> ssl_$line.txt
                     echo "    Cert Expire Date: $expdate" >> ssl_$line.txt
                     echo >> ssl_$line.txt
                fi
 
                E=$(cat ssltmp_$line | grep 'Authority Information Access:')
                if [[ ! $E ]]; then
-                    echo [*] Self-signed TLS/SSL Certificate >> ssl_$line.txt
+                    echo "[*] Self-signed TLS/SSL Certificate" >> ssl_$line.txt
                     echo >> ssl_$line.txt
                fi
 
@@ -2635,7 +2634,7 @@ while read -r line; do
                echo >> ssl_$line.txt
                echo
                # echo "kill $pid process test"
-               (sleep 5 && kill -9 $pid 2>/dev/null) &
+               sleep 5 && kill -9 $pid 2>/dev/null &
 
                # Add current data to tmp-report
                cat ssl_$line.txt >> tmp-report
@@ -2724,10 +2723,10 @@ msfconsole -r /opt/scripts/resource/listener.rc
 
 f_updates(){
 # Remove entire script categories
-ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(broadcast|brute|discover|http|ip-|ssl|targets)' > tmp
+ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(broadcast|brute|discover|http|targets)' > tmp-all
 
 # Remove Nmap scripts that take too many arguments, DOS or not relevant
-egrep -v '(address-info|ajp-auth|ajp-headers|asn-query|auth-owners|auth-spoof|cccam-version|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|dns-blacklist|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-nsec3-enum|dns-nsec-enum|dns-srv-enum|dns-zeustracker|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-robtex|iax2-version|informix-query|informix-tables|ipidseq|ipv6-node-info|ipv6-ra-flood|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-ready-message|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-enum-users|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|smb-vuln-ms10-054|smb-vuln-ms10-061|smtp-vuln-cve2010-4344|smtp-vuln-cve2011-1720|smtp-vuln-cve2011-1764|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|sshv1|stun-info|tftp-enum|tls-nextprotoneg|traceroute-geolocation|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|whois|xmpp-info)' tmp > tmp-all
+#egrep -v '(address-info|ajp-auth|ajp-headers|asn-query|auth-owners|auth-spoof|cccam-version|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|dns-blacklist|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-nsec3-enum|dns-nsec-enum|dns-srv-enum|dns-zeustracker|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-robtex|iax2-version|informix-query|informix-tables|ipidseq|ipv6-node-info|ipv6-ra-flood|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-ready-message|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-enum-users|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|smb-vuln-ms10-054|smb-vuln-ms10-061|smtp-vuln-cve2010-4344|smtp-vuln-cve2011-1720|smtp-vuln-cve2011-1764|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|stun-info|tftp-enum|tls-nextprotoneg|traceroute-geolocation|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|whois|xmpp-info)' tmp > tmp-all
 
 grep 'script=' discover.sh | egrep -v '(discover.sh|22.txt|smtp.txt|web.txt)' > tmp
 cat tmp | cut -d '=' -f2- | cut -d ' ' -f1 | tr ',' '\n' | egrep -v '(db2-discover|dhcp-discover|dns-service-discovery|membase-http-info|oracle-sid-brute|smb-os-discovery|sslv2)' | sort -u > tmp-used
