@@ -94,7 +94,7 @@ fi
 ##############################################################################################################
 
 f_terminate(){
-rm emails names squatting whois* subdomain* doc pdf ppt txt xls tmp* z* 2>/dev/null
+rm emails names records squatting whois* subdomain* doc pdf ppt txt xls tmp* z* 2>/dev/null
 
 if [ -f $name ]; then
      rm -rf $name
@@ -629,10 +629,10 @@ case $choice in
      grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing|Records Found)' | sed 's/\[\*\] //g' | sed 's/^[ \t]*//' | awk '{print $2,$3}' | column -t | sort -u > subdomains-dnsrecon
 
      echo
-     echo "Fierce (~5 min)           (5/$total)"
-     fierce -dns $domain -wordlist /usr/share/fierce/hosts.txt -suppress -file tmp4
+#     echo "Fierce (~5 min)           (5/$total)"
+#     fierce -dns $domain -wordlist /usr/share/fierce/hosts.txt -suppress -file tmp4
 
-     sed -n '/Now performing/,/Subnets found/p' tmp4 | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > subdomains-fierce
+#     sed -n '/Now performing/,/Subnets found/p' tmp4 | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > subdomains-fierce
 
      cat subdomains-dnsrecon subdomains-fierce | grep -v '.nat.' | column -t | sort -u > subdomains
 

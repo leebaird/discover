@@ -94,7 +94,7 @@ fi
 ##############################################################################################################
 
 f_terminate(){
-rm emails names squatting whois* subdomain* doc pdf ppt txt xls tmp* z* 2>/dev/null
+rm emails names records squatting whois* subdomain* doc pdf ppt txt xls tmp* z* 2>/dev/null
 
 if [ -f $name ]; then
      rm -rf $name
