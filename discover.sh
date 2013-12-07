@@ -2793,7 +2793,7 @@ echo
 echo -e "\e[1;34mWEB\e[0m"
 echo "7.  Open multiple tabs in Firefox"
 echo "8.  Nikto"
-echo "9.  SSL Check"
+echo "9.  SSL"
 echo
 echo -e "\e[1;34mMISC\e[0m"
 echo "10. Crack WiFi"
