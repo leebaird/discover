@@ -35,16 +35,6 @@ if [ $distro = kali ]; then
           echo
      fi
 
-     if [ -d /opt/responder/.git ]; then
-          echo -e "\e[1;34mUpdating Responder.\e[0m"
-          cd /opt/responder/ ; git pull
-          echo
-     else
-          echo -e "\e[1;33mInstalling Responder.\e[0m"
-          git clone git://github.com/SpiderLabs/Responder.git /opt/responder
-          echo
-     fi
-
      if [ -d /opt/smbexec/.git ]; then
           echo -e "\e[1;34mUpdating smbexec.\e[0m"
           cd /opt/smbexec/ ; git pull
