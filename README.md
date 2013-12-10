@@ -17,29 +17,29 @@ Formally BackTrack scripts. Custom bash scripts used to automate various pentest
 
 
 ### Main Menu
-
+```
 RECON
-* Domain
-* Person
+1. Domain
+2. Person
 
 SCANNING
-* Generate target list
-* CIDR
-* List
-* Single IP or domain
+3. Generate target list
+4. CIDR
+5. List
+6. Single IP or domain
 
 WEB
-* Open multiple tabs in Firefox
-* Nikto
-* SSL
+7. Open multiple tabs in Firefox
+8. Nikto
+9. SSL
 
 MISC
-* Crack WiFi
-* Parse salesforce
-* Start a Metasploit listener
-* Update
-* Exit
-
+10. Crack WiFi
+11. Parse salesforce
+12. Start a Metasploit listener
+13. Update
+14. Exit
+```
 
 ### Overview
 RECON
