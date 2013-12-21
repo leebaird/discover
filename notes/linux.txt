@@ -1,0 +1,313 @@
+Linux
+ 
+ 
+# Compile
+
+gcc -o test test.c            Compile test
+chmod 755 test                Make the file executable
+./test                        Run the file
+------------------------------------------------------------------------------------------------------
+
+# Compression
+
+tar xvfj test.tar.bz2         Extract
+tar zxvf test.tar.gz
+tar zxvf test.tar
+gzip -d test.gz
+unzip test.zip
+ 
+tar -zcvf test.tar test       Compress
+gzip test
+zip -9 test.zip test
+zip -r test.zip test/
+------------------------------------------------------------------------------------------------------ 
+
+# Copy Files
+ 
+Local to remote
+scp /path/to/local/file.txt user@targetIP:/path/to/share
+scp discover.sh root@192.168.1.10:/opt/scripts
+ 
+Remote to local
+scp -r user@targetIP:/path/to/share /local/share
+scp -r root@192.168.1.11:/root/metasploit.xml /root/
+------------------------------------------------------------------------------------------------------
+ 
+# File Permissions
+ 
+t rwx rwx rwx	 type / owner / group / world
+Type is directory (d) or file (-).
+read    (r)	 4
+write   (w)	 2
+execute (e)	 1
+ 
+chmod 755 test.sh				       Make a file executable.
+------------------------------------------------------------------------------------------------------
+ 
+# Files
+ 
+ls                            List files in a directory.
+ls -l                         Long form listing.
+ls -la                        Long form listing with hidden files.
+
+cd ~                          Change to the home directory.
+cd test                       Change to the test directory.
+pwd                           Show the current directory.
+
+cp tmp tmp2                   Copy a file from one location to another.
+cp -r dir dir2                Copy a directory from one location to another.
+mv tmp tmp2                   Rename or move tmp to tmp2.
+rm tmp                        Delete the file tmp.
+rm -rf test                   Force delete the directory test.
+
+ln -s app /path/to/app/       Create a symbolic link.
+
+mkdir tmp                     Create a directory called tmp.
+touch tmp                     Create a file called tmp.
+
+cat tmp                       Show the contents of tmp.
+cat > tmp                     Create a file called tmp.
+cat >> tmp                    Append text to a file called tmp.
+
+head tmp                      Show the first 10 lines of tmp.
+head -20 tmp                  Show the first 20 lines of tmp.
+more tmp                      Show the contents of tmp, one page at a time.  Space bar for next page.  q to exit.
+tail tmp                      Show the last 10 lines of tmp.
+tail -20 tmp                  Show the last 20 lines of tmp.
+tail -f tmp                   Show the file contents as it grows.
+------------------------------------------------------------------------------------------------------
+ 
+# Installation
+ 
+./configure                   Install from source.
+make
+make install
+
+dpkg -i app.deb               Install Debian package.
+rpm -Uvh app.rpm              Install RPM package.
+------------------------------------------------------------------------------------------------------
+
+# Integrity
+
+md5sum test.iso               MD5
+sha1sum test.iso              SHA1
+------------------------------------------------------------------------------------------------------
+
+# Networking
+
+dhclient                      Request an IP address from the DHCP server.
+route                         Gateway.
+/etc/hostname                 Hostname.
+/etc/network/interfaces       Network interfaces.
+/etc/resolv.conf              DNS nameservers.
+
+ifconfig                      IP address.
+ifconfig eth0 down            Stop interface.
+ifconfig eth0 up              Start interface.
+ifconfig eth0 <IP>            Set IP address.
+ifconfig eth0 <IP> netmask <IP>	Set IP and netmask.
+route add default gw <IP>     Set gateway.
+nano /etc/resolv.conf <DNS IP>
+domain localdomain
+search localdomain
+
+iface eth0 inet static        Set a static IP address.
+address 10.0.0.21
+netmask 255.255.255.0
+network 10.0.0.0
+broadcast 10.0.0.255
+gateway 10.0.0.244
+------------------------------------------------------------------------------------------------------
+
+# Processes
+
+kill -9 <PID>                 Kill process ID.
+killall <service>             Kill all processes named service.
+ps aux                        Currently active processes.
+top                           Running processes.
+------------------------------------------------------------------------------------------------------
+
+# Proxy
+
+export http_proxy=http://proxy.target.com:3128
+export https_proxy=https://proxy.target.com:3128
+
+git clone https://github.com/leebaird/backtrack-scripts.git /opt/scripts/
+
+nano /root/.subversion/servers
+[global]
+http-proxy-host = proxy.target.com     
+http-proxy-port = 3128
+------------------------------------------------------------------------------------------------------
+
+# Searching
+
+grep xxx file                 Search for the pattern xxx in a file.
+grep -r                       Search recursively for a pattern in a directory.
+locate file                   Show the location of a file.
+updated                       Update the database of all files on the system.
+which file                    Show the path of the file that is executed.
+zgrep                         Search for a pattern in a zip file.
+------------------------------------------------------------------------------------------------------
+
+# Screen
+
+ssh into a remote system
+screen -S test                Start a new screen session named test.
+top                           Example command, leave it running.
+ctrl A  ctrl D                Detach from the screen session.
+screen -ls                    Show all screen sessions running.
+screen -DR test               Reconnect to the session.
+exit                          Leave and close the session.
+------------------------------------------------------------------------------------------------------
+
+# Shortcuts
+
+ctrl + alt + t                Open a Terminal.
+ctrl + shift + t              Open a new tab.
+ctrl + a                      Go to the beginning of the line.
+ctrl + l                      Clear the screen.
+------------------------------------------------------------------------------------------------------
+
+# SSH
+
+ssh user@host                 Connect to host as user.
+ssh -p 222 user@host          Connect to host on port 222 as user.
+ssh -copy-id user@host        Add your public key to host.  No password is now needed.
+/etc/ssh/sshd_config          Change port that the server is listening on.  Allow root login.
+------------------------------------------------------------------------------------------------------
+
+# Startup Services
+
+update-rc.d -f <service> <add/remove>
+
+update-rc.d networking defaults
+/etc/init.d/networking restart
+------------------------------------------------------------------------------------------------------
+
+# System
+
+cal                           Calendar.
+/proc/cpuinfo                 CPU info.
+/proc/meminfo                 Memory info.
+date                          Date and time.
+df -h                         Disk usage.
+du                            Directory space usage.
+env                           Environmental variables.
+fdisk -l                      Partition table.
+finger <user>                 Info about a user.
+free                          Memory and swap usage.
+halt                          Power off.
+last                          List last 10 users logged on.
+reboot                        Reboot.
+set                           Environmental variables.
+uname -a                      Kernel info.
+uptime                        Current uptime.
+w                             Who is online.
+whoami                        Who you are logged in as.
+------------------------------------------------------------------------------------------------------
+
+# User Accounts
+
+/etc/passwd                   User accounts.
+/etc/shadow                   Encrypted passwords.
+
+passwd                        Change root password.
+passwd <user>                 Change another user's password.
+
+su                            Substitute user.
+user add                      Add a new user.
+user mod                      Modify user.
+user del                    	Delete user.
+userdel -r                    Delete user and user's home directory.
+adduser <user> <group>        Add a user to a group.
+group add                     Add a new group.
+group del                     Delete group.
+group mod                     Modify group.
+------------------------------------------------------------------------------------------------------
+
+# vi
+
+vi filename                   Open an existing file.
+vi new file                   Create a new file.
+Modes	 Command, append, insert and replace.
+
+Command mode
+The letters of the keyboard perform editing functions. To enter press <Esc>.
+
+Moving around
+h    Left
+j    Down
+k    Up
+l    Right
+w    Forward one word
+b    Backward one word
+$    End of line
+0 (zero)	 Beginning of line
+H    Top line of screen
+L    Last line of screen
+1G   First line of file
+G    Last line of file
+<Control>f 	 Forward one screen
+<Control>b 	 Backward one screen
+<Control>d 	 Down one-half screen
+<Control>u 	 Up one-half screen
+x    Delete a character
+dd    Delete a line
+<Esc> u	 Undo
+
+Append mode
+To add text to the end of a line:
+
+Position the cursor on the last letter of the line.
+Type a
+Enter the new text.
+This adds text AFTER the cursor.  Press <Esc> to get back to command mode.
+
+Insert mode
+
+The letters you type form words and sentences.
+To insert text in a line:
+
+Position the cursor where the new text should go.
+Type i
+Enter the new text.
+The text is inserted BEFORE the cursor.  Press <Esc> to get back to command mode.
+
+Replace mode
+To replace one character with another:
+
+Move the cursor to the character to be replaced.
+Type r
+Type the replacement character.
+Replacing Lines
+
+To change text from the cursor position to the end of the line:
+
+Type C (uppercase).
+Type the replacement text.
+<Esc>
+
+Search
+Type / to search forward.
+Enter the search string.
+<Return>
+n	Search forward.
+
+N	Search backward.
+
+Save changes and keep the file open:
+
+<Esc>
+:w
+<Return>
+Save changes and quit:
+
+<Esc>
+:zz
+<Return>
+
+Don't save and quit:
+<Esc>
+:q!
+<Return>
