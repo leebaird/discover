@@ -1,0 +1,37 @@
+Burp Suite
+
+
+Proxy > Options > Proxy Listeners
+Running
+127.0.0.1:8080
+
+Intercept Client Requests:  on
+In the list below, turn on URL and move to the top.
+File extension > Edit:  add jpeg
+Intercept Server Responses:  on
+In the list below, turn off Content type
+Turn on URL and move to the top.
+Add a new rule for File extention like the one above, and move that to the second position. 
+------------------------------------------------------------------------------------------------------
+
+Firefox
+
+Edit > Preferences > Advanced > Network > Settings
+Manual proxy configuration > HTTP Proxy:  127.0.0.1, Port:  8080
+Use this proxy server for all protocols.
+No proxy for:  blank
+------------------------------------------------------------------------------------------------------
+
+Target > Site Map > RC on the target URL > add item to scope
+Target > Scope:  you should see your target listed
+Proxy > Intercept > off
+Manually start clicking links on the target site.  The more the better.
+Spider > Control > Spider is running
+Target > Site Map > RC on the target URL > spider this host
+Some of these items are outside...  No
+Spider > Control:  watch the Requests made  increase.
+Target > Site Map > RC on the target URL > actively scan this host
+Scanner > Scan que
+Scanner > Results
+Manually varify findings.
+Select all remaining findings > RC > report selected issues > printer-friendly HTML with hyperlinks
