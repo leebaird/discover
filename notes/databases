@@ -1,0 +1,16 @@
+Databases
+
+ 
+MySQL
+mysql -h <IP> -u <username> -p <password>
+show databases;
+use <database name>
+show tables;
+select * from <table>
+
+Postgresql
+psql -h <IP> -U <username> -d <database> 
+-W <password>
+select username, passwd from pg_shadow;
+select current_database();
+create table test (input TEXT); copy test from '/etc/passwd'; select input from test;
