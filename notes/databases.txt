@@ -1,7 +1,7 @@
 Databases
 
  
-MySQL
+# MySQL
 
 mysql -h <IP> -u <username> -p <password>
 show databases;
@@ -10,7 +10,7 @@ show tables;
 select * from <table>
 ------------------------------------------------------------------------------------------------------
 
-Postgresql
+# Postgresql
 
 psql -h <IP> -U <username> -d <database> 
 -W <password>
