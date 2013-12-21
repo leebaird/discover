@@ -7,8 +7,7 @@ General Notes
 4.  grep 'HTTPS' tmp | awk '{print $1,":",$2}' | sed 's/ //g' > ssl.txt
 5.  web.txt will feed options 7 Firefox and 8 Nikto.
 6.  ssl.txt will feed option 9 SSL Check.
-
-#####################################################
+------------------------------------------------------------------------------------------------------
 
 sed -e 's/^/FOO/'                                   # Add FOO to the beginning of each line
 sed -e 's/$/FOO/'                                   # Add FOO to the end of each line
@@ -71,8 +70,7 @@ cat tmp | tr ';' '\n'                               # Replace semicolon with a n
 sort -k2                                            # Sort by the second column
 sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4         # Sort IPs
 sed "s/$FOO./$FOO/g"                                # Variables - when using sed or grep, use double quotes
-
-#####################################################
+------------------------------------------------------------------------------------------------------
 
 # Compare two dates
 
@@ -80,16 +78,14 @@ date1=$(date +"%s")
 date2=$(date +"%s")
 diff=$(($date2-$date1))
 echo "$(($diff / 60)) min and $(($diff % 60)) sec."
-
-#####################################################
+------------------------------------------------------------------------------------------------------
 
 # Color
 
 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 
 
 echo -e "\e[1;34mThis is a blue text.\e[0m"
-
-#####################################################
+------------------------------------------------------------------------------------------------------
 
 # Check for no answer
 if [ -z $location ]; then
@@ -121,8 +117,7 @@ if [ ! -s test ]; then
 fi
 
 if [ $(whoami) = "root" ]; then echo "You are running as root."; fi
-
-#####################################################
+------------------------------------------------------------------------------------------------------
 
 # DNS cache poisioning
 for i in `53.txt`; do dig @"$i" +short porttest.dns-oarc.net TXT; done; > CachePoison.txt
@@ -132,16 +127,14 @@ for i in `cat 53.txt`; do dig @"$i" www.google.com A +norecurse; done > NonRecur
 
 # Spoofed request amplification DDoS
 for i in `cat 53.txt`; do dig @"$i" . NS; done > AmpDDoS.txt
-
-#####################################################
+------------------------------------------------------------------------------------------------------
 
 # HTTP TRACE or TRACK methods allowed
 paste 80.txt | while read IP port; do echo "----START "$IP":"$port"----"; echo -e "TRACE / HTTP/1.0\n\n" | ncat --ssl "$IP" "$port"; echo -e "\n----END "$IP":"$port"----\n"; done > trace.txt
 
 # SSL renegotiation
 paste 443.txt | while read IP port; do echo "----START "$IP":"$port"----"; echo -e "HEAD / HTTP/1.0\nR\n\n" | ncat --ssl "$IP" "$port"; echo -e "\$
-
-#####################################################
+------------------------------------------------------------------------------------------------------
 
 #!/bin/bash
 clear
@@ -172,8 +165,7 @@ else
      cat tmp | nc $1 $PORT 
      rm tmp
 fi     
-
-#####################################################
+------------------------------------------------------------------------------------------------------
 
 Maltego
 
@@ -198,16 +190,14 @@ Select IPv4 Address from the Entities palette on the left and drag the icon to t
 Edit the IP address to your target.
 Right click > Run Transform > ...
 DNS from IP > All in this set
-
-#####################################################
+------------------------------------------------------------------------------------------------------
 
 pid=`ps ax | grep ping | grep -v grep | awk '{print $1}'`
 
 if [ -n "$pid" ] ; then
      kill $pid
 fi
-
-#####################################################
+------------------------------------------------------------------------------------------------------
 
 http://www.ipvoid.com/scan/targetIP
 http://www.urlvoid.com/scan/$domain
