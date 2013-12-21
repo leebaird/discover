@@ -119,16 +119,6 @@ fi
 if [ $(whoami) = "root" ]; then echo "You are running as root."; fi
 ------------------------------------------------------------------------------------------------------
 
-# DNS cache poisioning
-for i in `53.txt`; do dig @"$i" +short porttest.dns-oarc.net TXT; done; > CachePoison.txt
-
-# Non-recursive DNS queries
-for i in `cat 53.txt`; do dig @"$i" www.google.com A +norecurse; done > NonRecurive.txt
-
-# Spoofed request amplification DDoS
-for i in `cat 53.txt`; do dig @"$i" . NS; done > AmpDDoS.txt
-------------------------------------------------------------------------------------------------------
-
 # HTTP TRACE or TRACK methods allowed
 paste 80.txt | while read IP port; do echo "----START "$IP":"$port"----"; echo -e "TRACE / HTTP/1.0\n\n" | ncat --ssl "$IP" "$port"; echo -e "\n----END "$IP":"$port"----\n"; done > trace.txt
 
