@@ -67,6 +67,16 @@ wget -O output -o /dev/null www.target.com/photos/evil.php?cmd=$(echo ifconfig|b
 cat output
 ------------------------------------------------------------------------------------------------------
 
+# PHP version
+
+telnet <target-IP> 80
+GET / HEAD/1.0
+
+http://target-IP/aaaaa.php
+
+Firefox > Web Developer Toolbar > Information > View Response Headers
+------------------------------------------------------------------------------------------------------
+
 # TRACE / TRACK methods allowed
 
 telnet <IP> 80
