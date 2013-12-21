@@ -1,0 +1,13 @@
+SET
+
+
+1 - Social Engineering Attacks
+2 - Website Attack Vectors
+1 - Java Applet Attack Method
+2 - Site Cloner
+
+Are you using NAT/Port Forwarding? - No
+IP address of hostname for the reverse connection:
+Enter the URL to clone:  https://gmail.com
+15 - PyInjector Shellcode Injection
+PORT of the listener [443]:  <enter>
