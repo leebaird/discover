@@ -10,8 +10,11 @@ General Notes
 ------------------------------------------------------------------------------------------------------
 
 # HTTP TRACE or TRACK methods allowed
+
 paste 80.txt | while read IP port; do echo "----START "$IP":"$port"----"; echo -e "TRACE / HTTP/1.0\n\n" | ncat --ssl "$IP" "$port"; echo -e "\n----END "$IP":"$port"----\n"; done > trace.txt
 ------------------------------------------------------------------------------------------------------
+
+# Open mail relay
 
 #!/bin/bash
 clear
@@ -44,7 +47,7 @@ else
 fi     
 ------------------------------------------------------------------------------------------------------
 
-Maltego
+# Maltego
 
 Use the scroll wheel to zoom in and out.
 Hold down the right mouse button to move around.
