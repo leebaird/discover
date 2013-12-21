@@ -1,4 +1,4 @@
-General Notes
+General
 
 
 1.  worksheet.xlsx > Hosts tab, hide all columns except IP, Port and Service.
@@ -12,39 +12,6 @@ General Notes
 # HTTP TRACE or TRACK methods allowed
 
 paste 80.txt | while read IP port; do echo "----START "$IP":"$port"----"; echo -e "TRACE / HTTP/1.0\n\n" | ncat --ssl "$IP" "$port"; echo -e "\n----END "$IP":"$port"----\n"; done > trace.txt
-------------------------------------------------------------------------------------------------------
-
-# Open mail relay
-
-#!/bin/bash
-clear
-
-echo "SMTP open mail relay checker."
-
-if [[ $1 == "" ]]; then
-     echo "ERROR - Specify host."
-else
-     if [[ $2 == "" ]]; then
-          PORT=25
-     else
-          PORT=$2
-     fi
-
-     cat >> tmp << EOF
-     mail from: root@target.com
-     rcpt to: joesmith@gmail.com
-     data
-     Subject: Testing open mail relay.
-     Testing SMTP open mail relay from $1. 
-     Have a nice day.
-     .
-     quit
-     EOF
-
-     echo "[*] Using target $1:$PORT"
-     cat tmp | nc $1 $PORT 
-     rm tmp
-fi     
 ------------------------------------------------------------------------------------------------------
 
 http://www.ipvoid.com/scan/targetIP
