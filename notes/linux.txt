@@ -218,7 +218,7 @@ passwd <user>                 Change another user's password.
 su                            Substitute user.
 user add                      Add a new user.
 user mod                      Modify user.
-user del                    	 Delete user.
+user del                      Delete user.
 userdel -r                    Delete user and user's home directory.
 adduser <user> <group>        Add a user to a group.
 group add                     Add a new group.
@@ -230,7 +230,7 @@ group mod                     Modify group.
 
 vi filename                   Open an existing file.
 vi new file                   Create a new file.
-Modes	                        Command, append, insert and replace.
+Modes                         Command, append, insert and replace.
 
 Command mode
 The letters of the keyboard perform editing functions. To enter press <Esc>.
