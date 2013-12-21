@@ -47,31 +47,6 @@ else
 fi     
 ------------------------------------------------------------------------------------------------------
 
-# Maltego
-
-Use the scroll wheel to zoom in and out.
-Hold down the right mouse button to move around.
-
-Example 1
-Select Domain from the Entities palette on the left and drag the icon to the right.
-Edit the domain to your target.
-Right click > Run Transform > ...
-Email addresses from Domain > All
-
-DNS from Domain > All
-ctrl + down to select servers > Resolve to IP > All
-ctrl + down to select IPs > DNS from IP > All
-ctrl + down to select servers > Convert to Domain > All
-ctrl + down to select domains > Email addresses from Domain > All
-Select all emails > Other transforms > To Person, emailToMyspaceAccount, emailToFlickerAccount
-
-Example 2
-Select IPv4 Address from the Entities palette on the left and drag the icon to the right.
-Edit the IP address to your target.
-Right click > Run Transform > ...
-DNS from IP > All in this set
-------------------------------------------------------------------------------------------------------
-
 http://www.ipvoid.com/scan/targetIP
 http://www.urlvoid.com/scan/$domain
 http://www.fortiguard.com
