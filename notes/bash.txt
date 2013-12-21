@@ -111,37 +111,6 @@ fi
 if [ $(whoami) = "root" ]; then echo "You are running as root."; fi
 ------------------------------------------------------------------------------------------------------
 
-#!/bin/bash
-clear
-
-echo "SMTP open mail relay checker."
-
-if [[ $1 == "" ]]; then
-     echo "ERROR - Specify host."
-else
-     if [[ $2 == "" ]]; then
-          PORT=25
-     else
-          PORT=$2
-     fi
-
-     cat >> tmp << EOF
-     mail from: root@target.com
-     rcpt to: joesmith@gmail.com
-     data
-     Subject: Testing open mail relay.
-     Testing SMTP open mail relay from $1. 
-     Have a nice day.
-     .
-     quit
-     EOF
-
-     echo "[*] Using target $1:$PORT"
-     cat tmp | nc $1 $PORT 
-     rm tmp
-fi     
-------------------------------------------------------------------------------------------------------
-
 pid=`ps ax | grep ping | grep -v grep | awk '{print $1}'`
 
 if [ -n "$pid" ] ; then
