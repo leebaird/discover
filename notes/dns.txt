@@ -1,10 +1,10 @@
 DNS
 
  
-dig target.com <type>    	          a, mx, ns, soa, srv, txt, any
-dig -x target-IP      	             Pointer records
-dig @nameserverIP target.com axfr	  Zone transfer.
-dig @nameserverIP target.com afro 	 Forward zone transfer.
+dig target.com <type>                    a, mx, ns, soa, srv, txt, any
+dig -x target-IP                         Pointer records.
+dig @nameserverIP target.com axfr        Zone transfer.
+dig @nameserverIP target.com afro        Forward zone transfer.
 ------------------------------------------------------------------------------------------------------
  
 Cache snooping
