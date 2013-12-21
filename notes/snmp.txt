@@ -1,0 +1,6 @@
+SNMP
+
+
+# Default or Guessable SNMP Community Strings
+
+snmpcheck.pl -t <target-IP> <private/public>
