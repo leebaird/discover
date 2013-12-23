@@ -40,7 +40,13 @@ Oracle
    Example 2 
      sqlplus <username>/<password>@<targetIP>:<port>/<SID>
 
-5. 
+5. ?? findricset
+   set RHOSTT
+   set RPORT
+   set DBUSER
+   set DBPASS
+   set SID 
+   set SQL GRANT DBA TO <user>
 
 6. select * from v$version;                  -- Oracle version
    select * from dba_registry_history;       -- Oracle patch level
