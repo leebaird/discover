@@ -1,20 +1,46 @@
 Oracle
 
 
-1. Find an Oracle database
-2. Find the SID
-3. Find username/password
-4. Login and enumerate the DB schema
-5. Retrieve the data you’re after
-6. Go after the OS.
+1. Locate a system running Oracle.
+2. Determine Oracle Version.
+3. Determine Oracle SID.
+4. Guess/Bruteforce USERNAME/PASS.
+5. Privilege Escalation via SQL Injection.
+6. Manipulate Data/Post Exploitation.
+7. Cover Tracks
+------------------------------------------------------------------------------------------------------
+
+1. nmap -Pn -n -T4 --open -p1521 <targetIP>
+
+2. tnscmd10g version -h <targetIP>
+   tnscmd10g status -h <targetIP>
+   Look for the version, LOGFILE, TRACING, PORT
+   
+3. sidguess host=<targetIP> port=1521 sidfile=file.txt   
+
+   http://<targetIP>:8080/oradb/PUBLIC/GLOBAL_NAME
+
+4. sqlplus <username>/<password>@<targetIP>:<port>/<SID>
+
+5. 
+
+6. select * from v$version;                  -- Oracle version
+   select * from dba_registry_history;       -- Oracle patch level
+   select * from all_users;                  -- usernames
+   select owner,table_name from all_tables;  -- tables
+   select * from session_roles;              -- session roles
+   desc utl_http                             -- describes database objects
+
+------------------------------------------------------------------------------------------------------
+
+# Links
 
 Create a list:  username password
 www.orafaq.com/wiki/List_of_default_database_users
 
 www.blackhat.com/presentations/bh-usa-09/GATES/BHUSA09-Gates-OracleMetasploit-PAPER.pdf
 
-www.red-database-security.com/wp/itu2007.pdf
-
 blog.infosecsee.com/2013/08/how-to-get-oracle-support-in-metasploit.html
 
 blog.spiderlabs.com/2012/05/oracle-databases-a-penetration-testers-view-of-unauthorized-access-to-customer-records.html
+------------------------------------------------------------------------------------------------------
