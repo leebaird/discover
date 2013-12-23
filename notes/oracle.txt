@@ -1,3 +1,13 @@
+Oracle
+
+
+1. Find an Oracle database
+2. Find the SID
+3. Find username/password
+4. Login and enumerate the DB schema
+5. Retrieve the data you’re after
+6. Go after the OS.
+
 Create a list:  username password
 www.orafaq.com/wiki/List_of_default_database_users
 
