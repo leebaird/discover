@@ -2,12 +2,12 @@ Oracle
 
 
 1. Locate a system running Oracle.
-2. Determine Oracle Version.
+2. Determine Oracle version.
 3. Determine Oracle SID.
 4. Guess/Bruteforce USERNAME/PASS.
-5. Privilege Escalation via SQL Injection.
-6. Manipulate Data/Post Exploitation.
-7. Cover Tracks
+5. Privilege escalation via SQL injection.
+6. Manipulate data/post exploitation.
+7. Cover tracks.
 ------------------------------------------------------------------------------------------------------
 
 1. nmap -Pn -n -T4 --open -p1521 <targetIP>
