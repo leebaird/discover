@@ -57,19 +57,3 @@ Oracle
    select owner,table_name from all_tables;  -- tables
    select * from session_roles;              -- session roles
    desc utl_http                             -- describes database objects
-
-------------------------------------------------------------------------------------------------------
-
-# Links
-
-Create a list:  username password
-www.orafaq.com/wiki/List_of_default_database_users
-
-www.blackhat.com/presentations/bh-usa-09/GATES/BHUSA09-Gates-OracleMetasploit-PAPER.pdf
-
-blog.infosecsee.com/2013/08/how-to-get-oracle-support-in-metasploit.html
-
-blog.spiderlabs.com/2012/05/oracle-databases-a-penetration-testers-view-of-unauthorized-access-to-customer-records.html
-
-http://www.red-database-security.com/wp/best_of_oracle_security_2013.pdf
-
