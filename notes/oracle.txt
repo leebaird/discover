@@ -57,3 +57,6 @@ Oracle
    select owner,table_name from all_tables;  -- tables
    select * from session_roles;              -- session roles
    desc utl_http                             -- describes database objects
+
+
+http://www.youtube.com/watch?v=SVvAvmjT7V4#t=1535
