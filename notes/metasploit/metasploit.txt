@@ -89,6 +89,7 @@ meterpreter > run arp_scanner -r 10.10.10.1/24
  
 meterpreter > background
 msf > route add 10.10.10.1 255.255.255.0 x	                   # Where x is the meterpreter session number.
+msf > route print
 msf > use auxiliary/scanner/portscan/tcp
 msf > set RHOSTS 10.10.10.2
 msf > set PORTS 1-200
