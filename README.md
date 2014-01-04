@@ -12,8 +12,7 @@ Formally BackTrack scripts. Custom bash scripts used to automate various pentest
 
 
 ### Usage 
-* BackTrack      ./discover-bt.sh
-* Kali Linux     ./discover.sh
+* ./discover.sh
 
 
 ### Main Menu
