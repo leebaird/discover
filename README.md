@@ -1,5 +1,4 @@
-Formally BackTrack scripts. Custom bash scripts used to automate various pentesting tasks.
-
+Formally BackTrack scripts. For use with Kali Linux - custom bash scripts used to automate various pentesting tasks.
 
 ### Download
 * git clone git://github.com/leebaird/discover.git /opt/scripts/
