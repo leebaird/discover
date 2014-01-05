@@ -9,12 +9,12 @@ use auxiliary/scanner/smb/smb_enumusers
 
 # CIFS NULL Session Permitted
 
-net use \\target-IP\ipc$ "" /u:""
+net use \\target IP\ipc$ "" /u:""
 ------------------------------------------------------------------------------------------------------
 
 # Create an anonymous connection
 
-smbclient -N -L <target-IP>
+smbclient -N -L <target IP>
 smbclient -W Workgroup -U ‘Lee%password’ \\\\192.168.1.105\\SYSVOL
 smb:\> recurse 
 smb:\> prompt off 
@@ -39,13 +39,13 @@ net groups "Enterprise Admins" /domain
 
 ------------------------------------------------------------------------------------------------------
 
-nbtenum -r <target-IP>
-nbtenum -q <target-IP>
+nbtenum -r <target IP>
+nbtenum -q <target IP>
 
-rpclient -U "" <target-IP>
+rpclient -U "" <target IP>
 
-enum -G <target-IP>
-enum -P <target-IP>
+enum -G <target IP>
+enum -P <target IP>
 ------------------------------------------------------------------------------------------------------
 
 # Search all folders for filenames that include 'password'.
@@ -64,7 +64,7 @@ net localgroup /domain                      Domain Security Groups.
 net localgroup Administrators               Users in the local Administrators Security Group.
 net localgroup Administrators /domain       Users in the domain Administrators Security Group.
 net group "ePO Admins" /domain              Users in the domain ePO Admins Security Group.
-net user "joe.smith" /domain                Info on domain user.
+net user "lee.baird" /domain                Info on domain user.
 net accounts                                Local password policies.
 net config workstation
 net share
@@ -112,8 +112,8 @@ gpresult /COMPUTERNAME
 gpresult /%username%
 gpresult /z
 net sessions
-nbtstat -A [IP address of target]
-nbtstat -a [name of target]
+nbtstat -A <target IP>
+nbtstat -a<[name of target>
 doskey /history
 net start
 tasklist /v
