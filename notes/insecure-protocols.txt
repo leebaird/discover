@@ -3,12 +3,12 @@ Insecure Protocols
 
 # FTP access with admin/null credentials
 
-ftp admin@<target-IP>
+ftp admin@<target IP>
 user
 admin
 pwd
 
-telnet <target-IP> 21
+telnet <target IP> 21
 user admin
 pass
 id;
@@ -16,12 +16,12 @@ id;
 
 # FTP on non-standard port
 
-ftp <target-IP> <port>
+ftp <target IP> <port>
 ------------------------------------------------------------------------------------------------------
 
 # FTP server does not support AUTH command
 
-telnet <target-IP> 21
+telnet <target IP> 21
 AUTH test
 ------------------------------------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ AUTH test
 
 513/tcp
 apt-get install rsh-client
-rlogin -l root <target-IP>
+rlogin -l root <target IP>
 ------------------------------------------------------------------------------------------------------
 
 # SSH Protocol v1
