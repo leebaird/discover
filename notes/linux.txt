@@ -236,25 +236,25 @@ Command mode
 The letters of the keyboard perform editing functions. To enter press <Esc>.
 
 Moving around
-h    Left
-j    Down
-k    Up
-l    Right
-w    Forward one word
-b    Backward one word
-$    End of line
-0 (zero)	 Beginning of line
-H    Top line of screen
-L    Last line of screen
-1G   First line of file
-G    Last line of file
-<Control>f 	 Forward one screen
-<Control>b 	 Backward one screen
-<Control>d 	 Down one-half screen
-<Control>u 	 Up one-half screen
-x    Delete a character
-dd    Delete a line
-<Esc> u	 Undo
+h                             Left
+j                             Down
+k                             Up
+l                             Right
+w                             Forward one word
+b                             Backward one word
+$                             End of line
+0 (zero)	                     Beginning of line
+H                             Top line of screen
+L                             Last line of screen
+1G                            First line of file
+G                             Last line of file
+<Control>f 	                  Forward one screen
+<Control>b 	                  Backward one screen
+<Control>d 	                  Down one-half screen
+<Control>u 	                  Up one-half screen
+x                             Delete a character
+dd                            Delete a line
+<Esc> u	                      Undo
 
 Append mode
 To add text to the end of a line:
