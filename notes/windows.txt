@@ -12,6 +12,12 @@ use auxiliary/scanner/smb/smb_enumusers
 net use \\target IP\ipc$ "" /u:""
 ------------------------------------------------------------------------------------------------------
 
+# CIFS Share Writeable By Everyone
+
+Places > Network > Browse Network
+
+------------------------------------------------------------------------------------------------------
+
 # Create an anonymous connection
 
 smbclient -N -L <target IP>
