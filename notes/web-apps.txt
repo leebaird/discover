@@ -3,7 +3,7 @@ Web Apps
 
 # Apache version, eTag, HTTP Basic Authentication Enabled
 
-telnet <IP> 80
+telnet <target IP> 80
 HEAD / HTTP/1.0
 (hit enter 2x)
 ------------------------------------------------------------------------------------------------------
@@ -69,17 +69,17 @@ cat output
 
 # PHP version
 
-telnet <target-IP> 80
+telnet <target IP> 80
 GET / HEAD/1.0
 
-http://target-IP/aaaaa.php
+http://target IP/aaaaa.php
 
 Firefox > Web Developer Toolbar > Information > View Response Headers
 ------------------------------------------------------------------------------------------------------
 
 # TRACE / TRACK methods allowed
 
-telnet <IP> 80
+telnet <target IP> 80
 OPTIONS / HTTP/1.0
 (hit enter 2x)
 ------------------------------------------------------------------------------------------------------
