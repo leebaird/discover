@@ -3,7 +3,7 @@ SMTP
 
 # SMTP relay, EXPN/VRFY command enabled
 
-telnet <target-IP> 25
+telnet <target IP> 25
 
 EXPN root
 VRFY root
