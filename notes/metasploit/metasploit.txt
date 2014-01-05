@@ -76,14 +76,27 @@ Start the database before starting msfconsole.
 root@kali:~# service postgresql start
 root@kali:~# msfconsole
 
-List database backend commands.
-msf > help database
+help database                 List database backend commands.
+db_status                     Verify you are connected to the database.
+hosts                         List hosts.
+services -p 22                List specific ports.
+services -s http              List specific services.
 
-Verify you are connected to the database.
-msf > hosts
+workspace                     List workspaces.
+* default                     * shows the active workspace.
+  client1
+  client5
 
-List all hosts running ssh.
-msf > services -p 22
+workspace client1             Switch workspace.
+workspace                     List workspaces.
+  default
+* client1                     * shows the active workspace.
+  client5
+
+workspace -a [name]           Add workspace(s).
+workspace -d [name]           Delete workspace(s).
+workspace -r <old> <new>      Rename workspace.
+
 ------------------------------------------------------------------------------------------------------
 
 # Apache Tomcat Manager Common Administrative Credentials
