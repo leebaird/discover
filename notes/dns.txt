@@ -4,14 +4,14 @@ DNS
 # General
 
 dig target.com <type>                    a, mx, ns, soa, srv, txt, any
-dig -x target-IP                         Pointer records.
+dig -x <target IP>                       Pointer records.
 dig @nameserverIP target.com axfr        Zone transfer.
 dig @nameserverIP target.com afro        Forward zone transfer.
 ------------------------------------------------------------------------------------------------------
  
 # Cache snooping
 
-host -r www.google.com <nameserverIP>
+host -r www.google.com <nameserver IP>
 ------------------------------------------------------------------------------------------------------
 
 # DNS cache poisioning
@@ -27,7 +27,7 @@ for i in `cat 53.txt`; do dig @"$i" www.google.com A +norecurse; done > NonRecur
 # Open DNS resolution against a DNS server.
 
 Supply a hostname not cached or inside a company owned domain.
-nslookup www.nsa.gov <nameserverIP>
+nslookup www.nsa.gov <nameserver IP>
 ------------------------------------------------------------------------------------------------------
 
 # Spoofed request amplification DDoS
