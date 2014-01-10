@@ -142,11 +142,13 @@ http-proxy-port = 3128
 
 # Searching
 
+updatedb                      Build/update a local database of all files on the system.
+locate file                   Query the database and show the location of a file.
+which file                    Show the path where the file is executed.
+find / -name file*            Recursively search any given path for various files.
+
 grep xxx file                 Search for the pattern xxx in a file.
 grep -r                       Search recursively for a pattern in a directory.
-locate file                   Show the location of a file.
-updated                       Update the database of all files on the system.
-which file                    Show the path of the file that is executed.
 zgrep                         Search for a pattern in a zip file.
 ------------------------------------------------------------------------------------------------------
 
