@@ -123,3 +123,14 @@ pid=`ps ax | grep ping | grep -v grep | awk '{print $1}'`
 if [ -n "$pid" ] ; then
      kill $pid
 fi
+------------------------------------------------------------------------------------------------------
+
+# Find all of the subdomains listed on Cisco's homepage.
+wget cisco.com
+grep 'href' index.html | cut -d '/' -f3 | cut -d '"' -f1 | grep 'cisco' | sort -u > list.txt
+
+# Use the host command to find the IP address for cisco.com.
+host cisco.com | grep 'has address' | cut -d ' ' -f4
+
+# Now find the IP address for every subdomain in list.txt.
+for x in $(cat list.txt); do host $x | grep 'has address' | cut -d ' ' -f4; done
