@@ -34,4 +34,6 @@ rlogin -l root <target IP>
 
 # SSH Protocol v1
 
-nmap -Pn -n -T4 -p22 --script=sshv1
+nmap -Pn -n -T4 -p22 --script=sshv1 <target IP>
+
+ssh -1 <target IP>

