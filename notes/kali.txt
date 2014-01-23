@@ -63,6 +63,11 @@ when prompted change install folder to /opt/??
 rm dbvis_unix_9_1_5.sh
 ------------------------------------------------------------------------------------------------------
 
+# Install Filezilla
+
+apt-get install filezilla
+------------------------------------------------------------------------------------------------------
+
 # Install Nessus
 
 Debian 6.0 (64 bits)
@@ -121,7 +126,7 @@ Accept all the defaults.
 reboot
 ------------------------------------------------------------------------------------------------------
 
-# Change postgresql port for Metasploit (if needed)
+# Change postgresql port for Metasploit (***only if needed***)
 
 nano /etc/postgresql/9.1/main/postgresql.conf
 Look for the line:  port = 5432

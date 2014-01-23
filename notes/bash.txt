@@ -125,12 +125,24 @@ if [ -n "$pid" ] ; then
 fi
 ------------------------------------------------------------------------------------------------------
 
-# Find all of the subdomains listed on Cisco's homepage.
-wget cisco.com
-grep 'href' index.html | cut -d '/' -f3 | cut -d '"' -f1 | grep 'cisco' | sort -u > list.txt
+# Find all of the subdomains listed on Cisco's homepage and print their IPs.
 
-# Use the host command to find the IP address for cisco.com.
-host cisco.com | grep 'has address' | cut -d ' ' -f4
+#!/bin/bash
 
-# Now find the IP address for every subdomain in list.txt.
-for x in $(cat list.txt); do host $x | grep 'has address' | cut -d ' ' -f4; done
+clear
+
+wget -q cisco.com
+
+grep 'href' index.html | cut -d '/' -f3 | cut -d '"' -f1 | grep 'cisco' | sort -u > subdomains.txt
+
+for x in $(cat subdomains.txt); do
+     host $x | grep 'has address' | cut -d ' ' -f4
+done
+
+-----
+
+Use 'while' and 'done'.
+
+while read -r line; do
+	host $line | grep 'has address' | cut -d ' ' -f4
+done < subdomains.txt

