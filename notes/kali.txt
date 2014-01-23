@@ -53,6 +53,25 @@ Add bookmarks:
      NSEDoc	http://nmap.org/nsedoc/
 ------------------------------------------------------------------------------------------------------
 
+# Install CAC Reader
+
+Notes                 https://help.ubuntu.com/community/CommonAccessCard
+
+Packages              apt-get install libpcsclite1 pcscd pcsc-tools
+DoD certificates      dodpki.c3pki.chamb.disa.mil/rootca.html
+CACKey                https://docs.google.com/file/d/0B8JoV2w_9hicRGQ0TFQ5UEpwSkE/edit?pli=1
+
+Attach CAC reader, insert CAC and verify Kali can read it.
+pcsc_scan
+
+Firefox > Edit > Preferences > Advanced > Security Devices > Load
+     Module Name: CAC
+     Browse > /usr/lib64/libcackey.so > Open > OK
+     You should now see your device listed on the left > OK
+
+Firefox extension     www.forge.mil/Resources-Firefox.html
+------------------------------------------------------------------------------------------------------
+
 # Install DbVisualizer
 
 www.dbvis.com/products/dbvis/download/
