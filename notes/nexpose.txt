@@ -10,7 +10,8 @@ Create PDF reports
 
 Creat custom SQL query for Hosts
 
-SELECT da.ip_address AS "IP Address", da.host_name AS "Host", dos.name AS "OS", dos.version AS "OS Version", das.port AS "Port", dp.name AS "Protocol", ds.name AS "Service", dsf.name AS "Name", dsf.version AS "Version"
+SELECT da.ip_address AS "IP Address", da.host_name AS "Host", dos.name AS "OS", dos.version AS "OS Version", das.port AS "Port", dp.name AS "Protocol", 
+     ds.name AS "Service", dsf.name AS "Name", dsf.version AS "Version"
 FROM dim_asset_service das
      JOIN dim_service ds USING (service_id)
      JOIN dim_protocol dp USING (protocol_id)
@@ -22,4 +23,32 @@ ORDER BY da.ip_address, das.port
 
 Creat custom SQL query for Findings
 
-
+WITH
+     vulnerability_cves AS (
+          SELECT vulnerability_id, array_to_string(array_agg(reference), ',') AS cves
+          FROM dim_vulnerability_reference
+          WHERE source = 'CVE'
+          GROUP BY vulnerability_id
+     ),
+     vulnerability_disa_vmskey AS (
+          SELECT vulnerability_id, array_to_string(array_agg(reference), ',') AS disa_vmskey
+          FROM dim_vulnerability_reference
+          WHERE source = 'DISA_VMSKEY'
+          GROUP BY vulnerability_id
+     ),
+     vulnerability_disa_severity AS (
+          SELECT vulnerability_id, array_to_string(array_agg(reference), ',') AS disa_severity
+          FROM dim_vulnerability_reference
+          WHERE source = 'DISA_SEVERITY'
+          GROUP BY vulnerability_id
+     )
+SELECT ROUND(cvss_score::numeric, 1) AS "CVSS Score", da.ip_address AS "IP Address", da.host_name AS "Host", dos.name AS "OS", dos.version AS "OS Version",
+     dv.title AS "Vulnerability", dv.description AS "Description", vcves.cves AS "CVE", disa_vmskey AS "DISA VMS Key", disa_severity AS "DISA Severity"
+FROM fact_asset_vulnerability_finding favf
+     JOIN dim_vulnerability dv USING (vulnerability_id)
+     JOIN dim_asset da USING (asset_id)
+     JOIN dim_operating_system dos USING (operating_system_id)
+     LEFT OUTER JOIN vulnerability_cves vcves USING (vulnerability_id)
+     LEFT OUTER JOIN vulnerability_disa_vmskey dvms USING (vulnerability_id)
+     LEFT OUTER JOIN vulnerability_disa_severity dvs USING (vulnerability_id)
+ORDER BY da.ip_address, dv.title
