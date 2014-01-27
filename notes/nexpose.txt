@@ -43,7 +43,7 @@ WITH
           GROUP BY vulnerability_id
      )
 SELECT ROUND(cvss_score::numeric, 1) AS "CVSS Score", da.ip_address AS "IP Address", da.host_name AS "Host", dos.name AS "OS", dos.version AS "OS Version",
-     dv.title AS "Vulnerability", dv.description AS "Description", vcves.cves AS "CVE", disa_vmskey AS "DISA VMS Key", disa_severity AS "DISA Severity"
+     dv.title AS "Vulnerability", proofAsText(dv.description) AS "Description", vcves.cves AS "CVE", disa_vmskey AS "DISA VMS Key", disa_severity AS "DISA Severity"
 FROM fact_asset_vulnerability_finding favf
      JOIN dim_vulnerability dv USING (vulnerability_id)
      JOIN dim_asset da USING (asset_id)
