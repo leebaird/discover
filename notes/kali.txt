@@ -109,6 +109,11 @@ If you do not want this service to run at startup:  update-rc.d -f nexposeconsol
 cp /opt/scripts/scan-policies/lee-full-audit.xml /opt/rapid7/nexpose/shared/scanTemplates/custom/global/
 ------------------------------------------------------------------------------------------------------
 
+# Install xdotool
+
+apt-get install xdotool
+------------------------------------------------------------------------------------------------------
+
 # Setup Angry IP Scanner
 
 Tools > Fetchers
