@@ -27,7 +27,7 @@ SCANNING
 6. Single IP or domain
 
 WEB
-7. Open multiple tabs in Firefox
+7. Open multiple tabs in Iceweasel
 8. Nikto
 9. SSL
 
@@ -51,7 +51,7 @@ SCANNING
 
 
 WEB
-* Open multiple tabs in Firefox with a list containing IPs and/or URLs or with directories from a domain's robot.txt file.
+* Open multiple tabs in Iceweasel with a list containing IPs and/or URLs or with directories from a domain's robot.txt file.
 * Run multiple instances of Nikto in parallel.
 * Check for SSL/TLS certificate issues.
 
