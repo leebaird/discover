@@ -2274,7 +2274,7 @@ f_runlocally
 clear
 f_banner
 
-echo -e "\e[1;34mOpen multiple tabs in Firefox with:\e[0m"
+echo -e "\e[1;34mOpen multiple tabs in Iceweasel with:\e[0m"
 echo
 echo "1.  List containing IPs and/or URLs."
 echo "2.  Directories from a domain's robot.txt."
@@ -2791,7 +2791,7 @@ echo "5.  List"
 echo "6.  Single IP or domain"
 echo
 echo -e "\e[1;34mWEB\e[0m"
-echo "7.  Open multiple tabs in Firefox"
+echo "7.  Open multiple tabs in Iceweasel"
 echo "8.  Nikto"
 echo "9.  SSL"
 echo
@@ -2828,4 +2828,3 @@ esac
 ##############################################################################################################
 
 while true; do f_main; done
-
