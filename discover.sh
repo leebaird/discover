@@ -2421,8 +2421,6 @@ exit
 }
 
 ##############################################################################################################
-# Jason
-# Need a better way to locate hosts running SSL on alternate ports. Try using the nmap.grep file.
 
 f_sslcheck(){
 clear
@@ -2497,19 +2495,16 @@ echo >> tmp-report
 
 while read -r line; do
 
-     # Initialize ssl_$line.txt file
      echo "$line" > ssl_$line.txt
      N=$((N+1))
      sslscan --no-failed $line > ssltmp_$line & pid=$!
 
-     # echo "pid = $pid"  # debug statement
-     echo -n "$line  [$N/$number]  "; sleep 40
+     echo -n "[$N/$number]  $line  "; sleep 40
      echo >> ssl_$line.txt
 
      if [ -s ssltmp_$line ]; then
           ERRORCHECK=$(cat ssltmp_$line | grep 'ERROR:')
           if [[ ! $ERRORCHECK ]]; then
-
                ISSUER=$(cat ssltmp_$line | grep 'Issuer:')
                if [[ $ISSUER ]]; then
                     cat ssltmp_$line | grep 'Issuer:' >> ssl_$line.txt
@@ -2559,7 +2554,6 @@ while read -r line; do
 
                D=$(cat ssltmp_$line | grep ' 40 bits')
                D2=$(cat ssltmp_$line | grep ' 56 bits')
-
                if [[ $D || $D2 ]]; then
                     echo [*] TLS/SSL Server Supports Weak Cipher Algorithms >> ssl_$line.txt
                     cat ssltmp_$line | grep ' 40 bits' >> ssl_$line.txt
@@ -2599,10 +2593,9 @@ while read -r line; do
                echo $line >> ssl_$line.txt
                echo >> ssl_$line.txt
                echo
-               # echo "kill $pid process test"
+
                sleep 5 && kill -9 $pid 2>/dev/null &
 
-               # Add current data to tmp-report
                cat ssl_$line.txt >> tmp-report
           else
                echo -e "\e[1;31mCould not open a connection.\e[0m"
@@ -2617,7 +2610,6 @@ while read -r line; do
           echo >> ssl_$line.txt
           echo $line >> ssl_$line.txt
 
-          # Add current data to tmp-report
           cat ssl_$line.txt >> tmp-report
      fi
 done < "$location"
