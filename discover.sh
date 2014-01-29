@@ -1226,24 +1226,6 @@ sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/db2.txt
 cat $name/50030.txt $name/50060.txt $name/50070.txt $name/50075.txt $name/50090.txt > tmp
 sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/hadoop.txt
 
-# Combine SSL ports
-echo > tmp
-
-port="21 25 443 465 993 995 8443"
-
-for i in $port; do
-     if [ -f $name/$i.txt ]; then
-          sed -e 's/$/:'$i'/' $name/$i.txt >> tmp
-     fi
-done
-
-# Remove blank lines
-sed '/^$/d' tmp > $name/ssl.txt
-
-# Combine web ports and sort
-cat $name/80.txt $name/443.txt $name/8000.txt $name/8080.txt $name/8443.txt > tmp
-sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/web.txt
-
 # Combine X11 ports and sort
 cat $name/6000.txt $name/6001.txt $name/6002.txt $name/6003.txt $name/6004.txt $name/6005.txt > tmp
 sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/x11.txt
@@ -1835,13 +1817,6 @@ if [ -f $name/apache-hbase.txt ]; then
 	mv tmp4 $name/script-apache-hbase.txt
 fi
 
-if [ -f $name/web.txt ]; then
-	echo "     Web"
-	nmap -iL $name/web.txt -Pn -n --open -p80,443,8000,8080,8443 --script=http-methods --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
-	f_cleanup
-	egrep -v '(html|No Allow|Potentially)' tmp4 > $name/script-web.txt
-fi
-
 rm tmp*
 
 for x in $name/./script*; do
@@ -2079,15 +2054,6 @@ if [ -f $name/50000.txt ]; then
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/50000.txt/g" /opt/scripts/resource/db2-version.rc
      cat /opt/scripts/resource/db2-version.rc >> $name/master.rc
 fi
-
-if [ -f $name/web.txt ]; then
-     echo "     HTTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/web.txt/g" /opt/scripts/resource/http-short.rc
-     cat /opt/scripts/resource/http-short.rc >> $name/master.rc
-fi
-
-# services -c port,proto,name,info -o /root/test.csv
-# hosts -c address,name,os_name,os_flavor,os_sp -o /root/test2.csv
 
 echo db_export -f xml -a $name/metasploit.xml >> $name/master.rc
 echo db_import $name/nmap.xml >> $name/master.rc
@@ -2728,7 +2694,7 @@ ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(
 # Remove Nmap scripts that take too many arguments, DOS or not relevant
 #egrep -v '(address-info|ajp-auth|ajp-headers|asn-query|auth-owners|auth-spoof|cccam-version|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|dns-blacklist|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-nsec3-enum|dns-nsec-enum|dns-srv-enum|dns-zeustracker|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-robtex|iax2-version|informix-query|informix-tables|ipidseq|ipv6-node-info|ipv6-ra-flood|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-ready-message|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-enum-users|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|smb-vuln-ms10-054|smb-vuln-ms10-061|smtp-vuln-cve2010-4344|smtp-vuln-cve2011-1720|smtp-vuln-cve2011-1764|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|stun-info|tftp-enum|tls-nextprotoneg|traceroute-geolocation|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|whois|xmpp-info)' tmp > tmp-all
 
-grep 'script=' discover.sh | egrep -v '(discover.sh|22.txt|smtp.txt|web.txt)' > tmp
+grep 'script=' discover.sh | egrep -v '(discover.sh|22.txt|smtp.txt)' > tmp
 cat tmp | cut -d '=' -f2- | cut -d ' ' -f1 | tr ',' '\n' | egrep -v '(db2-discover|dhcp-discover|dns-service-discovery|membase-http-info|oracle-sid-brute|smb-os-discovery|sslv2)' | sort -u > tmp-used
 
 echo "New Modules" > tmp-updates
