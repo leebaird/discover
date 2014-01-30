@@ -242,7 +242,7 @@ case $choice in
      grep -v '^-' tmp2 > tmp3
      # Remove blank lines
      sed '/^$/d' tmp3 > tmp4
-     sed 's/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CHINA/China/g; s/GERMANY/Germany/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g' tmp4 > squatting
+     sed 's/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHINA/China/g; s/GERMANY/Germany/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g' tmp4 > squatting
 
      ##############################################################
 
@@ -2430,55 +2430,11 @@ echo -e "\e[1;34mCheck for SSL certificate issues.\e[0m"
 
 f_location
 
-date2stamp(){
-date --utc --date "$1" +%s
-}
-
-stamp2date(){
-date --utc --date "1970-01-01 $1 sec" "+%Y-%m-%d %T"
-}
-
-datediff(){
-case $1 in
-     -s) sec=1; shift;;
-     -m) sec=60; shift;;
-     -h) sec=3600; shift;;
-     -d) sec=86400; shift;;
-     *)  sec=86400;;
-esac
-
-dte1=$(date2stamp $1)
-dte2=$(date2stamp $2)
-diffSec=$((dte2-dte1))
-
-if ((diffSec < 0)); then
-     abs=-1
-else
-     abs=1
-fi
-
-echo $((diffSec/sec*abs))
-}
-
-monthconv(){
-if [ "$1" == "Jan" ]; then monthnum="01"; fi
-if [ "$1" == "Feb" ]; then monthnum="02"; fi
-if [ "$1" == "Mar" ]; then monthnum="03"; fi
-if [ "$1" == "Apr" ]; then monthnum="04"; fi
-if [ "$1" == "May" ]; then monthnum="05"; fi
-if [ "$1" == "Jun" ]; then monthnum="06"; fi
-if [ "$1" == "Jul" ]; then monthnum="07"; fi
-if [ "$1" == "Aug" ]; then monthnum="08"; fi
-if [ "$1" == "Sep" ]; then monthnum="09"; fi
-if [ "$1" == "Oct" ]; then monthnum="10"; fi
-if [ "$1" == "Nov" ]; then monthnum="11"; fi
-if [ "$1" == "Dec" ]; then monthnum="12"; fi
-}
-
-# Number of hosts
 number=$(wc -l $location | cut -d ' ' -f1)
 N=0
 
+echo
+echo $line
 echo
 echo "Scanning $number hosts."
 echo
@@ -2488,95 +2444,104 @@ echo >> tmp-report
 echo "SSL Report" >> tmp-report
 reportdate=$(date +%A" - "%B" "%d", "%Y)
 echo $reportdate >> tmp-report
-echo sslscan $(sslscan | grep 'Version' | awk '{print $2}') >> tmp-report
 echo >> tmp-report
 echo $line >> tmp-report
 echo >> tmp-report
 
 while read -r line; do
-
      echo "$line" > ssl_$line.txt
      N=$((N+1))
-     sslscan --no-failed $line > ssltmp_$line & pid=$!
+     sslscan --no-failed $line > tmp_$line & pid=$!
 
-     echo -n "[$N/$number]  $line  "; sleep 40
+     echo -n "[$N/$number]  $line  "; sleep 5
      echo >> ssl_$line.txt
 
-     if [ -s ssltmp_$line ]; then
-          ERRORCHECK=$(cat ssltmp_$line | grep 'ERROR:')
+     if [ -s tmp_$line ]; then
+          ERRORCHECK=$(cat tmp_$line | grep 'ERROR:')
           if [[ ! $ERRORCHECK ]]; then
-               ISSUER=$(cat ssltmp_$line | grep 'Issuer:')
+
+               ISSUER=$(cat tmp_$line | grep 'Issuer:')
                if [[ $ISSUER ]]; then
-                    cat ssltmp_$line | grep 'Issuer:' >> ssl_$line.txt
-                    echo >> ssl_$line.txt
+                    cat tmp_$line | grep 'Issuer:' >> ssl_$line.txt
                else
                     echo "Issuer information not available for this certificate. Look into this!" >> ssl_$line.txt
                     echo >> ssl_$line.txt
                fi
 
-               SUBJECT=$(cat ssltmp_$line | grep 'Subject:')
+               SUBJECT=$(cat tmp_$line | grep 'Subject:')
                if [[ $SUBJECT ]]; then
-                    cat ssltmp_$line | grep 'Subject:' >> ssl_$line.txt
+                    cat tmp_$line | grep 'Subject:' >> ssl_$line.txt
                     echo >> ssl_$line.txt
                else
                     echo "Certificate subject information not available. Look into this!" >> ssl_$line.txt
                     echo >> ssl_$line.txt
                fi
 
-               DNS=$(cat ssltmp_$line | grep 'DNS:')
+               DNS=$(cat tmp_$line | grep 'DNS:')
                if [[ $DNS ]]; then
-                    cat ssltmp_$line | grep 'DNS:' >> ssl_$line.txt
+                    cat tmp_$line | grep 'DNS:' >> ssl_$line.txt
                     echo >> ssl_$line.txt
                fi
 
-               A=$(cat ssltmp_$line | grep -i 'MD5WithRSAEncryption')
+               A=$(cat tmp_$line | grep -i 'MD5WithRSAEncryption')
                if [[ $A ]]; then
-                    echo [*] MD5-based Signature in TLS/SSL Server X.509 Certificate >> ssl_$line.txt
-                    cat ssltmp_$line | grep -i 'MD5WithRSAEncryption' >> ssl_$line.txt
+                    echo "[*] MD5-based Signature in TLS/SSL Server X.509 Certificate" >> ssl_$line.txt
+                    cat tmp_$line | grep -i 'MD5WithRSAEncryption' >> ssl_$line.txt
                     echo >> ssl_$line.txt
                fi
 
-               B=$(cat ssltmp_$line | grep 'NULL')
+               B=$(cat tmp_$line | grep 'NULL')
                if [[ $B ]]; then
-                    echo [*] NULL Ciphers >> ssl_$line.txt
-                    cat ssltmp_$line | grep 'NULL' >> ssl_$line.txt
+                    echo "[*] NULL Ciphers" >> ssl_$line.txt
+                    cat tmp_$line | grep 'NULL' >> ssl_$line.txt
                     echo >> ssl_$line.txt
                fi
 
-               C=$(cat ssltmp_$line | grep 'SSLv2')
+               C=$(cat tmp_$line | grep 'SSLv2')
                if [[ $C ]]; then
-                    echo [*] TLS/SSL Server Supports SSLv2 >> ssl_$line.txt
-                    cat ssltmp_$line | grep 'SSLv2' > ssltmp2_$line
+                    echo "[*] TLS/SSL Server Supports SSLv2" >> ssl_$line.txt
+                    cat tmp_$line | grep 'SSLv2' > ssltmp2_$line
                     sed '/^    SSL/d' ssltmp2_$line >> ssl_$line.txt
                     echo >> ssl_$line.txt
                     rm ssltmp2_$line
                fi
 
-               D=$(cat ssltmp_$line | grep ' 40 bits')
-               D2=$(cat ssltmp_$line | grep ' 56 bits')
+               D=$(cat tmp_$line | grep ' 40 bits')
+               D2=$(cat tmp_$line | grep ' 56 bits')
+
                if [[ $D || $D2 ]]; then
-                    echo [*] TLS/SSL Server Supports Weak Cipher Algorithms >> ssl_$line.txt
-                    cat ssltmp_$line | grep ' 40 bits' >> ssl_$line.txt
-                    cat ssltmp_$line | grep ' 56 bits' >> ssl_$line.txt
+                    echo "[*] TLS/SSL Server Supports Weak Cipher Algorithms" >> ssl_$line.txt
+                    cat tmp_$line | grep ' 40 bits' >> ssl_$line.txt
+                    cat tmp_$line | grep ' 56 bits' >> ssl_$line.txt
                     echo >> ssl_$line.txt
                fi
 
+               expmonth=$(grep "Not valid after:" tmp_$line | awk '{print $4}')
+
+               if [ $expmonth == "Jan" ]; then monthnum="01"; fi
+               if [ $expmonth == "Feb" ]; then monthnum="02"; fi
+               if [ $expmonth == "Mar" ]; then monthnum="03"; fi
+               if [ $expmonth == "Apr" ]; then monthnum="04"; fi
+               if [ $expmonth == "May" ]; then monthnum="05"; fi
+               if [ $expmonth == "Jun" ]; then monthnum="06"; fi
+               if [ $expmonth == "Jul" ]; then monthnum="07"; fi
+               if [ $expmonth == "Aug" ]; then monthnum="08"; fi
+               if [ $expmonth == "Sep" ]; then monthnum="09"; fi
+               if [ $expmonth == "Oct" ]; then monthnum="10"; fi
+               if [ $expmonth == "Nov" ]; then monthnum="11"; fi
+               if [ $expmonth == "Dec" ]; then monthnum="12"; fi
+
+               expyear=$(grep "Not valid after:" tmp_$line | awk '{print $7}')
+               expday=$(grep "Not valid after:" tmp_$line | awk '{print $5}')
+               expdate=$(echo $expyear-$monthnum-$expday)
                datenow=$(date +%F)
-               # echo datenow=$datenow
-               datenowstamp=$(date2stamp "$datenow")
-               # echo datenowstamp=$datenowstamp
-               monthconv=$(grep "Not valid after:" ssltmp_$line | awk -F" " {'print $4'})
-               # echo monthnum=$monthnum
-               expyear=$(grep "Not valid after:" ssltmp_$line | awk -F" " {'print $7'})
-               # echo expyear=$expyear
-               expday=$(grep "Not valid after:" ssltmp_$line | awk -F" " {'print $5'})
-               # echo expday=$expday
-               expdate=$(echo "$expyear-$monthnum-$expday")
-               # echo expdate=$expdate
-               expdatestamp=$(date2stamp "$expdate")
-               # echo expdatestamp=$expdatestamp
-               numdaysdiff=$(datediff $datenow $expdate)
-               # echo numdaysdiff=$numdaysdiff
+
+               date2stamp(){
+               date --utc --date "$1" +%s
+               }
+
+               datenowstamp=$(date2stamp $datenow)
+               expdatestamp=$(date2stamp $expdate)
 
                if (($expdatestamp < $datenowstamp)); then
                     echo "[*] X.509 Server Certificate is Invalid/Expired" >> ssl_$line.txt
@@ -2584,7 +2549,7 @@ while read -r line; do
                     echo >> ssl_$line.txt
                fi
 
-               E=$(cat ssltmp_$line | grep 'Authority Information Access:')
+               E=$(cat tmp_$line | grep 'Authority Information Access:')
                if [[ ! $E ]]; then
                     echo "[*] Self-signed TLS/SSL Certificate" >> ssl_$line.txt
                     echo >> ssl_$line.txt
@@ -2615,10 +2580,10 @@ while read -r line; do
 done < "$location"
 
 mv tmp-report /$user/ssl-report.txt
-rm ssltmp_* ssl_*.txt 2>/dev/null
+rm tmp_* ssl_*.txt 2>/dev/null
 
 echo
-echo $line
+echo "======================================================================"
 echo
 echo "***Scan complete.***"
 echo
@@ -2627,6 +2592,7 @@ echo
 echo
 exit
 }
+
 
 ##############################################################################################################
 
