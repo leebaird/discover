@@ -10,14 +10,20 @@ Create PDF reports
 
 Creat custom SQL query for Hosts
 
-SELECT da.ip_address AS "IP Address", da.host_name AS "Host", dos.name AS "OS", dos.version AS "OS Version", das.port AS "Port", dp.name AS "Protocol", 
-     ds.name AS "Service", dsf.name AS "Name", dsf.version AS "Version"
+SELECT da.ip_address AS "IP Address", da.host_name AS "Host", 
+     dos.name AS "OS", dos.version AS "OS Version", 
+     das.port AS "Port", 
+     dp.name AS "Protocol", 
+     ds.name AS "Service", 
+     dsf.name AS "Name", dsf.version AS "Version"
+
 FROM dim_asset_service das
-     JOIN dim_service ds USING (service_id)
-     JOIN dim_protocol dp USING (protocol_id)
      JOIN dim_asset da USING (asset_id)
      JOIN dim_operating_system dos USING (operating_system_id)
+     JOIN dim_protocol dp USING (protocol_id)
+     JOIN dim_service ds USING (service_id)
      JOIN dim_service_fingerprint dsf USING (service_fingerprint_id)
+
 ORDER BY da.ip_address, das.port
 ------------------------------------------------------------------------------------------------------
 
@@ -42,13 +48,22 @@ WITH
           WHERE source = 'DISA_SEVERITY'
           GROUP BY vulnerability_id
      )
-SELECT ROUND(cvss_score::numeric, 1) AS "CVSS Score", da.ip_address AS "IP Address", da.host_name AS "Host", dos.name AS "OS", dos.version AS "OS Version",
-     dv.title AS "Vulnerability", proofAsText(dv.description) AS "Description", vcves.cves AS "CVE", disa_vmskey AS "DISA VMS Key", disa_severity AS "DISA Severity"
-FROM fact_asset_vulnerability_finding favf
-     JOIN dim_vulnerability dv USING (vulnerability_id)
+
+SELECT ROUND(cvss_score::numeric, 1) AS "CVSS Score", 
+     da.ip_address AS "IP Address", da.host_name AS "Host", 
+     dos.name AS "OS", dos.version AS "OS Version", 
+     dv.title AS "Vulnerability", proofAsText(dv.description) AS "Description", 
+     proofAsText(favi.proof) AS "Proof", 
+     vcves.cves AS "CVE", 
+     disa_vmskey AS "DISA VMS Key", 
+     disa_severity AS "DISA Severity"
+
+FROM fact_asset_vulnerability_instance favi
      JOIN dim_asset da USING (asset_id)
      JOIN dim_operating_system dos USING (operating_system_id)
+     JOIN dim_vulnerability dv USING (vulnerability_id)
      LEFT OUTER JOIN vulnerability_cves vcves USING (vulnerability_id)
      LEFT OUTER JOIN vulnerability_disa_vmskey dvms USING (vulnerability_id)
      LEFT OUTER JOIN vulnerability_disa_severity dvs USING (vulnerability_id)
+
 ORDER BY da.ip_address, dv.title
