@@ -2242,7 +2242,7 @@ f_banner
 
 echo -e "\e[1;34mOpen multiple tabs in Iceweasel with:\e[0m"
 echo
-echo "1.  List containing IPs and/or URLs."
+echo "1.  List"
 echo "2.  Directories from a domain's robot.txt."
 echo "3.  Previous menu"
 echo
@@ -2253,48 +2253,24 @@ case $choice in
      1)
      f_location
 
-     echo -n "Port (default 80): "
-     read port
-
-     # Check if port is a number
-     echo "$port" | grep -E "^[0-9]+$" 2>/dev/null
-     isnum=$?
-
-     if [ $isnum -ne 0 ] && [ ${#port} -gt 0 ]; then
-          f_error
-     fi
-
-     if [ ${#port} -eq 0 ]; then
-          port=80
-     fi
-
-     if [ $port -lt 1 ] || [ $port -gt 65535 ]; then
-          f_error
-     fi
+     echo -n "Use SSL? (y/N) "
+     read ssl
 
      firefox &
      sleep 2
 
-     if [ $port -eq 21 ]; then
-          for i in $(cat $location); do
-               firefox -new-tab ftp://$i &
-               sleep 1
-          done
-     elif [ $port -eq 80 ]; then
+     if [ -z $ssl ]; then
           for i in $(cat $location); do
                firefox -new-tab $i &
                sleep 1
           done
-     elif [ $port -eq 443 ]; then
+     elif [ "$ssl" == "y" ]; then
           for i in $(cat $location); do
                firefox -new-tab https://$i &
                sleep 1
           done
      else
-          for i in $(cat $location); do
-               firefox -new-tab $i:$port &
-               sleep 1
-          done
+          f_error
      fi
      ;;
 
