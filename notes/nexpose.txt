@@ -1,4 +1,4 @@
-NeXpose
+Nexpose
 
 
 Create PDF reports
