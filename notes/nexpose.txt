@@ -1,6 +1,14 @@
 Nexpose
 
 
+Copy Web audit
+     General - turn off Policies
+     Vulnerability Checks > Selected Checks > By Check Type > Disabled:
+          Microsoft hotfix, Patch, RPM, Sun patch, Version, Windows registry and Policy
+     Web Servers - turn on Enable adaptive HTTP fingerprinting
+     Web Spidering - turn on Check use of common user names and passwords
+------------------------------------------------------------------------------------------------------
+
 Create PDF reports
      Audit Report
      Executive Overview
@@ -67,3 +75,10 @@ FROM fact_asset_vulnerability_instance favi
      LEFT OUTER JOIN vulnerability_disa_severity dvs USING (vulnerability_id)
 
 ORDER BY da.ip_address, dv.title
+------------------------------------------------------------------------------------------------------
+
+Notes
+
+dim_asset_vulnerability_solution   (assets   + vulns  ->  Solutions)
+dim_solution_highest_supercedence  (solutions -> Best solution)
+dim_solution                       (summery)
