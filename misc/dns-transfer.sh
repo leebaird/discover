@@ -2,14 +2,14 @@
 
 clear
 echo
-echo DNS Transfer
+echo "DNS Transfer"
 echo
 echo
-echo By Lee Baird
+echo "By Lee Baird"
 echo
 echo "Check for DNS zone transfer."
 echo
-echo Usage: target.com
+echo "Usage: target.com"
 echo
 
 read -p "Domain: " domain
@@ -33,3 +33,4 @@ done
 
 echo
 echo
+

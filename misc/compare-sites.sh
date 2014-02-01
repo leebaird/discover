@@ -1,6 +1,8 @@
 #!/bin/bash
+
 clear
 
+break="=================================================="
 DIR=/root/Desktop/compare-sites
 DIFFONLY=false
 
@@ -25,7 +27,7 @@ date -d "1970-01-01 $1 sec"
 }
 
 while getopts "o:c" OPTION; do
-case $OPTION in
+     case $OPTION in
           o) DIR="$OPTARG";;
           c) DIFFONLY=true;;
           *) echo && echo && exit;;
@@ -74,7 +76,7 @@ if ! $DIFFONLY; then
      done
 
      echo
-     echo "======================================================================"
+     echo $break
 else
      VERSION=$(($VERSION - 1))
 fi
@@ -98,7 +100,7 @@ if [ $VERSION -gt 1 ]; then
 
      for URL in $(cat $FILE); do
           echo
-          echo "======================================================================"
+          echo $break
           echo
           echo -e "\e[1;34m$URL\e[0m"
           HASH=$(sha256sum <<<$URL | tr -d " -")
@@ -106,3 +108,4 @@ if [ $VERSION -gt 1 ]; then
           # frames, window.location, window.href
      done
 fi
+

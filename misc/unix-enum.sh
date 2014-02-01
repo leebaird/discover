@@ -2,15 +2,14 @@
 
 # by Jason Arnold
 
+break="###############################################################################"
 hname=`/bin/hostname`
 fndate=`/bin/date +%F_%H.%M.%S.%Z`
 outfile="/root/$hname-$fndate.txt"
 
-break="###############################################################################"
 echo
 echo "New file located at $outfile"
 
-# clear out prior file and recreate if exists
 echo "" > $outfile
 
 echo "`/bin/date`" >> $outfile
@@ -132,3 +131,4 @@ echo "" >> $outfile
 echo "--- END OF REPORT for $hname ---" >> $outfile
 echo
 echo
+

@@ -2,14 +2,14 @@
 
 clear
 echo
-echo DNS Reverse
+echo "DNS Reverse"
 echo
 echo
-echo By Lee Baird
+echo "By Lee Baird"
 echo
 echo "Perform a PTR DNS query on a Class C range and return FQDNs."
 echo
-echo Usage: 192.168.1
+echo "Usage: 192.168.1"
 echo
 
 read -p "Class: " class
@@ -28,8 +28,9 @@ echo "#########################"
 echo
 
 for x in `seq 1 254`; do
-     host $class.$x | grep 'name pointer' | cut -d ' ' -f5
+     host $class.$x | grep 'name pointer' | cut -d ' ' -f1,5
 done
 
 echo
 echo
+

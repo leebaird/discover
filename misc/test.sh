@@ -1,7 +1,6 @@
 #!/bin/bash
 
 clear
-
 echo
 echo
 echo "Usage: target.com"
@@ -11,5 +10,4 @@ read domain
 echo
 echo '==================================='
 echo
-
 

@@ -2,14 +2,14 @@
 
 clear
 echo
-echo PIng Sweep
+echo "PIng Sweep"
 echo
 echo
-echo By Lee Baird
+echo "By Lee Baird"
 echo
 echo "Find live hosts in a Class C."
 echo
-echo Usage:  192.168.1
+echo "Usage: 192.168.1"
 echo
 
 read -p "Class: " class
@@ -33,3 +33,4 @@ done
 
 echo
 echo
+

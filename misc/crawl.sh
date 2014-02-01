@@ -2,14 +2,14 @@
 
 clear
 echo
-echo Crawl
+echo "Crawl"
 echo
 echo
-echo By Lee Baird
+echo "By Lee Baird"
 echo
-echo "Returns a list of IP addresses to web servers that are linked from a given domain's home page."
+echo "Returns a list of IP addresses to external web servers that are linked from home page."
 echo
-echo Usage: target.com
+echo "Usage: target.com"
 echo
 
 read -p "Domain: " domain
@@ -27,21 +27,18 @@ echo
 echo "#########################"
 echo
 
-wget www.$domain
+wget -q www.$domain
 
 grep 'href=' index.html | cut -d '/' -f3 | grep $domain | cut -d '"' -f1 | sort -u > tmp
 
 for x in $(cat tmp); do
-     host $x | grep 'has address' | cut -d ' ' -f4 >> tmp2
+     host $x | grep 'has address' | cut -d ' ' -f1,4 >> tmp2
 done
 
-cat tmp2 | sort -nu > $domain
+column -t tmp2 | sort -u
 
-rm index.html
-rm tmp*
+rm index.html tmp*
 
-echo "#########################"
-echo
-cat $domain
 echo
 echo
+

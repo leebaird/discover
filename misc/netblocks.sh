@@ -1,8 +1,14 @@
 #!/bin/bash
 
+clear
+echo
+echo "Netblocks"
 echo
 echo
-echo "This will take about 100 sec."
+echo "By Lee Baird"
+echo
+echo "This returns a list of Class A owners and takes about 100 sec."
+echo
 
 for x in `seq 1 255`; do
      whois $x.0.0.0 | egrep '(CIDR|OrgName)' >> tmp
