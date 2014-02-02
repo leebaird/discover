@@ -27,7 +27,7 @@ echo
 echo "#########################"
 echo
 
-for x in $(host -t ns $domain | awk '{print $4}'); do
+for x in $(host -t ns $domain | cut -d ' ' -f4); do
      host -l $domain $x
 done
 
