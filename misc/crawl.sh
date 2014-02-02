@@ -7,7 +7,7 @@ echo
 echo
 echo "By Lee Baird"
 echo
-echo "Returns a list of IP addresses to external web servers that are linked from home page."
+echo "Returns a list of IP external web servers that are linked from home page."
 echo
 echo "Usage: target.com"
 echo
