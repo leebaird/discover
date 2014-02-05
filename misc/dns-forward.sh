@@ -31,7 +31,7 @@ for x in $(cat /usr/share/dnsenum/dns.txt); do
      host $x.$domain | grep 'has address' | cut -d ' ' -f1,4 >> tmp
 done
 
-column -t tmp | sort
+column -t tmp | sort -u
 
 rm tmp
 
