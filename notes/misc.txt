@@ -39,3 +39,10 @@ Go to Wireshark and hit Stop.
 Right click on any packet > Follow TCP Stream. You should be able to see clear text.
 ------------------------------------------------------------------------------------------------------
 
+# tcpdump
+
+tcpdump -r <capture.pcap>                                # Read the file
+tcpdump -n src host 192.168.2.10 -r <capture.pcap>       # Specify a source
+tcpdump -n dst host 192.168.2.12 -r <capture.pcap>       # Specify a destination
+tcpdump -n port 443 -r <capture.pcap>                    # Specify a port
+tcpdump -nX -r <capture.pcap>                            # Read the file and dump in hex format
