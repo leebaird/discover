@@ -41,17 +41,29 @@ Right click on any packet > Follow TCP Stream. You should be able to see clear t
 
 # tcpdump
 
-tcpdump -r <capture.pcap>                                # Read the file
-tcpdump -n src host 192.168.2.10 -r <capture.pcap>       # Specify a source
-tcpdump -n dst host 192.168.2.12 -r <capture.pcap>       # Specify a destination
-tcpdump -n port 443 -r <capture.pcap>                    # Specify a port
-tcpdump -nX -r <capture.pcap>                            # Read the file and dump in hex format
+tcpdump -r <capture.pcap>                              # Read the file
+tcpdump -n src host 192.168.2.10 -r <capture.pcap>     # Specify a source
+tcpdump -n dst host 192.168.2.12 -r <capture.pcap>     # Specify a destination
+tcpdump -n port 443 -r <capture.pcap>                  # Specify a port
+tcpdump -nX -r <capture.pcap>                          # Read the file and dump in hex format
 ------------------------------------------------------------------------------------------------------
 
 # Google Hacking
 
-site:target.com                          # Approximate web presence of an organization
-site:target.com -site:www.target.com     # Subdomains that may exist
+site:target.com                                 # Approximate web presence of an organization
+site:target.com -site:www.target.com            # Subdomains that may exist
 filetype
 inurl
 intitle
+------------------------------------------------------------------------------------------------------
+
+# recon-ng
+
+use recon/contacts/gather/http/web/jigsaw       # Search forcontacts
+set COMPANY <target>
+run
+
+use recon/hosts/gather/http/web/google_site     # Search for subdomains
+set COMPANY <target>
+run
+------------------------------------------------------------------------------------------------------
