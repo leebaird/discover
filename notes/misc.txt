@@ -46,3 +46,12 @@ tcpdump -n src host 192.168.2.10 -r <capture.pcap>       # Specify a source
 tcpdump -n dst host 192.168.2.12 -r <capture.pcap>       # Specify a destination
 tcpdump -n port 443 -r <capture.pcap>                    # Specify a port
 tcpdump -nX -r <capture.pcap>                            # Read the file and dump in hex format
+------------------------------------------------------------------------------------------------------
+
+# Google Hacking
+
+site:target.com                          # Approximate web presence of an organization
+site:target.com -site:www.target.com     # Subdomains that may exist
+filetype
+inurl
+intitle
