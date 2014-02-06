@@ -25,10 +25,10 @@ SSL Certificate Domain Name Mismatch
 hacker:  use Metasploit browser autopwn listening on hackerip
 ------------------------------------------------------------------------------------------------------
 
-# Cisco
+# Cisco Router
 
-$NUMBER is between 16 and 99.
-http://routerIP/level/$NUMBER/exec/show/configuration
+x is between 15 and 99.
+https://targetIP/level/x/exec/-/show
 ------------------------------------------------------------------------------------------------------
 
 # Cookie Security Issues - missing HttpOnly or Secure attribute
