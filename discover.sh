@@ -242,7 +242,7 @@ case $choice in
      grep -v '^-' tmp2 > tmp3
      # Remove blank lines
      sed '/^$/d' tmp3 > tmp4
-     sed 's/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHINA/China/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g' tmp4 > squatting
+     sed 's/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g' tmp4 > squatting
 
      ##############################################################
 
@@ -629,10 +629,10 @@ case $choice in
      grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing|Records Found)' | sed 's/\[\*\] //g' | sed 's/^[ \t]*//' | awk '{print $2,$3}' | column -t | sort -u > subdomains-dnsrecon
 
      echo
-#     echo "Fierce (~5 min)           (5/$total)"
-#     fierce -dns $domain -wordlist /usr/share/fierce/hosts.txt -suppress -file tmp4
+     echo "Fierce (~5 min)           (5/$total)"
+     fierce -dns $domain -wordlist /usr/share/fierce/hosts.txt -suppress -file tmp4
 
-#     sed -n '/Now performing/,/Subnets found/p' tmp4 | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > subdomains-fierce
+     sed -n '/Now performing/,/Subnets found/p' tmp4 | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > subdomains-fierce
 
      cat subdomains-dnsrecon subdomains-fierce | grep -v '.nat.' | column -t | sort -u > subdomains
 
@@ -708,7 +708,7 @@ case $choice in
 
      echo > tmp
 
-     if [ -f /opt/scripts/kali/emails ]; then
+     if [ -f /opt/scripts/emails ]; then
           emailcount=$(wc -l emails | cut -d ' ' -f1)
           echo "Emails        $emailcount" >> zreport
           echo "Emails ($emailcount)" >> tmp
@@ -717,7 +717,7 @@ case $choice in
           echo >> tmp
      fi
 
-     if [ -f /opt/scripts/kali/hosts ]; then
+     if [ -f /opt/scripts/hosts ]; then
           hostcount=$(wc -l hosts | cut -d ' ' -f1)
           echo "Hosts         $hostcount" >> zreport
           echo "Hosts ($hostcount)" >> tmp
@@ -726,7 +726,7 @@ case $choice in
           echo >> tmp
      fi
 
-     if [ -f /opt/scripts/kali/records ]; then
+     if [ -f /opt/scripts/records ]; then
           recordcount=$(wc -l records | cut -d ' ' -f1)
           echo "DNS Records   $recordcount" >> zreport
           echo "DNS Records ($recordcount)" >> tmp
@@ -735,7 +735,7 @@ case $choice in
           echo >> tmp
      fi
 
-     if [ -f /opt/scripts/kali/subdomains ]; then
+     if [ -f /opt/scripts/subdomains ]; then
           subdomaincount=$(wc -l subdomains | cut -d ' ' -f1)
           echo "Subdomains    $subdomaincount" >> zreport
           echo "Subdomains ($subdomaincount)" >> tmp
@@ -787,7 +787,7 @@ case $choice in
      echo '<pre style="font-size:14px;">' > /$user/$domain/data/hosts.htm
      cat tmp >> /$user/$domain/data/hosts.htm; echo "</pre>" >> /$user/$domain/data/hosts.htm
 
-     rm emails* hosts loadbalancing records subdomains* tmp* waf whatweb z*
+#     rm emails* hosts loadbalancing records subdomains* tmp* waf whatweb z*
 
      echo
      echo $line
