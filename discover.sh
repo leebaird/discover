@@ -242,7 +242,10 @@ case $choice in
      grep -v '^-' tmp2 > tmp3
      # Remove blank lines
      sed '/^$/d' tmp3 > tmp4
-     sed 's/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g' tmp4 > squatting
+     sed 's/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/FRANCE/France/g; 
+     s/GERMANY/Germany/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; 
+     s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/UNITED KINGDOM/United Kingdom/g; 
+     s/UNITED STATES/United States/g' tmp4 > squatting
 
      ##############################################################
 
@@ -302,7 +305,7 @@ case $choice in
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
      # Clean up
-     egrep -v '(%|<a|=-=-=-=|Access may be|Additionally|Afilias except|and DNS Hosting|and limitations of|any use of|Be sure to|By submitting an|by the terms|can easily change|circumstances will|clientDeleteProhibited|clientTransferProhibited|clientUpdateProhibited|complaint will|contact information|Contact us|Copy and paste|currently set|database|data contained in|data presented in|date of|dissemination|Domaininfo AB|Domain Management|Domain names in|Domain status: ok|enable high|except as reasonably|failure to|facsimile of|for commercial purpose|for detailed information|For information for|for information purposes|for the sole|Get Noticed|Get a FREE|guarantee its|HREF|In Europe|In most cases|in obtaining|in the address|includes restrictions|including spam|information is provided|is not the|is providing|Learn how|Learn more|makes this information|MarkMonitor|mining this data|minute and one|modify existing|modify these terms|must be sent|name cannot|NamesBeyond|not to use|Note: This|NOTICE|obtaining information about|of Moniker|of this data|or hiding any|or otherwise support|other use of|own existing customers|Please be advised|Please note|policy|prior written consent|privacy is|Professional and|prohibited without|Promote your|protect the|Public Interest|queries or|Register your|Registrars|registration record|repackaging,|responsible for|See Business Registration|server at|solicitations via|sponsorship|Status|support the transmission|telephone, or facsimile|that apply to|that you will|the right| The data is|The fact that|the transmission|The Trusted Partner|This listing is|This feature is|This information|This service is|to collect or|to entities|to report any|transmission of mass|UNITED STATES|United States|unsolicited advertising|Users may|Version 6|via e-mail|Visit AboutUs.org|while believed|will use this|with many different|with no guarantee|We reserve the|Whois|you agree|You may not)' tmp2 > tmp3
+     egrep -v '(%|<a|=-=-=-=|Access may be|Additionally|Afilias except|and DNS Hosting|and limitations of|any use of|Be sure to|By submitting an|by the terms|can easily change|circumstances will|clientDeleteProhibited|clientTransferProhibited|clientUpdateProhibited|complaint will|contact information|Contact us|Copy and paste|currently set|database|data contained in|data presented in|date of|dissemination|Domaininfo AB|Domain Management|Domain names in|Domain status: ok|enable high|except as reasonably|failure to|facsimile of|for commercial purpose|for detailed information|For information for|for information purposes|for the sole|Get Noticed|Get a FREE|guarantee its|HREF|In Europe|In most cases|in obtaining|in the address|includes restrictions|including spam|information is provided|is not the|is providing|Learn how|Learn more|makes this information|MarkMonitor|mining this data|minute and one|modify existing|modify these terms|must be sent|name cannot|NamesBeyond|not to use|Note: This|NOTICE|obtaining information about|of Moniker|of this data|or hiding any|or otherwise support|other use of|own existing customers|Please be advised|Please note|policy|prior written consent|privacy is|Problem Reporting System|Professional and|prohibited without|Promote your|protect the|Public Interest|queries or|Register your|Registrars|registration record|repackaging,|responsible for|See Business Registration|server at|solicitations via|sponsorship|Status|support the transmission|telephone, or facsimile|that apply to|that you will|the right| The data is|The fact that|the transmission|The Trusted Partner|This listing is|This feature is|This information|This service is|to collect or|to entities|to report any|transmission of mass|UNITED STATES|United States|unsolicited advertising|Users may|Version 6|via e-mail|Visit AboutUs.org|while believed|will use this|with many different|with no guarantee|We reserve the|Whois|you agree|You may not)' tmp2 > tmp3
      # Remove lines starting with "*"
      sed '/^*/d' tmp3 > tmp4
      # Remove lines starting with "-"
@@ -326,7 +329,16 @@ case $choice in
      # Remove line after "Domain servers"
      sed -i '/^Domain servers/{n; /.*/d}' tmp12
      # Remove blank lines from end of file
-     awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp12 > whois-domain
+     awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp12 > tmp13
+
+     while IFS=$': \t'
+     read first rest; do
+          if [[ $first$rest ]]; then
+               printf '%-20s %s\n' "$first:" "$rest"
+          else
+               echo
+          fi
+     done < tmp13 > whois-domain
 
      echo "     IP 		  (20/$total)"
      y=$(ping -c1 -w2 $domain | grep 'PING' | cut -d ')' -f1 | cut -d '(' -f2) ; whois -H $y > tmp
@@ -343,7 +355,16 @@ case $choice in
      # Compress blank lines
      cat -s tmp6 > tmp7
      # Clean up
-     sed 's/+1-//g' tmp7 > whois-ip
+     sed 's/+1-//g' tmp7 > tmp8
+
+     while IFS=$': \t'
+     read first rest; do
+          if [[ $first$rest ]]; then
+               printf '%-20s %s\n' "$first:" "$rest"
+          else
+               echo
+          fi
+     done < tmp8 > whois-ip
      echo
 
      # Remove all empty files
@@ -385,15 +406,12 @@ case $choice in
      sed 's/^[ \t]*//' tmp3 > /$user/$domain/data/black-listed.htm
 
      awk '{print $2}' subdomains > tmp
-     grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts 
+     grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:|1.1.1.1|6.9.6.9|127.0.0.1)' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts 
      cat hosts >> /$user/$domain/data/hosts.htm; echo "</pre>" >> /$user/$domain/data/hosts.htm
 
      ##############################################################
 
-     echo "Passive Recon" > zreport
-     echo $domain >> zreport
-     date +%A" - "%B" "%d", "%Y >> zreport
-     echo >> zreport
+     echo > zreport
      echo >> zreport
 
      echo "Summary" >> zreport
@@ -618,7 +636,7 @@ case $choice in
      cat /$user/$domain/data/records.htm records | grep -v '<' | column -t | sort -u -k2 -k1 > tmp3
 
      echo '<pre style="font-size:14px;">' > /$user/$domain/data/records.htm
-     cat tmp3 >> /$user/$domain/data/records.htm; echo "</pre>" >> /$user/$domain/data/records.htm
+     cat tmp3 | column -t >> /$user/$domain/data/records.htm; echo "</pre>" >> /$user/$domain/data/records.htm
 
      echo "     Zone Transfer        (3/$total)"
      dnsrecon -d $domain -t axfr > tmp
@@ -644,7 +662,7 @@ case $choice in
 
      awk '{print $3}' records > tmp
      awk '{print $2}' subdomains-dnsrecon subdomains-fierce >> tmp
-     grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' tmp | egrep -v '(-|:|127.0.0.1)' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
+     grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' tmp | egrep -v '(-|=|:|1.1.1.1|6.9.6.9|127.0.0.1)' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
 
      echo
      echo "Loadbalancing             (6/$total)"
@@ -692,15 +710,15 @@ case $choice in
      # Cleanup
      sed 's/,/\n/g' tmp3 | sed 's/^[ \t]*//' | sed 's/\(\[[0-9][0-9][0-9]\]\)/\n\1/g' | sed 's/http:\/\///g' | grep -v 'Country' > whatweb
 
-     grep '@' whatweb | sed 's/Email//g' | sed 's/\[//g' | sed 's/\]//g' > emails2
+     grep '@' whatweb | sed 's/Email//g' | sed 's/\[//g' | sed 's/\]//g' > tmp
+     # Change to lower case
+     cat tmp | tr '[A-Z]' '[a-z]' > emails2
+
      cat emails1 emails2 | sort -u > emails
 
      ##############################################################
 
-     echo "Active Recon" > zreport
-     echo $domain >> zreport
-     date +%A" - "%B" "%d", "%Y >> zreport
-     echo >> zreport
+     echo > zreport
      echo >> zreport
 
      echo "Summary" >> zreport
@@ -2583,9 +2601,25 @@ f_location
 echo
 echo
 
-sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/Addison//g; s/Akron//g; s/Alma //g; s/Apple Valley//g; s/Arlington//g; s/Artesia//g; s/Ashburn//g; s/Atlanta//g; s/Austin//g; s/Baltimore//g; s/Barboursville//g; s/Binghamton//g; s/Birmingham//g; s/Boston//g; s/Burbank//g ; s/Burlington//g; s/Brockton//g; s/Canada//g; s/Camp Springs//g; s/Charleston//g; s/Charlotte//g; s/Chesapeake//g; s/Chicago//g; s/Cincinnati//g; s/Cleveland//g; s/CNN News Group Cable News Network//g; s/Columbia//g; s/Cresskill//g; s/Dallas//g; s/Denver//g; s/Dunkirk//g; s/Durham//g; s/El Paso//g; s/Englewood//g; s/Emeryville//g; s/Encino//g; s/Fallbrook//g; s/Fremont//g; s/Front Royal//g; s/Gardena//g; s/Gastonia//g; s/Gig Harbor//g; s/Glendale//g; s/Hamlin//g; s/Harbor City//g; s/Hawthorne//g; s/Hermosa Beach//g; s/Herndon//g; s/Huntington//g; s/Hurricane//g; s/Hyattsville//g; s/Indianapolis//g; s/Irvine//g; s/JA//g; s/Kansas City//g; s/Knoxville//g; s/La Follette//g; s/La Plata//g; s/Lawrenceville//g; s/Lawndale//g; s/Lithonia//g; s/Lomita//g; s/London//g; s/Long Beach//g; s/Los Angeles//g; s/Machias//g; s/Manhattan//g; s/Marietta//g; s/Marina Del Rey//g; s/Mc Lean//g; s/Menlo Park//g; s/Miami//g; s/Milpitas//g; s/Milton//g; s/Minneapolis//g; s/Mumbai//g; s/Needham//g; s/New York//g; s/North Holly...//gs/Norwalk//g; s/Oakland//g; s/Oceanport//g; s/Odessa//g; s/Ottawa//g; s/Orange//g; s/Palo Alto//g; s/Park Ridge//g; s/Philadelphia//g; s/Point Pleasant//g; s/Portland//g; s/Proctorville//g; s/Rancho//g; s/Redondo Beach//g; s/Reston//g; s/Richmond//g; s/Riverdale//g; s/Rllng Hls Est//g; s/Rochester//g; s/Rockville//g; s/Royal Oak//g; s/Sacramento//g; s/Salt Lake City//g; s/San Diego//g; s/San Francisco//g; s/San Jose//g; s/San Mateo//g; s/San Pedro//g; s/Santa Clara//g; s/Santa Monica//g; s/Schaumburg//g; s/Scotts Valley//g; s/Seattle//g; s/Sebring//g; s/Show Low//g; s/Sitka//g; s/Southfield//g; s/South Lake//g; s/Stephens City//g; s/Stillwater//g; s/Tacoma//g; s/Tallahassee//g; s/Toronto//g; s/Torrance//g; s/Twin Falls//g; s/U.S.//g; s/United Kingdom//g; s/United States//g; s/Vienna//g; s/Walnut Creek//g; s/Washington//g; s/Welch//g; s/Westport//g; s/Wheeling//g; s/Wilton//g; s/Winchester//g; s/Williamsport//g; s/Wilmington//g; s/Winder//g; s/Wynnewood//g; 
+sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/Addison//g; s/Akron//g; s/Alma //g; s/Apple Valley//g; s/Arlington//g; s/Artesia//g; s/Ashburn//g; s/Atlanta//g; 
+s/Austin//g; s/Baltimore//g; s/Barboursville//g; s/Binghamton//g; s/Birmingham//g; s/Boston//g; s/Burbank//g ; s/Burlington//g; s/Brockton//g; s/Canada//g; s/Camp Springs//g; 
+s/Charleston//g; s/Charlotte//g; s/Chesapeake//g; s/Chicago//g; s/Cincinnati//g; s/Cleveland//g; s/CNN News Group Cable News Network//g; s/Columbia//g; s/Cresskill//g; 
+s/Dallas//g; s/Denver//g; s/Dunkirk//g; s/Durham//g; s/El Paso//g; s/Englewood//g; s/Emeryville//g; s/Encino//g; s/Fallbrook//g; s/Fremont//g; s/Front Royal//g; 
+s/Gardena//g; s/Gastonia//g; s/Gig Harbor//g; s/Glendale//g; s/Hamlin//g; s/Harbor City//g; s/Hawthorne//g; s/Hermosa Beach//g; s/Herndon//g; s/Huntington//g; s/Hurricane//g; 
+s/Hyattsville//g; s/Indianapolis//g; s/Irvine//g; s/JA//g; s/Kansas City//g; s/Knoxville//g; s/La Follette//g; s/La Plata//g; s/Lawrenceville//g; s/Lawndale//g; s/Lithonia//g; 
+s/Lomita//g; s/London//g; s/Long Beach//g; s/Los Angeles//g; s/Machias//g; s/Manhattan//g; s/Marietta//g; s/Marina Del Rey//g; s/Mc Lean//g; s/Menlo Park//g; s/Miami//g; 
+s/Milpitas//g; s/Milton//g; s/Minneapolis//g; s/Mumbai//g; s/Needham//g; s/New York//g; s/North Holly...//gs/Norwalk//g; s/Oakland//g; s/Oceanport//g; s/Odessa//g; s/Ottawa//g; 
+s/Orange//g; s/Palo Alto//g; s/Park Ridge//g; s/Philadelphia//g; s/Point Pleasant//g; s/Portland//g; s/Proctorville//g; s/Rancho//g; s/Redondo Beach//g; s/Reston//g; 
+s/Richmond//g; s/Riverdale//g; s/Rllng Hls Est//g; s/Rochester//g; s/Rockville//g; s/Royal Oak//g; s/Sacramento//g; s/Salt Lake City//g; s/San Diego//g; s/San Francisco//g; 
+s/San Jose//g; s/San Mateo//g; s/San Pedro//g; s/Santa Clara//g; s/Santa Monica//g; s/Schaumburg//g; s/Scotts Valley//g; s/Seattle//g; s/Sebring//g; s/Show Low//g; s/Sitka//g; 
+s/Southfield//g; s/South Lake//g; s/Stephens City//g; s/Stillwater//g; s/Tacoma//g; s/Tallahassee//g; s/Toronto//g; s/Torrance//g; s/Twin Falls//g; s/U.S.//g; s/United Kingdom//g; 
+s/United States//g; s/Vienna//g; s/Walnut Creek//g; s/Washington//g; s/Welch//g; s/Westport//g; s/Wheeling//g; s/Wilton//g; s/Winchester//g; s/Williamsport//g; s/Wilmington//g; 
+s/Winder//g; s/Wynnewood//g; 
 
-s/AK //g; s/AL //g; s/AR //g; s/AZ //g; s/CA //g; s/CT //g; s/DC //g; s/DE //g; s/FL //g; s/GA //g; s/HI //g; s/IA //g; s/ID //g; s/IL //g; s/IN //g; s/KS //g; s/KY //g; s/LA //g; s/MA //g; s/ME //g; s/MD //g; s/MI //g; s/MN //g; s/MS //g; s/MT //g; s/NC //g; s/NE //g; s/ND //g; s/NH //g; s/NJ //g; s/NM //g; s/NV //g; s/NY //g; s/OH //g; s/OK //g; s/ON //g; s/OR //g; s/PA //g; s/RI //g; s/SC //g; s/SD //g; s/TN //g; s/TX //g; s/UT //g; s/VA //g; s/VT //g; s/WA //g; s/WI //g; s/WV //g; s/WY //g; s/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g; s/^[ \t]*//' > tmp
+s/AK //g; s/AL //g; s/AR //g; s/AZ //g; s/CA //g; s/CT //g; s/DC //g; s/DE //g; s/FL //g; s/GA //g; s/HI //g; s/IA //g; s/ID //g; s/IL //g; s/IN //g; s/KS //g; s/KY //g; s/LA //g; 
+s/MA //g; s/ME //g; s/MD //g; s/MI //g; s/MN //g; s/MS //g; s/MT //g; s/NC //g; s/NE //g; s/ND //g; s/NH //g; s/NJ //g; s/NM //g; s/NV //g; s/NY //g; s/OH //g; s/OK //g; s/ON //g; 
+s/OR //g; s/PA //g; s/RI //g; s/SC //g; s/SD //g; s/TN //g; s/TX //g; s/UT //g; s/VA //g; s/VT //g; s/WA //g; s/WI //g; s/WV //g; s/WY //g; s/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g; 
+s/^[ \t]*//' > tmp
 
 # Author: Ben Wood
 perl -ne 'if ($_ =~ /(.*?)\t\s*(.*)/) {printf("%-30s%s\n",$1,$2);}' tmp > tmp2
@@ -2728,3 +2762,4 @@ esac
 ##############################################################################################################
 
 while true; do f_main; done
+
