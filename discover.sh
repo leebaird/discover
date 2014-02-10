@@ -144,7 +144,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=23
+     total=22
 
      echo
      echo $line
@@ -245,7 +245,7 @@ case $choice in
      sed 's/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; 
      s/EUROPEAN UNION/European Union/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; 
      s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; 
-     s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g' tmp4 > squatting
+     s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      ##############################################################
 
@@ -387,18 +387,7 @@ case $choice in
      s/Your nameservers/Nameservers/g; s/Your NS records at your nameservers are://g; s/Your NS records at your parent nameserver are://g; 
      s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > /$user/$domain/data/config.htm
 
-     echo "robtex.com - disabled     (22/$total)"
-#     wget -q http://top.robtex.com/$domain.html#records -O robtex-records.htm
-#     wget -q http://top.robtex.com/$domain.html#shared -O robtex-shared.htm
-#
-#     x=$(ls -l | grep 'robtex' | awk '{print $5,$9}' | sort | head -1 | awk '{print $2}')
-#     mv $x tmp
-#     sed '/<div id="h9">/,/<div id="c0a">/d' tmp > tmp2                 # Remove extra from top of page
-#     sed '/nopad sortable nospan/,/<\/html>/d' tmp2 > tmp3              # Remove extra from bottom of page
-#     sed '/<div id="xadt0"/,/<div style="clear:both">/d' tmp3 > tmp4    # Remove Google Ad
-#     cat tmp4 > /$user/$domain/pages/robtex.htm
-
-     echo "urlvoid.com               (23/$total)"
+     echo "urlvoid.com               (22/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
      sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' > /$user/$domain/data/black-listed.htm
 
@@ -529,7 +518,7 @@ case $choice in
      cat whois-ip >> /$user/$domain/data/whois-ip.htm; echo "</pre>" >> /$user/$domain/data/whois-ip.htm
      cat zreport >> /$user/$domain/data/passive-recon.htm; echo "</pre>" >> /$user/$domain/data/passive-recon.htm
 
-     rm emails hosts names robtex* squatting subdomains* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm emails hosts names squatting subdomains* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
      echo
      echo $line
