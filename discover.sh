@@ -387,16 +387,16 @@ case $choice in
      s/Your nameservers/Nameservers/g; s/Your NS records at your nameservers are://g; s/Your NS records at your parent nameserver are://g; 
      s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > /$user/$domain/data/config.htm
 
-     echo "robtex.com                (22/$total)"
-     wget -q http://top.robtex.com/$domain.html#records -O robtex-records.htm
-     wget -q http://top.robtex.com/$domain.html#shared -O robtex-shared.htm
-
-     x=$(ls -l | grep 'robtex' | awk '{print $5,$9}' | sort | head -1 | awk '{print $2}')
-     mv $x tmp
-     sed '/<div id="h9">/,/<div id="c0a">/d' tmp > tmp2                 # Remove extra from top of page
-     sed '/nopad sortable nospan/,/<\/html>/d' tmp2 > tmp3              # Remove extra from bottom of page
-     sed '/<div id="xadt0"/,/<div style="clear:both">/d' tmp3 > tmp4    # Remove Google Ad
-     cat tmp4 > /$user/$domain/pages/robtex.htm
+     echo "robtex.com - disabled     (22/$total)"
+#     wget -q http://top.robtex.com/$domain.html#records -O robtex-records.htm
+#     wget -q http://top.robtex.com/$domain.html#shared -O robtex-shared.htm
+#
+#     x=$(ls -l | grep 'robtex' | awk '{print $5,$9}' | sort | head -1 | awk '{print $2}')
+#     mv $x tmp
+#     sed '/<div id="h9">/,/<div id="c0a">/d' tmp > tmp2                 # Remove extra from top of page
+#     sed '/nopad sortable nospan/,/<\/html>/d' tmp2 > tmp3              # Remove extra from bottom of page
+#     sed '/<div id="xadt0"/,/<div style="clear:both">/d' tmp3 > tmp4    # Remove Google Ad
+#     cat tmp4 > /$user/$domain/pages/robtex.htm
 
      echo "urlvoid.com               (23/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
