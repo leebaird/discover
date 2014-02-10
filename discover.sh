@@ -242,10 +242,10 @@ case $choice in
      grep -v '^-' tmp2 > tmp3
      # Remove blank lines
      sed '/^$/d' tmp3 > tmp4
-     sed 's/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/FRANCE/France/g; 
-     s/GERMANY/Germany/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; 
-     s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/UNITED KINGDOM/United Kingdom/g; 
-     s/UNITED STATES/United States/g' tmp4 > squatting
+     sed 's/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; 
+     s/EUROPEAN UNION/European Union/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; 
+     s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; 
+     s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g' tmp4 > squatting
 
      ##############################################################
 
@@ -281,7 +281,7 @@ case $choice in
      # Change to lower case
      cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
      # Clean up
-     egrep -v '(web search|www)' tmp3 | sort -u > emails
+     egrep -v '(web search|www)' tmp3 | cut -d ' ' -f2 | sort -u > emails
 
      ##############################################################
 
@@ -294,7 +294,7 @@ case $choice in
      # Change to lower case
      cat tmp4 | tr '[A-Z]' '[a-z]' > tmp5
      grep $domain tmp5 | sort -u > subdomains2.txt
-     cat subdomain* | grep -v "$domain\." | egrep -v '(.nat.|252f)' | sed 's/www\.//g' | column -t | sort -u > subdomains
+     cat subdomain* | grep -v "$domain\." | egrep -v '(<|.nat.|252f|1.1.1.1|6.9.6.9|127.0.0.1)' | sed 's/www\.//g' | column -t | sort -u > subdomains
 
      ##############################################################
 
@@ -400,13 +400,10 @@ case $choice in
 
      echo "urlvoid.com               (23/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
-     sed -n '/Website Blacklist Report/,/<\/table>/p' tmp > tmp2
-     sed 's/<img src="http:\/\/www.urlvoid.com\/images\/valid.ico" alt="Clean" title="Clean" \/> NOT FOUND/<center><img src="..\/images\/icons\/green.png" height="25" width="25"><\/center>/g; s/<img src="http:\/\/www.urlvoid.com\/images\/alert.ico" alt="Alert" title="Detected!" \/> <font color="red">DETECTED<\/font>/<center><img src="..\/images\/icons\/red.png" height="25" width="25"><\/center>/g; s/rel="nofollow" //g; s/ title="View more details" target="_blank"//g; s/<img src="http:\/\/www.urlvoid.com\/images\/link.ico" alt="Link" \/>//g; s/ class="tasks"//g; s/<th>Info<\/th>//g' tmp2 | grep -v 'Blacklist Report' > tmp3
-     # Remove leading whitespace from each line
-     sed 's/^[ \t]*//' tmp3 > /$user/$domain/data/black-listed.htm
+     sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' > /$user/$domain/data/black-listed.htm
 
      awk '{print $2}' subdomains > tmp
-     grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:|1.1.1.1|6.9.6.9|127.0.0.1)' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts 
+     grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts 
      cat hosts >> /$user/$domain/data/hosts.htm; echo "</pre>" >> /$user/$domain/data/hosts.htm
 
      ##############################################################
@@ -652,7 +649,7 @@ case $choice in
 
      sed -n '/Now performing/,/Subnets found/p' tmp4 | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > subdomains-fierce
 
-     cat subdomains-dnsrecon subdomains-fierce | grep -v '.nat.' | column -t | sort -u > subdomains
+     cat subdomains-dnsrecon subdomains-fierce | egrep -v '(.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' | column -t | sort -u > subdomains
 
      if [ -f /$user/$domain/data/subdomains.htm ]; then
           cat /$user/$domain/data/subdomains.htm subdomains | grep -v "<" | grep -v "$domain\." | column -t | sort -u > subdomains-combined
@@ -714,7 +711,7 @@ case $choice in
      # Change to lower case
      cat tmp | tr '[A-Z]' '[a-z]' > emails2
 
-     cat emails1 emails2 | sort -u > emails
+     cat emails1 emails2 | cut -d ' ' -f2 | sort -u > emails
 
      ##############################################################
 
@@ -805,7 +802,7 @@ case $choice in
      echo '<pre style="font-size:14px;">' > /$user/$domain/data/hosts.htm
      cat tmp >> /$user/$domain/data/hosts.htm; echo "</pre>" >> /$user/$domain/data/hosts.htm
 
-#     rm emails* hosts loadbalancing records subdomains* tmp* waf whatweb z*
+     rm emails* hosts loadbalancing records subdomains* tmp* waf whatweb z*
 
      echo
      echo $line
