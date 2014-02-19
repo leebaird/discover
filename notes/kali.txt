@@ -90,14 +90,14 @@ apt-get install filezilla
 # Install Nessus
 
 Debian 6.0 (64 bits)
-Nessus-5.2.4-debian6_amd64.deb
-dpkg -i Nessus-5.2.4-debian6_amd64.deb
+Nessus-5.2.5-debian6_amd64.deb
+dpkg -i Nessus-5.2.5-debian6_amd64.deb
 service nessusd start
 https://localhost:8834
 If you do not want this service to run at startup:  update-rc.d -f nessusd remove
 ------------------------------------------------------------------------------------------------------
 
-# Install NeXpose
+# Install Nexpose
 
 chmod 755 NeXposeSetup-Linux64.bin
 ./NeXposeSetup-Linux64.bin
@@ -161,14 +161,14 @@ Change the port to 5433.
 
 # Services
 
+service apache2 start                  Start apache.
+netstat -antp | grep http              Verify the service is running.
+/var/www/index.html                    Default home page.
+
 service ssh start                      Start ssh.
 netstat -antp | grep ssh               Verify the service is running.
 update-rc.d ssh enable                 Enable ssh to start at boot time.
 update-rc.d ssh disable                Disable ssh from starting at boot time.
-
-service apache2 start                  Start apache.
-netstat -antp | grep http              Verify the service is running.
-/var/www/index.html                    Default home page.
 ------------------------------------------------------------------------------------------------------
 
 # Update procedure
@@ -180,5 +180,5 @@ DbVisualizer
 Firefox plugins
 Metasploit Community edition
 Nessus
-NeXpose
+Nexpose
 Open Office
