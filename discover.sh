@@ -86,7 +86,6 @@ if [ -z $DISPLAY ]; then
      echo "This option must be run locally, in an X-Windows environment."
      echo
      read -p "Press <return> to continue."
-
      f_main
 fi
 }
