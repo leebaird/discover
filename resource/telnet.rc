@@ -1,4 +1,4 @@
-setg RHOSTS file:/opt/scripts/gsoc/23.txt
+setg RHOSTS file:
 setg THREADS 255
 setg RPORT 23
 

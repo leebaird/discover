@@ -75,7 +75,7 @@ run
 use auxiliary/scanner/http/error_sql_injection
 run
 
-#use auxiliary/scanner/http/file_same_name_dir				Blank or default PATH set.
+#use auxiliary/scanner/http/file_same_name_dir				        Blank or default PATH set.
 
 use auxiliary/scanner/http/files_dir
 run
@@ -137,7 +137,7 @@ run
 
 #use auxiliary/scanner/http/owa_login						Brute force.
 
-#use auxiliary/scanner/http/prev_dir_same_name_file			Blank or default PATH set.
+#use auxiliary/scanner/http/prev_dir_same_name_file			        Blank or default PATH set.
 
 
 use auxiliary/scanner/http/rails_mass_assignment
@@ -190,7 +190,7 @@ run
 use auxiliary/scanner/http/svn_scanner
 run
 
-#use auxiliary/scanner/http/sybase_easerver_traversal			Please supply the name of the file you want to download.
+#use auxiliary/scanner/http/sybase_easerver_traversal			        Please supply the name of the file you want to download.
 
 use auxiliary/scanner/http/trace
 run
@@ -224,4 +224,3 @@ run
 
 use auxiliary/scanner/lotus/lotus_domino_version
 run
-

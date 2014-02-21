@@ -1,4 +1,4 @@
-setg RHOSTS file:/opt/scripts/ibm/8080.txt
+setg RHOSTS file:
 setg THREADS 255
 setg RPORT 8080
 

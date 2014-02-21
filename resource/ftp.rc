@@ -1,4 +1,4 @@
-setg RHOSTS file:/opt/scripts/test/21.txt
+setg RHOSTS file:
 setg THREADS 255
 setg RPORT 21
 
@@ -8,6 +8,6 @@ run
 use auxiliary/scanner/ftp/anonymous 
 run
 
-use auxiliary/admin/ftp/titanftp_xcrc_traversal
+use auxiliary/scanner/ftp/titanftp_xcrc_traversal
 run
 

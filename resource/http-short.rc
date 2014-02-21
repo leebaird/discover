@@ -1,4 +1,4 @@
-setg RHOSTS file:/opt/scripts/ibm/web.txt
+setg RHOSTS file:
 setg THREADS 255
 
 use auxiliary/scanner/http/http_version
