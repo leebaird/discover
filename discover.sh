@@ -1078,11 +1078,6 @@ echo
 echo -n "Do you have an exclusion list? (y/N) "
 read exclude
 
-if [ -z $exclude ]; then
-     touch tmp
-     excludefile=tmp
-fi
-
 if [ "$exclude" == "y" ]; then
      echo -n "Enter the path to the file: "
      read excludefile
@@ -1094,6 +1089,9 @@ if [ "$exclude" == "y" ]; then
      if [ ! -f $excludefile ]; then
           f_error
      fi
+else
+     touch tmp
+     excludefile=tmp
 fi
 
 START=$(date +%r\ %Z)
