@@ -1339,7 +1339,7 @@ fi
 
 if [ -f $name/123.txt ]; then
 	echo "     NTP"
-	nmap -iL $name/123.txt -Pn -n -sU --open -p123 --script=ntp-info,ntp-monlist --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
+	nmap -iL $name/123.txt -Pn -n -sU --open -p123 --script=ntp-monlist --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
 	f_cleanup
 	mv tmp4 $name/script-123.txt
 fi

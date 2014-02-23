@@ -95,6 +95,14 @@ if [ ! -f $location ]; then
 fi
 ------------------------------------------------------------------------------------------------------
 
+# Check if argument was given, if not, print usage
+
+if [ -z "$1" ]; then
+     echo "Usage : $0 <domain name>"
+     exit 0
+fi
+------------------------------------------------------------------------------------------------------
+
 if [ -d /root/test ]; then
      echo "This folder exists."
 fi
@@ -115,7 +123,9 @@ fi
 
 # Check for root
 
-if [ $(whoami) = "root" ]; then echo "You are running as root."; fi
+if [ $(whoami) = "root" ]; then 
+     echo "You are running as root."
+fi
 ------------------------------------------------------------------------------------------------------
 
 pid=`ps ax | grep ping | grep -v grep | awk '{print $1}'`
@@ -141,7 +151,7 @@ done
 
 -----
 
-Use 'while' and 'done'.
+# Use 'while' and 'done'.
 
 while read -r line; do
 	host $line | grep 'has address' | cut -d ' ' -f4
