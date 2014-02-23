@@ -48,6 +48,9 @@ net groups "Enterprise Admins" /domain
 nbtenum -r <target IP>
 nbtenum -q <target IP>
 
+nbtscan -r <target range>
+nbtscan -f hosts.txt
+
 rpclient -U "" <target IP>
 
 enum -G <target IP>
