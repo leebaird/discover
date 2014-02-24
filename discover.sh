@@ -1190,7 +1190,7 @@ echo $line
 echo
 echo -e "\e[1;34mLocating high value ports.\e[0m"
 echo "     TCP"
-TCP_PORTS="13 21 22 23 25 70 79 80 110 111 139 143 389 443 445 465 523 524 548 554 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3031 3260 3306 3389 3632 4369 5019 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12345 19150 27017 35871 50000 50030 50060 50070 50075 50090 60010 60030"
+TCP_PORTS="13 21 22 23 25 70 79 80 110 111 139 143 389 443 445 465 523 524 548 554 587 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3031 3260 3306 3389 3632 4369 5019 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12345 19150 27017 35871 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $TCP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/tcp\>" | cut -d ' ' -f2 > $name/$i.txt
@@ -1226,6 +1226,10 @@ sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/db2.txt
 # Combine Hadoop ports and sort
 cat $name/50030.txt $name/50060.txt $name/50070.txt $name/50075.txt $name/50090.txt > tmp
 sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/hadoop.txt
+
+# Combine DB2 ports and sort
+cat $name/25.txt $name/465.txt $name/587.txt > tmp
+sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/smtp.txt
 
 # Combine X11 ports and sort
 cat $name/6000.txt $name/6001.txt $name/6002.txt $name/6003.txt $name/6004.txt $name/6005.txt > tmp
@@ -1285,9 +1289,9 @@ if [ -f $name/23.txt ]; then
 	mv tmp4 $name/script-23.txt
 fi
 
-if [ -f $name/25.txt ]; then
+if [ -f $name/smtp.txt ]; then
 	echo "     SMTP"
-	nmap -iL $name/25.txt -Pn -n --open -p25 --script=banner,smtp-commands,smtp-open-relay,smtp-strangeport --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
+	nmap -iL $name/smtp.txt -Pn -n --open -p25,465,587 --script=banner,smtp-commands,smtp-open-relay,smtp-strangeport,smtp-enum-users --script-args smtp-enum-users.methods={EXPN,RCPT,VRFY} --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
 	f_cleanup
 	printf '%s\n' 'g/NOT VULNERABLE/d\' '-d' w | ed -s tmp4
 	mv tmp4 $name/script-25.txt
