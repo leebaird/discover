@@ -1858,10 +1858,6 @@ echo
 echo -ne "\e[1;33mRun matching Metasploit auxilaries? (y/N) \e[0m"
 read msf
 
-if [ -z $msf ]; then
-     msf="n"
-fi
-
 if [ "$msf" == "y" ]; then
      f_runmsf
 else
