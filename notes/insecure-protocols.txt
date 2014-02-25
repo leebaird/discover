@@ -37,3 +37,10 @@ rlogin -l root <target IP>
 nmap -Pn -n -T4 -p22 --script=sshv1 <target IP>
 
 ssh -1 <target IP>
+------------------------------------------------------------------------------------------------------
+
+# X11
+
+nmap -Pn -n -T4 -p6000 --script=x11-access <target IP>
+
+xspy <target IP>

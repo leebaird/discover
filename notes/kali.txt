@@ -53,6 +53,12 @@ Add bookmarks:
      NSEDoc	http://nmap.org/nsedoc/
 ------------------------------------------------------------------------------------------------------
 
+# Install Apache Directory Studio
+
+https://directory.apache.org/studio/
+
+------------------------------------------------------------------------------------------------------
+
 # Install CAC Reader
 
 Notes                 https://help.ubuntu.com/community/CommonAccessCard
