@@ -241,7 +241,7 @@ case $choice in
      grep -v '^-' tmp2 > tmp3
      # Remove blank lines
      sed '/^$/d' tmp3 > tmp4
-     sed 's/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; 
+     sed 's/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/DENMARK/Denmark/g;
      s/EUROPEAN UNION/European Union/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; 
      s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; 
      s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
@@ -2605,20 +2605,20 @@ echo
 echo
 
 sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/Addison//g; s/Akron//g; s/Alma //g; s/Apple Valley//g; s/Arlington//g; s/Artesia//g; s/Ashburn//g; s/Atlanta//g; 
-s/Austin//g; s/Baltimore//g; s/Barboursville//g; s/Binghamton//g; s/Birmingham//g; s/Boston//g; s/Burbank//g ; s/Burlington//g; s/Brockton//g; s/Canada//g; s/Camp Springs//g; 
-s/Chantilly//g; s/Charleston//g; s/Charlotte//g; s/Chesapeake//g; s/Chicago//g; s/Christiansburg//g; s/Cincinnati//g; s/Clearwater//g; s/Cleveland//g; 
-s/CNN News Group Cable News Network//g; s/Columbia//g; s/Cresskill//g; s/Cross Junction//g; s/Dallas//g; s/Denver//g; s/Dunkirk//g; s/Durham//g; s/El Paso//g; s/Englewood//g; 
-s/Emeryville//g; s/Encino//g; s/Fallbrook//g; s/Fremont//g; s/Front Royal//g; s/Gardena//g; s/Gastonia//g; s/Gig Harbor//g; s/Glendale//g; s/Hamlin//g; s/Harbor City//g; 
-s/Harrisonburg//g; s/Hawthorne//g; s/Hermosa Beach//g; s/Herndon//g; s/Huntington//g; s/Hurricane//g; s/Hyattsville//g; s/Indianapolis//g; s/Irvine//g; s/JA//g; s/Johnson City//g; 
-s/Kansas City//g; s/Knoxville//g; s/La Follette//g; s/La Plata//g; s/Lawrenceville//g; s/Lawndale//g; s/Lithonia//g; s/Lomita//g; s/London//g; s/Long Beach//g; s/Los Angeles//g; 
-s/Machias//g; s/Manhattan//g; s/Marietta//g; s/Marina Del Rey//g; s/Mc Lean//g; s/Menlo Park//g; s/Miami//g; s/Milpitas//g; s/Milton//g; s/Minneapolis//g; s/Mumbai//g; s/Needham//g; 
-s/New York//g; s/North Holly...//g; s/Norwalk//g; s/Oakland//g; s/Oceanport//g; s/Odessa//g; s/Ottawa//g; s/Orange//g; s/Palo Alto//g; s/Park Ridge//g; s/Philadelphia//g; 
-s/Point Pleasant//g; s/Portland//g; s/Proctorville//g; s/Purcellville//g; s/Rancho//g; s/Redondo Beach//g; s/Reston//g; s/Richmond//g; s/Riverdale//g; s/Rllng Hls Est//g; 
-s/Rochester//g; s/Rockville//g; s/Royal Oak//g; s/Ruckersville//g; s/Sacramento//g; s/Salt Lake City//g; s/San Antonio//g; s/San Diego//g; s/San Francisco//g; s/San Jose//g; 
-s/San Mateo//g; s/San Pedro//g; s/Santa Clara//g; s/Santa Monica//g; s/Schaumburg//g; s/Scotts Valley//g; s/Seattle//g; s/Sebring//g; s/Show Low//g; s/Sitka//g; s/Southfield//g; 
-s/South Lake//g; s/Stephens City//g; s/Sterling//g; s/Stillwater//g; s/Suwanee//g; s/Tacoma//g; s/Tallahassee//g; s/Tampa//g; s/Toronto//g; s/Torrance//g; s/Twin Falls//g; s/U.S.//g; 
-s/United Kingdom//g; s/United States//g; s/Vienna//g; s/Walnut Creek//g; s/Washington//g; s/Westport//g; s/Wheeling//g; s/Wilton//g; s/Winchester//g; s/Williamsport//g; 
-s/Wilmington//g; s/Winder//g; s/Wynnewood//g; 
+s/Austin//g; s/Baltimore//g; s/Barboursville//g; s/Binghamton//g; s/Birmingham//g; s/Boston//g; s/Bradenton//g; s/Burbank//g ; s/Burlington//g; s/Brockton//g; s/Canada//g; 
+s/Camp Springs//g; s/Chantilly//g; s/Charleston//g; s/Charlotte//g; s/Chesapeake//g; s/Chicago//g; s/Christiansburg//g; s/Cincinnati//g; s/Clearwater//g; s/Cleveland//g; 
+s/CNN News Group Cable News Network//g; s/Columbia//g; s/Cresskill//g; s/Cross Junction//g; s/Dallas//g; s/Denver//g; s/Dunkirk//g; s/Durham//g; s/Eau Claire//g; s/El Paso//g; 
+s/Englewood//g; s/Emeryville//g; s/Encino//g; s/Fallbrook//g; s/Fremont//g; s/Front Royal//g; s/Gardena//g; s/Gastonia//g; s/Gig Harbor//g; s/Glendale//g; s/Hamlin//g; 
+s/Harbor City//g; s/Harrisonburg//g; s/Hawthorne//g; s/Henrico//g; s/Hermosa Beach//g; s/Herndon//g; s/Huntington//g; s/Hurricane//g; s/Hyattsville//g; s/Indianapolis//g; 
+s/Irvine//g; s/JA//g; s/Johnson City//g; s/Kansas City//g; s/Knoxville//g; s/La Follette//g; s/La Plata//g; s/Lawrenceville//g; s/Lawndale//g; s/Lithonia//g; s/Lomita//g; 
+s/London//g; s/Long Beach//g; s/Los Angeles//g; s/Machias//g; s/Manhattan//g; s/Marietta//g; s/Marina Del Rey//g; s/Mc Lean//g; s/Menlo Park//g; s/Miami//g; s/Milpitas//g; 
+s/Milton//g; s/Minneapolis//g; s/Mumbai//g; s/Needham//g; s/New York//g; s/North Holly...//g; s/Norwalk//g; s/Oakland//g; s/Oceanport//g; s/Odessa//g; s/Ottawa//g; s/Orange//g; 
+s/Palo Alto//g; s/Park Ridge//g; s/Philadelphia//g; s/Point Pleasant//g; s/Portland//g; s/Proctorville//g; s/Purcellville//g; s/Rancho//g; s/Redondo Beach//g; s/Reston//g; 
+s/Richmond//g; s/Riverdale//g; s/Rllng Hls Est//g; s/Rochester//g; s/Rockville//g; s/Royal Oak//g; s/Ruckersville//g; s/Sacramento//g; s/Salt Lake City//g; s/San Antonio//g; 
+s/San Diego//g; s/San Francisco//g; s/San Jose//g; s/San Mateo//g; s/San Pedro//g; s/Santa Clara//g; s/Santa Monica//g; s/Schaumburg//g; s/Scotts Valley//g; s/Seattle//g; 
+s/Sebring//g; s/Show Low//g; s/Sitka//g; s/Southfield//g; s/South Lake//g; s/Stephens City//g; s/Sterling//g; s/Stillwater//g; s/Suwanee//g; s/Tacoma//g; s/Tallahassee//g; 
+s/Tampa//g; s/Toronto//g; s/Torrance//g; s/Twin Falls//g; s/U.S.//g; s/United Kingdom//g; s/United States//g; s/Vienna//g; s/Walnut Creek//g; s/Washington//g; s/Westport//g; 
+s/Wheeling//g; s/Wilton//g; s/Winchester//g; s/Williamsport//g; s/Wilmington//g; s/Winder//g; s/Wynnewood//g; s/Yorktown//g;
 
 s/AK //g; s/AL //g; s/AR //g; s/AZ //g; s/CA //g; s/CT //g; s/DC //g; s/DE //g; s/FL //g; s/GA //g; s/HI //g; s/IA //g; s/ID //g; s/IL //g; s/IN //g; s/KS //g; s/KY //g; s/LA //g; 
 s/MA //g; s/ME //g; s/MD //g; s/MI //g; s/MN //g; s/MS //g; s/MT //g; s/NC //g; s/NE //g; s/ND //g; s/NH //g; s/NJ //g; s/NM //g; s/NV //g; s/NY //g; s/OH //g; s/OK //g; s/ON //g; 
