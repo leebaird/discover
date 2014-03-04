@@ -59,11 +59,23 @@ intitle
 
 # recon-ng
 
-use recon/contacts/gather/http/web/jigsaw       # Search forcontacts
+use recon/contacts/gather/http/web/jigsaw       # Search for contacts
 set COMPANY <target>
 run
 
 use recon/hosts/gather/http/web/google_site     # Search for subdomains
 set COMPANY <target>
 run
+
+use recon/hosts/gather/http/web/ip_neighbor     # Search for neighbouring IP addresses
+set COMPANY <target>
+run
+------------------------------------------------------------------------------------------------------
+
+# DNS
+
+host -t ns <target.com>
+host -t mx <target.com>
+host www.<target.com>
+host -l <target.com> <nameserver>
 ------------------------------------------------------------------------------------------------------
