@@ -7,7 +7,8 @@ mysql -h <IP> -u <username> -p <password>
 show databases;
 use <database name>
 show tables;
-select * from <table>
+SELECT * FROM <table>
+SELECT LOAD_FILE('/etc/passwd')\g
 ------------------------------------------------------------------------------------------------------
 
 # Postgresql
