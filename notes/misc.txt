@@ -79,3 +79,9 @@ host -t mx <target.com>
 host www.<target.com>
 host -l <target.com> <nameserver>
 ------------------------------------------------------------------------------------------------------
+
+# NetBIOS and SMB
+
+nmap -Pn -T4 -p139,445 --script=smb-check-vulns --script-args=unsafe=1 <range>
+nbtscan -r <range>
+enum4linux -a <target IP>
