@@ -71,15 +71,6 @@ use recon/hosts/gather/http/web/ip_neighbor     # Search for neighbouring IP add
 set COMPANY <target>
 run
 ------------------------------------------------------------------------------------------------------
-
-# DNS
-
-host -t ns <target.com>
-host -t mx <target.com>
-host www.<target.com>
-host -l <target.com> <nameserver>
-------------------------------------------------------------------------------------------------------
-
 # NetBIOS and SMB
 
 nmap -Pn -T4 -p139,445 --script=smb-check-vulns --script-args=unsafe=1 <range>
