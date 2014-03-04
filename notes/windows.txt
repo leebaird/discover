@@ -27,6 +27,13 @@ smb:\> prompt off
 smb:\> mget scripts
 ------------------------------------------------------------------------------------------------------
 
+# NetBIOS and SMB
+
+nmap -Pn -T4 -p139,445 --script=smb-check-vulns --script-args=unsafe=1 <range>
+nbtscan -r <range>
+enum4linux -a <target IP>
+------------------------------------------------------------------------------------------------------
+
 # Show domain users and group information
 
 DumpSec
@@ -122,7 +129,7 @@ gpresult /%username%
 gpresult /z
 net sessions
 nbtstat -A <target IP>
-nbtstat -a<[name of target>
+nbtstat -a <name of target>
 doskey /history
 net start
 tasklist /v
@@ -154,7 +161,7 @@ show profiles name="name" key=clear
 
 # Local DNS spoofing
 
-echo <attacker-IP> facebook >> %WINDIR%\System32\drivers\etc\hosts
+echo <attacker IP> facebook >> %WINDIR%\System32\drivers\etc\hosts
 type %WINDIR%\System32\drivers\etc\hosts
 ------------------------------------------------------------------------------------------------------
 
