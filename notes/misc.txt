@@ -70,9 +70,3 @@ run
 use recon/hosts/gather/http/web/ip_neighbor     # Search for neighbouring IP addresses
 set COMPANY <target>
 run
-------------------------------------------------------------------------------------------------------
-# NetBIOS and SMB
-
-nmap -Pn -T4 -p139,445 --script=smb-check-vulns --script-args=unsafe=1 <range>
-nbtscan -r <range>
-enum4linux -a <target IP>
