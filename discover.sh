@@ -388,7 +388,7 @@ case $choice in
 
      echo "urlvoid.com               (22/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
-     sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' > /$user/$domain/data/black-listed.htm
+     sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > /$user/$domain/data/black-listed.htm
 
      awk '{print $2}' subdomains > tmp
      grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts 
@@ -855,6 +855,63 @@ sleep 1
 firefox -new-tab http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr=
 
 f_main
+}
+
+##############################################################################################################
+
+f_salesforce(){
+clear
+f_banner
+
+echo -e "\e[1;34mCopy the results of a query from salesforce (https://connect.data.com/login) to a file.\e[0m"
+
+f_location
+
+echo
+echo
+
+sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/Addison//g; s/Akron//g; s/Albany//g; s/Alma //g; s/Amsterdam//g; s/Annapolis//g; s/Apple Valley//g; s/Arlington//g; 
+s/Artesia//g; s/Ashburn//g; s/Atlanta//g; s/Augusta//g; s/Austin//g; s/Bakersfield//g; s/Baltimore//g; s/Barboursville//g; s/Baton Rouge//g; s/Bettendorf//g; s/Binghamton//g; 
+s/Birmingham//g; s/Bismarck//g; s/Boise//g; s/Boston//g; s/Bradenton//g; s/Burbank//g; s/Burlingame//g; s/Burlington//g; s/Brockton//g; s/Canada//g; s/Camp Springs//g; s/Carlsbad//g; 
+s/Chantilly//g; s/Charleston//g; s/Charlotte//g; s/Chesapeake//g; s/Cheyenne//g; s/Chicago//g; s/Christiansburg//g; s/Cincinnati//g; s/Clearwater//g; s/Cleveland//g; 
+s/CNN News Group Cable News Network//g; s/Colorado Sp...//g; s/Columbia//g; s/Concord//g; s/Copperopolis//g; s/Cranston//g; s/Cresskill//g; s/Cross Junction//g; s/Dallas//g; 
+s/Denver//g; s/Des Moines//g; s/Duluth//g; s/Dunkirk//g; s/Durham//g; s/East Brunswick//g; s/East Greenbush//g; s/Eau Claire//g; s/El Paso//g; s/Englewood//g; s/Emeryville//g; 
+s/Encino//g; s/Fairbanks//g; s/Fallbrook//g; s/Flowood//g; s/Frankfort//g; s/Fremont//g; s/Front Royal//g; s/Gaithersburg//g; s/Gardena//g; s/Gastonia//g; s/Germantown//g; 
+s/Gig Harbor//g; s/Hopkinton//g; s/Glendale//g; s/Greenbelt//g; s/Hamlin//g; s/Harbor City//g; s/Harrisonburg//g; s/Hattiesburg//g; s/Hawthorne//g; s/Henrico//g; s/Hermosa Beach//g; 
+s/Herndon//g; s/Hillsborough//g; s/Hollywood//g; s/Huntington//g; s/Hurricane//g; s/Hyattsville//g; s/Indianapolis//g; s/Ireland//g; s/Irvine//g; s/JA//g; s/Jefferson City//g; 
+s/Johnson City//g; s/Kansas City//g; s/Knoxville//g; s/La Follette//g; s/La Plata//g; s/Lawrenceville//g; s/Lawndale//g; s/Lexington//g; s/Linthicum Heights//g; s/Lithonia//g; 
+s/Little Rock//g; s/Lomita//g; s/London//g; s/Long Beach//g; s/Long Valley//g; s/Los Angeles//g; s/Machias//g; s/Manhattan//g; s/Marietta//g; s/Marina Del Rey//g; s/Mc Lean//g; 
+s/Melville//g; s/Memphis//g; s/Menlo Park//g; s/Meriden//g; s/Miami//g; s/Milpitas//g; s/Milton//g; s/Minneapolis//g; s/Mountain View//g; s/Mumbai//g; s/Nashville//g; s/Needham//g; 
+s/New Martins...//g; s/New York//g; s/North Holly...//g; s/Norwalk//g; s/Nottingham//g; s/Novato//g; s/Oakland//g; s/Oceanport//g; s/Odessa//g; s/Ottawa//g; s/Orange//g; 
+s/Palermo//g; s/Palo Alto//g; s/Park Ridge//g; s/Philadelphia//g; s/Phoenix//g; s/Pleasanton//g; s/Point Pleasant//g; s/Portland//g; s/Proctorville//g; s/Purcellville//g; 
+s/Raleigh//g; s/Rancho//g; s/Redondo Beach//g; s/Reston//g; s/Richmond//g; s/Riverdale//g; s/Rllng Hls Est//g; s/Rochester//g; s/Rockville//g; s/Royal Oak//g; s/Ruckersville//g; 
+s/Sacramento//g; s/Salt Lake City//g; s/San Antonio//g; s/San Diego//g; s/San Francisco//g; s/San Jose//g; s/San Mateo//g; s/San Pedro//g; s/Santa Clara//g; s/Santa Fe//g; 
+s/Santa Monica//g; s/Schaumburg//g; s/Scotts Valley//g; s/Seattle//g; s/Sebring//g; s/Show Low//g; s/Sitka//g; s/Southfield//g; s/South Lake//g; s/Southborough//g; s/Springfield//g; 
+s/Stephens City//g; s/Sterling//g; s/Stillwater//g; s/Suwanee//g; s/Tacoma//g; s/Tallahassee//g; s/Tampa//g; s/Topeka//g; s/Toronto//g; s/Torrance//g; s/Twin Falls//g; s/Tyngsboro//g;
+s/U.S.//g; s/United Kingdom//g; s/United States//g; s/Vancouver//g; s/Vienna//g; s/Walnut Creek//g; s/Washington//g; s/Westborough//g; s/Westmont//g; s/Westport//g; s/Wheeling//g; 
+s/White Plains//g; s/Wilton//g; s/Winchester//g; s/Williamsport//g; s/Wilmington//g; s/Winder//g; s/Wynnewood//g; s/Yorktown//g;
+
+s/AK //g; s/AL //g; s/AR //g; s/AZ //g; s/CA //g; s/CT //g; s/DC //g; s/DE //g; s/FL //g; s/GA //g; s/HI //g; s/IA //g; s/ID //g; s/IL //g; s/IN //g; s/KS //g; s/KY //g; s/LA //g; 
+s/MA //g; s/ME //g; s/MD //g; s/MI //g; s/MO//g; s/MN //g; s/MS //g; s/MT //g; s/NC //g; s/NE //g; s/ND //g; s/NH //g; s/NJ //g; s/NM //g; s/NV //g; s/NY //g; s/OH //g; s/OK //g; 
+s/ON //g; s/OR //g; s/PA //g; s/RI //g; s/SC //g; s/SD //g; s/TN //g; s/TX //g; s/UT //g; s/VA //g; s/VT //g; s/WA //g; s/WI //g; s/WV //g; s/WY //g; 
+s/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g; s/^[ \t]*//' > tmp
+
+# Author: Ben Wood
+perl -ne 'if ($_ =~ /(.*?)\t\s*(.*)/) {printf("%-30s%s\n",$1,$2);}' tmp > tmp2
+
+# Remove trailing whitespace from each line
+sed 's/[ \t]*$//' tmp2 | sort > /$user/names.txt
+
+rm tmp*
+cat /$user/names.txt
+
+echo
+echo $line
+echo
+printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/names.txt
+echo
+echo
+exit
 }
 
 ##############################################################################################################
@@ -2593,61 +2650,6 @@ exit
 
 ##############################################################################################################
 
-f_salesforce(){
-clear
-f_banner
-
-echo -e "\e[1;34mCopy the results of a query from salesforce (https://connect.data.com/login) to a file.\e[0m"
-
-f_location
-
-echo
-echo
-
-sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/Addison//g; s/Akron//g; s/Alma //g; s/Amsterdam//g; s/Annapolis//g; s/Apple Valley//g; s/Arlington//g; s/Artesia//g; 
-s/Ashburn//g; s/Atlanta//g; s/Austin//g; s/Bakersfield//g; s/Baltimore//g; s/Barboursville//g; s/Binghamton//g; s/Birmingham//g; s/Boston//g; s/Bradenton//g; s/Burbank//g ; 
-s/Burlington//g; s/Brockton//g; s/Canada//g; s/Camp Springs//g; s/Carlsbad//g; s/Chantilly//g; s/Charleston//g; s/Charlotte//g; s/Chesapeake//g; s/Chicago//g; s/Christiansburg//g; 
-s/Cincinnati//g; s/Clearwater//g; s/Cleveland//g; s/CNN News Group Cable News Network//g; s/Columbia//g; s/Concord//g; s/Cresskill//g; s/Cross Junction//g; s/Dallas//g; s/Denver//g; 
-s/Duluth//g; s/Dunkirk//g; s/Durham//g; s/East Brunswick//g; s/East Greenbush//g; s/Eau Claire//g; s/El Paso//g; s/Englewood//g; s/Emeryville//g; s/Encino//g; s/Fallbrook//g; 
-s/Fremont//g; s/Front Royal//g; s/Gardena//g; s/Gastonia//g; s/Germantown//g; s/Gig Harbor//g; s/Hopkinton//g; s/Glendale//g; s/Greenbelt//g; s/Hamlin//g; s/Harbor City//g; 
-s/Harrisonburg//g; s/Hawthorne//g; s/Henrico//g; s/Hermosa Beach//g; s/Herndon//g; s/Hillsborough//g; s/Hollywood//g; s/Huntington//g; s/Hurricane//g; s/Hyattsville//g; 
-s/Indianapolis//g; s/Ireland//g; s/Irvine//g; s/JA//g; s/Johnson City//g; s/Kansas City//g; s/Knoxville//g; s/La Follette//g; s/La Plata//g; s/Lawrenceville//g; s/Lawndale//g; 
-s/Lexington//g; s/Linthicum Heights//g; s/Lithonia//g; s/Lomita//g; s/London//g; s/Long Beach//g; s/Long Valley//g; s/Los Angeles//g; s/Machias//g; s/Manhattan//g; s/Marietta//g; 
-s/Marina Del Rey//g; s/Mc Lean//g; s/Melville//g; s/Memphis//g; s/Menlo Park//g; s/Meriden//g; s/Miami//g; s/Milpitas//g; s/Milton//g; s/Minneapolis//g; s/Mountain View//g; 
-s/Mumbai//g; s/Needham//g; s/New York//g; s/North Holly...//g; s/Norwalk//g; s/Nottingham//g; s/Novato//g; s/Oakland//g; s/Oceanport//g; s/Odessa//g; s/Ottawa//g; s/Orange//g; 
-s/Palo Alto//g; s/Park Ridge//g; s/Philadelphia//g; s/Pleasanton//g; s/Point Pleasant//g; s/Portland//g; s/Proctorville//g; s/Purcellville//g; s/Rancho//g; s/Redondo Beach//g; 
-s/Reston//g; s/Richmond//g; s/Riverdale//g; s/Rllng Hls Est//g; s/Rochester//g; s/Rockville//g; s/Royal Oak//g; s/Ruckersville//g; s/Sacramento//g; s/Salt Lake City//g; 
-s/San Antonio//g; s/San Diego//g; s/San Francisco//g; s/San Jose//g; s/San Mateo//g; s/San Pedro//g; s/Santa Clara//g; s/Santa Monica//g; s/Schaumburg//g; s/Scotts Valley//g; 
-s/Seattle//g; s/Sebring//g; s/Show Low//g; s/Sitka//g; s/Southfield//g; s/South Lake//g; s/Southborough//g; s/Stephens City//g; s/Sterling//g; s/Stillwater//g; s/Suwanee//g; 
-s/Tacoma//g; s/Tallahassee//g; s/Tampa//g; s/Toronto//g; s/Torrance//g; s/Twin Falls//g; s/Tyngsboro//g; s/U.S.//g; s/United Kingdom//g; s/United States//g; s/Vancouver//g; 
-s/Vienna//g; s/Walnut Creek//g; s/Washington//g; s/Westborough//g; s/Westmont//g; s/Westport//g; s/Wheeling//g; s/White Plains//g; s/Wilton//g; s/Winchester//g; s/Williamsport//g; 
-s/Wilmington//g; s/Winder//g; s/Wynnewood//g; s/Yorktown//g;
-
-s/AK //g; s/AL //g; s/AR //g; s/AZ //g; s/CA //g; s/CT //g; s/DC //g; s/DE //g; s/FL //g; s/GA //g; s/HI //g; s/IA //g; s/ID //g; s/IL //g; s/IN //g; s/KS //g; s/KY //g; s/LA //g; 
-s/MA //g; s/ME //g; s/MD //g; s/MI //g; s/MN //g; s/MS //g; s/MT //g; s/NC //g; s/NE //g; s/ND //g; s/NH //g; s/NJ //g; s/NM //g; s/NV //g; s/NY //g; s/OH //g; s/OK //g; s/ON //g; 
-s/OR //g; s/PA //g; s/RI //g; s/SC //g; s/SD //g; s/TN //g; s/TX //g; s/UT //g; s/VA //g; s/VT //g; s/WA //g; s/WI //g; s/WV //g; s/WY //g; s/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g; 
-s/^[ \t]*//' > tmp
-
-# Author: Ben Wood
-perl -ne 'if ($_ =~ /(.*?)\t\s*(.*)/) {printf("%-30s%s\n",$1,$2);}' tmp > tmp2
-
-# Remove trailing whitespace from each line
-sed 's/[ \t]*$//' tmp2 | sort > /$user/names.txt
-
-rm tmp*
-cat /$user/names.txt
-
-echo
-echo $line
-echo
-printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/names.txt
-echo
-echo
-exit
-}
-
-##############################################################################################################
-
 f_listener(){
 clear
 echo
@@ -2724,21 +2726,21 @@ f_banner
 echo -e "\e[1;34mRECON\e[0m"
 echo "1.  Domain"
 echo "2.  Person"
+echo "3.  Parse salesforce"
 echo
 echo -e "\e[1;34mSCANNING\e[0m"
-echo "3.  Generate target list"
-echo "4.  CIDR"
-echo "5.  List"
-echo "6.  Single IP or domain"
+echo "4.  Generate target list"
+echo "5.  CIDR"
+echo "6.  List"
+echo "7.  Single IP or domain"
 echo
 echo -e "\e[1;34mWEB\e[0m"
-echo "7.  Open multiple tabs in Iceweasel"
-echo "8.  Nikto"
-echo "9.  SSL"
+echo "8.  Open multiple tabs in Iceweasel"
+echo "9.  Nikto"
+echo "10. SSL"
 echo
 echo -e "\e[1;34mMISC\e[0m"
-echo "10. Crack WiFi"
-echo "11. Parse salesforce"
+echo "11. Crack WiFi"
 echo "12. Start a Metasploit listener"
 echo "13. Update"
 echo "14. Exit"
@@ -2749,15 +2751,15 @@ read choice
 case $choice in
      1) f_domain;;
      2) f_person;;
-     3) f_generateTargetList;;
-     4) f_cidr;;
-     5) f_list;;
-     6) f_single;;
-     7) f_multitabs;;
-     8) f_nikto;;
-     9) f_sslcheck;;
-     10) /opt/scripts/crack-wifi.sh;;
-     11) f_salesforce;;
+     3) f_salesforce;;
+     4) f_generateTargetList;;
+     5) f_cidr;;
+     6) f_list;;
+     7) f_single;;
+     8) f_multitabs;;
+     9) f_nikto;;
+     10) f_sslcheck;;
+     11) /opt/scripts/crack-wifi.sh;;
      12) f_listener;;
      13) /opt/scripts/update.sh && exit;;
      14) clear && exit;;

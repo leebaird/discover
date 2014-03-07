@@ -5,7 +5,7 @@ Proxy > Options > Proxy Listeners
 Running
 127.0.0.1:8080
 
-Intercept Client Requests:  on
+Intercept Client Requests:  off
 In the list below, turn on URL and move to the top.
 File extension > Edit:  add jpeg
 Intercept Server Responses:  on
