@@ -1,6 +1,12 @@
 Burp Suite
 
 
+Firefox > Edit > Preferences > Advanced > Network > Settings
+Manual proxy configuration > HTTP Proxy: 127.0.0.1, Port: 8080
+Use this proxy server for all protocols.
+No proxy for: blank
+------------------------------------------------------------------------------------------------------
+
 Proxy > Intercept: Intercept is off
 
 Proxy > Options > Proxy Listeners: Running, 127.0.0.1:8080
@@ -17,18 +23,10 @@ Proxy > Options > Intercept Server Responses:
      Move to the secon position
 ------------------------------------------------------------------------------------------------------
 
-Firefox
-
-Edit > Preferences > Advanced > Network > Settings
-Manual proxy configuration > HTTP Proxy: 127.0.0.1, Port: 8080
-Use this proxy server for all protocols.
-No proxy for: blank
-------------------------------------------------------------------------------------------------------
-
 Firefox > surf to homepage or target site
-Target > Site map > Filter: enable Show only in-scope items
 Target > Site map > right click (RC) on the target URL > Add to scope
 Target > Scope: you should see the URL listed
+Target > Site map > Filter: enable Show only in-scope items
 
 Spider > Control > Spider is running
 Firefox > start clicking on links, the more the better.
