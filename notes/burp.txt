@@ -1,33 +1,39 @@
 Burp Suite
 
 
-Proxy > Options > Proxy Listeners
-Running
-127.0.0.1:8080
+Proxy > Intercept: Intercept is off
 
-Intercept Client Requests:  off
-In the list below, turn on URL and move to the top.
-File extension > Edit:  add jpeg
-Intercept Server Responses:  on
-In the list below, turn off Content type
-Turn on URL and move to the top.
-Add a new rule for File extention like the one above, and move that to the second position. 
+Proxy > Options > Proxy Listeners: Running, 127.0.0.1:8080
+
+Proxy > Options > Intercept Client Requests:
+     In the list below, enable URL and move to the top.
+     Select File extension > Edit: add jpeg, move to the second position
+
+Proxy > Options > Intercept Server Responses:
+     Enable Intercept responses based on the following rules
+     In the list below, disable Content type header
+     Enable URL and move to the top.
+     Add: And, File extention, Does not match, same Conditions as above
+     Move to the secon position
 ------------------------------------------------------------------------------------------------------
 
 Firefox
 
 Edit > Preferences > Advanced > Network > Settings
-Manual proxy configuration > HTTP Proxy:  127.0.0.1, Port:  8080
+Manual proxy configuration > HTTP Proxy: 127.0.0.1, Port: 8080
 Use this proxy server for all protocols.
-No proxy for:  blank
+No proxy for: blank
 ------------------------------------------------------------------------------------------------------
 
-Target > Site Map > RC on the target URL > add item to scope
-Target > Scope:  you should see your target listed
-Proxy > Intercept > off
-Manually start clicking links on the target site.  The more the better.
+Firefox > surf to homepage or target site
+Target > Site map > Filter: enable Show only in-scope items
+Target > Site map > right click (RC) on the target URL > Add to scope
+Target > Scope: you should see the URL listed
+
 Spider > Control > Spider is running
-Target > Site Map > RC on the target URL > spider this host
+Firefox > start clicking on links, the more the better.
+
+Target > Site map > RC on the target URL > Spider this host
 Some of these items are outside...  No
 Spider > Control:  watch the Requests made  increase.
 Target > Site Map > RC on the target URL > actively scan this host
