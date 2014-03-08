@@ -29,13 +29,16 @@ Target > Scope: you should see the URL listed
 Target > Site map > Filter: enable Show only in-scope items
 
 Spider > Control > Spider is running
+Form requests will probably appear.  You can hit submit or ignor
 Firefox > start clicking on links, the more the better.
 
 Target > Site map > RC on the target URL > Spider this host
-Some of these items are outside...  No
-Spider > Control:  watch the Requests made  increase.
-Target > Site Map > RC on the target URL > actively scan this host
-Scanner > Scan que
+Spider > Control: watch the Requests made increase.
+
+Target > Site Map > RC on the target URL > Actively scan this host
+     Active scanning wizard: check all boxes > Next > Ok
+Scanner > Scan que > RC > Automatically delete finished items > Yes
 Scanner > Results
+
 Manually varify findings.
-Select all remaining findings > RC > report selected issues > printer-friendly HTML with hyperlinks
+Select all remaining findings > RC > Report selected issues > Next 4x > enter file location > Next > Close
