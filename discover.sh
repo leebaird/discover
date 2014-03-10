@@ -924,9 +924,10 @@ echo -e "\e[1;34mSCANNING\e[0m"
 echo
 echo "1.  Angry IP Scanner"
 echo "2.  Local area network"
-echo "3.  netdiscover"
-echo "4.  Ping sweep"
-echo "5.  Previous menu"
+echo "3.  NetBIOS"
+echo "4.  netdiscover"
+echo "5.  Ping sweep"
+echo "6.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
@@ -943,9 +944,58 @@ case $choice in
      echo
      echo
      exit;;
-     3) netdiscover;;
-     4) f_pingsweep;;
-     5) f_main;;
+     3) f_netbios;;
+     4) netdiscover;;
+     5) f_pingsweep;;
+     6) f_main;;
+     *) f_error;;
+esac
+}
+
+##############################################################################################################
+
+f_netbios(){
+clear
+f_banner
+
+echo -e "\e[1;34mType of input:\e[0m"
+echo
+echo "1.  List containing IPs."
+echo "2.  CIDR"
+echo
+echo -n "Choice: "
+read choice
+
+case $choice in
+     1)
+     f_location
+
+     echo
+     echo $line
+     echo
+     nbtscan -f $location
+     echo
+     echo
+     exit;;
+
+     2)
+     echo
+     echo -n "Enter your CIDR: "
+     read cidr
+
+     # Check for no answer
+     if [ -z $cidr ]; then
+          f_error
+     fi
+
+     echo
+     echo $line
+     echo
+     nbtscan -r $cidr
+     echo
+     echo
+     exit;;
+
      *) f_error;;
 esac
 }
