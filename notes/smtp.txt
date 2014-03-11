@@ -10,18 +10,20 @@ VRFY root
 helo root
 
 mail from: root@target.com
-rcpt to: leebaird@gmail.com
+rcpt to: joesmith@gmail.com
 DATA
 Subject: Testing open mail relay.
 Testing SMTP open mail relay. Have a nice day.
 .
 quit
+
+for x in $(cat users.txt); do echo VRFY $x | nc -nv -w 1 <target IP> 25 2>/dev/null | grep ^’250’; done
 ------------------------------------------------------------------------------------------------------
 
 sendEmail -f root@target.com -t leebaird@gmail.com -u Testing open mail relay. -m Testing SMTP open mail relay. Have a nice day. -s <targetIP>
 SMTP Service STARTTLS Plaintext Command Injection
 
-telnet <IP> 25
+telnet <target IP> 25
 S: <waits for connection on TCP port 25>
 C: <opens connection>
 S: 220 mail.target.com SMTP service ready

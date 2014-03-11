@@ -9,7 +9,15 @@ use auxiliary/scanner/smb/smb_enumusers
 
 # CIFS NULL Session Permitted
 
-net use \\target IP\ipc$ "" /u:""
+enum4linux -v <target IP>
+
+rpclient -U "" <target IP>
+Enter  's password: <return>
+rpcclient $> srvinfo
+rpcclient $> enumdomusers
+rpcclient $> getdompwinfo
+
+net use \\target IP\ipc$ "" /u:""     # Windows
 ------------------------------------------------------------------------------------------------------
 
 # CIFS Share Writeable By Everyone
@@ -31,8 +39,6 @@ smb:\> mget scripts
 
 nmap -Pn -n -T4 -p139,445 --script=smb-check-vulns --script-args=unsafe=1 <range>
 
-enum4linux -a <target IP>
-
 enum -G <target IP>
 enum -P <target IP>
 
@@ -41,8 +47,6 @@ nbtenum -q <target IP>
 
 nbtscan -r <target range>
 nbtscan -f hosts.txt
-
-rpclient -U "" <target IP>
 ------------------------------------------------------------------------------------------------------
 
 # Show domain users and group information
