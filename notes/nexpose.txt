@@ -1,6 +1,11 @@
 Nexpose
 
 
+# Copy Full audit
+     Service Discovery:
+          Add TCP ports 3200, 3201 and 15000
+          Add UDP port 4045
+
 # Copy Web audit
      General - turn off Policies
      Vulnerability Checks > Selected Checks > By Check Type > Disabled:
