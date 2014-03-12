@@ -20,7 +20,7 @@ Proxy > Options > Intercept Server Responses:
      In the list below, disable Content type header
      Enable URL and move to the top.
      Add: And, File extention, Does not match, same Conditions as above
-     Move to the secon position
+     Move to the second position
 ------------------------------------------------------------------------------------------------------
 
 Firefox > surf to homepage or target site
