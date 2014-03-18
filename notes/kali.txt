@@ -42,15 +42,15 @@ Editor:  Tab width 5, Insert spaces instead of tabs
 Font & Colors:  Oblivion
 ------------------------------------------------------------------------------------------------------
 
-# Firefox
+# Iceweasel
 
 Tools > Ad-Ons > Extensions:
      Awesome screenshot, Cookies Manager+, Live HTTP headers, Tamper Data, Web Developer
 Add bookmarks:
-     Metasploit https://localhost:3790
-     Nessus https://localhost:8834
-     NeXpose https://localhost:3780
-     NSEDoc	http://nmap.org/nsedoc/
+     Metasploit  https://localhost:3790
+     Nessus      https://localhost:8834
+     NeXpose     https://localhost:3780
+     NSEDoc	 http://nmap.org/nsedoc/
 ------------------------------------------------------------------------------------------------------
 
 # Install Apache Directory Studio
@@ -70,7 +70,7 @@ CACKey                https://docs.google.com/file/d/0B8JoV2w_9hicRGQ0TFQ5UEpwSk
 Attach CAC reader, insert CAC and verify Kali can read it.
 pcsc_scan
 
-Firefox > Edit > Preferences > Advanced > Security Devices > Load
+Iceweasel > Edit > Preferences > Advanced > Security Devices > Load
      Module Name: CAC
      Browse > /usr/lib64/libcackey.so > Open > OK
      You should now see your device listed on the left > OK
@@ -82,10 +82,8 @@ Firefox extension     www.forge.mil/Resources-Firefox.html
 
 www.dbvis.com/products/dbvis/download/
 UNIX (setup installer)
-chmod 755 dbvis_unix_9_1_5.sh
-./dbvis_unix_9_1_5.sh
-when prompted change install folder to /opt/??
-rm dbvis_unix_9_1_5.sh
+chmod 755 dbvis_unix_9_1_7.sh
+./dbvis_unix_9_1_7.sh
 ------------------------------------------------------------------------------------------------------
 
 # Install Filezilla
@@ -183,7 +181,7 @@ update
 Angry IP Scanner
 Burp Suite
 DbVisualizer
-Firefox plugins
+Iceweasel plugins
 Metasploit Community edition
 Nessus
 Nexpose
