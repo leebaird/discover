@@ -220,14 +220,17 @@ passwd                        Change root password.
 passwd <user>                 Change another user's password.
 
 su                            Substitute user.
-user add                      Add a new user.
-user mod                      Modify user.
-user del                      Delete user.
+
+useradd                       Add new user.
+userdel                       Delete user.
 userdel -r                    Delete user and user's home directory.
-adduser <user> <group>        Add a user to a group.
-group add                     Add a new group.
-group del                     Delete group.
-group mod                     Modify group.
+usermod                       Modify user.
+
+groupadd                      Add new group.
+groupdel                      Delete group.
+groupmod                      Modify group.
+
+adduser <user> <group>        Add user to group.
 ------------------------------------------------------------------------------------------------------
 
 # vi
