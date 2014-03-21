@@ -77,7 +77,7 @@ fi
 ##############################################################################################################
 
 f_runlocally(){
-if [ -z $DISPLAY ]; then
+if [[ -z $DISPLAY ]]; then
      clear
      f_banner
      echo
@@ -2022,12 +2022,18 @@ fi
 ##############################################################################################################
 
 f_runmsf(){
+x=`ps aux | grep 'postgres' | grep -v 'grep'`
+
+if [[ -z $x ]]; then
+     echo
+     service postgresql start
+fi
+
 echo
 echo -e "\e[1;34mStarting Metasploit, this takes about 15 sec.\e[0m"
 
 echo workspace -a $name > $name/master.rc
 
-# If the file for the corresponding port doesn't exist, skip
 if [ -f $name/21.txt ]; then
      echo "     FTP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/21.txt/g" /opt/scripts/resource/ftp.rc
