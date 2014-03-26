@@ -1328,12 +1328,12 @@ if [ "$vdetection" == "y" ]; then
      echo
      echo -e "\e[1;34mRunning nmap scan with version detection.\e[0m"
 
-     nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sSV -sUV -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,31337,32764,32771,33333,35871,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2746,3401,3478,4045,4500,4665,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
+     nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sSV -sUV -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12000,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,31337,32764,32771,33333,35871,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2746,3401,3478,4045,4500,4665,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
 else
      echo
      echo -e "\e[1;34mRunning nmap scan.\e[0m"
 
-     nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sS -sU -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,31337,32764,32771,33333,35871,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2746,3401,3478,4045,4500,4665,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
+     nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sS -sU -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12000,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,31337,32764,32771,33333,35871,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2746,3401,3478,4045,4500,4665,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
 fi
 
 # Clean up
@@ -1360,7 +1360,7 @@ echo $line
 echo
 echo -e "\e[1;34mLocating high value ports.\e[0m"
 echo "     TCP"
-TCP_PORTS="13 21 22 23 25 70 79 80 110 111 139 143 389 443 445 465 523 524 548 554 587 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3031 3260 3306 3389 3632 4369 5019 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12345 19150 27017 35871 50000 50030 50060 50070 50075 50090 60010 60030"
+TCP_PORTS="13 21 22 23 25 70 79 80 110 111 139 143 389 443 445 465 523 524 548 554 587 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3031 3260 3306 3389 3632 4369 5019 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12000 12345 19150 27017 35871 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $TCP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/tcp\>" | cut -d ' ' -f2 > $name/$i.txt
@@ -1469,7 +1469,7 @@ fi
 
 if [ -f $name/53.txt ]; then
 	echo "     DNS"
-	nmap -iL $name/53.txt -Pn -n -sU --open -p53 --script=dns-cache-snoop,dns-nsid,dns-random-srcport,dns-random-txid,dns-recursion,dns-service-discovery,dns-update,dns-zone-transfer --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
+	nmap -iL $name/53.txt -Pn -n -sU --open -p53 --script=dns-blacklist,dns-cache-snoop,dns-nsec-enum,dns-nsid,dns-random-srcport,dns-random-txid,dns-recursion,dns-service-discovery,dns-update,dns-zeustracker,dns-zone-transfer --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
 	f_cleanup
 	mv tmp4 $name/script-53.txt
 fi
@@ -1929,6 +1929,13 @@ if [ -f $name/11211.txt ]; then
 	mv tmp4 $name/script-11211.txt
 fi
 
+if [ -f $name/12000.txt ]; then
+	echo "     CCcam"
+	nmap -iL $name/12000.txt -Pn -n --open -p12000 --script=cccam-version --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
+	f_cleanup
+	mv tmp4 $name/script-12000.txt
+fi
+
 if [ -f $name/12345.txt ]; then
 	echo "     NetBus"
 	nmap -iL $name/12345.txt -Pn -n --open -p12345 --script=netbus-auth-bypass,netbus-version --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
@@ -2287,7 +2294,7 @@ if [ $hosts -eq 1 ]; then
      echo >> $filename
      echo "Nmap Scripts" >> $filename
 
-     SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
+     SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
 
      for i in $SCRIPTS; do
           if [ -f $name/"$i.txt" ]; then
@@ -2365,7 +2372,7 @@ echo >> $filename
 echo "High Value Hosts by Port" >> $filename
 echo >> $filename
 
-HVPORTS="13 21 22 23 25 53 67 69 70 79 80 110 111 123 137 139 143 161 389 443 445 465 500 523 524 548 554 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1434 1521 1604 1720 1723 2202 2628 2947 3031 3260 3306 3389 3478 3632 4369 5019 5353 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6481 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12345 17185 19150 27017 31337 35871 50000 50030 50060 50070 50075 50090 60010 60030"
+HVPORTS="13 21 22 23 25 53 67 69 70 79 80 110 111 123 137 139 143 161 389 443 445 465 500 523 524 548 554 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1434 1521 1604 1720 1723 2202 2628 2947 3031 3260 3306 3389 3478 3632 4369 5019 5353 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6481 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12000 12345 17185 19150 27017 31337 35871 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $HVPORTS; do
      if [ -f $name/$i.txt ]; then
@@ -2383,7 +2390,7 @@ echo $line >> $filename
 echo >> $filename
 echo "Nmap Scripts" >> $filename
 
-SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
+SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
 
 for i in $SCRIPTS; do
      if [ -f $name/"$i.txt" ]; then
@@ -2769,20 +2776,16 @@ msfconsole -r /opt/scripts/resource/listener.rc
 
 f_updates(){
 # Remove entire script categories
-ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(broadcast|brute|discover|http|targets)' > tmp-all
+ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(address-info|ajp-auth|ajp-headers|asn-query|auth-owners|auth-spoof|broadcast|brute|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|discover|dns-brute|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-srv-enum|dns-nsec3-enum|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-libopie|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-ip2hosts|hostmap-robtex|http|iax2-version|informix-query|informix-tables|ip-forwarding|ip-geolocation-geobytes|ip-geolocation-geoplugin|ip-geolocation-ipinfodb|ip-geolocation-maxmind|ipidseq|ipv6-node-info|ipv6-ra-flood|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|ntp-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-ready-message|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-call-spoof|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|smb-vuln-ms10-054|smb-vuln-ms10-061|smtp-vuln-cve2010-4344|smtp-vuln-cve2011-1720|smtp-vuln-cve2011-1764|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|ssl|stun-info|teamspeak2-version|tftp-enum|targets|tls-nextprotoneg|traceroute-geolocation|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|whois|xmpp-info)' > tmp
 
-# Remove Nmap scripts that take too many arguments, DOS or not relevant
-#egrep -v '(address-info|ajp-auth|ajp-headers|asn-query|auth-owners|auth-spoof|cccam-version|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|dns-blacklist|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-nsec3-enum|dns-nsec-enum|dns-srv-enum|dns-zeustracker|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-robtex|iax2-version|informix-query|informix-tables|ipidseq|ipv6-node-info|ipv6-ra-flood|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-ready-message|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-enum-users|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|smb-vuln-ms10-054|smb-vuln-ms10-061|smtp-vuln-cve2010-4344|smtp-vuln-cve2011-1720|smtp-vuln-cve2011-1764|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|stun-info|tftp-enum|tls-nextprotoneg|traceroute-geolocation|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|whois|xmpp-info)' tmp > tmp-all
-
-grep 'script=' discover.sh | egrep -v '(discover.sh|22.txt|smtp.txt)' > tmp
-cat tmp | cut -d '=' -f2- | cut -d ' ' -f1 | tr ',' '\n' | egrep -v '(db2-discover|dhcp-discover|dns-service-discovery|membase-http-info|oracle-sid-brute|smb-os-discovery|sslv2)' | sort -u > tmp-used
+grep 'script=' discover.sh | egrep -v '(discover.sh|22.txt|smtp.txt)' | cut -d '=' -f2- | cut -d ' ' -f1 | tr ',' '\n' | egrep -v '(db2-discover|dhcp-discover|dns-service-discovery|http-email-harvest|membase-http-info|oracle-sid-brute|smb-os-discovery|sslv2)' | sort -u > tmp2
 
 echo "New Modules" > tmp-updates
 echo >> tmp-updates
 echo "Nmap scripts" >> tmp-updates
 echo "==============================" >> tmp-updates
 
-diff tmp-all tmp-used | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' >> tmp-updates
+diff tmp tmp2 | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' >> tmp-updates
 
 rm tmp
 

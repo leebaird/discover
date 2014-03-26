@@ -175,9 +175,11 @@ ctrl + l                      Clear the screen.
 
 # SSH
 
+ssh-keygen                    Generate new public/private key pair,
 ssh user@host                 Connect to host as user.
 ssh -p 222 user@host          Connect to host on port 222 as user.
 ssh -copy-id user@host        Add your public key to host.  No password is now needed.
+
 /etc/ssh/sshd_config          Change port that the server is listening on.  Allow root login.
 ------------------------------------------------------------------------------------------------------
 
