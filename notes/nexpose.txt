@@ -12,6 +12,13 @@ Nexpose
           Microsoft hotfix, Patch, RPM, Sun patch, Version, Windows registry and Policy
      Web Servers - turn on Enable adaptive HTTP fingerprinting
      Web Spidering - turn on Check use of common user names and passwords
+
+# Administration > Exceptions and Overrides 
+     ICMP timestamp response
+     TCP Sequence Number Approximation Vulnerability
+     TCP timestamp response
+     UDP IP ID Zero
+
 ------------------------------------------------------------------------------------------------------
 
 # Create PDF reports
