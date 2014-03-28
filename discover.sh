@@ -2813,7 +2813,7 @@ done
 sed '/^$/d' tmp > tmp2
 
 # Remove brute force and misc
-egrep -v '(afp_login|anonymous|axis_login|brute_dirs|cisco_upload_file|crawler|db2_auth|dolibarr_login|ektron_cms400net|enum_delicious|enum_wayback|file_same_name_dir|ftp_login|httpbl_lookup|isqlplus_login|isqlplus_sidbrute|lotus_domino_hashes|lotus_domino_login|lucky_punch|mongodb_login|mysql_hashdump|mysql_login|mysql_schemadump|oracle_hashdump|oracle_login|owa_login|pop3_login|postgres_hashdump|postgres_login|postgres_schemadump|postgres_version|prev_dir_same_name_file|rexec_login|rlogin_login|rsh_login|sid_brute|smb_login|snmp_login|snmp_set|squid_pivot_scanning|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|sybase_easerver_traversal|telnet_encrypt_overflow|telnet_login|tftpbrute|vcms_login|vhost_scanner|vnc_login|web_vulndb|xdb_sid|xdb_sid_brute|xpath)' tmp2 | sort > tmp-msf-all
+egrep -v '(afp_login|anonymous|axis_login|brute_dirs|cisco_upload_file|crawler|db2_auth|dell_idrac|dolibarr_login|ektron_cms400net|enum_delicious|enum_wayback|file_same_name_dir|ftp_login|httpbl_lookup|isqlplus_login|isqlplus_sidbrute|lotus_domino_hashes|lotus_domino_login|lucky_punch|mongodb_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|oracle_hashdump|oracle_ilom_login|oracle_login|owa_login|pop3_login|postgres_hashdump|postgres_login|postgres_schemadump|postgres_version|prev_dir_same_name_file|rexec_login|rlogin_login|rsh_login|sid_brute|smb_login|snmp_login|snmp_set|squid_pivot_scanning|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|sybase_easerver_traversal|telnet_encrypt_overflow|telnet_login|tftpbrute|vcms_login|vhost_scanner|vnc_login|web_vulndb|winrm_login|xdb_sid|xdb_sid_brute|xpath)' tmp2 | sort > tmp-msf-all
 
 cat /opt/scripts/resource/*.rc | grep 'use' > tmp
 
