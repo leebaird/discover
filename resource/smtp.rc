@@ -8,3 +8,5 @@ run
 use auxiliary/scanner/smtp/smtp_enum
 run
 
+use auxiliary/scanner/smtp/smtp_relay
+run
