@@ -1332,12 +1332,12 @@ if [ "$vdetection" == "y" ]; then
      echo
      echo -e "\e[1;34mRunning nmap scan with version detection.\e[0m"
 
-     nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sSV -sUV -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12000,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,31337,32764,32771,33333,35871,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2746,3401,3478,4045,4500,4665,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
+     nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sSV -sUV -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5040,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12000,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,31337,32764,32771,33333,35871,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2746,3401,3478,4045,4500,4665,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
 else
      echo
      echo -e "\e[1;34mRunning nmap scan.\e[0m"
 
-     nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sS -sU -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12000,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,31337,32764,32771,33333,35871,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2746,3401,3478,4045,4500,4665,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
+     nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sS -sU -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5040,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12000,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,31337,32764,32771,33333,35871,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2746,3401,3478,4045,4500,4665,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
 fi
 
 # Clean up
@@ -1364,7 +1364,7 @@ echo $line
 echo
 echo -e "\e[1;34mLocating high value ports.\e[0m"
 echo "     TCP"
-TCP_PORTS="13 21 22 23 25 70 79 80 110 111 139 143 389 443 445 465 523 524 548 554 587 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3031 3260 3306 3389 3632 4369 5019 5060 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12000 12345 19150 27017 35871 50000 50030 50060 50070 50075 50090 60010 60030"
+TCP_PORTS="13 19 21 22 23 25 70 79 80 110 111 135 139 143 389 443 445 465 523 524 548 554 587 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3031 3260 3306 3389 3632 4369 5019 5040 5060 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12000 12345 19150 27017 35871 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $TCP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/tcp\>" | cut -d ' ' -f2 > $name/$i.txt
@@ -2054,6 +2054,12 @@ echo -e "\e[1;34mStarting Metasploit, this takes about 15 sec.\e[0m"
 
 echo workspace -a $name > $name/master.rc
 
+if [ -f $name/19.txt ]; then
+     echo "     CHARGEN"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/19.txt/g" /opt/scripts/resource/chargen.rc
+     cat /opt/scripts/resource/chargen.rc >> $name/master.rc
+fi
+
 if [ -f $name/21.txt ]; then
      echo "     FTP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/21.txt/g" /opt/scripts/resource/ftp.rc
@@ -2106,6 +2112,12 @@ if [ -f $name/123.txt ]; then
      echo "     NTP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/123.txt/g" /opt/scripts/resource/ntp.rc
      cat /opt/scripts/resource/ntp.rc >> $name/master.rc
+fi
+
+if [ -f $name/135.txt ]; then
+     echo "     DCE/RPC"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/135.txt/g" /opt/scripts/resource/dcerpc.rc
+     cat /opt/scripts/resource/dcerpc.rc >> $name/master.rc
 fi
 
 if [ -f $name/137.txt ]; then
@@ -2192,6 +2204,12 @@ if [ -f $name/3306.txt ]; then
      cat /opt/scripts/resource/mysql.rc >> $name/master.rc
 fi
 
+if [ -f $name/5040.txt ]; then
+     echo "     DCE/RPC"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5040.txt/g" /opt/scripts/resource/dcerpc2.rc
+     cat /opt/scripts/resource/dcerpc2.rc >> $name/master.rc
+fi
+
 if [ -f $name/5432.txt ]; then
      echo "     Postgres"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5432.txt/g" /opt/scripts/resource/postgres.rc
@@ -2211,9 +2229,9 @@ if [ -f $name/x11.txt ]; then
 fi
 
 if [ -f $name/7777.txt ]; then
-     echo "     Energizer Duo"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/7777.txt/g" /opt/scripts/resource/energizer-duo.rc
-     cat /opt/scripts/resource/energizer-duo.rc >> $name/master.rc
+     echo "     Backdoor"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/7777.txt/g" /opt/scripts/resource/backdoor.rc
+     cat /opt/scripts/resource/backdoor.rc >> $name/master.rc
 fi
 
 if [ -f $name/8080.txt ]; then
@@ -2253,9 +2271,9 @@ if [ -f $name/17185.txt ]; then
 fi
 
 if [ -f $name/50000.txt ]; then
-     echo "     db2 version"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/50000.txt/g" /opt/scripts/resource/db2-version.rc
-     cat /opt/scripts/resource/db2-version.rc >> $name/master.rc
+     echo "     db2"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/50000.txt/g" /opt/scripts/resource/db2-2.rc
+     cat /opt/scripts/resource/db2-2.rc >> $name/master.rc
 fi
 
 echo db_export -f xml -a $name/metasploit.xml >> $name/master.rc
@@ -2814,7 +2832,7 @@ echo >> tmp-updates
 echo "Metasploit auxiliary/scanners" >> tmp-updates
 echo "==============================" >> tmp-updates
 
-categories="afp backdoor db2 finger ftp h323 http imap lotus mongodb motorola mssql mysql netbios nfs ntp oracle pcanywhere pop3 postgres rservices scada sip smb smtp snmp ssh telnet tftp upnp vmware vnc vxworks winrm x11"
+categories="afp backdoor chargen couchdb db2 dcerpc dect discovery emc finger ftp h323 http imap ip ipmi lotus misc mongodb motorola msf mssql mysql natpmp nessus netbios nexpose nfs ntp openvas oracle pcanywhere pop3 portscan postgres printer rdp rogue rservices sap scada sip smb smtp snmp ssh telephony telnet tftp upnp vmware vnc voice vxworks winrm x11"
 
 for i in $categories; do
      ls -l /usr/share/metasploit-framework/modules/auxiliary/scanner/$i | awk '{print $9}' | cut -d '.' -f1 >> tmp
@@ -2823,7 +2841,7 @@ done
 sed '/^$/d' tmp > tmp2
 
 # Remove brute force and misc
-egrep -v '(afp_login|anonymous|axis_login|brute_dirs|cisco_upload_file|crawler|db2_auth|dell_idrac|dolibarr_login|ektron_cms400net|enum_delicious|enum_wayback|file_same_name_dir|ftp_login|httpbl_lookup|isqlplus_login|isqlplus_sidbrute|lotus_domino_hashes|lotus_domino_login|lucky_punch|mongodb_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|oracle_hashdump|oracle_ilom_login|oracle_login|owa_login|pop3_login|postgres_hashdump|postgres_login|postgres_schemadump|postgres_version|prev_dir_same_name_file|rexec_login|rlogin_login|rsh_login|sid_brute|smb_login|snmp_login|snmp_set|squid_pivot_scanning|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|sybase_easerver_traversal|telnet_encrypt_overflow|telnet_login|tftpbrute|vcms_login|vhost_scanner|vnc_login|web_vulndb|winrm_cmd|winrm_login|winrm_wql|wordpress_pingback_access|wordpress_scanner|xdb_sid|xdb_sid_brute|xpath)' tmp2 | sort > tmp-msf-all
+egrep -v '(afp_login|anonymous|axis_login|brute_dirs|cisco_upload_file|couchdb_enum|couchdb_login|crawler|db2_auth|dell_idrac|dolibarr_login|ektron_cms400net|enum_delicious|enum_wayback|file_same_name_dir|ftp_login|httpbl_lookup|isqlplus_login|isqlplus_sidbrute|lotus_domino_hashes|lotus_domino_login|lucky_punch|mongodb_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|oracle_hashdump|oracle_ilom_login|oracle_login|owa_login|pop3_login|postgres_hashdump|postgres_login|postgres_schemadump|postgres_version|prev_dir_same_name_file|rexec_login|rlogin_login|rsh_login|sid_brute|smb_login|snmp_login|snmp_set|squid_pivot_scanning|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|sybase_easerver_traversal|telnet_encrypt_overflow|telnet_login|tftpbrute|vcms_login|vhost_scanner|vnc_login|web_vulndb|winrm_cmd|winrm_login|winrm_wql|wordpress_pingback_access|wordpress_scanner|xdb_sid|xdb_sid_brute|xpath)' tmp2 | sort > tmp-msf-all
 
 cat /opt/scripts/resource/*.rc | grep 'use' > tmp
 
