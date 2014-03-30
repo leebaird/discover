@@ -6,4 +6,3 @@ set EnableStageEncoding true
 set ExitOnSession false
 set InitialAutoRunScript migrate -f
 exploit -j
-

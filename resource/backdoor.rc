@@ -1,6 +1,6 @@
 setg RHOSTS file:
 setg THREADS 255
-setg PORT 7777
+setg RPORT 7777
 
 use auxiliary/scanner/backdoor/energizer_duo_detect
 run
