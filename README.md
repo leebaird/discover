@@ -17,23 +17,23 @@ Formally BackTrack scripts. For use with Kali Linux - custom bash scripts used t
 ### Main Menu
 ```
 RECON
-1. Domain
-2. Person
+1.  Domain
+2.  Person
+3.  Parse salesforce
 
 SCANNING
-3. Generate target list
-4. CIDR
-5. List
-6. Single IP or domain
+4.  Generate target list
+5.  CIDR
+6.  List
+7.  Single IP or domain
 
 WEB
-7. Open multiple tabs in Iceweasel
-8. Nikto
-9. SSL
+8.  Open multiple tabs in Iceweasel
+9.  Nikto
+10. SSL
 
 MISC
-10. Crack WiFi
-11. Parse salesforce
+11. Crack WiFi
 12. Start a Metasploit listener
 13. Update
 14. Exit
