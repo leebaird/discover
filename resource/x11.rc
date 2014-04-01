@@ -24,4 +24,3 @@ run
 use auxiliary/scanner/x11/open_x11
 set RPORT 6005
 run
-

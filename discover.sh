@@ -1364,7 +1364,7 @@ echo $line
 echo
 echo -e "\e[1;34mLocating high value ports.\e[0m"
 echo "     TCP"
-TCP_PORTS="13 19 21 22 23 25 70 79 80 110 111 135 139 143 389 443 445 465 523 524 548 554 587 623 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3000 3031 3260 3306 3389 3500 3632 4369 5019 5040 5060 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 8834 9100 9160 9999 10000 11211 12000 12345 19150 27017 35871 50000 50030 50060 50070 50075 50090 60010 60030"
+TCP_PORTS="13 19 21 22 23 25 70 79 80 110 111 135 139 143 389 443 445 465 512 513 514 523 524 548 554 587 623 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3000 3031 3260 3306 3389 3500 3632 4369 5019 5040 5060 5432 5631 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 8834 9100 9160 9999 10000 11211 12000 12345 19150 27017 35871 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $TCP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/tcp\>" | cut -d ' ' -f2 > $name/$i.txt
@@ -1375,7 +1375,7 @@ if [ -f $name/523.txt ]; then
 fi
 
 echo "     UDP"
-UDP_PORTS="53 67 69 123 137 161 407 500 523 1434 1604 3478 5353 6481 17185 31337"
+UDP_PORTS="53 67 69 123 137 161 407 500 523 1434 1604 1900 3478 5353 5632  6481 17185 31337"
 
 for i in $UDP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/udp\>" | cut -d ' ' -f2 > $name/$i.txt
@@ -2156,6 +2156,24 @@ if [ -f $name/465.txt ]; then
      cat /opt/scripts/resource/smtp-s.rc >> $name/master.rc
 fi
 
+if [ -f $name/512.txt ]; then
+     echo "     Rexec"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/512.txt/g" /opt/scripts/resource/rservices.rc
+     cat /opt/scripts/resource/rservices.rc >> $name/master.rc
+fi
+
+if [ -f $name/513.txt ]; then
+     echo "     rlogin"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/513.txt/g" /opt/scripts/resource/rservices2.rc
+     cat /opt/scripts/resource/rservices2.rc >> $name/master.rc
+fi
+
+if [ -f $name/514.txt ]; then
+     echo "     rshell"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/514.txt/g" /opt/scripts/resource/rservices3.rc
+     cat /opt/scripts/resource/rservices3.rc >> $name/master.rc
+fi
+
 if [ -f $name/523.txt ]; then
      echo "     db2"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/523.txt/g" /opt/scripts/resource/db2.rc
@@ -2210,6 +2228,12 @@ if [ -f $name/1720.txt ]; then
      cat /opt/scripts/resource/h323.rc >> $name/master.rc
 fi
 
+if [ -f $name/1900.txt ]; then
+     echo "     UPnP"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1900.txt/g" /opt/scripts/resource/upnp.rc
+     cat /opt/scripts/resource/upnp.rc >> $name/master.rc
+fi
+
 if [ -f $name/3000.txt ]; then
      echo "     EMC"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3000.txt/g" /opt/scripts/resource/emc.rc
@@ -2220,6 +2244,12 @@ if [ -f $name/3306.txt ]; then
      echo "     MySQL"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3306.txt/g" /opt/scripts/resource/mysql.rc
      cat /opt/scripts/resource/mysql.rc >> $name/master.rc
+fi
+
+if [ -f $name/3389.txt ]; then
+     echo "     RDP"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3389.txt/g" /opt/scripts/resource/rdp.rc
+     cat /opt/scripts/resource/rdp.rc >> $name/master.rc
 fi
 
 if [ -f $name/3500.txt ]; then
@@ -2238,6 +2268,18 @@ if [ -f $name/5432.txt ]; then
      echo "     Postgres"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5432.txt/g" /opt/scripts/resource/postgres.rc
      cat /opt/scripts/resource/postgres.rc >> $name/master.rc
+fi
+
+if [ -f $name/5631.txt ]; then
+     echo "     pcAnywhere"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5631.txt/g" /opt/scripts/resource/pcanywhere.rc
+     cat /opt/scripts/resource/pcanywhere.rc >> $name/master.rc
+fi
+
+if [ -f $name/5632.txt ]; then
+     echo "     pcAnywhere"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5632.txt/g" /opt/scripts/resource/pcanywhere2.rc
+     cat /opt/scripts/resource/pcanywhere2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5900.txt ]; then
@@ -2877,7 +2919,7 @@ done
 sed '/^$/d' tmp > tmp2
 
 # Remove brute force and misc
-egrep -v '(afp_login|arp_sweep|call_scanner|couchdb_enum|ftp_login|ipv6_multicast_ping|ipv6_neighbor|ipv6_neighbor_router_advertisement|mongodb_login|msf_rpc_login|msf_web_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|natpmp_portscan|nexpose_api_login|openvas_gsad_login|openvas_omp_login|openvas_otp_login|udp_probe|udp_sweep|station_scanner)' tmp2 | sort > tmp-msf-all
+egrep -v '(ack|afp_login|arp_sweep|call_scanner|couchdb_enum|ftp_login|ipv6_multicast_ping|ipv6_neighbor|ipv6_neighbor_router_advertisement|mongodb_login|msf_rpc_login|msf_web_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|natpmp_portscan|nexpose_api_login|openvas_gsad_login|openvas_omp_login|openvas_otp_login|pcanywhere_login|recorder|rogue_recv|rogue_send|udp_probe|udp_sweep|station_scanner|syn|tcp|wardial|xmas)' tmp2 | sort > tmp-msf-all
 
 cat /opt/scripts/resource/*.rc | grep 'use' > tmp
 

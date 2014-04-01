@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 5631
+
+use auxiliary/scanner/pcanywhere/pcanywhere_tcp
+run

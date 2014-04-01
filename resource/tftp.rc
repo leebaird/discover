@@ -7,3 +7,6 @@ run
 
 use auxiliary/scanner/tftp/netdecision_tftp
 run
+
+use auxiliary/scanner/tftp/tftpbrute
+run
