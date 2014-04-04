@@ -2,5 +2,5 @@ setg RHOSTS file:
 setg THREADS 255
 setg RPORT 3000
 
-use auxiliary/admin/emc/alphastor_devicemanager_exec
+use auxiliary/admin/emc/alphastor_devicemanager
 run

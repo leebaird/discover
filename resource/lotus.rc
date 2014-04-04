@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 80
+
+use auxiliary/scanner/lotus/lotus_domino_hashes
+run
+
+use auxiliary/scanner/lotus/lotus_domino_version
+run

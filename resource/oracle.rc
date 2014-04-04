@@ -1,6 +1,6 @@
 setg RHOSTS file:
 setg THREADS 255
-setg PORT 1158
+setg RPORT 1158
 
 use auxiliary/scanner/oracle/emc_sid
 run

@@ -1364,7 +1364,7 @@ echo $line
 echo
 echo -e "\e[1;34mLocating high value ports.\e[0m"
 echo "     TCP"
-TCP_PORTS="13 19 21 22 23 25 70 79 80 110 111 135 139 143 389 443 445 465 512 513 514 523 524 548 554 587 623 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3000 3031 3260 3306 3389 3500 3632 4369 5019 5040 5060 5432 5631 5666 5672 5850 5900 5984 5985 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 8834 9100 9160 9999 10000 11211 12000 12345 19150 27017 30718 35871 50000 50030 50060 50070 50075 50090 60010 60030"
+TCP_PORTS="13 19 21 22 23 25 70 79 80 110 111 135 139 143 389 443 445 465 512 513 514 523 524 548 554 587 623 631 873 902 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3000 3031 3260 3306 3389 3500 3632 4369 5019 5040 5060 5432 5560 5631 5666 5672 5850 5900 5984 5985 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 8834 9100 9160 9999 10000 11211 12000 12345 19150 27017 30718 35871 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $TCP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/tcp\>" | cut -d ' ' -f2 > $name/$i.txt
@@ -2100,6 +2100,12 @@ if [ -f $name/79.txt ]; then
      cat /opt/scripts/resource/finger.rc >> $name/master.rc
 fi
 
+if [ -f $name/80.txt ]; then
+     echo "     Lotus"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/80.txt/g" /opt/scripts/resource/lotus.rc
+     cat /opt/scripts/resource/lotus.rc >> $name/master.rc
+fi
+
 if [ -f $name/110.txt ]; then
      echo "     POP3"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/110.txt/g" /opt/scripts/resource/pop3.rc
@@ -2146,6 +2152,12 @@ if [ -f $name/407.txt ]; then
      echo "     Motorola"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/407.txt/g" /opt/scripts/resource/motorola.rc
      cat /opt/scripts/resource/motorola.rc >> $name/master.rc
+fi
+
+if [ -f $name/443.txt ]; then
+     echo "     VMware"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/443.txt/g" /opt/scripts/resource/vmware.rc
+     cat /opt/scripts/resource/motorola.rc >> $name/vmware.rc
 fi
 
 if [ -f $name/445.txt ]; then
@@ -2196,6 +2208,12 @@ if [ -f $name/623.txt ]; then
      cat /opt/scripts/resource/ipmi.rc >> $name/master.rc
 fi
 
+if [ -f $name/902.txt ]; then
+     echo "     VMware"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/902.txt/g" /opt/scripts/resource/vmware2.rc
+     cat /opt/scripts/resource/motorola.rc >> $name/vmware2.rc
+fi
+
 if [ -f $name/1099.txt ]; then
      echo "     RMI Registery"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1099.txt/g" /opt/scripts/resource/rmi.rc
@@ -2215,9 +2233,9 @@ if [ -f $name/1433.txt ]; then
 fi
 
 if [ -f $name/1521.txt ]; then
-     echo "     Oracle 2"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1521.txt/g" /opt/scripts/resource/oracle2.rc
-     cat /opt/scripts/resource/oracle2.rc >> $name/master.rc
+     echo "     Oracle"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1521.txt/g" /opt/scripts/resource/oracle3.rc
+     cat /opt/scripts/resource/oracle3.rc >> $name/master.rc
 fi
 
 if [ -f $name/1604.txt ]; then
@@ -2284,6 +2302,12 @@ if [ -f $name/5432.txt ]; then
      echo "     Postgres"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5432.txt/g" /opt/scripts/resource/postgres.rc
      cat /opt/scripts/resource/postgres.rc >> $name/master.rc
+fi
+
+if [ -f $name/5560.txt ]; then
+     echo "     Oracle iSQL"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5560.txt/g" /opt/scripts/resource/oracle2.rc
+     cat /opt/scripts/resource/oracle2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5631.txt ]; then
@@ -2356,6 +2380,12 @@ if [ -f $name/8834.txt ]; then
      echo "     Nessus"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8834.txt/g" /opt/scripts/resource/nessus.rc
      cat /opt/scripts/resource/nessus.rc >> $name/master.rc
+fi
+
+if [ -f $name/9100.txt ]; then
+     echo "     Printers"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/9100.txt/g" /opt/scripts/resource/printers.rc
+     cat /opt/scripts/resource/printers.rc >> $name/master.rc
 fi
 
 if [ -f $name/9999.txt ]; then
@@ -2914,7 +2944,7 @@ echo "Type - Windows meterpreter reverse TCP."
 echo
 echo "This takes about 20 seconds."
 echo
-msfconsole -r /opt/scripts/resource/listener.rc
+msfconsole -r /opt/scripts/resource/misc/listener.rc
 }
 
 ##############################################################################################################
@@ -2938,7 +2968,9 @@ echo >> tmp-updates
 echo "Metasploit auxiliary/scanners" >> tmp-updates
 echo "==============================" >> tmp-updates
 
-categories="afp backdoor chargen couchdb db2 dcerpc dect discovery emc finger ftp h323 http imap ip ipmi lotus misc mongodb motorola msf mssql mysql natpmp nessus netbios nexpose nfs ntp openvas oracle pcanywhere pop3 portscan postgres printer rdp rogue rservices sap scada sip smb smtp snmp ssh telephony telnet tftp upnp vmware vnc voice vxworks winrm x11"
+# Not included: http misc sap scada
+
+categories="afp backdoor chargen couchdb db2 dcerpc dect discovery emc finger ftp h323 imap ip ipmi lotus mongodb motorola msf mssql mysql natpmp nessus netbios nexpose nfs ntp openvas oracle pcanywhere pop3 portscan postgres printer rdp rogue rservices sip smb smtp snmp ssh telephony telnet tftp upnp vmware vnc voice vxworks winrm x11"
 
 for i in $categories; do
      ls -l /usr/share/metasploit-framework/modules/auxiliary/scanner/$i | awk '{print $9}' | cut -d '.' -f1 >> tmp
@@ -2947,7 +2979,7 @@ done
 sed '/^$/d' tmp > tmp2
 
 # Remove scanners not used
-egrep -v '(ack|afp_login|arp_sweep|call_scanner|couchdb_enum|ftp_login|ipv6_multicast_ping|ipv6_neighbor|ipv6_neighbor_router_advertisement|mongodb_login|msf_rpc_login|msf_web_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|natpmp_portscan|nessus_ntp_login|nessus_xmlrpc_login|nexpose_api_login|openvas_gsad_login|openvas_omp_login|openvas_otp_login|pcanywhere_login|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|station_scanner|syn|tcp|telnet_login|udp_probe|udp_sweep|wardial|winrm_cmd|winrm_login|winrm_wql|xmas)' tmp2 | sort > tmp-msf-all
+egrep -v '(ack|afp_login|arp_sweep|call_scanner|couchdb_enum|ftp_login|ftpbounce|ipidseq|ipv6_multicast_ping|ipv6_neighbor|ipv6_neighbor_router_advertisement|lotus_domino_login|mongodb_login|msf_rpc_login|msf_web_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|natpmp_portscan|nessus_ntp_login|nessus_xmlrpc_login|nexpose_api_login|openvas_gsad_login|openvas_omp_login|openvas_otp_login|pcanywhere_login|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|station_scanner|syn|tcp|telnet_login|udp_probe|udp_sweep|vmauthd_login|vmware_http_login|wardial|winrm_cmd|winrm_login|winrm_wql|xmas)' tmp2 | sort > tmp-msf-all
 
 grep 'use ' /opt/scripts/resource/*.rc | grep -v 'recon-ng' > tmp
 

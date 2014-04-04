@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 8080
+
+use auxiliary/scanner/oracle/xdb_sid_brute
+run
+
+use auxiliary/scanner/oracle/xdb_sid
+run

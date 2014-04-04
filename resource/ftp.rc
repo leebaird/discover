@@ -5,7 +5,7 @@ setg RPORT 21
 use auxiliary/scanner/ftp/ftp_version
 run
 
-use auxiliary/scanner/ftp/anonymous 
+use auxiliary/scanner/ftp/anonymous
 run
 
 use auxiliary/scanner/ftp/titanftp_xcrc_traversal

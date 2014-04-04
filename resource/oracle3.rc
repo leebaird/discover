@@ -1,0 +1,18 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 1521
+
+use auxiliary/scanner/oracle/oracle_hashdump
+run
+
+use auxiliary/scanner/oracle/oracle_login
+run
+
+use auxiliary/scanner/oracle/sid_brute
+run
+
+use auxiliary/scanner/oracle/sid_enum
+run
+
+use auxiliary/scanner/oracle/tnslsnr_version
+run

