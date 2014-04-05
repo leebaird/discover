@@ -10,6 +10,9 @@ echo
 echo -e "\e[1;33mInstalling Filezilla.\e[0m"
 apt-get -y install filezilla
 echo
+echo -e "\e[1;33mInstalling gedit.\e[0m"
+apt-get -y install gedit
+echo
 echo -e "\e[1;33mInstalling xdotool.\e[0m"
 apt-get -y install xdotool
 echo
@@ -25,10 +28,5 @@ echo >> /etc/apt/sources.list
 echo "# Bleeding Edge repos" >> /etc/apt/sources.list
 echo "deb http://repo.kali.org/kali kali-bleeding-edge main" >> /etc/apt/sources.list
 echo
-echo -e "\e[1;33mSetting postgresql to run at startup.\e[0m"
-update-rc.d postgresql enable && service postgresql start
 echo
-echo -e "\e[1;33mInstalling gedit.\e[0m"
-apt-get -y install gedit
-echo
-echo
+

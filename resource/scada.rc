@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 2362
+
+use auxiliary/scanner/scada/digi_addp_reboot
+run
+
+use auxiliary/scanner/scada/digi_addp_version
+run
