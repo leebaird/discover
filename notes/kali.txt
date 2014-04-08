@@ -10,7 +10,8 @@ Be sure to verify the SHA1 checksum.
 
 # Create bootable USB
 
-Use Windows 7 and UNetbootin
+Use Windows 7 to download UNetbootin.
+http://unetbootin.sourceforge.net
 ------------------------------------------------------------------------------------------------------
  
 # Remove screen lock
