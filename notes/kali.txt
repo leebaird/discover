@@ -5,6 +5,7 @@ Kali
 
 http://archive.kali.org/kali-daily-images/
 kali-linux-daily-amd64.iso
+Be sure to verify the SHA1 checksum.
 ------------------------------------------------------------------------------------------------------
 
 # Create bootable USB
