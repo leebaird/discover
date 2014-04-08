@@ -49,7 +49,7 @@ Tools > Ad-Ons > Extensions:
 Add bookmarks:
      Metasploit  https://localhost:3790
      Nessus      https://localhost:8834
-     NeXpose     https://localhost:3780
+     Nexpose     https://localhost:3780
      NSEDoc	 http://nmap.org/nsedoc/
 ------------------------------------------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ chmod 755 dbvis_unix_9_1_7.sh
 ./dbvis_unix_9_1_7.sh
 ------------------------------------------------------------------------------------------------------
 
-# Install Filezilla
+# Install FileZilla
 
 apt-get install filezilla
 ------------------------------------------------------------------------------------------------------
