@@ -5,7 +5,11 @@ Kali
 
 http://archive.kali.org/kali-daily-images/
 kali-linux-daily-amd64.iso
-Be sure to verify the SHA1 checksum.
+
+Download Microsoft File Checksum Integrity Verifier
+www.microsoft.com/en-us/download/details.aspx?id=11533
+Verify the SHA1 checksum.
+fciv.exe –sha1 kali-linux-daily-amd64.iso
 ------------------------------------------------------------------------------------------------------
 
 # Create bootable USB
