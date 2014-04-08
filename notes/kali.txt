@@ -15,7 +15,12 @@ fciv.exe –sha1 kali-linux-daily-amd64.iso
 # Create bootable USB
 
 Use Windows 7 to download UNetbootin.
-http://unetbootin.sourceforge.net
+http://unetbootin.sourceforge.net/
+Open UNetbootin.
+Select Diskimage > ‘…’ > browse to kali-linux-daily-amd64.iso > Open
+Type: USB Drive
+OK
+Should take about 15 min to complete > Exit
 ------------------------------------------------------------------------------------------------------
  
 # Remove screen lock
