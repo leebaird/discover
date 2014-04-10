@@ -155,7 +155,7 @@ Hostname, NetBIOS Info, Web detect, MAC Vendor
 Alt + right click on menu bar > Add to Panel
 Application Launcher > Forward
 Expand Accessories > gedit Text Editor > Add
-Screenshot > Adde
+Screenshot > Add
 ------------------------------------------------------------------------------------------------------
 
 # Install VMware Player (if needed)
