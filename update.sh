@@ -42,6 +42,18 @@ else
      echo
 fi
 
+if [ -d /opt/veil/.git ]; then
+     echo -e "\e[1;34mUpdating Veil-Evasion.\e[0m"
+     cd /opt/veil/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling Veil-Evasion.\e[0m"
+     git clone git://github.com/Veil-Framework/Veil-Evasion.git /opt/veil
+     ln -s /opt/veil/Veil-Evasion.py /usr/bin/veil
+     cd /opt/veil/setup/ ; ./setup.sh
+     echo
+fi
+
 echo -e "\e[1;34mUpdating locate database.\e[0m" ; updatedb
 
 echo
