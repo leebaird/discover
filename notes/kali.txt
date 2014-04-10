@@ -6,15 +6,18 @@ Kali
 http://archive.kali.org/kali-daily-images/
 kali-linux-daily-amd64.iso
 
-Download Microsoft File Checksum Integrity Verifier
-www.microsoft.com/en-us/download/details.aspx?id=11533
 Verify the SHA1 checksum.
-fciv.exe –sha1 kali-linux-daily-amd64.iso
+OS X
+     openssl sha1 kali-linux-daily-amd64.iso
+Windows
+     Download Microsoft File Checksum Integrity Verifier
+     www.microsoft.com/en-us/download/details.aspx?id=11533
+     fciv.exe –sha1 kali-linux-daily-amd64.iso
 ------------------------------------------------------------------------------------------------------
 
 # Create bootable USB
 
-Use Windows 7 to download UNetbootin.
+Download UNetbootin.
 http://unetbootin.sourceforge.net/
 Open UNetbootin.
 Select Diskimage > ‘…’ > browse to kali-linux-daily-amd64.iso > Open
@@ -22,10 +25,19 @@ Type: USB Drive
 OK
 Should take about 15 min to complete > Exit
 ------------------------------------------------------------------------------------------------------
+
+# Install
+
+Make sure your computer boots from USB before the internal hard drive.
+UNetbootin menu > Live
+Take all default options.
+------------------------------------------------------------------------------------------------------
  
 # Remove screen lock
 
-root (upper right corner) > System Settings > Brightness & Lock:  Off
+root (upper right corner) > System Settings > Brightness & Lock
+Uncheck:  Dim screen to save power
+Lock:  Off
 ------------------------------------------------------------------------------------------------------
 
 # Terminal
