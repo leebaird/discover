@@ -6,7 +6,7 @@ Kali
 http://archive.kali.org/kali-daily-images/
 kali-linux-daily-amd64.iso
 
-Verify the SHA1 checksum.
+Verify SHA1 checksum.
 OS X
      openssl sha1 kali-linux-daily-amd64.iso
 Windows
@@ -36,15 +36,15 @@ Take all default options.
 # Remove screen lock
 
 root (upper right corner) > System Settings > Brightness & Lock
-Uncheck:  Dim screen to save power
-Lock:  Off
+Uncheck: Dim screen to save power
+Lock: Off
 ------------------------------------------------------------------------------------------------------
 
 # Terminal
 
 Edit > Profile Preferences
-General:  Uncheck Use the system fixed width font
-Background:  Solid color
+General: Uncheck Use the system fixed width font
+Background: Solid color
 ------------------------------------------------------------------------------------------------------
 
 # Download scripts
@@ -52,37 +52,45 @@ Background:  Solid color
 git clone git://github.com/leebaird/discover.git /opt/scripts/
 cd /opt/scripts/
 ./setup.sh
-./discover.sh
-Choose Update.
+Enable aliases: cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
+Exit Terminal
+Open new Terminal
+update
 ------------------------------------------------------------------------------------------------------
 
 # gedit
 
 gedit
 Edit > Preferences
-View:  Display line numbers, Highlight current line
-Editor:  Tab width 5, Insert spaces instead of tabs
-Font & Colors:  Oblivion
+View: Display line numbers, Highlight current line
+Editor: Tab width 5, Insert spaces instead of tabs, uncheck Create a backup copy of files before saving
+Font & Colors: Oblivion
 ------------------------------------------------------------------------------------------------------
 
 # Iceweasel
 
 Tools > Ad-Ons > Extensions:
-     Awesome screenshot, Cookies Manager+, Live HTTP headers, Tamper Data, Web Developer
-Add bookmarks:
+     Awesome Screenshot Plus, Cookies Manager+, Firebug, Live HTTP headers, Tamper Data, Web Developer
+
+Add bookmark
+     NSEDoc      http://nmap.org/nsedoc/
+Add folder: Scanners
      Metasploit  https://localhost:3790
      Nessus      https://localhost:8834
      Nexpose     https://localhost:3780
-     NSEDoc	 http://nmap.org/nsedoc/
+     OpenVAS     https://localhost:9392
 ------------------------------------------------------------------------------------------------------
 
 # Install Apache Directory Studio
 
 https://directory.apache.org/studio/
-
+Verify MD5 checksum.
+md5sum <file>
+tar zxvf <file>
+mv <folder> /opt/ApacheDirectoryStudio/
 ------------------------------------------------------------------------------------------------------
 
-# Install CAC Reader
+# Install CAC Reader (if needed)
 
 Notes                 https://help.ubuntu.com/community/CommonAccessCard
 
@@ -103,22 +111,21 @@ Firefox extension     www.forge.mil/Resources-Firefox.html
 
 # Install DbVisualizer
 
-www.dbvis.com/products/dbvis/download/
+www.dbvis.com/download/
 UNIX (setup installer)
 chmod 755 dbvis_unix_9_1_7.sh
 ./dbvis_unix_9_1_7.sh
-------------------------------------------------------------------------------------------------------
-
-# Install FileZilla
-
-apt-get install filezilla
+Take all default settings.
+mv DbVisualizer/ /opt/
+rm dbvis_unix_9_1_7.sh
 ------------------------------------------------------------------------------------------------------
 
 # Install Nessus
 
-Debian 6.0 (64 bits)
-Nessus-5.2.5-debian6_amd64.deb
-dpkg -i Nessus-5.2.5-debian6_amd64.deb
+www.tenable.com/products/nessus/select-your-operating-system
+Linux > Debian 6.0 (64 bits)
+Nessus-5.2.6-debian6_amd64.deb
+dpkg -i Nessus-5.2.6-debian6_amd64.deb
 service nessusd start
 https://localhost:8834
 If you do not want this service to run at startup:  update-rc.d -f nessusd remove
@@ -136,20 +143,16 @@ If you do not want this service to run at startup:  update-rc.d -f nexposeconsol
 cp /opt/scripts/scan-policies/lee-full-audit.xml /opt/rapid7/nexpose/shared/scanTemplates/custom/global/
 ------------------------------------------------------------------------------------------------------
 
-# Install xdotool
-
-apt-get install xdotool
-------------------------------------------------------------------------------------------------------
-
 # Setup Angry IP Scanner
 
+Applications > Internet > Angry IP Scanner
 Tools > Fetchers
 Hostname, NetBIOS Info, Web detect, MAC Vendor
 ------------------------------------------------------------------------------------------------------
 
 # Create Shortcuts
 
-Alt+RC on menu bar > Add to Panel
+Alt + right click on menu bar > Add to Panel
 Application Launcher > Forward
 Expand Accessories > gedit Text Editor > Add
 Screenshot > Adde
@@ -158,11 +161,15 @@ Screenshot > Adde
 # Install VMware Player (if needed)
 
 Download latest installer.
-chmod 755 <downloaded filename>
-./<downloaded filename>
-Accept all defaults except: Send usage data to VMware (no)
-License key (leave blank)
+chmod 755 <file>
+./<file>
+I accept
+I accept
+Would you like to check for product updates on startup: No
+Would you like to help: No
+Enter license key: leave blank
 apt-get install build-essential linux-headers-$(uname -r)
+Applications > System Tools > VMware Player
 ------------------------------------------------------------------------------------------------------
 
 # Install VMware Tools (if needed)
@@ -175,15 +182,6 @@ cd vmware-tools-distrib/
 ./vmware-install.pl 
 Accept all the defaults.
 reboot
-------------------------------------------------------------------------------------------------------
-
-# Change postgresql port for Metasploit (***only if needed***)
-
-nano /etc/postgresql/9.1/main/postgresql.conf
-Look for the line:  port = 5432
-Change to:  port = 5433
-nano /opt/metasploit/apps/pro/ui/config/database.yml
-Change the port to 5433.
 ------------------------------------------------------------------------------------------------------
 
 # Services
@@ -215,4 +213,3 @@ Iceweasel plugins
 Metasploit Community edition
 Nessus
 Nexpose
-Open Office
