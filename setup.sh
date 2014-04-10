@@ -4,9 +4,6 @@ clear
 echo
 echo
 
-echo -e "\e[1;33mInstalling arp-scan.\e[0m"
-apt-get -y install arp-scan
-echo
 echo -e "\e[1;33mInstalling Filezilla.\e[0m"
 apt-get -y install filezilla
 echo
