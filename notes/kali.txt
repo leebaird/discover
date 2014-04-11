@@ -85,7 +85,7 @@ Font & Colors: Oblivion
 # Iceweasel
 
 Tools > Ad-Ons > Extensions:
-     Awesome Screenshot Plus, Cookies Manager+, Firebug, Live HTTP headers, Tamper Data, Web Developer
+     Cookies Manager+, Firebug, Live HTTP headers, Tamper Data, Web Developer
 
 Add bookmark
      NSEDoc      http://nmap.org/nsedoc/
