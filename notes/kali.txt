@@ -210,6 +210,5 @@ Angry IP Scanner
 Burp Suite
 DbVisualizer
 Iceweasel plugins
-Metasploit Community edition
 Nessus
 Nexpose
