@@ -62,14 +62,14 @@ General: Uncheck Use the system fixed width font
 Background: Solid color
 ------------------------------------------------------------------------------------------------------
 
-# Download scripts
+# Install Discover scripts
 
 git clone git://github.com/leebaird/discover.git /opt/scripts/
 cd /opt/scripts/
 ./setup.sh
 Enable aliases: cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
-Exit Terminal
-Open new Terminal
+Exit the Terminal
+Open a new Terminal
 update
 ------------------------------------------------------------------------------------------------------
 
@@ -101,10 +101,11 @@ Add folder: Scanners
 # Install Apache Directory Studio
 
 https://directory.apache.org/studio/
-Verify MD5 checksum.
-md5sum <file>
-tar zxvf <file>
+Verify the MD5 checksum.
+md5 <installer file>
+tar zxvf <installer file>
 mv <folder> /opt/ApacheDirectoryStudio/
+rm <installer file>
 ------------------------------------------------------------------------------------------------------
 
 # Install CAC Reader (if needed)
@@ -145,7 +146,6 @@ Nessus-5.2.6-debian6_amd64.deb
 dpkg -i Nessus-5.2.6-debian6_amd64.deb
 service nessusd start
 https://localhost:8834
-If you do not want this service to run at startup:  update-rc.d -f nessusd remove
 ------------------------------------------------------------------------------------------------------
 
 # Install Nexpose
@@ -156,7 +156,7 @@ cd /opt/rapid7/nexpose/nsc/ && ./nsc.sh
 https://localhost:3780
 If you do not want this service to run at startup:  update-rc.d -f nexposeconsole.rc remove
 
-# To install custom scan template
+To install custom scan template
 cp /opt/scripts/scan-policies/lee-full-audit.xml /opt/rapid7/nexpose/shared/scanTemplates/custom/global/
 ------------------------------------------------------------------------------------------------------
 
@@ -164,7 +164,7 @@ cp /opt/scripts/scan-policies/lee-full-audit.xml /opt/rapid7/nexpose/shared/scan
 
 Applications > Internet > Angry IP Scanner
 Tools > Fetchers
-Hostname, NetBIOS Info, Web detect, MAC Vendor
+The left column should contain Hostname, NetBIOS Info, Web detect, MAC Vendor
 ------------------------------------------------------------------------------------------------------
 
 # Create Shortcuts
@@ -178,14 +178,15 @@ Screenshot > Add
 # Install VMware Player (if needed)
 
 Download latest installer.
-chmod 755 <file>
-./<file>
+chmod 755 <installer file>
+./<installer file>
 I accept
 I accept
 Would you like to check for product updates on startup: No
 Would you like to help: No
 Enter license key: leave blank
 apt-get install build-essential linux-headers-$(uname -r)
+rm <installer file>
 Applications > System Tools > VMware Player
 ------------------------------------------------------------------------------------------------------
 
