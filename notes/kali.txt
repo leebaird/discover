@@ -74,7 +74,9 @@ Tools > Ad-Ons > Extensions:
 
 Add bookmark
      NSEDoc      http://nmap.org/nsedoc/
+
 Add folder: Scanners
+     BeEF        http://localhost:3000/ui/authentication
      Metasploit  https://localhost:3790
      Nessus      https://localhost:8834
      Nexpose     https://localhost:3780
