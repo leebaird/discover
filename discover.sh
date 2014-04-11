@@ -2163,7 +2163,7 @@ fi
 if [ -f $name/443.txt ]; then
      echo "     VMware"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/443.txt/g" /opt/scripts/resource/vmware.rc
-     cat /opt/scripts/resource/motorola.rc >> $name/vmware.rc
+     cat /opt/scripts/resource/motorola.rc >> $name/master.rc
 fi
 
 if [ -f $name/445.txt ]; then
@@ -2229,7 +2229,7 @@ fi
 if [ -f $name/902.txt ]; then
      echo "     VMware"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/902.txt/g" /opt/scripts/resource/vmware2.rc
-     cat /opt/scripts/resource/motorola.rc >> $name/vmware2.rc
+     cat /opt/scripts/resource/motorola.rc >> $name/master.rc
 fi
 
 if [ -f $name/1099.txt ]; then
