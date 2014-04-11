@@ -2388,11 +2388,11 @@ if [ -f $name/8080.txt ]; then
      cat /opt/scripts/resource/tomcat.rc >> $name/master.rc
 fi
 
-if [ -f $name/8080.txt ]; then
-     echo "     ZENworks"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8080.txt/g" /opt/scripts/resource/zenworks.rc
-     cat /opt/scripts/resource/zenworks.rc >> $name/master.rc
-fi
+#if [ -f $name/8080.txt ]; then
+#     echo "     ZENworks"
+#     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8080.txt/g" /opt/scripts/resource/zenworks.rc
+#     cat /opt/scripts/resource/zenworks.rc >> $name/master.rc
+#fi
 
 if [ -f $name/8222.txt ]; then
      echo "     VMware"
