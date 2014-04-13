@@ -989,7 +989,7 @@ echo -n "Choice: "
 read choice
 
 case $choice in
-     1) ipscan &;;
+     1) f_runlocally ; ipscan &;;
      2) arp-scan -l | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 | sed '/^$/d' > /$user/hosts-arp.txt
      echo
      echo $line
