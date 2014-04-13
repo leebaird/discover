@@ -81,11 +81,12 @@ if [[ -z $DISPLAY ]]; then
      clear
      f_banner
      echo
-     echo $line
+     echo -e "\e[1;31m$line\e[0m"
      echo
-     echo "This option must be run locally, in an X-Windows environment."
+     echo -e "\e[1;31m *** This option must be run locally, in an X-Windows environment. ***\e[0m"
      echo
-     read -p "Press <return> to continue."
+     echo -e "\e[1;31m$line\e[0m"
+     sleep 2
      f_main
 fi
 }
@@ -3084,7 +3085,7 @@ case $choice in
      8) f_multitabs;;
      9) f_nikto;;
      10) f_sslcheck;;
-     11) /opt/scripts/crack-wifi.sh;;
+     11) f_runlocally && /opt/scripts/crack-wifi.sh;;
      12) f_listener;;
      13) /opt/scripts/update.sh && exit;;
      14) clear && exit;;
