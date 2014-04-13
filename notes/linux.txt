@@ -178,12 +178,12 @@ ctrl + l                      Clear the screen.
 ssh-keygen                    Generate new public/private key pair,
 ssh root@host                 Connect to host as root.
 ssh -p 222 root@host          Connect to host on port 222 as root.
+/etc/ssh/sshd_config          Change port that the server is listening on or allow root login.
 
-mv amazon.pm .ssh/            Move new Amazon prive key to SSH folder.
+mv amazon.pm /root/.ssh/      Move new Amazon prive key to SSH folder.
+cd /root/.ssh/
 chmod 600 amazon.pem          Change permissions of key.
 ssh -i amazon.pem kali@host   Connect to Amazon EC2 as kali with key.
-
-/etc/ssh/sshd_config          Change port that the server is listening on or allow root login.
 ------------------------------------------------------------------------------------------------------
 
 # Startup Services
