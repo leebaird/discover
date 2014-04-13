@@ -86,7 +86,7 @@ if [[ -z $DISPLAY ]]; then
      echo -e "\e[1;31m *** This option must be run locally, in an X-Windows environment. ***\e[0m"
      echo
      echo -e "\e[1;31m$line\e[0m"
-     sleep 2
+     sleep 4
      f_main
 fi
 }
