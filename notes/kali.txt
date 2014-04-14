@@ -239,15 +239,13 @@ sudo su
 passwd
 cd /root/
 apt-get install kali-linux-full
-apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean
-apt-get install git
+apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade
+apt-get install arp-scan dnsrecon fierce git goofile lbd locate nbtscan netdiscover metasploit nikto nmap sslscan sslyze theharvester urlcrazy whatweb whois
 
 git clone git://github.com/leebaird/discover.git /opt/scripts/
 cd /opt/scripts/
 ./setup.sh
-
-Enable aliases: cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
-update
+./discover.sh
+#13 Update
 apt-get -f install
-apt-get install locate
-update
+
