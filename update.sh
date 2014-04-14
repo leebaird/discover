@@ -58,6 +58,7 @@ if [ ! -f /usr/share/windows-binaries/wce.exe ]; then
      echo -e "\e[1;33mInstalling Windows Credential Editor.\e[0m"
      wget http://www.ampliasecurity.com/research/wce_v1_4beta_universal.zip
      unzip wce_v1_4beta_universal.zip
+     chmod 755 wce.exe
      mv wce.exe /usr/share/windows-binaries/
      rm Changelog LICENSE.txt README wce_v1_4beta_universal.zip
      echo
