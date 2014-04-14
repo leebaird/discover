@@ -1883,10 +1883,10 @@ if [ -f $name/7634.txt ]; then
 fi
 
 if [ -f $name/8009.txt ]; then
-     echo " AJP"
-     nmap -iL $name/8009.txt -Pn -n --open -p8009 --script=ajp-methods,ajp-request --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
-     f_cleanup
-     mv tmp4 $name/script-8009.txt
+        echo "     AJP"
+        nmap -iL $name/8009.txt -Pn -n --open -p8009 --script=ajp-methods,ajp-request --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
+        f_cleanup
+        mv tmp4 $name/script-8009.txt
 fi
 
 if [ -f $name/8081.txt ]; then
