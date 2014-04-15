@@ -240,7 +240,7 @@ passwd
 cd /root/
 apt-get install kali-linux-full
 apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade
-apt-get install arp-scan dnsrecon fierce git goofile lbd locate nbtscan netdiscover metasploit nikto nmap sslscan sslyze theharvester urlcrazy whatweb whois
+apt-get install arp-scan dnsrecon fierce git goofile lbd locate nbtscan netdiscover metasploit nikto nmap sslscan sslyze theharvester unzip urlcrazy whatweb whois zip
 
 git clone git://github.com/leebaird/discover.git /opt/scripts/
 cd /opt/scripts/
@@ -248,4 +248,3 @@ cd /opt/scripts/
 ./discover.sh
 #13 Update
 apt-get -f install
-
