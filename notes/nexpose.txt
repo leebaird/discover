@@ -96,3 +96,10 @@ FROM fact_asset_vulnerability_instance favi
      LEFT OUTER JOIN vulnerability_disa_severity dvs USING (vulnerability_id)
 
 ORDER BY da.ip_address, dv.title
+------------------------------------------------------------------------------------------------------
+
+# Creat custom SQL query for all vulnerabilities
+
+SELECT title AS "Title", ROUND(cvss_score::numeric, 1) AS "CVSS Score"
+FROM dim_vulnerability
+ORDER BY title
