@@ -2,9 +2,6 @@ setg RHOSTS file:
 setg THREADS 255
 setg RPORT 445
 
-use auxiliary/scanner/smb/ms08_067_check
-run
-
 use auxiliary/scanner/smb/pipe_auditor
 run
 
