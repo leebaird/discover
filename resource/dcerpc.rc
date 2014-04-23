@@ -2,12 +2,6 @@ setg RHOSTS file:
 setg THREADS 255
 setg RPORT 135
 
-use auxiliary/scanner/dcerpc/endpoint_mapper
-run
-
-use auxiliary/scanner/dcerpc/hidden
-run
-
 use auxiliary/scanner/dcerpc/management
 run
 
