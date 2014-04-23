@@ -144,7 +144,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=22
+     total=21
 
      echo
      echo $line
@@ -193,31 +193,29 @@ case $choice in
 
      echo
      echo "theharvester"
-     echo "     123people            (5/$total)"
-     theharvester -d $domain -b people123 > z123people
-     echo "     Ask-mod              (6/$total)"
+     echo "     Ask-mod              (5/$total)"
      /opt/scripts/mods/theHarvester2.py -d $domain -b ask > zask-mod
-     echo "     Bing                 (7/$total)"
+     echo "     Bing                 (6/$total)"
      theharvester -d $domain -b bing > zbing
-     echo "     Google               (8/$total)"
+     echo "     Google               (7/$total)"
      theharvester -d $domain -b google > zgoogle
-     echo "     Google Profiles	  (9/$total)"
+     echo "     Google Profiles	  (8/$total)"
      theharvester -d $domain -b google-profiles > zgoogle-profiles
-     echo "     Jigsaw               (10/$total)"
+     echo "     Jigsaw               (9/$total)"
      theharvester -d $domain -b jigsaw > zjigsaw
-     echo "     LinkedIn             (11/$total)"
+     echo "     LinkedIn             (10/$total)"
      theharvester -d $domain -b linkedin > zlinkedin
-     echo "     Login-mod            (12/$total)"
+     echo "     Login-mod            (11/$total)"
      /opt/scripts/mods/theHarvester2.py -d $domain -b login > zlogin-mod
-     echo "     PGP                  (13/$total)"
+     echo "     PGP                  (12/$total)"
      theharvester -d $domain -b pgp > zpgp
-     echo "     Yahoo-mod            (14/$total)"
+     echo "     Yahoo-mod            (13/$total)"
      /opt/scripts/mods/theHarvester2.py -d $domain -b yahoo > zyahoo-mod
-     echo "     All                  (15/$total)"
+     echo "     All                  (14/$total)"
      theharvester -d $domain -b all > zall
 
      echo
-     echo "Metasploit                (16/$total)"
+     echo "Metasploit                (15/$total)"
      /opt/metasploit/msf3/msfcli gather/search_email_collector DOMAIN=$domain E > tmp 2>/dev/null
      grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sort -u > tmp2
      # Change to lower case
@@ -226,7 +224,7 @@ case $choice in
      sed '/^$/d' tmp3 > zmsf
 
      echo
-     echo "dnsrecon                  (17/$total)"
+     echo "dnsrecon                  (16/$total)"
      dnsrecon -d $domain -t goo > tmp
      grep $domain tmp | egrep -v '(Performing Google|Records Found)' > tmp2
      # Remove first 6 characters from each line
@@ -234,7 +232,7 @@ case $choice in
      sed 's/A //g' tmp3 | sed 's/CNAME //g' | column -t | sort -u > subdomains1.txt
 
      echo
-     echo "URLCrazy                  (18/$total)"
+     echo "URLCrazy                  (17/$total)"
 	urlcrazy $domain -o tmp > /dev/null
      # Clean up
      egrep -v '(#|:|\?|Typo Type|URLCrazy)' tmp | sed 's/[A-Z]\{2\},//g' > tmp2
@@ -301,7 +299,7 @@ case $choice in
 
      echo
      echo "Whois"
-     echo "     Domain               (19/$total)"
+     echo "     Domain               (18/$total)"
      whois -H $domain > tmp
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
@@ -341,7 +339,7 @@ case $choice in
           fi
      done < tmp13 > whois-domain
 
-     echo "     IP 		  (20/$total)"
+     echo "     IP 		  (19/$total)"
      y=$(ping -c1 -w2 $domain | grep 'PING' | cut -d ')' -f1 | cut -d '(' -f2) ; whois -H $y > tmp
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
@@ -371,7 +369,7 @@ case $choice in
      # Remove all empty files
      find -type f -empty -exec rm {} +
 
-     echo "dnssy.com                 (21/$total)"
+     echo "dnssy.com                 (20/$total)"
      wget -q http://www.dnssy.com/report.php?q=$domain -O tmp
      sed -n '/Results for/,/\/table/p' tmp > tmp2
      echo "<html>" > tmp3
@@ -388,7 +386,7 @@ case $choice in
      s/Your nameservers/Nameservers/g; s/Your NS records at your nameservers are://g; s/Your NS records at your parent nameserver are://g; 
      s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > /$user/$domain/data/config.htm
 
-     echo "urlvoid.com               (22/$total)"
+     echo "urlvoid.com               (21/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
      sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > /$user/$domain/data/black-listed.htm
 
@@ -840,8 +838,6 @@ fi
 
 firefox &
 sleep 2
-firefox -new-tab http://www.123people.com/s/$firstName+$lastName &
-sleep 1
 firefox -new-tab http://www.411.com/name/$firstName-$lastName/ &
 sleep 1
 firefox -new-tab http://www.cvgadget.com/person/$firstName/$lastName &
