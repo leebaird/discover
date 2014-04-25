@@ -1456,7 +1456,7 @@ fi
 
 if [ -f $name/22.txt ]; then
 	echo "     SSH"
-	nmap -iL $name/22.txt -Pn -n --open -p22 --script=ssh2-enum-algos,sshv1 --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
+	nmap -iL $name/22.txt -Pn -n --open -p22 --script=sshv1 --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
 	f_cleanup
 	mv tmp4 $name/script-22.txt
 fi
@@ -2487,7 +2487,6 @@ echo >> $filename
 echo "Start time - $START" >> $filename
 echo "Finish time - $END" >> $filename
 echo "Scanner IP - $ip" >> $filename
-nmap -V | grep 'version' | cut -d ' ' -f1-3 >> $filename
 echo >> $filename
 echo $line >> $filename
 echo >> $filename
