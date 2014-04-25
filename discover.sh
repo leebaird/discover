@@ -1344,7 +1344,7 @@ fi
 # Clean up
 egrep -v '(1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|No exact OS|OS:|OS CPE|Please report|scanned in|SF|Warning)' $name/nmap.nmap | sed 's/Nmap scan report for //' | sed '/^$/! b end; n; /^$/d; : end' > $name/nmap.txt
 
-grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' $name/nmap.nmap | sort -u > $name/hosts.txt
+grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' $name/nmap.nmap | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > $name/hosts.txt
 hosts=$(wc -l $name/hosts.txt | cut -d ' ' -f1)
 
 grep 'open' $name/nmap.txt | awk '{print $1}' | sort -u | sort -n > $name/ports.txt
@@ -2052,7 +2052,7 @@ if [[ -z $x ]]; then
      service postgresql start
 fi
 
-cp -R resource/ resource-tmp/
+cp -R resource/ /tmp/resource
 
 echo
 echo -e "\e[1;34mStarting Metasploit, this takes about 15 sec.\e[0m"
@@ -2175,8 +2175,8 @@ fi
 
 if [ -f $name/465.txt ]; then
      echo "     SMTP/S"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/465.txt/g" /opt/scripts/resource/smtp-s.rc
-     cat /opt/scripts/resource/smtp-s.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/465.txt/g" /opt/scripts/resource/smtp2.rc
+     cat /opt/scripts/resource/smtp2.rc >> $name/master.rc
 fi
 
 if [ -f $name/502.txt ]; then
@@ -2468,7 +2468,7 @@ else
      rm $name/master.rc
 fi
 
-mv resource-tmp/ resource
+mv /tmp/resource/ /opt/scripts/resource
 
 f_report
 }
@@ -3021,7 +3021,7 @@ done
 sed '/^$/d' tmp > tmp2
 
 # Remove scanners not used
-egrep -v '(ack|afp_login|arp_sweep|call_scanner|couchdb_enum|endpoint_mapper|ftp_login|ftpbounce|hidden|ipidseq|ipv6_multicast_ping|ipv6_neighbor|ipv6_neighbor_router_advertisement|lotus_domino_login|management|mongodb_login|ms08_067_check|msf_rpc_login|msf_web_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|natpmp_portscan|nessus_ntp_login|nessus_xmlrpc_login|nexpose_api_login|openvas_gsad_login|openvas_omp_login|openvas_otp_login|pcanywhere_login|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|station_scanner|syn|tcp|telnet_login|udp_probe|udp_sweep|vmauthd_login|vmware_http_login|wardial|winrm_cmd|winrm_login|winrm_wql|xmas)' tmp2 | sort > tmp-msf-all
+egrep -v '(ack|afp_login|arp_sweep|call_scanner|couchdb_enum|endpoint_mapper|ftp_login|ftpbounce|hidden|ipidseq|ipv6_multicast_ping|ipv6_neighbor|ipv6_neighbor_router_advertisement|lotus_domino_login|management|mongodb_login|ms08_067_check|msf_rpc_login|msf_web_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|natpmp_portscan|nessus_ntp_login|nessus_xmlrpc_login|nexpose_api_login|openvas_gsad_login|openvas_omp_login|openvas_otp_login|pcanywhere_login|pop3_login|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|station_scanner|syn|tcp|telnet_login|udp_probe|udp_sweep|vmauthd_login|vmware_http_login|wardial|winrm_cmd|winrm_login|winrm_wql|xmas)' tmp2 | sort > tmp-msf-all
 
 grep 'use ' /opt/scripts/resource/*.rc | grep -v 'recon-ng' > tmp
 

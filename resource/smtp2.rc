@@ -1,0 +1,12 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 465
+
+use auxiliary/scanner/smtp/smtp_enum
+run
+
+use auxiliary/scanner/smtp/smtp_relay
+run
+
+use auxiliary/scanner/smtp/smtp_version
+run
