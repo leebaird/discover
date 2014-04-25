@@ -13,12 +13,13 @@ Nexpose
      Web Servers - turn on Enable adaptive HTTP fingerprinting
      Web Spidering - turn on Check use of common user names and passwords
 
-# Administration > Exceptions and Overrides 
+# Vulnerabilities
      ICMP timestamp response
      TCP Sequence Number Approximation Vulnerability
      TCP timestamp response
      UDP IP ID Zero
 
+     Explude > Reason: Acceptable Rick > Submit and approve
 ------------------------------------------------------------------------------------------------------
 
 # Create PDF reports
