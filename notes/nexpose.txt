@@ -19,7 +19,7 @@ Nexpose
      TCP timestamp response
      UDP IP ID Zero
 
-     Explude > Reason: Acceptable Rick > Submit and approve
+     Exclude > Reason: Acceptable Rick > Submit and approve
 ------------------------------------------------------------------------------------------------------
 
 # Create PDF reports
