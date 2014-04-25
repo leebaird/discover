@@ -103,5 +103,4 @@ cp evil.exe/dist/evil.exe /root/
 
 # Password Cracking
 
-john <hashes> -w=/usr/share/wordlists/rockyou.txt
-hashcat -m 5600 -a 1 <hashes> /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/combinator.rule
+john hashes -w=/usr/share/wordlists/rockyou.txt --format=nt
