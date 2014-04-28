@@ -404,7 +404,7 @@ case $choice in
 
      echo > tmp
 
-     if [ -f emails ]; then
+     if [ -f emails ]; then                                            # not catching an empty file
           emailcount=$(wc -l emails | cut -d ' ' -f1)
           echo "Emails        $emailcount" >> zreport
           echo "Emails ($emailcount)" >> tmp
@@ -431,7 +431,7 @@ case $choice in
           echo >> tmp
      fi
 
-     if [ -f squatting ]; then
+     if [ -f squatting ]; then                                         # not catching an empty file
           urlcount2=$(wc -l squatting | cut -d ' ' -f1)
           echo "Squatting     $urlcount2" >> zreport
           echo "Squatting ($urlcount2)" >> tmp

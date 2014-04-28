@@ -68,13 +68,32 @@ exploit
 
 # Database
 
-Start the database before starting msfconsole.
-root@kali:~# service postgresql start
+root@kali:~# service postgresql start          Start up the postgresql server before using the database.
+root@kali:~# service metasploit start          Create a msf3 datauser user and database called msf3. 
 root@kali:~# msfconsole
 
-help database                 List database backend commands.
-db_status                     Verify you are connected to the database.
-hosts                         List hosts.
+msf > help database
+
+Database Backend Commands
+=========================
+
+    Command           Description
+    -------           -----------
+    creds             List all credentials in the database
+    db_connect        Connect to an existing database
+    db_disconnect     Disconnect from the current database instance
+    db_export         Export a file containing the contents of the database
+    db_import         Import a scan result file (filetype will be auto-detected)
+    db_nmap           Executes nmap and records the output automatically
+    db_rebuild_cache  Rebuilds the database-stored module cache
+    db_status         Show the current database status
+    hosts             List all hosts in the database
+    loot              List all loot in the database
+    notes             List all notes in the database
+    services          List all services in the database
+    vulns             List all vulnerabilities in the database
+    workspace         Switch between database workspaces
+
 services -p 22                List specific ports.
 services -s http              List specific services.
 
