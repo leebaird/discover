@@ -2980,6 +2980,14 @@ exit
 
 f_listener(){
 clear
+
+x=`ps aux | grep 'postgres' | grep -v 'grep'`
+
+if [[ -z $x ]]; then
+     echo
+     service postgresql start
+fi
+
 echo
 echo
 echo "Starting a Metasploit listener on port 443."
