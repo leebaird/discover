@@ -22,7 +22,7 @@
 # Variables
 distro=$(uname -n)
 interface=$(ifconfig | grep -B10 'Loopback'| grep 'Ethernet' | cut -d ' ' -f1)
-ip=$(ifconfig | grep -B10 'Loopback' | grep 'Bcast' | cut -d ':' -f2 | cut -d ' ' -f1)
+ip=$(ifconfig | grep 'inet addr'| grep -v '127.0.0.1' | cut -d 'B' -f1 | cut -d ':' -f2)
 line="======================================================================"
 user=$(whoami)
 
@@ -2981,6 +2981,10 @@ exit
 f_listener(){
 clear
 
+cp /opt/scripts/resource/misc/listener.rc /tmp/
+
+sed -i "s/#/$ip/g" /tmp/listener.rc
+
 x=`ps aux | grep 'postgres' | grep -v 'grep'`
 
 if [[ -z $x ]]; then
@@ -2989,13 +2993,12 @@ if [[ -z $x ]]; then
 fi
 
 echo
-echo
 echo "Starting a Metasploit listener on port 443."
 echo "Type - Windows meterpreter reverse TCP."
 echo
 echo "This takes about 20 seconds."
 echo
-msfconsole -r /opt/scripts/resource/misc/listener.rc
+msfconsole -r /tmp/listener.rc
 }
 
 ##############################################################################################################
