@@ -11,9 +11,9 @@ alias e='exit'
 alias i='echo ; echo ; echo "DHCP     " $dhcp ; echo "DNS      " $dns ; echo ; ifconfig ; ping google.com -c3 ; echo ; echo'
 alias l='ls -l'
 alias n='echo ; netstat -antup | egrep -v "(Active|p6)" ; echo ;
-echo -n "Interface:    " ; ifconfig | grep -B10 'Loopback' | grep 'Ethernet' | cut -d " " -f1 ;
-echo -n "MAC address:  " ; ifconfig | grep -B10 'Loopback' | grep 'Ethernet' | cut -d " " -f11 ;
-echo -n "Internal IP:  " ; ifconfig | grep -B10 'Loopback' | grep 'Bcast' | cut -d ':' -f2 | cut -d " " -f1 ;
+echo -n "Interface:    " ; ifconfig | grep -B1 "inet addr" | egrep -v "(-|inet addr|Loopback)" | cut -d " " -f1 ;
+echo -n "MAC address:  " ; ifconfig | grep -B1 "inet addr" | egrep -v "(-|inet addr|Loopback)" | cut -d " " -f11 ;
+echo -n "Internal IP:  " ; ifconfig | grep "inet addr"| grep -v "127.0.0.1" | cut -d "B" -f1 | cut -d ":" -f2 ;
 echo -n "External IP:  " ; curl ifconfig.me ; echo'
 alias r='cd /root/ ; clear'
 alias s='cd /opt/scripts/ ; clear'
