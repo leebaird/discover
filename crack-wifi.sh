@@ -36,8 +36,8 @@ echo -e "\e[1;33m[*] Setting variables.\e[0m"
 break="=================================================="
 datestamp=$(date +%F_%T)
 interface=$(grep -m 1 '802' tmp | awk '{print $1}')
-monitor=$(grep -m 1 'Monitor' tmp | awk '{print $1}')
 kernmod=$(airmon-ng | grep $interface | awk -F" " {'print $4'})
+monitor=$(grep -m 1 'Monitor' tmp | awk '{print $1}')
 resolution=$(xdpyinfo | grep 'dimensions:' | awk -F" " {'print $2'} | awk -F"x" {'print $1'})
 workdir=/root/wifi-keys
 
