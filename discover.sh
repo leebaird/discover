@@ -861,7 +861,9 @@ f_salesforce(){
 clear
 f_banner
 
-echo -e "\e[1;34mCopy the results of a query from salesforce (https://connect.data.com/login) to a file.\e[0m"
+echo -e "\e[1;34mCreate a free account at salesforce (https://connect.data.com/login).\e[0m"
+echo -e "\e[1;34mPerform a search on your target company > select the company name > see all.\e[0m"
+echo -e "\e[1;34mCopy the results into a new file.\e[0m"
 
 f_location
 
