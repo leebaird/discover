@@ -59,6 +59,7 @@ if [ ! -f /usr/share/windows-binaries/wce.exe ]; then
      wget http://www.ampliasecurity.com/research/wce_v1_4beta_universal.zip
      unzip wce_v1_4beta_universal.zip
      chmod 755 wce.exe
+     mkdir -p /usr/share/windows-binaries/
      mv wce.exe /usr/share/windows-binaries/
      rm Changelog LICENSE.txt README wce_v1_4beta_universal.zip
      echo
