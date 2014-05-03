@@ -1,20 +1,14 @@
-Formally BackTrack scripts. For use with Kali Linux - custom bash scripts used to automate various pentesting tasks.
+Formally BackTrack scripts. For use with Kali Linux. Custom bash scripts used to automate various pentesting tasks.
 
-### Download
+### Download, Setup & Usage
 * git clone git://github.com/leebaird/discover.git /opt/scripts/
 * All scripts must be ran from this location.
-
-
-### Setup
 * cd /opt/scripts/
 * ./setup.sh
-
-
-### Usage 
 * ./discover.sh
 
 
-### Main Menu
+## Main Menu
 ```
 RECON
 1.  Domain
@@ -39,14 +33,55 @@ MISC
 14. Exit
 ```
 
-### Overview
+### Domain
+```
 RECON
-* Active domain recon - combines Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute and Whatweb.
-* Passive domain recon - combines goofile, goog-mail, goohost, theHarvester, Metasploit, dnsrecon, URLCrazy, Whois and multiple webistes.
-* Individual recon - combines multiple websites.
 
+1.  Passive
+2.  Active
+3.  Previous menu
+
+Choice: 
+```
+
+* Passive combines goofile, goog-mail, goohost, theHarvester, Metasploit, dnsrecon, URLCrazy, Whois and multiple webistes.
+* Active combines Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute and Whatweb.
+
+### Person
+```
+RECON
+
+First name:
+Last name:
+```
+
+* Combines info from multiple websites.
+
+### Parse salesforce
+```
+Create a free account at salesforce (https://connect.data.com/login).
+Perform a search on your target company > select the company name > see all.
+Copy the results into a new file.
+
+Enter the location of your list:
+```
+
+* Gather names and positions into a clean list.
+
+### Generate target list
+```
 SCANNING
-* Use different methods to create a target list including Angry IP Scanner, arp-scan, netdiscover and nmap pingsweep.
+
+1.  Angry IP Scanner
+2.  Local area network
+3.  NetBIOS
+4.  netdiscover
+5.  Ping sweep
+6.  Previous menu
+```
+
+* Use different tools to create a target list including Angry IP Scanner, arp-scan, netdiscover and nmap pingsweep.
+
 * Scanning - host discovery, port scanning, service enumeration and OS identification using Nmap. Additional enumeration performed with matching Nmap scripts and Metasploit auxiliary modules.
 
 
