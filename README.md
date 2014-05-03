@@ -1,14 +1,12 @@
 Formally BackTrack scripts. For use with Kali Linux. Custom bash scripts used to automate various pentesting tasks.
 
-### Download, Setup & Usage
+### Download, setup & usage
 * git clone git://github.com/leebaird/discover.git /opt/scripts/
 * All scripts must be ran from this location.
 * cd /opt/scripts/
 * ./setup.sh
 * ./discover.sh
 
-
-## Main Menu
 ```
 RECON
 1.  Domain
@@ -19,7 +17,7 @@ SCANNING
 4.  Generate target list
 5.  CIDR
 6.  List
-7.  Single IP or domain
+7.  IP or domain
 
 WEB
 8.  Open multiple tabs in Iceweasel
@@ -32,7 +30,7 @@ MISC
 13. Update
 14. Exit
 ```
-
+## RECON
 ### Domain
 ```
 RECON
@@ -68,6 +66,7 @@ Enter the location of your list:
 
 * Gather names and positions into a clean list.
 
+## SCANNING
 ### Generate target list
 ```
 SCANNING
@@ -82,17 +81,28 @@ SCANNING
 
 * Use different tools to create a target list including Angry IP Scanner, arp-scan, netdiscover and nmap pingsweep.
 
-* Scanning - host discovery, port scanning, service enumeration and OS identification using Nmap. Additional enumeration performed with matching Nmap scripts and Metasploit auxiliary modules.
+### CIDR, List, IP or domain
+```
+Type of scan: 
 
+1.  External
+2.  Internal
+3.  Previous menu
 
-WEB
+Choice: 
+```
+
+* An external scan will set the nmap source port to 53, while an internal scan will set it to 88.
+* Nmap is used to perform host discovery, port scanning, service enumeration and OS identification. 
+* Matching nmap scripts are used for additional enumeration.
+* Matching Metasploit auxiliary modules are also leveraged.
+
+## WEB
 * Open multiple tabs in Iceweasel with a list containing IPs and/or URLs or with directories from a domain's robot.txt file.
 * Run multiple instances of Nikto in parallel.
 * Check for SSL/TLS certificate issues.
 
-
-MISC
+## MISC
 * Crack wireless networks.
-* Parse the results of a query on salesfore.
 * Start a Metasploit listener.
 * Update the distro, scripts and various tools.
