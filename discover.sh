@@ -241,10 +241,10 @@ case $choice in
      # Remove blank lines
      sed '/^$/d' tmp3 > tmp4
      sed 's/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; 
-     s/COSTA RICA/Costa Rica/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/INDIA/India/g; 
-     s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/RUSSIAN FEDERATION/Russia/g; 
-     s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN; REPUBLIC OF China (ROC)/Taiwan/g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; 
-     s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
+s/COSTA RICA/Costa Rica/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/INDIA/India/g; 
+s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/RUSSIAN FEDERATION/Russia/g; 
+s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN; REPUBLIC OF China (ROC)/Taiwan/g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; 
+s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      ##############################################################
 
@@ -262,7 +262,7 @@ case $choice in
      # Change to lower case
      cat tmp6 | tr '[A-Z]' '[a-z]' > tmp7
      # Clean up
-     egrep -v '(academy|account|active|administrator|administrative|advanced|adventure|advertising|america|american|analysis|analyst|antivirus|apple seems|application|applications|architect|article|asian|assistant|associate|association|attorney|australia|automation|automotive|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|business|buyer|buying|california|cannot|capital|career|carrying|cashing|certified|challenger|championship|change|chapter|charge|china|chinese|clearance|cloud|code|college|columbia|communications|community|company pages|competition|competitive|compliance|computer|concept|conference|config|connections|construction|consultant|contributor|controllang|cooperation|coordinator|corporation|creative|critical|croatia|crm|dallas|day care|death toll|delta|department|description|designer|detection|developer|develop|development|devine|digital|diploma|director|disability|disaster|disclosure|dispute|division|dos poc|download|drivers|during|economy|ecovillage|editor|education|effect|electronic|emails|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|environmental|error page|ethical|example|excellence|executive|expertzone|exploit|facebook|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|filmmaker|finance|financial|forensic|found|freelance|from|frontiers in tax|full|fuzzing|germany|get control|global|google|government|graphic|greater|group|guardian|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|house|how to|hurricane|icmp|idc|in the news|index|informatics|information|innovation|installation|insurers|integrated|international|internet|instructor|insurance|interested|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|laptops|leadership|letter|licensing|lighting|limitless|liveedu|llp|ltd|lsu|luscous|malware|managed|management|manager|managing|manufacturing|marketplace|mastering|md|media|medical|medicine|member|meta tags|methane|metro|microsoft|middle east|mitigation|money|monitor|more coming|museums|negative|network|network|new user|newspaper|new york|next page|nitrogen|nyc|obtain|occupied|offers|office|online|operations|organizational|outbreak|owners|partner|pathology|people|perceptions|philippines|photo|picture|places|planning|portfolio|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|publichealth|published|pyramid|questions|redeem|redirect|region|register|registry|regulation|rehab|remote|report|republic|research|resolving|revised|rising|rural health|sales|satellite|save the date|school|scheduling|science|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|software|solutions|source|special|station home|statistics|strategy|student|successful|superheroines|supervisor|support|switch|system|systems|targeted|tcp|technical|technology|tester|textoverflow|theater|time in|tit for tat|title|toolbook|tools|traditions|trafficking|transfer|treasury|trojan|twitter|training|ts|tylenol|types of scams|unclaimed|underground|university|united states|untitled|verification|view|Violent|virginia bar|voice|volkswagen|volume|wanted|web search|web site|website|welcome|west virginia|when the|whiskey|windows|workers|world|www|xbox)' tmp7 > tmp8
+     egrep -v '(academy|account|active|administrator|administrative|advanced|adventure|advertising|america|american|analysis|analyst|antivirus|apple seems|application|applications|architect|article|asian|assistant|associate|association|attorney|australia|automation|automotive|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|business|buyer|buying|california|cannot|capital|career|carrying|cashing|certified|challenger|championship|change|chapter|charge|china|chinese|clearance|cloud|code|college|columbia|communications|community|company pages|competition|competitive|compliance|computer|concept|conference|config|connections|construction|consultant|contributor|controllang|cooperation|coordinator|corporation|creative|critical|croatia|crm|dallas|day care|death toll|delta|department|description|designer|detection|developer|develop|development|devine|digital|diploma|director|disability|disaster|disclosure|dispute|division|dos poc|download|drivers|during|economy|ecovillage|editor|education|effect|electronic|emails|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|environmental|error page|ethical|example|excellence|executive|expertzone|exploit|facebook|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|filmmaker|finance|financial|forensic|found|freelance|from|frontiers in tax|full|fuzzing|germany|get control|global|google|government|graphic|greater|group|guardian|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|house|how to|hurricane|icmp|idc|in the news|index|informatics|information|innovation|installation|insurers|integrated|international|internet|instructor|insurance|interested|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|laptops|leadership|letter|licensing|lighting|limitless|liveedu|llp|ltd|lsu|luscous|malware|managed|management|manager|managing|manufacturing|marketplace|mastering|md|media|medical|medicine|member|meta tags|methane|metro|microsoft|middle east|mitigation|money|monitor|more coming|museums|negative|network|network|new user|newspaper|new york|next page|nitrogen|nyc|obtain|occupied|offers|office|online|operations|organizational|outbreak|owners|partner|pathology|peace|people|perceptions|philippines|photo|picture|places|planning|portfolio|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|publichealth|published|pyramid|questions|redeem|redirect|region|register|registry|regulation|rehab|remote|report|republic|research|resolving|revised|rising|rural health|sales|satellite|save the date|school|scheduling|science|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|software|solutions|source|special|station home|statistics|strategy|student|successful|superheroines|supervisor|support|switch|system|systems|targeted|tcp|technical|technology|tester|textoverflow|theater|time in|tit for tat|title|toolbook|tools|traditions|trafficking|transfer|treasury|trojan|twitter|training|ts|tylenol|types of scams|unclaimed|underground|university|united states|untitled|verification|view|Violent|virginia bar|voice|volkswagen|volume|wanted|web search|web site|website|welcome|west virginia|when the|whiskey|windows|workers|world|www|xbox)' tmp7 > tmp8
      # Remove leading and trailing whitespace from each line
      sed 's/^[ \t]*//;s/[ \t]*$//' tmp8 > tmp9
      # Remove lines that contain a single word
@@ -880,27 +880,25 @@ s/Beltsville//g; s/Berlin//g; s/Berwyn Hts//g; s/Bethesda//g; s/Bethpage//g; s/B
 s/Bloomfield//g; s/Boca Raton//g; s/Bohemia//g; s/Boise//g; s/Bordentown//g; s/Boston//g; s/Bothell//g; s/Boulder//g; s/Bowie//g; s/Bradenton//g; s/Brandywine//g; s/Brentwood//g; 
 s/Bridgeport//g; s/Bristow//g; s/Brooklyn//g; s/Broomfield//g; s/Buckeye//g; s/Buffalo//g; s/Burbank//g; s/Burlingame//g; s/Burlington//g; s/Burtonsville//g; s/Brockton//g; 
 s/Burleson//g; s/Bynum//g; s/Calabasas//g; s/California//g; s/Camarillo//g; s/Cambridge//g; s/Camden//g; s/Camp Hill//g; s/Camp Springs//g; s/Canada//g; s/Canonsburg//g; s/Canton//g; 
-s/Canyon Country//g; s/Cape Canaveral//g; 
-s/Capitola//g; s/Carlsbad//g; s/Carpinteria//g; s/Carrollton//g; s/Castaic//g; s/Castle Rock//g; s/Catawba//g; s/Catonsville//g; s/Cedar Hill//g; s/Centreville//g; s/Chambersburg//g; 
-s/Champaign//g; s/Chantilly//g; s/Charleston//g; s/Charlottesvle//g; s/Charlotte//g; s/Chattanooga//g; s/Chelmsford//g; s/Cherry Hill//g; s/Chesapeake//g; s/Cheyenne//g; s/Chicago//g; s/Christiansburg//g; s/Chula Vista//g; s/Cicero//g; s/Cincinnati//g; s/Cissp/CISSP/g; s/Claremont//g; s/Clarksville//g; s/Clearfield//g; s/Clearwater//g; s/Cleveland//g; 
-s/Clifton Park//g; s/Clifton//g; s/CNN News Group Cable News Network//g; s/Captiva//g; s/Clarksburg//g; s/Clearfield//g; s/Cocoa Beach//g; s/Colleyville//g; s/Collinsville//g; 
-s/Colorado Sp\...//g; s/Columbia//g; s/Columbus//g; s/Commack//g; s/Concord //g; s/Conifer//g; s/Conroe//g; s/Conshohocken//g; s/CONSULTANT/Consultant/g; s/Converse//g; 
-s/Coopersburg//g; s/Copperopolis//g; s/Cookeville//g; s/Cordova//g; s/Corsicana//g; s/Cranston//g; s/Cresskill//g; s/Crofton//g; s/Cross Junction//g; s/Crownsville//g; s/Culpeper//g; 
-s/Cupertino//g; s/Cypress//g; s/Dahlgren//g; s/Dallas//g; s/Daly City//g; s/Danville//g; s/Dayton//g; s/Decatur//g; s/Delaplane//g; s/Denver//g; s/Deer Park//g; s/Deerfield//g; 
-s/Des Moines//g; s/DESIGNER/Designer/g; s/Desoto//g; s/Destin//g; s/Devens//g; s/Dhs/DHS/g; s/Diamond Bar//g; s/Douglasville//g; s/Dover//g; s/Downers Grove//g; s/Doylestown//g; 
-s/Dublin//g; s/Dulles//g; s/Duluth//g; s/Dumfries//g; s/Dunkirk//g; s/Durham//g; s/East Brunswick//g; s/East Greenbush//g; s/East Hartford//g; s/East Syracuse//g; s/Easton//g; 
-s/Eatontown//g; s/Eau Claire//g; s/Edgewood//g; s/Egg Harbor \...//g; s/El Cajon//g; s/El Monte//g; s/El Paso//g; s/El Segundo//g; s/ELECTRONICS/Electronics/g; s/Elk Grove//g; 
-s/Elkhorn//g; s/Elkridge//g; s/Ellicott City//g; s/Elm Grove//g; s/Endicott//g; s/Englewood//g; s/Emeryville//g; s/Encino//g; s/Ennis//g; s/Escondido//g; s/Euless//g; s/Fairbanks//g; 
-s/Fairborn//g; s/Fairfax//g; s/Fairmont//g; s/Fairview He\...//g; s/Fairfield//g; s/Fallbrook//g; s/Fall River//g; s/Falls Church//g; s/Fareham//g; s/Farnham//g; s/Fayetteville//g; 
-s/Fha/FHA/g; s/Findlay//g; s/Flower Mound//g; s/Florence//g; s/Flowood//g; s/Fogelsville//g; s/Fort Belvoir//g; s/Fort Bliss//g; s/Fort Collins//g; s/Fort Huachuca//g; 
-s/Fort Knox//g; s/Fort Lauder\...//g; s/Fort Leaven...//g; s/Fort Monmouth//g; s/Fort Monroe//g; s/Fort Walton...//g; s/Fort Washin\...//g; s/Fort Wayne//g; s/Fort Worth//g; 
-s/Fountain Va...//g; 
-s/Framingham//g; s/Frankfort//g; s/Fredericksburg//g; s/Frederick//g; s/Fremont//g; s/Fredericksburg//g; s/Front Royal//g; s/Ft Worth//g; s/Fullerton//g; s/Fulton//g; 
-s/Gainesville//g; s/Gaithersburg//g; s/Gardena//g; s/Gastonia//g; s/Germantown//g; s/Gig Harbor//g; s/Glen Burnie//g; s/Glendale//g; s/Goleta//g; s/Goodyear//g; s/Grand Junction//g; 
-s/Grand Prairie//g; s/Grants Pass//g; s/Green Bay//g; s/Green Belt//g; s/Greenbelt//g; s/Greenfield//g; s/Greenville//g; s/Greenwood Vlg//g; s/Gretna//g; s/Gsa/GSA/g; 
-s/Gulf Breeze//g; s/Gulfport//g; s/Gulf Coast//g; s/H\...//g; s/Hackensack//g; s/Hamlin//g; s/Hampstead//g; s/Hampton//g; s/Hanahan//g; s/Hanover//g; s/Harbor City//g; 
-s/Harlingen//g; s/Harrisburg//g; s/Harrisonburg//g; s/New Hartford//g; s/Hartford//g; s/Hanscom Afb//g; s/Harvard//g; s/Haslet//g; s/Hatboro//g; s/Hattiesburg//g; s/Havant//g; 
-s/Hawthorne//g; 
+s/Canyon Country//g; s/Cape Canaveral//g; s/Capitola//g; s/Carlsbad//g; s/Carpinteria//g; s/Carrollton//g; s/Castaic//g; s/Castle Rock//g; s/Catawba//g; s/Catonsville//g; 
+s/Cedar Hill//g; s/Centreville//g; s/Chambersburg//g; s/Champaign//g; s/Chantilly//g; s/Charleston//g; s/Charlottesvle//g; s/Charlotte//g; s/Chattanooga//g; s/Chelmsford//g; 
+s/Cherry Hill//g; s/Chesapeake//g; s/Cheyenne//g; s/Chicago//g; s/Christiansburg//g; s/Chula Vista//g; s/Cicero//g; s/Cincinnati//g; s/Cissp/CISSP/g; s/Claremont//g; s/Clarksville//g; s/Clearfield//g; s/Clearwater//g; s/Cleveland//g; s/Clifton Park//g; s/Clifton//g; s/CNN News Group Cable News Network//g; s/Captiva//g; s/Clarksburg//g; s/Clearfield//g; 
+s/Cocoa Beach//g; s/Colleyville//g; s/Collinsville//g; s/Colorado Sp\...//g; s/Columbia//g; s/Columbus//g; s/Commack//g; s/Concord //g; s/Conifer//g; s/Conroe//g; s/Conshohocken//g; 
+s/CONSULTANT/Consultant/g; s/Converse//g; s/Coopersburg//g; s/Copperopolis//g; s/Cookeville//g; s/Cordova//g; s/Corsicana//g; s/Cranston//g; s/Cresskill//g; s/Crofton//g; 
+s/Cross Junction//g; s/Crownsville//g; s/Culpeper//g; s/Cupertino//g; s/Cypress//g; s/Dahlgren//g; s/Dallas//g; s/Daly City//g; s/Danville//g; s/Dayton//g; s/Decatur//g; 
+s/Delaplane//g; s/Denver//g; s/Deer Park//g; s/Deerfield//g; s/Des Moines//g; s/DESIGNER/Designer/g; s/Desoto//g; s/Destin//g; s/Devens//g; s/Dhs/DHS/g; s/Diamond Bar//g; 
+s/Douglasville//g; s/Dover//g; s/Downers Grove//g; s/Doylestown//g; s/Dublin//g; s/Dulles//g; s/Duluth//g; s/Dumfries//g; s/Dunkirk//g; s/Durham//g; s/East Brunswick//g; 
+s/East Greenbush//g; s/East Hartford//g; s/East Syracuse//g; s/Easton//g; s/Eatontown//g; s/Eau Claire//g; s/Edgewood//g; s/Egg Harbor \...//g; s/El Cajon//g; s/El Monte//g; 
+s/El Paso//g; s/El Segundo//g; s/ELECTRONICS/Electronics/g; s/Elk Grove//g; s/Elkhorn//g; s/Elkridge//g; s/Ellicott City//g; s/Elm Grove//g; s/Endicott//g; s/Englewood//g; 
+s/Emeryville//g; s/Encino//g; s/Ennis//g; s/Escondido//g; s/Euless//g; s/Fairbanks//g; s/Fairborn//g; s/Fairfax//g; s/Fairmont//g; s/Fairview He\...//g; s/Fairfield//g; 
+s/Fallbrook//g; s/Fall River//g; s/Falls Church//g; s/Fareham//g; s/Farnham//g; s/Fayetteville//g; s/Fha/FHA/g; s/Findlay//g; s/Flower Mound//g; s/Florence//g; s/Flowood//g; 
+s/Fogelsville//g; s/Fort Belvoir//g; s/Fort Bliss//g; s/Fort Collins//g; s/Fort Huachuca//g; s/Fort Knox//g; s/Fort Lauder\...//g; s/Fort Leaven...//g; s/Fort Monmouth//g; 
+s/Fort Monroe//g; s/Fort Walton...//g; s/Fort Washin\...//g; s/Fort Wayne//g; s/Fort Worth//g; s/Fountain Va...//g; s/Framingham//g; s/Frankfort//g; s/Fredericksburg//g; 
+s/Frederick//g; s/Fremont//g; s/Fredericksburg//g; s/Front Royal//g; s/Ft Worth//g; s/Fullerton//g; s/Fulton//g; s/Gainesville//g; s/Gaithersburg//g; s/Gardena//g; s/Gastonia//g; 
+s/Germantown//g; s/Gig Harbor//g; s/Glen Burnie//g; s/Glendale//g; s/Goleta//g; s/Goodyear//g; s/Grand Junction//g; s/Grand Prairie//g; s/Grants Pass//g; s/Green Bay//g; 
+s/Green Belt//g; s/Greenbelt//g; s/Greenfield//g; s/Greenville//g; s/Greenwood Vlg//g; s/Gretna//g; s/Gsa/GSA/g; s/Gulf Breeze//g; s/Gulfport//g; s/Gulf Coast//g; s/H\...//g; 
+s/Hackensack//g; s/Hamlin//g; s/Hampstead//g; s/Hampton//g; s/Hanahan//g; s/Hanover//g; s/Harbor City//g; s/Harlingen//g; s/Harrisburg//g; s/Harrisonburg//g; s/New Hartford//g; 
+s/Hartford//g; s/Hanscom Afb//g; s/Harvard//g; s/Haslet//g; s/Hatboro//g; s/Hattiesburg//g; s/Havant//g; s/Hawthorne//g; 
 s/Haymarket//g; s/Hd/HD/g; s/He\...//g; s/Heights//g; s/Helena//g; s/Helotes//g; s/Hendersonville//g; s/Herndon//g; s/Henrico//g; s/Hermosa Beach//g; s/Hershey//g; s/Highland//g; 
 s/Hillsborough//g; s/Hilton Head...//g; s/Hobart//g; s/Holbrook//g; s/Hollywood//g; s/Honolulu//g; s/Hopkinton//g; s/Hopewell//g; s/Houston//g; s/Hq/HQ/g; s/Huntington//g; 
 s/Huntingtown//g; s/Huntingtn Bch//g; s/Huntsville//g; s/Hurlburt Field//g; s/Hurricane//g; s/Hurst//g; s/Hyattsville//g; s/Idaho Falls//g; s/Iii/III/g; s/Ii/II/g; s/India //g; 
@@ -967,7 +965,7 @@ sed 's/[ \t]*$//' tmp2 | sort > tmp3
 head tmp3
 echo
 echo
-echo -n "Enter the company name: "
+echo -n "Enter the company name in the second column: "
 read name
 
 # Check for no answer
@@ -3085,7 +3083,7 @@ echo -e "\e[1;34mSCANNING\e[0m"
 echo "4.  Generate target list"
 echo "5.  CIDR"
 echo "6.  List"
-echo "7.  Single IP or domain"
+echo "7.  IP or domain"
 echo
 echo -e "\e[1;34mWEB\e[0m"
 echo "8.  Open multiple tabs in Iceweasel"
@@ -3124,4 +3122,3 @@ esac
 ##############################################################################################################
 
 while true; do f_main; done
-
