@@ -38,8 +38,6 @@ RECON
 1.  Passive
 2.  Active
 3.  Previous menu
-
-Choice: 
 ```
 
 * Passive combines goofile, goog-mail, goohost, theHarvester, Metasploit, dnsrecon, URLCrazy, Whois and multiple webistes.
@@ -88,8 +86,6 @@ Type of scan:
 1.  External
 2.  Internal
 3.  Previous menu
-
-Choice: 
 ```
 
 * An external scan will set the nmap source port to 53, while an internal scan will set it to 88.
@@ -98,11 +94,46 @@ Choice:
 * Matching Metasploit auxiliary modules are also leveraged.
 
 ## WEB
-* Open multiple tabs in Iceweasel with a list containing IPs and/or URLs or with directories from a domain's robot.txt file.
-* Run multiple instances of Nikto in parallel.
-* Check for SSL/TLS certificate issues.
+### Open multiple tabs in Iceweasel
+```
+Open multiple tabs in Iceweasel with:
+
+1.  List
+2.  Directories from a domain's robot.txt.
+3.  Previous menu
+```
+
+* Use a list containing IPs and/or URLs.
+* Use wget to pull a domain's robot.txt file, then open all of the directories.
+
+### Nikto
+```
+Run multiple instances of Nikto in parallel against a list of IP addresses.
+
+1.  List of IPs.
+2.  List of IP:port.
+3.  Previous menu
+```
+
+### SSL
+```
+Check for SSL certificate issues.
+
+Enter the location of your list: 
+```
+
+* Use sslscan and sslyze to check for SSL/TLS certificate issues.
 
 ## MISC
+### Crack WiFi
+
 * Crack wireless networks.
-* Start a Metasploit listener.
-* Update the distro, scripts and various tools.
+
+### Start a Metasploit listener
+
+* Setup a multi/handler with a windows/meterpreter/reverse_tcp payload on port 443.
+
+
+### Update
+
+* Use to update Kali Linux, Discover scripts, various tools and the locate database.
