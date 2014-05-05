@@ -20,7 +20,7 @@ alias s='cd /opt/scripts/ ; clear'
 
 alias nexpose='service postgresql stop ; cd /opt/rapid7/nexpose/nsc ; ./nsc.sh'
 
-alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
+alias sip='sort -V'
 
 alias update='/opt/scripts/update.sh'
 
