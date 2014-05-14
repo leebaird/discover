@@ -12,7 +12,8 @@ alias i='echo ; echo ; echo "DHCP     " $dhcp ; echo "DNS      " $dns ; echo ; i
 alias l='ls -l'
 alias n='echo ; netstat -antup | egrep -v "(Active|p6)" ; echo ;
 echo -n "Interface:    " ; ifconfig | grep -B1 "inet addr" | egrep -v "(-|inet addr|Loopback)" | cut -d " " -f1 ;
-echo -n "MAC address:  " ; ifconfig | grep -B1 "inet addr" | egrep -v "(-|inet addr|Loopback)" | cut -d " " -f11 ;
+echo -n "MAC address eth0:  " ; ifconfig | grep 'eth0' | awk '{print$5}' ;
+echo -n "Mac address wlan0:  " ; ifconfig | grep 'wlan0' | awk '{print$5}' ;
 echo -n "Internal IP:  " ; ifconfig | grep "inet addr"| grep -v "127.0.0.1" | cut -d "B" -f1 | cut -d ":" -f2 ;
 echo -n "External IP:  " ; curl ifconfig.me ; echo'
 alias r='cd /root/ ; clear'
