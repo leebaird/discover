@@ -1904,7 +1904,7 @@ fi
 
 if [ -f $name/8000.txt ]; then
         echo "     QNX QCONN"
-        nmap -iL $name/8000.txt -Pn -n --open -p8000 --script qconn-exec --script-args qconn-exec.timeout=60,qconn-exec.bytes=1024,qconn-exec.cmd="uname -a" --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
+        nmap -iL $name/8000.txt -Pn -n --open -p8000 --script=qconn-exec --script-args=qconn-exec.timeout=60,qconn-exec.bytes=1024,qconn-exec.cmd="uname -a" --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
         f_cleanup
         mv tmp4 $name/script-8000.txt
 fi
