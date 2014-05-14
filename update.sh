@@ -43,9 +43,10 @@ else
 fi
 
 if [ -d /opt/veil/.git ]; then
-     echo -e "\e[1;34mUpdating Veil-Evasion.\e[0m"
-     cd /opt/veil/ ; git pull
-     echo
+
+     rm -rf /opt/veil
+     apt-get -y install veil-evasion
+
 else
      echo -e "\e[1;33mInstalling Veil-Evasion.\e[0m"
      git clone git://github.com/Veil-Framework/Veil-Evasion.git /opt/veil

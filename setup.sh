@@ -4,6 +4,10 @@ clear
 echo
 echo
 
+echo -e "\e[1;33mInstalling Veil-evasion.\e[0m"
+apt-get -y install veil-evasion
+echo
+echo
 echo -e "\e[1;33mInstalling Filezilla.\e[0m"
 apt-get -y install filezilla
 echo
