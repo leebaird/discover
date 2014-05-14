@@ -3042,7 +3042,8 @@ ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(
 
 grep 'script=' discover.sh | egrep -v '(discover.sh|22.txt|smtp.txt)' | cut -d '=' -f2- | cut -d ' ' -f1 | tr ',' '\n' | egrep -v '(db2-discover|dhcp-discover|dns-service-discovery|http-email-harvest|membase-http-info|oracle-sid-brute|smb-os-discovery|sslv2)' | sort -u > tmp2
 
-echo "New Modules" > tmp-updates
+echo "New modules to be added." > tmp-updates
+echo >> tmp-updates
 echo >> tmp-updates
 echo "Nmap scripts" >> tmp-updates
 echo "==============================" >> tmp-updates
@@ -3051,6 +3052,7 @@ diff tmp tmp2 | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' >> tmp-updates
 
 rm tmp
 
+echo >> tmp-updates
 echo >> tmp-updates
 echo "Metasploit auxiliary/scanners" >> tmp-updates
 echo "==============================" >> tmp-updates
@@ -3074,6 +3076,8 @@ grep 'use ' /opt/scripts/resource/*.rc | grep -v 'recon-ng' > tmp
 sed -e 's:.*/\(.*\):\1:g' tmp > tmp-msf-used
 
 grep -v -f tmp-msf-used tmp-msf-all >> tmp-updates
+echo >> tmp-updates
+echo >> tmp-updates
 
 mv tmp-updates /$user/updates
 rm tmp*
