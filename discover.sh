@@ -2086,7 +2086,7 @@ if [[ -z $x ]]; then
      service postgresql start
 fi
 
-cp -R resource/ /tmp/resource
+cp -R resource/ /tmp/
 
 echo
 echo -e "\e[1;34mStarting Metasploit, this takes about 15 sec.\e[0m"
