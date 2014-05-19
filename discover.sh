@@ -100,6 +100,11 @@ if [ -f $name ]; then
      rm -rf $name
 fi
 
+if [ -d /tmp/resource ]; then
+     rm -rf /opt/scripts/resource/
+     mv /tmp/resource/ /opt/scripts/
+fi
+
 PID=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
 kill -9 $PID
 
