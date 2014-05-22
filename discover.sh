@@ -100,6 +100,11 @@ if [ -f $name ]; then
      rm -rf $name
 fi
 
+if [ -d /tmp/resource ]; then
+     rm -rf /opt/scripts/resource/
+     mv /tmp/resource/ /opt/scripts/
+fi
+
 PID=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
 kill -9 $PID
 
@@ -240,11 +245,12 @@ case $choice in
      grep -v '^-' tmp2 > tmp3
      # Remove blank lines
      sed '/^$/d' tmp3 > tmp4
-     sed 's/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; 
-s/COSTA RICA/Costa Rica/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/INDIA/India/g; 
-s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/RUSSIAN FEDERATION/Russia/g; 
-s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN; REPUBLIC OF China (ROC)/Taiwan/g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; 
-s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
+     sed 's/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; 
+s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; s/FRANCE/France/g; s/GERMANY/Germany/g; 
+s/HONG KONG/Hong Kong/g; s/INDIA/India/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; 
+s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; 
+s/TAIWAN; REPUBLIC OF China (ROC)/Taiwan/g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; 
+s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      ##############################################################
 
@@ -872,87 +878,146 @@ f_location
 echo
 echo
 
-sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/-chicago//g; s/-orlando//g; s/-mangr//g; s/-Southwest//g; s/Aberdeen Pr\...//g; s/Aberdeen//g; s/Abingdon//g; s/ACT//g; 
-s/Acworth//g; s/Addison//g; s/Akron//g; s/Albany//g; s/Albuquerque//g; s/Alexandria//g; s/Alma //g; s/Alpharetta//g; s/Altamonte S\...//g; s/Americus//g; s/Amissville//g; 
-s/Amsterdam//g; s/Anaheim//g; s/Anchorage//g; s/North Andover//g; s/Andover//g; s/Andrews Air\...//g; s/Annandale//g; s/Annapolis//g; s/Apalachin//g; s/Apopka//g; s/Apple Valley//g; 
-s/Archbald//g; s/Arlington//g; s/Armonk//g; s/Artesia//g; s/Ashburn//g; s/Athens//g; s/Atlanta//g; s/Attleboro//g; s/Auburn//g; s/Augusta//g; s/Aurora//g; s/Austin//g; s/Australia//g; 
-s/Avondale//g; s/Azle//g; s/Azusa//g; s/Babylon//g; s/Bakersfield//g; s/Bainbridge \...//g; s/Baltimore//g; s/Bangalore//g; s/Barboursville//g; s/Bartlesville//g; s/Barton//g; 
-s/Baton Rouge//g; s/Battle Ground//g; s/Bay Shore//g; s/Bd/BD/g; s/Bedford//g; s/Bel Air//g; s/Belcamp//g; s/Bella Vista//g; s/Bellevue//g; s/Belleville//g; s/Bellflower//g; 
-s/Beltsville//g; s/Berlin//g; s/Berwyn Hts//g; s/Bethesda//g; s/Bethpage//g; s/Bettendorf//g; s/Billerica//g; s/Biloxi//g; s/Binghamton//g; s/Birmingham//g; s/Bismarck//g; 
-s/Bloomfield//g; s/Boca Raton//g; s/Bohemia//g; s/Boise//g; s/Bordentown//g; s/Boston//g; s/Bothell//g; s/Boulder//g; s/Bowie//g; s/Bradenton//g; s/Brandywine//g; s/Brentwood//g; 
-s/Bridgeport//g; s/Bristow//g; s/Brooklyn//g; s/Broomfield//g; s/Buckeye//g; s/Buffalo//g; s/Burbank//g; s/Burlingame//g; s/Burlington//g; s/Burtonsville//g; s/Brockton//g; 
-s/Burleson//g; s/Bynum//g; s/Calabasas//g; s/California//g; s/Camarillo//g; s/Cambridge//g; s/Camden//g; s/Camp Hill//g; s/Camp Springs//g; s/Canada//g; s/Canonsburg//g; s/Canton//g; 
-s/Canyon Country//g; s/Cape Canaveral//g; s/Capitola//g; s/Carlsbad//g; s/Carpinteria//g; s/Carrollton//g; s/Castaic//g; s/Castle Rock//g; s/Catawba//g; s/Catonsville//g; 
-s/Cedar Hill//g; s/Centreville//g; s/Chambersburg//g; s/Champaign//g; s/Chantilly//g; s/Charleston//g; s/Charlottesvle//g; s/Charlotte//g; s/Chattanooga//g; s/Chelmsford//g; 
-s/Cherry Hill//g; s/Chesapeake//g; s/Cheyenne//g; s/Chicago//g; s/Christiansburg//g; s/Chula Vista//g; s/Cicero//g; s/Cincinnati//g; s/Cissp/CISSP/g; s/Claremont//g; s/Clarksville//g; s/Clearfield//g; s/Clearwater//g; s/Cleveland//g; s/Clifton Park//g; s/Clifton//g; s/CNN News Group Cable News Network//g; s/Captiva//g; s/Clarksburg//g; s/Clearfield//g; 
-s/Cocoa Beach//g; s/Colleyville//g; s/Collinsville//g; s/Colorado Sp\...//g; s/Columbia//g; s/Columbus//g; s/Commack//g; s/Concord //g; s/Conifer//g; s/Conroe//g; s/Conshohocken//g; 
-s/CONSULTANT/Consultant/g; s/Converse//g; s/Coopersburg//g; s/Copperopolis//g; s/Cookeville//g; s/Cordova//g; s/Corsicana//g; s/Cranston//g; s/Cresskill//g; s/Crofton//g; 
-s/Cross Junction//g; s/Crownsville//g; s/Culpeper//g; s/Cupertino//g; s/Cypress//g; s/Dahlgren//g; s/Dallas//g; s/Daly City//g; s/Danville//g; s/Dayton//g; s/Decatur//g; 
-s/Delaplane//g; s/Denver//g; s/Deer Park//g; s/Deerfield//g; s/Des Moines//g; s/DESIGNER/Designer/g; s/Desoto//g; s/Destin//g; s/Devens//g; s/Dhs/DHS/g; s/Diamond Bar//g; 
-s/Douglasville//g; s/Dover//g; s/Downers Grove//g; s/Doylestown//g; s/Dublin//g; s/Dulles//g; s/Duluth//g; s/Dumfries//g; s/Dunkirk//g; s/Durham//g; s/East Brunswick//g; 
-s/East Greenbush//g; s/East Hartford//g; s/East Syracuse//g; s/Easton//g; s/Eatontown//g; s/Eau Claire//g; s/Edgewood//g; s/Egg Harbor \...//g; s/El Cajon//g; s/El Monte//g; 
-s/El Paso//g; s/El Segundo//g; s/ELECTRONICS/Electronics/g; s/Elk Grove//g; s/Elkhorn//g; s/Elkridge//g; s/Ellicott City//g; s/Elm Grove//g; s/Endicott//g; s/Englewood//g; 
-s/Emeryville//g; s/Encino//g; s/Ennis//g; s/Escondido//g; s/Euless//g; s/Fairbanks//g; s/Fairborn//g; s/Fairfax//g; s/Fairmont//g; s/Fairview He\...//g; s/Fairfield//g; 
-s/Fallbrook//g; s/Fall River//g; s/Falls Church//g; s/Fareham//g; s/Farnham//g; s/Fayetteville//g; s/Fha/FHA/g; s/Findlay//g; s/Flower Mound//g; s/Florence//g; s/Flowood//g; 
-s/Fogelsville//g; s/Fort Belvoir//g; s/Fort Bliss//g; s/Fort Collins//g; s/Fort Huachuca//g; s/Fort Knox//g; s/Fort Lauder\...//g; s/Fort Leaven...//g; s/Fort Mill//g; 
-s/Fort Monmouth//g; s/Fort Monroe//g; s/Fort Myers//g; s/Fort Walton...//g; s/Fort Washin\...//g; s/Fort Wayne//g; s/Fort Worth//g; s/Fountain Va...//g; s/Framingham//g; 
-s/Frankfort//g; s/Fredericksburg//g; s/Frederick//g; s/Fremont//g; s/Fredericksburg//g; s/Front Royal//g; s/Ft Worth//g; s/Fullerton//g; s/Fulton//g; s/Gainesville//g; 
-s/Gaithersburg//g; s/Gardena//g; s/Gastonia//g; s/Germantown//g; s/Geyserville//g; s/Gig Harbor//g; s/Glen Burnie//g; s/Glendale//g; s/Goleta//g; s/Goodyear//g; s/Grand Junction//g; 
-s/Grand Prairie//g; s/Grants Pass//g; s/Green Bay//g; s/Green Belt//g; s/Greenbelt//g; s/Greenfield//g; s/Greenville//g; s/Greenwich//g; s/Greenwood Vlg//g; s/Gretna//g; s/Gsa/GSA/g; 
-s/Gulf Breeze//g; s/Gulfport//g; s/Gulf Coast//g; s/H\...//g; s/Hackensack//g; s/Hamlin//g; s/Hampstead//g; s/Hampton//g; s/Hanahan//g; s/Hanover//g; s/Harbor City//g; s/Harlingen//g; s/Harrisburg//g; s/Harrisonburg//g; s/New Hartford//g; s/Hartford//g; s/Hanscom Afb//g; s/Harvard//g; s/Haslet//g; s/Hatboro//g; s/Hattiesburg//g; s/Havant//g; s/Hawthorne//g; 
-s/Haymarket//g; s/Hd/HD/g; s/He\...//g; s/Heights//g; s/Helena//g; s/Helotes//g; s/Hendersonville//g; s/Herndon//g; s/Henrico//g; s/Hermosa Beach//g; s/Hershey//g; s/Highland//g; 
-s/Hillsborough//g; s/Hilton Head...//g; s/Hobart//g; s/Holbrook//g; s/Hollywood//g; s/Honolulu//g; s/Hopkinton//g; s/Hopewell//g; s/Houston//g; s/Hq/HQ/g; s/Huntington//g; 
-s/Huntingtown//g; s/Huntingtn Bch//g; s/Huntsville//g; s/Hurlburt Field//g; s/Hurricane//g; s/Hurst//g; s/Hyattsville//g; s/Idaho Falls//g; s/Iii/III/g; s/Ii/II/g; s/India //g; 
-s/Indialantic//g; s/Indian Harb\...//g; s/Indianapolis//g; s/Information Technology/IT/g; s/INSTRUMENT/Instrument/g; s/Ireland//g; s/Irvine//g; s/Irving//g; s/Its/ITS/g; s/Iv /IV/g; 
-s/J\...//g; s/JA//g; s/Jacksonville//g; s/Jacksonvill\...//g; s/Jber//g; s/Jefferson City//g; s/Jersey City//g; s/Jessup//g; s/Johnson City//g; s/Johnstown//g; s/Jupiter//g; 
-s/Kanata//g; s/Kansas City//g; s/Kennesaw//g; s/Kensington//g; s/Kihei//g; s/Killeen//g; s/King George//g; s/King Of Pru\...//g; s/Kings Bay//g; s/Kings Park//g; s/Kissimmee//g; 
-s/Knightdale//g; s/Knoxville//g; s/La Follette//g; s/La Jolla//g; s/La Mesa//g; s/La Palma//g; s/La Plata//g; s/Lafayette//g; s/Laguna Hills//g; s/Lake Charles//g; s/Lake City//g; 
-s/Lake Mary//g; s/Lake Montezuma//g; s/Lakeland//g; s/Lakeville//g; s/Lakewood//g; s/Lancaster//g; s/Landenberg//g; s/Lanham//g; s/Lantana//g; s/Las Vegas//g; s/Mount Laurel//g; 
-s/Lansdale//g; s/Laurel//g; s/Lawrenceville//g; s/Lawndale//g; s/Lawton//g; s/Layton//g; s/League City//g; s/LEARNING/Learning/g; s/Leavenworth//g; s/Lebanon//g; s/Leesburg//g; 
-s/Lexington Park//g; s/Lexington//g; s/Linthicum//g; s/Litchfield ...//g; s/Lithonia//g; s/Lititz//g; s/Little Rock//g; s/Littleton//g; s/Livermore//g; s/Liverpool//g; s/Livonia//g; 
-s/Lockport//g; s/Lomita//g; s/Lompoc//g; s/Longmont//g; s/New London//g; s/London//g; s/Lone Tree//g; s/Long Beach//g; s/Long Valley//g; s/Lorton//g; s/Los Angeles//g; 
-s/Louisville//g; s/Loveland//g; s/Lovettsville//g; s/Lufkin//g; s/Lumberton//g; s/Lusby//g; s/Lvl/Level/g; s/Lynnwood//g; s/Machias//g; s/Maine//g; s/Maitland//g; s/Malvern//g; 
-s/Manassas//g; s/Mangr/Manager/g; s/Manhattan//g; s/Mansfield//g; s/MANUFACTURING/Manufacturing/g; s/Maple Shade//g; s/Marblehead//g; s/Marlborough//g; s/Marietta//g; 
-s/Marina Del Rey//g; s/Marion//g; s/Marlton//g; s/Mayfield//g; s/Mc Lean//g; s/Mcclellan//g; s/Mc Coll//g; s/Mcse/MCSE/g; s/MECHANIC/Mechanic/g; s/Medford//g; s/Melbourne//g; 
-s/Melville//g; s/Memphis//g; s/Menlo Park//g; s/Meriden//g; s/Meridian//g; s/Merritt Island//g; s/Mesa //g; s/Miami//g; s/Miami Beach//g; s/Middle River//g; s/Middleburg//g; 
-s/Middletown//g; s/Millersville//g; s/Milpitas//g; s/Milton//g; s/Minneapolis//g; s/Mississauga//g; s/Mobile//g; s/Moreno Valley//g; s/Monroe Town\...//g; s/Monterey//g; 
-s/Morgan Hill//g; s/Morgantown//g; s/Montgomery//g; s/Montreal//g; s/Moorestown//g; s/Mooresville//g; s/Morrisville//g; s/Moss Point//g; s/Mount Airy//g; s/Mount Holly//g; 
-s/Mount Laurel//g; s/Mount Pleasant//g; s/Mount Vernon//g; s/Mountain View//g; s/Mullica Hill//g; s/Mumbai//g; s/Mystic//g; s/Naperville//g; s/Naples//g; s/Narragansett//g; 
-s/Nashville//g; s/Navarre//g; s/Needham//g; s/Neotsu//g; s/New Church//g; s/New Market//g; s/New Martins\...//g; s/New Orleans//g; s/New Port Ri\...//g; s/New Town//g; s/New York//g; 
-s/Newark//g; s/Newport Beach//g; s/Newport News//g; s/Newport//g; s/Newtown//g; s/Niagara Falls//g; s/Niceville//g; s/Noida//g; s/Norfolk//g; s/Norristown//g; s/North Baldwin//g; 
-s/North Charl\...//g; s/North Highl\...//g; s/North Holly\...//g; s/Northfield//g; s/Norwalk//g; s/Nottingham//g; s/Novato//g; s/Nsa/NSA/g; s/Nso/NSO/g; s/O Fallon//g; s/Oak Hill//g; 
-s/Oak Ridge//g; s/Oak View//g; s/Oakdale//g; s/Oakland//g; s/Oakton//g; s/Ocala//g; s/Ocean Springs//g; s/Oceanport//g; s/Ocoee//g; s/Odenton//g; s/Odessa//g; s/Offutt A F B//g; 
-s/Ogden//g; s/Oklahoma City//g; s/Oldsmar//g; s/Olney//g; s/Omaha//g; s/Onalaska//g; s/Onited States//g; s/Orange Park//g; s/Orange//g; s/Orlando//g; s/Ottawa//g; s/Oviedo//g; 
-s/Owego//g; s/Owensboro//g; s/Owings Mills//g; s/PACKAGING/Packaging/g; s/Palatine//g; s/Palermo//g; s/Palm Bay//g; s/Palmdale//g; s/Palo\...//g; s/Palo Alto//g; s/Panama City//g; 
-s/Papillion//g; s/Park Ridge//g; s/Parkville//g; s/Parsippany//g; s/Pasadena//g; s/Pascagoula//g; s/Passaic//g; s/Patuxent River//g; s/Pearl City//g; s/Pensacola//g; 
-s/Philadelphia//g; s/Phoenix//g; s/Pico Rivera//g; s/Pikesville//g; s/Pinconning//g; s/Pinellas Park//g; s/Piscataway//g; s/Pittsburgh//g; s/Plano//g; s/Plaquemine//g; 
-s/Pleasanton//g; s/PMo/PMO/g; s/PMp/PMP/g; s/ Pmp/PMP/g; s/Pm/PM/g; s/Point Pleasant//g; s/Pomona//g; s/Port Deposit//g; s/Portland//g; s/Portsmouth//g; s/Poway//g; 
-s/Powder Springs//g; s/Prineville//g; s/Proctorville//g; s/PROGRAMMING/Programming/; s/Providence//g; s/Pueblo//g; s/Purcellville//g; s/Quantico//g; s/R and D/R&D/g; s/Raleigh//g; 
-s/Rancho//g; s/Ransom Canyon//g; s/Reading//g; s/Red Bank//g; s/Redlands//g; s/Redondo Beach//g; s/Reisterstown//g; s/Reston//g; s/Reynoldsburg//g; s/RFid/RFID/g; s/Rf/RF/g; 
-s/Richland//g; s/Ridgecrest//g; s/New Richmond//g; s/Richmond//g; s/Ridgewood//g; s/Riverdale//g; s/Rllng Hls Est//g; s/Rochester//g; s/Rockledge//g; s/Rockport//g; s/Rockville//g; 
-s/Rohnert Park//g; s/Rolling Mea\...//g; s/Rosamond//g; s/Rosemead//g; s/Roseville//g; s/Roswell//g; s/Round Rock//g; s/Royal Oak//g; s/Royersford//g; s/Ruckersville//g; 
-s/Sacramento//g; s/Saint Augus\...//g; s/Saint Charles//g; s/Saint-laurent//g; s/Saint Cloud//g; s/Saint Louis//g; s/Saint Paul//g; s/Saint Peter...//g; s/Salt Lake City//g; 
-s/San Antonio//g; s/San Clemente//g; s/San Diego//g; s/San Francisco//g; s/San Jose//g; s/San Juan//g; s/San Marcos//g; s/San Mateo//g; s/San Pedro//g; s/San Ramon//g; s/Sanibel//g; 
-s/Sant\...//g; s/Santa Ana//g; s/Santa Clara//g; s/Santa Fe//g; s/Santa Isabel//g; s/Santa Maria//g; s/Santa Monica//g; s/Santee//g; s/Sarasota//g; s/Scarsdale//g; s/Schaumburg//g; 
-s/Schenectady//g; s/SCIENTIST/Scientist/g; s/Scott Afb//g; s/Scott Air F\...//g; s/Scotts Valley//g; s/Scranton//g; s/Seattle//g; s/Sebring//g; s/Seminole//g; s/Severn //g; 
-s/Severna Park//g; s/Sftwr/Software/g; s/Sharpes//g; s/Sherman Oaks//g; s/Show Low//g; s/Sierra Vista//g; s/Silver Spring//g; s/Sitka//g; s/Slidell//g; s/Snr/Senior/g; 
-s/Shalimar//g; s/Silverdale//g; s/Sioux Falls//g; s/Simpsonville//g; s/Smyrna//g; s/Socorro//g; s/Solana Beach//g; s/Somerset//g; s/South Burli...//g; s/South San F\...//g; 
-s/Southfield//g; s/Southbridge//g; s/Southern Pines//g; s/South Lake//g; s/South Ozone...//g; s/South River//g; s/Southborough//g; s/Southampton//g; s/Southlake//g; 
-s/Spotsylvania//g; s/Springfield//g; s/Sql/SQL/g; s/St Augustine//g; s/St Petersburg//g; s/Sta\...//g; s/Stafford//g; s/Stennis Spa...//g; s/Stephens City//g; s/Sterling//g; 
-s/Stf/Staff/g; s/Stillwater//g; s/Stone Mountain//g; s/Sudbury//g; s/Sugar Land//g; s/Suffolk//g; s/Summerville//g; s/Sunnyvale//g; s/Superior//g; s/Suwanee//g; s/sv\...//g; 
-s/Sykesville//g; s/Syracuse//g; s/Takoma Park//g; s/Tacoma//g; s/Tallahassee//g; s/Tall Timbers//g; s/Tampa//g; s/Taneytown//g; s/Tarzana//g; s/Teaneck//g; s/Telluride//g; s/Tempe//g; s/Terrell//g; s/TEST/Test/g; s/Thousand Oaks//g; s/Titusville//g; s/Topeka//g; s/Tornado//g; s/Toronto//g; s/Torrance//g; s/Trenton//g; s/Tucson//g; s/Twin Falls//g; s/Twinsburg//g; 
-s/Tyngsboro//g; s/U.S.//g; s/Union City//g; s/Uniondale//g; s/United Kingdom//g; s/United States//g; s/Upper Chich...//g; s/Upper Marlboro//g; s/Urbandale//g; s/Uscg/USCG/g; 
-s/Valencia//g; s/Van Nuys//g; s/Vancouver//g; s/Ventura//g; s/Vero Beach//g; s/Vestal//g; s/Vii/VII/g; s/Vi /VI/g; s/Vienna//g; s/Virginia Beach//g; s/Vista//g; s/Voip/VoIP/g; 
-s/Wakefield//g; s/Waldorf//g; s/Walled Lake//g; s/Wallingford//g; s/Wallops Island//g; s/Walnut Creek//g; s/Warrenton//g; s/Warner Robins//g; s/Warwick//g; s/Washington//g; 
-s/Wasilla//g; s/Weare//g; s/Weatherford//g; s/West Hollywood//g; s/West Linn//g; s/West Palm B\...//g; s/West Sacram\...//g; s/Westborough//g; s/Westchester//g; s/Westminster//g; 
-s/Westmont//g; s/Westport//g; s/Westwego//g; s/Wheeling//g; s/White Plains//g; s/Whiteman Ai\...//g; s/Wildwood//g; s/Williamsburg//g; s/Williamsport//g; s/Williston Park//g; 
-s/Wilmington//g; s/Wilton//g; s/Winchester//g; s/Windsor Mill//g; s/Windermere//g; s/Winder//g; s/Winter Park//g; s/Winter Springs//g; s/Woburn//g; s/Woodbridge//g; 
-s/Woodland Hills//g; s/Woodstown//g; s/Wynnewood//g; s/Yeovil//g; s/Youngsville//g; s/Yorktown//g; s/Yuma//g;
+sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/-account/, Account/g; s/-Assistant/, Assistant/g; s/-attorney/, Attorney/g; 
+s/-chicago//g; s/-commercial/, Commercial/g; s/-credit/, Credit/g; s/-FHA/, FHA/g; s/-orlando//g; s/-mangr//g; s/-private/, Private/g; 
+s/-real/, Real/g; s/-Risk/, Risk/g; s/-Sales/, Sales/g; s/-Southwest//g; s/ -vice/, Vice/g; s/-wealth/, Wealth/g; s/Aberdeen Pr\...//g; 
+s/Aberdeen//g; s/Abingdon//g; s/ACADEMIC/Academic/g; s/ACT//g; s/Acworth//g; s/Addison//g; s/Agoura Hills//g; s/Akron//g; s/New Albany//g; 
+s/Albany//g; s/Albuquerque//g; s/Alexandria//g; s/Allentown//g; s/Alma //g; s/Alpharetta//g; s/Altamonte S\...//g; s/Americus//g; s/Amissville//g; 
+s/Amsterdam//g; s/Anaheim//g; s/Anchorage//g; s/North Andover//g; s/Andover//g; s/Andrews Air\...//g; s/Annandale//g; s/Annapolis//g; s/Apalachin//g; 
+s/Apopka//g; s/Apple Valley//g; s/Archbald//g; s/Arlington//g; s/Armonk//g; s/Artesia//g; s/Ashburn//g; s/Athens//g; s/Atlanta//g; s/Attleboro//g; 
+s/Auburn//g; s/Augusta//g; s/Aurora//g; s/Austell//g; s/Austin//g; s/Australia//g; s/Avondale//g; s/Avon//g; s/Azle//g; s/Azusa//g; s/Babylon//g; 
+s/Bakersfield//g; s/Bainbridge \...//g; s/Baltimore//g; s/Bangalore//g; s/Barboursville//g; s/Bardstown//g; s/Bartlesville//g; s/Barton//g; 
+s/Baton Rouge//g; s/Battle Ground//g; s/Bay Shore//g; s/Bayside//g; s/Bd/BD/g; s/Beachwood//g; s/Beaver Falls//g; s/Beaverton//g; s/Bedford//g; 
+s/Bel Air//g; 
+s/Belcamp//g; s/Bella Vista//g; s/Bellevue//g; s/Belleville//g; s/Bellflower//g; s/Beltsville//g; s/Berkeley//g; s/Berlin//g; s/Berwyn Hts//g; 
+s/Berwyn//g; s/Bethesda//g; s/Bethlehem//g; s/Bethpage//g; s/Bettendorf//g; s/Billerica//g; s/Biloxi//g; s/Binghamton//g; s/Birmingham//g; 
+s/Bismarck//g; s/Bloomfield//g; s/Bloomington//g; s/Boca Raton//g; s/Bohemia//g; s/Boise//g; s/Bolingbrook//g; s/Bordentown//g; s/Boston//g; 
+s/Bothell//g; s/Boulder//g; s/Bowie//g; s/Bradenton//g; s/Brandywine//g; s/Brecksville//g; s/Brentwood//g; s/Bridgeport//g; s/Bridgewater//g; 
+s/Bristow//g; s/Brooklyn//g; s/Brookpark//g; s/Broomfield//g; s/Brownstown//g; s/Buckeye//g; s/Buffalo//g; s/Burbank//g; s/Burlingame//g; 
+s/Burlington//g; s/Burtonsville//g; s/Brockton//g; s/Burleson//g; s/Bynum//g; s/Calabasas Hls//g; s/Calabasas//g; s/Califon//g; s/California//g; 
+s/Camarillo//g; 
+s/Cambridge//g; s/Camden//g; s/Camp Hill//g; s/Camp Springs//g; s/Canada//g; s/Canonsburg//g; s/Canton//g; s/Canyon Country//g; s/Cape Canaveral//g; 
+s/Capitola//g; s/Carlsbad//g; s/Carpinteria//g; s/Carrollton//g; s/Castaic//g; s/Castle Rock//g; s/Catawba//g; s/Catonsville//g; s/Cedar Hill//g; 
+s/Center Line//g; s/Centreville//g; s/Chambersburg//g; s/Champaign//g; s/Chantilly//g; s/Charleston//g; s/Charlestown//g; s/Charlottesvle//g; 
+s/Charlotte//g; 
+s/Chattanooga//g; s/Chelmsford//g; s/Cherry Hill//g; s/Chesapeake//g; s/Cheyenne//g; s/Chicago//g; s/Christiansburg//g; s/Chula Vista//g; 
+s/Cicero//g; s/Cincinnati//g; s/Cissp/CISSP/g; s/Claremont//g; s/Clarendon//g; s/Clarksville//g; s/Clearfield//g; s/Clearwater//g; s/Cleveland//g; 
+s/Clifton Park//g; s/Clifton//g; s/CNN News Group Cable News Network//g; s/Captiva//g; s/Clarksburg//g; s/Clearfield//g; s/Cocoa Beach//g; s/Cocoa//g; 
+s/Colleyville//g; s/Collinsville//g; s/Colorado Sp\...//g; s/Columbia//g; s/Columbus//g; s/Commack//g; s/Concord //g; s/Conifer//g; s/Conroe//g; 
+s/Conshohocken//g; s/CONSULTANT/Consultant/g; s/Converse//g; s/Coopersburg//g; s/Copperopolis//g; s/Cookeville//g; s/Cordova//g; s/Corsicana//g; 
+s/Countryside//g; s/Cranberry Twp//g; s/Cranston//g; 
+s/Cresskill//g; s/Crofton//g; s/Cross Junction//g; s/Crownsville//g; s/Culpeper//g; s/Cupertino//g; s/Cypress//g; s/Dahlgren//g; s/Dallas//g; 
+s/Daly City//g; s/Danville//g; s/Dayton//g; s/Decatur//g; s/Delaplane//g; s/Delray Beach//g; s/Denver//g; s/Deer Park//g; s/Deerfield//g; 
+s/Des Moines//g; s/DESIGNER/Designer/g; s/Desoto//g; s/Destin//g; s/Detroit//g; s/Devens//g; s/Dhs/DHS/g; s/Diamond Bar//g; s/Douglasville//g; 
+s/Dover//g; s/Downers Grove//g; s/Doylestown//g; s/Dublin//g; s/Dulles//g; s/Duluth//g; s/Dumfries//g; s/Dunkirk//g; s/Durham//g; s/East Brunswick//g; 
+s/East Greenbush//g; s/East Hanover//g; s/East Hartford//g; s/East Stroud\...//g; s/East Syracuse//g; s/Easton//g; s/Eatontown//g; s/Elgin//g; 
+s/Eau Claire//g; 
+s/Edgewood//g; s/Edison//g; s/Egg Harbor \...//g; s/El Cajon//g; s/El Monte//g; s/El Paso//g; s/El Segundo//g; s/ELECTRONICS/Electronics/g; 
+s/Elk Grove//g; s/Elkhorn//g; s/Elkridge//g; s/Elkton//g; s/Ellicott City//g; s/Elk Grove V\...//g; s/Elkhart//g; s/Elm Grove//g; s/Elyria//g; 
+s/Emerson//g; s/Endicott//g; s/Englewood//g; s/Englishtown//g; s/Emeryville//g; 
+s/Encino//g; s/Ennis//g; s/Erie//g; s/Escondido//g; s/Euless//g; s/Evanston//g; s/Evansville//g; s/Fairbanks//g; s/Fairborn//g; s/Fairfax//g; 
+s/Fairmont//g; s/Fairview He\...//g; 
+s/Fairfield//g; s/Fallbrook//g; s/Fall River//g; s/Falls Church//g; s/Fareham//g; s/Farmington Hls//g; s/Farnham//g; s/Fayetteville//g; s/Fha/FHA/g; 
+s/Findlay//g; s/Flat Rock//g; s/Flemington//g; s/Florence//g; s/Florham Park//g; s/Flossmoor//g; s/Flower Mound//g; s/Flowood//g; s/Floyds Knobs//g; 
+s/Fogelsville//g; s/Forest Hill//g; s/Forked River//g; s/Fort Belvoir//g; s/Fort Bliss//g; s/Fort Collins//g; s/Fort Huachuca//g; s/Fort Knox//g; 
+s/Fort Lauder\...//g; s/Fort Leaven\...//g; s/Fort Mill//g; 
+s/Fort Monmouth//g; s/Fort Monroe//g; s/Fort Myers//g; s/Fort Pierce//g; s/Fort Walton\...//g; s/Fort Washin\...//g; s/Fort Wayne//g; s/Fort Worth//g; 
+s/Fountain Va\...//g; s/Framingham//g; s/Frankfort//g; s/Fredericksburg//g; s/Frederick//g; s/Fremont//g; s/Fredericksburg//g; s/Front Royal//g; 
+s/Ft Mitchell//g; s/Ft Worth//g; s/Fullerton//g; s/Fulton//g; s/Gainesville//g; s/Gaithersburg//g; s/Garden City//g; s/Gardena//g; s/Gastonia//g; 
+s/Germantown//g; s/Geyserville//g; s/Gibsonia//g; s/Gig Harbor//g; s/Glastonbury//g; s/Glen Burnie//g; s/Glen Ellyn//g; s/Glendale//g; s/Glenside//g; 
+s/Gnadenhutten//g; s/Goleta//g; 
+s/Goodyear//g; s/Grand Junction//g; s/Grand Haven//g; s/Grand Prairie//g; s/Grand Rapids//g; s/Grants Pass//g; s/Grayslake//g; s/Green Bay//g; 
+s/Green Belt//g; s/Greenbelt//g; s/Greensburg//g; s/Greencastle//g; s/Greenfield//g; s/Greenville//g; s/Greenwich//g; s/Greenwood Vlg//g; 
+s/Gretna//g; s/Grosse Ile//g; s/Gsa/GSA/g; s/Gulf Breeze//g; s/Gulfport//g; s/Gulf Coast//g; s/H\...//g; s/Hackensack//g; s/Hackettstown//g; 
+s/Haddon//g; s/Hamlin//g; s/Hampstead//g; s/Hampton//g; s/Hanahan//g; s/Hanover//g; s/Harbor City//g; s/Harlingen//g; s/Harrisburg//g; 
+s/Harrisonburg//g; s/New Hartford//g; s/Hartford//g; s/Hanscom Afb//g; s/Harvard//g; s/Haslet//g; s/Hatboro//g; s/Hattiesburg//g; s/Havant//g; 
+s/Hawthorne//g; s/Haymarket//g; s/Hazelwood//g; s/Hd/HD/g; s/He\...//g; s/Heights//g; s/Helena//g; s/Helotes//g; s/Hendersonville//g; s/Herndon//g; 
+s/Henrico//g; 
+s/Hermosa Beach//g; s/Hershey//g; s/Highland Hls//g; s/Highland Park//g; s/Highland//g; s/Hillsborough//g; s/Hilton Head\...//g; s/Hobart//g; 
+s/Holbrook//g; s/Hollywood//g; s/Homer Glen//g; s/Honolulu//g; s/Hopkinton//g; s/Hopewell//g; s/Houston//g; s/Hq/HQ/g; s/Huntingdon//g; 
+s/Huntington//g; s/Huntingtown//g; s/Huntingtn Bch//g; s/Huntsville//g; s/Hurlburt Field//g; s/Hurricane//g; s/Hurst//g; s/Hyattsville//g; 
+s/Idaho Falls//g; s/Iii/III/g; s/Ii/II/g; s/India //g; s/Indialantic//g; s/Indian Harb\...//g; s/Indianapolis//g; s/Information Technology/IT/g; 
+s/INSTRUMENT/Instrument/g; s/Ireland//g; s/Irvine//g; s/Irving//g; s/Its/ITS/g; s/Iv /IV/g; s/J\...//g; s/JA//g; s/Jacksonville//g; 
+s/Jacksonvill\...//g; s/Jber//g; s/Jeffersonville//g; s/Jefferson City//g; s/Jersey City//g; s/Jerseyville//g; s/Jessup//g; s/Johnson City//g; 
+s/Johnstown//g; 
+s/Joliet//g; s/Jupiter//g; s/Kalamazoo//g; s/Kanata//g; s/Kansas City//g; s/Kearny//g; s/Keego Harbor//g; s/Kennesaw//g; s/Kensington//g; s/Kihei//g; 
+s/Killeen//g; s/King George//g; s/King Of Pru\...//g; s/Kings Bay//g; s/Kings Park//g; s/Kissimmee//g; s/Knightdale//g; s/Knoxville//g; 
+s/La Follette//g; s/La Grange Park//g; s/La Grange//g; s/La Jolla//g; s/La Mesa//g; s/La Palma//g; s/La Plata//g; s/Lafayette//g; s/Laguna Hills//g; 
+s/Lake Charles//g; s/Lake City//g; s/Lake Mary//g; s/Lake Montezuma//g; s/Lakehurst//g; s/Lakeland//g; s/Lakeville//g; s/Lakewood//g; s/Lancaster//g; 
+s/Landenberg//g; s/Lanham//g; s/Lansdowne//g; s/Lantana//g; s/Las Vegas//g; s/Mount Laurel//g; s/Lansdale//g; s/Laurel//g; s/Lawrenceville//g; 
+s/Lawndale//g; s/Lawton//g; s/Layton//g; s/League City//g; s/LEARNING/Learning/g; s/Leavenworth//g; s/Leawood//g; s/Lebanon//g; s/Leesburg//g; 
+s/Leonardtown//g; s/Leonia//g; s/Lexington Park//g; s/Lexington//g; s/Linthicum//g; s/Linwood//g; s/Litchfield \...//g; s/Lithonia//g; s/Lititz//g; 
+s/Little Rock//g; s/Littleton//g; 
+s/Livermore//g; s/Liverpool//g; s/Livonia//g; s/Lockport//g; s/Logansport//g; s/Lomita//g; s/Lompoc//g; s/Longmont//g; s/New London//g; s/London//g; 
+s/Lone Tree//g; s/Long Beach//g; s/Long Valley//g; s/Lorton//g; s/Los Angeles//g; s/Louisville//g; s/Loveland//g; s/Loves Park//g; s/Lovettsville//g; 
+s/Lufkin//g; s/Lumberton//g; s/Lusby//g; s/Lvl/Level/g; s/Lyndhurst//g; s/Lynnwood//g; s/Machias//g; s/Maineville//g; s/Maine//g; s/Maitland//g; 
+s/Malvern//g; s/Manassas//g; s/Mangr/Manager/g; s/Manhattan//g; s/Mansfield//g; s/MANUFACTURING/Manufacturing/g; s/Maple Shade//g; s/Marblehead//g; 
+s/Marlborough//g; s/Marietta//g; s/Marina Del Rey//g; s/Marion//g; s/Marlton//g; s/Mayfield//g; s/Mays Landing//g; s/Mba/MBA/g; s/Mc Lean//g; 
+s/Mcclellan//g; s/Mc Coll//g; s/Mc Cordsville//g; s/Mcse/MCSE/g; s/Meadville//g; s/MECHANIC/Mechanic/g; s/Medford//g; s/Medina//g; s/Melbourne//g; 
+s/Melville//g; s/Memphis//g; 
+s/Menlo Park//g; s/Mentor//g; s/Meriden//g; s/Meridian//g; s/Merritt Island//g; s/Mesa //g; s/Miamisburg//g; s/Miami//g; s/Miami Beach//g; 
+s/Middle River//g; s/Middleburg//g; s/Middletown//g; s/Millburn//g; s/Millersville//g; s/Millstone T\...//g; s/Milpitas//g; s/Milton//g; 
+s/Minneapolis//g; s/Minnetonka//g; s/Mississauga//g; s/Mobile//g; s/Monroe Town\...//g; s/Monroeville//g; s/Montclair//g; s/Monterey//g; 
+s/Montgomery//g; s/Montoursville//g; s/Montreal//g; s/Montvale//g; s/Moorestown//g; s/Mooresville//g; s/Moreno Valley//g; s/Morgan Hill//g; 
+s/Morgantown//g; 
+s/Morristown//g; s/Morrisville//g; s/Moss Point//g; s/Mount Airy//g; s/Mount Holly//g; s/Mount Laurel//g; s/Mount Pleasant//g; s/Mount Prospect//g; 
+s/Mount Vernon//g; s/Mountain View//g; s/Mullica Hill//g; s/Mumbai//g; 
+s/Mystic//g; s/Naperville//g; s/Naples//g; s/Narragansett//g; s/Nashville//g; s/Navarre//g; s/Needham//g; s/Neotsu//g; s/New Church//g; s/New Haven//g; 
+s/New Market//g; s/New Martins\...//g; s/New Orleans//g; s/New Port Ri\...//g; s/New Town//g; s/New York//g; s/Newark//g; s/Newport Beach//g; 
+s/Newport News//g; s/Newport//g; s/Newtown//g; s/Niagara Falls//g; s/Niceville//g; s/Noblesville//g; s/Noida//g; s/Norfolk//g; s/Norristown//g; 
+s/North Baldwin//g; s/North Charl\...//g; s/North Highl\...//g; s/North Holly\...//g; s/North Olmsted//g; s/North Wales//g; s/Northfield//g; 
+s/Norwalk//g; s/Nottingham//g; s/Novato//g; s/Nsa/NSA/g; s/Nso/NSO/g; s/O Fallon//g; s/Oak Brook//g; s/Oak Hill//g; s/Oak Ridge//g; s/Oak View//g; 
+s/Oakdale//g; s/Oakland//g; s/Oakton//g; s/Oak Park//g; s/Ocala//g; s/Ocean City//g; s/Ocean Grove//g; s/Ocean Springs//g; s/Oceanport//g; 
+s/Ocoee//g; s/Odenton//g; s/Odessa//g; 
+s/Offutt A F B//g; s/Ogden//g; s/Okemos//g; s/Oklahoma City//g; s/Olathe//g; s/Oldsmar//g; s/Olney//g; s/Omaha//g; s/Onalaska//g; s/Onited States//g; 
+s/Orange Park//g; s/Oregon//g; s/Orlando//g; s/Ottawa//g; s/Overland Park//g; s/Oviedo//g; s/Owego//g; s/Owensboro//g; s/Owings Mills//g; 
+s/PACKAGING/Packaging/g; s/Palatine//g; s/Palermo//g; s/Palm Bay//g; s/Palmdale//g; s/Palo\...//g; s/Palo Alto//g; s/Palos Hills//g; 
+s/Pompano Beach//g; 
+s/Panama City//g; s/Papillion//g; s/Park Ridge//g; s/Parkesburg//g; s/Parkville//g; s/Parsippany//g; s/Pasadena//g; s/Pascagoula//g; s/Passaic//g; 
+s/Patuxent River//g; s/Pearl City//g; s/Pembroke Pines//g; s/Pensacola//g; s/Peoria//g; s/Philadelphia//g; s/Phoenix//g; s/Pico Rivera//g; 
+s/Pikesville//g; s/Pinconning//g; s/Pinellas Park//g; s/Piscataway//g; s/Pittsburgh//g; s/Plainfield//g; s/Plano//g; s/Plaquemine//g; 
+s/Pleasanton//g; s/Plymouth//g; s/PMo/PMO/g; s/PMp/PMP/g; s/Pmp/PMP/g; s/Pm/PM/g; s/Point Pleasant//g; s/Pomona//g; s/Port Deposit//g; 
+s/Port Orange//g; s/Portage//g; s/Portland//g; s/Portsmouth//g; s/Poway//g; s/Powder Springs//g; s/Princeton//g; s/Princess Anne//g; s/Prineville//g; 
+s/Proctorville//g; s/PROGRAMMING/Programming/g; s/Providence//g; s/Pueblo//g; 
+s/Purcellville//g; s/Quantico//g; s/R and D/R&D/g; s/RADIOLOGY/Radiology/g; s/Raleigh//g; s/Rancho//g; s/Ransom Canyon//g; s/Reading//g; 
+s/Red Bank//g; s/Redlands//g; s/Redondo Beach//g; s/Reisterstown//g; s/Rensselaer//g; s/Reston//g; s/Reynoldsburg//g; s/RFid/RFID/g; s/Rf/RF/g; 
+s/Richland//g; s/Ridgecrest//g; s/New Richmond//g; s/Richmond//g; s/Ridgewood//g; s/Ringoes//g; s/Riverdale//g; s/Rllng Hls Est//g; s/Rockaway//g; 
+s/Rochester Hls//g; s/Rochester//g; s/Rockford//g; s/Rockledge//g; s/Rockport//g; s/Rockville//g; s/Rohnert Park//g; s/Rolling Mea\...//g; 
+s/Rosamond//g; s/Rosemead//g; s/Roseville//g; s/Roswell//g; s/Round Rock//g; s/Royal Oak//g; s/Royersford//g; s/Ruckersville//g; s/Sacramento//g; 
+s/Saint-laurent//g; s/Saint Augus\...//g; s/Saint Charles//g; s/Saint Clair\...//g; s/Saint Cloud//g; s/Saint Louis//g; s/Saint Paul//g; 
+s/Saint Peter\...//g; s/Salt Lake City//g; s/San Antonio//g; s/San Clemente//g; s/San Diego//g; s/San Francisco//g; s/San Jose//g; s/San Juan//g; 
+s/San Marcos//g; s/San Mateo//g; s/San Pedro//g; s/San Ramon//g; s/Sanibel//g; s/Sant\...//g; s/Santa Ana//g; s/Santa Clara//g; s/Santa Fe//g; 
+s/Santa Isabel//g; s/Santa Maria//g; s/Santa Monica//g; s/Santee//g; s/Sarasota//g; s/Scarsdale//g; s/Schaumburg//g; s/Schenectady//g; 
+s/SCIENTIST/Scientist/g; s/Scotch Plains//g; s/Scott Afb//g; s/Scott Air F\...//g; s/Scotts Valley//g; s/Scottsdale//g; s/Scranton//g; s/Seaford//g; 
+s/Seattle//g; s/Sebring//g; s/Seminole//g; s/Severn //g; s/Severna Park//g; s/Sftwr/Software/g; s/Sharpes//g; s/Shelby Town\...//g; s/Sherman Oaks//g; 
+s/Show Low//g; s/Sierra Vista//g; 
+s/Silver Spring//g; s/Sitka//g; s/Slidell//g; s/Snr/Senior/g; s/Shalimar//g; s/Silverdale//g; s/Sioux Falls//g; s/Simpsonville//g; s/Smyrna//g; 
+s/Socorro//g; s/Solana Beach//g; s/Somerset//g; s/South Bend//g; s/South Burli\...//g; s/South Orange//g; s/South San F\...//g; s/Southbridge//g; 
+s/Southfield//g; s/Southern Pines//g; s/South Lake//g; s/South Ozone\...//g; s/South Plain\...//g; s/South River//g; s/Southborough//g; 
+s/Southampton//g; s/Southlake//g; s/Spotsylvania//g; s/Spring City//g; s/Springfield//g; s/Sql/SQL/g; s/St Augustine//g; s/St Petersburg//g; 
+s/Sta\...//g; s/Stafford//g; s/State College//g; s/Stennis Spa\...//g; s/Stephens City//g; s/Sterling//g; s/Stf/Staff/g; s/Stillwater//g; 
+s/Stone Mountain//g; s/Strasburg//g; s/Strongsville//g; s/Sudbury//g; s/Sugar Land//g; s/Suffolk//g; s/Summerville//g; s/Summit//g; s/Sunnyvale//g; 
+s/Superior//g; s/Suwanee//g; s/sv\...//g; 
+s/Sykesville//g; s/Syracuse//g; s/Takoma Park//g; s/Tacoma//g; s/Tallahassee//g; s/Tall Timbers//g; s/Tampa//g; s/Taneytown//g; s/Tarzana//g; 
+s/Teaneck//g; s/Telluride//g; s/Tempe//g; s/Tenafly//g; s/Terrell//g; s/TEST/Test/g; s/Thorndale//g; s/Thousand Oaks//g; s/Tipp City//g; 
+s/Titusville//g; s/Toledo//g; s/Topeka//g; s/Tornado//g; s/Toronto//g; s/Torrance//g; s/Trenton//g; s/Troy//g; s/Tucson//g; s/Twin Falls//g; 
+s/Twinsburg//g; s/Tyngsboro//g; s/U.S.//g; s/Union City//g; s/Uniondale//g; s/United Kingdom//g; s/United States//g; s/Upper Chich\...//g; 
+s/Upper Marlboro//g; s/Urbandale//g; s/Uscg/USCG/g; s/Valencia//g; s/Van Nuys//g; s/Vancouver//g; s/Vandergrift//g; s/Ventura//g; s/Vero Beach//g; 
+s/Verona//g; s/Vestal//g; s/Vii/VII/g; s/Vi /VI/g; 
+s/Vienna//g; s/Vincentown//g; s/Virginia Beach//g; s/Vista//g; s/Voip/VoIP/g; s/Wakefield//g; s/Waldorf//g; s/Walled Lake//g; s/Wallingford//g; 
+s/Wallops Island//g; s/Walnut Creek//g; s/Warminster//g; s/Warrenton//g; s/Warner Robins//g; s/Warwick//g; s/Washington//g; s/Wasilla//g; s/Weare//g; 
+s/Weatherford//g; s/West Bloomf\...//g; s/West Chester//g; s/West Harrison//g; s/West Hollywood//g; s/West Linn//g; s/West Palm B\...//g; 
+s/West Sacram\...//g; s/Westborough//g; s/Westchester//g; s/Western Spr\...//g; s/Westerville//g; s/Westminster//g; s/Westmont//g; s/Westport//g; 
+s/Westwego//g; s/Wexford//g; s/Wheeling//g; s/White Plains//g; s/Whiteman Ai\...//g; s/Wildwood//g; s/Williamsburg//g; s/Williamsport//g; 
+s/Williston Park//g; s/Wilmington//g; s/Wilton//g; s/Winchester//g; s/Windsor Mill//g; s/Windermere//g; s/Winder//g; s/Winter Park//g; 
+s/Winter Springs//g; s/Woburn//g; s/Woodbridge//g; s/Woodland Hills//g; s/Woodland Park//g; s/Woodstown//g; s/Wynnewood//g; s/Yeovil//g; 
+s/Youngstown//g; s/Youngsville//g; s/Yorktown//g; s/Yuma//g; s/Zanesville//g; s/Zionsville//g; 
 
-s/AK //g; s/AL //g; s/AR //g; s/AZ //g; s/CA //g; s/CO //g; s/CT //g; s/DC //g; s/DE //g; s/FL //g; s/GA //g; s/HI //g; s/IA //g; s/ID //g; s/IL //g; s/IN //g; s/KS //g; s/KY //g;
-s/LA //g; s/MA //g; s/ME //g; s/MD //g; s/MI //g; s/MO //g; s/MN //g; s/MS //g; s/MT //g; s/NC //g; s/NE //g; s/ND //g; s/NH //g; s/NJ //g; s/NM //g; s/NV //g; s/NY //g; s/OH //g;
-s/OK //g; s/ON //g; s/OR //g; s/PA //g; s/PR //g; s/QC //g; s/RI //g; s/SC //g; s/SD //g; s/TN //g; s/TX //g; s/Uk //g; s/UP //g; s/UT //g; s/VA //g; s/VT //g; s/WA //g; s/WI //g;
-s/WV //g; s/WY //g; s/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g; s/^[ \tmp]*//' > tmp
+s/AK //g; s/AL //g; s/AR //g; s/AZ //g; s/CA //g; s/CO //g; s/CT //g; s/DC //g; s/DE //g; s/FL //g; s/GA //g; s/HI //g; s/IA //g; s/ID //g; s/IL //g; 
+s/IN //g; s/KS //g; s/KY //g; s/LA //g; s/MA //g; s/ME //g; s/MD //g; s/MI //g; s/MO //g; s/MN //g; s/MS //g; s/MT //g; s/NC //g; s/NE //g; s/ND //g; 
+s/NH //g; s/NJ //g; s/NM //g; s/NV //g; s/NY //g; s/OH //g; s/OK //g; s/ON //g; s/OR //g; s/PA //g; s/PR //g; s/QC //g; s/RI //g; s/SC //g; s/SD //g; 
+s/TN //g; s/TX //g; s/Uk //g; s/UP //g; s/UT //g; s/VA //g; s/VT //g; s/WA //g; s/WI //g; s/WV //g; s/WY //g; s/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g; 
+s/^[ \tmp]*//' > tmp
 
 # Author: Ben Wood
 perl -ne 'if ($_ =~ /(.*?)\t\s*(.*)/) {printf("%-30s%s\n",$1,$2);}' tmp > tmp2
@@ -1346,12 +1411,12 @@ if [ "$vdetection" == "y" ]; then
      echo
      echo -e "\e[1;34mRunning nmap scan with version detection.\e[0m"
 
-     nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sSV -sUV -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3500,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5040,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8834,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12000,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,28784,30718,31337,32764,32771,33333,35871,46824,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,407,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2362,2746,3401,3478,4045,4500,4665,5060,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
+     nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sSV -sUV -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3500,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5040,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8834,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12000,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,28784,30718,31337,32764,32771,33333,35871,46824,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,407,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2302,2362,2746,3401,3478,4045,4500,4665,5060,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
 else
      echo
      echo -e "\e[1;34mRunning nmap scan.\e[0m"
 
-     nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sS -sU -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3500,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5040,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8834,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12000,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,28784,30718,31337,32764,32771,33333,35871,46824,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,407,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2362,2746,3401,3478,4045,4500,4665,5060,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
+     nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sS -sU -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3500,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5040,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8834,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12000,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,28784,30718,31337,32764,32771,33333,35871,46824,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,407,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2303,2362,2746,3401,3478,4045,4500,4665,5060,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
 fi
 
 # Clean up
@@ -1378,7 +1443,7 @@ echo $line
 echo
 echo -e "\e[1;34mLocating high value ports.\e[0m"
 echo "     TCP"
-TCP_PORTS="13 19 21 22 23 25 70 79 80 110 111 135 139 143 389 443 445 465 502 512 513 514 523 524 548 554 587 623 631 771 873 902 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3000 3031 3260 3306 3389 3500 3632 4369 5019 5040 5060 5432 5560 5631 5666 5672 5850 5900 5920 5984 5985 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 8834 9100 9160 9999 10000 11211 12000 12345 19150 27017 28784 30718 35871 46824 50000 50030 50060 50070 50075 50090 60010 60030"
+TCP_PORTS="13 19 21 22 23 25 37 70 79 80 110 111 135 139 143 389 443 445 465 502 512 513 514 523 524 548 554 587 623 631 771 873 902 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3000 3031 3260 3306 3389 3500 3632 4369 5019 5040 5060 5432 5560 5631 5666 5672 5850 5900 5920 5984 5985 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 8834 9100 9160 9999 10000 11211 12000 12345 19150 27017 28784 30718 35871 46824 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $TCP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/tcp\>" | cut -d ' ' -f2 > $name/$i.txt
@@ -1393,7 +1458,7 @@ if [ -f $name/5060.txt ]; then
 fi
 
 echo "     UDP"
-UDP_PORTS="53 67 69 123 137 161 407 500 523 1434 1604 1900 2362 3478 5353 5060 5632 6481 17185 31337"
+UDP_PORTS="53 67 69 123 137 161 407 500 523 1434 1604 1900 2302 2362 3478 5353 5060 5632 6481 17185 31337"
 
 for i in $UDP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/udp\>" | cut -d ' ' -f2 > $name/$i.txt
@@ -1487,6 +1552,13 @@ if [ -f $name/smtp.txt ]; then
 	f_cleanup
 	printf '%s\n' 'g/NOT VULNERABLE/d\' '-d' w | ed -s tmp4
 	mv tmp4 $name/script-25.txt
+fi
+
+if [ -f $name/37.txt ]; then
+	echo "     Time"
+	nmap -iL $name/37.txt -Pn -n --open -p37 --script=rfc868-time --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
+	f_cleanup
+	mv tmp4 $name/script-37.txt
 fi
 
 if [ -f $name/53.txt ]; then
@@ -1734,6 +1806,13 @@ if [ -f $name/2202.txt ]; then
 	mv tmp4 $name/script-2202.txt
 fi
 
+if [ -f $name/2302.txt ]; then
+	echo "     Freelancer"
+	nmap -iL $name/2302.txt -Pn -n -sU --open -p2302 --script=freelancer-info --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
+	f_cleanup
+	mv tmp4 $name/script-2302.txt
+fi
+
 if [ -f $name/2628.txt ]; then
 	echo "     DICT"
 	nmap -iL $name/2628.txt -Pn -n --open -p2628 --script=dict-info --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
@@ -1893,6 +1972,13 @@ if [ -f $name/7634.txt ]; then
 	nmap -iL $name/7634.txt -Pn -n --open -p7634 --script=hddtemp-info --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
 	f_cleanup
 	mv tmp4 $name/script-7634.txt
+fi
+
+if [ -f $name/8000.txt ]; then
+        echo "     QNX QCONN"
+        nmap -iL $name/8000.txt -Pn -n --open -p8000 --script=qconn-exec --script-args=qconn-exec.timeout=60,qconn-exec.bytes=1024,qconn-exec.cmd="uname -a" --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
+        f_cleanup
+        mv tmp4 $name/script-8000.txt
 fi
 
 if [ -f $name/8009.txt ]; then
@@ -2065,7 +2151,7 @@ if [[ -z $x ]]; then
      service postgresql start
 fi
 
-cp -R resource/ /tmp/resource
+cp -R resource/ /tmp/
 
 echo
 echo -e "\e[1;34mStarting Metasploit, this takes about 15 sec.\e[0m"
@@ -2524,7 +2610,7 @@ if [ $hosts -eq 1 ]; then
      echo >> $filename
      echo "Nmap Scripts" >> $filename
 
-     SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5060 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
+     SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-37 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2302 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5060 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8000 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
 
      for i in $SCRIPTS; do
           if [ -f $name/"$i.txt" ]; then
@@ -2602,7 +2688,7 @@ echo >> $filename
 echo "High Value Hosts by Port" >> $filename
 echo >> $filename
 
-HVPORTS="13 21 22 23 25 53 67 69 70 79 80 110 111 123 137 139 143 161 389 443 445 465 500 523 524 548 554 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1434 1521 1604 1720 1723 2202 2628 2947 3031 3260 3306 3389 3478 3632 4369 5019 5060 5353 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6481 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12000 12345 17185 19150 27017 31337 35871 50000 50030 50060 50070 50075 50090 60010 60030"
+HVPORTS="13 21 22 23 25 37 53 67 69 70 79 80 110 111 123 137 139 143 161 389 443 445 465 500 523 524 548 554 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1434 1521 1604 1720 1723 2202 2302 2628 2947 3031 3260 3306 3389 3478 3632 4369 5019 5060 5353 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6481 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12000 12345 17185 19150 27017 31337 35871 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $HVPORTS; do
      if [ -f $name/$i.txt ]; then
@@ -2620,7 +2706,7 @@ echo $line >> $filename
 echo >> $filename
 echo "Nmap Scripts" >> $filename
 
-SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5060 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
+SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-37 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2302 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5060 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8000 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
 
 for i in $SCRIPTS; do
      if [ -f $name/"$i.txt" ]; then
@@ -3017,11 +3103,12 @@ msfconsole -r /tmp/listener.rc
 
 f_updates(){
 # Remove entire script categories
-ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(address-info|ajp-auth|ajp-headers|asn-query|auth-owners|auth-spoof|broadcast|brute|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|discover|dns-brute|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-srv-enum|dns-nsec3-enum|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-libopie|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-ip2hosts|hostmap-robtex|http|iax2-version|informix-query|informix-tables|ip-forwarding|ip-geolocation-geobytes|ip-geolocation-geoplugin|ip-geolocation-ipinfodb|ip-geolocation-maxmind|ipidseq|ipv6-node-info|ipv6-ra-flood|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|ntp-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-ready-message|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-call-spoof|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|smb-vuln-ms10-054|smb-vuln-ms10-061|smtp-vuln-cve2010-4344|smtp-vuln-cve2011-1720|smtp-vuln-cve2011-1764|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|ssl|stun-info|teamspeak2-version|tftp-enum|targets|tls-nextprotoneg|traceroute-geolocation|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|whois|xmpp-info)' > tmp
+ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(address-info|ajp-auth|ajp-headers|allseeingeye-info|asn-query|auth-owners|auth-spoof|broadcast|brute|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|discover|dns-brute|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-srv-enum|dns-nsec3-enum|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-libopie|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-ip2hosts|hostmap-robtex|http|iax2-version|informix-query|informix-tables|ip-forwarding|ip-geolocation-geobytes|ip-geolocation-geoplugin|ip-geolocation-ipinfodb|ip-geolocation-maxmind|ipidseq|ipv6-node-info|ipv6-ra-flood|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|ntp-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-ready-message|quake1-info|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-call-spoof|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|smb-vuln-ms10-054|smb-vuln-ms10-061|smtp-vuln-cve2010-4344|smtp-vuln-cve2011-1720|smtp-vuln-cve2011-1764|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|sshv1|ssl|stun-info|teamspeak2-version|tftp-enum|targets|tls-nextprotoneg|traceroute-geolocation|unittest|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|weblogic-t3-info|whois|xmpp-info)' > tmp
 
 grep 'script=' discover.sh | egrep -v '(discover.sh|22.txt|smtp.txt)' | cut -d '=' -f2- | cut -d ' ' -f1 | tr ',' '\n' | egrep -v '(db2-discover|dhcp-discover|dns-service-discovery|http-email-harvest|membase-http-info|oracle-sid-brute|smb-os-discovery|sslv2)' | sort -u > tmp2
 
-echo "New Modules" > tmp-updates
+echo "New modules to be added." > tmp-updates
+echo >> tmp-updates
 echo >> tmp-updates
 echo "Nmap scripts" >> tmp-updates
 echo "==============================" >> tmp-updates
@@ -3030,6 +3117,7 @@ diff tmp tmp2 | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' >> tmp-updates
 
 rm tmp
 
+echo >> tmp-updates
 echo >> tmp-updates
 echo "Metasploit auxiliary/scanners" >> tmp-updates
 echo "==============================" >> tmp-updates
@@ -3045,7 +3133,7 @@ done
 sed '/^$/d' tmp > tmp2
 
 # Remove scanners not used
-egrep -v '(ack|afp_login|arp_sweep|call_scanner|couchdb_enum|endpoint_mapper|ftp_login|ftpbounce|hidden|ipidseq|ipv6_multicast_ping|ipv6_neighbor|ipv6_neighbor_router_advertisement|lotus_domino_login|management|mongodb_login|ms08_067_check|msf_rpc_login|msf_web_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|natpmp_portscan|nessus_ntp_login|nessus_xmlrpc_login|nexpose_api_login|openvas_gsad_login|openvas_omp_login|openvas_otp_login|pcanywhere_login|pop3_login|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|station_scanner|syn|tcp|telnet_login|udp_probe|udp_sweep|vmauthd_login|vmware_http_login|wardial|winrm_cmd|winrm_login|winrm_wql|xmas)' tmp2 | sort > tmp-msf-all
+egrep -v '(ack|afp_login|arp_sweep|call_scanner|couchdb_enum|dvr_config_disclosure|endpoint_mapper|ftp_login|ftpbounce|hidden|ipidseq|ipv6_multicast_ping|ipv6_neighbor|ipv6_neighbor_router_advertisement|lotus_domino_login|management|mongodb_login|ms08_067_check|msf_rpc_login|msf_web_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|natpmp_portscan|nessus_ntp_login|nessus_xmlrpc_login|nexpose_api_login|openvas_gsad_login|openvas_omp_login|openvas_otp_login|pcanywhere_login|poisonivy_control_scanner|pop3_login|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_enumusers|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|station_scanner|syn|tcp|telnet_login|udp_probe|udp_sweep|vmauthd_login|vmware_http_login|wardial|winrm_cmd|winrm_login|winrm_wql|xmas)' tmp2 | sort > tmp-msf-all
 
 grep 'use ' /opt/scripts/resource/*.rc | grep -v 'recon-ng' > tmp
 
@@ -3053,6 +3141,8 @@ grep 'use ' /opt/scripts/resource/*.rc | grep -v 'recon-ng' > tmp
 sed -e 's:.*/\(.*\):\1:g' tmp > tmp-msf-used
 
 grep -v -f tmp-msf-used tmp-msf-all >> tmp-updates
+echo >> tmp-updates
+echo >> tmp-updates
 
 mv tmp-updates /$user/updates
 rm tmp*

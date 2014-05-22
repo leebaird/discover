@@ -26,3 +26,6 @@ run
 
 use auxiliary/scanner/snmp/xerox_workcentre_enumusers
 run
+
+use auxiliary/scanner/misc/oki_scanner
+run
