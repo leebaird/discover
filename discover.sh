@@ -142,10 +142,10 @@ case $choice in
      fi
 
      # If folder doesn't exist, create it
-     if [ ! -d /$user/$domain ]; then
-          cp -R /opt/discover/report/ /$user/$domain
-          sed 's/REPLACEDOMAIN/'$domain'/g' /$user/$domain/index.htm > tmp
-          mv tmp /$user/$domain/index.htm
+     if [ ! -d /$user/discoveries/$domain ]; then
+          cp -R /opt/discover/report/ /$user/discoveries/$domain
+          sed 's/REPLACEDOMAIN/'$domain'/g' /$user/discoveries/$domain/index.htm > tmp
+          mv tmp /$user/discoveries/$domain/index.htm
      fi
 
      # Number of tests
@@ -391,15 +391,15 @@ case $choice in
      s/I expected/Expected/g; s/I found the following MX records://g; s/I got an error response to my/Received an error response to/g;
      s/I was unable/Unable/g; s/None of your MX/No MX/g; s/This is all of the MX servers I found.//g; s/WWW/www/g;
      s/Your nameservers/Nameservers/g; s/Your NS records at your nameservers are://g; s/Your NS records at your parent nameserver are://g; 
-     s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > /$user/$domain/data/config.htm
+     s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > /$user/discoveries/$domain/data/config.htm
 
      echo "urlvoid.com               (21/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
-     sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > /$user/$domain/data/black-listed.htm
+     sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > /$user/discoveries/$domain/data/black-listed.htm
 
      awk '{print $2}' subdomains > tmp
      grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
-     cat hosts >> /$user/$domain/data/hosts.htm; echo "</pre>" >> /$user/$domain/data/hosts.htm
+     cat hosts >> /$user/discoveries/$domain/data/hosts.htm; echo "</pre>" >> /$user/discoveries/$domain/data/hosts.htm
 
      ##############################################################
 
@@ -463,7 +463,7 @@ case $choice in
           echo $line >> tmp
           cat xls >> tmp
           echo >> tmp
-          cat xls >> /$user/$domain/data/xls.htm; echo "</pre>" >> /$user/$domain/data/xls.htm
+          cat xls >> /$user/discoveries/$domain/data/xls.htm; echo "</pre>" >> /$user/discoveries/$domain/data/xls.htm
      fi
 
      if [ -f pdf ]; then
@@ -473,7 +473,7 @@ case $choice in
           echo $line >> tmp
           cat pdf >> tmp
           echo >> tmp
-          cat pdf >> /$user/$domain/data/pdf.htm; echo "</pre>" >> /$user/$domain/data/pdf.htm
+          cat pdf >> /$user/discoveries/$domain/data/pdf.htm; echo "</pre>" >> /$user/discoveries/$domain/data/pdf.htm
      fi
 
      if [ -f ppt ]; then
@@ -483,7 +483,7 @@ case $choice in
           echo $line >> tmp
           cat ppt >> tmp
           echo >> tmp
-          cat ppt >> /$user/$domain/data/ppt.htm; echo "</pre>" >> /$user/$domain/data/ppt.htm
+          cat ppt >> /$user/discoveries/$domain/data/ppt.htm; echo "</pre>" >> /$user/discoveries/$domain/data/ppt.htm
      fi
 
      if [ -f txt ]; then
@@ -493,7 +493,7 @@ case $choice in
           echo $line >> tmp
           cat txt >> tmp
           echo >> tmp
-          cat txt >> /$user/$domain/data/txt.htm; echo "</pre>" >> /$user/$domain/data/txt.htm
+          cat txt >> /$user/discoveries/$domain/data/txt.htm; echo "</pre>" >> /$user/discoveries/$domain/data/txt.htm
      fi
 
      if [ -f doc ]; then
@@ -503,7 +503,7 @@ case $choice in
           echo $line >> tmp
           cat doc >> tmp
           echo >> tmp
-          cat doc >> /$user/$domain/data/doc.htm; echo "</pre>" >> /$user/$domain/data/doc.htm
+          cat doc >> /$user/discoveries/$domain/data/doc.htm; echo "</pre>" >> /$user/discoveries/$domain/data/doc.htm
      fi
 
      cat tmp >> zreport
@@ -516,13 +516,13 @@ case $choice in
      echo $line >> zreport
      cat whois-ip >> zreport
 
-     cat emails >> /$user/$domain/data/emails.htm; echo "</pre>" >> /$user/$domain/data/emails.htm
-     cat names >> /$user/$domain/data/names.htm; echo "</pre>" >> /$user/$domain/data/names.htm
-     cat squatting >> /$user/$domain/data/squatting.htm; echo "</pre>" >> /$user/$domain/data/squatting.htm
-     cat subdomains >> /$user/$domain/data/subdomains.htm; echo "</pre>" >> /$user/$domain/data/subdomains.htm
-     cat whois-domain >> /$user/$domain/data/whois-domain.htm; echo "</pre>" >> /$user/$domain/data/whois-domain.htm
-     cat whois-ip >> /$user/$domain/data/whois-ip.htm; echo "</pre>" >> /$user/$domain/data/whois-ip.htm
-     cat zreport >> /$user/$domain/data/passive-recon.htm; echo "</pre>" >> /$user/$domain/data/passive-recon.htm
+     cat emails >> /$user/discoveries/$domain/data/emails.htm; echo "</pre>" >> /$user/discoveries/$domain/data/emails.htm
+     cat names >> /$user/discoveries/$domain/data/names.htm; echo "</pre>" >> /$user/discoveries/$domain/data/names.htm
+     cat squatting >> /$user/discoveries/$domain/data/squatting.htm; echo "</pre>" >> /$user/discoveries/$domain/data/squatting.htm
+     cat subdomains >> /$user/discoveries/$domain/data/subdomains.htm; echo "</pre>" >> /$user/discoveries/$domain/data/subdomains.htm
+     cat whois-domain >> /$user/discoveries/$domain/data/whois-domain.htm; echo "</pre>" >> /$user/discoveries/$domain/data/whois-domain.htm
+     cat whois-ip >> /$user/discoveries/$domain/data/whois-ip.htm; echo "</pre>" >> /$user/discoveries/$domain/data/whois-ip.htm
+     cat zreport >> /$user/discoveries/$domain/data/passive-recon.htm; echo "</pre>" >> /$user/discoveries/$domain/data/passive-recon.htm
 
      rm emails hosts names squatting subdomains* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
@@ -532,7 +532,7 @@ case $choice in
      echo "***Scan complete.***"
      echo
      echo
-     printf 'The supporting data folder is located at \e[1;33m%s\e[0m\n' /$user/$domain/
+     printf 'The supporting data folder is located at \e[1;33m%s\e[0m\n' /$user/discoveries/$domain/
      echo
      read -p "Press <return> to continue."
 
@@ -591,10 +591,10 @@ case $choice in
      fi
 
      # If folder doesn't exist, create it
-     if [ ! -d /$user/$domain ]; then
-          cp -R /opt/discover/report/ /$user/$domain
-          sed 's/REPLACEDOMAIN/'$domain'/' /$user/$domain/index.htm > tmp
-          mv tmp /$user/$domain/index.htm
+     if [ ! -d /$user/discoveries/$domain ]; then
+          cp -R /opt/discover/report/ /$user/discoveries/$domain
+          sed 's/REPLACEDOMAIN/'$domain'/' /$user/discoveries/$domain/index.htm > tmp
+          mv tmp /$user/discoveries/$domain/index.htm
      fi
 
      # Number of tests
@@ -625,10 +625,10 @@ case $choice in
      sed 's/^......//' tmp2 | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10}' | column -t | sort -u -k2 -k1 > tmp3
      grep 'TXT' tmp | sed 's/^......//' | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15}' >> tmp3
      egrep -v '(SEC3|SKEYs|SSEC)' tmp3 > records
-     cat /$user/$domain/data/records.htm records | grep -v '<' | column -t | sort -u -k2 -k1 > tmp3
+     cat /$user/discoveries/$domain/data/records.htm records | grep -v '<' | column -t | sort -u -k2 -k1 > tmp3
 
-     echo '<pre style="font-size:14px;">' > /$user/$domain/data/records.htm
-     cat tmp3 | column -t >> /$user/$domain/data/records.htm; echo "</pre>" >> /$user/$domain/data/records.htm
+     echo '<pre style="font-size:14px;">' > /$user/discoveries/$domain/data/records.htm
+     cat tmp3 | column -t >> /$user/discoveries/$domain/data/records.htm; echo "</pre>" >> /$user/discoveries/$domain/data/records.htm
 
      echo "     Zone Transfer        (3/$total)"
      dnsrecon -d $domain -t axfr > tmp
@@ -646,10 +646,10 @@ case $choice in
 
      cat subdomains-dnsrecon subdomains-fierce | egrep -v '(.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' | column -t | sort -u > subdomains
 
-     if [ -f /$user/$domain/data/subdomains.htm ]; then
-          cat /$user/$domain/data/subdomains.htm subdomains | grep -v "<" | grep -v "$domain\." | column -t | sort -u > subdomains-combined
-          echo '<pre style="font-size:14px;">' > /$user/$domain/data/subdomains.htm
-          cat subdomains-combined >> /$user/$domain/data/subdomains.htm; echo "</pre>" >> /$user/$domain/data/subdomains.htm
+     if [ -f /$user/discoveries/$domain/data/subdomains.htm ]; then
+          cat /$user/discoveries/$domain/data/subdomains.htm subdomains | grep -v "<" | grep -v "$domain\." | column -t | sort -u > subdomains-combined
+          echo '<pre style="font-size:14px;">' > /$user/discoveries/$domain/data/subdomains.htm
+          cat subdomains-combined >> /$user/discoveries/$domain/data/subdomains.htm; echo "</pre>" >> /$user/discoveries/$domain/data/subdomains.htm
      fi
 
      awk '{print $3}' records > tmp
@@ -695,7 +695,7 @@ case $choice in
 
      echo
      echo "Whatweb                   (11/$total)"
-     grep -v '<' /$user/$domain/data/subdomains.htm | awk '{print $1}' > tmp
+     grep -v '<' /$user/discoveries/$domain/data/subdomains.htm | awk '{print $1}' > tmp
      whatweb -i tmp --color=never --no-errors -t 255 > tmp2
      # Find lines that start with http, and insert a line after
      sort tmp2 | sed '/^http/a\ ' > tmp3
@@ -780,22 +780,22 @@ case $choice in
      echo $line >> zreport
      cat whatweb >> zreport
 
-     cat loadbalancing >> /$user/$domain/data/loadbalancing.htm; echo "</pre>" >> /$user/$domain/data/loadbalancing.htm
-     cat zreport >> /$user/$domain/data/active-recon.htm; echo "</pre>" >> /$user/$domain/data/active-recon.htm
-     cat ztraceroute >> /$user/$domain/data/traceroute.htm; echo "</pre>" >> /$user/$domain/data/traceroute.htm
-     cat waf >> /$user/$domain/data/waf.htm; echo "</pre>" >> /$user/$domain/data/waf.htm
-     cat whatweb >> /$user/$domain/data/whatweb.htm; echo "</pre>" >> /$user/$domain/data/whatweb.htm
-     cat zonetransfer >> /$user/$domain/data/zonetransfer.htm; echo "</pre>" >> /$user/$domain/data/zonetransfer.htm
+     cat loadbalancing >> /$user/discoveries/$domain/data/loadbalancing.htm; echo "</pre>" >> /$user/discoveries/$domain/data/loadbalancing.htm
+     cat zreport >> /$user/discoveries/$domain/data/active-recon.htm; echo "</pre>" >> /$user/discoveries/$domain/data/active-recon.htm
+     cat ztraceroute >> /$user/discoveries/$domain/data/traceroute.htm; echo "</pre>" >> /$user/discoveries/$domain/data/traceroute.htm
+     cat waf >> /$user/discoveries/$domain/data/waf.htm; echo "</pre>" >> /$user/discoveries/$domain/data/waf.htm
+     cat whatweb >> /$user/discoveries/$domain/data/whatweb.htm; echo "</pre>" >> /$user/discoveries/$domain/data/whatweb.htm
+     cat zonetransfer >> /$user/discoveries/$domain/data/zonetransfer.htm; echo "</pre>" >> /$user/discoveries/$domain/data/zonetransfer.htm
 
-     if [[ -f /$user/$domain/data/emails.htm && -f emails ]]; then
-          cat /$user/$domain/data/emails.htm emails | grep -v '<' | sort -u > tmp
-          echo '<pre style="font-size:14px;">' > /$user/$domain/data/emails.htm
-          cat tmp >> /$user/$domain/data/emails.htm; echo "</pre>" >> /$user/$domain/data/emails.htm
+     if [[ -f /$user/discoveries/$domain/data/emails.htm && -f emails ]]; then
+          cat /$user/discoveries/$domain/data/emails.htm emails | grep -v '<' | sort -u > tmp
+          echo '<pre style="font-size:14px;">' > /$user/discoveries/$domain/data/emails.htm
+          cat tmp >> /$user/discoveries/$domain/data/emails.htm; echo "</pre>" >> /$user/discoveries/$domain/data/emails.htm
      fi
 
-     cat hosts /$user/$domain/data/hosts.htm | grep -v '<' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > tmp
-     echo '<pre style="font-size:14px;">' > /$user/$domain/data/hosts.htm
-     cat tmp >> /$user/$domain/data/hosts.htm; echo "</pre>" >> /$user/$domain/data/hosts.htm
+     cat hosts /$user/discoveries/$domain/data/hosts.htm | grep -v '<' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > tmp
+     echo '<pre style="font-size:14px;">' > /$user/discoveries/$domain/data/hosts.htm
+     cat tmp >> /$user/discoveries/$domain/data/hosts.htm; echo "</pre>" >> /$user/discoveries/$domain/data/hosts.htm
 
      rm emails* hosts loadbalancing records subdomains* tmp* waf whatweb z*
 
@@ -805,11 +805,11 @@ case $choice in
      echo "***Scan complete.***"
      echo
      echo
-     printf 'The supporting data folder is located at \e[1;33m%s\e[0m\n' /$user/$domain/
+     printf 'The supporting data folder is located at \e[1;33m%s\e[0m\n' /$user/discoveries/$domain/
      echo
      echo
 
-     firefox /$user/$domain/index.htm &
+     firefox /$user/discoveries/$domain/index.htm &
      exit
      ;;
 
@@ -2807,13 +2807,13 @@ case $choice in
 
      wget -q $domain/robots.txt
 
-     grep 'Disallow' robots.txt | awk '{print $2}' > /$user/$domain-robots.txt
+     grep 'Disallow' robots.txt | awk '{print $2}' > /$user/discoveries/$domain-robots.txt
      rm robots.txt
 
      firefox &
      sleep 2
 
-     for i in $(cat /$user/$domain-robots.txt); do
+     for i in $(cat /$user/discoveries/$domain-robots.txt); do
           firefox -new-tab $domain$i &
           sleep 1
      done
@@ -2823,7 +2823,7 @@ case $choice in
      echo
      echo "***Scan complete.***"
      echo
-     printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/$domain-robots.txt
+     printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/discoveries/$domain-robots.txt
      echo
      echo
      exit
