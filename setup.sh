@@ -28,4 +28,7 @@ echo "# Bleeding Edge repos" >> /etc/apt/sources.list
 echo "deb http://repo.kali.org/kali kali-bleeding-edge main" >> /etc/apt/sources.list
 echo
 echo
+echo -e "\e[1;33mCreating Data Directory.\e[0m"
+mkdir -p /$user/discoveries
+echo
 
