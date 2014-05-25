@@ -101,8 +101,8 @@ if [ -f $name ]; then
 fi
 
 if [ -d /tmp/resource ]; then
-     rm -rf /opt/scripts/resource/
-     mv /tmp/resource/ /opt/scripts/
+     rm -rf /opt/discover/resource/
+     mv /tmp/resource/ /opt/discover/
 fi
 
 PID=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
@@ -143,7 +143,7 @@ case $choice in
 
      # If folder doesn't exist, create it
      if [ ! -d /$user/$domain ]; then
-          cp -R /opt/scripts/report/ /$user/$domain
+          cp -R /opt/discover/report/ /$user/$domain
           sed 's/REPLACEDOMAIN/'$domain'/g' /$user/$domain/index.htm > tmp
           mv tmp /$user/$domain/index.htm
      fi
@@ -175,7 +175,7 @@ case $choice in
 
      echo
      echo "goog-mail                 (2/$total)"
-     /opt/scripts/mods/goog-mail.py $domain | sort -u > tmp
+     /opt/discover/mods/goog-mail.py $domain | sort -u > tmp
      grep -Fv '..' tmp > tmp2
      # Remove lines that start with a number
      sed '/^[0-9]/d' tmp2 > tmp3
@@ -187,9 +187,9 @@ case $choice in
      echo
      echo "goohost"
      echo "     IP                   (3/$total)"
-     /opt/scripts/mods/goohost.sh -t $domain -m ip >/dev/null
+     /opt/discover/mods/goohost.sh -t $domain -m ip >/dev/null
      echo "     Email                (4/$total)"
-     /opt/scripts/mods/goohost.sh -t $domain -m mail >/dev/null
+     /opt/discover/mods/goohost.sh -t $domain -m mail >/dev/null
      cat report-* > tmp
      # Move the second column to the first position
      grep $domain tmp | awk '{ print $2 " " $1 }' > tmp2
@@ -199,7 +199,7 @@ case $choice in
      echo
      echo "theharvester"
      echo "     Ask-mod              (5/$total)"
-     /opt/scripts/mods/theHarvester2.py -d $domain -b ask > zask-mod
+     /opt/discover/mods/theHarvester2.py -d $domain -b ask > zask-mod
      echo "     Bing                 (6/$total)"
      theharvester -d $domain -b bing > zbing
      echo "     Google               (7/$total)"
@@ -211,11 +211,11 @@ case $choice in
      echo "     LinkedIn             (10/$total)"
      theharvester -d $domain -b linkedin > zlinkedin
      echo "     Login-mod            (11/$total)"
-     /opt/scripts/mods/theHarvester2.py -d $domain -b login > zlogin-mod
+     /opt/discover/mods/theHarvester2.py -d $domain -b login > zlogin-mod
      echo "     PGP                  (12/$total)"
      theharvester -d $domain -b pgp > zpgp
      echo "     Yahoo-mod            (13/$total)"
-     /opt/scripts/mods/theHarvester2.py -d $domain -b yahoo > zyahoo-mod
+     /opt/discover/mods/theHarvester2.py -d $domain -b yahoo > zyahoo-mod
      echo "     All                  (14/$total)"
      theharvester -d $domain -b all > zall
 
@@ -592,7 +592,7 @@ case $choice in
 
      # If folder doesn't exist, create it
      if [ ! -d /$user/$domain ]; then
-          cp -R /opt/scripts/report/ /$user/$domain
+          cp -R /opt/discover/report/ /$user/$domain
           sed 's/REPLACEDOMAIN/'$domain'/' /$user/$domain/index.htm > tmp
           mv tmp /$user/$domain/index.htm
      fi
@@ -718,7 +718,7 @@ case $choice in
 
      echo > tmp
 
-     if [ -f /opt/scripts/emails ]; then
+     if [ -f /opt/discover/emails ]; then
           emailcount=$(wc -l emails | cut -d ' ' -f1)
           echo "Emails        $emailcount" >> zreport
           echo "Emails ($emailcount)" >> tmp
@@ -727,7 +727,7 @@ case $choice in
           echo >> tmp
      fi
 
-     if [ -f /opt/scripts/hosts ]; then
+     if [ -f /opt/discover/hosts ]; then
           hostcount=$(wc -l hosts | cut -d ' ' -f1)
           echo "Hosts         $hostcount" >> zreport
           echo "Hosts ($hostcount)" >> tmp
@@ -736,7 +736,7 @@ case $choice in
           echo >> tmp
      fi
 
-     if [ -f /opt/scripts/records ]; then
+     if [ -f /opt/discover/records ]; then
           recordcount=$(wc -l records | cut -d ' ' -f1)
           echo "DNS Records   $recordcount" >> zreport
           echo "DNS Records ($recordcount)" >> tmp
@@ -745,7 +745,7 @@ case $choice in
           echo >> tmp
      fi
 
-     if [ -f /opt/scripts/subdomains ]; then
+     if [ -f /opt/discover/subdomains ]; then
           subdomaincount=$(wc -l subdomains | cut -d ' ' -f1)
           echo "Subdomains    $subdomaincount" >> zreport
           echo "Subdomains ($subdomaincount)" >> tmp
@@ -2177,398 +2177,398 @@ echo workspace -a $name > $name/master.rc
 
 if [ -f $name/19.txt ]; then
      echo "     CHARGEN"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/19.txt/g" /opt/scripts/resource/chargen.rc
-     cat /opt/scripts/resource/chargen.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/19.txt/g" /opt/discover/resource/chargen.rc
+     cat /opt/discover/resource/chargen.rc >> $name/master.rc
 fi
 
 if [ -f $name/21.txt ]; then
      echo "     FTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/21.txt/g" /opt/scripts/resource/ftp.rc
-     cat /opt/scripts/resource/ftp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/21.txt/g" /opt/discover/resource/ftp.rc
+     cat /opt/discover/resource/ftp.rc >> $name/master.rc
 fi
 
 if [ -f $name/22.txt ]; then
      echo "     SSH"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/22.txt/g" /opt/scripts/resource/ssh.rc
-     cat /opt/scripts/resource/ssh.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/22.txt/g" /opt/discover/resource/ssh.rc
+     cat /opt/discover/resource/ssh.rc >> $name/master.rc
 fi
 
 if [ -f $name/23.txt ]; then
      echo "     Telnet"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/23.txt/g" /opt/scripts/resource/telnet.rc
-     cat /opt/scripts/resource/telnet.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/23.txt/g" /opt/discover/resource/telnet.rc
+     cat /opt/discover/resource/telnet.rc >> $name/master.rc
 fi
 
 if [ -f $name/25.txt ]; then
      echo "     SMTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/25.txt/g" /opt/scripts/resource/smtp.rc
-     cat /opt/scripts/resource/smtp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/25.txt/g" /opt/discover/resource/smtp.rc
+     cat /opt/discover/resource/smtp.rc >> $name/master.rc
 fi
 
 if [ -f $name/69.txt ]; then
      echo "     TFTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/69.txt/g" /opt/scripts/resource/tftp.rc
-     cat /opt/scripts/resource/tftp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/69.txt/g" /opt/discover/resource/tftp.rc
+     cat /opt/discover/resource/tftp.rc >> $name/master.rc
 fi
 
 if [ -f $name/79.txt ]; then
      echo "     Finger"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/79.txt/g" /opt/scripts/resource/finger.rc
-     cat /opt/scripts/resource/finger.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/79.txt/g" /opt/discover/resource/finger.rc
+     cat /opt/discover/resource/finger.rc >> $name/master.rc
 fi
 
 if [ -f $name/80.txt ]; then
      echo "     Lotus"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/80.txt/g" /opt/scripts/resource/lotus.rc
-     cat /opt/scripts/resource/lotus.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/80.txt/g" /opt/discover/resource/lotus.rc
+     cat /opt/discover/resource/lotus.rc >> $name/master.rc
 fi
 
 if [ -f $name/80.txt ]; then
      echo "     SCADA Indusoft WebStudio NTWebServer"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/80.txt/g" /opt/scripts/resource/scada3.rc
-     cat /opt/scripts/resource/scada3.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/80.txt/g" /opt/discover/resource/scada3.rc
+     cat /opt/discover/resource/scada3.rc >> $name/master.rc
 fi
 
 if [ -f $name/110.txt ]; then
      echo "     POP3"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/110.txt/g" /opt/scripts/resource/pop3.rc
-     cat /opt/scripts/resource/pop3.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/110.txt/g" /opt/discover/resource/pop3.rc
+     cat /opt/discover/resource/pop3.rc >> $name/master.rc
 fi
 
 if [ -f $name/111.txt ]; then
      echo "     NFS"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/111.txt/g" /opt/scripts/resource/nfs.rc
-     cat /opt/scripts/resource/nfs.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/111.txt/g" /opt/discover/resource/nfs.rc
+     cat /opt/discover/resource/nfs.rc >> $name/master.rc
 fi
 
 if [ -f $name/123.txt ]; then
      echo "     NTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/123.txt/g" /opt/scripts/resource/ntp.rc
-     cat /opt/scripts/resource/ntp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/123.txt/g" /opt/discover/resource/ntp.rc
+     cat /opt/discover/resource/ntp.rc >> $name/master.rc
 fi
 
 if [ -f $name/135.txt ]; then
      echo "     DCE/RPC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/135.txt/g" /opt/scripts/resource/dcerpc.rc
-     cat /opt/scripts/resource/dcerpc.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/135.txt/g" /opt/discover/resource/dcerpc.rc
+     cat /opt/discover/resource/dcerpc.rc >> $name/master.rc
 fi
 
 if [ -f $name/137.txt ]; then
      echo "     NetBIOS"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/137.txt/g" /opt/scripts/resource/netbios.rc
-     cat /opt/scripts/resource/netbios.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/137.txt/g" /opt/discover/resource/netbios.rc
+     cat /opt/discover/resource/netbios.rc >> $name/master.rc
 fi
 
 if [ -f $name/143.txt ]; then
      echo "     IMAP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/143.txt/g" /opt/scripts/resource/imap.rc
-     cat /opt/scripts/resource/imap.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/143.txt/g" /opt/discover/resource/imap.rc
+     cat /opt/discover/resource/imap.rc >> $name/master.rc
 fi
 
 if [ -f $name/161.txt ]; then
      echo "     SNMP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/161.txt/g" /opt/scripts/resource/snmp.rc
-     cat /opt/scripts/resource/snmp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/161.txt/g" /opt/discover/resource/snmp.rc
+     cat /opt/discover/resource/snmp.rc >> $name/master.rc
 fi
 
 if [ -f $name/407.txt ]; then
      echo "     Motorola"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/407.txt/g" /opt/scripts/resource/motorola.rc
-     cat /opt/scripts/resource/motorola.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/407.txt/g" /opt/discover/resource/motorola.rc
+     cat /opt/discover/resource/motorola.rc >> $name/master.rc
 fi
 
 if [ -f $name/443.txt ]; then
      echo "     VMware"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/443.txt/g" /opt/scripts/resource/vmware.rc
-     cat /opt/scripts/resource/motorola.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/443.txt/g" /opt/discover/resource/vmware.rc
+     cat /opt/discover/resource/motorola.rc >> $name/master.rc
 fi
 
 if [ -f $name/445.txt ]; then
      echo "     SMB"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/445.txt/g" /opt/scripts/resource/smb.rc
-     cat /opt/scripts/resource/smb.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/445.txt/g" /opt/discover/resource/smb.rc
+     cat /opt/discover/resource/smb.rc >> $name/master.rc
 fi
 
 if [ -f $name/465.txt ]; then
      echo "     SMTP/S"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/465.txt/g" /opt/scripts/resource/smtp2.rc
-     cat /opt/scripts/resource/smtp2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/465.txt/g" /opt/discover/resource/smtp2.rc
+     cat /opt/discover/resource/smtp2.rc >> $name/master.rc
 fi
 
 if [ -f $name/502.txt ]; then
      echo "     SCADA Modbus Client Utility"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/502.txt/g" /opt/scripts/resource/scada5.rc
-     cat /opt/scripts/resource/scada5.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/502.txt/g" /opt/discover/resource/scada5.rc
+     cat /opt/discover/resource/scada5.rc >> $name/master.rc
 fi
 
 if [ -f $name/512.txt ]; then
      echo "     Rexec"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/512.txt/g" /opt/scripts/resource/rservices.rc
-     cat /opt/scripts/resource/rservices.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/512.txt/g" /opt/discover/resource/rservices.rc
+     cat /opt/discover/resource/rservices.rc >> $name/master.rc
 fi
 
 if [ -f $name/513.txt ]; then
      echo "     rlogin"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/513.txt/g" /opt/scripts/resource/rservices2.rc
-     cat /opt/scripts/resource/rservices2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/513.txt/g" /opt/discover/resource/rservices2.rc
+     cat /opt/discover/resource/rservices2.rc >> $name/master.rc
 fi
 
 if [ -f $name/514.txt ]; then
      echo "     rshell"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/514.txt/g" /opt/scripts/resource/rservices3.rc
-     cat /opt/scripts/resource/rservices3.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/514.txt/g" /opt/discover/resource/rservices3.rc
+     cat /opt/discover/resource/rservices3.rc >> $name/master.rc
 fi
 
 if [ -f $name/523.txt ]; then
      echo "     db2"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/523.txt/g" /opt/scripts/resource/db2.rc
-     cat /opt/scripts/resource/db2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/523.txt/g" /opt/discover/resource/db2.rc
+     cat /opt/discover/resource/db2.rc >> $name/master.rc
 fi
 
 if [ -f $name/548.txt ]; then
      echo "     AFP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/548.txt/g" /opt/scripts/resource/afp.rc
-     cat /opt/scripts/resource/afp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/548.txt/g" /opt/discover/resource/afp.rc
+     cat /opt/discover/resource/afp.rc >> $name/master.rc
 fi
 
 if [ -f $name/623.txt ]; then
      echo "     IPMI"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/623.txt/g" /opt/scripts/resource/ipmi.rc
-     cat /opt/scripts/resource/ipmi.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/623.txt/g" /opt/discover/resource/ipmi.rc
+     cat /opt/discover/resource/ipmi.rc >> $name/master.rc
 fi
 
 if [ -f $name/771.txt ]; then
      echo "     SCADA Digi"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/771.txt/g" /opt/scripts/resource/scada2.rc
-     cat /opt/scripts/resource/scada2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/771.txt/g" /opt/discover/resource/scada2.rc
+     cat /opt/discover/resource/scada2.rc >> $name/master.rc
 fi
 
 if [ -f $name/902.txt ]; then
      echo "     VMware"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/902.txt/g" /opt/scripts/resource/vmware2.rc
-     cat /opt/scripts/resource/motorola.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/902.txt/g" /opt/discover/resource/vmware2.rc
+     cat /opt/discover/resource/motorola.rc >> $name/master.rc
 fi
 
 if [ -f $name/1099.txt ]; then
      echo "     RMI Registery"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1099.txt/g" /opt/scripts/resource/rmi.rc
-     cat /opt/scripts/resource/rmi.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1099.txt/g" /opt/discover/resource/rmi.rc
+     cat /opt/discover/resource/rmi.rc >> $name/master.rc
 fi
 
 if [ -f $name/1158.txt ]; then
      echo "     Oracle"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1158.txt/g" /opt/scripts/resource/oracle.rc
-     cat /opt/scripts/resource/oracle.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1158.txt/g" /opt/discover/resource/oracle.rc
+     cat /opt/discover/resource/oracle.rc >> $name/master.rc
 fi
 
 if [ -f $name/1433.txt ]; then
      echo "     MS-SQL"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1433.txt/g" /opt/scripts/resource/mssql.rc
-     cat /opt/scripts/resource/mssql.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1433.txt/g" /opt/discover/resource/mssql.rc
+     cat /opt/discover/resource/mssql.rc >> $name/master.rc
 fi
 
 if [ -f $name/1521.txt ]; then
      echo "     Oracle"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1521.txt/g" /opt/scripts/resource/oracle3.rc
-     cat /opt/scripts/resource/oracle3.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1521.txt/g" /opt/discover/resource/oracle3.rc
+     cat /opt/discover/resource/oracle3.rc >> $name/master.rc
 fi
 
 if [ -f $name/1604.txt ]; then
      echo "     Citrix"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1604.txt/g" /opt/scripts/resource/citrix.rc
-     cat /opt/scripts/resource/citrix.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1604.txt/g" /opt/discover/resource/citrix.rc
+     cat /opt/discover/resource/citrix.rc >> $name/master.rc
 fi
 
 if [ -f $name/1720.txt ]; then
      echo "     H323"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1720.txt/g" /opt/scripts/resource/h323.rc
-     cat /opt/scripts/resource/h323.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1720.txt/g" /opt/discover/resource/h323.rc
+     cat /opt/discover/resource/h323.rc >> $name/master.rc
 fi
 
 if [ -f $name/1900.txt ]; then
      echo "     UPnP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1900.txt/g" /opt/scripts/resource/upnp.rc
-     cat /opt/scripts/resource/upnp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1900.txt/g" /opt/discover/resource/upnp.rc
+     cat /opt/discover/resource/upnp.rc >> $name/master.rc
 fi
 
 if [ -f $name/2362.txt ]; then
      echo "     SCADA Digi"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/2362.txt/g" /opt/scripts/resource/scada.rc
-     cat /opt/scripts/resource/scada.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/2362.txt/g" /opt/discover/resource/scada.rc
+     cat /opt/discover/resource/scada.rc >> $name/master.rc
 fi
 
 if [ -f $name/3000.txt ]; then
      echo "     EMC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3000.txt/g" /opt/scripts/resource/emc.rc
-     cat /opt/scripts/resource/emc.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3000.txt/g" /opt/discover/resource/emc.rc
+     cat /opt/discover/resource/emc.rc >> $name/master.rc
 fi
 
 if [ -f $name/3306.txt ]; then
      echo "     MySQL"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3306.txt/g" /opt/scripts/resource/mysql.rc
-     cat /opt/scripts/resource/mysql.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3306.txt/g" /opt/discover/resource/mysql.rc
+     cat /opt/discover/resource/mysql.rc >> $name/master.rc
 fi
 
 if [ -f $name/3389.txt ]; then
      echo "     RDP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3389.txt/g" /opt/scripts/resource/rdp.rc
-     cat /opt/scripts/resource/rdp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3389.txt/g" /opt/discover/resource/rdp.rc
+     cat /opt/discover/resource/rdp.rc >> $name/master.rc
 fi
 
 if [ -f $name/3500.txt ]; then
      echo "     EMC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3500.txt/g" /opt/scripts/resource/emc2.rc
-     cat /opt/scripts/resource/emc2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3500.txt/g" /opt/discover/resource/emc2.rc
+     cat /opt/discover/resource/emc2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5040.txt ]; then
      echo "     DCE/RPC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5040.txt/g" /opt/scripts/resource/dcerpc2.rc
-     cat /opt/scripts/resource/dcerpc2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5040.txt/g" /opt/discover/resource/dcerpc2.rc
+     cat /opt/discover/resource/dcerpc2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5060.txt ]; then
      echo "     SIP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5060.txt/g" /opt/scripts/resource/sip.rc
-     cat /opt/scripts/resource/sip.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5060.txt/g" /opt/discover/resource/sip.rc
+     cat /opt/discover/resource/sip.rc >> $name/master.rc
 fi
 
 if [ -f $name/5060-tcp.txt ]; then
      echo "     SIP TCP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5060-tcp.txt/g" /opt/scripts/resource/sip2.rc
-     cat /opt/scripts/resource/sip2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5060-tcp.txt/g" /opt/discover/resource/sip2.rc
+     cat /opt/discover/resource/sip2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5432.txt ]; then
      echo "     Postgres"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5432.txt/g" /opt/scripts/resource/postgres.rc
-     cat /opt/scripts/resource/postgres.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5432.txt/g" /opt/discover/resource/postgres.rc
+     cat /opt/discover/resource/postgres.rc >> $name/master.rc
 fi
 
 if [ -f $name/5560.txt ]; then
      echo "     Oracle iSQL"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5560.txt/g" /opt/scripts/resource/oracle2.rc
-     cat /opt/scripts/resource/oracle2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5560.txt/g" /opt/discover/resource/oracle2.rc
+     cat /opt/discover/resource/oracle2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5631.txt ]; then
      echo "     pcAnywhere"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5631.txt/g" /opt/scripts/resource/pcanywhere.rc
-     cat /opt/scripts/resource/pcanywhere.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5631.txt/g" /opt/discover/resource/pcanywhere.rc
+     cat /opt/discover/resource/pcanywhere.rc >> $name/master.rc
 fi
 
 if [ -f $name/5632.txt ]; then
      echo "     pcAnywhere"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5632.txt/g" /opt/scripts/resource/pcanywhere2.rc
-     cat /opt/scripts/resource/pcanywhere2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5632.txt/g" /opt/discover/resource/pcanywhere2.rc
+     cat /opt/discover/resource/pcanywhere2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5900.txt ]; then
      echo "     VNC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5900.txt/g" /opt/scripts/resource/vnc.rc
-     cat /opt/scripts/resource/vnc.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5900.txt/g" /opt/discover/resource/vnc.rc
+     cat /opt/discover/resource/vnc.rc >> $name/master.rc
 fi
 
 if [ -f $name/5920.txt ]; then
      echo "     Misc CCTV DVR"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5920.txt/g" /opt/scripts/resource/misc.rc
-     cat /opt/scripts/resource/misc.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5920.txt/g" /opt/discover/resource/misc.rc
+     cat /opt/discover/resource/misc.rc >> $name/master.rc
 fi
 
 if [ -f $name/5984.txt ]; then
      echo "     CouchDB"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5984.txt/g" /opt/scripts/resource/couchdb.rc
-     cat /opt/scripts/resource/couchdb.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5984.txt/g" /opt/discover/resource/couchdb.rc
+     cat /opt/discover/resource/couchdb.rc >> $name/master.rc
 fi
 
 if [ -f $name/5985.txt ]; then
      echo "     winrm"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5985.txt/g" /opt/scripts/resource/winrm.rc
-     cat /opt/scripts/resource/winrm.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5985.txt/g" /opt/discover/resource/winrm.rc
+     cat /opt/discover/resource/winrm.rc >> $name/master.rc
 fi
 
 if [ -f $name/x11.txt ]; then
      echo "     x11"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/x11.txt/g" /opt/scripts/resource/x11.rc
-     cat /opt/scripts/resource/x11.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/x11.txt/g" /opt/discover/resource/x11.rc
+     cat /opt/discover/resource/x11.rc >> $name/master.rc
 fi
 
 if [ -f $name/7777.txt ]; then
      echo "     Backdoor"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/7777.txt/g" /opt/scripts/resource/backdoor.rc
-     cat /opt/scripts/resource/backdoor.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/7777.txt/g" /opt/discover/resource/backdoor.rc
+     cat /opt/discover/resource/backdoor.rc >> $name/master.rc
 fi
 
 if [ -f $name/8080.txt ]; then
      echo "     Tomcat"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8080.txt/g" /opt/scripts/resource/tomcat.rc
-     cat /opt/scripts/resource/tomcat.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8080.txt/g" /opt/discover/resource/tomcat.rc
+     cat /opt/discover/resource/tomcat.rc >> $name/master.rc
 fi
 
 #if [ -f $name/8080.txt ]; then
 #     echo "     ZENworks"
-#     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8080.txt/g" /opt/scripts/resource/zenworks.rc
-#     cat /opt/scripts/resource/zenworks.rc >> $name/master.rc
+#     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8080.txt/g" /opt/discover/resource/zenworks.rc
+#     cat /opt/discover/resource/zenworks.rc >> $name/master.rc
 #fi
 
 if [ -f $name/8222.txt ]; then
      echo "     VMware"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8222.txt/g" /opt/scripts/resource/vmware.rc
-     cat /opt/scripts/resource/vmware.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8222.txt/g" /opt/discover/resource/vmware.rc
+     cat /opt/discover/resource/vmware.rc >> $name/master.rc
 fi
 
 if [ -f $name/8400.txt ]; then
      echo "     Adobe"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8400.txt/g" /opt/scripts/resource/adobe.rc
-     cat /opt/scripts/resource/adobe.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8400.txt/g" /opt/discover/resource/adobe.rc
+     cat /opt/discover/resource/adobe.rc >> $name/master.rc
 fi
 
 if [ -f $name/8834.txt ]; then
      echo "     Nessus"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8834.txt/g" /opt/scripts/resource/nessus.rc
-     cat /opt/scripts/resource/nessus.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8834.txt/g" /opt/discover/resource/nessus.rc
+     cat /opt/discover/resource/nessus.rc >> $name/master.rc
 fi
 
 if [ -f $name/9100.txt ]; then
      echo "     Printers"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/9100.txt/g" /opt/scripts/resource/printers.rc
-     cat /opt/scripts/resource/printers.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/9100.txt/g" /opt/discover/resource/printers.rc
+     cat /opt/discover/resource/printers.rc >> $name/master.rc
 fi
 
 if [ -f $name/9999.txt ]; then
      echo "     Telnet"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/9999.txt/g" /opt/scripts/resource/telnet3.rc
-     cat /opt/scripts/resource/telnet3.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/9999.txt/g" /opt/discover/resource/telnet3.rc
+     cat /opt/discover/resource/telnet3.rc >> $name/master.rc
 fi
 
 if [ -f $name/17185.txt ]; then
      echo "     VxWorks"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/17185.txt/g" /opt/scripts/resource/vxworks.rc
-     cat /opt/scripts/resource/vxworks.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/17185.txt/g" /opt/discover/resource/vxworks.rc
+     cat /opt/discover/resource/vxworks.rc >> $name/master.rc
 fi
 
 if [ -f $name/28784.txt ]; then
      echo "     SCADA Koyo DirectLogic PLC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/28784.txt/g" /opt/scripts/resource/scada4.rc
-     cat /opt/scripts/resource/scada4.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/28784.txt/g" /opt/discover/resource/scada4.rc
+     cat /opt/discover/resource/scada4.rc >> $name/master.rc
 fi
 
 if [ -f $name/30718.txt ]; then
      echo "     Telnet"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/30718.txt/g" /opt/scripts/resource/telnet2.rc
-     cat /opt/scripts/resource/telnet2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/30718.txt/g" /opt/discover/resource/telnet2.rc
+     cat /opt/discover/resource/telnet2.rc >> $name/master.rc
 fi
 
 if [ -f $name/46824.txt ]; then
      echo "     SCADA Sielco Sistemi"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/46824.txt/g" /opt/scripts/resource/scada6.rc
-     cat /opt/scripts/resource/scada6.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/46824.txt/g" /opt/discover/resource/scada6.rc
+     cat /opt/discover/resource/scada6.rc >> $name/master.rc
 fi
 
 if [ -f $name/50000.txt ]; then
      echo "     db2"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/50000.txt/g" /opt/scripts/resource/db2-2.rc
-     cat /opt/scripts/resource/db2-2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/50000.txt/g" /opt/discover/resource/db2-2.rc
+     cat /opt/discover/resource/db2-2.rc >> $name/master.rc
 fi
 
 echo db_export -f xml -a $name/metasploit.xml >> $name/master.rc
@@ -2580,11 +2580,11 @@ x=$(wc -l $name/master.rc | cut -d ' ' -f1)
 if [ $x -eq 3 ]; then
      rm $name/master.rc
 else
-     msfconsole -r /opt/scripts/$name/master.rc
+     msfconsole -r /opt/discover/$name/master.rc
      rm $name/master.rc
 fi
 
-mv /tmp/resource/ /opt/scripts/
+mv /tmp/resource/ /opt/discover/
 
 f_report
 }
@@ -3096,7 +3096,7 @@ exit
 f_listener(){
 clear
 
-cp /opt/scripts/resource/misc/listener.rc /tmp/
+cp /opt/discover/resource/misc/listener.rc /tmp/
 
 sed -i "s/#/$ip/g" /tmp/listener.rc
 
@@ -3152,7 +3152,7 @@ sed '/^$/d' tmp > tmp2
 # Remove scanners not used
 egrep -v '(ack|afp_login|arp_sweep|call_scanner|couchdb_enum|dvr_config_disclosure|endpoint_mapper|ftp_login|ftpbounce|hidden|ipidseq|ipv6_multicast_ping|ipv6_neighbor|ipv6_neighbor_router_advertisement|lotus_domino_login|management|mongodb_login|ms08_067_check|msf_rpc_login|msf_web_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|natpmp_portscan|nessus_ntp_login|nessus_xmlrpc_login|nexpose_api_login|openvas_gsad_login|openvas_omp_login|openvas_otp_login|pcanywhere_login|poisonivy_control_scanner|pop3_login|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_enumusers|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|station_scanner|syn|tcp|telnet_login|udp_probe|udp_sweep|vmauthd_login|vmware_http_login|wardial|winrm_cmd|winrm_login|winrm_wql|xmas)' tmp2 | sort > tmp-msf-all
 
-grep 'use ' /opt/scripts/resource/*.rc | grep -v 'recon-ng' > tmp
+grep 'use ' /opt/discover/resource/*.rc | grep -v 'recon-ng' > tmp
 
 # Print from the last /, to the end of the line
 sed -e 's:.*/\(.*\):\1:g' tmp > tmp-msf-used
@@ -3215,9 +3215,9 @@ case $choice in
      8) f_multitabs;;
      9) f_nikto;;
      10) f_sslcheck;;
-     11) f_runlocally && /opt/scripts/crack-wifi.sh;;
+     11) f_runlocally && /opt/discover/crack-wifi.sh;;
      12) f_listener;;
-     13) /opt/scripts/update.sh && exit;;
+     13) /opt/discover/update.sh && exit;;
      14) clear && exit;;
      99) f_updates;;
      *) f_error;;
