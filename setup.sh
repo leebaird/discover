@@ -1,5 +1,8 @@
 #!/bin/bash
 
+## Variables
+user=$(whoami)
+
 clear
 echo
 echo
