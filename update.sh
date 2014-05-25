@@ -8,9 +8,9 @@ echo -e "\e[1;34mUpdating Kali.\e[0m"
 apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
 
 echo -e "\e[1;34mUpdating Discover scripts.\e[0m"
-cd /opt/scripts/ ; git pull ; echo
+cd /opt/discover/ ; git pull ; echo
 
-cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
+cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
 
 if [ ! -f /usr/bin/ipscan ]; then
      echo -e "\e[1;33mInstalling Angry IP Scanner.\e[0m"
