@@ -13,6 +13,7 @@ if [ -d /opt/discover/.git ]; then
      cd /opt/scripts/ ; git pull ; echo
      cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
 else
+     rm -rf /opt/scripts/
      echo -e "\e[1;33mInstalling scripts into new location: /opt/discover/.\e[0m"
      git clone git://github.com/leebaird/discover.git /opt/discover
      echo
