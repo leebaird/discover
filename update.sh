@@ -43,15 +43,12 @@ else
 fi
 
 if [ -d /opt/veil/.git ]; then
-     echo -e "\e[1;34mUpdating Veil-Evasion.\e[0m"
-     cd /opt/veil/ ; git pull
+     echo -e "\e[1;33mInstalling Veil-Evasion suite.\e[0m"
+     unlink /usr/bin/veil
+     rm -rf /opt/veil
+     apt-get -y install veil-evasion veil-catapult
      echo
-else
-     echo -e "\e[1;33mInstalling Veil-Evasion.\e[0m"
-     git clone git://github.com/Veil-Framework/Veil-Evasion.git /opt/veil
-     ln -s /opt/veil/Veil-Evasion.py /usr/bin/veil
-     cd /opt/veil/setup/ ; ./setup.sh
-     echo
+
 fi
 
 if [ ! -f /usr/share/windows-binaries/wce.exe ]; then
