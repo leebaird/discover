@@ -36,6 +36,7 @@ sed -n '5,/^$/p'                                    # Print from the 5th line to
 sed -n '/FOO/,/BAR/p'                               # Print lines between FOO and BAR
 
 sed 's/[A-Z]\{2\},//g'                              # Remove any 2 capital letters followed by a comma
+awk '$2 !~ /[a-z]/'                                 # Remove lines that contain [a-z] in the second column
 sed '/^$/d'                                         # Remove blank lines
 cat -s                                              # Remove double spacing
 sed 's/^....//'                                     # Remove first 4 characters from each line
