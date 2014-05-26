@@ -103,8 +103,8 @@ if [ -f $name ]; then
 fi
 
 if [ -d /tmp/resource ]; then
-     rm -rf /opt/scripts/resource/
-     mv /tmp/resource/ /opt/scripts/
+     rm -rf /opt/discover/resource/
+     mv /tmp/resource/ /opt/discover
 fi
 
 PID=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
@@ -145,7 +145,7 @@ case $choice in
 
      # If folder doesn't exist, create it
      if [ ! -d /$user/$domain ]; then
-          cp -R /opt/scripts/report/ /$user/$domain
+          cp -R /opt/discover/report/ /$user/$domain
           sed 's/REPLACEDOMAIN/'$domain'/g' /$user/$domain/index.htm > tmp
           mv tmp /$user/$domain/index.htm
      fi
@@ -177,7 +177,7 @@ case $choice in
 
      echo
      echo "goog-mail                 (2/$total)"
-     /opt/scripts/mods/goog-mail.py $domain | sort -u > tmp
+     /opt/discover/mods/goog-mail.py $domain | sort -u > tmp
      grep -Fv '..' tmp > tmp2
      # Remove lines that start with a number
      sed '/^[0-9]/d' tmp2 > tmp3
@@ -189,9 +189,9 @@ case $choice in
      echo
      echo "goohost"
      echo "     IP                   (3/$total)"
-     /opt/scripts/mods/goohost.sh -t $domain -m ip >/dev/null
+     /opt/discover/mods/goohost.sh -t $domain -m ip >/dev/null
      echo "     Email                (4/$total)"
-     /opt/scripts/mods/goohost.sh -t $domain -m mail >/dev/null
+     /opt/discover/mods/goohost.sh -t $domain -m mail >/dev/null
      cat report-* > tmp
      # Move the second column to the first position
      grep $domain tmp | awk '{ print $2 " " $1 }' > tmp2
@@ -201,7 +201,7 @@ case $choice in
      echo
      echo "theharvester"
      echo "     Ask-mod              (5/$total)"
-     /opt/scripts/mods/theHarvester2.py -d $domain -b ask > zask-mod
+     /opt/discover/mods/theHarvester2.py -d $domain -b ask > zask-mod
      echo "     Bing                 (6/$total)"
      theharvester -d $domain -b bing > zbing
      echo "     Google               (7/$total)"
@@ -213,11 +213,11 @@ case $choice in
      echo "     LinkedIn             (10/$total)"
      theharvester -d $domain -b linkedin > zlinkedin
      echo "     Login-mod            (11/$total)"
-     /opt/scripts/mods/theHarvester2.py -d $domain -b login > zlogin-mod
+     /opt/discover/mods/theHarvester2.py -d $domain -b login > zlogin-mod
      echo "     PGP                  (12/$total)"
      theharvester -d $domain -b pgp > zpgp
      echo "     Yahoo-mod            (13/$total)"
-     /opt/scripts/mods/theHarvester2.py -d $domain -b yahoo > zyahoo-mod
+     /opt/discover/mods/theHarvester2.py -d $domain -b yahoo > zyahoo-mod
      echo "     All                  (14/$total)"
      theharvester -d $domain -b all > zall
 
@@ -249,8 +249,8 @@ case $choice in
      sed '/^$/d' tmp3 > tmp4
      sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; 
 s/CHILE/Chile/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; 
-s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/INDIA/India/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; 
-s/KOREA REPUBLIC OF/Republic of Korea/g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; 
+s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; s/INDIA/India/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; 
+s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; 
 s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN; REPUBLIC OF China (ROC)/Taiwan/g; 
 s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; 
 s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
@@ -591,7 +591,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      # If folder doesn't exist, create it
      if [ ! -d /$user/$domain ]; then
-          cp -R /opt/scripts/report/ /$user/$domain
+          cp -R /opt/discover/report/ /$user/$domain
           sed 's/REPLACEDOMAIN/'$domain'/' /$user/$domain/index.htm > tmp
           mv tmp /$user/$domain/index.htm
      fi
@@ -718,7 +718,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      echo > tmp
 
-     if [ -f /opt/scripts/emails ]; then
+     if [ -f /opt/discover/emails ]; then
           emailcount=$(wc -l emails | cut -d ' ' -f1)
           echo "Emails        $emailcount" >> zreport
           echo "Emails ($emailcount)" >> tmp
@@ -727,7 +727,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
           echo >> tmp
      fi
 
-     if [ -f /opt/scripts/hosts ]; then
+     if [ -f /opt/discover/hosts ]; then
           hostcount=$(wc -l hosts | cut -d ' ' -f1)
           echo "Hosts         $hostcount" >> zreport
           echo "Hosts ($hostcount)" >> tmp
@@ -736,7 +736,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
           echo >> tmp
      fi
 
-     if [ -f /opt/scripts/records ]; then
+     if [ -f /opt/discover/records ]; then
           recordcount=$(wc -l records | cut -d ' ' -f1)
           echo "DNS Records   $recordcount" >> zreport
           echo "DNS Records ($recordcount)" >> tmp
@@ -745,7 +745,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
           echo >> tmp
      fi
 
-     if [ -f /opt/scripts/subdomains ]; then
+     if [ -f /opt/discover/subdomains ]; then
           subdomaincount=$(wc -l subdomains | cut -d ' ' -f1)
           echo "Subdomains    $subdomaincount" >> zreport
           echo "Subdomains ($subdomaincount)" >> tmp
@@ -884,19 +884,19 @@ s/Albuquerque//g; s/Alexandria//g; s/Allegan//g; s/Allentown//g; s/Allison Park/
 s/Americus//g; s/Amissville//g; s/Amsterdam//g; s/Anaheim//g; s/ANALYSIST/Analysist/g; s/Analyst\//Analyst, /g; s/analytics/Analytics/g; 
 s/Anchorage//g; s/North Andover//g; s/Andover//g; s/Andrews Air\...//g; s/Annandale//g; s/Annapolis//g; s/Ann Arbor//g; s/Apalachin//g; s/Apopka//g; 
 s/Apple Valley//g; s/Arcadia//g; s/Archbald//g; s/Arlington//g; s/Armonk//g; s/Artesia//g; s/Ashburn//g; s/Ashland//g; s/Asia Pacific//g; 
-s/assistant/Assistant/g; s/Athens//g; s/Atlanta//g; s/Atm/ATM/g; 
-s/Attleboro//g; s/attorney/Attorney/g; s/Auburn//g; s/Augusta//g; s/Aurora//g; s/Austell//g; s/Austin//g; s/Australia S\...//g; s/Australia//g; 
-s/Avondale//g; s/Avon//g; s/Azle//g; s/Azusa//g; s/Babylon//g; s/Bakersfield//g; s/Bainbridge \...//g; s/Baltimore//g; s/Bangalore//g; 
-s/banking/Banking/g; s/Barboursville//g; s/Bardstown//g; s/Bartlesville//g; s/Barton//g; s/Batesville//g; s/Baton Rouge//g; s/Battle Ground//g; 
-s/Bay City//g; s/Bay Shore//g; s/Bayside//g; s/Bd/BD/g; s/Beachwood//g; s/Beaver Falls//g; s/Beaverton//g; s/Bedford//g; s/Bel Air//g; s/Belcamp//g; 
-s/Bella Vista//g; s/Bellaire//g; s/Bellevue//g; s/Belleville//g; s/Bellflower//g; s/Beltsville//g; s/Benelux//g; s/Bensalem//g; s/Berkeley//g; 
-s/Berlin//g; s/Berwyn Hts//g; s/Berwyn//g; s/Bethel Park//g; s/Bethesda//g; s/Bethlehem//g; s/Bethpage//g; s/Billerica//g; s/Biloxi//g; 
-s/Binghamton//g; s/Birmingham//g; s/Bismarck//g; s/Bloomfield//g; s/Bloomington//g; s/Bloomsburg//g; s/Boca Raton//g; s/Bohemia//g; s/Boise//g; 
-s/Bolingbrook//g; s/Bordentown//g; s/Boston//g; s/Bothell//g; s/Boulder//g; s/Bowie//g; s/Bowling Green//g; s/Boynton Beach//g; s/branch/Branch/g; 
-s/\/Branch/, Branch/g; s/Bradenton//g; s/branch/Branch/g; s/Brandywine//g; s/Brecksville//g; s/Brentwood//g; s/Bridgeport//g; s/Bridgewater//g; 
-s/Brisbane//g; s/Bristol//g; s/Bristow//g; s/Brooklyn//g; s/Brookpark//g; s/Broomfield//g; s/Brownstown//g; s/Buckeye//g; s/Buffalo//g; s/Burbank//g; 
-s/Burlingame//g; s/Burlington//g; s/Burtonsville//g; s/business/Business/g; s/Brockton//g; s/Burleson//g; s/buyer/Buyer/g; s/By The\...//g; 
-s/Bynum//g; s/Calabasas Hls//g; s/Calabasas//g; 
+s/assistant/Assistant/g; s/Athens//g; s/Atlanta//g; s/Atm/ATM/g; s/Atoka//g; s/Attleboro//g; s/attorney/Attorney/g; s/Auburn//g; s/Augusta//g; 
+s/Aurora//g; s/Austell//g; s/Austin//g; s/Australia S\...//g; s/Australia//g; s/Avondale//g; s/Avon//g; s/Azle//g; s/Azusa//g; s/Babylon//g; 
+s/Bakersfield//g; s/Bainbridge \...//g; s/Baltimore//g; s/Bangalore//g; s/banking/Banking/g; s/Barboursville//g; s/Bardstown//g; s/Bartlesville//g; 
+s/Barton//g; s/Batesville//g; s/Baton Rouge//g; s/Battle Ground//g; s/Bay City//g; s/Bay Shore//g; s/Bayside//g; s/Bd/BD/g; s/Beachwood//g; 
+s/Beaumont//g; s/Beaver Falls//g; s/Beaverton//g; s/Bedford//g; s/Bel Air//g; s/Belcamp//g; s/Bella Vista//g; s/Bellaire//g; s/Bellevue//g; 
+s/Belleville//g; s/Bellflower//g; s/Beltsville//g; s/Benelux//g; s/Benicia//g; s/Bensalem//g; s/Berkeley//g; s/Berlin//g; s/Berwyn Hts//g; s/Berwyn//g; 
+s/Bethel Park//g; s/Bethesda//g; s/Bethlehem//g; s/Bethpage//g; s/Billerica//g; s/Biloxi//g; s/Binghamton//g; s/Birmingham//g; s/Bismarck//g; 
+s/Bloomfield//g; s/Bloomington//g; s/Bloomsburg//g; s/Boca Raton//g; s/Bohemia//g; s/Boise//g; s/Bolingbrook//g; s/Bordentown//g; s/Boston//g; 
+s/Bothell//g; s/Boulder//g; s/Bowie//g; s/Bowling Green//g; s/Boynton Beach//g; s/branch/Branch/g; s/\/Branch/, Branch/g; s/Bradenton//g; 
+s/branch/Branch/g; s/Brandywine//g; s/Brecksville//g; s/Brentwood//g; s/Bridgeport//g; s/Bridgewater//g; s/Brisbane//g; s/Bristol//g; s/Bristow//g; 
+s/Brooklyn//g; s/Brookpark//g; s/Broomfield//g; s/Brownstown//g; s/Buckeye//g; s/Buffalo//g; s/Burbank//g; s/Burlingame//g; s/Burlington//g; 
+s/Burtonsville//g; s/business/Business/g; s/Brockton//g; s/Burleson//g; s/buyer/Buyer/g; s/By The\...//g; s/Bynum//g; s/Calabasas Hls//g; 
+s/Calabasas//g; 
 s/Califon//g; s/California//g; s/Camarillo//g; s/Cambridge//g; s/Camden//g; s/Camp Hill//g; s/Camp Springs//g; s/Canada//g; s/Canfield//g; 
 s/Canonsburg//g; s/Canton//g; s/Canyon Country//g; s/Cape Canaveral//g; s/Cape May//g; s/Capitola//g; s/Carlisle//g; s/Carlsbad//g; s/Carmel//g; 
 s/Carnegie//g; s/Carpinteria//g; s/Carrollton//g; s/cascade/Cascade/g; s/Castaic//g; s/Castle Rock//g; s/Catawba//g; s/Catonsville//g; 
@@ -906,10 +906,13 @@ s/chicago//g; s/East Chicago//g; s/Chicago//g; s/\/Chief/, Chief/g; s/Christians
 s/Cissp/CISSP/g; s/Claremont//g; s/Clarendon//g; s/Clarkston//g; s/Clarksville//g; s/Clawson//g; s/Claymont//g; s/Clearfield//g; s/Clearwater//g; 
 s/Clementon//g; s/Cleveland//g; s/Clifton Park//g; s/Clifton//g; s/CNN News Group Cable News Network//g; s/Captiva//g; s/Clarksburg//g; 
 s/Clearfield//g; s/Clermont//g; s/Cocoa Beach//g; s/Cocoa//g; s/Colleyville//g; s/Collinsville//g; s/Colorado Sp\...//g; s/Columbia//g; 
-s/Columbus//g; s/Commack//g; s/compliance/Compliance/g; s/Concord //g; s/commercial/Commercial/g; s/Conifer//g; s/Conroe//g; s/Conshohocken//g; 
+s/Columbus//g; s/Commack//g; s/Commerce City//g; s/compliance/Compliance/g; s/Concord //g; s/commercial/Commercial/g; s/Conifer//g; s/Conroe//g; 
+s/Conshohocken//g; 
 s/CONSULTANT/Consultant/g; s/consumer/Consumer/g; s/Coopersburg//g; s/Copperopolis//g; s/Cookeville//g; s/Coraopolis//g; s/Cordova//g; 
-s/corporate/Corporate/g; s/Corsicana//g; s/COUNSEL/Counsel/g; s/Countryside//g; s/Cranberry T\...//g; s/Cranberry Twp//g; s/Cranston//g; 
-s/credit/Credit/g; s/CREDIT/Credit/g; s/Cresskill//g; s/Crofton//g; s/Cross Junction//g; s/Crossville//g; s/Crownsville//g; s/Ctr/Center/g; 
+s/corporate/Corporate/g; s/Corpus Christi//g; s/Corsicana//g; s/COUNSEL/Counsel/g; s/Countryside//g; s/Cranberry T\...//g; s/Cranberry Twp//g; 
+s/Cranston//g; 
+s/credit/Credit/g; s/CREDIT/Credit/g; s/Cresskill//g; s/Crofton//g; s/Cross Junction//g; s/Crossville//g; s/Crownsville//g; s/Crum Lynne//g; 
+s/Ctr/Center/g; 
 s/Culpeper//g; s/Culver City//g; s/Cupertino//g; s/Cuyahoga Falls//g; s/Cypress//g; s/Dahlgren//g; s/Dallas//g; s/Daly City//g; s/Danville//g; 
 s/Dayton//g; s/dealer/Dealer/g; s/Decatur//g; s/Delaplane//g; s/Delray Beach//g; s/Denver//g; s/Deer Park//g; s/Deerfield//g; s/Delmont//g; 
 s/Deptford//g; s/Des Moines//g; s/DESIGNER/Designer/g; s/Desoto//g; s/Destiny//g; s/Destin//g; s/Detroit//g; s/Devens//g; s/Dhs/DHS/g; 
@@ -934,7 +937,8 @@ s/Fredericksburg//g; s/Fresno//g; s/Front Royal//g; s/Ft Mitchell//g; s/Ft Worth
 s/Gaithersburg//g; s/Garden City//g; s/Gardena//g; s/Gastonia//g; s/Germantown//g; s/Geyserville//g; s/Gibsonia//g; s/Gig Harbor//g; 
 s/Glastonbury//g; s/Glen Burnie//g; s/Glen Ellyn//g; s/Glendale//g; s/Glendora//g; s/Glen Ridge//g; s/Glenside//g; s/global/Global/g; 
 s/Gnadenhutten//g; s/Goleta//g; 
-s/Goodyear//g; s/Grand Junction//g; s/Grand Haven//g; s/Grand Prairie//g; s/Grand Rapids//g; s/Granville//g; s/Grants Pass//g; s/Granville//g; 
+s/Goodyear//g; s/Grand Junction//g; s/Grand Haven//g; s/Grand Prairie//g; s/Grand Rapids//g; s/Granite City//g; s/Granville//g; s/Grants Pass//g; 
+s/Granville//g; 
 s/Grayslake//g; s/Green Bay//g; s/Green Belt//g; s/Greeley//g; s/Greenbelt//g; s/Greensburg//g; s/Greencastle//g; s/Greeley//g; s/Greenfield//g; 
 s/Greeneville//g; s/Greenville//g; s/Greenwich//g; s/Greenwood Vlg//g; s/Gretna//g; s/Grosse Ile//g; s/Grosse Poin\...//g; s/group/Group/g; 
 s/Grove City//g; s/Grp/Group/g; s/Gsa/GSA/g; s/Gulf Breeze//g; s/Gulfport//g; s/Gulf Coast//g; s/Gurnee//g; s/H\...//g; s/Hackensack//g; 
@@ -976,8 +980,8 @@ s/Montclair//g; s/Monterey//g; s/Montgomery//g; s/Montoursville//g; s/Montreal//
 s/Moreno Valley//g; s/mortgage/Mortgage/g; s/Morgan Hill//g; s/Morgantown//g; s/Morris Plains//g; s/Morristown//g; s/Morrisville//g; s/Moscow//g; 
 s/Moss Point//g; s/Mount Airy//g; s/Mount Holly//g; s/Mount Laurel//g; s/Mount Morris//g; s/Mount Pleasant//g; s/Mount Pocono//g; 
 s/Mount Prospect//g; s/Mount Vernon//g; s/Mountain View//g; s/Mullica Hill//g; s/Mumbai//g; s/Murrysville//g; s/MyHR/HR/g; s/Mystic//g; 
-s/Naperville//g; 
-s/Naples//g; s/Narberth//g; s/Narragansett//g; s/Nashville//g; s/National City//g; s/Navarre//g; s/Nazareth//g; s/Needham//g; 
+s/Naperville//g; s/Naples//g; s/Narberth//g; s/Narragansett//g; s/Narrows//g; s/Nashville//g; s/National City//g; s/Navarre//g; s/Nazareth//g; 
+s/Needham//g; 
 s/negotiator/Negotiator/g; s/Neotsu//g; s/New Castle//g; s/New Church//g; s/New Cumberland//g; s/New Haven//g; s/New Market//g; s/New Martins\...//g; 
 s/New Orleans//g; s/New Port Ri\...//g; s/New Town//g; s/New York//g; s/Newark//g; s/Newport Beach//g; s/Newport News//g; s/Newport//g; s/Newtown//g; 
 s/Newville//g; s/Niagara Falls//g; s/Niceville//g; s/Noblesville//g; s/Noida//g; s/Norfolk//g; s/Norristown//g; s/North America//g; s/North Baldwin//g; 
@@ -992,13 +996,12 @@ s/Omaha//g; s/Onalaska//g; s/Onited States//g; s/online/Online/g; s/\/Operations
 s/Orlando//g; s/orlando//g; s/Ottawa//g; s/Overland Park//g; s/Oviedo//g; s/Orrville//g; s/Owego//g; s/Owensboro//g; s/Owings Mills//g; 
 s/PACKAGING/Packaging/g; s/Palatine//g; s/Palermo//g; s/Palm Bay//g; s/Palm Coast//g; s/Palmdale//g; s/Palo\...//g; s/Palo Alto//g; s/Palos Hills//g; 
 s/Pompano Beach//g; s/Panama City//g; s/Papillion//g; s/paralegal/Paralegal/g; s/parent/Parent/g; s/Park Ridge//g; s/Parkesburg//g; s/Parkville//g; 
-s/Parsippany//g; 
-s/Pasadena//g; s/Pascagoula//g; s/Passaic//g; s/Patuxent River//g; s/payments/Payments/g; s/Pearl City//g; s/Pembroke Pines//g; s/Pennington//g; 
-s/Pensacola//g; s/Peoria//g; 
-s/Pewaukee//g; s/philadelphia//g; s/Philadelphia//g; s/Phillipsburg//g; s/Phoenix//g; s/Pico Rivera//g; s/Pikesville//g; s/Pinconning//g; 
-s/Pinellas Park//g; s/Pickerington//g; s/Piscataway//g; s/Pittsburgh//g; s/Plainfield//g; s/Plainsboro//g; s/Plano//g; s/Plaquemine//g; 
+s/Parsippany//g; s/Pasadena//g; s/Pascagoula//g; s/Passaic//g; s/Patuxent River//g; s/payments/Payments/g; s/Pearl City//g; s/Pembroke Pines//g; 
+s/Pennington//g; s/Pensacola//g; s/Peoria//g; s/Pewaukee//g; s/philadelphia//g; s/Philadelphia//g; s/Phillipsburg//g; s/Phoenix//g; s/Pico Rivera//g; 
+s/Pikesville//g; s/Pinconning//g; s/Pinellas Park//g; s/Pineville//g; s/Pickerington//g; s/Piscataway//g; s/Pittsburgh//g; s/Plainfield//g; 
+s/Plainsboro//g; s/Plano//g; s/Plaquemine//g; 
 s/Pleasanton//g; s/Plymouth//g; s/PMo/PMO/g; s/PMp/PMP/g; s/Pmp/PMP/g; s/Pm/PM/g; s/Point Pleasant//g; s/PMo/PMO/g; s/Pomona//g; s/Pontiac//g; 
-s/Port Deposit//g; s/Port Orange//g; s/Portage//g; s/portfolio/Portfolio/g; s/Portland//g; s/Portsmouth//g; s/Potomac//g; s/Poway//g; 
+s/Port Allen//g; s/Port Deposit//g; s/Port Orange//g; s/Portage//g; s/portfolio/Portfolio/g; s/Portland//g; s/Portsmouth//g; s/Potomac//g; s/Poway//g; 
 s/Powder Springs//g; s/President -/President, /g; s/President-/President, /g; s/President\//President, /g; s/president/President/g; s/Princeton//g; 
 s/Princess Anne//g; s/Prineville//g; s/private/Private/g; s/Proctorville//g; s/producer/Producer/g; s/PRODUCER/Producer/g; s/PROGRAMMING/Programming/g; 
 s/project/Project/g; s/Prospect Park//g; s/Providence//g; s/Pueblo//g; s/Purcellville//g; s/Pyrmont//g; s/Quantico//g; s/Quincy//g; s/R and D/R&D/g; 
@@ -1008,7 +1011,8 @@ s/Reisterstown//g;
 s/relationship/Relationship/g; s/Rensselaer//g; s/Renton//g; s/Reston//g; s/Reynoldsburg//g; s/RFid/RFID/g; s/Rf/RF/g; s/Richland//g; s/Ridgecrest//g; 
 s/New Richmond//g; s/Richmond//g; s/Ridgewood//g; s/Ringoes//g; s/River Edge//g; s/Riverdale//g; s/Rivervale//g; s/Rllng Hls Est//g; s/Roanoke//g; 
 s/Rockaway//g; s/Rochester Hls//g; s/Rochester//g; s/Rockford//g; s/Rockledge//g; s/Rockport//g; s/Rocky Mount//g; 
-s/Rocky River//g; s/Rockville//g; s/Rohnert Park//g; s/Rolling Mea\...//g; s/Romeoville//g; s/Rosamond//g; s/Rosemead//g; s/Roseville//g; 
+s/Rocky River//g; s/Rock Springs//g; s/Rockville//g; s/Rohnert Park//g; s/Rolling Mea\...//g; s/Romeoville//g; s/Rosamond//g; s/Rosemead//g; 
+s/Roseville//g; 
 s/Roswell//g; s/Round Lk Bch//g; s/Round Rock//g; s/Royal Oak//g; s/Royersford//g; s/Riverton//g; s/Ruckersville//g; s/Sacramento//g; 
 s/Saint-laurent//g; s/Saint Augus\...//g; s/Saint Charles//g; s/Saint Clair\...//g; s/Saint Cloud//g; s/Saint Joseph//g; s/Saint Louis//g; 
 s/Saint Paul//g; s/Saint Peter\...//g; s/Saint Simon\...//g; s/sales/Sales/g; s/Salt Lake City//g; s/San Antonio//g; s/San Clemente//g; 
@@ -1022,7 +1026,7 @@ s/Silver Spring//g; s/Sitka//g; s/Skillman//g; s/Slidell//g; s/Snr/Senior/g; s/S
 s/Smyrna//g; s/Socorro//g; s/Solana Beach//g; s/Somerset//g; s/South Bend//g; s/South Burli\...//g; s/South Orange//g; s/South San F\...//g; 
 s/Southbridge//g; s/Southfield//g; s/Southern Pines//g; s/South Lake//g; s/South Ozone\...//g; s/South Plain\...//g; s/South River//g; 
 s/Southborough//g; s/Southeast Asia//g; s/Southampton//g; s/Southlake//g; s/Southwest//g; s/spain/Spain/g; s/Spotsylvania//g; s/Spring City//g; 
-s/Springfield//g; s/Spring//g; s/Square//g; s/Sql/SQL/g; 
+s/Springfield//g; s/Square//g; s/Sql/SQL/g; 
 s/St Augustine//g; s/St Charles//g; s/St Petersburg//g; s/Sta\...//g; s/Stafford//g; s/State College//g; s/Stennis Spa\...//g; s/Stephens City//g; 
 s/Sterling//g; s/Stf/Staff/g; s/Stillwater//g; s/Stone Harbor//g; s/Stone Mountain//g; s/Strasburg//g; s/strategic/Strategic/g; s/Strongsville//g; 
 s/subsidiary/Subsidiary/g; s/Sudbury//g; s/Sugar Land//g; s/Suffolk//g; s/Sugar Grove//g; s/Summerville//g; s/Summit//g; s/Sunnyvale//g; 
@@ -1034,9 +1038,10 @@ s/Titusville//g; s/Toledo//g; s/Topeka//g; s/Tornado//g; s/Toronto//g; s/Torranc
 s/treasury/Treasury/g; s/Trenton//g; s/Tucson//g; s/Tulsa//g; s/Twin Falls//g; s/Twinsburg//g; s/Tyngsboro//g; s/UK//g; s/U.S.//g; 
 s/UNDERWRITER/Underwriter/g; s/Union Ban//g; s/Union City//g; s/Union Office//g; s/Uniondale//g; s/Uniontown//g; s/United Kingdom//g; 
 s/United States//g; s/university/University/g; s/Upper Chich\...//g; s/Upper Marlboro//g; s/Urbandale//g; s/Uscg/USCG/g; s/Uxbridge//g; s/Valencia//g; 
-s/Van Nuys//g; s/Vancouver//g; s/Vandergrift//g; s/vendor/Vendor/g; s/Ventura//g; s/Vero Beach//g; s/Verona//g; s/Vestal//g; s/Vii/VII/g; s/Vi /VI/g; 
-s/Vice-President/Vice President/g; s/Vicepresident/Vice President/g; s/Vienna//g; s/Vincentown//g; s/Vineland//g; s/Virginia Beach//g; s/La Vista//g; 
-s/Vista//g; s/Voip/VoIP/g; s/Wakefield//g; s/Waldorf//g; s/Walled Lake//g; s/Wallingford//g; s/Wallops Island//g; s/Walnut Creek//g; s/Waltham//g; 
+s/valve/Valve/g; s/Van Nuys//g; s/Vancouver//g; s/Vandergrift//g; s/vendor/Vendor/g; s/Ventura//g; s/Vero Beach//g; s/Verona//g; s/Vestal//g; 
+s/Vii/VII/g; s/Vi /VI/g; s/Vice-President/Vice President/g; s/Vicepresident/Vice President/g; s/Vienna//g; s/Vincentown//g; s/Vineland//g; 
+s/Virginia Beach//g; s/La Vista//g; s/Vista//g; s/Voip/VoIP/g; s/Wagoner//g; s/Wakefield//g; s/Waldorf//g; s/Walled Lake//g; s/Wallingford//g; 
+s/Wallops Island//g; s/Walnut Creek//g; s/Waltham//g; 
 s/Warminster//g; s/Warrenton//g; s/Warner Robins//g; s/Warsaw//g; s/Warwick//g; s/Washington//g; s/Wasilla//g; s/Waukesha//g; s/wealth/Wealth/g; 
 s/Weare//g; s/Weatherford//g; s/Wellington//g; s/West Bloomf\...//g; s/West Chester//g; s/West Dundee//g; s/West Harrison//g; s/West Hollywood//g; 
 s/West Linn//g; s/West Mifflin//g; s/West Orange//g; s/West Palm B\...//g; s/West Paterson//g; s/West Sacram\...//g; s/Westlake//g; s/Westborough//g; 
@@ -2194,398 +2199,398 @@ echo workspace -a $name > $name/master.rc
 
 if [ -f $name/19.txt ]; then
      echo "     CHARGEN"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/19.txt/g" /opt/scripts/resource/chargen.rc
-     cat /opt/scripts/resource/chargen.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/19.txt/g" /opt/discover/resource/chargen.rc
+     cat /opt/discover/resource/chargen.rc >> $name/master.rc
 fi
 
 if [ -f $name/21.txt ]; then
      echo "     FTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/21.txt/g" /opt/scripts/resource/ftp.rc
-     cat /opt/scripts/resource/ftp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/21.txt/g" /opt/discover/resource/ftp.rc
+     cat /opt/discover/resource/ftp.rc >> $name/master.rc
 fi
 
 if [ -f $name/22.txt ]; then
      echo "     SSH"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/22.txt/g" /opt/scripts/resource/ssh.rc
-     cat /opt/scripts/resource/ssh.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/22.txt/g" /opt/discover/resource/ssh.rc
+     cat /opt/discover/resource/ssh.rc >> $name/master.rc
 fi
 
 if [ -f $name/23.txt ]; then
      echo "     Telnet"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/23.txt/g" /opt/scripts/resource/telnet.rc
-     cat /opt/scripts/resource/telnet.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/23.txt/g" /opt/discover/resource/telnet.rc
+     cat /opt/discover/resource/telnet.rc >> $name/master.rc
 fi
 
 if [ -f $name/25.txt ]; then
      echo "     SMTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/25.txt/g" /opt/scripts/resource/smtp.rc
-     cat /opt/scripts/resource/smtp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/25.txt/g" /opt/discover/resource/smtp.rc
+     cat /opt/discover/resource/smtp.rc >> $name/master.rc
 fi
 
 if [ -f $name/69.txt ]; then
      echo "     TFTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/69.txt/g" /opt/scripts/resource/tftp.rc
-     cat /opt/scripts/resource/tftp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/69.txt/g" /opt/discover/resource/tftp.rc
+     cat /opt/discover/resource/tftp.rc >> $name/master.rc
 fi
 
 if [ -f $name/79.txt ]; then
      echo "     Finger"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/79.txt/g" /opt/scripts/resource/finger.rc
-     cat /opt/scripts/resource/finger.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/79.txt/g" /opt/discover/resource/finger.rc
+     cat /opt/discover/resource/finger.rc >> $name/master.rc
 fi
 
 if [ -f $name/80.txt ]; then
      echo "     Lotus"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/80.txt/g" /opt/scripts/resource/lotus.rc
-     cat /opt/scripts/resource/lotus.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/80.txt/g" /opt/discover/resource/lotus.rc
+     cat /opt/discover/resource/lotus.rc >> $name/master.rc
 fi
 
 if [ -f $name/80.txt ]; then
      echo "     SCADA Indusoft WebStudio NTWebServer"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/80.txt/g" /opt/scripts/resource/scada3.rc
-     cat /opt/scripts/resource/scada3.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/80.txt/g" /opt/discover/resource/scada3.rc
+     cat /opt/discover/resource/scada3.rc >> $name/master.rc
 fi
 
 if [ -f $name/110.txt ]; then
      echo "     POP3"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/110.txt/g" /opt/scripts/resource/pop3.rc
-     cat /opt/scripts/resource/pop3.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/110.txt/g" /opt/discover/resource/pop3.rc
+     cat /opt/discover/resource/pop3.rc >> $name/master.rc
 fi
 
 if [ -f $name/111.txt ]; then
      echo "     NFS"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/111.txt/g" /opt/scripts/resource/nfs.rc
-     cat /opt/scripts/resource/nfs.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/111.txt/g" /opt/discover/resource/nfs.rc
+     cat /opt/discover/resource/nfs.rc >> $name/master.rc
 fi
 
 if [ -f $name/123.txt ]; then
      echo "     NTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/123.txt/g" /opt/scripts/resource/ntp.rc
-     cat /opt/scripts/resource/ntp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/123.txt/g" /opt/discover/resource/ntp.rc
+     cat /opt/discover/resource/ntp.rc >> $name/master.rc
 fi
 
 if [ -f $name/135.txt ]; then
      echo "     DCE/RPC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/135.txt/g" /opt/scripts/resource/dcerpc.rc
-     cat /opt/scripts/resource/dcerpc.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/135.txt/g" /opt/discover/resource/dcerpc.rc
+     cat /opt/discover/resource/dcerpc.rc >> $name/master.rc
 fi
 
 if [ -f $name/137.txt ]; then
      echo "     NetBIOS"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/137.txt/g" /opt/scripts/resource/netbios.rc
-     cat /opt/scripts/resource/netbios.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/137.txt/g" /opt/discover/resource/netbios.rc
+     cat /opt/discover/resource/netbios.rc >> $name/master.rc
 fi
 
 if [ -f $name/143.txt ]; then
      echo "     IMAP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/143.txt/g" /opt/scripts/resource/imap.rc
-     cat /opt/scripts/resource/imap.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/143.txt/g" /opt/discover/resource/imap.rc
+     cat /opt/discover/resource/imap.rc >> $name/master.rc
 fi
 
 if [ -f $name/161.txt ]; then
      echo "     SNMP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/161.txt/g" /opt/scripts/resource/snmp.rc
-     cat /opt/scripts/resource/snmp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/161.txt/g" /opt/discover/resource/snmp.rc
+     cat /opt/discover/resource/snmp.rc >> $name/master.rc
 fi
 
 if [ -f $name/407.txt ]; then
      echo "     Motorola"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/407.txt/g" /opt/scripts/resource/motorola.rc
-     cat /opt/scripts/resource/motorola.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/407.txt/g" /opt/discover/resource/motorola.rc
+     cat /opt/discover/resource/motorola.rc >> $name/master.rc
 fi
 
 if [ -f $name/443.txt ]; then
      echo "     VMware"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/443.txt/g" /opt/scripts/resource/vmware.rc
-     cat /opt/scripts/resource/motorola.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/443.txt/g" /opt/discover/resource/vmware.rc
+     cat /opt/discover/resource/motorola.rc >> $name/master.rc
 fi
 
 if [ -f $name/445.txt ]; then
      echo "     SMB"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/445.txt/g" /opt/scripts/resource/smb.rc
-     cat /opt/scripts/resource/smb.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/445.txt/g" /opt/discover/resource/smb.rc
+     cat /opt/discover/resource/smb.rc >> $name/master.rc
 fi
 
 if [ -f $name/465.txt ]; then
      echo "     SMTP/S"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/465.txt/g" /opt/scripts/resource/smtp2.rc
-     cat /opt/scripts/resource/smtp2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/465.txt/g" /opt/discover/resource/smtp2.rc
+     cat /opt/discover/resource/smtp2.rc >> $name/master.rc
 fi
 
 if [ -f $name/502.txt ]; then
      echo "     SCADA Modbus Client Utility"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/502.txt/g" /opt/scripts/resource/scada5.rc
-     cat /opt/scripts/resource/scada5.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/502.txt/g" /opt/discover/resource/scada5.rc
+     cat /opt/discover/resource/scada5.rc >> $name/master.rc
 fi
 
 if [ -f $name/512.txt ]; then
      echo "     Rexec"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/512.txt/g" /opt/scripts/resource/rservices.rc
-     cat /opt/scripts/resource/rservices.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/512.txt/g" /opt/discover/resource/rservices.rc
+     cat /opt/discover/resource/rservices.rc >> $name/master.rc
 fi
 
 if [ -f $name/513.txt ]; then
      echo "     rlogin"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/513.txt/g" /opt/scripts/resource/rservices2.rc
-     cat /opt/scripts/resource/rservices2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/513.txt/g" /opt/discover/resource/rservices2.rc
+     cat /opt/discover/resource/rservices2.rc >> $name/master.rc
 fi
 
 if [ -f $name/514.txt ]; then
      echo "     rshell"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/514.txt/g" /opt/scripts/resource/rservices3.rc
-     cat /opt/scripts/resource/rservices3.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/514.txt/g" /opt/discover/resource/rservices3.rc
+     cat /opt/discover/resource/rservices3.rc >> $name/master.rc
 fi
 
 if [ -f $name/523.txt ]; then
      echo "     db2"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/523.txt/g" /opt/scripts/resource/db2.rc
-     cat /opt/scripts/resource/db2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/523.txt/g" /opt/discover/resource/db2.rc
+     cat /opt/discover/resource/db2.rc >> $name/master.rc
 fi
 
 if [ -f $name/548.txt ]; then
      echo "     AFP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/548.txt/g" /opt/scripts/resource/afp.rc
-     cat /opt/scripts/resource/afp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/548.txt/g" /opt/discover/resource/afp.rc
+     cat /opt/discover/resource/afp.rc >> $name/master.rc
 fi
 
 if [ -f $name/623.txt ]; then
      echo "     IPMI"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/623.txt/g" /opt/scripts/resource/ipmi.rc
-     cat /opt/scripts/resource/ipmi.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/623.txt/g" /opt/discover/resource/ipmi.rc
+     cat /opt/discover/resource/ipmi.rc >> $name/master.rc
 fi
 
 if [ -f $name/771.txt ]; then
      echo "     SCADA Digi"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/771.txt/g" /opt/scripts/resource/scada2.rc
-     cat /opt/scripts/resource/scada2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/771.txt/g" /opt/discover/resource/scada2.rc
+     cat /opt/discover/resource/scada2.rc >> $name/master.rc
 fi
 
 if [ -f $name/902.txt ]; then
      echo "     VMware"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/902.txt/g" /opt/scripts/resource/vmware2.rc
-     cat /opt/scripts/resource/motorola.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/902.txt/g" /opt/discover/resource/vmware2.rc
+     cat /opt/discover/resource/motorola.rc >> $name/master.rc
 fi
 
 if [ -f $name/1099.txt ]; then
      echo "     RMI Registery"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1099.txt/g" /opt/scripts/resource/rmi.rc
-     cat /opt/scripts/resource/rmi.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1099.txt/g" /opt/discover/resource/rmi.rc
+     cat /opt/discover/resource/rmi.rc >> $name/master.rc
 fi
 
 if [ -f $name/1158.txt ]; then
      echo "     Oracle"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1158.txt/g" /opt/scripts/resource/oracle.rc
-     cat /opt/scripts/resource/oracle.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1158.txt/g" /opt/discover/resource/oracle.rc
+     cat /opt/discover/resource/oracle.rc >> $name/master.rc
 fi
 
 if [ -f $name/1433.txt ]; then
      echo "     MS-SQL"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1433.txt/g" /opt/scripts/resource/mssql.rc
-     cat /opt/scripts/resource/mssql.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1433.txt/g" /opt/discover/resource/mssql.rc
+     cat /opt/discover/resource/mssql.rc >> $name/master.rc
 fi
 
 if [ -f $name/1521.txt ]; then
      echo "     Oracle"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1521.txt/g" /opt/scripts/resource/oracle3.rc
-     cat /opt/scripts/resource/oracle3.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1521.txt/g" /opt/discover/resource/oracle3.rc
+     cat /opt/discover/resource/oracle3.rc >> $name/master.rc
 fi
 
 if [ -f $name/1604.txt ]; then
      echo "     Citrix"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1604.txt/g" /opt/scripts/resource/citrix.rc
-     cat /opt/scripts/resource/citrix.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1604.txt/g" /opt/discover/resource/citrix.rc
+     cat /opt/discover/resource/citrix.rc >> $name/master.rc
 fi
 
 if [ -f $name/1720.txt ]; then
      echo "     H323"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1720.txt/g" /opt/scripts/resource/h323.rc
-     cat /opt/scripts/resource/h323.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1720.txt/g" /opt/discover/resource/h323.rc
+     cat /opt/discover/resource/h323.rc >> $name/master.rc
 fi
 
 if [ -f $name/1900.txt ]; then
      echo "     UPnP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1900.txt/g" /opt/scripts/resource/upnp.rc
-     cat /opt/scripts/resource/upnp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1900.txt/g" /opt/discover/resource/upnp.rc
+     cat /opt/discover/resource/upnp.rc >> $name/master.rc
 fi
 
 if [ -f $name/2362.txt ]; then
      echo "     SCADA Digi"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/2362.txt/g" /opt/scripts/resource/scada.rc
-     cat /opt/scripts/resource/scada.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/2362.txt/g" /opt/discover/resource/scada.rc
+     cat /opt/discover/resource/scada.rc >> $name/master.rc
 fi
 
 if [ -f $name/3000.txt ]; then
      echo "     EMC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3000.txt/g" /opt/scripts/resource/emc.rc
-     cat /opt/scripts/resource/emc.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3000.txt/g" /opt/discover/resource/emc.rc
+     cat /opt/discover/resource/emc.rc >> $name/master.rc
 fi
 
 if [ -f $name/3306.txt ]; then
      echo "     MySQL"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3306.txt/g" /opt/scripts/resource/mysql.rc
-     cat /opt/scripts/resource/mysql.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3306.txt/g" /opt/discover/resource/mysql.rc
+     cat /opt/discover/resource/mysql.rc >> $name/master.rc
 fi
 
 if [ -f $name/3389.txt ]; then
      echo "     RDP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3389.txt/g" /opt/scripts/resource/rdp.rc
-     cat /opt/scripts/resource/rdp.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3389.txt/g" /opt/discover/resource/rdp.rc
+     cat /opt/discover/resource/rdp.rc >> $name/master.rc
 fi
 
 if [ -f $name/3500.txt ]; then
      echo "     EMC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3500.txt/g" /opt/scripts/resource/emc2.rc
-     cat /opt/scripts/resource/emc2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3500.txt/g" /opt/discover/resource/emc2.rc
+     cat /opt/discover/resource/emc2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5040.txt ]; then
      echo "     DCE/RPC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5040.txt/g" /opt/scripts/resource/dcerpc2.rc
-     cat /opt/scripts/resource/dcerpc2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5040.txt/g" /opt/discover/resource/dcerpc2.rc
+     cat /opt/discover/resource/dcerpc2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5060.txt ]; then
      echo "     SIP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5060.txt/g" /opt/scripts/resource/sip.rc
-     cat /opt/scripts/resource/sip.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5060.txt/g" /opt/discover/resource/sip.rc
+     cat /opt/discover/resource/sip.rc >> $name/master.rc
 fi
 
 if [ -f $name/5060-tcp.txt ]; then
      echo "     SIP TCP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5060-tcp.txt/g" /opt/scripts/resource/sip2.rc
-     cat /opt/scripts/resource/sip2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5060-tcp.txt/g" /opt/discover/resource/sip2.rc
+     cat /opt/discover/resource/sip2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5432.txt ]; then
      echo "     Postgres"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5432.txt/g" /opt/scripts/resource/postgres.rc
-     cat /opt/scripts/resource/postgres.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5432.txt/g" /opt/discover/resource/postgres.rc
+     cat /opt/discover/resource/postgres.rc >> $name/master.rc
 fi
 
 if [ -f $name/5560.txt ]; then
      echo "     Oracle iSQL"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5560.txt/g" /opt/scripts/resource/oracle2.rc
-     cat /opt/scripts/resource/oracle2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5560.txt/g" /opt/discover/resource/oracle2.rc
+     cat /opt/discover/resource/oracle2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5631.txt ]; then
      echo "     pcAnywhere"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5631.txt/g" /opt/scripts/resource/pcanywhere.rc
-     cat /opt/scripts/resource/pcanywhere.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5631.txt/g" /opt/discover/resource/pcanywhere.rc
+     cat /opt/discover/resource/pcanywhere.rc >> $name/master.rc
 fi
 
 if [ -f $name/5632.txt ]; then
      echo "     pcAnywhere"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5632.txt/g" /opt/scripts/resource/pcanywhere2.rc
-     cat /opt/scripts/resource/pcanywhere2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5632.txt/g" /opt/discover/resource/pcanywhere2.rc
+     cat /opt/discover/resource/pcanywhere2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5900.txt ]; then
      echo "     VNC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5900.txt/g" /opt/scripts/resource/vnc.rc
-     cat /opt/scripts/resource/vnc.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5900.txt/g" /opt/discover/resource/vnc.rc
+     cat /opt/discover/resource/vnc.rc >> $name/master.rc
 fi
 
 if [ -f $name/5920.txt ]; then
      echo "     Misc CCTV DVR"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5920.txt/g" /opt/scripts/resource/misc.rc
-     cat /opt/scripts/resource/misc.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5920.txt/g" /opt/discover/resource/misc.rc
+     cat /opt/discover/resource/misc.rc >> $name/master.rc
 fi
 
 if [ -f $name/5984.txt ]; then
      echo "     CouchDB"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5984.txt/g" /opt/scripts/resource/couchdb.rc
-     cat /opt/scripts/resource/couchdb.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5984.txt/g" /opt/discover/resource/couchdb.rc
+     cat /opt/discover/resource/couchdb.rc >> $name/master.rc
 fi
 
 if [ -f $name/5985.txt ]; then
      echo "     winrm"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5985.txt/g" /opt/scripts/resource/winrm.rc
-     cat /opt/scripts/resource/winrm.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5985.txt/g" /opt/discover/resource/winrm.rc
+     cat /opt/discover/resource/winrm.rc >> $name/master.rc
 fi
 
 if [ -f $name/x11.txt ]; then
      echo "     x11"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/x11.txt/g" /opt/scripts/resource/x11.rc
-     cat /opt/scripts/resource/x11.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/x11.txt/g" /opt/discover/resource/x11.rc
+     cat /opt/discover/resource/x11.rc >> $name/master.rc
 fi
 
 if [ -f $name/7777.txt ]; then
      echo "     Backdoor"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/7777.txt/g" /opt/scripts/resource/backdoor.rc
-     cat /opt/scripts/resource/backdoor.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/7777.txt/g" /opt/discover/resource/backdoor.rc
+     cat /opt/discover/resource/backdoor.rc >> $name/master.rc
 fi
 
 if [ -f $name/8080.txt ]; then
      echo "     Tomcat"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8080.txt/g" /opt/scripts/resource/tomcat.rc
-     cat /opt/scripts/resource/tomcat.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8080.txt/g" /opt/discover/resource/tomcat.rc
+     cat /opt/discover/resource/tomcat.rc >> $name/master.rc
 fi
 
 #if [ -f $name/8080.txt ]; then
 #     echo "     ZENworks"
-#     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8080.txt/g" /opt/scripts/resource/zenworks.rc
-#     cat /opt/scripts/resource/zenworks.rc >> $name/master.rc
+#     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8080.txt/g" /opt/discover/resource/zenworks.rc
+#     cat /opt/discover/resource/zenworks.rc >> $name/master.rc
 #fi
 
 if [ -f $name/8222.txt ]; then
      echo "     VMware"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8222.txt/g" /opt/scripts/resource/vmware.rc
-     cat /opt/scripts/resource/vmware.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8222.txt/g" /opt/discover/resource/vmware.rc
+     cat /opt/discover/resource/vmware.rc >> $name/master.rc
 fi
 
 if [ -f $name/8400.txt ]; then
      echo "     Adobe"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8400.txt/g" /opt/scripts/resource/adobe.rc
-     cat /opt/scripts/resource/adobe.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8400.txt/g" /opt/discover/resource/adobe.rc
+     cat /opt/discover/resource/adobe.rc >> $name/master.rc
 fi
 
 if [ -f $name/8834.txt ]; then
      echo "     Nessus"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8834.txt/g" /opt/scripts/resource/nessus.rc
-     cat /opt/scripts/resource/nessus.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8834.txt/g" /opt/discover/resource/nessus.rc
+     cat /opt/discover/resource/nessus.rc >> $name/master.rc
 fi
 
 if [ -f $name/9100.txt ]; then
      echo "     Printers"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/9100.txt/g" /opt/scripts/resource/printers.rc
-     cat /opt/scripts/resource/printers.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/9100.txt/g" /opt/discover/resource/printers.rc
+     cat /opt/discover/resource/printers.rc >> $name/master.rc
 fi
 
 if [ -f $name/9999.txt ]; then
      echo "     Telnet"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/9999.txt/g" /opt/scripts/resource/telnet3.rc
-     cat /opt/scripts/resource/telnet3.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/9999.txt/g" /opt/discover/resource/telnet3.rc
+     cat /opt/discover/resource/telnet3.rc >> $name/master.rc
 fi
 
 if [ -f $name/17185.txt ]; then
      echo "     VxWorks"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/17185.txt/g" /opt/scripts/resource/vxworks.rc
-     cat /opt/scripts/resource/vxworks.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/17185.txt/g" /opt/discover/resource/vxworks.rc
+     cat /opt/discover/resource/vxworks.rc >> $name/master.rc
 fi
 
 if [ -f $name/28784.txt ]; then
      echo "     SCADA Koyo DirectLogic PLC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/28784.txt/g" /opt/scripts/resource/scada4.rc
-     cat /opt/scripts/resource/scada4.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/28784.txt/g" /opt/discover/resource/scada4.rc
+     cat /opt/discover/resource/scada4.rc >> $name/master.rc
 fi
 
 if [ -f $name/30718.txt ]; then
      echo "     Telnet"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/30718.txt/g" /opt/scripts/resource/telnet2.rc
-     cat /opt/scripts/resource/telnet2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/30718.txt/g" /opt/discover/resource/telnet2.rc
+     cat /opt/discover/resource/telnet2.rc >> $name/master.rc
 fi
 
 if [ -f $name/46824.txt ]; then
      echo "     SCADA Sielco Sistemi"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/46824.txt/g" /opt/scripts/resource/scada6.rc
-     cat /opt/scripts/resource/scada6.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/46824.txt/g" /opt/discover/resource/scada6.rc
+     cat /opt/discover/resource/scada6.rc >> $name/master.rc
 fi
 
 if [ -f $name/50000.txt ]; then
      echo "     db2"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/50000.txt/g" /opt/scripts/resource/db2-2.rc
-     cat /opt/scripts/resource/db2-2.rc >> $name/master.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/50000.txt/g" /opt/discover/resource/db2-2.rc
+     cat /opt/discover/resource/db2-2.rc >> $name/master.rc
 fi
 
 echo db_export -f xml -a $name/metasploit.xml >> $name/master.rc
@@ -2597,11 +2602,11 @@ x=$(wc -l $name/master.rc | cut -d ' ' -f1)
 if [ $x -eq 3 ]; then
      rm $name/master.rc
 else
-     msfconsole -r /opt/scripts/$name/master.rc
+     msfconsole -r /opt/discover/$name/master.rc
      rm $name/master.rc
 fi
 
-mv /tmp/resource/ /opt/scripts/
+mv /tmp/resource/ /opt/discover
 
 f_report
 }
@@ -3113,7 +3118,7 @@ exit
 f_listener(){
 clear
 
-cp /opt/scripts/resource/misc/listener.rc /tmp/
+cp /opt/discover/resource/misc/listener.rc /tmp/
 
 sed -i "s/#/$ip/g" /tmp/listener.rc
 
@@ -3169,7 +3174,7 @@ sed '/^$/d' tmp > tmp2
 # Remove scanners not used
 egrep -v '(ack|afp_login|arp_sweep|call_scanner|couchdb_enum|dvr_config_disclosure|endpoint_mapper|ftp_login|ftpbounce|hidden|ipidseq|ipv6_multicast_ping|ipv6_neighbor|ipv6_neighbor_router_advertisement|lotus_domino_login|management|mongodb_login|ms08_067_check|msf_rpc_login|msf_web_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|natpmp_portscan|nessus_ntp_login|nessus_xmlrpc_login|nexpose_api_login|openvas_gsad_login|openvas_omp_login|openvas_otp_login|pcanywhere_login|poisonivy_control_scanner|pop3_login|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_enumusers|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|station_scanner|syn|tcp|telnet_login|udp_probe|udp_sweep|vmauthd_login|vmware_http_login|wardial|winrm_cmd|winrm_login|winrm_wql|xmas)' tmp2 | sort > tmp-msf-all
 
-grep 'use ' /opt/scripts/resource/*.rc | grep -v 'recon-ng' > tmp
+grep 'use ' /opt/discover/resource/*.rc | grep -v 'recon-ng' > tmp
 
 # Print from the last /, to the end of the line
 sed -e 's:.*/\(.*\):\1:g' tmp > tmp-msf-used
@@ -3232,9 +3237,9 @@ case $choice in
      8) f_multitabs;;
      9) f_nikto;;
      10) f_sslcheck;;
-     11) f_runlocally && /opt/scripts/crack-wifi.sh;;
+     11) f_runlocally && /opt/discover/crack-wifi.sh;;
      12) f_listener;;
-     13) /opt/scripts/update.sh && exit;;
+     13) /opt/discover/update.sh && exit;;
      14) clear && exit;;
      99) f_updates;;
      *) f_error;;
