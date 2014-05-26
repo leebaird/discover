@@ -75,11 +75,13 @@ update
 
 # gedit
 
+apt-get install gedit-plugins
 gedit
 Edit > Preferences
 View: Display line numbers, Highlight current line
 Editor: Tab width 5, Insert spaces instead of tabs, uncheck Create a backup copy of files before saving
 Font & Colors: Oblivion
+Plugins: Code comment
 ------------------------------------------------------------------------------------------------------
 
 # Iceweasel
