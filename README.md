@@ -4,7 +4,7 @@ Formally BackTrack scripts. For use with Kali Linux. Custom bash scripts used to
 * If using Kali mini ```apt-get install windows-binaries```
 * git clone git://github.com/leebaird/discover.git /opt/discover/
 * All scripts must be ran from this location.
-* cd /opt/scripts/
+* cd /opt/discover/
 * ./setup.sh
 * ./discover.sh
 
