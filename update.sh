@@ -7,10 +7,16 @@ echo
 echo -e "\e[1;34mUpdating Kali.\e[0m"
 apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
 
-echo -e "\e[1;34mUpdating Discover scripts.\e[0m"
-cd /opt/scripts/ ; git pull ; echo
 
-cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
+if [ -d /opt/discover/.git ]; then
+     echo -e "\e[1;34mUpdating Discover scripts.\e[0m"
+     cd /opt/scripts/ ; git pull ; echo
+     cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
+else
+     echo -e "\e[1;33mInstalling scripts into new location: /opt/discover/.\e[0m"
+     git clone git://github.com/leebaird/discover.git /opt/discover
+     echo
+fi
 
 if [ ! -f /usr/bin/ipscan ]; then
      echo -e "\e[1;33mInstalling Angry IP Scanner.\e[0m"
