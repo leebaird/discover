@@ -1,5 +1,5 @@
 # To enable these aliases or when you modify this file:
-# cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
+# cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
 
 dhcp=$(grep 'dhcp-server' /var/lib/dhcp/dhclient.leases | awk '{print $3}' | cut -d ';' -f1 | head -n1)
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
@@ -24,4 +24,3 @@ alias nexpose='service postgresql stop ; cd /opt/rapid7/nexpose/nsc ; ./nsc.sh'
 alias sip='sort -V'
 
 alias update='/opt/discover/update.sh'
-
