@@ -10,8 +10,8 @@ apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autor
 
 if [ -d /opt/discover/.git ]; then
      echo -e "\e[1;34mUpdating Discover scripts.\e[0m"
-     cd /opt/scripts/ ; git pull ; echo
-     cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
+     cd /opt/discover/ ; git pull ; echo
+     cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
 else
      rm -rf /opt/scripts/
      echo -e "\e[1;33mInstalling scripts into new location: /opt/discover/.\e[0m"
