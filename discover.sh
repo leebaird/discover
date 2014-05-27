@@ -2199,397 +2199,397 @@ echo workspace -a $name > $name/master.rc
 
 if [ -f $name/19.txt ]; then
      echo "     CHARGEN"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/19.txt/g" /opt/discover/resource/chargen.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/19.txt/g" /opt/discover/resource/chargen.rc
      cat /opt/discover/resource/chargen.rc >> $name/master.rc
 fi
 
 if [ -f $name/21.txt ]; then
      echo "     FTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/21.txt/g" /opt/discover/resource/ftp.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/21.txt/g" /opt/discover/resource/ftp.rc
      cat /opt/discover/resource/ftp.rc >> $name/master.rc
 fi
 
 if [ -f $name/22.txt ]; then
      echo "     SSH"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/22.txt/g" /opt/discover/resource/ssh.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/22.txt/g" /opt/discover/resource/ssh.rc
      cat /opt/discover/resource/ssh.rc >> $name/master.rc
 fi
 
 if [ -f $name/23.txt ]; then
      echo "     Telnet"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/23.txt/g" /opt/discover/resource/telnet.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/23.txt/g" /opt/discover/resource/telnet.rc
      cat /opt/discover/resource/telnet.rc >> $name/master.rc
 fi
 
 if [ -f $name/25.txt ]; then
      echo "     SMTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/25.txt/g" /opt/discover/resource/smtp.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/25.txt/g" /opt/discover/resource/smtp.rc
      cat /opt/discover/resource/smtp.rc >> $name/master.rc
 fi
 
 if [ -f $name/69.txt ]; then
      echo "     TFTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/69.txt/g" /opt/discover/resource/tftp.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/69.txt/g" /opt/discover/resource/tftp.rc
      cat /opt/discover/resource/tftp.rc >> $name/master.rc
 fi
 
 if [ -f $name/79.txt ]; then
      echo "     Finger"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/79.txt/g" /opt/discover/resource/finger.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/79.txt/g" /opt/discover/resource/finger.rc
      cat /opt/discover/resource/finger.rc >> $name/master.rc
 fi
 
 if [ -f $name/80.txt ]; then
      echo "     Lotus"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/80.txt/g" /opt/discover/resource/lotus.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/80.txt/g" /opt/discover/resource/lotus.rc
      cat /opt/discover/resource/lotus.rc >> $name/master.rc
 fi
 
 if [ -f $name/80.txt ]; then
      echo "     SCADA Indusoft WebStudio NTWebServer"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/80.txt/g" /opt/discover/resource/scada3.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/80.txt/g" /opt/discover/resource/scada3.rc
      cat /opt/discover/resource/scada3.rc >> $name/master.rc
 fi
 
 if [ -f $name/110.txt ]; then
      echo "     POP3"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/110.txt/g" /opt/discover/resource/pop3.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/110.txt/g" /opt/discover/resource/pop3.rc
      cat /opt/discover/resource/pop3.rc >> $name/master.rc
 fi
 
 if [ -f $name/111.txt ]; then
      echo "     NFS"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/111.txt/g" /opt/discover/resource/nfs.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/111.txt/g" /opt/discover/resource/nfs.rc
      cat /opt/discover/resource/nfs.rc >> $name/master.rc
 fi
 
 if [ -f $name/123.txt ]; then
      echo "     NTP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/123.txt/g" /opt/discover/resource/ntp.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/123.txt/g" /opt/discover/resource/ntp.rc
      cat /opt/discover/resource/ntp.rc >> $name/master.rc
 fi
 
 if [ -f $name/135.txt ]; then
      echo "     DCE/RPC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/135.txt/g" /opt/discover/resource/dcerpc.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/135.txt/g" /opt/discover/resource/dcerpc.rc
      cat /opt/discover/resource/dcerpc.rc >> $name/master.rc
 fi
 
 if [ -f $name/137.txt ]; then
      echo "     NetBIOS"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/137.txt/g" /opt/discover/resource/netbios.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/137.txt/g" /opt/discover/resource/netbios.rc
      cat /opt/discover/resource/netbios.rc >> $name/master.rc
 fi
 
 if [ -f $name/143.txt ]; then
      echo "     IMAP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/143.txt/g" /opt/discover/resource/imap.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/143.txt/g" /opt/discover/resource/imap.rc
      cat /opt/discover/resource/imap.rc >> $name/master.rc
 fi
 
 if [ -f $name/161.txt ]; then
      echo "     SNMP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/161.txt/g" /opt/discover/resource/snmp.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/161.txt/g" /opt/discover/resource/snmp.rc
      cat /opt/discover/resource/snmp.rc >> $name/master.rc
 fi
 
 if [ -f $name/407.txt ]; then
      echo "     Motorola"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/407.txt/g" /opt/discover/resource/motorola.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/407.txt/g" /opt/discover/resource/motorola.rc
      cat /opt/discover/resource/motorola.rc >> $name/master.rc
 fi
 
 if [ -f $name/443.txt ]; then
      echo "     VMware"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/443.txt/g" /opt/discover/resource/vmware.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/443.txt/g" /opt/discover/resource/vmware.rc
      cat /opt/discover/resource/motorola.rc >> $name/master.rc
 fi
 
 if [ -f $name/445.txt ]; then
      echo "     SMB"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/445.txt/g" /opt/discover/resource/smb.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/445.txt/g" /opt/discover/resource/smb.rc
      cat /opt/discover/resource/smb.rc >> $name/master.rc
 fi
 
 if [ -f $name/465.txt ]; then
      echo "     SMTP/S"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/465.txt/g" /opt/discover/resource/smtp2.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/465.txt/g" /opt/discover/resource/smtp2.rc
      cat /opt/discover/resource/smtp2.rc >> $name/master.rc
 fi
 
 if [ -f $name/502.txt ]; then
      echo "     SCADA Modbus Client Utility"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/502.txt/g" /opt/discover/resource/scada5.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/502.txt/g" /opt/discover/resource/scada5.rc
      cat /opt/discover/resource/scada5.rc >> $name/master.rc
 fi
 
 if [ -f $name/512.txt ]; then
      echo "     Rexec"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/512.txt/g" /opt/discover/resource/rservices.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/512.txt/g" /opt/discover/resource/rservices.rc
      cat /opt/discover/resource/rservices.rc >> $name/master.rc
 fi
 
 if [ -f $name/513.txt ]; then
      echo "     rlogin"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/513.txt/g" /opt/discover/resource/rservices2.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/513.txt/g" /opt/discover/resource/rservices2.rc
      cat /opt/discover/resource/rservices2.rc >> $name/master.rc
 fi
 
 if [ -f $name/514.txt ]; then
      echo "     rshell"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/514.txt/g" /opt/discover/resource/rservices3.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/514.txt/g" /opt/discover/resource/rservices3.rc
      cat /opt/discover/resource/rservices3.rc >> $name/master.rc
 fi
 
 if [ -f $name/523.txt ]; then
      echo "     db2"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/523.txt/g" /opt/discover/resource/db2.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/523.txt/g" /opt/discover/resource/db2.rc
      cat /opt/discover/resource/db2.rc >> $name/master.rc
 fi
 
 if [ -f $name/548.txt ]; then
      echo "     AFP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/548.txt/g" /opt/discover/resource/afp.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/548.txt/g" /opt/discover/resource/afp.rc
      cat /opt/discover/resource/afp.rc >> $name/master.rc
 fi
 
 if [ -f $name/623.txt ]; then
      echo "     IPMI"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/623.txt/g" /opt/discover/resource/ipmi.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/623.txt/g" /opt/discover/resource/ipmi.rc
      cat /opt/discover/resource/ipmi.rc >> $name/master.rc
 fi
 
 if [ -f $name/771.txt ]; then
      echo "     SCADA Digi"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/771.txt/g" /opt/discover/resource/scada2.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/771.txt/g" /opt/discover/resource/scada2.rc
      cat /opt/discover/resource/scada2.rc >> $name/master.rc
 fi
 
 if [ -f $name/902.txt ]; then
      echo "     VMware"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/902.txt/g" /opt/discover/resource/vmware2.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/902.txt/g" /opt/discover/resource/vmware2.rc
      cat /opt/discover/resource/motorola.rc >> $name/master.rc
 fi
 
 if [ -f $name/1099.txt ]; then
      echo "     RMI Registery"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1099.txt/g" /opt/discover/resource/rmi.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1099.txt/g" /opt/discover/resource/rmi.rc
      cat /opt/discover/resource/rmi.rc >> $name/master.rc
 fi
 
 if [ -f $name/1158.txt ]; then
      echo "     Oracle"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1158.txt/g" /opt/discover/resource/oracle.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1158.txt/g" /opt/discover/resource/oracle.rc
      cat /opt/discover/resource/oracle.rc >> $name/master.rc
 fi
 
 if [ -f $name/1433.txt ]; then
      echo "     MS-SQL"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1433.txt/g" /opt/discover/resource/mssql.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1433.txt/g" /opt/discover/resource/mssql.rc
      cat /opt/discover/resource/mssql.rc >> $name/master.rc
 fi
 
 if [ -f $name/1521.txt ]; then
      echo "     Oracle"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1521.txt/g" /opt/discover/resource/oracle3.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1521.txt/g" /opt/discover/resource/oracle3.rc
      cat /opt/discover/resource/oracle3.rc >> $name/master.rc
 fi
 
 if [ -f $name/1604.txt ]; then
      echo "     Citrix"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1604.txt/g" /opt/discover/resource/citrix.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1604.txt/g" /opt/discover/resource/citrix.rc
      cat /opt/discover/resource/citrix.rc >> $name/master.rc
 fi
 
 if [ -f $name/1720.txt ]; then
      echo "     H323"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1720.txt/g" /opt/discover/resource/h323.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1720.txt/g" /opt/discover/resource/h323.rc
      cat /opt/discover/resource/h323.rc >> $name/master.rc
 fi
 
 if [ -f $name/1900.txt ]; then
      echo "     UPnP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/1900.txt/g" /opt/discover/resource/upnp.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1900.txt/g" /opt/discover/resource/upnp.rc
      cat /opt/discover/resource/upnp.rc >> $name/master.rc
 fi
 
 if [ -f $name/2362.txt ]; then
      echo "     SCADA Digi"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/2362.txt/g" /opt/discover/resource/scada.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/2362.txt/g" /opt/discover/resource/scada.rc
      cat /opt/discover/resource/scada.rc >> $name/master.rc
 fi
 
 if [ -f $name/3000.txt ]; then
      echo "     EMC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3000.txt/g" /opt/discover/resource/emc.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/3000.txt/g" /opt/discover/resource/emc.rc
      cat /opt/discover/resource/emc.rc >> $name/master.rc
 fi
 
 if [ -f $name/3306.txt ]; then
      echo "     MySQL"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3306.txt/g" /opt/discover/resource/mysql.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/3306.txt/g" /opt/discover/resource/mysql.rc
      cat /opt/discover/resource/mysql.rc >> $name/master.rc
 fi
 
 if [ -f $name/3389.txt ]; then
      echo "     RDP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3389.txt/g" /opt/discover/resource/rdp.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/3389.txt/g" /opt/discover/resource/rdp.rc
      cat /opt/discover/resource/rdp.rc >> $name/master.rc
 fi
 
 if [ -f $name/3500.txt ]; then
      echo "     EMC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/3500.txt/g" /opt/discover/resource/emc2.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/3500.txt/g" /opt/discover/resource/emc2.rc
      cat /opt/discover/resource/emc2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5040.txt ]; then
      echo "     DCE/RPC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5040.txt/g" /opt/discover/resource/dcerpc2.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5040.txt/g" /opt/discover/resource/dcerpc2.rc
      cat /opt/discover/resource/dcerpc2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5060.txt ]; then
      echo "     SIP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5060.txt/g" /opt/discover/resource/sip.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5060.txt/g" /opt/discover/resource/sip.rc
      cat /opt/discover/resource/sip.rc >> $name/master.rc
 fi
 
 if [ -f $name/5060-tcp.txt ]; then
      echo "     SIP TCP"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5060-tcp.txt/g" /opt/discover/resource/sip2.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5060-tcp.txt/g" /opt/discover/resource/sip2.rc
      cat /opt/discover/resource/sip2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5432.txt ]; then
      echo "     Postgres"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5432.txt/g" /opt/discover/resource/postgres.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5432.txt/g" /opt/discover/resource/postgres.rc
      cat /opt/discover/resource/postgres.rc >> $name/master.rc
 fi
 
 if [ -f $name/5560.txt ]; then
      echo "     Oracle iSQL"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5560.txt/g" /opt/discover/resource/oracle2.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5560.txt/g" /opt/discover/resource/oracle2.rc
      cat /opt/discover/resource/oracle2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5631.txt ]; then
      echo "     pcAnywhere"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5631.txt/g" /opt/discover/resource/pcanywhere.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5631.txt/g" /opt/discover/resource/pcanywhere.rc
      cat /opt/discover/resource/pcanywhere.rc >> $name/master.rc
 fi
 
 if [ -f $name/5632.txt ]; then
      echo "     pcAnywhere"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5632.txt/g" /opt/discover/resource/pcanywhere2.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5632.txt/g" /opt/discover/resource/pcanywhere2.rc
      cat /opt/discover/resource/pcanywhere2.rc >> $name/master.rc
 fi
 
 if [ -f $name/5900.txt ]; then
      echo "     VNC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5900.txt/g" /opt/discover/resource/vnc.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5900.txt/g" /opt/discover/resource/vnc.rc
      cat /opt/discover/resource/vnc.rc >> $name/master.rc
 fi
 
 if [ -f $name/5920.txt ]; then
      echo "     Misc CCTV DVR"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5920.txt/g" /opt/discover/resource/misc.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5920.txt/g" /opt/discover/resource/misc.rc
      cat /opt/discover/resource/misc.rc >> $name/master.rc
 fi
 
 if [ -f $name/5984.txt ]; then
      echo "     CouchDB"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5984.txt/g" /opt/discover/resource/couchdb.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5984.txt/g" /opt/discover/resource/couchdb.rc
      cat /opt/discover/resource/couchdb.rc >> $name/master.rc
 fi
 
 if [ -f $name/5985.txt ]; then
      echo "     winrm"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/5985.txt/g" /opt/discover/resource/winrm.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5985.txt/g" /opt/discover/resource/winrm.rc
      cat /opt/discover/resource/winrm.rc >> $name/master.rc
 fi
 
 if [ -f $name/x11.txt ]; then
      echo "     x11"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/x11.txt/g" /opt/discover/resource/x11.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/x11.txt/g" /opt/discover/resource/x11.rc
      cat /opt/discover/resource/x11.rc >> $name/master.rc
 fi
 
 if [ -f $name/7777.txt ]; then
      echo "     Backdoor"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/7777.txt/g" /opt/discover/resource/backdoor.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/7777.txt/g" /opt/discover/resource/backdoor.rc
      cat /opt/discover/resource/backdoor.rc >> $name/master.rc
 fi
 
 if [ -f $name/8080.txt ]; then
      echo "     Tomcat"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8080.txt/g" /opt/discover/resource/tomcat.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/8080.txt/g" /opt/discover/resource/tomcat.rc
      cat /opt/discover/resource/tomcat.rc >> $name/master.rc
 fi
 
 #if [ -f $name/8080.txt ]; then
 #     echo "     ZENworks"
-#     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8080.txt/g" /opt/discover/resource/zenworks.rc
+#     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/8080.txt/g" /opt/discover/resource/zenworks.rc
 #     cat /opt/discover/resource/zenworks.rc >> $name/master.rc
 #fi
 
 if [ -f $name/8222.txt ]; then
      echo "     VMware"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8222.txt/g" /opt/discover/resource/vmware.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/8222.txt/g" /opt/discover/resource/vmware.rc
      cat /opt/discover/resource/vmware.rc >> $name/master.rc
 fi
 
 if [ -f $name/8400.txt ]; then
      echo "     Adobe"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8400.txt/g" /opt/discover/resource/adobe.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/8400.txt/g" /opt/discover/resource/adobe.rc
      cat /opt/discover/resource/adobe.rc >> $name/master.rc
 fi
 
 if [ -f $name/8834.txt ]; then
      echo "     Nessus"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/8834.txt/g" /opt/discover/resource/nessus.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/8834.txt/g" /opt/discover/resource/nessus.rc
      cat /opt/discover/resource/nessus.rc >> $name/master.rc
 fi
 
 if [ -f $name/9100.txt ]; then
      echo "     Printers"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/9100.txt/g" /opt/discover/resource/printers.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/9100.txt/g" /opt/discover/resource/printers.rc
      cat /opt/discover/resource/printers.rc >> $name/master.rc
 fi
 
 if [ -f $name/9999.txt ]; then
      echo "     Telnet"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/9999.txt/g" /opt/discover/resource/telnet3.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/9999.txt/g" /opt/discover/resource/telnet3.rc
      cat /opt/discover/resource/telnet3.rc >> $name/master.rc
 fi
 
 if [ -f $name/17185.txt ]; then
      echo "     VxWorks"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/17185.txt/g" /opt/discover/resource/vxworks.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/17185.txt/g" /opt/discover/resource/vxworks.rc
      cat /opt/discover/resource/vxworks.rc >> $name/master.rc
 fi
 
 if [ -f $name/28784.txt ]; then
      echo "     SCADA Koyo DirectLogic PLC"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/28784.txt/g" /opt/discover/resource/scada4.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/28784.txt/g" /opt/discover/resource/scada4.rc
      cat /opt/discover/resource/scada4.rc >> $name/master.rc
 fi
 
 if [ -f $name/30718.txt ]; then
      echo "     Telnet"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/30718.txt/g" /opt/discover/resource/telnet2.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/30718.txt/g" /opt/discover/resource/telnet2.rc
      cat /opt/discover/resource/telnet2.rc >> $name/master.rc
 fi
 
 if [ -f $name/46824.txt ]; then
      echo "     SCADA Sielco Sistemi"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/46824.txt/g" /opt/discover/resource/scada6.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/46824.txt/g" /opt/discover/resource/scada6.rc
      cat /opt/discover/resource/scada6.rc >> $name/master.rc
 fi
 
 if [ -f $name/50000.txt ]; then
      echo "     db2"
-     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/scripts\/$name\/50000.txt/g" /opt/discover/resource/db2-2.rc
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/50000.txt/g" /opt/discover/resource/db2-2.rc
      cat /opt/discover/resource/db2-2.rc >> $name/master.rc
 fi
 
