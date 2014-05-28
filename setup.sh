@@ -60,6 +60,6 @@ echo
 
 ## Create data directory
 echo -e "\e[1;33mCreating Data Directory.\e[0m"
-mkdir -p /$user/data/discover
+mkdir -p /$user/data
 echo
 
