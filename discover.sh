@@ -163,7 +163,8 @@ case $choice in
      grep $domain tmp | egrep -v '(Performing Google|Records Found)' > tmp2
      # Remove first 6 characters from each line
      sed 's/^......//' tmp2 > tmp3
-     sed 's/A //g' tmp3 | sed 's/CNAME //g' | column -t | sort -u > subdomains1
+     sed 's/A //g' tmp3 | sed 's/CNAME //g' | column -t | sort -u > sub1
+     echo
     
      echo "goofile                   (2/$total)"
      goofile -d $domain -f doc > tmp
@@ -301,7 +302,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
      column -t tmp3 > tmp4
      # Change to lower case
      cat tmp4 | tr '[A-Z]' '[a-z]' > tmp5
-     grep $domain tmp5 | sort -u > subdomains2
+     sed 's/<strong>//g; s/<//g' tmp5 | grep $domain | columnt -t | sort -u > sub2
 
      ##############################################################
 
@@ -396,13 +397,13 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      echo "ewhois.com                (21/$total)"
      wget -q http://www.ewhois.com/$domain/ -O tmp
-     cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > subdomains3
+     cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > sub3
 
      echo "myipneighbors.net         (22/$total)"
      wget -q http://www.myipneighbors.net/?s=$domain -O tmp
-grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > subdomains4
+grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
 
-     cat subdomain* | grep -v "$domain\." | sed 's/www\.//g' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
+     cat sub* | grep -v "$domain\." | sed 's/www\.//g' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
      
      echo "urlvoid.com               (23/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
@@ -534,7 +535,7 @@ grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /
      cat whois-ip >> /$user/$domain/data/whois-ip.htm; echo "</pre>" >> /$user/$domain/data/whois-ip.htm
      cat zreport >> /$user/$domain/data/passive-recon.htm; echo "</pre>" >> /$user/$domain/data/passive-recon.htm
 
-     rm emails hosts names squatting subdomains* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm emails hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
      echo
      echo $medium
