@@ -97,3 +97,4 @@ f_datadir()
 
 f_inst_tools
 f_vrfy_repos
+f_datadir
