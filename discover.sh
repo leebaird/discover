@@ -401,7 +401,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      echo "myipneighbors.net         (22/$total)"
      wget -q http://www.myipneighbors.net/?s=$domain -O tmp
-grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
+     grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
 
      cat sub* | grep -v "$domain\." | sed 's/www\.//g' | column -t | sort -u > subdomains
      
