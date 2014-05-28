@@ -163,7 +163,7 @@ case $choice in
      grep $domain tmp | egrep -v '(Performing Google|Records Found)' > tmp2
      # Remove first 6 characters from each line
      sed 's/^......//' tmp2 > tmp3
-     sed 's/A //g' tmp3 | sed 's/CNAME //g' | column -t | sort -u > sub1
+     sed 's/A //g' tmp3 | sed 's/CNAME //g' | awk '$2 !~ /[a-z]/' | column -t | sort -u > sub1
      echo
     
      echo "goofile                   (2/$total)"
@@ -403,7 +403,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
      wget -q http://www.myipneighbors.net/?s=$domain -O tmp
 grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
 
-     cat sub* | grep -v "$domain\." | sed 's/www\.//g' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
+     cat sub* | grep -v "$domain\." | sed 's/www\.//g' | column -t | sort -u > subdomains
      
      echo "urlvoid.com               (23/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
