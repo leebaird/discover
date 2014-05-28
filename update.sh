@@ -13,8 +13,9 @@ if [ -d /opt/discover/.git ]; then
      cd /opt/discover/ ; git pull ; echo
      cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
 else
-     rm -rf /opt/scripts/
-     echo -e "\e[1;33mInstalling scripts into new location: /opt/discover/.\e[0m"
+     #rm -rf /opt/scripts/
+     echo -e "\e[1;33mPlease remove old scripts dir (/opt/scripts) if necessary.\e[0m"
+	 echo -e "\e[1;33mInstalling scripts into new location: /opt/discover/.\e[0m"
      git clone git://github.com/leebaird/discover.git /opt/discover
      echo
 fi
