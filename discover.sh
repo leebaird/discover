@@ -302,7 +302,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
      column -t tmp3 > tmp4
      # Change to lower case
      cat tmp4 | tr '[A-Z]' '[a-z]' > tmp5
-     sed 's/<strong>//g; s/<//g' tmp5 | grep $domain | columnt -t | sort -u > sub2
+     sed 's/<strong>//g; s/<//g' tmp5 | grep $domain | column -t | sort -u > sub2
 
      ##############################################################
 
