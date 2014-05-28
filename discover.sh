@@ -151,13 +151,21 @@ case $choice in
      fi
 
      # Number of tests
-     total=21
+     total=23
 
      echo
      echo $medium
      echo
 
-     echo "goofile                   (1/$total)"
+     echo
+     echo "dnsrecon                  (1/$total)"
+     dnsrecon -d $domain -t goo > tmp
+     grep $domain tmp | egrep -v '(Performing Google|Records Found)' > tmp2
+     # Remove first 6 characters from each line
+     sed 's/^......//' tmp2 > tmp3
+     sed 's/A //g' tmp3 | sed 's/CNAME //g' | column -t | sort -u > subdomains1
+    
+     echo "goofile                   (2/$total)"
      goofile -d $domain -f doc > tmp
      goofile -d $domain -f docx >> tmp
      goofile -d $domain -f pdf >> tmp
@@ -176,7 +184,7 @@ case $choice in
      grep '.xls' tmp2 > xls
 
      echo
-     echo "goog-mail                 (2/$total)"
+     echo "goog-mail                 (3/$total)"
      /opt/discover/mods/goog-mail.py $domain | sort -u > tmp
      grep -Fv '..' tmp > tmp2
      # Remove lines that start with a number
@@ -188,9 +196,9 @@ case $choice in
 
      echo
      echo "goohost"
-     echo "     IP                   (3/$total)"
+     echo "     IP                   (4/$total)"
      /opt/discover/mods/goohost.sh -t $domain -m ip >/dev/null
-     echo "     Email                (4/$total)"
+     echo "     Email                (5/$total)"
      /opt/discover/mods/goohost.sh -t $domain -m mail >/dev/null
      cat report-* > tmp
      # Move the second column to the first position
@@ -200,29 +208,29 @@ case $choice in
 
      echo
      echo "theharvester"
-     echo "     Ask-mod              (5/$total)"
+     echo "     Ask-mod              (6/$total)"
      /opt/discover/mods/theHarvester2.py -d $domain -b ask > zask-mod
-     echo "     Bing                 (6/$total)"
+     echo "     Bing                 (7/$total)"
      theharvester -d $domain -b bing > zbing
-     echo "     Google               (7/$total)"
+     echo "     Google               (8/$total)"
      theharvester -d $domain -b google > zgoogle
-     echo "     Google Profiles	  (8/$total)"
+     echo "     Google Profiles	  (9/$total)"
      theharvester -d $domain -b google-profiles > zgoogle-profiles
-     echo "     Jigsaw               (9/$total)"
+     echo "     Jigsaw               (10/$total)"
      theharvester -d $domain -b jigsaw > zjigsaw
-     echo "     LinkedIn             (10/$total)"
+     echo "     LinkedIn             (11/$total)"
      theharvester -d $domain -b linkedin > zlinkedin
-     echo "     Login-mod            (11/$total)"
+     echo "     Login-mod            (12/$total)"
      /opt/discover/mods/theHarvester2.py -d $domain -b login > zlogin-mod
-     echo "     PGP                  (12/$total)"
+     echo "     PGP                  (13/$total)"
      theharvester -d $domain -b pgp > zpgp
-     echo "     Yahoo-mod            (13/$total)"
+     echo "     Yahoo-mod            (14/$total)"
      /opt/discover/mods/theHarvester2.py -d $domain -b yahoo > zyahoo-mod
-     echo "     All                  (14/$total)"
+     echo "     All                  (15/$total)"
      theharvester -d $domain -b all > zall
 
      echo
-     echo "Metasploit                (15/$total)"
+     echo "Metasploit                (16/$total)"
      /opt/metasploit/msf3/msfcli gather/search_email_collector DOMAIN=$domain E > tmp 2>/dev/null
      grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sort -u > tmp2
      # Change to lower case
@@ -231,16 +239,8 @@ case $choice in
      sed '/^$/d' tmp3 > zmsf
 
      echo
-     echo "dnsrecon                  (16/$total)"
-     dnsrecon -d $domain -t goo > tmp
-     grep $domain tmp | egrep -v '(Performing Google|Records Found)' > tmp2
-     # Remove first 6 characters from each line
-     sed 's/^......//' tmp2 > tmp3
-     sed 's/A //g' tmp3 | sed 's/CNAME //g' | column -t | sort -u > subdomains1.txt
-
-     echo
      echo "URLCrazy                  (17/$total)"
-	urlcrazy $domain -o tmp > /dev/null
+     urlcrazy $domain -o tmp > /dev/null
      # Clean up
      egrep -v '(#|:|\?|RESERVED|Typo Type|URLCrazy)' tmp | sed 's/[A-Z]\{2\},//g' > tmp2
      # Remove lines that start with -
@@ -301,8 +301,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
      column -t tmp3 > tmp4
      # Change to lower case
      cat tmp4 | tr '[A-Z]' '[a-z]' > tmp5
-     grep $domain tmp5 | sort -u > subdomains2.txt
-     cat subdomain* | grep -v "$domain\." | egrep -v '(<|.nat.|252f|1.1.1.1|6.9.6.9|127.0.0.1)' | sed 's/www\.//g' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
+     grep $domain tmp5 | sort -u > subdomains2
 
      ##############################################################
 
@@ -395,7 +394,17 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
      s/Your nameservers/Nameservers/g; s/Your NS records at your nameservers are://g; s/Your NS records at your parent nameserver are://g; 
      s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > /$user/$domain/data/config.htm
 
-     echo "urlvoid.com               (21/$total)"
+     echo "ewhois.com                (21/$total)"
+     wget -q http://www.ewhois.com/$domain/ -O tmp
+     cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > subdomains3
+
+     echo "myipneighbors.net         (22/$total)"
+     wget -q http://www.myipneighbors.net/?s=$domain -O tmp
+grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > subdomains4
+
+     cat subdomain* | grep -v "$domain\." | sed 's/www\.//g' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
+     
+     echo "urlvoid.com               (23/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
      sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > /$user/$domain/data/black-listed.htm
 
