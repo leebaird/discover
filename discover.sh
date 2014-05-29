@@ -535,7 +535,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
      cat whois-ip >> /$user/$domain/data/whois-ip.htm; echo "</pre>" >> /$user/$domain/data/whois-ip.htm
      cat zreport >> /$user/$domain/data/passive-recon.htm; echo "</pre>" >> /$user/$domain/data/passive-recon.htm
 
-     rm emails hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm emails hosts names squatting tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
      echo
      echo $medium

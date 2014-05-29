@@ -1,9 +1,9 @@
 Introduction:
 
-This help file will talk about python3 as new scripts or old should be converted to python 3
-reason for this is you get access to more libaries and because python2 is on its way to being deprecated
+This help file will talk about python 3 as new scripts or old should be converted to python 3
+reason for this is you get access to more libaries and because python 2 is on its way to being deprecated.
 
-python colours:
+Colours:
 
 yellow = '\033[93m'
 end_colour = '\033[0m'
@@ -20,9 +20,9 @@ import platform
 import sys
 import subprocess
 
-To find out what funtions are stored in a libary open a terminal and type in python3 all one word or use idle
-once you are in the python shell and have imported the module you want to use for example os type in os. then hit tab twice you will get
-output like this related to that module 
+To find out what funtions are stored in a libary, open a terminal and type in python3.
+Once in the python shell and have imported the module you want to use for example os type in os.
+Hit tab twice you will get output like this related to that module.
 
                 os.CLD_CONTINUED             os.environb
                 os.CLD_DUMPED                os.errno
@@ -200,42 +200,36 @@ output like this related to that module
                 os.dup2(                     os.writev(
                 os.environ
 
+Variables:
 
-variables:
-
-To create a variable you select the name you want it to be for example foo which is the name of the variable and you want it to be asinged to a
-string of "example output" so when you combind this together you get
+To create a variable, you select the name you want it to be. For example, foo which is the name of the variable and you want it to 
+be asinged to a string of "example output" so when you combind this together you get:
 
     foo = "example output"
 
-then we do this
+Then we do this:
 
     print(foo)
 
-will output to the terminal example output
+Functions:
 
-functions:
-
-In python the syntax for a function is def, you use def then name of function then (): this would look like this
+The syntax for a function is def, you use def then name of function then ():.
 
     def example():
         print(foo)
 
-you would then call the function example() which would then print what we talked about in variables.
+Then call the function example(), which would print what we talked about in variables.
 
-user input:
+User Input:
 
-To get user input you use the input command which is followed by text in prenthises, so for example
-we will first asign the input to a variable name user_input
+Use the input command, which is followed by text in prenthises. For example, asign the input to a variable called user_input.
 
     user_input = input("Enter your name: ")
     print(user_input)
 
-which would print your name
-
 If statments:
 
-If statments are used to do condtional checks depending on what you define, for example
+Used to do condtional checks depending on what you define.
 
     def example():
     user_input = input("do you like apples?[yes|no]: ")
@@ -246,12 +240,11 @@ If statments are used to do condtional checks depending on what you define, for 
         print("Thats too bad, they taste great")
 example()
 
-As you can see we do a check to make sure that it equals to yes which if true will output me to but if the user inputs no then the else part of 
-the if statment runs which outputs to bad they taste great.
+As you can see, we do a check to make sure that it equals yes, which if true, will output me to but if the user inputs no then the 
+else part of the if statment runs which outputs to bad they taste great.
 
 Indentation:
 
-In python you need to when you create functions the code inside that function needs to be indented by 4 spaces. if you get this wrong which is 
-easy to do when you run your script you will get a syntax error saying invalid indention. this is one of the difficulties learning python is 
-getting this correct. 
+When you create functions, the code inside that function needs to be indented by 4 spaces. If you get this wrong, you will get a syntax 
+error saying invalid indention.
 
