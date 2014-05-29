@@ -60,7 +60,7 @@ Create a free account at salesforce (https://connect.data.com/login).
 Perform a search on your target company > select the company name > see all.
 Copy the results into a new file.
 
-Enter the location of your list:
+Enter the location of your list: 
 ```
 
 * Gather names and positions into a clean list.
