@@ -1,166 +1,40 @@
-set workspace $company
-set company $company
-set domain $domain
-
-use discovery/info_disclosure/dns/cache_snoop
-set nameserver
-run
-back
-
-use discovery/info_disclosure/http/google_ids
-url
-run
-back
-
-use experimental/rce
-set base_url
-set parameters
-set post
-run
-back
-
-use recon/contacts/enum/http/web/dev_diver
-set username
-run
-back
-
-use recon/contacts/enum/http/web/namechk
-set username
-run
-back
-
-use recon/contacts/gather/http/web/jigsaw
-set company
-run
-back
-
-use recon/contacts/gather/http/web/pgp_search
-set domain
-run
-back
-
-use recon/hosts/enum/dns/resolve
-set nameserver
-run
-back
-
-use recon/hosts/enum/http/web/age_analyzer
-set host
-run
-back
-
-use recon/hosts/enum/http/web/asafaweb
-set host
-run
-back
-
-use recon/hosts/enum/http/web/gender_analyzer
-set host
-run
-back
-
-use recon/hosts/enum/http/web/malwaredomain
-set domain
-run
-back
-
-use recon/hosts/enum/http/web/mywot
-set domain
-run
-back
-
-use recon/hosts/enum/http/web/web_archive
-set domain
-run
-back
-
-use recon/hosts/enum/http/web/xssed
-set domain
-run
-back
-
-use recon/hosts/gather/dns/brute_force
-set domain
-set nameserver
-run
-back
-
-use recon/hosts/gather/dns/reverse_resolve
-set subnet
-run
-back
-
-use recon/hosts/gather/http/web/baidu_site
-set domain
-run
-back
+workspace $domain
+set COMPANY $company
+set DOMAIN $domain
 
 use recon/hosts/gather/http/web/bing_domain
-set domain
 run
-back
-
-use recon/hosts/gather/http/web/census_2012
-set range
-run
-back
-
 use recon/hosts/gather/http/web/google_site
-set domain
 run
-back
-
 use recon/hosts/gather/http/web/netcraft
-set domain
 run
-back
-
 use recon/hosts/gather/http/web/yahoo_site
-set domain
 run
-back
-
-use recon/hosts/geo/http/web/wigle
-set latitude
-set longitude
-set password
-set radius
-set username
+use recon/hosts/gather/http/api/shodan_hostname
 run
-back
-
-use recon/pushpin/flickr
-set latitude
-set longitude
-set radius
+use recon/hosts/enum/dns/resolve
 run
-back
-
-use recon/pushpin/picasa
-set latitude
-set longitude
-set radius
+use recon/hosts/gather/http/web/ip_neighbor
 run
-back
-
-use recon/pushpin/shodan
-set latitude
-set longitude
-set radius
+use recon/hosts/gather/http/api/bing_ip
 run
-back
-
-use recon/pushpin/twitter
-set latitude
-set longitude
-set radius
+use recon/hosts/geo/http/api/ipinfodb
 run
-back
-
-use recon/pushpin/youtube
-set latitude
-set longitude
-set radius
+use recon/hosts/enum/http/api/builtwith
 run
-back
+use recon/hosts/enum/http/api/punkspider
+run
+use recon/hosts/gather/http/web/census_2012
+run
+use recon/contacts/gather/http/api/whois_pocs
+run
+use recon/contacts/gather/http/web/pgp_search
+run
+use recon/creds/gather/http/api/pwnedlist/domain_ispwned
+run
+use recon/contacts/enum/http/web/pwnedlist
+run
+use recon/creds/gather/http/api/pwnedlist/domain_creds
+run
+show dashboard
 
