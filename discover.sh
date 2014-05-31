@@ -3195,6 +3195,7 @@ echo >> tmp-updates
 
 mv tmp-updates /$user/data/updates
 rm tmp*
+rm sub*
 
 echo
 echo $medium
