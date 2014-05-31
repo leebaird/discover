@@ -41,10 +41,15 @@ f_inst_repos()
 	cp -p /etc/apt/sources.list /etc/apt/sources.list.$bdate.bak
 
 	## Remove all previous kali.org repo lines as well as ours in case of multiple times running setup
+	sed -i '/^#.$/d' /etc/apt/sources.list
+	sed -i '/Security updates/d' /etc/apt/sources.list
+	sed -i '/cdrom/d' /etc/apt/sources.list
 	sed -i '/Regular repos/d' /etc/apt/sources.list
 	sed -i '/Source repos/d' /etc/apt/sources.list
 	sed -i '/Bleeding Edge repos/d' /etc/apt/sources.list
 	sed -i '/kali.org/d' /etc/apt/sources.list
+
+
 
 	## Add remaining sources from sources.list after cleaning to temp file
 	cat /etc/apt/sources.list > /tmp/sources.leftover
