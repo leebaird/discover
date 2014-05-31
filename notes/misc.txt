@@ -59,17 +59,19 @@ intitle
 
 # recon-ng
 
-use recon/contacts/gather/http/web/jigsaw       # Search for contacts
-set COMPANY <target>
-run
+show schema
+show hosts|contacts|creds
 
-use recon/hosts/gather/http/web/google_site     # Search for subdomains
-set COMPANY <target>
-run
+query SELECT <field, field2|*> FROM <hosts|contacts|creds> WHERE <field>='value' ORDER BY <field>
+query SELECT * FROM hosts ORDER BY host
+query SELECT host, ip_address FROM hosts ORDER BY host
+query SELECT email FROM contacts ORDER BY email
+query SELECT * FROM contacts ORDER BY fname
+query SELECT fname, lname FROM contacts ORDER BY fname
+query SELECT lname, fname FROM contacts ORDER BY lname
+query DELETE FROM hosts WHERE ip_address='192.168.2.12'
 
-use recon/hosts/gather/http/web/ip_neighbor     # Search for neighbouring IP addresses
-set COMPANY <target>
-run
+use recon/hosts/gather/dns/brute_hosts          # active
 ------------------------------------------------------------------------------------------------------
 
 # debug.exe
