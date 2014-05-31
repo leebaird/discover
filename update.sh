@@ -55,7 +55,6 @@ if [ -d /opt/veil/.git ]; then
      rm -rf /opt/veil
      apt-get -y install veil-evasion veil-catapult
      echo
-
 fi
 
 if [ ! -f /usr/share/windows-binaries/wce.exe ]; then

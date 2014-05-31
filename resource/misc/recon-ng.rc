@@ -1,6 +1,6 @@
-workspace $domain
-set COMPANY $company
-set DOMAIN $domain
+workspace yyy
+set COMPANY xxx
+set DOMAIN yyy
 
 use recon/hosts/gather/http/web/bing_domain
 run
