@@ -3190,6 +3190,45 @@ exit
 
 ##############################################################################################################
 
+f_reconng(){
+clear
+echo
+echo
+
+echo "
+For best results, you will need to acquire keys for the following APIs and add them to recon-ng.
+See: https://bitbucket.org/LaNMaSteR53/recon-ng/wiki/Usage%20Guide
+
+keys add <API> <value>
+
+arin_api
+bing_api
+builtwith_api
+google_api
+google_cse
+ipinfodb_api
+linkedin_api
+linkedin_secret
+shodan_api
+virustotal_api"
+echo
+echo "Usage:"
+echo "Company: Target"
+echo "Domain:  target.com"
+echo
+echo -n "Company: "
+read company
+echo -n "Domain:  "
+read domain
+
+cp /opt/discover/resource/misc/recon-ng.rc /tmp/
+sed -i "s/xxx/$company/g" /tmp/recon-ng.rc
+sed -i "s/yyy/$domain/g" /tmp/recon-ng.rc
+
+recon-ng -r /tmp/recon-ng.rc
+}
+##############################################################################################################
+
 f_main(){
 clear
 f_banner
@@ -3234,6 +3273,7 @@ case $choice in
      12) f_listener;;
      13) /opt/discover/update.sh && exit;;
      14) clear && exit;;
+     98) f_reconng;;
      99) f_updates;;
      *) f_error;;
 esac

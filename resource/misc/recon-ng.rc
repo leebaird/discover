@@ -30,11 +30,7 @@ use recon/contacts/gather/http/api/whois_pocs
 run
 use recon/contacts/gather/http/web/pgp_search
 run
-use recon/creds/gather/http/api/pwnedlist/domain_ispwned
-run
 use recon/contacts/enum/http/web/pwnedlist
-run
-use recon/creds/gather/http/api/pwnedlist/domain_creds
 run
 show dashboard
 
