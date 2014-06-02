@@ -36,5 +36,5 @@ run
 use recon/contacts/gather/http/web/pgp_search
 run
 
+back
 show dashboard
-
