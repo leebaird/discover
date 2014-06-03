@@ -2,35 +2,37 @@ workspace yyy
 set COMPANY xxx
 set DOMAIN yyy
 
+use recon/hosts/gather/http/web/baidu_site
+run
 use recon/hosts/gather/http/web/bing_domain
 run
+use recon/hosts/gather/http/web/census_2012
+run
 use recon/hosts/gather/http/web/google_site
+run
+use recon/hosts/gather/http/web/ip_neighbor
 run
 use recon/hosts/gather/http/web/netcraft
 run
 use recon/hosts/gather/http/web/yahoo_site
 run
+use recon/hosts/gather/http/api/bing_domain
+run
+use recon/hosts/gather/http/api/bing_ip
+run
+use recon/hosts/gather/http/api/google_site
+run
 use recon/hosts/gather/http/api/shodan_hostname
 run
 use recon/hosts/enum/dns/resolve
 run
-use recon/hosts/gather/http/web/ip_neighbor
-run
-use recon/hosts/gather/http/api/bing_ip
-run
 use recon/hosts/geo/http/api/ipinfodb
 run
-use recon/hosts/enum/http/api/builtwith
-run
-use recon/hosts/enum/http/api/punkspider
-run
-use recon/hosts/gather/http/web/census_2012
-run
+
 use recon/contacts/gather/http/api/whois_pocs
 run
 use recon/contacts/gather/http/web/pgp_search
 run
-use recon/contacts/enum/http/web/pwnedlist
-run
-show dashboard
 
+back
+show dashboard
