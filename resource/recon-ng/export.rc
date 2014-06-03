@@ -1,0 +1,6 @@
+spool start /opt/discover/tmp
+show hosts
+spool stop
+spool start /opt/discover/tmp2
+show contacts
+back

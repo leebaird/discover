@@ -93,8 +93,10 @@ john hashes -w=/usr/share/wordlists/rockyou.txt --format=nt
 
 # recon-ng
 
+recon-ng -w <workspace> -r <file>
 show schema
 show hosts|contacts|creds
+spool start <file>
 
 query SELECT <field, field2|*> FROM <hosts|contacts|creds> WHERE <field>='value' ORDER BY <field>
 query SELECT * FROM hosts ORDER BY host

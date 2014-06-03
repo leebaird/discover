@@ -3229,6 +3229,13 @@ recon-ng -r /tmp/recon-ng.rc
 }
 ##############################################################################################################
 
+f_parse(){
+recon-ng -w loc.gov -r /opt/discover/test.rc 
+cat /opt/discover/tmp | grep 'loc.gov' | grep -v '\[' | cut -d '|' -f2 | sort -u > sub
+exit
+}
+##############################################################################################################
+
 f_main(){
 clear
 f_banner
@@ -3273,6 +3280,7 @@ case $choice in
      12) f_listener;;
      13) /opt/discover/update.sh && exit;;
      14) clear && exit;;
+     97) f_parse;;
      98) f_reconng;;
      99) f_updates;;
      *) f_error;;
