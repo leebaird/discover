@@ -3196,21 +3196,17 @@ echo
 echo
 
 echo "
-For best results, you will need to acquire keys for the following APIs and add them to recon-ng.
+For best results, you should acquire keys to the following APIs and add them to recon-ng.
 See: https://bitbucket.org/LaNMaSteR53/recon-ng/wiki/Usage%20Guide
 
 keys add <API> <value>
 
 arin_api
 bing_api
-builtwith_api
 google_api
 google_cse
 ipinfodb_api
-linkedin_api
-linkedin_secret
-shodan_api
-virustotal_api"
+shodan_api"
 echo
 echo "Usage:"
 echo "Company: Target"
@@ -3221,17 +3217,19 @@ read company
 echo -n "Domain:  "
 read domain
 
-cp /opt/discover/resource/misc/recon-ng.rc /tmp/
-sed -i "s/xxx/$company/g" /tmp/recon-ng.rc
-sed -i "s/yyy/$domain/g" /tmp/recon-ng.rc
+cp /opt/discover/resource/recon-ng/passive.rc /tmp/
+sed -i "s/xxx/$company/g" /tmp/passive.rc
+sed -i "s/yyy/$domain/g" /tmp/passive.rc
 
-recon-ng -r /tmp/recon-ng.rc
+recon-ng -r /tmp/passive.rc
 }
 ##############################################################################################################
 
 f_parse(){
-recon-ng -w loc.gov -r /opt/discover/test.rc 
-cat /opt/discover/tmp | grep 'loc.gov' | grep -v '\[' | cut -d '|' -f2 | sort -u > sub
+recon-ng -w loc.gov -r /opt/discover/resource/recon-ng/export.rc 
+cat tmp | grep 'loc.gov' | grep -v '\[' | cut -d '|' -f2 | sort -u > zsub
+cat tmp2 | grep '@' | cut -d '|' -f4 | sed 's/^[ \t]*//' | sort -u > zemails
+cat tmp2 | grep '@' | cut -d '|' -f2,3 | sed 's/|//g; s/,//g' | awk '{print $1 " " $2}' | sort -u > znames
 exit
 }
 ##############################################################################################################
