@@ -64,10 +64,10 @@ Background: Solid color
 
 # Install Discover scripts
 
-git clone git://github.com/leebaird/discover.git /opt/scripts/
-cd /opt/scripts/
+git clone git://github.com/leebaird/discover.git /opt/discover/
+cd /opt/discover/
 ./setup.sh
-Enable aliases: cp /opt/scripts/alias /root/.bash_aliases ; source /root/.bash_aliases
+Enable aliases: cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
 Exit the Terminal
 Open a new Terminal
 update
