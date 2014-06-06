@@ -19,7 +19,7 @@
 
 ##############################################################################################################
 
-# Variables
+# Global variables
 distro=$(uname -n)
 interface=$(ifconfig | grep -B10 'Loopback'| grep 'Ethernet' | cut -d ' ' -f1)
 ip=$(ifconfig | grep 'inet addr'| grep -v '127.0.0.1' | cut -d 'B' -f1 | cut -d ':' -f2)
