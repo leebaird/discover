@@ -157,7 +157,6 @@ case $choice in
      echo $medium
      echo
 
-     echo
      echo "dnsrecon                  (1/$total)"
      dnsrecon -d $domain -t goo > tmp
      grep $domain tmp | egrep -v '(Performing Google|Records Found)' > tmp2
@@ -423,25 +422,27 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      echo > tmp
 
-     if [ -f emails ]; then                                            # not catching an empty file
+     if [ -e emails ]; then
           emailcount=$(wc -l emails | cut -d ' ' -f1)
           echo "Emails        $emailcount" >> zreport
           echo "Emails ($emailcount)" >> tmp
           echo $short >> tmp
           cat emails >> tmp
           echo >> tmp
+          cat emails >> /$user/data/$domain/data/emails.htm
      fi
 
-     if [ -f names ]; then
+     if [ -e names ]; then
           namecount=$(wc -l names | cut -d ' ' -f1)
           echo "Names         $namecount" >> zreport
           echo "Names ($namecount)" >> tmp
           echo $short >> tmp
           cat names >> tmp
           echo >> tmp
+          cat names >> /$user/data/$domain/data/names.htm
      fi
 
-     if [ -f hosts ]; then
+     if [ -e hosts ]; then
           hostcount=$(wc -l hosts | cut -d ' ' -f1)
           echo "Hosts         $hostcount" >> zreport
           echo "Hosts ($hostcount)" >> tmp
@@ -450,25 +451,27 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
           echo >> tmp
      fi
 
-     if [ -f squatting ]; then                                         # not catching an empty file
+     if [ -e squatting ]; then
           urlcount2=$(wc -l squatting | cut -d ' ' -f1)
           echo "Squatting     $urlcount2" >> zreport
           echo "Squatting ($urlcount2)" >> tmp
           echo $long >> tmp
           cat squatting >> tmp
           echo >> tmp
+          cat squatting >> /$user/data/$domain/data/squatting.htm
      fi
 
-     if [ -f subdomains ]; then
+     if [ -e subdomains ]; then
           urlcount=$(wc -l subdomains | cut -d ' ' -f1)
           echo "Subdomains    $urlcount" >> zreport
           echo "Subdomains ($urlcount)" >> tmp
           echo $long >> tmp
           cat subdomains >> tmp
           echo >> tmp
+          cat subdomains >> /$user/data/$domain/data/subdomains.htm
      fi
 
-     if [ -f xls ]; then
+     if [ -e xls ]; then
           xlscount=$(wc -l xls | cut -d ' ' -f1)
           echo "Excel         $xlscount" >> zreport
           echo "Excel Files ($xlscount)" >> tmp
@@ -478,7 +481,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
           cat xls >> /$user/data/$domain/data/xls.htm; echo "</pre>" >> /$user/data/$domain/data/xls.htm
      fi
 
-     if [ -f pdf ]; then
+     if [ -e pdf ]; then
           pdfcount=$(wc -l pdf | cut -d ' ' -f1)
           echo "PDF           $pdfcount" >> zreport
           echo "PDF Files ($pdfcount)" >> tmp
@@ -488,7 +491,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
           cat pdf >> /$user/data/$domain/data/pdf.htm; echo "</pre>" >> /$user/data/$domain/data/pdf.htm
      fi
 
-     if [ -f ppt ]; then
+     if [ -e ppt ]; then
           pptcount=$(wc -l ppt | cut -d ' ' -f1)
           echo "PowerPoint    $pptcount" >> zreport
           echo "PowerPoint Files ($pptcount)" >> tmp
@@ -498,7 +501,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
           cat ppt >> /$user/data/$domain/data/ppt.htm; echo "</pre>" >> /$user/data/$domain/data/ppt.htm
      fi
 
-     if [ -f txt ]; then
+     if [ -e txt ]; then
           txtcount=$(wc -l txt | cut -d ' ' -f1)
           echo "Text          $txtcount" >> zreport
           echo "Text Files ($txtcount)" >> tmp
@@ -508,7 +511,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
           cat txt >> /$user/data/$domain/data/txt.htm; echo "</pre>" >> /$user/data/$domain/data/txt.htm
      fi
 
-     if [ -f doc ]; then
+     if [ -e doc ]; then
           doccount=$(wc -l doc | cut -d ' ' -f1)
           echo "Word          $doccount" >> zreport
           echo "Word Files ($doccount)" >> tmp
@@ -527,10 +530,10 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
      echo $long >> zreport
      cat whois-ip >> zreport
 
-     cat emails >> /$user/data/$domain/data/emails.htm; echo "</pre>" >> /$user/data/$domain/data/emails.htm
-     cat names >> /$user/data/$domain/data/names.htm; echo "</pre>" >> /$user/data/$domain/data/names.htm
-     cat squatting >> /$user/data/$domain/data/squatting.htm; echo "</pre>" >> /$user/data/$domain/data/squatting.htm
-     cat subdomains >> /$user/data/$domain/data/subdomains.htm; echo "</pre>" >> /$user/data/$domain/data/subdomains.htm
+     echo "</pre>" >> /$user/data/$domain/data/emails.htm
+     echo "</pre>" >> /$user/data/$domain/data/names.htm
+     echo "</pre>" >> /$user/data/$domain/data/squatting.htm
+     echo "</pre>" >> /$user/data/$domain/data/subdomains.htm
      cat whois-domain >> /$user/data/$domain/data/whois-domain.htm; echo "</pre>" >> /$user/data/$domain/data/whois-domain.htm
      cat whois-ip >> /$user/data/$domain/data/whois-ip.htm; echo "</pre>" >> /$user/data/$domain/data/whois-ip.htm
      cat zreport >> /$user/data/$domain/data/passive-recon.htm; echo "</pre>" >> /$user/data/$domain/data/passive-recon.htm

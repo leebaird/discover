@@ -68,26 +68,18 @@ sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4         # Sort IPs
 sed "s/$FOO./$FOO/g"                                # Variables - use double quotes with sed or grep
 ------------------------------------------------------------------------------------------------------
 
-# Compare two dates
-
-date1=$(date +"%s")
-date2=$(date +"%s")
-diff=$(($date2-$date1))
-echo "$(($diff / 60)) min and $(($diff % 60)) sec."
-------------------------------------------------------------------------------------------------------
-
-# Color
-
-31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 
-
-echo -e "\e[1;34mThis is a blue text.\e[0m"
-------------------------------------------------------------------------------------------------------
-
 # Check for no answer
 
 if [ -z $location ]; then
      f_Error
      return 0
+fi
+------------------------------------------------------------------------------------------------------
+
+# Check for root
+
+if [ $(whoami) = "root" ]; then 
+     echo "You are running as root."
 fi
 ------------------------------------------------------------------------------------------------------
 
@@ -99,7 +91,7 @@ if [ ! -f $location ]; then
 fi
 ------------------------------------------------------------------------------------------------------
 
-# Check if argument was given, if not, print usage
+# Check if argument was given, if not print usage
 
 if [ -z "$1" ]; then
      echo "Usage : $0 <domain name>"
@@ -107,28 +99,36 @@ if [ -z "$1" ]; then
 fi
 ------------------------------------------------------------------------------------------------------
 
-if [ -d /root/test ]; then
-     echo "This folder exists."
-fi
+# Color
 
-if [ -f /root/test ]; then
+31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 
+
+echo -e "\e[1;34mThis is a blue text.\e[0m"
+------------------------------------------------------------------------------------------------------
+
+# Compare two dates
+
+date1=$(date +"%s")
+date2=$(date +"%s")
+diff=$(($date2-$date1))
+echo "$(($diff / 60)) min and $(($diff % 60)) sec."
+------------------------------------------------------------------------------------------------------
+
+if [ -e /root/test ]; then
      echo "This file exists."
-fi
-
-# If folder doesn't exist, create it
-if [ ! -d /root/test ]; then
-     mkdir /root/test
 fi
 
 if [ ! -s test ]; then 
      echo "This file is empty."
 fi
-------------------------------------------------------------------------------------------------------
 
-# Check for root
+if [ -d /root/test ]; then
+     echo "This folder exists."
+fi
 
-if [ $(whoami) = "root" ]; then 
-     echo "You are running as root."
+if [ ! -d /root/test ]; then
+     # If folder doesn't exist, create it
+     mkdir /root/test
 fi
 ------------------------------------------------------------------------------------------------------
 
