@@ -3238,6 +3238,10 @@ f_main(){
 clear
 f_banner
 
+if [ ! -d /$user/data ]; then
+     mkdir -p /$user/data
+fi
+
 echo -e "\e[1;34mRECON\e[0m"
 echo "1.  Domain"
 echo "2.  Person"
@@ -3288,3 +3292,4 @@ esac
 ##############################################################################################################
 
 while true; do f_main; done
+

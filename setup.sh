@@ -84,20 +84,6 @@ echo
 
 ##############################################################################################################
 
-f_datadir(){
-if [ -d /$user/data ]; then
-     echo -e "\e[1;34mUser data directory already exists.\e[0m"
-     echo
-else
-     echo -e "\e[1;33mCreating data directory.\e[0m"
-     mkdir -p /$user/data
-     echo
-fi
-}
-
-##############################################################################################################
-
 f_inst_tools
 f_vrfy_repos
-f_datadir
 
