@@ -1,13 +1,8 @@
-workspace yyy
+workspace add yyy
 set COMPANY xxx
 set DOMAIN yyy
 
-use recon/hosts/gather/dns/brute_hosts
-run
-use recon/hosts/enum/dns/resolve
-run
-use recon/hosts/geo/http/api/ipinfodb
-run
+
 
 back
 show dashboard

@@ -42,3 +42,10 @@ Scanner > Results
 
 Manually varify findings.
 Select all remaining findings > RC > Report selected issues > Next 4x > enter file location > Next > Close
+------------------------------------------------------------------------------------------------------
+
+# Use Burp Suite to trap a request
+
+./sqlmap -r /root/request --dbs                               Search for all databases
+./sqlmap -r /root/request -D <database> --tables              Show all tables in database
+./sqlmap -r /root/request -D <database> -T <table> --dump     Show all data in table
