@@ -538,7 +538,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
      cat whois-ip >> /$user/data/$domain/data/whois-ip.htm; echo "</pre>" >> /$user/data/$domain/data/whois-ip.htm
      cat zreport >> /$user/data/$domain/data/passive-recon.htm; echo "</pre>" >> /$user/data/$domain/data/passive-recon.htm
 
-     rm emails hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm emails* hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
      echo
      echo $medium
@@ -716,6 +716,12 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      cat emails1 emails2 | grep "@$domain" | cut -d ' ' -f2 | sort -u > emails
 
+     # If this file is empty, delete it
+     if [ ! -s emails ]; then rm emails; fi
+     if [ ! -s hosts ]; then rm hosts; fi
+     if [ ! -s records ]; then rm records; fi
+     if [ ! -s subdomains ]; then rm subdomains; fi
+
      ##############################################################
 
      echo > zreport
@@ -726,7 +732,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      echo > tmp
 
-     if [ -e /opt/discover/emails ]; then
+     if [ -e emails ]; then
           emailcount=$(wc -l emails | cut -d ' ' -f1)
           echo "Emails        $emailcount" >> zreport
           echo "Emails ($emailcount)" >> tmp
@@ -735,7 +741,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
           echo >> tmp
      fi
 
-     if [ -e /opt/discover/hosts ]; then
+     if [ -e hosts ]; then
           hostcount=$(wc -l hosts | cut -d ' ' -f1)
           echo "Hosts         $hostcount" >> zreport
           echo "Hosts ($hostcount)" >> tmp
@@ -744,7 +750,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
           echo >> tmp
      fi
 
-     if [ -e /opt/discover/records ]; then
+     if [ -e records ]; then
           recordcount=$(wc -l records | cut -d ' ' -f1)
           echo "DNS Records   $recordcount" >> zreport
           echo "DNS Records ($recordcount)" >> tmp
@@ -753,7 +759,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
           echo >> tmp
      fi
 
-     if [ -e /opt/discover/subdomains ]; then
+     if [ -e subdomains ]; then
           subdomaincount=$(wc -l subdomains | cut -d ' ' -f1)
           echo "Subdomains    $subdomaincount" >> zreport
           echo "Subdomains ($subdomaincount)" >> tmp
