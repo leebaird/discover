@@ -308,7 +308,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
      echo
      echo "Whois"
      echo "     Domain               (18/$total)"
-     whois -H $domain > tmp
+     whois -H $domain > tmp 2>/dev/null
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
      # Clean up
@@ -912,7 +912,7 @@ s/Brooklyn//g; s/Brookpark//g; s/Broomfield//g; s/Brownstown//g; s/Buckeye//g; s
 s/Burtonsville//g; s/business/Business/g; s/Brockton//g; s/Burleson//g; s/buyer/Buyer/g; s/By The\...//g; s/Bynum//g; s/Calabasas Hls//g; 
 s/Calabasas//g; s/Califon//g; s/California//g; s/Camarillo//g; s/Cambridge//g; s/Camden//g; s/Camp Hill//g; s/Camp Springs//g; s/Canada//g; 
 s/Canfield//g; s/Canonsburg//g; s/Canton//g; s/Canyon Country//g; s/Cape Canaveral//g; s/Cape May//g; s/Capitola//g; s/Carlisle//g; s/Carlsbad//g; 
-s/Carmel//g; s/Carnegie//g; s/Carpinteria//g; s/Carrollton//g; s/cascade/Cascade/g; s/Castaic//g; s/Castle Rock//g; s/Catawba//g; s/Catonsville//g; 
+s/Carnegie//g; s/Carpinteria//g; s/Carrollton//g; s/cascade/Cascade/g; s/Castaic//g; s/Castle Rock//g; s/Catawba//g; s/Catonsville//g; 
 s/Cedar Hill//g; s/Center Line//g; s/Centreville//g; s/Chambersburg//g; s/Champaign//g; s/Chantilly//g; s/Charleston//g; s/Charlestown//g; 
 s/Charlottesvle//g; s/Charlotte//g; s/Chattanooga//g; s/Chelmsford//g; s/Cherry Hill//g; s/Chesapeake//g; s/Chesterfield//g; s/Cheyenne//g; 
 s/chicago//g; s/East Chicago//g; s/Chicago//g; s/\/Chief/, Chief/g; s/Christiansburg//g; s/Chula Vista//g; s/Cicero//g; s/Cincinnati//g; 
@@ -924,15 +924,15 @@ s/Conshohocken//g; s/CONSULTANT/Consultant/g; s/consumer/Consumer/g; s/Coopersbu
 s/Cordova//g; s/corporate/Corporate/g; s/Corpus Christi//g; s/Corsicana//g; s/COUNSEL/Counsel/g; s/Countryside//g; s/Cranberry T\...//g; 
 s/Cranberry Twp//g; s/Cranston//g; s/credit/Credit/g; s/CREDIT/Credit/g; s/Cresskill//g; s/Crm/CRM/g; s/Crofton//g; s/Cross Junction//g; 
 s/Crossville//g; s/Crownsville//g; s/Crum Lynne//g; s/Ctr/Center/g; s/Culpeper//g; s/Culver City//g; s/Cupertino//g; s/Cuyahoga Falls//g; s/Cypress//g; 
-s/Dahlgren//g; s/Dallas//g; s/Daly City//g; s/Danville//g; s/Dayton//g; s/dealer/Dealer/g; s/Decatur//g; s/Delaplane//g; s/Delray Beach//g; 
+s/Dallas//g; s/Daly City//g; s/Danville//g; s/Dayton//g; s/dealer/Dealer/g; s/Decatur//g; s/Delaplane//g; s/Del Mar//g; s/Delray Beach//g; 
 s/Denver//g; s/Deer Park//g; s/Deerfield//g; s/Delmont//g; s/Deptford//g; s/Des Moines//g; s/DESIGNER/Designer/g; s/Desoto//g; s/Destiny//g; 
 s/Destin//g; s/Detroit//g; s/Devens//g; s/Dhs/DHS/g; s/Diamond Bar//g; s/director/Director/g; s/display/Display/g; s/Dns/DNS/g; s/Douglasville//g; 
 s/Dover//g; s/Downers Grove//g; s/Doylestown//g; s/Draper//g; s/Drexel Hill//g; s/Dublin//g; s/Dulles//g; s/Duluth//g; s/Dumfries//g; s/Dunkirk//g; 
 s/Durham//g; s/East Brunswick//g; s/East Greenbush//g; s/East Hanover//g; s/East Hartford//g; s/East Peters\...//g; s/East Stroud\...//g; 
 s/East Syracuse//g; s/Easton//g; s/Eatontown//g; s/Elgin//g; s/Eau Claire//g; s/Eden Prairie//g; s/Edgewood//g; s/Edison//g; s/Egg Harbor \...//g; 
-s/El Cajon//g; s/El Monte//g; s/El Paso//g; s/El Segundo//g; s/ELECTRONICS/Electronics/g; s/Elizabethtown//g; s/Elk Grove V...//g; s/Elk Grove//g; 
-s/Elkhorn//g; s/Elkridge//g; s/Elkton//g; s/Ellicott City//g; s/Elk Grove V\...//g; s/Elkhart//g; s/Elm Grove//g; s/Elyria//g; s/emerging/Emerging/g; 
-s/Emerson//g; s/Endicott//g; s/engineer/Engineer/g; s/Englewood//g; s/Englishtown//g; s/Emeryville//g; s/Encino//g; s/Ennis//g; 
+s/Egg Harbor//g; s/El Cajon//g; s/El Monte//g; s/El Paso//g; s/El Segundo//g; s/ELECTRONICS/Electronics/g; s/Elizabethtown//g; s/Elk Grove V...//g; 
+s/Elk Grove//g; s/Elkhorn//g; s/Elkridge//g; s/Elkton//g; s/Ellicott City//g; s/Elk Grove V\...//g; s/Elkhart//g; s/Elm Grove//g; s/Elyria//g; 
+s/emerging/Emerging/g; s/Endicott//g; s/engineer/Engineer/g; s/Englewood//g; s/Englishtown//g; s/Emeryville//g; s/Encino//g; s/Ennis//g; 
 s/enterprise/Enterprise/g; s/Erie//g; s/Escondido//g; s/Euless//g; s/Europe//g; s/Evanston//g; s/Evansville//g; s/Exton//g; s/Fairbanks//g; 
 s/Fairborn//g; s/Fairfax//g; s/Fairmont//g; s/Fairview He\...//g; s/Fairfield//g; s/Fairview//g; s/Fallbrook//g; s/Fall River//g; s/Falls Church//g; 
 s/Fareham//g; s/Farmington Hls//g; s/Farnham//g; s/fashion/Fashion/g; s/Fayetteville//g; s/Feastervill\...//g; s/Fha/FHA/g; s/financial/Financial/g; 
@@ -945,7 +945,7 @@ s/Fresno//g; s/Front Royal//g; s/Ft Mitchell//g; s/Ft Worth//g; s/Ft Wright//g; 
 s/Garden City//g; s/Gardena//g; s/Gastonia//g; s/Germantown//g; s/Geyserville//g; s/Gibsonia//g; s/Gig Harbor//g; s/Glastonbury//g; s/Glen Burnie//g; 
 s/Glen Ellyn//g; s/Glendale//g; s/Glendora//g; s/Glen Ridge//g; s/Glenside//g; s/global/Global/g; s/Gnadenhutten//g; s/Goleta//g; s/Goodyear//g; 
 s/Grand Junction//g; s/Grand Haven//g; s/Grand Prairie//g; s/Grand Rapids//g; s/Granite City//g; s/Granville//g; s/Grants Pass//g; s/Granville//g; 
-s/Grayslake//g; s/Green Bay//g; s/Green Belt//g; s/Greeley//g; s/Greenbelt//g; s/Greensburg//g; s/Greencastle//g; s/Greeley//g; s/Greenfield//g; 
+s/Grayslake//g; s/Green Bay//g; s/Green Belt//g; s/Greeley//g; s/Greenbelt//g; s/Greensburg//g; s/Greencastle//g; s/Greeley//g; 
 s/Greeneville//g; s/Greenville//g; s/Greenwich//g; s/Greenwood Vlg//g; s/Gretna//g; s/Grosse Ile//g; s/Grosse Poin\...//g; s/group/Group/g; 
 s/Grove City//g; s/Grp/Group/g; s/Gsa/GSA/g; s/Gulf Breeze//g; s/Gulfport//g; s/Gulf Coast//g; s/Gurnee//g; s/H\...//g; s/Hackensack//g; 
 s/Hackettstown//g; s/Haddon//g; s/Hamlin//g; s/Hampstead//g; s/Hampton//g; s/Hamtramck//g; s/Hanahan//g; s/Hanover//g; s/Harbor City//g; 
@@ -953,7 +953,7 @@ s/Harlingen//g; s/Harrisburg//g; s/Harrisonburg//g; s/Harrison City//g; s/New Ha
 s/Harvard//g; s/Haslet//g; s/Hatboro//g; s/Hattiesburg//g; s/Havant//g; s/Hawthorne//g; s/Haymarket//g; s/Hazel Park//g; s/Hazelwood//g; s/Hd/HD/g; 
 s/\/Head/, Head/g; s/He\...//g; s/Hebron//g; s/Heights//g; s/Helena//g; s/Helotes//g; s/Hendersonville//g; s/Hermitage//g; s/Herndon//g; 
 s/Henrico//g; s/Hermosa Beach//g; s/Hershey//g; s/Highland Hls//g; s/Highland Park//g; s/Highland//g; s/Hilliard//g; s/Hillsborough//g; 
-s/Hilton Head\...//g; s/Hobart//g; s/Holbrook//g; s/Holland//g; s/Hollywood//g; s/Homer Glen//g; s/Homestead//g; s/Honolulu//g; s/Hookstown//g; 
+s/Hilton Head\...//g; s/Hobart//g; s/Holbrook//g; s/Hollywood//g; s/Homer Glen//g; s/Homestead//g; s/Honolulu//g; s/Hookstown//g; 
 s/Hopkinton//g; s/Hopewell//g; s/Houston//g; s/Hq/HQ/g; s/Huntingdon//g; s/Huntington//g; s/Huntingtown//g; s/Huntingtn Bch//g; s/Huntsville//g; 
 s/Hurlburt Field//g; s/Hurricane//g; s/Hyattsville//g; s/Idaho Falls//g; s/Iii/III/g; s/Ii/II/g; s/Illinois//g; s/India //g; 
 s/Indialantic//g; s/Indian Harb\...//g; s/Indianapolis//g; s/Indiana//g; s/Information Technology/IT/g; s/information/Information/g; 
@@ -975,7 +975,7 @@ s/Lumberton//g; s/Lusby//g; s/Lutherville//g; s/Lvl/Level/g; s/Lyndhurst//g; s/L
 s/Maitland//g; s/Malvern//g; s/Manager\//Manager, /g; s/Manager -/Manager, /g; s/Manager-/Manager, /g; s/Manassas//g; s/Mangr/Manager/g; 
 s/mangr/Manager/g; s/Manhattan//g; s/Manistee//g; s/Mansfield//g; s/MANUFACTURING/Manufacturing/g; s/Maple Shade//g; s/Marblehead//g; 
 s/MarketingProductionManager/Marketing Production Manager/g; s/Marlborough//g; s/Marietta//g; s/Marina Del Rey//g; s/Marion//g; s/market/Market/g; 
-s/Marlton//g; s/Masontown//g; s/Mayfield//g; s/Mays Landing//g; s/Mba/MBA/g; s/Mc Lean//g; s/Mcclellan//g; s/Mc Coll//g; s/Mc Cordsville//g; 
+s/Marlton//g; s/Masontown//g; s/Maumee//g; s/Mayfield//g; s/Mays Landing//g; s/Mba/MBA/g; s/Mc Lean//g; s/Mcclellan//g; s/Mc Coll//g; s/Mc Cordsville//g; 
 s/Mc Kees Rocks//g; s/Mcse/MCSE/g; s/Meadville//g; s/Mechanicsburg//g; s/MECHANIC/Mechanic/g; s/Medford//g; s/medical/Medical/g; s/Medina//g; 
 s/Melbourne//g; s/Melville//g; s/Memphis//g; s/Melrose//g; s/Menlo Park//g; s/Mentor//g; s/Meriden//g; s/Meridian//g; s/Merritt Island//g; 
 s/Mesa //g; s/Miamisburg//g; s/Miami//g; s/Miami Beach//g; s/Michigan//g; s/Middle River//g; s/Middleburg//g; s/Middletown//g; s/Midland//g; 
@@ -1001,14 +1001,14 @@ s/Pompano Beach//g; s/Panama City//g; s/Papillion//g; s/paralegal/Paralegal/g; s
 s/Parsippany//g; s/Pasadena//g; s/Pascagoula//g; s/Passaic//g; s/Patuxent River//g; s/payments/Payments/g; s/Pearl City//g; s/Pembroke Pines//g; 
 s/Pennington//g; s/Pensacola//g; s/Peoria//g; s/Pewaukee//g; s/philadelphia//g; s/Philadelphia//g; s/Phillipsburg//g; s/Phoenix//g; s/Pico Rivera//g; 
 s/Pikesville//g; s/Pinconning//g; s/Pinellas Park//g; s/Pineville//g; s/Pickerington//g; s/Piscataway//g; s/Pittsburgh//g; s/Plainfield//g; 
-s/Plainsboro//g; s/Plano//g; s/Plaquemine//g; s/Pleasanton//g; s/Plymouth//g; s/PMo/PMO/g; s/PMp/PMP/g; s/Pmp/PMP/g; s/Pm/PM/g; s/Point Pleasant//g; 
+s/Plainsboro//g; s/Plano//g; s/Plaquemine//g; s/Pleasanton//g; s/Plymouth//g; s/PMo/PMO/g; s/PMp//g; s/PMP, //g; s/Pmp/PMP/g; s/Pm/PM/g; s/Point Pleasant//g; 
 s/PMo/PMO/g; s/Pomona//g; s/Pontiac//g; s/Port Allen//g; s/Port Deposit//g; s/Port Orange//g; s/Portage//g; s/portfolio/Portfolio/g; s/Portland//g; 
 s/Portsmouth//g; s/Potomac//g; s/Poway//g; s/Powder Springs//g; s/President -/President, /g; s/President-/President, /g; s/President\//President, /g; 
 s/president/President/g; s/Princeton//g; s/Princess Anne//g; s/Prineville//g; s/private/Private/g; s/Proctorville//g; s/producer/Producer/g; 
 s/PRODUCER/Producer/g; s/PROGRAMMING/Programming/g; s/project/Project/g; s/Prospect Park//g; s/Providence//g; s/Pueblo//g; s/Purcellville//g; 
 s/Pyrmont//g; s/Quantico//g; s/Quincy//g; s/R and D/R&D/g; s/RADIOLOGY/Radiology/g; s/Raleigh//g; s/Rancho//g; s/Randolph//g; s/Ransom Canyon//g; 
 s/Raritan//g; s/Reading//g; s/real/Real/g; s/recreation/Recreation/g; s/Recruiter\//Recruiter, /g; s/Red Bank//g; s/Redlands//g; s/Redmond//g; 
-s/Redondo Beach//g; s/regional/Regional/g; s/Reisterstown//g; s/relationship/Relationship/g; s/Rensselaer//g; s/Renton//g; s/Reston//g; 
+s/Redondo Beach//g; s/regional/Regional/g; s/Reisterstown//g; s/relationship/Relationship/g; s/Rensselaer//g; s/Reston//g; 
 s/Reynoldsburg//g; s/RFid/RFID/g; s/Rf/RF/g; s/Richland//g; s/Ridgecrest//g; s/New Richmond//g; s/Richmond//g; s/Ridgewood//g; s/Ringoes//g; 
 s/River Edge//g; s/Riverdale//g; s/Rivervale//g; s/Rllng Hls Est//g; s/Roanoke//g; s/Rockaway//g; s/Rochester Hls//g; s/Rochester//g; s/Rockford//g; 
 s/Rockledge//g; s/Rockport//g; s/Rocky Mount//g; s/Rocky River//g; s/Rock Springs//g; s/Rockville//g; s/Rohnert Park//g; s/Rolling Mea\...//g; 
