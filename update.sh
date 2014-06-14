@@ -21,9 +21,9 @@ fi
 
 if [ ! -f /usr/bin/ipscan ]; then
      echo -e "\e[1;33mInstalling Angry IP Scanner.\e[0m"
-     wget -q http://sourceforge.net/projects/ipscan/files/ipscan3-binary/3.2.1/ipscan_3.2.1_amd64.deb
-     dpkg -i ipscan_3.2.1_amd64.deb
-     rm ipscan_3.2.1_amd64.deb
+     wget -q http://sourceforge.net/projects/ipscan/files/ipscan3-binary/3.2.3/ipscan_3.2.3_amd64.deb
+     dpkg -i ipscan_3.2.3_amd64.deb
+     rm ipscan_3.2.3_amd64.deb
      echo
 fi
 
