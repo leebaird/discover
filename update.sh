@@ -38,6 +38,12 @@ else
      echo
 fi
 
+if [ ! -f /usr/bin/i586-mingw32msvc-c++ ]; then
+     echo -e "\e[1;33mInstalling Ming C Compiler.\e[0m"
+     apt-get -y install mingw32
+     echo
+fi
+
 if [ -d /opt/smbexec/.git ]; then
      echo -e "\e[1;34mUpdating smbexec.\e[0m"
      cd /opt/smbexec/ ; git pull
