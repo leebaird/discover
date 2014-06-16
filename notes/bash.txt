@@ -38,6 +38,7 @@ sed -n '/FOO/,/BAR/p'                               # Print lines between FOO an
 for x in $(cat tmp); do rm $x; done                 # Remove all files in tmp
 sed 's/[A-Z]\{2\},//g'                              # Remove any 2 capital letters followed by a comma
 awk '$2 !~ /[a-z]/'                                 # Remove lines that contain [a-z] in the second column
+sed '/[[:blank:]]/!d'                               # Remove lines that contain a single word
 sed '/^$/d'                                         # Remove blank lines
 cat -s                                              # Remove double spacing
 sed 's/^....//'                                     # Remove first 4 characters from each line
