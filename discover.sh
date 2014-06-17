@@ -3235,7 +3235,7 @@ exit
 
 ##############################################################################################################
 
-f_reconng(){
+f_recon-ng(){
 clear
 echo
 echo
@@ -3320,7 +3320,7 @@ case $choice in
      13) /opt/discover/update.sh && exit;;
      14) clear && exit;;
      97) f_parse;;
-     98) f_reconng;;
+     98) f_recon-ng;;
      99) f_updates;;
      *) f_error;;
 esac

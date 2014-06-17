@@ -1,8 +1,7 @@
-workspace add yyy
-set COMPANY xxx
-set DOMAIN yyy
+workspaces add yyy
+add companies
+xxx
+none
+add domains
+yyy
 
-
-
-back
-show dashboard

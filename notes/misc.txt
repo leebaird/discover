@@ -93,9 +93,19 @@ john hashes -w=/usr/share/wordlists/rockyou.txt --format=nt
 
 # recon-ng
 
-recon-ng -w <workspace> -r <file>
-show contacts|creds|hosts|keys|workspaces|schema
-workspace <add|delete|select> <name>
+recon-ng -w <workspace> -r <resource file>
+
+Show various framework items
+Usage: show [banner|companies|contacts|creds|dashboard|domains|hosts|keys|leaks|locations|modules|netblocks|options|ports|pushpins|schema|vulnerabilities|workspaces]
+
+workspaces <add|delete|select> <name>
+Example: workspaces add target.com
+
+Adds items to the database
+Usage: add [companies|contacts|creds|domains|hosts|leaks|locations|netblocks|ports|pushpins|vulnerabilities]
+Example: add domains
+domain (TEXT): target.com
+
 spool start <file>
 
 query SELECT <field, field2|*> FROM <hosts|contacts|creds> WHERE <field>='value' ORDER BY <field>
