@@ -2547,6 +2547,12 @@ if [ -e $name/x11.txt ]; then
      cat /opt/discover/resource/x11.rc >> $name/master.rc
 fi
 
+if [ -e $name/6379.txt ]; then
+     echo "     Redis"
+     sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/6379.txt/g" /opt/discover/resource/redis.rc
+     cat /opt/discover/resource/redis.rc >> $name/master.rc
+fi
+
 if [ -e $name/7777.txt ]; then
      echo "     Backdoor"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/7777.txt/g" /opt/discover/resource/backdoor.rc
@@ -3233,23 +3239,15 @@ f_reconng(){
 clear
 echo
 echo
-
-echo "
-For best results, you should acquire keys to the following APIs and add them to recon-ng.
-See: https://bitbucket.org/LaNMaSteR53/recon-ng/wiki/Usage%20Guide
-
-keys add <API> <value>
-
-arin_api
-bing_api
-google_api
-google_cse
-ipinfodb_api
-shodan_api"
+echo "For best results, you should acquire keys to the following APIs and add them to recon-ng."
+echo "See: https://bitbucket.org/LaNMaSteR53/recon-ng/wiki/Usage%20Guide"
 echo
-echo "Usage:"
+echo "Usage"
+echo
 echo "Company: Target"
 echo "Domain:  target.com"
+echo
+echo $short
 echo
 echo -n "Company: "
 read company

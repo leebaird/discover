@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 6379
+
+use auxiliary/scanner/misc/redis_server
+run
