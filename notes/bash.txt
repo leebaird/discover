@@ -22,6 +22,7 @@ grep 'FOO\|BAR'                                     # Find lines that contain FO
 sed '1N;N;/\(.*\n\)\{2\}.*FOO/P;$d;D'               # Find lines that contain FOO, and print the second line before that
 
 grep 'FOO$'                                         # Find lines that end with FOO
+sed 's/FOO$//'                                      # Find lines that end with FOO, and delete FOO
 
 grep '^FOO'                                         # Find lines that start with FOO
 sed '/^FOO/{n;d;}'                                  # Find lines that start with FOO, and delete the following line
