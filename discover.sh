@@ -1351,7 +1351,7 @@ f_scanname
 echo
 echo Usage: 192.168.0.0/16
 echo
-echo -n "Enter CIDR notation: "
+echo -n "CIDR: "
 read cidr
 
 # Check for no answer
@@ -1470,11 +1470,11 @@ f_report
 
 f_scan(){
 echo
-echo $medium
-echo
-
 echo -ne "\e[1;33mRun version detection (significantly increases scan time)? (y/N) \e[0m"
 read vdetection
+echo
+echo $medium
+echo
 
 if [ "$vdetection" == "y" ]; then
      echo

@@ -9,7 +9,7 @@ use auxiliary/scanner/smb/smb_enumusers
 
 # CIFS NULL Session Permitted
 
-enum4linux -v <target IP>
+enum4linux -a <target IP>
 
 rpclient -U "" <target IP>
 Enter  's password: <return>

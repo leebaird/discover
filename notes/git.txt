@@ -1,4 +1,4 @@
- Cloning your fork
+Cloning your fork
 Clone the repository from your fork
 
    git clone git@github.com:<username>/<repo-name>.git
