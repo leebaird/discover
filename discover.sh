@@ -99,12 +99,12 @@ f_terminate(){
 rm emails* names records squatting whois* sub* doc pdf ppt txt xls tmp* z* 2>/dev/null
 
 if [ -e $name ]; then
-     rm -rf $name
+     mv $name /$user/data/$name-canceled
 fi
 
 if [ -d /tmp/resource ]; then
      rm -rf /opt/discover/resource/
-     mv /tmp/resource/ /opt/discover
+     mv /tmp/resource/ /opt/discover/
 fi
 
 PID=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
@@ -1477,12 +1477,10 @@ echo $medium
 echo
 
 if [ "$vdetection" == "y" ]; then
-     echo
      echo -e "\e[1;34mRunning nmap scan with version detection.\e[0m"
 
      nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sSV -sUV -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3500,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5040,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8834,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12000,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,28784,30718,31337,32764,32771,33333,35871,46824,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,407,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2302,2362,2746,3401,3478,4045,4500,4665,5060,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
 else
-     echo
      echo -e "\e[1;34mRunning nmap scan.\e[0m"
 
      nmap --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -sS -sU -O --osscan-guess --max-os-tries 1 -p T:1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812-1813,1953,1959,2000,2002,2030,2049,2100,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000-3001,3031,3121,3127-3128,3200,3201,3230-3235,3260,3268-3269,3306,3339,3389,3460,3500,3527,3632,4000,4045,4100,4242,4369,4430,4443,4661-4662,4711,4848,5000,5010,5019,5040,5059-5061,5101,5180,5190-5193,5250,5432,5554-5555,5560,5566,5631,5666,5672,5678,5800-5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6777,7001-7002,7070,7100,7210,7510,7634,7777-7778,8000-8001,8004-8005,8008,8009,8080-8083,8091,8098-8100,8180-8181,8222,8332,8333,8383-8384,8400,8443-8444,8470-8480,8500,8834,8866,8888,9090,9100-9102,9160,9343,9470-9476,9480,9495,9996,9999-10000,10025,10168,11211,12000,12345-12346,13659,15000,16080,18181-18185,18207-18208,18231-18232,19150,19190-19191,20034,22226,27017,27374,27665,28784,30718,31337,32764,32771,33333,35871,46824,49400,50000,50030,50060,50070,50075,50090,51080,51443,54320,60000,60010,60030,60148,63148,U:7,9,11,13,17,19,37,53,67-69,88,111,123,135,137-139,161-162,177,213,259-260,407,445,464,500,514,520,523,623,631,1194,1434,1604,1701,1900,2049,2303,2362,2746,3401,3478,4045,4500,4665,5060,5353,5632,6481,7777,17185,18233,26198,27444,31337,32771,34555,47545,49152,54321 --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport -oA $name/nmap
@@ -1573,9 +1571,10 @@ sed 's/Nmap scan report for //' tmp > tmp2
 # Remove lines that start with |, and have various numbers of trailing spaces.
 sed -i '/^| *$/d' tmp2
 
-egrep -v '(0 of 100|afp-serverinfo:|ACCESS_DENIED|appears to be clean|cannot|close|closed|Compressors|Could not|Couldn|Denied|denied|Did not|DISABLED|dns-nsid:|dns-service-discovery:|Document Moved|doesn|eppc-enum-processes|error|Error|ERROR|failed|filtered|GET|hbase-region-info:|HEAD|Host is up|Host script results|impervious|incorrect|latency|ldap-rootdse:|LDAP Results|Likely CLEAN|MAC Address|Mac OS X security type|nbstat:|No accounts left|No Allow|no banner|none|Nope.|not allowed|Not Found|Not Shown|not supported|NOT VULNERABLE|nrpe-enum:|ntp-info:|rdp-enum-encryption:|remaining|rpcinfo:|seconds|Security types|See http|Server not returning|Service Info|Skipping|smb-check-vulns|smb-mbenum:|sorry|Starting|telnet-encryption:|Telnet server does not|TIMEOUT|Unauthorized|uncompressed|unhandled|Unknown|viewed over a secure|vnc-info:|wdb-version:)' tmp2 > tmp3
+egrep -v '(0 of 100|afp-serverinfo:|ACCESS_DENIED|appears to be clean|cannot|closed|close|Compressors|Could not|Couldn|Denied|denied|Did not|DISABLED|dns-nsid:|dns-service-discovery:|Document Moved|doesn|eppc-enum-processes|error|Error|ERROR|Failed to get|failed|filtered|GET|hbase-region-info:|HEAD|Host is up|Host script results|impervious|incorrect|latency|ldap-rootdse:|LDAP Results|Likely CLEAN|MAC Address|Mac OS X security type|nbstat:|No accounts left|No Allow|no banner|none|Nope.|not allowed|Not Found|Not Shown|not supported|NOT VULNERABLE|nrpe-enum:|ntp-info:|rdp-enum-encryption:|remaining|rpcinfo:|seconds|Security types|See http|Server not returning|Service Info|Skipping|smb-check-vulns|smb-mbenum:|sorry|Starting|telnet-encryption:|Telnet server does not|TIMEOUT|Unauthorized|uncompressed|unhandled|Unknown|viewed over a secure|vnc-info:|wdb-version:)' tmp2 | grep -v "Can't" > tmp3
 
-grep -v "Can't" tmp3 > tmp4
+# Print paragraphs that contains |
+sed -e '/./{H;$!d;}' -e 'x;/|/!d;' tmp3 > tmp4
 }
 
 ##############################################################################################################
@@ -1725,14 +1724,6 @@ if [ -e $name/445.txt ]; then
 	f_cleanup
 	sed -i '/^445/{n; /.*/d}' tmp4		# Find lines that start with 445, and delete the following line
 	mv tmp4 $name/script-445.txt
-fi
-
-if [ -e $name/465.txt ]; then
-	echo "     SMTP/S"
-	nmap -iL $name/465.txt -Pn -n --open -p465 --script=banner,smtp-commands,smtp-open-relay,smtp-strangeport,smtp-enum-users --host-timeout 5m --min-hostgroup 100 -g $sourceport > tmp
-	f_cleanup
-	printf '%s\n' 'g/NOT VULNERABLE/d\' '-d' w | ed -s tmp4
-	mv tmp4 $name/script-465.txt
 fi
 
 if [ -e $name/500.txt ]; then

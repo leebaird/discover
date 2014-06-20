@@ -24,6 +24,7 @@ sed '1N;N;/\(.*\n\)\{2\}.*FOO/P;$d;D'               # Find lines that contain FO
 grep 'FOO$'                                         # Find lines that end with FOO
 sed 's/FOO$//'                                      # Find lines that end with FOO, and delete FOO
 
+grep '^[0-9]'                                       # Find lines that start with a number
 grep '^FOO'                                         # Find lines that start with FOO
 sed '/^FOO/{n;d;}'                                  # Find lines that start with FOO, and delete the following line
 printf '%s\n' 'g/^FOO/-1d' w | ed -s                # Find lines that start with FOO, and delete the previous line
@@ -31,10 +32,11 @@ sed '/^FOO/i\ '                                     # Find lines that start with
 sed '/^FOO/a\ '                                     # Find lines that start with FOO, and insert a line after
 sed -e :a -e '$!N;s/\nFOO/ /;ta' -e 'P;D' file      # Find lines that start with FOO, insert a space and append to the previous line
 
-awk '{print $2 " " $1}'                             # Print the second column, insert a space, then the first column
 sed -n '/FOO/,$p'                                   # Print from FOO to the end of the file
 sed -n '5,/^$/p'                                    # Print from the 5th line to the first blank line
 sed -n '/FOO/,/BAR/p'                               # Print lines between FOO and BAR
+sed -e '/./{H;$!d;}' -e 'x;/FOO/!d;'                # Print paragraphs that contains FOO 
+awk '{print $2 " " $1}'                             # Print the second column, insert a space, then the first column
 
 for x in $(cat tmp); do rm $x; done                 # Remove all files in tmp
 sed 's/[A-Z]\{2\},//g'                              # Remove any 2 capital letters followed by a comma
