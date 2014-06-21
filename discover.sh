@@ -99,7 +99,7 @@ f_terminate(){
 rm emails* names records squatting whois* sub* doc pdf ppt txt xls tmp* z* 2>/dev/null
 
 if [ -e $name ]; then
-     mv $name /$user/data/$name-canceled
+     mv $name /$user/data/canceled
 fi
 
 if [ -d /tmp/resource ]; then

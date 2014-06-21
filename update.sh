@@ -55,6 +55,17 @@ else
      echo
 fi
 
+if [ -d /opt/recon-ng/.git ]; then
+     echo -e "\e[1;34mUpdating recon-ng.\e[0m"
+     cd /opt/recon-ng/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling recon-ng.\e[0m"
+     git clone https://bitbucket.org/LaNMaSteR53/recon-ng.git /opt/recon-ng
+     ln -s /opt/recon-ng/recon-ng  /usr/bin/recon-ng
+     echo
+fi
+
 if [ -d /opt/veil/.git ]; then
      echo -e "\e[1;33mInstalling Veil-Evasion suite.\e[0m"
      unlink /usr/bin/veil

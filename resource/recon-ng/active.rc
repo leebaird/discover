@@ -5,3 +5,6 @@ none
 add domains
 yyy
 
+use recon/domains-hosts/brute_hosts
+run
+
