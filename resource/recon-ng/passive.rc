@@ -62,3 +62,12 @@ run
 use recon/contacts-contacts/rapportive
 run
 
+use recon/contacts-creds/haveibeenpwned
+run
+
+use recon/contacts-creds/pwnedlist
+run
+
+use recon/contacts-creds/should_change_password
+run
+
