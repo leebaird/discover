@@ -3179,7 +3179,7 @@ echo >> tmp-updates
 echo "Nmap scripts" >> tmp-updates
 echo "==============================" >> tmp-updates
 
-diff tmp tmp2 | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' | grep -v 'tmp' >> tmp-updates
+diff tmp tmp2 | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' | egrep -v '(smtp-commands|smtp-enum-users|smtp-open-relay|smtp-strangeport|tmp)' >> tmp-updates
 
 rm tmp
 
@@ -3268,10 +3268,30 @@ recon-ng -r /tmp/passive.rc
 ##############################################################################################################
 
 f_parse(){
-recon-ng -w loc.gov -r /opt/discover/resource/recon-ng/export.rc 
-cat tmp | grep 'loc.gov' | grep -v '\[' | cut -d '|' -f2 | sort -u > zsub
-cat tmp2 | grep '@' | cut -d '|' -f4 | sed 's/^[ \t]*//' | sort -u > zemails
-cat tmp2 | grep '@' | cut -d '|' -f2,3 | sed 's/|//g; s/,//g' | awk '{print $1 " " $2}' | sort -u > znames
+clear
+f_banner
+
+python /opt/recon-ng/recon-cli -C "workspaces list"
+echo
+echo
+echo -n "Workspace:  "
+read workspace
+
+# Check for no answer
+if [ -z $workspace ]; then
+     f_error
+fi
+
+python /opt/recon-ng/recon-ng -w $workspace -r /opt/discover/resource/recon-ng/export.rc
+egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp | cut -d '|' -f3,5-7 > zcontacts
+egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp2 | cut -d '|' -f3-7 > zcreds
+egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp3 | cut -d '|' -f3-6 > zhosts
+egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp4 > zleaks
+egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp5 | cut -d '|' -f3-6 > zports
+egrep -v '(\+|contacts|example|Output|output|returned|show|Spooling|spool|title)' tmp6 | cut -d '|' -f5 > zvulns
+rm tmp*
+echo
+echo
 exit
 }
 ##############################################################################################################
