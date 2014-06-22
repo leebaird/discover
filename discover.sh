@@ -3179,7 +3179,7 @@ echo >> tmp-updates
 echo "Nmap scripts" >> tmp-updates
 echo "==============================" >> tmp-updates
 
-diff tmp tmp2 | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' >> tmp-updates
+diff tmp tmp2 | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' | grep -v 'tmp' >> tmp-updates
 
 rm tmp
 
@@ -3207,6 +3207,22 @@ grep 'use ' /opt/discover/resource/*.rc | grep -v 'recon-ng' > tmp
 sed -e 's:.*/\(.*\):\1:g' tmp > tmp-msf-used
 
 grep -v -f tmp-msf-used tmp-msf-all >> tmp-updates
+
+echo >> tmp-updates
+echo >> tmp-updates
+echo "recon-ng" >> tmp-updates
+echo "==============================" >> tmp-updates
+python /opt/recon-ng/recon-cli -M > tmp
+egrep -v '(---|adobe|bozocrack|brute_suffix|census_2012|command_injector|dev_diver|Discovery|exit|Exploitation|geocode|hashes_org|Import|import|jigsaw|leakdb|mangle|namechk|pushpins|pwnedlist|Recon|Reporting|reporting|reverse_resolve|show modules|shodan_net|Spooling|twitter|xpath_bruter)' tmp > tmp2
+
+# Remove blank lines
+sed '/^$/d' tmp2 > tmp3
+# Remove leading whitespace from each line
+sed 's/^[ \t]*//' tmp3 > tmp4
+
+cat /opt/discover/resource/recon-ng/active.rc /opt/discover/resource/recon-ng/passive.rc | grep 'use' | sed 's/use //g' | sort > tmp5
+diff tmp4 tmp5 | egrep '^[<>]' | awk '{print $2}' | egrep -v '(ip_neighbor|pwnedlist)' >> tmp-updates
+
 echo >> tmp-updates
 echo >> tmp-updates
 

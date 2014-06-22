@@ -1,4 +1,4 @@
-setg RHOSTS file:
+setg RHOSTS file:/opt/discover/snort/80.txt
 setg THREADS 255
 setg RPORT 80
 

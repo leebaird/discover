@@ -8,3 +8,14 @@ yyy
 use recon/domains-hosts/brute_hosts
 run
 
+use recon/domains-hosts/ssl_san
+run
+
+use recon/domains-hosts/vpnhunter
+run
+
+use discovery/info_disclosure/cache_snoop
+run
+
+use discovery/info_disclosure/interesting_files
+run
