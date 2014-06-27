@@ -114,3 +114,4 @@ http://target.com/index.php?user=<script>alert(123)</script>
 curl https://target.com/login.php?user=`perl –e 'print "a" x 500'`
 This locator in particular is good. '';!--"<XSS>=&{()}
 I would probably change it. '';!--"<a2S>=&{()}
+

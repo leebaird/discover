@@ -1,10 +1,13 @@
-Introduction:
+Python
+
+
+# Introduction
 
 This help file will talk about python 3 as new scripts or old should be converted to python 3
 reason for this is you get access to more libaries and because python 2 is on its way to being deprecated.
 ------------------------------------------------------------------------------------------------------
 
-Colours:
+# Colours
 
 yellow = '\033[93m'
 end_colour = '\033[0m'
@@ -15,7 +18,7 @@ blue = '\033[94m'
 bold_text = '\033[1m'
 ------------------------------------------------------------------------------------------------------
 
-Importing Modules:
+# Importing Modules
 
 import os
 import platform
@@ -203,7 +206,7 @@ Hit tab twice you will get output like this related to that module.
     os.environ
 ------------------------------------------------------------------------------------------------------
 
-Variables:
+# Variables
 
 To create a variable, you select the name you want it to be. For example, foo which is the name of the variable and you want it to 
 be asinged to a string of "example output" so when you combind this together you get:
@@ -215,13 +218,13 @@ Then we do this:
     print(foo)
 ------------------------------------------------------------------------------------------------------
 
-Indentation:
+# Indentation
 
 When you create functions, the code inside that function needs to be indented by 4 spaces. If you get this wrong, you will get a syntax 
 error saying invalid indention.
 ------------------------------------------------------------------------------------------------------
 
-Functions:
+# Functions
 
 The syntax for a function is def, you use def then name of function then ():.
 
@@ -231,7 +234,7 @@ The syntax for a function is def, you use def then name of function then ():.
 Then call the function example(), which would print what we talked about in variables.
 ------------------------------------------------------------------------------------------------------
 
-User Input:
+# User Input
 
 Use the input command, which is followed by text in prenthises. For example, asign the input to a variable called user_input.
 
@@ -239,7 +242,7 @@ Use the input command, which is followed by text in prenthises. For example, asi
     print(user_input)
 ------------------------------------------------------------------------------------------------------
 
-If statments:
+# If statments
 
 Used to do condtional checks depending on what you define.
 
@@ -256,7 +259,7 @@ As you can see, we do a check to make sure that it equals yes, which if true, wi
 else part of the if statment runs which outputs to bad they taste great.
 ------------------------------------------------------------------------------------------------------
 
-Example by Robert C
+# Example by Robert C
 
 usage: python <script.py> <site>
 example: python scrap.py http://www.ewhois.com/ebay.com/

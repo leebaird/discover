@@ -44,3 +44,4 @@ ssh -1 <target IP>
 nmap -Pn -n -T4 -p6000 --script=x11-access <target IP>
 
 xspy <target IP>
+

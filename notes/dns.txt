@@ -3,15 +3,15 @@ DNS
 
 # General
 
-dig target.com <type>                    a, mx, ns, soa, srv, txt, any
-dig -x <target IP>                       Pointer records.
-dig @nameserverIP target.com axfr        Zone transfer.
-dig @nameserverIP target.com afro        Forward zone transfer.
+dig target.com <type>                    # a, mx, ns, soa, srv, txt, any
+dig -x <target IP>                       # Pointer records
+dig @nameserverIP target.com axfr        # Zone transfer
+dig @nameserverIP target.com afro        # Forward zone transfer
 
-host -t ns target.com                    Show name servers. 
-host -t mx target.com                    Show mail servers.
+host -t ns target.com                    # Show name servers 
+host -t mx target.com                    # Show mail servers
 host www.target.com
-host -l target.com <nameserver>          Zone transfer.
+host -l target.com <nameserver>          # Zone transfer
 ------------------------------------------------------------------------------------------------------
  
 # Cache snooping
@@ -38,3 +38,4 @@ nslookup www.nsa.gov <nameserver IP>
 # Spoofed request amplification DDoS
 
 for i in `cat 53.txt`; do dig @"$i" . NS; done > AmpDDoS.txt
+

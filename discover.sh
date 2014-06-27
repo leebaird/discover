@@ -3242,10 +3242,11 @@ exit
 
 f_recon-ng(){
 clear
-echo
-echo
+f_banner
+
 echo "For best results, you should acquire keys to the following APIs and add them to recon-ng."
 echo "See: https://bitbucket.org/LaNMaSteR53/recon-ng/wiki/Usage%20Guide"
+echo
 echo
 echo "Usage"
 echo
@@ -3256,14 +3257,25 @@ echo $short
 echo
 echo -n "Company: "
 read company
+
+# Check for no answer
+if [ -z $company ]; then
+     f_error
+fi
+
 echo -n "Domain:  "
 read domain
+
+# Check for no answer
+if [ -z $domain ]; then
+     f_error
+fi
 
 cp /opt/discover/resource/recon-ng/passive.rc /tmp/
 sed -i "s/xxx/$company/g" /tmp/passive.rc
 sed -i "s/yyy/$domain/g" /tmp/passive.rc
 
-recon-ng -r /tmp/passive.rc
+python /opt/recon-ng/recon-ng -r /tmp/passive.rc
 }
 ##############################################################################################################
 

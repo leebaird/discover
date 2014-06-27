@@ -103,4 +103,3 @@ Before you can submit a request, rebase all your changes on to a single commit. 
    https://help.github.com/articles/checking-out-pull-requests-locally
    fetch = +refs/pull/*/head:refs/pull/origin/*
 
-

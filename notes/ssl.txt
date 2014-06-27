@@ -20,3 +20,4 @@ R
 ------------------------------------------------------------------------------------------------------
 
 paste 443.txt | while read IP port; do echo "----START "$IP":"$port"----"; echo -e "HEAD / HTTP/1.0\nR\n\n" | ncat --ssl "$IP" "$port"; echo -e "\$
+

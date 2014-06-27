@@ -20,3 +20,4 @@ rsysinfo <target IP>
 # Samba with a writeable file share
 
 smbclient -L //<target IP>
+
