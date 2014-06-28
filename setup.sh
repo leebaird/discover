@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Global variables
-bdate=$(date +"%m-%d-%Y"-%R:%S)
-user=$(whoami)
-
 clear
 echo
 echo
+
+# Global variables
+bdate=$(date +"%m-%d-%Y"-%R:%S)
+user=$(whoami)
 
 ##############################################################################################################
 
