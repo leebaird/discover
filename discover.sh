@@ -897,36 +897,36 @@ echo
 sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/\.//g; s/,,//g; s/,`//g; s/`,//g; s/-cpg//g; s/Aberdeen Pr//g; s/Aberdeen//g; 
 s/Abingdon//g; s/Abington//g; s/Ambler//g; s/ACADEMIC/Academic/g; s/account/Account/g; s/ACTING/Acting/g; s/Acworth//g; s/Addison//g; s/AdSense//g; 
 s/Adwords//g; s/Sub Saharan Africa//g; s/South Africa//g; s/Africa//g; s/Agoura Hills//g; s/Akron//g; s/New Albany//g; s/Albany//g; s/Albuquerque//g; 
-s/Allegan//g; s/Allentown//g; s/Allison Park//g; s/Alma //g; s/Alpena//g; s/Alpharetta//g; s/Altamonte S\...//g; s/Am-east,//g; 
-s/Am-west,//g; s/Head of Americas//g; s/The Americas//g; s/Americas//g; s/Americus//g; s/Amissville//g; s/Amst-north America//g; s/Amsterdam//g; 
-s/Anaheim//g; s/ANALYSIST/Analysist/g; s/Analyst\//Analyst, /g; s/analytics/Analytics/g; s/Anchorage//g; s/North Andover//g; s/and Central Us//g; 
-s/Andover//g; s/Andrews Air\...//g; s/android/Android/g; s/Annandale//g; s/Annapolis//g; s/Ann Arbor//g; s/Apalachin//g; s/Apopka//g; 
-s/Apple Valley//g; s/applications/Applications/g; s/Arcadia//g; s/Archbald//g; s/Argentina//g; s/Arlington H//g; s/Arlington//g; s/Armonk//g; 
-s/Artesia//g; s/Ashburn//g; s/Ashland//g; s/Asia-Pacific//g; s/Asia and India//g; s/asia Pacific Region//g; s/Asia Pacific//g; s/Asia//g; 
-s/assistant/Assistant/g; s/at Google//g; s/Athens//g; s/Atlanta//g; s/Atm/ATM/g; s/Atoka//g; s/Attleboro//g; s/attorney/Attorney/g; s/Auburn//g; 
-s/Augusta//g; s/Aurora//g; s/Austell//g; s/Austin//g; s/Australia S\...//g; s/Australia//g; s/Avondale//g; s/Avon//g; s/Azle//g; s/Azusa//g; 
-s/Babylon//g; s/Bakersfield//g; s/Bainbridge \...//g; s/Baltimore//g; s/Bangalore S//g; s/Bangalore//g; s/banking/Banking/g; s/Barboursville//g; 
-s/Bardstown//g; s/Barrington//g; s/Bartlesville//g; s/Basingstoke//g; s/Batesville//g; s/Baton Rouge//g; s/Battle Ground//g; 
-s/Bay City//g; s/Bay Shore//g; s/Bayside//g; s/Bd/BD/g; s/Beachwood//g; s/Beaumont//g; s/Beaver Falls//g; s/Beaverton//g; s/Bedford//g; s/Bel Air//g; 
-s/Belcamp//g; s/Bella Vista//g; s/Bellaire//g; s/Bellevue//g; s/Belleville//g; s/Bellflower//g; s/Beltsville//g; s/Belux//g; s/Benelux//g; 
-s/Benicia//g; s/Bensalem//g; s/Berkeley//g; s/Berwyn Hts//g; s/Berwyn//g; s/Bethel Park//g; s/Bethesda//g; s/Bethlehem//g; 
-s/Bethpage//g; s/Billerica//g; s/Biloxi//g; s/Binghamton//g; s/Birmingham//g; s/Bismarck//g; s/Black Belt//g; s/Bloomfield//g; s/Bloomington//g; 
-s/Bloomsburg//g; s/Boca Raton//g; s/Bohemia//g; s/Boise//g; s/Bolingbrook//g; s/Bordentown//g; s/Boston//g; s/Bothell//g; s/Boulder//g; s/Bowie//g; 
-s/Bowling Green//g; s/Boxborough//g; s/Boynton Beach//g; s/branch/Branch/g; s/\/Branch/, Branch/g; s/Bradenton//g; s/branch/Branch/g; 
-s/Brandywine//g; s/Brazil//g; s/Brecksville//g; s/Brentwood//g; s/Bridgeport//g; s/Bridgewater//g; s/Brisbane//g; s/Bristol//g; s/Bristow//g; 
-s/Brooklyn//g; s/Brookpark//g; s/Brookwood//g; s/Broomfield//g; s/Brownstown//g; s/Buckeye//g; s/Buffalo//g; s/Burbank//g; s/Burlingame//g; 
-s/Burlington//g; s/Burnsville//g; s/Burtonsville//g; s/business/Business/g; s/Brockton//g; s/Burleson//g; s/buyer/Buyer/g; s/By The\...//g; 
-s/Calabasas Hls//g; s/Calabasas//g; s/Califon//g; s/California//g; s/Calpella//g; s/Camarillo//g; s/Cambridge//g; s/Camp Hill//g; 
-s/Camp Springs//g; s/Canada//g; s/Canfield//g; s/Canonsburg//g; s/Canton//g; s/Canyon Country//g; s/Cape Canaveral//g; s/Cape May//g; s/Capitola//g; 
-s/Carlisle//g; s/Carlsbad//g; s/Carnegie//g; s/Carpinteria//g; s/Carrollton//g; s/cascade/Cascade/g; s/Castaic//g; s/Castle Rock//g; s/Catawba//g; 
-s/Catonsville//g; s/Cedar Hill//g; s/Center Line//g; s/Central Region//g; s/central Region//g; s/Centreville//g; s/Chambersburg//g; s/Champaign//g; 
-s/Chantilly//g; s/Charles Town//g; s/Charleston//g; s/Charlestown//g; s/Charlottesvle//g; s/Charlotte//g; s/Chattanooga//g; s/Chelmsford//g; 
-s/Cherry Hill//g; s/Chesapeake//g; s/Chesterfield//g; s/Cheyenne//g; s/chicago//g; s/East Chicago//g; s/Chicago//g; s/CHICAGO//g; s/\/Chief/, Chief/g; 
-s/China //g; s/Christiansburg//g; s/chromecast/Chromecast/g; s/Chula Vista//g; s/Cicero//g; s/Cincinnati//g; s/Cissp/CISSP/g; s/Claremont//g; 
-s/Clarendon//g; s/Clarkston//g; s/Clarksville//g; s/Clawson//g; s/Claymont//g; s/clean/Clean/g; s/Clearfield//g; s/Clearwater//g; s/Clementon//g; 
-s/Cleveland//g; s/Clifton Park//g; s/Clifton//g; s/cms/CMS/g; s/Cms/CMS/g; s/CNN News Group Cable News Network//g; s/Captiva//g; s/Clarksburg//g; 
-s/Clearfield//g; s/Clermont//g; s/Cmms/CMMS/g; s/Cocoa Beach//g; s/Cocoa//g; s/Colleyville//g; s/Collinsville//g; s/Colorado Sp\...//g; s/Colorado//g; 
-s/Columbia//g; s/Columbus//g; s/Commack//g; s/Commerce City//g; s/compliance/Compliance/g; s/commercial/Commercial/g; s/Concord //g; s/Conifer//g; 
+s/Allegan//g; s/Allentown//g; s/Allison Park//g; s/Alma //g; s/Alpena//g; s/Alpharetta//g; s/Altamonte S\...//g; s/Am-east,//g; s/Am-west,//g; 
+s/Head of Americas//g; s/The Americas//g; s/Americas//g; s/Americus//g; s/Amissville//g; s/Amst-north America//g; s/Amsterdam//g; s/Anaheim//g; 
+s/ANALYSIST/Analysist/g; s/Analyst\//Analyst, /g; s/analytics/Analytics/g; s/Anchorage//g; s/North Andover//g; s/and Central Us//g; s/Andover//g; 
+s/Andrews Air\...//g; s/android/Android/g; s/Annandale//g; s/Annapolis//g; s/Ann Arbor//g; s/Apalachin//g; s/Apopka//g; s/Apple Valley//g; 
+s/applications/Applications/g; s/Arcadia//g; s/Archbald//g; s/Argentina//g; s/Arlington H//g; s/Arlington//g; s/Armonk//g; s/Artesia//g; 
+s/Ashburn//g; s/Ashland//g; s/Asia-Pacific//g; s/Asia and India//g; s/asia Pacific Region//g; s/Asia Pacific//g; s/Asia//g; s/assistant/Assistant/g; 
+s/at Google//g; s/Athens//g; s/Atlanta//g; s/Atm/ATM/g; s/Atoka//g; s/Attleboro//g; s/attorney/Attorney/g; s/Auburn//g; s/Augusta//g; s/Aurora//g; 
+s/Austell//g; s/Austin//g; s/Australia S\...//g; s/Australia//g; s/Avondale//g; s/Avon//g; s/Azle//g; s/Azusa//g; s/Babylon//g; s/Bakersfield//g; 
+s/Bainbridge \...//g; s/Baltimore//g; s/Bangalore S//g; s/Bangalore//g; s/banking/Banking/g; s/Barboursville//g; s/Bardstown//g; s/Barrington//g; 
+s/Bartlesville//g; s/Basingstoke//g; s/Batesville//g; s/Baton Rouge//g; s/Battle Ground//g; s/Bay City//g; s/Bay Shore//g; s/Bayside//g; s/Bd/BD/g; 
+s/Beachwood//g; s/Beaumont//g; s/Beaver Falls//g; s/Beaverton//g; s/Bedford//g; s/Bel Air//g; s/Belcamp//g; s/Bella Vista//g; s/Bellaire//g; 
+s/Bellevue//g; s/Belleville//g; s/Bellflower//g; s/Beltsville//g; s/Belux//g; s/Benelux//g; s/Benicia//g; s/Bensalem//g; s/Berkeley//g; 
+s/Berwyn Hts//g; s/Berwyn//g; s/Bethel Park//g; s/Bethesda//g; s/Bethlehem//g; s/Bethpage//g; s/Billerica//g; s/Biloxi//g; s/Binghamton//g; 
+s/Birmingham//g; s/Bismarck//g; s/Black Belt//g; s/Bloomfield//g; s/Bloomington//g; s/Bloomsburg//g; s/Boca Raton//g; s/Bohemia//g; s/Boise//g; 
+s/Bolingbrook//g; s/Bordentown//g; s/Boston//g; s/Bothell//g; s/Boulder//g; s/Bowie//g; s/Bowling Green//g; s/Boxborough//g; s/Boynton Beach//g; 
+s/branch/Branch/g; s/\/Branch/, Branch/g; s/Bradenton//g; s/branch/Branch/g; s/Brandywine//g; s/Brazil//g; s/Brecksville//g; s/Brentwood//g; 
+s/Bridgeport//g; s/Bridgewater//g; s/Brisbane//g; s/Bristol//g; s/Bristow//g; s/Brooklyn//g; s/Brookpark//g; s/Brookwood//g; s/Broomfield//g; 
+s/Brownstown//g; s/Buckeye//g; s/Buffalo//g; s/Burbank//g; s/Burlingame//g; s/Burlington//g; s/Burnsville//g; s/Burtonsville//g; 
+s/business/Business/g; s/Brockton//g; s/Burleson//g; s/buyer/Buyer/g; s/By The\...//g; s/Calabasas Hls//g; s/Calabasas//g; s/Califon//g; 
+s/California//g; s/Calpella//g; s/Camarillo//g; s/Cambridge//g; s/Camp Hill//g; s/Camp Springs//g; s/Canada//g; s/Canfield//g; s/Canonsburg//g; 
+s/Canton//g; s/Canyon Country//g; s/Cape Canaveral//g; s/Cape May//g; s/Capitola//g; s/Carlisle//g; s/Carlsbad//g; s/Carnegie//g; s/Carpinteria//g; 
+s/Carrollton//g; s/cascade/Cascade/g; s/Castaic//g; s/Castle Rock//g; s/Catawba//g; s/Catonsville//g; s/Cedar Hill//g; s/Center Line//g; 
+s/Central Region//g; s/central Region//g; s/Centreville//g; s/Chambersburg//g; s/Champaign//g; s/Chantilly//g; s/Charles Town//g; s/Charleston//g; 
+s/Charlestown//g; s/Charlottesvle//g; s/Charlotte//g; s/Chattanooga//g; s/Chelmsford//g; s/Cherry Hill//g; s/Chesapeake//g; s/Chesterfield//g; 
+s/Cheyenne//g; s/chicago//g; s/East Chicago//g; s/Chicago//g; s/CHICAGO//g; s/\/Chief/, Chief/g; s/China //g; s/Christiansburg//g; 
+s/chromecast/Chromecast/g; s/Chula Vista//g; s/Cicero//g; s/Cincinnati//g; s/Cissp/CISSP/g; s/Claremont//g; s/Clarendon//g; s/Clarkston//g; 
+s/Clarksville//g; s/Clawson//g; s/Claymont//g; s/clean/Clean/g; s/Clearfield//g; s/Clearwater//g; s/Clementon//g; s/Cleveland//g; 
+s/Clifton Park//g; s/Clifton//g; s/cms/CMS/g; s/Cms/CMS/g; s/CNN News Group Cable News Network//g; s/Captiva//g; s/Clarksburg//g; s/Clearfield//g; 
+s/Clermont//g; s/Cmms/CMMS/g; s/Cocoa Beach//g; s/Cocoa//g; s/Colleyville//g; s/Collinsville//g; s/Colorado Sp\...//g; s/Colorado//g; s/Columbia//g; 
+s/Columbus//g; s/Commack//g; s/Commerce City//g; s/compliance/Compliance/g; s/commercial/Commercial/g; s/Concord //g; s/Conifer//g; 
 s/connected/Connected/g; s/Conroe//g; s/Conshohocken//g; s/CONSULTANT/Consultant/g; s/consumer/Consumer/g; s/content/Content/g; s/Coopersburg//g; 
 s/Coppell//g; 
 s/Copperopolis//g; s/Cookeville//g; s/Coraopolis//g; s/Cordova//g; s/corporate/Corporate/g; s/Corpus Christi//g; s/Corsicana//g; s/Council Bluffs//g; 
@@ -1067,9 +1067,9 @@ s/Twin Falls//g; s/Twinsburg//g; s/Tyngsboro//g; s/UK//g; s/U.S.//g; s/UNDERWRIT
 s/Uniondale//g; s/Uniontown//g; s/United Kingdom//g; s/United States//g; s/university/University/g; s/Upper Chich\...//g; s/Upper Marlboro//g; s/Urbandale//g; 
 s/Uscg/USCG/g; s/Uxbridge//g; s/Valencia//g; s/valve/Valve/g; s/Van Nuys//g; s/Vancouver//g; s/Vandergrift//g; s/vendor/Vendor/g; s/Venice//g; s/Ventura//g; 
 s/Vernon Hills//g; s/Vero Beach//g; s/Verona//g; s/Vestal//g; s/Vii/VII/g; s/Vi /VI/g; s/Vice-President/Vice President/g; s/Vicepresident/Vice President/g; 
-s/VIC//g; s/Vienna//g; s/Vincentown//g; s/Vineland//g; s/Virginia Beach//g; s/La Vista//g; s/Vista//g; s/Voip/VoIP/g; s/Wagoner//g; s/Wakefield//g; s/Waldorf//g; 
+s/VIC//g; s/Vienna//g; s/Vincentown//g; s/Vineland//g; s/Virginia Beach//g; s/La Vista//g; s/Vista//g; s/Voip/VoIP/g; s/Wagoner//g; s/Waldorf//g; 
 s/Walled Lake//g; s/Wallingford//g; s/Wallops Island//g; s/Walnut Creek//g; s/Waltham//g; s/Warminster//g; s/Warrenton//g; s/Warner Robins//g; s/Warsaw//g; 
-s/Warwick//g; s/Washington//g; s/Wasilla//g; s/Wauconda//g; s/Waukesha//g; s/wealth/Wealth/g; s/Weare//g; s/Weatherford//g; s/Wellington//g; s/West Bloomf\...//g; 
+s/Warwick//g; s/Wasilla//g; s/Wauconda//g; s/Waukesha//g; s/wealth/Wealth/g; s/Weare//g; s/Weatherford//g; s/Wellington//g; s/West Bloomf\...//g; 
 s/West Chester//g; s/West Dundee//g; s/West Harrison//g; s/West Hollywood//g; s/West Linn//g; s/West Mifflin//g; s/West Orange//g; s/West Palm B\...//g; 
 s/West Paterson//g; s/West Sacram\...//g; s/Westlake//g; s/Westborough//g; s/Westchester//g; s/Western Spr\...//g; s/Westerville//g; s/Westlake//g; 
 s/Westminster//g; s/Westmont//g; s/Westport//g; s/Westwego//g; s/West Orange//g; s/Wexford//g; s/Wheaton//g; s/Wheeling//g; s/White Lake//g; s/White Plains//g; 
@@ -1092,7 +1092,7 @@ perl -ne 'if ($_ =~ /(.*?)\t\s*(.*)/) {printf("%-30s%s\n",$1,$2);}' tmp > tmp2
 sed 's/[ \t]*$//g' tmp2 | sort | sed 's/   -/ -/g; s/,  /, /g; s/, , , , //g; s/, , , //g; s/, , /, /g; s/,$//g; s/\/$//g; s/-$//g; s/Alexandria$//g; s/and$//g; 
 s/Bartlett$//g; s/Barton$//g; s/BC$//g; s/Berlin$//g; s/Camden$//g; s/Campbell$//g; s/Cary$//g; s/Corona$//g; s/D$//g; s/Dallas$//g; s/Dayton$//g; s/Fairfield$//g; 
 s/for$//g; s/Frederick$//g; s/Helena$//g; s/Lawrence$//g; s/Montgomery$//g; s/of$//g; s/Orlando$//g; s/Raleigh$//g; s/Redmond$//g; s/Sterling$//g; s/Strasburg$//g; 
-s/-the$//g; s/Toledo$//g' > tmp3
+s/-the$//g; s/Toledo$//g; s/Wakefield$//g; s/Washington$//g' > tmp3
 
 head tmp3
 echo

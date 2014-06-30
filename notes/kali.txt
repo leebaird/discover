@@ -133,19 +133,19 @@ Firefox extension     www.forge.mil/Resources-Firefox.html
 
 www.dbvis.com/download/
 UNIX (setup installer)
-chmod 755 dbvis_unix_9_1_7.sh
-./dbvis_unix_9_1_7.sh
+chmod 755 dbvis_unix_9_1_9.sh
+./dbvis_unix_9_1_9.sh
 Take all default settings.
 mv DbVisualizer/ /opt/
-rm dbvis_unix_9_1_7.sh
+rm dbvis_unix_9_1_9.sh
 ------------------------------------------------------------------------------------------------------
 
 # Install Nessus
 
 www.tenable.com/products/nessus/select-your-operating-system
 Linux > Debian 6.0 (64 bits)
-Nessus-5.2.6-debian6_amd64.deb
-dpkg -i Nessus-5.2.6-debian6_amd64.deb
+Nessus-5.2.7-debian6_amd64.deb
+dpkg -i Nessus-5.2.7-debian6_amd64.deb
 service nessusd start
 https://localhost:8834
 ------------------------------------------------------------------------------------------------------
