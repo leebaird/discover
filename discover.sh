@@ -13,6 +13,7 @@
 # Eric Milam - total re-write using functions.
 # Martin Bos - IDS evasion techniques.
 # Numerous people on freenode IRC - #bash and #sed (e36freak)
+# Robert Clowser - all things
 # Ben Wood - regex master
 # Rob Dixon - report framework idea
 # Steve Copland - report framework design
@@ -21,8 +22,8 @@
 
 # Global variables
 distro=$(uname -n)
-interface=$(ifconfig | grep -B10 'Loopback'| grep 'Ethernet' | cut -d ' ' -f1)
-ip=$(ifconfig | grep 'inet addr'| grep -v '127.0.0.1' | cut -d 'B' -f1 | cut -d ':' -f2)
+interface=$(ifconfig | grep -B1 'inet addr' | egrep -v '(-|inet addr|Loopback)' | cut -d ' ' -f1)
+ip=$(ifconfig | grep 'Bcast' | awk '{print$2}' | cut -d ':' -f2)
 long="============================================================================================================================="
 medium="======================================================================"
 short="========================================"
@@ -925,44 +926,40 @@ s/Cheyenne//g; s/chicago//g; s/East Chicago//g; s/Chicago//g; s/CHICAGO//g; s/\/
 s/chromecast/Chromecast/g; s/Chula Vista//g; s/Cicero//g; s/Cincinnati//g; s/Cissp/CISSP/g; s/Claremont//g; s/Clarendon//g; s/Clarkston//g; 
 s/Clarksville//g; s/Clawson//g; s/Claymont//g; s/clean/Clean/g; s/Clearfield//g; s/Clearwater//g; s/Clementon//g; s/Cleveland//g; 
 s/Clifton Park//g; s/Clifton//g; s/cms/CMS/g; s/Cms/CMS/g; s/CNN News Group Cable News Network//g; s/Captiva//g; s/Clarksburg//g; s/Clearfield//g; 
-s/Clermont//g; s/Cmms/CMMS/g; s/Cocoa Beach//g; s/Cocoa//g; s/Colleyville//g; s/Collinsville//g; s/Colorado Sp\...//g; s/Colorado//g; s/Columbia//g; 
+s/Clermont//g; s/Cmms/CMMS/g; s/Cocoa Beach//g; s/Cocoa//g; s/Colleyville//g; s/Collinsville//g; s/Colorado Sp...//g; s/Colorado//g; s/Columbia//g; 
 s/Columbus//g; s/Commack//g; s/Commerce City//g; s/compliance/Compliance/g; s/commercial/Commercial/g; s/Concord //g; s/Conifer//g; 
 s/connected/Connected/g; s/Conroe//g; s/Conshohocken//g; s/CONSULTANT/Consultant/g; s/consumer/Consumer/g; s/content/Content/g; s/Coopersburg//g; 
-s/Coppell//g; 
-s/Copperopolis//g; s/Cookeville//g; s/Coraopolis//g; s/Cordova//g; s/corporate/Corporate/g; s/Corpus Christi//g; s/Corsicana//g; s/Council Bluffs//g; 
-s/COUNSEL/Counsel/g; s/Countryside//g; s/Cranberry T\...//g; s/Cranberry Twp//g; s/Cranston//g; s/credit/Credit/g; s/CREDIT/Credit/g; s/Cresskill//g; 
-s/Crm/CRM/g; s/Crofton//g; s/Cross Junction//g; s/Crossville//g; s/Crownsville//g; s/Crum Lynne//g; s/Crystal Lake//g; s/Ctr/Center/g; s/Culpeper//g; 
-s/Culver City//g; s/Cupertino//g; s/Cuyahoga Falls//g; s/Cypress//g; s/Czech Republic//g; s/DALLAS//g; s/Daly City//g; s/Danville//g; 
-s/dealer/Dealer/g; s/Decatur//g; s/Delaplane//g; s/Del Mar//g; s/Delray Beach//g; s/Denver//g; s/Deer Park//g; s/Deerfield//g; s/Delmont//g; 
-s/DENVER//g; s/Deptford//g; s/Des Moines//g; s/DESIGNER/Designer/g; s/Desoto//g; s/Destiny//g; s/Destin//g; s/Detroit//g; s/development/Development/g; 
-s/Devens//g; s/DEVICES/Devices/g; s/Dhs/DHS/g; s/Diamond Bar//g; s/director/Director/g; s/discovery/Discovery/g; s/display/Display/g; s/Dns/DNS/g; 
-s/Douglasville//g; s/Dover//g; s/Downers Grove//g; s/Doylestown//g; s/Drexel Hill//g; s/Dublin//g; s/Dulles//g; s/Duluth//g; s/Dumfries//g; 
-s/Dunkirk//g; s/DEPUTY/Deputy/g; s/Durham//g; s/East Brunswick//g; s/East Coast//g; s/East Greenbush//g; s/East Hanover//g; s/East Hartford//g; 
-s/East Peters\...//g; s/East Stroud\...//g; s/East Syracuse//g; s/eastern Region//g; s/Eastern//g; s/Easton//g; s/Eatontown//g; s/Elgin//g; 
-s/Eau Claire//g; 
-s/Eden Prairie//g; s/Edgewood//g; s/Edison//g; s/education/Education/g; s/Egg Harbor \...//g; s/Egg Harbor//g; s/El Cajon//g; s/El Monte//g; 
-s/El Paso//g; s/El Segundo//g; s/ELECTRIC/Electric /g; s/ELECTRONICS/Electronics/g; s/Elizabethtown//g; s/Elk Grove V...//g; s/Elk Grove//g; s/Elkhorn//g; 
-s/Elkridge//g; s/Elkton//g; s/Ellicott City//g; s/Elk Grove V\...//g; s/Elkhart//g; s/Elm Grove//g; s/Elyria//g; s/EMEA//g; s/Emea//g; 
-s/emerging/Emerging/g; s/Endicott//g; s/endocrinology/Endocrinology/g; s/energy/Energy/g; s/engineer/Engineer/g; s/Englewood//g; s/Englishtown//g; 
-s/Emeryville//g; s/Encino//g; s/Ennis//g; s/enterprise/Enterprise/g; s/Erie//g; s/Escondido//g; s/Euless//g; s/Northern Europe//g; s/Europe//g; 
-s/Evanston//g; s/Evansville//g; 
-s/Exton//g; s/Fairbanks//g; s/Fairborn//g; s/Fairfax//g; s/Fairmont//g; s/Fairview He\...//g; s/Fairview//g; s/Fallbrook//g; 
-s/Fall River//g; s/Falls Church//g; s/Fallston//g; s/Fareham//g; s/Farmington Hls//g; s/Farmington//g; s/Farnham//g; s/fashion/Fashion/g; 
-s/Fayetteville//g; s/Feastervill\...//g; s/Fha/FHA/g; s/financial/Financial/g; s/Findlay//g; s/Fishers//g; s/Flat Rock//g; s/Flemington//g; s/Florence//g; 
-s/Floresville//g; s/Florham Park//g; s/Flossmoor//g; s/Flourtown//g; s/Flower Mound//g; s/Flowood//g; s/Floyds Knobs//g; s/Fogelsville//g; s/for Asia and//g; 
-s/Forest Hills//g; s/Forest Hill//g; s/Forked River//g; s/foreign/Foreign/g; s/Fort Belvoir//g; s/Fort Bliss//g; s/Fort Collins//g; s/Fort Huachuca//g; 
-s/Fort Knox//g; s/Fort Lauder//g; s/Fort Leaven\...//g; s/Fort Mill//g; s/Fort Monmouth//g; s/Fort Monroe//g; s/Fort Myers//g; s/Fort Pierce//g; 
-s/Fort Walton\...//g; s/Fort Washin\...//g; s/Fort Wayne//g; s/Fort Worth//g; s/Fountain Va\...//g; s/france//g; s/Framingham//g; s/Frankfort//g; 
-s/Fredericksburg//g; s/Fremont//g; s/Fresno//g; s/Frisco//g; s/Front Royal//g; s/Ft Mitchell//g; s/Ft Worth//g; 
+s/Coppell//g; s/Copperopolis//g; s/Cookeville//g; s/Coraopolis//g; s/Cordova//g; s/corporate/Corporate/g; s/Corpus Christi//g; s/Corsicana//g; 
+s/Council Bluffs//g; s/COUNSEL/Counsel/g; s/Countryside//g; s/Cranberry T\...//g; s/Cranberry Twp//g; s/Cranston//g; s/credit/Credit/g; 
+s/CREDIT/Credit/g; s/Cresskill//g; s/Crm/CRM/g; s/Crofton//g; s/Cross Junction//g; s/Crossville//g; s/Crownsville//g; s/Crum Lynne//g; 
+s/Crystal Lake//g; s/Ctr/Center/g; s/Culpeper//g; s/Culver City//g; s/Cupertino//g; s/Cuyahoga Falls//g; s/Cypress//g; s/Czech Republic//g; 
+s/DALLAS//g; s/Daly City//g; s/Danville//g; s/dealer/Dealer/g; s/Decatur//g; s/Delaplane//g; s/Del Mar//g; s/Delray Beach//g; s/Denver//g; 
+s/Deer Park//g; s/Deerfield//g; s/Delmont//g; s/DENVER//g; s/Deptford//g; s/Des Moines//g; s/DESIGNER/Designer/g; s/Desoto//g; s/Destiny//g; 
+s/Destin//g; s/Detroit//g; s/development/Development/g; s/Devens//g; s/DEVICES/Devices/g; s/Dhs/DHS/g; s/Diamond Bar//g; s/director/Director/g; 
+s/discovery/Discovery/g; s/display/Display/g; s/Dns/DNS/g; s/Douglasville//g; s/Dover//g; s/Downers Grove//g; s/Doylestown//g; s/Drexel Hill//g; 
+s/Dublin//g; s/Dulles//g; s/Duluth//g; s/Dumfries//g; s/Dunkirk//g; s/DEPUTY/Deputy/g; s/Durham//g; s/East Brunswick//g; s/East Coast//g; 
+s/East Greenbush//g; s/East Hanover//g; s/East Hartford//g; s/East Peters\...//g; s/East Stroud\...//g; s/East Syracuse//g; s/eastern Region//g; 
+s/Eastern//g; s/Easton//g; s/Eatontown//g; s/Elgin//g; s/Eau Claire//g; s/Eden Prairie//g; s/Edgewood//g; s/Edison//g; s/education/Education/g; 
+s/Egg Harbor \...//g; s/Egg Harbor//g; s/El Cajon//g; s/El Monte//g; s/El Paso//g; s/El Segundo//g; s/ELECTRIC/Electric /g; s/ELECTRONICS/Electronics/g; 
+s/Elizabethtown//g; s/Elk Grove V...//g; s/Elk Grove//g; s/Elkhorn//g; s/Elkridge//g; s/Elkton//g; s/Ellicott City//g; s/Elk Grove V\...//g; s/Elkhart//g; 
+s/Elm Grove//g; s/Elyria//g; s/EMEA//g; s/Emea//g; s/emerging/Emerging/g; s/Endicott//g; s/endocrinology/Endocrinology/g; s/energy/Energy/g; 
+s/engineer/Engineer/g; s/Englewood//g; s/Englishtown//g; s/Emeryville//g; s/Encino//g; s/Ennis//g; s/enterprise/Enterprise/g; s/Erie//g; s/Escondido//g; 
+s/Euless//g; s/Northern Europe//g; s/Europe//g; s/Evanston//g; s/Evansville//g; s/Exton//g; s/Fairbanks//g; s/Fairborn//g; s/Fairfax//g; s/Fairmont//g; 
+s/Fairview He\...//g; s/Fairview//g; s/Fallbrook//g; s/Fall River//g; s/Falls Church//g; s/Fallston//g; s/Fareham//g; s/Farmington Hls//g; s/Farmington//g; 
+s/Farnham//g; s/fashion/Fashion/g; s/Fayetteville//g; s/Feastervill\...//g; s/Fha/FHA/g; s/financial/Financial/g; s/Findlay//g; s/Fishers//g; s/Flat Rock//g; 
+s/Flemington//g; s/Florence//g; s/Floresville//g; s/Florham Park//g; s/Flossmoor//g; s/Flourtown//g; s/Flower Mound//g; s/Flowood//g; s/Floyds Knobs//g; 
+s/Fogelsville//g; s/for Asia and//g; s/Forest Hills//g; s/Forest Hill//g; s/Forked River//g; s/foreign/Foreign/g; s/Fort Belvoir//g; s/Fort Bliss//g; 
+s/Fort Collins//g; s/Fort Huachuca//g; s/Fort Knox//g; s/Fort Lauder//g; s/Fort Leaven\...//g; s/Fort Mill//g; s/Fort Monmouth//g; s/Fort Monroe//g; 
+s/Fort Myers//g; s/Fort Pierce//g; s/Fort Walton\...//g; s/Fort Washin\...//g; s/Fort Wayne//g; s/Fort Worth//g; s/Fountain Va\...//g; s/france//g; 
+s/Framingham//g; s/Frankfort//g; s/Fredericksburg//g; s/Fremont//g; s/Fresno//g; s/Frisco//g; s/Front Royal//g; s/Ft Mitchell//g; s/Ft Worth//g; 
 s/Ft Wright//g; s/Fullerton//g; s/Gaap/GAAP/g; s/Gainesville//g; s/Gaithersburg//g; s/Garden City//g; s/Gardena//g; s/Gastonia//g; s/Germantown//g; 
 s/Germany//g; s/GERMANY//g; s/Geyserville//g; s/Gibsonia//g; s/Gig Harbor//g; s/Glastonbury//g; s/Glen Burnie//g; s/Glen Ellyn//g; s/Glendale//g; 
 s/Glendora//g; s/Glen Ridge//g; s/Glen Rock//g; s/Glenside//g; s/global/Global/g; s/GMBH//g; s/Gnadenhutten//g; s/Goleta//g; s/Goodyear//g; 
-s/A Google Company//g; 
-s/Google Access//g; s/Google Adwords//g; s/Google Analytics//g; s/Google Books//g; s/Google Brand//g; s/Google Checkout//g; s/Google Earth//g; 
-s/Google Enterprise//g; s/Google Federal//g; s/Google Fiber//g; s/Google Finance//g; s/Google Geospatial Services//g; s/Google Glass//g; s/Google Health//g; 
-s/Google Maps//g; s/Google Media Sales//g; s/Google Offers//g; s/Google Payments//g; s/Google Payment//g; s/Google Plus//g; s/Google Print//g; 
-s/Google Shopping Express//g; s/Google Shopping//g; s/Google Street View//g; s/Google Talk Team//g; s/Google Travel//g; s/Google Ventures//g; 
-s/Google Voice//g; s/Google Wallet//g; s/Google X//g; s/Google//g; s/-google//g; s/Granbury//g; 
+s/A Google Company//g; s/Google Access//g; s/Google Adwords//g; s/Google Analytics//g; s/Google Books//g; s/Google Brand//g; s/Google Checkout//g; 
+s/Google Earth//g; s/Google Enterprise//g; s/Google Federal//g; s/Google Fiber//g; s/Google Finance//g; s/Google Geospatial Services//g; 
+s/Google Glass//g; s/Google Health//g; s/Google Maps//g; s/Google Media Sales//g; s/Google Offers//g; s/Google Payments//g; s/Google Payment//g; 
+s/Google Plus//g; s/Google Print//g; s/Google Shopping Express//g; s/Google Shopping//g; s/Google Street View//g; s/Google Talk Team//g; 
+s/Google Travel//g; s/Google Ventures//g; s/Google Voice//g; s/Google Wallet//g; s/Google X//g; s/Google//g; s/-google//g; s/Granbury//g; 
 s/Grand Junction//g; s/Grand Haven//g; s/Grand Prairie//g; s/Grand Rapids//g; s/Granite City//g; s/Granville//g; s/Grants Pass//g; s/Granville//g; 
 s/Grayslake//g; s/Green Bay//g; s/Green Belt//g; s/Greeley//g; s/Greenbelt//g; s/Greenbrae//g; s/Greensburg//g; s/Greencastle//g; s/Greeley//g; 
 s/Greeneville//g; s/Greenville//g; s/Greenwich//g; s/Greenwood Vlg//g; s/Gretna//g; s/Grosse Ile//g; s/Grosse Poin\...//g; s/group/Group/g; 
@@ -974,12 +971,11 @@ s/Hazel Park//g; s/Hazelwood//g; s/Hd/HD/g; s/\/Head/, Head/g; s/He\...//g; s/He
 s/Hermitage//g; s/Herndon//g; s/Henrico//g; s/Hermosa Beach//g; s/Hershey//g; s/Highland Hls//g; s/Highland Park//g; s/Highland//g; s/Hilliard//g; 
 s/Hillsborough//g; s/Hilton Head\...//g; s/Hobart//g; s/Holbrook//g; s/Hollywood//g; s/Holtsville//g; s/Homer Glen//g; s/Homestead//g; s/Honolulu//g; 
 s/Hookstown//g; s/Hopkinton//g; s/Hopewell//g; s/Horsham//g; s/Houston//g; s/Hq/HQ/g; s/HR//g; s/Huntingdon//g; s/Huntington//g; s/Huntingtown//g; 
-s/Huntingtn Bch//g; 
-s/Huntsville//g; s/Hurlburt Field//g; s/Hurricane//g; s/Hyattsville//g; s/Hyderabad//g; s/Idaho Falls//g; s/Iii/III/g; s/Ii/II/g; s/Illinois//g; 
-s/Indialantic//g; s/Indian Harb\...//g; s/Indianapolis//g; s/Indiana//g; s/India//g; s/Information Technology/IT/g; s/information/Information/g; 
-s/institutional/Institutional/g; s/INSTRUMENT/Instrument/g; s/insurance/Insurance/g; s/investment/Investment/g; s/Ireland//g; s/Irvine//g; s/Irving//g; 
-s/Israel//g; s/Iselin//g; s/Italy//g; s/Its/ITS/g; s/Iv /IV/g; s/J\...//g; s/JA//g; s/Jacksonville//g; s/Jacksonvill\...//g; s/Japan//g; s/Jber//g; 
-s/Jeffersonville//g; 
+s/Huntingtn Bch//g; s/Huntsville//g; s/Hurlburt Field//g; s/Hurricane//g; s/Hyattsville//g; s/Hyderabad//g; s/Idaho Falls//g; s/Iii/III/g; s/Ii/II/g; 
+s/Illinois//g; s/Indialantic//g; s/Indian Harb\...//g; s/Indianapolis//g; s/Indiana//g; s/India//g; s/Information Technology/IT/g; 
+s/information/Information/g; s/institutional/Institutional/g; s/INSTRUMENT/Instrument/g; s/insurance/Insurance/g; s/investment/Investment/g; s/Ireland//g; 
+s/Irvine//g; s/Irving//g; s/Israel//g; s/Iselin//g; s/Italy//g; s/Its/ITS/g; s/Iv /IV/g; s/J\...//g; s/JA//g; s/Jacksonville//g; s/Jacksonvill\...//g; 
+s/Japan//g; s/Jber//g; s/Jeffersonville//g; 
 s/Jefferson City//g; s/Jersey City//g; s/Jerseyville//g; s/Jessup//g; s/Jenkintown//g; s/Johnson City//g; s/Johnstown//g; s/Joliet//g; s/Jupiter//g; 
 s/Kalamazoo//g; s/Kanata//g; s/Kankakee//g; s/Kansas City//g; s/KANSAS CITY//g; s/Kearny//g; s/Keego Harbor//g; s/Kennesaw//g; s/Kennett Square//g; 
 s/Kensington//g; s/Kihei//g; s/Killeen//g; s/King George//g; s/King Of Pru\...//g; s/King Of Pru//g; s/Kings Bay//g; s/Kings Park//g; s/Kirkland//g; 

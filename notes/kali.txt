@@ -232,6 +232,22 @@ Nessus
 Nexpose
 ------------------------------------------------------------------------------------------------------
 
+# VPN
+
+apt-get install network-manager-iodine network-manager-iodine-gnome
+apt-get install network-manager-openconnect network-manager-openconnect-gnome
+apt-get install network-manager-openvpn network-manager-openvpn-gnome
+apt-get install network-manager-pptp network-manager-pptp-gnome
+apt-get install network-manager-strongswan
+apt-get install network-manager-vpnc network-manager-vpnc-gnome
+/etc/init.d/network-manager restart
+
+## Thanks to Robert Clowser for the bug fix!
+nano /etc/network/interfaces
+Remove the last two lines egarding eth0. 
+Reboot
+------------------------------------------------------------------------------------------------------
+
 # Amazon EC2
 
 m1.xlarge

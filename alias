@@ -3,6 +3,9 @@
 
 dhcp=$(grep 'dhcp-server' /var/lib/dhcp/dhclient.leases | awk '{print $3}' | cut -d ';' -f1 | head -n1)
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
+interface=$(ifconfig | grep -B1 'inet addr' | egrep -v '(-|inet addr|Loopback)' | cut -d ' ' -f1)
+ip=$(ifconfig | grep 'Bcast' | awk '{print$2}' | cut -d ':' -f2)
+mac=$(ifconfig | grep -B1 'inet addr' | egrep -v '(-|inet addr|Loopback)' | awk '{print$5}')
 
 alias c='clear'
 alias cl='clear ; ls -l'
@@ -11,10 +14,9 @@ alias e='exit'
 alias i='echo ; echo ; echo "DHCP     " $dhcp ; echo "DNS      " $dns ; echo ; ifconfig ; ping google.com -c3 ; echo ; echo'
 alias l='ls -l'
 alias n='echo ; netstat -antup | egrep -v "(Active|p6)" ; echo ;
-echo -n "Interface:  " ; ifconfig | grep -B1 "inet addr" | egrep -v "(-|inet addr|Loopback)" | cut -d " " -f1 ;
-echo -n "MAC address eth0:  " ; ifconfig | grep 'eth0' | awk '{print$5}' ;
-echo -n "Mac address wlan0:  " ; ifconfig | grep 'wlan0' | awk '{print$5}' ;
-echo -n "Internal IP:  " ; ifconfig | grep 'Bcast' | awk '{print$2}' | cut -d ':' -f2 ;
+echo -n "Interface:    "$interface ; echo ;
+echo -n "MAC address:  "$mac ; echo ;
+echo -n "Internal IP:  "$ip ; echo ;
 echo -n "External IP:  " ; curl ifconfig.me ; echo'
 alias r='cd /root/ ; clear'
 alias s='cd /opt/discover/ ; clear'
