@@ -10,7 +10,7 @@ VRFY root
 helo root
 
 mail from: root@target.com
-rcpt to: joesmith@gmail.com
+rcpt to: jsmith@gmail.com
 DATA
 Subject: Testing open mail relay.
 Testing SMTP open mail relay. Have a nice day.
@@ -20,7 +20,8 @@ quit
 for x in $(cat users.txt); do echo VRFY $x | nc -nv -w 1 <target IP> 25 2>/dev/null | grep ^’250’; done
 ------------------------------------------------------------------------------------------------------
 
-sendEmail -f root@target.com -t leebaird@gmail.com -u Testing open mail relay. -m Testing SMTP open mail relay. Have a nice day. -s <targetIP>
+sendEmail -f root@target.com -t jsmith@gmail.com -u Testing open mail relay. -m Testing SMTP open mail relay. Have a nice day. -s <target IP>
+
 SMTP Service STARTTLS Plaintext Command Injection
 
 telnet <target IP> 25
@@ -34,14 +35,12 @@ C: STARTTLS
 S: 220 Go ahead
 ------------------------------------------------------------------------------------------------------
 
-Nessus sent the following two commands in a single packet:
 STARTTLS\r\nRSET\r\n
+
 And the server sent the following two responses:
 220 Server ready Ready to start TLS
 250 +OK Reset
 ------------------------------------------------------------------------------------------------------
-
-# SMTP Relay
 
 HELO <anything>
 Identical to/from - mail from: <nobody@domain> rcpt to: <nobody@domain>
@@ -55,8 +54,6 @@ User IP address of the target server - mail from: <user@domain> rcpt to: <nobody
 Disparate formatting - mail from: <user@[IP Address]> rcpt to: <@domain:nobody@recipient-domain>
 Disparate formatting2 - mail from: <user@[IP Address]> rcpt to: <recipient_domain!nobody@[IP Address]>
 ------------------------------------------------------------------------------------------------------
-
-# Bash example
 
 #!/bin/bash
 clear
@@ -74,7 +71,7 @@ else
 
      cat >> tmp << EOF
      mail from: root@target.com
-     rcpt to: joesmith@gmail.com
+     rcpt to: jsmith@gmail.com
      data
      Subject: Testing open mail relay.
      Testing SMTP open mail relay from $1. 

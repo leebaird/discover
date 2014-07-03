@@ -1,6 +1,1 @@
-setg RHOSTS file:/opt/discover/snort/80.txt
-setg THREADS 255
-setg RPORT 80
-
-use auxiliary/scanner/scada/indusoft_ntwebserver_fileaccess
-run
+69883f852fca706421ae0f7b9d871acb8ddcdf39

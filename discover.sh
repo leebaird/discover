@@ -1499,7 +1499,7 @@ else
 fi
 
 # Clean up
-egrep -v '(1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|No exact OS|OS:|OS CPE|Please report|scanned in|SF|Warning)' $name/nmap.nmap | sed 's/Nmap scan report for //' | sed '/^$/! b end; n; /^$/d; : end' > $name/nmap.txt
+egrep -v '(1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|Network Distance|No exact OS|OS:|OS CPE|Please report|scanned in|SF|Warning)' $name/nmap.nmap | sed 's/Nmap scan report for //' | sed '/^$/! b end; n; /^$/d; : end' > $name/nmap.txt
 
 grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' $name/nmap.nmap | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > $name/hosts.txt
 hosts=$(wc -l $name/hosts.txt | cut -d ' ' -f1)
@@ -1574,7 +1574,7 @@ sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/x11.txt
 # Remove all empty files
 find $name/ -type f -empty -exec rm {} +
 }
-
+                                               
 ##############################################################################################################
 
 f_cleanup(){
@@ -2941,7 +2941,7 @@ case $choice in
      while read -r line; do
           xdotool key ctrl+shift+t
           sleep 1
-          xdotool type "nikto -h $medium -port $port -Format htm --output /$user/data/nikto/$medium.htm ; exit"
+          xdotool type "nikto -h $host -port $port -Format htm --output /$user/data/nikto/$host.htm ; exit"
           xdotool key Return
      done < "$location"
      ;;
@@ -2954,7 +2954,7 @@ case $choice in
      while IFS=: read -r host port; do
           xdotool key ctrl+shift+t
           sleep 1
-          xdotool type "nikto -h $host -port $port -Format htm --output /root/nikto/$host-$port.htm ; exit"
+          xdotool type "nikto -h $host -port $port -Format htm --output /$user/data/$host-$port.htm ; exit"
           xdotool key Return
      done < "$location"
      ;;
