@@ -149,6 +149,15 @@ nano /opt/google/chrome/google-chrome
 The last line should look like this: exec -a "$0" "$HERE/chrome"  "$@" --user-data-dir
 ------------------------------------------------------------------------------------------------------
 
+# Install Adobe Flash
+
+http://get.adobe.com/flashplayer
+.tar.gz for other Linux
+cd /root/Downloads/
+tar zxvf install_flash_player_11_linux.x86_64.tar.gz
+cp libflashplayer.so /usr/lib/mozilla/plugins/
+------------------------------------------------------------------------------------------------------
+
 # Install Nessus
 
 www.tenable.com/products/nessus/select-your-operating-system
