@@ -140,6 +140,15 @@ mv DbVisualizer/ /opt/
 rm dbvis_unix_9_1_9.sh
 ------------------------------------------------------------------------------------------------------
 
+# Install Google Chrome
+
+https://www.google.com/chrome/browser/
+64 bit .deb
+dpkg -i google-chrome-stable_current_amd64.deb
+nano /opt/google/chrome/google-chrome
+The last line should look like this: exec -a "$0" "$HERE/chrome"  "$@" --user-data-dir
+------------------------------------------------------------------------------------------------------
+
 # Install Nessus
 
 www.tenable.com/products/nessus/select-your-operating-system
