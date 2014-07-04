@@ -13,9 +13,14 @@ enum4linux -a <target IP>
 
 rpcclient -U "" <target IP>
 Enter  's password: <return>
-rpcclient $> srvinfo
-rpcclient $> enumdomusers
-rpcclient $> getdompwinfo
+rpcclient $> 
+  enumdomusers
+  enumdomusers
+  netshareenum
+  netshareenumall
+  querydominfo
+  getdompwinfo
+  srvinfo
 
 net use \\target IP\ipc$ "" /u:""            # Windows
 ------------------------------------------------------------------------------------------------------
