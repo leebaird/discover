@@ -1,11 +1,6 @@
 SNMP
 
 
-# Discovery
-
-nmap -sU -Pn -n -T4 -p161 <target range>
-------------------------------------------------------------------------------------------------------
-
 # Default or Guessable SNMP Community Strings
 
 onesixtyone -c <password list> -i <target list>

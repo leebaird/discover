@@ -1,6 +1,21 @@
 Misc
 
 
+1.  worksheet.xlsx > Hosts tab, hide all columns except IP, Port and Service.
+2.  Copy the text and paste into new file called tmp.
+3.  grep 'HTTP' tmp | awk '{print $1,":",$2}' | sed 's/ //g' > http.txt
+4.  grep 'HTTPS' tmp | awk '{print $1,":",$2}' | sed 's/ //g' > https.txt
+5.  Both files will feed options 7 Firefox and 8 Nikto.
+6.  https.txt will feed option 9 SSL Check.
+------------------------------------------------------------------------------------------------------
+
+http://www.ipvoid.com/scan/targetIP
+http://www.urlvoid.com/scan/$domain
+http://www.fortiguard.com
+
+nmap -p80 --script dns-brute $domain
+------------------------------------------------------------------------------------------------------
+
 # recon-ng
 
 recon-ng -w <workspace> -r <resource file>
