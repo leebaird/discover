@@ -125,6 +125,11 @@ Enter the location of your list:
 
 * Use sslscan and sslyze to check for SSL/TLS certificate issues.
 
+# CONTRIBUTING
+
+Please read the CONTRIBUTING.md file before you submit a (PR) Pull request
+
+
 ## MISC
 ### Crack WiFi
 
