@@ -628,17 +628,17 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      echo
      echo "dnsrecon"
-#     echo "     DNS Records          (2/$total)"
-#     dnsrecon -d $domain -t std > tmp
-#     egrep -v '(Bind Version for|Could not|Enumerating SRV|not configured|Performing|Records Found|Recursion|Resolving|TXT)' tmp > tmp2
-#     # Remove first 6 characters from each line
-#     sed 's/^......//' tmp2 | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10}' | column -t | sort -u -k2 -k1 > tmp3
-#     grep 'TXT' tmp | sed 's/^......//' | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15}' >> tmp3
-#     egrep -v '(SEC3|SKEYs|SSEC)' tmp3 > records
-#     cat /$user/data/$domain/data/records.htm records | grep -v '<' | column -t | sort -u -k2 -k1 > tmp3
-#
-#     echo '<pre style="font-size:14px;">' > /$user/data/$domain/data/records.htm
-#     cat tmp3 | column -t >> /$user/data/$domain/data/records.htm; echo "</pre>" >> /$user/data/$domain/data/records.htm
+     echo "     DNS Records          (2/$total)"
+     dnsrecon -d $domain -t std > tmp
+     egrep -v '(Bind Version for|Could not|Enumerating SRV|not configured|Performing|Records Found|Recursion|Resolving|TXT)' tmp > tmp2
+     # Remove first 6 characters from each line
+     sed 's/^......//' tmp2 | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10}' | column -t | sort -u -k2 -k1 > tmp3
+     grep 'TXT' tmp | sed 's/^......//' | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15}' >> tmp3
+     egrep -v '(SEC3|SKEYs|SSEC)' tmp3 > records
+     cat /$user/data/$domain/data/records.htm records | grep -v '<' | column -t | sort -u -k2 -k1 > tmp3
+
+     echo '<pre style="font-size:14px;">' > /$user/data/$domain/data/records.htm
+     cat tmp3 | column -t >> /$user/data/$domain/data/records.htm; echo "</pre>" >> /$user/data/$domain/data/records.htm
 
      echo "     Zone Transfer        (3/$total)"
      dnsrecon -d $domain -t axfr > tmp
