@@ -652,9 +652,9 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      echo
      echo "Fierce (~5 min)           (5/$total)"
-#     fierce -dns $domain -wordlist /usr/share/fierce/hosts.txt -suppress -file tmp4
+     fierce -dns $domain -wordlist /usr/share/fierce/hosts.txt -suppress -file tmp4
 
-#     sed -n '/Now performing/,/Subnets found/p' tmp4 | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > subdomains-fierce
+     sed -n '/Now performing/,/Subnets found/p' tmp4 | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > subdomains-fierce
 
      cat subdomains-dnsrecon subdomains-fierce | egrep -v '(.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
 
