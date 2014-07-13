@@ -12,7 +12,6 @@ paste -s -d" "                                      # Convert a list into a sing
 
 grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}'              # Find IPs
 perl -pe 's/\d{2}\/\d{2}\/\d{2}//g'                 # Find dates mm/dd/yy
-sed 's/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g'       # Find dates mm/dd/yy
 
 sed '/[[:blank:]]/d'                                # Find lines that contain a single word
 grep 'FOO'                                          # Find lines that contain FOO        
@@ -40,31 +39,32 @@ awk '{print $2 " " $1}'                             # Print the second column, i
 
 for x in $(cat tmp); do rm $x; done                 # Remove all files in tmp
 sed 's/[A-Z]\{2\},//g'                              # Remove any 2 capital letters followed by a comma
-awk '$2 !~ /[a-z]/'                                 # Remove lines that contain [a-z] in the second column
-sed '/[[:blank:]]/!d'                               # Remove lines that contain a single word
 sed '/^$/d'                                         # Remove blank lines
+sed 's/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g'       # Remove dates (mm/dd/yy)
 cat -s                                              # Remove double spacing
 sed 's/^....//'                                     # Remove first 4 characters from each line
 sed '1,5d'                                          # Remove first 5 lines
 sed 's/^[ \t]*//;s/[ \t]*$//'                       # Remove leading and trailing whitespace from each line
 sed 's/^[ \t]*//'                                   # Remove leading whitespace from each line
-sed 's/[ \t]*$//'                                   # Remove trailing whitespace from each line
+sed '/FOO/,/BAR/d'                                  # Remove lines between FOO and BAR
 for a in z*; do grep -vE '^[\/\#\(\_\[\|\<\.\,\`\%\@]' "$a" > "$a.tmp"; mv "$a.tmp" "$a"; done    
                                                     # Remove lines starting with various non-characters
-sed '/FOO/,/BAR/d'                                  # Remove lines between FOO and BAR
+awk '$2 !~ /[a-z]/'                                 # Remove lines that contain [a-z] in the second column
 sed '/[[:blank:]]/!d'                               # Remove lines that contain a single word
 printf '%s\n' 'g/FOO/d\' '-d' w | ed -s             # Remove lines that contain FOO and the previous line
 sed '/@.*@/d'                                       # Remove lines that contain two @ symbols
-sed '/^[0-9]/d'                                     # Remove lines that start with a number
 sed '/[0-9]$/d'                                     # Remove lines that end with a number
-sed '/^FOO/d'                                       # Remove lines that start with FOO
 sed '/FOO$/d'                                       # Remove lines that end with FOO
+sed '/^[0-9]/d'                                     # Remove lines that start with a number
+sed '/^FOO/d'                                       # Remove lines that start with FOO
 
+sed 's/[ \t]*$//'                                   # Remove trailing whitespace from each line
+
+sed 's/\.\.\.//g'                                   # Replace 3 periods with nothing
 sed 's/FOO/BAR/g'                                   # Replace FOO with BAR
-sed '/TEST/s/FOO/BAR/g'                             # Replace FOO with BAR, on lines that contain TEST
 sed '/TEST/!s/FOO/BAR/g'                            # Replace FOO with BAR, except on lines that contain TEST
+sed '/TEST/s/FOO/BAR/g'                             # Replace FOO with BAR, on lines that contain TEST
 sed 's/FOO//g'                                      # Replace FOO with nothing
-sed 's/\.\.\.//g'                                   # Replace 3 periods with nothing                
 cat tmp | tr ';' '\n'                               # Replace semicolon with a new line
 
 sort -k2                                            # Sort by the second column

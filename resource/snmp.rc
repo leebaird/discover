@@ -1,4 +1,4 @@
-setg RHOSTS file:/opt/discover/snort/161.txt
+setg RHOSTS file:
 setg THREADS 255
 setg RPORT 161
 
@@ -38,4 +38,3 @@ run
 
 use auxiliary/scanner/snmp/xerox_workcentre_enumusers
 run
-

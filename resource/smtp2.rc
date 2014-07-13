@@ -1,4 +1,4 @@
-setg RHOSTS file:/opt/discover/snort/465.txt
+setg RHOSTS file:
 setg THREADS 255
 setg RPORT 465
 
