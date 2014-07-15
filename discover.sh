@@ -292,7 +292,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
      # Change to lower case
      cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
      # Clean up
-     egrep -v '(web search|www)' tmp3 | cut -d ' ' -f2 | sort -u > emails
+     egrep -v '(web search|www|xxx)' tmp3 | cut -d ' ' -f2 | sort -u > emails
 
      ##############################################################
 
@@ -937,9 +937,9 @@ s/Denver//g; s/Deer Park//g; s/Deerfield//g; s/Del Rio//g; s/Delmont//g; s/DENVE
 s/DesignatedFederalOfficial/Designated Federal Official/g; s/DESIGNER/Designer/g; s/Desoto//g; s/Destiny//g; s/Destin//g; s/Detroit//g; s/development/Development/g; s/Devens//g; 
 s/DEVICES/Devices/g; s/Dhs//g; s/Diamond Bar//g; s/director/Director/g; s/discovery/Discovery/g; s/display/Display/g; s/Dns/DNS/g; s/Douglasville//g; s/Dover//g; s/Downers Grove//g; 
 s/Doylestown//g; s/Drexel Hill//g; s/Dublin//g; s/Dulles//g; s/Duluth//g; s/Dumas//g; s/Dumfries//g; s/Dunkirk//g; s/DEPUTY/Deputy/g; s/Durango//g; s/Durham//g; s/East Brunswick//g; 
-s/East Coast//g; s/East Douglas//g; s/East Greenbush//g; s/East Hanover//g; s/East Hartford//g; s/East Peters//g; s/East Stroud//g; s/East Syracuse//g; s/eastern Region//g; 
-s/Eastern//g; s/Easton//g; s/Eatontown//g; s/Edinburg//g; s/Elgin//g; s/Eau Claire//g; s/Eden Prairie//g; s/Edgecomb//g; s/Edgewood//g; s/Edinburgh//g; s/Edison//g; 
-s/education/Education/g; s/Egg Harbor//g; s/Egg Harbor//g; s/El Cajon//g; s/El Centro//g; s/El Monte//g; s/El Paso//g; s/El Segundo//g; s/ELECTRIC/Electric /g; 
+s/East Coast//g; s/East Douglas//g; s/East Greenbush//g; s/East Hanover//g; s/East Hartford//g; s/East Lansing//g; s/East Peters//g; s/East Stroud//g; s/East Syracuse//g; 
+s/eastern Region//g; s/Eastern//g; s/Easton//g; s/Eatontown//g; s/Edinburg//g; s/Elgin//g; s/Eau Claire//g; s/Eden Prairie//g; s/Edgecomb//g; s/Edgewood//g; s/Edinburgh//g; 
+s/Edison//g; s/education/Education/g; s/Egg Harbor//g; s/Egg Harbor//g; s/El Cajon//g; s/El Centro//g; s/El Monte//g; s/El Paso//g; s/El Segundo//g; s/ELECTRIC/Electric /g; 
 s/ELECTRONICS/Electronics/g; s/Port Elizabeth//g; s/Elizabethtown//g; s/Elk Grove V//g; s/Elk Grove//g; s/Elkhorn//g; s/Elkridge//g; s/Elkton//g; s/Ellicott City//g; s/Elk Grove V//g; 
 s/Elkhart//g; s/Elm Grove//g; s/Elmsford//g; s/Eloy//g; s/Elyria//g; s/EMEA//g; s/Emea//g; s/emerging/Emerging/g; s/Emmitsburg//g; s/endocrinology/Endocrinology/g; s/energy/Energy/g; 
 s/engineer/Engineer/g; s/Englewood//g; s/Englishtown//g; s/Emeryville//g; s/Encino//g; s/enterprise/Enterprise/g; s/Erie//g; s/Escondido//g; s/Euless//g; s/Northern Europe//g; 
@@ -976,10 +976,10 @@ s/Kalamazoo//g; s/Kanata//g; s/Kankakee//g; s/Kansas City//g; s/KANSAS CITY//g; 
 s/Kensington//g; s/Kerrville//g; s/Kihei//g; s/Killeen//g; s/King George//g; s/King Of Pru//g; s/King Of Pru//g; s/Kings Bay//g; s/Kings Park//g; s/Kinston//g; s/Kissimmee//g; 
 s/Knightdale//g; s/Knoxville//g; s/Korea//g; s/La Follette//g; s/La Grange Park//g; s/La Grange//g; s/La Jolla//g; s/La Mesa//g; s/La Palma//g; s/La Plata//g; s/La Pocatiere//g; 
 s/Lafayette//g; s/Laguna Hills//g; s/Laguna Niguel//g; s/Lake Charles//g; s/Salt Lake City//g; s/Lake City//g; s/Lake Geneva//g; s/Lake Mary//g; s/Lake Montezuma//g; s/Lake Oswego//g; 
-s/Lakehurst//g; s/Lakeland//g; s/Lakeville//g; s/Lakewood//g; s/Lamesa//g; s/Landenberg//g; s/landowner/Landowner/g; s/Lansdale//g; s/Lansdowne//g; s/East Lansing//g; s/Lansing//g; 
-s/Lantana//g; s/Las Cruces//g; s/North Las V//g; s/Las Vegas//g; s/Latin America North//g; s/Latin America//g; s/Mount Laurel//g; s/Lawrenceville//g; s/Lawndale//g; s/Layton//g; 
-s/League City//g; s/LEARNING/Learning/g; s/Leavenworth//g; s/Leawood//g; s/Lebanon//g; s/Leeds//g; s/Leesburg//g; s/Leesville//g; s/legal/Legal/g; s/lending/Lending/g; s/Lenexa//g; 
-s/Lenoir//g; s/Leonardtown//g; s/Leonia//g; s/Letchworth//g; s/Lewisburg//g; s/Lexington Park//g; s/Lexington//g; s/Libertyville//g; s/Linesville//g; s/Linthicum//g; s/Linwood//g; 
+s/Lakehurst//g; s/Lakeland//g; s/Lakeville//g; s/Lakewood//g; s/Lamesa//g; s/Landenberg//g; s/landowner/Landowner/g; s/Lansdale//g; s/Lansdowne//g; s/Lantana//g; s/Las Cruces//g; 
+s/North Las V//g; s/Las Vegas//g; s/Latin America North//g; s/Latin America//g; s/Mount Laurel//g; s/Lawrenceville//g; s/Lawndale//g; s/Layton//g; s/League City//g; 
+s/LEARNING/Learning/g; s/Leavenworth//g; s/Leawood//g; s/Lebanon//g; s/Leeds//g; s/Leesburg//g; s/Leesville//g; s/legal/Legal/g; s/lending/Lending/g; s/Lenexa//g; s/Lenoir//g; 
+s/Leonardtown//g; s/Leonia//g; s/Letchworth//g; s/Lewisburg//g; s/Lexington Park//g; s/Lexington//g; s/Libertyville//g; s/Linesville//g; s/Linthicum//g; s/Linwood//g; 
 s/Litchfield//g; s/Lithonia//g; s/Lititz//g; s/Little Rock//g; s/Littleton//g; s/Livermore//g; s/Liverpool//g; s/Livonia//g; s/Llc/LLC/g; s/Lockport//g; s/Logansport//g; s/Lomita//g; 
 s/Lompoc//g; s/Longmont//g; s/New London//g; s/Lone Tree//g; s/Long Beach//g; s/Long Valley//g; s/Longueuil//g; s/Laredo//g; s/Los Angeles//g; s/Louisville//g; s/Loveland//g; 
 s/Loves Park//g; s/Lovettsville//g; s/Lowell//g; s/Lubbock//g; s/Lufkin//g; s/Lumberton//g; s/Lutherville//g; s/Luton//g; s/Lvl/Level/g; s/Lyndhurst//g; s/Lynnwood//g; s/Machias//g; 
@@ -1050,18 +1050,18 @@ s/Thailand and Philippines//g; s/The Dalles//g; s/Thomasville//g; s/Thorndale//g
 s/Tornado//g; s/Toronto//g; s/Torrance//g; s/Township Of//g; s/Towson//g; s/TRADEMARKS/Trademarks/g; s/trainer/Trainer/g; s/TRANSPORTATION/Transportation/g; s/treasury/Treasury/g; 
 s/Trenton//g; s/Tucson//g; s/Tulsa//g; s/Tunbridge W//g; s/Turkey//g; s/Tuscaloosa//g; s/Tustin//g; s/Twin Falls//g; s/Twinsburg//g; s/Tyngsboro//g; s/UK//g; s/U.S.//g; 
 s/UNDERWRITER/Underwriter/g; s/Union Ban//g; s/Union City//g; s/Union Office//g; s/Uniondale//g; s/Uniontown//g; s/United Kingdom//g; s/United States//g; s/university/University/g; 
-s/Upper Chich//g; s/Upper Marlboro//g; s/Urbana//g; s/Urbandale//g; s/Uscg/USCG/g; s/Uxbridge//g; s/Uvalde//g; s/Vail//g; s/Valdosta//g; s/valve/Valve/g; s/Van Nuys//g; s/Vanceboro//g; 
-s/Vancouver//g; s/Vandalia//g; s/Vandergrift//g; s/vendor/Vendor/g; s/Venice//g; s/Vernon Hills//g; s/Vero Beach//g; s/Vii/VII/g; s/Vi /VI/g; s/Vice-President/Vice President/g; 
-s/Vicepresident/Vice President/g; s/VIC//g; s/Vicksburg//g; s/Vienna//g; s/Vincentown//g; s/Vineland//g; s/Virginia Beach//g; s/Visalia//g; s/La Vista//g; s/Vista//g; s/Voip/VoIP/g; 
-s/Wagoner//g; s/Waldorf//g; s/Walled Lake//g; s/Wallingford//g; s/Wallops Island//g; s/Walnut Creek//g; s/Waltham//g; s/Warminster//g; s/Warrenton//g; s/Warrington//g; 
-s/Warner Robins//g; s/Warsaw//g; s/Warwick//g; s/Wasilla//g; s/Waterford//g; s/Wauconda//g; s/Waukesha//g; s/wealth/Wealth/g; s/Weare//g; s/Weatherford//g; s/Wellington//g; 
-s/West Bloomf//g; s/West Chester//g; s/West Dundee//g; s/West Harrison//g; s/West Hollywood//g; s/West Linn//g; s/West Mifflin//g; s/West Nyack//g; s/West Orange//g; s/West Palm B//g; 
-s/West Paterson//g; s/West Sacram//g; s/Westlake//g; s/Westborough//g; s/Westchester//g; s/Western Spr//g; s/Westerville//g; s/Westlake//g; s/Westminster//g; s/Westmont//g; 
-s/Westport//g; s/Westwego//g; s/West Orange//g; s/Wexford//g; s/Wheeling//g; s/Whippany//g; s/White Lake//g; s/White Plains//g; s/White River//g; s/Whiteman Ai//g; s/Whitmore Lake//g; 
-s/Wildfires//g; s/Wildwood//g; s/Williamsburg//g; s/Williamsport//g; s/Willimantic//g; s/Williston Park//g; s/Willow Grove//g; s/Wilmington//g; s/Wilton//g; s/Winchester//g; 
-s/South Windsor//g; s/Windsor Locks//g; s/Windsor Mill//g; s/Windermere//g; s/Winder//g; s/Winnetka//g; s/Winter Park//g; s/Winter Springs//g; s/Wisconsin//g; s/Wisconsin//g; 
-s/Wichita//g; s/Woburn//g; s/Woodbridge//g; s/Woodland Hills//g; s/Woodland Park//g; s/Woodstown//g; s/Wynnewood//g; s/Wyoming//g; s/Xenia//g; s/Yeovil//g; s/Yokine//g; 
-s/Youngstown//g; s/Youngsville//g; s/Yorktown//g; s/Yuma//g; s/Zanesville//g; s/Zionsville//g; s/Zion//g; 
+s/Upper Chich//g; s/Upper Marlboro//g; s/Urbana//g; s/Urbandale//g; s/Uscg/USCG/g; s/Uxbridge//g; s/Uvalde//g; s/Vail//g; s/Valdosta//g; s/valve/Valve/g; s/Valley Stream//g; 
+s/Van Nuys//g; s/Vanceboro//g; s/Vancouver//g; s/Vandalia//g; s/Vandergrift//g; s/vendor/Vendor/g; s/Venice//g; s/Vernon Hills//g; s/Vero Beach//g; s/Vii/VII/g; s/Vi /VI/g; 
+s/Vice-President/Vice President/g; s/Vicepresident/Vice President/g; s/VIC//g; s/Vicksburg//g; s/Vienna//g; s/Vincentown//g; s/Vineland//g; s/Virginia Beach//g; s/Visalia//g; 
+s/La Vista//g; s/Vista//g; s/Voip/VoIP/g; s/Wagoner//g; s/Waldorf//g; s/Walled Lake//g; s/Wallingford//g; s/Wallops Island//g; s/Walnut Creek//g; s/Waltham//g; s/Warminster//g; 
+s/Warrenton//g; s/Warrington//g; s/Warner Robins//g; s/Warsaw//g; s/Warwick//g; s/Wasilla//g; s/Waterford//g; s/Wauconda//g; s/Waukesha//g; s/wealth/Wealth/g; s/Weare//g; 
+s/Weatherford//g; s/Wellington//g; s/West Bloomf//g; s/West Chester//g; s/West Dundee//g; s/West Harrison//g; s/West Hollywood//g; s/West Linn//g; s/West Mifflin//g; s/West Nyack//g; 
+s/West Orange//g; s/West Palm B//g; s/West Paterson//g; s/West Sacram//g; s/Westlake//g; s/Westborough//g; s/Westchester//g; s/Western Spr//g; s/Westerville//g; s/Westlake//g; 
+s/Westminster//g; s/Westmont//g; s/Westport//g; s/Westwego//g; s/West Orange//g; s/Wexford//g; s/Wheeling//g; s/Whippany//g; s/White Lake//g; s/White Plains//g; s/White River//g; 
+s/Whiteman Ai//g; s/Whitmore Lake//g; s/Wildfires//g; s/Wildwood//g; s/Williamsburg//g; s/Williamsport//g; s/Willimantic//g; s/Williston Park//g; s/Willow Grove//g; s/Wilmington//g; 
+s/Wilton//g; s/Winchester//g; s/South Windsor//g; s/Windsor Locks//g; s/Windsor Mill//g; s/Windermere//g; s/Winder//g; s/Winnetka//g; s/Winter Park//g; s/Winter Springs//g; 
+s/Wisconsin//g; s/Wisconsin//g; s/Wichita//g; s/Woburn//g; s/Woodbridge//g; s/Woodland Hills//g; s/Woodland Park//g; s/Woodstown//g; s/Wynnewood//g; s/Wyoming//g; s/Xenia//g; 
+s/Yeovil//g; s/Yokine//g; s/Youngstown//g; s/Youngsville//g; s/Yorktown//g; s/Yuma//g; s/Zanesville//g; s/Zionsville//g; s/Zion//g; 
 
 s/AK //g; s/AL //g; s/AR //g; s/AZ //g; s/CA //g; s/CO //g; s/CT //g; s/DC //g; s/DE //g; s/FL //g; s/GA //g; s/HI //g; s/IA //g; s/ID //g; s/IL //g; s/IN //g; s/KA //g; s/KS //g; 
 s/KY //g; s/LA //g; s/MA //g; s/ME //g; s/MD //g; s/MI //g; s/MO //g; s/MN //g; s/MS //g; s/MT //g; s/NC //g; s/NE //g; s/ND //g; s/NH //g; s/NJ //g; s/NM //g; s/NV //g; s/NY //g; 
@@ -1081,14 +1081,14 @@ s/Davis$//g; s/Dayton$//g; s/Denton$//g; s/Douglas$//g; s/Duncan$//g; s/Dundee$/
 s/Fairfield$//g; s/Florence$//g; s/for$//g; s/Forsyth$//g; s/Frederick$//g; s/Gardners$//g; s/Garland$//g; s/Gatineau$//g; s/Glen Allen$//g; s/Glencoe$//g; s/Greeley$//g; 
 s/Greenwood$//g; s/Groton$//g; s/Grovel$//g; s/Hammond$//g; s/Hampton$//g; s/Helena$//g; s/Henderson$//g; s/Herndon$//g; s/Hilo$//g; s/Hinckley$//g; s/Hobart$//g; s/Holbrook$//g; 
 s/Houston$//g; s/Huron$//g; s/Indio$//g; s/Irving$//g; s/Israel$//g; s/Lisle$//g; s/Jackson$//g; s/Kent$//g; s/Kingille$//g; s/Kingwood$//g; s/Kirkland$//g; s/Lancaster$//g; 
-s/Lanham$//g; s/Laurel$//g; s/Lawrence$//g; s/Lewiston$//g; s/Lichfield$//g; s/Lima$//g; s/Lincoln$//g; s/Linden$//g; s/Lindon$//g; s/London$//g; s/Lorton$//g; s/Luton$//g; 
-s/Madison$//g; s/Mansfield$//g; s/Marietta$//g; s/Maine$//g; s/Marion$//g; s/Martin$//g; s/Maynard$//g; s/Mcallen$//g; s/Mckinney$//g; s/Media$//g; s/Melrose$//g; s/Melville$//g; 
-s/Middleton$//g; s/Mitchell$//g; s/Merrill$//g; s/Mobile$//g; s/Moline$//g; s/Montgomery$//g; s/Murdock$//g; s/Newport$//g; s/Niles$//g; s/Norco$//g; s/Norton$//g; s/Norwich$//g; 
-s/of$//g; s/Olney$//g; s/Orlando$//g; s/Orem$//g; s/Palmer$//g; s/Pasco$//g; s/Pennington$//g; s/Pharr$//g; s/Philip$//g; s/Pierre$//g; s/Pinckney$//g; s/Preston$//g; s/Quincy$//g; 
-s/Raleigh$//g; s/Reading$//g; s/Redmond$//g; s/Richmond$//g; s/Rochester$//g; s/Romulus$//g; s/Salina$//g; s/Savannah$//g; s/Shrewsbury$//g; s/Sparta$//g; s/Spring$//g; s/Stafford$//g; 
-s/Sterling$//g; s/Strasburg$//g; s/Summerville$//g; s/Swanton$//g; s/Tecate$//g; s/-the$//g; s/Thurso$//g; s/Toledo$//g; s/Toll$//g; s/Tewksbury$//g; s/Underhill$//g; s/Union$//g; 
-s/Valencia$//g; s/Ventura$//g; s/Verona$//g; s/Vestal$//g; s/Wakefield$//g; s/Washington$//g; s/Warren$//g; s/Wayne$//g; s/Webster$//g; s/Wheaton$//g; s/Williston$//g; s/Windsor$//g; 
-s/Yardley$//g; s/York$//g' > tmp3
+s/Lanham$//g; s/Lansing$//g;s/Laurel$//g; s/Lawrence$//g; s/Lewiston$//g; s/Lichfield$//g; s/Lima$//g; s/Lincoln$//g; s/Linden$//g; s/Lindon$//g; s/London$//g; s/Lorton$//g; 
+s/Luton$//g; s/Madison$//g; s/Mansfield$//g; s/Marietta$//g; s/Maine$//g; s/Marion$//g; s/Martin$//g; s/Maynard$//g; s/Mcallen$//g; s/Mckinney$//g; s/Media$//g; s/Melrose$//g; 
+s/Melville$//g; s/Middleton$//g; s/Mitchell$//g; s/Merrill$//g; s/Mobile$//g; s/Moline$//g; s/Montgomery$//g; s/Murdock$//g; s/Newport$//g; s/Niles$//g; s/Norco$//g; s/Norton$//g; 
+s/Norwich$//g; s/of$//g; s/Olney$//g; s/Orlando$//g; s/Orem$//g; s/Palmer$//g; s/Pasco$//g; s/Pennington$//g; s/Pharr$//g; s/Philip$//g; s/Pierre$//g; s/Pinckney$//g; s/Preston$//g; 
+s/Quincy$//g; s/Raleigh$//g; s/Reading$//g; s/Redmond$//g; s/Richmond$//g; s/Rochester$//g; s/Romulus$//g; s/Salina$//g; s/Savannah$//g; s/Shrewsbury$//g; s/Sparta$//g; s/Spring$//g; 
+s/Stafford$//g; s/Sterling$//g; s/Strasburg$//g; s/Summerville$//g; s/Swanton$//g; s/Tecate$//g; s/-the$//g; s/Thurso$//g; s/Toledo$//g; s/Toll$//g; s/Tewksbury$//g; s/Underhill$//g; 
+s/Union$//g; s/Valencia$//g; s/Ventura$//g; s/Verona$//g; s/Vestal$//g; s/Wakefield$//g; s/Washington$//g; s/Warren$//g; s/Wayne$//g; s/Webster$//g; s/Wheaton$//g; s/Williston$//g; 
+s/Windsor$//g; s/Yardley$//g; s/York$//g' > tmp3
 
 head tmp3
 echo
@@ -1465,7 +1465,7 @@ f_report
 ##############################################################################################################
 
 f_scan(){
-custom='1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812,1813,1953,1959,2000,2002,2030,2049,2100,2121,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000,3001,3031,3121,3127,3128,3200,3201,3230-3235,3260,3268,3269,3306,3339,3389,3460,3500,3527,3632,3689,4000,4045,4100,4242,4369,4430,4443,4661,4662,4711,4848,5000,5001,5009,5010,5019,5040,5059,5060,5061,5101,5180,5190,5191,5192,5193,5250,5432,5554,5555,5560,5566,5631,5666,5672,5678,5800,5801,5802,5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6667,6697,6777,7000,7001,7002,7070,7100,7210,7510,7634,7777,7778,8000,8001,8004,8005,8008,8009,8080,8081,8082,8083,8091,8098,8099,8100,8180,8181,8222,8332,8333,8383,8384,8400,8443,8444,8470-8480,8500,8787,8834,8866,8888,9090,9100,9101,9102,9160,9343,9470-9476,9480,9495,9996,9999,10000,10025,10168,11211,12000,12345,12346,13659,15000,16080,18181-18185,18207,18208,18231,18232,19150,19190,19191,20034,22226,27017,27374,27665,28784,30718,31337,32764,32771,33333,35871,37172,46144,46824,49400,50000,50030,50060,50070,50075,50090,51080,51443,53050,54320,58847,60000,60010,60030,60148,62078,63148'
+custom='1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812,1813,1953,1959,2000,2002,2030,2049,2100,2121,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2947,3000,3001,3031,3121,3127,3128,3200,3201,3230-3235,3260,3268,3269,3306,3339,3389,3460,3500,3527,3632,3689,4000,4045,4100,4242,4369,4430,4443,4661,4662,4711,4848,5000,5001,5009,5010,5019,5040,5059,5060,5061,5101,5180,5190,5191,5192,5193,5250,5432,5554,5555,5560,5566,5631,5666,5672,5678,5800,5801,5802,5803,5850,5900-6009,6101,6106,6112,6346,6379,6588,6666,6667,6697,6777,7000,7001,7002,7070,7100,7210,7510,7634,7777,7778,8000,8001,8004,8005,8008,8009,8080,8081,8082,8083,8091,8098,8099,8100,8180,8181,8222,8332,8333,8383,8384,8400,8443,8444,8470-8480,8500,8787,8834,8866,8888,9090,9100,9101,9102,9160,9343,9470-9476,9480,9495,9996,9999,10000,10025,10168,11211,12000,12345,12346,13659,15000,16080,18181-18185,18207,18208,18231,18232,19150,19190,19191,20034,22226,27017,27374,27665,28784,30718,31337,32764,32768,32771,33333,35871,37172,46144,46824,49400,50000,50030,50060,50070,50075,50090,51080,51443,53050,54320,58847,60000,60010,60030,60148,62078,63148'
 full='1-65535'
 
 echo
@@ -3233,13 +3233,13 @@ diff tmp4 tmp5 | egrep '^[<>]' | awk '{print $2}' | egrep -v '(ip_neighbor|pwned
 echo >> tmp-updates
 echo >> tmp-updates
 
-mv tmp-updates /$user/data/updates
+mv tmp-updates /$user/data/updates.txt
 rm tmp*
 
 echo
 echo $medium
 echo
-printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/data/updates
+printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/data/updates.txt
 echo
 echo
 exit

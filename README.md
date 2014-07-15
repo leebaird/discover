@@ -115,7 +115,6 @@ Run multiple instances of Nikto in parallel against a list of IP addresses.
 2.  List of IP:port.
 3.  Previous menu
 ```
-
 ### SSL
 ```
 Check for SSL certificate issues.
@@ -124,10 +123,6 @@ Enter the location of your list:
 ```
 
 * Use sslscan and sslyze to check for SSL/TLS certificate issues.
-
-# CONTRIBUTING
-
-Please read the CONTRIBUTING.md file before you submit a (PR) Pull request
 
 
 ## MISC
@@ -143,3 +138,19 @@ Please read the CONTRIBUTING.md file before you submit a (PR) Pull request
 ### Update
 
 * Use to update Kali Linux, Discover scripts, various tools and the locate database.
+
+# CONTRIBUTING
+## Submitting Pull Requests
+When submitting pull requests (PR), please do the following:
+
+- When you submit a PR, a discription of what it is your PR does.
+- Test all senarios for your patch. For example, what happens if a user does not run a required step. Will it break something?
+- Create a ```topic branch``` to work on instead of working directly on the ```master```.
+- Always keep the branch you are working on in sync with upstream branch to avoid conflicts.
+- Include code comments so your code can be easily understood. 
+
+## Bug Fixes
+
+- Include reproducing steps to show the bug with terminal output.
+- Explain how your patch fixes the bug.
+
