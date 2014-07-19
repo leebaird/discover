@@ -35,16 +35,6 @@ if [ ! -f /usr/bin/i586-mingw32msvc-c++ ]; then
      echo
 fi
 
-if [ -d /opt/recon-ng/.git ]; then
-     echo -e "\e[1;34mUpdating recon-ng.\e[0m"
-     cd /opt/recon-ng/ ; git pull
-     echo
-else
-     echo -e "\e[1;33mInstalling recon-ng.\e[0m"
-     git clone https://bitbucket.org/LaNMaSteR53/recon-ng.git /opt/recon-ng
-     echo
-fi
-
 if [ -d /opt/smbexec/.git ]; then
      echo -e "\e[1;34mUpdating smbexec.\e[0m"
      cd /opt/smbexec/ ; git pull
@@ -78,4 +68,3 @@ echo -e "\e[1;34mUpdating locate database.\e[0m" ; updatedb
 
 echo
 echo
-

@@ -97,24 +97,29 @@ fi
 ##############################################################################################################
 
 f_terminate(){
-mkdir /$user/data/cancelled-`date +%m-%d-%y-%H%M`
+if [ ! -z "$(pidof fierce)" ]; then 
+     kill $(pidof fierce)
+     # Need to return to script here
+else
+     mkdir /$user/data/cancelled-`date +%m-%d-%y-%H%M`
 
-# Nmap and Metasploit scans
-mv $name/ /$user/data/cancelled-`date +%m-%d-%y-%H%M` 2>/dev/null
+     # Nmap and Metasploit scans
+     mv $name/ /$user/data/cancelled-`date +%m-%d-%y-%H%M` 2>/dev/null
 
-# Recon files
-mv emails* names records squatting whois* sub* doc pdf ppt txt xls tmp* z* /$user/data/cancelled-`date +%m-%d-%y-%H%M` 2>/dev/null
+     # Recon files
+     mv emails* names records squatting whois* sub* doc pdf ppt txt xls tmp* z* /$user/data/cancelled-`date +%m-%d-%y-%H%M` 2>/dev/null
 
-if [ -d /tmp/resource ]; then
-     rm -rf /opt/discover/resource/
-     mv /tmp/resource/ /opt/discover/
+     if [ -d /tmp/resource ]; then
+          rm -rf /opt/discover/resource/
+          mv /tmp/resource/ /opt/discover/
+     fi
+
+     PID=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
+     kill -9 $PID
+
+     echo
+     echo
 fi
-
-PID=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
-kill -9 $PID
-
-echo
-echo
 }
 
 ##############################################################################################################
@@ -719,7 +724,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
      # Change to lower case
      cat tmp | tr '[A-Z]' '[a-z]' > emails2
 
-     cat emails1 emails2 | grep "@$domain" | cut -d ' ' -f2 | sort -u > emails
+     cat emails1 emails2 | grep "@$domain" | grep -v 'hosting' | cut -d ' ' -f2 | sort -u > emails
 
      # If this file is empty, delete it
      if [ ! -s emails ]; then rm emails; fi
@@ -917,8 +922,8 @@ s/Bloomsburg//g; s/Bluemont//g; s/Blythewood//g; s/Boca Raton//g; s/Bohemia//g; 
 s/Bowling Green//g; s/Boxborough//g; s/Boynton Beach//g; s/branch/Branch/g; s/\/Branch/, Branch/g; s/Bradenton//g; s/branch/Branch/g; s/Brandywine//g; s/Brazil//g; s/Brecksville//g; 
 s/Brentwood//g; s/Bridgeport//g; s/Bridgewater//g; s/Brisbane//g; s/Bristol//g; s/Brooklyn//g; s/Brookpark//g; s/Brookwood//g; s/Broomfield//g; s/Brownstown//g; s/Buckeye//g; 
 s/Buffalo//g; s/Burbank//g; s/Burlingame//g; s/Burlington//g; s/Burnsville//g; s/Burtonsville//g; s/business/Business/g; s/Brockton//g; s/buyer/Buyer/g; s/By The//g; 
-s/Calabasas Hls//g; s/Calabasas//g; s/Califon//g; s/California//g; s/Calpella//g; s/Camarillo//g; s/Camp Hill//g; s/Camp Springs//g; s/Canada//g; s/Canfield//g; s/Canonsburg//g; 
-s/Canyon Country//g; s/Cape Canaveral//g; s/Cape Coral//g; s/Cape May//g; s/Capitol Hei//g; s/Capitola//g; s/Captiva//g; s/cargo/Cargo/g; s/Carlsbad//g; s/Carnegie//g; 
+s/Calabasas Hls//g; s/Calabasas//g; s/Calexico//g; s/Califon//g; s/California//g; s/Calpella//g; s/Camarillo//g; s/Camp Hill//g; s/Camp Springs//g; s/Canada//g; s/Canfield//g; 
+s/Canonsburg//g; s/Canyon Country//g; s/Cape Canaveral//g; s/Cape Coral//g; s/Cape May//g; s/Capitol Hei//g; s/Capitola//g; s/Captiva//g; s/cargo/Cargo/g; s/Carlsbad//g; s/Carnegie//g; 
 s/Carol Stream//g; s/Carol Stream//g; s/Carpinteria//g; s/Carrollton//g; s/cascade/Cascade/g; s/Castaic//g; s/Castle Rock//g; s/Catawba//g; s/Catonsville//g; s/Cedar Hill//g; 
 s/Cedar Rapids//g; s/Center Line//g; s/CENTER/Center/g; s/Central Region//g; s/central Region//g; s/Centreville//g; s/Chalmette//g; s/Chambersburg//g; s/Champaign//g; s/Chantilly//g; 
 s/Chappaqua//g; s/Charles Town//g; s/Charleston//g; s/Charlestown//g; s/Charlottesvle//g; s/Chatswood//g; s/Chattanooga//g; s/Chelmsford//g; s/Cheltenham//g; s/Chennai//g; 
@@ -979,7 +984,7 @@ s/Lafayette//g; s/Laguna Hills//g; s/Laguna Niguel//g; s/Lake Charles//g; s/Salt
 s/Lakehurst//g; s/Lakeland//g; s/Lakeville//g; s/Lakewood//g; s/Lamesa//g; s/Landenberg//g; s/landowner/Landowner/g; s/Lansdale//g; s/Lansdowne//g; s/Lantana//g; s/Las Cruces//g; 
 s/North Las V//g; s/Las Vegas//g; s/Latin America North//g; s/Latin America//g; s/Mount Laurel//g; s/Lawrenceville//g; s/Lawndale//g; s/Layton//g; s/League City//g; 
 s/LEARNING/Learning/g; s/Leavenworth//g; s/Leawood//g; s/Lebanon//g; s/Leeds//g; s/Leesburg//g; s/Leesville//g; s/legal/Legal/g; s/lending/Lending/g; s/Lenexa//g; s/Lenoir//g; 
-s/Leonardtown//g; s/Leonia//g; s/Letchworth//g; s/Lewisburg//g; s/Lexington Park//g; s/Lexington//g; s/Libertyville//g; s/Linesville//g; s/Linthicum//g; s/Linwood//g; 
+s/Leonardtown//g; s/Leonia//g; s/Letchworth//g; s/Lewisburg//g; s/Lewisville//g; s/Lexington Park//g; s/Lexington//g; s/Libertyville//g; s/Linesville//g; s/Linthicum//g; s/Linwood//g; 
 s/Litchfield//g; s/Lithonia//g; s/Lititz//g; s/Little Rock//g; s/Littleton//g; s/Livermore//g; s/Liverpool//g; s/Livonia//g; s/Llc/LLC/g; s/Lockport//g; s/Logansport//g; s/Lomita//g; 
 s/Lompoc//g; s/Longmont//g; s/New London//g; s/Lone Tree//g; s/Long Beach//g; s/Long Valley//g; s/Longueuil//g; s/Laredo//g; s/Los Angeles//g; s/Louisville//g; s/Loveland//g; 
 s/Loves Park//g; s/Lovettsville//g; s/Lowell//g; s/Lubbock//g; s/Lufkin//g; s/Lumberton//g; s/Lutherville//g; s/Luton//g; s/Lvl/Level/g; s/Lyndhurst//g; s/Lynnwood//g; s/Machias//g; 
@@ -999,7 +1004,8 @@ s/Mount Vernon//g; s/Mount Weather//g; s/mountain Region//g; s/Mountain States//
 s/Murrysville//g; s/Muskegon//g; s/MyHR/HR/g; s/Mystic//g; s/Naperville//g; s/Naples//g; s/Narberth//g; s/Narragansett//g; s/Narrows//g; s/Nashua//g; s/Nashville//g; s/Natick//g; 
 s/National City//g; s/Naval Anaco//g; s/Navarre//g; s/Nazareth//g; s/Nebraska//g; s/Needham Hei//g; s/negotiator/Negotiator/g; s/Neotsu//g; s/New Castle//g; s/New Church//g; 
 s/New Cumberland//g; s/New Delhi//g; s/New Haven//g; s/New Malden//g; s/New Market//g; s/New Martins//g; s/New Orleans//g; s/New Port Ri//g; s/New Town//g; s/New York//g; 
-s/New Zealand//g; s/Newark//g; s/Newington//g; s/Newport Beach//g; s/Newport News//g; s/Newtown//g; s/Newville//g; s/Niagara Falls//g; s/Niceville//g; s/Noblesville//g; s/Nogales//g; 
+s/New Zealand//g; s/Newark//g; s/Newbury Park//g; s/Newington//g; s/Newport Beach//g; s/Newport News//g; s/Newtown//g; s/Newville//g; s/Niagara Falls//g; s/Niceville//g; 
+s/Noblesville//g; s/Nogales//g; 
 s/Noida//g; s/Norfolk//g; s/Norristown//g; s/North America //g; s/North and Central//g; s/North Baldwin//g; s/North Bergen//g; s/North Charl//g; s/North East//g; s/North Highl//g; 
 s/North Holly//g; s/North Kings//g; s/North Myrtl//g; s/North Olmsted//g; s/North Royalton//g; s/North Vernon//g; s/North Wales//g; s/North York//g; s/Northeast//g; s/Northeastern//g; 
 s/northern/Northern/g; s/Northfield//g; s/Northville//g; s/Norwalk//g; s/Nottingham//g; s/Novato//g; s/Nsa/NSA/g; s/Nso/NSO/g; s/NSW//g; s/Nutley//g; s/nyc//g; s/O Fallon//g; 
@@ -1030,7 +1036,8 @@ s/Russia//g; s/Sacramento//g; s/SAFETY/Safety/g; s/Saint-laurent//g; s/Saint Alb
 s/Saint Joseph//g; s/Saint Louis//g; s/Saint Paul//g; s/Saint Peter//g; s/Saint Rose//g; s/Saint Simon//g; s/sales/Sales/g; s/Salisbury//g; s/Salt Lake City//g; s/San Antonio//g; 
 s/San Bruno//g; s/San Carlos//g; s/San Clemente//g; s/San Diego//g; s/San Dimas//g; s/san Francisco Bay//g; s/San Francisco//g; s/San Jose//g; s/San Juan//g; s/San Marcos//g; 
 s/San Mateo//g; s/San Pedro//g; s/San Ramon//g; s/Sandton//g; s/Sanibel//g; s/Santa Ana//g; s/Santa Clara//g; s/Santa Clarita//g; s/Santa Fe//g; s/Santa Isabel//g; s/Santa Maria//g; 
-s/Santa Monica//g; s/Santee//g; s/Sao Paulo//g; s/Sarasota//g; s/Sayreville//g; s/Scarsdale//g; s/Schaumburg//g; s/Schenectady//g; s/Schererville//g; s/Schiller Park//g; 
+s/Santa Monica//g; s/Santa Rosa//g; s/Santee//g; s/Sao Paulo//g; s/Sarasota//g; s/Sayreville//g; s/Scarsdale//g; s/Schaumburg//g; s/Schenectady//g; s/Schererville//g; 
+s/Schiller Park//g; 
 s/scholar/Scholar/g; s/scientist/Scientist/g; s/SCIENTIST/Scientist/g; s/SCONSUTANT/Consultant/g; s/Scotch Plains//g; s/Scott Afb//g; s/Scott Air F//g; s/Scotts Valley//g; 
 s/Scottsdale//g; s/Scranton//g; s/Seaford//g; s/Seattle//g; s/SEATTLE//g; s/Sebring//g; s/Secaucus//g; s/SECURITY/Security/g; s/Sedalia//g; s/Seminole//g; s/\/Senior/, Senior/g; 
 s/senior/Senior/g; s/Serilingamp//g; s/SerVices/Services/g; s/service/Service/g; s/Severn //g; s/Severna Park//g; s/Sewell//g; s/Sftwr/Software/g; s/Shalimar//g; s/Sharpes//g; 

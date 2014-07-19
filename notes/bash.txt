@@ -72,11 +72,11 @@ sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4         # Sort IPs
 sed "s/$FOO./$FOO/g"                                # Variables - use double quotes with sed or grep
 ------------------------------------------------------------------------------------------------------
 
-# Check for no answer
+# Check for argument, if not given print usage
 
-if [ -z $location ]; then
-     f_Error
-     return 0
+if [ -z "$1" ]; then
+     echo "Usage : $0 <domain name>"
+     exit 0
 fi
 ------------------------------------------------------------------------------------------------------
 
@@ -87,19 +87,19 @@ if [ $(whoami) = "root" ]; then
 fi
 ------------------------------------------------------------------------------------------------------
 
-# Check for wrong answer
+# Check for no answer
 
-if [ ! -f $location ]; then
+if [ -z $location ]; then
      f_Error
      return 0
 fi
 ------------------------------------------------------------------------------------------------------
 
-# Check if argument was given, if not print usage
+# Check for wrong answer
 
-if [ -z "$1" ]; then
-     echo "Usage : $0 <domain name>"
-     exit 0
+if [ ! -f $location ]; then
+     f_Error
+     return 0
 fi
 ------------------------------------------------------------------------------------------------------
 
@@ -117,6 +117,8 @@ date2=$(date +"%s")
 diff=$(($date2-$date1))
 echo "$(($diff / 60)) min and $(($diff % 60)) sec."
 ------------------------------------------------------------------------------------------------------
+
+# Files and folders
 
 if [ -e /root/test ]; then
      echo "This file exists."
@@ -136,6 +138,20 @@ if [ ! -d /root/test ]; then
 fi
 ------------------------------------------------------------------------------------------------------
 
+# Find all of the subdomains listed on homepage and print their IPs.
+
+#!/bin/bash
+clear
+wget -q target.com
+grep 'href' index.html | cut -d '/' -f3 | cut -d '"' -f1 | grep 'target' | sort -u > subdomains.txt
+
+for x in $(cat subdomains.txt); do
+     host $x | grep 'has address' | cut -d ' ' -f4
+done
+------------------------------------------------------------------------------------------------------
+
+# Kill a process
+
 pid=`ps ax | grep ping | grep -v grep | awk '{print $1}'`
 
 if [ -n "$pid" ] ; then
@@ -143,25 +159,16 @@ if [ -n "$pid" ] ; then
 fi
 ------------------------------------------------------------------------------------------------------
 
-# Find all of the subdomains listed on Cisco's homepage and print their IPs.
-
-#!/bin/bash
-
-clear
-
-wget -q cisco.com
-
-grep 'href' index.html | cut -d '/' -f3 | cut -d '"' -f1 | grep 'cisco' | sort -u > subdomains.txt
-
-for x in $(cat subdomains.txt); do
-     host $x | grep 'has address' | cut -d ' ' -f4
-done
-
------
-
 # Use 'while' and 'done'.
 
 while read -r line; do
 	host $line | grep 'has address' | cut -d ' ' -f4
 done < subdomains.txt
+
+
+while read -r line; do
+     x=$((x+1))
+     echo "$x - $line"
+     dnsrecon.py -d $line -t axfr -c axfr_results/$x-$line.csv
+done < names.txt
 

@@ -224,6 +224,7 @@ reboot
 service apache2 start                            # Start apache
 netstat -antp | grep apache                      # Verify the service is running
 /var/www/index.html                              # Default home page
+/var/log/apache2/access.log                      # Logs
 
 service ssh start                                # Start ssh
 netstat -antp | grep ssh                         # Verify the service is running
