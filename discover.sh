@@ -27,9 +27,10 @@ trap f_terminate INT
 distro=$(uname -n)
 interface=$(ifconfig | grep -B1 'inet addr' | egrep -v '(-|inet addr|Loopback)' | cut -d ' ' -f1)
 ip=$(ifconfig | grep 'Bcast' | awk '{print$2}' | cut -d ':' -f2)
-long="============================================================================================================================="
-medium="====================================================================================="
-short="========================================"
+long='============================================================================================================================='
+medium='====================================================================================='
+short='========================================'
+sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 user=$(whoami)
 
 ##############################################################################################################
@@ -411,7 +412,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
      sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > /$user/data/$domain/data/black-listed.htm
 
      awk '{print $2}' subdomains > tmp
-     grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
+     grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | $sip > hosts
      cat hosts >> /$user/data/$domain/data/hosts.htm; echo "</pre>" >> /$user/data/$domain/data/hosts.htm
 
      ##############################################################
@@ -664,7 +665,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      awk '{print $3}' records > tmp
      awk '{print $2}' subdomains-dnsrecon subdomains-fierce >> tmp
-     grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' tmp | egrep -v '(-|=|:|1.1.1.1|6.9.6.9|127.0.0.1)' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
+     grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' tmp | egrep -v '(-|=|:|1.1.1.1|6.9.6.9|127.0.0.1)' | $sip > hosts
 
      echo
      echo "Loadbalancing             (6/$total)"
@@ -808,7 +809,7 @@ s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
           cat tmp >> /$user/data/$domain/data/emails.htm; echo "</pre>" >> /$user/data/$domain/data/emails.htm
      fi
 
-     cat hosts /$user/data/$domain/data/hosts.htm | grep -v '<' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > tmp
+     cat hosts /$user/data/$domain/data/hosts.htm | grep -v '<' | $sip > tmp
      echo '<pre style="font-size:14px;">' > /$user/data/$domain/data/hosts.htm
      cat tmp >> /$user/data/$domain/data/hosts.htm; echo "</pre>" >> /$user/data/$domain/data/hosts.htm
 
@@ -1078,21 +1079,21 @@ perl -ne 'if ($_ =~ /(.*?)\t\s*(.*)/) {printf("%-30s%s\n",$1,$2);}' tmp > tmp2
 # Remove trailing whitespace from each line, sort and clean up
 sed 's/[ \t]*$//g' tmp2 | sort | sed 's/   -/ -/g; s/,  /, /g; s/, , , , //g; s/, , , //g; s/, , /, /g; s/,$//g; s/\/$//g; s/-$//g; s/Adena$//g; s/Africa$//g; s/Alexandria$//g; 
 s/Alma$//g; s/and$//g; s/Anderson$//g; s/Anniston$//g; s/Apex$//g; s/Asia$//g; s/Austin$//g; s/Baltimore$//g; s/Banbury$//g; s/Bartlett$//g; s/Barton$//g; s/Bath$//g; s/BC$//g; 
-s/Beaumont$//g; s/Berlin$//g; s/Blaine$//g; s/Boron$//g; s/Boston$//g; s/Bowie$//g; s/Brampton$//g; s/Bristow$//g; s/Brunswick$//g; s/Burke$//g; s/Burleson$//g; s/Cambridge$//g; 
-s/Camden$//g; s/Campbell$//g; s/Canton$//g; s/Carlisle$//g; s/Cary$//g; s/Casper$//g; s/Champlain$//g; s/Chandler$//g; s/Champlain$//g; s/Charlotte$//g; s/Chatsworth$//g; 
-s/Chester$//g; s/Christiana$//g; s/Clawson$//g; s/Clayton$//g; s/Cleveland$//g; s/Clifton$//g; s/Corbin$//g; s/Cordova$//g; s/Corona$//g; s/Cumberland$//g; s/D$//g; s/Dallas$//g; 
-s/Darby$//g; s/Davis$//g; s/Dayton$//g; s/Denton$//g; s/Douglas$//g; s/Duncan$//g; s/Dundee$//g; s/Dupree$//g; s/Edwards$//g; s/Elizabeth$//g; s/Endicott$//g; s/Eugene$//g; 
-s/Evans$//g; s/Fairfield$//g; s/Florence$//g; s/for$//g; s/Forsyth$//g; s/Frederick$//g; s/Gardners$//g; s/Garland$//g; s/Gatineau$//g; s/Glen Allen$//g; s/Glencoe$//g; s/Greeley$//g; 
-s/Greenwood$//g; s/Groton$//g; s/Grovel$//g; s/Hammond$//g; s/Hampton$//g; s/Helena$//g; s/Henderson$//g; s/Herndon$//g; s/Hilo$//g; s/Hinckley$//g; s/Hobart$//g; s/Holbrook$//g; 
-s/Houston$//g; s/Huron$//g; s/Indio$//g; s/Irving$//g; s/Israel$//g; s/Lisle$//g; s/Jackson$//g; s/Kent$//g; s/Kingille$//g; s/Kingwood$//g; s/Kirkland$//g; s/Lancaster$//g; 
-s/Lanham$//g; s/Lansing$//g;s/Laurel$//g; s/Lawrence$//g; s/Leeds$//g; s/Lewiston$//g; s/Lichfield$//g; s/Lima$//g; s/Lincoln$//g; s/Linden$//g; s/Lindon$//g; s/London$//g; 
-s/Lorton$//g; s/Luton$//g; s/Madison$//g; s/Mansfield$//g; s/Marietta$//g; s/Maine$//g; s/Marion$//g; s/Martin$//g; s/Maynard$//g; s/Mcallen$//g; s/Mckinney$//g; s/Media$//g; 
-s/Melrose$//g; s/Melville$//g; s/Middleton$//g; s/Mitchell$//g; s/Merrill$//g; s/Mobile$//g; s/Moline$//g; s/Montgomery$//g; s/Murdock$//g; s/Newport$//g; s/Niles$//g; s/Norco$//g; 
-s/Norton$//g; s/Norwich$//g; s/of$//g; s/Olney$//g; s/Orlando$//g; s/Orem$//g; s/Palmer$//g; s/Pasco$//g; s/Pennington$//g; s/Pharr$//g; s/Philip$//g; s/Pierre$//g; s/Pinckney$//g; 
-s/Preston$//g; s/Quincy$//g; s/Raleigh$//g; s/Reading$//g; s/Redmond$//g; s/Richmond$//g; s/Rochester$//g; s/Romulus$//g; s/Salina$//g; s/Savannah$//g; s/Shrewsbury$//g; s/Sparta$//g; 
-s/Spring$//g; s/Stafford$//g; s/Sterling$//g; s/Strasburg$//g; s/Summerville$//g; s/Swanton$//g; s/Sydney$//g; s/Tecate$//g; s/-the$//g; s/Thurso$//g; s/Toledo$//g; s/Toll$//g; 
-s/Tewksbury$//g; s/Underhill$//g; s/Union$//g; s/Valencia$//g; s/Ventura$//g; s/Verona$//g; s/Vestal$//g; s/Wakefield$//g; s/Washington$//g; s/Warren$//g; s/Wayne$//g; s/Webster$//g; 
-s/Wheaton$//g; s/Williston$//g; s/Winchester$//g; s/Windsor$//g; s/Yardley$//g; s/York$//g' > tmp3
+s/Beaumont$//g; s/Beaver$//g; s/Berlin$//g; s/Blaine$//g; s/Boron$//g; s/Boston$//g; s/Bowie$//g; s/Brampton$//g; s/Bristow$//g; s/Brunswick$//g; s/Burke$//g; s/Burleson$//g; 
+s/Cambridge$//g; s/Camden$//g; s/Campbell$//g; s/Canton$//g; s/Carlisle$//g; s/Cary$//g; s/Casper$//g; s/Champlain$//g; s/Chandler$//g; s/Champlain$//g; s/Charlotte$//g; 
+s/Chatsworth$//g; s/Chester$//g; s/Christiana$//g; s/Clawson$//g; s/Clayton$//g; s/Cleveland$//g; s/Clifton$//g; s/Corbin$//g; s/Cordova$//g; s/Corona$//g; s/Cumberland$//g; s/D$//g; 
+s/Dallas$//g; s/Darby$//g; s/Davis$//g; s/Dayton$//g; s/Denton$//g; s/Douglas$//g; s/Duncan$//g; s/Dundee$//g; s/Dupree$//g; s/Edwards$//g; s/Elizabeth$//g; s/Endicott$//g; 
+s/Eugene$//g; s/Evans$//g; s/Fairfield$//g; s/Florence$//g; s/for$//g; s/Forsyth$//g; s/Frederick$//g; s/Gardners$//g; s/Garland$//g; s/Gatineau$//g; s/Glen Allen$//g; s/Glencoe$//g; 
+s/Greeley$//g; s/Greenwood$//g; s/Groton$//g; s/Grovel$//g; s/Hammond$//g; s/Hampton$//g; s/Helena$//g; s/Henderson$//g; s/Herndon$//g; s/Hilo$//g; s/Hinckley$//g; s/Hobart$//g; 
+s/Holbrook$//g; s/Houston$//g; s/Huron$//g; s/Indio$//g; s/Irving$//g; s/Israel$//g; s/Lisle$//g; s/Jackson$//g; s/Kent$//g; s/Kingille$//g; s/Kingwood$//g; s/Kirkland$//g; 
+s/Lancaster$//g; s/Lanham$//g; s/Lansing$//g;s/Laurel$//g; s/Lawrence$//g; s/Leeds$//g; s/Lewiston$//g; s/Lichfield$//g; s/Lima$//g; s/Lincoln$//g; s/Linden$//g; s/Lindon$//g; 
+s/London$//g; s/Lorton$//g; s/Luton$//g; s/Madison$//g; s/Mansfield$//g; s/Marietta$//g; s/Maine$//g; s/Marion$//g; s/Martin$//g; s/Maynard$//g; s/Mcallen$//g; s/Mckinney$//g; 
+s/Media$//g; s/Melrose$//g; s/Melville$//g; s/Middleton$//g; s/Mitchell$//g; s/Merrill$//g; s/Mobile$//g; s/Moline$//g; s/Montgomery$//g; s/Murdock$//g; s/Newport$//g; s/Niles$//g; 
+s/Norco$//g; s/Norton$//g; s/Norwich$//g; s/of$//g; s/Olney$//g; s/Orlando$//g; s/Orem$//g; s/Palmer$//g; s/Pasco$//g; s/Pennington$//g; s/Pharr$//g; s/Philip$//g; s/Pierre$//g; 
+s/Pinckney$//g; s/Preston$//g; s/Quincy$//g; s/Raleigh$//g; s/Reading$//g; s/Redmond$//g; s/Richmond$//g; s/Rochester$//g; s/Romulus$//g; s/Salina$//g; s/Savannah$//g; 
+s/Shrewsbury$//g; s/Sparta$//g; s/Spring$//g; s/Stafford$//g; s/Sterling$//g; s/Strasburg$//g; s/Summerville$//g; s/Swanton$//g; s/Sydney$//g; s/Tecate$//g; s/-the$//g; s/Thurso$//g; 
+s/Toledo$//g; s/Toll$//g; s/Tewksbury$//g; s/Underhill$//g; s/Union$//g; s/Valencia$//g; s/Ventura$//g; s/Verona$//g; s/Vestal$//g; s/Wakefield$//g; s/Washington$//g; s/Warren$//g; 
+s/Wayne$//g; s/Webster$//g; s/Wheaton$//g; s/Williston$//g; s/Winchester$//g; s/Windsor$//g; s/Yardley$//g; s/York$//g' > tmp3
 
 head tmp3
 echo
@@ -1137,7 +1138,7 @@ read choice
 
 case $choice in
      1) f_runlocally ; ipscan &;;
-     2) arp-scan -l | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 | sed '/^$/d' > /$user/data/hosts-arp.txt
+     2) arp-scan -l | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > /$user/data/hosts-arp.txt
      echo
      echo $medium
      echo
@@ -1501,7 +1502,7 @@ fi
 # Clean up
 egrep -v '(1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|Network Distance|No exact OS|OS:|OS CPE|Please report|scanned in|SF|Warning)' $name/nmap.nmap | sed 's/Nmap scan report for //' | sed '/^$/! b end; n; /^$/d; : end' > $name/nmap.txt
 
-grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' $name/nmap.nmap | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > $name/hosts.txt
+grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' $name/nmap.nmap | $sip > $name/hosts.txt
 hosts=$(wc -l $name/hosts.txt | cut -d ' ' -f1)
 
 grep 'open' $name/nmap.txt | awk '{print $1}' | sort -u | sort -n > $name/ports.txt
@@ -1509,6 +1510,17 @@ grep 'tcp' $name/ports.txt | cut -d '/' -f1 > $name/ports-tcp.txt
 grep 'udp' $name/ports.txt | cut -d '/' -f1 > $name/ports-udp.txt
 
 grep 'open' $name/nmap.txt | awk '{for (i=4;i<=NF;i++) {printf "%s%s",sep, $i;sep=" "}; printf "\n"}' | sed 's/^ //' | sort -u | sed '/^$/d' > $name/banners.txt
+
+for i in $(cat $name/ports-tcp.txt); do
+     TCPPORT=$i
+     cat $name/nmap.gnmap | grep " $i/open/tcp//http/\| $i/open/tcp//http-alt/\| $i/open/tcp//http?/\| $i/open/tcp//http-proxy/\| $i/open/tcp//appserv-http/" |
+     sed -e 's/Host: //g' -e 's/ (.*//g' -e "s.^.http://.g" -e "s/$/:$i/g" | $sip >> tmp
+     cat $name/nmap.gnmap | grep " $i/open/tcp//https/\| $i/open/tcp//https-alt/\| $i/open/tcp//https?/\| $i/open/tcp//ssl|http/" |
+     sed -e 's/Host: //g' -e 's/ (.*//g' -e "s.^.https://.g" -e "s/$/:$i/g" | $sip >> tmp2
+done
+
+sed 's/http:\/\///g' tmp > $name/http.txt
+sed 's/https:\/\///g' tmp2 > $name/https.txt
 
 # Remove all empty files
 find $name/ -type f -empty -exec rm {} +
