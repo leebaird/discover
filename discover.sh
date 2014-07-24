@@ -248,13 +248,12 @@ case $choice in
      grep -v '^-' tmp2 > tmp3
      # Remove blank lines
      sed '/^$/d' tmp3 > tmp4
-     sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; 
-s/CHILE/Chile/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; 
-s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; s/INDIA/India/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; 
-s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; 
-s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN; REPUBLIC OF China (ROC)/Taiwan/g; 
-s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; 
-s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
+     sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; 
+s/CHILE/Chile/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; s/FRANCE/France/g; 
+s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; s/INDIA/India/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; 
+s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; 
+s/SWITZERLAND/Switzerland/g; s/TAIWAN; REPUBLIC OF China (ROC)/Taiwan/g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; 
+s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      ##############################################################
 
@@ -1126,19 +1125,17 @@ f_banner
 
 echo -e "\e[1;34mSCANNING\e[0m"
 echo
-echo "1.  Angry IP Scanner"
-echo "2.  Local area network"
-echo "3.  NetBIOS"
-echo "4.  netdiscover"
-echo "5.  Ping sweep"
-echo "6.  Previous menu"
+echo "1.  Local area network"
+echo "2.  NetBIOS"
+echo "3.  netdiscover"
+echo "4.  Ping sweep"
+echo "5.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
 
 case $choice in
-     1) f_runlocally ; ipscan &;;
-     2) arp-scan -l | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > /$user/data/hosts-arp.txt
+     1) arp-scan -l | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > /$user/data/hosts-arp.txt
      echo
      echo $medium
      echo
@@ -1148,10 +1145,10 @@ case $choice in
      echo
      echo
      exit;;
-     3) f_netbios;;
-     4) netdiscover;;
-     5) f_pingsweep;;
-     6) f_main;;
+     2) f_netbios;;
+     3) netdiscover;;
+     4) f_pingsweep;;
+     5) f_main;;
      *) f_error;;
 esac
 }
@@ -1225,7 +1222,7 @@ case $choice in
 
      echo
      echo "Running an Nmap ping sweep for live hosts."
-     nmap -iL $location -sn -T4 --stats-every 10s -g $sourceport > tmp
+     nmap -sn -T4 --stats-every 10s -g $sourceport -iL $location > tmp
      ;;
 
      2)
