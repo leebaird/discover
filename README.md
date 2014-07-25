@@ -70,12 +70,11 @@ Enter the location of your list:
 ```
 SCANNING
 
-1.  Angry IP Scanner
-2.  Local area network
-3.  NetBIOS
-4.  netdiscover
-5.  Ping sweep
-6.  Previous menu
+1.  Local area network
+2.  NetBIOS
+3.  netdiscover
+4.  Ping sweep
+5.  Previous menu
 ```
 
 * Use different tools to create a target list including Angry IP Scanner, arp-scan, netdiscover and nmap pingsweep.
