@@ -6,16 +6,17 @@
 #
 # Special thanks to the following people:
 #
-# Jay Townsend - conversion of discover.sh to Kali.
-# Jason Arnold - planning original concept, author of ssl-check and co-author of crack-wifi.
-# Dave Klug - planning, testing and bug reports.
-# Matt Banick - original development.
-# Eric Milam - total re-write using functions.
-# Martin Bos - IDS evasion techniques.
-# Numerous people on freenode IRC - #bash and #sed (e36freak)
-# Robert Clowser - all things
 # Ben Wood - regex master
+# Dave Klug - planning, testing and bug reports
+# Jay Townsend - conversion of discover.sh to Kali
+# Jason Arnold - planning original concept, author of ssl-check and co-author of crack-wifi
+# Eric Milam - total re-write using functions
+# Martin Bos - IDS evasion techniques
+# Matt Banick - original development
+# Numerous people on freenode IRC - #bash and #sed (e36freak)
 # Rob Dixon - report framework idea
+# Robert Clowser - all things
+# Saviour Emmanuel - convert nmap xlm to csv
 # Steve Copland - report framework design
 
 ##############################################################################################################
@@ -250,10 +251,10 @@ case $choice in
      sed '/^$/d' tmp3 > tmp4
      sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; 
 s/CHILE/Chile/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; s/FRANCE/France/g; 
-s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; s/INDIA/India/g; s/IRELAND/Ireland/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; 
-s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; s/RUSSIAN FEDERATION/Russia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; 
-s/SWITZERLAND/Switzerland/g; s/TAIWAN; REPUBLIC OF China (ROC)/Taiwan/g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; 
-s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
+s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; s/INDIA/India/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; 
+s/KOREA REPUBLIC OF/Republic of Korea/g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; s/RUSSIAN FEDERATION/Russia/g; 
+s/SAUDI ARABIA/Saudi Arabia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN; REPUBLIC OF China (ROC)/Taiwan/g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; 
+s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands/g' tmp4 > squatting
 
      ##############################################################
 
@@ -904,7 +905,8 @@ s/Andrews Air//g; s/android/Android/g; s/Annandale//g; s/Annapolis J//g; s/Annap
 s/applications/Applications/g; s/Arcadia//g; s/Archbald//g; s/Argentina//g; s/Arlington H//g; s/Arlington//g; s/Armonk//g; s/Artesia//g; s/Ashburn//g; s/Ashland//g; s/Ashtabula//g; 
 s/Asia-Pacific//g; s/Asia and India//g; s/asia Pacific Region//g; s/Asia Pacific//g; s/assistant/Assistant/g; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; 
 s/at Google//g; s/Athens//g; s/Atlanta//g; s/Atlantic City//g; s/Atm/ATM/g; s/Atoka//g; s/Attleboro//g; s/attorney/Attorney/g; s/Auburn//g; s/Augusta//g; s/Aurora//g; s/Austell//g; 
-s/Australia S//g; s/Australia//g; s/Arvada//g; s/Avondale//g; s/Avon//g; s/Azle//g; s/Azusa//g; s/Babylon//g; s/Bakersfield//g; s/Bainbridge//g; s/Ballston Spa//g; s/Bangalore S//g; 
+s/Australia S//g; s/Australia//g; s/automated/Automated/g; s/Arvada//g; s/Avondale//g; s/Avon//g; s/Azle//g; s/Azusa//g; s/Babylon//g; s/Bakersfield//g; s/Bainbridge//g; 
+s/Ballston Spa//g; s/Bangalore S//g; 
 s/Bangalore//g; s/Bangor//g; s/banking/Banking/g; s/Barbourville//g; s/Barboursville//g; s/Bardstown//g; s/Barrington//g; s/Bartlesville//g; s/Basingstoke//g; s/Batesville//g; 
 s/Baton Rouge//g; s/Battle Creek//g; s/Battle Ground//g; s/Bay City//g; s/Bay Shore//g; s/Bayside//g; s/Bd/BD/g; s/Beachwood//g; s/Beaver Falls//g; s/Beaverton//g; s/Bedford//g; 
 s/Bel Air//g; s/Belcamp//g; s/Belgium//g; s/Bella Vista//g; s/Bellaire//g; s/Bellevue//g; s/Belleville//g; s/Bellflower//g; s/Beltsville//g; s/Belux//g; s/Benelux//g; s/Benicia//g; 
@@ -918,15 +920,17 @@ s/Calabasas Hls//g; s/Calabasas//g; s/Calexico//g; s/Califon//g; s/California//g
 s/Canonsburg//g; s/Canyon Country//g; s/Cape Canaveral//g; s/Cape Coral//g; s/Cape May//g; s/Capitol Hei//g; s/Capitola//g; s/Captiva//g; s/cargo/Cargo/g; s/Carlsbad//g; s/Carnegie//g; 
 s/Carol Stream//g; s/Carol Stream//g; s/Carpinteria//g; s/Carrollton//g; s/cascade/Cascade/g; s/Castaic//g; s/Castle Rock//g; s/Catawba//g; s/Catonsville//g; s/Cedar Hill//g; 
 s/Cedar Rapids//g; s/Center Line//g; s/CENTER/Center/g; s/Central Region//g; s/central Region//g; s/Centreville//g; s/Chagrin Falls//g; s/Chalmette//g; s/Chambersburg//g; 
-s/Champaign//g; s/Chantilly//g; s/Chappaqua//g; s/Charles Town//g; s/Charleston//g; s/Charlestown//g; s/Charlottesvle//g; s/Chatswood//g; s/Chattanooga//g; s/Chelmsford//g; 
-s/Cheltenham//g; s/Chennai//g; s/Cherry Hill//g; s/Chertsey//g; s/Chesapeake//g; s/Chester Le //g; s/Chesterfield//g; s/Cheyenne//g; s/chicago//g; s/East Chicago//g; s/Chicago//g; 
-s/CHICAGO//g; s/\/Chief/, Chief/g; s/China //g; s/Chino Hills//g; s/Chorley//g; s/Christiansburg//g; s/chromecast/Chromecast/g; s/Chula Vista//g; s/Cibolo//g; s/Cicero//g; 
-s/Cincinnati//g; s/Cissp/CISSP/g; s/Claremont//g; s/Clarendon//g; s/Clarkston//g; s/Clarksville//g; s/Claymont//g; s/clean/Clean/g; s/Clearfield//g; s/Clearwater//g; s/Clementon//g; 
-s/Clifton Park//g; s/cms/CMS/g; s/Cms/CMS/g; s/CNN News Group Cable News Network//g; s/Clarksburg//g; s/Clearfield//g; s/Clermont//g; s/Cmms/CMMS/g; s/Cocoa Beach//g; s/Cocoa//g; 
-s/Colchester//g; s/Colleyville//g; s/Collinsville//g; s/Colorado Sp//g; s/Colorado//g; s/Columbia//g; s/Columbus//g; s/Commack//g; s/Commerce City//g; 
+s/Champaign//g; s/Chantilly//g; s/Chappaqua//g; s/Charles Town//g; s/Charleston//g; s/Charlestown//g; s/Charlottesvle//g; s/Charlottesv//g; s/Chatswood//g; s/Chattanooga//g; 
+s/Chelmsford//g; s/Cheltenham//g; s/Chennai//g; s/Cherry Hill//g; s/Chertsey//g; s/Chesapeake//g; s/Chester Le //g; s/Chesterfield//g; s/Cheyenne//g; s/chicago//g; s/East Chicago//g; 
+s/Chicago//g; s/CHICAGO//g; s/\/Chief/, Chief/g; s/China //g; s/Chino Hills//g; s/Chorley//g; s/Christiansburg//g; s/chromecast/Chromecast/g; s/Chula Vista//g; s/Cibolo//g; 
+s/Cicero//g; s/Cincinnati//g; s/Cissp/CISSP/g; s/CITRIX/Citrix/g; s/Claremont//g; s/Clarendon//g; s/Clarkston//g; s/Clarksville//g; s/Claymont//g; s/clean/Clean/g; s/Clearfield//g; 
+s/Clearwater//g; s/Clementon//g; 
+s/Clifton Park//g; s/cms/CMS/g; s/Cms/CMS/g; s/CNN News Group Cable News Network//g; s/Clarksburg//g; s/Clearfield//g; s/Clermont//g; s/Cmms/CMMS/g; s/Cockeysville//g; 
+s/Cocoa Beach//g; s/Cocoa//g; s/Colchester//g; s/Colleyville//g; s/Collinsville//g; s/Colorado Sp//g; s/Colorado//g; s/Columbia//g; s/Columbus//g; s/Commack//g; s/Commerce City//g; 
 s/CommitteemanagementOfficer/Committee Management Officer/g; s/compliance/Compliance/g; s/commercial/Commercial/g; s/Concord //g; s/Conifer//g; s/connected/Connected/g; s/Conroe//g; 
 s/Conshohocken//g; s/CONSULTANT/Consultant/g; s/consumer/Consumer/g; s/contact/Contact/g; s/content/Content/g; s/Conyers//g; s/Coopersburg//g; s/Cooperstown//g; s/Coppell//g; 
-s/Copperopolis//g; s/Cookeville//g; s/Coraopolis//g; s/corporate/Corporate/g; s/Corpus Christi//g; s/Corsicana//g; s/Council Bluffs//g; s/COUNSEL/Counsel/g; s/Countryside//g; 
+s/Copperopolis//g; s/Cookeville//g; s/Coraopolis//g; s/corporate/Corporate/g; s/Corpus Christi//g; s/Corsicana//g; s/Council Bluffs//g; s/COUNSEL/Counsel/g; s/counsel/Counsel/g; 
+s/Countryside//g; 
 s/Cranberry T//g; s/Cranberry Twp//g; s/Cranston//g; s/credit/Credit/g; s/CREDIT/Credit/g; s/Cresskill//g; s/Crm/CRM/g; s/Crofton//g; s/Croton On H//g; s/Cross Junction//g; 
 s/Crossville//g; s/Crownsville//g; s/Crum Lynne//g; s/Crystal Lake//g; s/Csc//g; s/CSC//g; s/Ctr/Center/g; s/Culpeper//g; s/Culver City//g; s/Cupertino//g; s/Cuyahoga Falls//g; 
 s/Cypress//g; s/Czech Republic//g; s/Daleville//g; s/DALLAS//g; s/Daly City//g; s/Danville//g; s/Daventry//g; s/dealer/Dealer/g; s/Decatur//g; s/defense/Defense/g; s/Delaplane//g; 
@@ -947,14 +951,16 @@ s/Fishers//g; s/Flat Rock//g; s/Flemington//g; s/Floresville//g; s/Florham Park/
 s/Fogelsville//g; s/for Asia and//g; s/Forest Hills//g; s/Forest Hill//g; s/Forest Park//g; s/Forked River//g; s/foreign/Foreign/g; s/Fort Belvoir//g; s/Fort Bliss//g; 
 s/Fort Collins//g; s/Fort Dodge//g; s/Fort Fairfield//g; s/Fort George//g; s/Fort Huachuca//g; s/Fort Knox//g; s/Fort Lauder//g; s/Fort Leaven//g; s/Fort Mill//g; s/Fort Monmouth//g; 
 s/Fort Monroe//g; s/Fort Myers//g; s/Fort Pierce//g; s/Fort Rucker//g; s/Fort Walton//g; s/Fort Washin//g; s/Fort Wayne//g; s/Fort Worth//g; s/Fountain Va//g; s/france//g; 
-s/Framingham//g; s/Frankfort//g; s/Fredericksburg//g; s/Fremont//g; s/Los Fresnos//g; s/Fresno//g; s/Frisco//g; s/Front Royal//g; s/Fsa/FSA/g; s/Ft Mitchell//g; s/Ft Worth//g; 
-s/Ft Wright//g; s/Fullerton//g; s/Gaap/GAAP/g; s/Gainesville//g; s/Gaithersburg//g; s/Galway 	G//g; s/Garden City//g; s/Gardena//g; s/Gastonia//g; s/Gateille//g; s/Germantown//g; 
-s/Germany//g; s/GERMANY//g; s/Geyserville//g; s/Gibsonia//g; s/Gibsonville//g; s/Gig Harbor//g; s/Glastonbury//g; s/Glen Burnie//g; s/Glen Ellyn//g; s/Glen Ridge//g; s/Glen Rock//g; 
+s/Framingham//g; s/Frankfort//g; s/Fredericksburg//g; s/Fremont//g; s/Los Fresnos//g; s/Fresno//g; s/Frisco//g; s/Front Royal//g; s/Fsa/FSA/g; s/Fso/FSO/g; s/Ft Mitchell//g; 
+s/Ft Worth//g; s/Ft Wright//g; s/Fullerton//g; s/Gaap/GAAP/g; s/Gainesville//g; s/Gaithersburg//g; s/Galway 	G//g; s/Garden City//g; s/Gardena//g; s/Gastonia//g; s/Gateille//g; 
+s/Germantown//g; s/Germany//g; s/GERMANY//g; s/Geyserville//g; s/Gibsonia//g; s/Gibsonville//g; s/Gig Harbor//g; s/Glasgow//g; s/Glastonbury//g; s/Glen Burnie//g; s/Glen Ellyn//g; 
+s/Glen Ridge//g; s/Glen Rock//g; 
 s/Glendale//g; s/Glendora//g; s/Glendale//g; s/Glendora//g; s/Glenside//g; s/global/Global/g; s/GMBH//g; s/Gnadenhutten//g; s/Goleta//g; s/Goodyear//g; s/A Google Company//g; 
 s/Google Access//g; s/Google Adwords//g; s/Google Analytics//g; s/Google Books//g; s/Google Brand//g; s/Google Checkout//g; s/Google Earth//g; s/Google Enterprise//g; 
 s/Google Federal//g; s/Google Fiber//g; s/Google Finance//g; s/Google Geospatial Services//g; s/Google Glass//g; s/Google Health//g; s/Google Maps//g; s/Google Media Sales//g; 
 s/Google Offers//g; s/Google Payments//g; s/Google Payment//g; s/Google Plus//g; s/Google Print//g; s/Google Shopping Express//g; s/Google Shopping//g; s/Google Street View//g; 
-s/Google Talk Team//g; s/Google Travel//g; s/Google Ventures//g; s/Google Voice//g; s/Google Wallet//g; s/Google X//g; s/Google//g; s/-google//g; s/Granbury//g; s/Grand Forks//g; 
+s/Google Talk Team//g; s/Google Travel//g; s/Google Ventures//g; s/Google Voice//g; s/Google Wallet//g; s/Google X//g; s/Google//g; s/-google//g; s/Goose Creek//g; s/Granbury//g; 
+s/Grand Forks//g; 
 s/Grand Haven//g; s/Grand Island//g; s/Grand Junction//g; s/Grand Prairie//g; s/Grand Rapids//g; s/Granite City//g; s/Granville//g; s/Grants Pass//g; s/Granville//g; s/Grayslake//g; 
 s/Great Falls//g; s/Green Bay//g; s/Green Belt//g; s/Greenbelt//g; s/Greenbrae//g; s/Greensboro//g; s/Greensburg//g; s/Greencastle//g; s/Greeneville//g; s/Greenport//g; 
 s/Greenville//g; s/Greenwich//g; s/Greenwood Vlg//g; s/Gretna//g; s/Grosse Ile//g; s/Grosse Poin//g; s/group/Group/g; s/Grove City//g; s/Grp/Group/g; s/Gsa/GSA/g; s/Gsm/GSM/g; 
@@ -977,9 +983,10 @@ s/Lafayette//g; s/Laguna Hills//g; s/Laguna Niguel//g; s/Lake Charles//g; s/Salt
 s/Lakehurst//g; s/Lakeland//g; s/Lakeville//g; s/Lakewood//g; s/Lamesa//g; s/Landenberg//g; s/landowner/Landowner/g; s/Lansdale//g; s/Lansdowne//g; s/Lantana//g; s/Las Cruces//g; 
 s/North Las V//g; s/Las Vegas//g; s/Latin America North//g; s/Latin America//g; s/Mount Laurel//g; s/Lawrenceville//g; s/Lawndale//g; s/Layton//g; s/League City//g; 
 s/LEARNING/Learning/g; s/Leavenworth//g; s/Leawood//g; s/Lebanon//g; s/Leesburg//g; s/Leesville//g; s/legal/Legal/g; s/lending/Lending/g; s/Lenexa//g; s/Lenoir//g; 
-s/Leonardtown//g; s/Leonia//g; s/Letchworth//g; s/Lewisburg//g; s/Lewisville//g; s/Lexington Park//g; s/Lexington//g; s/Libertyville//g; s/Linesville//g; s/Linthicum//g; s/Linwood//g; 
-s/Litchfield//g; s/Lithonia//g; s/Lititz//g; s/Little Rock//g; s/Littleton//g; s/Livermore//g; s/Liverpool//g; s/Livonia//g; s/Llc/LLC/g; s/Lockport//g; s/Logansport//g; s/Lomita//g; 
-s/Lompoc//g; s/Longmont//g; s/New London//g; s/Lone Tree//g; s/Long Beach//g; s/Long Valley//g; s/Longueuil//g; s/Laredo//g; s/Los Angeles//g; s/Louisville//g; s/Loveland//g; 
+s/Leonardtown//g; s/Leonia//g; s/Letchworth//g; s/Lewisburg//g; s/Lewisville//g; s/Lexington Park//g; s/Lexington//g; s/Libertyville//g; s/Linesville//g; s/Linthicum H//g; 
+s/Linwood//g; s/Litchfield//g; s/Lithonia//g; s/Lititz//g; s/Little Rock//g; s/Littleton//g; s/Livermore//g; s/Liverpool//g; s/Livonia//g; s/Llc/LLC/g; s/Lockport//g; s/Logansport//g; 
+s/logistics//g; s/Lomita//g; s/Lompoc//g; s/Longmont//g; s/New London//g; s/Lone Tree//g; s/Long Beach//g; s/Long Valley//g; s/Longueuil//g; s/Laredo//g; s/Los Angeles//g; 
+s/Louisville//g; s/Loveland//g; 
 s/Loves Park//g; s/Lovettsville//g; s/Lowell//g; s/Lubbock//g; s/Lufkin//g; s/Lumberton//g; s/Lutherville//g; s/Luton//g; s/Lvl/Level/g; s/Lyndhurst//g; s/Lynnwood//g; s/Machias//g; 
 s/Macon//g; s/Macquarie Park//g; s/Mahwah//g; s/Maidstone//g; s/Maineville//g; s/MAINFRAME/ Mainframe/g; s/Maitland//g; s/Malaysia//g; s/Malvern//g; s/MANAGER/Manager/g; 
 s/Manager\//Manager, /g; s/Manalapan//g; s/Manassas//g; s/Mangr/Manager/g; s/Manchester//g; s/mangr/Manager/g; s/Manhattan//g; s/Manistee//g; s/MANUFACTURING/Manufacturing/g; 
@@ -1006,12 +1013,14 @@ s/Oak Brook//g; s/Oak Hill//g; s/Oak Park//g; s/Oak Ridge//g; s/Oak View//g; s/O
 s/Ocean Springs//g; s/Oceanport//g; s/Ocoee//g; s/Odenton//g; s/Odessa//g; s/officer/Officer/g; s/Officer\//Officer, /g; s/OFFICE/Office/g; s/Offutt A F B//g; s/Ogdensburg//g; 
 s/Ogden//g; s/Ohio//g; s/Okemos//g; s/Oklahoma City//g; s/Olathe//g; s/Old Bridge//g; s/Oldsmar//g; s/Olmsted Falls//g; s/Olympia//g; s/Omaha//g; s/Onalaska//g; 
 s/Onited States//g; s/online/Online/g; s/Oologah//g; s/operations/Operations/g; s/Orange Park//g; s/Oregon//g; s/oriented/Oriented/g; s/Orland Park//g; s/orlando//g; s/Orrville//g; 
-s/Ottawa//g; s/Overland Park//g; s/Oviedo//g; s/Owego//g; s/Owensboro//g; s/Owings Mills//g; s/Oxon Hill//g; s/PACKAGING/Packaging/g; s/Pacific Southwest Region //g; s/Palatine//g; 
+s/Ottawa//g; s/Overland Park//g; s/Oviedo//g; s/Owego//g; s/Owensboro//g; s/Owings Mills//g; s/Oxon Hill//g; s/PACKAGING/Packaging/g; s/PACIFIC NORTHWEST//g; 
+s/Pacific Southwest Region //g; s/Palatine//g; 
 s/Palermo//g; s/Palm Bay//g; s/Palm Beach//g; s/Palm Coast//g; s/Palm Harbor//g; s/Palmdale//g; s/Palo//g; s/Palo Alto//g; s/Palos Hills//g; s/Pompano Beach//g; s/Panama City//g; 
 s/Papillion//g; s/paralegal/Paralegal/g; s/parent/Parent/g; s/Park Forest//g; s/Park Ridge//g; s/Parkesburg//g; s/Parkville//g; s/Parsippany//g; s/Pasadena//g; s/Pascagoula//g; 
 s/Passaic//g; s/PATROL/Patrol/g; s/Patuxent River//g; s/payments/Payments/g; s/Pearl City//g; s/Pelham//g; s/Pell City//g; s/Pemberton//g; s/Pembina//g; s/Pembroke Pines//g; 
 s/Pensacola//g; s/Peoria//g; s/Peterborough//g; s/Pewaukee//g; s/philadelphia//g; s/Philadelphia//g; s/PHILADELPHRegion//g; s/Phillipsburg//g; s/Phoenix//g; s/physical/Physical/g; 
-s/Pico Rivera//g; s/Pikesville//g; s/Pinconning//g; s/Pinehurst//g; s/Pinellas Park//g; s/Pineville//g; s/Pickerington//g; s/Piscataway//g; s/Pittsburgh//g; s/Pittsfield//g; 
+s/Picayune//g; s/Pickerington//g; s/Pico Rivera//g; s/Pikesville//g; s/Pinconning//g; s/Pinehurst//g; s/Pinellas Park//g; s/Pineville//g; s/Pipersville//g; s/Piscataway//g; 
+s/Pittsburgh//g; s/Pittsfield//g; s/Placitas//g; 
 s/Plainfield//g; s/Plainsboro//g; s/planner//g; s/Plano//g; s/Plaquemine//g; s/platform/Platform/g; s/Pleasanton//g; s/Pleasantville//g; s/Plymouth//g; s/PMo/PMO/g; s/PMp//g; 
 s/PMP, //g; s/Pmp/PMP/g; s/Pm/PM/g; s/Point Pleasant//g; s/PMo/PMO/g; s/Pomona//g; s/Ponca City//g; s/Pontiac//g; s/Poplar Branch//g; s/PortDirector/Port Director/g; s/Port Allen//g; 
 s/Port Deposit//g; s/Port Orange//g; s/Port Orchard//g; s/Portage//g; s/PortDirector/Port Directorg/g; s/portfolio/Portfolio/g; s/Portland//g; s/Portsmouth//g; s/Portugal//g; 
@@ -1022,21 +1031,23 @@ s/PROCUREMENT/Procurement/g; s/producer/Producer/g; s/PRODUCER/Producer/g; s/PRO
 s/Provos//g; s/Pueblo//g; s/Purcellville//g; s/Pyrmont//g; s/Quantico//g; s/R and D/R&D/g; s/RADIOLOGY/Radiology/g; s/Radnor//g; s/Rancho//g; s/Randallstown//g; s/Ransom Canyon//g; 
 s/Rapid City//g; s/Raritan//g; s/Raymondville//g; s/Rayville//g; s/real/Real/g; s/receives/Receives/g; s/recreation/Recreation/g; s/Recruiter\//Recruiter, /g; s/Red Bank//g; 
 s/Redlands//g; s/Redondo Beach//g; s/Redwood City//g; s/regional/Regional/g; s/Reisterstown//g; s/relationship/Relationship/g; s/reliability/Reliability/g; s/Reno//g; s/Rensselaer//g; 
-s/Reston//g; s/retail/Retail/g; s/Reynoldsburg//g; s/RFid/RFID/g; s/Rf/RF/g; s/Richland//g; s/Ridgecrest//g; s/Ridgeland//g; s/New Richmond//g; s/Ridgewood//g; s/Ringoes//g; 
+s/Reston//g; s/retail/Retail/g; s/retirement/Retirement/g; s/Reynoldsburg//g; s/RFid/RFID/g; s/Rf/RF/g; s/Richland//g; s/Ridgecrest//g; s/Ridgeland//g; s/New Richmond//g; 
+s/Ridgewood//g; s/Ringoes//g; 
 s/River Edge//g; s/Riverdale//g; s/Riverside//g; s/Rivervale//g; s/Rllng Hls Est//g; s/Roanoke//g; s/Rockaway//g; s/Rochester Hls//g; s/Rockford//g; s/Rockledge//g; s/Rocklin//g; 
 s/Rockport//g; s/Rocky Hill//g; s/Rocky Mount//g; s/Rocky River//g; s/Rock Springs//g; s/Rockville//g; s/Rohnert Park//g; s/Rolling Mea//g; s/Romeoville//g; s/Rosamond//g; 
 s/Roseburg//g; s/Rosemead//g; s/Roseville//g; s/Roswell//g; s/Rougemont//g; s/Round Lk Bch//g; s/Round Rock//g; s/Royal Oak//g; s/Royersford//g; s/Riverton//g; s/Ruckersville//g; 
 s/Russia//g; s/Sacramento//g; s/SAFETY/Safety/g; s/Saint-laurent//g; s/Saint Albans//g; s/Saint Ann//g; s/Saint Augus//g; s/Saint Charles//g; s/Saint Clair//g; s/Saint Cloud//g; 
 s/Saint Joseph//g; s/Saint Louis//g; s/Saint Paul//g; s/Saint Peter//g; s/Saint Rose//g; s/Saint Simon//g; s/sales/Sales/g; s/Salisbury//g; s/Salt Lake City//g; s/San Antonio//g; 
 s/San Bruno//g; s/San Carlos//g; s/San Clemente//g; s/San Diego//g; s/San Dimas//g; s/san Francisco Bay//g; s/San Francisco//g; s/San Jose//g; s/San Juan//g; s/San Marcos//g; 
-s/San Mateo//g; s/San Pedro//g; s/San Ramon//g; s/Sandton//g; s/Sanibel//g; s/Santa Ana//g; s/Santa Clara//g; s/Santa Clarita//g; s/Santa Fe//g; s/Santa Isabel//g; s/Santa Maria//g; 
-s/Santa Monica//g; s/Santa Rosa//g; s/Santee//g; s/Sao Paulo//g; s/Sarasota//g; s/Saratoga Sp//g; s/Sayreville//g; s/Scarsdale//g; s/Schaumburg//g; s/Schenectady//g; s/Schererville//g; 
-s/Schiller Park//g; 
-s/scholar/Scholar/g; s/scientist/Scientist/g; s/SCIENTIST/Scientist/g; s/SCONSUTANT/Consultant/g; s/Scotch Plains//g; s/Scott Afb//g; s/Scott Air F//g; s/Scotts Valley//g; 
-s/Scottsdale//g; s/Scranton//g; s/Seaford//g; s/Seattle//g; s/SEATTLE//g; s/Sebring//g; s/Secaucus//g; s/SECURITY/Security/g; s/Sedalia//g; s/Seminole//g; s/\/Senior/, Senior/g; 
+s/San Mateo//g; s/San Pedro//g; s/San Ramon//g; s/Sandton//g; s/Sanibel//g; s/Santa Ana//g; s/Santa Barbara//g; s/Santa Clara//g; s/Santa Clarita//g; s/Santa Fe//g; s/Santa Isabel//g; 
+s/Santa Maria//g; s/Santa Monica//g; s/Santa Rosa//g; s/Santee//g; s/Sao Paulo//g; s/Sarasota//g; s/Saratoga Sp//g; s/Saucier//g; s/Sayreville//g; s/Scarsdale//g; s/Schaumburg//g; 
+s/Schenectady//g; s/Schererville//g; s/Schiller Park//g; s/scholar/Scholar/g; s/scientist/Scientist/g; s/SCIENTIST/Scientist/g; s/SCONSUTANT/Consultant/g; s/Scotch Plains//g; 
+s/Scott Afb//g; s/Scott Air F//g; s/Scotts Valley//g; s/Scottsdale//g; s/Scranton//g; s/Seaford//g; s/Seal Beach//g; s/Seattle//g; s/SEATTLE//g; s/Sebring//g; s/Secaucus//g; 
+s/SECURITY/Security/g; s/security/Security/g; s/Sedalia//g; s/Seminole//g; s/\/Senior/, Senior/g; 
 s/senior/Senior/g; s/Serilingamp//g; s/SerVices/Services/g; s/service/Service/g; s/Severn //g; s/Severna Park//g; s/Sewell//g; s/Sftwr/Software/g; s/Shalimar//g; s/Sharpes//g; 
 s/Sheffield Vlg//g; s/Shelbyville//g; s/Shelby Town//g; s/Sherman Oaks//g; s/Shorewood//g; s/Show Low//g; s/Shreveport//g; s/Sierra Vista//g; s/Silver Spring//g; s/Sioux City//g; 
-s/Sitka//g; s/Skillman//g; s/Slidell//g; s/Snr/Senior/g; s/Silverdale//g; s/Singapore//g; s/Sioux Falls//g; s/Simpsonville//g; s/Smb/SMB/g; s/Sms/SMS/g; s/Smyrna//g; s/social/Social/g; 
+s/Sitka//g; s/Skillman//g; s/Slidell//g; s/Snr/Senior/g; s/Silverdale//g; s/Singapore//g; s/Sioux Falls//g; s/Simpsonville//g; s/smart/Smart/g; s/Smb/SMB/g; s/Sms/SMS/g; s/Smyrna//g; 
+s/social/Social/g; 
 s/Socorro//g; s/Solana Beach//g; s/Solihull//g; s/Somerset//g; s/Southborough//g; s/Southbridge//g; s/Southfield//g; s/Southern and  , ,//g; s/Southern Pines//g; s/South Africa//g; 
 s/South Bend//g; s/South Burli//g; s/South Central//g; s/South Dakota//g; s/South East//g; s/South-east//g; s/South Orange//g; s/South San F//g; s/South Lake//g; s/South Ozone//g; 
 s/South Plain//g; s/South River//g; s/South East Asia//g; s/South-east Asia//g; s/southeast//g; s/Southeast//g; s/Southaven//g; s/Southampton//g; s/Southlake//g; s/Southwest//g; 
@@ -1050,7 +1061,7 @@ s/Tall Timbers//g; s/Tampa//g; s/Taneytown//g; s/Tarzana//g; s/Taunton//g; s/Tav
 s/technology/Technology/g; s/TELECOMMUNICATIONS/Telecommunications/g; s/television/Television/g; s/Telluride//g; s/Tempe //g; s/Tenafly//g; s/TEST/Test/g; s/Texas//g; 
 s/Thailand and Philippines//g; s/The Dalles//g; s/Thomasville//g; s/Thorndale//g; s/Thousand Oaks//g; s/Timber Lake//g; s/Tipp City//g; s/Tipton//g; s/Titusville//g; s/Topeka//g; 
 s/Tornado//g; s/Toronto//g; s/Torrance//g; s/Township Of//g; s/Towson//g; s/TRADEMARKS/Trademarks/g; s/trainer/Trainer/g; s/TRANSPORTATION/Transportation/g; s/treasury/Treasury/g; 
-s/Trenton//g; s/Tucson//g; s/Tulsa//g; s/Tunbridge W//g; s/Turkey//g; s/Tuscaloosa//g; s/Tustin//g; s/Twin Falls//g; s/Twinsburg//g; s/Tyngsboro//g; s/UK//g; s/U.S.//g; 
+s/Trenton//g; s/Tucson//g; s/Tullahoma//g; s/Tulsa//g; s/Tunbridge W//g; s/Turkey//g; s/Tuscaloosa//g; s/Tustin//g; s/Twin Falls//g; s/Twinsburg//g; s/Tyngsboro//g; s/UK//g; s/U.S.//g; 
 s/UNDERWRITER/Underwriter/g; s/Union Ban//g; s/Union City//g; s/Union Office//g; s/Uniondale//g; s/Uniontown//g; s/United Kingdom//g; s/United States//g; s/Universal City//g; 
 s/university/University/g; s/Upper Chich//g; s/Upper Marlboro//g; s/Urbana//g; s/Urbandale//g; s/Uscg/USCG/g; s/Uxbridge//g; s/Uvalde//g; s/Vail//g; s/Valdosta//g; s/valve/Valve/g; 
 s/Valley Stream//g; s/Van Nuys//g; s/Vanceboro//g; s/Vancouver//g; s/Vandalia//g; s/Vandergrift//g; s/vendor/Vendor/g; s/Venice//g; s/Vernon Hills//g; s/Vero Beach//g; s/Vii/VII/g; 
@@ -1075,22 +1086,25 @@ perl -ne 'if ($_ =~ /(.*?)\t\s*(.*)/) {printf("%-30s%s\n",$1,$2);}' tmp > tmp2
 
 # Remove trailing whitespace from each line, sort and clean up
 sed 's/[ \t]*$//g' tmp2 | sort | sed 's/   -/ -/g; s/,  /, /g; s/, , , , //g; s/, , , //g; s/, , /, /g; s/,$//g; s/\/$//g; s/-$//g; s/Adena$//g; s/Africa$//g; s/Alexandria$//g; 
-s/Alma$//g; s/and$//g; s/Anderson$//g; s/Anniston$//g; s/Apex$//g; s/Asia$//g; s/Austin$//g; s/Baltimore$//g; s/Banbury$//g; s/Bartlett$//g; s/Barton$//g; s/Bath$//g; s/BC$//g; 
-s/Beaumont$//g; s/Beaver$//g; s/Berlin$//g; s/Blaine$//g; s/Boron$//g; s/Boston$//g; s/Bowie$//g; s/Brampton$//g; s/Bristow$//g; s/Brunswick$//g; s/Burke$//g; s/Burleson$//g; 
-s/Cambridge$//g; s/Camden$//g; s/Campbell$//g; s/Canton$//g; s/Carlisle$//g; s/Cary$//g; s/Casper$//g; s/Champlain$//g; s/Chandler$//g; s/Champlain$//g; s/Charlotte$//g; 
-s/Chatsworth$//g; s/Chester$//g; s/Christiana$//g; s/Clawson$//g; s/Clayton$//g; s/Cleveland$//g; s/Clifton$//g; s/Corbin$//g; s/Cordova$//g; s/Corona$//g; s/Cumberland$//g; s/D$//g; 
-s/Dallas$//g; s/Darby$//g; s/Davis$//g; s/Dayton$//g; s/Denton$//g; s/Douglas$//g; s/Duncan$//g; s/Dundee$//g; s/Dupree$//g; s/Edwards$//g; s/Elizabeth$//g; s/Endicott$//g; 
-s/Eugene$//g; s/Evans$//g; s/Fairfield$//g; s/Florence$//g; s/for$//g; s/Forsyth$//g; s/Frederick$//g; s/Gardners$//g; s/Garland$//g; s/Gatineau$//g; s/Glen Allen$//g; s/Glencoe$//g; 
-s/Greeley$//g; s/Greenwood$//g; s/Groton$//g; s/Grovel$//g; s/Hammond$//g; s/Hampton$//g; s/Helena$//g; s/Henderson$//g; s/Herndon$//g; s/Hilo$//g; s/Hinckley$//g; s/Hobart$//g; 
+s/Alma$//g; s/and$//g; s/Anderson$//g; s/Anniston$//g; s/Apex$//g; s/Arnold$//g; s/Asia$//g; s/Austin$//g; s/Baltimore$//g; s/Banbury$//g; s/Bartlett$//g; s/Barton$//g; s/Bath$//g; 
+s/BC$//g; s/Beaumont$//g; s/Beaver$//g; s/Berlin$//g; s/Blaine$//g; s/Boron$//g; s/Boston$//g; s/Bowie$//g; s/Boyds$//g; s/Brampton$//g; s/Bristow$//g; s/Brunswick$//g; s/Burke$//g; 
+s/Burleson$//g; s/Cambridge$//g; s/Camden$//g; s/Campbell$//g; s/Canton$//g; s/Carlisle$//g; s/Cary$//g; s/Casper$//g; s/Champlain$//g; s/Chandler$//g; s/Champlain$//g; 
+s/Charlotte$//g; s/Chatsworth$//g; s/Chester$//g; s/Christiana$//g; s/Clawson$//g; s/Clayton$//g; s/Cleveland$//g; s/Clifton$//g; s/Corbin$//g; s/Cordova$//g; s/Corona$//g; 
+s/Crane$//g; s/Cumberland$//g; s/D$//g; s/Dahlgren$//g; s/Dallas$//g; s/Darby$//g; s/Davis$//g; s/Dayton$//g; s/Denton$//g; s/Douglas$//g; s/Duncan$//g; s/Dundee$//g; s/Dupree$//g; 
+s/Edwards$//g; s/Elizabeth$//g; s/Endicott$//g; s/Eugene$//g; s/Evans$//g; s/Fairfield$//g; s/Florence$//g; s/for$//g; s/Forsyth$//g; s/Frederick$//g; s/Gardners$//g; s/Garland$//g; 
+s/Gatineau$//g; s/Glen Allen$//g; s/Glencoe$//g; s/Greenfield$//g; s/Greeley$//g; s/Greenwood$//g; s/Groton$//g; s/Grovel$//g; s/Hamilton$//g; s/Hammond$//g; s/Hampton$//g; 
+s/Helena$//g; s/Henderson$//g; s/Herndon$//g; s/Hilo$//g; s/Hinckley$//g; s/Hobart$//g; 
 s/Holbrook$//g; s/Houston$//g; s/Huron$//g; s/Indio$//g; s/Irving$//g; s/Israel$//g; s/Lisle$//g; s/Jackson$//g; s/Kent$//g; s/Kingille$//g; s/Kingwood$//g; s/Kirkland$//g; 
 s/Lancaster$//g; s/Lanham$//g; s/Lansing$//g;s/Laurel$//g; s/Lawrence$//g; s/Leeds$//g; s/Lewiston$//g; s/Lichfield$//g; s/Lima$//g; s/Lincoln$//g; s/Linden$//g; s/Lindon$//g; 
 s/London$//g; s/Lorton$//g; s/Luton$//g; s/Madison$//g; s/Mansfield$//g; s/Marietta$//g; s/Maine$//g; s/Marion$//g; s/Martin$//g; s/Maynard$//g; s/Mcallen$//g; s/Mckinney$//g; 
 s/Media$//g; s/Melrose$//g; s/Melville$//g; s/Middleton$//g; s/Mitchell$//g; s/Merrill$//g; s/Mobile$//g; s/Moline$//g; s/Montgomery$//g; s/Murdock$//g; s/Newport$//g; s/Niles$//g; 
-s/Norco$//g; s/Norton$//g; s/Norwich$//g; s/of$//g; s/Olney$//g; s/Orlando$//g; s/Orem$//g; s/Palmer$//g; s/Pasco$//g; s/Pennington$//g; s/Pharr$//g; s/Philip$//g; s/Pierre$//g; 
-s/Pinckney$//g; s/Preston$//g; s/Quincy$//g; s/Raleigh$//g; s/Reading$//g; s/Redmond$//g; s/Richmond$//g; s/Rochester$//g; s/Romulus$//g; s/Salina$//g; s/Savannah$//g; 
-s/Shrewsbury$//g; s/Sparta$//g; s/Spring$//g; s/Stafford$//g; s/Sterling$//g; s/Strasburg$//g; s/Summerville$//g; s/Swanton$//g; s/Sydney$//g; s/Tecate$//g; s/-the$//g; s/Thurso$//g; 
-s/Toledo$//g; s/Toll$//g; s/Tewksbury$//g; s/Underhill$//g; s/Union$//g; s/Valencia$//g; s/Ventura$//g; s/Verona$//g; s/Vestal$//g; s/Wakefield$//g; s/Washington$//g; s/Warren$//g; 
-s/Wayne$//g; s/Webster$//g; s/Wheaton$//g; s/Williston$//g; s/Winchester$//g; s/Windsor$//g; s/Yardley$//g; s/York$//g' > tmp3
+s/Norco$//g; s/Norman$//g; s/Norton$//g; s/Norwich$//g; s/Odon$//g; s/of$//g; s/Olney$//g; s/Orlando$//g; s/Orem$//g; s/Palmer$//g; s/Pasco$//g; s/Pennington$//g; s/Pharr$//g; 
+s/Philip$//g; 
+s/Pierre$//g; s/Pinckney$//g; s/Preston$//g; s/Quincy$//g; s/Raleigh$//g; s/Reading$//g; s/Redmond$//g; s/Richardson$//g; s/Richmond$//g; s/Rochester$//g; s/Romulus$//g; s/Salina$//g; 
+s/Savannah$//g; s/Shrewsbury$//g; s/Sparta$//g; s/Spring$//g; s/Stafford$//g; s/Sterling$//g; s/Strasburg$//g; s/Summerville$//g; s/Swanton$//g; s/Sydney$//g; s/Tecate$//g; 
+s/Tewksbury$//g; s/-the$//g; s/Thomaston$//g; s/Thurso$//g; s/Toledo$//g; s/Toll$//g; s/Toney$//g; s/Troy$//g; s/Underhill$//g; s/Union$//g; s/Valencia$//g; s/Ventura$//g; 
+s/Verona$//g; s/Vestal$//g; 
+s/Wakefield$//g; s/Washington$//g; s/Warren$//g; s/Wayne$//g; s/Webster$//g; s/Wheaton$//g; s/Williston$//g; s/Winchester$//g; s/Windsor$//g; s/Yardley$//g; s/York$//g' > tmp3
 
 head tmp3
 echo
@@ -1220,7 +1234,7 @@ case $choice in
 
      echo
      echo "Running an Nmap ping sweep for live hosts."
-     nmap -sn -T4 --stats-every 10s -g $sourceport -iL $location > tmp
+     nmap -sn --stats-every 10s -g $sourceport -iL $location > tmp
      ;;
 
      2)
@@ -1235,7 +1249,7 @@ case $choice in
 
      echo
      echo "Running an Nmap ping sweep for live hosts."
-     nmap -sn -T4 --stats-every 10s -g $sourceport $manual > tmp
+     nmap -sn --stats-every 10s -g $sourceport $manual > tmp
      ;;
 
      *) f_error;;
@@ -1243,7 +1257,7 @@ esac
 
 ##############################################################
 
-perl <<'EOF'
+perl << 'EOF'
 # Author: Ben Wood
 # Description: Reads an nmap ping sweep and correctly identifies lives hosts
 
@@ -1492,7 +1506,7 @@ else
 fi
 
 echo
-echo -n "Set scan delay (0-5, enter for normal): "
+echo -n "Set scan delay. (0-5, enter for normal) "
 read delay
 
 # Check for no answer
@@ -1534,6 +1548,137 @@ sed 's/https:\/\///g' tmp2 > $name/https.txt
 
 # Remove all empty files
 find $name/ -type f -empty -exec rm {} +
+
+cp $name/nmap.xml .
+
+##############################################################
+python << 'EOF'
+# Author: Saviour Emmanuel
+
+from xml.dom import minidom
+
+class NMAP_XMLParser(object):
+    def __init__(self,file_path):
+        self._xml_object = object()
+        self._xml_path = file_path
+        self._output_path = str()
+        self._csv_string = str()
+        self._open_xml()
+
+    def _open_xml(self):
+        '''Open XML file on class construction'''
+        self._xml_object = minidom.parse(self._xml_path)
+
+    def setCSVPath(self,output_path):
+        '''Set path to dump CSV file'''
+        if not output_path.lower().endswith(".csv"):
+            output_path = output_path + ".csv"
+        self._output_path = output_path
+
+    def _iter_hosts(self):
+        '''Fetch the <host> tags from the xml file'''
+        hosts_nodes = self._xml_object.getElementsByTagName("host")
+        for host_node in hosts_nodes:
+            yield(host_node)
+
+    def _get_IP_Address(self,info):
+        '''Fect the IP address from XML object'''
+        ip_address = str()
+        info_detail = info.getElementsByTagName("address")
+        for address in info_detail:
+            if(address.getAttribute("addrtype") == "ipv4"):
+                ip_address = address.getAttribute("addr")
+                break
+
+        return(ip_address)
+
+    def _get_FQDN(self,info):
+        '''get the FQDN aka domain/hostname'''
+        fqdn = str()
+        info_detail = info.getElementsByTagName("hostname")
+        for hostname in info_detail:
+            if(info_detail.getAttribute("name")):
+                fqdn = address.getAttribute("name")
+                break
+
+        return(fqdn)
+
+    def _get_OS(self,info):
+        '''function will determine OS by the greatest percentage in accuracy'''
+        os = str()
+        os_hash = dict()
+        percentage = list()                                         # 90,91,45,12 --> 91%
+
+        info_detail = info.getElementsByTagName("osmatch")
+
+        for os_detail in info_detail:
+            guessed_os = os_detail.getAttribute("name")
+            accuracy = os_detail.getAttribute("accuracy")
+            if(guessed_os and accuracy):
+                os_hash[float(accuracy)] = guessed_os
+
+        percentages = os_hash.keys()
+        if(percentages):
+            max_percent = max(percentages)
+            os = os_hash[max_percent]
+
+        return(os)
+
+    def _get_iter_Port_Information(self,info):
+        '''fectch port and service information'''
+        info_detail = info.getElementsByTagName("port")
+        for port_details in info_detail:
+            protocol = port_details.getAttribute("protocol")
+            port_number = port_details.getAttribute("portid")
+
+            port_service = port_details.getElementsByTagName("state")
+            for port_services in port_service:
+                port_state = port_services.getAttribute("state")
+
+                if(port_state == "open"):
+
+                    service_info = port_details.getElementsByTagName("service")
+                    for service_details in service_info:
+                        service = service_details.getAttribute("name")
+                        product = service_details.getAttribute("product")
+                        version = service_details.getAttribute("version")
+
+                        yield(port_number,protocol,service,product,version)
+
+    def _parse_XML_details(self):
+        '''Initiate parsing of nmap XML file and create CSV string object'''
+
+        csv_header = "IP,FQDN,OS,Port,Protocol,Service,Name,Version\n"
+        csv_format = '{0},"{1}","{2}",{3},{4},"{5}","{6}","{7}"\n'
+
+        self._csv_string += csv_header
+
+        for info in self._iter_hosts():
+            ip =  self._get_IP_Address(info)
+            fqdn = self._get_FQDN(info)
+            os = self._get_OS(info)
+
+            for port,protocol,service,product,version in self._get_iter_Port_Information(info):
+                self._csv_string += csv_format.format(ip,fqdn,os,port,protocol,service,product,version)
+
+    def dumpCSV(self):
+        '''Write CSV output file to disk'''
+        self._parse_XML_details()
+
+        csv_output = open(self._output_path,"w")
+        csv_output.write(self._csv_string)
+        csv_output.close()
+
+# Usage below:
+if(__name__ == "__main__"):
+
+    nmap_xml = NMAP_XMLParser("nmap.xml")     # Input file
+    nmap_xml.setCSVPath("nmap.csv")           # Output file
+    nmap_xml.dumpCSV()
+EOF
+
+mv nmap.csv $name/
+rm nmap.xml
 }
 
 ##############################################################################################################
