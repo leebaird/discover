@@ -1648,7 +1648,7 @@ class NMAP_XMLParser(object):
     def _parse_XML_details(self):
         '''Initiate parsing of nmap XML file and create CSV string object'''
 
-        csv_header = "IP,FQDN,OS,Port,Protocol,Service,Name,Version\n"
+        csv_header = "IP Address,FQDN,OS,Port,Protocol,Service,Name,Version\n"
         csv_format = '{0},"{1}","{2}",{3},{4},"{5}","{6}","{7}"\n'
 
         self._csv_string += csv_header
