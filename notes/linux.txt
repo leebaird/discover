@@ -183,9 +183,8 @@ ssh root@host                      Connect to host as root
 ssh -p 222 root@host               Connect to host on port 222 as root
 /etc/ssh/sshd_config               Change port that the server is listening on or allow root login
 
-mv amazon.pm /root/.ssh/           Move new Amazon prive key to SSH folder
-cd /root/.ssh/
-chmod 600 amazon.pem               Change permissions of key
+mv amazon.pm /root/.ssh/           Move new Amazon private key to SSH folder
+chmod 600 /root/.ssh/amazon.pem    Change permissions of key
 ssh -i amazon.pem kali@host        Connect to Amazon EC2 as kali with key
 ------------------------------------------------------------------------------------------------------
 

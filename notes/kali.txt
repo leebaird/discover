@@ -102,7 +102,7 @@ Add folder: Scanners
 
 # Install Adobe Flash
 
-apt-get install flashplugin-nonfree
+apt-get -y install flashplugin-nonfree
 update-flashplugin-nonfree --install
 ------------------------------------------------------------------------------------------------------
 
