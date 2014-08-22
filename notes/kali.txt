@@ -236,6 +236,14 @@ netstat -antp | grep apache                      Verify the service is running
 /var/www/index.html                              Default home page
 /var/log/apache2/access.log                      Logs
 
+service postgresql start                         Start postgreSQL
+netstat -antp | grep postgres                    Verify the service is running
+service metasploit start                         Start Metasploit
+msfconsole                                       Launch Metasploit console
+db_status                                        Verifty database connectivity
+update-rc.d postgresql enable                    Enable postgreSQL to start at boot time
+update-rc.d metasploit enable                    Enable Metasploit to start at boot time
+
 service ssh start                                Start ssh
 netstat -antp | grep ssh                         Verify the service is running
 update-rc.d ssh enable                           Enable ssh to start at boot time
