@@ -148,10 +148,11 @@ rm <installer file>
 
 # Install Java
 
-wget --no-cookies --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com" "http://download.oracle.com/otn-pub/java/jdk/7u17-b02/jdk-7u17-linux-x64.tar.gz"
-tar zxvf jdk-7u17-linux-x64.tar.gz
-mv jdk1.7.0_17/ /usr/lib/jvm
-update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk1.7.0_17/jre/bin/java 2
+java.com
+Linux x64
+tar zxvf jre-7u67-linux-x64.tar.gz
+mv jre1.7.0_67/ /usr/lib/jvm
+update-alternatives --install /usr/bin/java java /usr/lib/jvm/jre1.7.0_67/bin/java 2
 update-alternatives --config java
 rm jdk-7u17-linux-x64.tar.gz
 java -version
