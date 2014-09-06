@@ -35,6 +35,17 @@ if [ ! -f /usr/bin/i586-mingw32msvc-c++ ]; then
      echo
 fi
 
+if [ ! -f /opt/google/chrome/google-chrome ]; then
+     echo -e "\e[1;33mInstalling Google Chrome.\e[0m"
+     wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+     dpkg -i google-chrome-stable_current_amd64.deb
+     head -n -1 /opt/google/chrome/google-chrome > temp.txt ; mv temp.txt /opt/google/chrome/google-chrome
+     echo 'exec -a "$0" "$HERE/chrome"  "$@" --user-data-dir' >> /opt/google/chrome/google-chrome
+     chmod +x /opt/google/chrome/google-chrome
+     rm google-chrome-stable_current_amd64.deb
+     echo
+fi
+
 if [ -d /opt/smbexec/.git ]; then
      echo -e "\e[1;34mUpdating smbexec.\e[0m"
      cd /opt/smbexec/ ; git pull

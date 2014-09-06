@@ -146,17 +146,6 @@ mv DbVisualizer/ /opt/
 rm <installer file>
 ------------------------------------------------------------------------------------------------------
 
-# Install Google Chrome
-
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-dpkg -i google-chrome-stable_current_amd64.deb
-cp /opt/google/chrome/google-chrome.desktop /usr/share/applications/google-chrome.desktop
-head -n -1 /opt/google/chrome/google-chrome > temp.txt ; mv temp.txt /opt/google/chrome/google-chrome
-echo 'exec -a "$0" "$HERE/chrome"  "$@" --user-data-dir' >> /opt/google/chrome/google-chrome
-chmod +x /opt/google/chrome/google-chrome
-rm google-chrome-stable_current_amd64.deb
-------------------------------------------------------------------------------------------------------
-
 # Install Java
 
 wget --no-cookies --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com" "http://download.oracle.com/otn-pub/java/jdk/7u17-b02/jdk-7u17-linux-x64.tar.gz"
