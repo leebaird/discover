@@ -1,6 +1,24 @@
 Metasploit
 
 
+# Fix database issue
+
+root@kali:~# service postgresql start; service metasploit start
+root@kali:~# su postgres
+postgres@kali:~$ createuser lee -P
+Enter password for new role: 
+Enter it again: 
+Shall the new role be a superuser? (y/n) n
+Shall the new role be allowed to create databases? (y/n) n
+Shall the new role be allowed to create more new roles? (y/n) n
+postgres@kali:~$ createdb --owner=lee msf
+postgres@kali:~$ exit
+exit
+root@kali:~# msfconsole
+msf > db_connect lee:<password>@127.0.0.1:5432/msf
+msf > hosts
+------------------------------------------------------------------------------------------------------
+
 # msfcli
 
 msfcli -h
