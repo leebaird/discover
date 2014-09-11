@@ -88,7 +88,8 @@ Type of scan:
 3.  Previous menu
 ```
 
-* An external scan will set the nmap source port to 53, while an internal scan will set it to 88.
+* External scan will set the nmap source port to 53 and the max-rrt-timeout to 1500ms.
+* Internal scan will set the nmap source port to 88 and the max-rrt-timeout to 500ms.
 * Nmap is used to perform host discovery, port scanning, service enumeration and OS identification. 
 * Matching nmap scripts are used for additional enumeration.
 * Matching Metasploit auxiliary modules are also leveraged.
