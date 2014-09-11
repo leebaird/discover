@@ -1,6 +1,0 @@
-setg RHOSTS file:
-setg THREADS 255
-setg RPORT 548
-
-use auxiliary/scanner/afp/afp_server_info
-run

@@ -1,6 +1,0 @@
-setg RHOSTS file:
-setg THREADS 255
-setg RPORT 143
-
-use auxiliary/scanner/imap/imap_version
-run

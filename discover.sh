@@ -1335,6 +1335,7 @@ case $choice in
      echo
      echo -e "\e[1;33m[*] Setting source port to 53.\e[0m"
      sourceport=53
+     maxrrt=1500ms
      echo
      echo $medium
      echo
@@ -1344,6 +1345,7 @@ case $choice in
      echo
      echo -e "\e[1;33m[*] Setting source port to 88.\e[0m"
      sourceport=88
+     maxrrt=500ms
      echo
      echo $medium
      echo
@@ -1432,7 +1434,6 @@ f_list(){
 clear
 f_banner
 f_scanname
-
 f_location
 
 touch tmp
@@ -1524,7 +1525,7 @@ fi
 echo
 echo $medium
 
-nmap --privileged -n -PE -PS21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67,68,69,123,135,137,138,139,161,162,445,500,514,520,631,1434,1900,4500,49152 -$S -$U -O --osscan-guess --max-os-tries 1 -p T:$tcp,U:$udp --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout 3000ms --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
+nmap --privileged -n -PE -PS21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67,68,69,123,135,137,138,139,161,162,445,500,514,520,631,1434,1900,4500,49152 -$S -$U -O --osscan-guess --max-os-tries 1 -p T:$tcp,U:$udp --max-retries 1 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
 
 # Clean up
 egrep -v '(1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|Network Distance|No exact OS|OS:|OS CPE|Please report|scanned in|SF|Warning)' $name/nmap.nmap | sed 's/Nmap scan report for //' | sed '/^$/! b end; n; /^$/d; : end' > $name/nmap.txt
@@ -1785,7 +1786,7 @@ fi
 
 if [ -e $name/22.txt ]; then
 	echo "     SSH"
-	nmap -iL $name/22.txt -Pn -n --open -p22 --script=sshv1 --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+	nmap -iL $name/22.txt -Pn -n --open -p22 --script=sshv1,ssh2-enum-algos --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-22.txt
 fi

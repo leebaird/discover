@@ -1,6 +1,0 @@
-setg RHOSTS file:
-setg THREADS 255
-setg RPORT 79
-
-use auxiliary/scanner/finger/finger_users
-run

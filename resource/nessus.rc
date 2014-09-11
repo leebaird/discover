@@ -1,6 +1,0 @@
-setg RHOSTS file:
-setg THREADS 255
-setg RPORT 8834
-
-use auxiliary/scanner/nessus/nessus_xmlrpc_ping
-run
