@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 137
+
+use auxiliary/scanner/netbios/nbname
+run
+
+use auxiliary/scanner/netbios/nbname_probe
+run

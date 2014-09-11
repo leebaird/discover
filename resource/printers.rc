@@ -1,0 +1,21 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 9100
+
+use auxiliary/scanner/printer/printer_download_file
+run
+
+use auxiliary/scanner/printer/printer_env_vars
+run
+
+use auxiliary/scanner/printer/printer_list_dir
+run
+
+use auxiliary/scanner/printer/printer_list_volumes
+run
+
+use auxiliary/scanner/printer/printer_ready_message
+run
+
+use auxiliary/scanner/printer/printer_version_info
+run

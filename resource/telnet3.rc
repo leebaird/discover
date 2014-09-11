@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 9999
+
+use auxiliary/scanner/telnet/lantronix_telnet_version
+run

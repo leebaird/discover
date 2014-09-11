@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 50000
+
+use auxiliary/scanner/db2/db2_version
+run
+
+use auxiliary/scanner/db2/db2_auth
+run

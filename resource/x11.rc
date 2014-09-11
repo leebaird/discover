@@ -1,0 +1,26 @@
+setg RHOSTS file:
+setg THREADS 255
+
+use auxiliary/scanner/x11/open_x11
+set RPORT 6000
+run
+
+use auxiliary/scanner/x11/open_x11
+set RPORT 6001
+run
+
+use auxiliary/scanner/x11/open_x11
+set RPORT 6002
+run
+
+use auxiliary/scanner/x11/open_x11
+set RPORT 6003
+run
+
+use auxiliary/scanner/x11/open_x11
+set RPORT 6004
+run
+
+use auxiliary/scanner/x11/open_x11
+set RPORT 6005
+run

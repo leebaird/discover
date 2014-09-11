@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 17185
+
+use auxiliary/scanner/vxworks/wdbrpc_bootline
+run
+
+use auxiliary/scanner/vxworks/wdbrpc_version
+run

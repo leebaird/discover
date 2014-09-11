@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 22
+
+use auxiliary/scanner/ssh/ssh_version
+run

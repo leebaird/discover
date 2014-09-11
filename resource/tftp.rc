@@ -1,0 +1,12 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 69
+
+use auxiliary/scanner/tftp/ipswitch_whatsupgold_tftp
+run
+
+use auxiliary/scanner/tftp/netdecision_tftp
+run
+
+use auxiliary/scanner/tftp/tftpbrute
+run

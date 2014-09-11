@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 8080
+
+use auxiliary/scanner/http/tomcat_enum
+run
+
+use auxiliary/scanner/http/tomcat_mgr_login
+run
