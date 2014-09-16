@@ -3406,7 +3406,7 @@ echo >> tmp-updates
 echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
-python /opt/recon-ng/recon-cli -M > tmp
+python /usr/share/recon-ng/recon-cli -M > tmp
 egrep -v '(---|adobe|bozocrack|brute_suffix|census_2012|command_injector|dev_diver|Discovery|exit|Exploitation|geocode|hashes_org|Import|import|jigsaw|leakdb|mangle|namechk|pushpins|pwnedlist|Recon|Reporting|reporting|reverse_resolve|show modules|shodan_net|Spooling|twitter|xpath_bruter)' tmp > tmp2
 
 # Remove blank lines
@@ -3469,7 +3469,7 @@ cp /opt/discover/resource/recon-ng/passive.rc /tmp/
 sed -i "s/xxx/$company/g" /tmp/passive.rc
 sed -i "s/yyy/$domain/g" /tmp/passive.rc
 
-python /opt/recon-ng/recon-ng -r /tmp/passive.rc
+recon-ng -r /tmp/passive.rc
 }
 ##############################################################################################################
 
@@ -3477,7 +3477,7 @@ f_parse(){
 clear
 f_banner
 
-python /opt/recon-ng/recon-cli -C "workspaces list"
+python /usr/share/recon-ng/recon-cli -C "workspaces list"
 echo
 echo
 echo -n "Workspace:  "
@@ -3488,7 +3488,7 @@ if [ -z $workspace ]; then
      f_error
 fi
 
-python /opt/recon-ng/recon-ng -w $workspace -r /opt/discover/resource/recon-ng/export.rc
+recon-ng -w $workspace -r /opt/discover/resource/recon-ng/export.rc
 egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp | cut -d '|' -f3,5-7 | sed 's/BuiltWith contact//g; s/Employee//g; s/PGP key association//g; s/Whois contact//g' > zcontacts
 egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp2 | cut -d '|' -f3-7 > zcreds
 egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp3 | cut -d '|' -f3-6 > zhosts
