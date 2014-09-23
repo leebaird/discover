@@ -88,15 +88,17 @@ def transformIfAvailable(inputDict, inputKey, outputDict, outputKey):
             
 header = ['CVSS Score','IP','FQDN','OS','Port','Vulnerability','Description','Proof','Solution','See Also','CVE']
 
-outFile = open("report.csv", "wb")
+outFile = open("nessus.csv", "wb")
 csvWriter = csv.DictWriter(outFile, header, quoting=csv.QUOTE_ALL)
 csvWriter.writeheader()
 ############################################################################################################
 
 nessusParser = NessusParser()
 
-for fileName in glob.glob("*.nessus"):
-    nessusParser.loadXML(fileName)
+#for fileName in glob.glob("*.nessus"):
+#    nessusParser.loadXML(fileName)
+
+    nessusParser.loadXML(/tmp/nessus.nessus)
 
     hosts = nessusParser.getHosts()
 
