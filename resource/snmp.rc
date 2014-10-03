@@ -30,9 +30,6 @@ run
 use auxiliary/scanner/snmp/snmp_enumusers
 run
 
-use auxiliary/scanner/snmp/snmp_login
-run
-
 use auxiliary/scanner/snmp/ubee_ddw3611
 run
 

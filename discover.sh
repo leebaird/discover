@@ -2257,10 +2257,9 @@ echo -e "\e[1;34mStarting Postgres.\e[0m"
 service postgresql start
 
 echo
-echo -e "\e[1;34mStarting Metasploit, this takes about 15 sec.\e[0m"
+echo -e "\e[1;34mStarting Metasploit, this takes about 45 sec.\e[0m"
 echo
 echo -e "\e[1;34mUsing the following resource files.\e[0m"
-echo
 cp -R /opt/discover/resource/ /tmp/
 
 echo workspace -a $name > $name/master.rc
