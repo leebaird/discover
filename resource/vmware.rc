@@ -1,0 +1,24 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 443
+
+use auxiliary/scanner/vmware/esx_fingerprint
+run
+
+use auxiliary/scanner/vmware/vmware_enum_permissions
+run
+
+use auxiliary/scanner/vmware/vmware_enum_sessions
+run
+
+use auxiliary/scanner/vmware/vmware_enum_users
+run
+
+use auxiliary/scanner/vmware/vmware_enum_vms
+run
+
+use auxiliary/scanner/vmware/vmware_host_details
+run
+
+use auxiliary/scanner/vmware/vmware_screenshot_stealer
+run

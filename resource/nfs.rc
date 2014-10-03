@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 111
+
+use auxiliary/scanner/misc/sunrpc_portmapper
+run
+
+use auxiliary/scanner/nfs/nfsmount
+run

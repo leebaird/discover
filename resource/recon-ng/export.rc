@@ -1,0 +1,19 @@
+spool start /opt/discover/tmp
+show contacts
+spool stop
+spool start /opt/discover/tmp2
+show creds
+spool stop
+spool start /opt/discover/tmp3
+show hosts
+spool stop
+spool start /opt/discover/tmp4
+show leaks
+spool stop
+spool start /opt/discover/tmp5
+show ports
+spool stop
+spool start /opt/discover/tmp6
+show vulnerabilities
+spool stop
+back

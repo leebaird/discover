@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 5040
+
+use auxiliary/scanner/dcerpc/windows_deployment_services
+run

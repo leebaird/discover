@@ -1,0 +1,12 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 23
+
+use auxiliary/scanner/telnet/telnet_encrypt_overflow
+run
+
+use auxiliary/scanner/telnet/telnet_ruggedcom
+run
+
+use auxiliary/scanner/telnet/telnet_version
+run

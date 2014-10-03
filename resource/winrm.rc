@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 5985
+
+use auxiliary/scanner/winrm/winrm_auth_methods
+run

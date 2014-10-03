@@ -1,0 +1,18 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 5432
+
+use auxiliary/scanner/postgres/postgres_dbname_flag_injection
+run
+
+use auxiliary/scanner/postgres/postgres_hashdump
+run
+
+use auxiliary/scanner/postgres/postgres_login
+run
+
+use auxiliary/scanner/postgres/postgres_schemadump
+run
+
+use auxiliary/scanner/postgres/postgres_version
+run

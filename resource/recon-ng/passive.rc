@@ -1,0 +1,72 @@
+workspaces add yyy
+add companies
+xxx
+none
+add domains
+yyy
+
+use recon/domains-hosts/baidu_site
+run
+
+use recon/domains-hosts/bing_domain_api
+run
+
+use recon/domains-hosts/bing_domain_web
+run
+
+use recon/domains-hosts/google_site_api
+run
+
+use recon/domains-hosts/google_site_web
+run
+
+use recon/domains-hosts/netcraft
+run
+
+use recon/domains-hosts/shodan_hostname
+run
+
+use recon/domains-hosts/yahoo_site
+run
+
+use recon/domains-vulnerabilities/punkspider
+run
+
+use recon/domains-vulnerabilities/xssed
+run
+
+use recon/hosts-hosts/bing_ip
+run
+
+use recon/hosts-hosts/ip_neighbor
+run
+
+use recon/hosts-hosts/ipinfodb
+run
+
+use recon/hosts-hosts/resolve
+run
+
+use recon/domains-contacts/builtwith
+run
+
+use recon/domains-contacts/pgp_search
+run
+
+use recon/domains-contacts/whois_pocs
+run
+
+use recon/companies-contacts/facebook
+run
+
+use recon/contacts-contacts/rapportive
+run
+
+use recon/contacts-creds/haveibeenpwned
+run
+
+use recon/contacts-creds/pwnedlist
+run
+
+use recon/contacts-creds/should_change_password
+run

