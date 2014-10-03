@@ -1,6 +1,0 @@
-setg RHOSTS file:
-setg THREADS 255
-setg RPORT 523
-
-use auxiliary/scanner/db2/discovery
-run

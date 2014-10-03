@@ -1333,7 +1333,7 @@ read choice
 case $choice in
      1)
      echo
-     echo -e "\e[1;33m[*] Setting source port to 53.\e[0m"
+     echo -e "\e[1;33m[*] Setting source port to 53 and the max probe round trip time to 1.5s.\e[0m"
      sourceport=53
      maxrtt=1500ms
      echo
@@ -1343,7 +1343,7 @@ case $choice in
 
      2)
      echo
-     echo -e "\e[1;33m[*] Setting source port to 88.\e[0m"
+     echo -e "\e[1;33m[*] Setting source port to 88 and the max probe round trip time to 500ms.\e[0m"
      sourceport=88
      maxrtt=500ms
      echo
@@ -1525,7 +1525,7 @@ fi
 echo
 echo $medium
 
-nmap --privileged -n -PE -PS21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67,68,69,123,135,137,138,139,161,162,445,500,514,520,631,1434,1900,4500,49152 -$S -$U -O --osscan-guess --max-os-tries 1 -p T:$tcp,U:$udp --max-retries 1 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open -iL $location --excludefile $excludefile --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
+nmap -iL $location --excludefile $excludefile --privileged -n -PE -PS21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67,68,69,123,135,137,138,139,161,162,445,500,514,520,631,1434,1900,4500,49152 -$S -$U -O --osscan-guess --max-os-tries 1 -p T:$tcp,U:$udp --max-retries 3 --initial-rtt-timeout 100ms --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
 
 # Clean up
 egrep -v '(1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|Network Distance|No exact OS|OS:|OS CPE|Please report|scanned in|SF|Warning)' $name/nmap.nmap | sed 's/Nmap scan report for //' | sed '/^$/! b end; n; /^$/d; : end' > $name/nmap.txt
@@ -2257,17 +2257,13 @@ fi
 ##############################################################################################################
 
 f_runmsf(){
-x=`ps aux | grep 'postgres' | grep -v 'grep'`
-
-if [[ -z $x ]]; then
-     echo
-     service postgresql start
-fi
-
-cp -R /opt/discover/resource/ /tmp/
+echo
+echo -e "\e[1;34mStarting Postgres.\e[0m"
+service postgresql start
 
 echo
 echo -e "\e[1;34mStarting Metasploit, this takes about 15 sec.\e[0m"
+cp -R /opt/discover/resource/ /tmp/
 
 echo workspace -a $name > $name/master.rc
 

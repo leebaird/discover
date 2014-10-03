@@ -1,6 +1,0 @@
-setg RHOSTS file:
-setg THREADS 255
-setg RPORT 5632
-
-use auxiliary/scanner/pcanywhere/pcanywhere_udp
-run

@@ -1,9 +1,0 @@
-setg RHOSTS file:
-setg THREADS 255
-setg RPORT 123
-
-use auxiliary/scanner/ntp/ntp_monlist
-run
-
-use auxiliary/scanner/ntp/ntp_readvar
-run

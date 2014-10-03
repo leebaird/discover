@@ -1,6 +1,0 @@
-setg RHOSTS file:
-setg THREADS 255
-setg RPORT 30718
-
-use auxiliary/scanner/telnet/lantronix_telnet_password
-run

@@ -1,6 +1,0 @@
-setg RHOSTS file:
-setg THREADS 255
-setg RPORT 5920
-
-use auxiliary/scanner/misc/cctv_dvr_login
-run

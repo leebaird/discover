@@ -1,6 +1,0 @@
-setg RHOSTS file:
-setg THREADS 255
-setg RPORT 407
-
-use auxiliary/scanner/motorola/timbuktu_udp
-run
