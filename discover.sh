@@ -3031,6 +3031,9 @@ case $choice in
 #     f_location
      echo 'Nessus'
      exit
+
+     # cvss score of 0 and solution of n/a
+     # egrep -v '(AJP Connector Detection|Appweb HTTP Server Version|Backported Security Patch Detection (SSH)|DCE Services Enumeration|DNS Server Version Detection|FTP Server Detection|HTTP Methods Allowed (per directory)|HTTP Server Type and Version|HyperText Transfer Protocol (HTTP) Information|Kerberos Information Disclosure|LDAP Crafted Search Request Server Information Disclosure|LDAP Server Detection|McAfee ePolicy Orchestrator Application Server Detection|Microsoft SQL Server STARTTLS Support|Microsoft Windows NTLMSSP Authentication Request Remote Network Name Disclosure|Microsoft Windows SMB LanMan Pipe Server Listing Disclosure|Microsoft Windows SMB Log In Possible|Microsoft Windows SMB NativeLanManager Remote System Information Disclosure|Microsoft Windows SMB Registry : Nessus Cannot Access the Windows Registry|Microsoft Windows SMB Service Detection|MSRPC Service Detection|MySQL Server Detection|Nessus SNMP Scanner|NetBIOS Multiple IP Address Enumeration|Network Time Protocol (NTP) Server Detection|OpenSSL Detection|PHP Version|RDP Screenshot|RPC portmapper (TCP)|RPC portmapper Service Detection|RPC Services Enumeration|Service Detection|Service Detection (HELP Request)|SNMP Supported Protocols Detection|SSH Algorithms and Languages Supported|SSH Protocol Versions Supported|SSH Server Type and Version Information|SSL / TLS Versions Supported|SSL Certificate Information|SSL Cipher Block Chaining Cipher Suites Supported|SSL Cipher Suites Supported|SSL Compression Methods Supported|SSL Perfect Forward Secrecy Cipher Suites Supported|SSL Session Resume Supported|Terminal Services Use SSL/TLS|Unknown Service Detection: Banner Retrieval|VERITAS Backup Agent Detection|Web Server No 404 Error Code Check|Windows NetBIOS / SMB Remote Host Information Disclosure)'
      ;;
 
      2)
