@@ -1520,7 +1520,7 @@ fi
 echo
 echo $medium
 
-nmap -iL $location --excludefile $excludefile --privileged -n -PE -PS21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67,68,69,123,135,137,138,139,161,162,445,500,514,520,631,1434,1900,4500,49152 -$S -$U -O --osscan-guess --max-os-tries 1 -p T:$tcp,U:$udp --max-retries 3 --initial-rtt-timeout 100ms --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
+nmap -iL $location --excludefile $excludefile --privileged -n -PE -PS21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67,68,69,123,135,137,138,139,161,162,445,500,514,520,631,1434,1900,4500,49152 -$S -$U -O --osscan-guess --max-os-tries 1 -p T:$tcp,U:$udp --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
 
 # Clean up
 egrep -v '(1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|Network Distance|No exact OS|OS:|OS CPE|Please report|scanned in|SF|Warning)' $name/nmap.nmap | sed 's/Nmap scan report for //' | sed '/^$/! b end; n; /^$/d; : end' > $name/nmap.txt
@@ -3017,7 +3017,7 @@ f_runlocally
 clear
 f_banner
 
-echo -e "\e[1;34mParse XML to CSV for use with /discover/misc/worksheet.xlsx:\e[0m"
+echo -e "\e[1;34mParse XML to CSV for use with /discover/misc/worksheet.xlsx.\e[0m"
 echo
 echo "1.  Nessus - *** coming soon ***"
 echo "2.  Nmap"
