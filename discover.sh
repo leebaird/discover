@@ -3019,7 +3019,7 @@ f_banner
 
 echo -e "\e[1;34mParse XML to CSV for use with /discover/misc/worksheet.xlsx.\e[0m"
 echo
-echo "1.  Nessus - *** coming soon ***"
+echo "1.  Nessus"
 echo "2.  Nmap"
 echo "3.  Previous menu"
 echo
@@ -3028,12 +3028,163 @@ read choice
 
 case $choice in
      1)
-#     f_location
-     echo 'Nessus'
-     exit
+     f_location
+     cp $location /opt/discover/nessus.nessus
 
-     # cvss score of 0 and solution of n/a
-     # egrep -v '(AJP Connector Detection|Appweb HTTP Server Version|Backported Security Patch Detection (SSH)|DCE Services Enumeration|DNS Server Version Detection|FTP Server Detection|HTTP Methods Allowed (per directory)|HTTP Server Type and Version|HyperText Transfer Protocol (HTTP) Information|Kerberos Information Disclosure|LDAP Crafted Search Request Server Information Disclosure|LDAP Server Detection|McAfee ePolicy Orchestrator Application Server Detection|Microsoft SQL Server STARTTLS Support|Microsoft Windows NTLMSSP Authentication Request Remote Network Name Disclosure|Microsoft Windows SMB LanMan Pipe Server Listing Disclosure|Microsoft Windows SMB Log In Possible|Microsoft Windows SMB NativeLanManager Remote System Information Disclosure|Microsoft Windows SMB Registry : Nessus Cannot Access the Windows Registry|Microsoft Windows SMB Service Detection|MSRPC Service Detection|MySQL Server Detection|Nessus SNMP Scanner|NetBIOS Multiple IP Address Enumeration|Network Time Protocol (NTP) Server Detection|OpenSSL Detection|PHP Version|RDP Screenshot|RPC portmapper (TCP)|RPC portmapper Service Detection|RPC Services Enumeration|Service Detection|Service Detection (HELP Request)|SNMP Supported Protocols Detection|SSH Algorithms and Languages Supported|SSH Protocol Versions Supported|SSH Server Type and Version Information|SSL / TLS Versions Supported|SSL Certificate Information|SSL Cipher Block Chaining Cipher Suites Supported|SSL Cipher Suites Supported|SSL Compression Methods Supported|SSL Perfect Forward Secrecy Cipher Suites Supported|SSL Session Resume Supported|Terminal Services Use SSL/TLS|Unknown Service Detection: Banner Retrieval|VERITAS Backup Agent Detection|Web Server No 404 Error Code Check|Windows NetBIOS / SMB Remote Host Information Disclosure)'
+python << 'EOF'
+# Original code from - https://github.com/Clete2/NessusReport
+
+import csv
+import glob
+import re
+import xml.etree.ElementTree as ET
+################################################################
+
+class NessusParser:
+    def loadXML(self, filename):
+        self.xml = ET.parse(filename)
+        self.rootElement = self.xml.getroot()
+    
+    def getHosts(self):
+        return self.rootElement.findall("./Report/ReportHost")
+################################################################
+    
+    def getHostProperties(self, host):
+        properties = {}        
+    
+        hostProperties = host.findall("./HostProperties")[0]
+
+        hostnames = hostProperties.findall("./tag[@name='netbios-name']")
+        if(len(hostnames) >= 1):
+            properties['netbios-name'] = hostnames[0].text
+        properties['host-ip'] = hostProperties.findall("./tag[@name='host-ip']")[0].text
+
+        hostnames = hostProperties.findall("./tag[@name='operating-system']")
+        if(len(hostnames) >= 1):
+            properties['operating-system'] = hostnames[0].text
+        properties['host-ip'] = hostProperties.findall("./tag[@name='host-ip']")[0].text
+
+        return properties
+################################################################
+   
+    def getReportItems(self, host):
+        return host.findall("./ReportItem")
+        
+    def getReportItemProperties(self, reportItem):
+        properties = reportItem.attrib
+
+        if(properties.has_key('severity')):
+            del(properties['severity'])
+            
+        if(properties.has_key('pluginFamily')):
+            del(properties['pluginFamily'])
+        
+        return properties
+################################################################
+        
+    def getReportItemDetails(self, reportItem):
+        details = {}
+        
+        details['description'] = reportItem.findall("./description")[0].text
+        
+        pluginElements = reportItem.findall("./plugin_output")
+        if(len(pluginElements) >= 1):
+            details['plugin_output'] = pluginElements[0].text
+
+        solutionElements = reportItem.findall("./solution")
+        if(len(solutionElements) >= 1):
+            details['solution'] = solutionElements[0].text
+
+        seealsoElements = reportItem.findall("./see_also")
+        if(len(seealsoElements) >= 1):
+            details['see_also'] = seealsoElements[0].text
+
+        cveElements = reportItem.findall("./cve")
+        if(len(cveElements) >= 1):
+            details['cve'] = cveElements[0].text
+
+        cvssElements = reportItem.findall("./cvss_base_score")
+        if(len(cvssElements) >= 1):
+            details['cvss_base_score'] = cvssElements[0].text
+
+        return details
+################################################################
+
+def transformIfAvailable(inputDict, inputKey, outputDict, outputKey):
+    if(inputDict.has_key(inputKey)):
+        inputDict[inputKey] = inputDict[inputKey].replace("\n"," ")
+        
+        # Excel has a hard limit of 32,767 characters per cell. Let's make it an even 32K.
+        if(len(inputDict[inputKey]) > 32000):
+            inputDict[inputKey] = inputDict[inputKey][:32000] +" [Text Cut Due To Length]"
+            
+        outputDict[outputKey] = inputDict[inputKey]
+            
+header = ['CVSS Score','IP','FQDN','OS','Port','Vulnerability','Description','Proof','Solution','See Also','CVE']
+
+outFile = open("nessus.csv", "wb")
+csvWriter = csv.DictWriter(outFile, header, quoting=csv.QUOTE_ALL)
+csvWriter.writeheader()
+################################################################
+
+nessusParser = NessusParser()
+
+for fileName in glob.glob("*.nessus"):
+    nessusParser.loadXML(fileName)
+
+    hosts = nessusParser.getHosts()
+
+    hostReports = []
+
+    for host in hosts:
+        # Get properties for this host
+        hostProperties = nessusParser.getHostProperties(host)
+        
+        # Get all findings for this host
+        reportItems = nessusParser.getReportItems(host)
+            
+        for reportItem in reportItems:
+            reportItemDict = {}
+        
+            # Get the metadata and details for this report item
+            reportItemProperties = nessusParser.getReportItemProperties(reportItem)
+            reportItemDetails = nessusParser.getReportItemDetails(reportItem)
+        
+            # Create dictionary for line
+            transformIfAvailable(reportItemDetails, "cvss_base_score", reportItemDict, header[0])
+            transformIfAvailable(hostProperties, "host-ip", reportItemDict, header[1])
+            transformIfAvailable(hostProperties, "netbios-name", reportItemDict, header[2])
+            transformIfAvailable(hostProperties, "operating-system", reportItemDict, header[3])
+            transformIfAvailable(reportItemProperties, "port", reportItemDict, header[4])
+            transformIfAvailable(reportItemProperties, "pluginName", reportItemDict, header[5])
+            transformIfAvailable(reportItemDetails, "description", reportItemDict, header[6])
+            transformIfAvailable(reportItemDetails, "plugin_output", reportItemDict, header[7])
+            transformIfAvailable(reportItemDetails, "solution", reportItemDict, header[8])
+            transformIfAvailable(reportItemDetails, "see_also", reportItemDict, header[9])
+            transformIfAvailable(reportItemDetails, "cve", reportItemDict, header[10])
+
+            hostReports.append(reportItemDict)
+
+    csvWriter.writerows(hostReports)
+        
+outFile.close()
+EOF
+     # Delete findings with CVSS score of 0 and solution of n/a
+     egrep -v '(AJP Connector Detection|Appweb HTTP Server Version|Backported Security Patch Detection \(SSH\)|Common Platform Enumeration \(CPE\)|DCE Services Enumeration|Device Type|DNS Server Version Detection|Ethernet Card Manufacturer Detection|FTP Server Detection|Host Fully Qualified Domain Name \(FQDN\) Resolution|HTTP Methods Allowed \(per directory\)|HTTP Server Type and Version|HyperText Transfer Protocol \(HTTP\) Information|Kerberos Information Disclosure|LDAP Crafted Search Request Server Information Disclosure|LDAP Server Detection|McAfee ePolicy Orchestrator Application Server Detection|Microsoft SQL Server STARTTLS Support|Microsoft Windows NTLMSSP Authentication Request Remote Network Name Disclosure|Microsoft Windows SMB LanMan Pipe Server Listing Disclosure|Microsoft Windows SMB Log In Possible|Microsoft Windows SMB NativeLanManager Remote System Information Disclosure|Microsoft Windows SMB Registry : Nessus Cannot Access the Windows Registry|Microsoft Windows SMB Service Detection|MSRPC Service Detection|MySQL Server Detection|Nessus Scan Information|Nessus SNMP Scanner|NetBIOS Multiple IP Address Enumeration|Network Time Protocol \(NTP\) Server Detection|OpenSSL Detection|OS Identification|PHP Version|RDP Screenshot|RPC portmapper \(TCP\)|RPC portmapper Service Detection|RPC Services Enumeration|Service Detection \(HELP Request\)|SNMP Supported Protocols Detection|SSH Algorithms and Languages Supported|SSH Protocol Versions Supported|SSH Server Type and Version Information|SSL / TLS Versions Supported|SSL Certificate Information|SSL Cipher Block Chaining Cipher Suites Supported|SSL Cipher Suites Supported|SSL Compression Methods Supported|SSL Perfect Forward Secrecy Cipher Suites Supported|SSL Session Resume Supported|TCP/IP Timestamps Supported|Terminal Services Use SSL/TLS|Traceroute Information|Unknown Service Detection: Banner Retrieval|VERITAS Backup Agent Detection|VERITAS NetBackup Agent Detection|VMware Virtual Machine Detection|Web Server No 404 Error Code Check|Windows NetBIOS / SMB Remote Host Information Disclosure)' nessus.csv > tmp.csv
+
+     # Delete additional findings with CVSS score of 0
+     egrep -v '(Additional DNS Hostnames|Alert Standard Format / Remote Management and Control Protocol Detection|Apache Tomcat Default Error Page Version Detection|Daytime Service Detection|DNS Server Detection|Do not scan printers|ICMP Timestamp Request Remote Date Disclosure|Link-Local Multicast Name Resolution \(LLMNR\) Detection|Microsoft SharePoint Server Detection|Microsoft SQL Server TCP/IP Listener Detection|NIS Server Detection|Nessus SYN scanner|Nessus Windows Scan Not Performed with Admin Privileges|NetVault Process Manager Service Detection|Open Port Re-check|Oracle Database Detection|Oracle Database tnslsnr Service Remote Version Disclosure|Patch Report|SMTP Server Detection|SNMP Protocol Version Detection|SNMP Query Routing Information Disclosure|SNMP Query System Information Disclosure|SNMP Request Network Interfaces Enumeration|SSL Certificate Chain Contains RSA Keys Less Than 2048 bits|SSL Certificate Expiry - Future Expiry|TCP Channel Detection|Telnet Server Detection|TFTP Daemon Detection|Web Server / Application favicon.ico Vendor Fingerprinting|Web Server SSL Port HTTP Traffic Detection|Windows Terminal Services Enabled)' tmp.csv > tmp2.csv
+
+     rm nessus.* tmp.csv
+     mv tmp2.csv /$user/data/nessus.csv
+
+     echo
+     echo $medium
+     echo
+     printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/data/nessus.csv
+     echo
+     echo
+     exit
      ;;
 
      2)
