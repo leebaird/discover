@@ -3514,6 +3514,7 @@ done < "$location"
 #exit
 mv tmp /$user/data/sslscan.txt
 rm tmp* ssl_* 2>/dev/null
+
 #exit
 ## sslyze does pretty much the same thing as sslscan, which we already parse, so not sure why it's in here. -jason
 ## maybe someone added it because they thought sslscan (the app) was actually broken?
@@ -3535,7 +3536,7 @@ echo
 # Added 10/7/2014, we will see if we like it enough to keep it
 
 echo ""
-echo -n "Want to run the optional browser-based query tool? (y/n) "; read yn
+echo -n "Want to run the optional browser-based query tool (Internet connection required)? (y/n) "; read yn
 
 if [ "$yn" == "n" ]; then
   f_main
@@ -3545,14 +3546,22 @@ else
 
   echo "Launching the browser, opening $number tabs, please wait..."
 
+  processname='iceweasel'
+  if ps ax | grep -v grep | grep $processname > /dev/null; then
+        echo ""
+  else
+        /usr/bin/iceweasel &
+	sleep 4
+  fi
+
   while read -r line; do
-	firefox -new-tab https://www.sslshopper.com/ssl-checker.html#hostname=$line &
-	sleep 2
+	/usr/bin/iceweasel -new-tab "https://www.sslshopper.com/ssl-checker.html#hostname=$line" &
+	sleep 1
   done < "$location"
 
 fi
 
-echo -n "Press any key to return to the main menu. "; read pak
+echo ""; echo -n "Press any key to return to the main menu. "; read pak
 f_main
 }
 
