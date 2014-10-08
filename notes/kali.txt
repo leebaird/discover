@@ -87,17 +87,15 @@ Plugins: Code comment
 # Iceweasel
 
 Tools > Ad-Ons > Extensions:
-     Cookies Manager+, Firebug, Live HTTP headers, Tamper Data, Web Developer
+     Firebug, Live HTTP headers, Tamper Data, Web Developer
 
 Add bookmark
      NSEDoc           http://nmap.org/nsedoc/
 
 Add folder: Scanners
-     BeEF             http://localhost:3000/ui/authentication
      Metasploit       https://localhost:3790
      Nessus           https://localhost:8834
      Nexpose          https://localhost:3780
-     OpenVAS          https://localhost:9392
 ------------------------------------------------------------------------------------------------------
 
 # Install Adobe Flash
@@ -144,6 +142,12 @@ chmod 755 <installer file>
 Take all default settings.
 mv DbVisualizer/ /opt/
 rm <installer file>
+------------------------------------------------------------------------------------------------------
+
+# Google Chrome to run at root
+
+nano /opt/google/chrome/google-chrome
+Change the last line to: exec -a "$0" "$HERE/chrome" "$@" --user-data-dir
 ------------------------------------------------------------------------------------------------------
 
 # Install Java
@@ -202,13 +206,6 @@ cd vmware-tools-distrib/
 ./vmware-install.pl 
 Accept all the defaults.
 reboot
-------------------------------------------------------------------------------------------------------
-
-# Setup Angry IP Scanner
-
-Applications > Internet > Angry IP Scanner
-Tools > Fetchers
-The left column should contain Hostname, NetBIOS Info, Web detect, MAC Vendor
 ------------------------------------------------------------------------------------------------------
 
 # Create Shortcuts
@@ -289,4 +286,3 @@ cd /opt/scripts/
 ./discover.sh
 #13 Update
 apt-get -f install
-
