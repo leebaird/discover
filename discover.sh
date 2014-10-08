@@ -3359,16 +3359,22 @@ N=0
 while read -r line; do
      echo $line > ssl_$line
      N=$((N+1))
-     sslscan --no-failed $line > tmp_$line & pid=$!
 
-     echo -n "[$N/$number]  $line  "; sleep 5
+     echo -n "[$N/$number]  $line in progress "
+
+# No need to background process the sslscans any longer - proving too unreliable to track process completion
+#     sslscan --no-failed $line > tmp_$line & pid=$!
+
+     sslscan --no-failed $line > tmp_$line
+
+     echo "... completed."
      echo >> ssl_$line
 
      if [ -e tmp_$line ]; then
           error=$(grep 'ERROR:' tmp_$line)
 
           if [[ ! $error ]]; then
-               issuer=$(grep 'Issuer:' tmp_$line)
+               issuer=$(grep 'Issuer: ' tmp_$line)
 
                if [[ $issuer ]]; then
                     grep 'Issuer:' tmp_$line | sed 's/    Issuer: /    Issuer:  /g' >> ssl_$line
@@ -3456,6 +3462,16 @@ while read -r line; do
                datenowstamp=$(date2stamp $datenow)
                expdatestamp=$(date2stamp $expdate)
 
+               certissuedate=$(grep 'Not valid before:' tmp_$line)
+               fmt_certissuedate=$(echo $certissuedate | sed 's/Not valid before:/Certificate Issue Date:/')
+
+               certexpiredate=$(grep 'Not valid after:' tmp_$line)
+               fmt_certexpiredate=$(echo $certexpiredate | sed 's/Not valid after:/Certificate Expiry Date:/')
+
+               echo "    $fmt_certissuedate" >> ssl_$line
+               echo "    $fmt_certexpiredate" >> ssl_$line
+               echo >> ssl_$line
+
                if (($expdatestamp < $datenowstamp)); then
                     echo "[*] X.509 Server Certificate is Invalid/Expired" >> ssl_$line
                     echo "    Cert Expire Date: $expdate" >> ssl_$line
@@ -3471,9 +3487,11 @@ while read -r line; do
 
                echo $medium >> ssl_$line
                echo >> ssl_$line
-               echo
 
-               sleep 5 && kill -9 $pid 2>/dev/null &
+## No real need for the next 2 lines because we are not background processing the sslscans any longer
+## Will leave in until fully tested though
+#               echo
+#               sleep 45 && kill -9 $pid 2>/dev/null &
 
                cat ssl_$line >> tmp
           else
@@ -3493,13 +3511,15 @@ while read -r line; do
           cat ssl_$line >> tmp
      fi
 done < "$location"
-exit
+#exit
 mv tmp /$user/data/sslscan.txt
 rm tmp* ssl_* 2>/dev/null
-exit
-echo
-echo 'Running sslyze.'
-sslyze --targets_in=$location --regular > /$user/data/sslyze.txt
+#exit
+## sslyze does pretty much the same thing as sslscan, which we already parse, so not sure why it's in here. -jason
+## maybe someone added it because they thought sslscan (the app) was actually broken?
+#echo
+#echo 'Running sslyze.'
+#sslyze --targets_in=$location --regular > /$user/data/sslyze.txt
 
 echo
 echo $medium
@@ -3510,7 +3530,30 @@ echo
 printf 'The new reports are located at \e[1;33m%s\e[0m\n' /$user/data/
 echo
 echo
-exit
+
+# Add option to use external website sslshopper.com for SSL cert lookups. Nice output, not sure of query thresholds.
+# Added 10/7/2014, we will see if we like it enough to keep it
+
+echo ""
+echo -n "Want to run the optional browser-based query tool? (y/n) "; read yn
+
+if [ "$yn" == "n" ]; then
+  f_main
+else
+
+  f_runlocally
+
+  echo "Launching the browser, opening $number tabs, please wait..."
+
+  while read -r line; do
+	firefox -new-tab https://www.sslshopper.com/ssl-checker.html#hostname=$line &
+	sleep 2
+  done < "$location"
+
+fi
+
+echo -n "Press any key to return to the main menu. "; read pak
+f_main
 }
 
 
