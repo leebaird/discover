@@ -1,13 +1,7 @@
 Burp Suite
 
 
-Target > Site Map > click on Filter: uncheck Show only in-scope items
-
-Target > Scope: remove any URLs in the top window
-
-Proxy > Intercept: Intercept is off
-
-Proxy > Options > Proxy Listeners: Running, 127.0.0.1:8080
+# Preferences
 
 Proxy > Options > Intercept Client Requests:
      In the list below, enable URL and move to the top.
@@ -19,6 +13,24 @@ Proxy > Options > Intercept Server Responses:
      Enable URL and move to the top.
      Add: And, File extention, Does not match, same Conditions as above.
      Move to the second position.
+
+Proxy > Options > Miscellaneous:
+     Enable interception at startup: Always disable
+
+Spider > Options > Form Submission > Scroll down to age > change to 34
+
+Scanner > Live scanning > Live Passive Scanning: Use suite scope
+
+Options > Connections > Platform Authentication: check Prompt for credentials on platform authentication failure
+
+Options > Display:
+     User Interface > Font size 14
+     HTTP Message Display > Font size 12
+------------------------------------------------------------------------------------------------------
+
+Target > Site Map > click on Filter: uncheck Show only in-scope items
+
+Target > Scope: remove any URLs in the top window
 ------------------------------------------------------------------------------------------------------
 
 Firefox > Edit > Preferences > Advanced > Network > Settings
