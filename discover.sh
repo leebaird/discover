@@ -26,8 +26,8 @@ trap f_terminate INT
 
 # Global variables
 distro=$(uname -n)
-interface=$(ifconfig | grep -B1 'inet addr' | egrep -v '(-|inet addr|Loopback)' | cut -d ' ' -f1)
-ip=$(ifconfig | grep 'Bcast' | awk '{print$2}' | cut -d ':' -f2)
+interface=$(ip link | awk '{print $2, $9}' | grep UP | cut -d ':' -f1)
+ip=$(ip addr | grep global | cut -d '/' -f1 | awk '{print $2}')
 long='============================================================================================================================='
 medium='====================================================================================='
 short='========================================'
