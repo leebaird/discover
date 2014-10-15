@@ -58,9 +58,6 @@ OrgName:        DoD Network Information Center
 CIDR:           22.0.0.0/8
 OrgName:        DoD Network Information Center
 
-CIDR:           23.0.0.0/12
-OrgName:        Akamai Technologies, Inc.
-
 CIDR:           25.0.0.0/8
 OrgName:        RIPE Network Coordination Centre
 
@@ -103,20 +100,11 @@ OrgName:        PSINet, Inc.
 CIDR:           39.0.0.0/8
 OrgName:        Asia Pacific Network Information Centre
 
-CIDR:           40.0.0.0/9
-OrgName:        Eli Lilly and Company
-
 CIDR:           42.0.0.0/8
 OrgName:        Asia Pacific Network Information Centre
 
 CIDR:           44.0.0.0/8
 OrgName:        Amateur Radio Digital Communications
-
-CIDR:           45.0.0.0/15
-OrgName:        Interop Show Network
-
-CIDR:           47.0.0.0/12
-OrgName:        Bell-Northern Research
 
 CIDR:           48.0.0.0/8
 OrgName:        The Prudential Insurance Company of America
@@ -124,17 +112,11 @@ OrgName:        The Prudential Insurance Company of America
 CIDR:           49.0.0.0/8
 OrgName:        Asia Pacific Network Information Centre
 
-CIDR:           50.0.0.0/15
-OrgName:        SONIC.NET, INC.
-
 CIDR:           52.0.0.0/8
 OrgName:        E.I. du Pont de Nemours and Co., Inc.
 
 CIDR:           53.0.0.0/8
 OrgName:        cap debis ccs
-
-CIDR:           54.128.0.0/10, 54.0.0.0/9
-OrgName:        Merck and Co., Inc.
 
 CIDR:           55.0.0.0/8
 OrgName:        Headquarters, USAISC
@@ -154,14 +136,8 @@ OrgName:        XO Communications
 CIDR:           67.0.0.0/13
 OrgName:        Qwest Communications Company, LLC
 
-CIDR:           70.12.0.0/15, 70.14.0.0/16, 70.8.0.0/14, 70.0.0.0/13
-OrgName:        Sprint Nextel Corporation
-
 CIDR:           71.0.0.0/14
 OrgName:        Embarq Corporation
-
-CIDR:           72.0.0.0/19
-OrgName:        CITISTREET
 
 CIDR:           74.3.0.0/17, 74.0.0.0/15, 74.2.0.0/16
 OrgName:        Covad Communications Co.
@@ -180,11 +156,6 @@ OrgName:        Time Warner Cable Internet LLC
 
 CIDR:           99.0.0.0/9
 OrgName:        AT&T Internet Services
-
-CIDR:           108.56.0.0/15, 108.0.0.0/11, 108.48.0.0/13, 108.32.0.0/12
-OrgName:        Verizon Online LLC
-
-netname:        FBDC-CIDR-BLK-JP
 
 CIDR:           127.0.0.0/8
 OrgName:        Internet Assigned Numbers Authority
@@ -297,9 +268,6 @@ OrgName:        Asia Pacific Network Information Centre
 CIDR:           172.0.0.0/12
 OrgName:        AT&T Internet Services
 
-CIDR:           173.0.0.0/20
-OrgName:        proXPN Direct LLC
-
 CIDR:           174.0.0.0/13
 OrgName:        Shaw Communications Inc.
 
@@ -318,17 +286,11 @@ OrgName:        Latin American and Caribbean IP address Regional Registry
 CIDR:           185.0.0.0/8
 OrgName:        RIPE Network Coordination Centre
 
-CIDR:           199.0.0.0/14
-OrgName:        Sprint
-
 CIDR:           205.32.0.0/12, 205.48.0.0/13, 205.0.0.0/11
 OrgName:        DoD Network Information Center
 
 CIDR:           206.2.0.0/16, 206.0.0.0/15
 OrgName:        PSINet, Inc.
-
-CIDR:           207.2.0.0/18, 207.0.0.0/15, 207.2.64.0/19
-OrgName:        Savvis
 
 CIDR:           208.0.0.0/11, 208.32.0.0/14
 OrgName:        Sprint
@@ -342,7 +304,3 @@ OrgName:        DoD Network Information Center
 
 CIDR:           215.0.0.0/8
 OrgName:        DoD Network Information Center
-
-CIDR:           216.4.0.0/15, 216.0.0.0/14
-OrgName:        XO Communications
-

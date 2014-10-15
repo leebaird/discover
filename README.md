@@ -27,9 +27,10 @@ WEB
 
 MISC
 11. Crack WiFi
-12. Start a Metasploit listener
-13. Update
-14. Exit
+12. Parse XML
+13. Start a Metasploit listener
+14. Update
+15. Exit
 ```
 ## RECON
 ### Domain
@@ -129,6 +130,8 @@ Enter the location of your list:
 ### Crack WiFi
 
 * Crack wireless networks.
+
+### Parse XML
 
 ### Start a Metasploit listener
 
