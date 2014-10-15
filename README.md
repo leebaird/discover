@@ -132,6 +132,13 @@ Enter the location of your list:
 * Crack wireless networks.
 
 ### Parse XML
+```
+Parse XML to CSV for use with /discover/misc/worksheet.xlsx.
+
+1.  Nessus
+2.  Nmap
+3.  Previous menu
+```
 
 ### Start a Metasploit listener
 
