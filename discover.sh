@@ -26,8 +26,8 @@ trap f_terminate INT
 
 # Global variables
 distro=$(uname -n)
-interface=$(ifconfig | grep -B1 'inet addr' | egrep -v '(-|inet addr|Loopback)' | cut -d ' ' -f1)
-ip=$(ifconfig | grep 'Bcast' | awk '{print$2}' | cut -d ':' -f2)
+interface=$(ip link | awk '{print $2, $9}' | grep UP | cut -d ':' -f1)
+ip=$(ip addr | grep global | cut -d '/' -f1 | awk '{print $2}')
 long='============================================================================================================================='
 medium='====================================================================================='
 short='========================================'
@@ -3364,7 +3364,7 @@ while read -r line; do
      echo -n "[$N/$number]  $line in progress "
 
 # No need to background process the sslscans any longer - proving too unreliable to track process completion
-#     sslscan --no-failed $line > tmp_$line & pid=$!
+#    sslscan --no-failed $line > tmp_$line & pid=$!
 
      sslscan --no-failed $line > tmp_$line
 
@@ -3512,7 +3512,7 @@ while read -r line; do
           cat ssl_$line >> tmp
      fi
 done < "$location"
-#exit
+
 mv tmp /$user/data/sslscan.txt
 rm tmp* ssl_* 2>/dev/null
 
