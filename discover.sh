@@ -1523,6 +1523,22 @@ echo $medium
 
 nmap -iL $location --excludefile $excludefile --privileged -n -PE -PS21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67,68,69,123,135,137,138,139,161,162,445,500,514,520,631,1434,1900,4500,49152 -$S -$U -O --osscan-guess --max-os-tries 1 -p T:$tcp,U:$udp --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
 
+x=`grep '(0 hosts up)' $name/nmap.nmap`
+
+if [[ ! -s $x ]]; then
+     rm -rf "$name" tmp
+     echo
+     echo $medium
+     echo
+     echo "***Scan complete.***"
+     echo
+     echo
+     echo -e "\e[1;33mNo live hosts were found.\e[0m"
+     echo
+     echo
+     exit
+fi
+
 # Clean up
 egrep -v '(1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|Network Distance|No exact OS|OS:|OS CPE|Please report|scanned in|SF|Warning)' $name/nmap.nmap | sed 's/Nmap scan report for //' | sed '/^$/! b end; n; /^$/d; : end' > $name/nmap.txt
 
