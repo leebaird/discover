@@ -161,7 +161,7 @@ case $choice in
      sed 's/^......//' tmp2 > tmp3
      sed 's/A //g' tmp3 | sed 's/CNAME //g' | awk '$2 !~ /[a-z]/' | column -t | sort -u > sub1
      echo
-    
+
      echo "goofile                   (2/$total)"
      goofile -d $domain -f doc > tmp
      goofile -d $domain -f docx >> tmp
@@ -401,7 +401,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      cat sub* | grep -v "$domain\." | sed 's/www\.//g' | column -t | sort -u > tmp
      # Remove lines that contain a single word
      sed '/[[:blank:]]/!d' tmp > subdomains
-     
+
      echo "urlvoid.com               (23/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
      sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > /$user/data/$domain/data/black-listed.htm
@@ -1523,21 +1523,21 @@ echo $medium
 
 nmap -iL $location --excludefile $excludefile --privileged -n -PE -PS21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67,68,69,123,135,137,138,139,161,162,445,500,514,520,631,1434,1900,4500,49152 -$S -$U -O --osscan-guess --max-os-tries 1 -p T:$tcp,U:$udp --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
 
-x=`grep '(0 hosts up)' $name/nmap.nmap`
-
-if [[ ! -s $x ]]; then
-     rm -rf "$name" tmp
-     echo
-     echo $medium
-     echo
-     echo "***Scan complete.***"
-     echo
-     echo
-     echo -e "\e[1;33mNo live hosts were found.\e[0m"
-     echo
-     echo
-     exit
-fi
+#x=`grep '(0 hosts up)' $name/nmap.nmap`
+#
+#if [[ ! -s $x ]]; then
+#     rm -rf "$name" tmp
+#     echo
+#     echo $medium
+#     echo
+#     echo "***Scan complete.***"
+#     echo
+#     echo
+#     echo -e "\e[1;33mNo live hosts were found.\e[0m"
+#     echo
+#     echo
+#     exit
+#fi
 
 # Clean up
 egrep -v '(1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|Network Distance|No exact OS|OS:|OS CPE|Please report|scanned in|SF|Warning)' $name/nmap.nmap | sed 's/Nmap scan report for //' | sed '/^$/! b end; n; /^$/d; : end' > $name/nmap.txt
@@ -1626,7 +1626,7 @@ sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/x11.txt
 # Remove all empty files
 find $name/ -type f -empty -exec rm {} +
 }
-                                               
+
 ##############################################################################################################
 
 f_cleanup(){
@@ -3055,20 +3055,22 @@ import csv
 import glob
 import re
 import xml.etree.ElementTree as ET
+
 ################################################################
 
 class NessusParser:
     def loadXML(self, filename):
         self.xml = ET.parse(filename)
         self.rootElement = self.xml.getroot()
-    
+
     def getHosts(self):
         return self.rootElement.findall("./Report/ReportHost")
+
 ################################################################
-    
+
     def getHostProperties(self, host):
-        properties = {}        
-    
+        properties = {}
+
         hostProperties = host.findall("./HostProperties")[0]
 
         hostnames = hostProperties.findall("./tag[@name='netbios-name']")
@@ -3082,28 +3084,30 @@ class NessusParser:
         properties['host-ip'] = hostProperties.findall("./tag[@name='host-ip']")[0].text
 
         return properties
+
 ################################################################
-   
+
     def getReportItems(self, host):
         return host.findall("./ReportItem")
-        
+
     def getReportItemProperties(self, reportItem):
         properties = reportItem.attrib
 
         if(properties.has_key('severity')):
             del(properties['severity'])
-            
+
         if(properties.has_key('pluginFamily')):
             del(properties['pluginFamily'])
-        
+
         return properties
+
 ################################################################
-        
+
     def getReportItemDetails(self, reportItem):
         details = {}
-        
+
         details['description'] = reportItem.findall("./description")[0].text
-        
+
         pluginElements = reportItem.findall("./plugin_output")
         if(len(pluginElements) >= 1):
             details['plugin_output'] = pluginElements[0].text
@@ -3125,23 +3129,25 @@ class NessusParser:
             details['cvss_base_score'] = cvssElements[0].text
 
         return details
+
 ################################################################
 
 def transformIfAvailable(inputDict, inputKey, outputDict, outputKey):
     if(inputDict.has_key(inputKey)):
         inputDict[inputKey] = inputDict[inputKey].replace("\n"," ")
-        
+
         # Excel has a hard limit of 32,767 characters per cell. Let's make it an even 32K.
         if(len(inputDict[inputKey]) > 32000):
             inputDict[inputKey] = inputDict[inputKey][:32000] +" [Text Cut Due To Length]"
-            
+
         outputDict[outputKey] = inputDict[inputKey]
-            
+
 header = ['CVSS Score','IP','FQDN','OS','Port','Vulnerability','Description','Proof','Solution','See Also','CVE']
 
 outFile = open("nessus.csv", "wb")
 csvWriter = csv.DictWriter(outFile, header, quoting=csv.QUOTE_ALL)
 csvWriter.writeheader()
+
 ################################################################
 
 nessusParser = NessusParser()
@@ -3156,17 +3162,17 @@ for fileName in glob.glob("*.nessus"):
     for host in hosts:
         # Get properties for this host
         hostProperties = nessusParser.getHostProperties(host)
-        
+
         # Get all findings for this host
         reportItems = nessusParser.getReportItems(host)
-            
+
         for reportItem in reportItems:
             reportItemDict = {}
-        
+
             # Get the metadata and details for this report item
             reportItemProperties = nessusParser.getReportItemProperties(reportItem)
             reportItemDetails = nessusParser.getReportItemDetails(reportItem)
-        
+
             # Create dictionary for line
             transformIfAvailable(reportItemDetails, "cvss_base_score", reportItemDict, header[0])
             transformIfAvailable(hostProperties, "host-ip", reportItemDict, header[1])
@@ -3183,14 +3189,14 @@ for fileName in glob.glob("*.nessus"):
             hostReports.append(reportItemDict)
 
     csvWriter.writerows(hostReports)
-        
+
 outFile.close()
 EOF
      # Delete findings with CVSS score of 0 and solution of n/a
      egrep -v '(AJP Connector Detection|Apache Axis2 Detection|Appweb HTTP Server Version|Backported Security Patch Detection \(SSH\)|Backported Security Patch Detection \(WWW\)|Blackboard Learn Detection|CA Message Queuing Service Detection|CDE Subprocess Control Service \(dtspcd\) Detection|Check Point FireWall-1 ICA Service Detection|Check Point SecuRemote Hostname Information Disclosure|Common Platform Enumeration \(CPE\)|CORBA IIOP Listener Detection|DCE Services Enumeration|Derby Network Server Detection|Device Hostname|Device Type|DNS Server DNSSEC Aware Resolver|DNS Server Fingerprinting|DNS Server Version Detection|EMC SMARTS Application Server Detection|Ethernet Card Manufacturer Detection|External URLs|FTP Server Detection|HMAP Web Server Fingerprinting|Host Fully Qualified Domain Name \(FQDN\) Resolution|HTTP Methods Allowed \(per directory\)|HTTP Reverse Proxy Detection|HTTP Server Cookies Set|HTTP Server Type and Version|HyperText Transfer Protocol \(HTTP\) Information|IBM Tivoli Endpoint Manager Web Server Detection|IMAP Service Banner Retrieval|IP Protocols Scan|Kerberos Information Disclosure|LDAP Crafted Search Request Server Information Disclosure|LDAP Server Detection|Lotus Sametime Detection|McAfee Common Management Agent Detection|McAfee ePolicy Orchestrator Application Server Detection|Microsoft SQL Server STARTTLS Support|Microsoft Windows NTLMSSP Authentication Request Remote Network Name Disclosure|Microsoft Windows SMB LanMan Pipe Server Listing Disclosure|Microsoft Windows SMB Log In Possible|Microsoft Windows SMB NativeLanManager Remote System Information Disclosure|Microsoft Windows SMB Registry : Nessus Cannot Access the Windows Registry|Microsoft Windows SMB Service Detection|Mozilla Foundation Application Detection|MSRPC Service Detection|MySQL Server Detection|Nessus Scan Information|Nessus SNMP Scanner|NetBIOS Multiple IP Address Enumeration|Network Time Protocol \(NTP\) Server Detection|OpenSSL Detection|OpenSSL Version Detection|OS Identification|PHP Version|Protected Web Page Detection|RADIUS Server Detection|RDP Screenshot|Record Route|RMI Registry Detection|RPC portmapper \(TCP\)|RPC portmapper Service Detection|RPC Services Enumeration|Samba Server Detection|SAP Dynamic Information and Action Gateway Detection|Service Detection \(GET request\)|Service Detection \(HELP Request\)|Service Detection \(2nd Pass\)|smtpscan SMTP Fingerprinting|SNMP Supported Protocols Detection|SquirrelMail Detection|SSH Algorithms and Languages Supported|SSH Protocol Versions Supported|SSH Server Type and Version Information|SSL / TLS Versions Supported|SSL Certificate Information|SSL Cipher Block Chaining Cipher Suites Supported|SSL Cipher Suites Supported|SSL Compression Methods Supported|SSL Perfect Forward Secrecy Cipher Suites Supported|SSL Service Requests Client Certificate|SSL Session Resume Supported|TCP/IP Timestamps Supported|Terminal Services Use SSL/TLS|Traceroute Information|Unknown Service Detection: Banner Retrieval|UPnP Client Detection|VERITAS Backup Agent Detection|VERITAS NetBackup Agent Detection|VMware ESX/GSX Server detection|VMware vCenter Detect|VMware Virtual Machine Detection|VMware vSphere Detect|VNC Server Security Type Detection|VNC Server Unencrypted Communication Detection|vsftpd Detection|Web Server Directory Enumeration|Web Server Harvested Email Addresses|Web Server No 404 Error Code Check|Web Server UDDI Detection|Windows NetBIOS / SMB Remote Host Information Disclosure|Yosemite Backup Service Driver Detection)' nessus.csv > tmp.csv
 
      # Delete additional findings with CVSS score of 0
-     egrep -v '(Acronis Agent Detection \(TCP\)|Additional DNS Hostnames|Alert Standard Format / Remote Management and Control Protocol Detection|Apache Tomcat Default Error Page Version Detection|Authentication Failure - Local Checks Not Run|Daytime Service Detection|Discard Service Detection|DNS Server Detection|Do not scan printers|ICMP Timestamp Request Remote Date Disclosure|Link-Local Multicast Name Resolution \(LLMNR\) Detection|Microsoft SharePoint Server Detection|Microsoft SQL Server TCP/IP Listener Detection|Microsoft Windows Messenger Detection|NIS Server Detection|Nessus SYN scanner|Nessus TCP scanner|Nessus Windows Scan Not Performed with Admin Privileges|NetVault Process Manager Service Detection|NFS Server Superfluous|Open Port Re-check|Oracle Database Detection|Oracle Database tnslsnr Service Remote Version Disclosure|Oracle Java JRE Universally Enabled|Patch Report|POP Server Detection|QuickTime for Windows Detection|Quote of the Day (QOTD) Service Detection|Skype Detection|SLP Server Detection \(TCP\)|SMTP Server Detection|SNMP Protocol Version Detection|SNMP Query Routing Information Disclosure|SNMP Query Running Process List Disclosure|SNMP Query System Information Disclosure|SNMP Request Network Interfaces Enumeration|SSL Certificate Chain Contains RSA Keys Less Than 2048 bits|SSL Certificate Expiry - Future Expiry|Symantec pcAnywhere Detection \(TCP\)|Symantec pcAnywhere Status Service Detection \(UDP\)|TCP Channel Detection|Telnet Server Detection|TFTP Daemon Detection|Web Server / Application favicon.ico Vendor Fingerprinting|Web Server Crafted Request Vendor\/Version Information Disclosure|Web Server SSL Port HTTP Traffic Detection|Windows Terminal Services Enabled|WINS Server Detection)' tmp.csv > tmp2.csv
+     egrep -v '(Acronis Agent Detection \(TCP\)|Additional DNS Hostnames|Alert Standard Format \/ Remote Management and Control Protocol Detection|Apache Tomcat Default Error Page Version Detection|Authentication Failure - Local Checks Not Run|Daytime Service Detection|Discard Service Detection|DNS Server Detection|Do not scan printers|ICMP Timestamp Request Remote Date Disclosure|Link-Local Multicast Name Resolution \(LLMNR\) Detection|Microsoft SharePoint Server Detection|Microsoft SQL Server TCP\/IP Listener Detection|Microsoft Windows Messenger Detection|NIS Server Detection|Nessus SYN scanner|Nessus TCP scanner|Nessus Windows Scan Not Performed with Admin Privileges|NetVault Process Manager Service Detection|NFS Server Superfluous|Open Port Re-check|Oracle Database Detection|Oracle Database tnslsnr Service Remote Version Disclosure|Oracle Java JRE Universally Enabled|Patch Report|POP Server Detection|QuickTime for Windows Detection|Quote of the Day \(QOTD\) Service Detection|Skype Detection|SLP Server Detection \(TCP\)|SMTP Server Detection|SNMP Protocol Version Detection|SNMP Query Routing Information Disclosure|SNMP Query Running Process List Disclosure|SNMP Query System Information Disclosure|SNMP Request Network Interfaces Enumeration|SSL Certificate Chain Contains RSA Keys Less Than 2048 bits|SSL Certificate Expiry - Future Expiry|Symantec pcAnywhere Detection \(TCP\)|Symantec pcAnywhere Status Service Detection \(UDP\)|TCP Channel Detection|Telnet Server Detection|TFTP Daemon Detection|Web Server \/ Application favicon.ico Vendor Fingerprinting|Web Server Crafted Request Vendor/Version Information Disclosure|Web Server SSL Port HTTP Traffic Detection|Windows Terminal Services Enabled|WINS Server Detection)' tmp.csv > tmp2.csv
 
      rm nessus.* tmp.csv
      mv tmp2.csv /$user/data/nessus.csv
@@ -3582,7 +3588,6 @@ echo ""; echo -n "Press any key to return to the main menu. "; read pak
 f_main
 }
 
-
 ##############################################################################################################
 
 f_listener(){
@@ -3720,6 +3725,7 @@ sed -i "s/yyy/$domain/g" /tmp/passive.rc
 
 recon-ng -r /tmp/passive.rc
 }
+
 ##############################################################################################################
 
 f_parse_recon_ng(){
@@ -3749,6 +3755,7 @@ echo
 echo
 exit
 }
+
 ##############################################################################################################
 
 f_main(){
@@ -3811,4 +3818,3 @@ esac
 ##############################################################################################################
 
 while true; do f_main; done
-

@@ -245,7 +245,8 @@ adduser <user> <group>             Add user to group
 # vi
 
 vi filename                        Open an existing file
-vi new file                        Create a new file
+vi newfile                         Create a new file
+
 Modes                              Command, append, insert and replace
 
 Command mode
@@ -260,70 +261,48 @@ w                                  Forward one word
 b                                  Backward one word
 $                                  End of line
 0 (zero)                           Beginning of line
-H                                  Top line of screen
-L                                  Last line of screen
 1G                                 First line of file
 G                                  Last line of file
-<Control>f                         Forward one screen
-<Control>b                         Backward one screen
-<Control>d                         Down one-half screen
-<Control>u                         Up one-half screen
-x                                  Delete a character
-dd                                 Delete a line
-<Esc> u                            Undo
+
+<esc> u                            Undo
 
 Append mode
-To add text to the end of a line:
-
+To add text to the end of a line.
 Position the cursor on the last letter of the line.
 Type a
-Enter the new text.
-This adds text AFTER the cursor.  Press <Esc> to get back to command mode.
+Enter new text.
+This adds text AFTER the cursor. Press <esc> to return to command mode.
 
 Insert mode
-
 The letters you type form words and sentences.
-To insert text in a line:
-
 Position the cursor where the new text should go.
 Type i
-Enter the new text.
-The text is inserted BEFORE the cursor.  Press <Esc> to get back to command mode.
+Enter new text.
+This adds text BEFORE the cursor. Press <esc> to return to command mode.
 
 Replace mode
-To replace one character with another:
-
+To replace one character with another.
 Move the cursor to the character to be replaced.
 Type r
-Type the replacement character.
-Replacing Lines
-
-To change text from the cursor position to the end of the line:
-
-Type C (uppercase).
-Type the replacement text.
-<Esc>
+Enter the replacement character. Press <esc> to return to command mode.
 
 Search
-Type / to search forward.
+Type /
 Enter the search string.
 <Return>
 n	Search forward.
-
 N	Search backward.
 
-Save changes and keep the file open:
-
-<Esc>
+Save changes to a file
+<esc>
 :w
 <Return>
-Save changes and quit:
 
-<Esc>
-:zz
-<Return>
+Quit
+<esc>
+:q
 
-Don't save and quit:
-<Esc>
+Don't save and quit
+<esc>
 :q!
 <Return>
