@@ -1540,16 +1540,16 @@ if [[ -n $x ]]; then
 fi
 
 # Clean up
-egrep -v '(1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|Network Distance|No exact OS|OS:|OS CPE|Please report|scanned in|SF|Warning)' $name/nmap.nmap | sed 's/Nmap scan report for //' | sed '/^$/! b end; n; /^$/d; : end' > $name/nmap.txt
+egrep -v '(0000|0010|0020|0030|0040|0050|0060|0070|0080|0090|00a0|00b0|00c0|00d0|1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|Network Distance|No exact OS|OS:|OS CPE|Please report|RTTVAR|scanned in|SF|unreachable|Warning|WARNING)' $name/nmap.nmap | sed 's/Nmap scan report for //' | sed '/^$/! b end; n; /^$/d; : end' > $name/nmap.txt
 
 grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' $name/nmap.nmap | $sip > $name/hosts.txt
 hosts=$(wc -l $name/hosts.txt | cut -d ' ' -f1)
 
-grep 'open' $name/nmap.txt | awk '{print $1}' | sort -u | sort -n > $name/ports.txt
+grep 'open' $name/nmap.txt | grep -v 'WARNING' | awk '{print $1}' | sort -u | sort -n > $name/ports.txt
 grep 'tcp' $name/ports.txt | cut -d '/' -f1 > $name/ports-tcp.txt
 grep 'udp' $name/ports.txt | cut -d '/' -f1 > $name/ports-udp.txt
 
-grep 'open' $name/nmap.txt | awk '{for (i=4;i<=NF;i++) {printf "%s%s",sep, $i;sep=" "}; printf "\n"}' | sed 's/^ //' | sort -u | sed '/^$/d' > $name/banners.txt
+grep 'open' $name/nmap.txt | grep -v 'really open' | awk '{for (i=4;i<=NF;i++) {printf "%s%s",sep, $i;sep=" "}; printf "\n"}' | sed 's/^ //' | sort -u | sed '/^$/d' > $name/banners.txt
 
 for i in $(cat $name/ports-tcp.txt); do
      TCPPORT=$i

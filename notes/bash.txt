@@ -154,7 +154,7 @@ done
 
 pid=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
 
-if [ -n "$pid" ] ; then
+if [ -n "$pid" ]; then
      kill -9 $pid
 fi
 
@@ -172,4 +172,3 @@ while read -r line; do
      echo "$x - $line"
      dnsrecon.py -d $line -t axfr -c axfr_results/$x-$line.csv
 done < names.txt
-
