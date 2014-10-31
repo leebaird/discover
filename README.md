@@ -110,7 +110,7 @@ Open multiple tabs in Iceweasel with:
 
 ### Nikto
 ```
-Run multiple instances of Nikto in parallel against a list of IP addresses.
+Run multiple instances of Nikto in parallel.
 
 1.  List of IPs.
 2.  List of IP:port.
