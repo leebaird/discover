@@ -135,9 +135,10 @@ Enter the location of your list:
 ```
 Parse XML to CSV for use with /discover/misc/worksheet.xlsx.
 
-1.  Nessus
-2.  Nmap
-3.  Previous menu
+1.  Burp
+2.  Nessus
+3.  Nmap
+4.  Previous menu
 ```
 
 ### Start a Metasploit listener
