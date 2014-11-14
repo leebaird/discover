@@ -995,7 +995,7 @@ s/OH //g; s/OK //g; s/ON //g; s/OR //g; s/PA //g; s/PR //g; s/QC //g; s/RI //g; 
 s/WI //g; s/WV //g; s/WY //g; s/AP //g; s/DL //g; s/NB //g; s/MH //g; s/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g; s/^[ \tmp]*//g' > tmp
 
 # Author: Ben Wood
-perl -ne 'if ($_ =~ /(.*?)\t\s*(.*)/) {printf("%-40s%s\n",$1,$2);}' tmp | sed 's/[ \t]*$//g' | sort> tmp2
+perl -ne 'if ($_ =~ /(.*?)\t\s*(.*)/) {printf("%-40s%s\n",$1,$2);}' tmp | sed 's/[ \t]*$//g' | sort > tmp2
 
 cat tmp2 | sed 's/   -/ -/g; s/,  /, /g; s/, , , , //g; s/, , , //g; s/, , /, /g; s/,$//g; s/\/$//g; s/-$//g; s/Aberdeen$//g; s/Abilene$//g; s/Abingdon$//g; s/Abington$//g; 
 s/Acworth$//g; s/Adamstown$//g; s/Addison$//g; s/Adena$//g; s/AdSense$//g; s/Adwords$//g; s/Africa$//g; s/Aguadilla$//g; s/Ainsworth$//g; s/Akron$//g; s/Alabaster$//g; s/Albany$//g; 
@@ -1638,8 +1638,6 @@ sed -i '/^| *$/d' tmp2
 
 egrep -v '(0 of 100|afp-serverinfo:|ACCESS_DENIED|appears to be clean|cannot|closed|close|Compressors|Could not|Couldn|Denied|denied|Did not|DISABLED|dns-nsid:|dns-service-discovery:|Document Moved|doesn|eppc-enum-processes|error|Error|ERROR|Failed to get|failed|filtered|GET|hbase-region-info:|HEAD|Host is up|Host script results|impervious|incorrect|latency|ldap-rootdse:|LDAP Results|Likely CLEAN|MAC Address|Mac OS X security type|nbstat:|No accounts left|No Allow|no banner|none|Nope.|not allowed|Not Found|Not Shown|not supported|NOT VULNERABLE|nrpe-enum:|ntp-info:|rdp-enum-encryption:|remaining|rpcinfo:|seconds|Security types|See http|Server not returning|Service Info|Skipping|smb-check-vulns|smb-mbenum:|sorry|Starting|telnet-encryption:|Telnet server does not|TIMEOUT|Unauthorized|uncompressed|unhandled|Unknown|viewed over a secure|vnc-info:|wdb-version:)' tmp2 | grep -v "Can't" > tmp3
 
-# Print paragraphs that contains |
-#sed -e '/./{H;$!d;}' -e 'x;/|/!d;' tmp3 > tmp4
 mv tmp3 tmp4
 }
 
