@@ -46,6 +46,16 @@ if [ ! -f /opt/google/chrome/google-chrome ]; then
      echo
 fi
 
+if [ -d /opt/rawr/.git ]; then
+     echo -e "\e[1;34mUpdating RAWR.\e[0m"
+     cd /opt/rawr/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling RAWR.\e[0m"
+     git clone https://bitbucket.org/al14s/rawr.git /opt/rawr
+     /opt/rawr/install.sh y
+fi
+
 if [ -d /opt/smbexec/.git ]; then
      echo -e "\e[1;34mUpdating smbexec.\e[0m"
      cd /opt/smbexec/ ; git pull

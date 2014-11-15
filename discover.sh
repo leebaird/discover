@@ -107,9 +107,6 @@ mv $name/ /$user/data/cancelled-`date +%m-%d-%y-%H%M` 2>/dev/null
 
 # Recon files
 mv emails* names records squatting whois* sub* doc pdf ppt txt xls tmp* z* /$user/data/cancelled-`date +%m-%d-%y-%H%M` 2>/dev/null
-
-#pid=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
-#kill -9 $pid
 }
 
 ##############################################################################################################
@@ -131,9 +128,22 @@ case $choice in
      echo
      echo $medium
      echo
-     echo "Usage: target.com"
+     echo "Usage"
      echo
-     echo -n "Domain: "
+     echo "Company: Target"
+     echo "Domain:  target.com"
+     echo
+     echo $short
+     echo
+     echo -n "Company: "
+     read company
+
+     # Check for no answer
+     if [ -z $company ]; then
+          f_error
+     fi
+
+     echo -n "Domain:  "
      read domain
 
      # Check for no answer
@@ -554,8 +564,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      f_runlocally
 
      firefox &
-     sleep 4
-     firefox -new-tab images.google.com &
+     sleep 2
+     firefox -new-tab google.com/#q=$company+logo &
      sleep 1
      firefox -new-tab arin.net &
      sleep 1
@@ -581,7 +591,9 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 1
      firefox -new-tab sec.gov/edgar/searchedgar/companysearch.html &
      sleep 1
-     firefox -new-tab reuters.com/finance/stocks
+     firefox -new-tab reuters.com/finance/stocks &
+     sleep 1
+     firefox -new-tab google.com/#q=site:linkedin.com+%22at+$company%22+inurl:%2Fpub%2F+OR+inurl:%2Fin%2F+-inurl:%2Fdir%2F+-inurl:%2Fjobs%2F+-inurl:%2Fskills%2F+-inurl:%2Ftitle%2F
      echo
      echo
      exit
