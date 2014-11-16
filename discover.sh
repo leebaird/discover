@@ -2269,7 +2269,7 @@ f_metasploit(){
 echo
 echo $medium
 echo
-echo -ne "\e[1;33mRun matching Metasploit auxilaries? (y/N) \e[0m"
+echo -ne "\e[1;33mRun matching Metasploit auxiliaries? (y/N) \e[0m"
 read msf
 
 if [ "$msf" == "y" ]; then
@@ -3389,6 +3389,11 @@ f_banner
 
 echo -e "\e[1;34mCheck for SSL certificate issues.\e[0m"
 
+echo 
+echo "The referenced file in the below prompt is a text file you created containing a list of IP addresses"
+echo "or host names, one per line. If you have not created this file yet, open another terminal and do so now."
+echo
+
 f_location
 
 echo
@@ -3607,6 +3612,9 @@ else
   while read -r line; do
 	/usr/bin/iceweasel -new-tab "https://www.sslshopper.com/ssl-checker.html#hostname=$line" &
 	sleep 1
+	# commented because this site does not allow the submission of IP addresses
+	#/usr/bin/iceweasel -new-tab "https://www.ssllabs.com/ssltest/analyze.html?d=$line" &
+	#sleep 1
   done < "$location"
 
 fi
