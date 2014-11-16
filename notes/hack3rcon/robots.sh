@@ -1,7 +1,7 @@
 #!/bin/bash
 clear
 
-rm robots.txt tmp 2>/dev/null 
+rm robots.txt tmp 2>/dev/null
 
 echo
 echo
@@ -9,8 +9,8 @@ echo -n "Enter a domain: "
 read domain
 
 # Check for no response
-if [ -z $domain ];then
-     echo 
+if [ -z $domain ]; then
+     echo
      echo "You did not enter a domain."
      exit
 fi
@@ -32,13 +32,4 @@ for i in $(cat tmp); do
      sleep1
 done
 
-
-
-
-
-
-
-
-
-
-
+rm robots.txt tmp
