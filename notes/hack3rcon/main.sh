@@ -11,6 +11,7 @@ echo "1. Recon people"
 echo "2. Recon domain"
 echo "3. Open list in Firefox"
 echo "4. Open a domain's robot.txt in Firefox"
+echo "5. Nmap."
 echo
 echo -n "Choice: "
 read choice
@@ -22,6 +23,7 @@ case $choice in
      2) ./recon-domain.sh;;
      3) ./open-list.sh;;
      4) ./robots.sh;;
+     5) ./nmap.sh;;
      *) echo "You have entered a wrong choice."
 esac
 
