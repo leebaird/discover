@@ -72,7 +72,7 @@ sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4         # Sort IPs
 sed "s/$FOO./$FOO/g"                                # Variables - use double quotes with sed or grep
 ------------------------------------------------------------------------------------------------------
 
-# Check for argument, if not given print usage
+# Check for argument. If not given, print usage.
 
 if [ -z "$1" ]; then
      echo "Usage : $0 <domain name>"
@@ -80,14 +80,14 @@ if [ -z "$1" ]; then
 fi
 ------------------------------------------------------------------------------------------------------
 
-# Check for root
+# Check for root.
 
 if [ $(whoami) = "root" ]; then 
      echo "You are running as root."
 fi
 ------------------------------------------------------------------------------------------------------
 
-# Check for no answer
+# Check for no answer.
 
 if [ -z $location ]; then
      f_Error
@@ -95,11 +95,30 @@ if [ -z $location ]; then
 fi
 ------------------------------------------------------------------------------------------------------
 
-# Check for wrong answer
+# Check for wrong answer.
 
 if [ ! -f $location ]; then
      f_Error
      return 0
+fi
+------------------------------------------------------------------------------------------------------
+
+# Check for two variables.
+
+echo -n "Enter color: "
+read color
+echo -n "Enter another color: "
+read color2
+
+if [ $color = "red" ] && [ $color2 = "grey" ]; then
+     echo
+     echo "The Wall won't fall."
+     echo
+     exit
+else
+     echo
+     echo "Those colors are crap."
+     echo
 fi
 ------------------------------------------------------------------------------------------------------
 
@@ -110,7 +129,7 @@ fi
 echo -e "\e[1;34mThis is a blue text.\e[0m"
 ------------------------------------------------------------------------------------------------------
 
-# Compare two dates
+# Compare two dates.
 
 date1=$(date +"%s")
 date2=$(date +"%s")
@@ -118,7 +137,7 @@ diff=$(($date2-$date1))
 echo "$(($diff / 60)) min and $(($diff % 60)) sec."
 ------------------------------------------------------------------------------------------------------
 
-# Files and folders
+# Files and folders.
 
 if [ -e /root/test ]; then
      echo "This file exists."
@@ -142,6 +161,7 @@ fi
 
 #!/bin/bash
 clear
+
 wget -q target.com
 grep 'href' index.html | cut -d '/' -f3 | cut -d '"' -f1 | grep 'target' | sort -u > subdomains.txt
 
@@ -160,7 +180,7 @@ fi
 
 ------------------------------------------------------------------------------------------------------
 
-# Use 'while' and 'done'.
+# Read in a file and do something.
 
 while read -r line; do
 	host $line | grep 'has address' | cut -d ' ' -f4
@@ -172,3 +192,4 @@ while read -r line; do
      echo "$x - $line"
      dnsrecon.py -d $line -t axfr -c axfr_results/$x-$line.csv
 done < names.txt
+
