@@ -1,7 +1,6 @@
 # To enable these aliases or when you modify this file:
 # cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
 
-dhcp=$(grep 'dhcp-server' /var/lib/dhcp/dhclient.leases | awk '{print $3}' | cut -d ';' -f1 | head -n1)
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
 interface=$(ifconfig | grep -B1 'inet addr' | egrep -v '(-|inet addr|Loopback)' | cut -d ' ' -f1)
 ip=$(ifconfig | grep 'Bcast' | awk '{print$2}' | cut -d ':' -f2)
@@ -11,7 +10,7 @@ alias c='clear'
 alias cl='clear ; ls -l'
 alias d='cd /root/Desktop/ ; clear'
 alias e='exit'
-alias i='echo ; echo ; echo "DHCP     " $dhcp ; echo "DNS      " $dns ; echo ; ifconfig ; ping google.com -c3 ; echo ; echo'
+alias i='echo ; echo ; echo "DNS      " $dns ; echo ; ifconfig ; ping google.com -c3 ; echo ; echo'
 alias l='ls -l'
 alias n='echo ; netstat -antup | egrep -v "(Active|p6)" ; echo ;
 echo -n "Interface:    "$interface ; echo ;

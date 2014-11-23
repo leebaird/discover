@@ -1467,7 +1467,7 @@ f_banner
 f_scanname
 
 echo
-echo -n "Single IP, URL or Range: "
+echo -n "IP, Range or URL: "
 read target
 
 # Check for no answer
@@ -3810,7 +3810,7 @@ echo -e "\e[1;34mSCANNING\e[0m"
 echo "4.  Generate target list"
 echo "5.  CIDR"
 echo "6.  List"
-echo "7.  IP or domain"
+echo "7.  IP, Range or URL"
 echo
 echo -e "\e[1;34mWEB\e[0m"
 echo "8.  Open multiple tabs in Iceweasel"

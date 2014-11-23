@@ -43,7 +43,7 @@ execute (e)	 1
  
 chmod 755 test.sh                  Make a file executable
 
-find . -name "*.py" -exec chmod 0755 {} \;     Recursively change permissions all files ending with .py - Jason Arnold
+find . -name "*.py" -exec chmod 755 {} \;     Recursively change permission of all files ending with .py - Jason Arnold
 ------------------------------------------------------------------------------------------------------
  
 # Files
