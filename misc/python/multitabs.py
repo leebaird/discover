@@ -13,9 +13,9 @@ runlocally()
 
 print colorblue.format('Open multiple tabs in Firefox with:')
 print
-print '1. List containing IPs and/or URLs.'
-print '2. Directories from a domain\'s robot.txt.'
-print '3. Previous menu'
+print "1. List containing IPs and/or URLs."
+print "2. Directories from a domain\'s robot.txt."
+print "3. Previous menu"
 print
 choice = raw_input('Choice: ')
 

@@ -3076,7 +3076,7 @@ case $choice in
      cp $location /opt/discover/nessus.nessus
 
 python << 'EOF'
-# Original code from - https://github.com/Clete2/NessusReport
+# Original code from - https://github.com/Clete2/NessusReport, modded by Lee Baird
 
 import csv
 import glob
@@ -3228,7 +3228,7 @@ EOF
 cat tmp2.csv | sed 's/Service Pack 1/SP1/g; s/Service Pack 2/SP2/g; s/Service Pack 3/SP3/g; s/Service Pack 4/SP4/g; s/\(credentialed check\)//; s/\(remote check\)//; 
 s/\(uncredentialed check\)//g; s/ http/\nhttp/g; s/ https/\nhttps/g' > /$user/data/nessus.csv
 
-     rm nessus.* tmp.csv
+     rm nessus.* tmp*
 
      echo
      echo $medium
