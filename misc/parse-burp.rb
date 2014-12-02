@@ -22,9 +22,6 @@ end
 # This is the main parsing method which will run on each finding in 'issue' (or finding) in the Burp XML file.
 def clean_finding(finding)
   output = []
-  output << ''
-  output << finding.css('severity').text               # Severity
-  output << ''
   output << finding.css('host').text                   # URL
   output << finding.css('path').text                   # Path
   output << finding.css('name').text                   # Vulnerability
@@ -68,9 +65,6 @@ report = Nokogiri::XML(File.open(options[:infile]))
 # This is just a string that serves as the title line of the CSV output
 CSV.open(options[:outfile], 'w') do |csv|
   csv << [
-    'Phase', 
-    'Severity',
-    'Validation',
     'URL',
     'Path',
     'Vulnerability',
