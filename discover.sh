@@ -3019,7 +3019,7 @@ case $choice in
      while IFS=: read -r host port; do
           xdotool key ctrl+shift+t
           sleep 1
-          xdotool type "nikto -h $host -port $port -Format htm --output /$user/data/$host-$port.htm ; exit"
+          xdotool type "nikto -h $host -port $port -Format htm --output /$user/data/nikto/$host-$port.htm ; exit"
           xdotool key Return
      done < "$location"
      ;;
