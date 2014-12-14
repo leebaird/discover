@@ -3,29 +3,49 @@ Burp Suite
 
 # Preferences
 
-Proxy > Options > Intercept Client Requests:
+Start Burp > open Firefox to http://burp
+     CA Certificate > Save File
+
+Firefox > Edit > Preferences > Advanced:
+     Network > Settings
+     Manual proxy configuration > HTTP Proxy: 127.0.0.1, Port: 8080
+     Use this proxy server for all protocols.
+     No proxy for: blank
+
+     Certificates > View Certificates > Authorities > Import
+     Select the certificate that you previously downloaded > Open
+     Check the box "Trust this CA to identify web sites" > OK > OK
+     Restart Firefox.
+
+Options:
+     Connections > Platform Authentication: check Prompt for credentials on platform authentication failure
+
+     Display:
+     User Interface > Font size 16
+     HTTP Message Display > Font size 15
+
+Proxy > Options:
+     Intercept Client Requests:
      In the list below, enable URL and move to the top.
      Select File extension > Edit: add jpeg, move to the second position.
 
-Proxy > Options > Intercept Server Responses:
+     Intercept Server Responses:
      Enable Intercept responses based on the following rules.
      In the list below, disable Content type header.
      Enable URL and move to the top.
      Add: And, File extention, Does not match, same Conditions as above.
      Move to the second position.
 
-Proxy > Options > Miscellaneous:
+     Miscellaneous:
      Enable interception at startup: Always disable
-
-Spider > Options > Form Submission > Scroll down to age > change to 34
 
 Scanner > Live scanning > Live Passive Scanning: Use suite scope
 
-Options > Connections > Platform Authentication: check Prompt for credentials on platform authentication failure
-
-Options > Display:
-     User Interface > Font size 16
-     HTTP Message Display > Font size 15
+Spider > Options:
+	Active Scanning Engine > Number of retries on network failure: 1
+	Active Scanning Optimization > Scan speed: Fast
+     Form Submission > Scroll down to age > change to 34
+	Static Code Analysis > Don’t perform static code analysis
 ------------------------------------------------------------------------------------------------------
 
 Target > Site Map > click on Filter: uncheck Show only in-scope items
@@ -33,10 +53,6 @@ Target > Site Map > click on Filter: uncheck Show only in-scope items
 Target > Scope: remove any URLs in the top window
 ------------------------------------------------------------------------------------------------------
 
-Firefox > Edit > Preferences > Advanced > Network > Settings
-Manual proxy configuration > HTTP Proxy: 127.0.0.1, Port: 8080
-Use this proxy server for all protocols.
-No proxy for: blank
 Surf to the target site.
 
 Burp > Target > Site map > right click on the target URL > Add to scope
@@ -68,4 +84,10 @@ Select all remaining findings > RC > Report selected issues > Next 4x > enter fi
 ./sqlmap -r /root/request --dbs                               Search for all databases
 ./sqlmap -r /root/request -D <database> --tables              Show all tables in database
 ./sqlmap -r /root/request -D <database> -T <table> --dump     Show all data in table
+------------------------------------------------------------------------------------------------------
+
+# Flase positive
+
+XML Injection
+Search in the response packet for http://www.w3.org/2001/XMLSchema
 
