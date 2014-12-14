@@ -87,7 +87,8 @@ Plugins: Code comment
 # Iceweasel
 
 Tools > Ad-Ons > Extensions:
-     Firebug, Live HTTP headers, Tamper Data, Web Developer
+     Firebug, Live HTTP headers, 
+     Make Address Bar Font Size Bigger, Tamper Data, Web Developer
 
 Add bookmark
      NSEDoc           http://nmap.org/nsedoc/
@@ -269,15 +270,27 @@ Remove the last two lines egarding eth0.
 Reboot
 ------------------------------------------------------------------------------------------------------
 
-# Amazon EC2
+# Amazon EC2 (in the process of being updated)
 
 m1.xlarge
 
+chmod 400 amazon.pem
+ssh -i amazon.pem kali@<target IP>
+yes
+
+Cloud:
 sudo su
-passwd
-cd /root/
+apt-get update && apt-cache search kali-linux
 apt-get install kali-linux-full
-apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade
+apt-get install gnome-desktop-environment
+tightvncserver -geometry 1280x1024
+
+Personal box:
+ssh -L 5901:localhost:5901 -N -f kali@<target IP> -i amazon.pem
+tightvncconnect 127.0.0.1:5901
+
+
+----- old -----
 apt-get install arp-scan dnsrecon fierce git goofile lbd locate nbtscan netdiscover metasploit nikto nmap sslscan sslyze theharvester unzip urlcrazy whatweb whois zip
 
 git clone git://github.com/leebaird/discover.git /opt/scripts/

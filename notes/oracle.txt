@@ -26,7 +26,7 @@ Oracle
      msf > use auxiliary/admin/oracle/sid_brute
      
    Example 2  
-     sidguess host=<targetIP> port=1521 sidfile=file.txt   
+     sidguess -i <target IP> -d /usr/share/metasploit-framework/data/wordlists/sid.txt
 
    Example 3
      http://<target IP>:8080/oradb/PUBLIC/GLOBAL_NAME

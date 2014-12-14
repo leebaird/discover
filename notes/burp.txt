@@ -24,8 +24,8 @@ Scanner > Live scanning > Live Passive Scanning: Use suite scope
 Options > Connections > Platform Authentication: check Prompt for credentials on platform authentication failure
 
 Options > Display:
-     User Interface > Font size 14
-     HTTP Message Display > Font size 12
+     User Interface > Font size 16
+     HTTP Message Display > Font size 15
 ------------------------------------------------------------------------------------------------------
 
 Target > Site Map > click on Filter: uncheck Show only in-scope items
@@ -37,12 +37,13 @@ Firefox > Edit > Preferences > Advanced > Network > Settings
 Manual proxy configuration > HTTP Proxy: 127.0.0.1, Port: 8080
 Use this proxy server for all protocols.
 No proxy for: blank
-
 Surf to the target site.
-Open a new tab: http://burp
 
-Burp > Target > Site map > right click (RC) on the target URL > Add to scope
-Target > Scope: you should see the URL listed in the top window
+Burp > Target > Site map > right click on the target URL > Add to scope
+Target > Scope: you will see the URL listed in the top window
+
+Firefox > tart exploring the web app by clicking on all the links on every page.
+Any forms that you find, enter a single tick and click submit.
 
 Spider > Control > Spider is running
 Form requests will probably appear.  You can hit submit or ignor.

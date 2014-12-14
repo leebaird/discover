@@ -31,13 +31,13 @@ Places > Network > Browse Network
 
 ------------------------------------------------------------------------------------------------------
 
-# Create an anonymous connection
+# Connect anonymously
 
 smbclient -N -L <target IP>
-smbclient -W Workgroup -U ‘hacker%password’ \\\\192.168.1.105\\SYSVOL
-smb:\> recurse 
-smb:\> prompt off 
-smb:\> mget scripts
+
+# Connect with credentials
+
+smbclient -W domain -U user -L <target IP>
 ------------------------------------------------------------------------------------------------------
 
 # NetBIOS and SMB
