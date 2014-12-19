@@ -3043,7 +3043,6 @@ exit
 ##############################################################################################################
 
 f_parse(){
-f_runlocally
 clear
 f_banner
 
@@ -3395,6 +3394,18 @@ esac
 f_sslcheck(){
 clear
 f_banner
+
+#ssl-ccs-injection       not found
+#ssl-cert
+#ssl-date
+#ssl-enum-ciphers
+#ssl-google-cert-catalog
+#ssl-heartbleed
+#ssl-known-key
+#ssl-poodle              not found
+#sslv2
+
+##############################################################################################################
 
 echo -e "\e[1;34mCheck for SSL certificate issues.\e[0m"
 
