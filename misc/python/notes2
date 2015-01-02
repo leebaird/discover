@@ -69,3 +69,9 @@ filedata = filedata.split('\n')              # Turn into a list
 execfile('recon.py')                         # Run a python script
 subprocess.call('crack-wifi.sh')             # Run a bash script
 
+##############################
+
+for i in file:                               # Remove lines that start with FOO
+  if i[0] != "FOO":
+      print i
+
