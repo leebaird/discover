@@ -1,4 +1,4 @@
-Bash
+Bash notes.
 
 
 sed -e 's/^/FOO/'                                   # Add FOO to the beginning of each line
@@ -177,7 +177,6 @@ pid=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
 if [ -n "$pid" ]; then
      kill -9 $pid
 fi
-
 ------------------------------------------------------------------------------------------------------
 
 # Read in a file and do something.
