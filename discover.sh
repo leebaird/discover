@@ -3295,8 +3295,8 @@ class NMAP_XMLParser(object):
         fqdn = str()
         info_detail = info.getElementsByTagName("hostname")
         for hostname in info_detail:
-            if(info_detail.getAttribute("name")):
-                fqdn = address.getAttribute("name")
+            if(hostname.getAttribute("name")):              # thanks to KU
+                fqdn = hostname.getAttribute("name")        # for bug fix
                 break
 
         return(fqdn)
