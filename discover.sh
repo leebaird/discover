@@ -3248,7 +3248,7 @@ s/ (intrusive check)//g; s/ (remote check)//; s/ (uncredentialed check)//g; s/ h
 
      3)
      f_location
-     cp $location /tmp/nmap.xml
+     cp $location ./nmap.xml
 
 python << 'EOF'
 # Author: Saviour Emmanuel
@@ -3295,8 +3295,8 @@ class NMAP_XMLParser(object):
         fqdn = str()
         info_detail = info.getElementsByTagName("hostname")
         for hostname in info_detail:
-            if(hostname.getAttribute("name")):              # thanks to KU
-                fqdn = hostname.getAttribute("name")        # for bug fix
+            if(hostname.getAttribute("name")):              # thanks to Kevin
+                fqdn = hostname.getAttribute("name")        # for the bug fix
                 break
 
         return(fqdn)
@@ -3367,12 +3367,12 @@ class NMAP_XMLParser(object):
         csv_output.close()
 
 if(__name__ == "__main__"):
-    nmap_xml = NMAP_XMLParser("/tmp/nmap.xml")     # Input file
-    nmap_xml.setCSVPath("/tmp/nmap.csv")           # Output file
+    nmap_xml = NMAP_XMLParser("nmap.xml")          # Input file
+    nmap_xml.setCSVPath("nmap.csv")                # Output file
     nmap_xml.dumpCSV()
 EOF
 
-     mv /tmp/nmap.csv /$user/data/
+     mv nmap.csv /$user/data/
 
      echo
      echo $medium
