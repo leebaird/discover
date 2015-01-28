@@ -173,10 +173,7 @@ case $choice in
 
      echo "dnsrecon                  (1/$total)"
      dnsrecon -d $domain -t goo > tmp
-     grep $domain tmp | egrep -v '(Performing Google|Records Found)' > tmp2
-     # Remove first 6 characters from each line
-     sed 's/^......//' tmp2 > tmp3
-     sed 's/A //g' tmp3 | sed 's/CNAME //g' | awk '$2 !~ /[a-z]/' | column -t | sort -u > sub1
+     grep $domain tmp | egrep -v '(Performing|Records Found)' | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | column -t | sort -u > sub1
      echo
 
      echo "goofile                   (2/$total)"
@@ -216,7 +213,7 @@ case $choice in
      /opt/discover/mods/goohost.sh -t $domain -m mail >/dev/null
      cat report-* > tmp
      # Move the second column to the first position
-     grep $domain tmp | awk '{ print $2 " " $1 }' > tmp2
+     grep $domain tmp | awk '{print $2 " " $1}' > tmp2
      column -t tmp2 > zgoohost
      rm *-$domain.txt
 
