@@ -6,7 +6,7 @@ Burp Suite
 Start Burp > open Firefox to http://burp
      CA Certificate > Save File
 
-Firefox > Edit > Preferences > Advanced:
+Firefox > Preferences > Advanced:
      Network > Settings
      Manual proxy configuration > HTTP Proxy: 127.0.0.1, Port: 8080
      Use this proxy server for all protocols.
@@ -17,7 +17,7 @@ Firefox > Edit > Preferences > Advanced:
      Check the box "Trust this CA to identify web sites" > OK > OK
      Restart Firefox.
 
-Options:
+Burp Options:
      Connections > Platform Authentication: check Prompt for credentials on platform authentication failure
 
      Display:
@@ -39,13 +39,15 @@ Proxy > Options:
      Miscellaneous:
      Enable interception at startup: Always disable
 
-Scanner > Live scanning > Live Passive Scanning: Use suite scope
+Scanner
+     Live scanning > Live Passive Scanning: Use suite scope
+     Options:
+          Active Scanning Engine > Number of retries on network failure: 1
+          Active Scanning Optimization > Scan speed: Fast
+          Static Code Analysis > Don’t perform static code analysis
 
 Spider > Options:
-	Active Scanning Engine > Number of retries on network failure: 1
-	Active Scanning Optimization > Scan speed: Fast
      Form Submission > Scroll down to age > change to 34
-	Static Code Analysis > Don’t perform static code analysis
 ------------------------------------------------------------------------------------------------------
 
 Target > Site Map > click on Filter: uncheck Show only in-scope items
@@ -90,4 +92,3 @@ Select all remaining findings > RC > Report selected issues > Next 4x > enter fi
 
 XML Injection
 Search in the response packet for http://www.w3.org/2001/XMLSchema
-

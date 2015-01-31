@@ -67,7 +67,7 @@ Background: Solid color
 git clone git://github.com/leebaird/discover.git /opt/discover/
 cd /opt/discover/
 ./setup.sh
-Enable aliases: cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
+cp alias /root/.bash_aliases ; source /root/.bash_aliases
 Exit the Terminal
 Open a new Terminal
 update
@@ -180,21 +180,6 @@ chmod 755 NeXposeSetup-Linux64.bin
 cd /opt/rapid7/nexpose/nsc/ && ./nsc.sh
 https://localhost:3780
 If you do not want this service to run at startup:  update-rc.d -f nexposeconsole.rc remove
-------------------------------------------------------------------------------------------------------
-
-# Install VMware Player (if needed)
-
-Download latest installer.
-chmod 755 <installer file>
-./<installer file>
-I accept
-I accept
-Would you like to check for product updates on startup: No
-Would you like to help: No
-Enter license key: leave blank
-apt-get install build-essential linux-headers-$(uname -r)
-rm <installer file>
-Applications > System Tools > VMware Player
 ------------------------------------------------------------------------------------------------------
 
 # Install VMware Tools (if needed)
