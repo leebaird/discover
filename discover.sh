@@ -3438,11 +3438,7 @@ while read -r line; do
      N=$((N+1))
 
      echo -n "[$N/$number]  $line in progress "
-
-# No need to background process the sslscans any longer - proving too unreliable to track process completion
-#    sslscan --no-failed $line > tmp_$line & pid=$!
-
-     sslscan --no-failed $line > tmp_$line
+     sslscan --ipv4 --show-certificate --ssl2 --ssl3 --no-colour $line > tmp_$line
 
      echo "... completed."
      echo >> ssl_$line
@@ -3564,12 +3560,6 @@ while read -r line; do
 
                echo $medium >> ssl_$line
                echo >> ssl_$line
-
-## No real need for the next 2 lines because we are not background processing the sslscans any longer
-## Will leave in until fully tested though
-#               echo
-#               sleep 45 && kill -9 $pid 2>/dev/null &
-
                cat ssl_$line >> tmp
           else
                echo -e "\e[1;31mCould not open a connection.\e[0m"
@@ -3592,13 +3582,6 @@ done < "$location"
 mv tmp /$user/data/sslscan.txt
 rm tmp* ssl_* 2>/dev/null
 
-#exit
-## sslyze does pretty much the same thing as sslscan, which we already parse, so not sure why it's in here. -jason
-## maybe someone added it because they thought sslscan (the app) was actually broken?
-#echo
-#echo 'Running sslyze.'
-#sslyze --targets_in=$location --regular > /$user/data/sslyze.txt
-
 echo
 echo $medium
 echo
@@ -3610,7 +3593,7 @@ echo
 echo
 
 # Add option to use external website sslshopper.com for SSL cert lookups. Nice output, not sure of query thresholds.
-# Added 10/7/2014, we will see if we like it enough to keep it
+# Added 10/7/2014, we will see if we like it enough to keep it.
 
 echo ""
 echo -n "Want to run the optional browser-based query tool (Internet connection required)? (y/n) "; read yn
