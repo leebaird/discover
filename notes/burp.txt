@@ -1,6 +1,10 @@
 Burp Suite
 
 
+# Memory
+
+To assign a certain amount of memory (2GB) to Burp: java -jar -Xmx2G <path to burp>
+
 # Preferences
 
 Start Burp > open Firefox to http://burp
