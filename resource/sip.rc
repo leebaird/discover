@@ -1,6 +1,6 @@
 setg RHOSTS file:
 setg THREADS 255
-setg RPORT 5060     # UDP
+setg RPORT 5060
 
 use auxiliary/scanner/sip/enumerator
 run

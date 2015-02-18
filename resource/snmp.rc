@@ -1,4 +1,4 @@
-osetg RHOSTS file:
+setg RHOSTS file:
 setg THREADS 255
 setg RPORT 161
 
@@ -15,7 +15,8 @@ use auxiliary/scanner/snmp/cisco_config_tftp
 run
 
 use auxiliary/scanner/snmp/cisco_upload_file
-set SOURCE $name/161.txt
+echo 'Hello world!' > /tmp/test.txt
+set SOURCE /tmp/test.txt
 run
 
 use auxiliary/scanner/snmp/netopia_enum

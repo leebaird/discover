@@ -142,4 +142,12 @@ List
 Numbers
 String
 Tuple
+------------------------------------------------------------------------------------------------------
+
+Misc
+
+try:
+    import xml.etree.cElementTree as ET      # Much, much faster and consumes significantly less memory
+except ImportError:
+    import xml.etree.ElementTree as ET
 
