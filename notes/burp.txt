@@ -3,30 +3,38 @@ Burp Suite
 
 # Memory
 
-To assign a certain amount of memory (2GB) to Burp: java -jar -Xmx2G <path to burp>
+To manually assign a certain amount of memory (2GB) to Burp: java -jar -Xmx2G <path to Burp>
+------------------------------------------------------------------------------------------------------
 
-# Preferences
+# Configure Proxy
 
-Start Burp > open Firefox to http://burp
-     CA Certificate > Save File
+Firefox > Preferences > Advanced > Network > Settings
+Manual proxy configuration
+HTTP Proxy: 127.0.0.1
+Port: 8080
+Use this proxy server for all protocols.
+No proxy for: delete anything in here
+------------------------------------------------------------------------------------------------------
 
-Firefox > Preferences > Advanced:
-     Network > Settings
-     Manual proxy configuration > HTTP Proxy: 127.0.0.1, Port: 8080
-     Use this proxy server for all protocols.
-     No proxy for: blank
+# Install Certificate
 
-     Certificates > View Certificates > Authorities > Import
-     Select the certificate that you previously downloaded > Open
-     Check the box "Trust this CA to identify web sites" > OK > OK
-     Restart Firefox.
+Start Burp
+Open Firefox to http://burp
+CA Certificate > Save File
+Preferences > Advanced > Certificates > View Certificates > Authorities > Import
+Select the certificate that you previously downloaded > Open
+Check the box "Trust this CA to identify web sites" > OK > OK
+Restart Firefox
+------------------------------------------------------------------------------------------------------
 
-Burp Options:
-     Connections > Platform Authentication: check Prompt for credentials on platform authentication failure
+# Options
 
-     Display:
-     User Interface > Font size 16
-     HTTP Message Display > Font size 15
+Options > Connections:
+     Platform Authentication: check Prompt for credentials on platform authentication failure
+
+Options > Display:
+     User Interface > Font size: 16
+     HTTP Message Display > Font: Monospaced 15
 
 Proxy > Options:
      Intercept Client Requests:
@@ -54,38 +62,63 @@ Spider > Options:
      Form Submission > Scroll down to age > change to 34
 ------------------------------------------------------------------------------------------------------
 
-Target > Site Map > click on Filter: uncheck Show only in-scope items
+# Scope
 
-Target > Scope: remove any URLs in the top window
+Target > Site map > Filter: restore defaults
+Target > Scope: restore defaults
+
+Firefox > surf to the target site and click on a couple of links.
+Burp > Target > Site map > right click (RC) on the target URL > Add to scope
+Target > Scope: you will see the URL listed in the top window
+Target > Site map > Filter: enable Show only in-scope items > Filter
 ------------------------------------------------------------------------------------------------------
 
-Surf to the target site.
+# Manually Explore
 
-Burp > Target > Site map > right click on the target URL > Add to scope
-Target > Scope: you will see the URL listed in the top window
+Firefox > start exploring the target site by clicking on all of the links on every page.
+Enter a single tick (') in any input field or Search form that you come across.
+------------------------------------------------------------------------------------------------------
 
-Firefox > tart exploring the web app by clicking on all the links on every page.
-Any forms that you find, enter a single tick and click submit.
+# Authentication
 
-Spider > Control > Spider is running
-Form requests will probably appear.  You can hit submit or ignor.
-Firefox > start clicking on links, the more the better.
+Options > Connections > Platform Authentication > Add
+     Destination host: target URL
+     Authentication type: Basic, NTLMv1, NTLMv2 or Digest
+     Username and Password
+Domain and Hostname are only used for NTLM.
+OK
+------------------------------------------------------------------------------------------------------
 
-Target > Site map > RC on the target URL > Spider this host
+# Intruder
+
+RC on any request > Send to Intruder
+Intruder > Positions: notice the parameters that are highlighted.
+Clear
+Highlight the parameter you want to fuzz and click Add.
+Intruder > Payloads > Payload Options > Add from list: Fuzzing - full
+Start attack
+------------------------------------------------------------------------------------------------------
+
+# Spider
+
+Burp > Target > Stie map: RC on the target URL > Spider this host
 Spider > Control: watch the Requests made increase.
+Form requests will probably appear. You can hit submit or ignor.
+------------------------------------------------------------------------------------------------------
+
+# Scanner
 
 Target > Site Map > RC on the target URL > Actively scan this host
-     Active scanning wizard: check all boxes > Next > Ok
+Active scanning wizard: check all boxes > Next > Ok
 Scanner > Scan que > RC > Automatically delete finished items > Yes
 Scanner > Results
-
-Target > Site map > Filter: enable Show only in-scope items
+------------------------------------------------------------------------------------------------------
 
 Manually varify findings.
 Select all remaining findings > RC > Report selected issues > Next 4x > enter file location > Next > Close
 ------------------------------------------------------------------------------------------------------
 
-# Use Burp Suite to trap a request
+# Use Burp to trap a request
 
 ./sqlmap -r /root/request --dbs                               Search for all databases
 ./sqlmap -r /root/request -D <database> --tables              Show all tables in database
@@ -96,3 +129,4 @@ Select all remaining findings > RC > Report selected issues > Next 4x > enter fi
 
 XML Injection
 Search in the response packet for http://www.w3.org/2001/XMLSchema
+
