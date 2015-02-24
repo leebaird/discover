@@ -114,7 +114,14 @@ Scanner > Scan que > RC > Automatically delete finished items > Yes
 Scanner > Results
 ------------------------------------------------------------------------------------------------------
 
-Manually varify findings.
+# Manually Validate Findings
+
+XML Injection > Search in the Response body for http://www.w3.org/2001/XMLSchema. This is a false positive.
+XSS > RC in the Request body > Request in browser > In current browser session
+------------------------------------------------------------------------------------------------------
+
+# Reporting
+
 Select all remaining findings > RC > Report selected issues > Next 4x > enter file location > Next > Close
 ------------------------------------------------------------------------------------------------------
 
@@ -123,10 +130,4 @@ Select all remaining findings > RC > Report selected issues > Next 4x > enter fi
 ./sqlmap -r /root/request --dbs                               Search for all databases
 ./sqlmap -r /root/request -D <database> --tables              Show all tables in database
 ./sqlmap -r /root/request -D <database> -T <table> --dump     Show all data in table
-------------------------------------------------------------------------------------------------------
-
-# Flase positive
-
-XML Injection
-Search in the response packet for http://www.w3.org/2001/XMLSchema
 
