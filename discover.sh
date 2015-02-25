@@ -2721,13 +2721,12 @@ END=$(date +%r\ %Z)
 filename=$name/report.txt
 host=$(wc -l $name/hosts.txt | cut -d ' ' -f1)
 
-echo "Discover Report" > $filename
-echo "$name" >> $filename
+echo "Nmap Report" > $filename
 date +%A" - "%B" "%d", "%Y >> $filename
 echo >> $filename
-echo "Start time - $START" >> $filename
-echo "Finish time - $END" >> $filename
-echo "Scanner IP - $ip" >> $filename
+echo "Start time   $START" >> $filename
+echo "Finish time  $END" >> $filename
+echo "Scanner IP   $ip" >> $filename
 echo >> $filename
 echo $medium >> $filename
 echo >> $filename
@@ -3400,20 +3399,7 @@ f_sslcheck(){
 clear
 f_banner
 
-#ssl-ccs-injection       not found
-#ssl-cert
-#ssl-date
-#ssl-enum-ciphers
-#ssl-google-cert-catalog
-#ssl-heartbleed
-#ssl-known-key
-#ssl-poodle              not found
-#sslv2
-
-##############################################################################################################
-
 echo -e "\e[1;34mCheck for SSL certificate issues.\e[0m"
-
 echo 
 echo "List of IP:port."
 echo
@@ -3426,9 +3412,9 @@ echo
 echo "Running sslscan."
 echo
 
-echo "sslscan Report" > tmp
-reportdate=$(date +%A" - "%B" "%d", "%Y)
-echo $reportdate >> tmp
+START=$(date +%r\ %Z)
+
+echo > tmp
 echo $medium >> tmp
 echo >> tmp
 
@@ -3581,7 +3567,20 @@ while read -r line; do
      fi
 done < "$location"
 
-grep -v 'Issuer info not available.' tmp | grep -v 'Certificate subject info not available.' > /$user/data/sslscan.txt
+
+END=$(date +%r\ %Z)
+
+echo "sslscan Report" > tmp2
+date +%A" - "%B" "%d", "%Y >> tmp2
+echo >> tmp2
+echo "Start time   $START" >> tmp2
+echo "Finish time  $END" >> tmp2
+echo "Scanner IP   $ip" >> tmp2
+
+mv tmp2 /$user/data/sslscan.txt
+
+grep -v 'Issuer info not available.' tmp | grep -v 'Certificate subject info not available.' >> /$user/data/sslscan.txt
+
 rm tmp* ssl_* 2>/dev/null
 
 echo

