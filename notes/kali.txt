@@ -273,14 +273,3 @@ tightvncserver -geometry 1280x1024
 Personal box:
 ssh -L 5901:localhost:5901 -N -f kali@<target IP> -i amazon.pem
 tightvncconnect 127.0.0.1:5901
-
-
------ old -----
-apt-get install arp-scan dnsrecon fierce git goofile lbd locate nbtscan netdiscover metasploit nikto nmap sslscan sslyze theharvester unzip urlcrazy whatweb whois zip
-
-git clone git://github.com/leebaird/discover.git /opt/scripts/
-cd /opt/scripts/
-./setup.sh
-./discover.sh
-#13 Update
-apt-get -f install
