@@ -11,9 +11,6 @@ user=$(whoami)
 ##############################################################################################################
 
 f_install_tools(){
-echo -e "\e[1;33mInstalling Veil-evasion.\e[0m"
-apt-get -y --force-yes install veil-evasion
-echo
 echo -e "\e[1;33mInstalling Filezilla.\e[0m"
 apt-get -y install filezilla
 echo
