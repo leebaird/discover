@@ -10,6 +10,7 @@
 # Dave Klug - planning, testing and bug reports
 # Jay Townsend - conversion of discover.sh to Kali
 # Jason Arnold - planning original concept, author of ssl-check and co-author of crack-wifi
+# John Kim - Python guru and bug smasher
 # Eric Milam - total re-write using functions
 # Martin Bos - IDS evasion techniques
 # Matt Banick - original development
@@ -3054,7 +3055,7 @@ f_banner
 
 echo -e "\e[1;34mParse XML to CSV for use with /discover/misc/worksheet.xlsx.\e[0m"
 echo
-echo "1.  Burp"
+echo "1.  Burp - XML output has changed, working on a fix."
 echo "2.  Nessus"
 echo "3.  Nmap"
 echo "4.  Previous menu"
@@ -3064,6 +3065,7 @@ read choice
 
 case $choice in
      1)
+     exit
      f_location
      ./parse-burp.rb -i $location -o /$user/data/burp-`date +%H:%M:%S`.csv
 
