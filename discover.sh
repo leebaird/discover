@@ -3065,20 +3065,12 @@ read choice
 case $choice in
      1)
      f_location
-     parse-burp.rb -i $location -o /$user/data/burp.csv
-
-     # Clean up
-     # <ul><li>
-     # </li><li>
-     # </li></ul>
-     # <br><br>
-     # <ul><li><b>
-     # </b></li></ul>
+     ./parse-burp.rb -i $location -o /$user/data/burp-`date +%H:%M:%S`.csv
 
      echo
      echo $medium
      echo
-     printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/data/burp.csv
+     printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/data/burp-`date +%H:%M:%S`.csv
      echo
      echo
      exit
