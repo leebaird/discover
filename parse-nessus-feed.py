@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 #
 # by John Kim
-# Converts the Nessus plugin database into a CSV file
-# with the following columns:
+# Converts the Nessus plugin database into a CSV file with the following columns:
 #    Plugin, CVSS Base Score, Description, Solution
 #
 # Genrate database
@@ -15,7 +14,7 @@
 # sudo /Library/Nessus/run/sbin/Nessusd -X
 # sudo mv /Library/Nessus/run/lib/nessus/plugins/plugins.xml ./
 # 
-# Usage: parse-nessus-master.py input.xml <output.csv
+# Usage: parse-nessus-master.py input.xml output.csv
 
 import codecs
 import cStringIO
@@ -52,6 +51,8 @@ class UnicodeWriter:
         for row in rows:
             self.writerow(row)
 
+################################################################
+
 def write_results(results_table, out_filename):
     print "\nWriting CSV data..."
     try:
@@ -63,21 +64,25 @@ def write_results(results_table, out_filename):
         print "Error writing CSV file. Check for permissions and/or path."
         exit()
 
+################################################################
+
 def max_field_len_excel(ggchild, row_number):
     field = ggchild[1].text
     if len(field) > 32767:
         fname = "row.{}.{}.txt".format(row_number, ggchild[0].text)
         try:
             with open(fname, "wb") as trunk_file:
-                trunk_file.write(field[32700:])
+                trunk_file.write(field[32000:])
         except IOError:
             print "Error writing remainder of the column data to file. Check for permissions and/or path."
             exit()
 
         print "Row {}, '{}' was truncated. The remainder can be found here: {}".format(row_number, ggchild[0].text, fname)
-        return field[:32700]+"[TRUNCATED file:{}]".format(fname)
+        return field[:32000]+"[TRUNCATED file:{}]".format(fname)
     else:
         return field
+
+################################################################
 
 def get_sum_from_xml(filename):
     print "\nParsing XML data. This takes about 90 sec...\n"
@@ -117,13 +122,15 @@ def get_sum_from_xml(filename):
 
     return results_table
 
+################################################################
+
 if __name__ == "__main__":
     if len(sys.argv) == 3:
         results = get_sum_from_xml(sys.argv[1])
         write_results(results, sys.argv[2])
         print "\nConverted {} rows to CSV format.\n\n".format(len(results))
     else:
-        print "\nUsage: python {} input.xml output.csv\n " \
-              "Any field longer then 32,700 is truncated and remainder is saved to a txt file.".format(sys.argv[0])
+        print "\nUsage: {} input.xml output.csv\n " \
+              "Any field longer then 32,000 is truncated.".format(sys.argv[0])
         exit()
 
