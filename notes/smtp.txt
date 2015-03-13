@@ -35,6 +35,11 @@ C: STARTTLS
 S: 220 Go ahead
 ------------------------------------------------------------------------------------------------------
 
+# Internal IPs
+
+When viewing test email, view the full headers and look for internal IPs and host names.
+------------------------------------------------------------------------------------------------------
+
 STARTTLS\r\nRSET\r\n
 
 And the server sent the following two responses:
@@ -84,4 +89,3 @@ else
      cat tmp | nc $1 $PORT 
      rm tmp
 fi
-

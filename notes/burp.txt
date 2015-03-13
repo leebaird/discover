@@ -29,6 +29,10 @@ Restart Firefox
 
 # Options
 
+Inruder > Options:
+     Grep - Match > Clear > Yes
+     Load: /usr/share/wfuzz/wordlist/fuzzdb/regex/errors.txt
+
 Options > Connections:
      Platform Authentication: check Prompt for credentials on platform authentication failure
 
@@ -51,7 +55,7 @@ Proxy > Options:
      Miscellaneous:
      Enable interception at startup: Always disable
 
-Scanner
+Scanner:
      Live scanning > Live Passive Scanning: Use suite scope
      Options:
           Active Scanning Engine > Number of retries on network failure: 1
@@ -60,6 +64,9 @@ Scanner
 
 Spider > Options:
      Form Submission > Scroll down to age > change to 34
+
+Target > Scope:
+     Exclude from scope > Add > File: (^.doc.*|^.docx.*|^.xls.*|^.xlsx.*|^.ppt.*|^.pptx.*|^.txt.*|^.pdf.*)
 ------------------------------------------------------------------------------------------------------
 
 # Scope
@@ -97,6 +104,28 @@ Clear
 Highlight the parameter you want to fuzz and click Add.
 Intruder > Payloads > Payload Options > Add from list: Fuzzing - full
 Start attack
+
+Bruteforcing Authentication
+     Try to login
+     Proxy > History
+     Find the POST request
+     Send to Intruder
+     Intruder > Payloads > Attack type: Cluster bomb
+     Clear $
+     Highlight the username you entered > Add $ 
+     Highlight the password you entered > Add $
+     Intruder > Payloads:
+          Payload Sets:
+               Payload set: 1
+               Payload type: Simple list
+          Payload Options:
+               Clear > Load: your username list
+          Payload Sets:
+               Payload set: 2
+               Payload type: Simple list
+          Payload Options:
+               Clear > Load: your password list
+          Start attack
 ------------------------------------------------------------------------------------------------------
 
 # Spider

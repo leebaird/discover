@@ -23,6 +23,7 @@ POST Passes all requested data in the HTTP request body.
 401  Unauthorized
 403  Forbidden
 404  Not Found
+408  Request Timeout
 
 5xx  Server Error
 500  Internal Server Error

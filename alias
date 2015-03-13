@@ -12,7 +12,7 @@ alias d='cd /root/Desktop/ ; clear'
 alias e='exit'
 alias i='echo ; echo ; echo "DNS      " $dns ; echo ; ifconfig ; ping google.com -c3 ; echo ; echo'
 alias l='ls -l'
-alias n='echo ; netstat -antup | egrep -v "(Active|p6)" ; echo ;
+alias n='echo ; netstat -antup | egrep -v "Active" ; echo ;
 echo -n "Interface:    "$interface ; echo ;
 echo -n "MAC address:  "$mac ; echo ;
 echo -n "Internal IP:  "$ip ; echo ;
