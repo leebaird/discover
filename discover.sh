@@ -1793,6 +1793,12 @@ if [ -e $name/161.txt ]; then
 	mv tmp4 $name/script-161.txt
 fi
 
+if [ -e $name/161.txt ]; then
+	echo "     SNMP - onesixtyone"
+     onesixtyone -c /usr/share/metasploit-framework/data/wordlists/snmp_default_pass.txt -i $name/161.txt -o tmp
+     onesixtyone -c /usr/share/metasploit-framework/data/wordlists/snmp_default_pass.txt -i $name/161.txt -o tmp2
+fi
+
 if [ -e $name/389.txt ]; then
 	echo "     LDAP"
 	nmap -iL $name/389.txt -Pn -n --open -p389 --script=ldap-rootdse --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
@@ -3226,6 +3232,7 @@ if(__name__ == "__main__"):
 EOF
 
      mv nmap.csv /$user/data/
+     rm nmap.xml
 
      echo
      echo $medium
