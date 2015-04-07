@@ -3012,9 +3012,6 @@ case $choice in
 
      mkdir /$user/data/nikto-$port
 
-# gnome-terminal --tab -e "some command"
-# xterm -e "some command"
-
      while read -r line; do
           xdotool key ctrl+shift+t
           xdotool type "nikto -h $line -port $port -Format htm --output /$user/data/nikto-$port/$line.htm ; exit"
@@ -3444,7 +3441,8 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The new reports are located at \e[1;33m%s\e[0m\n' /$user/data/
+printf 'The new reports are located at \e[1;33m%s\e[0m\n' /$user/data/sslscan.txt
+
 echo
 echo -n "If your IPs are public, do you want to test them using an external source? (y/N) "
 read extquery
