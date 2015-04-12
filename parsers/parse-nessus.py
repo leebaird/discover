@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-
+#
 # Original code from - https://github.com/Clete2/NessusReport, modded by Lee Baird
 # John Kim - additional modification completed to support UTF-8, support cli help, renaming output files
+# Thanks to Securicon, LLC. for sponsoring development
 
 import csv
 import datetime
@@ -149,7 +150,7 @@ if __name__ == "__main__":
         outFile.close()
 
     else:
-        print "USAGE: {} input.xml\n " \
-              "Any field longer then 32,000 is truncated.".format(sys.argv[0])
+        print "\nUsage: ./parse-nessus.py input.nessus"
+        print "Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0])
         exit()
 

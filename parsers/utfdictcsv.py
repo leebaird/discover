@@ -1,4 +1,7 @@
 #!/usr/bin/python
+#
+# by John Kim
+# Thanks to Securicon, LLC. for sponsoring development
 
 import csv
 import cStringIO

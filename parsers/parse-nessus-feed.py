@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
 # by John Kim
+# Thanks to Securicon, LLC. for sponsoring development
+#
 # Converts the Nessus plugin database into a CSV file with the following columns:
 #    Plugin, CVSS Base Score, Description, Solution
 #
@@ -13,8 +15,6 @@
 # OS X
 # sudo /Library/Nessus/run/sbin/Nessusd -X
 # sudo mv /Library/Nessus/run/lib/nessus/plugins/plugins.xml ./
-# 
-# Usage: parse-nessus-master.py input.xml output.csv
 
 import codecs
 import cStringIO
@@ -130,7 +130,7 @@ if __name__ == "__main__":
         write_results(results, sys.argv[2])
         print "\nConverted {} rows to CSV format.\n\n".format(len(results))
     else:
-        print "\nUsage: {} input.xml output.csv\n " \
-              "Any field longer then 32,000 is truncated.".format(sys.argv[0])
+        print "\nUsage: ./parse-nessus-feed.py input.xml output.csv"
+        print "Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0])
         exit()
 

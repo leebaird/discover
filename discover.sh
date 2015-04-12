@@ -10,15 +10,15 @@
 # Dave Klug - planning, testing and bug reports
 # Jay Townsend - conversion of discover.sh to Kali
 # Jason Arnold - planning original concept, author of ssl-check and co-author of crack-wifi
-# John Kim - Python guru and bug smasher
+# John Kim - Python guru, bug smasher and 
 # Eric Milam - total re-write using functions
 # Martin Bos - IDS evasion techniques
 # Matt Banick - original development
 # Numerous people on freenode IRC - #bash and #sed (e36freak)
 # Rob Dixon - report framework idea
 # Robert Clowser - all things
-# Royce Davis - parse-burp.rb
-# Saviour Emmanuel - convert nmap xlm to csv
+# Saviour Emmanuel - Nmap parser
+# Securicon, LLC. - for sponsoring development of parsers
 # Steve Copland - report framework design
 
 ##############################################################################################################
@@ -3056,10 +3056,10 @@ f_parse(){
 clear
 f_banner
 
-echo -e "\e[1;34mParse XML to CSV for use with /discover/misc/worksheet.xlsx.\e[0m"
+echo -e "\e[1;34mParse XML to CSV.\e[0m"
 echo
-echo "1.  Burp"
-echo "2.  Nessus"
+echo "1.  Burp (Base64)"
+echo "2.  Nessus (.nessus)"
 echo "3.  Nmap"
 echo "4.  Previous menu"
 echo
@@ -3069,7 +3069,15 @@ read choice
 case $choice in
      1)
      f_location
-     ./parse-burp.rb -i $location -o /$user/data/burp-`date +%H:%M:%S`.csv
+     parsers/parse-burp.py /root/Desktop/burp.xml
+
+     if [ ! -e burp.csv ]; then
+          echo
+          echo
+          exit
+     fi
+
+     mv burp.csv /$user/data/nessus-`date +%H:%M:%S`.csv
 
      echo
      echo $medium
@@ -3082,7 +3090,7 @@ case $choice in
 
      2)
      f_location
-     ./parse-nessus.py $location
+     parsers/parse-nessus.py $location
 
      egrep -v "(Adobe Acrobat Detection|Adobe Extension Manager Installed|Adobe Flash Player for Mac Installed|Adobe Flash Professional Detection|Adobe Illustrator Detection|Adobe Photoshop Detection|Adobe Reader Detection|Adobe Reader Installed \(Mac OS X\)|ADSI Settings|AJP Connector Detection|AirWatch API Settings|Antivirus Software Check|Apache Axis2 Detection|Apple Profile Manager API Settings|AppSocket & socketAPI Printers - Do Not Scan|Appweb HTTP Server Version|ASG-Sentry SNMP Agent Detection|Autodesk AutoCAD Detection|Backported Security Patch Detection \(FTP\)|Backported Security Patch Detection \(SSH\)|Authenticated Check: OS Name and Installed Package Enumeration|Backported Security Patch Detection \(WWW\)|BIOS Version Information \(via SMB\)|BIOS Version \(WMI\)|Blackboard Learn Detection|Broken Web Servers|CA Message Queuing Service Detection|CDE Subprocess Control Service \(dtspcd\) Detection|Check Point FireWall-1 ICA Service Detection|Check Point SecuRemote Hostname Information Disclosure|Cisco AnyConnect Secure Mobility Client Detection|Cleartext protocols settings|Common Platform Enumeration \(CPE\)|Computer Manufacturer Information \(WMI\)|CORBA IIOP Listener Detection|Database settings|DCE Services Enumeration|Dell OpenManage Web Server Detection|Derby Network Server Detection|Detect RPC over TCP|Device Hostname|Device Type|DNS Sender Policy Framework \(SPF\) Enabled|DNS Server DNSSEC Aware Resolver|DNS Server Fingerprinting|DNS Server Version Detection|Do not scan fragile devices|EMC SMARTS Application Server Detection|Erlang Port Mapper Daemon Detection|Ethernet Card Manufacturer Detection|External URLs|FileZilla Client Installed|iceweasel Installed \(Mac OS X\)|Firewall Rule Enumeration|Flash Player Detection|FTP Server Detection|Global variable settings|Good MDM Settings|Google Chrome Detection \(Windows\)|Google Chrome Installed \(Mac OS X\)|Google Picasa Detection \(Windows\)|Host Fully Qualified Domain Name \(FQDN\) Resolution|HMAP Web Server Fingerprinting|Hosts File Whitelisted Entries|HP OpenView BBC Service Detection|HTTP cookies import|HTTP Cookie 'secure' Property Transport Mismatch|HTTP login page|HTTP Methods Allowed \(per directory\)|HTTP Reverse Proxy Detection|HTTP Server Cookies Set|HTTP Server Type and Version|HTTP X-Frame-Options Response Header Usage|HyperText Transfer Protocol \(HTTP\) Information|IBM Domino Detection \(uncredentialed check\)|IBM Domino Installed|IBM GSKit Installed|IBM iSeries Credentials|IBM Lotus Notes Detection|IBM Notes Client Detection|IBM Tivoli Endpoint Manager Client Detection|IBM Tivoli Endpoint Manager Web Server Detection|IBM Tivoli Storage Manager Client Installed|IBM WebSphere Application Server Detection|IMAP Service Banner Retrieval|IMAP Service STARTTLS Command Support|IP Protocols Scan|It was possible to identify the remote service by its banner or by looking at the error message it sends when it receives an HTTP request.|iTunes Version Detection \(credentialed check\)|Kerberos configuration|Kerberos Information Disclosure|L2TP Network Server Detection|LDAP Server Detection|LibreOffice Detection|Login configurations|Lotus Sametime Detection|MacOSX Cisco AnyConnect Secure Mobility Client Detection|McAfee Common Management Agent Detection|McAfee Common Management Agent Installation Detection|McAfee ePolicy Orchestrator Application Server Detection|MediaWiki Detection|Microsoft Exchange Installed|Microsoft Internet Explorer Enhanced Security Configuration Detection|Microsoft Internet Explorer Version Detection|Microsoft Lync Server Installed|Microsoft Malicious Software Removal Tool Installed|Microsoft .NET Framework Detection|Microsoft .NET Handlers Enumeration|Microsoft Office Detection|Microsoft OneNote Detection|Microsoft Patch Bulletin Feasibility Check|Microsoft Revoked Digital Certificates Enumeration|Microsoft Silverlight Detection|Microsoft Silverlight Installed \(Mac OS X\)|Microsoft SQL Server STARTTLS Support|Microsoft SMS\/SCCM Installed|Microsoft System Center Configuration Manager Client Installed|Microsoft System Center Operations Manager Component Installed|Microsoft Update Installed|Microsoft Windows AutoRuns Boot Execute|Microsoft Windows AutoRuns Codecs|Microsoft Windows AutoRuns Explorer|Microsoft Windows AutoRuns Internet Explorer|Microsoft Windows AutoRuns Known DLLs|Microsoft Windows AutoRuns Logon|Microsoft Windows AutoRuns LSA Providers|Microsoft Windows AutoRuns Network Providers|Microsoft Windows AutoRuns Print Monitor|Microsoft Windows AutoRuns Registry Hijack Possible Locations|Microsoft Windows AutoRuns Report|Microsoft Windows AutoRuns Scheduled Tasks|Microsoft Windows AutoRuns Services and Drivers|Microsoft Windows AutoRuns Unique Entries|Microsoft Windows AutoRuns Winlogon|Microsoft Windows AutoRuns Winsock Provider|Microsoft Windows 'CWDIllegalInDllSearch' Registry Setting|Microsoft Windows Installed Hotfixes|Microsoft Windows NTLMSSP Authentication Request Remote Network Name Disclosure|Microsoft Windows Process Module Information|Microsoft Windows Process Unique Process Name|Microsoft Windows Remote Listeners Enumeration \(WMI\)|Microsoft Windows SMB Log In Possible|Microsoft Windows SMB LsaQueryInformationPolicy Function NULL Session Domain SID Enumeration|Microsoft Windows SMB NativeLanManager Remote System Information Disclosure|Microsoft Windows SMB Registry : Enumerate the list of SNMP communities|Microsoft Windows SMB Registry : Nessus Cannot Access the Windows Registry|Microsoft Windows SMB Registry : OS Version and Processor Architecture|Microsoft Windows SMB Registry : Remote PDC\/BDC Detection|Microsoft Windows SMB Registry : Vista \/ Server 2008 Service Pack Detection|Microsoft Windows SMB Registry : XP Service Pack Detection|Microsoft Windows SMB Registry Remotely Accessible|Microsoft Windows SMB Registry : Win 7 \/ Server 2008 R2 Service Pack Detection|Microsoft Windows SMB Registry : Windows 2000 Service Pack Detection|Microsoft Windows SMB Registry : Windows 2003 Server Service Pack Detection|Microsoft Windows SMB Service Detection|Microsoft Windows Update Installed|MobileIron API Settings|MSRPC Service Detection|Modem Enumeration \(WMI\)|MongoDB Settings|Mozilla Foundation Application Detection|MySQL Server Detection|Nessus Internal: Put cgibin in the KB|Nessus Scan Information|Nessus SNMP Scanner|NetBIOS Multiple IP Address Enumeration|Netstat Active Connections|Netstat Connection Information|netstat portscanner \(SSH\)|Netstat Portscanner \(WMI\)|Network Interfaces Enumeration \(WMI\)|Network Time Protocol \(NTP\) Server Detection|Nmap \(XML file importer\)|OpenSSL Detection|OpenSSL Version Detection|Oracle Application Express \(Apex\) Detection|Oracle Application Express \(Apex\) Version Detection|Oracle Java Runtime Environment \(JRE\) Detection \(Unix\)|Oracle Java Runtime Environment \(JRE\) Detection|Oracle Installed Software Enumeration \(Windows\)|Oracle Settings|OS Identification|Palo Alto Networks PAN-OS Settings|Patch Management: Dell KACE K1000 Settings|Patch Management: IBM Tivoli Endpoint Manager Server Settings|Patch Management: Patch Schedule From Red Hat Satellite Server|Patch Management: Red Hat Satellite Server Get Installed Packages|Patch Management: Red Hat Satellite Server Get Managed Servers|Patch Management: Red Hat Satellite Server Get System Information|Patch Management: Red Hat Satellite Server Settings|Patch Management: SCCM Server Settings|Patch Management: Symantec Altiris Settings|Patch Management: VMware Go Server Settings|Patch Management: WSUS Server Settings|PCI DSS compliance : options settings|PHP Version|Ping the remote host|POP3 Service STLS Command Support|Port scanner dependency|Port scanners settings|Post-Scan Rules Application|Post-Scan Status|Protected Web Page Detection|RADIUS Server Detection|RDP Screenshot|RealPlayer Detection|Record Route|Remote listeners enumeration \(Linux \/ AIX\)|Remote web server screenshot|Reputation of Windows Executables: Known Process\(es\)|Reputation of Windows Executables: Unknown Process\(es\)|RHEV Settings|RIP Detection|RMI Registry Detection|RPC portmapper \(TCP\)|RPC portmapper Service Detection|RPC Services Enumeration|Salesforce.com Settings|Samba Server Detection|SAP Dynamic Information and Action Gateway Detection|Service Detection \(GET request\)|Service Detection \(HELP Request\)|slident \/ fake identd Detection|Service Detection \(2nd Pass\)|Service Detection: 3 ASCII Digit Code Responses|SMB : Disable the C$ and ADMIN$ shares after the scan (WMI)|SMB : Enable the C$ and ADMIN$ shares during the scan \(WMI\)|SMB Registry : Start the Registry Service during the scan|SMB Registry : Start the Registry Service during the scan \(WMI\)|SMB Registry : Starting the Registry Service during the scan failed|SMB Registry : Stop the Registry Service after the scan|SMB Registry : Stop the Registry Service after the scan \(WMI\)|SMB Registry : Stopping the Registry Service after the scan failed|SMB QuickFixEngineering \(QFE\) Enumeration|SMB Scope|SMTP Server Connection Check|SMTP settings|smtpscan SMTP Fingerprinting|Snagit Installed|SNMP settings|SNMP Supported Protocols Detection|SNMPc Management Server Detection|SolarWinds TFTP Server Installed|Spybot Search & Destroy Detection|SquirrelMail Detection|SSH Algorithms and Languages Supported|SSH Protocol Versions Supported|SSH Server Type and Version Information|SSH settings|SSL \/ TLS Versions Supported|SSL Certificate Information|SSL Cipher Block Chaining Cipher Suites Supported|SSL Cipher Suites Supported|SSL Compression Methods Supported|SSL Perfect Forward Secrecy Cipher Suites Supported|SSL Service Requests Client Certificate|SSL Session Resume Supported|Subversion Client/Server Detection \(Windows\)|Symantec Backup Exec Server \/ System Recovery Installed|Symantec Encryption Desktop Installed|Symantec Endpoint Protection Manager Installed \(credentialed check\)|Symantec Veritas Enterprise Administrator Service \(vxsvc\) Detection|TCP\/IP Timestamps Supported|TeamViewer Version Detection|Tenable Appliance Check \(deprecated\)|Terminal Services Use SSL\/TLS|Thunderbird Installed \(Mac OS X\)|Time of Last System Startup|Traceroute Information|Unknown Service Detection: Banner Retrieval|UPnP Client Detection|VERITAS Backup Agent Detection|VERITAS NetBackup Agent Detection|Viscosity VPN Client Detection \(Mac OS X\)|VMware vCenter Detect|VMware vCenter Orchestrator Installed|VMware ESX\/GSX Server detection|VMware SOAP API Settings|VMware vCenter SOAP API Settings|VMware Virtual Machine Detection|VMware vSphere Client Installed|VMware vSphere Detect|VNC Server Security Type Detection|VNC Server Unencrypted Communication Detection|vsftpd Detection|Wake-on-LAN|Web Application Tests Settings|Web mirroring|Web Server Directory Enumeration|Web Server Harvested Email Addresses|Web Server No 404 Error Code Check|Web Server UDDI Detection|Window Process Information|Window Process Module Information|Window Process Unique Process Name|Windows Compliance Checks|Windows ComputerSystemProduct Enumeration \(WMI\)|Windows Display Driver Enumeration|Windows DNS Server Enumeration|Windows Management Instrumentation \(WMI\) Available|Windows NetBIOS \/ SMB Remote Host Information Disclosure|Windows Prefetch Folder|Windows Product Key Retrieval|WinSCP Installed|Wireless Access Point Detection|Wireshark \/ Ethereal Detection \(Windows\)|WinZip Installed|WMI Anti-spyware Enumeration|WMI Antivirus Enumeration|WMI Bluetooth Network Adapter Enumeration|WMI Encryptable Volume Enumeration|WMI Firewall Enumeration|WMI QuickFixEngineering \(QFE\) Enumeration|WMI Server Feature Enumeration|WMI Trusted Platform Module Enumeration|Yosemite Backup Service Driver Detection|ZENworks Remote Management Agent Detection)" nessus.csv > tmp.csv
 
@@ -3105,131 +3113,10 @@ cat tmp2.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack 1/SP1/g; s/Service Pac
      3)
      f_location
      cp $location ./nmap.xml
+     parsers/parse-nmap.py
 
-python << 'EOF'
-# Author: Saviour Emmanuel
-
-from xml.dom import minidom
-
-class NMAP_XMLParser(object):
-    def __init__(self,file_path):
-        self._xml_object = object()
-        self._xml_path = file_path
-        self._output_path = str()
-        self._csv_string = str()
-        self._open_xml()
-
-    def _open_xml(self):
-        '''Open the XML file on class construction'''
-        self._xml_object = minidom.parse(self._xml_path)
-
-    def setCSVPath(self,output_path):
-        '''Set the path to dump the CSV file'''
-        if not output_path.lower().endswith(".csv"):
-            output_path = output_path + ".csv"
-        self._output_path = output_path
-
-    def _iter_hosts(self):
-        '''Fetch the <host> tags from the XML file'''
-        hosts_nodes = self._xml_object.getElementsByTagName("host")
-        for host_node in hosts_nodes:
-            yield(host_node)
-
-    def _get_IP_Address(self,info):
-        '''Fetch the IP address from the XML object'''
-        ip_address = str()
-        info_detail = info.getElementsByTagName("address")
-        for address in info_detail:
-            if(address.getAttribute("addrtype") == "ipv4"):
-                ip_address = address.getAttribute("addr")
-                break
-
-        return(ip_address)
-
-    def _get_FQDN(self,info):
-        '''Get the FQDN aka domain/hostname'''
-        fqdn = str()
-        info_detail = info.getElementsByTagName("hostname")
-        for hostname in info_detail:
-            if(hostname.getAttribute("name")):              # thanks to Kevin
-                fqdn = hostname.getAttribute("name")        # for the bug fix
-                break
-
-        return(fqdn)
-
-    def _get_OS(self,info):
-        '''Determine the OS by the greatest percentage in accuracy'''
-        os = str()
-        os_hash = dict()
-        percentage = list()
-
-        info_detail = info.getElementsByTagName("osmatch")
-
-        for os_detail in info_detail:
-            guessed_os = os_detail.getAttribute("name")
-            accuracy = os_detail.getAttribute("accuracy")
-            if(guessed_os and accuracy):
-                os_hash[float(accuracy)] = guessed_os
-
-        percentages = os_hash.keys()
-        if(percentages):
-            max_percent = max(percentages)
-            os = os_hash[max_percent]
-
-        return(os)
-
-    def _get_iter_Port_Information(self,info):
-        '''Fetch port and service information'''
-        info_detail = info.getElementsByTagName("port")
-        for port_details in info_detail:
-            protocol = port_details.getAttribute("protocol")
-            port_number = port_details.getAttribute("portid")
-
-            port_service = port_details.getElementsByTagName("state")
-            for port_services in port_service:
-                port_state = port_services.getAttribute("state")
-
-                if(port_state == "open"):
-
-                    service_info = port_details.getElementsByTagName("service")
-                    for service_details in service_info:
-                        service = service_details.getAttribute("name")
-                        product = service_details.getAttribute("product")
-                        version = service_details.getAttribute("version")
-
-                        yield(port_number,protocol,service,product,version)
-
-    def _parse_XML_details(self):
-        '''Initiate parsing of nmap XML file and create CSV string object'''
-        csv_header = "IP Address,FQDN,OS,Port,Protocol,Service,Name,Version\n"
-        csv_format = '{0},"{1}","{2}",{3},{4},"{5}","{6}","{7}"\n'
-
-        self._csv_string += csv_header
-
-        for info in self._iter_hosts():
-            ip =  self._get_IP_Address(info)
-            fqdn = self._get_FQDN(info)
-            os = self._get_OS(info)
-
-            for port,protocol,service,product,version in self._get_iter_Port_Information(info):
-                self._csv_string += csv_format.format(ip,fqdn,os,port,protocol,service,product,version)
-
-    def dumpCSV(self):
-        '''Write CSV output file to disk'''
-        self._parse_XML_details()
-
-        csv_output = open(self._output_path,"w")
-        csv_output.write(self._csv_string)
-        csv_output.close()
-
-if(__name__ == "__main__"):
-    nmap_xml = NMAP_XMLParser("nmap.xml")          # Input file
-    nmap_xml.setCSVPath("nmap.csv")                # Output file
-    nmap_xml.dumpCSV()
-EOF
-
-     mv nmap.csv /$user/data/
-     rm nmap.xml
+     mv parsers/nmap.csv /$user/data/
+     rm parsers/nmap.xml
 
      echo
      echo $medium
