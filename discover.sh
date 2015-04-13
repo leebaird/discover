@@ -3069,7 +3069,7 @@ read choice
 case $choice in
      1)
      f_location
-     parsers/parse-burp.py /root/Desktop/burp.xml
+     parsers/parse-burp.py $location
 
      if [ ! -e burp.csv ]; then
           echo
