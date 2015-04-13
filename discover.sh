@@ -10,7 +10,7 @@
 # Dave Klug - planning, testing and bug reports
 # Jay Townsend - conversion of discover.sh to Kali
 # Jason Arnold - planning original concept, author of ssl-check and co-author of crack-wifi
-# John Kim - Python guru, bug smasher and 
+# John Kim - Python guru, bug smasher and parsers
 # Eric Milam - total re-write using functions
 # Martin Bos - IDS evasion techniques
 # Matt Banick - original development
