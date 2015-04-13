@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# By Lee Baird
-# Feel free to contact me via chat or email with any feedback or suggestions that you may have:
+# by Lee Baird
+# Contact me via chat or email with any feedback or suggestions that you may have:
 # leebaird@gmail.com
 #
 # Special thanks to the following people:
@@ -3071,13 +3071,7 @@ case $choice in
      f_location
      parsers/parse-burp.py $location
 
-     if [ ! -e burp.csv ]; then
-          echo
-          echo
-          exit
-     fi
-
-     mv burp.csv /$user/data/nessus-`date +%H:%M:%S`.csv
+     mv /root/Desktop/burp*.csv /$user/data/burp-`date +%H:%M:%S`.csv
 
      echo
      echo $medium

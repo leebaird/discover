@@ -14,6 +14,7 @@ import datetime
 import sys
 import time
 
+################################################################
 
 # Non-standard libraries
 try:
@@ -32,9 +33,10 @@ except:
 try:
     import utfdictcsv
 except:
-    print "Missing dict to csv converter custom lib. utfdictcsv.py should be in the same path as this file."
+    print "Missing dict to csv converter custom library. utfdictcsv.py should be in the same path as this script."
     exit()
 
+################################################################
 
 CUSTOM_HEADERS = {'host': 'URL',
                   'path': 'PATH',
@@ -90,10 +92,8 @@ def report_writer(report_dic, filename_prefix):
     with open(output_filename, "wb") as outFile:
 
         csvWriter = utfdictcsv.DictUnicodeWriter(outFile, REPORT_HEADERS, quoting=csv.QUOTE_ALL)
-        # csvWriter.writeheader()
         csvWriter.writerow(CUSTOM_HEADERS)
         csvWriter.writerows(report_dic)
-#    print "Successfully parsed, report is located at {}.".format(filename_prefix, output_filename)
     print "Successfully parsed."
 
 def issue_row(raw_row):
@@ -141,7 +141,7 @@ if __name__ == "__main__":
             try:
                 burp_parser(xml_file)
             except:
-                print "[*] Error processing file."
+                print "[*] Error processing file.\n"
     else:
         print "\nUsage: ./parse-burp.py Base64_input.xml"
         print "Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0])
