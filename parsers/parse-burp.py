@@ -86,7 +86,7 @@ def htmltext(blob):
 
 
 def report_writer(report_dic, filename_prefix):
-#    output_filename = "{}-{}.csv".format(filename_prefix, datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S'))
+    output_filename = "{}-{}.csv".format(filename_prefix, datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S'))
     with open(output_filename, "wb") as outFile:
 
         csvWriter = utfdictcsv.DictUnicodeWriter(outFile, REPORT_HEADERS, quoting=csv.QUOTE_ALL)
