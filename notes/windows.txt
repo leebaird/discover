@@ -127,19 +127,20 @@ tasklist /m
 tasklist /svc
 tasklist /v
 
-dir c:\*.doc /s
-dir c:\*.jpg /s
-dir c:\*.pdf /s
-dir c:\*.ppt /s
-dir c:\*.url /s
-dir c:\*.xls /s
+dir c:\*.xls /s				         # Show all Excel docs.
+dir c:\*.xlsx /s			              # Show all Excel docs.
+dir c:\*.ppt /s				         # Show all PowerPoint docs.
+dir c:\*.pptx /s			              # Show all PowerPoint docs.
+dir c:\*.doc /s				         # Show all Word docs.
+dir c:\*.docx /s			              # Show all Word docs.
+dir c:\*.pdf /s				         # Show all PDFs.
 ------------------------------------------------------------------------------------------------------
 
 # Firewall
 
 netsh firewall show config
 netsh firewall add portopening TCP 8081 ePO
-netsh firewall set opmode disable                  Disable firewall.
+netsh firewall set opmode disable           # Disable firewall.
 
 firewall show state
 netsh firewall set opmode disable

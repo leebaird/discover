@@ -101,8 +101,12 @@ dhclient                           Request an IP address from the DHCP server
 route                              Gateway
 /etc/hostname                      Hostname
 /etc/network/interfaces            Network interfaces
-/etc/resolv.conf                   DNS nameservers
 /var/lib/dhcp/dhclient.leases      DHCP
+
+/etc/resolv.conf                   DNS
+domain localdomain 
+search localdomain 
+nameserver 8.8.8.8
 
 ifconfig                           IP address
 ifconfig eth0 down                 Stop interface
@@ -110,9 +114,6 @@ ifconfig eth0 up                   Start interface
 ifconfig eth0 <IP>                 Set IP address
 ifconfig eth0 <IP> netmask <IP>    Set IP and netmask
 route add default gw <IP>          Set gateway
-nano /etc/resolv.conf <DNS IP>
-domain localdomain
-search localdomain
 
 /etc/network/interfaces            Set a static IP address
 iface eth0 inet static
@@ -121,7 +122,8 @@ netmask 255.255.255.0
 network 192.168.2.0
 broadcast 192.168.2.255
 gateway 192.168.2.1
-/etc/init.d/networking restart
+
+/etc/init.d/networking restart     Restart networking
 ------------------------------------------------------------------------------------------------------
 
 # Processes
