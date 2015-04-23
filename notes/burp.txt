@@ -153,4 +153,22 @@ XSS > RC in the Request body > Request in browser > In current browser session
 # Reporting
 
 Select all remaining findings > RC > Report selected issues > Next 4x > enter file location > Next > Close
+------------------------------------------------------------------------------------------------------
 
+# Quick Start
+
+Look for target.com/sitemap.
+How down the Command key and click on every link.
+Review each tab for input fields.
+Close all other tabs.
+Site map > select target.com > right click > (spider)
+(goto Spider, watch the requests being made.)
+When the Requests and Forms queued are both zero, click Spider is running
+Sit map > select the URL > right click > Expand branch
+Scroll to the very bottom.
+Any folders that are greyed out > right click > Delete branch
+Any links that are grey or red > right click > Copy URL > paste into Firefox
+
+Select target.com > right click > Actively scan this host
+Select all possible check boxes > Next > OK
+Scanner > Scan queue

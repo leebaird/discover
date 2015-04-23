@@ -255,6 +255,20 @@ Remove the last two lines egarding eth0.
 Reboot
 ------------------------------------------------------------------------------------------------------
 
+# X11
+
+nano /etc/ssh/ssh_config
+Uncomment ForwardX11, change to yes
+Uncomment ForwardX11Trusted
+
+service ssh restart
+exit
+
+ssh -X root@<targetIP>
+echo $DISPLAY
+You should see: localhost:10.0
+------------------------------------------------------------------------------------------------------
+
 # Amazon EC2 (in the process of being updated)
 
 m1.xlarge
