@@ -5,7 +5,7 @@ SNMP
 
 onesixtyone -c <password list> -i <target list>
 
-snmpcheck.pl -t <target IP> <private/public>
+snmpcheck -t <target IP> <private/public>
 ------------------------------------------------------------------------------------------------------
 
 # Read-only Community String of 'public'
