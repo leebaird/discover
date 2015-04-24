@@ -3128,7 +3128,7 @@ esac
 
 ##############################################################################################################
 
-f_sslcheck(){
+f_ssl(){
 clear
 f_banner
 
@@ -3141,6 +3141,9 @@ f_location
 
 echo
 echo $medium
+echo
+echo "Running sslyze."
+sslyze --targets_in=$location --resum --certinfo=basic --compression --reneg --sslv2 --sslv3 —hide_rejected_ciphers > /$user/data/sslyze.txt
 echo
 echo "Running sslscan."
 echo
@@ -3569,7 +3572,7 @@ case $choice in
      7) f_single;;
      8) f_multitabs;;
      9) f_nikto;;
-     10) f_sslcheck;;
+     10) f_ssl;;
      11) f_runlocally && /opt/discover/crack-wifi.sh;;
      12) f_parse;;
      13) f_listener;;
