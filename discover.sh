@@ -3143,11 +3143,11 @@ echo
 echo $medium
 echo
 echo "Running sslyze."
-sslyze --targets_in=$location --resum --certinfo=basic --compression --reneg --sslv2 --sslv3 —hide_rejected_ciphers > /$user/data/sslyze.txt
+sslyze --targets_in=$location --resum --certinfo=basic --compression --reneg --sslv2 --sslv3 --hide_rejected_ciphers > /$user/data/sslyze.txt
 echo
 echo "Running sslscan."
 echo
-
+exit
 START=$(date +%r\ %Z)
 
 echo > tmp
