@@ -3147,7 +3147,7 @@ sslyze --targets_in=$location --resum --certinfo=basic --compression --reneg --s
 echo
 echo "Running sslscan."
 echo
-exit
+
 START=$(date +%r\ %Z)
 
 echo > tmp
