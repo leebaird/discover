@@ -51,7 +51,7 @@ Install the GRUB boot loader on a hard disk > Continue
 # Remove screen lock
 
 root (upper right corner) > System Settings > Brightness & Lock
-Uncheck: Dim screen to save power
+Turn screen off when inactive for: 1 hour
 Lock: Off
 ------------------------------------------------------------------------------------------------------
 
