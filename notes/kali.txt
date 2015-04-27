@@ -185,9 +185,9 @@ If you do not want this service to run at startup:  update-rc.d -f nexposeconsol
 # Install VMware Tools (if needed)
 
 VMware > Virtual Machine > Install VMware Tools > Install
-cp /media/VMware\ Tools/VMwareTools-<version>.tar.gz /root/
+cp /media/cdrom/VMwareTools-<version>.tar.gz /root/
 cd /root/
-tar zxpf VMwareTools-<version>.tar.gz 
+tar zxvf VMwareTools-<version>.tar.gz 
 cd vmware-tools-distrib/
 ./vmware-install.pl 
 Accept all the defaults.
