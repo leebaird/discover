@@ -218,6 +218,7 @@ update-rc.d postgresql enable                    Enable postgreSQL to start at b
 update-rc.d metasploit enable                    Enable Metasploit to start at boot time
 
 service ssh start                                Start ssh
+/etc/ssh/sshd_config                             Config file
 netstat -antp | grep ssh                         Verify the service is running
 update-rc.d ssh enable                           Enable ssh to start at boot time
 update-rc.d ssh disable                          Disable ssh from starting at boot time
