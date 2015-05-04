@@ -112,7 +112,6 @@ if __name__ == "__main__":
             nessusParser = NessusParser()
 
             for fileName in sys.argv[1:]:
-                print fileName
                 nessusParser.loadXML(fileName)
                 hostReports = []
 
@@ -147,6 +146,7 @@ if __name__ == "__main__":
 
                         hostReports.append(reportItemDict)
                 csvWriter.writerows(hostReports)
+                print "Successfully parsed %s." % fileName
         outFile.close()
 
     else:

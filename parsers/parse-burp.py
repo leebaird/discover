@@ -90,11 +90,11 @@ def htmltext(blob):
 def report_writer(report_dic, filename_prefix):
     output_filename = "{}-{}.csv".format(filename_prefix, datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S'))
     with open(output_filename, "wb") as outFile:
-
         csvWriter = utfdictcsv.DictUnicodeWriter(outFile, REPORT_HEADERS, quoting=csv.QUOTE_ALL)
         csvWriter.writerow(CUSTOM_HEADERS)
         csvWriter.writerows(report_dic)
     print "Successfully parsed."
+
 
 def issue_row(raw_row):
     issue_row = {}
@@ -135,8 +135,10 @@ def burp_parser(burp_xml_file):
 ################################################################
 
 if __name__ == "__main__":
+
     if len(sys.argv) > 1:
         burp_files = sys.argv[1:]
+
         for xml_file in burp_files:
             try:
                 burp_parser(xml_file)
