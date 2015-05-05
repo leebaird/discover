@@ -104,7 +104,6 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 1:
         header = ['CVSS Score','IP','FQDN','OS','Port','Vulnerability','Description','Proof','Solution','See Also','CVE']
-
         with open("nessus.csv", "wb") as outFile:
             csvWriter = utfdictcsv.DictUnicodeWriter(outFile, header, quoting=csv.QUOTE_ALL)
             csvWriter.writeheader()
@@ -112,41 +111,45 @@ if __name__ == "__main__":
             nessusParser = NessusParser()
 
             for fileName in sys.argv[1:]:
-                nessusParser.loadXML(fileName)
-                hostReports = []
+                try:
+#                    print fileName
+                    nessusParser.loadXML(fileName)
+                    hostReports = []
 
-                hosts = nessusParser.getHosts()
+                    hosts = nessusParser.getHosts()
 
-                for host in hosts:
-                    # Get properties for this host
-                    hostProperties = nessusParser.getHostProperties(host)
+                    for host in hosts:
+                        # Get properties for this host
+                        hostProperties = nessusParser.getHostProperties(host)
 
-                    # Get all findings for this host
-                    reportItems = nessusParser.getReportItems(host)
+                        # Get all findings for this host
+                        reportItems = nessusParser.getReportItems(host)
 
-                    for reportItem in reportItems:
-                        reportItemDict = {}
+                        for reportItem in reportItems:
+                            reportItemDict = {}
 
-                        # Get the metadata and details for this report item
-                        reportItemProperties = nessusParser.getReportItemProperties(reportItem)
-                        reportItemDetails = nessusParser.getReportItemDetails(reportItem)
+                            # Get the metadata and details for this report item
+                            reportItemProperties = nessusParser.getReportItemProperties(reportItem)
+                            reportItemDetails = nessusParser.getReportItemDetails(reportItem)
 
-                        # Create dictionary for line
-                        transformIfAvailable(reportItemDetails, "cvss_base_score", reportItemDict, header[0])
-                        transformIfAvailable(hostProperties, "host-ip", reportItemDict, header[1])
-                        transformIfAvailable(hostProperties, "netbios-name", reportItemDict, header[2])
-                        transformIfAvailable(hostProperties, "operating-system", reportItemDict, header[3])
-                        transformIfAvailable(reportItemProperties, "port", reportItemDict, header[4])
-                        transformIfAvailable(reportItemProperties, "pluginName", reportItemDict, header[5])
-                        transformIfAvailable(reportItemDetails, "description", reportItemDict, header[6])
-                        transformIfAvailable(reportItemDetails, "plugin_output", reportItemDict, header[7])
-                        transformIfAvailable(reportItemDetails, "solution", reportItemDict, header[8])
-                        transformIfAvailable(reportItemDetails, "see_also", reportItemDict, header[9])
-                        transformIfAvailable(reportItemDetails, "cve", reportItemDict, header[10])
+                            # Create dictionary for line
+                            transformIfAvailable(reportItemDetails, "cvss_base_score", reportItemDict, header[0])
+                            transformIfAvailable(hostProperties, "host-ip", reportItemDict, header[1])
+                            transformIfAvailable(hostProperties, "netbios-name", reportItemDict, header[2])
+                            transformIfAvailable(hostProperties, "operating-system", reportItemDict, header[3])
+                            transformIfAvailable(reportItemProperties, "port", reportItemDict, header[4])
+                            transformIfAvailable(reportItemProperties, "pluginName", reportItemDict, header[5])
+                            transformIfAvailable(reportItemDetails, "description", reportItemDict, header[6])
+                            transformIfAvailable(reportItemDetails, "plugin_output", reportItemDict, header[7])
+                            transformIfAvailable(reportItemDetails, "solution", reportItemDict, header[8])
+                            transformIfAvailable(reportItemDetails, "see_also", reportItemDict, header[9])
+                            transformIfAvailable(reportItemDetails, "cve", reportItemDict, header[10])
 
-                        hostReports.append(reportItemDict)
-                csvWriter.writerows(hostReports)
-                print "Successfully parsed %s." % fileName
+                            hostReports.append(reportItemDict)
+                    csvWriter.writerows(hostReports)
+                except:
+                    print "[!] Error processing {}".format(fileName)
+                    pass
         outFile.close()
 
     else:
