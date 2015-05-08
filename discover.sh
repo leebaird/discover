@@ -3140,14 +3140,13 @@ cat tmp2.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack 1/SP1/g; s/Service Pac
      ;;
 
      5)
-     echo
-     echo "Coming soon..."
-     echo
-     echo
-     exit
-
      f_location
-     parsers/parse-burp.py $location
+
+     echo
+     echo "[!} This will take about 2.5 mins, be patient."
+     echo
+
+     parsers/parse-qualys.py $location
 
      mv qualys.csv /$user/data/qualys-`date +%H:%M:%S`.csv
 
