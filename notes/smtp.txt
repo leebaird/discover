@@ -4,11 +4,7 @@ SMTP
 # SMTP relay, EXPN/VRFY command enabled
 
 telnet <target IP> 25
-
-EXPN root
-VRFY root
 helo root
-
 mail from: root@target.com
 rcpt to: jsmith@gmail.com
 DATA
@@ -89,3 +85,4 @@ else
      cat tmp | nc $1 $PORT 
      rm tmp
 fi
+

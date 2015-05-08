@@ -112,7 +112,6 @@ if __name__ == "__main__":
 
             for fileName in sys.argv[1:]:
                 try:
-#                    print fileName
                     nessusParser.loadXML(fileName)
                     hostReports = []
 
@@ -151,7 +150,6 @@ if __name__ == "__main__":
                     print "[!] Error processing {}".format(fileName)
                     pass
         outFile.close()
-
     else:
         print "\nUsage: ./parse-nessus.py input.nessus"
         print "Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0])

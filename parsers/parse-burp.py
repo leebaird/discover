@@ -19,20 +19,20 @@ import time
 # Non-standard libraries
 try:
     from lxml import etree
-except:
+except ImportError:
     print "Missing lxml library. Please install using PIP. https://pypi.python.org/pypi/lxml/3.4.2"
     exit()
 
 try:
     import html2text
-except:
+except ImportError:
     print "Missing html2text library. Please install using PIP. https://pypi.python.org/pypi/html2text/2015.2.18"
     exit()
 
 # Custom libraries
 try:
     import utfdictcsv
-except:
+except ImportError:
     print "Missing dict to csv converter custom library. utfdictcsv.py should be in the same path as this script."
     exit()
 
@@ -87,14 +87,14 @@ def htmltext(blob):
     return h.handle(blob)
 
 
-def report_writer(report_dic, filename_prefix):
-    output_filename = "{}-{}.csv".format(filename_prefix, datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S'))
+def report_writer(report_dic, output_filename):
     with open(output_filename, "wb") as outFile:
         csvWriter = utfdictcsv.DictUnicodeWriter(outFile, REPORT_HEADERS, quoting=csv.QUOTE_ALL)
         csvWriter.writerow(CUSTOM_HEADERS)
         csvWriter.writerows(report_dic)
     print "Successfully parsed."
 
+################################################################
 
 def issue_row(raw_row):
     issue_row = {}
@@ -127,7 +127,7 @@ def issue_row(raw_row):
 
 
 def burp_parser(burp_xml_file):
-    parser = etree.XMLParser()
+    parser = etree.XMLParser(remove_blank_text=True, no_network=True, recover=True)
     d = etree.parse(burp_xml_file, parser)
     r = d.xpath('//issues/issue')
     report_writer([issue_row(issue) for issue in r], burp_xml_file)
@@ -143,7 +143,7 @@ if __name__ == "__main__":
             try:
                 burp_parser(xml_file)
             except:
-                print "[*] Error processing file.\n"
+                print "[!] Error processing file.\n"
     else:
         print "\nUsage: ./parse-burp.py Base64_input.xml"
         print "Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0])

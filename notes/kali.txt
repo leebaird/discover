@@ -268,11 +268,10 @@ Uncomment ForwardX11, change to yes
 Uncomment ForwardX11Trusted
 
 service ssh restart
-exit
 
-ssh -X root@<targetIP>
-echo $DISPLAY
-You should see: localhost:10.0
+OS X
+  ssh -X root@<targetIP>
+  export DISPLAY=localhost:0.0
 ------------------------------------------------------------------------------------------------------
 
 # Amazon EC2 (in the process of being updated)
