@@ -3059,7 +3059,7 @@ f_banner
 echo -e "\e[1;34mParse XML to CSV.\e[0m"
 echo
 echo "1.  Burp (Base64)"
-echo "2.  Nessus (.nessus)"
+echo "2.  Nessus"
 echo "3.  Nexpose"
 echo "4.  Nmap"
 echo "5.  Qualys"
@@ -3073,7 +3073,7 @@ case $choice in
      f_location
      parsers/parse-burp.py $location
 
-     mv /root/Desktop/burp*.csv /$user/data/burp-`date +%H:%M:%S`.csv
+     mv burp.csv /$user/data/burp-`date +%H:%M:%S`.csv
 
      echo
      echo $medium
