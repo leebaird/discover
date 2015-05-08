@@ -87,8 +87,8 @@ def htmltext(blob):
     return h.handle(blob)
 
 
-def report_writer(report_dic, output_filename):
-    with open(output_filename, "wb") as outFile:
+def report_writer(report_dic):
+    with open("burpar.csv", "wb") as outFile:
         csvWriter = utfdictcsv.DictUnicodeWriter(outFile, REPORT_HEADERS, quoting=csv.QUOTE_ALL)
         csvWriter.writerow(CUSTOM_HEADERS)
         csvWriter.writerows(report_dic)
@@ -130,7 +130,7 @@ def burp_parser(burp_xml_file):
     parser = etree.XMLParser(remove_blank_text=True, no_network=True, recover=True)
     d = etree.parse(burp_xml_file, parser)
     r = d.xpath('//issues/issue')
-    report_writer([issue_row(issue) for issue in r], burp_xml_file)
+    report_writer([issue_row(issue) for issue in r])
 
 ################################################################
 
