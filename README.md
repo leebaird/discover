@@ -133,12 +133,14 @@ Enter the location of your list:
 
 ### Parse XML
 ```
-Parse XML to CSV for use with /discover/misc/worksheet.xlsx.
+Parse XML to CSV.
 
-1.  Burp
+1.  Burp (Base64)
 2.  Nessus
-3.  Nmap
-4.  Previous menu
+3.  Nexpose
+4.  Nmap
+5.  Qualys
+6.  Previous menu
 ```
 
 ### Start a Metasploit listener
