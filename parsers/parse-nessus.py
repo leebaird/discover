@@ -26,21 +26,34 @@ class NessusParser:
 
     def getHostProperties(self, host):
         properties = {}
-
         hostProperties = host.findall("./HostProperties")[0]
-
         hostnames = hostProperties.findall("./tag[@name='netbios-name']")
         if(len(hostnames) >= 1):
             properties['netbios-name'] = hostnames[0].text
-        properties['host-ip'] = hostProperties.findall("./tag[@name='host-ip']")[0].text
-
+            _temp_ip = hostProperties.findall("./tag[@name='host-ip']")
+            if _temp_ip:
+                properties['host-ip'] = _temp_ip[0].text
+            else:
+                properties['host-ip'] = host.attrib['name']
+        else:
+            hostnames = hostProperties.findall("./tag[@name='host-fqdn']")
+            if(len(hostnames) >= 1):
+                properties['netbios-name'] = hostnames[0].text
+                _temp_ip = hostProperties.findall("./tag[@name='host-ip']")
+                if _temp_ip:
+                    properties['host-ip'] = _temp_ip[0].text
+                else:
+                    properties['host-ip'] = host.attrib['name']
         hostnames = hostProperties.findall("./tag[@name='operating-system']")
         if(len(hostnames) >= 1):
             properties['operating-system'] = hostnames[0].text
-        properties['host-ip'] = hostProperties.findall("./tag[@name='host-ip']")[0].text
+            _temp_ip = hostProperties.findall("./tag[@name='host-ip']")
+            if _temp_ip:
+                properties['host-ip'] = _temp_ip[0].text
+            else:
+                properties['host-ip'] = host.attrib['name']
 
         return properties
-
 ################################################################
 
     def getReportItems(self, host):
