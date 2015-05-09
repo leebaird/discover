@@ -3148,6 +3148,8 @@ cat tmp2.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack 1/SP1/g; s/Service Pac
 
      parsers/parse-qualys.py $location
 
+#     cat qualys.csv | sed 's/Service Pack/SP/g' | sed 's/THREAT://g' | sed 's/Workaround//g' > tmp.csv
+
      mv qualys.csv /$user/data/qualys-`date +%H:%M:%S`.csv
 
      echo

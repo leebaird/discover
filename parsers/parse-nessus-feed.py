@@ -4,7 +4,7 @@
 # Thanks to Securicon, LLC. for sponsoring development
 #
 # Converts the Nessus plugin database into a CSV file with the following columns:
-#    Plugin, CVSS Base Score, Description, Solution
+#    Plugin, CVSS Base Score, Description, Solution, Date
 #
 # Genrate database
 #
@@ -86,7 +86,7 @@ def max_field_len_excel(ggchild, row_number):
 
 def get_sum_from_xml(filename):
     print "\nParsing XML data. This takes about 90 sec...\n"
-    results_table = [["Plugin", "CVSS Base Score", "Description", "Solution", "Date"]]
+    results_table = [["Vulnerability", "CVSS Base Score", "Description", "Solution", "Published"]]
 
     try:
         tree = ET.parse(filename)
