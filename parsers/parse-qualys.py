@@ -104,7 +104,7 @@ def issue_r(raw_row, vuln):
             _temp['solution'] = htmltext(vuln_item.findtext('SOLUTION'))
 
             # Vuln_description
-            _temp['vuln_description'] = "\n".join(["THREAT:", htmltext(vuln_item.findtext('THREAT')), "IMPACT:", htmltext(vuln_item.findtext('IMPACT'))])
+            _temp['vuln_description'] = "\n".join([htmltext(vuln_item.findtext('THREAT')), htmltext(vuln_item.findtext('IMPACT'))])
 
             # CVSS
             _temp['CVSS_score'] = vuln_item.findtext('CVSS_SCORE/CVSS_BASE')
