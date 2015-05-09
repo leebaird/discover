@@ -7,6 +7,7 @@
 
 import argparse
 import csv
+import re
 
 ################################################################
 
@@ -100,8 +101,8 @@ def issue_r(raw_row, vuln):
             # Vuln name
             _temp['vuln_name'] = vuln_item.findtext('TITLE')
 
-            # Solution
-            _temp['solution'] = htmltext(vuln_item.findtext('SOLUTION'))
+            #Solution Strips Heading Workaround(s)
+            _temp['solution'] = re.sub('Workaround(s)?:.+\n', '', htmltext(vuln_item.findtext('SOLUTION')))
 
             # Vuln_description
             _temp['vuln_description'] = "\n".join([htmltext(vuln_item.findtext('THREAT')), htmltext(vuln_item.findtext('IMPACT'))])
