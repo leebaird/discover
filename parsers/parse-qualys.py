@@ -127,7 +127,6 @@ def qualys_parser(qualys_xml_file):
     master_list = []
 
     for issue in r:
-        issue_r(issue, d)
         master_list += issue_r(issue, d)
 
     report_writer(master_list, args.outfile)
