@@ -4,17 +4,16 @@
 # Thanks to Securicon, LLC. for sponsoring development
 #
 # Converts the Nessus plugin database into a CSV file with the following columns:
-#    Plugin, CVSS Base Score, Description, Solution, Date
+#    Vulnerability, CVSS Base Score, Description, Solution, Published
 #
-# Genrate database
-#
+# To genrate database:
 # Kali Linux
-# /opt/nessus/sbin/nessusd -X
-# mv /opt/nessus/lib/nessus/plugins/plugins.xml /root/
+#    /opt/nessus/sbin/nessusd -X
+#    mv /opt/nessus/lib/nessus/plugins/plugins.xml /root/
 # 
 # OS X
-# sudo /Library/Nessus/run/sbin/Nessusd -X
-# sudo mv /Library/Nessus/run/lib/nessus/plugins/plugins.xml ./
+#    sudo /Library/Nessus/run/sbin/Nessusd -X
+#    sudo mv /Library/Nessus/run/lib/nessus/plugins/plugins.xml ./
 
 import codecs
 import cStringIO
@@ -86,7 +85,7 @@ def max_field_len_excel(ggchild, row_number):
 
 def get_sum_from_xml(filename):
     print "\nParsing XML data. This takes about 90 sec...\n"
-    results_table = [["Vulnerability", "CVSS Base Score", "Description", "Solution", "Published"]]
+    results_table = [["Vulnerability", "CVSS Base Score", "Description", "Solution", "Published", "Modified"]]
 
     try:
         tree = ET.parse(filename)
@@ -117,6 +116,9 @@ def get_sum_from_xml(filename):
 
                     elif ggchild[0].text == "plugin_publication_date":
                         row[4] = max_field_len_excel(ggchild, row_tracker)
+
+                    elif ggchild[0].text == "plugin_modification_date":
+                        row[5] = max_field_len_excel(ggchild, row_tracker)
 
         results_table.append(row)
 
