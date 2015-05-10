@@ -10,7 +10,7 @@
 # Kali Linux
 #    /opt/nessus/sbin/nessusd -X
 #    mv /opt/nessus/lib/nessus/plugins/plugins.xml /root/
-# 
+#
 # OS X
 #    sudo /Library/Nessus/run/sbin/Nessusd -X
 #    sudo mv /Library/Nessus/run/lib/nessus/plugins/plugins.xml ./
@@ -97,7 +97,7 @@ def get_sum_from_xml(filename):
     row_tracker = 1
     for child in root:
         row_tracker += 1
-        row = ["", "", "", "", ""]
+        row = ["", "", "", "", "", ""]
         for gchild in child:
 
             if gchild.tag == "script_name":
@@ -107,7 +107,7 @@ def get_sum_from_xml(filename):
                 for ggchild in gchild:
                     if ggchild[0].text == "cvss_base_score":
                         row[1] = ggchild[1].text
-                        
+
                     elif ggchild[0].text == "description":
                         row[2] = max_field_len_excel(ggchild, row_tracker)
 
@@ -135,4 +135,3 @@ if __name__ == "__main__":
         print "\nUsage: ./parse-nessus-feed.py input.xml output.csv"
         print "Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0])
         exit()
-
