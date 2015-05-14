@@ -115,8 +115,7 @@ class NMAP_XMLParser(object):
         csv_output.write(self._csv_string)
         csv_output.close()
 
-if(__name__ == "__main__"):
+if __name__ == "__main__":
     nmap_xml = NMAP_XMLParser("nmap.xml")          # Input file
     nmap_xml.setCSVPath("nmap.csv")                # Output file
     nmap_xml.dumpCSV()
-

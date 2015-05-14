@@ -171,4 +171,3 @@ if __name__ == "__main__":
     except IOError:
         print "[!] Error processing file: {}".format(args.nexpose_xml_file)
         exit()
-

@@ -154,4 +154,3 @@ if __name__ == "__main__":
     except IOError:
         print "[!] Error processing file: {}".format(args.qualys_xml_file)
         exit()
-
