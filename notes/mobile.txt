@@ -1,0 +1,19 @@
+Mobile App Testing for iOS
+
+
+iOS 7.1.1
+Pangu Jailbreak 1.2.0
+http://cydiainstaller.net/download/install-cydia-ios-7-1-to-7-1-2/
+
+Cydia
+Run updates.
+Install
+  OpenSSH
+  iFile
+  Apple File Conduit 2
+
+ssh root@<targetIP>
+password: alpine
+
+iExplorer $35
+www.macroplant.com/iexplorer
