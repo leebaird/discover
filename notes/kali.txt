@@ -64,12 +64,10 @@ Background: Solid color
 
 # Install Discover scripts
 
-git clone git://github.com/leebaird/discover.git /opt/discover/
+git clone https://github.com/leebaird/discover.git /opt/discover/
 cd /opt/discover/
-./setup.sh
 cp alias /root/.bash_aliases ; source /root/.bash_aliases
-Exit the Terminal
-Open a new Terminal
+./setup.sh
 update
 ------------------------------------------------------------------------------------------------------
 
@@ -81,7 +79,6 @@ Edit > Preferences
 View: Display line numbers, Highlight current line
 Editor: Tab width 5, Insert spaces instead of tabs, uncheck Create a backup copy of files before saving
 Font & Colors: Oblivion
-Plugins: Code comment
 ------------------------------------------------------------------------------------------------------
 
 # Iceweasel
@@ -190,7 +187,9 @@ cd /root/
 tar zxvf VMwareTools-<version>.tar.gz 
 cd vmware-tools-distrib/
 ./vmware-install.pl 
-Accept all the defaults.
+Accept all the defaults until:
+   The path "/" is not a valid path to the .....-amd64 kernel headers.
+   Would you like to change it?  No
 reboot
 ------------------------------------------------------------------------------------------------------
 

@@ -5,13 +5,14 @@ Databases
 
 mysql -h <IP> -u <username> -p
 
-show databases;
-use <database name>;
-show tables;
+SHOW DATABASES;
+USE <db name>;
+SHOW TABLES;
+SHOW FIELDS FROM <table>;
 
-drop database <db name>;
+DROP DATABASE <db name>;
 
-create database <db name>;
+CREATE DATABASE <db name>;
 GRANT ALL PRIVILEGES ON <db name>.* TO 'username' @ 'localhost' IDENTIFIED BY 'password';
 SHOW GRANTS FOR 'username'@'localhost';
 
