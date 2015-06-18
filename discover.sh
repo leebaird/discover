@@ -877,11 +877,12 @@ iceweasel &
 sleep 2
 iceweasel -new-tab http://www.411.com/name/$firstName-$lastName/ &
 sleep 1
-iceweasel -new-tab http://www.advancedbackgroundchecks.com/search/searchpreview.aspx?type=&fn=$firstName&mi=&ln=$lastName&age=&city=&state=
+uripath="http://www.advancedbackgroundchecks.com/search/results.aspx?type=&fn=${firstName}&mi=&ln=${lastName}&age=&city=&state="
+iceweasel -new-tab $uripath &
 sleep 1
 iceweasel -new-tab http://www.cvgadget.com/person/$firstName/$lastName &
 sleep 1
-iceweasel -new-tab http://www.peekyou.com/$fireName_$lastName &
+iceweasel -new-tab http://www.peekyou.com/$firstName%5f$lastName &
 sleep 1
 iceweasel -new-tab http://phonenumbers.addresses.com/people/$firstName+$lastName &
 sleep 1
