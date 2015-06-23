@@ -3129,7 +3129,7 @@ cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner chec
      echo
      echo $medium
      echo
-     printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/data/nmap.csv
+     printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/data/nmap-`date +%H:%M:%S`.csv
      echo
      echo
      exit
