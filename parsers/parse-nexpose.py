@@ -8,7 +8,7 @@
 import argparse
 import csv
 import re
-
+import StringIO
 ################################################################
 
 # Non-standard libraries
@@ -59,6 +59,11 @@ def report_writer(report_dic, output_filename):
     print "Successfully parsed."
 
 ################################################################
+
+def fix_text(txt):
+    lines = StringIO.StringIO(txt).readlines()
+    _temp_stage_1 = " ".join([line.strip() for line in lines if line.strip()])
+    return ' '.join(_temp_stage_1.split())
 
 def issue_r(raw_row, vuln):
     ret_rows = []
@@ -112,17 +117,26 @@ def issue_r(raw_row, vuln):
 
                     search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'])
                     vuln_item = vuln.find(search)
+                    if not vuln_item:
+                        search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'].upper())
+                        vuln_item = vuln.find(search)
 
                     # Vuln name
                     _temp['vuln_name'] = vuln_item.attrib['title']
                     _temp['CVSS_score'] = vuln_item.attrib['cvssScore']
 
                     # Vuln description
-                    _temp['vuln_description'] = vuln_item.findtext('description/ContainerBlockElement/Paragraph')
+                    _temp_vuln_description = vuln_item.findtext('description/ContainerBlockElement/Paragraph')
+                    if not _temp_vuln_description:
+                        _temp_vuln_description = vuln_item.findtext('description/ContainerBlockElement')
+                    _temp['vuln_description'] = fix_text(_temp_vuln_description)
 
                     # Solution
                     solution = []
                     solut_col = vuln_item.find('solution/ContainerBlockElement/UnorderedList')
+                    if not solut_col:
+                        solut_col = vuln_item.find('solution/ContainerBlockElement/Paragraph')
+
                     if solut_col is not None:
                         for solve_item in solut_col.iter():
                             if solve_item.text and solve_item.text.strip() != '':
