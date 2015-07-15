@@ -9,8 +9,9 @@ apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autor
 
 if [ -d /opt/discover/.git ]; then
      echo -e "\e[1;34mUpdating Discover scripts.\e[0m"
-     cd /opt/discover/ ; git pull ; echo
+     cd /opt/discover/ ; git pull
      cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
+     echo
 else
      rm -rf /opt/scripts/
      echo -e "\e[1;33mInstalling scripts into new location: /opt/discover/.\e[0m"
@@ -29,10 +30,13 @@ else
      echo
 fi
 
-if [ ! -f /usr/bin/i586-mingw32msvc-c++ ]; then
-     echo -e "\e[1;33mInstalling Ming C Compiler.\e[0m"
-     apt-get -y install mingw32
+if [ -d /opt/EyeWitness/.git ]; then
+     echo -e "\e[1;34mUpdating EyeWitness.\e[0m"
+     cd /opt/EyeWitness/ ; git pull
      echo
+else
+     echo -e "\e[1;33mInstalling EyeWitness.\e[0m"
+     git clone git://github.com/ChrisTruncer/EyeWitness.git /opt/EyeWitness
 fi
 
 if [ ! -f /opt/google/chrome/google-chrome ]; then
@@ -43,6 +47,12 @@ if [ ! -f /opt/google/chrome/google-chrome ]; then
      echo 'exec -a "$0" "$HERE/chrome"  "$@" --user-data-dir' >> /opt/google/chrome/google-chrome
      chmod +x /opt/google/chrome/google-chrome
      rm google-chrome-stable_current_amd64.deb
+     echo
+fi
+
+if [ ! -f /usr/bin/i586-mingw32msvc-c++ ]; then
+     echo -e "\e[1;33mInstalling Ming C Compiler.\e[0m"
+     apt-get -y install mingw32
      echo
 fi
 
