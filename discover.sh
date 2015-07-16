@@ -3054,8 +3054,8 @@ f_banner
 echo -e "\e[1;34mParse XML to CSV.\e[0m"
 echo
 echo "1.  Burp (Base64)"
-echo "2.  Nessus"
-echo "3.  Nexpose"
+echo "2.  Nessus (.nessus)"
+echo "3.  Nexpose (XML 2.0)"
 echo "4.  Nmap"
 echo "5.  Qualys"
 echo "6.  Previous menu"
