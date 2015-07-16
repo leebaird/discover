@@ -35,8 +35,8 @@ CUSTOM_HEADERS = {'CVSS_score': 'CVSS Score',
                   'vuln_description': 'Description',
                   'proof': 'Proof',
                   'solution': 'Solution',
-                  'cve': 'CVE',
-                  'ref_url': 'Reference URL'}
+                  'ref_url': 'See Also',
+                  'cve': 'CVE',}
 
 REPORT_HEADERS = ['CVSS_score',
                   'ip_address',
@@ -47,8 +47,8 @@ REPORT_HEADERS = ['CVSS_score',
                   'vuln_description',
                   'proof',
                   'solution',
-                  'cve',
-                  'ref_url']
+                  'ref_url',
+                  'cve',]
 
 ################################################################
 
@@ -150,11 +150,11 @@ def issue_r(raw_row, vuln):
 
                         _temp['solution'] = "\n".join(solution)
 
-                    # CVE
-                    _temp['cve'] = vuln_item.findtext("references/reference[@source='CVE']")
-
                     # Reference URL
                     _temp['ref_url'] = vuln_item.findtext("references/reference[@source='URL']")
+
+                    # CVE
+                    _temp['cve'] = vuln_item.findtext("references/reference[@source='CVE']")
 
                     ret_rows.append(_temp.copy())
 
@@ -210,11 +210,11 @@ def issue_r(raw_row, vuln):
 
                 _temp['solution'] = "\n".join(solution)
 
-            # CVE
-            _temp['cve'] = vuln_item.findtext("references/reference[@source='CVE']")
-
             # Reference URL
             _temp['ref_url'] = vuln_item.findtext("references/reference[@source='URL']")
+
+            # CVE
+            _temp['cve'] = vuln_item.findtext("references/reference[@source='CVE']")
 
             ret_rows.append(_temp.copy())
 
