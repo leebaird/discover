@@ -29,7 +29,7 @@ class NessusParser:
         hostProperties = host.findall("./HostProperties")[0]
 
         _temp_ip = hostProperties.findall("./tag[@name='host-ip']")
-        if _temp_ip:
+        if _temp_ip is not None:
             properties['host-ip'] = _temp_ip[0].text
         else:
             properties['host-ip'] = host.attrib['name']
