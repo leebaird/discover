@@ -71,16 +71,18 @@ def issue_r(raw_row, vuln):
     issue_row = {}
 
     # IP ADDRESS
-    issue_row['ip_address'] = raw_row.attrib['address']
+    if raw_row.attrib['address'] is not None:
+        issue_row['ip_address'] = raw_row.attrib['address']
 
     # FQDN
     column_data_raw = raw_row.findtext('names/name')
-    if column_data_raw:
+    if column_data_raw is not None:
         issue_row['fqdn'] = column_data_raw
 
     # OS NAME
     column_data_raw = raw_row.find('fingerprints/os')
-    issue_row['os'] = column_data_raw.attrib['product']
+    if column_data_raw is not None:
+        issue_row['os'] = column_data_raw.attrib['product']
 
     # Scan details : ENDPOINTS
     column_data_raw = raw_row.find('endpoints')
@@ -89,7 +91,8 @@ def issue_r(raw_row, vuln):
         _temp = issue_row
 
         # Port
-        _temp['port_status'] = dd.attrib['port']
+        if dd.attrib['port'] is not None:
+            _temp['port_status'] = dd.attrib['port']
 
         # Vulns
         column_data_raw = dd.find('services/service/tests')
