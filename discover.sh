@@ -3108,6 +3108,11 @@ cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner chec
      3)
      f_location
      parsers/parse-nexpose.py $location
+	 
+     # Delete additional findings with CVSS score of 0
+#     egrep -v '(NetBIOS NBSTAT Traffic Amplification)' nexpose.csv > tmp.csv
+#     mv tmp.csv /$user/data/nexpose-`date +%H:%M:%S`.csv
+
      mv nexpose.csv /$user/data/nexpose-`date +%H:%M:%S`.csv
 
      echo
