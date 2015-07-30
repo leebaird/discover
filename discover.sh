@@ -1170,8 +1170,9 @@ echo -n "Choice: "
 read choice
 
 case $choice in
-     1) arp-scan -l | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > /$user/data/hosts-arp.txt
-     echo
+     1) echo -n "Interface to scan: "
+	read interface
+	arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > /$user/data/hosts-arp.txt   echo
      echo $medium
      echo
      echo "***Scan complete.***"
@@ -1184,7 +1185,8 @@ case $choice in
      2) f_netbios;;
      3) netdiscover;;
      4) f_pingsweep;;
-     5) f_main;;
+     5) f_nmapAscan;;
+     6) f_main;;
      *) f_error;;
 esac
 }
@@ -1320,6 +1322,98 @@ echo
 echo
 printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/data/hosts-ping.txt
 echo
+echo
+exit
+}
+
+##############################################################################################################
+
+f_nmapAscan(){
+clear
+f_banner
+f_typeofscan
+
+echo -e "\e[1;34mType of input:\e[0m"
+echo
+echo "1.  List containing IPs, ranges and/or CIDRs."
+echo "2.  Manual"
+echo
+echo -n "Choice: "
+read choice
+
+case $choice in
+     1)
+     echo -n "Name your scan: "
+     read scanname
+     f_location
+
+     echo
+     echo "Running an Nmap -A scan for live hosts."
+     nmap -A -oA ~/data/$scanname --stats-every 10s -g $sourceport -iL $location > tmp
+     ;;
+
+     2)
+     echo
+     echo -n "Enter your targets: "
+     read manual
+     echo -n "Name your scan: "
+     read scanname
+
+     # Check for no answer
+     if [ -z $manual ]; then
+          f_error
+     fi
+
+     echo
+     echo "Running an Nmap -A scan for live hosts."
+     nmap -A -oA ~/data/$scanname --stats-every 10s -g $sourceport $manual > tmp
+     ;;
+
+     *) f_error;;
+esac
+
+##############################################################
+
+perl << 'EOF'
+# Author: Ben Wood
+# Description: Reads an nmap ping sweep and correctly identifies lives hosts
+
+use strict;
+
+undef $/; # Enable slurping
+
+open(my $handle, '<', "tmp");
+open(my $output, '>', "tmp2");
+while(<$handle>)
+{
+	# Read report lines
+	while (/((?:[\x00-\xFF]*?(?=Nmap\s+scan\s+report)|[\x00-\xFF]*))/mixg) {
+		my $report = $1;
+
+		# Print IP if host is REALLY up
+		if (($report =~ /MAC\s+Address/mix)
+		or ($report =~ /Nmap\s+scan\s+report\s+for\s+\S+?\s+\(\S+\)/mix)) {
+			my ($ip) = $report =~ /(\d+\.\d+\.\d+\.\d+)/mix;
+			print $output "$ip\n";
+		}
+	}
+}
+EOF
+
+##############################################################
+
+rm tmp
+mv tmp2 /$user/data/targets.txt
+
+echo
+echo $medium
+echo
+echo "***Scan complete.***"
+echo
+echo
+printf 'The list of targets is located at \e[1;33m%s\e[0m\n' /$user/data/targets.txt
+echo
+printf 'The output files from the Nmap -A scan are located at \e[1;33m%s\e[0m\n' /$user/data/
 echo
 exit
 }
@@ -3108,6 +3202,11 @@ cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner chec
      3)
      f_location
      parsers/parse-nexpose.py $location
+	 
+     # Delete additional findings with CVSS score of 0
+#     egrep -v '(NetBIOS NBSTAT Traffic Amplification)' nexpose.csv > tmp.csv
+#     mv tmp.csv /$user/data/nexpose-`date +%H:%M:%S`.csv
+
      mv nexpose.csv /$user/data/nexpose-`date +%H:%M:%S`.csv
 
      echo

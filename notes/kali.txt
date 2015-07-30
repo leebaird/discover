@@ -270,7 +270,8 @@ service ssh restart
 
 OS X
   ssh -X root@<targetIP>
-  export DISPLAY=localhost:0.0
+  Start app that requires a GUI.
+  iceweasel &
 ------------------------------------------------------------------------------------------------------
 
 # Amazon EC2 (in the process of being updated)
