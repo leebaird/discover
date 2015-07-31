@@ -140,7 +140,7 @@ case $choice in
      echo "Company: Target"
      echo "Domain:  target.com"
      echo
-     echo $short
+     echo $medium
      echo
      echo -n "Company: "
      read company
@@ -3508,7 +3508,7 @@ echo
 echo "Company: Target"
 echo "Domain:  target.com"
 echo
-echo $short
+echo $medium
 echo
 echo -n "Company: "
 read company
