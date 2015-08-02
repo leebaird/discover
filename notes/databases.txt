@@ -5,6 +5,8 @@ Databases
 
 mysql -h <IP> -u <username> -p
 
+SET PASSWORD FOR root@localhost = PASSWORD('newpassword');
+
 SHOW DATABASES;
 USE <db name>;
 SHOW TABLES;
