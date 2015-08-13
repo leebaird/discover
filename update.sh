@@ -4,7 +4,7 @@ clear
 echo
 echo
 
-echo -e "\e[1;34mUpdating Kali.\e[0m"
+echo -e "\e[1;34mUpdating OS.\e[0m"
 apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
 
 if [ -d /opt/discover/.git ]; then

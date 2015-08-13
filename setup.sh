@@ -6,6 +6,7 @@ echo
 
 # Global variables
 bdate=$(date +"%m-%d-%Y"-%R:%S)
+os=$(cat /etc/host)
 user=$(whoami)
 
 ##############################################################################################################
@@ -25,13 +26,18 @@ echo
 ##############################################################################################################
 
 f_verify_repos(){
-if [[ `grep -q kali-bleeding-edge /etc/apt/sources.list && grep -q kali-security /etc/apt/sources.list; echo $?` == 0 ]]; then
-     echo -e "\e[1;34mOur repos already exist.\e[0m"
-     echo
+
+if [ `cat /etc/hostname` = 'kali' ]; then
+     if [[ `grep -q kali-bleeding-edge /etc/apt/sources.list && grep -q kali-security /etc/apt/sources.list; echo $?` == 0 ]]; then
+          echo -e "\e[1;34mOur repos already exist.\e[0m"
+          echo
+     else
+          echo -e "\e[1;33mNeed to add our repos.\e[0m"
+          f_install_repos
+          echo
+     fi
 else
-     echo -e "\e[1;33mNeed to add our repos.\e[0m"
-     f_install_repos
-     echo
+     exit
 fi
 }
 
