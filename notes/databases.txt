@@ -19,12 +19,16 @@ GRANT ALL PRIVILEGES ON <db name>.* TO 'username' @ 'localhost' IDENTIFIED BY 'p
 SHOW GRANTS FOR 'username'@'localhost';
 
 SELECT * FROM <table>;
+SELECT * FROM <table> WHERE <field> = “value”;
+
 SELECT LOAD_FILE('/etc/passwd')\g;
 
 DROP TABLE 'table1', 'table2', 'table3';
 
-ORDER BY <field> ASC
-ORDER BY <field> DESC
+ORDER BY <field> <ASC, DESC> 
+GROUP BY <field>
+LIMIT <number>
+OFFSET <number>
 ------------------------------------------------------------------------------------------------------
 
 # Postgresql

@@ -169,4 +169,10 @@ fsutil fsinfo drives
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
 
 netsh rdesktop <target-IP>
+------------------------------------------------------------------------------------------------------
 
+HKLM
+File > Load Hive
+Just give it a name.
+/Microsoft Windows/Current Version/Run
+Add your back doored file.
