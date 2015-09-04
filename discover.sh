@@ -178,8 +178,7 @@ case $choice in
      echo
 
      echo "goofile                   (2/$total)"
-     which goofile >/dev/null 2>&1
-     if [ $? -eq 0 ]; then
+
        goofile -d $domain -f doc > tmp
        goofile -d $domain -f docx >> tmp
        goofile -d $domain -f pdf >> tmp
@@ -188,16 +187,6 @@ case $choice in
        goofile -d $domain -f txt >> tmp
        goofile -d $domain -f xls >> tmp
        goofile -d $domain -f xlsx >> tmp
-     else
-       python goofilev1.5/goofile.py -d $domain -f doc > tmp
-       python goofilev1.5/goofile.py -d $domain -f docx >> tmp
-       python goofilev1.5/goofile.py -d $domain -f pdf >> tmp
-       python goofilev1.5/goofile.py -d $domain -f ppt >> tmp
-       python goofilev1.5/goofile.py -d $domain -f pptx >> tmp
-       python goofilev1.5/goofile.py -d $domain -f txt >> tmp
-       python goofilev1.5/goofile.py -d $domain -f xls >> tmp
-       python goofilev1.5/goofile.py -d $domain -f xlsx >> tmp
-     fi
 
      grep $domain tmp | grep -v 'Searching in' | grep -Fv '...' | sort > tmp2
 
