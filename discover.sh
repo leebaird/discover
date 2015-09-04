@@ -178,14 +178,26 @@ case $choice in
      echo
 
      echo "goofile                   (2/$total)"
-     goofile -d $domain -f doc > tmp
-     goofile -d $domain -f docx >> tmp
-     goofile -d $domain -f pdf >> tmp
-     goofile -d $domain -f ppt >> tmp
-     goofile -d $domain -f pptx >> tmp
-     goofile -d $domain -f txt >> tmp
-     goofile -d $domain -f xls >> tmp
-     goofile -d $domain -f xlsx >> tmp
+     which goofile >/dev/null 2>&1
+     if [ $? -eq 0 ]; then
+       goofile -d $domain -f doc > tmp
+       goofile -d $domain -f docx >> tmp
+       goofile -d $domain -f pdf >> tmp
+       goofile -d $domain -f ppt >> tmp
+       goofile -d $domain -f pptx >> tmp
+       goofile -d $domain -f txt >> tmp
+       goofile -d $domain -f xls >> tmp
+       goofile -d $domain -f xlsx >> tmp
+     else
+       python goofilev1.5/goofile.py -d $domain -f doc > tmp
+       python goofilev1.5/goofile.py -d $domain -f docx >> tmp
+       python goofilev1.5/goofile.py -d $domain -f pdf >> tmp
+       python goofilev1.5/goofile.py -d $domain -f ppt >> tmp
+       python goofilev1.5/goofile.py -d $domain -f pptx >> tmp
+       python goofilev1.5/goofile.py -d $domain -f txt >> tmp
+       python goofilev1.5/goofile.py -d $domain -f xls >> tmp
+       python goofilev1.5/goofile.py -d $domain -f xlsx >> tmp
+     fi
 
      grep $domain tmp | grep -v 'Searching in' | grep -Fv '...' | sort > tmp2
 
@@ -221,7 +233,7 @@ case $choice in
      echo
      echo "theharvester"
      echo "     Baidu                (6/$total)"
-     theharvester -d $domain -b baidu > zbaidu 
+     theharvester -d $domain -b baidu > zbaidu
      echo "     Bing                 (7/$total)"
      theharvester -d $domain -b bing > zbing
      echo "     Dogpilesearch        (8/$total)"
@@ -247,7 +259,7 @@ case $choice in
 
      echo
      echo "Metasploit                (18/$total)"
-     /opt/metasploit/msf3/msfcli gather/search_email_collector DOMAIN=$domain E > tmp 2>/dev/null
+     msfconsole -x "use gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
      grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sort -u > tmp2
      # Change to lower case
      cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
@@ -916,8 +928,8 @@ echo
 
 sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/\.//g; s/,,//g; s/,`//g; s/`,//g; s/-cpg//g; s/3d/3D/g; s/Aberdeen Pr//g; s/ACADEMIC/Academic/g; s/account/Account/g;
 s/ACTING/Acting/g; s/3administrator/Administrator/g; s/Europe and Africa//g; s/Sub Saharan Africa//g; s/South Africa//g; s/Agoura Hills//g; s/New Albany//g; s/Albion 	QL//g;
-s/Aliso Viejo//g; s/Allison Park//g; s/Altamonte S//g; s/Am-east,//g; s/Am-west,//g; s/Head of Americas//g; s/The Americas//g; s/Amst-north America//g; s/ANALYSIST/Analysist/g; 
-s/Analyst\//Analyst, /g; s/analytics/Analytics/g; s/and New England//g; s/and Central Us//g; s/North Andover//g; s/Andrews Air//g; s/android/Android/g; s/Annapolis J//g; 
+s/Aliso Viejo//g; s/Allison Park//g; s/Altamonte S//g; s/Am-east,//g; s/Am-west,//g; s/Head of Americas//g; s/The Americas//g; s/Amst-north America//g; s/ANALYSIST/Analysist/g;
+s/Analyst\//Analyst, /g; s/analytics/Analytics/g; s/and New England//g; s/and Central Us//g; s/North Andover//g; s/Andrews Air//g; s/android/Android/g; s/Annapolis J//g;
 s/Ann Arbor//g; s/Apple Valley//g;
 s/applications/Applications/g; s/Arlington H//g; s/Asia-Pacific//g; s/Asia and India//g; s/asia Pacific Region//g; s/Asia Pacific//g; s/assistant/Assistant/g;
 s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/associate/Associate/g; s/at Google//g; s/Atlantic City//g; s/Atm/ATM/g; s/attorney/Attorney/g; s/Australia S//g;
@@ -1102,31 +1114,31 @@ s/Philadelphia$//g; s/PHILADELPHRegion$//g; s/Philip$//g; s/Phillipsburg$//g; s/
 s/Pinconning$//g; s/Pinehurst$//g; s/Pineville$//g; s/Pipersville$//g; s/Piscataway$//g; s/Pittsburgh$//g; s/Pittsfield$//g; s/Placitas$//g; s/Plainfield$//g; s/Plainsboro$//g;
 s/planner$//g; s/Plano$//g; s/Plaquemine$//g; s/Pleasanton$//g; s/Pleasantville$//g; s/Plymouth$//g; s/Pocahontas$//g; s/Pomona$//g; s/Pontiac$//g; s/Portage$//g; s/Portland$//g;
 s/Portsmouth$//g; s/Portugal$//g; s/Potomac$//g; s/Poway$//g; s/Prattville$//g; s/Preston$//g; s/Prestwick$//g; s/Princeton$//g; s/Prineville$//g; s/Proctorville$//g; s/Providence$//g;
-s/Provos$//g; s/Pueblo$//g; s/Purcellville$//g; s/Pyrmont$//g; s/Quantico$//g; s/Quincy$//g; s/Raleigh$//g; s/Radnor$//g; s/Ramsey$//g; s/Rancho$//g; s/Randallstown$//g; 
-s/Randolph$//g; s/Raritan$//g; s/Raymondville$//g; s/Rayville$//g; s/Reading$//g; s/Redlands$//g; s/Redmond$//g; s/Reisterstown$//g; s/Reno$//g; s/Rensselaer$//g; s/Reston$//g; 
-s/Reynoldsburg$//g; s/Richardson$//g; s/Richland$//g; s/Richmond$//g; s/Ridgecrest$//g; s/Ridgeland$//g; s/Ridgewood$//g; s/Ringoes$//g; s/Riverdale$//g; s/Riverside$//g; 
-s/Rivervale$//g; s/Roanoke$//g; s/Rochester$//g; s/Rockaway$//g; s/Rockford$//g; s/Rockledge$//g; s/Rocklin$//g; s/Rockport$//g; s/Rockville$//g; s/Romeoville$//g; s/Romulus$//g; 
-s/Rosamond$//g; s/Roseburg$//g; s/Rosemead$//g; s/Roseville$//g; s/Roswell$//g; s/Rougemont$//g; s/Royersford$//g; s/Riverton$//g; s/Ruckersville$//g; s/Russia$//g; s/Sacramento$//g; 
-s/Salina$//g; s/Salisbury$//g; s/Sandton$//g; s/Sanford$//g; s/Sanibel$//g; s/Santee$//g; s/Sarasota$//g; s/Saucier$//g; s/Savannah$//g; s/Sayreville$//g; s/Scarsdale$//g; 
-s/Schaumburg$//g; s/Schenectady$//g; s/Schererville$//g; s/Scottsdale$//g; s/Scranton$//g; s/Seaford$//g; s/Seattle$//g; s/SEATTLE$//g; s/Sebring$//g; s/Secaucus$//g; s/Sedalia$//g; 
-s/Sylmar$//g; s/Seminole$//g; s/Serilingamp$//g; s/Severn$//g; s/Sewell$//g; s/Shalimar$//g; s/Sharpes$//g; s/Shelbyville$//g; s/Shorewood$//g; s/Shreveport$//g; s/Shrewsbury$//g; 
-s/Silverdale$//g; s/Simpsonville$//g; s/Singapore$//g; s/Sitka$//g; s/Skillman$//g; s/Slc$//g; s/Slidell$//g; s/Smithville$//g; s/Smyrna$//g; s/Socorro$//g; s/Solihull$//g; 
-s/Somerset$//g; s/Southborough$//g; s/Southbridge$//g; s/Southfield$//g; s/southeast$//g; s/Southeast$//g; s/Southaven$//g; s/Southampton$//g; s/Southlake$//g; s/Southwest$//g; 
-s/SP$//g; s/Sparks$//g; s/Spartanburg$//g; s/Sparta$//g; s/Spokane$//g; s/Spotsylvania$//g; s/Springfield$//g; s/Spring$//g; s/Square$//g; s/Stafford$//g; s/Stamford$//g; 
-s/Sterling$//g; s/Stillwater$//g; s/Strasburg$//g; s/Strongsville$//g; s/Subiaco$//g; s/Sudbury$//g; s/Suffolk$//g; s/Suitland$//g; s/Summerville$//g; s/Summit$//g; s/Sunnyvale$//g; 
-s/Superior$//g; s/Surbiton$//g; s/Suwanee$//g; s/Swainsboro$//g; s/Swanton$//g; s/Swarthmore$//g; s/Swindon$//g; s/Switzerland$//g; s/Sydney$//g; s/Sykesville$//g; s/Syracuse$//g; 
-s/Tacoma$//g; s/Taiwan$//g; s/Tallahassee$//g; s/Tampa$//g; s/Taneytown$//g; s/Tarzana$//g; s/Taunton$//g; s/Tavares$//g; s/Tecate$//g; s/Telluride$//g; s/Tempe$//g; s/Tenafly$//g; 
-s/Tewksbury$//g; s/Texas$//g; s/-the$//g; s/Thomaston$//g; s/Thomasville$//g; s/Thorndale$//g; s/Thurso$//g; s/Timonium$//g; s/Tipton$//g; s/Titusville$//g; s/Toledo$//g; s/Toll$//g; 
-s/Tomball$//g; s/Toney$//g; s/Topeka$//g; s/Tornado$//g; s/Toronto$//g; s/Torrance$//g; s/Towson$//g; s/Trenton$//g; s/Tifton$//g; s/Troy$//g; s/Tucson$//g; s/Tullahoma$//g; 
-s/Tulsa$//g; s/Turkey$//g; s/Tuscaloosa$//g; s/Tustin$//g; s/Twinsburg$//g; s/Tyngsboro$//g; s/Underhill$//g; s/Uniondale$//g; s/Uniontown$//g; s/Union$//g; s/Urbana$//g; 
-s/Urbandale$//g; s/Uxbridge$//g; s/Uvalde$//g; s/Vail$//g; s/Valdosta$//g; s/Valencia$//g; s/Vanceboro$//g; s/Vancouver$//g; s/Vandalia$//g; s/Vandergrift$//g; s/Venice$//g; 
-s/Ventura$//g; s/Verona$//g; s/Vestal$//g; s/VIC$//g; s/Vicksburg$//g; s/Vienna$//g; s/Vincentown$//g; s/Vineland$//g; s/Visalia$//g; s/Vista$//g; s/Wagoner$//g; s/Wakefield$//g; 
-s/Waldorf$//g; s/Wallingford$//g; s/Waltham$//g; s/Warminster$//g; s/Warrenton$//g; s/Warren$//g; s/Warrington$//g; s/Warsaw$//g; s/Warwick$//g; s/Washington$//g; s/Wasilla$//g; 
-s/Waterford$//g; s/Watertown$//g; s/Wauconda$//g; s/Waukesha$//g; s/Wausau$//g; s/Wayne$//g; s/Weare$//g; s/Weatherford$//g; s/Webster$//g; s/Wellington$//g; s/Westbury$//g; 
-s/Westborough$//g; s/Westchester$//g; s/Westerville$//g; s/Westlake$//g; s/Westminster$//g; s/Westmont$//g; s/Westport$//g; s/Westwego$//g; s/Wexford$//g; s/Wheaton$//g; 
-s/Wheeling$//g; s/Whippany$//g; s/Whittier$//g; s/Wildfires//g; s/Wildwood//g; s/Williamsburg//g; s/Williamsport//g; s/Willimantic//g; s/Williston$//g; s/Wilmington$//g; 
-s/Wilton$//g; s/Winchester$//g; s/Windsor$//g; s/Windermere$//g; s/Winder$//g; s/Winnetka$//g; s/Winona$//g; s/Wisconsin$//g; s/Wisconsin$//g; s/Wichita$//g; s/Woburn$//g; 
-s/Woking$//g; s/Woodbridge$//g; s/Woodstock$//g; s/Woodstown$//g; s/Wynnewood$//g; s/Wyoming$//g; s/Xenia$//g; s/Yardley$//g; s/Yeovil$//g; s/Yokine$//g; s/Youngstown$//g; 
+s/Provos$//g; s/Pueblo$//g; s/Purcellville$//g; s/Pyrmont$//g; s/Quantico$//g; s/Quincy$//g; s/Raleigh$//g; s/Radnor$//g; s/Ramsey$//g; s/Rancho$//g; s/Randallstown$//g;
+s/Randolph$//g; s/Raritan$//g; s/Raymondville$//g; s/Rayville$//g; s/Reading$//g; s/Redlands$//g; s/Redmond$//g; s/Reisterstown$//g; s/Reno$//g; s/Rensselaer$//g; s/Reston$//g;
+s/Reynoldsburg$//g; s/Richardson$//g; s/Richland$//g; s/Richmond$//g; s/Ridgecrest$//g; s/Ridgeland$//g; s/Ridgewood$//g; s/Ringoes$//g; s/Riverdale$//g; s/Riverside$//g;
+s/Rivervale$//g; s/Roanoke$//g; s/Rochester$//g; s/Rockaway$//g; s/Rockford$//g; s/Rockledge$//g; s/Rocklin$//g; s/Rockport$//g; s/Rockville$//g; s/Romeoville$//g; s/Romulus$//g;
+s/Rosamond$//g; s/Roseburg$//g; s/Rosemead$//g; s/Roseville$//g; s/Roswell$//g; s/Rougemont$//g; s/Royersford$//g; s/Riverton$//g; s/Ruckersville$//g; s/Russia$//g; s/Sacramento$//g;
+s/Salina$//g; s/Salisbury$//g; s/Sandton$//g; s/Sanford$//g; s/Sanibel$//g; s/Santee$//g; s/Sarasota$//g; s/Saucier$//g; s/Savannah$//g; s/Sayreville$//g; s/Scarsdale$//g;
+s/Schaumburg$//g; s/Schenectady$//g; s/Schererville$//g; s/Scottsdale$//g; s/Scranton$//g; s/Seaford$//g; s/Seattle$//g; s/SEATTLE$//g; s/Sebring$//g; s/Secaucus$//g; s/Sedalia$//g;
+s/Sylmar$//g; s/Seminole$//g; s/Serilingamp$//g; s/Severn$//g; s/Sewell$//g; s/Shalimar$//g; s/Sharpes$//g; s/Shelbyville$//g; s/Shorewood$//g; s/Shreveport$//g; s/Shrewsbury$//g;
+s/Silverdale$//g; s/Simpsonville$//g; s/Singapore$//g; s/Sitka$//g; s/Skillman$//g; s/Slc$//g; s/Slidell$//g; s/Smithville$//g; s/Smyrna$//g; s/Socorro$//g; s/Solihull$//g;
+s/Somerset$//g; s/Southborough$//g; s/Southbridge$//g; s/Southfield$//g; s/southeast$//g; s/Southeast$//g; s/Southaven$//g; s/Southampton$//g; s/Southlake$//g; s/Southwest$//g;
+s/SP$//g; s/Sparks$//g; s/Spartanburg$//g; s/Sparta$//g; s/Spokane$//g; s/Spotsylvania$//g; s/Springfield$//g; s/Spring$//g; s/Square$//g; s/Stafford$//g; s/Stamford$//g;
+s/Sterling$//g; s/Stillwater$//g; s/Strasburg$//g; s/Strongsville$//g; s/Subiaco$//g; s/Sudbury$//g; s/Suffolk$//g; s/Suitland$//g; s/Summerville$//g; s/Summit$//g; s/Sunnyvale$//g;
+s/Superior$//g; s/Surbiton$//g; s/Suwanee$//g; s/Swainsboro$//g; s/Swanton$//g; s/Swarthmore$//g; s/Swindon$//g; s/Switzerland$//g; s/Sydney$//g; s/Sykesville$//g; s/Syracuse$//g;
+s/Tacoma$//g; s/Taiwan$//g; s/Tallahassee$//g; s/Tampa$//g; s/Taneytown$//g; s/Tarzana$//g; s/Taunton$//g; s/Tavares$//g; s/Tecate$//g; s/Telluride$//g; s/Tempe$//g; s/Tenafly$//g;
+s/Tewksbury$//g; s/Texas$//g; s/-the$//g; s/Thomaston$//g; s/Thomasville$//g; s/Thorndale$//g; s/Thurso$//g; s/Timonium$//g; s/Tipton$//g; s/Titusville$//g; s/Toledo$//g; s/Toll$//g;
+s/Tomball$//g; s/Toney$//g; s/Topeka$//g; s/Tornado$//g; s/Toronto$//g; s/Torrance$//g; s/Towson$//g; s/Trenton$//g; s/Tifton$//g; s/Troy$//g; s/Tucson$//g; s/Tullahoma$//g;
+s/Tulsa$//g; s/Turkey$//g; s/Tuscaloosa$//g; s/Tustin$//g; s/Twinsburg$//g; s/Tyngsboro$//g; s/Underhill$//g; s/Uniondale$//g; s/Uniontown$//g; s/Union$//g; s/Urbana$//g;
+s/Urbandale$//g; s/Uxbridge$//g; s/Uvalde$//g; s/Vail$//g; s/Valdosta$//g; s/Valencia$//g; s/Vanceboro$//g; s/Vancouver$//g; s/Vandalia$//g; s/Vandergrift$//g; s/Venice$//g;
+s/Ventura$//g; s/Verona$//g; s/Vestal$//g; s/VIC$//g; s/Vicksburg$//g; s/Vienna$//g; s/Vincentown$//g; s/Vineland$//g; s/Visalia$//g; s/Vista$//g; s/Wagoner$//g; s/Wakefield$//g;
+s/Waldorf$//g; s/Wallingford$//g; s/Waltham$//g; s/Warminster$//g; s/Warrenton$//g; s/Warren$//g; s/Warrington$//g; s/Warsaw$//g; s/Warwick$//g; s/Washington$//g; s/Wasilla$//g;
+s/Waterford$//g; s/Watertown$//g; s/Wauconda$//g; s/Waukesha$//g; s/Wausau$//g; s/Wayne$//g; s/Weare$//g; s/Weatherford$//g; s/Webster$//g; s/Wellington$//g; s/Westbury$//g;
+s/Westborough$//g; s/Westchester$//g; s/Westerville$//g; s/Westlake$//g; s/Westminster$//g; s/Westmont$//g; s/Westport$//g; s/Westwego$//g; s/Wexford$//g; s/Wheaton$//g;
+s/Wheeling$//g; s/Whippany$//g; s/Whittier$//g; s/Wildfires//g; s/Wildwood//g; s/Williamsburg//g; s/Williamsport//g; s/Willimantic//g; s/Williston$//g; s/Wilmington$//g;
+s/Wilton$//g; s/Winchester$//g; s/Windsor$//g; s/Windermere$//g; s/Winder$//g; s/Winnetka$//g; s/Winona$//g; s/Wisconsin$//g; s/Wisconsin$//g; s/Wichita$//g; s/Woburn$//g;
+s/Woking$//g; s/Woodbridge$//g; s/Woodstock$//g; s/Woodstown$//g; s/Wynnewood$//g; s/Wyoming$//g; s/Xenia$//g; s/Yardley$//g; s/Yeovil$//g; s/Yokine$//g; s/Youngstown$//g;
 s/Youngsville$//g; s/Yorktown$//g; s/York$//g; s/Yuma$//g; s/Zanesville$//g; s/Zionsville$//g; s/Zion$//g' > tmp3
 
 head tmp3
@@ -3202,7 +3214,7 @@ cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner chec
      3)
      f_location
      parsers/parse-nexpose.py $location
-	 
+
      # Delete additional findings with CVSS score of 0
 #     egrep -v '(NetBIOS NBSTAT Traffic Amplification)' nexpose.csv > tmp.csv
 #     mv tmp.csv /$user/data/nexpose-`date +%H:%M:%S`.csv
