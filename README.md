@@ -64,7 +64,7 @@ Create a free account at salesforce (https://connect.data.com/login).
 Perform a search on your target company > select the company name > see all.
 Copy the results into a new file.
 
-Enter the location of your list: 
+Enter the location of your list:
 ```
 
 * Gather names and positions into a clean list.
@@ -85,7 +85,7 @@ SCANNING
 
 ### CIDR, List, IP or domain
 ```
-Type of scan: 
+Type of scan:
 
 1.  External
 2.  Internal
@@ -94,7 +94,7 @@ Type of scan:
 
 * External scan will set the nmap source port to 53 and the max-rrt-timeout to 1500ms.
 * Internal scan will set the nmap source port to 88 and the max-rrt-timeout to 500ms.
-* Nmap is used to perform host discovery, port scanning, service enumeration and OS identification. 
+* Nmap is used to perform host discovery, port scanning, service enumeration and OS identification.
 * Matching nmap scripts are used for additional enumeration.
 * Matching Metasploit auxiliary modules are also leveraged.
 
@@ -123,7 +123,7 @@ Run multiple instances of Nikto in parallel.
 ```
 Check for SSL certificate issues.
 
-Enter the location of your list: 
+Enter the location of your list:
 ```
 
 * Use sslscan and sslyze to check for SSL/TLS certificate issues.
