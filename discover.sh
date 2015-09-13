@@ -8,7 +8,7 @@
 #
 # Ben Wood - regex master
 # Dave Klug - planning, testing and bug reports
-# Jay Townsend - conversion of discover.sh to Kali
+# Jay Townsend(L1ghtn1ng) - conversion from Backtrack to Kali, manages pull requests & issues, python conversion
 # Jason Arnold - planning original concept, author of ssl-check and co-author of crack-wifi
 # John Kim - Python guru, bug smasher and parsers
 # Eric Milam - total re-write using functions
