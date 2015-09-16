@@ -18,12 +18,15 @@ echo -e "\e[1;33mChecking if goofile is installed, if not installing.\e[0m"
 echo
 
 which goofile >/dev/null 2>&1
+
 if [ $? -eq 0 ]; then
-    echo ""
+     echo
 else
-    echo ""
-    apt-get -y install goofile
-    echo ""
-    exit 1
+     echo
+     apt-get -y install goofile
+     echo
+     exit 1
 fi
+
+echo
 echo
