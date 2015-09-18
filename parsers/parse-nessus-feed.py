@@ -85,7 +85,7 @@ def max_field_len_excel(ggchild, row_number):
 
 def get_sum_from_xml(filename):
     print "\nParsing XML data. This takes about 90 sec...\n"
-    results_table = [["Vulnerability", "CVSS Base Score", "Description", "Solution", "Published", "Modified", "See Also"]
+    results_table = [["Vulnerability", "CVSS Base Score", "Description", "Remediation", "Published", "Modified", "See Also"]
 
     try:
         tree = ET.parse(filename)
