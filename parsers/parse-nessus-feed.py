@@ -4,7 +4,7 @@
 # Thanks to Securicon, LLC. for sponsoring development
 #
 # Converts the Nessus plugin database into a CSV file with the following columns:
-#    Vulnerability, CVSS Base Score, Description, Solution, Published
+#    Vulnerability, CVSS Base Score, Description, Solution, Published, Modified
 #
 # To genrate database:
 # Kali Linux
@@ -36,7 +36,7 @@ class UnicodeWriter:
 
     def writerow(self, row):
         self.writer.writerow([s.encode("utf-8") for s in row])
-        # Fetch UTF-8 output from the queue ...
+        # Fetch UTF-8 output from the queue
         data = self.queue.getvalue()
         data = data.decode("utf-8")
         # ... and reencode it into the target encoding
@@ -85,7 +85,7 @@ def max_field_len_excel(ggchild, row_number):
 
 def get_sum_from_xml(filename):
     print "\nParsing XML data. This takes about 90 sec...\n"
-    results_table = [["Vulnerability", "CVSS Base Score", "Description", "Solution", "Published", "Modified"]]
+    results_table = [["Vulnerability", "CVSS Base Score", "Description", "Solution", "Published", "Modified", "See Also"]
 
     try:
         tree = ET.parse(filename)
@@ -97,7 +97,7 @@ def get_sum_from_xml(filename):
     row_tracker = 1
     for child in root:
         row_tracker += 1
-        row = ["", "", "", "", "", ""]
+        row = ["", "", "", "", "", "", ""]
         for gchild in child:
 
             if gchild.tag == "script_name":
@@ -119,6 +119,9 @@ def get_sum_from_xml(filename):
 
                     elif ggchild[0].text == "plugin_modification_date":
                         row[5] = max_field_len_excel(ggchild, row_tracker)
+
+                    elif ggchild[0].text == "see_also":
+                        row[6] = max_field_len_excel(ggchild, row_tracker)
 
         results_table.append(row)
 
