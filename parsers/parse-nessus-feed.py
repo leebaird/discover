@@ -60,10 +60,12 @@ def write_results(results_table, out_filename):
             sum_write.writerows(results_table)
 
     except IOError as e:
-        print "Error writing CSV file. Check for permissions and/or path."
+        print "Error writing CSV file. Check for permissions and/or path.\n"
+        print(e)
         exit()
 
 ################################################################
+
 
 def max_field_len_excel(ggchild, row_number):
     field = ggchild[1].text
@@ -83,14 +85,15 @@ def max_field_len_excel(ggchild, row_number):
 
 ################################################################
 
+
 def get_sum_from_xml(filename):
     print "\nParsing XML data. This takes about 90 sec...\n"
-    results_table = [["Vulnerability", "CVSS Base Score", "Description", "Remediation", "Published", "Modified", "See Also"]
+    results_table = [["Vulnerability", "CVSS Base Score", "Description", "Remediation", "Published", "Modified", "See Also"]]
 
     try:
         tree = ET.parse(filename)
         root = tree.getroot()
-    except:
+    except IOError:
         print "Error reading/parsing XML file. Likely XML file is mangled in some way. Check the XML file."
         exit()
 

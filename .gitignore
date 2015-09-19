@@ -1,3 +1,4 @@
 *.gnamp
 *.nmap
 *.xml
+.idea
