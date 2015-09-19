@@ -66,7 +66,6 @@ def write_results(results_table, out_filename):
 
 ################################################################
 
-
 def max_field_len_excel(ggchild, row_number):
     field = ggchild[1].text
     if len(field) > 32767:
@@ -85,10 +84,9 @@ def max_field_len_excel(ggchild, row_number):
 
 ################################################################
 
-
 def get_sum_from_xml(filename):
     print "\nParsing XML data. This takes about 90 sec...\n"
-    results_table = [["Vulnerability", "CVSS Base Score", "Description", "Remediation", "Published", "Modified", "See Also"]]
+    results_table = [["Vulnerability", "CVSS Base Score", "Description", "Remediation", "Published", "Updated", "See Also"]]
 
     try:
         tree = ET.parse(filename)
