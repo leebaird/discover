@@ -49,7 +49,7 @@ elif [ -n "$(command -v apt-get)" ]; then
      echo
      exit 1
 elif [ -n "$(command -v pacman)" ]; then
-	echo
+     echo
      pacman -S goofile
      echo
      exit 1
