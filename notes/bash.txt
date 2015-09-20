@@ -17,6 +17,7 @@ sed '/[[:blank:]]/d'                                # Find lines that contain a 
 grep 'FOO'                                          # Find lines that contain FOO        
 sed '/FOO/I,+12 d'                                  # Find lines that contain FOO, and delete that and the next 12 lines
 sed -i '/FOO/,${D}' file                            # Find lines that contain FOO, and delete to the end of file
+sed 's/FOO/\n&/g'                                   # Find lines that contain FOO, and insert a new line and FOO
 grep 'FOO\|BAR'                                     # Find lines that contain FOO, and lines that contain BAR
 sed '1N;N;/\(.*\n\)\{2\}.*FOO/P;$d;D'               # Find lines that contain FOO, and print the second line before that
 
