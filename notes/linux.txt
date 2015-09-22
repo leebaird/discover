@@ -136,15 +136,16 @@ top                                Running processes
 
 # Proxy
 
-export http_proxy=http://proxy.target.com:3128
-export https_proxy=https://proxy.target.com:3128
+Add to /root/.bashrc
+export http_proxy=http://username:password@proxy:port
+export https_proxy=https://username:password@proxy:port
 
-git clone https://github.com/leebaird/backtrack-scripts.git /opt/scripts/
+git clone https://github.com/leebaird/discover.git /opt/discover/
 
 nano /root/.subversion/servers
 [global]
-http-proxy-host = proxy.target.com     
-http-proxy-port = 3128
+http-proxy-host = proxy
+http-proxy-port = port
 ------------------------------------------------------------------------------------------------------
 
 # Searching
