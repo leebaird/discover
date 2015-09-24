@@ -4,9 +4,9 @@ clear
 echo
 echo
 
-x=`uname -a | awk '{print $3}' | cut -d '.' -f1`
+x=$(uname -a | awk '{print $3}' | cut -d '.' -f1)
 
-if [ $x > 3 ]; then
+if [[ $x > 3 ]]; then
      echo -e "\e[1;34mUpdating OS.\e[0m"
      apt-get update ; apt-get -y upgrade
 else
