@@ -4,7 +4,12 @@ clear
 echo
 echo
 
-echo -e "\e[1;34mUpdating OS.\e[0m"
+x=`uname -a | awk '{print $3}' | cut -d '.' -f1`
+
+if [ $x > 3 ]; then
+     echo -e "\e[1;34mUpdating OS.\e[0m"
+     apt-get update ; apt-get -y upgrade
+else
 apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
 
 if [ -d /opt/discover/.git ]; then
@@ -96,6 +101,7 @@ if [ ! -f /usr/share/windows-binaries/wce.exe ]; then
 fi
 
 echo -e "\e[1;34mUpdating locate database.\e[0m" ; updatedb
+fi
 
 echo
 echo
