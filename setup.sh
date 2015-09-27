@@ -11,9 +11,7 @@ if [ -n "$(command -v apt-get)" ]; then
 
 elif [ -n "$(command -v pacman)" ]; then
     pacman -S filezilla
-else
-    echo "apt-get and pacman aren't package managers?"
-    exit 1;
+
 fi
 
 echo
@@ -49,6 +47,29 @@ elif [ -n "$(command -v apt-get)" ]; then
      echo
      exit 1
 elif [ -n "$(command -v pacman)" ]; then
+     echo "Installing needed dependecies for Arch goofile."
+     echo
+     pacman -S wget
+     echo 
+     pacman -S gnupg
+     echo
+     pacman -S grep
+     echo
+     wget http://blackarch.org/keyring/blackarch-keyring.pkg.tar.xz{,.sig}
+     echo
+     gpg --keyserver hkp://pgp.mit.edu --recv 4345771566D76038C7FEB43863EC0ADBEA87E4E3
+     echo
+     gpg --keyserver-o no-auto-key-retrieve --with-f blackarch-keyring.pkg.tar.xz.sig
+     echo
+     pacman-key --init
+     echo
+     rm blackarch-keyring.pkg.tar.xz.sig
+     echo
+     pacman --noc -U blackarch-keyring.pkg.tar.xz
+     echo '[blackarch]' >> /etc/pacman.conf
+     echo 'Server = http://www.blackarch.org/blackarch/$repo/os/$arch' >> /etc/pacman.conf
+     echo
+     pacman -Syyu
      echo
      pacman -S goofile
      echo
