@@ -10,7 +10,7 @@ if [[ $x > 3 ]]; then
      echo -e "\e[1;34mUpdating Kali 2.0.\e[0m"
      apt-get update ; apt-get -y upgrade ; echo
 
-     if [ ! -d /usr/bin/goofile ]; then
+     if [ ! -f /usr/bin/goofile ]; then
           echo -e "\e[1;33mInstalling goofile.\e[0m"
           wget "https://goofile.googlecode.com/files/goofilev1.5.zip"
           unzip -p goofilev1.5.zip goofilev1.5/goofile.py > /usr/bin/goofile
