@@ -15,6 +15,7 @@ if [[ $x > 3 ]]; then
           wget "https://goofile.googlecode.com/files/goofilev1.5.zip"
           unzip -p goofilev1.5.zip goofilev1.5/goofile.py > /usr/bin/goofile
           chmod +x /usr/bin/goofile
+          rm goofilev1.5.zip
           echo
      fi
 
