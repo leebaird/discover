@@ -111,9 +111,9 @@ else
           rm Changelog LICENSE.txt README wce_v1_4beta_universal.zip
           echo
      fi
-
-     echo -e "\e[1;34mUpdating locate database.\e[0m" ; updatedb
 fi
+
+echo -e "\e[1;34mUpdating locate database.\e[0m" ; updatedb
 
 echo
 echo
