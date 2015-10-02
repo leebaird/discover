@@ -16,7 +16,6 @@ if [[ $x > 3 ]]; then
           unzip -p goofilev1.5.zip goofilev1.5/goofile.py > /usr/bin/goofile
           chmod +x /usr/bin/goofile
           rm goofilev1.5.zip
-          echo
      fi
 
      if [ -d /opt/discover/.git ]; then
