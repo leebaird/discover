@@ -54,6 +54,7 @@ else
      else
           echo -e "\e[1;33mInstalling EyeWitness.\e[0m"
           git clone git://github.com/ChrisTruncer/EyeWitness.git /opt/EyeWitness
+          echo
      fi
 
      if [ ! -f /opt/google/chrome/google-chrome ]; then
