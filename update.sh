@@ -100,13 +100,13 @@ fi
 
 if [ ! -f /usr/bin/goofile ]; then
      echo -e "\e[1;33mInstalling goofile.\e[0m"
-     apt-get install goofile
+     apt-get install -y goofile
      echo
 fi
 
 if [ ! -f /usr/bin/xdotool ]; then
      echo -e "\e[1;33mInstalling xdotool.\e[0m"
-     apt-get install xdotool
+     apt-get install -y xdotool
      echo
 fi
 
