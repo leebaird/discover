@@ -8,9 +8,6 @@ run
 use auxiliary/scanner/smb/pipe_dcerpc_auditor
 run
 
-use auxiliary/scanner/smb/psexec_loggedin_users
-run
-
 use auxiliary/scanner/smb/smb2
 run
 

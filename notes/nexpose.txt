@@ -1,17 +1,7 @@
 Nexpose
 
 
-# Copy Full audit
-     Service Discovery:
-          Add TCP ports 3200, 3201 and 15000
-          Add UDP port 4045
-
-# Copy Web audit
-     General - turn off Policies
-     Vulnerability Checks > Selected Checks > By Check Type > Disabled:
-          Microsoft hotfix, Patch, RPM, Sun patch, Version, Windows registry and Policy
-     Web Servers - turn on Enable adaptive HTTP fingerprinting
-     Web Spidering - turn on Check use of common user names and passwords
+# Full Audit
 
 # Exclude Vulnerabilities
      ICMP timestamp response
@@ -105,3 +95,4 @@ ORDER BY da.ip_address, dv.title
 SELECT title AS "Title", ROUND(cvss_score::numeric, 1) AS "CVSS Score"
 FROM dim_vulnerability
 ORDER BY title
+
