@@ -9,32 +9,9 @@ x=$(uname -a | awk '{print $3}' | cut -d '.' -f1)
 if [[ $x > 3 ]]; then
      echo -e "\e[1;34mUpdating Kali 2.0.\e[0m"
      apt-get update ; apt-get -y upgrade ; echo
-
-     if [ ! -f /usr/bin/goofile ]; then
-          echo -e "\e[1;33mInstalling goofile.\e[0m"
-          wget "https://goofile.googlecode.com/files/goofilev1.5.zip"
-          unzip -p goofilev1.5.zip goofilev1.5/goofile.py > /usr/bin/goofile
-          chmod +x /usr/bin/goofile
-          rm goofilev1.5.zip
-     fi
-
-     if [ -d /opt/discover/.git ]; then
-          echo -e "\e[1;34mUpdating Discover scripts.\e[0m"
-          cd /opt/discover/ ; git pull
-          cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
-          echo
-     fi
-
 else
      echo -e "\e[1;34mUpdating Kali.\e[0m"
      apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
-
-     if [ -d /opt/discover/.git ]; then
-          echo -e "\e[1;34mUpdating Discover scripts.\e[0m"
-          cd /opt/discover/ ; git pull
-          cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
-          echo
-     fi
 
      if [ -d /opt/easy-creds/.git ]; then
           echo -e "\e[1;34mUpdating easy-creds.\e[0m"
@@ -112,6 +89,25 @@ else
           rm Changelog LICENSE.txt README wce_v1_4beta_universal.zip
           echo
      fi
+fi
+
+if [ -d /opt/discover/.git ]; then
+     echo -e "\e[1;34mUpdating Discover scripts.\e[0m"
+     cd /opt/discover/ ; git pull
+     cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
+     echo
+fi
+
+if [ ! -f /usr/bin/goofile ]; then
+     echo -e "\e[1;33mInstalling goofile.\e[0m"
+     apt-get install goofile
+     echo
+fi
+
+if [ ! -f /usr/bin/xdotool ]; then
+     echo -e "\e[1;33mInstalling xdotool.\e[0m"
+     apt-get install xdotool
+     echo
 fi
 
 echo -e "\e[1;34mUpdating locate database.\e[0m" ; updatedb
