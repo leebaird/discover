@@ -4,14 +4,7 @@ clear
 echo
 echo
 
-x=$(uname -a | awk '{print $3}' | cut -d '.' -f1)
-
-if [[ $x > 3 ]]; then
-     echo -e "\e[1;34mUpdating Kali 2.0.\e[0m"
-     apt-get update ; apt-get -y upgrade ; echo
-else
-     echo -e "\e[1;34mUpdating Kali.\e[0m"
-     apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
+/opt/discover/mods/kali.py
 
      if [ -d /opt/easy-creds/.git ]; then
           echo -e "\e[1;34mUpdating easy-creds.\e[0m"
