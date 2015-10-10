@@ -99,6 +99,18 @@ net group "Enterprise Admins" hacker /add /domain
 net groups "Enterprise Admins" /domain
 ------------------------------------------------------------------------------------------------------
 
+# Domain control
+nbtstat -a <target IP>
+
+The netbios hex code “1C” next to the domain name signifies that the system being polled is a domain 
+controller for the domain name listed on the left. If the “1C” would have been next to an Inet service
+it would have signified it was an IIS server.
+
+Note the differences between the U and the G. U = UNIQUE and G = GROUP. When you see a hex code next 
+to UNIQUE it is usually associated with the computer itself. With GROUP it is associated with the 
+workgroup or domain: https://support.microsoft.com/en-us/kb/163409
+------------------------------------------------------------------------------------------------------
+
 # Enumeration
  
 arp -a
@@ -127,13 +139,13 @@ tasklist /m
 tasklist /svc
 tasklist /v
 
-dir c:\*.xls /s				     # Show all Excel docs.
-dir c:\*.xlsx /s			     # Show all Excel docs.
-dir c:\*.ppt /s				     # Show all PowerPoint docs.
-dir c:\*.pptx /s			     # Show all PowerPoint docs.
-dir c:\*.doc /s				     # Show all Word docs.
-dir c:\*.docx /s			     # Show all Word docs.
-dir c:\*.pdf /s				     # Show all PDFs.
+dir c:\*.xls /s                         # Show all Excel docs.
+dir c:\*.xlsx /s                        # Show all Excel docs.
+dir c:\*.ppt /s                         # Show all PowerPoint docs.
+dir c:\*.pptx /s                        # Show all PowerPoint docs.
+dir c:\*.doc /s                         # Show all Word docs.
+dir c:\*.docx /s                        # Show all Word docs.
+dir c:\*.pdf /s                         # Show all PDFs.
 ------------------------------------------------------------------------------------------------------
 
 # Firewall
