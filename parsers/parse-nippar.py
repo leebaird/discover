@@ -32,8 +32,8 @@ CUSTOM_HEADERS_SECURITY_AUDIT = {'ip_address': 'IP Address',
                                  'fqdn': 'FQDN',
                                  'os': 'OS',
                                  'cvss': 'CVSS',
-                                 'vuln_name': 'Vulnerability Name',
-                                 'vuln_description': 'Description',
+                                 'audit_name': 'Audit Name',
+                                 'audit_description': 'Description',
                                  'solution': 'Solution',
                                  'cve': 'CVE'}
 
@@ -41,8 +41,8 @@ REPORT_HEADERS_SECURITY_AUDIT = ['ip_address',
                                  'fqdn',
                                  'os',
                                  'cvss',
-                                 'vuln_name',
-                                 'vuln_description',
+                                 'audit_name',
+                                 'audit_description',
                                  'solution',
                                  'cve']
 
@@ -59,105 +59,125 @@ def htmltext(blob):
     return h.handle(blob)
 
 
-def report_writer(report_dic, output_filename):
+def trim_for_excel(text):
+    if len(text) > 32000:
+        return "".join([text[:32000], " [Text Cut Due To Length]"])
+    else:
+        return text
+
+
+def nipper_parser(nipper_xml_file, output_filename):
+
     with open(output_filename, "wb") as outFile:
-        csvWriter = utfdictcsv.DictUnicodeWriter(outFile, REPORT_HEADERS_SECURITY_AUDIT, quoting=csv.QUOTE_ALL)
+        csvWriter = utfdictcsv.DictUnicodeWriter(outFile, REPORT_HEADERS_SECURITY_AUDIT, quoting=csv.QUOTE_ALL, extrasaction='ignore')
         csvWriter.writerow(CUSTOM_HEADERS_SECURITY_AUDIT)
-        csvWriter.writerows(report_dic)
-    print "Successfully parsed!"
 
+        # ret_rows = []
+        master_endpoint_table = {}
+        parser = etree.XMLParser(remove_blank_text=True, no_network=True, recover=True)
+        root = etree.parse(nipper_xml_file, parser)
 
-def nipper_parser(nipper_xml_file):
-    ret_rows = []
-    issue_row = {}
+        # NAME, OS, ip pulled from Security audit and configuration section
+        server_info_list = root.xpath("//document/report/part[@ref='SECURITYAUDIT']/section[@ref='SECURITY.INTRODUCTION']"
+                                 "/table/tablebody/tablerow")
 
-    parser = etree.XMLParser(remove_blank_text=True, no_network=True, recover=True)
-    root = etree.parse(nipper_xml_file, parser)
+        for server_info in server_info_list:
 
-    # IPs
-    server_info = root.xpath("//document/report/part[@ref='CONFIGURATION']/section[@ref='CONFIGURATION.']"
-                             "/section[@ref='CONFIGURATION.ADDRESSES']/section/table/tablebody/tablerow")
-    _ip_list = [ tablerow[2].findtext('item') for tablerow in server_info if tablerow[2].findtext('item')]
-    issue_row['ip_address'] = "\n".join(_ip_list)
+            _device_name = server_info[1].findtext('item')
+            _device_os = server_info[2].findtext('item')
+            _device_description = trim_for_excel(server_info[0].findtext('item'))
 
-    # NAME, OS
-    server_info = root.xpath("//document/report/part[@ref='SECURITYAUDIT']/section[@ref='SECURITY.INTRODUCTION']"
-                             "/table/tablebody/tablerow")
-    if server_info:
-        _device_name = server_info[0][1].findtext('item')
-        _device_os = server_info[0][2].findtext('item')
-        issue_row['fqdn'] = _device_name
-        issue_row['os'] = _device_os
+            # IPs
+            ip_info = root.xpath("//document/report/part[@ref='CONFIGURATION']/section[@ref='CONFIGURATION.']")
+            _ip_list = []
+            for ip_config in ip_info:
 
-    # VULNS vulnerabilities
-    server_info = root.xpath("//document/report/part[@ref='VULNAUDIT']/section")
+                # per device collect all available IP's
+                if _device_name.lower() in ip_config.attrib['title'].lower():
+                    _temp = ip_config.xpath("section[@ref='CONFIGURATION.ADDRESSES']/section/table[starts-with(@ref, 'ADDRESSES.IPV4.INTERFACES')]/tablebody/tablerow")
+                    for _row in _temp:
+                        cells = _row.xpath('tablecell')
 
-    for vuln_item in server_info:
-        if "VULNAUDIT.CVE" in vuln_item.attrib['ref']:
-            _temp = issue_row.copy()
+                        # 3rd cell is ip address/subnet
+                        iface_network = cells[2].findtext('item')
+                        if len(iface_network) > 0:
+                            _ip_list.append(iface_network)
 
-            # VULN CVE
-            _cve = vuln_item.attrib['title']
-            _temp['cve'] = _cve
-            _temp['vuln_name'] = _cve
+            _device_ips = ",\n".join(_ip_list)
+            master_endpoint_table[_device_name] = {'os': _device_os, 'device_description': _device_description, 'fqdn':_device_name, 'ip_address': _device_ips}
 
-            # CVSS
-            _cvss = vuln_item.findtext("infobox/infodata[@label='CVSSv2 Score']")
-            _temp['cvss'] = _cvss
+        # Vulnerability Audit
+        vuln_scan_info = root.xpath("//document/report/part[@ref='VULNAUDIT']/section")
 
-            _vuln_solution_links = []
-            for section in vuln_item:
-                if section.attrib['title'] == "Summary":
+        for vuln_item in vuln_scan_info:
+            if "VULNAUDIT.CVE" in vuln_item.attrib['ref']:
 
-                    # VULN Summary
-                    _temp['vuln_description'] = section.findtext('text')
+                # get devices that have vuln per vuln
+                for server_name in master_endpoint_table:
+                    #
+                    _affected_devices = vuln_item.findtext("section[@title='Affected Device']/text")
+                    if _affected_devices is None:
+                        # check vuln audit section via alternative method of storing device name in a sub table.
+                        _affected_devices_list = vuln_item.find("section[@title='Affected Devices']/list")
+                        _affected_devices = "".join([device.text for device in _affected_devices_list])
 
-                elif section.attrib['title'] in ['Vendor Security Advisory', 'Reference', 'References']:
-                    listitem = section.findtext('list/listitem')
-                    # for listitem in listitems:
-                    # print listitem
-                    _vul_link_key = listitem
-                    listitem = section.findtext('list/listitem/weblink')
-                    # for listitem in listitems:
-                    # print listitem
-                    _vul_links = listitem
-                    _vuln_solution_links.append("{}: {}".format(_vul_link_key, _vul_links))
-                    # print _vul_link_key, _vul_links
-            # SOLUTION LINKS
-            _temp['solution'] = "\n".join(_vuln_solution_links)
-            # print vuln_solutions
-            ret_rows.append(_temp.copy())
+                    if server_name.lower() in _affected_devices.lower():
+                        _temp = master_endpoint_table[server_name].copy()
 
+                        # VULN CVE
+                        _cve = vuln_item.attrib['title']
+                        _temp['cve'] = _cve
+                        _temp['audit_name'] = _cve
 
-    # Security Audit
-    server_info = root.xpath("//document/report/part[@ref='SECURITYAUDIT']/section")
+                        # CVSS
+                        _cvss = vuln_item.findtext("infobox/infodata[@label='CVSSv2 Score']")
+                        _temp['cvss'] = _cvss
 
-    for vuln_item in server_info:
-        if vuln_item.attrib['ref'] not in ["SECURITY.INTRODUCTION", "SECURITY.CONCLUSIONS", "SECURITY.RECOMMENDATIONS", "SECURITY.MITIGATIONS"]:
-            _temp = issue_row.copy()
-            # print _temp
-            # Vulnerability
-            _vuln = vuln_item.attrib['title']
-            _temp['vuln_name'] = _vuln
+                        _vuln_solution_links = []
+                        for section in vuln_item:
+                            if section.attrib['title'] == "Summary":
 
-            # _vuln_solution_links = []
-            for section in vuln_item.xpath('section[@ref="FINDING"]'):
-                # VULN DESCRIPTION
-                _vuln_description = htmltext(etree.tostring(section))
-                _temp['vuln_description'] = fix_text(_vuln_description)
+                                # VULN Summary
+                                _temp['audit_description'] = trim_for_excel(section.findtext('text'))
 
-            for section in vuln_item.xpath('section[@ref="RECOMMENDATION"]'):
-                # VULN Recommendation
-                _vuln_solution = htmltext(etree.tostring(section))
+                            elif section.attrib['title'] in ['Vendor Security Advisory', 'Reference', 'References']:
+                                listitem = section.findtext('list/listitem')
+                                _vul_link_key = listitem
+                                listitem = section.findtext('list/listitem/weblink')
+                                _vul_links = listitem
+                                _vuln_solution_links.append("{}: {}".format(_vul_link_key, _vul_links))
 
-                _temp['solution'] = fix_text(_vuln_solution)
+                        # SOLUTION LINKS
+                        _temp['solution'] = trim_for_excel("\n".join(_vuln_solution_links))
+                        csvWriter.writerow(_temp)
 
-            # CVE
-            _temp['cve'] = "\n".join([_cve_items.text for _cve_items in
-                                     vuln_item.xpath('section[@ref="IMPACT"]/table/tablebody/tablerow/tablecell/item')
-                                     if _cve_items.text is not None if "cve" in _cve_items.text.lower()])
-            ret_rows.append(_temp.copy())
-    return ret_rows
+        # Security Audit
+        security_audit = root.xpath("//document/report/part[@ref='SECURITYAUDIT']/section")
+
+        for audit_item in security_audit:
+            if audit_item.attrib['ref'] not in ["SECURITY.INTRODUCTION",
+                                               "SECURITY.CONCLUSIONS",
+                                               "SECURITY.RECOMMENDATIONS",
+                                               "SECURITY.MITIGATIONS"]:
+
+                for audit_server_list in audit_item.xpath('issuedetails/devices/device'):
+                    server_name = audit_server_list.attrib['name']
+                    _temp = master_endpoint_table[server_name].copy()
+                    _temp['audit_name'] = audit_item.attrib['title']
+
+                    for section in audit_item.xpath('section[@ref="FINDING"]'):
+                        # VULN DESCRIPTION
+                        _temp['audit_description'] = trim_for_excel(fix_text(htmltext(etree.tostring(section))))
+
+                    for section in audit_item.xpath('section[@ref="RECOMMENDATION"]'):
+                        # VULN Recommendation
+                        _temp['solution'] = trim_for_excel(fix_text(htmltext(etree.tostring(section))))
+
+                        # CVE
+                        _temp['cve'] = "\n".join([_cve_items.text for _cve_items in
+                                                 audit_item.xpath('section[@ref="IMPACT"]/table/tablebody/tablerow/tablecell/item')
+                                                 if _cve_items.text is not None if "cve" in _cve_items.text.lower()])
+                    csvWriter.writerow(_temp)
 
 
 if __name__ == "__main__":
@@ -176,9 +196,10 @@ if __name__ == "__main__":
 
     args = aparser.parse_args()
 
-    # try:
-    # nipper_parser(args.nipper_xml_file)
-    report_writer(nipper_parser(args.nipper_xml_file),"nipper_vulns.csv")
-    # except IOError:
-    #     print "ERROR processing file: {}.".format(args.nipper_xml_file)
-    #     exit()
+    try:
+        nipper_parser(args.nipper_xml_file, args.outfile)
+        print "Successfully parsed!"
+
+    except IOError:
+        print "ERROR processing file: {}.".format(args.nipper_xml_file)
+        exit()
