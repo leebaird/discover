@@ -1,20 +1,11 @@
 Nexpose
 
 
-# Copy Full audit
-     Service Discovery:
-          Add TCP ports 3200, 3201 and 15000
-          Add UDP port 4045
+# Full Audit
 
-# Copy Web audit
-     General - turn off Policies
-     Vulnerability Checks > Selected Checks > By Check Type > Disabled:
-          Microsoft hotfix, Patch, RPM, Sun patch, Version, Windows registry and Policy
-     Web Servers - turn on Enable adaptive HTTP fingerprinting
-     Web Spidering - turn on Check use of common user names and passwords
-
-# Vulnerabilities
+# Exclude Vulnerabilities
      ICMP timestamp response
+     NetBIOS NBSTAT Traffic Amplification
      TCP Sequence Number Approximation Vulnerability
      TCP timestamp response
      UDP IP ID Zero
