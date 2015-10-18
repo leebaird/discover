@@ -5,7 +5,7 @@ For use with Kali Linux. Custom bash scripts used to automate various pentesting
 This project is licensed under the ```BSD 3-clause “New” or “Revised” License```. For more information please see the licence file
 
 ### Download, setup & usage
-* git clone git://github.com/leebaird/discover.git /opt/discover/
+* git clone https://github.com/leebaird/discover /opt/discover/
 * All scripts must be ran from this location.
 * cd /opt/discover/
 * ./discover.sh
