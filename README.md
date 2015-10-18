@@ -8,8 +8,7 @@ This project is licensed under the ```BSD 3-clause “New” or “Revised” Li
 * git clone https://github.com/leebaird/discover /opt/discover/
 * All scripts must be ran from this location.
 * cd /opt/discover/
-* ./discover.sh
-* 14. Update
+* ./update.sh
 
 ```
 RECON
