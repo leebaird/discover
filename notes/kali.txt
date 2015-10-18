@@ -1,31 +1,6 @@
 Kali
 
 
-# Download
-
-http://archive.kali.org/kali-daily-images/
-kali-linux-daily-amd64.iso
-
-Verify the SHA1 checksum.
-OS X
-     openssl sha1 kali-linux-daily-amd64.iso
-Windows
-     Download Microsoft File Checksum Integrity Verifier
-     www.microsoft.com/en-us/download/details.aspx?id=11533
-     fciv.exe –sha1 kali-linux-daily-amd64.iso
-------------------------------------------------------------------------------------------------------
-
-# Create a bootable USB
-
-Download UNetbootin.
-http://unetbootin.sourceforge.net/
-Open UNetbootin.
-Select Diskimage > ‘…’ > browse to kali-linux-daily-amd64.iso > Open
-Type: USB Drive
-OK
-Should take about 15 min to complete > Exit
-------------------------------------------------------------------------------------------------------
-
 # Install
 
 Set the computer BIOS to boot from USB before the hard drive.
@@ -47,60 +22,44 @@ Partition disks: Yes > Continue
 Configure the package manager: Yes > Continue
 Install the GRUB boot loader on a hard disk > Continue
 ------------------------------------------------------------------------------------------------------
- 
-# Remove screen lock
-
-root (upper right corner) > System Settings > Brightness & Lock
-Turn screen off when inactive for: 1 hour
-Lock: Off
-------------------------------------------------------------------------------------------------------
 
 # Terminal
 
 Edit > Profile Preferences
-General: Uncheck Use the system fixed width font
-Background: Solid color
+Initial terminal size: 120 x 50
+Custom font: Monospace Regular 13
+Colors: Uncheck Use transparent background
+Close
 ------------------------------------------------------------------------------------------------------
 
-# Install Discover scripts
+# Disable screen lock
 
-git clone https://github.com/leebaird/discover.git /opt/discover/
-cd /opt/discover/
-./update.sh
+Show Applications > Settings > Power
+Power Saving > Blank screen: Never
+Back arrow
+Privacy > Screen Lock > Automatic Screen Lock: Off
 ------------------------------------------------------------------------------------------------------
 
 # gedit
 
-gedit
-Edit > Preferences
+Preferences
 View: Display line numbers, Highlight current line
-Editor: Tab width 5, Insert spaces instead of tabs, uncheck Create a backup copy of files before saving
-Font & Colors: Oblivion
+Editor: Tab width 5, Insert spaces instead of tabs
+Font & Colors: Uncheck Use the sytem fixed wideth font
+Color Scheme: Oblivion
 ------------------------------------------------------------------------------------------------------
 
-# Iceweasel
+# Fonts
 
-Tools > Ad-Ons > Extensions:
-     Firebug, Live HTTP headers, 
-     Make Address Bar Font Size Bigger, Tamper Data, Web Developer
-
-Add bookmark
-     NSEDoc           http://nmap.org/nsedoc/
-
-Add folder: Scanners
-     Metasploit       https://localhost:3790
-     Nessus           https://localhost:8834
-     Nexpose          https://localhost:3780
+Applications > Favorites > Tweak Tool > Fonts
+Change the first four to 12
 ------------------------------------------------------------------------------------------------------
 
-# Install Apache Directory Studio
+# Install Discover scripts
 
-https://directory.apache.org/studio/
-Verify the MD5 checksum.
-md5 <installer file>
-tar zxvf <installer file>
-mv <folder> /opt/ApacheDirectoryStudio/
-rm <installer file>
+git clone https://github.com/leebaird/discover /opt/discover/
+cd /opt/discover/
+./update.sh
 ------------------------------------------------------------------------------------------------------
 
 # Install CAC Reader (if needed)
@@ -122,23 +81,6 @@ Iceweasel > Edit > Preferences > Advanced > Security Devices > Load
 Firefox extension     www.forge.mil/Resources-Firefox.html
 ------------------------------------------------------------------------------------------------------
 
-# Install DbVisualizer
-
-www.dbvis.com/download/
-UNIX (setup installer)
-chmod 755 <installer file>
-./<installer file>
-Take all default settings.
-mv DbVisualizer/ /opt/
-rm <installer file>
-------------------------------------------------------------------------------------------------------
-
-# Google Chrome to run at root
-
-nano /opt/google/chrome/google-chrome
-Change the last line to: exec -a "$0" "$HERE/chrome" "$@" --user-data-dir
-------------------------------------------------------------------------------------------------------
-
 # Install VMware Tools (if needed)
 
 VMware > Virtual Machine > Install VMware Tools > Install
@@ -151,14 +93,6 @@ Accept all the defaults until:
    The path "/" is not a valid path to the .....-amd64 kernel headers.
    Would you like to change it?  No
 reboot
-------------------------------------------------------------------------------------------------------
-
-# Create Shortcuts
-
-Alt + right click on menu bar > Add to Panel
-Application Launcher > Forward
-Expand Accessories > gedit Text Editor > Add
-Screenshot > Add
 ------------------------------------------------------------------------------------------------------
 
 # Services
