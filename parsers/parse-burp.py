@@ -148,3 +148,4 @@ if __name__ == "__main__":
         print "\nUsage: ./parse-burp.py Base64_input.xml"
         print "Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0])
         exit()
+

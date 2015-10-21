@@ -21,6 +21,8 @@ import csv
 import sys
 import xml.etree.ElementTree as ET
 
+################################################################
+
 class UnicodeWriter:
     """
     A CSV writer which will write rows to CSV file "f",
@@ -139,3 +141,4 @@ if __name__ == "__main__":
         print "\nUsage: ./parse-nessus-feed.py input.xml output.csv"
         print "Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0])
         exit()
+

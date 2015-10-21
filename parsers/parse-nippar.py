@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+#
+# by John Kim
+# Thanks to Securicon, LLC. for sponsoring development
+#
 #-*- coding:utf-8 -*-
 
 __version__ = "0.1.0"
@@ -6,6 +10,8 @@ __version__ = "0.1.0"
 import csv
 import argparse
 import StringIO
+
+################################################################
 
 # Non-standard libraries
 try:
@@ -203,3 +209,4 @@ if __name__ == "__main__":
     except IOError:
         print "ERROR processing file: {}.".format(args.nipper_xml_file)
         exit()
+

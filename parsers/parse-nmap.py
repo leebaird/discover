@@ -119,3 +119,4 @@ if __name__ == "__main__":
     nmap_xml = NMAP_XMLParser("nmap.xml")          # Input file
     nmap_xml.setCSVPath("nmap.csv")                # Output file
     nmap_xml.dumpCSV()
+

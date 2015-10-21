@@ -26,7 +26,7 @@ Install the GRUB boot loader on a hard disk > Continue
 # Terminal
 
 Edit > Profile Preferences
-Initial terminal size: 120 x 50
+Initial terminal size: 130 x 60
 Custom font: Monospace Regular 13
 Colors: Uncheck Use transparent background
 Close

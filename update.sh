@@ -34,23 +34,6 @@ else
           echo
      fi
 
-     if [ ! -f /opt/google/chrome/google-chrome ]; then
-          echo -e "\e[1;33mInstalling Google Chrome.\e[0m"
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          dpkg -i google-chrome-stable_current_amd64.deb
-          head -n -1 /opt/google/chrome/google-chrome > temp.txt ; mv temp.txt /opt/google/chrome/google-chrome
-          echo 'exec -a "$0" "$HERE/chrome"  "$@" --user-data-dir' >> /opt/google/chrome/google-chrome
-          chmod +x /opt/google/chrome/google-chrome
-          rm google-chrome-stable_current_amd64.deb
-          echo
-     fi
-
-     if [ ! -f /usr/bin/i586-mingw32msvc-c++ ]; then
-          echo -e "\e[1;33mInstalling Ming C Compiler.\e[0m"
-          apt-get -y install mingw32
-          echo
-     fi
-
      if [ -d /opt/rawr/.git ]; then
           echo -e "\e[1;34mUpdating RAWR.\e[0m"
           cd /opt/rawr/ ; git pull
@@ -114,3 +97,4 @@ echo -e "\e[1;34mUpdating locate database.\e[0m" ; updatedb
 
 echo
 echo
+
