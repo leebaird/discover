@@ -20,8 +20,5 @@ echo -n "External IP:  " ; curl ifconfig.me ; echo'
 alias r='cd /root/ ; clear'
 alias s='cd /opt/discover/ ; clear'
 
-alias nexpose='service postgresql stop ; cd /opt/rapid7/nexpose/nsc ; ./nsc.sh'
-
 alias sip='sort -V'
-
 alias update='/opt/discover/update.sh'
