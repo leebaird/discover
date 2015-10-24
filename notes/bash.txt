@@ -141,35 +141,26 @@ echo "$(($diff / 60)) min and $(($diff % 60)) sec."
 
 # Files and folders.
 
-if [ -e /root/test ]; then
+if [ -e test ]; then
      echo "This file exists."
+fi
+
+if [ ! -e test ]; then
+     echo "This file does not exist."
 fi
 
 if [ ! -s test ]; then 
      echo "This file is empty."
 fi
 
-if [ -d /root/test ]; then
+if [ -d test ]; then
      echo "This folder exists."
 fi
 
-if [ ! -d /root/test ]; then
+if [ ! -d test ]; then
      echo "The folder doesn't exist, creating it."
-     mkdir /root/test
+     mkdir test
 fi
-------------------------------------------------------------------------------------------------------
-
-# Find all of the subdomains listed on homepage and print their IPs.
-
-#!/bin/bash
-clear
-
-wget -q target.com
-grep 'href' index.html | cut -d '/' -f3 | cut -d '"' -f1 | grep 'target' | sort -u > subdomains.txt
-
-for x in $(cat subdomains.txt); do
-     host $x | grep 'has address' | cut -d ' ' -f4
-done
 ------------------------------------------------------------------------------------------------------
 
 # If a process is running, kill it.
