@@ -10,6 +10,7 @@ tr '[A-Z]' '[a-z]'                                  # Change to lower case
 sed /^$/d                                           # Compress blank lines
 paste -s -d" "                                      # Convert a list into a single line
 
+uniq -c                                             # Count the number of different items
 grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}'              # Find IPs
 perl -pe 's/\d{2}\/\d{2}\/\d{2}//g'                 # Find dates mm/dd/yy
 

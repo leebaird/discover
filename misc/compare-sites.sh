@@ -2,7 +2,7 @@
 
 clear
 
-break="=================================================="
+break="========================================"
 DIR=/root/Desktop/compare-sites
 DIFFONLY=false
 

@@ -35,7 +35,7 @@ CIDR:           159.0.0.0/16
 CIDR:           176.0.0.0/8
 CIDR:           185.0.0.0/8
 
-OrgName:        Headquarters, USAISC
+OrgName:        USAISC Headquarters
 CIDR:           6.0.0.0/8
 CIDR:           55.0.0.0/8
 

@@ -20,6 +20,7 @@ if [ -z $domain ]; then
      echo
      echo "Invalid choice."
      echo
+     echo
      exit
 fi
 

@@ -16,15 +16,16 @@ read -p "Class: " class
 
 if [ -z $class ]; then
      echo
-     echo "#########################"
+     echo "========================================"
      echo
      echo "Invalid choice."
+     echo
      echo
      exit
 fi
 
 echo
-echo "#########################"
+echo "========================================"
 echo
 
 for x in `seq 1 254`; do
