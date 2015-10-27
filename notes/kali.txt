@@ -26,18 +26,22 @@ Install the GRUB boot loader on a hard disk > Continue
 # Terminal
 
 Edit > Profile Preferences
-Initial terminal size: 130 x 60
-Custom font: Monospace Regular 13
+Initial terminal size: 130 x 50
 Colors: Uncheck Use transparent background
-Close
 ------------------------------------------------------------------------------------------------------
 
 # Disable screen lock
 
-Show Applications > All Settings > Power
+Top right icon > tools icon > Power
 Power Saving > Blank screen: Never
 Back arrow
 Privacy > Screen Lock > Automatic Screen Lock: Off
+------------------------------------------------------------------------------------------------------
+
+# Fonts
+
+Applications > Favorites > Tweak Tool > Fonts
+Change the first three to 12
 ------------------------------------------------------------------------------------------------------
 
 # gedit
@@ -45,14 +49,18 @@ Privacy > Screen Lock > Automatic Screen Lock: Off
 Preferences
 View: Display line numbers, Highlight current line
 Editor: Tab width 5, Insert spaces instead of tabs
-Font & Colors: Uncheck Use the sytem fixed wideth font
 Color Scheme: Oblivion
 ------------------------------------------------------------------------------------------------------
 
-# Fonts
+# Armitage
 
-Applications > Favorites > Tweak Tool > Fonts
-Change the first three to 12
+msfdb init	      Initialize the database
+armitage
+
+# Metasploit
+
+msfconsole
+hosts                 This will show 9 headers and no db errors
 ------------------------------------------------------------------------------------------------------
 
 # Install Discover scripts
