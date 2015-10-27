@@ -52,15 +52,15 @@ Editor: Tab width 5, Insert spaces instead of tabs
 Color Scheme: Oblivion
 ------------------------------------------------------------------------------------------------------
 
-# Armitage
+# Setup Armitage
 
 msfdb init	      Initialize the database
 armitage
 
-# Metasploit
+# Check Metasploit
 
 msfconsole
-hosts                 This will show 9 headers and no db errors
+db_status             Look for: postgresql connected to msf
 ------------------------------------------------------------------------------------------------------
 
 # Install Discover scripts
