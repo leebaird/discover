@@ -34,7 +34,7 @@ Close
 
 # Disable screen lock
 
-Show Applications > Settings > Power
+Show Applications > All Settings > Power
 Power Saving > Blank screen: Never
 Back arrow
 Privacy > Screen Lock > Automatic Screen Lock: Off
@@ -52,7 +52,7 @@ Color Scheme: Oblivion
 # Fonts
 
 Applications > Favorites > Tweak Tool > Fonts
-Change the first four to 12
+Change the first three to 12
 ------------------------------------------------------------------------------------------------------
 
 # Install Discover scripts
