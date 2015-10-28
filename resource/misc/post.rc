@@ -1,4 +1,5 @@
 getsystem
 sysinfo
 hasdump
-
+run get_application_list
+run winenum
