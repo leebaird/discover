@@ -558,7 +558,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      cat whois-ip >> /$user/data/$domain/data/whois-ip.htm; echo "</pre>" >> /$user/data/$domain/data/whois-ip.htm
      cat zreport >> /$user/data/$domain/data/passive-recon.htm; echo "</pre>" >> /$user/data/$domain/data/passive-recon.htm
 
-#     rm emails* hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm debug* emails hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
      echo
      echo $medium
@@ -588,7 +588,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 1
      firefox -new-tab google.com/#q=filetype%3Atxt+site%3A$domain &
      sleep 1
-     firefox -new-tab ssllabs.com/ssltest/analyze.html?d=$domain &
+     firefox -new-tab https://www.ssllabs.com/ssltest/analyze.html?d=$domain &
      sleep 1
      firefox -new-tab http://www.urlvoid.com/scan/$domain &
      sleep 1
@@ -600,7 +600,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 1
      firefox -new-tab pastebin.com/ &
      sleep 1
-     firefox -new-tab shodanhq.com/ &
+     firefox -new-tab https://www.shodan.io/search?query=$domain &
      sleep 1
      firefox -new-tab reuters.com/finance/stocks &
      sleep 1
