@@ -42,8 +42,6 @@ write   (w)	 2
 execute (e)	 1
  
 chmod 755 test.sh                  Make a file executable
-
-find . -name "*.py" -exec chmod 755 {} \;     Recursively change permission of all files ending with .py - Jason Arnold
 ------------------------------------------------------------------------------------------------------
  
 # Files
@@ -78,7 +76,15 @@ tail tmp                           Show the last 10 lines of tmp
 tail -20 tmp                       Show the last 20 lines of tmp
 tail -f tmp                        Show the file contents as it grows
 ------------------------------------------------------------------------------------------------------
- 
+
+# Finding Files
+
+updatedb                           Update the database of file names on the system
+locate file                        Reads a list of files from the database and show the location of a file
+which app                          Show the path where the app is executed
+find / -name sbd*                  Show all the files that start with sbd
+------------------------------------------------------------------------------------------------------
+
 # Installation
  
 ./configure                        Install from source
@@ -148,12 +154,7 @@ http-proxy-host = proxy
 http-proxy-port = port
 ------------------------------------------------------------------------------------------------------
 
-# Searching
-
-updatedb                           Build/update a local database of all files on the system
-locate file                        Query the database and show the location of a file
-which file                         Show the path where the file is executed
-find / -name file*                 Recursively search any given path for various files
+# Searching within files
 
 grep xxx file                      Search for the pattern xxx in a file
 grep -r                            Search recursively for a pattern in a directory
