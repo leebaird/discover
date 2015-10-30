@@ -600,6 +600,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 1
      firefox -new-tab pastebin.com/ &
      sleep 1
+     firefox -new-tab https://www.robtex.com/ &
+     sleep 1
      firefox -new-tab https://www.shodan.io/search?query=$domain &
      sleep 1
      firefox -new-tab reuters.com/finance/stocks &
