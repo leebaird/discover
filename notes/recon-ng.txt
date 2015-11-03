@@ -100,6 +100,43 @@ recon/ports-hosts/migrate_ports
 recon/domains-domains/brute_suffix
 ------------------------------------------------------------------------------------------------------
 
+# API keys 
+
+[recon-ng][default] > keys list
+
+  +---------------------------+
+  |        Name       | Value |
+  +---------------------------+
+  | bing_api          |       |
+  | builtwith_api     |       |
+  | facebook_api      |       |
+  | facebook_password |       |
+  | facebook_secret   |       |
+  | facebook_username |       |
+  | flickr_api        |       |
+  | fullcontact_api   |       |
+  | google_api        |       |
+  | google_cse        |       |
+  | instagram_api     |       |
+  | instagram_secret  |       |
+  | ipinfodb_api      |       |
+  | jigsaw_api        |       |
+  | jigsaw_password   |       |
+  | jigsaw_username   |       |
+  | linkedin_api      |       |
+  | linkedin_secret   |       |
+  | pwnedlist_api     |       |
+  | pwnedlist_iv      |       |
+  | pwnedlist_secret  |       |
+  | shodan_api        |       |
+  | twitter_api       |       |
+  | twitter_secret    |       |
+  +---------------------------+
+
+[recon-ng][default] > keys add bing_api <value>
+[*] Key 'bing_api' added.
+------------------------------------------------------------------------------------------------------
+
 # Output
 
 spool start <file>
