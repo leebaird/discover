@@ -1,12 +1,10 @@
-use recon/domains-domains/brute_suffix
-run
 use recon/domains-hosts/brute_hosts
-run
-use discovery/info_disclosure/interesting_files
 run
 use recon/domains-hosts/ssl_san
 run
 use recon/domains-hosts/vpnhunter
+run
+use discovery/info_disclosure/interesting_files
 run
 use recon/hosts-hosts/reverse_resolve
 run

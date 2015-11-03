@@ -1,18 +1,16 @@
+use recon/domains-contacts/pgp_search
+run
+use recon/domains-contacts/salesmaple
+run
+use recon/domains-contacts/whois_pocs
+run
 use recon/domains-hosts/baidu_site
 run
-use recon/domains-hosts/bing_domain_api
-run
 use recon/domains-hosts/bing_domain_web
-run
-use recon/domains-hosts/builtwith
-run
-use recon/domains-hosts/google_site_api
 run
 use recon/domains-hosts/google_site_web
 run
 use recon/domains-hosts/netcraft
-run
-use recon/domains-hosts/shodan_hostname
 run
 use recon/domains-hosts/yahoo_domain
 run
@@ -22,6 +20,25 @@ use recon/domains-vulnerabilities/xssed
 run
 use recon/domains-vulnerabilities/xssposed
 run
+use recon/companies-multi/whois_miner
+run
+use recon/contacts-credentials/hibp_breach
+run
+use recon/contacts-credentials/hibp_paste
+run
+use recon/contacts-credentials/pwnedlist
+run
+
+# No input
+use recon/credentials-credentials/adobe
+run
+use recon/credentials-credentials/bozocrack
+run
+use recon/credentials-credentials/hashes_org
+run
+use recon/credentials-credentials/leakdb
+run
+
 use recon/hosts-hosts/bing_ip
 run
 use recon/hosts-hosts/freegeoip
@@ -32,28 +49,7 @@ use recon/hosts-hosts/ipinfodb
 run
 use recon/hosts-hosts/resolve
 run
-use recon/domains-contacts/pgp_search
-run
-use recon/domains-contacts/salesmaple
-run
-use recon/domains-contacts/whois_pocs
-run
-use recon/companies-contacts/facebook
-run
-use recon/companies-contacts/jigsaw/point_usage
-run
-use recon/companies-contacts/jigsaw/purchase_contact
-run
-use recon/companies-contacts/jigsaw/search_contacts
-run
-use recon/companies-contacts/jigsaw_auth
-run
-use recon/companies-contacts/linkedin_auth
-run
-use recon/companies-multi/whois_miner
-run
-use recon/companies-profiles/bing_linkedin
-run
+
 use recon/profiles-contacts/dev_diver
 run
 use recon/profiles-contacts/linkedin
@@ -66,7 +62,19 @@ use recon/profiles-profiles/profiler
 run
 use recon/profiles-profiles/twitter
 run
-use recon/domains-credentials/pwnedlist/account_creds
+
+# Need API keys
+use recon/companies-contacts/facebook
+run
+use recon/companies-contacts/jigsaw/point_usage
+run
+use recon/companies-contacts/jigsaw/search_contacts
+run
+use recon/companies-contacts/jigsaw_auth
+run
+use recon/companies-contacts/linkedin_auth
+run
+use recon/companies-profiles/bing_linkedin
 run
 use recon/domains-credentials/pwnedlist/api_usage
 run
@@ -74,22 +82,21 @@ use recon/domains-credentials/pwnedlist/domain_creds
 run
 use recon/domains-credentials/pwnedlist/domain_ispwned
 run
-use recon/domains-credentials/pwnedlist/leak_lookup
-run
 use recon/domains-credentials/pwnedlist/leaks_dump
 run
-use recon/contacts-credentials/hibp_breach
+use recon/domains-credentials/pwnedlist/account_creds
 run
-use recon/contacts-credentials/hibp_paste
+use recon/domains-credentials/pwnedlist/leak_lookup
 run
-use recon/contacts-credentials/pwnedlist
+use recon/domains-hosts/bing_domain_api
 run
-use recon/credentials-credentials/adobe
+use recon/domains-hosts/builtwith
 run
-use recon/credentials-credentials/bozocrack
+use recon/domains-hosts/google_site_api
 run
-use recon/credentials-credentials/hashes_org
-run
-use recon/credentials-credentials/leakdb
+use recon/domains-hosts/shodan_hostname
 run
 back
+
+# Not used
+# use recon/companies-contacts/jigsaw/purchase_contact      Value required for the 'CONTACT' option.

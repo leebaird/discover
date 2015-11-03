@@ -94,6 +94,10 @@ recon/netblocks-hosts/shodan_net
 recon/netblocks-ports/census_2012
 
 recon/ports-hosts/migrate_ports
+
+# Don't use
+
+recon/domains-domains/brute_suffix
 ------------------------------------------------------------------------------------------------------
 
 # Output
