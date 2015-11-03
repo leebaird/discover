@@ -1,9 +1,3 @@
-workspaces add yyy
-add companies
-xxx
-none
-add domains
-yyy
 use recon/domains-hosts/baidu_site
 run
 use recon/domains-hosts/bing_domain_api
