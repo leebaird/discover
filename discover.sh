@@ -23,8 +23,8 @@
 
 ##############################################################################################################
 
-# Catch ctrl+c from user
-trap f_terminate INT
+# Catch process termination
+trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Global variables
 # TODO: fix interface and ip variables bellow to allow work on OS X. Do not use ip command
@@ -105,13 +105,20 @@ fi
 ##############################################################################################################
 
 f_terminate(){
-mkdir $base_dir/data/cancelled-`date +%H:%M:%S`
+
+save_dir=$base_dir/data/cancelled-`date +%H:%M:%S`
+echo "Terminating..."
+echo "All data will be saved in $save_dir"
+mkdir $save_dir
 
 # Nmap and Metasploit scans
-mv $name/ $base_dir/data/cancelled-`date +%H:%M:%S` 2>/dev/null
+mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv emails* names records squatting whois* sub* doc pdf ppt txt xls tmp* z* $base_dir/data/cancelled-`date +%H:%M:%S` 2>/dev/null
+mv emails* names records squatting whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+
+echo "Saving complete"
+exit
 }
 
 ##############################################################################################################
