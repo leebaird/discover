@@ -3621,7 +3621,7 @@ echo -n "Company: "
 read company
 
 # Check for no answer
-if [ -z $company ]; then
+if [[ -z $company ]]; then
      f_error
 fi
 
