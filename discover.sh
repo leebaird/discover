@@ -1440,7 +1440,7 @@ echo -n "Name of scan: "
 read name
 
 # Check for no answer
-if [ -z $name ]; then
+if [[ -z $name ]]; then
      f_error
 fi
 
@@ -1713,11 +1713,11 @@ for i in $TCP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/tcp\>" | cut -d ' ' -f2 > $name/$i.txt
 done
 
-if [ -e $name/523.txt ]; then
+if [[ -e $name/523.txt ]]; then
      mv $name/523.txt $name/523-tcp.txt
 fi
 
-if [ -e $name/5060.txt ]; then
+if [[ -e $name/5060.txt ]]; then
      mv $name/5060.txt $name/5060-tcp.txt
 fi
 
@@ -1728,7 +1728,7 @@ for i in $UDP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/udp\>" | cut -d ' ' -f2 > $name/$i.txt
 done
 
-if [ -e $name/523.txt ]; then
+if [[ -e $name/523.txt ]]; then
      mv $name/523.txt $name/523-udp.txt
 fi
 
@@ -1782,35 +1782,35 @@ echo
 echo -e "\e[1;34mRunning nmap scripts.\e[0m"
 
 # If the file for the corresponding port doesn't exist, skip
-if [ -e $name/13.txt ]; then
+if [[ -e $name/13.txt ]]; then
 	echo "     Daytime"
 	nmap -iL $name/13.txt -Pn -n --open -p13 --script=daytime --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-13.txt
 fi
 
-if [ -e $name/21.txt ]; then
+if [[ -e $name/21.txt ]]; then
 	echo "     FTP"
 	nmap -iL $name/21.txt -Pn -n --open -p21 --script=banner,ftp-anon,ftp-bounce,ftp-proftpd-backdoor,ftp-vsftpd-backdoor --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-21.txt
 fi
 
-if [ -e $name/22.txt ]; then
+if [[ -e $name/22.txt ]]; then
 	echo "     SSH"
 	nmap -iL $name/22.txt -Pn -n --open -p22 --script=sshv1,ssh2-enum-algos --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-22.txt
 fi
 
-if [ -e $name/23.txt ]; then
+if [[ -e $name/23.txt ]]; then
 	echo "     Telnet"
 	nmap -iL $name/23.txt -Pn -n --open -p23 --script=banner,telnet-encryption --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-23.txt
 fi
 
-if [ -e $name/smtp.txt ]; then
+if [[ -e $name/smtp.txt ]]; then
 	echo "     SMTP"
 	nmap -iL $name/smtp.txt -Pn -n --open -p25,465,587 --script=banner,smtp-commands,smtp-open-relay,smtp-strangeport,smtp-enum-users --script-args smtp-enum-users.methods={EXPN,RCPT,VRFY} --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
@@ -1818,63 +1818,63 @@ if [ -e $name/smtp.txt ]; then
 	mv tmp4 $name/script-25.txt
 fi
 
-if [ -e $name/37.txt ]; then
+if [[ -e $name/37.txt ]]; then
 	echo "     Time"
 	nmap -iL $name/37.txt -Pn -n --open -p37 --script=rfc868-time --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-37.txt
 fi
 
-if [ -e $name/53.txt ]; then
+if [[ -e $name/53.txt ]]; then
 	echo "     DNS"
 	nmap -iL $name/53.txt -Pn -n -sU --open -p53 --script=dns-blacklist,dns-cache-snoop,dns-nsec-enum,dns-nsid,dns-random-srcport,dns-random-txid,dns-recursion,dns-service-discovery,dns-update,dns-zeustracker,dns-zone-transfer --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-53.txt
 fi
 
-if [ -e $name/67.txt ]; then
+if [[ -e $name/67.txt ]]; then
 	echo "     DHCP"
 	nmap -iL $name/67.txt -Pn -n -sU --open -p67 --script=dhcp-discover --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-67.txt
 fi
 
-if [ -e $name/70.txt ]; then
+if [[ -e $name/70.txt ]]; then
 	echo "     Gopher"
 	nmap -iL $name/70.txt -Pn -n --open -p70 --script=gopher-ls --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-70.txt
 fi
 
-if [ -e $name/79.txt ]; then
+if [[ -e $name/79.txt ]]; then
 	echo "     Finger"
 	nmap -iL $name/79.txt -Pn -n --open -p79 --script=finger --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-79.txt
 fi
 
-if [ -e $name/110.txt ]; then
+if [[ -e $name/110.txt ]]; then
 	echo "     POP3"
 	nmap -iL $name/110.txt -Pn -n --open -p110 --script=banner,pop3-capabilities --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-110.txt
 fi
 
-if [ -e $name/111.txt ]; then
+if [[ -e $name/111.txt ]]; then
 	echo "     NFS"
 	nmap -iL $name/111.txt -Pn -n --open -p111 --script=nfs-ls,nfs-showmount,nfs-statfs,rpcinfo --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-111.txt
 fi
 
-if [ -e $name/123.txt ]; then
+if [[ -e $name/123.txt ]]; then
 	echo "     NTP"
 	nmap -iL $name/123.txt -Pn -n -sU --open -p123 --script=ntp-monlist --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-123.txt
 fi
 
-if [ -e $name/137.txt ]; then
+if [[ -e $name/137.txt ]]; then
 	echo "     NetBIOS"
 	nmap -iL $name/137.txt -Pn -n -sU --open -p137 --script=nbstat --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
@@ -1883,7 +1883,7 @@ if [ -e $name/137.txt ]; then
 	mv tmp4 $name/script-137.txt
 fi
 
-if [ -e $name/139.txt ]; then
+if [[ -e $name/139.txt ]]; then
      echo "     MS08-067"
      nmap -iL $name/139.txt -Pn -n --open -p139 --script=smb-check-vulns --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
@@ -1893,28 +1893,28 @@ if [ -e $name/139.txt ]; then
      grep -v '|' tmp6 > $name/script-ms08-067.txt
 fi
 
-if [ -e $name/143.txt ]; then
+if [[ -e $name/143.txt ]]; then
 	echo "     IMAP"
 	nmap -iL $name/143.txt -Pn -n --open -p143 --script=imap-capabilities --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-143.txt
 fi
 
-if [ -e $name/161.txt ]; then
+if [[ -e $name/161.txt ]]; then
 	echo "     SNMP"
 	nmap -iL $name/161.txt -Pn -n -sU --open -p161 --script=snmp-hh3c-logins,snmp-interfaces,snmp-netstat,snmp-processes,snmp-sysdescr,snmp-win32-services,snmp-win32-shares,snmp-win32-software,snmp-win32-users --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-161.txt
 fi
 
-if [ -e $name/389.txt ]; then
+if [[ -e $name/389.txt ]]; then
 	echo "     LDAP"
 	nmap -iL $name/389.txt -Pn -n --open -p389 --script=ldap-rootdse --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-389.txt
 fi
 
-if [ -e $name/445.txt ]; then
+if [[ -e $name/445.txt ]]; then
 	echo "     SMB"
 	nmap -iL $name/445.txt -Pn -n --open -p445 --script=msrpc-enum,smb-enum-domains,smb-enum-groups,smb-enum-processes,smb-enum-sessions,smb-enum-shares,smb-enum-users,smb-mbenum,smb-os-discovery,smb-security-mode,smb-server-stats,smb-system-info,smbv2-enabled,stuxnet-detect --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
@@ -1922,448 +1922,448 @@ if [ -e $name/445.txt ]; then
 	mv tmp4 $name/script-445.txt
 fi
 
-if [ -e $name/500.txt ]; then
+if [[ -e $name/500.txt ]]; then
 	echo "     Ike"
 	nmap -iL $name/500.txt -Pn -n -sS -sU --open -p500 --script=ike-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-500.txt
 fi
 
-if [ -e $name/db2.txt ]; then
+if [[ -e $name/db2.txt ]]; then
 	echo "     DB2"
 	nmap -iL $name/db2.txt -Pn -n -sS -sU --open -p523 --script=db2-das-info,db2-discover --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-523.txt
 fi
 
-if [ -e $name/524.txt ]; then
+if [[ -e $name/524.txt ]]; then
 	echo "     Novell NetWare Core Protocol"
 	nmap -iL $name/524.txt -Pn -n --open -p524 --script=ncp-enum-users,ncp-serverinfo --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-524.txt
 fi
 
-if [ -e $name/548.txt ]; then
+if [[ -e $name/548.txt ]]; then
 	echo "     AFP"
 	nmap -iL $name/548.txt -Pn -n --open -p548 --script=afp-ls,afp-path-vuln,afp-serverinfo,afp-showmount --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-548.txt
 fi
 
-if [ -e $name/554.txt ]; then
+if [[ -e $name/554.txt ]]; then
 	echo "     RTSP"
 	nmap -iL $name/554.txt -Pn -n --open -p554 --script=rtsp-methods --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-554.txt
 fi
 
-if [ -e $name/631.txt ]; then
+if [[ -e $name/631.txt ]]; then
 	echo "     CUPS"
 	nmap -iL $name/631.txt -Pn -n --open -p631 --script=cups-info,cups-queue-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-631.txt
 fi
 
-if [ -e $name/873.txt ]; then
+if [[ -e $name/873.txt ]]; then
 	echo "     rsync"
 	nmap -iL $name/873.txt -Pn -n --open -p873 --script=rsync-list-modules --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-873.txt
 fi
 
-if [ -e $name/993.txt ]; then
+if [[ -e $name/993.txt ]]; then
 	echo "     IMAP/S"
 	nmap -iL $name/993.txt -Pn -n --open -p993 --script=banner,sslv2,imap-capabilities --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-993.txt
 fi
 
-if [ -e $name/995.txt ]; then
+if [[ -e $name/995.txt ]]; then
 	echo "     POP3/S"
 	nmap -iL $name/995.txt -Pn -n --open -p995 --script=banner,sslv2,pop3-capabilities --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-995.txt
 fi
 
-if [ -e $name/1050.txt ]; then
+if [[ -e $name/1050.txt ]]; then
 	echo "     COBRA"
 	nmap -iL $name/1050.txt -Pn -n --open -p1050 --script=giop-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-1050.txt
 fi
 
-if [ -e $name/1080.txt ]; then
+if [[ -e $name/1080.txt ]]; then
 	echo "     SOCKS"
 	nmap -iL $name/1080.txt -Pn -n --open -p1080 --script=socks-auth-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-1080.txt
 fi
 
-if [ -e $name/1099.txt ]; then
+if [[ -e $name/1099.txt ]]; then
 	echo "     RMI Registry"
 	nmap -iL $name/1099.txt -Pn -n --open -p1099 --script=rmi-dumpregistry --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-1099.txt
 fi
 
-if [ -e $name/1344.txt ]; then
+if [[ -e $name/1344.txt ]]; then
 	echo "     ICAP"
 	nmap -iL $name/1344.txt -Pn -n --open -p1344 --script=icap-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-1344.txt
 fi
 
-if [ -e $name/1352.txt ]; then
+if [[ -e $name/1352.txt ]]; then
 	echo "     Lotus Domino"
 	nmap -iL $name/1352.txt -Pn -n --open -p1352 --script=domino-enum-users --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-1352.txt
 fi
 
-if [ -e $name/1433.txt ]; then
+if [[ -e $name/1433.txt ]]; then
 	echo "     MS-SQL"
 	nmap -iL $name/1433.txt -Pn -n --open -p1433 --script=ms-sql-dump-hashes,ms-sql-empty-password,ms-sql-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-1433.txt
 fi
 
-if [ -e $name/1434.txt ]; then
+if [[ -e $name/1434.txt ]]; then
 	echo "     MS-SQL UDP"
 	nmap -iL $name/1434.txt -Pn -n -sU --open -p1434 --script=ms-sql-dac --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-1434.txt
 fi
 
-if [ -e $name/1521.txt ]; then
+if [[ -e $name/1521.txt ]]; then
 	echo "     Oracle"
 	nmap -iL $name/1521.txt -Pn -n --open -p1521 --script=oracle-sid-brute --script oracle-enum-users --script-args oracle-enum-users.sid=ORCL,userdb=orausers.txt --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-1521.txt
 fi
 
-if [ -e $name/1604.txt ]; then
+if [[ -e $name/1604.txt ]]; then
 	echo "     Citrix"
 	nmap -iL $name/1604.txt -Pn -n -sU --open -p1604 --script=citrix-enum-apps,citrix-enum-servers --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-1604.txt
 fi
 
-if [ -e $name/1723.txt ]; then
+if [[ -e $name/1723.txt ]]; then
 	echo "     PPTP"
 	nmap -iL $name/1723.txt -Pn -n --open -p1723 --script=pptp-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-1723.txt
 fi
 
-if [ -e $name/2202.txt ]; then
+if [[ -e $name/2202.txt ]]; then
 	echo "     ACARS"
 	nmap -iL $name/2202.txt -Pn -n --open -p2202 --script=acarsd-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-2202.txt
 fi
 
-if [ -e $name/2302.txt ]; then
+if [[ -e $name/2302.txt ]]; then
 	echo "     Freelancer"
 	nmap -iL $name/2302.txt -Pn -n -sU --open -p2302 --script=freelancer-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-2302.txt
 fi
 
-if [ -e $name/2628.txt ]; then
+if [[ -e $name/2628.txt ]]; then
 	echo "     DICT"
 	nmap -iL $name/2628.txt -Pn -n --open -p2628 --script=dict-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-2628.txt
 fi
 
-if [ -e $name/2947.txt ]; then
+if [[ -e $name/2947.txt ]]; then
 	echo "     GPS"
 	nmap -iL $name/2947.txt -Pn -n --open -p2947 --script=gpsd-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-2947.txt
 fi
 
-if [ -e $name/3031.txt ]; then
+if [[ -e $name/3031.txt ]]; then
 	echo "     Apple Remote Event"
 	nmap -iL $name/3031.txt -Pn -n --open -p3031 --script=eppc-enum-processes --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-3031.txt
 fi
 
-if [ -e $name/3260.txt ]; then
+if [[ -e $name/3260.txt ]]; then
 	echo "     iSCSI"
 	nmap -iL $name/3260.txt -Pn -n --open -p3260 --script=iscsi-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-3260.txt
 fi
 
-if [ -e $name/3306.txt ]; then
+if [[ -e $name/3306.txt ]]; then
 	echo "     MySQL"
 	nmap -iL $name/3306.txt -Pn -n --open -p3306 --script=mysql-databases,mysql-empty-password,mysql-info,mysql-users,mysql-variables --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-3306.txt
 fi
 
-if [ -e $name/3389.txt ]; then
+if [[ -e $name/3389.txt ]]; then
 	echo "     Remote Desktop"
 	nmap -iL $name/3389.txt -Pn -n --open -p3389 --script=rdp-vuln-ms12-020,rdp-enum-encryption --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	egrep -v '(attackers|Description|Disclosure|http|References|Risk factor)' tmp4 > $name/script-3389.txt
 fi
 
-if [ -e $name/3478.txt ]; then
+if [[ -e $name/3478.txt ]]; then
 	echo "     STUN"
 	nmap -iL $name/3478.txt -Pn -n -sU --open -p3478 --script=stun-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-3478.txt
 fi
 
-if [ -e $name/3632.txt ]; then
+if [[ -e $name/3632.txt ]]; then
 	echo "     Distributed Compiler Daemon"
 	nmap -iL $name/3632.txt -Pn -n --open -p3632 --script=distcc-cve2004-2687 --script-args="distcc-exec.cmd='id'" --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
      egrep -v '(IDs|Risk factor|Description|Allows|earlier|Disclosure|Extra|References|http)' tmp4 > $name/script-3632.txt
 fi
 
-if [ -e $name/4369.txt ]; then
+if [[ -e $name/4369.txt ]]; then
 	echo "     Erlang Port Mapper"
 	nmap -iL $name/4369.txt -Pn -n --open -p4369 --script=epmd-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-4369.txt
 fi
 
-if [ -e $name/5019.txt ]; then
+if [[ -e $name/5019.txt ]]; then
 	echo "     Versant"
 	nmap -iL $name/5019.txt -Pn -n --open -p5019 --script=versant-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-5019.txt
 fi
 
-if [ -e $name/5060.txt ]; then
+if [[ -e $name/5060.txt ]]; then
 	echo "     SIP"
 	nmap -iL $name/5060.txt -Pn -n --open -p5060 --script=sip-enum-users,sip-methods --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-5060.txt
 fi
 
-if [ -e $name/5353.txt ]; then
+if [[ -e $name/5353.txt ]]; then
 	echo "     DNS Service Discovery"
 	nmap -iL $name/5353.txt -Pn -n -sU --open -p5353 --script=dns-service-discovery --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-5353.txt
 fi
 
-if [ -e $name/5666.txt ]; then
+if [[ -e $name/5666.txt ]]; then
 	echo "     Nagios"
 	nmap -iL $name/5666.txt -Pn -n --open -p5666 --script=nrpe-enum --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-5666.txt
 fi
 
-if [ -e $name/5672.txt ]; then
+if [[ -e $name/5672.txt ]]; then
 	echo "     AMQP"
 	nmap -iL $name/5672.txt -Pn -n --open -p5672 --script=amqp-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-5672.txt
 fi
 
-if [ -e $name/5850.txt ]; then
+if [[ -e $name/5850.txt ]]; then
 	echo "     OpenLookup"
 	nmap -iL $name/5850.txt -Pn -n --open -p5850 --script=openlookup-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-5850.txt
 fi
 
-if [ -e $name/5900.txt ]; then
+if [[ -e $name/5900.txt ]]; then
 	echo "     VNC"
 	nmap -iL $name/5900.txt -Pn -n --open -p5900 --script=realvnc-auth-bypass,vnc-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-5900.txt
 fi
 
-if [ -e $name/5984.txt ]; then
+if [[ -e $name/5984.txt ]]; then
 	echo "     CouchDB"
 	nmap -iL $name/5984.txt -Pn -n --open -p5984 --script=couchdb-databases,couchdb-stats --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-5984.txt
 fi
 
-if [ -e $name/x11.txt ]; then
+if [[ -e $name/x11.txt ]]; then
 	echo "     X11"
 	nmap -iL $name/x11.txt -Pn -n --open -p6000-6005 --script=x11-access --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-x11.txt
 fi
 
-if [ -e $name/6379.txt ]; then
+if [[ -e $name/6379.txt ]]; then
 	echo "     Redis"
 	nmap -iL $name/6379.txt -Pn -n --open -p6379 --script=redis-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-6379.txt
 fi
 
-if [ -e $name/6481.txt ]; then
+if [[ -e $name/6481.txt ]]; then
 	echo "     Sun Service Tags"
 	nmap -iL $name/6481.txt -Pn -n -sU --open -p6481 --script=servicetags --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-6481.txt
 fi
 
-if [ -e $name/6666.txt ]; then
+if [[ -e $name/6666.txt ]]; then
 	echo "     Voldemort"
 	nmap -iL $name/6666.txt -Pn -n --open -p6666 --script=voldemort-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-6666.txt
 fi
 
-if [ -e $name/7210.txt ]; then
+if [[ -e $name/7210.txt ]]; then
 	echo "     Max DB"
 	nmap -iL $name/7210.txt -Pn -n --open -p7210 --script=maxdb-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-7210.txt
 fi
 
-if [ -e $name/7634.txt ]; then
+if [[ -e $name/7634.txt ]]; then
 	echo "     Hard Disk Info"
 	nmap -iL $name/7634.txt -Pn -n --open -p7634 --script=hddtemp-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-7634.txt
 fi
 
-if [ -e $name/8000.txt ]; then
+if [[ -e $name/8000.txt ]]; then
         echo "     QNX QCONN"
         nmap -iL $name/8000.txt -Pn -n --open -p8000 --script=qconn-exec --script-args=qconn-exec.timeout=60,qconn-exec.bytes=1024,qconn-exec.cmd="uname -a" --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
         f_cleanup
         mv tmp4 $name/script-8000.txt
 fi
 
-if [ -e $name/8009.txt ]; then
+if [[ -e $name/8009.txt ]]; then
         echo "     AJP"
         nmap -iL $name/8009.txt -Pn -n --open -p8009 --script=ajp-methods,ajp-request --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
         f_cleanup
         mv tmp4 $name/script-8009.txt
 fi
 
-if [ -e $name/8081.txt ]; then
+if [[ -e $name/8081.txt ]]; then
 	echo "     McAfee ePO"
 	nmap -iL $name/8081.txt -Pn -n --open -p8081 --script=mcafee-epo-agent --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-8081.txt
 fi
 
-if [ -e $name/8091.txt ]; then
+if [[ -e $name/8091.txt ]]; then
 	echo "     CouchBase Web Administration"
 	nmap -iL $name/8091.txt -Pn -n --open -p8091 --script=membase-http-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-8091.txt
 fi
 
-if [ -e $name/bitcoin.txt ]; then
+if [[ -e $name/bitcoin.txt ]]; then
 	echo "     Bitcoin"
 	nmap -iL $name/bitcoin.txt -Pn -n --open -p8332,8333 --script=bitcoin-getaddr,bitcoin-info,bitcoinrpc-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-bitcoin.txt
 fi
 
-if [ -e $name/9100.txt ]; then
+if [[ -e $name/9100.txt ]]; then
 	echo "     Lexmark"
 	nmap -iL $name/9100.txt -Pn -n --open -p9100 --script=lexmark-config --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-9100.txt
 fi
 
-if [ -e $name/9160.txt ]; then
+if [[ -e $name/9160.txt ]]; then
 	echo "     Cassandra"
 	nmap -iL $name/9160.txt -Pn -n --open -p9160 --script=cassandra-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-9160.txt
 fi
 
-if [ -e $name/9999.txt ]; then
+if [[ -e $name/9999.txt ]]; then
 	echo "     Java Debug Wire Protocol"
 	nmap -iL $name/9999.txt -Pn -n --open -p9999 --script=jdwp-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-9999.txt
 fi
 
-if [ -e $name/10000.txt ]; then
+if [[ -e $name/10000.txt ]]; then
 	echo "     Network Data Management"
 	nmap -iL $name/10000.txt -Pn -n --open -p10000 --script=ndmp-fs-info,ndmp-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-10000.txt
 fi
 
-if [ -e $name/11211.txt ]; then
+if [[ -e $name/11211.txt ]]; then
 	echo "     Memory Object Caching"
 	nmap -iL $name/11211.txt -Pn -n --open -p11211 --script=memcached-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-11211.txt
 fi
 
-if [ -e $name/12000.txt ]; then
+if [[ -e $name/12000.txt ]]; then
 	echo "     CCcam"
 	nmap -iL $name/12000.txt -Pn -n --open -p12000 --script=cccam-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-12000.txt
 fi
 
-if [ -e $name/12345.txt ]; then
+if [[ -e $name/12345.txt ]]; then
 	echo "     NetBus"
 	nmap -iL $name/12345.txt -Pn -n --open -p12345 --script=netbus-auth-bypass,netbus-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-12345.txt
 fi
 
-if [ -e $name/17185.txt ]; then
+if [[ -e $name/17185.txt ]]; then
 	echo "     VxWorks"
 	nmap -iL $name/17185.txt -Pn -n -sU --open -p17185 --script=wdb-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-17185.txt
 fi
 
-if [ -e $name/19150.txt ]; then
+if [[ -e $name/19150.txt ]]; then
 	echo "     GKRellM"
 	nmap -iL $name/19150.txt -Pn -n --open -p19150 --script=gkrellm-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-19150.txt
 fi
 
-if [ -e $name/27017.txt ]; then
+if [[ -e $name/27017.txt ]]; then
 	echo "     MongoDB"
 	nmap -iL $name/27017.txt -Pn -n --open -p27017 --script=mongodb-databases,mongodb-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-27017.txt
 fi
 
-if [ -e $name/31337.txt ]; then
+if [[ -e $name/31337.txt ]]; then
 	echo "     BackOrifice"
 	nmap -iL $name/31337.txt -Pn -n -sU --open -p31337 --script=backorifice-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-31337.txt
 fi
 
-if [ -e $name/35871.txt ]; then
+if [[ -e $name/35871.txt ]]; then
 	echo "     Flume"
 	nmap -iL $name/35871.txt -Pn -n --open -p35871 --script=flume-master-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-35871.txt
 fi
 
-if [ -e $name/50000.txt ]; then
+if [[ -e $name/50000.txt ]]; then
 	echo "     DRDA"
 	nmap -iL $name/50000.txt -Pn -n --open -p50000 --script=drda-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-50000.txt
 fi
 
-if [ -e $name/hadoop.txt ]; then
+if [[ -e $name/hadoop.txt ]]; then
 	echo "     Hadoop"
 	nmap -iL $name/hadoop.txt -Pn -n --open -p50030,50060,50070,50075,50090 --script=hadoop-datanode-info,hadoop-jobtracker-info,hadoop-namenode-info,hadoop-secondary-namenode-info,hadoop-tasktracker-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-hadoop.txt
 fi
 
-if [ -e $name/apache-hbase.txt ]; then
+if [[ -e $name/apache-hbase.txt ]]; then
 	echo "     Apache HBase"
 	nmap -iL $name/apache-hbase.txt -Pn -n --open -p60010,60030 --script=hbase-master-info,hbase-region-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
@@ -2412,397 +2412,397 @@ cp -R /opt/discover/resource/ /tmp/
 
 echo workspace -a $name > $name/master.rc
 
-if [ -e $name/19.txt ]; then
+if [[ -e $name/19.txt ]]; then
      echo "     CHARGEN"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/19.txt/g" /tmp/resource/chargen.rc
      cat /tmp/resource/chargen.rc >> $name/master.rc
 fi
 
-if [ -e $name/21.txt ]; then
+if [[ -e $name/21.txt ]]; then
      echo "     FTP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/21.txt/g" /tmp/resource/ftp.rc
      cat /tmp/resource/ftp.rc >> $name/master.rc
 fi
 
-if [ -e $name/22.txt ]; then
+if [[ -e $name/22.txt ]]; then
      echo "     SSH"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/22.txt/g" /tmp/resource/ssh.rc
      cat /tmp/resource/ssh.rc >> $name/master.rc
 fi
 
-if [ -e $name/23.txt ]; then
+if [[ -e $name/23.txt ]]; then
      echo "     Telnet"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/23.txt/g" /tmp/resource/telnet.rc
      cat /tmp/resource/telnet.rc >> $name/master.rc
 fi
 
-if [ -e $name/25.txt ]; then
+if [[ -e $name/25.txt ]]; then
      echo "     SMTP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/25.txt/g" /tmp/resource/smtp.rc
      cat /tmp/resource/smtp.rc >> $name/master.rc
 fi
 
-if [ -e $name/69.txt ]; then
+if [[ -e $name/69.txt ]]; then
      echo "     TFTP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/69.txt/g" /tmp/resource/tftp.rc
      cat /tmp/resource/tftp.rc >> $name/master.rc
 fi
 
-if [ -e $name/79.txt ]; then
+if [[ -e $name/79.txt ]]; then
      echo "     Finger"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/79.txt/g" /tmp/resource/finger.rc
      cat /tmp/resource/finger.rc >> $name/master.rc
 fi
 
-if [ -e $name/80.txt ]; then
+if [[ -e $name/80.txt ]]; then
      echo "     Lotus"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/80.txt/g" /tmp/resource/lotus.rc
      cat /tmp/resource/lotus.rc >> $name/master.rc
 fi
 
-if [ -e $name/80.txt ]; then
+if [[ -e $name/80.txt ]]; then
      echo "     SCADA Indusoft WebStudio NTWebServer"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/80.txt/g" /tmp/resource/scada3.rc
      cat /tmp/resource/scada3.rc >> $name/master.rc
 fi
 
-if [ -e $name/110.txt ]; then
+if [[ -e $name/110.txt ]]; then
      echo "     POP3"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/110.txt/g" /tmp/resource/pop3.rc
      cat /tmp/resource/pop3.rc >> $name/master.rc
 fi
 
-if [ -e $name/111.txt ]; then
+if [[ -e $name/111.txt ]]; then
      echo "     NFS"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/111.txt/g" /tmp/resource/nfs.rc
      cat /tmp/resource/nfs.rc >> $name/master.rc
 fi
 
-if [ -e $name/123.txt ]; then
+if [[ -e $name/123.txt ]]; then
      echo "     NTP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/123.txt/g" /tmp/resource/ntp.rc
      cat /tmp/resource/ntp.rc >> $name/master.rc
 fi
 
-if [ -e $name/135.txt ]; then
+if [[ -e $name/135.txt ]]; then
      echo "     DCE/RPC"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/135.txt/g" /tmp/resource/dcerpc.rc
      cat /tmp/resource/dcerpc.rc >> $name/master.rc
 fi
 
-if [ -e $name/137.txt ]; then
+if [[ -e $name/137.txt ]]; then
      echo "     NetBIOS"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/137.txt/g" /tmp/resource/netbios.rc
      cat /tmp/resource/netbios.rc >> $name/master.rc
 fi
 
-if [ -e $name/143.txt ]; then
+if [[ -e $name/143.txt ]]; then
      echo "     IMAP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/143.txt/g" /tmp/resource/imap.rc
      cat /tmp/resource/imap.rc >> $name/master.rc
 fi
 
-if [ -e $name/161.txt ]; then
+if [[ -e $name/161.txt ]]; then
      echo "     SNMP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/161.txt/g" /tmp/resource/snmp.rc
      cat /tmp/resource/snmp.rc >> $name/master.rc
 fi
 
-if [ -e $name/407.txt ]; then
+if [[ -e $name/407.txt ]]; then
      echo "     Motorola"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/407.txt/g" /tmp/resource/motorola.rc
      cat /tmp/resource/motorola.rc >> $name/master.rc
 fi
 
-if [ -e $name/443.txt ]; then
+if [[ -e $name/443.txt ]]; then
      echo "     VMware"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/443.txt/g" /tmp/resource/vmware.rc
      cat /tmp/resource/motorola.rc >> $name/master.rc
 fi
 
-if [ -e $name/445.txt ]; then
+if [[ -e $name/445.txt ]]; then
      echo "     SMB"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/445.txt/g" /tmp/resource/smb.rc
      cat /tmp/resource/smb.rc >> $name/master.rc
 fi
 
-if [ -e $name/465.txt ]; then
+if [[ -e $name/465.txt ]]; then
      echo "     SMTP/S"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/465.txt/g" /tmp/resource/smtp2.rc
      cat /tmp/resource/smtp2.rc >> $name/master.rc
 fi
 
-if [ -e $name/502.txt ]; then
+if [[ -e $name/502.txt ]]; then
      echo "     SCADA Modbus Client Utility"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/502.txt/g" /tmp/resource/scada5.rc
      cat /tmp/resource/scada5.rc >> $name/master.rc
 fi
 
-if [ -e $name/512.txt ]; then
+if [[ -e $name/512.txt ]]; then
      echo "     Rexec"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/512.txt/g" /tmp/resource/rservices.rc
      cat /tmp/resource/rservices.rc >> $name/master.rc
 fi
 
-if [ -e $name/513.txt ]; then
+if [[ -e $name/513.txt ]]; then
      echo "     rlogin"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/513.txt/g" /tmp/resource/rservices2.rc
      cat /tmp/resource/rservices2.rc >> $name/master.rc
 fi
 
-if [ -e $name/514.txt ]; then
+if [[ -e $name/514.txt ]]; then
      echo "     rshell"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/514.txt/g" /tmp/resource/rservices3.rc
      cat /tmp/resource/rservices3.rc >> $name/master.rc
 fi
 
-if [ -e $name/523.txt ]; then
+if [[ -e $name/523.txt ]]; then
      echo "     db2"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/523.txt/g" /tmp/resource/db2.rc
      cat /tmp/resource/db2.rc >> $name/master.rc
 fi
 
-if [ -e $name/548.txt ]; then
+if [[ -e $name/548.txt ]]; then
      echo "     AFP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/548.txt/g" /tmp/resource/afp.rc
      cat /tmp/resource/afp.rc >> $name/master.rc
 fi
 
-if [ -e $name/623.txt ]; then
+if [[ -e $name/623.txt ]]; then
      echo "     IPMI"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/623.txt/g" /tmp/resource/ipmi.rc
      cat /tmp/resource/ipmi.rc >> $name/master.rc
 fi
 
-if [ -e $name/771.txt ]; then
+if [[ -e $name/771.txt ]]; then
      echo "     SCADA Digi"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/771.txt/g" /tmp/resource/scada2.rc
      cat /tmp/resource/scada2.rc >> $name/master.rc
 fi
 
-if [ -e $name/902.txt ]; then
+if [[ -e $name/902.txt ]]; then
      echo "     VMware"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/902.txt/g" /tmp/resource/vmware2.rc
      cat /tmp/resource/motorola.rc >> $name/master.rc
 fi
 
-if [ -e $name/1099.txt ]; then
+if [[ -e $name/1099.txt ]]; then
      echo "     RMI Registery"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1099.txt/g" /tmp/resource/rmi.rc
      cat /tmp/resource/rmi.rc >> $name/master.rc
 fi
 
-if [ -e $name/1158.txt ]; then
+if [[ -e $name/1158.txt ]]; then
      echo "     Oracle"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1158.txt/g" /tmp/resource/oracle.rc
      cat /tmp/resource/oracle.rc >> $name/master.rc
 fi
 
-if [ -e $name/1433.txt ]; then
+if [[ -e $name/1433.txt ]]; then
      echo "     MS-SQL"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1433.txt/g" /tmp/resource/mssql.rc
      cat /tmp/resource/mssql.rc >> $name/master.rc
 fi
 
-if [ -e $name/1521.txt ]; then
+if [[ -e $name/1521.txt ]]; then
      echo "     Oracle"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1521.txt/g" /tmp/resource/oracle3.rc
      cat /tmp/resource/oracle3.rc >> $name/master.rc
 fi
 
-if [ -e $name/1604.txt ]; then
+if [[ -e $name/1604.txt ]]; then
      echo "     Citrix"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1604.txt/g" /tmp/resource/citrix.rc
      cat /tmp/resource/citrix.rc >> $name/master.rc
 fi
 
-if [ -e $name/1720.txt ]; then
+if [[ -e $name/1720.txt ]]; then
      echo "     H323"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1720.txt/g" /tmp/resource/h323.rc
      cat /tmp/resource/h323.rc >> $name/master.rc
 fi
 
-if [ -e $name/1900.txt ]; then
+if [[ -e $name/1900.txt ]]; then
      echo "     UPnP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/1900.txt/g" /tmp/resource/upnp.rc
      cat /tmp/resource/upnp.rc >> $name/master.rc
 fi
 
-if [ -e $name/2362.txt ]; then
+if [[ -e $name/2362.txt ]]; then
      echo "     SCADA Digi"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/2362.txt/g" /tmp/resource/scada.rc
      cat /tmp/resource/scada.rc >> $name/master.rc
 fi
 
-if [ -e $name/3000.txt ]; then
+if [[ -e $name/3000.txt ]]; then
      echo "     EMC"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/3000.txt/g" /tmp/resource/emc.rc
      cat /tmp/resource/emc.rc >> $name/master.rc
 fi
 
-if [ -e $name/3306.txt ]; then
+if [[ -e $name/3306.txt ]]; then
      echo "     MySQL"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/3306.txt/g" /tmp/resource/mysql.rc
      cat /tmp/resource/mysql.rc >> $name/master.rc
 fi
 
-if [ -e $name/3389.txt ]; then
+if [[ -e $name/3389.txt ]]; then
      echo "     RDP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/3389.txt/g" /tmp/resource/rdp.rc
      cat /tmp/resource/rdp.rc >> $name/master.rc
 fi
 
-if [ -e $name/3500.txt ]; then
+if [[ -e $name/3500.txt ]]; then
      echo "     EMC"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/3500.txt/g" /tmp/resource/emc2.rc
      cat /tmp/resource/emc2.rc >> $name/master.rc
 fi
 
-if [ -e $name/5040.txt ]; then
+if [[ -e $name/5040.txt ]]; then
      echo "     DCE/RPC"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5040.txt/g" /tmp/resource/dcerpc2.rc
      cat /tmp/resource/dcerpc2.rc >> $name/master.rc
 fi
 
-if [ -e $name/5060.txt ]; then
+if [[ -e $name/5060.txt ]]; then
      echo "     SIP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5060.txt/g" /tmp/resource/sip.rc
      cat /tmp/resource/sip.rc >> $name/master.rc
 fi
 
-if [ -e $name/5060-tcp.txt ]; then
+if [[ -e $name/5060-tcp.txt ]]; then
      echo "     SIP TCP"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5060-tcp.txt/g" /tmp/resource/sip2.rc
      cat /tmp/resource/sip2.rc >> $name/master.rc
 fi
 
-if [ -e $name/5432.txt ]; then
+if [[ -e $name/5432.txt ]]; then
      echo "     Postgres"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5432.txt/g" /tmp/resource/postgres.rc
      cat /tmp/resource/postgres.rc >> $name/master.rc
 fi
 
-if [ -e $name/5560.txt ]; then
+if [[ -e $name/5560.txt ]]; then
      echo "     Oracle iSQL"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5560.txt/g" /tmp/resource/oracle2.rc
      cat /tmp/resource/oracle2.rc >> $name/master.rc
 fi
 
-if [ -e $name/5631.txt ]; then
+if [[ -e $name/5631.txt ]]; then
      echo "     pcAnywhere"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5631.txt/g" /tmp/resource/pcanywhere.rc
      cat /tmp/resource/pcanywhere.rc >> $name/master.rc
 fi
 
-if [ -e $name/5632.txt ]; then
+if [[ -e $name/5632.txt ]]; then
      echo "     pcAnywhere"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5632.txt/g" /tmp/resource/pcanywhere2.rc
      cat /tmp/resource/pcanywhere2.rc >> $name/master.rc
 fi
 
-if [ -e $name/5900.txt ]; then
+if [[ -e $name/5900.txt ]]; then
      echo "     VNC"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5900.txt/g" /tmp/resource/vnc.rc
      cat /tmp/resource/vnc.rc >> $name/master.rc
 fi
 
-if [ -e $name/5920.txt ]; then
+if [[ -e $name/5920.txt ]]; then
      echo "     Misc CCTV DVR"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5920.txt/g" /tmp/resource/misc.rc
      cat /tmp/resource/misc.rc >> $name/master.rc
 fi
 
-if [ -e $name/5984.txt ]; then
+if [[ -e $name/5984.txt ]]; then
      echo "     CouchDB"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5984.txt/g" /tmp/resource/couchdb.rc
      cat /tmp/resource/couchdb.rc >> $name/master.rc
 fi
 
-if [ -e $name/5985.txt ]; then
+if [[ -e $name/5985.txt ]]; then
      echo "     winrm"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/5985.txt/g" /tmp/resource/winrm.rc
      cat /tmp/resource/winrm.rc >> $name/master.rc
 fi
 
-if [ -e $name/x11.txt ]; then
+if [[ -e $name/x11.txt ]]; then
      echo "     x11"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/x11.txt/g" /tmp/resource/x11.rc
      cat /tmp/resource/x11.rc >> $name/master.rc
 fi
 
-if [ -e $name/6379.txt ]; then
+if [[ -e $name/6379.txt ]]; then
      echo "     Redis"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/6379.txt/g" /tmp/resource/redis.rc
      cat /tmp/resource/redis.rc >> $name/master.rc
 fi
 
-if [ -e $name/7777.txt ]; then
+if [[ -e $name/7777.txt ]]; then
      echo "     Backdoor"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/7777.txt/g" /tmp/resource/backdoor.rc
      cat /tmp/resource/backdoor.rc >> $name/master.rc
 fi
 
-if [ -e $name/8080.txt ]; then
+if [[ -e $name/8080.txt ]]; then
      echo "     Tomcat"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/8080.txt/g" /tmp/resource/tomcat.rc
      cat /tmp/resource/tomcat.rc >> $name/master.rc
 fi
 
-if [ -e $name/8222.txt ]; then
+if [[ -e $name/8222.txt ]]; then
      echo "     VMware"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/8222.txt/g" /tmp/resource/vmware.rc
      cat /tmp/resource/vmware.rc >> $name/master.rc
 fi
 
-if [ -e $name/8400.txt ]; then
+if [[ -e $name/8400.txt ]]; then
      echo "     Adobe"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/8400.txt/g" /tmp/resource/adobe.rc
      cat /tmp/resource/adobe.rc >> $name/master.rc
 fi
 
-if [ -e $name/8834.txt ]; then
+if [[ -e $name/8834.txt ]]; then
      echo "     Nessus"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/8834.txt/g" /tmp/resource/nessus.rc
      cat /tmp/resource/nessus.rc >> $name/master.rc
 fi
 
-if [ -e $name/9100.txt ]; then
+if [[ -e $name/9100.txt ]]; then
      echo "     Printers"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/9100.txt/g" /tmp/resource/printers.rc
      cat /tmp/resource/printers.rc >> $name/master.rc
 fi
 
-if [ -e $name/9999.txt ]; then
+if [[ -e $name/9999.txt ]]; then
      echo "     Telnet"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/9999.txt/g" /tmp/resource/telnet3.rc
      cat /tmp/resource/telnet3.rc >> $name/master.rc
 fi
 
-if [ -e $name/17185.txt ]; then
+if [[ -e $name/17185.txt ]]; then
      echo "     VxWorks"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/17185.txt/g" /tmp/resource/vxworks.rc
      cat /tmp/resource/vxworks.rc >> $name/master.rc
 fi
 
-if [ -e $name/28784.txt ]; then
+if [[ -e $name/28784.txt ]]; then
      echo "     SCADA Koyo DirectLogic PLC"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/28784.txt/g" /tmp/resource/scada4.rc
      cat /tmp/resource/scada4.rc >> $name/master.rc
 fi
 
-if [ -e $name/30718.txt ]; then
+if [[ -e $name/30718.txt ]]; then
      echo "     Telnet"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/30718.txt/g" /tmp/resource/telnet2.rc
      cat /tmp/resource/telnet2.rc >> $name/master.rc
 fi
 
-if [ -e $name/46824.txt ]; then
+if [[ -e $name/46824.txt ]]; then
      echo "     SCADA Sielco Sistemi"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/46824.txt/g" /tmp/resource/scada6.rc
      cat /tmp/resource/scada6.rc >> $name/master.rc
 fi
 
-if [ -e $name/50000.txt ]; then
+if [[ -e $name/50000.txt ]]; then
      echo "     db2"
      sed -i "s/^setg RHOSTS.*/setg RHOSTS file:\/opt\/discover\/$name\/50000.txt/g" /tmp/resource/db2-2.rc
      cat /tmp/resource/db2-2.rc >> $name/master.rc
@@ -2840,7 +2840,7 @@ echo >> $filename
 echo $medium >> $filename
 echo >> $filename
 
-if [ -e $name/script-ms08-067.txt ]; then
+if [[ -e $name/script-ms08-067.txt ]]; then
      echo "May be vulnerable to MS08-067." >> $filename
      echo >> $filename
      cat $name/script-ms08-067.txt >> $filename
@@ -2891,7 +2891,7 @@ echo >> $filename
 cat $name/hosts.txt >> $filename
 echo >> $filename
 
-if [ ! -s $name/ports.txt ]; then
+if [[ ! -s $name/ports.txt ]]; then
      rm -rf "$name" tmp*
      echo
      echo $medium
@@ -2943,7 +2943,7 @@ echo >> $filename
 HVPORTS="13 21 22 23 25 37 53 67 69 70 79 80 110 111 123 137 139 143 161 389 443 445 465 500 523 524 548 554 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1434 1521 1604 1720 1723 2202 2302 2628 2947 3031 3260 3306 3389 3478 3632 4369 5019 5060 5353 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6481 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12000 12345 17185 19150 27017 31337 35871 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $HVPORTS; do
-     if [ -e $name/$i.txt ]; then
+     if [[ -e $name/$i.txt ]]; then
           echo "Port $i" >> $filename
           cat $name/$i.txt >> $filename
           echo >> $filename
@@ -2961,7 +2961,7 @@ echo "Nmap Scripts" >> $filename
 SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-37 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2302 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5060 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8000 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
 
 for i in $SCRIPTS; do
-     if [ -e $name/"$i.txt" ]; then
+     if [[ -e $name/"$i.txt" ]]; then
           cat $name/"$i.txt" >> $filename
           echo $medium >> $filename
      fi
