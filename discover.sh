@@ -1436,6 +1436,8 @@ exit
 f_scanname(){
 f_typeofscan
 
+echo -e "\e[1;33m[*] Warning spaces in the name will cause errors\e[0m"
+echo
 echo -n "Name of scan: "
 read name
 
