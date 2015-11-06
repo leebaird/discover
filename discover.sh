@@ -27,7 +27,7 @@
 trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Global variables
-# TODO: fix interface and ip variables bellow to allow work on OS X. Do not use ip command
+# TODO: Fix interface and IP variables bellow to allow work on OS X. Do not use IP command.
 distro=$(uname -n)
 interface=$(ip link | awk '{print $2, $9}' | grep UP | cut -d ':' -f1)
 ip=$(ip addr | grep global | cut -d '/' -f1 | awk '{print $2}')
@@ -36,7 +36,7 @@ medium='========================================================================
 short='========================================'
 sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
-# TODO: allow user to specify base path to data dir
+# TODO: Allow user to specify the base path to data directory.
 # use $HOME as default one
 base_dir=$HOME
 
@@ -902,7 +902,13 @@ firefox -new-tab https://pipl.com/search/?q=$firstName+$lastName&l=&sloc=&in=10 
 sleep 1
 firefox -new-tab http://www.spokeo.com/search?q=$firstName+$lastName&s3=t24 &
 sleep 1
-firefox -new-tab http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr=
+firefox -new-tab http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr= &
+sleep 1
+firefox -new-tab https://www.facebook.com &
+sleep 1
+firefox -new-tab https://www.linkedin.com &
+sleep 1
+firefox -new-tab https://twitter.com &
 
 f_main
 }
