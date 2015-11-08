@@ -1,4 +1,6 @@
+use priv
 getsystem
+getuid
 sysinfo
 hasdump
 run get_application_list

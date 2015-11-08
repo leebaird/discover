@@ -1674,7 +1674,7 @@ if [[ -n $x ]]; then
      echo "***Scan complete.***"
      echo
      echo
-     echo -e "\e[1;33mNo live hosts were found.\e[0m"
+     echo -e "\e[1;33m[*] No live hosts were found.\e[0m"
      echo
      echo
      exit
