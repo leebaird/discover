@@ -1,19 +1,19 @@
-spool start /opt/discover/tmp
-show contacts
+spool start /root/creds.txt
+query SELECT username FROM credentials ORDER BY username
 spool stop
-spool start /opt/discover/tmp2
-show creds
+
+spool start /root/emails.txt
+query SELECT email FROM contacts WHERE email !="" ORDER BY email
 spool stop
-spool start /opt/discover/tmp3
-show hosts
+
+spool start /root/hosts.txt
+query SELECT ip_address FROM hosts ORDER BY ip_address
 spool stop
-spool start /opt/discover/tmp4
-show leaks
+
+spool start /root/names.txt
+query SELECT last_name, first_name FROM contacts WHERE last_name !="" ORDER BY last_name
 spool stop
-spool start /opt/discover/tmp5
-show ports
+
+spool start /root/subdomains.txt
+query SELECT host, ip_address FROM hosts ORDER BY host
 spool stop
-spool start /opt/discover/tmp6
-show vulnerabilities
-spool stop
-back

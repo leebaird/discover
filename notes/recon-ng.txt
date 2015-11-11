@@ -139,14 +139,11 @@ recon/domains-domains/brute_suffix
 
 # Output
 
-spool start <file>
+show dashboards
 
-query SELECT <field, field2|*> FROM <hosts|contacts|creds> WHERE <field>='value' ORDER BY <field>
+show hosts
+query DELETE FROM hosts WHERE rowid="xx"
 
-query SELECT host, ip_address FROM hosts ORDER BY host
-query SELECT last_name, first_name FROM contacts ORDER BY last_name
-
-query SELECT email FROM contacts ORDER BY email
-query SELECT * FROM contacts ORDER BY fname
-query DELETE FROM hosts WHERE ip_address='192.168.2.12'
-
+spool start /root/hosts.txt
+query SELECT ip_address FROM hosts ORDER BY ip_address
+spool stop
