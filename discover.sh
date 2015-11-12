@@ -581,35 +581,35 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 2
      firefox -new-tab toolbar.netcraft.com/site_report?url=http://www.$domain &
      sleep 1
-     firefox -new-tab google.com/#q=filetype%3Axls+OR+filetype%3Axlsx+site%3A$domain &
+     firefox -new-tab https://www.google.com/#q=filetype%3Axls+OR+filetype%3Axlsx+site%3A$domain &
      sleep 1
-     firefox -new-tab google.com/#q=filetype%3Appt+OR+filetype%3Apptx+site%3A$domain &
+     firefox -new-tab https://www.google.com/#q=filetype%3Appt+OR+filetype%3Apptx+site%3A$domain &
      sleep 1
-     firefox -new-tab google.com/#q=filetype%3Adoc+OR+filetype%3Adocx+site%3A$domain &
+     firefox -new-tab https://www.google.com/#q=filetype%3Adoc+OR+filetype%3Adocx+site%3A$domain &
      sleep 1
-     firefox -new-tab google.com/#q=filetype%3Apdf+site%3A$domain &
+     firefox -new-tab https://www.google.com/#q=filetype%3Apdf+site%3A$domain &
      sleep 1
-     firefox -new-tab google.com/#q=filetype%3Atxt+site%3A$domain &
+     firefox -new-tab https://www.google.com/#q=filetype%3Atxt+site%3A$domain &
      sleep 1
      firefox -new-tab https://www.ssllabs.com/ssltest/analyze.html?d=$domain &
      sleep 1
      firefox -new-tab http://www.urlvoid.com/scan/$domain &
      sleep 1
-     firefox -new-tab arin.net &
+     firefox -new-tab https://www.arin.net &
      sleep 1
-     firefox -new-tab connect.data.com/login/ &
+     firefox -new-tab https://connect.data.com/login &
      sleep 1
-     firefox -new-tab crunchbase.com/ &
+     firefox -new-tab https://www.crunchbase.com/ &
      sleep 1
      firefox -new-tab pastebin.com/ &
      sleep 1
-     firefox -new-tab https://www.robtex.com/ &
+     firefox -new-tab https://www.robtex.com/#!dns=$domain &
      sleep 1
      firefox -new-tab https://www.shodan.io/search?query=$domain &
      sleep 1
-     firefox -new-tab reuters.com/finance/stocks &
+     firefox -new-tab http://www.reuters.com/finance/stocks/lookup?searchType=any&search=$company &
      sleep 1
-     firefox -new-tab sec.gov/edgar/searchedgar/companysearch.html &
+     firefox -new-tab https://www.sec.gov/edgar/searchedgar/companysearch.html &
      echo
      echo
      exit
