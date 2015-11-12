@@ -255,7 +255,7 @@ case $choice in
 
      echo
      echo "Metasploit                (19/$total)"
-     msfconsole -x "use gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
+     msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
      grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sort -u > tmp2
      # Change to lower case
      cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
