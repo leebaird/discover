@@ -27,18 +27,16 @@
 trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Global variables
-# TODO: Fix interface and IP variables bellow to allow work on OS X. Do not use IP command.
+# TODO: Fix 'interface' and 'ip' variables to work on OS X.
+discover=$(locate discover.sh | sed 's:/[^/]*$::')
 distro=$(uname -n)
+home=$HOME
 interface=$(ip link | awk '{print $2, $9}' | grep UP | cut -d ':' -f1)
 ip=$(ip addr | grep global | cut -d '/' -f1 | awk '{print $2}')
 long='========================================================================================================='
 medium='====================================================================================='
 short='========================================'
 sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
-
-# TODO: Allow user to specify the base path to data directory.
-# use $HOME as default one
-base_dir=$HOME
 
 ##############################################################################################################
 
@@ -106,7 +104,7 @@ fi
 
 f_terminate(){
 
-save_dir=$base_dir/data/cancelled-`date +%H:%M:%S`
+save_dir=$home/data/cancelled-`date +%H:%M:%S`
 echo "Terminating..."
 echo "All data will be saved in $save_dir"
 mkdir $save_dir
@@ -164,10 +162,10 @@ case $choice in
      fi
 
      # If folder doesn't exist, create it
-     if [ ! -d $base_dir/data/$domain ]; then
-          cp -R /opt/discover/report/ $base_dir/data/$domain
-          sed 's/REPLACEDOMAIN/'$domain'/g' $base_dir/data/$domain/index.htm > tmp
-          mv tmp $base_dir/data/$domain/index.htm
+     if [ ! -d $home/data/$domain ]; then
+          cp -R $discover/report/ $home/data/$domain
+          sed 's/REPLACEDOMAIN/'$domain'/g' $home/data/$domain/index.htm > tmp
+          mv tmp $home/data/$domain/index.htm
      fi
 
      # Number of tests
@@ -203,7 +201,7 @@ case $choice in
 
      echo
      echo "goog-mail                 (3/$total)"
-     /opt/discover/mods/goog-mail.py $domain | sort -u > tmp
+     $discover/mods/goog-mail.py $domain | sort -u > tmp
      grep -Fv '..' tmp > tmp2
      # Remove lines that start with a number
      sed '/^[0-9]/d' tmp2 > tmp3
@@ -215,9 +213,9 @@ case $choice in
      echo
      echo "goohost"
      echo "     IP                   (4/$total)"
-     /opt/discover/mods/goohost.sh -t $domain -m ip >/dev/null
+     $discover/mods/goohost.sh -t $domain -m ip >/dev/null
      echo "     Email                (5/$total)"
-     /opt/discover/mods/goohost.sh -t $domain -m mail >/dev/null
+     $discover/mods/goohost.sh -t $domain -m mail >/dev/null
      cat report-* > tmp
      # Move the second column to the first position
      grep $domain tmp | awk '{print $2 " " $1}' > tmp2
@@ -415,7 +413,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      s/I expected/Expected/g; s/I found the following MX records://g; s/I got an error response to my/Received an error response to/g;
      s/I was unable/Unable/g; s/None of your MX/No MX/g; s/This is all of the MX servers I found.//g; s/WWW/www/g;
      s/Your nameservers/Nameservers/g; s/Your NS records at your nameservers are://g; s/Your NS records at your parent nameserver are://g;
-     s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > $base_dir/data/$domain/data/config.htm
+     s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > $home/data/$domain/data/config.htm
 
      echo "ewhois.com                (24/$total)"
      wget -q http://www.ewhois.com/$domain/ -O tmp
@@ -431,11 +429,11 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      echo "urlvoid.com               (26/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
-     sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > $base_dir/data/$domain/data/black-listed.htm
+     sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > $home/data/$domain/data/black-listed.htm
 
      awk '{print $2}' subdomains > tmp
      grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | $sip > hosts
-     cat hosts >> $base_dir/data/$domain/data/hosts.htm; echo "</pre>" >> $base_dir/data/$domain/data/hosts.htm
+     cat hosts >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
 
      ##############################################################
 
@@ -454,7 +452,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           echo $short >> tmp
           cat emails >> tmp
           echo >> tmp
-          cat emails >> $base_dir/data/$domain/data/emails.htm
+          cat emails >> $home/data/$domain/data/emails.htm
      fi
 
      if [ -e names ]; then
@@ -464,7 +462,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           echo $short >> tmp
           cat names >> tmp
           echo >> tmp
-          cat names >> $base_dir/data/$domain/data/names.htm
+          cat names >> $home/data/$domain/data/names.htm
      fi
 
      if [ -e hosts ]; then
@@ -483,7 +481,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           echo $long >> tmp
           cat squatting >> tmp
           echo >> tmp
-          cat squatting >> $base_dir/data/$domain/data/squatting.htm
+          cat squatting >> $home/data/$domain/data/squatting.htm
      fi
 
      if [ -e subdomains ]; then
@@ -493,7 +491,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           echo $long >> tmp
           cat subdomains >> tmp
           echo >> tmp
-          cat subdomains >> $base_dir/data/$domain/data/subdomains.htm
+          cat subdomains >> $home/data/$domain/data/subdomains.htm
      fi
 
      if [ -e xls ]; then
@@ -503,7 +501,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           echo $long >> tmp
           cat xls >> tmp
           echo >> tmp
-          cat xls >> $base_dir/data/$domain/data/xls.htm; echo "</pre>" >> $base_dir/data/$domain/data/xls.htm
+          cat xls >> $home/data/$domain/data/xls.htm; echo "</pre>" >> $home/data/$domain/data/xls.htm
      fi
 
      if [ -e pdf ]; then
@@ -513,7 +511,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           echo $long >> tmp
           cat pdf >> tmp
           echo >> tmp
-          cat pdf >> $base_dir/data/$domain/data/pdf.htm; echo "</pre>" >> $base_dir/data/$domain/data/pdf.htm
+          cat pdf >> $home/data/$domain/data/pdf.htm; echo "</pre>" >> $home/data/$domain/data/pdf.htm
      fi
 
      if [ -e ppt ]; then
@@ -523,7 +521,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           echo $long >> tmp
           cat ppt >> tmp
           echo >> tmp
-          cat ppt >> $base_dir/data/$domain/data/ppt.htm; echo "</pre>" >> $base_dir/data/$domain/data/ppt.htm
+          cat ppt >> $home/data/$domain/data/ppt.htm; echo "</pre>" >> $home/data/$domain/data/ppt.htm
      fi
 
      if [ -e txt ]; then
@@ -533,7 +531,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           echo $long >> tmp
           cat txt >> tmp
           echo >> tmp
-          cat txt >> $base_dir/data/$domain/data/txt.htm; echo "</pre>" >> $base_dir/data/$domain/data/txt.htm
+          cat txt >> $home/data/$domain/data/txt.htm; echo "</pre>" >> $home/data/$domain/data/txt.htm
      fi
 
      if [ -e doc ]; then
@@ -543,7 +541,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           echo $long >> tmp
           cat doc >> tmp
           echo >> tmp
-          cat doc >> $base_dir/data/$domain/data/doc.htm; echo "</pre>" >> $base_dir/data/$domain/data/doc.htm
+          cat doc >> $home/data/$domain/data/doc.htm; echo "</pre>" >> $home/data/$domain/data/doc.htm
      fi
 
      cat tmp >> zreport
@@ -555,13 +553,13 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      echo $long >> zreport
      cat whois-ip >> zreport
 
-     echo "</pre>" >> $base_dir/data/$domain/data/emails.htm
-     echo "</pre>" >> $base_dir/data/$domain/data/names.htm
-     echo "</pre>" >> $base_dir/data/$domain/data/squatting.htm
-     echo "</pre>" >> $base_dir/data/$domain/data/subdomains.htm
-     cat whois-domain >> $base_dir/data/$domain/data/whois-domain.htm; echo "</pre>" >> $base_dir/data/$domain/data/whois-domain.htm
-     cat whois-ip >> $base_dir/data/$domain/data/whois-ip.htm; echo "</pre>" >> $base_dir/data/$domain/data/whois-ip.htm
-     cat zreport >> $base_dir/data/$domain/data/passive-recon.htm; echo "</pre>" >> $base_dir/data/$domain/data/passive-recon.htm
+     echo "</pre>" >> $home/data/$domain/data/emails.htm
+     echo "</pre>" >> $home/data/$domain/data/names.htm
+     echo "</pre>" >> $home/data/$domain/data/squatting.htm
+     echo "</pre>" >> $home/data/$domain/data/subdomains.htm
+     cat whois-domain >> $home/data/$domain/data/whois-domain.htm; echo "</pre>" >> $home/data/$domain/data/whois-domain.htm
+     cat whois-ip >> $home/data/$domain/data/whois-ip.htm; echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
+     cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
      rm debug* emails hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
@@ -571,7 +569,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      echo "***Scan complete.***"
      echo
      echo
-     printf 'The supporting data folder is located at \e[1;33m%s\e[0m\n' $base_dir/data/$domain/
+     printf 'The supporting data folder is located at \e[1;33m%s\e[0m\n' $home/data/$domain/
      echo
      read -p "Press <return> to continue."
 
@@ -632,10 +630,10 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      fi
 
      # If folder doesn't exist, create it
-     if [ ! -d $base_dir/data/$domain ]; then
-          cp -R /opt/discover/report/ $base_dir/data/$domain
-          sed 's/REPLACEDOMAIN/'$domain'/' $base_dir/data/$domain/index.htm > tmp
-          mv tmp $base_dir/data/$domain/index.htm
+     if [ ! -d $home/data/$domain ]; then
+          cp -R $discover/report/ $home/data/$domain
+          sed 's/REPLACEDOMAIN/'$domain'/' $home/data/$domain/index.htm > tmp
+          mv tmp $home/data/$domain/index.htm
      fi
 
      # Number of tests
@@ -661,10 +659,10 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sed 's/^......//' tmp2 | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10}' | column -t | sort -u -k2 -k1 > tmp3
      grep 'TXT' tmp | sed 's/^......//' | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15}' >> tmp3
      egrep -v '(SEC3|SKEYs|SSEC)' tmp3 > records
-     cat $base_dir/data/$domain/data/records.htm records | grep -v '<' | column -t | sort -u -k2 -k1 > tmp3
+     cat $home/data/$domain/data/records.htm records | grep -v '<' | column -t | sort -u -k2 -k1 > tmp3
 
-     echo '<pre style="font-size:14px;">' > $base_dir/data/$domain/data/records.htm
-     cat tmp3 | column -t >> $base_dir/data/$domain/data/records.htm; echo "</pre>" >> $base_dir/data/$domain/data/records.htm
+     echo '<pre style="font-size:14px;">' > $home/data/$domain/data/records.htm
+     cat tmp3 | column -t >> $home/data/$domain/data/records.htm; echo "</pre>" >> $home/data/$domain/data/records.htm
 
      echo "     Zone Transfer        (3/$total)"
      dnsrecon -d $domain -t axfr > tmp
@@ -682,11 +680,11 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      cat subdomains-dnsrecon subdomains-fierce | egrep -v '(.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
 
-     if [ -e $base_dir/data/$domain/data/subdomains.htm ]; then
-          cat $base_dir/data/$domain/data/subdomains.htm subdomains | grep -v "<" | grep -v "$domain\." | column -t | sort -u > subdomains-combined
-          echo '<pre style="font-size:14px;">' > $base_dir/data/$domain/data/subdomains.htm
-          cat subdomains-combined >> $base_dir/data/$domain/data/subdomains.htm
-          echo "</pre>" >> $base_dir/data/$domain/data/subdomains.htm
+     if [ -e $home/data/$domain/data/subdomains.htm ]; then
+          cat $home/data/$domain/data/subdomains.htm subdomains | grep -v "<" | grep -v "$domain\." | column -t | sort -u > subdomains-combined
+          echo '<pre style="font-size:14px;">' > $home/data/$domain/data/subdomains.htm
+          cat subdomains-combined >> $home/data/$domain/data/subdomains.htm
+          echo "</pre>" >> $home/data/$domain/data/subdomains.htm
      fi
 
      awk '{print $3}' records > tmp
@@ -732,7 +730,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      echo
      echo "Whatweb                   (11/$total)"
-     grep -v '<' $base_dir/data/$domain/data/subdomains.htm | awk '{print $1}' > tmp
+     grep -v '<' $home/data/$domain/data/subdomains.htm | awk '{print $1}' > tmp
      whatweb -i tmp --color=never --no-errors -t 255 > tmp2
      # Find lines that start with http, and insert a line after
      sort tmp2 | sed '/^http/a\ ' > tmp3
@@ -822,22 +820,22 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      echo $long >> zreport
      cat whatweb >> zreport
 
-     cat loadbalancing >> $base_dir/data/$domain/data/loadbalancing.htm; echo "</pre>" >> $base_dir/data/$domain/data/loadbalancing.htm
-     cat zreport >> $base_dir/data/$domain/data/active-recon.htm; echo "</pre>" >> $base_dir/data/$domain/data/active-recon.htm
-     cat ztraceroute >> $base_dir/data/$domain/data/traceroute.htm; echo "</pre>" >> $base_dir/data/$domain/data/traceroute.htm
-     cat waf >> $base_dir/data/$domain/data/waf.htm; echo "</pre>" >> $base_dir/data/$domain/data/waf.htm
-     cat whatweb >> $base_dir/data/$domain/data/whatweb.htm; echo "</pre>" >> $base_dir/data/$domain/data/whatweb.htm
-     cat zonetransfer >> $base_dir/data/$domain/data/zonetransfer.htm; echo "</pre>" >> $base_dir/data/$domain/data/zonetransfer.htm
+     cat loadbalancing >> $home/data/$domain/data/loadbalancing.htm; echo "</pre>" >> $home/data/$domain/data/loadbalancing.htm
+     cat zreport >> $home/data/$domain/data/active-recon.htm; echo "</pre>" >> $home/data/$domain/data/active-recon.htm
+     cat ztraceroute >> $home/data/$domain/data/traceroute.htm; echo "</pre>" >> $home/data/$domain/data/traceroute.htm
+     cat waf >> $home/data/$domain/data/waf.htm; echo "</pre>" >> $home/data/$domain/data/waf.htm
+     cat whatweb >> $home/data/$domain/data/whatweb.htm; echo "</pre>" >> $home/data/$domain/data/whatweb.htm
+     cat zonetransfer >> $home/data/$domain/data/zonetransfer.htm; echo "</pre>" >> $home/data/$domain/data/zonetransfer.htm
 
-     if [[ -e $base_dir/data/$domain/data/emails.htm && -e emails ]]; then
-          cat $base_dir/data/$domain/data/emails.htm emails | grep -v '<' | sort -u > tmp
-          echo '<pre style="font-size:14px;">' > $base_dir/data/$domain/data/emails.htm
-          cat tmp >> $base_dir/data/$domain/data/emails.htm; echo "</pre>" >> $base_dir/data/$domain/data/emails.htm
+     if [[ -e $home/data/$domain/data/emails.htm && -e emails ]]; then
+          cat $home/data/$domain/data/emails.htm emails | grep -v '<' | sort -u > tmp
+          echo '<pre style="font-size:14px;">' > $home/data/$domain/data/emails.htm
+          cat tmp >> $home/data/$domain/data/emails.htm; echo "</pre>" >> $home/data/$domain/data/emails.htm
      fi
 
-     cat hosts $base_dir/data/$domain/data/hosts.htm | grep -v '<' | $sip > tmp
-     echo '<pre style="font-size:14px;">' > $base_dir/data/$domain/data/hosts.htm
-     cat tmp >> $base_dir/data/$domain/data/hosts.htm; echo "</pre>" >> $base_dir/data/$domain/data/hosts.htm
+     cat hosts $home/data/$domain/data/hosts.htm | grep -v '<' | $sip > tmp
+     echo '<pre style="font-size:14px;">' > $home/data/$domain/data/hosts.htm
+     cat tmp >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
 
      rm emails* hosts loadbalancing records sub* tmp* waf whatweb z*
 
@@ -847,11 +845,11 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      echo "***Scan complete.***"
      echo
      echo
-     printf 'The supporting data folder is located at \e[1;33m%s\e[0m\n' $base_dir/data/$domain/
+     printf 'The supporting data folder is located at \e[1;33m%s\e[0m\n' $home/data/$domain/
      echo
      echo
 
-     firefox $base_dir/data/$domain/index.htm &
+     firefox $home/data/$domain/index.htm &
      exit
      ;;
 
@@ -1159,13 +1157,13 @@ if [[ -z $name ]]; then
      f_error
 fi
 
-sed "s/$name//g" tmp3 > $base_dir/data/names.txt
+sed "s/$name//g" tmp3 > $home/data/names.txt
 rm tmp*
 
 echo
 echo $medium
 echo
-printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/names.txt
+printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/names.txt
 echo
 echo
 exit
@@ -1191,13 +1189,13 @@ read choice
 case $choice in
      1) echo -n "Interface to scan: "
 	read interface
-	arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $base_dir/data/hosts-arp.txt   echo
+	arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt   echo
      echo $medium
      echo
      echo "***Scan complete.***"
      echo
      echo
-     printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/hosts-arp.txt
+     printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/hosts-arp.txt
      echo
      echo
      exit;;
@@ -1331,7 +1329,7 @@ EOF
 ##############################################################
 
 rm tmp
-mv tmp2 $base_dir/data/hosts-ping.txt
+mv tmp2 $home/data/hosts-ping.txt
 
 echo
 echo $medium
@@ -1339,7 +1337,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/hosts-ping.txt
+printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/hosts-ping.txt
 echo
 echo
 exit
@@ -1422,7 +1420,7 @@ EOF
 ##############################################################
 
 rm tmp
-mv tmp2 $base_dir/data/targets.txt
+mv tmp2 $home/data/targets.txt
 
 echo
 echo $medium
@@ -1430,9 +1428,9 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The list of targets is located at \e[1;33m%s\e[0m\n' $base_dir/data/targets.txt
+printf 'The list of targets is located at \e[1;33m%s\e[0m\n' $home/data/targets.txt
 echo
-printf 'The output files from the Nmap -A scan are located at \e[1;33m%s\e[0m\n' $base_dir/data/
+printf 'The output files from the Nmap -A scan are located at \e[1;33m%s\e[0m\n' $home/data/
 echo
 exit
 }
@@ -2416,7 +2414,7 @@ echo
 echo -e "\e[1;34mStarting Metasploit, this takes about 45 sec.\e[0m"
 echo
 echo -e "\e[1;34mUsing the following resource files.\e[0m"
-cp -R /opt/discover/resource/ /tmp/
+cp -R $discover/resource/ /tmp/
 
 echo workspace -a $name > $name/master.rc
 
@@ -2825,7 +2823,7 @@ x=$(wc -l $name/master.rc | cut -d ' ' -f1)
 if [ $x -eq 3 ]; then
      echo 2>/dev/null
 else
-     msfconsole -r /opt/discover/$name/master.rc
+     msfconsole -r $discover/$name/master.rc
 fi
 
 f_report
@@ -2877,7 +2875,7 @@ if [ $hosts -eq 1 ]; then
           fi
      done
 
-     mv $name $base_dir/data/
+     mv $name $home/data/
 
      START=0
      END=0
@@ -2888,7 +2886,7 @@ if [ $hosts -eq 1 ]; then
      echo "***Scan complete.***"
      echo
      echo
-     printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/$name/report.txt
+     printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/$name/report.txt
      echo
      echo
      exit
@@ -2977,7 +2975,7 @@ done
 
 echo >> $filename
 
-mv $name $base_dir/data/
+mv $name $home/data/
 
 START=0
 END=0
@@ -2988,7 +2986,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/$name/report.txt
+printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/$name/report.txt
 echo
 echo
 exit
@@ -3051,13 +3049,13 @@ case $choice in
 
      wget -q $domain/robots.txt
 
-     grep 'Disallow' robots.txt | awk '{print $2}' > $base_dir/data/$domain-robots.txt
+     grep 'Disallow' robots.txt | awk '{print $2}' > $home/data/$domain-robots.txt
      rm robots.txt
 
      firefox &
      sleep 2
 
-     for i in $(cat $base_dir/data/$domain-robots.txt); do
+     for i in $(cat $home/data/$domain-robots.txt); do
           firefox -new-tab $domain$i &
           sleep 1
      done
@@ -3068,7 +3066,7 @@ case $choice in
      echo "***Scan complete.***"
      echo
      echo
-     printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/$domain-robots.txt
+     printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/$domain-robots.txt
      echo
      echo
      exit
@@ -3120,11 +3118,11 @@ case $choice in
           f_error
      fi
 
-     mkdir $base_dir/data/nikto-$port
+     mkdir $home/data/nikto-$port
 
      while read -r line; do
           xdotool key ctrl+shift+t
-          xdotool type "nikto -h $line -port $port -Format htm --output $base_dir/data/nikto-$port/$line.htm ; exit"
+          xdotool type "nikto -h $line -port $port -Format htm --output $home/data/nikto-$port/$line.htm ; exit"
           sleep 1
           xdotool key Return
      done < "$location"
@@ -3133,12 +3131,12 @@ case $choice in
      2)
      f_location
 
-     mkdir $base_dir/data/nikto
+     mkdir $home/data/nikto
 
      while IFS=: read -r host port; do
           xdotool key ctrl+shift+t
           sleep 1
-          xdotool type "nikto -h $host -port $port -Format htm --output $base_dir/data/nikto/$host-$port.htm ; exit"
+          xdotool type "nikto -h $host -port $port -Format htm --output $home/data/nikto/$host-$port.htm ; exit"
           sleep 1
           xdotool key Return
      done < "$location"
@@ -3154,7 +3152,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/nikto/
+printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/nikto/
 echo
 echo
 exit
@@ -3183,12 +3181,12 @@ case $choice in
      f_location
      parsers/parse-burp.py $location
 
-     mv burp.csv $base_dir/data/burp-`date +%H:%M:%S`.csv
+     mv burp.csv $home/data/burp-`date +%H:%M:%S`.csv
 
      echo
      echo $medium
      echo
-     printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/burp-`date +%H:%M:%S`.csv
+     printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/burp-`date +%H:%M:%S`.csv
      echo
      echo
      exit
@@ -3207,14 +3205,14 @@ case $choice in
      # Delete additional findings.
 	 egrep -v '(DHCP Server Detection|mDNS Detection \(Remote Network\))' tmp2.csv > tmp3.csv
 
-cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner check)//; s/ (credentialed check)//; s/ (intrusive check)//g; s/ (remote check)//; s/ (safe check)//; s/ (uncredentialed check)//g; s/ (version check)//g; s/()//g; s/(un)//g' > $base_dir/data/nessus-`date +%H:%M:%S`.csv
+cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner check)//; s/ (credentialed check)//; s/ (intrusive check)//g; s/ (remote check)//; s/ (safe check)//; s/ (uncredentialed check)//g; s/ (version check)//g; s/()//g; s/(un)//g' > $home/data/nessus-`date +%H:%M:%S`.csv
 
      rm nessus* tmp*
 
      echo
      echo $medium
      echo
-     printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/nessus-`date +%H:%M:%S`.csv
+     printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/nessus-`date +%H:%M:%S`.csv
      echo
      echo
      exit
@@ -3226,14 +3224,14 @@ cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner chec
 
      # Delete additional findings with CVSS score of 0
 #     egrep -v '(NetBIOS NBSTAT Traffic Amplification)' nexpose.csv > tmp.csv
-#     mv tmp.csv $base_dir/data/nexpose-`date +%H:%M:%S`.csv
+#     mv tmp.csv $home/data/nexpose-`date +%H:%M:%S`.csv
 
-     mv nexpose.csv $base_dir/data/nexpose-`date +%H:%M:%S`.csv
+     mv nexpose.csv $home/data/nexpose-`date +%H:%M:%S`.csv
 
      echo
      echo $medium
      echo
-     printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/nexpose-`date +%H:%M:%S`.csv
+     printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/nexpose-`date +%H:%M:%S`.csv
      echo
      echo
      exit
@@ -3243,13 +3241,13 @@ cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner chec
      f_location
      cp $location ./nmap.xml
      parsers/parse-nmap.py
-     mv nmap.csv $base_dir/data/nmap-`date +%H:%M:%S`.csv
+     mv nmap.csv $home/data/nmap-`date +%H:%M:%S`.csv
      rm nmap.xml
 
      echo
      echo $medium
      echo
-     printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/nmap-`date +%H:%M:%S`.csv
+     printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/nmap-`date +%H:%M:%S`.csv
      echo
      echo
      exit
@@ -3262,12 +3260,12 @@ cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner chec
      echo
 
      parsers/parse-qualys.py $location
-     mv qualys.csv $base_dir/data/qualys-`date +%H:%M:%S`.csv
+     mv qualys.csv $home/data/qualys-`date +%H:%M:%S`.csv
 
      echo
      echo $medium
      echo
-     printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/qualys-`date +%H:%M:%S`.csv
+     printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/qualys-`date +%H:%M:%S`.csv
      echo
      echo
      exit
@@ -3295,7 +3293,7 @@ echo
 echo $medium
 echo
 echo "Running sslyze."
-sslyze --targets_in=$location --resum --certinfo=basic --compression --reneg --sslv2 --sslv3 --hide_rejected_ciphers > $base_dir/data/sslyze.txt
+sslyze --targets_in=$location --resum --certinfo=basic --compression --reneg --sslv2 --sslv3 --hide_rejected_ciphers > $home/data/sslyze.txt
 echo
 echo "Running sslscan."
 echo
@@ -3465,9 +3463,9 @@ echo "Start time   $START" >> tmp2
 echo "Finish time  $END" >> tmp2
 echo "Scanner IP   $ip" >> tmp2
 
-mv tmp2 $base_dir/data/sslscan.txt
+mv tmp2 $home/data/sslscan.txt
 
-grep -v 'Issuer info not available.' tmp | grep -v 'Certificate subject info not available.' >> $base_dir/data/sslscan.txt
+grep -v 'Issuer info not available.' tmp | grep -v 'Certificate subject info not available.' >> $home/data/sslscan.txt
 
 rm tmp* ssl_* 2>/dev/null
 
@@ -3477,7 +3475,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The new reports are located at \e[1;33m%s\e[0m\n' $base_dir/data/sslscan.txt
+printf 'The new reports are located at \e[1;33m%s\e[0m\n' $home/data/sslscan.txt
 
 echo
 echo -n "If your IPs are public, do you want to test them using an external source? (y/N) "
@@ -3515,7 +3513,7 @@ fi
 f_listener(){
 clear
 
-cp /opt/discover/resource/misc/listener.rc /tmp/
+cp $discover/resource/misc/listener.rc /tmp/
 
 sed -i "s/#/$ip/g" /tmp/listener.rc
 
@@ -3571,7 +3569,7 @@ sed '/^$/d' tmp > tmp2
 # Remove scanners not used
 egrep -v '(ack|afp_login|arp_sweep|call_scanner|couchdb_enum|dvr_config_disclosure|endpoint_mapper|ftp_login|ftpbounce|hidden|ipidseq|ipv6_multicast_ping|ipv6_neighbor|ipv6_neighbor_router_advertisement|lotus_domino_login|management|mongodb_login|ms08_067_check|msf_rpc_login|msf_web_login|mysql_file_enum|mysql_hashdump|mysql_login|mysql_schemadump|natpmp_portscan|nessus_ntp_login|nessus_xmlrpc_login|nexpose_api_login|openvas_gsad_login|openvas_omp_login|openvas_otp_login|pcanywhere_login|poisonivy_control_scanner|pop3_login|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_enumusers|ssh_identify_pubkeys|ssh_login|ssh_login_pubkey|station_scanner|syn|tcp|telnet_login|udp_probe|udp_sweep|vmauthd_login|vmware_http_login|wardial|winrm_cmd|winrm_login|winrm_wql|xmas)' tmp2 | sort > tmp-msf-all
 
-grep 'use ' /opt/discover/resource/*.rc | grep -v 'recon-ng' > tmp
+grep 'use ' $discover/resource/*.rc | grep -v 'recon-ng' > tmp
 
 # Print from the last /, to the end of the line
 sed -e 's:.*/\(.*\):\1:g' tmp > tmp-msf-used
@@ -3590,19 +3588,19 @@ sed '/^$/d' tmp2 > tmp3
 # Remove leading whitespace from each line
 sed 's/^[ \t]*//' tmp3 > tmp4
 
-cat /opt/discover/resource/recon-ng/active.rc /opt/discover/resource/recon-ng/passive.rc | grep 'use' | sed 's/use //g' | sort > tmp5
+cat $discover/resource/recon-ng/active.rc $discover/resource/recon-ng/passive.rc | grep 'use' | sed 's/use //g' | sort > tmp5
 diff tmp4 tmp5 | egrep '^[<>]' | awk '{print $2}' | egrep -v '(ip_neighbor|pwnedlist)' >> tmp-updates
 
 echo >> tmp-updates
 echo >> tmp-updates
 
-mv tmp-updates $base_dir/data/updates.txt
+mv tmp-updates $home/data/updates.txt
 rm tmp*
 
 echo
 echo $medium
 echo
-printf 'The new report is located at \e[1;33m%s\e[0m\n' $base_dir/data/updates.txt
+printf 'The new report is located at \e[1;33m%s\e[0m\n' $home/data/updates.txt
 echo
 echo
 exit
@@ -3641,7 +3639,7 @@ if [ -z $domain ]; then
      f_error
 fi
 
-cp /opt/discover/resource/recon-ng/passive.rc /tmp/
+cp $discover/resource/recon-ng/passive.rc /tmp/
 sed -i "s/xxx/$company/g" /tmp/passive.rc
 sed -i "s/yyy/$domain/g" /tmp/passive.rc
 
@@ -3665,7 +3663,7 @@ if [ -z $workspace ]; then
      f_error
 fi
 
-recon-ng -w $workspace -r /opt/discover/resource/recon-ng/export.rc
+recon-ng -w $workspace -r $discover/resource/recon-ng/export.rc
 egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp | cut -d '|' -f3,5-7 | sed 's/BuiltWith contact//g; s/Employee//g; s/PGP key association//g; s/Whois contact//g' > zcontacts
 egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp2 | cut -d '|' -f3-7 > zcreds
 egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp3 | cut -d '|' -f3-6 > zhosts
@@ -3684,8 +3682,8 @@ f_main(){
 clear
 f_banner
 
-if [ ! -d $base_dir/data ]; then
-     mkdir -p $base_dir/data
+if [ ! -d $home/data ]; then
+     mkdir -p $home/data
 fi
 
 echo -e "\e[1;34mRECON\e[0m"
@@ -3725,10 +3723,10 @@ case $choice in
      8) f_multitabs;;
      9) f_nikto;;
      10) f_ssl;;
-     11) f_runlocally && /opt/discover/crack-wifi.sh;;
+     11) f_runlocally && $discover/crack-wifi.sh;;
      12) f_parse;;
      13) f_listener;;
-     14) /opt/discover/update.sh && exit;;
+     14) $discover/update.sh && exit;;
      15) clear && exit;;
      97) f_parse_recon_ng;;
      98) f_recon-ng;;
