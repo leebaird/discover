@@ -29,6 +29,12 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 # Global variables
 # TODO: Fix 'interface' and 'ip' variables to work on OS X.
 discover=$(locate discover.sh | sed 's:/[^/]*$::')
+theharvester=$(find / -type f -iname 'theharvester' | sed 's|.*/||')
+dnsrecon=$(find / -path /opt/ptf-master -prune -o -type f -name 'dnsrecon.py' -print | sed 's:/[^/]*$::')
+fierce=$(find / -path /usr/share/doc -prune -o -type d -name 'fierce' -print)
+nmap=$(locate nse_main.lua | sed 's:/[^/]*$::')
+recon-ng=$(find / -path /usr/bin -prune -o -type f -name 'recon-rpc' -print | sed 's:/[^/]*$::')
+metasploit=$(locate metasploit-framework-full.gemspec | sed 's:/[^/]*$::')
 distro=$(uname -n)
 home=$HOME
 interface=$(ip link | awk '{print $2, $9}' | grep UP | cut -d ':' -f1)
@@ -225,31 +231,31 @@ case $choice in
      echo
      echo "theharvester"
      echo "     Baidu                (6/$total)"
-     theharvester -d $domain -b baidu > zbaidu
+     $theharvester -d $domain -b baidu > zbaidu
      echo "     Bing                 (7/$total)"
-     theharvester -d $domain -b bing > zbing
+     $theharvester -d $domain -b bing > zbing
      echo "     Dogpilesearch        (8/$total)"
-     theharvester -d $domain -b dogpilesearch > zdogpilesearch
+     $theharvester -d $domain -b dogpilesearch > zdogpilesearch
      echo "     Google               (9/$total)"
-     theharvester -d $domain -b google > zgoogle
+     $theharvester -d $domain -b google > zgoogle
      echo "     Google CSE           (10/$total)"
-     theharvester -d $domain -b googleCSE > zgoogleCSE
+     $theharvester -d $domain -b googleCSE > zgoogleCSE
      echo "     Google+              (11/$total)"
-     theharvester -d $domain -b googleplus > zgoogleplus
+     $theharvester -d $domain -b googleplus > zgoogleplus
      echo "     Google Profiles	  (12/$total)"
-     theharvester -d $domain -b google-profiles > zgoogle-profiles
+     $theharvester -d $domain -b google-profiles > zgoogle-profiles
      echo "     Jigsaw               (13/$total)"
-     theharvester -d $domain -b jigsaw > zjigsaw
+     $theharvester -d $domain -b jigsaw > zjigsaw
      echo "     LinkedIn             (14/$total)"
-     theharvester -d $domain -b linkedin > zlinkedin
+     $theharvester -d $domain -b linkedin > zlinkedin
      echo "     People123            (15/$total)"
-     theharvester -d $domain -b people123 > zpeople123
+     $theharvester -d $domain -b people123 > zpeople123
      echo "     PGP                  (16/$total)"
-     theharvester -d $domain -b pgp > zpgp
+     $theharvester -d $domain -b pgp > zpgp
      echo "     Yahoo                (17/$total)"
-     theharvester -d $domain -b yahoo > zyahoo
+     $theharvester -d $domain -b yahoo > zyahoo
      echo "     All                  (18/$total)"
-     theharvester -d $domain -b all > zall
+     $theharvester -d $domain -b all > zall
 
      echo
      echo "Metasploit                (19/$total)"
@@ -669,12 +675,12 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      egrep -v '(Checking for|Failed|filtered|NS Servers|Removing|TCP Open|Testing NS)' tmp | sed 's/^....//' | sed /^$/d > zonetransfer
 
      echo "     Sub-domains (~5 min) (4/$total)"
-     dnsrecon -d $domain -t brt -D /usr/share/dnsrecon/namelist.txt --iw -f > tmp
+     dnsrecon -d $domain -t brt -D $dnsrecon/namelist.txt --iw -f > tmp
      grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing|Records Found)' | sed 's/\[\*\] //g; s/^[ \t]*//' | awk '{print $2,$3}' | column -t | sort -u > subdomains-dnsrecon
 
      echo
      echo "Fierce (~5 min)           (5/$total)"
-     fierce -dns $domain -wordlist /usr/share/fierce/hosts.txt -suppress -file tmp4
+     fierce -dns $domain -wordlist $fierce/hosts.txt -suppress -file tmp4
 
      sed -n '/Now performing/,/Subnets found/p' tmp4 | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > subdomains-fierce
 
@@ -3537,7 +3543,7 @@ msfconsole -r /tmp/listener.rc
 
 f_updates(){
 # Remove entire script categories
-ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(address-info|ajp-auth|ajp-headers|allseeingeye-info|asn-query|auth-owners|auth-spoof|broadcast|brute|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|discover|dns-brute|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-srv-enum|dns-nsec3-enum|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-libopie|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-ip2hosts|hostmap-robtex|http|iax2-version|informix-query|informix-tables|ip-forwarding|ip-geolocation-geobytes|ip-geolocation-geoplugin|ip-geolocation-ipinfodb|ip-geolocation-maxmind|ipidseq|ipv6-node-info|ipv6-ra-flood|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|ntp-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-ready-message|quake1-info|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-call-spoof|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|smb-vuln-ms10-054|smb-vuln-ms10-061|smtp-vuln-cve2010-4344|smtp-vuln-cve2011-1720|smtp-vuln-cve2011-1764|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|sshv1|ssl|stun-info|teamspeak2-version|tftp-enum|targets|tls-nextprotoneg|traceroute-geolocation|unittest|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|weblogic-t3-info|whois|xmpp-info)' > tmp
+ls -l $nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(address-info|ajp-auth|ajp-headers|allseeingeye-info|asn-query|auth-owners|auth-spoof|broadcast|brute|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|discover|dns-brute|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-srv-enum|dns-nsec3-enum|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-libopie|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-ip2hosts|hostmap-robtex|http|iax2-version|informix-query|informix-tables|ip-forwarding|ip-geolocation-geobytes|ip-geolocation-geoplugin|ip-geolocation-ipinfodb|ip-geolocation-maxmind|ipidseq|ipv6-node-info|ipv6-ra-flood|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|ntp-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-ready-message|quake1-info|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-call-spoof|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|smb-vuln-ms10-054|smb-vuln-ms10-061|smtp-vuln-cve2010-4344|smtp-vuln-cve2011-1720|smtp-vuln-cve2011-1764|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|sshv1|ssl|stun-info|teamspeak2-version|tftp-enum|targets|tls-nextprotoneg|traceroute-geolocation|unittest|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|weblogic-t3-info|whois|xmpp-info)' > tmp
 
 grep 'script=' discover.sh | egrep -v '(discover.sh|22.txt|smtp.txt)' | cut -d '=' -f2- | cut -d ' ' -f1 | tr ',' '\n' | egrep -v '(db2-discover|dhcp-discover|dns-service-discovery|http-email-harvest|membase-http-info|oracle-sid-brute|smb-os-discovery|sslv2)' | sort -u > tmp2
 
@@ -3561,7 +3567,7 @@ echo "==============================" >> tmp-updates
 categories="afp backdoor chargen couchdb db2 dcerpc dect discovery emc finger ftp h323 imap ip ipmi lotus misc mongodb motorola msf mssql mysql natpmp nessus netbios nexpose nfs ntp openvas oracle pcanywhere pop3 portscan postgres printer rdp rogue rservices scada sip smb smtp snmp ssh telephony telnet tftp upnp vmware vnc voice vxworks winrm x11"
 
 for i in $categories; do
-     ls -l /usr/share/metasploit-framework/modules/auxiliary/scanner/$i | awk '{print $9}' | cut -d '.' -f1 >> tmp
+     ls -l $metasploit/modules/auxiliary/scanner/$i | awk '{print $9}' | cut -d '.' -f1 >> tmp
 done
 
 sed '/^$/d' tmp > tmp2
@@ -3580,7 +3586,7 @@ echo >> tmp-updates
 echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
-python /usr/share/recon-ng/recon-cli -M > tmp
+python $recon-ng/recon-cli -M > tmp
 egrep -v '(---|adobe|bozocrack|brute_suffix|census_2012|command_injector|dev_diver|Discovery|exit|Exploitation|geocode|hashes_org|Import|import|jigsaw|leakdb|mangle|namechk|pushpins|pwnedlist|Recon|Reporting|reporting|reverse_resolve|show modules|shodan_net|Spooling|twitter|xpath_bruter)' tmp > tmp2
 
 # Remove blank lines
@@ -3652,7 +3658,7 @@ f_parse_recon_ng(){
 clear
 f_banner
 
-python /usr/share/recon-ng/recon-cli -C "workspaces list"
+python $recon-ng/recon-cli -C "workspaces list"
 echo
 echo
 echo -n "Workspace:  "
