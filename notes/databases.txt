@@ -37,7 +37,7 @@ GRANT ALL PRIVILEGES ON <db name>.* TO 'username' @ 'localhost' IDENTIFIED BY 'p
 SHOW GRANTS FOR 'username'@'localhost';
 
 SELECT * FROM <table>;
-SELECT * FROM <table> WHERE <field> = “value”;
+SELECT * FROM <table> WHERE <field> = "value";
 
 SELECT LOAD_FILE('/etc/passwd')\g;
 
@@ -47,6 +47,8 @@ ORDER BY <field> <ASC, DESC>
 GROUP BY <field>
 LIMIT <number>
 OFFSET <number>
+
+UPDATE <table> SET <field>="value"
 ------------------------------------------------------------------------------------------------------
 
 # Postgresql
