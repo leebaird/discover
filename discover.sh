@@ -2989,7 +2989,7 @@ f_runlocally
 clear
 f_banner
 
-echo -e "\e[1;34mOpen multiple tabs in firefox with:\e[0m"
+echo -e "\e[1;34mOpen multiple tabs in Firefox with:\e[0m"
 echo
 echo "1.  List"
 echo "2.  Directories from a domain's robot.txt."
@@ -3688,7 +3688,7 @@ echo "6.  List"
 echo "7.  IP, Range or URL"
 echo
 echo -e "\e[1;34mWEB\e[0m"
-echo "8.  Open multiple tabs in Fyirefox"
+echo "8.  Open multiple tabs in Firefox"
 echo "9.  Nikto"
 echo "10. SSL"
 echo
