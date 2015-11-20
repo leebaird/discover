@@ -157,7 +157,7 @@ case $choice in
      read domain
 
      # Check for no answer
-     if [ -z $domain ]; then
+     if [[ -z $domain ]]; then
           f_error
      fi
 
@@ -623,7 +623,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      read domain
 
      # Check for no answer
-     if [ -z $domain ]; then
+     if [[ -z $domain ]]; then
           f_error
      fi
 
@@ -869,7 +869,7 @@ echo -n "First name: "
 read firstName
 
 # Check for no answer
-if [ -z $firstName ]; then
+if [[ -z $firstName ]]; then
      f_error
 fi
 
@@ -877,7 +877,7 @@ echo -n "Last name:  "
 read lastName
 
 # Check for no answer
-if [ -z $lastName ]; then
+if [[ -z $lastName ]]; then
      f_error
 fi
 
@@ -1238,7 +1238,7 @@ case $choice in
      read cidr
 
      # Check for no answer
-     if [ -z $cidr ]; then
+     if [[ -z $cidr ]]; then
           f_error
      fi
 
@@ -1284,7 +1284,7 @@ case $choice in
      read manual
 
      # Check for no answer
-     if [ -z $manual ]; then
+     if [[ -z $manual ]]; then
           f_error
      fi
 
@@ -1375,7 +1375,7 @@ case $choice in
      read scanname
 
      # Check for no answer
-     if [ -z $manual ]; then
+     if [[ -z $manual ]]; then
           f_error
      fi
 
@@ -1503,7 +1503,7 @@ echo -n "CIDR: "
 read cidr
 
 # Check for no answer
-if [ -z $cidr ]; then
+if [[ -z $cidr ]]; then
      rm -rf $name
      f_error
 fi
@@ -1540,7 +1540,7 @@ if [ "$exclude" == "y" ]; then
      echo -n "Enter the path to the file: "
      read excludefile
 
-     if [ -z $excludefile ]; then
+     if [[ -z $excludefile ]]; then
           f_error
      fi
 
@@ -1593,7 +1593,7 @@ echo -n "IP, Range or URL: "
 read target
 
 # Check for no answer
-if [ -z $target ]; then
+if [[ -z $target ]]; then
      rm -rf $name
      f_error
 fi
@@ -1788,7 +1788,7 @@ fi
 
 if [[ -e $name/21.txt ]]; then
 	echo "     FTP"
-	nmap -iL $name/21.txt -Pn -n --open -p21 --script=banner,ftp-anon,ftp-bounce,ftp-proftpd-backdoor,ftp-vsftpd-backdoor --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+	nmap -iL $name/21.txt -Pn -n --open -p21 --script=banner,ftp-anon,ftp-bounce,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-21.txt
 fi
@@ -1809,7 +1809,7 @@ fi
 
 if [[ -e $name/smtp.txt ]]; then
 	echo "     SMTP"
-	nmap -iL $name/smtp.txt -Pn -n --open -p25,465,587 --script=banner,smtp-commands,smtp-open-relay,smtp-strangeport,smtp-enum-users --script-args smtp-enum-users.methods={EXPN,RCPT,VRFY} --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+	nmap -iL $name/smtp.txt -Pn -n --open -p25,465,587 --script=banner,smtp-commands,smtp-open-relay,smtp-strangeport,smtp-enum-users,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --script-args smtp-enum-users.methods={EXPN,RCPT,VRFY} --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-25.txt
 fi
@@ -1851,7 +1851,7 @@ fi
 
 if [[ -e $name/110.txt ]]; then
 	echo "     POP3"
-	nmap -iL $name/110.txt -Pn -n --open -p110 --script=banner,pop3-capabilities --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+	nmap -iL $name/110.txt -Pn -n --open -p110 --script=banner,pop3-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-110.txt
 fi
@@ -1891,28 +1891,28 @@ fi
 
 if [[ -e $name/143.txt ]]; then
 	echo "     IMAP"
-	nmap -iL $name/143.txt -Pn -n --open -p143 --script=imap-capabilities --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+	nmap -iL $name/143.txt -Pn -n --open -p143 --script=imap-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-143.txt
 fi
 
 if [[ -e $name/161.txt ]]; then
 	echo "     SNMP"
-	nmap -iL $name/161.txt -Pn -n -sU --open -p161 --script=snmp-hh3c-logins,snmp-interfaces,snmp-netstat,snmp-processes,snmp-sysdescr,snmp-win32-services,snmp-win32-shares,snmp-win32-software,snmp-win32-users --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+	nmap -iL $name/161.txt -Pn -n -sU --open -p161 --script=snmp-hh3c-logins,snmp-info,snmp-interfaces,snmp-netstat,snmp-processes,snmp-sysdescr,snmp-win32-services,snmp-win32-shares,snmp-win32-software,snmp-win32-users -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-161.txt
 fi
 
 if [[ -e $name/389.txt ]]; then
 	echo "     LDAP"
-	nmap -iL $name/389.txt -Pn -n --open -p389 --script=ldap-rootdse --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+	nmap -iL $name/389.txt -Pn -n --open -p389 --script=ldap-rootdse,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-389.txt
 fi
 
 if [[ -e $name/445.txt ]]; then
 	echo "     SMB"
-	nmap -iL $name/445.txt -Pn -n --open -p445 --script=msrpc-enum,smb-enum-domains,smb-enum-groups,smb-enum-processes,smb-enum-sessions,smb-enum-shares,smb-enum-users,smb-mbenum,smb-os-discovery,smb-security-mode,smb-server-stats,smb-system-info,smbv2-enabled,stuxnet-detect --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+	nmap -iL $name/445.txt -Pn -n --open -p445 --script=msrpc-enum,smb-enum-domains,smb-enum-groups,smb-enum-processes,smb-enum-sessions,smb-enum-shares,smb-enum-users,smb-mbenum,smb-os-discovery,smb-security-mode,smb-server-stats,smb-system-info,smbv2-enabled,stuxnet-detect,smb-vuln-ms10-061 --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	sed -i '/^445/{n; /.*/d}' tmp4		# Find lines that start with 445, and delete the following line
 	mv tmp4 $name/script-445.txt
@@ -1920,7 +1920,7 @@ fi
 
 if [[ -e $name/500.txt ]]; then
 	echo "     Ike"
-	nmap -iL $name/500.txt -Pn -n -sS -sU --open -p500 --script=ike-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+	nmap -iL $name/500.txt -Pn -n -sS -sU --open -p500 --script=ike-version -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-500.txt
 fi
@@ -1960,6 +1960,13 @@ if [[ -e $name/631.txt ]]; then
 	mv tmp4 $name/script-631.txt
 fi
 
+if [[ -e $name/636.txt ]]; then
+	echo "     LDAP/S"
+	nmap -iL $name/636.txt -Pn -n --open -636 --script=ldap-rootdse,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+	f_cleanup
+	mv tmp4 $name/script-636.txt
+fi
+
 if [[ -e $name/873.txt ]]; then
 	echo "     rsync"
 	nmap -iL $name/873.txt -Pn -n --open -p873 --script=rsync-list-modules --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
@@ -1969,14 +1976,14 @@ fi
 
 if [[ -e $name/993.txt ]]; then
 	echo "     IMAP/S"
-	nmap -iL $name/993.txt -Pn -n --open -p993 --script=banner,sslv2,imap-capabilities --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+	nmap -iL $name/993.txt -Pn -n --open -p993 --script=banner,sslv2,imap-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-993.txt
 fi
 
 if [[ -e $name/995.txt ]]; then
 	echo "     POP3/S"
-	nmap -iL $name/995.txt -Pn -n --open -p995 --script=banner,sslv2,pop3-capabilities --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+	nmap -iL $name/995.txt -Pn -n --open -p995 --script=banner,sslv2,pop3-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
 	mv tmp4 $name/script-995.txt
 fi
@@ -2836,7 +2843,7 @@ echo >> $filename
 echo $medium >> $filename
 echo >> $filename
 
-if [[ -e $name/script-ms08-067.txt ]]; then
+if [ -e $name/script-ms08-067.txt ]; then
      echo "May be vulnerable to MS08-067." >> $filename
      echo >> $filename
      cat $name/script-ms08-067.txt >> $filename
@@ -2856,7 +2863,7 @@ if [ $hosts -eq 1 ]; then
      echo >> $filename
      echo "Nmap Scripts" >> $filename
 
-     SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-37 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2302 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5060 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8000 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
+     SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-37 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-636 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2302 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5060 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8000 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
 
      for i in $SCRIPTS; do
           if [ -e $name/"$i.txt" ]; then
@@ -3033,7 +3040,7 @@ case $choice in
      read domain
 
      # Check for no answer
-     if [ -z $domain ]; then
+     if [[ -z $domain ]]; then
           f_error
      fi
 
@@ -3625,7 +3632,7 @@ echo -n "Domain:  "
 read domain
 
 # Check for no answer
-if [ -z $domain ]; then
+if [[ -z $domain ]]; then
      f_error
 fi
 
@@ -3649,7 +3656,7 @@ echo -n "Workspace:  "
 read workspace
 
 # Check for no answer
-if [ -z $workspace ]; then
+if [[ -z $workspace ]]; then
      f_error
 fi
 
