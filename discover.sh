@@ -3691,7 +3691,7 @@ echo "6.  List"
 echo "7.  IP, Range or URL"
 echo
 echo -e "\e[1;34mWEB\e[0m"
-echo "8.  Open multiple tabs in firefox"
+echo "8.  Open multiple tabs in Fyirefox"
 echo "9.  Nikto"
 echo "10. SSL"
 echo
