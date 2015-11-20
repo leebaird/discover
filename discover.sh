@@ -599,8 +599,6 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 1
      firefox -new-tab https://connect.data.com/login &
      sleep 1
-     firefox -new-tab https://www.crunchbase.com/ &
-     sleep 1
      firefox -new-tab pastebin.com/ &
      sleep 1
      firefox -new-tab https://www.robtex.com/#!dns=$domain &
@@ -1813,7 +1811,6 @@ if [[ -e $name/smtp.txt ]]; then
 	echo "     SMTP"
 	nmap -iL $name/smtp.txt -Pn -n --open -p25,465,587 --script=banner,smtp-commands,smtp-open-relay,smtp-strangeport,smtp-enum-users --script-args smtp-enum-users.methods={EXPN,RCPT,VRFY} --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
 	f_cleanup
-	printf '%s\n' 'g/NOT VULNERABLE/d\' '-d' w | ed -s tmp4
 	mv tmp4 $name/script-25.txt
 fi
 

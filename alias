@@ -20,6 +20,5 @@ echo -n "Internal IP:  "$ip ; echo ;
 echo -n "External IP:  " ; curl ifconfig.me ; echo'
 alias r='cd /root/ ; clear'
 alias s='cd /opt/discover/ ; clear'
-
-alias sip='sort -V'
+alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 alias update='/opt/discover/update.sh'
