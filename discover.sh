@@ -223,33 +223,33 @@ case $choice in
      rm *-$domain.txt
 
      echo
-     echo "theharvester"
+     echo "theHarvester"
      echo "     Baidu                (6/$total)"
-     theharvester -d $domain -b baidu > zbaidu
+     theHarvester -d $domain -b baidu > zbaidu
      echo "     Bing                 (7/$total)"
-     theharvester -d $domain -b bing > zbing
+     theHarvester -d $domain -b bing > zbing
      echo "     Dogpilesearch        (8/$total)"
-     theharvester -d $domain -b dogpilesearch > zdogpilesearch
+     theHarvester -d $domain -b dogpilesearch > zdogpilesearch
      echo "     Google               (9/$total)"
-     theharvester -d $domain -b google > zgoogle
+     theHarvester -d $domain -b google > zgoogle
      echo "     Google CSE           (10/$total)"
-     theharvester -d $domain -b googleCSE > zgoogleCSE
+     theHarvester -d $domain -b googleCSE > zgoogleCSE
      echo "     Google+              (11/$total)"
-     theharvester -d $domain -b googleplus > zgoogleplus
+     theHarvester -d $domain -b googleplus > zgoogleplus
      echo "     Google Profiles	  (12/$total)"
-     theharvester -d $domain -b google-profiles > zgoogle-profiles
+     theHarvester -d $domain -b google-profiles > zgoogle-profiles
      echo "     Jigsaw               (13/$total)"
-     theharvester -d $domain -b jigsaw > zjigsaw
+     theHarvester -d $domain -b jigsaw > zjigsaw
      echo "     LinkedIn             (14/$total)"
-     theharvester -d $domain -b linkedin > zlinkedin
+     theHarvester -d $domain -b linkedin > zlinkedin
      echo "     People123            (15/$total)"
-     theharvester -d $domain -b people123 > zpeople123
+     theHarvester -d $domain -b people123 > zpeople123
      echo "     PGP                  (16/$total)"
-     theharvester -d $domain -b pgp > zpgp
+     theHarvester -d $domain -b pgp > zpgp
      echo "     Yahoo                (17/$total)"
-     theharvester -d $domain -b yahoo > zyahoo
+     theHarvester -d $domain -b yahoo > zyahoo
      echo "     All                  (18/$total)"
-     theharvester -d $domain -b all > zall
+     theHarvester -d $domain -b all > zall
 
      echo
      echo "Metasploit                (19/$total)"
