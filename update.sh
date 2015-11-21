@@ -73,6 +73,7 @@ fi
 if [ -f /usr/bin/theharvester ]; then
      echo -e "\e[1;34mUpdating theHarvester.\e[0m"
      mv /usr/bin/theharvester /usr/bin/theHarvester
+     echo
 fi
 
 if [ -d /opt/veil/.git ]; then
