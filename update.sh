@@ -70,7 +70,8 @@ else
      echo
 fi
 
-if [ -f /usr/bin/theharvester]; then
+if [ -f /usr/bin/theharvester ]; then
+     echo -e "\e[1;34mUpdating theHarvester.\e[0m"
      mv /usr/bin/theharvester /usr/bin/theHarvester
 fi
 
