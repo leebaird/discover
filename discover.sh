@@ -250,15 +250,20 @@ case $choice in
      theHarvester -d $domain -b yahoo > zyahoo
      echo "     All                  (18/$total)"
      theHarvester -d $domain -b all > zall
-
      echo
+
+     # PTF
      echo "Metasploit                (19/$total)"
-     msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
-     grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sort -u > tmp2
-     # Change to lower case
-     cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
-     # Remove blank lines
-     sed '/^$/d' tmp3 > zmsf
+     if [ ! -d /pentest ]; then
+          msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
+          grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sort -u > tmp2
+          # Change to lower case
+          cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
+          # Remove blank lines
+          sed '/^$/d' tmp3 > zmsf
+     else
+          echo "Waiting on bug fix."
+     fi
 
      echo
      echo "URLCrazy                  (20/$total)"
