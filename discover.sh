@@ -667,12 +667,27 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      egrep -v '(Checking for|Failed|filtered|NS Servers|Removing|TCP Open|Testing NS)' tmp | sed 's/^....//' | sed /^$/d > zonetransfer
 
      echo "     Sub-domains (~5 min) (4/$total)"
-     dnsrecon -d $domain -t brt -D /usr/share/dnsrecon/namelist.txt --iw -f > tmp
+     if [ -f /usr/share/dnsrecon/namelist.txt ]; then
+          dnsrecon -d $domain -t brt -D /usr/share/dnsrecon/namelist.txt --iw -f > tmp
+     fi
+
+     # PTF
+     if [ -f /pentest/intelligence-gathering/dnsrecon/namelist.txt ]; then
+          dnsrecon -d $domain -t brt -D /pentest/intelligence-gathering/dnsrecon/namelist.txt --iw -f > tmp
+     fi
+
      grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing|Records Found)' | sed 's/\[\*\] //g; s/^[ \t]*//' | awk '{print $2,$3}' | column -t | sort -u > subdomains-dnsrecon
 
      echo
      echo "Fierce (~5 min)           (5/$total)"
-     fierce -dns $domain -wordlist /usr/share/fierce/hosts.txt -suppress -file tmp4
+     if [ -f /usr/share/fierce/hosts.txt ]; then
+          fierce -dns $domain -wordlist /usr/share/fierce/hosts.txt -suppress -file tmp4
+     fi
+
+     # PTF
+     if [ -f /pentest/intelligence-gathering/fierce/hosts.txt ]; then
+          fierce -dns $domain -wordlist /pentest/intelligence-gathering/fierce/hosts.txt -suppress -file tmp4
+     fi
 
      sed -n '/Now performing/,/Subnets found/p' tmp4 | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > subdomains-fierce
 
