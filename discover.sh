@@ -648,12 +648,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      echo "Nmap"
      echo "     Email                (1/$total)"
-     echo "        [*] Deprecated script, testing replacement."
-#     nmap -Pn -n --open -p80 --script=http-email-harvest --script-args=http-email-harvest.maxpagecount=100,http-email-harvest.maxdepth=10 $domain > tmp
-#     grep @$domain tmp | grep -v '%20' | grep -v 'jpg' | awk '{print $2}' > tmp2
-#     # Change to lower case
-#     cat tmp2 | tr '[A-Z]' '[a-z]' | sort -u > emails1
-     echo > emails1
+     nmap -Pn -n --open -p80 --script=http-grep $domain > tmp
+     grep '@' tmp | awk '{print $3}' > emails1
 
      echo
      echo "dnsrecon"
