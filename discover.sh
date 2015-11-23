@@ -404,7 +404,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      find -type f -empty -exec rm {} +
 
      echo "dnssy.com                 (23/$total)"
-     wget -q http://www.dnssy.com/report.php?q=$domain -O tmp
+     wget --post-data 'q=$domain&step=1&r=1448215046#3cc723b32910c180bc45aba6c21be6edf4125745' http://www.dnssy.com/report.php -O tmp
      sed -n '/Results for/,/\/table/p' tmp > tmp2
      echo "<html>" > tmp3
      cat tmp2 | grep -v 'Results for' >> tmp3
@@ -600,19 +600,20 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 1
      firefox -new-tab http://www.urlvoid.com/scan/$domain &
      sleep 1
-     firefox -new-tab https://www.arin.net &
+     arinip=$(ping $domain -c1 | grep -m1 bytes | cut -d"(" -f2 | sed 's:)[^)]*$::')
+     firefox -new-tab https://whois.arin.net/ui/arin.xsl?queryinput=$arinip &
      sleep 1
      firefox -new-tab https://connect.data.com/login &
      sleep 1
-     firefox -new-tab pastebin.com/ &
+     firefox -new-tab pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$company\&sa.x=0\&sa.y=0 &
      sleep 1
-     firefox -new-tab https://www.robtex.com/#!dns=$domain &
+     firefox -new-tab https://www.robtex.com/#\!dns=$domain &
      sleep 1
      firefox -new-tab https://www.shodan.io/search?query=$domain &
      sleep 1
-     firefox -new-tab http://www.reuters.com/finance/stocks/lookup?searchType=any&search=$company &
+     firefox -new-tab http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$company &
      sleep 1
-     firefox -new-tab https://www.sec.gov/edgar/searchedgar/companysearch.html &
+     firefox -new-tab https://www.sec.gov/cgi-bin/browse-edgar?company=$company\&owner=exclude\&action=getcompany &
      echo
      echo
      exit
@@ -920,9 +921,9 @@ firefox -new-tab http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$l
 sleep 1
 firefox -new-tab https://www.facebook.com &
 sleep 1
-firefox -new-tab https://www.linkedin.com &
+firefox -new-tab https://www.linkedin.com/pub/dir/?first=$firstName\&last=$lastName\&search=Search &
 sleep 1
-firefox -new-tab https://twitter.com &
+firefox -new-tab https://twitter.com/search?q=%22$firstName%20$lastName%22&src=typd &
 
 f_main
 }
