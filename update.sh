@@ -17,7 +17,7 @@ apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autor
 
 if [ -d /opt/discover/.git ]; then
      echo -e "\e[1;34mUpdating Discover.\e[0m"
-    git pull
+     cd /opt/discover ; git pull
      cp alias /root/.bash_aliases ; source /root/.bash_aliases
      echo
 fi
