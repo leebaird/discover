@@ -60,13 +60,9 @@ else
 fi
 
 if [ -d /opt/smbexec/.git ]; then
-     echo -e "\e[1;34mUpdating smbexec.\e[0m"
-     cd /opt/smbexec/ ; git pull
-     echo
-else
-     echo -e "\e[1;33mInstalling smbexec.\e[0m"
-     git clone git://github.com/pentestgeek/smbexec-2.git /opt/smbexec
-     ln -s /opt/smbexec/smbexec.rb  /usr/bin/smbexec
+     echo -e "\e[1;34mRemoving smbexec.\e[0m"
+     rm -rf /opt/smbexec/
+     rm /usr/bin/smbexec
      echo
 fi
 
@@ -94,4 +90,3 @@ echo -e "\e[1;34mUpdating locate database.\e[0m" ; updatedb
 
 echo
 echo
-
