@@ -404,10 +404,10 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      find -type f -empty -exec rm {} +
 
      echo "dnssy.com                 (23/$total)"
-     wget --post-data 'q=$domain&step=1&r=1448215046#3cc723b32910c180bc45aba6c21be6edf4125745' http://www.dnssy.com/report.php -O tmp
-     sed -n '/Results for/,/\/table/p' tmp > tmp2
+     wget -q --post-data 'q=$domain&step=1&r=1448215046#3cc723b32910c180bc45aba6c21be6edf4125745' http://www.dnssy.com/report.php -O tmp
+     sed -n '/table border/,/\/table/p' tmp > tmp2
      echo "<html>" > tmp3
-     cat tmp2 | grep -v 'Results for' >> tmp3
+     cat tmp2 >> tmp3
      echo "</html>" >> tmp3
      sed 's/Pass/<center><img src="..\/images\/icons\/green.png" height="50" width="50"><\/center>/g;
      s/Warning/<center><img src="..\/images\/icons\/yellow.png" height="50" width="50"><\/center>/g;
