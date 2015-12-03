@@ -108,4 +108,3 @@ if [ $VERSION -gt 1 ]; then
           # frames, window.location, window.href
      done
 fi
-

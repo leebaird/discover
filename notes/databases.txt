@@ -43,12 +43,16 @@ SELECT LOAD_FILE('/etc/passwd')\g;
 
 DROP TABLE 'table1', 'table2', 'table3';
 
-ORDER BY <field> <ASC, DESC> 
+UPDATE <table> SET <field>="value";
+UPDATE hostvulns SET tool="Nessus";
+
+ORDER BY <field> <ASC, DESC>
 GROUP BY <field>
 LIMIT <number>
 OFFSET <number>
 
-UPDATE <table> SET <field>="value"
+SELECT * FROM hostvulns WHERE vulnerability LIKE "%Default%" ORDER BY vulnerability;
+SELECT LENGTH(vulnerability), COUNT(*) FROM hostvulns GROUP BY LENGTH(vulnerability);
 ------------------------------------------------------------------------------------------------------
 
 # Postgresql
@@ -58,4 +62,3 @@ psql -h <IP> -U <username> -d <database>
 select username, passwd from pg_shadow;
 select current_database();
 create table test (input TEXT); copy test from '/etc/passwd'; select input from test;
-

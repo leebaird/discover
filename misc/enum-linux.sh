@@ -317,4 +317,3 @@ echo
 printf 'The new report is located at \e[1;33m%s\e[0m\n' /$user/$hname-$fndate.txt
 echo
 echo
-

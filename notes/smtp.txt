@@ -16,7 +16,7 @@ quit
 for x in $(cat users.txt); do echo VRFY $x | nc -nv -w 1 <target IP> 25 2>/dev/null | grep ^’250’; done
 ------------------------------------------------------------------------------------------------------
 
-sendEmail -f root@target.com -t jsmith@gmail.com -u Testing open mail relay. -m Testing SMTP open mail relay. Have a nice day. -s <target IP>
+sendemail -f root@target.com -t jsmith@gmail.com -u Testing open mail relay. -m Testing SMTP open mail relay. Have a nice day. -s <target IP>
 
 SMTP Service STARTTLS Plaintext Command Injection
 
