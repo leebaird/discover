@@ -3,7 +3,7 @@ Burp Suite
 
 # Memory
 
-To manually assign a certain amount of memory (2GB) to Burp: java -jar -Xmx2G <path to Burp>
+To manually assign a certain amount of memory (2GB min) to Burp: java -jar -Xmx2G <path to Burp>
 ------------------------------------------------------------------------------------------------------
 
 # Configure Proxy
@@ -80,10 +80,47 @@ Target > Scope: you will see the URL listed in the top window
 Target > Site map > Filter: enable Show only in-scope items > Filter
 ------------------------------------------------------------------------------------------------------
 
+# Quick Start
+
+Look for target.com/sitemap.
+If present, hold down the Command key and click on every link.
+Review each tab for input fields.
+Close all other tabs.
+
+Target > Site map > RC on the target URL > Actively scan this host
+Spider, watch the requests being made.
+
+When the Requests and Forms queues are both zero, click Spider is running
+Sit map > RC the target URL > Expand branch
+Scroll to the very bottom.
+RC on any folders that are greyed out > Delete branch
+RC on any links that are grey or red > Copy URL > paste into Firefox
+
+RC on the target URL > Actively scan this host
+Select all possible check boxes > Next > OK
+Scanner > Scan queue
+------------------------------------------------------------------------------------------------------
+
 # Manually Explore
 
 Firefox > start exploring the target site by clicking on all of the links on every page.
 Enter a single tick (') in any input field or Search form that you come across.
+------------------------------------------------------------------------------------------------------
+
+# Spider
+
+Burp > Target > Site map: RC on the target URL > Spider this host
+Spider > Control: watch the Requests made increase.
+Form requests will probably appear. You can hit submit or ignor.
+------------------------------------------------------------------------------------------------------
+
+# Scanner
+
+Spider > Control > Spider is paused
+Target > Site map > RC on the target URL > Actively scan this host
+Active scanning wizard: check all boxes > Next > Ok
+Scanner > Scan que > RC > Automatically delete finished items > Yes
+Scanner > Results
 ------------------------------------------------------------------------------------------------------
 
 # Authentication
@@ -128,22 +165,6 @@ Bruteforcing Authentication
           Start attack
 ------------------------------------------------------------------------------------------------------
 
-# Spider
-
-Burp > Target > Stie map: RC on the target URL > Spider this host
-Spider > Control: watch the Requests made increase.
-Form requests will probably appear. You can hit submit or ignor.
-------------------------------------------------------------------------------------------------------
-
-# Scanner
-
-Spider > Control > Spider is paused
-Target > Site Map > RC on the target URL > Actively scan this host
-Active scanning wizard: check all boxes > Next > Ok
-Scanner > Scan que > RC > Automatically delete finished items > Yes
-Scanner > Results
-------------------------------------------------------------------------------------------------------
-
 # Manually Validate Findings
 
 XML Injection > Search in the Response body for http://www.w3.org/2001/XMLSchema. This is a false positive.
@@ -153,22 +174,4 @@ XSS > RC in the Request body > Request in browser > In current browser session
 # Reporting
 
 Select all remaining findings > RC > Report selected issues > Next 4x > enter file location > Next > Close
-------------------------------------------------------------------------------------------------------
 
-# Quick Start
-
-Look for target.com/sitemap.
-How down the Command key and click on every link.
-Review each tab for input fields.
-Close all other tabs.
-Site map > select target.com > right click > (spider)
-(goto Spider, watch the requests being made.)
-When the Requests and Forms queued are both zero, click Spider is running
-Sit map > select the URL > right click > Expand branch
-Scroll to the very bottom.
-Any folders that are greyed out > right click > Delete branch
-Any links that are grey or red > right click > Copy URL > paste into Firefox
-
-Select target.com > right click > Actively scan this host
-Select all possible check boxes > Next > OK
-Scanner > Scan queue
