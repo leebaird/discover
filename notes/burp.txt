@@ -6,17 +6,7 @@ Burp Suite
 To manually assign a certain amount of memory (2GB min) to Burp: java -jar -Xmx2G <path to Burp>
 ------------------------------------------------------------------------------------------------------
 
-# Configure Proxy
-
-Firefox > Preferences > Advanced > Network > Settings
-Manual proxy configuration
-HTTP Proxy: 127.0.0.1
-Port: 8080
-Use this proxy server for all protocols.
-No proxy for: delete anything in here
-------------------------------------------------------------------------------------------------------
-
-# Install Certificate
+# Certificate
 
 Start Burp
 Open Firefox to http://burp
@@ -25,6 +15,25 @@ Preferences > Advanced > Certificates > View Certificates > Authorities > Import
 Select the certificate that you previously downloaded > Open
 Check the box "Trust this CA to identify web sites" > OK > OK
 Restart Firefox
+------------------------------------------------------------------------------------------------------
+
+# Extentions
+
+www.jython.org/downloads.html
+Download Jython Standalone Jar
+Move to /Applications/
+Extender > Options > Python Environment > Location of Jython standalone JAR file > Select file
+Browse to /Applications/jython-standalone-(version).jar > Open
+------------------------------------------------------------------------------------------------------
+
+# Proxy
+
+Firefox > Preferences > Advanced > Network > Settings
+Manual proxy configuration
+HTTP Proxy: 127.0.0.1
+Port: 8080
+Use this proxy server for all protocols.
+No proxy for: delete anything in here
 ------------------------------------------------------------------------------------------------------
 
 # Options
@@ -174,4 +183,3 @@ XSS > RC in the Request body > Request in browser > In current browser session
 # Reporting
 
 Select all remaining findings > RC > Report selected issues > Next 4x > enter file location > Next > Close
-
