@@ -28,16 +28,21 @@
 trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Global variables
-# TODO: Fix 'interface' and 'ip' variables to work on OS X.
 discover=$(locate discover.sh | sed 's:/[^/]*$::')
 distro=$(uname -n)
 home=$HOME
-interface=$(ip link | awk '{print $2, $9}' | grep UP | cut -d ':' -f1)
-ip=$(ip addr | grep global | cut -d '/' -f1 | awk '{print $2}')
 long='========================================================================================================='
 medium='====================================================================================='
 short='========================================'
 sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
+
+if [[ `uname` == 'Darwin' ]]; then     # Check for OSX
+     ip=$(ifconfig | grep -B3 'status: active' | grep broadcast | cut -d ' ' -f2)
+     interface=$(ifconfig | grep $ip -B3 | grep UP | cut -d ':' -f1)
+else
+     interface=$(ip link | awk '{print $2, $9}' | grep UP | cut -d ':' -f1)
+     ip=$(ip addr | grep global | cut -d '/' -f1 | awk '{print $2}')
+fi
 
 ##############################################################################################################
 
