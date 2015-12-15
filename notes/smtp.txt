@@ -4,14 +4,14 @@ SMTP
 # SMTP relay, EXPN/VRFY command enabled
 
 telnet <target IP> 25
-helo root
-mail from: root@target.com
-rcpt to: jsmith@gmail.com
+EHLO root
+MAIL FROM:root@target.com
+RCPT TO:jsmith@gmail.com
 DATA
 Subject: Testing open mail relay.
 Testing SMTP open mail relay. Have a nice day.
 .
-quit
+QUIT
 
 for x in $(cat users.txt); do echo VRFY $x | nc -nv -w 1 <target IP> 25 2>/dev/null | grep ^’250’; done
 ------------------------------------------------------------------------------------------------------

