@@ -4,6 +4,7 @@ import os
 import sys
 
 os.system('clear')
+
 port = raw_input('\nEnter a valid port: ')
 
 if port == '':

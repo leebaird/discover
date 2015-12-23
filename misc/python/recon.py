@@ -1,10 +1,6 @@
-# recon.py
-#
-# By Lee Baird
-# Feel free to contact me via chat or email with any feedback or suggestions that you may have:
-# leebaird@gmail.com
-#
-##############################################################################################################
+#!/usr/bin/env python
+
+import os
 
 os.system('clear')
 banner()

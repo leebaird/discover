@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+import os
+
+os.system('clear')
+
 f = open('tmp','r')                                # Setup a read connection to file
 filedata = f.read()                                # Read the file
 f.close()                                          # Close the connection
