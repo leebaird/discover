@@ -17,7 +17,7 @@ Check the box "Trust this CA to identify web sites" > OK > OK
 Restart Firefox
 ------------------------------------------------------------------------------------------------------
 
-# Extentions
+# Extensions
 
 www.jython.org/downloads.html
 Download Jython Standalone Jar
@@ -38,7 +38,7 @@ No proxy for: delete anything in here
 
 # Options
 
-Inruder > Options:
+Intruder > Options:
      Grep - Match > Clear > Yes
      Load: /usr/share/wfuzz/wordlist/fuzzdb/regex/errors.txt
 
@@ -58,7 +58,7 @@ Proxy > Options:
      Enable Intercept responses based on the following rules.
      In the list below, disable Content type header.
      Enable URL and move to the top.
-     Add: And, File extention, Does not match, same Conditions as above.
+     Add: And, File extension, Does not match, same Conditions as above.
      Move to the second position.
 
      Miscellaneous:
@@ -151,7 +151,7 @@ Highlight the parameter you want to fuzz and click Add.
 Intruder > Payloads > Payload Options > Add from list: Fuzzing - full
 Start attack
 
-Bruteforcing Authentication
+Brute forcing authentication
      Try to login
      Proxy > History
      Find the POST request
@@ -183,3 +183,4 @@ XSS > RC in the Request body > Request in browser > In current browser session
 # Reporting
 
 Select all remaining findings > RC > Report selected issues > Next 4x > enter file location > Next > Close
+
