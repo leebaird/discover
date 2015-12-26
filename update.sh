@@ -23,13 +23,8 @@ if [ -d /opt/discover/.git ]; then
 fi
 
 if [ -d /opt/easy-creds/.git ]; then
-     echo -e "\e[1;34mUpdating easy-creds.\e[0m"
-     cd /opt/easy-creds/ ; git pull
-     echo
-else
-     echo -e "\e[1;33mInstalling easy-creds.\e[0m"
-     git clone git://github.com/brav0hax/easy-creds.git /opt/easy-creds
-     ln -s /opt/easy-creds/easy-creds.sh  /usr/bin/easy-creds
+     echo -e "\e[1;34mRemoving easy-creds.\e[0m"
+     rm -rf /opt/easy-creds/
      echo
 fi
 
@@ -90,3 +85,4 @@ echo -e "\e[1;34mUpdating locate database.\e[0m" ; updatedb
 
 echo
 echo
+
