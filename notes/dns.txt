@@ -38,4 +38,3 @@ nslookup www.nsa.gov <nameserver IP>
 # Spoofed request amplification DDoS
 
 for i in `cat 53.txt`; do dig @"$i" . NS; done > AmpDDoS.txt
-

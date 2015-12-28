@@ -63,7 +63,7 @@ File > Attach > select Ability Server in the second column > Attach
 Press Play to allow the application to continue to run.
 Look in the bottom right corner and noticed how it has changed from a Paused to Running state.
 Run the exploit.
-The debugger catches the crash and halts the program execution, showing the exact state of the CPU registers at the time of the crash.  In the top right window, notice the EIP register is completely overwritten by our buffer.  Because the EIP controls the execution flow of the program, you can now hijack the application flow and redirect the application to continue executing whatever you want.  What usually happens is that the attacker introduces his own shellcode, usually inside the buffer.  After execution flow is gained, it's redirected to the attacker's shellcode.
+The debugger catches the crash and halts the program execution, showing the exact state of the CPU registers at the time of the crash. In the top right window, notice the EIP register is completely overwritten by our buffer. Because the EIP controls the execution flow of the program, you can now hijack the application flow and redirect the application to continue executing whatever you want. What usually happens is that the attacker introduces his own shellcode, usually inside the buffer. After execution flow is gained, it's redirected to the attacker's shellcode.
 Notice in the top right window that the EIP is completely overwritten with 41414141 or 4 As.
 The ESP register holds the rest of the malicious buffer.
 Right click on ESP > Follow in Dump
@@ -105,7 +105,7 @@ A = \x41
 B = \x42
 C = \x43
 D = \x44
-NOP = \x90   A no operation instruction.  It simply means, continue to the next instruction.
+NOP = \x90   A no operation instruction. It simply means, continue to the next instruction.
 
 New buffer:  A * 967 + B * 4 + C * 16 + D * 1013
 967 + 4 = 971
@@ -121,14 +121,14 @@ The ESP has been overwritten with just Ds.
 # Part 4
 
 In the lower left window, copy the beginning address of the ESP (00C3B6B8).
-Scroll down until you see an error.  Copy the address of the line before the error (00C3BA98).
+Scroll down until you see an error. Copy the address of the line before the error (00C3BA98).
 Subtract the first hex number from the second to find out how much space is available for our shell code.
 00C3BA98 - 00C3B6B8 = 0x3E0
 Now convert that to decimal (992).
 
 # Part 5
 
-NULL bytes are not good.  Can't be sent over the network because they will terminate our buffer.  The buffer must be encoded with msfencode.  Every time that you encode the buffer, its size will increase.
+NULL bytes are not good. Can't be sent over the network because they will terminate our buffer. The buffer must be encoded with msfencode. Every time that you encode the buffer, its size will increase.
 ------------------------------------------------------------------------------------------------------
 
 # Example

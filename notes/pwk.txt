@@ -165,7 +165,7 @@ Once the cron job runs, you should have a shell with root privs.
 id
 ------------------------------------------------------------------------------------------------------
 
-$ Client Side Attacks
+# Client Side Attacks
 
 MS12-037
 CVE 2012-1876
@@ -192,4 +192,3 @@ nc -lvp 443
 
 Windows
 Open IE to <kali-ip>/exploit.html
-
