@@ -49,6 +49,10 @@ Options > Display:
      User Interface > Font size: 16
      HTTP Message Display > Font: Monospaced 15
 
+Options > Misc:
+     Burp Collaborator Server: Don't useBurp Collaborator
+     Performance Feedback: uncheck Submit annonymous feedback about Burp's performance
+
 Proxy > Options:
      Intercept Client Requests:
      In the list below, enable URL and move to the top.
@@ -183,4 +187,3 @@ XSS > RC in the Request body > Request in browser > In current browser session
 # Reporting
 
 Select all remaining findings > RC > Report selected issues > Next 4x > enter file location > Next > Close
-

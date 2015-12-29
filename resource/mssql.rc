@@ -6,6 +6,7 @@ use scanner/mssql/mssql_ping
 run
 
 use scanner/mssql/mssql_login
+set PASS-FILE /usr/share/wordlists/fasttrack.txt
 run
 
 use scanner/mssql/mssql_hashdump
