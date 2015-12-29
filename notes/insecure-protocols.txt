@@ -75,4 +75,3 @@ OS X
      xdotool key e
      xdotool key r 
      xdotool key m
-
