@@ -50,7 +50,7 @@ Options > Display:
      HTTP Message Display > Font: Monospaced 15
 
 Options > Misc:
-     Burp Collaborator Server: Don't useBurp Collaborator
+     Burp Collaborator Server: Don't use Burp Collaborator
      Performance Feedback: uncheck Submit annonymous feedback about Burp's performance
 
 Proxy > Options:
@@ -76,7 +76,7 @@ Scanner:
           Static Code Analysis > Don’t perform static code analysis
 
 Spider > Options:
-     Form Submission > Scroll down to age > change to 34
+     Form Submission > Scroll down to age > change to 36
 
 Target > Scope:
      Exclude from scope > Add > File: (^.doc.*|^.docx.*|^.xls.*|^.xlsx.*|^.ppt.*|^.pptx.*|^.txt.*|^.pdf.*)
@@ -85,29 +85,32 @@ Target > Scope:
 # Scope
 
 Target > Site map > Filter: restore defaults
-Target > Scope: restore defaults
+Target > Scope: delete anything in Include in scope
+------------------------------------------------------------------------------------------------------
+
+# Quick Start
 
 Firefox > surf to the target site and click on a couple of links.
 Burp > Target > Site map > right click (RC) on the target URL > Add to scope
 Target > Scope: you will see the URL listed in the top window
 Target > Site map > Filter: enable Show only in-scope items > Filter
-------------------------------------------------------------------------------------------------------
-
-# Quick Start
 
 Look for target.com/sitemap.
-If present, hold down the Command key and click on every link.
-Review each tab for input fields.
-Close all other tabs.
+If present, hold down the Command key and click on about 20 links.
+Review each tab for input fields, forms and additional links.
+Close the tab and repeat until you have thoroughly browsed the application.
 
-Target > Site map > RC on the target URL > Actively scan this host
+Target > Site map > RC on the target URL > Spider this host
 Spider, watch the requests being made.
+When the Requests and Forms queued are both zero, click Spider is running.
 
-When the Requests and Forms queues are both zero, click Spider is running
 Sit map > RC the target URL > Expand branch
 Scroll to the very bottom.
 RC on any folders that are greyed out > Delete branch
-RC on any links that are grey or red > Copy URL > paste into Firefox
+RC on any pages that are grey or red > Copy URL > paste into Firefox
+
+Brute force files and folders.
+Save state.
 
 RC on the target URL > Actively scan this host
 Select all possible check boxes > Next > OK
