@@ -95,7 +95,7 @@ make install
 dpkg -i app.deb                    Install Debian package
 rpm -Uvh app.rpm                   Install RPM package
 
-dpkg-query -l                     Show a list a installed packages
+dpkg-query -l                     Show a list of installed packages
 ------------------------------------------------------------------------------------------------------
 
 # Integrity
