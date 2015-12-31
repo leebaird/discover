@@ -24,11 +24,14 @@ Download Jython Standalone Jar
 Move to /Applications/
 Extender > Options > Python Environment > Location of Jython standalone JAR file > Select file
 Browse to /Applications/jython-standalone-(version).jar > Open
+
+BApp Store
+Install CO2 and Site Map Fetcher
 ------------------------------------------------------------------------------------------------------
 
-# Proxy
+# Firefox
 
-Firefox > Preferences > Advanced > Network > Settings
+Preferences > Advanced > Network > Settings
 Manual proxy configuration
 HTTP Proxy: 127.0.0.1
 Port: 8080
@@ -79,13 +82,16 @@ Spider > Options:
      Form Submission > Scroll down to age > change to 36
 
 Target > Scope:
+     Delete anything under Include in scope
      Exclude from scope > Add > File: (^.doc.*|^.docx.*|^.xls.*|^.xlsx.*|^.ppt.*|^.pptx.*|^.txt.*|^.pdf.*)
-------------------------------------------------------------------------------------------------------
 
-# Scope
+Target > Site map:
+     Filter > restore defaults > Filter
 
-Target > Site map > Filter: restore defaults
-Target > Scope: delete anything in Include in scope
+Burp > Remember settings:
+     Uncheck All options.
+     Check every option except Target.
+     Restart Burp. This will provide starting point for all future scans.
 ------------------------------------------------------------------------------------------------------
 
 # Quick Start
