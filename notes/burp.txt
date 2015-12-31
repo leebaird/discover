@@ -1,11 +1,6 @@
 Burp Suite
 
 
-# Memory
-
-To manually assign a certain amount of memory (2GB min) to Burp: java -jar -Xmx2G <path to Burp>
-------------------------------------------------------------------------------------------------------
-
 # Certificate
 
 Start Burp
@@ -13,7 +8,7 @@ Open Firefox to http://burp
 CA Certificate > Save File
 Preferences > Advanced > Certificates > View Certificates > Authorities > Import
 Select the certificate that you previously downloaded > Open
-Check the box "Trust this CA to identify web sites" > OK > OK
+Check Trust this CA to identify websites > OK > OK
 Restart Firefox
 ------------------------------------------------------------------------------------------------------
 
@@ -31,6 +26,10 @@ Install CO2 and Site Map Fetcher
 
 # Firefox
 
+- Automated
+Install FoxyProxy plugin.
+
+- Maunal
 Preferences > Advanced > Network > Settings
 Manual proxy configuration
 HTTP Proxy: 127.0.0.1
@@ -74,7 +73,7 @@ Proxy > Options:
 Scanner:
      Live scanning > Live Passive Scanning: Use suite scope
      Options:
-          Active Scanning Engine > Number of retries on network failure: 1
+          Active Scanning Engine > Number of retries on network failure: 2
           Active Scanning Optimization > Scan speed: Fast
           Static Code Analysis > Don’t perform static code analysis
 
@@ -103,11 +102,12 @@ Target > Site map > Filter: enable Show only in-scope items > Filter
 
 Look for target.com/sitemap.
 If present, hold down the Command key and click on about 20 links.
-Review each tab for input fields, forms and additional links.
-Close the tab and repeat until you have thoroughly browsed the application.
+If not present, start exploring the target by clicking on every link on every page.
+Enter a single tick (') in any input field.
+Continue until you have thoroughly browsed the target.
 
 Target > Site map > RC on the target URL > Spider this host
-Spider, watch the requests being made.
+Spider > Control: watch the Requests made increase.
 When the Requests and Forms queued are both zero, click Spider is running.
 
 Sit map > RC the target URL > Expand branch
@@ -121,19 +121,6 @@ Save state.
 RC on the target URL > Actively scan this host
 Select all possible check boxes > Next > OK
 Scanner > Scan queue
-------------------------------------------------------------------------------------------------------
-
-# Manually Explore
-
-Firefox > start exploring the target site by clicking on all of the links on every page.
-Enter a single tick (') in any input field or Search form that you come across.
-------------------------------------------------------------------------------------------------------
-
-# Spider
-
-Burp > Target > Site map: RC on the target URL > Spider this host
-Spider > Control: watch the Requests made increase.
-Form requests will probably appear. You can hit submit or ignor.
 ------------------------------------------------------------------------------------------------------
 
 # Scanner
