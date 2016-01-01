@@ -21,7 +21,7 @@ Extender > Options > Python Environment > Location of Jython standalone JAR file
 Browse to /Applications/jython-standalone-(version).jar > Open
 
 BApp Store
-Install CO2 and Site Map Fetcher
+Install CO2, Site Map Fetcher, and XSS Validator
 ------------------------------------------------------------------------------------------------------
 
 # Firefox proxy
@@ -84,7 +84,6 @@ Target > Scope:
      Delete anything under Include in scope
      Exclude from scope:
           Add > File: (^.doc.*|^.docx.*|^.xls.*|^.xlsx.*|^.ppt.*|^.pptx.*|^.txt.*|^.pdf.*)
-          Add > Host: (^.google.*|^.mozilla.*)
 
 Target > Site map:
      Filter > restore defaults > Filter
