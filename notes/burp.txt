@@ -24,7 +24,7 @@ BApp Store
 Install CO2 and Site Map Fetcher
 ------------------------------------------------------------------------------------------------------
 
-# Firefox
+# Firefox proxy
 
 - Automated
 Install FoxyProxy plugin.
@@ -87,10 +87,7 @@ Target > Scope:
 Target > Site map:
      Filter > restore defaults > Filter
 
-Burp > Remember settings:
-     Uncheck All options.
-     Check every option except Target.
-     Restart Burp. This will provide starting point for all future scans.
+Restart Burp. This will provide starting point for all future scans.
 ------------------------------------------------------------------------------------------------------
 
 # Quick Start
