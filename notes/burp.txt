@@ -45,7 +45,7 @@ Intruder > Options:
      Load: /usr/share/wfuzz/wordlist/fuzzdb/regex/errors.txt
 
 Options > Connections:
-     Platform Authentication: check Prompt for credentials on platform authentication failure
+     Platform Authentication: enable Prompt for credentials on platform authentication failure
 
 Options > Display:
      User Interface > Font size: 16
@@ -128,6 +128,14 @@ Target > Site map > RC on the target URL > Actively scan this host
 Active scanning wizard: check all boxes > Next > Ok
 Scanner > Scan que > RC > Automatically delete finished items > Yes
 Scanner > Results
+------------------------------------------------------------------------------------------------------
+
+# Alerts
+
+If you start seeing an increase in java.net.SocketException: Connection reset
+Scanner > Options:
+     Active Scanning Engine: enable Throttle between requestions: 200
+     Active Scanning Optimization > Scan Accuracy: Normal
 ------------------------------------------------------------------------------------------------------
 
 # Authentication
