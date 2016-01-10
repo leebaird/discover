@@ -597,7 +597,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 1
      firefox -new-tab https://www.google.com/#q=filetype%3Atxt+site%3A$domain &
      sleep 1
-     firefox -new-tab https://www.ssllabs.com/ssltest/analyze.html?d=$domain &
+     firefox -new-tab https://www.ssllabs.com/ssltest/analyze.html?d=$domain"&"hideResults=on"&"latest &
      sleep 1
      firefox -new-tab http://www.urlvoid.com/scan/$domain &
      sleep 1
