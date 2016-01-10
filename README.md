@@ -1,6 +1,6 @@
 For use with Kali Linux. Custom bash scripts used to automate various pentesting tasks.
 
-# Licence
+# License
 
 This project is licensed under the ```BSD 3-clause “New” or “Revised” License```. For more information please see the licence file
 
