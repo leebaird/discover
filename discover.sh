@@ -585,6 +585,10 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      firefox &
      sleep 2
+     firefox -new-tab https://www.virustotal.com/en/domain/$domain/information/ &
+     sleep 1
+     firefox -new-tab https://safeweb.norton.com/report/show?url=$domain &
+     sleep 1
      firefox -new-tab toolbar.netcraft.com/site_report?url=http://www.$domain &
      sleep 1
      firefox -new-tab https://www.google.com/#q=filetype%3Axls+OR+filetype%3Axlsx+site%3A$domain &
