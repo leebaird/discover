@@ -22,12 +22,6 @@ if [ -d /opt/discover/.git ]; then
      echo
 fi
 
-if [ -d /opt/easy-creds/.git ]; then
-     echo -e "\e[1;34mRemoving easy-creds.\e[0m"
-     rm -rf /opt/easy-creds/
-     echo
-fi
-
 if [ -d /opt/EyeWitness/.git ]; then
      echo -e "\e[1;34mUpdating EyeWitness.\e[0m"
      cd /opt/EyeWitness/ ; git pull
