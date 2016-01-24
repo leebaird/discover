@@ -2,7 +2,7 @@ For use with Kali Linux. Custom bash scripts used to automate various pentesting
 
 # License
 
-This project is licensed under the ```BSD 3-clause “New” or “Revised” License```. For more information please see the licence file
+This project is licensed under the ```BSD 3-clause “New” or “Revised” License```. For more information please see the licence file.
 
 ### Download, setup & usage
 * git clone https://github.com/leebaird/discover /opt/discover/
