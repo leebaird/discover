@@ -22,16 +22,6 @@ if [ -d /opt/discover/.git ]; then
      echo
 fi
 
-if [ -d /opt/EyeWitness/.git ]; then
-     echo -e "\e[1;34mUpdating EyeWitness.\e[0m"
-     cd /opt/EyeWitness/ ; git pull
-     echo
-else
-     echo -e "\e[1;33mInstalling EyeWitness.\e[0m"
-     git clone git://github.com/ChrisTruncer/EyeWitness.git /opt/EyeWitness
-     echo
-fi
-
 if [ ! -f /usr/bin/goofile ]; then
      echo -e "\e[1;33mInstalling goofile.\e[0m"
      apt-get install -y goofile
@@ -48,24 +38,9 @@ else
      /opt/rawr/install.sh y
 fi
 
-if [ -d /opt/smbexec/.git ]; then
-     echo -e "\e[1;34mRemoving smbexec.\e[0m"
-     rm -rf /opt/smbexec/
-     rm /usr/bin/smbexec
-     echo
-fi
-
 if [ -f /usr/bin/theharvester ]; then
      echo -e "\e[1;34mUpdating theHarvester.\e[0m"
      mv /usr/bin/theharvester /usr/bin/theHarvester
-     echo
-fi
-
-if [ -d /opt/veil/.git ]; then
-     echo -e "\e[1;33mInstalling Veil-Evasion suite.\e[0m"
-     unlink /usr/bin/veil
-     rm -rf /opt/veil
-     apt-get -y install veil-evasion veil-catapult
      echo
 fi
 
