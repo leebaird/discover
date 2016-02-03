@@ -45,9 +45,6 @@ Intruder > Options:
           Number of threads: 8
           Number of retries on network failure: 2
           Pause before retry: 1500
-     Grep - Match:
-          Clear > Yes
-          Load: Kali > /usr/share/wfuzz/wordlist/fuzzdb/regex/errors.txt
 
 Options > Connections:
      Platform Authentication: enable Prompt for credentials on platform authentication failure
