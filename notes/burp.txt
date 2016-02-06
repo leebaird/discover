@@ -150,16 +150,21 @@ Domain and Hostname are only used for NTLM.
 OK
 ------------------------------------------------------------------------------------------------------
 
-# Intruder
+# Brute forcing hidden files
 
-RC on any request > Send to Intruder
-Intruder > Positions: notice the parameters that are highlighted.
-Clear
-Highlight the parameter you want to fuzz and click Add.
-Intruder > Payloads > Payload Options > Add from list: Fuzzing - full
+Download SecLists: git clone https://github.com/danielmiessler/SecLists
+
+Target > Site map > RC on any page > Send to Intruder
+Intruder > Positions > Clear
+Highlight the parameter you want to fuzz.
+This will be on the top row after GET / > click Add.
+Intruder > Payloads > Payload Options > Load: SecLists > Discovery > Web_Content > raft-medium-files.txt > Open
 Start attack
+Once the attack is complete, click Filter > uncheck Filter by status code: 4xx [request error].
+------------------------------------------------------------------------------------------------------
 
-Brute forcing authentication
+# Brute forcing authentication
+
      Try to login
      Proxy > History
      Find the POST request
