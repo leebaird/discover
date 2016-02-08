@@ -44,7 +44,6 @@ Intruder > Options:
      Request Engine:
           Number of threads: 8
           Number of retries on network failure: 2
-          Pause before retry: 1500
 
 Options > Connections:
      Platform Authentication: enable Prompt for credentials on platform authentication failure
@@ -72,15 +71,14 @@ Proxy > Options:
      Miscellaneous:
      Enable interception at startup: Always disable
 
-Scanner:
-     Live scanning > Live Passive Scanning: Use suite scope
-     Options:
-          Active Scanning Engine > Number of retries on network failure: 2
-          Active Scanning Optimization > Scan speed: Fast
-          Static Code Analysis > Don’t perform static code analysis
+Scanner > Options:
+     Active Scanning Engine > Number of retries on network failure: 2
+     Active Scanning Optimization > Scan speed: Fast
+     Static Code Analysis > Don’t perform static code analysis
 
 Spider > Options:
-     Form Submission > Scroll down to age > change to 36
+     Form Submission > age: 36
+     Spider Engine > Number of retries on network failure: 2
 
 Target > Scope:
      Delete anything under Include in scope
