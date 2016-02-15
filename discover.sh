@@ -1211,7 +1211,7 @@ read choice
 case $choice in
      1) echo -n "Interface to scan: "
 	read interface
-	arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt   echo
+	arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt
      echo $medium
      echo
      echo "***Scan complete.***"
