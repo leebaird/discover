@@ -2,15 +2,15 @@
 # cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
 
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
-interface=$(ifconfig | grep -B1 'inet addr' | egrep -v '(-|inet addr|Loopback)' | cut -d ' ' -f1)
-ip=$(ifconfig | grep 'Bcast' | awk '{print$2}' | cut -d ':' -f2)
-mac=$(ifconfig | grep -B1 'inet addr' | egrep -v '(-|inet addr|Loopback)' | awk '{print$5}')
+interface=$(ifconfig | grep 'BROADCAST' | cut -d ':' -f1)
+ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
+mac=$(ifconfig | grep 'ether' | awk '{print $2}')
 
 alias c='clear'
 alias cl='clear ; ls -l'
 alias d='cd /root/Desktop/ ; clear'
 alias e='exit'
-alias i='echo ; echo ; echo "DNS      " $dns ; echo ; ifconfig ; ping google.com -c3 ; echo ; echo'
+alias i='echo ; echo ; echo "DNS    " $dns ; echo ; ifconfig ; ping google.com -c3 ; echo ; echo'
 alias l='ls -l'
 alias m='service postgresql start ; msfconsole'
 alias n='echo ; netstat -antup | egrep -v "Active" ; echo ;
