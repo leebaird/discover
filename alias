@@ -40,7 +40,7 @@ alias update='/opt/discover/update.sh'
 
 #alias update='echo ;                                           # modified for OS X
 #echo -n "Discover" ; echo ;                                    # modified for OS X
-#cd /opt/discover/ && git pull ; echo ;                         # modified for OS X
+#cd /opt/discover/ && sudo git pull ; echo ;                    # modified for OS X
 #echo -n "SecLists" ; echo ;                                    # modified for OS X
 #cd /Users/username/SecLists/ && git pull ; echo ;              # modified for OS X
 #echo -n "Sqlmap" ; echo ;                                      # modified for OS X
