@@ -33,7 +33,6 @@ alias r='cd /root/ ; clear'
 #alias r='cd /Users/username/ ; clear'                          # modified for OS X
 
 alias s='cd /opt/discover/ ; clear'
-#alias s='cd /Users/username/discover/ ; clear'                 # modified for OS X
 
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
@@ -41,11 +40,11 @@ alias update='/opt/discover/update.sh'
 
 #alias update='echo ;                                           # modified for OS X
 #echo -n "Discover" ; echo ;                                    # modified for OS X
-#cd /Users/username/discover/ && git pull ; echo ;              # modified for OS X
+#cd /opt/discover/ && git pull ; echo ;                         # modified for OS X
 #echo -n "SecLists" ; echo ;                                    # modified for OS X
-#cd ../SecLists/ && git pull ; echo ;                           # modified for OS X
+#cd /Users/username/SecLists/ && git pull ; echo ;              # modified for OS X
 #echo -n "Sqlmap" ; echo ;                                      # modified for OS X
-#cd ../sqlmap/ && git pull ; echo ;                             # modified for OS X
+#cd /Users/username/sqlmap/ && git pull ; echo ;                # modified for OS X
 #echo -n "Locate db" ; echo ;                                   # modified for OS X
 #sudo /usr/libexec/locate.updatedb ;                            # modified for OS X
 #cd /Users/username/ && echo'                                   # modified for OS X
