@@ -4,7 +4,8 @@ Metasploit
 # OS X
 
 No MacPorts or Homebrew needed.
-http://osx.metasploit.com     Download the latest installer and run.
+Download the latest installer and run: http://osx.metasploit.com
+Answer yes to all the questions.
 /opt/metasploit-framework/bin/msfconsole
 ------------------------------------------------------------------------------------------------------
 
