@@ -29,7 +29,7 @@ netstat -antp ; echo ;
 #netstat | grep "ESTABLISHED" ; echo ;                          # modified for OS X
 echo -n "External IP:  " ; curl ifconfig.me ; echo'
 
-alias r='cd /root/ ; clear'
+alias r='cd /$user/ ; clear'
 #alias r='cd /Users/$user/ ; clear'                             # modified for OS X
 
 alias s='cd /opt/discover/ ; clear'
@@ -38,13 +38,13 @@ alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
 alias update='/opt/discover/update.sh'
 #alias update='echo ;                                           # modified for OS X
-#echo -n "Discover" ; echo ;                                    # modified for OS X
+#echo -n "Updating Discover." ; echo ;                          # modified for OS X
 #cd /opt/discover/ && git pull ; echo ;                         # modified for OS X
-#echo -n "SecLists" ; echo ;                                    # modified for OS X
+#echo -n "Updating SecLists." ; echo ;                          # modified for OS X
 #cd /Users/$user/SecLists/ && git pull ; echo ;                 # modified for OS X
-#echo -n "Sqlmap" ; echo ;                                      # modified for OS X
+#echo -n "Updating Sqlmap." ; echo ;                            # modified for OS X
 #cd /Users/$user/sqlmap/ && git pull ; echo ;                   # modified for OS X
 #cd /Users/$user/ ;                                             # modified for OS X
-#echo -n "Locate db" ; echo ;                                   # modified for OS X
+#echo -n "Updating locate database." ; echo ;                   # modified for OS X
 #echo -n "Be patient, this takes a couple min." ; echo ;        # modified for OS X
 #sudo /usr/libexec/locate.updatedb ; echo'                      # modified for OS X
