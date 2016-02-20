@@ -36,6 +36,7 @@ alias s='cd /opt/discover/ ; clear'
 
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
+alias update='/opt/discover/update.sh'
 #alias update='echo ;                                           # modified for OS X
 #echo -n "Discover" ; echo ;                                    # modified for OS X
 #cd /opt/discover/ && git pull ; echo ;                         # modified for OS X
