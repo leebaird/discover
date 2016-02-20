@@ -11,7 +11,7 @@ alias c='clear'
 alias cl='clear ; ls -l'
 
 alias d='cd /$user/Desktop/ ; clear'
-#alias d='cd /Users/$user/Desktop/ ; clear'                     # modified for  OS X
+#alias d='cd /Users/$user/Desktop/ ; clear'                     # modified for OS X
 
 alias e='exit'
 
