@@ -1,6 +1,13 @@
 Metasploit
 
 
+# OS X
+
+No MacPorts or Homebrew needed.
+http://osx.metasploit.com     Download the latest installer and run.
+/opt/metasploit-framework/bin/msfconsole
+------------------------------------------------------------------------------------------------------
+
 service postgrsql start       Start the PostreSQL db.
 msfconsole                    Start Metasploit.
 msf > db_status               Check that you are connected to the db.
