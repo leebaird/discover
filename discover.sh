@@ -36,12 +36,13 @@ medium='========================================================================
 short='========================================'
 sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
-if [[ `uname` == 'Darwin' ]]; then     # Check for OSX
-     ip=$(ifconfig | grep -B3 'status: active' | grep broadcast | cut -d ' ' -f2)
-     interface=$(ifconfig | grep $ip -B3 | grep UP | cut -d ':' -f1)
+# Check for OS X
+if [[ `uname` == 'Darwin' ]]; then
+     ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)
+     interface=$(ifconfig | grep $ip -B3 | grep 'UP' | cut -d ':' -f1)
 else
-     interface=$(ip link | awk '{print $2, $9}' | grep UP | cut -d ':' -f1)
-     ip=$(ip addr | grep global | cut -d '/' -f1 | awk '{print $2}')
+     ip=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}')
+     interface=$(ip link | awk '{print $2, $9}' | grep 'UP' | cut -d ':' -f1)
 fi
 
 ##############################################################################################################
@@ -3536,7 +3537,15 @@ clear
 
 cp $discover/resource/misc/listener.rc /tmp/
 
-sed -i "s/#/$ip/g" /tmp/listener.rc
+# Check for OS X
+if [[ `uname` == 'Darwin' ]]; then
+     sed -i '' "s/#/$ip/g" /tmp/listener.rc
+     sed -i '' "s/443/4444/g" /tmp/listener.rc
+	 port=4444
+else
+     sed -i "s/#/$ip/g" /tmp/listener.rc
+	 port=443
+fi
 
 x=`ps aux | grep 'postgres' | grep -v 'grep'`
 
@@ -3546,7 +3555,7 @@ if [[ -z $x ]]; then
 fi
 
 echo
-echo "Starting a Metasploit listener on port 443."
+echo "Starting a Metasploit listener on port $port."
 echo "Type - Windows meterpreter reverse TCP."
 echo
 echo "This takes about 20 seconds."

@@ -2,6 +2,7 @@
 
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
 ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
+#ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)     # modified for OS X
 mac=$(ifconfig | grep 'ether' | awk '{print $2}')
 #mac=$(ifconfig | grep 'ether' | awk '{print $2}' | head -1)    # modified for OS X
 user=$(whoami)
