@@ -81,7 +81,7 @@ if [[ `uname` == 'Darwin' ]]; then
      echo
      echo -e "\x1B[1;31m$medium\x1B[0m"
      echo
-     echo -e "\x1B[1;31m                          *** Not OS X compatible. ***\x1B[0m"
+     echo -e "\x1B[1;31m                            *** Not OS X compatible. ***\x1B[0m"
      echo
      echo -e "\x1B[1;31m$medium\x1B[0m"
      sleep 2
@@ -3506,7 +3506,15 @@ echo "Type - Windows meterpreter reverse TCP."
 echo
 echo "This takes about 20 seconds."
 echo
-msfconsole -r /tmp/listener.rc
+
+# Check for OS X
+if [[ `uname` == 'Darwin' ]]; then
+	/opt/metasploit-framework/bin/msfconsole -r /tmp/listener.rc
+else	
+     msfconsole -r /tmp/listener.rc
+fi
+
+rm /tmp/listener.rc
 }
 
 ##############################################################################################################
