@@ -76,6 +76,19 @@ sleep 2
 f_main
 }
 
+f_errorOSX(){
+if [[ `uname` == 'Darwin' ]]; then
+     echo
+     echo -e "\x1B[1;31m$medium\x1B[0m"
+     echo
+     echo -e "\x1B[1;31m                          *** Not OS X compatible. ***\x1B[0m"
+     echo
+     echo -e "\x1B[1;31m$medium\x1B[0m"
+     sleep 2
+     f_main
+fi
+}
+
 ##############################################################################################################
 
 f_location(){
@@ -1214,9 +1227,18 @@ echo -n "Choice: "
 read choice
 
 case $choice in
-     1) echo -n "Interface to scan: "
-	read interface
-	arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt
+     1) f_errorOSX
+	 
+	 echo -n "Interface to scan: "
+	 read interface
+	
+     # Check for no answer
+     if [[ -z $interface ]]; then
+          f_error
+     fi
+
+	 arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt
+	
      echo $medium
      echo
      echo "***Scan complete.***"
@@ -1226,11 +1248,10 @@ case $choice in
      echo
      echo
      exit;;
-     2) f_netbios;;
-     3) netdiscover;;
+     2) f_errorOSX; f_netbios;;
+     3) f_errorOSX; netdiscover;;
      4) f_pingsweep;;
-     5) f_nmapAscan;;
-     6) f_main;;
+     5) f_main;;
      *) f_error;;
 esac
 }
@@ -1366,98 +1387,6 @@ echo
 echo
 printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/hosts-ping.txt
 echo
-echo
-exit
-}
-
-##############################################################################################################
-
-f_nmapAscan(){
-clear
-f_banner
-f_typeofscan
-
-echo -e "\x1B[1;34mType of input:\x1B[0m"
-echo
-echo "1.  List containing IPs, ranges and/or CIDRs."
-echo "2.  Manual"
-echo
-echo -n "Choice: "
-read choice
-
-case $choice in
-     1)
-     echo -n "Name your scan: "
-     read scanname
-     f_location
-
-     echo
-     echo "Running an Nmap -A scan for live hosts."
-     nmap -A -oA ~/data/$scanname --stats-every 10s -g $sourceport -iL $location > tmp
-     ;;
-
-     2)
-     echo
-     echo -n "Enter your targets: "
-     read manual
-     echo -n "Name your scan: "
-     read scanname
-
-     # Check for no answer
-     if [[ -z $manual ]]; then
-          f_error
-     fi
-
-     echo
-     echo "Running an Nmap -A scan for live hosts."
-     nmap -A -oA ~/data/$scanname --stats-every 10s -g $sourceport $manual > tmp
-     ;;
-
-     *) f_error;;
-esac
-
-##############################################################
-
-perl << 'EOF'
-# Author: Ben Wood
-# Description: Reads an nmap ping sweep and correctly identifies lives hosts
-
-use strict;
-
-undef $/; # Enable slurping
-
-open(my $handle, '<', "tmp");
-open(my $output, '>', "tmp2");
-while(<$handle>)
-{
-	# Read report lines
-	while (/((?:[\x00-\xFF]*?(?=Nmap\s+scan\s+report)|[\x00-\xFF]*))/mixg) {
-		my $report = $1;
-
-		# Print IP if host is REALLY up
-		if (($report =~ /MAC\s+Address/mix)
-		or ($report =~ /Nmap\s+scan\s+report\s+for\s+\S+?\s+\(\S+\)/mix)) {
-			my ($ip) = $report =~ /(\d+\.\d+\.\d+\.\d+)/mix;
-			print $output "$ip\n";
-		}
-	}
-}
-EOF
-
-##############################################################
-
-rm tmp
-mv tmp2 $home/data/targets.txt
-
-echo
-echo $medium
-echo
-echo "***Scan complete.***"
-echo
-echo
-printf 'The list of targets is located at \x1B[1;33m%s\x1B[0m\n' $home/data/targets.txt
-echo
-printf 'The output files from the Nmap -A scan are located at \x1B[1;33m%s\x1B[0m\n' $home/data/
 echo
 exit
 }
@@ -3035,9 +2964,7 @@ echo -n "Choice: "
 read choice
 
 case $choice in
-     1)
-     f_location
-
+     1) f_location
      echo -n "Use SSL? (y/N) "
      read ssl
 
@@ -3059,7 +2986,7 @@ case $choice in
      fi
      ;;
 
-     2)
+     2) f_errorOSX
      echo
      echo $medium
      echo
@@ -3745,24 +3672,24 @@ echo -n "Choice: "
 read choice
 
 case $choice in
-     1) f_domain;;
-     2) f_person;;
+     1) f_errorOSX; f_domain;;
+     2) f_errorOSX; f_person;;
      3) f_salesforce;;
      4) f_generateTargetList;;
      5) f_cidr;;
      6) f_list;;
      7) f_single;;
      8) f_multitabs;;
-     9) f_nikto;;
-     10) f_ssl;;
+     9) f_errorOSX; f_nikto;;
+     10) f_errorOSX; f_ssl;;
      11) f_runlocally && $discover/crack-wifi.sh;;
      12) f_parse;;
      13) f_listener;;
-     14) $discover/update.sh && exit;;
+     14) f_errorOSX; $discover/update.sh && exit;;
      15) clear && exit;;
-     97) f_parse_recon_ng;;
-     98) f_recon-ng;;
-     99) f_updates;;
+     97) f_errorOSX; f_parse_recon_ng;;
+     98) f_errorOSX; f_recon-ng;;
+     99) f_errorOSX; f_updates;;
      *) f_error;;
 esac
 }
