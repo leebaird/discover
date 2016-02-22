@@ -2986,7 +2986,7 @@ case $choice in
      fi
      ;;
 
-     2) f_errorOSX
+     2)
      echo
      echo $medium
      echo
@@ -3000,7 +3000,24 @@ case $choice in
           f_error
      fi
 
-     wget -q $domain/robots.txt
+	 # Check for OS X
+	 if [[ `uname` == 'Darwin' ]]; then
+          /usr/local/bin/wget -q $domain/robots.txt
+     else
+          wget -q $domain/robots.txt
+     fi
+
+     # Check if the file is empty
+     if [ ! -s robots.txt ]; then
+		 echo
+		 echo -e "\x1B[1;31m$medium\x1B[0m"
+		 echo
+		 echo -e "\x1B[1;31m                          *** No robots file discovered. ***\x1B[0m"
+		 echo
+		 echo -e "\x1B[1;31m$medium\x1B[0m"
+		 sleep 2
+		 f_main
+	 fi
 
      grep 'Disallow' robots.txt | awk '{print $2}' > $home/data/$domain-robots.txt
      rm robots.txt
