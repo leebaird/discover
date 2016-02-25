@@ -125,6 +125,14 @@ else
 fi
 ------------------------------------------------------------------------------------------------------
 
+# Check for valid port number.
+
+if [[ $port -lt 1 || $port -gt 65535 ]]; then
+     echo "Invalid port."
+	exit
+fi
+------------------------------------------------------------------------------------------------------
+
 # Color
 
 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 
@@ -162,6 +170,19 @@ if [ ! -d test ]; then
      echo "The folder doesn't exist, creating it."
      mkdir test
 fi
+
+------------------------------------------------------------------------------------------------------
+
+# Set variable
+
+if [ "$payload" == "1" ]; then
+	format="raw"
+	platform="android"
+else
+	format="exe"
+	platform="windows"
+fi
+
 ------------------------------------------------------------------------------------------------------
 
 # If a process is running, kill it.

