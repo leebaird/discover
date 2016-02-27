@@ -41,16 +41,18 @@ if [[ `uname` == 'Darwin' ]]; then
      browser=Safari
      ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)
      interface=$(ifconfig | grep $ip -B3 | grep 'UP' | cut -d ':' -f1)
-	msf=/opt/metasploit-framework/bin/msfconsole
-	msfv=/opt/metasploit-framework/bin/msfvenom
-	port=4444
+	 msf=/opt/metasploit-framework/bin/msfconsole
+	 msfv=/opt/metasploit-framework/bin/msfvenom
+	 port=4444
+	 web="open -a Safari"
 else
      browser=Firefox
      ip=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}')
      interface=$(ip link | awk '{print $2, $9}' | grep 'UP' | cut -d ':' -f1)
-	msf=msfconsole
-	msfv=msfvenom
-	port=443
+	 msf=msfconsole
+	 msfv=msfvenom
+	 port=443
+	 web='firefox -new-tab'
 fi
 
 ##############################################################################################################
@@ -627,7 +629,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 1
      firefox -new-tab http://www.urlvoid.com/scan/$domain &
      sleep 1
-     arinip=$(ping $domain -c1 | grep -m1 bytes | cut -d"(" -f2 | sed 's:)[^)]*$::')
+     arinip=$(ping $domain -c1 | grep -m1 bytes | cut -d "(" -f2 | sed 's:)[^)]*$::')
      firefox -new-tab https://whois.arin.net/ui/arin.xsl?queryinput=$arinip &
      sleep 1
      firefox -new-tab https://connect.data.com/login &
@@ -927,30 +929,30 @@ if [[ -z $lastName ]]; then
      f_error
 fi
 
-firefox &
+$web &
 sleep 2
-firefox -new-tab http://www.411.com/name/$firstName-$lastName/ &
+$web http://www.411.com/name/$firstName-$lastName/ &
 sleep 1
 uripath="http://www.advancedbackgroundchecks.com/search/results.aspx?type=&fn=${firstName}&mi=&ln=${lastName}&age=&city=&state="
-firefox -new-tab $uripath &
+$web $uripath &
 sleep 1
-firefox -new-tab http://www.cvgadget.com/person/$firstName/$lastName &
+$web http://www.cvgadget.com/person/$firstName/$lastName &
 sleep 1
-firefox -new-tab http://www.peekyou.com/$firstName%5f$lastName &
+$web http://www.peekyou.com/$firstName%5f$lastName &
 sleep 1
-firefox -new-tab http://phonenumbers.addresses.com/people/$firstName+$lastName &
+$web http://phonenumbers.addresses.com/people/$firstName+$lastName &
 sleep 1
-firefox -new-tab https://pipl.com/search/?q=$firstName+$lastName&l=&sloc=&in=10 &
+$web https://pipl.com/search/?q=$firstName+$lastName&l=&sloc=&in=10 &
 sleep 1
-firefox -new-tab http://www.spokeo.com/search?q=$firstName+$lastName&s3=t24 &
+$web http://www.spokeo.com/search?q=$firstName+$lastName&s3=t24 &
 sleep 1
-firefox -new-tab http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr= &
+$web http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr= &
 sleep 1
-firefox -new-tab https://www.facebook.com &
+$web https://www.facebook.com &
 sleep 1
-firefox -new-tab https://www.linkedin.com/pub/dir/?first=$firstName\&last=$lastName\&search=Search &
+$web https://www.linkedin.com/pub/dir/?first=$firstName\&last=$lastName\&search=Search &
 sleep 1
-firefox -new-tab https://twitter.com/search?q=%22$firstName%20$lastName%22&src=typd &
+$web https://twitter.com/search?q=%22$firstName%20$lastName%22&src=typd &
 
 f_main
 }
@@ -3745,7 +3747,7 @@ read choice
 
 case $choice in
      1) f_errorOSX; f_domain;;
-     2) f_errorOSX; f_person;;
+     2) f_person;;
      3) f_salesforce;;
      4) f_generateTargetList;;
      5) f_cidr;;
