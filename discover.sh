@@ -607,42 +607,42 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      f_runlocally
 
-     firefox &
+     $web &
      sleep 2
-     firefox -new-tab https://www.virustotal.com/en/domain/$domain/information/ &
+     $web https://www.virustotal.com/en/domain/$domain/information/ &
      sleep 1
-     firefox -new-tab https://safeweb.norton.com/report/show?url=$domain &
+     $web https://safeweb.norton.com/report/show?url=$domain &
      sleep 1
-     firefox -new-tab toolbar.netcraft.com/site_report?url=http://www.$domain &
+     $web toolbar.netcraft.com/site_report?url=http://www.$domain &
      sleep 1
-     firefox -new-tab https://www.google.com/#q=filetype%3Axls+OR+filetype%3Axlsx+site%3A$domain &
+     $web https://www.google.com/#q=filetype%3Axls+OR+filetype%3Axlsx+site%3A$domain &
      sleep 1
-     firefox -new-tab https://www.google.com/#q=filetype%3Appt+OR+filetype%3Apptx+site%3A$domain &
+     $web https://www.google.com/#q=filetype%3Appt+OR+filetype%3Apptx+site%3A$domain &
      sleep 1
-     firefox -new-tab https://www.google.com/#q=filetype%3Adoc+OR+filetype%3Adocx+site%3A$domain &
+     $web https://www.google.com/#q=filetype%3Adoc+OR+filetype%3Adocx+site%3A$domain &
      sleep 1
-     firefox -new-tab https://www.google.com/#q=filetype%3Apdf+site%3A$domain &
+     $web https://www.google.com/#q=filetype%3Apdf+site%3A$domain &
      sleep 1
-     firefox -new-tab https://www.google.com/#q=filetype%3Atxt+site%3A$domain &
+     $web https://www.google.com/#q=filetype%3Atxt+site%3A$domain &
      sleep 1
-     firefox -new-tab https://www.ssllabs.com/ssltest/analyze.html?d=$domain"&"hideResults=on"&"latest &
+     $web https://www.ssllabs.com/ssltest/analyze.html?d=$domain"&"hideResults=on"&"latest &
      sleep 1
-     firefox -new-tab http://www.urlvoid.com/scan/$domain &
+     $web http://www.urlvoid.com/scan/$domain &
      sleep 1
      arinip=$(ping $domain -c1 | grep -m1 bytes | cut -d "(" -f2 | sed 's:)[^)]*$::')
-     firefox -new-tab https://whois.arin.net/ui/arin.xsl?queryinput=$arinip &
+     $web https://whois.arin.net/ui/arin.xsl?queryinput=$arinip &
      sleep 1
-     firefox -new-tab https://connect.data.com/login &
+     $web https://connect.data.com/login &
      sleep 1
-     firefox -new-tab pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$company\&sa.x=0\&sa.y=0 &
+     $web pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$company\&sa.x=0\&sa.y=0 &
      sleep 1
-     firefox -new-tab https://www.robtex.com/#\!dns=$domain &
+     $web https://www.robtex.com/#\!dns=$domain &
      sleep 1
-     firefox -new-tab https://www.shodan.io/search?query=$domain &
+     $web https://www.shodan.io/search?query=$domain &
      sleep 1
-     firefox -new-tab http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$company &
+     $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$company &
      sleep 1
-     firefox -new-tab https://www.sec.gov/cgi-bin/browse-edgar?company=$company\&owner=exclude\&action=getcompany &
+     $web https://www.sec.gov/cgi-bin/browse-edgar?company=$company\&owner=exclude\&action=getcompany &
      echo
      echo
      exit
@@ -895,7 +895,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      echo
      echo
 
-     firefox $home/data/$domain/index.htm &
+	 $web $home/data/$domain/index.htm &
      exit
      ;;
 
@@ -942,13 +942,11 @@ $web http://www.peekyou.com/$firstName%5f$lastName &
 sleep 1
 $web http://phonenumbers.addresses.com/people/$firstName+$lastName &
 sleep 1
-$web https://pipl.com/search/?q=$firstName+$lastName&l=&sloc=&in=10 &
+$web https://pipl.com/search/?q=$firstName+$lastName&l=&sloc=&in=5 &
 sleep 1
 $web http://www.spokeo.com/search?q=$firstName+$lastName&s3=t24 &
 sleep 1
 $web http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr= &
-sleep 1
-$web https://www.facebook.com &
 sleep 1
 $web https://www.linkedin.com/pub/dir/?first=$firstName\&last=$lastName\&search=Search &
 sleep 1
@@ -2960,7 +2958,7 @@ f_runlocally
 clear
 f_banner
 
-echo -e "\x1B[1;34mOpen multiple tabs in $browser with:\x1B[0m"
+echo -e "\x1B[1;34mOpen multiple tabs in $browser with: *** Work in progress for OS X. ***\x1B[0m"
 echo
 echo "1.  List"
 echo "2.  Directories from a domain's robot.txt."
@@ -2974,17 +2972,17 @@ case $choice in
      echo -n "Use SSL? (y/N) "
      read ssl
 
-     firefox &
+	 $web &
      sleep 2
 
      if [ -z $ssl ]; then
           for i in $(cat $location); do
-               firefox -new-tab $i &
+               $web $i &
                sleep 1
           done
      elif [ "$ssl" == "y" ]; then
           for i in $(cat $location); do
-               firefox -new-tab https://$i &
+               $web https://$i &
                sleep 1
           done
      else
@@ -3028,11 +3026,11 @@ case $choice in
      grep 'Disallow' robots.txt | awk '{print $2}' > $home/data/$domain-robots.txt
      rm robots.txt
 
-     firefox &
+	 $web &
      sleep 2
 
      for i in $(cat $home/data/$domain-robots.txt); do
-          firefox -new-tab $domain$i &
+          $web $domain$i &
           sleep 1
      done
 
@@ -3459,18 +3457,18 @@ read extquery
 
 if [ "$extquery" == "y" ]; then
      f_runlocally
-     echo "Launching the browser, opening $number tabs, please wait..."
+     echo "Launching $browser, opening $number tabs, please wait..."
      processname='firefox'
 
-     if ps ax | grep -v grep | grep $processname > /dev/null; then
+     if ps ax | grep -v 'grep' | grep $processname > /dev/null; then
           echo
      else
-          firefox &
+         $web &
 	     sleep 4
      fi
 
      while read -r line; do
-	     firefox -new-tab "https://www.sslshopper.com/ssl-checker.html#hostname=$line" &
+		 $web "https://www.sslshopper.com/ssl-checker.html#hostname=$line" &
 	     sleep 1
      done < "$location"
 
