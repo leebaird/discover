@@ -2961,7 +2961,7 @@ f_banner
 echo -e "\x1B[1;34mOpen multiple tabs in $browser with:\x1B[0m"
 echo
 echo "1.  List"
-echo "2.  Directories from a domain's robot.txt. *** Work in progress for OS X. ***"
+echo "2.  Directories from a domain's robot.txt."
 echo "3.  Previous menu"
 echo
 echo -n "Choice: "
@@ -3029,7 +3029,7 @@ case $choice in
      sleep 2
 	 
      for i in $(cat tmp); do
-          $web $domain$i &					# Bug
+          $web http://$domain$i &
           sleep 1
      done
 
