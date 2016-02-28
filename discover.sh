@@ -52,7 +52,7 @@ else
 	 msf=msfconsole
 	 msfv=msfvenom
 	 port=443
-	 web='firefox -new-tab'
+	 web="firefox -new-tab"
 fi
 
 ##############################################################################################################
@@ -2958,10 +2958,10 @@ f_runlocally
 clear
 f_banner
 
-echo -e "\x1B[1;34mOpen multiple tabs in $browser with: *** Work in progress for OS X. ***\x1B[0m"
+echo -e "\x1B[1;34mOpen multiple tabs in $browser with:\x1B[0m"
 echo
 echo "1.  List"
-echo "2.  Directories from a domain's robot.txt."
+echo "2.  Directories from a domain's robot.txt. *** Work in progress for OS X. ***"
 echo "3.  Previous menu"
 echo
 echo -n "Choice: "
@@ -2977,7 +2977,7 @@ case $choice in
 
      if [ -z $ssl ]; then
           for i in $(cat $location); do
-               $web $i &
+               $web http://$i &
                sleep 1
           done
      elif [ "$ssl" == "y" ]; then
@@ -3022,17 +3022,19 @@ case $choice in
 		 sleep 2
 		 f_main
 	 fi
-
-     grep 'Disallow' robots.txt | awk '{print $2}' > $home/data/$domain-robots.txt
-     rm robots.txt
+	 
+     grep 'Disallow' robots.txt | awk '{print $2}' > tmp
 
 	 $web &
      sleep 2
-
-     for i in $(cat $home/data/$domain-robots.txt); do
-          $web $domain$i &
+	 
+     for i in $(cat tmp); do
+          $web $domain$i &					# Bug
           sleep 1
      done
+
+     rm robots.txt
+	 mv tmp $home/data/$domain-robots.txt
 
      echo
      echo $medium
