@@ -1,3 +1,5 @@
+Follow on Twitter @discoverscripts
+
 For use with Kali Linux. Custom bash scripts used to automate various pentesting tasks.
 
 # License
@@ -30,9 +32,10 @@ WEB
 MISC
 11. Crack WiFi
 12. Parse XML
-13. Start a Metasploit listener
-14. Update
-15. Exit
+13. Generate a malicious payload
+14. Start a Metasploit listener
+15. Update
+16. Exit
 ```
 ## RECON
 ### Domain
@@ -144,6 +147,20 @@ Parse XML to CSV.
 5.  Qualys
 6.  Previous menu
 ```
+
+### Generate a malicious payload
+```
+MALICIOUS PAYLOADS
+
+Binary
+1.  android/meterpreter/reverse_tcp             Run a meterpreter server on Android. Connect back stager.
+2   linux/x64/shell_reverse_tcp                 Connect back to attacker and spawn a command shell.
+3.  linux/x86/meterpreter/reverse_tcp           Inject the meterpreter server payload (staged). Connect back to the attacker.
+4.  osx/x64/shell_reverse_tcp                   Connect back to attacker and spawn a command shell.
+5.  windows/meterpreter/reverse_tcp             Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged). Connect back to the attacker.
+6.  windows/x64/meterpreter/reverse_tcp         Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged x64). Connect back to the attacker (Windows x64).
+```
+
 
 ### Start a Metasploit listener
 

@@ -9,4 +9,5 @@ set InitialAutoRunScript migrate -f
      sleep(3)
 </ruby>
 
-exploit -j
+exploit -j -z
+

