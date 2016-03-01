@@ -152,13 +152,13 @@ Parse XML to CSV.
 ```
 MALICIOUS PAYLOADS
 
-Binary
-1.  android/meterpreter/reverse_tcp             Run a meterpreter server on Android. Connect back stager.
-2   linux/x64/shell_reverse_tcp                 Connect back to attacker and spawn a command shell.
-3.  linux/x86/meterpreter/reverse_tcp           Inject the meterpreter server payload (staged). Connect back to the attacker.
-4.  osx/x64/shell_reverse_tcp                   Connect back to attacker and spawn a command shell.
-5.  windows/meterpreter/reverse_tcp             Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged). Connect back to the attacker.
-6.  windows/x64/meterpreter/reverse_tcp         Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged x64). Connect back to the attacker (Windows x64).
+1.  android/meterpreter/reverse_tcp
+2   linux/x64/shell_reverse_tcp
+3.  linux/x86/meterpreter/reverse_tcp
+4.  osx/x64/shell_reverse_tcp
+5.  windows/meterpreter/reverse_tcp
+6.  windows/x64/meterpreter/reverse_tcp
+7.  Previous menu
 ```
 
 
