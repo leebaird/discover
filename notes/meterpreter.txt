@@ -76,5 +76,6 @@ getsystem        Uses 15 built-in methods to gain sysadmin privileges
 hashdump         Grabs the hashes in the password (SAM) file
 
 # Misc
+golden_ticket_create  http://blog.gentilkiwi.com/securite/mimikatz/golden-ticket-kerberos
 timestomp        Manipulates the modify, access, and create attributes of a file
 transport        A way to change shells on the fly
