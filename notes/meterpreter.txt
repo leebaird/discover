@@ -1,78 +1,80 @@
 Meterpreter
 
 # Core Commands
-?               Help menu
-background      Moves the current session to the background
-bgkill          Kills a background meterpreter script
-bglist          Provides a list of all running background scripts
-bgrun           Runs a script as a background thread
-channel         Displays active channels
-close           Closes a channel
-exit            Terminates a meterpreter session
-help            Help menu
-interact        Interacts with a channel
-irb             Go into Ruby scripting mode
-migrate         Moves the active process to a designated PID
-quit            Terminates the meterpreter session
-read            Reads the data from a channel
-run             Executes the meterpreter script designated after it
-use             Loads a meterpreter extension
-write           Writes data to a channel
+?                Help menu
+background       Moves the current session to the background
+bgkill           Kills a background meterpreter script
+bglist           Provides a list of all running background scripts
+bgrun            Runs a script as a background thread
+channel          Displays active channels
+close            Closes a channel
+exit             Terminates a meterpreter session
+help             Help menu
+interact         Interacts with a channel
+irb              Go into Ruby scripting mode
+migrate          Moves the active process to a designated PID
+quit             Terminates the meterpreter session
+read             Reads the data from a channel
+run              Executes the meterpreter script designated after it
+use              Loads a meterpreter extension
+write            Writes data to a channel
 
 # File System Commands
-cat             Read and output to stdout the contents of a file
-cd              Change directory on the victim
-del             Delete a file on the victim
-download        Download a file from the victim system to the attacker system
-edit            Edit a file with vim
-getlwd          Print the local directory
-getwd           Print working directory
-lcd             Change local directory
-lpwd            Print local directory
-ls              List files in current directory
-mkdir           Make a directory on the victim system
-pwd             Print working directory
-rm              Delete a file
-rmdir           Remove directory on the victim system
-upload          Upload a file from the attacker system to the victim
+cat              Read and output to stdout the contents of a file
+cd               Change directory on the victim
+del              Delete a file on the victim
+download         Download a file from the victim system to the attacker system
+edit             Edit a file with vim
+getlwd           Print the local directory
+getwd            Print working directory
+lcd              Change local directory
+lpwd             Print local directory
+ls               List files in current directory
+mkdir            Make a directory on the victim system
+pwd              Print working directory
+rm               Delete a file
+rmdir            Remove directory on the victim system
+upload           Upload a file from the attacker system to the victim
 
 # Networking Commands
-ipconfig        Displays network interfaces with key information including IP address, etc.
-portfwd         Forwards a port on the victim system to a remote service
-route           View or modify the victim routing table
+ipconfig         Displays network interfaces with key information including IP address, etc.
+portfwd          Forwards a port on the victim system to a remote service
+route            View or modify the victim routing table
 
 # System Commands
-clearav         Clears the event logs on the victim's computer
-drop_token      Drops a stolen token
-execute         Executes a command
-getpid          Gets the current process ID (PID)
-getprivs        Gets as many privileges as possible
-getuid          Get the user that the server is running as
-kill            Terminate the process designated by the PID
-ps              List running processes
-reboot          Reboots the victim computer
-reg             Interact with the victim's registry
-rev2self        Calls RevertToSelf() on the victim machine
-shell           Opens a command shell on the victim machine
-shutdown        Shuts down the victim's computer
-steal_token     Attempts to steal the token of a specified (PID) process
-sysinfo         Gets the details about the victim computer such as OS and name
+clearav          Clears the event logs on the victim's computer
+drop_token       Drops a stolen token
+execute          Executes a command
+getpid           Gets the current process ID (PID)
+getprivs         Gets as many privileges as possible
+getuid           Get the user that the server is running as
+kill             Terminate the process designated by the PID
+ps               List running processes
+reboot           Reboots the victim computer
+reg              Interact with the victim's registry
+rev2self         Calls RevertToSelf() on the victim machine
+shell            Opens a command shell on the victim machine
+shutdown         Shuts down the victim's computer
+steal_token      Attempts to steal the token of a specified (PID) process
+sysinfo          Gets the details about the victim computer such as OS and name
 
 # User Interface Commands
-enumdesktops    Lists all accessible desktops
-getdesktop      Get the current meterpreter desktop
-idletime        Checks to see how long since the victim system has been idle
-keyscan_dump    Dumps the contents of the software keylogger
-keyscan_start   Starts the software keylogger when associated with a process such as Word or browser
-keyscan_stop    Stops the software keylogger
-screenshot      Grabs a screenshot of the meterpreter desktop
-set_desktop     Changes the meterpreter desktop
-uictl           Enables control of some of the user interface components
+enumdesktops     Lists all accessible desktops
+getdesktop       Get the current meterpreter desktop
+idletime         Checks to see how long since the victim system has been idle
+keyscan_dump     Dumps the contents of the software keylogger
+keyscan_start    Starts the software keylogger when associated with a process such as Word or browser
+keyscan_stop     Stops the software keylogger
+screenshot       Grabs a screenshot of the meterpreter desktop
+set_desktop      Changes the meterpreter desktop
+uictl            Enables control of some of the user interface components
 
 # Privilege Escalation Commands
-getsystem       Uses 15 built-in methods to gain sysadmin privileges
+getsystem        Uses 15 built-in methods to gain sysadmin privileges
 
 # Password Dump Commands
-hashdump        Grabs the hashes in the password (SAM) file
+hashdump         Grabs the hashes in the password (SAM) file
 
-# timestomp     Manipulates the modify, access, and create attributes of a file
+# Misc
+timestomp        Manipulates the modify, access, and create attributes of a file
+transport        A way to change shells on the fly

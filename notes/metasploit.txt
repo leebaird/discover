@@ -15,10 +15,15 @@ msfconsole                    Start Metasploit.
 msf > db_status               Check that you are connected to the db.
 ------------------------------------------------------------------------------------------------------
 
-# Setup - create new user and db
+# If the db connection fails:
+msf > exit
+msfdb init
+msfconsole
+msf > db_status
 
-root@kali:~# service postgresql start
-root@kali:~# su postgres
+If the db connection still fails, create new user and db:
+msf > exit
+su postgres
 postgres@kali:~$ createuser <username> -P
 Enter password for new role: 
 Enter it again: 
@@ -27,7 +32,7 @@ postgres@kali:~$ exit
 
 # Autoconnect to db
 
-nano ~/.msf5/database.yml
+nano ~/.msf4/database.yml
 production:
     adapter: postgresql
     database: msf
@@ -139,6 +144,10 @@ load kiwi                                     Mimikatz
 lsa_dump                                      Show the current user password in plain text.
 creds_all                                     Show all user passwords in plain text.
 wifi_list                                     Show all wireless networks that have been connected and passwords.
+
+# Domain Controller
+
+use/post/windows/gather/credentials/domain_hashdump
 ------------------------------------------------------------------------------------------------------
 
 # Misc
