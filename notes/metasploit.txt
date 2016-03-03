@@ -105,6 +105,34 @@ exploit
 
 # Sessions
 
+sessions -h
+Usage: sessions [options]
+
+Active session manipulation and interaction.
+
+OPTIONS:
+
+    -K        Terminate all sessions
+    -c <opt>  Run a command on the session given with -i, or all
+    -h        Help banner
+    -i <opt>  Interact with the supplied session ID   
+    -k <opt>  Terminate sessions by session ID and/or range
+    -l        List all active sessions
+    -q        Quiet mode
+    -r        Reset the ring buffer for the session given with -i, or all
+    -s <opt>  Run a script on the session given with -i, or all
+    -t <opt>  Set a response timeout (default: 15)
+    -u <opt>  Upgrade a shell to a meterpreter session on many platforms
+    -v        List sessions in verbose mode
+    -x        Show extended information in the session table
+
+
+Many options allow specifying session ranges using commas and dashes.
+
+For example: 
+   sessions -s checkvm -i 1,3-5
+   sessions -k 1-2,5,6
+
 sessions -l                   Show active sessions.
 sessions -i 2                 Interact with session 2.
 ------------------------------------------------------------------------------------------------------

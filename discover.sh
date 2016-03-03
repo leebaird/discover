@@ -3568,15 +3568,69 @@ exit
 
 f_listener(){
 clear
+f_banner
+echo -e "\x1B[1;34mMetasploit LISTENERS\x1B[0m"
+echo
+echo "1.  android/meterpreter/reverse_tcp"
+echo "2   linux/x64/shell_reverse_tcp"
+echo "3.  linux/x86/meterpreter/reverse_tcp"
+echo "4.  osx/x64/shell_reverse_tcp"
+echo "5.  windows/meterpreter/reverse_tcp"
+echo "6.  windows/x64/meterpreter/reverse_tcp"
+echo "7.  Previous menu"
+echo
+echo -n "Choice: "
+read choice
 
-cp $discover/resource/misc/listener.rc /tmp/
+case $choice in
+     1) payload="android/meterpreter/reverse_tcp";;
+     2) payload="linux/x64/shell_reverse_tcp";;
+     3) payload="linux/x86/meterpreter/reverse_tcp";;
+     4) payload="osx/x64/shell_reverse_tcp";;
+     5) payload="windows/meterpreter/reverse_tcp";;
+     6) payload="windows/x64/meterpreter/reverse_tcp";;
+     7) f_main;;
+     *) f_error;;
+esac
+
+echo
+echo -n "LHOST: "
+read lhost
+
+# Check for no answer
+if [[ -z $lhost ]]; then
+     lhost=$ip
+     echo "Using $ip"
+     echo
+fi
+
+echo -n "LPORT: "
+read lport
+echo
+
+# Check for valid port number.
+if [[ $lport -lt 1 || $lport -gt 65535 ]]; then
+	f_error
+fi
+
+# Check for root when binding to a low port
+if [[ $lport -lt 1025 && "$(id -u)" != "0" ]]; then
+     echo "You must be root to bind to a port that low."
+     sleep 3
+	f_error
+fi
+
+cp $discover/resource/listener.rc /tmp/
 
 # Check for OS X
 if [[ `uname` == 'Darwin' ]]; then
-     sed -i '' "s/#/$ip/g" /tmp/listener.rc
-     sed -i '' "s/443/4444/g" /tmp/listener.rc
+     sed -i '' "s|aaa|$payload|g" /tmp/listener.rc
+     sed -i '' "s/bbb/$lhost/g" /tmp/listener.rc
+     sed -i '' "s/ccc/$lport/g" /tmp/listener.rc
 else
-     sed -i "s/#/$ip/g" /tmp/listener.rc
+     sed -i "s|aaa|$payload|g" /tmp/listener.rc
+     sed -i "s/bbb/$lhost/g" /tmp/listener.rc
+     sed -i "s/ccc/$lport/g" /tmp/listener.rc
 fi
 
 x=`ps aux | grep 'postgres' | grep -v 'grep'`
@@ -3586,16 +3640,7 @@ if [[ -z $x ]]; then
      service postgresql start
 fi
 
-echo
-echo "Starting a Metasploit listener on port $port."
-echo "Type - Windows Meterpreter reverse TCP."
-echo
-echo "This takes about 20 seconds."
-echo
-
 $msf -r /tmp/listener.rc
-
-rm /tmp/listener.rc
 }
 
 ##############################################################################################################

