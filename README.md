@@ -161,11 +161,18 @@ MALICIOUS PAYLOADS
 7.  Previous menu
 ```
 
-
 ### Start a Metasploit listener
+```
+Metasploit LISTENERS
 
-* Setup a multi/handler with a windows/meterpreter/reverse_tcp payload on port 443.
-
+1.  android/meterpreter/reverse_tcp
+2   linux/x64/shell_reverse_tcp
+3.  linux/x86/meterpreter/reverse_tcp
+4.  osx/x64/shell_reverse_tcp
+5.  windows/meterpreter/reverse_tcp
+6.  windows/x64/meterpreter/reverse_tcp
+7.  Previous menu
+```
 
 ### Update
 
