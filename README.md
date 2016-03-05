@@ -153,12 +153,13 @@ Parse XML to CSV.
 MALICIOUS PAYLOADS
 
 1.  android/meterpreter/reverse_tcp
-2   linux/x64/shell_reverse_tcp
-3.  linux/x86/meterpreter/reverse_tcp
-4.  osx/x64/shell_reverse_tcp
-5.  windows/meterpreter/reverse_tcp
-6.  windows/x64/meterpreter/reverse_tcp
-7.  Previous menu
+2.  cmd/windows/reverse_powershell
+3.  linux/x64/shell_reverse_tcp
+4.  linux/x86/meterpreter/reverse_tcp
+5.  osx/x64/shell_reverse_tcp
+6.  windows/meterpreter/reverse_tcp
+7.  windows/x64/meterpreter/reverse_tcp
+8.  Previous menu
 ```
 
 ### Start a Metasploit listener
@@ -166,12 +167,13 @@ MALICIOUS PAYLOADS
 Metasploit LISTENERS
 
 1.  android/meterpreter/reverse_tcp
-2   linux/x64/shell_reverse_tcp
-3.  linux/x86/meterpreter/reverse_tcp
-4.  osx/x64/shell_reverse_tcp
-5.  windows/meterpreter/reverse_tcp
-6.  windows/x64/meterpreter/reverse_tcp
-7.  Previous menu
+2.  cmd/windows/reverse_powershell
+3.  linux/x64/shell_reverse_tcp
+4.  linux/x86/meterpreter/reverse_tcp
+5.  osx/x64/shell_reverse_tcp
+6.  windows/meterpreter/reverse_tcp
+7.  windows/x64/meterpreter/reverse_tcp
+8.  Previous menu
 ```
 
 ### Update

