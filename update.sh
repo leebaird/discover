@@ -33,7 +33,7 @@ fi
 
 if [ -d /opt/Empire/Empire.git ]; then
      echo -e "\e[1;34mUpdating Empire.\e[0m"
-     cd /opt/rawr/ ; git pull
+     cd /opt/Empire/ ; git pull
      echo
 else
      echo -e "\e[1;33mInstalling Empire.\e[0m"
