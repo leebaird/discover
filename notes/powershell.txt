@@ -1,0 +1,32 @@
+PowerShell
+
+
+Write-Host 'Hello World!'
+
+Get-Command                   # Show all commands.
+Get-Content
+Get-Eventlog system
+Get-Process                   # Show current running processes.
+Set-Content
+------------------------------------------------------------------------------------------------------
+
+# Pop-up window
+
+[System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+[System.Windows.Forms.MessageBox]::Show("<message>" , "<Windows title" , <# - button options>)
+
+Example:
+[System.Windows.Forms.MessageBox]::Show("Hello World!" , "Important Message" , 1)
+
+Button options:
+0  OK
+1  OK, Cancel
+2  Abort, Retry, Ignore
+3  Yes, No, Cancel
+4  Yes, No
+5  Retry, Cancel
+------------------------------------------------------------------------------------------------------
+
+# Speak
+
+(New-Object -ComObject SAPI.SPVoice).Speak(“Hello World!”)

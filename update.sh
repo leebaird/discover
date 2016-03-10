@@ -15,9 +15,30 @@ fi
 echo -e "\e[1;34mUpdating Kali.\e[0m"
 apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
 
+if [ -d /opt/CrackMapExec/.git ]; then
+     echo -e "\e[1;34mUpdating CrackMapExec.\e[0m"
+     cd /opt/CrackMapExec/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling CrackMapExec.\e[0m"
+     git clone https://github.com/byt3bl33d3r/CrackMapExec.git /opt/CrackMapExec
+     echo
+fi
+
 if [ -d /opt/discover/.git ]; then
      echo -e "\e[1;34mUpdating Discover.\e[0m"
      cd /opt/discover ; git pull
+     echo
+fi
+
+if [ -d /opt/Empire/Empire.git ]; then
+     echo -e "\e[1;34mUpdating Empire.\e[0m"
+     cd /opt/rawr/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling Empire.\e[0m"
+     git clone https://github.com/PowerShellEmpire/Empire.git /opt/Empire
+     /opt/Empire/setup/install.sh
      echo
 fi
 
