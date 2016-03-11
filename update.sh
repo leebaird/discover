@@ -31,7 +31,7 @@ if [ -d /opt/discover/.git ]; then
      echo
 fi
 
-if [ -d /opt/Empire/Empire.git ]; then
+if [ -d /opt/Empire/.git ]; then
      echo -e "\e[1;34mUpdating Empire.\e[0m"
      cd /opt/Empire/ ; git pull
      echo
