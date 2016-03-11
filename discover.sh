@@ -632,11 +632,10 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      arinip=$(ping $domain -c1 | grep -m1 bytes | cut -d '(' -f2 | sed 's:)[^)]*$::')
      $web https://whois.arin.net/ui/arin.xsl?queryinput=$arinip &
      sleep 1
-     $web https://whois.arin.net/ui/advanced.jsp/advanced=true&q=$domain&r=POC&POC=domain &
+     $web https://whois.arin.net/rest/pocs\;domain=$domain &     
      sleep 1
      $web https://connect.data.com/login &
      sleep 1
-#     $web https://www.robtex.com/#\!dns=$domain &
      $web https://www.robtex.com/?dns=$domain&graph=1 &
      sleep 1
      $web https://www.shodan.io/search?query=$domain &
