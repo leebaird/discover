@@ -212,14 +212,14 @@ case $choice in
 
      echo "goofile                   (2/$total)"
 
-       goofile -d $domain -f doc > tmp
-       goofile -d $domain -f docx >> tmp
-       goofile -d $domain -f pdf >> tmp
-       goofile -d $domain -f ppt >> tmp
-       goofile -d $domain -f pptx >> tmp
-       goofile -d $domain -f txt >> tmp
-       goofile -d $domain -f xls >> tmp
-       goofile -d $domain -f xlsx >> tmp
+     goofile -d $domain -f doc > tmp
+     goofile -d $domain -f docx >> tmp
+     goofile -d $domain -f pdf >> tmp
+     goofile -d $domain -f ppt >> tmp
+     goofile -d $domain -f pptx >> tmp
+     goofile -d $domain -f txt >> tmp
+     goofile -d $domain -f xls >> tmp
+     goofile -d $domain -f xlsx >> tmp
 
      grep $domain tmp | grep -v 'Searching in' | grep -Fv '...' | sort > tmp2
 
@@ -629,16 +629,19 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 1
      $web http://www.urlvoid.com/scan/$domain &
      sleep 1
-     arinip=$(ping $domain -c1 | grep -m1 bytes | cut -d "(" -f2 | sed 's:)[^)]*$::')
+     arinip=$(ping $domain -c1 | grep -m1 bytes | cut -d '(' -f2 | sed 's:)[^)]*$::')
      $web https://whois.arin.net/ui/arin.xsl?queryinput=$arinip &
+     sleep 1
+     $web https://whois.arin.net/ui/advanced.jsp/advanced=true&q=$domain&r=POC&POC=domain &
      sleep 1
      $web https://connect.data.com/login &
      sleep 1
-     $web pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$company\&sa.x=0\&sa.y=0 &
-     sleep 1
-     $web https://www.robtex.com/#\!dns=$domain &
+#     $web https://www.robtex.com/#\!dns=$domain &
+     $web https://www.robtex.com/?dns=$domain&graph=1 &
      sleep 1
      $web https://www.shodan.io/search?query=$domain &
+     sleep 1     
+     $web pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$company\&sa.x=0\&sa.y=0 &
      sleep 1
      $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$company &
      sleep 1
