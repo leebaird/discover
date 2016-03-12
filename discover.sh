@@ -593,6 +593,10 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      rm debug* emails hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
+     # screenshots for robtex graph & netcraft in html report
+     cutycapt --url="https://www.robtex.com/?dns=$domain&graph=1" --out=$home/data/$domain/images/config.png
+     cutycapt --url="toolbar.netcraft.com/site_report?url=http://www.$domain" --out=$home/data/$domain/images/netcraft.png
+
      echo
      echo $medium
      echo
@@ -636,7 +640,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 1
      $web https://connect.data.com/login &
      sleep 1
-     $web https://www.robtex.com/?dns=$domain&graph=1 &
+     $web https://www.robtex.com/?dns=$domain\&graph=1 &
      sleep 1
      $web https://www.shodan.io/search?query=$domain &
      sleep 1
