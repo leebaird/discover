@@ -632,19 +632,20 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      arinip=$(ping $domain -c1 | grep -m1 bytes | cut -d '(' -f2 | sed 's:)[^)]*$::')
      $web https://whois.arin.net/ui/arin.xsl?queryinput=$arinip &
      sleep 1
-     $web https://whois.arin.net/rest/pocs\;domain=$domain &     
+     $web https://whois.arin.net/rest/pocs\;domain=$domain &
      sleep 1
      $web https://connect.data.com/login &
      sleep 1
      $web https://www.robtex.com/?dns=$domain&graph=1 &
      sleep 1
      $web https://www.shodan.io/search?query=$domain &
-     sleep 1     
-     $web pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$company\&sa.x=0\&sa.y=0 &
      sleep 1
-     $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$company &
+     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g' )
+     $web pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$companyurl\&sa.x=0\&sa.y=0 &
      sleep 1
-     $web https://www.sec.gov/cgi-bin/browse-edgar?company=$company\&owner=exclude\&action=getcompany &
+     $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
+     sleep 1
+     $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
      echo
      echo
      exit
