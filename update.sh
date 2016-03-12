@@ -4,6 +4,21 @@ clear
 echo
 echo
 
+# Fix for errors from URLCrazy file tld.rb lines 81,89,91
+# since project is not actively supported.
+
+tlddir=$(locate homophones.rb | sed 's%/[^/]*$%/%')
+cd $tlddir
+
+if [ ! -f tld.rb.bak ]; then
+    cp tld.rb tld.rb.bak
+    cat tld.rb | grep '"bd"=>' -v | grep '"bn"=>' -v | grep '"br"=>' -v > tld_tmp.rb
+    mv tld_tmp.rb tld.rb
+fi
+
+#########################################################
+
+
 if [ -d /pentest ]; then
      echo -e "\e[1;34mUpdating Discover.\e[0m"
      git pull
