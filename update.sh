@@ -85,6 +85,12 @@ if [ ! -f /usr/bin/xdotool ]; then
      echo
 fi
 
+if [ ! -f /usr/bin/xml_grep ]; then
+     echo -e "\e[1;33mInstalling xml_grep.\e[0m"
+     apt-get install -y xml-twig-tools
+     echo
+fi
+
 echo -e "\e[1;34mUpdating locate database.\e[0m" ; updatedb
 
 echo

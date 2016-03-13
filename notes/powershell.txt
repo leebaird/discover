@@ -30,3 +30,12 @@ Button options:
 # Speak
 
 (New-Object -ComObject SAPI.SPVoice).Speak(“Hello World!”)
+------------------------------------------------------------------------------------------------------
+
+# Error message
+
+The file Cannot be loaded because the execution of scripts is disabled on this system. Bypass it.
+
+powershell.exe -executionpolicy bypass -file <file>
+
+Use the same command to run a file remotely on a Windows system from an active Meterpreter shell.
