@@ -1264,17 +1264,17 @@ read choice
 
 case $choice in
      1) f_errorOSX
-	 
+
 	 echo -n "Interface to scan: "
 	 read interface
-	
+
      # Check for no answer
      if [[ -z $interface ]]; then
           f_error
      fi
 
 	 arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt
-	
+
      echo $medium
      echo
      echo "***Scan complete.***"
