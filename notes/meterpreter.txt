@@ -123,3 +123,6 @@ Meterpreter
      lsa_dump                  Dump LSA secrets
      wifi_list                 List wifi profiles/creds 
 
+# PowerShell
+     use powershell
+     powershell_execute 'Get-Process'
