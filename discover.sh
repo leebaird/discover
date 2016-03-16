@@ -351,10 +351,9 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sed '/[[:blank:]]/!d' tmp9 > tmp10
      # Clean up
      sed 's/\..../ /g' tmp10 | sed 's/\.../ /g; s/iii/III/g; s/ii/II/g' > tmp11
-     # Capitalize the first letter of every word
-     sed 's/\b\(.\)/\u\1/g' tmp11 > tmp12
-     # Print last name then first name
-     cat tmp12 arin-names | awk '{print $2", "$1}' | sort -u > names
+     # Capitalize the first letter of every word, print last name then first name
+     sed 's/\b\(.\)/\u\1/g' tmp11 | awk '{print $2", "$1}' > tmp12
+     cat tmp12 arin-names | sort -u > names
 
      ##############################################################
 
