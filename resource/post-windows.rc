@@ -1,15 +1,8 @@
-getuid
-sysinfo
-ipconfig
-run get_local_subnets
-run post/windows/gather/checkvm
-
-use priv
-getsystem
-
-# If this fails
-run post/windows/escalate/getsystem
-
-hasdump
-run get_application_list
+run getcountermeasure
 run winenum
+run post/windows/gather/enum_applications
+run post/windows/gather/enum_logged_on_users
+run post/windows/gather/usb_history
+run post/windows/gather/enum_shares
+run post/windows/gather/enum_snmp
+reg enumkey -k HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run
