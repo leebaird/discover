@@ -6,6 +6,8 @@ run post/windows/gather/checkvm
 
 use priv
 getsystem
+
+# If this fails
 run post/windows/escalate/getsystem
 
 hasdump
