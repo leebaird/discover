@@ -1,0 +1,13 @@
+getuid
+sysinfo
+ipconfig
+run get_local_subnets
+run post/windows/gather/checkvm
+
+use priv
+getsystem
+run post/windows/escalate/getsystem
+
+hasdump
+run get_application_list
+run winenum
