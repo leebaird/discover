@@ -19,7 +19,7 @@ alias e='exit'
 alias l='ls -l'
 
 alias m='msfconsole'
-#alias m='/opt/metasploit-framework/bin/msfconsole'             # modified for OS X
+#alias m='sudo /opt/metasploit-framework/bin/msfconsole'        # modified for OS X
 
 alias n='echo ;
 echo -n "DNS           "$dns ; echo ;
