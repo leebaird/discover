@@ -46,9 +46,6 @@ cd /Users/$user/tools/SecLists/ && git pull ; echo ;           # OS X
 echo -n "[*] Updating Sqlmap." ; echo ;                        # OS X
 cd /Users/$user/tools/sqlmap/ && git pull ; echo ;             # OS X
 
-echo -n "[*] Updating Veil-Evasion." ; echo ;                  # OS X
-cd /Users/$user/tools/Veil-Evasion/ && git pull ; echo ;       # OS X
-
 echo -n "[*] Updating locate database." ; echo ;               # OS X
 echo -n "Be patient, this takes a couple min." ; echo ;        # OS X
 cd /Users/$user/ ;                                             # OS X
