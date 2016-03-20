@@ -30,6 +30,8 @@ netstat -antp ; echo ;
 #netstat | grep "ESTABLISHED" ; echo ;                          # modified for OS X
 echo -n "External IP:  " ; curl ifconfig.me ; echo'
 
+alias pip='/usr/local/bin/pip'                                 # modified for OS X
+
 alias r='cd /$user/ ; clear'
 #alias r='cd /Users/$user/ ; clear'                             # modified for OS X
 
