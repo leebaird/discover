@@ -1,3 +1,4 @@
+run killav
 run getcountermeasure
 run winenum
 run post/windows/gather/enum_applications
