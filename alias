@@ -1,54 +1,58 @@
 # cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
 
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
-ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
-#ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)     # modified for OS X
-mac=$(ifconfig | grep 'ether' | awk '{print $2}')
-#mac=$(ifconfig | grep 'ether' | awk '{print $2}' | head -1)    # modified for OS X
+ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)     # OS X
+mac=$(ifconfig | grep 'ether' | awk '{print $2}' | head -1)    # OS X
 user=$(whoami)
 
 alias c='clear'
 
 alias cl='clear ; ls -l'
 
-alias d='cd /$user/Desktop/ ; clear'
-#alias d='cd /Users/$user/Desktop/ ; clear'                     # modified for OS X
+alias d='cd /Users/$user/Desktop/ ; clear'                     # OS X
 
 alias e='exit'
 
 alias l='ls -l'
 
-alias m='msfconsole'
-#alias m='sudo /opt/metasploit-framework/bin/msfconsole'        # modified for OS X
+alias m='sudo /opt/metasploit-framework/bin/msfconsole'        # OS X
 
 alias n='echo ;
 echo -n "DNS           "$dns ; echo ;
 echo -n "Internal IP:  "$ip ; echo ;
 echo -n "MAC address:  "$mac ; echo ; echo ;
 ping -c3 google.com ; echo ;
-netstat -antp ; echo ;
-#netstat | grep "ESTABLISHED" ; echo ;                          # modified for OS X
+netstat | grep "ESTABLISHED" ; echo ;                          # OS X
 echo -n "External IP:  " ; curl ifconfig.me ; echo'
 
-alias pip='sudo /usr/local/bin/pip'                             # modified for OS X
+alias pip='sudo /usr/local/bin/pip'                            # OS X
 
-alias r='cd /$user/ ; clear'
-#alias r='cd /Users/$user/ ; clear'                             # modified for OS X
+alias r='cd /Users/$user/ ; clear'                             # OS X
 
-alias s='cd /opt/discover/ ; clear'
-#alias s='cd /Users/$user/discover/ ; clear'                    # modified for OS X
+alias s='cd /Users/$user/tools/discover/ ; clear'
 
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
-alias update='/opt/discover/update.sh'
-#alias update='echo ;                                           # modified for OS X
-#echo -n "Updating Discover." ; echo ;                          # modified for OS X
-#cd /opt/discover/ && git pull ; echo ;                         # modified for OS X
-#echo -n "Updating SecLists." ; echo ;                          # modified for OS X
-#cd /Users/$user/SecLists/ && git pull ; echo ;                 # modified for OS X
-#echo -n "Updating Sqlmap." ; echo ;                            # modified for OS X
-#cd /Users/$user/sqlmap/ && git pull ; echo ;                   # modified for OS X
-#cd /Users/$user/ ;                                             # modified for OS X
-#echo -n "Updating locate database." ; echo ;                   # modified for OS X
-#echo -n "Be patient, this takes a couple min." ; echo ;        # modified for OS X
-#sudo /usr/libexec/locate.updatedb ; echo'                      # modified for OS X
+alias update='echo ;                                           # OS X
+echo -n "[*] Updating Discover." ; echo ;                      # OS X
+cd /Users/$user/tools/discover/ && git pull ; echo ;           # OS X
+
+echo -n "[*] Updating Metasploit." ; echo ;                    # OS X
+/opt/metasploit-framework/bin/msfupdate ; echo ;               # OS X
+
+echo -n "[*] Updating SecLists." ; echo ;                      # OS X
+cd /Users/$user/tools/SecLists/ && git pull ; echo ;           # OS X
+
+echo -n "[*] Updating Sqlmap." ; echo ;                        # OS X
+cd /Users/$user/tools/sqlmap/ && git pull ; echo ;             # OS X
+
+echo -n "[*] Updating Veil-Evasion." ; echo ;                  # OS X
+cd /Users/$user/tools/Veil-Evasion/ && git pull ; echo ;       # OS X
+
+echo -n "[*] Updating locate database." ; echo ;               # OS X
+echo -n "Be patient, this takes a couple min." ; echo ;        # OS X
+cd /Users/$user/ ;                                             # OS X
+sudo /usr/libexec/locate.updatedb ; echo ; echo'               # OS X
+
+alias mysql='/Applications/XAMPP/xamppfiles/bin/mysql -u root -ppassword'
+alias nmap='/usr/local/bin/nmap'
