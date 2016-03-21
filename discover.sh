@@ -199,7 +199,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=28
+     total=29
 
      echo
      echo $medium
@@ -213,10 +213,9 @@ case $choice in
 
      while read x; do
           wget -q $x -O tmp2.xml
-          xml_grep 'email' tmp2.xml --text_only >> tmp
+          xml_grep 'email' tmp2.xml --text_only >> zarin-emails
      done < zurls.txt
 
-     grep "@$domain" tmp | tr '[A-Z]' '[a-z]' | sort -u > arin-emails
      echo "     Names                (2/$total)"
      while read y; do
           curl --silent https://whois.arin.net/rest/poc/$y.txt | grep 'Name' >> tmp
@@ -357,17 +356,6 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      ##############################################################
 
-     cat z* | grep @$domain | grep -vF '...' | egrep -v '(%|\*|=|\+|\[|\||;|:|"|<|>|/|\?)' > tmp
-     # Remove trailing whitespace from each line
-     sed 's/[ \t]*$//' tmp > tmp2
-     # Change to lower case
-     cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
-     # Clean up
-     egrep -v '(web search|www|xxx)' tmp3 | cut -d ' ' -f2 | sed '/^@/d' > tmp4
-     cat tmp4 arin-emails | sort -u > emails
-
-     ##############################################################
-
      cat z* | sed '/^[0-9]/!d' | grep -v '@' > tmp
      # Substitute a space for a colon
      sed 's/:/ /g' tmp > tmp2
@@ -423,7 +411,9 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      done < tmp13 > whois-domain
 
      echo "     IP 		  (24/$total)"
-     y=$(ping -c1 -w2 $domain | grep 'PING' | cut -d ')' -f1 | cut -d '(' -f2) ; whois -H $y > tmp
+     y=$(dig $domain | grep "$domain" | grep -v ';' | awk '{print $5}')
+     whois -H $y > tmp
+
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
      # Remove trailing whitespace from each line
@@ -469,11 +459,26 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      s/Your nameservers/Nameservers/g; s/Your NS records at your nameservers are://g; s/Your NS records at your parent nameserver are://g;
      s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > $home/data/$domain/data/config.htm
 
-     echo "ewhois.com                (26/$total)"
+     echo "email-format.com          (26/$total)"
+     curl --silent http://www.email-format.com/d/$domain/ | grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* > zemail-format
+
+     ##############################################################
+
+     cat z* | grep "@$domain" | grep -vF '...' | egrep -v '(%|\*|=|\+|\[|\||;|:|"|<|>|/|\?)' > tmp
+     # Remove trailing whitespace from each line
+     sed 's/[ \t]*$//' tmp > tmp2
+     # Change to lower case
+     cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
+     # Clean up
+     egrep -v '(web search|www|xxx)' tmp3 | cut -d ' ' -f2 | sed '/^@/d' | sort -u > emails
+exit
+     ##############################################################
+
+     echo "ewhois.com                (27/$total)"
      wget -q http://www.ewhois.com/$domain/ -O tmp
      cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > sub3
 
-     echo "myipneighbors.net         (27/$total)"
+     echo "myipneighbors.net         (28/$total)"
      wget -q http://www.myipneighbors.net/?s=$domain -O tmp
      grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
 
@@ -481,7 +486,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      # Remove lines that contain a single word
      sed '/[[:blank:]]/!d' tmp > subdomains
 
-     echo "urlvoid.com               (28/$total)"
+     echo "urlvoid.com               (29/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
      sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > $home/data/$domain/data/black-listed.htm
 
