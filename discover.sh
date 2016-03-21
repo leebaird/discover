@@ -223,7 +223,7 @@ case $choice in
 
      grep -v '@' tmp | sed 's/Name:           //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' | sort -u > arin-names
 
-     rm tmp* z*
+     rm zurls.txt zhandles.txt
      echo
 
      echo "dnsrecon                  (3/$total)"
@@ -620,7 +620,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      cat whois-ip >> $home/data/$domain/data/whois-ip.htm; echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-     rm debug* emails hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm arin-names debug* emails hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
      # Screenshots for Robtex graph & Netcraft
      cutycapt --url="https://www.robtex.com/?dns=$domain&graph=1" --out=$home/data/$domain/images/config.png
@@ -658,14 +658,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 1
      $web https://www.google.com/#q=filetype%3Atxt+site%3A$domain &
      sleep 1
-     $web https://www.ssllabs.com/ssltest/analyze.html?d=$domain"&"hideResults=on"&"latest &
-     sleep 1
      $web http://www.urlvoid.com/scan/$domain &
-     sleep 1
-     arinip=$(ping $domain -c1 | grep -m1 bytes | cut -d '(' -f2 | sed 's:)[^)]*$::')
-     $web https://whois.arin.net/ui/arin.xsl?queryinput=$arinip &
-     sleep 1
-     $web https://whois.arin.net/rest/pocs\;domain=$domain &
      sleep 1
      $web https://connect.data.com/login &
      sleep 1
@@ -679,6 +672,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
      sleep 1
      $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
+     sleep 1
+     $web https://www.ssllabs.com/ssltest/analyze.html?d=$domain"&"hideResults=on"&"latest &
      echo
      echo
      exit
