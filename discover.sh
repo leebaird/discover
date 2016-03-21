@@ -471,7 +471,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
      # Clean up
      egrep -v '(web search|www|xxx)' tmp3 | cut -d ' ' -f2 | sed '/^@/d' | sort -u > emails
-exit
+
      ##############################################################
 
      echo "ewhois.com                (27/$total)"
