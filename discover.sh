@@ -221,7 +221,7 @@ case $choice in
           curl --silent https://whois.arin.net/rest/poc/$y.txt | grep 'Name' >> tmp
      done < zhandles.txt
 
-     grep -v '@' tmp | sed 's/Name:           //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' | sort -u > arin-names
+     grep -v '@' tmp | sed 's/Name:           //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' | sort -u > zarin-names
 
      rm zurls.txt zhandles.txt
      echo
@@ -252,15 +252,7 @@ case $choice in
 
      echo
      echo "goog-mail                 (5/$total)"
-     $discover/mods/goog-mail.py $domain | sort -u > tmp
-     grep -Fv '..' tmp > tmp2
-     # Remove lines that start with a number
-     sed '/^[0-9]/d' tmp2 > tmp3
-     # Change to lower case
-     cat tmp3 | tr '[A-Z]' '[a-z]' > tmp4
-     # Remove blank lines
-     sed '/^$/d' tmp4 > zgoog-mail
-
+     $discover/mods/goog-mail.py $domain > zgoog-mail
      echo
      echo "goohost"
      echo "     IP                   (6/$total)"
@@ -286,7 +278,7 @@ case $choice in
      echo "     Google CSE           (12/$total)"
      theHarvester -d $domain -b googleCSE > zgoogleCSE
      echo "     Google+              (13/$total)"
-     theHarvester -d $domain -b googleplus > zgoogleplus
+     theHarvester -d $domain -b googleplus | sed 's/ - Google+//g' > zgoogleplus
      echo "     Google Profiles	  (14/$total)"
      theHarvester -d $domain -b google-profiles > zgoogle-profiles
      echo "     Jigsaw               (15/$total)"
@@ -305,11 +297,7 @@ case $choice in
 
      echo "Metasploit                (21/$total)"
      msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
-     grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sort -u > tmp2
-     # Change to lower case
-     cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
-     # Remove blank lines
-     sed '/^$/d' tmp3 > zmsf
+     grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' > zmsf
 
      echo
      echo "URLCrazy                  (22/$total)"
@@ -330,29 +318,27 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      ##############################################################
 
      cat z* | egrep -v '(@|\*|-|=|\||;|:|"|<|>|/|\?)' > tmp
-     # Remove blank lines
-     sed '/^$/d' tmp > tmp2
      # Remove lines that contain a number
-     sed '/[0-9]/d' tmp2 > tmp3
-     # Remove lines that start with @ or .
-     sed '/^\@\./d' tmp3 > tmp4
-     # Remove trailing white space from each line
-     sed 's/[ \t]*$//' tmp4 > tmp5
-     # Substitute a space for a plus sign
-     sed 's/+/ /g' tmp5 > tmp6
+     sed '/[0-9]/d' tmp > tmp2
+     # Remove lines that start with @
+     sed '/^@/ d' tmp2 > tmp3
+     # Remove lines that start with .
+     sed '/^\./ d' tmp3 > tmp4
      # Change to lower case
-     cat tmp6 | tr '[A-Z]' '[a-z]' > tmp7
-     # Clean up
-     egrep -v '(academy|account|achievement|active|administrator|administrative|advanced|adventure|advertising|america|american|analysis|analyst|antivirus|apple seems|application|applications|architect|article|asian|assistant|associate|association|attorney|auditor|australia|automation|automotive|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|business|buyer|buying|california|cannot|capital|career|carrying|cashing|certified|challenger|championship|change|chapter|charge|china|chinese|clearance|cloud|code|college|columbia|communications|community|company pages|competition|competitive|compliance|computer|concept|conference|config|connections|connect|construction|consultant|contractor|contributor|controllang|cooperation|coordinator|corporation|creative|critical|croatia|crm|dallas|day care|death toll|delta|department|description|designer|design|detection|developer|develop|development|devine|digital|diploma|director|disability|disaster|disclosure|dispute|division|document|dos poc|download|drivers|during|economy|ecovillage|editor|education|effect|electronic|else|emails|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|entry|environmental|error page|ethical|example|excellence|executive|expertzone|exploit|facebook|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|filmmaker|finance|financial|forensic|found|freelance|from|frontiers in tax|full|function|fuzzing|germany|get control|global|google|government|graphic|greater|group|guardian|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|house|how to|hurricane|icmp|idc|in the news|index|informatics|information|innovation|installation|insurers|integrated|international|internet|instructor|insurance|interested|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|laptops|leadership|letter|licensing|lighting|limitless|liveedu|llp|local|looking|ltd|lsu|luscous|malware|managed|management|manager|managing|manufacturing|marketplace|mastering|md|media|medical|medicine|member|meta tags|methane|metro|microsoft|middle east|mitigation|money|monitor|more coming|mortgage|museums|negative|network|network|new user|newspaper|new york|next page|nitrogen|nyc|obtain|occupied|offers|office|online|operations|organizational|outbreak|owners|page|partner|pathology|peace|people|perceptions|philippines|photo|picture|places|planning|portfolio|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|program|publichealth|published|pyramid|questions|recruiter|redeem|redirect|region|register|registry|regulation|rehab|remote|report|republic|research|resolving|revised|rising|rural health|sales|satellite|save the date|school|scheduling|science|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|social|software|solutions|source|special|station home|statistics|strategy|student|successful|superheroines|supervisor|support|switch|system|systems|talent|targeted|tax|tcp|technical|technology|tester|textoverflow|theater|time in|tit for tat|title|toolbook|tools|traditions|trafficking|transfer|treasury|trojan|twitter|training|ts|tylenol|types of scams|unclaimed|underground|university|united states|untitled|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|wanted|web search|web site|website|welcome|west virginia|when the|whiskey|window|worker|world|www|xbox)' tmp7 > tmp8
-     # Remove leading and trailing whitespace from each line
-     sed 's/^[ \t]*//;s/[ \t]*$//' tmp8 > tmp9
+     cat tmp4 | tr '[A-Z]' '[a-z]' > tmp5
+     # Remove blank lines
+     sed '/^$/d' tmp5 > tmp6
      # Remove lines that contain a single word
-     sed '/[[:blank:]]/!d' tmp9 > tmp10
+     sed '/[[:blank:]]/!d' tmp6 > tmp7
      # Clean up
-     sed 's/\..../ /g' tmp10 | sed 's/\.../ /g; s/iii/III/g; s/ii/II/g' > tmp11
-     # Capitalize the first letter of every word, print last name then first name
-     sed 's/\b\(.\)/\u\1/g' tmp11 | awk '{print $2", "$1}' > tmp12
-     cat tmp12 arin-names | sort -u > names
+     egrep -v '(abuse|academy|account|achievement|active|administrator|administrative|advanced|adventure|advertising|america|american|analysis|analyst|antivirus|apple seems|application|applications|architect|article|asian|assistant|associate|association|attorney|auditor|australia|automation|automotive|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|business|buyer|buying|california|cannot|capital|career|carrying|cashing|center|certified|challenger|championship|change|chapter|charge|china|chinese|clearance|cloud|code|college|columbia|communications|community|company pages|competition|competitive|compliance|computer|concept|conference|config|connections|connect|construction|consultant|contractor|contributor|controllang|cooperation|coordinator|corporation|creative|critical|croatia|crm|dallas|day care|death toll|delta|department|description|designer|design|detection|developer|develop|development|devine|digital|diploma|director|disability|disaster|disclosure|dispute|division|document|dos poc|download|drivers|during|economy|ecovillage|editor|education|effect|electronic|else|emails|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|entry|environmental|error page|ethical|example|excellence|executive|expertzone|exploit|facebook|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|filmmaker|finance|financial|forensic|found|freelance|from|frontiers in tax|full|function|fuzzing|germany|get control|global|google|government|graphic|greater|group|guardian|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|house|how to|hurricane|icmp|idc|in the news|index|informatics|information|innovation|installation|insurers|integrated|international|internet|instructor|insurance|interested|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|laptops|leadership|letter|licensing|lighting|limitless|liveedu|llp|local|looking|ltd|lsu|luscous|malware|managed|management|manager|managing|manufacturing|marketplace|mastering|maturity|md|media|medical|medicine|member|meta tags|methane|metro|microsoft|middle east|mission|mitigation|money|monitor|more coming|mortgage|museums|negative|network|network|new user|newspaper|new york|next page|nitrogen|nyc|obtain|occupied|offers|office|online|operations|organizational|outbreak|owners|page|partner|pathology|peace|people|perceptions|philippines|photo|picture|places|planning|portfolio|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|program|publichealth|published|pyramid|questions|recruiter|redeem|redirect|region|register|registry|regulation|rehab|remote|report|republic|research|resolving|revised|rising|rural health|sales|satellite|save the date|school|scheduling|science|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|social|software|solutions|source|special|station home|statistics|strategy|student|successful|superheroines|supervisor|support|switch|system|systems|talent|targeted|tax|tcp|technical|technology|tester|textoverflow|theater|time in|tit for tat|title|toolbook|tools|traditions|trafficking|transfer|treasury|trojan|twitter|training|ts|tylenol|types of scams|unclaimed|underground|university|united states|untitled|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|wanted|web search|web site|website|welcome|west virginia|when the|whiskey|window|worker|world|www|xbox)' tmp7 > tmp8
+     # Clean up
+     sed 's/iii/III/g' tmp8 | sed 's/ii/II/g' > tmp9
+     # Capitalize the first letter of every word
+     sed 's/\b\(.\)/\u\1/g' tmp9 > tmp10
+     grep -v ',' tmp10 | awk '{print $2", "$1}' > tmp11
+     grep ',' tmp10 > tmp12
+     cat tmp11 tmp12 | sort -u > names
 
      ##############################################################
 
@@ -464,13 +450,17 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      ##############################################################
 
-     cat z* | grep "@$domain" | grep -vF '...' | egrep -v '(%|\*|=|\+|\[|\||;|:|"|<|>|/|\?)' > tmp
+     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|=|\+|\[|\||;|:|"|<|>|/|\?)' > tmp
      # Remove trailing whitespace from each line
      sed 's/[ \t]*$//' tmp > tmp2
+     # Remove lines that start with a number
+     sed '/^[0-9]/d' tmp2 > tmp3
+     # Remove lines that start with @
+     sed '/^@/ d' tmp3 > tmp4
+     # Remove lines that start with .
+     sed '/^\./ d' tmp4 > tmp5
      # Change to lower case
-     cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
-     # Clean up
-     egrep -v '(web search|www|xxx)' tmp3 | cut -d ' ' -f2 | sed '/^@/d' | sort -u > emails
+     cat tmp5 | tr '[A-Z]' '[a-z]' | sort -u > emails
 
      ##############################################################
 
@@ -492,7 +482,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      awk '{print $2}' subdomains > tmp
      grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | $sip > hosts
-     cat hosts >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
+     cat hosts >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm 2>/dev/null
 
      ##############################################################
 
@@ -620,7 +610,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      cat whois-ip >> $home/data/$domain/data/whois-ip.htm; echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-     rm arin-names debug* emails hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm debug* emails hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
      # Screenshots for Robtex graph & Netcraft
      cutycapt --url="https://www.robtex.com/?dns=$domain&graph=1" --out=$home/data/$domain/images/config.png
@@ -641,38 +631,36 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      f_runlocally
 
      $web &
-     sleep 2
+     sleep 3
      $web toolbar.netcraft.com/site_report?url=http://www.$domain &
-     sleep 1
+     sleep 3
      $web https://dnsdumpster.com &
-     sleep 1
+     sleep 2
      $web https://dnsdumpster.com/static/map/$domain.png &
-     sleep 1
+     sleep 2
      $web https://www.google.com/#q=filetype%3Axls+OR+filetype%3Axlsx+site%3A$domain &
-     sleep 1
+     sleep 2
      $web https://www.google.com/#q=filetype%3Appt+OR+filetype%3Apptx+site%3A$domain &
-     sleep 1
+     sleep 2
      $web https://www.google.com/#q=filetype%3Adoc+OR+filetype%3Adocx+site%3A$domain &
-     sleep 1
+     sleep 2
      $web https://www.google.com/#q=filetype%3Apdf+site%3A$domain &
-     sleep 1
+     sleep 2
      $web https://www.google.com/#q=filetype%3Atxt+site%3A$domain &
-     sleep 1
-     $web http://www.urlvoid.com/scan/$domain &
-     sleep 1
+     sleep 2
      $web https://connect.data.com/login &
-     sleep 1
+     sleep 2
      $web https://www.robtex.com/?dns=$domain\&graph=1 &
-     sleep 1
+     sleep 2
      $web https://www.shodan.io/search?query=$domain &
-     sleep 1
+     sleep 2
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g' )
      $web pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$companyurl\&sa.x=0\&sa.y=0 &
-     sleep 1
+     sleep 2
      $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
-     sleep 1
+     sleep 2
      $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
-     sleep 1
+     sleep 2
      $web https://www.ssllabs.com/ssltest/analyze.html?d=$domain"&"hideResults=on"&"latest &
      echo
      echo
@@ -963,24 +951,24 @@ fi
 $web &
 sleep 2
 $web http://www.411.com/name/$firstName-$lastName/ &
-sleep 1
+sleep 2
 uripath="http://www.advancedbackgroundchecks.com/search/results.aspx?type=&fn=${firstName}&mi=&ln=${lastName}&age=&city=&state="
 $web $uripath &
-sleep 1
+sleep 2
 $web http://www.cvgadget.com/person/$firstName/$lastName &
-sleep 1
+sleep 2
 $web http://www.peekyou.com/$firstName%5f$lastName &
-sleep 1
+sleep 2
 $web http://phonenumbers.addresses.com/people/$firstName+$lastName &
-sleep 1
+sleep 2
 $web https://pipl.com/search/?q=$firstName+$lastName&l=&sloc=&in=5 &
-sleep 1
+sleep 2
 $web http://www.spokeo.com/search?q=$firstName+$lastName&s3=t24 &
-sleep 1
+sleep 2
 $web http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr= &
-sleep 1
+sleep 2
 $web https://www.linkedin.com/pub/dir/?first=$firstName\&last=$lastName\&search=Search &
-sleep 1
+sleep 2
 $web https://twitter.com/search?q=%22$firstName%20$lastName%22&src=typd &
 
 f_main
@@ -1014,30 +1002,28 @@ s/branch/Branch/g; s/\/Branch/, Branch/g; s/branch/Branch/g; s/Buffalo Grove//g;
 s/Camp H M Smith//g; s/Camp Springs//g; s/Canoga Park//g; s/Canyon Country//g; s/Cape Canaveral//g; s/Cape Coral//g; s/Cape May//g; s/Capitol Hei//g; s/cargo/Cargo/g; 
 s/Carol Stream//g; s/Carol Stream//g; s/cascade/Cascade/g; s/Castle Rock//g; s/Cedar Hill//g; s/Cedar Rapids//g; s/census/Census/g; s/Center Line//g; s/CENTER/Center/g; 
 s/Central California//g; s/Central Region//g; s/central Region//g; s/Chagrin Falls//g; s/Charles Town//g; s/Charlottesv//g; s/Cherry Hill//g; s/Chester Le //g; s/East Chicago//g; 
-s/\/Chief/, Chief/g; s/China //g; s/Chino Hills//g; s/chromecast/Chromecast/g; s/Chula Vista//g; s/Cissp/CISSP/g; 
-s/CITRIX/Citrix/g; s/clean/Clean/g; s/Clifton Park//g; s/cms/CMS/g; s/Cms/CMS/g; s/CNN News Group Cable News Network//g; s/Cmms/CMMS/g; s/Cocoa Beach//g; s/Cold Spring//g; 
-s/Colorado Sp//g; s/Commerce City//g; s/CommitteemanagementOfficer/Committee Management Officer/g; s/compliance/Compliance/g; s/commercial/Commercial/g; s/connected/Connected/g; 
-s/CONSULTANT/Consultant/g; s/consumer/Consumer/g; s/contact/Contact/g; s/content/Content/g; s/corporate/Corporate/g; s/Corpus Christi//g; s/Council Bluffs//g; s/COUNSEL/Counsel/g; 
-s/counsel/Counsel/g; s/Cranberry T//g; s/Cranberry Twp//g; s/credit/Credit/g; s/CREDIT/Credit/g; s/Crm/CRM/g; s/Croton On H//g; s/Cross Junction//g; s/Crum Lynne//g; 
-s/Crystal Lake//g; s/Ctr/Center/g; s/Culver City//g; s/Cuyahoga Falls//g; s/Daly City//g; s/database/Database/g; s/dealer/Dealer/g; s/defense/Defense/g; s/DELIVERY/Delivery/g; 
-s/Del Mar//g; s/Delray Beach//g; s/Deer Park//g; s/Del Rio//g; s/DEPUTY/Deputy/g; s/West Des Mo//g; s/Des Moines//g; s/Des Plaines//g; 
-s/DesignatedFederalOfficial/Designated Federal Official/g; s/DESIGNER/Designer/g; s/DESIGN/Design/g; s/development/Development/g; s/DEVICES/Devices/g; s/Diamond Bar//g; 
-s/director/Director/g; s/DISCIPLINED/Disciplined/g; s/discovery/Discovery/g; s/display/Display/g; s/Dns/DNS/g; s/Downers Grove//g; s/Drexel Hill//g; s/Du Bois//g; 
-s/East Brunswick//g; s/East Central//g; s/East Coast//g; s/East Douglas//g; s/East Greenbush//g; s/East Hanover//g; s/East Hartford//g; s/East Lansing//g; s/East Peters//g; 
-s/East Stroud//g; s/East Syracuse//g; s/eastern Region//g; s/Eau Claire//g; s/Eden Prairie//g; s/education/Education/g; s/Egg Harbor//g; s/Egg Harbor//g; s/El Cajon//g; 
-s/El Centro//g; s/El Monte//g; s/El Paso//g; s/El Segundo//g; s/ELECTRIC/Electric /g; s/ELECTRONICS/Electronics/g; s/Port Elizabeth//g; s/Elk Grove V//g; s/Elk Grove//g; 
-s/Ellicott City//g; s/Elk Grove V//g; s/Elkhart//g; s/Elm Grove//g; s/emerging/Emerging/g; s/endocrinology/Endocrinology/g; s/energy/Energy/g; s/engineer/Engineer/g; 
-s/enterprise/Enterprise/g; s/ETHICS/Ethics/g; s/Northern Europe//g; s/EVENT/Event/g; s/executive/Executive/g; s/Faa/FAA/g; s/Fairfax Sta//g; s/Fairview He//g; s/Fall River//g; 
-s/Falls Church//g; 
-s/Farmington Hls//g; s/fashion/Fashion/g; s/federal/Federal/g; s/FELLOW/Fellow/g; s/Fha/FHA/g; s/FIELD/Field/g; s/fillmore/Fillmore/g; s/financial/Financial/g; s/Flat Rock//g; 
-s/FLIGHT/Flight/g; s/Florham Park//g; s/Flower Mound//g; s/Floyds Knobs//g; s/for Asia and//g; s/Forest Hills//g; s/Forest Hill//g; s/Forest Park//g; s/Forked River//g; 
-s/foreign/Foreign/g; s/Fort Belvoir//g; s/Fort Bliss//g; s/Fort Collins//g; s/Fort Dodge//g; s/Fort Fairfield//g; s/Fort George//g; s/Fort Huachuca//g; s/Fort Knox//g; 
-s/Fort Lauder//g; s/Fort Leaven//g; s/Fort Mill//g; s/Fort Monmouth//g; s/Fort Monroe//g; s/Fort Myers//g; s/Fort Pierce//g; s/Fort Rucker//g; s/Fort Walton//g; s/Fort Washin//g; 
-s/Fort Wayne//g; s/Fort Worth//g; s/Fountain Va//g; s/Franklin Park//g; s/Fremont//g; s/Los Fresnos//g; s/Front Royal//g; s/Fsa/FSA/g; s/Fso/FSO/g; s/Ft Mitchell//g; s/Ft Worth//g; 
-s/Ft Wright//g; s/FUNCTIONLead/Function Lead/g; s/Gaap/GAAP/g; s/Galway 	G//g; s/Garden City//g; s/Gig Harbor//g; s/Glen Burnie//g; s/Glen Ellyn//g; s/Glen Ridge//g; 
-s/Glen Rock//g; s/global/Global/g; s/A Google Company//g; s/Google Access//g; s/Google Adwords//g; s/Google Analytics//g; s/Google Books//g; s/Google Brand//g; s/Google Checkout//g; 
-s/Google Earth//g; s/Google Enterprise//g; s/Google Federal//g; s/Google Fiber//g; s/Google Finance//g; s/Google Geospatial Services//g; s/Google Glass//g; s/Google Health//g; 
-s/Google Maps//g; s/Google Media Sales//g; s/Google Offers//g; s/Google Payments//g; s/Google Payment//g; s/Google Plus//g; s/Google Print//g;
+s/\/Chief/, Chief/g; s/China //g; s/Chino Hills//g; s/chromecast/Chromecast/g; s/Chula Vista//g; s/Cissp/CISSP/g; s/CITRIX/Citrix/g; s/clean/Clean/g; s/Clifton Park//g; s/cms/CMS/g; 
+s/Cms/CMS/g; s/CNN News Group Cable News Network//g; s/Cmms/CMMS/g; s/Cocoa Beach//g; s/Cold Spring//g; s/Colorado Sp//g; s/Commerce City//g; 
+s/CommitteemanagementOfficer/Committee Management Officer/g; s/compliance/Compliance/g; s/commercial/Commercial/g; s/connected/Connected/g; s/CONSULTANT/Consultant/g; 
+s/consumer/Consumer/g; s/contact/Contact/g; s/content/Content/g; s/corporate/Corporate/g; s/Corpus Christi//g; s/Council Bluffs//g; s/COUNSEL/Counsel/g; s/counsel/Counsel/g; 
+s/Cranberry T//g; s/Cranberry Twp//g; s/credit/Credit/g; s/CREDIT/Credit/g; s/Crm/CRM/g; s/Croton On H//g; s/Cross Junction//g; s/Crum Lynne//g; s/Crystal Lake//g; s/Ctr/Center/g; 
+s/Culver City//g; s/Cuyahoga Falls//g; s/Daly City//g; s/database/Database/g; s/dealer/Dealer/g; s/defense/Defense/g; s/DELIVERY/Delivery/g; s/Del Mar//g; s/Delray Beach//g; 
+s/Deer Park//g; s/Del Rio//g; s/DEPUTY/Deputy/g; s/West Des Mo//g; s/Des Moines//g; s/Des Plaines//g; s/DesignatedFederalOfficial/Designated Federal Official/g; s/DESIGNER/Designer/g; 
+s/DESIGN/Design/g; s/development/Development/g; s/DEVICES/Devices/g; s/Diamond Bar//g; s/director/Director/g; s/DISCIPLINED/Disciplined/g; s/discovery/Discovery/g; s/display/Display/g; 
+s/Dns/DNS/g; s/Downers Grove//g; s/Drexel Hill//g; s/Du Bois//g; s/East Brunswick//g; s/East Central//g; s/East Coast//g; s/East Douglas//g; s/East Greenbush//g; s/East Hanover//g; 
+s/East Hartford//g; s/East Lansing//g; s/East Peters//g; s/East Stroud//g; s/East Syracuse//g; s/eastern Region//g; s/Eau Claire//g; s/Eden Prairie//g; s/education/Education/g; 
+s/Egg Harbor//g; s/Egg Harbor//g; s/El Cajon//g; s/El Centro//g; s/El Monte//g; s/El Paso//g; s/El Segundo//g; s/ELECTRIC/Electric /g; s/ELECTRONICS/Electronics/g; s/Port Elizabeth//g; 
+s/Elk Grove V//g; s/Elk Grove//g; s/Ellicott City//g; s/Elk Grove V//g; s/Elkhart//g; s/Elm Grove//g; s/emerging/Emerging/g; s/endocrinology/Endocrinology/g; s/energy/Energy/g; 
+s/engineer/Engineer/g; s/enterprise/Enterprise/g; s/ETHICS/Ethics/g; s/Northern Europe//g; s/EVENT/Event/g; s/executive/Executive/g; s/Faa/FAA/g; s/Fairfax Sta//g; s/Fairview He//g; 
+s/Fall River//g; s/Falls Church//g; s/Farmington Hls//g; s/fashion/Fashion/g; s/federal/Federal/g; s/FELLOW/Fellow/g; s/Fha/FHA/g; s/FIELD/Field/g; s/fillmore/Fillmore/g; 
+s/financial/Financial/g; s/Flat Rock//g; s/FLIGHT/Flight/g; s/Florham Park//g; s/Flower Mound//g; s/Floyds Knobs//g; s/for Asia and//g; s/Forest Hills//g; s/Forest Hill//g; 
+s/Forest Park//g; s/Forked River//g; s/foreign/Foreign/g; s/Fort Belvoir//g; s/Fort Bliss//g; s/Fort Collins//g; s/Fort Dodge//g; s/Fort Fairfield//g; s/Fort George//g; 
+s/Fort Huachuca//g; s/Fort Knox//g; s/Fort Lauder//g; s/Fort Leaven//g; s/Fort Mill//g; s/Fort Monmouth//g; s/Fort Monroe//g; s/Fort Myers//g; s/Fort Pierce//g; s/Fort Rucker//g; 
+s/Fort Walton//g; s/Fort Washin//g; s/Fort Wayne//g; s/Fort Worth//g; s/Fountain Va//g; s/Franklin Park//g; s/Fremont//g; s/Los Fresnos//g; s/Front Royal//g; s/Fsa/FSA/g; s/Fso/FSO/g; 
+s/Ft Mitchell//g; s/Ft Worth//g; s/Ft Wright//g; s/FUNCTIONLead/Function Lead/g; s/Gaap/GAAP/g; s/Galway 	G//g; s/Garden City//g; s/Gig Harbor//g; s/Glen Burnie//g; 
+s/Glen Ellyn//g;  s/Glen Ridge//g; s/Glen Rock//g; s/global/Global/g; s/A Google Company//g; s/Google Access//g; s/Google Adwords//g; s/Google Analytics//g; s/Google Books//g; 
+s/Google Brand//g; s/Google Checkout//g; s/Google Earth//g; s/Google Enterprise//g; s/Google Federal//g; s/Google Fiber//g; s/Google Finance//g; s/Google Geospatial Services//g; 
+s/Google Glass//g; s/Google Health//g; s/Google Maps//g; s/Google Media Sales//g; s/Google Offers//g; s/Google Payments//g; s/Google Payment//g; s/Google Plus//g; s/Google Print//g;
 s/Google Shopping Express//g; s/Google Shopping//g; s/Google Street View//g; s/Google Talk Team//g; s/Google Travel//g; s/Google Ventures//g; s/Google Voice//g; s/Google Wallet//g;
 s/Google X//g; s/Goose Creek//g; s/Granbury//g; s/Grand Forks//g; s/Grand Haven//g; s/Grand Island//g; s/Grand Junction//g; s/Grand Prairie//g; s/Grand Rapids//g; s/Granite City//g;
 s/Grants Pass//g; s/Grayslake//g; s/Great Falls//g; s/Green Bay//g; s/Green Belt//g; s/Greenwood Vlg//g; s/Grosse Ile//g; s/Grosse Poin//g; s/group/Group/g; s/Grove City//g;
@@ -1049,60 +1035,59 @@ s/intelligence/Intelligence/g; s/international/International/g; s/Inver Grove//g
 s/KANSS CITY//g; s/Keego Harbor//g; s/Kennett Square//g; s/King George//g; s/King Of Pru//g; s/King Of Pru//g; s/Kings Bay//g; s/Kings Park//g; s/La Follette//g; s/La Grange Park//g;
 s/La Grange//g; s/La Jolla//g; s/La Mesa//g; s/La Palma//g; s/La Plata//g; s/La Pocatiere//g; s/Laguna Hills//g; s/Laguna Niguel//g; s/Lake Charles//g; s/Salt Lake City//g;
 s/Lake City//g; s/Lake Geneva//g; s/Lake Mary//g; s/Lake Montezuma//g; s/Lake Oswego//g; s/landowner/Landowner/g; s/Las Cruces//g; 
-s/LEADERSHIP MENTORING CHAIR/Leadership Mentoring Chair/g; s/North Las V//g; s/Las Vegas//g;
-s/Latin America North//g; s/Latin America//g; s/Mount Laurel//g; s/League City//g; s/LEARNING/Learning/g; s/legal/Legal/g; s/lending/Lending/g; s/Lexington Park//g; s/Linthicum H//g;
-s/Little Rock//g; s/Llc/LLC/g; s/New London//g; s/Lone Tree//g; s/Long Beach//g; s/Long Valley//g; s/Logan Township//g; s/Los Angeles//g; s/Los Lunas//g; s/Loves Park//g;
-s/Lvl/Level/g; s/Macquarie Park//g; s/MAINFRAME/ Mainframe/g; s/MANAGER/Manager/g; s/Manager\//Manager, /g; s/Mangr/Manager/g; s/manager/Manager/g; s/mangr/Manager/g; s/Manhattan B//g;
-s/manufacturing/Manufacturing/g; s/MANUFACTURING/Manufacturing/g; s/Maple Grove//g; s/Maple Shade//g; s/March Air R//g; s/MarketingProductionManager/Marketing Production Manager/g;
-s/Marina Del Rey//g; s/market/Market/g; s/master/Master/g; s/materials/Materials/g; s/Mayfield West//g; s/Mays Landing//g; s/Mba/MBA/g; s/Mc Lean//g; s/Mc Coll//g; s/Mc Cordsville//g;
-s/Mc Kees Rocks//g; s/Mcse/MCSE/g; s/MECHANIC/Mechanic/g; s/medical/Medical/g; s/Melbourne B//g; s/Menlo Park//g; s/Merritt Island//g; s/Metro Jersey District//g; s/Miami Beach//g;
-s/Mid-Atlantic//g; s/Middle East//g; s/Middle River//g; s/Upper Midwest//g; s/Millstone T//g; s/Mira Loma//g; s/Mississauga//g; s/MOBILITY/Mobility/g; s/model/Model/g;
-s/Moncks Corner//g; s/Moncton//g; s/Montreal//g; s/Monroe Town//g; s/Moor Row//g; s/Moreno Valley//g; s/mortgage/Mortgage/g; s/Morgan Hill//g; s/Morris Plains//g; s/Moss Point//g;
-s/MOTOROLA/Motorola/g; s/motorola/Motorola/g; s/Mound City//g; s/Mount Airy//g; s/Mount Holly//g; s/Mount Laurel//g; s/Mount Morrs//g; s/Mount Pleasant//g; s/Mount Pocono//g;
-s/Mount Prospect//g; s/Mount Vernon//g; s/Mount Weather//g; s/mountain Region//g; s/Mountain States//g; s/Mountain View//g; s/Mount Waverley//g; s/Muscle Shoals//g; s/Mullica Hill//g;
-s/MULTI/Multi/g; s/Munroe Falls//g; s/music/Music/g; s/MyHR/HR/g; s/Myrtle Beach//g; s/National City//g; s/Naval Anaco//g; s/navy/Navy/g; s/Needham Hei//g; s/negotiator/Negotiator/g; 
-s/New Castle//g; s/New Church//g; s/New Cumberland//g; s/New Delhi//g; s/New Haven//g; s/New Malden//g; s/New Market//g; s/New Martins//g; s/New Orleans//g; s/New Port Ri//g; 
-s/New Stanton//g; s/New Town//g; s/New York//g; s/New Zealand//g; s/Newbury Park//g; s/Newport Beach//g; s/Newport News//g; s/Niagara Falls//g; s/North America //g; 
-s/North and Central//g; s/North Baldwin//g; s/North Bergen//g; s/North Charl//g; s/North East//g; s/North Highl//g; s/North Holly//g; s/North Kings//g; s/North Myrtl//g; 
-s/North Olmsted//g; s/North Royalton//g; s/North Vernon//g; s/North Wales//g; s/North York//g; s/northern/Northern/g; s/Nsa/NSA/g; s/Nso/NSO/g; s/O Fallon//g; s/Oak Brook//g; 
-s/Oak Creek//g; s/Oak Hill//g; s/Oak Park//g; s/Oak Ridge//g; s/Oak View//g; s/Oakbrook Te//g; s/Ocean City//g; s/Ocean Grove//g; s/Ocean Springs//g; s/officer/Officer/g; 
-s/Officer\//Officer, /g; s/OFFICE/Office/g; s/office/Office/g; s/Offutt A F B//g; s/Oklahoma City//g; s/Old Bridge//g; s/Olmsted Falls//g; s/Onited States//g; s/online/Online/g; 
-s/operations/Operations/g; s/Orange Park//g; s/oriented/Oriented/g; s/Orland Park//g; s/Overland Park//g; s/Owings Mills//g; s/Oxon Hill//g; s/PACKAGING/Packaging/g; 
-s/PACIFIC NORTHWEST//g; s/Pacific Southwest Region //g; s/Palm Bay//g; s/Palm Beach//g; s/Palm Coast//g; s/Palm Harbor//g; s/Palo Alto//g; s/Palos Hills//g; s/Pompano Beach//g; 
-s/Panama City//g; s/paralegal/Paralegal/g; s/parent/Parent/g; s/Park Forest//g; s/Park Ridge//g; s/PATROL/Patrol/g; s/Patuxent River//g; s/payments/Payments/g; s/Pc/PC/g; 
-s/Pearl City//g; s/Peachtree City//g; s/Pell City//g; s/Pembroke Pines//g; s/Perry Hall//g; s/physical/Physical/g; s/Pico Rivera//g; s/Pinellas Park//g; s/PLANNER/Planner/g; 
-s/PLANNING/Planning/g; s/platform/Platform/g; s/PMo/PMO/g; s/PMp//g; s/PMP, //g; s/Pmp/PMP/g; s/Pm/PM/g; s/Point Pleasant//g; s/PMo/PMO/g; s/Ponca City//g; s/Ponte Vedra//g; 
-s/Poplar Branch//g; s/PortDirector/Port Director/g; s/Port Allen//g; s/Port Deposit//g; s/Port Orange//g; s/Port Orchard//g; s/PortDirector/Port Directorg/g; s/portfolio/Portfolio/g; 
-s/Powder Springs//g; s/premium/Premium/g; s/Prescott Va//g; s/President -/President, /g; s/President-/President, /g; s/President\//President, /g; s/president/President/g; 
-s/Princess Anne//g; s/principal/Principal/g; s/Prineville//g; s/private/Private/g; s/PROCESS/Process/g; s/procurement/Procurement/g; s/PROCUREMENT/Procurement/g; 
-s/producer/Producer/g; s/PRODUCER/Producer/g; s/PROGRAMMING/Programming/g; s/program/Program/g; s/project/Project/g; s/Prospect Park//g; s/R and D/R&D/g; s/RADIOLOGY/Radiology/g; 
-s/Rancho Palo//g; s/Ransom Canyon//g; s/Rapid City//g; s/real/Real/g; s/receives/Receives/g; s/recreation/Recreation/g; s/Recruiter\//Recruiter, /g; s/Red Bank//g; 
-s/Redondo Beach//g; s/Redwood City//g; s/regional/Regional/g; s/relationship/Relationship/g; s/reliability/Reliability/g; s/retail/Retail/g; s/retirement/Retirement/g; s/RFid/RFID/g; 
-s/Rf/RF/g; s/New Richmond//g; s/River Edge//g; s/Rllng Hls Est//g; s/Rochester Hls//g; s/Rocky Hill//g; s/Rocky Mount//g; s/Rocky River//g; s/Rock Springs//g; s/Rohnert Park//g; 
-s/Rolling Mea//g; s/Round Lk Bch//g; s/Round Rock//g; s/Royal Oak//g; s/SAFETY/Safety/g; s/Saint-laurent//g; s/Saint Albans//g; s/Saint Ann//g; s/Saint Augus//g; s/Saint Charles//g; 
-s/Saint Clair//g; s/Saint Cloud//g; s/Saint Joseph//g; s/Saint Louis//g; s/Saint Paul//g; s/Saint Peter//g; s/Saint Rose//g; s/Saint Simon//g; s/sales/Sales/g; s/Salt Lake City//g; 
-s/San Antonio//g; s/San Bernardino//g; s/San Bruno//g; s/San Carlos//g; s/San Clemente//g; s/San Diego//g; s/San Dimas//g; s/san Francisco Bay//g; s/San Francisco//g; s/San Jose//g; 
-s/San Juan//g; s/San Marcos//g; s/San Mateo//g; s/San Pedro//g; s/San Ramon//g; s/Santa Ana//g; s/Santa Barbara//g; s/Santa Clara//g; s/Santa Clarita//g; s/Santa Fe//g; 
-s/Santa Isabel//g; s/Santa Maria//g; s/Santa Monica//g; s/Santa Rosa//g; s/Sao Paulo//g; s/Saratoga Sp//g; s/Schiller Park//g; s/scholar/Scholar/g; s/scientist/Scientist/g; 
-s/SCIENTIST/Scientist/g; s/SCONSUTANT/Consultant/g; s/Scotch Plains//g; s/Scott Afb//g; s/Scott Air F//g; s/Scotts Valley//g; s/Seal Beach//g; s/SECURITY/Security/g; 
-s/security/Security/g; s/\/Senior/, Senior/g; s/senior/Senior/g; s/SerVices/Services/g; s/service/Service/g; s/Severna Park//g; s/Sftwr/Software/g; s/Sheffield Vlg//g; 
-s/Shelby Town//g; s/Sherman Oaks//g; s/Show Low//g; s/Sierra Vista//g; s/Silver Spring//g; s/Sioux City//g; s/Snr/Senior/g; s/Sioux Falls//g; s/smart/Smart/g; s/Smb/SMB/g; 
-s/Sms/SMS/g; s/social/Social/g; s/Solana Beach//g; s/Southeast Region//g; s/Southern and  , ,//g; s/Southern Pines//g; s/South Africa//g; s/South Bend//g; s/South Burli//g; 
-s/South Central//g; s/South Dakota//g; s/South East//g; s/South-east//g; s/South Orange//g; s/South San F//g; s/South Lake//g; s/South Ozone//g; s/South Plain//g; s/South River//g; 
-s/South East Asia//g; s/South-east Asia//g; s/space/Space/g; s/spain/Spain/g; s/Spring City//g; s/Sql/SQL/g; s/SrBranch/Senior Branch/g; s/SrSales/Senior Sales/g; s/Ssl/SSL/g; 
-s/St. Asaph//g; s/St Augustine//g; s/St Charles//g; s/St Johnsbury//g; s/St Leonards//g; s/St Petersburg//g; s/St Thomas//g; s/State College//g; s/Stennis Spa//g; s/Stephens City//g; 
-s/Sterling He//g; s/Stevens Point//g; s/Stf/Staff/g; s/STOCK/Stock/g; s/Stone Harbor//g; s/Stone Mountain//g; s/strategic/Strategic/g; s/subsidiary/Subsidiary/g; s/Sugar Land//g; 
-s/Sugar Grove//g; s/supply/Supply/g; s/support/Support/g; s/Takoma Park//g; s/Tall Timbers//g; s/teacher/Teacher/g; s/TEAM/Team/g; s/Teaneck//g; s/technical/Technical/g; 
-s/technology/Technology/g; s/TELECOMMUNICATIONS/Telecommunications/g; s/television/Television/g; s/testing/Testing/g; s/TEST/Test/g; s/Thailand and Philippines//g; s/The Dalles//g; 
-s/Thousand Oaks//g; 
-s/Timber Lake//g; s/Tipp City//g; s/Township Of//g; s/Trabuco Canyon//g; s/TRADEMARKS/Trademarks/g; s/trainer/Trainer/g; s/TRANSPORTATION/Transportation/g; s/treasury/Treasury/g; 
-s/Tunbridge W//g; s/Twin Falls//g; s/UK//g; s/U.S.//g; s/UNDERWRITER/Underwriter/g; s/Union Ban//g; s/Union City//g; s/Union Office//g; s/United Kingdom//g; s/United States//g; 
-s/Universal City//g; s/university/University/g; s/Upper Chich//g; s/Upper Marlboro//g; s/Uscg/USCG/g; s/valve/Valve/g; s/Valley Stream//g; s/Van Nuys//g; s/vendor/Vendor/g; 
-s/Vernon Hills//g; s/Vero Beach//g; s/Vii/VII/g; s/Vi /VI/g; s/Vice-President/Vice President/g; s/Vicepresident/Vice President/g; s/Virginia Beach//g; s/La Vista//g; s/Voip/VoIP/g; 
-s/Walled Lake//g; s/Wallops Island//g; s/Walnut Creek//g; s/Warner Robins//g; s/wealth/Wealth/g; s/West Bloomf//g; s/West Chester//g; s/West Columbia//g; s/West Dundee//g; 
-s/West Harrison//g; s/West Linn//g; s/West Mifflin//g; s/West Nyack//g; s/West Orange//g; s/West Palm B//g; s/West Paterson//g; s/west Region//g; s/West Sacram//g; s/West Spring//g; 
-s/Western Spr//g; s/West Orange//g; s/White Lake//g; s/White Plains//g; s/White River//g; s/Whiteman Ai//g; s/Whitmore Lake//g; s/Williston Park//g; s/Willow Grove//g; 
-s/South Windsor//g; s/Windsor Locks//g; s/Windsor Mill//g; s/Winston Salem//g; s/Winter Park//g; s/Winter Springs//g; s/Woodland Hills//g; s/Woodland Park//g; s/worldwide/Worldwide/g;
+s/LEADERSHIP MENTORING CHAIR/Leadership Mentoring Chair/g; s/North Las V//g; s/Las Vegas//g; s/Latin America North//g; s/Latin America//g; s/Mount Laurel//g; s/League City//g; 
+s/LEARNING/Learning/g; s/legal/Legal/g; s/lending/Lending/g; s/Lexington Park//g; s/Linthicum H//g; s/Little Rock//g; s/Llc/LLC/g; s/New London//g; s/Lone Tree//g; s/Long Beach//g; 
+s/Long Valley//g; s/Logan Township//g; s/Los Angeles//g; s/Los Lunas//g; s/Loves Park//g; s/Lvl/Level/g; s/Macquarie Park//g; s/MAINFRAME/ Mainframe/g; s/MANAGER/Manager/g; 
+s/Manager\//Manager, /g; s/Mangr/Manager/g; s/manager/Manager/g; s/mangr/Manager/g; s/Manhattan B//g; s/manufacturing/Manufacturing/g; s/MANUFACTURING/Manufacturing/g; 
+s/Maple Grove//g; s/Maple Shade//g; s/March Air R//g; s/MarketingProductionManager/Marketing Production Manager/g; s/Marina Del Rey//g; s/market/Market/g; s/master/Master/g; 
+s/materials/Materials/g; s/Mayfield West//g; s/Mays Landing//g; s/Mba/MBA/g; s/Mc Lean//g; s/Mc Coll//g; s/Mc Cordsville//g; s/Mc Kees Rocks//g; s/Mcse/MCSE/g; s/MECHANIC/Mechanic/g; 
+s/medical/Medical/g; s/Melbourne B//g; s/Menlo Park//g; s/Merritt Island//g; s/Metro Jersey District//g; s/Miami Beach//g; s/Mid-Atlantic//g; s/Middle East//g; s/Middle River//g; 
+s/Upper Midwest//g; s/Millstone T//g; s/Mira Loma//g; s/Mississauga//g; s/MOBILITY/Mobility/g; s/model/Model/g; s/Moncks Corner//g; s/Moncton//g; s/Montreal//g; s/Monroe Town//g; 
+s/Moor Row//g; s/Moreno Valley//g; s/mortgage/Mortgage/g; s/Morgan Hill//g; s/Morris Plains//g; s/Moss Point//g; s/MOTOROLA/Motorola/g; s/motorola/Motorola/g; s/Mound City//g; 
+s/Mount Airy//g; s/Mount Holly//g; s/Mount Laurel//g; s/Mount Morrs//g; s/Mount Pleasant//g; s/Mount Pocono//g; s/Mount Prospect//g; s/Mount Vernon//g; s/Mount Weather//g; 
+s/mountain Region//g; s/Mountain States//g; s/Mountain View//g; s/Mount Waverley//g; s/Muscle Shoals//g; s/Mullica Hill//g; s/MULTI/Multi/g; s/Munroe Falls//g; s/music/Music/g; 
+s/MyHR/HR/g; s/Myrtle Beach//g; s/National City//g; s/Naval Anaco//g; s/navy/Navy/g; s/Needham Hei//g; s/negotiator/Negotiator/g; s/New Castle//g; s/New Church//g; s/New Cumberland//g; 
+s/New Delhi//g; s/New Haven//g; s/New Malden//g; s/New Market//g; s/New Martins//g; s/New Orleans//g; s/New Port Ri//g; s/New Stanton//g; s/New Town//g; s/New York//g; s/New Zealand//g; 
+s/Newbury Park//g; s/Newport Beach//g; s/Newport News//g; s/Niagara Falls//g; s/North America //g; s/North and Central//g; s/North Baldwin//g; s/North Bergen//g; s/North Charl//g; 
+s/North East//g; s/North Highl//g; s/North Holly//g; s/North Kings//g; s/North Myrtl//g; s/North Olmsted//g; s/North Royalton//g; s/North Vernon//g; s/North Wales//g; s/North York//g; 
+s/northern/Northern/g; s/Nsa/NSA/g; s/Nso/NSO/g; s/O Fallon//g; s/Oak Brook//g; s/Oak Creek//g; s/Oak Hill//g; s/Oak Park//g; s/Oak Ridge//g; s/Oak View//g; s/Oakbrook Te//g; 
+s/Ocean City//g; s/Ocean Grove//g; s/Ocean Springs//g; s/officer/Officer/g; s/Officer\//Officer, /g; s/OFFICE/Office/g; s/office/Office/g; s/Offutt A F B//g; s/Oklahoma City//g; 
+s/Old Bridge//g; s/Olmsted Falls//g; s/Onited States//g; s/online/Online/g; s/operations/Operations/g; s/Orange Park//g; s/oriented/Oriented/g; s/Orland Park//g; s/Overland Park//g; 
+s/Owings Mills//g; s/Oxon Hill//g; s/PACKAGING/Packaging/g; s/PACIFIC NORTHWEST//g; s/Pacific Southwest Region //g; s/Palm Bay//g; s/Palm Beach//g; s/Palm Coast//g; s/Palm Harbor//g; 
+s/Palo Alto//g; s/Palos Hills//g; s/Pompano Beach//g; s/Panama City//g; s/paralegal/Paralegal/g; s/parent/Parent/g; s/Park Forest//g; s/Park Ridge//g; s/PATROL/Patrol/g; 
+s/Patuxent River//g; s/payments/Payments/g; s/Pc/PC/g; s/Pearl City//g; s/Peachtree City//g; s/Pell City//g; s/Pembroke Pines//g; s/Perry Hall//g; s/physical/Physical/g; 
+s/Pico Rivera//g; s/Pinellas Park//g; s/PLANNER/Planner/g; s/PLANNING/Planning/g; s/platform/Platform/g; s/PMo/PMO/g; s/PMp//g; s/PMP, //g; s/Pmp/PMP/g; s/Pm/PM/g; s/Point Pleasant//g; 
+s/PMo/PMO/g; s/Ponca City//g; s/Ponte Vedra//g; s/Poplar Branch//g; s/PortDirector/Port Director/g; s/Port Allen//g; s/Port Deposit//g; s/Port Orange//g; s/Port Orchard//g; 
+s/PortDirector/Port Directorg/g; s/portfolio/Portfolio/g; s/Powder Springs//g; s/premium/Premium/g; s/Prescott Va//g; s/President -/President, /g; s/President-/President, /g; 
+s/President\//President, /g; s/president/President/g; s/Princess Anne//g; s/principal/Principal/g; s/Prineville//g; s/private/Private/g; s/PROCESS/Process/g; 
+s/procurement/Procurement/g; s/PROCUREMENT/Procurement/g; s/producer/Producer/g; s/PRODUCER/Producer/g; s/PROGRAMMING/Programming/g; s/program/Program/g; s/project/Project/g; 
+s/Prospect Park//g; s/R and D/R&D/g; s/RADIOLOGY/Radiology/g; s/Rancho Palo//g; s/Ransom Canyon//g; s/Rapid City//g; s/real/Real/g; s/receives/Receives/g; s/recreation/Recreation/g; 
+s/Recruiter\//Recruiter, /g; s/Red Bank//g; s/Redondo Beach//g; s/Redwood City//g; s/regional/Regional/g; s/relationship/Relationship/g; s/reliability/Reliability/g; s/retail/Retail/g; 
+s/retirement/Retirement/g; s/RFid/RFID/g; s/Rf/RF/g; s/New Richmond//g; s/River Edge//g; s/Rllng Hls Est//g; s/Rochester Hls//g; s/Rocky Hill//g; s/Rocky Mount//g; s/Rocky River//g; 
+s/Rock Springs//g; s/Rohnert Park//g; s/Rolling Mea//g; s/Round Lk Bch//g; s/Round Rock//g; s/Royal Oak//g; s/SAFETY/Safety/g; s/Saint-laurent//g; s/Saint Albans//g; s/Saint Ann//g; 
+s/Saint Augus//g; s/Saint Charles//g; s/Saint Clair//g; s/Saint Cloud//g; s/Saint Joseph//g; s/Saint Louis//g; s/Saint Paul//g; s/Saint Peter//g; s/Saint Rose//g; s/Saint Simon//g; 
+s/sales/Sales/g; s/Salt Lake City//g; s/San Antonio//g; s/San Bernardino//g; s/San Bruno//g; s/San Carlos//g; s/San Clemente//g; s/San Diego//g; s/San Dimas//g; s/san Francisco Bay//g; 
+s/San Francisco//g; s/San Jose//g; s/San Juan//g; s/San Marcos//g; s/San Mateo//g; s/San Pedro//g; s/San Ramon//g; s/Santa Ana//g; s/Santa Barbara//g; s/Santa Clara//g; 
+s/Santa Clarita//g; s/Santa Fe//g; s/Santa Isabel//g; s/Santa Maria//g; s/Santa Monica//g; s/Santa Rosa//g; s/Sao Paulo//g; s/Saratoga Sp//g; s/Schiller Park//g; s/scholar/Scholar/g; 
+s/scientist/Scientist/g; s/SCIENTIST/Scientist/g; s/SCONSUTANT/Consultant/g; s/Scotch Plains//g; s/Scott Afb//g; s/Scott Air F//g; s/Scotts Valley//g; s/Seal Beach//g; 
+s/SECURITY/Security/g; s/security/Security/g; s/\/Senior/, Senior/g; s/senior/Senior/g; s/SerVices/Services/g; s/service/Service/g; s/Severna Park//g; s/Sftwr/Software/g; 
+s/Sheffield Vlg//g; s/Shelby Town//g; s/Sherman Oaks//g; s/Show Low//g; s/Sierra Vista//g; s/Silver Spring//g; s/Sioux City//g; s/Snr/Senior/g; s/Sioux Falls//g; s/smart/Smart/g; 
+s/Smb/SMB/g; s/Sms/SMS/g; s/social/Social/g; s/Solana Beach//g; s/Southeast Region//g; s/Southern and  , ,//g; s/Southern Pines//g; s/South Africa//g; s/South Bend//g; 
+s/South Burli//g; s/South Central//g; s/South Dakota//g; s/South East//g; s/South-east//g; s/South Orange//g; s/South San F//g; s/South Lake//g; s/South Ozone//g; s/South Plain//g; 
+s/South River//g; s/South East Asia//g; s/South-east Asia//g; s/space/Space/g; s/spain/Spain/g; s/Spring City//g; s/Sql/SQL/g; s/SrBranch/Senior Branch/g; s/SrSales/Senior Sales/g; 
+s/Ssl/SSL/g; s/St. Asaph//g; s/St Augustine//g; s/St Charles//g; s/St Johnsbury//g; s/St Leonards//g; s/St Petersburg//g; s/St Thomas//g; s/State College//g; s/Stennis Spa//g; 
+s/Stephens City//g; s/Sterling He//g; s/Stevens Point//g; s/Stf/Staff/g; s/STOCK/Stock/g; s/Stone Harbor//g; s/Stone Mountain//g; s/strategic/Strategic/g; s/subsidiary/Subsidiary/g; 
+s/Sugar Land//g; s/Sugar Grove//g; s/supply/Supply/g; s/support/Support/g; s/Takoma Park//g; s/Tall Timbers//g; s/teacher/Teacher/g; s/TEAM/Team/g; s/Teaneck//g; 
+s/technical/Technical/g; s/technology/Technology/g; s/TELECOMMUNICATIONS/Telecommunications/g; s/television/Television/g; s/testing/Testing/g; s/TEST/Test/g; 
+s/Thailand and Philippines//g; s/The Dalles//g; s/Thousand Oaks//g; s/Timber Lake//g; s/Tipp City//g; s/Township Of//g; s/Trabuco Canyon//g; s/TRADEMARKS/Trademarks/g; 
+s/trainer/Trainer/g; s/TRANSPORTATION/Transportation/g; s/treasury/Treasury/g; s/Tunbridge W//g; s/Twin Falls//g; s/UK//g; s/U.S.//g; s/UNDERWRITER/Underwriter/g; s/Union Ban//g; 
+s/Union City//g; s/Union Office//g; s/United Kingdom//g; s/United States//g; s/Universal City//g; s/university/University/g; s/Upper Chich//g; s/Upper Marlboro//g; s/Uscg/USCG/g; 
+s/valve/Valve/g; s/Valley Stream//g; s/Van Nuys//g; s/vendor/Vendor/g; s/Vernon Hills//g; s/Vero Beach//g; s/Vii/VII/g; s/Vi /VI/g; s/Vice-President/Vice President/g; 
+s/Vicepresident/Vice President/g; s/Virginia Beach//g; s/La Vista//g; s/Voip/VoIP/g; s/Walled Lake//g; s/Wallops Island//g; s/Walnut Creek//g; s/Warner Robins//g; s/wealth/Wealth/g; 
+s/West Bloomf//g; s/West Chester//g; s/West Columbia//g; s/West Dundee//g; s/West Harrison//g; s/West Linn//g; s/West Mifflin//g; s/West Nyack//g; s/West Orange//g; s/West Palm B//g; 
+s/West Paterson//g; s/west Region//g; s/West Sacram//g; s/West Spring//g; s/Western Spr//g; s/West Orange//g; s/White Lake//g; s/White Plains//g; s/White River//g; s/Whiteman Ai//g; 
+s/Whitmore Lake//g; s/Williston Park//g; s/Willow Grove//g; s/South Windsor//g; s/Windsor Locks//g; s/Windsor Mill//g; s/Winston Salem//g; s/Winter Park//g; s/Winter Springs//g; 
+s/Woodland Hills//g; s/Woodland Park//g; s/worldwide/Worldwide/g;
 
 s/AK //g; s/AL //g; s/AR //g; s/AZ //g; s/CA //g; s/CO //g; s/CT //g; s/DC //g; s/DE //g; s/FL //g; s/GA //g; s/HI //g; s/IA //g; s/ID //g; s/IL //g; s/IN //g; s/KA //g; s/KS //g;
 s/KY //g; s/LA //g; s/MA //g; s/ME //g; s/MD //g; s/MI //g; s/MO //g; s/MN //g; s/MS //g; s/MT //g; s/NC //g; s/NE //g; s/ND //g; s/NH //g; s/NJ //g; s/NM //g; s/NV //g; s/NY //g;
@@ -3229,10 +3214,6 @@ cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner chec
      f_location
      parsers/parse-nexpose.py $location
 
-     # Delete additional findings with CVSS score of 0
-#     egrep -v '(NetBIOS NBSTAT Traffic Amplification)' nexpose.csv > tmp.csv
-#     mv tmp.csv $home/data/nexpose-`date +%H:%M:%S`.csv
-
      mv nexpose.csv $home/data/nexpose-`date +%H:%M:%S`.csv
 
      echo
@@ -3894,3 +3875,4 @@ esac
 ##############################################################################################################
 
 while true; do f_main; done
+
