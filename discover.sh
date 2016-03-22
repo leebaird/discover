@@ -208,22 +208,30 @@ case $choice in
      echo "ARIN"
      echo "     Email                (1/$total)"
      wget -q https://whois.arin.net/rest/pocs\;domain=$domain -O tmp.xml
-     xmllint --format tmp.xml | grep 'handle' | cut -d '>' -f2 | cut -d '<' -f1 | sort -u > zurls.txt
-     xmllint --format tmp.xml | grep 'handle' | cut -d '"' -f2 | sort -u > zhandles.txt
 
-     while read x; do
-          wget -q $x -O tmp2.xml
-          xml_grep 'email' tmp2.xml --text_only >> zarin-emails
-     done < zurls.txt
+     # Remove all empty files
+     find -type f -empty -exec rm {} +
+
+     if [ -e tmp.xml ]; then
+          xmllint --format tmp.xml | grep 'handle' | cut -d '>' -f2 | cut -d '<' -f1 | sort -u > zurls.txt
+          xmllint --format tmp.xml | grep 'handle' | cut -d '"' -f2 | sort -u > zhandles.txt
+
+          while read x; do
+               wget -q $x -O tmp2.xml
+               xml_grep 'email' tmp2.xml --text_only >> zarin-emails
+          done < zurls.txt
+     fi
 
      echo "     Names                (2/$total)"
-     while read y; do
-          curl --silent https://whois.arin.net/rest/poc/$y.txt | grep 'Name' >> tmp
-     done < zhandles.txt
+     if [ -e zhandles.txt ]; then
+          while read y; do
+               curl --silent https://whois.arin.net/rest/poc/$y.txt | grep 'Name' >> tmp
+          done < zhandles.txt
 
-     grep -v '@' tmp | sed 's/Name:           //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' | sort -u > zarin-names
+          grep -v '@' tmp | sed 's/Name:           //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' | sort -u > zarin-names
+     fi
 
-     rm zurls.txt zhandles.txt
+     rm zurls.txt zhandles.txt 2>/dev/null
      echo
 
      echo "dnsrecon                  (3/$total)"
@@ -459,8 +467,10 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sed '/^@/ d' tmp3 > tmp4
      # Remove lines that start with .
      sed '/^\./ d' tmp4 > tmp5
+     # Remove lines that start with _
+     sed '/^\_/ d' tmp5 > tmp6
      # Change to lower case
-     cat tmp5 | tr '[A-Z]' '[a-z]' | sort -u > emails
+     cat tmp6 | tr '[A-Z]' '[a-z]' | sort -u > emails
 
      ##############################################################
 
@@ -649,8 +659,6 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      $web https://www.google.com/#q=filetype%3Atxt+site%3A$domain &
      sleep 2
      $web https://connect.data.com/login &
-     sleep 2
-     $web https://www.robtex.com/?dns=$domain\&graph=1 &
      sleep 2
      $web https://www.shodan.io/search?query=$domain &
      sleep 2
