@@ -623,8 +623,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      rm debug* emails hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
      # Screenshots for Robtex graph & Netcraft
-     cutycapt --url="https://www.robtex.com/?dns=$domain&graph=1" --out=$home/data/$domain/images/config.png
-     cutycapt --url="toolbar.netcraft.com/site_report?url=http://www.$domain" --out=$home/data/$domain/images/netcraft.png
+     cutycapt --url="https://www.robtex.com/?dns=$domain&graph=1" --out=$home/data/$domain/images/config.png 2>/dev/null
+     cutycapt --url="toolbar.netcraft.com/site_report?url=http://www.$domain" --out=$home/data/$domain/images/netcraft.png 2>/dev/null
 
      echo
      echo $medium
