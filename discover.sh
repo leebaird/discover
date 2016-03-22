@@ -325,7 +325,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      ##############################################################
 
-     cat z* | egrep -v '(@|\*|-|=|\||;|:|"|<|>|/|\?)' > tmp
+     cat z* | egrep -v '(@|\*|-|_|=|\||;|:|"|<|>|/|\?)' > tmp
      # Remove lines that contain a number
      sed '/[0-9]/d' tmp > tmp2
      # Remove lines that start with @
