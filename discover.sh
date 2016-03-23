@@ -670,6 +670,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
      sleep 2
      $web https://www.ssllabs.com/ssltest/analyze.html?d=$domain"&"hideResults=on"&"latest &
+     sleep 2
+     $web $home/data/$domain/index.htm &
      echo
      echo
      exit
