@@ -6,8 +6,18 @@ Metasploit
 No MacPorts or Homebrew needed.
 Download the latest installer and run: http://osx.metasploit.com
 Answer yes to all the questions.
-sudo chown -R /opt/metasploit-framework/
+sudo chown -R <username> /opt/metasploit-framework/
+sudo chown -R <username> /Users/<username>/.msf4/
+/opt/metasploit-framework/msfdb init
 /opt/metasploit-framework/bin/msfconsole
+
+msf > db_status 
+[*] postgresql connected to msf
+msf > db_rebuild_cache 
+[*] Purging and rebuilding the module cache in the background...
+
+Wait about 3 min.
+msf > search ms15             Show all Microsoft exploits released in 2015.
 ------------------------------------------------------------------------------------------------------
 
 service postgrsql start       Start the PostreSQL db.
@@ -42,6 +52,9 @@ production:
     port: 5432
     pool: 5
     timeout: 5
+
+# Module database cache not built yet, using slow search
+db_rebuild_cache              Rebuilds the database-stored module cache
 ------------------------------------------------------------------------------------------------------
 
 help or ?                     Show available commands and their descriptions.
