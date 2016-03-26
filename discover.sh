@@ -971,8 +971,6 @@ $web http://phonenumbers.addresses.com/people/$firstName+$lastName &
 sleep 2
 $web https://pipl.com/search/?q=$firstName+$lastName&l=&sloc=&in=5 &
 sleep 2
-$web http://www.spokeo.com/search?q=$firstName+$lastName&s3=t24 &
-sleep 2
 $web http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr= &
 sleep 2
 $web https://www.linkedin.com/pub/dir/?first=$firstName\&last=$lastName\&search=Search &
