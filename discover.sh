@@ -310,10 +310,11 @@ case $choice in
      echo
      echo "URLCrazy                  (22/$total)"
      urlcrazy $domain > tmp
-     # Clean up
-     egrep -v '(#|:|\?|RESERVED|Typo Type|URLCrazy|\-)' tmp | sed 's/[A-Z]\{2\},//g' > tmp2
-     # Remove blank lines
-     sed '/^$/d' tmp2 > tmp3
+     # Clean up & Remove Blank Lines
+     egrep -v '(#|:|\?|RESERVED|URLCrazy)' tmp | sed '/^$/d' > tmp2
+     # Realign Columns
+     sed -e 's/..,/   /g' tmp2 | sed -e 's/CC-A/   CC-A/g' | sed -e 's/   DNS-MX/DNS-MX/g' > tmp3
+     # Convert Caps
      sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g;
 s/CHILE/Chile/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g;
 s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; s/INDIA/India/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; s/JAPAN/Japan/g;
@@ -969,7 +970,7 @@ $web http://www.peekyou.com/$firstName%5f$lastName &
 sleep 2
 $web http://phonenumbers.addresses.com/people/$firstName+$lastName &
 sleep 2
-$web https://pipl.com/search/?q=$firstName+$lastName&l=&sloc=&in=5 &
+$web https://pipl.com/search/?q=$firstName+$lastName\&l=\&sloc=\&in=5 &
 sleep 2
 $web http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr= &
 sleep 2
