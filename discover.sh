@@ -966,17 +966,17 @@ $web $uripath &
 sleep 2
 $web http://www.cvgadget.com/person/$firstName/$lastName &
 sleep 2
-$web http://www.peekyou.com/$firstName%5f$lastName &
+$web https://www.linkedin.com/pub/dir/?first=$firstName\&last=$lastName\&search=Search &
 sleep 2
 $web http://phonenumbers.addresses.com/people/$firstName+$lastName &
 sleep 2
 $web https://pipl.com/search/?q=$firstName+$lastName\&l=\&sloc=\&in=5 &
 sleep 2
+$web https://twitter.com/search?q=%22$firstName%20$lastName%22&src=typd &
+sleep 2
 $web http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr= &
 sleep 2
-$web https://www.linkedin.com/pub/dir/?first=$firstName\&last=$lastName\&search=Search &
-sleep 2
-$web https://twitter.com/search?q=%22$firstName%20$lastName%22&src=typd &
+$web http://www.peekyou.com/$firstName%5f$lastName &
 
 f_main
 }
@@ -1002,14 +1002,14 @@ s/Aliso Viejo//g; s/Allison Park//g; s/Altamonte S//g; s/Am-east,//g; s/Am-west,
 s/Analyst\//Analyst, /g; s/analytics/Analytics/g; s/and New England//g; s/and Central Us//g; s/North Andover//g; s/Andrews Afb//g; s/Andrews Air//g; s/android/Android/g; 
 s/Annapolis J//g; s/Ann Arbor//g; s/Apple Valley//g; s/applications/Applications/g; s/Arlington H//g; s/Asia-Pacific//g; s/Asia and India//g; s/asia Pacific Region//g; 
 s/Asia Pacific//g; s/assistant/Assistant/g; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/associate/Associate/g; s/at Booz Allen Hamilton//g; s/at Booz Allen//g; 
-s/at Google//g; s/Atlantic City//g; s/Atm/ATM/g; s/attorney/Attorney/g; s/Australia S//g; s/automated/Automated/g; s/Ballston Spa//g; s/Bangalore S//g; s/banking/Banking/g; 
-s/Basking Ridge//g; s/Baton Rouge//g; s/Battle Creek//g; s/Battle Ground//g; s/Bay City//g; s/Bay Shore//g; s/BC//g; s/Bd/BD/g; s/Beaver Falls//g; s/Bel Air//g; s/Bella Vista//g; 
-s/Berkeley He//g; s/Berwyn Hts//g; s/Bethel Park//g; s/Beverly Hills//g; s/billing/Billing/g; s/Black Belt//g; s/Boca Raton//g; s/-Booz and Company Inc//g; s/-Booz and Company Ltd//g; 
-s/-Booz and Company//g; s/-booz and Co//g; s/booz Allen Hamilton//g; s/BORDER/Border/g; s/Bowling Green//g; s/Boynton Beach//g; s/branch/Branch/g; s/\/Branch/, Branch/g; 
-s/branch/Branch/g; s/Buffalo Grove//g; 
-s/business/Business/g; s/buyer/Buyer/g; s/By The//g; s/Calabasas Hls//g; s/Camp Hill//g; s/Camp H M Smith//g; s/Camp Springs//g; s/Canoga Park//g; s/Canyon Country//g; 
-s/Cape Canaveral//g; s/Cape Coral//g; s/Cape May//g; s/Capitol Hei//g; s/cargo/Cargo/g; s/Carol Stream//g; s/Carol Stream//g; s/cascade/Cascade/g; s/Castle Rock//g; s/Cedar Hill//g; 
-s/Cedar Rapids//g; s/census/Census/g; s/Center Line//g; s/CENTER/Center/g; s/Central California//g; s/Central Region//g; s/central Region//g; s/Chagrin Falls//g; s/Charles Town//g; 
+s/at Google//g; s/at Spawar//g; s/Atlantic City//g; s/Atm/ATM/g; s/attorney/Attorney/g; s/, Australia, New Zealand, and South East Asia//g; s/Australia S//g; s/automated/Automated/g; 
+s/Ballston Spa//g; s/Bangalore S//g; s/banking/Banking/g; s/Basking Ridge//g; s/Baton Rouge//g; s/Battle Creek//g; s/Battle Ground//g; s/Bay City//g; s/Bay Shore//g; s/BC//g; s/Bd/BD/g; 
+s/Beaver Falls//g; s/Bel Air//g; s/Bella Vista//g; s/Berkeley He//g; s/Berwyn Hts//g; s/Bethel Park//g; s/Beverly Hills//g; s/billing/Billing/g; s/Black Belt//g; s/Boca Raton//g; 
+s/-Booz and Company Inc//g; s/-Booz and Company Ltd//g; s/-Booz and Company//g; s/-booz and Co//g; s/booz Allen Hamilton//g; s/BORDER/Border/g; s/Bowling Green//g; s/Boynton Beach//g; 
+s/branch/Branch/g; s/\/Branch/, Branch/g; s/branch/Branch/g; s/Buffalo Grove//g; s/business/Business/g; s/buyer/Buyer/g; s/By The//g; s/Calabasas Hls//g; s/Camp Hill//g; 
+s/Camp H M Smith//g; s/Camp Springs//g; s/Canoga Park//g; s/Canyon Country//g; s/Cape Canaveral//g; s/Cape Coral//g; s/Cape May//g; s/Capitol Hei//g; s/cargo/Cargo/g; s/Carol Stream//g; 
+s/Carol Stream//g; s/cascade/Cascade/g; s/Castle Rock//g; s/Cedar Hill//g; s/Cedar Rapids//g; s/census/Census/g; s/Center Line//g; s/CENTER/Center/g; s/Central California//g; 
+s/Central Region//g; s/central Region//g; s/Chagrin Falls//g; s/Charles Town//g; 
 s/Charlottesv//g; s/CHEMICALS/Chemicals/g; s/Cherry Hill//g; s/Chester Le //g; s/East Chicago//g; s/\/Chief/, Chief/g; s/China //g; s/Chino Hills//g; s/chromecast/Chromecast/g; 
 s/Chula Vista//g; s/Cissp/CISSP/g; s/CITRIX/Citrix/g; s/clean/Clean/g; s/Clifton Park//g; s/cms/CMS/g; s/Cms/CMS/g; s/CNN News Group Cable News Network//g; s/Cmms/CMMS/g; 
 s/Cocoa Beach//g; s/Cold Spring//g; s/Colorado Sp//g; s/Commerce City//g; s/CommitteemanagementOfficer/Committee Management Officer/g; s/compliance/Compliance/g; 
@@ -1039,7 +1039,8 @@ s/Google X//g; s/Goose Creek//g; s/Granbury//g; s/Grand Forks//g; s/Grand Haven/
 s/Grants Pass//g; s/Grayslake//g; s/Great Falls//g; s/Green Bay//g; s/Green Belt//g; s/Greenwood Vlg//g; s/Grosse Ile//g; s/Grosse Poin//g; s/group/Group/g; s/Grove City//g;
 s/Grp/Group/g; s/Gsa/GSA/g; s/Gsm/GSM/g; s/Gulf Breeze//g; s/Gulf Coast//g; s/Gwynn Oak//g; s/Hampton Cove//g; s/Hampton Roads//g; s/Harbor City//g; s/Harpers Ferry//g;
 s/Harrison City//g; s/New Hartford//g; s/West Hartford//g; s/Hanscom Afb//g; s/hazard/Hazard/g; s/Hazel Park//g; s/Hd/HD/g; s/\/Head/, Head/g; s/Hermosa Beach//g; s/Highland Hls//g;
-s/Highland Park//g; s/Hilton Head//g; s/Hoffman Est//g; s/West Hollywood//g; s/Homer Glen//g; s/Hot Springs//g; s/Hq/HQ/g; s/Huntingtn Bch//g; s/Hurlburt Field//g; s/Idaho Falls//g;
+s/Highland Park//g; s/Hilton Head//g; s/Hoffman Est//g; s/West Hollywood//g; s/Homer Glen//g; s/Hot Springs//g; s/Hq/HQ/g; s/Huntingtn Bch//g; s/Hurlburt Field//g; 
+s/Ia Analyst/IA Analyst/g; s/Idaho Falls//g;
 s/Iii/III/g; s/Ii/II/g; s/IMPORT/Import/g; s/-in Consulting firm//g; s/-in Sydney//g; s/Indian Harb//g; s/information/Information/g; s/institutional/Institutional/g; 
 s/INSTRUMENT/Instrument/g; s/insurance/Insurance/g;
 s/intelligence/Intelligence/g; s/international/International/g; s/Inver Grove//g; s/Iselin//g; s/Italy//g; s/Jefferson City//g; s/Jersey City//g; s/Johnson City//g; s/Kansas City//g;
@@ -1052,13 +1053,15 @@ s/Long Valley//g; s/Logan Township//g; s/Los Angeles//g; s/Los Lunas//g; s/Loves
 s/Manager\//Manager, /g; s/Mangr/Manager/g; s/manager/Manager/g; s/mangr/Manager/g; s/Manhattan B//g; s/manufacturing/Manufacturing/g; s/MANUFACTURING/Manufacturing/g; 
 s/Maple Grove//g; s/Maple Shade//g; s/March Air R//g; s/MarketingProductionManager/Marketing Production Manager/g; s/Marina Del Rey//g; s/market/Market/g; s/master/Master/g; 
 s/materials/Materials/g; s/Mayfield West//g; s/Mays Landing//g; s/Mba/MBA/g; s/Mc Lean//g; s/Mc Coll//g; s/Mc Cordsville//g; s/Mc Kees Rocks//g; s/Mcse/MCSE/g; s/MECHANIC/Mechanic/g; 
-s/medical/Medical/g; s/Melbourne B//g; s/Menlo Park//g; s/Merritt Island//g; s/Metro Jersey District//g; s/Miami Beach//g; s/Mid-Atlantic//g; s/-Middle East//g; s/Middle East//g; s/Middle River//g; 
+s/medical/Medical/g; s/Melbourne B//g; s/Melbourne 	VIC//g; s/Menlo Park//g; s/Merritt Island//g; s/Metro Jersey District//g; s/Miami Beach//g; s/Mid-Atlantic//g; s/-Middle East//g; 
+s/Middle East//g; s/Middle River//g; 
 s/Upper Midwest//g; s/Millstone T//g; s/Mira Loma//g; s/Mississauga//g; s/MOBILITY/Mobility/g; s/model/Model/g; s/Moncks Corner//g; s/Moncton//g; s/Montreal//g; s/Monroe Town//g; 
 s/Moor Row//g; s/Moreno Valley//g; s/mortgage/Mortgage/g; s/Morgan Hill//g; s/Morris Plains//g; s/Moss Point//g; s/MOTOROLA/Motorola/g; s/motorola/Motorola/g; s/Mound City//g; 
 s/Mount Airy//g; s/Mount Holly//g; s/Mount Laurel//g; s/Mount Morrs//g; s/Mount Pleasant//g; s/Mount Pocono//g; s/Mount Prospect//g; s/Mount Vernon//g; s/Mount Weather//g; 
 s/mountain Region//g; s/Mountain States//g; s/Mountain View//g; s/Mount Waverley//g; s/Muscle Shoals//g; s/Mullica Hill//g; s/MULTI/Multi/g; s/Munroe Falls//g; s/music/Music/g; 
 s/MyHR/HR/g; s/Myrtle Beach//g; s/National City//g; s/Naval Anaco//g; s/navy/Navy/g; s/Needham Hei//g; s/negotiator/Negotiator/g; s/New Castle//g; s/New Church//g; s/New Cumberland//g; 
-s/New Delhi//g; s/New Haven//g; s/New Malden//g; s/New Market//g; s/New Martins//g; s/New Orleans//g; s/New Port Ri//g; s/New Stanton//g; s/New Town//g; s/New York Office//g; s/New York//g; s/New Zealand//g; 
+s/New Delhi//g; s/New Haven//g; s/New Malden//g; s/New Market//g; s/New Martins//g; s/New Orleans//g; s/New Port Ri//g; s/New Stanton//g; s/New Town//g; s/New York Office//g; 
+s/New York//g; s/New Zealand//g; 
 s/Newbury Park//g; s/Newport Beach//g; s/Newport News//g; s/Niagara Falls//g; s/North America //g; s/North and Central//g; s/North Baldwin//g; s/North Bergen//g; s/North Charl//g; 
 s/North East//g; s/North Highl//g; s/North Holly//g; s/North Kings//g; s/North Myrtl//g; s/North Olmsted//g; s/North Royalton//g; s/North Vernon//g; s/North Wales//g; s/North York//g; 
 s/northern/Northern/g; s/Nsa/NSA/g; s/Nso/NSO/g; s/O Fallon//g; s/Oak Brook//g; s/Oak Creek//g; s/Oak Hill//g; s/Oak Park//g; s/Oak Ridge//g; s/Oak View//g; s/Oakbrook Te//g; 
