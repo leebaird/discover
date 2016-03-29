@@ -185,6 +185,12 @@ Once the attack is complete, click Filter > uncheck Filter by status code: 4xx [
           Start attack
 ------------------------------------------------------------------------------------------------------
 
+# CSRF
+
+https://support.portswigger.net/customer/portal/articles/1965674-using-burp-to-test-for-cross-site-request-forgery-csrf-
+https://portswigger.net/burp/help/suite_functions_csrfpoc.html
+------------------------------------------------------------------------------------------------------
+
 # Manually Validate Findings
 
 XML Injection > Search in the Response body for http://www.w3.org/2001/XMLSchema. This is a false positive.
