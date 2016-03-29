@@ -311,9 +311,9 @@ case $choice in
      echo "URLCrazy                  (22/$total)"
      urlcrazy $domain > tmp
      # Clean up & Remove Blank Lines
-     egrep -v '(#|:|\?|RESERVED|URLCrazy)' tmp | sed '/^$/d' > tmp2
+     egrep -v '(#|:|\?|\-|RESERVED|URLCrazy)' tmp | sed '/^$/d' > tmp2
      # Realign Columns
-     sed -e 's/..,/   /g' tmp2 | sed -e 's/CC-A/   CC-A/g' | sed -e 's/   DNS-MX/DNS-MX/g' > tmp3
+     sed -e 's/..,/   /g' tmp2 > tmp3
      # Convert Caps
      sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g;
 s/CHILE/Chile/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g;
