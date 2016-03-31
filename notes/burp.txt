@@ -21,7 +21,7 @@ Extender > Options > Python Environment > Location of Jython standalone JAR file
 Browse to /Applications/jython-standalone-(version).jar > Open
 
 BApp Store
-Install CO2, Site Map Fetcher, and XSS Validator
+Install CO2, Error Message Checks, HeartBleed, J2EEScan, Site Map Fetcher, and XSS Validator
 ------------------------------------------------------------------------------------------------------
 
 # Firefox proxy
