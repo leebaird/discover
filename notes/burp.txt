@@ -88,7 +88,9 @@ Target > Scope:
 Target > Site map:
      Filter > restore defaults > Filter
 
-Restart Burp. This will provide starting point for all future scans.
+Save the state: burp-baseline
+This will provide you a starting point for all future scans.
+Burp > Restore state > browse to burp-baseline > Open > Next 3x > Close
 ------------------------------------------------------------------------------------------------------
 
 # Quick Start
