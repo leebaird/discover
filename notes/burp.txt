@@ -112,13 +112,21 @@ Sit map > RC the target URL > Expand branch
 Scroll to the very bottom.
 RC on any folders that are greyed out > Delete branch
 RC on any pages that are grey or red > Copy URL > paste into Firefox
+     Or RC on any pages that are grey or red > GET Empty Response
+Save the state: <appname>-spider
 
-Brute force files and folders.
-Save state.
+Brute force directories and files using Intruder.
+Directories - long
+Filenames - long
+Save the state: <appname>-BFdir
+
+Brute force logins using Intruder.
+Save the state: <appname>-BFlogin
 
 RC on the target URL > Actively scan this host
 Select all possible check boxes > Next > OK
 Scanner > Scan queue
+Save the state: <appname>-scan
 ------------------------------------------------------------------------------------------------------
 
 # Scanner
