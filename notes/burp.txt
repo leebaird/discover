@@ -95,22 +95,24 @@ To recall this state: Burp > Restore state > browse to burp-baseline > Open > Ne
 
 # Quick Start
 
+- Added to scope
 Firefox > surf to the target site and click on a couple of links.
 Burp > Target > Site map > right click (RC) on the target URL > Add to scope
 Target > Scope: you will see the URL listed in the top window
 Target > Site map > Filter: enable Show only in-scope items > Filter
 
+- Manually browse app
 Look for target.com/sitemap.
 If present, hold down the Command key and click on about 20 links.
 If not present, start exploring the target by clicking on every link on every page.
 Enter a single tick (') in any input field.
 Continue until you have thoroughly browsed the target.
 
+- Spider app
 Target > Site map > RC on the target URL > Spider this host
 Spider > Control: watch the Requests made increase.
 When the Requests and Forms queued are both zero, click Spider is running.
 
-- Spider app
 Target > Site map > RC the target URL > Expand branch
 Scroll to the very bottom.
 RC on any folders that are greyed out > Delete branch
@@ -132,9 +134,10 @@ Payloads:
           Filenames - long > Start attack
 Save the state: <appname>-BFdir
 
-- Brute force logins using Intruder.
+- Brute force logins
 Save the state: <appname>-BFlogin
 
+- Scan app
 RC on the target URL > Actively scan this host
 Select all possible check boxes > Next > OK
 Scanner > Scan queue
