@@ -124,8 +124,8 @@ Save the state: <appname>-spider
 Target > Site map > RC on '/' > Send to Intruder
 Intruder > Position > Attack type: Sniper
 Clear §
-Place your cursor on the top line after 'GET /' > Add §
-It should look like: GET /§§
+On the top line, select the forward slash '/' after GET > Add §
+Move the forward slash in front of the two symbols. It should look like: GET /§§
 Payloads:
      Payload Sets:
           Payload set: 1
