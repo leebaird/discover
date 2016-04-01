@@ -95,7 +95,7 @@ To recall this state: Burp > Restore state > browse to burp-baseline > Open > Ne
 
 # Quick Start
 
-- Added to scope
+- Scope
 Firefox > surf to the target site and click on a couple of links.
 Burp > Target > Site map > right click (RC) on the target URL > Add to scope
 Target > Scope: you will see the URL listed in the top window
