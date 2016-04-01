@@ -133,6 +133,7 @@ Payloads:
      Payload Options > Add from list:
           Directories - long > Start attack
           Filenames - long > Start attack
+Filter > uncheck 4xx [request error] > Filter
 Save the state: <appname>-BFdir
 
 - Brute force logins
