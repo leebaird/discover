@@ -122,7 +122,8 @@ Save the state: <appname>-spider
 
 - Brute force directories and files
 Target > Site map > RC on '/' > Send to Intruder
-Intruder > Position > Clear §
+Intruder > Position > Attack type: Sniper
+Clear §
 Place your cursor on the top line after 'GET /' > Add §
 It should look like: GET /§§
 Payloads:
