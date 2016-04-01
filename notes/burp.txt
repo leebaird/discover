@@ -90,7 +90,7 @@ Target > Site map:
 
 Save the state: burp-baseline
 This will provide you a starting point for all future scans.
-Burp > Restore state > browse to burp-baseline > Open > Next 3x > Close
+To recall this state: Burp > Restore state > browse to burp-baseline > Open > Next 3x > Close
 ------------------------------------------------------------------------------------------------------
 
 # Quick Start
