@@ -131,8 +131,10 @@ Payloads:
           Payload set: 1
           Payload type: Simple list
      Payload Options > Add from list:
-          Directories - long > Start attack
-          Filenames - long > Start attack
+          Directories - long
+     Payload Option > Load:
+          DirBuster-1.0-RC1 > directory-list-2.3-small.txt
+Start attack
 Filter > uncheck 4xx [request error] > Filter
 Save the state: <appname>-BFdir
 
