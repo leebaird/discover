@@ -19,9 +19,9 @@ Username: +convert(varchar,convert(int,@@version))+
 
 ?sql_query 
 
-This format is how HTTP GET parameters are passed through the URL. You can inject a SQL query as a HTTP 
+This format is how HTTP GET parameters are passed through the URL. You can inject an SQL query as a HTTP 
 GET parameter to a server-side script. Based on prior knowledge of a database table name (customers), 
-you can inject a properly crafted SQL query as a HTTP GET parameter.
+you can inject a properly formatted SQL query as a HTTP GET parameter.
 
 http://www.target.com/index.php?sql_query=SELECT * FROM customers
 ------------------------------------------------------------------------------------------------------
