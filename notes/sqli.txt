@@ -72,11 +72,11 @@ Newsletter signup > Subscribe:  joe@gmail.com & ipconfig > C:\inetpub\wwwroot\Bo
 
 sqlmap
 
--u		               Target URL.
+-u                 Target URL.
 --random-agent     Use randomly selected HTTP User-Agent header value.
 --dbms=value       Force back-end DBMS to this value (MSSQL, MySQL, Oracle).
---level=#		        Level of tests to perform (1-5, default 1).
---risk=#	          Risk of tests to perform (1-3, default 1).
+--level=#          Level of tests to perform (1-5, default 1).
+--risk=#           Risk of tests to perform (1-3, default 1).
 -b                 Retrieve DBMS banner.
 --passwords        Enumerate DBMS users password hashes.
 --crawl=#          Crawl the website starting from the target URL.
