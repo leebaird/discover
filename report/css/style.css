@@ -14,7 +14,6 @@ body {
 	font-size: 1em;
 }
 
-/* Headings */
 h1,h2,h3,h4,h5,h6 { 
 	font-weight: normal;
 	margin: 0;
@@ -80,7 +79,6 @@ a:focus {
 	text-align: center;
 }
 
-/* Header / Primary / Secondary Navigation */
 .header-wrap {
 	overflow: hidden;
 }
@@ -126,8 +124,8 @@ ul.navbar {
 
 .navbar a {							
 	padding: 18px 0;     /* Adds a padding on the top and bottom so the text appears centered vertically */
-	border-left: 1px solid #fff; /* Creates a border in a slightly lighter shade of blue than the background.  Combined with the right border, this creates a nice effect. */
-	border-right: 1px solid #ededed; /* Creates a border in a slightly darker shade of blue than the background.  Combined with the left border, this creates a nice effect. */
+	border-left: 1px solid #fff; /* Creates a border in a slightly lighter shade of blue than the background. Combined with the right border, this creates a nice effect. */
+	border-right: 1px solid #ededed; /* Creates a border in a slightly darker shade of blue than the background. Combined with the left border, this creates a nice effect. */
 	text-decoration: none;  /* Removes the default hyperlink styling. */
 	color: #3C3B3B;      /* Text color is white */
 	display: block;
@@ -181,5 +179,39 @@ iframe {
 	height: 808px;
 	width: 1160px;
 	border: none;
+}
+
+/* Config page */ 
+body {
+     font-family: Verdana, Arial, Helvetica, sans-serif;
+     font-size: 18px;
+     color: #2b2d30;
+}
+
+table.tabular th {
+     background-color: #d7e8f1;
+     border-style: solid;
+     color: #6c727c;
+     font-size: 14px;
+     font-weight: bold;
+     padding: 7px;
+}
+
+table.tabular td {
+     background-color: #fff;
+     border-style: solid;
+     padding: 7px;
+}
+ 
+tr.error td {
+     background: #ff0000;
+}
+ 
+tr.warn td {
+     background: #ffff00;
+}
+ 
+td.icon {
+     text-align: center;
 }
 

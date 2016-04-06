@@ -57,6 +57,12 @@ else
      echo
 fi
 
+if [ ! -f /usr/bin/ssconvert ]; then
+     echo -e "\e[1;33mInstalling gnumeric.\e[0m"
+     apt-get install -y gnumeric
+     echo
+fi
+
 if [ ! -f /usr/bin/goofile ]; then
      echo -e "\e[1;33mInstalling goofile.\e[0m"
      apt-get install -y goofile

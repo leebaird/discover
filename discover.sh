@@ -6,9 +6,10 @@
 #
 # Special thanks to the following people:
 #
+# Jay Townsend (L1ghtn1ng) - conversion from Backtrack to Kali, manages pull requests & issues, python conversion
+# Jason Ashton - Penetration Testers Framework (PTF) compatibility, bug crusher
 # Ben Wood - regex master
 # Dave Klug - planning, testing and bug reports
-# Jay Townsend (L1ghtn1ng) - conversion from Backtrack to Kali, manages pull requests & issues, python conversion
 # Jason Arnold - planning original concept, author of ssl-check and co-author of crack-wifi
 # John Kim - Python guru, bug smasher and parsers
 # Eric Milam - total re-write using functions
@@ -20,7 +21,6 @@
 # Saviour Emmanuel - Nmap parser
 # Securicon, LLC. - for sponsoring development of parsers
 # Steve Copland - report framework design
-# Jason Ashton - Penetration Testers Framework (PTF) compatibility, bug crusher
 
 ##############################################################################################################
 
@@ -143,7 +143,7 @@ mkdir $save_dir
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv emails* names records squatting whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+mv dnsdumpster-hosts emails* names networks records squatting whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
 
 echo "Saving complete"
 exit
@@ -199,7 +199,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=29
+     total=32
 
      echo
      echo $medium
@@ -232,15 +232,35 @@ case $choice in
      fi
 
      rm zurls.txt zhandles.txt 2>/dev/null
+
+     echo "     Networks             (3/$total)"
+     orgurl=$( printf "%s\n" "$company" | sed 's/ /%20/g' )
+
+     wget -q https://whois.arin.net/rest/orgs\;name=$orgurl -O tmp.xml
+
+     if [ -s tmp.xml ]; then
+          xmllint --format tmp.xml | grep 'handle' | cut -d '/' -f6 | cut -d '<' -f1 | sort -uV > tmp
+
+          while read handle; do
+               echo "          " $handle
+               curl --silent https://whois.arin.net/rest/org/$handle/nets.txt | head -1 > tmp2
+               if grep 'DOCTYPE' tmp2 > /dev/null; then
+                    echo > /dev/null
+               else
+                    awk '{print $4 "-" $6}' tmp2 >> tmp3
+               fi
+          done < tmp
+     fi
+
+     $sip tmp3 > networks 2>/dev/null
      echo
 
-     echo "dnsrecon                  (3/$total)"
+     echo "dnsrecon                  (4/$total)"
      dnsrecon -d $domain -t goo > tmp
      grep $domain tmp | egrep -v '(Performing|Records Found)' | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | column -t | sort -u > sub1
      echo
 
-     echo "goofile                   (4/$total)"
-
+     echo "goofile                   (5/$total)"
      goofile -d $domain -f doc > tmp
      goofile -d $domain -f docx >> tmp
      goofile -d $domain -f pdf >> tmp
@@ -257,58 +277,59 @@ case $choice in
      grep '.ppt' tmp2 > ppt
      grep '.txt' tmp2 | grep -v 'robots.txt' > txt
      grep '.xls' tmp2 > xls
-
      echo
-     echo "goog-mail                 (5/$total)"
+
+     echo "goog-mail                 (6/$total)"
      $discover/mods/goog-mail.py $domain > zgoog-mail
      echo
+
      echo "goohost"
-     echo "     IP                   (6/$total)"
+     echo "     IP                   (7/$total)"
      $discover/mods/goohost.sh -t $domain -m ip >/dev/null
-     echo "     Email                (7/$total)"
+     echo "     Email                (8/$total)"
      $discover/mods/goohost.sh -t $domain -m mail >/dev/null
      cat report-* > tmp
      # Move the second column to the first position
      grep $domain tmp | awk '{print $2 " " $1}' > tmp2
      column -t tmp2 > zgoohost
      rm *-$domain.txt
-
      echo
+
      echo "theHarvester"
-     echo "     Baidu                (8/$total)"
+     echo "     Baidu                (9/$total)"
      theHarvester -d $domain -b baidu > zbaidu
-     echo "     Bing                 (9/$total)"
+     echo "     Bing                 (10/$total)"
      theHarvester -d $domain -b bing > zbing
-     echo "     Dogpilesearch        (10/$total)"
+     echo "     Dogpilesearch        (11/$total)"
      theHarvester -d $domain -b dogpilesearch > zdogpilesearch
-     echo "     Google               (11/$total)"
+     echo "     Google               (12/$total)"
      theHarvester -d $domain -b google > zgoogle
-     echo "     Google CSE           (12/$total)"
+     echo "     Google CSE           (13/$total)"
      theHarvester -d $domain -b googleCSE > zgoogleCSE
-     echo "     Google+              (13/$total)"
+     echo "     Google+              (14/$total)"
      theHarvester -d $domain -b googleplus | sed 's/ - Google+//g' > zgoogleplus
-     echo "     Google Profiles	  (14/$total)"
+     echo "     Google Profiles	  (15/$total)"
      theHarvester -d $domain -b google-profiles > zgoogle-profiles
-     echo "     Jigsaw               (15/$total)"
+     echo "     Jigsaw               (16/$total)"
      theHarvester -d $domain -b jigsaw > zjigsaw
-     echo "     LinkedIn             (16/$total)"
+     echo "     LinkedIn             (17/$total)"
      theHarvester -d $domain -b linkedin > zlinkedin
-     echo "     People123            (17/$total)"
+     echo "     People123            (18/$total)"
      theHarvester -d $domain -b people123 > zpeople123
-     echo "     PGP                  (18/$total)"
+     echo "     PGP                  (19/$total)"
      theHarvester -d $domain -b pgp > zpgp
-     echo "     Yahoo                (19/$total)"
+     echo "     Yahoo                (20/$total)"
      theHarvester -d $domain -b yahoo > zyahoo
-     echo "     All                  (20/$total)"
+     echo "     All                  (21/$total)"
      theHarvester -d $domain -b all > zall
      echo
 
-     echo "Metasploit                (21/$total)"
+     echo "Metasploit                (22/$total)"
      msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
      grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' > zmsf
-
      echo
-     echo "URLCrazy                  (22/$total)"
+
+     echo "URLCrazy                  (23/$total)"
      urlcrazy $domain > tmp
      # Clean up & Remove Blank Lines
      egrep -v '(#|:|\?|\-|RESERVED|URLCrazy)' tmp | sed '/^$/d' > tmp2
@@ -358,12 +379,12 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      # Change to lower case
      cat tmp4 | tr '[A-Z]' '[a-z]' > tmp5
      sed 's/<strong>//g; s/<//g' tmp5 | grep $domain | column -t | sort -u > sub2
+     echo
 
      ##############################################################
 
-     echo
      echo "Whois"
-     echo "     Domain               (23/$total)"
+     echo "     Domain               (24/$total)"
      whois -H $domain > tmp 2>/dev/null
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
@@ -403,7 +424,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           fi
      done < tmp13 > whois-domain
 
-     echo "     IP 		  (24/$total)"
+     echo "     IP 		  (25/$total)"
      y=$(dig $domain | grep "$domain" | grep -v ';' | awk '{print $5}')
      whois -H $y > tmp
 
@@ -412,7 +433,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      # Remove trailing whitespace from each line
      sed 's/[ \t]*$//' tmp2 > tmp3
      # Clean up
-     egrep -v '(\#|\%|\*|All reports|Comment|dynamic hosting|For fastest|For more|Found a referral|http|OriginAS:$|Parent:$|point in|RegDate:$|remarks:|The activity|the correct|Without these)' tmp3 > tmp4
+     egrep -v '(\#|\%|\*|All reports|Comment|dynamic hosting|For fastest|For more|Found a referral|http|OriginAS:$|Parent:$|point in|RegDate:$|remarks:|The activity|the correct|this kind of object|Without these)' tmp3 > tmp4
      # Remove leading whitespace from file
      awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp4 > tmp5
      # Remove blank lines from end of file
@@ -435,7 +456,22 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      # Remove all empty files
      find -type f -empty -exec rm {} +
 
-     echo "dnssy.com                 (25/$total)"
+     echo "dnsdumpster.com           (26/$total)"
+     wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/images/dnsdumpster.png
+
+     # Generate a random cookie value
+     rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+
+
+     curl --silent --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com > tmp
+
+     dumpsterxls=$(grep 'xls' tmp | tr '"' ' ' | cut -d ' ' -f10)
+     wget -q $dumpsterxls -O tmp.xlsx
+
+     ssconvert tmp.xlsx tmp.csv
+     cat tmp.csv | sed 's/"//g' | sed 's/, / /g' | sed 's/,,/, ,/g' | sed '/^$/d' | cut -d ',' -f4,6,7 --complement | egrep -v '(Hostname|MX|NS)' | sed '/^$/d' | sort -u | column -s "," -t > dnsdumpster-hosts
+
+     echo "dnssy.com                 (27/$total)"
      wget -q --post-data 'q=$domain&step=1&r=1448215046#3cc723b32910c180bc45aba6c21be6edf4125745' http://www.dnssy.com/report.php -O tmp
      sed -n '/table border/,/\/table/p' tmp > tmp2
      echo "<html>" > tmp3
@@ -452,12 +488,12 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      s/Your nameservers/Nameservers/g; s/Your NS records at your nameservers are://g; s/Your NS records at your parent nameserver are://g;
      s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > $home/data/$domain/data/config.htm
 
-     echo "email-format.com          (26/$total)"
+     echo "email-format.com          (28/$total)"
      curl --silent http://www.email-format.com/d/$domain/ | grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* > zemail-format
 
      ##############################################################
 
-     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|=|\+|\[|\]|\||;|:|"|<|>|/|\?)' > tmp
+     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|fuckthepolice|salessalesandmarketing|www|yousuck)' > tmp
      # Remove trailing whitespace from each line
      sed 's/[ \t]*$//' tmp > tmp2
      # Remove lines that start with a number
@@ -473,11 +509,16 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      ##############################################################
 
-     echo "ewhois.com                (27/$total)"
+     echo "ewhois.com                (29/$total)"
      wget -q http://www.ewhois.com/$domain/ -O tmp
      cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > sub3
 
-     echo "myipneighbors.net         (28/$total)"
+     echo "intodns.com               (30/$total)"
+     wget -q http://www.intodns.com/$domain -O tmp
+     cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
+     cat tmp2 >> $home/data/$domain/pages/config.htm
+
+     echo "myipneighbors.net         (31/$total)"
      wget -q http://www.myipneighbors.net/?s=$domain -O tmp
      grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
 
@@ -485,13 +526,17 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      # Remove lines that contain a single word
      sed '/[[:blank:]]/!d' tmp > subdomains
 
-     echo "urlvoid.com               (29/$total)"
+     echo "urlvoid.com               (32/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
      sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > $home/data/$domain/data/black-listed.htm
 
      awk '{print $2}' subdomains > tmp
      grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | $sip > hosts
-     cat hosts >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm 2>/dev/null
+
+     cat networks > tmp 2>/dev/null
+     echo >> tmp
+     cat hosts >> tmp 2>/dev/null
+     cat tmp >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm 2>/dev/null
 
      ##############################################################
 
@@ -523,6 +568,15 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           cat names >> $home/data/$domain/data/names.htm
      fi
 
+     if [ -e networks ]; then
+          networkcount=$(wc -l networks | cut -d ' ' -f1)
+          echo "Networks      $networkcount" >> zreport
+          echo "Networks ($networkcount)" >> tmp
+          echo $short >> tmp
+          cat networks >> tmp
+          echo >> tmp
+     fi
+
      if [ -e hosts ]; then
           hostcount=$(wc -l hosts | cut -d ' ' -f1)
           echo "Hosts         $hostcount" >> zreport
@@ -550,6 +604,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           cat subdomains >> tmp
           echo >> tmp
           cat subdomains >> $home/data/$domain/data/subdomains.htm
+          cat dnsdumpster-hosts >> $home/data/$domain/data/subdomains.htm
      fi
 
      if [ -e xls ]; then
@@ -603,27 +658,33 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      fi
 
      cat tmp >> zreport
-     echo "Whois Domain" >> zreport
-     echo $long >> zreport
-     cat whois-domain >> zreport
 
-     echo "Whois IP" >> zreport
-     echo $long >> zreport
-     cat whois-ip >> zreport
+     if [ -e whois-domain ]; then
+          echo "Whois Domain" >> zreport
+          echo $long >> zreport
+          cat whois-domain >> zreport
+          cat whois-domain >> $home/data/$domain/data/whois-domain.htm; echo "</pre>" >> $home/data/$domain/data/whois-domain.htm
+     fi
+
+     if [ -e whois-ip ]; then
+          echo "Whois IP" >> zreport
+          echo $long >> zreport
+          cat whois-ip >> zreport
+          cat whois-ip >> $home/data/$domain/data/whois-ip.htm; echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
+     fi
 
      echo "</pre>" >> $home/data/$domain/data/emails.htm
      echo "</pre>" >> $home/data/$domain/data/names.htm
      echo "</pre>" >> $home/data/$domain/data/squatting.htm
      echo "</pre>" >> $home/data/$domain/data/subdomains.htm
-     cat whois-domain >> $home/data/$domain/data/whois-domain.htm; echo "</pre>" >> $home/data/$domain/data/whois-domain.htm
-     cat whois-ip >> $home/data/$domain/data/whois-ip.htm; echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
+
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-     rm debug* emails hosts names squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm debug* dnsdumpster-hosts emails hosts names networks squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
-     # Screenshots for Robtex graph & Netcraft
-     cutycapt --url="https://www.robtex.com/?dns=$domain&graph=1" --out=$home/data/$domain/images/config.png 2>/dev/null
+     # Screenshots for Netcraft and Robtex
      cutycapt --url="toolbar.netcraft.com/site_report?url=http://www.$domain" --out=$home/data/$domain/images/netcraft.png 2>/dev/null
+     wget -q https://www.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/images/robtex.png
 
      echo
      echo $medium
@@ -643,10 +704,6 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 3
      $web toolbar.netcraft.com/site_report?url=http://www.$domain &
      sleep 3
-     $web https://dnsdumpster.com &
-     sleep 2
-     $web https://dnsdumpster.com/static/map/$domain.png &
-     sleep 2
      $web https://www.google.com/#q=filetype%3Axls+OR+filetype%3Axlsx+site%3A$domain &
      sleep 2
      $web https://www.google.com/#q=filetype%3Appt+OR+filetype%3Apptx+site%3A$domain &
@@ -1606,7 +1663,7 @@ f_report
 f_scan(){
 custom='1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812,1813,1953,1959,2000,2002,2030,2049,2100,2121,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2780-2783,2947,3000,3001,3031,3121,3127,3128,3200,3201,3230-3235,3260,3268,3269,3306,3339,3389,3460,3500,3527,3632,3689,4000,4045,4100,4242,4369,4430,4443,4445,4661,4662,4711,4848,5000,5001,5009,5010,5019,5038,5040,5059,5060,5061,5101,5180,5190,5191,5192,5193,5250,5432,5554,5555,5560,5566,5631,5666,5672,5678,5800,5801,5802,5803,5804,5850,5900-6009,6101,6106,6112,6161,6346,6379,6588,6666,6667,6697,6777,7000,7001,7002,7070,7100,7210,7510,7634,7777,7778,8000,8001,8004,8005,8008,8009,8080,8081,8082,8083,8091,8098,8099,8100,8180,8181,8222,8332,8333,8383,8384,8400,8443,8444,8470-8480,8500,8787,8834,8866,8888,9090,9100,9101,9102,9160,9343,9470-9476,9480,9495,9996,9999,10000,10025,10168,11211,12000,12345,12346,13659,15000,16080,18181-18185,18207,18208,18231,18232,19150,19190,19191,20034,22226,27017,27374,27665,28784,30718,31337,32764,32768,32771,33333,35871,37172,38903,39991,39992,40096,46144,46824,49400,50000,50030,50060,50070,50075,50090,51080,51443,53050,54320,58847,60000,60010,60030,60148,60365,62078,63148'
 full='1-65535'
-udp='53,67,123,137,161,500,523,1434,1604,2302,3478,5353,6481,17185,31337'
+udp='53,67,123,137,161,500,523,1434,1604,2302,3478,4070,5353,6481,17185,31337'
 
 echo
 echo -n "Perform full TCP port scan? (y/N) "
@@ -1714,7 +1771,7 @@ if [[ -e $name/5060.txt ]]; then
 fi
 
 echo "     UDP"
-UDP_PORTS="53 67 123 137 161 500 523 1434 1604 2302 3478 5353 6481 17185 31337"
+UDP_PORTS="53 67 123 137 161 500 523 1434 1604 2302 3478 4070 5353 6481 17185 31337"
 
 for i in $UDP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/udp\>" | cut -d ' ' -f2 > $name/$i.txt
@@ -1726,27 +1783,27 @@ fi
 
 # Combine Apache HBase ports and sort
 cat $name/60010.txt $name/60030.txt > tmp
-sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/apache-hbase.txt
+$sip tmp > $name/apache-hbase.txt
 
 # Combine Bitcoin ports and sort
 cat $name/8332.txt $name/8333.txt > tmp
-sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/bitcoin.txt
+$sip tmp > $name/bitcoin.txt
 
 # Combine DB2 ports and sort
 cat $name/523-tcp.txt $name/523-udp.txt > tmp
-sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/db2.txt
+$sip tmp > $name/db2.txt
 
 # Combine Hadoop ports and sort
 cat $name/50030.txt $name/50060.txt $name/50070.txt $name/50075.txt $name/50090.txt > tmp
-sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/hadoop.txt
+$sip tmp > $name/hadoop.txt
 
 # Combine SMTP ports and sort
 cat $name/25.txt $name/465.txt $name/587.txt > tmp
-sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/smtp.txt
+$sip tmp > $name/smtp.txt
 
 # Combine X11 ports and sort
 cat $name/6000.txt $name/6001.txt $name/6002.txt $name/6003.txt $name/6004.txt $name/6005.txt > tmp
-sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 tmp > $name/x11.txt
+$sip tmp > $name/x11.txt
 
 # Remove all empty files
 find $name/ -type f -empty -exec rm {} +
