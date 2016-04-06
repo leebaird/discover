@@ -204,7 +204,6 @@ case $choice in
      echo
      echo $medium
      echo
-
      echo "ARIN"
      echo "     Email                (1/$total)"
      wget -q https://whois.arin.net/rest/pocs\;domain=$domain -O tmp.xml
@@ -415,8 +414,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      # Remove blank lines from end of file
      awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp12 > tmp13
 
-     while IFS=$': \t'
-     read first rest; do
+     while IFS=$': \t' read -r first rest; do
           if [[ $first$rest ]]; then
                printf '%-20s %s\n' "$first:" "$rest"
           else
@@ -442,9 +440,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      cat -s tmp6 > tmp7
      # Clean up
      sed 's/+1-//g' tmp7 > tmp8
-
-     while IFS=$': \t'
-     read first rest; do
+     while IFS=$': \t' read -r first rest; do
           if [[ $first$rest ]]; then
                printf '%-20s %s\n' "$first:" "$rest"
           else
@@ -462,14 +458,13 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      # Generate a random cookie value
      rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
-
      curl --silent --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com > tmp
 
      dumpsterxls=$(grep 'xls' tmp | tr '"' ' ' | cut -d ' ' -f10)
      wget -q $dumpsterxls -O tmp.xlsx
 
-     ssconvert tmp.xlsx tmp.csv
-     cat tmp.csv | sed 's/"//g' | sed 's/, / /g' | sed 's/,,/, ,/g' | sed '/^$/d' | cut -d ',' -f4,6,7 --complement | egrep -v '(Hostname|MX|NS)' | sed '/^$/d' | sort -u | column -s "," -t > dnsdumpster-hosts
+     ssconvert -E Gnumeric_Excel:xlsx -T Gnumeric_stf:stf_csv tmp.xlsx tmp.csv 2>/dev/null
+     cat tmp.csv | sed 's/"//g' | sed 's/, / /g' | sed 's/,,/, ,/g' | sed '/^$/d' | cut -d ',' -f3-7 --complement | egrep -v '(Hostname|MX|NS)' | sed '/^$/d' | sort -u | column -s "," -t > dnsdumpster-hosts
 
      echo "dnssy.com                 (27/$total)"
      wget -q --post-data 'q=$domain&step=1&r=1448215046#3cc723b32910c180bc45aba6c21be6edf4125745' http://www.dnssy.com/report.php -O tmp
