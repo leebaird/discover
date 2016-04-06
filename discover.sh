@@ -464,7 +464,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      wget -q $dumpsterxls -O tmp.xlsx
 
      ssconvert -E Gnumeric_Excel:xlsx -T Gnumeric_stf:stf_csv tmp.xlsx tmp.csv 2>/dev/null
-     cat tmp.csv | sed 's/"//g' | sed 's/, / /g' | sed 's/,,/, ,/g' | sed '/^$/d' | cut -d ',' -f3-7 --complement | egrep -v '(Hostname|MX|NS)' | sed '/^$/d' | sort -u | column -s "," -t > dnsdumpster-hosts
+     cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > dnsdumpster-hosts
 
      echo "dnssy.com                 (27/$total)"
      wget -q --post-data 'q=$domain&step=1&r=1448215046#3cc723b32910c180bc45aba6c21be6edf4125745' http://www.dnssy.com/report.php -O tmp
