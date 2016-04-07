@@ -3214,6 +3214,130 @@ exit
 
 ##############################################################################################################
 
+f_skipfish() 
+{
+    f_runlocally
+    clear
+    f_banner
+
+    #
+    # This scripts is a Skipfish-wrapper that eases preliminary setup and 
+    # quick&dirty sweep on selected web application.
+    #
+    # Integrated from Mariusz B. (mgeeky at github) private repos.
+    #
+
+    SKIPFISH_DICTS_PATH=/usr/share/skipfish/dictionaries
+    SKIPFISH_SIGS_PATH=/usr/share/skipfish/signatures
+    DEFAULT_OUTPUT_PATH=$home/data/
+
+    echo
+    echo Welcome at Skipfish launcher.
+    echo What are we going to torture today, sir?
+    echo
+    read -p "[?] Enter website URL: "
+    URL=$REPLY
+    echo "[+] Splendid."
+    read -p "How intensively would like to make it suffer? [1-3]: "
+    INTENSITY=$REPLY
+    echo -e "[+] Umh, what a cruelty my sir. Would you like to pass some additional orders to Skipfish?\n"
+    read -p "Additional args: "
+    REST=$REPLY
+
+    convertsecs() {
+        ((h=${1}/3600))
+        ((m=(${1}%3600)/60))
+        ((s=${1}%60))
+        printf "%02d:%02d:%02d\n" $h $m $s
+    }
+
+    urlparse() 
+    {
+        REPL="\2"
+        if [[ -n "$2" ]]; then
+            REPL=$2
+        fi
+
+        echo $1 | perl -pe "s/^(?:([^\:]*)\:\/\/)?(?:(?:[^\:\@]*)(?:\:(?:[^\@]*))?\@)?((?:(?:[^\/\:]*)\.(?:[^\.\/\:]*\.[^\.\/\:]*))?(?:[^\.\/\:]*)(?:\.(?:[^\/\.\:]*))?(?:\:(?:[0-9]*))?)(\/[^\?#]*(?=.*?\/)\/)?(?:[^\?#]*)?(?:\?(?:[^#]*))?(?:#(?:.*))?$/${REPL}/g"
+        
+    }
+
+    HOST=$(urlparse $URL)
+    TOP_SCOPE=$(urlparse $URL "\1:\/\/\2")/
+
+    if [[ $TOP_SCOPE != http* ]]; then
+        TOP_SCOPE=http$TOP_SCOPE
+    fi
+
+    OUTPUT_DIR=${DEFAULT_OUTPUT_PATH}${HOST/:/_}
+
+    case "$INTENSITY" in
+        2)  
+            SCAN_MODE="-MQ -S ${SKIPFISH_DICTS_PATH}/medium.wl -W ${DEFAULT_OUTPUT_PATH}learned_dict.wl -Y"
+            ;;
+
+        3)  
+            SCAN_MODE="-M -S ${SKIPFISH_DICTS_PATH}/complete.wl -W ${DEFAULT_OUTPUT_PATH}learned_dict.wl"
+            ;;
+
+        *)  SCAN_MODE="-Q -e -p 75 -W- -L"
+            ;;
+    esac
+
+    echo
+    if [[ -d $OUTPUT_DIR ]]; then
+        echo
+        echo "Currently existing directory: '$OUTPUT_DIR'"
+        read -p "Output directory already exists. Would you like to Rename it or Delete or quit? [R/d/q]: " -n 1 -r
+        if [[ $REPLY =~ ^[Rr]$ ]]; then
+            echo
+            read -p "Enter new output directory name: "
+            #mv $OUTPUT_DIR ${DEFAULT_OUTPUT_PATH}/$REPLY
+            OUTPUT_DIR=${DEFAULT_OUTPUT_PATH}/$REPLY
+        elif [[ $REPLY =~ ^[Dd]$ ]]; then
+            rm -rf $OUTPUT_DIR
+        else
+            echo
+            exit 1
+        fi
+    fi
+
+    echo
+    echo "Scope to be scanned: ${TOP_SCOPE}"
+    echo "Output directory: ${OUTPUT_DIR}"
+    echo "Intensity: $INTENSITY"
+    echo "Rest of params: $REST"
+    echo -e "COMMAND:\n"
+    echo /usr/bin/skipfish -EU -b f -o $OUTPUT_DIR $SCAN_MODE $REST -I ${TOP_SCOPE} $TOP_SCOPE
+    echo
+    read -p "Are the above options correct? [Y/n]: " -n 1 -r
+
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo
+        echo "Engaging scanner..."
+        #mkdir -p $OUTPUT_DIR
+
+        if [[ $INTENSITY -gt 1 ]]; then
+            touch $DEFAULT_OUTPUT_PATH/learned_dict.wl
+        fi
+
+        xdotool key ctrl+shift+t
+        xdotool type "/usr/bin/skipfish -MEU -b f -o $OUTPUT_DIR $SCAN_MODE $REST -I ${TOP_SCOPE} $TOP_SCOPE"
+        sleep 1
+        xdotool key Return
+
+        echo "Done."
+    else
+        echo "Coward."
+    fi
+
+    echo
+    exit
+}
+
+
+##############################################################################################################
+
 f_parse(){
 clear
 f_banner
@@ -3898,14 +4022,15 @@ echo -e "\x1B[1;34mWEB\x1B[0m"
 echo "8.  Open multiple tabs in $browser"
 echo "9.  Nikto"
 echo "10. SSL"
+echo "11. Skipfish"
 echo
 echo -e "\x1B[1;34mMISC\x1B[0m"
-echo "11. Crack WiFi"
-echo "12. Parse XML"
-echo "13. Generate a malicious payload"
-echo "14. Start a Metasploit listener"
-echo "15. Update"
-echo "16. Exit"
+echo "12. Crack WiFi"
+echo "13. Parse XML"
+echo "14. Generate a malicious payload"
+echo "15. Start a Metasploit listener"
+echo "16. Update"
+echo "17. Exit"
 echo
 echo -n "Choice: "
 read choice
@@ -3921,12 +4046,13 @@ case $choice in
      8) f_multitabs;;
      9) f_errorOSX; f_nikto;;
      10) f_errorOSX; f_ssl;;
-     11) f_runlocally && $discover/crack-wifi.sh;;
-     12) f_parse;;
-	13) f_payload;;
-	14) f_listener;;
-     15) f_errorOSX; $discover/update.sh && exit;;
-     16) clear && exit;;
+     11) f_errorOSX; f_skipfish;;
+     12) f_runlocally && $discover/crack-wifi.sh;;
+     13) f_parse;;
+	14) f_payload;;
+	15) f_listener;;
+     16) f_errorOSX; $discover/update.sh && exit;;
+     17) clear && exit;;
      97) f_errorOSX; f_parse_recon_ng;;
      98) f_errorOSX; f_recon-ng;;
      99) f_errorOSX; f_updates;;
