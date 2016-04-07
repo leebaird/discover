@@ -3232,8 +3232,8 @@ f_skipfish()
     DEFAULT_OUTPUT_PATH=$home/data/
 
     echo
-    echo Welcome at Skipfish launcher.
-    echo What are we going to torture today, sir?
+    echo "Welcome at Skipfish launcher."
+    echo "What are we going to torture today, sir?"
     echo
     read -p "[?] Enter website URL: "
     URL=$REPLY
@@ -3243,13 +3243,6 @@ f_skipfish()
     echo -e "[+] Umh, what a cruelty my sir. Would you like to pass some additional orders to Skipfish?\n"
     read -p "Additional args: "
     REST=$REPLY
-
-    convertsecs() {
-        ((h=${1}/3600))
-        ((m=(${1}%3600)/60))
-        ((s=${1}%60))
-        printf "%02d:%02d:%02d\n" $h $m $s
-    }
 
     urlparse() 
     {
