@@ -25,17 +25,18 @@ SCANNING
 7.  IP or domain
 
 WEB
-8.  Open multiple tabs in Iceweasel
+8.  Open multiple tabs in Firefox
 9.  Nikto
 10. SSL
+11. Skipfish
 
 MISC
-11. Crack WiFi
-12. Parse XML
-13. Generate a malicious payload
-14. Start a Metasploit listener
-15. Update
-16. Exit
+12. Crack WiFi
+13. Parse XML
+14. Generate a malicious payload
+15. Start a Metasploit listener
+16. Update
+17. Exit
 ```
 ## RECON
 ### Domain
@@ -101,9 +102,9 @@ Type of scan:
 * Matching Metasploit auxiliary modules are also leveraged.
 
 ## WEB
-### Open multiple tabs in Iceweasel
+### Open multiple tabs in Firefox
 ```
-Open multiple tabs in Iceweasel with:
+Open multiple tabs in Firefox with:
 
 1.  List
 2.  Directories from a domain's robot.txt.
