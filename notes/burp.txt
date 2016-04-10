@@ -224,6 +224,23 @@ XML Injection > Search in the Response body for http://www.w3.org/2001/XMLSchema
 XSS > RC in the Request body > Request in browser > In current browser session
 ------------------------------------------------------------------------------------------------------
 
+# Mobile app testing
+
+Proxy > Options > Proxy Listeners > Add > Binding:
+     Bind to port: 8081
+     Bind to address: All interfaces
+     OK > Yes
+
+iPhone: Settings > Wi-Fi > select your network > scroll to the bottom
+HTTP PROXY > Manual
+     Server: your computer's IP address.
+     Port: 8081
+
+Safari > http://burp
+     Select CA Certificate
+     It will prompt you to install, then ask for your password
+------------------------------------------------------------------------------------------------------
+
 # Reporting
 
 Select all remaining findings > RC > Report selected issues > Next 4x > enter file location > Next > Close
