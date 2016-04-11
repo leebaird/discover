@@ -3318,7 +3318,7 @@ f_skipfish()
 
         echo "Done."
     else
-        echo "Coward."
+        echo "Quitting."
     fi
 
     echo
