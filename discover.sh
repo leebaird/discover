@@ -488,7 +488,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      ##############################################################
 
-     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|fuckthepolice|salessalesandmarketing|www|yousuck)' > tmp
+     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|edward_snoden|fake|fuckthepolice|salessalesandmarketing|www|xxxxx|yousuck)' > tmp
      # Remove trailing whitespace from each line
      sed 's/[ \t]*$//' tmp > tmp2
      # Remove lines that start with a number
