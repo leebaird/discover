@@ -140,15 +140,21 @@ Save the state: <appname>-BFdir
 
 - Brute force logins
 Try to login
-Proxy > History > ind the POST request > RC > Send to Intruder
+Proxy > History > find the POST request > RC > Send to Intruder
+
 Intruder > Payloads > Attack type:
-     Sniper
-     Battering ram
-     Pitchfork
-          You have a know list of usernames and a corresponding list of thier passwords. 
+     Sniper:
+          Uses a single set of payloads.
+     Battering ram:
+          Uses a single set of payloads.
+     Pitchfork:
+          Uses multiple payload sets.
+          You have a know list of usernames and a related list of passwords. 
           This will try the first username with the first password, then the second username with the second password, and so on.
           Useful when checking for old accounts that should be deleted.
-     Cluster bomb
+     Cluster bomb:
+          Uses multiple payload sets.
+          You have a know list of usernames and a non-related list of passwords. 
 
 Cluster bomb
      Clear $
