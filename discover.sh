@@ -422,7 +422,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           fi
      done < tmp13 > whois-domain
 
-     echo "     IP 		  (25/$total)"
+     echo "     IP 		     (25/$total)"
      y=$(dig $domain | grep "$domain" | grep -v ';' | awk '{print $5}')
      whois -H $y > tmp
 
