@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from colorama import Fore
+import platform
 
 
 class Discover(object):
@@ -13,11 +13,15 @@ class Discover(object):
         print('By Lee Baird')
 
     @staticmethod
-    def os_check():
+    def linux_check():
         """Checking to make sure the OS is supported"""
         with open('/etc/os-release', 'r') as OS:
             data = OS.read()
             if 'kali' in data:
-                print()
+                return True
             else:
-                print(Fore.RED + '[!]OS not supported')
+                return False
+
+    @staticmethod
+    def mac_check():
+        pass
