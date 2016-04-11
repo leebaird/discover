@@ -3232,15 +3232,12 @@ f_skipfish()
     DEFAULT_OUTPUT_PATH=$home/data/
 
     echo
-    echo "Welcome at Skipfish launcher."
-    echo "What are we going to torture today, sir?"
+    echo "Welcome to Skipfish launcher."
     echo
-    read -p "[?] Enter website URL: "
+    read -p "[?] Enter URL: "
     URL=$REPLY
-    echo "[+] Splendid."
-    read -p "How intensively would like to make it suffer? [1-3]: "
+    read -p "Set scan intensity [1-3]: "
     INTENSITY=$REPLY
-    echo -e "[+] Umh, what a cruelty my sir. Would you like to pass some additional orders to Skipfish?\n"
     read -p "Additional args: "
     REST=$REPLY
 
