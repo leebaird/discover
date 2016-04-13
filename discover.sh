@@ -143,7 +143,7 @@ mkdir $save_dir
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv dnsdumpster emails* names networks records squatting whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+mv emails* names networks records squatting whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
 
 echo "Saving complete"
 exit
@@ -199,7 +199,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=32
+     total=33
 
      echo
      echo $medium
@@ -459,7 +459,7 @@ case $choice in
      wget -q $dumpsterxls -O tmp.xlsx
 
      ssconvert -E Gnumeric_Excel:xlsx -T Gnumeric_stf:stf_csv tmp.xlsx tmp.csv 2>/dev/null
-     cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > dnsdumpster
+     cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > sub-dnsdumpster
 
      echo "dnssy.com                 (27/$total)"
      wget -q --post-data 'q=$domain&step=1&r=1448215046#3cc723b32910c180bc45aba6c21be6edf4125745' http://www.dnssy.com/report.php -O tmp
@@ -481,9 +481,44 @@ case $choice in
      echo "email-format.com          (28/$total)"
      curl --silent http://www.email-format.com/d/$domain/ | grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* > zemail-format
 
+     echo "ewhois.com                (29/$total)"
+     wget -q http://www.ewhois.com/$domain/ -O tmp
+     cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > sub3
+
+     echo "intodns.com               (30/$total)"
+     wget -q http://www.intodns.com/$domain -O tmp
+     cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
+     cat tmp2 >> $home/data/$domain/pages/config.htm
+
+     echo "myipneighbors.net         (31/$total)"
+     wget -q http://www.myipneighbors.net/?s=$domain -O tmp
+     grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
+
+     echo "netcraft.com              (32/$total)"
+     wget -q http://toolbar.netcraft.com/site_report?url=http://$domain -O tmp
+
+     # Remove lines from FOO to the second BAR
+     awk '/DOCTYPE/{f=1} (!f || f>2){print} (f && /\/form/){f++}' tmp > tmp2
+
+     egrep -v '(Background|Hosting country|the-world-factbook)' tmp2 | sed 's/Refresh//g' > tmp3
+
+     # Find lines that contain FOO, and delete to the end of file
+     sed '/security_table/,${D}' tmp3 > tmp4
+
+     # Compress blank lines
+     sed /^$/d tmp4 >> $home/data/$domain/pages/netcraft.htm
+     echo >> $home/data/$domain/pages/netcraft.htm
+     echo '</body>' >> $home/data/$domain/pages/netcraft.htm
+     echo >> $home/data/$domain/pages/netcraft.htm
+     echo '</html>' >> $home/data/$domain/pages/netcraft.htm
+
+     echo "urlvoid.com               (33/$total)"
+     wget -q http://www.urlvoid.com/scan/$domain -O tmp
+     sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > $home/data/$domain/data/black-listed.htm
+
      ##############################################################
 
-     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|edward_snowden|fake|fuckthepolice|lastname_firstname|regulations.gov|salessalesandmarketing|www|xxxxx|yousuck|zxcvbcvxvxcccb)' > tmp
+     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|edward_snowden|fake|fuckthepolice|lastname_firstname|regulations.gov|salessalesandmarketing|toastmasters|www|xxxxx|yousuck|zxcvbcvxvxcccb)' > tmp
      # Remove trailing whitespace from each line
      sed 's/[ \t]*$//' tmp > tmp2
      # Remove lines that start with a number
@@ -499,26 +534,9 @@ case $choice in
 
      ##############################################################
 
-     echo "ewhois.com                (29/$total)"
-     wget -q http://www.ewhois.com/$domain/ -O tmp
-     cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > sub3
-
-     echo "intodns.com               (30/$total)"
-     wget -q http://www.intodns.com/$domain -O tmp
-     cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
-     cat tmp2 >> $home/data/$domain/pages/config.htm
-
-     echo "myipneighbors.net         (31/$total)"
-     wget -q http://www.myipneighbors.net/?s=$domain -O tmp
-     grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
-
      cat sub* | grep -v "$domain\." | sed 's/www\.//g' | column -t | sort -u > tmp
      # Remove lines that contain a single word
      sed '/[[:blank:]]/!d' tmp > subdomains
-
-     echo "urlvoid.com               (32/$total)"
-     wget -q http://www.urlvoid.com/scan/$domain -O tmp
-     sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > $home/data/$domain/data/black-listed.htm
 
      awk '{print $2}' subdomains > tmp
      grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | $sip > hosts
@@ -593,7 +611,7 @@ case $choice in
           echo $long >> tmp
           cat subdomains >> tmp
           echo >> tmp
-          cat dnsdumpster subdomains | column -t | sort -u >> $home/data/$domain/data/subdomains.htm
+          cat subdomains >> $home/data/$domain/data/subdomains.htm
      fi
 
      if [ -e xls ]; then
@@ -669,10 +687,9 @@ case $choice in
 
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-     rm debug* dnsdumpster emails hosts names networks squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm debug* emails hosts names networks squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
-     # Screenshots for Netcraft and Robtex
-     cutycapt --url="toolbar.netcraft.com/site_report?url=http://www.$domain" --out=$home/data/$domain/images/netcraft.png 2>/dev/null
+     # Screenshot for Robtex
      wget -q https://www.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/images/robtex.png
 
      echo
@@ -689,9 +706,11 @@ case $choice in
 
      f_runlocally
 
+     companyurl=$(printf "%s\n" "$company" | sed 's/ /%20/g')
+
      $web &
-     sleep 3
-     $web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$company%2Blogo &
+     sleep 4
+     $web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
      sleep 2
      $web https://www.google.com/#q=filetype%3Axls+OR+filetype%3Axlsx+site%3A$domain &
      sleep 2
@@ -707,7 +726,6 @@ case $choice in
      sleep 2
      $web https://www.shodan.io/search?query=$domain &
      sleep 2
-     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g' )
      $web pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$companyurl\&sa.x=0\&sa.y=0 &
      sleep 2
      $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
