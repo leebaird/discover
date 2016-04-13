@@ -143,7 +143,7 @@ mkdir $save_dir
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv dnsdumpster-hosts emails* names networks records squatting whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+mv dnsdumpster emails* names networks records squatting whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
 
 echo "Saving complete"
 exit
@@ -335,12 +335,7 @@ case $choice in
      # Realign Columns
      sed -e 's/..,/   /g' tmp2 > tmp3
      # Convert Caps
-     sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g;
-s/CHILE/Chile/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g;
-s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; s/INDIA/India/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; s/JAPAN/Japan/g;
-s/KOREA REPUBLIC OF/Republic of Korea/g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; s/RUSSIAN FEDERATION/Russia            /g;
-s/SAUDI ARABIA/Saudi Arabia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN REPUBLIC OF China (ROC)/Taiwan                        /g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g;
-s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands          /g; s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g' tmp3 > squatting
+     sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; s/INDIA/India/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; s/RUSSIAN FEDERATION/Russia            /g; s/SAUDI ARABIA/Saudi Arabia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN REPUBLIC OF China (ROC)/Taiwan                        /g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands          /g; s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g' tmp3 > squatting
 
      ##############################################################
 
@@ -422,7 +417,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           fi
      done < tmp13 > whois-domain
 
-     echo "     IP 		     (25/$total)"
+     echo "     IP 		  (25/$total)"
      y=$(dig $domain | grep "$domain" | grep -v ';' | awk '{print $5}')
      whois -H $y > tmp
 
@@ -464,7 +459,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      wget -q $dumpsterxls -O tmp.xlsx
 
      ssconvert -E Gnumeric_Excel:xlsx -T Gnumeric_stf:stf_csv tmp.xlsx tmp.csv 2>/dev/null
-     cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > dnsdumpster-hosts
+     cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > dnsdumpster
 
      echo "dnssy.com                 (27/$total)"
      wget -q --post-data 'q=$domain&step=1&r=1448215046#3cc723b32910c180bc45aba6c21be6edf4125745' http://www.dnssy.com/report.php -O tmp
@@ -488,7 +483,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      ##############################################################
 
-     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|edward_snoden|fake|fuckthepolice|salessalesandmarketing|www|xxxxx|yousuck)' > tmp
+     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|edward_snowden|fake|fuckthepolice|lastname_firstname|regulations.gov|salessalesandmarketing|www|xxxxx|yousuck|zxcvbcvxvxcccb)' > tmp
      # Remove trailing whitespace from each line
      sed 's/[ \t]*$//' tmp > tmp2
      # Remove lines that start with a number
@@ -598,8 +593,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           echo $long >> tmp
           cat subdomains >> tmp
           echo >> tmp
-          cat subdomains >> $home/data/$domain/data/subdomains.htm
-          cat dnsdumpster-hosts >> $home/data/$domain/data/subdomains.htm
+          cat dnsdumpster subdomains | column -t | sort -u >> $home/data/$domain/data/subdomains.htm
      fi
 
      if [ -e xls ]; then
@@ -675,7 +669,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-     rm debug* dnsdumpster-hosts emails hosts names networks squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm debug* dnsdumpster emails hosts names networks squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
 
      # Screenshots for Netcraft and Robtex
      cutycapt --url="toolbar.netcraft.com/site_report?url=http://www.$domain" --out=$home/data/$domain/images/netcraft.png 2>/dev/null
@@ -697,8 +691,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      $web &
      sleep 3
-     $web toolbar.netcraft.com/site_report?url=http://www.$domain &
-     sleep 3
+     $web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$company%2Blogo &
+     sleep 2
      $web https://www.google.com/#q=filetype%3Axls+OR+filetype%3Axlsx+site%3A$domain &
      sleep 2
      $web https://www.google.com/#q=filetype%3Appt+OR+filetype%3Apptx+site%3A$domain &
@@ -3214,123 +3208,6 @@ exit
 
 ##############################################################################################################
 
-f_skipfish() 
-{
-    f_runlocally
-    clear
-    f_banner
-
-    #
-    # This scripts is a Skipfish-wrapper that eases preliminary setup and 
-    # quick&dirty sweep on selected web application.
-    #
-    # Integrated from Mariusz B. (mgeeky at github) private repos.
-    #
-
-    SKIPFISH_DICTS_PATH=/usr/share/skipfish/dictionaries
-    SKIPFISH_SIGS_PATH=/usr/share/skipfish/signatures
-    DEFAULT_OUTPUT_PATH=$home/data/
-
-    echo
-    echo "Welcome at Skipfish launcher."
-    echo "What are we going to torture today, sir?"
-    echo
-    read -p "[?] Enter website URL: "
-    URL=$REPLY
-    echo "[+] Splendid."
-    read -p "How intensively would like to make it suffer? [1-3]: "
-    INTENSITY=$REPLY
-    echo -e "[+] Umh, what a cruelty my sir. Would you like to pass some additional orders to Skipfish?\n"
-    read -p "Additional args: "
-    REST=$REPLY
-
-    urlparse() 
-    {
-        REPL="\2"
-        if [[ -n "$2" ]]; then
-            REPL=$2
-        fi
-
-        echo $1 | perl -pe "s/^(?:([^\:]*)\:\/\/)?(?:(?:[^\:\@]*)(?:\:(?:[^\@]*))?\@)?((?:(?:[^\/\:]*)\.(?:[^\.\/\:]*\.[^\.\/\:]*))?(?:[^\.\/\:]*)(?:\.(?:[^\/\.\:]*))?(?:\:(?:[0-9]*))?)(\/[^\?#]*(?=.*?\/)\/)?(?:[^\?#]*)?(?:\?(?:[^#]*))?(?:#(?:.*))?$/${REPL}/g"
-        
-    }
-
-    HOST=$(urlparse $URL)
-    TOP_SCOPE=$(urlparse $URL "\1:\/\/\2")/
-
-    if [[ $TOP_SCOPE != http* ]]; then
-        TOP_SCOPE=http$TOP_SCOPE
-    fi
-
-    OUTPUT_DIR=${DEFAULT_OUTPUT_PATH}${HOST/:/_}
-
-    case "$INTENSITY" in
-        2)  
-            SCAN_MODE="-MQ -S ${SKIPFISH_DICTS_PATH}/medium.wl -W ${DEFAULT_OUTPUT_PATH}learned_dict.wl -Y"
-            ;;
-
-        3)  
-            SCAN_MODE="-M -S ${SKIPFISH_DICTS_PATH}/complete.wl -W ${DEFAULT_OUTPUT_PATH}learned_dict.wl"
-            ;;
-
-        *)  SCAN_MODE="-Q -e -p 75 -W- -L"
-            ;;
-    esac
-
-    echo
-    if [[ -d $OUTPUT_DIR ]]; then
-        echo
-        echo "Currently existing directory: '$OUTPUT_DIR'"
-        read -p "Output directory already exists. Would you like to Rename it or Delete or quit? [R/d/q]: " -n 1 -r
-        if [[ $REPLY =~ ^[Rr]$ ]]; then
-            echo
-            read -p "Enter new output directory name: "
-            #mv $OUTPUT_DIR ${DEFAULT_OUTPUT_PATH}/$REPLY
-            OUTPUT_DIR=${DEFAULT_OUTPUT_PATH}/$REPLY
-        elif [[ $REPLY =~ ^[Dd]$ ]]; then
-            rm -rf $OUTPUT_DIR
-        else
-            echo
-            exit 1
-        fi
-    fi
-
-    echo
-    echo "Scope to be scanned: ${TOP_SCOPE}"
-    echo "Output directory: ${OUTPUT_DIR}"
-    echo "Intensity: $INTENSITY"
-    echo "Rest of params: $REST"
-    echo -e "COMMAND:\n"
-    echo /usr/bin/skipfish -EU -b f -o $OUTPUT_DIR $SCAN_MODE $REST -I ${TOP_SCOPE} $TOP_SCOPE
-    echo
-    read -p "Are the above options correct? [Y/n]: " -n 1 -r
-
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo
-        echo "Engaging scanner..."
-        #mkdir -p $OUTPUT_DIR
-
-        if [[ $INTENSITY -gt 1 ]]; then
-            touch $DEFAULT_OUTPUT_PATH/learned_dict.wl
-        fi
-
-        xdotool key ctrl+shift+t
-        xdotool type "/usr/bin/skipfish -MEU -b f -o $OUTPUT_DIR $SCAN_MODE $REST -I ${TOP_SCOPE} $TOP_SCOPE"
-        sleep 1
-        xdotool key Return
-
-        echo "Done."
-    else
-        echo "Coward."
-    fi
-
-    echo
-    exit
-}
-
-
-##############################################################################################################
-
 f_parse(){
 clear
 f_banner
@@ -4015,15 +3892,14 @@ echo -e "\x1B[1;34mWEB\x1B[0m"
 echo "8.  Open multiple tabs in $browser"
 echo "9.  Nikto"
 echo "10. SSL"
-echo "11. Skipfish"
 echo
 echo -e "\x1B[1;34mMISC\x1B[0m"
-echo "12. Crack WiFi"
-echo "13. Parse XML"
-echo "14. Generate a malicious payload"
-echo "15. Start a Metasploit listener"
-echo "16. Update"
-echo "17. Exit"
+echo "11. Crack WiFi"
+echo "12. Parse XML"
+echo "13. Generate a malicious payload"
+echo "14. Start a Metasploit listener"
+echo "15. Update"
+echo "16. Exit"
 echo
 echo -n "Choice: "
 read choice
@@ -4039,13 +3915,12 @@ case $choice in
      8) f_multitabs;;
      9) f_errorOSX; f_nikto;;
      10) f_errorOSX; f_ssl;;
-     11) f_errorOSX; f_skipfish;;
-     12) f_runlocally && $discover/crack-wifi.sh;;
-     13) f_parse;;
-	14) f_payload;;
-	15) f_listener;;
-     16) f_errorOSX; $discover/update.sh && exit;;
-     17) clear && exit;;
+     11) f_runlocally && $discover/crack-wifi.sh;;
+     12) f_parse;;
+	13) f_payload;;
+	14) f_listener;;
+     15) f_errorOSX; $discover/update.sh && exit;;
+     16) clear && exit;;
      97) f_errorOSX; f_parse_recon_ng;;
      98) f_errorOSX; f_recon-ng;;
      99) f_errorOSX; f_updates;;
