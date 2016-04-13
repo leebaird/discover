@@ -91,12 +91,12 @@ a:focus {
 	position: relative; 
 	background-color: #ededed;
 	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f2f2f2), to(#ededed));
-	background-image: -webkit-linear-gradient(top, #f2f2f2, #ededed); 
-	background-image:    -moz-linear-gradient(top, #f2f2f2, #ededed);
-	background-image:     -ms-linear-gradient(top, #f2f2f2, #ededed);
-	background-image:      -o-linear-gradient(top, #f2f2f2, #ededed);
+	background-image: -webkit-linear-gradient(top, #428bca, #ededed); 
+	background-image:    -moz-linear-gradient(top, #428bca, #ededed);
+	background-image:     -ms-linear-gradient(top, #428bca, #ededed);
+	background-image:      -o-linear-gradient(top, #428bca, #ededed);
 	border-top: 1px solid white;
-	border-bottom: 2px solid #d4d4d4;
+	border-bottom: 2px solid #428bca;
 }
 
 .navbar {
@@ -129,7 +129,7 @@ ul.navbar {
 	text-decoration: none;  /* Removes the default hyperlink styling. */
 	color: #3C3B3B;      /* Text color is white */
 	display: block;
-	text-shadow: 1px 1px 1px #C6C3C3;
+	text-shadow: 1px 1px 1px #428bca;
 }
 
 .navbar li:hover, a:hover,
