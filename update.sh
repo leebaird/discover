@@ -103,14 +103,8 @@ if [ ! -f /usr/bin/xml_grep ]; then
      echo
 fi
 
-if [ ! -f /usr/bin/skipfish ]; then
-     echo -e "\e[1;33mInstalling skipfish\e[0m"
-     apt-get install -y skipfish
-     echo
-fi
-
-
 echo -e "\e[1;34mUpdating locate database.\e[0m" ; updatedb
 
 echo
 echo
+
