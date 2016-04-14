@@ -710,6 +710,8 @@ case $choice in
 
      $web &
      sleep 4
+     $web https://connect.data.com/login &
+     sleep 2
      $web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
      sleep 2
      $web https://www.google.com/#q=filetype%3Axls+OR+filetype%3Axlsx+site%3A$domain &
@@ -722,11 +724,11 @@ case $choice in
      sleep 2
      $web https://www.google.com/#q=filetype%3Atxt+site%3A$domain &
      sleep 2
-     $web https://connect.data.com/login &
-     sleep 2
-     $web https://www.shodan.io/search?query=$domain &
+     $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
      sleep 2
      $web pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$companyurl\&sa.x=0\&sa.y=0 &
+     sleep 2
+     $web https://www.shodan.io/search?query=$domain &
      sleep 2
      $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
      sleep 2
