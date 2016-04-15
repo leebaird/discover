@@ -131,6 +131,24 @@ curl -X TRACE <target>
 curl -X TRACE -H "Cookie: name=value" <target>
 ------------------------------------------------------------------------------------------------------
 
+# URL Encoding
+
+%20       space
+%2E   .   period
+%26   &   ampersand
+%27   '   single quote
+%22   "   double quote
+%3C   <   less than
+%3E   >   greater than
+%28   (   open parenthesis
+%29   )   close parenthesis
+%3B   ;   semicolon
+%2F   /   forward slash
+
+Example: <script>alert(document.cookie);</script>
+Encoded: %3Cscript%3Ealert%28document%2Ecookie%29%3B%3C%2Fscript%3E
+------------------------------------------------------------------------------------------------------
+
 # WebDAV extensions are enabled
 
 msfconsole
