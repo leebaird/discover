@@ -7,7 +7,7 @@ GET  Passes all query material in the URL query string.
 POST Passes all requested data in the HTTP request body.
 ------------------------------------------------------------------------------------------------------
 
-# Common Response Status Codes
+# HTTP Status Codes
 
 1xx  Informational
 100  Continue
