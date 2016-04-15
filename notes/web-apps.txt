@@ -20,6 +20,7 @@ POST Passes all requested data in the HTTP request body.
 302  Found
 
 4xx  Client Error
+400  Bad Request
 401  Unauthorized
 403  Forbidden
 404  Not Found
