@@ -143,7 +143,7 @@ mkdir $save_dir
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv emails* names networks records squatting whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+mv curl emails* names networks records squatting tracert whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
 
 echo "Saving complete"
 exit
@@ -199,7 +199,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=33
+     total=35
 
      echo
      echo $medium
@@ -353,7 +353,7 @@ case $choice in
      # Remove lines that contain a single word
      sed '/[[:blank:]]/!d' tmp6 > tmp7
      # Clean up
-     egrep -v '(abuse|academy|account|achievement|active|administrator|administrative|advanced|adventure|advertising|america|american|analysis|analyst|antivirus|apple seems|application|applications|architect|article|asian|assistant|associate|association|attorney|auditor|australia|automation|automotive|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|business|buyer|buying|california|cannot|capital|career|carrying|cashing|center|certified|challenger|championship|change|chapter|charge|china|chinese|clearance|cloud|code|college|columbia|communications|community|company pages|competition|competitive|compliance|computer|concept|conference|config|connections|connect|construction|consultant|contractor|contributor|controllang|cooperation|coordinator|corporation|creative|critical|croatia|crm|dallas|day care|death toll|delta|department|description|designer|design|detection|developer|develop|development|devine|digital|diploma|director|disability|disaster|disclosure|dispute|division|document|dos poc|download|drivers|during|economy|ecovillage|editor|education|effect|electronic|else|emails|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|entry|environmental|error page|ethical|example|excellence|executive|expertzone|exploit|facebook|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|filmmaker|finance|financial|forensic|found|freelance|from|frontiers in tax|full|function|fuzzing|germany|get control|global|google|government|graphic|greater|group|guardian|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|house|how to|hurricane|icmp|idc|in the news|index|informatics|information|innovation|installation|insurers|integrated|international|internet|instructor|insurance|intelligence|interested|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|laptops|leadership|letter|licensing|lighting|limitless|liveedu|llp|local|looking|ltd|lsu|luscous|malware|managed|management|manager|managing|manufacturing|marketplace|mastering|maturity|md|media|medical|medicine|member|meta tags|methane|metro|microsoft|middle east|mission|mitigation|money|monitor|more coming|mortgage|museums|negative|network|network|new user|newspaper|new york|next page|nitrogen|nyc|obtain|occupied|offers|office|online|operations|organizational|outbreak|owners|page|partner|pathology|peace|people|perceptions|philippines|photo|picture|places|planning|portfolio|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|program|publichealth|published|pyramid|questions|recruiter|redeem|redirect|region|register|registry|regulation|rehab|remote|report|republic|research|resolving|revised|rising|rural health|sales|satellite|save the date|school|scheduling|science|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|social|software|solutions|source|special|station home|statistics|strategy|student|successful|superheroines|supervisor|support|switch|system|systems|talent|targeted|tax|tcp|technical|technology|tester|textoverflow|theater|time in|tit for tat|title|toolbook|tools|toxic|traditions|trafficking|transfer|treasury|trojan|twitter|training|ts|tylenol|types of scams|unclaimed|underground|university|united states|untitled|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|wanted|web search|web site|website|welcome|west virginia|when the|whiskey|window|worker|world|www|xbox)' tmp7 > tmp8
+     egrep -v '(abuse|academy|account|achievement|active|administrator|administrative|advanced|adventure|advertising|america|american|analysis|analyst|antivirus|apple seems|application|applications|architect|article|asian|assistant|associate|association|attorney|auditor|australia|automation|automotive|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|business|buyer|buying|california|cannot|capital|career|carrying|cashing|center|certified|challenger|championship|change|chapter|charge|china|chinese|clearance|cloud|code|college|columbia|communications|community|company pages|competition|competitive|compliance|computer|concept|conference|config|connections|connect|construction|consultant|contractor|contributor|controllang|cooperation|coordinator|corporation|creative|critical|croatia|crm|dallas|day care|death toll|delta|department|description|designer|design|detection|developer|develop|development|devine|digital|diploma|director|disability|disaster|disclosure|dispute|division|document|dos poc|download|drivers|during|economy|ecovillage|editor|education|effect|electronic|else|emails|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|entry|environmental|error page|ethical|example|excellence|executive|expertzone|exploit|facebook|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|filmmaker|finance|financial|forensic|found|freelance|from|frontiers in tax|full|function|fuzzing|germany|get control|global|google|government|graphic|greater|group|guardian|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|hostmaster|house|how to|hurricane|icmp|idc|in the news|index|informatics|information|innovation|installation|insurers|integrated|international|internet|instructor|insurance|intelligence|interested|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|laptops|leadership|letter|licensing|lighting|limitless|liveedu|llp|local|looking|ltd|lsu|luscous|malware|managed|management|manager|managing|manufacturing|marketplace|mastering|maturity|md|media|medical|medicine|member|meta tags|methane|metro|microsoft|middle east|mission|mitigation|mn|money|monitor|more coming|mortgage|museums|negative|network|network|new user|newspaper|new york|next page|nitrogen|nyc|obtain|occupied|offers|office|online|operations|organizational|outbreak|owners|page|partner|pathology|peace|people|perceptions|philippines|photo|picture|places|planning|portfolio|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|program|publichealth|published|pyramid|questions|recruiter|redeem|redirect|region|register|registry|regulation|rehab|remote|report|republic|research|resolving|revised|rising|rural health|sales|satellite|save the date|school|scheduling|science|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|social|software|solutions|source|special|station home|statistics|strategy|student|successful|superheroines|supervisor|support|switch|system|systems|talent|targeted|tax|tcp|technical|technology|tester|textoverflow|theater|time in|tit for tat|title|toolbook|tools|toxic|traditions|trafficking|transfer|treasury|trojan|twitter|training|ts|tylenol|types of scams|unclaimed|underground|university|united states|untitled|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|wanted|web search|web site|website|welcome|west virginia|when the|whiskey|window|worker|world|www|xbox)' tmp7 > tmp8
      # Clean up
      sed 's/iii/III/g' tmp8 | sed 's/ii/II/g' > tmp9
      # Capitalize the first letter of every word
@@ -419,33 +419,36 @@ case $choice in
 
      echo "     IP 		  (25/$total)"
      y=$(dig $domain | grep "$domain" | grep -v ';' | awk '{print $5}')
-     whois -H $y > tmp
+     if ! [ "$y" = "" ]; then
+          whois -H $y > tmp
+          # Remove leading whitespace
+          sed 's/^[ \t]*//' tmp > tmp2
+          # Remove trailing whitespace from each line
+          sed 's/[ \t]*$//' tmp2 > tmp3
+          # Clean up
+          egrep -v '(\#|\%|\*|All reports|Comment|dynamic hosting|For fastest|For more|Found a referral|http|OriginAS:$|Parent:$|point in|RegDate:$|remarks:|The activity|the correct|this kind of object|Without these)' tmp3 > tmp4
+          # Remove leading whitespace from file
+          awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp4 > tmp5
+          # Remove blank lines from end of file
+          awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp5 > tmp6
+          # Compress blank lines
+          cat -s tmp6 > tmp7
+          # Clean up
+          sed 's/+1-//g' tmp7 > tmp8
+          while IFS=$': \t' read -r first rest; do
+               if [[ $first$rest ]]; then
+                    printf '%-20s %s\n' "$first:" "$rest"
+               else
+                    echo
+               fi
+          done < tmp8 > whois-ip
+          echo
 
-     # Remove leading whitespace
-     sed 's/^[ \t]*//' tmp > tmp2
-     # Remove trailing whitespace from each line
-     sed 's/[ \t]*$//' tmp2 > tmp3
-     # Clean up
-     egrep -v '(\#|\%|\*|All reports|Comment|dynamic hosting|For fastest|For more|Found a referral|http|OriginAS:$|Parent:$|point in|RegDate:$|remarks:|The activity|the correct|this kind of object|Without these)' tmp3 > tmp4
-     # Remove leading whitespace from file
-     awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp4 > tmp5
-     # Remove blank lines from end of file
-     awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp5 > tmp6
-     # Compress blank lines
-     cat -s tmp6 > tmp7
-     # Clean up
-     sed 's/+1-//g' tmp7 > tmp8
-     while IFS=$': \t' read -r first rest; do
-          if [[ $first$rest ]]; then
-               printf '%-20s %s\n' "$first:" "$rest"
-          else
-               echo
-          fi
-     done < tmp8 > whois-ip
-     echo
-
-     # Remove all empty files
-     find -type f -empty -exec rm {} +
+          # Remove all empty files
+          find -type f -empty -exec rm {} +
+     else
+          echo > whois-ip
+     fi
 
      echo "dnsdumpster.com           (26/$total)"
      wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/images/dnsdumpster.png
@@ -478,23 +481,74 @@ case $choice in
      s/Your nameservers/Nameservers/g; s/Your NS records at your nameservers are://g; s/Your NS records at your parent nameserver are://g;
      s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > $home/data/$domain/data/config.htm
 
-     echo "email-format.com          (28/$total)"
+     echo "dnswatch.info             (28/$total)"
+     echo '*' > tmp
+     echo '%' >> tmp
+
+     # A record
+     wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=A\&submit=Resolve -O tmp2
+     grep 'A record found' tmp2 | sed 's/">/ /g' | sed 's/<\// /g' | awk '{print $6","$1","" "}' >> tmp
+
+     # NS records
+     wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=NS\&submit=Resolve -O tmp2
+     grep 'NS record found' tmp2 | sed 's/\.</>/g' | cut -d '>' -f2 > tmp3
+     while read i; do wget -q tracert.com/resolver?arg=$i -O tracert; grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""NS"","host}' host="$i" >> tmp; done < tmp3
+
+     # MX Records
+     wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=MX\&submit=Resolve -O tmp2
+     grep 'MX record found' tmp2 | sed 's/\.</ /g' | cut -d ' ' -f6 > tmp3
+     while read i; do
+          wget -q tracert.com/resolver?arg=$i -O tracert
+          mult=$(grep 'Resolution' tracert | sed -e 's/<[^>]*>//g' | sed 's/^ *//g' | cut -d ' ' -f9)
+          if [ "$mult" = "addresses:" ]; then
+               sed '1,/Resolution/d;/does not have/,$d' tracert | sed -e 's/<[^>]*>//g' | sed 's/^ *//g' | sed '/^$/d' > tmp4
+               while read a; do echo $a | awk '{print $a",""MX"","host}' host="$i" >> tmp; done < tmp4
+          else
+               grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""MX"","host}' host="$i" >> tmp
+          fi
+     done < tmp3
+
+#     # MX records
+#     wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=MX\&submit=Resolve -O tmp2
+#     grep 'MX record found' tmp2 | sed 's/\.</ /g' | cut -d ' ' -f6 > tmp3
+#     while read i; do wget -q tracert.com/resolver?arg=$i -O tracert; grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""MX"","host}' host="$i" >> tmp; done < tmp3
+
+     # SOA records
+     wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=SOA\&submit=Resolve -O tmp2
+     grep 'SOA record found' tmp2 | sed 's/>/ /g' | sed 's/\. / /g' | cut -d ' ' -f6 > tmp3
+     grep 'SOA record found' tmp2 | sed 's/>/ /g' | sed 's/\. / /g' | cut -d ' ' -f7 >> tmp3
+     while read i; do wget -q tracert.com/resolver?arg=$i -O tracert; grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""SOA"","host}' host="$i" >> tmp; done < tmp3
+
+     # TXT records
+     wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=TXT\&submit=Resolve -O tmp2
+     grep 'TXT record found' tmp2 | sed 's/>&quot;/%/g' | sed 's/&quot;</%/g' | sed 's/TXT/%TXT%/g' | awk -F'%' '{print " "","$2","$4}' >> tmp
+
+     # Formatting & clean-up
+     column -s ',' -t tmp > tmp4
+
+     sed "s/*/ /g" tmp4 | sed 's/%/ /g' >> $home/data/$domain/data/records.htm
+     echo >> $home/data/$domain/data/records.htm
+     echo '</body>' >> $home/data/$domain/data/records.htm
+     echo >> $home/data/$domain/data/records.htm
+     echo '</html>' >> $home/data/$domain/data/records.htm
+
+     echo "email-format.com          (29/$total)"
      curl --silent http://www.email-format.com/d/$domain/ | grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* > zemail-format
 
-     echo "ewhois.com                (29/$total)"
+     echo "ewhois.com                (30/$total)"
      wget -q http://www.ewhois.com/$domain/ -O tmp
      cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > sub3
 
-     echo "intodns.com               (30/$total)"
+     echo "intodns.com               (31/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
      cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
      cat tmp2 >> $home/data/$domain/pages/config.htm
 
-     echo "myipneighbors.net         (31/$total)"
+     echo "myipneighbors.net         (32/$total)"
      wget -q http://www.myipneighbors.net/?s=$domain -O tmp
      grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
 
-     echo "netcraft.com              (32/$total)"
+     echo "netcraft.com              (33/$total)"
      wget -q http://toolbar.netcraft.com/site_report?url=http://$domain -O tmp
 
      # Remove lines from FOO to the second BAR
@@ -508,11 +562,43 @@ case $choice in
      # Compress blank lines
      sed /^$/d tmp4 >> $home/data/$domain/pages/netcraft.htm
      echo >> $home/data/$domain/pages/netcraft.htm
+     echo >> $home/data/$domain/pages/netcraft.htm
      echo '</body>' >> $home/data/$domain/pages/netcraft.htm
      echo >> $home/data/$domain/pages/netcraft.htm
      echo '</html>' >> $home/data/$domain/pages/netcraft.htm
 
-     echo "urlvoid.com               (33/$total)"
+     echo "ultratools.com            (34/$total)"
+     x=0
+
+     f_passive_axfr(){
+          sed -e 's/<[^>]*>//g' curl > tmp
+          grep -A4 "\<.*$domain\>" tmp | sed 's/--//g' | sed 's/\.$//g' | sed 's/^ *//g' | sed '/^$/d' > tmp2
+          cat tmp2 | paste - - - - - -d, | column -s ',' -t > tmp3
+          sort -u tmp3 >> $home/data/$domain/data/zonetransfer.htm
+          echo >> $home/data/$domain/data/zonetransfer.htm
+     }
+
+     while [ $x -le 10 ]; do
+          curl -k --silent https://www.ultratools.com/tools/zoneFileDumpResult?zoneName=$domain > curl
+          q=$(grep "$domain" curl | wc -l)
+          if [ $q -gt 1 ]; then
+               f_passive_axfr
+               break
+          else
+               x=$(( $x + 1 ))
+               sleep 2
+          fi
+     done
+
+     if [ $x -eq 11 ]; then
+          echo 'Zone transfer not allowed.' >> $home/data/$domain/data/zonetransfer.htm
+     fi
+
+     echo '</body>' >> $home/data/$domain/data/zonetransfer.htm
+     echo >> $home/data/$domain/data/zonetransfer.htm
+     echo '</html>' >> $home/data/$domain/data/zonetransfer.htm
+
+     echo "urlvoid.com               (35/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
      sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > $home/data/$domain/data/black-listed.htm
 
@@ -687,7 +773,7 @@ case $choice in
 
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-     rm debug* emails hosts names networks squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm curl debug* emails hosts names networks squatting sub* tmp* tracert whois* z* doc pdf ppt txt xls 2>/dev/null
 
      # Screenshot for Robtex
      wget -q https://www.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/images/robtex.png
@@ -3114,12 +3200,12 @@ case $choice in
 		 sleep 2
 		 f_main
 	 fi
-	 
+
      grep 'Disallow' robots.txt | awk '{print $2}' > tmp
 
 	 $web &
      sleep 2
-	 
+
      for i in $(cat tmp); do
           $web http://$domain$i &
           sleep 1
@@ -3951,4 +4037,3 @@ esac
 ##############################################################################################################
 
 while true; do f_main; done
-
