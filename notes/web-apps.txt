@@ -30,10 +30,11 @@ POST Passes all requested data in the HTTP request body.
 500  Internal Server Error
 ------------------------------------------------------------------------------------------------------
 
-# Cookies
+# Simple web server to share malicious code
 
-Secure - only send over encrypted channel
-HttpOnly - prevents JavaScript from accessing the cookie
+Change directory to where your scripts/web shells are located.
+cd /root/scripts/
+python -m SimpleHTTPServer 80
 ------------------------------------------------------------------------------------------------------
 
 # Apache version, eTag, HTTP Basic Authentication Enabled
@@ -58,6 +59,9 @@ https://targetIP/level/x/exec/-/show
 ------------------------------------------------------------------------------------------------------
 
 # Cookie Security Issues - missing HttpOnly or Secure attribute
+
+HttpOnly - prevents JavaScript from accessing the cookie
+Secure - only send over an encrypted channel
 
 Firefox
 Cookies > View Cookie Information
