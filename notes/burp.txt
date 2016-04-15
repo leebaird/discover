@@ -26,10 +26,6 @@ Install CO2, Error Message Checks, HeartBleed, J2EEScan, Site Map Fetcher, Param
 
 # Firefox proxy
 
-- Automated
-Install FoxyProxy plugin.
-
-- Maunal
 Preferences > Advanced > Network > Settings
 Manual proxy configuration
 HTTP Proxy: 127.0.0.1
@@ -231,8 +227,9 @@ https://portswigger.net/burp/help/suite_functions_csrfpoc.html
 
 # Manually Validate Findings
 
-XML Injection > Search in the Response body for http://www.w3.org/2001/XMLSchema. This is a false positive.
-XSS > RC in the Request body > Request in browser > In current browser session
+File path traversal: RC in the Request body > Send to Repeater > modify the request 
+XML Injection: Search in the Response body for http://www.w3.org/2001/XMLSchema. This is a false positive.
+XSS:  RC in the Request body > Request in browser > In current browser session
 ------------------------------------------------------------------------------------------------------
 
 # Mobile app testing
