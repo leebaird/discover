@@ -418,7 +418,8 @@ case $choice in
      done < tmp13 > whois-domain
 
      echo "     IP 		  (25/$total)"
-     y=$(dig $domain | grep "$domain" | grep -v ';' | awk '{print $5}')
+     wget -q tracert.com/resolver?arg=$domain -O tracert
+     y=$(grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6)
      if ! [ "$y" = "" ]; then
           whois -H $y > tmp
           # Remove leading whitespace
@@ -507,11 +508,6 @@ case $choice in
                grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""MX"","host}' host="$i" >> tmp
           fi
      done < tmp3
-
-#     # MX records
-#     wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=MX\&submit=Resolve -O tmp2
-#     grep 'MX record found' tmp2 | sed 's/\.</ /g' | cut -d ' ' -f6 > tmp3
-#     while read i; do wget -q tracert.com/resolver?arg=$i -O tracert; grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""MX"","host}' host="$i" >> tmp; done < tmp3
 
      # SOA records
      wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=SOA\&submit=Resolve -O tmp2
