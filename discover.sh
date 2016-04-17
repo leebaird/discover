@@ -419,7 +419,12 @@ case $choice in
 
      echo "     IP 		  (25/$total)"
      wget -q tracert.com/resolver?arg=$domain -O tracert
-     y=$(grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6)
+     mult=$(grep 'Resolution' tracert | sed -e 's/<[^>]*>//g' | sed 's/^ *//g' | cut -d ' ' -f9)
+     if [ "$mult" = "addresses:" ]; then
+          y=$(grep -A1 'Resolution' tracert | tail -n +2 | sed -e 's/<[^>]*>//g' | sed 's/^ *//g')
+     else
+          y=$(grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6)
+     fi
      if ! [ "$y" = "" ]; then
           whois -H $y > tmp
           # Remove leading whitespace
@@ -816,7 +821,7 @@ case $choice in
      sleep 2
      $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
      sleep 2
-     $web https://www.ssllabs.com/ssltest/analyze.html?d=$domain"&"hideResults=on"&"latest &
+     $web https://www.ssllabs.com/ssltest/analyze.html?d=$domain\&hideResults=on\&latest &
      sleep 2
      $web $home/data/$domain/index.htm &
      echo
