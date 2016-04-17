@@ -139,15 +139,16 @@ curl -X TRACE -H "Cookie: name=value" <target>
 # URL Encoding
 
 %20       space
-%2E   .   period
+%40   @   at
 %26   &   ampersand
-%27   '   single quote
-%22   "   double quote
-%3C   <   less than
-%3E   >   greater than
 %28   (   open parenthesis
 %29   )   close parenthesis
 %3B   ;   semicolon
+%22   "   double quote
+%27   '   single quote
+%3C   <   less than
+%3E   >   greater than
+%2E   .   period
 %2F   /   forward slash
 
 Example: <script>alert(document.cookie);</script>
