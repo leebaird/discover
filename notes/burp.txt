@@ -132,6 +132,16 @@ Payloads:
           DirBuster-1.0-RC1 > directory-list-2.3-small.txt
 Start attack
 Filter > uncheck 4xx [request error] > Filter
+Click Status to sort by ascending.
+Clean up results when the attack completes:
+     Select the first line with a 301 status.
+     Hold down shift and select the last line with a 301 status.
+     RC > Delete select items > Yes
+Add remaining items to Site map:
+     RC on the first line > Request in browser > In current session
+     Check: In future, just copy the URL and don't show this dialog > Copy
+     Firefox > open a new tab > paste
+     Repeat with remaining lines.
 Save the state: <appname>-BFdir
 
 - Brute force logins
