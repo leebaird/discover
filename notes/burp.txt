@@ -218,6 +218,19 @@ OK
 
 # CSRF
 
+You should be logged into the web application.
+Create a list of all POST requests that do not have a unique token called ‘CSRF_Token’. 
+
+Proxy > HTTP history > Filter > Filter by search term
+	^POST((?!CSRF_Token).)*$
+	Click Regex
+
+RC on the first request > Engagement tools > Generate CSRF PoC
+Test in browser > Copy
+Open a new tab in Firefox > paste
+
+Look for evidence that it executed whatever that HTTP request was supposed to do.
+
 https://support.portswigger.net/customer/portal/articles/1965674-using-burp-to-test-for-cross-site-request-forgery-csrf-
 https://portswigger.net/burp/help/suite_functions_csrfpoc.html
 ------------------------------------------------------------------------------------------------------
