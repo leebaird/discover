@@ -70,16 +70,22 @@ use recon/profiles-profiles/twitter
 run
 
 # Need API keys
-use recon/companies-contacts/facebook
-run
-use recon/companies-contacts/jigsaw/point_usage
-run
-use recon/companies-contacts/jigsaw/search_contacts
+use recon/companies-contacts/indeed
 run
 use recon/companies-contacts/jigsaw_auth
 run
+use recon/companies-contacts/jigsaw/point_usage
+run
+use recon/companies-contacts/jigsaw/purchase_contact
+run
+use recon/companies-contacts/jigsaw/search_contacts
+run
 use recon/companies-contacts/linkedin_auth
 run
+
+
+
+
 use recon/companies-profiles/bing_linkedin
 run
 use recon/domains-credentials/pwnedlist/api_usage
