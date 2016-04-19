@@ -11,9 +11,8 @@ recon-ng
   | default    |
   +------------+
 
-[recon-ng][default] > workspaces add test
-[recon-ng][test] > add domains
-domain (TEXT): target.com
+[recon-ng][default] > workspaces add target.com
+[recon-ng][test] > add domains target.com
 [recon-ng][test] > add companies
 company (TEXT): Target
 description (TEXT): 
@@ -65,39 +64,6 @@ domain: Target
 target: target.com
 
 Resource file run: passive.rc
-------------------------------------------------------------------------------------------------------
-
-# Need to test
-
-recon/contacts-contacts/mailtester
-recon/contacts-contacts/mangle
-recon/contacts-contacts/unmangle
-
-recon/contacts-domains/migrate_contacts
-recon/contacts-profiles/fullcontact
-
-recon/hosts-domains/migrate_hosts
-
-recon/locations-locations/geocode
-recon/locations-locations/reverse_geocode
-
-recon/locations-pushpins/flickr
-recon/locations-pushpins/instagram
-recon/locations-pushpins/picasa
-recon/locations-pushpins/shodan
-recon/locations-pushpins/twitter
-recon/locations-pushpins/youtube
-
-recon/netblocks-companies/whois_orgs
-recon/netblocks-hosts/reverse_resolve
-recon/netblocks-hosts/shodan_net
-recon/netblocks-ports/census_2012
-
-recon/ports-hosts/migrate_ports
-
-# Don't use
-
-recon/domains-domains/brute_suffix
 ------------------------------------------------------------------------------------------------------
 
 # API keys 
