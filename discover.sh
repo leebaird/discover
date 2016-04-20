@@ -3910,8 +3910,8 @@ f_recon-ng(){
 clear
 f_banner
 
-echo "For best results, you should acquire keys to the following APIs and add them to recon-ng."
-echo "See: https://bitbucket.org/LaNMaSteR53/recon-ng/wiki/Usage%20Guide"
+echo "Acquire keys to the following APIs and add them to recon-ng."
+echo "https://bitbucket.org/LaNMaSteR53/recon-ng/wiki/Usage%20Guide"
 echo
 echo
 echo "Usage"
