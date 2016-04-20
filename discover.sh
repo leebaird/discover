@@ -1,5 +1,5 @@
 #!/bin/bash
-# test for lee to remove this comment with the git revert command
+#
 # by Lee Baird
 # Contact me via chat or email with any feedback or suggestions that you may have:
 # leebaird@gmail.com
@@ -100,7 +100,7 @@ fi
 f_location(){
 echo
 echo -n "Enter the location of your file: "
-read location
+read -e location
 
 # Check for no answer
 if [[ -z $location ]]; then
