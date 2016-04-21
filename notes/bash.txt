@@ -61,6 +61,7 @@ awk '$2 !~ /[a-z]/'                                 # Remove lines that contain 
 sed '/[[:blank:]]/!d'                               # Remove lines that contain a single word
 printf '%s\n' 'g/FOO/d\' '-d' w | ed -s             # Remove lines that contain FOO and the previous line
 sed '/@.*@/d'                                       # Remove lines that contain two @ symbols
+sed '/[0-9]$/'                                      # Remove lines that contain a number
 sed '/[0-9]$/d'                                     # Remove lines that end with a number
 sed '/FOO$/d'                                       # Remove lines that end with FOO
 sed '/^[0-9]/d'                                     # Remove lines that start with a number

@@ -1,0 +1,61 @@
+workspaces add yyy
+add companies
+xxx
+none
+add domains
+yyy
+
+use recon/companies-contacts/indeed
+run
+use recon/companies-multi/github_miner
+run
+use recon/companies-multi/whois_miner
+run
+use recon/contacts-profiles/fullcontact
+run
+use recon/domains-contacts/metacrawler
+run
+use recon/domains-contacts/pgp_search
+run
+use recon/domains-contacts/whois_pocs
+run
+use recon/domains-hosts/baidu_site
+run
+use recon/domains-hosts/bing_domain_api
+run
+use recon/domains-hosts/bing_domain_web
+run
+use recon/domains-hosts/builtwith
+run
+use recon/domains-hosts/google_site_api
+run
+use recon/domains-hosts/google_site_web
+run
+use recon/domains-hosts/netcraft
+run
+use recon/domains-hosts/yahoo_domain
+run
+back
+
+spool start /tmp/remails
+query SELECT email FROM contacts WHERE email !="" ORDER BY email
+spool stop
+
+spool start /tmp/rnames
+query SELECT last_name,first_name FROM contacts WHERE first_name !="" ORDER BY last_name
+spool stop
+
+spool start /tmp/rnames2
+query SELECT username FROM profiles ORDER BY username
+spool stop
+
+spool start /tmp/rnetworks
+query SELECT netblock FROM netblocks ORDER BY netblock
+spool stop
+
+spool start /tmp/rsubdomains
+query SELECT host FROM hosts ORDER BY host
+spool stop
+
+exit
+

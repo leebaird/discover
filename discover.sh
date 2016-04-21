@@ -3910,8 +3910,7 @@ f_recon-ng(){
 clear
 f_banner
 
-echo "Acquire keys to the following APIs and add them to recon-ng."
-echo "https://bitbucket.org/LaNMaSteR53/recon-ng/wiki/Usage%20Guide"
+echo "[*] Acquire API keys for Bing and Google for maximum results."
 echo
 echo
 echo "Usage"
@@ -3937,38 +3936,19 @@ if [[ -z $domain ]]; then
      f_error
 fi
 
-cp $discover/resource/recon-ng/passive.rc /tmp/
-sed -i "s/xxx/$company/g" /tmp/passive.rc
-sed -i "s/yyy/$domain/g" /tmp/passive.rc
+cp $discover/resource/recon-ng.rc /tmp/
+sed -i "s/xxx/$company/g" /tmp/recon-ng.rc
+sed -i "s/yyy/$domain/g" /tmp/recon-ng.rc
 
-recon-ng -r /tmp/passive.rc
-}
+recon-ng -r /tmp/recon-ng.rc
 
-##############################################################################################################
+cat /tmp/remails /tmp/rnames2 | grep '@' | awk '{print $2}' | tr '[A-Z]' '[a-z]' | sort -u > emails-recon
+grep '|' /tmp/rnames | awk '{print $2", "$4}' | egrep -v '(_|\|)' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp
+grep '|' /tmp/rnames2 | egrep -v '(@|-|_|user)' | sed '/[0-9]/d' | awk '{print $3", "$2}' | grep -v '|' > tmp2
+cat tmp tmp2 | sort -u > names-recon
+grep '/' /tmp/rnetworks | grep -v 'Spooling' | awk '{print $2}' | $sip > network-recon
+grep "$domain" /tmp/rsubdomains | grep -v '>' | awk '{print $2}' | sort -u > sub-recon
 
-f_parse_recon_ng(){
-clear
-f_banner
-
-python /usr/share/recon-ng/recon-cli -C "workspaces list"
-echo
-echo
-echo -n "Workspace:  "
-read workspace
-
-# Check for no answer
-if [[ -z $workspace ]]; then
-     f_error
-fi
-
-recon-ng -w $workspace -r $discover/resource/recon-ng/export.rc
-egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp | cut -d '|' -f3,5-7 | sed 's/BuiltWith contact//g; s/Employee//g; s/PGP key association//g; s/Whois contact//g' > zcontacts
-egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp2 | cut -d '|' -f3-7 > zcreds
-egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp3 | cut -d '|' -f3-6 > zhosts
-egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp4 > zleaks
-egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp5 | cut -d '|' -f3-6 > zports
-egrep -v '(\+|contacts|example|Output|output|returned|show|Spooling|spool|title)' tmp6 | cut -d '|' -f5 > zvulns
-rm tmp*
 echo
 echo
 exit
@@ -4028,7 +4008,6 @@ case $choice in
 	14) f_listener;;
      15) f_errorOSX; $discover/update.sh && exit;;
      16) clear && exit;;
-     97) f_errorOSX; f_parse_recon_ng;;
      98) f_errorOSX; f_recon-ng;;
      99) f_errorOSX; f_updates;;
      *) f_error;;
