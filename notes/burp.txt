@@ -183,19 +183,12 @@ Sort by the Status column and look for a 302 (redirect). This should be a succes
 Save the state: <appname>-BFlogin
 
 - Scan app
-RC on the target URL > Actively scan this host
-Select all possible check boxes > Next > OK
-Scanner > Scan queue
-Save the state: <appname>-scan
-------------------------------------------------------------------------------------------------------
-
-# Scanner
-
 Spider > Control > Spider is paused
 Target > Site map > RC on the target URL > Actively scan this host
 Active scanning wizard: check all boxes > Next > Ok
 Scanner > Scan que > RC > Automatically delete finished items > Yes
 Scanner > Results
+Save the state: <appname>-scan
 ------------------------------------------------------------------------------------------------------
 
 # Alerts
