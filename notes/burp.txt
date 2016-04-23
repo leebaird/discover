@@ -123,7 +123,7 @@ Clear §
 On the top line, select the forward slash '/' after GET > Add §
 Move the forward slash in front of the two symbols. It should look like: GET /§§
 Payloads:
-     Payload Sets:
+     Payload Sets
           Payload set: 1
           Payload type: Simple list
      Payload Options > Add from list:
@@ -150,36 +150,66 @@ Proxy > History > find the POST request > RC > Send to Intruder
 
 Intruder > Payloads > Attack type:
      Sniper:
-          Uses a single set of payloads.
+          Uses a single set of payloads against a single variable.
      Battering ram:
-          Uses a single set of payloads.
+          Uses a single set of payloads against all variables.
      Pitchfork:
           Uses multiple payload sets.
-          You have a know list of usernames and a related list of passwords. 
+          For example: you have a known list of usernames and a related list of passwords. 
           This will try the first username with the first password, then the second username with the second password, and so on.
-          Useful when checking for old accounts that should be deleted.
+          This is useful when checking for old accounts that should be deleted.
      Cluster bomb:
           Uses multiple payload sets.
-          You have a know list of usernames and a non-related list of passwords. 
+          For example: you have a known list of usernames and a non-related list of passwords.
+          This will try the first username with each password, then the second username with each password, and so on.
 
-Cluster bomb
+-- Brute force basic authentication: Sniper
+     Clear $
+     Highlight the Authorization: Basic parameter > Add $
+     This parameter is Base64 encoded.
+     Copy the parameter > Decoder > paste in the top window
+     Select the top drop-down menu on the right > Base64
+     For example: YWRtaW46dGVzdDEyMw== decoded is admin:test123
+     Notice there is a colon between the username and password
+     
+     Intruder > Payloads > Payload Sets > Payload type: Custom iterator
+     List 1 with the possible Usernames and List 2 with possible passwords.
+     Position: 1
+          Type in the username (admin in our example) > Add
+          Separator for position 1: : (colon in our example)
+     Position: 2
+          Load > choose your wordlist > Open
+     Now we need to encode the whole string into Base64.
+     <*** more stuff here ***>
+     Start attack
+     
+-- Brute force a password: Sniper
+     Clear $
+     Highlight the password you entered > Add $
+     Intruder > Payloads > Payload Options
+     Load > choose your password list > Open
+     Start attack
+
+-- Brute force usernames and passwords: Cluster bomb
      Clear $
      Highlight the username you entered > Add $ 
      Highlight the password you entered > Add $
-     Intruder > Payloads:
-          Payload Sets:
+     Intruder > Payloads
+          Payload Sets
                Payload set: 1
                Payload type: Simple list
-          Payload Options:
-               Clear > Load: your username list
-          Payload Sets:
+          Payload Options
+               Clear > Load: choose your username list > Open
+          Payload Sets
                Payload set: 2
                Payload type: Simple list
-          Payload Options:
-               Clear > Load: your password list
+          Payload Options
+               Clear > Load: choose your password list > Open
           Start attack
 
-Sort by the Status column and look for a 302 (redirect). This should be a successful login.
+Filter > uncheck 4xx [request error] > Filter
+Click Status to sort by ascending.
+Look for a 302 (redirect). This should be a successful login.
 Save the state: <appname>-BFlogin
 
 - Scan app
