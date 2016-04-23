@@ -38,6 +38,7 @@ sed '/^FOO/a\ '                                     # Find lines that start with
 sed -e :a -e '$!N;s/\nFOO/ /;ta' -e 'P;D'           # Find lines that start with FOO, insert a space and append to the previous line
 
 sed -n '/FOO/,$p'                                   # Print from FOO to the end of the file
+sed s/FOO.*//                                       # Print from FOO to the end of the line
 sed -n '5,/^$/p'                                    # Print from the 5th line to the first blank line
 sed -n '/FOO/,/BAR/p'                               # Print lines between FOO and BAR
 sed -e '/./{H;$!d;}' -e 'x;/FOO/!d;'                # Print paragraphs that contains FOO 
