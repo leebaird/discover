@@ -28,15 +28,14 @@ WEB
 8.  Open multiple tabs in Firefox
 9.  Nikto
 10. SSL
-11. Skipfish
 
 MISC
-12. Crack WiFi
-13. Parse XML
-14. Generate a malicious payload
-15. Start a Metasploit listener
-16. Update
-17. Exit
+11. Crack WiFi
+12. Parse XML
+13. Generate a malicious payload
+14. Start a Metasploit listener
+15. Update
+16. Exit
 ```
 ## RECON
 ### Domain
@@ -48,8 +47,15 @@ RECON
 3.  Previous menu
 ```
 
-* Passive combines goofile, goog-mail, goohost, theHarvester, Metasploit, dnsrecon, URLCrazy, Whois and multiple webistes.
-* Active combines Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute and Whatweb.
+* Passive combines ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester, Metasploit, URLCrazy, Whois, recon-ng, and multiple websites.
+  
+* Acquire API keys for Bing and Google for maximum results with recon-ng.
+  recon-ng
+  keys add bing_api <value>
+  keys add google_api <value>
+  keys add google_cse <value>
+
+* Active combines Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute, and Whatweb.
 
 ### Person
 ```
