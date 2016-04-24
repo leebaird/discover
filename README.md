@@ -47,8 +47,9 @@ RECON
 3.  Previous menu
 ```
 
-* Passive combines ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester, Metasploit, URLCrazy, Whois, recon-ng, and multiple websites.
-  
+* Passive combines ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester, Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.
+* Active combines Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute, and Whatweb.
+
 * Acquire API keys for Bing and Google for maximum results with recon-ng.
 ```
   recon-ng
@@ -56,7 +57,6 @@ RECON
   keys add google_api <value>
   keys add google_cse <value>
 ```
-* Active combines Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute, and Whatweb.
 
 ### Person
 ```
