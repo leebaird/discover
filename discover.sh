@@ -3942,12 +3942,13 @@ sed -i "s/yyy/$domain/g" /tmp/recon-ng.rc
 
 recon-ng -r /tmp/recon-ng.rc
 
-cat /tmp/remails /tmp/rnames2 | grep '@' | awk '{print $2}' | tr '[A-Z]' '[a-z]' | sort -u > emails-recon
-grep '|' /tmp/rnames | awk '{print $2", "$4}' | egrep -v '(_|\|)' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp
-grep '|' tmp | awk '{print $3", "$2}' | grep -v '|' > tmp2
-cat tmp tmp2 | sort -u > names-recon
-grep '/' /tmp/rnetworks | grep -v 'Spooling' | awk '{print $2}' | $sip > network-recon
-grep "$domain" /tmp/rsubdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
+grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | tr '[A-Z]' '[a-z]' | sort -u > emails-recon
+grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > network-recon
+grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
+
+grep '|' /tmp/names | awk '{print $2", "$4}' | egrep -v '(_|\|)' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp
+grep '|' /tmp/profiles | awk '{print $3", "$2}' | grep -v '|' > tmp2
+cat tmp tmp2 | grep -iv 'INFORM' | sort -u > names-recon
 
 echo
 echo

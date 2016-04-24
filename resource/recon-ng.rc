@@ -11,6 +11,8 @@ use recon/companies-multi/github_miner
 run
 use recon/companies-multi/whois_miner
 run
+use recon/contacts-profiles/fullcontact
+run
 use recon/domains-contacts/metacrawler
 run
 use recon/domains-contacts/pgp_search
@@ -38,24 +40,25 @@ run
 
 back
 
-spool start /tmp/remails
-query SELECT DISTINCT email FROM contacts WHERE email !="" ORDER BY email
+spool start /tmp/emails
+query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email
 spool stop
 
-spool start /tmp/rnames
+spool start /tmp/names
 query SELECT DISTINCT last_name,first_name FROM contacts WHERE first_name !="" ORDER BY last_name
 spool stop
 
-spool start /tmp/rnames2
-query SELECT username FROM profiles ORDER BY username
-spool stop
-
-spool start /tmp/rnetworks
+spool start /tmp/networks
 query SELECT netblock FROM netblocks ORDER BY netblock
 spool stop
 
-spool start /tmp/rsubdomains
+spool start /tmp/profiles
+query SELECT DISTINCT username FROM profiles
+spool stop
+
+spool start /tmp/subdomains
 query SELECT host,ip_address FROM hosts ORDER BY host
 spool stop
 
 exit
+
