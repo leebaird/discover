@@ -793,7 +793,7 @@ case $choice in
 
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-#     rm curl debug* emails hosts names* networks* squatting sub* tmp* tracert whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm curl debug* emails hosts names* networks* squatting sub* tmp* tracert whois* z* doc pdf ppt txt xls 2>/dev/null
 
      # Screenshot for Robtex
      wget -q https://www.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/images/robtex.png
