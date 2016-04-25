@@ -143,7 +143,7 @@ mkdir $save_dir
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv curl emails* names networks records squatting tracert whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+mv curl emails* names* networks* records squatting tracert whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
 
 echo "Saving complete"
 exit
@@ -199,7 +199,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=35
+     total=36
 
      echo
      echo $medium
@@ -251,7 +251,7 @@ case $choice in
           done < tmp
      fi
 
-     $sip tmp3 > networks 2>/dev/null
+     $sip tmp3 > networks-tmp 2>/dev/null
      echo
 
      echo "dnsrecon                  (4/$total)"
@@ -360,7 +360,8 @@ case $choice in
      sed 's/\b\(.\)/\u\1/g' tmp9 > tmp10
      grep -v ',' tmp10 | awk '{print $2", "$1}' > tmp11
      grep ',' tmp10 > tmp12
-     cat tmp11 tmp12 | sort -u > names
+     # Remove trailing whitespace from each line
+     cat tmp11 tmp12 | sed 's/[ \t]*$//' | sort -u > names-tmp
 
      ##############################################################
 
@@ -603,9 +604,23 @@ case $choice in
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
      sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > $home/data/$domain/data/black-listed.htm
 
+     echo "recon-ng                  (36/$total)"
+     cp $discover/resource/recon-ng.rc /tmp/
+     sed -i "s/xxx/$company/g" /tmp/recon-ng.rc
+     sed -i "s/yyy/$domain/g" /tmp/recon-ng.rc
+     recon-ng -r /tmp/recon-ng.rc
+
+     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > emails-recon
+     grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
+     grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
+
+     grep '|' /tmp/names | awk '{print $2", "$4}' | egrep -v '(_|\|)' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp
+     grep '|' /tmp/profiles | awk '{print $3", "$2}' | grep -v '|' > tmp2
+     cat tmp tmp2 | grep -iv 'INFORM' | sort -u > names-recon
+
      ##############################################################
 
-     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|edward_snowden|fake|fuckthepolice|lastname_firstname|regulations.gov|salessalesandmarketing|toastmasters|www|xxxxx|yousuck|zxcvbcvxvxcccb)' > tmp
+     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|-|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|edward_snowden|fake|fuckthepolice|lastname_firstname|regulations.gov|salessalesandmarketing|toastmasters|www|xxxxx|yousuck|zxcvbcvxvxcccb)' > tmp
      # Remove trailing whitespace from each line
      sed 's/[ \t]*$//' tmp > tmp2
      # Remove lines that start with a number
@@ -617,9 +632,13 @@ case $choice in
      # Remove lines that start with _
      sed '/^\_/ d' tmp5 > tmp6
      # Change to lower case
-     cat tmp6 | tr '[A-Z]' '[a-z]' | sort -u > emails
+     cat tmp6 emails-recon | tr '[A-Z]' '[a-z]' | sort -u > emails
 
      ##############################################################
+
+     cat names-tmp names-recon | sort -u > names     # Duplicaats exist
+
+     cat networks-tmp networks-recon | sort -u | $sip > networks
 
      cat sub* | grep -v "$domain\." | sed 's/www\.//g' | column -t | sort -u > tmp
      # Remove lines that contain a single word
@@ -774,7 +793,7 @@ case $choice in
 
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-     rm curl debug* emails hosts names networks squatting sub* tmp* tracert whois* z* doc pdf ppt txt xls 2>/dev/null
+#     rm curl debug* emails hosts names* networks* squatting sub* tmp* tracert whois* z* doc pdf ppt txt xls 2>/dev/null
 
      # Screenshot for Robtex
      wget -q https://www.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/images/robtex.png
@@ -3906,57 +3925,6 @@ exit
 
 ##############################################################################################################
 
-f_recon-ng(){
-clear
-f_banner
-
-echo "[*] Acquire API keys for Bing and Google for maximum results."
-echo
-echo
-echo "Usage"
-echo
-echo "Company: Target"
-echo "Domain:  target.com"
-echo
-echo $medium
-echo
-echo -n "Company: "
-read company
-
-# Check for no answer
-if [[ -z $company ]]; then
-     f_error
-fi
-
-echo -n "Domain:  "
-read domain
-
-# Check for no answer
-if [[ -z $domain ]]; then
-     f_error
-fi
-
-cp $discover/resource/recon-ng.rc /tmp/
-sed -i "s/xxx/$company/g" /tmp/recon-ng.rc
-sed -i "s/yyy/$domain/g" /tmp/recon-ng.rc
-
-recon-ng -r /tmp/recon-ng.rc
-
-grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | tr '[A-Z]' '[a-z]' | sort -u > emails-recon
-grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > network-recon
-grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
-
-grep '|' /tmp/names | awk '{print $2", "$4}' | egrep -v '(_|\|)' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp
-grep '|' /tmp/profiles | awk '{print $3", "$2}' | grep -v '|' > tmp2
-cat tmp tmp2 | grep -iv 'INFORM' | sort -u > names-recon
-
-echo
-echo
-exit
-}
-
-##############################################################################################################
-
 f_main(){
 clear
 f_banner
@@ -4009,7 +3977,6 @@ case $choice in
 	14) f_listener;;
      15) f_errorOSX; $discover/update.sh && exit;;
      16) clear && exit;;
-     98) f_errorOSX; f_recon-ng;;
      99) f_errorOSX; f_updates;;
      *) f_error;;
 esac
