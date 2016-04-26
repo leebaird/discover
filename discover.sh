@@ -3898,15 +3898,9 @@ echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
 python /usr/share/recon-ng/recon-cli -M > tmp
-egrep -v '(---|adobe|bozocrack|brute_suffix|census_2012|command_injector|dev_diver|Discovery|exit|Exploitation|geocode|hashes_org|Import|import|jigsaw|leakdb|mangle|namechk|pushpins|pwnedlist|Recon|Reporting|reporting|reverse_resolve|show modules|shodan_net|Spooling|twitter|xpath_bruter)' tmp > tmp2
-
-# Remove blank lines
-sed '/^$/d' tmp2 > tmp3
-# Remove leading whitespace from each line
-sed 's/^[ \t]*//' tmp3 > tmp4
-
-cat $discover/resource/recon-ng/active.rc $discover/resource/recon-ng/passive.rc | grep 'use' | sed 's/use //g' | sort > tmp5
-diff tmp4 tmp5 | egrep '^[<>]' | awk '{print $2}' | egrep -v '(ip_neighbor|pwnedlist)' >> tmp-updates
+grep '/' tmp | awk '{print $1}' | egrep -iv '(brute_suffix|cache_snoop|exploitation|import|jigsaw|linkedin_auth|locations|mailtester|mangle|ports|pwnedlist|reporting|ssl|vulnerabilities)' > tmp2
+grep 'use' $discover/resource/recon-ng.rc | awk '{print $2}' | grep -v 'SELECT' > tmp3
+diff tmp2 tmp3 | grep '/' | awk '{print $2}' >> tmp-updates
 
 echo >> tmp-updates
 echo >> tmp-updates

@@ -1,0 +1,37 @@
+workspaces add yyy
+add companies
+xxx
+none
+add domains
+yyy
+
+use discovery/info_disclosure/interesting_files
+run
+use recon/domains-hosts/brute_hosts
+run
+use recon/hosts-hosts/resolve
+run
+
+back
+
+spool start /tmp/emails
+query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email
+spool stop
+
+spool start /tmp/names
+query SELECT DISTINCT last_name,first_name FROM contacts WHERE first_name !="" ORDER BY last_name
+spool stop
+
+spool start /tmp/networks
+query SELECT netblock FROM netblocks ORDER BY netblock
+spool stop
+
+spool start /tmp/profiles
+query SELECT DISTINCT username FROM profiles
+spool stop
+
+spool start /tmp/subdomains
+query SELECT host,ip_address FROM hosts ORDER BY host
+spool stop
+
+exit

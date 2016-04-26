@@ -11,6 +11,10 @@ use recon/companies-multi/github_miner
 run
 use recon/companies-multi/whois_miner
 run
+use recon/contacts-credentials/hibp_breach
+run
+use recon/contacts-credentials/hibp_paste
+run
 use recon/contacts-profiles/fullcontact
 run
 use recon/domains-contacts/metacrawler
@@ -37,7 +41,9 @@ use recon/domains-hosts/yahoo_domain
 run
 use recon/hosts-hosts/resolve
 run
-
+use recon/profiles-repositories/github_repos
+set SOURCE yyy
+run
 back
 
 spool start /tmp/emails
@@ -61,4 +67,3 @@ query SELECT host,ip_address FROM hosts ORDER BY host
 spool stop
 
 exit
-
