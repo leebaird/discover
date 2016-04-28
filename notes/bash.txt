@@ -76,6 +76,7 @@ sed '/TEST/!s/FOO/BAR/g'                            # Replace FOO with BAR, exce
 sed '/TEST/s/FOO/BAR/g'                             # Replace FOO with BAR, on lines that contain TEST
 sed 's/FOO//g'                                      # Replace FOO with nothing
 cat tmp | tr ';' '\n'                               # Replace semicolon with a new line
+sed 's/\([^,]*,\)\{7\}[^,]*,/&\n/g'                 # Replace the 8th comma with a new line
 
 sort -k2                                            # Sort by the second column
 sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4         # Sort IPs

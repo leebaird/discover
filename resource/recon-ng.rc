@@ -15,7 +15,15 @@ use recon/contacts-credentials/hibp_breach
 run
 use recon/contacts-credentials/hibp_paste
 run
+recon/contacts-domains/migrate_contacts
+run
 use recon/contacts-profiles/fullcontact
+run
+use recon/credentials-credentials/bozocrack
+set SOURCE yyy
+run
+use recon/credentials-credentials/hashes_org
+set SOURCE yyy
 run
 use recon/domains-contacts/metacrawler
 run
@@ -37,12 +45,21 @@ use recon/domains-hosts/google_site_web
 run
 use recon/domains-hosts/netcraft
 run
+use recon/domains-hosts/shodan_hostname
+set SOURCE yyy
+run
 use recon/domains-hosts/yahoo_domain
 run
-use recon/hosts-hosts/resolve
+use recon/netblocks-companies/whois_orgs
+run
+use recon/netblocks-hosts/shodan_net
+run
+use recon/hosts-hosts/bing_ip
 run
 use recon/profiles-repositories/github_repos
 set SOURCE yyy
+run
+use recon/hosts-hosts/resolve
 run
 back
 

@@ -940,16 +940,10 @@ case $choice in
      echo
      echo "Loadbalancing             (6/$total)"
      lbd $domain > tmp 2>/dev/null
-     egrep -v '(Checks if a given|Written by|Proof-of-concept)' tmp > tmp2
-     # Remove leading whitespace from file
-     awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp2 > tmp3
-     # Remove leading whitespace from each line
-     sed 's/^[ \t]*//' tmp3 > tmp4
-     egrep -v '(does Load-balancing|does NOT use Load-balancing)' tmp4 | sed 's/Checking for //g' > tmp5
-     # Remove blank lines from end of file
-     awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp5 > tmp6
-     # Clean up
-     cat -s tmp6 | grep -v 'P3P' > loadbalancing
+     # Remove first 5 lines & clean up
+     sed '1,5d' tmp | sed 's/DNS-Loadbalancing: NOT FOUND/DNS-Loadbalancing:\nNOT FOUND\n/g' | sed 's/\[Date\]: /\[Date\]:\n/g' | sed 's/\[Diff\]: /\[Diff\]:\n/g' > tmp2
+     # Replace the 9th comma with a new line & remove leading whitespace from each line
+     sed 's/\([^,]*,\)\{8\}[^,]*,/&\n/g' tmp2 | sed 's/^[ \t]*//' | sed 's/, NOT/\nNOT/g' | grep -v 'NOT use' > loadbalancing
 
      echo
      echo "Web Application Firewall  (7/$total)"
@@ -977,7 +971,7 @@ case $choice in
      echo
      echo "Whatweb                   (11/$total)"
      grep -v '<' $home/data/$domain/data/subdomains.htm | awk '{print $1}' > tmp
-     whatweb -i tmp --color=never --no-errors -t 255 > tmp2
+     whatweb -i tmp --color=never --no-errors -t 255 > tmp2 2>/dev/null
      # Find lines that start with http, and insert a line after
      sort tmp2 | sed '/^http/a\ ' > tmp3
      # Cleanup
@@ -994,6 +988,21 @@ case $choice in
      if [ ! -s hosts ]; then rm hosts; fi
      if [ ! -s records ]; then rm records; fi
      if [ ! -s subdomains ]; then rm subdomains; fi
+
+     echo
+     echo "recon-ng                  (12/$total)"
+     cp $discover/resource/recon-ng-active.rc /tmp/
+     sed -i "s/xxx/$company/g" /tmp/recon-ng-active.rc
+     sed -i "s/yyy/$domain/g" /tmp/recon-ng-active.rc
+     recon-ng -r /tmp/recon-ng-active.rc
+
+#     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > emails-recon
+#     grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
+     grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
+
+#     grep '|' /tmp/names | awk '{print $2", "$4}' | egrep -v '(_|\|)' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp
+#     grep '|' /tmp/profiles | awk '{print $3", "$2}' | grep -v '|' > tmp2
+#     cat tmp tmp2 | grep -iv 'INFORM' | sort -u > names-recon
 
      ##############################################################
 
@@ -3898,9 +3907,9 @@ echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
 python /usr/share/recon-ng/recon-cli -M > tmp
-grep '/' tmp | awk '{print $1}' | egrep -iv '(brute_suffix|cache_snoop|exploitation|import|jigsaw|linkedin_auth|locations|mailtester|mangle|ports|pwnedlist|reporting|ssl|vulnerabilities)' > tmp2
-grep 'use' $discover/resource/recon-ng.rc | awk '{print $2}' | grep -v 'SELECT' > tmp3
-diff tmp2 tmp3 | grep '/' | awk '{print $2}' >> tmp-updates
+grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|brute_suffix|cache_snoop|dev_diver|exploitation|freegeoip|import|ipinfodb|jigsaw|linkedin_auth|locations|mailtester|mangle|migrate_hosts|namechk|ports|profiler|pwnedlist|reporting|reverse_resolve|ssl|twitter|vpnhunter|vulnerabilities)' > tmp2
+cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'use' | grep -v 'query' | awk '{print $2}' | sort -u > tmp3
+diff tmp2 tmp3 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
 
 echo >> tmp-updates
 echo >> tmp-updates

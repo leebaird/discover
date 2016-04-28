@@ -6,32 +6,27 @@ add domains
 yyy
 
 use discovery/info_disclosure/interesting_files
+set DOWNLOAD False
+set SOURCE yyy
 run
+
 use recon/domains-hosts/brute_hosts
 run
+
+use recon/domains-hosts/ssl_san
+run
+
+use recon/hosts-hosts/ssltools
+run
+
 use recon/hosts-hosts/resolve
 run
 
 back
 
-spool start /tmp/emails
-query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email
-spool stop
-
-spool start /tmp/names
-query SELECT DISTINCT last_name,first_name FROM contacts WHERE first_name !="" ORDER BY last_name
-spool stop
-
-spool start /tmp/networks
-query SELECT netblock FROM netblocks ORDER BY netblock
-spool stop
-
-spool start /tmp/profiles
-query SELECT DISTINCT username FROM profiles
-spool stop
-
 spool start /tmp/subdomains
-query SELECT host,ip_address FROM hosts ORDER BY host
+query SELECT DISTINCT host,ip_address FROM hosts WHERE ip_address !='' ORDER BY host
 spool stop
 
 exit
+
