@@ -865,7 +865,7 @@ case $choice in
      # If folder doesn't exist, create it
      if [ ! -d $home/data/$domain ]; then
           cp -R $discover/report/ $home/data/$domain
-          sed 's/REPLACEDOMAIN/'$domain'/' $home/data/$domain/index.htm > tmp
+          sed 's/REPLACEDOMAIN/'$domain'/g' $home/data/$domain/index.htm > tmp
           mv tmp $home/data/$domain/index.htm
      fi
 
