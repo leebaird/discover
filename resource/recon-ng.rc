@@ -20,9 +20,6 @@ run
 use recon/contacts-credentials/hibp_paste
 run
 
-use recon/contacts-domains/migrate_contacts
-run
-
 use recon/contacts-profiles/fullcontact
 run
 

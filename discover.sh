@@ -144,6 +144,7 @@ mv $name/ $save_dir 2>/dev/null
 
 # Recon files
 mv curl emails* names* networks* records squatting tracert whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+rm /tmp/emails /tmp/names /tmp/networks /tmp/profiles /tmp/recon-ng.rc /tmp/subdomains 2>/dev/null
 
 echo "Saving complete"
 exit
@@ -793,7 +794,8 @@ case $choice in
 
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-     rm curl debug* emails hosts names* networks* squatting sub* tmp* tracert whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm curl debug* emails* hosts names* networks* squatting sub* tmp* tracert whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm /tmp/emails /tmp/names /tmp/networks /tmp/profiles /tmp/recon-ng.rc /tmp/subdomains 2>/dev/null
 
      # Screenshot for Robtex
      wget -q https://www.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/images/robtex.png
@@ -833,8 +835,6 @@ case $choice in
      $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
      sleep 2
      $web pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$companyurl\&sa.x=0\&sa.y=0 &
-     sleep 2
-     $web https://www.shodan.io/search?query=$domain &
      sleep 2
      $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
      sleep 2
@@ -3907,7 +3907,7 @@ echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
 python /usr/share/recon-ng/recon-cli -M > tmp
-grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|brute_suffix|cache_snoop|dev_diver|exploitation|freegeoip|import|ipinfodb|jigsaw|linkedin_auth|locations|mailtester|mangle|migrate_hosts|namechk|ports|profiler|pwnedlist|reporting|reverse_resolve|ssl|twitter|vpnhunter|vulnerabilities)' > tmp2
+grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|brute_suffix|cache_snoop|dev_diver|exploitation|freegeoip|import|ipinfodb|jigsaw|linkedin_auth|locations|mailtester|mangle|migrate_contacts|migrate_hosts|namechk|ports|profiler|pwnedlist|reporting|reverse_resolve|ssl|twitter|vpnhunter|vulnerabilities)' > tmp2
 cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'use' | grep -v 'query' | awk '{print $2}' | sort -u > tmp3
 diff tmp2 tmp3 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
 
