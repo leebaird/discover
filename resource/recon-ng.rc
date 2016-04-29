@@ -103,6 +103,4 @@ spool start /tmp/subdomains
 query SELECT host,ip_address FROM hosts ORDER BY host
 spool stop
 
-workspaces delete yyy 
-
 exit
