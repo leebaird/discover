@@ -37,6 +37,7 @@ smbclient -N -L <target IP>
 # Connect with credentials
 
 smbclient -W domain -U user -L <target IP>
+proxychains smbclient '//10.0.0.10/c$' -U 'domain.local/username%password'
 ------------------------------------------------------------------------------------------------------
 
 # NetBIOS and SMB

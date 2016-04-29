@@ -28,6 +28,4 @@ spool start /tmp/subdomains
 query SELECT DISTINCT host,ip_address FROM hosts WHERE ip_address !='' ORDER BY host
 spool stop
 
-workspaces delete yyy
-
 exit
