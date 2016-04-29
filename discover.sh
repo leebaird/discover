@@ -166,6 +166,14 @@ read choice
 
 case $choice in
      1)
+     clear
+     f_banner
+
+     echo -e "\x1B[1;34mUses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester, Metasploit, URLCrazy,\x1B[0m"
+     echo -e "\x1B[1;34mWhois, multiple websites, and recon-ng.\x1B[0m"
+     echo
+     echo -e "\x1B[1;34m[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google, Hashes, and\x1B[0m"
+     echo -e "\x1B[1;34mShodan for maximum results with recon-ng.\x1B[0m"
      echo
      echo $medium
      echo
@@ -849,6 +857,13 @@ case $choice in
      ;;
 
      2)
+     clear
+     f_banner
+
+     echo -e "\x1B[1;34mUses Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute, and Whatweb.\x1B[0m"
+     echo
+     echo -e "\x1B[1;34m[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google, Hashes, and\x1B[0m"
+     echo -e "\x1B[1;34mShodan for maximum results with recon-ng.\x1B[0m"
      echo
      echo $medium
      echo
@@ -1440,15 +1455,16 @@ read choice
 case $choice in
      1) f_errorOSX
 
-	 echo -n "Interface to scan: "
-	 read interface
+     echo
+	echo -n "Interface to scan: "
+	read interface
 
      # Check for no answer
      if [[ -z $interface ]]; then
           f_error
      fi
 
-	 arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt
+	arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt
 
      echo $medium
      echo
@@ -3907,7 +3923,7 @@ echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
 python /usr/share/recon-ng/recon-cli -M > tmp
-grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|brute_suffix|cache_snoop|dev_diver|exploitation|freegeoip|import|ipinfodb|jigsaw|linkedin_auth|locations|mailtester|mangle|migrate_contacts|migrate_hosts|namechk|ports|profiler|pwnedlist|reporting|reverse_resolve|ssl|twitter|vpnhunter|vulnerabilities)' > tmp2
+grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|brute_suffix|cache_snoop|dev_diver|exploitation|freegeoip|import|ipinfodb|jigsaw|linkedin_auth|locations|mailtester|mangle|migrate_contacts|migrate_hosts|namechk|ports|profiler|pwnedlist|reporting|reverse_resolve|ssl_san|ssltools|twitter|vpnhunter|vulnerabilities)' > tmp2
 cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'use' | grep -v 'query' | awk '{print $2}' | sort -u > tmp3
 diff tmp2 tmp3 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
 
