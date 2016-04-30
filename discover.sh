@@ -1125,7 +1125,7 @@ case $choice in
      echo
      echo
 
-	$web $home/data/$domain/index.htm &
+     $web $home/data/$domain/index.htm &
      exit
      ;;
 
@@ -1462,15 +1462,15 @@ case $choice in
      1) f_errorOSX
 
      echo
-	echo -n "Interface to scan: "
-	read interface
+     echo -n "Interface to scan: "
+     read interface
 
      # Check for no answer
      if [[ -z $interface ]]; then
           f_error
      fi
 
-	arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt
+     arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt
 
      echo $medium
      echo
@@ -1591,19 +1591,18 @@ undef $/; # Enable slurping
 
 open(my $handle, '<', "tmp");
 open(my $output, '>', "tmp2");
-while(<$handle>)
-{
-	# Read report lines
-	while (/((?:[\x00-\xFF]*?(?=Nmap\s+scan\s+report)|[\x00-\xFF]*))/mixg) {
-		my $report = $1;
+while(<$handle>){
+     # Read report lines
+     while (/((?:[\x00-\xFF]*?(?=Nmap\s+scan\s+report)|[\x00-\xFF]*))/mixg){
+          my $report = $1;
 
-		# Print IP if host is REALLY up
-		if (($report =~ /MAC\s+Address/mix)
-		or ($report =~ /Nmap\s+scan\s+report\s+for\s+\S+?\s+\(\S+\)/mix)) {
-			my ($ip) = $report =~ /(\d+\.\d+\.\d+\.\d+)/mix;
-			print $output "$ip\n";
-		}
-	}
+          # Print IP if host is really up
+          if (($report =~ /MAC\s+Address/mix)
+          or ($report =~ /Nmap\s+scan\s+report\s+for\s+\S+?\s+\(\S+\)/mix)){
+               my ($ip) = $report =~ /(\d+\.\d+\.\d+\.\d+)/mix;
+               print $output "$ip\n";
+          }
+     }
 }
 EOF
 
@@ -3410,7 +3409,7 @@ case $choice in
      # Delete additional findings.
      egrep -v '(DHCP Server Detection|mDNS Detection \(Remote Network\))' tmp2.csv > tmp3.csv
 
-cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner check)//; s/ (credentialed check)//; s/ (intrusive check)//g; s/ (remote check)//; s/ (safe check)//; s/ (uncredentialed check)//g; s/ (version check)//g; s/()//g; s/(un)//g' > $home/data/nessus-`date +%H:%M:%S`.csv
+     cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner check)//; s/ (credentialed check)//; s/ (intrusive check)//g; s/ (remote check)//; s/ (safe check)//; s/ (uncredentialed check)//g; s/ (version check)//g; s/()//g; s/(un)//g' > $home/data/nessus-`date +%H:%M:%S`.csv
 
      rm nessus* tmp*
 
@@ -3690,13 +3689,13 @@ if [ "$extquery" == "y" ]; then
      if ps ax | grep -v 'grep' | grep $processname > /dev/null; then
           echo
      else
-         $web &
-	     sleep 4
+          $web &
+	  sleep 4
      fi
 
      while read -r line; do
-		 $web "https://www.sslshopper.com/ssl-checker.html#hostname=$line" &
-	     sleep 1
+          $web "https://www.sslshopper.com/ssl-checker.html#hostname=$line" &
+	  sleep 1
      done < "$location"
 
      echo
@@ -3714,7 +3713,7 @@ fi
 f_payload(){
 clear
 f_banner
-echo -e "\x1B[1;34mMALICIOUS PAYLOADS\x1B[0m"
+echo -e "\x1B[1;34mMalicious Payloads\x1B[0m"
 echo
 echo "1.  android/meterpreter/reverse_tcp"
 echo "2.  cmd/windows/reverse_powershell"
@@ -3730,40 +3729,40 @@ read choice
 
 case $choice in
      1) payload="android/meterpreter/reverse_tcp"
-        extention=".apk"
-        format="raw"
-        arch="dalvik"
-	platform="android";;
+          extention=".apk"
+          format="raw"
+          arch="dalvik"
+	  platform="android";;
      2) payload="cmd/windows/reverse_powershell"
-        extention=".bat"
-        format="raw"
-        arch="cmd"
-	platform="windows";;
+          extention=".bat"
+          format="raw"
+          arch="cmd"
+	  platform="windows";;
      3) payload="linux/x64/shell_reverse_tcp"
-        extention=""
-        format="elf"
-        arch="x86_64"
-	platform="linux";;
+          extention=""
+          format="elf"
+          arch="x86_64"
+          platform="linux";;
      4) payload="linux/x86/meterpreter/reverse_tcp"
-        extention=""
-        format="elf"
-        arch="x86"
-	platform="linux";;
+          extention=""
+          format="elf"
+          arch="x86"
+          platform="linux";;
      5) payload="osx/x64/shell_reverse_tcp"
-	extention=""
-	format="macho"
-        arch="x86_64"
-	platform="osx";;
+	  extention=""
+	  format="macho"
+          arch="x86_64"
+          platform="osx";;
      6) payload="windows/meterpreter/reverse_tcp"
-	extention=".exe"
-	format="exe"
-        arch="x86"
-	platform="windows";;
+          extention=".exe"
+          format="exe"
+          arch="x86"
+          platform="windows";;
      7) payload="windows/x64/meterpreter/reverse_tcp"
-	extention=".exe"
-	format="exe"
-        arch="x86_64"
-	platform="windows";;
+          extention=".exe"
+          format="exe"
+          arch="x86_64"
+          platform="windows";;
      8) f_main;;
      *) f_error;;
 esac
@@ -3800,7 +3799,7 @@ exit
 f_listener(){
 clear
 f_banner
-echo -e "\x1B[1;34mMetasploit LISTENERS\x1B[0m"
+echo -e "\x1B[1;34mMetasploit Listeners\x1B[0m"
 echo
 echo "1.  android/meterpreter/reverse_tcp"
 echo "2.  cmd/windows/reverse_powershell"
