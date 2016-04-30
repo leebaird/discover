@@ -210,6 +210,8 @@ case $choice in
      # Number of tests
      total=36
 
+     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g;s/\&/%26/g;s/\,/%2C/g' )
+
      echo
      echo $medium
      echo
@@ -242,9 +244,8 @@ case $choice in
      rm zurls.txt zhandles.txt 2>/dev/null
 
      echo "     Networks             (3/$total)"
-     orgurl=$( printf "%s\n" "$company" | sed 's/ /%20/g' )
 
-     wget -q https://whois.arin.net/rest/orgs\;name=$orgurl -O tmp.xml
+     wget -q https://whois.arin.net/rest/orgs\;name=$companyurl -O tmp.xml
 
      if [ -s tmp.xml ]; then
           xmllint --format tmp.xml | grep 'handle' | cut -d '/' -f6 | cut -d '<' -f1 | sort -uV > tmp
@@ -619,9 +620,10 @@ case $choice in
 
      echo "recon-ng                  (36/$total)"
      cp $discover/resource/recon-ng.rc $discover/
-     sed -i "s/xxx/$company/g" $discover/recon-ng.rc
+     sed -i "s/xxx/$companyurl/g" $discover/recon-ng.rc
+     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/recon-ng.rc
      sed -i "s/yyy/$domain/g" $discover/recon-ng.rc
-     recon-ng -r $discover/recon-ng.rc
+     recon-ng --no-check -r $discover/recon-ng.rc
 
      grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > emails-recon
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
@@ -827,8 +829,6 @@ case $choice in
 
      f_runlocally
 
-     companyurl=$(printf "%s\n" "$company" | sed 's/ /%20/g')
-
      $web &
      sleep 4
      $web https://connect.data.com/login &
@@ -891,6 +891,8 @@ case $choice in
 
      # Number of tests
      total=11
+
+     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g;s/\&/%26/g;s/\,/%2C/g' )
 
      echo
      echo $medium
@@ -1012,9 +1014,10 @@ case $choice in
      echo
      echo "recon-ng                  (12/$total)"
      cp $discover/resource/recon-ng-active.rc $discover/
-     sed -i "s/xxx/$company/g" $discover/recon-ng-active.rc
+     sed -i "s/xxx/$companyurl/g" $discover/recon-ng-active.rc
+     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/recon-ng-active.rc
      sed -i "s/yyy/$domain/g" $discover/recon-ng-active.rc
-     recon-ng -r $discover/recon-ng-active.rc
+     recon-ng --no-check -r $discover/recon-ng-active.rc
 
      grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
 
