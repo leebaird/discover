@@ -52,9 +52,6 @@ run
 use recon/domains-hosts/google_site_api
 run
 
-use recon/domains-hosts/google_site_web
-run
-
 use recon/domains-hosts/netcraft
 run
 
@@ -93,7 +90,7 @@ query SELECT netblock FROM netblocks ORDER BY netblock
 spool stop
 
 spool start /tmp/profiles
-query SELECT DISTINCT username FROM profiles
+query SELECT DISTINCT username FROM profiles ORDER BY username
 spool stop
 
 spool start /tmp/subdomains

@@ -618,7 +618,7 @@ case $choice in
      echo
 
      echo "recon-ng                  (36/$total)"
-     cp $discover/resource/recon-ng.rc /tmp/
+     cp $discover/resource/recon-ng.rc $discover/
      sed -i "s/xxx/$company/g" $discover/recon-ng.rc
      sed -i "s/yyy/$domain/g" $discover/recon-ng.rc
      recon-ng -r $discover/recon-ng.rc
@@ -1011,18 +1011,12 @@ case $choice in
 
      echo
      echo "recon-ng                  (12/$total)"
-     cp $discover/resource/recon-ng-active.rc /tmp/
+     cp $discover/resource/recon-ng-active.rc $discover/
      sed -i "s/xxx/$company/g" $discover/recon-ng-active.rc
      sed -i "s/yyy/$domain/g" $discover/recon-ng-active.rc
      recon-ng -r $discover/recon-ng-active.rc
 
-#     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > emails-recon
-#     grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
      grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
-
-#     grep '|' /tmp/names | awk '{print $2", "$4}' | egrep -v '(_|\|)' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp
-#     grep '|' /tmp/profiles | awk '{print $3", "$2}' | grep -v '|' > tmp2
-#     cat tmp tmp2 | grep -iv 'INFORM' | sort -u > names-recon
 
      ##############################################################
 
@@ -3927,7 +3921,7 @@ echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
 python /usr/share/recon-ng/recon-cli -M > tmp
-grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|brute_suffix|cache_snoop|dev_diver|exploitation|freegeoip|import|ipinfodb|jigsaw|linkedin_auth|locations|mailtester|mangle|migrate_contacts|migrate_hosts|metacrawler|namechk|ports|profiler|pwnedlist|reporting|reverse_resolve|ssl_san|ssltools|twitter|vpnhunter|vulnerabilities)' > tmp2
+grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|brute_suffix|cache_snoop|dev_diver|exploitation|freegeoip|google_site_web|import|ipinfodb|jigsaw|linkedin_auth|locations|mailtester|mangle|migrate_contacts|migrate_hosts|metacrawler|namechk|ports|profiler|pwnedlist|reporting|reverse_resolve|ssl_san|ssltools|twitter|vpnhunter|vulnerabilities)' > tmp2
 cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'use' | grep -v 'query' | awk '{print $2}' | sort -u > tmp3
 diff tmp2 tmp3 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
 
