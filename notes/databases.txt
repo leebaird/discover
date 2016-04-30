@@ -37,22 +37,28 @@ GRANT ALL PRIVILEGES ON <db name>.* TO 'username' @ 'localhost' IDENTIFIED BY 'p
 SHOW GRANTS FOR 'username'@'localhost';
 
 SELECT * FROM <table>;
-SELECT * FROM <table> WHERE <field> = "value";
-
+SELECT * FROM <table> WHERE <field>="value";
 SELECT LOAD_FILE('/etc/passwd')\g;
+
+DELETE FROM <table> WHERE <field>="value";
 
 DROP TABLE 'table1', 'table2', 'table3';
 
 UPDATE <table> SET <field>="value";
-UPDATE hostvulns SET tool="Nessus";
 
-ORDER BY <field> <ASC, DESC>
+DISTINCT <field>
 GROUP BY <field>
+LIKE
 LIMIT <number>
 OFFSET <number>
+ORDER BY <field> <ASC, DESC>
 
 SELECT * FROM hostvulns WHERE vulnerability LIKE "%Default%" ORDER BY vulnerability;
 SELECT LENGTH(vulnerability), COUNT(*) FROM hostvulns GROUP BY LENGTH(vulnerability);
+SELECT DISTINCT last_name,first_name FROM contacts WHERE first_name !="" ORDER BY last_name;
+SELECT DISTINCT email FROM contacts WHERE email LIKE "%@target.com" ORDER BY email
+DELETE from profiles WHERE rowid='53';
+UPDATE hostvulns SET tool="Nessus";
 ------------------------------------------------------------------------------------------------------
 
 # Postgresql

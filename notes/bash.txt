@@ -38,6 +38,7 @@ sed '/^FOO/a\ '                                     # Find lines that start with
 sed -e :a -e '$!N;s/\nFOO/ /;ta' -e 'P;D'           # Find lines that start with FOO, insert a space and append to the previous line
 
 sed -n '/FOO/,$p'                                   # Print from FOO to the end of the file
+sed s/FOO.*//                                       # Print from FOO to the end of the line
 sed -n '5,/^$/p'                                    # Print from the 5th line to the first blank line
 sed -n '/FOO/,/BAR/p'                               # Print lines between FOO and BAR
 sed -e '/./{H;$!d;}' -e 'x;/FOO/!d;'                # Print paragraphs that contains FOO 
@@ -53,6 +54,7 @@ sed '1,5d'                                          # Remove first 5 lines
 sed 's/^[ \t]*//;s/[ \t]*$//'                       # Remove leading and trailing whitespace from each line
 sed 's/^[ \t]*//'                                   # Remove leading whitespace from each line
 sed '/FOO/,/BAR/d'                                  # Remove lines between FOO and BAR
+awk '/FOO/{f=1} (!f || f>2){print} (f && /BAR/){f++}'   # Remove lines from FOO and the second BAR
 awk '$2 !~ /[a-z]/'                                 # Remove lines in the second columns that contain characters
 for a in z*; do grep -vE '^[\/\#\(\_\[\|\<\.\,\`\%\@]' "$a" > "$a.tmp"; mv "$a.tmp" "$a"; done    
                                                     # Remove lines starting with various non-characters
@@ -60,6 +62,7 @@ awk '$2 !~ /[a-z]/'                                 # Remove lines that contain 
 sed '/[[:blank:]]/!d'                               # Remove lines that contain a single word
 printf '%s\n' 'g/FOO/d\' '-d' w | ed -s             # Remove lines that contain FOO and the previous line
 sed '/@.*@/d'                                       # Remove lines that contain two @ symbols
+sed '/[0-9]$/'                                      # Remove lines that contain a number
 sed '/[0-9]$/d'                                     # Remove lines that end with a number
 sed '/FOO$/d'                                       # Remove lines that end with FOO
 sed '/^[0-9]/d'                                     # Remove lines that start with a number
@@ -73,6 +76,7 @@ sed '/TEST/!s/FOO/BAR/g'                            # Replace FOO with BAR, exce
 sed '/TEST/s/FOO/BAR/g'                             # Replace FOO with BAR, on lines that contain TEST
 sed 's/FOO//g'                                      # Replace FOO with nothing
 cat tmp | tr ';' '\n'                               # Replace semicolon with a new line
+sed 's/\([^,]*,\)\{7\}[^,]*,/&\n/g'                 # Replace the 8th comma with a new line
 
 sort -k2                                            # Sort by the second column
 sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4         # Sort IPs
@@ -177,7 +181,7 @@ fi
 
 ------------------------------------------------------------------------------------------------------
 
-# Set variable
+# Set variable.
 
 if [ "$payload" == "1" ]; then
 	format="raw"
@@ -203,7 +207,6 @@ fi
 while read -r line; do
 	host $line | grep 'has address' | cut -d ' ' -f4
 done < subdomains.txt
-
 
 while read -r line; do
      x=$((x+1))

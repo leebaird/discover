@@ -1,0 +1,60 @@
+body {
+    font-family: arial, helvetica, sans-serif;
+    color: #303030;
+    background-color: white;
+    font-size: 0.75em;
+    font-weight: normal;
+    line-height: 1.5em;
+}
+
+a, a:link { 
+    color: #0040AF;
+    text-decoration: none;
+}
+
+ul {
+    list-style-type: square;
+    text-align: left;
+}
+
+th {
+    text-align: left;
+    font-weight: bold;
+    background: #E0EAEF;
+    padding: 2px 4px;
+}
+
+span.unavailable {
+    font-style: italic;    
+}
+
+table.TBtable {
+    border: 1px solid #cacaca;
+    width: 80%;
+    margin-left:10%; 
+    margin-right:10%;
+    display: table;
+    margin-top: 10px;
+}
+
+.TBtr {
+    background: #efefef;
+    vertical-align: top;
+}
+
+.TBtr2 {
+    background: #FFFFFF;
+    vertical-align: top;
+}
+
+.site_report_table .section_title h2 {
+    color: #444;
+    margin-left: 0;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0.5em 0;
+    margin-top: 0;
+    padding: 0.5em;
+    padding-left: 10%;
+}
+
