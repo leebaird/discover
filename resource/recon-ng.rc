@@ -15,12 +15,15 @@ use recon/companies-multi/whois_miner
 run
 
 use recon/contacts-credentials/hibp_breach
+set SOURCE yyy
 run
 
 use recon/contacts-credentials/hibp_paste
+set SOURCE yyy
 run
 
 use recon/contacts-profiles/fullcontact
+set SOURCE yyy
 run
 
 use recon/credentials-credentials/bozocrack
@@ -29,9 +32,6 @@ run
 
 use recon/credentials-credentials/hashes_org
 set SOURCE yyy
-run
-
-use recon/domains-contacts/metacrawler
 run
 
 use recon/domains-contacts/pgp_search
