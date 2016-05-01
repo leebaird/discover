@@ -48,14 +48,15 @@ UPDATE <table> SET <field>="value";
 
 DISTINCT <field>
 GROUP BY <field>
+IS NOT NULL
 LIKE
 LIMIT <number>
 OFFSET <number>
-ORDER BY <field> <ASC, DESC>
+ORDER BY <field>
 
 SELECT * FROM hostvulns WHERE vulnerability LIKE "%Default%" ORDER BY vulnerability;
 SELECT LENGTH(vulnerability), COUNT(*) FROM hostvulns GROUP BY LENGTH(vulnerability);
-SELECT DISTINCT last_name,first_name FROM contacts WHERE first_name !="" ORDER BY last_name;
+SELECT DISTINCT last_name,first_name FROM contacts WHERE first_name IS NOT NULL ORDER BY last_name;
 SELECT DISTINCT email FROM contacts WHERE email LIKE "%@target.com" ORDER BY email
 DELETE from profiles WHERE rowid='53';
 UPDATE hostvulns SET tool="Nessus";

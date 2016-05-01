@@ -5,27 +5,21 @@ none
 add domains
 yyy
 
-use discovery/info_disclosure/interesting_files
-set DOWNLOAD False
-set SOURCE yyy
-run
-
 use recon/domains-hosts/brute_hosts
 run
 
-use recon/domains-hosts/ssl_san
-run
-
-use recon/hosts-hosts/ssltools
+use recon/netblocks-hosts/reverse_resolve
 run
 
 use recon/hosts-hosts/resolve
+run
+use recon/hosts-hosts/reverse_resolve
 run
 
 back
 
 spool start /tmp/subdomains
-query SELECT DISTINCT host,ip_address FROM hosts WHERE ip_address !='' ORDER BY host
+query SELECT DISTINCT host,ip_address FROM hosts WHERE ip_address IS NOT NULL ORDER BY host
 spool stop
 
 exit

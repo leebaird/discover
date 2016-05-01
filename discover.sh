@@ -625,7 +625,10 @@ case $choice in
      sed -i "s/yyy/$domain/g" $discover/recon-ng.rc
      recon-ng --no-check -r $discover/recon-ng.rc
 
-     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > emails-recon
+     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > tmp
+     grep "@$domain" /tmp/profiles | awk '{print $2}' > tmp2
+     cat tmp tmp2 | sort -u > emails-recon
+
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
      grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
 
@@ -655,7 +658,7 @@ case $choice in
 
      cat networks-tmp networks-recon | sort -u | $sip > networks
 
-     cat sub* | grep -v "$domain\." | sed 's/www\.//g' | column -t | tr '[A-Z]' '[a-z]' | sort -u > tmp
+     cat sub* | grep -v "$domain\." | grep -v '|' | sed 's/www\.//g' | column -t | tr '[A-Z]' '[a-z]' | sort -u > tmp
      # Remove lines that contain a single word
      sed '/[[:blank:]]/!d' tmp > subdomains
 
@@ -3924,7 +3927,7 @@ echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
 python /usr/share/recon-ng/recon-cli -M > tmp
-grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|brute_suffix|cache_snoop|dev_diver|exploitation|freegeoip|google_site_web|import|ipinfodb|jigsaw|linkedin_auth|locations|mailtester|mangle|migrate_contacts|migrate_hosts|metacrawler|namechk|ports|profiler|pwnedlist|reporting|reverse_resolve|ssl_san|ssltools|twitter|vpnhunter|vulnerabilities)' > tmp2
+grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|bozocrack|brute_suffix|cache_snoop|dev_diver|exploitation|gists_search|github_dorks|google_site_web|hashes_org|import|interesting_files|jigsaw|linkedin_auth|locations|mailtester|mangle|metacrawler|migrate_contacts|migrate_hosts|namechk|pwnedlist|reporting|vulnerabilities)' > tmp2
 cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'use' | grep -v 'query' | awk '{print $2}' | sort -u > tmp3
 diff tmp2 tmp3 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
 
@@ -3953,7 +3956,7 @@ if [ ! -d $home/data ]; then
      mkdir -p $home/data
 fi
 
-echo -e "\x1B[1;34mRECON\x1B[0m"             # In MacOSX, using \x1B instead of \e. \033 would be ok for all platforms.
+echo -e "\x1B[1;34mRECON\x1B[0m"             # In MacOS X, using \x1B instead of \e. \033 would be ok for all platforms.
 echo "1.  Domain"
 echo "2.  Person"
 echo "3.  Parse salesforce"
