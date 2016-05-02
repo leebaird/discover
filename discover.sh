@@ -143,7 +143,7 @@ mkdir $save_dir
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv curl emails* names* networks* records squatting tracert whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+mv curl emails* names* networks* records squatting network-tools whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
 rm /tmp/emails /tmp/names /tmp/networks /tmp/profiles /tmp/subdomains 2>/dev/null
 
 echo "Saving complete"
@@ -429,14 +429,8 @@ case $choice in
      done < tmp13 > whois-domain
 
      echo "     IP 		  (25/$total)"
-     wget -q tracert.com/resolver?arg=$domain -O tracert
-     mult=$(grep 'Resolution' tracert | sed -e 's/<[^>]*>//g' | sed 's/^ *//g' | cut -d ' ' -f9)
-
-     if [ "$mult" = "addresses:" ]; then
-          y=$(grep -A1 'Resolution' tracert | tail -n +2 | sed -e 's/<[^>]*>//g' | sed 's/^ *//g')
-     else
-          y=$(grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6)
-     fi
+     wget -q http://network-tools.com/default.asp?prog=network\&host=$domain -O network-tools
+     y=$(cat network-tools | grep 'Registered Domain' | awk '{print $1}')
 
      if ! [ "$y" = "" ]; then
           whois -H $y > tmp
@@ -512,27 +506,18 @@ case $choice in
      # NS records
      wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=NS\&submit=Resolve -O tmp2
      grep 'NS record found' tmp2 | sed 's/\.</>/g' | cut -d '>' -f2 > tmp3
-     while read i; do wget -q tracert.com/resolver?arg=$i -O tracert; grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""NS"","host}' host="$i" >> tmp; done < tmp3
+     while read i; do wget -q http://network-tools.com/default.asp?prog=network\&host=$i -O network-tools; grep 'Registered Domain' network-tools | awk '{print $1",""NS"","host}' host="$i" >> tmp; done < tmp3
 
      # MX Records
      wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=MX\&submit=Resolve -O tmp2
      grep 'MX record found' tmp2 | sed 's/\.</ /g' | cut -d ' ' -f6 > tmp3
-     while read i; do
-          wget -q tracert.com/resolver?arg=$i -O tracert
-          mult=$(grep 'Resolution' tracert | sed -e 's/<[^>]*>//g' | sed 's/^ *//g' | cut -d ' ' -f9)
-          if [ "$mult" = "addresses:" ]; then
-               sed '1,/Resolution/d;/does not have/,$d' tracert | sed -e 's/<[^>]*>//g' | sed 's/^ *//g' | sed '/^$/d' > tmp4
-               while read a; do echo $a | awk '{print $a",""MX"","host}' host="$i" >> tmp; done < tmp4
-          else
-               grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""MX"","host}' host="$i" >> tmp
-          fi
-     done < tmp3
+     while read i; do wget -q http://network-tools.com/default.asp?prog=network\&host=$i -O network-tools; grep 'Registered Domain' network-tools | awk '{print $1",""MX"","host}' host="$i" >> tmp; done < tmp3
 
      # SOA records
      wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=SOA\&submit=Resolve -O tmp2
      grep 'SOA record found' tmp2 | sed 's/>/ /g' | sed 's/\. / /g' | cut -d ' ' -f6 > tmp3
      grep 'SOA record found' tmp2 | sed 's/>/ /g' | sed 's/\. / /g' | cut -d ' ' -f7 >> tmp3
-     while read i; do wget -q tracert.com/resolver?arg=$i -O tracert; grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""SOA"","host}' host="$i" >> tmp; done < tmp3
+     while read i; do wget -q http://network-tools.com/default.asp?prog=network\&host=$i -O network-tools; grep 'Registered Domain' network-tools | awk '{print $1",""SOA"","host}' host="$i" >> tmp; done < tmp3
 
      # TXT records
      wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=TXT\&submit=Resolve -O tmp2
@@ -812,7 +797,7 @@ case $choice in
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
      mv recon-ng.rc $home/data/$domain/ 2>/dev/null
-     rm curl debug* emails* hosts names* networks* squatting sub* tmp* tracert whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm curl debug* emails* hosts names* networks* squatting sub* tmp* network-tools whois* z* doc pdf ppt txt xls 2>/dev/null
      rm /tmp/emails /tmp/names /tmp/networks /tmp/profiles /tmp/subdomains 2>/dev/null
 
      # Screenshot for Robtex
