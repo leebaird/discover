@@ -40,8 +40,6 @@ run
 use recon/contacts-profiles/fullcontact
 run
 
-use recon/profiles-profiles/profiler
-run
 use recon/profiles-profiles/twitter
 run
 use recon/profiles-repositories/github_repos

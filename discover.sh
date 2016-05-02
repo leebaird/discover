@@ -3927,7 +3927,7 @@ echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
 python /usr/share/recon-ng/recon-cli -M > tmp
-grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|bozocrack|brute_suffix|cache_snoop|dev_diver|exploitation|gists_search|github_dorks|google_site_web|hashes_org|import|interesting_files|jigsaw|linkedin_auth|locations|mailtester|mangle|metacrawler|migrate_contacts|migrate_hosts|namechk|pwnedlist|reporting|vulnerabilities)' > tmp2
+grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|bozocrack|brute_suffix|cache_snoop|dev_diver|exploitation|gists_search|github_dorks|google_site_web|hashes_org|import|interesting_files|jigsaw|linkedin_auth|locations|mailtester|mangle|metacrawler|migrate_contacts|migrate_hosts|namechk|profiler|pwnedlist|reporting|vulnerabilities)' > tmp2
 cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'use' | grep -v 'query' | awk '{print $2}' | sort -u > tmp3
 diff tmp2 tmp3 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
 
