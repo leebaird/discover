@@ -26,6 +26,7 @@ mysql -h <IP> -u <username> -p
 CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
 CREATE DATABASE <database>;
 GRANT ALL PRIVILEGES ON <database>.* TO 'newuser'@'localhost';
+FLUSH PRIVILEGES;
 
 SHOW DATABASES;
 USE <database>;
