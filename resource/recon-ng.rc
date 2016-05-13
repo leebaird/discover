@@ -17,6 +17,8 @@ use recon/domains-hosts/builtwith
 run
 use recon/domains-hosts/google_site_api
 run
+use recon/domains-hosts/hackertarget
+run
 use recon/domains-hosts/netcraft
 run
 use recon/domains-hosts/shodan_hostname
