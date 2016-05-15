@@ -143,7 +143,7 @@ mkdir $save_dir
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv curl emails* names* networks* records squatting tracert whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+mv curl emails* names* networks* records squatting network-tools whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
 rm /tmp/emails /tmp/names /tmp/networks /tmp/profiles /tmp/subdomains 2>/dev/null
 
 echo "Saving complete"
@@ -429,14 +429,8 @@ case $choice in
      done < tmp13 > whois-domain
 
      echo "     IP 		  (25/$total)"
-     wget -q tracert.com/resolver?arg=$domain -O tracert
-     mult=$(grep 'Resolution' tracert | sed -e 's/<[^>]*>//g' | sed 's/^ *//g' | cut -d ' ' -f9)
-
-     if [ "$mult" = "addresses:" ]; then
-          y=$(grep -A1 'Resolution' tracert | tail -n +2 | sed -e 's/<[^>]*>//g' | sed 's/^ *//g')
-     else
-          y=$(grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6)
-     fi
+     wget -q http://network-tools.com/default.asp?prog=network\&host=$domain -O network-tools
+     y=$(cat network-tools | grep 'Registered Domain' | awk '{print $1}')
 
      if ! [ "$y" = "" ]; then
           whois -H $y > tmp
@@ -512,27 +506,18 @@ case $choice in
      # NS records
      wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=NS\&submit=Resolve -O tmp2
      grep 'NS record found' tmp2 | sed 's/\.</>/g' | cut -d '>' -f2 > tmp3
-     while read i; do wget -q tracert.com/resolver?arg=$i -O tracert; grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""NS"","host}' host="$i" >> tmp; done < tmp3
+     while read i; do wget -q http://network-tools.com/default.asp?prog=network\&host=$i -O network-tools; grep 'Registered Domain' network-tools | awk '{print $1",""NS"","host}' host="$i" >> tmp; done < tmp3
 
      # MX Records
      wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=MX\&submit=Resolve -O tmp2
      grep 'MX record found' tmp2 | sed 's/\.</ /g' | cut -d ' ' -f6 > tmp3
-     while read i; do
-          wget -q tracert.com/resolver?arg=$i -O tracert
-          mult=$(grep 'Resolution' tracert | sed -e 's/<[^>]*>//g' | sed 's/^ *//g' | cut -d ' ' -f9)
-          if [ "$mult" = "addresses:" ]; then
-               sed '1,/Resolution/d;/does not have/,$d' tracert | sed -e 's/<[^>]*>//g' | sed 's/^ *//g' | sed '/^$/d' > tmp4
-               while read a; do echo $a | awk '{print $a",""MX"","host}' host="$i" >> tmp; done < tmp4
-          else
-               grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""MX"","host}' host="$i" >> tmp
-          fi
-     done < tmp3
+     while read i; do wget -q http://network-tools.com/default.asp?prog=network\&host=$i -O network-tools; grep 'Registered Domain' network-tools | awk '{print $1",""MX"","host}' host="$i" >> tmp; done < tmp3
 
      # SOA records
      wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=SOA\&submit=Resolve -O tmp2
      grep 'SOA record found' tmp2 | sed 's/>/ /g' | sed 's/\. / /g' | cut -d ' ' -f6 > tmp3
      grep 'SOA record found' tmp2 | sed 's/>/ /g' | sed 's/\. / /g' | cut -d ' ' -f7 >> tmp3
-     while read i; do wget -q tracert.com/resolver?arg=$i -O tracert; grep 'Resolution' tracert | sed 's/^ *//g' | tr '<' ' ' | cut -d ' ' -f6 | awk '{print $1",""SOA"","host}' host="$i" >> tmp; done < tmp3
+     while read i; do wget -q http://network-tools.com/default.asp?prog=network\&host=$i -O network-tools; grep 'Registered Domain' network-tools | awk '{print $1",""SOA"","host}' host="$i" >> tmp; done < tmp3
 
      # TXT records
      wget -q https://www.dnswatch.info/dns/dnslookup?la=en\&host=$domain\&type=TXT\&submit=Resolve -O tmp2
@@ -606,7 +591,7 @@ case $choice in
      done
 
      if [ $x -eq 11 ]; then
-          echo 'Zone transfer not allowed.' >> $home/data/$domain/data/zonetransfer.htm
+          echo 'Zone transfer failed.' >> $home/data/$domain/data/zonetransfer.htm
      fi
 
      echo '</body>' >> $home/data/$domain/data/zonetransfer.htm
@@ -625,7 +610,10 @@ case $choice in
      sed -i "s/yyy/$domain/g" $discover/recon-ng.rc
      recon-ng --no-check -r $discover/recon-ng.rc
 
-     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > emails-recon
+     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > tmp
+     grep "@$domain" /tmp/profiles | awk '{print $2}' > tmp2
+     cat tmp tmp2 | sort -u > emails-recon
+
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
      grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
 
@@ -655,7 +643,7 @@ case $choice in
 
      cat networks-tmp networks-recon | sort -u | $sip > networks
 
-     cat sub* | grep -v "$domain\." | sed 's/www\.//g' | column -t | tr '[A-Z]' '[a-z]' | sort -u > tmp
+     cat sub* | grep -v "$domain\." | grep -v '|' | sed 's/www\.//g' | column -t | tr '[A-Z]' '[a-z]' | sort -u > tmp
      # Remove lines that contain a single word
      sed '/[[:blank:]]/!d' tmp > subdomains
 
@@ -809,7 +797,7 @@ case $choice in
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
      mv recon-ng.rc $home/data/$domain/ 2>/dev/null
-     rm curl debug* emails* hosts names* networks* squatting sub* tmp* tracert whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm curl debug* emails* hosts names* networks* squatting sub* tmp* network-tools whois* z* doc pdf ppt txt xls 2>/dev/null
      rm /tmp/emails /tmp/names /tmp/networks /tmp/profiles /tmp/subdomains 2>/dev/null
 
      # Screenshot for Robtex
@@ -3924,7 +3912,7 @@ echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
 python /usr/share/recon-ng/recon-cli -M > tmp
-grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|brute_suffix|cache_snoop|dev_diver|exploitation|freegeoip|google_site_web|import|ipinfodb|jigsaw|linkedin_auth|locations|mailtester|mangle|migrate_contacts|migrate_hosts|metacrawler|namechk|ports|profiler|pwnedlist|reporting|reverse_resolve|ssl_san|ssltools|twitter|vpnhunter|vulnerabilities)' > tmp2
+grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|bozocrack|brute_suffix|cache_snoop|dev_diver|exploitation|gists_search|github_commits|github_dorks|github_users|google_site_web|hashes_org|import|interesting_files|jigsaw|linkedin_auth|locations|mailtester|mangle|metacrawler|migrate_contacts|migrate_hosts|namechk|profiler|pwnedlist|reporting|vulnerabilities)' > tmp2
 cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'use' | grep -v 'query' | awk '{print $2}' | sort -u > tmp3
 diff tmp2 tmp3 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
 
@@ -3953,7 +3941,7 @@ if [ ! -d $home/data ]; then
      mkdir -p $home/data
 fi
 
-echo -e "\x1B[1;34mRECON\x1B[0m"             # In MacOSX, using \x1B instead of \e. \033 would be ok for all platforms.
+echo -e "\x1B[1;34mRECON\x1B[0m"             # In MacOS X, using \x1B instead of \e. \033 would be ok for all platforms.
 echo "1.  Domain"
 echo "2.  Person"
 echo "3.  Parse salesforce"
