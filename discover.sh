@@ -28,7 +28,7 @@
 trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Global variables
-discover=$(locate discover.sh | sed 's:/[^/]*$::')
+discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
 distro=$(uname -n)
 home=$HOME
 long='========================================================================================================='
