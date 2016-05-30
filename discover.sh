@@ -208,7 +208,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=36
+     total=35
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g;s/\&/%26/g;s/\,/%2C/g' )
 
@@ -323,22 +323,20 @@ case $choice in
      theHarvester -d $domain -b jigsaw > zjigsaw
      echo "     LinkedIn             (17/$total)"
      theHarvester -d $domain -b linkedin > zlinkedin
-     echo "     People123            (18/$total)"
-     theHarvester -d $domain -b people123 > zpeople123
-     echo "     PGP                  (19/$total)"
+     echo "     PGP                  (18/$total)"
      theHarvester -d $domain -b pgp > zpgp
-     echo "     Yahoo                (20/$total)"
+     echo "     Yahoo                (19/$total)"
      theHarvester -d $domain -b yahoo > zyahoo
-     echo "     All                  (21/$total)"
+     echo "     All                  (20/$total)"
      theHarvester -d $domain -b all > zall
      echo
 
-     echo "Metasploit                (22/$total)"
+     echo "Metasploit                (21/$total)"
      msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
      grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' > zmsf
      echo
 
-     echo "URLCrazy                  (23/$total)"
+     echo "URLCrazy                  (22/$total)"
      urlcrazy $domain > tmp
      # Clean up & Remove Blank Lines
      egrep -v '(#|:|\?|\-|RESERVED|URLCrazy)' tmp | sed '/^$/d' > tmp2
@@ -389,7 +387,7 @@ case $choice in
      ##############################################################
 
      echo "Whois"
-     echo "     Domain               (24/$total)"
+     echo "     Domain               (23/$total)"
      whois -H $domain > tmp 2>/dev/null
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
@@ -428,7 +426,7 @@ case $choice in
           fi
      done < tmp13 > whois-domain
 
-     echo "     IP 		  (25/$total)"
+     echo "     IP 		  (24/$total)"
      wget -q http://network-tools.com/default.asp?prog=network\&host=$domain -O network-tools
      y=$(cat network-tools | grep 'Registered Domain' | awk '{print $1}')
 
@@ -464,7 +462,7 @@ case $choice in
      fi
 
      echo
-     echo "dnsdumpster.com           (26/$total)"
+     echo "dnsdumpster.com           (25/$total)"
      wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/images/dnsdumpster.png
 
      # Generate a random cookie value
@@ -478,7 +476,7 @@ case $choice in
      ssconvert -E Gnumeric_Excel:xlsx -T Gnumeric_stf:stf_csv tmp.xlsx tmp.csv 2>/dev/null
      cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > sub-dnsdumpster
 
-     echo "dnssy.com                 (27/$total)"
+     echo "dnssy.com                 (26/$total)"
      wget -q --post-data 'q=$domain&step=1&r=1448215046#3cc723b32910c180bc45aba6c21be6edf4125745' http://www.dnssy.com/report.php -O tmp
      sed -n '/table border/,/\/table/p' tmp > tmp2
      echo "<html>" > tmp3
@@ -488,14 +486,15 @@ case $choice in
      s/Warning/<center><img src="..\/images\/icons\/yellow.png" height="50" width="50"><\/center>/g;
      s/Fail/<center><img src="..\/images\/icons\/red.png" height="50" width="50"><\/center>/g;
      s/ class="info"//g; s/ class="rfail"//g; s/ class="rinfo"//g; s/ class="rpass"//g; s/ class="rsecu"//g; s/ class="rwarn"//g;
-     s/All of the glue/Glue/g; s/All of your MX/All MX/g; s/All of your nameservers/Nameservers/g; s/Checking domain format/Domain format/g;
-     s/Checking for parent nameservers/Parent nameservers/g; s/Checking for parent glue/Parent glue/g; s/Each of your nameservers/Each nameserver/g;
-     s/I expected/Expected/g; s/I found the following MX records://g; s/I got an error response to my/Received an error response to/g;
+     s/All of the glue/Glue/g; s/All of your MX/All MX/g; s/All of your nameservers/Nameservers/g; 
+     s/Checking domain format/Domain format/g; s/Checking for parent nameservers/Parent nameservers/g; 
+     s/Checking for parent glue/Parent glue/g; s/Each of your nameservers/Each nameserver/g; s/I expected/Expected/g; 
+     s/I found the following MX records://g; s/I got an error response to my/Received an error response to/g;
      s/I was unable/Unable/g; s/None of your MX/No MX/g; s/This is all of the MX servers I found.//g; s/WWW/www/g;
      s/Your nameservers/Nameservers/g; s/Your NS records at your nameservers are://g; s/Your NS records at your parent nameserver are://g;
      s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > $home/data/$domain/data/config.htm
 
-     echo "dnswatch.info             (28/$total)"
+     echo "dnswatch.info             (27/$total)"
      echo '*' > tmp
      echo '%' >> tmp
 
@@ -532,23 +531,23 @@ case $choice in
      echo >> $home/data/$domain/data/records.htm
      echo '</html>' >> $home/data/$domain/data/records.htm
 
-     echo "email-format.com          (29/$total)"
+     echo "email-format.com          (28/$total)"
      curl --silent http://www.email-format.com/d/$domain/ | grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* > zemail-format
 
-     echo "ewhois.com                (30/$total)"
+     echo "ewhois.com                (29/$total)"
      wget -q http://www.ewhois.com/$domain/ -O tmp
      cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > sub3
 
-     echo "intodns.com               (31/$total)"
+     echo "intodns.com               (30/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
      cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
      cat tmp2 >> $home/data/$domain/pages/config.htm
 
-     echo "myipneighbors.net         (32/$total)"
+     echo "myipneighbors.net         (31/$total)"
      wget -q http://www.myipneighbors.net/?s=$domain -O tmp
      grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
 
-     echo "netcraft.com              (33/$total)"
+     echo "netcraft.com              (32/$total)"
      wget -q http://toolbar.netcraft.com/site_report?url=http://$domain -O tmp
 
      # Remove lines from FOO to the second BAR
@@ -567,7 +566,7 @@ case $choice in
      echo >> $home/data/$domain/pages/netcraft.htm
      echo '</html>' >> $home/data/$domain/pages/netcraft.htm
 
-     echo "ultratools.com            (34/$total)"
+     echo "ultratools.com            (33/$total)"
      x=0
 
      f_passive_axfr(){
@@ -598,12 +597,12 @@ case $choice in
      echo >> $home/data/$domain/data/zonetransfer.htm
      echo '</html>' >> $home/data/$domain/data/zonetransfer.htm
 
-     echo "urlvoid.com               (35/$total)"
+     echo "urlvoid.com               (34/$total)"
      wget -q http://www.urlvoid.com/scan/$domain -O tmp
      sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > $home/data/$domain/data/black-listed.htm
      echo
 
-     echo "recon-ng                  (36/$total)"
+     echo "recon-ng                  (35/$total)"
      cp $discover/resource/recon-ng.rc $discover/
      sed -i "s/xxx/$companyurl/g" $discover/recon-ng.rc
      sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/recon-ng.rc
@@ -1286,10 +1285,12 @@ s/West Palm B//g; s/West Paterson//g; s/west Region//g; s/West Sacram//g; s/West
 s/Whiteman Ai//g; s/Whitmore Lake//g; s/Williston Park//g; s/Willow Grove//g; s/South Windsor//g; s/Windsor Locks//g; s/Windsor Mill//g; s/Winston Salem//g; s/Winter Park//g; 
 s/Winter Springs//g; s/Woodland Hills//g; s/Woodland Park//g; s/worldwide/Worldwide/g;
 
-s/AK //g; s/AL //g; s/AR //g; s/AZ //g; s/CA //g; s/CO //g; s/CT //g; s/DC //g; s/DE //g; s/FL //g; s/GA //g; s/HI //g; s/IA //g; s/ID //g; s/IL //g; s/IN //g; s/KA //g; s/KS //g;
-s/KY //g; s/LA //g; s/MA //g; s/ME //g; s/MD //g; s/MI //g; s/MO //g; s/MN //g; s/MS //g; s/MT //g; s/NC //g; s/NE //g; s/ND //g; s/NH //g; s/NJ //g; s/NM //g; s/NV //g; s/NY //g;
-s/OH //g; s/OK //g; s/ON //g; s/OR //g; s/PA //g; s/PR //g; s/QC //g; s/RI //g; s/SC //g; s/SD //g; s/TN //g; s/TX //g; s/Uk //g; s/UP //g; s/UT //g; s/VA //g; s/VT //g; s/WA //g;
-s/WI //g; s/WV //g; s/WY //g; s/AP //g; s/DL //g; s/NB //g; s/MH //g; s/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g; s/^[ \tmp]*//g' > tmp
+s/AK //g; s/AL //g; s/AR //g; s/AZ //g; s/CA //g; s/CO //g; s/CT //g; s/DC //g; s/DE //g; s/FL //g; s/GA //g; s/HI //g; s/IA //g; 
+s/ID //g; s/IL //g; s/IN //g; s/KA //g; s/KS //g; s/KY //g; s/LA //g; s/MA //g; s/ME //g; s/MD //g; s/MI //g; s/MO //g; s/MN //g; 
+s/MS //g; s/MT //g; s/NC //g; s/NE //g; s/ND //g; s/NH //g; s/NJ //g; s/NM //g; s/NV //g; s/NY //g; s/OH //g; s/OK //g; s/ON //g; 
+s/OR //g; s/PA //g; s/PR //g; s/QC //g; s/RI //g; s/SC //g; s/SD //g; s/TN //g; s/TX //g; s/Uk //g; s/UP //g; s/UT //g; s/VA //g; 
+s/VT //g; s/WA //g; s/WI //g; s/WV //g; s/WY //g; s/AP //g; s/DL //g; s/NB //g; s/MH //g; 
+s/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g; s/^[ \tmp]*//g' > tmp
 
 # Author: Ben Wood
 perl -ne 'if ($_ =~ /(.*?)\t\s*(.*)/) {printf("%-40s%s\n",$1,$2);}' tmp | sed 's/[ \t]*$//g' | sort > tmp2
