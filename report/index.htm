@@ -1,94 +1,131 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
 
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Reporting Framework</title>
-<link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
-<link href="css/defaults.css" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reporting Framework</title>
+
+  <!-- Bootstrap Core CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link rel="shortcut icon" href="/images/favicon.ico?v=2">
+	<link rel="icon" sizes="16x16 32x32 64x64" href="/images/favicon.ico?v=2">
+	<link rel="icon" type="image/png" sizes="196x196" href="/images/favicon-192.png?v=2">
+	<link rel="icon" type="image/png" sizes="160x160" href="/images/favicon-160.png?v=2">
+	<link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96.png?v=2">
+	<link rel="icon" type="image/png" sizes="64x64" href="/images/favicon-64.png?v=2">
+	<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png?v=2">
+	<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png?v=2">
+	<link rel="apple-touch-icon" href="/images/favicon-57.png?v=2">
+	<link rel="apple-touch-icon" sizes="114x114" href="/images/favicon-114.png?v=2">
+	<link rel="apple-touch-icon" sizes="72x72" href="/images/favicon-72.png?v=2">
+	<link rel="apple-touch-icon" sizes="144x144" href="/images/favicon-144.png?v=2">
+	<link rel="apple-touch-icon" sizes="60x60" href="/images/favicon-60.png?v=2">
+	<link rel="apple-touch-icon" sizes="120x120" href="/images/favicon-120.png?v=2">
+	<link rel="apple-touch-icon" sizes="76x76" href="/images/favicon-76.png?v=2">
+	<link rel="apple-touch-icon" sizes="152x152" href="/images/favicon-152.png?v=2">
+	<link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-180.png?v=2">
+	<meta name="msapplication-TileColor" content="#FFFFFF">
+	<meta name="msapplication-TileImage" content="/images/favicon-144.png?v=2">
+	<meta name="msapplication-config" content="/browserconfig.xml">
+  <!-- Custom CSS -->
+  <link href="css/simple-sidebar.css" rel="stylesheet">
 </head>
-
 <body>
+  <div id="wrapper">
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+      <ul class="sidebar-nav">
+        <li class="sidebar-brand">
+          <a href="index.htm">
+            Home
+          </a>
+        </li>
+        <li><a href="#">Contacts</a>
+          <ul>
+            <li><a href="pages/emails.htm">Emails</a></li>
+            <li><a href="pages/names.htm">Names</a></li>
+          </ul>
+        </li>
 
-<div class="header nav">
-	<div class="header-wrap container_12">
-		<ul class="navbar">
-			<li class="current"><a href="index.htm" onclick="populateDefault()">Home</a></li>
-			<li><a href="#">Contacts</a>
-			<ul>
-                    <li><a href="pages/emails.htm">Emails</a></li>
-			     <li><a href="pages/names.htm">Names</a></li>
-			</ul>         
-			</li>
+        <li><a href="#">DNS</a>
+          <ul>
+            <li><a href="pages/black-listed.htm">Black Listed</a></li>
+            <li><a href="pages/config.htm">Config</a></li>
+            <li><a href="pages/maps.htm">Maps</a></li>
+            <li><a href="pages/records.htm">Records</a></li>
+            <li><a href="pages/subdomains.htm">Subdomains</a></li>
+            <li><a href="pages/zonetransfer.htm">Zone Transfer</a></li>
+          </ul>
+        </li>
 
-			<li><a href="#">DNS</a>
-			<ul>
-			     <li><a href="pages/black-listed.htm">Black Listed</a></li>
-			     <li><a href="pages/config.htm">Config</a></li>
-			     <li><a href="pages/maps.htm">Maps</a></li>
-			     <li><a href="pages/records.htm">Records</a></li>
-			     <li><a href="pages/subdomains.htm">Subdomains</a></li>
-			     <li><a href="pages/zonetransfer.htm">Zone Transfer</a></li>
-			</ul>         
-			</li>
+        <li><a href="#">Domain</a>
+          <ul>
+            <li><a href="pages/hosts.htm">Hosts</a></li>
+            <li><a href="pages/netcraft.htm">Netcraft</a></li>
+            <li><a href="pages/squatting.htm">Squatting</a></li>
+            <li><a href="pages/traceroute.htm">Traceroute</a></li>
+            <li><a href="pages/whois-domain.htm">Whois Domain</a></li>
+            <li><a href="pages/whois-ip.htm">Whois IP</a></li>
+          </ul>
+        </li>
 
-			<li><a href="#">Domain</a>
-			<ul>
-			     <li><a href="pages/hosts.htm">Hosts</a></li>
-                    <li><a href="pages/netcraft.htm">Netcraft</a></li>
-			     <li><a href="pages/squatting.htm">Squatting</a></li>
-			     <li><a href="pages/traceroute.htm">Traceroute</a></li>
-			     <li><a href="pages/whois-domain.htm">Whois Domain</a></li>
-			     <li><a href="pages/whois-ip.htm">Whois IP</a></li>
-			</ul>         
-			</li>
+        <li><a href="#">Files</a>
+          <ul>
+            <li><a href="pages/xls.htm">Excel</a></li>
+            <li><a href="pages/pdf.htm">PDF</a></li>
+            <li><a href="pages/ppt.htm">PowerPoint</a></li>
+            <li><a href="pages/txt.htm">Text</a></li>
+            <li><a href="pages/doc.htm">Word</a></li>
+          </ul>
+        </li>
 
-			<li><a href="#">Files</a>
-			<ul>
-			     <li><a href="pages/xls.htm">Excel</a></li>
-			     <li><a href="pages/pdf.htm">PDF</a></li>
-			     <li><a href="pages/ppt.htm">PowerPoint</a></li>
-			     <li><a href="pages/txt.htm">Text</a></li>
-			     <li><a href="pages/doc.htm">Word</a></li>
-			</ul>         
-			</li>
+        <li><a href="#">Reports</a>
+          <ul>
+            <li><a href="pages/active-recon.htm">Active Recon</a></li>
+            <li><a href="pages/passive-recon.htm">Passive Recon</a></li>
+          </ul>
+        </li>
 
-			<li><a href="#">Reports</a>
-			<ul>
-			     <li><a href="pages/active-recon.htm">Active Recon</a></li>
-			     <li><a href="pages/passive-recon.htm">Passive Recon</a></li>
-			</ul>         
-			</li>
+        <li><a href="#">Web</a>
+          <ul>
+            <li><a href="pages/loadbalancing.htm">Loadbalancing</a></li>
+            <li><a href="pages/waf.htm">Web App FW</a></li>
+            <li><a href="pages/whatweb.htm">Whatweb</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <!-- /#sidebar-wrapper -->
 
-			<li><a href="#">Web</a>
-			<ul>
-			     <li><a href="pages/loadbalancing.htm">Loadbalancing</a></li>
-			     <li><a href="pages/waf.htm">Web App FW</a></li>
-			     <li><a href="pages/whatweb.htm">Whatweb</a></li>
-			</ul>         
-			</li>
-		</ul>
-	</div>
-</div>
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-12">
+            <pre>
+8888888b.  d8b
+888   Y88b Y8P
+888    888
+888    888 888 .d8888b   .d8888b  .d88b.  888  888  .d88b.  888d888
+888    888 888 88K      d88P"    d88""88b 888  888 d8P  Y8b 888P
+888    888 888 "Y8888b. 888      888  888 Y88  88P 88888888 888
+888  .d88P 888      X88 Y88b.    Y88..88P  Y8bd8P  Y8b.     888
+8888888P"  888  88888P'  "Y8888P  "Y88P"    Y88P    "Y8888  888
 
-<div class="wrapper">
-	<div class="container_12">
-		<div class="main-content">
-			<h2 class="page-header"><center><small class="lg-text">Easily browse <i>passive</i> and <i>active</i> OSINT for <a href="http://REPLACEDOMAIN" target="_blank">REPLACEDOMAIN</a>.</small></center></h2>
-               <br>
-               <br>
-               <br>
-               <br>
-               <center><img src="images/logo.png" width="50%"></center>
-               <br>
-               <br>
-		</div>
-	</div>
-</div>
-
+By Lee Baird
+</pre>
+            </div>
+            <div class="col-lg-12">
+            <p>Easily browse <i>passive</i> and <i>active</i> OSINT, using the sidebar on the left, for <a href="http://REPLACEDOMAIN" target="_blank">REPLACEDOMAIN</a>.</small></center></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+  </div>
+  <!-- /#wrapper -->
 </body>
-
 </html>
-
