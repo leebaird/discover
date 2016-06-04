@@ -1,6 +1,16 @@
 Burp Suite
 
 
+# Firefox proxy
+
+Preferences > Advanced > Network > Settings
+Manual proxy configuration
+HTTP Proxy: 127.0.0.1
+Port: 8080
+Use this proxy server for all protocols.
+No proxy for: delete anything in here
+------------------------------------------------------------------------------------------------------
+
 # Certificate
 
 Start Burp
@@ -17,24 +27,25 @@ Restart Firefox
 www.jython.org/downloads.html
 Download Jython Standalone Jar
 Move to /Applications/
-Extender > Options > Python Environment > Location of Jython standalone JAR file > Select file
+Extender > Options > Python Environment > Select file
 Browse to /Applications/jython-standalone-(version).jar > Open
 
-BApp Store
-Install CO2, Error Message Checks, HeartBleed, J2EEScan, Site Map Fetcher, Paramalyzer, and XSS Validator
-------------------------------------------------------------------------------------------------------
-
-# Firefox proxy
-
-Preferences > Advanced > Network > Settings
-Manual proxy configuration
-HTTP Proxy: 127.0.0.1
-Port: 8080
-Use this proxy server for all protocols.
-No proxy for: delete anything in here
+Extender > BApp Store > install the following:
+     CO2, Error Message Checks, HeartBleed, J2EEScan, Paramalyzer, Site Map Fetcher, and XSS Validator
 ------------------------------------------------------------------------------------------------------
 
 # Options
+
+User Options > Display:
+     User Interface > Font size: 14
+     HTTP Message Display > Font: Monospaced 14
+
+User Options > Misc:
+     Proxy Interception: Always disable
+     Performance Feedback: uncheck Submit annonymous feedback about Burp's performance
+
+Project Options > Misc:
+     Burp Collaborator Server: Don't use Burp Collaborator
 
 Intruder > Options:
      Request Engine:
@@ -43,14 +54,6 @@ Intruder > Options:
 
 Options > Connections:
      Platform Authentication: enable Prompt for credentials on platform authentication failure
-
-Options > Display:
-     User Interface > Font size: 16
-     HTTP Message Display > Font: Monospaced 15
-
-Options > Misc:
-     Burp Collaborator Server: Don't use Burp Collaborator
-     Performance Feedback: uncheck Submit annonymous feedback about Burp's performance
 
 Proxy > Options:
      Intercept Client Requests:
@@ -63,9 +66,6 @@ Proxy > Options:
      Enable URL and move to the top.
      Add: And, File extension, Does not match, same Conditions as above.
      Move to the second position.
-
-     Miscellaneous:
-     Enable interception at startup: Always disable
 
 Scanner > Options:
      Active Scanning Engine > Number of retries on network failure: 2
