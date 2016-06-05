@@ -100,5 +100,8 @@ also makes reverting the code easier in case of any build breakages.
 
 # Testing PR's locally
 
-     https://help.github.com/articles/checking-out-pull-requests-locally
-     fetch = +refs/pull/*/head:refs/pull/origin/*
+    # Make sure you are on the master branch of your fork
+    git fetch upstream pull/ID/head:BRANCHNAME
+
+    # Change to branch that you want to test
+    git checkout BRANCHNAME
