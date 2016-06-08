@@ -1,20 +1,26 @@
 # cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
 
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
+ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
+mac=$(ifconfig | grep 'ether' | awk '{print $2}')
+
 ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)     # OS X
 mac=$(ifconfig | grep 'ether' | awk '{print $2}' | head -1)    # OS X
+
 user=$(whoami)
 
 alias c='clear'
 
 alias cl='clear ; ls -l'
 
+alias d='cd /$user/Desktop/ ; clear'
 alias d='cd /Users/$user/Desktop/ ; clear'                     # OS X
 
 alias e='exit'
 
 alias l='ls -l'
 
+alias m='msfconsole'
 alias m='sudo /opt/metasploit-framework/bin/msfconsole'        # OS X
 
 alias n='echo ;
@@ -27,9 +33,10 @@ echo -n "External IP:  " ; curl ifconfig.me ; echo'
 
 alias pip='sudo /usr/local/bin/pip'                            # OS X
 
+alias r='cd /$user/ ; clear'
 alias r='cd /Users/$user/ ; clear'                             # OS X
 
-alias s='cd /Users/$user/tools/discover/ ; clear'
+alias s='cd /opt/discover/ ; clear'
 
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
@@ -50,6 +57,3 @@ echo -n "[*] Updating locate database." ; echo ;               # OS X
 echo -n "Be patient, this takes a couple min." ; echo ;        # OS X
 cd /Users/$user/ ;                                             # OS X
 sudo /usr/libexec/locate.updatedb ; echo ; echo'               # OS X
-
-alias mysql='/Applications/XAMPP/xamppfiles/bin/mysql -u root -ppassword'
-alias nmap='/usr/local/bin/nmap'
