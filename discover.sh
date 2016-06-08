@@ -208,7 +208,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=35
+     total=34
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g;s/\&/%26/g;s/\,/%2C/g' )
 
@@ -597,12 +597,7 @@ case $choice in
      echo >> $home/data/$domain/data/zonetransfer.htm
      echo '</html>' >> $home/data/$domain/data/zonetransfer.htm
 
-     echo "urlvoid.com               (34/$total)"
-     wget -q http://www.urlvoid.com/scan/$domain -O tmp
-     sed -n '/Safety Scan Report/,/<\/table>/p' tmp | grep -v 'Safety Scan Report' | sed 's/View more details.../Details/g' > $home/data/$domain/data/black-listed.htm
-     echo
-
-     echo "recon-ng                  (35/$total)"
+     echo "recon-ng                  (34/$total)"
      cp $discover/resource/recon-ng.rc $discover/
      sed -i "s/xxx/$companyurl/g" $discover/recon-ng.rc
      sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/recon-ng.rc

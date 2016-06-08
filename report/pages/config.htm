@@ -1,84 +1,166 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Reporting Framework</title>
-<link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
-<link href="../css/defaults.css" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" href="../css/style.css" type="text/css" />
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<title>Reporting Framework</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="author" content="Ian Norden @iancnorden">
+	<meta name="Description" content="Discover Script's Report Readout">
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	<script src="https://use.fontawesome.com/b80514165d.js"></script>
+	<link href="../css/styles.css" rel="stylesheet">
 </head>
-
 <body>
+	<!-- Start of the navbar top left quadrant-->
+	<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<div class="navbar-header">
+			<a class="navbar-brand" rel="Github" target="_blank" href="https://github.com/leebaird/discover">Discover</a>
+		</div>
+		<!-- End of the navbar top left quadrant-->
 
-<div class="header nav">
-	<div class="header-wrap container_12">
-		<ul class="navbar">
-			<li><a href="../index.htm">Home</a></li>
-			<li><a href="#">Contacts</a>
-			<ul>
-                    <li><a href="../pages/emails.htm">Emails</a></li>
-			     <li><a href="../pages/names.htm">Names</a></li>
-			</ul>         
-			</li>
-			<li class="current"><a href="#">DNS</a>
-			<ul>
-			     <li><a href="../pages/black-listed.htm">Black Listed</a></li>
-			     <li class="current"><a href="../pages/config.htm">Config</a></li>
-			     <li><a href="../pages/maps.htm">Maps</a></li>
-			     <li><a href="../pages/records.htm">Records</a></li>
-			     <li><a href="../pages/subdomains.htm">Subdomains</a></li>
-			     <li><a href="../pages/zonetransfer.htm">Zone Transfer</a></li>
-			</ul>         
-			</li>
+		<!-- Start of the navbar centered based on .navbar .navbar-collapse in styles.css-->
+		<div class="collapse navbar-collapse">
+			<div class="container">
+				<ul class="nav navbar-nav">
+					<li><a href="../index.htm">Home</a></li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Contacts <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="emails.htm">Emails</a></li>
+							<li><a href="names.htm">Names</a></li>
+						</ul>
+					</li>
 
-			<li><a href="#">Domain</a>
-			<ul>
-			     <li><a href="../pages/hosts.htm">Hosts</a></li>
-                    <li><a href="../pages/netcraft.htm">Netcraft</a></li>
-			     <li><a href="../pages/squatting.htm">Squatting</a></li>
-			     <li><a href="../pages/traceroute.htm">Traceroute</a></li>
-			     <li><a href="../pages/whois-domain.htm">Whois Domain</a></li>
-			     <li><a href="../pages/whois-ip.htm">Whois IP</a></li>
-			</ul>         
-			</li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">DNS <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="black-listed.htm">Black Listed</a></li>
+							<li><a href="config.htm">Config</a></li>
+							<li><a href="maps.htm">Maps</a></li>
+							<li><a href="records.htm">Records</a></li>
+							<li><a href="subdomains.htm">Subdomains</a></li>
+							<li><a href="zonetransfer.htm">Zone Transfer</a></li>
+						</ul>
+					</li>
 
-			<li><a href="#">Files</a>
-			<ul>
-			     <li><a href="../pages/xls.htm">Excel</a></li>
-			     <li><a href="../pages/pdf.htm">PDF</a></li>
-			     <li><a href="../pages/ppt.htm">PowerPoint</a></li>
-			     <li><a href="../pages/txt.htm">Text</a></li>
-			     <li><a href="../pages/doc.htm">Word</a></li>
-			</ul>         
-			</li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Domain <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="hosts.htm">Hosts</a></li>
+							<li><a href="netcraft.htm">Netcraft</a></li>
+							<li><a href="squatting.htm">Squatting</a></li>
+							<li><a href="traceroute.htm">Traceroute</a></li>
+							<li><a href="whois-domain.htm">Whois Domain</a></li>
+							<li><a href="whois-ip.htm">Whois IP</a></li>
+						</ul>
+					</li>
 
-			<li><a href="#">Reports</a>
-			<ul>
-			     <li><a href="../pages/active-recon.htm">Active Recon</a></li>
-			     <li><a href="../pages/passive-recon.htm">Passive Recon</a></li>
-			</ul>         
-			</li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Files <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="xls.htm">Excel</a></li>
+							<li><a href="pdf.htm">PDF</a></li>
+							<li><a href="ppt.htm">PowerPoint</a></li>
+							<li><a href="txt.htm">Text</a></li>
+							<li><a href="doc.htm">Word</a></li>
+						</ul>
+					</li>
 
-			<li><a href="#">Web</a>
-			<ul>
-		          <li><a href="../pages/loadbalancing.htm">Loadbalancing</a></li>
-			     <li><a href="../pages/waf.htm">Web App FW</a></li>
-			     <li><a href="../pages/whatweb.htm">Whatweb</a></li>
-			</ul>         
-			</li>
-		</ul>
-	</div>
-</div>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Reports <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="active-recon.htm">Active Recon</a></li>
+							<li><a href="passive-recon.htm">Passive Recon</a></li>
+						</ul>
+					</li>
 
-<div class="clear"></div>
-
-<div class="wrapper">
-	<div class="container_12">
-		<div class="main-content">
-			<h2 class="page-header">DNS: <small class="lg-text">Config</small></h2>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Web <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="loadbalancing.htm">Loadbalancing</a></li>
+							<li><a href="waf.htm">Web App FW</a></li>
+							<li><a href="whatweb.htm">WhatWeb</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
 		</div>
 	</div>
+	<!-- /#sidebar-wrapper -->
+	<!-- Page Content -->
+	<div class="container">
+		<!-- Container to center contents -->
+		<div class="text-center">
+			<h4>DNS: <em>Config</em></h4>
+		</div>
 </div>
-
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th scope="col">Category</th>
+					<th scope="col">Status</th>
+					<th scope="col">Test</th>
+					<th scope="col">Information</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- Parent Checks start -->
+				<tr>
+					<td>Parent</td>
+					<td>Domain NS records</td>
+					<td>Nameserver records returned by thNameserver records returned by the parent servers areNameserver records returned by the parent servers areNameserver records returned by the parent servers aree parent servers are:</td>
+					<td>Nameserver records returned by the parent servers are:</td>
+				</tr>
+				<tr>
+					<td>TLD Parent Check</td>
+					<td>IPs are public</td>
+					<td>IPs are public</td>
+					<td>Good.&nbsp;c.gtld-servers.net, check</td>
+				</tr>
+				<tr>
+					<td>Your nameservers are listed</td>
+					<td>IPs are public</td>
+					<td>IPs are public</td>
+					<td>Good. The parent server nameservers.</td>
+				</tr>
+				<tr>
+					<td>DNS Parent sent Glue</td>
+					<td>Good. The parent  information to the nameserver.(see RFC 1912 section 2.3)</td>
+					<td>IPs are public</td>
+					<td>IPs are public</td>
+				</tr>
+				<!-- MX Checks -->
+				<tr class="error">
+					<td>MX</td>
+					<td>IPs are public</td>
+					<td>MX Records</td>
+					<td>Oh wellr nameservers!<br />
+					</td>
+				</tr>
+				<tr class="Info">
+					<td>WWW</td>
+					<td>WWW A Record</td>
+					<td>IPs are public</td>
+					<td>www.amex.com A record is:<br /></td>
+				</tr>
+				<tr>
+					<td><i class="fa fa-plus-circle"></i>IPs are public</td>
+					<td><i class="fa fa-check-circle"></i>OK. All of your</br> WWW </br>IPs</br> appear to</br> be</br> public</br> IP.</td>
+					<td><i class="fa fa-exclamation-circle"></i>IPs are public</td>
+					<td><i class="fa fa-pause-circle text-primary"></i>IPs are public</td>
+				</tr>
+				<tr>
+					<td><i class="fa fa-plus-circle text-danger"></i>WWW CNAME</td>
+					<td> <i class="fa fa-minus-circle text-success"></i>Good.</br> c.gtld-servers.net, the </br></br>parent server I interrogated, has information for</br> your TLD. This is a good thing as there are some</br> other domain extensions like "co.us" for example that are missing a di</br>rect check.Good. c.</br>gtld-servers.net, the parent server I interro</br>gated, has information for your TLD. This i</br>s a goo</br>d thing as there are some other domain extensions like "co.us" for example that are missing a direct check.Good. c.gtld-servers.net, the parent server I interroga</br>ted, has information for your T</br>LD. This is a good thing as there are some other domain extensions like "co.us" for example that are missing a direct check..</td>
+					<td> <i class="fa fa-times-circle text-info"></i>OK. You do haves good.</td>
+					<td> <i class="fa fa-question-circle text-warning"></i>OK. c.gtld-servers.net, the parent server I interrogated, has information for your TLD. This is a good thing as there are some other domain extensions like "co.us" for example that are missing a direct check.Good. c.gtld-servers.net, the parent server I interrogated, has information for your TLD. This is a good thing as there are some other domain extensions like "co.us" for example that are missing a direct check.Good. c.gtld-servers.net, theYou do haves good.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<!-- /#page-content-wrapper -->
+</body>
+</html>
