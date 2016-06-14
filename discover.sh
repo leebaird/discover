@@ -783,7 +783,6 @@ case $choice in
           cat whois-ip >> $home/data/$domain/data/whois-ip.htm; echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
      fi
 
-     #echo "</pre>" >> $home/data/$domain/data/emails.htm
      echo "</pre>" >> $home/data/$domain/data/names.htm
      echo "</pre>" >> $home/data/$domain/data/squatting.htm
      echo "</pre>" >> $home/data/$domain/data/subdomains.htm
