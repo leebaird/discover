@@ -6,8 +6,9 @@
 #
 # Special thanks to the following people:
 #
-# Jay Townsend (L1ghtn1ng) - conversion from Backtrack to Kali, manages pull requests & issues, python conversion
-# Jason Ashton - Penetration Testers Framework (PTF) compatibility, bug crusher
+# Ian Norden (@iancnorden) - new report framework design
+# Jay Townsend - conversion from Backtrack to Kali, manages pull requests & issues, python conversion
+# Jason Ashton (@jayw0k)- Penetration Testers Framework (PTF) compatibility, bug crusher
 # Ben Wood - regex master
 # Dave Klug - planning, testing and bug reports
 # Jason Arnold - planning original concept, author of ssl-check and co-author of crack-wifi
@@ -20,7 +21,7 @@
 # Robert Clowser - all things
 # Saviour Emmanuel - Nmap parser
 # Securicon, LLC. - for sponsoring development of parsers
-# Steve Copland - report framework design
+# Steve Copland - initial report framework design
 
 ##############################################################################################################
 
