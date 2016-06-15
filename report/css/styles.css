@@ -1,33 +1,29 @@
-body
-{
+body {
   padding-top: 50px;
   background: #bebebe !important;
 }
-body.white-page
-{
+
+body.white-page {
   background-color: #fff !important;
 }
 
-@media (min-width: 768px)
-{
-  .navbar .navbar-nav
-  {
+@media (min-width: 768px) {
+  .navbar .navbar-nav {
     display: inline-block;
     float: none;
     vertical-align: top;
   }
 
-  .navbar .navbar-collapse
-  {
+  .navbar .navbar-collapse {
     text-align: center !important;
   }
-  .navbar .navbar-brand
-  {
+
+  .navbar .navbar-brand {
     font-size: 12pt;
   }
 }
-.embed-responsive .embed-responsive-item, .embed-responsive embed, .embed-responsive iframe, .embed-responsive object, .embed-responsive video
-{
+
+.embed-responsive .embed-responsive-item, .embed-responsive embed, .embed-responsive iframe, .embed-responsive object, .embed-responsive video {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -37,29 +33,28 @@ body.white-page
   border: groove;
   background: #fff;
 }
-.frame
-{
+
+.frame {
   margin: auto;
   height: 100%;
   width:inherit;
   border: 0px;
   position: relative;
 }
-img
-{
+
+img {
   height auto;
   max-width: 90%;
   margin: 1%;
-  background: #3A6F9A;
 }
-.vertical-center
-{
+
+.vertical-center {
   height: 80vh;
   display: flex;
   align-items: center;
 }
-table
-{
+
+table {
   border-collapse: collapse;
   width: 90% !important;
   margin: 0 auto !important;
@@ -71,19 +66,19 @@ table
   font-size:10pt;
   background-color: #fdfdfd;
 }
-th, td
-{
+
+th, td {
   padding: 0.25rem;
   text-align: left;
   border: 1px solid #ccc;
 }
-th
-{
+
+th {
   background-color: #333;
   color: #9d9d9d;
 }
-object
-{
+
+object {
   position: relative;
   float: none;
   display: block;
