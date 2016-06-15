@@ -6,7 +6,7 @@
 #
 # Special thanks to the following people:
 #
-# Jay Townsend - conversion from Backtrack to Kali, manages pull requests & issues, python conversion
+# Jay Townsend - conversion from Backtrack to Kali, manages pull requests & issues
 # Jason Ashton (@jayw0k)- Penetration Testers Framework (PTF) compatibility, bug crusher
 # Ian Norden (@iancnorden) - new report framework design
 #
