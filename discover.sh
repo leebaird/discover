@@ -12,7 +12,7 @@
 #
 # Ben Wood - regex master
 # Dave Klug - planning, testing and bug reports
-# Jason Arnold - planning original concept, author of ssl-check and co-author of crack-wifi
+# Jason Arnold (@jasonarnold) - planning original concept, author of ssl-check and co-author of crack-wifi
 # John Kim - python guru, bug smasher, and parsers
 # Eric Milam (@Brav0Hax) - total re-write using functions
 # Martin Bos (@cantcomputer) - IDS evasion techniques
