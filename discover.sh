@@ -18,7 +18,7 @@
 # Martin Bos (@cantcomputer) - IDS evasion techniques
 # Matt Banick - original development
 # Numerous people on freenode IRC - #bash and #sed (e36freak)
-# Rob Dixon - report framework idea
+# Rob Dixon (@304geek) - report framework idea
 # Robert Clowser (@dyslexicjedi)- all things
 # Saviour Emmanuel - Nmap parser
 # Securicon, LLC. - for sponsoring development of parsers
