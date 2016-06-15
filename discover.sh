@@ -6,19 +6,20 @@
 #
 # Special thanks to the following people:
 #
-# Ian Norden (@iancnorden) - new report framework design
 # Jay Townsend - conversion from Backtrack to Kali, manages pull requests & issues, python conversion
 # Jason Ashton (@jayw0k)- Penetration Testers Framework (PTF) compatibility, bug crusher
+# Ian Norden (@iancnorden) - new report framework design
+#
 # Ben Wood - regex master
 # Dave Klug - planning, testing and bug reports
 # Jason Arnold - planning original concept, author of ssl-check and co-author of crack-wifi
-# John Kim - Python guru, bug smasher and parsers
-# Eric Milam - total re-write using functions
-# Martin Bos - IDS evasion techniques
+# John Kim - python guru, bug smasher, and parsers
+# Eric Milam (@Brav0Hax) - total re-write using functions
+# Martin Bos (@cantcomputer) - IDS evasion techniques
 # Matt Banick - original development
 # Numerous people on freenode IRC - #bash and #sed (e36freak)
 # Rob Dixon - report framework idea
-# Robert Clowser - all things
+# Robert Clowser (@dyslexicjedi)- all things
 # Saviour Emmanuel - Nmap parser
 # Securicon, LLC. - for sponsoring development of parsers
 # Steve Copland - initial report framework design
