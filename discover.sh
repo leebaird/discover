@@ -527,7 +527,7 @@ case $choice in
      # Formatting & clean-up
      column -s ',' -t tmp > tmp4
 
-     sed "s/*/ /g" tmp4 | sed 's/%/ /g' >> $home/data/$domain/data/records.htm
+     egrep -v '(\*|%)' tmp4 >> $home/data/$domain/data/records.htm
      echo >> $home/data/$domain/data/records.htm
      echo '</body>' >> $home/data/$domain/data/records.htm
      echo >> $home/data/$domain/data/records.htm
@@ -615,11 +615,11 @@ case $choice in
 
      grep '|' /tmp/names | awk '{print $2", "$4}' | egrep -v '(_|\|)' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp
      grep '|' /tmp/profiles | awk '{print $3", "$2}' | grep -v '|' > tmp2
-     cat tmp tmp2 | grep -iv 'INFORM' | sort -u > names-recon
+     cat tmp tmp2 | egrep -iv '(INFORM|Operations)' | sort -u > names-recon
 
      ##############################################################
 
-     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|-|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|edward_snowden|fake|fuckthepolice|lastname_firstname|regulations.gov|salessalesandmarketing|toastmasters|www|xxxxx|yousuck|zxcvbcvxvxcccb)' > tmp
+     cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|-|=|\+|\[|\]|\||;|:|"|<|>|/|\?|definetlynot|edward_snowden|fake|fuckthepolice|lastname_firstname|regulations.gov|salessalesandmarketing|toastmasters|www|x.y|xxxxx|yousuck|zxcvbcvxvxcccb)' > tmp
      # Remove trailing whitespace from each line
      sed 's/[ \t]*$//' tmp > tmp2
      # Remove lines that start with a number
@@ -646,17 +646,17 @@ case $choice in
      awk '{print $2}' subdomains > tmp
      grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | $sip > hosts
 
-     cat networks > tmp 2>/dev/null
-     echo >> tmp
+     if [ -e networks ]; then
+          cat networks > tmp 2>/dev/null
+          echo >> tmp
+     fi
+
      cat hosts >> tmp 2>/dev/null
      cat tmp >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm 2>/dev/null
 
      ##############################################################
 
-     echo > zreport
-     echo >> zreport
-
-     echo "Summary" >> zreport
+     echo "Summary" > zreport
      echo $short >> zreport
 
      echo > tmp
