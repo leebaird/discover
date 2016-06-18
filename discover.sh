@@ -1761,7 +1761,7 @@ f_banner
 f_scanname
 
 echo
-echo -n "IP, Range or URL: "
+echo -n "IP, range, or URL: "
 read target
 
 # Check for no answer
@@ -3947,7 +3947,7 @@ echo -e "\x1B[1;34mSCANNING\x1B[0m"
 echo "4.  Generate target list"
 echo "5.  CIDR"
 echo "6.  List"
-echo "7.  IP, Range or URL"
+echo "7.  IP, range, or URL"
 echo
 echo -e "\x1B[1;34mWEB\x1B[0m"
 echo "8.  Open multiple tabs in $browser"
@@ -3990,4 +3990,3 @@ esac
 ##############################################################################################################
 
 while true; do f_main; done
-

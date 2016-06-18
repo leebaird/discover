@@ -22,7 +22,7 @@ SCANNING
 4.  Generate target list
 5.  CIDR
 6.  List
-7.  IP or domain
+7.  IP, range, or domain
 
 WEB
 8.  Open multiple tabs in Firefox
@@ -100,7 +100,7 @@ SCANNING
 
 * Use different tools to create a target list including Angry IP Scanner, arp-scan, netdiscover and nmap pingsweep.
 
-### CIDR, List, IP or domain
+### CIDR, List, IP, Range, or URL
 ```
 Type of scan:
 
