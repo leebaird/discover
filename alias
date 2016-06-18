@@ -3,57 +3,60 @@
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
 ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
 mac=$(ifconfig | grep 'ether' | awk '{print $2}')
-
-ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)     # OS X
-mac=$(ifconfig | grep 'ether' | awk '{print $2}' | head -1)    # OS X
-
 user=$(whoami)
 
 alias c='clear'
-
 alias cl='clear ; ls -l'
-
 alias d='cd /$user/Desktop/ ; clear'
-alias d='cd /Users/$user/Desktop/ ; clear'                     # OS X
-
 alias e='exit'
-
 alias l='ls -l'
-
 alias m='msfconsole'
-alias m='sudo /opt/metasploit-framework/bin/msfconsole'        # OS X
 
 alias n='echo ;
 echo -n "DNS           "$dns ; echo ;
 echo -n "Internal IP:  "$ip ; echo ;
 echo -n "MAC address:  "$mac ; echo ; echo ;
 ping -c3 google.com ; echo ;
-netstat | grep "ESTABLISHED" ; echo ;                          # OS X
 echo -n "External IP:  " ; curl ifconfig.me ; echo'
 
-alias pip='sudo /usr/local/bin/pip'                            # OS X
-
 alias r='cd /$user/ ; clear'
-alias r='cd /Users/$user/ ; clear'                             # OS X
-
 alias s='cd /opt/discover/ ; clear'
-
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
-alias update='echo ;                                           # OS X
-echo -n "[*] Updating Discover." ; echo ;                      # OS X
-cd /Users/$user/tools/discover/ && git pull ; echo ;           # OS X
+###################################################################################
 
-echo -n "[*] Updating Metasploit." ; echo ;                    # OS X
-/opt/metasploit-framework/bin/msfupdate ; echo ;               # OS X
+# OS X specific.
 
-echo -n "[*] Updating SecLists." ; echo ;                      # OS X
-cd /Users/$user/tools/SecLists/ && git pull ; echo ;           # OS X
+dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
+ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)
+mac=$(ifconfig | grep 'ether' | awk '{print $2}' | head -1)
+user=$(whoami)
 
-echo -n "[*] Updating Sqlmap." ; echo ;                        # OS X
-cd /Users/$user/tools/sqlmap/ && git pull ; echo ;             # OS X
+alias c='clear'
+alias cl='clear ; ls -l'
+alias d='cd /Users/$user/Desktop/ ; clear'
+alias l='ls -l'
+alias m='sudo /opt/metasploit-framework/bin/msfconsole'
+alias mysql='/Applications/XAMPP/xamppfiles/bin/mysql -u root -p'
+alias pip='sudo /usr/local/bin/pip'
+alias r='cd /Users/$user/ ; clear'
+alias s='cd /Users/$user/tools/discover/ ; clear'
+alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
-echo -n "[*] Updating locate database." ; echo ;               # OS X
-echo -n "Be patient, this takes a couple min." ; echo ;        # OS X
-cd /Users/$user/ ;                                             # OS X
-sudo /usr/libexec/locate.updatedb ; echo ; echo'               # OS X
+alias update='echo ;
+echo -n "[*] Updating Discover." ; echo ;
+cd /Users/$user/tools/discover/ && git pull ; echo ;
+
+echo -n "[*] Updating Metasploit." ; echo ;
+/opt/metasploit-framework/bin/msfupdate ; echo ;
+
+echo -n "[*] Updating SecLists." ; echo ;
+cd /Users/$user/tools/SecLists/ && git pull ; echo ;
+
+echo -n "[*] Updating Sqlmap." ; echo ;
+cd /Users/$user/tools/sqlmap/ && git pull ; echo ;
+
+echo -n "[*] Updating locate database." ; echo ;
+echo -n "Be patient, this takes a couple min." ; echo ;
+cd /Users/$user/ ;
+sudo /usr/libexec/locate.updatedb ; echo ; echo'
