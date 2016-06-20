@@ -82,6 +82,7 @@ if [ -d /opt/prowl/.git ]; then
 else
      echo -e "\e[1;33mInstalling Prowl.\e[0m"
      git clone https://github.com/Pickfordmatt/Prowl /opt/prowl
+     chmod 755 /opt/prowl/prowl.py
      apt-get install python-pip python-lxml
      pip install dnspython Beautifulsoup4 Gitpython
      echo
