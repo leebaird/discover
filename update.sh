@@ -75,6 +75,18 @@ if [ ! -f /usr/bin/xmllint ]; then
      echo
 fi
 
+if [ -d /opt/prowl/.git ]; then
+     echo -e "\e[1;34mUpdating Prowl.\e[0m"
+     cd /opt/prowl/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling Prowl.\e[0m"
+     git clone https://github.com/Pickfordmatt/Prowl /opt/prowl
+     apt-get install python-pip python-lxml
+     pip install dnspython Beautifulsoup4 Gitpython
+     echo
+fi
+
 if [ -d /opt/rawr/.git ]; then
      echo -e "\e[1;34mUpdating RAWR.\e[0m"
      cd /opt/rawr/ ; git pull

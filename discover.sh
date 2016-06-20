@@ -10,7 +10,7 @@
 # Jason Ashton (@jayw0k)- Penetration Testers Framework (PTF) compatibility, bug crusher
 # Ian Norden (@iancnorden) - new report framework design
 #
-# Ben Wood - regex master
+# Ben Wood (@DilithiumCore) - regex master
 # Dave Klug - planning, testing and bug reports
 # Jason Arnold (@jasonarnold) - planning original concept, author of ssl-check and co-author of crack-wifi
 # John Kim - python guru, bug smasher, and parsers
@@ -34,8 +34,9 @@ discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
 distro=$(uname -n)
 home=$HOME
 long='========================================================================================================='
-medium='====================================================================================='
+medium='======================================================='
 short='========================================'
+
 sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
 # Check for OS X
@@ -77,7 +78,7 @@ f_error(){
 echo
 echo -e "\x1B[1;31m$medium\x1B[0m"
 echo
-echo -e "\x1B[1;31m                           *** Invalid choice or entry. ***\x1B[0m"
+echo -e "\x1B[1;31m           *** Invalid choice or entry. ***\x1B[0m"
 echo
 echo -e "\x1B[1;31m$medium\x1B[0m"
 sleep 2
@@ -89,7 +90,7 @@ if [[ `uname` == 'Darwin' ]]; then
      echo
      echo -e "\x1B[1;31m$medium\x1B[0m"
      echo
-     echo -e "\x1B[1;31m                            *** Not OS X compatible. ***\x1B[0m"
+     echo -e "\x1B[1;31m             *** Not OS X compatible. ***\x1B[0m"
      echo
      echo -e "\x1B[1;31m$medium\x1B[0m"
      sleep 2
@@ -558,11 +559,10 @@ case $choice in
      egrep -v '(Background|Hosting country|the-world-factbook)' tmp2 | sed 's/Refresh//g' > tmp3
 
      # Find lines that contain FOO, and delete to the end of file
-     sed '/security_table/,${D}' tmp3 > tmp4
+     sed '/security_table/,${D}' tmp3 | sed 's/<h2>/<h4>/g' | sed 's/<\/h2>/<\/h4>/g' > tmp4
 
      # Compress blank lines
      sed /^$/d tmp4 >> $home/data/$domain/pages/netcraft.htm
-     echo >> $home/data/$domain/pages/netcraft.htm
      echo >> $home/data/$domain/pages/netcraft.htm
      echo '</body>' >> $home/data/$domain/pages/netcraft.htm
      echo >> $home/data/$domain/pages/netcraft.htm
@@ -1788,7 +1788,7 @@ f_report
 ##############################################################################################################
 
 f_scan(){
-custom='1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812,1813,1953,1959,2000,2002,2030,2049,2100,2121,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2780-2783,2947,3000,3001,3031,3121,3127,3128,3200,3201,3230-3235,3260,3268,3269,3306,3339,3389,3460,3500,3527,3632,3689,4000,4045,4100,4242,4369,4430,4443,4445,4661,4662,4711,4848,5000,5001,5009,5010,5019,5038,5040,5059,5060,5061,5101,5180,5190,5191,5192,5193,5250,5432,5554,5555,5560,5566,5631,5666,5672,5678,5800,5801,5802,5803,5804,5850,5900-6009,6101,6106,6112,6161,6346,6379,6588,6666,6667,6697,6777,7000,7001,7002,7070,7100,7210,7510,7634,7777,7778,8000,8001,8004,8005,8008,8009,8080,8081,8082,8083,8091,8098,8099,8100,8180,8181,8222,8332,8333,8383,8384,8400,8443,8444,8470-8480,8500,8787,8834,8866,8888,9090,9100,9101,9102,9160,9343,9470-9476,9480,9495,9996,9999,10000,10025,10168,11211,12000,12345,12346,13659,15000,16080,18181-18185,18207,18208,18231,18232,19150,19190,19191,20034,22226,27017,27374,27665,28784,30718,31337,32764,32768,32771,33333,35871,37172,38903,39991,39992,40096,46144,46824,49400,50000,50030,50060,50070,50075,50090,51080,51443,53050,54320,58847,60000,60010,60030,60148,60365,62078,63148'
+custom='1-1040,1050,1080,1099,1125,1158,1194,1214,1220,1344,1352,1433,1500,1503,1521,1524,1526,1720,1723,1731,1812,1813,1953,1959,2000,2002,2030,2049,2100,2121,2200,2202,2222,2301,2381,2401,2433,2456,2500,2556,2628,2745,2780-2783,2947,3000,3001,3031,3121,3127,3128,3200,3201,3230-3235,3260,3268,3269,3306,3310, 3339,3389,3460,3500,3527,3632,3689,4000,4045,4100,4242,4369,4430,4443,4445,4661,4662,4711,4848,5000,5001,5009,5010,5019,5038,5040,5059,5060,5061,5101,5180,5190,5191,5192,5193,5250,5432,5554,5555,5560,5566,5631,5666,5672,5678,5800,5801,5802,5803,5804,5850,5900-6009,6101,6106,6112,6161,6346,6379,6588,6666,6667,6697,6777,7000,7001,7002,7070,7100,7210,7510,7634,7777,7778,8000,8001,8004,8005,8008,8009,8080,8081,8082,8083,8091,8098,8099,8100,8180,8181,8222,8332,8333,8383,8384,8400,8443,8444,8470-8480,8500,8787,8834,8866,8888,9090,9100,9101,9102,9160,9343,9470-9476,9480,9495,9996,9999,10000,10025,10168,11211,12000,12345,12346,13659,15000,16080,18181-18185,18207,18208,18231,18232,19150,19190,19191,20034,22226,27017,27374,27665,28784,30718,31337,32764,32768,32771,33333,35871,37172,38903,39991,39992,40096,46144,46824,49400,50000,50030,50060,50070,50075,50090,51080,51443,53050,54320,58847,60000,60010,60030,60148,60365,62078,63148'
 full='1-65535'
 udp='53,67,123,137,161,500,523,1434,1604,2302,3478,4070,5353,6481,17185,31337'
 
@@ -1883,7 +1883,7 @@ echo $medium
 echo
 echo -e "\x1B[1;34mLocating high value ports.\x1B[0m"
 echo "     TCP"
-TCP_PORTS="13 19 21 22 23 25 37 53 70 79 80 110 111 135 139 143 389 443 445 465 502 512 513 514 523 524 548 554 587 623 631 771 873 902 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3000 3031 3260 3306 3389 3500 3632 4369 5019 5040 5060 5432 5560 5631 5666 5672 5850 5900 5920 5984 5985 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 8834 9100 9160 9999 10000 11211 12000 12345 19150 27017 28784 30718 35871 46824 50000 50030 50060 50070 50075 50090 60010 60030"
+TCP_PORTS="13 19 21 22 23 25 37 53 70 79 80 110 111 135 139 143 389 443 445 465 502 512 513 514 523 524 548 554 587 623 631 771 873 902 993 995 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 2202 2628 2947 3000 3031 3260 3306 3310 3389 3500 3632 4369 5019 5040 5060 5432 5560 5631 5666 5672 5850 5900 5920 5984 5985 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 8834 9100 9160 9999 10000 11211 12000 12345 19150 27017 28784 30718 35871 46824 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $TCP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/tcp\>" | cut -d ' ' -f2 > $name/$i.txt
@@ -1960,7 +1960,7 @@ fi
 
 if [[ -e $name/21.txt ]]; then
      echo "     FTP"
-     nmap -iL $name/21.txt -Pn -n --open -p21 --script=banner,ftp-anon,ftp-bounce,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/21.txt -Pn -n --open -p21 --script=banner,ftp-anon,ftp-bounce,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ssl*,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-21.txt
 fi
@@ -1974,14 +1974,14 @@ fi
 
 if [[ -e $name/23.txt ]]; then
      echo "     Telnet"
-     nmap -iL $name/23.txt -Pn -n --open -p23 --script=banner,telnet-encryption --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/23.txt -Pn -n --open -p23 --script=banner,telnet-encryption,telnet-ntlm-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-23.txt
 fi
 
 if [[ -e $name/smtp.txt ]]; then
      echo "     SMTP"
-     nmap -iL $name/smtp.txt -Pn -n --open -p25,465,587 --script=banner,smtp-commands,smtp-open-relay,smtp-strangeport,smtp-enum-users,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --script-args smtp-enum-users.methods={EXPN,RCPT,VRFY} --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/smtp.txt -Pn -n --open -p25,465,587 --script=banner,smtp-commands,smtp-ntlm-info,smtp-open-relay,smtp-strangeport,smtp-enum-users,ssl*,tls-nextprotoneg -sV --script-args smtp-enum-users.methods={EXPN,RCPT,VRFY} --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-25.txt
 fi
@@ -2023,7 +2023,7 @@ fi
 
 if [[ -e $name/110.txt ]]; then
      echo "     POP3"
-     nmap -iL $name/110.txt -Pn -n --open -p110 --script=banner,pop3-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/110.txt -Pn -n --open -p110 --script=banner,pop3-capabilities,pop3-ntlm-info,ssl*,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-110.txt
 fi
@@ -2063,7 +2063,7 @@ fi
 
 if [[ -e $name/143.txt ]]; then
      echo "     IMAP"
-     nmap -iL $name/143.txt -Pn -n --open -p143 --script=imap-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/143.txt -Pn -n --open -p143 --script=imap-capabilities,imap-ntlm-info,ssl*,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-143.txt
 fi
@@ -2077,7 +2077,7 @@ fi
 
 if [[ -e $name/389.txt ]]; then
      echo "     LDAP"
-     nmap -iL $name/389.txt -Pn -n --open -p389 --script=ldap-rootdse,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/389.txt -Pn -n --open -p389 --script=ldap-rootdse,ssl*,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-389.txt
 fi
@@ -2134,7 +2134,7 @@ fi
 
 if [[ -e $name/636.txt ]]; then
      echo "     LDAP/S"
-     nmap -iL $name/636.txt -Pn -n --open -636 --script=ldap-rootdse,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/636.txt -Pn -n --open -636 --script=ldap-rootdse,ssl*,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-636.txt
 fi
@@ -2148,14 +2148,14 @@ fi
 
 if [[ -e $name/993.txt ]]; then
      echo "     IMAP/S"
-     nmap -iL $name/993.txt -Pn -n --open -p993 --script=banner,sslv2,imap-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/993.txt -Pn -n --open -p993 --script=banner,imap-capabilities,imap-ntlm-info,ssl*,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-993.txt
 fi
 
 if [[ -e $name/995.txt ]]; then
      echo "     POP3/S"
-     nmap -iL $name/995.txt -Pn -n --open -p995 --script=banner,sslv2,pop3-capabilities,ssl-dh-params,ssl-enum-ciphers,ssl-ccs-injection,ssl-heartbleed,ssl-poodle,ssl-date,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/995.txt -Pn -n --open -p995 --script=banner,pop3-capabilities,pop3-ntlm-info,ssl*,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-995.txt
 fi
@@ -2197,7 +2197,7 @@ fi
 
 if [[ -e $name/1433.txt ]]; then
      echo "     MS-SQL"
-     nmap -iL $name/1433.txt -Pn -n --open -p1433 --script=ms-sql-dump-hashes,ms-sql-empty-password,ms-sql-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/1433.txt -Pn -n --open -p1433 --script=ms-sql-dump-hashes,ms-sql-empty-password,ms-sql-info,ms-sql-ntlm-info --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-1433.txt
 fi
@@ -2277,6 +2277,13 @@ if [[ -e $name/3306.txt ]]; then
      nmap -iL $name/3306.txt -Pn -n --open -p3306 --script=mysql-databases,mysql-empty-password,mysql-info,mysql-users,mysql-variables --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-3306.txt
+fi
+
+if [[ -e $name/3310.txt ]]; then
+     echo "     ClamAV"
+     nmap -iL $name/3310.txt -Pn -n --open -p3310 --script=clamav-exec --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     f_cleanup
+     mv tmp4 > $name/script-3310.txt
 fi
 
 if [[ -e $name/3389.txt ]]; then
@@ -3035,7 +3042,7 @@ if [ $hosts -eq 1 ]; then
      echo >> $filename
      echo "Nmap Scripts" >> $filename
 
-     SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-37 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-636 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2302 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5060 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8000 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
+     SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-37 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-636 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2302 script-2628 script-2947 script-3031 script-3260 script-3306 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5060 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8000 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
 
      for i in $SCRIPTS; do
           if [ -e $name/"$i.txt" ]; then
@@ -3115,7 +3122,7 @@ echo >> $filename
 echo "High Value Hosts by Port" >> $filename
 echo >> $filename
 
-HVPORTS="13 21 22 23 25 37 53 67 69 70 79 80 110 111 123 137 139 143 161 389 443 445 465 500 523 524 548 554 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1434 1521 1604 1720 1723 2202 2302 2628 2947 3031 3260 3306 3389 3478 3632 4369 5019 5060 5353 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6481 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12000 12345 17185 19150 27017 31337 35871 50000 50030 50060 50070 50075 50090 60010 60030"
+HVPORTS="13 21 22 23 25 37 53 67 69 70 79 80 110 111 123 137 139 143 161 389 443 445 465 500 523 524 548 554 631 873 993 995 1050 1080 1099 1158 1344 1352 1433 1434 1521 1604 1720 1723 2202 2302 2628 2947 3031 3260 3306 3310 3389 3478 3632 4369 5019 5060 5353 5432 5666 5672 5850 5900 5984 6000 6001 6002 6003 6004 6005 6379 6481 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 9100 9160 9999 10000 11211 12000 12345 17185 19150 27017 31337 35871 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $HVPORTS; do
      if [[ -e $name/$i.txt ]]; then
@@ -3133,7 +3140,7 @@ echo $medium >> $filename
 echo >> $filename
 echo "Nmap Scripts" >> $filename
 
-SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-37 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2302 script-2628 script-2947 script-3031 script-3260 script-3306 script-3389 script-3478 script-3632 script-4369 script-5019 script-5060 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8000 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
+SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-37 script-53 script-67 script-70 script-79 script-110 script-111 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-631 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-2202 script-2302 script-2628 script-2947 script-3031 script-3260 script-3306 script-3310 script-3389 script-3478 script-3632 script-4369 script-5019 script-5060 script-5353 script-5666 script-5672 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8000 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-50000 script-hadoop script-apache-hbase script-web"
 
 for i in $SCRIPTS; do
      if [[ -e $name/"$i.txt" ]]; then
@@ -3865,9 +3872,9 @@ exit
 
 f_updates(){
 # Remove entire script categories
-ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(address-info|ajp-auth|ajp-headers|allseeingeye-info|asn-query|auth-owners|auth-spoof|broadcast|brute|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|discover|dns-brute|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-srv-enum|dns-nsec3-enum|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-libopie|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-ip2hosts|hostmap-robtex|http|iax2-version|informix-query|informix-tables|ip-forwarding|ip-geolocation-geobytes|ip-geolocation-geoplugin|ip-geolocation-ipinfodb|ip-geolocation-maxmind|ipidseq|ipv6-node-info|ipv6-ra-flood|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|ntp-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-y-message|quake1-info|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-call-spoof|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|smb-vuln-ms10-054|smb-vuln-ms10-061|smtp-vuln-cve2010-4344|smtp-vuln-cve2011-1720|smtp-vuln-cve2011-1764|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|sshv1|ssl|stun-info|teamspeak2-version|tftp-enum|targets|tls-nextprotoneg|traceroute-geolocation|unittest|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|weblogic-t3-info|whois|xmpp-info)' > tmp
+ls -l /usr/share/nmap/scripts/ | awk '{print $9}' | cut -d '.' -f1 | egrep -v '(address-info|ajp-auth|ajp-headers|allseeingeye-info|asn-query|auth-owners|auth-spoof|broadcast|brute|citrix-enum-apps-xml|citrix-enum-servers-xml|creds-summary|daap-get-library|discover|dns-brute|dns-check-zone|dns-client-subnet-scan|dns-fuzz|dns-ip6-arpa-scan|dns-srv-enum|dns-nsec3-enum|domcon-cmd|duplicates|eap-info|firewalk|firewall-bypass|ftp-libopie|ganglia-info|ftp-libopie|ftp-vuln-cve2010-4221|hostmap-bfk|hostmap-ip2hosts|hostmap-robtex|http|iax2-version|informix-query|informix-tables|ip-forwarding|ip-geolocation-geobytes|ip-geolocation-geoplugin|ip-geolocation-ipinfodb|ip-geolocation-maxmind|ipidseq|ipv6-node-info|ipv6-ra-flood|ipv6-multicast-mld-list|irc-botnet-channels|irc-info|irc-unrealircd-backdoor|isns-info|jdwp-exec|jdwp-info|jdwp-inject|krb5-enum-users|ldap-novell-getpass|ldap-search|llmnr-resolve|metasploit-info|mmouse-exec|ms-sql-config|mrinfo|ms-sql-hasdbaccess|ms-sql-query|ms-sql-tables|ms-sql-xp-cmdshell|mtrace|murmur-version|mysql-audit|mysql-enum|mysql-dump-hashes|mysql-query|mysql-vuln-cve2012-2122|nat-pmp-info|nat-pmp-mapport|netbus-info|ntp-info|omp2-enum-targets|oracle-enum-users|ovs-agent-version|p2p-conficker|path-mtu|pjl-y-message|quake1-info|quake3-info|quake3-master-getservers|qscan|resolveall|reverse-index|rpc-grind|rpcap-info|samba-vuln-cve-2012-1182|script|sip-call-spoof|skypev2-version|smb-flood|smb-ls|smb-print-text|smb-psexec|sniffer-detect|snmp-ios-config|socks-open-proxy|sql-injection|ssh-hostkey|ssh2-enum-algos|sshv1|stun-info|teamspeak2-version|tftp-enum|targets|traceroute-geolocation|unittest|unusual-port|upnp-info|url-snarf|ventrilo-info|vuze-dht-info|weblogic-t3-info|whois|xmpp-info)' > tmp
 
-grep 'script=' discover.sh | egrep -v '(discover.sh|22.txt|smtp.txt)' | cut -d '=' -f2- | cut -d ' ' -f1 | tr ',' '\n' | egrep -v '(db2-discover|dhcp-discover|dns-service-discovery|http-email-harvest|membase-http-info|oracle-sid-brute|smb-os-discovery|sslv2)' | sort -u > tmp2
+grep 'script=' discover.sh | egrep -v '(discover.sh|22.txt|smtp.txt)' | cut -d '=' -f2- | cut -d ' ' -f1 | tr ',' '\n' | egrep -v '(db2-discover|dhcp-discover|dns-service-discovery|http-email-harvest|membase-http-info|oracle-sid-brute|smb-os-discovery)' | sort -u > tmp2
 
 echo "New modules to be added." > tmp-updates
 echo >> tmp-updates
@@ -3875,7 +3882,7 @@ echo >> tmp-updates
 echo "Nmap scripts" >> tmp-updates
 echo "==============================" >> tmp-updates
 
-diff tmp tmp2 | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' | egrep -v '(smtp-commands|smtp-enum-users|smtp-open-relay|smtp-strangeport|tmp)' >> tmp-updates
+diff tmp tmp2 | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' | egrep -v '(clamav-exec|smb-vuln*|smtp-commands|smtp-enum-users|smtp-ntlm-info|smtp-open-relay|smtp-strangeport|smtp-vuln*|ssl*|tls-nextprotoneg|tmp)' >> tmp-updates
 
 rm tmp
 
