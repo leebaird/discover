@@ -615,7 +615,7 @@ case $choice in
 
      grep '|' /tmp/names | awk '{print $2", "$4}' | egrep -v '(_|\|)' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp
      grep '|' /tmp/profiles | awk '{print $3", "$2}' | grep -v '|' > tmp2
-     cat tmp tmp2 | egrep -iv '(INFORM|Operations)' | sort -u > names-recon
+     cat tmp tmp2| sort -u > names-recon
 
      ##############################################################
 
@@ -635,7 +635,7 @@ case $choice in
 
      ##############################################################
 
-     cat names-tmp names-recon | sort -u > names
+     cat names-tmp names-recon | egrep -iv '(-,|\(|&|adjuster|allstate|analyst|assistant|claim|consultant|inform|linkedin|mutual|nw|operations|representative|services|specialist|transformation|underwriter)' | sort -u > names
 
      cat networks-tmp networks-recon | sort -u | $sip > networks
 
