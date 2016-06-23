@@ -211,7 +211,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=34
+     total=33
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g;s/\&/%26/g;s/\,/%2C/g' )
 
@@ -479,25 +479,7 @@ case $choice in
      ssconvert -E Gnumeric_Excel:xlsx -T Gnumeric_stf:stf_csv tmp.xlsx tmp.csv 2>/dev/null
      cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > sub-dnsdumpster
 
-     echo "dnssy.com                 (26/$total)"
-     wget -q --post-data 'q=$domain&step=1&r=1448215046#3cc723b32910c180bc45aba6c21be6edf4125745' http://www.dnssy.com/report.php -O tmp
-     sed -n '/table border/,/\/table/p' tmp > tmp2
-     echo "<html>" > tmp3
-     cat tmp2 >> tmp3
-     echo "</html>" >> tmp3
-     sed 's/Pass/<center><img src="..\/images\/icons\/green.png" height="50" width="50"><\/center>/g;
-     s/Warning/<center><img src="..\/images\/icons\/yellow.png" height="50" width="50"><\/center>/g;
-     s/Fail/<center><img src="..\/images\/icons\/red.png" height="50" width="50"><\/center>/g;
-     s/ class="info"//g; s/ class="rfail"//g; s/ class="rinfo"//g; s/ class="rpass"//g; s/ class="rsecu"//g; s/ class="rwarn"//g;
-     s/All of the glue/Glue/g; s/All of your MX/All MX/g; s/All of your nameservers/Nameservers/g; 
-     s/Checking domain format/Domain format/g; s/Checking for parent nameservers/Parent nameservers/g; 
-     s/Checking for parent glue/Parent glue/g; s/Each of your nameservers/Each nameserver/g; s/I expected/Expected/g; 
-     s/I found the following MX records://g; s/I got an error response to my/Received an error response to/g;
-     s/I was unable/Unable/g; s/None of your MX/No MX/g; s/This is all of the MX servers I found.//g; s/WWW/www/g;
-     s/Your nameservers/Nameservers/g; s/Your NS records at your nameservers are://g; s/Your NS records at your parent nameserver are://g;
-     s/Your SOA/SOA/g; s/Your web server/The web server/g; s/Your web server says it is://g' tmp3 > $home/data/$domain/data/config.htm
-
-     echo "dnswatch.info             (27/$total)"
+     echo "dnswatch.info             (26/$total)"
      echo '*' > tmp
      echo '%' >> tmp
 
@@ -534,23 +516,23 @@ case $choice in
      echo >> $home/data/$domain/data/records.htm
      echo '</html>' >> $home/data/$domain/data/records.htm
 
-     echo "email-format.com          (28/$total)"
+     echo "email-format.com          (27/$total)"
      curl --silent http://www.email-format.com/d/$domain/ | grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* > zemail-format
 
-     echo "ewhois.com                (29/$total)"
+     echo "ewhois.com                (28/$total)"
      wget -q http://www.ewhois.com/$domain/ -O tmp
      cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > sub3
 
-     echo "intodns.com               (30/$total)"
+     echo "intodns.com               (29/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
      cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
      cat tmp2 >> $home/data/$domain/pages/config.htm
 
-     echo "myipneighbors.net         (31/$total)"
+     echo "myipneighbors.net         (30/$total)"
      wget -q http://www.myipneighbors.net/?s=$domain -O tmp
      grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
 
-     echo "netcraft.com              (32/$total)"
+     echo "netcraft.com              (31/$total)"
      wget -q http://toolbar.netcraft.com/site_report?url=http://$domain -O tmp
 
      # Remove lines from FOO to the second BAR
@@ -568,7 +550,7 @@ case $choice in
      echo >> $home/data/$domain/pages/netcraft.htm
      echo '</html>' >> $home/data/$domain/pages/netcraft.htm
 
-     echo "ultratools.com            (33/$total)"
+     echo "ultratools.com            (32/$total)"
      x=0
 
      f_passive_axfr(){
@@ -599,7 +581,7 @@ case $choice in
      echo >> $home/data/$domain/data/zonetransfer.htm
      echo '</html>' >> $home/data/$domain/data/zonetransfer.htm
 
-     echo "recon-ng                  (34/$total)"
+     echo "recon-ng                  (33/$total)"
      cp $discover/resource/recon-ng.rc $discover/
      sed -i "s/xxx/$companyurl/g" $discover/recon-ng.rc
      sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/recon-ng.rc
