@@ -464,7 +464,6 @@ case $choice in
           echo > whois-ip
      fi
 
-     echo
      echo "dnsdumpster.com           (25/$total)"
      wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/images/dnsdumpster.png
 
@@ -1128,19 +1127,21 @@ sleep 2
 uripath="http://www.advancedbackgroundchecks.com/search/results.aspx?type=&fn=${firstName}&mi=&ln=${lastName}&age=&city=&state="
 $web $uripath &
 sleep 2
-$web http://www.cvgadget.com/person/$firstName/$lastName &
-sleep 2
 $web https://www.linkedin.com/pub/dir/?first=$firstName\&last=$lastName\&search=Search &
+sleep 2
+$web http://www.peekyou.com/$firstName%5f$lastName &
 sleep 2
 $web http://phonenumbers.addresses.com/people/$firstName+$lastName &
 sleep 2
 $web https://pipl.com/search/?q=$firstName+$lastName\&l=\&sloc=\&in=5 &
 sleep 2
+$web http://www.spokeo.com/$firstName-$lastName &
+sleep 2
 $web https://twitter.com/search?q=%22$firstName%20$lastName%22&src=typd &
 sleep 2
-$web http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr= &
+$web https://www.youtube.com/results?search_query=$firstName+$lastName &
 sleep 2
-$web http://www.peekyou.com/$firstName%5f$lastName &
+$web http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr= &
 
 f_main
 }
