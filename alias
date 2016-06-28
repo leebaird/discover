@@ -38,25 +38,65 @@ alias d='cd /Users/$user/Desktop/ ; clear'
 alias l='ls -l'
 alias m='sudo /opt/metasploit-framework/bin/msfconsole'
 alias mysql='/Applications/XAMPP/xamppfiles/bin/mysql -u root -p'
-alias pip='sudo /usr/local/bin/pip'
 alias r='cd /Users/$user/ ; clear'
 alias s='cd /Users/$user/tools/discover/ ; clear'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
-alias update='echo ;
-echo -n "[*] Updating Discover." ; echo ;
-cd /Users/$user/tools/discover/ && git pull ; echo ;
+alias update='
+clear
+echo
+
+if [ ! -d /Users/$user/tools ];
+     then mkdir /Users/$user/tools
+fi
+
+echo
+
+if [ -d /Users/$user/tools/discover/.git ]; then
+     echo -n "[*] Updating Discover." ; echo
+     cd /Users/$user/tools/discover/ && git pull
+     echo
+else
+     echo -n "[*] Installing Discover."
+     git clone https://github.com/leebaird/discover.git /Users/$user/tools/discover
+     echo
+fi
+
+if [ -d /Users/$user/tools/exploit-db/.git ]; then
+     echo -n "[*] Updating Exploit DB." ; echo
+     cd /Users/$user/tools/exploit-db/ && git pull
+     echo
+else
+     echo -n "[*] Installing Exploit DB."
+     git clone https://github.com/offensive-security/exploit-database.git /Users/$user/tools/exploit-db
+     echo
+fi
 
 echo -n "[*] Updating Metasploit." ; echo ;
 /opt/metasploit-framework/bin/msfupdate ; echo ;
 
-echo -n "[*] Updating SecLists." ; echo ;
-cd /Users/$user/tools/SecLists/ && git pull ; echo ;
+if [ -d /Users/$user/tools/seclists/.git ]; then
+     echo -n "[*] Updating SecLists." ; echo ;
+     cd /Users/$user/tools/seclists/ && git pull ; echo ;
+else
+     echo -n "[*] Installing SecLists." ; echo ;
+     git clone https://github.com/danielmiessler/SecLists.git /Users/$user/tools/seclists
+     echo
+fi
 
-echo -n "[*] Updating Sqlmap." ; echo ;
-cd /Users/$user/tools/sqlmap/ && git pull ; echo ;
+if [ -d /Users/$user/tools/sqlmap/.git ]; then
+     echo -n "[*] Updating Sqlmap." ; echo
+     cd /Users/$user/tools/sqlmap/ && git pull ; echo ;
+else
+     echo -n "[*] Installing Sqlmap." ; echo
+     git clone https://github.com/sqlmapproject/sqlmap.git /Users/$user/tools/sqlmap
+     echo
+fi
 
 echo -n "[*] Updating locate database." ; echo ;
 echo -n "Be patient, this takes a couple min." ; echo ;
-cd /Users/$user/ ;
-sudo /usr/libexec/locate.updatedb ; echo ; echo'
+sudo /usr/libexec/locate.updatedb
+cd /Users/$user/
+echo
+echo
+'
