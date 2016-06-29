@@ -4,7 +4,6 @@ Kali
 # Terminal
 
 Edit > Profile Preferences
-Initial terminal size: 130 x 50
 Colors: Uncheck Use transparent background
 ------------------------------------------------------------------------------------------------------
 
@@ -14,12 +13,6 @@ Top right icon > tools icon > Power
 Power Saving > Blank screen: Never
 Back arrow
 Privacy > Screen Lock > Automatic Screen Lock: Off
-------------------------------------------------------------------------------------------------------
-
-# Fonts
-
-Applications > Favorites > Tweak Tool > Fonts
-Change the first three to 12
 ------------------------------------------------------------------------------------------------------
 
 # gedit
