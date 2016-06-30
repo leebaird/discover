@@ -172,11 +172,11 @@ case $choice in
      clear
      f_banner
 
-     echo -e "\x1B[1;34mUses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester, Metasploit, URLCrazy,\x1B[0m"
-     echo -e "\x1B[1;34mWhois, multiple websites, and recon-ng.\x1B[0m"
+     echo -e "\x1B[1;34mUses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,\x1B[0m"
+     echo -e "\x1B[1;34m Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.\x1B[0m"
      echo
-     echo -e "\x1B[1;34m[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google, Hashes, and\x1B[0m"
-     echo -e "\x1B[1;34mShodan for maximum results with recon-ng.\x1B[0m"
+     echo -e "\x1B[1;34m[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub,\x1B[0m"
+     echo -e "\x1B[1;34m Google, Hashes, and Shodan for maximum results with recon-ng.\x1B[0m"
      echo
      echo $medium
      echo
