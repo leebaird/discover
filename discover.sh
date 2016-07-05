@@ -662,7 +662,7 @@ case $choice in
           cat names >> $home/data/$domain/data/names.htm
      fi
 
-     if [ -e networks ]; then
+     if [ -s networks ]; then
           networkcount=$(wc -l networks | cut -d ' ' -f1)
           echo "Networks      $networkcount" >> zreport
           echo "Networks ($networkcount)" >> tmp
