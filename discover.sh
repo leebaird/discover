@@ -350,7 +350,7 @@ case $choice in
 
      ##############################################################
 
-     cat z* | egrep -v '(@|\*|-|_|=|\||;|:|"|<|>|/|\?)' > tmp
+     cat z* > tmp
      # Remove lines that contain a number
      sed '/[0-9]/d' tmp > tmp2
      # Remove lines that start with @
@@ -364,15 +364,7 @@ case $choice in
      # Remove lines that contain a single word
      sed '/[[:blank:]]/!d' tmp6 > tmp7
      # Clean up
-     egrep -v '(abuse|academy|account|achievement|active|administrator|administrative|advanced|adventure|advertising|america|american|analysis|analyst|antivirus|apple seems|application|applications|architect|article|asian|assistant|associate|association|attorney|auditor|australia|automation|automotive|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|business|buyer|buying|california|cannot|capital|career|carrying|cashing|center|certified|challenger|championship|change|chapter|charge|china|chinese|clearance|cloud|code|college|columbia|communications|community|company pages|competition|competitive|compliance|computer|concept|conference|config|connections|connect|construction|consultant|contractor|contributor|controllang|cooperation|coordinator|corporation|creative|critical|croatia|crm|dallas|day care|death toll|delta|department|description|designer|design|detection|developer|develop|development|devine|digital|diploma|director|disability|disaster|disclosure|dispute|division|document|dos poc|download|drivers|during|economy|ecovillage|editor|education|effect|electronic|else|emails|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|entry|environmental|error page|ethical|example|excellence|executive|expertzone|exploit|facebook|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|filmmaker|finance|financial|forensic|found|freelance|from|frontiers in tax|full|function|fuzzing|germany|get control|global|google|government|graphic|greater|group|guardian|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|hostmaster|house|how to|hurricane|icmp|idc|in the news|index|informatics|information|innovation|installation|insurers|integrated|international|internet|instructor|insurance|intelligence|interested|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|laptops|leadership|letter|licensing|lighting|limitless|liveedu|llp|local|looking|ltd|lsu|luscous|malware|managed|management|manager|managing|manufacturing|marketplace|mastering|maturity|md|media|medical|medicine|member|meta tags|methane|metro|microsoft|middle east|mission|mitigation|mn|money|monitor|more coming|mortgage|museums|negative|network|network|new user|newspaper|new york|next page|nitrogen|nyc|obtain|occupied|offers|office|online|operations|organizational|outbreak|owners|page|partner|pathology|peace|people|perceptions|philippines|photo|picture|places|planning|portfolio|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|program|publichealth|published|pyramid|questions|recruiter|redeem|redirect|region|register|registry|regulation|rehab|remote|report|republic|research|resolving|revised|rising|rural health|sales|satellite|save the date|school|scheduling|science|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|social|software|solutions|source|special|station home|statistics|strategy|student|successful|superheroines|supervisor|support|switch|system|systems|talent|targeted|tax|tcp|technical|technology|tester|textoverflow|theater|time in|tit for tat|title|toolbook|tools|toxic|traditions|trafficking|transfer|treasury|trojan|twitter|training|ts|tylenol|types of scams|unclaimed|underground|university|united states|untitled|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|wanted|web search|web site|website|welcome|west virginia|when the|whiskey|window|worker|world|www|xbox)' tmp7 > tmp8
-     # Clean up
-     sed 's/iii/III/g' tmp8 | sed 's/ii/II/g' > tmp9
-     # Capitalize the first letter of every word
-     sed 's/\b\(.\)/\u\1/g' tmp9 > tmp10
-     grep -v ',' tmp10 | awk '{print $2", "$1}' > tmp11
-     grep ',' tmp10 > tmp12
-     # Remove trailing whitespace from each line
-     cat tmp11 tmp12 | sed 's/[ \t]*$//' | sort -u > names-tmp
+     egrep -v '(\*|\[|:|found|full)' tmp7 | sort -u > names1
 
      ##############################################################
 
@@ -616,7 +608,30 @@ case $choice in
 
      ##############################################################
 
-     cat names-tmp names-recon | egrep -iv '(-,|\(|&|adjuster|allstate|analyst|assistant|claim|consultant|inform|linkedin|mutual|nw|operations|representative|services|specialist|transformation|underwriter)' | sort -u > names
+     cat names1 names-recon > tmp
+     # Remove lines that contain a number
+     sed '/[0-9]/d' tmp > tmp2
+     # Remove lines that start with @
+     sed '/^@/ d' tmp2 > tmp3
+     # Remove lines that start with .
+     sed '/^\./ d' tmp3 > tmp4
+     # Change to lower case
+     cat tmp4 | tr '[A-Z]' '[a-z]' > tmp5
+     # Remove blank lines
+     sed '/^$/d' tmp5 > tmp6
+     # Remove lines that contain a single word
+     sed '/[[:blank:]]/!d' tmp6 > tmp7
+     # Clean up
+     egrep -v '(~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|>|\.|\?|/|abuse|academy|account|achievement|active|adjuster|administrator|administrative|advanced|adventure|advertising|alliance|allstate|america|american|analysis|analyst|analytics|antivirus|apple seems|application|applications|architect|article|asian|assistant|associate|association|attorney|auditor|australia|automation|automotive|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|business|buyer|buying|california|cannot|capital|career|carrying|cashing|center|certified|cfi|challenger|championship|change|chapter|charge|china|chinese|claim|clearance|cloud|code|college|columbia|commercial|communications|community|company pages|competition|competitive|compliance|computer|concept|conference|config|connections|connect|construction|consultant|contract|contributor|controllang|cooperation|coordinator|corporation|creative|critical|croatia|crm|dallas|day care|death toll|delta|department|description|designer|design|detection|developer|develop|development|devine|digital|diploma|director|disability|disaster|disclosure|dispute|division|document|dos poc|download|drivers|during|economy|ecovillage|editor|education|effect|electronic|else|emails|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|entry|environmental|error page|ethical|example|excellence|executive|expertzone|exploit|facebook|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|filmmaker|finance|financial|forensic|found|freelance|from|frontiers in tax|full|function|fuzzing|germany|get control|global|google|governance|government|graphic|greater|group|guardian|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|hostmaster|house|how to|hurricane|icmp|idc|in the news|index|inform|innovation|installation|insurers|integrated|international|internet|instructor|insurance|intelligence|interested|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|laptops|leader|letter|licensing|lighting|linkedin|limitless|liveedu|llp|local|looking|ltd|lsu|luscous|macys|malware|managed|management|manager|managing|manufacturing|market|mastering|maturity|md|media|medical|medicine|member|meta tags|methane|metro|microsoft|middle east|mission|mitigation|mn|money|monitor|more coming|mortgage|museums|mutual|negative|network|network|new user|newspaper|new york|next page|nitrogen|nw|nyc|obtain|occupied|offers|office|online|operations|organizational|outbreak|owners|page|partner|pathology|peace|people|perceptions|philippines|photo|picture|places|planning|portfolio|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|program|publichealth|published|pyramid|questions|recruiter|redeem|redirect|region|register|registry|regulation|rehab|remote|report|representative|republic|research|resolving|revised|rising|rural health|sales|satellite|save the date|school|scheduling|science|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|social|software|solutions|source|special|station home|statistics|strategy|student|successful|superheroines|supervisor|support|switch|system|systems|talent|targeted|tax|tcp|technical|technician|technology|tester|textoverflow|theater|time in|tit for tat|title|toolbook|tools|toxic|traditions|trafficking|transfer|transformation|treasury|trojan|twitter|training|ts|tylenol|types of scams|unclaimed|underground|underwriter|university|united states|untitled|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|wanted|web search|web site|website|welcome|west virginia|westchester|when the|whiskey|window|worker|world|www|xbox)' tmp7 > tmp8
+     sed 's/iii/III/g' tmp8 | sed 's/ii/II/g' > tmp9
+     # Capitalize the first letter of every word
+     sed 's/\b\(.\)/\u\1/g' tmp9 | sed 's/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mcl/McL/g; s/Mcn/McN/g; s/,,/,/g' > tmp10
+     grep -v ',' tmp10 | awk '{print $2", "$1}' > tmp11
+     grep ',' tmp10 > tmp12
+     # Remove trailing whitespace from each line
+     cat tmp11 tmp12 | sed 's/[ \t]*$//' | sort -u > names
+
+     ##############################################################
 
      cat networks-tmp networks-recon | sort -u | $sip > networks
 
