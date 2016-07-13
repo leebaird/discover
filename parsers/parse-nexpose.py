@@ -87,7 +87,8 @@ def issue_r(raw_row, vuln):
 
     # Scan details : ENDPOINTS
     column_data_raw = raw_row.find('endpoints')
-    for dd in column_data_raw.iterfind('endpoint'):
+    if column_data_raw is not None:
+        for dd in column_data_raw.iterfind('endpoint'):
 
         _temp = issue_row
 
@@ -164,7 +165,8 @@ def issue_r(raw_row, vuln):
 
     # Scan details : TESTS
     column_data_raw = raw_row.find('tests')
-    for ee in column_data_raw.iterfind('test'):
+    if column_data_raw is not None:
+        for ee in column_data_raw.iterfind('test'):
 
         _temp = issue_row
         if ee is not None:
@@ -221,7 +223,6 @@ def issue_r(raw_row, vuln):
             _temp['cve'] = vuln_item.findtext("references/reference[@source='CVE']")
 
             ret_rows.append(_temp.copy())
-
 
     return ret_rows
 
