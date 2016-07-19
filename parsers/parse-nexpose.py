@@ -90,139 +90,139 @@ def issue_r(raw_row, vuln):
     if column_data_raw is not None:
         for dd in column_data_raw.iterfind('endpoint'):
 
-        _temp = issue_row
-
-        # Port
-        if dd.attrib['port'] is not None:
-            _temp['port_status'] = dd.attrib['port']
-
-        # Vulns
-        column_data_raw = dd.find('services/service/tests')
-        if len(column_data_raw) > 0:
-            for ee in column_data_raw.iterfind('test'):
-                if ee is not None:
-
-                    # Proof
-                    proof_items = []
-                    proofs = ee.find('Paragraph')
-                    if proofs.text:
-                        proof_items.append(proofs.text)
-                    for child in proofs.iter():
-                        if child.text:
-                            proof_items.append(child.text)
-                        if child.tag == 'URLLink':
-                            proof_items.append(child.attrib['LinkURL'])
-                    _temp['proof'] = "\n".join(proof_items)
-
-                    # CVE
-                    # _temp_cve = ee.attrib['id']
-                    # if "cve" in _temp_cve.lower():
-                    #     m = re.search("(CVE.*$)", _temp_cve.upper())
-                    #     _temp['cve'] = m.group(1)
-                    # else:
-                    #     _temp['cve'] = None
-
-                    search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'])
-                    # print search
-                    vuln_item = vuln.find(search)
-                    if vuln_item is None:
-                        search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'].upper())
+            _temp = issue_row
+    
+            # Port
+            if dd.attrib['port'] is not None:
+                _temp['port_status'] = dd.attrib['port']
+    
+            # Vulns
+            column_data_raw = dd.find('services/service/tests')
+            if len(column_data_raw) > 0:
+                for ee in column_data_raw.iterfind('test'):
+                    if ee is not None:
+    
+                        # Proof
+                        proof_items = []
+                        proofs = ee.find('Paragraph')
+                        if proofs.text:
+                            proof_items.append(proofs.text)
+                        for child in proofs.iter():
+                            if child.text:
+                                proof_items.append(child.text)
+                            if child.tag == 'URLLink':
+                                proof_items.append(child.attrib['LinkURL'])
+                        _temp['proof'] = "\n".join(proof_items)
+    
+                        # CVE
+                        # _temp_cve = ee.attrib['id']
+                        # if "cve" in _temp_cve.lower():
+                        #     m = re.search("(CVE.*$)", _temp_cve.upper())
+                        #     _temp['cve'] = m.group(1)
+                        # else:
+                        #     _temp['cve'] = None
+    
+                        search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'])
                         # print search
                         vuln_item = vuln.find(search)
-
-                    # Vuln name
-                    _temp['vuln_name'] = vuln_item.attrib['title']
-                    _temp['CVSS_score'] = vuln_item.attrib['cvssScore']
-
-                    # Vuln description
-                    _temp_vuln_description = vuln_item.findtext('description/ContainerBlockElement/Paragraph')
-                    if _temp_vuln_description is None:
-                        _temp_vuln_description = vuln_item.findtext('description/ContainerBlockElement')
-                    _temp['vuln_description'] = fix_text(_temp_vuln_description)
-
-                    # Solution
-                    solution = []
-                    solut_col = vuln_item.find('solution/ContainerBlockElement/UnorderedList')
-                    if solut_col is None:
-                        solut_col = vuln_item.find('solution/ContainerBlockElement/Paragraph')
-
-                    if solut_col is not None:
-                        for solve_item in solut_col.iter():
-                            if solve_item.text and solve_item.text.strip() != '':
-                                solution.append(solve_item.text.strip())
-                            if solve_item.tag == 'URLLink':
-                                solution.append(solve_item.attrib['LinkURL'])
-
-                        _temp['solution'] = "\n".join(solution)
-
-                    # Reference URL
-                    _temp['ref_url'] = vuln_item.findtext("references/reference[@source='URL']")
-
-                    # CVE
-                    _temp['cve'] = vuln_item.findtext("references/reference[@source='CVE']")
-
-                    ret_rows.append(_temp.copy())
+                        if vuln_item is None:
+                            search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'].upper())
+                            # print search
+                            vuln_item = vuln.find(search)
+    
+                        # Vuln name
+                        _temp['vuln_name'] = vuln_item.attrib['title']
+                        _temp['CVSS_score'] = vuln_item.attrib['cvssScore']
+    
+                        # Vuln description
+                        _temp_vuln_description = vuln_item.findtext('description/ContainerBlockElement/Paragraph')
+                        if _temp_vuln_description is None:
+                            _temp_vuln_description = vuln_item.findtext('description/ContainerBlockElement')
+                        _temp['vuln_description'] = fix_text(_temp_vuln_description)
+    
+                        # Solution
+                        solution = []
+                        solut_col = vuln_item.find('solution/ContainerBlockElement/UnorderedList')
+                        if solut_col is None:
+                            solut_col = vuln_item.find('solution/ContainerBlockElement/Paragraph')
+    
+                        if solut_col is not None:
+                            for solve_item in solut_col.iter():
+                                if solve_item.text and solve_item.text.strip() != '':
+                                    solution.append(solve_item.text.strip())
+                                if solve_item.tag == 'URLLink':
+                                    solution.append(solve_item.attrib['LinkURL'])
+    
+                            _temp['solution'] = "\n".join(solution)
+    
+                        # Reference URL
+                        _temp['ref_url'] = vuln_item.findtext("references/reference[@source='URL']")
+    
+                        # CVE
+                        _temp['cve'] = vuln_item.findtext("references/reference[@source='CVE']")
+    
+                        ret_rows.append(_temp.copy())
 
     # Scan details : TESTS
     column_data_raw = raw_row.find('tests')
     if column_data_raw is not None:
         for ee in column_data_raw.iterfind('test'):
-
-        _temp = issue_row
-        if ee is not None:
-
-            # Proof
-            proof_items = []
-            proofs = ee.find('Paragraph')
-            if proofs.text:
-                proof_items.append(proofs.text)
-            for child in proofs.iter():
-                if child.text:
-                    proof_items.append(child.text)
-                if child.tag == 'URLLink':
-                    proof_items.append(child.attrib['LinkURL'])
-            _temp['proof'] = "\n".join(proof_items)
-
-            search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'])
-            # print search
-            vuln_item = vuln.find(search)
-            if vuln_item is None:
-                search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'].upper())
+    
+            _temp = issue_row
+            if ee is not None:
+    
+                # Proof
+                proof_items = []
+                proofs = ee.find('Paragraph')
+                if proofs.text:
+                    proof_items.append(proofs.text)
+                for child in proofs.iter():
+                    if child.text:
+                        proof_items.append(child.text)
+                    if child.tag == 'URLLink':
+                        proof_items.append(child.attrib['LinkURL'])
+                _temp['proof'] = "\n".join(proof_items)
+    
+                search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'])
                 # print search
                 vuln_item = vuln.find(search)
-
-            # Vuln name
-            _temp['vuln_name'] = vuln_item.attrib['title']
-            _temp['CVSS_score'] = vuln_item.attrib['cvssScore']
-
-            # Vuln description
-            _temp_vuln_description = vuln_item.findtext('description/ContainerBlockElement/Paragraph')
-            if _temp_vuln_description is None:
-                _temp_vuln_description = vuln_item.findtext('description/ContainerBlockElement')
-            _temp['vuln_description'] = fix_text(_temp_vuln_description)
-
-            # Solution
-            solution = []
-            solut_col = vuln_item.find('solution/ContainerBlockElement/UnorderedList')
-            if solut_col is None:
-                solut_col = vuln_item.find('solution/ContainerBlockElement/Paragraph')
-
-            if solut_col is not None:
-                for solve_item in solut_col.iter():
-                    if solve_item.text and solve_item.text.strip() != '':
-                        solution.append(solve_item.text.strip())
-                    if solve_item.tag == 'URLLink':
-                        solution.append(solve_item.attrib['LinkURL'])
-
-                _temp['solution'] = "\n".join(solution)
-
-            # Reference URL
-            _temp['ref_url'] = vuln_item.findtext("references/reference[@source='URL']")
-
-            # CVE
-            _temp['cve'] = vuln_item.findtext("references/reference[@source='CVE']")
-
-            ret_rows.append(_temp.copy())
+                if vuln_item is None:
+                    search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'].upper())
+                    # print search
+                    vuln_item = vuln.find(search)
+    
+                # Vuln name
+                _temp['vuln_name'] = vuln_item.attrib['title']
+                _temp['CVSS_score'] = vuln_item.attrib['cvssScore']
+    
+                # Vuln description
+                _temp_vuln_description = vuln_item.findtext('description/ContainerBlockElement/Paragraph')
+                if _temp_vuln_description is None:
+                    _temp_vuln_description = vuln_item.findtext('description/ContainerBlockElement')
+                _temp['vuln_description'] = fix_text(_temp_vuln_description)
+    
+                # Solution
+                solution = []
+                solut_col = vuln_item.find('solution/ContainerBlockElement/UnorderedList')
+                if solut_col is None:
+                    solut_col = vuln_item.find('solution/ContainerBlockElement/Paragraph')
+    
+                if solut_col is not None:
+                    for solve_item in solut_col.iter():
+                        if solve_item.text and solve_item.text.strip() != '':
+                            solution.append(solve_item.text.strip())
+                        if solve_item.tag == 'URLLink':
+                            solution.append(solve_item.attrib['LinkURL'])
+    
+                    _temp['solution'] = "\n".join(solution)
+    
+                # Reference URL
+                _temp['ref_url'] = vuln_item.findtext("references/reference[@source='URL']")
+    
+                # CVE
+                _temp['cve'] = vuln_item.findtext("references/reference[@source='CVE']")
+    
+                ret_rows.append(_temp.copy())
 
     return ret_rows
 
