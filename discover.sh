@@ -604,7 +604,7 @@ case $choice in
      # Remove lines that start with _
      sed '/^\_/ d' tmp5 > tmp6
      # Change to lower case
-     cat tmp6 emails-recon | greg -v "'" | tr '[A-Z]' '[a-z]' | sort -u > emails
+     cat tmp6 emails-recon | grep -v "'" | tr '[A-Z]' '[a-z]' | sort -u > emails
 
      ##############################################################
 
