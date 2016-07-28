@@ -57,6 +57,16 @@ else
      echo
 fi
 
+if [ -d /opt/EyeWitness/.git ]; then
+     echo -e "\e[1;34mUpdating EyeWitness.\e[0m"
+     cd /opt/EyeWitness/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling EyeWitness.\e[0m"
+     git clone https://github.com/ChrisTruncer/EyeWitness.git /opt/EyeWitness
+     echo
+fi
+
 if [ ! -f /usr/bin/ssconvert ]; then
      echo -e "\e[1;33mInstalling gnumeric.\e[0m"
      apt-get install -y gnumeric
