@@ -64,7 +64,7 @@ if [ -d /opt/EyeWitness/.git ]; then
 else
      echo -e "\e[1;33mInstalling EyeWitness.\e[0m"
      git clone https://github.com/ChrisTruncer/EyeWitness.git /opt/EyeWitness
-     echo
+     /opt/EyeWitness/setup/setup.sh
 fi
 
 if [ ! -f /usr/bin/ssconvert ]; then
