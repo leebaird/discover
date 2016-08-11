@@ -36,6 +36,7 @@ cat ~/.ssh/id_rsa.pub | ssh user@targetIP 'cat >> .ssh/authorized_keys'
  
 t rwx rwx rwx	 type / owner / group / world
 Type is directory (d) or file (-).
+
 read    (r)	 4
 write   (w)	 2
 execute (e)	 1
@@ -66,12 +67,14 @@ mkdir tmp                          Create a directory called tmp
 touch tmp                          Create a file called tmp
 
 cat tmp                            Show the contents of tmp
-cat > tmp                          Create a file called tmp
-cat >> tmp                         Append text to a file called tmp
+ifconfig > tmp                     Pipe the output of a command to a file
+cat tmp >> tmp2                    Append the contents of a file (tmp) to another file (tmp2)
 
 head tmp                           Show the first 10 lines of tmp
 head -20 tmp                       Show the first 20 lines of tmp
-more tmp                           Show the contents of tmp, one page at a time. Space bar for next page. q to exit
+more tmp                           Show the contents of tmp, one page at a time. 
+                                   Space bar for next page and q to exit
+                                   
 tail tmp                           Show the last 10 lines of tmp
 tail -20 tmp                       Show the last 20 lines of tmp
 tail -f tmp                        Show the file contents as it grows
@@ -80,8 +83,8 @@ tail -f tmp                        Show the file contents as it grows
 # Finding Files
 
 updatedb                           Update the database of file names on the system
-locate file                        Reads a list of files from the database and show the location of a file
-which app                          Show the path where the app is executed
+locate file                        Reads the database and shows the location of a file
+which app                          Show the path where the app is executed from
 find / -name sbd*                  Show all the files that start with sbd
 ------------------------------------------------------------------------------------------------------
 
@@ -99,8 +102,8 @@ dpkg-query -l                      Show a list of installed packages
 
 # Integrity
 
-md5sum test.iso                    MD5
-sha1sum test.iso                   SHA1
+md5sum test.iso                    MD5 hash
+sha1sum test.iso                   SHA1 hash
 ------------------------------------------------------------------------------------------------------
 
 # Networking
@@ -138,7 +141,7 @@ gateway 192.168.2.1
 
 kill -9 <PID>                      Kill process ID
 killall <service>                  Kill all processes named service
-ps aux                             Currently active processes
+ps aux                             Active processes
 top                                Running processes
 ------------------------------------------------------------------------------------------------------
 
@@ -161,16 +164,16 @@ zgrep                              Search for a pattern in a zip file
 ssh into a remote system
 screen -S test                     Start a new screen session named test
 top                                Example command, leave it running
-ctrl A  ctrl D                     Detach from the screen session
-screen -ls                         Show all screen sessions running
-screen -DR test                    Reconnect to the session
+ctrl A  ctrl D                     Detach from the session
+screen -ls                         Show all sessions running
+screen -DR test                    Reconnect to a session
 exit                               Leave and close the session
 ------------------------------------------------------------------------------------------------------
 
 # Shortcuts
 
 ctrl + alt + t                     Open a Terminal
-ctrl + shift + t                   Open a new tab
+ctrl + shift + t                   Open a new tab in Terminal
 ctrl + a                           Go to the beginning of the line
 ctrl + l                           Clear the screen
 ------------------------------------------------------------------------------------------------------
@@ -179,12 +182,12 @@ ctrl + l                           Clear the screen
 
 ssh-keygen                         Generate new public/private key pair
 ssh root@host                      Connect to host as root
-ssh root@host -p 222               Connect to host on port 222 as root
+ssh root@host -p 222               Connect to host as root on port 222
 /etc/ssh/sshd_config               Config file
 
-mv amazon.pm /root/.ssh/           Move new Amazon private key to SSH folder
+mv amazon.pm /root/.ssh/           Move private key to the SSH folder
 chmod 600 /root/.ssh/amazon.pem    Change permissions of key
-ssh -i amazon.pem kali@host        Connect to Amazon EC2 as kali with key
+ssh -i amazon.pem kali@host        Connect to host using a key
 ------------------------------------------------------------------------------------------------------
 
 # Startup Services
@@ -222,7 +225,7 @@ whoami                             Who you are logged in as
 
 /etc/passwd                        User accounts
 /etc/shadow                        Encrypted passwords
-id                                 User/group permissions
+id                                 User and group permissions
 
 passwd                             Change root password
 passwd <user>                      Change another user's password
@@ -246,12 +249,11 @@ adduser <user> <group>             Add user to group
 vi filename                        Open an existing file
 vi newfile                         Create a new file
 
-Modes                              Command, append, insert and replace
+Modes                              Command, append, insert, and replace
 
-Command mode
-The letters of the keyboard perform editing functions. To enter press <Esc>.
+Command mode                       Perform editing functions. To enter press <Esc>.
 
-Moving around
+Navigation
 h                                  Left
 j                                  Down
 k                                  Up
@@ -265,22 +267,19 @@ G                                  Last line of file
 
 <esc> u                            Undo
 
-Append mode
-To add text to the end of a line.
+Append mode                        Add text to the end of a line.
 Position the cursor on the last letter of the line.
 Type a
 Enter new text.
 This adds text AFTER the cursor. Press <esc> to return to command mode.
 
-Insert mode
-The letters you type form words and sentences.
+Insert mode                        The letters you type form words and sentences.
 Position the cursor where the new text should go.
 Type i
 Enter new text.
 This adds text BEFORE the cursor. Press <esc> to return to command mode.
 
-Replace mode
-To replace one character with another.
+Replace mode                       Replace one character with another.
 Move the cursor to the character to be replaced.
 Type r
 Enter the replacement character. Press <esc> to return to command mode.
@@ -301,7 +300,7 @@ Quit
 <esc>
 :q
 
-Don't save and quit
+Do not save and quit
 <esc>
 :q!
 <Return>
@@ -319,7 +318,6 @@ OS X: mount -t cifs //<target IP>:Users/<user name> /mnt/tmp/ -o user=<user name
 
 cat /root/.ssh/id_rsa.pub >> /tmp/mount/root/.ssh/authorized_keys
 umount /tmp/mount
-ssh root@<target IP>
 ------------------------------------------------------------------------------------------------------
 
 # Rstatd enabled
