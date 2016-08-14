@@ -23,7 +23,7 @@ else:
         print('Domain:', entry['Domain'])
         print('DateAdded:', entry['AddedDate'])
         print('BreachDate:', entry['BreachDate'])
-        pprint.pprint(entry['Description'])
+        print(entry['Description'])
         print('IsSensitive:', entry['IsSensitive'])
         print('IsVerified:', entry['IsVerified'])
         print('PwnCount:', entry['PwnCount'])
