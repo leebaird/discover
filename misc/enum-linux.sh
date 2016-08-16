@@ -2,6 +2,17 @@
 
 clear
 
+if [ -z $1 ]; then
+     echo
+     echo 'Usage: <user>@<targetIP>'
+     echo
+     echo
+     exit 1
+fi
+
+ssh -M -S discover.socket -f -N $1 misc/enum-linux.sh
+ssh -S discover.socket -O exit $1
+
 # Based on Metasploit post Linux modules
 
 # Variables
