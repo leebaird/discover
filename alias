@@ -63,6 +63,16 @@ else
      echo
 fi
 
+if [ -d /Users/$user/tools/empyre/.git ]; then
+     echo -n "[*] Updating Empyre." ; echo
+     cd /Users/$user/tools/empyre/ && git pull
+     echo
+else
+     echo -n "[*] Installing Empyre."
+     git clone https://github.com/adaptivethreat/EmPyre /Users/$user/tools/empyre
+     echo
+fi
+
 if [ -d /Users/$user/tools/exploit-db/.git ]; then
      echo -n "[*] Updating Exploit DB." ; echo
      cd /Users/$user/tools/exploit-db/ && git pull
