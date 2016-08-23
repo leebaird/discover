@@ -25,6 +25,8 @@ use recon/domains-hosts/shodan_hostname
 run
 use recon/domains-hosts/ssl_san
 run
+use recon/domains-hosts/threatcrowd
+run
 use recon/domains-hosts/vpnhunter
 run
 
