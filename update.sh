@@ -122,8 +122,6 @@ if [ -f /usr/bin/theharvester ]; then
      echo -e "\e[1;34mUpdating theHarvester.\e[0m"
      mv /usr/bin/theharvester /usr/bin/theHarvester
      echo
-fi
-
 else
      echo -e "\e[1;33mInstalling theHarvester.\e[0m"
      apt-get install -y theharvester
