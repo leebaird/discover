@@ -91,17 +91,22 @@ db_status                                        Verifty database connectivity
 update-rc.d postgresql enable                    Enable postgreSQL to start at boot time
 update-rc.d metasploit enable                    Enable Metasploit to start at boot time
 
-# SSH
-ssh-keygen                                       Setup new keys
-/etc/ssh/sshd_config                             Config file
-Port 2222                                        Change port to run service
-PermitRootLogin yes                              Allow root login
+# SSH & X11
+ssh-keygen                                       Create new keys
+
+/etc/ssh/sshd_config                             Edit config file
+Port 2222                                        Change listener to a non-standard port
+PermitRootLogin yes                              Change to yes
+AuthorizedKeysFile                               Uncomment
+X11Forwarding yes                                Uncomment
+
 service ssh start                                Start ssh
 netstat -antp | grep ssh                         Verify the service is running
 update-rc.d ssh enable                           Enable ssh to start at boot time
 update-rc.d ssh disable                          Disable ssh from starting at boot time
 ssh root@targetIP                                SSH to server on standard port
 ssh root@targetIP -p 2222                        SSH to server on non-stardard port (2222)
+ssh root@targetIP -X
 
 # TFTP
 mkdir /tftp                                      Create a new home folder for tftp
@@ -128,17 +133,3 @@ apt-get install network-manager-vpnc network-manager-vpnc-gnome
 nano /etc/network/interfaces
 Remove the last two lines egarding eth0. 
 Reboot
-------------------------------------------------------------------------------------------------------
-
-# X11
-
-nano /etc/ssh/ssh_config
-Uncomment ForwardX11, change to yes
-Uncomment ForwardX11Trusted
-
-service ssh restart
-
-OS X
-  ssh -X root@<targetIP>
-  Start app that requires a GUI.
-  iceweasel &
