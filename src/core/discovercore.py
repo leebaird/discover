@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
+import os
+
 
 class Discover(object):
 
     @staticmethod
     def banner():
-        with open('/opt/discover/src/core/discover.version', 'r') as discoverversion:
+        version_path = os.getcwd()
+        with open('{0}/src/core/discover.version'.format(version_path), 'r') as discoverversion:
             version = discoverversion.read()
         print('______  ___ ______ ______  _____  _    _ ______  _____')
         print('|     \  |  |____  |      |     |  \  /  |_____ |____/')
