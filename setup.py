@@ -4,7 +4,6 @@ from setuptools import setup
 
 setup(
     name='Discover',
-    version='2.0-dev',
     url='http://github.com/leebaird/discover/',
     license='MIT',
     author='Lee Baird',
