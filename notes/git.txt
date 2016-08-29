@@ -72,6 +72,10 @@ Follow the steps outlined below to keep the master branch up-to-date.
 NOTE: The git stash steps are optional. It is easier if you commit all changes before
 attempting a rebase.
 
+NOTE: If you are working on a branch from your fork and you are wanting to support different OSes as an example.
+      You will want to set this up so you can pull the updates from that branch on both systems.
+
+      git branch --set-upstream-to <branch name> origin/<branch name>
 
 -- Submitting a patch
 
