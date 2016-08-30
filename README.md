@@ -1,4 +1,4 @@
-Follow on Twitter [![Twitter Follow](https://img.shields.io/twitter/follow/shields_io.svg?style=social&label=Follow&maxAge=2592000?style=plastic)]()<img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT licsense" width="100" height="30">
+Follow on Twitter [![Twitter Follow](https://img.shields.io/twitter/https://twitter.com/discoverscripts/shields_io.svg?style=social&label=Follow&maxAge=2592000?style=plastic)]()<img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT licsense" width="100" height="30">
 
 
 For use with Kali Linux. Custom bash scripts used to automate various pentesting tasks.
