@@ -4,7 +4,7 @@ For use with Kali Linux. Custom bash scripts used to automate various pentesting
 
 # License
 
-<img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT licsense" width="100" height="40">
+<img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT licsense" width="100" height="30">
 
 ### Download, setup & usage
 * git clone https://github.com/leebaird/discover /opt/discover/
