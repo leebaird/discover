@@ -1,10 +1,7 @@
-Follow on Twitter @discoverscripts
+Follow on Twitter [![Twitter Follow](https://img.shields.io/twitter/follow/shields_io.svg?style=social&label=Follow&maxAge=2592000)](https://twitter.com/discoverscripts) <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT licsense" width="100" height="20">
+
 
 For use with Kali Linux. Custom bash scripts used to automate various pentesting tasks.
-
-# License
-
-This project is licensed under the MIT License (MIT).
 
 ### Download, setup & usage
 * git clone https://github.com/leebaird/discover /opt/discover/
