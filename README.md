@@ -4,7 +4,7 @@ For use with Kali Linux. Custom bash scripts used to automate various pentesting
 
 # License
 
-This project is licensed under the MIT License (MIT).
+[license][https://img.shields.io/badge/license-MIT-blue.jpg]
 
 ### Download, setup & usage
 * git clone https://github.com/leebaird/discover /opt/discover/
