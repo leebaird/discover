@@ -118,11 +118,11 @@ else
      echo
 fi
 
-if [ -f /usr/bin/theharvester ]; then
-     echo -e "\e[1;34mUpdating theHarvester.\e[0m"
-     cd /opt/theHarvester; git pull
-     cp /opt/theHarvester/theHarvester.py /usr/bin/theHarvester
-     echo
+if [[  -d /opt/theHarvester/.git ]]; then
+    echo -e "\e[1;34mUpdating theHarvester.\e[0m"
+    cd /opt/theHarvester ; git pull
+    cp /opt/theHarvester/theHarvester.py /usr/bin/theHarvester
+    echo
 else
      echo -e "\e[1;33mInstalling theHarvester.\e[0m"
      git clone https://github.com/laramies/theHarvester.git /opt/theHarvester
