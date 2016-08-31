@@ -181,13 +181,28 @@ ctrl + l                           Clear the screen
 # SSH
 
 ssh-keygen                         Generate new public/private key pair
-ssh root@host                      Connect to host as root
-ssh root@host -p 222               Connect to host as root on port 222
-/etc/ssh/sshd_config               Config file
 
-mv amazon.pm /root/.ssh/           Move private key to the SSH folder
-chmod 600 /root/.ssh/amazon.pem    Change permissions of key
-ssh -i amazon.pem kali@host        Connect to host using a key
+/etc/ssh/sshd_config               Config file
+ForwardX11 yes                     Change to yes
+ForwardX11Trusted yes              Change to yes, faster but less secure
+
+ssh user@target                    Connect to target
+ssh user@target -p 2222            Connect to target on port 2222
+
+mv amazon.pm /root/.ssh/           Add a private key
+chmod 600 /root/.ssh/amazon.pem    Change permissions of the key
+ssh -i amazon.pem user@harget      Connect to target using a key
+
+ssh -X user@target                 X11 forwarding
+ssh -Y user@target                 X11 forwarding, faster but less secure
+
+ssh -D 4444 -f -C -q -N user@target
+                                   -D  Create a SOCKS tunnel on a specific port
+                                   -f  Fork the process to the background
+                                   -C  Requests compression of all data
+                                   -q  Quiet mode
+                                   -N  Do not execute a remote command
+ps aux | grep ssh                  Verify the tunnel
 ------------------------------------------------------------------------------------------------------
 
 # Startup Services
