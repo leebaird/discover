@@ -28,7 +28,16 @@ sudo rm  -rf /Library/Image\ Capture/Support/LegacyDeviceDiscoveryHelpers/
 # Homebrew
 
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+brew install curl
 brew install wget --with-libressl
+
+brew install proxychains-ng
+nano /usr/local/etc/proxychains.conf
+socks5  127.0.0.1    1080             Add to the bottom
+
+ssh -D 1080 -f -C -q -N user@target
+proxychains4 curl http://target.com
 ------------------------------------------------------------------------------------------------------
 
 # Metasploit
@@ -38,8 +47,8 @@ See metasploit.txt
 
 # PATH
 
-$PATH                         Show contents of PATH
-~/.profile                    Edit PATH
+$PATH                                 Show contents of PATH
+~/.profile                            Edit PATH
 ------------------------------------------------------------------------------------------------------
 
 # SIP
