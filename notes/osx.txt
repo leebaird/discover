@@ -38,6 +38,12 @@ socks5  127.0.0.1    1080             Add to the bottom
 
 ssh -D 1080 -f -C -q -N user@target
 proxychains4 curl http://target.com
+
+- Troubleshooting
+brew update
+brew update                           Run twice
+brew doctor
+
 ------------------------------------------------------------------------------------------------------
 
 # Metasploit
