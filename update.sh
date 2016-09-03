@@ -18,7 +18,6 @@ fi
 
 #########################################################
 
-
 if [ -d /pentest ]; then
      echo -e "\e[1;34mUpdating Discover.\e[0m"
      git pull

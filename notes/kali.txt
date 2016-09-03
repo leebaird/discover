@@ -36,31 +36,12 @@ db_status             Look for: postgresql connected to msf
 
 # Install Discover scripts
 
-git clone https://github.com/leebaird/discover /opt/discover/
+git clone git://github.com/leebaird/discover.git /opt/discover/
 cd /opt/discover/
 ./update.sh
 ------------------------------------------------------------------------------------------------------
 
-# Install CAC Reader (if needed)
-
-Notes                 https://help.ubuntu.com/community/CommonAccessCard
-
-Packages              apt-get install libpcsclite1 pcscd pcsc-tools
-DoD certificates      dodpki.c3pki.chamb.disa.mil/rootca.html
-CACKey                https://docs.google.com/file/d/0B8JoV2w_9hicRGQ0TFQ5UEpwSkE/edit?pli=1
-
-Attach CAC reader, insert CAC and verify Kali can read it.
-pcsc_scan
-
-Iceweasel > Edit > Preferences > Advanced > Security Devices > Load
-     Module Name: CAC
-     Browse > /usr/lib64/libcackey.so > Open > OK
-     You should now see your device listed on the left > OK
-
-Firefox extension     www.forge.mil/Resources-Firefox.html
-------------------------------------------------------------------------------------------------------
-
-# Install VMware Tools (if needed)
+# Install VMware Tools
 
 VMware > Virtual Machine > Install VMware Tools > Install
 cp /media/cdrom/VMwareTools-<version>.tar.gz /root/
@@ -68,9 +49,7 @@ cd /root/
 tar zxvf VMwareTools-<version>.tar.gz 
 cd vmware-tools-distrib/
 ./vmware-install.pl 
-Accept all the defaults until:
-   The path "/" is not a valid path to the .....-amd64 kernel headers.
-   Would you like to change it?  No
+Accept all the defaults
 reboot
 ------------------------------------------------------------------------------------------------------
 
