@@ -207,8 +207,12 @@ fi
 
 # Read in a file and do something.
 
+for i in $(cat tmp); do 
+     sudo chown -R $(whoami) $i
+done
+
 while read -r line; do
-	host $line | grep 'has address' | cut -d ' ' -f4
+     host $line | grep 'has address' | cut -d ' ' -f4
 done < subdomains.txt
 
 while read -r line; do
