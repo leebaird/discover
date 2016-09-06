@@ -116,6 +116,7 @@ fi
 if [[  -d /opt/theHarvester/.git ]]; then
     echo -e "\e[1;33mDeleting theHarvester.\e[0m"
     rm -rf /opt/theHarvester
+    rm /usr/share/theHarvester
     echo
 fi
 
