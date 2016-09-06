@@ -108,12 +108,8 @@ else
 fi
 
 if [ -d /opt/Responder/.git ]; then
-     echo -e "\e[1;34mUpdating Responder.\e[0m"
-     cd /opt/Responder/ ; git pull
-     echo
-else
-     echo -e "\e[1;33mInstalling Responder.\e[0m"
-     git clone https://github.com/SpiderLabs/Responder.git /opt/Responder
+     echo -e "\e[1;34mRemoving Responder.\e[0m"
+     rm -rf /opt/Responder/
      echo
 fi
 
