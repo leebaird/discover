@@ -309,29 +309,29 @@ case $choice in
 
      echo "theHarvester"
      echo "     Baidu                (9/$total)"
-     theHarvester -d $domain -b baidu > zbaidu
+     theharvester -d $domain -b baidu > zbaidu
      echo "     Bing                 (10/$total)"
-     theHarvester -d $domain -b bing > zbing
+     theharvester -d $domain -b bing > zbing
      echo "     Dogpilesearch        (11/$total)"
-     theHarvester -d $domain -b dogpilesearch > zdogpilesearch
+     theharvester -d $domain -b dogpilesearch > zdogpilesearch
      echo "     Google               (12/$total)"
-     theHarvester -d $domain -b google > zgoogle
+     theharvester -d $domain -b google > zgoogle
      echo "     Google CSE           (13/$total)"
-     theHarvester -d $domain -b googleCSE > zgoogleCSE
+     theharvester -d $domain -b googleCSE > zgoogleCSE
      echo "     Google+              (14/$total)"
-     theHarvester -d $domain -b googleplus | sed 's/ - Google+//g' > zgoogleplus
+     theharvester -d $domain -b googleplus | sed 's/ - Google+//g' > zgoogleplus
      echo "     Google Profiles	  (15/$total)"
-     theHarvester -d $domain -b google-profiles > zgoogle-profiles
+     theharvester -d $domain -b google-profiles > zgoogle-profiles
      echo "     Jigsaw               (16/$total)"
-     theHarvester -d $domain -b jigsaw > zjigsaw
+     theharvester -d $domain -b jigsaw > zjigsaw
      echo "     LinkedIn             (17/$total)"
-     theHarvester -d $domain -b linkedin > zlinkedin
+     theharvester -d $domain -b linkedin > zlinkedin
      echo "     PGP                  (18/$total)"
-     theHarvester -d $domain -b pgp > zpgp
+     theharvester -d $domain -b pgp > zpgp
      echo "     Yahoo                (19/$total)"
-     theHarvester -d $domain -b yahoo > zyahoo
+     theharvester -d $domain -b yahoo > zyahoo
      echo "     All                  (20/$total)"
-     theHarvester -d $domain -b all > zall
+     theharvester -d $domain -b all > zall
      echo
 
      echo "Metasploit                (21/$total)"
