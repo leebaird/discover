@@ -108,21 +108,15 @@ else
 fi
 
 if [ -d /opt/Responder/.git ]; then
-     echo -e "\e[1;34mRemoving Responder.\e[0m"
+     echo -e "\e[1;33mRemoving Responder.\e[0m"
      rm -rf /opt/Responder/
      echo
 fi
 
 if [[  -d /opt/theHarvester/.git ]]; then
-    echo -e "\e[1;34mUpdating theHarvester.\e[0m"
-    cd /opt/theHarvester ; git pull
-    cp /opt/theHarvester/theHarvester.py /usr/bin/theHarvester
+    echo -e "\e[1;33mDeleting theHarvester.\e[0m"
+    rm -rf /opt/theHarvester
     echo
-else
-     echo -e "\e[1;33mInstalling theHarvester.\e[0m"
-     git clone https://github.com/laramies/theHarvester.git /opt/theHarvester
-     cp /opt/theHarvester/theHarvester.py /usr/bin/theHarvester
-     echo
 fi
 
 if [ ! -f /usr/bin/xdotool ]; then
