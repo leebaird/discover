@@ -308,30 +308,37 @@ case $choice in
      echo
 
      echo "theHarvester"
+     # PTF
+     if [ -f /pentest/intelligence-gathering/theharvester/theHarvester.py ]; then
+          theharvester="theHarvester"
+     else
+          theharvester="theharvester"
+     fi
+
      echo "     Baidu                (9/$total)"
-     theharvester -d $domain -b baidu > zbaidu
+     $theharvester -d $domain -b baidu > zbaidu
      echo "     Bing                 (10/$total)"
-     theharvester -d $domain -b bing > zbing
+     $theharvester -d $domain -b bing > zbing
      echo "     Dogpilesearch        (11/$total)"
-     theharvester -d $domain -b dogpilesearch > zdogpilesearch
+     $theharvester -d $domain -b dogpilesearch > zdogpilesearch
      echo "     Google               (12/$total)"
-     theharvester -d $domain -b google > zgoogle
+     $theharvester -d $domain -b google > zgoogle
      echo "     Google CSE           (13/$total)"
-     theharvester -d $domain -b googleCSE > zgoogleCSE
+     $theharvester -d $domain -b googleCSE > zgoogleCSE
      echo "     Google+              (14/$total)"
-     theharvester -d $domain -b googleplus | sed 's/ - Google+//g' > zgoogleplus
+     $theharvester -d $domain -b googleplus | sed 's/ - Google+//g' > zgoogleplus
      echo "     Google Profiles	  (15/$total)"
-     theharvester -d $domain -b google-profiles > zgoogle-profiles
+     $theharvester -d $domain -b google-profiles > zgoogle-profiles
      echo "     Jigsaw               (16/$total)"
-     theharvester -d $domain -b jigsaw > zjigsaw
+     $theharvester -d $domain -b jigsaw > zjigsaw
      echo "     LinkedIn             (17/$total)"
-     theharvester -d $domain -b linkedin > zlinkedin
+     $theharvester -d $domain -b linkedin > zlinkedin
      echo "     PGP                  (18/$total)"
-     theharvester -d $domain -b pgp > zpgp
+     $theharvester -d $domain -b pgp > zpgp
      echo "     Yahoo                (19/$total)"
-     theharvester -d $domain -b yahoo > zyahoo
+     $theharvester -d $domain -b yahoo > zyahoo
      echo "     All                  (20/$total)"
-     theharvester -d $domain -b all > zall
+     $theharvester -d $domain -b all > zall
      echo
 
      echo "Metasploit                (21/$total)"
