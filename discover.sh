@@ -312,7 +312,7 @@ case $choice in
      if [ -f /pentest/intelligence-gathering/theharvester/theHarvester.py ]; then
           theharvester="theHarvester"
      else
-          theharvester="theharvester"
+          theharvester="/usr/share/theharvester/theHarvester.py"
      fi
 
      echo "     Baidu                (9/$total)"
