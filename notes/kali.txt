@@ -23,15 +23,11 @@ Editor: Tab width 5, Insert spaces instead of tabs
 Color Scheme: Oblivion
 ------------------------------------------------------------------------------------------------------
 
-# Setup Armitage
+# Setup Metasploit
 
-msfdb init	      Initialize the database
-armitage
-
-# Check Metasploit
-
+msfdb init          Initialize the database
 msfconsole
-db_status             Look for: postgresql connected to msf
+db_status           Look for: postgresql connected to msf
 ------------------------------------------------------------------------------------------------------
 
 # SSH
