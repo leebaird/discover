@@ -65,8 +65,6 @@ run
 
 use recon/hosts-hosts/bing_ip
 run
-use recon/hosts-hosts/freegeoip
-run
 use recon/hosts-hosts/ipinfodb
 run
 use recon/hosts-hosts/ssltools
