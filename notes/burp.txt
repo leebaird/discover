@@ -31,62 +31,60 @@ Extender > Options > Python Environment > Select file
 Browse to /Applications/jython-standalone-(version).jar > Open
 
 Extender > BApp Store > install the following:
-     CO2, Error Message Checks, HeartBleed, J2EEScan, Paramalyzer, Site Map Fetcher, and XSS Validator
+     CO2, J2EEScan, Paramalyzer, Site Map Fetcher, and XSS Validator
 ------------------------------------------------------------------------------------------------------
 
 # Options
 
-User Options > Display:
-     User Interface > Font size: 14
-     HTTP Message Display > Font: Monospaced 14
+Target > Site map:
+     Filter > restore defaults > Filter
 
-User Options > Misc:
-     Proxy Interception: Always disable
-     Performance Feedback: uncheck Submit annonymous feedback about Burp's performance
+Proxy:
+     Intercept
+          Intercept is off
+     Options:
+          Intercept Client Requests:
+               In the list below, enable URL and move to the top.
+               Select File extension > Edit: add jpeg.
 
-Project Options > Misc:
-     Burp Collaborator Server: Don't use Burp Collaborator
-
+          Intercept Server Responses:
+               Enable Intercept responses based on the following rules.
+               In the list below, disable Content type header.
+               Enable URL.
+               Add: And, File extension, Does not match, same Conditions as above.
+     
+Spider > Options:
+     Form Submission > age: 36
+     Spider Engine > Number of retries on network failure: 2
+     
+Scanner > Options:
+     Active Scanning Engine > Number of retries on network failure: 2
+     Active Scanning Optimization > Scan speed: Thorough
+     Static Code Analysis > Don’t perform static code analysis
+     
 Intruder > Options:
      Request Engine:
           Number of threads: 8
           Number of retries on network failure: 2
 
-Options > Connections:
-     Platform Authentication: enable Prompt for credentials on platform authentication failure
+Project options > Misc:
+     Burp Collaborator Server: Don't use Burp Collaborator
+     
+User optionns:
+     Connections:
+          Platform Authentication: enable Prompt for credentials on platform authentication failure
+     Display:
+          User Interface > Font size: 14
+          HTTP Message Display > Font: Monospaced 14
+     Misc:
+          Proxy Interception: Always disable
+          Performance Feedback: uncheck Submit anonymous feedback about Burp's performance
 
-Proxy > Options:
-     Intercept Client Requests:
-     In the list below, enable URL and move to the top.
-     Select File extension > Edit: add jpeg, move to the second position.
+# Save
 
-     Intercept Server Responses:
-     Enable Intercept responses based on the following rules.
-     In the list below, disable Content type header.
-     Enable URL and move to the top.
-     Add: And, File extension, Does not match, same Conditions as above.
-     Move to the second position.
-
-Scanner > Options:
-     Active Scanning Engine > Number of retries on network failure: 2
-     Active Scanning Optimization > Scan speed: Fast
-     Static Code Analysis > Don’t perform static code analysis
-
-Spider > Options:
-     Form Submission > age: 36
-     Spider Engine > Number of retries on network failure: 2
-
-Target > Scope:
-     Delete anything under Include in scope
-     Exclude from scope:
-          Add > File: (^.doc.*|^.docx.*|^.xls.*|^.xlsx.*|^.ppt.*|^.pptx.*|^.txt.*|^.pdf.*)
-
-Target > Site map:
-     Filter > restore defaults > Filter
-
-Save the state: burp-baseline
+Burp > Project options > Save project options: burp-project
+Burp > User options > Save user options: burp-user
 This will provide you a starting point for all future scans.
-To recall this state: Burp > Restore state > browse to burp-baseline > Open > Next 3x > Close
 ------------------------------------------------------------------------------------------------------
 
 # Quick Start
