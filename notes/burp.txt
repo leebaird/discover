@@ -37,6 +37,7 @@ Extender > BApp Store > install the following:
 # Options
 
 Target > Site map:
+     Right click on any pane > View > Tabs
      Filter > restore defaults > Filter
 
 Proxy:
@@ -57,10 +58,13 @@ Spider > Options:
      Form Submission > age: 36
      Spider Engine > Number of retries on network failure: 2
      
-Scanner > Options:
-     Active Scanning Engine > Number of retries on network failure: 2
-     Active Scanning Optimization > Scan speed: Thorough
-     Static Code Analysis > Don’t perform static code analysis
+Scanner:
+     Live scanning:
+          Live Passive Scanning: Use suite scope
+     Options:
+          Active Scanning Engine > Number of retries on network failure: 2
+          Active Scanning Optimization > Scan speed: Thorough
+          Static Code Analysis > Don’t perform static code analysis
      
 Intruder > Options:
      Request Engine:
@@ -80,9 +84,6 @@ User optionns:
           Proxy Interception: Always disable
           Performance Feedback: uncheck Submit anonymous feedback about Burp's performance
 
-# Save
-
-Burp > Project options > Save project options: burp-project
 Burp > User options > Save user options: burp-user
 This will provide you a starting point for all future scans.
 ------------------------------------------------------------------------------------------------------
