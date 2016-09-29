@@ -1,14 +1,6 @@
 Web Apps
 
 
-# Firefox plugins
-
-Cookies Manager+
-Live HTTP Header (clone)
-Proxy Switcher
-User-Agent Switcher
-------------------------------------------------------------------------------------------------------
-
 # Request Methods
 
 GET  Passes all query material in the URL query string.
