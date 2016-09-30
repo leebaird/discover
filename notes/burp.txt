@@ -135,7 +135,7 @@ RC on any pages that are grey or red > Copy URL > paste into Firefox
      Or RC on any pages that are grey or red > GET Empty Response
 Save the state: <appname>-spider
 
-- Brute force directories and files
+- Brute force directories
 Target > Site map > RC on '/' > Send to Intruder
 Intruder > Position > Attack type: Sniper
 Clear §
@@ -144,12 +144,11 @@ Move the forward slash in front of the two symbols. It should look like: GET /§
 Payloads:
      Payload Sets
           Payload set: 1
-          Payload type: Simple list
-     Payload Options > Add from list:
-          Directories - long
-     Payload Option > Load:
-          DirBuster-1.0-RC1 > directory-list-2.3-small.txt
-Start attack
+          Payload type: runtime file
+     Payload Options:
+          Select file > seclists > Discovery > Web_Content > raft-medium-directories.txt > Open
+     Start attack
+
 Filter > uncheck 4xx [request error] > Filter
 Click Status to sort by ascending.
 Clean up results when the attack completes:
@@ -161,7 +160,6 @@ Add remaining items to Site map:
      Check: In future, just copy the URL and don't show this dialog > Copy
      Firefox > open a new tab > paste
      Repeat with remaining lines.
-Save the state: <appname>-BFdir
 
 - Brute force logins
 Try to login
@@ -229,7 +227,6 @@ Intruder > Payloads > Attack type:
 Filter > uncheck 4xx [request error] > Filter
 Click Status to sort by ascending.
 Look for a 302 (redirect). This should be a successful login.
-Save the state: <appname>-BFlogin
 
 - Scan app
 Spider > Control > Spider is paused
@@ -237,7 +234,6 @@ Target > Site map > RC on the target URL > Actively scan this host
 Active scanning wizard: check all boxes > Next > Ok
 Scanner > Scan que > RC > Automatically delete finished items > Yes
 Scanner > Results
-Save the state: <appname>-scan
 ------------------------------------------------------------------------------------------------------
 
 # Alerts
