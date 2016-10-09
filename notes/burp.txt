@@ -277,7 +277,7 @@ https://portswigger.net/burp/help/suite_functions_csrfpoc.html
 
 File path traversal: RC in the Request body > Send to Repeater > modify the request 
 XML Injection: Search in the Response body for http://www.w3.org/2001/XMLSchema. This is a false positive.
-XSS:  RC in the Request body > Request in browser > In current browser session
+XSS: RC in the Request body > Request in browser > In current browser session
 ------------------------------------------------------------------------------------------------------
 
 # Mobile app testing
