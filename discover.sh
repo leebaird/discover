@@ -822,15 +822,37 @@ case $choice in
      sleep 2
      $web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
      sleep 2
-     $web https://www.google.com/#q=filetype%3Axls+OR+filetype%3Axlsx+site%3A$domain &
+     $web https://www.google.com/#q=site%3A$domain+filetype%3Axls+OR+filetype%3Axlsx &
      sleep 2
-     $web https://www.google.com/#q=filetype%3Appt+OR+filetype%3Apptx+site%3A$domain &
+     $web https://www.google.com/#q=site%3A$domain+filetype%3Appt+OR+filetype%3Apptx &
      sleep 2
-     $web https://www.google.com/#q=filetype%3Adoc+OR+filetype%3Adocx+site%3A$domain &
+     $web https://www.google.com/#q=site%3A$domain+filetype%3Adoc+OR+filetype%3Adocx &
      sleep 2
-     $web https://www.google.com/#q=filetype%3Apdf+site%3A$domain &
+     $web https://www.google.com/#q=site%3A$domain+filetype%3Aasp &
      sleep 2
-     $web https://www.google.com/#q=filetype%3Atxt+site%3A$domain &
+     $web https://www.google.com/#q=site%3A$domain+filetype%3Apdf &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+filetype%3Atxt &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+admin &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+confidential &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+%22internal+use+only%22 &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+login &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+password &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+portal &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+ssn &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+%22top+secret%22 &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+upload &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+inurl:%22index+of%22 &
      sleep 2
      $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
      sleep 2
