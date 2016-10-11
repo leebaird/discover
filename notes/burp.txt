@@ -136,11 +136,12 @@ RC on any pages that are grey or red > Copy URL > paste into Firefox
 Save the state: <appname>-spider
 
 - Brute force directories
-Target > Site map > RC on '/' > Send to Intruder
+Target > Site map > RC on the second line '/' > Send to Intruder
 Intruder > Position > Attack type: Sniper
 Clear §
 On the top line, select the forward slash '/' after GET > Add §
 Move the forward slash in front of the two symbols. It should look like: GET /§§
+
 Payloads:
      Payload Sets
           Payload set: 1
@@ -149,17 +150,18 @@ Payloads:
           Select file > seclists > Discovery > Web_Content > raft-medium-directories.txt > Open
      Start attack
 
-Filter > uncheck 4xx [request error] > Filter
-Click Status to sort by ascending.
 Clean up results when the attack completes:
-     Select the first line with a 301 status.
-     Hold down shift and select the last line with a 301 status.
+     Filter > uncheck 4xx [request error] > Filter
+     Click Status to sort by ascending.
+     Select the first line with a 302 status.
+     Hold down shift and select the last line with a 302 status.
      RC > Delete select items > Yes
+
 Add remaining items to Site map:
-     RC on the first line > Request in browser > In current session
+     Select the first line and RC in the bottom pane > Request in browser > In current browser session
      Check: In future, just copy the URL and don't show this dialog > Copy
      Firefox > open a new tab > paste
-     Repeat with remaining lines.
+     Repeat with the remaining lines.
 
 - Brute force logins
 Try to login
@@ -234,6 +236,10 @@ Target > Site map > RC on the target URL > Actively scan this host
 Active scanning wizard: check all boxes > Next > Ok
 Scanner > Scan que > RC > Automatically delete finished items > Yes
 Scanner > Results
+
+- Grey folders
+RC on grey folder > GET Empty Response
+If the folder is still grey > RC > Delete branch > Yes
 ------------------------------------------------------------------------------------------------------
 
 # Alerts
@@ -246,7 +252,7 @@ Scanner > Options:
 
 # Authentication
 
-Options > Connections > Platform Authentication > Add
+User options > Connections > Platform Authentication > Add
      Destination host: target URL
      Authentication type: Basic, NTLMv1, NTLMv2 or Digest
      Username and Password
