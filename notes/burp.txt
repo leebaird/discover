@@ -166,6 +166,11 @@ Add remaining items to Site map:
 # Grey folders
 RC on grey folder > GET Empty Response
 If the folder is still grey > RC > Delete branch > Yes
+
+# Review comments
+Target > Site map > RC the target URL > Engagement tools > Find comments
+Sort by Item
+Review each line item for sensitive information.
 ---------------------------------------------------------------
 
 # Brute force logins
