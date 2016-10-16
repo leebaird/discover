@@ -94,7 +94,7 @@ Extender:
 Project options > Misc:
      Burp Collaborator Server: Don't use Burp Collaborator
      
-User optionns:
+User options:
      Connections:
           Platform Authentication: enable Prompt for credentials on platform authentication failure
      Display:
