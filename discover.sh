@@ -854,6 +854,8 @@ case $choice in
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+inurl:%22index+of%22 &
      sleep 2
+     $web https://www.google.com/#q=site%3Apastebin.com+intext:%40$domain &
+     sleep 2
      $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
      sleep 2
      $web pastebin.com/search?cx=013305635491195529773%3A0ufpuq-fpt0\&cof=FORID%3A10\&ie=UTF-8\&q=$companyurl\&sa.x=0\&sa.y=0 &
