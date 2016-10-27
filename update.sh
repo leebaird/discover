@@ -126,6 +126,17 @@ if [ ! -f /usr/bin/xdotool ]; then
      echo
 fi
 
+if [ -d /opt/Veil-Evasion/.git ]; then
+     echo -e "\e[1;34mUpdating Veil-Evasion.\e[0m"
+     cd /opt/Veil-Evasion/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling Veil-Evasion.\e[0m"
+     git clone https://github.com/Veil-Framework/Veil-Evasion /opt/Veil-Evasion
+     /opt/Veil-Evasion/setup/setup.sh
+     echo
+fi
+
 if [ ! -f /usr/bin/xml_grep ]; then
      echo -e "\e[1;33mInstalling xml_grep.\e[0m"
      apt-get install -y xml-twig-tools
