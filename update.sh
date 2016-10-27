@@ -133,7 +133,6 @@ if [ -d /opt/Veil-Evasion/.git ]; then
 else
      echo -e "\e[1;33mInstalling Veil-Evasion.\e[0m"
      git clone https://github.com/Veil-Framework/Veil-Evasion /opt/Veil-Evasion
-     /opt/Veil-Evasion/setup/setup.sh
      echo
 fi
 
