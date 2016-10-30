@@ -98,6 +98,8 @@ dpkg -i app.deb                    Install Debian package
 rpm -Uvh app.rpm                   Install RPM package
 
 dpkg-query -l                      Show a list of installed packages
+
+pip install -r requirements.txt    Install required packages listed in a file
 ------------------------------------------------------------------------------------------------------
 
 # Integrity
