@@ -8,5 +8,17 @@ run
 use auxiliary/scanner/ftp/anonymous
 run
 
+use auxiliary/scanner/ftp/bison_ftp_traversal
+run
+
+use auxiliary/scanner/ftp/colorado_ftp_traversal
+run
+
+use auxiliary/scanner/ftp/konica_ftp_traversal
+run
+
+use auxiliary/scanner/ftp/pcman_ftp_traversal
+run
+
 use auxiliary/scanner/ftp/titanftp_xcrc_traversal
 run

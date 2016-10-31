@@ -2,6 +2,9 @@ setg RHOSTS file:
 setg THREADS 255
 setg RPORT 445
 
+use auxiliary/scanner/smb/smb_version
+run
+
 use auxiliary/scanner/smb/pipe_auditor
 run
 
@@ -9,6 +12,9 @@ use auxiliary/scanner/smb/pipe_dcerpc_auditor
 run
 
 use auxiliary/scanner/smb/smb2
+run
+
+use auxiliary/scanner/smb/smb_enum_gpp
 run
 
 use auxiliary/scanner/smb/smb_enumshares
@@ -26,5 +32,5 @@ run
 use auxiliary/scanner/smb/smb_lookupsid
 run
 
-use auxiliary/scanner/smb/smb_version
+use auxiliary/scanner/smb/smb_uninit_cred
 run

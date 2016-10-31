@@ -5,6 +5,9 @@ setg RPORT 25
 use auxiliary/scanner/smtp/smtp_enum
 run
 
+use auxiliary/scanner/smtp/smtp_ntlm_domain
+run
+
 use auxiliary/scanner/smtp/smtp_relay
 run
 

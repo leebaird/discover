@@ -16,3 +16,6 @@ run
 
 use auxiliary/scanner/oracle/tnslsnr_version
 run
+
+use auxiliary/scanner/oracle/tnspoison_checker
+run

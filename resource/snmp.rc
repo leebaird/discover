@@ -8,6 +8,9 @@ run
 use auxiliary/scanner/snmp/aix_version
 run
 
+use auxiliary/scanner/snmp/arris_dg950
+run
+
 use auxiliary/scanner/snmp/brocade_enumhash
 run
 
@@ -22,6 +25,9 @@ run
 use auxiliary/scanner/snmp/netopia_enum
 run
 
+use auxiliary/scanner/snmp/sbg6580_enum
+run
+
 use auxiliary/scanner/snmp/snmp_enum
 run
 
@@ -29,6 +35,9 @@ use auxiliary/scanner/snmp/snmp_enumshares
 run
 
 use auxiliary/scanner/snmp/snmp_enumusers
+run
+
+use auxiliary/scanner/snmp/snmp_login
 run
 
 use auxiliary/scanner/snmp/ubee_ddw3611

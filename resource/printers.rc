@@ -2,7 +2,13 @@ setg RHOSTS file:
 setg THREADS 255
 setg RPORT 9100
 
+use auxiliary/scanner/printer/printer_delete_file
+run
+
 use auxiliary/scanner/printer/printer_download_file
+run
+
+use auxiliary/scanner/printer/printer_upload_file
 run
 
 use auxiliary/scanner/printer/printer_env_vars
