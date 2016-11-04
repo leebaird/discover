@@ -87,3 +87,25 @@ apt-get install network-manager-vpnc network-manager-vpnc-gnome
 nano /etc/network/interfaces
 Remove the last two lines egarding eth0. 
 Reboot
+------------------------------------------------------------------------------------------------------
+
+# AWS
+
+Instances > Launch Instance
+AWS Marketplace > search for debian jesse > Select
+t2.medium with 2 VCPUs and 4GB of RAM
+Next: Configure Instance Details
+Next: Add Storage > change size to 30GB
+Review and Launch > Launch
+Select a key pair
+
+ssh -i <key.pem> admin@<targetIP>
+sudo su
+passwd
+Set new root password
+vim.tiny /etc/apt/sources.list
+Add deb http://http.kali.org/kali kali-rolling main contrib non-free
+
+apt-get update && apt-cache search kali-linux
+apt-get install locate
+apt-get install kali-linux-full
