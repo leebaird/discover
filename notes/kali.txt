@@ -107,5 +107,13 @@ vim.tiny /etc/apt/sources.list
 Add deb http://http.kali.org/kali kali-rolling main contrib non-free
 
 apt-get update && apt-cache search kali-linux
+
+[!] You will see the following error.
+W: GPG error: http://http.kali.org kali-rolling InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY ED444FF07D8D0BF6
+
+[*] Fix
+gpg --keyserver pgpkeys.mit.edu --recv-key ED444FF07D8D0BF6
+gpg -a --export ED444FF07D8D0BF6 | apt-key add -
+
 apt-get install locate
 apt-get install kali-linux-full
