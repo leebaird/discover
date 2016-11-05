@@ -10,7 +10,7 @@ alias cl='clear ; ls -l'
 alias d='cd /$user/Desktop/ ; clear'
 alias e='exit'
 alias l='ls -l'
-alias m='msfconsole'
+alias m='service postgresql start ; msfdb init ; msfconsole'
 
 alias n='echo ;
 echo -n "DNS           "$dns ; echo ;
