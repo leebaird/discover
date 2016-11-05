@@ -261,16 +261,20 @@ groupmod                           Modify group
 adduser <user> <group>             Add user to group
 ------------------------------------------------------------------------------------------------------
 
-# vi
+# vim
 
-vi filename                        Open an existing file
-vi newfile                         Create a new file
+vim filename                       Open an existing file
+vim newfile                        Create a new file
 
-Modes                              Command, append, insert, and replace
+vim vimrc                          Setup config file in home directory
+     syntax on
+     set wrapmargin=8
+     set number
 
-Command mode                       Perform editing functions. To enter press <Esc>.
+Modes                              Command, Insert, Append, and Replace
 
-Navigation
+Command mode
+dd                                 Delete entire line
 h                                  Left
 j                                  Down
 k                                  Up
@@ -284,34 +288,40 @@ G                                  Last line of file
 
 <esc> u                            Undo
 
-Append mode                        Add text to the end of a line.
-Position the cursor on the last letter of the line.
-Type a
-Enter new text.
-This adds text AFTER the cursor. Press <esc> to return to command mode.
-
-Insert mode                        The letters you type form words and sentences.
+Insert mode
 Position the cursor where the new text should go.
-Type i
+i
 Enter new text.
-This adds text BEFORE the cursor. Press <esc> to return to command mode.
+Press <esc> to return to command mode.
 
-Replace mode                       Replace one character with another.
+Append mode
+Position the cursor on the last letter of the line.
+a
+Enter new text. This adds text AFTER the cursor. 
+Press <esc> to return to command mode.
+
+Replace mode
 Move the cursor to the character to be replaced.
-Type r
-Enter the replacement character. Press <esc> to return to command mode.
+r
+Enter the replacement character.
+Press <esc> to return to command mode.
 
 Search
-Type /
+/
 Enter the search string.
-<Return>
-n	Search forward.
-N	Search backward.
+<return>
+n	Search forward
+N	Search backward
 
-Save changes to a file
+Write changes to a file
 <esc>
 :w
-<Return>
+<return>
+
+Write changes to a file and quit
+<esc>
+:wq
+<return>
 
 Quit
 <esc>
