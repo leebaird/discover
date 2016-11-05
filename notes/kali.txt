@@ -117,3 +117,10 @@ gpg -a --export ED444FF07D8D0BF6 | apt-key add -
 
 apt-get install locate
 apt-get install kali-linux-full
+
+Accept all of the defaults
+
+cd /opt/
+git clone git://github.com/leebaird/discover.git
+cd discover/
+./update.sh
