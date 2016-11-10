@@ -33,7 +33,7 @@ db_status           Look for: postgresql connected to msf
 # SSH
 ssh-keygen                                       Create new keys
 
-/etc/ssh/sshd_config                             Edit config file
+/etc/ssh/sshd_config                             Daemon config file
 PermitRootLogin yes                              Change to yes
 AuthorizedKeysFile                               Uncomment
 
@@ -41,9 +41,6 @@ service ssh start                                Start ssh
 netstat -antp | grep ssh                         Verify the service is running
 update-rc.d ssh enable                           Enable ssh to start at boot time
 update-rc.d ssh disable                          Disable ssh from starting at boot time
-ssh root@targetIP                                SSH to server on standard port
-ssh root@targetIP -p 2222                        SSH to server on non-stardard port (2222)
-ssh root@targetIP -X
 ------------------------------------------------------------------------------------------------------
 
 # Install Discover scripts
