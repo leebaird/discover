@@ -189,21 +189,22 @@ ssh user@targetIP -p 2222          Connect on a non-standard port
 ssh user@targetIP -i file.pem      Connect and authenticate using an identity file
 ssh user@targetIP -L 5900:localhost:5900     Connect and use local port forwarding
 
-ssh user@targetIP -D 9000 -f -C -q -N
-                                   -D  Create a SOCKS tunnel on a specific port (9000)
-                                   -f  Fork the process to the background
-                                   -C  Requests compression of all data
-                                   -q  Quiet mode
+ssh user@targetIP -C -D 1080 -N    -C  Use compression
+                                   -D  Create a SOCKS tunnel on the default port
                                    -N  Do not execute a remote command
 
-/etc/ssh/sshd_config               Daemon config file
-X11Forwarding yes                  Uncomment
-X11DisplayOffset 10                Uncomment
+Firefox Preferences > Advanced > Network > Settings > Manual proxy configuration
+Remove everything for HTTP, SSL, and FTP proxies and ports
+SOCKS Host: 127.0.0.1   Port: 1080
+Select SOCKS v5 and Remote DNS
 
-/etc/ssh/ssh_config                Client config file
+/etc/ssh/ssh_config                Config file
 ForwardX11 yes                     Uncomment and change to yes
- 
-ssh user@targetIP -X               X11 forwarding
+ForwardX11Trusted yes              Uncomment
+
+export DISPLAY=localhost:0.0
+exit
+ssh user@targetIP -Y               Connect and use X11 forwarding
 ------------------------------------------------------------------------------------------------------
 
 # Startup Services

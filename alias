@@ -5,6 +5,9 @@ ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
 mac=$(ifconfig | grep 'ether' | awk '{print $2}')
 user=$(whoami)
 
+alias aws='ssh -i ~/.ssh/file.pem user@targetIP -C'
+alias awss='ssh -i ~/.ssh/file.pem user@targetIP -C -D 1080 -N'
+
 alias c='clear'
 alias cl='clear ; ls -l'
 alias d='cd /$user/Desktop/ ; clear'
@@ -32,6 +35,9 @@ dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
 ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)
 mac=$(ifconfig | grep 'ether' | awk '{print $2}' | head -1)
 user=$(whoami)
+
+alias aws='ssh -i ~/.ssh/file.pem user@targetIP -C'
+alias awss='ssh -i ~/.ssh/file.pem user@targetIP -C -D 1080 -N'
 
 alias c='clear'
 alias cl='clear ; ls -l'
