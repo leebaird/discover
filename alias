@@ -1,6 +1,6 @@
 # cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
 
-dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
+dsn=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
 ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
 mac=$(ifconfig | grep 'ether' | awk '{print $2}')
 user=$(whoami)
@@ -15,12 +15,11 @@ alias e='exit'
 alias l='ls -l'
 alias m='service postgresql start ; msfdb init ; msfconsole'
 
-alias n='echo ;
+alias n='echo ; netstat -antp; echo ;
 echo -n "DNS           "$dns ; echo ;
 echo -n "Internal IP:  "$ip ; echo ;
 echo -n "MAC address:  "$mac ; echo ; echo ;
-ping -c3 google.com ; echo ;
-echo -n "External IP:  " ; curl ifconfig.me ; echo'
+ping -c3 google.com ; echo'
 
 alias r='cd /$user/ ; clear'
 alias s='cd /opt/discover/ ; clear'
@@ -45,6 +44,13 @@ alias d='cd /Users/$user/Desktop/ ; clear'
 alias l='ls -l'
 alias m='/opt/metasploit-framework/bin/msfdb init ; echo ; sudo /opt/metasploit-framework/bin/msfconsole'
 alias mysql='/Applications/XAMPP/xamppfiles/bin/mysql -u root -p'
+
+alias n='echo ; netstat -ant | grep tcp4 ; echo
+echo -n "DNS           "$dns ; echo ;
+echo -n "Internal IP:  "$ip ; echo ;
+echo -n "MAC address:  "$mac ; echo ; echo ;
+ping -c3 google.com ; echo'
+
 alias r='cd /Users/$user/ ; clear'
 alias s='cd /Users/$user/tools/discover/ ; clear'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
