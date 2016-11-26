@@ -2059,7 +2059,7 @@ f_scripts(){
 echo
 echo $medium
 echo
-echo -e "\x1B[1;34mRunning nmap scripts.\x1B[0m"
+echo -e "\x1B[1;34mRunning Nmap scripts.\x1B[0m"
 
 # If the file for the corresponding port doesn't exist, skip
 if [[ -e $name/13.txt ]]; then
@@ -2763,6 +2763,43 @@ for x in $name/./script*; do
           rm $x > /dev/null 2>&1
      fi
 done
+
+##############################################################################################################
+
+# Additional tools
+
+if [ -e $name/445.txt ] || [ -e $name/500.txt ]; then
+     echo
+     echo $medium
+     echo
+     echo -e "\x1B[1;34mRunning additional tools.\x1B[0m"
+fi
+
+if [[ -e $name/445.txt ]]; then
+     echo "     enum4linux"
+     for i in $(cat $name/445.txt); do
+          enum4linux -a $i | egrep -v '(enum4linux|No printers)' > tmp
+          cat -s tmp >> $name/script-enum4linux.txt
+     done
+fi
+
+if [[ -e $name/445.txt ]]; then
+     echo "     smbclient"
+     for i in $(cat $name/445.txt); do
+          echo $i >> $name/script-smbclient.txt
+          smbclient -L $i -N >> $name/script-smbclient.txt 2>/dev/null
+          echo >> $name/script-smbclient.txt
+     done
+fi
+
+if [[ -e $name/500.txt ]]; then
+     echo "     ike-scan"
+     for i in $(cat $name/445.txt); do
+          ike-scan -f $i >> $name/script-ike-scan.txt
+     done
+fi
+
+rm tmp 2>/dev/null
 }
 
 ##############################################################################################################
@@ -3299,43 +3336,6 @@ if [ -e $name/script-smbvulns.txt ]; then
      echo >> $filename
 fi
 
-if [ $hosts -eq 1 ]; then
-     echo "1 host discovered." >> $filename
-     echo >> $filename
-     echo $medium >> $filename
-     echo >> $filename
-     cat $name/nmap.txt >> $filename
-     echo $medium >> $filename
-     echo $medium >> $filename
-     echo >> $filename
-     echo "Nmap Scripts" >> $filename
-
-     SCRIPTS="script-13 script-21 script-22 script-23 script-25 script-37 script-53 script-67 script-70 script-79 script-102 script-110 script-111 script-119 script-123 script-137 script-143 script-161 script-389 script-445 script-465 script-500 script-523 script-524 script-548 script-554 script-623 script-631 script-636 script-873 script-993 script-995 script-1050 script-1080 script-1099 script-1344 script-1352 script-1433 script-1434 script-1521 script-1604 script-1723 script-1883 script-1911 script-1962 script-2202 script-2302 script-2375 script-2628 script-2947 script-3031 script-3260 script-3306 script-3306 script-3389 script-3478 script-3632 script-3671 script-4369 script-5019 script-5060 script-5353 script-5666 script-5672 script-5683 script-5850 script-5900 script-5984 script-x11 script-6379 script-6481 script-6666 script-7210 script-7634 script-8000 script-8009 script-8081 script-8091 script-bitcoin script-9100 script-9160 script-9600 script-9999 script-10000 script-11211 script-12000 script-12345 script-17185 script-19150 script-27017 script-31337 script-35871 script-44818 script-47808 script-49152 script-50000 script-hadoop script-apache-hbase"
-
-     for i in $SCRIPTS; do
-          if [ -e $name/"$i.txt" ]; then
-               cat $name/"$i.txt" >> $filename
-               echo $medium >> $filename
-          fi
-     done
-
-     mv $name $home/data/
-
-     START=0
-     END=0
-
-     echo
-     echo $medium
-     echo
-     echo "***Scan complete.***"
-     echo
-     echo
-     printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/$name/report.txt
-     echo
-     echo
-     exit
-fi
-
 echo "Hosts Discovered ($host)" >> $filename
 echo >> $filename
 cat $name/hosts.txt >> $filename
@@ -3417,7 +3417,27 @@ for i in $SCRIPTS; do
      fi
 done
 
-echo >> $filename
+if [ -e $name/script-enum4linux.txt ] || [ -e $name/script-smbclient.txt ] || [ -e $name/ike-scan.txt ]; then
+     echo $medium >> $filename
+     echo >> $filename
+     echo "Additional Enumeration" >> $filename
+
+     if [ -e $name/script-enum4linux.txt ]; then
+          cat $name/script-enum4linux.txt >> $filename
+          echo $medium >> $filename
+          echo >> $filename
+     fi
+
+     if [ -e $name/script-smbclient.txt ]; then
+          cat $name/script-smbclient.txt >> $filename
+          echo $medium >> $filename
+     fi
+
+     if [ -e $name/script-ike-scan.txt ]; then
+          cat $name/script-ike-scan.txt >> $filename
+          echo $medium >> $filename
+     fi
+fi
 
 mv $name $home/data/
 

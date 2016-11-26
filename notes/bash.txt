@@ -140,7 +140,7 @@ fi
 
 if [[ $port -lt 1 || $port -gt 65535 ]]; then
      echo "Invalid port."
-	exit
+     exit
 fi
 ------------------------------------------------------------------------------------------------------
 
@@ -187,11 +187,11 @@ fi
 # Set variable.
 
 if [ "$payload" == "1" ]; then
-	format="raw"
-	platform="android"
+     format="raw"
+     platform="android"
 else
-	format="exe"
-	platform="windows"
+     format="exe"
+     platform="windows"
 fi
 
 ------------------------------------------------------------------------------------------------------

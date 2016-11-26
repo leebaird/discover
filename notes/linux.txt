@@ -86,6 +86,7 @@ updatedb                           Update the database of file names on the syst
 locate file                        Reads the database and shows the location of a file
 which app                          Show the path where the app is executed from
 find / -name sbd*                  Show all the files that start with sbd
+find / -perm -o+w -type d 2>/dev/null  Show all world readable directories
 ------------------------------------------------------------------------------------------------------
 
 # Installation

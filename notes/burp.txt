@@ -272,8 +272,8 @@ You should be logged into the web application.
 Create a list of all POST requests that do not have a unique token called ‘CSRF_Token’. 
 
 Proxy > HTTP history > Filter > Filter by search term
-	^POST((?!CSRF_Token).)*$
-	Click Regex
+     ^POST((?!CSRF_Token).)*$
+     Click Regex
 
 RC on the first request > Engagement tools > Generate CSRF PoC
 Test in browser > Copy

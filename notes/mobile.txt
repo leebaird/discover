@@ -8,9 +8,9 @@ http://cydiainstaller.net/download/install-cydia-ios-7-1-to-7-1-2/
 Cydia
 Run updates.
 Install
-  OpenSSH
-  iFile
-  Apple File Conduit 2
+     OpenSSH
+     iFile
+     Apple File Conduit 2
 
 ssh root@<targetIP>
 password: alpine

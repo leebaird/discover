@@ -3,10 +3,10 @@ PowerShell
 
 Write-Host 'Hello World!'
 
-Get-Command                   # Show all commands.
+Get-Command                   Show all commands.
 Get-Content
 Get-Eventlog system
-Get-Process                   # Show current running processes.
+Get-Process                   Show current running processes.
 Set-Content
 ------------------------------------------------------------------------------------------------------
 
@@ -82,4 +82,3 @@ ls
 ---------------------------------------------------------
 
 PS Attack build tool
-

@@ -394,13 +394,13 @@ workspace -r <old> <new>      Rename workspace.
 
 # Misc
 
-idletime                                      Returns the number of seconds the remote user has been idle.
+idletime                      Returns the number of seconds the remote user has been idle.
      if time < 5 min
-     keyscan_start                            Start capturing keystrokes.
-     keyscan_stop                             Stop capturing keystrokes.
-     keyscan_dump                             Dump the keystroke buffer.
+     keyscan_start            Start capturing keystrokes.
+     keyscan_stop             Stop capturing keystrokes.
+     keyscan_dump             Dump the keystroke buffer.
 
-screenshot                                    Grab a screenshot of the interactive desktop
+screenshot                    Grab a screenshot of the interactive desktop
 
 run vnc
      if the screen is locked exit VNC
