@@ -113,6 +113,7 @@ Type of scan:
 * Internal scan will set the nmap source port to 88 and the max-rrt-timeout to 500ms.
 * Nmap is used to perform host discovery, port scanning, service enumeration and OS identification.
 * Matching nmap scripts are used for additional enumeration.
+* Addition tools: enum4linux, smbclient, and ike-scan.
 * Matching Metasploit auxiliary modules are also leveraged.
 
 ## WEB
