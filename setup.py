@@ -10,6 +10,6 @@ setup(
     author_email='leebaird@gmail.com',
     zip_safe=False,
     install_requires=[
-        'shodan>=1.5.5',
-        'dnspython>=1.14.0',
+        'shodan>=1.5.6',
+        'dnspython>=1.15.0',
     ])
