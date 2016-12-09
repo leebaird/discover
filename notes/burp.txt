@@ -86,10 +86,10 @@ Intruder > Options:
           Number of retries on network failure: 2
 
 Extender:
-     Options:
-          Python Environment > Select file > Browse to /Applications/jython-standalone-(version).jar > Open
      BApp Store:
           CO2, J2EEScan, Paramalyzer, Retire.js, Site Map Fetcher, Wsdler, and XSS Validator
+     Options:
+          Python Environment > Select file > Browse to /Applications/jython-standalone-(version).jar > Open  
 
 Project options > Misc:
      Burp Collaborator Server: Don't use Burp Collaborator
