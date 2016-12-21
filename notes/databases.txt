@@ -23,36 +23,44 @@ msf > use auxiliary/admin/mssql/mssql_exec
 
 mysql -h <IP> -u <username> -p
 
-SET PASSWORD FOR root@localhost = PASSWORD('newpassword');
+CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
+CREATE DATABASE <database>;
+GRANT ALL PRIVILEGES ON <database>.* TO 'newuser'@'localhost';
+FLUSH PRIVILEGES;
 
 SHOW DATABASES;
-USE <db name>;
+USE <database>;
 SHOW TABLES;
 SHOW FIELDS FROM <table>;
 
-DROP DATABASE <db name>;
+DELETE FROM <table> WHERE <field>="value";
 
-CREATE DATABASE <db name>;
-GRANT ALL PRIVILEGES ON <db name>.* TO 'username' @ 'localhost' IDENTIFIED BY 'password';
-SHOW GRANTS FOR 'username'@'localhost';
-
-SELECT * FROM <table>;
-SELECT * FROM <table> WHERE <field> = "value";
-
-SELECT LOAD_FILE('/etc/passwd')\g;
-
+DROP DATABASE <database>;
 DROP TABLE 'table1', 'table2', 'table3';
 
-UPDATE <table> SET <field>="value";
-UPDATE hostvulns SET tool="Nessus";
+SELECT * FROM <table>;
+SELECT * FROM <table> WHERE <field>="value";
+SELECT LOAD_FILE('/etc/passwd')\g;
 
-ORDER BY <field> <ASC, DESC>
+SET PASSWORD FOR username@localhost = PASSWORD('newpassword');
+
+UPDATE <table> SET <field>="value";
+
+DISTINCT <field>
 GROUP BY <field>
 LIMIT <number>
 OFFSET <number>
+ORDER BY <field>
+WHERE <field> IS NOT NULL
+WHERE <field> LIKE
 
+Examples:
 SELECT * FROM hostvulns WHERE vulnerability LIKE "%Default%" ORDER BY vulnerability;
 SELECT LENGTH(vulnerability), COUNT(*) FROM hostvulns GROUP BY LENGTH(vulnerability);
+SELECT DISTINCT last_name,first_name FROM contacts WHERE first_name IS NOT NULL ORDER BY last_name;
+SELECT DISTINCT email FROM contacts WHERE email LIKE "%@target.com" ORDER BY email
+DELETE from profiles WHERE rowid='53';
+UPDATE hostvulns SET tool="Nessus";
 ------------------------------------------------------------------------------------------------------
 
 # Postgresql

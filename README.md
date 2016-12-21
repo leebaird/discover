@@ -1,10 +1,7 @@
-Follow on Twitter @discoverscripts
+Follow on Twitter [![Twitter Follow](https://img.shields.io/twitter/follow/shields_io.svg?style=social&label=Follow&maxAge=25920)](https://twitter.com/discoverscripts) <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT licsense" width="100" height="20">
+
 
 For use with Kali Linux. Custom bash scripts used to automate various pentesting tasks.
-
-# License
-
-This project is licensed under the ```BSD 3-clause “New” or “Revised” License```. For more information please see the licence file.
 
 ### Download, setup & usage
 * git clone https://github.com/leebaird/discover /opt/discover/
@@ -22,10 +19,10 @@ SCANNING
 4.  Generate target list
 5.  CIDR
 6.  List
-7.  IP or domain
+7.  IP, range, or domain
 
 WEB
-8.  Open multiple tabs in Iceweasel
+8.  Open multiple tabs in Firefox
 9.  Nikto
 10. SSL
 
@@ -47,8 +44,25 @@ RECON
 3.  Previous menu
 ```
 
-* Passive combines goofile, goog-mail, goohost, theHarvester, Metasploit, dnsrecon, URLCrazy, Whois and multiple webistes.
-* Active combines Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute and Whatweb.
+* Passive uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,
+     Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.
+* Active uses Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute, and Whatweb.
+
+* Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google, Hashes, 
+     and Shodan for maximum results with recon-ng.
+
+```
+  recon-ng
+  keys add bing_api <value>
+  keys add builtwith_api <value>
+  keys add fullcontact_api <value>
+  keys add github_api <value>
+  keys add google_api <value>
+  keys add google_cse <value>
+  keys add hashes_api <value>
+  keys add shodan_api <value>
+
+```
 
 ### Person
 ```
@@ -85,7 +99,7 @@ SCANNING
 
 * Use different tools to create a target list including Angry IP Scanner, arp-scan, netdiscover and nmap pingsweep.
 
-### CIDR, List, IP or domain
+### CIDR, List, IP, Range, or URL
 ```
 Type of scan:
 
@@ -101,9 +115,9 @@ Type of scan:
 * Matching Metasploit auxiliary modules are also leveraged.
 
 ## WEB
-### Open multiple tabs in Iceweasel
+### Open multiple tabs in Firefox
 ```
-Open multiple tabs in Iceweasel with:
+Open multiple tabs in Firefox with:
 
 1.  List
 2.  Directories from a domain's robot.txt.

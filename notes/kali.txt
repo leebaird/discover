@@ -1,32 +1,9 @@
 Kali
 
 
-# Install
-
-Set the computer BIOS to boot from USB before the hard drive.
-Insert the USB drive and boot the computer.
-When the UNetbootin menu appears > Live
-Kali Linux should boot to the desktop.
-Applications > Systems Tools > Install Kali Linux
-Select a language: English > Continue
-Select your location: United States > Continue
-Configure your keyboard: American English > Continue
-Configure the network: eth0 > Continue
-Set up users and passwords: enter a password for root
-Configure the clock: Eastern > Continue
-Partition disks: Guided – use the entire disk > Continue
-Partition disks: (your main HD) > Continue
-Partition disks: All files in one partition > Continue
-Partition disks: Finish partitioning and write changes to disk > Continue
-Partition disks: Yes > Continue
-Configure the package manager: Yes > Continue
-Install the GRUB boot loader on a hard disk > Continue
-------------------------------------------------------------------------------------------------------
-
 # Terminal
 
 Edit > Profile Preferences
-Initial terminal size: 130 x 50
 Colors: Uncheck Use transparent background
 ------------------------------------------------------------------------------------------------------
 
@@ -36,12 +13,6 @@ Top right icon > tools icon > Power
 Power Saving > Blank screen: Never
 Back arrow
 Privacy > Screen Lock > Automatic Screen Lock: Off
-------------------------------------------------------------------------------------------------------
-
-# Fonts
-
-Applications > Favorites > Tweak Tool > Fonts
-Change the first three to 12
 ------------------------------------------------------------------------------------------------------
 
 # gedit
@@ -120,17 +91,22 @@ db_status                                        Verifty database connectivity
 update-rc.d postgresql enable                    Enable postgreSQL to start at boot time
 update-rc.d metasploit enable                    Enable Metasploit to start at boot time
 
-# SSH
-ssh-keygen                                       Setup new keys
-/etc/ssh/sshd_config                             Config file
-Port 2222                                        Change port to run service
-PermitRootLogin yes                              Allow root login
+# SSH & X11
+ssh-keygen                                       Create new keys
+
+/etc/ssh/sshd_config                             Edit config file
+Port 2222                                        Change listener to a non-standard port
+PermitRootLogin yes                              Change to yes
+AuthorizedKeysFile                               Uncomment
+X11Forwarding yes                                Uncomment
+
 service ssh start                                Start ssh
 netstat -antp | grep ssh                         Verify the service is running
 update-rc.d ssh enable                           Enable ssh to start at boot time
 update-rc.d ssh disable                          Disable ssh from starting at boot time
 ssh root@targetIP                                SSH to server on standard port
 ssh root@targetIP -p 2222                        SSH to server on non-stardard port (2222)
+ssh root@targetIP -X
 
 # TFTP
 mkdir /tftp                                      Create a new home folder for tftp
@@ -157,17 +133,3 @@ apt-get install network-manager-vpnc network-manager-vpnc-gnome
 nano /etc/network/interfaces
 Remove the last two lines egarding eth0. 
 Reboot
-------------------------------------------------------------------------------------------------------
-
-# X11
-
-nano /etc/ssh/ssh_config
-Uncomment ForwardX11, change to yes
-Uncomment ForwardX11Trusted
-
-service ssh restart
-
-OS X
-  ssh -X root@<targetIP>
-  Start app that requires a GUI.
-  iceweasel &

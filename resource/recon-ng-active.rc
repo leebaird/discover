@@ -1,0 +1,25 @@
+workspaces add yyy
+add companies
+xxx
+none
+add domains
+yyy
+
+use recon/domains-hosts/brute_hosts
+run
+
+use recon/netblocks-hosts/reverse_resolve
+run
+
+use recon/hosts-hosts/resolve
+run
+use recon/hosts-hosts/reverse_resolve
+run
+
+back
+
+spool start /tmp/subdomains
+query SELECT DISTINCT host,ip_address FROM hosts WHERE ip_address IS NOT NULL ORDER BY host
+spool stop
+
+exit

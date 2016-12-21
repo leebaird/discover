@@ -1,0 +1,99 @@
+workspaces add yyy
+add companies
+xxx
+none
+add domains
+yyy
+
+use recon/domains-contacts/pgp_search
+run
+use recon/domains-contacts/whois_pocs
+run
+use recon/domains-hosts/bing_domain_api
+run
+use recon/domains-hosts/bing_domain_web
+run
+use recon/domains-hosts/builtwith
+run
+use recon/domains-hosts/google_site_api
+run
+use recon/domains-hosts/hackertarget
+run
+use recon/domains-hosts/netcraft
+run
+use recon/domains-hosts/shodan_hostname
+run
+use recon/domains-hosts/ssl_san
+run
+use recon/domains-hosts/threatcrowd
+run
+use recon/domains-hosts/vpnhunter
+run
+
+use recon/companies-contacts/bing_linkedin_cache
+run
+use recon/companies-contacts/indeed
+run
+use recon/companies-multi/github_miner
+run
+use recon/companies-multi/whois_miner
+run
+
+use recon/contacts-credentials/hibp_breach
+run
+use recon/contacts-credentials/hibp_paste
+run
+use recon/contacts-profiles/fullcontact
+run
+
+use recon/profiles-profiles/twitter
+run
+use recon/profiles-repositories/github_repos
+run
+
+use recon/netblocks-companies/whois_orgs
+run
+use recon/netblocks-hosts/shodan_net
+run
+use recon/netblocks-ports/census_2012
+run
+use recon/netblocks-ports/censysio
+run
+
+use recon/ports-hosts/migrate_ports
+run
+
+use recon/hosts-hosts/bing_ip
+run
+use recon/hosts-hosts/freegeoip
+run
+use recon/hosts-hosts/ipinfodb
+run
+use recon/hosts-hosts/ssltools
+run
+use recon/hosts-ports/shodan_ip
+run
+
+back
+
+spool start /tmp/emails
+query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email
+spool stop
+
+spool start /tmp/names
+query SELECT DISTINCT last_name,first_name FROM contacts WHERE first_name IS NOT NULL ORDER BY last_name
+spool stop
+
+spool start /tmp/networks
+query SELECT netblock FROM netblocks ORDER BY netblock
+spool stop
+
+spool start /tmp/profiles
+query SELECT DISTINCT username FROM profiles WHERE username IS NOT NULL ORDER BY username
+spool stop
+
+spool start /tmp/subdomains
+query SELECT host,ip_address FROM hosts ORDER BY host
+spool stop
+
+exit
