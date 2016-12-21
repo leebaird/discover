@@ -1,6 +1,25 @@
 Kali
 
 
+# Change root password
+
+passwd
+------------------------------------------------------------------------------------------------------
+
+# SSH
+
+ssh-keygen                                       Create new keys
+
+/etc/ssh/sshd_config                             Daemon config file
+PermitRootLogin yes                              Change to yes
+AuthorizedKeysFile                               Uncomment
+
+service ssh start                                Start ssh
+netstat -antp | grep ssh                         Verify the service is running
+update-rc.d ssh enable                           Enable ssh to start at boot time
+update-rc.d ssh disable                          Disable ssh from starting at boot time
+------------------------------------------------------------------------------------------------------
+
 # Terminal
 
 Edit > Profile Preferences
@@ -23,43 +42,11 @@ Editor: Tab width 5, Insert spaces instead of tabs
 Color Scheme: Oblivion
 ------------------------------------------------------------------------------------------------------
 
-# Setup Metasploit
-
-msfdb init          Initialize the database
-msfconsole
-db_status           Look for: postgresql connected to msf
-------------------------------------------------------------------------------------------------------
-
-# SSH
-ssh-keygen                                       Create new keys
-
-/etc/ssh/sshd_config                             Daemon config file
-PermitRootLogin yes                              Change to yes
-AuthorizedKeysFile                               Uncomment
-
-service ssh start                                Start ssh
-netstat -antp | grep ssh                         Verify the service is running
-update-rc.d ssh enable                           Enable ssh to start at boot time
-update-rc.d ssh disable                          Disable ssh from starting at boot time
-------------------------------------------------------------------------------------------------------
-
 # Install Discover scripts
 
 git clone git://github.com/leebaird/discover.git /opt/discover/
 cd /opt/discover/
 ./update.sh
-------------------------------------------------------------------------------------------------------
-
-# Install VMware Tools
-
-VMware > Virtual Machine > Install VMware Tools > Install
-cp /media/cdrom/VMwareTools-<version>.tar.gz /root/
-cd /root/
-tar zxvf VMwareTools-<version>.tar.gz 
-cd vmware-tools-distrib/
-./vmware-install.pl 
-Accept all the defaults
-reboot
 ------------------------------------------------------------------------------------------------------
 
 # TFTP
