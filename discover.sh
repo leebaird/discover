@@ -3183,8 +3183,8 @@ fi
 
 if [[ -e $name/8222.txt ]]; then
      echo "     VMware"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/8222.txt|g" /tmp/resource/vmware.rc
-     cat /tmp/resource/vmware.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/8222.txt|g" /tmp/resource/vmware3.rc
+     cat /tmp/resource/vmware3.rc >> /tmp/master
 fi
 
 if [[ -e $name/8400.txt ]]; then
