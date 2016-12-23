@@ -26,6 +26,14 @@ Edit > Profile Preferences
 Colors: Uncheck Use transparent background
 ------------------------------------------------------------------------------------------------------
 
+# vim
+
+Create /root/.vimrc
+syntax on
+set wrapmargin=8
+set number
+------------------------------------------------------------------------------------------------------
+
 # Disable screen lock
 
 Top right icon > tools icon > Power
@@ -50,6 +58,7 @@ cd /opt/discover/
 ------------------------------------------------------------------------------------------------------
 
 # TFTP
+
 mkdir /tftp                                      Create a new home folder for tftp
 atftpd --daemon --port 69 /tftp                  Start tftp and assign home folder
 netstat -anup | grep atftp                       Verify the service is running
@@ -71,40 +80,3 @@ apt-get install network-manager-vpnc network-manager-vpnc-gnome
 nano /etc/network/interfaces
 Remove the last two lines egarding eth0. 
 Reboot
-------------------------------------------------------------------------------------------------------
-
-# AWS
-
-Instances > Launch Instance
-AWS Marketplace > search for debian jesse > Select
-t2.medium with 2 VCPUs and 4GB of RAM
-Next: Configure Instance Details
-Next: Add Storage > change size to 30GB
-Review and Launch > Launch
-Select a key pair
-
-ssh -i <key.pem> admin@<targetIP>
-sudo su
-passwd
-Set new root password
-vim.tiny /etc/apt/sources.list
-Add deb http://http.kali.org/kali kali-rolling main contrib non-free
-
-apt-get update && apt-cache search kali-linux
-
-[!] You will see the following error.
-W: GPG error: http://http.kali.org kali-rolling InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY ED444FF07D8D0BF6
-
-[*] Fix
-gpg --keyserver pgpkeys.mit.edu --recv-key ED444FF07D8D0BF6
-gpg -a --export ED444FF07D8D0BF6 | apt-key add -
-
-apt-get install locate
-apt-get install kali-linux-full
-
-Accept all of the defaults
-
-cd /opt/
-git clone git://github.com/leebaird/discover.git
-cd discover/
-./update.sh
