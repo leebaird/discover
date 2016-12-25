@@ -8,5 +8,4 @@ from src.core.menus import *
 
 
 
-
 Discover.banner()
