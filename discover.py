@@ -7,8 +7,7 @@ from src.core.webapis import *
 import requests
 
 
-
 Discover.banner()
-lookup = input('Enter domain to lookup: ')
-data = requests.get(DiscoverWebAPIS.dnslookup(lookup))
+domain = input('Enter domain to lookup: ')
+data = requests.get(DiscoverWebAPIS.dnslookup.(domain)).text
 print(data)

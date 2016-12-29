@@ -8,8 +8,7 @@ setup(
     license='MIT',
     author='Lee Baird',
     author_email='leebaird@gmail.com',
-    zip_safe=False,
     install_requires=[
-        'shodan>=1.5.6',
+        'shodan>=1.6.2',
         'dnspython>=1.15.0',
     ])
