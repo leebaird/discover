@@ -29,6 +29,26 @@ fi
 echo -e "\e[1;34mUpdating Kali.\e[0m"
 apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
 
+if [ -d /opt/BloodHound/.git ]; then
+     echo -e "\e[1;34mUpdating BloodHound.\e[0m"
+     cd /opt/BloodHound/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling BloodHound.\e[0m"
+     git clone https://github.com/adaptivethreat/BloodHound.git /opt/BloodHound
+     echo
+     echo -e "\e[1;33mInstalling part 2.\e[0m"
+     cd /opt/
+     wget -q https://github.com/adaptivethreat/BloodHound/releases/download/1.1/BloodHound-linux-x64.zip
+     unzip /opt/BloodHound-linux-x64.zip
+     rm /opt/BloodHound-linux-x64.zip
+     echo
+     echo -e "\e[1;33mYou will need to download and install Neo4j once this script completes.\e[0m"
+     read -p "Press <enter> to continue."
+     firefox https://neo4j.com/download/community-edition/ &
+     echo
+fi
+
 if [ -d /opt/CrackMapExec/.git ]; then
      echo -e "\e[1;34mUpdating CrackMapExec.\e[0m"
      cd /opt/CrackMapExec/ ; git pull

