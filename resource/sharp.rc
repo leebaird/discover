@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 9000
+
+use auxiliary/scanner/misc/raysharp_dvr_passwords
+run
