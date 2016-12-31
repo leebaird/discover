@@ -2834,45 +2834,45 @@ cp -R $discover/resource/ /tmp/
 echo workspace -a $name > /tmp/master
 
 if [[ -e $name/19.txt ]]; then
-     echo "     CHARGEN"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$discover\/$name\/19.txt|g" /tmp/resource/chargen.rc
-     cat /tmp/resource/chargen.rc >> /tmp/master
+     echo "     Chargen Probe Utility"
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$discover\/$name\/19.txt|g" /tmp/resource/19-chargen.rc
+     cat /tmp/resource/19-chargen.rc >> /tmp/master
 fi
 
 if [[ -e $name/21.txt ]]; then
      echo "     FTP"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/21.txt|g" /tmp/resource/ftp.rc
-     cat /tmp/resource/ftp.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/21.txt|g" /tmp/resource/21-ftp.rc
+     cat /tmp/resource/21-ftp.rc >> /tmp/master
 fi
 
 if [[ -e $name/22.txt ]]; then
      echo "     SSH"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/22.txt|g" /tmp/resource/ssh.rc
-     cat /tmp/resource/ssh.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/22.txt|g" /tmp/resource/22-ssh.rc
+     cat /tmp/resource/22-ssh.rc >> /tmp/master
 fi
 
 if [[ -e $name/23.txt ]]; then
      echo "     Telnet"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/23.txt|g" /tmp/resource/telnet.rc
-     cat /tmp/resource/telnet.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/23.txt|g" /tmp/resource/23-telnet.rc
+     cat /tmp/resource/23-telnet.rc >> /tmp/master
 fi
 
 if [[ -e $name/25.txt ]]; then
      echo "     SMTP"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/25.txt|g" /tmp/resource/smtp.rc
-     cat /tmp/resource/smtp.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/25.txt|g" /tmp/resource/25-smtp.rc
+     cat /tmp/resource/25-smtp.rc >> /tmp/master
 fi
 
 if [[ -e $name/69.txt ]]; then
      echo "     TFTP"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/69.txt|g" /tmp/resource/tftp.rc
-     cat /tmp/resource/tftp.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/69.txt|g" /tmp/resource/69-tftp.rc
+     cat /tmp/resource/69-tftp.rc >> /tmp/master
 fi
 
 if [[ -e $name/79.txt ]]; then
      echo "     Finger"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/79.txt|g" /tmp/resource/finger.rc
-     cat /tmp/resource/finger.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/79.txt|g" /tmp/resource/79-finger.rc
+     cat /tmp/resource/79-finger.rc >> /tmp/master
 fi
 
 if [[ -e $name/80.txt ]]; then
