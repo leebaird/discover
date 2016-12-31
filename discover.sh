@@ -2937,8 +2937,8 @@ fi
 
 if [[ -e $name/443.txt ]]; then
      echo "     VMware"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/443.txt|g" /tmp/resource/vmware.rc
-     cat /tmp/resource/motorola.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/443.txt|g" /tmp/resource/443-vmware.rc
+     cat /tmp/resource/443-vmware.rc >> /tmp/master
 fi
 
 if [[ -e $name/445.txt ]]; then
@@ -3009,8 +3009,14 @@ fi
 
 if [[ -e $name/902.txt ]]; then
      echo "     VMware"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/902.txt|g" /tmp/resource/vmware2.rc
-     cat /tmp/resource/motorola.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/902.txt|g" /tmp/resource/902-vmware.rc
+     cat /tmp/resource/902-vmware.rc >> /tmp/master
+fi
+
+if [[ -e $name/998.txt ]]; then
+     echo "     Novell ZENworks Configuration Management Preboot Service Remote File Access"
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/998.txt|g" /tmp/resource/998-zenworks.rc
+     cat /tmp/resource/998-zenworks.rc >> /tmp/master
 fi
 
 if [[ -e $name/1099.txt ]]; then
@@ -3065,6 +3071,12 @@ if [[ -e $name/3000.txt ]]; then
      echo "     EMC"
      sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3000.txt|g" /tmp/resource/emc.rc
      cat /tmp/resource/emc.rc >> /tmp/master
+fi
+
+if [[ -e $name/3050.txt ]]; then
+     echo "     Borland InterBase Services Manager Information"
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3050.txt|g" /tmp/resource/borland.rc
+     cat /tmp/resource/borland.rc >> /tmp/master
 fi
 
 if [[ -e $name/3306.txt ]]; then
@@ -3189,8 +3201,8 @@ fi
 
 if [[ -e $name/8222.txt ]]; then
      echo "     VMware"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/8222.txt|g" /tmp/resource/vmware3.rc
-     cat /tmp/resource/vmware3.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/8222.txt|g" /tmp/resource/8222-vmware.rc
+     cat /tmp/resource/8222-vmware.rc >> /tmp/master
 fi
 
 if [[ -e $name/8400.txt ]]; then
@@ -3209,6 +3221,12 @@ if [[ -e $name/9000.txt ]]; then
      echo "     Sharp DVR Password Retriever"
      sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/9000.txt|g" /tmp/resource/sharp.rc
      cat /tmp/resource/sharp.rc >> /tmp/master
+fi
+
+if [[ -e $name/9084.txt ]]; then
+     echo "     VMware"
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/9084.txt|g" /tmp/resource/9084-vmware.rc
+     cat /tmp/resource/9084-vmware.rc >> /tmp/master
 fi
 
 if [[ -e $name/9100.txt ]]; then
@@ -3408,7 +3426,7 @@ echo >> $filename
 echo "High Value Hosts by Port" >> $filename
 echo >> $filename
 
-HVPORTS="13 19 21 22 23 25 37 53 67 69 70 79 80 102 110 111 119 123 135 137 139 143 161 389 407 433 443 445 465 500 502 512 513 514 523 524 548 554 563 587 623 631 636 771 831 873 902 993 995 1050 1080 1099 1158 1344 1352 1433 1434 1521 1604 1720 1723 1883 1900 1911 1962 2202 2302 2362 2375 2628 2947 3000 3031 3050 3260 3306 3310 3389 3478 3500 3632 3671 4369 5019 5040 5060 5353 5432 5560 5631 5632 5666 5672 5683 5850 5900 5920 5984 5985 6000 6001 6002 6003 6004 6005 6379 6481 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 8834 9000 9084 9100 9160 9600 9999 10000 11211 12000 12345 13364 17185 19150 27017 28784 30718 31337 35871 37777 44818 46824 47808 49152 50000 50030 50060 50070 50075 50090 60010 60030"
+HVPORTS="13 19 21 22 23 25 37 53 67 69 70 79 80 102 110 111 119 123 135 137 139 143 161 389 407 433 443 445 465 500 502 512 513 514 523 524 548 554 563 587 623 631 636 771 831 873 902 993 995 998 1050 1080 1099 1158 1344 1352 1433 1434 1521 1604 1720 1723 1883 1900 1911 1962 2202 2302 2362 2375 2628 2947 3000 3031 3050 3260 3306 3310 3389 3478 3500 3632 3671 4369 5019 5040 5060 5353 5432 5560 5631 5632 5666 5672 5683 5850 5900 5920 5984 5985 6000 6001 6002 6003 6004 6005 6379 6481 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 8834 9000 9084 9100 9160 9600 9999 10000 11211 12000 12345 13364 17185 19150 27017 28784 30718 31337 35871 37777 44818 46824 47808 49152 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $HVPORTS; do
      if [[ -e $name/$i.txt ]]; then
