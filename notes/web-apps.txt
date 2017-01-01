@@ -1,33 +1,39 @@
 Web Apps
 
 
-# Request Methods
+# HTTP Request Methods
 
-GET  Passes all query material in the URL query string.
-POST Passes all requested data in the HTTP request body.
+GET       Fetch data from a server. Passes all query material in the URL query string.
+POST      Send data to a server. Passes all requested data in the HTTP request body.
+HEAD      Request information about a page, not for the page itself.
+PUT       Upload a file to a server.
+DELETE    Delete a file on a server.
+CONNECT   Set up a tunnel between a client and a server for SSL encryption or an HTTP proxy. 
+OPTIONS   Show a list of HTTP request methods that the server supports.
+TRACE     Used for debugging.
 ------------------------------------------------------------------------------------------------------
 
 # HTTP Status Codes
 
-1xx  Informational
-100  Continue
+1xx       Informational
+100       Continue
 
-2xx  Success
-200  OK
+2xx       Success
+200       OK
 
-3xx  Redirection
-301  Moved Permanently
-302  Found
+3xx       Redirection
+301       Moved Permanently
+302       Found
 
-4xx  Client Error
-400  Bad Request
-401  Unauthorized
-403  Forbidden
-404  Not Found
-408  Request Timeout
+4xx       Client Error
+400       Bad Request
+401       Unauthorized
+403       Forbidden
+404       Not Found
+408       Request Timeout
 
-5xx  Server Error
-500  Internal Server Error
+5xx       Server Error
+500       Internal Server Error
 ------------------------------------------------------------------------------------------------------
 
 # Simple web server to share malicious code
