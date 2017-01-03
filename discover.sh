@@ -4028,15 +4028,16 @@ clear
 f_banner
 echo -e "\x1B[1;34mMalicious Payloads\x1B[0m"
 echo
-echo "1.  android/meterpreter/reverse_tcp"
-echo "2.  cmd/windows/reverse_powershell"
-echo "3.  linux/x64/shell_reverse_tcp"
-echo "4.  linux/x86/meterpreter/reverse_tcp"
-echo "5.  osx/x64/shell_reverse_tcp"
-echo "6.  php/meterpreter/reverse_tcp"
-echo "7.  windows/meterpreter/reverse_tcp"
-echo "8.  windows/x64/meterpreter/reverse_tcp"
-echo "9.  Previous menu"
+echo "1.   android/meterpreter/reverse_tcp"
+echo "2.   cmd/windows/reverse_powershell"
+echo "3.   linux/x64/shell_reverse_tcp"
+echo "4.   linux/x86/meterpreter/reverse_tcp"
+echo "5.   osx/x64/shell_reverse_tcp"
+echo "6.   php/meterpreter/reverse_tcp"
+echo "7.   windows/meterpreter/reverse_tcp"
+echo "8.   windows/meterpreter/reverse_tcp (ASP)"
+echo "9.   windows/x64/meterpreter/reverse_tcp"
+echo "10.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
@@ -4078,12 +4079,17 @@ case $choice in
           format="exe"
           arch="x86"
           platform="windows";;
-     8) payload="windows/x64/meterpreter/reverse_tcp"
+     8) payload="windows/meterpreter/reverse_tcp (ASP)"
+          extention=".asp"
+          format="asp"
+          arch="x86"
+          platform="windows";;
+     9) payload="windows/x64/meterpreter/reverse_tcp"
           extention=".exe"
           format="exe"
           arch="x86_64"
           platform="windows";;
-     9) f_main;;
+     10) f_main;;
      *) f_error;;
 esac
 
