@@ -4,3 +4,4 @@ setg RPORT 7777
 
 use auxiliary/scanner/backdoor/energizer_duo_detect
 run
+

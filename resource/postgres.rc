@@ -16,3 +16,4 @@ run
 
 use auxiliary/scanner/postgres/postgres_version
 run
+

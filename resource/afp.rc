@@ -4,3 +4,4 @@ setg RPORT 548
 
 use auxiliary/scanner/afp/afp_server_info
 run
+

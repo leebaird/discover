@@ -4,3 +4,4 @@ setg RPORT 831
 
 use auxiliary/scanner/misc/easycafe_server_fileaccess
 run
+

@@ -7,3 +7,4 @@ run
 
 use auxiliary/scanner/vxworks/wdbrpc_version
 run
+

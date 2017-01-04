@@ -4,3 +4,4 @@ setg RPORT 135
 
 use auxiliary/scanner/dcerpc/tcp_dcerpc_auditor
 run
+

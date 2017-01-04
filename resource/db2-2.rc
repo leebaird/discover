@@ -7,3 +7,4 @@ run
 
 use auxiliary/scanner/db2/db2_auth
 run
+

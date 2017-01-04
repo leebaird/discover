@@ -8,3 +8,4 @@ run post/windows/gather/enum_shares
 run post/windows/gather/enum_snmp
 run post/windows/gather/usb_history
 reg enumkey -k HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run
+

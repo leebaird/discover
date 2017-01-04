@@ -4,3 +4,4 @@ setg RPORT 3050
 
 use auxiliary/scanner/misc/ib_service_mgr_info
 run
+

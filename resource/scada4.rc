@@ -4,3 +4,4 @@ setg RPORT 28784
 
 use auxiliary/scanner/scada/koyo_login
 run
+

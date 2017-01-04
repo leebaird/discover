@@ -4,3 +4,4 @@ setg RPORT 5984
 
 use auxiliary/scanner/couchdb/couchdb_login
 run
+

@@ -4,3 +4,4 @@ setg RPORT 80
 
 use auxiliary/scanner/lotus/lotus_domino_version
 run
+

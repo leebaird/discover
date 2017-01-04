@@ -19,3 +19,4 @@ run
 
 use auxiliary/scanner/oracle/tnspoison_checker
 run
+

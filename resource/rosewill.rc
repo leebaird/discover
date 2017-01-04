@@ -4,3 +4,4 @@ setg RPORT 13364
 
 use auxiliary/scanner/misc/rosewill_rxs3211_passwords
 run
+

@@ -9,3 +9,4 @@ run post/osx/gather/enum_osx
 run post/osx/gather/password_prompt_spoof
 run post/osx/gather/safari_lastsession
 run post/osx/gather/hashdump
+

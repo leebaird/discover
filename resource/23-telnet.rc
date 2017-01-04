@@ -10,3 +10,4 @@ run
 
 use auxiliary/scanner/telnet/telnet_version
 run
+

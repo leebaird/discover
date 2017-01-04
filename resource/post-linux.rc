@@ -12,3 +12,4 @@ run post/linux/gather/mount_cifs_creds
 run post/linux/gather/openvpn_credentials
 run post/linux/gather/pptpd_chap_secrets
 run post/linux/gather/hashdump
+
