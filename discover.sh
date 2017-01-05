@@ -2902,8 +2902,8 @@ fi
 
 if [[ -e $name/123.txt ]]; then
      echo "     NTP"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/123.txt|g" /tmp/resource/123-ntp.rc
-     cat /tmp/resource/123-ntp.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/123.txt|g" /tmp/resource/123-udp-ntp.rc
+     cat /tmp/resource/123-udp-ntp.rc >> /tmp/master
 fi
 
 if [[ -e $name/135.txt ]]; then
@@ -2914,8 +2914,8 @@ fi
 
 if [[ -e $name/137.txt ]]; then
      echo "     NetBIOS"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/137.txt|g" /tmp/resource/137-netbios.rc
-     cat /tmp/resource/137-netbios.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/137.txt|g" /tmp/resource/137-udp-netbios.rc
+     cat /tmp/resource/137-udp-netbios.rc >> /tmp/master
 fi
 
 if [[ -e $name/143.txt ]]; then
@@ -2926,14 +2926,14 @@ fi
 
 if [[ -e $name/161.txt ]]; then
      echo "     SNMP"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/161.txt|g" /tmp/resource/161-snmp.rc
-     cat /tmp/resource/161-snmp.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/161.txt|g" /tmp/resource/161-udp-snmp.rc
+     cat /tmp/resource/161-udp-snmp.rc >> /tmp/master
 fi
 
 if [[ -e $name/407.txt ]]; then
      echo "     Motorola"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/407.txt|g" /tmp/resource/407-motorola.rc
-     cat /tmp/resource/407-motorola.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/407.txt|g" /tmp/resource/407-udp-motorola.rc
+     cat /tmp/resource/407-udp-motorola.rc >> /tmp/master
 fi
 
 if [[ -e $name/443.txt ]]; then
@@ -2980,8 +2980,8 @@ fi
 
 if [[ -e $name/523.txt ]]; then
      echo "     db2"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/523.txt|g" /tmp/resource/523-db2.rc
-     cat /tmp/resource/523-db2.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/523.txt|g" /tmp/resource/523-udp-db2.rc
+     cat /tmp/resource/523-udp-db2.rc >> /tmp/master
 fi
 
 if [[ -e $name/548.txt ]]; then
@@ -2992,8 +2992,8 @@ fi
 
 if [[ -e $name/623.txt ]]; then
      echo "     IPMI"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/623.txt|g" /tmp/resource/623-ipmi.rc
-     cat /tmp/resource/623-ipmi.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/623.txt|g" /tmp/resource/623-udp-ipmi.rc
+     cat /tmp/resource/623-udp-ipmi.rc >> /tmp/master
 fi
 
 if [[ -e $name/771.txt ]]; then
@@ -3046,8 +3046,8 @@ fi
 
 if [[ -e $name/1604.txt ]]; then
      echo "     Citrix"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1604.txt|g" /tmp/resource/1604-citrix.rc
-     cat /tmp/resource/1604-citrix.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1604.txt|g" /tmp/resource/1604-udp-citrix.rc
+     cat /tmp/resource/1604-udp-citrix.rc >> /tmp/master
 fi
 
 if [[ -e $name/1720.txt ]]; then
@@ -3058,14 +3058,14 @@ fi
 
 if [[ -e $name/1900.txt ]]; then
      echo "     UPnP"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1900.txt|g" /tmp/resource/1900-upnp.rc
-     cat /tmp/resource/1900-upnp.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1900.txt|g" /tmp/resource/1900-udp-upnp.rc
+     cat /tmp/resource/1900-udp-upnp.rc >> /tmp/master
 fi
 
 if [[ -e $name/2362.txt ]]; then
      echo "     SCADA Digi"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/2362.txt|g" /tmp/resource/2362-scada.rc
-     cat /tmp/resource/2362-scada.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/2362.txt|g" /tmp/resource/2362-udp-scada.rc
+     cat /tmp/resource/2362-udp-scada.rc >> /tmp/master
 fi
 
 if [[ -e $name/3000.txt ]]; then
@@ -3256,8 +3256,8 @@ fi
 
 if [[ -e $name/17185.txt ]]; then
      echo "     VxWorks"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/17185.txt|g" /tmp/resource/17185-vxworks.rc
-     cat /tmp/resource/17185-vxworks.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/17185.txt|g" /tmp/resource/17185-udp-vxworks.rc
+     cat /tmp/resource/17185-udp-vxworks.rc >> /tmp/master
 fi
 
 if [[ -e $name/28784.txt ]]; then
