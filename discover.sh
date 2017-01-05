@@ -2980,32 +2980,32 @@ fi
 
 if [[ -e $name/523.txt ]]; then
      echo "     db2"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/523.txt|g" /tmp/resource/db2.rc
-     cat /tmp/resource/db2.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/523.txt|g" /tmp/resource/523-db2.rc
+     cat /tmp/resource/523-db2.rc >> /tmp/master
 fi
 
 if [[ -e $name/548.txt ]]; then
      echo "     AFP"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/548.txt|g" /tmp/resource/afp.rc
-     cat /tmp/resource/afp.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/548.txt|g" /tmp/resource/548-afp.rc
+     cat /tmp/resource/548-afp.rc >> /tmp/master
 fi
 
 if [[ -e $name/623.txt ]]; then
      echo "     IPMI"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/623.txt|g" /tmp/resource/ipmi.rc
-     cat /tmp/resource/ipmi.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/623.txt|g" /tmp/resource/623-ipmi.rc
+     cat /tmp/resource/623-ipmi.rc >> /tmp/master
 fi
 
 if [[ -e $name/771.txt ]]; then
      echo "     SCADA Digi"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/771.txt|g" /tmp/resource/scada2.rc
-     cat /tmp/resource/scada2.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/771.txt|g" /tmp/resource/771-scada.rc
+     cat /tmp/resource/771-scada.rc >> /tmp/master
 fi
 
 if [[ -e $name/831.txt ]]; then
      echo "     EasyCafe Server Remote File Access"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/831.txt|g" /tmp/resource/easycafe.rc
-     cat /tmp/resource/easycafe.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/831.txt|g" /tmp/resource/831-easycafe.rc
+     cat /tmp/resource/831-easycafe.rc >> /tmp/master
 fi
 
 if [[ -e $name/902.txt ]]; then
@@ -3022,102 +3022,102 @@ fi
 
 if [[ -e $name/1099.txt ]]; then
      echo "     RMI Registery"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1099.txt|g" /tmp/resource/rmi.rc
-     cat /tmp/resource/rmi.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1099.txt|g" /tmp/resource/1099-rmi.rc
+     cat /tmp/resource/1099-rmi.rc >> /tmp/master
 fi
 
 if [[ -e $name/1158.txt ]]; then
      echo "     Oracle"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1158.txt|g" /tmp/resource/oracle.rc
-     cat /tmp/resource/oracle.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1158.txt|g" /tmp/resource/1158-oracle.rc
+     cat /tmp/resource/1158-oracle.rc >> /tmp/master
 fi
 
 if [[ -e $name/1433.txt ]]; then
      echo "     MS-SQL"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1433.txt|g" /tmp/resource/mssql.rc
-     cat /tmp/resource/mssql.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1433.txt|g" /tmp/resource/1433-mssql.rc
+     cat /tmp/resource/1433-mssql.rc >> /tmp/master
 fi
 
 if [[ -e $name/1521.txt ]]; then
      echo "     Oracle"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1521.txt|g" /tmp/resource/oracle3.rc
-     cat /tmp/resource/oracle3.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1521.txt|g" /tmp/resource/1521-oracle.rc
+     cat /tmp/resource/1521-oracle.rc >> /tmp/master
 fi
 
 if [[ -e $name/1604.txt ]]; then
      echo "     Citrix"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1604.txt|g" /tmp/resource/citrix.rc
-     cat /tmp/resource/citrix.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1604.txt|g" /tmp/resource/1604-citrix.rc
+     cat /tmp/resource/1604-citrix.rc >> /tmp/master
 fi
 
 if [[ -e $name/1720.txt ]]; then
      echo "     H323"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1720.txt|g" /tmp/resource/h323.rc
-     cat /tmp/resource/h323.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1720.txt|g" /tmp/resource/1720-h323.rc
+     cat /tmp/resource/1720-h323.rc >> /tmp/master
 fi
 
 if [[ -e $name/1900.txt ]]; then
      echo "     UPnP"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1900.txt|g" /tmp/resource/upnp.rc
-     cat /tmp/resource/upnp.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1900.txt|g" /tmp/resource/1900-upnp.rc
+     cat /tmp/resource/1900-upnp.rc >> /tmp/master
 fi
 
 if [[ -e $name/2362.txt ]]; then
      echo "     SCADA Digi"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/2362.txt|g" /tmp/resource/scada.rc
-     cat /tmp/resource/scada.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/2362.txt|g" /tmp/resource/2362-scada.rc
+     cat /tmp/resource/2362-scada.rc >> /tmp/master
 fi
 
 if [[ -e $name/3000.txt ]]; then
      echo "     EMC"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3000.txt|g" /tmp/resource/emc.rc
-     cat /tmp/resource/emc.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3000.txt|g" /tmp/resource/3000-emc.rc
+     cat /tmp/resource/3000-emc.rc >> /tmp/master
 fi
 
 if [[ -e $name/3050.txt ]]; then
      echo "     Borland InterBase Services Manager Information"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3050.txt|g" /tmp/resource/borland.rc
-     cat /tmp/resource/borland.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3050.txt|g" /tmp/resource/3050-borland.rc
+     cat /tmp/resource/3050-borland.rc >> /tmp/master
 fi
 
 if [[ -e $name/3306.txt ]]; then
      echo "     MySQL"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3306.txt|g" /tmp/resource/mysql.rc
-     cat /tmp/resource/mysql.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3306.txt|g" /tmp/resource/3306-mysql.rc
+     cat /tmp/resource/3306-mysql.rc >> /tmp/master
 fi
 
 if [[ -e $name/3310.txt ]]; then
      echo "     ClamAV"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3310.txt|g" /tmp/resource/clamav.rc
-     cat /tmp/resource/clamav.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3310.txt|g" /tmp/resource/3310-clamav.rc
+     cat /tmp/resource/3310-clamav.rc >> /tmp/master
 fi
 
 if [[ -e $name/3389.txt ]]; then
      echo "     RDP"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3389.txt|g" /tmp/resource/rdp.rc
-     cat /tmp/resource/rdp.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3389.txt|g" /tmp/resource/3389-rdp.rc
+     cat /tmp/resource/3389-rdp.rc >> /tmp/master
 fi
 
 if [[ -e $name/3500.txt ]]; then
      echo "     EMC"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3500.txt|g" /tmp/resource/emc2.rc
-     cat /tmp/resource/emc2.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/3500.txt|g" /tmp/resource/3500-emc.rc
+     cat /tmp/resource/3500-emc.rc >> /tmp/master
 fi
 
 if [[ -e $name/5040.txt ]]; then
      echo "     DCE/RPC"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/5040.txt|g" /tmp/resource/dcerpc2.rc
-     cat /tmp/resource/dcerpc2.rc >> /tmp/master
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/5040.txt|g" /tmp/resource/5040-dcerpc.rc
+     cat /tmp/resource/5040-dcerpc.rc >> /tmp/master
 fi
 
 if [[ -e $name/5060.txt ]]; then
-     echo "     SIP"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/5060.txt|g" /tmp/resource/sip.rc
-     cat /tmp/resource/sip.rc >> /tmp/master
+     echo "     SIP UDP"
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/5060.txt|g" /tmp/resource/5060-udp-sip.rc
+     cat /tmp/resource/5060-udp-sip.rc >> /tmp/master
 fi
 
 if [[ -e $name/5060-tcp.txt ]]; then
-     echo "     SIP TCP"
+     echo "     SIP"
      sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/5060-tcp.txt|g" /tmp/resource/sip2.rc
      cat /tmp/resource/sip2.rc >> /tmp/master
 fi
