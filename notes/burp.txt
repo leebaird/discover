@@ -12,9 +12,9 @@ Move to /Applications/
 
 Cookies Manager+
 FoxyProxy Standard
-Live HTTP headers (clone)
 User-Agent Switcher
 Wappalyzer
+Web Developer
 
 # Firefox proxy
 
@@ -118,7 +118,7 @@ Target > Site map > Filter: enable Show only in-scope items > Filter
 
 # Manually browse the app
 Look for target.com/sitemap.
-If present, hold down the Command key and click on about 20 links.
+If present, hold down the command key and click on every link.
 If not present, start exploring the target by clicking on every link on every page.
 Enter a single tick (') in any input field.
 Continue until you have thoroughly browsed the target.
@@ -126,7 +126,11 @@ Continue until you have thoroughly browsed the target.
 # Spider the app
 Target > Site map > RC on the target URL > Spider this host
 Spider > Control: watch the Requests made increase.
-When the Requests and Forms queued are both zero, click Spider is running.
+When the Requests and Forms queued are both zero, click Spider is running to stop.
+
+Target > Site map > RC the target URL > Engagement tools > Analyze target
+Take a screenshot of the Summary tab.
+These numbers will give you an idea of how large the app is
 
 Target > Site map > RC the target URL > Expand branch
 Scroll to the very bottom.
