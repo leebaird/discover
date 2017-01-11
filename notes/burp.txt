@@ -161,10 +161,16 @@ Clean up results when the attack completes:
      RC > Delete select items > Yes
 
 Add remaining items to Site map:
-     Select the first line and RC in the bottom pane > Request in browser > In current browser session
+     Scroll to the top of the list > sort by Payload
+     Delete any blanks lines
+     Move the Intruder window to the right so you can see the main window
+     Target > Site map 
+     Compare the folders in the Site map to the Payloads in the Intruder window.
+     Select a Payload that is not listed in the Site > RC in the bottom pane
+     Request in browser > In current browser session
      Check: In future, just copy the URL and don't show this dialog > Copy
-     Firefox > open a new tab > paste
-     Repeat with the remaining lines.
+     Open a new tab in Firefox and paste.
+     Repeat as necessary.
 
 # Grey folders
 RC on grey folder > GET Empty Response
