@@ -134,10 +134,6 @@ RC on any folders that are greyed out > Delete branch
 RC on any pages that are grey or red > Copy URL > paste into Firefox
      Or RC on any pages that are grey or red > GET Empty Response
 
-Target > Site map > RC the target URL > Engagement tools > Analyze target
-Take a screenshot of the Summary tab.
-These numbers will give you an idea of how large the app is
-
 # Brute force directories
 Target > Site map > RC on the second line '/' > Send to Intruder
 Intruder > Position > Attack type: Sniper
@@ -171,6 +167,10 @@ Add remaining items to Site map:
      Check: In future, just copy the URL and don't show this dialog > Copy
      Open a new tab in Firefox and paste.
      Repeat as necessary.
+
+Target > Site map > RC the target URL > Engagement tools > Analyze target
+Take a screenshot of the Summary tab.
+These numbers will give you an idea of how large the app is.
 
 # Grey folders
 RC on grey folder > GET Empty Response
