@@ -128,16 +128,15 @@ Target > Site map > RC on the target URL > Spider this host
 Spider > Control: watch the Requests made increase.
 When the Requests and Forms queued are both zero, click Spider is running to stop.
 
-Target > Site map > RC the target URL > Engagement tools > Analyze target
-Take a screenshot of the Summary tab.
-These numbers will give you an idea of how large the app is
-
 Target > Site map > RC the target URL > Expand branch
 Scroll to the very bottom.
 RC on any folders that are greyed out > Delete branch
 RC on any pages that are grey or red > Copy URL > paste into Firefox
      Or RC on any pages that are grey or red > GET Empty Response
-Save the state: <appname>-spider
+
+Target > Site map > RC the target URL > Engagement tools > Analyze target
+Take a screenshot of the Summary tab.
+These numbers will give you an idea of how large the app is
 
 # Brute force directories
 Target > Site map > RC on the second line '/' > Send to Intruder
