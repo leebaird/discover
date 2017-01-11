@@ -162,8 +162,8 @@ Add remaining items to Site map:
      Move the Intruder window to the right so you can see the main window
      Target > Site map 
      Compare the folders in the Site map to the Payloads in the Intruder window.
-     Select a Payload that is not listed in the Site > RC in the bottom pane
-     Request in browser > In current browser session
+     Select a Payload that is not listed in the Site
+     RC > Request in browser > In current browser session
      Check: In future, just copy the URL and don't show this dialog > Copy
      Open a new tab in Firefox and paste.
      Repeat as necessary.
