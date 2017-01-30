@@ -253,8 +253,10 @@ Intruder > Payloads > Attack type:
 Filter > uncheck 4xx [request error] > Filter
 Click Status to sort by ascending.
 Look for a 302 (redirect). This should be a successful login.
+------------------------------------------------------------------------------------------------------
 
 # Actively scan the app
+
 Spider > Control > Spider is paused
 Target > Site map > RC on the target URL > Actively scan this host
 Active scanning wizard: check all boxes > Next > Ok
