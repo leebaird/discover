@@ -188,16 +188,16 @@ Proxy > History > find the POST request > RC > Send to Intruder
 
 Intruder > Payloads > Attack type:
      Sniper:
-          Uses a single set of payloads against a single variable.
+          Uses a single wordlist against a single variable.
      Battering ram:
-          Uses a single set of payloads against all variables.
+          Uses a single wordlist against all variables.
      Pitchfork:
-          Uses multiple payload sets.
+          Uses multiple wordlists.
           For example: you have a known list of usernames and a related list of passwords. 
           This will try the first username with the first password, then the second username with the second password, and so on.
           This is useful when checking for old accounts that should be deleted.
      Cluster bomb:
-          Uses multiple payload sets.
+          Uses multiple wordlists.
           For example: you have a known list of usernames and a non-related list of passwords.
           This will try the first username with each password, then the second username with each password, and so on.
 
