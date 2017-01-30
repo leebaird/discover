@@ -120,7 +120,6 @@ Target > Site map > Filter: enable Show only in-scope items > Filter
 Look for target.com/sitemap.
 If present, hold down the command key and click on every link.
 If not present, start exploring the target by clicking on every link on every page.
-Enter a single tick (') in any input field.
 Continue until you have thoroughly browsed the target.
 
 # Spider the app
@@ -133,6 +132,11 @@ Scroll to the very bottom.
 RC on any folders that are greyed out > Delete branch
 RC on any pages that are grey or red > Copy URL > paste into Firefox
      Or RC on any pages that are grey or red > GET Empty Response
+
+# Check for 404 and 500 errors
+Enter a single tick (') at the end of a URL.
+Modify the URL path.
+Enter a single tick (') in any input field and submit the form.
 
 # Brute force directories
 Target > Site map > RC on the second line '/' > Send to Intruder
