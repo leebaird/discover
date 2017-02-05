@@ -1,38 +1,28 @@
 Web Apps
 
 
-# HTTP Request Methods
+# HTTP Methods or Verbs
 
-GET       Fetch data from a server. Passes all query material in the URL query string.
-POST      Send data to a server. Passes all requested data in the HTTP request body.
-HEAD      Request information about a page, not for the page itself.
-PUT       Upload a file to a server.
-DELETE    Delete a file on a server.
+GET       Does not have a body and passes all parameters in the URL.
+POST      Send data to a server. Passes all parameters in the body of the request.
+PUT       Used for adding content to a web app, common with RESTful APIs.
+DELETE    Used for deleting content from a web app, common with RESTful APIs.
+HEAD      The web app will only return the response headers, not the body.
+OPTIONS   Show a list of HTTP options that the server supports.
 CONNECT   Set up a tunnel between a client and a server for SSL encryption or an HTTP proxy. 
-OPTIONS   Show a list of HTTP request methods that the server supports.
 TRACE     Used for debugging.
 ------------------------------------------------------------------------------------------------------
 
-# HTTP Status Codes
+# HTTP Response Codes
 
-1xx       Informational
 100       Continue
-
-2xx       Success
 200       OK
-
-3xx       Redirection
 301       Moved Permanently
 302       Found
-
-4xx       Client Error
 400       Bad Request
 401       Unauthorized
 403       Forbidden
 404       Not Found
-408       Request Timeout
-
-5xx       Server Error
 500       Internal Server Error
 ------------------------------------------------------------------------------------------------------
 
