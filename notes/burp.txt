@@ -179,6 +179,8 @@ If the folder is still grey > RC > Delete branch > Yes
 Target > Site map > RC the target URL > Engagement tools > Find comments
 Sort by Item
 Select each line > Response > look for sensitive information.
+Use the search field at the bottom to search for href.
+Copy/paste new URL into browser.
 ---------------------------------------------------------------
 
 # Check for 404 and 500 errors
