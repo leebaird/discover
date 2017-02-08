@@ -783,6 +783,7 @@ case $choice in
      fi
 
      if [ -e whois-ip ]; then
+          echo >> zreport
           echo "Whois IP" >> zreport
           echo $long >> zreport
           cat whois-ip >> zreport
@@ -834,25 +835,27 @@ case $choice in
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+filetype%3Atxt &
      sleep 2
-     $web https://www.google.com/#q=site%3A$domain+admin &
+     $web https://www.google.com/#q=site%3A$domain+inurl:admin &
      sleep 2
-     $web https://www.google.com/#q=site%3A$domain+confidential &
+     $web https://www.google.com/#q=site%3A$domain+inurl:confidential &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+inurl:connect &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+inurl:login &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+inurl:portal &
+     sleep 2
+     $web https://www.google.com/#q=site%3A$domain+inurl:upload &
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+%22internal+use+only%22 &
      sleep 2
-     $web https://www.google.com/#q=site%3A$domain+login &
-     sleep 2
      $web https://www.google.com/#q=site%3A$domain+password &
-     sleep 2
-     $web https://www.google.com/#q=site%3A$domain+portal &
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+ssn &
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+%22top+secret%22 &
      sleep 2
-     $web https://www.google.com/#q=site%3A$domain+upload &
-     sleep 2
-     $web https://www.google.com/#q=site%3A$domain+inurl:%22index+of%22 &
+     $web https://www.google.com/#q=site%3A$domain+%22index+of%22 &
      sleep 2
      $web https://www.google.com/#q=site%3Apastebin.com+intext:%40$domain &
      sleep 2
