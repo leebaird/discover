@@ -3,7 +3,9 @@ Maltego
 
 # Example 1
 
-Select Domain from the palette on the left and drag the icon to the right.
+Create a new graph.
+Under the Emity Palette on the left, Infrastructure > Domain
+Drag the Domain icon to the right.
 Edit the domain to your target.
 Right click > Run Transform > Email addresses from Domain > All
 
