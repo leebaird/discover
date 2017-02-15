@@ -51,22 +51,20 @@ Target > Site map:
      Right click on any pane > View > Tabs
      Filter > restore defaults > Filter
 
-Proxy:
-     Intercept
-          Intercept is off
-     Options:
-          Intercept Client Requests:
-               In the list below, enable URL and move to the top.
-               Select File extension > Edit: add jpeg.
+Proxy > Options:
+     Intercept Client Requests:
+          Enable URL and move to the top.
+          Select File extension > Edit: add jpeg.
+          Copy contents
 
-          Intercept Server Responses:
-               Enable Intercept responses based on the following rules.
-               In the list below, disable Content type header.
-               Enable URL.
-               Add: And, File extension, Does not match, same Conditions as above.
+     Intercept Server Responses:
+          Enable Intercept responses based on the following rules.
+          Disable Content type header.
+          Enable URL.
+          Add: And, File extension, Does not match, paste contents from above.
 
-          Match & Replace:
-	       Scroll to the bottom and enable X-XXS-Protection: 0
+     Match & Replace:
+          Scroll to the bottom and enable X-XXS-Protection: 0
 
 Spider > Options:
      Form Submission > age: 37
