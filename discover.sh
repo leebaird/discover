@@ -3504,6 +3504,38 @@ exit
 
 ##############################################################################################################
 
+f_directObjectRef(){
+clear
+f_banner
+
+echo -e "\x1B[1;34mUsing Burp, authenticate to a site, map & Spider, then log out.\x1B[0m"
+echo -e "\x1B[1;34mTarget > Site map > select the URL > right click > Copy URLs in this host.\x1B[0m"
+echo -e "\x1B[1;34mPaste the results into a new file.\x1B[0m"
+
+f_location
+
+for i in $(cat $location); do
+     curl -sk -w "%{http_code} - %{url_effective} \\n" "$i" -o /dev/null 2>&1 | tee -a tmp
+done
+
+cat tmp | sort -u > DirectObjectRef.txt
+mv DirectObjectRef.txt $home/data/DirectObjectRef.txt
+rm tmp
+
+echo
+echo $medium
+echo
+echo "***Scan complete.***"
+echo
+echo
+printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/DirectObjectRef.txt
+echo
+echo
+exit
+}
+
+##############################################################################################################
+
 f_multitabs(){
 f_runlocally
 clear
@@ -4312,17 +4344,18 @@ echo "7.  IP, range, or URL"
 echo "8.  Rerun Nmap scripts and MSF aux."
 echo
 echo -e "\x1B[1;34mWEB\x1B[0m"
-echo "9.  Open multiple tabs in $browser"
-echo "10. Nikto"
-echo "11. SSL"
+echo "9.  Direct object reference"
+echo "10. Open multiple tabs in $browser"
+echo "11. Nikto"
+echo "12. SSL"
 echo
 echo -e "\x1B[1;34mMISC\x1B[0m"
-echo "12. Crack WiFi"
-echo "13. Parse XML"
-echo "14. Generate a malicious payload"
-echo "15. Start a Metasploit listener"
-echo "16. Update"
-echo "17. Exit"
+echo "13. Crack WiFi"
+echo "14. Parse XML"
+echo "15. Generate a malicious payload"
+echo "16. Start a Metasploit listener"
+echo "17. Update"
+echo "18. Exit"
 echo
 echo -n "Choice: "
 read choice
@@ -4336,15 +4369,16 @@ case $choice in
      6) f_list;;
      7) f_single;;
      8) f_enumerate;;
-     9) f_multitabs;;
-     10) f_errorOSX; f_nikto;;
-     11) f_errorOSX; f_ssl;;
-     12) f_runlocally && $discover/crack-wifi.sh;;
-     13) f_parse;;
-     14) f_payload;;
-     15) f_listener;;
-     16) f_errorOSX; $discover/update.sh && exit;;
-     17) clear && exit;;
+     9) f_directObjectRef;;	 
+     10) f_multitabs;;
+     11) f_errorOSX; f_nikto;;
+     12) f_errorOSX; f_ssl;;
+     13) f_runlocally && $discover/crack-wifi.sh;;
+     14) f_parse;;
+     15) f_payload;;
+     16) f_listener;;
+     17) f_errorOSX; $discover/update.sh && exit;;
+     18) clear && exit;;
      99) f_errorOSX; f_updates;;
      *) f_error;;
 esac
