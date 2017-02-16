@@ -4344,7 +4344,7 @@ echo "7.  IP, range, or URL"
 echo "8.  Rerun Nmap scripts and MSF aux."
 echo
 echo -e "\x1B[1;34mWEB\x1B[0m"
-echo "9.  Direct object reference"
+echo "9.  Insecure direct object reference"
 echo "10. Open multiple tabs in $browser"
 echo "11. Nikto"
 echo "12. SSL"

@@ -20,20 +20,21 @@ SCANNING
 5.  CIDR
 6.  List
 7.  IP, range, or domain
-8.  Rerun Nmap scripts and MSF aux.
+8.  Rerun Nmap scripts and MSF aux
 
 WEB
-9.  Open multiple tabs in Firefox
-10. Nikto
-11. SSL
+9.  Insecure direct object reference
+10. Open multiple tabs in Firefox
+11. Nikto
+12. SSL
 
 MISC
-12. Crack WiFi
-13. Parse XML
-14. Generate a malicious payload
-15. Start a Metasploit listener
-16. Update
-17. Exit
+13. Crack WiFi
+14. Parse XML
+15. Generate a malicious payload
+16. Start a Metasploit listener
+17. Update
+18. Exit
 ```
 ## RECON
 ### Domain
@@ -117,6 +118,15 @@ Type of scan:
 * Matching Metasploit auxiliary modules are also leveraged.
 
 ## WEB
+### Insecure direct object reference
+````
+Using Burp, authenticate to a site, map & Spider, then log out.
+Target > Site map > select the URL > right click > Copy URLs in this host.
+Paste the results into a new file.
+
+Enter the location of your file: 
+````
+
 ### Open multiple tabs in Firefox
 ```
 Open multiple tabs in Firefox with:
