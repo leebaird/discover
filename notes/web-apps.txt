@@ -1,6 +1,19 @@
 Web Apps
 
 
+# Basic testing methodology
+
+nslookup <target URL>
+nmap -Pn -n -T4 --open -p- -A <targetIP>
+sslscan --ipv4 --show-certificate --ssl2 --ssl3 --no-colour <targetIP>
+sslyze --regular <target URL>
+whatweb <target URL>
+wpscan --url <target URL>
+nikto -h <targetIP> -port 443 -Format htm --output nikto.htm
+Nessus
+Burp
+------------------------------------------------------------------------------------------------------
+
 # HTTP Methods or Verbs
 
 GET       Does not have a body and passes all parameters in the URL.
@@ -52,7 +65,8 @@ Secure - only send over an encrypted channel
 
 Firefox
 Cookies > View Cookie Information
-HttpOnly cookie tells the browser if a Java scripts tries to access the cookie, the browser should not return a value.
+HttpOnly cookie tells the browser if a Java scripts tries to access the cookie, the browser should not 
+return a value.
 ------------------------------------------------------------------------------------------------------
 
 # Cookie Stealing
