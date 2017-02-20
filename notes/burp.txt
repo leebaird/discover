@@ -45,6 +45,32 @@ Check Trust this CA to identify websites > OK > OK
 Restart Firefox
 ------------------------------------------------------------------------------------------------------
 
+# SSH Dynamic Port Forwarding (SOCKS)
+
+You need to test a web app from home, and you need to tunnel all of your traffic through a Kali VM 
+running in Amazon EC2.
+
+ssh -i amazon.pem ec2-user@kali
+sudo -i
+vim /etc/proxychains.conf
+Add a new last line: socks5 127.0.0.1 1080
+exit
+exit
+
+ssh -D 1080 -f -N -i amazon.pem ec2-user@kali1
+
+Burp
+Project options > Connections > SOCKS Proxy
+Check Override user options
+SOCKS Proxy host: 127.0.0.1
+SOCKS Proxy port: 1080
+Check Use SOCKS proxy
+Check Do DNS lookups over SOCKS proxy
+
+Open Firefox to http://whatismyipaddress.com
+The IP address should be that of your Kali EC2.
+------------------------------------------------------------------------------------------------------
+
 # Options
 
 Target > Site map:
