@@ -2,21 +2,18 @@
 # coding=utf-8
 
 import os
-
+from . import __VERSION__
 
 class Discover(object):
 
     @staticmethod
     def banner():
-        version_path = os.getcwd()
-        with open('{0}/src/core/discover.version'.format(version_path), 'r') as discoverversion:
-            version = discoverversion.read()
         print('______  ___ ______ ______  _____  _    _ ______  _____')
         print('|     \  |  |____  |      |     |  \  /  |_____ |____/')
         print('|_____/ _|_ _____| |_____ |_____|   \/   |_____ |    \_')
         print()
         print('By Lee Baird')
-        print('Version: {0}'.format(version))
+        print('Version: {0}'.format(__VERSION__))
 
     @staticmethod
     def kali_check():
