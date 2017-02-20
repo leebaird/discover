@@ -59,7 +59,7 @@ exit
 
 ssh -D 1080 -f -N -i amazon.pem ec2-user@kali1
 
-Burp
+Open Burp locally.
 Project options > Connections > SOCKS Proxy
 Check Override user options
 SOCKS Proxy host: 127.0.0.1
@@ -86,6 +86,7 @@ Proxy > Options:
      Intercept Server Responses:
           Enable Intercept responses based on the following rules.
           Disable Content type header.
+
           Enable URL.
           Add: And, File extension, Does not match, paste contents from above.
 
@@ -204,6 +205,8 @@ Sort by Item
 Select each line > Response > look for sensitive information.
 Use the search field at the bottom to search for href.
 Copy/paste new URL into browser.
+
+Engagement tools > Search: set-cookie
 ---------------------------------------------------------------
 
 # Check for 404 and 500 errors
