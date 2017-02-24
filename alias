@@ -7,7 +7,7 @@ user=$(whoami)
 
 alias aws='ssh -i ~/.ssh/kali-aws.pem ec2-user@52.x.x.x'
 alias awss='ssh -D 1080 -f -N -i ~/.ssh/kali-aws.pem ec2-user@52.x.x.x'
-alias killaws="kill -9 $(ps aux | grep ssh | grep 'D 1080' | awk '{print $2}')"
+alias proxykill="kill -9 $(ps aux | grep ssh | grep 'D 1080' | awk '{print $2}')"
 
 alias c='clear'
 alias cl='clear ; ls -l'
