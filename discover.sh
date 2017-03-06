@@ -2088,7 +2088,7 @@ fi
 
 if [[ -e $name/23.txt ]]; then
      echo "     Telnet"
-     nmap -iL $name/23.txt -Pn -n --open -p23 --script=banner,cics-enum,cics-user-enum,telnet-encryption,telnet-ntlm-info,tn3270-info,tn3270-screen,tso-enum,vtam-enum --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/23.txt -Pn -n --open -p23 --script=banner,cics-enum,cics-user-enum,telnet-encryption,telnet-ntlm-info,tn3270-screen,tso-enum,vtam-enum --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-23.txt
 fi
