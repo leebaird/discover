@@ -1671,7 +1671,9 @@ case $choice in
      *) f_error;;
 esac
 
-cat tmp | grep 'report' | awk '{print $5}' | sip > $home/data/hosts-ping.txt
+cat tmp | grep 'report' | awk '{print $5}' > tmp2
+mv tmp2 $home/data/hosts-ping.txt
+rm tmp
 
 echo
 echo $medium
