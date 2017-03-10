@@ -1650,7 +1650,7 @@ case $choice in
 
      echo
      echo "Running an Nmap ping sweep for live hosts."
-     nmap -sn --stats-every 10s -g $sourceport -iL $location > tm
+     nmap -sn --stats-every 10s -g $sourceport -iL $location > tmp
      ;;
 
      2)
