@@ -1650,7 +1650,7 @@ case $choice in
 
      echo
      echo "Running an Nmap ping sweep for live hosts."
-     nmap -sn --stats-every 10s -g $sourceport -iL $location > tmp
+     nmap -sn --stats-every 10s -g $sourceport -iL $location > tm
      ;;
 
      2)
@@ -1671,37 +1671,7 @@ case $choice in
      *) f_error;;
 esac
 
-##############################################################
-
-perl << 'EOF'
-# Author: Ben Wood
-# Description: Reads an nmap ping sweep and correctly identifies lives hosts
-
-use strict;
-
-undef $/; # Enable slurping
-
-open(my $handle, '<', "tmp");
-open(my $output, '>', "tmp2");
-while(<$handle>){
-     # Read report lines
-     while (/((?:[\x00-\xFF]*?(?=Nmap\s+scan\s+report)|[\x00-\xFF]*))/mixg){
-          my $report = $1;
-
-          # Print IP if host is really up
-          if (($report =~ /MAC\s+Address/mix)
-          or ($report =~ /Nmap\s+scan\s+report\s+for\s+\S+?\s+\(\S+\)/mix)){
-               my ($ip) = $report =~ /(\d+\.\d+\.\d+\.\d+)/mix;
-               print $output "$ip\n";
-          }
-     }
-}
-EOF
-
-##############################################################
-
-rm tmp
-mv tmp2 $home/data/hosts-ping.txt
+cat tmp | grep 'report' | awk '{print $5}' | sip > $home/data/hosts-ping.txt
 
 echo
 echo $medium
