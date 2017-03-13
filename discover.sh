@@ -30,7 +30,6 @@
 trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Global variables
-discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
 distro=$(uname -n)
 home=$HOME
 long='=============================================================================================================='
@@ -42,6 +41,7 @@ sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 # Check for OS X
 if [[ `uname` == 'Darwin' ]]; then
      browser=Safari
+	 discover=$(locate discover.sh | sed 's:/[^/]*$::')
      ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)
      interface=$(ifconfig | grep $ip -B3 | grep 'UP' | cut -d ':' -f1)
      msf=/opt/metasploit-framework/bin/msfconsole
@@ -50,6 +50,7 @@ if [[ `uname` == 'Darwin' ]]; then
      web="open -a Safari"
 else
      browser=Firefox
+	 discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
      ip=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}')
      interface=$(ip link | awk '{print $2, $9}' | grep 'UP' | cut -d ':' -f1)
      msf=msfconsole
@@ -3333,7 +3334,7 @@ exit
 f_report(){
 END=$(date +%r\ %Z)
 filename=$name/report.txt
-host=$(wc -l $name/hosts.txt | cut -d ' ' -f1)
+host=$(wc -l $name/hosts.txt | cut -d ' ' -f1) 2>/dev/null
 
 echo "Nmap Report" > $filename
 date +%A" - "%B" "%d", "%Y >> $filename
@@ -3356,7 +3357,7 @@ fi
 
 echo "Hosts Discovered ($host)" >> $filename
 echo >> $filename
-cat $name/hosts.txt >> $filename
+cat $name/hosts.txt >> $filename 2>/dev/null
 echo >> $filename
 
 if [[ ! -s $name/ports.txt ]]; then
