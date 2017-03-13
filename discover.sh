@@ -3334,7 +3334,7 @@ exit
 f_report(){
 END=$(date +%r\ %Z)
 filename=$name/report.txt
-host=$(wc -l $name/hosts.txt | cut -d ' ' -f1) 2>/dev/null
+host=$(wc -l $name/hosts.txt | cut -d ' ' -f1 2>/dev/null)
 
 echo "Nmap Report" > $filename
 date +%A" - "%B" "%d", "%Y >> $filename
