@@ -42,8 +42,8 @@ sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 if [[ `uname` == 'Darwin' ]]; then
      browser=Safari
 	 discover=$(locate discover.sh | sed 's:/[^/]*$::')
-     ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)
-     interface=$(ifconfig | grep $ip -B3 | grep 'UP' | cut -d ':' -f1)
+     ip=$(ifconfig | grep 'en0' -A2 | grep 'inet' | cut -d ' ' -f2)
+     interface=en0
      msf=/opt/metasploit-framework/bin/msfconsole
      msfv=/opt/metasploit-framework/bin/msfvenom
      port=4444
@@ -3334,7 +3334,7 @@ exit
 f_report(){
 END=$(date +%r\ %Z)
 filename=$name/report.txt
-host=$(wc -l $name/hosts.txt | cut -d ' ' -f1 2>/dev/null)
+host=$(wc -l $name/hosts.txt | cut -d ' ' -f1)
 
 echo "Nmap Report" > $filename
 date +%A" - "%B" "%d", "%Y >> $filename
