@@ -822,6 +822,10 @@ case $choice in
      sleep 4
      $web https://connect.data.com/login &
      sleep 2
+     $web http://searchdns.netcraft.com/?restriction=site+contains&host=*.$domain&lookup=wait..&position=limited &
+     sleep 2
+     $web https://www.zoomeye.org/search?t=host&q=$domain &
+     sleep 2
      $web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+filetype%3Axls+OR+filetype%3Axlsx &
@@ -856,9 +860,15 @@ case $choice in
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+%22top+secret%22 &
      sleep 2
-     $web https://www.google.com/#q=site%3A$domain+%22index+of%22 &
+     $web https://www.google.com/#q=site%3A$domain+%22index+of/%22+%22parent+directory%22 &
      sleep 2
      $web https://www.google.com/#q=site%3Apastebin.com+intext:%40$domain &
+     sleep 2
+     $web http://boardreader.com/s/$domain.html;language=English &
+     sleep 2
+     $web https://www.censys.io/ipv4?q=$domain &
+     sleep 2
+     $web http://api.hackertarget.com/pagelinks/?q=$domain &
      sleep 2
      $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
      sleep 2
@@ -2743,6 +2753,10 @@ done
 ##############################################################################################################
 
 # Additional tools
+
+if [[ -e $name/161.txt ]]; then
+     onesixtyone -c /usr/share/doc/onesixtyone/dict.txt -i $name/161.txt > $name/onesixtyone.txt
+fi
 
 if [ -e $name/445.txt ] || [ -e $name/500.txt ]; then
      echo
