@@ -2252,7 +2252,7 @@ fi
 
 if [[ -e $name/636.txt ]]; then
      echo "     LDAP/S"
-     nmap -iL $name/636.txt -Pn -n --open -636 --script=ldap-rootdse,ssl*,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/636.txt -Pn -n --open -p636 --script=ldap-rootdse,ssl*,tls-nextprotoneg -sV --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-636.txt
 fi
