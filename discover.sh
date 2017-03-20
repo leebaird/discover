@@ -7,7 +7,7 @@
 # Special thanks to the following people:
 #
 # Jay Townsend - conversion from Backtrack to Kali, manages pull requests & issues
-# Jason Ashton (@jayw0k)- Penetration Testers Framework (PTF) compatibility, bug crusher
+# Jason Ashton (@ninewires)- Penetration Testers Framework (PTF) compatibility, bug crusher
 # Ian Norden (@iancnorden) - new report framework design
 #
 # Ben Wood (@DilithiumCore) - regex master
@@ -212,7 +212,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=33
+     total=34
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g;s/\&/%26/g;s/\,/%2C/g' )
 
@@ -465,7 +465,6 @@ case $choice in
      fi
 
      echo "dnsdumpster.com           (25/$total)"
-     wget -q https://dnsdumpster.com/static/map/$domain.png -O /tmp/dnsdumpster.png
      wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/images/dnsdumpster.png
 
      # Generate a random cookie value
@@ -581,7 +580,56 @@ case $choice in
      echo >> $home/data/$domain/data/zonetransfer.htm
      echo '</html>' >> $home/data/$domain/data/zonetransfer.htm
 
-     echo "recon-ng                  (33/$total)"
+     echo "Domains                   (33/$total)"
+     # get domains registered by company name and email address domain
+     curl --silent http://viewdns.info/reversewhois/?q=%40$domain > tmp
+     sleep 2
+     curl --silent http://viewdns.info/reversewhois/?q=$companyurl > tmp2
+
+     if grep 'There are 0 domains' tmp && grep 'There are 0 domains' tmp2; then
+          rm tmp tmp2
+          echo 'No Domains Found.' > tmp6
+          break
+     elif ! [ -s tmp ] && ! [ -s tmp2 ]; then
+          rm tmp tmp2
+          echo 'No Domains Found.' > tmp6
+          break
+     else
+          # generate list of domains registered by email address domain
+          grep 'ViewDNS.info' tmp | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d'>' -f2 | cut -d'<' -f1 > tmp3
+          grep 'ViewDNS.info' tmp2 | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d'>' -f2 | cut -d'<' -f1 >> tmp3
+          sort -uV tmp3 -o tmp3
+          
+          echo 'AAAAA--placeholder--' > tmp4
+
+          # loop thru domain list gathering details about the domain
+          while read regdomain; do
+               whois -H $regdomain 2>&1 | sed -e 's|^[ \t]*||' | sed 's| \+ ||g' | sed 's|: |:|g' > tmp5
+               nomatch=$(grep -c -E 'No match for|Name or service not known' tmp5)
+               if [[ $nomatch -eq 1 ]]; then
+                    echo "$regdomain -- No Whois Matches Found" >> tmp4
+               else
+                    registrar=$(grep -m1 'Registrar:' tmp5 | cut -d':' -f2 | sed 's|,||g')
+                    regorg=$(grep -m1 'Registrant Organization:' tmp5 | cut -d':' -f2 | sed 's|,||g')
+                    regemail=$(grep -m1 'Registrant Email:' tmp5 | cut -d':' -f2)
+                    iptmp=$(ping -c1 $regdomain 2>&1)
+                    if echo $iptmp | grep -q 'unknown host'; then
+                         echo "$regdomain,$registrar,$regorg,$regemail,No IP Found" >> tmp4
+                    else
+                         ipaddr=$(echo $iptmp | grep 'PING' | cut -d'(' -f2 | cut -d')' -f1)
+                         echo "$regdomain,$registrar,$regorg,$regemail,$ipaddr" >> tmp4
+                    fi
+               fi
+               sleep 2
+          done < tmp3
+     fi
+     # Formatting & clean-up
+     sort tmp4 | sed 's|AAAAA--placeholder--|Domain,Registrar,Registration Org,Registration Email,IP Address|' > tmp6
+     column -s ',' -t tmp6 > domains
+     echo "Domains registered to $company & with email domain $domain" >> $home/data/$domain/data/domains.htm
+     echo >> $home/data/$domain/data/domains.htm
+
+     echo "recon-ng                  (34/$total)"
      cp $discover/resource/recon-ng.rc $discover/
      sed -i "s/xxx/$companyurl/g" $discover/recon-ng.rc
      sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/recon-ng.rc
@@ -673,7 +721,7 @@ case $choice in
           echo $short >> tmp
           cat emails >> tmp
           echo >> tmp
-          cat emails >> $home/data/$domain/data/emails.htm
+          cat emails >> $home/data/$domain/data/emails.htm; echo "</pre>" >> $home/data/$domain/data/emails.htm
      fi
 
      if [ -e names ]; then
@@ -683,7 +731,7 @@ case $choice in
           echo $short >> tmp
           cat names >> tmp
           echo >> tmp
-          cat names >> $home/data/$domain/data/names.htm
+          cat names >> $home/data/$domain/data/names.htm; echo "</pre>" >> $home/data/$domain/data/names.htm
      fi
 
      if [ -s networks ]; then
@@ -711,7 +759,18 @@ case $choice in
           echo $long >> tmp
           cat squatting >> tmp
           echo >> tmp
-          cat squatting >> $home/data/$domain/data/squatting.htm
+          cat squatting >> $home/data/$domain/data/squatting.htm; echo "</pre>" >> $home/data/$domain/data/squatting.htm
+     fi
+
+     if [ -e domains ]; then
+          domaincount1=$(wc -l domains | cut -d ' ' -f1)
+          domaincount2=$(echo $(($domaincount1-1)))
+          echo "Domains    $domaincount2" >> zreport
+          echo "Domains ($domaincount2)" >> tmp
+          echo $long >> tmp
+          cat domains >> tmp
+          echo >> tmp
+          cat domains >> $home/data/$domain/data/domains.htm; echo "</pre>" >> $home/data/$domain/data/domains.htm
      fi
 
      if [ -e subdomains ]; then
@@ -721,7 +780,7 @@ case $choice in
           echo $long >> tmp
           cat subdomains >> tmp
           echo >> tmp
-          cat subdomains >> $home/data/$domain/data/subdomains.htm
+          cat subdomains >> $home/data/$domain/data/subdomains.htm; echo "</pre>" >> $home/data/$domain/data/subdomains.htm
      fi
 
      if [ -e xls ]; then
@@ -791,14 +850,10 @@ case $choice in
           cat whois-ip >> $home/data/$domain/data/whois-ip.htm; echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
      fi
 
-     echo "</pre>" >> $home/data/$domain/data/names.htm
-     echo "</pre>" >> $home/data/$domain/data/squatting.htm
-     echo "</pre>" >> $home/data/$domain/data/subdomains.htm
-
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
      mv recon-ng.rc $home/data/$domain/ 2>/dev/null
-     rm curl debug* emails* hosts names* networks* squatting sub* tmp* network-tools whois* z* doc pdf ppt txt xls 2>/dev/null
+     rm curl debug* emails* hosts names* networks* squatting sub* tmp* network-tools whois* z* doc pdf ppt txt xls domains 2>/dev/null
      rm /tmp/emails /tmp/names /tmp/networks /tmp/profiles /tmp/subdomains 2>/dev/null
 
      # Robtex
@@ -828,11 +883,11 @@ case $choice in
      sleep 2
      $web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
      sleep 2
-     $web https://www.google.com/#q=site%3A$domain+filetype%3Axls+OR+filetype%3Axlsx &
+     $web https://www.google.com/#q=site%3A$domain+filetype%3Axls+OR+filetype%3Axls &
      sleep 2
-     $web https://www.google.com/#q=site%3A$domain+filetype%3Appt+OR+filetype%3Apptx &
+     $web https://www.google.com/#q=site%3A$domain+filetype%3Appt+OR+filetype%3Appt &
      sleep 2
-     $web https://www.google.com/#q=site%3A$domain+filetype%3Adoc+OR+filetype%3Adocx &
+     $web https://www.google.com/#q=site%3A$domain+filetype%3Adoc+OR+filetype%3Adoc &
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+filetype%3Aasp &
      sleep 2
@@ -1222,7 +1277,7 @@ f_location
 echo
 echo
 
-sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/\.//g; s/,,//g; s/,`//g; s/`,//g; s/-cpg//g; s/3d/3D/g; s/Aberdeen Pr//g; 
+sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/\.//g; s/,,//g; s/,`//g; s/`,//g; s/-cpg//g; s/3d/3D/g; s/Aberdeen Pr//g;
 s/ACADEMIC/Academic/g; s/account/Account/g; s/ACTING/Acting/g; s/3administrator/Administrator/g; s/Europe and Africa//g; 
 s/Sub Saharan Africa//g; s/South Africa//g; s/Agoura Hills//g; s/New Albany//g; s/Albion 	QL//g; s/Aliso Viejo//g; s/Allison Park//g; 
 s/Altamonte S//g; s/Am-east,//g; s/Am-west,//g; s/Head of Americas//g; s/The Americas//g; s/Amst-north America//g; 
@@ -1930,7 +1985,7 @@ x=$(grep '(0 hosts up)' $name/nmap.nmap)
 
 if [[ -n $x ]]; then
      rm -rf "$name" tmp
-	 rm tmp-target
+     rm tmp-target
      echo
      echo $medium
      echo
@@ -3294,8 +3349,8 @@ else
      sed 's/\/\//\//g' /tmp/master > $name/master.rc
      msfdb init
      msfconsole -r $name/master.rc
-	 rm master.rc
-	 cat tmpmsf | egrep -v "(Spooling|RHOSTS|THREADS|RPORT|> run|% complete|completed|Checking if file|LOGIN FAILED|Authorization not requested|Starting export|Finished export|db_export|> exit|Login Failure|It doesn't seem|data_connect failed|Timed out after|No relay detected|connection timed out|Unable to bypass|negotiation failed|Handshake failed|Unable to enumerate|NOT VULNERABLE|No users found|no response for|Unable to connect|state=unknown state|responded with error|Connection reset by peer|Unable to login|Starting VNC login sweep|Attempting to extract passwords|not found|No response|Unable to retrieve|The file doesn't exist|Host could not be identified|server did not reply|brute force is ineffective)" > $name/metasploit.txt
+     rm master.rc
+     cat tmpmsf | egrep -v "(Spooling|RHOSTS|THREADS|RPORT|> run|% complete|completed|Checking if file|LOGIN FAILED|Authorization not requested|Starting export|Finished export|db_export|> exit|Login Failure|It doesn't seem|data_connect failed|Timed out after|No relay detected|connection timed out|Unable to bypass|negotiation failed|Handshake failed|Unable to enumerate|NOT VULNERABLE|No users found|no response for|Unable to connect|state=unknown state|responded with error|Connection reset by peer|Unable to login|Starting VNC login sweep|Attempting to extract passwords|not found|No response|Unable to retrieve|The file doesn't exist|Host could not be identified|server did not reply|brute force is ineffective)" > $name/metasploit.txt
 fi
 }
 
