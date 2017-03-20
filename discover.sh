@@ -1222,7 +1222,8 @@ f_location
 echo
 echo
 
-sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/\.//g; s/,,//g; s/,`//g; s/`,//g; s/-cpg//g; s/3d/3D/g; s/Aberdeen Pr//g; s/ACADEMIC/Academic/g; s/account/Account/g; s/ACTING/Acting/g; s/3administrator/Administrator/g; s/Europe and Africa//g; 
+sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/\.//g; s/,,//g; s/,`//g; s/`,//g; s/-cpg//g; s/3d/3D/g; s/Aberdeen Pr//g; 
+s/ACADEMIC/Academic/g; s/account/Account/g; s/ACTING/Acting/g; s/3administrator/Administrator/g; s/Europe and Africa//g; 
 s/Sub Saharan Africa//g; s/South Africa//g; s/Agoura Hills//g; s/New Albany//g; s/Albion 	QL//g; s/Aliso Viejo//g; s/Allison Park//g; 
 s/Altamonte S//g; s/Am-east,//g; s/Am-west,//g; s/Head of Americas//g; s/The Americas//g; s/Amst-north America//g; 
 s/ANALYSIST/Analysist/g; s/Analyst\//Analyst, /g; s/analytics/Analytics/g; s/and New England//g; s/and Central Us//g; 
@@ -1929,6 +1930,7 @@ x=$(grep '(0 hosts up)' $name/nmap.nmap)
 
 if [[ -n $x ]]; then
      rm -rf "$name" tmp
+	 rm tmp-target
      echo
      echo $medium
      echo
@@ -2802,7 +2804,7 @@ echo -ne "\x1B[1;33mRun matching Metasploit auxiliaries? (y/N) \x1B[0m"
 read msf
 
 if [ "$msf" == "y" ]; then
-     f_runmsf
+     f_run-metasploit
 else
      f_report
 fi
@@ -2810,7 +2812,7 @@ fi
 
 ##############################################################################################################
 
-f_runmsf(){
+f_run-metasploit(){
 echo
 echo -e "\x1B[1;34mStarting Postgres.\x1B[0m"
 service postgresql start
@@ -2822,7 +2824,7 @@ echo -e "\x1B[1;34mUsing the following resource files.\x1B[0m"
 cp -R $discover/resource/ /tmp/
 
 echo workspace -a $name > /tmp/master
-echo spool $name/msf-spool.txt > /tmp/master
+echo spool tmpmsf > /tmp/master
 
 if [[ -e $name/19.txt ]]; then
      echo "     Chargen Probe Utility"
@@ -3292,6 +3294,8 @@ else
      sed 's/\/\//\//g' /tmp/master > $name/master.rc
      msfdb init
      msfconsole -r $name/master.rc
+	 rm master.rc
+	 cat tmpmsf | egrep -v "(Spooling|RHOSTS|THREADS|RPORT|> run|% complete|completed|Checking if file|LOGIN FAILED|Authorization not requested|Starting export|Finished export|db_export|> exit|Login Failure|It doesn't seem|data_connect failed|Timed out after|No relay detected|connection timed out|Unable to bypass|negotiation failed|Handshake failed|Unable to enumerate|NOT VULNERABLE|No users found|no response for|Unable to connect|state=unknown state|responded with error|Connection reset by peer|Unable to login|Starting VNC login sweep|Attempting to extract passwords|not found|No response|Unable to retrieve|The file doesn't exist|Host could not be identified|server did not reply|brute force is ineffective)" > $name/metasploit.txt
 fi
 }
 
@@ -3333,7 +3337,7 @@ fi
 f_scripts
 echo
 echo $medium
-f_runmsf
+f_run-metasploit
 
 echo
 echo -e "\x1B[1;34mStopping Postgres.\x1B[0m"

@@ -26,9 +26,6 @@ run
 use auxiliary/scanner/smb/smb_enumusers
 run
 
-use auxiliary/scanner/smb/smb_login
-run
-
 use auxiliary/scanner/smb/smb_lookupsid
 run
 
