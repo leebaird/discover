@@ -7,4 +7,3 @@ run
 
 use auxiliary/scanner/http/tomcat_mgr_login
 run
-

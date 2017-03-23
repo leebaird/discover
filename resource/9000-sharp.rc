@@ -4,4 +4,3 @@ setg RPORT 9000
 
 use auxiliary/scanner/misc/raysharp_dvr_passwords
 run
-

@@ -14,4 +14,3 @@ run
 
 use scanner/mssql/mssql_schemadump
 run
-

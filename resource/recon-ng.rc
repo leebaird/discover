@@ -98,4 +98,3 @@ query SELECT host,ip_address FROM hosts ORDER BY host
 spool stop
 
 exit
-

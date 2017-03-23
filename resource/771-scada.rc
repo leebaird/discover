@@ -7,4 +7,3 @@ run
 
 use auxiliary/scanner/scada/digi_realport_version
 run
-

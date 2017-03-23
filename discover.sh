@@ -595,34 +595,37 @@ case $choice in
           echo 'No Domains Found.' > tmp6
           break
      else
-          # generate list of domains registered by email address domain
-          grep 'ViewDNS.info' tmp | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d'>' -f2 | cut -d'<' -f1 > tmp3
-          grep 'ViewDNS.info' tmp2 | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d'>' -f2 | cut -d'<' -f1 >> tmp3
+          # Generate a list of domains registered by email address domain
+          grep 'ViewDNS.info' tmp | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
+          grep 'ViewDNS.info' tmp2 | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
           sort -uV tmp3 -o tmp3
           
           echo 'AAAAA--placeholder--' > tmp4
 
-          # loop thru domain list gathering details about the domain
+          # Loop thru lost of domain gathering details about the domain
           while read regdomain; do
                whois -H $regdomain 2>&1 | sed -e 's|^[ \t]*||' | sed 's| \+ ||g' | sed 's|: |:|g' > tmp5
                nomatch=$(grep -c -E 'No match for|Name or service not known' tmp5)
+
                if [[ $nomatch -eq 1 ]]; then
                     echo "$regdomain -- No Whois Matches Found" >> tmp4
                else
-                    registrar=$(grep -m1 'Registrar:' tmp5 | cut -d':' -f2 | sed 's|,||g')
-                    regorg=$(grep -m1 'Registrant Organization:' tmp5 | cut -d':' -f2 | sed 's|,||g')
-                    regemail=$(grep -m1 'Registrant Email:' tmp5 | cut -d':' -f2)
+                    registrar=$(grep -m1 'Registrar:' tmp5 | cut -d ':' -f2 | sed 's|,||g')
+                    regorg=$(grep -m1 'Registrant Organization:' tmp5 | cut -d ':' -f2 | sed 's|,||g')
+                    regemail=$(grep -m1 'Registrant Email:' tmp5 | cut -d ':' -f2)
                     iptmp=$(ping -c1 $regdomain 2>&1)
+
                     if echo $iptmp | grep -q 'unknown host'; then
                          echo "$regdomain,$registrar,$regorg,$regemail,No IP Found" >> tmp4
                     else
-                         ipaddr=$(echo $iptmp | grep 'PING' | cut -d'(' -f2 | cut -d')' -f1)
+                         ipaddr=$(echo $iptmp | grep 'PING' | cut -d '(' -f2 | cut -d ')' -f1)
                          echo "$regdomain,$registrar,$regorg,$regemail,$ipaddr" >> tmp4
                     fi
                fi
                sleep 2
           done < tmp3
      fi
+
      # Formatting & clean-up
      sort tmp4 | sed 's|AAAAA--placeholder--|Domain,Registrar,Registration Org,Registration Email,IP Address|' > tmp6
      column -s ',' -t tmp6 > domains
@@ -883,11 +886,11 @@ case $choice in
      sleep 2
      $web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
      sleep 2
-     $web https://www.google.com/#q=site%3A$domain+filetype%3Axls+OR+filetype%3Axls &
+     $web https://www.google.com/#q=site%3A$domain+filetype%3Axls+OR+filetype%3Axlsx &
      sleep 2
-     $web https://www.google.com/#q=site%3A$domain+filetype%3Appt+OR+filetype%3Appt &
+     $web https://www.google.com/#q=site%3A$domain+filetype%3Appt+OR+filetype%3Apptx &
      sleep 2
-     $web https://www.google.com/#q=site%3A$domain+filetype%3Adoc+OR+filetype%3Adoc &
+     $web https://www.google.com/#q=site%3A$domain+filetype%3Adoc+OR+filetype%3Adocx &
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+filetype%3Aasp &
      sleep 2

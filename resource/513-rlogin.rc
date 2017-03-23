@@ -4,4 +4,3 @@ setg RPORT 513
 
 use auxiliary/scanner/rservices/rlogin_login
 run
-

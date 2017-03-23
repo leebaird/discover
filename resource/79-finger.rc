@@ -4,4 +4,3 @@ setg RPORT 79
 
 use auxiliary/scanner/finger/finger_users
 run
-

@@ -4,4 +4,3 @@ setg RPORT 8222
 
 use auxiliary/scanner/vmware/vmware_server_dir_trav
 run
-

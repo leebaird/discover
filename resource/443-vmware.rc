@@ -22,4 +22,3 @@ run
 
 use auxiliary/scanner/vmware/vmware_screenshot_stealer
 run
-

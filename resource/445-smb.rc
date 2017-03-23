@@ -31,4 +31,3 @@ run
 
 use auxiliary/scanner/smb/smb_uninit_cred
 run
-

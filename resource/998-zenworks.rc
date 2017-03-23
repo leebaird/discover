@@ -4,4 +4,3 @@ setg RPORT 998
 
 use auxiliary/scanner/misc/zenworks_preboot_fileaccess
 run
-

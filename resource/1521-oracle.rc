@@ -2,6 +2,9 @@ setg RHOSTS file:
 setg THREADS 255
 setg RPORT 1521
 
+use auxiliary/scanner/oracle/tnslsnr_version
+run
+
 use auxiliary/scanner/oracle/oracle_hashdump
 run
 
@@ -14,9 +17,5 @@ run
 use auxiliary/scanner/oracle/sid_enum
 run
 
-use auxiliary/scanner/oracle/tnslsnr_version
-run
-
 use auxiliary/scanner/oracle/tnspoison_checker
 run
-

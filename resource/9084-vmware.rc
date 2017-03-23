@@ -4,4 +4,3 @@ setg RPORT 9084
 
 use auxiliary/scanner/vmware/vmware_update_manager_traversal
 run
-
