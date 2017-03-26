@@ -3354,6 +3354,7 @@ else
      msfconsole -r $name/master.rc
      rm master.rc
      cat tmpmsf | egrep -v "(Spooling|RHOSTS|THREADS|RPORT|> run|% complete|completed|Checking if file|LOGIN FAILED|Authorization not requested|Starting export|Finished export|db_export|> exit|Login Failure|It doesn't seem|data_connect failed|Timed out after|No relay detected|connection timed out|Unable to bypass|negotiation failed|Handshake failed|Unable to enumerate|NOT VULNERABLE|No users found|no response for|Unable to connect|state=unknown state|responded with error|Connection reset by peer|Unable to login|Starting VNC login sweep|Attempting to extract passwords|not found|No response|Unable to retrieve|The file doesn't exist|Host could not be identified|server did not reply|brute force is ineffective)" > $name/metasploit.txt
+	rm tmpmsf
 fi
 }
 
