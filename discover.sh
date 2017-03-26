@@ -563,6 +563,7 @@ case $choice in
      while [ $x -le 10 ]; do
           curl -k --silent https://www.ultratools.com/tools/zoneFileDumpResult?zoneName=$domain > curl
           q=$(grep "$domain" curl | wc -l)
+
           if [ $q -gt 1 ]; then
                f_passive_axfr
                break
@@ -581,7 +582,7 @@ case $choice in
      echo '</html>' >> $home/data/$domain/data/zonetransfer.htm
 
      echo "Domains                   (33/$total)"
-     # get domains registered by company name and email address domain
+     # Get domains registered by company name and email address domain
      curl --silent http://viewdns.info/reversewhois/?q=%40$domain > tmp
      sleep 2
      curl --silent http://viewdns.info/reversewhois/?q=$companyurl > tmp2
@@ -622,6 +623,7 @@ case $choice in
                          echo "$regdomain,$registrar,$regorg,$regemail,$ipaddr" >> tmp4
                     fi
                fi
+
                sleep 2
           done < tmp3
      fi
@@ -3352,8 +3354,8 @@ else
      sed 's/\/\//\//g' /tmp/master > $name/master.rc
      msfdb init
      msfconsole -r $name/master.rc
-     rm master.rc
      cat tmpmsf | egrep -v "(Spooling|RHOSTS|THREADS|RPORT|> run|% complete|completed|Checking if file|LOGIN FAILED|Authorization not requested|Starting export|Finished export|db_export|> exit|Login Failure|It doesn't seem|data_connect failed|Timed out after|No relay detected|connection timed out|Unable to bypass|negotiation failed|Handshake failed|Unable to enumerate|NOT VULNERABLE|No users found|no response for|Unable to connect|state=unknown state|responded with error|Connection reset by peer|Unable to login|Starting VNC login sweep|Attempting to extract passwords|not found|No response|Unable to retrieve|The file doesn't exist|Host could not be identified|server did not reply|brute force is ineffective)" > $name/metasploit.txt
+     rm $name/master.rc
 	rm tmpmsf
 fi
 }
@@ -3401,6 +3403,14 @@ f_run-metasploit
 echo
 echo -e "\x1B[1;34mStopping Postgres.\x1B[0m"
 service postgresql stop
+
+echo
+echo $medium
+echo
+echo "***Scan complete.***"
+echo
+echo
+printf 'The supporting data folder is located at \x1B[1;33m%s\x1B[0m\n' $name
 echo
 echo
 exit
