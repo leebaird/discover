@@ -4317,7 +4317,7 @@ echo >> tmp-updates
 echo "Nmap scripts" >> tmp-updates
 echo "==============================" >> tmp-updates
 
-diff tmp tmp2 | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' | egrep -v '(clamav-exec|smb-vuln*|smtp-commands|smtp-enum-users|smtp-ntlm-info|smtp-open-relay|smtp-strangeport|smtp-vuln*|ssl*|tftpbrute|tls-nextprotoneg|tmp)' >> tmp-updates
+diff tmp tmp2 | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' | egrep -v '(clamav-exec|smb-vuln*|smtp-commands|smtp-enum-users|smtp-ntlm-info|smtp-open-relay|smtp-strangeport|smtp-vuln*|ssl*|tls-nextprotoneg|tmp)' >> tmp-updates
 
 rm tmp
 
@@ -4337,7 +4337,7 @@ done
 sed '/^$/d' tmp > tmp2
 
 # Remove scanners not used
-egrep -v '(ack|apache_karaf_command_execution|arp_sweep|call_scanner|cerberus_sftp_enumusers|couchdb_enum|dvr_config_disclosure|empty_udp|endpoint_mapper|ftpbounce|hidden|ipidseq|ipv6|login|lotus_domino_hashes|management|ms08_067_check|mysql_file_enum|mysql_hashdump|mysql_schemadump|mysql_writable_dirs|natpmp_portscan|poisonivy_control_scanner|profinet_siemens|psexec_loggedin_users|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_enumusers|ssh_identify_pubkeys|station_scanner|syn|tcp|udp_probe|udp_sweep|wardial|winrm_cmd|winrm_wql|xmas)' tmp2 | sort > tmp-msf-all
+egrep -v '(ack|apache_karaf_command_execution|arp_sweep|call_scanner|cerberus_sftp_enumusers|couchdb_enum|dvr_config_disclosure|empty_udp|endpoint_mapper|ftpbounce|hidden|ipidseq|ipv6|login|lotus_domino_hashes|management|ms08_067_check|mysql_file_enum|mysql_hashdump|mysql_schemadump|mysql_writable_dirs|natpmp_portscan|poisonivy_control_scanner|profinet_siemens|psexec_loggedin_users|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_enumusers|ssh_identify_pubkeys|station_scanner|syn|tcp|tftpbrute|udp_probe|udp_sweep|wardial|winrm_cmd|winrm_wql|xmas)' tmp2 | sort > tmp-msf-all
 
 grep 'use ' $discover/resource/*.rc | grep -v 'recon-ng' > tmp
 
