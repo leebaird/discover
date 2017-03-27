@@ -4428,7 +4428,7 @@ case $choice in
      5) f_cidr;;
      6) f_list;;
      7) f_single;;
-     8) f_enumerate;;
+     8) f_errorOSX; f_enumerate;;
      9) f_directObjectRef;;	 
      10) f_multitabs;;
      11) f_errorOSX; f_nikto;;
