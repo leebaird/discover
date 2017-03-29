@@ -4090,7 +4090,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The new reports are located at \x1B[1;33m%s\x1B[0m\n' $home/data/sslscan.txt
+printf 'The new reports are located at \x1B[1;33m%s\x1B[0m\n' $home/data/sslscan.txt and sslyze.txt
 
 echo
 echo -n "If your IPs are public, do you want to test them using an external source? (y/N) "
