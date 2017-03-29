@@ -3367,12 +3367,7 @@ else
      sed 's/\/\//\//g' /tmp/master > $name/master.rc
      msfdb init
      msfconsole -r $name/master.rc
-     cat tmpmsf | egrep -v "(Spooling|RHOSTS|THREADS|RPORT|> run|% complete|completed|Checking if file|LOGIN FAILED|Authorization not
-requested|Starting export|Finished export|db_export|> exit|Login Failure|It doesn't seem|data_connect failed|Timed out after|No relay
-detected|connection timed out|Unable to bypass|negotiation failed|Handshake failed|Unable to enumerate|NOT VULNERABLE|No users found|no
-response for|Unable to connect|state=unknown state|responded with error|Connection reset by peer|Unable to login|Starting VNC login
-sweep|Attempting to extract passwords|not found|No response|Unable to retrieve|The file doesn't exist|Host could not be identified|server did
-not reply|brute force is ineffective|NoMethodError undefined|no-target|Trying to acquire|does not appear)" > $name/metasploit.txt
+     cat tmpmsf | egrep -v "(Spooling|RHOSTS|THREADS|RPORT|> run|% complete|completed|Checking if file|LOGIN FAILED|Authorization not requested|Starting export|Finished export|db_export|> exit|Login Failure|It doesn't seem|data_connect failed|Timed out after|No relay detected|connection timed out|Unable to bypass|negotiation failed|Handshake failed|Unable to enumerate|NOT VULNERABLE|No users found|no response for|Unable to connect|state=unknown state|responded with error|Connection reset by peer|Unable to login|Starting VNC login sweep|Attempting to extract passwords|not found|No response|Unable to retrieve|The file doesn't exist|Host could not be identified|server did not reply|brute force is ineffective|NoMethodError|Trying to acquire|Does not appear|Starting TFTP server|Scanning for vulnerable|Providing some time|Shutting down the TFTP|does not appear to|SNMP request timeout)" > $name/metasploit.txt
      rm $name/master.rc
 	rm tmpmsf
 fi
