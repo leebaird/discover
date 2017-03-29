@@ -2195,7 +2195,7 @@ if [[ -e $name/110.txt ]]; then
 fi
 
 if [[ -e $name/111.txt ]]; then
-     echo "     NFS"
+     echo "     RPC"
      nmap -iL $name/111.txt -Pn -n --open -p111 --script=nfs-ls,nfs-showmount,nfs-statfs,rpcinfo --host-timeout 5m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-111.txt
@@ -2954,9 +2954,9 @@ if [[ -e $name/110.txt ]]; then
 fi
 
 if [[ -e $name/111.txt ]]; then
-     echo "     NFS"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/111.txt|g" /tmp/resource/111-nfs.rc
-     cat /tmp/resource/111-nfs.rc >> /tmp/master
+     echo "     RPC"
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/111.txt|g" /tmp/resource/111-rpc.rc
+     cat /tmp/resource/111-rpc.rc >> /tmp/master
 fi
 
 if [[ -e $name/123.txt ]]; then
@@ -3119,6 +3119,12 @@ if [[ -e $name/1900.txt ]]; then
      echo "     UPnP"
      sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1900.txt|g" /tmp/resource/1900-udp-upnp.rc
      cat /tmp/resource/1900-udp-upnp.rc >> /tmp/master
+fi
+
+if [[ -e $name/2049.txt ]]; then
+     echo "     NFS"
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/2049.txt|g" /tmp/resource/2049-nfs.rc
+     cat /tmp/resource/2049-nfs.rc >> /tmp/master
 fi
 
 if [[ -e $name/2362.txt ]]; then
