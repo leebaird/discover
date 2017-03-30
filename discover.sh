@@ -2837,7 +2837,7 @@ fi
 if [[ -e $name/445.txt ]]; then
      echo "     enum4linux"
      for i in $(cat $name/445.txt); do
-          enum4linux -a $i | egrep -v '(enum4linux|No printers)' > tmp
+          enum4linux -a $i | egrep -v "(Can't determine|enum4linux|Looking up status|No printers|No reply from|unknown|[E])" > tmp
           cat -s tmp >> $name/script-enum4linux.txt
      done
 fi
@@ -2846,7 +2846,7 @@ if [[ -e $name/445.txt ]]; then
      echo "     smbclient"
      for i in $(cat $name/445.txt); do
           echo $i >> $name/script-smbclient.txt
-          smbclient -L $i -N >> $name/script-smbclient.txt 2>/dev/null
+          smbclient -L $i -N | grep -v 'failed' >> $name/script-smbclient.txt 2>/dev/null
           echo >> $name/script-smbclient.txt
      done
 fi
@@ -3367,7 +3367,7 @@ else
      sed 's/\/\//\//g' /tmp/master > $name/master.rc
      msfdb init
      msfconsole -r $name/master.rc
-     cat tmpmsf | egrep -v "(Spooling|RHOSTS|THREADS|RPORT|> run|% complete|completed|Checking if file|LOGIN FAILED|Authorization not requested|Starting export|Finished export|db_export|> exit|Login Failure|It doesn't seem|data_connect failed|Timed out after|No relay detected|connection timed out|Unable to bypass|negotiation failed|Handshake failed|Unable to enumerate|NOT VULNERABLE|No users found|no response for|Unable to connect|state=unknown state|responded with error|Connection reset by peer|Unable to login|Starting VNC login sweep|Attempting to extract passwords|not found|No response|Unable to retrieve|The file doesn't exist|Host could not be identified|server did not reply|brute force is ineffective|NoMethodError|Trying to acquire|Does not appear|Starting TFTP server|Scanning for vulnerable|Providing some time|Shutting down the TFTP|does not appear to|SNMP request timeout)" > $name/metasploit.txt
+     cat tmpmsf | egrep -iv "(> exit|> run|% complete|Attempting to extract|Authorization not requested|Checking if file|completed|Connecting to the server|Connection reset by peer|data_connect failed|db_export|did not reply|does not appear|doesn't exist|Finished export|Handshake failed|ineffective|It doesn't seem|Login Fail|negotiation failed|NoMethodError|No relay detected|no response|No users found|not be identified|not found|NOT VULNERABLE|Providing some time|request timeout|responded with error|RPORT|RHOSTS|Scanning for vulnerable|Shutting down the TFTP|Spooling|Starting export|Starting TFTP server|Starting VNC login|THREADS|Timed out after|timed out|Trying to acquire|Unable to|unknown state)" > $name/metasploit.txt
      rm $name/master.rc
 	rm tmpmsf
 fi
