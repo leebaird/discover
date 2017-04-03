@@ -4095,7 +4095,7 @@ mv tmp2 $home/data/sslscan.txt
 
 grep -v 'Issuer info not available.' tmp | grep -v 'Certificate subject info not available.' >> $home/data/sslscan.txt
 
-rm tmp* ssl_* 2>/dev/null
+rm tmp* ssltmp* 2>/dev/null
 
 echo
 echo $medium
