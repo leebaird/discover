@@ -4095,7 +4095,7 @@ mv tmp2 $home/data/sslscan.txt
 
 grep -v 'Issuer info not available.' tmp | grep -v 'Certificate subject info not available.' >> $home/data/sslscan.txt
 
-rm tmp* ssltmp* 2>/dev/null
+rm tmp* ssl_* 2>/dev/null
 
 echo
 echo $medium
@@ -4103,7 +4103,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The new reports are located at \x1B[1;33m%s\x1B[0m\n' $home/data/sslscan.txt and sslyze.txt
+echo -e "The new reports are located at \x1B[1;33m $home/data/sslscan.txt \x1B[0m and \x1B[1;33m $home/data/sslyze.txt \x1B[0m"
 
 echo
 echo -n "If your IPs are public, do you want to test them using an external source? (y/N) "
