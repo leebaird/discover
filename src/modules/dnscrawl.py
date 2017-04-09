@@ -32,7 +32,7 @@ try:
     request.find_rrset(request.additional, dns.name.root, ADDITIONAL_RDCLASS,
                        dns.rdatatype.OPT, create=True, force_unique=True)
     response = dns.query.tcp(request, args.name_server)
-    print(response)
+    #print(response)
     if 'See draft-ietf-dnsop-refuse-any' in response.answer[0].to_text():
         request = dns.message.make_query(domain, args.type)
         request.flags |= dns.flags.AD
@@ -41,18 +41,9 @@ try:
         response = dns.query.tcp(request, args.name_server)
         for answer in response.answer:
             print(answer)
-            print('\nThis DNS server does not support the ANY request, defaulting to an A record')
-            print('This can be changed with the -t or --type argument\n')
     else:
         for answer in response.answer:
             print(answer)
 
-        for additional in response.additional:
-            print(additional)
-
-        for authority in response.authority:
-            print(authority)
 except dns.exception.Timeout:
     print('A timeout has occurred, make sure you can reach the target DNS Server(s)')
-
-
