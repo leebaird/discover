@@ -473,10 +473,12 @@ case $choice in
      curl --silent --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com > tmp
 
      dumpsterxls=$(grep 'xls' tmp | tr '"' ' ' | cut -d ' ' -f10)
-     wget -q $dumpsterxls -O tmp.xlsx
+     if ! [ -z $dnsdumpster ]; then
+          wget -q $dumpsterxls -O tmp.xlsx
 
-     ssconvert -E Gnumeric_Excel:xlsx -T Gnumeric_stf:stf_csv tmp.xlsx tmp.csv 2>/dev/null
-     cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > sub-dnsdumpster
+          ssconvert -E Gnumeric_Excel:xlsx -T Gnumeric_stf:stf_csv tmp.xlsx tmp.csv 2>/dev/null
+          cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > sub-dnsdumpster
+     fi
 
      echo "dnswatch.info             (26/$total)"
      echo '*' > tmp
@@ -587,7 +589,7 @@ case $choice in
      sleep 2
      curl --silent http://viewdns.info/reversewhois/?q=$companyurl > tmp2
 
-     if grep 'There are 0 domains' tmp && grep 'There are 0 domains' tmp2; then
+     if grep -q 'There are 0 domains' tmp && grep -q 'There are 0 domains' tmp2; then
           rm tmp tmp2
           echo 'No Domains Found.' > tmp6
           break
