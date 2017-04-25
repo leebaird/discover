@@ -41,7 +41,7 @@ sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 # Check for OS X
 if [[ `uname` == 'Darwin' ]]; then
      browser=Safari
-	 discover=$(locate discover.sh | sed 's:/[^/]*$::')
+	discover=$(locate discover.sh | sed 's:/[^/]*$::')
      ip=$(ifconfig | grep 'en0' -A2 | grep 'inet' | cut -d ' ' -f2)
      interface=en0
      msf=/opt/metasploit-framework/bin/msfconsole
@@ -50,7 +50,7 @@ if [[ `uname` == 'Darwin' ]]; then
      web="open -a Safari"
 else
      browser=Firefox
-	 discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
+	discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
      ip=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}')
      interface=$(ip link | awk '{print $2, $9}' | grep 'UP' | cut -d ':' -f1)
      msf=msfconsole
@@ -641,6 +641,17 @@ case $choice in
      sed -i "s/xxx/$companyurl/g" $discover/recon-ng.rc
      sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/recon-ng.rc
      sed -i "s/yyy/$domain/g" $discover/recon-ng.rc
+
+     if [ -s /root/data/names.txt ]; then
+          cat /root/data/names.txt | sed 's/, /#/' | sed 's/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/# /#/g' > tmp.csv
+          echo "last_name#first_name#title" > /root/data/names.csv
+          cat tmp.csv >> /root/data/names.csv
+          rm tmp.csv
+          sed -i "s#zzz#resource ${discover}/resource/recon-ng-import-names.rc#g" $discover/recon-ng.rc
+     else
+          sed -i "s/zzz//g" $discover/recon-ng.rc 
+     fi
+
      recon-ng --no-check -r $discover/recon-ng.rc
 
      grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > tmp

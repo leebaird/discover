@@ -5,6 +5,8 @@ none
 add domains
 yyy
 
+zzz
+
 use recon/domains-contacts/pgp_search
 run
 use recon/domains-contacts/whois_pocs
@@ -80,7 +82,7 @@ query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY emai
 spool stop
 
 spool start /tmp/names
-query SELECT DISTINCT last_name,first_name FROM contacts WHERE first_name IS NOT NULL ORDER BY last_name
+query SELECT DISTINCT last_name,first_name,title FROM contacts WHERE first_name IS NOT NULL ORDER BY last_name
 spool stop
 
 spool start /tmp/networks
