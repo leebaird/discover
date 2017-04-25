@@ -148,7 +148,8 @@ mv $name/ $save_dir 2>/dev/null
 
 # Recon files
 mv curl emails* names* networks* records squatting network-tools whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
-rm /tmp/emails /tmp/names /tmp/networks /tmp/profiles /tmp/subdomains 2>/dev/null
+cd /tmp/
+rm emails names networks profiles subdomains 2>/dev/null
 
 echo "Saving complete"
 exit
@@ -534,7 +535,7 @@ case $choice in
      grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
 
      echo "netcraft.com              (31/$total)"
-     wget -q http://toolbar.netcraft.com/site_report?url=http://$domain -O tmp
+     wget -q http://toolbar.netcraft.com/site_report?url=http://www.$domain -O tmp
 
      # Remove lines from FOO to the second BAR
      awk '/DOCTYPE/{f=1} (!f || f>2){print} (f && /\/form/){f++}' tmp > tmp2
@@ -637,22 +638,28 @@ case $choice in
      echo >> $home/data/$domain/data/domains.htm
 
      echo "recon-ng                  (34/$total)"
-     cp $discover/resource/recon-ng.rc $discover/
-     sed -i "s/xxx/$companyurl/g" $discover/recon-ng.rc
-     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/recon-ng.rc
-     sed -i "s/yyy/$domain/g" $discover/recon-ng.rc
+     echo "workspaces add $domain" > tmp.rc
+     echo "add companies" >> tmp.rc
+     echo "$companyurl" >> tmp.rc
+     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' tmp.rc
+     echo "none" >> tmp.rc
+     echo "add domains" >> tmp.rc
+     echo "$domain" >> tmp.rc
+     echo >> tmp.rc
 
      if [ -s /root/data/names.txt ]; then
           cat /root/data/names.txt | sed 's/, /#/' | sed 's/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/# /#/g' > tmp.csv
           echo "last_name#first_name#title" > /root/data/names.csv
           cat tmp.csv >> /root/data/names.csv
           rm tmp.csv
-          sed -i "s#zzz#resource ${discover}/resource/recon-ng-import-names.rc#g" $discover/recon-ng.rc
-     else
-          sed -i "s/zzz//g" $discover/recon-ng.rc 
+          
+          cat $discover/resource/recon-ng-import-names.rc >> tmp.rc
+          echo >> tmp.rc
      fi
 
-     recon-ng --no-check -r $discover/recon-ng.rc
+     cat $discover/resource/recon-ng.rc >> tmp.rc
+     sed -i "s/yyy/$domain/g" tmp.rc
+     recon-ng --no-check -r $discover/tmp.rc
 
      grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > tmp
      grep "@$domain" /tmp/profiles | awk '{print $2}' > tmp2
@@ -661,9 +668,9 @@ case $choice in
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
      grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
 
-     grep '|' /tmp/names | awk '{print $2", "$4}' | egrep -v '(_|\|)' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp
+     grep '|' /tmp/names | grep -v '_' | sed 's/|//g' > tmp
      grep '|' /tmp/profiles | awk '{print $3", "$2}' | grep -v '|' > tmp2
-     cat tmp tmp2| sort -u > names-recon
+     cat tmp tmp2 | sort -u > names-recon
 
      ##############################################################
 
@@ -683,7 +690,7 @@ case $choice in
 
      ##############################################################
 
-     cat names1 names-recon > tmp
+     cp names1 tmp
      # Remove lines that contain a number
      sed '/[0-9]/d' tmp > tmp2
      # Remove lines that start with @
@@ -704,7 +711,8 @@ case $choice in
      grep -v ',' tmp10 | awk '{print $2", "$1}' > tmp11
      grep ',' tmp10 > tmp12
      # Remove trailing whitespace from each line
-     cat tmp11 tmp12 | sed 's/[ \t]*$//' | sort -u > names
+     cat tmp11 tmp12 | sed 's/[ \t]*$//' > tmp13
+     cat tmp13 names-recon | sort -u > names
 
      ##############################################################
 
@@ -872,7 +880,8 @@ case $choice in
 
      mv recon-ng.rc $home/data/$domain/ 2>/dev/null
      rm curl debug* emails* hosts names* networks* squatting sub* tmp* network-tools whois* z* doc pdf ppt txt xls domains 2>/dev/null
-     rm /tmp/emails /tmp/names /tmp/networks /tmp/profiles /tmp/subdomains 2>/dev/null
+     cd /tmp/
+     rm emails names networks profiles subdomains 2>/dev/null
 
      # Robtex
      wget -q https://www.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/images/robtex.png
@@ -895,7 +904,7 @@ case $choice in
      sleep 4
      $web https://connect.data.com/login &
      sleep 2
-     $web http://searchdns.netcraft.com/?restriction=site+contains&host=*.$domain&lookup=wait..&position=limited &
+     $web http://toolbar.netcraft.com/site_report?url=http://www.$domain &
      sleep 2
      $web https://www.zoomeye.org/search?t=host&q=$domain &
      sleep 2
@@ -1208,7 +1217,7 @@ case $choice in
      cat tmp >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
 
      mv recon-ng-active.rc $home/data/$domain/ 2>/dev/null
-     rm emails* hosts loadbalancing records sub* tmp* waf whatweb z* 2>/dev/null
+     rm emails* hosts loadbalancing records sub* tmp* waf whatweb z* /tmp/subdomains 2>/dev/null
 
      echo
      echo $medium

@@ -1,12 +1,3 @@
-workspaces add yyy
-add companies
-xxx
-none
-add domains
-yyy
-
-zzz
-
 use recon/domains-contacts/pgp_search
 run
 use recon/domains-contacts/whois_pocs
