@@ -7,13 +7,12 @@ yyy
 
 use recon/domains-hosts/brute_hosts
 run
-
+use recon/domains-hosts/mx_spf_ip
+run
 use recon/netblocks-hosts/reverse_resolve
 run
-
 use recon/hosts-hosts/resolve
 run
-
 use recon/hosts-hosts/reverse_resolve
 run
 

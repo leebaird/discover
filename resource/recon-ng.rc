@@ -23,8 +23,6 @@ use recon/domains-hosts/google_site_api
 run
 use recon/domains-hosts/hackertarget
 run
-use recon/domains-hosts/mx_spf_ip
-run
 use recon/domains-hosts/netcraft
 run
 use recon/domains-hosts/shodan_hostname
