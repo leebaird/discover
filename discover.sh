@@ -1216,8 +1216,7 @@ case $choice in
      echo '<pre style="font-size:14px;">' > $home/data/$domain/data/hosts.htm
      cat tmp >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
 
-     mv recon-ng-active.rc $home/data/$domain/ 2>/dev/null
-     rm emails* hosts loadbalancing records sub* tmp* waf whatweb z* /tmp/subdomains 2>/dev/null
+     rm emails* hosts loadbalancing recon-ng-active.rc records sub* tmp* waf whatweb z* /tmp/subdomains 2>/dev/null
 
      echo
      echo $medium
