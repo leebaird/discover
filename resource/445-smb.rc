@@ -2,6 +2,9 @@ setg RHOSTS file:
 setg THREADS 255
 setg RPORT 445
 
+use auxiliary/scanner/smb/smb_ms17_010
+run
+
 use auxiliary/scanner/smb/smb_version
 run
 
