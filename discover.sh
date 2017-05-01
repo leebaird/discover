@@ -637,41 +637,6 @@ case $choice in
      echo "Domains registered to $company & with email domain $domain" >> $home/data/$domain/data/domains.htm
      echo >> $home/data/$domain/data/domains.htm
 
-     echo "recon-ng                  (34/$total)"
-     echo "workspaces add $domain" > tmp.rc
-     echo "add companies" >> tmp.rc
-     echo "$companyurl" >> tmp.rc
-     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' tmp.rc
-     echo "none" >> tmp.rc
-     echo "add domains" >> tmp.rc
-     echo "$domain" >> tmp.rc
-     echo >> tmp.rc
-
-     if [ -s /root/data/names.txt ]; then
-          cat /root/data/names.txt | sed 's/, /#/' | sed 's/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/# /#/g' > tmp.csv
-          echo "last_name#first_name#title" > /root/data/names.csv
-          cat tmp.csv >> /root/data/names.csv
-          rm tmp.csv
-          
-          cat $discover/resource/recon-ng-import-names.rc >> tmp.rc
-          echo >> tmp.rc
-     fi
-
-     cat $discover/resource/recon-ng.rc >> tmp.rc
-     sed -i "s/yyy/$domain/g" tmp.rc
-     recon-ng --no-check -r $discover/tmp.rc
-
-     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > tmp
-     grep "@$domain" /tmp/profiles | awk '{print $2}' > tmp2
-     cat tmp tmp2 | sort -u > emails-recon
-
-     grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
-     grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
-
-     grep '|' /tmp/names | grep -v '_' | sed 's/|//g' > tmp
-     grep '|' /tmp/profiles | awk '{print $3", "$2}' | grep -v '|' > tmp2
-     cat tmp tmp2 | sort -u > names-recon
-
      ##############################################################
 
      cat z* | grep "@$domain" | grep -vF '...' | grep -Fv '..' | egrep -v '(%|\*|-|=|\+|\[|\]|\||;|:|"|<|>|/|\?|,,|alphabetagency|anotherfed|definetlynot|edsnowden|edward.snowden|edward_snowden|esnowden|fake|fuckthepolice|jesus.juice|lastname_firstname|regulations|salessalesandmarketing|superspy|toastmasters|www|x.y|xxxxx|yousuck|zxcvbcvxvxcccb)' > tmp
@@ -711,8 +676,44 @@ case $choice in
      grep -v ',' tmp10 | awk '{print $2", "$1}' > tmp11
      grep ',' tmp10 > tmp12
      # Remove trailing whitespace from each line
-     cat tmp11 tmp12 | sed 's/[ \t]*$//' > tmp13
-     cat tmp13 names-recon | sed 's/^[ \t]*//' | sort -u > names
+     cat tmp11 tmp12 | sed 's/[ \t]*$//' > names
+
+     ##############################################################
+
+     echo "recon-ng                  (34/$total)"
+     echo "workspaces add $domain" > tmp.rc
+     echo "add companies" >> tmp.rc
+     echo "$companyurl" >> tmp.rc
+     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' tmp.rc
+     echo "none" >> tmp.rc
+     echo "add domains" >> tmp.rc
+     echo "$domain" >> tmp.rc
+     echo >> tmp.rc
+
+     if [ -s /root/data/names.txt ]; then
+          cat /root/data/names.txt | sed 's/, /#/' | sed 's/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/# /#/g' > tmp.csv
+          echo "last_name#first_name#title" > /root/data/names.csv
+          cat tmp.csv >> /root/data/names.csv
+          rm tmp.csv
+          
+          cat $discover/resource/recon-ng-import-names.rc >> tmp.rc
+          echo >> tmp.rc
+     fi
+
+     cat $discover/resource/recon-ng.rc >> tmp.rc
+     sed -i "s/yyy/$domain/g" tmp.rc
+     recon-ng --no-check -r $discover/tmp.rc
+
+     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > tmp
+     grep "@$domain" /tmp/profiles | awk '{print $2}' > tmp2
+     cat tmp tmp2 | sort -u > emails-recon
+
+     grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
+     grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
+
+     grep '|' /tmp/names | grep -v '_' | sed 's/|//g' > tmp
+     grep '|' /tmp/profiles | awk '{print $3", "$2}' | grep -v '|' > tmp2
+     cat tmp tmp2 | sort -u > names-recon
 
      ##############################################################
 
