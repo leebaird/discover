@@ -147,7 +147,7 @@ mkdir $save_dir
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv debug* curl emails* names* networks* records squatting network-tools whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+mv debug* curl emails* hosts names* networks* records squatting network-tools whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
 cd /tmp/
 rm emails names networks profiles subdomains 2>/dev/null
 
@@ -925,8 +925,6 @@ case $choice in
      sleep 2
      $web http://toolbar.netcraft.com/site_report?url=http://www.$domain &
      sleep 2
-     $web https://www.zoomeye.org/search?t=host&q=$domain &
-     sleep 2
      $web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+filetype%3Axls+OR+filetype%3Axlsx &
@@ -1388,9 +1386,8 @@ s/Las Cruces//g; s/LEADERSHIP MENTORING CHAIR/Leadership Mentoring Chair/g; s/No
 s/Latin America//g; s/Mount Laurel//g; s/League City//g; s/LEARNING/Learning/g; s/legal/Legal/g; s/lending/Lending/g; s/Lexington Park//g; 
 s/Linthicum H//g; s/Little Rock//g; s/Llc/LLC/g; s/New London//g; s/Lone Tree//g; s/Long Beach//g; s/Long Valley//g; s/Logan Township//g; 
 s/Los Angeles//g; s/Los Lunas//g; s/Loves Park//g; s/Lusby//g; s/Lvl/Level/g; s/\-m/, M/g; s/Macquarie Park//g; s/MAINFRAME/ Mainframe/g; 
-s/MANAGER/Manager/g; 
-s/Manager\//Manager, /g; s/Mangr/Manager/g; s/manager/Manager/g; s/mangr/Manager/g; s/Manhattan B//g; s/manufacturing/Manufacturing/g; 
-s/MANUFACTURING/Manufacturing/g; s/Maple Grove//g; s/Maple Heights//g; s/Maple Shade//g; s/March Air R//g; 
+s/MANAGER/Manager/g; s/Manager\//Manager, /g; s/Mangr/Manager/g; s/manager/Manager/g; s/mangr/Manager/g; s/Manhattan B//g; 
+s/manufacturing/Manufacturing/g; s/MANUFACTURING/Manufacturing/g; s/Maple Grove//g; s/Maple Heights//g; s/Maple Shade//g; s/March Air R//g; 
 s/MarketingProductionManager/Marketing Production Manager/g; s/Marina Del Rey//g; s/market/Market/g; s/master/Master/g; s/materials/Materials/g; 
 s/Mayfield West//g; s/Mays Landing//g; s/Mba/MBA/g; s/Mc Lean//g; s/Mc Coll//g; s/Mc Cordsville//g; s/Mc Kees Rocks//g; s/Mcse/MCSE/g; 
 s/MECHANIC/Mechanic/g; s/medical/Medical/g; s/Melbourne B//g; s/Melbourne 	VIC//g; s/Melrose Park//g; s/Memphis//g; s/Menlo Park//g; s/Merritt Island//g; 
@@ -1402,19 +1399,18 @@ s/Mount Pleasant//g; s/Mount Pocono//g; s/Mount Prospect//g; s/Mount Storm//g; s
 s/Mountain States//g; s/Mountain View//g; s/Mount Waverley//g; s/Muscle Shoals//g; s/Mullica Hill//g; s/MULTI/Multi/g; s/Munroe Falls//g; 
 s/music/Music/g; s/MyHR/HR/g; s/Myrtle Beach//g; s/\-n/, N/g; s/National City//g; s/Naval Anaco//g; s/navy/Navy/g; s/Needham Hei//g; 
 s/negotiator/Negotiator/g; s/New Canton//g; s/New Castle//g; s/New Church//g; s/New Cumberland//g; s/New Delhi//g; s/New Haven//g; s/New Malden//g; 
-s/New Lenox//g; 
-s/New Market//g; s/New Martins//g; s/New Orleans//g; s/New Port Ri//g; s/New Stanton//g; s/New Town//g; s/New York Office//g; s/New York//g; 
-s/New Zealand//g; s/Newbury Park//g; s/Newport Beach//g; s/Newport News//g; s/Niagara Falls//g; s/North America //g; s/North and Central//g; 
-s/North Baldwin//g; s/North Bergen//g; s/North Canton//g; s/North Charl//g; s/North East//g; s/North Highl//g; s/North Holly//g; s/North Kings//g; 
-s/North Myrtl//g; s/North Olmsted//g; s/North Royalton//g; s/North Vernon//g; s/North Wales//g; s/North York//g; s/northern/Northern/g; s/Nsa/NSA/g; 
-s/Nso/NSO/g; s/\-o/, O/g; s/O Fallon//g; s/Oak Brook//g; s/Oak Creek//g; s/Oak Hill//g; s/Oak Park//g; s/Oak Ridge//g; s/Oak View//g; s/Oakbrook Te//g; 
-s/Ocean City//g; s/Ocean Grove//g; s/Ocean Springs//g; s/officer/Officer/g; s/Officer\//Officer, /g; s/OFFICE/Office/g; s/office/Office/g; 
-s/Offutt A F B//g; s/Oklahoma City//g; s/Old Bridge//g; s/Olmsted Falls//g; s/Onited States//g; s/online/Online/g; s/operations/Operations/g; 
-s/Orange Park//g; s/oriented/Oriented/g; s/Orland Park//g; s/Overland Park//g; s/Owings Mills//g; s/Oxon Hill//g; s/\-p/, P/g; s/PACKAGING/Packaging/g; 
-s/PACIFIC NORTHWEST//g; s/Pacific Southwest Region //g; s/Palm Bay//g; s/Palm Beach//g; s/Palm Coast//g; s/Palm Harbor//g; s/Palo Alto//g; 
-s/Palos Hills//g; s/Pompano Beach//g; s/Panama City//g; s/paralegal/Paralegal/g; s/parent/Parent/g; s/Park Forest//g; s/Park Ridge//g; s/PATROL/Patrol/g; 
-s/Patuxent River//g; s/payments/Payments/g; s/Pc/PC/g; s/Pearl City//g; s/Peachtree City//g; s/Pell City//g; s/Pembroke Pines//g; s/Perry Hall//g; 
-s/physical/Physical/g; s/Pico Rivera//g; s/Pine Grove//g; s/Pinellas Park//g; s/Pj/PJ/g; s/PLANNER/Planner/g; s/PLANNING/Planning/g; 
+s/New Lenox//g; s/New Market//g; s/New Martins//g; s/New Orleans//g; s/New Port Ri//g; s/New Stanton//g; s/New Town//g; s/New York Office//g; 
+s/New York//g; s/New Zealand//g; s/Newbury Park//g; s/Newport Beach//g; s/Newport News//g; s/Niagara Falls//g; s/North America //g; 
+s/North and Central//g; s/North Baldwin//g; s/North Bergen//g; s/North Canton//g; s/North Charl//g; s/North East//g; s/North Highl//g; s/North Holly//g; 
+s/North Kings//g; s/North Myrtl//g; s/North Olmsted//g; s/North Royalton//g; s/North Vernon//g; s/North Wales//g; s/North York//g; s/northern/Northern/g; 
+s/Nsa/NSA/g; s/Nso/NSO/g; s/\-o/, O/g; s/O Fallon//g; s/Oak Brook//g; s/Oak Creek//g; s/Oak Hill//g; s/Oak Park//g; s/Oak Ridge//g; s/Oak View//g; 
+s/Oakbrook Te//g; s/Ocean City//g; s/Ocean Grove//g; s/Ocean Springs//g; s/officer/Officer/g; s/Officer\//Officer, /g; s/OFFICE/Office/g; 
+s/office/Office/g; s/Offutt A F B//g; s/Oklahoma City//g; s/Old Bridge//g; s/Olmsted Falls//g; s/Onited States//g; s/online/Online/g; 
+s/operations/Operations/g; s/Orange Park//g; s/oriented/Oriented/g; s/Orland Park//g; s/Overland Park//g; s/Owings Mills//g; s/Oxon Hill//g; s/\-p/, P/g; 
+s/PACKAGING/Packaging/g; s/PACIFIC NORTHWEST//g; s/Pacific Southwest Region //g; s/Palm Bay//g; s/Palm Beach//g; s/Palm Coast//g; s/Palm Harbor//g; 
+s/Palo Alto//g; s/Palos Hills//g; s/Pompano Beach//g; s/Panama City//g; s/paralegal/Paralegal/g; s/parent/Parent/g; s/Park Forest//g; s/Park Ridge//g; 
+s/PATROL/Patrol/g; s/Patuxent River//g; s/payments/Payments/g; s/Pc/PC/g; s/Pearl City//g; s/Peachtree City//g; s/Pell City//g; s/Pembroke Pines//g; 
+s/Perry Hall//g; s/physical/Physical/g; s/Pico Rivera//g; s/Pine Grove//g; s/Pinellas Park//g; s/Pj/PJ/g; s/PLANNER/Planner/g; s/PLANNING/Planning/g; 
 s/platform/Platform/g; s/PMo/PMO/g; s/PMp//g; s/PMP, //g; s/Pmp/PMP/g; s/Pm/PM/g; s/Point Pleasant//g; s/PMo/PMO/g; s/Ponca City//g; s/Ponte Vedra//g; 
 s/Poplar Branch//g; s/PortDirector/Port Director/g; s/Port Allen//g; s/Port Deposit//g; s/Port Orange//g; s/Port Orchard//g; 
 s/PortDirector/Port Directorg/g; s/portfolio/Portfolio/g; s/Powder Springs//g; s/premium/Premium/g; s/Prescott Va//g; s/President -/President, /g; 
@@ -1454,8 +1450,8 @@ s/Walled Lake//g; s/Wallops Island//g; s/Walnut Creek//g; s/Warm Springs//g; s/W
 s/West Columbia//g; s/West Dundee//g; s/West Harrison//g; s/West Linn//g; s/West Mifflin//g; s/West Nyack//g; s/West Orange//g; s/West Palm B//g; 
 s/West Paterson//g; s/west Region//g; s/West Sacram//g; s/West Spring//g; s/Western Spr//g; s/West Orange//g; s/White Lake//g; s/White Plains//g; 
 s/White River//g; s/Whiteman Ai//g; s/Whitmore Lake//g; s/Williston Park//g; s/Willow Grove//g; s/South Windsor//g; s/Windsor Locks//g; 
-s/Windsor Mill//g; s/Winston Salem//g; s/Winter Park//g; s/Winter Springs//g; s/Woodland Hills//g; s/Woodland Park//g; s/worldwide/Worldwide/g;
-s/\-x/, X/g; s/\-y/, Y/g; s/\-z/, Z/g; 
+s/Windsor Mill//g; s/Winston Salem//g; s/Winter Park//g; s/Winter Springs//g; s/Wood Dale//g; s/Woodland Hills//g; s/Woodland Park//g; 
+s/worldwide/Worldwide/g; s/\-x/, X/g; s/\-y/, Y/g; s/\-z/, Z/g; 
 
 s/AK //g; s/AL //g; s/AR //g; s/AZ //g; s/CA //g; s/CO //g; s/CT //g; s/DC //g; s/DE //g; s/FL //g; s/GA //g; s/HI //g; s/IA //g; s/ID //g; s/IL //g; 
 s/IN //g; s/KA //g; s/KS //g; s/KY //g; s/LA //g; s/MA //g; s/ME //g; s/MD //g; s/MI //g; s/MO //g; s/MN //g; s/MS //g; s/MT //g; s/NC //g; s/NE //g; 
@@ -1513,61 +1509,58 @@ s/Farnham$//g; s/Fayetteville$//g; s/Feastervill$//g; s/Feltham$//g; s/Findlay$/
 s/Florence$//g; s/Floresville$//g; s/Flossmoor$//g; s/Flourtown$//g; s/Flowood$//g; s/Fogelsville$//g; s/for$//g; s/Forsyth$//g; s/france$//g; 
 s/Framingham$//g; s/Frankfort$//g; s/Franklin$//g; s/Fredericksburg$//g; s/Frederick$//g; s/Freehold$//g; s/Fremont$//g; s/Fresno$//g; s/Frisco$//g; 
 s/Fullerton$//g; s/Gainesville$//g; s/Gaithersburg$//g; s/Gardena$//g; s/Gardners$//g; s/Garland$//g; s/Gastonia$//g; s/Gatineau$//g; s/Gateille$//g; 
-s/Genesee$//g; s/Geneva$//g; 
-s/Germantown$//g; s/Germany$//g; s/GERMANY$//g; s/Geyserville$//g; s/Gibsonia$//g; s/Gibsonville$//g; s/Glasgow$//g; s/Glastonbury$//g; 
-s/Glencoe$//g; s/Glendale$//g; s/Glendora$//g; s/Glenside$//g; s/GMBH$//g; s/Gnadenhutten$//g; s/Goleta$//g; s/Goodyear$//g; s/Google$//g; s/-google$//g; 
-s/Grafton$//g; s/Granbury$//g; s/Granville$//g; s/Grayslake$//g; s/Greeley$//g; s/Greenbelt$//g; s/Greenbrae$//g; s/Greensboro$//g; s/Greensburg$//g; 
-s/Greencastle$//g; s/Greeneville$//g; s/Greenfield$//g; s/Greenwood$//g; s/Greenport$//g; s/Greenville$//g; s/Greenwich$//g; s/Gretna$//g; s/Groton$//g;  
-s/Grovel$//g; s/Gulfport$//g; s/Gunpowder$//g; s/Gurgaon$//g; s/Gurnee$//g; s/Hackensack$//g; s/Hackettstown$//g; s/Haddon$//g; s/Halethorpe$//g; 
-s/Halifax$//g; s/Hamilton$//g; s/Hamlin$//g; s/Hammond$//g; s/Hampden$//g; s/Hampstead$//g; s/Hampton$//g; s/Hamtramck$//g; s/Hanahan$//g; s/Hanover$//g; 
-s/Harlingen$//g; s/Harrisburg$//g; s/Harrisonburg$//g; s/Hartbeespoort$//g; s/Hartford$//g; s/Hartland$//g; s/Harvard$//g; s/Hatboro$//g; s/Haslet$//g; 
-s/Hattiesburg$//g; s/Hauppauge$//g; s/Havant$//g; s/Hawthorne$//g; s/Haymarket$//g; s/Hazelwood$//g; s/Hazlehurst$//g; s/Hebron$//g; s/Heights$//g; 
-s/Helena$//g; s/Helotes$//g; s/Hendersonville$//g; s/Henderson$//g; s/Henrico$//g; s/Hermitage$//g; s/Herndon$//g; s/Hershey$//g; s/Hialeah$//g; 
-s/Highland$//g; s/Hilliard$//g; s/Hillsborough$//g; s/Hilo$//g; s/Hinckley$//g; s/Hingham$//g; s/Hobart$//g; s/Hodgdon$//g; s/Hodgkins$//g; 
-s/Holbrook$//g; s/Hollywood$//g; s/Holtsville$//g; s/Homestead$//g; s/Honolulu$//g; s/Hookstown$//g; s/Hopewell$//g; s/Hopkins$//g; s/Hopkinton$//g; 
-s/Horsham$//g; s/Hopwood$//g; s/Houston$//g; s/HR$//g; s/Huntersville$//g; s/Huntingdon$//g; s/Huntington$//g; s/Huntingtown$//g; s/Huntsville$//g; 
-s/Huron$//g; s/Hurricane$//g; s/Hyattsville$//g; s/Hyderabad$//g; s/Illinois$//g; s/Imperial$//g; s/Indialantic$//g; s/indianapolis$//g; 
-s/Indianapolis$//g; s/Indiana$//g; s/India$//g; s/Indio$//g; s/Inglewood$//g; s/Ireland$//g; s/Irvine$//g; s/Irving$//g; s/Israel$//g; s/Iselin$//g; 
-s/Italy$//g; s/Ithaca$//g; s/JA$//g; s/Jacksonville$//g; s/Jackson$//g; s/Jamaica$//g; s/Jamestown$//g; s/Japan$//g; s/Jber$//g; s/Jeffersonville$//g; 
-s/Jerseyville$//g; s/Jenkintown$//g; s/Jessup$//g; s/Johnston$//g; s/Johnstown$//g; s/Joliet$//g; s/Joplin$//g; s/Jupiter$//g; s/Kalamazoo$//g; 
-s/Kanata$//g; s/Kankakee$//g; s/Kaysville$//g; s/Kearney$//g; s/Kearny$//g; s/Kennebec$//g; s/Kenner$//g; s/Kennesaw$//g; s/Kennett$//g; 
-s/Kensington$//g; s/Kent$//g; s/Kerrville$//g; s/Kewaunee$//g; s/Kihei$//g; s/Killeen$//g; s/Kincaid$//g; s/Kingille$//g; s/Kingfisher$//g; 
-s/Kingston$//g; s/Kingwood$//g; s/Kincaid$//g; s/Kinston$//g; s/Kirkland$//g; s/Kissimmee$//g; s/Knightdale$//g; s/Knoxville$//g; s/Korea$//g; 
-s/Lachine$//g; s/Lafayette$//g; s/Lakehurst$//g; s/Lakeland$//g; s/Lakeville$//g; s/Lakewood$//g; s/Lamesa$//g; s/Lancaster$//g; s/Landenberg$//g; 
-s/Lanham$//g; s/Lansdale$//g; s/Lansdowne$//g; s/Lansing$//g; s/Laredo$//g; s/Lantana$//g; s/Laurel$//g; s/Lawndale$//g; s/Lawnside$//g; 
-s/Lawrenceville$//g; s/Lawrence$//g; s/Lawton$//g; s/Layton$//g; s/Leavenworth$//g; s/Leawood$//g; s/Lebanon$//g; s/Leeds$//g; s/Leesburg$//g; 
-s/Leesville$//g; s/Lenexa$//g; s/Lenoir$//g; s/Leonardtown$//g; s/Leonia$//g; s/Letchworth$//g; s/Lewisburg$//g; s/Lewiston$//g; s/Lewisville$//g; 
-s/Lexington$//g; s/Libertyville$//g; s/Lichfield$//g;s/Lima$//g; s/Lincoln$//g; s/Linden$//g; s/Lindon$//g; s/Linesville$//g; s/Linthicum$//g; 
-s/Linwood$//g; s/Lisle$//g; s/Litchfield$//g; s/Lithonia$//g; s/Lititz$//g; s/Littleton$//g; s/Livermore$//g; s/Liverpool$//g; s/Livonia$//g; 
-s/Lockport$//g; s/Logansport$//g; s/logistics$//g; s/Lomita$//g; s/Lompoc$//g; s/London$//g; s/Longmont$//g; s/Longueuil$//g; s/Lorton$//g; 
-s/Louisville$//g; s/Loveland$//g; s/Lovettsville$//g; s/Lowell$//g; s/Lubbock$//g; s/Lucedale$//g; s/Lufkin$//g; s/Lumberton$//g;  
-s/Lutherville$//g; s/Luton$//g; s/Lyndhurst$//g; s/Lynnwood$//g; s/Machias$//g; s/Macon$//g; s/Madison$//g; s/Mahwah$//g; s/Maidstone$//g; 
-s/Maineville$//g; s/Maine$//g; s/Maitland$//g; s/Malaysia$//g; s/Malvern$//g; s/Manalapan$//g; s/Manassas$//g; s/Manchester$//g; s/Manhattan$//g; 
-s/Manistee$//g; s/Mansfield$//g; s/Marblehead$//g; s/Marietta$//g; s/Marion$//g; s/Marlborough$//g; s/Marlton$//g; s/Martin$//g; s/Masontown$//g; 
-s/Matteson$//g; 
-s/Maumee$//g; s/Mayfield$//g; s/Maynard$//g; s/Maysville$//g; s/Mcallen$//g; s/Mcclellan$//g; s/Mckinney$//g; s/Meadville$//g; 
-s/Mechanicsburg$//g; s/Mechanicsville$//g; s/Medford$//g; s/Media$//g; s/Melbourne$//g; s/Melrose$//g; s/Melville$//g; s/Memphis$//g; s/Menifee$//g; 
-s/Mentor$//g; s/Meriden$//g; s/Meridian$//g; s/Merrill$//g; s/Mesa$//g; s/Metairie$//g; s/Methuen$//g; s/Mexico$//g; s/Miamisburg$//g; s/Miami$//g; 
-s/Michigan$//g; s/Mid-Atlantic$//g; s/Middleburg$//g; s/Middlebury$//g; s/Middlesex$//g; s/Middleton$//g; s/Middletown$//g; s/Midland$//g; 
-s/Midlothian$//g; s/Midwest$//g; s/Milford$//g; s/Millburn$//g; s/Millersville$//g; s/Milpitas$//g; s/Milwaukee$//g; s/Mineral$//g; s/Minneapolis$//g; 
-s/Minnesota$//g; s/Minnetonka$//g; s/Mishawaka$//g; s/Missouri$//g; s/Mitchell$//g; s/Mobile$//g; s/Modesto$//g; s/Moline$//g; s/Mongmong$//g; 
-s/Monroeville$//g; s/Monroe$//g; s/Montclair$//g; s/Monterey$//g; s/Montezuma$//g; s/Montgomery$//g; s/Montoursville$//g; s/Montvale$//g; 
-s/Moorestown$//g; s/Mooresville$//g; s/Morgantown$//g; s/Morristown$//g; s/Morrisville$//g; s/Moscow$//g; s/Mumbai$//g; s/Mundelein$//g; s/Murdock$//g; 
-s/Murfreesboro$//g; s/Murrysville$//g; s/Muskegon$//g; s/Mystic$//g; s/Napa$//g; s/Naperville$//g; s/Naples$//g; s/Narberth$//g; s/Narragansett$//g; 
-s/Narrows$//g; s/Nashua$//g; s/Nashville$//g; s/Natick$//g; s/Navarre$//g; s/Nazareth$//g; s/NB$//g; s/Nebraska$//g; s/Neotsu$//g; s/Newark$//g; 
-s/Newcastle$//g; 
-s/Newington$//g; s/Newport$//g; s/Newtown$//g; s/Newville$//g; s/Niceville$//g; s/Niles$//g; s/Noblesville$//g; s/Nogales$//g; s/Noida$//g; 
-s/Moncton$//g; s/Norcross$//g; s/Norfolk$//g; s/Norman$//g; s/Norristown$//g; s/Northbrook$//g; s/Northeastern$//g; s/Northeast$//g; s/Northville$//g; 
-s/Norton$//g; s/Norwalk$//g; s/Norwich$//g; s/Norwood$//g; s/Novato$//g; s/NSW$//g; s/Nutley$//g; s/nyc$//g; s/Oakdale$//g; s/Oakland$//g; s/Oakton$//g; 
-s/Oakville$//g; s/Ocala$//g; s/Oceanport$//g; s/Ocoee$//g; s/Odenton$//g; s/Odessa$//g; s/Odon$//g; s/of$//g; s/Ogdensburg$//g; s/Ogden$//g; s/Ohio$//g; 
-s/Okemos$//g; s/Olathe$//g; s/Oldsmar$//g; s/Olney$//g; s/Olympia$//g; s/Omaha$//g; s/Onalaska$//g; s/Ontario$//g; s/Oologah$//g; s/Orange$//g; 
-s/Oregon$//g; s/Orem$//g; s/orlando$//g; s/Orlando$//g; s/Orrville$//g; s/Ottawa$//g; s/Oviedo$//g; s/Owego$//g; s/Owensboro$//g; s/Palatine$//g; 
-s/Palermo$//g; s/Palmdale$//g; s/Palmer$//g; s/Palo$//g; s/Paoli$//g; s/Papillion$//g; s/Paramus$//g; s/Parkersburg$//g; s/Parkesburg$//g; 
-s/Parkville$//g; s/Parsippany$//g; s/Pasadena$//g; s/Pascagoula$//g; s/Pasco$//g; s/Passaic$//g; s/Pelham$//g; s/Pemberton$//g; s/Pembina$//g; 
-s/Pennington$//g; s/Pensacola$//g; s/Peoria$//g; s/Peterborough$//g; s/Petersburg$//g; s/Pewaukee$//g; s/Pharr$//g; s/philadelphia$//g; 
-s/Philadelphia$//g; s/PHILADELPHRegion$//g; s/Philip$//g; s/Phillipsburg$//g; s/Phoenix$//g; s/Picayune$//g; s/Pickerington$//g; s/Pierre$//g; 
-s/Pikesville$//g; s/Pinckney$//g; s/Pinconning$//g; s/Pinehurst$//g; s/Pineville$//g; s/Pipersville$//g; s/Piscataway$//g; s/Pittsburgh$//g; 
-s/Pittsfield$//g; s/Placitas$//g; s/Plainfield$//g; s/Plainsboro$//g; s/planner$//g; s/Plano$//g; s/Plaquemine$//g; s/Pleasanton$//g; 
+s/Genesee$//g; s/Geneva$//g; s/Germantown$//g; s/Germany$//g; s/GERMANY$//g; s/Geyserville$//g; s/Gibsonia$//g; s/Gibsonville$//g; s/Glasgow$//g; 
+s/Glastonbury$//g; s/Glencoe$//g; s/Glendale$//g; s/Glendora$//g; s/Glenside$//g; s/GMBH$//g; s/Gnadenhutten$//g; s/Goleta$//g; s/Goodyear$//g; 
+s/Google$//g; s/-google$//g; s/Grafton$//g; s/Granbury$//g; s/Granville$//g; s/Grayslake$//g; s/Greeley$//g; s/Greenbelt$//g; s/Greenbrae$//g; 
+s/Greensboro$//g; s/Greensburg$//g; s/Greencastle$//g; s/Greeneville$//g; s/Greenfield$//g; s/Greenwood$//g; s/Greenport$//g; s/Greenville$//g; 
+s/Greenwich$//g; s/Gretna$//g; s/Groton$//g;  s/Grovel$//g; s/Gulfport$//g; s/Gunpowder$//g; s/Gurgaon$//g; s/Gurnee$//g; s/Hackensack$//g; 
+s/Hackettstown$//g; s/Haddon$//g; s/Halethorpe$//g; s/Halifax$//g; s/Hamilton$//g; s/Hamlin$//g; s/Hammond$//g; s/Hampden$//g; s/Hampstead$//g; 
+s/Hampton$//g; s/Hamtramck$//g; s/Hanahan$//g; s/Hanover$//g; s/Harlingen$//g; s/Harrisburg$//g; s/Harrisonburg$//g; s/Hartbeespoort$//g; s/Hartford$//g; 
+s/Hartland$//g; s/Harvard$//g; s/Hatboro$//g; s/Haslet$//g; s/Hattiesburg$//g; s/Hauppauge$//g; s/Havant$//g; s/Hawthorne$//g; s/Haymarket$//g; 
+s/Hazelwood$//g; s/Hazlehurst$//g; s/Hebron$//g; s/Heights$//g; s/Helena$//g; s/Helotes$//g; s/Hendersonville$//g; s/Henderson$//g; s/Henrico$//g; 
+s/Hermitage$//g; s/Herndon$//g; s/Hershey$//g; s/Hialeah$//g; s/Highland$//g; s/Hilliard$//g; s/Hillsborough$//g; s/Hilo$//g; s/Hinckley$//g; 
+s/Hingham$//g; s/Hobart$//g; s/Hodgdon$//g; s/Hodgkins$//g; s/Holbrook$//g; s/Hollywood$//g; s/Holtsville$//g; s/Homestead$//g; s/Honolulu$//g; 
+s/Hookstown$//g; s/Hopewell$//g; s/Hopkins$//g; s/Hopkinton$//g; s/Horsham$//g; s/Hopwood$//g; s/Houston$//g; s/HR$//g; s/Huntersville$//g; 
+s/Huntingdon$//g; s/Huntington$//g; s/Huntingtown$//g; s/Huntsville$//g; s/Huron$//g; s/Hurricane$//g; s/Hyattsville$//g; s/Hyderabad$//g; 
+s/Illinois$//g; s/Imperial$//g; s/Indialantic$//g; s/indianapolis$//g; s/Indianapolis$//g; s/Indiana$//g; s/India$//g; s/Indio$//g; s/Inglewood$//g; 
+s/Ireland$//g; s/Irvine$//g; s/Irving$//g; s/Israel$//g; s/Iselin$//g; s/Italy$//g; s/Ithaca$//g; s/JA$//g; s/Jacksonville$//g; s/Jackson$//g; 
+s/Jamaica$//g; s/Jamestown$//g; s/Japan$//g; s/Jber$//g; s/Jeffersonville$//g; s/Jerseyville$//g; s/Jenkintown$//g; s/Jessup$//g; s/Johnston$//g; 
+s/Johnstown$//g; s/Joliet$//g; s/Joplin$//g; s/Jupiter$//g; s/Kalamazoo$//g; s/Kanata$//g; s/Kankakee$//g; s/Kaysville$//g; s/Kearney$//g; s/Kearny$//g; 
+s/Kennebec$//g; s/Kenner$//g; s/Kennesaw$//g; s/Kennett$//g; s/Kensington$//g; s/Kent$//g; s/Kerrville$//g; s/Kewaunee$//g; s/Kihei$//g; s/Killeen$//g; 
+s/Kincaid$//g; s/Kingille$//g; s/Kingfisher$//g; s/Kingston$//g; s/Kingwood$//g; s/Kincaid$//g; s/Kinston$//g; s/Kirkland$//g; s/Kissimmee$//g; 
+s/Knightdale$//g; s/Knoxville$//g; s/Korea$//g; s/Lachine$//g; s/Lafayette$//g; s/Lakehurst$//g; s/Lakeland$//g; s/Lakeville$//g; s/Lakewood$//g; 
+s/Lamesa$//g; s/Lancaster$//g; s/Landenberg$//g; s/Lanham$//g; s/Lansdale$//g; s/Lansdowne$//g; s/Lansing$//g; s/Laredo$//g; s/Lantana$//g; s/Laurel$//g; 
+s/Lawndale$//g; s/Lawnside$//g; s/Lawrenceville$//g; s/Lawrence$//g; s/Lawton$//g; s/Layton$//g; s/Leavenworth$//g; s/Leawood$//g; s/Lebanon$//g; 
+s/Leeds$//g; s/Leesburg$//g; s/Leesville$//g; s/Lenexa$//g; s/Lenoir$//g; s/Leonardtown$//g; s/Leonia$//g; s/Letchworth$//g; s/Lewisburg$//g; 
+s/Lewiston$//g; s/Lewisville$//g; s/Lexington$//g; s/Libertyville$//g; s/Lichfield$//g;s/Lima$//g; s/Lincoln$//g; s/Linden$//g; s/Lindon$//g; 
+s/Linesville$//g; s/Linthicum$//g; s/Linwood$//g; s/Lisle$//g; s/Litchfield$//g; s/Lithonia$//g; s/Lititz$//g; s/Littleton$//g; s/Livermore$//g; 
+s/Liverpool$//g; s/Livonia$//g; s/Lockport$//g; s/Logansport$//g; s/logistics$//g; s/Lomita$//g; s/Lompoc$//g; s/London$//g; s/Longmont$//g; 
+s/Longueuil$//g; s/Lorton$//g; s/Louisville$//g; s/Loveland$//g; s/Lovettsville$//g; s/Lowell$//g; s/Lubbock$//g; s/Lucedale$//g; s/Lufkin$//g; 
+s/Lumberton$//g;  s/Lutherville$//g; s/Luton$//g; s/Lyndhurst$//g; s/Lynnwood$//g; s/Machias$//g; s/Macon$//g; s/Madison$//g; s/Mahwah$//g; 
+s/Maidstone$//g; s/Maineville$//g; s/Maine$//g; s/Maitland$//g; s/Malaysia$//g; s/Malvern$//g; s/Manalapan$//g; s/Manassas$//g; s/Manchester$//g; 
+s/Manhattan$//g; s/Manheim$//g; s/Manistee$//g; s/Mansfield$//g; s/Marblehead$//g; s/Marietta$//g; s/Marion$//g; s/Marlborough$//g; s/Marlton$//g; 
+s/Martin$//g; s/Masontown$//g; s/Matteson$//g; s/Maumee$//g; s/Mayfield$//g; s/Maynard$//g; s/Maysville$//g; s/Mcallen$//g; s/Mcclellan$//g; 
+s/Mckinney$//g; s/Meadville$//g; s/Mechanicsburg$//g; s/Mechanicsville$//g; s/Medford$//g; s/Media$//g; s/Melbourne$//g; s/Melrose$//g; s/Melville$//g; 
+s/Memphis$//g; s/Menifee$//g; s/Mentor$//g; s/Meriden$//g; s/Meridian$//g; s/Merrill$//g; s/Mesa$//g; s/Metairie$//g; s/Methuen$//g; s/Mexico$//g; 
+s/Miamisburg$//g; s/Miami$//g; s/Michigan$//g; s/Mid-Atlantic$//g; s/Middleburg$//g; s/Middlebury$//g; s/Middlesex$//g; s/Middleton$//g; 
+s/Middletown$//g; s/Midland$//g; s/Midlothian$//g; s/Midwest$//g; s/Milford$//g; s/Millburn$//g; s/Millersville$//g; s/Milpitas$//g; s/Milwaukee$//g; 
+s/Mineral$//g; s/Minneapolis$//g; s/Minnesota$//g; s/Minnetonka$//g; s/Mishawaka$//g; s/Missouri$//g; s/Mitchell$//g; s/Mobile$//g; s/Modesto$//g; 
+s/Moline$//g; s/Mongmong$//g; s/Monroeville$//g; s/Monroe$//g; s/Montclair$//g; s/Monterey$//g; s/Montezuma$//g; s/Montgomery$//g; s/Montoursville$//g; 
+s/Montvale$//g; s/Moorestown$//g; s/Mooresville$//g; s/Morgantown$//g; s/Morristown$//g; s/Morrisville$//g; s/Moscow$//g; s/Mumbai$//g; s/Mundelein$//g; 
+s/Murdock$//g; s/Murfreesboro$//g; s/Murrysville$//g; s/Muskegon$//g; s/Mystic$//g; s/Napa$//g; s/Naperville$//g; s/Naples$//g; s/Narberth$//g; 
+s/Narragansett$//g; s/Narrows$//g; s/Nashua$//g; s/Nashville$//g; s/Natick$//g; s/Navarre$//g; s/Nazareth$//g; s/NB$//g; s/Nebraska$//g; s/Neotsu$//g; 
+s/Newark$//g; s/Newcastle$//g; s/Newington$//g; s/Newport$//g; s/Newtown$//g; s/Newville$//g; s/Niceville$//g; s/Niles$//g; s/Noblesville$//g; 
+s/Nogales$//g; s/Noida$//g; s/Moncton$//g; s/Norcross$//g; s/Norfolk$//g; s/Norman$//g; s/Norristown$//g; s/Northbrook$//g; s/Northeastern$//g; 
+s/Northeast$//g; s/Northville$//g; s/Norton$//g; s/Norwalk$//g; s/Norwich$//g; s/Norwood$//g; s/Novato$//g; s/NSW$//g; s/Nutley$//g; s/nyc$//g; 
+s/Oakdale$//g; s/Oakland$//g; s/Oakton$//g; s/Oakville$//g; s/Ocala$//g; s/Oceanport$//g; s/Ocoee$//g; s/Odenton$//g; s/Odessa$//g; s/Odon$//g; s/of$//g; 
+s/Ogdensburg$//g; s/Ogden$//g; s/Ohio$//g; s/Okemos$//g; s/Olathe$//g; s/Oldsmar$//g; s/Olney$//g; s/Olympia$//g; s/Omaha$//g; s/Onalaska$//g; 
+s/Ontario$//g; s/Oologah$//g; s/Orange$//g; s/Oregon$//g; s/Orem$//g; s/orlando$//g; s/Orlando$//g; s/Orrville$//g; s/Ottawa$//g; s/Oviedo$//g; 
+s/Owego$//g; s/Owensboro$//g; s/Palatine$//g; s/Palermo$//g; s/Palmdale$//g; s/Palmer$//g; s/Palo$//g; s/Paoli$//g; s/Papillion$//g; s/Paramus$//g; 
+s/Parkersburg$//g; s/Parkesburg$//g; s/Parkville$//g; s/Parsippany$//g; s/Pasadena$//g; s/Pascagoula$//g; s/Pasco$//g; s/Passaic$//g; s/Pelham$//g; 
+s/Pemberton$//g; s/Pembina$//g; s/Pennington$//g; s/Pensacola$//g; s/Peoria$//g; s/Peterborough$//g; s/Petersburg$//g; s/Pewaukee$//g; s/Pharr$//g; 
+s/philadelphia$//g; s/Philadelphia$//g; s/PHILADELPHRegion$//g; s/Philip$//g; s/Phillipsburg$//g; s/Phoenix$//g; s/Picayune$//g; s/Pickerington$//g; 
+s/Pierre$//g; s/Pikesville$//g; s/Pinckney$//g; s/Pinconning$//g; s/Pinehurst$//g; s/Pineville$//g; s/Pipersville$//g; s/Piscataway$//g; 
+s/Pittsburgh$//g; s/Pittsfield$//g; s/Placitas$//g; s/Plainfield$//g; s/Plainsboro$//g; s/planner$//g; s/Plano$//g; s/Plaquemine$//g; s/Pleasanton$//g; 
 s/Pleasantville$//g; s/Plymouth$//g; s/Pocahontas$//g; s/Pomona$//g; s/Pontiac$//g; s/Portage$//g; s/Portland$//g; s/Portsmouth$//g; s/Portugal$//g; 
 s/Potomac$//g; s/Poway$//g; s/Prattville$//g; s/Preston$//g; s/Prestwick$//g; s/Princeton$//g; s/Prineville$//g; s/Proctorville$//g; s/Providence$//g; 
 s/Provos$//g; s/Pueblo$//g; s/Purcellville$//g; s/Pyrmont$//g; s/Quantico$//g; s/Quincy$//g; s/Radcliff$//g; s/Raleigh$//g; s/Radnor$//g; s/Ramsey$//g; 
@@ -1595,12 +1588,11 @@ s/Uniondale$//g; s/Uniontown$//g; s/Union$//g; s/Urbana$//g; s/Urbandale$//g; s/
 s/Vanceboro$//g; s/Vancouver$//g; s/Vandalia$//g; s/Vandergrift$//g; s/Venice$//g; s/Ventura$//g; s/Verona$//g; s/Vestal$//g; s/VIC$//g; s/Vicksburg$//g; 
 s/Vienna$//g; s/Vincentown$//g; s/Vineland$//g; s/Visalia$//g; s/Vista$//g; s/Wagoner$//g; s/Wakefield$//g; s/Waldorf$//g; s/Wallingford$//g; 
 s/Waltham$//g; s/Warminster$//g; s/Warrenton$//g; s/Warren$//g; s/Warrington$//g; s/Warsaw$//g; s/Warwick$//g; s/Washington$//g; s/Wasilla$//g; 
-s/Waterford$//g; s/Watertown$//g; s/Wauwatosa$//g; 
-s/Wauconda$//g; s/Waukesha$//g; s/Wausau$//g; s/Wayne$//g; s/Weare$//g; s/Weatherford$//g; s/Webster$//g; 
-s/Wellington$//g; s/Westbury$//g; s/Westborough$//g; s/Westchester$//g; s/Westerville$//g; s/Westfield$//g; s/Westlake$//g; s/Westminster$//g; 
-s/Westmont$//g; s/Westport$//g; s/Westwego$//g; s/Wexford$//g; s/Wheaton$//g; s/Wheeling$//g; s/Whippany$//g; s/Whittier$//g; s/Wildfires//g; 
-s/Wildwood//g; s/Williamsburg//g; s/Williamsport//g; s/Willimantic//g; s/Williston$//g; s/Wilmington$//g; s/Wilton$//g; s/Winchester$//g; s/Windsor$//g; 
-s/Windermere$//g; s/Winder$//g; s/Winnetka$//g; s/Winona$//g; s/Wisconsin$//g; s/Wisconsin$//g; s/Wichita$//g; s/Woburn$//g; s/Woking$//g; 
+s/Waterford$//g; s/Watertown$//g; s/Wauwatosa$//g; s/Wauconda$//g; s/Waukesha$//g; s/Wausau$//g; s/Wayne$//g; s/Weare$//g; s/Weatherford$//g; 
+s/Webster$//g; s/Wellington$//g; s/Westbury$//g; s/Westborough$//g; s/Westchester$//g; s/Westerville$//g; s/Westfield$//g; s/Westlake$//g; 
+s/Westminster$//g; s/Westmont$//g; s/Westport$//g; s/Westwego$//g; s/Wexford$//g; s/Wheaton$//g; s/Wheeling$//g; s/Whippany$//g; s/Whittier$//g; 
+s/Wildfires//g; s/Wildwood//g; s/Williamsburg//g; s/Williamsport//g; s/Willimantic//g; s/Williston$//g; s/Wilmington$//g; s/Wilton$//g; s/Winchester$//g; 
+s/Windsor$//g; s/Windermere$//g; s/Winder$//g; s/Winnetka$//g; s/Winona$//g; s/Wisconsin$//g; s/Wisconsin$//g; s/Wichita$//g; s/Woburn$//g; s/Woking$//g; 
 s/Woodbridge$//g; s/Woodstock$//g; s/Woodstown$//g; s/Wynnewood$//g; s/Wyoming$//g; s/Xenia$//g; s/Yardley$//g; s/Yeovil$//g; s/Yokine$//g; 
 s/Youngstown$//g; s/Youngsville$//g; s/Yorktown$//g; s/York$//g; s/Yuma$//g; s/Zanesville$//g; s/Zeeland$//g; 
 s/Zionsville$//g; s/Zion$//g; s/[ \t]*$//' > tmp3
