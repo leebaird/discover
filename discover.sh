@@ -580,8 +580,8 @@ case $choice in
           echo 'Zone transfer failed.' >> $home/data/$domain/data/zonetransfer.htm
      fi
 
-     echo '</body>' >> $home/data/$domain/data/zonetransfer.htm
      echo >> $home/data/$domain/data/zonetransfer.htm
+     echo '</body>' >> $home/data/$domain/data/zonetransfer.htm
      echo '</html>' >> $home/data/$domain/data/zonetransfer.htm
 
      echo "Domains                   (33/$total)"
@@ -750,7 +750,10 @@ case $choice in
 
      ##############################################################
 
-     echo "Summary" > zreport
+     echo > zreport
+     echo >> zreport
+
+     echo "Summary" >> zreport
      echo $short >> zreport
 
      echo > tmp
@@ -1116,7 +1119,7 @@ case $choice in
      echo
      echo "Whatweb                   (11/$total)"
      grep -v '<' $home/data/$domain/data/subdomains.htm | awk '{print $1}' > tmp
-     whatweb -i tmp --color=never --no-errors -t 255 > tmp2 2>/dev/null
+     whatweb -i tmp --color=never --no-errors > tmp2 2>/dev/null
      # Find lines that start with http, and insert a line after
      sort tmp2 | sed '/^http/a\ ' > tmp3
      # Cleanup
@@ -1125,7 +1128,6 @@ case $choice in
      grep '@' whatweb | sed 's/Email//g; s/\[//g; s/\]//g' > tmp
      # Change to lower case
      cat tmp | tr '[A-Z]' '[a-z]' > emails2
-
      cat emails1 emails2 | grep "@$domain" | grep -v 'hosting' | cut -d ' ' -f2 | sort -u > emails
 
      # If this file is empty, delete it
@@ -1400,6 +1402,7 @@ s/Mount Pleasant//g; s/Mount Pocono//g; s/Mount Prospect//g; s/Mount Storm//g; s
 s/Mountain States//g; s/Mountain View//g; s/Mount Waverley//g; s/Muscle Shoals//g; s/Mullica Hill//g; s/MULTI/Multi/g; s/Munroe Falls//g; 
 s/music/Music/g; s/MyHR/HR/g; s/Myrtle Beach//g; s/\-n/, N/g; s/National City//g; s/Naval Anaco//g; s/navy/Navy/g; s/Needham Hei//g; 
 s/negotiator/Negotiator/g; s/New Canton//g; s/New Castle//g; s/New Church//g; s/New Cumberland//g; s/New Delhi//g; s/New Haven//g; s/New Malden//g; 
+s/New Lenox//g; 
 s/New Market//g; s/New Martins//g; s/New Orleans//g; s/New Port Ri//g; s/New Stanton//g; s/New Town//g; s/New York Office//g; s/New York//g; 
 s/New Zealand//g; s/Newbury Park//g; s/Newport Beach//g; s/Newport News//g; s/Niagara Falls//g; s/North America //g; s/North and Central//g; 
 s/North Baldwin//g; s/North Bergen//g; s/North Canton//g; s/North Charl//g; s/North East//g; s/North Highl//g; s/North Holly//g; s/North Kings//g; 
@@ -1510,7 +1513,8 @@ s/Farnham$//g; s/Fayetteville$//g; s/Feastervill$//g; s/Feltham$//g; s/Findlay$/
 s/Florence$//g; s/Floresville$//g; s/Flossmoor$//g; s/Flourtown$//g; s/Flowood$//g; s/Fogelsville$//g; s/for$//g; s/Forsyth$//g; s/france$//g; 
 s/Framingham$//g; s/Frankfort$//g; s/Franklin$//g; s/Fredericksburg$//g; s/Frederick$//g; s/Freehold$//g; s/Fremont$//g; s/Fresno$//g; s/Frisco$//g; 
 s/Fullerton$//g; s/Gainesville$//g; s/Gaithersburg$//g; s/Gardena$//g; s/Gardners$//g; s/Garland$//g; s/Gastonia$//g; s/Gatineau$//g; s/Gateille$//g; 
-s/Genesee$//g; s/Germantown$//g; s/Germany$//g; s/GERMANY$//g; s/Geyserville$//g; s/Gibsonia$//g; s/Gibsonville$//g; s/Glasgow$//g; s/Glastonbury$//g; 
+s/Genesee$//g; s/Geneva$//g; 
+s/Germantown$//g; s/Germany$//g; s/GERMANY$//g; s/Geyserville$//g; s/Gibsonia$//g; s/Gibsonville$//g; s/Glasgow$//g; s/Glastonbury$//g; 
 s/Glencoe$//g; s/Glendale$//g; s/Glendora$//g; s/Glenside$//g; s/GMBH$//g; s/Gnadenhutten$//g; s/Goleta$//g; s/Goodyear$//g; s/Google$//g; s/-google$//g; 
 s/Grafton$//g; s/Granbury$//g; s/Granville$//g; s/Grayslake$//g; s/Greeley$//g; s/Greenbelt$//g; s/Greenbrae$//g; s/Greensboro$//g; s/Greensburg$//g; 
 s/Greencastle$//g; s/Greeneville$//g; s/Greenfield$//g; s/Greenwood$//g; s/Greenport$//g; s/Greenville$//g; s/Greenwich$//g; s/Gretna$//g; s/Groton$//g;  
@@ -1539,8 +1543,9 @@ s/Lockport$//g; s/Logansport$//g; s/logistics$//g; s/Lomita$//g; s/Lompoc$//g; s
 s/Louisville$//g; s/Loveland$//g; s/Lovettsville$//g; s/Lowell$//g; s/Lubbock$//g; s/Lucedale$//g; s/Lufkin$//g; s/Lumberton$//g;  
 s/Lutherville$//g; s/Luton$//g; s/Lyndhurst$//g; s/Lynnwood$//g; s/Machias$//g; s/Macon$//g; s/Madison$//g; s/Mahwah$//g; s/Maidstone$//g; 
 s/Maineville$//g; s/Maine$//g; s/Maitland$//g; s/Malaysia$//g; s/Malvern$//g; s/Manalapan$//g; s/Manassas$//g; s/Manchester$//g; s/Manhattan$//g; 
-s/Manistee$//g; s/Mansfield$//g; s/Marblehead$//g; s/Marietta$//g; s/Marion$//g; s/Marlborough$//g; s/Marlton$//g; s/Martin$//g; 
-s/Masontown$//g; s/Maumee$//g; s/Mayfield$//g; s/Maynard$//g; s/Maysville$//g; s/Mcallen$//g; s/Mcclellan$//g; s/Mckinney$//g; s/Meadville$//g; 
+s/Manistee$//g; s/Mansfield$//g; s/Marblehead$//g; s/Marietta$//g; s/Marion$//g; s/Marlborough$//g; s/Marlton$//g; s/Martin$//g; s/Masontown$//g; 
+s/Matteson$//g; 
+s/Maumee$//g; s/Mayfield$//g; s/Maynard$//g; s/Maysville$//g; s/Mcallen$//g; s/Mcclellan$//g; s/Mckinney$//g; s/Meadville$//g; 
 s/Mechanicsburg$//g; s/Mechanicsville$//g; s/Medford$//g; s/Media$//g; s/Melbourne$//g; s/Melrose$//g; s/Melville$//g; s/Memphis$//g; s/Menifee$//g; 
 s/Mentor$//g; s/Meriden$//g; s/Meridian$//g; s/Merrill$//g; s/Mesa$//g; s/Metairie$//g; s/Methuen$//g; s/Mexico$//g; s/Miamisburg$//g; s/Miami$//g; 
 s/Michigan$//g; s/Mid-Atlantic$//g; s/Middleburg$//g; s/Middlebury$//g; s/Middlesex$//g; s/Middleton$//g; s/Middletown$//g; s/Midland$//g; 
@@ -1550,6 +1555,7 @@ s/Monroeville$//g; s/Monroe$//g; s/Montclair$//g; s/Monterey$//g; s/Montezuma$//
 s/Moorestown$//g; s/Mooresville$//g; s/Morgantown$//g; s/Morristown$//g; s/Morrisville$//g; s/Moscow$//g; s/Mumbai$//g; s/Mundelein$//g; s/Murdock$//g; 
 s/Murfreesboro$//g; s/Murrysville$//g; s/Muskegon$//g; s/Mystic$//g; s/Napa$//g; s/Naperville$//g; s/Naples$//g; s/Narberth$//g; s/Narragansett$//g; 
 s/Narrows$//g; s/Nashua$//g; s/Nashville$//g; s/Natick$//g; s/Navarre$//g; s/Nazareth$//g; s/NB$//g; s/Nebraska$//g; s/Neotsu$//g; s/Newark$//g; 
+s/Newcastle$//g; 
 s/Newington$//g; s/Newport$//g; s/Newtown$//g; s/Newville$//g; s/Niceville$//g; s/Niles$//g; s/Noblesville$//g; s/Nogales$//g; s/Noida$//g; 
 s/Moncton$//g; s/Norcross$//g; s/Norfolk$//g; s/Norman$//g; s/Norristown$//g; s/Northbrook$//g; s/Northeastern$//g; s/Northeast$//g; s/Northville$//g; 
 s/Norton$//g; s/Norwalk$//g; s/Norwich$//g; s/Norwood$//g; s/Novato$//g; s/NSW$//g; s/Nutley$//g; s/nyc$//g; s/Oakdale$//g; s/Oakland$//g; s/Oakton$//g; 
@@ -1589,13 +1595,15 @@ s/Uniondale$//g; s/Uniontown$//g; s/Union$//g; s/Urbana$//g; s/Urbandale$//g; s/
 s/Vanceboro$//g; s/Vancouver$//g; s/Vandalia$//g; s/Vandergrift$//g; s/Venice$//g; s/Ventura$//g; s/Verona$//g; s/Vestal$//g; s/VIC$//g; s/Vicksburg$//g; 
 s/Vienna$//g; s/Vincentown$//g; s/Vineland$//g; s/Visalia$//g; s/Vista$//g; s/Wagoner$//g; s/Wakefield$//g; s/Waldorf$//g; s/Wallingford$//g; 
 s/Waltham$//g; s/Warminster$//g; s/Warrenton$//g; s/Warren$//g; s/Warrington$//g; s/Warsaw$//g; s/Warwick$//g; s/Washington$//g; s/Wasilla$//g; 
-s/Waterford$//g; s/Watertown$//g; s/Wauconda$//g; s/Waukesha$//g; s/Wausau$//g; s/Wayne$//g; s/Weare$//g; s/Weatherford$//g; s/Webster$//g; 
+s/Waterford$//g; s/Watertown$//g; s/Wauwatosa$//g; 
+s/Wauconda$//g; s/Waukesha$//g; s/Wausau$//g; s/Wayne$//g; s/Weare$//g; s/Weatherford$//g; s/Webster$//g; 
 s/Wellington$//g; s/Westbury$//g; s/Westborough$//g; s/Westchester$//g; s/Westerville$//g; s/Westfield$//g; s/Westlake$//g; s/Westminster$//g; 
 s/Westmont$//g; s/Westport$//g; s/Westwego$//g; s/Wexford$//g; s/Wheaton$//g; s/Wheeling$//g; s/Whippany$//g; s/Whittier$//g; s/Wildfires//g; 
 s/Wildwood//g; s/Williamsburg//g; s/Williamsport//g; s/Willimantic//g; s/Williston$//g; s/Wilmington$//g; s/Wilton$//g; s/Winchester$//g; s/Windsor$//g; 
 s/Windermere$//g; s/Winder$//g; s/Winnetka$//g; s/Winona$//g; s/Wisconsin$//g; s/Wisconsin$//g; s/Wichita$//g; s/Woburn$//g; s/Woking$//g; 
 s/Woodbridge$//g; s/Woodstock$//g; s/Woodstown$//g; s/Wynnewood$//g; s/Wyoming$//g; s/Xenia$//g; s/Yardley$//g; s/Yeovil$//g; s/Yokine$//g; 
-s/Youngstown$//g; s/Youngsville$//g; s/Yorktown$//g; s/York$//g; s/Yuma$//g; s/Zanesville$//g; s/Zionsville$//g; s/Zion$//g' > tmp3
+s/Youngstown$//g; s/Youngsville$//g; s/Yorktown$//g; s/York$//g; s/Yuma$//g; s/Zanesville$//g; s/Zeeland$//g; 
+s/Zionsville$//g; s/Zion$//g; s/[ \t]*$//' > tmp3
 
 head tmp3
 echo
