@@ -651,7 +651,7 @@ case $choice in
      # Remove lines that start with _
      sed '/^\_/ d' tmp5 > tmp6
      # Change to lower case
-     cat tmp6 emails-recon | grep -v "'" | tr '[A-Z]' '[a-z]' | sort -u > emails
+     cat tmp6 | grep -v "'" | tr '[A-Z]' '[a-z]' | sort -u > emails
 
      ##############################################################
 
@@ -681,6 +681,7 @@ case $choice in
      ##############################################################
 
      echo "recon-ng                  (34/$total)"
+     echo
      echo "workspaces add $domain" > tmp.rc
      echo "add companies" >> tmp.rc
      echo "$companyurl" >> tmp.rc
@@ -691,18 +692,24 @@ case $choice in
      echo >> tmp.rc
 
      if [ -s /root/data/names.txt ]; then
-          cat /root/data/names.txt | sed 's/, /#/' | sed 's/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/# /#/g' > tmp.csv
           echo "last_name#first_name#title" > /root/data/names.csv
-          cat tmp.csv >> /root/data/names.csv
-          rm tmp.csv
-          
+          cat /root/data/names.txt | sed 's/, /#/' | sed 's/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/# /#/g' >> /root/data/names.csv
           cat $discover/resource/recon-ng-import-names.rc >> tmp.rc
+          echo >> tmp.rc
+     fi
+
+     if [ -s names ]; then
+          echo "last_name#first_name" > /root/data/names2.csv
+          cat names | sed 's/, /#/' >> /root/data/names2.csv
+          cat $discover/resource/recon-ng-import-names2.rc >> tmp.rc
           echo >> tmp.rc
      fi
 
      cat $discover/resource/recon-ng.rc >> tmp.rc
      sed -i "s/yyy/$domain/g" tmp.rc
      recon-ng --no-check -r $discover/tmp.rc
+
+     ##############################################################
 
      grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' > tmp
      grep "@$domain" /tmp/profiles | awk '{print $2}' > tmp2
@@ -711,10 +718,8 @@ case $choice in
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
      grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
 
-     grep '|' /tmp/names | grep -v '_' | sed 's/|//g' > tmp
-     grep '|' /tmp/profiles | awk '{print $3", "$2}' | grep -v '|' > tmp2
-     cat tmp tmp2 | sort -u > names-recon
-
+     grep '|' /tmp/names | grep -v '_' | sed 's/|//g' | sed 's/^[ \t]*//' | sed 's/Whois contact (Abuse)//g' | sed 's/Whois contact (Admin)//g' | sed 's/Whois contact (Tech)//g' | sed 's/[ \t]*$//' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' | sort -u > names-recon
+     
      ##############################################################
 
      cat networks-tmp networks-recon | sort -u | $sip > networks
@@ -751,14 +756,14 @@ case $choice in
           cat emails >> $home/data/$domain/data/emails.htm; echo "</pre>" >> $home/data/$domain/data/emails.htm
      fi
 
-     if [ -e names ]; then
-          namecount=$(wc -l names | cut -d ' ' -f1)
+     if [ -e names-recon ]; then
+          namecount=$(wc -l names-recon | cut -d ' ' -f1)
           echo "Names         $namecount" >> zreport
           echo "Names ($namecount)" >> tmp
           echo $short >> tmp
-          cat names >> tmp
+          cat names-recon >> tmp
           echo >> tmp
-          cat names >> $home/data/$domain/data/names.htm; echo "</pre>" >> $home/data/$domain/data/names.htm
+          cat names-recon >> $home/data/$domain/data/names.htm; echo "</pre>" >> $home/data/$domain/data/names.htm
      fi
 
      if [ -s networks ]; then
@@ -792,7 +797,7 @@ case $choice in
      if [ -e domains ]; then
           domaincount1=$(wc -l domains | cut -d ' ' -f1)
           domaincount2=$(echo $(($domaincount1-1)))
-          echo "Domains    $domaincount2" >> zreport
+          echo "Domains       $domaincount2" >> zreport
           echo "Domains ($domaincount2)" >> tmp
           echo $long >> tmp
           cat domains >> tmp
@@ -1306,8 +1311,8 @@ echo
 
 sed 's/Direct Dial Available//g' $location | sed 's/\[\]//g; s/\.//g; s/,,//g; s/,`//g; s/`,//g; s/-cpg//g; s/3d/3D/g; s/Aberdeen Pr//g;
 s/ACADEMIC/Academic/g; s/account/Account/g; s/ACTING/Acting/g; s/3administrator/Administrator/g; s/Europe and Africa//g; s/Sub Saharan Africa//g; 
-s/South Africa//g; s/Agoura Hills//g; s/New Albany//g; s/Albion 	QL//g; s/Aliso Viejo//g; s/Allison Park//g; s/Altamonte S//g; s/Am-east,//g; 
-s/Am-west,//g; s/Head of Americas//g; s/The Americas//g; s/Amst-north America//g; s/ANALYSIST/Analysist/g; s/Analyst\//Analyst, /g; 
+s/South Africa//g; s/Agoura Hills//g; s/New Albany//g; s/Albion 	QL//g; s/Aliso Viejo//g; s/Allentown//g; s/Allison Park//g; s/Altamonte S//g; 
+s/Am-east,//g; s/Am-west,//g; s/Head of Americas//g; s/The Americas//g; s/Amst-north America//g; s/ANALYSIST/Analysist/g; s/Analyst\//Analyst, /g; 
 s/analytics/Analytics/g; s/and New England//g; s/and Central Us//g; s/and Student at American University//g; s/North Andover//g; s/Andrews Afb//g; 
 s/Andrews Air//g; s/android/Android/g; s/Annapolis J//g; s/Ann Arbor//g; s/, Anzsea//g; s/Apple Valley//g; s/applications/Applications/g; 
 s/Arlington H//g; s/Asia-Pacific//g; s/Asia and India//g; s/asia Pacific Region//g; s/Asia Pacific//g; s/assistant/Assistant/g; 
@@ -1323,8 +1328,8 @@ s/Camp H M Smith//g; s/Camp Springs//g; s/Canoga Park//g; s/Canyon Country//g; s
 s/cargo/Cargo/g; s/Carol Stream//g; s/Carol Stream//g; s/cascade/Cascade/g; s/Castle Rock//g; s/Cedar Hill//g; s/Cedar Rapids//g; s/census/Census/g; 
 s/Center Line//g; s/CENTER/Center/g; s/Central California//g; s/Central Region//g; s/central Region//g; s/Chagrin Falls//g; s/Charles Town//g; 
 s/Charlottesv//g; s/CHEMICALS/Chemicals/g; s/Cherry Hill//g; s/Chester Le //g; s/East Chicago//g; s/\/Chief/, Chief/g; s/China //g; s/Chino Hills//g; 
-s/chromecast/Chromecast/g; s/Chula Vista//g; s/Cissp/CISSP/g; s/CITRIX/Citrix/g; s/clean/Clean/g; s/Clifton Park//g; s/cms/CMS/g; s/Cms/CMS/g; 
-s/CNN News Group Cable News Network//g; s/Cmms/CMMS/g; s/Cocoa Beach//g; s/Cold Spring//g; s/Colorado Sp//g; s/Commerce City//g; 
+s/chromecast/Chromecast/g; s/Chula Vista//g; s/Cissp/CISSP/g; s/CITRIX/Citrix/g; s/clean/Clean/g; s/Clifton Park//g; s/Clifton Spr//g; s/cms/CMS/g; 
+s/Cms/CMS/g; s/CNN News Group Cable News Network//g; s/Cmms/CMMS/g; s/Cocoa Beach//g; s/Cold Spring//g; s/Colorado Sp//g; s/Commerce City//g; 
 s/CommitteemanagementOfficer/Committee Management Officer/g; s/compliance/Compliance/g; s/commercial/Commercial/g; s/connected/Connected/g; 
 s/CONSULTANT/Consultant/g; s/Consultant-ii/Consultant II/g; s/consumer/Consumer/g; s/contact/Contact/g; s/content/Content/g; s/corporate/Corporate/g; 
 s/Corpus Christi//g; s/Council Bluffs//g; s/COUNSEL/Counsel/g; s/counsel/Counsel/g; s/cpa/CPA/g; s/Cranberry T//g; s/Cranberry Twp//g; 

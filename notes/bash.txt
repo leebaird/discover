@@ -82,6 +82,11 @@ sort -k2                                            # Sort by the second column
 sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4         # Sort IPs
 sed "s/$FOO./$FOO/g"                                # Variables - use double quotes with sed or grep
 
+tr -d '\t'                                          # Delete a horizontal tab
+tr -s ' '                                           # Squeeze any number of spaces down to a single space?
+tr ',' '\n'                                         # Translate a comma to a new line
+tr '[A-Z]' '[a-z]'                                  # Translate upper case to lower case
+
 # Special characters to escape
 ~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|,|>|\.|\?|/|
 ------------------------------------------------------------------------------------------------------
