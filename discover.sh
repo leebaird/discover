@@ -718,7 +718,7 @@ case $choice in
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
      grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
 
-     grep '|' /tmp/names | grep -v '_' | sed 's/|//g; s/^[ \t]*//; s/Whois contact (Abuse)//g; s/Whois contact (Admin)//g; s/Whois contact (Tech)//g; s/[ \t]*$//' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g; s/iii/III/g; s/ii/II/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g' sort -u > names-recon
+     grep '|' /tmp/names | grep -v '_' | sed 's/|//g; s/^[ \t]*//; s/Whois contact (Abuse)//g; s/Whois contact (Admin)//g; s/Whois contact (Tech)//g; s/[ \t]*$//' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g; s/iii/III/g; s/ii/II/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g' | sort -u > names-recon
      
      ##############################################################
 
@@ -885,9 +885,9 @@ case $choice in
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
      mv recon-ng.rc $home/data/$domain/ 2>/dev/null
-     rm curl debug* emails* hosts names* networks* squatting sub* tmp* network-tools whois* z* doc pdf ppt txt xls domains 2>/dev/null
+#     rm curl debug* emails* hosts names* networks* squatting sub* tmp* network-tools whois* z* doc pdf ppt txt xls domains 2>/dev/null
      cd /tmp/
-     rm emails names networks profiles subdomains 2>/dev/null
+#     rm emails names networks profiles subdomains 2>/dev/null
 
      # Robtex
      wget -q https://www.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/images/robtex.png
@@ -901,7 +901,7 @@ case $choice in
      printf 'The supporting data folder is located at \x1B[1;33m%s\x1B[0m\n' $home/data/$domain/
      echo
      read -p "Press <return> to continue."
-
+exit
      ##############################################################
 
      f_runlocally
