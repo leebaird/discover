@@ -718,7 +718,7 @@ case $choice in
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
      grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
 
-     grep '|' /tmp/names | grep -v '_' | sed 's/|//g' | sed 's/^[ \t]*//' | sed 's/Whois contact (Abuse)//g' | sed 's/Whois contact (Admin)//g' | sed 's/Whois contact (Tech)//g' | sed 's/[ \t]*$//' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' | sort -u > names-recon
+     grep '|' /tmp/names | grep -v '_' | sed 's/|//g; s/^[ \t]*//; s/Whois contact (Abuse)//g; s/Whois contact (Admin)//g; s/Whois contact (Tech)//g; s/[ \t]*$//' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g; s/iii/III/g; s/ii/II/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g' sort -u > names-recon
      
      ##############################################################
 
