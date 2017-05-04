@@ -585,11 +585,36 @@ case $choice in
      echo '</html>' >> $home/data/$domain/data/zonetransfer.htm
 
      echo "Domains                   (33/$total)"
+     f_regdomain(){
+     while read regdomain; do
+          whois -H $regdomain 2>&1 | sed -e 's|^[ \t]*||' | sed 's| \+ ||g' | sed 's|: |:|g' > tmp5
+          nomatch=$(grep -c -E 'No match for|Name or service not known' tmp5)
+
+          if [[ $nomatch -eq 1 ]]; then
+               echo "$regdomain -- No Whois Matches Found" >> tmp4
+          else
+               registrar=$(grep -m1 'Registrar:' tmp5 | cut -d ':' -f2 | sed 's|,||g')
+               regorg=$(grep -m1 'Registrant Organization:' tmp5 | cut -d ':' -f2 | sed 's|,||g')
+               regemail=$(grep -m1 'Registrant Email:' tmp5 | cut -d ':' -f2)
+               iptmp=$(ping -c1 $regdomain 2>&1)
+
+               if echo $iptmp | grep -q 'unknown host'; then
+                    echo "$regdomain,$registrar,$regorg,$regemail,No IP Found" >> tmp4
+               else
+                    ipaddr=$(echo $iptmp | grep 'PING' | cut -d '(' -f2 | cut -d ')' -f1)
+                    echo "$regdomain,$registrar,$regorg,$regemail,$ipaddr" >> tmp4
+               fi
+          fi
+          sleep 2
+     done < tmp3
+     }
+
      # Get domains registered by company name and email address domain
      curl --silent http://viewdns.info/reversewhois/?q=%40$domain > tmp
      sleep 2
      curl --silent http://viewdns.info/reversewhois/?q=$companyurl > tmp2
 
+     echo '111AAA--placeholder--' > tmp4
      if grep -q 'There are 0 domains' tmp && grep -q 'There are 0 domains' tmp2; then
           rm tmp tmp2
           echo 'No Domains Found.' > tmp6
@@ -598,41 +623,22 @@ case $choice in
           rm tmp tmp2
           echo 'No Domains Found.' > tmp6
           break
+     
+     # Loop thru list of domains, gathering details about the domain
+     elif grep -q 'paymenthash' tmp; then
+          grep 'Domain Name' tmp | sed 's|<tr>|\n|g' | grep '</td></tr>' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
+          grep 'Domain Name' tmp2 | sed 's|<tr>|\n|g' | grep '</td></tr>' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
+          sort -uV tmp3 -o tmp3
+          f_regdomain
      else
-          # Generate a list of domains registered by email address domain
           grep 'ViewDNS.info' tmp | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
           grep 'ViewDNS.info' tmp2 | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
           sort -uV tmp3 -o tmp3
-          
-          echo 'AAAAA--placeholder--' > tmp4
-
-          # Loop thru lost of domain gathering details about the domain
-          while read regdomain; do
-               whois -H $regdomain 2>&1 | sed -e 's|^[ \t]*||' | sed 's| \+ ||g' | sed 's|: |:|g' > tmp5
-               nomatch=$(grep -c -E 'No match for|Name or service not known' tmp5)
-
-               if [[ $nomatch -eq 1 ]]; then
-                    echo "$regdomain -- No Whois Matches Found" >> tmp4
-               else
-                    registrar=$(grep -m1 'Registrar:' tmp5 | cut -d ':' -f2 | sed 's|,||g')
-                    regorg=$(grep -m1 'Registrant Organization:' tmp5 | cut -d ':' -f2 | sed 's|,||g')
-                    regemail=$(grep -m1 'Registrant Email:' tmp5 | cut -d ':' -f2)
-                    iptmp=$(ping -c1 $regdomain 2>&1)
-
-                    if echo $iptmp | grep -q 'unknown host'; then
-                         echo "$regdomain,$registrar,$regorg,$regemail,No IP Found" >> tmp4
-                    else
-                         ipaddr=$(echo $iptmp | grep 'PING' | cut -d '(' -f2 | cut -d ')' -f1)
-                         echo "$regdomain,$registrar,$regorg,$regemail,$ipaddr" >> tmp4
-                    fi
-               fi
-
-               sleep 2
-          done < tmp3
+          f_regdomain
      fi
 
      # Formatting & clean-up
-     sort tmp4 | sed 's|AAAAA--placeholder--|Domain,Registrar,Registration Org,Registration Email,IP Address|' > tmp6
+     sort tmp4 | sed 's|111AAA--placeholder--|Domain,Registrar,Registration Org,Registration Email,IP Address|' > tmp6
      column -s ',' -t tmp6 > domains
      echo "Domains registered to $company & with email domain $domain" >> $home/data/$domain/data/domains.htm
      echo >> $home/data/$domain/data/domains.htm
@@ -890,7 +896,7 @@ case $choice in
      rm emails names networks profiles subdomains 2>/dev/null
 
      # Robtex
-     wget -q https://www.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/images/robtex.png
+     wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/images/robtex.png
 
      echo
      echo $medium
@@ -901,7 +907,7 @@ case $choice in
      printf 'The supporting data folder is located at \x1B[1;33m%s\x1B[0m\n' $home/data/$domain/
      echo
      read -p "Press <return> to continue."
-exit
+
      ##############################################################
 
      f_runlocally
