@@ -147,7 +147,7 @@ mkdir $save_dir
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv curl emails* names* networks* records squatting network-tools whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+mv debug* curl emails* names* networks* records squatting network-tools whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
 cd /tmp/
 rm emails names networks profiles subdomains 2>/dev/null
 
@@ -373,7 +373,7 @@ case $choice in
      # Remove lines that contain a single word
      sed '/[[:blank:]]/!d' tmp6 > tmp7
      # Clean up
-     egrep -v '(\*|\[|:|found|full)' tmp7 | sort -u > names1
+     egrep -v '(\*|\[|:|found|full|network)' tmp7 | sort -u > names1
 
      ##############################################################
 
@@ -724,8 +724,8 @@ case $choice in
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
      grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
 
-     grep '|' /tmp/names | grep -v '_' | sed 's/|//g; s/^[ \t]*//; s/Whois contact (Abuse)//g; s/Whois contact (Admin)//g; s/Whois contact (Tech)//g; s/[ \t]*$//' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g; s/iii/III/g; s/ii/II/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/Whois Contact//g' | sort -u > names-recon
-     
+     grep '|' /tmp/names | grep -v '_' | sed 's/|//g; s/^[ \t]*//; s/Whois contact (Abuse)//g; s/Whois contact (Admin)//g; s/Whois contact (Tech)//g; s/[ \t]*$//' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g; s/iii/III/g; s/ii/II/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/Pgp Key Association//g; s/Whois Contact//g' | sort -u > names-recon
+
      ##############################################################
 
      cat networks-tmp networks-recon | sort -u | $sip > networks
