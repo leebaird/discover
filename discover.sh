@@ -605,6 +605,8 @@ case $choice in
                     echo "$regdomain,$registrar,$regorg,$regemail,$ipaddr" >> tmp4
                fi
           fi
+          let number=number+1
+          echo -ne "     \x1B[1;33m$number \x1B[0mof \x1B[1;33m$domcount \x1B[0mdomains"\\r
           sleep 2
      done < tmp3
      }
@@ -629,11 +631,13 @@ case $choice in
           grep 'Domain Name' tmp | sed 's|<tr>|\n|g' | grep '</td></tr>' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
           grep 'Domain Name' tmp2 | sed 's|<tr>|\n|g' | grep '</td></tr>' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
           sort -uV tmp3 -o tmp3
+          domcount=$(wc -l tmp3 | sed -e 's|^[ \t]*||' | cut -d ' ' -f1)
           f_regdomain
      else
           grep 'ViewDNS.info' tmp | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
           grep 'ViewDNS.info' tmp2 | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
           sort -uV tmp3 -o tmp3
+          domcount=$(wc -l tmp3 | sed -e 's|^[ \t]*||' | cut -d ' ' -f1)
           f_regdomain
      fi
 
@@ -642,6 +646,7 @@ case $choice in
      column -s ',' -t tmp6 > domains
      echo "Domains registered to $company & with email domain $domain" >> $home/data/$domain/data/domains.htm
      echo >> $home/data/$domain/data/domains.htm
+     echo
 
      ##############################################################
 
