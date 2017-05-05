@@ -895,6 +895,7 @@ case $choice in
 
      mv recon-ng.rc $home/data/$domain/ 2>/dev/null
      rm curl debug* emails* hosts names* networks* squatting sub* tmp* network-tools whois* z* doc pdf ppt txt xls domains 2>/dev/null
+     rm $home/data/*.csv 2>/dev/null
      cd /tmp/
      rm emails names networks profiles subdomains 2>/dev/null
 
