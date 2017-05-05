@@ -34,15 +34,10 @@ use recon/contacts-credentials/hibp_breach
 run
 use recon/contacts-credentials/hibp_paste
 run
-use recon/contacts-profiles/fullcontact
-run
 
 use recon/profiles-profiles/twitter_mentioned
 run
 use recon/profiles-profiles/twitter_mentions
-run
-
-use recon/profiles-repositories/github_repos
 run
 
 use recon/netblocks-companies/whois_orgs
@@ -66,7 +61,11 @@ run
 
 back
 
+query UPDATE contacts SET email = LOWER(email)
+query UPDATE credentials SET username = LOWER(username)
+
 spool start /tmp/emails
+query SELECT DISTINCT username FROM credentials WHERE username LIKE "%@yyy" ORDER BY username
 query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email
 spool stop
 
@@ -76,10 +75,6 @@ spool stop
 
 spool start /tmp/networks
 query SELECT netblock FROM netblocks ORDER BY netblock
-spool stop
-
-spool start /tmp/profiles
-query SELECT DISTINCT username FROM profiles WHERE username IS NOT NULL ORDER BY username
 spool stop
 
 spool start /tmp/subdomains
