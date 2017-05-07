@@ -63,10 +63,18 @@ back
 
 query UPDATE contacts SET email = LOWER(email)
 query UPDATE credentials SET username = LOWER(username)
+query UPDATE hosts SET host = LOWER(host)
+query UPDATE ports SET host = LOWER(host)
+
+query UPDATE contacts SET title = '' WHERE title = 'PGP key association'
+query UPDATE contacts SET title = '' WHERE title = 'Whois contact'
+query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Abuse)'
+query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Admin)'
+query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Tech)'
 
 spool start /tmp/emails
-query SELECT DISTINCT username FROM credentials WHERE username LIKE "%@yyy" ORDER BY username
 query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email
+query SELECT DISTINCT username FROM credentials WHERE username LIKE "%@yyy" ORDER BY username
 spool stop
 
 spool start /tmp/names
@@ -79,6 +87,7 @@ spool stop
 
 spool start /tmp/subdomains
 query SELECT host,ip_address FROM hosts ORDER BY host
+query SELECT host,ip_address FROM ports WHERE host LIKE "%yyy" ORDER BY host
 spool stop
 
 exit
