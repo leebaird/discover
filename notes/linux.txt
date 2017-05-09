@@ -15,6 +15,7 @@ tar zxvf test.tar.gz
 tar zxvf test.tar
 gzip -d test.gz
 unzip test.zip
+zcat rockyou.txt.gz > rockyou.txt
  
 tar -zcvf test.tar test            Compress
 gzip test
