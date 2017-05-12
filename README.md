@@ -176,34 +176,38 @@ Parse XML to CSV.
 
 ### Generate a malicious payload
 ```
-MALICIOUS PAYLOADS
+Malicious Payloads
 
-1.  android/meterpreter/reverse_tcp
-2.  cmd/windows/reverse_powershell
-3.  linux/x64/shell_reverse_tcp
-4.  linux/x86/meterpreter/reverse_tcp
-5.  osx/x64/shell_reverse_tcp
-6.  php/meterpreter/reverse_tcp
-7.  windows/meterpreter/reverse_tcp
-8.  windows/x64/meterpreter/reverse_tcp
-9.  Previous menu
+1.   android/meterpreter/reverse_tcp
+2.   cmd/windows/reverse_powershell
+3.   java/jsp_shell_reverse_tcp
+4.   linux/x64/shell_reverse_tcp
+5.   linux/x86/meterpreter/reverse_tcp
+6.   osx/x64/shell_reverse_tcp
+7.   php/meterpreter/reverse_tcp
+8.   windows/meterpreter/reverse_tcp
+9.   windows/meterpreter/reverse_tcp (ASP)
+10.  windows/x64/meterpreter/reverse_tcp
+11.  Previous menu
 ```
 
 ### Start a Metasploit listener
 ```
-Metasploit LISTENERS
+Metasploit Listeners
 
-1.  android/meterpreter/reverse_tcp
-2.  cmd/windows/reverse_powershell
-3.  linux/x64/shell_reverse_tcp
-4.  linux/x86/meterpreter/reverse_tcp
-5.  osx/x64/shell_reverse_tcp
-6.  php/meterpreter/reverse_tcp
-7.  windows/meterpreter/reverse_tcp
-8.  windows/x64/meterpreter/reverse_tcp
-9.  Previous menu
+1.   android/meterpreter/reverse_tcp
+2.   cmd/windows/reverse_powershell
+3.   java/jsp_shell_reverse_tcp
+4.   linux/x64/shell_reverse_tcp
+5.   linux/x86/meterpreter/reverse_tcp
+6.   osx/x64/shell_reverse_tcp
+7.   php/meterpreter/reverse_tcp
+8.   windows/meterpreter/reverse_tcp
+9.   windows/x64/meterpreter/reverse_tcp
+10.  Previous menu
 ```
 
 ### Update
 
 * Use to update Kali Linux, Discover scripts, various tools and the locate database.
+
