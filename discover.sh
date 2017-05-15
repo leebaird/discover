@@ -351,7 +351,7 @@ case $choice in
      echo "URLCrazy                  (22/$total)"
      urlcrazy $domain > tmp
      # Clean up & Remove Blank Lines
-     egrep -v '(#|:|\?|\-|RESERVED|URLCrazy)' tmp | sed '/^$/d' > tmp2
+     egrep -av '(#|:|\?|\-|RESERVED|URLCrazy)' tmp | sed '/^$/d' > tmp2
      # Realign Columns
      sed -e 's/..,/   /g' tmp2 > tmp3
      # Convert Caps
