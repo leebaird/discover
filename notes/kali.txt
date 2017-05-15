@@ -54,8 +54,9 @@ cd /opt/discover/
 
 # Services
 
-service <service> <start|stop>
+service <service> <start|stop|restart>
 service ssh start                                Start ssh
+/etc/init.d/ssh start                            Start ssh
 netstat -antp | grep ssh                         Verify the ssh service is running
 
 service apache2 start                            Start Apache

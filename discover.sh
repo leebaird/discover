@@ -4160,14 +4160,15 @@ echo -e "\x1B[1;34mMalicious Payloads\x1B[0m"
 echo
 echo "1.   android/meterpreter/reverse_tcp"
 echo "2.   cmd/windows/reverse_powershell"
-echo "3.   linux/x64/shell_reverse_tcp"
-echo "4.   linux/x86/meterpreter/reverse_tcp"
-echo "5.   osx/x64/shell_reverse_tcp"
-echo "6.   php/meterpreter/reverse_tcp"
-echo "7.   windows/meterpreter/reverse_tcp"
-echo "8.   windows/meterpreter/reverse_tcp (ASP)"
-echo "9.   windows/x64/meterpreter/reverse_tcp"
-echo "10.  Previous menu"
+echo "3.   java/jsp_shell_reverse_tcp"
+echo "4.   linux/x64/shell_reverse_tcp"
+echo "5.   linux/x86/meterpreter/reverse_tcp"
+echo "6.   osx/x64/shell_reverse_tcp"
+echo "7.   php/meterpreter/reverse_tcp"
+echo "8.   windows/meterpreter/reverse_tcp"
+echo "9.   windows/meterpreter/reverse_tcp (ASP)"
+echo "10.  windows/x64/meterpreter/reverse_tcp"
+echo "11.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
@@ -4183,43 +4184,48 @@ case $choice in
           format="raw"
           arch="cmd"
           platform="windows";;
-     3) payload="linux/x64/shell_reverse_tcp"
+     3) payload="java/jsp_shell_reverse_tcp"
+          extention=".jsp"
+          format="raw"
+          arch="cmd"
+          platform="windows";;
+     4) payload="linux/x64/shell_reverse_tcp"
           extention=""
           format="elf"
           arch="x86_64"
           platform="linux";;
-     4) payload="linux/x86/meterpreter/reverse_tcp"
+     5) payload="linux/x86/meterpreter/reverse_tcp"
           extention=""
           format="elf"
           arch="x86"
           platform="linux";;
-     5) payload="osx/x64/shell_reverse_tcp"
+     6) payload="osx/x64/shell_reverse_tcp"
           extention=""
           format="macho"
           arch="x86_64"
           platform="osx";;
-     6) payload="php/meterpreter/reverse_tcp"
+     7) payload="php/meterpreter/reverse_tcp"
           extention=".php"
           format="raw"
           arch="php"
           platform="php"
           encoder="php/base64";;
-     7) payload="windows/meterpreter/reverse_tcp"
+     8) payload="windows/meterpreter/reverse_tcp"
           extention=".exe"
           format="exe"
           arch="x86"
           platform="windows";;
-     8) payload="windows/meterpreter/reverse_tcp (ASP)"
+     9) payload="windows/meterpreter/reverse_tcp (ASP)"
           extention=".asp"
           format="asp"
           arch="x86"
           platform="windows";;
-     9) payload="windows/x64/meterpreter/reverse_tcp"
+     10) payload="windows/x64/meterpreter/reverse_tcp"
           extention=".exe"
           format="exe"
           arch="x86_64"
           platform="windows";;
-     10) f_main;;
+     11) f_main;;
      *) f_error;;
 esac
 
@@ -4264,13 +4270,14 @@ echo -e "\x1B[1;34mMetasploit Listeners\x1B[0m"
 echo
 echo "1.  android/meterpreter/reverse_tcp"
 echo "2.  cmd/windows/reverse_powershell"
-echo "3.  linux/x64/shell_reverse_tcp"
-echo "4.  linux/x86/meterpreter/reverse_tcp"
-echo "5.  osx/x64/shell_reverse_tcp"
-echo "6.  php/meterpreter/reverse_tcp"
-echo "7.  windows/meterpreter/reverse_tcp"
-echo "8.  windows/x64/meterpreter/reverse_tcp"
-echo "9.  Previous menu"
+echo "3.  java/jsp_shell_reverse_tcp"
+echo "4.  linux/x64/shell_reverse_tcp"
+echo "5.  linux/x86/meterpreter/reverse_tcp"
+echo "6.  osx/x64/shell_reverse_tcp"
+echo "7.  php/meterpreter/reverse_tcp"
+echo "8.  windows/meterpreter/reverse_tcp"
+echo "9.  windows/x64/meterpreter/reverse_tcp"
+echo "10. Previous menu"
 echo
 echo -n "Choice: "
 read choice
@@ -4278,13 +4285,14 @@ read choice
 case $choice in
      1) payload="android/meterpreter/reverse_tcp";;
      2) payload="cmd/windows/reverse_powershell";;
-     3) payload="linux/x64/shell_reverse_tcp";;
-     4) payload="linux/x86/meterpreter/reverse_tcp";;
-     5) payload="osx/x64/shell_reverse_tcp";;
-     6) payload="php/meterpreter/reverse_tcp";;
-     7) payload="windows/meterpreter/reverse_tcp";;
-     8) payload="windows/x64/meterpreter/reverse_tcp";;
-     9) f_main;;
+     3) payload="java/jsp_shell_reverse_tcp";;
+     4) payload="linux/x64/shell_reverse_tcp";;
+     5) payload="linux/x86/meterpreter/reverse_tcp";;
+     6) payload="osx/x64/shell_reverse_tcp";;
+     7) payload="php/meterpreter/reverse_tcp";;
+     8) payload="windows/meterpreter/reverse_tcp";;
+     9) payload="windows/x64/meterpreter/reverse_tcp";;
+     10) f_main;;
      *) f_error;;
 esac
 
