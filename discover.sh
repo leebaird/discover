@@ -310,6 +310,10 @@ case $choice in
      echo
 
      echo "theHarvester"
+     
+     # Use local python interpreter according to PATH.
+     pyint="/usr/bin/env python"
+     
      # PTF
      if [ -f /pentest/intelligence-gathering/theharvester/theHarvester.py ]; then
           theharvester="theHarvester"
@@ -318,29 +322,29 @@ case $choice in
      fi
 
      echo "     Baidu                (9/$total)"
-     $theharvester -d $domain -b baidu > zbaidu
+     $pyint $theharvester -d $domain -b baidu > zbaidu
      echo "     Bing                 (10/$total)"
-     $theharvester -d $domain -b bing > zbing
+     $pyint $theharvester -d $domain -b bing > zbing
      echo "     Dogpilesearch        (11/$total)"
-     $theharvester -d $domain -b dogpilesearch > zdogpilesearch
+     $pyint $theharvester -d $domain -b dogpilesearch > zdogpilesearch
      echo "     Google               (12/$total)"
-     $theharvester -d $domain -b google > zgoogle
+     $pyint $theharvester -d $domain -b google > zgoogle
      echo "     Google CSE           (13/$total)"
-     $theharvester -d $domain -b googleCSE > zgoogleCSE
+     $pyint $theharvester -d $domain -b googleCSE > zgoogleCSE
      echo "     Google+              (14/$total)"
-     $theharvester -d $domain -b googleplus | sed 's/ - Google+//g' > zgoogleplus
+     $pyint $theharvester -d $domain -b googleplus | sed 's/ - Google+//g' > zgoogleplus
      echo "     Google Profiles	  (15/$total)"
-     $theharvester -d $domain -b google-profiles > zgoogle-profiles
+     $pyint $theharvester -d $domain -b google-profiles > zgoogle-profiles
      echo "     Jigsaw               (16/$total)"
-     $theharvester -d $domain -b jigsaw > zjigsaw
+     $pyint $theharvester -d $domain -b jigsaw > zjigsaw
      echo "     LinkedIn             (17/$total)"
-     $theharvester -d $domain -b linkedin > zlinkedin
+     $pyint $theharvester -d $domain -b linkedin > zlinkedin
      echo "     PGP                  (18/$total)"
-     $theharvester -d $domain -b pgp > zpgp
+     $pyint $theharvester -d $domain -b pgp > zpgp
      echo "     Yahoo                (19/$total)"
-     $theharvester -d $domain -b yahoo > zyahoo
+     $pyint $theharvester -d $domain -b yahoo > zyahoo
      echo "     All                  (20/$total)"
-     $theharvester -d $domain -b all > zall
+     $pyint $theharvester -d $domain -b all > zall
      echo
 
      echo "Metasploit                (21/$total)"
