@@ -396,7 +396,7 @@ case $choice in
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
      # Clean up
-     egrep -v '(#|%|<a|=-=-=-=|;:|Access may be|Additionally|Afilias except|and DNS Hosting|and limitations of|any use of|Be sure to|By submitting an|by the terms|can easily change|circumstances will|clientDeleteProhibited|clientTransferProhibited|clientUpdateProhibited|company may be|complaint will|contact information|Contact us|Copy and paste|currently set|database|data contained in|data presented in|date of|dissemination|Domaininfo AB|Domain Management|Domain names in|Domain status: ok|enable high|except as reasonably|failure to|facsimile of|for commercial purpose|for detailed information|For information for|for information purposes|for the sole|Get Noticed|Get a FREE|guarantee its|HREF|In Europe|In most cases|in obtaining|in the address|includes restrictions|including spam|information is provided|is not the|is providing|Learn how|Learn more|makes this information|MarkMonitor|mining this data|minute and one|modify existing|modify these terms|must be sent|name cannot|NamesBeyond|not to use|Note: This|NOTICE|obtaining information about|of Moniker|of this data|or hiding any|or otherwise support|other use of|own existing customers|Please be advised|Please note|policy|prior written consent|privacy is|Problem Reporting System|Professional and|prohibited without|Promote your|protect the|Public Interest|queries or|Register your|Registrars|registration record|repackaging,|responsible for|See Business Registration|server at|solicitations via|sponsorship|Status|support questions|support the transmission|telephone, or facsimile|that apply to|that you will|the right| The data is|The fact that|the transmission|The Trusted Partner|This listing is|This feature is|This information|This service is|to collect or|to entities|to report any|transmission of mass|UNITED STATES|United States|unsolicited advertising|Users may|Version 6|via e-mail|Visit AboutUs.org|while believed|will use this|with many different|with no guarantee|We reserve the|Whois|you agree|You may not)' tmp2 > tmp3
+     egrep -v '(#|%|<a|=-=-=-=|;:|Access may be|Additionally|Afilias except|and DNS Hosting|and limitations of|any use of|Be sure to|at the end of|By submitting an|by the terms|can easily change|circumstances will|clientDeleteProhibited|clientTransferProhibited|clientUpdateProhibited|company may be|complaint will|contact information|Contact us|Copy and paste|currently set|database|data contained in|data presented in|date of|dissemination|Domaininfo AB|Domain Management|Domain names in|Domain status: ok|enable high|except as reasonably|failure to|facsimile of|for commercial purpose|for detailed information|For information for|for information purposes|for the sole|Get Noticed|Get a FREE|guarantee its|HREF|In Europe|In most cases|in obtaining|in the address|includes restrictions|including spam|information is provided|is not the|is providing|JPRS database provides|Learn how|Learn more|makes this information|MarkMonitor|mining this data|minute and one|modify existing|modify these terms|must be sent|name cannot|NamesBeyond|not to use|Note: This|NOTICE|obtaining information about|of Moniker|of this data|or hiding any|or otherwise support|other use of|own existing customers|Please be advised|Please note|policy|prior written consent|privacy is|Problem Reporting System|Professional and|prohibited without|Promote your|protect the|Public Interest|queries or|Register your|Registrars|registration record|repackaging,|responsible for|See Business Registration|server at|solicitations via|sponsorship|Status|support questions|support the transmission|telephone, or facsimile|that apply to|that you will|the right| The data is|The fact that|the transmission|The Trusted Partner|This listing is|This feature is|This information|This service is|to collect or|to entities|to report any|To suppress Japanese|transmission of mass|UNITED STATES|United States|unsolicited advertising|Users may|Version 6|via e-mail|Visit AboutUs.org|while believed|will use this|with many different|with no guarantee|We reserve the|Whois|you agree|You may not)' tmp2 > tmp3
      # Remove lines starting with "*"
      sed '/^*/d' tmp3 > tmp4
      # Remove lines starting with "-"
@@ -760,7 +760,7 @@ case $choice in
 
      if [ -e emails-final ]; then
           emailcount=$(wc -l emails-final | cut -d ' ' -f1)
-          echo "Emails        $emailcount" >> zreport
+          echo "Emails               $emailcount" >> zreport
           echo "Emails ($emailcount)" >> tmp
           echo $short >> tmp
           cat emails-final >> tmp
@@ -770,7 +770,7 @@ case $choice in
 
      if [ -e names-recon ]; then
           namecount=$(wc -l names-recon | cut -d ' ' -f1)
-          echo "Names         $namecount" >> zreport
+          echo "Names                $namecount" >> zreport
           echo "Names ($namecount)" >> tmp
           echo $short >> tmp
           cat names-recon >> tmp
@@ -780,7 +780,7 @@ case $choice in
 
      if [ -s networks ]; then
           networkcount=$(wc -l networks | cut -d ' ' -f1)
-          echo "Networks      $networkcount" >> zreport
+          echo "Networks             $networkcount" >> zreport
           echo "Networks ($networkcount)" >> tmp
           echo $short >> tmp
           cat networks >> tmp
@@ -789,7 +789,7 @@ case $choice in
 
      if [ -e hosts ]; then
           hostcount=$(wc -l hosts | cut -d ' ' -f1)
-          echo "Hosts         $hostcount" >> zreport
+          echo "Hosts                $hostcount" >> zreport
           echo "Hosts ($hostcount)" >> tmp
           echo $short >> tmp
           cat hosts >> tmp
@@ -798,7 +798,7 @@ case $choice in
 
      if [ -e squatting ]; then
           urlcount2=$(wc -l squatting | cut -d ' ' -f1)
-          echo "Squatting     $urlcount2" >> zreport
+          echo "Squatting            $urlcount2" >> zreport
           echo "Squatting ($urlcount2)" >> tmp
           echo $long >> tmp
           cat squatting >> tmp
@@ -809,7 +809,7 @@ case $choice in
      if [ -e domains ]; then
           domaincount1=$(wc -l domains | cut -d ' ' -f1)
           domaincount2=$(echo $(($domaincount1-1)))
-          echo "Registered Domains       $domaincount2" >> zreport
+          echo "Registered Domains   $domaincount2" >> zreport
           echo "Registered Domains ($domaincount2)" >> tmp
           echo $long >> tmp
           cat domains >> tmp
@@ -819,7 +819,7 @@ case $choice in
 
      if [ -e subdomains ]; then
           urlcount=$(wc -l subdomains | cut -d ' ' -f1)
-          echo "Subdomains    $urlcount" >> zreport
+          echo "Subdomains           $urlcount" >> zreport
           echo "Subdomains ($urlcount)" >> tmp
           echo $long >> tmp
           cat subdomains >> tmp
@@ -829,7 +829,7 @@ case $choice in
 
      if [ -e xls ]; then
           xlscount=$(wc -l xls | cut -d ' ' -f1)
-          echo "Excel         $xlscount" >> zreport
+          echo "Excel                $xlscount" >> zreport
           echo "Excel Files ($xlscount)" >> tmp
           echo $long >> tmp
           cat xls >> tmp
@@ -839,7 +839,7 @@ case $choice in
 
      if [ -e pdf ]; then
           pdfcount=$(wc -l pdf | cut -d ' ' -f1)
-          echo "PDF           $pdfcount" >> zreport
+          echo "PDF                  $pdfcount" >> zreport
           echo "PDF Files ($pdfcount)" >> tmp
           echo $long >> tmp
           cat pdf >> tmp
@@ -849,7 +849,7 @@ case $choice in
 
      if [ -e ppt ]; then
           pptcount=$(wc -l ppt | cut -d ' ' -f1)
-          echo "PowerPoint    $pptcount" >> zreport
+          echo "PowerPoint           $pptcount" >> zreport
           echo "PowerPoint Files ($pptcount)" >> tmp
           echo $long >> tmp
           cat ppt >> tmp
@@ -859,7 +859,7 @@ case $choice in
 
      if [ -e txt ]; then
           txtcount=$(wc -l txt | cut -d ' ' -f1)
-          echo "Text          $txtcount" >> zreport
+          echo "Text                 $txtcount" >> zreport
           echo "Text Files ($txtcount)" >> tmp
           echo $long >> tmp
           cat txt >> tmp
@@ -869,7 +869,7 @@ case $choice in
 
      if [ -e doc ]; then
           doccount=$(wc -l doc | cut -d ' ' -f1)
-          echo "Word          $doccount" >> zreport
+          echo "Word                 $doccount" >> zreport
           echo "Word Files ($doccount)" >> tmp
           echo $long >> tmp
           cat doc >> tmp
