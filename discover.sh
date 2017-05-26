@@ -985,8 +985,8 @@ case $choice in
 
      echo -e "\x1B[1;34mUses Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute, and Whatweb.\x1B[0m"
      echo
-     echo -e "\x1B[1;34m[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google, Hashes, and\x1B[0m"
-     echo -e "\x1B[1;34mShodan for maximum results with recon-ng.\x1B[0m"
+     echo -e "\x1B[1;34m[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google,\x1B[0m"
+     echo -e "\x1B[1;34mHashes, and Shodan for maximum results with recon-ng.\x1B[0m"
      echo
      echo $medium
      echo
@@ -1025,15 +1025,15 @@ case $choice in
      echo "dnsrecon"
      echo "     DNS Records          (2/$total)"
      dnsrecon -d $domain -t std > tmp
-     egrep -v '(All queries|Bind Version for|Could not|Enumerating SRV|It is resolving|not configured|Performing|Records Found|Recursion|Resolving|TXT|Wildcard)' tmp > tmp2
+     egrep -v '(All queries|Bind Version|Could not|Enumerating SRV|is resolving|not configured|Performing|Records Found|Recursion|Resolving|TXT|Wildcard)' tmp | sort > tmp2
      # Remove first 6 characters from each line
-     sed 's/^......//g' tmp2 | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10}' | column -t | sort -u -k2 -k1 > tmp3
-     grep 'TXT' tmp | sed 's/^......//g' | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15}' >> tmp3
-     egrep -v '(SEC3|SKEYs|SSEC)' tmp3 > records
-     cat $home/data/$domain/data/records.htm records | grep -v '<' | column -t | sort -u -k2 -k1 > tmp3
+     sed 's/^......//g' tmp2 | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15}' | column -t | sort -u -k2 -k1 > tmp3
+     grep 'TXT' tmp | sed 's/^......//g' | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15}' | sort > tmp4
+     cat tmp3 tmp4 > records
+     cat $home/data/$domain/data/records.htm records | grep -v '<' | sort -u > records2
 
      echo '<pre style="font-size:14px;">' > $home/data/$domain/data/records.htm
-     cat tmp3 | column -t >> $home/data/$domain/data/records.htm; echo "</pre>" >> $home/data/$domain/data/records.htm
+     cat records2 >> $home/data/$domain/data/records.htm; echo "</pre>" >> $home/data/$domain/data/records.htm
 
      echo "     Zone Transfer        (3/$total)"
      dnsrecon -d $domain -t axfr > tmp
@@ -1226,7 +1226,7 @@ case $choice in
      echo '<pre style="font-size:14px;">' > $home/data/$domain/data/hosts.htm
      cat tmp >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
 
-     rm emails* hosts loadbalancing recon-ng-active.rc records sub* tmp* waf whatweb z* /tmp/subdomains 2>/dev/null
+     rm emails* hosts loadbalancing recon-ng-active.rc records* sub* tmp* waf whatweb z* /tmp/subdomains 2>/dev/null
 
      echo
      echo $medium
