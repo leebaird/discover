@@ -88,6 +88,7 @@ locate file                        Reads the database and shows the location of 
 which app                          Show the path where the app is executed from
 find / -name sbd*                  Show all the files that start with sbd
 find / -perm -o+w -type d          Show all world readable directories
+find / -perm -o+e -type d          Show all world executable directories
 ------------------------------------------------------------------------------------------------------
 
 # Installation
@@ -289,30 +290,38 @@ G                                  End of file
 <ctrl> u                           Page up
 <esc> u                            Undo
 
+Search
+/                                  Search string
+n                                  Next string
+N                                  Previous string
+
+Search and replace
+:s/foo/bar/g                       Search for foo and replace with bar globally
+
 Insert mode
 Position the cursor where the new text should go.
 i
 Enter new text.
-Press <esc> to return to command mode.
+<esc> to return to command mode.
 
 Append mode
 Position the cursor on the last letter of the line.
 a
 Enter new text. This adds text AFTER the cursor. 
-Press <esc> to return to command mode.
+<esc> to return to command mode.
 
 Replace mode
 Move the cursor to the character to be replaced.
 r
 Enter the replacement character.
-Press <esc> to return to command mode.
+<esc> to return to command mode.
 
-Search
-/
-Enter the search string.
+:q
+
+Quit and do not save
+<esc>
+:q!
 <return>
-n	Search forward
-N	Search backward
 
 Write changes to a file
 <esc>
@@ -321,17 +330,7 @@ Write changes to a file
 
 Write changes to a file and quit
 <esc>
-:wq
 <return>
-
-Quit
-<esc>
-:q
-
-Do not save and quit
-<esc>
-:q!
-<Return>
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------
 

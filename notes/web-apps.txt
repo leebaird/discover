@@ -1,19 +1,6 @@
 Web Apps
 
 
-# Basic testing methodology
-
-nslookup <target URL>
-nmap -Pn -n -T4 --open -p- -A <targetIP>
-sslscan --ipv4 --show-certificate --ssl2 --ssl3 --no-colour <targetIP>
-sslyze --regular <target URL>
-whatweb <target URL>
-wpscan --url <target URL>
-nikto -h <targetIP> -port 443 -Format htm --output nikto.htm
-Nessus
-Burp
-------------------------------------------------------------------------------------------------------
-
 # HTTP Methods or Verbs
 
 GET       Does not have a body and passes all parameters in the URL.
@@ -39,7 +26,7 @@ TRACE     Used for debugging.
 500       Internal Server Error
 ------------------------------------------------------------------------------------------------------
 
-# Simple web server to share malicious code
+# Simple web server to share out code
 
 Change directory to where your scripts and web shells are located.
 cd /root/scripts/

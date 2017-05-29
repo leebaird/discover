@@ -4224,7 +4224,7 @@ case $choice in
      4) payload="linux/x64/shell_reverse_tcp"
           extention=""
           format="elf"
-          arch="x86_64"
+          arch="x64"
           platform="linux";;
      5) payload="linux/x86/meterpreter/reverse_tcp"
           extention=""
@@ -4234,7 +4234,7 @@ case $choice in
      6) payload="osx/x64/shell_reverse_tcp"
           extention=""
           format="macho"
-          arch="x86_64"
+          arch="x64"
           platform="osx";;
      7) payload="php/meterpreter/reverse_tcp"
           extention=".php"
@@ -4255,7 +4255,7 @@ case $choice in
      10) payload="windows/x64/meterpreter/reverse_tcp"
           extention=".exe"
           format="exe"
-          arch="x86_64"
+          arch="x64"
           platform="windows";;
      11) f_main;;
      *) f_error;;
