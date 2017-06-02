@@ -3961,7 +3961,11 @@ echo
 echo $medium
 echo
 echo "Running sslyze."
-sslyze --targets_in=$location --resum --certinfo=basic --compression --reneg --sslv2 --sslv3 --hide_rejected_ciphers > $home/data/sslyze.txt
+sslyze --targets_in=$location --resum --certinfo=basic --compression --reneg --sslv2 --sslv3 --hide_rejected_ciphers > tmp
+
+# Remove the first 23 lines
+sed '1,23d' tmp > $home/data/sslyze.txt
+
 echo
 echo "Running sslscan."
 echo
@@ -3980,7 +3984,7 @@ while read -r line; do
      N=$((N+1))
 
      echo -n "[$N/$number]  $line"
-     sslscan --ipv4 --show-certificate --ssl2 --ssl3 --no-colour $line > tmp_$line
+     sslscan --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour $line > tmp_$line
 
      echo "... completed."
      echo >> ssl_$line
@@ -4143,7 +4147,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-echo -e "The new reports are located at \x1B[1;33m $home/data/sslscan.txt \x1B[0m and \x1B[1;33m $home/data/sslyze.txt \x1B[0m"
+echo -e "The new reports are located at \x1B[1;33m$home/data/sslscan.txt \x1B[0mand \x1B[1;33m$home/data/sslyze.txt \x1B[0m"
 
 echo
 echo -n "If your IPs are public, do you want to test them using an external source? (y/N) "
