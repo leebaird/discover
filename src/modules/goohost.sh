@@ -1,0 +1,22 @@
+Unstaged changes after reset:
+D	misc/compare-sites.sh
+D	misc/crawl.sh
+D	misc/dns-forward.sh
+D	misc/dns-reverse.sh
+D	misc/dns-transfer.sh
+D	misc/enum-linux.sh
+D	misc/enum-solaris.sh
+D	misc/netblocks.sh
+D	misc/netblocks.txt
+D	misc/ping-sweep.sh
+M	misc/python/discover.py
+D	misc/python/ex1.py
+D	misc/python/fuzzer-pop3.py
+D	misc/python/multitabs.py
+D	misc/python/recon.py
+D	misc/python/test.py
+D	misc/subdomains-from-ssl.sh
+D	mods/goog-mail.py
+D	mods/goohost.sh
+M	modules/goog-mail.py
+M	modules/goohost.sh
