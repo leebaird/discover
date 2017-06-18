@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 4800
+
+use auxiliary/scanner/scada/moxa_discover
+run

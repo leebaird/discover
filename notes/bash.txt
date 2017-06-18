@@ -177,8 +177,7 @@ if [ -d test ]; then
 fi
 
 if [ ! -d test ]; then
-     echo "The folder doesn't exist, creating it."
-     mkdir test
+     echo "The folder does not exist."
 fi
 
 ------------------------------------------------------------------------------------------------------
