@@ -221,7 +221,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=34
+     total=32
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g;s/\&/%26/g;s/\,/%2C/g' )
 
@@ -529,20 +529,12 @@ case $choice in
      echo "email-format.com          (27/$total)"
      curl --silent http://www.email-format.com/d/$domain/ | grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* > zemail-format
 
-     echo "ewhois.com                (28/$total)"
-     wget -q http://www.ewhois.com/$domain/ -O tmp
-     cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > sub3
-
-     echo "intodns.com               (29/$total)"
+     echo "intodns.com               (28/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
      cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
      cat tmp2 >> $home/data/$domain/pages/config.htm
 
-     echo "myipneighbors.net         (30/$total)"
-     wget -q http://www.myipneighbors.net/?s=$domain -O tmp
-     grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
-
-     echo "netcraft.com              (31/$total)"
+     echo "netcraft.com              (29/$total)"
      wget -q http://toolbar.netcraft.com/site_report?url=http://www.$domain -O tmp
 
      # Remove lines from FOO to the second BAR
@@ -560,7 +552,7 @@ case $choice in
      echo >> $home/data/$domain/pages/netcraft.htm
      echo '</html>' >> $home/data/$domain/pages/netcraft.htm
 
-     echo "ultratools.com            (32/$total)"
+     echo "ultratools.com            (30/$total)"
      x=0
 
      f_passive_axfr(){
@@ -592,7 +584,7 @@ case $choice in
      echo '</body>' >> $home/data/$domain/data/zonetransfer.htm
      echo '</html>' >> $home/data/$domain/data/zonetransfer.htm
 
-     echo "Domains                   (33/$total)"
+     echo "Registered Domains        (31/$total)"
      f_regdomain(){
      while read regdomain; do
           whois -H $regdomain 2>&1 | sed -e 's|^[ \t]*||' | sed 's| \+ ||g' | sed 's|: |:|g' > tmp5
@@ -651,9 +643,9 @@ case $choice in
 
      # Formatting & clean-up
      sort tmp4 | sed 's|111AAA--placeholder--|Domain,Registrar,Registration Org,Registration Email,IP Address|' > tmp6
-     column -s ',' -t tmp6 > domains
-     echo "Domains registered to $company using a corporate email." >> $home/data/$domain/data/domains.htm
-     echo >> $home/data/$domain/data/domains.htm
+     column -s ',' -t tmp6 > registered-domains
+     echo "Domains registered to $company using a corporate email." >> $home/data/$domain/data/registered-domains.htm
+     echo >> $home/data/$domain/data/registered-domains.htm
      echo
 
      ##############################################################
@@ -698,7 +690,7 @@ case $choice in
 
      ##############################################################
 
-     echo "recon-ng                  (34/$total)"
+     echo "recon-ng                  (32/$total)"
      echo
      echo "workspaces add $domain" > tmp.rc
      echo "add companies" >> tmp.rc
@@ -814,15 +806,15 @@ case $choice in
           cat squatting >> $home/data/$domain/data/squatting.htm; echo "</pre>" >> $home/data/$domain/data/squatting.htm
      fi
 
-     if [ -e domains ]; then
-          domaincount1=$(wc -l domains | cut -d ' ' -f1)
+     if [ -e registered-domains ]; then
+          domaincount1=$(wc -l registered-domains | cut -d ' ' -f1)
           domaincount2=$(echo $(($domaincount1-1)))
           echo "Registered Domains   $domaincount2" >> zreport
           echo "Registered Domains ($domaincount2)" >> tmp
           echo $long >> tmp
-          cat domains >> tmp
+          cat registered-domains >> tmp
           echo >> tmp
-          cat domains >> $home/data/$domain/data/domains.htm; echo "</pre>" >> $home/data/$domain/data/domains.htm
+          cat registered-domains >> $home/data/$domain/data/registered-domains.htm; echo "</pre>" >> $home/data/$domain/data/registered-domains.htm
      fi
 
      if [ -e subdomains ]; then
