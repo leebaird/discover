@@ -729,7 +729,7 @@ case $choice in
 
      ##############################################################
 
-     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-recon
+     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|select)' | sort -u > emails-recon
      cat emails emails-recon | sort -u > emails-final
 
      grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|contact|production)' | sed 's/|//g; s/^[ \t]*//; /^[0-9]/d; /^-/d' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g; s/iii/III/g; s/ii/II/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/[ \t]*$//' | sort -u > names-recon
