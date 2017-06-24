@@ -5,8 +5,10 @@ sed -e 's/^/FOO/'                                   # Add FOO to the beginning o
 sed -e 's/$/FOO/'                                   # Add FOO to the end of each line
 column -t                                           # Align columns
 
-sed 's/\b\(.\)/\u\1/g'                              # Capitalize the first letter of every word
-tr '[A-Z]' '[a-z]'                                  # Change to lower case
+tr '[A-Z]' '[a-z]'                                  # Lower case
+sed s/[^ ]\+/\L\u&/g                                # Title case
+tr '[a-z]' '[A-Z]'                                  # Upper case
+
 sed /^$/d                                           # Compress blank lines
 paste -s -d" "                                      # Convert a list into a single line
 
@@ -60,6 +62,7 @@ for a in z*; do grep -vE '^[\/\#\(\_\[\|\<\.\,\`\%\@]' "$a" > "$a.tmp"; mv "$a.t
                                                     # Remove lines starting with various non-characters
 awk '$2 !~ /[a-z]/'                                 # Remove lines that contain [a-z] in the second column
 sed '/[[:blank:]]/!d'                               # Remove lines that contain a single word
+awk 'NF != 2'                                       # Remove lines that contain two words
 printf '%s\n' 'g/FOO/d\' '-d' w | ed -s             # Remove lines that contain FOO and the previous line
 sed '/@.*@/d'                                       # Remove lines that contain two @ symbols
 sed '/[0-9]$/'                                      # Remove lines that contain a number

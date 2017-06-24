@@ -1313,8 +1313,8 @@ f_location
 
 echo
 
-# Remove string, leading white space, and set tab as the delimiter
-sed 's/\[Direct Dial Available\]//g' $location | sed 's/^[ \t]*//' | sed 's/ \+ /\t/g' > tmp
+# Remove blank lines, string, and leading white space. Set tab as the delimiter
+sed '/^$/d; s/\[Direct Dial Available\]//g' $location | sed 's/^[ \t]*//' | sed 's/ \+ /\t/g' > tmp
 
 # Place names into a file and sort by uniq
 cut -d $'\t' -f1 tmp | sort -u > tmp2
@@ -1328,131 +1328,52 @@ done < tmp2
 column -s: -t tmp3 > tmp4
 
 # Clean-up
-cat tmp4 | sed 's/ -- /, /i; s/ - /, /i; s/1 /I /g; s/2 /II /g; s/3 /III /g; s/4 /IV /g; s/5 /V /g; s/2cfinancedistributionoperations//i; s/\-a/, A/i; s/, ,  and$//g; s/ at.*$//g; s/academic/Academic/i; s/accounting services manager/Manager, Accounting Services/i; s/account/Account/i; s/acting/Acting/i; 
-s/Admin Manager/Manager, Admin/i; s/admin/Admin/i; s/adviso /Advisor/i; s/affrs/Affairs/i; s/analysist/Analysist/i; s/analysis/Analysis/i; 
-s/analytics/Analytics/i; s/android/Android/i; s/applications/Applications/i; s/area iii manager/Manager, Area III/i; s/asia pacific//i; s/ asic/ ASIC/i; 
-s/assistant/Assistant/i; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/associate /Associate, /i; s/ at $//g; s/atm /ATM /i; 
-s/attorney/Attorney/i; s/automated/Automated/i; s/\-b/, B/i; s/banking/Banking/i; s/bd/BD/i; s/benefits manager/Manager, Benefits/i; 
-s/billing manager/Manager, Billing/i; s/billing/Billing/i; s/border/Border/i; s/branch/Branch/i; s/brach/Branch/i; 
-s/brand communicatinos director/Director, Brand Communications/i; s/bsc/BSC/i; s/business development manager/Manager, Business Development/i; 
-s/business/Business/i; s/buyer/Buyer/i; s/\-c/, C/i; s/call center director/Director, Call Center/i; s/call center supervisor/Supervisor, Call Center/i; 
-s/cargo/Cargo/i; s/cascade/Cascade/i; s/cbt/CBT/i; s/census/Census/i; s/center/Center/i; s/chair of county/Chair of County/i; s/chemicals/Chemicals/i; 
-s/chemist/Chemist/i; s/chromecast/Chromecast/i; s/ cip / CIP /i; s/cissp/CISSP/i; s/citrix/Citrix/i; s/civil/Civil/i; s/cj/CJ/i; 
-s/Claims Manager/Manager, Claims/i; s/clean/Clean/i; s/Clients//g; s/cmms/CMMS/i; s/cms/CMS/i; s/coal services director/Director, Coal Services/i; 
-s/commercial/Commercial/i; s/commission/Commission/i; s/CommitteemanagementOfficer/Committee Management Officer/g; 
-s/communications and organizational effectiveness director/Director, Communications and Organizational Effectiveness/i; 
-s/communications manager/Manager, Communications/i; s/community relations director/Director, Community Relations/i; s/community/Community/i; 
-s/compliance manager/Manager, Compliance/i; s/compliance/Compliance/i; s/component engineering supervisor/Supervisor, Component Engineering/i; 
-s/connected/Connected/i; s/consolidation/Consolidation/i; s/construction manager/Manager, Construction/i; 
-s/construction vice president/President, Construction Vice/i; s/consultant/Consultant/i; s/consumer/Consumer/i; 
-s/corporate services vice president/Vice President, Corporate Services/i; s/contact/Contact/i; s/contact sold, to//i; 
-s/content/Content/i; s/controller/Controller/i; s/corporate communications director/Director, Corporate Communications/i; 
-s/corporate equipment reliability manager/Manager, Corporate Equipment Reliability/i; s/Corporate Purchasing Manager/Manager, Purchasing/i; 
-s/corporate/Corporate/i; s/corrosion/Corrosion/i; s/council/Council/i; s/counsel/Counsel/i; s/counterparty/Counterparty/i; s/country/Country/i; 
-s/cpa/CPA/i; s/credit/Credit/i; s/crm/CRM/i; s/ctr /Center/i; s/customer account manager/Manager, Customer Account/i; 
-s/customer service supervisor/Supervisor, Customer Service/i; s/customer service supervisor/Supervisor, Customer Service/i; 
-s/customer support director/Director, Customer Support/i; s/cyber security manager/Manger, Cyber Security/i; s/\-d/, D/i; s/database/Database/i; 
-s/data processing manager/Manager, Data Processing/i; s/db2/DB2/i; s/dbii/DB2/i; s/dealer/Dealer/i; s/defense/Defense/i; s/delivery/Delivery/i; 
-s/deputy/Deputy/i; s/DesignatedFederalOfficial/Designated Federal Official/g; s/designer/Designer/i; s/design/Design/i; s/development/Development/i; 
-s/devices/Devices/i; s/director/Director/i; s/director-/Director, /i; s/director and/Director,/i; s/director in/Director,/i; s/director of/Director,/i; 
-s/director /Director, /i; s/directeur associ/Associate Director/i; s/disbursements/Disbursements/i; s/disciplined/Disciplined/i; s/discovery/Discovery/i; 
-s/display/Display/i; s/dist polcy manager/Manager, Dist Polcy/i; s/distribution operat center manager/Manager, Distribution Operations Center/i; 
-s/distribution supervisor/Supervisor, Distribution/i; s/dns/DNS/i; s/dvp/DVP/i; s/\-e/, E/i; s/ ebs/ EBS/i; s/echnical /Technical /i; 
-s/economic development manager/Manager, Economic Development/i; s/edrm/EDRM/i; s/education/Education/i; s/eeo/EEO/i; s/efi /EFI/i; 
-s/electric distribution projects manager/Manager, Electric Distribution Projects/i; s/electrical manager/Manager, Electrical/i; s/electric/Electric/i; 
-s/EleCenterEngineer/Electric Engineer/i; s/electronics/Electronics/i; s/emc/EMC/i; s/emea/EMEA/i; s/emerging/Emerging/i; 
-s/employee relations director/Director, Employee Relations/i; s/employee relations supervisor/Supervisor, Employee Relations/i; 
-s/employee services director/Director, Employee Services/i; s/employee/Employee/i; s/ ems/ EMS/i; s/endocrinology/Endocrinology/i; 
-s/emergency operations director/Director, Emergency Operations/i; s/energy consulting manager/Manager, Energy Consulting/i; s/energy/Energy/i; 
-s/engineering director/Director, Engineering/i; s/engineering manager/Manager, Engineering/i; s/engineering supervisor/Supervisor, Engineering/i; 
-s/engineering, supervisor/Supervisor, Engineering/i; s/engineering support manager/Manager, Engineering Support/i; s/engineer/Engineer/i; 
-s/engineer5/Engineer V/i; s/enterprise/Enterprise/i; s/environmental compliance manager/Manager, Environmental Compliance/i; 
-s/envirnmental and resource strategy director/Director, Envirnmental and Resource Strategy/i; 
-s/equity compensation manager/Manager, Equity Compensation/i; s/ethics/Ethics/i; s/event/Event/i; s/executive/Executive/i; 
-s/exploration manager/Manager, Exploration/i; s/extl/External/i; s/external affairs director/Director, External Affairs/i; 
-s/external affairs manager/Manager, External Affairs/i; s/\-f/, F/i; s/faa/FAA/i; s/fashion/Fashion/i; s/federal/Federal/i; s/fellow/Fellow/i; 
-s/ferc policy and compliance manager/Manager, FERC Policy and Compliance/i; s/ferc /FERC /i; s/fha/FHA/i; s/field/Field/i; s/fillmore/Fillmore/i; 
-s/finance and operations director/Director, Finance and Operations/i; s/Finance Director/Director, Finance/i; s/finance/Finance/i; 
-s/financial analysis director/Director, Financial Analysis/i; s/financial/Financial/i; s/financing manager/Manager, Financing/i; 
-s/fleet engineering design director/Director, Fleet Engineering Design/i; 
-s/fleet engineering director/Director, Fleet Engineering/i; s/fleet operations director/Director, Fleet Operations/i; 
-s/fleet services supervisor/Supervisor, Fleet Services/i; s/fleet training director/Director, Fleet Training/i; s/flight/Flight/i; 
-s/foodservice/Foodservice/i; s/foreign/Foreign/i; s/ for$//g; s/for Uk And$//i; s/,formation/, Formation/i;  s/fsa/FSA/i; s/fso/FSO/i; 
-s/fuel procurement manager/Manager, Fuel Procurement/i; s/FUNCTIONLead/Function Lead/g; s/fx/FX/i; s/\-g/, G/i; s/gaap/GAAP/i; 
-s/gas accounting supervisor/Supervisor, Gas Accounting/i; s/gas projects manager/Manager, Gas Projects/i; 
-s/generation project manager/Manager, Generation Project/i; s/gis services/GIS Services/i; s/Global Bi Reporting Manager/Manager, Global Bi Reporting/i; 
-s/global/Global/i; s/government and regional affairs vice president/Vice President, Government and Regional Affairs/i; s/group/Group/i; s/grp/Group/i; 
-s/gsa/GSA/i; s/gsis/GSIS/i; s/gsm/GSM/i; s/\-h/, H/i; s/hazard/Hazard/i; s/hd manager/Manager, HD/i; s/hd /HD /i; s/hmrc/HMRC/i; s/hp/HP/i; s/hq/HQ/i; 
-s/Human Resources Benefits Director/Director, Human Resources Benefits/i; s/human resources director/Director, Human Resources/i; 
-s/Human Resources Manager/Manager, Human Resources/i; s/human/Human/i; s/hvac/HVAC/i; s/\-i/, I/i; s/ id / ID /i; s/iii/III/i; s/ ii/ II/i; s/iis/IIS/i; 
-s/improvement/Improvement/i; s/import /Import /i; s/information/Information/i; s/information technology/IT/i; 
-s/inside sales manager/Manager, Inside Sales/i; s/institutional/Institutional/i; s/instrument/Instrument/i; s/insurance/Insurance/i; 
-s/intelligence/Intelligence/i; s/internal audit director/Director, Internal Audit/i; s/international/International/i; s/investor/Investor/i; 
-s/ir manager/IR Manager/i; s/issm/ISSM/i; s/it application support manager/Manager, IT Application Support/i; s/IT Audit Manager/Manager, IT Audit/i; 
-s/it business area manager/Manager, IT Business Area/i; s/it audit director/Director, IT Audit/i; s/itmanager/Manager, IT/i; s/it manager/Manager, IT/i; 
-s/it security director/Director, IT Security/i; s/it services manager/Manager, IT Services/i; s/it supervisor/Supervisor, IT/i; 
-s/itenterpriseprojectmanager/IT Enterprise Project Manager/i; s/investor relations director/Director, Investor Relations/i; s/ iv / IV /i; s/\-j/, J/i; 
-s/jd /JD /i; s/jt/JT/i; s/\-k/, K/i; s/key account manager/Manager, Key Account/i; s/konsult, konsultchef, projektledare/Consultant/i; s/\-l/, L/i; 
-s/lan administrator/LAN Administrator/i; s/lan admin/LAN Admin/i; s/landowner/Landowner/i; s/leadership mentoring chair/Leadership Mentoring Chair/i; 
-s/learning/Learning/i; s/legal and external affairs director/Director, Legal and External Affairs/i; s/legal/Legal/i; s/lending/Lending/i; 
-s/licensing supervisor/Supervisor, Licensing/i; s/llc/LLC./i; s/logistics director/Director, Logistics/i; s/lvl/Level/i; s/\-m/, M/i; 
-s/mainframe/Mainframe/i; s/maintenance manager/Manager, Maintenance/i; s/manager /Manager, /i; s/maintenance/Maintenance/i; 
-s/major projects supervisor/Supervisor, Major Projects/i; s/management-/Management,/i; s/mangr/Manager/i; s/Manager- /Manager, /i; 
-s/manager, and/Manager, /i; s/Manager, for/Manager,/i; s/manager, of /Manager, /i; s/manufacturing director/Director, Manufacturing/i; 
-s/manufacturing/Manufacturing/i; s/market policy manager/Manager, Market Policy/i; s/MarketingProductionManager/Marketing Production Manager/g; 
-s/Marketing Manager/Manager, Marketing/i; s/Marketing Director/Director, Marketing/i; s/market/Market/i; s/master/Master/i; s/materials/Materials/i; 
-s/ mba/ MBA/i; s/mcse/MCSE/i; s/mechanic/Mechanic/i; s/media and community relations manager/Manager, Media and Community Relations/i; 
-s/medical/Medical/i; s/mergers/Mergers/i; s/meter/Meter/i; s/Metering Manager/Manager, Metering/i; 
-s/metering services supervisor/Supervisor, Metering Services/i; s/metering supervisor/Supervisor, Metering/i; 
-s/military privatization manager/Manager, Military Privatization/i; s/mobility/Mobility/i; s/model/Model/i; s/mortgage/Mortgage/i; s/motorola/Motorola/i; 
-s/, mp//i; s/music/Music/i; s/\-n/, N/i; s/National Sales Director/Direct, National Sales/i; s/navy/Navy/i; s/nerc /NERC /i; s/negotiator/Negotiator/i; 
-s/laboratorynetwork/Laboratory, Network/i; s/northern/Northern/i; s/not in it//i; s/ nso/ NSO/i; 
-s/nuclear engineering excellence director/Director, Nuclear Engineering Excellence/i; 
-s/nuclear nerc compliance manager/Manager, Nuclear NERC Compliance/i; s/\-o/, O/i; 
-s/ocip and builders risk supervisor/Supervisor, Ocip and Builders Risk/i; s/of hong kong office//i; s/officer/Officer/i; s/officer and/Officer,/i; 
-s/officer of/Officer,/i; s/office/Office/i; s/online/Online/i; s/operations manager/Manager, Operation/i; 
-s/operations outage manager/Manager, Operations Outage/i; s/operations supervisor/Supervisor, Operations/i; s/operations/Operations/i; 
-s/oriented/Oriented/i; s/\-p/, P/i; s/packaging/Packaging/i; s/paralegal/Paralegal/i; s/parent/Parent/i; s/patrol/Patrol/i; s/payments/Payments/i; 
-s/pca/PCA/i; s/pc/PC/i; s/pdm/PDM/i; s/personnel director/Director, Personnel/i; s/phd/PhD/i; s/physical/Physical/i; s/pj/PJ/i; s/planner/Planner/i; 
-s/planning/Planning/i; s/platform/Platform/i; s/plt/Plant/i; s/pmo/PMO/i; s/pmp/PMP/i; s/pm /PM /i; s/portdirector/Port Director/i; 
-s/portfolio/Portfolio/i; s/power contracts manager/Manager, Power Contracts/i; s/power projects manager/Manager, Power Projects/i; s/power/Power/i; 
-s/pre, sales/Pre Sales/i; s/premium/Premium/i; s/president/President/i; s/president and/President,/i; s/president, for/President, /i; 
-s/president of/President,/i; s/president /President, /i; s/prevention/Prevention/i; s/principal/Principal/i; s/principal and/Principal,/i; 
-s/principal of/Principal,/i; s/private/Private/i; s/process/Process/i; s/procurement/Procurement/i; s/producer/Producer/i; 
-s/product support manager/Manager, Product Support/i; s/production/Production/i; s/programming/Programming/i; s/program/Program/i; 
-s/project office resource manager/Manager, Project Office Resource/i; s/project controls supervisor/Supervisor, Project Controls/i; s/project/Project/i; 
-s/Purchasing Manager/Manager, Purchasing/i; s/purchase/Purchase/i; s/\-q/, Q/i; s/\-r/, R/i; s/radiology/Radiology/i; s/r and d/R&D/i; 
-s/receives/Receives/i; s/recreation/Recreation/i; s/region sales supervisor/Supervisor, Region Sales/i; 
-s/Regional Production Director/Director, Regional Sales/i; s/regional/Regional/i; s/regular/Regular/i; 
-s/regulatory litigation case manager/Manager, Regulatory Litigation Case/i; s/REGULATORY/Regulatory/i; s/relationship/Relationship/i; 
-s/reliability/Reliability/i; s/relocation manager/Manager, Relocation/i; s/retail/Retail/i; s/retirement/Retirement/i; s/revenue/Revenue/i; 
-s/rfid/RFID/i; s/rfp/RFP/i; s/ rf/ RF/i; s/right of way/Right of Way/i; s/risk/Risk/i; s/\-s/, S/i; s/safety director/Director, Safety/i; 
-s/safety manager/Manager, Safety/i; s/safety/Safety/i; s/sales and service supervisor/Supervisor, Sales and Service/i; 
-s/sales director/Director, Sales/i; s/sales manager/Manager, Sales/i; s/sales/Sales/i; s/san manager/SAN Manager/i; s/scada/SCADA/i; s/scholar/Scholar/i; 
-s/scientist/Scientist/i; s/scm site supervisor/Supervisor, SCM Site/i; s/security compliance manager/Manager, Security Compliance/i; 
-s/security/Security/i; s/senior business development manager/Manager, Senior Business Development/i; 
-s/senior engineering director/Director, Senior Engineering/i; s/senior/Senior/i; s/service/Service/i; s/services/Services/i; s/setac-/SETAC,/i; 
-s/sftwr/Software/i; s/six sigma master black belt//i; s/skill/Skill/i; s/smart/Smart/i; s/smb/SMB/i; s/sms/SMS/i; s/snr/Senior/i; s/social/Social/i; 
-s/Sourcing Manager/Manager, Sourcing/i; s/space/Space/i; s/spain/Spain/i; s/.specialist./ Specialist /i; s/sql/SQL/i; s/spvr/Supervisor/i; 
-s/srbranch/Senior Branch/i; s/srsales/Senior Sales/i; s/ ssl/ SSL/i; s/staffing/Staffing/i; s/stf/Staff/i; s/stock/Stock/i; 
-s/storm center director/Director, Storm Center/i; s/strategic issues and community affairs director/Director, Strategic Issues and Community Affairs/i; 
-s/strategic/Strategic/i; s/subsidiary/Subsidiary/i; s/supervisor /Supervisor, /i; s/Supervisor, and/Supervisor,/i; s/supervisor, of/Supervisor,/i; 
-s/supply chain director/Director, Supply Chain/i; s/supply chain manager/Manager, Supply Chain/i; s/supply/Supply/i; s/support/Support/i; 
-s/swepco/SWEPCO/i; s/\-t/, T/i; s/teacher/Teacher/i; s/ team/ Team/i; s/Technical Manager/Manager, Technical/i; 
-s/technical support director/Director, Technical Support/i; s/technical/Technical/i; s/technologymanager/Technology Manager/i; s/technology/Technology/i; 
-s/the americas//i; s/americas//i; s/ttechnical/Technical/i; s/tech/Tech/i; s/telecommunications/Telecommunications/i; 
-s/telecommunication/Telecommunication/i; s/television/Television/i; s/testing/Testing/i; s/test/Test/i; s/the /the /i; s/trademarks/Trademarks/i; 
-s/ to .*$//i; s/traffic and workforce supervisor/Supervisor, Traffic and Workforce/i; s/trainer/Trainer/i; s/training director/Director, Training/i; 
-s/training manager/Manager, Training/i; s/transportation services manager/Manager, Transportation Services/i; s/transportation/Transportation/i; 
-s/treasury/Treasury/i; s/twig retention director/Director, TWIG Retention/i; s/\-u/, U/i; s/, Uk and I//i; s/underwriter/Underwriter/i; 
-s/university/University/i; s/unsupervisor/Supervisor/i; s/uscg/USCG/i; s/unix/Unix/i; s/ usa / USA /i; s/utilities/Utilities/i; s/utility/Utility/i; 
-s/\-v/, V/i; s/valve/Valve/i; s/vendor/Vendor/i; s/vicepresident/Vice President/i; s/vice-president/Vice President/i; s/vii/VII/i; s/virginia/Virginia/i; 
-s/ vi / VI /i; s/vms/VMS/i; s/vogtle deployment director/Director, Vogtle Deployment/i; s/voip/VoIP/i; s/\-w/, W/i; s/wealth/Wealth/i; 
-s/work management director/Director, Work Management/i; s/worldwide/Worldwide/i; s/\-x/, X/i; s/\-y/, Y/i; s/\-z/, Z/i; 
+cat tmp4 | sed 's/ -- /, /i; s/ - /, /i; s/,,/,/i; s/\//, /i; s/[^ ]\+/\L\u&/g; s/-.*$//g; s/1.*$//g; s/1/I/g; s/2/II/g; s/3/III/g; s/4/IV/g; s/5/V/g; 
+s/2cfinancedistributionoperations//i; s/-administration/, Administration/i; s/-air/, Air/i; s/, ,  and$//g; s/ and / and /i; s/ at.*$//g; 
+s/asia pacific//i; s/ asic / ASIC /i; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/-associate/-associate/i; s/ at .*//i; 
+s/ atm / ATM /i; s/ bd / BD /i; s/-big/, Big/i; s/-board/, Board/i; s/-boiler/, Boiler/i; s/ bsc / BSC /i; s/-call/, Call/i; s/-capacity/, Capacity/i; 
+s/-cash/, Cash/i; s/ cbt / CBT /i; s/-chief/, Chief/i; s/ cip / CIP /i; s/ cissp / CISSP /i; s/-civil/, Civil/i; s/ cj / CJ /i; s/Clients//g; 
+s/ cmms / CMMS /i; s/ cms / CMS /i; s/-commercial/, Commercial/i; s/CommitteemanagementOfficer/Committee Management Officer/g; 
+s/-communications/, Communications/i; s/-community/, Community/i; s/-compliance/, Compliance/i; s/-consumer/, Consumer/i; s/contact sold, to//i; 
+s/-corporate/, Corporate/i; s/ cpa / CPA /i; s/-creative/, Creative/i; s/ crm / CRM /i; s/ctr /Center/i; s/-customer/, Customer/i; s/-data/, Data/i; 
+s/ db2 / DB2 /i; s/ dbii / DB2 /i; s/DDesigner/Designer/i; s/DesignatedFederalOfficial/Designated Federal Official/g; s/-design/, Design/i; s/dhs/DHS/i; 
+s/-digital/, Digital/i; s/-distribution/, Distribution/i; s/ dns / DNS /i; s/-dominion/-dominion/i; s/-drilling/, Drilling/i; s/ dvp / DVP /i; 
+s/ ebs / EBS /i; s/editorr/Editor/i; s/ edrm / EDRM /i; s/ eeo / EEO /i; s/ efi / EFI /i; s/-electric/, Electric/i; 
+s/EleCenterEngineer/Electric Engineer/i; s/ emc / EMC /i; s/ emea / EMEA /i; s/-employee/, Employee/i; s/ ems / EMS /i; s/-energy/, Energy/i; 
+s/engineer5/Engineer V/i; s/-engineering/, Engineering/i; s/-engineer/, Engineer/i; s/-environmental/, Environmental/i; s/-executive/, Executive/i; 
+s/ faa / FAA /i; s/-facilities/, Facilities/i; s/ ferc / FERC /i; s/ fha / FHA /i; s/-finance/, Finance/i; s/-financial/, Financial/i; 
+s/-fleet/, Fleet/i; s/ for$//g; s/ fsa / FSA /i; s/fso/FSO/i; s/ fx / FX /i; s/ gaap / GAAP /i; s/-gas/, Gas/i; s/-general/, General/i; 
+s/-generation/, Generation/i; s/grp/Group/i; s/ gsa / GSA /i; s/ gsis / GSIS /i; s/ gsm / GSM /i; s/ hd / HD /i; s/ hmrc / HMRC /i; s/ hp / HP /i; 
+s/ hq / HQ /i; s/-human/, Human/i; s/ hvac / HVAC /i; s/ ia / IA /i; s/ id / ID /i; s/ iii/ III/i; s/ ii/ II/i; s/ iis / IIS /i; 
+s/-industrial/, Industrial/i; s/information technology/IT/i; s/-information/, Information/i; s/-infrastructure/, Infrastructure/i; 
+s/-instrumentation/, Instrumentation/i; s/-internal/, Internal/i; s/ ir / IR /i; s/itenterpriseprojectmanager/IT Enterprise Project Manager/i; 
+s/-IT/, IT/i; s/ iv / IV /i; s/ jc / JC /i; s/ jd / JD /i; s/ jt / JT /i; s/konsult, konsultchef, projektledare/Consultant/i; 
+s/laboratorynetwork/Laboratory, Network/i; s/-labor/, Labor/i; s/lan administrator/LAN Administrator/i; s/lan admin/LAN Admin/i; s/-land/, Land/i; 
+s/-licensing/, Licensing/i; s/ llc / LLC. /i; s/-logistics/, Logistics/i; s/lvl/Level/i; s/-mail/, Mail/i; s/-manager/, Manager/i; 
+s/-marketing/, Marketing/i; s/-materials/, Materials/i; s/ mba / MBA /i; s/mca/McA/i; s/mcb/McB/i; s/mcc/McC/i; s/mcd/McD/i; s/mce/McE/i; s/mcf/McF/i; 
+s/mcg/McG/i; s/mch/McH/i; s/mci/McI/i; s/mcj/McJ/i; s/mck/McK/i; s/mcl/McL/i; s/mcm/McM/i; s/mcn/McN/i; s/mcv/McV/i; s/mcse/MCSE/i; 
+s/-mechanical/, Mechanical/i; s/-metals/, Metals/i; s/-metro/, Metro/i; s/, mp//i; s/ nerc / NERC /i; s/mcp/McP/i; s/mcs/McS/i; s/mct/McT/i; 
+s/mcw/McW/i; s/-media/, Media/i; s/-mergers/, Mergers/i; s/-millstone/, Millstone/i; s/-motor/, Motor/i; s/-networking/, Networking/i; 
+s/-network/, Network/i; s/-new/, New/i; s/-north/, North/i; s/not in it//i; s/ nso / NSO /i; s/-nuclear/, Nuclear/i; s/-office/, Office/i; s/ of / of /i; 
+s/-operations/, Operations/i; s/-oracle/, Oracle/i; s/-other/, Other/i; s/ pca / PCA /i; s/ pcs / PCS /i; s/ pc / PC /i; s/ pdm / PDM /i; 
+s/ phd / PhD /i; s/ pj / PJ /i; s/-plant/, Plant/i; s/plt/Plant/i; s/pmo/PMO/i; s/ pmp / PMP /i; s/ pm / PM /i; s/-power/, Power/i; 
+s/-property/, Property/i; s/-public/, Public/i; s/pyble/Payble/i; s/ os / OS /i; s/r and d/R&D/i; s/-records/, Records/i; s/-regulated/, Regulated/i; 
+s/-regulatory/, Regulatory/i; s/-related/, Related/i; s/-remittance/, Remittance/i; s/-renewals/, Renewals/i; s/-revenue/, Revenue/i; s/ rfid / RFID /i; 
+s/ rfp / RFP /i; s/ rf / RF /i; s/-safety/, Safety/i; s/san manager/SAN Manager/i; s/scada/SCADA/i; s/setac-/SETAC,/i; s/sftwr/Software/i; 
+s/-short/, Short/i; s/ smb / SMB /i; s/sms/SMS/i; s/smtp/SMTP/i; s/snr/Senior/i; s/.specialist./ Specialist /i; s/sql/SQL/i; s/spvr/Supervisor/i; 
+s/srbranch/Senior Branch/i; s/srsales/Senior Sales/i; s/ ssl / SSL /i; s/-staff/, Staff/i; s/stf/Staff/i; s/-station/, Station/i; 
+s/-strategic/, Strategic/i; s/-student/, Student/i; s/-substation/, Substation/i; s/-supplier/, Supplier/i; s/-supply/, Supply/i; 
+s/-surveillance/, Surveillance/i; s/swepco/SWEPCO/i; s/-system/, System/i; s/the americas//i; s/americas//i; s/-tax/, Tax/i; s/-technical/, Technical/i; 
+s/-telecommunications/, Telecommunications/i; s/-three/, Three/i; s/-tickets/, Tickets/i; s/-trading/, Trading/i; s/-transmission/, Transmission/i; 
+s/ttechnical/Technical/i; s/-turbine/, Turbine/i; s/ to .*$//i; s/ uk / UK /i; s/unsupervisor/Supervisor/i; s/uscg/USCG/i; s/ usa / USA /i; 
+s/-utility/, Utility/i; s/vicepresident/Vice President/i; s/ vii / VII /i; s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i' > tmp5
 
-# Remove trailing white space and trailing commas
-s/[ \t]*$//; s/,$//' > $home/data/names.txt
-#rm tmp*
+# Remove lines that contain 2 words and clean up.
+awk 'NF != 2' tmp5 | sed "s/o'b/O'B/i; s/o'c/O'C/i; s/o'd/O'D/i; s/o'g/O'G/i; s/o'h/O'H/i; s/o'N/O'N/i" > tmp6
+
+# Remove trailing white space and trailing commas, delete lines with a single word
+cat tmp6 | sed 's/[ \t]*$//; s/,$//; /[[:blank:]]/!d' | sort -u > $home/data/names.txt
+rm tmp*
 
 echo
 echo $medium
