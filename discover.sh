@@ -64,8 +64,8 @@ fi
 f_banner(){
 echo
 echo -e "\x1B[1;33m
-______  ___ ______ ______  _____  _    _ ______  _____
-|     \  |  |____  |      |     |  \  /  |_____ |____/
+ _____  ___  _____  _____  _____  _    _  _____  _____
+|     \  |  |____  |      |     |  \  /  |____  |____/
 |_____/ _|_ _____| |_____ |_____|   \/   |_____ |    \_
 
 By Lee Baird\x1B[0m"
@@ -79,7 +79,7 @@ f_error(){
 echo
 echo -e "\x1B[1;31m$medium\x1B[0m"
 echo
-echo -e "\x1B[1;31m           *** Invalid choice or entry. ***\x1B[0m"
+echo -e "\x1B[1;31m                *** Invalid choice or entry. ***\x1B[0m"
 echo
 echo -e "\x1B[1;31m$medium\x1B[0m"
 sleep 2
@@ -91,7 +91,7 @@ if [[ `uname` == 'Darwin' ]]; then
      echo
      echo -e "\x1B[1;31m$medium\x1B[0m"
      echo
-     echo -e "\x1B[1;31m             *** Not OS X compatible. ***\x1B[0m"
+     echo -e "\x1B[1;31m            *** Not OS X compatible. ***\x1B[0m"
      echo
      echo -e "\x1B[1;31m$medium\x1B[0m"
      sleep 2
@@ -151,7 +151,7 @@ mkdir $save_dir
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv debug* curl emails* hosts names* networks* records squatting network-tools whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+mv debug* curl emails* hosts names* networks* passive* records squatting network-tools whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
 cd /tmp/
 rm emails names networks profiles subdomains 2>/dev/null
 
@@ -213,11 +213,22 @@ case $choice in
           f_error
      fi
 
-     # If folder doesn't exist, create it
+     # If fol  der doesn't exist, create it
      if [ ! -d $home/data/$domain ]; then
           cp -R $discover/report/ $home/data/$domain
           sed 's/REPLACEDOMAIN/'$domain'/g' $home/data/$domain/index.htm > tmp
           mv tmp $home/data/$domain/index.htm
+     fi
+
+     echo
+     echo -n "Do you have a list of names from salesforce to import? (y/N) "
+     read answer
+
+     if [ "$answer" == "y" ]; then
+          f_location
+          echo "last_name#first_name#title" > $home/data/names.csv
+          cat $location | sed 's/, /#/' | sed 's/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/# /#/g' >> $home/data/names.csv
+          cat $discover/resource/recon-ng-import-names.rc > passive2.rc
      fi
 
      # Number of tests
@@ -692,32 +703,29 @@ case $choice in
 
      echo "recon-ng                  (32/$total)"
      echo
-     echo "workspaces add $domain" > tmp.rc
-     echo "add companies" >> tmp.rc
-     echo "$companyurl" >> tmp.rc
-     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' tmp.rc
-     echo "none" >> tmp.rc
-     echo "add domains" >> tmp.rc
-     echo "$domain" >> tmp.rc
-     echo >> tmp.rc
+     echo "workspaces add $domain" > passive.rc
+     echo "add companies" >> passive.rc
+     echo "$companyurl" >> passive.rc
+     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' passive.rc
+     echo "none" >> passive.rc
+     echo "add domains" >> passive.rc
+     echo "$domain" >> passive.rc
+     echo >> passive.rc
 
-     if [ -s /root/data/names.txt ]; then
-          echo "last_name#first_name#title" > /root/data/names.csv
-          cat /root/data/names.txt | sed 's/, /#/' | sed 's/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/# /#/g' >> /root/data/names.csv
-          cat $discover/resource/recon-ng-import-names.rc >> tmp.rc
-          echo >> tmp.rc
+     if [ -e passive2.rc ]; then
+          cat passive2.rc >> passive.rc
      fi
 
      if [ -s names2 ]; then
-          echo "last_name#first_name" > /root/data/names2.csv
-          cat names2 | sed 's/, /#/' >> /root/data/names2.csv
-          cat $discover/resource/recon-ng-import-names2.rc >> tmp.rc
-          echo >> tmp.rc
+          echo "last_name#first_name" > $home/data/names2.csv
+          cat names2 | sed 's/, /#/' >> $home/data/names2.csv
+          cat $discover/resource/recon-ng-import-names2.rc >> passive.rc
+          echo >> passive.rc
      fi
 
-     cat $discover/resource/recon-ng.rc >> tmp.rc
-     sed -i "s/yyy/$domain/g" tmp.rc
-     recon-ng --no-check -r $discover/tmp.rc
+     cat $discover/resource/recon-ng.rc >> passive.rc
+     sed -i "s/yyy/$domain/g" passive.rc
+     recon-ng --no-check -r $discover/passive.rc
 
      ##############################################################
 
@@ -897,7 +905,7 @@ case $choice in
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
      mv recon-ng.rc $home/data/$domain/ 2>/dev/null
-     rm curl debug* emails* hosts names* networks* squatting sub* tmp* network-tools whois* z* doc pdf ppt txt xls domains 2>/dev/null
+     rm curl debug* emails* hosts names* networks* passive* squatting sub* tmp* network-tools whois* z* doc pdf ppt txt xls domains 2>/dev/null
      rm $home/data/*.csv 2>/dev/null
      cd /tmp/
      rm emails names networks profiles subdomains 2>/dev/null
@@ -1314,7 +1322,7 @@ f_location
 echo
 
 # Remove blank lines, string, and leading white space. Set tab as the delimiter
-sed '/^$/d; s/\[Direct Dial Available\]//g' $location | sed 's/^[ \t]*//' | sed 's/ \+ /\t/g' > tmp
+cat $location | sed '/^$/d; s/\[Direct Dial Available\]//g; s/Direct Dial Available//g; s/^[ \t]*//; s/ \+ /\t/g' > tmp
 
 # Place names into a file and sort by uniq
 cut -d $'\t' -f1 tmp | sort -u > tmp2
@@ -1328,10 +1336,10 @@ done < tmp2
 column -s: -t tmp3 > tmp4
 
 # Clean-up
-cat tmp4 | sed 's/ -- /, /i; s/ - /, /i; s/,,/,/i; s/\//, /i; s/[^ ]\+/\L\u&/g; s/-.*$//g; s/1.*$//g; s/1/I/g; s/2/II/g; s/3/III/g; s/4/IV/g; s/5/V/g; 
-s/2cfinancedistributionoperations//i; s/-administration/, Administration/i; s/-air/, Air/i; s/, ,  and$//g; s/ and / and /i; s/ at.*$//g; 
-s/asia pacific//i; s/ asic / ASIC /i; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/-associate/-associate/i; s/ at .*//i; 
-s/ atm / ATM /i; s/ bd / BD /i; s/-big/, Big/i; s/-board/, Board/i; s/-boiler/, Boiler/i; s/ bsc / BSC /i; s/-call/, Call/i; s/-capacity/, Capacity/i; 
+cat tmp4 | sed 's/ -- /, /g; s/ - /, /g; s/,,/,/g; s/, ,/, /g; s/\//, /g; s/[^ ]\+/\L\u&/g; s/-.*$//g; s/1.*$//g; s/1/I/g; s/2/II/g; s/3/III/g; s/4/IV/g; 
+s/5/V/g; s/2cfinancedistributionoperations//i; s/-administration/, Administration/i; s/-air/, Air/i; s/, ,  and$//g; s/ And / and /g; s/ api / API /i; 
+s/ at.*$//g; s/ asic / ASIC /i; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/-associate/-associate/i; s/ at .*//i; s/ atm / ATM /i; 
+s/ bd / BD /i; s/-big/, Big/i; s/BIIb/B2B/g; s/-board/, Board/i; s/-boiler/, Boiler/i; s/ bsc / BSC /i; s/-call/, Call/i; s/-capacity/, Capacity/i; 
 s/-cash/, Cash/i; s/ cbt / CBT /i; s/-chief/, Chief/i; s/ cip / CIP /i; s/ cissp / CISSP /i; s/-civil/, Civil/i; s/ cj / CJ /i; s/Clients//g; 
 s/ cmms / CMMS /i; s/ cms / CMS /i; s/-commercial/, Commercial/i; s/CommitteemanagementOfficer/Committee Management Officer/g; 
 s/-communications/, Communications/i; s/-community/, Community/i; s/-compliance/, Compliance/i; s/-consumer/, Consumer/i; s/contact sold, to//i; 
@@ -1342,34 +1350,36 @@ s/ ebs / EBS /i; s/editorr/Editor/i; s/ edrm / EDRM /i; s/ eeo / EEO /i; s/ efi 
 s/EleCenterEngineer/Electric Engineer/i; s/ emc / EMC /i; s/ emea / EMEA /i; s/-employee/, Employee/i; s/ ems / EMS /i; s/-energy/, Energy/i; 
 s/engineer5/Engineer V/i; s/-engineering/, Engineering/i; s/-engineer/, Engineer/i; s/-environmental/, Environmental/i; s/-executive/, Executive/i; 
 s/ faa / FAA /i; s/-facilities/, Facilities/i; s/ ferc / FERC /i; s/ fha / FHA /i; s/-finance/, Finance/i; s/-financial/, Financial/i; 
-s/-fleet/, Fleet/i; s/ for$//g; s/ fsa / FSA /i; s/fso/FSO/i; s/ fx / FX /i; s/ gaap / GAAP /i; s/-gas/, Gas/i; s/-general/, General/i; 
+s/-fleet/, Fleet/i; s/ For / for /g; s/ fsa / FSA /i; s/fso/FSO/i; s/ fx / FX /i; s/ gaap / GAAP /i; s/-gas/, Gas/i; s/-general/, General/i; 
 s/-generation/, Generation/i; s/grp/Group/i; s/ gsa / GSA /i; s/ gsis / GSIS /i; s/ gsm / GSM /i; s/ hd / HD /i; s/ hmrc / HMRC /i; s/ hp / HP /i; 
-s/ hq / HQ /i; s/-human/, Human/i; s/ hvac / HVAC /i; s/ ia / IA /i; s/ id / ID /i; s/ iii/ III/i; s/ ii/ II/i; s/ iis / IIS /i; 
+s/ hq / HQ /i; s/-human/, Human/i; s/ hvac / HVAC /i; s/ ia / IA /i; s/ id / ID /i; s/ iii/ III/i; s/ ii/ II/i; s/ iis / IIS /i; s/ In / in /g; 
 s/-industrial/, Industrial/i; s/information technology/IT/i; s/-information/, Information/i; s/-infrastructure/, Infrastructure/i; 
 s/-instrumentation/, Instrumentation/i; s/-internal/, Internal/i; s/ ir / IR /i; s/itenterpriseprojectmanager/IT Enterprise Project Manager/i; 
 s/-IT/, IT/i; s/ iv / IV /i; s/ jc / JC /i; s/ jd / JD /i; s/ jt / JT /i; s/konsult, konsultchef, projektledare/Consultant/i; 
 s/laboratorynetwork/Laboratory, Network/i; s/-labor/, Labor/i; s/lan administrator/LAN Administrator/i; s/lan admin/LAN Admin/i; s/-land/, Land/i; 
-s/-licensing/, Licensing/i; s/ llc / LLC. /i; s/-logistics/, Logistics/i; s/lvl/Level/i; s/-mail/, Mail/i; s/-manager/, Manager/i; 
+s/-licensing/, Licensing/i; s/LawIII60/Law360/g; s/ llc / LLC. /i; s/-logistics/, Logistics/i; s/lvl/Level/i; s/-mail/, Mail/i; s/-manager/, Manager/i; 
 s/-marketing/, Marketing/i; s/-materials/, Materials/i; s/ mba / MBA /i; s/mca/McA/i; s/mcb/McB/i; s/mcc/McC/i; s/mcd/McD/i; s/mce/McE/i; s/mcf/McF/i; 
-s/mcg/McG/i; s/mch/McH/i; s/mci/McI/i; s/mcj/McJ/i; s/mck/McK/i; s/mcl/McL/i; s/mcm/McM/i; s/mcn/McN/i; s/mcv/McV/i; s/mcse/MCSE/i; 
-s/-mechanical/, Mechanical/i; s/-metals/, Metals/i; s/-metro/, Metro/i; s/, mp//i; s/ nerc / NERC /i; s/mcp/McP/i; s/mcs/McS/i; s/mct/McT/i; 
+s/mcg/McG/i; s/mch/McH/i; s/mci/McI/i; s/mcj/McJ/i; s/mck/McK/i; s/mcl/McL/i; s/mcm/McM/i; s/mcn/McN/i; s/mcq/McQ/i; s/mcv/McV/i; s/mcse/MCSE/i; 
+s/-mechanical/, Mechanical/i; s/-metals/, Metals/i; s/-metro/, Metro/i; s/, mp//i; s/ nerc / NERC /i; s/mcp/McP/i; s/mcr/McR/i; s/mcs/McS/i; s/mct/McT/i; 
 s/mcw/McW/i; s/-media/, Media/i; s/-mergers/, Mergers/i; s/-millstone/, Millstone/i; s/-motor/, Motor/i; s/-networking/, Networking/i; 
-s/-network/, Network/i; s/-new/, New/i; s/-north/, North/i; s/not in it//i; s/ nso / NSO /i; s/-nuclear/, Nuclear/i; s/-office/, Office/i; s/ of / of /i; 
-s/-operations/, Operations/i; s/-oracle/, Oracle/i; s/-other/, Other/i; s/ pca / PCA /i; s/ pcs / PCS /i; s/ pc / PC /i; s/ pdm / PDM /i; 
+s/-network/, Network/i; s/-new/, New/i; s/-north/, North/i; s/not in it//i; s/ nso / NSO /i; s/-nuclear/, Nuclear/i; s/ Nz / NZ /g; s/-office/, Office/i; 
+s/ Of / of /g; s/-operations/, Operations/i; s/-oracle/, Oracle/i; s/-other/, Other/i; s/ pca / PCA /i; s/ pcs / PCS /i; s/ pc / PC /i; s/ pdm / PDM /i; 
 s/ phd / PhD /i; s/ pj / PJ /i; s/-plant/, Plant/i; s/plt/Plant/i; s/pmo/PMO/i; s/ pmp / PMP /i; s/ pm / PM /i; s/-power/, Power/i; 
-s/-property/, Property/i; s/-public/, Public/i; s/pyble/Payble/i; s/ os / OS /i; s/r and d/R&D/i; s/-records/, Records/i; s/-regulated/, Regulated/i; 
+s/-property/, Property/i; s/-public/, Public/i; s/pyble/Payble/i; s/ os / OS /i; s/ r and d /R&D/i; s/-records/, Records/i; s/-regulated/, Regulated/i; 
 s/-regulatory/, Regulatory/i; s/-related/, Related/i; s/-remittance/, Remittance/i; s/-renewals/, Renewals/i; s/-revenue/, Revenue/i; s/ rfid / RFID /i; 
-s/ rfp / RFP /i; s/ rf / RF /i; s/-safety/, Safety/i; s/san manager/SAN Manager/i; s/scada/SCADA/i; s/setac-/SETAC,/i; s/sftwr/Software/i; 
+s/ rfp / RFP /i; s/ rf / RF /i; s/-safety/, Safety/i; s/san manager/SAN Manager/i; s/scada/SCADA/i; s/sdlc/SDLC/i; s/setac-/SETAC,/i; s/sftwr/Software/i; 
 s/-short/, Short/i; s/ smb / SMB /i; s/sms/SMS/i; s/smtp/SMTP/i; s/snr/Senior/i; s/.specialist./ Specialist /i; s/sql/SQL/i; s/spvr/Supervisor/i; 
 s/srbranch/Senior Branch/i; s/srsales/Senior Sales/i; s/ ssl / SSL /i; s/-staff/, Staff/i; s/stf/Staff/i; s/-station/, Station/i; 
 s/-strategic/, Strategic/i; s/-student/, Student/i; s/-substation/, Substation/i; s/-supplier/, Supplier/i; s/-supply/, Supply/i; 
-s/-surveillance/, Surveillance/i; s/swepco/SWEPCO/i; s/-system/, System/i; s/the americas//i; s/americas//i; s/-tax/, Tax/i; s/-technical/, Technical/i; 
-s/-telecommunications/, Telecommunications/i; s/-three/, Three/i; s/-tickets/, Tickets/i; s/-trading/, Trading/i; s/-transmission/, Transmission/i; 
-s/ttechnical/Technical/i; s/-turbine/, Turbine/i; s/ to .*$//i; s/ uk / UK /i; s/unsupervisor/Supervisor/i; s/uscg/USCG/i; s/ usa / USA /i; 
-s/-utility/, Utility/i; s/vicepresident/Vice President/i; s/ vii / VII /i; s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i' > tmp5
+s/-surveillance/, Surveillance/i; s/swepco/SWEPCO/i; s/-system/, System/i; s/-tax/, Tax/i; s/-technical/, Technical/i; 
+s/-telecommunications/, Telecommunications/i; s/ The / the /g; s/-three/, Three/i; s/-tickets/, Tickets/i; s/-trading/, Trading/i; 
+s/-transmission/, Transmission/i; s/ttechnical/Technical/i; s/-turbine/, Turbine/i; s/ to .*$//i; s/ ui / UI /i; s/ uk / UK /i; 
+s/unsupervisor/Supervisor/i; s/uscg/USCG/i; s/ usa / USA /i; s/ us / US /i; s/ u.s / US /i; s/-utility/, Utility/i; s/vicepresident/Vice President/i; 
+s/ vii / VII /i; s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i; s/ With / with /g' > tmp5
 
 # Remove lines that contain 2 words and clean up.
-awk 'NF != 2' tmp5 | sed "s/o'b/O'B/i; s/o'c/O'C/i; s/o'd/O'D/i; s/o'g/O'G/i; s/o'h/O'H/i; s/o'N/O'N/i" > tmp6
+awk 'NF != 2' tmp5 | sed "s/d'a/D'A/i; s/d'c/D'C/i; s/d'e/D'E/i; s/o'b/O'B/i; s/o'c/O'C/i; s/o'd/O'D/i; s/o'f/O'F/i; s/o'g/O'G/i; s/o'h/O'H/i; 
+s/o'k/O'K/i; s/o'l/O'L/i; s/o'm/O'M/i; s/o'N/O'N/i; s/o'p/O'P/i; s/o'r/O'R/i; s/o's/O'S/i" > tmp6
 
 # Remove trailing white space and trailing commas, delete lines with a single word
 cat tmp6 | sed 's/[ \t]*$//; s/,$//; /[[:blank:]]/!d' | sort -u > $home/data/names.txt

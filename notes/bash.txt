@@ -108,13 +108,11 @@ fi
 # Check for no answer.
 if [ -z $location ]; then
      f_Error
-     return 0
 fi
 
 # Check for wrong answer.
 if [ ! -f $location ]; then
      f_Error
-     return 0
 fi
 
 # Check for two variables.
