@@ -2,3 +2,6 @@
 *.nmap
 *.xml
 .idea
+__pychache__
+src/__pycache__/
+src/core/__pycache__/

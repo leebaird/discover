@@ -9,6 +9,7 @@ import requests
 
 
 Discover.banner()
-domain = input('Enter domain to lookup: ')
-data = requests.get(DiscoverWebAPIS.dnslookup(domain=domain)).text
-print(data)
+DiscoverMenus.mainmenu()
+#domain = input('Enter domain to lookup: ')
+#data = requests.get(DiscoverWebAPIS.dnslookup(domain=domain)).text
+#print(data)
