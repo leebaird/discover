@@ -353,7 +353,8 @@ case $choice in
      echo "     Jigsaw               (16/$total)"
      $theharvester -d $domain -b jigsaw > zjigsaw
      echo "     LinkedIn             (17/$total)"
-     $theharvester -d $domain -b linkedin > zlinkedin
+     $theharvester -d "$company" -b linkedin > zlinkedin
+     $theharvester -d $domain -b linkedin > zlinkedin2
      echo "     PGP                  (18/$total)"
      $theharvester -d $domain -b pgp > zpgp
      echo "     Yahoo                (19/$total)"
