@@ -1343,28 +1343,29 @@ s/ bd / BD /i; s/-big/, Big/i; s/BIIb/B2B/g; s/-board/, Board/i; s/-boiler/, Boi
 s/-cash/, Cash/i; s/ cbt / CBT /i; s/-chief/, Chief/i; s/ cip / CIP /i; s/ cissp / CISSP /i; s/-civil/, Civil/i; s/ cj / CJ /i; s/Clients//g; 
 s/ cmms / CMMS /i; s/ cms / CMS /i; s/-commercial/, Commercial/i; s/CommitteemanagementOfficer/Committee Management Officer/g; 
 s/-communications/, Communications/i; s/-community/, Community/i; s/-compliance/, Compliance/i; s/-consumer/, Consumer/i; s/contact sold, to//i; 
-s/-corporate/, Corporate/i; s/ cpa / CPA /i; s/-creative/, Creative/i; s/ crm / CRM /i; s/ctr /Center/i; s/-customer/, Customer/i; s/-data/, Data/i; 
+s/-corporate/, Corporate/i; s/ cpa/ CPA/i; s/-creative/, Creative/i; s/ crm / CRM /i; s/ctr /Center/i; s/-customer/, Customer/i; s/-data/, Data/i; 
 s/ db2 / DB2 /i; s/ dbii / DB2 /i; s/DDesigner/Designer/i; s/DesignatedFederalOfficial/Designated Federal Official/g; s/-design/, Design/i; s/dhs/DHS/i; 
 s/-digital/, Digital/i; s/-distribution/, Distribution/i; s/ dns / DNS /i; s/-dominion/-dominion/i; s/-drilling/, Drilling/i; s/ dvp / DVP /i; 
 s/ ebs / EBS /i; s/editorr/Editor/i; s/ edrm / EDRM /i; s/ eeo / EEO /i; s/ efi / EFI /i; s/-electric/, Electric/i; 
-s/EleCenterEngineer/Electric Engineer/i; s/ emc / EMC /i; s/ emea / EMEA /i; s/-employee/, Employee/i; s/ ems / EMS /i; s/-energy/, Energy/i; 
+s/EleCenterEngineer/Electric Engineer/i; s/ emc / EMC /i; s/ emea/ EMEA/i; s/-employee/, Employee/i; s/ ems / EMS /i; s/-energy/, Energy/i; 
 s/engineer5/Engineer V/i; s/-engineering/, Engineering/i; s/-engineer/, Engineer/i; s/-environmental/, Environmental/i; s/-executive/, Executive/i; 
 s/ faa / FAA /i; s/-facilities/, Facilities/i; s/ ferc / FERC /i; s/ fha / FHA /i; s/-finance/, Finance/i; s/-financial/, Financial/i; 
-s/-fleet/, Fleet/i; s/ For / for /g; s/ fsa / FSA /i; s/fso/FSO/i; s/ fx / FX /i; s/ gaap / GAAP /i; s/-gas/, Gas/i; s/-general/, General/i; 
+s/-fleet/, Fleet/i; s/ For / for /g; s/ fsa / FSA /i; s/ fso / FSO /i; s/ fx / FX /i; s/ gaap / GAAP /i; s/-gas/, Gas/i; s/-general/, General/i; 
 s/-generation/, Generation/i; s/grp/Group/i; s/ gsa / GSA /i; s/ gsis / GSIS /i; s/ gsm / GSM /i; s/ hd / HD /i; s/ hmrc / HMRC /i; s/ hp / HP /i; 
 s/ hq / HQ /i; s/-human/, Human/i; s/ hvac / HVAC /i; s/ ia / IA /i; s/ id / ID /i; s/ iii/ III/i; s/ ii/ II/i; s/ iis / IIS /i; s/ In / in /g; 
 s/-industrial/, Industrial/i; s/information technology/IT/i; s/-information/, Information/i; s/-infrastructure/, Infrastructure/i; 
-s/-instrumentation/, Instrumentation/i; s/-internal/, Internal/i; s/ ir / IR /i; s/itenterpriseprojectmanager/IT Enterprise Project Manager/i; 
-s/-IT/, IT/i; s/ iv / IV /i; s/ jc / JC /i; s/ jd / JD /i; s/ jt / JT /i; s/konsult, konsultchef, projektledare/Consultant/i; 
-s/laboratorynetwork/Laboratory, Network/i; s/-labor/, Labor/i; s/lan administrator/LAN Administrator/i; s/lan admin/LAN Admin/i; s/-land/, Land/i; 
-s/-licensing/, Licensing/i; s/LawIII60/Law360/g; s/ llc / LLC. /i; s/-logistics/, Logistics/i; s/lvl/Level/i; s/-mail/, Mail/i; s/-manager/, Manager/i; 
-s/-marketing/, Marketing/i; s/-materials/, Materials/i; s/ mba / MBA /i; s/mca/McA/i; s/mcb/McB/i; s/mcc/McC/i; s/mcd/McD/i; s/mce/McE/i; s/mcf/McF/i; 
-s/mcg/McG/i; s/mch/McH/i; s/mci/McI/i; s/mcj/McJ/i; s/mck/McK/i; s/mcl/McL/i; s/mcm/McM/i; s/mcn/McN/i; s/mcq/McQ/i; s/mcv/McV/i; s/mcse/MCSE/i; 
-s/-mechanical/, Mechanical/i; s/-metals/, Metals/i; s/-metro/, Metro/i; s/, mp//i; s/ nerc / NERC /i; s/mcp/McP/i; s/mcr/McR/i; s/mcs/McS/i; s/mct/McT/i; 
-s/mcw/McW/i; s/-media/, Media/i; s/-mergers/, Mergers/i; s/-millstone/, Millstone/i; s/-motor/, Motor/i; s/-networking/, Networking/i; 
-s/-network/, Network/i; s/-new/, New/i; s/-north/, North/i; s/not in it//i; s/ nso / NSO /i; s/-nuclear/, Nuclear/i; s/ Nz / NZ /g; s/-office/, Office/i; 
-s/ Of / of /g; s/-operations/, Operations/i; s/-oracle/, Oracle/i; s/-other/, Other/i; s/ pca / PCA /i; s/ pcs / PCS /i; s/ pc / PC /i; s/ pdm / PDM /i; 
-s/ phd / PhD /i; s/ pj / PJ /i; s/-plant/, Plant/i; s/plt/Plant/i; s/pmo/PMO/i; s/ pmp / PMP /i; s/ pm / PM /i; s/-power/, Power/i; 
+s/-instrumentation/, Instrumentation/i; s/-internal/, Internal/i; s/ ip / IP /i; s/ ir / IR /i; 
+s/itenterpriseprojectmanager/IT Enterprise Project Manager/i; s/-IT/, IT/i; s/ iv / IV /i; s/ jc / JC /i; s/ jd / JD /i; s/ jt / JT /i; 
+s/konsult, konsultchef, projektledare/Consultant/i; s/laboratorynetwork/Laboratory, Network/i; s/-labor/, Labor/i; 
+s/lan administrator/LAN Administrator/i; s/lan admin/LAN Admin/i; s/-land/, Land/i; s/-licensing/, Licensing/i; s/LawIII60/Law360/g; s/ llc / LLC. /i; 
+s/-logistics/, Logistics/i; s/lvl/Level/i; s/-mail/, Mail/i; s/-manager/, Manager/i; s/-marketing/, Marketing/i; s/-materials/, Materials/i; 
+s/ mba / MBA /i; s/mca/McA/i; s/mcb/McB/i; s/mcc/McC/i; s/mcd/McD/i; s/mce/McE/i; s/mcf/McF/i; s/mcg/McG/i; s/mch/McH/i; s/mci/McI/i; s/mcj/McJ/i; 
+s/mck/McK/i; s/mcl/McL/i; s/mcm/McM/i; s/mcn/McN/i; s/mcq/McQ/i; s/mcv/McV/i; s/mcse/MCSE/i; s/-mechanical/, Mechanical/i; s/-metals/, Metals/i; 
+s/-metro/, Metro/i; s/, mp//i; s/ nerc / NERC /i; s/mcp/McP/i; s/mcr/McR/i; s/mcs/McS/i; s/mct/McT/i; s/mcw/McW/i; s/-media/, Media/i; 
+s/-mergers/, Mergers/i; s/-millstone/, Millstone/i; s/-motor/, Motor/i; s/-networking/, Networking/i; s/-network/, Network/i; s/-new/, New/i; 
+s/-north/, North/i; s/not in it//i; s/ nso / NSO /i; s/-nuclear/, Nuclear/i; s/ Nz / NZ /g; s/-office/, Office/i; s/ Of / of /g; 
+s/-operations/, Operations/i; s/-oracle/, Oracle/i; s/-other/, Other/i; s/ pca / PCA /i; s/ pcs / PCS /i; s/ pc / PC /i; s/ pdm / PDM /i; 
+s/ phd / PhD /i; s/ pj / PJ /i; s/-plant/, Plant/i; s/plt/Plant/i; s/pmo/PMO/i; s/ pmp/ PMP/i; s/ pm / PM /i; s/-power/, Power/i; 
 s/-property/, Property/i; s/-public/, Public/i; s/pyble/Payble/i; s/ os / OS /i; s/ r and d /R&D/i; s/-records/, Records/i; s/-regulated/, Regulated/i; 
 s/-regulatory/, Regulatory/i; s/-related/, Related/i; s/-remittance/, Remittance/i; s/-renewals/, Renewals/i; s/-revenue/, Revenue/i; s/ rfid / RFID /i; 
 s/ rfp / RFP /i; s/ rf / RF /i; s/-safety/, Safety/i; s/san manager/SAN Manager/i; s/scada/SCADA/i; s/sdlc/SDLC/i; s/setac-/SETAC,/i; s/sftwr/Software/i; 
@@ -1375,11 +1376,11 @@ s/-surveillance/, Surveillance/i; s/swepco/SWEPCO/i; s/-system/, System/i; s/-ta
 s/-telecommunications/, Telecommunications/i; s/ The / the /g; s/-three/, Three/i; s/-tickets/, Tickets/i; s/-trading/, Trading/i; 
 s/-transmission/, Transmission/i; s/ttechnical/Technical/i; s/-turbine/, Turbine/i; s/ to .*$//i; s/ ui / UI /i; s/ uk / UK /i; 
 s/unsupervisor/Supervisor/i; s/uscg/USCG/i; s/ usa / USA /i; s/ us / US /i; s/ u.s / US /i; s/-utility/, Utility/i; s/vicepresident/Vice President/i; 
-s/ vii / VII /i; s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i; s/ With / with /g' > tmp5
+s/ vii / VII /i; s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i; s/ vpn / VPN /i; s/ With / with /g' > tmp5
 
 # Remove lines that contain 2 words and clean up.
-awk 'NF != 2' tmp5 | sed "s/d'a/D'A/i; s/d'c/D'C/i; s/d'e/D'E/i; s/o'b/O'B/i; s/o'c/O'C/i; s/o'd/O'D/i; s/o'f/O'F/i; s/o'g/O'G/i; s/o'h/O'H/i; 
-s/o'k/O'K/i; s/o'l/O'L/i; s/o'm/O'M/i; s/o'N/O'N/i; s/o'p/O'P/i; s/o'r/O'R/i; s/o's/O'S/i" > tmp6
+awk 'NF != 2' tmp5 | sed "s/d'a/D'A/i; s/d'c/D'C/i; s/d'e/D'E/i; s/d's/D'S/i; s/l'a/L'A/i; s/o'b/O'B/i; s/o'c/O'C/i; s/o'd/O'D/i; s/o'f/O'F/i; 
+s/o'g/O'G/i; s/o'h/O'H/i; s/o'k/O'K/i; s/o'l/O'L/i; s/o'm/O'M/i; s/o'N/O'N/i; s/o'p/O'P/i; s/o'r/O'R/i; s/o's/O'S/i" > tmp6
 
 # Remove trailing white space and trailing commas, delete lines with a single word
 cat tmp6 | sed 's/[ \t]*$//; s/,$//; /[[:blank:]]/!d' | sort -u > $home/data/names.txt
