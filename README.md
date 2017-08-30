@@ -13,8 +13,8 @@ Follow on Twitter [![Twitter Follow](https://img.shields.io/twitter/follow/disco
 * Import assessment_manager.sql.
 * Delete everything inside of /Applications/XAMPP/htdocs/.
 * Move the folder to /Applications/XAMPP/htdocs/.
-* Open a browser to localhost/assessment-manager/index.php,
-* Rregister for a new account, then login.
+* Open a browser to localhost/assessment-manager/src/php/index.php,
+* Register for a new account, then login.
 
 ### Pages
 ```
