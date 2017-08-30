@@ -12,8 +12,9 @@ Follow on Twitter [![Twitter Follow](https://img.shields.io/twitter/follow/disco
 * The default creds are root/blank. Modify includes/common.php as necessary.
 * Import assessment_manager.sql.
 * Delete everything inside of /Applications/XAMPP/htdocs/.
-* Copy over index.php, includes, and public.
-* Open a browser to localhost, register for a new account, then login.
+* Move the folder to /Applications/XAMPP/htdocs/.
+* Open a browser to localhost/assessment-manager/index.php,
+* Rregister for a new account, then login.
 
 ### Pages
 ```
