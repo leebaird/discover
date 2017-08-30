@@ -1,0 +1,362 @@
+Linux
+ 
+ 
+# Compile
+
+gcc -o test test.c                 Compile test
+chmod 755 test                     Make the file executable
+./test                             Run the file
+------------------------------------------------------------------------------------------------------
+
+# Compression
+
+tar xvfj test.tar.bz2              Extract
+tar zxvf test.tar.gz
+tar zxvf test.tar
+gzip -d test.gz
+unzip test.zip
+zcat rockyou.txt.gz > rockyou.txt
+ 
+tar -zcvf test.tar test            Compress
+gzip test
+zip -9 test.zip test
+zip -r test.zip test/
+------------------------------------------------------------------------------------------------------ 
+
+# Copy Files (Remotely)
+ 
+scp /path/to/local/file.txt user@targetIP:/path/to/share     Local to remote
+scp -r user@targetIP:/path/to/share /local/share             Remote to local
+
+# Append File (Remotely)
+
+cat ~/.ssh/id_rsa.pub | ssh user@targetIP 'cat >> .ssh/authorized_keys'
+------------------------------------------------------------------------------------------------------
+ 
+# File Permissions
+ 
+t rwx rwx rwx	 type / owner / group / world
+Type is directory (d) or file (-).
+
+read    (r)	 4
+write   (w)	 2
+execute (e)	 1
+ 
+chmod 755 test.sh                  Make a file executable
+find . -name "*.php" -type f -exec chmod 755 {} \;
+------------------------------------------------------------------------------------------------------
+ 
+# Files
+ 
+ls                                 List files in a directory
+ls -l                              Long form listing
+ls -la                             Long form listing with hidden files
+
+cd ~                               Change to the home directory
+cd test                            Change to the test directory
+pwd                                Show the current directory
+
+cp tmp tmp2                        Copy a file from one location to another
+cp -r dir dir2                     Copy a directory from one location to another
+mv tmp tmp2                        Rename or move tmp to tmp2
+rm tmp                             Delete the file tmp
+rm -rf test                        Force delete the directory test
+
+ln -s /path/to/file /path/to/link  Create a symbolic link
+
+mkdir tmp                          Create a directory called tmp
+touch tmp                          Create a file called tmp
+
+cat tmp                            Show the contents of tmp
+ifconfig > tmp                     Pipe the output of a command to a file
+cat tmp >> tmp2                    Append the contents of a file (tmp) to another file (tmp2)
+
+head tmp                           Show the first 10 lines of tmp
+head -20 tmp                       Show the first 20 lines of tmp
+more tmp                           Show the contents of tmp, one page at a time. 
+                                   Space bar for next page and q to exit
+                                   
+tail tmp                           Show the last 10 lines of tmp
+tail -20 tmp                       Show the last 20 lines of tmp
+tail -f tmp                        Show the file contents as it grows
+------------------------------------------------------------------------------------------------------
+
+# Finding Files
+
+updatedb                           Update the database of file names on the system
+locate file                        Reads the database and shows the location of a file
+which app                          Show the path where the app is executed from
+find / -name sbd*                  Show all the files that start with sbd
+find / -perm -o+w -type d          Show all world readable directories
+find / -perm -o+e -type d          Show all world executable directories
+------------------------------------------------------------------------------------------------------
+
+# Installation
+ 
+./configure                        Install from source
+make
+make install
+
+dpkg -i app.deb                    Install Debian package
+rpm -Uvh app.rpm                   Install RPM package
+
+dpkg-query -l                      Show a list of installed packages
+
+pip install -r requirements.txt    Install required packages listed in a file
+------------------------------------------------------------------------------------------------------
+
+# Integrity
+
+md5sum test.iso                    MD5 hash
+sha1sum test.iso                   SHA1 hash
+------------------------------------------------------------------------------------------------------
+
+# Networking
+
+dhclient                           Request an IP address from the DHCP server
+route                              Gateway
+/etc/hostname                      Hostname
+/etc/network/interfaces            Network interfaces
+/var/lib/dhcp/dhclient.leases      DHCP
+
+/etc/resolv.conf                   DNS
+domain localdomain 
+search localdomain 
+nameserver 8.8.8.8
+
+ifconfig                           IP address
+ifconfig eth0 down                 Stop interface
+ifconfig eth0 up                   Start interface
+ifconfig eth0 <IP>                 Set IP address
+ifconfig eth0 <IP> netmask <IP>    Set IP and netmask
+route add default gw <IP>          Set gateway
+
+/etc/network/interfaces            Set a static IP address
+iface eth0 inet static
+address 192.168.2.10
+netmask 255.255.255.0
+network 192.168.2.0
+broadcast 192.168.2.255
+gateway 192.168.2.1
+
+/etc/init.d/networking restart     Restart networking
+------------------------------------------------------------------------------------------------------
+
+# Processes
+
+kill -9 <PID>                      Kill process ID
+killall <service>                  Kill all processes named service
+ps aux                             Active processes
+top                                Running processes
+------------------------------------------------------------------------------------------------------
+
+# Proxy
+
+Add to /root/.bashrc
+export http_proxy=http://username:password@proxy:port
+export https_proxy=https://username:password@proxy:port
+------------------------------------------------------------------------------------------------------
+
+# Searching within files
+
+grep xxx file                      Search for the pattern xxx in a file
+grep -r                            Search recursively for a pattern in a directory
+zgrep                              Search for a pattern in a zip file
+------------------------------------------------------------------------------------------------------
+
+# Screen
+
+ssh into a remote system
+screen -S test                     Start a new screen session named test
+top                                Example command, leave it running
+ctrl A  ctrl D                     Detach from the session
+screen -ls                         Show all sessions running
+screen -DR test                    Reconnect to a session
+exit                               Leave and close the session
+------------------------------------------------------------------------------------------------------
+
+# Shortcuts
+
+ctrl + alt + t                     Open a Terminal
+ctrl + shift + t                   Open a new tab in Terminal
+ctrl + a                           Go to the beginning of the line
+ctrl + l                           Clear the screen
+------------------------------------------------------------------------------------------------------
+
+# SSH
+
+ssh-keygen                         Generate new public/private key pair
+
+ssh user@targetIP                  Connect on a standard port
+ssh user@targetIP -p 2222          Connect on a non-standard port
+ssh user@targetIP -i file.pem      Connect and authenticate using an identity file
+ssh user@targetIP -L 5900:localhost:5900     Connect and use local port forwarding
+
+ssh user@targetIP -D 1080 -f -N    -D  Create a SOCKS tunnel on the default port
+                                   -f  Force to background
+                                   -N  Do not execute a remote command
+
+ssh user@targetIP -R 2222:localhost:22 -f -N
+
+Firefox Preferences > Advanced > Network > Settings > Manual proxy configuration
+Remove everything for HTTP, SSL, and FTP proxies and ports
+SOCKS Host: 127.0.0.1   Port: 1080
+Select SOCKS v5 and Remote DNS
+
+/etc/ssh/ssh_config                Config file
+ForwardX11 yes                     Uncomment and change to yes
+ForwardX11Trusted yes              Uncomment
+
+export DISPLAY=localhost:0.0
+exit
+ssh user@targetIP -Y               Connect and use X11 forwarding
+------------------------------------------------------------------------------------------------------
+
+# Startup Services
+
+update-rc.d -f <service> <add/remove>
+
+update-rc.d networking defaults
+/etc/init.d/networking restart
+------------------------------------------------------------------------------------------------------
+
+# System
+
+cal                                Calendar
+date                               Date and time
+df -h                              Disk usage
+du                                 Directory space usage
+env                                Environmental variables
+/etc/issue                         OS info
+fdisk -l                           Partition table
+finger <user>                      Info about a user
+free                               Memory and swap usage
+halt                               Power off
+last                               List last 10 users logged on
+/proc/cpuinfo                      CPU info
+/proc/meminfo                      Memory info
+reboot                             Reboot
+set                                Environmental variables
+uname -a                           Kernel info
+uptime                             Current uptime
+w                                  Logged on users
+whoami                             Who you are logged in as
+------------------------------------------------------------------------------------------------------
+
+# User Accounts
+
+/etc/passwd                        User accounts
+/etc/shadow                        Encrypted passwords
+id                                 User and group permissions
+
+passwd                             Change root password
+passwd <user>                      Change another user's password
+
+su                                 Substitute user
+
+useradd                            Add new user
+userdel                            Delete user
+userdel -r                         Delete user and user's home directory
+usermod                            Modify user
+
+groupadd                           Add new group
+groupdel                           Delete group
+groupmod                           Modify group
+
+adduser <user> <group>             Add user to group
+------------------------------------------------------------------------------------------------------
+
+# vim
+
+vim filename                       Open an existing file
+vim newfile                        Create a new file
+
+vim vimrc                          Setup config file in home directory
+     syntax on
+     set wrapmargin=8
+     set number
+
+Modes                              Command, Insert, Append, and Replace
+
+Command mode
+dd                                 Delete entire line
+h                                  Left
+j                                  Down
+k                                  Up
+l                                  Right
+gg                                 Top of file
+G                                  End of file
+<ctrl> d                           Page down
+<ctrl> u                           Page up
+<esc> u                            Undo
+
+Search
+/                                  Search string
+n                                  Next string
+N                                  Previous string
+
+Search and replace
+:s/foo/bar/g                       Search for foo and replace with bar globally
+
+Insert mode
+Position the cursor where the new text should go.
+i
+Enter new text.
+<esc> to return to command mode.
+
+Append mode
+Position the cursor on the last letter of the line.
+a
+Enter new text. This adds text AFTER the cursor. 
+<esc> to return to command mode.
+
+Replace mode
+Move the cursor to the character to be replaced.
+r
+Enter the replacement character.
+<esc> to return to command mode.
+
+:q
+
+Quit and do not save
+<esc>
+:q!
+<return>
+
+Write changes to a file
+<esc>
+:w
+<return>
+
+Write changes to a file and quit
+<esc>
+<return>
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
+# NFS Shares Anonymous Mountable
+
+showmount -e <target IP>
+
+mkdir /mnt/nfs/
+mount -t nfs -o nolock <target IP>:/share /mnt/nfs/
+------------------------------------------------------------------------------------------------------
+
+# CIFS Shares Anonymous Mountable
+
+mkdir /mnt/cifs/
+mount -t cifs -o username=user,domain=foo //<target IP>/share /mnt/cifs
+
+OS X: mount -t cifs //<target IP>:Users/<user> /mnt/cifs/ -o user=<user>,pass=<password>,nounix,sec=ntlmssp
+
+cat /root/.ssh/id_rsa.pub >> /tmp/mount/root/.ssh/authorized_keys
+------------------------------------------------------------------------------------------------------
+
+# Rstatd enabled
+
+rsysinfo <target IP>
+------------------------------------------------------------------------------------------------------
+
+# Samba with a writeable file share
+
+smbclient -L //<target IP>

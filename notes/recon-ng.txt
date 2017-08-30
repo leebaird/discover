@@ -1,0 +1,115 @@
+recon-ng
+
+
+# Manual usage
+
+[recon-ng][default] > workspaces list
+
+  +------------+
+  | Workspaces |
+  +------------+
+  | default    |
+  +------------+
+
+[recon-ng][default] > workspaces add target.com
+[recon-ng][test] > add domains target.com
+[recon-ng][test] > add companies
+company (TEXT): Target
+description (TEXT): 
+[recon-ng][test] > resource /opt/discover/resource/recon-ng/manual-passive.rc
+[recon-ng][test] > resource /opt/discover/resource/recon-ng/manual-active.rc
+[recon-ng][test] > show dashboard
+
+  +-------------------------------------------------+
+  |                 Activity Summary                |
+  +-------------------------------------------------+
+  |                  Module                  | Runs |
+  +-------------------------------------------------+
+  | recon/companies-contacts/facebook        | 5    |
+  | recon/domains-contacts/pgp_search        | 1    |
+  | recon/domains-contacts/whois_pocs        | 1    |
+  | ...                                      |      |
+  +-------------------------------------------------+
+
+
+  +----------------------------+
+  |      Results Summary       |
+  +----------------------------+
+  |     Category    | Quantity |
+  +----------------------------+
+  | Domains         | 1        |
+  | Companies       | 1        |
+  | Netblocks       | 0        |
+  | Locations       | 0        |
+  | Vulnerabilities | 0        |
+  | Ports           | 0        |
+  | Hosts           | 20       |
+  | Contacts        | 5        |
+  | Credentials     | 0        |
+  | Leaks           | 0        |
+  | Pushpins        | 0        |
+  | Profiles        | 0        |
+  +----------------------------+
+
+[recon-ng][target.com] > show hosts
+...
+
+[recon-ng][target.com] > show contacts
+...
+------------------------------------------------------------------------------------------------------
+
+# Use hidden menu option 98 from Discover.
+
+domain: Target
+target: target.com
+
+Resource file run: passive.rc
+------------------------------------------------------------------------------------------------------
+
+# API keys 
+
+[recon-ng][default] > keys list
+
+  +---------------------------+
+  |        Name       | Value |
+  +---------------------------+
+  | bing_api          |       |
+  | builtwith_api     |       |
+  | facebook_api      |       |
+  | facebook_password |       |
+  | facebook_secret   |       |
+  | facebook_username |       |
+  | flickr_api        |       |
+  | fullcontact_api   |       |
+  | google_api        |       |
+  | google_cse        |       |
+  | instagram_api     |       |
+  | instagram_secret  |       |
+  | ipinfodb_api      |       |
+  | jigsaw_api        |       |
+  | jigsaw_password   |       |
+  | jigsaw_username   |       |
+  | linkedin_api      |       |
+  | linkedin_secret   |       |
+  | pwnedlist_api     |       |
+  | pwnedlist_iv      |       |
+  | pwnedlist_secret  |       |
+  | shodan_api        |       |
+  | twitter_api       |       |
+  | twitter_secret    |       |
+  +---------------------------+
+
+[recon-ng][default] > keys add bing_api <value>
+[*] Key 'bing_api' added.
+------------------------------------------------------------------------------------------------------
+
+# Output
+
+show dashboards
+
+show hosts
+query DELETE FROM hosts WHERE rowid="xx"
+
+spool start /root/hosts.txt
+query SELECT ip_address FROM hosts ORDER BY ip_address
+spool stop

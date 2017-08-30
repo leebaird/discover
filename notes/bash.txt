@@ -1,0 +1,227 @@
+Bash notes.
+
+
+sed -e 's/^/FOO/'                                   # Add FOO to the beginning of each line
+sed -e 's/$/FOO/'                                   # Add FOO to the end of each line
+column -t                                           # Align columns
+
+tr '[A-Z]' '[a-z]'                                  # Lower case
+sed s/[^ ]\+/\L\u&/g                                # Title case
+tr '[a-z]' '[A-Z]'                                  # Upper case
+
+sed /^$/d                                           # Compress blank lines
+paste -s -d" "                                      # Convert a list into a single line
+
+uniq -c                                             # Count the number of different items
+
+apt-get install xml-twig-tools
+xml_grep ‘firstName' file.xml --text_only           # Extract data from XML element
+
+grep -E '\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b'  # Find IPs
+perl -pe 's/\d{2}\/\d{2}\/\d{2}//g'                 # Find dates mm/dd/yy
+
+sed '/[[:blank:]]/d'                                # Find lines that contain a single word
+grep 'FOO'                                          # Find lines that contain FOO        
+sed '/FOO/I,+12 d'                                  # Find lines that contain FOO, and delete that and the next 12 lines
+sed 's/FOO.*$//g'                                   # Find lines that contain FOO, and delete to the end of file
+sed 's/FOO/\n&/g'                                   # Find lines that contain FOO, and insert a new line and FOO
+grep 'FOO\|BAR'                                     # Find lines that contain FOO, and lines that contain BAR
+sed '1N;N;/\(.*\n\)\{2\}.*FOO/P;$d;D'               # Find lines that contain FOO, and print the second line before that
+
+grep 'FOO$'                                         # Find lines that end with FOO
+sed 's/FOO$//'                                      # Find lines that end with FOO, and delete FOO
+
+grep '^[0-9]'                                       # Find lines that start with a number
+grep '^FOO'                                         # Find lines that start with FOO
+sed '/^FOO/{n;d;}'                                  # Find lines that start with FOO, and delete the following line
+printf '%s\n' 'g/^FOO/-1d' w | ed -s                # Find lines that start with FOO, and delete the previous line
+sed '/^FOO/i\ '                                     # Find lines that start with FOO, and insert a line before
+sed '/^FOO/a\ '                                     # Find lines that start with FOO, and insert a line after
+sed -e :a -e '$!N;s/\nFOO/ /;ta' -e 'P;D'           # Find lines that start with FOO, insert a space and append to the previous line
+
+sed -n '/FOO/,$p'                                   # Print from FOO to the end of the file
+sed s/FOO.*//                                       # Print from FOO to the end of the line
+sed -n '5,/^$/p'                                    # Print from the 5th line to the first blank line
+sed -n '/FOO/,/BAR/p'                               # Print lines between FOO and BAR
+sed -e '/./{H;$!d;}' -e 'x;/FOO/!d;'                # Print paragraphs that contains FOO 
+awk '{print $2 " " $1}'                             # Print the second column, insert a space, then the first column
+
+for x in $(cat tmp); do rm $x; done                 # Remove all files in tmp
+sed 's/[A-Z]\{2\},//g'                              # Remove any 2 capital letters followed by a comma
+sed '/^$/d'                                         # Remove blank lines
+sed 's/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g'       # Remove dates (mm/dd/yy)
+cat -s                                              # Remove double spacing
+sed 's/^....//'                                     # Remove first 4 characters from each line
+sed '1,5d'                                          # Remove first 5 lines
+sed 's/^[ \t]*//;s/[ \t]*$//'                       # Remove leading and trailing whitespace from each line
+sed 's/^[ \t]*//'                                   # Remove leading whitespace from each line
+sed '/FOO/,/BAR/d'                                  # Remove lines between FOO and BAR
+awk '/FOO/{f=1} (!f || f>2){print} (f && /BAR/){f++}'   # Remove lines from FOO and the second BAR
+awk '$2 !~ /[a-z]/'                                 # Remove lines in the second columns that contain characters
+for a in z*; do grep -vE '^[\/\#\(\_\[\|\<\.\,\`\%\@]' "$a" > "$a.tmp"; mv "$a.tmp" "$a"; done    
+                                                    # Remove lines starting with various non-characters
+awk '$2 !~ /[a-z]/'                                 # Remove lines that contain [a-z] in the second column
+sed '/[[:blank:]]/!d'                               # Remove lines that contain a single word
+awk 'NF != 2'                                       # Remove lines that contain two words
+printf '%s\n' 'g/FOO/d\' '-d' w | ed -s             # Remove lines that contain FOO and the previous line
+sed '/@.*@/d'                                       # Remove lines that contain two @ symbols
+sed '/[0-9]$/'                                      # Remove lines that contain a number
+sed '/[0-9]$/d'                                     # Remove lines that end with a number
+sed '/FOO$/d'                                       # Remove lines that end with FOO
+sed '/^[0-9]/d'                                     # Remove lines that start with a number
+sed '/^FOO/d'                                       # Remove lines that start with FOO
+
+sed 's/[ \t]*$//'                                   # Remove trailing whitespace from each line
+
+sed 's/\.\.\.//g'                                   # Replace 3 periods with nothing
+sed 's/FOO/BAR/g'                                   # Replace FOO with BAR
+sed '/TEST/!s/FOO/BAR/g'                            # Replace FOO with BAR, except on lines that contain TEST
+sed '/TEST/s/FOO/BAR/g'                             # Replace FOO with BAR, on lines that contain TEST
+sed 's/FOO//g'                                      # Replace FOO with nothing
+cat tmp | tr ';' '\n'                               # Replace semicolon with a new line
+sed 's/\([^,]*,\)\{7\}[^,]*,/&\n/g'                 # Replace the 8th comma with a new line
+
+sort -k2                                            # Sort by the second column
+sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4         # Sort IPs
+sed "s/$FOO./$FOO/g"                                # Variables - use double quotes with sed or grep
+
+tr -d '\t'                                          # Delete a horizontal tab
+tr -s ' '                                           # Squeeze any number of spaces down to a single space?
+tr ',' '\n'                                         # Translate a comma to a new line
+tr '[A-Z]' '[a-z]'                                  # Translate upper case to lower case
+
+# Special characters to escape
+~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|,|>|\.|\?|/|
+------------------------------------------------------------------------------------------------------
+
+# Check for argument. If not given, print usage.
+if [ -z "$1" ]; then
+     echo "Usage : $0 <domain name>"
+     exit 0
+fi
+
+# Check for root.
+if [[ $EUID -ne 0 ]]; then
+     echo "This script must be ran as root."
+fi
+
+# Check for no answer.
+if [ -z $location ]; then
+     f_Error
+fi
+
+# Check for wrong answer.
+if [ ! -f $location ]; then
+     f_Error
+fi
+
+# Check for two variables.
+echo -n "Enter color: "
+read color
+echo -n "Enter another color: "
+read color2
+
+if [ $color = "red" ] && [ $color2 = "grey" ]; then
+     echo
+     echo "The Wall won't fall."
+     echo
+     exit
+else
+     echo
+     echo "Those colors are crap."
+     echo
+fi
+
+# Validate input is a number and that it is greather than 0.
+if ! [[ "$number" =~ ^[0-9]+$ ]] || [[ "$number" -le "0" ]]; then
+     f_error
+fi
+
+# Check for valid port number.
+if [[ $port -lt 1 || $port -gt 65535 ]]; then
+     echo "Invalid port."
+     exit
+fi
+------------------------------------------------------------------------------------------------------
+
+# Colors
+
+grey='\e[1;30m'
+red='\e[1;31m'
+green='\e[1;32m'
+yellow='\e[1;33m'
+blue='\e[1;34m'
+purple='\e[1;35m'
+cyan='\e[1;36m'
+
+echo -e $red "This is red."
+------------------------------------------------------------------------------------------------------
+
+# Compare two dates.
+
+date1=$(date +"%s")
+date2=$(date +"%s")
+diff=$(($date2-$date1))
+echo "$(($diff / 60)) min and $(($diff % 60)) sec."
+------------------------------------------------------------------------------------------------------
+
+# Files and folders.
+
+if [ -e test ]; then
+     echo "This file exists."
+fi
+
+if [ ! -e test ]; then
+     echo "This file does not exist."
+fi
+
+if [ ! -s test ]; then 
+     echo "This file is empty."
+fi
+
+if [ -d test ]; then
+     echo "This folder exists."
+fi
+
+if [ ! -d test ]; then
+     echo "The folder does not exist."
+fi
+
+------------------------------------------------------------------------------------------------------
+
+# Set variable.
+
+if [ "$payload" == "1" ]; then
+     format="raw"
+     platform="android"
+else
+     format="exe"
+     platform="windows"
+fi
+
+------------------------------------------------------------------------------------------------------
+
+# If a process is running, kill it.
+
+pid=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
+
+if [ -n "$pid" ]; then
+     kill -9 $pid
+fi
+------------------------------------------------------------------------------------------------------
+
+# Read in a file and do something.
+
+for i in $(cat tmp); do 
+     sudo chown -R $(whoami) $i
+done
+
+while read -r line; do
+     host $line | grep 'has address' | cut -d ' ' -f4
+done < subdomains.txt
+
+while read -r line; do
+     x=$((x+1))
+     echo "$x - $line"
+     dnsrecon.py -d $line -t axfr -c axfr_results/$x-$line.csv
+done < names.txt

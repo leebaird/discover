@@ -1,0 +1,124 @@
+-- Cloning your fork
+
+Clone the repository from your fork.
+
+     git clone git@github.com:<username>/<repo-name>.git
+     git clone git@github.com:kraman/crankcase.git
+
+Add the upstream repo so that you can pull changes.
+
+     git remote add upstream <original repo git url>
+     git remote add upstream git@github.com:openshift/crankcase.git
+
+Stop Errors pushing changes.
+
+     # Point this command to your fork of the repository.
+     git remote set-url origin git@github.com:<username>/<repo-name>.git
+
+
+-- Working on a topic branch.
+
+Always try to avoid working on the master branch. It usually results in merge conflicts 
+and/or update issues. Instead, work on a bug/feature/topic branch whenever possible.
+
+     # Start from the master branch.
+     git checkout master
+
+     # Create a new branch.
+     git branch dev/kraman/bug/12345
+
+     # Switch to the new branch.
+     git checkout dev/kraman/bug/12345
+
+     # Make changes.
+
+
+-- Staying updated
+
+Once a fork has been created, it does not automatically track the upstream repository. 
+Follow the steps outlined below to keep the master branch up-to-date.
+
+     # Pull the latest changes from upstream.
+     git fetch upstream
+     git fetch upstream --tags
+
+     # Make sure there are no un-committed changes.
+     git stash
+
+     # Make sure you are working on the master branch.
+     git checkout master
+
+     # Merge the latest changes.
+     git merge upstream/master
+
+     # Push the updates changes to our GitHub fork.
+     git push origin master
+     git push origin --tags
+
+     # Return to your bug/feature branch.
+     git checkout dev/kraman/bug/12345
+
+     # Rebase this branch onto latest code from master (expect conflicts).
+     git rebase master
+
+     # Resolve conflicts.
+
+     # Push the rebased branch back to your fork.
+     git push origin dev/kraman/bug/12345 -f
+
+     # Restore any un-committed changes.
+     git stash pop
+
+NOTE: The git stash steps are optional. It is easier if you commit all changes before
+attempting a rebase.
+
+NOTE: If you are working on a branch from your fork and you are wanting to support different OSes as an example.
+      You will want to set this up so you can pull the updates from that branch on both systems.
+
+      git branch --set-upstream-to <branch name> origin/<branch name>
+
+-- Submitting a patch
+
+Once your code is ready to be submitted, you will need to submit a pull request with 
+your changes.
+
+     Update your branch and make sure you are rebased off the latest upstream/master.
+     Squash your commits onto a single revision.
+     Submit a pull request on GitHub.
+
+
+-- Squashing your changes into one revision.
+
+Before you can submit a pull request, rebase all your changes onto a single commit.
+This makes it easier to review, and also makes reverting the code easier in case of 
+any build breakages.
+
+     git rebase -i master
+     #... squash commits ...
+
+
+-- Deleting local and remote branches.
+
+     # Local
+     git branch -D <branchname>
+
+     # Remote
+     git push origin --delete <branchname>
+
+
+-- Creating a branch and checkout at the same time.
+
+To create a branch and switch to it at the same time, you can run the git checkout 
+command with the -b switch.
+
+     git checkout -b iss53
+     Switched to a new branch 'iss53'
+
+
+-- Testing pull requests locally.
+
+    # Make sure you are on the master branch of your fork.
+    git fetch upstream pull/ID/head:BRANCHNAME
+
+    # Change to branch that you want to test.
+    git checkout BRANCHNAME

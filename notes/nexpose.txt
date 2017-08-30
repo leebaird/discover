@@ -1,0 +1,97 @@
+Nexpose
+
+
+# Full Audit
+
+# Exclude Vulnerabilities
+     ICMP timestamp response
+     NetBIOS NBSTAT Traffic Amplification
+     TCP Sequence Number Approximation Vulnerability
+     TCP timestamp response
+     UDP IP ID Zero
+
+     Exclude > Reason: Acceptable Risk > Submit and approve
+------------------------------------------------------------------------------------------------------
+
+# Create PDF reports
+     Audit Report
+     Executive Overview
+     Remediation Plan
+     Top Remediations with Details
+------------------------------------------------------------------------------------------------------
+
+# Creat custom SQL query for Hosts
+
+SELECT da.ip_address AS "IP Address", da.host_name AS "Host", 
+     dos.name AS "OS", dos.version AS "OS Version", 
+     das.port AS "Port", 
+     dp.name AS "Protocol", 
+     ds.name AS "Service", 
+     dsf.name AS "Name", dsf.version AS "Version"
+
+FROM dim_asset_service das
+     JOIN dim_asset da USING (asset_id)
+     JOIN dim_operating_system dos USING (operating_system_id)
+     JOIN dim_protocol dp USING (protocol_id)
+     JOIN dim_service ds USING (service_id)
+     JOIN dim_service_fingerprint dsf USING (service_fingerprint_id)
+
+ORDER BY da.ip_address, das.port
+------------------------------------------------------------------------------------------------------
+
+# Creat custom SQL query for Findings
+
+WITH
+     vulnerability_cves AS (
+          SELECT vulnerability_id, array_to_string(array_agg(reference), ',') AS cves
+          FROM dim_vulnerability_reference
+          WHERE source = 'CVE'
+          GROUP BY vulnerability_id
+     ),
+     vulnerability_disa_vmskey AS (
+          SELECT vulnerability_id, array_to_string(array_agg(reference), ',') AS disa_vmskey
+          FROM dim_vulnerability_reference
+          WHERE source = 'DISA_VMSKEY'
+          GROUP BY vulnerability_id
+     ),
+    vulnerability_disa_severity AS (
+          SELECT vulnerability_id, array_to_string(array_agg(reference), ',') AS disa_severity
+          FROM dim_vulnerability_reference
+          WHERE source = 'DISA_SEVERITY'
+          GROUP BY vulnerability_id
+     ),
+     rolled_up_solutions AS (
+          SELECT asset_id, vulnerability_id, COALESCE(dss.superceding_solution_id, davs.solution_id) AS solution_id
+          FROM dim_asset_vulnerability_solution davs
+          LEFT OUTER JOIN dim_solution_supercedence dss USING (solution_id)
+     )
+
+SELECT ROUND(cvss_score::numeric, 1) AS "CVSS Score",
+     da.ip_address AS "IP Address", da.host_name AS "Host",
+     dos.name AS "OS", dos.version AS "OS Version",
+     dv.title AS "Vulnerability", proofAsText(dv.description) AS "Description",
+     proofAsText(favi.proof) AS "Proof",
+     ds.summary AS "Remediation",
+     proofAsText(ds.fix) AS "Steps",
+     vcves.cves AS "CVE",
+     disa_vmskey AS "DISA VMS Key",
+     disa_severity AS "DISA Severity"
+
+FROM fact_asset_vulnerability_instance favi
+     JOIN dim_asset da USING (asset_id)
+     JOIN dim_operating_system dos USING (operating_system_id)
+     JOIN dim_vulnerability dv USING (vulnerability_id)
+     LEFT OUTER JOIN rolled_up_solutions sol USING (asset_id, vulnerability_id)
+     LEFT OUTER JOIN dim_solution ds USING (solution_id)
+     LEFT OUTER JOIN vulnerability_cves vcves USING (vulnerability_id)
+     LEFT OUTER JOIN vulnerability_disa_vmskey dvms USING (vulnerability_id)
+     LEFT OUTER JOIN vulnerability_disa_severity dvs USING (vulnerability_id)
+
+ORDER BY da.ip_address, dv.title
+------------------------------------------------------------------------------------------------------
+
+# Creat custom SQL query for all vulnerabilities
+
+SELECT title AS "Title", ROUND(cvss_score::numeric, 1) AS "CVSS Score"
+FROM dim_vulnerability
+ORDER BY title

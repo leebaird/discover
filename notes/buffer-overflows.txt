@@ -1,0 +1,188 @@
+Buffer Overflows
+
+
+CPU registers are used like variables by storing data for quick access.
+On 32-bit machines, each register is 4 bytes or 32-bits.
+
+EAX accumulator - used for performing calculations, and used to store return values from function calls. Basic operations such as add, subtract, compare use this general-purpose register
+EBX base index - has no general purpose and can be used to store data.
+ECX counter - used to indicate how many bytes to copy, loop operations
+EDX data - this is an extension of the EAX register.  It allows for more complex calculations (multiply, divide) by allowing extra data to be stored to facilitate those calculations.  I/O pointer.
+EDI destination index - points to a location where results of data operation are stored
+ESI source index - holds location of input data
+EBP stack data pointer
+ESP stack pointer - will usually point to the current location in the stack
+EIP extended instruction pointer - tells the CPU where to find the next instruction to execute
+------------------------------------------------------------------------------------------------------
+
+Big Endian Unix - read from left to right
+Little Endian x86 - read from right to left
+------------------------------------------------------------------------------------------------------
+
+Program memory is LIFO (last in, first out)
+
+0xBFFFFFFF (higher memory)
+Stack - temporary space, used for storing function arguments and local variables
+
+Unused memory
+
+Heap - dynamic memory
+.bss - uninitialized data
+.data - initialized data
+.text - program code
+0x8048000 (lower memory)
+
+JMP - non-conditional jump
+JNE - conditional jump
+POP - remove the topmost value from the stack
+PUSH - push a value onto the stack
+------------------------------------------------------------------------------------------------------
+
+# Immunity Debugger
+
+top left - assembly instructions
+top right - CPU registers
+bottom left - memory dump
+bottom right - the state of the current stack
+------------------------------------------------------------------------------------------------------
+
+# Things we need to know:
+
+Which 4 bytes overwrite EIP?
+Do we have enough space in buffer for shellcode?
+Is this shellcode easily  accessible in memory?
+Does the application filter out any characters?
+Will we encounter overflow protection mechanisms?
+------------------------------------------------------------------------------------------------------
+
+# Part 1
+
+Start the Ability ftp server.
+Open OllyDbg and attach the executable.
+File > Attach > select Ability Server in the second column > Attach
+Press Play to allow the application to continue to run.
+Look in the bottom right corner and noticed how it has changed from a Paused to Running state.
+Run the exploit.
+The debugger catches the crash and halts the program execution, showing the exact state of the CPU registers at the time of the crash. In the top right window, notice the EIP register is completely overwritten by our buffer. Because the EIP controls the execution flow of the program, you can now hijack the application flow and redirect the application to continue executing whatever you want. What usually happens is that the attacker introduces his own shellcode, usually inside the buffer. After execution flow is gained, it's redirected to the attacker's shellcode.
+Notice in the top right window that the EIP is completely overwritten with 41414141 or 4 As.
+The ESP register holds the rest of the malicious buffer.
+Right click on ESP > Follow in Dump
+The bottom left window shows the contents of where the ESP register is pointing to.
+Notice the address in the ESP is the same address in the memory dump.
+Quit OllyDbg.
+
+# Part 2
+
+Now we need to find out the exact 4 bytes used to overwrite the EIP.
+Create a random string that is 2000 bytes long.
+cd /opt/metasploit/msf3/tools/
+./pattern_create.rb 2000
+Copy the string and replace the buffer that contains 2000 As.
+Start the Ability ftp server.
+Open OllyDbg, attach the executable and press Play.
+Run the exploit.
+This time the 4 bytes used to overwrite the EIP are 67423267
+
+Use pattern_offset.py to identify the location of the 4 bytes in the 2000 byte string.
+./pattern_offset.rb 67423267 2000
+
+967
+
+The EIP has been overwritten by the buffer from the 967th character to the 971st character.
+
+Now try to find the location of memory that the ESP register is pointed to, and identify its position in the 2000 byte buffer.
+Notice the ESP points to an address, which contains part of our unique string.
+Try to identify the location of this unique string in the buffer.
+Use the first 4 bytes in the ESP
+./pattern_offset.rb Bg9B
+
+987
+
+# Part 3
+
+Convert to Hex
+A = \x41
+B = \x42
+C = \x43
+D = \x44
+NOP = \x90   A no operation instruction. It simply means, continue to the next instruction.
+
+New buffer:  A * 967 + B * 4 + C * 16 + D * 1013
+967 + 4 = 971
+987 - 971 = 16
+2000 - 987 = 1013
+
+Shortcut: OllyDbg > Restart > Yes > Play
+Run the exploit.
+The EIP has been overwritten with all Bs (42424242).
+Right click on ESP > Follow in Dump
+The ESP has been overwritten with just Ds.
+
+# Part 4
+
+In the lower left window, copy the beginning address of the ESP (00C3B6B8).
+Scroll down until you see an error. Copy the address of the line before the error (00C3BA98).
+Subtract the first hex number from the second to find out how much space is available for our shell code.
+00C3BA98 - 00C3B6B8 = 0x3E0
+Now convert that to decimal (992).
+
+# Part 5
+
+NULL bytes are not good. Can't be sent over the network because they will terminate our buffer. The buffer must be encoded with msfencode. Every time that you encode the buffer, its size will increase.
+------------------------------------------------------------------------------------------------------
+
+# Example
+
+Disable virtual address space randomization (ASLR)
+echo 0 > /proc/sys/kernel/randomize_va_space
+
+Create a vulnerable program using strcpy.  This function is dangerous because it does not limit the amount of bytes copied.
+This creates the potential for a buffer overflow.
+
+#include <cstring>
+int main(int argc, char **argv)
+{
+char buffer[500];
+strcpy(buffer, argv[1]);
+return 0;
+}
+
+Compile with stack smashing protection disabled.
+g++ vuln.c -fno-stack-protector -mpreferred-stack-boundary=2 -o vuln
+
+./vuln test
+./vuln `python -c 'print "\x41" * 100'`
+./vuln `python -c 'print "\x41" * 500'`
+./vuln `python -c 'print "\x41" * 1000'` # Segmentation fault
+
+apt-get install gdb
+gdb -q vuln
+run `python -c 'print "\x41" * 1000'`
+
+info registers show all registers
+s step
+c continue past a break point
+quit
+
+Open a new tab.
+cd /opt/metasploit/msf3/tools
+./pattern_create.rb 1000
+Copy this random string.
+
+Tab 1
+run <random string>
+y
+Copy the memory address of the crash excluding the first 2 characters (0x).
+
+Tab 2
+./pattern_offset.rb <memory address>
+504
+
+Tab 1
+disassemble main
+Set a breakpoint for the line after the strcpy function.
+break *0x080484e7
+run `python -c 'print "\x41" * 504 + "\x42" * 4'`
+y
+x/16wx $esp # not sure what this does
+info registers

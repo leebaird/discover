@@ -1,0 +1,113 @@
+Forensics
+
+
+# IDE hard drive naming conventions
+
+hda  primary master IDE 
+hdb  primary slave IDE 
+hdc  secondary master IDE 
+hdd  secondary slave IDE
+------------------------------------------------------------------------------------------------------
+
+# SCSI, USB or SATA hard drive naming conventions 
+
+sda  1st
+sdb  2nd
+sde  5th
+sdz  26th
+------------------------------------------------------------------------------------------------------
+
+# Partition and logical drive numbering 
+
+1–4             partitions, primary or extended 
+5 and up        logical drives
+
+Examples 
+hda3            primary IDE master, 3rd partition 
+hdd4            secondary IDE slave, 4th partition 
+hdc5            secondary IDE master, 1st logical partition 
+sdb9            second SCSI device, 5th logical partition 
+
+bt nohd         mount NTFS partitions in read only mode at startup
+fdisk -l        show info about hard drive and partitions
+------------------------------------------------------------------------------------------------------
+ 
+# Imaging a hard drive with dd
+
+1. Turn the computer on and enter the BIOS. 
+2. Verify that the CD/DVD-ROM drive is the ﬁrst device in the boot order. 
+3. Boot to Backtrack with the bt nohd option at the boot prompt.  
+4. Open a terminal session. 
+5. Type fdisk –l. You will see the drive letter and numbering designation of the source disk.
+   This is most likely hda1 for a single IDE drive with one partition.
+6. Mount the drive as read only: 
+   cd /mnt 
+   mkdir hda1 
+   mount –o ro /dev/hda1 /mnt/hda1 
+7. Plug in a USB drive.
+8. Type fdisk –l again. You should see a new, added drive letter and partition, most likely sda1. 
+   This is your destination disk. Mount this drive as read/write: 
+   cd /mnt 
+   mkdir sda1 
+   mount -o rw /dev/sda1 /mnt/sda1 
+9. Type mount to verify that the device is mounted properly as read/write. 
+10. cd /mnt/sda1 (or whatever the designation for your destination disk was after step 9). 
+11. mkdir backup
+12. cd backup
+13. dd if=/dev/hda bs=512 conv=sync,noerror | split -b 640 m – hd.img
+------------------------------------------------------------------------------------------------------
+
+# View a dd image with Autopsy
+
+1. Connect the external drive with the dd image. 
+2. K > Backtrack > Digital Forensics > Forensic Analysis > Autopsy 
+3. Open Firefox > http://localhost:9999/autopsy
+4. Open Case > New Case
+5. Enter a description and investigator > New Case > Add Host
+6. Enter descriptive info > Add Host > Add Image  
+   The external drive will probably be /mnt/sda1/BackTrack/hd.img∗
+7. Select Disk or Partition > Default import method: Symlink > Next 
+8. Verify all parts > Next
+9. Calculate the hash value for this image. 
+10. Under partition 1, note the mount point and ﬁle system type > Add > OK
+11. C:/ > Analyze > File Analysis
+------------------------------------------------------------------------------------------------------
+
+# Using pasco to read index.dat files
+
+1. ﬁnd / -name index.dat 
+2. pasco full path to the ﬁle in quotes: 
+   pasco “/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat” 
+3. Separate the output into comma-delimited format: 
+   pasco –t , “/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat” 
+4. Try to extract more info: 
+   pasco –d “/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat” 
+5. Redirect output to a text ﬁle: 
+   pasco “/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat” > browser.txt
+------------------------------------------------------------------------------------------------------
+
+# Using Vinetto to extract thumbnail files
+
+1. Connect a USB drive. 
+2. K > Backtrack > Digital Forensics > Forensic Analysis > Vinetto 
+3. find / -name Thumbs.db 
+4. vinetto –o “/mnt/hda1/Documents and Settings/Administrator/My Documents/My Pictures/Thumbs.db”
+5. Type vinetto –o to extract the pictures within the thumbnail files. Make a directory on your removable drive 
+   mkdir /mnt/sda1/thumbs
+   vinetto –o /mnt/sda1/thumbs “/mnt/hda1/Documents and Settings/Administrator/My Documents/My Pictures/Thumbs.db” 
+6. HTML report to go along with the extracted pictures.
+   vinetto –oH /mnt/sda1/thumbs “/mnt/ hda1/Documents and Settings/Administrator/My Documents/My Pictures/Thumbs.db”
+------------------------------------------------------------------------------------------------------
+
+# Using Magicrescue to Find JPEG Files on a USB Thumb Drive 
+
+1. Open a terminal: 
+   cd /usr/local/share/magicrescue/recipes 
+   ls 
+   This will list 13 predeﬁ ned recipe ﬁ les for the Magicrescue program. 
+2. Insert a USB thumb drive: 
+   fdisk –l (Should be /dev/sda1) 
+   mkdir foundﬁles 
+3. magicrescue –r jpeg-jﬁf foundﬁles /dev/sda1 (or whatever device name is) 
+4. cd foundﬁles && ls 
+5. kolorpaint name of jpg ﬁle.jpg

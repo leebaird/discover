@@ -1,0 +1,40 @@
+DNS
+
+
+# General
+
+dig target.com <type>                    # a, mx, ns, soa, srv, txt, any
+dig -x <target IP>                       # Pointer records
+dig @nameserverIP target.com axfr        # Zone transfer
+dig @nameserverIP target.com afro        # Forward zone transfer
+
+host -t ns target.com                    # Show name servers 
+host -t mx target.com                    # Show mail servers
+host www.target.com
+host -l target.com <nameserver>          # Zone transfer
+------------------------------------------------------------------------------------------------------
+ 
+# Cache snooping
+
+host -r www.google.com <nameserver IP>
+------------------------------------------------------------------------------------------------------
+
+# DNS cache poisioning
+
+for i in `53.txt`; do dig @"$i" +short porttest.dns-oarc.net TXT; done; > CachePoison.txt
+------------------------------------------------------------------------------------------------------
+
+# Non-recursive DNS queries
+
+for i in `cat 53.txt`; do dig @"$i" www.google.com A +norecurse; done > NonRecurive.txt
+------------------------------------------------------------------------------------------------------
+
+# Open DNS resolution against a DNS server.
+
+Supply a hostname not cached or inside a company owned domain.
+nslookup www.nsa.gov <nameserver IP>
+------------------------------------------------------------------------------------------------------
+
+# Spoofed request amplification DDoS
+
+for i in `cat 53.txt`; do dig @"$i" . NS; done > AmpDDoS.txt

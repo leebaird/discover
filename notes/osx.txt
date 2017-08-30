@@ -1,0 +1,82 @@
+OS X
+
+
+# Add color to terminal
+
+sudo nano /etc/profile
+Add
+export CLICOLOR=1
+export LSCOLORS=ExFxBxDxCxegedabagacad
+------------------------------------------------------------------------------------------------------
+
+# Boot options
+
+c
+option                        Select boot device
+Apple r                       Recovery mode
+Apple s                       Single user mode
+
+Terminal > resetpassword
+------------------------------------------------------------------------------------------------------
+
+# Cannon 8612 UPD broadcast
+
+killall CIJScannerRegister
+sudo rm  -rf /Library/Image\ Capture/Support/LegacyDeviceDiscoveryHelpers/
+------------------------------------------------------------------------------------------------------
+
+# Homebrew
+
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+brew install curl
+brew install wget --with-libressl
+
+brew install proxychains-ng
+nano /usr/local/etc/proxychains.conf
+socks5  127.0.0.1    1080             Add to the bottom
+
+ssh -D 1080 -f -C -q -N user@target
+proxychains4 curl http://target.com
+
+- Troubleshooting
+brew update
+brew update                           Run twice
+brew doctor
+
+------------------------------------------------------------------------------------------------------
+
+# Metasploit
+
+See metasploit.txt
+------------------------------------------------------------------------------------------------------
+
+# PATH
+
+$PATH                                 Show contents of PATH
+~/.profile                            Edit PATH
+------------------------------------------------------------------------------------------------------
+
+# SIP
+
+Reboot > command R
+Termnal
+csrutil disable; reboot
+
+Terminal
+java -version
+More Info
+
+Reboot > command R
+Termnal
+csrutil enable
+reboot
+
+csrutil status
+System Integrity Protection status: enabled.
+------------------------------------------------------------------------------------------------------
+
+# Update locate database
+
+sudo /usr/libexec/locate.updatedb
+
