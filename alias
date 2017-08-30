@@ -1,0 +1,127 @@
+# cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
+
+dsn=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
+ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
+mac=$(ifconfig | grep 'ether' | awk '{print $2}')
+user=$(whoami)
+
+alias aws='ssh -i ~/.ssh/kali-aws.pem ec2-user@52.x.x.x'
+alias awss='ssh -D 1080 -f -N -i ~/.ssh/kali-aws.pem ec2-user@52.x.x.x'
+alias nosocks="kill -9 $(ps aux | grep ssh | grep 'D 1080' | awk '{print $2}') 2>/dev/null"
+
+alias c='clear'
+alias cl='clear ; ls -l'
+alias d='cd /$user/Desktop/ ; clear'
+alias e='exit'
+alias l='ls -l'
+alias m='service postgresql start ; msfdb init ; msfconsole'
+
+alias n='echo ; netstat -antp; echo ;
+echo -n "DNS           "$dns ; echo ;
+echo -n "Internal IP:  "$ip ; echo ;
+echo -n "MAC address:  "$mac ; echo ; echo ;
+ping -c3 google.com ; echo'
+
+alias r='cd /$user/ ; clear'
+alias s='cd /opt/discover/ ; clear'
+alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
+alias update='/opt/discover/update.sh'
+
+###################################################################################
+
+# OS X specific.
+
+dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
+ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)
+mac=$(ifconfig | grep 'ether' | awk '{print $2}' | head -1)
+user=$(whoami)
+
+alias aws='ssh -i ~/.ssh/kali-aws.pem ec2-user@52.x.x.x'
+alias awss='ssh -D 1080 -f -N -i ~/.ssh/kali-aws.pem ec2-user@52.x.x.x'
+alias nosocks="kill -9 $(ps aux | grep ssh | grep 'D 1080' | awk '{print $2}') 2>/dev/null"
+
+alias c='clear'
+alias cl='clear ; ls -l'
+alias d='cd /Users/$user/Desktop/ ; clear'
+alias l='ls -l'
+alias m='/opt/metasploit-framework/bin/msfdb init ; echo ; sudo /opt/metasploit-framework/bin/msfconsole'
+alias mysql='/Applications/XAMPP/xamppfiles/bin/mysql -u root -p'
+
+alias n='echo ; netstat -ant | grep tcp4 ; echo
+echo -n "DNS           "$dns ; echo ;
+echo -n "Internal IP:  "$ip ; echo ;
+echo -n "MAC address:  "$mac ; echo ; echo ;
+ping -c3 google.com ; echo'
+
+alias r='cd /Users/$user/ ; clear'
+alias s='cd /Users/$user/tools/discover/ ; clear'
+alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
+
+alias update='
+clear
+echo
+
+if [ ! -d /Users/$user/tools ];
+     then mkdir /Users/$user/tools
+fi
+
+echo
+
+if [ -d /Users/$user/tools/discover/.git ]; then
+     echo -n "[*] Updating Discover." ; echo
+     cd /Users/$user/tools/discover/ && git pull
+     echo
+else
+     echo -n "[*] Installing Discover."
+     git clone https://github.com/leebaird/discover.git /Users/$user/tools/discover
+     echo
+fi
+
+if [ -d /Users/$user/tools/empyre/.git ]; then
+     echo -n "[*] Updating Empyre." ; echo
+     cd /Users/$user/tools/empyre/ && git pull
+     echo
+else
+     echo -n "[*] Installing Empyre."
+     git clone https://github.com/adaptivethreat/EmPyre /Users/$user/tools/empyre
+     echo
+fi
+
+if [ -d /Users/$user/tools/exploit-db/.git ]; then
+     echo -n "[*] Updating Exploit DB." ; echo
+     cd /Users/$user/tools/exploit-db/ && git pull
+     echo
+else
+     echo -n "[*] Installing Exploit DB."
+     git clone https://github.com/offensive-security/exploit-database.git /Users/$user/tools/exploit-db
+     echo
+fi
+
+echo -n "[*] Updating Metasploit." ; echo ;
+/opt/metasploit-framework/bin/msfupdate ; echo ;
+
+if [ -d /Users/$user/tools/seclists/.git ]; then
+     echo -n "[*] Updating SecLists." ; echo ;
+     cd /Users/$user/tools/seclists/ && git pull ; echo ;
+else
+     echo -n "[*] Installing SecLists." ; echo ;
+     git clone https://github.com/danielmiessler/SecLists.git /Users/$user/tools/seclists
+     echo
+fi
+
+if [ -d /Users/$user/tools/sqlmap/.git ]; then
+     echo -n "[*] Updating Sqlmap." ; echo
+     cd /Users/$user/tools/sqlmap/ && git pull ; echo ;
+else
+     echo -n "[*] Installing Sqlmap." ; echo
+     git clone https://github.com/sqlmapproject/sqlmap.git /Users/$user/tools/sqlmap
+     echo
+fi
+
+echo -n "[*] Updating locate database." ; echo ;
+echo -n "Be patient, this takes a couple min." ; echo ;
+sudo /usr/libexec/locate.updatedb
+cd /Users/$user/
+echo
+echo
+'
