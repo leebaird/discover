@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 1604
+
+use gather/citrix_published_applications
+run
+
+use gather/citrix_published_bruteforce
+run

@@ -1,0 +1,82 @@
+use recon/domains-contacts/pgp_search
+run
+use recon/domains-contacts/whois_pocs
+run
+use recon/domains-hosts/bing_domain_api
+run
+use recon/domains-hosts/bing_domain_web
+run
+use recon/domains-hosts/builtwith
+run
+use recon/domains-hosts/certificate_transparency
+run
+use recon/domains-hosts/google_site_api
+run
+use recon/domains-hosts/hackertarget
+run
+use recon/domains-hosts/netcraft
+run
+use recon/domains-hosts/shodan_hostname
+run
+use recon/domains-hosts/ssl_san
+run
+use recon/domains-hosts/threatcrowd
+run
+use recon/companies-contacts/bing_linkedin_cache
+run
+use recon/companies-multi/github_miner
+run
+use recon/companies-multi/whois_miner
+run
+use recon/contacts-credentials/hibp_breach
+run
+use recon/contacts-credentials/hibp_paste
+run
+use recon/profiles-profiles/twitter_mentioned
+run
+use recon/profiles-profiles/twitter_mentions
+run
+use recon/netblocks-companies/whois_orgs
+run
+use recon/netblocks-hosts/shodan_net
+run
+use recon/netblocks-ports/census_2012
+run
+use recon/netblocks-ports/censysio
+run
+use recon/ports-hosts/migrate_ports
+run
+use recon/hosts-hosts/bing_ip
+run
+use recon/hosts-hosts/ssltools
+run
+use recon/hosts-ports/shodan_ip
+run
+back
+query DELETE FROM contacts WHERE last_name LIKE '% %'
+query DELETE FROM contacts WHERE last_name LIKE '(%'
+query UPDATE contacts SET email = LOWER(email)
+query UPDATE credentials SET username = LOWER(username)
+query UPDATE hosts SET host = LOWER(host)
+query UPDATE ports SET host = LOWER(host)
+query UPDATE contacts SET title = '' WHERE title = 'PGP key association'
+query UPDATE contacts SET title = '' WHERE title = 'Undetermined'
+query UPDATE contacts SET title = '' WHERE title = 'Whois contact'
+query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Abuse)'
+query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Admin)'
+query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Tech)'
+spool start /tmp/emails
+query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email
+query SELECT DISTINCT username FROM credentials WHERE username LIKE "%@yyy" ORDER BY username
+spool stop
+spool start /tmp/names
+query SELECT DISTINCT last_name,first_name,title FROM contacts WHERE first_name OR last_name IS NOT NULL ORDER BY last_name
+spool stop
+spool start /tmp/networks
+query SELECT netblock FROM netblocks ORDER BY netblock
+spool stop
+spool start /tmp/subdomains
+query SELECT host,ip_address FROM hosts ORDER BY host
+query SELECT host,ip_address FROM ports WHERE host LIKE "%yyy" ORDER BY host
+spool stop
+exit

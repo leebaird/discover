@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 771
+
+use auxiliary/scanner/scada/digi_realport_serialport_scan
+run
+
+use auxiliary/scanner/scada/digi_realport_version
+run

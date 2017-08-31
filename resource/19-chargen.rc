@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 19
+
+use auxiliary/scanner/chargen/chargen_probe
+run

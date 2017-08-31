@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 5560
+
+use auxiliary/scanner/oracle/isqlplus_login
+run
+
+use auxiliary/scanner/oracle/isqlplus_sidbrute
+run

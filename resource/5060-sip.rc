@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 5060
+
+use auxiliary/scanner/sip/enumerator_tcp
+run
+
+use auxiliary/scanner/sip/options_tcp
+run

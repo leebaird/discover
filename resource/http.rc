@@ -1,0 +1,15 @@
+setg DOMAIN
+setg HTTPBL_APIKEY
+setg PATH_SAVE /root
+setg RANGE
+setg RHOST
+setg RHOSTS
+setg SQLMAP_PATH /pentest/database/sqlmap
+setg THREADS 255
+setg VULNCSV
+
+ipidseq                  # from ip
+
+lotus_domino_hashes      # from lotus
+lotus_domino_login       # from lotus
+lotus_domino_version     # from lotus

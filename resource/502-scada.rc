@@ -1,0 +1,12 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 502
+
+use auxiliary/scanner/scada/modbusclient
+run
+
+use auxiliary/scanner/scada/modbusdetect
+run
+
+use auxiliary/scanner/scada/modbus_findunitid
+run

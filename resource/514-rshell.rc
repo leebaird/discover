@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 514
+
+use auxiliary/scanner/rservices/rsh_login
+run

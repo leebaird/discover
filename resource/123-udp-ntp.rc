@@ -1,0 +1,27 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 123
+
+use auxiliary/scanner/ntp/ntp_monlist
+run
+
+use auxiliary/scanner/ntp/ntp_nak_to_the_future
+run
+
+use auxiliary/scanner/ntp/ntp_peer_list_dos
+run
+
+use auxiliary/scanner/ntp/ntp_peer_list_sum_dos
+run
+
+use auxiliary/scanner/ntp/ntp_readvar
+run
+
+use auxiliary/scanner/ntp/ntp_req_nonce_dos
+run
+
+use auxiliary/scanner/ntp/ntp_reslist_dos
+run
+
+use auxiliary/scanner/ntp/ntp_unsettrap_dos
+run

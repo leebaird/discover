@@ -1,0 +1,27 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 21
+
+use auxiliary/scanner/ftp/ftp_version
+run
+
+use auxiliary/scanner/ftp/anonymous
+run
+
+use auxiliary/scanner/ftp/bison_ftp_traversal
+run
+
+use auxiliary/scanner/ftp/colorado_ftp_traversal
+run
+
+use auxiliary/scanner/ftp/easy_file_sharing_ftp
+run
+
+use auxiliary/scanner/ftp/konica_ftp_traversal
+run
+
+use auxiliary/scanner/ftp/pcman_ftp_traversal
+run
+
+use auxiliary/scanner/ftp/titanftp_xcrc_traversal
+run

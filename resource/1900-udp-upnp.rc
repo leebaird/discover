@@ -1,0 +1,9 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 1900
+
+use auxiliary/scanner/upnp/ssdp_amp
+run
+
+use auxiliary/scanner/upnp/ssdp_msearch
+run

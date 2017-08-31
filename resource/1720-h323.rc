@@ -1,0 +1,6 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 1720
+
+use auxiliary/scanner/h323/h323_version
+run

@@ -1,0 +1,14 @@
+run post/linux/gather/checkvm
+run post/linux/gather/ecryptfs_creds
+run post/linux/gather/enum_configs
+run post/linux/gather/enum_network
+run post/linux/gather/enum_protections
+run post/linux/gather/enum_psk
+run post/linux/gather/enum_system
+run post/linux/gather/enum_users_history
+run post/linux/gather/enum_xchat
+run post/linux/gather/gnome_commander_creds
+run post/linux/gather/mount_cifs_creds       
+run post/linux/gather/openvpn_credentials
+run post/linux/gather/pptpd_chap_secrets
+run post/linux/gather/hashdump

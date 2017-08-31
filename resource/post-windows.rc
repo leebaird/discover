@@ -1,0 +1,10 @@
+run killav
+run getcountermeasure
+run winenum
+run post/windows/gather/checkvm
+run post/windows/gather/enum_applications
+run post/windows/gather/enum_logged_on_users
+run post/windows/gather/enum_shares
+run post/windows/gather/enum_snmp
+run post/windows/gather/usb_history
+reg enumkey -k HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run

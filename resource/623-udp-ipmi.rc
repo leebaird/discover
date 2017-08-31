@@ -1,0 +1,12 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 623
+
+use auxiliary/scanner/ipmi/ipmi_cipher_zero
+run
+
+use auxiliary/scanner/ipmi/ipmi_version
+run
+
+use auxiliary/scanner/ipmi/ipmi_dumphashes
+run
