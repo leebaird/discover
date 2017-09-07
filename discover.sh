@@ -2024,7 +2024,7 @@ fi
 
 if [[ -e $name/123.txt ]]; then
      echo "     NTP"
-     nmap -iL $name/123.txt -Pn -n -sU --open -p123 --script-timeout 30s --script=ntp-monlist --host-timeout 1m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/123.txt -Pn -n -sU --open -p123 --script-timeout 30s --script=ntp-info,ntp-monlist --host-timeout 1m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-123.txt
 fi
