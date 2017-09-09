@@ -31,12 +31,10 @@
 trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Global variables
-distro=$(uname -n)
 home=$HOME
 long='=============================================================================================================='
 medium='=================================================================='
 short='========================================'
-
 sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
 # Check for OS X
@@ -49,6 +47,7 @@ if [[ `uname` == 'Darwin' ]]; then
      msfv=/opt/metasploit-framework/bin/msfvenom
      port=4444
      web="open -a Safari"
+	# web="open -a Google\ Chrome"
 else
      browser=Firefox
      discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
@@ -2025,7 +2024,7 @@ fi
 
 if [[ -e $name/123.txt ]]; then
      echo "     NTP"
-     nmap -iL $name/123.txt -Pn -n -sU --open -p123 --script-timeout 30s --script=ntp-monlist --host-timeout 1m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/123.txt -Pn -n -sU --open -p123 --script-timeout 30s --script=ntp-info,ntp-monlist --host-timeout 1m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-123.txt
 fi
