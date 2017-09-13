@@ -21,12 +21,15 @@ grep -E '\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b'  # Find IPs
 perl -pe 's/\d{2}\/\d{2}\/\d{2}//g'                 # Find dates mm/dd/yy
 
 sed '/[[:blank:]]/d'                                # Find lines that contain a single word
-grep 'FOO'                                          # Find lines that contain FOO        
-sed '/FOO/I,+12 d'                                  # Find lines that contain FOO, and delete that and the next 12 lines
-sed 's/FOO.*$//g'                                   # Find lines that contain FOO, and delete to the end of file
-sed 's/FOO/\n&/g'                                   # Find lines that contain FOO, and insert a new line and FOO
-grep 'FOO\|BAR'                                     # Find lines that contain FOO, and lines that contain BAR
-sed '1N;N;/\(.*\n\)\{2\}.*FOO/P;$d;D'               # Find lines that contain FOO, and print the second line before that
+grep 'FOO'                                          # Find FOO
+sed '/FOO/I,+12 d'                                  # Find FOO, and delete that and the next 12 lines
+sed 's/FOO.*$//g'                                   # Find FOO, and delete to the end of file
+sed 's/FOO/\n&/g'                                   # Find FOO, and insert a new line and FOO
+grep 'FOO\|BAR'                                     # Find FOO, and lines that contain BAR
+sed '1N;N;/\(.*\n\)\{2\}.*FOO/P;$d;D'               # Find FOO, and print the second line before that
+awk -v n=-2 'NR==n+1 && !NF{next} /FOO/ {n=NR}1'    # Find FOO, if the next line is blank, delete it
+awk '/FOO/ { FOO = 1; next }  FOO == 1 && /^$/ { FOO = 0; next }  { FOO = 0 }  { print }'
+                                                    # Find FOO, if the next line is blank, delete both lines
 
 grep 'FOO$'                                         # Find lines that end with FOO
 sed 's/FOO$//'                                      # Find lines that end with FOO, and delete FOO
