@@ -3745,7 +3745,8 @@ echo $medium
 echo
 echo "Running sslyze."
 sslyze --targets_in=$location --resum --certinfo=basic --compression --reneg --sslv2 --sslv3 --hide_rejected_ciphers > tmp
-egrep -v '(=>|error:|OpenSSLError|timeout|unexpected error)' tmp |
+# Remove the first 20 lines and cleanup
+sed '1,20d' tmp | egrep -v '(=>|error:|ERROR|NOT SUPPORTED|OK - Supported|OpenSSLError|Server rejected|timeout|unexpected error)' |
 # Find FOO, if the next line is blank, delete both lines
 awk '/Compression/ { Compression = 1; next }  Compression == 1 && /^$/ { Compression = 0; next }  { Compression = 0 }  { print }' |
 awk '/Renegotiation/ { Renegotiation = 1; next }  Renegotiation == 1 && /^$/ { Renegotiation = 0; next }  { Renegotiation = 0 }  { print }' |
@@ -3758,7 +3759,7 @@ awk '/Unhandled/ { Unhandled = 1; next }  Unhandled == 1 && /^$/ { Unhandled = 0
 awk -v n=-2 'NR==n+1 && !NF{next} /-/ {n=NR}1' |
 # Remove double spacing
 cat -s > $home/data/sslyze.txt
-
+exit
 echo
 echo "Running sslscan."
 echo
