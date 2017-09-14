@@ -28,9 +28,12 @@ sed 's/FOO/\n&/g'                                   # Find FOO, and insert a new
 grep 'FOO\|BAR'                                     # Find FOO, and lines that contain BAR
 sed '1N;N;/\(.*\n\)\{2\}.*FOO/P;$d;D'               # Find FOO, and print the second line before that
 awk -v n=-2 'NR==n+1 && !NF{next} /FOO/ {n=NR}1'    # Find FOO, if the next line is blank, delete it
+awk -v n=-2 'NR==n+1 && NF{print hold} /FOO/ {n=NR;hold=$0;next}1'
+                                                    # Find FOO, if the next line is blank, delete the line containing FOO
 awk '/FOO/ { FOO = 1; next }  FOO == 1 && /^$/ { FOO = 0; next }  { FOO = 0 }  { print }'
                                                     # Find FOO, if the next line is blank, delete both lines
-
+awk -v n=-2 'NR==n+1 {if($0 ~ /BAR/) { next; } else { print hold } } /FOO/ {n=NR;hold=$0;next}1'
+                                                    # Find FOO, if the next line contains BAR, delete both lines
 grep 'FOO$'                                         # Find lines that end with FOO
 sed 's/FOO$//'                                      # Find lines that end with FOO, and delete FOO
 

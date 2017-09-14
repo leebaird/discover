@@ -3933,6 +3933,22 @@ mv tmp2 $home/data/sslscan.txt
 
 grep -v 'Issuer info not available.' tmp | grep -v 'Certificate subject info not available.' >> $home/data/sslscan.txt
 
+# Nmap
+echo
+echo "Running sslscan."
+echo
+
+cat $location | cut -d ':' -f1 > list
+nmap -Pn -n -T4 --open -p443 --script=ssl* -iL list > tmp
+egrep -v '( - A|before|Ciphersuite|cipher preference|deprecated)' tmp |
+# Find FOO, if the next line is blank, delete both lines
+awk '/latency/ { latency = 1; next }  latency == 1 && /^$/ { latency = 0; next }  { latency = 0 }  { print }' |
+# Find FOO, if the next line is blank, delete the line containing FOO
+awk -v n=-2 'NR==n+1 && NF{print hold} /sslv2-drown/ {n=NR;hold=$0;next}1' |
+awk -v n=-2 'NR==n+1 && NF{print hold} /least strength/ {n=NR;hold=$0;next}1' |
+awk -v n=-2 'NR==n+1 {if($0 ~ /NULL/) { next; } else { print hold } } /compressors/ {n=NR;hold=$0;next}1' |
+sed 's/Nmap scan report for //g' > $home/data/nmap-ssl.txt
+
 rm tmp* ssl_* 2>/dev/null
 
 echo
@@ -3941,37 +3957,9 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-echo -e "The new reports are located at \x1B[1;33m$home/data/sslscan.txt \x1B[0mand \x1B[1;33m$home/data/sslyze.txt \x1B[0m"
-
+echo -e "The new reports are located at \x1B[1;33m$home/data/sslscan.txt, sslyze.txt \x1B[0mand \x1B[1;33mnmap-ssl.txt \x1B[0m"
 echo
-echo -n "If your IPs are public, do you want to test them using an external source? (y/N) "
-read extquery
-
-if [ "$extquery" == "y" ]; then
-     f_runlocally
-     echo "Launching $browser, opening $number tabs, please wait..."
-     processname='firefox'
-
-     if ps ax | grep -v 'grep' | grep $processname > /dev/null; then
-          echo
-     else
-          $web &
-	  sleep 4
-     fi
-
-     while read -r line; do
-          $web "https://www.sslshopper.com/ssl-checker.html#hostname=$line" &
-	  sleep 1
-     done < "$location"
-
-     echo
-     echo
-     exit
-else
-     echo
-     echo
-     exit
-fi
+echo
 }
 
 ##############################################################################################################
