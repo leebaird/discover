@@ -3759,7 +3759,7 @@ awk '/Unhandled/ { Unhandled = 1; next }  Unhandled == 1 && /^$/ { Unhandled = 0
 awk -v n=-2 'NR==n+1 && !NF{next} /-/ {n=NR}1' |
 # Remove double spacing
 cat -s > $home/data/sslyze.txt
-exit
+
 echo
 echo "Running sslscan."
 echo
