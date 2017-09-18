@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
 # Created by Jay Townsend aka L1ghtn1ng
-# I Jay Townsend here by grant Lee Baird to use this in discover project
+
 
 
 import argparse

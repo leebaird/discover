@@ -49,6 +49,17 @@ else
      echo
 fi
 
+if [ -d /opt/CasperJS/.git ]; then
+     echo -e "\e[1;34mUpdating CasperJS.\e[0m"
+     cd /opt/CasperJS/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling CasperJS.\e[0m"
+     git clone https://github.com/casperjs/casperjs.git /opt/CasperJS
+     ln -s /opt/CasperJS/bin/casperjs /usr/local/bin/casperjs
+     echo
+fi
+
 if [ -d /opt/CrackMapExec/.git ]; then
      echo -e "\e[1;34mUpdating CrackMapExec.\e[0m"
      cd /opt/CrackMapExec/ ; git pull
@@ -101,6 +112,12 @@ fi
 if [ ! -f /usr/bin/xmllint ]; then
      echo -e "\e[1;33mInstalling libxml2-utils.\e[0m"
      apt-get install -y libxml2-utils
+     echo
+fi
+
+if [ ! -f /usr/bin/phantomjs ]; then
+     echo -e "\e[1;33mInstalling PhantomJS.\e[0m"
+     apt-get install -y phantomjs
      echo
 fi
 

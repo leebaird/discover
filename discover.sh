@@ -64,8 +64,8 @@ fi
 f_banner(){
 echo
 echo -e "\x1B[1;33m
-______  ___ ______ ______  _____  _    _ ______  _____
-|     \  |  |____  |      |     |  \  /  |_____ |____/
+ _____  ___  _____  _____  _____  _    _  _____  _____
+|     \  |  |____  |      |     |  \  /  |____  |____/
 |_____/ _|_ _____| |_____ |_____|   \/   |_____ |    \_
 
 By Lee Baird\x1B[0m"
@@ -79,7 +79,7 @@ f_error(){
 echo
 echo -e "\x1B[1;31m$medium\x1B[0m"
 echo
-echo -e "\x1B[1;31m           *** Invalid choice or entry. ***\x1B[0m"
+echo -e "\x1B[1;31m                *** Invalid choice or entry. ***\x1B[0m"
 echo
 echo -e "\x1B[1;31m$medium\x1B[0m"
 sleep 2
@@ -91,7 +91,7 @@ if [[ `uname` == 'Darwin' ]]; then
      echo
      echo -e "\x1B[1;31m$medium\x1B[0m"
      echo
-     echo -e "\x1B[1;31m             *** Not OS X compatible. ***\x1B[0m"
+     echo -e "\x1B[1;31m            *** Not OS X compatible. ***\x1B[0m"
      echo
      echo -e "\x1B[1;31m$medium\x1B[0m"
      sleep 2
@@ -139,19 +139,27 @@ fi
 f_terminate(){
 
 save_dir=$home/data/cancelled-`date +%H:%M:%S`
+echo
 echo "Terminating..."
-echo "All data will be saved in $save_dir"
+echo
+echo -e "\e[1;33mAll data will be saved in $save_dir.\e[0m"
+
+
 mkdir $save_dir
 
 # Nmap and Metasploit scans
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv debug* curl emails* hosts names* networks* records squatting network-tools whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
+mv debug* curl emails* hosts names* networks* passive* records squatting network-tools whois* sub* doc pdf ppt txt xls tmp* z* $save_dir 2>/dev/null
 cd /tmp/
 rm emails names networks profiles subdomains 2>/dev/null
 
-echo "Saving complete"
+echo
+echo "Saving complete."
+echo
+echo
+
 exit
 }
 
@@ -205,15 +213,26 @@ case $choice in
           f_error
      fi
 
-     # If folder doesn't exist, create it
+     # If fol  der doesn't exist, create it
      if [ ! -d $home/data/$domain ]; then
           cp -R $discover/report/ $home/data/$domain
           sed 's/REPLACEDOMAIN/'$domain'/g' $home/data/$domain/index.htm > tmp
           mv tmp $home/data/$domain/index.htm
      fi
 
+     echo
+     echo -n "Do you have a list of names from salesforce to import? (y/N) "
+     read answer
+
+     if [ "$answer" == "y" ]; then
+          f_location
+          echo "last_name#first_name#title" > $home/data/names.csv
+          cat $location | sed 's/, /#/' | sed 's/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/# /#/g' >> $home/data/names.csv
+          cat $discover/resource/recon-ng-import-names.rc > passive2.rc
+     fi
+
      # Number of tests
-     total=34
+     total=32
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g;s/\&/%26/g;s/\,/%2C/g' )
 
@@ -334,7 +353,8 @@ case $choice in
      echo "     Jigsaw               (16/$total)"
      $theharvester -d $domain -b jigsaw > zjigsaw
      echo "     LinkedIn             (17/$total)"
-     $theharvester -d $domain -b linkedin > zlinkedin
+     $theharvester -d "$company" -b linkedin > zlinkedin
+     $theharvester -d $domain -b linkedin > zlinkedin2
      echo "     PGP                  (18/$total)"
      $theharvester -d $domain -b pgp > zpgp
      echo "     Yahoo                (19/$total)"
@@ -521,20 +541,12 @@ case $choice in
      echo "email-format.com          (27/$total)"
      curl --silent http://www.email-format.com/d/$domain/ | grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* > zemail-format
 
-     echo "ewhois.com                (28/$total)"
-     wget -q http://www.ewhois.com/$domain/ -O tmp
-     cat tmp | grep 'visitors' | cut -d '(' -f1 | cut -d '>' -f2 | grep -v 'OTHER' | column -t | sort -u > sub3
-
-     echo "intodns.com               (29/$total)"
+     echo "intodns.com               (28/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
      cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
      cat tmp2 >> $home/data/$domain/pages/config.htm
 
-     echo "myipneighbors.net         (30/$total)"
-     wget -q http://www.myipneighbors.net/?s=$domain -O tmp
-     grep 'Domains' tmp | sed 's/<\/tr>/\\\n/g' | cut -d '=' -f3,6 | sed 's/" rel=/ /g' | sed 's/" rel//g' | grep -v '/' | column -t | sort -u > sub4
-
-     echo "netcraft.com              (31/$total)"
+     echo "netcraft.com              (29/$total)"
      wget -q http://toolbar.netcraft.com/site_report?url=http://www.$domain -O tmp
 
      # Remove lines from FOO to the second BAR
@@ -552,7 +564,7 @@ case $choice in
      echo >> $home/data/$domain/pages/netcraft.htm
      echo '</html>' >> $home/data/$domain/pages/netcraft.htm
 
-     echo "ultratools.com            (32/$total)"
+     echo "ultratools.com            (30/$total)"
      x=0
 
      f_passive_axfr(){
@@ -584,69 +596,69 @@ case $choice in
      echo '</body>' >> $home/data/$domain/data/zonetransfer.htm
      echo '</html>' >> $home/data/$domain/data/zonetransfer.htm
 
-     echo "Domains                   (33/$total)"
-     f_regdomain(){
-     while read regdomain; do
-          whois -H $regdomain 2>&1 | sed -e 's|^[ \t]*||' | sed 's| \+ ||g' | sed 's|: |:|g' > tmp5
-          nomatch=$(grep -c -E 'No match for|Name or service not known' tmp5)
+          echo "Registered Domains        (31/$total)"
+          f_regdomain(){
+          while read regdomain; do
+               whois -H $regdomain 2>&1 | sed -e 's|^[ \t]*||' | sed 's| \+ ||g' | sed 's|: |:|g' > tmp5
+               nomatch=$(grep -c -E 'No match for|Name or service not known' tmp5)
 
-          if [[ $nomatch -eq 1 ]]; then
-               echo "$regdomain -- No Whois Matches Found" >> tmp4
-          else
-               registrar=$(grep -m1 'Registrar:' tmp5 | cut -d ':' -f2 | sed 's|,||g')
-               regorg=$(grep -m1 'Registrant Organization:' tmp5 | cut -d ':' -f2 | sed 's|,||g')
-               regemail=$(grep -m1 'Registrant Email:' tmp5 | cut -d ':' -f2)
-               iptmp=$(ping -c1 $regdomain 2>&1)
-
-               if echo $iptmp | grep -q 'unknown host'; then
-                    echo "$regdomain,$registrar,$regorg,$regemail,No IP Found" >> tmp4
+               if [[ $nomatch -eq 1 ]]; then
+                    echo "$regdomain -- No Whois Matches Found" >> tmp4
                else
-                    ipaddr=$(echo $iptmp | grep 'PING' | cut -d '(' -f2 | cut -d ')' -f1)
-                    echo "$regdomain,$registrar,$regorg,$regemail,$ipaddr" >> tmp4
+                    registrar=$(grep -m1 'Registrar:' tmp5 | cut -d ':' -f2 | sed 's|,||g')
+                    regorg=$(grep -m1 'Registrant Organization:' tmp5 | cut -d ':' -f2 | sed 's|,||g')
+                    regemail=$(grep -m1 'Registrant Email:' tmp5 | cut -d ':' -f2)
+                    iptmp=$(ping -c1 $regdomain 2>&1)
+
+                    if echo $iptmp | grep -q 'unknown host'; then
+                         echo "$regdomain,$registrar,$regorg,$regemail,No IP Found" >> tmp4
+                    else
+                         ipaddr=$(echo $iptmp | grep 'PING' | cut -d '(' -f2 | cut -d ')' -f1)
+                         echo "$regdomain,$registrar,$regorg,$regemail,$ipaddr" >> tmp4
+                    fi
                fi
-          fi
-          let number=number+1
-          echo -ne "     \x1B[1;33m$number \x1B[0mof \x1B[1;33m$domcount \x1B[0mdomains"\\r
+               let number=number+1
+               echo -ne "     \x1B[1;33m$number \x1B[0mof \x1B[1;33m$domcount \x1B[0mdomains"\\r
+               sleep 2
+          done < tmp3
+          }
+
+          # Get domains registered by company name and email address domain
+          curl --silent http://viewdns.info/reversewhois/?q=%40$domain > tmp
           sleep 2
-     done < tmp3
-     }
+          curl --silent http://viewdns.info/reversewhois/?q=$companyurl > tmp2
 
-     # Get domains registered by company name and email address domain
-     curl --silent http://viewdns.info/reversewhois/?q=%40$domain > tmp
-     sleep 2
-     curl --silent http://viewdns.info/reversewhois/?q=$companyurl > tmp2
+          echo '111AAA--placeholder--' > tmp4
+          if grep -q 'There are 0 domains' tmp && grep -q 'There are 0 domains' tmp2; then
+               rm tmp tmp2
+               echo 'No Domains Found.' > tmp6
+               break
+          elif ! [ -s tmp ] && ! [ -s tmp2 ]; then
+               rm tmp tmp2
+               echo 'No Domains Found.' > tmp6
+               break
+          
+          # Loop thru list of domains, gathering details about the domain
+          elif grep -q 'paymenthash' tmp; then
+               grep 'Domain Name' tmp | sed 's|<tr>|\n|g' | grep '</td></tr>' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
+               grep 'Domain Name' tmp2 | sed 's|<tr>|\n|g' | grep '</td></tr>' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
+               sort -uV tmp3 -o tmp3
+               domcount=$(wc -l tmp3 | sed -e 's|^[ \t]*||' | cut -d ' ' -f1)
+               f_regdomain
+          else
+               grep 'ViewDNS.info' tmp | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
+               grep 'ViewDNS.info' tmp2 | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
+               sort -uV tmp3 -o tmp3
+               domcount=$(wc -l tmp3 | sed -e 's|^[ \t]*||' | cut -d ' ' -f1)
+               f_regdomain
+          fi
 
-     echo '111AAA--placeholder--' > tmp4
-     if grep -q 'There are 0 domains' tmp && grep -q 'There are 0 domains' tmp2; then
-          rm tmp tmp2
-          echo 'No Domains Found.' > tmp6
-          break
-     elif ! [ -s tmp ] && ! [ -s tmp2 ]; then
-          rm tmp tmp2
-          echo 'No Domains Found.' > tmp6
-          break
-     
-     # Loop thru list of domains, gathering details about the domain
-     elif grep -q 'paymenthash' tmp; then
-          grep 'Domain Name' tmp | sed 's|<tr>|\n|g' | grep '</td></tr>' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
-          grep 'Domain Name' tmp2 | sed 's|<tr>|\n|g' | grep '</td></tr>' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
-          sort -uV tmp3 -o tmp3
-          domcount=$(wc -l tmp3 | sed -e 's|^[ \t]*||' | cut -d ' ' -f1)
-          f_regdomain
-     else
-          grep 'ViewDNS.info' tmp | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
-          grep 'ViewDNS.info' tmp2 | sed 's|<tr>|\n|g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
-          sort -uV tmp3 -o tmp3
-          domcount=$(wc -l tmp3 | sed -e 's|^[ \t]*||' | cut -d ' ' -f1)
-          f_regdomain
-     fi
-
-     # Formatting & clean-up
-     sort tmp4 | sed 's|111AAA--placeholder--|Domain,Registrar,Registration Org,Registration Email,IP Address|' > tmp6
-     column -s ',' -t tmp6 > domains
-     echo "Domains registered to $company using a corporate email." >> $home/data/$domain/data/domains.htm
-     echo >> $home/data/$domain/data/domains.htm
-     echo
+          # Formatting & clean-up
+          sort tmp4 | sed 's|111AAA--placeholder--|Domain,Registrar,Registration Org,Registration Email,IP Address|' > tmp6
+          column -s ',' -t tmp6 > registered-domains
+          echo "Domains registered to $company using a corporate email." >> $home/data/$domain/data/registered-domains.htm
+          echo >> $home/data/$domain/data/registered-domains.htm
+          echo
 
      ##############################################################
 
@@ -690,38 +702,35 @@ case $choice in
 
      ##############################################################
 
-     echo "recon-ng                  (34/$total)"
+     echo "recon-ng                  (32/$total)"
      echo
-     echo "workspaces add $domain" > tmp.rc
-     echo "add companies" >> tmp.rc
-     echo "$companyurl" >> tmp.rc
-     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' tmp.rc
-     echo "none" >> tmp.rc
-     echo "add domains" >> tmp.rc
-     echo "$domain" >> tmp.rc
-     echo >> tmp.rc
+     echo "workspaces add $domain" > passive.rc
+     echo "add companies" >> passive.rc
+     echo "$companyurl" >> passive.rc
+     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' passive.rc
+     echo "none" >> passive.rc
+     echo "add domains" >> passive.rc
+     echo "$domain" >> passive.rc
+     echo >> passive.rc
 
-     if [ -s /root/data/names.txt ]; then
-          echo "last_name#first_name#title" > /root/data/names.csv
-          cat /root/data/names.txt | sed 's/, /#/' | sed 's/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/# /#/g' >> /root/data/names.csv
-          cat $discover/resource/recon-ng-import-names.rc >> tmp.rc
-          echo >> tmp.rc
+     if [ -e passive2.rc ]; then
+          cat passive2.rc >> passive.rc
      fi
 
      if [ -s names2 ]; then
-          echo "last_name#first_name" > /root/data/names2.csv
-          cat names2 | sed 's/, /#/' >> /root/data/names2.csv
-          cat $discover/resource/recon-ng-import-names2.rc >> tmp.rc
-          echo >> tmp.rc
+          echo "last_name#first_name" > $home/data/names2.csv
+          cat names2 | sed 's/, /#/' >> $home/data/names2.csv
+          cat $discover/resource/recon-ng-import-names2.rc >> passive.rc
+          echo >> passive.rc
      fi
 
-     cat $discover/resource/recon-ng.rc >> tmp.rc
-     sed -i "s/yyy/$domain/g" tmp.rc
-     recon-ng --no-check -r $discover/tmp.rc
+     cat $discover/resource/recon-ng.rc >> passive.rc
+     sed -i "s/yyy/$domain/g" passive.rc
+     recon-ng --no-check -r passive.rc
 
      ##############################################################
 
-     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-recon
+     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|select)' | sort -u > emails-recon
      cat emails emails-recon | sort -u > emails-final
 
      grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|contact|production)' | sed 's/|//g; s/^[ \t]*//; /^[0-9]/d; /^-/d' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g; s/iii/III/g; s/ii/II/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/[ \t]*$//' | sort -u > names-recon
@@ -806,15 +815,15 @@ case $choice in
           cat squatting >> $home/data/$domain/data/squatting.htm; echo "</pre>" >> $home/data/$domain/data/squatting.htm
      fi
 
-     if [ -e domains ]; then
-          domaincount1=$(wc -l domains | cut -d ' ' -f1)
+     if [ -e registered-domains ]; then
+          domaincount1=$(wc -l registered-domains | cut -d ' ' -f1)
           domaincount2=$(echo $(($domaincount1-1)))
           echo "Registered Domains   $domaincount2" >> zreport
           echo "Registered Domains ($domaincount2)" >> tmp
           echo $long >> tmp
-          cat domains >> tmp
+          cat registered-domains >> tmp
           echo >> tmp
-          cat domains >> $home/data/$domain/data/domains.htm; echo "</pre>" >> $home/data/$domain/data/domains.htm
+          cat registered-domains >> $home/data/$domain/data/registered-domains.htm; echo "</pre>" >> $home/data/$domain/data/registered-domains.htm
      fi
 
      if [ -e subdomains ]; then
@@ -897,10 +906,10 @@ case $choice in
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
      mv recon-ng.rc $home/data/$domain/ 2>/dev/null
-     rm curl debug* emails* hosts names* networks* squatting sub* tmp* network-tools whois* z* doc pdf ppt txt xls domains 2>/dev/null
+     rm curl debug* emails* hosts names* networks* passive* squatting sub* tmp* network-tools whois* z* doc pdf ppt txt xls domains 2>/dev/null
      rm $home/data/*.csv 2>/dev/null
      cd /tmp/
-     rm emails names networks profiles subdomains 2>/dev/null
+     rm emails names networks profiles subdomains registered-domains 2>/dev/null
 
      # Robtex
      wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/images/robtex.png
@@ -1305,335 +1314,77 @@ clear
 f_banner
 
 echo -e "\x1B[1;34mCreate a free account at salesforce (https://connect.data.com/login).\x1B[0m"
-echo -e "\x1B[1;34mPerform a search on your target company > select the company name > see all.\x1B[0m"
+echo -e "\x1B[1;34mPerform a search on your target > select the company name > see all.\x1B[0m"
 echo -e "\x1B[1;34mCopy the results into a new file.\x1B[0m"
+echo -e "\x1B[1;34m[*] Note: each record should be on a single line.\x1B[0m"
 
 f_location
 
 echo
-echo
 
-# Remove string, leading white space, date, trailing white space, location, trailing white space, state
-cat $location | sed 's/\[Direct Dial Available\]//g; s/^[ \t]*//; s/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g; s/[ \t]*$//; s/South Africa//g; s/Africa//g; 
-s/Australia//g; s/Canada//g; s/China//g; s/Northern Europe//g; s/Europe//g; s/France//g; s/India//g; s/Israel//g; s/Italy//g; s/Jamaica//g; s/Japan//g; 
-s/Latin America//g; s/London//g; s/Melbourne//g; s/New Zealand//g; s/North America//g; s/Portugal//g; s/Russia//g; s/Singapore$//g; s/South America//g; 
-s/United Kingdom//g; s/United States//g; s/United//g; s/[ \t]*$//; 
+# Remove blank lines, string, and leading white space. Set tab as the delimiter
+cat $location | sed '/^$/d; s/\[Direct Dial Available\]//g; s/Direct Dial Available//g; s/^[ \t]*//; s/ \+ /\t/g' > tmp
 
-s/AB$//g; s/AK$//g; s/AL$//g; s/AP$//g; s/AR$//g; s/AZ$//g; s/BC$//g; s/CA$//g; s/CO$//g; s/CT$//g; s/DC$//g; s/DE$//g; s/DL$//g; s/FL$//g; s/GA$//g; 
-s/HI$//g; s/IA$//g; s/ID$//g; s/IL$//g; s/IN$//g; s/KA$//g; s/KS$//g; s/KY$//g; s/LA$//g; s/MA$//g; s/ME$//g; s/MD$//g; s/MH$//g; s/MI$//g; s/MO$//g; 
-s/MN$//g; s/MS$//g; s/MT$//g; s/NB$//g; s/NC$//g; s/NE$//g; s/ND$//g; s/NH$//g; s/NJ$//g; s/NM$//g; s/NV$//g; s/NY$//g; s/OH$//g; s/OK$//g; s/ON$//g; 
-s/OR$//g; s/PA$//g; s/PR$//g; s/QC$//g; s/QL$//g; s/RI$//g; s/SC$//g; s/SD$//g; s/TN$//g; s/TX$//g; s/Uk$//g; s/UP$//g; s/UT$//g; s/VA$//g; s/VT$//g; 
-s/WA$//g; s/WI$//g; s/WV$//g; s/WY$//g; s/NSW$//g; s/QLD$//g; s/VIC$//g; 
+# Place names into a file and sort by uniq
+cut -d $'\t' -f1 tmp | sort -u > tmp2
 
-# Remove trailing white space and 3 periords
-s/[ \t]*$//; s/\.\.\.//g; 
+# grep name, sort by data field, then uniq by the name field - selecting the most recent entry
+# select and and title from result and colon delimit into file
+while read line; do
+    grep "$line" tmp | sort -t ',' -k7M | sort -uk1,1r | awk -F$'\t' '{print $1":"$3}' | sed 's/ :/:/g' >> tmp3
+done < tmp2
 
-# Remove towns
-s/Aberdeen$//g; s/Abilene$//g; s/Abingdon$//g; s/Abington$//g; s/Acme$//g; s/Acworth$//g; s/Adairsville$//g; s/Adamstown$//g; s/Addison$//g; s/Adena$//g; 
-s/Adkins$//g; s/AdSense$//g; s/Adwords$//g; s/Middle East and Africa$//g; s/Africa$//g; s/Agoura Hills$//g; s/Aguadilla$//g; s/Ainsworth$//g; 
-s/Akron$//g; s/Alabaster$//g; s/New Albany$//g; s/Albany$//g; s/Albion$//g; s/Albuquerque$//g; s/Aldershot$//g; s/Alexandria$//g; s/Aliso Viejo$//g; 
-s/Allegan$//g; s/Allentown$//g; s/Alliance$//g; s/Allison Park$//g; s/Alma$//g; s/Alpena$//g; s/Alpharetta$//g; s/Alta Loma$//g; s/Altavista$//g; 
-s/Alton$//g; s/Ambler$//g; s/Americas$//g; s/Americus$//g; s/Amherst$//g; s/Amissville$//g; s/Amsterdam$//g; s/Anaheim$//g; s/Anchorage$//g; 
-s/Anderson$//g; s/Andover$//g; s/ and$//g; s/Angleton$//g; s/Ann Arbor$//g; s/Annandale$//g; s/Annapolis$//g; s/Anniston$//g; s/Antioch$//g; 
-s/Anzsea$//g; s/Apalachin$//g; s/Apex$//g; s/Apopka$//g; s/Apple Valley$//g; s/Arcadia$//g; s/Archbald$//g; s/Argentina$//g; s/Arlington$//g; 
-s/Armonk$//g; s/Arnold$//g; s/Artesia$//g; s/Arvada$//g; s/Ashburn$//g; s/Ashford$//g; s/Ashland$//g; s/Ashtabula$//g; s/Asia-Pacific$//g; 
-s/Asia Pacific Region$//g; s/Asia Pacific$//g; s/Asia and India$//g; s/Asia$//g; s/Athens$//g; s/Atlanta$//g; s/Atlantic City$//g; s/Atoka$//g; 
-s/Attleboro$//g; s/ at$//g; s/Auburn$//g; s/Augusta$//g; s/Aurora$//g; s/Austell$//g; s/Austin$//g; s/Avinger$//g; s/Avondale$//g; s/Avon$//g; 
-s/Azle$//g; s/Azusa$//g; s/Babylon$//g; s/Bainbridge$//g; s/Bakersfield$//g; s/Ballston Spa$//g; s/Baltimore$//g; s/Banbury$//g; s/Bangalore$//g; 
-s/Bangor$//g; s/Barboursville$//g; s/Barbourville$//g; s/Bardstown$//g; s/Barrington$//g; s/Bartlesville$//g; s/Bartlett$//g; s/Barton$//g; s/Bartow$//g; 
-s/Basingstoke$//g; s/Basking Ridge$//g; s/Batavia$//g; s/Batesville$//g; s/Bath$//g; s/Baton Rouge$//g; s/Battle Creek$//g; s/Battle Ground$//g; 
-s/Baxley$//g; s/Bay City$//g; s/Bay Shore$//g; s/Bayside$//g; s/Bay Minette$//g; s/Bay Saint L$//g; s/Bay Springs$//g; s/Beachwood$//g; s/Beaumont$//g; 
-s/Beaver Falls$//g; s/Beaverton$//g; s/Beaver$//g; s/Beckley$//g; s/Bedford$//g; s/Bel Air$//g; s/Belcamp$//g; s/Belfast$//g; s/Belgium$//g; 
-s/Bella Vista$//g; s/Bellaire$//g; s/Belle Chasse$//g; s/Belle Mead$//g; s/Belleville$//g; s/Bellevue$//g; s/Bellflower$//g; s/Beltsville$//g; 
-s/Belux$//g; s/Belvedere T$//g; s/Benelux$//g; s/Benicia$//g; s/Bensalem$//g; s/Bensenville$//g; s/Benton Harbor$//g; s/Benton$//g; s/Berkeley He$//g; 
-s/Berkeley$//g; s/Berkley$//g; s/Berlin$//g; s/Berryville$//g; s/Berwyn Hts$//g; s/Berwyn$//g; s/Bessemer$//g; s/Bethesda$//g; s/Bethel Park$//g; 
-s/Bethlehem$//g; s/Bethel$//g; s/Bethpage$//g; s/Beverly Hills$//g; s/Beverly$//g; s/Billerica$//g; s/Biloxi$//g; s/Binghamton$//g; s/Birmingham$//g; 
-s/Bismarck$//g; s/Bison$//g; s/Black Belt$//g; s/Blackpool$//g; s/Blacksburg$//g; s/Blaine$//g; s/Bloomfield$//g; s/Bloomingdale$//g; s/Bloomington$//g; 
-s/Bloomsburg$//g; s/Bluefield$//g; s/Bluemont$//g; s/Bluffton$//g; s/Blythewood$//g; s/Boca Raton$//g; s/Bohemia$//g; s/Boise$//g; s/Bolingbrook$//g; 
-s/Bolton$//g; s/Boonton$//g; s/Bordentown$//g; s/Boron$//g; s/Boston$//g; s/Bothell$//g; s/Boulder$//g; s/Bourne$//g; s/Bowie$//g; s/Bowling Green$//g; 
-s/Boxborough$//g; s/Boynton Beach$//g; s/Boyds$//g; s/Bracknell$//g; s/Bradenton$//g; s/Brampton$//g; s/Branchburg$//g; s/Brandenburg$//g; 
-s/Brandywine$//g; s/Brazil$//g; s/Brecksville$//g; s/Brentwood$//g; s/Bridgeport$//g; s/Bridgewater$//g; s/Bridgman$//g; s/Brigantine$//g; 
-s/Brighton$//g; s/Brilliant$//g; s/Brisbane$//g; s/Bristol$//g; s/Bristow$//g; s/Brockton$//g; s/Brooklyn$//g; s/Brookpark$//g; s/Brookwood$//g; 
-s/Broomfield$//g; s/Brownstown$//g; s/East Brunswick$//g; s/Brunswick$//g; s/Buchanan$//g; s/Buckeye$//g; s/Bucks$//g; s/Buena Vista$//g; 
-s/Buena$//g; s/Buffalo Grove$//g; s/Buffalo$//g; s/Burbank$//g; s/Burke$//g; s/Burleson$//g; s/Burlingame$//g; s/Burlington$//g; s/Burnsville$//g; 
-s/Burtonsville$//g; s/Calabasas$//g; s/Calabasas Hls$//g; s/Calera$//g; s/Calexico$//g; s/Califon$//g; s/California$//g; s/Calpella$//g; s/Camarillo$//g; 
-s/Cambridge$//g; s/Camden$//g; s/Camp Hill$//g; s/Camp H M Smith$//g; s/Camp Springs$//g; s/Campbell$//g; s/Canal Winch$//g; s/Canfield$//g; 
-s/Canoga Park$//g; s/Canonsburg$//g; s/Cantonment$//g; s/New Canton$//g; s/North Canton$//g; s/Canton$//g; s/Canyon Country$//g; s/Cape Canaveral$//g; 
-s/Cape Coral$//g; s/Cape May$//g; s/Capitol Hei$//g; s/Capitola$//g; s/Captiva$//g; s/Carbondale$//g; s/Carlisle$//g; s/Carlsbad$//g; s/Carnegie$//g; 
-s/Carol Stream$//g; s/Carpinteria$//g; s/Carrollton$//g; s/Carson$//g; s/Cartersville$//g; s/Carthage$//g; s/Cary$//g; s/Casper$//g; s/Castaic$//g; 
-s/Castle Rock$//g; s/Catawba$//g; s/Catonsville$//g; s/Cayce$//g; s/Cedar Hill$//g; s/Cedar Park$//g; s/Cedar Grove$//g; s/Cedar Rapids$//g; 
-s/Center Line$//g; s/Central California$//g; s/Central Region$//g; s/Centreville$//g; s/Cerritos$//g; s/Chagrin Falls$//g; s/Chalmette$//g; 
-s/Chambersburg$//g; s/Champaign$//g; s/Champlain$//g; s/Chandler$//g; s/Chantilly$//g; s/Chappaqua$//g; s/Charles Town$//g; s/North Charleston$//g; 
-s/Charleston$//g; s/Charlestown$//g; s/Charlotte$//g; s/Charlottesville$//g; s/Charlottesv$//g; s/Chatswood$//g; s/Chatsworth$//g; s/Chattanooga$//g; 
-s/Chelmsford$//g; s/Cheltenham$//g; s/Chennai$//g; s/Cherry Hill$//g; s/Chertsey$//g; s/Chesapeake$//g; s/Cheshire$//g; s/Chesterfield$//g; 
-s/Chester$//g; s/Cheswick$//g; s/Chevy Chase$//g; s/Cheyenne$//g; s/Chickasha//g; s/East Chicago$//g; s/Chicago$//g; s/Childress$//g; s/Chillicothe$//g; 
-s/Chino Hills$//g; s/Chino$//g; s/Chippenham$//g; s/Chorley$//g; s/Chrisney$//g; s/Christiana$//g; s/Christiansburg$//g; s/Chula Vista$//g; s/Cibolo$//g; 
-s/Cicero$//g; s/Cincinnati$//g; s/Circleville$//g; s/Citronelle$//g; s/Clanton$//g; s/Claremont$//g; s/Claremore$//g; s/Clarendon$//g; 
-s/Clarkesville$//g; s/Clarksburg$//g; s/Clarkston$//g; s/Clarksville$//g; s/Clawson$//g; s/Claymont$//g; s/Clayton$//g; s/Clearfield$//g; 
-s/Clearwater$//g; s/Clementon$//g; s/Clendenin$//g; s/Clermont$//g; s/Cleveland$//g; s/Clifton Park$//g; s/Clifton Spr$//g; s/Clifton$//g; s/Clinton$//g; 
-s/Clover$//g; s/CNN News Group Cable News Network$//g; s/Cockeysville$//g; s/Cocoa Beach$//g; s/Cocoa$//g; s/Colchester$//g; s/Cold Spring$//g; 
-s/College Sta$//g; s/Colleyville$//g; s/Collinsville$//g; s/Fort Collins$//g; s/Collins$//g; s/Colorado Sp$//g; s/Colorado$//g; s/Columbia$//g; 
-s/Columbus Grove$//g; s/Columbus$//g; s/Commack$//g; s/Commerce City$//g; s/Commerce$//g; s/Concord$//g; s/Conesville$//g; s/Conifer$//g; s/Conroe$//g; 
-s/Conshohocken$//g; s/Converse$//g; s/Conyers$//g; s/Cookeville$//g; s/Coopersburg$//g; s/Cooperstown$//g; s/Coorparoo$//g; s/Copiague$//g; 
-s/Coppell$//g; s/Copperopolis$//g; s/Coraopolis$//g; s/Corbin$//g; s/Cordova$//g; s/Corona$//g; s/Corpus Christi$//g; s/Corpus$//g; s/Corsicana$//g; 
-s/Cortland$//g; s/Council Bluffs$//g; s/Countryside$//g; s/Covington$//g; s/Cranberry$//g; s/Crane$//g; s/Cranston$//g; s/Cresskill$//g; s/Crewe$//g; 
-s/Crp Christi$//g; s/Crofton$//g; s/Croton On H$//g; s/Cross Junction$//g; s/Crossville$//g; s/Crownsville$//g; s/Crum Lynne$//g; s/Crystal Lake$//g; 
-s/Culpeper$//g; s/Culver City$//g; s/Cumberland$//g; s/Cumming$//g; s/Cupertino$//g; s/Cushing$//g; s/Cuyahoga Falls$//g; s/Cypress$//g; s/Dadeville$//g; 
-s/Dahlgren$//g; s/Daleville$//g; s/Daly City$//g; s/Dallas$//g; s/Danbury$//g; s/Danville$//g; s/Darby$//g; s/Davenport$//g; s/Daventry$//g; s/Davis$//g; 
-s/Dayton$//g; s/Decatur$//g; s/Deer Park$//g; s/Deerfield$//g; s/Defiance$//g; s/Dekalb$//g; s/Del Mar$//g; s/Del Rio$//g; s/Delaplane$//g; 
-s/Delray Beach$//g; s/Delmont$//g; s/Demopolis$//g; s/Denison$//g; s/Denton$//g; s/Denver$//g; s/Deptford$//g; s/Derby$//g; s/Desoto$//g; 
-s/Des Moines$//g; s/Des Plaines$//g; s/Destiny$//g; s/Destin$//g; s/Detroit$//g; s/Devens$//g; s/Diamond Bar$//g; s/Dominion East Ohio$//g; 
-s/Dominion East$//g; s/Dothan$//g; s/East Douglas$//g; s/Douglas$//g; s/Douglasville$//g; s/Dover$//g; s/Downers Grove$//g; s/Doylestown$//g; 
-s/Dresden$//g; s/Drexel Hill$//g; s/Drummondville$//g; s/Duarte$//g; s/Dublin$//g; s/Du Bois$//g; s/Dulles$//g; s/Duluth$//g; s/Dumas$//g; 
-s/Dumfries$//g; s/Duncan$//g; s/Dundee$//g; s/Dunkirk$//g; s/Dupree$//g; s/Durango$//g; s/Durham$//g; s/Eads$//g; s/Eastern$//g; s/East Central$//g; 
-s/East Coast$//g; s/East Greenbush$//g; s/East Hanover$//g; s/East Hartford$//g; s/East Lansing$//g; s/East Ohio$//g; s/East Peters$//g; 
-s/East Stroud$//g; s/East Syracuse$//g; s/East Weymouth$//g; s/South Easton$//g; s/Easton$//g; s/Eatonton$//g; s/Eatontown$//g; s/Eau Claire$//g; 
-s/Eden Prairie$//g; s/Edgecomb$//g; s/Edgewater$//g; s/Edgewood$//g; s/Edinburg$//g; s/Edinburgh$//g; s/Edison$//g; s/Edmonton$//g; s/Edna$//g; 
-s/Edwardsburg$//g; s/Edwards$//g; s/Egg Harbor$//g; s/Egham$//g; s/Elbert$//g; s/Elgin$//g; s/Elizabeth$//g; s/Elizabethport$//g; s/Elizabethtown$//g; 
-s/Elk Grove V$//g; s/Elkhart$//g; s/Elkhorn$//g; s/Elkridge$//g; s/Elkton$//g; s/Elmsford$//g; s/Eloy$//g; s/Elwood$//g; s/Elyria$//g; s/El Cajon$//g; 
-s/El Centro$//g; s/Elk Grove$//g; s/Ellicott City$//g; s/Elm Grove$//g; s/Elmont$//g; s/El Monte$//g; s/El Paso$//g; s/El Segundo$//g; s/Emeryville$//g; 
-s/Emmitsburg$//g; s/Emporia$//g; s/Encino$//g; s/Endicott$//g; s/Englewood$//g; s/Englishtown$//g; s/Ennis$//g; s/Erath$//g; s/Erie$//g; s/Escatawpa$//g; 
-s/Escondido$//g; s/Eufaula$//g; s/Eugene$//g; s/Euharlee$//g; s/Euless$//g; s/Europe$//g; s/Evans$//g; s/Evanston$//g; s/Evansville$//g; s/Everett$//g; 
-s/Exton$//g; s/Eynon$//g; s/Fairbanks$//g; s/Fairborn$//g; s/Fairfax Sta$//g; s/Fairfax$//g; s/Fairfield$//g; s/Fairmont$//g; s/Fairless Hills$//g; 
-s/Fairview$//g; s/Fallbrook$//g; s/Fallston$//g; s/Fair Lawn$//g; s/Fall River$//g; s/Falls Church$//g; s/Fareham$//g; s/Fargo$//g; s/Farmingdale$//g; 
-s/Farmington$//g; s/Farmington Hls$//g; s/Farnborough$//g; s/Farnham$//g; s/Fayetteville$//g; s/Feastervill$//g; s/Feltham$//g; s/Findlay$//g; 
-s/Finksburg$//g; s/Fishers$//g; s/Fisherville$//g; s/Flat Rock$//g; s/Flemington$//g; s/Florence$//g; s/Floresville$//g; s/Florham Park$//g; 
-s/Flossmoor$//g; s/Flourtown$//g; s/Flower Mound$//g; s/Flowood$//g; s/Floyds Knobs$//g; s/Fogelsville$//g; s/Folsom$//g; s/Forest Hills$//g; 
-s/Forest Hill$//g; s/Forest Park$//g; s/Forest$//g; s/Forked River$//g; s/Forsyth$//g; s/Fort Belvoir$//g; s/Fort Bliss$//g; s/Fort Dodge$//g; 
-s/Fort Fairfield$//g; s/Fort George$//g; s/Fort Huachuca$//g; s/Fort Knox$//g; s/Fort Lauder$//g; s/Fort Leaven$//g; s/Fort Lee$//g; s/Fort Mill$//g; 
-s/Fort Monmouth$//g; s/Fort Monroe$//g; s/Fort Myers$//g; s/Fort Pierce$//g; s/Fort Rucker$//g; s/Fort Smith$//g; s/Fort Walton$//g; s/Fort Washin$//g; 
-s/Fort Wayne$//g; s/Fort Worth$//g; s/Fort$//g; s/Foothill Ranch$//g; s/Fostoria$//g; s/Fountain Park$//g; s/Framingham$//g; s/france$//g; 
-s/Frankfort$//g; s/Franklin Park$//g; s/Franklin$//g; s/Frederick$//g; s/Fredericksburg$//g; s/Freehold$//g; s/Freeport$//g; s/Fremont$//g; s/Fresno$//g; 
-s/Frisco$//g; s/Front Royal$//g; s/Ft Mitchell$//g; s/Ft Worth$//g; s/Ft Wright$//g; s/Fullerton$//g; s/Fulton$//g; s/Gadsden$//g; s/Gainesville$//g; 
-s/Gaithersburg$//g; s/Galloway$//g; s/Galway$//g; s/Gambier$//g; s/Gardena$//g; s/Garden City$//g; s/Gardners$//g; s/Gardendale$//g; s/Garland$//g; 
-s/Garrison$//g; s/Gastonia$//g; s/Gateille$//g; s/Gatineau$//g; s/Gautier$//g; s/Genesee$//g; s/Geneva$//g; s/Gentry$//g; s/Germantown$//g; 
-s/Germany$//g; s/Geyserville$//g; s/Gibsonia$//g; s/Gibsonville$//g; s/Gig Harbor$//g; s/Glasgow$//g; s/Glastonbury$//g; s/Glencoe$//g; s/Glendale$//g; 
-s/Glendora$//g; s/Glenside$//g; s/Glen Allen$//g; s/Glen Burnie$//g; s/Glen Ellyn$//g; s/Glen Lyn$//g; s/Glen Riddle$//g; s/Glen Ridge$//g; 
-s/Glen Rock$//g; s/Glen$//g; s/Gnadenhutten$//g; s/Golden$//g; s/Goleta$//g; s/Goodlettsville$//g; s/Goodyear$//g; s/Google$//g; s/Gosport$//g; 
-s/Grafton$//g; s/Gahanna$//g; s/Granbury$//g; s/Grand Forks$//g; s/Grand Haven$//g; s/Grand Island$//g; s/Grand Junction$//g; s/Grand Prairie$//g; 
-s/Grand Rapids$//g; s/Granite City$//g; s/Grants Pass$//g; s/Granville$//g; s/Grayslake$//g; s/Great Falls$//g; s/Greeley$//g; s/Greenbelt$//g; 
-s/Greenbrae$//g; s/Greencastle$//g; s/Greendale$//g; s/Greeneville$//g; s/Greenfield$//g; s/Greenport$//g; s/Greensboro$//g; s/Greensburg$//g; 
-s/Greenville$//g; s/Greenwich$//g; s/Greenwood Vlg$//g; s/Greenwood$//g; s/Green Bay$//g; s/Green Belt$//g; s/Gretna$//g; s/Grosse Ile$//g; 
-s/Grosse Poin$//g; s/Groton$//g; s/Grovel$//g; s/Grove City$//g; s/Grove Hill$//g; s/Groveport$//g; s/Grundy$//g; s/Gulfport$//g; s/Gulf Breeze$//g; 
-s/Gulf Coast$//g; s/Gunpowder$//g; s/Gurgaon$//g; s/Gurnee$//g; s/Guyton$//g; s/Gwynn Oak$//g; s/Hackensack$//g; s/Hackettstown$//g; s/Haddon$//g; 
-s/Hagerstown$//g; s/Halethorpe$//g; s/Haleyville$//g; s/Halifax$//g; s/Holladay$//g; s/Hallsville$//g; s/Hamilton$//g; s/Hamlin$//g; s/Hammond$//g; 
-s/Hampden$//g; s/Hampstead$//g; s/Hampton Cove$//g; s/Hampton Roads$//g; s/Hampton$//g; s/Hamtramck$//g; s/Hanahan$//g; s/Hanover$//g; s/Hanscom Afb$//g; 
-s/Harbor City$//g; s/Harlingen$//g; s/Harpers Ferry$//g; s/Harrisburg$//g; s/Harrisonburg$//g; s/Harrison City$//g; s/Harrison$//g; s/Harrogate$//g; 
-s/Harrow$//g; s/Hartbeespoort$//g; s/West Hartford$//g; s/Hartford$//g; s/Hartland$//g; s/Hartselle$//g; s/Harvard$//g; s/Haslet$//g; s/Hatboro$//g; 
-s/Hattiesburg$//g; s/Hauppauge$//g; s/Havant$//g; s/Hawthorne$//g; s/Hayes$//g; s/Haymarket$//g; s/Hazard$//g; s/Hazelwood$//g; s/Hazlehurst$//g; 
-s/Hazel Park$//g; s/Head of Americas$//g; s/Headland$//g; s/Healdsburg$//g; s/Heath$//g; s/Hebron$//g; s/Helena$//g; s/Helotes$//g; s/Henderson$//g; 
-s/Hendersonville$//g; s/Henrico$//g; s/Hermitage$//g; s/Hermosa Beach$//g; s/Herndon$//g; s/Hershey$//g; s/Hialeah$//g; s/Hicksville$//g; 
-s/Highland Falls$//g; s/Highland Hls$//g; s/Highland Park$//g; s/Highlands R$//g; s/Highland$//g; s/Hilliard$//g; s/Hillsborough$//g; s/Hillsboro$//g; 
-s/Hilo$//g; s/Hilton Head$//g; s/Hinckley$//g; s/Hinesville$//g; s/Hingham$//g; s/Hitchin$//g; s/Hobart$//g; s/Hodgdon$//g; s/Hodgkins$//g; 
-s/Hoffman Est$//g; s/Holbrook$//g; s/Hollywood$//g; s/Holtsville$//g; s/Homer Glen$//g; s/Homedale$//g; s/Homestead$//g; s/Homewood$//g; s/Honolulu$//g; 
-s/Hookstown$//g; s/Hopewell$//g; s/Hopkins$//g; s/Hopkinton$//g; s/Hopwood$//g; s/Horsham$//g; s/Hot Springs$//g; s/Houston$//g; s/HR$//g; s/Hudson$//g; 
-s/Humboldt$//g; s/Huntersville$//g; s/Huntingdon$//g; s/Huntington$//g; s/Huntington Bch$//g; s/Huntingtown$//g; s/Huntsville$//g; s/Hurlburt Field$//g; 
-s/Huron$//g; s/Hurricane$//g; s/Hyattsville$//g; s/Hyderabad$//g; s/Idaho Falls$//g; s/Illinois$//g; s/Imperial$//g; s/Indialantic$//g; 
-s/Indianapolis$//g; s/Indian Harb$//g; s/Indio$//g; s/Inglewood$//g; s/Inver Grove$//g; s/Ireland$//g; s/Irvine$//g; s/Irving$//g; s/Irwin$//g; 
-s/Iselin$//g; s/Itasca$//g; s/Ithaca$//g; s/Ivanhoe$//g; s/Jackson$//g; s/Jacksonville$//g; s/Jamestown$//g; s/Jane Lew$//g; s/Jasper$//g; 
-s/Jeffersonville$//g; s/Jefferson City$//g; s/Jefferson$//g; s/Jenkintown$//g; s/Jenks$//g; s/Jerseyville$//g; s/Jersey City$//g; s/Jessup$//g; 
-s/Johnson City$//g; s/Johnston$//g; s/Johnstown$//g; s/Joliet$//g; s/Joplin$//g; s/Juliette$//g; s/Jupiter$//g; s/Kalamazoo$//g; s/Kanata$//g; 
-s/Kankakee$//g; s/Kansasville$//g; s/Kansas City$//g; s/Kaysville$//g; s/Kearney$//g; s/Kearny$//g; s/Keego Harbor$//g; s/Kennebec$//g; s/Kenner$//g; 
-s/Kennesaw$//g; s/Kennett Square$//g; s/Kennett$//g; s/Kensington$//g; s/Kent$//g; s/Kerrville$//g; s/Kewaunee$//g; s/Kihei$//g; s/Killeen$//g; 
-s/Kincaid$//g; s/Kingfisher$//g; s/Kingille$//g; s/Kingston$//g; s/Kingwood$//g; s/King George$//g; s/King Of Pru$//g; s/Kings Bay$//g; s/Kings Park$//g; 
-s/Kingsport$//g; s/Kinston$//g; s/Kirkland$//g; s/Kissimmee$//g; s/Kitty Hawk$//g; s/Knightdale$//g; s/Knoxville$//g; s/Korea$//g; s/La Follette$//g; 
-s/La Grange Park$//g; s/La Grange$//g; s/La Jolla$//g; s/La Mesa$//g; s/La Palma$//g; s/La Plata$//g; s/La Pocatiere$//g; s/La Vista$//g; s/Lachine$//g; 
-s/Lafayette$//g; s/Laguna Hills$//g; s/Laguna Niguel$//g; s/Lake Charles$//g; s/Salt Lake City$//g; s/Lake City$//g; s/Lake Geneva$//g; 
-s/Lake Havasu$//g; s/Lake Mary$//g; s/Lake Montezuma$//g; s/Lake Oswego$//g; s/Lakehurst$//g; s/Lakeland$//g; s/Lakeville$//g; s/Lakewood$//g; 
-s/Lakin$//g; s/Lamesa$//g; s/Lancaster$//g; s/Landenberg$//g; s/Lanham$//g; s/Lansdale$//g; s/Lansdowne$//g; s/Lansing$//g; s/Lantana$//g; 
-s/Larchmont$//g; s/Laredo$//g; s/Las Cruces$//g; s/Las Vegas$//g; s/Laurel$//g; s/Lawndale$//g; s/Lawnside$//g; s/Lawrence$//g; s/Lawrenceburg$//g; 
-s/Lawrenceville$//g; s/Lawton$//g; s/Layton$//g; s/League City$//g; s/Leatherhead$//g; s/Leavenworth$//g; s/Leawood$//g; s/Lebanon$//g; s/Leeds$//g; 
-s/Leesburg$//g; s/Leesville$//g; s/Lemont$//g; s/Lenexa$//g; s/Lenoir$//g; s/Leonardtown$//g; s/Leonia$//g; s/Letchworth$//g; s/Levittown$//g; 
-s/Lewes$//g; s/Lewisburg$//g; s/Lewiston$//g; s/Lewisville$//g; s/Lexington Park$//g; s/Lexington$//g; s/Libertyville$//g; s/Lichfield$//g; s/Lima$//g; 
-s/Lincoln$//g; s/Linden$//g; s/Lindon$//g; s/Linesville$//g; s/Lineville$//g; s/Linthicum$//g; s/Linwood$//g; s/Lisle$//g; s/Litchfield$//g; 
-s/Lithonia$//g; s/Lititz$//g; s/Little Falls$//g; s/Little Rock$//g; s/Littleton$//g; s/Livermore$//g; s/Liverpool$//g; s/Livingston$//g; s/Livonia$//g; 
-s/Lockport$//g; s/Logan Township$//g; s/Logansport$//g; s/logistics$//g; s/Lombard$//g; s/Lomita$//g; s/Lompoc$//g; s/Lone Tree$//g; s/Longview$//g; 
-s/Long Beach$//g; s/Long Valley$//g; s/Longmont$//g; s/Longueuil$//g; s/Lorton$//g; s/Los Angeles$//g; s/Los Fresnos$//g; s/Los Lunas$//g; s/Louisa$//g; 
-s/Louisville$//g; s/Loveland$//g; s/Loves Park$//g; s/Lovettsville$//g; s/Lovingston$//g; s/Lowell$//g; s/Loxley$//g; s/Lubbock$//g; s/Lucedale$//g; 
-s/Lufkin$//g; s/Lumberton$//g; s/Lusby$//g; s/Lutherville$//g; s/Luton$//g; s/Lynbrook$//g; s/Lyndhurst$//g; s/Lynn Haven$//g; s/Lynnfield$//g; 
-s/Lynnwood$//g; s/Lynn$//g; s/Machias$//g; s/Macon$//g; s/Macquarie Park$//g; s/Madison$//g; s/Mahwah$//g; s/Maidstone$//g; s/Maine$//g; 
-s/Maineville$//g; s/Maitland$//g; s/Malaysia$//g; s/Malvern$//g; s/Manalapan$//g; s/Manassas$//g; s/Manchester$//g; s/Mankato$//g; s/Manhattan B$//g; 
-s/Manhattan$//g; s/Manheim$//g; s/Manistee$//g; s/Mansfield$//g; s/Maple Grove$//g; s/Maple Heights$//g; s/Maple Shade$//g; s/Maple Valley$//g; 
-s/Marina Del Rey$//g; s/Mason$//g; s/Marblehead$//g; s/Marietta$//g; s/Marion$//g; s/Marlborough$//g; s/Marlton$//g; s/Mars$//g; s/Martin$//g; 
-s/Masontown$//g; s/Matteson$//g; s/Maumee$//g; s/Mayfield$//g; s/Mayfield West$//g; s/Maynard$//g; s/Mays Landing$//g; s/Maysville$//g; s/Mcdonough$//g; 
-s/Mc Coll$//g; s/Mc Cordsville$//g; s/Mc Kees Rocks$//g; s/Mcalester$//g; s/McAllen$//g; s/McClellan$//g; s/McKinney$//g; s/McLean$//g; s/Meadville$//g; 
-s/Mechanicsburg$//g; s/Mechanicsville$//g; s/Medford$//g; s/Media$//g; s/Melbourne$//g; s/Melrose$//g; s/Melrose Park$//g; s/Melville$//g; s/Memphis$//g; 
-s/Menifee$//g; s/Menlo Park$//g; s/Mentor$//g; s/Merced$//g; s/Meriden$//g; s/Meridian$//g; s/Merrick$//g; s/Merrill$//g; s/Merritt Island$//g; 
-s/Mesa$//g; s/Metairie$//g; s/Methuen$//g; s/Metro Jersey District$//g; s/Metropolis$//g; s/Mexico$//g; s/Miami Beach$//g; s/Miami$//g; s/Miamisburg$//g; 
-s/Michigan$//g; s/Mid-Atlantic$//g; s/Middle River$//g; s/Middleburg$//g; s/Middlebury$//g; s/Middlesex$//g; s/Middle East//g; s/Middleton$//g; 
-s/Middletown$//g; s/Middle Village$//g; s/Midland$//g; s/Midlothian$//g; s/Midvale$//g; s/Midwest$//g; s/Milford$//g; s/Millbrook$//g; s/Millburn$//g; 
-s/Milledgeville$//g; s/Millersville$//g; s/Millstone$//g; s/Milpitas$//g; s/Milton$//g; s/Milwaukee$//g; s/Mineola$//g; s/Mineral$//g; s/Minneapolis$//g; 
-s/Minnesota$//g; s/Minnetonka$//g; s/Mira Loma$//g; s/Mishawaka$//g; s/Mississauga$//g; s/Missoula$//g; s/Missouri$//g; s/Mitchell$//g; s/Mobile$//g; 
-s/Modesto$//g; s/Moline$//g; s/Moncks Corner$//g; s/Moncton$//g; s/Mongmong$//g; s/Monroe Town$//g; s/Monroe$//g; s/Monroeville$//g; s/Montclair$//g; 
-s/Monterey$//g; s/Montevallo$//g; s/Montezuma$//g; s/Montgomery$//g; s/Montoursville$//g; s/Montreal$//g; s/Montvale$//g; s/Montville$//g; 
-s/Moor Row$//g; s/Moorestown$//g; s/Mooresville$//g; s/Mooringsport$//g; s/Moreno Valley$//g; s/Morgan Hill$//g; s/Morgantown$//g; s/Morris Plains$//g; 
-s/Morristown$//g; s/Morrisville$//g; s/Moscow$//g; s/Moseley$//g; s/Moss Point$//g; s/Mound City$//g; s/Moundsville$//g; s/mountain Region$//g; 
-s/Mountain States$//g; s/Mountain Top$//g; s/Mountain View$//g; s/Mount Airy$//g; s/Mount Holly$//g; s/Mount Laurel$//g; s/Mount Morrs$//g; 
-s/Mount Pleasant$//g; s/Mount Pocono$//g; s/Mount Prospect$//g; s/Mount Storm$//g; s/Mount Vernon$//g; s/Mount Waverley$//g; s/Mount Weather$//g; 
-s/Mount$//g; s/Mullica Hill$//g; s/Mumbai$//g; s/Muncie$//g; s/Mundelein$//g; s/Murdock$//g; s/Munroe Falls$//g; s/Murfreesboro$//g; s/Murrysville$//g; 
-s/Muscle Shoals$//g; s/Muskegon$//g; s/North Myrtle Beach$//g; s/Myrtle Beach$//g; s/Mystic$//g; s/Nantucket$//g; s/Napa$//g; s/napolis//g; 
-s/Naperville$//g; s/Naples$//g; s/Narberth$//g; s/Narragansett$//g; s/Narrows$//g; s/Nashua$//g; s/Nashville$//g; s/Natchitoches$//g; s/Natick$//g; 
-s/National City$//g; s/Naval Anaco$//g; s/Navarre$//g; s/Nazareth$//g; s/Nebraska$//g; s/Needham Hei$//g; s/Needham$//g; s/Neotsu$//g; s/New Albany$//g; 
-s/New Braunfels$//g; s/New Castle$//g; s/New Church$//g; s/New Cumberland$//g; s/New Delhi$//g; s/New Hartford$//g; s/New Haven$//g; s/New Lenox$//g; 
-s/New London$//g; s/New Malden$//g; s/New Market$//g; s/New Martins$//g; s/New Orleans$//g; s/New Port Ri$//g; s/New Richmond$//g; s/New Stanton$//g; 
-s/New Town$//g; s/New York Office$//g; s/New York$//g; s/New$//g; s/Newark$//g; s/Newbury Park$//g; s/Newcastle$//g; s/Newington$//g; s/Newnan$//g; 
-s/Newport Beach$//g; s/Newport News$//g; s/Newport$//g; s/Newtown Square$//g; s/Newtown$//g; s/Newstead$//g; s/Newton$//g; s/Newtown$//g; s/Newville$//g; 
-s/Niagara Falls$//g; s/Niceville$//g; 
-s/Nicholson$//g; s/Niles$//g; s/Noblesville$//g; s/Nogales$//g; s/Noida$//g; s/Norcross$//g; s/Norfolk$//g; s/Norman$//g; s/Norristown$//g; 
-s/Northallerton$//g; s/Northbrook$//g; s/Northeastern$//g; s/Northeast$//g; s/Northport$//g; s/Northville$//g; s/North and Central$//g; 
-s/North Andover$//g; s/North Baldwin$//g; s/North Bergen$//g; s/North East$//g; s/North Holly$//g; s/North Kings$//g; s/North Las Vegas$//g; 
-s/North Olmsted$//g; s/North Royalton$//g; s/North Vernon$//g; s/North Wales$//g; s/North York$//g; s/North$//g; s/Norton$//g; s/Norwalk$//g; 
-s/Norwich$//g; s/Norwood$//g; s/Novato$//g; s/Nutley$//g; s/O Fallon$//g; s/Oakbrook$//g; s/Oakdale$//g; s/Oakland$//g; s/Oakton$//g; s/Oakville$//g; 
-s/Oak Brook$//g; s/Oak Creek$//g; s/Oak Hill$//g; s/Oak Park$//g; s/Oak Ridge$//g; s/Oak View$//g; s/Ocala$//g; s/Oceanport$//g; s/Ocean City$//g; 
-s/Ocean Grove$//g; s/Ocean Springs$//g; s/Ocoee$//g; s/Odenton$//g; s/Odessa$//g; s/Odon$//g; s/ of$//g; s/Offutt A F B$//g; s/Ogden$//g; 
-s/Ogdensburg$//g; s/Ohio$//g; s/Okemos$//g; s/Oklahoma City$//g; s/Olathe$//g; s/Old Bridge$//g; s/Oldsmar$//g; s/Olmsted Falls$//g; s/Olney$//g; 
-s/Olympia$//g; s/Omaha$//g; s/Onalaska$//g; s/Ontario$//g; s/Oologah$//g; s/Orange Park$//g; s/Orange$//g; s/Oregon$//g; s/Orem$//g; s/Oriskany$//g; 
-s/Orland Park$//g; s/Orlando$//g; s/Orrville$//g; s/Ottawa$//g; s/Overland Park$//g; s/Oviedo$//g; s/Owasso$//g; s/Owego$//g; s/Owensboro$//g; 
-s/Owings Mills$//g; s/Oxford$//g; s/Oxnard$//g; s/Oxon Hill$//g; s/Palatine$//g; s/Palermo$//g; s/Palm Bay$//g; s/Palm Beach$//g; s/Palm Coast$//g; 
-s/Palm Harbor$//g; s/Palmdale$//g; s/Palmer$//g; s/Palo Alto$//g; s/Palo$//g; s/Palos Hills$//g; s/Panama City$//g; s/Paoli$//g; s/Papillion$//g; 
-s/Paramus$//g; s/Parkersburg$//g; s/Park Forest$//g; s/Park Ridge$//g; s/Parkville$//g; s/Parrish$//g; s/Parsippany$//g; s/Pasadena$//g; 
-s/Pascagoula$//g; s/Pasco$//g; s/Passaic$//g; s/Patuxent River$//g; s/Payne$//g; s/Peachtree City$//g; s/Pearl City$//g; s/Pearl River$//g; s/Pelham$//g; 
-s/Pell City$//g; s/Pemberton$//g; s/Pembina$//g; s/Pembroke Pines$//g; s/Pennington$//g; s/Pensacola$//g; s/Peoria$//g; s/Perry Hall$//g; 
-s/Peterborough$//g; s/Petersburg$//g; s/Pewaukee$//g; s/Pfafftown$//g; s/Pharr$//g; s/Phenix City$//g; s/Philadelphia$//g; s/Phillipsburg$//g; 
-s/Philip$//g; s/Phoenix$//g; s/Picayune$//g; s/Pickerington$//g; s/Pico Rivera$//g; s/Pierre$//g; s/Pikeville$//g; s/Pikesville$//g; s/Pinckney$//g; 
-s/Pinconning$//g; s/Pine Grove$//g; s/Pinehurst$//g; s/Pinellas Park$//g; s/Pineville$//g; s/Pipersville$//g; s/Piscataway$//g; s/Pittsburgh$//g; 
-s/Pittsburg$//g; s/Pittsfield$//g; s/Placitas$//g; s/Plainfield$//g; s/Plainsboro$//g; s/Plano$//g; s/Plaquemine$//g; s/Pleasant Grove$//g; 
-s/Pleasanton$//g; s/Pleasantville$//g; s/Plymouth$//g; s/Pocahontas$//g; s/Pocatello$//g; s/Point Pleasant$//g; s/Pomeroy$//g; s/Pomona$//g; 
-s/Pompano Beach$//g; s/Ponca City$//g; s/Ponte Vedra$//g; s/Pontiac$//g; s/Poole$//g; s/Poplar Branch$//g; s/Portage$//g; s/South Portland$//g; 
-s/Portland$//g; s/Portsmouth$//g; s/Port Allen$//g; s/Port Deposit$//g; s/Port Elizabeth$//g; s/Port Orange$//g; s/Port Orchard$//g; 
-s/Port Wentworth$//g; s/Potomac$//g; s/Poway$//g; s/Powder Springs$//g; s/Powell$//g; s/Prattville$//g; s/Prescott$//g; s/Prescot$//g; 
-s/Preston$//g; s/Prestwick$//g; s/Princess Anne$//g; s/Princeton$//g; s/Prineville$//g; s/Proctorville$//g; s/Prospect Park$//g; s/Providence$//g; 
-s/Provos$//g; s/Pueblo$//g; s/Pune City$//g; s/Pune$//g; s/Purcellville$//g; s/Pyrmont$//g; s/Quantico$//g; s/Quebec$//g; s/Québec$//g; s/Quincy$//g; 
-s/Quinton$//g; s/Radcliff$//g; s/Radford$//g; s/Radnor$//g; s/Raleigh$//g; s/Ramsey$//g; s/Rancho Palo$//g; s/Rancho$//g; s/Randallstown$//g; 
-s/Randolph$//g; s/Ransom Canyon$//g; s/Rapid City$//g; s/Raritan$//g; s/Raymondville$//g; s/Rayville$//g; s/Reading$//g; s/Red Bank$//g; s/Redlands$//g; 
-s/Redmond$//g; s/Redondo Beach$//g; s/Redwood City$//g; s/Reisterstown$//g; s/Remington$//g; s/Renovo$//g; s/Reno$//g; s/Rensselaer$//g; s/Rescue$//g; 
-s/Reston$//g; 
-s/Reynoldsburg$//g; s/Richardson$//g; s/Richland$//g; s/Richmond$//g; s/Ridgecrest$//g; s/Ridgefield$//g; s/Ridgeland$//g; s/Ridgewood$//g; s/Rincon$//g; 
-s/Ringoes$//g; s/Riverdale$//g; s/Riverside$//g; s/Riverton$//g; s/Rivervale$//g; s/River Edge$//g; s/Rllng Hls Est$//g; s/Roanoke$//g; 
-s/Roanoke Rapids$//g; s/Rochester Hls$//g; s/Rochester$//g; s/Rockaway$//g; s/Rockford$//g; s/Rockledge$//g; s/Rocklin$//g; s/Rockmart$//g; 
-s/Rockport$//g; s/Rockville C$//g; s/Rockville$//g; s/Rock Springs$//g; s/Rocky Hill$//g; s/Rocky Mount$//g; s/Rocky River$//g; s/Rocky$//g; 
-s/Rohnert Park$//g; s/Rolling Mea$//g; s/Romeoville$//g; s/Rome$//g; s/Romulus$//g; s/Ronkonkoma$//g; s/Rosamond$//g; s/Roseburg$//g; s/Roseland$//g; 
-s/Rosemead$//g; s/Roseville$//g; s/Royston$//g; s/Roswell$//g; s/Rougemont$//g; s/Round Lk Bch$//g; s/Round Rock$//g; s/Rowlett$//g; s/Royal Oak$//g; 
-s/Royersford$//g; s/Ruckersville$//g; s/Ruston$//g; s/Rutherford$//g; s/Sacramento$//g; s/Saint Albans$//g; s/Saint Ann$//g; s/Saint Augus$//g; 
-s/Saint Charles$//g; s/Saint Clair$//g; s/Saint Cloud$//g; s/Saint John$//g; s/Saint Joseph$//g; s/Saint Laurent$//g; s/Saint Louis$//g; 
-s/Saint Marys$//g;  s/Saint Paul$//g; s/Saint Peter$//g; s/Saint Redem$//g; s/Saint Rose$//g; s/Saint Simon$//g; s/Saint$//g; s/Salem$//g; 
-s/Salem Gandp East$//g; s/Salford$//g; s/Salina$//g; s/Salisbury$//g; s/Salt Lake City$//g; s/Salt$//g; s/San Angelo$//g; s/San Antonio$//g; 
-s/San Benito$//g; s/San Bernardino$//g; s/San Bruno$//g; s/San Carlos$//g; s/San Clemente$//g; s/San Diego$//g; s/San Dimas$//g; s/Sandton$//g; 
-s/Sandy Level$//g; s/Sandy$//g; s/Sanford$//g; s/San Francisco Bay$//g; s/San Francisco$//g; s/Sanibel$//g; s/San Gabriel$//g; s/San Jose$//g; 
-s/San Juan$//g; 
-s/San Marcos$//g; s/San Mateo$//g; s/San Pedro$//g; s/San Ramon$//g; s/Santa Ana$//g; s/Santa Barbara$//g; s/Santa Clara$//g; s/Santa Clarita$//g; 
-s/Santa Fe$//g; s/Santa Isabel$//g; s/Santa Maria$//g; s/Santa Monica$//g; s/Santa Rosa$//g; s/Santee$//g; s/Sao Paulo$//g; s/Saraland$//g; 
-s/Sarasota$//g; s/Saratoga Sp$//g; s/Saucier$//g; s/Savannah$//g; s/Sayreville$//g; s/Scarsdale$//g; s/Schaumburg$//g; s/Schenectady$//g; 
-s/Schererville$//g; s/Schiller Park$//g; s/Scotch Plains$//g; s/Scott Afb$//g; s/Scott Air F$//g; s/Scottsdale$//g; s/Scotts Valley$//g; s/Scranton$//g; 
-s/Seaford$//g; s/Seal Beach$//g; s/Seattle$//g; s/Sebring$//g; s/Secaucus$//g; s/Sedalia$//g; s/Selma$//g; s/Seminole$//g; s/Serilingamp$//g; 
-s/Severna Park$//g; s/Severn$//g; s/Sewell$//g; s/Shalimar$//g; s/Sharpes$//g; s/Sheffield Vlg$//g; s/Shelby Town$//g; s/Shelbyville$//g; 
-s/Sherman Oaks$//g; s/Shorewood$//g; s/Show Low$//g; s/Shreveport$//g; s/Shrewsbury$//g; s/Sidcup$//g; s/Sierra Vista$//g; s/Silverdale$//g; 
-s/Silver Spring$//g; s/Simpsonville$//g; s/Singapore$//g; s/Sioux City$//g; s/Sioux Falls$//g; s/Sitka$//g; s/Skillman$//g; s/Slidell$//g; s/Slough$//g; 
-s/Smithfield$//g; s/Smithsburg$//g; s/Smiths Station$//g; s/Smithville$//g; s/Smyrna$//g; s/Sneads$//g; s/Snellville$//g; s/Socorro$//g; 
-s/Solana Beach$//g; s/Solihull$//g; s/Somerset$//g; s/Somers Point$//g; s/Southampton$//g; s/Southaven$//g; s/Southborough$//g; s/Southbridge$//g; 
-s/southeast$//g; s/Southern Pines$//g; s/Southfield$//g; s/Southlake$//g; s/Southwest$//g; s/South Bend$//g; s/South Burli$//g; s/South Central$//g; 
-s/South Dakota$//g; s/South Hacke$//g; s/South Lake$//g; s/South Orange$//g; s/South Ozone$//g; s/South Plain$//g; s/South River$//g; s/South San F$//g; 
-s/South Windsor$//g; s/South$//g; s/Sparks$//g; s/Spartanburg$//g; s/Sparta$//g; s/Spokane$//g; s/Spotsylvania$//g; s/Springfield$//g; s/Spring City$//g; 
-s/Spring$//g; s/Square$//g; s/Stafford$//g; s/Staines$//g; s/Stamford$//g; s/Staten Island$//g; s/State College$//g; s/Stennis Spa$//g; 
-s/Stephens City$//g; s/Sterling$//g; s/Sterling He$//g; s/Stevenage$//g; s/Stevens Point$//g; s/Stewartsville$//g; s/Stillwater$//g; s/Stockbridge$//g; 
-s/Stoneham$//g; s/Stone Harbor$//g; s/Stone Mountain$//g; s/Strasburg$//g; s/Strongsville$//g; s/St Asaph$//g; s/St Augustine$//g; s/St Charles$//g; 
-s/St Clairsvle$//g; s/St Johnsbury$//g; s/St Leonards$//g; s/St Petersburg$//g; s/St Thomas$//g; s/Subiaco$//g; s/Sudbury$//g; s/Suffolk$//g; 
-s/Sugar Grove$//g; s/Sugar Land$//g; s/Suitland$//g; s/Summerville$//g; s/Summit$//g; s/Sunnyvale$//g; s/Superior$//g; s/Surbiton$//g; s/Surry$//g; 
-s/Suwanee$//g; s/Swainsboro$//g; s/Swansea$//g; s/Swanton$//g; s/Swarthmore$//g; s/Swedesboro$//g; s/Swindon$//g; s/Switzerland$//g; s/Sycamore$//g; 
-s/Sydney$//g; s/Sykesville$//g; s/Sylmar$//g; s/Syracuse$//g; s/Tacoma$//g; s/Tadley$//g; s/Taiwan$//g; s/Takoma Park$//g; s/Talladega$//g; 
-s/Tallahassee$//g; s/Tallulah Falls$//g; s/Tall Timbers$//g; s/Tampa$//g; s/Taneytown$//g; s/Tarzana$//g; s/Taunton$//g; s/Tavares$//g; s/Teaneck$//g; 
-s/Tecate$//g; s/Telford$//g; s/Telluride$//g; s/Tempe$//g; s/Tenafly$//g; s/Terrell$//g; s/Tewksbury$//g; s/Texarkana$//g; s/Texas$//g; s/Theodore$//g; 
-s/Thornville$//g; s/Three$//g; s/Thomaston$//g; s/Thomasville$//g; s/Thorndale$//g; s/Thorsby$//g; s/Thousand Oaks$//g; s/Three Rivers$//g; s/Thurso$//g; 
-s/Tifton$//g; s/Timber Lake$//g; s/Timonium$//g; s/Tipp City$//g; s/Tipton$//g; s/Titusville$//g; s/Toano$//g; s/Toledo$//g; s/Toll$//g; s/Tomball$//g; 
-s/Toney$//g; s/Topeka$//g; s/To Rick$//g; s/Tornado$//g; s/Toronto$//g; s/Torrance$//g; s/Townsend$//g; s/Township Of$//g; s/Towson$//g; 
-s/Trabuco Canyon$//g; s/Trenton$//g; s/Troutville$//g; s/Troy$//g; s/Trussville$//g; s/Tucker$//g; s/Tucson$//g; s/Tullahoma$//g; s/Tulsa$//g; 
-s/Tunbridge W$//g; s/Turkey$//g; s/Tuscaloosa$//g; s/Tustin$//g; s/Twin Falls$//g; s/Twinsburg$//g; s/Tyngsboro$//g; s/Underhill$//g; s/Union Ban$//g; 
-s/Union City$//g; s/Uniondale$//g; s/Union Office$//g; s/Uniontown$//g; s/Union$//g; s/Universal City$//g; s/Upper Chich$//g; s/Upper Marlboro$//g; 
-s/Upper Midwest$//g; s/Urbana$//g; s/Urbandale$//g; s/Uvalde$//g; s/Uxbridge$//g; s/Vail$//g; s/Valdosta$//g; s/Valencia$//g; s/Valley Stream$//g; 
-s/Vanceboro$//g; s/Vancouver$//g; s/Vandalia$//g; s/Vandergrift$//g; s/Van Nuys$//g; s/Venice$//g; s/Ventura$//g; s/Verbena$//g; s/Vernon Hills$//g; 
-s/Vernon$//g; s/Vero Beach$//g; s/Verona$//g; s/Versailles$//g; s/Vestal$//g; s/Vicksburg$//g; s/Victoria$//g; s/Vidalia$//g; s/Vienna$//g; 
-s/Villa Rica$//g; s/Vincentown$//g; s/Vincent$//g; s/Vineland$//g; s/Virginia Beach$//g; s/Visalia$//g; s/Vista$//g; s/Voorhees$//g; s/Wagoner$//g; 
-s/Wakefield$//g; s/Waldorf$//g; s/Walled Lake$//g; s/Wallingford$//g; s/Wallops Island$//g; s/Walnut Creek$//g; s/Walnut$//g; s/Waltham$//g; 
-s/Warminster$//g; s/Warm Springs$//g; s/Warm$//g; s/Warner Robins$//g; s/Warrendale$//g; s/Warrenton$//g; s/Warren$//g; s/Warrington$//g; s/Warsaw$//g; 
-s/Warwick$//g; s/Washington$//g; s/Wasilla$//g; s/Waterford$//g; s/Watertown$//g; s/Wauconda$//g; s/Waukesha$//g; s/Wausau$//g; s/Wauwatosa$//g; 
-s/Waycross$//g; s/Waynesboro$//g; s/Wayne$//g; s/Weare$//g; s/Weatherford$//g; s/Webster$//g; s/Wellington$//g; s/Wellston$//g; s/Westborough$//g; 
-s/Westbury$//g; s/Westchester$//g; s/Western Spr$//g; s/Westerville$//g; s/Westfield$//g; s/Westford$//g; s/Westlake$//g; s/Westminster$//g; 
-s/Westmont$//g; s/Westport$//g; s/West Barnst$//g; s/West Bend$//g; s/West Bloomf$//g; s/West Chester$//g; s/West Columbia$//g; s/West Des Mo$//g; 
-s/West Dundee$//g; s/West Harrison$//g; s/West Hartford$//g; s/West Hollywood$//g; s/West Linn$//g; s/West Mifflin$//g; s/West Nyack$//g; 
-s/West Orange$//g; s/West Palm B$//g; s/West Paterson$//g; s/west Region$//g; s/West Sacram$//g; s/West Spring$//g; s/Westwego$//g; s/West$//g; 
-s/Wetumpka$//g; s/Wexford$//g; s/Wheaton$//g; s/Wheeling$//g; s/Whippany$//g; s/Whiteman Ai$//g; s/White Lake$//g; s/White Plains$//g; s/White River$//g; 
-s/South Whitley$//g; s/Whitley$//g; s/Whitmore Lake$//g; s/Whittier$//g; s/Wichita$//g; s/Wiggins$//g; s/Wildfires$//g; s/Wildwood$//g; 
-s/Williamsburg$//g; s/Williamsport$//g; s/Willimantic$//g; s/Williston$//g; s/Williston Park$//g; s/Willow Grove$//g; s/Wilmington$//g; 
-s/Wilsonville$//g; s/Wilton$//g; s/Winchester$//g; s/Winder$//g; s/Windermere$//g; s/Winfield$//g; s/Windsor$//g; s/Windsor Locks$//g; 
-s/Windsor Mill$//g; s/Winnetka$//g; s/Winona$//g; s/Winston Salem$//g; s/Winter Park$//g; s/Winter Springs$//g; s/Wisconsin$//g; s/Woburn$//g; 
-s/Wokingham$//g; s/Woking$//g; s/Woodbridge$//g; s/Wood Dale$//g; s/Woodland Hills$//g; s/Woodland Park$//g; s/Woodstock$//g; s/Woodstown$//g; 
-s/Worcester$//g; s/Wyckoff$//g; s/Wylie$//g; s/Wynnewood$//g; s/Wyoming$//g; s/Xenia$//g; s/Yakima$//g; s/Yardley$//g; s/Yeovil$//g; s/Yokine$//g; 
-s/Yonkers$//g; s/Yorktown$//g; s/York$//g; s/Youngstown$//g; s/Youngsville$//g; s/Yuma$//g; s/Zanesville$//g; s/Zeeland$//g; s/Zion$//g; 
-s/Zionsville$$//g; s/ - /, /g; s/-$//g; s/ To$//g; 
-
-# Remove trailing white space
-s/[ \t]*$//; 
+column -s: -t tmp3 > tmp4
 
 # Clean-up
-s/,$//g; s/\// \/ /g; s/ \/ /, /g; s/--//g; s/\-a/, A/i; s/, ,  and$//g; s/academic/Academic/i; s/account/Account/i; s/acting/Acting/i; 
-s/analysist/Analysist/i; s/analytics/Analytics/i; s/android/Android/i; s/applications/Applications/i; s/assistant/Assistant/i; 
-s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/associate/Associate/i; s/atm /ATM /i; s/attorney/Attorney/i; s/automated/Automated/i; 
-s/\-b/, B/i; s/banking/Banking/i; s/bd/BD/i; s/billing/Billing/i; s/border/Border/i; s/branch/Branch/i; s/business/Business/i; s/buyer/Buyer/i; 
-s/\-c/, C/i; s/cargo/Cargo/i; s/cascade/Cascade/i; s/cbt/CBT/i; s/census/Census/i; s/center/Center/i; s/chemicals/Chemicals/i; s/chemist/Chemist/i; 
-s/chromecast/Chromecast/i; s/ cip / CIP /i; s/cissp/CISSP/i; s/citrix/Citrix/i; s/civil/Civil/i; s/clean/Clean/i; s/cmms/CMMS/i; s/cms/CMS/i; 
-s/commercial/Commercial/i; s/commission/Commission/i; s/CommitteemanagementOfficer/Committee Management Officer/g; s/compliance/Compliance/i; 
-s/connected/Connected/i; s/consultant/Consultant/i; s/consumer/Consumer/i; s/contact/Contact/i; s/content/Content/i; s/corporate/Corporate/i; 
-s/corrosion/Corrosion/i; s/council/Council/i; s/counsel/Counsel/i; s/country/Country/i; s/cpa/CPA/i; s/credit/Credit/i; s/crm/CRM/i; s/ctr /Center/i; 
-s/\-d/, D/i; s/database/Database/i; s/dealer/Dealer/i; s/defense/Defense/i; s/delivery/Delivery/i; s/deputy/Deputy/i; 
-s/DesignatedFederalOfficial/Designated Federal Official/g; s/designer/Designer/i; s/design/Design/i; s/development/Development/i; s/devices/Devices/i; 
-s/director/Director/i; s/disciplined/Disciplined/i; s/discovery/Discovery/i; s/display/Display/i; s/dns/DNS/i; s/\-e/, E/i; s/education/Education/i; 
-s/electric/Electric/i; s/electronics/Electronics/i; s/emerging/Emerging/i; s/ ems/ EMS/i; s/endocrinology/Endocrinology/i; s/energy/Energy/i; 
-s/engineer/Engineer/i; s/enterprise/Enterprise/i; s/ethics/Ethics/i; s/event/Event/i; s/executive/Executive/i; s/\-f/, F/i; s/faa/FAA/i; 
-s/fashion/Fashion/i; s/federal/Federal/i; s/fellow/Fellow/i; s/fha/FHA/i; s/field/Field/i; s/fillmore/Fillmore/i; s/financial/Financial/i; 
-s/flight/Flight/i; s/foodservice/Foodservice/i; s/foreign/Foreign/i; s/ for$//g; s/for Uk And$//i; s/fsa/FSA/i; s/fso/FSO/i; 
-s/FUNCTIONLead/Function Lead/g; s/\-g/, G/i; s/gaap/GAAP/i; s/global/Global/i; s/group/Group/i; s/grp/Group/i; s/gsa/GSA/i; s/gsm/GSM/i; s/\-h/, H/i; 
-s/hazard/Hazard/i; s/hd/HD/i; s/hq/HQ/i; s/\-i/, I/i; s/iii/III/i; s/ii/II/i; s/import /Import /i; s/information/Information/i; 
-s/Information Technology/IT/i; s/institutional/Institutional/i; s/instrument/Instrument/i; s/insurance/Insurance/i; s/intelligence/Intelligence/i; 
-s/international/International/i; s/issm/ISSM/i; s/Itenterpriseprojectmanager/IT Enterprise Project Manager/g; s/ iv/ IV/i; s/\-j/, J/i; s/\-k/, K/i; 
-s/\-l/, L/i; s/landowner/Landowner/i; s/LEADERSHIP MENTORING CHAIR/Leadership Mentoring Chair/i; s/learning/Learning/i; s/legal/Legal/i; 
-s/lending/Lending/i; s/llc/LLC./i; s/lvl/Level/i; s/\-m/, M/i; s/mainframe/Mainframe/i; s/manager/Manager/i; s/mangr/Manager/i; 
-s/maintenance/Maintenance/i; s/manufacturing/Manufacturing/i; s/MarketingProductionManager/Marketing Production Manager/g; s/market/Market/i; 
-s/master/Master/i; s/materials/Materials/i; s/ mba/ MBA/i; s/mcse/MCSE/i; s/mechanic/Mechanic/i; s/medical/Medical/i; s/mergers/Mergers/i; 
-s/meter/Meter/i; s/mobility/Mobility/i; s/model/Model/i; s/mortgage/Mortgage/i; s/motorola/Motorola/i; s/music/Music/i; s/\-n/, N/i; s/navy/Navy/i; 
-s/nerc /NERC /i; s/negotiator/Negotiator/i; s/northern/Northern/i; s/ nso/ NSO/i; s/\-o/, O/i; s/officer/Officer/i; s/office/Office/i; s/online/Online/i; 
-s/operations/Operations/i; s/oriented/Oriented/i; s/\-p/, P/i; s/packaging/Packaging/i; s/paralegal/Paralegal/i; s/parent/Parent/i; s/patrol/Patrol/i; 
-s/payments/Payments/i; s/pca/PCA/i; s/pc/PC/i; s/phd/PhD/i; s/physical/Physical/i; s/pj/PJ/i; s/planner/Planner/i; s/planning/Planning/i; 
-s/platform/Platform/i; s/pmo/PMO/i; s/pmp/PMP/i; s/pm /PM /i; s/portdirector/Port Director/i; s/portfolio/Portfolio/i; s/power/Power/i; 
-s/premium/Premium/i; s/president/President/i; s/principal/Principal/i; s/private/Private/i; s/process/Process/i; s/procurement/Procurement/i; 
-s/producer/Producer/i; s/programming/Programming/i; s/program/Program/i; s/project/Project/i; s/purchase/Purchase/i; s/\-q/, Q/i; s/\-r/, R/i; 
-s/radiology/Radiology/i; s/r and d/R&D/i; s/receives/Receives/i; s/recreation/Recreation/i; s/regional/Regional/i; s/relationship/Relationship/i; 
-s/reliability/Reliability/i; s/retail/Retail/i; s/retirement/Retirement/i; s/revenue/Revenue/i; s/rfid/RFID/i; s/ rf/ RF/i; s/\-s/, S/i; 
-s/safety/Safety/i; s/sales/Sales/i; s/san manager/SAN Manager/i; s/scada/SCADA/i; s/scholar/Scholar/i; s/scientist/Scientist/i; s/security/Security/i; 
-s/senior/Senior/i; s/service/Service/i; s/services/Services/i; s/sftwr/Software/i; s/smart/Smart/i; s/smb/SMB/i; s/sms/SMS/i; s/snr/Senior/i; 
-s/social/Social/i; s/space/Space/i; s/spain/Spain/i; s/.specialist./ Specialist /i; s/sql/SQL/i; s/srbranch/Senior Branch/i; s/srsales/Senior Sales/i; 
-s/ssl/SSL/i; s/stf/Staff/i; s/stock/Stock/i; s/strategic/Strategic/i; s/subsidiary/Subsidiary/i; s/supply/Supply/i; s/support/Support/i; 
-s/swepco/SWEPCO/i; s/\-t/, T/i; s/teacher/Teacher/i; s/ team/ Team/i; s/technical/Technical/i; s/technologymanager/Technology Manager/i; 
-s/technology/Technology/i; s/tech/Tech/i; s/telecommunications/Telecommunications/i; s/television/Television/i; s/testing/Testing/i; s/test/Test/i; 
-s/trademarks/Trademarks/i; s/trainer/Trainer/i; s/transportation/Transportation/i; s/treasury/Treasury/i; s/\-u/, U/i; s/underwriter/Underwriter/i; 
-s/university/University/i; s/uscg/USCG/i; s/utilities/Utilities/i; s/utility/Utility/i; s/\-v/, V/i; s/valve/Valve/i; s/vendor/Vendor/i; 
-s/Vicepresident/Vice President/i; s/Vice-President/Vice President/i; s/vii/VII/i; s/virginia/Virginia/i; s/vi /VI/i; s/voip/VoIP/i; s/\-w/, W/i; 
-s/wealth/Wealth/i; s/worldwide/Worldwide/i; s/\-x/, X/i; s/\-y/, Y/i; s/\-z/, Z/i' > tmp
+cat tmp4 | sed 's/ -- /, /g; s/ - /, /g; s/,,/,/g; s/, ,/, /g; s/\//, /g; s/[^ ]\+/\L\u&/g; s/-.*$//g; s/1.*$//g; s/1/I/g; s/2/II/g; s/3/III/g; s/4/IV/g; 
+s/5/V/g; s/2cfinancedistributionoperations//i; s/-administration/, Administration/i; s/-air/, Air/i; s/, ,  and$//g; s/ And / and /g; s/ api / API /i; 
+s/ at.*$//g; s/ asic / ASIC /i; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/-associate/-associate/i; s/ at .*//i; s/ atm / ATM /i; 
+s/ bd / BD /i; s/-big/, Big/i; s/BIIb/B2B/g; s/-board/, Board/i; s/-boiler/, Boiler/i; s/ bsc / BSC /i; s/-call/, Call/i; s/-capacity/, Capacity/i; 
+s/-cash/, Cash/i; s/ cbt / CBT /i; s/-chief/, Chief/i; s/ cip / CIP /i; s/ cissp / CISSP /i; s/-civil/, Civil/i; s/ cj / CJ /i; s/Clients//g; 
+s/ cmms / CMMS /i; s/ cms / CMS /i; s/-commercial/, Commercial/i; s/CommitteemanagementOfficer/Committee Management Officer/g; 
+s/-communications/, Communications/i; s/-community/, Community/i; s/-compliance/, Compliance/i; s/-consumer/, Consumer/i; s/contact sold, to//i; 
+s/-corporate/, Corporate/i; s/ cpa/ CPA/i; s/-creative/, Creative/i; s/ crm / CRM /i; s/ctr /Center/i; s/-customer/, Customer/i; s/-data/, Data/i; 
+s/ db2 / DB2 /i; s/ dbii / DB2 /i; s/DDesigner/Designer/i; s/DesignatedFederalOfficial/Designated Federal Official/g; s/-design/, Design/i; s/dhs/DHS/i; 
+s/-digital/, Digital/i; s/-distribution/, Distribution/i; s/ dns / DNS /i; s/-dominion/-dominion/i; s/-drilling/, Drilling/i; s/ dvp / DVP /i; 
+s/ ebs / EBS /i; s/editorr/Editor/i; s/ edrm / EDRM /i; s/ eeo / EEO /i; s/ efi / EFI /i; s/-electric/, Electric/i; 
+s/EleCenterEngineer/Electric Engineer/i; s/ emc / EMC /i; s/ emea/ EMEA/i; s/-employee/, Employee/i; s/ ems / EMS /i; s/-energy/, Energy/i; 
+s/engineer5/Engineer V/i; s/-engineering/, Engineering/i; s/-engineer/, Engineer/i; s/-environmental/, Environmental/i; s/-executive/, Executive/i; 
+s/ faa / FAA /i; s/-facilities/, Facilities/i; s/ ferc / FERC /i; s/ fha / FHA /i; s/-finance/, Finance/i; s/-financial/, Financial/i; 
+s/-fleet/, Fleet/i; s/ For / for /g; s/ fsa / FSA /i; s/ fso / FSO /i; s/ fx / FX /i; s/ gaap / GAAP /i; s/-gas/, Gas/i; s/-general/, General/i; 
+s/-generation/, Generation/i; s/grp/Group/i; s/ gsa / GSA /i; s/ gsis / GSIS /i; s/ gsm / GSM /i; s/ hd / HD /i; s/ hmrc / HMRC /i; s/ hp / HP /i; 
+s/ hq / HQ /i; s/-human/, Human/i; s/ hvac / HVAC /i; s/ ia / IA /i; s/ id / ID /i; s/ iii/ III/i; s/ ii/ II/i; s/ iis / IIS /i; s/ In / in /g; 
+s/-industrial/, Industrial/i; s/information technology/IT/i; s/-information/, Information/i; s/-infrastructure/, Infrastructure/i; 
+s/-instrumentation/, Instrumentation/i; s/-internal/, Internal/i; s/ ip / IP /i; s/ ir / IR /i; 
+s/itenterpriseprojectmanager/IT Enterprise Project Manager/i; s/-IT/, IT/i; s/ iv / IV /i; s/ jc / JC /i; s/ jd / JD /i; s/ jt / JT /i; 
+s/konsult, konsultchef, projektledare/Consultant/i; s/laboratorynetwork/Laboratory, Network/i; s/-labor/, Labor/i; 
+s/lan administrator/LAN Administrator/i; s/lan admin/LAN Admin/i; s/-land/, Land/i; s/-licensing/, Licensing/i; s/LawIII60/Law360/g; s/ llc / LLC. /i; 
+s/-logistics/, Logistics/i; s/lvl/Level/i; s/-mail/, Mail/i; s/-manager/, Manager/i; s/-marketing/, Marketing/i; s/-materials/, Materials/i; 
+s/ mba / MBA /i; s/mca/McA/i; s/mcb/McB/i; s/mcc/McC/i; s/mcd/McD/i; s/mce/McE/i; s/mcf/McF/i; s/mcg/McG/i; s/mch/McH/i; s/mci/McI/i; s/mcj/McJ/i; 
+s/mck/McK/i; s/mcl/McL/i; s/mcm/McM/i; s/mcn/McN/i; s/mcq/McQ/i; s/mcv/McV/i; s/mcse/MCSE/i; s/-mechanical/, Mechanical/i; s/-metals/, Metals/i; 
+s/-metro/, Metro/i; s/, mp//i; s/ nerc / NERC /i; s/mcp/McP/i; s/mcr/McR/i; s/mcs/McS/i; s/mct/McT/i; s/mcw/McW/i; s/-media/, Media/i; 
+s/-mergers/, Mergers/i; s/-millstone/, Millstone/i; s/-motor/, Motor/i; s/-networking/, Networking/i; s/-network/, Network/i; s/-new/, New/i; 
+s/-north/, North/i; s/not in it//i; s/ nso / NSO /i; s/-nuclear/, Nuclear/i; s/ Nz / NZ /g; s/-office/, Office/i; s/ Of / of /g; 
+s/-operations/, Operations/i; s/-oracle/, Oracle/i; s/-other/, Other/i; s/ pca / PCA /i; s/ pcs / PCS /i; s/ pc / PC /i; s/ pdm / PDM /i; 
+s/ phd / PhD /i; s/ pj / PJ /i; s/-plant/, Plant/i; s/plt/Plant/i; s/pmo/PMO/i; s/ pmp/ PMP/i; s/ pm / PM /i; s/-power/, Power/i; 
+s/-property/, Property/i; s/-public/, Public/i; s/pyble/Payble/i; s/ os / OS /i; s/ r and d /R&D/i; s/-records/, Records/i; s/-regulated/, Regulated/i; 
+s/-regulatory/, Regulatory/i; s/-related/, Related/i; s/-remittance/, Remittance/i; s/-renewals/, Renewals/i; s/-revenue/, Revenue/i; s/ rfid / RFID /i; 
+s/ rfp / RFP /i; s/ rf / RF /i; s/-safety/, Safety/i; s/san manager/SAN Manager/i; s/scada/SCADA/i; s/sdlc/SDLC/i; s/setac-/SETAC,/i; s/sftwr/Software/i; 
+s/-short/, Short/i; s/ smb / SMB /i; s/sms/SMS/i; s/smtp/SMTP/i; s/snr/Senior/i; s/.specialist./ Specialist /i; s/sql/SQL/i; s/spvr/Supervisor/i; 
+s/srbranch/Senior Branch/i; s/srsales/Senior Sales/i; s/ ssl / SSL /i; s/-staff/, Staff/i; s/stf/Staff/i; s/-station/, Station/i; 
+s/-strategic/, Strategic/i; s/-student/, Student/i; s/-substation/, Substation/i; s/-supplier/, Supplier/i; s/-supply/, Supply/i; 
+s/-surveillance/, Surveillance/i; s/swepco/SWEPCO/i; s/-system/, System/i; s/-tax/, Tax/i; s/-technical/, Technical/i; 
+s/-telecommunications/, Telecommunications/i; s/ The / the /g; s/-three/, Three/i; s/-tickets/, Tickets/i; s/-trading/, Trading/i; 
+s/-transmission/, Transmission/i; s/ttechnical/Technical/i; s/-turbine/, Turbine/i; s/ to .*$//i; s/ ui / UI /i; s/ uk / UK /i; 
+s/unsupervisor/Supervisor/i; s/uscg/USCG/i; s/ usa / USA /i; s/ us / US /i; s/ u.s / US /i; s/-utility/, Utility/i; s/vicepresident/Vice President/i; 
+s/ vii / VII /i; s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i; s/ vpn / VPN /i; s/ With / with /g' > tmp5
 
-# Author: Ben Wood
-perl -ne 'if ($_ =~ /(.*?)\t\s*(.*)/) {printf("%-30s%s\n",$1,$2);}' tmp > tmp2
+# Remove lines that contain 2 words and clean up.
+awk 'NF != 2' tmp5 | sed "s/d'a/D'A/i; s/d'c/D'C/i; s/d'e/D'E/i; s/d's/D'S/i; s/l'a/L'A/i; s/o'b/O'B/i; s/o'c/O'C/i; s/o'd/O'D/i; s/o'f/O'F/i; 
+s/o'g/O'G/i; s/o'h/O'H/i; s/o'k/O'K/i; s/o'l/O'L/i; s/o'm/O'M/i; s/o'N/O'N/i; s/o'p/O'P/i; s/o'r/O'R/i; s/o's/O'S/i" > tmp6
 
-head tmp2
-echo
-echo
-echo -n "Copy/paste the company name from the second column: "
-read name
-
-# Check for no answer
-if [[ -z $name ]]; then
-     f_error
-fi
-
-sed "s/$name//g" tmp2 | sort -u > $home/data/names.txt
+# Remove trailing white space and trailing commas, delete lines with a single word
+cat tmp6 | sed 's/[ \t]*$//; s/,$//; /[[:blank:]]/!d' | sort -u > $home/data/names.txt
 rm tmp*
 
 echo
@@ -1984,7 +1735,7 @@ f_report
 f_scan(){
 custom='1-1040,1050,1080,1099,1158,1344,1352,1433,1521,1720,1723,1883,1911,1962,2049,2202,2375,2628,2947,3000,3031,3050,3260,3306,3310,3389,3500,3632,4369,5019,5040,5060,5432,5560,5631,5632,5666,5672,5850,5900,5920,5984,5985,6000,6001,6002,6003,6004,6005,6379,6666,7210,7634,7777,8000,8009,8080,8081,8091,8222,8332,8333,8400,8443,8834,9000,9084,9100,9160,9600,9999,10000,11211,12000,12345,13364,19150,27017,28784,30718,35871,37777,46824,49152,50000,50030,50060,50070,50075,50090,60010,60030'
 full='1-65535'
-udp='53,67,123,137,161,407,500,523,623,1434,1604,1900,2302,2362,3478,3671,5353,5683,6481,17185,31337,44818,47808'
+udp='53,67,123,137,161,407,500,523,623,1434,1604,1900,2302,2362,3478,3671,4800,5353,5683,6481,17185,31337,44818,47808'
 
 echo
 echo -n "Perform full TCP port scan? (y/N) "
@@ -2024,7 +1775,7 @@ fi
 echo
 echo $medium
 
-nmap -iL $location --excludefile $excludefile --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -$S -$U -p T:$tcp,U:$udp --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
+nmap -iL $location --excludefile $excludefile --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67,123,137,161,500,523,623,1434,1604,2302,3478,3671 -$S -$U -p T:$tcp,U:$udp --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
 
 x=$(grep '(0 hosts up)' $name/nmap.nmap)
 
@@ -2093,7 +1844,7 @@ if [[ -e $name/5060.txt ]]; then
 fi
 
 echo "     UDP"
-UDP_PORTS="53 67 123 137 161 407 500 523 623 1434 1604 1900 2302 2362 3478 3671 5353 5683 6481 17185 31337 44818 47808"
+UDP_PORTS="53 67 123 137 161 407 500 523 623 1434 1604 1900 2302 2362 3478 3671 4800 5353 5683 6481 17185 31337 44818 47808"
 
 for i in $UDP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/udp\>" | cut -d ' ' -f2 > $name/$i.txt
@@ -3209,6 +2960,12 @@ if [[ -e $name/3500.txt ]]; then
      cat /tmp/resource/3500-emc.rc >> /tmp/master
 fi
 
+if [[ -e $name/4800.txt ]]; then
+     echo "     Moxa"
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/4800.txt|g" /tmp/resource/4800-udp-moxa.rc
+     cat /tmp/resource/4800-udp-moxa.rc >> /tmp/master
+fi
+
 if [[ -e $name/5040.txt ]]; then
      echo "     DCE/RPC"
      sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/5040.txt|g" /tmp/resource/5040-dcerpc.rc
@@ -3549,7 +3306,7 @@ echo >> $filename
 echo "High Value Hosts by Port" >> $filename
 echo >> $filename
 
-HVPORTS="13 19 21 22 23 25 37 53 67 69 70 79 80 102 110 111 119 123 135 137 139 143 161 389 407 433 443 445 465 500 502 512 513 514 523 524 548 554 563 587 623 631 636 771 831 873 902 993 995 998 1050 1080 1099 1158 1344 1352 1433 1434 1521 1604 1720 1723 1883 1900 1911 1962 2049 2202 2302 2362 2375 2628 2947 3000 3031 3050 3260 3306 3310 3389 3478 3500 3632 3671 4369 5019 5040 5060 5353 5432 5560 5631 5632 5666 5672 5683 5850 5900 5920 5984 5985 6000 6001 6002 6003 6004 6005 6379 6481 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 8834 9000 9084 9100 9160 9600 9999 10000 11211 12000 12345 13364 17185 19150 27017 28784 30718 31337 35871 37777 44818 46824 47808 49152 50000 50030 50060 50070 50075 50090 60010 60030"
+HVPORTS="13 19 21 22 23 25 37 53 67 69 70 79 80 102 110 111 119 123 135 137 139 143 161 389 407 433 443 445 465 500 502 512 513 514 523 524 548 554 563 587 623 631 636 771 831 873 902 993 995 998 1050 1080 1099 1158 1344 1352 1433 1434 1521 1604 1720 1723 1883 1900 1911 1962 2049 2202 2302 2362 2375 2628 2947 3000 3031 3050 3260 3306 3310 3389 3478 3500 3632 3671 4369 4800 5019 5040 5060 5353 5432 5560 5631 5632 5666 5672 5683 5850 5900 5920 5984 5985 6000 6001 6002 6003 6004 6005 6379 6481 6666 7210 7634 7777 8000 8009 8080 8081 8091 8222 8332 8333 8400 8443 8834 9000 9084 9100 9160 9600 9999 10000 11211 12000 12345 13364 17185 19150 27017 28784 30718 31337 35871 37777 44818 46824 47808 49152 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $HVPORTS; do
      if [[ -e $name/$i.txt ]]; then

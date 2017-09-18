@@ -8,7 +8,7 @@ from src.core.discovercore import DiscoverColours
 class DiscoverMenus:
 
     @staticmethod
-    def mainmenu():
+    def main_menu():
         print('''{0}
         RECON
         1.  Domain
