@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 from setuptools import setup
+from .src.core import __VERSION__
 
 setup(
     name='Discover',
+    version=__VERSION__,
     url='http://github.com/leebaird/discover/',
     license='MIT',
     author='Lee Baird',

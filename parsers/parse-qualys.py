@@ -1,37 +1,34 @@
 #!/usr/bin/env python
-#
+# -*- coding:utf-8 -*-
 # by John Kim
 # Thanks to Securicon, LLC. for sponsoring development
-#
-#-*- coding:utf-8 -*-
+
 
 import argparse
 import csv
 import re
 
-################################################################
 
 # Non-standard libraries
 try:
     from lxml import etree
 except ImportError:
-    print "Missing lxml library. Please install using PIP. https://pypi.python.org/pypi/lxml/3.4.2"
+    print("Missing lxml library. Please install using PIP. https://pypi.python.org/pypi/lxml/3.4.2")
     exit()
 
 try:
     import html2text
 except ImportError:
-    print "Missing html2text library. Please install using PIP. https://pypi.python.org/pypi/html2text/2015.2.18"
+    print("Missing html2text library. Please install using PIP. https://pypi.python.org/pypi/html2text/2015.2.18")
     exit()
 
 # Custom libraries
 try:
     import utfdictcsv
 except ImportError:
-    print "Missing dict to csv converter custom library. utfdictcsv.py should be in the same path as this file."
+    print("Missing dict to csv converter custom library. utfdictcsv.py should be in the same path as this file.")
     exit()
 
-################################################################
 
 CUSTOM_HEADERS = {'CVSS_score': 'CVSS Score',
                   'ip_address': 'IP Address',
@@ -55,7 +52,6 @@ REPORT_HEADERS = ['CVSS_score',
                   'links',
                   'cve']
 
-################################################################
 
 def htmltext(blob):
     h = html2text.HTML2Text()
@@ -68,21 +64,15 @@ def report_writer(report_dic, output_filename):
         csvWriter = utfdictcsv.DictUnicodeWriter(outFile, REPORT_HEADERS, quoting=csv.QUOTE_ALL)
         csvWriter.writerow(CUSTOM_HEADERS)
         csvWriter.writerows(report_dic)
-    print "Successfully parsed."
+    print("Successfully parsed.")
 
-################################################################
 
 def issue_r(raw_row, vuln):
     ret_rows = []
     issue_row = {}
 
-    # IP ADDRESS
-    issue_row['ip_address']  = raw_row.findtext('IP')
-
-    # FQDN
-    issue_row['fqdn'] =raw_row.findtext('DNS')
-
-    # OS NAME
+    issue_row['ip_address'] = raw_row.findtext('IP')
+    issue_row['fqdn'] = raw_row.findtext('DNS')
     issue_row['os'] = raw_row.findtext('OPERATING_SYSTEM')
 
     # Scan details
@@ -101,7 +91,7 @@ def issue_r(raw_row, vuln):
             # Vuln name
             _temp['vuln_name'] = vuln_item.findtext('TITLE')
 
-            #Solution Strips Heading Workaround(s)
+            # Solution Strips Heading Workaround(s)
             _temp['solution'] = re.sub('Workaround(s)?:.+\n', '', htmltext(vuln_item.findtext('SOLUTION')))
 
             # Vuln_description
@@ -132,26 +122,21 @@ def qualys_parser(qualys_xml_file):
 
     report_writer(master_list, args.outfile)
 
-################################################################
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 
     # Parse args
     aparser = argparse.ArgumentParser(description='Converts Qualys XML results to .csv file.')
-    aparser.add_argument('--out',
-                        dest='outfile',
-                        default='qualys.csv',
-                        help="WARNING: By default, output will overwrite current path to the file named 'qualys.csv'")
+    aparser.add_argument('--out', dest='outfile', default='qualys.csv',
+                         help="WARNING: By default, output will overwrite current path to the file named 'qualys.csv'")
 
-    aparser.add_argument('qualys_xml_file',
-                        type=str,
-                        help='Qualys xml file.')
+    aparser.add_argument('qualys_xml_file', type=str, help='Qualys xml file.')
 
     args = aparser.parse_args()
 
     try:
         qualys_parser(args.qualys_xml_file)
     except IOError:
-        print "[!] Error processing file: {}".format(args.qualys_xml_file)
+        print("[!] Error processing file: {}".format(args.qualys_xml_file))
         exit()
 

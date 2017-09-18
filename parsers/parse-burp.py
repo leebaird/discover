@@ -10,30 +10,27 @@ from httplib import HTTPResponse
 from StringIO import StringIO
 import binascii
 import csv
-import datetime
 import sys
-import time
 
-################################################################
 
 # Non-standard libraries
 try:
     from lxml import etree
 except ImportError:
-    print "Missing lxml library. Please install using PIP. https://pypi.python.org/pypi/lxml/3.4.2"
+    print("Missing lxml library. Please install using PIP. https://pypi.python.org/pypi/lxml/3.4.2")
     exit()
 
 try:
     import html2text
 except ImportError:
-    print "Missing html2text library. Please install using PIP. https://pypi.python.org/pypi/html2text/2015.2.18"
+    print("Missing html2text library. Please install using PIP. https://pypi.python.org/pypi/html2text/2015.2.18")
     exit()
 
 # Custom libraries
 try:
     import utfdictcsv
 except ImportError:
-    print "Missing dict to csv converter custom library. utfdictcsv.py should be in the same path as this script."
+    print("Missing dict to csv converter custom library. utfdictcsv.py should be in the same path as this script.")
     exit()
 
 ################################################################
@@ -58,7 +55,6 @@ REPORT_HEADERS = ['host',
 
 COLUMN_HEADERS = ['host', 'path', 'issueDetail', 'name', 'issueBackground', 'remediationBackground']
 
-################################################################
 
 class HTTPRequest(BaseHTTPRequestHandler):
     def __init__(self, request_text):
@@ -71,7 +67,6 @@ class HTTPRequest(BaseHTTPRequestHandler):
         self.error_code = code
         self.error_message = message
 
-################################################################
 
 class FakeSocket():
     def __init__(self, response_str):
@@ -92,9 +87,8 @@ def report_writer(report_dic):
         csvWriter = utfdictcsv.DictUnicodeWriter(outFile, REPORT_HEADERS, quoting=csv.QUOTE_ALL)
         csvWriter.writerow(CUSTOM_HEADERS)
         csvWriter.writerows(report_dic)
-    print "Successfully parsed."
+    print("Successfully parsed.")
 
-################################################################
 
 def issue_row(raw_row):
     issue_row = {}
@@ -132,7 +126,6 @@ def burp_parser(burp_xml_file):
     r = d.xpath('//issues/issue')
     report_writer([issue_row(issue) for issue in r])
 
-################################################################
 
 if __name__ == "__main__":
 
@@ -143,9 +136,9 @@ if __name__ == "__main__":
             try:
                 burp_parser(xml_file)
             except:
-                print "[!] Error processing file.\n"
+                print("[!] Error processing file.\n")
     else:
-        print "\nUsage: ./parse-burp.py Base64_input.xml"
-        print "Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0])
+        print("\nUsage: ./parse-burp.py Base64_input.xml")
+        print("Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0]))
         exit()
 

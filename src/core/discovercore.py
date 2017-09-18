@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
-import os
+
 from . import __VERSION__
+
 
 class Discover(object):
 
@@ -19,8 +20,8 @@ class Discover(object):
     def kali_check():
         """Checking to make sure the OS is supported"""
         with open('/etc/os-release', 'r') as OS:
-            data = OS.read()
-            if 'kali' in data:
+            linux_distribution = OS.read()
+            if 'kali' in linux_distribution:
                 return True
             else:
                 return False

@@ -3,13 +3,12 @@
 # by John Kim
 # Thanks to Securicon, LLC. for sponsoring development
 #
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 
 import codecs
 import cStringIO
 import csv
 
-################################################################
 
 class DictUnicodeWriter(object):
 
