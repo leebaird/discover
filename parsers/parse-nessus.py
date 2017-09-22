@@ -2,10 +2,10 @@
 #
 # Author  -- Alexander Sferrella
 # Created -- 13 September, 2017
-# Edited  -- 20 September, 2017
+# Edited  -- 22 September, 2017
 
-from sys import argv
-from csv import QUOTE_ALL as QUOTE_ALL
+import argparse
+from csv import QUOTE_ALL
 import utfdictcsv
 import xml.etree.ElementTree as ET
 
@@ -27,7 +27,7 @@ def getValue(rawValue):
         cleanValue = cleanValue[:32000] + ' [Text Cut Due To Length]'
     return cleanValue
 
-# Helper function
+# Helper function for handleReport()
 def getKey(rawKey):
     return csvHeaders[nessusFields.index(rawKey)]
 
@@ -47,15 +47,23 @@ def handleReport(report):
             findings.append(reportRow)
     return findings
 
+# Get files 
+def handleArgs():
+    aparser = argparse.ArgumentParser(description='Converts Nessus scan findings from XML to a CSV file.', usage="\n./parse-nessus.py input.nessus\nAny fields longer than 32,000 characters will be truncated.")
+    aparser.add_argument('nessus_xml_files', type=str, nargs='+', help="nessus xml file to parse")
+    args = aparser.parse_args()
+    return args.nessus_xml_files
+
 # Main
 if __name__ == '__main__':
-    if len(argv) <= 1:
-        print('\nUsage: ./parse-nessus.py input.nessus')
-        print('Any fields longer than 32,000 characters will be truncated.\n'.format(argv[0]))
-        exit()
     reportRows = []
-    for nessusScan in argv[1:]:
-        xmlRoot = ET.parse(nessusScan).getroot()
+    for nessusScan in handleArgs():
+        try:
+            scanFile = ET.parse(nessusScan)
+        except IOError:
+            print("Could not find file \"" + nessusScan + "\"")
+            exit()
+        xmlRoot = scanFile.getroot()
         for report in xmlRoot.findall('./Report/ReportHost'):
             findings = handleReport(report)
             reportRows.extend(findings)

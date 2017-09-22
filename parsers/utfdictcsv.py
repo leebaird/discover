@@ -5,13 +5,17 @@
 #
 #-*- coding:utf-8 -*-
 #
-# Last edited by Alexander Sferrella on 9/21/2017
+# Last edited by Alexander Sferrella on 9/22/2017
 
 import codecs
 try: #python2
     from cStringIO import StringIO
-except: #python3
-    from io import StringIO
+except ImportError: #python3
+    try: #python3
+        from io import StringIO
+    except ImportError:
+        # cStringIO and io are both standard libraries, if this error is reached there is a larger problem
+        print("Missing StringIO library. Please verify installation of cStringIO library for Python2, and io library for Python3.")
 import csv
 
 ################################################################
@@ -32,7 +36,7 @@ class DictUnicodeWriter(object):
         data = self.queue.getvalue()
         try: #python2 
             data = data.decode("utf-8")
-        except: #python3 
+        except AttributeError: #python3 
             data = str.encode(data).decode("utf-8")
         # ... and re-encode it into the target encoding
         data = self.encoder.encode(data)
