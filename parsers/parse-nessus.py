@@ -2,7 +2,7 @@
 #
 # Author  -- Alexander Sferrella
 # Created -- 13 September, 2017
-# Edited  -- 15 September, 2017
+# Edited  -- 20 September, 2017
 
 from sys import argv
 from csv import QUOTE_ALL as QUOTE_ALL
@@ -22,7 +22,7 @@ def createCSV():
 
 # Clean values from nessus report
 def getValue(rawValue):
-    cleanValue = rawValue.replace('\n', ' ')
+    cleanValue = rawValue.replace('\n', ' ').strip(' ')
     if len(cleanValue) > 32000:
         cleanValue = cleanValue[:32000] + ' [Text Cut Due To Length]'
     return cleanValue
@@ -48,10 +48,10 @@ def handleReport(report):
     return findings
 
 # Main
-if __name__ == "__main__":
+if __name__ == '__main__':
     if len(argv) <= 1:
-        print '\nUsage: ./parse-nessus.py input.nessus'
-        print 'Any fields longer than 32,000 characters will be truncated.\n'.format(argv[0])
+        print('\nUsage: ./parse-nessus.py input.nessus')
+        print('Any fields longer than 32,000 characters will be truncated.\n'.format(argv[0]))
         exit()
     reportRows = []
     for nessusScan in argv[1:]:
