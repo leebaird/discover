@@ -421,7 +421,7 @@ case $choice in
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
      # Clean up
-     egrep -v '(#|%|<a|=-=-=-=|;|Access may be|Additionally|Afilias except|and DNS Hosting|and limitations of|any use of|Be sure to|at the end of|By submitting an|by the terms|can easily change|circumstances will|clientDeleteProhibited|clientTransferProhibited|clientUpdateProhibited|company may be|complaint will|contact information|Contact us|Copy and paste|currently set|database|data contained in|data presented in|date of|dissemination|Domaininfo AB|Domain Management|Domain names in|Domain status: ok|enable high|except as reasonably|failure to|facsimile of|for commercial purpose|for detailed information|For information for|for information purposes|for the sole|Get Noticed|Get a FREE|guarantee its|HREF|In Europe|In most cases|in obtaining|in the address|includes restrictions|including spam|information is provided|is not the|is providing|JPRS database provides|Learn how|Learn more|makes this information|MarkMonitor|mining this data|minute and one|modify existing|modify these terms|must be sent|name cannot|NamesBeyond|not to use|Note: This|NOTICE|obtaining information about|of Moniker|of this data|or hiding any|or otherwise support|other use of|own existing customers|Please be advised|Please note|policy|prior written consent|privacy is|Problem Reporting System|Professional and|prohibited without|Promote your|protect the|Public Interest|queries or|Register your|Registrars|registration record|repackaging,|responsible for|See Business Registration|server at|solicitations via|sponsorship|Status|support questions|support the transmission|telephone, or facsimile|that apply to|that you will|the right| The data is|The fact that|the transmission|The Trusted Partner|This listing is|This feature is|This information|This service is|to collect or|to entities|to report any|To suppress Japanese|transmission of mass|UNITED STATES|United States|unsolicited advertising|Users may|Version 6|via e-mail|Visit AboutUs.org|while believed|will use this|with many different|with no guarantee|We reserve the|Whois|you agree|You may not)' tmp2 > tmp3
+     egrep -v '(#|%|<a|=-=-=-=|;|Access may be|Additionally|Afilias except|and DNS Hosting|and limitations of|any use of|Be sure to|at the end of|By submitting an|by the terms|can easily change|circumstances will|clientDeleteProhibited|clientTransferProhibited|clientUpdateProhibited|company may be|complaint will|contact information|Contact us|Copy and paste|currently set|database|data contained in|data presented in|date of|details go to|dissemination|Domaininfo AB|Domain Management|Domain names in|Domain status: ok|enable high|except as reasonably|failure to|facsimile of|for commercial purpose|for detailed information|For information for|for information purposes|for the sole|Get Noticed|Get a FREE|guarantee its|HREF|In Europe|In most cases|in obtaining|in the address|includes restrictions|including spam|information is provided|is not the|is providing|JPRS database provides|Learn how|Learn more|makes this information|MarkMonitor|mining this data|minute and one|modify existing|modify these terms|must be sent|name cannot|NamesBeyond|not to use|Note: This|NOTICE|obtaining information about|of Moniker|of this data|or hiding any|or otherwise support|other use of|own existing customers|Please be advised|Please note|policy|prior written consent|privacy is|Problem Reporting System|Professional and|prohibited without|Promote your|protect the|Public Interest|queries or|Register your|Registrars|registration record|repackaging,|responsible for|See Business Registration|server at|solicitations via|sponsorship|Status|support questions|support the transmission|telephone, or facsimile|that apply to|that you will|the right| The data is|The fact that|the transmission|The Trusted Partner|This listing is|This feature is|This information|This service is|to collect or|to entities|to report any|To suppress Japanese|transmission of mass|UNITED STATES|United States|unsolicited advertising|Users may|Version 6|via e-mail|Visit AboutUs.org|while believed|will use this|with many different|with no guarantee|We reserve the|Whois|you agree|You may not)' tmp2 > tmp3
      # Remove lines starting with "*"
      sed '/^*/d' tmp3 > tmp4
      # Remove lines starting with "-"
@@ -3745,9 +3745,20 @@ echo $medium
 echo
 echo "Running sslyze."
 sslyze --targets_in=$location --resum --certinfo=basic --compression --reneg --sslv2 --sslv3 --hide_rejected_ciphers > tmp
-
-# Remove the first 23 lines
-sed '1,23d' tmp | egrep -v '(ERROR|Exponent|Not Before|NOT SUPPORTED|OK - C|OK - R|OK - S|PARTIALLY|rejected all|Serial Number|SHA1 Fingerprint)' > $home/data/sslyze.txt
+# Remove the first 20 lines and cleanup
+sed '1,20d' tmp | egrep -v '(=>|error:|ERROR|is trusted|NOT SUPPORTED|OK - Supported|OpenSSLError|Server rejected|timeout|unexpected error)' |
+# Find FOO, if the next line is blank, delete both lines
+awk '/Compression/ { Compression = 1; next }  Compression == 1 && /^$/ { Compression = 0; next }  { Compression = 0 }  { print }' |
+awk '/Renegotiation/ { Renegotiation = 1; next }  Renegotiation == 1 && /^$/ { Renegotiation = 0; next }  { Renegotiation = 0 }  { print }' |
+awk '/Resumption/ { Resumption = 1; next }  Resumption == 1 && /^$/ { Resumption = 0; next }  { Resumption = 0 }  { print }' |
+awk '/SSLV2/ { SSLV2 = 1; next }  SSLV2 == 1 && /^$/ { SSLV2 = 0; next }  { SSLV2 = 0 }  { print }' |
+awk '/SSLV3/ { SSLV3 = 1; next }  SSLV3 == 1 && /^$/ { SSLV3 = 0; next }  { SSLV3 = 0 }  { print }' |
+awk '/Stapling/ { Stapling = 1; next }  Stapling == 1 && /^$/ { Stapling = 0; next }  { Stapling = 0 }  { print }' |
+awk '/Unhandled/ { Unhandled = 1; next }  Unhandled == 1 && /^$/ { Unhandled = 0; next }  { Unhandled = 0 }  { print }' |
+# Find a dash (-), if the next line is blank, delete it
+awk -v n=-2 'NR==n+1 && !NF{next} /-/ {n=NR}1' |
+# Remove double spacing
+cat -s > $home/data/sslyze.txt
 
 echo
 echo "Running sslscan."
@@ -3922,6 +3933,22 @@ mv tmp2 $home/data/sslscan.txt
 
 grep -v 'Issuer info not available.' tmp | grep -v 'Certificate subject info not available.' >> $home/data/sslscan.txt
 
+# Nmap
+echo
+echo "Running sslscan."
+echo
+
+cat $location | cut -d ':' -f1 > list
+nmap -Pn -n -T4 --open -p443 --script=ssl* -iL list > tmp
+egrep -v '( - A|before|Ciphersuite|cipher preference|deprecated)' tmp |
+# Find FOO, if the next line is blank, delete both lines
+awk '/latency/ { latency = 1; next }  latency == 1 && /^$/ { latency = 0; next }  { latency = 0 }  { print }' |
+# Find FOO, if the next line is blank, delete the line containing FOO
+awk -v n=-2 'NR==n+1 && NF{print hold} /sslv2-drown/ {n=NR;hold=$0;next}1' |
+awk -v n=-2 'NR==n+1 && NF{print hold} /least strength/ {n=NR;hold=$0;next}1' |
+awk -v n=-2 'NR==n+1 {if($0 ~ /NULL/) { next; } else { print hold } } /compressors/ {n=NR;hold=$0;next}1' |
+sed 's/Nmap scan report for //g' > $home/data/nmap-ssl.txt
+
 rm tmp* ssl_* 2>/dev/null
 
 echo
@@ -3930,37 +3957,9 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-echo -e "The new reports are located at \x1B[1;33m$home/data/sslscan.txt \x1B[0mand \x1B[1;33m$home/data/sslyze.txt \x1B[0m"
-
+echo -e "The new reports are located at \x1B[1;33m$home/data/sslscan.txt, sslyze.txt \x1B[0mand \x1B[1;33mnmap-ssl.txt \x1B[0m"
 echo
-echo -n "If your IPs are public, do you want to test them using an external source? (y/N) "
-read extquery
-
-if [ "$extquery" == "y" ]; then
-     f_runlocally
-     echo "Launching $browser, opening $number tabs, please wait..."
-     processname='firefox'
-
-     if ps ax | grep -v 'grep' | grep $processname > /dev/null; then
-          echo
-     else
-          $web &
-	  sleep 4
-     fi
-
-     while read -r line; do
-          $web "https://www.sslshopper.com/ssl-checker.html#hostname=$line" &
-	  sleep 1
-     done < "$location"
-
-     echo
-     echo
-     exit
-else
-     echo
-     echo
-     exit
-fi
+echo
 }
 
 ##############################################################################################################
