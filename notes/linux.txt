@@ -245,11 +245,15 @@ whoami                             Who you are logged in as
 
 # Tunneling VNC over SSH
 
-Remote Kali                        vncserver -geometry 1440x850, exit 2x
-OS X                               ssh -L 5901:localhost:5901 -i ~/.ssh/lee-ec2.pem ec2-user@52.x.x.x
+OS X (awsv)                        ssh -L 5901:localhost:5901 -i ~/.ssh/lee-ec2.pem ec2-user@52.x.x.x
+
 Remote Kali                        sudo -i
-OS X                               Open VNC Viewer to localhost:5901
+                                   vncserver -geometry 1440x850
+
+OS X                               Applications > VNC Viewer: localhost:5901
+
 VNC                                Right click on the Desktop > Open Terminal Here
+
 Remote Kali                        vncserver -kill :1
 ------------------------------------------------------------------------------------------------------
 
