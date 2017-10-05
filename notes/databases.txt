@@ -37,6 +37,7 @@ DELETE FROM <table> WHERE <field>="value";
 
 DROP DATABASE <database>;
 DROP TABLE 'table1', 'table2', 'table3';
+ALTER TABLE <table> DROP COLUMN <field>;
 
 SELECT * FROM <table>;
 SELECT * FROM <table> WHERE <field>="value";
