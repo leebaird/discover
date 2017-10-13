@@ -47,6 +47,8 @@ SET PASSWORD FOR username@localhost = PASSWORD('newpassword');
 
 UPDATE <table> SET <field>="value";
 
+INSERT INTO <table> VALUES('John', 'Smith', 'john.smith@acme.com');
+
 DISTINCT <field>
 GROUP BY <field>
 LIMIT <number>

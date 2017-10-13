@@ -551,9 +551,10 @@ case $choice in
      cat tmp2 >> $home/data/$domain/pages/config.htm
 
      # Add new icons
+     sed -i 's|/static/images/error.gif|\.\./assets/images/icons/fail.png|g' $home/data/$domain/pages/config.htm
+     sed -i 's|/static/images/fail.gif|\.\./assets/images/icons/fail.png|g' $home/data/$domain/pages/config.htm
      sed -i 's|/static/images/info.gif|\.\./assets/images/icons/info.png|g' $home/data/$domain/pages/config.htm
      sed -i 's|/static/images/pass.gif|\.\./assets/images/icons/pass.png|g' $home/data/$domain/pages/config.htm
-     sed -i 's|/static/images/fail.gif|\.\./assets/images/icons/fail.png|g' $home/data/$domain/pages/config.htm
      sed -i 's|/static/images/warning.gif|\.\./assets/images/icons/warning.png|g' $home/data/$domain/pages/config.htm
      sed -i 's|\.\.\.\.|\.\.|g' $home/data/$domain/pages/config.htm
 
