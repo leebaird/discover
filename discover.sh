@@ -37,6 +37,27 @@ medium='=================================================================='
 short='========================================'
 sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
+# Check for instances of Discover >1
+updatedb
+locate discover.sh > tmpinstance
+instqty=$(wc -l tmpinstance | cut -d' ' -f1)
+if [ $instqty -gt 1 ]; then
+     echo
+     echo -e "\x1B[1;33m$medium \x1B[0m"
+     echo
+     echo -e "Found \x1B[1;33m$instqty\x1B[0m instances of Discover on your system."
+     echo 'Refer to the following paths:'
+     cat tmpinstance | sed 's/^/\t/'
+     echo
+     echo 'Remove or rename all but the install path and try again'
+     echo -e "If renaming, \x1B[1;33m'discover.sh'\x1B[0m can't be in name. Try \x1B[1;33m'discover.bu'\x1B[0m etc"
+     echo
+     echo -e "\x1B[1;33m$medium \x1B[0m"
+     echo
+     rm tmpinstance
+     exit 1
+fi
+
 # Check for OS X
 if [[ `uname` == 'Darwin' ]]; then
      browser=Safari
