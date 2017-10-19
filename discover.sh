@@ -759,7 +759,7 @@ case $choice in
      cat $discover/resource/recon-ng.rc >> passive.rc
      sed -i "s/yyy/$domain/g" passive.rc
 
-     recon-ng --no-check -r $discover/passive.rc
+     recon-ng --no-check -r passive.rc
 
      ##############################################################
 
