@@ -2065,7 +2065,7 @@ fi
 
 if [[ -e $name/139.txt ]]; then
      echo "     SMB Vulns"
-     nmap -iL $name/139.txt -Pn -n --open -p139 --script-timeout 30s --script=smb-vuln-conficker,smb-vuln-cve2009-3103,smb-vuln-ms06-025,smb-vuln-ms07-029,smb-vuln-regsvc-dos,smb-vuln-ms08-067 --host-timeout 1m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/139.txt -Pn -n --open -p139 --script-timeout 30s --script=smb* --host-timeout 1m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      egrep -v '(SERVICE|netbios)' tmp4 > tmp5
      sed '1N;N;/\(.*\n\)\{2\}.*VULNERABLE/P;$d;D' tmp5
@@ -2096,7 +2096,7 @@ fi
 
 if [[ -e $name/445.txt ]]; then
      echo "     SMB"
-     nmap -iL $name/445.txt -Pn -n --open -p445 --script-timeout 30s --script=msrpc-enum,smb-enum-domains,smb-enum-groups,smb-enum-processes,smb-enum-sessions,smb-enum-shares,smb-enum-users,smb-mbenum,smb-os-discovery,smb-security-mode,smb-server-stats,smb-system-info,smbv2-enabled,stuxnet-detect,smb-vuln-ms10-061 --host-timeout 1m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/445.txt -Pn -n --open -p445 --script-timeout 30s --script=msrpc-enum,smb*,stuxnet-detect --host-timeout 1m --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      sed -i '/^445/{n; /.*/d}' tmp4		# Find lines that start with 445, and delete the following line
      mv tmp4 $name/script-445.txt
