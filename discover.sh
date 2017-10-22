@@ -65,18 +65,17 @@ fi
 if [[ `uname` == 'Darwin' ]]; then
      browser=Safari
      discover=$(locate discover.sh | sed 's:/[^/]*$::')
-     ip=$(ifconfig | grep 'en0' -A2 | grep 'inet' | cut -d ' ' -f2)
      interface=en0
+     ip=$(ifconfig | grep 'en0' -A2 | grep 'inet' | cut -d ' ' -f2)
      msf=/opt/metasploit-framework/bin/msfconsole
      msfv=/opt/metasploit-framework/bin/msfvenom
      port=4444
      web="open -a Safari"
-	# web="open -a Google\ Chrome"
 else
      browser=Firefox
      discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
+     interface=$(ip addr | grep 'global' | awk '{print $8}')
      ip=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}')
-     interface=$(ip link | awk '{print $2, $9}' | grep 'UP' | cut -d ':' -f1)
      msf=msfconsole
      msfv=msfvenom
      port=443
@@ -1485,7 +1484,7 @@ case $choice in
      echo
      exit;;
      2) f_errorOSX; f_netbios;;
-     3) f_errorOSX; netdiscover;;
+     3) f_errorOSX; f_netdiscover;;
      4) f_pingsweep;;
      5) f_main;;
      *) f_error;;
@@ -1538,6 +1537,26 @@ case $choice in
 
      *) f_error;;
 esac
+}
+
+##############################################################################################################
+
+f_netdiscover(){
+
+range=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}' | cut -d '.' -f1-3)'.1'
+
+netdiscover -r $range -f -P | grep ':' | awk '{print $1}' > $home/data/netdiscover.txt
+
+echo
+echo $medium
+echo
+echo "***Scan complete.***"
+echo
+echo
+printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/netdiscover.txt
+echo
+echo
+exit
 }
 
 ##############################################################################################################
