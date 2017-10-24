@@ -26,6 +26,12 @@ if [ -d /pentest ]; then
      exit
 fi
 
+# Check theHarvester.py permissions
+perms=$(stat /usr/share/theharvester/theHarvester.py | grep -m1 'Access' | cut -d '/' -f2 | cut -d ')' -f1)
+if [ "$perms" == '-rw-r--r--' ]; then 
+     chmod 755 /usr/share/theharvester/theHarvester.py
+fi
+
 echo -e "\e[1;34mUpdating Kali.\e[0m"
 apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
 
