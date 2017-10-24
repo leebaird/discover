@@ -738,30 +738,30 @@ case $choice in
 
      echo "recon-ng                  (32/$total)"
      echo
-     echo "workspaces add $domain" > passive.rc
-     echo "add companies" >> passive.rc
-     echo "$companyurl" >> passive.rc
-     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' passive.rc
-     echo "none" >> passive.rc
-     echo "add domains" >> passive.rc
-     echo "$domain" >> passive.rc
-     echo >> passive.rc
+     echo "workspaces add $domain" > $discover/passive.rc
+     echo "add companies" >> $discover/passive.rc
+     echo "$companyurl" >> $discover/passive.rc
+     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/passive.rc
+     echo "none" >> $discover/passive.rc
+     echo "add domains" >> $discover/passive.rc
+     echo "$domain" >> $discover/passive.rc
+     echo >> $discover/passive.rc
 
      if [ -e passive2.rc ]; then
-          cat passive2.rc >> passive.rc
+          cat passive2.rc >> $discover/passive.rc
      fi
 
      if [ -e names2 ]; then
           echo "last_name#first_name" > $home/data/names2.csv
           cat names2 | sed 's/, /#/' >> $home/data/names2.csv
-          cat $discover/resource/recon-ng-import-names2.rc >> passive.rc
-          echo >> passive.rc
+          cat $discover/resource/recon-ng-import-names2.rc >> $discover/passive.rc
+          echo >> $discover/passive.rc
      fi
 
-     cat $discover/resource/recon-ng.rc >> passive.rc
-     sed -i "s/yyy/$domain/g" passive.rc
+     cat $discover/resource/recon-ng.rc >> $discover/passive.rc
+     sed -i "s/yyy/$domain/g" $discover/passive.rc
 
-     recon-ng --no-check -r passive.rc
+     recon-ng --no-check -r $discover/passive.rc
 
      ##############################################################
 
@@ -966,7 +966,7 @@ case $choice in
      rm curl debug* emails* domain hosts names* network* passive* registered* squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
      rm $home/data/*.csv 2>/dev/null
      cd /tmp/
-     rm emails names networks profiles subdomains registered-domains 2>/dev/null
+     rm emails names networks profiles subdomains registered-domains $discover/passive.rc 2>/dev/null
 
      # Robtex
      wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
