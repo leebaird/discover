@@ -1,7 +1,5 @@
 #!/bin/bash
 
-clear
-echo
 echo
 
 # Fix for errors from URLCrazy file tld.rb lines 81,89,91
