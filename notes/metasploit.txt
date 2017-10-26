@@ -30,31 +30,35 @@ msf > db_status               Check that you are connected to the db.
 ------------------------------------------------------------------------------------------------------
 
 # If the db connection fails:
+
 msf > exit
 msfdb init
 msfconsole
 msf > db_status
 
-# If the db connection still fails, create new user and db:
+# If the db connection still fails:
 msf > exit
-su postgres
-postgres@kali:~$ createuser <username> -P
-Enter password for new role: 
-Enter it again: 
-postgres@kali:~$ createdb --owner=<username> msf
-postgres@kali:~$ exit
 
-# Autoconnect to db
-nano ~/.msf4/database.yml
-production:
-    adapter: postgresql
-    database: msf
-    username: <username>
-    password: <password>
-    host: 127.0.0.1
-    port: 5432
-    pool: 5
-    timeout: 5
+cat /usr/share/metasploit-framework/config/database.yml
+Copy the password.
+
+su postgres
+createuser msf -P
+Enter password for new role:
+Enter it again:
+
+psql
+CREATE DATABASE msf;
+GRANT ALL PRIVILEGES ON DATABASE msf to msf;
+ALTER DATABASE msf OWNER TO msf;
+\q
+exit
+
+service postgresql restart
+msfdb init
+msfconsole
+msf > db_status
+------------------------------------------------------------------------------------------------------
 
 # Module database cache not built yet, using slow search
 db_rebuild_cache              Rebuilds the database-stored module cache
