@@ -54,12 +54,19 @@ else
 fi
 
 if [ -d /opt/CrackMapExec/.git ]; then
+     echo -e "\e[1;34mReinstalling CrackMapExec.\e[0m"
+     rm -rf /opt/CrackMapExec/ ; git pull
+     git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec.git /opt/crackmapexec
+     echo
+fi
+
+if [ -d /opt/crackmapexec/.git ]; then
      echo -e "\e[1;34mUpdating CrackMapExec.\e[0m"
-     cd /opt/CrackMapExec/ ; git pull
+     cd /opt/crackmapexec/ ; git pull
      echo
 else
      echo -e "\e[1;33mInstalling CrackMapExec.\e[0m"
-     git clone https://github.com/byt3bl33d3r/CrackMapExec.git /opt/CrackMapExec
+     git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec.git /opt/crackmapexec
      echo
 fi
 
