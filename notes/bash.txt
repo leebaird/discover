@@ -45,6 +45,8 @@ sed '/^FOO/i\ '                                         # Find lines that start 
 sed '/^FOO/a\ '                                         # Find lines that start with FOO, and insert a line after
 sed -e :a -e '$!N;s/\nFOO/ /;ta' -e 'P;D'               # Find lines that start with FOO, insert a space and append to the previous line
 
+fmt -w 25                                               # Limit the number of characters on a line to 25
+
 sed -n '/FOO/,$p'                                       # Print from FOO to the end of the file
 sed s/FOO.*//                                           # Print from FOO to the end of the line
 sed -n '5,/^$/p'                                        # Print from the 5th line to the first blank line
