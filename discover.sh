@@ -4001,9 +4001,10 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-echo -e "The new reports are located at \x1B[1;33m$home/data/sslscan.txt, sslyze.txt \x1B[0mand \x1B[1;33mnmap-ssl.txt \x1B[0m"
+echo -e "The new reports are located at \x1B[1;33m$home/data/sslscan.txt, sslyze.txt, \x1B[0mand \x1B[1;33mnmap-ssl.txt \x1B[0m"
 echo
 echo
+exit
 }
 
 ##############################################################################################################
