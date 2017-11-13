@@ -42,6 +42,7 @@ def handleReport(report):
         if item.tag == 'ReportItem':
             reportRow = dict(reportHost)
             reportRow['Port'] = item.attrib['port']
+            reportRow['Vulnerability'] = item.attrib['pluginName']
             for tag in (tag for tag in item if tag.tag in nessusFields):
                 reportRow[getKey(tag.tag)] = getValue(tag.text)
             findings.append(reportRow)
