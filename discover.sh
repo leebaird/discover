@@ -3979,7 +3979,7 @@ grep -v 'Issuer info not available.' tmp | grep -v 'Certificate subject info not
 
 # Nmap
 echo
-echo "Running sslscan."
+echo "Running nmap."
 echo
 
 cat $location | cut -d ':' -f1 > list
