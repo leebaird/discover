@@ -1848,7 +1848,6 @@ x=$(grep '(0 hosts up)' $name/nmap.nmap)
 
 if [[ -n $x ]]; then
      rm -rf "$name" tmp
-     rm tmp-target
      echo
      echo $medium
      echo
