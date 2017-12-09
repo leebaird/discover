@@ -1,13 +1,14 @@
 # cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
 
-dsn=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
+dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
 ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
 mac=$(ifconfig | grep 'ether' | awk '{print $2}')
 user=$(whoami)
 
-alias aws='ssh -i ~/.ssh/lee-ec2.pem ec2-user@52.x.x.x'
-alias awss='ssh -D 1080 -f -N -i ~/.ssh/lee-ec2.pem ec2-user@52.x.x.x'
-alias awsv='ssh -L 5901:localhost:5901 -i ~/.ssh/lee-ec2.pem ec2-user@52.x.x.x'
+alias aws='ssh -i ~/.ssh/amazon.pem ec2-user@'
+alias awsf='sftp -i ~/.ssh/amazon.pem ec2-user@'
+alias awss='ssh -D 1080 -f -N -i ~/.ssh/amazon.pem ec2-user@'
+alias awsv='ssh -L 5901:localhost:5901 -i ~/.ssh/amazon.pem ec2-user@5'
 alias nosocks="kill -9 $(ps aux | grep ssh | grep 'D 1080' | awk '{print $2}') 2>/dev/null"
 
 alias c='clear'
