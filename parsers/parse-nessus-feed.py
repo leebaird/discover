@@ -12,7 +12,7 @@
 #    mv /opt/nessus/lib/nessus/plugins/plugins.xml /root/
 #
 # OS X
-#    sudo /Library/Nessus/run/sbin/Nessusd -X
+#    sudo /Library/Nessus/run/sbin/nessusd -X
 #    sudo mv /Library/Nessus/run/lib/nessus/plugins/plugins.xml ./
 
 import codecs
@@ -25,8 +25,7 @@ import xml.etree.ElementTree as ET
 
 class UnicodeWriter:
     """
-    A CSV writer which will write rows to CSV file "f",
-    which is encoded in the given encoding.
+    A CSV writer which will write rows to CSV file "f", which is encoded in the given encoding.
     """
 
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
@@ -55,7 +54,7 @@ class UnicodeWriter:
 ################################################################
 
 def write_results(results_table, out_filename):
-    print "\nWriting CSV data..."
+    print "\nWriting CSV data."
     try:
         with open(out_filename, 'wb') as csvfile:
             sum_write = UnicodeWriter(csvfile)
@@ -87,14 +86,14 @@ def max_field_len_excel(ggchild, row_number):
 ################################################################
 
 def get_sum_from_xml(filename):
-    print "\nParsing XML data. This takes about 90 sec...\n"
+    print "\nParsing XML data. This takes about 90 sec.\n"
     results_table = [["Vulnerability", "CVSS Base Score", "Description", "Remediation", "Published", "Updated", "See Also"]]
 
     try:
         tree = ET.parse(filename)
         root = tree.getroot()
     except IOError:
-        print "Error reading/parsing XML file. Likely XML file is mangled in some way. Check the XML file."
+        print "Error reading/parsing XML file. Its likely that the XML file is mangled in some way."
         exit()
 
     row_tracker = 1
@@ -138,7 +137,7 @@ if __name__ == "__main__":
         write_results(results, sys.argv[2])
         print "\nConverted {} rows to CSV format.\n\n".format(len(results))
     else:
-        print "\nUsage: ./parse-nessus-feed.py input.xml output.csv"
-        print "Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0])
+        print "\nUsage: ./parse-nessus-feed.py input.xml output.csv\n"
+        print "Any field longer than 32,000 characters will be truncated.\n\n".format(sys.argv[0])
         exit()
 

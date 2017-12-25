@@ -10,20 +10,8 @@ Move to /Applications/
 
 # Firefox plugins
 
-Cookies Manager+
-FoxyProxy Standard
-User-Agent Switcher
 Wappalyzer
 Web Developer
-
-# Firefox proxy
-
-Preferences > Advanced > Network > Settings
-Manual proxy configuration
-HTTP Proxy: 127.0.0.1
-Port: 8080
-Use this proxy server for all protocols.
-No proxy for: delete anything in here
 ------------------------------------------------------------------------------------------------------
 
 # Set up
