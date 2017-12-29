@@ -10,9 +10,9 @@ setup(
     license='MIT',
     author='Lee Baird',
     author_email='leebaird@gmail.com',
-    description='A Python framework for doing OSINT on a targert for a pentest ',
+    description='A Python framework for doing OSINT on a target for a pentest ',
     install_requires=[
-        'shodan>=1.7.1',
+        'shodan>=1.7.7',
         'dnspython>=1.15.0',
-        'requests>=2.18.1'
+        'requests>=2.18.4'
     ])
