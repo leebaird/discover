@@ -282,27 +282,18 @@ adduser <user> <group>             Add user to group
 
 # vim
 
-vim filename                       Open an existing file
+vim oldfile                        Open an existing file
 vim newfile                        Create a new file
-
-vim vimrc                          Setup config file in home directory
-     syntax on
-     set wrapmargin=8
-     set number
 
 Modes                              Command, Insert, Append, and Replace
 
 Command mode
 dd                                 Delete entire line
-h                                  Left
-j                                  Down
-k                                  Up
-l                                  Right
 gg                                 Top of file
 G                                  End of file
-<ctrl> d                           Page down
-<ctrl> u                           Page up
 <esc> u                            Undo
+:set number                        Turn on line numbers
+:set nonumber                      Turn off line numbers
 
 Search
 /                                  Search string
@@ -330,20 +321,20 @@ r
 Enter the replacement character.
 <esc> to return to command mode.
 
+<esc>                              Quit
 :q
+<return>
 
-Quit and do not save
-<esc>
+<esc>                              Force quit
 :q!
 <return>
 
-Write changes to a file
-<esc>
+<esc                               Write changes
 :w
 <return>
 
-Write changes to a file and quit
-<esc>
+<esc>                              Write changes and quit
+:wq
 <return>
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------
