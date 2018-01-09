@@ -3981,9 +3981,9 @@ echo
 echo "Running nmap."
 echo
 
-cat $location | cut -d ':' -f1 > list
-nmap -Pn -n -T4 --open -p443 --script=ssl* -iL list > tmp
-egrep -v '( - A|before|Ciphersuite|cipher preference|deprecated)' tmp |
+cat $location | cut -d ':' -f1 > tmp
+nmap -Pn -n -T4 --open -p443 --script=ssl* -iL tmp > tmp2
+egrep -v '( - A|before|Ciphersuite|cipher preference|deprecated)' tmp2 |
 # Find FOO, if the next line is blank, delete both lines
 awk '/latency/ { latency = 1; next }  latency == 1 && /^$/ { latency = 0; next }  { latency = 0 }  { print }' |
 # Find FOO, if the next line is blank, delete the line containing FOO
