@@ -76,6 +76,17 @@ if [ -d /opt/discover/.git ]; then
      echo
 fi
 
+if [ -d /opt/Egress-Assess/.git ]; then
+     echo -e "\e[1;34mUpdating Egress-Assess.\e[0m"
+     cd /opt/Egress-Assess/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling Egress-Assess.\e[0m"
+     git clone https://github.com/ChrisTruncer/Egress-Assess.git /opt/Egress-Assess
+     /opt/Egress-Assess/setup/setup.sh
+     echo
+fi
+
 if [ -d /opt/Empire/.git ]; then
      echo -e "\e[1;34mUpdating Empire.\e[0m"
      cd /opt/Empire/ ; git pull
