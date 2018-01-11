@@ -76,7 +76,7 @@ if [ -d /opt/discover/.git ]; then
      echo
 fi
 
-if [ -d /opt/Egress-Assess/README.md ]; then
+if [ -d /opt/Egress-Assess/.git ]; then
      echo -e "\e[1;34mUpdating Egress-Assess.\e[0m"
      cd /opt/Egress-Assess/ ; git pull
      echo
