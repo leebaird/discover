@@ -50,6 +50,8 @@ fmt -w 25                                               # Limit the number of ch
 sed -n '/FOO/,$p'                                       # Print from FOO to the end of the file
 sed s/FOO.*//                                           # Print from FOO to the end of the line
 sed -n '5,/^$/p'                                        # Print from the 5th line to the first blank line
+awk 'NR == 1 || NR % 3 == 0'                            # Print the first and every third line
+awk 'NR % 3 == 0'                                       # Print every thrid line
 sed -n '/FOO/,/BAR/p'                                   # Print lines between FOO and BAR
 sed -e '/./{H;$!d;}' -e 'x;/FOO/!d;'                    # Print paragraphs that contains FOO 
 awk '{print $2 " " $1}'                                 # Print the second column, insert a space, then the first column
