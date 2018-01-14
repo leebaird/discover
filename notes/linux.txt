@@ -301,7 +301,7 @@ n                                  Next string
 N                                  Previous string
 
 Search and replace
-:s/foo/bar/g                       Search for foo and replace with bar globally
+:%s/foo/bar/g                      Search for foo and replace with bar globally
 
 Insert mode
 Position the cursor where the new text should go.

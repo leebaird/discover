@@ -84,6 +84,8 @@ else
      echo -e "\e[1;33mInstalling Egress-Assess.\e[0m"
      git clone https://github.com/ChrisTruncer/Egress-Assess.git /opt/Egress-Assess
      /opt/Egress-Assess/setup/setup.sh
+     mv server.pem ../Egress-Assess/
+     rm impacket*
      echo
 fi
 
