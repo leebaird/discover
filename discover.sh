@@ -2792,18 +2792,6 @@ if [[ -e $name/79.txt ]]; then
      cat /tmp/resource/79-finger.rc >> /tmp/master
 fi
 
-if [[ -e $name/80.txt ]]; then
-     echo "     Lotus"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/80.txt|g" /tmp/resource/80-lotus.rc
-     cat /tmp/resource/80-lotus.rc >> /tmp/master
-fi
-
-if [[ -e $name/80.txt ]]; then
-     echo "     SCADA Indusoft WebStudio NTWebServer"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/80.txt|g" /tmp/resource/80-scada.rc
-     cat /tmp/resource/80-scada.rc >> /tmp/master
-fi
-
 if [[ -e $name/110.txt ]]; then
      echo "     POP3"
      sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/110.txt|g" /tmp/resource/110-pop3.rc
