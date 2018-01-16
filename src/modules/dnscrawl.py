@@ -22,17 +22,18 @@ parser.add_argument('-n', '--name-server',
 
 args = parser.parse_args()
 ADDITIONAL_RDCLASS = 65535
-
 domain = dns.name.from_text(args.domain)
+
 if not domain.is_absolute():
     domain = domain.concatenate(dns.name.root)
+
 try:
     request = dns.message.make_query(domain, dns.rdatatype.ANY)
     request.flags |= dns.flags.AD
     request.find_rrset(request.additional, dns.name.root, ADDITIONAL_RDCLASS,
                        dns.rdatatype.OPT, create=True, force_unique=True)
     response = dns.query.tcp(request, args.name_server)
-    #print(response)
+
     if 'See draft-ietf-dnsop-refuse-any' in response.answer[0].to_text():
         request = dns.message.make_query(domain, args.type)
         request.flags |= dns.flags.AD
