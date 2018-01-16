@@ -25,6 +25,12 @@ echo 'Hello world!' > /tmp/test.txt
 set SOURCE /tmp/test.txt
 run
 
+use auxiliary/scanner/snmp/cnpilot_r_snmp_loot
+run
+
+use auxiliary/scanner/snmp/epmp1000_snmp_loot
+run
+
 use auxiliary/scanner/snmp/netopia_enum
 run
 

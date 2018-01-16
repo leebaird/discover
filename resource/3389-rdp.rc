@@ -4,3 +4,6 @@ setg RPORT 3389
 
 use auxiliary/scanner/rdp/ms12_020_check
 run
+
+use auxiliary/scanner/rdp/rdp_scanner
+run

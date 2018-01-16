@@ -2,6 +2,9 @@ setg RHOSTS file:
 setg THREADS 255
 setg RPORT 5900
 
+use auxiliary/scanner/vnc/ard_root_pw
+run
+
 use auxiliary/scanner/vnc/vnc_login
 run
 
