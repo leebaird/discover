@@ -2,7 +2,6 @@
 #
 # Author  -- Alexander Sferrella
 # Created -- 13 September, 2017
-# Edited  -- 22 September, 2017
 
 import argparse
 from csv import QUOTE_ALL
@@ -45,7 +44,9 @@ def handleReport(report):
             reportRow['Vulnerability'] = item.attrib['pluginName']
             for tag in (tag for tag in item if tag.tag in nessusFields):
                 reportRow[getKey(tag.tag)] = getValue(tag.text)
-            findings.append(reportRow)
+            # Clean up - Mike G
+            if reportRow['CVSS Score'] != "":
+                findings.append(reportRow)
     return findings
 
 # Get files 
