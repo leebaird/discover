@@ -343,6 +343,7 @@ Enter the replacement character.
 
 showmount -e <target IP>
 
+apt-get install nfs-common
 mkdir /mnt/nfs/
 mount -t nfs -o nolock <target IP>:/share /mnt/nfs/
 ------------------------------------------------------------------------------------------------------
