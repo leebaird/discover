@@ -318,7 +318,7 @@ case $choice in
 
      echo "dnsrecon                  (4/$total)"
      dnsrecon -d $domain > tmp
-     grep $domain tmp | egrep -v '(Checking|DNSSEC|No SRV Records|Performing)' | sed 's/\[\*\]//g' | sed 's/^[ \t]*//' | column -t | sort -k1 > dns
+     grep '*' tmp | grep -v -E 'Checking|DNSSEC|No SRV Records|Performing|Bind Version|Enumerating SRV' | sed 's/\[\*\]//g' | sed 's/^[ \t]*//' | column -t | sort -k1 > dns
      cat dns >> $home/data/$domain/data/records.htm
 
      grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | column -t > sub1
@@ -374,7 +374,7 @@ case $choice in
           theharvester="/usr/share/theharvester/theHarvester.py"
      fi
 
-     echo "     Baidu                (9/$total) bad"
+     echo "     Baidu                (9/$total)"
      #$theharvester -d $domain -b baidu | grep $domain > zbaidu
      echo "     Bing                 (10/$total)"
      $theharvester -d $domain -b bing | grep $domain | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbing
@@ -454,19 +454,13 @@ case $choice in
      sed -i '/^Domain servers/{n; /.*/d}' tmp12
      # Remove blank lines from end of file
      awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp12 > tmp13
-
-     while IFS=$': \t' read -r first rest; do
-          if [[ $first$rest ]]; then
-               printf '%-20s %s\n' "$first:" "$rest"
-          else
-               echo
-          fi
-     done < tmp13 > whois-domain
+     # Format output
+     sed 's/: /:#####/g' tmp13 | column -s '#' -t -n > whois-domain
      rm tmp*
 
-     echo "     IP 		  (24/$total) bad"
-     wget -q https://network-tools.com/default.asp?prog=network\&host=$domain -O network-tools
-     y=$(cat network-tools | grep 'Registered Domain' | awk '{print $1}')
+     echo "     IP 		  (24/$total)"
+     curl --silent https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
+     y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
      if ! [ "$y" = "" ]; then
           whois -H $y > tmp
@@ -484,24 +478,16 @@ case $choice in
           cat -s tmp6 > tmp7
           # Clean up
           sed 's/+1-//g' tmp7 > tmp8
-
-          while IFS=$': \t' read -r first rest; do
-               if [[ $first$rest ]]; then
-                    printf '%-20s %s\n' "$first:" "$rest"
-               else
-                    echo
-               fi
-          done < tmp8 > whois-ip
-
-          echo
-
-          # Remove all empty files
-          find -type f -empty -exec rm {} +
+          # Change multiple spaces to single
+          sed 's/ \+ / /g' tmp8 > tmp9
+          # Format output
+          sed 's/: /:#####/g' tmp9 | column -s '#' -t -n > whois-ip
+          rm tmp*
      else
           echo > whois-ip
      fi
 
-     rm network-tools
+     rm ultratools
 
      echo
      echo "dnsdumpster.com           (25/$total)"
@@ -536,6 +522,7 @@ case $choice in
      sed -i 's|/static/images/pass.gif|\.\./assets/images/icons/pass.png|g' $home/data/$domain/pages/config.htm
      sed -i 's|/static/images/warning.gif|\.\./assets/images/icons/warning.png|g' $home/data/$domain/pages/config.htm
      sed -i 's|\.\.\.\.|\.\.|g' $home/data/$domain/pages/config.htm
+     sed -i 's/.*<thead>.*/     <table>\n&/' $home/data/$domain/pages/config.htm
      rm tmp*
 
      echo "netcraft.com              (28/$total) bad"
@@ -596,7 +583,7 @@ case $choice in
           else
                registrar=$(grep -m1 'Registrar:' tmp5 | cut -d ':' -f2 | sed 's/,//g')
                regorg=$(grep -m1 'Registrant Organization:' tmp5 | cut -d ':' -f2 | sed 's/,//g')
-               regemail=$(grep -m1 'Registrant Email:' tmp5 | cut -d ':' -f2)
+               regemail=$(grep -m1 'Registrant Email:' tmp5 | cut -d ':' -f2 | tr 'A-Z' 'a-z')
                iptmp=$(ping -c1 $regdomain 2>&1)
 
                if echo $iptmp | grep -q 'unknown host'; then
@@ -719,7 +706,7 @@ case $choice in
 
      ##############################################################
 
-     cat networks-tmp networks-recon | sort -u | $sip > networks
+     cat networks-tmp networks-recon | sort -u | $sip > networks 2>/dev/null
 
      cat sub* | grep -v "$domain\." | grep -v '|' | sed 's/www\.//g' | grep -v 'SELECT' | column -t | tr '[A-Z]' '[a-z]' | sort -u > tmp
      # Remove lines that contain a single word
