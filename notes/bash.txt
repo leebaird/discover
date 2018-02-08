@@ -5,6 +5,7 @@ sed -e 's/^/FOO/'                                          # Add FOO to the begi
 sed -e 's/$/FOO/'                                          # Add FOO to the end of each line
 column -t                                                  # Align columns
 
+sed 's/\([a-zA-Z0-9_.]*@[a-zA-Z0-9_.]*\)/\L\1/'            # Make all email addresses lower case.
 tr '[A-Z]' '[a-z]'                                         # Lower case
 sed 's/[^ ]\+/\L\u&/g'                                     # Title case
 tr '[a-z]' '[A-Z]'                                         # Upper case
