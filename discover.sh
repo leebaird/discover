@@ -318,11 +318,9 @@ case $choice in
 
      echo "dnsrecon                  (4/$total)"
      dnsrecon -d $domain > tmp
-     grep '*' tmp | grep -v -E 'Checking|DNSSEC|No SRV Records|Performing|Bind Version|Enumerating SRV' | sed 's/\[\*\]//g' | sed 's/^[ \t]*//' | column -t | sort -k1 > dns
-     cat dns >> $home/data/$domain/data/records.htm
-
+     grep '*' tmp | egrep -v '(Bind Version|Checking|DNSSEC|Enumerating|No SRV Records|Performing|Removing|Resolving|Servers found|Trying)' | sed 's/\[\*\]//g' | sed 's/^[ \t]*//' | column -t | sort -k1 >> $home/data/$domain/data/records.htm
      grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | column -t > sub1
-     rm dns tmp 2>/dev/null
+     rm tmp 2>/dev/null
      echo
 
      echo "goofile                   (5/$total)"
