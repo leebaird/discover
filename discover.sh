@@ -503,11 +503,13 @@ case $choice in
      cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > sub-dnsdumpster
      rm tmp*
 
+     echo
      echo "email-format.com          (26/$total)"
      curl --silent https://www.email-format.com/d/$domain/ > tmp
      grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
      rm tmp
 
+     echo
      echo "intodns.com               (27/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
      cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | sed 's/ background-color: #ffffff;//' | sed 's/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/' | sed 's/<td class="icon">/<td class="inc-table-cell-status">/g' | sed 's/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
@@ -518,27 +520,35 @@ case $choice in
      sed -i 's|/static/images/fail.gif|\.\./assets/images/icons/fail.png|g' $home/data/$domain/pages/config.htm
      sed -i 's|/static/images/info.gif|\.\./assets/images/icons/info.png|g' $home/data/$domain/pages/config.htm
      sed -i 's|/static/images/pass.gif|\.\./assets/images/icons/pass.png|g' $home/data/$domain/pages/config.htm
-     sed -i 's|/static/images/warning.gif|\.\./assets/images/icons/warning.png|g' $home/data/$domain/pages/config.htm
+     sed -i 's|/static/images/warn.gif|\.\./assets/images/icons/warn.png|g' $home/data/$domain/pages/config.htm
      sed -i 's|\.\.\.\.|\.\.|g' $home/data/$domain/pages/config.htm
-     sed -i 's/.*<thead>.*/     <table>\n&/' $home/data/$domain/pages/config.htm
+     # Insert missing table tag
+     sed -i 's/.*<thead>.*/     <table border="4">\n&/' $home/data/$domain/pages/config.htm
+     # Add blank lines below table
+     sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' $home/data/$domain/pages/config.htm
+     # Remove unnecessary JS at bottom of page
+     sed -i '/Math\.random/I,+6 d' $home/data/$domain/pages/config.htm
      rm tmp*
 
+     echo
      echo "netcraft.com              (28/$total) bad"
-     wget -q https://toolbar.netcraft.com/site_report?url=http://www.$domain -O tmp
+     echo "     Actively working on alternative"
+     # wget -q https://toolbar.netcraft.com/site_report?url=http://www.$domain -O tmp
 
-     # Remove lines from FOO to the second BAR
-     awk '/DOCTYPE/{f=1} (!f || f>2){print} (f && /\/form/){f++}' tmp > tmp2
-     egrep -v '(Background|Hosting country|the-world-factbook)' tmp2 | sed 's/Refresh//g' > tmp3
+     # # Remove lines from FOO to the second BAR
+     # awk '/DOCTYPE/{f=1} (!f || f>2){print} (f && /\/form/){f++}' tmp > tmp2
+     # egrep -v '(Background|Hosting country|the-world-factbook)' tmp2 | sed 's/Refresh//g' > tmp3
 
-     # Find lines that contain FOO, and delete to the end of file
-     sed '/security_table/,${D}' tmp3 | sed 's/<h2>/<h4>/g' | sed 's/<\/h2>/<\/h4>/g' > tmp4
+     # # Find lines that contain FOO, and delete to the end of file
+     # sed '/security_table/,${D}' tmp3 | sed 's/<h2>/<h4>/g' | sed 's/<\/h2>/<\/h4>/g' > tmp4
 
-     # Compress blank lines
-     sed /^$/d tmp4 >> $home/data/$domain/pages/netcraft.htm
-     echo >> $home/data/$domain/pages/netcraft.htm
-     echo '</body>' >> $home/data/$domain/pages/netcraft.htm
-     echo '</html>' >> $home/data/$domain/pages/netcraft.htm
+     # # Compress blank lines
+     # sed /^$/d tmp4 >> $home/data/$domain/pages/netcraft.htm
+     # echo >> $home/data/$domain/pages/netcraft.htm
+     # echo '</body>' >> $home/data/$domain/pages/netcraft.htm
+     # echo '</html>' >> $home/data/$domain/pages/netcraft.htm
 
+     echo
      echo "ultratools.com            (29/$total)"
      x=0
 
@@ -570,6 +580,7 @@ case $choice in
 
      rm curl
 
+     echo
      echo "Registered Domains        (30/$total)"
      f_regdomain(){
      while read regdomain; do
