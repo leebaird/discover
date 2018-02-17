@@ -57,6 +57,7 @@ if [ -d /opt/CrackMapExec/.git ]; then
      echo -e "\e[1;34mReinstalling CrackMapExec.\e[0m"
      rm -rf /opt/CrackMapExec/ ; git pull
      git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec.git /opt/crackmapexec
+     cd /opt/crackmapexec ; pip install -r requirements ; python setup.py install
      echo
 fi
 
