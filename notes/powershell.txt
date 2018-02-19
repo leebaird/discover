@@ -1,7 +1,7 @@
 PowerShell
 
 
-PS C:\> powershell.exe -exec bypass     Start PowerShell and turn off the execution policy.
+C:\> powershell.exe -exec bypass        Start PowerShell and turn off the execution policy.
 PS C:\> mode 300                        Full screen.
 PS C:\> Get-Command                     Show all commands.
 PS C:\> Get- <tab>                      Tab through each command.
@@ -83,9 +83,3 @@ PS C:\> Get-GPPPassword
 \\<DOMAIN>\SYSVOL\<DOMAIN>\Policies\
 Search xml files for cpassword.
 PS C:\> GetDecryptedCpassword 'AES 256-bit encrypted password'
-------------------------------------------------------------------------------------------------------
-
-# Exfil
-
-Egress-Assess
-
