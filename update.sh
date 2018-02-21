@@ -136,6 +136,16 @@ else
      echo
 fi
 
+if [ -d /opt/PS-Attack/.git ]; then
+     echo -e "\e[1;34mUpdating PS>Attack.\e[0m"
+     cd /opt/PS-Attack/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling PS>Attack.\e[0m"
+     git clone https://github.com/jaredhaight/PSAttack.git /opt/PS-Attack
+     echo
+fi
+
 if [ -d /opt/rawr/.git ]; then
      echo -e "\e[1;34mUpdating RAWR.\e[0m"
      cd /opt/rawr/ ; git pull
