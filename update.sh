@@ -41,24 +41,6 @@ else
      echo -e "\e[1;33mInstalling BloodHound.\e[0m"
      git clone https://github.com/adaptivethreat/BloodHound.git /opt/BloodHound
      echo
-     echo -e "\e[1;33mInstalling part 2.\e[0m"
-     cd /opt/
-     wget -q https://github.com/adaptivethreat/BloodHound/releases/download/1.1/BloodHound-linux-x64.zip
-     unzip /opt/BloodHound-linux-x64.zip
-     rm /opt/BloodHound-linux-x64.zip
-     echo
-     echo -e "\e[1;33mYou will need to download and install Neo4j once this script completes.\e[0m"
-     read -p "Press <enter> to continue."
-     firefox https://neo4j.com/download/community-edition/ &
-     echo
-fi
-
-if [ -d /opt/CrackMapExec/.git ]; then
-     echo -e "\e[1;34mReinstalling CrackMapExec.\e[0m"
-     rm -rf /opt/CrackMapExec/ ; git pull
-     git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec.git /opt/crackmapexec
-     cd /opt/crackmapexec ; pip install -r requirements ; python setup.py install
-     echo
 fi
 
 if [ -d /opt/crackmapexec/.git ]; then
@@ -68,6 +50,8 @@ if [ -d /opt/crackmapexec/.git ]; then
 else
      echo -e "\e[1;33mInstalling CrackMapExec.\e[0m"
      git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec.git /opt/crackmapexec
+     cd /opt/crackmapexec ; pip install -r requirements ; python setup.py install
+     ln -s /usr/local/bin/cme /opt/crackmapexec/crackmapexec
      echo
 fi
 
