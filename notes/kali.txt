@@ -6,6 +6,12 @@ Kali
 passwd
 ------------------------------------------------------------------------------------------------------
 
+# Fix the signature for packages
+
+wget https://archive.kali.org/archive-key.asc
+apt-key add archive-key.asc
+------------------------------------------------------------------------------------------------------
+
 # SSH
 
 ssh-keygen                                       Create new keys
@@ -19,14 +25,6 @@ AuthorizedKeysFile                               Uncomment
 
 Edit > Profile Preferences
 Colors: Uncheck Use transparent background
-------------------------------------------------------------------------------------------------------
-
-# vim
-
-Create /root/.vimrc
-syntax on
-set wrapmargin=8
-set number
 ------------------------------------------------------------------------------------------------------
 
 # Disable screen lock
@@ -65,21 +63,3 @@ firefox localhost                                Verify the Apache service is ru
 
 update-rc.d <service> <enable|disable>
 update-rc.d ssh enable                           Enable ssh to start at boot time
-update-rc.d ssh disable                          Disable ssh from starting at boot time
-------------------------------------------------------------------------------------------------------
-
-# VPN
-
-apt-get install network-manager-iodine network-manager-iodine-gnome
-apt-get install network-manager-openconnect network-manager-openconnect-gnome
-apt-get install network-manager-openvpn network-manager-openvpn-gnome
-apt-get install network-manager-pptp network-manager-pptp-gnome
-apt-get install network-manager-strongswan
-apt-get install network-manager-vpnc network-manager-vpnc-gnome
-/etc/init.d/network-manager restart
-
-# Thanks to Robert Clowser for the bug fix!
-nano /etc/network/interfaces
-Remove the last two lines egarding eth0. 
-Reboot
-
