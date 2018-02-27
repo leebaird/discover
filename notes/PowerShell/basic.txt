@@ -1,0 +1,68 @@
+PowerShell - Basics
+
+
+# File types
+script file            .ps1
+script data file       .psd1
+script module file     .psm1
+
+# Vocabulary
+string - Any combination of letters and numbers that are surrounded by quotes. Used for printing stuff.
+integer - A number without quotes. Used for math.
+boolean - True or false.
+variable - A value that can be assigned over the course of a script.
+
+# Objects
+PS C:\> $a = "apple" 
+PS C:\> $a.Length
+5
+PS C:\> $a.ToUpper()
+APPLE
+
+# Arrays
+PS C:\> $list = "red", "white", "blue"
+PS C:\> $list[0]
+red
+PS C:\> $list[2]
+blue
+
+# cmdlets
+Uses a 'verb-noun' format.
+Get-Date
+Get-Process
+
+# For loops
+$list = "one", "two", "three"
+forEach ($item in $list){
+     write-host = $item
+}
+
+$dirs = Get-ChildItem C:\
+forEach ($dir in $dirs){
+     write-host $dir.FullName
+     write-host "-----"
+     $acl = $dir.GetAccessControl()
+     write-host $acl.AccessToString
+     write-host
+}
+
+# While loops
+$i = 1
+while ($i -le 5){
+     write-host $i
+     $i = $i + 1
+}
+------------------------------------------------------------------------------------------------------
+
+C:\> powershell.exe -exec bypass       Start PowerShell and bypass the execution policy.
+
+mode 300                               Full screen.
+Get-Command                            Show all commands.
+Get- <tab>                             Tab through each command.
+Get-History                            Show Command history.
+Get-Process                            Show current running processes.
+
+Get-Help <tool>                        Get help on any tool.
+Get-Help invoke-mimikatz               Show help for Mimikatz.
+Get-Help invoke-mimikatz -examples     Show example of how to use Mimikatz.
+

