@@ -141,12 +141,8 @@ else
 fi
 
 if [ -d /opt/slurp/.git ]; then
-     echo -e "\e[1;34mUpdating slurp.\e[0m"
-     cd /opt/slurp/ ; git pull
-     echo
-else
-     echo -e "\e[1;33mInstalling slurp.\e[0m"
-     git clone https://github.com/bbb31/slurp.git /opt/slurp
+     echo -e "\e[1;33mRemoving slurp.\e[0m"
+     rm -rf /opt/slurp/
      echo
 fi
 
