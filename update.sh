@@ -43,6 +43,16 @@ else
      echo
 fi
 
+if [ -d /opt/cobaltstrike-profiles/.git ]; then
+     echo -e "\e[1;34mUpdating Cobalt Strike profiles.\e[0m"
+     cd /opt/cobaltstrike-profiles/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling Cobalt Strike profiles.\e[0m"
+     git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/cobaltstrike-profiles
+     echo
+fi
+
 if [ -d /opt/crackmapexec/.git ]; then
      echo -e "\e[1;34mUpdating CrackMapExec.\e[0m"
      cd /opt/crackmapexec/ ; git pull
