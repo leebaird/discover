@@ -73,3 +73,5 @@ hashdump                                          Dump the hashes.
 shell net group "Domain Computers" /domain        List all computers joined to a domain.
 shell net view /domain                            Find what domain you are on.
 shell nltest /dclist:<domain>                     Locate the domain controller.
+
+
