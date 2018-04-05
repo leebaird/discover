@@ -117,6 +117,26 @@ if [ ! -f /usr/bin/xmllint ]; then
      echo
 fi
 
+if [ -d /opt/PowerSploit/.git ]; then
+     echo -e "\e[1;34mUpdating PowerSploit.\e[0m"
+     cd /opt/PowerSploit/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling PowerSploit.\e[0m"
+     git clone https://github.com/PowerShellMafia/PowerSploit.git /opt/PowerSploit
+     echo
+fi
+
+if [ -d /opt/PowerUpSQL/.git ]; then
+     echo -e "\e[1;34mUpdating PowerUpSQL.\e[0m"
+     cd /opt/PowerUpSQL/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling PowerUpSQL.\e[0m"
+     git clone https://github.com/NetSPI/PowerUpSQL.git /opt/PowerUpSQL
+     echo
+fi
+
 if [ -d /opt/prowl/.git ]; then
      echo -e "\e[1;34mUpdating Prowl.\e[0m"
      cd /opt/prowl/ ; git pull
