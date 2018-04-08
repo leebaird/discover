@@ -260,7 +260,7 @@ case $choice in
      # Number of tests
      total=31
 
-     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g;s/\&/%26/g;s/\,/%2C/g' )
+     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
 
      echo
      echo $medium
@@ -680,7 +680,7 @@ case $choice in
      echo "workspaces add $domain" > $discover/passive.rc
      echo "add companies" >> $discover/passive.rc
      echo "$companyurl" >> $discover/passive.rc
-     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/passive.rc
+     sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' $discover/passive.rc
      echo "none" >> $discover/passive.rc
      echo "add domains" >> $discover/passive.rc
      echo "$domain" >> $discover/passive.rc
@@ -705,7 +705,7 @@ case $choice in
      ##############################################################
 
      grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-recon
-     cat emails emails-recon | sort -u > emails-final
+     cat emails emails-recon | tr '[A-Z]' '[a-z]' | sort -u > emails-final
 
      grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|arin-notify|contact|netops|production)' | sed 's/|//g; s/^[ \t]*//; /^[0-9]/d; /^-/d' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g; s/iii/III/g; s/ii/II/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/[ \t]*$//' | sort -u > names-recon
 
@@ -928,6 +928,8 @@ case $choice in
      sleep 4
      $web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
      sleep 2
+     $web https://$companyurl.s3.amazonaws.com &
+     sleep 2
 
      # File types
      $web https://www.google.com/#q=site%3A$domain+filetype%3Adoc+OR+filetype%3Adocx &
@@ -947,6 +949,9 @@ case $choice in
      $web https://www.google.com/#q=site%3A$domain+%22index+of/%22+%22parent+directory%22 &
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+%22internal+use+only%22 &
+     sleep 2
+
+     $web https://www.google.com/#q=site%3Alinkedin.com%2Fin%20%22$company%22 & 
      sleep 2
 
      $web https://www.google.com/#q=site%3Apastebin.com+intext:%40$domain &
@@ -999,7 +1004,7 @@ case $choice in
      # Number of tests
      total=11
 
-     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g;s/\&/%26/g;s/\,/%2C/g' )
+     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
 
      echo
      echo $medium
@@ -1121,7 +1126,7 @@ case $choice in
      echo "recon-ng                  (12/$total)"
      cp $discover/resource/recon-ng-active.rc $discover/
      sed -i "s/xxx/$companyurl/g" $discover/recon-ng-active.rc
-     sed -i 's/%26/\&/g;s/%20/ /g;s/%2C/\,/g' $discover/recon-ng-active.rc
+     sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' $discover/recon-ng-active.rc
      sed -i "s/yyy/$domain/g" $discover/recon-ng-active.rc
      recon-ng --no-check -r $discover/recon-ng-active.rc
 
@@ -1319,18 +1324,18 @@ column -s ':' -t tmp3 > tmp4
 # Clean-up
 cat tmp4 | sed 's/ -- /, /g; s/ - /, /g; s/,,/,/g; s/, ,/, /g; s/\//, /g; s/[^ ]\+/\L\u&/g; s/-.*$//g; s/1.*$//g; s/1/I/g; s/2/II/g; s/3/III/g; s/4/IV/g; 
 s/5/V/g; s/2cfinancedistributionoperations//i; s/-administration/, Administration/i; s/-air/, Air/i; s/, ,  and$//g; s/ And / and /g; s/ api / API /i; 
-s/ at.*$//g; s/ asic / ASIC /i; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/-associate/-associate/i; s/ at .*//i; s/ atm / ATM /i; 
-s/ bd / BD /i; s/-big/, Big/i; s/BIIb/B2B/g; s/-board/, Board/i; s/-boiler/, Boiler/i; s/ bsc / BSC /i; s/-call/, Call/i; s/-capacity/, Capacity/i; 
-s/-cash/, Cash/i; s/ cbt / CBT /i; s/-chief/, Chief/i; s/ cip / CIP /i; s/ cissp / CISSP /i; s/-civil/, Civil/i; s/ cj / CJ /i; s/Clients//g; 
-s/ cmms / CMMS /i; s/ cms / CMS /i; s/-commercial/, Commercial/i; s/CommitteemanagementOfficer/Committee Management Officer/g; 
+s/ at.*$//g; s/ asic / ASIC /i; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/-associate/-associate/i; s/ at .*//i; s/ At / at /i; 
+s/ atm / ATM /i; s/ bd / BD /i; s/-big/, Big/i; s/BIIb/B2B/g; s/-board/, Board/i; s/-boiler/, Boiler/i; s/ bsc / BSC /i; s/-call/, Call/i; 
+s/-capacity/, Capacity/i; s/-cash/, Cash/i; s/ cbt / CBT /i; s/-chief/, Chief/i; s/ cip / CIP /i; s/ cissp / CISSP /i; s/-civil/, Civil/i; s/ cj / CJ /i; 
+s/Clients//g; s/ cmms / CMMS /i; s/ cms / CMS /i; s/-commercial/, Commercial/i; s/CommitteemanagementOfficer/Committee Management Officer/g; 
 s/-communications/, Communications/i; s/-community/, Community/i; s/-compliance/, Compliance/i; s/-consumer/, Consumer/i; s/contact sold, to//i; 
-s/-corporate/, Corporate/i; s/ cpa/ CPA/i; s/-creative/, Creative/i; s/ crm / CRM /i; s/ctr /Center/i; s/-customer/, Customer/i; s/-data/, Data/i; 
+s/-corporate/, Corporate/i; s/ cpa/ CPA/i; s/-creative/, Creative/i; s/ Crm / CRM /i; s/ctr /Center/i; s/-customer/, Customer/i; s/-data/, Data/i; 
 s/ db2 / DB2 /i; s/ dbii / DB2 /i; s/DDesigner/Designer/i; s/DesignatedFederalOfficial/Designated Federal Official/g; s/-design/, Design/i; s/dhs/DHS/i; 
 s/-digital/, Digital/i; s/-distribution/, Distribution/i; s/ dns / DNS /i; s/-dominion/-dominion/i; s/-drilling/, Drilling/i; s/ dvp / DVP /i; 
 s/ ebs / EBS /i; s/editorr/Editor/i; s/ edrm / EDRM /i; s/ eeo / EEO /i; s/ efi / EFI /i; s/-electric/, Electric/i; 
 s/EleCenterEngineer/Electric Engineer/i; s/ emc / EMC /i; s/ emea/ EMEA/i; s/-employee/, Employee/i; s/ ems / EMS /i; s/-energy/, Energy/i; 
 s/engineer5/Engineer V/i; s/-engineering/, Engineering/i; s/-engineer/, Engineer/i; s/-environmental/, Environmental/i; s/-executive/, Executive/i; 
-s/ faa / FAA /i; s/-facilities/, Facilities/i; s/ ferc / FERC /i; s/ fha / FHA /i; s/-finance/, Finance/i; s/-financial/, Financial/i; 
+s/ faa / FAA /i; s/-facilities/, Facilities/i; s/ Fdr / FDR /i; s/ ferc / FERC /i; s/ fha / FHA /i; s/-finance/, Finance/i; s/-financial/, Financial/i; 
 s/-fleet/, Fleet/i; s/ For / for /g; s/ fsa / FSA /i; s/ fso / FSO /i; s/ fx / FX /i; s/ gaap / GAAP /i; s/-gas/, Gas/i; s/-general/, General/i; 
 s/-generation/, Generation/i; s/grp/Group/i; s/ gsa / GSA /i; s/ gsis / GSIS /i; s/ gsm / GSM /i; s/ hd / HD /i; s/ hiv / HIV /i; s/ hmrc / HMRC /i; 
 s/ hp / HP /i; s/ hq / HQ /i; s/ hris / HRIS /i; s/-human/, Human/i; s/ hvac / HVAC /i; s/ ia / IA /i; s/ id / ID /i; s/ iii/ III/i; s/ ii/ II/i; 
@@ -1346,7 +1351,7 @@ s/-metro/, Metro/i; s/, mp//i; s/ nerc / NERC /i; s/mcp/McP/i; s/mcr/McR/i; s/mc
 s/-mergers/, Mergers/i; s/-millstone/, Millstone/i; s/-motor/, Motor/i; s/ mssp / MSSP /i; s/-networking/, Networking/i; s/-network/, Network/i; 
 s/-new/, New/i; s/-north/, North/i; s/not in it//i; s/ nso / NSO /i; s/-nuclear/, Nuclear/i; s/ Nz / NZ /g; s/ oem / OEM /i; s/-office/, Office/i; 
 s/ Of / of /g; s/-operations/, Operations/i; s/-oracle/, Oracle/i; s/-other/, Other/i; s/ pca / PCA /i; s/ pcs / PCS /i; s/ pc / PC /i; s/ pdm / PDM /i; 
-s/ phd / PhD /i; s/ pj / PJ /i; s/-plant/, Plant/i; s/plt/Plant/i; s/pmo/PMO/i; s/ pmp/ PMP/i; s/ pm / PM /i; s/-power/, Power/i; 
+s/ phd / PhD /i; s/ pj / PJ /i; s/-plant/, Plant/i; s/plt/Plant/i; s/pmo/PMO/i; s/ pmp/ PMP/i; s/ pm / PM /i; s/ Pm / PM /i; s/-power/, Power/i; 
 s/-property/, Property/i; s/-public/, Public/i; s/pyble/Payble/i; s/ os / OS /i; s/r&d/R&D/i; s/ r and d /R&D/i; s/-records/, Records/i; 
 s/-regulated/, Regulated/i; s/-regulatory/, Regulatory/i; s/-related/, Related/i; s/-remittance/, Remittance/i; s/-renewals/, Renewals/i; 
 s/-revenue/, Revenue/i; s/ rfid / RFID /i; s/ rfp / RFP /i; s/ rf / RF /i; s/saas/SaaS/i; s/-safety/, Safety/i; s/san manager/SAN Manager/i; 
@@ -1356,8 +1361,9 @@ s/-staff/, Staff/i; s/stf/Staff/i; s/-station/, Station/i; s/-strategic/, Strate
 s/-supplier/, Supplier/i; s/-supply/, Supply/i; s/-surveillance/, Surveillance/i; s/swepco/SWEPCO/i; s/-system/, System/i; s/-tax/, Tax/i; 
 s/-technical/, Technical/i; s/-telecommunications/, Telecommunications/i; s/ The / the /g; s/-three/, Three/i; s/-tickets/, Tickets/i; 
 s/-trading/, Trading/i; s/-transmission/, Transmission/i; s/ttechnical/Technical/i; s/-turbine/, Turbine/i; s/ to .*$//i; s/ ui / UI /i; s/ uk / UK /i; 
-s/unsupervisor/Supervisor/i; s/uscg/USCG/i; s/ usa / USA /i; s/ us / US /i; s/ u.s / US /i; s/usmc/USMC/i; s/-utility/, Utility/i; s/ ux / UX /i; 
-s/vicepresident/Vice President/i; s/ vii / VII /i; s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i; s/ vpn / VPN /i; s/ With / with /g' > tmp5
+s/unsupervisor/Supervisor/i; s/uscg/USCG/i; s/ usa / USA /i; s/ us / US /i; s/ Us / US /i; s/ u.s / US /i; s/usmc/USMC/i; s/-utility/, Utility/i; 
+s/ ux / UX /i; s/vicepresident/Vice President/i; s/ vii / VII /i; s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i; s/ vpn / VPN /i; 
+s/ With / with /g' > tmp5
 
 # Remove lines that contain 2 words and clean up.
 awk 'NF != 2' tmp5 | sed "s/d'a/D'A/i; s/d'c/D'C/i; s/d'e/D'E/i; s/d'h/D'H/i; s/d's/D'S/i; s/l'a/L'A/i; s/o'b/O'B/i; s/o'c/O'C/i; s/o'd/O'D/i; 
