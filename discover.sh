@@ -619,11 +619,9 @@ case $choice in
      if grep -q 'There are 0 domains' tmp && grep -q 'There are 0 domains' tmp2; then
           rm tmp tmp2
           echo 'No Domains Found.' > tmp6
-          break
      elif ! [ -s tmp ] && ! [ -s tmp2 ]; then
           rm tmp tmp2
           echo 'No Domains Found.' > tmp6
-          break
 
      # Loop thru list of domains, gathering details about the domain
      elif grep -q 'paymenthash' tmp; then
