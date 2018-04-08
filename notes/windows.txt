@@ -59,9 +59,8 @@ nbtscan -f hosts.txt
 DumpSec
 ------------------------------------------------------------------------------------------------------
 
-# Show members of domain groups
-
-global.exe "domain admins" \\dc-controller
+nltest /dclist:<domain>                      # Locate the domain controller.
+global.exe "domain admins" \\dc-controller   # Show members of domain groups.
 ------------------------------------------------------------------------------------------------------
 
 # Search all folders for filenames that include 'password'.

