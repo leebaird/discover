@@ -278,7 +278,7 @@ case $choice in
                xml_grep 'email' tmp2.xml --text_only >> tmp
           done < zurls.txt
 
-          cat tmp | sort -u > zarin-emails
+          cat tmp | tr '[A-Z]' '[a-z]' | sort -u > zarin-emails
      fi
 
      rm tmp*
@@ -290,7 +290,7 @@ case $choice in
           done < zhandles.txt
 
           egrep -v '(@|Network|Telecom)' tmp | sed 's/Name:           //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp2
-          awk -F", " '{print $2,$1}' tmp2 | sed 's/  / /g' | sort -u > zarin-names
+          awk -F", " '{print $2,$1}' tmp2 | sed 's/  / /g' | grep -v 'Admin' | sort -u > zarin-names
      fi
 
      rm zurls.txt zhandles.txt 2>/dev/null
@@ -346,7 +346,7 @@ case $choice in
      echo
 
      echo "goog-mail                 (6/$total)"
-     $discover/mods/goog-mail.py $domain > zgoog-mail
+     $discover/mods/goog-mail.py $domain | grep -v 'cannot' | tr '[A-Z]' '[a-z]' > zgoog-mail
      # Remove all empty files
      find -type f -empty -exec rm {} +
      echo
@@ -373,7 +373,7 @@ case $choice in
      fi
 
      echo "     Baidu                (9/$total)"
-     #$theharvester -d $domain -b baidu | grep $domain > zbaidu
+     $theharvester -d $domain -b baidu | grep $domain | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbaidu
      echo "     Bing                 (10/$total)"
      $theharvester -d $domain -b bing | grep $domain | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbing
      echo "     Dogpilesearch        (11/$total)"
@@ -390,7 +390,7 @@ case $choice in
      $theharvester -d $domain -b jigsaw | sed -n '/===/,$p' | grep -v '=' > zjigsaw
      echo "     LinkedIn             (17/$total)"
      $theharvester -d "$company" -b linkedin | sed -n '/===/,$p' | grep -v '=' | sed 's/[^ ]\+/\L\u&/g' | sed 's/ - .*$//g' | sort -u > zlinkedin
-     $theharvester -d $domain -b linkedin | sed -n '/===/,$p' | grep -v '=' | sed 's/[^ ]\+/\L\u&/g' | sort -u > zlinkedin2
+     $theharvester -d $domain -b linkedin | sed -n '/===/,$p' | grep -v '=' | sed 's/[^ ]\+/\L\u&/g; s/ It / IT /g' | sort -u > zlinkedin2
      echo "     PGP                  (18/$total)"
      $theharvester -d $domain -b pgp | grep $domain | tr '[A-Z]' '[a-z]' | sort -u > zpgp
      echo "     Yahoo                (19/$total)"
@@ -647,7 +647,7 @@ case $choice in
 
      ##############################################################
 
-     cat z* | grep '@' | sort -u > emails
+     cat z* | grep '@' | grep -v '^\.' | sort -u > emails
 
      cat z* | sed '/^[0-9]/!d' | column -t | awk '{print $2 " " $1}' | column -t | sort -k1 -u > sub2
 
