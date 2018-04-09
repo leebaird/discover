@@ -640,7 +640,7 @@ case $choice in
 
      # Formatting & clean-up
      sort tmp4 | sed 's/111AAA--placeholder--/Domain,IP Address,Registration Email,Registration Org,Registrar,/' | grep -v 'Matches Found' > tmp6
-     grep '@' tmp6 | column -n -s ',' -t > registered-domains
+     grep '@' tmp6 | sed 's/LLC /LLC./g' | column -n -s ',' -t > registered-domains
      echo "Domains registered to $company using a corporate email." >> $home/data/$domain/data/registered-domains.htm
      echo >> $home/data/$domain/data/registered-domains.htm
      echo
