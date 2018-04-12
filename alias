@@ -1,6 +1,6 @@
-# cp /opt/discover/alias /root/.bash_aliases ; source /root/.bash_aliases
 
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
+extip=$(dig +short myip.opendns.com @resolver1.opendns.com)
 ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
 mac=$(ifconfig | grep 'ether' | awk '{print $2}')
 user=$(whoami)
@@ -8,7 +8,7 @@ user=$(whoami)
 alias aws='ssh -i ~/.ssh/amazon.pem ec2-user@'
 alias awsf='sftp -i ~/.ssh/amazon.pem ec2-user@'
 alias awss='ssh -D 1080 -f -N -i ~/.ssh/amazon.pem ec2-user@'
-alias awsv='ssh -L 5901:localhost:5901 -i ~/.ssh/amazon.pem ec2-user@5'
+alias awsv='ssh -L 5901:localhost:5901 -i ~/.ssh/amazon.pem ec2-user@'
 alias nosocks="kill -9 $(ps aux | grep ssh | grep 'D 1080' | awk '{print $2}') 2>/dev/null"
 
 alias c='clear'
@@ -18,9 +18,10 @@ alias e='exit'
 alias l='ls -l'
 alias m='service postgresql start ; msfdb init ; msfconsole'
 alias n='echo ; netstat -antp; echo ;
-echo -n "DNS           "$dns ; echo ;
+echo -n "External IP:  "$extip ; echo ;
 echo -n "Internal IP:  "$ip ; echo ;
-echo -n "MAC address:  "$mac ; echo ; echo ;
+echo -n "MAC address:  "$mac ; echo ;
+echo -n "DNS           "$dns ; echo ; echo ;
 ping -c3 google.com ; echo'
 alias r='cd /$user/ ; clear'
 alias s='cd /opt/discover/ ; clear'
