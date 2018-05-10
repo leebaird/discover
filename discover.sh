@@ -258,7 +258,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=31
+     total=28
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
 
@@ -372,44 +372,39 @@ case $choice in
           theharvester="/usr/share/theharvester/theHarvester.py"
      fi
 
-     echo "     Baidu                (9/$total)"
-     $theharvester -d $domain -b baidu | grep $domain | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbaidu
-     echo "     Bing                 (10/$total)"
-     $theharvester -d $domain -b bing | grep $domain | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbing
-     echo "     Dogpilesearch        (11/$total)"
-     $theharvester -d $domain -b dogpilesearch | grep $domain > zdogpilesearch
-     echo "     Google               (12/$total)"
-     $theharvester -d $domain -b google | grep $domain | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zgoogle
-     echo "     Google CSE           (13/$total)"
+     echo "     Bing                 (9/$total)"
+     $theharvester -d $domain -b bing | grep $domain | grep -v 'Starting' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbing
+     echo "     Dogpilesearch        (10/$total)"
+     $theharvester -d $domain -b dogpilesearch -l 100 | grep $domain | grep -v 'Starting' > zdogpilesearch
+     echo "     Google               (11/$total)"
+     $theharvester -d $domain -b google | grep $domain | grep -v 'Starting' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zgoogle
+     echo "     Google CSE           (12/$total)"
      $theharvester -d $domain -b googleCSE | sed -n '/---/,$p' | egrep -v '(-|found)' | sed '/^$/d' > zgoogleCSE
-     echo "     Google+              (14/$total)"
+     echo "     Google+              (13/$total)"
      $theharvester -d $domain -b googleplus | sed -n '/===/,$p' | grep -v '=' | sed 's/- Google+//g' | sort -u > zgoogleplus
-     echo "     Google Profiles	  (15/$total)"
+     echo "     Google Profiles	  (14/$total)"
      $theharvester -d $domain -b google-profiles | sed -n '/---/,$p' | grep -v '-' | sort -u > zgoogle-profiles
-     echo "     Jigsaw               (16/$total)"
-     $theharvester -d $domain -b jigsaw | sed -n '/===/,$p' | grep -v '=' > zjigsaw
-     echo "     LinkedIn             (17/$total)"
-     $theharvester -d "$company" -b linkedin | sed -n '/===/,$p' | grep -v '=' | sed 's/[^ ]\+/\L\u&/g' | sed 's/ - .*$//g' | sort -u > zlinkedin
-     $theharvester -d $domain -b linkedin | sed -n '/===/,$p' | grep -v '=' | sed 's/[^ ]\+/\L\u&/g; s/ It / IT /g' | sort -u > zlinkedin2
-     echo "     PGP                  (18/$total)"
-     $theharvester -d $domain -b pgp | grep $domain | tr '[A-Z]' '[a-z]' | sort -u > zpgp
-     echo "     Yahoo                (19/$total)"
-     $theharvester -d $domain -b yahoo  | grep $domain | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zyahoo
-     echo "     All                  (20/$total)"
-     $theharvester -d $domain -b all  | grep $domain | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zall
+     echo "     LinkedIn             (15/$total)"
+     $theharvester -d "$company" -b linkedin | sed -n '/--/,$p' | sed '/^-/d' | sed 's/ -.*//' | sort -u > zlinkedin
+     $theharvester -d $domain -b linkedin | sed -n '/--/,$p' | sed '/^-/d' | sed 's/ -.*//' | sort -u > zlinkedin2
+     echo "     PGP                  (16/$total)"
+     $theharvester -d $domain -b pgp > tmp
+     cat tmp | grep $domain | grep -v 'Starting' | tr '[A-Z]' '[a-z]' | sort -u > zpgp
+     echo "     Yahoo                (17/$total)"
+     $theharvester -d $domain -b yahoo -l 100 | grep $domain | grep -v 'Starting' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zyahoo
 
      rm debug*
      # Remove all empty files
      find -type f -empty -exec rm {} +
      echo
 
-     echo "Metasploit                (21/$total)"
+     echo "Metasploit                (18/$total)"
      msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
      grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' > zmsf
      rm tmp 2>/dev/null
      echo
 
-     echo "URLCrazy                  (22/$total)"
+     echo "URLCrazy                  (19/$total)"
      urlcrazy $domain > tmp
      sed -n '/Character/,$p' tmp | sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; s/BELGIUM/Belgium/g; s/BULGARIA/Bulgaria/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; s/COLOMBIA/Columbia/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/DOMINICAN REPUBLIC/Dominican Republic/g; s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; s/INDIA/India/g; s/INDONESIA/Indonesia/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; s/PUERTO RICO/Puerto Rico/g; s/RUSSIAN FEDERATION/Russia            /g; s/SAUDI ARABIA/Saudi Arabia/g; s/SINGAPORE/Singapore/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN REPUBLIC OF China (ROC)/Taiwan                        /g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands          /g; s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
      # Remove the last column
@@ -422,7 +417,7 @@ case $choice in
 
      echo
      echo "Whois"
-     echo "     Domain               (23/$total)"
+     echo "     Domain               (20/$total)"
      whois -H $domain > tmp 2>/dev/null
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
@@ -456,7 +451,7 @@ case $choice in
      sed 's/: /:#####/g' tmp13 | column -s '#' -t -n > whois-domain
      rm tmp*
 
-     echo "     IP 		  (24/$total)"
+     echo "     IP 		  (21/$total)"
      curl --silent https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
      y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
@@ -488,7 +483,7 @@ case $choice in
      rm ultratools
 
      echo
-     echo "dnsdumpster.com           (25/$total)"
+     echo "dnsdumpster.com           (22/$total)"
      wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/assets/images/dnsdumpster.png
 
      # Generate a random cookie value
@@ -504,13 +499,13 @@ case $choice in
      rm tmp*
 
      echo
-     echo "email-format.com          (26/$total)"
+     echo "email-format.com          (23/$total)"
      curl --silent https://www.email-format.com/d/$domain/ > tmp
      grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
      rm tmp
 
      echo
-     echo "intodns.com               (27/$total)"
+     echo "intodns.com               (24/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
      cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | sed 's/ background-color: #ffffff;//' | sed 's/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/' | sed 's/<td class="icon">/<td class="inc-table-cell-status">/g' | sed 's/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
      cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -531,7 +526,7 @@ case $choice in
      rm tmp*
 
      echo
-     echo "netcraft.com              (28/$total) bad"
+     echo "netcraft.com              (25/$total) bad"
      echo "     Actively working on alternative"
      # wget -q https://toolbar.netcraft.com/site_report?url=http://www.$domain -O tmp
 
@@ -549,7 +544,7 @@ case $choice in
      # echo '</html>' >> $home/data/$domain/pages/netcraft.htm
 
      echo
-     echo "ultratools.com            (29/$total)"
+     echo "ultratools.com            (26/$total)"
      x=0
 
      f_passive_axfr(){
@@ -581,7 +576,7 @@ case $choice in
      rm curl
 
      echo
-     echo "Registered Domains        (30/$total)"
+     echo "Registered Domains        (27/$total)"
      f_regdomain(){
      while read regdomain; do
           whois -H $regdomain 2>&1 | sed -e 's/^[ \t]*//' | sed 's/ \+ //g' | sed 's/: /:/g' > tmp5
@@ -673,7 +668,7 @@ case $choice in
      ##############################################################
 
      echo
-     echo "recon-ng                  (31/$total)"
+     echo "recon-ng                  (28/$total)"
      echo
      echo "workspaces add $domain" > $discover/passive.rc
      echo "add companies" >> $discover/passive.rc
