@@ -243,6 +243,18 @@ w                                  Logged on users
 whoami                             Who you are logged in as
 ------------------------------------------------------------------------------------------------------
 
+# Traffic Capture
+
+tcpdump -lnni eth0 tcp
+tcpdump -lnni eth0 port 22
+tcpdump -lnni eth0 src 10.0.0.10
+tcpdump -lnni eth0 dst 10.0.0.10
+tcpdump -lnni eth0 'udp port 53'
+tcpdump -lnni eth0 'tcp port 443'
+tcpdump -lnni eth0 'dst 10.0.0.10 and dst port 443'
+tcpdump -w out.pcap -s 65535  'udp port 53'
+------------------------------------------------------------------------------------------------------
+
 # Tunneling VNC over SSH
 
 OS X (awsv)                        ssh -L 5901:localhost:5901 -i ~/.ssh/lee-ec2.pem ec2-user@52.x.x.x
