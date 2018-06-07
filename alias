@@ -61,55 +61,66 @@ alias update='
 clear
 echo
 
-if [ ! -d /Users/$user/tools ];
-     then mkdir /Users/$user/tools
-fi
-
-echo
-
-if [ -d /Users/$user/tools/discover/.git ]; then
+if [ -d /Applications/discover/.git ]; then
      echo -n "[*] Updating Discover." ; echo
-     cd /Users/$user/tools/discover/ && git pull
+     cd /Applications/discover/ && git pull
      echo
 else
      echo -n "[*] Installing Discover."
-     git clone https://github.com/leebaird/discover.git /Users/$user/tools/discover
+     git clone https://github.com/leebaird/discover.git /Applications/discover
      echo
 fi
 
-if [ -d /Users/$user/tools/exploit-db/.git ]; then
-     echo -n "[*] Updating Exploit DB." ; echo
-     cd /Users/$user/tools/exploit-db/ && git pull
+if [ -d /opt/PowerSploit/.git ]; then
+     echo -e "[*] Updating PowerSploit."
+     cd /opt/PowerSploit/ && git pull
      echo
 else
-     echo -n "[*] Installing Exploit DB."
-     git clone https://github.com/offensive-security/exploit-database.git /Users/$user/tools/exploit-db
+     echo -e "[*] Installing PowerSploit."
+     git clone https://github.com/PowerShellMafia/PowerSploit.git /opt/PowerSploit
      echo
 fi
 
-echo -n "[*] Updating Metasploit." ; echo ;
-/opt/metasploit-framework/bin/msfupdate ; echo ;
+if [ -d /opt/PowerUpSQL/.git ]; then
+     echo -e "[*] Updating PowerUpSQL."
+     cd /opt/PowerUpSQL/ && git pull
+     echo
+else
+     echo -e "[*] Installing PowerUpSQL."
+     git clone https://github.com/NetSPI/PowerUpSQL.git /opt/PowerUpSQL
+     echo
+fi
 
-if [ -d /Users/$user/tools/seclists/.git ]; then
-     echo -n "[*] Updating SecLists." ; echo ;
-     cd /Users/$user/tools/seclists/ && git pull ; echo ;
+if [ -d /opt/PS-Attack/.git ]; then
+     echo -e "[*] Updating PS>Attack."
+     cd /opt/PS-Attack/ && git pull
+     echo
+else
+     echo -e "[*] Installing PS>Attack."
+     git clone https://github.com/jaredhaight/PSAttack.git /opt/PS-Attack
+     echo
+fi
+
+if [ -d /Applications/seclists/.git ]; then
+     echo -n "[*] Updating SecLists." ; echo
+     cd /Applications/seclists/ && git pull ; echo
 else
      echo -n "[*] Installing SecLists." ; echo ;
-     git clone https://github.com/danielmiessler/SecLists.git /Users/$user/tools/seclists
+     git clone https://github.com/danielmiessler/SecLists.git /Applications/seclists
      echo
 fi
 
-if [ -d /Users/$user/tools/sqlmap/.git ]; then
+if [ -d /opt/sqlmap/.git ]; then
      echo -n "[*] Updating Sqlmap." ; echo
-     cd /Users/$user/tools/sqlmap/ && git pull ; echo ;
+     cd /opt/sqlmap/ && git pull ; echo
 else
      echo -n "[*] Installing Sqlmap." ; echo
-     git clone https://github.com/sqlmapproject/sqlmap.git /Users/$user/tools/sqlmap
+     git clone https://github.com/sqlmapproject/sqlmap.git /opt/sqlmap
      echo
 fi
 
-echo -n "[*] Updating locate database." ; echo ;
-echo -n "Be patient, this takes a couple min." ; echo ;
+echo -n "[*] Updating locate database." ; echo
+echo -n "Be patient, this takes a couple min." ; echo
 sudo /usr/libexec/locate.updatedb
 cd /Users/$user/
 echo

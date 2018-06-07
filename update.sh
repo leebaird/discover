@@ -71,6 +71,18 @@ if [ -d /opt/discover/.git ]; then
      echo
 fi
 
+if [ -d /opt/domainhunter/.git ]; then
+     echo -e "\e[1;34mUpdating Domain Hunter.\e[0m"
+     cd /opt/domainhunter/ ; git pull
+     echo
+else
+     echo -e "\e[1;33mInstalling Domain Hunter.\e[0m"
+     git clone https://github.com/threatexpress/domainhunter.git /opt/domainhunter
+     cd /opt/domainhunter/
+     pip3 install -r requirements.txt
+     echo
+fi
+
 if [ -d /opt/Egress-Assess/.git ]; then
      echo -e "\e[1;34mUpdating Egress-Assess.\e[0m"
      cd /opt/Egress-Assess/ ; git pull
