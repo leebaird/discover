@@ -129,14 +129,15 @@ if [ ! -f /usr/bin/xmllint ]; then
      echo
 fi
 
-if [ -d /opt/PowerSploit/.git ]; then
+if [ -d /opt/PowerSploit/mkdocs.yml ]; then
      echo -e "\e[1;34mUpdating PowerSploit.\e[0m"
      cd /opt/PowerSploit/ ; git pull
      echo
 else
      echo -e "\e[1;33mInstalling PowerSploit.\e[0m"
-     git clone https://github.com/PowerShellMafia/PowerSploit.git /opt/PowerSploit
-     echo
+     rm -rf /opt/PowerSploit 2>/dev/null
+     git clone -b dev https://github.com/PowerShellMafia/PowerSploit/ /opt/PowerSploit
+echo
 fi
 
 if [ -d /opt/PowerUpSQL/.git ]; then
