@@ -129,7 +129,7 @@ if [ ! -f /usr/bin/xmllint ]; then
      echo
 fi
 
-if [ -d /opt/PowerSploit/mkdocs.yml ]; then
+if [ -d /opt/PowerSploit/docs ]; then
      echo -e "\e[1;34mUpdating PowerSploit.\e[0m"
      cd /opt/PowerSploit/ ; git pull
      echo
