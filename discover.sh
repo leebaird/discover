@@ -37,6 +37,11 @@ medium='=================================================================='
 short='========================================'
 sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
+BLUE='\033[1;34m'
+RED='\033[1;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
 # Check for instances of Discover >1
 updatedb
 locate discover.sh > tmpinstance
@@ -44,16 +49,16 @@ instqty=$(wc -l tmpinstance | cut -d ' ' -f1)
 
 if [ $instqty -gt 1 ]; then
      echo
-     echo -e "\x1B[1;33m$medium \x1B[0m"
+     echo -e "$medium ${NC}"
      echo
-     echo -e "Found \x1B[1;33m$instqty\x1B[0m instances of Discover on your system."
+     echo -e "Found ${YELLOW}$instqty${NC} instances of Discover on your system."
      echo 'Refer to the following paths:'
      cat tmpinstance | sed 's/^/\t/'
      echo
      echo 'Remove or rename all but the install path and try again.'
-     echo -e "If renaming, \x1B[1;33m'discover.sh'\x1B[0m can't be in name. Try \x1B[1;33m'discover.bu'\x1B[0m etc."
+     echo -e "If renaming, ${YELLOW}'discover.sh'${NC} can't be in name. Try ${YELLOW}'discover.bu'${NC} etc."
      echo
-     echo -e "\x1B[1;33m$medium \x1B[0m"
+     echo -e "${YELLOW}$medium ${NC}"
      echo
      rm tmpinstance
      exit 1
@@ -86,12 +91,12 @@ fi
 
 f_banner(){
 echo
-echo -e "\x1B[1;33m
+echo -e "${YELLOW}
  _____  ___  _____  _____  _____  _    _  _____  _____
 |     \  |  |____  |      |     |  \  /  |____  |____/
 |_____/ _|_ _____| |_____ |_____|   \/   |_____ |    \_
 
-By Lee Baird\x1B[0m"
+By Lee Baird${NC}"
 echo
 echo
 }
@@ -100,11 +105,11 @@ echo
 
 f_error(){
 echo
-echo -e "\x1B[1;31m$medium\x1B[0m"
+echo -e "${RED}$medium${NC}"
 echo
-echo -e "\x1B[1;31m                *** Invalid choice or entry. ***\x1B[0m"
+echo -e "${RED}                *** Invalid choice or entry. ***${NC}"
 echo
-echo -e "\x1B[1;31m$medium\x1B[0m"
+echo -e "${RED}$medium${NC}"
 sleep 2
 f_main
 }
@@ -112,11 +117,11 @@ f_main
 f_errorOSX(){
 if [[ `uname` == 'Darwin' ]]; then
      echo
-     echo -e "\x1B[1;31m$medium\x1B[0m"
+     echo -e "${RED}$medium${NC}"
      echo
-     echo -e "\x1B[1;31m            *** Not OS X compatible. ***\x1B[0m"
+     echo -e "${RED}            *** Not OS X compatible. ***${NC}"
      echo
-     echo -e "\x1B[1;31m$medium\x1B[0m"
+     echo -e "${RED}$medium${NC}"
      sleep 2
      f_main
 fi
@@ -147,11 +152,11 @@ if [[ -z $DISPLAY ]]; then
      clear
      f_banner
      echo
-     echo -e "\x1B[1;31m$medium\x1B[0m"
+     echo -e "${RED}$medium${NC}"
      echo
-     echo -e "\x1B[1;31m *** This option must be run locally, in an X-Windows environment. ***\x1B[0m"
+     echo -e "${RED} *** This option must be run locally, in an X-Windows environment. ***${NC}"
      echo
-     echo -e "\x1B[1;31m$medium\x1B[0m"
+     echo -e "${RED}$medium${NC}"
      sleep 4
      f_main
 fi
@@ -191,7 +196,7 @@ exit
 f_domain(){
 clear
 f_banner
-echo -e "\x1B[1;34mRECON\x1B[0m"
+echo -e "${BLUE}RECON${NC}"
 echo
 echo "1.  Passive"
 echo "2.  Active"
@@ -205,11 +210,11 @@ case $choice in
      clear
      f_banner
 
-     echo -e "\x1B[1;34mUses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,\x1B[0m"
-     echo -e "\x1B[1;34m Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.\x1B[0m"
+     echo -e "${BLUE}Uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,${NC}"
+     echo -e "${BLUE} Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.${NC}"
      echo
-     echo -e "\x1B[1;34m[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub,\x1B[0m"
-     echo -e "\x1B[1;34m Google, Hashes, and Shodan for maximum results with recon-ng.\x1B[0m"
+     echo -e "${BLUE}[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub,${NC}"
+     echo -e "${BLUE} Google, Hashes, and Shodan for maximum results with recon-ng.${NC}"
      echo
      echo $medium
      echo
@@ -601,7 +606,7 @@ be|ccompilation|complaint will|contact information|Contact us|Copy and paste|cur
           fi
 
           let number=number+1
-          echo -ne "     \x1B[1;33m$number \x1B[0mof \x1B[1;33m$domcount \x1B[0mdomains"\\r
+          echo -ne "     ${YELLOW}$number ${NC}of ${YELLOW}$domcount ${NC}domains"\\r
           sleep 2
      done < tmp3
      }
@@ -913,7 +918,7 @@ be|ccompilation|complaint will|contact information|Contact us|Copy and paste|cur
      echo "***Scan complete.***"
      echo
      echo
-     printf 'The supporting data folder is located at \x1B[1;33m%s\x1B[0m\n' $home/data/$domain/
+     echo -e "The supporting data folder is located at ${YELLOW}%s${NC}\n" $home/data/$domain/
      echo
      read -p "Press <return> to continue."
 
@@ -974,10 +979,10 @@ be|ccompilation|complaint will|contact information|Contact us|Copy and paste|cur
      clear
      f_banner
 
-     echo -e "\x1B[1;34mUses Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute, and Whatweb.\x1B[0m"
+     echo -e "${BLUE}Uses Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute, and Whatweb.${NC}"
      echo
-     echo -e "\x1B[1;34m[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google,\x1B[0m"
-     echo -e "\x1B[1;34mHashes, and Shodan for maximum results with recon-ng.\x1B[0m"
+     echo -e "${BLUE}[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google,${NC}"
+     echo -e "${BLUE}Hashes, and Shodan for maximum results with recon-ng.${NC}"
      echo
      echo $medium
      echo
@@ -1225,7 +1230,7 @@ be|ccompilation|complaint will|contact information|Contact us|Copy and paste|cur
      echo "***Scan complete.***"
      echo
      echo
-     printf 'The supporting data folder is located at \x1B[1;33m%s\x1B[0m\n' $home/data/$domain/
+     echo -e "The supporting data folder is located at ${YELLOW}%s${NC}\n" $home/data/$domain/
      echo
      echo
 
@@ -1245,7 +1250,7 @@ f_runlocally
 clear
 f_banner
 
-echo -e "\x1B[1;34mRECON\x1B[0m"
+echo -e "${BLUE}RECON${NC}"
 echo
 echo -n "First name: "
 read firstName
@@ -1295,10 +1300,10 @@ f_salesforce(){
 clear
 f_banner
 
-echo -e "\x1B[1;34mCreate a free account at salesforce (https://connect.data.com/login).\x1B[0m"
-echo -e "\x1B[1;34mPerform a search on your target > select the company name > see all.\x1B[0m"
-echo -e "\x1B[1;34mCopy the results into a new file.\x1B[0m"
-echo -e "\x1B[1;34m[*] Note: each record should be on a single line.\x1B[0m"
+echo -e "${BLUE}Create a free account at salesforce (https://connect.data.com/login).${NC}"
+echo -e "${BLUE}Perform a search on your target > select the company name > see all.${NC}"
+echo -e "${BLUE}Copy the results into a new file.${NC}"
+echo -e "${BLUE}[*] Note: each record should be on a single line.${NC}"
 
 f_location
 
@@ -1377,7 +1382,7 @@ rm tmp*
 echo
 echo $medium
 echo
-printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/names.txt
+echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/names.txt
 echo
 echo
 exit
@@ -1389,7 +1394,7 @@ f_generateTargetList(){
 clear
 f_banner
 
-echo -e "\x1B[1;34mSCANNING\x1B[0m"
+echo -e "${BLUE}SCANNING${NC}"
 echo
 echo "1.  Local area network"
 echo "2.  NetBIOS"
@@ -1419,7 +1424,7 @@ case $choice in
      echo "***Scan complete.***"
      echo
      echo
-     printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/hosts-arp.txt
+     echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/hosts-arp.txt
      echo
      echo
      exit;;
@@ -1437,7 +1442,7 @@ f_netbios(){
 clear
 f_banner
 
-echo -e "\x1B[1;34mType of input:\x1B[0m"
+echo -e "${BLUE}Type of input:${NC}"
 echo
 echo "1.  List containing IPs."
 echo "2.  CIDR"
@@ -1493,7 +1498,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/netdiscover.txt
+echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/netdiscover.txt
 echo
 echo
 exit
@@ -1506,7 +1511,7 @@ clear
 f_banner
 f_typeofscan
 
-echo -e "\x1B[1;34mType of input:\x1B[0m"
+echo -e "${BLUE}Type of input:${NC}"
 echo
 echo "1.  List containing IPs, ranges and/or CIDRs."
 echo "2.  Manual"
@@ -1551,7 +1556,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/hosts-ping.txt
+echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/hosts-ping.txt
 echo
 echo
 exit
@@ -1562,7 +1567,7 @@ exit
 f_scanname(){
 f_typeofscan
 
-echo -e "\x1B[1;33m[*] Warning spaces in the name will cause errors\x1B[0m"
+echo -e "${YELLOW}[*] Warning spaces in the name will cause errors${NC}"
 echo
 echo -n "Name of scan: "
 read name
@@ -1578,7 +1583,7 @@ mkdir -p $name
 ##############################################################################################################
 
 f_typeofscan(){
-echo -e "\x1B[1;34mType of scan: \x1B[0m"
+echo -e "${BLUE}Type of scan: ${NC}"
 echo
 echo "1.  External"
 echo "2.  Internal"
@@ -1590,7 +1595,7 @@ read choice
 case $choice in
      1)
      echo
-     echo -e "\x1B[1;33m[*] Setting source port to 53 and max probe round trip to 1.5s.\x1B[0m"
+     echo -e "${YELLOW}[*] Setting source port to 53 and max probe round trip to 1.5s.${NC}"
      sourceport=53
      maxrtt=1500ms
      echo
@@ -1600,7 +1605,7 @@ case $choice in
 
      2)
      echo
-     echo -e "\x1B[1;33m[*] Setting source port to 88 and max probe round trip to 500ms.\x1B[0m"
+     echo -e "${YELLOW}[*] Setting source port to 88 and max probe round trip to 500ms.${NC}"
      sourceport=88
      maxrtt=500ms
      echo
@@ -1794,7 +1799,7 @@ if [[ -n $x ]]; then
      echo "***Scan complete.***"
      echo
      echo
-     echo -e "\x1B[1;33m[*] No live hosts were found.\x1B[0m"
+     echo -e "${YELLOW}[*] No live hosts were found.${NC}"
      echo
      echo
      exit
@@ -1833,7 +1838,7 @@ f_ports(){
 echo
 echo $medium
 echo
-echo -e "\x1B[1;34mLocating high value ports.\x1B[0m"
+echo -e "${BLUE}Locating high value ports.${NC}"
 echo "     TCP"
 TCP_PORTS="13 19 21 22 23 25 37 69 70 79 80 102 110 111 119 135 139 143 389 433 443 445 465 502 512 513 514 523 524 548 554 563 587 623 631 636 771 831 873 902 993 995 998 1050 1080 1099 1158 1344 1352 1433 1521 1720 1723 1883 1911 1962 2049 2202 2375 2628 2947 3000 3031 3050 3260 3306 3310 3389 3500 3632 4369 5000 5019 5040 5060 5432 5560 5631 5632 5666 5672 5850 5900 5920 5984 5985 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8140 8222 8332 8333 8400 8443 8834 9000 9084 9100 9160 9600 9999 10000 11211 12000 12345 13364 19150 27017 28784 30718 35871 37777 46824 49152 50000 50030 50060 50070 50075 50090 60010 60030"
 
@@ -1904,7 +1909,7 @@ f_scripts(){
 echo
 echo $medium
 echo
-echo -e "\x1B[1;34mRunning Nmap scripts.\x1B[0m"
+echo -e "${BLUE}Running Nmap scripts.${NC}"
 
 # If the file for the corresponding port doesn't exist, skip
 if [[ -e $name/13.txt ]]; then
@@ -2642,7 +2647,7 @@ if [ -e $name/445.txt ] || [ -e $name/500.txt ]; then
      echo
      echo $medium
      echo
-     echo -e "\x1B[1;34mRunning additional tools.\x1B[0m"
+     echo -e "${BLUE}Running additional tools.${NC}"
 fi
 
 if [[ -e $name/445.txt ]]; then
@@ -2678,7 +2683,7 @@ f_metasploit(){
 echo
 echo $medium
 echo
-echo -ne "\x1B[1;33mRun matching Metasploit auxiliaries? (y/N) \x1B[0m"
+echo -ne "${YELLOW}Run matching Metasploit auxiliaries? (y/N) ${NC}"
 read msf
 
 if [ "$msf" == "y" ]; then
@@ -2692,13 +2697,13 @@ fi
 
 f_run-metasploit(){
 echo
-echo -e "\x1B[1;34mStarting Postgres.\x1B[0m"
+echo -e "${BLUE}Starting Postgres.${NC}"
 service postgresql start
 
 echo
-echo -e "\x1B[1;34mStarting Metasploit.\x1B[0m"
+echo -e "${BLUE}Starting Metasploit.${NC}"
 echo
-echo -e "\x1B[1;34mUsing the following resource files.\x1B[0m"
+echo -e "${BLUE}Using the following resource files.${NC}"
 cp -R $discover/resource/ /tmp/
 
 echo workspace -a $name > /tmp/master
@@ -3225,7 +3230,7 @@ echo $medium
 f_run-metasploit
 
 echo
-echo -e "\x1B[1;34mStopping Postgres.\x1B[0m"
+echo -e "${BLUE}Stopping Postgres.${NC}"
 service postgresql stop
 
 echo
@@ -3234,7 +3239,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The supporting data folder is located at \x1B[1;33m%s\x1B[0m\n' $name
+echo -e "The supporting data folder is located at ${YELLOW}%s${NC}\n" $name
 echo
 echo
 exit
@@ -3279,7 +3284,7 @@ if [[ ! -s $name/ports.txt ]]; then
      echo "***Scan complete.***"
      echo
      echo
-     echo -e "\x1B[1;33mNo hosts found with open ports.\x1B[0m"
+     echo -e "${YELLOW}No hosts found with open ports.${NC}"
      echo
      echo
      exit
@@ -3380,7 +3385,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/$name/report.txt
+echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/$name/report.txt
 echo
 echo
 exit
@@ -3392,9 +3397,9 @@ f_directObjectRef(){
 clear
 f_banner
 
-echo -e "\x1B[1;34mUsing Burp, authenticate to a site, map & Spider, then log out.\x1B[0m"
-echo -e "\x1B[1;34mTarget > Site map > select the URL > right click > Copy URLs in this host.\x1B[0m"
-echo -e "\x1B[1;34mPaste the results into a new file.\x1B[0m"
+echo -e "${BLUE}Using Burp, authenticate to a site, map & Spider, then log out.${NC}"
+echo -e "${BLUE}Target > Site map > select the URL > right click > Copy URLs in this host.${NC}"
+echo -e "${BLUE}Paste the results into a new file.${NC}"
 
 f_location
 
@@ -3412,7 +3417,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/DirectObjectRef.txt
+echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/DirectObjectRef.txt
 echo
 echo
 exit
@@ -3425,7 +3430,7 @@ f_runlocally
 clear
 f_banner
 
-echo -e "\x1B[1;34mOpen multiple tabs in $browser with:\x1B[0m"
+echo -e "${BLUE}Open multiple tabs in $browser with:${NC}"
 echo
 echo "1.  List"
 echo "2.  Directories from a domain's robot.txt."
@@ -3481,11 +3486,11 @@ case $choice in
      # Check if the file is empty
      if [ ! -s robots.txt ]; then
           echo
-          echo -e "\x1B[1;31m$medium\x1B[0m"
+          echo -e "${RED}$medium${NC}"
           echo
-          echo -e "\x1B[1;31m                          *** No robots file discovered. ***\x1B[0m"
+          echo -e "${RED}                          *** No robots file discovered. ***${NC}"
           echo
-          echo -e "\x1B[1;31m$medium\x1B[0m"
+          echo -e "${RED}$medium${NC}"
           sleep 2
           f_main
      fi
@@ -3509,7 +3514,7 @@ case $choice in
      echo "***Scan complete.***"
      echo
      echo
-     printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/$domain-robots.txt
+     echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/$domain-robots.txt
      echo
      echo
      exit
@@ -3527,7 +3532,7 @@ f_runlocally
 clear
 f_banner
 
-echo -e "\x1B[1;34mRun multiple instances of Nikto in parallel.\x1B[0m"
+echo -e "${BLUE}Run multiple instances of Nikto in parallel.${NC}"
 echo
 echo "1.  List of IPs."
 echo "2.  List of IP:port."
@@ -3595,7 +3600,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/nikto/
+echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/nikto/
 echo
 echo
 exit
@@ -3607,7 +3612,7 @@ f_parse(){
 clear
 f_banner
 
-echo -e "\x1B[1;34mParse XML to CSV.\x1B[0m"
+echo -e "${BLUE}Parse XML to CSV.${NC}"
 echo
 echo "1.  Burp (Base64)"
 echo "2.  Nessus (.nessus)"
@@ -3629,7 +3634,7 @@ case $choice in
      echo
      echo $medium
      echo
-     printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/burp-`date +%H:%M:%S`.csv
+     echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/burp-`date +%H:%M:%S`.csv
      echo
      echo
      exit
@@ -3658,7 +3663,7 @@ case $choice in
      echo
      echo $medium
      echo
-     printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/nessus-`date +%H:%M:%S`.csv
+     echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/nessus-`date +%H:%M:%S`.csv
      echo
      echo
      exit
@@ -3673,7 +3678,7 @@ case $choice in
      echo
      echo $medium
      echo
-     printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/nexpose-`date +%H:%M:%S`.csv
+     echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/nexpose-`date +%H:%M:%S`.csv
      echo
      echo
      exit
@@ -3689,7 +3694,7 @@ case $choice in
      echo
      echo $medium
      echo
-     printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/nmap-`date +%H:%M:%S`.csv
+     echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/nmap-`date +%H:%M:%S`.csv
      echo
      echo
      exit
@@ -3707,7 +3712,7 @@ case $choice in
      echo
      echo $medium
      echo
-     printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/qualys-`date +%H:%M:%S`.csv
+     echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/qualys-`date +%H:%M:%S`.csv
      echo
      echo
      exit
@@ -3724,7 +3729,7 @@ f_ssl(){
 clear
 f_banner
 
-echo -e "\x1B[1;34mCheck for SSL certificate issues.\x1B[0m"
+echo -e "${BLUE}Check for SSL certificate issues.${NC}"
 echo
 echo "List of IP:port."
 echo
@@ -3893,7 +3898,7 @@ while read -r line; do
                echo >> ssl_$line
                cat ssl_$line >> tmp
           else
-               echo -e "\x1B[1;31mCould not open a connection.\x1B[0m"
+               echo -e "${RED}Could not open a connection.${NC}"
                echo "[*] Could not open a connection." >> ssl_$line
                echo >> ssl_$line
                echo $medium >> ssl_$line
@@ -3901,7 +3906,7 @@ while read -r line; do
                cat ssl_$line >> tmp
           fi
      else
-          echo -e "\x1B[1;31mNo response.\x1B[0m"
+          echo -e "${RED}No response.${NC}"
           echo "[*] No response." >> ssl_$line
           echo >> ssl_$line
           echo $medium >> ssl_$line
@@ -3948,7 +3953,7 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-echo -e "The new reports are located at \x1B[1;33m$home/data/sslscan.txt, sslyze.txt, \x1B[0mand \x1B[1;33mnmap-ssl.txt \x1B[0m"
+echo -e "The new reports are located at ${YELLOW}$home/data/sslscan.txt, sslyze.txt, ${NC}and ${YELLOW}nmap-ssl.txt ${NC}"
 echo
 echo
 exit
@@ -3959,7 +3964,7 @@ exit
 f_payload(){
 clear
 f_banner
-echo -e "\x1B[1;34mMalicious Payloads\x1B[0m"
+echo -e "${BLUE}Malicious Payloads${NC}"
 echo
 echo "1.   android/meterpreter/reverse_tcp"
 echo "2.   cmd/windows/reverse_powershell"
@@ -4069,7 +4074,7 @@ exit
 f_listener(){
 clear
 f_banner
-echo -e "\x1B[1;34mMetasploit Listeners\x1B[0m"
+echo -e "${BLUE}Metasploit Listeners${NC}"
 echo
 echo "1.  android/meterpreter/reverse_tcp"
 echo "2.  cmd/windows/reverse_powershell"
@@ -4215,7 +4220,7 @@ rm tmp*
 echo
 echo $medium
 echo
-printf 'The new report is located at \x1B[1;33m%s\x1B[0m\n' $home/data/updates.txt
+echo -e "The new report is located at ${YELLOW}%s${NC}\n" $home/data/updates.txt
 echo
 echo
 exit
@@ -4231,31 +4236,30 @@ if [ ! -d $home/data ]; then
      mkdir -p $home/data
 fi
 
-echo -e "\x1B[1;34mRECON\x1B[0m"    # In MacOS X, using \x1B instead of \e. \033 would be ok for all platforms.
+echo -e "${BLUE}RECON${NC}"    # In MacOS X, using \x1B instead of \e. \033 would be ok for all platforms.
 echo "1.  Domain"
 echo "2.  Person"
 echo "3.  Parse salesforce"
 echo
-echo -e "\x1B[1;34mSCANNING\x1B[0m"
+echo -e "${BLUE}SCANNING${NC}"
 echo "4.  Generate target list"
 echo "5.  CIDR"
 echo "6.  List"
 echo "7.  IP, range, or URL"
 echo "8.  Rerun Nmap scripts and MSF aux."
 echo
-echo -e "\x1B[1;34mWEB\x1B[0m"
+echo -e "${BLUE}WEB${NC}"
 echo "9.  Insecure direct object reference"
 echo "10. Open multiple tabs in $browser"
 echo "11. Nikto"
 echo "12. SSL"
 echo
-echo -e "\x1B[1;34mMISC\x1B[0m"
-echo "13. Crack WiFi"
-echo "14. Parse XML"
-echo "15. Generate a malicious payload"
-echo "16. Start a Metasploit listener"
-echo "17. Update"
-echo "18. Exit"
+echo -e "${BLUE}MISC${NC}"
+echo "13. Parse XML"
+echo "14. Generate a malicious payload"
+echo "15. Start a Metasploit listener"
+echo "16. Update"
+echo "17. Exit"
 echo
 echo -n "Choice: "
 read choice
@@ -4273,12 +4277,11 @@ case $choice in
      10) f_multitabs;;
      11) f_errorOSX; f_nikto;;
      12) f_ssl;;
-     13) f_runlocally && $discover/crack-wifi.sh;;
-     14) f_parse;;
-     15) f_payload;;
-     16) f_listener;;
-     17) f_errorOSX; $discover/update.sh && exit;;
-     18) clear && exit;;
+     13) f_parse;;
+     14) f_payload;;
+     15) f_listener;;
+     16) f_errorOSX; $discover/update.sh && exit;;
+     17) clear && exit;;
      99) f_errorOSX; f_updates;;
      *) f_error;;
 esac
