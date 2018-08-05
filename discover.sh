@@ -308,10 +308,8 @@ case $choice in
 
           while read handle; do
                echo "          " $handle
-               curl --silent https://whois.arin.net/rest/org/$handle/nets.txt | head -1 > tmp2
-               if grep 'DOCTYPE' tmp2 > /dev/null; then
-                    echo > /dev/null
-               else
+               curl --silent https://whois.arin.net/rest/org/$handle/nets.txt > tmp2
+               if ! head -1 tmp2 | grep 'DOCTYPE' > /dev/null; then
                     awk '{print $4 "-" $6}' tmp2 >> tmp3
                fi
           done < tmp
