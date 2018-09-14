@@ -43,7 +43,6 @@ write   (w)	 2
 execute (e)	 1
  
 chmod 755 test.sh                  Make a file executable
-find . -name "*.php" -type f -exec chmod 755 {} \;
 ------------------------------------------------------------------------------------------------------
  
 # Files
@@ -73,9 +72,9 @@ cat tmp >> tmp2                    Append the contents of a file (tmp) to anothe
 
 head tmp                           Show the first 10 lines of tmp
 head -20 tmp                       Show the first 20 lines of tmp
-more tmp                           Show the contents of tmp, one page at a time. 
+more tmp                           Show the contents of tmp, one page at a time 
                                    Space bar for next page and q to exit
-                                   
+
 tail tmp                           Show the last 10 lines of tmp
 tail -20 tmp                       Show the last 20 lines of tmp
 tail -f tmp                        Show the file contents as it grows
@@ -86,9 +85,11 @@ tail -f tmp                        Show the file contents as it grows
 updatedb                           Update the database of file names on the system
 locate file                        Reads the database and shows the location of a file
 which app                          Show the path where the app is executed from
-find / -name sbd*                  Show all the files that start with sbd
-find / -perm -o+w -type d          Show all world readable directories
-find / -perm -o+e -type d          Show all world executable directories
+
+find / -name pass*                 Find all the files that start with pass
+
+find / -perm -o+w -type d          Find all world readable directories
+find / -perm -o+e -type d          Find all world executable directories
 ------------------------------------------------------------------------------------------------------
 
 # Installation
@@ -144,10 +145,10 @@ gateway 192.168.2.1
 
 # Processes
 
+ps fauwwwx                         Show active processes
+top                                Show running processes, CPU, and memory
 kill -9 <PID>                      Kill process ID
 killall <service>                  Kill all processes named service
-ps aux                             Active processes
-top                                Running processes
 ------------------------------------------------------------------------------------------------------
 
 # Proxy
@@ -157,9 +158,9 @@ export http_proxy=http://username:password@proxy:port
 export https_proxy=https://username:password@proxy:port
 ------------------------------------------------------------------------------------------------------
 
-# Searching within files
+# Searching
 
-grep xxx file                      Search for the pattern xxx in a file
+grep                               Search for a pattern a file
 grep -r                            Search recursively for a pattern in a directory
 zgrep                              Search for a pattern in a zip file
 ------------------------------------------------------------------------------------------------------
@@ -290,6 +291,12 @@ groupdel                           Delete group
 groupmod                           Modify group
 
 adduser <user> <group>             Add user to group
+------------------------------------------------------------------------------------------------------
+
+# Video resolution
+ 
+xrandr                             Show supported resolutions
+xrandr -s <resolution>             Set resolution
 ------------------------------------------------------------------------------------------------------
 
 # vim
