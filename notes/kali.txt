@@ -68,3 +68,27 @@ firefox localhost                                Verify the Apache service is ru
 
 update-rc.d <service> <enable|disable>
 update-rc.d ssh enable                           Enable ssh to start at boot time
+------------------------------------------------------------------------------------------------------
+
+# .vimrc
+
+syntax on          " Syntax highlighting.
+set hlsearch       " Highlight all matches.
+set incsearch      " Highlight first matches of searches while typing.
+set number         " Show line numbers.
+set ruler          " Handy line at the bottom.
+set title          " Terminal title is filename.
+set expandtab      " Insert spaces instead of tabs.
+set shiftwidth=5   " 5-space tabs.
+set tabstop=5      " 5-space indents.
+
+" Toggle line numbers with F2.
+nnoremap <F2> :set nonumber!<CR>:set foldcolumn=0<CR>
+
+set backspace=indent,eol,start
+
+" Insert timestamp with <ctrl+F5> or <ctrl+e>.
+:nmap <F5> i<C-R>=strftime("%Y-%m-%d %H:%M:%S %Z")<CR> --  
+:imap <F5> <C-R>=strftime("%Y-%m-%d %H:%M:%S" %Z)<CR> --  
+:nmap <C-E> i<C-R>=strftime("%Y-%m-%d %H:%M:%S %Z")<CR> --  
+:imap <C-E> <C-R>=strftime("%Y-%m-%d %H:%M:%S %Z")<CR> --  
