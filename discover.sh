@@ -547,38 +547,38 @@ case $choice in
      # echo '</html>' >> $home/data/$domain/pages/netcraft.htm
 
      echo
-     echo "ultratools.com            (26/$total)"
-     x=0
+#     echo "ultratools.com            (26/$total)"
+#     x=0
 
-     f_passive_axfr(){
-          sed -e 's/<[^>]*>//g' curl > tmp
-          grep -A4 "\<.*$domain\>" tmp | sed 's/--//g' | sed 's/\.$//g' | sed 's/^ *//g' | sed '/^$/d' > tmp2
-          cat tmp2 | paste - - - - - -d, | column -s ',' -t > tmp3
-          sort -u tmp3 >> $home/data/$domain/data/zonetransfer.htm
-          echo >> $home/data/$domain/data/zonetransfer.htm
-     }
+#     f_passive_axfr(){
+#          sed -e 's/<[^>]*>//g' curl > tmp
+#          grep -A4 "\<.*$domain\>" tmp | sed 's/--//g' | sed 's/\.$//g' | sed 's/^ *//g' | sed '/^$/d' > tmp2
+#          cat tmp2 | paste - - - - - -d, | column -s ',' -t > tmp3
+#          sort -u tmp3 >> $home/data/$domain/data/zonetransfer.htm
+#          echo >> $home/data/$domain/data/zonetransfer.htm
+#     }
 
-     while [ $x -le 10 ]; do
-          curl -k --silent https://www.ultratools.com/tools/zoneFileDumpResult?zoneName=$domain > curl
-          q=$(grep "$domain" curl | wc -l)
+#     while [ $x -le 10 ]; do
+#          curl -k --silent https://www.ultratools.com/tools/zoneFileDumpResult?zoneName=$domain > curl
+#          q=$(grep "$domain" curl | wc -l)
 
-          if [ $q -gt 1 ]; then
-               f_passive_axfr
-               break
-          else
-               x=$(( $x + 1 ))
-               sleep 2
-          fi
-     done
+#          if [ $q -gt 1 ]; then
+#               f_passive_axfr
+#               break
+#          else
+#               x=$(( $x + 1 ))
+#               sleep 2
+#          fi
+#     done
 
-     if [ $x -eq 11 ]; then
-          echo 'Zone transfer failed.' >> $home/data/$domain/data/zonetransfer.htm
-          echo '</pre>' >> $home/data/$domain/data/zonetransfer.htm
-     fi
+#     if [ $x -eq 11 ]; then
+#          echo 'Zone transfer failed.' >> $home/data/$domain/data/zonetransfer.htm
+#          echo '</pre>' >> $home/data/$domain/data/zonetransfer.htm
+#     fi
 
-     rm curl
+#    rm curl
 
-     echo
+#     echo
      echo "Registered Domains        (27/$total)"
      f_regdomain(){
      while read regdomain; do
