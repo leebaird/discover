@@ -263,7 +263,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=28
+     total=26
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
 
@@ -483,8 +483,6 @@ case $choice in
           echo > whois-ip
      fi
 
-     rm ultratools
-
      echo
      echo "dnsdumpster.com           (22/$total)"
      wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/assets/images/dnsdumpster.png
@@ -529,57 +527,8 @@ case $choice in
      rm tmp*
 
      echo
-     echo "netcraft.com              (25/$total) bad"
-     echo "     Actively working on alternative"
-     # wget -q https://toolbar.netcraft.com/site_report?url=http://www.$domain -O tmp
 
-     # # Remove lines from FOO to the second BAR
-     # awk '/DOCTYPE/{f=1} (!f || f>2){print} (f && /\/form/){f++}' tmp > tmp2
-     # egrep -v '(Background|Hosting country|the-world-factbook)' tmp2 | sed 's/Refresh//g' > tmp3
-
-     # # Find lines that contain FOO, and delete to the end of file
-     # sed '/security_table/,${D}' tmp3 | sed 's/<h2>/<h4>/g' | sed 's/<\/h2>/<\/h4>/g' > tmp4
-
-     # # Compress blank lines
-     # sed /^$/d tmp4 >> $home/data/$domain/pages/netcraft.htm
-     # echo >> $home/data/$domain/pages/netcraft.htm
-     # echo '</body>' >> $home/data/$domain/pages/netcraft.htm
-     # echo '</html>' >> $home/data/$domain/pages/netcraft.htm
-
-     echo
-#     echo "ultratools.com            (26/$total)"
-#     x=0
-
-#     f_passive_axfr(){
-#          sed -e 's/<[^>]*>//g' curl > tmp
-#          grep -A4 "\<.*$domain\>" tmp | sed 's/--//g' | sed 's/\.$//g' | sed 's/^ *//g' | sed '/^$/d' > tmp2
-#          cat tmp2 | paste - - - - - -d, | column -s ',' -t > tmp3
-#          sort -u tmp3 >> $home/data/$domain/data/zonetransfer.htm
-#          echo >> $home/data/$domain/data/zonetransfer.htm
-#     }
-
-#     while [ $x -le 10 ]; do
-#          curl -k --silent https://www.ultratools.com/tools/zoneFileDumpResult?zoneName=$domain > curl
-#          q=$(grep "$domain" curl | wc -l)
-
-#          if [ $q -gt 1 ]; then
-#               f_passive_axfr
-#               break
-#          else
-#               x=$(( $x + 1 ))
-#               sleep 2
-#          fi
-#     done
-
-#     if [ $x -eq 11 ]; then
-#          echo 'Zone transfer failed.' >> $home/data/$domain/data/zonetransfer.htm
-#          echo '</pre>' >> $home/data/$domain/data/zonetransfer.htm
-#     fi
-
-#    rm curl
-
-#     echo
-     echo "Registered Domains        (27/$total)"
+     echo "Registered Domains        (25/$total)"
      f_regdomain(){
      while read regdomain; do
           whois -H $regdomain 2>&1 | sed -e 's/^[ \t]*//' | sed 's/ \+ //g' | sed 's/: /:/g' > tmp5
@@ -673,7 +622,7 @@ case $choice in
 
      ##############################################################
 
-     echo "recon-ng                  (28/$total)"
+     echo "recon-ng                  (26/$total)"
      echo
      echo "workspaces add $domain" > $discover/passive.rc
      echo "add companies" >> $discover/passive.rc
@@ -705,7 +654,7 @@ case $choice in
      grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-recon
      cat emails emails-recon | tr '[A-Z]' '[a-z]' | sort -u > emails-final
 
-     grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|arin-notify|contact|netops|production)' | sed 's/|//g; s/^[ \t]*//; /^[0-9]/d; /^-/d' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g; s/iii/III/g; s/ii/II/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/[ \t]*$//' | sort -u > names-recon
+     grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|arin-notify|contact|netops|production|unknown)' | sed 's/|//g; s/^[ \t]*//; /^[0-9]/d; /^-/d' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g; s/iii/III/g; s/ii/II/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/[ \t]*$//' | sort -u > names-recon
 
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
 
