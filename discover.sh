@@ -900,12 +900,12 @@ case $choice in
 
      $web https://www.google.com/#q=site%3Alinkedin.com%2Fin%20%22$company%22 & 
      sleep 2
-
      $web https://www.google.com/#q=site%3Apastebin.com+intext:%40$domain &
      sleep 2
      $web http://api.hackertarget.com/pagelinks/?q=$domain &
      sleep 2
-
+     $web https://crt.sh/?q=$domain&dir=^&sort=4&group=none &
+     sleep 2
      $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
      sleep 2
      $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
