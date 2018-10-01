@@ -1,6 +1,6 @@
 
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
-extip=$(dig +short myip.opendns.com @resolver1.opendns.com)
+extip=$(curl -s http://ip-api.com/ | grep 'query' | cut -d '"' -f4)
 ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
 mac=$(ifconfig | grep 'ether' | awk '{print $2}')
 user=$(whoami)
@@ -33,6 +33,7 @@ alias update='/opt/discover/update.sh'
 # OS X specific.
 
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
+extip=$(curl -s http://ip-api.com/ | grep 'query' | cut -d '"' -f4)
 ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)
 mac=$(ifconfig | grep 'ether' | awk '{print $2}' | head -1)
 user=$(whoami)
@@ -49,9 +50,10 @@ alias l='ls -l'
 alias m='/opt/metasploit-framework/bin/msfdb init ; echo ; sudo /opt/metasploit-framework/bin/msfconsole'
 alias mysql='/Applications/XAMPP/xamppfiles/bin/mysql -u root -p'
 alias n='echo ; netstat -ant | grep tcp4 ; echo
-echo -n "DNS           "$dns ; echo ;
+echo -n "External IP:  "$extip ; echo ;
 echo -n "Internal IP:  "$ip ; echo ;
 echo -n "MAC address:  "$mac ; echo ; echo ;
+echo -n "DNS           "$dns ; echo ;
 ping -c3 google.com ; echo'
 alias r='cd /Users/$user/ ; clear'
 alias s='cd /Users/$user/tools/discover/ ; clear'
