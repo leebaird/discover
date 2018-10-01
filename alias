@@ -5,7 +5,6 @@ ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
 mac=$(ifconfig | grep 'ether' | awk '{print $2}')
 user=$(whoami)
 
-alias aws='ssh -i ~/.ssh/amazon.pem ec2-user@'
 alias awsf='sftp -i ~/.ssh/amazon.pem ec2-user@'
 alias awss='ssh -D 1080 -f -N -i ~/.ssh/amazon.pem ec2-user@'
 alias awsv='ssh -L 5901:localhost:5901 -i ~/.ssh/amazon.pem ec2-user@'
@@ -32,92 +31,40 @@ alias update='/opt/discover/update.sh'
 
 # OS X specific.
 
-dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
-extip=$(curl -s http://ip-api.com/ | grep 'query' | cut -d '"' -f4)
-ip=$(ifconfig | grep -B3 'status: active' | grep 'broadcast' | cut -d ' ' -f2)
-mac=$(ifconfig | grep 'ether' | awk '{print $2}' | head -1)
-user=$(whoami)
-
-alias aws='ssh -i ~/.ssh/lee-ec2.pem ec2-user@52.x.x.x'
-alias awss='ssh -D 1080 -f -N -i ~/.ssh/lee-ec2.pem ec2-user@52.x.x.x'
-alias awsv='ssh -L 5901:localhost:5901 -i ~/.ssh/lee-ec2.pem ec2-user@52.x.x.x'
-alias nosocks="kill -9 $(ps aux | grep ssh | grep 'D 1080' | awk '{print $2}') 2>/dev/null"
-
-alias c='clear'
-alias cl='clear ; ls -l'
-alias d='cd /Users/$user/Desktop/ ; clear'
-alias l='ls -l'
 alias m='/opt/metasploit-framework/bin/msfdb init ; echo ; sudo /opt/metasploit-framework/bin/msfconsole'
 alias mysql='/Applications/XAMPP/xamppfiles/bin/mysql -u root -p'
 alias n='echo ; netstat -ant | grep tcp4 ; echo
-echo -n "External IP:  "$extip ; echo ;
-echo -n "Internal IP:  "$ip ; echo ;
-echo -n "MAC address:  "$mac ; echo ; echo ;
-echo -n "DNS           "$dns ; echo ;
-ping -c3 google.com ; echo'
-alias r='cd /Users/$user/ ; clear'
 alias s='cd /Users/$user/tools/discover/ ; clear'
-alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
 alias update='
 clear
 echo
 
-if [ -d /Applications/discover/.git ]; then
+if [ -d ~/tools/discover/.git ]; then
      echo -n "[*] Updating Discover." ; echo
-     cd /Applications/discover/ && git pull
+     cd ~/tools/discover/ && git pull
      echo
 else
      echo -n "[*] Installing Discover."
-     git clone https://github.com/leebaird/discover.git /Applications/discover
+     git clone https://github.com/leebaird/discover.git ~/tools/discover
      echo
 fi
 
-if [ -d /opt/PowerSploit/.git ]; then
-     echo -e "[*] Updating PowerSploit."
-     cd /opt/PowerSploit/ && git pull
-     echo
-else
-     echo -e "[*] Installing PowerSploit."
-     git clone https://github.com/PowerShellMafia/PowerSploit.git /opt/PowerSploit
-     echo
-fi
-
-if [ -d /opt/PowerUpSQL/.git ]; then
-     echo -e "[*] Updating PowerUpSQL."
-     cd /opt/PowerUpSQL/ && git pull
-     echo
-else
-     echo -e "[*] Installing PowerUpSQL."
-     git clone https://github.com/NetSPI/PowerUpSQL.git /opt/PowerUpSQL
-     echo
-fi
-
-if [ -d /opt/PS-Attack/.git ]; then
-     echo -e "[*] Updating PS>Attack."
-     cd /opt/PS-Attack/ && git pull
-     echo
-else
-     echo -e "[*] Installing PS>Attack."
-     git clone https://github.com/jaredhaight/PSAttack.git /opt/PS-Attack
-     echo
-fi
-
-if [ -d /Applications/seclists/.git ]; then
+if [ -d ~/tools/seclists/.git ]; then
      echo -n "[*] Updating SecLists." ; echo
-     cd /Applications/seclists/ && git pull ; echo
+     cd ~/tools/seclists/ && git pull ; echo
 else
      echo -n "[*] Installing SecLists." ; echo ;
-     git clone https://github.com/danielmiessler/SecLists.git /Applications/seclists
+     git clone https://github.com/danielmiessler/SecLists.git ~/tools/seclists
      echo
 fi
 
-if [ -d /opt/sqlmap/.git ]; then
+if [ -d ~/tools/sqlmap/.git ]; then
      echo -n "[*] Updating Sqlmap." ; echo
-     cd /opt/sqlmap/ && git pull ; echo
+     cd ~/tools/sqlmap/ && git pull ; echo
 else
      echo -n "[*] Installing Sqlmap." ; echo
-     git clone https://github.com/sqlmapproject/sqlmap.git /opt/sqlmap
+     git clone https://github.com/sqlmapproject/sqlmap.git ~/tools/sqlmap
      echo
 fi
 
