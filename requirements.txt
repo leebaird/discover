@@ -1,0 +1,4 @@
+click==7.0
+dnspython==1.15.0
+psycopg2-binary==2.7.5
+requests==2.19.1
