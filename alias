@@ -31,10 +31,8 @@ alias update='/opt/discover/update.sh'
 
 # OS X specific.
 
-alias m='/opt/metasploit-framework/bin/msfdb init ; echo ; sudo /opt/metasploit-framework/bin/msfconsole'
-alias mysql='/Applications/XAMPP/xamppfiles/bin/mysql -u root -p'
 alias n='echo ; netstat -ant | grep tcp4 ; echo
-alias s='cd /Users/$user/tools/discover/ ; clear'
+alias s='cd ~/tools/discover/ ; clear'
 
 alias update='
 clear
