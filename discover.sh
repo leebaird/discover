@@ -389,7 +389,7 @@ case $choice in
      $theharvester -d $domain -b googleCSE | sed -n '/---/,$p' | egrep -v '(-|found)' | sed '/^$/d' > zgoogleCSE
      echo "     Google+              (15/$total)"
      $theharvester -d $domain -b googleplus | sed -n '/===/,$p' | grep -v '=' | sed 's/- Google+//g' | sort -u > zgoogleplus
-     echo "     Google Profiles	     (16/$total)"
+     echo "     Google Profiles	  (16/$total)"
      $theharvester -d $domain -b google-profiles | sed -n '/---/,$p' | grep -v '-' | sort -u > zgoogle-profiles
      echo "     LinkedIn             (17/$total)"
      $theharvester -d "$company" -b linkedin | sed -n '/--/,$p' | sed '/^-/d' | sed 's/ -.*//' | sort -u > zlinkedin
