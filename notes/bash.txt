@@ -74,7 +74,7 @@ sed 's/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g'              # Remove dates (mm/dd
 cat -s                                                     # Remove double spacing
 sed 's/^....//'                                            # Remove first 4 characters from each line
 sed '1,5d'                                                 # Remove first 5 lines
-sed 's/^[ \t]*//;s/[ \t]*$//'                              # Remove leading and trailing whitespace from each line
+sed 's/^[ \t]*//; s/[ \t]*$//'                             # Remove leading and trailing whitespace from each line
 sed 's/^[ \t]*//'                                          # Remove leading whitespace from each line
 sed '/FOO/,/BAR/d'                                         # Remove lines between FOO and BAR
 awk '/FOO/{f=1} (!f || f>2){print} (f && /BAR/){f++}'      # Remove lines from FOO and the second BAR
