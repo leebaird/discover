@@ -1268,7 +1268,7 @@ f_location
 echo
 
 # Remove blank lines, strings, and leading white space. Set tab as the delimiter
-cat $location | sed '/^$/d; s/\[Direct Dial Available\]//g; s/Direct Dial Available//g; s/;/:/g; s/^[ \t]*//; s/ \+ /\t/g' > tmp
+cat $location | sed '/^$/d; s/Direct Dial Available//g; s/^[ \t]*//; s/ \+ /\t/g' > tmp
 
 # Place names into a file and sort by uniq
 cut -d $'\t' -f1 tmp | sort -u > tmp2
