@@ -380,7 +380,7 @@ case $choice in
      echo "     Dogpilesearch        (10/$total)"
      $theharvester -d $domain -b dogpilesearch -l 100 | grep $domain | grep -v 'Starting' > zdogpilesearch
      echo "     Google               (11/$total)"
-     $theharvester -d $domain -b google | grep $domain | grep -v 'Starting' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zgoogle
+     $theharvester -d $domain -b google | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zgoogle
      echo "     Google CSE           (12/$total)"
      $theharvester -d $domain -b googleCSE | sed -n '/---/,$p' | egrep -v '(-|found)' | sed '/^$/d' > zgoogleCSE
      echo "     Google+              (13/$total)"
@@ -389,7 +389,7 @@ case $choice in
      $theharvester -d $domain -b google-profiles | sed -n '/---/,$p' | grep -v '-' | sort -u > zgoogle-profiles
      echo "     LinkedIn             (15/$total)"
      $theharvester -d "$company" -b linkedin | sed -n '/--/,$p' | sed '/^-/d' | sed 's/ -.*//' | sort -u > zlinkedin
-     $theharvester -d $domain -b linkedin | sed -n '/--/,$p' | sed '/^-/d' | sed 's/ -.*//' | sort -u > zlinkedin2
+     $theharvester -d $domain -b linkedin | grep -v 'not found' | sed -n '/--/,$p' | sed '/^-/d' | sed 's/ -.*//' | sort -u > zlinkedin2
      echo "     PGP                  (16/$total)"
      $theharvester -d $domain -b pgp > tmp
      cat tmp | grep $domain | grep -v 'Starting' | tr '[A-Z]' '[a-z]' | sort -u > zpgp
