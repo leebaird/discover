@@ -158,6 +158,21 @@ export http_proxy=http://username:password@proxy:port
 export https_proxy=https://username:password@proxy:port
 ------------------------------------------------------------------------------------------------------
 
+# Redirecting
+
+Suggest running socat within a screen session.
+socat TCP4-LISTEN:443,fork TCP4:<remoteIP>:443
+
+If you experience any slow traffic issues, switch to iptables.
+
+iptables -I INPUT -p tcp -m tcp --dport 443 -j ACCEPT
+iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination <remoteIP>:80
+iptables -t nat -A POSTROUTING -j MASQUERADE
+iptables -I FORWARD -j ACCEPT
+iptables -P FORWARD ACCEPT
+sysctl net.ipv4.ip_forward=1
+------------------------------------------------------------------------------------------------------
+
 # Searching
 
 grep                               Search for a pattern a file
