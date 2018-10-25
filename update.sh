@@ -232,14 +232,6 @@ if [ ! -f /usr/bin/xml_grep ]; then
      echo
 fi
 
-if [ ! -f /usr/bin/pip3 ]; then
-     echo -e "${YELLOW}Installing pip3.${NC}"
-     apt-get install -y python3-pip
-     echo
-else
-     echo -e "${YELLOW}Please run pip3 --user -r requirements.txt if you have not already.${NC}"
-fi
-
 echo -e "${BLUE}Updating locate database.${NC}" ; updatedb
 
 echo
