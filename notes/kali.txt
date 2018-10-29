@@ -28,6 +28,7 @@ reboot
 # Cleanup
 
 rm -rf Documents/ Downloads/ Music/ Pictures/ Public/ Templates/ Videos/
+Remove unwanted Dock icons.
 ------------------------------------------------------------------------------------------------------
 
 # gedit
@@ -54,21 +55,6 @@ PermitRootLogin yes                              Change to yes
 AuthorizedKeysFile                               Uncomment
 ------------------------------------------------------------------------------------------------------
 
-# Services
-
-service <service> <start|stop|restart>
-service ssh start                                Start ssh
-/etc/init.d/ssh start                            Start ssh
-netstat -antp | grep ssh                         Verify the ssh service is running
-
-service apache2 start                            Start Apache
-firefox localhost                                Verify the Apache service is running
-/var/www/html/                                   Document root
-
-update-rc.d <service> <enable|disable>
-update-rc.d ssh enable                           Enable ssh to start at boot time
-------------------------------------------------------------------------------------------------------
-
 # .vimrc
 
 syntax on          " Syntax highlighting.
@@ -91,3 +77,18 @@ set backspace=indent,eol,start
 :imap <F5> <C-R>=strftime("%Y-%m-%d %H:%M:%S" %Z)<CR> --  
 :nmap <C-E> i<C-R>=strftime("%Y-%m-%d %H:%M:%S %Z")<CR> --  
 :imap <C-E> <C-R>=strftime("%Y-%m-%d %H:%M:%S %Z")<CR> --  
+------------------------------------------------------------------------------------------------------
+
+# Services
+
+service <service> <start|stop|restart>
+service ssh start                                Start ssh
+/etc/init.d/ssh start                            Start ssh
+netstat -antp | grep ssh                         Verify the ssh service is running
+
+service apache2 start                            Start Apache
+firefox localhost                                Verify the Apache service is running
+/var/www/html/                                   Document root
+
+update-rc.d <service> <enable|disable>
+update-rc.d ssh enable                           Enable ssh to start at boot time
