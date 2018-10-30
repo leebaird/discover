@@ -384,7 +384,7 @@ case $choice in
      echo "     Dogpilesearch        (12/$total)"
      $theharvester -d $domain -b dogpilesearch -l 100 | grep $domain | grep -v 'Starting' > zdogpilesearch
      echo "     Google               (13/$total)"
-     $theharvester -d $domain -b google | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zgoogle
+     $theharvester -d $domain -b google | grep $domain | egrep -v '(Starting|empty|xxx|\.\.)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zgoogle
      echo "     Google CSE           (14/$total)"
      $theharvester -d $domain -b googleCSE | sed -n '/---/,$p' | egrep -v '(-|found)' | sed '/^$/d' > zgoogleCSE
      echo "     Google+              (15/$total)"
