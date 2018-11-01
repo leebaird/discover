@@ -376,7 +376,7 @@ case $choice in
      fi
 
      echo "     Baidu                (9/$total)"
-     $theharvester -d $domain -b baidu | grep $domain | grep -v 'Starting' | sed 's/:/ /g' | column -t | sort -u > zbaidu
+     $theharvester -d $domain -b baidu | grep $domain | grep -v 'Starting' | grep -v "'" | sed 's/:/ /g' | column -t | sort -u > zbaidu
      echo "     Bing                 (10/$total)"
      $theharvester -d $domain -b bing | grep $domain | grep -v 'Starting' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbing
      echo "     crtsh                (11/$total)"
@@ -388,7 +388,7 @@ case $choice in
      echo "     Google CSE           (14/$total)"
      $theharvester -d $domain -b googleCSE | sed -n '/---/,$p' | egrep -v '(-|found)' | sed '/^$/d' > zgoogleCSE
      echo "     Google+              (15/$total)"
-     $theharvester -d $domain -b googleplus | sed -n '/===/,$p' | grep -v '=' | sed 's/- Google+//g' | sort -u > zgoogleplus
+     $theharvester -d $domain -b googleplus | sed -n '/===/,$p' | egrep -v '(=|Chicago|Home|Plaza|Texas|User)' | sed 's/- Google+//g' | sort -u > zgoogleplus
      echo "     Google Profiles	  (16/$total)"
      $theharvester -d $domain -b google-profiles | sed -n '/---/,$p' | grep -v '-' | sort -u > zgoogle-profiles
      echo "     LinkedIn             (17/$total)"
@@ -399,9 +399,9 @@ case $choice in
      echo "     PGP                  (19/$total)"
      $theharvester -d $domain -b pgp | grep $domain | grep -v 'Starting' | tr '[A-Z]' '[a-z]' | sort -u > zpgp
      echo "     threatcrowd          (20/$total)"
-     $theharvester -d $domain -b threatcrowd | grep $domain | grep -v 'Starting' | sed 's/:/ /g' | column -t | sort -u > zthreatcrowd
+     $theharvester -d $domain -b threatcrowd | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zthreatcrowd
      echo "     Twitter              (21/$total)"
-     $theharvester -d $domain -b twitter | grep $domain | grep -v 'Starting' | sort -u > ztwitter
+     $theharvester -d $domain -b twitter | grep $domain | egrep -v '(Starting|\.\.)' | sort -u > ztwitter
      echo "     vhost                (22/$total)"
      $theharvester -d $domain -b vhost | grep $domain | grep -v 'Starting' | sort -u > zvhost
      echo "     virustotal           (23/$total)"
@@ -438,7 +438,7 @@ case $choice in
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
      # Clean up
-     egrep -v '(#|%|<a|=-=-=-=|;|Access may be|Additionally|Afilias except|and DNS Hosting|and limitations of|any use of|Be sure to|at the end of|By submitting an|by the terms|can easily change|circumstances will|clientDeleteProhibited|clientTransferProhibited|clientUpdateProhibited|company may be|ccompilation|complaint will|contact information|Contact us|Copy and paste|currently set|database|data contained in|data presented in|date of|details go to|dissemination|Domaininfo AB|Domain Management|Domain names in|Domain status: ok|enable high|except as reasonably|failure to|facsimile of|for commercial purpose|for detailed information|For information for|for information purposes|For more information|for the sole|Get Noticed|Get a FREE|guarantee its|HREF|In Europe|In most cases|in obtaining|in the address|includes restrictions|including spam|information is provided|is not the|is providing|JPRS database provides|Learn how|Learn more|makes this information|MarkMonitor|mining this data|minute and one|modify existing|modify these terms|must be sent|name cannot|NamesBeyond|not to use|Note: This|NOTICE|obtaining information about|of Moniker|of this data|or hiding any|or otherwise support|other use of|own existing customers|Please be advised|Please note|policy|prior written consent|privacy is|Problem Reporting System|Professional and|prohibited without|Promote your|protect the|Public Interest|queries or|receiving|Register your|Registrars|registration record|repackaging,|reserves the|responsible for|See Business Registration|server at|solicitations via|sponsorship|Status|support questions|support the transmission|telephone, or facsimile|that apply to|that you will|the right| The data is|The fact that|the transmission|The Trusted Partner|This listing is|This feature is|This information|This service is|to collect or|to entities|to report any|To suppress Japanese|transmission of mass|UNITED STATES|United States|UNLIMITED|unsolicited advertising|Users may|Version 6|via e-mail|Visit AboutUs.org|when you|while believed|will use this|with many different|with no guarantee|We reserve the|whitelist|Whois|whois_guidanceyou agree|you agree|You may not)' tmp2 > tmp3
+     egrep -v '(#|%|<a|=-=-=-=|;|Access may be|Additionally|Afilias except|and DNS Hosting|and limitations of|any use of|Be sure to|at the end of|By submitting an|by the terms|can easily change|circumstances will|clientDeleteProhibited|clientTransferProhibited|clientUpdateProhibited|company may be|ccompilation|complaint will|contact information|Contact us|Copy and paste|currently set|database|data contained in|data presented in|date of|details go to|dissemination|Domaininfo AB|Domain Management|Domain names in|Domain status: ok|enable high|except as reasonably|failure to|facsimile of|for commercial purpose|for detailed information|For information for|for information purposes|For more information|for the sole|Get Noticed|Get a FREE|guarantee its|HREF|In Europe|In most cases|in obtaining|in the address|includes restrictions|including spam|information is provided|is not the|is providing|JPRS database provides|Learn how|Learn more|makes this information|MarkMonitor|minimum|mining this data|minute and one|modify existing|modify these terms|must be sent|name cannot|NamesBeyond|not to use|Note: This|NOTICE|obtaining information about|of Moniker|of this data|or hiding any|or otherwise support|other use of|own existing customers|Please be advised|Please note|policy|prior written consent|privacy is|Problem Reporting System|Professional and|prohibited without|Promote your|protect the|Public Interest|queries or|receiving|Register your|Registrars|registration record|repackaging,|reserves the|responsible for|See Business Registration|server at|solicitations via|sponsorship|Status|support questions|support the transmission|telephone, or facsimile|Temporary|that apply to|that you will|the right| The data is|The fact that|the transmission|The Trusted Partner|This listing is|This feature is|This information|This service is|to collect or|to entities|to report any|To suppress Japanese|transmission of mass|UNITED STATES|United States|UNLIMITED|unsolicited advertising|Users may|Version 6|via e-mail|Visit AboutUs.org|Visit|when you|while believed|will use this|with many different|with no guarantee|We reserve the|whitelist|Whois|whois_guidanceyou agree|you agree|You may not)' tmp2 > tmp3
      # Remove lines starting with "*"
      sed '/^*/d' tmp3 > tmp4
      # Remove lines starting with "-"
@@ -625,8 +625,8 @@ case $choice in
           # Clean up
           egrep -v '(~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|>|\.|\?|/|abuse|academy|account|achievement|acquisition|acting|action|active|adjuster|admin|advanced|adventure|advertising|agency|alliance|allstate|ambassador|america|american|analysis|analyst|analytics|animal|another|antivirus|apple seems|application|applications|architect|archivist|article|assembler|assembling|assembly|asian|assignment|assistant|associate|association|attorney|audience|audio|auditor|australia|authority|automation|automotive|aviation|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|builder|business|buyer|buying|california|cannot|capital|career|carrying|cashing|center|centre|certified|cfi|challenger|championship|change|chapter|charge|chemistry|china|chinese|claim|class|clearance|cloud|cnc|code|cognitive|college|columbia|coming|commercial|communications|community|company pages|competition|competitive|compliance|computer|comsec|concept|conference|config|connections|connect|construction|consultant|contact|contract|contributor|control|cooperation|coordinator|corporate|corporation|counsel|create|creative|critical|crm|croatia|cryptologic|custodian|cyber|dallas|database|day care|dba|dc|death toll|delivery|delta|department|deputy|description|designer|design|destructive|detection|develop|devine|dialysis|digital|diploma|direct|disability|disaster|disclosure|dispatch|dispute|distribut|divinity|division|dns|document|dos poc|download|driver|during|economy|ecovillage|editor|education|effect|electronic|else|email|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|entry|environmental|error page|ethical|example|excellence|executive|expectations|expertzone|exploit|expressplay|facebook|facilit|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|fellow|filmmaker|finance|financial|fitter|forensic|forklift|found|freelance|from|frontiers in tax|fulfillment|full|function|future|fuzzing|germany|get control|global|gnoc|google|governance|government|graphic|greater|group|guard|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|hostmaster|house|how to|hurricane|icmp|idc|in the news|index|infant|inform|innovation|installation|insurers|integrated|intellectual|international|internet|instructor|insurance|intelligence|interested|interns|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|language|laptops|large|leader|letter|level|liaison|licensing|lighting|linguist|linkedin|limitless|liveedu|llp|local|looking|lpn|ltd|lsu|luscous|machinist|macys|malware|managed|management|manager|managing|manufacturing|market|mastering|material|mathematician|maturity|md|mechanic|media|medical|medicine|member|merchandiser|meta tags|methane|metro|microsoft|middle east|migration|mission|mitigation|mn|money|monitor|more coming|mortgage|motor|museums|mutual|national|negative|network|network|new user|newspaper|new york|next page|night|nitrogen|nw|nyc|obtain|occupied|offers|office|online|onsite|operations|operator|order|organizational|outbreak|owner|packaging|page|palantir|paralegal|partner|pathology|peace|people|perceptions|person|pharmacist|philippines|photo|picker|picture|placement|places|planning|police|portfolio|postdoctoral|potassium|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|program|property|publichealth|published|pyramid|quality|questions|rcg|recruiter|redeem|redirect|region|register|registry|regulation|rehab|remote|report|representative|republic|research|resolving|responsable|restaurant|retired|revised|rising|rural health|russia|sales|sample|satellite|save the date|school|scheduling|science|scientist|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|social|software|solution|source|special|sql|station home|statistics|store|strategy|strength|student|study|substitute|successful|sunoikisis|superheroines|supervisor|support|surveillance|switch|system|systems|talent|targeted|tax|tcp|teach|technical|technician|technique|technology|temporary|tester|textoverflow|theater|thought|through|time in|tit for tat|title|toolbook|tools|toxic|traditions|trafficking|transfer|transformation|treasury|trojan|truck|twitter|training|ts|tylenol|types of scams|unclaimed|underground|underwriter|university|united states|untitled|vault|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|vp|wanted|web search|web site|website|welcome|west virginia|westchester|when the|whiskey|window|worker|world|www|xbox|zz)' tmp3 > tmp4
           sed 's/iii/III/g' tmp4 | sed 's/ii/II/g' > tmp5
-          # Capitalize the first letter of every word
-          sed 's/\b\(.\)/\u\1/g' tmp5 | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/,,/,/g' > tmp6
+          # Capitalize the first letter of every word and tweak
+          sed 's/\b\(.\)/\u\1/g' tmp5 | sed 's/ And / and /; s/ It / IT /g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/,,/,/g' > tmp6
           grep -v ',' tmp6 | awk '{print $2", "$1}' > tmp7
           grep ',' tmp7 > tmp8
           # Remove trailing whitespace from each line
@@ -1268,7 +1268,7 @@ f_location
 echo
 
 # Remove blank lines, strings, and leading white space. Set tab as the delimiter
-cat $location | sed '/^$/d; s/Direct Dial Available//g; s/^[ \t]*//; s/ \+ /\t/g' > tmp
+cat $location | sed '/^$/d; s/Direct Dial Available//g; s/[] 	//g; s/^[ \t]*//; s/ \+ /\t/g' > tmp
 
 # Place names into a file and sort by uniq
 cut -d $'\t' -f1 tmp | sort -u > tmp2
@@ -1282,53 +1282,47 @@ done < tmp2
 column -s ':' -t tmp3 > tmp4
 
 # Clean-up
-cat tmp4 | sed 's/ -- /, /g; s/ - /, /g; s/,,/,/g; s/, ,/, /g; s/\//, /g; s/[^ ]\+/\L\u&/g; s/-.*$//g; s/1.*$//g; s/1/I/g; s/2/II/g; s/3/III/g; s/4/IV/g; 
-s/5/V/g; s/2cfinancedistributionoperations//i; s/-administration/, Administration/i; s/-air/, Air/i; s/, ,  and$//g; s/ And / and /g; s/ api / API /i; 
-s/ at.*$//g; s/ asic / ASIC /i; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/-associate/-associate/i; s/ at .*//i; s/ At / at /i; 
-s/ atm / ATM /i; s/ bd / BD /i; s/-big/, Big/i; s/BIIb/B2B/g; s/-board/, Board/i; s/-boiler/, Boiler/i; s/ bsc / BSC /i; s/-call/, Call/i; 
-s/-capacity/, Capacity/i; s/-cash/, Cash/i; s/ cbt / CBT /i; s/-chief/, Chief/i; s/ cip / CIP /i; s/ cissp / CISSP /i; s/-civil/, Civil/i; s/ cj / CJ /i; 
-s/Clients//g; s/ cmms / CMMS /i; s/ cms / CMS /i; s/-commercial/, Commercial/i; s/CommitteemanagementOfficer/Committee Management Officer/g; 
-s/-communications/, Communications/i; s/-community/, Community/i; s/-compliance/, Compliance/i; s/-consumer/, Consumer/i; s/contact sold, to//i; 
-s/-corporate/, Corporate/i; s/ cpa/ CPA/i; s/-creative/, Creative/i; s/ Crm / CRM /i; s/ctr /Center/i; s/-customer/, Customer/i; s/-data/, Data/i; 
-s/ db2 / DB2 /i; s/ dbii / DB2 /i; s/DDesigner/Designer/i; s/DesignatedFederalOfficial/Designated Federal Official/g; s/-design/, Design/i; s/dhs/DHS/i; 
-s/-digital/, Digital/i; s/-distribution/, Distribution/i; s/ dns / DNS /i; s/-dominion/-dominion/i; s/-drilling/, Drilling/i; s/ dvp / DVP /i; 
-s/ ebs / EBS /i; s/editorr/Editor/i; s/ edrm / EDRM /i; s/ eeo / EEO /i; s/ efi / EFI /i; s/-electric/, Electric/i; 
-s/EleCenterEngineer/Electric Engineer/i; s/ emc / EMC /i; s/ emea/ EMEA/i; s/-employee/, Employee/i; s/ ems / EMS /i; s/-energy/, Energy/i; 
-s/engineer5/Engineer V/i; s/-engineering/, Engineering/i; s/-engineer/, Engineer/i; s/-environmental/, Environmental/i; s/-executive/, Executive/i; 
-s/ faa / FAA /i; s/-facilities/, Facilities/i; s/ Fdr / FDR /i; s/ ferc / FERC /i; s/ fha / FHA /i; s/-finance/, Finance/i; s/-financial/, Financial/i; 
-s/-fleet/, Fleet/i; s/ For / for /g; s/ fsa / FSA /i; s/ fso / FSO /i; s/ fx / FX /i; s/ gaap / GAAP /i; s/-gas/, Gas/i; s/-general/, General/i; 
-s/-generation/, Generation/i; s/grp/Group/i; s/ gsa / GSA /i; s/ gsis / GSIS /i; s/ gsm / GSM /i; s/ hd / HD /i; s/ hiv / HIV /i; s/ hmrc / HMRC /i; 
-s/ hp / HP /i; s/ hq / HQ /i; s/ hris / HRIS /i; s/-human/, Human/i; s/ hvac / HVAC /i; s/ ia / IA /i; s/ id / ID /i; s/ iii/ III/i; s/ ii/ II/i; 
-s/ iis / IIS /i; s/ In / in /g; s/-industrial/, Industrial/i; s/information technology/IT/i; s/-information/, Information/i; 
-s/-infrastructure/, Infrastructure/i; s/-instrumentation/, Instrumentation/i; s/-internal/, Internal/i; s/ ip / IP /i; s/ ir / IR /i; 
-s/itenterpriseprojectmanager/IT Enterprise Project Manager/i; s/-IT/, IT/i; s/ iv / IV /i; s/ Iv,/ IV,/; s/ jc / JC /i; s/ jd / JD /i; s/ jt / JT /i; 
-s/konsult, konsultchef, projektledare/Consultant/i; s/laboratorynetwork/Laboratory, Network/i; s/-labor/, Labor/i; 
-s/lan administrator/LAN Administrator/i; s/lan admin/LAN Admin/i; s/-land/, Land/i; s/-licensing/, Licensing/i; s/LawIII60/Law360/g; s/ llc / LLC. /i; 
-s/-logistics/, Logistics/i; s/lvl/Level/i; s/-mail/, Mail/i; s/-manager/, Manager/i; s/-marketing/, Marketing/i; s/-materials/, Materials/i; 
-s/ mba / MBA /i; s/mca/McA/i; s/mcb/McB/i; s/mcc/McC/i; s/mcd/McD/i; s/mce/McE/i; s/mcf/McF/i; s/mcg/McG/i; s/mch/McH/i; s/mci/McI/i; s/mcj/McJ/i; 
-s/mck/McK/i; s/mcl/McL/i; s/mcm/McM/i; s/mcn/McN/i; s/mcq/McQ/i; s/mcv/McV/i; s/mcse/MCSE/i; s/-mechanical/, Mechanical/i; s/-metals/, Metals/i; 
-s/-metro/, Metro/i; s/, mp//i; s/ nerc / NERC /i; s/mcp/McP/i; s/mcr/McR/i; s/mcs/McS/i; s/mct/McT/i; s/mcw/McW/i; s/-media/, Media/i; 
-s/-mergers/, Mergers/i; s/-millstone/, Millstone/i; s/-motor/, Motor/i; s/ mssp / MSSP /i; s/-networking/, Networking/i; s/-network/, Network/i; 
-s/-new/, New/i; s/-north/, North/i; s/not in it//i; s/ nso / NSO /i; s/-nuclear/, Nuclear/i; s/ Nz / NZ /g; s/ oem / OEM /i; s/-office/, Office/i; 
-s/ Of / of /g; s/-operations/, Operations/i; s/-oracle/, Oracle/i; s/-other/, Other/i; s/ pca / PCA /i; s/ pcs / PCS /i; s/ pc / PC /i; s/ pdm / PDM /i; 
-s/ phd / PhD /i; s/ pj / PJ /i; s/-plant/, Plant/i; s/plt/Plant/i; s/pmo/PMO/i; s/ pmp/ PMP/i; s/ pm / PM /i; s/ Pm / PM /i; s/-power/, Power/i; 
-s/-property/, Property/i; s/-public/, Public/i; s/pyble/Payble/i; s/ os / OS /i; s/r&d/R&D/i; s/ r and d /R&D/i; s/-records/, Records/i; 
-s/-regulated/, Regulated/i; s/-regulatory/, Regulatory/i; s/-related/, Related/i; s/-remittance/, Remittance/i; s/-renewals/, Renewals/i; 
-s/-revenue/, Revenue/i; s/ rfid / RFID /i; s/ rfp / RFP /i; s/ rf / RF /i; s/saas/SaaS/i; s/-safety/, Safety/i; s/san manager/SAN Manager/i; 
-s/scada/SCADA/i; s/sdlc/SDLC/i; s/setac-/SETAC,/i; s/sftwr/Software/i; s/-short/, Short/i; s/ smb / SMB /i; s/sms/SMS/i; s/smtp/SMTP/i; s/snr/Senior/i; 
-s/.specialist./ Specialist /i; s/sql/SQL/i; s/spvr/Supervisor/i; s/srbranch/Senior Branch/i; s/srsales/Senior Sales/i; s/ ssl / SSL /i; 
-s/-staff/, Staff/i; s/stf/Staff/i; s/-station/, Station/i; s/-strategic/, Strategic/i; s/-student/, Student/i; s/-substation/, Substation/i; 
-s/-supplier/, Supplier/i; s/-supply/, Supply/i; s/-surveillance/, Surveillance/i; s/swepco/SWEPCO/i; s/-system/, System/i; s/-tax/, Tax/i; 
-s/-technical/, Technical/i; s/-telecommunications/, Telecommunications/i; s/ The / the /g; s/-three/, Three/i; s/-tickets/, Tickets/i; 
-s/-trading/, Trading/i; s/-transmission/, Transmission/i; s/ttechnical/Technical/i; s/-turbine/, Turbine/i; s/ to .*$//i; s/ ui / UI /i; s/ uk / UK /i; 
-s/unsupervisor/Supervisor/i; s/uscg/USCG/i; s/ usa / USA /i; s/ us / US /i; s/ Us / US /i; s/ u.s / US /i; s/usmc/USMC/i; s/-utility/, Utility/i; 
-s/ ux / UX /i; s/vicepresident/Vice President/i; s/ vii / VII /i; s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i; s/ vpn / VPN /i; 
-s/ With / with /g' > tmp5
+cat tmp4 | sed 's/ -- /, /g; s/ - /, /g; s/,,/,/g; s/, ,/, /g; s/\//, /g; s/[^ ]\+/\L\u&/g; s/-.*$//g; s/1.*$//g; s/1/I/g; s/2/II/g; s/3/III/g; s/4/IV/g; s/5/V/g; 
+s/2cfinancedistributionoperations//i; s/-administration/, Administration/i; s/-air/, Air/i; s/, ,  and$//g; s/ And / and /g; s/ api / API /i; s/ at.*$//g; s/ asic / ASIC /i; 
+s/ Asm/ ASM/g; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/-associate/-associate/i; s/ at .*//i; s/ At / at /i; s/ atm / ATM /i; s/ bd / BD /i; s/-big/, Big/i; 
+s/BIIb/B2B/g; s/-board/, Board/i; s/-boiler/, Boiler/i; s/ bsc / BSC /i; s/-call/, Call/i; s/-capacity/, Capacity/i; s/-cash/, Cash/i; s/ cbt / CBT /i; s/ Cc/ CC/g; 
+s/-chief/, Chief/i; s/ cip / CIP /i; s/ cissp / CISSP /i; s/-civil/, Civil/i; s/ cj / CJ /i; s/Clients//g; s/ cmms / CMMS /i; s/ cms / CMS /i; s/-commercial/, Commercial/i; 
+s/CommitteemanagementOfficer/Committee Management Officer/g; s/-communications/, Communications/i; s/-community/, Community/i; s/-compliance/, Compliance/i; 
+s/-consumer/, Consumer/i; s/contact sold, to//i; s/-corporate/, Corporate/i; s/ cpa/ CPA/i; s/-creative/, Creative/i; s/ Crm / CRM /i; s/ Csa/ CSA/g; s/ Csc/ CSC/g; 
+s/ctr /Center/i; s/-customer/, Customer/i; s/-data/, Data/i; s/ db2 / DB2 /i; s/ dbii / DB2 /i; s/ Dc/ DC/g; s/DDesigner/Designer/i; 
+s/DesignatedFederalOfficial/Designated Federal Official/g; s/-design/, Design/i; s/dhs/DHS/i; s/-digital/, Digital/i; s/-distribution/, Distribution/i; s/ dns / DNS /i; 
+s/-dominion/-dominion/i; s/-drilling/, Drilling/i; s/ dvp / DVP /i; s/ ebs / EBS /i; s/ Edi/ EDI/g; s/editorr/Editor/i; s/ edrm / EDRM /i; s/ eeo / EEO /i; s/ efi / EFI /i; 
+s/-electric/, Electric/i; s/EleCenterEngineer/Electric Engineer/i; s/ emc / EMC /i; s/ emea/ EMEA/i; s/-employee/, Employee/i; s/ ems / EMS /i; s/-energy/, Energy/i; 
+s/engineer5/Engineer V/i; s/-engineering/, Engineering/i; s/-engineer/, Engineer/i; s/-environmental/, Environmental/i; s/-executive/, Executive/i; s/ faa / FAA /i; 
+s/-facilities/, Facilities/i; s/ Fdr / FDR /i; s/ ferc / FERC /i; s/ fha / FHA /i; s/-finance/, Finance/i; s/-financial/, Financial/i; s/-fleet/, Fleet/i; s/ For / for /g; 
+s/ fsa / FSA /i; s/ fso / FSO /i; s/ fx / FX /i; s/ gaap / GAAP /i; s/-gas/, Gas/i; s/-general/, General/i; s/-generation/, Generation/i; s/grp/Group/i; s/ gsa / GSA /i; 
+s/ gsis / GSIS /i; s/ gsm / GSM /i; s/ hd / HD /i; s/ hiv / HIV /i; s/ hmrc / HMRC /i; s/ hp / HP /i; s/ hq / HQ /i; s/ hris / HRIS /i; s/-human/, Human/i; s/ hvac / HVAC /i; 
+s/ ia / IA /i; s/ id / ID /i; s/ iii/ III/i; s/ ii/ II/i; s/ iis / IIS /i; s/ In / in /g; s/-industrial/, Industrial/i; s/information technology/IT/i; 
+s/-information/, Information/i; s/-infrastructure/, Infrastructure/i; s/-instrumentation/, Instrumentation/i; s/-internal/, Internal/i; s/ ip / IP /i; s/ ir / IR /i; 
+s/itenterpriseprojectmanager/IT Enterprise Project Manager/i; s/-IT/, IT/i; s/ iv / IV /i; s/ Iv,/ IV,/i; s/ jc / JC /i; s/ jd / JD /i; s/ jt / JT /i; 
+s/konsult, konsultchef, projektledare/Consultant/i; s/laboratorynetwork/Laboratory, Network/i; s/-labor/, Labor/i; s/lan administrator/LAN Administrator/i; s/lan admin/LAN Admin/i; 
+s/-land/, Land/i; s/-licensing/, Licensing/i; s/LawIII60/Law360/g; s/ llc / LLC. /i; s/-logistics/, Logistics/i; s/ Lp/ LP/g; s/lvl/Level/i; s/-mail/, Mail/i; 
+s/-manager/, Manager/i; s/-marketing/, Marketing/i; s/-materials/, Materials/i; s/ mba / MBA /i; s/mca/McA/i; s/mcb/McB/i; s/mcc/McC/i; s/mcd/McD/i; s/mce/McE/i; s/mcf/McF/i; 
+s/mcg/McG/i; s/mch/McH/i; s/mci/McI/i; s/mcj/McJ/i; s/mck/McK/i; s/mcl/McL/i; s/mcm/McM/i; s/mcn/McN/i; s/mcq/McQ/i; s/mcv/McV/i; s/mcse/MCSE/i; s/-mechanical/, Mechanical/i; 
+s/-metals/, Metals/i; s/-metro/, Metro/i; s/, mp//i; s/ nerc / NERC /i; s/mcp/McP/i; s/mcr/McR/i; s/mcs/McS/i; s/mct/McT/i; s/mcw/McW/i; s/-media/, Media/i; s/-mergers/, Mergers/i; 
+s/-millstone/, Millstone/i; s/-motor/, Motor/i; s/ mssp / MSSP /i; s/-networking/, Networking/i; s/-network/, Network/i; s/-new/, New/i; s/-north/, North/i; s/not in it//i; 
+s/ nso / NSO /i; s/-nuclear/, Nuclear/i; s/ Nz / NZ /g; s/ oem / OEM /i; s/-office/, Office/i; s/ Of / of /g; s/-operations/, Operations/i; s/-oracle/, Oracle/i; 
+s/-other/, Other/i; s/ pca / PCA /i; s/ pcs / PCS /i; s/ pc / PC /i; s/ pdm / PDM /i; s/ phd / PhD /i; s/ pj / PJ /i; s/-plant/, Plant/i; s/plt/Plant/i; s/pmo/PMO/i; s/ pmp/ PMP/i; 
+s/ pm / PM /i; s/ Pm / PM /i; s/-power/, Power/i; s/-property/, Property/i; s/-public/, Public/i; s/ Psa/ PSA/g; s/pyble/Payble/i; s/ os / OS /i; s/r&d/R&D/i; s/ r and d /R&D/i; 
+s/-records/, Records/i; s/-regulated/, Regulated/i; s/-regulatory/, Regulatory/i; s/-related/, Related/i; s/-remittance/, Remittance/i; s/-renewals/, Renewals/i; 
+s/-revenue/, Revenue/i; s/ rfid / RFID /i; s/ rfp / RFP /i; s/ rf / RF /i; s/ Rtm/ RTM/g; s/saas/SaaS/i; s/-safety/, Safety/i; s/san manager/SAN Manager/i; s/scada/SCADA/i; 
+s/sdlc/SDLC/i; s/setac-/SETAC,/i; s/sftwr/Software/i; s/-short/, Short/i; s/ smb / SMB /i; s/sms/SMS/i; s/smtp/SMTP/i; s/snr/Senior/i; s/.specialist./ Specialist /i; s/sql/SQL/i; 
+s/spvr/Supervisor/i; s/srbranch/Senior Branch/i; s/srsales/Senior Sales/i; s/ ssl / SSL /i; s/-staff/, Staff/i; s/stf/Staff/i; s/-station/, Station/i; s/-strategic/, Strategic/i; 
+s/-student/, Student/i; s/-substation/, Substation/i; s/-supplier/, Supplier/i; s/-supply/, Supply/i; s/-surveillance/, Surveillance/i; s/swepco/SWEPCO/i; s/-system/, System/i; 
+s/-tax/, Tax/i; s/-technical/, Technical/i; s/-telecommunications/, Telecommunications/i; s/ The / the /g; s/-three/, Three/i; s/-tickets/, Tickets/i; s/-trading/, Trading/i; 
+s/-transmission/, Transmission/i; s/ttechnical/Technical/i; s/-turbine/, Turbine/i; s/ to .*$//i; s/ ui / UI /i; s/ uk / UK /i; s/unsupervisor/Supervisor/i; s/uscg/USCG/i; 
+s/ usa / USA /i; s/ us / US /i; s/ Us / US /i; s/ u.s / US /i; s/usmc/USMC/i; s/-utility/, Utility/i; s/ ux / UX /i; s/vicepresident/Vice President/i; s/ vii / VII /i; 
+s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i; s/ vpn / VPN /i; s/ With / with /g' > tmp5
 
 # Remove lines that contain 2 words and clean up.
-awk 'NF != 2' tmp5 | sed "s/d'a/D'A/i; s/d'c/D'C/i; s/d'e/D'E/i; s/d'h/D'H/i; s/d's/D'S/i; s/l'a/L'A/i; s/o'b/O'B/i; s/o'c/O'C/i; s/o'd/O'D/i; 
-s/o'f/O'F/i; s/o'g/O'G/i; s/o'h/O'H/i; s/o'k/O'K/i; s/o'l/O'L/i; s/o'm/O'M/i; s/o'N/O'N/i; s/Obrien/O'Brien/i; s/Oconnor/O'Connor/i; 
-s/Odonnell/O'Donnell/i; s/Ohara/O'Hara/i; s/o'p/O'P/i; s/o'r/O'R/i; s/o's/O'S/i; s/Otoole/O'Toole/i; s/o't/O'T/i" > tmp6
+awk 'NF != 2' tmp5 | sed "s/d'a/D'A/i; s/d'c/D'C/i; s/d'e/D'E/i; s/d'h/D'H/i; s/d's/D'S/i; s/l'a/L'A/i; s/o'b/O'B/i; s/o'c/O'C/i; s/o'd/O'D/i; s/o'f/O'F/i; s/o'g/O'G/i; 
+s/o'h/O'H/i; s/o'k/O'K/i; s/o'l/O'L/i; s/o'm/O'M/i; s/o'N/O'N/i; s/Obrien/O'Brien/i; s/Oconnor/O'Connor/i; s/Odonnell/O'Donnell/i; s/Ohara/O'Hara/i; s/o'p/O'P/i; s/o'r/O'R/i; 
+s/o's/O'S/i; s/Otoole/O'Toole/i; s/o't/O'T/i" > tmp6
 
 # Replace parenthesis and the contents inside with spaces - thanks Mike G
 cat tmp6 | perl -pe 's/(\(.*\))/q[ ] x length $1/ge' > tmp7
@@ -4248,3 +4242,4 @@ esac
 ##############################################################################################################
 
 while true; do f_main; done
+
