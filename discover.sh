@@ -1289,7 +1289,7 @@ s/BIIb/B2B/g; s/-board/, Board/i; s/-boiler/, Boiler/i; s/ bsc / BSC /i; s/-call
 s/-chief/, Chief/i; s/ cip / CIP /i; s/ cissp / CISSP /i; s/-civil/, Civil/i; s/ cj / CJ /i; s/Clients//g; s/ cmms / CMMS /i; s/ cms / CMS /i; s/-commercial/, Commercial/i; 
 s/CommitteemanagementOfficer/Committee Management Officer/g; s/-communications/, Communications/i; s/-community/, Community/i; s/-compliance/, Compliance/i; 
 s/-consumer/, Consumer/i; s/contact sold, to//i; s/-corporate/, Corporate/i; s/ cpa/ CPA/i; s/-creative/, Creative/i; s/ Crm / CRM /i; s/ Csa/ CSA/g; s/ Csc/ CSC/g; 
-s/ctr /Center/i; s/-customer/, Customer/i; s/-data/, Data/i; s/ db2 / DB2 /i; s/ dbii / DB2 /i; s/ Dc/ DC/g; s/DDesigner/Designer/i; 
+s/ctr /Center/i; s/-customer/, Customer/i; s/Datapower/DataPower/g; s/-data/, Data/i; s/ db2 / DB2 /i; s/ dbii / DB2 /i; s/ Dc/ DC/g; s/DDesigner/Designer/i; 
 s/DesignatedFederalOfficial/Designated Federal Official/g; s/-design/, Design/i; s/dhs/DHS/i; s/-digital/, Digital/i; s/-distribution/, Distribution/i; s/ dns / DNS /i; 
 s/-dominion/-dominion/i; s/-drilling/, Drilling/i; s/ dvp / DVP /i; s/ ebs / EBS /i; s/ Edi/ EDI/g; s/editorr/Editor/i; s/ edrm / EDRM /i; s/ eeo / EEO /i; s/ efi / EFI /i; 
 s/-electric/, Electric/i; s/EleCenterEngineer/Electric Engineer/i; s/ emc / EMC /i; s/ emea/ EMEA/i; s/-employee/, Employee/i; s/ ems / EMS /i; s/-energy/, Energy/i; 
@@ -1299,7 +1299,7 @@ s/ fsa / FSA /i; s/ fso / FSO /i; s/ fx / FX /i; s/ gaap / GAAP /i; s/-gas/, Gas
 s/ gsis / GSIS /i; s/ gsm / GSM /i; s/ hd / HD /i; s/ hiv / HIV /i; s/ hmrc / HMRC /i; s/ hp / HP /i; s/ hq / HQ /i; s/ hris / HRIS /i; s/-human/, Human/i; s/ hvac / HVAC /i; 
 s/ ia / IA /i; s/ id / ID /i; s/ iii/ III/i; s/ ii/ II/i; s/ iis / IIS /i; s/ In / in /g; s/-industrial/, Industrial/i; s/information technology/IT/i; 
 s/-information/, Information/i; s/-infrastructure/, Infrastructure/i; s/-instrumentation/, Instrumentation/i; s/-internal/, Internal/i; s/ ip / IP /i; s/ ir / IR /i; 
-s/itenterpriseprojectmanager/IT Enterprise Project Manager/i; s/-IT/, IT/i; s/ iv / IV /i; s/ Iv,/ IV,/i; s/ jc / JC /i; s/ jd / JD /i; s/ jt / JT /i; 
+s/itenterpriseprojectmanager/IT Enterprise Project Manager/i; s/-IT/, IT/i; s/ iv / IV /i; s/ Iv,/ IV,/i; s/Jboss/JBoss/g; s/ jc / JC /i; s/ jd / JD /i; s/ jt / JT /i; 
 s/konsult, konsultchef, projektledare/Consultant/i; s/laboratorynetwork/Laboratory, Network/i; s/-labor/, Labor/i; s/lan administrator/LAN Administrator/i; s/lan admin/LAN Admin/i; 
 s/-land/, Land/i; s/-licensing/, Licensing/i; s/LawIII60/Law360/g; s/ llc / LLC. /i; s/-logistics/, Logistics/i; s/ Lp/ LP/g; s/lvl/Level/i; s/-mail/, Mail/i; 
 s/-manager/, Manager/i; s/-marketing/, Marketing/i; s/-materials/, Materials/i; s/ mba / MBA /i; s/mca/McA/i; s/mcb/McB/i; s/mcc/McC/i; s/mcd/McD/i; s/mce/McE/i; s/mcf/McF/i; 
@@ -1317,7 +1317,7 @@ s/-student/, Student/i; s/-substation/, Substation/i; s/-supplier/, Supplier/i; 
 s/-tax/, Tax/i; s/-technical/, Technical/i; s/-telecommunications/, Telecommunications/i; s/ The / the /g; s/-three/, Three/i; s/-tickets/, Tickets/i; s/-trading/, Trading/i; 
 s/-transmission/, Transmission/i; s/ttechnical/Technical/i; s/-turbine/, Turbine/i; s/ to .*$//i; s/ ui / UI /i; s/ uk / UK /i; s/unsupervisor/Supervisor/i; s/uscg/USCG/i; 
 s/ usa / USA /i; s/ us / US /i; s/ Us / US /i; s/ u.s / US /i; s/usmc/USMC/i; s/-utility/, Utility/i; s/ ux / UX /i; s/vicepresident/Vice President/i; s/ vii / VII /i; 
-s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i; s/ vpn / VPN /i; s/ With / with /g' > tmp5
+s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i; s/ vpn / VPN /i; s/Weblogic/WebLogic/g; s/Websphere/WebSphere/g; s/ With / with /g' > tmp5
 
 # Remove lines that contain 2 words and clean up.
 awk 'NF != 2' tmp5 | sed "s/d'a/D'A/i; s/d'c/D'C/i; s/d'e/D'E/i; s/d'h/D'H/i; s/d's/D'S/i; s/l'a/L'A/i; s/o'b/O'B/i; s/o'c/O'C/i; s/o'd/O'D/i; s/o'f/O'F/i; s/o'g/O'G/i; 
