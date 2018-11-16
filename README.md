@@ -48,7 +48,8 @@ RECON
 
 * Passive uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,
      Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.
-* Active uses Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute, and Whatweb.
+
+* Active uses dnsrecon, Fierce, WAF00W, traceroute, and Whatweb.
 
 * Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google, Hashes, 
      and Shodan for maximum results with recon-ng.

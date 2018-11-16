@@ -706,7 +706,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
 
      ##############################################################
 
-     cat networks-tmp networks-recon | sort -u | $sip > networks 2>/dev/null
+     cat networks-tmp networks-recon | sort -u | $sip > networks 2>/dev/null     # THIS is not surpressing the error when networks-tmp is not present.
 
      cat sub* | grep -v "$domain\." | grep -v '|' | sed 's/www\.//g' | grep -v 'SELECT' | tr '[A-Z]' '[a-z]' | column -t | sort -u > tmp
      # Remove lines that contain a single word
