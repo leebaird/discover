@@ -179,9 +179,9 @@ mkdir $save_dir
 mv $name/ $save_dir 2>/dev/null
 
 # Recon files
-mv curl debug* dns emails* domain hosts names* network* passive* registered* squatting sub* tmp* whois* z* doc pdf ppt txt xls $save_dir 2>/dev/null
+mv curl debug* dns domain email* hosts name* network* passive* record* registered* squatting sub* tmp* ultratools waf whatweb whois* z* doc pdf ppt txt xls $save_dir 2>/dev/null
 cd /tmp/
-rm emails names networks profiles subdomains 2>/dev/null
+mv emails names networks profiles subdomains $save_dir/tmp 2>/dev/null
 
 echo
 echo "Saving complete."
@@ -241,7 +241,9 @@ case $choice in
           f_error
      fi
 
+     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
      rundate=`date +%B' '%d,' '%Y`
+     total=35
 
      # If folder doesn't exist, create it
      if [ ! -d $home/data/$domain ]; then
@@ -250,22 +252,6 @@ case $choice in
           sed -i "s/#DOMAIN#/$domain/" $home/data/$domain/index.htm
           sed -i "s/#DATE#/$rundate/" $home/data/$domain/index.htm
      fi
-
-     echo
-     echo -n "Do you have a list of names from salesforce to import? (y/N) "
-     read answer
-
-     if [ "$answer" == "y" ]; then
-          f_location
-          echo "last_name#first_name#title" > $home/data/names.csv
-          cat $location | sed 's/, /#/' | sed 's/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/;/#/g; s/#$//g' >> $home/data/names.csv
-          cat $discover/resource/recon-ng-import-names.rc > passive2.rc
-     fi
-
-     # Number of tests
-     total=32
-
-     companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
 
      echo
      echo $medium
@@ -316,13 +302,20 @@ case $choice in
      fi
 
      $sip tmp3 > networks-tmp 2>/dev/null
+
+     # Remove all empty files
+     find -type f -empty -exec rm {} +
      rm tmp* 2>/dev/null
      echo
 
      echo "dnsrecon                  (4/$total)"
      dnsrecon -d $domain > tmp
-     grep '*' tmp | egrep -v '(Bind Version|Checking|DNSSEC|Enumerating|No SRV Records|Performing|Removing|Resolving|Servers found|Trying)' | sed 's/\[\*\]//g' | sed 's/^[ \t]*//' | column -t | sort -k1 >> $home/data/$domain/data/records.htm
+     grep '*' tmp | egrep -v '(Bind Version|Checking|DNSSEC|Enumerating|No SRV Records|Performing|Removing|Resolving|Servers found|Trying)' | sed 's/\[\*\]//g; s/^[ \t]*//' | column -t | sort -k1 > records
+     cat records >> $home/data/$domain/data/records.htm
      grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | column -t > sub1
+
+     # Remove all empty files
+     find -type f -empty -exec rm {} +
      rm tmp 2>/dev/null
      echo
 
@@ -343,13 +336,15 @@ case $choice in
      grep '.ppt' tmp2 > ppt
      grep '.txt' tmp2 | grep -v 'robots.txt' > txt
      grep '.xls' tmp2 > xls
-     rm tmp* 2>/dev/null
+
      # Remove all empty files
      find -type f -empty -exec rm {} +
+     rm tmp* 2>/dev/null
      echo
 
      echo "goog-mail                 (6/$total)"
      $discover/mods/goog-mail.py $domain | grep -v 'cannot' | tr '[A-Z]' '[a-z]' > zgoog-mail
+
      # Remove all empty files
      find -type f -empty -exec rm {} +
      echo
@@ -363,8 +358,10 @@ case $choice in
      # Move the second column to the first position
      grep $domain tmp | awk '{print $2 " " $1}' > tmp2
      column -t tmp2 > zgoohost
-     rm *-$domain.txt
-     rm tmp* 2>/dev/null
+
+     # Remove all empty files
+     find -type f -empty -exec rm {} +
+     rm *-$domain.txt tmp* 2>/dev/null
      echo
 
      echo "theHarvester"
@@ -376,9 +373,9 @@ case $choice in
      fi
 
      echo "     Baidu                (9/$total)"
-     $theharvester -d $domain -b baidu | grep $domain | grep -v 'Starting' | grep -v "'" | sed 's/:/ /g' | column -t | sort -u > zbaidu
+     $theharvester -d $domain -b baidu | grep $domain | egrep -v '(Starting|empty)' | grep -v "'" | sed 's/:/ /g' | column -t | sort -u > zbaidu
      echo "     Bing                 (10/$total)"
-     $theharvester -d $domain -b bing | grep $domain | grep -v 'Starting' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbing
+     $theharvester -d $domain -b bing | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbing
      echo "     crtsh                (11/$total)"
      $theharvester -d $domain -b crtsh | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zcrtsh
      echo "     Dogpilesearch        (12/$total)"
@@ -389,11 +386,11 @@ case $choice in
      $theharvester -d $domain -b googleCSE | sed -n '/---/,$p' | egrep -v '(-|found)' | sed '/^$/d' > zgoogleCSE
      echo "     Google+              (15/$total)"
      $theharvester -d $domain -b googleplus | sed -n '/===/,$p' | egrep -v '(=|Chicago|Home|Plaza|Texas|User)' | sed 's/- Google+//g' | sort -u > zgoogleplus
-     echo "     Google Profiles	  (16/$total)"
+     echo "     Google Profiles      (16/$total)"
      $theharvester -d $domain -b google-profiles | sed -n '/---/,$p' | grep -v '-' | sort -u > zgoogle-profiles
      echo "     LinkedIn             (17/$total)"
-     $theharvester -d "$company" -b linkedin | sed -n '/--/,$p' | sed '/^-/d' | sed 's/ -.*//' | sort -u > zlinkedin
-     $theharvester -d $domain -b linkedin | grep -v 'not found' | sed -n '/--/,$p' | sed '/^-/d' | sed 's/ -.*//' | sort -u > zlinkedin2
+     $theharvester -d "$company" -b linkedin | grep -v '\-\-' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin   # TEST THIS
+     $theharvester -d $domain -b linkedin | grep -v '\-\-' | grep -v 'not found' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin2   # TEST THIS
      echo "     netcraft             (18/$total)"
      $theharvester -d $domain -b netcraft | grep $domain | grep -v 'Starting' | sort -u > znetcraft
      echo "     PGP                  (19/$total)"
@@ -409,9 +406,9 @@ case $choice in
      echo "     Yahoo                (24/$total)"
      $theharvester -d $domain -b yahoo -l 100 | grep $domain | grep -v 'Starting' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zyahoo
      
-     rm debug* stash.sqlite 2>/dev/null
      # Remove all empty files
      find -type f -empty -exec rm {} +
+     rm debug* stash.sqlite 2>/dev/null
      echo
 
      echo "Metasploit                (25/$total)"
@@ -422,16 +419,28 @@ case $choice in
 
      echo "URLCrazy                  (26/$total)"
      urlcrazy $domain > tmp
-     sed -n '/Character/,$p' tmp | sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; s/BELGIUM/Belgium/g; s/BULGARIA/Bulgaria/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; s/COLOMBIA/Columbia/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/DOMINICAN REPUBLIC/Dominican Republic/g; s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; s/INDIA/India/g; s/INDONESIA/Indonesia/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; s/PUERTO RICO/Puerto Rico/g; s/RUSSIAN FEDERATION/Russia            /g; s/SAUDI ARABIA/Saudi Arabia/g; s/SINGAPORE/Singapore/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN REPUBLIC OF China (ROC)/Taiwan                        /g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands          /g; s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
+     sed -n '/Character/,$p' tmp | sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; 
+s/BELGIUM/Belgium/g; s/BULGARIA/Bulgaria/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; 
+s/COLOMBIA/Columbia/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/DOMINICAN REPUBLIC/Dominican Republic/g; 
+s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; 
+s/INDIA/India/g; s/INDONESIA/Indonesia/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; 
+s/KOREA REPUBLIC OF/Republic of Korea/g; s/localhost//g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; 
+s/PUERTO RICO/Puerto Rico/g; s/REPUBLIC OF China (ROC)/Republic of China/g; s/RUSSIAN FEDERATION/Russia            /g; s/SAUDI ARABIA/Saudi Arabia/g; 
+s/SINGAPORE/Singapore/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; 
+s/TAIWAN; REPUBLIC OF China (ROC)/Taiwan                        /g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; 
+s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands          /g; s/ROMANIA/Romania/g; 
+s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
-     # Find lines that contain an IP
-     grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp3 > squatting
+     cat tmp3 | sed 's/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/EU,//g; s/FR,//g; s/IN,//g; s/NL,//g; s/PL,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; 
+s/VG,//g' > tmp4
+     # Find domains that contain an IP
+     grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp4 > squatting
      rm tmp* 2>/dev/null
+     echo
 
      ##############################################################
 
-     echo
      echo "Whois"
      echo "     Domain               (27/$total)"
      whois -H $domain > tmp 2>/dev/null
@@ -467,7 +476,7 @@ case $choice in
      sed 's/: /:#####/g' tmp13 | column -s '#' -t -n > whois-domain
      rm tmp*
 
-     echo "     IP 		  (28/$total)"
+     echo "     IP                   (28/$total)"
      curl --silent https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
      y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
@@ -496,8 +505,19 @@ case $choice in
           echo > whois-ip
      fi
 
+     rm ultratools
      echo
-     echo "dnsdumpster.com           (29/$total)"
+
+     ##############################################################
+
+     echo "crt.sh                    (29/$total)"
+     wget -q https://crt.sh/?q=$domain -O tmp
+     sed '/decoration/I,+16 d; /copyright/I,+4 d' tmp > tmp2
+     cat tmp2 >> $home/data/$domain/data/certificates.htm; echo "</pre>" >> $home/data/$domain/data/certificates.htm 2>/dev/null
+     rm tmp*
+     echo
+
+     echo "dnsdumpster.com           (30/$total)"
      wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/assets/images/dnsdumpster.png
 
      # Generate a random cookie value
@@ -509,19 +529,19 @@ case $choice in
 
      wget -q $dumpsterxls -O tmp.xlsx
      ssconvert -E Gnumeric_Excel:xlsx -T Gnumeric_stf:stf_csv tmp.xlsx tmp.csv 2>/dev/null
-     cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | sort -u | column -t > sub-dnsdumpster
+     cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | column -t | sort -u > sub-dnsdumpster
      rm tmp*
-
      echo
-     echo "email-format.com          (30/$total)"
+
+     echo "email-format.com          (31/$total)"
      curl --silent https://www.email-format.com/d/$domain/ > tmp
      grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
      rm tmp
-
      echo
-     echo "intodns.com               (31/$total)"
+
+     echo "intodns.com               (32/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
-     cat tmp | sed '1,32d' | sed 's/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g' | sed 's/Test name/Test/g' | sed 's/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g' | sed 's/ background-color: #ffffff;//' | sed 's/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/' | sed 's/<td class="icon">/<td class="inc-table-cell-status">/g' | sed 's/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d' | sed '/google-analytics/I,+5 d' > tmp2
+     cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
      cat tmp2 >> $home/data/$domain/pages/config.htm
 
      # Add new icons
@@ -538,13 +558,16 @@ case $choice in
      # Remove unnecessary JS at bottom of page
      sed -i '/Math\.random/I,+6 d' $home/data/$domain/pages/config.htm
      rm tmp*
-
      echo
 
-     echo "Registered Domains        (32/$total)"
+     echo "robtex.com                (33/$total)"
+     wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
+     echo
+
+     echo "Registered Domains        (34/$total)"
      f_regdomain(){
      while read regdomain; do
-          whois -H $regdomain 2>&1 | sed -e 's/^[ \t]*//' | sed 's/ \+ //g' | sed 's/: /:/g' > tmp5
+          whois -H $regdomain 2>&1 | sed -e 's/^[ \t]*//; s/ \+ //g; s/: /:/g' > tmp5
           nomatch=$(grep -c -E 'No match for|Name or service not known' tmp5)
 
           if [[ $nomatch -eq 1 ]]; then
@@ -600,19 +623,15 @@ case $choice in
 
      # Formatting & clean-up
      sort tmp4 | sed 's/111AAA--placeholder--/Domain,IP Address,Registration Email,Registration Org,Registrar,/' | grep -v 'Matches Found' > tmp6
-     grep '@' tmp6 | sed 's/LLC /LLC./g' | column -n -s ',' -t > registered-domains
-     echo "Domains registered to $company using a corporate email." >> $home/data/$domain/data/registered-domains.htm
-     echo >> $home/data/$domain/data/registered-domains.htm
+     grep "@$domain" tmp6 | sed 's/LLC /LLC./g' | column -n -s ',' -t > registered-domains
+     rm tmp*
      echo
 
      ##############################################################
 
-     # Remove all empty files
-     find -type f -empty -exec rm {} +
-
      cat z* | grep '@' | grep -v '^\.' | sort -u > emails
 
-     cat z* | sed '/^[0-9]/!d' | column -t | awk '{print $2 " " $1}' | column -t | sort -k1 -u > sub2
+     cat z* | sed '/^[0-9]/!d' | column -t | awk '{print $2 " " $1}' | column -t | sort -k1 -u > sub2   # TEST THIS
 
      # Remove lines that contain a number or  @
      cat z* | sed '/[0-9]/d' | grep -v '@' | sort -u > tmp
@@ -624,9 +643,10 @@ case $choice in
           cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
           # Clean up
           egrep -v '(~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|>|\.|\?|/|abuse|academy|account|achievement|acquisition|acting|action|active|adjuster|admin|advanced|adventure|advertising|agency|alliance|allstate|ambassador|america|american|analysis|analyst|analytics|animal|another|antivirus|apple seems|application|applications|architect|archivist|article|assembler|assembling|assembly|asian|assignment|assistant|associate|association|attorney|audience|audio|auditor|australia|authority|automation|automotive|aviation|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|builder|business|buyer|buying|california|cannot|capital|career|carrying|cashing|center|centre|certified|cfi|challenger|championship|change|chapter|charge|chemistry|china|chinese|claim|class|clearance|cloud|cnc|code|cognitive|college|columbia|coming|commercial|communications|community|company pages|competition|competitive|compliance|computer|comsec|concept|conference|config|connections|connect|construction|consultant|contact|contract|contributor|control|cooperation|coordinator|corporate|corporation|counsel|create|creative|critical|crm|croatia|cryptologic|custodian|cyber|dallas|database|day care|dba|dc|death toll|delivery|delta|department|deputy|description|designer|design|destructive|detection|develop|devine|dialysis|digital|diploma|direct|disability|disaster|disclosure|dispatch|dispute|distribut|divinity|division|dns|document|dos poc|download|driver|during|economy|ecovillage|editor|education|effect|electronic|else|email|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|entry|environmental|error page|ethical|example|excellence|executive|expectations|expertzone|exploit|expressplay|facebook|facilit|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|fellow|filmmaker|finance|financial|fitter|forensic|forklift|found|freelance|from|frontiers in tax|fulfillment|full|function|future|fuzzing|germany|get control|global|gnoc|google|governance|government|graphic|greater|group|guard|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|hostmaster|house|how to|hurricane|icmp|idc|in the news|index|infant|inform|innovation|installation|insurers|integrated|intellectual|international|internet|instructor|insurance|intelligence|interested|interns|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|language|laptops|large|leader|letter|level|liaison|licensing|lighting|linguist|linkedin|limitless|liveedu|llp|local|looking|lpn|ltd|lsu|luscous|machinist|macys|malware|managed|management|manager|managing|manufacturing|market|mastering|material|mathematician|maturity|md|mechanic|media|medical|medicine|member|merchandiser|meta tags|methane|metro|microsoft|middle east|migration|mission|mitigation|mn|money|monitor|more coming|mortgage|motor|museums|mutual|national|negative|network|network|new user|newspaper|new york|next page|night|nitrogen|nw|nyc|obtain|occupied|offers|office|online|onsite|operations|operator|order|organizational|outbreak|owner|packaging|page|palantir|paralegal|partner|pathology|peace|people|perceptions|person|pharmacist|philippines|photo|picker|picture|placement|places|planning|police|portfolio|postdoctoral|potassium|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|program|property|publichealth|published|pyramid|quality|questions|rcg|recruiter|redeem|redirect|region|register|registry|regulation|rehab|remote|report|representative|republic|research|resolving|responsable|restaurant|retired|revised|rising|rural health|russia|sales|sample|satellite|save the date|school|scheduling|science|scientist|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|social|software|solution|source|special|sql|station home|statistics|store|strategy|strength|student|study|substitute|successful|sunoikisis|superheroines|supervisor|support|surveillance|switch|system|systems|talent|targeted|tax|tcp|teach|technical|technician|technique|technology|temporary|tester|textoverflow|theater|thought|through|time in|tit for tat|title|toolbook|tools|toxic|traditions|trafficking|transfer|transformation|treasury|trojan|truck|twitter|training|ts|tylenol|types of scams|unclaimed|underground|underwriter|university|united states|untitled|vault|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|vp|wanted|web search|web site|website|welcome|west virginia|westchester|when the|whiskey|window|worker|world|www|xbox|zz)' tmp3 > tmp4
-          sed 's/iii/III/g' tmp4 | sed 's/ii/II/g' > tmp5
+          cat tmp4 | sed 's/iii/III/g; s/ii/II/g' > tmp5
           # Capitalize the first letter of every word and tweak
-          sed 's/\b\(.\)/\u\1/g' tmp5 | sed 's/ And / and /; s/ It / IT /g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/,,/,/g' > tmp6
+          cat tmp5 | sed 's/\b\(.\)/\u\1/g; s/ And / and /; s/ It / IT /g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; 
+s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/,,/,/g' > tmp6
           grep -v ',' tmp6 | awk '{print $2", "$1}' > tmp7
           grep ',' tmp7 > tmp8
           # Remove trailing whitespace from each line
@@ -635,30 +655,41 @@ case $choice in
 
      ##############################################################
 
-     echo "recon-ng                  (32/$total)"
      echo
-     echo "workspaces add $domain" > $discover/passive.rc
-     echo "add companies" >> $discover/passive.rc
-     echo "$companyurl" >> $discover/passive.rc
-     sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' $discover/passive.rc
-     echo "none" >> $discover/passive.rc
-     echo "add domains" >> $discover/passive.rc
-     echo "$domain" >> $discover/passive.rc
-     echo >> $discover/passive.rc
+     echo -n "Do you have a list of names from salesforce to import? (y/N) "
+     read answer
 
-     if [ -e passive2.rc ]; then
-          cat passive2.rc >> $discover/passive.rc
+     if [ "$answer" == "y" ]; then
+          f_location
+          echo "last_name#first_name#title" > /tmp/names.csv
+          cat $location | sed 's/, /#/; s/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/;/#/g; s/#$//g' >> /tmp/names.csv
+          cat $discover/resource/recon-ng-import-names.rc > tmp.rc
+     fi
+
+     echo "recon-ng                  (35/$total)"
+     echo
+     echo "workspaces add $domain" > passive.rc
+     echo "add companies" >> passive.rc
+     echo "$companyurl" >> passive.rc
+     sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' passive.rc
+     echo "none" >> passive.rc
+     echo "add domains" >> passive.rc
+     echo "$domain" >> passive.rc
+     echo >> passive.rc
+
+     if [ -e tmp.rc ]; then
+          cat tmp.rc >> passive.rc
      fi
 
      if [ -e names ]; then
-          echo "last_name#first_name" > $home/data/names2.csv
-          cat names | sed 's/, /#/' >> $home/data/names2.csv
-          cat $discover/resource/recon-ng-import-names2.rc >> $discover/passive.rc
-          echo >> $discover/passive.rc
+          echo "last_name#first_name" > /tmp/names2.csv
+          sed 's/, /#/' names >> /tmp/names2.csv
+          cat $discover/resource/recon-ng-import-names2.rc >> passive.rc
+          echo >> passive.rc
      fi
 
-     cat $discover/resource/recon-ng.rc >> $discover/passive.rc
-     sed -i "s/yyy/$domain/g" $discover/passive.rc
+     cat $discover/resource/recon-ng.rc >> passive.rc
+     sed -i "s/yyy/$domain/g" passive.rc
 
      recon-ng --no-check -r $discover/passive.rc
 
@@ -667,22 +698,22 @@ case $choice in
      grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-recon
      cat emails emails-recon | tr '[A-Z]' '[a-z]' | sort -u > emails-final
 
-     grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|arin-notify|contact|netops|production|unknown)' | sed 's/|//g; s/^[ \t]*//; /^[0-9]/d; /^-/d' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g; s/iii/III/g; s/ii/II/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/[ \t]*$//' | sort -u > names-recon
+     grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|arin-notify|contact|netops|production|unknown)' | sed 's/|//g; s/^[ \t]*//; /^[0-9]/d' > names-recon
 
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
 
-     grep "$domain" /tmp/subdomains | egrep -v '(>|SELECT)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
+     grep "$domain" /tmp/subdomains | egrep -v '(\*|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
 
      ##############################################################
 
      cat networks-tmp networks-recon | sort -u | $sip > networks 2>/dev/null
 
-     cat sub* | grep -v "$domain\." | grep -v '|' | sed 's/www\.//g' | grep -v 'SELECT' | column -t | tr '[A-Z]' '[a-z]' | sort -u > tmp
+     cat sub* | grep -v "$domain\." | grep -v '|' | sed 's/www\.//g' | grep -v 'SELECT' | tr '[A-Z]' '[a-z]' | column -t | sort -u > tmp
      # Remove lines that contain a single word
      sed '/[[:blank:]]/!d' tmp > subdomains
 
      awk '{print $2}' subdomains > tmp
-     grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | $sip > hosts
+     grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | sed '/^$/d' | $sip > hosts
 
      if [ -e networks ]; then
           cat networks > tmp 2>/dev/null
@@ -696,7 +727,6 @@ case $choice in
 
      echo "Summary" > zreport
      echo $short >> zreport
-
      echo > tmp
 
      if [ -e emails-final ]; then
@@ -732,23 +762,34 @@ case $choice in
           echo >> tmp
      fi
 
+     if [ -e records ]; then
+          recordcount=$(wc -l records | cut -d ' ' -f1)
+          echo "DNS Records          $recordcount" >> zreport
+          echo "DNS Records ($recordcount)" >> tmp
+          echo $long >> tmp
+          cat records >> tmp
+          echo >> tmp
+     fi
+
      if [ -e hosts ]; then
           hostcount=$(wc -l hosts | cut -d ' ' -f1)
           echo "Hosts                $hostcount" >> zreport
           echo "Hosts ($hostcount)" >> tmp
-          echo $short >> tmp
+          echo $long >> tmp
           cat hosts >> tmp
           echo >> tmp
      fi
 
      if [ -e registered-domains ]; then
           domaincount1=$(wc -l registered-domains | cut -d ' ' -f1)
-          domaincount2=$(echo $(($domaincount1-1)))
-          echo "Registered Domains   $domaincount2" >> zreport
-          echo "Registered Domains ($domaincount2)" >> tmp
+#          domaincount2=$(echo $(($domaincount1-1)))
+          echo "Registered Domains   $domaincount1" >> zreport
+          echo "Registered Domains ($domaincount1)" >> tmp
           echo $long >> tmp
           cat registered-domains >> tmp
           echo >> tmp
+          echo "Domains registered to $company using a corporate email." >> $home/data/$domain/data/registered-domains.htm
+          echo >> $home/data/$domain/data/registered-domains.htm
           cat registered-domains >> $home/data/$domain/data/registered-domains.htm; echo "</pre>" >> $home/data/$domain/data/registered-domains.htm
      else
           echo "No data found." >> $home/data/$domain/data/registered-domains.htm; echo "</pre>" >> $home/data/$domain/data/registered-domains.htm
@@ -860,15 +901,9 @@ case $choice in
      fi
 
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
-
-     mv recon-ng.rc $home/data/$domain/ 2>/dev/null
-     rm curl debug* emails* domain hosts names* network* passive* registered* squatting sub* tmp* whois* z* doc pdf ppt txt xls 2>/dev/null
-     rm $home/data/*.csv 2>/dev/null
-     cd /tmp/
-     rm emails names networks profiles subdomains registered-domains $discover/passive.rc 2>/dev/null
-
-     # Robtex
-     wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
+ 
+     mv curl debug* email* hosts name* network* passive* records registered* squatting sub* tmp* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
+     cd /tmp/; mv emails names* networks subdomains $home/data/$domain/tools/recon-ng/ 2>/dev/null
 
      echo
      echo $medium
@@ -917,7 +952,7 @@ case $choice in
      sleep 2
      $web http://api.hackertarget.com/pagelinks/?q=$domain &
      sleep 2
-     $web https://crt.sh/?q=$domain&dir=^&sort=4&group=none &
+     $web https://crt.sh/?q=$domain&dir=v&sort=4&group=none &
      sleep 2
      $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
      sleep 2
@@ -937,7 +972,7 @@ case $choice in
      clear
      f_banner
 
-     echo -e "${BLUE}Uses Nmap, dnsrecon, Fierce, lbd, WAF00W, traceroute, and Whatweb.${NC}"
+     echo -e "${BLUE}Uses dnsrecon, Fierce, WAF00W, traceroute, and Whatweb.${NC}"
      echo
      echo -e "${BLUE}[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google,${NC}"
      echo -e "${BLUE}Hashes, and Shodan for maximum results with recon-ng.${NC}"
@@ -962,7 +997,7 @@ case $choice in
      fi
 
      # Number of tests
-     total=11
+     total=10
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
 
@@ -970,30 +1005,22 @@ case $choice in
      echo $medium
      echo
 
-     echo "Nmap"
-     echo "     Email                (1/$total)"
-     nmap -Pn -n --open -p80 --script-timeout 1m --script=http-grep $domain > tmp
-     grep '@' tmp | awk '{print $3}' > emails1
-
-     echo
      echo "dnsrecon"
-     echo "     DNS Records          (2/$total)"
+     echo "     DNS Records          (1/$total)"
      dnsrecon -d $domain -t std > tmp
-     egrep -v '(All queries|Bind Version|Could not|Enumerating SRV|is resolving|not configured|Performing|Records Found|Recursion|Resolving|TXT|Wildcard)' tmp | sort > tmp2
+     egrep -v '(All queries|Bind Version|Could not|Enumerating SRV|not configured|Performing|Records Found|Recursion|resolving|Resolving|TXT|Wildcard)' tmp | sort > tmp2
      # Remove first 6 characters from each line
-     sed 's/^......//g' tmp2 | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15}' | column -t | sort -u -k2 -k1 > tmp3
-     grep 'TXT' tmp | sed 's/^......//g' | awk '{print $2,$1,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15}' | sort > tmp4
+     sed 's/^......//g' tmp2 | column -t | sort > tmp3
+     grep 'TXT' tmp | sed 's/^......//g' | sort > tmp4
      cat tmp3 tmp4 > records
-     cat $home/data/$domain/data/records.htm records | grep -v '<' | sort -u > records2
+     cp $discover/report/data/records.htm $home/data/$domain/data/records.htm
+     cat records >> $home/data/$domain/data/records.htm; echo "</pre>" >> $home/data/$domain/data/records.htm
 
-     echo '<pre style="font-size:14px;">' > $home/data/$domain/data/records.htm
-     cat records2 >> $home/data/$domain/data/records.htm; echo "</pre>" >> $home/data/$domain/data/records.htm
-
-     echo "     Zone Transfer        (3/$total)"
+     echo "     Zone Transfer        (2/$total)"
      dnsrecon -d $domain -t axfr > tmp
-     egrep -v '(Checking for|Failed|filtered|NS Servers|Removing|TCP Open|Testing NS)' tmp | sed 's/^....//g' | sed /^$/d > zonetransfer
+     egrep -v '(Checking for|filtered|No answer|NS Servers|Removing|TCP Open|Testing NS)' tmp | sed 's/^....//g; /^$/d' > zonetransfer
 
-     echo "     Sub-domains (~5 min) (4/$total)"
+     echo "     Sub-domains          (3/$total)"
      if [ -f /usr/share/dnsrecon/namelist.txt ]; then
           dnsrecon -d $domain -t brt -D /usr/share/dnsrecon/namelist.txt --iw -f > tmp
      fi
@@ -1003,101 +1030,90 @@ case $choice in
           dnsrecon -d $domain -t brt -D /pentest/intelligence-gathering/dnsrecon/namelist.txt --iw -f > tmp
      fi
 
-     grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing|Records Found)' | sed 's/\[\*\] //g; s/^[ \t]*//' | awk '{print $2,$3}' | column -t | sort -u > subdomains-dnsrecon
+     grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing|Records Found)' | sed 's/\[\*\] //g; s/^[ \t]*//' | awk '{print $2,$3}' | column -t | sort -u > sub-dnsrecon
 
      echo
-     echo "Fierce (~5 min)           (5/$total)"
+     echo "Fierce (~5 min)           (4/$total)"
      if [ -f /usr/share/fierce/hosts.txt ]; then
-          fierce -dns $domain -wordlist /usr/share/fierce/hosts.txt -suppress -file tmp4
+          fierce -dns $domain -wordlist /usr/share/fierce/hosts.txt > tmp
      fi
 
      # PTF
      if [ -f /pentest/intelligence-gathering/fierce/hosts.txt ]; then
-          fierce -dns $domain -wordlist /pentest/intelligence-gathering/fierce/hosts.txt -suppress -file tmp4
+          fierce -dns $domain -wordlist /pentest/intelligence-gathering/fierce/hosts.txt > tmp
      fi
 
-     sed -n '/Now performing/,/Subnets found/p' tmp4 | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > subdomains-fierce
+     egrep -v '(DNS Servers|Found)' tmp | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > sub-fierce
 
-     cat subdomains-dnsrecon subdomains-fierce | egrep -v '(.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' | column -t | tr '[A-Z]' '[a-z]' | sort -u | awk '$2 !~ /[a-z]/' > subdomains
+     cat sub-dnsrecon sub-fierce | egrep -v '(.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' | tr '[A-Z]' '[a-z]' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
+
+     echo
+     echo 'Use vim to manually remove duplicates and save.'
+     read -p "Press <return> to continue."
+     vim subdomains
+     ############################################################
 
      if [ -e $home/data/$domain/data/subdomains.htm ]; then
           cat $home/data/$domain/data/subdomains.htm subdomains | grep -v "<" | grep -v "$domain\." | column -t | sort -u > subdomains-combined
-          echo '<pre style="font-size:14px;">' > $home/data/$domain/data/subdomains.htm
+
+          cp $discover/report/data/subdomains.htm $home/data/$domain/data/subdomains.htm
           cat subdomains-combined >> $home/data/$domain/data/subdomains.htm
           echo "</pre>" >> $home/data/$domain/data/subdomains.htm
      fi
 
      awk '{print $3}' records > tmp
-     awk '{print $2}' subdomains-dnsrecon subdomains-fierce >> tmp
+     awk '{print $2}' sub-dnsrecon sub-fierce >> tmp
      grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' tmp | egrep -v '(-|=|:|1.1.1.1|6.9.6.9|127.0.0.1)' | $sip > hosts
 
      echo
-     echo "Loadbalancing             (6/$total)"
-     lbd $domain > tmp 2>/dev/null
-     # Remove first 5 lines & clean up
-     sed '1,5d' tmp | sed 's/DNS-Loadbalancing: NOT FOUND/DNS-Loadbalancing:\nNOT FOUND\n/g' | sed 's/\[Date\]: /\[Date\]:\n/g' | sed 's/\[Diff\]: /\[Diff\]:\n/g' > tmp2
-     # Replace the 10th comma with a new line & remove leading whitespace from each line
-     sed 's/\([^,]*,\)\{9\}[^,]*,/&\n/g' tmp2 | sed 's/^[ \t]*//' | sed 's/, NOT/\nNOT/g' | grep -v 'NOT use' > loadbalancing
-
-     echo
-     echo "Web Application Firewall  (7/$total)"
-     wafw00f -a http://www.$domain > tmp
-     cat tmp | egrep -v '(By Sandro|Checking http://www.|Generic Detection|requests|WAFW00F)' > tmp2
-     sed "s/ http:\/\/www.$domain//g" tmp2 | egrep -v "(\_|\^|\||<|')" | sed '1,4d' > waf
+     echo "Web Application Firewall  (5/$total)"
+     wafw00f -a http://www.$domain > tmp 2>/dev/null
+     egrep -v '(By Sandro|Checking http://www.|Generic Detection|requests|WAFW00F)' tmp | sed "s/ http:\/\/www.$domain//g" | egrep -v "(\_|\^|\||<|')" | sed '1,4d' > waf
 
      echo
      echo "Traceroute"
-     echo "     UDP                  (8/$total)"
+     echo "     UDP                  (6/$total)"
      echo "UDP" > tmp
      traceroute $domain | awk -F" " '{print $1,$2,$3}' >> tmp
      echo >> tmp
      echo "ICMP ECHO" >> tmp
-     echo "     ICMP ECHO            (9/$total)"
+     echo "     ICMP ECHO            (7/$total)"
      traceroute -I $domain | awk -F" " '{print $1,$2,$3}' >> tmp
      echo >> tmp
      echo "TCP SYN" >> tmp
-     echo "     TCP SYN              (10/$total)"
+     echo "     TCP SYN              (8/$total)"
      traceroute -T $domain | awk -F" " '{print $1,$2,$3}' >> tmp
      grep -v 'traceroute' tmp > tmp2
      # Remove blank lines from end of file
      awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp2 > ztraceroute
 
      echo
-     echo "Whatweb                   (11/$total)"
+     echo "Whatweb (~5 min)          (9/$total)"
      grep -v '<' $home/data/$domain/data/subdomains.htm | awk '{print $1}' > tmp
      whatweb -i tmp --color=never --no-errors > tmp2 2>/dev/null
      # Find lines that start with http, and insert a line after
      sort tmp2 | sed '/^http/a\ ' > tmp3
      # Cleanup
-     sed 's/,/\n/g' tmp3 | sed 's/^[ \t]*//' | sed 's/\(\[[0-9][0-9][0-9]\]\)/\n\1/g; s/http:\/\///g' | grep -v 'Country' > whatweb
+     cat tmp3 | sed 's/,/\n/g; s/\[200 OK\]/\n\[200 OK\]\n/g; s/\[301 Moved Permanently\]/\n\[301 Moved Permanently\]\n/g; s/\[302 Found\]/\n\[302 Found\]\n/g; s/\[404 Not Found\]/\n\[404 Not Found\]\n/g' | egrep -v '(Unassigned|UNITED STATES)' | sed 's/^[ \t]*//' | cat -s | more > whatweb
 
-     grep '@' whatweb | sed 's/Email//g; s/\[//g; s/\]//g' > tmp
-     # Change to lower case
-     cat tmp | tr '[A-Z]' '[a-z]' > emails2
-     cat emails1 emails2 | grep "@$domain" | grep -v 'hosting' | cut -d ' ' -f2 | sort -u > emails
+     grep '@' whatweb | sed 's/Email//g; s/\[//g; s/\]//g' | tr '[A-Z]' '[a-z]' | grep "@$domain" | grep -v 'hosting' | cut -d ' ' -f2 | sort -u > emails
 
-     # If this file is empty, delete it
-     if [ ! -s emails ]; then rm emails; fi
-     if [ ! -s hosts ]; then rm hosts; fi
-     if [ ! -s records ]; then rm records; fi
-     if [ ! -s subdomains ]; then rm subdomains; fi
+     # Remove all empty files
+     find $name/ -type f -empty -exec rm {} +
 
      echo
-     echo "recon-ng                  (12/$total)"
-     cp $discover/resource/recon-ng-active.rc $discover/
-     sed -i "s/xxx/$companyurl/g" $discover/recon-ng-active.rc
-     sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' $discover/recon-ng-active.rc
-     sed -i "s/yyy/$domain/g" $discover/recon-ng-active.rc
-     recon-ng --no-check -r $discover/recon-ng-active.rc
+     echo "recon-ng                  (10/$total)"
+     cp $discover/resource/recon-ng-active.rc active.rc
+     sed -i "s/xxx/$companyurl/g" active.rc
+     sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' active.rc
+     sed -i "s/yyy/$domain/g" active.rc
+     recon-ng --no-check -r $discover/active.rc
 
-     grep "$domain" /tmp/subdomains | grep -v '>' | awk '{print $2,$4}' | column -t > sub-recon
+     grep "$domain" /tmp/subdomains | egrep -v '(\*|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
 
      ##############################################################
 
-     echo > zreport
-     echo >> zreport
-
-     echo "Summary" >> zreport
+     echo "Summary" > zreport
      echo $short >> zreport
 
      echo > tmp
@@ -1140,10 +1156,6 @@ case $choice in
 
      cat tmp >> zreport
 
-     echo "Loadbalancing" >> zreport
-     echo $long >> zreport
-     cat loadbalancing >> zreport
-
      echo "Web Application Firewall" >> zreport
      echo $long >> zreport
      cat waf >> zreport
@@ -1163,7 +1175,6 @@ case $choice in
      echo $long >> zreport
      cat whatweb >> zreport
 
-     cat loadbalancing >> $home/data/$domain/data/loadbalancing.htm; echo "</pre>" >> $home/data/$domain/data/loadbalancing.htm
      cat zreport >> $home/data/$domain/data/active-recon.htm; echo "</pre>" >> $home/data/$domain/data/active-recon.htm
      cat ztraceroute >> $home/data/$domain/data/traceroute.htm; echo "</pre>" >> $home/data/$domain/data/traceroute.htm
      cat waf >> $home/data/$domain/data/waf.htm; echo "</pre>" >> $home/data/$domain/data/waf.htm
@@ -1180,7 +1191,7 @@ case $choice in
      echo '<pre style="font-size:14px;">' > $home/data/$domain/data/hosts.htm
      cat tmp >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
 
-     rm emails* hosts loadbalancing recon-ng-active.rc records* sub* tmp* waf whatweb z* /tmp/subdomains 2>/dev/null
+     mv active.rc emails hosts recon-ng-active.rc record* sub* tmp* waf whatweb z* /tmp/subdomains $home/data/$domain/tools/active/ 2>/dev/null
 
      echo
      echo $medium
@@ -1282,53 +1293,61 @@ done < tmp2
 column -s ':' -t tmp3 > tmp4
 
 # Clean-up
-cat tmp4 | sed 's/ -- /, /g; s/ - /, /g; s/,,/,/g; s/, ,/, /g; s/\//, /g; s/[^ ]\+/\L\u&/g; s/-.*$//g; s/1.*$//g; s/1/I/g; s/2/II/g; s/3/III/g; s/4/IV/g; s/5/V/g; 
-s/2cfinancedistributionoperations//i; s/-administration/, Administration/i; s/-air/, Air/i; s/, ,  and$//g; s/ And / and /g; s/ api / API /i; s/ at.*$//g; s/ asic / ASIC /i; 
-s/ Asm/ ASM/g; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/-associate/-associate/i; s/ at .*//i; s/ At / at /i; s/ atm / ATM /i; s/ bd / BD /i; s/-big/, Big/i; 
-s/BIIb/B2B/g; s/-board/, Board/i; s/-boiler/, Boiler/i; s/ bsc / BSC /i; s/-call/, Call/i; s/-capacity/, Capacity/i; s/-cash/, Cash/i; s/ cbt / CBT /i; s/ Cc/ CC/g; 
-s/-chief/, Chief/i; s/ cip / CIP /i; s/ cissp / CISSP /i; s/-civil/, Civil/i; s/ cj / CJ /i; s/Clients//g; s/ cmms / CMMS /i; s/ cms / CMS /i; s/-commercial/, Commercial/i; 
-s/CommitteemanagementOfficer/Committee Management Officer/g; s/-communications/, Communications/i; s/-community/, Community/i; s/-compliance/, Compliance/i; 
-s/-consumer/, Consumer/i; s/contact sold, to//i; s/-corporate/, Corporate/i; s/ cpa/ CPA/i; s/-creative/, Creative/i; s/ Crm / CRM /i; s/ Csa/ CSA/g; s/ Csc/ CSC/g; 
-s/ctr /Center/i; s/-customer/, Customer/i; s/Datapower/DataPower/g; s/-data/, Data/i; s/ db2 / DB2 /i; s/ dbii / DB2 /i; s/ Dc/ DC/g; s/DDesigner/Designer/i; 
-s/DesignatedFederalOfficial/Designated Federal Official/g; s/-design/, Design/i; s/dhs/DHS/i; s/-digital/, Digital/i; s/-distribution/, Distribution/i; s/ dns / DNS /i; 
-s/-dominion/-dominion/i; s/-drilling/, Drilling/i; s/ dvp / DVP /i; s/ ebs / EBS /i; s/ Edi/ EDI/g; s/editorr/Editor/i; s/ edrm / EDRM /i; s/ eeo / EEO /i; s/ efi / EFI /i; 
-s/-electric/, Electric/i; s/EleCenterEngineer/Electric Engineer/i; s/ emc / EMC /i; s/ emea/ EMEA/i; s/-employee/, Employee/i; s/ ems / EMS /i; s/-energy/, Energy/i; 
-s/engineer5/Engineer V/i; s/-engineering/, Engineering/i; s/-engineer/, Engineer/i; s/-environmental/, Environmental/i; s/-executive/, Executive/i; s/ faa / FAA /i; 
-s/-facilities/, Facilities/i; s/ Fdr / FDR /i; s/ ferc / FERC /i; s/ fha / FHA /i; s/-finance/, Finance/i; s/-financial/, Financial/i; s/-fleet/, Fleet/i; s/ For / for /g; 
-s/ fsa / FSA /i; s/ fso / FSO /i; s/ fx / FX /i; s/ gaap / GAAP /i; s/-gas/, Gas/i; s/-general/, General/i; s/-generation/, Generation/i; s/grp/Group/i; s/ gsa / GSA /i; 
-s/ gsis / GSIS /i; s/ gsm / GSM /i; s/ hd / HD /i; s/ hiv / HIV /i; s/ hmrc / HMRC /i; s/ hp / HP /i; s/ hq / HQ /i; s/ hris / HRIS /i; s/-human/, Human/i; s/ hvac / HVAC /i; 
-s/ ia / IA /i; s/ id / ID /i; s/ iii/ III/i; s/ ii/ II/i; s/ iis / IIS /i; s/ In / in /g; s/-industrial/, Industrial/i; s/information technology/IT/i; 
-s/-information/, Information/i; s/-infrastructure/, Infrastructure/i; s/-instrumentation/, Instrumentation/i; s/-internal/, Internal/i; s/ ip / IP /i; s/ ir / IR /i; 
-s/itenterpriseprojectmanager/IT Enterprise Project Manager/i; s/-IT/, IT/i; s/ iv / IV /i; s/ Iv,/ IV,/i; s/Jboss/JBoss/g; s/ jc / JC /i; s/ jd / JD /i; s/ jt / JT /i; 
-s/konsult, konsultchef, projektledare/Consultant/i; s/laboratorynetwork/Laboratory, Network/i; s/-labor/, Labor/i; s/lan administrator/LAN Administrator/i; s/lan admin/LAN Admin/i; 
-s/-land/, Land/i; s/-licensing/, Licensing/i; s/LawIII60/Law360/g; s/ llc / LLC. /i; s/-logistics/, Logistics/i; s/ Lp/ LP/g; s/lvl/Level/i; s/-mail/, Mail/i; 
-s/-manager/, Manager/i; s/-marketing/, Marketing/i; s/-materials/, Materials/i; s/ mba / MBA /i; s/mca/McA/i; s/mcb/McB/i; s/mcc/McC/i; s/mcd/McD/i; s/mce/McE/i; s/mcf/McF/i; 
-s/mcg/McG/i; s/mch/McH/i; s/mci/McI/i; s/mcj/McJ/i; s/mck/McK/i; s/mcl/McL/i; s/mcm/McM/i; s/mcn/McN/i; s/mcq/McQ/i; s/mcv/McV/i; s/mcse/MCSE/i; s/-mechanical/, Mechanical/i; 
-s/-metals/, Metals/i; s/-metro/, Metro/i; s/, mp//i; s/ nerc / NERC /i; s/mcp/McP/i; s/mcr/McR/i; s/mcs/McS/i; s/mct/McT/i; s/mcw/McW/i; s/-media/, Media/i; s/-mergers/, Mergers/i; 
-s/-millstone/, Millstone/i; s/-motor/, Motor/i; s/ mssp / MSSP /i; s/-networking/, Networking/i; s/-network/, Network/i; s/-new/, New/i; s/-north/, North/i; s/not in it//i; 
-s/ nso / NSO /i; s/-nuclear/, Nuclear/i; s/ Nz / NZ /g; s/ oem / OEM /i; s/-office/, Office/i; s/ Of / of /g; s/-operations/, Operations/i; s/-oracle/, Oracle/i; 
-s/-other/, Other/i; s/ pca / PCA /i; s/ pcs / PCS /i; s/ pc / PC /i; s/ pdm / PDM /i; s/ phd / PhD /i; s/ pj / PJ /i; s/-plant/, Plant/i; s/plt/Plant/i; s/pmo/PMO/i; s/ pmp/ PMP/i; 
-s/ pm / PM /i; s/ Pm / PM /i; s/-power/, Power/i; s/-property/, Property/i; s/-public/, Public/i; s/ Psa/ PSA/g; s/pyble/Payble/i; s/ os / OS /i; s/r&d/R&D/i; s/ r and d /R&D/i; 
-s/-records/, Records/i; s/-regulated/, Regulated/i; s/-regulatory/, Regulatory/i; s/-related/, Related/i; s/-remittance/, Remittance/i; s/-renewals/, Renewals/i; 
-s/-revenue/, Revenue/i; s/ rfid / RFID /i; s/ rfp / RFP /i; s/ rf / RF /i; s/ Rtm/ RTM/g; s/saas/SaaS/i; s/-safety/, Safety/i; s/san manager/SAN Manager/i; s/scada/SCADA/i; 
-s/sdlc/SDLC/i; s/setac-/SETAC,/i; s/sftwr/Software/i; s/-short/, Short/i; s/ smb / SMB /i; s/sms/SMS/i; s/smtp/SMTP/i; s/snr/Senior/i; s/.specialist./ Specialist /i; s/sql/SQL/i; 
-s/spvr/Supervisor/i; s/srbranch/Senior Branch/i; s/srsales/Senior Sales/i; s/ ssl / SSL /i; s/-staff/, Staff/i; s/stf/Staff/i; s/-station/, Station/i; s/-strategic/, Strategic/i; 
-s/-student/, Student/i; s/-substation/, Substation/i; s/-supplier/, Supplier/i; s/-supply/, Supply/i; s/-surveillance/, Surveillance/i; s/swepco/SWEPCO/i; s/-system/, System/i; 
-s/-tax/, Tax/i; s/-technical/, Technical/i; s/-telecommunications/, Telecommunications/i; s/ The / the /g; s/-three/, Three/i; s/-tickets/, Tickets/i; s/-trading/, Trading/i; 
-s/-transmission/, Transmission/i; s/ttechnical/Technical/i; s/-turbine/, Turbine/i; s/ to .*$//i; s/ ui / UI /i; s/ uk / UK /i; s/unsupervisor/Supervisor/i; s/uscg/USCG/i; 
-s/ usa / USA /i; s/ us / US /i; s/ Us / US /i; s/ u.s / US /i; s/usmc/USMC/i; s/-utility/, Utility/i; s/ ux / UX /i; s/vicepresident/Vice President/i; s/ vii / VII /i; 
-s/ vi / VI /i; s/ vms / VMS /i; s/ voip / VoIP /i; s/ vpn / VPN /i; s/Weblogic/WebLogic/g; s/Websphere/WebSphere/g; s/ With / with /g' > tmp5
+cat tmp4 | sed 's/ -- /, /g; s/ - /, /g; s/,,/,/g; s/, ,/, /g; s/\//, /g; s/[^ ]\+/\L\u&/g; s/-.*$//g; s/1.*$//g; s/1/I/g; s/2/II/g; s/3/III/g; s/4/IV/g; 
+s/5/V/g; s/2cfinancedistributionoperations//g; s/-administration/, Administration/g; s/-air/, Air/g; s/, ,  and$//g; s/ And / and /g; s/ at.*$//g; 
+s/ asic / ASIC /g; s/ Asm/ ASM/g; ; s/ api / API /g; s/AssistantChiefPatrolAgent/Assistant Chief Patrol Agent/g; s/-associate/-associate/g; s/ at .*//g; 
+s/ At / at /g; s/ atm / ATM /g; s/ bd / BD /g; s/-big/, Big/g; s/BIIb/B2B/g; s/-board/, Board/g; s/-boiler/, Boiler/g; s/ bsc / BSC /g; s/-call/, Call/g; 
+s/-capacity/, Capacity/g; s/-cash/, Cash/g; s/ cbt / CBT /g; s/ Cc/ CC/g; s/-chief/, Chief/g; s/ cip / CIP /g; s/ cissp / CISSP /g; s/-civil/, Civil/g; 
+s/ cj / CJ /g; s/Clients//g; s/ cmms / CMMS /g; s/ cms / CMS /g; s/-commercial/, Commercial/g; 
+s/CommitteemanagementOfficer/Committee Management Officer/g; s/-communications/, Communications/g; s/-community/, Community/g;
+s/-compliance/, Compliance/g; s/-consumer/, Consumer/g; s/contact sold, to//g; s/-corporate/, Corporate/g; s/ cpa/ CPA/g; s/-creative/, Creative/g; 
+s/ Crm / CRM /g; s/ Csa/ CSA/g; s/ Csc/ CSC/g; s/ctr /Center/g; s/-customer/, Customer/g; s/Datapower/DataPower/g; s/-data/, Data/g; s/ db2 / DB2 /g; 
+s/ dbii / DB2 /g; s/ Dc/ DC/g; s/DDesigner/Designer/g; s/DesignatedFederalOfficial/Designated Federal Official/g; s/-design/, Design/g; s/dhs/DHS/g; 
+s/-digital/, Digital/g; s/-distribution/, Distribution/g; s/ Disa / DISA /g; s/ dns / DNS /g; s/-dominion/-dominion/g; s/-drilling/, Drilling/g; 
+s/ dvp / DVP /g; s/ ebs / EBS /g; s/ Edi/ EDI/g; s/editorr/Editor/g; s/ edrm / EDRM /g; s/ eeo / EEO /g; s/ efi / EFI /g; s/-electric/, Electric/g; 
+s/EleCenterEngineer/Electric Engineer/g; s/ emc / EMC /g; s/ emea/ EMEA/g; s/-employee/, Employee/g; s/ ems / EMS /g; s/-energy/, Energy/g; 
+s/engineer5/Engineer V/g; s/-engineering/, Engineering/g; s/-engineer/, Engineer/g; s/-environmental/, Environmental/g; s/-executive/, Executive/g; 
+s/faa / FAA /g; s/-facilities/, Facilities/g; s/ Fdr / FDR /g; s/ ferc / FERC /g; s/ fha / FHA /g; s/-finance/, Finance/g; s/-financial/, Financial/g; 
+s/-fleet/, Fleet/g; s/ For / for /g; s/ fsa / FSA /g; s/ fso / FSO /g; s/ fx / FX /g; s/ gaap / GAAP /g; s/-gas/, Gas/g; s/-general/, General/g; 
+s/-generation/, Generation/g; s/grp/Group/g; s/ gsa / GSA /g; s/ gsis / GSIS /g; s/ gsm / GSM /g; s/Hbss/HBSS/g; s/ hd / HD /g; s/ hiv / HIV /g; 
+s/ hmrc / HMRC /g; s/ hp / HP /g; s/ hq / HQ /g; s/ hris / HRIS /g; s/-human/, Human/g; s/ hvac / HVAC /g; s/ ia / IA /g; s/ id / ID /g; s/ iii/ III/g; 
+s/ Ii/ II/g; s/ Iis / IIS /g; s/ In / in /g; s/-industrial/, Industrial/g; s/information technology/IT/g; s/-information/, Information/g; 
+s/-infrastructure/, Infrastructure/g; s/-instrumentation/, Instrumentation/g; s/-internal/, Internal/g; s/ ip / IP /g; s/ ir / IR /g; s/ Issm/ ISSM/; 
+s/itenterpriseprojectmanager/IT Enterprise Project Manager/g; s/-IT/, IT/g; s/ iv / IV /g; s/ Iv,/ IV,/g; s/Jboss/JBoss/g; s/ jc / JC /g; s/ jd / JD /g; 
+s/ jt / JT /g; s/konsult, konsultchef, projektledare/Consultant/g; s/laboratorynetwork/Laboratory, Network/g; s/-labor/, Labor/g; 
+s/lan administrator/LAN Administrator/g; s/lan admin/LAN Admin/g; s/-land/, Land/g; s/-licensing/, Licensing/g; s/LawIII60/Law360/g; s/ llc / LLC. /g; 
+s/-logistics/, Logistics/g; s/ Lp/ LP/g; s/lvl/Level/g; s/-mail/, Mail/g; s/-manager/, Manager/g; s/-marketing/, Marketing/g; s/-materials/, Materials/g; 
+s/ mba / MBA /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; 
+s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcq/McQ/g; s/Mcv/McV/g; s/mcse/MCSE/g; s/-mechanical/, Mechanical/g; s/-metals/, Metals/g; 
+s/-metro/, Metro/g; s/, mp//g; s/ nerc / NERC /g; s/mcp/McP/g; s/mcr/McR/g; s/mcs/McS/g; s/mct/McT/g; s/mcw/McW/g; s/-media/, Media/g; 
+s/-mergers/,Mergers/g; s/-millstone/, Millstone/g; s/-motor/, Motor/g; s/ mssp / MSSP /g; s/-networking/, Networking/g; s/-network/, Network/g; 
+s/-new/, New/g; s/-north/, North/g; s/not in it//g; s/ nso / NSO /g; s/-nuclear/, Nuclear/g; s/ Nz / NZ /g; s/ oem / OEM /g; s/-office/, Office/g; 
+s/ Of / of /g; s/-operations/, Operations/g; s/-oracle/, Oracle/g; s/-other/, Other/g; s/ pca / PCA /g; s/ pcs / PCS /g; s/ pc / PC /g; s/ pdm / PDM /g; 
+s/ phd / PhD /g; s/ pj / PJ /g; s/-plant/, Plant/g; s/plt/Plant/g; s/pmo/PMO/g; s/ pmp/ PMP/g; s/ pm / PM /g; s/ Pm / PM /g; s/-power/, Power/g; 
+s/-property/, Property/g; s/-public/, Public/g; s/ Psa/ PSA/g; s/pyble/Payble/g; s/ os / OS /g; s/r&d/R&D/g; s/ r and d /R&D/g; s/-records/, Records/g; 
+s/-regulated/, Regulated/g; s/-regulatory/, Regulatory/g; s/-related/, Related/g; s/-remittance/, Remittance/g; s/-renewals/, Renewals/g; 
+s/-revenue/, Revenue/g; s/ rfid / RFID /g; s/ rfp / RFP /g; s/ rf / RF /g; s/ Roip / RoIP /g; s/Rtls/RTLS/g; s/ Rtm/ RTM/g; s/saas/SaaS/g; 
+s/-safety/, Safety/g; s/san manager/SAN Manager/g; s/scada/SCADA/g; s/sdlc/SDLC/g; s/setac-/SETAC,/g; s/sftwr/Software/g; s/-short/, Short/g; 
+s/ smb / SMB /g; s/sms/SMS/g; s/smtp/SMTP/g; s/snr/Senior/g; s/.specialist./ Specialist /g; s/ Soc / SOC /g; s/sql/SQL/g; s/spvr/Supervisor/g; 
+s/srbranch/Senior Branch/g; s/srsales/Senior Sales/g; s/ ssl / SSL /g; s/-staff/, Staff/g; s/stf/Staff/g; s/-station/, Station/g; 
+s/-strategic/, Strategic/g; s/-student/, Student/g; s/-substation/, Substation/g; s/-supplier/, Supplier/g; s/-supply/, Supply/g; 
+s/-surveillance/, Surveillance/g; s/swepco/SWEPCO/g; s/-system/, System/g; s/-tax/, Tax/g; s/-technical/, Technical/g; 
+s/-telecommunications/, Telecommunications/g; s/ The / the /g; s/-three/, Three/g; s/-tickets/, Tickets/g; s/TierIII/Tier III/g; s/-trading/, Trading/g; 
+s/-transmission/, Transmission/g; s/ttechnical/Technical/g; s/-turbine/, Turbine/g; s/ to .*$//g; s/ ui / UI /g; s/ uk / UK /g; 
+s/unsupervisor/Supervisor/g; s/uscg/USCG/g; s/ usa / USA /g; s/ us / US /g; s/ Us / US /g; s/ u.s / US /g; s/usmc/USMC/g; s/-utility/, Utility/g; 
+s/ ux / UX /g; s/vicepresident/Vice President/g; s/ Va / VA /g; s/ vii / VII /g; s/ vi / VI /g; s/ vms / VMS /g; s/ voip / VoIP /g; s/ vpn / VPN /g; 
+s/Weblogic/WebLogic/g; s/Websphere/WebSphere/g; s/ With / with /g' > tmp5
 
 # Remove lines that contain 2 words and clean up.
-awk 'NF != 2' tmp5 | sed "s/d'a/D'A/i; s/d'c/D'C/i; s/d'e/D'E/i; s/d'h/D'H/i; s/d's/D'S/i; s/l'a/L'A/i; s/o'b/O'B/i; s/o'c/O'C/i; s/o'd/O'D/i; s/o'f/O'F/i; s/o'g/O'G/i; 
-s/o'h/O'H/i; s/o'k/O'K/i; s/o'l/O'L/i; s/o'm/O'M/i; s/o'N/O'N/i; s/Obrien/O'Brien/i; s/Oconnor/O'Connor/i; s/Odonnell/O'Donnell/i; s/Ohara/O'Hara/i; s/o'p/O'P/i; s/o'r/O'R/i; 
-s/o's/O'S/i; s/Otoole/O'Toole/i; s/o't/O'T/i" > tmp6
+awk 'NF != 2' tmp5 | sed "s/d'a/D'A/g; s/d'c/D'C/g; s/d'e/D'E/g; s/d'h/D'H/g; s/d's/D'S/g; s/l'a/L'A/g; s/o'b/O'B/g; s/o'c/O'C/g; s/o'd/O'D/g; 
+s/o'f/O'F/g; s/o'g/O'G/g; s/o'h/O'H/g; s/o'k/O'K/g; s/o'l/O'L/g; s/o'm/O'M/g; s/o'N/O'N/g; s/Obrien/O'Brien/g; s/Oconnor/O'Connor/g; 
+s/Odonnell/O'Donnell/g; s/Ohara/O'Hara/g; s/o'p/O'P/g; s/o'r/O'R/g; s/o's/O'S/g; s/Otoole/O'Toole/g; s/o't/O'T/i" > tmp6
 
 # Replace parenthesis and the contents inside with spaces - thanks Mike G
 cat tmp6 | perl -pe 's/(\(.*\))/q[ ] x length $1/ge' > tmp7
 
 # Remove trailing white space, railing commas, and delete lines with a single word
-cat tmp7 | sed 's/[ \t]*$//; s/,$//; /[[:blank:]]/!d' | sort -u > $home/data/names.txt
+sed 's/[ \t]*$//; s/,$//; /[[:blank:]]/!d' tmp7 | sort -u > $home/data/names.txt
 rm tmp*
 
 echo
@@ -1758,7 +1777,7 @@ if [[ -n $x ]]; then
 fi
 
 # Clean up
-egrep -v '(0000:|0010:|0020:|0030:|0040:|0050:|0060:|0070:|0080:|0090:|00a0:|00b0:|00c0:|00d0:|1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|Network Distance|No exact OS|No OS matches|OS:|OS CPE|Please report|RTTVAR|scanned in|SF|unreachable|Warning|WARNING)' $name/nmap.nmap | sed 's/Nmap scan report for //' | sed '/^$/! b end; n; /^$/d; : end' > $name/nmap.txt
+egrep -v '(0000:|0010:|0020:|0030:|0040:|0050:|0060:|0070:|0080:|0090:|00a0:|00b0:|00c0:|00d0:|1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|Network Distance|No exact OS|No OS matches|OS:|OS CPE|Please report|RTTVAR|scanned in|SF|unreachable|Warning|WARNING)' $name/nmap.nmap | sed 's/Nmap scan report for //; /^$/! b end; n; /^$/d; : end' > $name/nmap.txt
 
 grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' $name/nmap.nmap | $sip > $name/hosts.txt
 hosts=$(wc -l $name/hosts.txt | cut -d ' ' -f1)
@@ -1973,8 +1992,8 @@ if [[ -e $name/137.txt ]]; then
      echo "     NetBIOS"
      nmap -iL $name/137.txt -Pn -n -sU --open -p137 --script-timeout 1m --script=nbstat --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
-     sed -i '/^MAC/{n; /.*/d}' tmp4		    # Find lines that start with MAC, and delete the following line
-     sed -i '/^137\/udp/{n; /.*/d}' tmp4	# Find lines that start with 137/udp, and delete the following line
+     sed -i '/^MAC/{n; /.*/d}' tmp4          # Find lines that start with MAC, and delete the following line
+     sed -i '/^137\/udp/{n; /.*/d}' tmp4     # Find lines that start with 137/udp, and delete the following line
      mv tmp4 $name/script-137.txt
 fi
 
@@ -2020,7 +2039,7 @@ if [[ -e $name/445.txt ]]; then
      echo "     SMB"
      nmap -iL $name/445.txt -Pn -n --open -p445 --script-timeout 1m --script=msrpc-enum,smb*,stuxnet-detect --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
-     sed -i '/^445/{n; /.*/d}' tmp4		# Find lines that start with 445, and delete the following line
+     sed -i '/^445/{n; /.*/d}' tmp4     # Find lines that start with 445, and delete the following line
      mv tmp4 $name/script-445.txt
 fi
 
@@ -2663,7 +2682,7 @@ echo spool tmpmsf > /tmp/master
 
 if [[ -e $name/19.txt ]]; then
      echo "     Chargen Probe Utility"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$discover\/$name\/19.txt|g" /tmp/resource/19-chargen.rc
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/19.txt|g" /tmp/resource/19-chargen.rc
      cat /tmp/resource/19-chargen.rc >> /tmp/master
 fi
 
@@ -3137,7 +3156,7 @@ else
      msfconsole -r $name/master.rc
      cat tmpmsf | egrep -iv "(> exit|> run|% complete|Attempting to extract|Authorization not requested|Checking if file|completed|Connecting to the server|Connection reset by peer|data_connect failed|db_export|did not reply|does not appear|doesn't exist|Finished export|Handshake failed|ineffective|It doesn't seem|Login Fail|negotiation failed|NoMethodError|No relay detected|no response|No users found|not be identified|not found|NOT VULNERABLE|Providing some time|request timeout|responded with error|RPORT|RHOSTS|Scanning for vulnerable|Shutting down the TFTP|Spooling|Starting export|Starting TFTP server|Starting VNC login|THREADS|Timed out after|timed out|Trying to acquire|Unable to|unknown state)" > $name/metasploit.txt
      rm $name/master.rc
-	rm tmpmsf
+     rm tmpmsf
 fi
 }
 
@@ -3597,7 +3616,7 @@ case $choice in
      parsers/parse-nessus.py $location
 
      # Delete findings with a solution of n/a
-	grep -v 'n/a' nessus.csv > tmp.csv
+     grep -v 'n/a' nessus.csv > tmp.csv
      # Delete findings with CVSS score of 0 and solution of n/a
      egrep -v "(Adobe Acrobat Detection|Adobe Extension Manager Installed|Adobe Flash Player for Mac Installed|Adobe Flash Professional Detection|Adobe Illustrator Detection|Adobe Photoshop Detection|Adobe Reader Detection|Adobe Reader Installed \(Mac OS X\)|ADSI Settings|Advanced Message Queuing Protocol Detection|AJP Connector Detection|AirWatch API Settings|Antivirus Software Check|Apache Axis2 Detection|Apache HTTP Server HttpOnly Cookie Information Disclosure|Apple Filing Protocol Server Detection|Apple Profile Manager API Settings|AppSocket & socketAPI Printers - Do Not Scan|Appweb HTTP Server Version|ASG-Sentry SNMP Agent Detection|Authenticated Check: OS Name and Installed Package Enumeration|Autodesk AutoCAD Detection|Backported Security Patch Detection \(FTP\)|Backported Security Patch Detection \(SSH\)|Authenticated Check: OS Name and Installed Package Enumeration|Backported Security Patch Detection \(WWW\)|BACnet Protocol Detection|BIOS Version Information \(via SMB\)|BIOS Version \(WMI\)|Blackboard Learn Detection|Broken Web Servers|CA Message Queuing Service Detection|CDE Subprocess Control Service \(dtspcd\) Detection|Check Point FireWall-1 ICA Service Detection|Check Point SecuRemote Hostname Information Disclosure|Cisco AnyConnect Secure Mobility Client Detection|CISCO ASA SSL VPN Detection|Cisco TelePresence Multipoint Control Unit Detection|Cleartext protocols settings|COM+ Internet Services (CIS) Server Detection|Common Platform Enumeration \(CPE\)|Computer Manufacturer Information \(WMI\)|CORBA IIOP Listener Detection|Database settings|DB2 Administration Server Detection|DB2 Discovery Service Detection|DCE Services Enumeration|Dell OpenManage Web Server Detection|Derby Network Server Detection|Detect RPC over TCP|Device Hostname|Device Type|DNS Sender Policy Framework \(SPF\) Enabled|DNS Server DNSSEC Aware Resolver|DNS Server Fingerprinting|DNS Server Version Detection|Do not scan fragile devices|EMC SMARTS Application Server Detection|Erlang Port Mapper Daemon Detection|Ethernet Card Manufacturer Detection|External URLs|FileZilla Client Installed|firefox Installed \(Mac OS X\)|Firewall Rule Enumeration|Flash Player Detection|FTP Service AUTH TLS Command Support|FTP Server Detection|Global variable settings|Good MDM Settings|Google Chrome Detection \(Windows\)|Google Chrome Installed \(Mac OS X\)|Google Picasa Detection \(Windows\)|Host Fully Qualified Domain Name \(FQDN\) Resolution|HMAP Web Server Fingerprinting|Hosts File Whitelisted Entries|HP Data Protector Components Version Detection|HP OpenView BBC Service Detection|HP SiteScope Detection|HSTS Missing From HTTPS Server|HTTP cookies import|HTTP Cookie 'secure' Property Transport Mismatch|HTTP login page|HTTP Methods Allowed \(per directory\)|HTTP Proxy Open Relay Detection|HTTP Reverse Proxy Detection|HTTP Server Cookies Set|HTTP Server Type and Version|HTTP TRACE \/ TRACK Methods Allowed|HTTP X-Frame-Options Response Header Usage|Hyper-V Virtual Machine Detection|HyperText Transfer Protocol \(HTTP\) Information|IBM Domino Detection \(uncredentialed check\)|IBM Domino Installed|IBM GSKit Installed|IBM iSeries Credentials|IBM Lotus Notes Detection|IBM Notes Client Detection|IBM Remote Supervisor Adapter Detection \(HTTP\)|IBM Tivoli Endpoint Manager Client Detection|IBM Tivoli Endpoint Manager Web Server Detection|IBM Tivoli Storage Manager Client Installed|IBM Tivoli Storage Manager Service Detection|IBM WebSphere Application Server Detection|IMAP Service Banner Retrieval|IMAP Service STARTTLS Command Support|IP Protocols Scan|IPMI Cipher Suites Supported|IPMI Versions Supported|iTunes Version Detection \(credentialed check\)|Kerberos configuration|Kerberos Information Disclosure|L2TP Network Server Detection|LDAP Server Detection|LDAP Crafted Search Request Server Information Disclosure|LDAP Service STARTTLS Command Support|LibreOffice Detection|Login configurations|Lotus Sametime Detection|MacOSX Cisco AnyConnect Secure Mobility Client Detection|McAfee Common Management Agent Detection|McAfee Common Management Agent Installation Detection|McAfee ePolicy Orchestrator Application Server Detection|MediaWiki Detection|Microsoft Exchange Installed|Microsoft Internet Explorer Enhanced Security Configuration Detection|Microsoft Internet Explorer Version Detection|Microsoft Lync Server Installed|Microsoft Malicious Software Removal Tool Installed|Microsoft .NET Framework Detection|Microsoft .NET Handlers Enumeration|Microsoft Office Detection|Microsoft OneNote Detection|Microsoft Patch Bulletin Feasibility Check|Microsoft Revoked Digital Certificates Enumeration|Microsoft Silverlight Detection|Microsoft Silverlight Installed \(Mac OS X\)|Microsoft SQL Server STARTTLS Support|Microsoft SMS\/SCCM Installed|Microsoft System Center Configuration Manager Client Installed|Microsoft System Center Operations Manager Component Installed|Microsoft Update Installed|Microsoft Windows AutoRuns Boot Execute|Microsoft Windows AutoRuns Codecs|Microsoft Windows AutoRuns Explorer|Microsoft Windows AutoRuns Internet Explorer|Microsoft Windows AutoRuns Known DLLs|Microsoft Windows AutoRuns Logon|Microsoft Windows AutoRuns LSA Providers|Microsoft Windows AutoRuns Network Providers|Microsoft Windows AutoRuns Print Monitor|Microsoft Windows AutoRuns Registry Hijack Possible Locations|Microsoft Windows AutoRuns Report|Microsoft Windows AutoRuns Scheduled Tasks|Microsoft Windows AutoRuns Services and Drivers|Microsoft Windows AutoRuns Unique Entries|Microsoft Windows AutoRuns Winlogon|Microsoft Windows AutoRuns Winsock Provider|Microsoft Windows 'CWDIllegalInDllSearch' Registry Setting|Microsoft Windows Installed Hotfixes|Microsoft Windows NTLMSSP Authentication Request Remote Network Name Disclosure|Microsoft Windows Process Module Information|Microsoft Windows Process Unique Process Name|Microsoft Windows Remote Listeners Enumeration \(WMI\)|Microsoft Windows SMB : Obtains the Password Policy|Microsoft Windows SMB LanMan Pipe Server Listing Disclosure|Microsoft Windows SMB Log In Possible|Microsoft Windows SMB LsaQueryInformationPolicy Function NULL Session Domain SID Enumeration|Microsoft Windows SMB NativeLanManager Remote System Information Disclosure|Microsoft Windows SMB Registry : Enumerate the list of SNMP communities|Microsoft Windows SMB Registry : Nessus Cannot Access the Windows Registry|Microsoft Windows SMB Registry : OS Version and Processor Architecture|Microsoft Windows SMB Registry : Remote PDC\/BDC Detection|Microsoft Windows SMB Versions Supported|Microsoft Windows SMB Registry : Vista \/ Server 2008 Service Pack Detection|Microsoft Windows SMB Registry : XP Service Pack Detection|Microsoft Windows SMB Registry Remotely Accessible|Microsoft Windows SMB Registry : Win 7 \/ Server 2008 R2 Service Pack Detection|Microsoft Windows SMB Registry : Windows 2000 Service Pack Detection|Microsoft Windows SMB Registry : Windows 2003 Server Service Pack Detection|Microsoft Windows SMB Service Detection|Microsoft Windows Update Installed|MobileIron API Settings|MSRPC Service Detection|Modem Enumeration \(WMI\)|MongoDB Settings|Mozilla Foundation Application Detection|MySQL Server Detection|Nessus Internal: Put cgibin in the KB|Nessus Scan Information|Nessus SNMP Scanner|NetBIOS Multiple IP Address Enumeration|Netstat Active Connections|Netstat Connection Information|netstat portscanner \(SSH\)|Netstat Portscanner \(WMI\)|Network Interfaces Enumeration \(WMI\)|Network Time Protocol \(NTP\) Server Detection|Nmap \(XML file importer\)|Non-compliant Strict Transport Security (STS)|OpenSSL Detection|OpenSSL Version Detection|Oracle Application Express \(Apex\) Detection|Oracle Application Express \(Apex\) Version Detection|Oracle Java Runtime Environment \(JRE\) Detection \(Unix\)|Oracle Java Runtime Environment \(JRE\) Detection|Oracle Installed Software Enumeration \(Windows\)|Oracle Settings|OS Identification|Palo Alto Networks PAN-OS Settings|Patch Management: Dell KACE K1000 Settings|Patch Management: IBM Tivoli Endpoint Manager Server Settings|Patch Management: Patch Schedule From Red Hat Satellite Server|Patch Management: Red Hat Satellite Server Get Installed Packages|Patch Management: Red Hat Satellite Server Get Managed Servers|Patch Management: Red Hat Satellite Server Get System Information|Patch Management: Red Hat Satellite Server Settings|Patch Management: SCCM Server Settings|Patch Management: Symantec Altiris Settings|Patch Management: VMware Go Server Settings|Patch Management: WSUS Server Settings|PCI DSS compliance : options settings|PHP Version|Ping the remote host|POP3 Service STLS Command Support|Port scanner dependency|Port scanners settings|Post-Scan Rules Application|Post-Scan Status|Protected Web Page Detection|RADIUS Server Detection|RDP Screenshot|RealPlayer Detection|Record Route|Remote listeners enumeration \(Linux \/ AIX\)|Remote web server screenshot|Reputation of Windows Executables: Known Process\(es\)|Reputation of Windows Executables: Unknown Process\(es\)|RHEV Settings|RIP Detection|RMI Registry Detection|RPC portmapper \(TCP\)|RPC portmapper Service Detection|RPC Services Enumeration|Salesforce.com Settings|Samba Server Detection|SAP Dynamic Information and Action Gateway Detection|SAProuter Detection|Service Detection \(GET request\)|Service Detection \(HELP Request\)|slident \/ fake identd Detection|Service Detection \(2nd Pass\)|Service Detection: 3 ASCII Digit Code Responses|SMB : Disable the C$ and ADMIN$ shares after the scan (WMI)|SMB : Enable the C$ and ADMIN$ shares during the scan \(WMI\)|SMB Registry : Start the Registry Service during the scan|SMB Registry : Start the Registry Service during the scan \(WMI\)|SMB Registry : Starting the Registry Service during the scan failed|SMB Registry : Stop the Registry Service after the scan|SMB Registry : Stop the Registry Service after the scan \(WMI\)|SMB Registry : Stopping the Registry Service after the scan failed|SMB QuickFixEngineering \(QFE\) Enumeration|SMB Scope|SMTP Server Connection Check|SMTP Service STARTTLS Command Support|SMTP settings|smtpscan SMTP Fingerprinting|Snagit Installed|SNMP settings|SNMP Supported Protocols Detection|SNMPc Management Server Detection|SOCKS Server Detection|SolarWinds TFTP Server Installed|Spybot Search & Destroy Detection|SquirrelMail Detection|SSH Algorithms and Languages Supported|SSH Protocol Versions Supported|SSH Server Type and Version Information|SSH settings|SSL \/ TLS Versions Supported|SSL Certificate Information|SSL Cipher Block Chaining Cipher Suites Supported|SSL Cipher Suites Supported|SSL Compression Methods Supported|SSL Perfect Forward Secrecy Cipher Suites Supported|SSL Resume With Different Cipher Issue|SSL Service Requests Client Certificate|SSL Session Resume Supported|SSL\/TLS Service Requires Client Certificate|Strict Transport Security \(STS\) Detection|Subversion Client/Server Detection \(Windows\)|Symantec Backup Exec Server \/ System Recovery Installed|Symantec Encryption Desktop Installed|Symantec Endpoint Protection Manager Installed \(credentialed check\)|Symantec Veritas Enterprise Administrator Service \(vxsvc\) Detection|TCP\/IP Timestamps Supported|TeamViewer Version Detection|Tenable Appliance Check \(deprecated\)|Terminal Services Use SSL\/TLS|Thunderbird Installed \(Mac OS X\)|Time of Last System Startup|TLS Next Protocols Supported|TLS NPN Supported Protocol Enumeration|Traceroute Information|Unknown Service Detection: Banner Retrieval|UPnP Client Detection|VERITAS Backup Agent Detection|VERITAS NetBackup Agent Detection|Viscosity VPN Client Detection \(Mac OS X\)|VMware vCenter Detect|VMware vCenter Orchestrator Installed|VMware ESX\/GSX Server detection|VMware SOAP API Settings|VMware vCenter SOAP API Settings|VMware Virtual Machine Detection|VMware vSphere Client Installed|VMware vSphere Detect|VNC Server Security Type Detection|VNC Server Unencrypted Communication Detection|vsftpd Detection|Wake-on-LAN|Web Application Firewall Detection|Web Application Tests Settings|Web mirroring|Web Server Directory Enumeration|Web Server Harvested Email Addresses|Web Server HTTP Header Internal IP Disclosure|Web Server Load Balancer Detection|Web Server No 404 Error Code Check|Web Server robots.txt Information Disclosure|Web Server UDDI Detection|Window Process Information|Window Process Module Information|Window Process Unique Process Name|Windows Compliance Checks|Windows ComputerSystemProduct Enumeration \(WMI\)|Windows Display Driver Enumeration|Windows DNS Server Enumeration|Windows Management Instrumentation \(WMI\) Available|Windows NetBIOS \/ SMB Remote Host Information Disclosure|Windows Prefetch Folder|Windows Product Key Retrieval|WinSCP Installed|Wireless Access Point Detection|Wireshark \/ Ethereal Detection \(Windows\)|WinZip Installed|WMI Anti-spyware Enumeration|WMI Antivirus Enumeration|WMI Bluetooth Network Adapter Enumeration|WMI Encryptable Volume Enumeration|WMI Firewall Enumeration|WMI QuickFixEngineering \(QFE\) Enumeration|WMI Server Feature Enumeration|WMI Trusted Platform Module Enumeration|Yosemite Backup Service Driver Detection|ZENworks Remote Management Agent Detection)" nessus.csv > tmp.csv
 

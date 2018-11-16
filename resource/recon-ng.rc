@@ -79,5 +79,4 @@ spool start /tmp/subdomains
 query SELECT host,ip_address FROM hosts ORDER BY host
 query SELECT host,ip_address FROM ports WHERE host LIKE "%yyy" ORDER BY host
 spool stop
-workspaces delete yyy
 exit

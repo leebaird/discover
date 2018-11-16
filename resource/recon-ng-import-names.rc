@@ -1,5 +1,5 @@
 use import/csv_file
-set FILENAME /root/data/names.csv
+set FILENAME /tmp/names.csv
 set COLUMN_SEPARATOR #
 set TABLE contacts
 set CSV_FIRST_NAME first_name
