@@ -903,8 +903,9 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
 
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
  
-     rm tmp zreport
-     mv curl debug* email* hosts name* network* passive* records registered* squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
+     rm tmp* zreport
+     mv curl debug* email* hosts name* network* records registered* squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
+     mv passive.rc $home/data/$domain/tools/recon-ng/
      cd /tmp/; mv emails names* networks subdomains $home/data/$domain/tools/recon-ng/ 2>/dev/null
 
      echo
@@ -1053,6 +1054,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      echo 'Use vim to manually remove duplicates and save.'
      read -p "Press <return> to continue."
      vim subdomains
+
      ############################################################
 
      if [ -e $home/data/$domain/data/subdomains.htm ]; then
@@ -1193,7 +1195,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      echo '<pre style="font-size:14px;">' > $home/data/$domain/data/hosts.htm
      cat tmp >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
 
-     mv active.rc emails hosts recon-ng-active.rc record* sub* tmp* waf whatweb z* /tmp/subdomains $home/data/$domain/tools/active/ 2>/dev/null
+     mv active.rc emails hosts record* sub* tmp* waf whatweb z* /tmp/subdomains $home/data/$domain/tools/active/ 2>/dev/null
 
      echo
      echo $medium
