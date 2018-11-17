@@ -312,7 +312,7 @@ case $choice in
      dnsrecon -d $domain > tmp
      grep '*' tmp | egrep -v '(Bind Version|Checking|DNSSEC|Enumerating|No SRV Records|Performing|Removing|Resolving|Servers found|Trying)' | sed 's/\[\*\]//g; s/^[ \t]*//' | column -t | sort -k1 > records
      cat records >> $home/data/$domain/data/records.htm
-     grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | column -t > sub1
+     grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | column -t > sub-dnsrecon
 
      # Remove all empty files
      find -type f -empty -exec rm {} +
@@ -414,6 +414,8 @@ case $choice in
      echo "Metasploit                (25/$total)"
      msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
      grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' > zmsf
+     # Remove all empty files
+     find -type f -empty -exec rm {} +
      rm tmp 2>/dev/null
      echo
 
@@ -631,7 +633,7 @@ s/VG,//g' > tmp4
 
      cat z* | grep '@' | grep -v '^\.' | sort -u > emails
 
-     cat z* | sed '/^[0-9]/!d' | column -t | awk '{print $2 " " $1}' | column -t | sort -k1 -u > sub2   # TEST THIS
+     cat z* | grep -v '@' | column -t | sort -u > sub-theHarvester
 
      # Remove lines that contain a number or  @
      cat z* | sed '/[0-9]/d' | grep -v '@' | sort -u > tmp
@@ -706,11 +708,10 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
 
      ##############################################################
 
-     cat networks-tmp networks-recon | sort -u | $sip > networks 2>/dev/null     # THIS is not surpressing the error when networks-tmp is not present.
+     cat networks-tmp networks-recon | sort -u | $sip > networks 2>/dev/null     # BUG: not surpressing the error when networks-tmp is not present
 
-     cat sub* | grep -v "$domain\." | grep -v '|' | sed 's/www\.//g' | grep -v 'SELECT' | tr '[A-Z]' '[a-z]' | column -t | sort -u > tmp
-     # Remove lines that contain a single word
-     sed '/[[:blank:]]/!d' tmp > subdomains
+     # Find lines that contain IPs and clean up
+     cat sub* /tmp/sub-recon | grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | egrep -v '(outlook|www)' | column -t | sort -u > subdomains
 
      awk '{print $2}' subdomains > tmp
      grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | sed '/^$/d' | $sip > hosts
@@ -902,7 +903,8 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
 
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
  
-     mv curl debug* email* hosts name* network* passive* records registered* squatting sub* tmp* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
+     rm tmp zreport
+     mv curl debug* email* hosts name* network* passive* records registered* squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
      cd /tmp/; mv emails names* networks subdomains $home/data/$domain/tools/recon-ng/ 2>/dev/null
 
      echo
