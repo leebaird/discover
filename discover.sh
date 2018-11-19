@@ -1018,6 +1018,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      cat tmp3 tmp4 > records
      cp $discover/report/data/records.htm $home/data/$domain/data/records.htm
      cat records >> $home/data/$domain/data/records.htm; echo "</pre>" >> $home/data/$domain/data/records.htm
+     rm tmp*
 
      echo "     Zone Transfer        (2/$total)"
      dnsrecon -d $domain -t axfr > tmp
@@ -1050,10 +1051,10 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
 
      cat sub-dnsrecon sub-fierce | egrep -v '(.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' | tr '[A-Z]' '[a-z]' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
 
-     echo
-     echo 'Use vim to manually remove duplicates and save.'
-     read -p "Press <return> to continue."
-     vim subdomains
+#     echo
+#     echo 'Use vim to manually remove duplicates and save.'
+#     read -p "Press <return> to continue."
+#     vim subdomains
 
      ############################################################
 
@@ -1102,6 +1103,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
 
      grep '@' whatweb | sed 's/Email//g; s/\[//g; s/\]//g' | tr '[A-Z]' '[a-z]' | grep "@$domain" | grep -v 'hosting' | cut -d ' ' -f2 | sort -u > emails
 
+     rm tmp
      # Remove all empty files
      find $name/ -type f -empty -exec rm {} +
 
