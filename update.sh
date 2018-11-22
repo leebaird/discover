@@ -234,5 +234,8 @@ fi
 
 echo -e "${BLUE}Updating locate database.${NC}" ; updatedb
 
+echo -e "${BLUE}Updating Python dependencies (via pip)${NC}"
+pip install -r requirements.txt
+
 echo
 echo

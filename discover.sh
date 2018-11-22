@@ -24,6 +24,7 @@
 # Saviour Emmanuel - Nmap parser
 # Securicon, LLC. - for sponsoring development of parsers
 # Steve Copland - report framework v1
+# Arthur Kay (@arthurakay) - python scripts
 
 ##############################################################################################################
 
@@ -513,10 +514,9 @@ s/VG,//g' > tmp4
      ##############################################################
 
      echo "crt.sh                    (29/$total)"
-     wget -q https://crt.sh/?q=$domain -O tmp
-     sed '/decoration/I,+16 d; /copyright/I,+4 d' tmp > tmp2
-     cat tmp2 >> $home/data/$domain/data/certificates.htm; echo "</pre>" >> $home/data/$domain/data/certificates.htm 2>/dev/null
-     rm tmp*
+     python parsers/parse-certificates.py $domain > tmp
+     cat tmp >> $home/data/$domain/data/certificates.htm; echo "</pre>" >> $home/data/$domain/data/certificates.htm 2>/dev/null
+     rm tmp
      echo
 
      echo "dnsdumpster.com           (30/$total)"
