@@ -5,6 +5,8 @@ BLUE='\033[1;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+path=$(pwd)
+
 echo
 
 # Fix for errors from URLCrazy file tld.rb lines 81,89,91
@@ -232,11 +234,12 @@ if [ ! -f /usr/bin/xml_grep ]; then
      echo
 fi
 
+echo -e "${BLUE}Updating Python dependencies (via pip).${NC}"
+pip install -q -r $path/requirements.txt
+echo
+
 echo -e "${BLUE}Updating locate database.${NC}" ; updatedb
 
-echo -e "${BLUE}Updating Python dependencies (via pip)${NC}"
-cd /opt/discover
-pip install -r requirements.txt
+echo
+echo
 
-echo
-echo
