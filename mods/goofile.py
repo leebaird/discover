@@ -21,8 +21,14 @@ def googleDork():
     global totalFiles
     global linkTemplate
 
+    headers = {
+        "Host": "www.google.com",
+        "User-agent": "Internet Explorer 6.0 ",
+        "Referrer": "www.g13net.com"
+    }
+
     url = 'https://google.com/search?num=500&q=site:{0}+filetype:{1}&num=100&start={2}'.format(domain, filetype, start)
-    page = requests.get(url)
+    page = requests.get(url, headers)
     tree = html.fromstring(page.content)
 
     results = tree.xpath('//*[@class="r"]/a/@href')
