@@ -50,6 +50,7 @@ def main():
 
     if results == []:
         print("<li>No {0} files were found.</li>".format(filetype.upper()))
+        print('</ul>')
         sys.exit()
 
     while results != []:
