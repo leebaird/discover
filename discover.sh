@@ -321,22 +321,14 @@ case $choice in
      echo
 
      echo "goofile                   (5/$total)"
-     $discover/mods/goofile.py -d $domain -f doc > tmp
-     $discover/mods/goofile.py -d $domain -f docx >> tmp
-     $discover/mods/goofile.py -d $domain -f pdf >> tmp
-     $discover/mods/goofile.py -d $domain -f ppt >> tmp
-     $discover/mods/goofile.py -d $domain -f pptx >> tmp
-     $discover/mods/goofile.py -d $domain -f txt >> tmp
-     $discover/mods/goofile.py -d $domain -f xls >> tmp
-     $discover/mods/goofile.py -d $domain -f xlsx >> tmp
-
-     grep $domain tmp | grep -v 'Searching in' | grep -Fv '...' | sort -u > tmp2
-
-     grep '.doc' tmp2 | egrep -v '(.pdf|.ppt|.xls)' > doc
-     grep '.pdf' tmp2 > pdf
-     grep '.ppt' tmp2 > ppt
-     grep '.txt' tmp2 | grep -v 'robots.txt' > txt
-     grep '.xls' tmp2 > xls
+     python $discover/mods/goofile.py $domain doc > doc
+     python $discover/mods/goofile.py $domain docx >> doc
+     python $discover/mods/goofile.py $domain pdf > pdf
+     python $discover/mods/goofile.py $domain ppt > ppt
+     python $discover/mods/goofile.py $domain pptx >> ppt
+     python $discover/mods/goofile.py $domain txt > txt
+     python $discover/mods/goofile.py $domain xls > xls
+     python $discover/mods/goofile.py $domain xlsx >> xls
 
      # Remove all empty files
      find -type f -empty -exec rm {} +
@@ -827,9 +819,9 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
           echo $long >> tmp
           cat xls >> tmp
           echo >> tmp
-          cat xls >> $home/data/$domain/data/xls.htm; echo "</pre>" >> $home/data/$domain/data/xls.htm
+          cat xls >> $home/data/$domain/data/xls.htm
      else
-          echo "No data found." >> $home/data/$domain/data/xls.htm; echo "</pre>" >> $home/data/$domain/data/xls.htm
+          echo "No data found." >> $home/data/$domain/data/xls.htm
      fi
 
      if [ -e pdf ]; then
@@ -839,9 +831,9 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
           echo $long >> tmp
           cat pdf >> tmp
           echo >> tmp
-          cat pdf >> $home/data/$domain/data/pdf.htm; echo "</pre>" >> $home/data/$domain/data/pdf.htm
+          cat pdf >> $home/data/$domain/data/pdf.htm
      else
-          echo "No data found." >> $home/data/$domain/data/pdf.htm; echo "</pre>" >> $home/data/$domain/data/pdf.htm
+          echo "No data found." >> $home/data/$domain/data/pdf.htm
      fi
 
      if [ -e ppt ]; then
@@ -851,9 +843,9 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
           echo $long >> tmp
           cat ppt >> tmp
           echo >> tmp
-          cat ppt >> $home/data/$domain/data/ppt.htm; echo "</pre>" >> $home/data/$domain/data/ppt.htm
+          cat ppt >> $home/data/$domain/data/ppt.htm
      else
-          echo "No data found." >> $home/data/$domain/data/ppt.htm; echo "</pre>" >> $home/data/$domain/data/ppt.htm
+          echo "No data found." >> $home/data/$domain/data/ppt.htm
      fi
 
      if [ -e txt ]; then
@@ -863,9 +855,9 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
           echo $long >> tmp
           cat txt >> tmp
           echo >> tmp
-          cat txt >> $home/data/$domain/data/txt.htm; echo "</pre>" >> $home/data/$domain/data/txt.htm
+          cat txt >> $home/data/$domain/data/txt.htm
      else
-          echo "No data found." >> $home/data/$domain/data/txt.htm; echo "</pre>" >> $home/data/$domain/data/txt.htm
+          echo "No data found." >> $home/data/$domain/data/txt.htm
      fi
 
      if [ -e doc ]; then
@@ -875,9 +867,9 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
           echo $long >> tmp
           cat doc >> tmp
           echo >> tmp
-          cat doc >> $home/data/$domain/data/doc.htm; echo "</pre>" >> $home/data/$domain/data/doc.htm
+          cat doc >> $home/data/$domain/data/doc.htm
      else
-          echo "No data found." >> $home/data/$domain/data/doc.htm; echo "</pre>" >> $home/data/$domain/data/doc.htm
+          echo "No data found." >> $home/data/$domain/data/doc.htm
      fi
 
      cat tmp >> zreport

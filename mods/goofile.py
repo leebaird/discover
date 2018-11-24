@@ -1,84 +1,68 @@
 #!/usr/bin/env python
 
-# Goofile v1.5a
-# by Thomas (G13) Richards
-# www.g13net.com
-# Project Page: code.google.com/p/goofile
-# TheHarvester used for inspiration
-# A many thanks to the Edge-Security team!           
-# Modified by Lee Baird
-
-import getopt
-import httplib
 import re
-import string
 import sys
+import requests
+from lxml import html
 
-global result
-result =[]
+domain = sys.argv[1]
+filetype = sys.argv[2]
+start = 0
+results = []
+totalFiles = 0
 
-def usage():
-     print "\nusage: goofile <options>"
-     print "   -d: domain"
-     print "   -f: filetype\n"
-     print "example: goofile.py -d target.com -f txt\n\n" 
-     sys.exit()
+linkTemplate = '<li><a href="{0}" target="_blank">{0}</a></li>'
 
-def run(domain,file):
-	h = httplib.HTTP('www.google.com')
-	h.putrequest('GET',"/search?num=500&q=site:"+domain+"+filetype:"+file)
-	h.putheader('Host', 'www.google.com')
-	h.putheader('User-agent', 'Internet Explorer 6.0 ')
-	h.putheader('Referrer', 'www.g13net.com')
-	h.endheaders()
+def googleDork():
+    global domain
+    global filetype
+    global start
+    global results
+    global totalFiles
+    global linkTemplate
 
-	returncode, returnmsg, headers = h.getreply()
-	data=h.getfile().read()
-	data=re.sub('<b>','',data)
-        for e in ('>','=','<','\\','(',')','"','http',':','//'):
-		data = string.replace(data,e,' ')
-	r1 = re.compile('[-_.a-zA-Z0-9.-_]*'+'\.'+file)	
-	res = r1.findall(data) 
-	return res 
+    headers = {
+        "Host": "www.google.com",
+        "User-agent": "Internet Explorer 6.0 ",
+        "Referrer": "www.g13net.com"
+    }
 
-def search(argv):
-	global limit
-	limit = 100
+    url = 'https://google.com/search?num=500&q=site:{0}+filetype:{1}&num=100&start={2}'.format(domain, filetype, start)
+    page = requests.get(url, headers)
+    tree = html.fromstring(page.content)
 
-	if len(sys.argv) < 2: 
-		usage() 
-	try :
-	      opts, args = getopt.getopt(argv,"d:f:")
+    results = tree.xpath('//*[@class="r"]/a/@href')
 
-	except getopt.GetoptError:
-          	usage()
-		sys.exit()
+    totalFiles += len(results)
 
-	for opt,arg in opts :
-    	   	if opt == '-f' :
-			file=arg
-		elif opt == '-d':
-			domain=arg
+    for link in results:
+        m = re.match('^\/url\?q=(.*)\&sa', link)
+        if m:
+            print(linkTemplate.format(m.groups()[0]))
+        else:
+            print('<li>Could not parse: {0}</li>'.format(link))
 
-	cant = 0
+    if results != []:
+        start += 100
 
-	while cant < limit:
-		res = run(domain,file)
-		for x in res:
-			if result.count(x) == 0:
-        			result.append(x)
-		cant+=100
+def main():
+    global results
+    global totalFiles
+    global filetype
 
-	if result==[]:
-		print "No results were found."
-	else:
-		for x in result:
-			print x
+    print('<ul>')
 
-if __name__ == "__main__":
-        try: search(sys.argv[1:])
-	except KeyboardInterrupt:
-		print "Search interrupted by user."
-	except:
-		sys.exit()
+    googleDork()
 
+    if results == []:
+        print("<li>No {0} files were found.</li>".format(filetype.upper()))
+        print('</ul>')
+        sys.exit()
+
+    while results != []:
+        googleDork()
+
+    print('</ul>')
+    print('<p>Total number of {0} files: {1}</p>'.format(filetype.upper(), totalFiles))
+
+main()
