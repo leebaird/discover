@@ -2,7 +2,6 @@
 
 import re
 import sys
-import asyncio
 import requests
 from lxml import html
 
@@ -11,7 +10,7 @@ filetype = sys.argv[2]
 start = 0
 results = []
 
-async def googleDork():
+def googleDork():
     global domain
     global filetype
     global start
@@ -33,16 +32,16 @@ async def googleDork():
     if results != []:
         start += 100
 
-async def main():
+def main():
     global results
 
-    await googleDork()
+    googleDork()
 
     if results == []:
         print("No results were found.")
         sys.exit()
 
     while results != []:
-        await googleDork()
+        googleDork()
 
-asyncio.run(main())
+main()
