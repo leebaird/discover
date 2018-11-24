@@ -49,7 +49,7 @@ def main():
     googleDork()
 
     if results == []:
-        print("<li>No results were found.</li>")
+        print("<li>No {0} files were found.</li>".format(filetype.upper()))
         sys.exit()
 
     while results != []:

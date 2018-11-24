@@ -819,9 +819,9 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
           echo $long >> tmp
           cat xls >> tmp
           echo >> tmp
-          cat xls >> $home/data/$domain/data/xls.htm; echo "</pre>" >> $home/data/$domain/data/xls.htm
+          cat xls >> $home/data/$domain/data/xls.htm
      else
-          echo "No data found." >> $home/data/$domain/data/xls.htm; echo "</pre>" >> $home/data/$domain/data/xls.htm
+          echo "No data found." >> $home/data/$domain/data/xls.htm
      fi
 
      if [ -e pdf ]; then
@@ -831,9 +831,9 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
           echo $long >> tmp
           cat pdf >> tmp
           echo >> tmp
-          cat pdf >> $home/data/$domain/data/pdf.htm; echo "</pre>" >> $home/data/$domain/data/pdf.htm
+          cat pdf >> $home/data/$domain/data/pdf.htm
      else
-          echo "No data found." >> $home/data/$domain/data/pdf.htm; echo "</pre>" >> $home/data/$domain/data/pdf.htm
+          echo "No data found." >> $home/data/$domain/data/pdf.htm
      fi
 
      if [ -e ppt ]; then
@@ -843,9 +843,9 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
           echo $long >> tmp
           cat ppt >> tmp
           echo >> tmp
-          cat ppt >> $home/data/$domain/data/ppt.htm; echo "</pre>" >> $home/data/$domain/data/ppt.htm
+          cat ppt >> $home/data/$domain/data/ppt.htm
      else
-          echo "No data found." >> $home/data/$domain/data/ppt.htm; echo "</pre>" >> $home/data/$domain/data/ppt.htm
+          echo "No data found." >> $home/data/$domain/data/ppt.htm
      fi
 
      if [ -e txt ]; then
@@ -855,9 +855,9 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
           echo $long >> tmp
           cat txt >> tmp
           echo >> tmp
-          cat txt >> $home/data/$domain/data/txt.htm; echo "</pre>" >> $home/data/$domain/data/txt.htm
+          cat txt >> $home/data/$domain/data/txt.htm
      else
-          echo "No data found." >> $home/data/$domain/data/txt.htm; echo "</pre>" >> $home/data/$domain/data/txt.htm
+          echo "No data found." >> $home/data/$domain/data/txt.htm
      fi
 
      if [ -e doc ]; then
@@ -867,9 +867,9 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
           echo $long >> tmp
           cat doc >> tmp
           echo >> tmp
-          cat doc >> $home/data/$domain/data/doc.htm; echo "</pre>" >> $home/data/$domain/data/doc.htm
+          cat doc >> $home/data/$domain/data/doc.htm
      else
-          echo "No data found." >> $home/data/$domain/data/doc.htm; echo "</pre>" >> $home/data/$domain/data/doc.htm
+          echo "No data found." >> $home/data/$domain/data/doc.htm
      fi
 
      cat tmp >> zreport
