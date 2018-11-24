@@ -1,84 +1,48 @@
 #!/usr/bin/env python
 
-# Goofile v1.5a
-# by Thomas (G13) Richards
-# www.g13net.com
-# Project Page: code.google.com/p/goofile
-# TheHarvester used for inspiration
-# A many thanks to the Edge-Security team!           
-# Modified by Lee Baird
-
-import getopt
-import httplib
 import re
-import string
 import sys
+import asyncio
+import requests
+from lxml import html
 
-global result
-result =[]
+domain = sys.argv[1]
+filetype = sys.argv[2]
+start = 0
+results = []
 
-def usage():
-     print "\nusage: goofile <options>"
-     print "   -d: domain"
-     print "   -f: filetype\n"
-     print "example: goofile.py -d target.com -f txt\n\n" 
-     sys.exit()
+async def googleDork():
+    global domain
+    global filetype
+    global start
+    global results
 
-def run(domain,file):
-	h = httplib.HTTP('www.google.com')
-	h.putrequest('GET',"/search?num=500&q=site:"+domain+"+filetype:"+file)
-	h.putheader('Host', 'www.google.com')
-	h.putheader('User-agent', 'Internet Explorer 6.0 ')
-	h.putheader('Referrer', 'www.g13net.com')
-	h.endheaders()
+    url = 'https://google.com/search?num=500&q=site:{0}+filetype:{1}&num=100&start={2}'.format(domain, filetype, start)
+    page = requests.get(url)
+    tree = html.fromstring(page.content)
 
-	returncode, returnmsg, headers = h.getreply()
-	data=h.getfile().read()
-	data=re.sub('<b>','',data)
-        for e in ('>','=','<','\\','(',')','"','http',':','//'):
-		data = string.replace(data,e,' ')
-	r1 = re.compile('[-_.a-zA-Z0-9.-_]*'+'\.'+file)	
-	res = r1.findall(data) 
-	return res 
+    results = tree.xpath('//*[@class="r"]/a/@href')
 
-def search(argv):
-	global limit
-	limit = 100
+    for link in results:
+        m = re.match('^\/url\?q=(.*)\&sa', link)
+        if m:
+            print(m.groups()[0])
+        else:
+            print('Could not parse the following link: ' + link)
 
-	if len(sys.argv) < 2: 
-		usage() 
-	try :
-	      opts, args = getopt.getopt(argv,"d:f:")
+    if results != []:
+        start += 100
 
-	except getopt.GetoptError:
-          	usage()
-		sys.exit()
+async def main():
+    global results
 
-	for opt,arg in opts :
-    	   	if opt == '-f' :
-			file=arg
-		elif opt == '-d':
-			domain=arg
+    await googleDork()
 
-	cant = 0
+    if results == []:
+        print("No results were found.")
+        sys.exit()
 
-	while cant < limit:
-		res = run(domain,file)
-		for x in res:
-			if result.count(x) == 0:
-        			result.append(x)
-		cant+=100
+    while results != []:
+        await googleDork()
 
-	if result==[]:
-		print "No results were found."
-	else:
-		for x in result:
-			print x
-
-if __name__ == "__main__":
-        try: search(sys.argv[1:])
-	except KeyboardInterrupt:
-		print "Search interrupted by user."
-	except:
-		sys.exit()
-
+asyncio.run(main())
