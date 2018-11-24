@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# This script works under py3 as well
 import sys
 import requests
 from lxml import html
