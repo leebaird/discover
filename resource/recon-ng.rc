@@ -10,8 +10,6 @@ use recon/domains-hosts/builtwith
 run
 use recon/domains-hosts/certificate_transparency
 run
-use recon/domains-hosts/google_site_api
-run
 use recon/domains-hosts/hackertarget
 run
 use recon/domains-hosts/netcraft
