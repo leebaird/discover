@@ -522,7 +522,7 @@ s/VG,//g' > tmp4
      dumpsterxls=$(grep 'xls' tmp | tr '"' ' ' | cut -d ' ' -f10)
 
      wget -q $dumpsterxls -O tmp.xlsx
-     ssconvert -E Gnumeric_Excel:xlsx -T Gnumeric_stf:stf_csv tmp.xlsx tmp.csv 2>/dev/null
+     xlsx2csv tmp.xlsx tmp.csv
      cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | column -t | sort -u > sub-dnsdumpster
      rm tmp*
      echo
