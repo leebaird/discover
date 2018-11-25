@@ -136,9 +136,9 @@ else
      /opt/EyeWitness/setup/setup.sh
 fi
 
-if [ ! -f /usr/bin/ssconvert ]; then
-     echo -e "${YELLOW}Installing gnumeric.${NC}"
-     apt-get install -y gnumeric
+if [ ! -f /usr/bin/xlsx2csv ]; then
+     echo -e "${YELLOW}Installing xlsx2csv.${NC}"
+     apt-get install -y xlsx2csv
      echo
 fi
 
