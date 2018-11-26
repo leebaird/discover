@@ -967,7 +967,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      clear
      f_banner
 
-     echo -e "${BLUE}Uses dnsrecon, Fierce, WAF00W, traceroute, and Whatweb.${NC}"
+     echo -e "${BLUE}Uses dnsrecon, WAF00W, traceroute, Whatweb, and recon-ng.${NC}"
      echo
      echo -e "${BLUE}[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google,${NC}"
      echo -e "${BLUE}Hashes, and Shodan for maximum results with recon-ng.${NC}"
@@ -992,7 +992,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      fi
 
      # Number of tests
-     total=10
+     total=9
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
 
@@ -1028,20 +1028,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
 
      grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing|Records Found)' | sed 's/\[\*\] //g; s/^[ \t]*//' | awk '{print $2,$3}' | column -t | sort -u > sub-dnsrecon
 
-     echo
-     echo "Fierce (~5 min)           (4/$total)"
-     if [ -f /usr/share/fierce/hosts.txt ]; then
-          fierce -dns $domain -wordlist /usr/share/fierce/hosts.txt > tmp
-     fi
-
-     # PTF
-     if [ -f /pentest/intelligence-gathering/fierce/hosts.txt ]; then
-          fierce -dns $domain -wordlist /pentest/intelligence-gathering/fierce/hosts.txt > tmp
-     fi
-
-     egrep -v '(DNS Servers|Found)' tmp | grep $domain | awk '{print $2 " " $1}' | column -t | sort -u > sub-fierce
-
-     cat sub-dnsrecon sub-fierce | egrep -v '(.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' | tr '[A-Z]' '[a-z]' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
+     egrep -v '(.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' sub-dnsrecon | tr '[A-Z]' '[a-z]' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
 
 #     echo
 #     echo 'Use vim to manually remove duplicates and save.'
@@ -1059,33 +1046,33 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      fi
 
      awk '{print $3}' records > tmp
-     awk '{print $2}' sub-dnsrecon sub-fierce >> tmp
+     awk '{print $2}' sub-dnsrecon >> tmp
      grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' tmp | egrep -v '(-|=|:|1.1.1.1|6.9.6.9|127.0.0.1)' | $sip > hosts
 
      echo
-     echo "Web Application Firewall  (5/$total)"
+     echo "Web Application Firewall  (4/$total)"
      wafw00f -a http://www.$domain > tmp 2>/dev/null
      egrep -v '(By Sandro|Checking http://www.|Generic Detection|requests|WAFW00F)' tmp | sed "s/ http:\/\/www.$domain//g" | egrep -v "(\_|\^|\||<|')" | sed '1,4d' > waf
 
      echo
      echo "Traceroute"
-     echo "     UDP                  (6/$total)"
+     echo "     UDP                  (5/$total)"
      echo "UDP" > tmp
      traceroute $domain | awk -F" " '{print $1,$2,$3}' >> tmp
      echo >> tmp
      echo "ICMP ECHO" >> tmp
-     echo "     ICMP ECHO            (7/$total)"
+     echo "     ICMP ECHO            (6/$total)"
      traceroute -I $domain | awk -F" " '{print $1,$2,$3}' >> tmp
      echo >> tmp
      echo "TCP SYN" >> tmp
-     echo "     TCP SYN              (8/$total)"
+     echo "     TCP SYN              (7/$total)"
      traceroute -T $domain | awk -F" " '{print $1,$2,$3}' >> tmp
      grep -v 'traceroute' tmp > tmp2
      # Remove blank lines from end of file
      awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp2 > ztraceroute
 
      echo
-     echo "Whatweb (~5 min)          (9/$total)"
+     echo "Whatweb (~5 min)          (8/$total)"
      grep -v '<' $home/data/$domain/data/subdomains.htm | awk '{print $1}' > tmp
      whatweb -i tmp --color=never --no-errors > tmp2 2>/dev/null
      # Find lines that start with http, and insert a line after
@@ -1100,7 +1087,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      find $name/ -type f -empty -exec rm {} +
 
      echo
-     echo "recon-ng                  (10/$total)"
+     echo "recon-ng                  (9/$total)"
      cp $discover/resource/recon-ng-active.rc active.rc
      sed -i "s/xxx/$companyurl/g" active.rc
      sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' active.rc

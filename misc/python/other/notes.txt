@@ -21,42 +21,46 @@ print R.format('Test')
 
 import os
 
-os.system('clear')                           # Clear the screen
-os.chdir('newdir')                           # Change directory
-os.mkdir('/root/test/')                      # Create a directory
-os.system('mkdir tmp')                       # Issue a command
-os.rmdir('tmp')                              # Remove a directory
-os.remove('tmp')                             # Remove a file
-os.rename('tmp' 'tmp2')                      # Rename a file
+os.system('clear')                              # Clear the screen
+os.chdir('newdir')                              # Change directory
+os.mkdir('/root/test/')                         # Create a directory
+os.system('mkdir tmp')                          # Issue a command
+os.rmdir('tmp')                                 # Remove a directory
+os.remove('tmp')                                # Remove a file
+os.rename('tmp' 'tmp2')                         # Rename a file
 ------------------------------------------------------------------------------------------------------
 
 import sys
 
-sys.exit(0)                                  # Exit program OK
-sys.exit(1)                                  # Exit program with an error
+sys.exit(0)                                     # Exit program OK
+sys.exit(1)                                     # Exit program with an error
 ------------------------------------------------------------------------------------------------------
 
-firstname = raw_input('First name: ')        # Get input from user
+import time
+import webbrowser
+
+webbrowser.open_new("http://python.org")        # Open URL in a new browser window
+time.sleep(1)                                   # Sleep for 1 sec
+webbrowser.open_new_tab('http://www.cnn.com/')  # Open URL in a new tab
+------------------------------------------------------------------------------------------------------
+
+firstname = raw_input('First name: ')           # Get input from user
 raw_input("Press enter key to continue.")
-
-webbrowser.open('http://www.apple.com/')     # Open a URL
-
-time.sleep(1)                                # Sleep for 1 sec
 ------------------------------------------------------------------------------------------------------
 
 if expression:
      statement(s)
 
-if firstname == '':                          # Check for no input
+if firstname == '':                             # Check for no input
      print 'You did not enter a name.'
 
-if int(port) in range(1,65535):              # Valid range
+if int(port) in range(1,65535):                 # Valid range
      print 'That is a valid port.'
 
-if len(password) < 8:                        # Valid size
+if len(password) < 8:                           # Valid size
      print 'Your password is leak.'
 
-if not os.path.exists('/root/test'):         # If folder does not exist, create it
+if not os.path.exists('/root/test'):            # If folder does not exist, create it
      os.mkdir('/root/test')
 ------------------------------------------------------------------------------------------------------
 
@@ -119,26 +123,26 @@ else:
      print count, " equals 5."
 ------------------------------------------------------------------------------------------------------
 
-f = open ('tmp','w')                         # Setup a write connection to a file
-f.write('These are my notes.')               # Write data to file
-f.close()                                    # Close the connection
+f = open ('tmp','w')                            # Setup a write connection to a file
+f.write('These are my notes.')                  # Write data to file
+f.close()                                       # Close the connection
 
-f = open('tmp','r')                          # Setup a read connection to a file
-filedata = f.read()                          # Read the file
-f.close()                                    # Close the connection
-filedata = filedata.split('\n')              # Turn into a list
+f = open('tmp','r')                             # Setup a read connection to a file
+filedata = f.read()                             # Read the file
+f.close()                                       # Close the connection
+filedata = filedata.split('\n')                 # Turn into a list
 ------------------------------------------------------------------------------------------------------
 
-execfile('recon.py')                         # Run a python script
-subprocess.call('crack-wifi.sh')             # Run a bash script
+execfile('recon.py')                            # Run a python script
+subprocess.call('crack-wifi.sh')                # Run a bash script
 ------------------------------------------------------------------------------------------------------
 
-for i in file:                               # Remove lines that start with FOO
+for i in file:                                  # Remove lines that start with FOO
   if i[0] != "FOO":
       print i
 ------------------------------------------------------------------------------------------------------
 
-Dictionary                                   # Standard data types
+Dictionary                                      # Standard data types
 List
 Numbers
 String
@@ -148,7 +152,7 @@ Tuple
 Misc
 
 try:
-    import xml.etree.cElementTree as ET      # Much, much faster and consumes significantly less memory
+    import xml.etree.cElementTree as ET         # Much, much faster and consumes significantly less memory
 except ImportError:
     import xml.etree.ElementTree as ET
 

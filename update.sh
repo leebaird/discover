@@ -136,12 +136,6 @@ else
      /opt/EyeWitness/setup/setup.sh
 fi
 
-if [ ! -f /usr/bin/xlsx2csv ]; then
-     echo -e "${YELLOW}Installing xlsx2csv.${NC}"
-     apt-get install -y xlsx2csv
-     echo
-fi
-
 if [ ! -f /usr/bin/xmllint ]; then
      echo -e "${YELLOW}Installing libxml2-utils.${NC}"
      apt-get install -y libxml2-utils
@@ -225,6 +219,12 @@ fi
 if [ ! -f /usr/bin/xdotool ]; then
      echo -e "${YELLOW}Installing xdotool.${NC}"
      apt-get install -y xdotool
+     echo
+fi
+
+if [ ! -f /usr/bin/xlsx2csv ]; then
+     echo -e "${YELLOW}Installing xlsx2csv.${NC}"
+     apt-get install -y xlsx2csv
      echo
 fi
 
