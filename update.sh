@@ -186,6 +186,10 @@ else
      echo
 fi
 
+echo -e "${BLUE}Updating Python dependencies.${NC}"
+pip install -q -r $discover/requirements.txt
+echo
+
 if [ -d /opt/rawr/.git ]; then
      echo -e "${BLUE}Updating RAWR.${NC}"
      cd /opt/rawr/ ; git pull
@@ -233,10 +237,6 @@ if [ ! -f /usr/bin/xml_grep ]; then
      apt-get install -y xml-twig-tools
      echo
 fi
-
-echo -e "${BLUE}Updating Python dependencies (via pip).${NC}"
-pip install -q -r $discover/requirements.txt
-echo
 
 echo -e "${BLUE}Updating locate database.${NC}" ; updatedb
 

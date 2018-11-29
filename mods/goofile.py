@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 import re
-import sys
 import requests
+import sys
+
 from lxml import html
 
 domain = sys.argv[1]
@@ -55,8 +56,7 @@ def main():
     googleDork()
 
     if results == []:
-        print("<li>No {0} files were found.</li>".format(filetype.upper()))
-        print('</ul>')
+        print("No {0} files were found".format(filetype.upper()))
         sys.exit()
 
     while results != []:
@@ -66,3 +66,4 @@ def main():
     print('<p>Total number of {0} files: {1}</p>'.format(filetype.upper(), totalFiles))
 
 main()
+

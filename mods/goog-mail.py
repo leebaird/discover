@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
-import sys
+import httplib
 import re
 import string
-import httplib
+import sys
 import urllib2
 
 def StripTags(text):
@@ -17,6 +17,7 @@ def StripTags(text):
                 text = text[:start] + text[start+stop+1:]
                 finished = 0
     return text
+
 if len(sys.argv) != 2:
         print "\nExtracts emails from Google results.\n"
         print "\nUsage: ./goog-mail.py <domain>\n"
@@ -25,6 +26,7 @@ if len(sys.argv) != 2:
 domain_name=sys.argv[1]
 d={}
 page_counter = 0
+
 try:
     while page_counter < 50 :
         results = 'http://groups.google.com/groups?q='+str(domain_name)+'&hl=en&lr=&ie=UTF-8&start=' + repr(page_counter) + '&sa=N'
@@ -41,6 +43,7 @@ except IOError:
     print "Cannot connect to Google Groups."+""
     
 page_counter_web=0
+
 try:
     while page_counter_web < 50 :
         results_web = 'http://www.google.com/search?q=%40'+str(domain_name)+'&hl=en&lr=&ie=UTF-8&start=' + repr(page_counter_web) + '&sa=N'
@@ -53,8 +56,9 @@ try:
             d[email_web]=1
             uniq_emails_web=d.keys()
         page_counter_web = page_counter_web +10
-        
 except IOError:
     print "Cannot connect to Google Web."+""
+
 for uniq_emails_web in d.keys():
     print uniq_emails_web+""
+

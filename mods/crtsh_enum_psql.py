@@ -3,11 +3,11 @@
 __author__ = 'Bharath'
 __version__ = "0.1.0"
 
-
-import re
-import sys
 import json
 import logging
+import re
+import sys
+
 from os.path import abspath
 
 try:
@@ -120,3 +120,4 @@ def main(domain, resolve, output):
 
 if __name__ == '__main__':
     main()
+

@@ -13,34 +13,34 @@ REGEXPRESULT='Results <b>[0-9,]*</b> - <b>[0-9,]*</b> of[" about "]+<b>[0-9,]*</
 METHOD=host      # Default method set to host
 
 usage (){
-echo
-echo
-echo "goohost v.0.0.1 Beta"
-echo
-echo "Extracts hosts/subdomains, IP or emails for a specific domain with Google search."
-echo "Author: watakushi"
-echo "Thanks to: Johnny Long and GHDB for inspiration stuff"
-echo "Special thanks to: Danya & Roberto"
-echo
-echo "Usage: $0 -t domain [-m <host|ip|mail> -p <1-20> -v]"
-echo "-t: domain"
-echo "-m: method: <ip|host|mail>. Default value is set to host"
-echo "      host: raw google hosts and subdomains search"
-echo "        ip: raw google hosts and subdomains search and performs a reverse DNS resolution"
-echo "      mail: raw google email search"
-echo "-p: pages [1-20]. Max number of pages to download. Default is 5."
-echo "-v: verbosity. Default is off"
-echo
-echo "Example: $0 -t target.com -m ip -p 10 -v"
-echo
-echo
-exit 1
+     echo
+     echo
+     echo "goohost v.0.0.1 Beta"
+     echo
+     echo "Extracts hosts/subdomains, IP or emails for a specific domain with Google search."
+     echo "Author: watakushi"
+     echo "Thanks to: Johnny Long and GHDB for inspiration stuff"
+     echo "Special thanks to: Danya & Roberto"
+     echo
+     echo "Usage: $0 -t domain [-m <host|ip|mail> -p <1-20> -v]"
+     echo "-t: domain"
+     echo "-m: method: <ip|host|mail>. Default value is set to host"
+     echo "      host: raw google hosts and subdomains search"
+     echo "        ip: raw google hosts and subdomains search and performs a reverse DNS resolution"
+     echo "      mail: raw google email search"
+     echo "-p: pages [1-20]. Max number of pages to download. Default is 5."
+     echo "-v: verbosity. Default is off"
+     echo
+     echo "Example: $0 -t target.com -m ip -p 10 -v"
+     echo
+     echo
+     exit 1
 }
 
 # Extract the number of results Google gives from the query
 getresult (){
-RESULT=$(grep -Eio "$REGEXPRESULT" /tmp/goohost$I-$TMPRND.log | cut -d "<" -f6 | cut -d ">" -f2 | tr -d ",")
-return $RESULT
+     RESULT=$(grep -Eio "$REGEXPRESULT" /tmp/goohost$I-$TMPRND.log | cut -d "<" -f6 | cut -d ">" -f2 | tr -d ",")
+     return $RESULT
 }
 
 while getopts "t:m:p:v" optname; do
@@ -78,22 +78,7 @@ while getopts "t:m:p:v" optname; do
      esac
 done
 
-# Check for write permissions and several tools used in the script
-if [ ! -x /usr/bin/wget ]; then
-     echo "[*] Error: /usr/bin/wget not found."
-     exit 1
-fi
-
-if [ ! -x /usr/bin/awk ]; then
-     echo "[*] Error: /usr/bin/awk not found."
-     exit 1
-fi
-
-if [ ! -x /bin/sed ]; then
-     echo "[*] Error: /bin/sed not found."
-     exit 1
-fi
-
+# Check for write permissions
 if [ ! -w /tmp ]; then
      echo "[*] Error: Can't write to /tmp - Permission denied."
      exit 1
@@ -127,7 +112,7 @@ esac
 
 # Set the number of queries to do. Default value 5.
 if [[ $PAGES -lt 1 || $PAGES -gt 20 ]]; then
-     echo "[-] Warning: Pages value not in the range 1-20. Default value used."
+     echo "[!] Warning: Pages value not in the range 1-20. Default value used."
      let PAGES=5
      echo
 fi
@@ -135,14 +120,13 @@ fi
 # Check for DNS wildcards
 if [[ $(host idontexist.xxxxx$TMPRND.com | grep address) ]]; then
      echo
-     echo "[-] Warning: DNS wildcard detected! With IP method you should have some false positive results."
+     echo "[!] Warning: DNS wildcard detected! With IP method you should have some false positive results."
      echo
 fi
 
 ###########################################################################
-# QUERY:0  Download the first google page with the site: parameter
+# QUERY:0  Download the first Google page with the site: parameter
 
-# Google query
 case "$METHOD" in
      host)
      GOOGLEQUERY0="http://www.google.com/search?num=100&q=site%3A$DOMAIN" #site:example.tld
@@ -184,7 +168,6 @@ while [[ "$RESULT" -ge "100"  &&  "$I" -lt $PAGES-1 ]]; do
 
     case "$I" in
          1)
-         # Google query
          case "$METHOD" in
               host)
               GOOGLEQUERY1="http://www.google.com/search?num=100&q=site%3A$DOMAIN+-inurl%3Awww.$DOMAIN" #site:example.tld -inurl:www.example.tld
@@ -208,7 +191,7 @@ while [[ "$RESULT" -ge "100"  &&  "$I" -lt $PAGES-1 ]]; do
          # Extract the number of results Google gives from the query
          getresult
 
-         #Verbosity
+         # Verbosity
          if [ "$VERBOSITY" = "1" ]; then
               echo
               echo "Google Query n.$I \n"
@@ -220,7 +203,6 @@ while [[ "$RESULT" -ge "100"  &&  "$I" -lt $PAGES-1 ]]; do
          ;;
 
          2)
-         # Google query
          case "$METHOD" in
               host)
               GOOGLEQUERY2="http://www.google.com/search?num=100&q=*.site%3A$DOMAIN+-inurl%3Awww.$DOMAIN" #site:example.tld -inurl:www.example.tld
@@ -278,7 +260,6 @@ while [[ "$RESULT" -ge "100"  &&  "$I" -lt $PAGES-1 ]]; do
          CURL5=$(awk NR==5 /tmp/top6-$TMPRND.log)
          CURL6=$(awk NR==6 /tmp/top6-$TMPRND.log)
 
-         # Google query
          case "$METHOD" in
               host)
               GOOGLEQUERY3="http://www.google.com/search?num=100&q=site%3A$DOMAIN+-inurl%3A$CURL1+-inurl%3A$CURL2+-inurl%3A$CURL3+-inurl%3A$CURL4+-inurl%3A$CURL5+-inurl%3A$CURL6" #site:example.tlf -inurl:top1 -inurl:top2 -inurl:top3 -inurl:top4 -inurl:top5 -inurl:top6
@@ -320,7 +301,6 @@ while [[ "$RESULT" -ge "100"  &&  "$I" -lt $PAGES-1 ]]; do
 
          let START=($I-3)*100 # Google query top 6 changed the start parameter
 
-         # Google query
          case "$METHOD" in
              host)
               GOOGLEQUERY3="http://www.google.com/search?num=100&start=$START&q=site%3A$DOMAIN+-inurl%3A$CURL1+-inurl%3A$CURL2+-inurl%3A$CURL3+-inurl%3A$CURL4+-inurl%3A$CURL5+-inurl%3A$CURL6" #site:example.tlf -inurl:top1 -inurl:top2 -inurl:top3 -inurl:top4 -inurl:top5 -inurl:top6
@@ -367,7 +347,7 @@ while [[ "$RESULT" -ge "100"  &&  "$I" -lt $PAGES-1 ]]; do
 
          13)
 
-         #Generate temporary file for the random query
+         # Generate temporary file for the random query
          case "$METHOD" in
               host)
               sort -u result-$TMPRND.log | sed -e "s/.$DOMAIN//g" > /tmp/random-$TMPRND.log
@@ -384,9 +364,7 @@ while [[ "$RESULT" -ge "100"  &&  "$I" -lt $PAGES-1 ]]; do
 
          highest=$(wc -l /tmp/random-$TMPRND.log | cut -d " " -f1 ) # Number of hosts present in the result file
 
-         #################################################
-         #TODO: Exit from the case loop if highest is <= 0
-         #################################################
+         # TODO: Exit from the case loop if highest is <= 0
          if [[ $highest -ge "1" ]]; then
               R1=$[ ( $RANDOM % ( $[ $highest - 1 ] + 1 ) ) + 1 ]
               R2=$[ ( $RANDOM % ( $[ $highest - 1 ] + 1 ) ) + 1 ]
@@ -402,7 +380,6 @@ while [[ "$RESULT" -ge "100"  &&  "$I" -lt $PAGES-1 ]]; do
               RURL5="$(awk "NR==$R5" /tmp/random-$TMPRND.log)"
               RURL6="$(aewk "NR==$R6" /tmp/random-$TMPRND.log)"
 
-              # Google query
               case "$METHOD" in
                    host)
                    GOOGLEQUERY4="http://www.google.com/search?num=100&q=site%3A$DOMAIN+-inurl%3A$RURL1+-inurl%3A$RURL2+-inurl%3A$RURL3+-inurl%3A$RURL4+-inurl%3A$RURL5+-inurl%3A$RURL6" #site:example.tlf -inurl:random1 -inurl:random2 -inurl:random3 -inurl:random4 -inurl:random5 -inurl:random6
@@ -458,7 +435,6 @@ while [[ "$RESULT" -ge "100"  &&  "$I" -lt $PAGES-1 ]]; do
          RURL5="$(awk "NR==$R5" /tmp/random-$TMPRND.log)"
          RURL6="$(awk "NR==$R6" /tmp/random-$TMPRND.log)"
 
-         # Google query
          case "$METHOD" in
               host)
               GOOGLEQUERY4="http://www.google.com/search?num=100&q=site%3A$DOMAIN+-inurl%3A$RURL1+-inurl%3A$RURL2+-inurl%3A$RURL3+-inurl%3A$RURL4+-inurl%3A$RURL5+-inurl%3A$RURL6" #site:example.tlf -inurl:random1 -inurl:random2 -inurl:random3 -inurl:random4 -inurl:random5 -inurl:random6
@@ -499,9 +475,10 @@ while [[ "$RESULT" -ge "100"  &&  "$I" -lt $PAGES-1 ]]; do
 done
 
 ###########################################################################
-# Generate output and report file
 
+# Generate output and report file
 # Generate different report for different methods
+
 case "$METHOD" in
      host)
      echo
@@ -532,3 +509,4 @@ rm -f result-$TMPRND.log 2> /dev/null
 rm -f /tmp/goohost*-$TMPRND.log 2> /dev/null
 rm -f /tmp/random-$TMPRND.log 2> /dev/null
 rm -f /tmp/top6-$TMPRND.log 2> /dev/null
+

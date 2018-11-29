@@ -397,7 +397,7 @@ case $choice in
      echo "     virustotal           (23/$total)"
      $theharvester -d $domain -b virustotal | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zvirustotal
      echo "     Yahoo                (24/$total)"
-     $theharvester -d $domain -b yahoo -l 100 | grep $domain | grep -v 'Starting' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zyahoo
+     $theharvester -d $domain -b yahoo -l 100 | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zyahoo
      
      # Remove all empty files
      find -type f -empty -exec rm {} +
@@ -421,14 +421,13 @@ s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g; s/FRANCE/France/g; s/GER
 s/INDIA/India/g; s/INDONESIA/Indonesia/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; 
 s/KOREA REPUBLIC OF/Republic of Korea/g; s/localhost//g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; 
 s/PUERTO RICO/Puerto Rico/g; s/REPUBLIC OF China (ROC)/Republic of China/g; s/RUSSIAN FEDERATION/Russia            /g; s/SAUDI ARABIA/Saudi Arabia/g; 
-s/SINGAPORE/Singapore/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; 
-s/TAIWAN; REPUBLIC OF China (ROC)/Taiwan                        /g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; 
-s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Virgin Islands          /g; s/ROMANIA/Romania/g; 
-s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
+s/SINGAPORE/Singapore/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN/Taiwan/g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; 
+s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Brittish Virgin Islands/g; 
+s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
-     cat tmp3 | sed 's/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/EU,//g; s/FR,//g; s/IN,//g; s/NL,//g; s/PL,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; 
-s/VG,//g' > tmp4
+     cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/EU,//g; s/FR,//g; s/JP,//g; s/IN,//g; s/NL,//g; s/PL,//g; s/RU,//g; s/SE,//g; 
+s/TW,//g; s/US,//g; s/VG,//g' > tmp4
      # Find domains that contain an IP
      grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp4 > squatting
      rm tmp* 2>/dev/null
@@ -692,11 +691,13 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-recon
      cat emails emails-recon | tr '[A-Z]' '[a-z]' | sort -u > emails-final
 
-     grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|arin-notify|contact|netops|production|unknown)' | sed 's/|//g; s/^[ \t]*//; /^[0-9]/d' > names-recon
+     grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|arin-notify|contact|netops|production|unknown)' | sed 's/|//g; s/^[ \t]*//; s/[ \t]*$//; /^[0-9]/d' > names-recon
 
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
 
-     grep "$domain" /tmp/subdomains | egrep -v '(\*|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
+     grep "$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
+
+     egrep -v '(\+|returned|username)' /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/^,/d' | sed -e "s/\b\(.\)/\u\1/g" | sort -u > usernames-recon
 
      ##############################################################
 
@@ -898,7 +899,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      rm tmp* zreport
      mv curl debug* email* hosts name* network* records registered* squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
      mv passive.rc $home/data/$domain/tools/recon-ng/
-     cd /tmp/; mv emails names* networks subdomains $home/data/$domain/tools/recon-ng/ 2>/dev/null
+     cd /tmp/; mv emails names* networks subdomains usernames $home/data/$domain/tools/recon-ng/ 2>/dev/null
 
      echo
      echo $medium
@@ -1007,28 +1008,24 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      # Remove first 6 characters from each line
      sed 's/^......//g' tmp2 | column -t | sort > tmp3
      grep 'TXT' tmp | sed 's/^......//g' | sort > tmp4
-     cat tmp3 tmp4 > records
+     cat tmp3 tmp4 | column -t > records
      cp $discover/report/data/records.htm $home/data/$domain/data/records.htm
      cat records >> $home/data/$domain/data/records.htm; echo "</pre>" >> $home/data/$domain/data/records.htm
      rm tmp*
 
-     echo "     Zone Transfer        (2/$total)"
-     dnsrecon -d $domain -t axfr > tmp
-     egrep -v '(Checking for|filtered|No answer|NS Servers|Removing|TCP Open|Testing NS)' tmp | sed 's/^....//g; /^$/d' > zonetransfer
-
-     echo "     Sub-domains          (3/$total)"
+     echo "     Sub-domains          (2/$total)"
      if [ -f /usr/share/dnsrecon/namelist.txt ]; then
-          dnsrecon -d $domain -t brt -D /usr/share/dnsrecon/namelist.txt --iw -f > tmp
+          dnsrecon -d $domain -D /usr/share/dnsrecon/namelist.txt -f -t brt > tmp
      fi
 
      # PTF
      if [ -f /pentest/intelligence-gathering/dnsrecon/namelist.txt ]; then
-          dnsrecon -d $domain -t brt -D /pentest/intelligence-gathering/dnsrecon/namelist.txt --iw -f > tmp
+          dnsrecon -d $domain -D /pentest/intelligence-gathering/dnsrecon/namelist.txt -f -t brt > tmp
      fi
 
      grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing|Records Found)' | sed 's/\[\*\] //g; s/^[ \t]*//' | awk '{print $2,$3}' | column -t | sort -u > sub-dnsrecon
 
-     egrep -v '(.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' sub-dnsrecon | tr '[A-Z]' '[a-z]' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
+     egrep -v '(\[|.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' sub-dnsrecon | tr '[A-Z]' '[a-z]' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
 
 #     echo
 #     echo 'Use vim to manually remove duplicates and save.'
@@ -1048,6 +1045,10 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      awk '{print $3}' records > tmp
      awk '{print $2}' sub-dnsrecon >> tmp
      grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' tmp | egrep -v '(-|=|:|1.1.1.1|6.9.6.9|127.0.0.1)' | $sip > hosts
+
+     echo "     Zone Transfer        (3/$total)"
+     dnsrecon -d $domain -t axfr > tmp
+     egrep -v '(Checking for|filtered|No answer|NS Servers|Removing|TCP Open|Testing NS)' tmp | sed 's/^....//g; /^$/d' > zonetransfer
 
      echo
      echo "Web Application Firewall  (4/$total)"
@@ -1082,7 +1083,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
 
      grep '@' whatweb | sed 's/Email//g; s/\[//g; s/\]//g' | tr '[A-Z]' '[a-z]' | grep "@$domain" | grep -v 'hosting' | cut -d ' ' -f2 | sort -u > emails
 
-     rm tmp
+     rm tmp*
      # Remove all empty files
      find $name/ -type f -empty -exec rm {} +
 
@@ -1093,8 +1094,6 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' active.rc
      sed -i "s/yyy/$domain/g" active.rc
      recon-ng --no-check -r $discover/active.rc
-
-     grep "$domain" /tmp/subdomains | egrep -v '(\*|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
 
      ##############################################################
 
@@ -1172,11 +1171,13 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
           cat tmp >> $home/data/$domain/data/emails.htm; echo "</pre>" >> $home/data/$domain/data/emails.htm
      fi
 
+     # BUG: font color is grey
      cat hosts $home/data/$domain/data/hosts.htm | grep -v '<' | $sip > tmp
      echo '<pre style="font-size:14px;">' > $home/data/$domain/data/hosts.htm
      cat tmp >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
 
-     mv active.rc emails hosts record* sub* tmp* waf whatweb z* /tmp/subdomains $home/data/$domain/tools/active/ 2>/dev/null
+     mv active.rc emails hosts record* sub* waf whatweb z* /tmp/subdomains $home/data/$domain/tools/active/ 2>/dev/null
+     rm tmp
 
      echo
      echo $medium

@@ -59,6 +59,7 @@ WHERE <field> LIKE
 
 Examples:
 SELECT * FROM hostvulns WHERE vulnerability LIKE "%Default%" ORDER BY vulnerability;
+SELECT * FROM hosts WHERE host LIKE '%|%%' escape '|'
 SELECT LENGTH(vulnerability), COUNT(*) FROM hostvulns GROUP BY LENGTH(vulnerability);
 SELECT DISTINCT last_name,first_name FROM contacts WHERE first_name IS NOT NULL ORDER BY last_name;
 SELECT DISTINCT email FROM contacts WHERE email LIKE "%@target.com" ORDER BY email

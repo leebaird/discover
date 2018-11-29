@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 __author__ = "Bharath"
-__description__ = """A script to extract sub-domains that virus total
+__description__ = """A script to extract sub-domains that Virus Total
                    has found for a given domain name. Modified by Jay Townsend aka L1ghtn1ng"""
-
 
 import argparse
 import sys
@@ -11,12 +10,12 @@ import sys
 try:
     from requests import get, exceptions
 except ImportError:
-    raise ImportError('requests library missing. pip3 install requests')
+    raise ImportError('requests library missing. pip3 install requests.')
 
 
-parser = argparse.ArgumentParser(description='Scrapes https://crt.sh for subdomains from SSL certificate transparency')
-parser.add_argument('-d', '--domain', required=True, help='Domain to lookup')
-parser.add_argument('-l', '--limit', default='40', help='How many to output, max allowed is 40 and the default')
+parser = argparse.ArgumentParser(description='Scrapes https://crt.sh for subdomains from SSL certificate transparency.')
+parser.add_argument('-d', '--domain', required=True, help='Domain to lookup.')
+parser.add_argument('-l', '--limit', default='40', help='How many to output, max allowed is 40 and the default.')
 args = parser.parse_args()
 
 
@@ -42,4 +41,5 @@ if __name__ == '__main__':
         search_results = check_virustotal()
         print_results(search_results)
     except KeyboardInterrupt:
-        print('CTRL + C detected, quiting')
+        print('CTRL + C detected, quiting.')
+

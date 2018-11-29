@@ -18,6 +18,10 @@ use recon/domains-hosts/shodan_hostname
 run
 use recon/domains-hosts/ssl_san
 run
+back
+
+query DELETE FROM hosts WHERE host LIKE '%|%%' escape '|'
+
 use recon/domains-hosts/threatcrowd
 run
 use recon/companies-contacts/bing_linkedin_cache
@@ -38,6 +42,8 @@ use recon/netblocks-companies/whois_orgs
 run
 use recon/netblocks-hosts/shodan_net
 run
+use recon/netblocks-hosts/virustotal
+run
 use recon/netblocks-ports/census_2012
 run
 use recon/netblocks-ports/censysio
@@ -46,13 +52,20 @@ use recon/ports-hosts/migrate_ports
 run
 use recon/hosts-hosts/bing_ip
 run
+use recon/hosts-hosts/ipstack
+run
+use recon/hosts-hosts/virustotal
+run
 use recon/hosts-hosts/ssltools
 run
 use recon/hosts-ports/shodan_ip
 run
+
 back
+
 query DELETE FROM contacts WHERE last_name LIKE '% %'
 query DELETE FROM contacts WHERE last_name LIKE '(%'
+
 query UPDATE contacts SET email = LOWER(email)
 query UPDATE credentials SET username = LOWER(username)
 query UPDATE hosts SET host = LOWER(host)
@@ -63,18 +76,27 @@ query UPDATE contacts SET title = '' WHERE title = 'Whois contact'
 query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Abuse)'
 query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Admin)'
 query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Tech)'
+
 spool start /tmp/emails
 query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email
 query SELECT DISTINCT username FROM credentials WHERE username LIKE "%@yyy" ORDER BY username
 spool stop
+
 spool start /tmp/names
 query SELECT DISTINCT last_name,first_name,title FROM contacts WHERE first_name OR last_name IS NOT NULL ORDER BY last_name
 spool stop
+
 spool start /tmp/networks
 query SELECT netblock FROM netblocks ORDER BY netblock
 spool stop
+
 spool start /tmp/subdomains
 query SELECT host,ip_address FROM hosts ORDER BY host
 query SELECT host,ip_address FROM ports WHERE host LIKE "%yyy" ORDER BY host
 spool stop
+
+spool start /tmp/usernames
+query select username FROM profiles ORDER BY username
+spool stop
+
 exit
