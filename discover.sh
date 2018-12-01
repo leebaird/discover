@@ -33,7 +33,7 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Global variables
 home=$HOME
-long='========================================================================================================================================================'
+long='==============================================================================================================================='
 medium='=================================================================='
 short='========================================'
 sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
@@ -155,7 +155,7 @@ if [[ -z $DISPLAY ]]; then
      echo
      echo -e "${RED}$medium${NC}"
      echo
-     echo -e "${RED} *** This option must be run locally, in an X-Windows environment. ***${NC}"
+     echo -e "${RED}             *** This option must be run locally. ***${NC}"
      echo
      echo -e "${RED}$medium${NC}"
      sleep 4
@@ -212,10 +212,11 @@ case $choice in
      f_banner
 
      echo -e "${BLUE}Uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,${NC}"
-     echo -e "${BLUE} Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.${NC}"
+     echo -e "${BLUE}  Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.${NC}"
      echo
      echo -e "${BLUE}[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub,${NC}"
-     echo -e "${BLUE} Google, Hashes, and Shodan for maximum results with recon-ng.${NC}"
+     echo -e "${BLUE}    Google, GoogleCSE, Hashes, Hunter, and Shodan for maximum${NC}"
+     echo -e "${BLUE}    results with recon-ng and theharvester.${NC}"
      echo
      echo $medium
      echo
@@ -311,7 +312,7 @@ case $choice in
 
      echo "dnsrecon                  (4/$total)"
      dnsrecon -d $domain > tmp
-     grep '*' tmp | egrep -v '(Bind Version|Checking|DNSSEC|Enumerating|No SRV Records|Performing|Removing|Resolving|Servers found|Trying)' | sed 's/\[\*\]//g; s/^[ \t]*//' | column -t | sort -k1 > records
+     grep '*' tmp | egrep -v '(Bind Version|Checking|configured|DNSSEC|Enumerating|No SRV Records|Performing|PRIVATEDNS|Removing|Resolving|Servers found|SKEYs|Trying)' | sed 's/\[\*\]//g; s/^[ \t]*//' | column -t | sort -k1 > records
      cat records >> $home/data/$domain/data/records.htm
      grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | column -t > sub-dnsrecon
 
@@ -366,7 +367,7 @@ case $choice in
      fi
 
      echo "     Baidu                (9/$total)"
-     $theharvester -d $domain -b baidu | grep $domain | egrep -v '(Starting|empty)' | grep -v "'" | sed 's/:/ /g' | column -t | sort -u > zbaidu
+     $theharvester -d $domain -b baidu | grep $domain | egrep -v '(Starting|empty|first.last)' | grep -v "'" | sed 's/:/ /g' | column -t | sort -u > zbaidu
      echo "     Bing                 (10/$total)"
      $theharvester -d $domain -b bing | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbing
      echo "     crtsh                (11/$total)"
@@ -381,7 +382,7 @@ case $choice in
      $theharvester -d $domain -b googleplus | sed -n '/===/,$p' | egrep -v '(=|Chicago|Home|Plaza|Texas|User)' | sed 's/- Google+//g' | sort -u > zgoogleplus
      echo "     Google Profiles      (16/$total)"
      $theharvester -d $domain -b google-profiles | sed -n '/---/,$p' | grep -v '-' | sort -u > zgoogle-profiles
-     echo "     LinkedIn             (17/$total)"
+     echo "     Linkedin             (17/$total)"
      $theharvester -d "$company" -b linkedin | grep -v '\-\-' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin   # TEST THIS
      $theharvester -d $domain -b linkedin | grep -v '\-\-' | grep -v 'not found' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin2   # TEST THIS
      echo "     netcraft             (18/$total)"
@@ -426,8 +427,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
-     cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/EU,//g; s/FR,//g; s/JP,//g; s/IN,//g; s/NL,//g; s/PL,//g; s/RU,//g; s/SE,//g; 
-s/TW,//g; s/US,//g; s/VG,//g' > tmp4
+     cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/DK,//g; s/EU,//g; s/FR,//g; s/JP,//g; s/KR,//g; s/IN,//g; s/IT,//g; s/NL,//g; 
+s/NO,//g; s/PL,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' > tmp4
      # Find domains that contain an IP
      grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp4 > squatting
      rm tmp* 2>/dev/null
@@ -638,8 +639,9 @@ s/TW,//g; s/US,//g; s/VG,//g' > tmp4
           egrep -v '(~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|>|\.|\?|/|abuse|academy|account|achievement|acquisition|acting|action|active|adjuster|admin|advanced|adventure|advertising|agency|alliance|allstate|ambassador|america|american|analysis|analyst|analytics|animal|another|antivirus|apple seems|application|applications|architect|archivist|article|assembler|assembling|assembly|asian|assignment|assistant|associate|association|attorney|audience|audio|auditor|australia|authority|automation|automotive|aviation|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|builder|business|buyer|buying|california|cannot|capital|career|carrying|cashing|center|centre|certified|cfi|challenger|championship|change|chapter|charge|chemistry|china|chinese|claim|class|clearance|cloud|cnc|code|cognitive|college|columbia|coming|commercial|communications|community|company pages|competition|competitive|compliance|computer|comsec|concept|conference|config|connections|connect|construction|consultant|contact|contract|contributor|control|cooperation|coordinator|corporate|corporation|counsel|create|creative|critical|crm|croatia|cryptologic|custodian|cyber|dallas|database|day care|dba|dc|death toll|delivery|delta|department|deputy|description|designer|design|destructive|detection|develop|devine|dialysis|digital|diploma|direct|disability|disaster|disclosure|dispatch|dispute|distribut|divinity|division|dns|document|dos poc|download|driver|during|economy|ecovillage|editor|education|effect|electronic|else|email|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|entry|environmental|error page|ethical|example|excellence|executive|expectations|expertzone|exploit|expressplay|facebook|facilit|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|fellow|filmmaker|finance|financial|fitter|forensic|forklift|found|freelance|from|frontiers in tax|fulfillment|full|function|future|fuzzing|germany|get control|global|gnoc|google|governance|government|graphic|greater|group|guard|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|hostmaster|house|how to|hurricane|icmp|idc|in the news|index|infant|inform|innovation|installation|insurers|integrated|intellectual|international|internet|instructor|insurance|intelligence|interested|interns|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|language|laptops|large|leader|letter|level|liaison|licensing|lighting|linguist|linkedin|limitless|liveedu|llp|local|looking|lpn|ltd|lsu|luscous|machinist|macys|malware|managed|management|manager|managing|manufacturing|market|mastering|material|mathematician|maturity|md|mechanic|media|medical|medicine|member|merchandiser|meta tags|methane|metro|microsoft|middle east|migration|mission|mitigation|mn|money|monitor|more coming|mortgage|motor|museums|mutual|national|negative|network|network|new user|newspaper|new york|next page|night|nitrogen|nw|nyc|obtain|occupied|offers|office|online|onsite|operations|operator|order|organizational|outbreak|owner|packaging|page|palantir|paralegal|partner|pathology|peace|people|perceptions|person|pharmacist|philippines|photo|picker|picture|placement|places|planning|police|portfolio|postdoctoral|potassium|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|program|property|publichealth|published|pyramid|quality|questions|rcg|recruiter|redeem|redirect|region|register|registry|regulation|rehab|remote|report|representative|republic|research|resolving|responsable|restaurant|retired|revised|rising|rural health|russia|sales|sample|satellite|save the date|school|scheduling|science|scientist|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|social|software|solution|source|special|sql|station home|statistics|store|strategy|strength|student|study|substitute|successful|sunoikisis|superheroines|supervisor|support|surveillance|switch|system|systems|talent|targeted|tax|tcp|teach|technical|technician|technique|technology|temporary|tester|textoverflow|theater|thought|through|time in|tit for tat|title|toolbook|tools|toxic|traditions|trafficking|transfer|transformation|treasury|trojan|truck|twitter|training|ts|tylenol|types of scams|unclaimed|underground|underwriter|university|united states|untitled|vault|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|vp|wanted|web search|web site|website|welcome|west virginia|westchester|when the|whiskey|window|worker|world|www|xbox|zz)' tmp3 > tmp4
           cat tmp4 | sed 's/iii/III/g; s/ii/II/g' > tmp5
           # Capitalize the first letter of every word and tweak
-          cat tmp5 | sed 's/\b\(.\)/\u\1/g; s/ And / and /; s/ It / IT /g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; 
-s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/,,/,/g' > tmp6
+          cat tmp5 | sed 's/\b\(.\)/\u\1/g; s/ And / and /; s/ Av / AV /g; s/ It / IT /g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; 
+s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/ Ui / UI /g; 
+s/ Ux / UX /g; s/,,/,/g' > tmp6
           grep -v ',' tmp6 | awk '{print $2", "$1}' > tmp7
           grep ',' tmp7 > tmp8
           # Remove trailing whitespace from each line
@@ -970,9 +972,6 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
 
      echo -e "${BLUE}Uses dnsrecon, WAF00W, traceroute, Whatweb, and recon-ng.${NC}"
      echo
-     echo -e "${BLUE}[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google,${NC}"
-     echo -e "${BLUE}Hashes, and Shodan for maximum results with recon-ng.${NC}"
-     echo
      echo $medium
      echo
      echo "Usage: target.com"
@@ -1015,7 +1014,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
 
      echo "     Sub-domains          (2/$total)"
      if [ -f /usr/share/dnsrecon/namelist.txt ]; then
-          dnsrecon -d $domain -D /usr/share/dnsrecon/namelist.txt -f -t brt > tmp
+          dnsrecon -d $domain -D /usr/share/dnsrecon/namelist.txt -f -t brt > tmp     # BUG: not able to see if Wildcard resolution is enabled
      fi
 
      # PTF
@@ -1166,18 +1165,21 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/
      cat zonetransfer >> $home/data/$domain/data/zonetransfer.htm; echo "</pre>" >> $home/data/$domain/data/zonetransfer.htm
 
      if [[ -e $home/data/$domain/data/emails.htm && -e emails ]]; then
-          cat $home/data/$domain/data/emails.htm emails | grep -v '<' | sort -u > tmp
-          echo '<pre style="font-size:14px;">' > $home/data/$domain/data/emails.htm
-          cat tmp >> $home/data/$domain/data/emails.htm; echo "</pre>" >> $home/data/$domain/data/emails.htm
+          cat $home/data/$domain/data/emails.htm emails | grep -v '<' | sort -u > tmp-new-emails
+          cat $home/data/$domain/data/emails.htm | grep '<' > tmp-new-page
+          mv tmp-new-page $home/data/$domain/data/emails.htm
+          cat tmp-new-email >> $home/data/$domain/data/emails.htm; echo "</pre>" >> $home/data/$domain/data/emails.htm
      fi
 
-     # BUG: font color is grey
-     cat hosts $home/data/$domain/data/hosts.htm | grep -v '<' | $sip > tmp
-     echo '<pre style="font-size:14px;">' > $home/data/$domain/data/hosts.htm
-     cat tmp >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
+     if [[ -e $home/data/$domain/data/hosts.htm && -e hosts ]]; then
+          cat $home/data/$domain/data/hosts.htm hosts | grep -v '<' | $sip > tmp-new-hosts
+          cat $home/data/$domain/data/hosts.htm | grep '<' > tmp-new-page
+          mv tmp-new-page $home/data/$domain/data/hosts.htm
+          cat tmp-new-hosts >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
+     fi
 
      mv active.rc emails hosts record* sub* waf whatweb z* /tmp/subdomains $home/data/$domain/tools/active/ 2>/dev/null
-     rm tmp
+     rm tmp*
 
      echo
      echo $medium
@@ -4203,7 +4205,7 @@ echo "4.  Generate target list"
 echo "5.  CIDR"
 echo "6.  List"
 echo "7.  IP, range, or URL"
-echo "8.  Rerun Nmap scripts and MSF aux."
+echo "8.  Rerun Nmap scripts and MSF aux"
 echo
 echo -e "${BLUE}WEB${NC}"
 echo "9.  Insecure direct object reference"

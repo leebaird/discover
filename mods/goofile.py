@@ -51,6 +51,8 @@ def main():
     global totalFiles
     global filetype
 
+    # print('<p>Total number of {0} files: {1}</p>'.format(filetype.upper(), totalFiles))
+
     print('<ul>')
 
     googleDork()
@@ -63,7 +65,6 @@ def main():
         googleDork()
 
     print('</ul>')
-    print('<p>Total number of {0} files: {1}</p>'.format(filetype.upper(), totalFiles))
 
 main()
 

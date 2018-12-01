@@ -29,12 +29,11 @@ WEB
 12. SSL
 
 MISC
-13. Crack WiFi
-14. Parse XML
-15. Generate a malicious payload
-16. Start a Metasploit listener
-17. Update
-18. Exit
+13. Parse XML
+14. Generate a malicious payload
+15. Start a Metasploit listener
+16. Update
+17. Exit
 ```
 ## RECON
 ### Domain
@@ -46,24 +45,25 @@ RECON
 3.  Previous menu
 ```
 
-* Passive uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,
-     Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.
+Passive uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,
+  Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.
 
-* Active uses dnsrecon, Fierce, WAF00W, traceroute, and Whatweb.
+[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub,
+    Google, GoogleCSE, Hashes, Hunter, and Shodan for maximum
+    results with recon-ng and theharvester.
 
-* Acquire API keys for Bing, Builtwith, Fullcontact, GitHub, Google, Hashes, 
-     and Shodan for maximum results with recon-ng.
+Active uses dnsrecon, WAF00W, traceroute, Whatweb, and recon-ng.
 
 ```
   recon-ng
+  show keys
   keys add bing_api <value>
-  keys add builtwith_api <value>
-  keys add fullcontact_api <value>
-  keys add github_api <value>
-  keys add google_api <value>
-  keys add google_cse <value>
-  keys add hashes_api <value>
-  keys add shodan_api <value>
+  show keys
+
+
+  googleCSE      /usr/share/thehunter/discovery/googleCSE.py
+  hunter         /usr/share/thehunter/discovery/huntersearch.py
+  shodan         /usr/share/thehunter/discovery/shodansearch.py
 
 ```
 
