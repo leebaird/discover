@@ -1,30 +1,36 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
-import time
 import webbrowser
+from time import sleep
 
-# Variables
-company="Target"
-domain="target.com"
 
-webbrowser.open_new('https://censys.io/ipv4?q='+company)
-time.sleep(1)
-webbrowser.open_new_tab('https://www.shodan.io/search?query='+company)
-time.sleep(1)
-webbrowser.open_new_tab('http://api.hackertarget.com/dnslookup/?q='+domain)
-time.sleep(1)
-webbrowser.open_new_tab('https://api.hackertarget.com/reversedns/?q='+domain)
-time.sleep(1)
-webbrowser.open_new_tab('https://api.hackertarget.com/pagelinks/?q='+domain)
-time.sleep(1)
-webbrowser.open_new_tab('https://seositecheckup.com/seo-audit/'+domain)
-time.sleep(1)
-webbrowser.open_new_tab('http://viewdns.info/reversewhois/?q='+domain)
-time.sleep(1)
-webbrowser.open_new_tab('http://viewdns.info/dnsreport/?domain='+domain)
-time.sleep(1)
-webbrowser.open_new_tab('http://www.spyonweb.com/'+domain)
+company = 'Google'
+domain = 'google.com'
+
+# Add only URL's that take the domain URL
+urls_domain = [
+    'https://api.hackertarget.com/dnslookup/?q=',
+    'https://api.hackertarget.com/reversedns/?q=',
+    'https://api.hackertarget.com/pagelinks/?q=',
+    'https://seositecheckup.com/seo-audit/',
+    'http://viewdns.info/reversewhois/?q=',
+    'http://viewdns.info/dnsreport/?domain=',
+    'http://www.spyonweb.com/'
+]
+
+# Add only URL's that take the company name
+urls_company = [
+    'https://censys.io/ipv4?q=',
+    'https://www.shodan.io/search?query='
+]
+
+for url in urls_domain:
+    webbrowser.open_new_tab(url + domain)
+    sleep(2)
+
+for comp in urls_company:
+    webbrowser.open_new_tab(comp + company)
+    sleep(2)
 
 sys.exit(0)
-
