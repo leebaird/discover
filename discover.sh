@@ -155,11 +155,12 @@ if [[ -z $DISPLAY ]]; then
      echo
      echo -e "${RED}$medium${NC}"
      echo
-     echo -e "${RED}             *** This option must be run locally. ***${NC}"
+     echo -e "${RED}             *** This option must be ran locally. ***${NC}"
      echo
      echo -e "${RED}$medium${NC}"
-     sleep 4
-     f_main
+     echo
+     echo
+     exit
 fi
 }
 
