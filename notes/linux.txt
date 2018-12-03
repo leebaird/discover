@@ -258,6 +258,13 @@ ctrl + a                           Go to the beginning of the line
 ctrl + l                           Clear the screen
 ------------------------------------------------------------------------------------------------------
 
+# tmux
+
+tmux                               Start a new session
+ctrl + b, d                        Detach from current session
+tmux attach -d                     Attach to previous session
+------------------------------------------------------------------------------------------------------
+
 # Traffic Capture
 
 tcpdump -lnni eth0 tcp
