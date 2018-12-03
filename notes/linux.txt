@@ -261,6 +261,10 @@ ctrl + l                           Clear the screen
 # tmux
 
 tmux                               Start a new session
+ctrl + b, %                        Split the pane vertically
+ctrl + b, "                        Split the pane horizontally
+ctrl + b, arrow                    Switch between panes
+ctrl + d                           Close pane
 ctrl + b, d                        Detach from current session
 tmux attach -d                     Attach to previous session
 ------------------------------------------------------------------------------------------------------
