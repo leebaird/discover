@@ -61,9 +61,9 @@ Active uses dnsrecon, WAF00W, traceroute, Whatweb, and recon-ng.
   show keys
 
 
-  googleCSE      /usr/share/thehunter/discovery/googleCSE.py
-  hunter         /usr/share/thehunter/discovery/huntersearch.py
-  shodan         /usr/share/thehunter/discovery/shodansearch.py
+  googleCSE      /usr/share/theharvester/discovery/googleCSE.py
+  hunter         /usr/share/theharvester/discovery/huntersearch.py
+  shodan         /usr/share/theharvester/discovery/shodansearch.py
 
 ```
 
