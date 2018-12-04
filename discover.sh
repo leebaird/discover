@@ -150,8 +150,6 @@ fi
 
 f_runlocally(){
 if [[ -z $DISPLAY ]]; then
-     clear
-     f_banner
      echo
      echo -e "${RED}$medium${NC}"
      echo
@@ -180,10 +178,13 @@ mkdir $save_dir
 # Nmap and Metasploit scans
 mv $name/ $save_dir 2>/dev/null
 
-# Recon files
-mv curl debug* dns domain email* hosts name* network* passive* record* registered* squatting sub* tmp* ultratools waf whatweb whois* z* doc pdf ppt txt xls $save_dir 2>/dev/null
-cd /tmp/
-mv emails names networks profiles subdomains $save_dir/tmp 2>/dev/null
+# Passive files
+mv curl debug* email* hosts name* network* records registered* squatting sub* usernames-recon whois* z* doc pdf ppt txt xls $save_dir/passive/ 2>/dev/null
+cd /tmp/; mv emails names* networks subdomains usernames $save_dir/passive/recon-ng/ 2>/dev/null
+
+# Active files
+mv active.rc emails hosts record* sub* waf whatweb z* $save_dir/active/ 2>/dev/null
+cd /tmp/; mv subdomains $save_dir/active/recon-ng/ 2>/dev/null
 
 echo
 echo "Saving complete."
@@ -779,7 +780,6 @@ s/ Ux / UX /g; s/,,/,/g' > tmp6
 
      if [ -e registered-domains ]; then
           domaincount1=$(wc -l registered-domains | cut -d ' ' -f1)
-#          domaincount2=$(echo $(($domaincount1-1)))
           echo "Registered Domains   $domaincount1" >> zreport
           echo "Registered Domains ($domaincount1)" >> tmp
           echo $long >> tmp
@@ -824,6 +824,7 @@ s/ Ux / UX /g; s/,,/,/g' > tmp6
           cat xls >> tmp
           echo >> tmp
           cat xls >> $home/data/$domain/data/xls.htm
+          echo '</pre>' >> $home/data/$domain/data/xls.htm
      else
           echo "No data found." >> $home/data/$domain/data/xls.htm
      fi
@@ -836,6 +837,7 @@ s/ Ux / UX /g; s/,,/,/g' > tmp6
           cat pdf >> tmp
           echo >> tmp
           cat pdf >> $home/data/$domain/data/pdf.htm
+          echo '</pre>' >> $home/data/$domain/data/pdf.htm
      else
           echo "No data found." >> $home/data/$domain/data/pdf.htm
      fi
@@ -848,6 +850,7 @@ s/ Ux / UX /g; s/,,/,/g' > tmp6
           cat ppt >> tmp
           echo >> tmp
           cat ppt >> $home/data/$domain/data/ppt.htm
+          echo '</pre>' >> $home/data/$domain/data/ppt.htm
      else
           echo "No data found." >> $home/data/$domain/data/ppt.htm
      fi
@@ -860,6 +863,7 @@ s/ Ux / UX /g; s/,,/,/g' > tmp6
           cat txt >> tmp
           echo >> tmp
           cat txt >> $home/data/$domain/data/txt.htm
+          echo '</pre>' >> $home/data/$domain/data/txt.htm
      else
           echo "No data found." >> $home/data/$domain/data/txt.htm
      fi
@@ -872,6 +876,7 @@ s/ Ux / UX /g; s/,,/,/g' > tmp6
           cat doc >> tmp
           echo >> tmp
           cat doc >> $home/data/$domain/data/doc.htm
+          echo '</pre>' >> $home/data/$domain/data/doc.htm
      else
           echo "No data found." >> $home/data/$domain/data/doc.htm
      fi
@@ -900,7 +905,7 @@ s/ Ux / UX /g; s/,,/,/g' > tmp6
      cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
  
      rm tmp* zreport
-     mv curl debug* email* hosts name* network* records registered* squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
+     mv curl debug* email* hosts name* network* records registered* squatting sub* usernames-recon whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
      mv passive.rc $home/data/$domain/tools/recon-ng/
      cd /tmp/; mv emails names* networks subdomains usernames $home/data/$domain/tools/recon-ng/ 2>/dev/null
 

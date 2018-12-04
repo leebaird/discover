@@ -56,7 +56,7 @@ def main():
     googleDork()
 
     if results == []:
-        print("No {0} files were found".format(filetype.upper()))
+        print("No {0} files were found.".format(filetype.upper()))
         print
         sys.exit()
 
