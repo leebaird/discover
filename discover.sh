@@ -369,11 +369,11 @@ case $choice in
      fi
 
      echo "     Baidu                (9/$total)"
-     $theharvester -d $domain -b baidu | grep $domain | egrep -v '(Starting|empty|first.last)' | grep -v "'" | sed 's/:/ /g' | column -t | sort -u > zbaidu
+     $theharvester -d $domain -b baidu | grep $domain | egrep -v '(Starting|empty|first.last)' | grep -v "'" | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbaidu
      echo "     Bing                 (10/$total)"
      $theharvester -d $domain -b bing | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbing
      echo "     crtsh                (11/$total)"
-     $theharvester -d $domain -b crtsh | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zcrtsh
+     $theharvester -d $domain -b crtsh | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zcrtsh
      echo "     Dogpilesearch        (12/$total)"
      $theharvester -d $domain -b dogpilesearch -l 100 | grep $domain | grep -v 'Starting' > zdogpilesearch
      echo "     Google               (13/$total)"
