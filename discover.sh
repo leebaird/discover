@@ -429,8 +429,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
-     cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/DK,//g; s/EU,//g; s/FR,//g; s/JP,//g; s/KR,//g; s/IN,//g; s/IT,//g; s/NL,//g; 
-s/NO,//g; s/PL,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' > tmp4
+     cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/DK,//g; s/EU,//g; s/FR,//g; s/GB,//g; s/JP,//g; s/KR,//g; s/IN,//g; s/IT,//g; s/NL,//g; 
+s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' > tmp4
      # Find domains that contain an IP
      grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp4 > squatting
      rm tmp* 2>/dev/null
