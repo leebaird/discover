@@ -369,11 +369,11 @@ case $choice in
      fi
 
      echo "     Baidu                (9/$total)"
-     $theharvester -d $domain -b baidu | grep $domain | egrep -v '(Starting|empty|first.last)' | grep -v "'" | sed 's/:/ /g' | column -t | sort -u > zbaidu
+     $theharvester -d $domain -b baidu | grep $domain | egrep -v '(Starting|empty|first.last)' | grep -v "'" | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbaidu
      echo "     Bing                 (10/$total)"
      $theharvester -d $domain -b bing | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbing
      echo "     crtsh                (11/$total)"
-     $theharvester -d $domain -b crtsh | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zcrtsh
+     $theharvester -d $domain -b crtsh | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zcrtsh
      echo "     Dogpilesearch        (12/$total)"
      $theharvester -d $domain -b dogpilesearch -l 100 | grep $domain | grep -v 'Starting' > zdogpilesearch
      echo "     Google               (13/$total)"
@@ -400,7 +400,7 @@ case $choice in
      echo "     virustotal           (23/$total)"
      $theharvester -d $domain -b virustotal | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zvirustotal
      echo "     Yahoo                (24/$total)"
-     $theharvester -d $domain -b yahoo -l 100 | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zyahoo
+     $theharvester -d $domain -b yahoo -l 100 | grep $domain | egrep -v '(Starting|empty|\.\.)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zyahoo
      
      # Remove all empty files
      find -type f -empty -exec rm {} +
@@ -429,8 +429,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
-     cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/DK,//g; s/EU,//g; s/FR,//g; s/JP,//g; s/KR,//g; s/IN,//g; s/IT,//g; s/NL,//g; 
-s/NO,//g; s/PL,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' > tmp4
+     cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/DK,//g; s/EU,//g; s/FR,//g; s/GB,//g; s/JP,//g; s/KR,//g; s/IN,//g; s/IT,//g; s/NL,//g; 
+s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' > tmp4
      # Find domains that contain an IP
      grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp4 > squatting
      rm tmp* 2>/dev/null
