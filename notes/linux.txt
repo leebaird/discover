@@ -267,6 +267,9 @@ ctrl + b, arrow                    Switch between panes
 ctrl + d                           Close pane
 ctrl + b, d                        Detach from current session
 tmux attach -d                     Attach to previous session
+
+ctrl + b, [                        Use up/down arrows to scroll
+q                                  Quit scroll mode
 ------------------------------------------------------------------------------------------------------
 
 # Traffic Capture
