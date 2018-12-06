@@ -400,7 +400,7 @@ case $choice in
      echo "     virustotal           (23/$total)"
      $theharvester -d $domain -b virustotal | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zvirustotal
      echo "     Yahoo                (24/$total)"
-     $theharvester -d $domain -b yahoo -l 100 | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zyahoo
+     $theharvester -d $domain -b yahoo -l 100 | grep $domain | egrep -v '(Starting|empty|\.\.)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zyahoo
      
      # Remove all empty files
      find -type f -empty -exec rm {} +
