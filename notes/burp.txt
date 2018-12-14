@@ -10,7 +10,6 @@ Move to /Applications/
 
 # Firefox plugins
 
-FoxyProxy
 Wappalyzer
 Web Developer
 ------------------------------------------------------------------------------------------------------
@@ -73,35 +72,24 @@ Proxy > Options:
           Enable Intercept responses based on the following rules.
           Disable Content type header.
           Enable URL.
-          Add: And, File extension, Does not match, paste contents from above.
+          Add: And, File extension, Does not match, Match condition: paste contents from above, OK
 
      Match & Replace:
           Scroll to the bottom and enable X-XXS-Protection: 0
 
-Spider > Options:
-     Form Submission > age: 38
-     Spider Engine > Number of retries on network failure: 2
-     
-Scanner:
-     Live scanning:
-          Live Passive Scanning: Use suite scope [defined in Target tab]
-     Options:
-          Active Scanning Engine > Number of retries on network failure: 2
-          Active Scanning Optimization > Scan speed: Thorough
-          Static Code Analysis > Don’t perform static code analysis
-     
 Intruder > Options:
      Request Engine:
           Number of threads: 8
           Number of retries on network failure: 2
 
 Extender:
-     BApp Store:
+     BApp Store > Refresh list
           Active Scann++, Additional Scanner Checks, Backslash Powered Scanner, CO2, CSRF Scanner, 
           Error Message Checks, J2EEScan, Java Deserialization Scanner, JSON Beautifier, Paramalyzer, Retire.js, 
           Site Map Fetcher, Software Version Reporter, Software Vulnerability Scanner, Wsdler, and XSS Validator
      Options:
-          Python Environment > Select file > Browse to /Applications/jython-standalone-(version).jar > Open  
+          Python Environment > Select file > Browse to /Applications/jython-standalone-2.7.0.jar > Open 
+     Extensions > Burp Extensions: use the Up/Down buttons to place in alphabetical order
 
 Project options > Misc:
      Burp Collaborator Server: Don't use Burp Collaborator
@@ -110,8 +98,8 @@ User options:
      Connections:
           Platform Authentication: enable Prompt for credentials on platform authentication failure
      Display:
-          User Interface > Font size: 15
-          HTTP Message Display > Font: Courier 17
+          User Interface > Font size: 14
+          HTTP Message Display > Font: Courier 14
      Misc:
           Proxy Interception: Always disable
 
