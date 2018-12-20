@@ -369,7 +369,7 @@ case $choice in
      fi
 
      echo "     Baidu                (9/$total)"
-     $theharvester -d $domain -b baidu | grep $domain | egrep -v '(Starting|empty|first.last)' | grep -v "'" | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbaidu
+     $theharvester -d $domain -b baidu | grep $domain | egrep -v '(Starting|empty|first.last|+)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbaidu
      echo "     Bing                 (10/$total)"
      $theharvester -d $domain -b bing | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbing
      echo "     crtsh                (11/$total)"
@@ -377,7 +377,7 @@ case $choice in
      echo "     Dogpilesearch        (12/$total)"
      $theharvester -d $domain -b dogpilesearch -l 100 | grep $domain | grep -v 'Starting' > zdogpilesearch
      echo "     Google               (13/$total)"
-     $theharvester -d $domain -b google | grep $domain | egrep -v '(Starting|empty|xxx|\.\.)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zgoogle
+     $theharvester -d $domain -b google | grep $domain | egrep -v '(Starting|empty|xxx|+|\.\.)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zgoogle
      echo "     Google CSE           (14/$total)"
      $theharvester -d $domain -b googleCSE | sed -n '/---/,$p' | egrep -v '(-|found)' | sed '/^$/d' > zgoogleCSE
      echo "     Google+              (15/$total)"
@@ -388,7 +388,7 @@ case $choice in
      $theharvester -d "$company" -b linkedin | grep -v '\-\-' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin   # TEST THIS
      $theharvester -d $domain -b linkedin | grep -v '\-\-' | grep -v 'not found' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin2   # TEST THIS
      echo "     netcraft             (18/$total)"
-     $theharvester -d $domain -b netcraft | grep $domain | grep -v 'Starting' | sort -u > znetcraft
+     $theharvester -d $domain -b netcraft | grep $domain | egrep -v '(Starting|empty)' | sort -u > znetcraft
      echo "     PGP                  (19/$total)"
      $theharvester -d $domain -b pgp | grep $domain | grep -v 'Starting' | tr '[A-Z]' '[a-z]' | sort -u > zpgp
      echo "     threatcrowd          (20/$total)"
