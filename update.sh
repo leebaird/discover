@@ -186,10 +186,6 @@ else
      echo
 fi
 
-echo -e "${BLUE}Updating Python dependencies.${NC}"
-pip install -q -r $discover/requirements.txt
-echo
-
 if [ -d /opt/rawr/.git ]; then
      echo -e "${BLUE}Updating RAWR.${NC}"
      cd /opt/rawr/ ; git pull
