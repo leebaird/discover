@@ -4,7 +4,52 @@ tutorialspoint.com/python/index.htm
 learnpythonthehardway.org/book/
 ------------------------------------------------------------------------------------------------------
 
-Color
+# Variables and Simple Data Types
+
+print("\nHello Python world!")
+
+message = "\nHello Python world!"
+print(message)
+
+name = "Lee Baird"
+print(name.upper())
+print(name.lower())
+            
+first_name = "lee"
+last_name = "baird"
+full_name = first_name + " " + last_name
+print(full_name.title())
+
+first_name = "lee"
+last_name = "baird"
+full_name = first_name + " " + last_name
+print("\nHello, " + full_name.title() + "!")
+
+print("Languages:\n\tPython\n\tC\n\tJavaScript")
+
+favorite_language = ' python'
+print(favorite_language.lstrip())
+
+favorite_language = 'python '
+print(favorite_language.rstrip())
+
+favorite_language = ' python '
+print(favorite_language.strip())
+
+message = "One of Python's strengths is its diverse community."
+print(message)
+
+age = 51
+name = "Lee"
+message = "Happy " + str(age) + "st Birthday " + name + "!"
+print(message)
+------------------------------------------------------------------------------------------------------
+
+# Lists
+
+------------------------------------------------------------------------------------------------------
+
+# Color
 
 W = '\033[0m'    # white (normal)
 R = '\033[31m'   # red
@@ -155,4 +200,14 @@ try:
     import xml.etree.cElementTree as ET         # Much, much faster and consumes significantly less memory
 except ImportError:
     import xml.etree.ElementTree as ET
+------------------------------------------------------------------------------------------------------
+
+import sys
+
+if len(sys.argv) != 3:
+    print "Usage: test.py <IP address> <port>"
+    sys.exit(0)
+
+ip_address = sys.argv[1].strip()
+port = sys.argv[2].strip()
 

@@ -381,23 +381,23 @@ case $choice in
      echo "     Google CSE           (14/$total)"
      $theharvester -d $domain -b googleCSE | sed -n '/---/,$p' | egrep -v '(-|found)' | sed '/^$/d' > zgoogleCSE
      echo "     Google+              (15/$total)"
-     $theharvester -d $domain -b googleplus | sed -n '/===/,$p' | egrep -v '(=|Chicago|Home|Plaza|Texas|User)' | sed 's/- Google+//g' | sort -u > zgoogleplus
+     $theharvester -d $domain -b googleplus | sed -n '/===/,$p' | egrep -v '(Chicago|Home|Plaza|Texas|User|=)' | sed 's/- Google+//g' | sort -u > zgoogleplus
      echo "     Google Profiles      (16/$total)"
      $theharvester -d $domain -b google-profiles | sed -n '/---/,$p' | grep -v '-' | sort -u > zgoogle-profiles
      echo "     Linkedin             (17/$total)"
      $theharvester -d "$company" -b linkedin | grep -v '\-\-' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin   # TEST THIS
      $theharvester -d $domain -b linkedin | grep -v '\-\-' | grep -v 'not found' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin2   # TEST THIS
-     echo "     netcraft             (18/$total)"
+     echo "     Netcraft             (18/$total)"
      $theharvester -d $domain -b netcraft | grep $domain | egrep -v '(Starting|empty)' | sort -u > znetcraft
      echo "     PGP                  (19/$total)"
      $theharvester -d $domain -b pgp | grep $domain | grep -v 'Starting' | tr '[A-Z]' '[a-z]' | sort -u > zpgp
-     echo "     threatcrowd          (20/$total)"
+     echo "     Threat Crowd          (20/$total)"
      $theharvester -d $domain -b threatcrowd | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zthreatcrowd
      echo "     Twitter              (21/$total)"
      $theharvester -d $domain -b twitter | grep $domain | egrep -v '(Starting|\.\.)' | sort -u > ztwitter
      echo "     vhost                (22/$total)"
      $theharvester -d $domain -b vhost | grep $domain | grep -v 'Starting' | sort -u > zvhost
-     echo "     virustotal           (23/$total)"
+     echo "     VirusTotal           (23/$total)"
      $theharvester -d $domain -b virustotal | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zvirustotal
      echo "     Yahoo                (24/$total)"
      $theharvester -d $domain -b yahoo -l 100 | grep $domain | egrep -v '(Starting|empty|\.\.)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zyahoo
