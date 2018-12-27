@@ -1090,7 +1090,7 @@ s/ Ux / UX /g; s/,,/,/g' > tmp6
 
      rm tmp*
      # Remove all empty files
-     find $name/ -type f -empty -exec rm {} +
+     find $home/data/$domain/ -type f -empty -exec rm {} +
 
      echo
      echo "recon-ng                  (9/$total)"
