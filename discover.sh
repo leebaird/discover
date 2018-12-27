@@ -369,15 +369,15 @@ case $choice in
      fi
 
      echo "     Baidu                (9/$total)"
-     $theharvester -d $domain -b baidu | grep $domain | egrep -v '(Starting|empty|first.last|+)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbaidu
+     $theharvester -d $domain -b baidu | grep $domain | egrep -v '(Starting|empty|first.last)' | sed 's/:/ /g' | column -t | sort -u > zbaidu
      echo "     Bing                 (10/$total)"
-     $theharvester -d $domain -b bing | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zbing
+     $theharvester -d $domain -b bing | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zbing
      echo "     crtsh                (11/$total)"
-     $theharvester -d $domain -b crtsh | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zcrtsh
-     echo "     Dogpilesearch        (12/$total)"
-     $theharvester -d $domain -b dogpilesearch -l 100 | grep $domain | grep -v 'Starting' > zdogpilesearch
+     $theharvester -d $domain -b crtsh | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zcrtsh
+     echo "     Dogpile              (12/$total)"
+     $theharvester -d $domain -b dogpile -l 100 | grep $domain | grep -v 'Starting' > zdogpile
      echo "     Google               (13/$total)"
-     $theharvester -d $domain -b google | grep $domain | egrep -v '(Starting|empty|xxx|+|\.\.)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zgoogle
+     $theharvester -d $domain -b google | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zgoogle
      echo "     Google CSE           (14/$total)"
      $theharvester -d $domain -b googleCSE | sed -n '/---/,$p' | egrep -v '(-|found)' | sed '/^$/d' > zgoogleCSE
      echo "     Google+              (15/$total)"
@@ -390,17 +390,17 @@ case $choice in
      echo "     Netcraft             (18/$total)"
      $theharvester -d $domain -b netcraft | grep $domain | egrep -v '(Starting|empty)' | sort -u > znetcraft
      echo "     PGP                  (19/$total)"
-     $theharvester -d $domain -b pgp | grep $domain | grep -v 'Starting' | tr '[A-Z]' '[a-z]' | sort -u > zpgp
+     $theharvester -d $domain -b pgp | grep $domain | grep -v 'Starting' | sort -u > zpgp
      echo "     Threat Crowd          (20/$total)"
      $theharvester -d $domain -b threatcrowd | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zthreatcrowd
      echo "     Twitter              (21/$total)"
-     $theharvester -d $domain -b twitter | grep $domain | egrep -v '(Starting|\.\.)' | sort -u > ztwitter
+     $theharvester -d $domain -b twitter | grep $domain | egrep -v '(Starting)' | sort -u > ztwitter
      echo "     vhost                (22/$total)"
      $theharvester -d $domain -b vhost | grep $domain | grep -v 'Starting' | sort -u > zvhost
      echo "     VirusTotal           (23/$total)"
      $theharvester -d $domain -b virustotal | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zvirustotal
      echo "     Yahoo                (24/$total)"
-     $theharvester -d $domain -b yahoo -l 100 | grep $domain | egrep -v '(Starting|empty|\.\.)' | sed 's/:/ /g' | tr '[A-Z]' '[a-z]' | column -t | sort -u > zyahoo
+     $theharvester -d $domain -b yahoo -l 100 | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zyahoo
      
      # Remove all empty files
      find -type f -empty -exec rm {} +
