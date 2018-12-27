@@ -1,7 +1,6 @@
-Python notes.
+Python notes
 
 tutorialspoint.com/python/index.htm
-learnpythonthehardway.org/book/
 ------------------------------------------------------------------------------------------------------
 
 # Variables and Simple Data Types
@@ -14,7 +13,7 @@ print(message)
 name = "Lee Baird"
 print(name.upper())
 print(name.lower())
-            
+
 first_name = "lee"
 last_name = "baird"
 full_name = first_name + " " + last_name
@@ -47,6 +46,39 @@ print(message)
 
 # Lists
 
+The first item in a list has an index of 0.
+The second item in a list has an index of 1.
+The last item in a list has an index of -1.
+
+fruit = ['apple', 'orange', 'grape']
+print(fruit[0].title())
+Apple
+
+print(fruit[-1])
+grape
+
+# Change the first element in a list.
+fruit[0] = 'pear'
+print(fruit.title())
+Pear, Orange, Grape
+
+# Append to a list.
+fruit.append('strawberry')
+print(fruit.title())
+Pear, Orange, Grape, Strawberry
+
+# Start with an empty list, then add to it.
+fruit = []
+fruit.append('pear')
+fruit.append('orange')
+fruit.append('grape')
+print(fruit.title())
+Pear, Orange, Grape
+
+# Insert an element at a specific position.
+fruit.insert(1, 'strawberry')
+print(fruit.title())
+Pear, Strawberry, Orange, Grape
 ------------------------------------------------------------------------------------------------------
 
 # Color
@@ -210,4 +242,3 @@ if len(sys.argv) != 3:
 
 ip_address = sys.argv[1].strip()
 port = sys.argv[2].strip()
-
