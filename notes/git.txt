@@ -2,15 +2,16 @@
 
 # Clone the repository from your fork.
      git clone git@github.com:<username>/<repo-name>.git
-     git clone git@github.com:kraman/crankcase.git
+     git clone git@github.com:leebaird/theHarvester.git
 
 # Add the upstream repo so that you can pull changes.
-     git remote add upstream <original repo git url>
-     git remote add upstream git@github.com:openshift/crankcase.git
+     git remote add upstream <original repo git>
+     git remote add upstream git@github.com:laramies/theHarvester.git
 
 # Stop Errors pushing changes.
      # Point this command to your fork of the repository.
      git remote set-url origin git@github.com:<username>/<repo-name>.git
+     git remote set-url origin git@github.com:leebaird/theHarvester.git
 
 
 -- Working on a topic branch.
@@ -22,10 +23,10 @@ and/or update issues. Instead, work on a bug/feature/topic branch whenever possi
      git checkout master
 
      # Create a new branch.
-     git branch dev/kraman/bug/12345
+     git branch dev
 
      # Switch to the new branch.
-     git checkout dev/kraman/bug/12345
+     git checkout dev
 
      # Make changes.
 
@@ -53,7 +54,7 @@ Follow the steps outlined below to keep the master branch up-to-date.
      git push origin --tags
 
      # Return to your bug/feature branch.
-     git checkout dev/kraman/bug/12345
+     git checkout dev
 
      # Rebase this branch onto latest code from master (expect conflicts).
      git rebase master
@@ -61,7 +62,7 @@ Follow the steps outlined below to keep the master branch up-to-date.
      # Resolve conflicts.
 
      # Push the rebased branch back to your fork.
-     git push origin dev/kraman/bug/12345 -f
+     git push origin dev -f
 
      # Restore any un-committed changes.
      git stash pop
