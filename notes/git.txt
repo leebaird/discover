@@ -22,8 +22,8 @@ and/or update issues. Instead, work on a bug/feature/topic branch whenever possi
      # Start from the master branch.
      git checkout master
 
-     # Create a new branch.
-     git branch dev
+     # Create a new branch and checkout that branch at the same time.
+     git branch -b dev
 
      # Switch to the new branch.
      git checkout dev
