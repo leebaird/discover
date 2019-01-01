@@ -380,21 +380,20 @@ case $choice in
      $theharvester -d $domain -b google | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zgoogle
      echo "     Google CSE           (14/$total)"
      $theharvester -d $domain -b googleCSE | sed -n '/---/,$p' | egrep -v '(-|found)' | sed '/^$/d' > zgoogleCSE
-     echo "     Google+              (15/$total)"
-     $theharvester -d $domain -b googleplus | sed -n '/===/,$p' | egrep -v '(Chicago|Home|Plaza|Texas|User|=)' | sed 's/- Google+//g' | sort -u > zgoogleplus
+     echo "     <Placeholder>        (15/$total)"
      echo "     Google Profiles      (16/$total)"
      $theharvester -d $domain -b google-profiles | sed -n '/---/,$p' | grep -v '-' | sort -u > zgoogle-profiles
      echo "     Linkedin             (17/$total)"
-     $theharvester -d "$company" -b linkedin | grep -v '\-\-' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin   # TEST THIS
-     $theharvester -d $domain -b linkedin | grep -v '\-\-' | grep -v 'not found' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin2   # TEST THIS
+     $theharvester -d "$company" -b linkedin | grep -v '\-\-' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin   # TODO
+     $theharvester -d $domain -b linkedin | grep -v '\-\-' | grep -v 'not found' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin2   # TODO
      echo "     Netcraft             (18/$total)"
      $theharvester -d $domain -b netcraft | grep $domain | egrep -v '(Starting|empty)' | sort -u > znetcraft
      echo "     PGP                  (19/$total)"
      $theharvester -d $domain -b pgp | grep $domain | grep -v 'Starting' | sort -u > zpgp
-     echo "     Threat Crowd          (20/$total)"
+     echo "     Threat Crowd         (20/$total)"
      $theharvester -d $domain -b threatcrowd | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zthreatcrowd
      echo "     Twitter              (21/$total)"
-     $theharvester -d $domain -b twitter | grep $domain | egrep -v '(Starting)' | sort -u > ztwitter
+     $theharvester -d $domain -b twitter | grep $domain | grep -v 'Starting' | sort -u > ztwitter
      echo "     vhost                (22/$total)"
      $theharvester -d $domain -b vhost | grep $domain | grep -v 'Starting' | sort -u > zvhost
      echo "     VirusTotal           (23/$total)"
