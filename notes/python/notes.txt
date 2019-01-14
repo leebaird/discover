@@ -96,6 +96,13 @@ T = '\033[93m'   # tan
 print R.format('Test')
 ------------------------------------------------------------------------------------------------------
 
+import ipaddress
+
+with open('file.txt', 'r') as ip:
+   ips = sorted(ipaddress.ip_address(line.strip()) for line in set(ip))
+   print('\n'.join(map(str, ips)))
+------------------------------------------------------------------------------------------------------
+
 import os
 
 os.system('clear')                              # Clear the screen
