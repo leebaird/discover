@@ -4,6 +4,8 @@
      git clone git@github.com:<username>/<repo-name>.git
      git clone git@github.com:leebaird/theHarvester.git
 
+cd theHarvester/
+
 # Add the upstream repo so that you can pull changes.
      git remote add upstream <original repo git>
      git remote add upstream git@github.com:laramies/theHarvester.git
@@ -13,11 +15,12 @@
      git remote set-url origin git@github.com:<username>/<repo-name>.git
      git remote set-url origin git@github.com:leebaird/theHarvester.git
 
+ssh -T git@github.com
 
--- Working on a topic branch.
+-- Working on a dev branch.
 
 Always try to avoid working on the master branch. It usually results in merge conflicts
-and/or update issues. Instead, work on a bug/feature/topic branch whenever possible.
+and/or update issues. Instead, work on a bug/dev/feature branch whenever possible.
 
      # Start from the master branch.
      git checkout master
@@ -34,7 +37,7 @@ and/or update issues. Instead, work on a bug/feature/topic branch whenever possi
 -- Staying updated.
 
 Once a fork has been created, it does not automatically track the upstream repository.
-Follow the steps outlined below to keep the master branch up-to-date.
+Follow the steps below to keep the master branch up-to-date.
 
      # Pull the latest changes from upstream.
      git fetch upstream
