@@ -21,7 +21,8 @@ msf > use auxiliary/admin/mssql/mssql_exec
 
 # MySQL
 
-mysql -h <IP> -u <username> -p
+mysql -h <IP> -u <username> -p          # Login remotely
+mysql -u root                           # Login locally as root
 
 CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
 CREATE DATABASE <database>;
@@ -56,6 +57,10 @@ OFFSET <number>
 ORDER BY <field>
 WHERE <field> IS NOT NULL
 WHERE <field> LIKE
+
+\! whoami
+\! sudo whoami
+\! sudo bash
 
 Examples:
 SELECT * FROM hostvulns WHERE vulnerability LIKE "%Default%" ORDER BY vulnerability;

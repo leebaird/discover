@@ -49,22 +49,18 @@ Passive uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,
   Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.
 
 [*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub,
-    Google, GoogleCSE, Hashes, Hunter, and Shodan for maximum
-    results with recon-ng and theharvester.
+    Google, GoogleCSE, Hashes, Hunter, SecurityTrails, and Shodan
+    for maximum results with recon-ng and theharvester.
 
 Active uses dnsrecon, WAF00W, traceroute, Whatweb, and recon-ng.
 
 ```
   recon-ng
-  show keys
-  keys add bing_api <value>
-  show keys
+    show keys
+    keys add bing_api <value>
 
-
-  googleCSE      /usr/share/theharvester/discovery/googleCSE.py
-  hunter         /usr/share/theharvester/discovery/huntersearch.py
-  shodan         /usr/share/theharvester/discovery/shodansearch.py
-
+  theHarvester
+    /opt/theHarvester/api-keys.yaml
 ```
 
 ### Person

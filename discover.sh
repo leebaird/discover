@@ -62,7 +62,7 @@ if [ $instqty -gt 1 ]; then
      echo -e "${YELLOW}$medium ${NC}"
      echo
      rm tmpinstance
-     exit 1
+     exit
 else
      rm tmpinstance
 fi
@@ -217,8 +217,8 @@ case $choice in
      echo -e "${BLUE}  Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.${NC}"
      echo
      echo -e "${BLUE}[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub,${NC}"
-     echo -e "${BLUE}    Google, GoogleCSE, Hashes, Hunter, and Shodan for maximum${NC}"
-     echo -e "${BLUE}    results with recon-ng and theharvester.${NC}"
+     echo -e "${BLUE}    Google, GoogleCSE, Hashes, Hunter, SecurityTrails, and Shodan${NC}"
+     echo -e "${BLUE}    for maximum results with recon-ng and theHarvester.${NC}"
      echo
      echo $medium
      echo
@@ -247,7 +247,7 @@ case $choice in
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
      rundate=`date +%B' '%d,' '%Y`
-     total=35
+     total=38
 
      # If folder doesn't exist, create it
      if [ ! -d $home/data/$domain ]; then
@@ -350,63 +350,65 @@ case $choice in
      $discover/mods/goohost.sh -t $domain -m ip >/dev/null
      echo "     Email                (8/$total)"
      $discover/mods/goohost.sh -t $domain -m mail >/dev/null
-     cat report-* > tmp
-     # Move the second column to the first position
-     grep $domain tmp | awk '{print $2 " " $1}' > tmp2
-     column -t tmp2 > zgoohost
+     cat report-* | grep $domain | column -t > zgoohost
 
-     # Remove all empty files
-     find -type f -empty -exec rm {} +
      rm *-$domain.txt tmp* 2>/dev/null
      echo
 
      echo "theHarvester"
-     # PTF
-     if [ -f /pentest/intelligence-gathering/theharvester/theHarvester.py ]; then
-          theharvester="theHarvester"
-     else
-          theharvester="/usr/share/theharvester/theHarvester.py"
-     fi
+     cd /opt/theHarvester/
 
      echo "     Baidu                (9/$total)"
-     $theharvester -d $domain -b baidu | grep $domain | egrep -v '(Starting|empty|first.last)' | sed 's/:/ /g' | column -t | sort -u > zbaidu
+     python3 theHarvester.py -d $domain -l 100 -b baidu | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zbaidu
      echo "     Bing                 (10/$total)"
-     $theharvester -d $domain -b bing | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zbing
-     echo "     crtsh                (11/$total)"
-     $theharvester -d $domain -b crtsh | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zcrtsh
-     echo "     Dogpile              (12/$total)"
-     $theharvester -d $domain -b dogpile -l 100 | grep $domain | grep -v 'Starting' > zdogpile
-     echo "     Google               (13/$total)"
-     $theharvester -d $domain -b google | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zgoogle
-     echo "     Google CSE           (14/$total)"
-     $theharvester -d $domain -b googleCSE | sed -n '/---/,$p' | egrep -v '(-|found)' | sed '/^$/d' > zgoogleCSE
-     echo "     <Placeholder>        (15/$total)"
-     echo "     Google Profiles      (16/$total)"
-     $theharvester -d $domain -b google-profiles | sed -n '/---/,$p' | grep -v '-' | sort -u > zgoogle-profiles
-     echo "     Linkedin             (17/$total)"
-     $theharvester -d "$company" -b linkedin | grep -v '\-\-' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin   # TODO
-     $theharvester -d $domain -b linkedin | grep -v '\-\-' | grep -v 'not found' | sed -n '/--/,$p; /^-/d; s/ -.*//' | sort -u > zlinkedin2   # TODO
-     echo "     Netcraft             (18/$total)"
-     $theharvester -d $domain -b netcraft | grep $domain | egrep -v '(Starting|empty)' | sort -u > znetcraft
-     echo "     PGP                  (19/$total)"
-     $theharvester -d $domain -b pgp | grep $domain | grep -v 'Starting' | sort -u > zpgp
-     echo "     Threat Crowd         (20/$total)"
-     $theharvester -d $domain -b threatcrowd | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zthreatcrowd
-     echo "     Twitter              (21/$total)"
-     $theharvester -d $domain -b twitter | grep $domain | grep -v 'Starting' | sort -u > ztwitter
-     echo "     vhost                (22/$total)"
-     $theharvester -d $domain -b vhost | grep $domain | grep -v 'Starting' | sort -u > zvhost
-     echo "     VirusTotal           (23/$total)"
-     $theharvester -d $domain -b virustotal | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zvirustotal
-     echo "     Yahoo                (24/$total)"
-     $theharvester -d $domain -b yahoo -l 100 | grep $domain | egrep -v '(Starting|empty)' | sed 's/:/ /g' | column -t | sort -u > zyahoo
-     
+     python3 theHarvester.py -d $domain -l 200 -b bing | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zbing
+     echo "     Bing API             (11/$total)"
+     python3 theHarvester.py -d $domain -l 200 -b bingapi | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zbingapi
+     echo "     Censys               (12/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b censys | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zcensys
+     echo "     crtsh                (13/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b crtsh | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zcrtsh
+     echo "     Cymon                (14/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b cymon | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zcymon
+     echo "     Dogpile              (15/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b dogpile | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zdogpile
+     echo "     DuckDuckGo           (16/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b duckduckgo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zduckduckgo
+     echo "     Google               (17/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b google | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zgoogle
+     echo "     Google CSE           (18/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b googleCSE | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zgoogleCSE
+     echo "     Google-certificates  (19/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b google-certificates | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zgoogle-certificates
+     echo "     Hunter               (20/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b hunter | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zhunter
+     echo "     Intelx               (21/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b intelx | egrep -v '(!|\*|--|\[|Searching|Warning|/)' | sed '/^$/d' > zintelx
+     echo "     Linkedin             (22/$total)"
+     python3 theHarvester.py -d "$company" -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp
+     python3 theHarvester.py -d $domain -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp2
+     cat tmp tmp2 | sort -u > zlinkedin
+     echo "     Netcraft             (23/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b netcraft | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > znetcraft
+     echo "     SecurityTrails       (24/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b securityTrails | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zsecuritytrails
+     echo "     ThreatCrowd          (25/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b threatcrowd | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zthreatcrowd
+     echo "     VirusTotal           (26/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b virustotal | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zvirustotal
+     echo "     Yahoo                (27/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b yahoo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zyahoo
+
+     mv z* $discover
+     rm debug_results.txt stash.sqlite tmp* 2>/dev/null
+
      # Remove all empty files
+     cd $discover/
      find -type f -empty -exec rm {} +
-     rm debug* stash.sqlite 2>/dev/null
+
      echo
 
-     echo "Metasploit                (25/$total)"
+     echo "Metasploit                (28/$total)"
      msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
      grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' > zmsf
      # Remove all empty files
@@ -414,7 +416,7 @@ case $choice in
      rm tmp 2>/dev/null
      echo
 
-     echo "URLCrazy                  (26/$total)"
+     echo "URLCrazy                  (29/$total)"
      urlcrazy $domain > tmp
      sed -n '/Character/,$p' tmp | sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; 
 s/BELGIUM/Belgium/g; s/BULGARIA/Bulgaria/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; 
@@ -428,8 +430,8 @@ s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United S
 s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
-     cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/DK,//g; s/EU,//g; s/FR,//g; s/GB,//g; s/JP,//g; s/KR,//g; s/IN,//g; s/IT,//g; s/NL,//g; 
-s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' > tmp4
+     cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/DK,//g; s/EU,//g; s/FR,//g; s/GB,//g; s/JP,//g; s/KR,//g; s/IN,//g; s/IT,//g; 
+s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' > tmp4
      # Find domains that contain an IP
      grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp4 > squatting
      rm tmp* 2>/dev/null
@@ -438,12 +440,12 @@ s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' 
      ##############################################################
 
      echo "Whois"
-     echo "     Domain               (27/$total)"
+     echo "     Domain               (30/$total)"
      whois -H $domain > tmp 2>/dev/null
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
      # Clean up
-     egrep -v '(#|%|<a|=-=-=-=|;|Access may be|Additionally|Afilias except|and DNS Hosting|and limitations of|any use of|Be sure to|at the end of|By submitting an|by the terms|can easily change|circumstances will|clientDeleteProhibited|clientTransferProhibited|clientUpdateProhibited|company may be|ccompilation|complaint will|contact information|Contact us|Copy and paste|currently set|database|data contained in|data presented in|date of|details go to|dissemination|Domaininfo AB|Domain Management|Domain names in|Domain status: ok|enable high|except as reasonably|failure to|facsimile of|for commercial purpose|for detailed information|For information for|for information purposes|For more information|for the sole|Get Noticed|Get a FREE|guarantee its|HREF|In Europe|In most cases|in obtaining|in the address|includes restrictions|including spam|information is provided|is not the|is providing|JPRS database provides|Learn how|Learn more|makes this information|MarkMonitor|minimum|mining this data|minute and one|modify existing|modify these terms|must be sent|name cannot|NamesBeyond|not to use|Note: This|NOTICE|obtaining information about|of Moniker|of this data|or hiding any|or otherwise support|other use of|own existing customers|Please be advised|Please note|policy|prior written consent|privacy is|Problem Reporting System|Professional and|prohibited without|Promote your|protect the|Public Interest|queries or|receiving|Register your|Registrars|registration record|repackaging,|reserves the|responsible for|See Business Registration|server at|solicitations via|sponsorship|Status|support questions|support the transmission|telephone, or facsimile|Temporary|that apply to|that you will|the right| The data is|The fact that|the transmission|The Trusted Partner|This listing is|This feature is|This information|This service is|to collect or|to entities|to report any|To suppress Japanese|transmission of mass|UNITED STATES|United States|UNLIMITED|unsolicited advertising|Users may|Version 6|via e-mail|Visit AboutUs.org|Visit|when you|while believed|will use this|with many different|with no guarantee|We reserve the|whitelist|Whois|whois_guidanceyou agree|you agree|You may not)' tmp2 > tmp3
+     egrep -v '(#|%|<a|=-=-=-=|;|Access may be|accuracy|Additionally|Afilias except|and DNS Hosting|and limitations of|any use of|Be sure to|at the end of|By submitting an|by the terms|can easily change|circumstances will|clientDeleteProhibited|clientTransferProhibited|clientUpdateProhibited|company may be|ccompilation|complaint will|contact information|Contact us|Copy and paste|currently set|database|data contained in|data presented in|date of|details|dissemination|Domaininfo AB|Domain Management|Domain names in|Domain status: ok|enable high|except as reasonably|failure to|facsimile of|for commercial purpose|for detailed information|For information for|for information purposes|For more information|for the sole|Get Noticed|Get a FREE|guarantee its|HREF|If you|In Europe|In most cases|in obtaining|in the address|includes restrictions|including spam|information is provided|is not the|is providing|its systems|JPRS database provides|Learn how|Learn more|makes this information|MarkMonitor|minimum|mining this data|minute and one|modify existing|modify these terms|must be sent|name cannot|NamesBeyond|not to use|Note: This|NOTICE|obtaining information about|of Moniker|of this data|or hiding any|or otherwise support|other use of|own existing customers|Please be advised|Please note|policy|prior written consent|privacy is|Problem Reporting System|Professional and|prohibited without|Promote your|protect the|Public Interest|queries or|receive|receiving|Register your|Registrars|registration record|relevant|repackaging|request|reserves the|responsible for|See Business Registration|server at|solicitations via|sponsorship|Status|support questions|support the transmission|supporting|telephone, or facsimile|Temporary|that apply to|that you will|the right| The data is|The fact that|the transmission|The Trusted Partner|This listing is|This feature is|This information|This service is|to collect or|to entities|to report any|To suppress Japanese|transmission of mass|UNITED STATES|United States|UNLIMITED|unsolicited advertising|Users may|Version 6|via e-mail|visible|Visit AboutUs.org|Visit|Web-based|when you|while believed|will use this|with many different|with no guarantee|We reserve the|whitelist|Whois|whois_guidanceyou agree|you agree|You may not)' tmp2 > tmp3
      # Remove lines starting with "*"
      sed '/^*/d' tmp3 > tmp4
      # Remove lines starting with "-"
@@ -472,7 +474,7 @@ s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' 
      sed 's/: /:#####/g' tmp13 | column -s '#' -t -n > whois-domain
      rm tmp*
 
-     echo "     IP                   (28/$total)"
+     echo "     IP                   (31/$total)"
      curl --silent https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
      y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
@@ -506,13 +508,13 @@ s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' 
 
      ##############################################################
 
-     echo "crt.sh                    (29/$total)"
+     echo "crt.sh                    (32/$total)"
      python parsers/parse-certificates.py $domain > tmp
      cat tmp >> $home/data/$domain/data/certificates.htm; echo "</pre>" >> $home/data/$domain/data/certificates.htm 2>/dev/null
      rm tmp
      echo
 
-     echo "dnsdumpster.com           (30/$total)"
+     echo "dnsdumpster.com           (33/$total)"
      wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/assets/images/dnsdumpster.png
 
      # Generate a random cookie value
@@ -528,13 +530,13 @@ s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' 
      rm tmp*
      echo
 
-     echo "email-format.com          (31/$total)"
+     echo "email-format.com          (34/$total)"
      curl --silent https://www.email-format.com/d/$domain/ > tmp
      grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
      rm tmp
      echo
 
-     echo "intodns.com               (32/$total)"
+     echo "intodns.com               (35/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
      cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
      cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -555,11 +557,11 @@ s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' 
      rm tmp*
      echo
 
-     echo "robtex.com                (33/$total)"
+     echo "robtex.com                (36/$total)"
      wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
      echo
 
-     echo "Registered Domains        (34/$total)"
+     echo "Registered Domains        (37/$total)"
      f_regdomain(){
      while read regdomain; do
           whois -H $regdomain 2>&1 | sed -e 's/^[ \t]*//; s/ \+ //g; s/: /:/g' > tmp5
@@ -624,12 +626,11 @@ s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' 
 
      ##############################################################
 
-     cat z* | grep '@' | grep -v '^\.' | sort -u > emails
+     cat z* | grep '@' | sort -u > emails
 
-     cat z* | grep -v '@' | column -t | sort -u > sub-theHarvester
+     cat z* | grep ':' | sed 's/:/ /g; s/ empty//g' | column -t | sort -u > sub-theHarvester
 
-     # Remove lines that contain a number or  @
-     cat z* | sed '/[0-9]/d' | grep -v '@' | sort -u > tmp
+     cat z* | egrep -v '(@|:|\.)' | sort -u | cut -d '-' -f1 > tmp
 
      if [ -e tmp ]; then
           # Remove lines that start with .
@@ -641,12 +642,12 @@ s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' 
           cat tmp4 | sed 's/iii/III/g; s/ii/II/g' > tmp5
           # Capitalize the first letter of every word and tweak
           cat tmp5 | sed 's/\b\(.\)/\u\1/g; s/ And / and /; s/ Av / AV /g; s/ It / IT /g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; 
-s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcs/McS/g; s/ Ui / UI /g; 
-s/ Ux / UX /g; s/,,/,/g' > tmp6
+s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g; 
+s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
           grep -v ',' tmp6 | awk '{print $2", "$1}' > tmp7
           grep ',' tmp7 > tmp8
           # Remove trailing whitespace from each line
-          cat tmp7 tmp8 | sed 's/[ \t]*$//' | sort -u > names
+          cat tmp7 tmp8 | sed 's/[ \t]*$//' | sed '/^\,/ d' | sort -u > names
      fi
 
      ##############################################################
@@ -662,7 +663,7 @@ s/ Ux / UX /g; s/,,/,/g' > tmp6
           cat $discover/resource/recon-ng-import-names.rc > tmp.rc
      fi
 
-     echo "recon-ng                  (35/$total)"
+     echo "recon-ng                  (38/$total)"
      echo
      echo "workspaces add $domain" > passive.rc
      echo "add companies" >> passive.rc
@@ -694,17 +695,19 @@ s/ Ux / UX /g; s/,,/,/g' > tmp6
      grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-recon
      cat emails emails-recon | tr '[A-Z]' '[a-z]' | sort -u > emails-final
 
-     grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|arin-notify|contact|netops|production|unknown)' | sed 's/|//g; s/^[ \t]*//; s/[ \t]*$//; /^[0-9]/d' > names-recon
+     grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|arin-notify|contact|netops|production|unknown)' | sed 's/|//g; s/^[ \t]*//; s/[ \t]*$//; 
+/^[0-9]/d; s/Public profile badge. Include this LinkedIn profile on other websites. //g' > names-recon
 
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
 
      grep "$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
 
-     egrep -v '(\+|returned|username)' /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/^,/d' | sed -e "s/\b\(.\)/\u\1/g" | sort -u > usernames-recon
+     egrep -v '(%|\+|returned|username)' /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/^,/d' | sed -e "s/\b\(.\)/\u\1/g" | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; 
+s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sort -u > usernames-recon
 
      ##############################################################
 
-     cat networks-tmp networks-recon | sort -u | $sip > networks 2>/dev/null     # BUG: not surpressing the error when networks-tmp is not present
+     cat networks-tmp networks-recon | sort -u | $sip > networks 2>/dev/null   # BUG: not surpressing the error when networks-tmp is not present
 
      # Find lines that contain IPs and clean up
      cat sub* /tmp/sub-recon | grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | egrep -v '(outlook|www)' | column -t | sort -u > subdomains

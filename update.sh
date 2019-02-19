@@ -31,12 +31,6 @@ if [ -d /pentest ]; then
      exit
 fi
 
-# Check theHarvester.py permissions
-perms=$(stat /usr/share/theharvester/theHarvester.py | grep -m1 'Access' | cut -d '/' -f2 | cut -d ')' -f1)
-if [ "$perms" == '-rw-r--r--' ]; then 
-     chmod 755 /usr/share/theharvester/theHarvester.py
-fi
-
 echo -e "${BLUE}Updating Kali.${NC}"
 apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
 
@@ -194,6 +188,18 @@ else
      echo -e "${YELLOW}Installing RAWR.${NC}"
      git clone https://bitbucket.org/al14s/rawr.git /opt/rawr
      /opt/rawr/install.sh y
+fi
+
+if [ -d /opt/theHarvester/.git ]; then
+     echo -e "${BLUE}Updating theHarvester.${NC}"
+     cd /opt/theHarvester/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing theHarvester.${NC}"
+     git clone https://github.com/laramies/theHarvester.git /opt/theHarvester
+     cd /opt/theHarvester
+     python3 -m pip install -r requirements.txt
+     echo
 fi
 
 if [ -d /opt/unicorn/.git ]; then
