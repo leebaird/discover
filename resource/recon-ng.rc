@@ -2,8 +2,6 @@ use recon/domains-companies/pen
 run
 use recon/domains-contacts/pen
 run
-use recon/domains-contacts/pgp_search
-run
 use recon/domains-contacts/whois_pocs
 run
 use recon/domains-hosts/bing_domain_api
@@ -79,7 +77,6 @@ query UPDATE credentials SET username = LOWER(username)
 query UPDATE hosts SET host = LOWER(host)
 query UPDATE ports SET host = LOWER(host)
 query UPDATE contacts SET email = LOWER(email)
-query UPDATE contacts SET title = '' WHERE title = 'PGP key association'
 query UPDATE contacts SET title = '' WHERE title = 'Undetermined'
 query UPDATE contacts SET title = '' WHERE title = 'Whois contact'
 query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Abuse)'
