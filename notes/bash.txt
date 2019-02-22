@@ -5,10 +5,11 @@ sed -e 's/^/FOO/'                                          # Add FOO to the begi
 sed -e 's/$/FOO/'                                          # Add FOO to the end of each line
 column -t                                                  # Align columns
 
-sed 's/\([a-zA-Z0-9_.]*@[a-zA-Z0-9_.]*\)/\L\1/'            # Make all email addresses lower case.
 tr '[A-Z]' '[a-z]'                                         # Lower case
-sed 's/[^ ]\+/\L\u&/g'                                     # Title case
 tr '[a-z]' '[A-Z]'                                         # Upper case
+sed 's/[^ ]\+/\L\u&/g'                                     # Title case
+sed 's/\([a-zA-Z0-9_.]*@[a-zA-Z0-9_.]*\)/\L\1/'            # Make all email addresses lower case
+sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/'   # Make the first 2 columns title case
 
 sed /^$/d                                                  # Compress blank lines
 paste -s -d" "                                             # Convert a list into a single line
@@ -109,7 +110,7 @@ sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4                # Sort IPs
 sed "s/$FOO./$FOO/g"                                       # Variables - use double quotes with sed or grep
 
 tr -d '\t'                                                 # Delete a horizontal tab
-tr -s ' '                                                  # Squeeze any number of spaces down to a single space?
+tr -s ' '                                                  # Squeeze any number of spaces down to a single space
 tr ',' '\n'                                                # Translate a comma to a new line
 tr '[A-Z]' '[a-z]'                                         # Translate upper case to lower case
 
@@ -247,3 +248,4 @@ while read -r line; do
      echo "$x - $line"
      dnsrecon.py -d $line -t axfr -c axfr_results/$x-$line.csv
 done < names.txt
+

@@ -387,7 +387,8 @@ case $choice in
      echo "     Linkedin             (22/$total)"
      python3 theHarvester.py -d "$company" -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp
      python3 theHarvester.py -d $domain -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp2
-     cat tmp tmp2 | sort -u > zlinkedin
+     # Make first 2 columns title case.
+     cat tmp tmp2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sort -u > zlinkedin
      echo "     Netcraft             (23/$total)"
      python3 theHarvester.py -d $domain -l 100 -b netcraft | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > znetcraft
      echo "     SecurityTrails       (24/$total)"
@@ -696,14 +697,15 @@ s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
      cat emails emails-recon | tr '[A-Z]' '[a-z]' | sort -u > emails-final
 
      grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|arin-notify|contact|netops|production|unknown)' | sed 's/|//g; s/^[ \t]*//; s/[ \t]*$//; 
-/^[0-9]/d; s/Public profile badge. Include this LinkedIn profile on other websites. //g' > names-recon
+/^[0-9]/d' | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; 
+s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sed 's/Director /Director, /g; s/Director -/Director, /g; s/Manager /Manager, /g; s/Manager-/Manager, /g; s/Manager -/Manager, /g; s/SR /Senior /g; s/Sr /Senior /g; s/Sr./Senior/g; s/Vice President/VP/g; s/Vice-President/VP/g; s/VP,/VP/g; s/, - /, /g; s/, of /, /g' | sort -k1 -k2 -u> names-recon
 
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
 
      grep "$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
 
      egrep -v '(%|\+|returned|username)' /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/^,/d' | sed -e "s/\b\(.\)/\u\1/g" | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; 
-s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sort -u > usernames-recon
+s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sort -u > usernames-recon   # TODO: this file is not being used.
 
      ##############################################################
 
