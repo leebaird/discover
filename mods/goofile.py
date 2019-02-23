@@ -51,19 +51,17 @@ def main():
     global totalFiles
     global filetype
 
-    # print('<p>Total number of {0} files: {1}</p>'.format(filetype.upper(), totalFiles))
-
     googleDork()
 
     if results == []:
-        print("No {0} files were found.".format(filetype.upper()))
-        print
+        #print("No {0} files were found.".format(filetype.upper()))
+        #print
         sys.exit()
 
     while results != []:
-        print('<ul>')
+        #print('<ul>')
         googleDork()
-        print('</ul>')
+        #print('</ul>')
 
 main()
 

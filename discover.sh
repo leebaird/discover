@@ -432,7 +432,7 @@ s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
      cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/DK,//g; s/EU,//g; s/FR,//g; s/GB,//g; s/JP,//g; s/KR,//g; s/IN,//g; s/IT,//g; 
-s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/TW,//g; s/US,//g; s/VG,//g' > tmp4
+s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; s/US,//g; s/VG,//g' > tmp4
      # Find domains that contain an IP
      grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp4 > squatting
      rm tmp* 2>/dev/null
@@ -704,12 +704,12 @@ s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/
 
      grep "$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
 
-     egrep -v '(%|\+|returned|username)' /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/^,/d' | sed -e "s/\b\(.\)/\u\1/g" | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; 
+     egrep -v '(%|\+|returned|username)' /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/^[0-9]/d' | sed '/^,/d' | sed -e "s/\b\(.\)/\u\1/g" | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; 
 s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sort -u > usernames-recon   # TODO: this file is not being used.
 
      ##############################################################
 
-     cat networks-tmp networks-recon | sort -u | $sip > networks 2>/dev/null   # BUG: not surpressing the error when networks-tmp is not present
+     cat networks-tmp networks-recon | sort -u | $sip > networks 2>/dev/null
 
      # Find lines that contain IPs and clean up
      cat sub* /tmp/sub-recon | grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | egrep -v '(outlook|www)' | column -t | sort -u > subdomains
@@ -1024,7 +1024,7 @@ s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sort -u > use
 
      echo "     Sub-domains          (2/$total)"
      if [ -f /usr/share/dnsrecon/namelist.txt ]; then
-          dnsrecon -d $domain -D /usr/share/dnsrecon/namelist.txt -f -t brt > tmp     # BUG: not able to see if Wildcard resolution is enabled
+          dnsrecon -d $domain -D /usr/share/dnsrecon/namelist.txt -f -t brt > tmp
      fi
 
      # PTF
@@ -4175,10 +4175,10 @@ echo >> tmp-updates
 
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
-python /usr/share/recon-ng/recon-cli -M > tmp
-grep '/' tmp | awk '{print $1}' | egrep -iv '(adobe|bozocrack|brute_suffix|cache_snoop|dev_diver|exploitation|freegeoip|fullcontact|gists_search|github_commits|github_dorks|github_repos|github_users|google_site_web|hashes_org|import|interesting_files|ipinfodb|ipstack|jigsaw|linkedin_auth|locations|mailtester|mangle|metacrawler|migrate_contacts|migrate_hosts|namechk|profiler|pwnedlist|reporting|virustotal|vulnerabilities)' > tmp2
-cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'use' | grep -v 'query' | awk '{print $2}' | sort -u > tmp3
-diff tmp2 tmp3 | grep '/' | egrep -v '(indeed|vpnhunter)' | awk '{print $2}' | sort -u >> tmp-updates
+python /usr/share/recon-ng/recon-cli -M | grep '/'| egrep -v '(exploitation|import|reporting)' | sed 's/^[ \t]*//' > tmp
+cat tmp | egrep -iv '(adobe|bozocrack|brute_suffix|cache_snoop|dev_diver|freegeoip|fullcontact|gists_search|github_commits|github_dorks|github_repos|github_users|google_site_web|hashes_org|interesting_files|ipinfodb|ipstack|jigsaw|linkedin_auth|locations|mailtester|mangle|metacrawler|migrate_contacts|migrate_hosts|namechk|pgp|profiler|pwnedlist|virustotal|vulnerabilities)' > tmp2
+cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep '^use' | awk '{print $2}' | sort -u > tmp3
+diff tmp2 tmp3 | grep '/' | grep -v 'netblock' | awk '{print $2}' | sort -u >> tmp-updates
 
 echo >> tmp-updates
 echo >> tmp-updates

@@ -22,13 +22,9 @@ use recon/domains-hosts/shodan_hostname
 run
 use recon/domains-hosts/ssl_san
 run
-use recon/domains-hosts/threatminer
-run
-back
-
-query DELETE FROM hosts WHERE host LIKE '%|%%' escape '|'
-
 use recon/domains-hosts/threatcrowd
+run
+use recon/domains-hosts/threatminer
 run
 use recon/companies-contacts/bing_linkedin_cache
 run
@@ -41,6 +37,7 @@ run
 use recon/companies-multi/whois_miner
 run
 use recon/contacts-credentials/hibp_breach
+set SOURCE yyy
 run
 use recon/contacts-credentials/hibp_paste
 run
@@ -71,20 +68,26 @@ back
 
 query DELETE FROM contacts WHERE last_name LIKE '% %'
 query DELETE FROM contacts WHERE last_name LIKE '(%'
+query DELETE FROM profiles WHERE username LIKE '%+%'
+query DELETE FROM profiles WHERE username LIKE '%...%'
 
-
-query UPDATE credentials SET username = LOWER(username)
-query UPDATE hosts SET host = LOWER(host)
-query UPDATE ports SET host = LOWER(host)
 query UPDATE contacts SET email = LOWER(email)
+query UPDATE contacts SET title = '' WHERE title LIKE '%First Name Last Name.%'
+query UPDATE contacts SET title = '' WHERE title LIKE '%LinkedIn%'
+query UPDATE contacts SET title = '' WHERE title LIKE '%People Also Viewed.%'
+query UPDATE contacts SET title = '' WHERE title LIKE '%Public profile badge.%'
+query UPDATE contacts SET title = '' WHERE title LIKE '%View profile.%'
 query UPDATE contacts SET title = '' WHERE title = 'Undetermined'
 query UPDATE contacts SET title = '' WHERE title = 'Whois contact'
 query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Abuse)'
 query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Admin)'
 query UPDATE contacts SET title = '' WHERE title = 'Whois contact (Tech)'
-query UPDATE contacts SET title = '' WHERE title LIKE '%First Name Last Name.%'
-query UPDATE contacts SET title = '' WHERE title LIKE '%Public profile badge.%'
-query UPDATE contacts SET title = '' WHERE title LIKE '%View profile.%'
+
+query UPDATE credentials SET username = LOWER(username)
+
+query UPDATE hosts SET host = LOWER(host)
+
+query UPDATE ports SET host = LOWER(host)
 
 spool start /tmp/emails
 query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email
@@ -96,7 +99,7 @@ query SELECT DISTINCT last_name,first_name,title FROM contacts WHERE first_name 
 spool stop
 
 spool start /tmp/networks
-query SELECT netblock FROM netblocks ORDER BY netblock
+query SELECT DISTINCT netblock FROM netblocks WHERE netblock IS NOT NULL ORDER BY netblock
 spool stop
 
 spool start /tmp/subdomains
@@ -105,7 +108,7 @@ query SELECT host,ip_address FROM ports WHERE host LIKE "%yyy" ORDER BY host
 spool stop
 
 spool start /tmp/usernames
-query select username FROM profiles ORDER BY username
+query SELECT DISTINCT username FROM profiles WHERE username IS NOT NULL ORDER BY username
 spool stop
 
 exit
