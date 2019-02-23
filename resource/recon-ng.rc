@@ -72,6 +72,7 @@ query DELETE FROM profiles WHERE username LIKE '%+%'
 query DELETE FROM profiles WHERE username LIKE '%...%'
 
 query UPDATE contacts SET email = LOWER(email)
+query UPDATE contacts SET title = '' WHERE title LIKE '%...%'
 query UPDATE contacts SET title = '' WHERE title LIKE '%First Name Last Name.%'
 query UPDATE contacts SET title = '' WHERE title LIKE '%LinkedIn%'
 query UPDATE contacts SET title = '' WHERE title LIKE '%People Also Viewed.%'
@@ -88,6 +89,8 @@ query UPDATE credentials SET username = LOWER(username)
 query UPDATE hosts SET host = LOWER(host)
 
 query UPDATE ports SET host = LOWER(host)
+
+query UPDATE profiles SET username = LOWER(username)
 
 spool start /tmp/emails
 query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email

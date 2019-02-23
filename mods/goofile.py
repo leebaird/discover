@@ -12,15 +12,12 @@ start = 0
 results = []
 totalFiles = 0
 
-linkTemplate = '<li><a href="{0}" target="_blank">{0}</a></li>'
-
 def googleDork():
     global domain
     global filetype
     global start
     global results
     global totalFiles
-    global linkTemplate
 
     headers = {
         "Host": "www.google.com",
@@ -39,9 +36,9 @@ def googleDork():
     for link in results:
         m = re.match('^\/url\?q=(.*)\&sa', link)
         if m:
-            print(linkTemplate.format(m.groups()[0]))
+            print(m.groups()[0])
         else:
-            print('<li>Could not parse: {0}</li>'.format(link))
+            print('Could not parse: {0}'.format(link))
 
     if results != []:
         start += 100
@@ -54,14 +51,10 @@ def main():
     googleDork()
 
     if results == []:
-        #print("No {0} files were found.".format(filetype.upper()))
-        #print
         sys.exit()
 
     while results != []:
-        #print('<ul>')
         googleDork()
-        #print('</ul>')
 
 main()
 

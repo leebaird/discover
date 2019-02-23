@@ -281,7 +281,7 @@ case $choice in
      echo "     Names                (2/$total)"
      if [ -e zhandles.txt ]; then
           while read y; do
-               curl --silent https://whois.arin.net/rest/poc/$y.txt | grep 'Name' >> tmp
+               curl -s https://whois.arin.net/rest/poc/$y.txt | grep 'Name' >> tmp
           done < zhandles.txt
 
           egrep -v '(@|Network|Telecom)' tmp | sed 's/Name:           //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp2
@@ -298,7 +298,7 @@ case $choice in
 
           while read handle; do
                echo "          " $handle
-               curl --silent https://whois.arin.net/rest/org/$handle/nets.txt > tmp2
+               curl -s https://whois.arin.net/rest/org/$handle/nets.txt > tmp2
                if ! head -1 tmp2 | grep 'DOCTYPE' > /dev/null; then
                     awk '{print $4 "-" $6}' tmp2 >> tmp3
                fi
@@ -325,13 +325,13 @@ case $choice in
 
      echo "goofile                   (5/$total)"
      python $discover/mods/goofile.py $domain doc > doc
-     python $discover/mods/goofile.py $domain docx >> doc
-     python $discover/mods/goofile.py $domain pdf > pdf
+     python $discover/mods/goofile.py $domain docx | sort -u >> doc
+     python $discover/mods/goofile.py $domain pdf | sort -u > pdf
      python $discover/mods/goofile.py $domain ppt > ppt
-     python $discover/mods/goofile.py $domain pptx >> ppt
-     python $discover/mods/goofile.py $domain txt > txt
+     python $discover/mods/goofile.py $domain pptx | sort -u >> ppt
+     python $discover/mods/goofile.py $domain txt | sort -u > txt
      python $discover/mods/goofile.py $domain xls > xls
-     python $discover/mods/goofile.py $domain xlsx >> xls
+     python $discover/mods/goofile.py $domain xlsx | sort -u >> xls
 
      # Remove all empty files
      find -type f -empty -exec rm {} +
@@ -359,7 +359,7 @@ case $choice in
      cd /opt/theHarvester/
 
      echo "     Baidu                (9/$total)"
-     python3 theHarvester.py -d $domain -l 100 -b baidu | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zbaidu
+     python3 theHarvester.py -d $domain -l 100 -b baidu | egrep -v '(!|\*|--|\[|Searching|Warning|www)' | sed '/^$/d' > zbaidu
      echo "     Bing                 (10/$total)"
      python3 theHarvester.py -d $domain -l 200 -b bing | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zbing
      echo "     Bing API             (11/$total)"
@@ -476,7 +476,7 @@ s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; 
      rm tmp*
 
      echo "     IP                   (31/$total)"
-     curl --silent https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
+     curl -s https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
      y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
      if ! [ "$y" = "" ]; then
@@ -516,12 +516,14 @@ s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; 
      echo
 
      echo "dnsdumpster.com           (33/$total)"
+     curl -s https://dnsdumpster.com/static/map/$domain.png
+     sleep 15
      wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/assets/images/dnsdumpster.png
 
      # Generate a random cookie value
      rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
-     curl --silent --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com > tmp
+     curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com > tmp
 
      dumpsterxls=$(grep 'xls' tmp | tr '"' ' ' | cut -d ' ' -f10)
 
@@ -532,7 +534,7 @@ s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; 
      echo
 
      echo "email-format.com          (34/$total)"
-     curl --silent https://www.email-format.com/d/$domain/ > tmp
+     curl -s https://www.email-format.com/d/$domain/ > tmp
      grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
      rm tmp
      echo
@@ -591,9 +593,9 @@ s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; 
      }
 
      # Get domains registered by company name and email address domain
-     curl --silent -L http://viewdns.info/reversewhois/?q=%40$domain > tmp
+     curl -sL http://viewdns.info/reversewhois/?q=%40$domain > tmp
      sleep 2
-     curl --silent -L http://viewdns.info/reversewhois/?q=$companyurl > tmp2
+     curl -sL http://viewdns.info/reversewhois/?q=$companyurl > tmp2
 
      echo '111AAA--placeholder--' > tmp4
 
