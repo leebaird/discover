@@ -933,36 +933,19 @@ s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sort -u > use
      sleep 4
      $web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
      sleep 2
-     $web https://$companyurl.s3.amazonaws.com &
-     sleep 2
-
-     # File types
-     $web https://www.google.com/#q=site%3A$domain+filetype%3Adoc+OR+filetype%3Adocx &
-     sleep 2
-     $web https://www.google.com/#q=site%3A$domain+filetype%3Appt+OR+filetype%3Apptx &
-     sleep 2
-     $web https://www.google.com/#q=site%3A$domain+filetype%3Axls+OR+filetype%3Axlsx &
-     sleep 2
-     $web https://www.google.com/#q=site%3A$domain+filetype%3Atxt &
-     sleep 2
-
      $web https://www.google.com/#q=site%3A$domain+inurl:admin &
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+inurl:login &
      sleep 2
-
      $web https://www.google.com/#q=site%3A$domain+%22index+of/%22+%22parent+directory%22 &
      sleep 2
      $web https://www.google.com/#q=site%3A$domain+%22internal+use+only%22 &
      sleep 2
-
-     $web https://www.google.com/#q=site%3Alinkedin.com%2Fin%20%22$company%22 & 
-     sleep 2
      $web https://www.google.com/#q=site%3Apastebin.com+intext:%40$domain &
      sleep 2
-     $web http://api.hackertarget.com/pagelinks/?q=$domain &
+     $web https://$companyurl.s3.amazonaws.com &
      sleep 2
-     $web https://crt.sh/?q=$domain&dir=v&sort=4&group=none &
+     $web http://api.hackertarget.com/pagelinks/?q=$domain &
      sleep 2
      $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
      sleep 2
