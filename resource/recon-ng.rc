@@ -66,6 +66,9 @@ run
 
 back
 
+# Thanks Brett Fitzpatrick
+query DELETE FROM contacts WHERE rowid NOT IN (SELECT min(rowid) FROM contacts GROUP BY first_name, last_name, email)
+
 query DELETE FROM contacts WHERE last_name LIKE '% %'
 query DELETE FROM contacts WHERE last_name LIKE '(%'
 query DELETE FROM profiles WHERE username LIKE '%+%'
