@@ -509,7 +509,8 @@ s/NL,//g; s/NO,//g; s/PL,//g; s/PT,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; 
 
      echo "crt.sh                    (31/$total)"
      python parsers/parse-certificates.py $domain > tmp
-     cat tmp >> $home/data/$domain/data/certificates.htm; echo "</pre>" >> $home/data/$domain/data/certificates.htm 2>/dev/null
+     cat tmp >> $home/data/$domain/data/certificates.htm
+     echo "</pre>" >> $home/data/$domain/data/certificates.htm 2>/dev/null
      rm tmp
      echo
 
@@ -627,7 +628,7 @@ s/NL,//g; s/NO,//g; s/PL,//g; s/PT,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; 
 
      ##############################################################
 
-     cat z* | grep '@' | sort -u > emails
+     cat z* | grep '@' | grep -v '\.\.\.' | sort -u > emails
 
      cat z* | grep ':' | sed 's/:/ /g; s/ empty//g' | column -t | sort -u > sub-theHarvester
 
@@ -723,7 +724,8 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      fi
 
      cat hosts >> tmp 2>/dev/null
-     cat tmp >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm 2>/dev/null
+     cat tmp >> $home/data/$domain/data/hosts.htm
+     echo "</pre>" >> $home/data/$domain/data/hosts.htm 2>/dev/null
 
      ##############################################################
 
@@ -738,9 +740,11 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo $short >> tmp
           cat emails-final >> tmp
           echo >> tmp
-          cat emails-final >> $home/data/$domain/data/emails.htm; echo "</pre>" >> $home/data/$domain/data/emails.htm
+          cat emails-final >> $home/data/$domain/data/emails.htm
+          echo "</pre>" >> $home/data/$domain/data/emails.htm
      else
-          echo "No data found." >> $home/data/$domain/data/emails.htm; echo "</pre>" >> $home/data/$domain/data/emails.htm
+          echo "No data found." >> $home/data/$domain/data/emails.htm
+          echo "</pre>" >> $home/data/$domain/data/emails.htm
      fi
 
      if [ -e names-recon ]; then
@@ -750,9 +754,11 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo $short >> tmp
           cat names-recon >> tmp
           echo >> tmp
-          cat names-recon >> $home/data/$domain/data/names.htm; echo "</pre>" >> $home/data/$domain/data/names.htm
+          cat names-recon >> $home/data/$domain/data/names.htm
+          echo "</pre>" >> $home/data/$domain/data/names.htm
      else
-          echo "No data found." >> $home/data/$domain/data/names.htm; echo "</pre>" >> $home/data/$domain/data/names.htm
+          echo "No data found." >> $home/data/$domain/data/names.htm
+          echo "</pre>" >> $home/data/$domain/data/names.htm
      fi
 
      if [ -s networks ]; then
@@ -791,9 +797,11 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo >> tmp
           echo "Domains registered to $company using a corporate email." >> $home/data/$domain/data/registered-domains.htm
           echo >> $home/data/$domain/data/registered-domains.htm
-          cat registered-domains >> $home/data/$domain/data/registered-domains.htm; echo "</pre>" >> $home/data/$domain/data/registered-domains.htm
+          cat registered-domains >> $home/data/$domain/data/registered-domains.htm
+          echo "</pre>" >> $home/data/$domain/data/registered-domains.htm
      else
-          echo "No data found." >> $home/data/$domain/data/registered-domains.htm; echo "</pre>" >> $home/data/$domain/data/registered-domains.htm
+          echo "No data found." >> $home/data/$domain/data/registered-domains.htm
+          echo "</pre>" >> $home/data/$domain/data/registered-domains.htm
      fi
 
      if [ -e squatting ]; then
@@ -803,9 +811,11 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo $long >> tmp
           cat squatting >> tmp
           echo >> tmp
-          cat squatting >> $home/data/$domain/data/squatting.htm; echo "</pre>" >> $home/data/$domain/data/squatting.htm
+          cat squatting >> $home/data/$domain/data/squatting.htm
+          echo "</pre>" >> $home/data/$domain/data/squatting.htm
      else
-          echo "No data found." >> $home/data/$domain/data/squatting.htm; echo "</pre>" >> $home/data/$domain/data/squatting.htm
+          echo "No data found." >> $home/data/$domain/data/squatting.htm
+          echo "</pre>" >> $home/data/$domain/data/squatting.htm
      fi
 
      if [ -e subdomains ]; then
@@ -815,9 +825,11 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo $long >> tmp
           cat subdomains >> tmp
           echo >> tmp
-          cat subdomains >> $home/data/$domain/data/subdomains.htm; echo "</pre>" >> $home/data/$domain/data/subdomains.htm
+          cat subdomains >> $home/data/$domain/data/subdomains.htm
+          echo "</pre>" >> $home/data/$domain/data/subdomains.htm
      else
-          echo "No data found." >> $home/data/$domain/data/subdomains.htm; echo "</pre>" >> $home/data/$domain/data/subdomains.htm
+          echo "No data found." >> $home/data/$domain/data/subdomains.htm
+          echo "</pre>" >> $home/data/$domain/data/subdomains.htm
      fi
 
      if [ -e xls ]; then
@@ -891,9 +903,11 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo "Whois Domain" >> zreport
           echo $long >> zreport
           cat whois-domain >> zreport
-          cat whois-domain >> $home/data/$domain/data/whois-domain.htm; echo "</pre>" >> $home/data/$domain/data/whois-domain.htm
+          cat whois-domain >> $home/data/$domain/data/whois-domain.htm
+          echo "</pre>" >> $home/data/$domain/data/whois-domain.htm
      else
-          echo "No data found." >> $home/data/$domain/data/whois-domain.htm; echo "</pre>" >> $home/data/$domain/data/whois-domain.htm
+          echo "No data found." >> $home/data/$domain/data/whois-domain.htm
+          echo "</pre>" >> $home/data/$domain/data/whois-domain.htm
      fi
 
      if [ -e whois-ip ]; then
@@ -901,12 +915,15 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo "Whois IP" >> zreport
           echo $long >> zreport
           cat whois-ip >> zreport
-          cat whois-ip >> $home/data/$domain/data/whois-ip.htm; echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
+          cat whois-ip >> $home/data/$domain/data/whois-ip.htm
+          echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
      else
-          echo "No data found." >> $home/data/$domain/data/whois-ip.htm; echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
+          echo "No data found." >> $home/data/$domain/data/whois-ip.htm
+          echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
      fi
 
-     cat zreport >> $home/data/$domain/data/passive-recon.htm; echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
+     cat zreport >> $home/data/$domain/data/passive-recon.htm
+     echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
  
      rm tmp* zreport
      mv curl debug* email* hosts name* network* records registered* squatting sub* usernames-recon whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
@@ -1002,7 +1019,8 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      grep 'TXT' tmp | sed 's/^......//g' | sort > tmp4
      cat tmp3 tmp4 | column -t > records
      cp $discover/report/data/records.htm $home/data/$domain/data/records.htm
-     cat records >> $home/data/$domain/data/records.htm; echo "</pre>" >> $home/data/$domain/data/records.htm
+     cat records >> $home/data/$domain/data/records.htm
+     echo "</pre>" >> $home/data/$domain/data/records.htm
      rm tmp*
 
      echo "     Sub-domains          (2/$total)"
@@ -1146,24 +1164,31 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      echo $long >> zreport
      cat whatweb >> zreport
 
-     cat zreport >> $home/data/$domain/data/active-recon.htm; echo "</pre>" >> $home/data/$domain/data/active-recon.htm
-     cat ztraceroute >> $home/data/$domain/data/traceroute.htm; echo "</pre>" >> $home/data/$domain/data/traceroute.htm
-     cat waf >> $home/data/$domain/data/waf.htm; echo "</pre>" >> $home/data/$domain/data/waf.htm
-     cat whatweb >> $home/data/$domain/data/whatweb.htm; echo "</pre>" >> $home/data/$domain/data/whatweb.htm
-     cat zonetransfer >> $home/data/$domain/data/zonetransfer.htm; echo "</pre>" >> $home/data/$domain/data/zonetransfer.htm
+     cat zreport >> $home/data/$domain/data/active-recon.htm
+     echo "</pre>" >> $home/data/$domain/data/active-recon.htm
+     cat ztraceroute >> $home/data/$domain/data/traceroute.htm
+     echo "</pre>" >> $home/data/$domain/data/traceroute.htm
+     cat waf >> $home/data/$domain/data/waf.htm
+     echo "</pre>" >> $home/data/$domain/data/waf.htm
+     cat whatweb >> $home/data/$domain/data/whatweb.htm
+     echo "</pre>" >> $home/data/$domain/data/whatweb.htm
+     cat zonetransfer >> $home/data/$domain/data/zonetransfer.htm
+     echo "</pre>" >> $home/data/$domain/data/zonetransfer.htm
 
      if [[ -e $home/data/$domain/data/emails.htm && -e emails ]]; then
           cat $home/data/$domain/data/emails.htm emails | grep -v '<' | sort -u > tmp-new-emails
           cat $home/data/$domain/data/emails.htm | grep '<' > tmp-new-page
           mv tmp-new-page $home/data/$domain/data/emails.htm
-          cat tmp-new-email >> $home/data/$domain/data/emails.htm; echo "</pre>" >> $home/data/$domain/data/emails.htm
+          cat tmp-new-email >> $home/data/$domain/data/emails.htm
+          echo "</pre>" >> $home/data/$domain/data/emails.htm
      fi
 
      if [[ -e $home/data/$domain/data/hosts.htm && -e hosts ]]; then
           cat $home/data/$domain/data/hosts.htm hosts | grep -v '<' | $sip > tmp-new-hosts
           cat $home/data/$domain/data/hosts.htm | grep '<' > tmp-new-page
           mv tmp-new-page $home/data/$domain/data/hosts.htm
-          cat tmp-new-hosts >> $home/data/$domain/data/hosts.htm; echo "</pre>" >> $home/data/$domain/data/hosts.htm
+          cat tmp-new-hosts >> $home/data/$domain/data/hosts.htm
+          echo "</pre>" >> $home/data/$domain/data/hosts.htm
      fi
 
      mv active.rc emails hosts record* sub* waf whatweb z* /tmp/subdomains $home/data/$domain/tools/active/ 2>/dev/null
@@ -1220,8 +1245,8 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
 
      recon-ng --no-check -r $discover/tmp.rc
 
-     mv /tmp/names > $home/data/$workspace-names.txt
-#     rm tmp*
+     sed '1,3d' /tmp/names | head -n -4 > $home/data/names.txt
+     rm tmp* /tmp/names*
 
      echo
      echo $medium
