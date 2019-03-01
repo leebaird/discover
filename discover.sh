@@ -643,8 +643,8 @@ s/NL,//g; s/NO,//g; s/PL,//g; s/PT,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; 
           cat tmp4 | sed 's/iii/III/g; s/ii/II/g' > tmp5
           # Capitalize the first letter of every word and tweak
           cat tmp5 | sed 's/\b\(.\)/\u\1/g; s/ And / and /; s/ Av / AV /g; s/ It / IT /g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; 
-s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g; 
-s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
+s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; 
+s/Mcs/McS/g; s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
           grep -v ',' tmp6 | awk '{print $2", "$1}' > tmp7
           grep ',' tmp7 > tmp8
           # Remove trailing whitespace from each line
@@ -698,14 +698,14 @@ s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
      cat emails emails-recon | tr '[A-Z]' '[a-z]' | sort -u > emails-final
 
      sed '1,3d' /tmp/names | head -n -4 | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; 
-s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' > names-recon
+s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' > names-recon
 
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
 
      grep "$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
 
      cat /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/^[0-9]/d' | sed '/^,/d' | sed -e 's/\b\(.\)/\u\1/g' | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; 
-s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sort -u > usernames-recon   # TODO: this file is not being used.
+s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > usernames-recon   # TODO: this file is not being used.
 
      ##############################################################
 
@@ -1344,7 +1344,7 @@ s/lan administrator/LAN Administrator/g; s/lan admin/LAN Admin/g; s/-land/, Land
 s/-logistics/, Logistics/g; s/ Lp/ LP/g; s/lvl/Level/g; s/-mail/, Mail/g; s/-manager/, Manager/g; s/-marketing/, Marketing/g; s/-materials/, Materials/g; 
 s/ mba / MBA /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; 
 s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcq/McQ/g; s/Mcv/McV/g; s/mcse/MCSE/g; s/-mechanical/, Mechanical/g; s/-metals/, Metals/g; 
-s/-metro/, Metro/g; s/, mp//g; s/ nerc / NERC /g; s/mcp/McP/g; s/mcr/McR/g; s/mcs/McS/g; s/mct/McT/g; s/mcw/McW/g; s/-media/, Media/g; 
+s/-metro/, Metro/g; s/, mp//g; s/ nerc / NERC /g; s/mcp/McP/g; s/mcq/McQ/g; s/mcs/McS/g; s/-media/, Media/g; 
 s/-mergers/,Mergers/g; s/-millstone/, Millstone/g; s/-motor/, Motor/g; s/ mssp / MSSP /g; s/-networking/, Networking/g; s/-network/, Network/g; 
 s/-new/, New/g; s/-north/, North/g; s/not in it//g; s/ nso / NSO /g; s/-nuclear/, Nuclear/g; s/ Nz / NZ /g; s/ oem / OEM /g; s/-office/, Office/g; 
 s/ Of / of /g; s/-operations/, Operations/g; s/-oracle/, Oracle/g; s/-other/, Other/g; s/ pca / PCA /g; s/ pcs / PCS /g; s/ pc / PC /g; s/ pdm / PDM /g; 
