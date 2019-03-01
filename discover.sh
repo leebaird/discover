@@ -217,8 +217,8 @@ case $choice in
      echo -e "${BLUE}  Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.${NC}"
      echo
      echo -e "${BLUE}[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub,${NC}"
-     echo -e "${BLUE}    Google, GoogleCSE, Hashes, Hunter, SecurityTrails, and Shodan${NC}"
-     echo -e "${BLUE}    for maximum results with recon-ng and theHarvester.${NC}"
+     echo -e "${BLUE}    Google, Hashes, Hunter, SecurityTrails, and Shodan for${NC}"
+     echo -e "${BLUE}    maximum results with recon-ng and theHarvester.${NC}"
      echo
      echo $medium
      echo
@@ -247,7 +247,7 @@ case $choice in
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
      rundate=`date +%B' '%d,' '%Y`
-     total=38
+     total=37
 
      # If folder doesn't exist, create it
      if [ ! -d $home/data/$domain ]; then
@@ -316,7 +316,7 @@ case $choice in
      dnsrecon -d $domain > tmp
      grep '*' tmp | egrep -v '(Bind Version|Checking|configured|DNSSEC|Enumerating|No SRV Records|Performing|PRIVATEDNS|Removing|Resolving|Servers found|SKEYs|Trying)' | sed 's/\[\*\]//g; s/^[ \t]*//' | column -t | sort -k1 > records
      cat records >> $home/data/$domain/data/records.htm
-     grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | column -t > sub-dnsrecon
+     grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | grep -v '=' | column -t > sub-dnsrecon
 
      # Remove all empty files
      find -type f -empty -exec rm {} +
@@ -376,28 +376,26 @@ case $choice in
      python3 theHarvester.py -d $domain -l 100 -b duckduckgo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zduckduckgo
      echo "     Google               (17/$total)"
      python3 theHarvester.py -d $domain -l 100 -b google | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zgoogle
-     echo "     Google CSE           (18/$total)"
-     python3 theHarvester.py -d $domain -l 100 -b googleCSE | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zgoogleCSE
-     echo "     Google-certificates  (19/$total)"
+     echo "     Google-certificates  (18/$total)"
      python3 theHarvester.py -d $domain -l 100 -b google-certificates | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zgoogle-certificates
-     echo "     Hunter               (20/$total)"
+     echo "     Hunter               (19/$total)"
      python3 theHarvester.py -d $domain -l 100 -b hunter | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zhunter
-     echo "     Intelx               (21/$total)"
+     echo "     Intelx               (20/$total)"
      python3 theHarvester.py -d $domain -l 100 -b intelx | egrep -v '(!|\*|--|\[|Searching|Warning|/)' | sed '/^$/d' > zintelx
-     echo "     Linkedin             (22/$total)"
+     echo "     Linkedin             (21/$total)"
      python3 theHarvester.py -d "$company" -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp
      python3 theHarvester.py -d $domain -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp2
      # Make first 2 columns title case.
      cat tmp tmp2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sort -u > zlinkedin
-     echo "     Netcraft             (23/$total)"
+     echo "     Netcraft             (22/$total)"
      python3 theHarvester.py -d $domain -l 100 -b netcraft | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > znetcraft
-     echo "     SecurityTrails       (24/$total)"
+     echo "     SecurityTrails       (23/$total)"
      python3 theHarvester.py -d $domain -l 100 -b securityTrails | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zsecuritytrails
-     echo "     ThreatCrowd          (25/$total)"
+     echo "     ThreatCrowd          (24/$total)"
      python3 theHarvester.py -d $domain -l 100 -b threatcrowd | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zthreatcrowd
-     echo "     VirusTotal           (26/$total)"
+     echo "     VirusTotal           (25/$total)"
      python3 theHarvester.py -d $domain -l 100 -b virustotal | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zvirustotal
-     echo "     Yahoo                (27/$total)"
+     echo "     Yahoo                (26/$total)"
      python3 theHarvester.py -d $domain -l 100 -b yahoo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zyahoo
 
      mv z* $discover
@@ -409,7 +407,7 @@ case $choice in
 
      echo
 
-     echo "Metasploit                (28/$total)"
+     echo "Metasploit                (27/$total)"
      msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
      grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' > zmsf
      # Remove all empty files
@@ -417,7 +415,7 @@ case $choice in
      rm tmp 2>/dev/null
      echo
 
-     echo "URLCrazy                  (29/$total)"
+     echo "URLCrazy                  (28/$total)"
      urlcrazy $domain > tmp
      sed -n '/Character/,$p' tmp | sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; 
 s/BELGIUM/Belgium/g; s/BULGARIA/Bulgaria/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; 
@@ -425,14 +423,14 @@ s/COLOMBIA/Columbia/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republi
 s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; 
 s/INDIA/India/g; s/INDONESIA/Indonesia/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; 
 s/KOREA REPUBLIC OF/Republic of Korea/g; s/localhost//g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; 
-s/PUERTO RICO/Puerto Rico/g; s/REPUBLIC OF China (ROC)/Republic of China/g; s/RUSSIAN FEDERATION/Russia            /g; s/SAUDI ARABIA/Saudi Arabia/g; 
-s/SINGAPORE/Singapore/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN/Taiwan/g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; 
-s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Brittish Virgin Islands/g; 
-s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
+s/PORTUGAL/Portugal/g; s/PUERTO RICO/Puerto Rico/g; s/REPUBLIC OF China (ROC)/Republic of China/g; s/RUSSIAN FEDERATION/Russia            /g; 
+s/SAUDI ARABIA/Saudi Arabia/g; s/SINGAPORE/Singapore/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN/Taiwan/g; 
+s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; 
+s/VIRGIN ISLANDS (BRITISH)/Brittish Virgin Islands/g; s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
      cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/DK,//g; s/EU,//g; s/FR,//g; s/GB,//g; s/JP,//g; s/KR,//g; s/IN,//g; s/IT,//g; 
-s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; s/US,//g; s/VG,//g' > tmp4
+s/NL,//g; s/NO,//g; s/PL,//g; s/PT,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; s/US,//g; s/VG,//g' > tmp4
      # Find domains that contain an IP
      grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp4 > squatting
      rm tmp* 2>/dev/null
@@ -441,12 +439,12 @@ s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; 
      ##############################################################
 
      echo "Whois"
-     echo "     Domain               (30/$total)"
+     echo "     Domain               (29/$total)"
      whois -H $domain > tmp 2>/dev/null
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
      # Clean up
-     egrep -v '(#|%|<a|=-=-=-=|;|Access may be|accuracy|Additionally|Afilias except|and DNS Hosting|and limitations of|any use of|Be sure to|at the end of|By submitting an|by the terms|can easily change|circumstances will|clientDeleteProhibited|clientTransferProhibited|clientUpdateProhibited|company may be|ccompilation|complaint will|contact information|Contact us|Copy and paste|currently set|database|data contained in|data presented in|date of|details|dissemination|Domaininfo AB|Domain Management|Domain names in|Domain status: ok|enable high|except as reasonably|failure to|facsimile of|for commercial purpose|for detailed information|For information for|for information purposes|For more information|for the sole|Get Noticed|Get a FREE|guarantee its|HREF|If you|In Europe|In most cases|in obtaining|in the address|includes restrictions|including spam|information is provided|is not the|is providing|its systems|JPRS database provides|Learn how|Learn more|makes this information|MarkMonitor|minimum|mining this data|minute and one|modify existing|modify these terms|must be sent|name cannot|NamesBeyond|not to use|Note: This|NOTICE|obtaining information about|of Moniker|of this data|or hiding any|or otherwise support|other use of|own existing customers|Please be advised|Please note|policy|prior written consent|privacy is|Problem Reporting System|Professional and|prohibited without|Promote your|protect the|Public Interest|queries or|receive|receiving|Register your|Registrars|registration record|relevant|repackaging|request|reserves the|responsible for|See Business Registration|server at|solicitations via|sponsorship|Status|support questions|support the transmission|supporting|telephone, or facsimile|Temporary|that apply to|that you will|the right| The data is|The fact that|the transmission|The Trusted Partner|This listing is|This feature is|This information|This service is|to collect or|to entities|to report any|To suppress Japanese|transmission of mass|UNITED STATES|United States|UNLIMITED|unsolicited advertising|Users may|Version 6|via e-mail|visible|Visit AboutUs.org|Visit|Web-based|when you|while believed|will use this|with many different|with no guarantee|We reserve the|whitelist|Whois|whois_guidanceyou agree|you agree|You may not)' tmp2 > tmp3
+     egrep -iv '(#|%|<a|=-=-=-=|;|access may|accuracy|additionally|afilias except|and dns hosting|and limitations|any use of|be sure|at the end|by submitting|by the terms|can easily|circumstances|clientdeleteprohibited|clienttransferprohibited|clientupdateprohibited|company may|compilation|complaint will|contact information|contact us|contacting|copy and paste|currently set|database|data contained|data presented|database|date of|details|dissemination|domaininfo ab|domain management|domain names in|domain status: ok|enable high|except as|existing|failure|facsimile|for commercial|for detailed|for information|for more|for the|get noticed|get a free|guarantee its|href|If you|in europe|in most|in obtaining|in the address|includes|including|information is|is not|is providing|its systems|learn|makes this|markmonitor|minimum|mining this|minute and|modify|must be sent|name cannot|namesbeyond|not to use|note:|notice|obtaining information about|of moniker|of this data|or hiding any|or otherwise support|other use of|please|policy|prior written|privacy is|problem reporting|professional and|prohibited without|promote your|protect the|public interest|queries or|receive|receiving|register your|registrars|registration record|relevant|repackaging|request|reserves the|responsible for|restrictions|see business|server at|solicitations|sponsorship|status|support questions|support the transmission|supporting|telephone, or facsimile|Temporary|that apply to|that you will|the right| The data is|The fact that|the transmission|this listing|this feature|this information|this service is|to collect or|to entities|to report any|to suppress|transmission of|trusted partner|united states|unlimited|unsolicited advertising|users may|version 6|via e-mail|visible|visit aboutus.org|visit|web-based|when you|while believed|will use this|with many different|with no guarantee|we reserve|whitelist|whois|you agree|You may not)' tmp2 > tmp3
      # Remove lines starting with "*"
      sed '/^*/d' tmp3 > tmp4
      # Remove lines starting with "-"
@@ -475,7 +473,7 @@ s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; 
      sed 's/: /:#####/g' tmp13 | column -s '#' -t -n > whois-domain
      rm tmp*
 
-     echo "     IP                   (31/$total)"
+     echo "     IP                   (30/$total)"
      curl -s https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
      y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
@@ -509,13 +507,13 @@ s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; 
 
      ##############################################################
 
-     echo "crt.sh                    (32/$total)"
+     echo "crt.sh                    (31/$total)"
      python parsers/parse-certificates.py $domain > tmp
      cat tmp >> $home/data/$domain/data/certificates.htm; echo "</pre>" >> $home/data/$domain/data/certificates.htm 2>/dev/null
      rm tmp
      echo
 
-     echo "dnsdumpster.com           (33/$total)"
+     echo "dnsdumpster.com           (32/$total)"
      curl -s https://dnsdumpster.com/static/map/$domain.png
      sleep 15
      wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/assets/images/dnsdumpster.png
@@ -533,13 +531,13 @@ s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; 
      rm tmp*
      echo
 
-     echo "email-format.com          (34/$total)"
+     echo "email-format.com          (33/$total)"
      curl -s https://www.email-format.com/d/$domain/ > tmp
      grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
      rm tmp
      echo
 
-     echo "intodns.com               (35/$total)"
+     echo "intodns.com               (34/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
      cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
      cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -560,11 +558,11 @@ s/NL,//g; s/NO,//g; s/PL,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; 
      rm tmp*
      echo
 
-     echo "robtex.com                (36/$total)"
+     echo "robtex.com                (35/$total)"
      wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
      echo
 
-     echo "Registered Domains        (37/$total)"
+     echo "Registered Domains        (36/$total)"
      f_regdomain(){
      while read regdomain; do
           whois -H $regdomain 2>&1 | sed -e 's/^[ \t]*//; s/ \+ //g; s/: /:/g' > tmp5
@@ -656,7 +654,8 @@ s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
      ##############################################################
 
      echo
-     echo -n "Do you have a list of names from salesforce to import? (y/N) "
+     echo -n "Do you have a list of names to import? (y/N) "
+     echo "Example: last, first"
      read answer
 
      if [ "$answer" == "y" ]; then
@@ -666,7 +665,7 @@ s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
           cat $discover/resource/recon-ng-import-names.rc > tmp.rc
      fi
 
-     echo "recon-ng                  (38/$total)"
+     echo "recon-ng                  (37/$total)"
      echo
      echo "workspaces add $domain" > passive.rc
      echo "add companies" >> passive.rc
@@ -695,19 +694,18 @@ s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
 
      ##############################################################
 
-     grep "@$domain" /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-recon
+     cat /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-recon
      cat emails emails-recon | tr '[A-Z]' '[a-z]' | sort -u > emails-final
 
-     grep '|' /tmp/names | egrep -iv '(_|aepohio|aepsoc|arin-notify|contact|netops|production|unknown)' | sed 's/|//g; s/^[ \t]*//; s/[ \t]*$//; 
-/^[0-9]/d' | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; 
-s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sed 's/Director /Director, /g; s/Director -/Director, /g; s/Manager /Manager, /g; s/Manager-/Manager, /g; s/Manager -/Manager, /g; s/SR /Senior /g; s/Sr /Senior /g; s/Sr./Senior/g; s/Vice President/VP/g; s/Vice-President/VP/g; s/VP,/VP/g; s/, - /, /g; s/, of /, /g' | sort -k1 -k2 -u> names-recon
+     sed '1,3d' /tmp/names | head -n -4 | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; 
+s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' > names-recon
 
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
 
      grep "$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
 
-     egrep -v '(%|\+|returned|username)' /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/^[0-9]/d' | sed '/^,/d' | sed -e "s/\b\(.\)/\u\1/g" | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; 
-s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sort -u > usernames-recon   # TODO: this file is not being used.
+     cat /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/^[0-9]/d' | sed '/^,/d' | sed -e 's/\b\(.\)/\u\1/g' | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; 
+s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sort -u > usernames-recon   # TODO: this file is not being used.
 
      ##############################################################
 
@@ -784,7 +782,7 @@ s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sort -u > use
           echo >> tmp
      fi
 
-     if [ -e registered-domains ]; then
+     if [ -s registered-domains ]; then
           domaincount1=$(wc -l registered-domains | cut -d ' ' -f1)
           echo "Registered Domains   $domaincount1" >> zreport
           echo "Registered Domains ($domaincount1)" >> tmp
@@ -1021,11 +1019,6 @@ s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sort -u > use
 
      egrep -v '(\[|.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' sub-dnsrecon | tr '[A-Z]' '[a-z]' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
 
-#     echo
-#     echo 'Use vim to manually remove duplicates and save.'
-#     read -p "Press <return> to continue."
-#     vim subdomains
-
      ############################################################
 
      if [ -e $home/data/$domain/data/subdomains.htm ]; then
@@ -1187,6 +1180,55 @@ s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcs/McS/g' | sort -u > use
      echo
 
      $web $home/data/$domain/index.htm &
+     exit
+     ;;
+
+     4)
+     clear
+     f_banner
+
+     echo -e "${BLUE}Import names into an existing recon-ng workspace.${NC}"
+     echo
+     echo "Example: last, first"
+     f_location
+     echo "last_name#first_name#title" > /tmp/names.csv
+     cat $location | sed 's/, /#/; s/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/;/#/g; s/#$//g' >> /tmp/names.csv
+
+     echo -n "Use Workspace: "
+     read -e workspace
+
+     # Check for no answer
+     if [[ -z $workspace ]]; then
+          f_error
+     fi
+
+     # Check for wrong answer
+     if [ ! -d /root/.recon-ng/workspaces/$workspace ]; then
+          f_error
+     fi
+
+     echo "workspaces select $workspace" > tmp.rc
+     echo >> tmp.rc
+     cat $discover/resource/recon-ng-import-names.rc >> tmp.rc
+     echo >> tmp.rc
+     echo "query DELETE FROM contacts WHERE rowid NOT IN (SELECT min(rowid) FROM contacts GROUP BY first_name, last_name, email)" >> tmp.rc
+     echo >> tmp.rc
+     echo "spool start /tmp/names" >> tmp.rc
+     echo "query SELECT DISTINCT last_name,first_name,title FROM contacts WHERE first_name OR last_name IS NOT NULL ORDER BY last_name" >> tmp.rc
+     echo "spool stop" >> tmp.rc
+     echo "exit" >> tmp.rc
+
+     recon-ng --no-check -r $discover/tmp.rc
+
+     mv /tmp/names > $home/data/$workspace-names.txt
+#     rm tmp*
+
+     echo
+     echo $medium
+     echo
+     echo -e "The new report is located at ${YELLOW}$home/data/$workspace-names.txt${NC}\n"
+     echo
+     echo
      exit
      ;;
 
