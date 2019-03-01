@@ -694,7 +694,7 @@ s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
 
      ##############################################################
 
-     cat /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-recon
+     grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-recon
      cat emails emails-recon | tr '[A-Z]' '[a-z]' | sort -u > emails-final
 
      sed '1,3d' /tmp/names | head -n -4 | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; 
