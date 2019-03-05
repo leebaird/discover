@@ -1217,8 +1217,8 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      echo
      echo "Example: last, first"
      f_location
-     echo "last_name#first_name#title" > /tmp/names.csv
-     cat $location | sed 's/, /#/; s/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/;/#/g; s/#$//g' >> /tmp/names.csv
+     echo "last_name#first_name" > /tmp/names.csv
+     sed 's/, /#/' $location  >> /tmp/names.csv
 
      echo -n "Use Workspace: "
      read -e workspace
@@ -1240,14 +1240,14 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      echo "query DELETE FROM contacts WHERE rowid NOT IN (SELECT min(rowid) FROM contacts GROUP BY first_name, last_name, email)" >> tmp.rc
      echo >> tmp.rc
      echo "spool start /tmp/names" >> tmp.rc
-     echo "query SELECT DISTINCT last_name,first_name,title FROM contacts WHERE first_name OR last_name IS NOT NULL ORDER BY last_name" >> tmp.rc
+     echo "query SELECT DISTINCT last_name,first_name,title FROM contacts WHERE first_name OR last_name IS NOT NULL ORDER BY last_name,first_name ASC" >> tmp.rc
      echo "spool stop" >> tmp.rc
      echo "exit" >> tmp.rc
 
      recon-ng --no-check -r $discover/tmp.rc
 
      sed '1,3d' /tmp/names | head -n -4 > $home/data/$workspace-names.txt
-     rm tmp* /tmp/names*
+     rm tmp* /tmp/names.csv
 
      echo
      echo $medium
