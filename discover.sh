@@ -203,7 +203,8 @@ echo -e "${BLUE}RECON${NC}"
 echo
 echo "1.  Passive"
 echo "2.  Active"
-echo "3.  Previous menu"
+echo "3.  Import names into an existing recon-ng workspace"
+echo "4.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
@@ -751,7 +752,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           namecount=$(wc -l names-recon | cut -d ' ' -f1)
           echo "Names                $namecount" >> zreport
           echo "Names ($namecount)" >> tmp
-          echo $short >> tmp
+          echo $long >> tmp
           cat names-recon >> tmp
           echo >> tmp
           cat names-recon >> $home/data/$domain/data/names.htm
@@ -1208,7 +1209,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      exit
      ;;
 
-     4)
+     3)
      clear
      f_banner
 
@@ -1245,7 +1246,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
 
      recon-ng --no-check -r $discover/tmp.rc
 
-     sed '1,3d' /tmp/names | head -n -4 > $home/data/names.txt
+     sed '1,3d' /tmp/names | head -n -4 > $home/data/$workspace-names.txt
      rm tmp* /tmp/names*
 
      echo
@@ -1257,7 +1258,8 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      exit
      ;;
 
-     3) f_main;;
+     4) f_main;;
+
      *) f_error;;
 esac
 }
