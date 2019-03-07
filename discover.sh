@@ -1247,7 +1247,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      recon-ng --no-check -r $discover/tmp.rc
 
      sed '1,3d' /tmp/names | head -n -4 > $home/data/$workspace-names.txt
-     rm tmp* /tmp/names.csv
+     rm tmp.rc /tmp/names*
 
      echo
      echo $medium
