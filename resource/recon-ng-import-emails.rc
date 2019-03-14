@@ -1,6 +1,6 @@
 use import/list
 set TABLE credentials
 set COLUMN username
-set FILENAME /root/Desktop/aetna.com/tools/emails
+set FILENAME /tmp/emails
 run
 
