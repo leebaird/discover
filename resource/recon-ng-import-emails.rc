@@ -1,6 +1,5 @@
 use import/list
-set TABLE credentials
-set COLUMN username
-set FILENAME /tmp/emails
+set FILENAME /tmp/tmp-emails
+set TABLE contacts
+set COLUMN email
 run
-

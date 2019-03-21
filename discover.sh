@@ -248,7 +248,7 @@ case $choice in
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
      rundate=`date +%B' '%d,' '%Y`
-     total=37
+     total=38
 
      # If folder doesn't exist, create it
      if [ ! -d $home/data/$domain ]; then
@@ -371,32 +371,34 @@ case $choice in
      python3 theHarvester.py -d $domain -l 100 -b crtsh | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zcrtsh
      echo "     Cymon                (14/$total)"
      python3 theHarvester.py -d $domain -l 100 -b cymon | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zcymon
-     echo "     Dogpile              (15/$total)"
+     echo "     dnsdumpster          (15/$total)"
+     python3 theHarvester.py -d $domain -l 100 -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zdnsdumpster
+     echo "     Dogpile              (16/$total)"
      python3 theHarvester.py -d $domain -l 100 -b dogpile | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zdogpile
-     echo "     DuckDuckGo           (16/$total)"
+     echo "     DuckDuckGo           (17/$total)"
      python3 theHarvester.py -d $domain -l 100 -b duckduckgo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zduckduckgo
-     echo "     Google               (17/$total)"
+     echo "     Google               (18/$total)"
      python3 theHarvester.py -d $domain -l 100 -b google | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zgoogle
-     echo "     Google-certificates  (18/$total)"
+     echo "     Google-certificates  (19/$total)"
      python3 theHarvester.py -d $domain -l 100 -b google-certificates | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zgoogle-certificates
-     echo "     Hunter               (19/$total)"
+     echo "     Hunter               (20/$total)"
      python3 theHarvester.py -d $domain -l 100 -b hunter | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zhunter
-     echo "     Intelx               (20/$total)"
+     echo "     Intelx               (21/$total)"
      python3 theHarvester.py -d $domain -l 100 -b intelx | egrep -v '(!|\*|--|\[|Searching|Warning|/)' | sed '/^$/d' > zintelx
-     echo "     Linkedin             (21/$total)"
+     echo "     Linkedin             (22/$total)"
      python3 theHarvester.py -d "$company" -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp
      python3 theHarvester.py -d $domain -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp2
      # Make first 2 columns title case.
      cat tmp tmp2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sort -u > zlinkedin
-     echo "     Netcraft             (22/$total)"
+     echo "     Netcraft             (23/$total)"
      python3 theHarvester.py -d $domain -l 100 -b netcraft | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > znetcraft
-     echo "     SecurityTrails       (23/$total)"
+     echo "     SecurityTrails       (24/$total)"
      python3 theHarvester.py -d $domain -l 100 -b securityTrails | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zsecuritytrails
-     echo "     ThreatCrowd          (24/$total)"
+     echo "     ThreatCrowd          (25/$total)"
      python3 theHarvester.py -d $domain -l 100 -b threatcrowd | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zthreatcrowd
-     echo "     VirusTotal           (25/$total)"
+     echo "     VirusTotal           (26/$total)"
      python3 theHarvester.py -d $domain -l 100 -b virustotal | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zvirustotal
-     echo "     Yahoo                (26/$total)"
+     echo "     Yahoo                (27/$total)"
      python3 theHarvester.py -d $domain -l 100 -b yahoo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zyahoo
 
      mv z* $discover
@@ -408,7 +410,7 @@ case $choice in
 
      echo
 
-     echo "Metasploit                (27/$total)"
+     echo "Metasploit                (28/$total)"
      msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
      grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sed '/^\./d' > zmsf
      # Remove all empty files
@@ -416,7 +418,7 @@ case $choice in
      rm tmp 2>/dev/null
      echo
 
-     echo "URLCrazy                  (28/$total)"
+     echo "URLCrazy                  (29/$total)"
      urlcrazy $domain > tmp
      sed -n '/Character/,$p' tmp | sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; 
 s/BELGIUM/Belgium/g; s/BULGARIA/Bulgaria/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; 
@@ -440,7 +442,7 @@ s/IT,//g; s/NL,//g; s/NO,//g; s/PL,//g; s/PT,//g; s/RO,//g; s/RU,//g; s/SE,//g; 
      ##############################################################
 
      echo "Whois"
-     echo "     Domain               (29/$total)"
+     echo "     Domain               (30/$total)"
      whois -H $domain > tmp 2>/dev/null
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
@@ -474,7 +476,7 @@ s/IT,//g; s/NL,//g; s/NO,//g; s/PL,//g; s/PT,//g; s/RO,//g; s/RU,//g; s/SE,//g; 
      sed 's/: /:#####/g' tmp13 | column -s '#' -t -n > whois-domain
      rm tmp*
 
-     echo "     IP                   (30/$total)"
+     echo "     IP                   (31/$total)"
      curl -s https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
      y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
@@ -508,38 +510,44 @@ s/IT,//g; s/NL,//g; s/NO,//g; s/PL,//g; s/PT,//g; s/RO,//g; s/RU,//g; s/SE,//g; 
 
      ##############################################################
 
-     echo "crt.sh                    (31/$total)"
+     echo "crt.sh                    (32/$total)"
      python parsers/parse-certificates.py $domain > tmp
      cat tmp >> $home/data/$domain/data/certificates.htm
      echo "</pre>" >> $home/data/$domain/data/certificates.htm 2>/dev/null
      rm tmp
      echo
 
-     echo "dnsdumpster.com           (32/$total)"
+     echo "dnsdumpster.com           (33/$total)"
      curl -s https://dnsdumpster.com/static/map/$domain.png
      sleep 15
-     wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/assets/images/dnsdumpster.png
 
      # Generate a random cookie value
      rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
-     curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com > tmp
+     curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com/static/map/$domain.png
 
-     dumpsterxls=$(grep 'xls' tmp | tr '"' ' ' | cut -d ' ' -f10)
+     wget -q https://dnsdumpster.com/static/map/$domain.png -O $home/data/$domain/assets/images/dnsdumpster.png
 
-     wget -q $dumpsterxls -O tmp.xlsx
-     xlsx2csv tmp.xlsx tmp.csv
-     cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | column -t | sort -u > sub-dnsdumpster
-     rm tmp*
-     echo
+     # Generate a random cookie value
+#     rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
-     echo "email-format.com          (33/$total)"
+#     curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com > tmp
+
+#     dumpsterxls=$(grep 'xls' tmp | tr '"' ' ' | cut -d ' ' -f10)
+
+#     wget -q $dumpsterxls -O tmp.xlsx
+#     xlsx2csv tmp.xlsx tmp.csv
+#     cat tmp.csv | sed 's/,"//g' | egrep -v '(Hostname|MX|NS)' | cut -d ',' -f1-2 | grep -v '"' | sed 's/,/ /g' | column -t | sort -u > sub-dnsdumpster
+#     rm tmp*
+#     echo
+
+     echo "email-format.com          (34/$total)"
      curl -s https://www.email-format.com/d/$domain/ > tmp
      grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
      rm tmp
      echo
 
-     echo "intodns.com               (34/$total)"
+     echo "intodns.com               (35/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
      cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
      cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -560,11 +568,11 @@ s/IT,//g; s/NL,//g; s/NO,//g; s/PL,//g; s/PT,//g; s/RO,//g; s/RU,//g; s/SE,//g; 
      rm tmp*
      echo
 
-     echo "robtex.com                (35/$total)"
+     echo "robtex.com                (36/$total)"
      wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
      echo
 
-     echo "Registered Domains        (36/$total)"
+     echo "Registered Domains        (37/$total)"
      f_regdomain(){
      while read regdomain; do
           whois -H $regdomain 2>&1 | sed -e 's/^[ \t]*//; s/ \+ //g; s/: /:/g' > tmp5
@@ -667,8 +675,7 @@ s/Mcs/McS/g; s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
           cat $discover/resource/recon-ng-import-names.rc > tmp.rc
      fi
 
-     echo "recon-ng                  (37/$total)"
-     echo
+     echo "recon-ng                  (38/$total)"
      echo "workspaces add $domain" > passive.rc
      echo "add companies" >> passive.rc
      echo "$companyurl" >> passive.rc
@@ -683,44 +690,51 @@ s/Mcs/McS/g; s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
      fi
 
      if [ -e names ]; then
+          echo "     Importing names"
           echo "last_name#first_name" > /tmp/names2.csv
           sed 's/, /#/' names >> /tmp/names2.csv
           cat $discover/resource/recon-ng-import-names2.rc >> passive.rc
           echo >> passive.rc
      fi
 
+     if [ -e emails ]; then
+          cp emails /tmp/tmp-emails
+          echo "     Importing emails"
+          cat $discover/resource/recon-ng-import-emails.rc >> passive.rc
+          echo >> passive.rc
+     fi
+
      cat $discover/resource/recon-ng.rc >> passive.rc
      sed -i "s/yyy/$domain/g" passive.rc
 
+     echo
      recon-ng --no-check -r $discover/passive.rc
 
      ##############################################################
 
-     grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-recon
-     cat emails emails-recon | tr '[A-Z]' '[a-z]' | sort -u > emails-final
+     grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-final
 
-     sed '1,3d' /tmp/names | head -n -4 | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; 
-s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' > names-recon
+     sed '1,3d' /tmp/names | head -n -4 > names-final
 
-     grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > networks-recon
+     grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > tmp
+     cat networks-tmp tmp | sort -u | $sip > networks-final 2>/dev/null
+
+
+
 
      grep "$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
-
-     cat /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/[0-9]/d' | sed '/^,/d' | sed -e 's/\b\(.\)/\u\1/g' | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; 
-s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > usernames-recon
-
-     ##############################################################
-
-     cat networks-tmp networks-recon | sort -u | $sip > networks 2>/dev/null
-
      # Find lines that contain IPs and clean up
      cat sub* /tmp/sub-recon | grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | egrep -v '(outlook|www)' | column -t | sort -u > subdomains
 
-     awk '{print $2}' subdomains > tmp
-     grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' tmp | egrep -v '(-|=|:)' | sed '/^$/d' | $sip > hosts
+     cat /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/[0-9]/d' | sed '/^,/d' | sed -e 's/\b\(.\)/\u\1/g' | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; 
+s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > usernames-recon   # Needs reingested.
 
-     if [ -e networks ]; then
-          cat networks > tmp 2>/dev/null
+     ##############################################################
+
+     awk '{print $2}' subdomains | grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' | egrep -v '(-|=|:)' | sed '/^$/d' | $sip > hosts
+
+     if [ -e networks-final ]; then
+          cat networks-final > tmp 2>/dev/null
           echo >> tmp
      fi
 
@@ -748,26 +762,26 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo "</pre>" >> $home/data/$domain/data/emails.htm
      fi
 
-     if [ -e names-recon ]; then
-          namecount=$(wc -l names-recon | cut -d ' ' -f1)
+     if [ -e names-final ]; then
+          namecount=$(wc -l names-final | cut -d ' ' -f1)
           echo "Names                $namecount" >> zreport
           echo "Names ($namecount)" >> tmp
           echo $long >> tmp
-          cat names-recon >> tmp
+          cat names-final >> tmp
           echo >> tmp
-          cat names-recon >> $home/data/$domain/data/names.htm
+          cat names-final >> $home/data/$domain/data/names.htm
           echo "</pre>" >> $home/data/$domain/data/names.htm
      else
           echo "No data found." >> $home/data/$domain/data/names.htm
           echo "</pre>" >> $home/data/$domain/data/names.htm
      fi
 
-     if [ -s networks ]; then
-          networkcount=$(wc -l networks | cut -d ' ' -f1)
+     if [ -e networks-final ]; then
+          networkcount=$(wc -l networks-final | cut -d ' ' -f1)
           echo "Networks             $networkcount" >> zreport
           echo "Networks ($networkcount)" >> tmp
           echo $short >> tmp
-          cat networks >> tmp
+          cat networks-final >> tmp
           echo >> tmp
      fi
 
@@ -819,14 +833,14 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo "</pre>" >> $home/data/$domain/data/squatting.htm
      fi
 
-     if [ -e subdomains ]; then
-          urlcount=$(wc -l subdomains | cut -d ' ' -f1)
+     if [ -e sub-final ]; then
+          urlcount=$(wc -l sub-final | cut -d ' ' -f1)
           echo "Subdomains           $urlcount" >> zreport
           echo "Subdomains ($urlcount)" >> tmp
           echo $long >> tmp
-          cat subdomains >> tmp
+          cat sub-final >> tmp
           echo >> tmp
-          cat subdomains >> $home/data/$domain/data/subdomains.htm
+          cat sub-final >> $home/data/$domain/data/subdomains.htm
           echo "</pre>" >> $home/data/$domain/data/subdomains.htm
      else
           echo "No data found." >> $home/data/$domain/data/subdomains.htm
