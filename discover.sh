@@ -513,6 +513,7 @@ s/IT,//g; s/NL,//g; s/NO,//g; s/PL,//g; s/PT,//g; s/RO,//g; s/RU,//g; s/SE,//g; 
      echo "crt.sh                    (32/$total)"
      python parsers/parse-certificates.py $domain > tmp
      cat tmp >> $home/data/$domain/data/certificates.htm
+     echo "</center>" >> $home/data/$domain/data/certificates.htm 2>/dev/null
      echo "</pre>" >> $home/data/$domain/data/certificates.htm 2>/dev/null
      rm tmp
      echo
