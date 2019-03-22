@@ -932,7 +932,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      rm tmp* zreport
      mv curl debug* email* hosts name* network* records registered* squatting sub* usernames-recon whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
      mv passive.rc $home/data/$domain/tools/recon-ng/
-     cd /tmp/; mv emails names* networks subdomains usernames $home/data/$domain/tools/recon-ng/ 2>/dev/null
+     cd /tmp/; mv emails names* networks subdomains tmp-emails usernames $home/data/$domain/tools/recon-ng/ 2>/dev/null
 
      echo
      echo $medium
