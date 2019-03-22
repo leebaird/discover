@@ -829,6 +829,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           cat sub-final >> tmp
           echo >> tmp
           cat sub-final >> $home/data/$domain/data/subdomains.htm
+          echo "</center>" >> $home/data/$domain/data/subdomains.htm
           echo "</pre>" >> $home/data/$domain/data/subdomains.htm
      else
           echo "No data found." >> $home/data/$domain/data/subdomains.htm
@@ -972,6 +973,14 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
      sleep 2
      $web https://www.ssllabs.com/ssltest/analyze.html?d=$domain\&hideResults=on\&latest &
+     sleep 2
+     $web https://www.facebook.com &
+     sleep 2
+     $web https://www.linkedin.com &
+     sleep 2
+     $web https://twitter.com &
+     sleep 2
+     $web https://www.youtube.com &
      sleep 2
      $web $home/data/$domain/index.htm &
      echo
@@ -1236,20 +1245,13 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      fi
 
      echo "workspaces select $workspace" > tmp.rc
-     echo >> tmp.rc
      cat $discover/resource/recon-ng-import-names.rc >> tmp.rc
-     echo >> tmp.rc
-     echo "query DELETE FROM contacts WHERE rowid NOT IN (SELECT min(rowid) FROM contacts GROUP BY first_name, last_name, email)" >> tmp.rc
-     echo >> tmp.rc
-     echo "spool start /tmp/names" >> tmp.rc
-     echo "query SELECT DISTINCT last_name,first_name,title FROM contacts WHERE first_name OR last_name IS NOT NULL ORDER BY last_name,first_name ASC" >> tmp.rc
-     echo "spool stop" >> tmp.rc
-     echo "exit" >> tmp.rc
-
+     cat $discover/resource/recon-ng-cleanup.rc >> tmp.rc
      recon-ng --no-check -r $discover/tmp.rc
 
      sed '1,3d' /tmp/names | head -n -4 > $home/data/$workspace-names.txt
-     rm tmp.rc /tmp/names*
+     rm tmp.rc
+     cd /tmp/; rm emails names networks subdomains usernames 2>/dev/null
 
      echo
      echo $medium

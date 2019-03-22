@@ -87,6 +87,8 @@ query DELETE FROM contacts WHERE title LIKE '%retired%'
 query DELETE FROM contacts WHERE title LIKE '%student%'
 query DELETE FROM contacts WHERE title LIKE '%undergraduate%'
 
+query DELETE FROM hosts WHERE host LIKE '%www%'
+
 query DELETE FROM profiles WHERE LENGTH(username) < 4
 query DELETE FROM profiles WHERE username LIKE '%=%'
 query DELETE FROM profiles WHERE username LIKE '%+%'
@@ -216,5 +218,26 @@ query UPDATE contacts SET title = REPLACE(title,'vp','VP,')
 query UPDATE contacts SET title = REPLACE(title,'VP -','VP,')
 query UPDATE contacts SET title = REPLACE(title,'VP Of','VP,')
 
-exit
+spool start /tmp/emails
+query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email ASC
+query SELECT DISTINCT username FROM credentials WHERE username LIKE "%@yyy" ORDER BY username ASC
+spool stop
 
+spool start /tmp/names
+query SELECT last_name,first_name,title FROM contacts ORDER BY last_name,first_name ASC
+spool stop
+
+spool start /tmp/networks
+query SELECT DISTINCT netblock FROM netblocks WHERE netblock IS NOT NULL ORDER BY netblock ASC
+spool stop
+
+spool start /tmp/subdomains
+query SELECT host,ip_address FROM hosts ORDER BY host
+query SELECT host,ip_address FROM ports WHERE host LIKE "%yyy" ORDER BY host ASC
+spool stop
+
+spool start /tmp/usernames
+query SELECT DISTINCT username FROM profiles WHERE username IS NOT NULL ORDER BY username ASC
+spool stop
+
+exit

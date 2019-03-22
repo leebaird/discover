@@ -154,6 +154,8 @@ query DELETE FROM contacts WHERE title LIKE '%retired%'
 query DELETE FROM contacts WHERE title LIKE '%student%'
 query DELETE FROM contacts WHERE title LIKE '%undergraduate%'
 
+query DELETE FROM hosts WHERE host LIKE '%www%'
+
 query DELETE FROM profiles WHERE LENGTH(username) < 4
 query DELETE FROM profiles WHERE username LIKE '%=%'
 query DELETE FROM profiles WHERE username LIKE '%+%'
