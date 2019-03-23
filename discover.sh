@@ -351,7 +351,7 @@ case $choice in
      $discover/mods/goohost.sh -t $domain -m ip >/dev/null
      echo "     Email                (8/$total)"
      $discover/mods/goohost.sh -t $domain -m mail >/dev/null
-     cat report-* | grep $domain | column -t > zgoohost
+     cat report-* | grep $domain | column -t | sort -u > zgoohost
 
      rm *-$domain.txt tmp* 2>/dev/null
      echo
@@ -384,7 +384,7 @@ case $choice in
      echo "     Hunter               (20/$total)"
      python3 theHarvester.py -d $domain -l 100 -b hunter | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zhunter
      echo "     Intelx               (21/$total)"
-     python3 theHarvester.py -d $domain -l 100 -b intelx | egrep -v '(!|\*|--|\[|Searching|Warning|/)' | sed '/^$/d' > zintelx
+     python3 theHarvester.py -d $domain -l 100 -b intelx | egrep -v '(!|\*|--|\[|Searching|Warning|/)' | sed '/^$/d' | sort -u > zintelx
      echo "     Linkedin             (22/$total)"
      python3 theHarvester.py -d "$company" -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp
      python3 theHarvester.py -d $domain -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp2
@@ -764,7 +764,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo "</pre>" >> $home/data/$domain/data/names.htm
      fi
 
-     if [ -e networks-final ]; then
+     if [ -s networks-final ]; then
           networkcount=$(wc -l networks-final | cut -d ' ' -f1)
           echo "Networks             $networkcount" >> zreport
           echo "Networks ($networkcount)" >> tmp
