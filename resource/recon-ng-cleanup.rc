@@ -230,8 +230,8 @@ query UPDATE contacts SET title = REPLACE(title,'VP -','VP,')
 query UPDATE contacts SET title = REPLACE(title,'VP Of','VP,')
 
 spool start /tmp/emails
-query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email ASC
-query SELECT DISTINCT username FROM credentials WHERE username LIKE "%@yyy" ORDER BY username ASC
+query SELECT DISTINCT email FROM contacts ORDER BY email ASC
+query SELECT DISTINCT username FROM credentials ORDER BY username ASC
 spool stop
 
 spool start /tmp/names
@@ -244,7 +244,7 @@ spool stop
 
 spool start /tmp/subdomains
 query SELECT host,ip_address FROM hosts ORDER BY host
-query SELECT host,ip_address FROM ports WHERE host LIKE "%yyy" ORDER BY host ASC
+query SELECT host,ip_address FROM ports ORDER BY host ASC
 spool stop
 
 spool start /tmp/usernames
