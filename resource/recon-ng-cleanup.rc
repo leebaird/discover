@@ -1,5 +1,9 @@
--- Thanks Brett Fitzpatrick for this first query.
+-- Thanks Brett Fitzpatrick @_brettfitz for this query.
 query DELETE FROM contacts WHERE rowid NOT IN (SELECT min(rowid) FROM contacts GROUP BY first_name, last_name, email)
+
+-- Thanks Robleh Esa @RoblehEsa for these two queries.
+query update hosts set ip_address = "" where ip_address is NULL
+query DELETE FROM hosts WHERE rowid NOT IN (SELECT * FROM (SELECT max.rowid FROM hosts max LEFT JOIN hosts bigger ON max.host = bigger.host AND LENGTH(max.ip_address) < LENGTH(bigger.ip_address) WHERE bigger.ip_address IS NULL) AS keepers)
 
 query DELETE FROM contacts WHERE LENGTH(first_name) <2
 query DELETE FROM contacts WHERE LENGTH(last_name) <2
@@ -13,6 +17,8 @@ query DELETE from contacts WHERE first_name OR last_name LIKE '%+%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%[%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%...%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%®%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%aetna%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%acquisition%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%america%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%analysis%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%anp-bc%'
@@ -49,10 +55,12 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%helpdesk%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%hostmaster%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%idatasec%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%intern%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%interview%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%limited%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%ltd%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%maintenance%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%manage%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%md%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%officer%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%opportunity%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%overall%'
@@ -66,6 +74,7 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%professional%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%project%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%promise%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%ransomware%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%reform%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%secretariat%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%security%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%semiconductor%'
@@ -165,6 +174,7 @@ query UPDATE contacts SET title = REPLACE(title,'Chief Financial Officer','CEO')
 query UPDATE contacts SET title = REPLACE(title,'Chief Infomation Security Officer','CISO')
 query UPDATE contacts SET title = REPLACE(title,'Chief Operating Officer','COO')
 query UPDATE contacts SET title = REPLACE(title,'CFO of','CFO,')
+query UPDATE contacts SET title = REPLACE(title,'Consultant:','Consultant,')
 query UPDATE contacts SET title = REPLACE(title,'director-','Director,')
 query UPDATE contacts SET title = REPLACE(title,'director -','Director,')
 query UPDATE contacts SET title = REPLACE(title,'director','Director,')
@@ -174,6 +184,7 @@ query UPDATE contacts SET title = REPLACE(title,'Director/','Director, ')
 query UPDATE contacts SET title = REPLACE(title,'Director for','Director,')
 query UPDATE contacts SET title = REPLACE(title,'Director of','Director,')
 query UPDATE contacts SET title = REPLACE(title,'Director Of','Director,')
+query UPDATE contacts SET title = REPLACE(title,'Director ','Director, ')
 query UPDATE contacts SET title = REPLACE(title,'executive','Executive')
 query UPDATE contacts SET title = REPLACE(title,'finance manager','Financial Manager')
 query UPDATE contacts SET title = REPLACE(title,'head-','Head,')
