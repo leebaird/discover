@@ -85,8 +85,9 @@ query DELETE from contacts WHERE first_name OR last_name LIKE '%+%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%[%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%...%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%®%'
-query DELETE FROM contacts WHERE first_name OR last_name LIKE '%aetna%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%academic%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%acquisition%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%aetna%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%america%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%analysis%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%anp-bc%'
@@ -129,6 +130,8 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%ltd%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%maintenance%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%manage%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%md%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%medical%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%medicine%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%officer%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%opportunity%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%overall%'
@@ -147,6 +150,7 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%secretariat%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%security%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%semiconductor%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%service%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%singhealth%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%society%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%solution%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%system%'
@@ -165,6 +169,9 @@ query DELETE FROM contacts WHERE title LIKE '%student%'
 query DELETE FROM contacts WHERE title LIKE '%undergraduate%'
 
 query DELETE FROM hosts WHERE host LIKE '%www%'
+
+query DELETE FROM ports WHERE host IS NULL
+query DELETE FROM ports WHERE host NOT LIKE '%yyy%'
 
 query DELETE FROM profiles WHERE LENGTH(username) < 4
 query DELETE FROM profiles WHERE username LIKE '%=%'
@@ -311,8 +318,8 @@ query SELECT DISTINCT netblock FROM netblocks WHERE netblock IS NOT NULL ORDER B
 spool stop
 
 spool start /tmp/subdomains
-query SELECT host,ip_address FROM hosts ORDER BY host
-query SELECT host,ip_address FROM ports WHERE host LIKE "%yyy" ORDER BY host ASC
+query SELECT host,ip_address FROM hosts ORDER BY host ASC
+query SELECT host,ip_address FROM ports ORDER BY host ASC
 spool stop
 
 spool start /tmp/usernames

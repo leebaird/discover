@@ -362,7 +362,7 @@ case $choice in
      echo "     Baidu                (9/$total)"
      python3 theHarvester.py -d $domain -l 100 -b baidu | egrep -v '(!|\*|--|\[|Searching|Warning|www)' | sed '/^$/d' > zbaidu
      echo "     Bing                 (10/$total)"
-     python3 theHarvester.py -d $domain -l 200 -b bing | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zbing
+     python3 theHarvester.py -d $domain -l 200 -b bing | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' | sort > zbing
      echo "     Bing API             (11/$total)"
      python3 theHarvester.py -d $domain -l 200 -b bingapi | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zbingapi
      echo "     Censys               (12/$total)"
@@ -378,18 +378,18 @@ case $choice in
      echo "     DuckDuckGo           (17/$total)"
      python3 theHarvester.py -d $domain -l 100 -b duckduckgo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zduckduckgo
      echo "     Google               (18/$total)"
-     python3 theHarvester.py -d $domain -l 100 -b google | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zgoogle
+     python3 theHarvester.py -d $domain -l 100 -b google | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' | sort > zgoogle
      echo "     Google-certificates  (19/$total)"
      python3 theHarvester.py -d $domain -l 100 -b google-certificates | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zgoogle-certificates
      echo "     Hunter               (20/$total)"
      python3 theHarvester.py -d $domain -l 100 -b hunter | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zhunter
      echo "     Intelx               (21/$total)"
-     python3 theHarvester.py -d $domain -l 100 -b intelx | egrep -v '(!|\*|--|\[|Searching|Warning|/)' | sed '/^$/d' | sort -u > zintelx
+     python3 theHarvester.py -d $domain -l 100 -b intelx | egrep -v '(!|\*|--|\[|Searching|Warning|/)' | sed '/^$/d' | sort > zintelx
      echo "     Linkedin             (22/$total)"
      python3 theHarvester.py -d "$company" -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp
      python3 theHarvester.py -d $domain -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp2
      # Make first 2 columns title case.
-     cat tmp tmp2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sort -u > zlinkedin
+     cat tmp tmp2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sort > zlinkedin
      echo "     Netcraft             (23/$total)"
      python3 theHarvester.py -d $domain -l 100 -b netcraft | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > znetcraft
      echo "     SecurityTrails       (24/$total)"
@@ -399,7 +399,7 @@ case $choice in
      echo "     VirusTotal           (26/$total)"
      python3 theHarvester.py -d $domain -l 100 -b virustotal | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zvirustotal
      echo "     Yahoo                (27/$total)"
-     python3 theHarvester.py -d $domain -l 100 -b yahoo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zyahoo
+     python3 theHarvester.py -d $domain -l 100 -b yahoo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' | sort > zyahoo
 
      mv z* $discover
      rm debug_results.txt stash.sqlite tmp* 2>/dev/null
