@@ -424,12 +424,12 @@ case $choice in
 s/BELGIUM/Belgium/g; s/BULGARIA/Bulgaria/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; 
 s/COLOMBIA/Columbia/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/DOMINICAN REPUBLIC/Dominican Republic/g; 
 s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; 
-s/INDIA/India/g; s/INDONESIA/Indonesia/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; s/JAPAN/Japan/g; 
-s/KOREA REPUBLIC OF/Republic of Korea/g; s/localhost//g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; s/POLAND/Poland/g; 
-s/PORTUGAL/Portugal/g; s/PUERTO RICO/Puerto Rico/g; s/REPUBLIC OF China (ROC)/Republic of China/g; s/RUSSIAN FEDERATION/Russia            /g; 
-s/SAUDI ARABIA/Saudi Arabia/g; s/SINGAPORE/Singapore/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; s/SWITZERLAND/Switzerland/g; s/TAIWAN/Taiwan/g; 
-s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; s/UNITED STATES/United States/g; 
-s/VIRGIN ISLANDS (BRITISH)/Brittish Virgin Islands/g; s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
+s/INDIA/India/g; s/INDONESIA/Indonesia/g; s/IR,IRAN (ISLAMIC REPUBLIC OF)/Iran/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; 
+s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/localhost//g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; 
+s/POLAND/Poland/g; s/PORTUGAL/Portugal/g; s/PUERTO RICO/Puerto Rico/g; s/REPUBLIC OF China (ROC)/Republic of China/g; 
+s/RUSSIAN FEDERATION/Russia            /g; s/SAUDI ARABIA/Saudi Arabia/g; s/SINGAPORE/Singapore/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; 
+s/SWITZERLAND/Switzerland/g; s/TAIWAN/Taiwan/g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; 
+s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Brittish Virgin Islands/g; s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
      cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/DK,//g; s/EU,//g; s/FR,//g; s/GB,//g; s/JP,//g; s/KR,//g; s/KY,//g; s/IN,//g; 
