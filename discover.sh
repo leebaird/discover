@@ -374,7 +374,7 @@ case $choice in
      echo "     dnsdumpster          (15/$total)"
      python3 theHarvester.py -d $domain -l 100 -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zdnsdumpster
      echo "     Dogpile              (16/$total)"
-     python3 theHarvester.py -d $domain -l 100 -b dogpile | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zdogpile
+     python3 theHarvester.py -d $domain -l 100 -b dogpile | egrep -v '(!|\*|--|\[|Error|Searching|Warning)' | sed '/^$/d' > zdogpile
      echo "     DuckDuckGo           (17/$total)"
      python3 theHarvester.py -d $domain -l 100 -b duckduckgo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zduckduckgo
      echo "     Google               (18/$total)"
@@ -706,9 +706,6 @@ s/Mcs/McS/g; s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
 
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > tmp
      cat networks-tmp tmp | sort -u | $sip > networks-final 2>/dev/null
-
-
-
 
      grep "$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
      # Find lines that contain IPs and clean up
