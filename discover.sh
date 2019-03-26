@@ -972,9 +972,9 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      sleep 2
      $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
      sleep 2
-     $web https://www.ssllabs.com/ssltest/analyze.html?d=$domain\&hideResults=on\&latest &
-     sleep 2
      $web https://www.facebook.com &
+     sleep 2
+     $web https://www.instagram.com &
      sleep 2
      $web https://www.linkedin.com &
      sleep 2
