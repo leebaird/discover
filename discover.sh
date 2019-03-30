@@ -423,7 +423,7 @@ case $choice in
      sed -n '/Character/,$p' tmp | sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; 
 s/BELGIUM/Belgium/g; s/BULGARIA/Bulgaria/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; 
 s/COLOMBIA/Columbia/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/DOMINICAN REPUBLIC/Dominican Republic/g; 
-s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HUNGARY/Hungary/g; 
+s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HK,/ /g; s/HUNGARY/Hungary/g; 
 s/INDIA/India/g; s/INDONESIA/Indonesia/g; s/IR,IRAN (ISLAMIC REPUBLIC OF)/Iran/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; 
 s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/localhost//g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; 
 s/POLAND/Poland/g; s/PORTUGAL/Portugal/g; s/PUERTO RICO/Puerto Rico/g; s/REPUBLIC OF China (ROC)/Republic of China/g; 
@@ -1042,7 +1042,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           dnsrecon -d $domain -D /pentest/intelligence-gathering/dnsrecon/namelist.txt -f -t brt > tmp
      fi
 
-     grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing|Records Found)' | sed 's/\[\*\] //g; s/^[ \t]*//' | awk '{print $2,$3}' | column -t | sort -u > sub-dnsrecon
+     grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing|Records Found|xxx)' | sed 's/\[\*\] //g; s/^[ \t]*//' | awk '{print $2,$3}' | column -t | sort -u > sub-dnsrecon
 
      egrep -v '(\[|.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' sub-dnsrecon | tr '[A-Z]' '[a-z]' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
 

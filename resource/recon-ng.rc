@@ -63,19 +63,17 @@ run
 use recon/profiles-profiles/twitter_mentions
 run
 
-
 back
 
--- Thanks Brett Fitzpatrick @_brettfitz for this query.
+# Thanks Brett Fitzpatrick @_brettfitz for this query.
 query DELETE FROM contacts WHERE rowid NOT IN (SELECT min(rowid) FROM contacts GROUP BY first_name, last_name, email)
 
--- Thanks Robleh Esa @RoblehEsa for these two queries.
-query update hosts set ip_address = "" where ip_address is NULL
+# Thanks Robleh Esa @RoblehEsa for these two queries.
+query UPDATE hosts SET ip_address = "" WHERE ip_address IS NULL
 query DELETE FROM hosts WHERE rowid NOT IN (SELECT * FROM (SELECT max.rowid FROM hosts max LEFT JOIN hosts bigger ON max.host = bigger.host AND LENGTH(max.ip_address) < LENGTH(bigger.ip_address) WHERE bigger.ip_address IS NULL) AS keepers)
 
-query DELETE FROM contacts WHERE LENGTH(first_name) <2
-query DELETE FROM contacts WHERE LENGTH(last_name) <2
-query DELETE from contacts WHERE first_name OR last_name IS NULL
+query DELETE FROM contacts WHERE LENGTH(first_name) <2 AND email IS NULL
+query DELETE FROM contacts WHERE LENGTH(last_name) <2 AND email IS NULL
 
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%(%'
 query DELETE from contacts WHERE first_name OR last_name LIKE '_'
@@ -121,6 +119,7 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%goto%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%group%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%hacker%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%helpdesk%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%Healthcare%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%hostmaster%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%idatasec%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%intern%'
@@ -154,7 +153,9 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%singhealth%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%society%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%solution%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%system%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%Takeda%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%technolog%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%Therapeutics%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%transport%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%trusted%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%underwriting%'
@@ -168,17 +169,16 @@ query DELETE FROM contacts WHERE title LIKE '%retired%'
 query DELETE FROM contacts WHERE title LIKE '%student%'
 query DELETE FROM contacts WHERE title LIKE '%undergraduate%'
 
+query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
 query DELETE FROM hosts WHERE host LIKE '%www%'
 
 query DELETE FROM ports WHERE host IS NULL
-query DELETE FROM ports WHERE host NOT LIKE '%yyy%'
+query DELETE FROM ports WHERE host NOT LIKE '%.yyy%'
 
 query DELETE FROM profiles WHERE LENGTH(username) < 4
 query DELETE FROM profiles WHERE username LIKE '%=%'
 query DELETE FROM profiles WHERE username LIKE '%+%'
 query DELETE FROM profiles WHERE username LIKE '%...%'
-query DELETE FROM profiles WHERE username LIKE '%jpower%'
-query DELETE FROM profiles WHERE username LIKE '%j-power%'
 
 query UPDATE contacts SET email = LOWER(email)
 query UPDATE credentials SET username = LOWER(username)
@@ -318,8 +318,8 @@ query SELECT DISTINCT netblock FROM netblocks WHERE netblock IS NOT NULL ORDER B
 spool stop
 
 spool start /tmp/subdomains
-query SELECT host,ip_address FROM hosts ORDER BY host ASC
-query SELECT host,ip_address FROM ports ORDER BY host ASC
+query SELECT DISTINCT host,ip_address FROM hosts ORDER BY host ASC
+query SELECT DISTINCT host,ip_address FROM ports ORDER BY host ASC
 spool stop
 
 spool start /tmp/usernames
@@ -327,3 +327,4 @@ query SELECT DISTINCT username FROM profiles WHERE username IS NOT NULL ORDER BY
 spool stop
 
 exit
+
