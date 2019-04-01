@@ -844,6 +844,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo '</pre>' >> $home/data/$domain/data/xls.htm
      else
           echo "No data found." >> $home/data/$domain/data/xls.htm
+          echo "</pre>" >> $home/data/$domain/data/xls.htm
      fi
 
      if [ -e pdf ]; then
@@ -857,6 +858,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo '</pre>' >> $home/data/$domain/data/pdf.htm
      else
           echo "No data found." >> $home/data/$domain/data/pdf.htm
+          echo "</pre>" >> $home/data/$domain/data/pdf.htm
      fi
 
      if [ -e ppt ]; then
@@ -870,6 +872,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo '</pre>' >> $home/data/$domain/data/ppt.htm
      else
           echo "No data found." >> $home/data/$domain/data/ppt.htm
+          echo "</pre>" >> $home/data/$domain/data/ppt.htm
      fi
 
      if [ -e txt ]; then
@@ -883,6 +886,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo '</pre>' >> $home/data/$domain/data/txt.htm
      else
           echo "No data found." >> $home/data/$domain/data/txt.htm
+          echo "</pre>" >> $home/data/$domain/data/txt.htm
      fi
 
      if [ -e doc ]; then
@@ -896,6 +900,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo '</pre>' >> $home/data/$domain/data/doc.htm
      else
           echo "No data found." >> $home/data/$domain/data/doc.htm
+          echo "</pre>" >> $home/data/$domain/data/doc.htm
      fi
 
      cat tmp >> zreport

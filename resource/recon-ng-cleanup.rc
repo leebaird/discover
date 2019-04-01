@@ -5,6 +5,9 @@ query DELETE FROM contacts WHERE rowid NOT IN (SELECT min(rowid) FROM contacts G
 query UPDATE hosts SET ip_address = "" WHERE ip_address IS NULL
 query DELETE FROM hosts WHERE rowid NOT IN (SELECT * FROM (SELECT max.rowid FROM hosts max LEFT JOIN hosts bigger ON max.host = bigger.host AND LENGTH(max.ip_address) < LENGTH(bigger.ip_address) WHERE bigger.ip_address IS NULL) AS keepers)
 
+query DELETE FROM contacts WHERE first_name IS NULL AND email IS NULL
+query DELETE FROM contacts WHERE last_name IS NULL AND email IS NULL
+
 query DELETE FROM contacts WHERE LENGTH(first_name) <2 AND email IS NULL
 query DELETE FROM contacts WHERE LENGTH(last_name) <2 AND email IS NULL
 
@@ -42,7 +45,9 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%developer%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%developing%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%director%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%distribut%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%district%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%economic%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%energy%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%engineer%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%equipment%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%feeling%'
@@ -57,10 +62,12 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%hostmaster%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%idatasec%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%intern%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%interview%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%kpmg%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%limited%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%ltd%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%maintenance%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%manage%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%marketing%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%md%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%medical%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%medicine%'
@@ -74,6 +81,7 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%position%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%positive%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%power%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%professional%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%product%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%project%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%promise%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%ransomware%'
@@ -243,7 +251,7 @@ query SELECT DISTINCT username FROM credentials WHERE username LIKE "%@yyy" ORDE
 spool stop
 
 spool start /tmp/names
-query SELECT last_name,first_name,title FROM contacts ORDER BY last_name,first_name ASC
+query SELECT last_name,first_name,title FROM contacts WHERE last_name IS NOT NULL ORDER BY last_name,first_name ASC
 spool stop
 
 spool start /tmp/networks
