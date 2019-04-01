@@ -107,6 +107,7 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%connect%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%corporat%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%creates%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%cyber%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%decision%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%department%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%developer%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%developing%'
@@ -138,6 +139,7 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%marketing%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%md%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%medical%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%medicine%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%network%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%officer%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%opportunity%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%overall%'
@@ -152,7 +154,9 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%product%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%project%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%promise%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%ransomware%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%realty%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%reform%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%research%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%secretariat%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%security%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%semiconductor%'
@@ -160,6 +164,7 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%service%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%singhealth%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%society%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%solution%'
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%sport%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%system%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%Takeda%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%technolog%'
@@ -184,6 +189,7 @@ query DELETE FROM ports WHERE host IS NULL
 query DELETE FROM ports WHERE host NOT LIKE '%.yyy%'
 
 query DELETE FROM profiles WHERE LENGTH(username) < 4
+query DELETE FROM profiles WHERE rowid NOT IN (SELECT min(rowid) FROM profiles GROUP BY username)
 query DELETE FROM profiles WHERE username LIKE '%=%'
 query DELETE FROM profiles WHERE username LIKE '%+%'
 query DELETE FROM profiles WHERE username LIKE '%...%'
@@ -331,7 +337,7 @@ query SELECT DISTINCT host,ip_address FROM ports ORDER BY host ASC
 spool stop
 
 spool start /tmp/usernames
-query SELECT DISTINCT username FROM profiles WHERE username IS NOT NULL ORDER BY username ASC
+query SELECT username FROM profiles ORDER BY username ASC
 spool stop
 
 exit
