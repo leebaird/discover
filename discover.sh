@@ -378,7 +378,7 @@ case $choice in
      echo "     DuckDuckGo           (17/$total)"
      python3 theHarvester.py -d $domain -l 100 -b duckduckgo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zduckduckgo
      echo "     Google               (18/$total)"
-     python3 theHarvester.py -d $domain -l 100 -b google | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' | sort > zgoogle
+     python3 theHarvester.py -d $domain -l 100 -b google | egrep -v '(!|\*|--|\[|mywww|Searching|Warning)' | sed '/^$/d' | sort > zgoogle
      echo "     Google-certificates  (19/$total)"
      python3 theHarvester.py -d $domain -l 100 -b google-certificates | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zgoogle-certificates
      echo "     Hunter               (20/$total)"
@@ -420,22 +420,22 @@ case $choice in
 
      echo "URLCrazy                  (29/$total)"
      urlcrazy $domain > tmp
-     sed -n '/Character/,$p' tmp | sed 's/AUSTRALIA/Australia/g; s/AUSTRIA/Austria/g; s/BAHAMAS/Bahamas/g; s/BANGLADESH/Bangladesh/g; 
-s/BELGIUM/Belgium/g; s/BULGARIA/Bulgaria/g; s/CANADA/Canada/g; s/CAYMAN ISLANDS/Cayman Islands/g; s/CHILE/Chile/g; s/CHINA/China/g; 
-s/COLOMBIA/Columbia/g; s/COSTA RICA/Costa Rica/g; s/CZECH REPUBLIC/Czech Republic/g; s/DENMARK/Denmark/g; s/DOMINICAN REPUBLIC/Dominican Republic/g; 
-s/EUROPEAN UNION/European Union/g; s/FINLAND/Finland/g; s/FRANCE/France/g; s/GERMANY/Germany/g; s/HONG KONG/Hong Kong/g; s/HK,/ /g; s/HUNGARY/Hungary/g; 
-s/INDIA/India/g; s/INDONESIA/Indonesia/g; s/IR,IRAN (ISLAMIC REPUBLIC OF)/Iran/g; s/IRELAND/Ireland/g; s/ISRAEL/Israel/g; s/ITALY/Italy/g; 
-s/JAPAN/Japan/g; s/KOREA REPUBLIC OF/Republic of Korea/g; s/localhost//g; s/LUXEMBOURG/Luxembourg/g; s/NETHERLANDS/Netherlands/g; s/NORWAY/Norway/g; 
-s/POLAND/Poland/g; s/PORTUGAL/Portugal/g; s/PUERTO RICO/Puerto Rico/g; s/REPUBLIC OF China (ROC)/Republic of China/g; 
-s/RUSSIAN FEDERATION/Russia            /g; s/SAUDI ARABIA/Saudi Arabia/g; s/SINGAPORE/Singapore/g; s/SPAIN/Spain/g; s/SWEDEN/Sweden/g; 
-s/SWITZERLAND/Switzerland/g; s/TAIWAN/Taiwan/g; s/THAILAND/Thailand/g; s/TURKEY/Turkey/g; s/UKRAINE/Ukraine/g; s/UNITED KINGDOM/United Kingdom/g; 
-s/UNITED STATES/United States/g; s/VIRGIN ISLANDS (BRITISH)/Brittish Virgin Islands/g; s/ROMANIA/Romania/g; s/SLOVAKIA/Slovakia/g; s/?/ /g' > tmp2
+     sed -n '/Character/,$p' tmp | sed 's/AU,AUSTRALIA/ Australia/g; s/AUSTRIA/ Austria/g; s/BAHAMAS/ Bahamas/g; s/BANGLADESH/ Bangladesh/g; 
+s/BELGIUM/ Belgium/g; s/BULGARIA/ Bulgaria/g; s/CA,CANADA/ Canada  /g; s/KY,CAYMAN ISLANDS/ Cayman Islands/g; s/CHILE/ Chile/g; s/CN,CHINA/ China/g; 
+s/COLOMBIA/ Columbia/g; s/COSTA RICA/ Costa Rica/g; s/CZECH REPUBLIC/ Czech Republic/g; s/DK,DENMARK/ Denmark/g; s/DOMINICAN REPUBLIC/ Dominican Republic/g; 
+s/EUROPEAN UNION/ European Union/g; s/FINLAND/ Finland/g; s/FR,FRANCE/ France/g; s/DE,GERMANY/ Germany/g; s/GR,GREECE/ Greece/g; s/HK,HONG KONG/ Hong Kong/g; 
+s/HU,HUNGARY/ Hungary/g; s/IN,INDIA/ India/g; s/INDONESIA/ Indonesia/g; s/IR,IRAN (ISLAMIC REPUBLIC OF)/ Iran                        /g; s/IRELAND/ Ireland/g; 
+s/ISRAEL/ Israel/g; s/IT,ITALY/ Italy/g; s/JP,JAPAN/ Japan/g; s/KR,KOREA REPUBLIC OF/ Republic of Korea/g; s/localhost//g; s/LUXEMBOURG/ Luxembourg/g; 
+s/NL,NETHERLANDS/ Netherlands/g; s/NO,NORWAY/ Norway/g; s/PANAMA/Panama/g; s/POLAND/ Poland/g; s/PT,PORTUGAL/ Portugal/g; s/PUERTO RICO/ Puerto Rico/g; 
+s/CN,REPUBLIC OF China (ROC)/ China                    /g; s/ZZ,RESERVED/          /g; s/RO,ROMANIA/ Romania  /g; 
+s/RU,RUSSIAN FEDERATION/ Russia            /g; s/SAUDI ARABIA/ Saudi Arabia/g; s/SG,SINGAPORE/ Singapore/g; s/SPAIN/ Spain/g; s/SE,SWEDEN/ Sweden/g; 
+s/CH,SWITZERLAND/ Switzerland/g; s/TAIWAN/ Taiwan/g; s/THAILAND/ Thailand/g; s/TURKEY/ Turkey/g; s/UKRAINE/ Ukraine/g; 
+s/GB,UNITED KINGDOM/ United Kingdom/g; s/US,UNITED STATES/ United States/g; s/VG,VIRGIN ISLANDS (BRITISH)/ Virgin Islands (British)/g; 
+s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
-     cat tmp3 | sed 's/AU,//g; s/CA,//g; s/CH,//g; s/CN,//g; s/DE,//g; s/DK,//g; s/EU,//g; s/FR,//g; s/GB,//g; s/JP,//g; s/KR,//g; s/KY,//g; s/IN,//g; 
-s/IT,//g; s/NL,//g; s/NO,//g; s/PL,//g; s/PT,//g; s/RO,//g; s/RU,//g; s/SE,//g; s/SG,//g; s/TW,//g; s/US,//g; s/VG,//g' > tmp4
      # Find domains that contain an IP
-     grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp4 > squatting
+     grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp3 > squatting
      rm tmp* 2>/dev/null
      echo
 
@@ -531,7 +531,7 @@ s/IT,//g; s/NL,//g; s/NO,//g; s/PL,//g; s/PT,//g; s/RO,//g; s/RU,//g; s/SE,//g; 
 
      echo "email-format.com          (34/$total)"
      curl -s https://www.email-format.com/d/$domain/ > tmp
-     grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
+     grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | sed '/^_/d' | egrep -v '(john.doe|johnsmith|john_smith|john.smith|)' | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
      rm tmp
      echo
 
@@ -553,6 +553,8 @@ s/IT,//g; s/NL,//g; s/NO,//g; s/PL,//g; s/PT,//g; s/RO,//g; s/RU,//g; s/SE,//g; 
      sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' $home/data/$domain/pages/config.htm
      # Remove unnecessary JS at bottom of page
      sed -i '/Math\.random/I,+6 d' $home/data/$domain/pages/config.htm
+     sed -i 's/I could use the nameservers listed below to performe recursive queries./The nameservers listed below could be used to perform recursive queries./' $home/data/$domain/pages/config.htm
+     sed -i 's/It may be that I am wrong but the chances of that are low.//' $home/data/$domain/pages/config.htm
      rm tmp*
      echo
 
@@ -651,18 +653,6 @@ s/Mcs/McS/g; s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
 
      ##############################################################
 
-     echo
-     echo -n "Do you have a list of names to import? (y/N) "
-     echo "Example: last, first"
-     read answer
-
-     if [ "$answer" == "y" ]; then
-          f_location
-          echo "last_name#first_name#title" > /tmp/names.csv
-          cat $location | sed 's/, /#/; s/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/;/#/g; s/#$//g' >> /tmp/names.csv
-          cat $discover/resource/recon-ng-import-names.rc > tmp.rc
-     fi
-
      echo "recon-ng                  (38/$total)"
      echo "workspaces add $domain" > passive.rc
      echo "add companies" >> passive.rc
@@ -671,59 +661,76 @@ s/Mcs/McS/g; s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
      echo "none" >> passive.rc
      echo "add domains" >> passive.rc
      echo "$domain" >> passive.rc
-     echo >> passive.rc
 
-     if [ -e tmp.rc ]; then
-          cat tmp.rc >> passive.rc
-     fi
-
-     if [ -e names ]; then
-          echo "     Importing names"
-          echo "last_name#first_name" > /tmp/names2.csv
-          sed 's/, /#/' names >> /tmp/names2.csv
-          cat $discover/resource/recon-ng-import-names2.rc >> passive.rc
-          echo >> passive.rc
-     fi
+#     echo -n "Do you have a list of names to import? (y/N) "
+#     echo "Example: last, first"
+#     read answer
+#
+#     if [ "$answer" == "y" ]; then
+#          f_location
+#          echo "last_name#first_name#title" > /tmp/names.csv
+#          cat $location | sed 's/, /#/; s/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/;/#/g; s/#$//g' >> /tmp/names.csv
+#          cat $discover/resource/recon-ng-import-names.rc >> passive.rc
+#     fi
 
      if [ -e emails ]; then
           cp emails /tmp/tmp-emails
-          echo "     Importing emails"
           cat $discover/resource/recon-ng-import-emails.rc >> passive.rc
-          echo >> passive.rc
+     fi
+
+     if [ -e names ]; then
+          echo "last_name#first_name" > /tmp/names.csv
+          sed 's/, /#/' names >> /tmp/names.csv
+          cat $discover/resource/recon-ng-import-names.rc >> passive.rc
      fi
 
      cat $discover/resource/recon-ng.rc >> passive.rc
+     cat $discover/resource/recon-ng-cleanup.rc >> passive.rc
      sed -i "s/yyy/$domain/g" passive.rc
 
-     echo
      recon-ng --no-check -r $discover/passive.rc
+
+     ##############################################################
+
+     cat /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/[0-9]/d' | sed '/^,/d' | sed -e 's/\b\(.\)/\u\1/g' | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; 
+s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > usernames
+
+     rm /tmp/emails /tmp/names* /tmp/networks /tmp/sub* /tmp/tmp-emails /tmp/usernames
+     ##############################################################
+
+     echo "last_name#first_name" > /tmp/names.csv
+     sed 's/, /#/' usernames >> /tmp/names.csv
+
+     echo "workspaces select $domain" > passive2.rc
+     cat $discover/resource/recon-ng-import-names.rc >> passive2.rc
+     cat $discover/resource/recon-ng-cleanup.rc >> passive2.rc
+     sed -i "s/yyy/$domain/g" passive2.rc
+
+     recon-ng --no-check -r $discover/passive2.rc
 
      ##############################################################
 
      grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-final
 
-     sed '1,3d' /tmp/names | head -n -4 > names-final
+     sed '1,4d' /tmp/names | head -n -5 > names-final
 
      grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > tmp
-     cat networks-tmp tmp | sort -u | $sip > networks-final 2>/dev/null
+     cat networks-tmp tmp | sort -u | $sip > networks-final
 
-     grep "$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > sub-recon
+     grep "$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > /tmp/sub-clean
      # Find lines that contain IPs and clean up
-     cat sub* /tmp/sub-recon | grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | egrep -v '(outlook|www)' | column -t | sort -u > subdomains
+     cat sub* /tmp/sub-clean | grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | egrep -v '(outlook|www)' | column -t | sort -u > subdomains-final
 
-     cat /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/[0-9]/d' | sed '/^,/d' | sed -e 's/\b\(.\)/\u\1/g' | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mci/McI/g; s/Mck/McK/g; s/Mcl/McL/g; 
-s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > usernames-recon   # Needs reingested.
+     awk '{print $2}' subdomains-final | grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' | egrep -v '(-|=|:)' | sed '/^$/d' | $sip > hosts
 
      ##############################################################
 
-     awk '{print $2}' subdomains | grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' | egrep -v '(-|=|:)' | sed '/^$/d' | $sip > hosts
-
      if [ -e networks-final ]; then
-          cat networks-final > tmp 2>/dev/null
+          cat networks-final > tmp
           echo >> tmp
      fi
 
-     cat hosts >> tmp 2>/dev/null
+     cat hosts >> tmp
      cat tmp >> $home/data/$domain/data/hosts.htm
      echo "</pre>" >> $home/data/$domain/data/hosts.htm 2>/dev/null
 
@@ -755,6 +762,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           cat names-final >> tmp
           echo >> tmp
           cat names-final >> $home/data/$domain/data/names.htm
+          echo "</center>" >> $home/data/$domain/data/names.htm
           echo "</pre>" >> $home/data/$domain/data/names.htm
      else
           echo "No data found." >> $home/data/$domain/data/names.htm
@@ -818,33 +826,32 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo "</pre>" >> $home/data/$domain/data/squatting.htm
      fi
 
-     if [ -e sub-final ]; then
-          urlcount=$(wc -l sub-final | cut -d ' ' -f1)
+     if [ -e subdomains-final ]; then
+          urlcount=$(wc -l subdomains-final | cut -d ' ' -f1)
           echo "Subdomains           $urlcount" >> zreport
           echo "Subdomains ($urlcount)" >> tmp
           echo $long >> tmp
-          cat sub-final >> tmp
+          cat subdomains-final >> tmp
           echo >> tmp
-          cat sub-final >> $home/data/$domain/data/subdomains.htm
-          echo "</center>" >> $home/data/$domain/data/subdomains.htm
+          cat subdomains-final >> $home/data/$domain/data/subdomains.htm
           echo "</pre>" >> $home/data/$domain/data/subdomains.htm
      else
           echo "No data found." >> $home/data/$domain/data/subdomains.htm
           echo "</pre>" >> $home/data/$domain/data/subdomains.htm
      fi
 
-     if [ -e xls ]; then
-          xlscount=$(wc -l xls | cut -d ' ' -f1)
-          echo "Excel                $xlscount" >> zreport
-          echo "Excel Files ($xlscount)" >> tmp
+     if [ -e doc ]; then
+          doccount=$(wc -l doc | cut -d ' ' -f1)
+          echo "Word                 $doccount" >> zreport
+          echo "Word Files ($doccount)" >> tmp
           echo $long >> tmp
-          cat xls >> tmp
+          cat doc >> tmp
           echo >> tmp
-          cat xls >> $home/data/$domain/data/xls.htm
-          echo '</pre>' >> $home/data/$domain/data/xls.htm
+          cat doc >> $home/data/$domain/data/doc.htm
+          echo '</pre>' >> $home/data/$domain/data/doc.htm
      else
-          echo "No data found." >> $home/data/$domain/data/xls.htm
-          echo "</pre>" >> $home/data/$domain/data/xls.htm
+          echo "No data found." >> $home/data/$domain/data/doc.htm
+          echo "</pre>" >> $home/data/$domain/data/doc.htm
      fi
 
      if [ -e pdf ]; then
@@ -889,18 +896,18 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           echo "</pre>" >> $home/data/$domain/data/txt.htm
      fi
 
-     if [ -e doc ]; then
-          doccount=$(wc -l doc | cut -d ' ' -f1)
-          echo "Word                 $doccount" >> zreport
-          echo "Word Files ($doccount)" >> tmp
+     if [ -e xls ]; then
+          xlscount=$(wc -l xls | cut -d ' ' -f1)
+          echo "Excel                $xlscount" >> zreport
+          echo "Excel Files ($xlscount)" >> tmp
           echo $long >> tmp
-          cat doc >> tmp
+          cat xls >> tmp
           echo >> tmp
-          cat doc >> $home/data/$domain/data/doc.htm
-          echo '</pre>' >> $home/data/$domain/data/doc.htm
+          cat xls >> $home/data/$domain/data/xls.htm
+          echo '</pre>' >> $home/data/$domain/data/xls.htm
      else
-          echo "No data found." >> $home/data/$domain/data/doc.htm
-          echo "</pre>" >> $home/data/$domain/data/doc.htm
+          echo "No data found." >> $home/data/$domain/data/xls.htm
+          echo "</pre>" >> $home/data/$domain/data/xls.htm
      fi
 
      cat tmp >> zreport
@@ -932,9 +939,9 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
  
      rm tmp* zreport
-     mv curl debug* email* hosts name* network* records registered* squatting sub* usernames-recon whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
-     mv passive.rc $home/data/$domain/tools/recon-ng/
-     cd /tmp/; mv emails names* networks subdomains tmp-emails usernames $home/data/$domain/tools/recon-ng/ 2>/dev/null
+     mv curl debug* email* hosts name* network* records registered* squatting sub* usernames whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
+     mv passive* $home/data/$domain/tools/recon-ng/
+     cd /tmp/; mv emails names* networks sub* tmp-emails usernames $home/data/$domain/tools/recon-ng/ 2>/dev/null
 
      echo
      echo $medium
@@ -943,8 +950,6 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      echo
      echo
      echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${NC}\n"
-     echo
-     read -p "Press <return> to continue."
 
      ##############################################################
 
@@ -983,6 +988,8 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      $web https://twitter.com &
      sleep 2
      $web https://www.youtube.com &
+     sleep 2
+     $web https://$companyurl &
      sleep 2
      $web $home/data/$domain/index.htm &
      echo
@@ -1246,19 +1253,27 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
           f_error
      fi
 
+     if [ ! -d $home/data/$workspace ]; then
+          mkdir -p $home/data/$workspace
+     fi
+
      echo "workspaces select $workspace" > tmp.rc
      cat $discover/resource/recon-ng-import-names.rc >> tmp.rc
      cat $discover/resource/recon-ng-cleanup.rc >> tmp.rc
-     recon-ng --no-check -r $discover/tmp.rc
+     sed -i "s/yyy/$workspace/g" tmp.rc
 
-     sed '1,3d' /tmp/names | head -n -4 > $home/data/$workspace-names.txt
+     recon-ng --no-check -r $discover/tmp.rc
      rm tmp.rc
-     cd /tmp/; rm emails names networks subdomains usernames 2>/dev/null
+
+     grep '@' emails | cut -d ' ' -f4 | egrep -v '(email|SELECT|username)' | sort -u > $home/data/$workspace/emails.txt
+     sed '1,4d' /tmp/names | head -n -5 > $home/data/$workspace/names.txt
+     sed '1,4d' /tmp/usernames | head -n -5 > $home/data/$workspace/usernames.txt
+     cd /tmp/; rm emails names* usernames 2>/dev/null
 
      echo
      echo $medium
      echo
-     echo -e "The new report is located at ${YELLOW}$home/data/$workspace-names.txt${NC}\n"
+     echo -e "The new files are located at ${YELLOW}$home/data/$workspace/${NC}\n"
      echo
      echo
      exit

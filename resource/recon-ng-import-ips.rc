@@ -1,16 +1,5 @@
 use import/list
-set FILENAME /root/ips
+set FILENAME /tmp/tmp-ips
 set TABLE hosts
 set COLUMN ip_address
 run
-
-use recon/hosts-hosts/freegeoip
-run
-use recon/hosts-hosts/ipinfodb
-run
-
-back
-
-spool start /root/tmp
-query SELECT latitude,longitude FROM hosts
-spool stop

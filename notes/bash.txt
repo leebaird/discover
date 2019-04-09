@@ -95,6 +95,7 @@ sed '/^[0-9]/d'                                            # Remove lines that s
 sed '/^FOO/d'                                              # Remove lines that start with FOO
 sed '/^.,/d'                                               # Remove lines where the second letter is a comma
 cat tmp | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev  # Remove the last column
+head -n -5                                                 # Remove the last 5 lines
 sed 's/[ \t]*$//'                                          # Remove trailing whitespace from each line
 
 sed 's/\.\.\.//g'                                          # Replace 3 periods with nothing
