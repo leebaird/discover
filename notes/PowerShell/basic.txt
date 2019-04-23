@@ -1,6 +1,21 @@
 PowerShell - Basics
 
 
+# cmdlets
+Every cmdlet in PS starts with a 'verb-noun'.
+Get-Verb		Show all verbs.
+Get-Process
+Start-Process .\notepad.exe
+Stop-Process -Name notepad
+
+Get-Command *COMPUTER*
+
+# Alias
+Get-Alias
+dir, gci, ls
+
+help Import-Module -Examples
+
 # File types
 script file            .ps1
 script data file       .psd1
@@ -25,11 +40,6 @@ PS C:\> $list[0]
 red
 PS C:\> $list[2]
 blue
-
-# cmdlets
-Uses a 'verb-noun' format.
-Get-Date
-Get-Process
 
 # For loops
 $list = "one", "two", "three"
@@ -65,4 +75,6 @@ Get-Process                              Show current running processes.
 Get-Help <tool>                          Get help on any tool.
 Get-Help invoke-mimikatz                 Show help for Mimikatz.
 Get-Help invoke-mimikatz -examples       Show example of how to use Mimikatz.
+
+Get-Member
 

