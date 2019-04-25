@@ -1,5 +1,5 @@
 ```
-Custom bash scripts used to automate various pentesting tasks. 
+Custom bash scripts used to automate various penetration testing tasks. 
 For use with Kali Linux and the Penetration Testers Framework (PTF).
 ```
 
