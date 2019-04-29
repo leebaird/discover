@@ -5,6 +5,7 @@ Kali
 
 Top right icon > tools icon
 Power > Power Saving > Blank screen: Never
+Power > Suspend & Power Button > Automatic suspend: Off
 Privacy > Screen Lock > Automatic Screen Lock: Off
 ------------------------------------------------------------------------------------------------------
 

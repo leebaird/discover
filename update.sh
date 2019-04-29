@@ -128,6 +128,7 @@ else
      echo -e "${YELLOW}Installing EyeWitness.${NC}"
      git clone https://github.com/ChrisTruncer/EyeWitness.git /opt/EyeWitness
      /opt/EyeWitness/setup/setup.sh
+     echo
 fi
 
 if [ ! -f /usr/bin/xmllint ]; then
