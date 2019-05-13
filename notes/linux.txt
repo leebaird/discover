@@ -44,6 +44,12 @@ execute (e)	 1
  
 chmod 755 test.sh                  Make a file executable
 ------------------------------------------------------------------------------------------------------
+
+# File System
+
+/etc/passwd                        Where users accounts are stored
+/etc/shadow                        Contains encrypted passwords
+------------------------------------------------------------------------------------------------------
  
 # Files
  
@@ -234,13 +240,19 @@ ssh-keygen                         Generate new public/private key pair
 ssh user@targetIP                  Connect on a standard port
 ssh user@targetIP -p 2222          Connect on a non-standard port
 ssh user@targetIP -i file.pem      Connect and authenticate using an identity file
-ssh user@targetIP -L 5900:localhost:5900     Connect and use local port forwarding
 
-ssh user@targetIP -D 1080 -f -N    -D  Create a SOCKS tunnel on the default port
+- Local port forwarding
+ssh user@targetIP -L 5900:localhost:5900
+vncviewer localhost
+
+- Remote port forwarding
+ssh user@targetIP -R 2222:localhost:22 -f -N
                                    -f  Force to background
                                    -N  Do not execute a remote command
 
-ssh user@targetIP -R 2222:localhost:22 -f -N
+-Dynamic port forwarding
+ssh user@targetIP -C -D 1080       -C  Enable compression, good for web browsing
+                                   -D  Create a SOCKS tunnel on the default port
 
 Firefox Preferences > Advanced > Network > Settings > Manual proxy configuration
 Remove everything for HTTP, SSL, and FTP proxies and ports
