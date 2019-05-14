@@ -971,7 +971,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      sleep 2
      $web https://$companyurl.s3.amazonaws.com &
      sleep 2
-     $web http://api.hackertarget.com/pagelinks/?q=$domain &
+     $web http://api.hackertarget.com/pagelinks/?q=https://www.$domain &
      sleep 2
      $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
      sleep 2
