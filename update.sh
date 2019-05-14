@@ -220,6 +220,7 @@ if [ -d /opt/Veil/.git ]; then
 else
      echo -e "${YELLOW}Installing Veil.${NC}"
      git clone https://github.com/Veil-Framework/Veil /opt/Veil
+     ./opt/Veil/config/setup.sh --force --silent
      echo
 fi
 

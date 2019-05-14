@@ -89,7 +89,7 @@ net group "Enterprise Admins" hacker /add /domain
 net groups "Enterprise Admins" /domain
 ------------------------------------------------------------------------------------------------------
 
-# Domain control
+# Domain controller
 
 nbtstat -a <target IP>
 
@@ -99,7 +99,7 @@ it would have signified it was an IIS server.
 
 Note the differences between the U and the G. U = UNIQUE and G = GROUP. When you see a hex code next 
 to UNIQUE it is usually associated with the computer itself. With GROUP it is associated with the 
-workgroup or domain: https://support.microsoft.com/en-us/kb/163409
+workgroup or domain.
 ------------------------------------------------------------------------------------------------------
 
 # Enumeration
@@ -174,12 +174,12 @@ rdesktop -u <user> <targetIP>
 # Commands
 
 ASSOC            Displays or modifies file extension associations.
-ARP		 		
-AT		 		
+ARP
+AT
 ATTRIB           Displays or changes file attributes.
 BREAK            Sets or clears extended CTRL+C checking.
 BOOTCFG          Sets properties in boot.ini file to control boot loading.
-CALC	         Start the Calculator.
+CALC             Start the Calculator.
 CACLS            Displays or modifies access control lists (ACLs) of files.
 CALL             Calls one batch program from another.
 CD               Displays the name of or changes the current directory.
@@ -213,51 +213,51 @@ FIND             Searches for a text string in a file or files.
 FINDSTR          Searches for strings in files.
 FOR              Runs a specified command for each file in a set of files.
 FORMAT           Formats a disk for use with Windows.
-FREEDISK	 	     
+FREEDISK
 FSUTIL           Displays or configures the file system properties.
 FTYPE            Displays or modifies file types used in file extension associations.
-GETMAC	         Display the MAC of network cards.
+GETMAC           Display the MAC of network cards.
 GETTYPE          Displays the OS version.
 GOTO             Directs the Windows command interpreter to a labeled line in a batch program.
 GPMC.MSC         Group Policy management console.
 GPRESULT         Displays Group Policy information for machine or user.
-GPUPDATE	 	     
+GPUPDATE
 GRAFTABL         Enables Windows to display an extended character set in graphics mode.
 HELP             Provides Help information for Windows commands.
-HOSTNAME	 	     
+HOSTNAME
 IF               Performs conditional processing in batch programs.
-IPCONFIG	 	     
+IPCONFIG
 LABEL            Creates, changes, or deletes the volume label of a disk.
 MD               Creates a directory.
 MKDIR            Creates a directory.
-MMC	         Microsoft Management Console.
+MMC              Microsoft Management Console.
 MODE             Configures a system device.
 MORE             Displays output one screen at a time.
 MOVE             Moves one or more files from one directory to another directory.
-MSTSC	         Remote Desktop
-NBTSTAT		 	
+MSTSC            Remote Desktop
+NBTSTAT
 NET ACCOUNTS     Password properties.
-NET GROUP	 	     
+NET GROUP
 NET LOCALGROUP   Display local security groups.
 NET SHARE        Display local shares.
 NET START        Show services running.
-NET USE	         Display mapped drives.
-NET USER	 	     
-NET VIEW	 	     
-NOTEPAD		     
-NSLOOKUP	 	     
+NET USE          Display mapped drives.
+NET USER
+NET VIEW
+NOTEPAD
+NSLOOKUP
 OPENFILES        Displays files opened by remote users for a file share.
 PAGEFILECONFIG   Displays or configures Pagefile properties.
 PATH             Displays or sets a search path for executable files.
 PAUSE            Suspends processing of a batch file and displays a message.
-PING		 	     
+PING
 POPD             Restores the previous value of the current directory saved by PUSHD.
 PRINT            Prints a text file.
 PROMPT           Changes the Windows command prompt.
 PUSHD            Saves the current directory then changes it.
 RD               Removes a directory.
 RECOVER          Recovers readable information from a bad or defective disk.
-REGEDIT		 	
+REGEDIT
 REM              Records comments (remarks) in batch files or CONFIG.SYS.
 REN              Renames a file or files.
 RENAME           Renames a file or files.
@@ -278,7 +278,7 @@ TASKKILL         Kill or stop a running process or application.
 TASKMGR          Task Manager
 TIME             Displays or sets the system time.
 TITLE            Sets the window title for a CMD.EXE session.
-TRACERT		     
+TRACERT
 TREE             Graphically displays the directory structure of a drive or path.
 TYPE             Displays the contents of a text file.
 TZCHANGE         Configure the time zone.
@@ -286,17 +286,17 @@ VER              Displays the Windows version.
 VERIFY           Tells Windows whether to verify that your files are written correctly to a disk.
 VOL              Displays a disk volume label and serial number.
 XCOPY            Copies files and directory trees.
-WHOAMI		 	
+WHOAMI
 WMIC             Displays WMI information inside interactive command shell.
-WUPDMGR		     
+WUPDMGR
 
-appwiz.cpl 	 Add or Remove Programs
-devmgmt.msc	 Device Manager
-dsa.msc		 Active Directory Users and Computers
-firewall.cpl	 Windows Firewall
-services.msc	 Services
-tasklist	 Programs running
-tasklist /svc	 Services running
+appwiz.cpl       Add or Remove Programs
+devmgmt.msc      Device Manager
+dsa.msc          Active Directory Users and Computers
+firewall.cpl     Windows Firewall
+services.msc     Services
+tasklist         Programs running
+tasklist /svc    Services running
 ------------------------------------------------------------------------------------------------------
 
 # Environmental Variables

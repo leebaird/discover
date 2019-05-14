@@ -95,19 +95,19 @@ Meterpreter
      webcam_list       List webcams
      webcam_snap       Take a snapshot from the specified webcam
      webcam_stream     Play a video stream from the specified webcam
+------------------------------------------------------------------------------------------------------
 
 # Priv: Escalation
-     getsystem         Attempt to elevate your privilege to that of local system.
+     getsystem                 Attempt to elevate your privilege to that of local system.
 
 # Priv: Password database
-     hashdump          Dumps the contents of the SAM database
+     hashdump                  Dumps the contents of the SAM database
 
 # Priv: Timestomp
-     timestomp         Manipulate file MACE attributes
+     timestomp                 Manipulate file MACE attributes
 
 # MimkKatz
-     load kiwi
-     help
+     load kiwi                 Load MimiKatz
 
      creds_all                 Retrieve all credentials
      creds_kerberos            Retrieve Kerberos creds
