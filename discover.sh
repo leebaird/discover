@@ -989,7 +989,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      sleep 2
      $web https://www.youtube.com &
      sleep 2
-     $web https://$companyurl &
+     $web https://www.$domain &
      sleep 2
      $web $home/data/$domain/index.htm &
      echo
