@@ -1747,7 +1747,7 @@ START=$(date +%r\ %Z)
 f_scan
 f_ports
 f_scripts
-f_metasploit
+f_run-metasploit
 f_report
 }
 
@@ -1767,7 +1767,7 @@ START=$(date +%r\ %Z)
 f_scan
 f_ports
 f_scripts
-f_metasploit
+f_run-metasploit
 f_report
 }
 
@@ -1799,7 +1799,7 @@ START=$(date +%r\ %Z)
 f_scan
 f_ports
 f_scripts
-f_metasploit
+f_run-metasploit
 f_report
 }
 
@@ -1844,6 +1844,8 @@ fi
 if [ $delay -lt 0 ] || [ $delay -gt 5 ]; then
      f_error
 fi
+
+f_metasploit
 
 echo
 echo $medium
