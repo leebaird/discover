@@ -125,6 +125,14 @@ if [ -z "$1" ]; then
      exit 0
 fi
 
+# Chech for argument. Give feedback to user.
+echo -e "Usage: ./test.sh <target IP> <scan type>"
+if [ "$2" == "All" ]; then
+	echo "Running all scans on $1."
+else
+	echo "Running a $2 scan on $1."
+fi
+
 # Check for root.
 if [[ $EUID -ne 0 ]]; then
      echo "This script must be ran as root."
@@ -171,14 +179,13 @@ fi
 
 # Colors
 
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
 BLUE='\033[1;34m'
-RED='\033[1;31m'
-YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo -e "I ${BLUE}love${NC} Discover."
 echo -e "I ${RED}love${NC} Discover."
-echo -e "I ${YELLOW}love${NC} Discover."
 ------------------------------------------------------------------------------------------------------
 
 # Compare two dates.
@@ -210,7 +217,6 @@ fi
 if [ ! -d test ]; then
      echo "The folder does not exist."
 fi
-
 ------------------------------------------------------------------------------------------------------
 
 # Set variable.
@@ -222,7 +228,6 @@ else
      format="exe"
      platform="windows"
 fi
-
 ------------------------------------------------------------------------------------------------------
 
 # If a process is running, kill it.
