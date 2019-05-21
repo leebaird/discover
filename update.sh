@@ -12,6 +12,7 @@ echo
 # Fix for errors from URLCrazy file tld.rb lines 81,89,91
 # since project is not actively supported.
 
+CWD=$(pwd)
 tlddir=$(locate homophones.rb | sed 's%/[^/]*$%/%')
 cd $tlddir
 
@@ -20,6 +21,8 @@ if [ ! -f tld.rb.bak ]; then
     cat tld.rb | grep '"bd"=>' -v | grep '"bn"=>' -v | grep '"br"=>' -v > tld_tmp.rb
     mv tld_tmp.rb tld.rb
 fi
+
+cd $CWD
 
 #########################################################
 
