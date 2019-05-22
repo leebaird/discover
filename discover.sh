@@ -702,7 +702,7 @@ s/Mcs/McS/g; s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
      cat $discover/resource/recon-ng-cleanup.rc >> passive.rc
      sed -i "s/yyy/$domain/g" passive.rc
 
-     recon-ng --no-check -r passive.rc
+     recon-ng --no-check -r $CWD/passive.rc
 
      ##############################################################
 
@@ -720,7 +720,7 @@ s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g' | sort -u > use
      cat $discover/resource/recon-ng-cleanup.rc >> passive2.rc
      sed -i "s/yyy/$domain/g" passive2.rc
 
-     recon-ng --no-check -r passive2.rc
+     recon-ng --no-check -r $CWD/passive2.rc
 
      ##############################################################
 
