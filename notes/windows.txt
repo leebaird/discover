@@ -59,27 +59,28 @@ nbtscan -f hosts.txt
 DumpSec
 ------------------------------------------------------------------------------------------------------
 
-nltest /dclist:<domain>                       # Locate the domain controller.
-global.exe "domain admins" \\dc-controller    # Show members of domain groups.
+nltest /dclist:<domain>                       # Locate the domain controller
+global.exe "domain admins" \\dc-controller    # Show members of domain groups
 ------------------------------------------------------------------------------------------------------
 
 # net commands
 
-net accounts                                  # Local password policies.
+net accounts                                  # Local password policies
 net accounts /domain
 net config workstation
-net group “Domain Admins" /domain             # Show all domain admin.
-net group “Domain Users" /domain              # Show all domain users.
-net localgroup                                # Local Security Groups.
-net localgroup /domain                        # Domain Security Groups.
-net localgroup Administrators                 # Users in the local Administrators Security Group.
-net localgroup Administrators /domain         # Users in the domain Administrators Security Group.
+net group “Domain Admins" /domain             # Show all domain admin
+net group “Domain Users" /domain              # Show all domain users
+net localgroup                                # Local Security Groups
+net localgroup /domain                        # Domain Security Groups
+net localgroup Administrators                 # Users in the local Administrators Security Group
+net localgroup Administrators /domain         # Users in the domain Administrators Security Group
+net localgroup "Remote Desktop Users"
 net share
-net user                                      # Local users.
-net user /domain > users.txt                  # All users in the current user's domain (take a few to run).
-net user hacker /domain                       # Info on domain user.
-net view                                      # Computers in the users domain and other domains.
-net view /domain                              # Computers in other domain.
+net user                                      # Local users
+net user /domain > users.txt                  # All users in the current user's domain (take a few to run)
+net user hacker /domain                       # Info on domain user
+net view                                      # Computers in the users domain and other domains
+net view /domain                              # Computers in other domain
 
 net user hacker password /add
 net localgroup administrators /add hacker
@@ -130,25 +131,24 @@ tasklist /m
 tasklist /svc
 tasklist /v
 
-dir c:\*.xls /s                               # Show all Excel docs.
-dir c:\*.xlsx /s                              # Show all Excel docs.
-dir c:\*.ppt /s                               # Show all PowerPoint docs.
-dir c:\*.pptx /s                              # Show all PowerPoint docs.
-dir c:\*.doc /s                               # Show all Word docs.
-dir c:\*.docx /s                              # Show all Word docs.
-dir c:\*.pdf /s                               # Show all PDFs.
+dir c:\*.xls /s                               Show all Excel docs
+dir c:\*.xlsx /s                              Show all Excel docs
+dir c:\*.ppt /s                               Show all PowerPoint docs
+dir c:\*.pptx /s                              Show all PowerPoint docs
+dir c:\*.doc /s                               Show all Word docs
+dir c:\*.docx /s                              Show all Word docs
+dir c:\*.pdf /s                               Show all PDFs
 
-dir /s /p *password*.*                        # Show all filenames that include 'password'.
+dir /s /p *password*.*                        Show all filenames that include 'password'
 ------------------------------------------------------------------------------------------------------
 
 # Firewall
 
+netsh firewall show state
 netsh firewall show config
-netsh firewall add portopening TCP 3389 RDP
-netsh firewall set opmode disable             # Disable firewall.
 
-firewall show state
-netsh firewall set opmode disable
+netsh firewall add portopening TCP 3389 RDP
+netsh firewall set opmode disable             Disable firewall
 
 netsh wlan show interfaces
 netsh wlan show drivers
@@ -297,12 +297,4 @@ firewall.cpl     Windows Firewall
 services.msc     Services
 tasklist         Programs running
 tasklist /svc    Services running
-------------------------------------------------------------------------------------------------------
-
-# Environmental Variables
-
-%ProgramFiles%
-%SystemRoot%
-%TEMP%
-%windir%
 

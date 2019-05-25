@@ -66,18 +66,18 @@ tcpdump -nX -r <capture.pcap>                          Read the file and dump in
 
 site:target.com                                        Approximate web presence of an organization
 site:target.com -site:www.target.com                   Locate Subdomains
-filetype:pdf					       Locate all pdf files
+filetype:pdf					                    Locate all pdf files
 intitle:
 inurl:
 ------------------------------------------------------------------------------------------------------
 
 # DNS
 
-host -t <type> target.com				Enumeration
+host -t <type> target.com			     	     Enumeration
      mx = mail server
      ns = name server
 
-host -l target.com <DNS server>				Zone transfer
+host -l target.com <DNS server>				     Zone transfer
 
 
 # debug.exe

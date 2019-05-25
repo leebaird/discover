@@ -125,3 +125,11 @@ command with the -b switch.
 
      # Change to branch that you want to test.
      git checkout BRANCHNAME
+
+
+-- Forensics/CTF
+
+git log                     Show logs
+git ls-tree <commit ID>     Indented listing of the file
+git show <file ID>          Look for comments
+

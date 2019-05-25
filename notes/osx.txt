@@ -12,9 +12,9 @@ export LSCOLORS=ExFxBxDxCxegedabagacad
 # Boot options
 
 c
-option                        Select boot device
-Apple r                       Recovery mode
-Apple s                       Single user mode
+option                                Select boot device
+Apple r                               Recovery mode
+Apple s                               Single user mode
 
 Terminal > resetpassword
 ------------------------------------------------------------------------------------------------------

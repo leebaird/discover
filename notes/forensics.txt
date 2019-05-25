@@ -19,17 +19,17 @@ sdz  26th
 
 # Partition and logical drive numbering 
 
-1–4             partitions, primary or extended 
-5 and up        logical drives
+1–4             Partitions, primary or extended 
+5 and up        Logical drives
 
 Examples 
-hda3            primary IDE master, 3rd partition 
-hdd4            secondary IDE slave, 4th partition 
-hdc5            secondary IDE master, 1st logical partition 
-sdb9            second SCSI device, 5th logical partition 
+hda3            Primary IDE master, 3rd partition 
+hdd4            Secondary IDE slave, 4th partition 
+hdc5            Secondary IDE master, 1st logical partition 
+sdb9            Second SCSI device, 5th logical partition 
 
-bt nohd         mount NTFS partitions in read only mode at startup
-fdisk -l        show info about hard drive and partitions
+bt nohd         Mount NTFS partitions in read only mode at startup
+fdisk -l        Show info about hard drive and partitions
 ------------------------------------------------------------------------------------------------------
  
 # Imaging a hard drive with dd

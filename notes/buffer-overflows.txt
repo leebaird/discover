@@ -4,10 +4,12 @@ Buffer Overflows
 CPU registers are used like variables by storing data for quick access.
 On 32-bit machines, each register is 4 bytes or 32-bits.
 
-EAX accumulator - used for performing calculations, and used to store return values from function calls. Basic operations such as add, subtract, compare use this general-purpose register
+EAX accumulator - used for performing calculations, and used to store return values from function calls.
+   Basic operations such as add, subtract, compare use this general-purpose register
 EBX base index - has no general purpose and can be used to store data.
 ECX counter - used to indicate how many bytes to copy, loop operations
-EDX data - this is an extension of the EAX register.  It allows for more complex calculations (multiply, divide) by allowing extra data to be stored to facilitate those calculations.  I/O pointer.
+EDX data - this is an extension of the EAX register.  It allows for more complex calculations (multiply, 
+   divide) by allowing extra data to be stored to facilitate those calculations.  I/O pointer.
 EDI destination index - points to a location where results of data operation are stored
 ESI source index - holds location of input data
 EBP stack data pointer
@@ -63,7 +65,14 @@ File > Attach > select Ability Server in the second column > Attach
 Press Play to allow the application to continue to run.
 Look in the bottom right corner and noticed how it has changed from a Paused to Running state.
 Run the exploit.
-The debugger catches the crash and halts the program execution, showing the exact state of the CPU registers at the time of the crash. In the top right window, notice the EIP register is completely overwritten by our buffer. Because the EIP controls the execution flow of the program, you can now hijack the application flow and redirect the application to continue executing whatever you want. What usually happens is that the attacker introduces his own shellcode, usually inside the buffer. After execution flow is gained, it's redirected to the attacker's shellcode.
+
+The debugger catches the crash and halts the program execution, showing the exact state of the CPU 
+registers at the time of the crash. In the top right window, notice the EIP register is completely 
+overwritten by our buffer. Because the EIP controls the execution flow of the program, you can now 
+hijack the application flow and redirect the application to continue executing whatever you want. 
+What usually happens is that the attacker introduces his own shellcode, usually inside the buffer. 
+After execution flow is gained, it's redirected to the attacker's shellcode.
+
 Notice in the top right window that the EIP is completely overwritten with 41414141 or 4 As.
 The ESP register holds the rest of the malicious buffer.
 Right click on ESP > Follow in Dump
@@ -90,10 +99,9 @@ Use pattern_offset.py to identify the location of the 4 bytes in the 2000 byte s
 
 The EIP has been overwritten by the buffer from the 967th character to the 971st character.
 
-Now try to find the location of memory that the ESP register is pointed to, and identify its position in the 2000 byte buffer.
-Notice the ESP points to an address, which contains part of our unique string.
-Try to identify the location of this unique string in the buffer.
-Use the first 4 bytes in the ESP
+Now try to find the location of memory that the ESP register is pointed to, and identify its position in 
+the 2000 byte buffer. Notice the ESP points to an address, which contains part of our unique string.
+Try to identify the location of this unique string in the buffer. Use the first 4 bytes in the ESP
 ./pattern_offset.rb Bg9B
 
 987
@@ -128,7 +136,8 @@ Now convert that to decimal (992).
 
 # Part 5
 
-NULL bytes are not good. Can't be sent over the network because they will terminate our buffer. The buffer must be encoded with msfencode. Every time that you encode the buffer, its size will increase.
+NULL bytes are not good. Can't be sent over the network because they will terminate our buffer. The buffer 
+must be encoded with msfencode. Every time that you encode the buffer, its size will increase.
 ------------------------------------------------------------------------------------------------------
 
 # Example
@@ -136,8 +145,8 @@ NULL bytes are not good. Can't be sent over the network because they will termin
 Disable virtual address space randomization (ASLR)
 echo 0 > /proc/sys/kernel/randomize_va_space
 
-Create a vulnerable program using strcpy.  This function is dangerous because it does not limit the amount of bytes copied.
-This creates the potential for a buffer overflow.
+Create a vulnerable program using strcpy.  This function is dangerous because it does not limit the amount 
+of bytes copied. This creates the potential for a buffer overflow.
 
 #include <cstring>
 int main(int argc, char **argv)
@@ -186,3 +195,4 @@ run `python -c 'print "\x41" * 504 + "\x42" * 4'`
 y
 x/16wx $esp # not sure what this does
 info registers
+

