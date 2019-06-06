@@ -89,7 +89,7 @@ get-net-user <user>
 dsquery * -filter “&(objectclass=user)(useraccountcontrol>=65535)” -attr samaccountname,name
 get-netuser -filter "useraccountcontrol>=65535" | select-object samaccountname,name
 
-# Show user accounts and their associated SPNs
+# Show user accounts and their associated Service Principal Names (SPNs)
 dsquery.exe * -filter "(serviceprincipalname=*)" -attr samaccountname, serviceprincipalname
 dsquery.exe * -filter "&(serviceprincipalname=*)(samaccounttype=805306368)" -attr samaccountname,serviceprincipalname
 get-netuser -spn | select-object samaccountname,serviceprincipalname

