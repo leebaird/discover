@@ -5,6 +5,7 @@ ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
 mac=$(ifconfig | grep 'ether' | awk '{print $2}')
 user=$(whoami)
 
+alias aws='ssh -i ~/.ssh/amazon.pem ec2-user@'
 alias awsf='sftp -i ~/.ssh/amazon.pem ec2-user@'
 alias awss='ssh -D 1080 -f -N -i ~/.ssh/amazon.pem ec2-user@'
 alias awsv='ssh -L 5901:localhost:5901 -i ~/.ssh/amazon.pem ec2-user@'

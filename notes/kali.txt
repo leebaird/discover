@@ -47,6 +47,16 @@ cd /opt/discover/
 ./update.sh
 ------------------------------------------------------------------------------------------------------
 
+# Install Go
+
+apt-get install golang
+
+vi ~/.profile
+export PATH=$PATH:/usr/local/go/bin
+
+mkdir -p $HOME/go_projects/{src,pkg,bin}
+------------------------------------------------------------------------------------------------------
+
 # SSH
 
 ssh-keygen                                       Create new keys

