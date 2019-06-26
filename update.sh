@@ -194,6 +194,16 @@ else
      /opt/rawr/install.sh y
 fi
 
+if [ -d /opt/SharpShooter/.git ]; then
+     echo -e "${BLUE}Updating SharpShooter.${NC}"
+     cd /opt/SharpShooter/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing SharpShooter.${NC}"
+     git clone https://github.com/mdsecactivebreach/SharpShooter.git /opt/SharpShooter
+     echo
+fi
+
 if [ -d /opt/theHarvester/.git ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
