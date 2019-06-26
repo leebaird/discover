@@ -201,6 +201,8 @@ if [ -d /opt/SharpShooter/.git ]; then
 else
      echo -e "${YELLOW}Installing SharpShooter.${NC}"
      git clone https://github.com/mdsecactivebreach/SharpShooter.git /opt/SharpShooter
+     cd /opt/SharpShooter/
+     pip install -r requirements.txt
      echo
 fi
 
