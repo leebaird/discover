@@ -98,6 +98,15 @@ else
      echo
 fi
 
+if [ -d /opt/Donut/.git ]; then
+     echo -e "${BLUE}Updating Donut.${NC}"
+     cd /opt/Donut/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing Donut.${NC}"
+     git clone https://github.com/TheWover/donut.git /opt/Donut
+     echo
+fi
 
 if [ -d /opt/Egress-Assess/.git ]; then
      echo -e "${BLUE}Updating Egress-Assess.${NC}"
