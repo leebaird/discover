@@ -355,10 +355,12 @@ Remove everything for HTTP, SSL, and FTP proxies and ports
 SOCKS Host: 127.0.0.1   Port: 1080
 Select SOCKS v5 and Remote DNS
 
+- X11
 /etc/ssh/ssh_config                  Config file
 ForwardX11 yes                       Uncomment and change to yes
 ForwardX11Trusted yes                Uncomment
 
+service ssh restart
 export DISPLAY=localhost:0.0
 exit
 ssh user@targetIP -Y                 Connect and use X11 forwarding
