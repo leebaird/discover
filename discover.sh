@@ -3490,7 +3490,7 @@ f_banner
 echo -e "${BLUE}Open multiple tabs in $browser with:${NC}"
 echo
 echo "1.  List"
-echo "2.  Directories from a domain's robot.txt."
+echo "2.  Directories from robots.txt."
 echo "3.  Previous menu"
 echo
 echo -n "Choice: "
