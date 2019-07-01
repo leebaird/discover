@@ -25,4 +25,3 @@ query SELECT DISTINCT host,ip_address FROM hosts WHERE host IS NOT NULL ORDER BY
 spool stop
 
 exit
-

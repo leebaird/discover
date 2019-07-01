@@ -433,11 +433,10 @@ tcpdump -w out.pcap -s 65535  'udp port 53'
 OS X (awsv)                          ssh -L 5901:localhost:5901 -i ~/.ssh/aws.pem ec2-user@<atter IP>
 
 Remote Kali                          sudo -i
-                                     vncserver -geometry 1440x850
+                                     vncserver -geometry 2560x1600
 
 OS X                                 Applications > VNC Viewer: localhost:5901
-
-VNC                                  Right click on the Desktop > Open Terminal Here
+                                     Enter a password twice, then No.
 
 Remote Kali                          vncserver -kill :1
 ------------------------------------------------------------------------------------------------------

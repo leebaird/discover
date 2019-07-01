@@ -635,7 +635,7 @@ s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; s/                      /                 
 
      # Formatting & clean-up
      sort tmp4 | sed 's/111AAA--placeholder--/Domain,IP Address,Registration Email,Registration Org,Registrar,/' | grep -v 'Matches Found' > tmp6
-     sed 's/LLC /LLC./g' tmp6 | column -n -s ',' -t > registered-domains
+     sed 's/LLC /LLC./g' tmp6 | sed -i 's/No IP Found//g' | sed -i 's/REDACTED FOR PRIVACY//g' | sed -i 's/select contact domain holder link at https//g' | column -n -s ',' -t > registered-domains
      rm tmp*
      echo
 
