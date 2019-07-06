@@ -7,3 +7,6 @@ run
 
 use auxiliary/scanner/ssh/detect_kippo
 run
+
+use auxiliary/scanner/ssh/libssh_auth_bypass
+run

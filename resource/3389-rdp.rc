@@ -2,8 +2,12 @@ setg RHOSTS file:
 setg THREADS 255
 setg RPORT 3389
 
+use auxiliary/scanner/rdp/cve_2019_0708_bluekeep
+run
+
 use auxiliary/scanner/rdp/ms12_020_check
 run
 
 use auxiliary/scanner/rdp/rdp_scanner
 run
+

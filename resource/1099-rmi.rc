@@ -4,3 +4,6 @@ setg RPORT 1099
 
 use auxiliary/scanner/misc/java_rmi_server
 run
+
+use auxiliary/scanner/misc/java_jmx_server
+run
