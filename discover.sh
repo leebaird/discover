@@ -252,7 +252,7 @@ case $choice in
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
      rundate=$(date +%B' '%d,' '%Y)
-     total=38
+     total=39
 
      # If folder doesn't exist, create it
      if [ ! -d $home/data/$domain ]; then
@@ -390,28 +390,30 @@ case $choice in
      python3 $harvesterdir/theHarvester.py -d $domain -l 100 -b dogpile | egrep -v '(!|\*|--|\[|Error|Searching|Warning)' | sed '/^$/d' > zdogpile
      echo "     DuckDuckGo           (17/$total)"
      python3 $harvesterdir/theHarvester.py -d $domain -l 100 -b duckduckgo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zduckduckgo
-     echo "     Google               (18/$total)"
+     echo "     GitHub               (18/$total)"
+     python3 $harvesterdir/theHarvester.py -d $domain -l 500 -b github-code | egrep -v '(!|\*|--|\[|Retrying|Searching|Warning)' | sed '/^$/d' > zgithub
+     echo "     Google               (19/$total)"
      python3 $harvesterdir/theHarvester.py -d $domain -l 100 -b google | egrep -v '(!|\*|--|\[|mywww|Searching|Warning)' | sed '/^$/d' | sort > zgoogle
-     echo "     Google-certificates  (19/$total)"
+     echo "     Google-certificates  (20/$total)"
      python3 $harvesterdir/theHarvester.py -d $domain -l 100 -b google-certificates | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zgoogle-certificates
-     echo "     Hunter               (20/$total)"
+     echo "     Hunter               (21/$total)"
      python3 $harvesterdir/theHarvester.py -d $domain -l 100 -b hunter | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zhunter
-     echo "     Intelx               (21/$total)"
+     echo "     Intelx               (22/$total)"
      python3 $harvesterdir/theHarvester.py -d $domain -l 100 -b intelx | egrep -v '(!|\*|--|\[|Searching|Warning|/)' | sed '/^$/d' | sort > zintelx
-     echo "     Linkedin             (22/$total)"
+     echo "     Linkedin             (23/$total)"
      python3 $harvesterdir/theHarvester.py -d "$company" -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp
      python3 $harvesterdir/theHarvester.py -d $domain -l 100 -b linkedin | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > tmp2
      # Make first 2 columns title case.
      cat tmp tmp2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sort -u > zlinkedin
-     echo "     Netcraft             (23/$total)"
+     echo "     Netcraft             (24/$total)"
      python3 $harvesterdir/theHarvester.py -d $domain -l 100 -b netcraft | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > znetcraft
-     echo "     SecurityTrails       (24/$total)"
+     echo "     SecurityTrails       (25/$total)"
      python3 $harvesterdir/theHarvester.py -d $domain -l 100 -b securityTrails | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zsecuritytrails
-     echo "     ThreatCrowd          (25/$total)"
+     echo "     ThreatCrowd          (26/$total)"
      python3 $harvesterdir/theHarvester.py -d $domain -l 100 -b threatcrowd | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zthreatcrowd
-     echo "     VirusTotal           (26/$total)"
+     echo "     VirusTotal           (27/$total)"
      python3 $harvesterdir/theHarvester.py -d $domain -l 100 -b virustotal | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' > zvirustotal
-     echo "     Yahoo                (27/$total)"
+     echo "     Yahoo                (28/$total)"
      python3 $harvesterdir/theHarvester.py -d $domain -l 100 -b yahoo | egrep -v '(!|\*|--|\[|Searching|Warning)' | sed '/^$/d' | sort > zyahoo
 
      mv z* $CWD
@@ -423,7 +425,7 @@ case $choice in
 
      echo
 
-     echo "Metasploit                (28/$total)"
+     echo "Metasploit                (29/$total)"
      msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
      grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sed '/^\./d' > zmsf
      # Remove all empty files
@@ -431,20 +433,20 @@ case $choice in
      rm tmp 2>/dev/null
      echo
 
-     echo "URLCrazy                  (29/$total)"
+     echo "URLCrazy                  (30/$total)"
      urlcrazy $domain > tmp
      sed -n '/Character/,$p' tmp | sed 's/AU,AUSTRALIA/ Australia/g; s/AUSTRIA/ Austria/g; s/BAHAMAS/ Bahamas/g; s/BANGLADESH/ Bangladesh/g; 
 s/BELGIUM/ Belgium/g; s/BULGARIA/ Bulgaria/g; s/CA,CANADA/ Canada  /g; s/KY,CAYMAN ISLANDS/ Cayman Islands/g; s/CHILE/ Chile/g; s/CN,CHINA/ China/g; 
 s/COLOMBIA/ Columbia/g; s/COSTA RICA/ Costa Rica/g; s/CZECH REPUBLIC/ Czech Republic/g; s/DK,DENMARK/ Denmark/g; s/DOMINICAN REPUBLIC/ Dominican Republic/g; 
-s/EUROPEAN UNION/ European Union/g; s/FINLAND/ Finland/g; s/FR,FRANCE/ France/g; s/DE,GERMANY/ Germany/g; s/GR,GREECE/ Greece/g; s/HK,HONG KONG/ Hong Kong/g; 
-s/HU,HUNGARY/ Hungary/g; s/IN,INDIA/ India/g; s/INDONESIA/ Indonesia/g; s/IR,IRAN (ISLAMIC REPUBLIC OF)/ Iran                        /g; s/IRELAND/ Ireland/g; 
-s/ISRAEL/ Israel/g; s/IT,ITALY/ Italy/g; s/JP,JAPAN/ Japan/g; s/KR,KOREA REPUBLIC OF/ Republic of Korea/g; s/localhost//g; s/LUXEMBOURG/ Luxembourg/g; 
-s/NL,NETHERLANDS/ Netherlands/g; s/NO,NORWAY/ Norway/g; s/PANAMA/Panama/g; s/POLAND/ Poland/g; s/PT,PORTUGAL/ Portugal/g; s/PUERTO RICO/ Puerto Rico/g; 
-s/CN,REPUBLIC OF China (ROC)/ China                    /g; s/ZZ,RESERVED/          /g; s/RO,ROMANIA/ Romania  /g; 
-s/RU,RUSSIAN FEDERATION/ Russia            /g; s/SAUDI ARABIA/ Saudi Arabia/g; s/SG,SINGAPORE/ Singapore/g; s/SPAIN/ Spain/g; s/SE,SWEDEN/ Sweden/g; 
-s/CH,SWITZERLAND/ Switzerland/g; s/TAIWAN/ Taiwan/g; s/THAILAND/ Thailand/g; s/TURKEY/ Turkey/g; s/UKRAINE/ Ukraine/g; 
-s/GB,UNITED KINGDOM/ United Kingdom/g; s/US,UNITED STATES/ United States/g; s/VG,VIRGIN ISLANDS (BRITISH)/ Virgin Islands (British)/g; 
-s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
+s/ES, Spain/ Spain/g; s/EUROPEAN UNION/ European Union/g; s/FINLAND/ Finland/g; s/FR,FRANCE/ France/g; s/DE,GERMANY/ Germany/g; s/GR,GREECE/ Greece/g; 
+s/HK,HONG KONG/ Hong Kong/g; s/HU,HUNGARY/ Hungary/g; s/IN,INDIA/ India/g; s/INDONESIA/ Indonesia/g; 
+s/IR,IRAN (ISLAMIC REPUBLIC OF)/ Iran                        /g; s/IRELAND/ Ireland/g; s/ISRAEL/ Israel/g; s/IT,ITALY/ Italy/g; s/JP,JAPAN/ Japan/g; 
+s/KR,KOREA REPUBLIC OF/ Republic of Korea/g; s/localhost//g; s/LUXEMBOURG/ Luxembourg/g; s/NL,NETHERLANDS/ Netherlands/g; s/NO,NORWAY/ Norway/g; 
+s/PANAMA/Panama/g; s/POLAND/ Poland/g; s/PT,PORTUGAL/ Portugal/g; s/PUERTO RICO/ Puerto Rico/g; s/CN,REPUBLIC OF China (ROC)/ China                    /g; 
+s/ZZ,RESERVED/          /g; s/RO,ROMANIA/ Romania  /g; s/RU,RUSSIAN FEDERATION/ Russia            /g; s/SAUDI ARABIA/ Saudi Arabia/g; 
+s/SG,SINGAPORE/ Singapore/g; s/SPAIN/ Spain/g; s/SE,SWEDEN/ Sweden/g; s/CH,SWITZERLAND/ Switzerland/g; s/TAIWAN/ Taiwan/g; s/THAILAND/ Thailand/g; 
+s/TURKEY/ Turkey/g; s/UKRAINE/ Ukraine/g; s/GB,UNITED KINGDOM/ United Kingdom/g; s/US,UNITED STATES/ United States/g; 
+s/VG,VIRGIN ISLANDS (BRITISH)/ Virgin Islands (British)/g; s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
      # Find domains that contain an IP
@@ -455,7 +457,7 @@ s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; s/                      /                 
      ##############################################################
 
      echo "Whois"
-     echo "     Domain               (30/$total)"
+     echo "     Domain               (31/$total)"
      whois -H $domain > tmp 2>/dev/null
      # Remove leading whitespace
      sed 's/^[ \t]*//' tmp > tmp2
@@ -489,7 +491,7 @@ s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; s/                      /                 
      sed 's/: /:#####/g' tmp13 | column -s '#' -t -n > whois-domain
      rm tmp*
 
-     echo "     IP                   (31/$total)"
+     echo "     IP                   (32/$total)"
      curl -s https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
      y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
@@ -523,7 +525,7 @@ s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; s/                      /                 
 
      ##############################################################
 
-     echo "crt.sh                    (32/$total)"
+     echo "crt.sh                    (33/$total)"
      python parsers/parse-certificates.py $domain > tmp
      cat tmp >> $home/data/$domain/data/certificates.htm
      echo "</center>" >> $home/data/$domain/data/certificates.htm
@@ -531,7 +533,7 @@ s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; s/                      /                 
      rm tmp
      echo
 
-     echo "dnsdumpster.com           (33/$total)"
+     echo "dnsdumpster.com           (34/$total)"
      # Generate a random cookie value
      rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
      curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com/static/map/$domain.png > /dev/null
@@ -539,13 +541,13 @@ s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; s/                      /                 
      curl -s -o $home/data/$domain/assets/images/dnsdumpster.png https://dnsdumpster.com/static/map/$domain.png
      echo
 
-     echo "email-format.com          (34/$total)"
+     echo "email-format.com          (35/$total)"
      curl -s https://www.email-format.com/d/$domain/ > tmp
      grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | sed '/^_/d' | egrep -v '(john.doe|johnsmith|john_smith|john.smith|)' | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
      rm tmp
      echo
 
-     echo "intodns.com               (35/$total)"
+     echo "intodns.com               (36/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
      cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
      cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -568,11 +570,11 @@ s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; s/                      /                 
      rm tmp*
      echo
 
-     echo "robtex.com                (36/$total)"
+     echo "robtex.com                (37/$total)"
      wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
      echo
 
-     echo "Registered Domains        (37/$total)"
+     echo "Registered Domains        (38/$total)"
      f_regdomain(){
      while read regdomain; do
           ipaddr=$(dig +short $regdomain)
@@ -667,7 +669,7 @@ s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g
 
      ##############################################################
 
-     echo "recon-ng                  (38/$total)"
+     echo "recon-ng                  (39/$total)"
      echo "workspaces add $domain" > passive.rc
      echo "add companies" >> passive.rc
      echo "$companyurl" >> passive.rc

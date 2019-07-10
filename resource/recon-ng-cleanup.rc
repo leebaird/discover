@@ -130,7 +130,7 @@ query DELETE FROM contacts WHERE first_name OR last_name LIKE '%prpc%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%question%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%radio%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%ransomware%'
-query DELETE FROM contacts WHERE first_name OR last_name LIKE '%realty
+query DELETE FROM contacts WHERE first_name OR last_name LIKE '%realty%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%recruiter%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%reform%'
 query DELETE FROM contacts WHERE first_name OR last_name LIKE '%research%'
