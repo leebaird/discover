@@ -526,7 +526,7 @@ s/VG,VIRGIN ISLANDS (BRITISH)/ Virgin Islands (British)/g; s/SLOVAKIA/ Slovakia/
      ##############################################################
 
      echo "crt.sh                    (33/$total)"
-     python parsers/parse-certificates.py $domain > tmp
+     python $discover/parsers/parse-certificates.py $domain > tmp
      cat tmp >> $home/data/$domain/data/certificates.htm
      echo "</center>" >> $home/data/$domain/data/certificates.htm
      echo "</pre>" >> $home/data/$domain/data/certificates.htm
