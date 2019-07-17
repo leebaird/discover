@@ -19,6 +19,7 @@ TRACE     Used for debugging.
 200       OK
 301       Moved Permanently
 302       Found
+304       Not Modified 
 400       Bad Request
 401       Unauthorized
 403       Forbidden
@@ -227,11 +228,18 @@ https://forum.bugcrowd.com/t/tutorial-injectx-to-find-xss/790
 
 # Example Test
 
-whois and dig
+whois      whois target.com, whois ip
+dig       
 Firefox with Wapalyzer plugin.
-nmap, joomscan, nikto, whatweb, and wpscan.
-sslscan and sslyze.
-dirb
+nmap       nmap -Pn -n -T4 -p80,443 -A --script=http* 
+dirb       dirb https://target.com
+Gobuster   gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+joomscan   joomscan -u http://target.com
+Nikto      nikto -h https://target.com -port 443 -Format htm --output target.htm
+whatweb    whatweb https://target.com
+wpscan     wpscan --url https://target.com 
+sslscan    sslscan https://target.com
+sslyze     sslyze https://target.com
 
 Burp
 Manually craw the app with Firefox

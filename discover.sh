@@ -441,12 +441,13 @@ s/COLOMBIA/ Columbia/g; s/COSTA RICA/ Costa Rica/g; s/CZECH REPUBLIC/ Czech Repu
 s/ES, Spain/ Spain/g; s/EUROPEAN UNION/ European Union/g; s/FINLAND/ Finland/g; s/FR,FRANCE/ France/g; s/DE,GERMANY/ Germany/g; s/GR,GREECE/ Greece/g; 
 s/HK,HONG KONG/ Hong Kong/g; s/HU,HUNGARY/ Hungary/g; s/IN,INDIA/ India/g; s/INDONESIA/ Indonesia/g; 
 s/IR,IRAN (ISLAMIC REPUBLIC OF)/ Iran                        /g; s/IRELAND/ Ireland/g; s/ISRAEL/ Israel/g; s/IT,ITALY/ Italy/g; s/JP,JAPAN/ Japan/g; 
-s/KR,KOREA REPUBLIC OF/ Republic of Korea/g; s/localhost//g; s/LUXEMBOURG/ Luxembourg/g; s/NL,NETHERLANDS/ Netherlands/g; s/NO,NORWAY/ Norway/g; 
-s/PANAMA/Panama/g; s/POLAND/ Poland/g; s/PT,PORTUGAL/ Portugal/g; s/PUERTO RICO/ Puerto Rico/g; s/CN,REPUBLIC OF China (ROC)/ China                    /g; 
-s/ZZ,RESERVED/          /g; s/RO,ROMANIA/ Romania  /g; s/RU,RUSSIAN FEDERATION/ Russia            /g; s/SAUDI ARABIA/ Saudi Arabia/g; 
-s/SG,SINGAPORE/ Singapore/g; s/SPAIN/ Spain/g; s/SE,SWEDEN/ Sweden/g; s/CH,SWITZERLAND/ Switzerland/g; s/TAIWAN/ Taiwan/g; s/THAILAND/ Thailand/g; 
-s/TURKEY/ Turkey/g; s/UKRAINE/ Ukraine/g; s/GB,UNITED KINGDOM/ United Kingdom/g; s/US,UNITED STATES/ United States/g; 
-s/VG,VIRGIN ISLANDS (BRITISH)/ Virgin Islands (British)/g; s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
+s/KR,KOREA REPUBLIC OF/ Republic of Korea/g; s/localhost//g; s/LU, Luxembourg/ Luxembourg/g; s/LUXEMBOURG/ Luxembourg/g; s/NL,NETHERLANDS/ Netherlands/g; 
+s/NO,NORWAY/ Norway/g; s/PANAMA/Panama/g; s/POLAND/ Poland/g; s/PT,PORTUGAL/ Portugal/g; s/PUERTO RICO/ Puerto Rico/g; 
+s/CN,REPUBLIC OF China (ROC)/ China                    /g; s/ZZ,RESERVED/          /g; s/RO,ROMANIA/ Romania  /g; 
+s/RU,RUSSIAN FEDERATION/ Russia            /g; s/SAUDI ARABIA/ Saudi Arabia/g; s/SG,SINGAPORE/ Singapore/g; s/SPAIN/ Spain/g; s/SE,SWEDEN/ Sweden/g; 
+s/CH,SWITZERLAND/ Switzerland/g; s/TAIWAN/ Taiwan/g; s/THAILAND/ Thailand/g; s/TURKEY/ Turkey/g; s/UKRAINE/ Ukraine/g; s/GB,UNITED KINGDOM/ United Kingdom/g; 
+s/US,UNITED STATES/ United States/g; s/VG,VIRGIN ISLANDS (BRITISH)/ Virgin Islands (British)/g; s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g;  
+s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
      # Find domains that contain an IP
