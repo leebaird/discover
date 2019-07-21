@@ -186,15 +186,16 @@ Malicious Payloads
 
 1.   android/meterpreter/reverse_tcp
 2.   cmd/windows/reverse_powershell
-3.   java/jsp_shell_reverse_tcp
-4.   linux/x64/shell_reverse_tcp
-5.   linux/x86/meterpreter/reverse_tcp
-6.   osx/x64/shell_reverse_tcp
-7.   php/meterpreter/reverse_tcp
-8.   windows/meterpreter/reverse_tcp
-9.   windows/meterpreter/reverse_tcp (ASP)
-10.  windows/x64/meterpreter/reverse_tcp
-11.  Previous menu
+3.   java/jsp_shell_reverse_tcp (Linux)
+4.   java/jsp_shell_reverse_tcp (Windows)
+5.   linux/x64/shell_reverse_tcp
+6.   linux/x86/meterpreter/reverse_tcp
+7.   osx/x64/shell_reverse_tcp
+8.   php/meterpreter/reverse_tcp
+9.   windows/meterpreter/reverse_tcp
+10.  windows/meterpreter/reverse_tcp (ASP)
+11.  windows/x64/meterpreter/reverse_tcp
+12.  Previous menu
 ```
 
 ### Start a Metasploit listener
