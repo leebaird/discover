@@ -228,18 +228,23 @@ https://forum.bugcrowd.com/t/tutorial-injectx-to-find-xss/790
 
 # Example Test
 
-whois      whois target.com, whois ip
-dig       
+ping target.com
+whois <IP>
+whois target.com
+dig target.com
+nmap -Pn -n -T4 -p80,443 -A target.com
+dirb https://target.com
+gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+joomscan -u http://target.com
+nikto -h https://target.com -port 443 -Format htm --output target.htm
+uniscan -u https://www.target.com -qweds
+wafw00f https://www.target.com
+whatweb https://target.com
+wpscan --url https://target.com
+sslscan https://target.com
+sslyze https://target.com
+
 Firefox with Wapalyzer plugin.
-nmap       nmap -Pn -n -T4 -p80,443 -A --script=http* 
-dirb       dirb https://target.com
-Gobuster   gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
-joomscan   joomscan -u http://target.com
-Nikto      nikto -h https://target.com -port 443 -Format htm --output target.htm
-whatweb    whatweb https://target.com
-wpscan     wpscan --url https://target.com 
-sslscan    sslscan https://target.com
-sslyze     sslyze https://target.com
 
 Burp
 Manually craw the app with Firefox
