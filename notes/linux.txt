@@ -157,7 +157,7 @@ gateway 10.0.3.1
 enum4linux -a <target IP>                 https://raw.githubusercontent.com/portcullislabs/enum4linux/master/enum4linux.pl
 LinEnum                                   https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh
 linuxprivchecker.py                       https://raw.githubusercontent.com/sleventyeleven/linuxprivchecker/master/linuxprivchecker.py
-lynis audit system remote <target IP>
+Lynis audit system remote <target IP>     https://downloads.cisofy.com/lynis/lynis-2.7.5.tar.gz
 
 - sudoers
 sudo -l                                   Check for binaries that can be ran with root privs
