@@ -14,7 +14,7 @@ execute                               Execute the listener
 back                                  You should see a new active listener
 
 launcher                              Show the format
-launcher powershell  http             Creates a PowerShell one-liner
+launcher powershell http              Creates a PowerShell one-liner
 Copy all of the code.
 Open a new Terminal.
 cd /var/www/html
