@@ -4056,7 +4056,7 @@ case $choice in
      3) payload="java/jsp_shell_reverse_tcp"
           extention=".jsp"
           format="raw"
-          arch="cmd"
+          arch="elf"
           platform="linux";;
      4) payload="java/jsp_shell_reverse_tcp"
           extention=".jsp"
