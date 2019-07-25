@@ -49,17 +49,18 @@ RECON
 
 1.  Passive
 2.  Active
-3.  Previous menu
+3.  Import names into an existing recon-ng workspace
+4.  Previous menu
 ```
 
 Passive uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,
-  Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.
+    Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.
 
 Active uses dnsrecon, WAF00W, traceroute, Whatweb, and recon-ng.
 
 [*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub,
-    Google, GoogleCSE, Hashes, Hunter, SecurityTrails, and Shodan
-    for maximum results with recon-ng and theharvester.
+    Google, Hashes, Hunter, SecurityTrails, and Shodan for
+    maximum results with recon-ng and theHarvester.
 
 ```
 API key locations:
@@ -130,7 +131,7 @@ Using Burp, authenticate to a site, map & Spider, then log out.
 Target > Site map > select the URL > right click > Copy URLs in this host.
 Paste the results into a new file.
 
-Enter the location of your file: 
+Enter the location of your file:
 ````
 
 ### Open multiple tabs in Firefox
@@ -138,7 +139,7 @@ Enter the location of your file:
 Open multiple tabs in Firefox with:
 
 1.  List
-2.  Directories from a domain's robot.txt.
+2.  Directories from robots.txt.
 3.  Previous menu
 ```
 
@@ -164,17 +165,13 @@ Enter the location of your list:
 
 
 ## MISC
-### Crack WiFi
-
-* Crack wireless networks.
-
 ### Parse XML
 ```
 Parse XML to CSV.
 
 1.  Burp (Base64)
-2.  Nessus
-3.  Nexpose
+2.  Nessus (.nessus)
+3.  Nexpose (XML 2.0)
 4.  Nmap
 5.  Qualys
 6.  Previous menu
@@ -188,14 +185,16 @@ Malicious Payloads
 2.   cmd/windows/reverse_powershell
 3.   java/jsp_shell_reverse_tcp (Linux)
 4.   java/jsp_shell_reverse_tcp (Windows)
-5.   linux/x64/shell_reverse_tcp
-6.   linux/x86/meterpreter/reverse_tcp
-7.   osx/x64/shell_reverse_tcp
-8.   php/meterpreter/reverse_tcp
-9.   windows/meterpreter/reverse_tcp
-10.  windows/meterpreter/reverse_tcp (ASP)
-11.  windows/x64/meterpreter/reverse_tcp
-12.  Previous menu
+5.   linux/x64/meterpreter_reverse_https
+6.   linux/x64/meterpreter_reverse_tcp
+7.   osx/x64/meterpreter_reverse_https
+8.   osx/x64/meterpreter_reverse_tcp
+9.   php/meterpreter/reverse_tcp
+10.  python/meterpreter_reverse_https
+11.  python/meterpreter_reverse_tcp
+12.  windows/x64/meterpreter_reverse_https
+13.  windows/x64/meterpreter_reverse_tcp
+14.  Previous menu
 ```
 
 ### Start a Metasploit listener
@@ -205,13 +204,16 @@ Metasploit Listeners
 1.   android/meterpreter/reverse_tcp
 2.   cmd/windows/reverse_powershell
 3.   java/jsp_shell_reverse_tcp
-4.   linux/x64/shell_reverse_tcp
-5.   linux/x86/meterpreter/reverse_tcp
-6.   osx/x64/shell_reverse_tcp
-7.   php/meterpreter/reverse_tcp
-8.   windows/meterpreter/reverse_tcp
-9.   windows/x64/meterpreter/reverse_tcp
-10.  Previous menu
+4.   linux/x64/meterpreter_reverse_https
+5.   linux/x64/meterpreter_reverse_tcp
+6.   osx/x64/meterpreter_reverse_https
+7.   osx/x64/meterpreter_reverse_tcp
+8.   php/meterpreter/reverse_tcp
+9.   python/meterpreter_reverse_https
+10.  python/meterpreter_reverse_tcp
+11.  windows/x64/meterpreter_reverse_https
+12.  windows/x64/meterpreter_reverse_tcp
+13.  Previous menu
 ```
 
 ### Update

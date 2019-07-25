@@ -4157,16 +4157,19 @@ clear
 f_banner
 echo -e "${BLUE}Metasploit Listeners${NC}"
 echo
-echo "1.  android/meterpreter/reverse_tcp"
-echo "2.  cmd/windows/reverse_powershell"
-echo "3.  java/jsp_shell_reverse_tcp"
-echo "4.  linux/x64/shell_reverse_tcp"
-echo "5.  linux/x86/meterpreter/reverse_tcp"
-echo "6.  osx/x64/shell_reverse_tcp"
-echo "7.  php/meterpreter/reverse_tcp"
-echo "8.  windows/meterpreter/reverse_tcp"
-echo "9.  windows/x64/meterpreter/reverse_tcp"
-echo "10. Previous menu"
+echo "1.   android/meterpreter/reverse_tcp"
+echo "2.   cmd/windows/reverse_powershell"
+echo "3.   java/jsp_shell_reverse_tcp"
+echo "4.   linux/x64/meterpreter_reverse_https"
+echo "5.   linux/x64/meterpreter_reverse_tcp"
+echo "6.   osx/x64/meterpreter_reverse_https"
+echo "7.   osx/x64/meterpreter_reverse_tcp"
+echo "8.   php/meterpreter/reverse_tcp"
+echo "9.   python/meterpreter_reverse_https"
+echo "10.  python/meterpreter_reverse_tcp"
+echo "11.  windows/x64/meterpreter_reverse_https"
+echo "12.  windows/x64/meterpreter_reverse_tcp"
+echo "13.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
@@ -4175,13 +4178,16 @@ case $choice in
      1) payload="android/meterpreter/reverse_tcp";;
      2) payload="cmd/windows/reverse_powershell";;
      3) payload="java/jsp_shell_reverse_tcp";;
-     4) payload="linux/x64/shell_reverse_tcp";;
-     5) payload="linux/x86/meterpreter/reverse_tcp";;
-     6) payload="osx/x64/shell_reverse_tcp";;
-     7) payload="php/meterpreter/reverse_tcp";;
-     8) payload="windows/meterpreter/reverse_tcp";;
-     9) payload="windows/x64/meterpreter/reverse_tcp";;
-     10) f_main;;
+     4) payload="linux/x64/meterpreter_reverse_https";;
+     5) payload="linux/x64/meterpreter_reverse_tcp";;
+     6) payload="osx/x64/meterpreter_reverse_https";;
+     7) payload="osx/x64/meterpreter_reverse_tcp";;
+     8) payload="php/meterpreter/reverse_tcp";;
+     9) payload="python/meterpreter_reverse_https";;
+     10) payload="python/meterpreter_reverse_tcp";;
+     11) payload="windows/x64/meterpreter_reverse_https";;
+     12) payload="windows/x64/meterpreter_reverse_tcp";;
+     13) f_main;;
      *) f_error;;
 esac
 
@@ -4192,13 +4198,19 @@ read lhost
 # Check for no answer
 if [[ -z $lhost ]]; then
      lhost=$ip
-     echo "Using $ip"
+     echo "[*] Using $ip"
      echo
 fi
 
 echo -n "LPORT: "
 read lport
-echo
+
+# Check for no answer
+if [[ -z $lport ]]; then
+     lport=443
+     echo "[*] Using 443"
+     echo
+fi
 
 # Check for valid port number.
 if [[ $lport -lt 1 || $lport -gt 65535 ]]; then
