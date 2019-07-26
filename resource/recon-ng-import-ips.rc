@@ -1,5 +1,5 @@
-use import/list
-set FILENAME /tmp/tmp-ips
-set TABLE hosts
-set COLUMN ip_address
+load module import/list
+options set FILENAME /tmp/tmp-ips
+options set TABLE hosts
+options set COLUMN ip_address
 run

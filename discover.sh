@@ -671,12 +671,12 @@ s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g
      ##############################################################
 
      echo "recon-ng                  (39/$total)"
-     echo "workspaces add $domain" > passive.rc
-     echo "add companies" >> passive.rc
+     echo "workspaces create $domain" > passive.rc
+     echo "db insert companies" >> passive.rc
      echo "$companyurl" >> passive.rc
      sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' passive.rc
      echo "none" >> passive.rc
-     echo "add domains" >> passive.rc
+     echo "db insert domains" >> passive.rc
      echo "$domain" >> passive.rc
 
 #     echo -n "Do you have a list of names to import? (y/N) "
@@ -705,7 +705,7 @@ s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g
      cat $discover/resource/recon-ng-cleanup.rc >> passive.rc
      sed -i "s/yyy/$domain/g" passive.rc
 
-     recon-ng --no-check -r $CWD/passive.rc
+     recon-ng -r $CWD/passive.rc
 
      ##############################################################
 
@@ -723,7 +723,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/
      cat $discover/resource/recon-ng-cleanup.rc >> passive2.rc
      sed -i "s/yyy/$domain/g" passive2.rc
 
-     recon-ng --no-check -r $CWD/passive2.rc
+     recon-ng -r $CWD/passive2.rc
 
      ##############################################################
 
@@ -1139,7 +1139,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/
      sed -i "s/xxx/$companyurl/g" active.rc
      sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' active.rc
      sed -i "s/yyy/$domain/g" active.rc
-     recon-ng --no-check -r $discover/active.rc
+     recon-ng -r $discover/active.rc
 
      ##############################################################
 
@@ -1282,7 +1282,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/
      cat $discover/resource/recon-ng-cleanup.rc >> tmp.rc
      sed -i "s/yyy/$workspace/g" tmp.rc
 
-     recon-ng --no-check -r $discover/tmp.rc
+     recon-ng -r $discover/tmp.rc
      rm tmp.rc
 
      grep '@' emails | cut -d ' ' -f4 | egrep -v '(email|SELECT|username)' | sort -u > $home/data/$workspace/emails.txt

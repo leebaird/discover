@@ -1,7 +1,7 @@
-use import/csv_file
-set FILENAME /tmp/names.csv
-set COLUMN_SEPARATOR #
-set TABLE contacts
-set CSV_FIRST_NAME first_name
-set CSV_LAST_NAME last_name
+load module import/csv_file
+options set FILENAME /tmp/names.csv
+options set COLUMN_SEPARATOR #
+options set TABLE contacts
+options set CSV_FIRST_NAME first_name
+options set CSV_LAST_NAME last_name
 run
