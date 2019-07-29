@@ -1,64 +1,64 @@
-load module recon/domains-companies/pen
+modules load recon/domains-companies/pen
 run
-load module recon/domains-contacts/pen
+modules load recon/domains-contacts/pen
 run
-load module recon/domains-contacts/whois_pocs
+modules load recon/domains-contacts/whois_pocs
 run
-load module recon/domains-hosts/bing_domain_api
+modules load recon/domains-hosts/bing_domain_api
 run
-load module recon/domains-hosts/bing_domain_web
+modules load recon/domains-hosts/bing_domain_web
 run
-load module recon/domains-hosts/builtwith
+modules load recon/domains-hosts/builtwith
 run
-load module recon/domains-hosts/certificate_transparency
+modules load recon/domains-hosts/certificate_transparency
 run
-load module recon/domains-hosts/findsubdomains
+modules load recon/domains-hosts/findsubdomains
 run
-load module recon/domains-hosts/hackertarget
+modules load recon/domains-hosts/hackertarget
 run
-load module recon/domains-hosts/netcraft
+modules load recon/domains-hosts/netcraft
 run
-load module recon/domains-hosts/shodan_hostname
+modules load recon/domains-hosts/shodan_hostname
 run
-load module recon/domains-hosts/ssl_san
+modules load recon/domains-hosts/ssl_san
 run
-load module recon/domains-hosts/threatcrowd
+modules load recon/domains-hosts/threatcrowd
 run
-load module recon/domains-hosts/threatminer
+modules load recon/domains-hosts/threatminer
 run
-load module recon/companies-contacts/bing_linkedin_cache
+modules load recon/companies-contacts/bing_linkedin_cache
 run
-load module recon/companies-contacts/pen
+modules load recon/companies-contacts/pen
 run
-load module recon/companies-domains/pen
+modules load recon/companies-domains/pen
 run
-load module recon/companies-multi/github_miner
+modules load recon/companies-multi/github_miner
 run
-load module recon/companies-multi/whois_miner
+modules load recon/companies-multi/whois_miner
 run
-load module recon/contacts-credentials/hibp_breach
+modules load recon/contacts-credentials/hibp_breach
 run
-load module recon/contacts-credentials/hibp_paste
+modules load recon/contacts-credentials/hibp_paste
 run
-load module recon/hosts-hosts/bing_ip
+modules load recon/hosts-hosts/bing_ip
 run
-load module recon/hosts-hosts/ssltools
+modules load recon/hosts-hosts/ssltools
 run
-load module recon/hosts-ports/shodan_ip
+modules load recon/hosts-ports/shodan_ip
 run
-load module recon/netblocks-companies/whois_orgs
+modules load recon/netblocks-companies/whois_orgs
 run
-load module recon/netblocks-hosts/shodan_net
+modules load recon/netblocks-hosts/shodan_net
 run
-load module recon/netblocks-hosts/virustotal
+modules load recon/netblocks-hosts/virustotal
 run
-load module recon/netblocks-ports/census_2012
+modules load recon/netblocks-ports/census_2012
 run
-load module recon/netblocks-ports/censysio
+modules load recon/netblocks-ports/censysio
 run
-load module recon/ports-hosts/migrate_ports
+modules load recon/ports-hosts/migrate_ports
 run
-load module recon/profiles-profiles/twitter_mentioned
+modules load recon/profiles-profiles/twitter_mentioned
 run
-load module recon/profiles-profiles/twitter_mentions
+modules load recon/profiles-profiles/twitter_mentions
 run

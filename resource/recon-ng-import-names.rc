@@ -1,4 +1,4 @@
-load module import/csv_file
+modules load import/csv_file
 options set FILENAME /tmp/names.csv
 options set COLUMN_SEPARATOR #
 options set TABLE contacts

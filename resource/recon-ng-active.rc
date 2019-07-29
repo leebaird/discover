@@ -5,15 +5,15 @@ none
 db insert domains
 yyy
 
-load module recon/domains-hosts/brute_hosts
+modules load recon/domains-hosts/brute_hosts
 run
-load module recon/domains-hosts/mx_spf_ip
+modules load recon/domains-hosts/mx_spf_ip
 run
-load module recon/netblocks-hosts/reverse_resolve
+modules load recon/netblocks-hosts/reverse_resolve
 run
-load module recon/hosts-hosts/resolve
+modules load recon/hosts-hosts/resolve
 run
-load module recon/hosts-hosts/reverse_resolve
+modules load recon/hosts-hosts/reverse_resolve
 run
 
 back

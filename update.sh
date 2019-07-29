@@ -12,7 +12,6 @@ echo
 # Fix for errors from URLCrazy file tld.rb lines 81,89,91
 # since project is not actively supported.
 
-CWD=$(pwd)
 tlddir=$(locate homophones.rb | sed 's%/[^/]*$%/%')
 cd $tlddir
 
@@ -21,8 +20,6 @@ if [ ! -f tld.rb.bak ]; then
     cat tld.rb | grep '"bd"=>' -v | grep '"bn"=>' -v | grep '"br"=>' -v > tld_tmp.rb
     mv tld_tmp.rb tld.rb
 fi
-
-cd $CWD
 
 #########################################################
 
@@ -203,17 +200,20 @@ else
      /opt/rawr/install.sh y
 fi
 
-if [ ! -d $HOME/.recon-ng/modules ]; then
-     echo -e "${BLUE}Installing all Recon-ng modules.${NC}"
-     recon-ng -r $CWD/resource/recon-ng-modules-install.rc
+if [ -d /opt/recon-ng/.git ]; then
+     echo -e "${BLUE}Updating recon-ng.${NC}"
+     cd /opt/recon-ng/ ; git pull
      echo
-elif [ -d $HOME/.recon-ng/modules ]; then
-     echo -e "${BLUE}Installing Recon-ng modules.${NC}"
-     count=$(ls $HOME/.recon-ng/modules | wc -l)
-     if [ $count -eq 0 ]; then
-          recon-ng -r $CWD/resource/recon-ng-modules-install.rc
-          echo
-     fi
+else
+     echo -e "${YELLOW}Installing recon-ng.${NC}"
+     git clone https://github.com/lanmaster53/recon-ng.git /opt/recon-ng
+     echo
+fi
+
+if [ ! -d $HOME/.recon-ng/modules ]; then
+     echo -e "${BLUE}Installing recon-ng modules.${NC}"
+     recon-ng -r /opt/discover/resource/recon-ng-modules-install.rc
+     echo
 fi
 
 if [ -d /opt/SharpShooter/.git ]; then
