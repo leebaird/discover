@@ -211,8 +211,8 @@ elif [ -d $HOME/.recon-ng/modules ]; then
      echo -e "${BLUE}Installing Recon-ng modules.${NC}"
      count=$(ls $HOME/.recon-ng/modules | wc -l)
      if [ $count -eq 0 ]; then
-       recon-ng -r $CWD/resource/recon-ng-modules-install.rc
-       echo
+          recon-ng -r $CWD/resource/recon-ng-modules-install.rc
+          echo
      fi
 fi
 
