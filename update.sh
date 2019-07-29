@@ -203,6 +203,19 @@ else
      /opt/rawr/install.sh y
 fi
 
+if [ ! -d $HOME/.recon-ng/modules ]; then
+     echo -e "${BLUE}Installing all Recon-ng modules.${NC}"
+     recon-ng -r $CWD/resource/recon-ng-modules-install.rc
+     echo
+elif [ -d $HOME/.recon-ng/modules ]; then
+     echo -e "${BLUE}Installing Recon-ng modules.${NC}"
+     count=$(ls $HOME/.recon-ng/modules | wc -l)
+     if [ $count -eq 0 ]; then
+       recon-ng -r $CWD/resource/recon-ng-modules-install.rc
+       echo
+     fi
+fi
+
 if [ -d /opt/SharpShooter/.git ]; then
      echo -e "${BLUE}Updating SharpShooter.${NC}"
      cd /opt/SharpShooter/ ; git pull
