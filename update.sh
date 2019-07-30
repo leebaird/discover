@@ -203,6 +203,8 @@ fi
 if [ -d /opt/recon-ng/.git ]; then
      echo -e "${BLUE}Updating recon-ng.${NC}"
      cd /opt/recon-ng/ ; git pull
+     pip install -r REQUIREMENTS
+     apt-get install -y python3-pyaes
      echo
 else
      echo -e "${YELLOW}Installing recon-ng.${NC}"
