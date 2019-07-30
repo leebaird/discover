@@ -203,12 +203,14 @@ fi
 if [ -d /opt/recon-ng/.git ]; then
      echo -e "${BLUE}Updating recon-ng.${NC}"
      cd /opt/recon-ng/ ; git pull
-     pip install -r REQUIREMENTS
-     apt-get install -y python3-pyaes
      echo
 else
      echo -e "${YELLOW}Installing recon-ng.${NC}"
      git clone https://github.com/lanmaster53/recon-ng.git /opt/recon-ng
+     cd /opt/recon-ng/
+     pip install -r REQUIREMENTS
+     apt-get install -y python3-pyaes
+     cp -R /usr/lib/python2.7/dist-packages/PyPDF3/ /usr/lib/python3/dist-packages/
      echo
 fi
 
