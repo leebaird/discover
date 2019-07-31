@@ -552,7 +552,7 @@ s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
 
      echo "hackertarget.com          (39/$total)"
      curl -s http://api.hackertarget.com/pagelinks/?q=https://www.$domain > tmp
-     grep $domain tmp | sort -u >> $home/data/$domain/pages/pages.htm
+     grep $domain tmp | sort -u >> $home/data/$domain/data/pages.htm
      echo
 
      echo "intodns.com               (40/$total)"
