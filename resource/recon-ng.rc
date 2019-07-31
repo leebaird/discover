@@ -1,8 +1,48 @@
+modules load recon/companies-contacts/bing_linkedin_cache
+run
+modules load recon/companies-contacts/pen
+run
+modules load recon/companies-domains/pen
+run
+modules load recon/companies-multi/github_miner
+run
+modules load recon/companies-multi/shodan_org
+run
+modules load recon/companies-multi/whois_miner
+run
+modules load recon/contacts-contacts/mailtester
+run
+modules load recon/contacts-contacts/mangle
+run
+modules load recon/contacts-contacts/unmangle
+run
+modules load recon/contacts-credentials/hibp_breach
+run
+modules load recon/contacts-credentials/hibp_paste
+run
+modules load recon/contacts-domains/migrate_contacts
+run
+modules load recon/contacts-profiles/fullcontact
+run
+modules load recon/credentials-credentials/adobe
+run
+modules load recon/credentials-credentials/bozocrack
+run
+modules load recon/credentials-credentials/hashes_org
+run
+modules load recon/contacts-credentials/hibp_breach
+run
+modules load recon/contacts-credentials/hibp_paste
+run
 modules load recon/domains-companies/pen
+run
+modules load recon/domains-contacts/metacrawler
 run
 modules load recon/domains-contacts/pen
 run
 modules load recon/domains-contacts/whois_pocs
+run
+modules load recon/domains-hosts/binaryedge
 run
 modules load recon/domains-hosts/bing_domain_api
 run
@@ -13,6 +53,8 @@ run
 modules load recon/domains-hosts/certificate_transparency
 run
 modules load recon/domains-hosts/findsubdomains
+run
+modules load recon/domains-hosts/google_site_web
 run
 modules load recon/domains-hosts/hackertarget
 run
@@ -26,25 +68,25 @@ modules load recon/domains-hosts/threatcrowd
 run
 modules load recon/domains-hosts/threatminer
 run
-modules load recon/companies-contacts/bing_linkedin_cache
-run
-modules load recon/companies-contacts/pen
-run
-modules load recon/companies-domains/pen
-run
-modules load recon/companies-multi/github_miner
-run
-modules load recon/companies-multi/whois_miner
-run
-modules load recon/contacts-credentials/hibp_breach
-run
-modules load recon/contacts-credentials/hibp_paste
-run
 modules load recon/hosts-hosts/bing_ip
+run
+modules load recon/hosts-hosts/ipinfodb
+run
+modules load recon/hosts-hosts/ipstack
 run
 modules load recon/hosts-hosts/ssltools
 run
+modules load recon/hosts-hosts/virustotal
+run
+modules load recon/hosts-locations/migrate_hosts
+run
+modules load recon/hosts-ports/binaryedge
+run
 modules load recon/hosts-ports/shodan_ip
+run
+modules load recon/locations-locations/geocode
+run
+modules load recon/locations-locations/reverse_geocode
 run
 modules load recon/netblocks-companies/whois_orgs
 run
@@ -58,7 +100,17 @@ modules load recon/netblocks-ports/censysio
 run
 modules load recon/ports-hosts/migrate_ports
 run
+modules load recon/profiles-contacts/bing_linkedin_contacts
+run
+modules load recon/profiles-contacts/github_users
+run
+modules load recon/profiles-profiles/namechk
+run
 modules load recon/profiles-profiles/twitter_mentioned
 run
 modules load recon/profiles-profiles/twitter_mentions
+run
+modules load recon/profiles-repositories/github_repos
+run
+modules load recon/repositories-profiles/github_commits
 run

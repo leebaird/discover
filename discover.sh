@@ -252,7 +252,7 @@ case $choice in
 
      companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
      rundate=$(date +%B' '%d,' '%Y)
-     total=42
+     total=43
 
      # If folder doesn't exist, create it
      if [ ! -d $home/data/$domain ]; then
@@ -461,8 +461,6 @@ s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
      rm tmp* 2>/dev/null
      echo
 
-     ##############################################################
-
      echo "Whois"
      echo "     Domain               (34/$total)"
      whois -H $domain > tmp 2>/dev/null
@@ -530,8 +528,6 @@ s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
      rm ultratools
      echo
 
-     ##############################################################
-
      echo "crt.sh                    (36/$total)"
      python $discover/parsers/parse-certificates.py $domain > tmp
      cat tmp >> $home/data/$domain/data/certificates.htm
@@ -554,7 +550,11 @@ s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
      rm tmp
      echo
 
-     echo "intodns.com               (39/$total)"
+     echo "hackertarget.com          (39/$total)"
+     curl -s http://api.hackertarget.com/pagelinks/?q=https://www.$domain > tmp
+     grep $domain tmp | sort -u >> $home/data/$domain/pages/pages.htm
+
+     echo "intodns.com               (40/$total)"
      wget -q http://www.intodns.com/$domain -O tmp
      cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
      cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -577,11 +577,11 @@ s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
      rm tmp*
      echo
 
-     echo "robtex.com                (40/$total)"
+     echo "robtex.com                (41/$total)"
      wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
      echo
 
-     echo "Registered Domains        (41/$total)"
+     echo "Registered Domains        (42/$total)"
      f_regdomain(){
      while read regdomain; do
           ipaddr=$(dig +short $regdomain)
@@ -676,7 +676,7 @@ s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g
 
      ##############################################################
 
-     echo "recon-ng                  (42/$total)"
+     echo "recon-ng                  (43/$total)"
      echo "workspaces create $domain" > passive.rc
      echo "db insert companies" >> passive.rc
      echo "$companyurl" >> passive.rc
@@ -711,12 +711,13 @@ s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g
      cat $discover/resource/recon-ng-cleanup.rc >> passive.rc
      sed -i "s/yyy/$domain/g" passive.rc
 
-     recon-ng -r $CWD/passive.rc
+     /opt/recon-ng/recon-ng -r $CWD/passive.rc
 
      ##############################################################
 
-     cat /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/[0-9]/d' | sed '/^,/d' | sed -e 's/\b\(.\)/\u\1/g' | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; 
-s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g'  | sort -u > usernames
+     cat /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/[0-9]/d' | sed '/^,/d' | 
+sed -e 's/\b\(.\)/\u\1/g' | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; 
+s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g'  | sort -u > usernames
 
      rm /tmp/emails /tmp/names* /tmp/networks /tmp/sub* /tmp/tmp-emails /tmp/usernames
      ##############################################################
@@ -729,7 +730,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/
      cat $discover/resource/recon-ng-cleanup.rc >> passive2.rc
      sed -i "s/yyy/$domain/g" passive2.rc
 
-     recon-ng -r $CWD/passive2.rc
+     /opt/recon-ng/recon-ng -r $CWD/passive2.rc
 
      ##############################################################
 
@@ -997,8 +998,6 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/
      sleep 2
      $web https://$companyurl.s3.amazonaws.com &
      sleep 2
-     $web http://api.hackertarget.com/pagelinks/?q=https://www.$domain &
-     sleep 2
      $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
      sleep 2
      $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
@@ -1145,7 +1144,7 @@ s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/
      sed -i "s/xxx/$companyurl/g" active.rc
      sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' active.rc
      sed -i "s/yyy/$domain/g" active.rc
-     recon-ng -r $discover/active.rc
+     /opt/recon/recon-ng -r $discover/active.rc
 
      ##############################################################
 
