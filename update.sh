@@ -244,6 +244,12 @@ else
      echo
 fi
 
+if [ ! -f /usr/lib/python2.7/dist-packages/texttable.py ];
+     echo -e "${BLUE}Installing Texttable.${NC}"
+     apt-get install -y python-texttable
+fi
+
+
 if [ -d /opt/unicorn/.git ]; then
      echo -e "${BLUE}Updating unicorn.${NC}"
      cd /opt/unicorn/ ; git pull
