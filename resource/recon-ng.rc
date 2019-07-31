@@ -102,15 +102,3 @@ modules load recon/ports-hosts/migrate_ports
 run
 modules load recon/profiles-contacts/bing_linkedin_contacts
 run
-modules load recon/profiles-contacts/github_users
-run
-modules load recon/profiles-profiles/namechk
-run
-modules load recon/profiles-profiles/twitter_mentioned
-run
-modules load recon/profiles-profiles/twitter_mentions
-run
-modules load recon/profiles-repositories/github_repos
-run
-modules load recon/repositories-profiles/github_commits
-run
