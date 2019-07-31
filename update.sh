@@ -244,7 +244,7 @@ else
      echo
 fi
 
-if [ ! -f /usr/lib/python2.7/dist-packages/texttable.py ];
+if [ ! -e /usr/lib/python2.7/dist-packages/texttable.py ];
      echo -e "${BLUE}Installing Texttable.${NC}"
      apt-get install -y python-texttable
 fi
