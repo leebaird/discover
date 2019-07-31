@@ -651,7 +651,7 @@ s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
 
      ##############################################################
 
-     cat z* | grep '@' | grep -v '\.\.\.' | sort -u > emails
+     cat z* | grep '@' | sed '/^@/d' | sort -u > emails
 
      cat z* | grep ':' | sed 's/:/ /g; s/ empty//g' | column -t | sort -u > sub-theHarvester
 
@@ -686,17 +686,6 @@ s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g
      echo "db insert domains" >> passive.rc
      echo "$domain" >> passive.rc
 
-#     echo -n "Do you have a list of names to import? (y/N) "
-#     echo "Example: last, first"
-#     read answer
-#
-#     if [ "$answer" == "y" ]; then
-#          f_location
-#          echo "last_name#first_name#title" > /tmp/names.csv
-#          cat $location | sed 's/, /#/; s/  /#/' | tr -s ' ' | tr -d '\t' | sed 's/;/#/g; s/#$//g' >> /tmp/names.csv
-#          cat $discover/resource/recon-ng-import-names.rc >> passive.rc
-#     fi
-
      if [ -e emails ]; then
           cp emails /tmp/tmp-emails
           cat $discover/resource/recon-ng-import-emails.rc >> passive.rc
@@ -712,7 +701,7 @@ s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g
      cat $discover/resource/recon-ng-cleanup.rc >> passive.rc
      sed -i "s/yyy/$domain/g" passive.rc
 
-     /opt/recon-ng/recon-ng -r $CWD/passive.rc
+     recon-ng -r $CWD/passive.rc
 
      ##############################################################
 
@@ -731,11 +720,11 @@ s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/
      cat $discover/resource/recon-ng-cleanup.rc >> passive2.rc
      sed -i "s/yyy/$domain/g" passive2.rc
 
-     /opt/recon-ng/recon-ng -r $CWD/passive2.rc
+     recon-ng -r $CWD/passive2.rc
 
      ##############################################################
 
-     grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|SELECT)' | sort -u > emails-final
+     grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|query|SELECT)' | sort -u > emails-final
 
      sed '1,4d' /tmp/names | head -n -5 > names-final
 
@@ -1145,7 +1134,7 @@ s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/
      sed -i "s/xxx/$companyurl/g" active.rc
      sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' active.rc
      sed -i "s/yyy/$domain/g" active.rc
-     /opt/recon/recon-ng -r $discover/active.rc
+     recon-ng -r $discover/active.rc
 
      ##############################################################
 
@@ -3995,7 +3984,6 @@ mv tmp2 $home/data/sslscan.txt
 
 grep -v 'Issuer info not available.' tmp | grep -v 'Certificate subject info not available.' >> $home/data/sslscan.txt
 
-# Nmap
 echo
 echo "Running nmap."
 echo
