@@ -452,8 +452,7 @@ s/KR,KOREA REPUBLIC OF/ Republic of Korea/g; s/localhost//g; s/LU, Luxembourg/ L
 s/NO,NORWAY/ Norway/g; s/PANAMA/Panama/g; s/POLAND/ Poland/g; s/PT,PORTUGAL/ Portugal/g; s/PUERTO RICO/ Puerto Rico/g; 
 s/CN,REPUBLIC OF China (ROC)/ China                    /g; s/ZZ,RESERVED/          /g; s/RO,ROMANIA/ Romania  /g; 
 s/RU,RUSSIAN FEDERATION/ Russia            /g; s/SAUDI ARABIA/ Saudi Arabia/g; s/SG,SINGAPORE/ Singapore/g; s/SPAIN/ Spain/g; s/SE,SWEDEN/ Sweden/g; 
-s/CH,SWITZERLAND/ Switzerland/g; s/TAIWAN/ Taiwan/g; s/THAILAND/ Thailand/g; s/TURKEY/ Turkey/g; s/UKRAINE/ Ukraine/g; s/GB,UNITED KINGDOM/ United Kingdom/g; 
-s/US,UNITED STATES/ United States/g; s/VG,VIRGIN ISLANDS (BRITISH)/ Virgin Islands (British)/g; s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g;  
+s/CH,SWITZERLAND/ Switzerland/g; s/TAIWAN/ Taiwan/g; s/THAILAND/ Thailand/g; s/TURKEY/ Turkey/g; s/UKRAINE/ Ukraine/g; s/GB,UNITED KINGDOM/ United Kingdom/g; s/US,UNITED STATES/ United States/g; s/VG,VIRGIN ISLANDS (BRITISH)/ Virgin Islands (British)/g; s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; 
 s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
      # Remove the last column
      cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
@@ -646,7 +645,7 @@ s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
 
      # Formatting & clean-up
      sort tmp4 | sed 's/111AAA--placeholder--/Domain,IP Address,Registration Email,Registration Org,Registrar,/' | grep -v 'Matches Found' > tmp6
-     sed 's/LLC /LLC./g' tmp6 | sed -i 's/No IP Found//g' | sed -i 's/REDACTED FOR PRIVACY//g' | sed -i 's/select contact domain holder link at https//g' | column -n -s ',' -t > registered-domains
+     cat tmp6 | sed 's/LLC /LLC./g; s/No IP Found//g; s/REDACTED FOR PRIVACY//g; s/select contact domain holder link at https//g' | column -n -s ',' -t > registered-domains
      rm tmp*
      echo
 
