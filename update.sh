@@ -202,6 +202,7 @@ fi
 
 if [ -d /opt/recon-ng/.git ]; then
      echo -e "${YELLOW}Deleting cloaned recon-ng.${NC}"
+     rm -rf /opt/recon-ng/
      cd ~/.recon-ng/ ; rm -rf modules/ ; rm modules.yml
      apt-get install -y python3-pyaes
      cp -R /usr/lib/python2.7/dist-packages/PyPDF3/ /usr/lib/python3/dist-packages/
