@@ -321,6 +321,7 @@ case $choice in
      dnsrecon -d $domain > tmp
      grep '*' tmp | egrep -v '(Bind Version|Checking|configured|DNSSEC|Enumerating|No SRV Records|Performing|PRIVATEDNS|Removing|Resolving|Servers found|SKEYs|Trying)' | sed 's/\[\*\]//g; s/^[ \t]*//' | column -t | sort -k1 > records
      cat records >> $home/data/$domain/data/records.htm
+     echo "</pre>" >> $home/data/$domain/data/records.htm
      grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | grep -v '=' | column -t > sub-dnsrecon
 
      # Remove all empty files
@@ -441,7 +442,7 @@ case $choice in
 
      echo "URLCrazy                  (33/$total)"
      urlcrazy $domain > tmp
-     sed -n '/Character/,$p' tmp | sed 's/AU,AUSTRALIA/ Australia/g; s/AUSTRIA/ Austria/g; s/BAHAMAS/ Bahamas/g; s/BANGLADESH/ Bangladesh/g; 
+     sed -n '/Character/,$p' tmp | sed 's/AU,AUSTRALIA/ Australia/g; s/AT,AUSTRIA/ Austria/g; s/BAHAMAS/ Bahamas/g; s/BANGLADESH/ Bangladesh/g; 
 s/BELGIUM/ Belgium/g; s/BULGARIA/ Bulgaria/g; s/CA,CANADA/ Canada  /g; s/KY,CAYMAN ISLANDS/ Cayman Islands/g; s/CHILE/ Chile/g; s/CN,CHINA/ China/g; 
 s/COLOMBIA/ Columbia/g; s/COSTA RICA/ Costa Rica/g; s/CZECH REPUBLIC/ Czech Republic/g; s/DK,DENMARK/ Denmark/g; s/DOMINICAN REPUBLIC/ Dominican Republic/g; 
 s/ES, Spain/ Spain/g; s/EUROPEAN UNION/ European Union/g; s/FINLAND/ Finland/g; s/FR,FRANCE/ France/g; s/DE,GERMANY/ Germany/g; s/GR,GREECE/ Greece/g; 
