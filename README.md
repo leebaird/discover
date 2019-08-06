@@ -187,14 +187,15 @@ Malicious Payloads
 4.   java/jsp_shell_reverse_tcp (Windows)
 5.   linux/x64/meterpreter_reverse_https
 6.   linux/x64/meterpreter_reverse_tcp
-7.   osx/x64/meterpreter_reverse_https
-8.   osx/x64/meterpreter_reverse_tcp
-9.   php/meterpreter/reverse_tcp
-10.  python/meterpreter_reverse_https
-11.  python/meterpreter_reverse_tcp
-12.  windows/x64/meterpreter_reverse_https
-13.  windows/x64/meterpreter_reverse_tcp
-14.  Previous menu
+7.   linux/x64/shell/reverse_tcp
+8.   osx/x64/meterpreter_reverse_https
+9.   osx/x64/meterpreter_reverse_tcp
+10.  php/meterpreter/reverse_tcp
+11.  python/meterpreter_reverse_https
+12.  python/meterpreter_reverse_tcp
+13.  windows/x64/meterpreter_reverse_https
+14.  windows/x64/meterpreter_reverse_tcp
+15.  Previous menu
 ```
 
 ### Start a Metasploit listener
@@ -206,14 +207,15 @@ Metasploit Listeners
 3.   java/jsp_shell_reverse_tcp
 4.   linux/x64/meterpreter_reverse_https
 5.   linux/x64/meterpreter_reverse_tcp
-6.   osx/x64/meterpreter_reverse_https
-7.   osx/x64/meterpreter_reverse_tcp
-8.   php/meterpreter/reverse_tcp
-9.   python/meterpreter_reverse_https
-10.  python/meterpreter_reverse_tcp
-11.  windows/x64/meterpreter_reverse_https
-12.  windows/x64/meterpreter_reverse_tcp
-13.  Previous menu
+6.   linux/x64/shell/reverse_tcp
+7.   osx/x64/meterpreter_reverse_https
+8.   osx/x64/meterpreter_reverse_tcp
+9.   php/meterpreter/reverse_tcp
+10.  python/meterpreter_reverse_https
+11.  python/meterpreter_reverse_tcp
+12.  windows/x64/meterpreter_reverse_https
+13.  windows/x64/meterpreter_reverse_tcp
+14.  Previous menu
 ```
 
 ### Update

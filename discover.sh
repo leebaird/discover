@@ -4026,14 +4026,15 @@ echo "3.   java/jsp_shell_reverse_tcp (Linux)"
 echo "4.   java/jsp_shell_reverse_tcp (Windows)"
 echo "5.   linux/x64/meterpreter_reverse_https"
 echo "6.   linux/x64/meterpreter_reverse_tcp"
-echo "7.   osx/x64/meterpreter_reverse_https"
-echo "8.   osx/x64/meterpreter_reverse_tcp"
-echo "9.   php/meterpreter/reverse_tcp"
-echo "10.  python/meterpreter_reverse_https"
-echo "11.  python/meterpreter_reverse_tcp"
-echo "12.  windows/x64/meterpreter_reverse_https"
-echo "13.  windows/x64/meterpreter_reverse_tcp"
-echo "14.  Previous menu"
+echo "7.   linux/x64/shell/reverse_tcp"
+echo "8.   osx/x64/meterpreter_reverse_https"
+echo "9.   osx/x64/meterpreter_reverse_tcp"
+echo "10.  php/meterpreter/reverse_tcp"
+echo "11.  python/meterpreter_reverse_https"
+echo "12.  python/meterpreter_reverse_tcp"
+echo "13.  windows/x64/meterpreter_reverse_https"
+echo "14.  windows/x64/meterpreter_reverse_tcp"
+echo "15.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
@@ -4069,43 +4070,48 @@ case $choice in
           format="elf"
           arch="x64"
           platform="linux";;
-     7) payload="osx/x64/meterpreter_reverse_https"
+     7) payload="linux/x64/shell/reverse_tcp"
+          extention=".elf"
+          format="elf"
+          arch="x64"
+          platform="linux";;
+     8) payload="osx/x64/meterpreter_reverse_https"
           extention=".macho"
           format="macho"
           arch="x64"
           platform="osx";;
-     8) payload="osx/x64/meterpreter_reverse_tcp"
+     9) payload="osx/x64/meterpreter_reverse_tcp"
           extention=".macho"
           format="macho"
           arch="x64"
           platform="osx";;
-     9) payload="php/meterpreter/reverse_tcp"
+     10) payload="php/meterpreter/reverse_tcp"
           extention=".php"
           format="raw"
           arch="php"
           platform="php"
           encoder="php/base64";;
-     10) payload="python/meterpreter_reverse_https"
+     11) payload="python/meterpreter_reverse_https"
           extention=".py"
           format="raw"
           arch="python"
           platform="python";;
-     11) payload="python/meterpreter_reverse_tcp"
+     12) payload="python/meterpreter_reverse_tcp"
           extention=".py"
           format="raw"
           arch="python"
           platform="python";;
-     12) payload="windows/x64/meterpreter_reverse_https"
+     13) payload="windows/x64/meterpreter_reverse_https"
           extention=".exe"
           format="exe"
           arch="x64"
           platform="windows";;
-     13) payload="windows/x64/meterpreter_reverse_tcp"
+     14) payload="windows/x64/meterpreter_reverse_tcp"
           extention=".exe"
           format="exe"
           arch="x64"
           platform="windows";;
-     14) f_main;;
+     15) f_main;;
      *) f_error;;
 esac
 
@@ -4156,14 +4162,15 @@ echo "2.   cmd/windows/reverse_powershell"
 echo "3.   java/jsp_shell_reverse_tcp"
 echo "4.   linux/x64/meterpreter_reverse_https"
 echo "5.   linux/x64/meterpreter_reverse_tcp"
-echo "6.   osx/x64/meterpreter_reverse_https"
-echo "7.   osx/x64/meterpreter_reverse_tcp"
-echo "8.   php/meterpreter/reverse_tcp"
-echo "9.   python/meterpreter_reverse_https"
-echo "10.  python/meterpreter_reverse_tcp"
-echo "11.  windows/x64/meterpreter_reverse_https"
-echo "12.  windows/x64/meterpreter_reverse_tcp"
-echo "13.  Previous menu"
+echo "6.   linux/x64/shell/reverse_tcp"
+echo "7.   osx/x64/meterpreter_reverse_https"
+echo "8.   osx/x64/meterpreter_reverse_tcp"
+echo "9.   php/meterpreter/reverse_tcp"
+echo "10.  python/meterpreter_reverse_https"
+echo "11.  python/meterpreter_reverse_tcp"
+echo "12.  windows/x64/meterpreter_reverse_https"
+echo "13.  windows/x64/meterpreter_reverse_tcp"
+echo "14.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
@@ -4174,14 +4181,15 @@ case $choice in
      3) payload="java/jsp_shell_reverse_tcp";;
      4) payload="linux/x64/meterpreter_reverse_https";;
      5) payload="linux/x64/meterpreter_reverse_tcp";;
-     6) payload="osx/x64/meterpreter_reverse_https";;
-     7) payload="osx/x64/meterpreter_reverse_tcp";;
-     8) payload="php/meterpreter/reverse_tcp";;
-     9) payload="python/meterpreter_reverse_https";;
-     10) payload="python/meterpreter_reverse_tcp";;
-     11) payload="windows/x64/meterpreter_reverse_https";;
-     12) payload="windows/x64/meterpreter_reverse_tcp";;
-     13) f_main;;
+     6) payload="linux/x64/shell/reverse_tcp";;
+     7) payload="osx/x64/meterpreter_reverse_https";;
+     8) payload="osx/x64/meterpreter_reverse_tcp";;
+     9) payload="php/meterpreter/reverse_tcp";;
+     10) payload="python/meterpreter_reverse_https";;
+     11) payload="python/meterpreter_reverse_tcp";;
+     12) payload="windows/x64/meterpreter_reverse_https";;
+     13) payload="windows/x64/meterpreter_reverse_tcp";;
+     14) f_main;;
      *) f_error;;
 esac
 
