@@ -231,6 +231,8 @@ if [ -d /opt/theHarvester/.git ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
      echo
+     python3 -m pip install -r requirements.txt
+     echo
 else
      echo -e "${YELLOW}Installing theHarvester.${NC}"
      git clone https://github.com/laramies/theHarvester.git /opt/theHarvester
