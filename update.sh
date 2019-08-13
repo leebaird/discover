@@ -231,7 +231,7 @@ if [ -d /opt/theHarvester/.git ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
      echo
-     python3 -m pip install -r requirements.txt
+     python3 -m pip install -r requirements.txt | grep -v 'already satisfied'
      echo
 else
      echo -e "${YELLOW}Installing theHarvester.${NC}"
