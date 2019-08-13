@@ -112,7 +112,7 @@ make
 make install
 
 dpkg -i app.deb                      Install Debian package
-rpm -Uvh app.rpm                     Install RPM package
+rpm -vhU app.rpm                     Install RPM package
 
 dpkg-query -l                        Installed packages
 
@@ -155,10 +155,10 @@ gateway 10.0.3.1
 # Privilege Escalation
 
 - Automated scripts.
-enum4linux -a <target IP>                 https://raw.githubusercontent.com/portcullislabs/enum4linux/master/enum4linux.pl
-LinEnum                                   https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh
-linuxprivchecker.py                       https://raw.githubusercontent.com/sleventyeleven/linuxprivchecker/master/linuxprivchecker.py
-Lynis audit system remote <target IP>     https://downloads.cisofy.com/lynis/lynis-2.7.5.tar.gz
+enum4linux.pl -a <target IP>              wget https://raw.githubusercontent.com/portcullislabs/enum4linux/master/enum4linux.pl
+linenum.sh                                wget https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh
+linuxprivchecker.py                       wget https://raw.githubusercontent.com/sleventyeleven/linuxprivchecker/master/linuxprivchecker.py
+lynis audit system                        wget https://downloads.cisofy.com/lynis/lynis-2.7.5.tar.gz
 
 - sudoers
 sudo -l                                   Check for binaries that can be ran with root privs
