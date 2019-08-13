@@ -230,7 +230,6 @@ fi
 if [ -d /opt/theHarvester/.git ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
-     echo
      python3 -m pip install -r requirements.txt | grep -v 'already satisfied'
      echo
 else
@@ -246,7 +245,6 @@ if [ ! -e /usr/lib/python2.7/dist-packages/texttable.py ]; then
      apt-get install -y python-texttable
      echo
 fi
-
 
 if [ -d /opt/unicorn/.git ]; then
      echo -e "${BLUE}Updating unicorn.${NC}"
