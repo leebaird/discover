@@ -52,6 +52,11 @@ nbtenum -q <target IP>
 
 nbtscan -r <target range>
 nbtscan -f hosts.txt
+
+smbmap -H <target IP>                         # Show shares
+smbclient //<target IP>/<share>
+   dir
+   get <filename>
 ------------------------------------------------------------------------------------------------------
 
 # Show domain users and group information
