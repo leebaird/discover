@@ -32,6 +32,11 @@ scp -r user@targetIP:/path/to/share /local/share             Remote to local
 
 cat ~/.ssh/id_rsa.pub | ssh user@targetIP 'cat >> .ssh/authorized_keys'
 ------------------------------------------------------------------------------------------------------
+
+# Date & Time
+
+timedatectl set-timezone EST         Set the timezone to Eastern Standard Time 
+------------------------------------------------------------------------------------------------------
  
 # File Permissions
  
