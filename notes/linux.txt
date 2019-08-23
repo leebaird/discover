@@ -419,16 +419,27 @@ ctrl + l                             Clear the screen
 
 # tmux
 
-tmux                                 Start a new session
-ctrl + b, %                          Split the pane vertically
-ctrl + b, "                          Split the pane horizontally
-ctrl + b, arrow                      Switch between panes
-ctrl + d                             Close pane
-ctrl + b, d                          Detach from current session
-tmux attach -d                       Attach to previous session
+After you ssh into a box, use tmux. If your connection drops, you can ssh back in, connect to your
+previous tmux session, and pick up where you left off. Great when running long scans or anything that
+you don't want to start over.
 
-ctrl + b, [                          Use up/down arrows to scroll
-q                                    Quit scroll mode
+tmux ls                              List sessions
+tmux new -s <name>                   Start a new session
+ctrl +b c                            Create a new window
+ctrl +b 0                            Go back to the first window
+
+tmux attach -t <name>                Attach to a previous session
+ctrl +b d                            Detach from the current session
+
+ctrl +b %                            Split the pane vertically
+ctrl +b "                            Split the pane horizontally
+ctrl +b arrow                        Switch between panes
+ctrl +b z                            Makes the current pane full screen
+ctrl +b z (again)                    Zoom out
+
+ctrl +b (hold ctrl)                  Use the arrows to resize the pane
+
+ctrl +d                              Close the pane
 ------------------------------------------------------------------------------------------------------
 
 # Traffic Capture
