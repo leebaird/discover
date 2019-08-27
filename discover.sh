@@ -330,14 +330,14 @@ case $choice in
      echo
 
      echo "goofile                   (5/$total)"
-     python $discover/mods/goofile.py $domain doc > doc
-     python $discover/mods/goofile.py $domain docx | sort -u >> doc
-     python $discover/mods/goofile.py $domain pdf | sort -u > pdf
-     python $discover/mods/goofile.py $domain ppt > ppt
-     python $discover/mods/goofile.py $domain pptx | sort -u >> ppt
-     python $discover/mods/goofile.py $domain txt | sort -u > txt
-     python $discover/mods/goofile.py $domain xls > xls
-     python $discover/mods/goofile.py $domain xlsx | sort -u >> xls
+     python3 $discover/mods/goofile.py $domain doc > doc
+     python3 $discover/mods/goofile.py $domain docx | sort -u >> doc
+     python3 $discover/mods/goofile.py $domain pdf | sort -u > pdf
+     python3 $discover/mods/goofile.py $domain ppt > ppt
+     python3 $discover/mods/goofile.py $domain pptx | sort -u >> ppt
+     python3 $discover/mods/goofile.py $domain txt | sort -u > txt
+     python3 $discover/mods/goofile.py $domain xls > xls
+     python3 $discover/mods/goofile.py $domain xlsx | sort -u >> xls
 
      # Remove all empty files
      find -type f -empty -exec rm {} +
