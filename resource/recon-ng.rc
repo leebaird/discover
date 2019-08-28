@@ -12,10 +12,6 @@ modules load recon/companies-multi/whois_miner
 run
 modules load recon/contacts-contacts/mailtester
 run
-modules load recon/contacts-contacts/mangle
-run
-modules load recon/contacts-contacts/unmangle
-run
 modules load recon/contacts-credentials/hibp_breach
 run
 modules load recon/contacts-credentials/hibp_paste
