@@ -608,6 +608,7 @@ s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
           echo -ne "     ${YELLOW}$number ${NC}of ${YELLOW}$domcount ${NC}domains"\\r
           sleep 2
      done < tmp3
+     echo
      }
 
      # Get domains registered by company name and email address domain
@@ -646,7 +647,6 @@ s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
      echo
 
      ##############################################################
-
      cat z* | grep '@' | sed '/^@/d' | sort -u > emails
 
      cat z* | grep ':' | sed 's/:/ /g; s/ empty//g' | column -t | sort -u > sub-theHarvester
