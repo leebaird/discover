@@ -642,7 +642,8 @@ s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
 
      # Formatting & clean-up
      sort tmp4 | sed 's/111AAA--placeholder--/Domain,IP Address,Registration Email,Registration Org,Registrar,/' | grep -v 'Matches Found' > tmp6
-     cat tmp6 | sed 's/LLC /LLC./g; s/No IP Found//g; s/REDACTED FOR PRIVACY//g; s/select contact domain holder link at https//g' | column -n -s ',' -t > registered-domains
+     cat tmp6 | sed 's/LLC /LLC./g; s/No IP Found//g; s/REDACTED FOR PRIVACY//g; s/select contact domain holder link at https//g' > tmp7
+     egrep -v '(connection timed out|please contact|redacted for privacy)' tmp7 | column -n -s ',' -t > registered-domains
      rm tmp*
      echo
 
