@@ -26,10 +26,6 @@ modules load recon/credentials-credentials/bozocrack
 run
 modules load recon/credentials-credentials/hashes_org
 run
-modules load recon/contacts-credentials/hibp_breach
-run
-modules load recon/contacts-credentials/hibp_paste
-run
 modules load recon/domains-companies/pen
 run
 modules load recon/domains-contacts/metacrawler

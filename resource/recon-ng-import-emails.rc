@@ -1,5 +1,5 @@
 modules load import/list
-options set COLUMN email
 options set FILENAME /tmp/tmp-emails
 options set TABLE contacts
+options set COLUMN email
 run
