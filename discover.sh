@@ -997,6 +997,8 @@ s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/
      sleep 2
      $web https://www.linkedin.com &
      sleep 2
+     $web https://www.pinterest.com &
+     sleep 2
      $web https://twitter.com &
      sleep 2
      $web https://www.youtube.com &
@@ -1046,7 +1048,7 @@ s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/
      echo "dnsrecon"
      echo "     DNS Records          (1/$total)"
      dnsrecon -d $domain -t std > tmp
-     egrep -v '(All queries|Bind Version|Could not|Enumerating SRV|not configured|Performing|Records Found|Recursion|resolving|Resolving|TXT|Wildcard)' tmp | sort > tmp2
+     egrep -iv '(all queries|bind version|could not|enumerating srv|not configured|performing|records found|recursion|resolving|txt|wildcard)' tmp | sort > tmp2
      # Remove first 6 characters from each line
      sed 's/^......//g' tmp2 | column -t | sort > tmp3
      grep 'TXT' tmp | sed 's/^......//g' | sort > tmp4
@@ -1864,7 +1866,7 @@ if [[ -n $x ]]; then
 fi
 
 # Clean up
-egrep -v '(0000:|0010:|0020:|0030:|0040:|0050:|0060:|0070:|0080:|0090:|00a0:|00b0:|00c0:|00d0:|1 hop|closed|guesses|GUESSING|filtered|fingerprint|FINGERPRINT|general purpose|initiated|latency|Network Distance|No exact OS|No OS matches|OS:|OS CPE|Please report|RTTVAR|scanned in|SF|unreachable|Warning|WARNING)' $name/nmap.nmap | sed 's/Nmap scan report for //; /^$/! b end; n; /^$/d; : end' > $name/nmap.txt
+egrep -iv '(0000:|0010:|0020:|0030:|0040:|0050:|0060:|0070:|0080:|0090:|00a0:|00b0:|00c0:|00d0:|1 hop|closed|guesses|guessing|filtered|fingerprint|general purpose|initiated|latency|network distance|no exact os|no os matches|os:|os cpe|please report|rttvar|scanned in|sf|unreachable|warning)' $name/nmap.nmap | sed 's/Nmap scan report for //g; /^$/! b end; n; /^$/d; : end' > $name/nmap.txt
 
 grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' $name/nmap.nmap | $sip > $name/hosts.txt
 hosts=$(wc -l $name/hosts.txt | cut -d ' ' -f1)
@@ -1958,7 +1960,7 @@ find $name/ -type f -empty -exec rm {} +
 ##############################################################################################################
 
 f_cleanup(){
-grep -v -E 'Starting Nmap|Host is up|SF|:$|Service detection performed|Nmap done' tmp | sed '/^Nmap scan report/{n;d}' | sed 's/Nmap scan report for/Host:/g' > tmp4
+grep -v -E 'Starting Nmap|Host is up|SF|:$|Service detection performed|Nmap done|https' tmp | sed '/^Nmap scan report/{n;d}' | sed 's/Nmap scan report for/Host:/g' > tmp4
 }
 
 ##############################################################################################################
@@ -2386,7 +2388,7 @@ if [[ -e $name/3632.txt ]]; then
      echo "     Distributed Compiler Daemon"
      nmap -iL $name/3632.txt -Pn -n --open -p3632 --script-timeout 1m --script=distcc-cve2004-2687 --script-args="distcc-exec.cmd='id'" --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
-     egrep -v '(IDs|Risk factor|Description|Allows|earlier|Disclosure|Extra|References|http)' tmp4 > $name/script-3632.txt
+     egrep -v '(Allows|Description|Disclosure|earlier|Extra|http|IDs|References|Risk factor)' tmp4 > $name/script-3632.txt
 fi
 
 if [[ -e $name/3671.txt ]]; then
@@ -3234,7 +3236,7 @@ if [ "$msf" == "y" ]; then
           sed 's/\/\//\//g' /tmp/master > $name/master.rc
           msfdb init
           msfconsole -r $name/master.rc
-          cat tmpmsf | egrep -iv "(> exit|> run|% complete|Attempting to extract|Authorization not requested|Checking if file|completed|Connecting to the server|Connection reset by peer|data_connect failed|db_export|did not reply|does not appear|doesn't exist|Finished export|Handshake failed|ineffective|It doesn't seem|Login Fail|negotiation failed|NoMethodError|No relay detected|no response|No users found|not be identified|not found|NOT VULNERABLE|Providing some time|request timeout|responded with error|RPORT|RHOSTS|Scanning for vulnerable|Shutting down the TFTP|Spooling|Starting export|Starting TFTP server|Starting VNC login|THREADS|Timed out after|timed out|Trying to acquire|Unable to|unknown state)" > $name/metasploit.txt
+          cat tmpmsf | egrep -iv "(> exit|> run|% complete|attempting to extract|authorization not requested|checking if file|completed|connecting to the server|connection reset by peer|data_connect failed|db_export|did not reply|does not appear|doesn't exist|finished export|handshake failed|ineffective|it doesn't seem|login fail|negotiation failed|nomethoderror|no relay detected|no response|No users found|not be identified|not foundnot vulnerable|providing some time|request timeout|responded with error|rport|rhosts|scanning for vulnerable|shutting down the tftp|spooling|starting export|starting tftp server|starting vnc login|threads|timed out|trying to acquire|unable to|unknown state)" > $name/metasploit.txt
           rm $name/master.rc
           rm tmpmsf
      fi
