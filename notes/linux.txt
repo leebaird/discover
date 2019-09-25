@@ -329,6 +329,7 @@ ctrl + a d                                Detach from the session
 screen -ls                                Sessions
 screen -dr                                Attach to the current session
 screen -r <PID or name>                   Attach to a specific session
+screen -X -S <session to kill> quit       Kill a specific session
 exit                                      Exit the session
 
 <ctrl> a esc                              Use the up and down arrows or mouse to scroll
