@@ -66,12 +66,12 @@ Proxy > Options:
      Intercept Client Requests:
           Enable URL and move to the top.
           Select File extension > Edit: add jpeg.
-          Copy contents
+          Copy contents > OK
 
      Intercept Server Responses:
           Enable Intercept responses based on the following rules.
           Disable Content type header.
-          Enable URL.
+          Enable URL and move to the top.
           Add: And, File extension, Does not match, Match condition: paste contents from above, OK
 
      Match & Replace:
