@@ -89,7 +89,6 @@ Extender:
           Site Map Fetcher, Software Version Reporter, Software Vulnerability Scanner, Wsdler, and XSS Validator
      Options:
           Python Environment > Select file > Browse to /Applications/jython-standalone-2.7.0.jar > Open 
-     Extensions > Burp Extensions: use the Up/Down buttons to place in alphabetical order
 
 Project options > Misc:
      Burp Collaborator Server: Don't use Burp Collaborator
