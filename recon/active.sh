@@ -1,4 +1,213 @@
 #!/bin/bash
 
-# Active
+# Number of tests
+total=9
 
+############################################################
+
+echo "dnsrecon"
+echo "     DNS Records          (1/$total)"
+dnsrecon -d $domain -t std > tmp
+egrep -iv '(all queries|bind version|could not|enumerating srv|not configured|performing|records found|recursion|resolving|txt|wildcard)' tmp | sort > tmp2
+# Remove first 6 characters from each line
+sed 's/^......//g' tmp2 | column -t | sort > tmp3
+grep 'TXT' tmp | sed 's/^......//g' | sort > tmp4
+cat tmp3 tmp4 | column -t > records
+cp $discover/report/data/records.htm $home/data/$domain/data/records.htm
+cat records >> $home/data/$domain/data/records.htm
+echo "</pre>" >> $home/data/$domain/data/records.htm
+rm tmp*
+
+############################################################
+
+echo "     Sub-domains          (2/$total)"
+if [ -f /usr/share/dnsrecon/namelist.txt ]; then
+     dnsrecon -d $domain -D /usr/share/dnsrecon/namelist.txt -f -t brt > tmp
+fi
+
+# PTF
+if [ -f /pentest/intelligence-gathering/dnsrecon/namelist.txt ]; then
+     dnsrecon -d $domain -D /pentest/intelligence-gathering/dnsrecon/namelist.txt -f -t brt > tmp
+fi
+
+grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing|Records Found|xxx)' | sed 's/\[\*\] //g; s/^[ \t]*//' | awk '{print $2,$3}' | column -t | sort -u > sub-dnsrecon
+
+egrep -v '(\[|.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' sub-dnsrecon | tr '[A-Z]' '[a-z]' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
+
+if [ -e $home/data/$domain/data/subdomains.htm ]; then
+     cat $home/data/$domain/data/subdomains.htm subdomains | grep -v "<" | grep -v "$domain\." | column -t | sort -u > subdomains-combined
+
+     cp $discover/report/data/subdomains.htm $home/data/$domain/data/subdomains.htm
+     cat subdomains-combined >> $home/data/$domain/data/subdomains.htm
+     echo "</pre>" >> $home/data/$domain/data/subdomains.htm
+fi
+
+awk '{print $3}' records > tmp
+awk '{print $2}' sub-dnsrecon >> tmp
+grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' tmp | egrep -v '(-|=|:|1.1.1.1|6.9.6.9|127.0.0.1)' | $sip > hosts
+
+############################################################
+
+echo "     Zone Transfer        (3/$total)"
+dnsrecon -d $domain -t axfr > tmp
+egrep -v '(Checking for|filtered|No answer|NS Servers|Removing|TCP Open|Testing NS)' tmp | sed 's/^....//g; /^$/d' > zonetransfer
+echo
+
+############################################################
+
+echo "Web Application Firewall  (4/$total)"
+wafw00f -a http://www.$domain > tmp 2>/dev/null
+egrep -v '(By Sandro|Checking http://www.|Generic Detection|requests|WAFW00F)' tmp | sed "s/ http:\/\/www.$domain//g" | egrep -v "(\_|\^|\||<|')" | sed '1,4d' > waf
+echo
+
+############################################################
+
+echo "Traceroute"
+echo "     UDP                  (5/$total)"
+echo "UDP" > tmp
+traceroute $domain | awk -F" " '{print $1,$2,$3}' >> tmp
+echo >> tmp
+echo "ICMP ECHO" >> tmp
+echo "     ICMP ECHO            (6/$total)"
+traceroute -I $domain | awk -F" " '{print $1,$2,$3}' >> tmp
+echo >> tmp
+echo "TCP SYN" >> tmp
+echo "     TCP SYN              (7/$total)"
+traceroute -T $domain | awk -F" " '{print $1,$2,$3}' >> tmp
+grep -v 'traceroute' tmp > tmp2
+# Remove blank lines from end of file
+awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp2 > ztraceroute
+echo
+
+############################################################
+
+echo "Whatweb (~5 min)          (8/$total)"
+grep -v '<' $home/data/$domain/data/subdomains.htm | awk '{print $1}' > tmp
+whatweb -i tmp --color=never --no-errors > tmp2 2>/dev/null
+
+# Find lines that start with http, and insert a line after
+sort tmp2 | sed '/^http/a\ ' > tmp3
+# Cleanup
+cat tmp3 | sed 's/,/\n/g; s/\[200 OK\]/\n\[200 OK\]\n/g; s/\[301 Moved Permanently\]/\n\[301 Moved Permanently\]\n/g; s/\[302 Found\]/\n\[302 Found\]\n/g; s/\[404 Not Found\]/\n\[404 Not Found\]\n/g' | egrep -v '(Unassigned|UNITED STATES)' | sed 's/^[ \t]*//' | cat -s | more > whatweb
+
+grep '@' whatweb | sed 's/Email//g; s/\[//g; s/\]//g' | tr '[A-Z]' '[a-z]' | grep "@$domain" | grep -v 'hosting' | cut -d ' ' -f2 | sort -u > emails
+
+rm tmp*
+# Remove all empty files
+find $home/data/$domain/ -type f -empty -exec rm {} +
+echo
+
+############################################################
+
+echo "recon-ng                  (9/$total)"
+cp $discover/resource/recon-ng-active.rc active.rc
+sed -i "s/xxx/$companyurl/g" active.rc
+sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' active.rc
+sed -i "s/yyy/$domain/g" active.rc
+recon-ng -r $discover/active.rc
+
+##############################################################
+
+echo "Summary" > zreport
+echo $short >> zreport
+
+echo > tmp
+
+if [ -e emails ]; then
+     emailcount=$(wc -l emails | cut -d ' ' -f1)
+     echo "Emails        $emailcount" >> zreport
+     echo "Emails ($emailcount)" >> tmp
+     echo $short >> tmp
+     cat emails >> tmp
+     echo >> tmp
+fi
+
+if [ -e hosts ]; then
+     hostcount=$(wc -l hosts | cut -d ' ' -f1)
+     echo "Hosts         $hostcount" >> zreport
+     echo "Hosts ($hostcount)" >> tmp
+     echo $short >> tmp
+     cat hosts >> tmp
+     echo >> tmp
+fi
+
+if [ -e records ]; then
+     recordcount=$(wc -l records | cut -d ' ' -f1)
+     echo "DNS Records   $recordcount" >> zreport
+     echo "DNS Records ($recordcount)" >> tmp
+     echo $long >> tmp
+     cat records >> tmp
+     echo >> tmp
+fi
+
+if [ -e subdomains ]; then
+     subdomaincount=$(wc -l subdomains | cut -d ' ' -f1)
+     echo "Subdomains    $subdomaincount" >> zreport
+     echo "Subdomains ($subdomaincount)" >> tmp
+     echo $long >> tmp
+     cat subdomains >> tmp
+     echo >> tmp
+fi
+
+cat tmp >> zreport
+
+echo "Web Application Firewall" >> zreport
+echo $long >> zreport
+cat waf >> zreport
+
+echo >> zreport
+echo "Traceroute" >> zreport
+echo $long >> zreport
+cat ztraceroute >> zreport
+
+echo >> zreport
+echo "Zone Transfer" >> zreport
+echo $long >> zreport
+cat zonetransfer >> zreport
+
+echo >> zreport
+echo "Whatweb" >> zreport
+echo $long >> zreport
+cat whatweb >> zreport
+
+cat zreport >> $home/data/$domain/data/active-recon.htm
+echo "</pre>" >> $home/data/$domain/data/active-recon.htm
+cat ztraceroute >> $home/data/$domain/data/traceroute.htm
+echo "</pre>" >> $home/data/$domain/data/traceroute.htm
+cat waf >> $home/data/$domain/data/waf.htm
+echo "</pre>" >> $home/data/$domain/data/waf.htm
+cat whatweb >> $home/data/$domain/data/whatweb.htm
+echo "</pre>" >> $home/data/$domain/data/whatweb.htm
+cat zonetransfer >> $home/data/$domain/data/zonetransfer.htm
+echo "</pre>" >> $home/data/$domain/data/zonetransfer.htm
+
+if [[ -e $home/data/$domain/data/emails.htm && -e emails ]]; then
+     cat $home/data/$domain/data/emails.htm emails | grep -v '<' | sort -u > tmp-new-emails
+     cat $home/data/$domain/data/emails.htm | grep '<' > tmp-new-page
+     mv tmp-new-page $home/data/$domain/data/emails.htm
+     cat tmp-new-email >> $home/data/$domain/data/emails.htm
+     echo "</pre>" >> $home/data/$domain/data/emails.htm
+fi
+
+if [[ -e $home/data/$domain/data/hosts.htm && -e hosts ]]; then
+     cat $home/data/$domain/data/hosts.htm hosts | grep -v '<' | $sip > tmp-new-hosts
+     cat $home/data/$domain/data/hosts.htm | grep '<' > tmp-new-page
+     mv tmp-new-page $home/data/$domain/data/hosts.htm
+     cat tmp-new-hosts >> $home/data/$domain/data/hosts.htm
+     echo "</pre>" >> $home/data/$domain/data/hosts.htm
+fi
+
+mv active.rc emails hosts record* sub* waf whatweb z* /tmp/subdomains $home/data/$domain/tools/active/ 2>/dev/null
+rm tmp*
+
+echo
+echo $medium
+echo
+echo "***Scan complete.***"
+echo
+echo
+echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${NC}\n"
+echo
+echo
+
+$web $home/data/$domain/index.htm &
