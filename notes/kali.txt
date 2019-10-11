@@ -47,16 +47,6 @@ cd /opt/discover/
 ./update.sh
 ------------------------------------------------------------------------------------------------------
 
-# Install Go
-
-apt-get install golang
-
-vi ~/.profile
-export PATH=$PATH:/usr/local/go/bin
-
-mkdir -p $HOME/go_projects/{src,pkg,bin}
-------------------------------------------------------------------------------------------------------
-
 # SSH
 
 ssh-keygen                                       Create new keys
@@ -83,11 +73,9 @@ nnoremap <F2> :set nonumber!<CR>:set foldcolumn=0<CR>
 
 set backspace=indent,eol,start
 
-" Insert timestamp with <ctrl+F5> or <ctrl+e>.
+" Insert timestamp with <ctrl+F5>
 :nmap <F5> i<C-R>=strftime("%Y-%m-%d %H:%M:%S %Z")<CR> --  
-:imap <F5> <C-R>=strftime("%Y-%m-%d %H:%M:%S" %Z)<CR> --  
-:nmap <C-E> i<C-R>=strftime("%Y-%m-%d %H:%M:%S %Z")<CR> --  
-:imap <C-E> <C-R>=strftime("%Y-%m-%d %H:%M:%S %Z")<CR> --  
+:imap <F5> <C-R>=strftime("%Y-%m-%d %H:%M:%S" %Z)<CR> -- 
 ------------------------------------------------------------------------------------------------------
 
 # Services
