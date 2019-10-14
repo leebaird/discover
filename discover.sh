@@ -3794,7 +3794,8 @@ echo
 echo $medium
 echo
 echo "Running sslyze."
-sslyze --targets_in=$location --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --hide_rejected_ciphers --openssl_ccs > tmp# Remove the first 20 lines and cleanup
+sslyze --targets_in=$location --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --hide_rejected_ciphers --openssl_ccs > tmp
+# Remove the first 20 lines and cleanup
 sed '1,20d' tmp | egrep -v '(=>|error:|ERROR|is trusted|NOT SUPPORTED|OK - Supported|OpenSSLError|Server rejected|timeout|unexpected error)' |
 # Find FOO, if the next line is blank, delete both lines
 awk '/Compression/ { Compression = 1; next }  Compression == 1 && /^$/ { Compression = 0; next }  { Compression = 0 }  { print }' |
