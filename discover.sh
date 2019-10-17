@@ -31,17 +31,7 @@
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
 
-# Global variables
-home=$HOME
-long='==============================================================================================================================='
-medium='=================================================================='
-short='========================================'
-sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
-
-BLUE='\033[1;34m'
-RED='\033[1;31m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+##############################################################################################################
 
 # Check for instances of Discover >1
 updatedb
@@ -67,26 +57,46 @@ else
      rm tmpinstance
 fi
 
-# Check for OS X
-if [[ `uname` == 'Darwin' ]]; then
-     browser=Safari
-     discover=$(locate discover.sh | sed 's:/[^/]*$::')
-     interface=en0
-     ip=$(ifconfig | grep 'en0' -A2 | grep 'inet' | cut -d ' ' -f2)
-     msf=/opt/metasploit-framework/bin/msfconsole
-     msfv=/opt/metasploit-framework/bin/msfvenom
-     port=4444
-     web="open -a Safari"
-else
-     browser=Firefox
-     discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
-     interface=$(ip addr | grep 'global' | awk '{print $8}')
-     ip=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}')
-     msf=msfconsole
-     msfv=msfvenom
-     port=443
-     web="firefox -new-tab"
-fi
+##############################################################################################################
+
+# Global variables
+CWD=$(pwd)
+discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
+home=$HOME
+interface=$(ip addr | grep 'global' | awk '{print $8}')
+ip=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}')
+port=443
+sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
+web="firefox -new-tab"
+
+long='==============================================================================================================================='
+medium='=================================================================='
+short='========================================'
+
+BLUE='\033[1;34m'
+RED='\033[1;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+##############################################################################################################
+
+export CWD
+export discover
+export home
+export interface
+export ip
+export port
+export sip
+export web
+
+export long
+export medium
+export short
+
+export BLUE
+export RED
+export YELLOW
+export NC
 
 ##############################################################################################################
 
@@ -113,19 +123,6 @@ echo
 echo -e "${RED}$medium${NC}"
 sleep 2
 f_main
-}
-
-f_errorOSX(){
-if [[ `uname` == 'Darwin' ]]; then
-     echo
-     echo -e "${RED}$medium${NC}"
-     echo
-     echo -e "${RED}            *** Not OS X compatible. ***${NC}"
-     echo
-     echo -e "${RED}$medium${NC}"
-     sleep 2
-     f_main
-fi
 }
 
 ##############################################################################################################
@@ -201,8 +198,6 @@ exit
 f_domain(){
 clear
 f_banner
-# Get current working directory
-CWD=$(pwd)
 echo -e "${BLUE}RECON${NC}"
 echo
 echo "1.  Passive"
@@ -1464,9 +1459,7 @@ echo -n "Choice: "
 read choice
 
 case $choice in
-     1) f_errorOSX
-
-     echo
+     1) echo
      echo -n "Interface to scan: "
      read interface
 
@@ -1486,8 +1479,8 @@ case $choice in
      echo
      echo
      exit;;
-     2) f_errorOSX; f_netbios;;
-     3) f_errorOSX; f_netdiscover;;
+     2) f_netbios;;
+     3) f_netdiscover;;
      4) f_pingsweep;;
      5) f_main;;
      *) f_error;;
@@ -3484,7 +3477,7 @@ f_runlocally
 clear
 f_banner
 
-echo -e "${BLUE}Open multiple tabs in $browser with:${NC}"
+echo -e "${BLUE}Open multiple tabs in Firefox with:${NC}"
 echo
 echo "1.  List"
 echo "2.  Directories from robots.txt."
@@ -3530,12 +3523,7 @@ case $choice in
           f_error
      fi
 
-     # Check for OS X
-     if [[ `uname` == 'Darwin' ]]; then
-          /usr/local/bin/wget -q $domain/robots.txt
-     else
-          wget -q $domain/robots.txt
-     fi
+     wget -q $domain/robots.txt
 
      # Check if the file is empty
      if [ ! -s robots.txt ]; then
@@ -4142,7 +4130,7 @@ fi
 
 x=$(echo $payload | sed 's/\//-/g')
 
-$msfv -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -o $home/data/$x-$lport$extention
+msfvenom -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -o $home/data/$x-$lport$extention
 
 echo
 echo
@@ -4227,16 +4215,9 @@ fi
 
 cp $discover/resource/listener.rc /tmp/
 
-# Check for OS X
-if [[ `uname` == 'Darwin' ]]; then
-     sed -i '' "s|aaa|$payload|g" /tmp/listener.rc
-     sed -i '' "s/bbb/$lhost/g" /tmp/listener.rc
-     sed -i '' "s/ccc/$lport/g" /tmp/listener.rc
-else
-     sed -i "s|aaa|$payload|g" /tmp/listener.rc
-     sed -i "s/bbb/$lhost/g" /tmp/listener.rc
-     sed -i "s/ccc/$lport/g" /tmp/listener.rc
-fi
+sed -i "s|aaa|$payload|g" /tmp/listener.rc
+sed -i "s/bbb/$lhost/g" /tmp/listener.rc
+sed -i "s/ccc/$lport/g" /tmp/listener.rc
 
 x=`ps aux | grep 'postgres' | grep -v 'grep'`
 
@@ -4245,7 +4226,7 @@ if [[ -z $x ]]; then
      service postgresql start
 fi
 
-$msf -r /tmp/listener.rc
+msfconsole -r /tmp/listener.rc
 
 echo
 echo
@@ -4330,7 +4311,7 @@ if [ ! -d $home/data ]; then
      mkdir -p $home/data
 fi
 
-echo -e "${BLUE}RECON${NC}"    # In MacOS X, using \x1B instead of \e. \033 would be ok for all platforms.
+echo -e "${BLUE}RECON${NC}"
 echo "1.  Domain"
 echo "2.  Person"
 echo "3.  Parse salesforce"
@@ -4344,7 +4325,7 @@ echo "8.  Rerun Nmap scripts and MSF aux"
 echo
 echo -e "${BLUE}WEB${NC}"
 echo "9.  Insecure direct object reference"
-echo "10. Open multiple tabs in $browser"
+echo "10. Open multiple tabs in Firefox"
 echo "11. Nikto"
 echo "12. SSL"
 echo
@@ -4359,24 +4340,24 @@ echo -n "Choice: "
 read choice
 
 case $choice in
-     1) f_errorOSX; f_domain;;
+     1) f_domain;;
      2) f_person;;
      3) f_salesforce;;
      4) f_generateTargetList;;
      5) f_cidr;;
      6) f_list;;
      7) f_single;;
-     8) f_errorOSX; f_enumerate;;
+     8) f_enumerate;;
      9) f_directObjectRef;;
      10) f_multitabs;;
-     11) f_errorOSX; f_nikto;;
+     11) f_nikto;;
      12) f_ssl;;
      13) f_parse;;
      14) f_payload;;
      15) f_listener;;
-     16) f_errorOSX; $discover/update.sh && exit;;
+     16) $discover/update.sh && exit;;
      17) clear && exit;;
-     99) f_errorOSX; f_updates;;
+     99) f_updates;;
      *) f_error;;
 esac
 }
