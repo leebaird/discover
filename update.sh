@@ -5,23 +5,10 @@ BLUE='\033[1;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-discover=$(locate discover.sh | sed 's:/[^/]*$::')
+###############################################################################################################################
 
+clear
 echo
-
-# Fix for errors from URLCrazy file tld.rb lines 81,89,91
-# since project is not actively supported.
-
-tlddir=$(locate homophones.rb | sed 's%/[^/]*$%/%')
-cd $tlddir
-
-if [ ! -f tld.rb.bak ]; then
-    cp tld.rb tld.rb.bak
-    cat tld.rb | grep '"bd"=>' -v | grep '"bn"=>' -v | grep '"br"=>' -v > tld_tmp.rb
-    mv tld_tmp.rb tld.rb
-fi
-
-#########################################################
 
 if [ -d /pentest ]; then
      echo -e "${BLUE}Updating Discover.${NC}"
@@ -289,4 +276,5 @@ echo -e "${BLUE}Updating locate database.${NC}" ; updatedb
 
 echo
 echo
+exit
 

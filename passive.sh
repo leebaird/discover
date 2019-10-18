@@ -3,7 +3,58 @@
 # Number of tests
 total=42
 
-##############################################################
+###############################################################################################################################
+
+clear
+f_banner
+
+echo -e "${BLUE}Uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,${NC}"
+echo -e "${BLUE}  Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.${NC}"
+echo
+echo -e "${BLUE}[*] Acquire API keys for maximum results with recon-ng and ${NC}"
+echo -e "${BLUE}  theHarvester.${NC}"
+echo
+echo $medium
+echo
+echo "Usage"
+echo
+echo "Company: Target"
+echo "Domain:  target.com"
+echo
+echo $medium
+echo
+echo -n "Company: "
+read company
+
+# Check for no answer
+if [[ -z $company ]]; then
+     f_error
+fi
+
+echo -n "Domain:  "
+read domain
+
+# Check for no answer
+if [[ -z $domain ]]; then
+     f_error
+fi
+
+companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
+rundate=$(date +%B' '%d,' '%Y)
+
+# If folder doesn't exist, create it
+if [ ! -d $home/data/$domain ]; then
+     cp -R $discover/report/ $home/data/$domain
+     sed -i "s/#COMPANY#/$company/" $home/data/$domain/index.htm
+     sed -i "s/#DOMAIN#/$domain/" $home/data/$domain/index.htm
+     sed -i "s/#DATE#/$rundate/" $home/data/$domain/index.htm
+fi
+
+echo
+echo $medium
+echo
+
+###############################################################################################################################
 
 echo "ARIN"
 echo "     Email                (1/$total)"
@@ -23,7 +74,7 @@ fi
 
 rm tmp* 2>/dev/null
 
-##############################################################
+###############################################################################################################################
 
 echo "     Names                (2/$total)"
 if [ -e zhandles.txt ]; then
@@ -37,7 +88,7 @@ fi
 
 rm zurls.txt zhandles.txt 2>/dev/null
 
-##############################################################
+###############################################################################################################################
 
 echo "     Networks             (3/$total)"
 wget -q https://whois.arin.net/rest/orgs\;name=$companyurl -O tmp.xml
@@ -61,7 +112,7 @@ find -type f -empty -exec rm {} +
 rm tmp* 2>/dev/null
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "dnsrecon                  (4/$total)"
 dnsrecon -d $domain > tmp
@@ -75,7 +126,7 @@ find -type f -empty -exec rm {} +
 rm tmp 2>/dev/null
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "goofile                   (5/$total)"
 python3 $discover/mods/goofile.py $domain doc > doc
@@ -92,7 +143,7 @@ find -type f -empty -exec rm {} +
 rm tmp* 2>/dev/null
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "goog-mail                 (6/$total)"
 $discover/mods/goog-mail.py $domain | grep -v 'cannot' | tr '[A-Z]' '[a-z]' > zgoog-mail
@@ -101,7 +152,7 @@ $discover/mods/goog-mail.py $domain | grep -v 'cannot' | tr '[A-Z]' '[a-z]' > zg
 find -type f -empty -exec rm {} +
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "goohost"
 echo "     IP                   (7/$total)"
@@ -113,7 +164,7 @@ cat report-* | grep $domain | column -t | sort -u > zgoohost
 rm *-$domain.txt tmp* 2>/dev/null
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "theHarvester"
 # Install path check
@@ -182,7 +233,7 @@ cd $CWD
 find -type f -empty -exec rm {} +
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "Metasploit                (31/$total)"
 msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
@@ -192,7 +243,7 @@ find -type f -empty -exec rm {} +
 rm tmp 2>/dev/null
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "URLCrazy                  (32/$total)"
 urlcrazy $domain > tmp
@@ -215,7 +266,7 @@ grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp3 > squatting
 rm tmp* 2>/dev/null
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "Whois"
 echo "     Domain               (33/$total)"
@@ -252,7 +303,7 @@ awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp
 sed 's/: /:#####/g' tmp13 | column -s '#' -t -n > whois-domain
 rm tmp*
 
-##############################################################
+###############################################################################################################################
 
 echo "     IP                   (34/$total)"
 curl -s https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
@@ -286,7 +337,7 @@ fi
 rm ultratools
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "crt.sh                    (35/$total)"
 python $discover/parsers/parse-certificates.py $domain > tmp
@@ -296,7 +347,7 @@ echo "</pre>" >> $home/data/$domain/data/certificates.htm
 rm tmp
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "dnsdumpster.com           (36/$total)"
 # Generate a random cookie value
@@ -306,7 +357,7 @@ sleep 15
 curl -s -o $home/data/$domain/assets/images/dnsdumpster.png https://dnsdumpster.com/static/map/$domain.png
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "email-format.com          (37/$total)"
 curl -s https://www.email-format.com/d/$domain/ > tmp
@@ -314,14 +365,14 @@ grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | sed '/^_/d' | egrep -v '
 rm tmp
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "hackertarget.com          (38/$total)"
 curl -s http://api.hackertarget.com/pagelinks/?q=https://www.$domain > tmp
 grep $domain tmp | sort -u >> $home/data/$domain/data/pages.htm
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "intodns.com               (39/$total)"
 wget -q http://www.intodns.com/$domain -O tmp
@@ -346,13 +397,13 @@ sed -i 's/It may be that I am wrong but the chances of that are low.//' $home/da
 rm tmp*
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "robtex.com                (40/$total)"
 wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
 echo
 
-##############################################################
+###############################################################################################################################
 
 echo "Registered Domains        (41/$total)"
 f_regdomain(){
@@ -425,7 +476,7 @@ egrep -v '(connection timed out|please contact|redacted for privacy)' tmp7 | col
 rm tmp*
 echo
 
-##############################################################
+###############################################################################################################################
 
 cat z* | grep '@' | sed '/^@/d' | sort -u > emails
 
@@ -451,7 +502,7 @@ s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g
      cat tmp7 tmp8 | sed 's/[ \t]*$//' | sed '/^\,/ d' | sort -u > names
 fi
 
-##############################################################
+###############################################################################################################################
 
 echo "recon-ng                  (42/$total)"
 echo "workspaces create $domain" > passive.rc
@@ -479,7 +530,7 @@ sed -i "s/yyy/$domain/g" passive.rc
 
 recon-ng -r $CWD/passive.rc
 
-##############################################################
+###############################################################################################################################
 
 cat /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/[0-9]/d' | sed '/^,/d' | 
 sed -e 's/\b\(.\)/\u\1/g' | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; 
@@ -487,7 +538,7 @@ s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/
 
 rm /tmp/emails /tmp/names* /tmp/networks /tmp/sub* /tmp/tmp-emails /tmp/usernames
 
-##############################################################
+###############################################################################################################################
 
 echo "last_name#first_name" > /tmp/names.csv
 sed 's/, /#/' usernames >> /tmp/names.csv
@@ -499,7 +550,7 @@ sed -i "s/yyy/$domain/g" passive2.rc
 
 recon-ng -r $CWD/passive2.rc
 
-##############################################################
+###############################################################################################################################
 
 grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|query|SELECT)' | sort -u > emails-final
 
@@ -514,7 +565,7 @@ cat sub* /tmp/sub-clean | grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | egrep -v '
 
 awk '{print $2}' subdomains-final | grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' | egrep -v '(-|=|:)' | sed '/^$/d' | $sip > hosts
 
-##############################################################
+###############################################################################################################################
 
 if [ -e networks-final ]; then
      cat networks-final > tmp
@@ -743,7 +794,7 @@ echo
 echo
 echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${NC}\n"
 
-##############################################################
+###############################################################################################################################
 
 f_runlocally
 
@@ -786,3 +837,4 @@ sleep 2
 $web $home/data/$domain/index.htm &
 echo
 echo
+

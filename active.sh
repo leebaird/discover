@@ -3,7 +3,7 @@
 # Number of tests
 total=9
 
-############################################################
+###############################################################################################################################
 
 echo "dnsrecon"
 echo "     DNS Records          (1/$total)"
@@ -18,7 +18,7 @@ cat records >> $home/data/$domain/data/records.htm
 echo "</pre>" >> $home/data/$domain/data/records.htm
 rm tmp*
 
-############################################################
+###############################################################################################################################
 
 echo "     Sub-domains          (2/$total)"
 if [ -f /usr/share/dnsrecon/namelist.txt ]; then
@@ -46,21 +46,21 @@ awk '{print $3}' records > tmp
 awk '{print $2}' sub-dnsrecon >> tmp
 grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' tmp | egrep -v '(-|=|:|1.1.1.1|6.9.6.9|127.0.0.1)' | $sip > hosts
 
-############################################################
+###############################################################################################################################
 
 echo "     Zone Transfer        (3/$total)"
 dnsrecon -d $domain -t axfr > tmp
 egrep -v '(Checking for|filtered|No answer|NS Servers|Removing|TCP Open|Testing NS)' tmp | sed 's/^....//g; /^$/d' > zonetransfer
 echo
 
-############################################################
+###############################################################################################################################
 
 echo "Web Application Firewall  (4/$total)"
 wafw00f -a http://www.$domain > tmp 2>/dev/null
 egrep -v '(By Sandro|Checking http://www.|Generic Detection|requests|WAFW00F)' tmp | sed "s/ http:\/\/www.$domain//g" | egrep -v "(\_|\^|\||<|')" | sed '1,4d' > waf
 echo
 
-############################################################
+###############################################################################################################################
 
 echo "Traceroute"
 echo "     UDP                  (5/$total)"
@@ -79,7 +79,7 @@ grep -v 'traceroute' tmp > tmp2
 awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp2 > ztraceroute
 echo
 
-############################################################
+###############################################################################################################################
 
 echo "Whatweb (~5 min)          (8/$total)"
 grep -v '<' $home/data/$domain/data/subdomains.htm | awk '{print $1}' > tmp
@@ -97,7 +97,7 @@ rm tmp*
 find $home/data/$domain/ -type f -empty -exec rm {} +
 echo
 
-############################################################
+###############################################################################################################################
 
 echo "recon-ng                  (9/$total)"
 cp $discover/resource/recon-ng-active.rc active.rc
@@ -106,7 +106,7 @@ sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' active.rc
 sed -i "s/yyy/$domain/g" active.rc
 recon-ng -r $discover/active.rc
 
-##############################################################
+###############################################################################################################################
 
 echo "Summary" > zreport
 echo $short >> zreport
@@ -207,7 +207,7 @@ echo "***Scan complete.***"
 echo
 echo
 echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${NC}\n"
+$web $home/data/$domain/index.htm &
 echo
 echo
 
-$web $home/data/$domain/index.htm &

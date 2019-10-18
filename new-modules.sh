@@ -62,3 +62,4 @@ echo
 echo -e "The new report is located at ${YELLOW}$home/data/new-stuff.txt${NC}\n"
 echo
 echo
+
