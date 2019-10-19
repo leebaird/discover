@@ -5,6 +5,9 @@ total=9
 
 ###############################################################################################################################
 
+echo -n "Domain to query: "
+read domain
+
 echo "dnsrecon"
 echo "     DNS Records          (1/$total)"
 dnsrecon -d $domain -t std > tmp
