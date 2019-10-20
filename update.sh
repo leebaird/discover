@@ -227,9 +227,9 @@ else
      echo
 fi
 
-if [ ! -e /usr/lib/python2.7/dist-packages/texttable.py ]; then
+if [ ! -e /usr/lib/python3/dist-packages/texttable.py ]; then
      echo -e "${YELLOW}Installing Texttable.${NC}"
-     apt-get install -y python-texttable
+     apt-get install -y python3-texttable
      echo
 fi
 
