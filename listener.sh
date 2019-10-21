@@ -1,5 +1,8 @@
 #!/bin/bash
 
+clear
+f_banner
+
 echo -e "${BLUE}Metasploit Listeners${NC}"
 echo
 echo "1.   android/meterpreter/reverse_tcp"
@@ -56,7 +59,6 @@ read lport
 if [[ -z $lport ]]; then
      lport=443
      echo "[*] Using 443"
-     echo
 fi
 
 # Check for valid port number.
@@ -80,7 +82,6 @@ sed -i "s/ccc/$lport/g" /tmp/listener.rc
 x=`ps aux | grep 'postgres' | grep -v 'grep'`
 
 if [[ -z $x ]]; then
-     echo
      service postgresql start
 fi
 
@@ -88,3 +89,4 @@ msfconsole -r /tmp/listener.rc
 
 echo
 echo
+

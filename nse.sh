@@ -769,3 +769,4 @@ rm tmp 2>/dev/null
 f_cleanup(){
 grep -v -E 'Starting Nmap|Host is up|SF|:$|Service detection performed|Nmap done|https' tmp | sed '/^Nmap scan report/{n;d}' | sed 's/Nmap scan report for/Host:/g' > tmp4
 }
+

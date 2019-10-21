@@ -461,3 +461,4 @@ if [[ -e $name/50000.txt ]]; then
      sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/50000.txt|g" /tmp/resource/50000-db2.rc
      cat /tmp/resource/50000-db2.rc >> /tmp/master
 fi
+
