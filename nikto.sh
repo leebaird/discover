@@ -1,6 +1,5 @@
 #!/bin/bash
 
-f_runlocally
 clear
 f_banner
 
