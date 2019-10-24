@@ -2511,7 +2511,7 @@ case $choice in
      15) $discover/listener.sh && exit;;
      16) $discover/update.sh && exit;;
      17) clear && exit;;
-     99) $discover/new-modules.sh && exit;;
+     99) $discover/newModules.sh && exit;;
      *) f_error;;
 esac
 }
