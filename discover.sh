@@ -2425,38 +2425,6 @@ exit
 
 ##############################################################################################################
 
-f_directObjectRef(){
-clear
-f_banner
-
-echo -e "${BLUE}Using Burp, authenticate to a site, map & Spider, then log out.${NC}"
-echo -e "${BLUE}Target > Site map > select the URL > right click > Copy URLs in this host.${NC}"
-echo -e "${BLUE}Paste the results into a new file.${NC}"
-
-f_location
-
-for i in $(cat $location); do
-     curl -sk -w "%{http_code} - %{url_effective} \\n" "$i" -o /dev/null 2>&1 | tee -a tmp
-done
-
-cat tmp | sort -u > DirectObjectRef.txt
-mv DirectObjectRef.txt $home/data/DirectObjectRef.txt
-rm tmp
-
-echo
-echo $medium
-echo
-echo "***Scan complete.***"
-echo
-echo
-echo -e "The new report is located at ${YELLOW}$home/data/DirectObjectRef.txt${NC}\n"
-echo
-echo
-exit
-}
-
-##############################################################################################################
-
 f_main(){
 clear
 f_banner
@@ -2502,7 +2470,7 @@ case $choice in
      6) f_list;;
      7) f_single;;
      8) f_enumerate;;
-     9) f_directObjectRef;;
+     9) $discover/directObjectRef.sh && exit;;
      10) $discover/multiTabs.sh && exit;;
      11) $discover/nikto.sh && exit;;
      12) $discover/ssl.sh && exit;;
