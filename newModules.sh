@@ -54,13 +54,13 @@ diff tmp2 tmp3 | grep '/' | grep -v 'netblock' | awk '{print $2}' | sort -u >> t
 echo >> tmp-updates
 echo >> tmp-updates
 
-mv tmp-updates $home/data/new-stuff.txt
+mv tmp-updates $home/data/new-modules.txt
 rm tmp*
 
 echo
 echo $medium
 echo
-echo -e "The new report is located at ${YELLOW}$home/data/new-stuff.txt${NC}\n"
+echo -e "The new report is located at ${YELLOW}$home/data/new-modules.txt${NC}\n"
 echo
 echo
 
