@@ -28,7 +28,6 @@ case $choice in
      echo -e "The new report is located at ${YELLOW}$home/data/burp-`date +%H:%M:%S`.csv${NC}\n"
      echo
      echo
-     exit
      ;;
 
      2)
@@ -57,7 +56,6 @@ case $choice in
      echo -e "The new report is located at ${YELLOW}$home/data/nessus-`date +%H:%M:%S`.csv${NC}\n"
      echo
      echo
-     exit
      ;;
 
      3)
@@ -72,7 +70,6 @@ case $choice in
      echo -e "The new report is located at ${YELLOW}$home/data/nexpose-`date +%H:%M:%S`.csv${NC}\n"
      echo
      echo
-     exit
      ;;
 
      4)
@@ -88,7 +85,6 @@ case $choice in
      echo -e "The new report is located at ${YELLOW}$home/data/nmap-`date +%H:%M:%S`.csv${NC}\n"
      echo
      echo
-     exit
      ;;
 
      5)
@@ -106,7 +102,6 @@ case $choice in
      echo -e "The new report is located at ${YELLOW}$home/data/qualys-`date +%H:%M:%S`.csv${NC}\n"
      echo
      echo
-     exit
      ;;
 
      6) f_main;;
