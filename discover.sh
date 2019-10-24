@@ -2503,7 +2503,7 @@ case $choice in
      7) f_single;;
      8) f_enumerate;;
      9) f_directObjectRef;;
-     10) $discover/multitabs.sh && exit;;
+     10) $discover/multiTabs.sh && exit;;
      11) $discover/nikto.sh && exit;;
      12) $discover/ssl.sh && exit;;
      13) $discover/parse.sh && exit;;
