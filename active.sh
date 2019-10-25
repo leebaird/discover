@@ -5,8 +5,34 @@ total=9
 
 ###############################################################################################################################
 
-echo -n "Domain to query: "
+clear
+f_banner
+
+echo -e "${BLUE}Uses dnsrecon, recon-ng, Traceroute, wafw00f, Whatweb.${NC}"
+echo
+echo -e "${BLUE}[*] Acquire API keys for maximum results with recon-ng.${NC}"
+echo
+echo $medium
+echo
+echo "Usage"
+echo
+echo "Domain: target.com"
+echo
+echo $medium
+echo
+echo -n "Domain:  "
 read domain
+
+# Check for no answer
+if [[ -z $domain ]]; then
+     f_error
+fi
+
+echo
+echo $medium
+echo
+
+###############################################################################################################################
 
 echo "dnsrecon"
 echo "     DNS Records          (1/$total)"
