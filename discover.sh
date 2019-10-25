@@ -331,7 +331,7 @@ START=$(date +%r\ %Z)
 
 f_scan
 f_ports
-f_scripts
+f_nse
 f_run-metasploit
 f_report
 }
@@ -351,7 +351,7 @@ START=$(date +%r\ %Z)
 
 f_scan
 f_ports
-f_scripts
+f_nse
 f_run-metasploit
 f_report
 }
@@ -383,7 +383,7 @@ START=$(date +%r\ %Z)
 
 f_scan
 f_ports
-f_scripts
+f_nse
 f_run-metasploit
 f_report
 }
@@ -553,7 +553,7 @@ grep -v -E 'Starting Nmap|Host is up|SF|:$|Service detection performed|Nmap done
 
 ##############################################################################################################
 
-f_scripts(){
+f_nse(){
 echo
 echo $medium
 echo
@@ -1866,7 +1866,7 @@ if [ $delay -lt 0 ] || [ $delay -gt 5 ]; then
      f_error
 fi
 
-f_scripts
+f_nse
 echo
 echo $medium
 f_run-metasploit
