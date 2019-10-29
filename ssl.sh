@@ -208,7 +208,8 @@ echo "Running nmap."
 echo
 
 cat $location | cut -d ':' -f1 > tmp
-nmap -Pn -n -T4 --open -p443 --script=ssl* tls-ticketbleed -iL tmp > tmp2
+nmap -Pn -n -T4 --open -p443 --script-timeout 20s -sV --min-hostgroup 100 --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed -iL tmp > tmp2
+
 egrep -v '( - A|before|Ciphersuite|cipher preference|deprecated)' tmp2 |
 # Find FOO, if the next line is blank, delete both lines
 awk '/latency/ { latency = 1; next }  latency == 1 && /^$/ { latency = 0; next }  { latency = 0 }  { print }' |
