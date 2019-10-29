@@ -181,6 +181,8 @@ echo
 echo -e "${YELLOW}All data will be saved in $save_dir.${NC}"
 
 mkdir $save_dir
+mkdir -p $save_dir/passive/recon-ng/
+mkdir $save_dir/passive/
 
 # Nmap and Metasploit scans
 mv $name/ $save_dir 2>/dev/null
