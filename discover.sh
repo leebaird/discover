@@ -675,12 +675,9 @@ fi
 
 if [[ -e $name/139.txt ]]; then
      echo "     SMB Vulns"
-     nmap -iL $name/139.txt -Pn -n --open -p139 --script-timeout 1m --script=smb* --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/139.txt -Pn -n --open -p139 --script-timeout 1m --script=smb-vuln-cve-2017-7494,smb-vuln-ms10-061,smb-vuln-ms17-010 --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
-     egrep -v '(SERVICE|netbios)' tmp4 > tmp5
-     sed '1N;N;/\(.*\n\)\{2\}.*VULNERABLE/P;$d;D' tmp5
-     sed '/^$/d' tmp5 > tmp6
-     grep -v '|' tmp6 > $name/script-smbvulns.txt
+     mv tmp4 $name/script-smbvulns.txt
 fi
 
 if [[ -e $name/143.txt ]]; then
@@ -713,7 +710,7 @@ fi
 
 if [[ -e $name/445.txt ]]; then
      echo "     SMB"
-     nmap -iL $name/445.txt -Pn -n --open -p445 --script-timeout 1m --script=msrpc-enum,smb*,stuxnet-detect --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/445.txt -Pn -n --open -p445 --script-timeout 1m --script=msrpc-enum,stuxnet-detect --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      sed -i '/^445/{n; /.*/d}' tmp4     # Find lines that start with 445, and delete the following line
      mv tmp4 $name/script-445.txt
