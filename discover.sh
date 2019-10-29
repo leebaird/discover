@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 # by Lee Baird
 # Contact me via chat or email with any feedback or suggestions that you may have:
 # leebaird@gmail.com
@@ -440,9 +438,7 @@ echo
 
 nmap -iL $location --excludefile $excludefile --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,5353,49152 -$S -$U -O --osscan-guess --max-os-tries 1 -p T:$tcp,U:$udp --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
 
-x=$(grep '(0 hosts up)' $name/nmap.nmap)
-
-if [[ -n $x ]]; then
+if [[ -n $(grep '(0 hosts up)' $name/nmap.nmap) ]]; then
      rm -rf "$name" tmp
      echo
      echo $medium
