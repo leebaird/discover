@@ -189,7 +189,7 @@ mv $name/ $save_dir 2>/dev/null
 
 # Passive files
 cd $discover/
-mv curl debug* email* hosts name* network* records registered* squatting sub* tmp ultratools usernames-recon whois* z* doc pdf ppt txt xls $save_dir/passive/ 2>/dev/null
+mv curl debug* email* hosts name* network* records registered* squatting sub* tmp* ultratools usernames-recon whois* z* doc pdf ppt txt xls $save_dir/passive/ 2>/dev/null
 cd /tmp/; mv emails names* networks subdomains usernames $save_dir/passive/recon-ng/ 2>/dev/null
 
 # Active files
@@ -212,7 +212,7 @@ export -f f_terminate
 f_scanname(){
 f_typeofscan
 
-echo -e "${YELLOW}[*] Warning spaces in the name will cause errors${NC}"
+echo -e "${YELLOW}[*] Warning - spaces in the name will cause errors${NC}"
 echo
 echo -n "Name of scan: "
 read name
@@ -243,6 +243,8 @@ case $choice in
      echo -e "${YELLOW}[*] Setting source port to 53 and max probe round trip to 1.5s.${NC}"
      sourceport=53
      maxrtt=1500ms
+     export sourceport
+     export maxrtt
      echo
      echo $medium
      echo
@@ -253,6 +255,8 @@ case $choice in
      echo -e "${YELLOW}[*] Setting source port to 88 and max probe round trip to 500ms.${NC}"
      sourceport=88
      maxrtt=500ms
+     export sourceport
+     export maxrtt
      echo
      echo $medium
      echo
@@ -284,9 +288,13 @@ if [[ -z $cidr ]]; then
 fi
 
 # Check for wrong answer
-
 sub=$(echo $cidr | cut -d '/' -f2)
+min=8
 max=32
+
+if [ "$sub" -lt "$min" ]; then
+     f_error
+fi
 
 if [ "$sub" -gt "$max" ]; then
      f_error
