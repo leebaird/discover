@@ -712,7 +712,7 @@ fi
 
 if [[ -e $name/445.txt ]]; then
      echo "     SMB"
-     nmap -iL $name/445.txt -Pn -n --open -p445 --script-timeout 20s --script=smb-double-pulsar-backdoor,smb-enum-domains,smb-enum-groups,smb-enum-processes,smb-enum-services,smb-enum-sessions,smb-enum-shares,smb-enum-users,smb-ls,smb-mbenum,smb-os-discovery,smb-protocols,smb-security-mode,smb-server-stats,smb-system-info,smb2-capabilities,smb2-security-mode,smb2-time,msrpc-enum,stuxnet-detect --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/445.txt -Pn -n --open -p445 --script-timeout 20s --script=smb-double-pulsar-backdoor,smb-enum-domains,smb-enum-groups,smb-enum-processes,smb-enum-services,smb-enum-sessions,smb-enum-shares,smb-enum-users,smb-mbenum,smb-os-discovery,smb-protocols,smb-security-mode,smb-server-stats,smb-system-info,smb2-capabilities,smb2-security-mode,smb2-time,msrpc-enum,stuxnet-detect --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      sed -i '/^445/{n; /.*/d}' tmp4     # Find lines that start with 445, and delete the following line
      mv tmp4 $name/script-445.txt
