@@ -1308,7 +1308,7 @@ fi
 if [[ -e $name/445.txt ]]; then
      echo "     enum4linux"
      for i in $(cat $name/445.txt); do
-          enum4linux -a $i | egrep -v "(Can't determine|enum4linux|Looking up status|No printers|No reply from|unknown|[E])" > tmp
+          enum4linux -a $i | egrep -v '(ACCESS_DENIED|could not|Failed|t determine|Unexpected)' > tmp
           cat -s tmp >> $name/script-enum4linux.txt
      done
 fi
