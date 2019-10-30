@@ -1343,6 +1343,8 @@ read msf
 ##############################################################################################################
 
 f_run-metasploit(){
+export name
+
 if [ "$msf" == "y" ]; then
      echo
      echo -e "${BLUE}Starting Postgres.${NC}"
@@ -1356,8 +1358,6 @@ if [ "$msf" == "y" ]; then
 
      echo workspace -a $name > /tmp/master
      echo spool tmpmsf > /tmp/master
-
-     export name
 
      $discover/msf-aux.sh
 
