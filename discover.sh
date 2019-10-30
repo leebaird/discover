@@ -330,6 +330,7 @@ else
 fi
 
 START=$(date +%r\ %Z)
+export START
 
 f_scan
 f_ports
@@ -350,6 +351,7 @@ touch tmp
 excludefile=tmp
 
 START=$(date +%r\ %Z)
+export START
 
 f_scan
 f_ports
@@ -382,6 +384,7 @@ touch tmp
 excludefile=tmp
 
 START=$(date +%r\ %Z)
+export START
 
 f_scan
 f_ports
