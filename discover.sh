@@ -223,6 +223,7 @@ if [[ -z $name ]]; then
 fi
 
 mkdir -p $name
+export name
 }
 
 ##############################################################################################################
@@ -1309,14 +1310,6 @@ if [ -e $name/445.txt ] || [ -e $name/500.txt ]; then
 fi
 
 if [[ -e $name/445.txt ]]; then
-     echo "     enum4linux"
-     for i in $(cat $name/445.txt); do
-          enum4linux -a $i | egrep -v '(ACCESS_DENIED|could not|Failed|t determine|Unexpected)' > tmp
-          cat -s tmp >> $name/script-enum4linux.txt
-     done
-fi
-
-if [[ -e $name/445.txt ]]; then
      echo "     smbclient"
      for i in $(cat $name/445.txt); do
           echo $i >> $name/script-smbclient.txt
@@ -1346,8 +1339,6 @@ read msf
 ##############################################################################################################
 
 f_run-metasploit(){
-export name
-
 if [ "$msf" == "y" ]; then
      echo
      echo -e "${BLUE}Starting Postgres.${NC}"
