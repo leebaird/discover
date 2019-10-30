@@ -1340,37 +1340,7 @@ read msf
 
 f_run-metasploit(){
 if [ "$msf" == "y" ]; then
-     echo
-     echo -e "${BLUE}Starting Postgres.${NC}"
-     service postgresql start
-
-     echo
-     echo -e "${BLUE}Starting Metasploit.${NC}"
-     echo
-     echo -e "${BLUE}Using the following resource files.${NC}"
-     cp -R $discover/resource/ /tmp/
-
-     echo workspace -a $name > /tmp/master
-     echo spool tmpmsf > /tmp/master
-
      $discover/msf-aux.sh
-
-     echo db_export -f xml -a $name/metasploit.xml >> /tmp/master
-     echo exit >> /tmp/master
-
-     x=$(wc -l /tmp/master | cut -d ' ' -f1)
-
-     if [ $x -eq 3 ]; then
-          echo 2>/dev/null
-     else
-          echo
-          sed 's/\/\//\//g' /tmp/master > $name/master.rc
-          msfdb init
-          msfconsole -r $name/master.rc
-          cat tmpmsf | egrep -iv "(> exit|> run|% complete|attempting to extract|authorization not requested|checking if file|completed|connecting to the server|connection reset by peer|data_connect failed|db_export|did not reply|does not appear|doesn't exist|finished export|handshake failed|ineffective|it doesn't seem|login fail|negotiation failed|nomethoderror|no relay detected|no response|No users found|not be identified|not foundnot vulnerable|providing some time|request timeout|responded with error|rport|rhosts|scanning for vulnerable|shutting down the tftp|spooling|starting export|starting tftp server|starting vnc login|threads|timed out|trying to acquire|unable to|unknown state)" > $name/metasploit.txt
-          rm $name/master.rc
-          rm tmpmsf
-     fi
 fi
 }
 
