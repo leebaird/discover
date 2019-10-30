@@ -105,23 +105,28 @@ for i in $SCRIPTS; do
      fi
 done
 
-if [ -e $name/script-enum4linux.txt ] || [ -e $name/script-smbclient.txt ] || [ -e $name/ike-scan.txt ]; then
+if [ -e $name/script-onesixtyone.txt ] || [ -e $name/script-smbclient.txt ] || [ -e $name/ike-scan.txt ]; then
      echo $medium >> $filename
      echo >> $filename
-     echo "Additional Enumeration" >> $filename
+     echo "Additional tools" >> $filename
+     echo >> $filename
 
-     if [ -e $name/script-enum4linux.txt ]; then
-          cat $name/script-enum4linux.txt >> $filename
+     if [ -e $name/script-onesixtyone.txt ]; then
+          echo 'onesixtyone' >> $filename
+          cat $name/script-onesixtyone.txt >> $filename
           echo $medium >> $filename
           echo >> $filename
      fi
 
      if [ -e $name/script-smbclient.txt ]; then
+          echo 'smbclient' >> $filename
           cat $name/script-smbclient.txt >> $filename
           echo $medium >> $filename
+          echo >> $filename
      fi
 
      if [ -e $name/script-ike-scan.txt ]; then
+          echo 'ike-scan' >> $filename
           cat $name/script-ike-scan.txt >> $filename
           echo $medium >> $filename
      fi

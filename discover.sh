@@ -562,40 +562,6 @@ export -f f_cleanup
 
 ##############################################################################################################
 
-# Additional tools
-
-if [[ -e $name/161.txt ]]; then
-     onesixtyone -c /usr/share/doc/onesixtyone/dict.txt -i $name/161.txt > $name/onesixtyone.txt
-fi
-
-if [ -e $name/445.txt ] || [ -e $name/500.txt ]; then
-     echo
-     echo $medium
-     echo
-     echo -e "${BLUE}Running additional tools.${NC}"
-fi
-
-if [[ -e $name/445.txt ]]; then
-     echo "     smbclient"
-     for i in $(cat $name/445.txt); do
-          echo $i >> $name/script-smbclient.txt
-          smbclient -L $i -N | grep -v 'failed' >> $name/script-smbclient.txt 2>/dev/null
-          echo >> $name/script-smbclient.txt
-     done
-fi
-
-if [[ -e $name/500.txt ]]; then
-     echo "     ike-scan"
-     for i in $(cat $name/445.txt); do
-          ike-scan -f $i >> $name/script-ike-scan.txt
-     done
-fi
-
-rm tmp 2>/dev/null
-}
-
-##############################################################################################################
-
 f_metasploit(){
 echo
 echo -n "Run matching Metasploit auxiliaries? (y/N) "
@@ -728,8 +694,6 @@ case $choice in
      *) f_error;;
 esac
 }
-
-export -f f_main
 
 ##############################################################################################################
 

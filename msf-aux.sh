@@ -1,6 +1,8 @@
 #!/bin/bash
 
 echo
+echo $medium
+echo
 echo -e "${BLUE}Starting Postgres.${NC}"
 service postgresql start
 
