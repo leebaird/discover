@@ -1357,6 +1357,8 @@ if [ "$msf" == "y" ]; then
      echo workspace -a $name > /tmp/master
      echo spool tmpmsf > /tmp/master
 
+     export name
+
      $discover/msf-aux.sh
 
      echo db_export -f xml -a $name/metasploit.xml >> /tmp/master
