@@ -121,9 +121,9 @@ rpm -vhU app.rpm                          Install RPM package
 
 dpkg-query -l                             Installed packages
 
-pip install -r requirements.txt           Install required packages listed in a file
-
-python3 -m pip install -r requirements.txt
+pip install -r requirements.txt           Install required Python 2 packages listed in a file
+pip3 install -r requirements.txt          Install required Python 3 packages listed in a file
+--proxy user:passwd@proxy.server:port     Append to previous pip commands when using a proxy
 ------------------------------------------------------------------------------------------------------
 
 # Networking
@@ -257,7 +257,9 @@ killall <service>                         Kill all processes named service
 
 # Proxy
 
-Add to /root/.bashrc
+git config --global http.proxy http://proxy:port
+
+Add to bottom of /root/.bashrc
 export http_proxy=http://username:password@proxy:port
 export https_proxy=https://username:password@proxy:port
 ------------------------------------------------------------------------------------------------------

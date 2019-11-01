@@ -1,3 +1,9 @@
+
+-- Configure a proxy
+
+git config --global http.proxy http://proxy:port
+
+
 -- Cloning your fork.
 
 # Clone the repository from your fork.
