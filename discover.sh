@@ -180,15 +180,15 @@ echo
 echo -e "${YELLOW}All data will be saved in $save_dir.${NC}"
 
 save_dir=$home/data/cancelled-$(date +%H:%M:%S)
-mkdir $save_dir/passive/recon-ng/
-mkdir $save_dir/active/recon-ng/
-mkdir $save_dir/active/
+mkdir -p $save_dir/passive/recon-ng/
+mkdir -p $save_dir/active/recon-ng/
+mkdir -p $save_dir/active/
 
 mv $name/ $save_dir 2>/dev/null
 
 # Move passive files
 cd $discover/
-mv curl debug* email* hosts name* network* records registered* squatting sub* tmp* ultratools usernames-recon whois* z* doc pdf ppt txt xls $save_dir/passive/ 2>/dev/null
+mv curl debug* email* hosts name* network* waf records registered* squatting sub* tmp* ultratools usernames-recon whois* z* doc pdf ppt txt xls $save_dir/passive/ 2>/dev/null
 cd /tmp/; mv emails names* networks subdomains usernames $save_dir/passive/recon-ng/ 2>/dev/null
 
 # Move active files

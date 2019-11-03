@@ -35,7 +35,7 @@ echo
 ###############################################################################################################################
 
 echo "dnsrecon"
-echo "     DNS Records          (1/$total)     Currnelty disabled"
+echo "     DNS Records          (1/$total)     Currnetly disabled"
 dnsrecon -d $domain -t std > tmp
 egrep -iv '(all queries|bind version|could not|enumerating srv|not configured|performing|records found|recursion|resolving|txt|wildcard)' tmp | sort > tmp2
 
