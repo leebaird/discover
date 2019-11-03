@@ -174,27 +174,30 @@ export -f f_runlocally
 ##############################################################################################################
 
 f_terminate(){
+save_dir=$home/data/cancelled-$(date +%H:%M:%S)
+
 echo
 echo "Terminating..."
 echo
 echo -e "${YELLOW}All data will be saved in $save_dir.${NC}"
 
-save_dir=$home/data/cancelled-$(date +%H:%M:%S)
-mkdir -p $save_dir/passive/recon-ng/
-mkdir -p $save_dir/active/recon-ng/
-mkdir -p $save_dir/active/
-
 mv $name/ $save_dir 2>/dev/null
 
-# Move passive files
-cd $discover/
-mv curl debug* email* hosts name* network* waf records registered* squatting sub* tmp* ultratools usernames-recon whois* z* doc pdf ppt txt xls $save_dir/passive/ 2>/dev/null
-cd /tmp/; mv emails names* networks subdomains usernames $save_dir/passive/recon-ng/ 2>/dev/null
-
-# Move active files
-mv active.rc emails hosts record* sub* waf whatweb z* $save_dir/active/ 2>/dev/null
-cd /tmp/; mv subdomains $save_dir/active/recon-ng/ 2>/dev/null
-cd $discover/
+if [ "$recon" == "1" ]; then
+     # Move passive files
+     mkdir -p $save_dir/passive/recon-ng/
+     cd $discover/
+     mv curl debug* email* hosts name* network* records registered* squatting sub* tmp* ultratools usernames-recon whois* z* doc pdf ppt txt xls $save_dir/passive/ 2>/dev/null
+     cd /tmp/; mv emails names* networks subdomains usernames $save_dir/passive/recon-ng/ 2>/dev/null
+     cd $discover
+else
+     # Move active files
+     mkdir -p $save_dir/active/recon-ng/
+     cd $discover/
+     mv active.rc emails hosts record* sub* tmp waf whatweb z* $save_dir/active/ 2>/dev/null
+     cd /tmp/; mv subdomains $save_dir/active/recon-ng/ 2>/dev/null
+     cd $discover/
+fi
 
 echo
 echo "Saving complete."

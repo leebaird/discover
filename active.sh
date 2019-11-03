@@ -28,6 +28,13 @@ if [[ -z $domain ]]; then
      f_error
 fi
 
+if [ ! -d $home/data/$domain ]; then
+     cp -R $discover/report/ $home/data/$domain
+     sed -i "s/#COMPANY#/$company/" $home/data/$domain/index.htm
+     sed -i "s/#DOMAIN#/$domain/" $home/data/$domain/index.htm
+     sed -i "s/#DATE#/$rundate/" $home/data/$domain/index.htm
+fi
+
 echo
 echo $medium
 echo
@@ -35,7 +42,7 @@ echo
 ###############################################################################################################################
 
 echo "dnsrecon"
-echo "     DNS Records          (1/$total)     Currnetly disabled"
+echo "     DNS Records          (1/$total)"
 dnsrecon -d $domain -t std > tmp
 egrep -iv '(all queries|bind version|could not|enumerating srv|not configured|performing|records found|recursion|resolving|txt|wildcard)' tmp | sort > tmp2
 
@@ -225,7 +232,7 @@ if [[ -e $home/data/$domain/data/emails.htm && -e emails ]]; then
      cat $home/data/$domain/data/emails.htm emails | grep -v '<' | sort -u > tmp-new-emails
      cat $home/data/$domain/data/emails.htm | grep '<' > tmp-new-page
      mv tmp-new-page $home/data/$domain/data/emails.htm
-     cat tmp-new-email >> $home/data/$domain/data/emails.htm
+     cat tmp-new-emails >> $home/data/$domain/data/emails.htm
      echo "</pre>" >> $home/data/$domain/data/emails.htm
 fi
 

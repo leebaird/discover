@@ -42,7 +42,6 @@ fi
 companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
 rundate=$(date +%B' '%d,' '%Y)
 
-# If folder doesn't exist, create it
 if [ ! -d $home/data/$domain ]; then
      cp -R $discover/report/ $home/data/$domain
      sed -i "s/#COMPANY#/$company/" $home/data/$domain/index.htm

@@ -11,9 +11,9 @@ echo "3.  Import names into an existing recon-ng workspace"
 echo "4.  Previous menu"
 echo
 echo -n "Choice: "
-read choice
+read recon
 
-case $choice in
+case $recon in
      1) $discover/passive.sh && exit;;
 
      2) $discover/active.sh && exit;;
