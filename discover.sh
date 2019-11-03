@@ -182,6 +182,7 @@ echo -e "${YELLOW}All data will be saved in $save_dir.${NC}"
 save_dir=$home/data/cancelled-$(date +%H:%M:%S)
 mkdir $save_dir/passive/recon-ng/
 mkdir $save_dir/active/recon-ng/
+mkdir $save_dir/active/
 
 mv $name/ $save_dir 2>/dev/null
 
