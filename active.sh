@@ -35,16 +35,27 @@ echo
 ###############################################################################################################################
 
 echo "dnsrecon"
-echo "     DNS Records          (1/$total)"
+echo "     DNS Records          (1/$total)     Currnelty disabled"
 dnsrecon -d $domain -t std > tmp
 egrep -iv '(all queries|bind version|could not|enumerating srv|not configured|performing|records found|recursion|resolving|txt|wildcard)' tmp | sort > tmp2
+
 # Remove first 6 characters from each line
 sed 's/^......//g' tmp2 | column -t | sort > tmp3
 grep 'TXT' tmp | sed 's/^......//g' | sort > tmp4
 cat tmp3 tmp4 | column -t > records
-cp $discover/report/data/records.htm $home/data/$domain/data/records.htm
-cat records >> $home/data/$domain/data/records.htm
-echo "</pre>" >> $home/data/$domain/data/records.htm
+
+# If folder doesn't exist, create it
+if [ ! -d $home/data/$domain ]; then
+     cp -R $discover/report/ $home/data/$domain
+     sed -i "s/#COMPANY#/$company/" $home/data/$domain/index.htm
+     sed -i "s/#DOMAIN#/$domain/" $home/data/$domain/index.htm
+     sed -i "s/#DATE#/$rundate/" $home/data/$domain/index.htm
+else
+     cp $discover/report/data/records.htm $home/data/$domain/data/records.htm
+     cat records >> $home/data/$domain/data/records.htm
+     echo "</pre>" >> $home/data/$domain/data/records.htm
+fi
+
 rm tmp*
 
 ###############################################################################################################################
@@ -128,12 +139,12 @@ echo
 
 ###############################################################################################################################
 
-echo "recon-ng                  (9/$total)"
-cp $discover/resource/recon-ng-active.rc active.rc
-sed -i "s/xxx/$companyurl/g" active.rc
-sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' active.rc
-sed -i "s/yyy/$domain/g" active.rc
-recon-ng -r $discover/active.rc
+#echo "recon-ng                  (9/$total)"
+#cp $discover/resource/recon-ng-active.rc active.rc
+#sed -i "s/xxx/$companyurl/g" active.rc
+#sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' active.rc
+#sed -i "s/yyy/$domain/g" active.rc
+#recon-ng -r $discover/active.rc
 
 ###############################################################################################################################
 

@@ -174,26 +174,23 @@ export -f f_runlocally
 ##############################################################################################################
 
 f_terminate(){
-save_dir=$home/data/cancelled-$(date +%H:%M:%S)
 echo
 echo "Terminating..."
 echo
 echo -e "${YELLOW}All data will be saved in $save_dir.${NC}"
 
-mkdir $save_dir
-mkdir -p $save_dir/passive/recon-ng/
-mkdir $save_dir/passive/
+save_dir=$home/data/cancelled-$(date +%H:%M:%S)
+mkdir $save_dir/passive/recon-ng/
+mkdir $save_dir/active/recon-ng/
 
-# Nmap and Metasploit scans
 mv $name/ $save_dir 2>/dev/null
 
-# Passive files
+# Move passive files
 cd $discover/
 mv curl debug* email* hosts name* network* records registered* squatting sub* tmp* ultratools usernames-recon whois* z* doc pdf ppt txt xls $save_dir/passive/ 2>/dev/null
 cd /tmp/; mv emails names* networks subdomains usernames $save_dir/passive/recon-ng/ 2>/dev/null
 
-# Active files
-cd $discover/
+# Move active files
 mv active.rc emails hosts record* sub* waf whatweb z* $save_dir/active/ 2>/dev/null
 cd /tmp/; mv subdomains $save_dir/active/recon-ng/ 2>/dev/null
 cd $discover/
