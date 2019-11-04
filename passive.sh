@@ -107,7 +107,7 @@ fi
 $sip tmp3 > networks-tmp 2>/dev/null
 
 # Remove all empty files
-find -type f -empty -exec rm {} +
+find . -type f -empty -exec rm "{}" \;
 rm tmp* 2>/dev/null
 echo
 
@@ -121,7 +121,7 @@ echo "</pre>" >> $home/data/$domain/data/records.htm
 grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | grep -v '=' | column -t > sub-dnsrecon
 
 # Remove all empty files
-find -type f -empty -exec rm {} +
+find . -type f -empty -exec rm "{}" \;
 rm tmp 2>/dev/null
 echo
 
@@ -138,7 +138,7 @@ python3 $discover/mods/goofile.py $domain xls > xls
 python3 $discover/mods/goofile.py $domain xlsx | sort -u >> xls
 
 # Remove all empty files
-find -type f -empty -exec rm {} +
+find . -type f -empty -exec rm "{}" \;
 rm tmp* 2>/dev/null
 echo
 
@@ -148,7 +148,7 @@ echo "goog-mail                 (6/$total)"
 $discover/mods/goog-mail.py $domain | grep -v 'cannot' | tr '[A-Z]' '[a-z]' > zgoog-mail
 
 # Remove all empty files
-find -type f -empty -exec rm {} +
+find . -type f -empty -exec rm "{}" \;
 echo
 
 ###############################################################################################################################
@@ -229,7 +229,7 @@ rm debug_results.txt stash.sqlite tmp* 2>/dev/null
 
 # Remove all empty files
 cd $CWD
-find -type f -empty -exec rm {} +
+find . -type f -empty -exec rm "{}" \;
 echo
 
 ###############################################################################################################################
@@ -238,7 +238,7 @@ echo "Metasploit                (31/$total)"
 msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
 grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sed '/^\./d' > zmsf
 # Remove all empty files
-find -type f -empty -exec rm {} +
+find . -type f -empty -exec rm "{}" \;
 rm tmp 2>/dev/null
 echo
 

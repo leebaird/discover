@@ -91,20 +91,20 @@ fi
 
 awk '{print $3}' records > tmp
 awk '{print $2}' sub-dnsrecon >> tmp
-grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' tmp | egrep -v '(-|=|:|1.1.1.1|6.9.6.9|127.0.0.1)' | $sip > hosts
+grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' tmp | egrep -v '(-|=|:|1.1.1.1|6.9.6.9|127.0.0.1)' | grep -v [a-z] | $sip > hosts
 
 ###############################################################################################################################
 
 echo "     Zone Transfer        (3/$total)"
 dnsrecon -d $domain -t axfr > tmp
-egrep -v '(Checking for|filtered|No answer|NS Servers|Removing|TCP Open|Testing NS)' tmp | sed 's/^....//g; /^$/d' > zonetransfer
+egrep -v '(Checking for|Failed|filtered|No answer|NS Servers|Removing|reset|TCP Open|Testing NS)' tmp | sed 's/^....//g; /^$/d' > zonetransfer
 echo
 
 ###############################################################################################################################
 
 echo "Web Application Firewall  (4/$total)"
 wafw00f -a http://www.$domain > tmp 2>/dev/null
-egrep -v '(By Sandro|Checking http://www.|Generic Detection|requests|WAFW00F)' tmp | sed "s/ http:\/\/www.$domain//g" | egrep -v "(\_|\^|\||<|')" | sed '1,4d' > waf
+sed '1,16d' tmp > waf
 echo
 
 ###############################################################################################################################
@@ -141,12 +141,12 @@ grep '@' whatweb | sed 's/Email//g; s/\[//g; s/\]//g' | tr '[A-Z]' '[a-z]' | gre
 
 rm tmp*
 # Remove all empty files
-find $home/data/$domain/ -type f -empty -exec rm {} +
+find . -type f -empty -exec rm "{}" \;
 echo
 
 ###############################################################################################################################
 
-#echo "recon-ng                  (9/$total)"
+echo "recon-ng                  (9/$total)     Disabled"
 #cp $discover/resource/recon-ng-active.rc active.rc
 #sed -i "s/xxx/$companyurl/g" active.rc
 #sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' active.rc
