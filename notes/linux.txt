@@ -16,7 +16,7 @@ tar zxvf test.tar
 gzip -d test.gz
 unzip test.zip
 zcat rockyou.txt.gz > rockyou.txt
- 
+
 tar -zcvf test.tar test                   Compress
 gzip test
 zip -9 test.zip test
@@ -56,7 +56,7 @@ chmod 755 test.sh                         Make a file executable
 /etc/shadow                               Encrypted passwords
 ------------------------------------------------------------------------------------------------------
  
-# Files
+# Files & Directories
  
 ls                                        List files in a directory
 ls -l                                     Long form listing
@@ -64,31 +64,32 @@ ls -la                                    Long form listing with hidden files
 
 cd ~                                      Change to the home directory
 cd test                                   Change to the test directory
-pwd                                       Current directory
+pwd                                       Print the current working directory
+
+touch tmp                                 Create a file
+mkdir tmp                                 Create a directory
+
+cat tmp                                   Show the contents of a file
+more tmp                                  Show the contents of a file, a page at a time
+                                          Space bar for the next page, or 'q' to quit
+
+head tmp                                  Show the first 10 lines of tmp
+head -20 tmp                              Show the first 20 lines of tmp
+
+tail tmp                                  Show the last 10 lines of tmp
+tail -20 tmp                              show the last 20 lines of tmp
+tail -f tmp                               Show a file's content, as it grows
+
+ifconfig > tmp                            Pipe the output of a command into a file
+cat tmp >> tmp2                           Append the contents of a file (tmp) to another file (tmp2)
 
 cp tmp tmp2                               Copy a file from one location to another
 cp -r dir dir2                            Copy a directory from one location to another
 mv tmp tmp2                               Rename or move tmp to tmp2
-rm tmp                                    Delete the file tmp
-rm -rf test                               Force delete the directory test
+rm tmp                                    Delete a file
+rm -rf test                               Force delete the directory
 
 ln -s /path/to/file /path/to/link         Create a symbolic link
-
-mkdir tmp                                 Create a directory called tmp
-touch tmp                                 Create a file called tmp
-
-cat tmp                                   Contents of tmp
-ifconfig > tmp                            Pipe the output of a command to a file
-cat tmp >> tmp2                           Append the contents of a file (tmp) to another file (tmp2)
-
-head tmp                                  First 10 lines of tmp
-head -20 tmp                              First 20 lines of tmp
-more tmp                                  Contents of tmp, one page at a time
-                                          Space bar for the next page or q to quit
-
-tail tmp                                  Last 10 lines of tmp
-tail -20 tmp                              Last 20 lines of tmp
-tail -f tmp                               File contents as it grows
 ------------------------------------------------------------------------------------------------------
 
 # File Integrity
@@ -105,6 +106,7 @@ locate file                               Reads the database and shows the locat
 which app                                 Path where the app is executed from
 
 find / -name pass*                        Find all the files that start with pass
+find / -name *pass                        Find all the files that end with pass
 
 find / -user <user> 2>/dev/null           All files owned by a particular user
 find / -group <group> 2>/dev/null         All files owned by a particular group
@@ -336,13 +338,6 @@ exit                                      Exit the session
 
 <ctrl> a esc                              Use the up and down arrows or mouse to scroll
 esc                                       Exit scrollback mode
-------------------------------------------------------------------------------------------------------
-
-# Searching
-
-grep                                      Search for a pattern a file
-grep -r                                   Search recursively for a pattern in a directory
-zgrep                                     Search for a pattern in a zip file
 ------------------------------------------------------------------------------------------------------
 
 # SSH

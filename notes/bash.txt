@@ -1,15 +1,33 @@
 Bash notes.
 
 
+# Searching Files
+
+grep                                                       # Search for a string in a file
+grep -r                                                    # Search recursively for a string in a directory
+zgrep                                                      # Search for a string in a zip file
+grep -v                                                    # Exclude a string from a file
+egrep -v '(string|string2)'                                # Exclude multiple strings from a file
+------------------------------------------------------------------------------------------------------
+
+# Slice and Dice Files
+
+cut -d ' ' -f2                                             # Cut with a delimiter of a space, then show the second field
+cut -d ' ' -f2-5                                           # Cut with a delimiter of a space, then show the second through the fifth fields
+cut -d ' ' -f2-                                            # Cut with a delimiter of a space, then show the second filed to the end
+
+awk '{print $8}'                                           # Show the 8th column
+awk '{print $8,$9}'                                        # Show the 8th and 9th columns
+------------------------------------------------------------------------------------------------------
+
+sort                                                       # Sort a file
+sort -u                                                    # Sort a file and show only unique values
+------------------------------------------------------------------------------------------------------
+
 sed -e 's/^/FOO/'                                          # Add FOO to the beginning of each line
 sed -e 's/$/FOO/'                                          # Add FOO to the end of each line
-column -t                                                  # Align columns
 
-tr '[A-Z]' '[a-z]'                                         # Lower case
-tr '[a-z]' '[A-Z]'                                         # Upper case
-sed 's/[^ ]\+/\L\u&/g'                                     # Title case
-sed 's/\([a-zA-Z0-9_.]*@[a-zA-Z0-9_.]*\)/\L\1/'            # Make all email addresses lower case
-sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/'   # Make the first 2 columns title case
+column -t                                                  # Align columns
 
 sed /^$/d                                                  # Compress blank lines
 paste -s -d" "                                             # Convert a list into a single line
@@ -109,14 +127,20 @@ sed 's/\([^,]*,\)\{7\}[^,]*,/&\n/g'                        # Replace the 8th com
 
 sort -k2                                                   # Sort by the second column
 sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4                # Sort IPs
-sed "s/$FOO./$FOO/g"                                       # Variables - use double quotes with sed or grep
 
-tr -d '\t'                                                 # Delete a horizontal tab
+sed 's/[^ ]\+/\L\u&/g'                                     # Title case
+
+tr -d '\t'                                                 # Delete a tab
 tr -s ' '                                                  # Squeeze any number of spaces down to a single space
 tr ',' '\n'                                                # Translate a comma to a new line
 tr '[A-Z]' '[a-z]'                                         # Translate upper case to lower case
+tr '[a-z]' '[A-Z]'                                         # Translate lower case to upper case
+
+sed "s/$FOO./$FOO/g"                                       # Variables - use double quotes with sed or grep
+------------------------------------------------------------------------------------------------------
 
 # Special characters to escape
+
 ~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|,|>|\.|\?|/|
 ------------------------------------------------------------------------------------------------------
 
@@ -178,25 +202,6 @@ if [[ $port -lt 1 || $port -gt 65535 ]]; then
 fi
 ------------------------------------------------------------------------------------------------------
 
-# Colors
-
-RED='\033[0;31m'
-YELLOW='\033[0;33m'
-GREEN='\033[0;32m'
-BLUE='\033[1;34m'
-NC='\033[0m'
-
-echo -e "I ${RED}love${NC} Discover."
-------------------------------------------------------------------------------------------------------
-
-# Compare two dates.
-
-date1=$(date +"%s")
-date2=$(date +"%s")
-diff=$(($date2-$date1))
-echo "$(($diff / 60)) min and $(($diff % 60)) sec."
-------------------------------------------------------------------------------------------------------
-
 # Files and folders.
 
 if [ -e test ]; then
@@ -220,7 +225,24 @@ if [ ! -d test ]; then
 fi
 ------------------------------------------------------------------------------------------------------
 
-# Set variable.
+# Read in a file and do something.
+
+for i in $(cat tmp); do 
+     sudo chown -R $(whoami) $i
+done
+
+while read -r line; do
+     host $line | grep 'has address' | cut -d ' ' -f4
+done < subdomains.txt
+
+while read -r line; do
+     x=$((x+1))
+     echo "$x - $line"
+     dnsrecon.py -d $line -t axfr -c axfr_results/$x-$line.csv
+done < names.txt
+------------------------------------------------------------------------------------------------------
+
+# Uae a variable and set a constant
 
 if [ "$payload" == "1" ]; then
      format="raw"
@@ -240,19 +262,21 @@ if [ -n "$pid" ]; then
 fi
 ------------------------------------------------------------------------------------------------------
 
-# Read in a file and do something.
+# Colors
 
-for i in $(cat tmp); do 
-     sudo chown -R $(whoami) $i
-done
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+BLUE='\033[1;34m'
+NC='\033[0m'
 
-while read -r line; do
-     host $line | grep 'has address' | cut -d ' ' -f4
-done < subdomains.txt
+echo -e "I ${RED}love${NC} Discover."
+------------------------------------------------------------------------------------------------------
 
-while read -r line; do
-     x=$((x+1))
-     echo "$x - $line"
-     dnsrecon.py -d $line -t axfr -c axfr_results/$x-$line.csv
-done < names.txt
+# Compare two dates.
+
+date1=$(date +"%s")
+date2=$(date +"%s")
+diff=$(($date2-$date1))
+echo "$(($diff / 60)) min and $(($diff % 60)) sec."
 
