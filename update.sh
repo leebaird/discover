@@ -133,6 +133,10 @@ if [ ! -f /usr/bin/xmllint ]; then
      echo
 fi
 
+echo -e "${BLUE}Updating Nmap scripts.${NC}"
+nmap --script-updatedb
+echo
+
 if [ -d /opt/PowerSploit/docs ]; then
      echo -e "${BLUE}Updating PowerSploit.${NC}"
      cd /opt/PowerSploit/ ; git pull
