@@ -13,13 +13,13 @@ enum4linux -a <target IP>
 rpcclient -U "" <target IP>
 Enter  's password: <return>
 rpcclient $> 
-  srvinfo
-  enumdomusers
-  queryuser <user>
-  netshareenum
-  netshareenumall
-  querydominfo
-  getdompwinfo
+srvinfo
+enumdomusers
+queryuser <user>
+netshareenum
+netshareenumall
+querydominfo
+getdompwinfo
 
 net use \\target IP\ipc$ "" /u:""             # Windows
 ------------------------------------------------------------------------------------------------------
@@ -184,6 +184,28 @@ reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v
 netsh firewall set opmode disable
 sc config termservice start= auto
 rdesktop -u <user> <targetIP>
+------------------------------------------------------------------------------------------------------
+
+Windows Privilege Escalation Fundamentals
+http://www.fuzzysecurity.com/tutorials/16.html
+
+systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+hostname
+net users
+ipconfig /all
+route print
+arp -A
+netstat -ano
+netsh firewall show state
+netsh firewall show con
+schtasks /query /fo LIST /v
+tasklist /SVC
+net start
+DRIVERQUERY
+wmic /?
+switch-name /?
+wmic qfe get Caption,Description,HotFixID,InstalledOn
+wmic qfe get Caption,Description,HotFixID,InstalledOn | findstr /C:"KB.." /C:"KB.."
 ------------------------------------------------------------------------------------------------------
 
 # Commands
