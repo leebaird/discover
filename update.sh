@@ -134,7 +134,7 @@ if [ ! -f /usr/bin/xmllint ]; then
 fi
 
 echo -e "${BLUE}Updating Nmap scripts.${NC}"
-nmap --script-updatedb
+nmap --script-updatedb | egrep -v '(Starting|seconds)' | sed 's/NSE: //'
 echo
 
 if [ -d /opt/PowerSploit/docs ]; then
