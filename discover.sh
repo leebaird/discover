@@ -63,7 +63,7 @@ fi
 CWD=$(pwd)
 discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
 home=$HOME
-interface=$(ip addr | grep 'global' | awk '{print $8}')
+interface=$(ip addr | grep 'global' | awk '{print $9}')
 ip=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}')
 port=443
 rundate=$(date +%B' '%d,' '%Y)
