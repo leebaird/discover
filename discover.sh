@@ -63,9 +63,10 @@ fi
 CWD=$(pwd)
 discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
 home=$HOME
-interface=$(ip addr | grep 'global' | awk '{print $9}')
-ip=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}')
+interface=$(ip addr | grep 'global' | grep -v 'secondary' | awk '{print $9}')
+ip=$(ip addr | grep 'global' | grep -v 'secondary' | cut -d '/' -f1 | awk '{print $2}')
 port=443
+range=$(ip addr | grep 'global' | grep -v 'secondary' | cut -d '/' -f1 | awk '{print $2}' | cut -d '.' -f1-3)'.1'
 rundate=$(date +%B' '%d,' '%Y)
 sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 web="firefox -new-tab"
@@ -87,6 +88,7 @@ export home
 export interface
 export ip
 export port
+export range
 export rundate
 export sip
 export web

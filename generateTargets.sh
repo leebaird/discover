@@ -96,8 +96,11 @@ esac
 
 f_netdiscover(){
 
-range=$(ip addr | grep 'global' | cut -d '/' -f1 | awk '{print $2}' | cut -d '.' -f1-3)'.1'
+echo $interface
+echo $ip
+echo $range
 
+exit
 netdiscover -r $range -f -P | grep ':' | awk '{print $1}' > $home/data/netdiscover.txt
 
 echo
