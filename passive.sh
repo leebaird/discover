@@ -785,7 +785,7 @@ echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
 rm tmp* zreport
 mv curl debug* email* hosts name* network* records registered* squatting sub* usernames whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
-mv passive* $home/data/$domain/tools/recon-ng/
+mv passive.rc passive2.rc $home/data/$domain/tools/recon-ng/
 cd /tmp/; mv emails names* networks sub* tmp-emails usernames $home/data/$domain/tools/recon-ng/ 2>/dev/null
 cd $CWD
 
