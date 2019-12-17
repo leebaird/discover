@@ -14,15 +14,6 @@ echo >> $filename
 echo $medium >> $filename
 echo >> $filename
 
-if [ -e $name/script-smbvulns.txt ]; then
-     echo "May be vulnerable to MS08-067 & more." >> $filename
-     echo >> $filename
-     cat $name/script-smbvulns.txt >> $filename
-     echo >> $filename
-     echo $medium >> $filename
-     echo >> $filename
-fi
-
 echo "Hosts Discovered ($host)" >> $filename
 echo >> $filename
 cat $name/hosts.txt >> $filename 2>/dev/null
@@ -102,17 +93,28 @@ for i in $SCRIPTS; do
      if [[ -e $name/"$i.txt" ]]; then
           cat $name/"$i.txt" >> $filename
           echo $medium >> $filename
+          echo >> $filename
      fi
 done
+
+if [ -e $name/script-smbvulns.txt ]; then
+     echo "May be vulnerable to MS08-067 & more." >> $filename
+     echo >> $filename
+     cat $name/script-smbvulns.txt >> $filename
+     echo >> $filename
+     echo $medium >> $filename
+     echo >> $filename
+fi
 
 if [ -e $name/script-onesixtyone.txt ] || [ -e $name/script-smbclient.txt ] || [ -e $name/ike-scan.txt ]; then
      echo $medium >> $filename
      echo >> $filename
-     echo "Additional tools" >> $filename
+     echo "Additional enumeration" >> $filename
      echo >> $filename
 
      if [ -e $name/script-onesixtyone.txt ]; then
           echo 'onesixtyone' >> $filename
+          echo >> $filename
           cat $name/script-onesixtyone.txt >> $filename
           echo $medium >> $filename
           echo >> $filename
@@ -120,6 +122,7 @@ if [ -e $name/script-onesixtyone.txt ] || [ -e $name/script-smbclient.txt ] || [
 
      if [ -e $name/script-smbclient.txt ]; then
           echo 'smbclient' >> $filename
+          echo >> $filename
           cat $name/script-smbclient.txt >> $filename
           echo $medium >> $filename
           echo >> $filename
@@ -127,6 +130,7 @@ if [ -e $name/script-onesixtyone.txt ] || [ -e $name/script-smbclient.txt ] || [
 
      if [ -e $name/script-ike-scan.txt ]; then
           echo 'ike-scan' >> $filename
+          echo >> $filename
           cat $name/script-ike-scan.txt >> $filename
           echo $medium >> $filename
      fi

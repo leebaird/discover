@@ -239,6 +239,8 @@ db query DELETE FROM contacts WHERE title LIKE '%retired%'
 db query DELETE FROM contacts WHERE title LIKE '%student%'
 db query DELETE FROM contacts WHERE title LIKE '%undergraduate%'
 
+db query DELETE FROM credentials WHERE username NOT LIKE "%@yyy"
+
 db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
 db query DELETE FROM hosts WHERE host LIKE '%www%'
 

