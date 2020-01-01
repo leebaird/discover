@@ -1,8 +1,9 @@
 #!/bin/bash
 
+
 f_sub(){
 clear
-f_banner
+#f_banner
 
 echo -e "${BLUE}SCANNING${NC}"
 echo
@@ -25,14 +26,15 @@ case $choice in
           f_error
      fi
 
-     arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom|Unknown)' | awk '{print $1}' | $sip | sed '/^$/d' > $home/data/hosts-arp.txt
+     arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom)' | awk '{print $1}' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 | sed '/^$/d' > $home/data/hosts-arp.txt
 
-     echo $medium
      echo
      echo "***Scan complete.***"
+     sleep 3
      echo
      echo
      echo -e "The new report is located at ${YELLOW}$home/data/hosts-arp.txt${NC}\n"
+     sleep 5
      echo
      echo
      ;;
@@ -48,7 +50,7 @@ esac
 
 f_netbios(){
 clear
-f_banner
+#f_banner
 
 echo -e "${BLUE}Type of input:${NC}"
 echo
@@ -118,7 +120,7 @@ echo
 
 f_pingsweep(){
 clear
-f_banner
+#f_banner
 f_typeofscan
 
 echo -e "${BLUE}Type of input:${NC}"
