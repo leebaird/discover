@@ -3,7 +3,7 @@
 
 f_sub(){
 clear
-#f_banner
+f_banner
 
 echo -e "${BLUE}SCANNING${NC}"
 echo
@@ -26,18 +26,23 @@ case $choice in
           f_error
      fi
 
-     arp-scan -l -I $interface | egrep -v '(arp-scan|Interface|packets|Polycom)' | awk '{print $1}' | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 | sed '/^$/d' > $home/data/hosts-arp.txt
+     arp-scan -l -I $interface | egrep -v '(arp-scan|DUP:|Interface|packets)' > tmp
+     sed '/^$/d' tmp | sort -k3 > $home/data/arp-scan.txt
+     awk '{print $1}' tmp | $sip | sed '/^$/d' > $home/data/host-arp-scan.txt
+     rm tmp
 
      echo
+     echo $medium
+     echo
      echo "***Scan complete.***"
-     sleep 3
      echo
      echo
      echo -e "The new report is located at ${YELLOW}$home/data/hosts-arp.txt${NC}\n"
-     sleep 5
      echo
      echo
+     exit
      ;;
+
      2) f_netbios;;
      3) f_netdiscover;;
      4) f_pingsweep;;
@@ -50,7 +55,7 @@ esac
 
 f_netbios(){
 clear
-#f_banner
+f_banner
 
 echo -e "${BLUE}Type of input:${NC}"
 echo
@@ -70,6 +75,7 @@ case $choice in
      nbtscan -f $location
      echo
      echo
+     exit
      ;;
 
      2)
@@ -88,6 +94,7 @@ case $choice in
      nbtscan -r $cidr
      echo
      echo
+     exit
      ;;
 
      *) f_error;;
@@ -102,7 +109,6 @@ echo $interface
 echo $ip
 echo $range
 
-exit
 netdiscover -r $range -f -P | grep ':' | awk '{print $1}' > $home/data/netdiscover.txt
 
 echo
@@ -114,13 +120,14 @@ echo
 echo -e "The new report is located at ${YELLOW}$home/data/netdiscover.txt${NC}\n"
 echo
 echo
+exit
 }
 
 ##############################################################################################################
 
 f_pingsweep(){
 clear
-#f_banner
+f_banner
 f_typeofscan
 
 echo -e "${BLUE}Type of input:${NC}"
@@ -171,6 +178,7 @@ echo
 echo -e "The new report is located at ${YELLOW}$home/data/hosts-ping.txt${NC}\n"
 echo
 echo
+exit
 }
 
 ##############################################################################################################
