@@ -1,43 +1,32 @@
 Kali
 
 
-# Disable screen lock
-
-Top right icon > tools icon
-Power > Power Saving > Blank screen: Never
-Power > Suspend & Power Button > Automatic suspend: Off
-Privacy > Screen Lock > Automatic Screen Lock: Off
-------------------------------------------------------------------------------------------------------
-
-# Terminal
-
-Edit > Preferences
-Colors: Uncheck Use transparent background
-------------------------------------------------------------------------------------------------------
-
-# Install VMware Tools
-
-VMware Fusion > Virtual Machine > Install VMware Tools > Install
-cp /media/cdrom/VMwareTools-xxx.tar.gz .
-tar zxvf VMwareTools-xxx.tar.gz
-cd vmware-tools-distrib/
-./vmware-install.pl
-Accept all 16 default choices
-reboot
-------------------------------------------------------------------------------------------------------
-
 # Cleanup
 
 rm -rf Documents/ Downloads/ Music/ Pictures/ Public/ Templates/ Videos/
 Remove unwanted Dock icons.
 ------------------------------------------------------------------------------------------------------
 
-# gedit
+# Disable screen lock
 
+Top right battery icon > Power manager settings: 
+Display > Display power management: Off
+Security > Lock screen when system is going to sleep: Off
+------------------------------------------------------------------------------------------------------
+
+# Install tools
+
+-- gedit
+
+apt-get install gedit
 Text Editor > Preferences
-View: check Display line numbers and Highlight current line
-Editor: Tab width 5, check Insert spaces instead of tabs
-Fonts & Colors: Color Scheme: Oblivion
+View:   check Show line numbers
+        Highlight current line
+Editor: Tab width: 5
+        Tab mode: Insert Spaces
+
+-- Terminator
+apt-get install terminator
 ------------------------------------------------------------------------------------------------------
 
 # Install Discover scripts
@@ -54,6 +43,20 @@ ssh-keygen                                       Create new keys
 /etc/ssh/sshd_config                             Daemon config file
 PermitRootLogin yes                              Change to yes
 AuthorizedKeysFile                               Uncomment
+------------------------------------------------------------------------------------------------------
+
+# Services
+
+service <service> <start|stop|restart>
+service ssh start                                Start ssh
+netstat -antp | grep ssh                         Verify the ssh service is running
+
+service apache2 start                            Start Apache
+firefox localhost                                Verify the Apache service is running
+/var/www/html/                                   Document root
+
+update-rc.d <service> <enable|disable>           Enable a service to start at boot time
+update-rc.d ssh enable
 ------------------------------------------------------------------------------------------------------
 
 # .vimrc
@@ -74,20 +77,5 @@ nnoremap <F2> :set nonumber!<CR>:set foldcolumn=0<CR>
 set backspace=indent,eol,start
 
 " Insert timestamp with <ctrl+F5>
-:nmap <F5> i<C-R>=strftime("%Y-%m-%d %H:%M:%S %Z")<CR> --  
-:imap <F5> <C-R>=strftime("%Y-%m-%d %H:%M:%S" %Z)<CR> -- 
-------------------------------------------------------------------------------------------------------
-
-# Services
-
-service <service> <start|stop|restart>
-service ssh start                                Start ssh
-/etc/init.d/ssh start                            Start ssh
-netstat -antp | grep ssh                         Verify the ssh service is running
-
-service apache2 start                            Start Apache
-firefox localhost                                Verify the Apache service is running
-/var/www/html/                                   Document root
-
-update-rc.d <service> <enable|disable>
-update-rc.d ssh enable                           Enable ssh to start at boot time
+:nmap <F5> i<C-R>=strftime("%Y-%m-%d %H:%M:%S %Z")<CR> --
+:imap <F5> <C-R>=strftime("%Y-%m-%d %H:%M:%S" %Z)<CR> --
