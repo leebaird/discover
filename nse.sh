@@ -15,7 +15,7 @@ fi
 
 if [[ -e $name/21.txt ]]; then
      echo "     FTP"
-     nmap -iL $name/21.txt -Pn -n --open -p21 --script-timeout 20s --script=banner,ftp-anon,ftp-bounce,ftp-proftpd-backdoor,ftp-syst,ftp-vsftpd-backdoor,ssl*,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/21.txt -Pn -n --open -p21 --script-timeout 20s --script=banner,ftp-anon,ftp-bounce,ftp-proftpd-backdoor,ftp-syst,ftp-vsftpd-backdoor,ssl-cert,ssl-cert-intaddr,ssl-ccs-injection,ssl-date,ssl-dh-params,ssl-enum-ciphers,ssl-heartbleed,ssl-known-key,ssl-poodle,sslv2,sslv2-drown,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-21.txt
 fi
@@ -36,7 +36,7 @@ fi
 
 if [[ -e $name/smtp.txt ]]; then
      echo "     SMTP"
-     nmap -iL $name/smtp.txt -Pn -n --open -p25,465,587 --script-timeout 20s --script=banner,smtp-commands,smtp-ntlm-info,smtp-open-relay,smtp-strangeport,smtp-enum-users,ssl*,tls-nextprotoneg -sV --script-args smtp-enum-users.methods={EXPN,RCPT,VRFY} --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/smtp.txt -Pn -n --open -p25,465,587 --script-timeout 20s --script=banner,smtp-commands,smtp-ntlm-info,smtp-open-relay,smtp-strangeport,smtp-enum-users,ssl-cert,ssl-cert-intaddr,ssl-ccs-injection,ssl-date,ssl-dh-params,ssl-enum-ciphers,ssl-heartbleed,ssl-known-key,ssl-poodle,sslv2,sslv2-drown,tls-nextprotoneg -sV --script-args smtp-enum-users.methods={EXPN,RCPT,VRFY} --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-smtp.txt
 fi
@@ -85,7 +85,7 @@ fi
 
 if [[ -e $name/110.txt ]]; then
      echo "     POP3"
-     nmap -iL $name/110.txt -Pn -n --open -p110 --script-timeout 20s --script=banner,pop3-capabilities,pop3-ntlm-info,ssl*,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/110.txt -Pn -n --open -p110 --script-timeout 20s --script=banner,pop3-capabilities,pop3-ntlm-info,ssl-cert,ssl-cert-intaddr,ssl-ccs-injection,ssl-date,ssl-dh-params,ssl-enum-ciphers,ssl-heartbleed,ssl-known-key,ssl-poodle,sslv2,sslv2-drown,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-110.txt
 fi
@@ -129,7 +129,7 @@ fi
 
 if [[ -e $name/143.txt ]]; then
      echo "     IMAP"
-     nmap -iL $name/143.txt -Pn -n --open -p143 --script-timeout 20s --script=imap-capabilities,imap-ntlm-info,ssl*,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/143.txt -Pn -n --open -p143 --script-timeout 20s --script=imap-capabilities,imap-ntlm-info,ssl-cert,ssl-cert-intaddr,ssl-ccs-injection,ssl-date,ssl-dh-params,ssl-enum-ciphers,ssl-heartbleed,ssl-known-key,ssl-poodle,sslv2,sslv2-drown,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-143.txt
 fi
@@ -143,7 +143,7 @@ fi
 
 if [[ -e $name/389.txt ]]; then
      echo "     LDAP"
-     nmap -iL $name/389.txt -Pn -n --open -p389 --script-timeout 20s --script=ldap-rootdse,ssl*,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/389.txt -Pn -n --open -p389 --script-timeout 20s --script=ldap-rootdse,ssl-cert,ssl-cert-intaddr,ssl-ccs-injection,ssl-date,ssl-dh-params,ssl-enum-ciphers,ssl-heartbleed,ssl-known-key,ssl-poodle,sslv2,sslv2-drown,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-389.txt
 fi
@@ -214,7 +214,7 @@ fi
 
 if [[ -e $name/636.txt ]]; then
      echo "     LDAP/S"
-     nmap -iL $name/636.txt -Pn -n --open -p636 --script-timeout 20s --script=ldap-rootdse,ssl*,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/636.txt -Pn -n --open -p636 --script-timeout 20s --script=ldap-rootdse,ssl-cert,ssl-cert-intaddr,ssl-ccs-injection,ssl-date,ssl-dh-params,ssl-enum-ciphers,ssl-heartbleed,ssl-known-key,ssl-poodle,sslv2,sslv2-drown,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-636.txt
 fi
@@ -228,14 +228,14 @@ fi
 
 if [[ -e $name/993.txt ]]; then
      echo "     IMAP/S"
-     nmap -iL $name/993.txt -Pn -n --open -p993 --script-timeout 20s --script=banner,imap-capabilities,imap-ntlm-info,ssl*,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/993.txt -Pn -n --open -p993 --script-timeout 20s --script=banner,imap-capabilities,imap-ntlm-info,ssl-cert,ssl-cert-intaddr,ssl-ccs-injection,ssl-date,ssl-dh-params,ssl-enum-ciphers,ssl-heartbleed,ssl-known-key,ssl-poodle,sslv2,sslv2-drown,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-993.txt
 fi
 
 if [[ -e $name/995.txt ]]; then
      echo "     POP3/S"
-     nmap -iL $name/995.txt -Pn -n --open -p995 --script-timeout 20s --script=banner,pop3-capabilities,pop3-ntlm-info,ssl*,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/995.txt -Pn -n --open -p995 --script-timeout 20s --script=banner,pop3-capabilities,pop3-ntlm-info,ssl-cert,ssl-cert-intaddr,ssl-ccs-injection,ssl-date,ssl-dh-params,ssl-enum-ciphers,ssl-heartbleed,ssl-known-key,ssl-poodle,sslv2,sslv2-drown,tls-nextprotoneg -sV --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-995.txt
 fi
@@ -256,7 +256,7 @@ fi
 
 if [[ -e $name/1099.txt ]]; then
      echo "     RMI Registry"
-     nmap -iL $name/1099.txt -Pn -n --open -p1099 --script-timeout 20s --script=rmi-dumpregistry --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     nmap -iL $name/1099.txt -Pn -n --open -p1099 --script-timeout 20s --script=rmi-dumpregistry,rmi-vuln-classloader --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-1099.txt
 fi
