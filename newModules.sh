@@ -47,9 +47,9 @@ echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
 recon-cli -M | grep '/'| egrep -v '(exploitation|import|reporting)' | sed 's/^[ \t]*//' > tmp
-cat tmp | egrep -iv '(adobe|bozocrack|brute_suffix|cache_snoop|dev_diver|freegeoip|fullcontact|gists_search|github_commits|github_dorks|github_repos|github_users|google_site_web|hashes_org|interesting_files|ipinfodb|ipstack|jigsaw|linkedin_auth|locations|mailtester|mangle|metacrawler|migrate_contacts|migrate_hosts|namechk|pgp|profiler|pwnedlist|virustotal|vulnerabilities)' > tmp2
-cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep '^use' | awk '{print $2}' | sort -u > tmp3
-diff tmp2 tmp3 | grep '/' | grep -v 'netblock' | awk '{print $2}' | sort -u >> tmp-updates
+egrep -iv '(adobe|bozocrack|brute_suffix|cache_snoop|dev_diver|freegeoip|fullcontact|gists_search|github_commits|github_dorks|github_repos|github_users|google_site_web|hashes_org|interesting_files|ipinfodb|ipstack|jigsaw|linkedin_auth|locations|mailtester|mangle|metacrawler|migrate_contacts|migrate_hosts|namechk|pgp|profiler|pwnedlist|virustotal|vulnerabilities)' tmp > tmp2
+cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'modules' | awk '{print $3}' | sort -u > tmp3
+diff tmp2 tmp3 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
 
 echo >> tmp-updates
 echo >> tmp-updates
