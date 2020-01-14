@@ -201,6 +201,12 @@ if [[ -e $name/1158.txt ]]; then
      cat /tmp/resource/1158-oracle.rc >> /tmp/master
 fi
 
+if [[ -e $name/1414.txt ]]; then
+     echo "     IBM MQ"
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1414.txt|g" /tmp/resource/1414-ibm-mq.rc
+     cat /tmp/resource/1414-ibm-mq.rc >> /tmp/master
+fi
+
 if [[ -e $name/1433.txt ]]; then
      echo "     MS-SQL"
      sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/1433.txt|g" /tmp/resource/1433-mssql.rc
@@ -445,6 +451,12 @@ if [[ -e $name/17185.txt ]]; then
      echo "     VxWorks"
      sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/17185.txt|g" /tmp/resource/17185-udp-vxworks.rc
      cat /tmp/resource/17185-udp-vxworks.rc >> /tmp/master
+fi
+
+if [[ -e $name/20256.txt ]]; then
+     echo "     Unitronics"
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/20256.txt|g" /tmp/resource/20256-unitronics.rc
+     cat /tmp/resource/20256-unitronics.rc >> /tmp/master
 fi
 
 if [[ -e $name/28784.txt ]]; then
