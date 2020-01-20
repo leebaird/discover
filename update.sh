@@ -82,6 +82,18 @@ else
      echo
 fi
 
+if [ -d /opt/droopescan/.git ]; then
+     echo -e "${BLUE}Updating droopescan.${NC}"
+     cd /opt/droopescan/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing droopescan.${NC}"
+     git clone https://github.com/droope/droopescan.git /opt/droopescan
+     cd /opt/droopescan
+     pip install -r requirements.txt
+     echo
+fi
+
 if [ -d /opt/Donut/.git ]; then
      echo -e "${BLUE}Updating Donut.${NC}"
      cd /opt/Donut/ ; git pull
@@ -255,6 +267,20 @@ else
      echo -e "${YELLOW}Installing Veil.${NC}"
      git clone https://github.com/Veil-Framework/Veil /opt/Veil
      ./opt/Veil/config/setup.sh --force --silent
+     echo
+fi
+
+if [ -d /opt/Windows-Exploit-Suggester/.git ]; then
+     echo -e "${BLUE}Updating Windows-Exploit-Suggester.${NC}"
+     cd /opt/Windows-Exploit-Suggester/ ; git pull
+     ./windows-exploit-suggester.py --update
+     echo
+else
+     echo -e "${YELLOW}Installing Windows-Exploit-Suggester.${NC}"
+     git clone https://github.com/AonCyberLabs/Windows-Exploit-Suggester /opt/Windows-Exploit-Suggester
+     cd /opt/Windows-Exploit-Suggester/
+     pip install xlrd --upgrade
+     ./windows-exploit-suggester.py --update
      echo
 fi
 

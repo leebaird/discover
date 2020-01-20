@@ -77,3 +77,4 @@ Get-Help invoke-mimikatz                 Show help for Mimikatz
 Get-Help invoke-mimikatz -examples       Show example of how to use Mimikatz
 
 Get-Member
+

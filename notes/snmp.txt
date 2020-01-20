@@ -24,3 +24,4 @@ snmpwalk -c public -v1 <target IP> 1.3.6.1.2.1.6.13.1.3       # TCP local port
 # Modify a variable
 
 snmpset -v <version> -c <community string> <target IP> <variable> s "<new string>"
+

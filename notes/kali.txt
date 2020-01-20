@@ -79,3 +79,4 @@ set backspace=indent,eol,start
 " Insert timestamp with <ctrl+F5>
 :nmap <F5> i<C-R>=strftime("%Y-%m-%d %H:%M:%S %Z")<CR> --
 :imap <F5> <C-R>=strftime("%Y-%m-%d %H:%M:%S" %Z)<CR> --
+

@@ -51,7 +51,7 @@ proxychains smbclient '//10.0.0.10/c$' -U 'domain.local/username%password'
 
 # NetBIOS and SMB
 
-nmap -Pn -n -T4 -p139,445 --script=smb-check-vulns --script-args=unsafe=1 <target range>
+smbmap -H <target IP>                         Check for access to open shares
 
 enum -G <target IP>                           Windows
 enum -P <target IP>
@@ -62,7 +62,6 @@ nbtenum -q <target IP>
 nbtscan -r <target range>
 nbtscan -f hosts.txt
 
-smbmap -H <target IP>                         Show shares
 smbclient //<target IP>/<share>
    dir
    get <filename>
@@ -90,7 +89,12 @@ impacket-secretsdump -hashes <hash> -just-dc LAB/dc\$@10.0.0.1    # Remote dump
 ------------------------------------------------------------------------------------------------------
 
 # Enumeration
- 
+
+whoami
+echo %username%
+hostname
+systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"Hotfix(s)"
+
 arp -a
 ipconfig /all
 ipconfig /displaydns
@@ -126,6 +130,12 @@ dir c:\*.docx /s                              Show all Word docs
 dir c:\*.pdf /s                               Show all PDF files
 
 dir /s /p *password*.*                        Show all filenames that include 'password'
+dir /s *pass* == *cred* == *.config*          Find various strings in config files
+
+findstr /spin "password" *.*                  Find all passwords in all files
+findstr /si password *.txt
+findstr /si password *.xml
+findstr /si password *.ini
 ------------------------------------------------------------------------------------------------------
 
 # Firewall
@@ -186,34 +196,29 @@ sc config termservice start= auto
 rdesktop -u <user> <targetIP>
 ------------------------------------------------------------------------------------------------------
 
+# Privilege Escalation
+
+git clone https://github.com/GDSSecurity/Windows-Exploit-Suggester
+cd Windows-Exploit-Suggester
+pip install xlrd --upgrade
+./windows-exploit-suggester.py --update (note the database file name)
+
+systeminfo.exe > systeminfo.txt               Run this on the Windows target and d/l to attack VM
+
+./windows-exploit-suggester.py --database 2020-01-18-mssb.xls --systeminfo systeminfo.txt
+
+- Metasploit
+use post/multi/recon/local_exploit_suggester
+set session <id>
+run
+------------------------------------------------------------------------------------------------------
+
 # Show domain users and group information
 
 DumpSec
 
 nltest /dclist:<domain>                       Locate the domain controller
 global.exe "domain admins" \\dc-controller    Show members of domain groups
-------------------------------------------------------------------------------------------------------
-
-# Windows Privilege Escalation Fundamentals
-http://www.fuzzysecurity.com/tutorials/16.html
-
-systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
-hostname
-net users
-ipconfig /all
-route print
-arp -A
-netstat -ano
-netsh firewall show state
-netsh firewall show con
-schtasks /query /fo LIST /v
-tasklist /SVC
-net start
-DRIVERQUERY
-wmic /?
-switch-name /?
-wmic qfe get Caption,Description,HotFixID,InstalledOn
-wmic qfe get Caption,Description,HotFixID,InstalledOn | findstr /C:"KB.." /C:"KB.."
 ------------------------------------------------------------------------------------------------------
 
 # System commands
