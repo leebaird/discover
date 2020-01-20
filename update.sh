@@ -273,6 +273,7 @@ fi
 if [ -d /opt/Windows-Exploit-Suggester/.git ]; then
      echo -e "${BLUE}Updating Windows-Exploit-Suggester.${NC}"
      cd /opt/Windows-Exploit-Suggester/ ; git pull
+     rm *.xls 2>/dev/null
      ./windows-exploit-suggester.py --update
      echo
 else
