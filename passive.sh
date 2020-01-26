@@ -584,7 +584,6 @@ cat hosts >> tmp
 cat tmp >> $home/data/$domain/data/hosts.htm
 echo "</pre>" >> $home/data/$domain/data/hosts.htm 2>/dev/null
 
-c
 
 echo "Summary" > zreport
 echo $short >> zreport
