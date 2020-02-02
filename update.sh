@@ -41,15 +41,19 @@ else
      echo
 fi
 
-if [ -d /opt/crackmapexec/.git ]; then
+if [ -e /opt/crackmapexec/ ]; then
+     rm -rf /opt/crackmapexec/
+fi
+
+if [ -d /opt/CrackMapExec/.git ]; then
      echo -e "${BLUE}Updating CrackMapExec.${NC}"
-     cd /opt/crackmapexec/ ; git pull
+     cd /opt/CrackMapExec/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing CrackMapExec.${NC}"
-     git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec.git /opt/crackmapexec
-     cd /opt/crackmapexec ; pip install -r requirements ; python setup.py install
-     ln -s /usr/local/bin/cme /opt/crackmapexec/crackmapexec
+     git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec.git /opt/CrackMapExec
+     cd /opt/CrackMapExec ; pip install -r requirements ; python setup.py install
+     ln -s /usr/local/bin/cme /opt/CrackMapExec/crackmapexec
      echo
 fi
 

