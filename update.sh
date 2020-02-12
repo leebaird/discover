@@ -10,6 +10,22 @@ NC='\033[0m'
 clear
 echo
 
+# renaming old tools
+
+if [ -e /opt/cobaltstrike-profiles/ ]; then
+     rm -rf /opt/cobaltstrike-profiles/
+fi
+
+if [ -e /opt/crackmapexec/ ]; then
+     rm -rf /opt/crackmapexec/
+fi
+
+if [ -e /opt/domainhunter/ ]; then
+     rm -rf /opt/domainhunter/
+fi
+
+###############################################################################################################################
+
 if [ -d /pentest ]; then
      echo -e "${BLUE}Updating Discover.${NC}"
      git pull
@@ -31,18 +47,14 @@ else
      echo
 fi
 
-if [ -d /opt/cobaltstrike-profiles/.git ]; then
+if [ -d /opt/Cobalt-Strike-profiles/.git ]; then
      echo -e "${BLUE}Updating Cobalt Strike profiles.${NC}"
-     cd /opt/cobaltstrike-profiles/ ; git pull
+     cd /opt/Cobalt-Strike-profiles/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing Cobalt Strike profiles.${NC}"
-     git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/cobaltstrike-profiles
+     git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/Cobalt-Strike-profiles
      echo
-fi
-
-if [ -e /opt/crackmapexec/ ]; then
-     rm -rf /opt/crackmapexec/
 fi
 
 if [ -d /opt/CrackMapExec/.git ]; then
@@ -63,14 +75,14 @@ if [ -d /opt/discover/.git ]; then
      echo
 fi
 
-if [ -d /opt/domainhunter/.git ]; then
+if [ -d /opt/Domain-Hunter/.git ]; then
      echo -e "${BLUE}Updating Domain Hunter.${NC}"
-     cd /opt/domainhunter/ ; git pull
+     cd /opt/Domain-Hunter/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing Domain Hunter.${NC}"
-     git clone https://github.com/threatexpress/domainhunter.git /opt/domainhunter
-     cd /opt/domainhunter/
+     git clone https://github.com/threatexpress/domainhunter.git /opt/Domain-Hunter
+     cd /opt/Domain-Hunter/
      pip3 install -r requirements.txt
      chmod 755 domainhunter.py
      echo
@@ -159,7 +171,6 @@ if [ -d /opt/PowerSploit/docs ]; then
      echo
 else
      echo -e "${YELLOW}Installing PowerSploit.${NC}"
-     rm -rf /opt/PowerSploit 2>/dev/null
      git clone -b dev https://github.com/PowerShellMafia/PowerSploit/ /opt/PowerSploit
 echo
 fi
@@ -219,6 +230,16 @@ fi
 if [ ! -d $HOME/.recon-ng/modules ]; then
      echo -e "${BLUE}Installing recon-ng modules.${NC}"
      recon-ng -r /opt/discover/resource/recon-ng-modules-install.rc
+     echo
+fi
+
+if [ -d /opt/SecLists/.git ]; then
+     echo -e "${BLUE}Updating SecLists.${NC}"
+     cd /opt/SecLists/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing SecLists.${NC}"
+     git clone https://github.com/danielmiessler/SecLists /opt/SecLists
      echo
 fi
 

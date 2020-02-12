@@ -97,7 +97,6 @@ run post/windows/gather/forensics/duqu_check
 run post/windows/gather/forensics/enum_drives
 run post/windows/gather/forensics/imager
 run post/windows/gather/forensics/nbd_server
-run post/windows/gather/forensics/recovery_files
 run post/windows/gather/hashdump
 run post/windows/gather/local_admin_search_enum
 run post/windows/gather/lsa_secrets
