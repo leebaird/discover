@@ -11,6 +11,9 @@ clear
 echo
 
 # renaming old tools
+if [ -e /opt/BloodHound/ ]; then
+     rm -rf /opt/BloodHound/
+fi
 
 if [ -e /opt/cobaltstrike-profiles/ ]; then
      rm -rf /opt/cobaltstrike-profiles/
@@ -37,13 +40,17 @@ fi
 echo -e "${BLUE}Updating Kali.${NC}"
 apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
 
-if [ -d /opt/BloodHound/.git ]; then
+if [ -d /opt/BloodHound-v3/.git ]; then
      echo -e "${BLUE}Updating BloodHound.${NC}"
-     cd /opt/BloodHound/ ; git pull
+     cd /opt/BloodHound-v3/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing BloodHound.${NC}"
-     git clone https://github.com/adaptivethreat/BloodHound.git /opt/BloodHound
+     git clone https://github.com/BloodHoundAD/BloodHound.git /opt/BloodHound-v3
+     apt-get install npm -y
+     cd /opt/BloodHound-v3/
+     npm install
+     npm run linuxbuild
      echo
 fi
 

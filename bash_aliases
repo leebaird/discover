@@ -11,6 +11,7 @@ alias awss='ssh -D 1080 -f -N -i ~/.ssh/amazon.pem ec2-user@'
 alias awsv='ssh -L 5901:localhost:5901 -i ~/.ssh/amazon.pem ec2-user@'
 alias nosocks="kill -9 $(ps aux | grep ssh | grep 'D 1080' | awk '{print $2}') 2>/dev/null"
 
+alias b='/opt/BloodHound-v3/BloodHound-linux-x64/BloodHound --no-sandbox'
 alias c='clear'
 alias cl='clear ; ls -l'
 alias d='cd /$user/Desktop/ ; clear'
