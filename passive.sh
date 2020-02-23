@@ -178,60 +178,60 @@ fi
 cd $harvesterdir
 
 echo "     baidu                (9/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b baidu | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zbaidu
+python3.7 theHarvester.py -d $domain -l 200 -b baidu | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbaidu
 echo "     bing                 (10/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b bing | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zbing
+python3.7 theHarvester.py -d $domain -l 200 -b bing | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing
 echo "     bingapi              (11/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b bingapi | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zbingapi
+python3.7 theHarvester.py -d $domain -l 200 -b bingapi | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbingapi
 echo "     certspotter          (12/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b certspotter | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zcertspotter
+python3.7 theHarvester.py -d $domain -l 200 -b certspotter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcertspotter
 echo "     crtsh                (13/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b crtsh | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zcrtsh
+python3.7 theHarvester.py -d $domain -l 200 -b crtsh | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcrtsh
 echo "     dnsdumpster          (14/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b dnsdumpster | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zdnsdumpster
+python3.7 theHarvester.py -d $domain -l 200 -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdnsdumpster
 echo "     dogpile              (15/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b dogpile | egrep -v '(!|\*|--|\[|Error)' | sed '/^$/d' > zdogpile
+python3.7 theHarvester.py -d $domain -l 200 -b dogpile | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdogpile
 echo "     duckduckgo           (16/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b duckduckgo | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zduckduckgo
+python3.7 theHarvester.py -d $domain -l 200 -b duckduckgo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zduckduckgo
 echo "     exalead              (17/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b exalead | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zexalead
+python3.7 theHarvester.py -d $domain -l 200 -b exalead | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zexalead
 echo "     github-code          (18/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b github-code | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zgithub
+python3.7 theHarvester.py -d $domain -l 200 -b github-code | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgithub
 echo "     google               (19/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b google | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zgoogle
+python3.7 theHarvester.py -d $domain -l 200 -b google | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgoogle
 echo "     hunter               (20/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b hunter | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zhunter
+python3.7 theHarvester.py -d $domain -l 200 -b hunter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunter
 echo "     intelx               (21/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b intelx | egrep -v '(!|\*|--|\[|/)' | sed '/^$/d' > zintelx
+python3.7 theHarvester.py -d $domain -l 200 -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
 echo "     linkedin             (22/$total)"
-python3.7 theHarvester.py -d "$company" -l 200 -b linkedin | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > z1
-python3.7 theHarvester.py -d $domain -l 200 -b linkedin | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > z2
+python3.7 theHarvester.py -d "$company" -l 200 -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z1
+python3.7 theHarvester.py -d $domain -l 200 -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z2
 # Make first 2 columns title case.
 cat z1 z2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sort -u > zlinkedin
 echo "     linkedin_links       (23/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b linkedin_links | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zlinkedin_links
+python3.7 theHarvester.py -d $domain -l 200 -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
 echo "     netcraft             (24/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b netcraft | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > znetcraft
+python3.7 theHarvester.py -d $domain -l 200 -b netcraft | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > znetcraft
 echo "     otx                  (25/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b otx | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zotx
+python3.7 theHarvester.py -d $domain -l 200 -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zotx
 echo "     securityTrails       (26/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b securityTrails | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zsecuritytrails
+python3.7 theHarvester.py -d $domain -l 200 -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
 echo "     spyse                (27/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b spyse | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zspyse
+python3.7 theHarvester.py -d $domain -l 200 -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
 echo "     threatcrowd          (28/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b threatcrowd | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zthreatcrowd
+python3.7 theHarvester.py -d $domain -l 200 -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
 echo "     trello               (29/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b trello | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > ztrello
+python3.7 theHarvester.py -d $domain -l 200 -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
 echo "     twitter              (30/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b twitter | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > ztwitter
+python3.7 theHarvester.py -d $domain -l 200 -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
 echo "     vhost                (31/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b vhost | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zvhost
+python3.7 theHarvester.py -d $domain -l 200 -b vhost | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvhost
 echo "     virustotal           (32/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b virustotal | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zvirustotal
+python3.7 theHarvester.py -d $domain -l 200 -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
 echo "     yahoo                (33/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b yahoo | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zyahoo
+python3.7 theHarvester.py -d $domain -l 200 -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
 echo "     all                  (34/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b all | egrep -v '(!|\*|--|\[)' | sed '/^$/d' > zall
+python3.7 theHarvester.py -d $domain -l 200 -b all | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zall
 
 mv z* $CWD
 rm debug_results.txt stash.sqlite tmp* 2>/dev/null

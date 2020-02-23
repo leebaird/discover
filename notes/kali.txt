@@ -16,8 +16,7 @@ Security > Lock screen when system is going to sleep: Off
 
 # Install tools
 
--- gedit
-
+- gedit
 apt-get install gedit
 Text Editor > Preferences
 View:   check Show line numbers
@@ -25,7 +24,7 @@ View:   check Show line numbers
 Editor: Tab width: 5
         Tab mode: Insert Spaces
 
--- Terminator
+- Terminator
 apt-get install terminator
 ------------------------------------------------------------------------------------------------------
 
@@ -61,22 +60,25 @@ update-rc.d ssh enable
 
 # .vimrc
 
-syntax on          " Syntax highlighting.
-set hlsearch       " Highlight all matches.
-set incsearch      " Highlight first matches of searches while typing.
-set number         " Show line numbers.
-set ruler          " Handy line at the bottom.
-set title          " Terminal title is filename.
-set expandtab      " Insert spaces instead of tabs.
-set shiftwidth=5   " 5-space tabs.
-set tabstop=5      " 5-space indents.
+syntax on          " Syntax highlighting
 
-" Toggle line numbers with F2.
-nnoremap <F2> :set nonumber!<CR>:set foldcolumn=0<CR>
+set hlsearch       " Highlight all matches
+set incsearch      " Highlight first matches of searches while typing
+set number         " Show line numbers
+set ruler          " Handy line at the bottom
+set title          " Terminal title is filename
 
+set expandtab      " Insert spaces instead of tabs
+set shiftwidth=5   " 5-space tabs
+set tabstop=5      " 5-space indents
+
+" Allow backspacing over autoindent, line breaks and start of insert action
 set backspace=indent,eol,start
 
-" Insert timestamp with <ctrl+F5>
-:nmap <F5> i<C-R>=strftime("%Y-%m-%d %H:%M:%S %Z")<CR> --
-:imap <F5> <C-R>=strftime("%Y-%m-%d %H:%M:%S" %Z)<CR> --
+" Insert timestamp with F3
+nmap <F3> i<C-R>=strftime("%Y-%m-%d %a %I:%M %p")<CR><Esc>
+imap <F3> <C-R>=strftime("%Y-%m-%d %a %I:%M %p")<CR>
+
+" Toggle line numbers with F2
+nnoremap <F2> :set nonumber!<CR>:set foldcolumn=0<CR>
 

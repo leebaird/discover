@@ -69,6 +69,7 @@ pwd                                             Print the current working direct
 
 touch tmp                                       Create a file
 mkdir tmp                                       Create a directory
+mkdir -p tmp/{red,white,blue}                   Create a directory with 3 subdirectories
 
 cat tmp                                         Show the contents of a file
 more tmp                                        Show the contents of a file, a page at a time
@@ -103,7 +104,8 @@ sha256sum test.iso                              SHA256 hash
 # Finding Files
 
 updatedb                                        Update the database of file names on the system
-locate file                                     Reads the database and shows the location of a file
+locate file                                     Reads a database (locate.db) and shows the location of a file
+updatedb                                        Updates the locate database
 which app                                       Path where the app is executed from
 
 find / -name pass*                              Find all the files that start with pass

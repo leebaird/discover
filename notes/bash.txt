@@ -63,6 +63,7 @@ awk '/FOO/ { FOO = 1; next }  FOO == 1 && /^$/ { FOO = 0; next }  { FOO = 0 }  {
 awk -v n=-2 'NR==n+1 {if($0 ~ /BAR/) { next; } else { print hold } } /FOO/ {n=NR;hold=$0;next}1'
                                                            # Find FOO, if the next line contains BAR, delete both lines
 
+grep -E 'FOO|BAR'                                          # Find lines that contain either string 1 or 2
 grep '[0-9]'                                               # Find lines that contain a number
 grep '[0-9]$'                                              # Find lines that end with a number
 grep 'FOO$'                                                # Find lines that end with FOO

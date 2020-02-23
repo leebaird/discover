@@ -5,9 +5,6 @@ none
 db insert domains
 yyy
 
-
-modules load discovery/info_disclosure/interesting_files
-run
 modules load recon/domains-hosts/brute_hosts
 run
 modules load recon/domains-hosts/mx_spf_ip
