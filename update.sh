@@ -38,7 +38,7 @@ if [ -d /pentest ]; then
 fi
 
 echo -e "${BLUE}Updating Kali.${NC}"
-apt-get update ; apt-get -y upgrade ; apt-get -y dist-upgrade ; apt-get -y autoremove ; apt-get -y autoclean ; echo
+apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; echo
 
 if [ -d /opt/BloodHound-v3/.git ]; then
      echo -e "${BLUE}Updating BloodHound.${NC}"
