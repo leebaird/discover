@@ -3,28 +3,28 @@ fWeb Apps
 
 # HTTP Methods or Verbs
 
-GET       Does not have a body and passes all parameters in the URL.
-POST      Send data to a server. Passes all parameters in the body of the request.
-PUT       Used for adding content to a web app, common with RESTful APIs.
-DELETE    Used for deleting content from a web app, common with RESTful APIs.
-HEAD      The web app will only return the response headers, not the body.
-OPTIONS   Show a list of HTTP options that the server supports.
-CONNECT   Set up a tunnel between a client and a server for SSL encryption or an HTTP proxy. 
-TRACE     Used for debugging.
+GET         Does not have a body and passes all parameters in the URL
+POST        Send data to a server. Passes all parameters in the body of the request
+PUT         Used for adding content to a web app, common with RESTful APIs
+DELETE      Used for deleting content from a web app, common with RESTful APIs
+HEAD        The web app will only return the response headers, not the body
+OPTIONS     Show a list of HTTP options that the server supports
+CONNECT     Set up a tunnel between a client and a server for SSL encryption or an HTTP proxy
+TRACE       Used for debugging
 ------------------------------------------------------------------------------------------------------
 
 # HTTP Response Codes
 
-100       Continue
-200       OK
-301       Moved Permanently
-302       Found
-304       Not Modified
-400       Bad Request
-401       Unauthorized
-403       Forbidden
-404       Not Found
-500       Internal Server Error
+100         Continue
+200         OK
+301         Moved Permanently
+302         Found
+304         Not Modified
+400         Bad Request
+401         Unauthorized
+403         Forbidden
+404         Not Found
+500         Internal Server Error
 ------------------------------------------------------------------------------------------------------
 
 # Browser Redirection
@@ -316,10 +316,10 @@ Burp    Cluster bomb - multiple usernames/passwords using all combinations.
 Hydra   hydra -L users.txt -P pass.txt <target IP> http-get
 
 Metasploit
-	use auxiliary/scanner/http/http_login
-	set user_file user.txt
-	set pass_file pass.txt
-	set rhosts <target IP>
-	set stop_on_success true
-	exploit
+  use auxiliary/scanner/http/http_login
+  set user_file user.txt
+  set pass_file pass.txt
+  set rhosts <target IP>
+  set stop_on_success true
+  exploit
 

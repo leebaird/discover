@@ -12,9 +12,9 @@ export LSCOLORS=ExFxBxDxCxegedabagacad
 # Boot options
 
 c
-option                                Select boot device
-Apple r                               Recovery mode
-Apple s                               Single user mode
+option                                  Select boot device
+Apple r                                 Recovery mode
+Apple s                                 Single user mode
 
 Terminal > resetpassword
 ------------------------------------------------------------------------------------------------------
@@ -34,14 +34,14 @@ brew install wget --with-libressl
 
 brew install proxychains-ng
 nano /usr/local/etc/proxychains.conf
-socks5  127.0.0.1    1080             Add to the bottom
+socks5  127.0.0.1    1080               Add to the bottom
 
 ssh -D 1080 -f -C -q -N user@target
 proxychains4 curl http://target.com
 
 - Troubleshooting
 brew update
-brew update                           Run twice
+brew update                             Run twice
 brew doctor
 
 ------------------------------------------------------------------------------------------------------
@@ -53,8 +53,8 @@ See metasploit.txt
 
 # PATH
 
-$PATH                                 Show contents of PATH
-~/.profile                            Edit PATH
+$PATH                                   Show contents of PATH
+~/.profile                              Edit PATH
 ------------------------------------------------------------------------------------------------------
 
 # SIP
