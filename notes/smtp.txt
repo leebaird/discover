@@ -14,7 +14,7 @@ Testing SMTP open mail relay. Have a nice day.
 QUIT
 
 for x in $(cat users.txt); do echo VRFY $x | nc -nv -w 1 <target IP> 25 2>/dev/null | grep ^’250’; done
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 sendemail -f root@target.com -t jsmith@gmail.com -u Testing open mail relay. -m Testing SMTP open mail relay. Have a nice day. -s <target IP>
 
@@ -29,19 +29,19 @@ S: 250-mail.target.com offers a warm hug of welcome
 S: 250 STARTTLS
 C: STARTTLS
 S: 220 Go ahead
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Internal IPs
 
 When viewing test email, view the full headers and look for internal IPs and host names.
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 STARTTLS\r\nRSET\r\n
 
 And the server sent the following two responses:
 220 Server ready Ready to start TLS
 250 +OK Reset
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 HELO <anything>
 Identical to/from - mail from: <nobody@domain> rcpt to: <nobody@domain>
@@ -54,7 +54,7 @@ Use double quotes - mail from: <user@domain> rcpt to: <"user@recipent-domain">
 User IP address of the target server - mail from: <user@domain> rcpt to: <nobody@recipient_domain@[IP Address]>
 Disparate formatting - mail from: <user@[IP Address]> rcpt to: <@domain:nobody@recipient-domain>
 Disparate formatting2 - mail from: <user@[IP Address]> rcpt to: <recipient_domain!nobody@[IP Address]>
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #!/bin/bash
 clear

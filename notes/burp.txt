@@ -6,13 +6,13 @@ Burp Suite
 www.jython.org/downloads.html
 Download Jython Standalone Jar
 Move to /Applications/
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Firefox plugins
 
 Wappalyzer
 Web Developer
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Set up
 
@@ -21,7 +21,7 @@ New project on disk > Choose file > burp-project > Save
 Name: Base
 Next
 Use Burp defaults > Start Burp
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Import certificate
 
@@ -31,7 +31,7 @@ Preferences > Advanced > Certificates > View Certificates > Authorities > Import
 Select the certificate that you previously downloaded > Open
 Check Trust this CA to identify websites > OK > OK
 Restart Firefox
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Testing from home? Tunnel all your traffic over SSH to Kali running in Amazon EC2.
 
@@ -54,7 +54,7 @@ Check Do DNS lookups over SOCKS proxy
 Open Firefox to http://whatismyipaddress.com
 The IP address should be your Kali EC2.
 Target > Site map: this should now populate
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Options
 
@@ -104,7 +104,7 @@ User options:
 
 Burp menu > User options > Save user options: user.json
 This will provide you a starting point for all future scans.
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Methodology
 
@@ -181,13 +181,13 @@ Use the search field at the bottom to search for href.
 Copy/paste new URL into browser.
 
 Engagement tools > Search: set-cookie
----------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Check for 404 and 500 errors
 Enter a single tick (') at the end of a URL.
 Modify the URL path.
 Enter a single tick (') in any input field and submit the form.
----------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Brute force logins
 Try to login
@@ -255,7 +255,7 @@ Intruder > Payloads > Attack type:
 Filter > uncheck 4xx [request error] > Filter
 Click Status to sort by ascending.
 Look for a 302 (redirect). This should be a successful login.
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Actively scan the app
 
@@ -264,7 +264,7 @@ Target > Site map > RC on the target URL > Actively scan this host
 Active scanning wizard: check all boxes > Next > Ok
 Scanner > Scan queue > RC > Resume scanner
 Scanner > Scan queue > RC > Hide finished items
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Alerts
 
@@ -272,7 +272,7 @@ If you start seeing an increase in java.net.SocketException: Connection reset
 Scanner > Options:
      Active Scanning Engine: enable Throttle between requestions: 200
      Active Scanning Optimization > Scan Accuracy: Normal
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Authentication
 
@@ -282,7 +282,7 @@ User options > Connections > Platform Authentication > Add
      Username and Password
 Domain and Hostname are only used for NTLM.
 OK
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # CSRF
 
@@ -301,14 +301,14 @@ Look for evidence that it executed whatever that HTTP request was supposed to do
 
 https://support.portswigger.net/customer/portal/articles/1965674-using-burp-to-test-for-cross-site-request-forgery-csrf-
 https://portswigger.net/burp/help/suite_functions_csrfpoc.html
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Manually Validate Findings
 
 File path traversal: RC in the Request body > Send to Repeater > modify the request 
 XML Injection: Search in the Response body for http://www.w3.org/2001/XMLSchema. This is a false positive.
 XSS: RC in the Request body > Request in browser > In current browser session
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Mobile app testing
 
@@ -325,7 +325,7 @@ HTTP PROXY > Manual
 Safari > http://burp
      Select CA Certificate
      It will prompt you to install, then ask for your password
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Reporting
 

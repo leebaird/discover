@@ -15,11 +15,11 @@ ESI source index - holds location of input data
 EBP stack data pointer
 ESP stack pointer - will usually point to the current location in the stack
 EIP extended instruction pointer - tells the CPU where to find the next instruction to execute
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Big Endian Unix - read from left to right
 Little Endian x86 - read from right to left
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Program memory is LIFO (last in, first out)
 
@@ -38,7 +38,7 @@ JMP - non-conditional jump
 JNE - conditional jump
 POP - remove the topmost value from the stack
 PUSH - push a value onto the stack
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Immunity Debugger
 
@@ -46,7 +46,7 @@ top left - assembly instructions
 top right - CPU registers
 bottom left - memory dump
 bottom right - the state of the current stack
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Things we need to know:
 
@@ -55,7 +55,7 @@ Do we have enough space in buffer for shellcode?
 Is this shellcode easily  accessible in memory?
 Does the application filter out any characters?
 Will we encounter overflow protection mechanisms?
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Part 1
 
@@ -138,7 +138,7 @@ Now convert that to decimal (992).
 
 NULL bytes are not good. Can't be sent over the network because they will terminate our buffer. The buffer 
 must be encoded with msfencode. Every time that you encode the buffer, its size will increase.
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Example
 

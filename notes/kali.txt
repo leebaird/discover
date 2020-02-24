@@ -5,14 +5,14 @@ Kali
 
 rm -rf Documents/ Downloads/ Music/ Pictures/ Public/ Templates/ Videos/
 Remove unwanted Dock icons.
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Disable screen lock
 
 Top right battery icon > Power manager settings: 
 Display > Display power management: Off
 Security > Lock screen when system is going to sleep: Off
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Install tools
 
@@ -26,37 +26,37 @@ Editor: Tab width: 5
 
 - Terminator
 apt-get install terminator
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Install Discover scripts
 
 git clone git://github.com/leebaird/discover.git /opt/discover/
 cd /opt/discover/
 ./update.sh
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # SSH
 
-ssh-keygen                                       Create new keys
+ssh-keygen                                 Create new keys
 
-/etc/ssh/sshd_config                             Daemon config file
-PermitRootLogin yes                              Change to yes
-AuthorizedKeysFile                               Uncomment
-------------------------------------------------------------------------------------------------------
+/etc/ssh/sshd_config                       Daemon config file
+PermitRootLogin yes                        Change to yes
+AuthorizedKeysFile                         Uncomment
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Services
 
 service <service> <start|stop|restart>
-service ssh start                                Start ssh
-netstat -antp | grep ssh                         Verify the ssh service is running
+service ssh start                          Start ssh
+netstat -antp | grep ssh                   Verify the ssh service is running
 
-service apache2 start                            Start Apache
-firefox localhost                                Verify the Apache service is running
-/var/www/html/                                   Document root
+service apache2 start                      Start Apache
+firefox localhost                          Verify the Apache service is running
+/var/www/html/                             Document root
 
-update-rc.d <service> <enable|disable>           Enable a service to start at boot time
+update-rc.d <service> <enable|disable>     Enable a service to start at boot time
 update-rc.d ssh enable
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # .vimrc
 

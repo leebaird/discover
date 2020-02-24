@@ -1,8 +1,8 @@
 Bash
 
 
-grep                                                          Search for a string in a file
-grep -i                                                       Search for a string in a file, but ignore the case
+grep                                                          Search for a string
+grep -i                                                       Search for a string but ignore the case
 grep -r                                                       Search recursively for a string in a directory
 zgrep                                                         Search for a string in a zip file
 grep -v                                                       Exclude a string from a file
@@ -16,18 +16,25 @@ awk '{print $8}'                                              Show the 8th colum
 awk '{print $8,$9}'                                           Show the 8th and 9th columns
 awk -F "foo" {print $2}'                                      Use a string as a delimiter
 
-head                                                          Show ther first 10 lines in a file
-head -5                                                       Show ther first 5 lines in a file
-tail                                                          Show ther last 10 lines in a file
-tail -5                                                       Show ther last 5 lines in a file
+head                                                          Show the first 10 lines
+head -5                                                       Show the first 5 lines
+tail                                                          Show the last 10 lines
+tail -5                                                       Show the last 5 lines
+tail -f                                                       Show the contents of a file as it grows
 
 sort                                                          Sort a file
 sort -u                                                       Sort a file and show only unique values
 uniq -c                                                       Count the number of different occurences
 
-wc -l                                                         Count the number of line
+wc -l                                                         Count the number of lines
 wc -m                                                         Count the number of characters
-------------------------------------------------------------------------------------------------------
+
+comm file1 file2                                              file1, file2, shared by both files
+comm -<123> file1 file2                                       Used to supress columns
+comm -12 file1 file2                                          Supress columns 1 and 2
+diff -<c or u> file1 file2
+vimdiff file1 file2
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 sed -e 's/^/FOO/'                                             Add FOO to the beginning of each line
 sed -e 's/$/FOO/'                                             Add FOO to the end of each line
@@ -141,12 +148,12 @@ tr '[A-Z]' '[a-z]'                                            Translate upper ca
 tr '[a-z]' '[A-Z]'                                            Translate lower case to upper case
 
 sed "s/$FOO./$FOO/g"                                          Variables - use double quotes with sed or grep
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Special characters to escape
 
 ~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|,|>|\.|\?|/|
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Check for argument. If not given, print usage
 if [ -z "$1" ]; then
@@ -204,7 +211,7 @@ if [[ $port -lt 1 || $port -gt 65535 ]]; then
      echo "Invalid port."
      exit
 fi
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Files and folders
 
@@ -227,7 +234,7 @@ fi
 if [ ! -d test ]; then
      echo "The folder does not exist."
 fi
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Read in a file and do something
 
@@ -244,7 +251,7 @@ while read -r line; do
      echo "$x - $line"
      dnsrecon.py -d $line -t axfr -c axfr_results/$x-$line.csv
 done < names.txt
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Uae a variable and set a constant
 
@@ -255,7 +262,7 @@ else
      format="exe"
      platform="windows"
 fi
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # If a process is running, kill it
 
@@ -264,7 +271,7 @@ pid=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
 if [ -n "$pid" ]; then
      kill -9 $pid
 fi
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Colors
 
@@ -275,7 +282,7 @@ BLUE='\033[1;34m'
 NC='\033[0m'
 
 echo -e "I ${RED}love${NC} Discover."
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Compare two dates
 

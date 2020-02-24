@@ -3,34 +3,34 @@ Forensics
 
 # IDE hard drive naming conventions
 
-hda  primary master IDE 
-hdb  primary slave IDE 
-hdc  secondary master IDE 
-hdd  secondary slave IDE
-------------------------------------------------------------------------------------------------------
+hda          primary master IDE 
+hdb          primary slave IDE 
+hdc          secondary master IDE 
+hdd          secondary slave IDE
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # SCSI, USB or SATA hard drive naming conventions 
 
-sda  1st
-sdb  2nd
-sde  5th
-sdz  26th
-------------------------------------------------------------------------------------------------------
+sda          1st
+sdb          2nd
+sde          5th
+sdz          26th
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Partition and logical drive numbering 
 
-1–4             Partitions, primary or extended 
-5 and up        Logical drives
+1–4          Partitions, primary or extended 
+5 and up     Logical drives
 
 Examples 
-hda3            Primary IDE master, 3rd partition 
-hdd4            Secondary IDE slave, 4th partition 
-hdc5            Secondary IDE master, 1st logical partition 
-sdb9            Second SCSI device, 5th logical partition 
+hda3         Primary IDE master, 3rd partition 
+hdd4         Secondary IDE slave, 4th partition 
+hdc5         Secondary IDE master, 1st logical partition 
+sdb9         Second SCSI device, 5th logical partition 
 
-bt nohd         Mount NTFS partitions in read only mode at startup
-fdisk -l        Show info about hard drive and partitions
-------------------------------------------------------------------------------------------------------
+bt nohd      Mount NTFS partitions in read only mode at startup
+fdisk -l     Show info about hard drive and partitions
+------------------------------------------------------------------------------------------------------------------------------------------------------
  
 # Imaging a hard drive with dd
 
@@ -55,7 +55,7 @@ fdisk -l        Show info about hard drive and partitions
 11. mkdir backup
 12. cd backup
 13. dd if=/dev/hda bs=512 conv=sync,noerror | split -b 640 m – hd.img
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # View a dd image with Autopsy
 
@@ -71,7 +71,7 @@ fdisk -l        Show info about hard drive and partitions
 9. Calculate the hash value for this image. 
 10. Under partition 1, note the mount point and ﬁle system type > Add > OK
 11. C:/ > Analyze > File Analysis
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Using pasco to read index.dat files
 
@@ -84,7 +84,7 @@ fdisk -l        Show info about hard drive and partitions
      pasco –d “/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat” 
 5. Redirect output to a text ﬁle: 
      pasco “/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat” > browser.txt
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Using Vinetto to extract thumbnail files
 
@@ -97,7 +97,7 @@ fdisk -l        Show info about hard drive and partitions
      vinetto –o /mnt/sda1/thumbs “/mnt/hda1/Documents and Settings/Administrator/My Documents/My Pictures/Thumbs.db” 
 6. HTML report to go along with the extracted pictures.
      vinetto –oH /mnt/sda1/thumbs “/mnt/ hda1/Documents and Settings/Administrator/My Documents/My Pictures/Thumbs.db”
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Using Magicrescue to Find JPEG Files on a USB Thumb Drive 
 

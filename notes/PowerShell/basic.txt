@@ -62,19 +62,19 @@ while ($i -le 5){
      write-host $i
      $i = $i + 1
 }
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-C:\> powershell.exe -nop -exec bypass    Start PowerShell and bypass the execution policy
+C:\> powershell.exe -nop -exec bypass     Start PowerShell and bypass the execution policy
 
-mode 300                                 Full screen
-Get-Command                              Show all commands
-Get- <tab>                               Tab through each command
-Get-History                              Show Command history
-Get-Process                              Show current running processes
+mode 300                                  Full screen
+Get-Command                               Show all commands
+Get- <tab>                                Tab through each command
+Get-History                               Show Command history
+Get-Process                               Show current running processes
 
-Get-Help <tool>                          Get help on any tool
-Get-Help invoke-mimikatz                 Show help for Mimikatz
-Get-Help invoke-mimikatz -examples       Show example of how to use Mimikatz
+Get-Help <tool>                           Get help on any tool
+Get-Help invoke-mimikatz                  Show help for Mimikatz
+Get-Help invoke-mimikatz -examples        Show example of how to use Mimikatz
 
 Get-Member
 
