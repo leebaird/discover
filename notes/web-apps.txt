@@ -281,8 +281,8 @@ Burp > Target > Site map > right click on root folder > Engagement tools > Disco
   Target: check Directories only, and disable Recurse subdirectories
 Filenames: disable both long names
 Discovery Engine: Sensitive
-	Disable Copy content from suite site map
-	*** must use Burp wordlist, can save setting?
+    Disable Copy content from suite site map
+    *** must use Burp wordlist, can save setting?
 
 Right click on the very first request >  Send to intruder
 Clear
@@ -291,8 +291,8 @@ Payload Sets > Payload type: Runtime file
 Payload Options > Select file: sec lists > Discovery > Web_content > raft-medium-directories
 Start attack
 sort by Status
-  500 	Server message
-  405 	Method not allowed
+    500  Server message
+    405  Method not allowed
 
 - User-Agent Switcher
 Intruder > clear > select user agent string > Add
@@ -307,18 +307,18 @@ Manually remove duplicates
 Payload: Null payload : Generate 100 payloads.
 
 - Brute force ia Basic authentication login
-Burp    Cluster bomb - multiple usernames/passwords using all combinations.
-	username - simple list
-	passwords - runtime file
-        Look for a Status of 3xx then sort by Length.
+Cluster bomb - multiple usernames/passwords using all combinations.
+    username - simple list
+    passwords - runtime file
+    Look for a Status of 3xx then sort by Length.
 
-Hydra   hydra -L users.txt -P pass.txt <target IP> http-get
+hydra -L users.txt -P pass.txt <target IP> http-get
 
 Metasploit
-  use auxiliary/scanner/http/http_login
-  set user_file user.txt
-  set pass_file pass.txt
-  set rhosts <target IP>
-  set stop_on_success true
-  exploit
+    use auxiliary/scanner/http/http_login
+    set user_file user.txt
+    set pass_file pass.txt
+    set rhosts <target IP>
+    set stop_on_success true
+    exploit
 

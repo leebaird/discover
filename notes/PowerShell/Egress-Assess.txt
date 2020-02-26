@@ -1,7 +1,7 @@
 Egress-Assess
 
 
-Works as a client/server model.
+Works as a client/server model
 
 - Server
 ./Egress-Assess.py -h

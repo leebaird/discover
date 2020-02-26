@@ -62,27 +62,27 @@ clear
 echo "SMTP open mail relay checker."
 
 if [[ $1 == "" ]]; then
-     echo "ERROR - Specify host."
+    echo "ERROR - Specify host."
 else
-     if [[ $2 == "" ]]; then
-          PORT=25
-     else
-          PORT=$2
-     fi
+    if [[ $2 == "" ]]; then
+        PORT=25
+    else
+        PORT=$2
+    fi
 
-     cat >> tmp << EOF
-     mail from: root@target.com
-     rcpt to: jsmith@gmail.com
-     data
-     Subject: Testing open mail relay.
-     Testing SMTP open mail relay from $1. 
-     Have a nice day.
-     .
-     quit
-     EOF
+    cat >> tmp << EOF
+    mail from: root@target.com
+    rcpt to: jsmith@gmail.com
+    data
+    Subject: Testing open mail relay.
+    Testing SMTP open mail relay from $1.
+    Have a nice day.
+    .
+    quit
+    EOF
 
-     echo "[*] Using target $1:$PORT"
-     cat tmp | nc $1 $PORT 
-     rm tmp
+    echo "[*] Using target $1:$PORT"
+    cat tmp | nc $1 $PORT
+    rm tmp
 fi
 
