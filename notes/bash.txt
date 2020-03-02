@@ -14,7 +14,7 @@ cut -d ' ' -f2-                                               Cut with a delimit
 
 awk '{print $8}'                                              Show the 8th column
 awk '{print $8,$9}'                                           Show the 8th and 9th columns
-awk -F "foo" {print $2}'                                      Use a string as a delimiter
+awk -F "https://" '{print $2}'                                Use a string as a delimiter
 
 head                                                          Show the first 10 lines
 head -5                                                       Show the first 5 lines
