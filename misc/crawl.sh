@@ -35,21 +35,13 @@ if [ ! -e index.html ]; then
      exit
 fi
 
-grep 'href=' index.html | cut -d '/' -f3 | grep $domain | grep -v "www.$domain" | cut -d '"' -f1 | sort -u > tmp
+grep 'href=' index.html | cut -d '/' -f3 | grep $domain | egrep -v "(www.$domain|>)" | cut -d '"' -f1 | sort -u > tmp
 
 if [ ! -s tmp ]; then
-     rm index.html tmp
-     echo 'No subdomain found.'
-     echo
-     echo
-     exit
+     echo 'No subdomains found.'
+else
+     cat tmp | sort -u | column -t 2>/dev/null
 fi
-
-for x in $(cat tmp); do
-     host $x | grep 'has address' | cut -d ' ' -f1,4 >> tmp2
-done
-
-cat tmp2 | sort -u | column -t 2>/dev/null
 
 rm index.html tmp*
 
