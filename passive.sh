@@ -827,6 +827,8 @@ $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$compan
 sleep 2
 $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
 sleep 2
+$web https://www.securityheaders.com/?q=$domain&followRedirects=on &
+sleep 2
 $web https://www.facebook.com &
 sleep 2
 $web https://www.instagram.com &

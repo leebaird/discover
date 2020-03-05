@@ -47,7 +47,7 @@ echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
 recon-cli -M | grep 'recon' | egrep -v '(locations|vulnerabilities)' | sed 's/^[ \t]*//' > tmp
-egrep -iv '(abc|bing_linkedin|dev_diver|github_users|mailtester|mangle|migrate_contacts)' tmp > tmp2
+egrep -iv '(abc|bing_linkedin|credentials-credentials|dev_diver|github_users|mailtester|mangle|migrate_contacts|pwnedlist)' tmp > tmp2
 cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'modules' | awk '{print $3}' | sort -u > tmp3
 diff tmp2 tmp3 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
 

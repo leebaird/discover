@@ -178,24 +178,58 @@ To better inspect the requests and responses, we need to filter out and display 
 tcpdump -A -n 'tcp[13] = 24' -r <capture.pcap>              Look for packets with only the ACK and PSH flags turned on
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Google Hacking
+# Passive Info Gathering
 
+- whois
+whois target.com
+whois <target IP>
+
+- Google Hacking
 site:target.com                                             Approximate web presence of an organization
-site:target.com -site:www.target.com                        Locate Subdomains
 filetype:pdf					                         Locate all pdf files
-intitle:
+intitle:"index of" "parent directory"
 inurl:
+
+- recon-ng
+recon-ng
+
+keys list
+keys add <key> <value>
+
+marketplace refresh
+marketplace install all
+
+workspaces list
+workspaces create <target.com>
+db insert companies
+<Target>
+db insert domains
+<target.com>
+show companies
+show domains
+
+modules load <module>
+info
+options set SOURCE <target.com>
+run
+back
+show hosts
+
+- GitHub
+user:megacorpone filename:users
+
+-Shodan
+hostname:target.com
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# DNS
+# Active Info Gathering
 
+- DNS
 host -t <type> target.com			     	          Enumeration
     mx = mail server
     ns = name server
 
 host -l target.com <DNS server>				          Zone transfer
-
-# debug.exe
 
 cp /usr/share/windows-binaries/nc.exe /root/
 cp /usr/share/windows-binaries/exe2bat.exe /root/
@@ -219,7 +253,7 @@ cat /etc/shadow
 
 Option 2 - using Kali
 searchsploit linux local root
-Mempodipper - Linux Local Root => 2.6.39 (32-bit & 64-bit)                /linux/local/18411.c
+Mempodipper - Linux Local Root => 2.6.39 (32-bit & 64-bit)  /linux/local/18411.c
 cp /usr/share/exploitdb/platforms/linux/local/18411.c /tmp/
 cd /tmp/
 gcc -o exploit 18411.c                                      Compile exploit
