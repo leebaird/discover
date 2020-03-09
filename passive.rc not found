@@ -1,0 +1,284 @@
+ _____  ___  _____  _____  _____  _    _  _____  _____
+|     \  |  |____  |      |     |  \  /  |____  |____/
+|_____/ _|_ _____| |_____ |_____|   \/   |_____ |    \_
+
+By Lee Baird
+
+
+Uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,
+  Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.
+
+[*] Acquire API keys for maximum results with recon-ng and 
+  theHarvester.
+
+==================================================================
+
+Usage
+
+Company: Target
+Domain:  target.com
+
+==================================================================
+
+Company: gamadero
+Domain:  www.gamadero.gob.mx
+
+==================================================================
+
+ARIN
+     Email                (1/46)
+tmp.xml: Permission denied
+     Names                (2/46)
+     Networks             (3/46)
+tmp.xml: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 107: networks-tmp: Permission denied
+
+dnsrecon                  (4/46)
+/opt/Reconocimiento/discover/passive.sh: line 117: tmp: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 118: records: Permission denied
+grep: tmp: No such file or directory
+cat: records: No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 121: sub-dnsrecon: Permission denied
+grep: tmp: No such file or directory
+
+goofile                   (5/46)
+/opt/Reconocimiento/discover/passive.sh: line 131: doc: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 132: doc: Permission denied
+Exception ignored in: <_io.TextIOWrapper name='<stdout>' mode='w' encoding='UTF-8'>
+BrokenPipeError: [Errno 32] Broken pipe
+/opt/Reconocimiento/discover/passive.sh: line 133: pdf: Permission denied
+Traceback (most recent call last):
+  File "/opt/Reconocimiento/discover/mods/goofile.py", line 63, in <module>
+    main()
+  File "/opt/Reconocimiento/discover/mods/goofile.py", line 53, in main
+    google_dork()
+  File "/opt/Reconocimiento/discover/mods/goofile.py", line 42, in google_dork
+    print(f'{link}')
+BrokenPipeError: [Errno 32] Broken pipe
+/opt/Reconocimiento/discover/passive.sh: line 134: ppt: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 135: ppt: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 136: txt: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 137: xls: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 138: xls: Permission denied
+Exception ignored in: <_io.TextIOWrapper name='<stdout>' mode='w' encoding='UTF-8'>
+BrokenPipeError: [Errno 32] Broken pipe
+
+goog-mail                 (6/46)
+/opt/Reconocimiento/discover/passive.sh: line 148: zgoog-mail: Permission denied
+
+goohost
+     IP                   (7/46)
+     Email                (8/46)
+cat: 'report-*': No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 161: zgoohost: Permission denied
+
+theHarvester
+/opt/Reconocimiento/discover/passive.sh: line 178: cd: /opt/theHarvester: No such file or directory
+     baidu                (9/46)
+/opt/Reconocimiento/discover/passive.sh: line 181: zbaidu: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     bing                 (10/46)
+/opt/Reconocimiento/discover/passive.sh: line 183: zbing: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     bingapi              (11/46)
+/opt/Reconocimiento/discover/passive.sh: line 185: zbingapi: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     certspotter          (12/46)
+/opt/Reconocimiento/discover/passive.sh: line 187: zcertspotter: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     crtsh                (13/46)
+/opt/Reconocimiento/discover/passive.sh: line 189: zcrtsh: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     dnsdumpster          (14/46)
+/opt/Reconocimiento/discover/passive.sh: line 191: zdnsdumpster: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     dogpile              (15/46)
+/opt/Reconocimiento/discover/passive.sh: line 193: zdogpile: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     duckduckgo           (16/46)
+/opt/Reconocimiento/discover/passive.sh: line 195: zduckduckgo: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     exalead              (17/46)
+/opt/Reconocimiento/discover/passive.sh: line 197: zexalead: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     github-code          (18/46)
+/opt/Reconocimiento/discover/passive.sh: line 199: zgithub: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     google               (19/46)
+/opt/Reconocimiento/discover/passive.sh: line 201: zgoogle: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     hunter               (20/46)
+/opt/Reconocimiento/discover/passive.sh: line 203: zhunter: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     intelx               (21/46)
+/opt/Reconocimiento/discover/passive.sh: line 205: zintelx: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     linkedin             (22/46)
+/opt/Reconocimiento/discover/passive.sh: line 207: z1: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 208: z2: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+cat: z1: No such file or directory
+cat: z2: No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 210: zlinkedin: Permission denied
+     linkedin_links       (23/46)
+/opt/Reconocimiento/discover/passive.sh: line 212: zlinkedin_links: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     netcraft             (24/46)
+/opt/Reconocimiento/discover/passive.sh: line 214: znetcraft: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     otx                  (25/46)
+/opt/Reconocimiento/discover/passive.sh: line 216: zotx: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     securityTrails       (26/46)
+/opt/Reconocimiento/discover/passive.sh: line 218: zsecuritytrails: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     spyse                (27/46)
+/opt/Reconocimiento/discover/passive.sh: line 220: zspyse: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     threatcrowd          (28/46)
+/opt/Reconocimiento/discover/passive.sh: line 222: zthreatcrowd: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     trello               (29/46)
+/opt/Reconocimiento/discover/passive.sh: line 224: ztrello: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     twitter              (30/46)
+/opt/Reconocimiento/discover/passive.sh: line 226: ztwitter: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     vhost                (31/46)
+/opt/Reconocimiento/discover/passive.sh: line 228: zvhost: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     virustotal           (32/46)
+/opt/Reconocimiento/discover/passive.sh: line 230: zvirustotal: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     yahoo                (33/46)
+/opt/Reconocimiento/discover/passive.sh: line 232: zyahoo: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+     all                  (34/46)
+/opt/Reconocimiento/discover/passive.sh: line 234: zall: Permission denied
+python3.7: can't open file 'theHarvester.py': [Errno 2] No such file or directory
+mv: cannot stat 'z*': No such file or directory
+
+Metasploit                (35/46)
+/opt/Reconocimiento/discover/passive.sh: line 247: tmp: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 248: zmsf: Permission denied
+grep: tmp: No such file or directory
+
+URLCrazy                  (36/46)
+/opt/Reconocimiento/discover/passive.sh: line 257: tmp: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 269: tmp2: Permission denied
+sed: can't read tmp: No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 271: tmp3: Permission denied
+cat: tmp2: No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 273: squatting: Permission denied
+
+Whois
+     Domain               (37/46)
+/opt/Reconocimiento/discover/passive.sh: line 281: tmp: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 283: tmp2: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 285: tmp3: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 287: tmp4: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 289: tmp5: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 291: tmp6: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 293: tmp7: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 295: tmp8: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 297: tmp9: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 299: tmp10: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 301: tmp11: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 303: tmp12: Permission denied
+sed: can't read tmp12: No such file or directory
+sed: can't read tmp12: No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 309: tmp13: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 311: whois-domain: Permission denied
+sed: can't read tmp13: No such file or directory
+rm: cannot remove 'tmp*': No such file or directory
+     IP                   (38/46)
+/opt/Reconocimiento/discover/passive.sh: line 317: ultratools: Permission denied
+sed: can't read ultratools: No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 342: whois-ip: Permission denied
+rm: cannot remove 'ultratools': No such file or directory
+
+crt.sh                    (39/46)
+/opt/Reconocimiento/discover/passive.sh: line 351: tmp: Permission denied
+cat: tmp: No such file or directory
+rm: cannot remove 'tmp': No such file or directory
+
+dnsdumpster.com           (40/46)
+
+email-format.com          (41/46)
+/opt/Reconocimiento/discover/passive.sh: line 371: tmp: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 372: zemail-format: Permission denied
+grep: tmp: No such file or directory
+rm: cannot remove 'tmp': No such file or directory
+
+hackertarget.com          (42/46)
+/opt/Reconocimiento/discover/passive.sh: line 379: tmp: Permission denied
+grep: tmp: No such file or directory
+
+intodns.com               (43/46)
+tmp: Permission denied
+cat: tmp: No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 387: tmp2: Permission denied
+cat: tmp2: No such file or directory
+rm: cannot remove 'tmp*': No such file or directory
+
+robtex.com                (44/46)
+
+Registered Domains        (45/46)
+/opt/Reconocimiento/discover/passive.sh: line 452: tmp: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 454: tmp2: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 456: tmp4: Permission denied
+grep: tmp: No such file or directory
+rm: cannot remove 'tmp': No such file or directory
+rm: cannot remove 'tmp2': No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 463: tmp6: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 481: tmp6: Permission denied
+sort: cannot read: tmp4: No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 482: tmp7: Permission denied
+cat: tmp6: No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 483: registered-domains: Permission denied
+grep: tmp7: No such file or directory
+rm: cannot remove 'tmp*': No such file or directory
+
+cat: 'z*': No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 489: emails: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 491: sub-theHarvester: Permission denied
+cat: 'z*': No such file or directory
+cat: 'z*': No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 493: tmp: Permission denied
+recon-ng                  (46/46)
+/opt/Reconocimiento/discover/passive.sh: line 516: passive.rc: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 517: passive.rc: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 518: passive.rc: Permission denied
+sed: can't read passive.rc: No such file or directory
+/opt/Reconocimiento/discover/passive.sh: line 520: passive.rc: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 521: passive.rc: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 522: passive.rc: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 535: passive.rc: Permission denied
+/opt/Reconocimiento/discover/passive.sh: line 536: passive.rc: Permission denied
+sed: can't read passive.rc: No such file or directory
+[!] Script file '/opt/Reconocimiento/discover/passive.rc' not found.
+[*] Version check disabled.
+
+    _/_/_/    _/_/_/_/    _/_/_/    _/_/_/    _/      _/            _/      _/    _/_/_/
+   _/    _/  _/        _/        _/      _/  _/_/    _/            _/_/    _/  _/       
+  _/_/_/    _/_/_/    _/        _/      _/  _/  _/  _/  _/_/_/_/  _/  _/  _/  _/  _/_/_/
+ _/    _/  _/        _/        _/      _/  _/    _/_/            _/    _/_/  _/      _/ 
+_/    _/  _/_/_/_/    _/_/_/    _/_/_/    _/      _/            _/      _/    _/_/_/    
+
+
+                                          /\
+                                         / \\ /\
+    Sponsored by...               /\  /\/  \\V  \/\
+                                 / \\/ // \\\\\ \\ \/\
+                                // // BLACK HILLS \/ \\
+                               www.blackhillsinfosec.com
+
+                  ____   ____   ____   ____ _____ _  ____   ____  ____
+                 |____] | ___/ |____| |       |   | |____  |____ |
+                 |      |   \_ |    | |____   |   |  ____| |____ |____
+                                   www.practisec.com
+
+                      [recon-ng v5.0.1, Tim Tomes (@lanmaster53)]                       
+
+[*] No modules enabled/installed.
