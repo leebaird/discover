@@ -258,6 +258,80 @@ iptables -vn -L
 # masscan
 
 masscan -p<port> <target CIDR> --rate=1000 -e <interface> --router-ip <gateway IP>
+masscan -p80 10.0.1.0/24 --rate=1000 -e tap0 --router-ip 10.0.1.1   Scan through a VPN tunnel
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# SMB
+
+nbtscan -r <CIDR>                                                   Scans for port 137/UDP
+
+ls -l /usr/share/nmap/scripts/smb*                                  nmap SMB scripts
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# NFS
+
+nmap -Pn -n -T4 --open -p111 --script=rpcinfo <CIDR>
+
+ls -l /usr/share/nmap/scripts/nfs*                                  nmap NFS scripts
+nmap -Pn -n -T4 --open -p111 --script=nfs* <CIDR>
+
+mkdir remote-share                                                  Create a new folder
+mount -o nolock <target IP>:/<share> remote-share/                  Mount remote share to new folder
+cd remote-share/
+ls -l
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# SMTP
+
+nc -nv <target IP> 25
+VRFY root
+VRFY idontexist
+quit
+
+vrfy.py (need to write a script here)
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# SNMP
+
+Based on UDP, a simple stateless protocol.
+v1, 2 and 2c offer no encryption.
+
+- Management Information Bases (MIB) Tree
+
+1.3.6.1.2.1.25.1.6.0       System processes
+1.3.6.1.2.1.25.4.2.1.2     Running Windows processes
+1.3.6.1.2.1.25.4.2.1.4     Processes path
+1.3.6.1.2.1.25.2.3.1.4     Storeage units
+1.3.6.1.2.1.25.6.3.1.2     Software name
+1.3.6.1.4.1.77.1.2.25      Windows user accounts
+1.3.6.1.2.1.6.13.1.3       Windows TCP ports
+
+onesixty -c /opt/SecLists/Discovery/SNMP/snmp-onesixtyone.txt -i targets.txt
+
+snmpwalk -v <version> -c <string> <target IP> <MIB>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Vulnerability Scanning
+
+cat /usr/share/nmap/scripts/script.db | grep vuln | cut -d '"' -f2 | cut -d '.' -f1 > vulns.txt
+
+nmap -Pn -n -T4 --open --script vuln <target IP>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Web Application Attacks
+
+- Methodology
+What does the app do?
+What language is it written in?
+What server software is the app running on?
+
+- Technology stack in use
+Programming language and frameworks
+Web server software
+Database software
+Server OS
+
+dirb https://target.com -r -z 10
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Local Privilege Escalation - Linux

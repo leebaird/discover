@@ -806,28 +806,46 @@ echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${
 f_runlocally
 
 $web &
-sleep 4
-$web https://www.google.com/search?site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
-sleep 2
-$web https://www.google.com/#q=site%3A$domain+inurl:admin &
-sleep 2
-$web https://www.google.com/#q=site%3A$domain+inurl:login &
-sleep 2
-$web https://www.google.com/#q=site%3A$domain+%22index+of/%22+%22parent+directory%22 &
-sleep 2
-$web https://www.google.com/#q=site%3A$domain+%22internal+use+only%22 &
-sleep 2
-$web https://www.google.com/#q=site%3Apastebin.com+intext:%40$domain &
+sleep 5
+$web https://www.google.com/search?q=site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
+sleep 5
+$web https://www.google.com/search?q=site:$domain+inurl:admin &
+sleep 5
+$web https://www.google.com/search?q=site:$domain+inurl:login &
+sleep 5
+$web https://www.google.com/search?q=site:$domain+%22index+of/%22+%22parent+directory%22 &
+sleep 5
+$web https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
+sleep 5
+$web https://www.google.com/search?q=site:*.$domain &
+sleep 5
+$web https://www.google.com/search?q=site:*.*.$domain &
+sleep 5
+$web https://www.google.com/search?q=site:pastebin.com+intext:$domain &
 sleep 2
 $web https://$companyurl.s3.amazonaws.com &
 sleep 2
+$web https://www.censys.io/ipv4?q=$domain &
+sleep 2
 $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
+sleep 2
+$web http://toolbar.netcraft.com/site_report?url=$domain &
 sleep 2
 $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
 sleep 2
 $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
 sleep 2
 $web https://www.securityheaders.com/?q=$domain&followRedirects=on &
+sleep 2
+$web https://www.shodan.io/search?query=$domain &
+sleep 2
+$web https://www.ssllabs.com/ssltest/analyze.html?d=$domain &
+sleep 2
+$web http://www.tcpiputils.com/browse/domain/$domain &
+sleep 2
+$web http://viewdns.info/reversewhois/?q=$domain &
+sleep 2
+$web https://www.zoomeye.org/searchResult/bugs?q=$domain &
 sleep 2
 $web https://www.facebook.com &
 sleep 2
@@ -844,6 +862,7 @@ sleep 2
 $web https://$domain &
 sleep 2
 $web $home/data/$domain/index.htm &
+
 echo
 echo
 

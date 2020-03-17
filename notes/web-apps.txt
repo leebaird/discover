@@ -248,7 +248,7 @@ whois target.com
 dig target.com
 
 - Enumeration
-nmap -Pn -n -T4 --open -p- -A target.com
+nmap -Pn -n -T4 --open -p- -A -sC target.com
 nmap -Pn -n -T4 --open -sU -A target.com
 
 sslscan https://target.com
@@ -258,6 +258,7 @@ wafw00f https://www.target.com
 whatweb https://target.com
 
 - Directory bruteforce
+dirb https://target.com -r -z 10
 gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
 
 - Configuration
