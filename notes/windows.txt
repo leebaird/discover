@@ -160,7 +160,12 @@ net group "Domain Admins" <user> /add /domain     Add a user to a specific Secur
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
 netsh firewall set opmode disable
 sc config termservice start= auto
-rdesktop -u <user> <target IP>
+
+rdesktop -u <user> -p <password> <target IP>
+rdesktop -g 1440x900 -u <user> -p <password> <target IP>     Set a larger window size than the default
+rdesktop -g 90% -u <user> -p <password> <target IP>          Set a smaller window size using a percentage of the default
+
+ctrl + alt + enter                                Toggle full screen mode
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
