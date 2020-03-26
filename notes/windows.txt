@@ -78,20 +78,16 @@ net share
 netstat -ano | findstr "LISTEN"
 netstat -ano | findstr "ESTABLISH"
 
-netsh advfirewall firewall
-
-schtasks /query /fo LIST /v
 tasklist /SVC
-net start
-DRIVERQUERY
+net start                                         Services that are started
 
 date /t & time /t
-doskey /history
+doskey /history                                   Show command history
 gpresult /z
 
 net session
 
-set
+set                                               Show environmental variables, including your DC
 
 tasklist /m
 tasklist /svc
@@ -99,13 +95,13 @@ tasklist /v
 
 dir /s /p *password*                              Show filenames that include 'password'
 
-dir /s /b *.xls | findstr /E ".xls"               Show Excel files
-dir /s /b *.xlsx | findstr /E ".xlsx"             Show Excel files
-dir /s /b *.ppt | findstr /E ".ppt"               Show PowerPoint files
-dir /s /b *.pptx | findstr /E ".pptx"             Show PowerPoint files
-dir /s /b *.doc | findstr /E ".doc"               Show Word docs
-dir /s /b *.docx | findstr /E ".docx"             Show Word docs
-dir /s /b *.pdf | findstr /E ".pdf"               Show PDF files
+dir /s /b *.xls                                   Show Excel files
+dir /s /b *.xlsx                                  Show Excel files
+dir /s /b *.ppt                                   Show PowerPoint files
+dir /s /b *.pptx                                  Show PowerPoint files
+dir /s /b *.doc                                   Show Word files
+dir /s /b *.docx                                  Show Word files
+dir /s /b *.pdf                                   Show PDF files
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Firewall
@@ -128,7 +124,7 @@ show profiles name="name" key=clear
 
 - Local
 net users                                         Local users
-net user <current user>
+net user <current user>                           Show info on a local user
 net accounts                                      Local password policy
 net config workstation
 net localgroup                                    Local Security Groups
@@ -144,7 +140,7 @@ net view /domain                                  Computers in other domain
 - Domain
 net accounts /domain                              Domain password policy
 net user /domain                                  Show domain users
-net user <user> /domain                           Info on domain user
+net user <user> /domain                           Show info on a domain user
 net group “Domain Admins" /domain                 Show domain admin   *** BREAKS remote shell
 net group “Domain Users" /domain                  Show domain users   *** BREAKS remote shell
 
