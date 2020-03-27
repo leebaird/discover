@@ -464,7 +464,7 @@ if [[ -n $(grep '(0 hosts up)' $name/nmap.nmap) ]]; then
 fi
 
 # Clean up
-egrep -iv '(0000:|0010:|0020:|0030:|0040:|0050:|0060:|0070:|0080:|0090:|00a0:|00b0:|00c0:|00d0:|1 hop|closed|guesses|guessing|filtered|fingerprint|general purpose|initiated|latency|network distance|no exact os|no os matches|os:|os cpe|please report|rttvar|scanned in|sf|unreachable|warning)' $name/nmap.nmap | sed 's/Nmap scan report for //g; /^$/! b end; n; /^$/d; : end' > $name/nmap.txt
+egrep -iv '(0000:|0010:|0020:|0030:|0040:|0050:|0060:|0070:|0080:|0090:|00a0:|00b0:|00c0:|00d0:|1 hop|closed|guesses|guessing|filtered|fingerprint|general purpose|initiated|latency|network distance|no exact os|no os matches|os:|os cpe|please report|rttvar|scanned in|sf|unreachable|warning)' $name/nmap.nmap | sed 's/Nmap scan report for //g' > $name/nmap.txt
 
 grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' $name/nmap.nmap | $sip > $name/hosts.txt
 hosts=$(wc -l $name/hosts.txt | cut -d ' ' -f1)
