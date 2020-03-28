@@ -751,10 +751,17 @@ if [[ -e $name/161.txt ]] || [[ -e $name/445.txt ]] || [[ -e $name/500.txt ]]; t
      fi
 
      if [[ -e $name/445.txt ]]; then
+          echo "     enum4linux"
+          for i in $(cat $name/445.txt); do
+               echo $i >> $name/script-enum4linux.txt
+               enum4linux -a $i >> $name/script-enum4linux.txt 2>/dev/null
+               echo >> $name/script-enum4linux.txt
+          done
+
           echo "     smbclient"
           for i in $(cat $name/445.txt); do
                echo $i >> $name/script-smbclient.txt
-               smbclient -L $i -N | grep -v 'failed' >> $name/script-smbclient.txt 2>/dev/null
+               smbclient -L $i -N | egrep -v '(disabled|failed)' >> $name/script-smbclient.txt 2>/dev/null
                echo >> $name/script-smbclient.txt
           done
      fi

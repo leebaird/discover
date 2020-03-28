@@ -158,8 +158,9 @@ netsh firewall set opmode disable
 sc config termservice start= auto
 
 rdesktop -u <user> -p <password> <target IP>
-rdesktop -g 1440x900 -u <user> -p <password> <target IP>     Set a larger window size than the default
-rdesktop -g 90% -u <user> -p <password> <target IP>          Set a smaller window size using a percentage of the default
+rdesktop -u <user> -p <password> -g 1440x900 <target IP>     Set a larger window size than the default
+rdesktop -u <user> -p <password> -g 85% <target IP>          Set a smaller window size using a percentage of the default
+rdesktop -u <user> -p <password> -g 85% -r disk:share=/root/ <target IP>
 
 ctrl + alt + enter                                Toggle full screen mode
 ------------------------------------------------------------------------------------------------------------------------------------------------------

