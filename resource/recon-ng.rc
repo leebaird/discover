@@ -22,12 +22,38 @@ modules load recon/contacts-credentials/hibp_breach
 run
 modules load recon/contacts-credentials/hibp_paste
 run
-modules load recon/contacts-credentials/scylla
-run
 modules load recon/contacts-profiles/fullcontact
 run
 modules load recon/domains-companies/pen
 run
-modules load recon/domains-credentials/scylla
+modules load recon/domains-hosts/binaryedge
+run
+modules load recon/domains-hosts/bing_domain_api
+run
+modules load recon/domains-hosts/bing_domain_web
+run
+modules load recon/domains-hosts/builtwith
+run
+modules load recon/domains-hosts/certificate_transparency
+run
+modules load recon/domains-hosts/findsubdomains
+run
+modules load recon/domains-hosts/google_site_web
+run
+modules load recon/domains-hosts/hackertarget
+run
+modules load recon/domains-hosts/netcraft
+run
+modules load recon/domains-hosts/shodan_hostname
+run
+modules load recon/domains-hosts/threatcrowd
+run
+modules load recon/domains-hosts/threatminer
+run
+modules load recon/hosts-ports/binaryedge
+run
+modules load recon/hosts-ports/shodan_ip
+run
+modules load recon/ports-hosts/migrate_ports
 run
 

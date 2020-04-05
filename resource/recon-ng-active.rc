@@ -5,6 +5,8 @@ none
 db insert domains
 yyy
 
+modules load recon/domains-domains/brute_suffix
+run
 modules load recon/domains-hosts/brute_hosts
 run
 modules load recon/domains-hosts/mx_spf_ip
@@ -25,3 +27,4 @@ db query SELECT DISTINCT host,ip_address FROM hosts WHERE host IS NOT NULL ORDER
 spool stop
 
 exit
+

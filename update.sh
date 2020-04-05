@@ -225,20 +225,21 @@ else
      /opt/rawr/install.sh y
 fi
 
-if [ -d /opt/recon-ng/.git ]; then
-     echo -e "${YELLOW}Deleting cloaned recon-ng.${NC}"
-     rm -rf /opt/recon-ng/
-     cd ~/.recon-ng/ ; rm -rf modules/ ; rm modules.yml
-     apt-get install -y python3-pyaes
-     cp -R /usr/lib/python2.7/dist-packages/PyPDF3/ /usr/lib/python3/dist-packages/
+if [ -d /opt/recon-ng-marketplace/.git ]; then
+     echo -e "${BLUE}Updating recon-ng-marketplace.${NC}"
+     cd /opt/recon-ng-marketplace/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing recon-ng-marketplace.${NC}"
+     git clone https://github.com/leebaird/recon-ng-marketplace.git /opt/recon-ng-marketplace
      echo
 fi
 
-if [ ! -d $HOME/.recon-ng/modules ]; then
-     echo -e "${BLUE}Installing recon-ng modules.${NC}"
-     recon-ng -r /opt/discover/resource/recon-ng-modules-install.rc
-     echo
-fi
+#if [ ! -d $HOME/.recon-ng/modules ]; then
+#     echo -e "${BLUE}Installing recon-ng modules.${NC}"
+#     recon-ng -r /opt/discover/resource/recon-ng-modules-install.rc
+#     echo
+#fi
 
 if [ -d /opt/SecLists/.git ]; then
      echo -e "${BLUE}Updating SecLists.${NC}"

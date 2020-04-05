@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Number of tests
-total=46
+total=47
 
 ###############################################################################################################################
 
@@ -178,60 +178,62 @@ fi
 cd $harvesterdir
 
 echo "     baidu                (9/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b baidu | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbaidu
+python3.7 theHarvester.py -d $domain -b baidu | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbaidu
 echo "     bing                 (10/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b bing | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing
+python3.7 theHarvester.py -d $domain -b bing | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing
 echo "     bingapi              (11/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b bingapi | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbingapi
-echo "     certspotter          (12/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b certspotter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcertspotter
-echo "     crtsh                (13/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b crtsh | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcrtsh
-echo "     dnsdumpster          (14/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdnsdumpster
-echo "     dogpile              (15/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b dogpile | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdogpile
-echo "     duckduckgo           (16/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b duckduckgo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zduckduckgo
-echo "     exalead              (17/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b exalead | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zexalead
-echo "     github-code          (18/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b github-code | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgithub
-echo "     google               (19/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b google | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgoogle
-echo "     hunter               (20/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b hunter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunter
-echo "     intelx               (21/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
-echo "     linkedin             (22/$total)"
-python3.7 theHarvester.py -d "$company" -l 200 -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z1
-python3.7 theHarvester.py -d $domain -l 200 -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z2
+python3.7 theHarvester.py -d $domain -b bingapi | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbingapi
+echo "     bufferoverun         (12/$total)"
+python3.7 theHarvester.py -d $domain -b bufferoverun | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbufferoverun
+echo "     certspotter          (13/$total)"
+python3.7 theHarvester.py -d $domain -b certspotter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcertspotter
+echo "     crtsh                (14/$total)"
+python3.7 theHarvester.py -d $domain -b crtsh | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcrtsh
+echo "     dnsdumpster          (15/$total)"
+python3.7 theHarvester.py -d $domain -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdnsdumpster
+echo "     dogpile              (16/$total)"
+python3.7 theHarvester.py -d $domain -b dogpile | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdogpile
+echo "     duckduckgo           (17/$total)"
+python3.7 theHarvester.py -d $domain -b duckduckgo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zduckduckgo
+echo "     exalead              (18/$total)"
+python3.7 theHarvester.py -d $domain -b exalead | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zexalead
+echo "     github-code          (19/$total)"
+python3.7 theHarvester.py -d $domain -b github-code | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgithub-code
+echo "     google               (20/$total)"
+python3.7 theHarvester.py -d $domain -b google | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgoogle
+echo "     hunter               (21/$total)"
+python3.7 theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunter
+echo "     intelx               (22/$total)"
+python3.7 theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
+echo "     linkedin             (23/$total)"
+python3.7 theHarvester.py -d "$company" -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z1
+python3.7 theHarvester.py -d $domain -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z2
 # Make first 2 columns title case.
 cat z1 z2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sort -u > zlinkedin
-echo "     linkedin_links       (23/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
-echo "     netcraft             (24/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b netcraft | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > znetcraft
-echo "     otx                  (25/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zotx
-echo "     securityTrails       (26/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
-echo "     spyse                (27/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
-echo "     threatcrowd          (28/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
-echo "     trello               (29/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
-echo "     twitter              (30/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
-echo "     vhost                (31/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b vhost | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvhost
-echo "     virustotal           (32/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
-echo "     yahoo                (33/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
-echo "     all                  (34/$total)"
-python3.7 theHarvester.py -d $domain -l 200 -b all | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zall
+echo "     linkedin_links       (24/$total)"
+python3.7 theHarvester.py -d $domain -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
+echo "     netcraft             (25/$total)"
+python3.7 theHarvester.py -d $domain -b netcraft | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > znetcraft
+echo "     otx                  (26/$total)"
+python3.7 theHarvester.py -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zotx
+echo "     securityTrails       (27/$total)"
+python3.7 theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
+echo "     spyse                (28/$total)"
+python3.7 theHarvester.py -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' > zspyse
+echo "     threatcrowd          (29/$total)"
+python3.7 theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' > zthreatcrowd
+echo "     trello               (30/$total)"
+python3.7 theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' > ztrello
+echo "     twitter              (31/$total)"
+python3.7 theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' > ztwitter
+echo "     vhost                (32/$total)"
+python3.7 theHarvester.py -d $domain -b vhost | egrep -v '(!|\*|--|\[|Searching)' > zvhost
+echo "     virustotal           (33/$total)"
+python3.7 theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' > zvirustotal
+echo "     yahoo                (34/$total)"
+python3.7 theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' > zyahoo
+echo "     all                  (35/$total)"
+python3.7 theHarvester.py -d $domain -b all | egrep -v '(!|\*|--|\[|Searching)' > zall
 
 mv z* $CWD
 rm debug_results.txt stash.sqlite tmp* 2>/dev/null
@@ -243,7 +245,7 @@ echo
 
 ###############################################################################################################################
 
-echo "Metasploit                (35/$total)"
+echo "Metasploit                (36/$total)"
 msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
 grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sed '/^\./d' > zmsf
 # Remove all empty files
@@ -253,7 +255,7 @@ echo
 
 ###############################################################################################################################
 
-echo "URLCrazy                  (36/$total)"
+echo "URLCrazy                  (37/$total)"
 urlcrazy $domain > tmp
 sed -n '/Character/,$p' tmp | sed 's/AU,AUSTRALIA/ Australia/g; s/AT,AUSTRIA/ Austria/g; s/BAHAMAS/ Bahamas/g; s/BANGLADESH/ Bangladesh/g; 
 s/BELGIUM/ Belgium/g; s/BULGARIA/ Bulgaria/g; s/CA,CANADA/ Canada  /g; s/KY,CAYMAN ISLANDS/ Cayman Islands/g; s/CHILE/ Chile/g; s/CN,CHINA/ China/g; 
@@ -277,7 +279,7 @@ echo
 ###############################################################################################################################
 
 echo "Whois"
-echo "     Domain               (37/$total)"
+echo "     Domain               (38/$total)"
 whois -H $domain > tmp 2>/dev/null
 # Remove leading whitespace
 sed 's/^[ \t]*//' tmp > tmp2
@@ -313,7 +315,7 @@ rm tmp*
 
 ###############################################################################################################################
 
-echo "     IP                   (38/$total)"
+echo "     IP                   (39/$total)"
 curl -s https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
 y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
@@ -347,7 +349,7 @@ echo
 
 ###############################################################################################################################
 
-echo "crt.sh                    (39/$total)"
+echo "crt.sh                    (40/$total)"
 python $discover/parsers/parse-certificates.py $domain > tmp
 cat tmp >> $home/data/$domain/data/certificates.htm
 echo "</center>" >> $home/data/$domain/data/certificates.htm
@@ -357,7 +359,7 @@ echo
 
 ###############################################################################################################################
 
-echo "dnsdumpster.com           (40/$total)"
+echo "dnsdumpster.com           (41/$total)"
 # Generate a random cookie value
 rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com/static/map/$domain.png > /dev/null
@@ -367,7 +369,7 @@ echo
 
 ###############################################################################################################################
 
-echo "email-format.com          (41/$total)"
+echo "email-format.com          (42/$total)"
 curl -s https://www.email-format.com/d/$domain/ > tmp
 grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | sed '/^_/d' | egrep -v '(john.doe|johnsmith|john_smith|john.smith|)' | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
 rm tmp
@@ -375,14 +377,14 @@ echo
 
 ###############################################################################################################################
 
-echo "hackertarget.com          (42/$total)"
+echo "hackertarget.com          (43/$total)"
 curl -s http://api.hackertarget.com/pagelinks/?q=https://www.$domain > tmp
 grep $domain tmp | sort -u >> $home/data/$domain/data/pages.htm
 echo
 
 ###############################################################################################################################
 
-echo "intodns.com               (43/$total)"
+echo "intodns.com               (44/$total)"
 wget -q http://www.intodns.com/$domain -O tmp
 cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
 cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -407,13 +409,13 @@ echo
 
 ###############################################################################################################################
 
-echo "robtex.com                (44/$total)"
+echo "robtex.com                (45/$total)"
 wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
 echo
 
 ###############################################################################################################################
 
-echo "Registered Domains        (45/$total)"
+echo "Registered Domains        (46/$total)"
 f_regdomain(){
 while read regdomain; do
      ipaddr=$(dig +short $regdomain)
@@ -512,7 +514,7 @@ fi
 
 ###############################################################################################################################
 
-echo "recon-ng                  (46/$total)"
+echo "recon-ng                  (47/$total)"
 echo "workspaces create $domain" > passive.rc
 echo "db insert companies" >> passive.rc
 echo "$companyurl" >> passive.rc
