@@ -228,10 +228,12 @@ fi
 if [ -d /opt/recon-ng-marketplace/.git ]; then
      echo -e "${BLUE}Updating recon-ng-marketplace.${NC}"
      cd /opt/recon-ng-marketplace/ ; git pull
+     cp -r /opt/recon-ng-marketplace/modules/ /root/.recon-ng/modules/custom/
      echo
 else
      echo -e "${YELLOW}Installing recon-ng-marketplace.${NC}"
      git clone https://github.com/leebaird/recon-ng-marketplace.git /opt/recon-ng-marketplace
+     cp -r /opt/recon-ng-marketplace/modules/ /root/.recon-ng/modules/custom/
      echo
 fi
 
