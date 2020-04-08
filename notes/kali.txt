@@ -1,35 +1,69 @@
 Kali
 
+# Change the root password & delete default account
 
-# Cleanup
+sudo -i
+kali
+passwd
+reboot
+
+Log in as root
+userdel -r kali
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Modify the Terminal
+
+Right click on the Terminal > Preferences
+Font > Change: 13 > OK
+Application transparency: 0%
+Behavior: Unlimited history
+OK
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Cleanup the Home folder
 
 rm -rf Documents/ Downloads/ Music/ Pictures/ Public/ Templates/ Videos/
-Remove unwanted Dock icons.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Disable screen lock
 
-Top right battery icon > Power manager settings: 
+Top right battery icon > Power manager settings
 Display > Display power management: Off
 Security > Lock screen when system is going to sleep: Off
+Close
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Update Kali
+
+apt-get update
+apt-get -y upgrade
+apt-get -y dist-upgrade
+updatedb
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Install tools
 
 - gedit
-apt-get install gedit
-Text Editor > Preferences
-View:   check Show line numbers
-        Highlight current line
-Editor: Tab width: 5
-        Tab mode: Insert Spaces
+apt install gedit
+gedit
+Preferences
+     Editor
+          Tab width: 5
+          Insert spaces instead of tabs
+     Fonts & Colors
+          Uncheck Use the system fixed width font
+          Color Scheme: Oblivion
 
 - Terminator
 apt-get install terminator
-------------------------------------------------------------------------------------------------------------------------------------------------------
+terminator
+Right click in the window > Preferences
+Profiles
+     General > Font: Monospace Regular 12
+     Colors > Built-in schemes: White on black
+     Scrolling: Infinite Scrollback
 
-# Install Discover scripts
-
+- Discover scripts
 git clone git://github.com/leebaird/discover.git /opt/discover/
 cd /opt/discover/
 ./update.sh
