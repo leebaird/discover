@@ -515,7 +515,8 @@ fi
 ###############################################################################################################################
 
 echo "recon-ng                  (47/$total)"
-echo "workspaces create $domain" > passive.rc
+echo "marketplace refresh" > passive.rc
+echo "workspaces create $domain" >> passive.rc
 echo "db insert companies" >> passive.rc
 echo "$companyurl" >> passive.rc
 sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' passive.rc
