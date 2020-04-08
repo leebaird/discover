@@ -225,6 +225,10 @@ else
      /opt/rawr/install.sh y
 fi
 
+# Keep this for a week.
+rm -rf /opt/recon-ng-marketplace/ 2>/dev/null
+rm -rf ~/.recon-ng/modules/custom/ 2>/dev/null
+
 if [ -d /opt/recon-ng-marketplace/.git ]; then
      echo -e "${BLUE}Updating recon-ng-marketplace.${NC}"
      cd /opt/recon-ng-marketplace/ ; git pull
@@ -232,16 +236,10 @@ if [ -d /opt/recon-ng-marketplace/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing recon-ng-marketplace.${NC}"
-     git clone https://github.com/leebaird/recon-ng-marketplace.git /opt/recon-ng-marketplace
+     git clone https://github.com/lanmaster53/recon-ng-marketplace.git /opt/recon-ng-marketplace
      cp -r /opt/recon-ng-marketplace/modules/ /root/.recon-ng/modules/custom/
      echo
 fi
-
-#if [ ! -d $HOME/.recon-ng/modules ]; then
-#     echo -e "${BLUE}Installing recon-ng modules.${NC}"
-#     recon-ng -r /opt/discover/resource/recon-ng-modules-install.rc
-#     echo
-#fi
 
 if [ -d /opt/SecLists/.git ]; then
      echo -e "${BLUE}Updating SecLists.${NC}"
