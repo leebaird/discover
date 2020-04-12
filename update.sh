@@ -10,25 +10,6 @@ NC='\033[0m'
 clear
 echo
 
-# renaming old tools
-if [ -e /opt/BloodHound/ ]; then
-     rm -rf /opt/BloodHound/
-fi
-
-if [ -e /opt/cobaltstrike-profiles/ ]; then
-     rm -rf /opt/cobaltstrike-profiles/
-fi
-
-if [ -e /opt/crackmapexec/ ]; then
-     rm -rf /opt/crackmapexec/
-fi
-
-if [ -e /opt/domainhunter/ ]; then
-     rm -rf /opt/domainhunter/
-fi
-
-###############################################################################################################################
-
 if [ -d /pentest ]; then
      echo -e "${BLUE}Updating Discover.${NC}"
      git pull
@@ -179,7 +160,7 @@ if [ -d /opt/PowerSploit/docs ]; then
 else
      echo -e "${YELLOW}Installing PowerSploit.${NC}"
      git clone -b dev https://github.com/PowerShellMafia/PowerSploit/ /opt/PowerSploit
-echo
+     echo
 fi
 
 if [ -d /opt/PowerUpSQL/.git ]; then
@@ -224,10 +205,6 @@ else
      git clone https://bitbucket.org/al14s/rawr.git /opt/rawr
      /opt/rawr/install.sh y
 fi
-
-# Keep this for a week.
-rm -rf /opt/recon-ng-marketplace/ 2>/dev/null
-rm -rf ~/.recon-ng/modules/custom/ 2>/dev/null
 
 if [ -d /opt/recon-ng-marketplace/.git ]; then
      echo -e "${BLUE}Updating recon-ng-marketplace.${NC}"
