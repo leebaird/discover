@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Number of tests
-total=47
+total=46
 
 ###############################################################################################################################
 
@@ -349,17 +349,7 @@ echo
 
 ###############################################################################################################################
 
-echo "crt.sh                    (40/$total)"
-python3 $discover/parsers/parse-certificates.py $domain > tmp
-cat tmp >> $home/data/$domain/data/certificates.htm
-echo "</center>" >> $home/data/$domain/data/certificates.htm
-echo "</pre>" >> $home/data/$domain/data/certificates.htm
-rm tmp
-echo
-
-###############################################################################################################################
-
-echo "dnsdumpster.com           (41/$total)"
+echo "dnsdumpster.com           (40/$total)"
 # Generate a random cookie value
 rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com/static/map/$domain.png > /dev/null
@@ -369,7 +359,7 @@ echo
 
 ###############################################################################################################################
 
-echo "email-format.com          (42/$total)"
+echo "email-format.com          (41/$total)"
 curl -s https://www.email-format.com/d/$domain/ > tmp
 grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | sed '/^_/d' | egrep -v '(john.doe|johnsmith|john_smith|john.smith|)' | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
 rm tmp
@@ -377,14 +367,14 @@ echo
 
 ###############################################################################################################################
 
-echo "hackertarget.com          (43/$total)"
+echo "hackertarget.com          (42/$total)"
 curl -s http://api.hackertarget.com/pagelinks/?q=https://www.$domain > tmp
 grep $domain tmp | sort -u >> $home/data/$domain/data/pages.htm
 echo
 
 ###############################################################################################################################
 
-echo "intodns.com               (44/$total)"
+echo "intodns.com               (43/$total)"
 wget -q http://www.intodns.com/$domain -O tmp
 cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
 cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -409,13 +399,13 @@ echo
 
 ###############################################################################################################################
 
-echo "robtex.com                (45/$total)"
+echo "robtex.com                (44/$total)"
 wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
 echo
 
 ###############################################################################################################################
 
-echo "Registered Domains        (46/$total)"
+echo "Registered Domains        (45/$total)"
 f_regdomain(){
 while read regdomain; do
      ipaddr=$(dig +short $regdomain)
@@ -514,7 +504,7 @@ fi
 
 ###############################################################################################################################
 
-echo "recon-ng                  (47/$total)"
+echo "recon-ng                  (46/$total)"
 echo "marketplace install all" > passive.rc
 echo "workspaces create $domain" >> passive.rc
 echo "db insert companies" >> passive.rc
