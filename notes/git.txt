@@ -6,47 +6,48 @@ Git
 git config --global http.proxy http://proxy:port
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Cloning your fork
+# Fork the main repo via the web browser.
 
-# Clone the repository from your fork.
-    git clone git@github.com:<username>/<repo-name>.git
+# Clone your fork.
+    git clone git@github.com:<username>/<forked repo>
     git clone git@github.com:leebaird/theHarvester.git
 
 cd theHarvester/
 
 # Add the upstream repo so that you can pull changes.
-    git remote add upstream <original repo git>
+    git remote add upstream git@github.com:<original repo>
     git remote add upstream git@github.com:laramies/theHarvester.git
 
-# Stop Errors pushing changes.
-    # Point this command to your fork of the repository.
-    git remote set-url origin git@github.com:<username>/<repo-name>.git
+# Stop errors pushing changes.
+    # Point this command to your fork.
+    git remote set-url origin git@github.com:<username>/<fork>
     git remote set-url origin git@github.com:leebaird/theHarvester.git
 
-ssh -T git@github.com
+# Validate connectivity
+    ssh -T git@github.com
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Working on a dev branch
 
-Always try to avoid working on the master branch. It usually results in merge conflicts
-and/or update issues. Instead, work on a bug/dev/feature branch whenever possible.
+Always try to avoid working on the master branch.
+It usually results in merge conflicts and/or update issues.
+Instead, work on a bug/dev/feature branch whenever possible.
 
     # Start from the master branch.
     git checkout master
 
-    # Create a new branch and checkout that branch at the same time.
+    # Create a new branch.
     git branch -b dev
 
     # Switch to the new branch.
     git checkout dev
 
-    # Make changes.
+    # Make changes in this branch.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Staying updated
+# Keep your fork updated
 
-Once a fork has been created, it does not automatically track the upstream repository.
-Follow the steps below to keep the master branch up-to-date.
+Once your fork has been created, it does not automatically track with the upstream repo.
 
     # Pull the latest changes from upstream.
     git fetch upstream

@@ -1,16 +1,3 @@
-marketplace refresh
-
-workspaces create yyy
-db insert companies
-xxx
-none
-db insert domains
-yyy
-
-modules load recon/domains-domains/brute_suffix
-run
-modules load recon/domains-hosts/brute_hosts
-run
 modules load recon/domains-hosts/mx_spf_ip
 run
 modules load recon/netblocks-hosts/reverse_resolve
@@ -20,12 +7,13 @@ run
 modules load recon/hosts-hosts/reverse_resolve
 run
 
-back
-
 db query UPDATE hosts SET host = LOWER(host)
 
-spool start /tmp/subdomains
-db query SELECT DISTINCT host,ip_address FROM hosts WHERE host IS NOT NULL ORDER BY host
+db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
+
+spool start /tmp/subdomains-active
+db query SELECT DISTINCT host,ip_address FROM hosts WHERE host IS NOT NULL ORDER BY host ASC
+db query SELECT DISTINCT host,ip_address FROM ports WHERE host IS NOT NULL ORDER BY host ASC
 spool stop
 
 exit

@@ -9,7 +9,7 @@ import utfdictcsv
 import xml.etree.ElementTree as ET
 
 # CSV and Nessus headers
-csvHeaders = ['CVSS Score', 'IP', 'FQDN', 'OS', 'Port', 'Vulnerability', 'Description', 'Proof', 'Solution', 'See Also', 'CVE']
+csvHeaders = ['CVSS Score', 'IP Address', 'FQDN', 'OS', 'Port', 'Vulnerability', 'Description', 'Proof', 'Solution', 'See Also', 'CVE']
 nessusFields = ['cvss_base_score', 'host-ip', 'host-fqdn', 'operating-system', 'port', 'plugin_name', 'description', 'plugin_output', 'solution', 'see_also', 'cve']
 
 # Create output CSV file
@@ -19,11 +19,11 @@ def createCSV():
     csvWriter.writeheader()
     return csvWriter
 
-# Clean values from nessus report
+# Clean values from Nessus report
 def getValue(rawValue):
     cleanValue = rawValue.replace('\n', ' ').strip(' ')
     if len(cleanValue) > 32000:
-        cleanValue = cleanValue[:32000] + ' [Text Cut Due To Length]'
+        cleanValue = cleanValue[:32000] + ' [Trimmed due to length]'
     return cleanValue
 
 # Helper function for handleReport()

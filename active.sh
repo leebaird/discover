@@ -146,12 +146,13 @@ echo
 
 ###############################################################################################################################
 
-echo "recon-ng                  (9/$total)     Disabled"
-#cp $discover/resource/recon-ng-active.rc active.rc
-#sed -i "s/xxx/$companyurl/g" active.rc
-#sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' active.rc
-#sed -i "s/yyy/$domain/g" active.rc
-#recon-ng -r $discover/active.rc
+echo "recon-ng                  (9/$total)"
+echo "marketplace install all" > active.rc
+echo "workspaces load $domain" >> active.rc
+cat $discover/resource/recon-ng-active.rc >> active.rc
+sed -i "s/yyy/$domain/g" active.rc
+
+recon-ng -r $CWD/active.rc
 
 ###############################################################################################################################
 
@@ -244,7 +245,7 @@ if [[ -e $home/data/$domain/data/hosts.htm && -e hosts ]]; then
      echo "</pre>" >> $home/data/$domain/data/hosts.htm
 fi
 
-mv active.rc emails hosts record* sub* waf whatweb z* /tmp/subdomains $home/data/$domain/tools/active/ 2>/dev/null
+mv active.rc emails hosts record* sub* waf whatweb z* /tmp/subdomains-active $home/data/$domain/tools/active/ 2>/dev/null
 rm tmp*
 
 echo

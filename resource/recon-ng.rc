@@ -1,5 +1,7 @@
 modules load recon/companies-contacts/pen
 run
+modules load recon/domains-contacts/hunter_io
+run
 modules load recon/domains-contacts/metacrawler
 run
 modules load recon/domains-contacts/pen

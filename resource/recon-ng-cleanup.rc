@@ -19,6 +19,8 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%+%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%[%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%...%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%®%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%«%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%“%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%academic%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%acquisition%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%administrator%'
@@ -59,7 +61,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%company%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%completes%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%comprehensive%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%connect%'
-db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%consultant%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%consult%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%contact%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%continuous%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%contract%'
@@ -100,6 +102,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%favorite%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%feeling%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%female%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%finance%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%first%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%format%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%forward%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%future%'
@@ -159,6 +162,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%parts%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%pattern%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%pdhi%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%people%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%perfiles%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%phr%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%position%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%positive%'
@@ -168,6 +172,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%president%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%process%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%product%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%professional%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%profili%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%project%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%promise%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%protocol%'
@@ -253,10 +258,32 @@ db query DELETE FROM profiles WHERE username LIKE '%=%'
 db query DELETE FROM profiles WHERE username LIKE '%+%'
 db query DELETE FROM profiles WHERE username LIKE '%...%'
 db query DELETE FROM profiles WHERE username LIKE '%”%'
-db query DELETE FROM profiles WHERE username LIKE '%李贤杰%'
-db query DELETE FROM profiles WHERE username LIKE '%许海燕%'
-db query DELETE FROM profiles WHERE username LIKE '%许慧华%'
-db query DELETE FROM profiles WHERE username LIKE '%潘展明%'
+db query DELETE FROM profiles WHERE username LIKE '%李%'
+db query DELETE FROM profiles WHERE username LIKE '%贤%'
+db query DELETE FROM profiles WHERE username LIKE '%杰%'
+db query DELETE FROM profiles WHERE username LIKE '%许%'
+db query DELETE FROM profiles WHERE username LIKE '%海%'
+db query DELETE FROM profiles WHERE username LIKE '%燕%'
+db query DELETE FROM profiles WHERE username LIKE '%许%'
+db query DELETE FROM profiles WHERE username LIKE '%慧%'
+db query DELETE FROM profiles WHERE username LIKE '%华%'
+db query DELETE FROM profiles WHERE username LIKE '%潘%'
+db query DELETE FROM profiles WHERE username LIKE '%展%'
+db query DELETE FROM profiles WHERE username LIKE '%明%'
+db query DELETE FROM profiles WHERE username LIKE '%可%'
+db query DELETE FROM profiles WHERE username LIKE '%杨%'
+db query DELETE FROM profiles WHERE username LIKE '%李%'
+db query DELETE FROM profiles WHERE username LIKE '%经%'
+db query DELETE FROM profiles WHERE username LIKE '%霖%'
+db query DELETE FROM profiles WHERE username LIKE '%何%'
+db query DELETE FROM profiles WHERE username LIKE '%华%'
+db query DELETE FROM profiles WHERE username LIKE '%成%'
+db query DELETE FROM profiles WHERE username LIKE '%영%'
+db query DELETE FROM profiles WHERE username LIKE '%훈%'
+db query DELETE FROM profiles WHERE username LIKE '%노%'
+db query DELETE FROM profiles WHERE username LIKE '%김%'
+db query DELETE FROM profiles WHERE username LIKE '%미%'
+db query DELETE FROM profiles WHERE username LIKE '%나%'
 
 db query UPDATE contacts SET email = LOWER(email)
 db query UPDATE credentials SET username = LOWER(username)
@@ -266,6 +293,27 @@ db query UPDATE profiles SET username = LOWER(username)
 
 db query UPDATE contacts SET first_name = REPLACE(first_name,'JR','Jr')
 db query UPDATE contacts SET first_name = REPLACE(first_name,'XI','Xi')
+
+db query UPDATE contacts SET last_name = REPLACE(last_name,'alvarez','Alvarez')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'bailey','Bailey')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'battle','Battle')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'browder','Browder')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'brown','Brown')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'costello','Costello')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'davis','Davis')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'DAVIS','Davis')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'elliott','Elliott')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'gutierrez','Gutierrez')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'horton','Horton')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'loveless','Loveless')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'martin','Martin')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'MARTIN','Martin')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'mitchell','Mitchell')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'MORRIS','Morris')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'REYES','Reyes')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'ROACH','Roach')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'SPEER','Speer')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'williams','Williams')
 
 db query UPDATE contacts SET last_name = REPLACE(last_name,'DAntonio',"D'Antonio")
 db query UPDATE contacts SET last_name = REPLACE(last_name,'Mca','McA')
@@ -370,6 +418,7 @@ db query UPDATE contacts SET title = REPLACE(title,'Mgr','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'mgr','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'Officer -','Officer,')
 db query UPDATE contacts SET title = REPLACE(title,'Proj ','Project,')
+db query UPDATE contacts SET title = REPLACE(title,'senior ','Senior ')
 db query UPDATE contacts SET title = REPLACE(title,'Snr ','Senior ')
 db query UPDATE contacts SET title = REPLACE(title,'sr ','Senior ')
 db query UPDATE contacts SET title = REPLACE(title,'sr.','Senior')
@@ -408,12 +457,13 @@ db query SELECT DISTINCT netblock FROM netblocks WHERE netblock IS NOT NULL ORDE
 spool stop
 
 spool start /tmp/subdomains
-db query SELECT DISTINCT host,ip_address FROM hosts ORDER BY host ASC
-db query SELECT DISTINCT host,ip_address FROM ports ORDER BY host ASC
+db query SELECT DISTINCT host,ip_address FROM hosts WHERE host IS NOT NULL ORDER BY host ASC
+db query SELECT DISTINCT host,ip_address FROM ports WHERE host IS NOT NULL ORDER BY host ASC
 spool stop
 
 spool start /tmp/usernames
-db query SELECT username FROM profiles ORDER BY username ASC
+db query SELECT DISTINCT username FROM profiles ORDER BY username ASC
 spool stop
 
 exit
+

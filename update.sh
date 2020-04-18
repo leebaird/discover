@@ -10,6 +10,12 @@ NC='\033[0m'
 clear
 echo
 
+if [ -d /opt/recon-ng-marketplace/.git ]; then
+     rm -rf /opt/recon-ng-marketplace/
+     rm -rf /root/.recon-ng/modules/custom/
+     echo
+fi
+
 if [ -d /pentest ]; then
      echo -e "${BLUE}Updating Discover.${NC}"
      git pull
@@ -153,6 +159,12 @@ echo -e "${BLUE}Updating Nmap scripts.${NC}"
 nmap --script-updatedb | egrep -v '(Starting|seconds)' | sed 's/NSE: //'
 echo
 
+if [ ! -e /usr/bin/pip3 ]; then
+     echo -e "${YELLOW}Installing pip for Python 3.${NC}"
+     apt-get install python3-pip
+fi
+
+
 if [ -d /opt/PowerSploit/docs ]; then
      echo -e "${BLUE}Updating PowerSploit.${NC}"
      cd /opt/PowerSploit/ ; git pull
@@ -204,18 +216,6 @@ else
      echo -e "${YELLOW}Installing RAWR.${NC}"
      git clone https://bitbucket.org/al14s/rawr.git /opt/rawr
      /opt/rawr/install.sh y
-fi
-
-if [ -d /opt/recon-ng-marketplace/.git ]; then
-     echo -e "${BLUE}Updating recon-ng-marketplace.${NC}"
-     cd /opt/recon-ng-marketplace/ ; git pull
-     cp -r /opt/recon-ng-marketplace/modules/ /root/.recon-ng/modules/custom/
-     echo
-else
-     echo -e "${YELLOW}Installing recon-ng-marketplace.${NC}"
-     git clone https://github.com/lanmaster53/recon-ng-marketplace.git /opt/recon-ng-marketplace
-     cp -r /opt/recon-ng-marketplace/modules/ /root/.recon-ng/modules/custom/
-     echo
 fi
 
 if [ -d /opt/SecLists/.git ]; then
