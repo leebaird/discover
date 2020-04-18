@@ -1,5 +1,5 @@
-#!/usr/bin/python
-# This script works under py3 as well
+#!/usr/bin/python3
+
 import sys
 import requests
 from lxml import html
@@ -7,30 +7,32 @@ from texttable import Texttable
 
 url = 'https://crt.sh/?q={0}&dir=v&sort=4&group=none'.format(sys.argv[1])
 page = requests.get(url)
-tree = html.fromstring(page.content)
 
-# Gather data from HTML table rows via XPATH
-logTimes = tree.xpath('//table/tr/td[2]/text()')
-notBefore = tree.xpath('//table/tr/td[3]/text()')
-notAfter = tree.xpath('//table/tr/td[4]/text()')
-issuerName = tree.xpath('//table/tr/td[5]/a/text()')
+if page.status_code == 200:
+    tree = html.fromstring(page.content)
 
-# Setup the rows; define headers for the table in the first row
-rows = [
-    ['Log Times', 'Not Before', 'Not After', 'Issuer Name']
-]
+    # Gather data from HTML table rows via XPATH
+    logTimes = tree.xpath('//table/tr/td[2]/text()')
+    notBefore = tree.xpath('//table/tr/td[3]/text()')
+    notAfter = tree.xpath('//table/tr/td[4]/text()')
+    issuerName = tree.xpath('//table/tr/td[5]/a/text()')
 
-# Loop over parsed data; format into rows[] list
-for i in range(len(logTimes)):
-    rows.append([
-        logTimes[i],
-        notBefore[i],
-        notAfter[i],
-        issuerName[i]
-    ])
+    # Setup the rows; define headers for the table in the first row
+    rows = [
+        ['Log Times', 'Not Before', 'Not After', 'Issuer Name']
+    ]
 
-table = Texttable()
-table.add_rows(rows)
+    # Loop over parsed data; format into rows[] list
+    for i in range(len(logTimes)):
+        rows.append([
+            logTimes[i],
+            notBefore[i],
+            notAfter[i],
+            issuerName[i]
+        ])
 
-print(table.draw())
-
+    table = Texttable()
+    table.add_rows(rows)
+    print(table.draw())
+else:
+    print('Crt.sh seems to be having issues, status code: {}'.format(page.status_code))

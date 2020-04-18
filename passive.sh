@@ -350,7 +350,7 @@ echo
 ###############################################################################################################################
 
 echo "crt.sh                    (40/$total)"
-python $discover/parsers/parse-certificates.py $domain > tmp
+python3 $discover/parsers/parse-certificates.py $domain > tmp
 cat tmp >> $home/data/$domain/data/certificates.htm
 echo "</center>" >> $home/data/$domain/data/certificates.htm
 echo "</pre>" >> $home/data/$domain/data/certificates.htm
