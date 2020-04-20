@@ -10,12 +10,6 @@ NC='\033[0m'
 clear
 echo
 
-if [ -d /opt/recon-ng-marketplace/.git ]; then
-     rm -rf /opt/recon-ng-marketplace/
-     rm -rf /root/.recon-ng/modules/custom/
-     echo
-fi
-
 if [ -d /pentest ]; then
      echo -e "${BLUE}Updating Discover.${NC}"
      git pull
@@ -25,7 +19,8 @@ if [ -d /pentest ]; then
 fi
 
 echo -e "${BLUE}Updating Kali.${NC}"
-apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; echo
+apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean
+echo
 
 if [ -d /opt/BloodHound-v3/.git ]; then
      echo -e "${BLUE}Updating BloodHound.${NC}"
@@ -34,7 +29,7 @@ if [ -d /opt/BloodHound-v3/.git ]; then
 else
      echo -e "${YELLOW}Installing BloodHound.${NC}"
      git clone https://github.com/BloodHoundAD/BloodHound.git /opt/BloodHound-v3
-     apt-get install npm -y
+     apt -y install npm
      cd /opt/BloodHound-v3/
      npm install
      npm run linuxbuild
@@ -54,11 +49,14 @@ fi
 if [ -d /opt/CrackMapExec/.git ]; then
      echo -e "${BLUE}Updating CrackMapExec.${NC}"
      cd /opt/CrackMapExec/ ; git pull
+     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
      echo
 else
      echo -e "${YELLOW}Installing CrackMapExec.${NC}"
      git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec.git /opt/CrackMapExec
-     cd /opt/CrackMapExec ; pip install -r requirements ; python setup.py install
+     cd /opt/CrackMapExec
+     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
+     python setup.py install
      ln -s /usr/local/bin/cme /opt/CrackMapExec/crackmapexec
      echo
 fi
@@ -72,12 +70,13 @@ fi
 if [ -d /opt/Domain-Hunter/.git ]; then
      echo -e "${BLUE}Updating Domain Hunter.${NC}"
      cd /opt/Domain-Hunter/ ; git pull
+     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
      echo
 else
      echo -e "${YELLOW}Installing Domain Hunter.${NC}"
      git clone https://github.com/threatexpress/domainhunter.git /opt/Domain-Hunter
      cd /opt/Domain-Hunter/
-     pip3 install -r requirements.txt
+     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
      chmod 755 domainhunter.py
      echo
 fi
@@ -95,6 +94,7 @@ fi
 if [ -d /opt/droopescan/.git ]; then
      echo -e "${BLUE}Updating droopescan.${NC}"
      cd /opt/droopescan/ ; git pull
+     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
      echo
 else
      echo -e "${YELLOW}Installing droopescan.${NC}"
@@ -158,12 +158,6 @@ fi
 echo -e "${BLUE}Updating Nmap scripts.${NC}"
 nmap --script-updatedb | egrep -v '(Starting|seconds)' | sed 's/NSE: //'
 echo
-
-if [ ! -e /usr/bin/pip3 ]; then
-     echo -e "${YELLOW}Installing pip for Python 3.${NC}"
-     apt-get install python3-pip
-fi
-
 
 if [ -d /opt/PowerSploit/docs ]; then
      echo -e "${BLUE}Updating PowerSploit.${NC}"
@@ -243,19 +237,19 @@ fi
 if [ -d /opt/theHarvester/.git ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
-     python3 -m pip install -r requirements.txt | grep -v 'already satisfied'
+     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
      echo
 else
      echo -e "${YELLOW}Installing theHarvester.${NC}"
      git clone https://github.com/laramies/theHarvester.git /opt/theHarvester
      cd /opt/theHarvester
-     python3 -m pip install -r requirements.txt
+     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
      echo
 fi
 
 if [ ! -e /usr/lib/python3/dist-packages/texttable.py ]; then
      echo -e "${YELLOW}Installing Texttable.${NC}"
-     apt-get install -y python3-texttable
+     apt install -y python3-texttable
      echo
 fi
 
@@ -313,7 +307,8 @@ if [ ! -f /usr/bin/xml_grep ]; then
      echo
 fi
 
-echo -e "${BLUE}Updating locate database.${NC}" ; updatedb
+echo -e "${BLUE}Updating locate database.${NC}"
+updatedb
 
 echo
 echo
