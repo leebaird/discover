@@ -53,11 +53,13 @@ if [ -d /opt/CrackMapExec/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing CrackMapExec.${NC}"
-     git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec.git /opt/CrackMapExec
-     cd /opt/CrackMapExec
-     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
+     apt-get install -y libssl-dev libffi-dev python-dev build-essential
+     pip install --user pipenv
+     git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec /opt/CrackMapExec
+     cd CrackMapExec && pipenv install
+     pipenv shell
      python setup.py install
-     ln -s /usr/local/bin/cme /opt/CrackMapExec/crackmapexec
+     ln -s /usr/local/bin/cme /opt/CrackMapExec/cme/crackmapexec.py
      echo
 fi
 
@@ -70,7 +72,6 @@ fi
 if [ -d /opt/Domain-Hunter/.git ]; then
      echo -e "${BLUE}Updating Domain Hunter.${NC}"
      cd /opt/Domain-Hunter/ ; git pull
-     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
      echo
 else
      echo -e "${YELLOW}Installing Domain Hunter.${NC}"
@@ -94,7 +95,6 @@ fi
 if [ -d /opt/droopescan/.git ]; then
      echo -e "${BLUE}Updating droopescan.${NC}"
      cd /opt/droopescan/ ; git pull
-     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
      echo
 else
      echo -e "${YELLOW}Installing droopescan.${NC}"

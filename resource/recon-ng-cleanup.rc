@@ -5,11 +5,7 @@ db query DELETE FROM contacts WHERE rowid NOT IN (SELECT min(rowid) FROM contact
 db query UPDATE hosts SET ip_address = "" WHERE ip_address IS NULL
 db query DELETE FROM hosts WHERE rowid NOT IN (SELECT * FROM (SELECT max.rowid FROM hosts max LEFT JOIN hosts bigger ON max.host = bigger.host AND LENGTH(max.ip_address) < LENGTH(bigger.ip_address) WHERE bigger.ip_address IS NULL) AS keepers)
 
-db query DELETE FROM contacts WHERE first_name IS NULL AND email IS NULL
-db query DELETE FROM contacts WHERE last_name IS NULL AND email IS NULL
-
-db query DELETE FROM contacts WHERE LENGTH(first_name) <2 AND email IS NULL
-db query DELETE FROM contacts WHERE LENGTH(last_name) <2 AND email IS NULL
+db query DELETE FROM contacts WHERE last_name OR first_name IS NULL
 
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%(%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '_'
@@ -51,6 +47,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%business%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%captain%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%career%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%catch%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%center%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%cfp%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%challenge%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%checklist%'
@@ -123,6 +120,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%idatasec%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%impact%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%important%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%inclusive%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%information%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%innovations%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%intelligence%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%intern%'
@@ -154,6 +152,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%network%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%norwegian%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%officer%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%online%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%operation%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%opportunity%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%overall%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%parkway%'
@@ -216,6 +215,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%system%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%takeda%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%talent%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%teamwork%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%technical%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%technolog%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%therapeutic%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%three%'
@@ -293,6 +293,8 @@ db query UPDATE profiles SET username = LOWER(username)
 
 db query UPDATE contacts SET first_name = REPLACE(first_name,'JR','Jr')
 db query UPDATE contacts SET first_name = REPLACE(first_name,'XI','Xi')
+db query UPDATE contacts SET first_name = REPLACE(first_name,'MICHAEL','Michael')
+db query UPDATE contacts SET first_name = REPLACE(first_name,'TODD','Todd')
 
 db query UPDATE contacts SET last_name = REPLACE(last_name,'alvarez','Alvarez')
 db query UPDATE contacts SET last_name = REPLACE(last_name,'bailey','Bailey')
@@ -302,6 +304,7 @@ db query UPDATE contacts SET last_name = REPLACE(last_name,'brown','Brown')
 db query UPDATE contacts SET last_name = REPLACE(last_name,'costello','Costello')
 db query UPDATE contacts SET last_name = REPLACE(last_name,'davis','Davis')
 db query UPDATE contacts SET last_name = REPLACE(last_name,'DAVIS','Davis')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'EATON','Eaton')
 db query UPDATE contacts SET last_name = REPLACE(last_name,'elliott','Elliott')
 db query UPDATE contacts SET last_name = REPLACE(last_name,'gutierrez','Gutierrez')
 db query UPDATE contacts SET last_name = REPLACE(last_name,'horton','Horton')
@@ -313,6 +316,7 @@ db query UPDATE contacts SET last_name = REPLACE(last_name,'MORRIS','Morris')
 db query UPDATE contacts SET last_name = REPLACE(last_name,'REYES','Reyes')
 db query UPDATE contacts SET last_name = REPLACE(last_name,'ROACH','Roach')
 db query UPDATE contacts SET last_name = REPLACE(last_name,'SPEER','Speer')
+db query UPDATE contacts SET last_name = REPLACE(last_name,'WALTERS','Walters')
 db query UPDATE contacts SET last_name = REPLACE(last_name,'williams','Williams')
 
 db query UPDATE contacts SET last_name = REPLACE(last_name,'DAntonio',"D'Antonio")
@@ -343,11 +347,14 @@ db query UPDATE contacts SET last_name = REPLACE(last_name,'ODay',"O'Day")
 db query UPDATE contacts SET last_name = REPLACE(last_name,'ODoherty',"O'Doherty")
 db query UPDATE contacts SET last_name = REPLACE(last_name,'ODonnell',"O'Donnell")
 db query UPDATE contacts SET last_name = REPLACE(last_name,'OHare',"O'Hare")
+db query UPDATE contacts SET last_name = REPLACE(last_name,'Ohearn',"O'Hearn")
 db query UPDATE contacts SET last_name = REPLACE(last_name,'OKeefe',"O'Keefe")
+db query UPDATE contacts SET last_name = REPLACE(last_name,'Okelly',"O'Kelly")
 db query UPDATE contacts SET last_name = REPLACE(last_name,'OFlanagan',"O'Flanagan")
 db query UPDATE contacts SET last_name = REPLACE(last_name,'OKeefe',"O'Keefe")
 db query UPDATE contacts SET last_name = REPLACE(last_name,'OLinn',"O'Linn")
 db query UPDATE contacts SET last_name = REPLACE(last_name,'OMalley',"O'Malley")
+db query UPDATE contacts SET last_name = REPLACE(last_name,'Oneil',"O'Neil")
 db query UPDATE contacts SET last_name = REPLACE(last_name,'ONeill',"O'Neill")
 db query UPDATE contacts SET last_name = REPLACE(last_name,'OShea',"O'Shea")
 

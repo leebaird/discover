@@ -393,7 +393,8 @@ sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' $home/data/$domain/pages/config.htm
 # Remove unnecessary JS at bottom of page
 sed -i '/Math\.random/I,+6 d' $home/data/$domain/pages/config.htm
 sed -i 's/I could use the nameservers listed below to performe recursive queries./The nameservers listed below could be used to perform recursive queries./' $home/data/$domain/pages/config.htm
-sed -i 's/It may be that I am wrong but the chances of that are low.//' $home/data/$domain/pages/config.htm
+# Clean up
+sed -i 's/It may be that I am wrong but the chances of that are low.//; s/Good. //g; s/Ok. //g; s/OK. //g; s/WARNING: //g' $home/data/$domain/pages/config.htm
 rm tmp*
 echo
 
