@@ -49,7 +49,6 @@ fi
 if [ -d /opt/CrackMapExec/.git ]; then
      echo -e "${BLUE}Updating CrackMapExec.${NC}"
      cd /opt/CrackMapExec/ ; git pull
-     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
      echo
 else
      echo -e "${YELLOW}Installing CrackMapExec.${NC}"
@@ -69,6 +68,19 @@ if [ -d /opt/discover/.git ]; then
      echo
 fi
 
+if [ -d /opt/dnstwist/.git ]; then
+     echo -e "${BLUE}Updating dnstwist.${NC}"
+     cd /opt/dnstwist/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing dnstwist.${NC}"
+     git clone https://github.com/elceef/dnstwist.git /opt/dnstwist
+     apt install python3-dnspython python3-geoip python3-whois python3-requests python3-ssdeep
+     cd /opt/dnstwist/
+     python3 -m pip install -r requirements.txt | grep -v 'already'
+     echo
+fi
+
 if [ -d /opt/Domain-Hunter/.git ]; then
      echo -e "${BLUE}Updating Domain Hunter.${NC}"
      cd /opt/Domain-Hunter/ ; git pull
@@ -77,7 +89,7 @@ else
      echo -e "${YELLOW}Installing Domain Hunter.${NC}"
      git clone https://github.com/threatexpress/domainhunter.git /opt/Domain-Hunter
      cd /opt/Domain-Hunter/
-     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
+     python3 -m pip install -r requirements.txt | grep -v 'already'
      chmod 755 domainhunter.py
      echo
 fi
@@ -92,18 +104,6 @@ else
      echo
 fi
 
-if [ -d /opt/droopescan/.git ]; then
-     echo -e "${BLUE}Updating droopescan.${NC}"
-     cd /opt/droopescan/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing droopescan.${NC}"
-     git clone https://github.com/droope/droopescan.git /opt/droopescan
-     cd /opt/droopescan
-     pip install -r requirements.txt
-     echo
-fi
-
 if [ -d /opt/Donut/.git ]; then
      echo -e "${BLUE}Updating Donut.${NC}"
      cd /opt/Donut/ ; git pull
@@ -111,6 +111,18 @@ if [ -d /opt/Donut/.git ]; then
 else
      echo -e "${YELLOW}Installing Donut.${NC}"
      git clone https://github.com/TheWover/donut.git /opt/Donut
+     echo
+fi
+
+if [ -d /opt/droopescan/.git ]; then
+     echo -e "${BLUE}Updating droopescan.${NC}"
+     cd /opt/droopescan/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing droopescan.${NC}"
+     git clone https://github.com/droope/droopescan.git /opt/droopescan
+     cd /opt/droopescan/
+     python3 -m pip install -r requirements.txt | grep -v 'already'
      echo
 fi
 
@@ -230,20 +242,19 @@ else
      echo -e "${YELLOW}Installing SharpShooter.${NC}"
      git clone https://github.com/mdsecactivebreach/SharpShooter.git /opt/SharpShooter
      cd /opt/SharpShooter/
-     pip install -r requirements.txt
+     python3 -m pip install -r requirements.txt | grep -v 'already'
      echo
 fi
 
 if [ -d /opt/theHarvester/.git ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
-     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
      echo
 else
      echo -e "${YELLOW}Installing theHarvester.${NC}"
      git clone https://github.com/laramies/theHarvester.git /opt/theHarvester
-     cd /opt/theHarvester
-     /usr/bin/python3 -m pip install -r requirements.txt | grep -v 'already'
+     cd /opt/theHarvester/
+     python3 -m pip install -r requirements.txt | grep -v 'already'
      echo
 fi
 
