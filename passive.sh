@@ -473,7 +473,9 @@ fi
 # Formatting & clean-up
 sort tmp4 | sed 's/111AAA--placeholder--/Domain,IP Address,Registration Email,Registration Org,Registrar,/' | grep -v 'Matches Found' > tmp6
 cat tmp6 | sed 's/LLC /LLC./g; s/No IP Found//g; s/REDACTED FOR PRIVACY//g; s/select contact domain holder link at https//g' > tmp7
-egrep -v '(connection timed out|please contact|redacted for privacy)' tmp7 | column -n -s ',' -t > registered-domains
+egrep -v '(connection timed out|please contact|redacted for privacy)' tmp7 | column -n -s ',' -t > tmp8
+# Remove lines that start with an IP
+grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp8 | grep @$domain > registered-domains
 rm tmp*
 echo
 
