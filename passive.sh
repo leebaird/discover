@@ -557,13 +557,11 @@ grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|query|SELECT)' | sort -u 
 sed '1,4d' /tmp/names | head -n -5 > names-final
 
 grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > tmp
-cat networks-tmp tmp | sort -u | $sip > networks-final 2>/dev/null
+cat networks-tmp tmp | sort -u | $sip > networks-final
 
 grep "$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > /tmp/sub-clean
-# Find lines that contain IPs and clean up
-cat sub* /tmp/sub-clean | grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | egrep -v '(outlook|www)' | column -t | sort -u > subdomains-final 2>/dev/null
-
-awk '{print $2}' subdomains-final | grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' | egrep -v '(-|=|:)' | sed '/^$/d' | $sip > hosts
+cat sub* /tmp/sub-clean | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(outlook|www)' | column -t | sort -u > subdomains-final
+awk '{print $2}' subdomains-final | grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' | egrep -v '(-|=|:)' | sed '/^$/d' | sed 's/,//g' | $sip > hosts
 
 ###############################################################################################################################
 
