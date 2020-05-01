@@ -129,6 +129,7 @@ cat tmp | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev     Remove the last co
 head -n -5                                                    Remove the last 5 lines
 sed 's/[ \t]*$//'                                             Remove trailing whitespace from each line
 
+sed 's/ \{2,\}/,/g'                                           Replace 2 or more spaces with a comma
 sed 's/\.\.\.//g'                                             Replace 3 periods with nothing
 sed 's/FOO/BAR/g'                                             Replace FOO with BAR
 sed '/TEST/!s/FOO/BAR/g'                                      Replace FOO with BAR, except on lines that contain TEST

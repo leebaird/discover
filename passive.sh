@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Number of tests
-total=46
+total=47
 
 ###############################################################################################################################
 
@@ -9,10 +9,9 @@ clear
 f_banner
 
 echo -e "${BLUE}Uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,${NC}"
-echo -e "${BLUE}  Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.${NC}"
+echo -e "${BLUE}  Metasploit, URLCrazy, dnstwist, Whois, multiple websites and recon-ng.${NC}"
 echo
-echo -e "${BLUE}[*] Acquire API keys for maximum results with recon-ng and ${NC}"
-echo -e "${BLUE}  theHarvester.${NC}"
+echo -e "${BLUE}[*] Acquire API keys for maximum results with recon-ng and theHarvester.${NC}"
 echo
 echo $medium
 echo
@@ -256,30 +255,32 @@ echo
 ###############################################################################################################################
 
 echo "URLCrazy                  (37/$total)"
-urlcrazy $domain > tmp
-sed -n '/Character/,$p' tmp | sed 's/AU,AUSTRALIA/ Australia/g; s/AT,AUSTRIA/ Austria/g; s/BAHAMAS/ Bahamas/g; s/BANGLADESH/ Bangladesh/g; 
-s/BELGIUM/ Belgium/g; s/BULGARIA/ Bulgaria/g; s/CA,CANADA/ Canada  /g; s/KY,CAYMAN ISLANDS/ Cayman Islands/g; s/CHILE/ Chile/g; s/CN,CHINA/ China/g; 
-s/COLOMBIA/ Columbia/g; s/COSTA RICA/ Costa Rica/g; s/CZECH REPUBLIC/ Czech Republic/g; s/DK,DENMARK/ Denmark/g; s/DOMINICAN REPUBLIC/ Dominican Republic/g; 
-s/ES, Spain/ Spain/g; s/EUROPEAN UNION/ European Union/g; s/FINLAND/ Finland/g; s/FR,FRANCE/ France/g; s/DE,GERMANY/ Germany/g; s/GR,GREECE/ Greece/g; 
-s/HK,HONG KONG/ Hong Kong/g; s/HU,HUNGARY/ Hungary/g; s/IN,INDIA/ India/g; s/INDONESIA/ Indonesia/g; 
-s/IR,IRAN (ISLAMIC REPUBLIC OF)/ Iran                        /g; s/IRELAND/ Ireland/g; s/ISRAEL/ Israel/g; s/IT,ITALY/ Italy/g; s/JP,JAPAN/ Japan/g; 
-s/KR,KOREA REPUBLIC OF/ Republic of Korea/g; s/localhost//g; s/LU, Luxembourg/ Luxembourg/g; s/LUXEMBOURG/ Luxembourg/g; s/NL,NETHERLANDS/ Netherlands/g; 
-s/NO,NORWAY/ Norway/g; s/PANAMA/Panama/g; s/POLAND/ Poland/g; s/PT,PORTUGAL/ Portugal/g; s/PUERTO RICO/ Puerto Rico/g; 
-s/CN,REPUBLIC OF China (ROC)/ China                    /g; s/ZZ,RESERVED/          /g; s/RO,ROMANIA/ Romania  /g; 
-s/RU,RUSSIAN FEDERATION/ Russia            /g; s/SAUDI ARABIA/ Saudi Arabia/g; s/SG,SINGAPORE/ Singapore/g; s/SPAIN/ Spain/g; s/SE,SWEDEN/ Sweden/g; 
-s/CH,SWITZERLAND/ Switzerland/g; s/TAIWAN/ Taiwan/g; s/THAILAND/ Thailand/g; s/TURKEY/ Turkey/g; s/UKRAINE/ Ukraine/g; s/GB,UNITED KINGDOM/ United Kingdom/g; s/US,UNITED STATES/ United States/g; s/VG,VIRGIN ISLANDS (BRITISH)/ Virgin Islands (British)/g; s/SLOVAKIA/ Slovakia/g; s/0.0.0.0//g; 
-s/                      /                    /g' | grep -v '127.0.0.1' > tmp2
-# Remove the last column
-cat tmp2 | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev > tmp3
+/opt/URLCrazy/urlcrazy $domain > tmp
+# Replace 2 or more spaces with a comma
+#sed 's/ \{2,\}/,/g' tmp3 > urlcrazy
+
 # Find domains that contain an IP
-grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" tmp3 > squatting
+grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp | grep 'Wrong TLD' | grep -v 'RESERVED' | sed 's/UNITED STATES (US)//g' > tmp2
+# Remove trailing white space
+sed 's/[ \t]*$//' tmp2 > urlcrazy
+echo
+
+###############################################################################################################################
+
+echo "dnstwist                  (38/$total)"
+/opt/dnstwist/dnstwist.py --registered $domain > tmp3
+# Remove the first 9 lines
+sed '1,9d' tmp3 | column -t > dnstwist
+
+cat dnstwist urlcrazy > squatting
+
 rm tmp* 2>/dev/null
 echo
 
 ###############################################################################################################################
 
 echo "Whois"
-echo "     Domain               (38/$total)"
+echo "     Domain               (39/$total)"
 whois -H $domain > tmp 2>/dev/null
 # Remove leading whitespace
 sed 's/^[ \t]*//' tmp > tmp2
@@ -315,7 +316,7 @@ rm tmp*
 
 ###############################################################################################################################
 
-echo "     IP                   (39/$total)"
+echo "     IP                   (40/$total)"
 curl -s https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
 y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
@@ -349,7 +350,7 @@ echo
 
 ###############################################################################################################################
 
-echo "dnsdumpster.com           (40/$total)"
+echo "dnsdumpster.com           (41/$total)"
 # Generate a random cookie value
 rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com/static/map/$domain.png > /dev/null
@@ -359,7 +360,7 @@ echo
 
 ###############################################################################################################################
 
-echo "email-format.com          (41/$total)"
+echo "email-format.com          (42/$total)"
 curl -s https://www.email-format.com/d/$domain/ > tmp
 grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | sed '/^_/d' | egrep -v '(john.doe|johnsmith|john_smith|john.smith|)' | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
 rm tmp
@@ -367,14 +368,14 @@ echo
 
 ###############################################################################################################################
 
-echo "hackertarget.com          (42/$total)"
+echo "hackertarget.com          (43/$total)"
 curl -s http://api.hackertarget.com/pagelinks/?q=https://www.$domain > tmp
 grep $domain tmp | sort -u >> $home/data/$domain/data/pages.htm
 echo
 
 ###############################################################################################################################
 
-echo "intodns.com               (43/$total)"
+echo "intodns.com               (44/$total)"
 wget -q http://www.intodns.com/$domain -O tmp
 cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
 cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -400,13 +401,13 @@ echo
 
 ###############################################################################################################################
 
-echo "robtex.com                (44/$total)"
+echo "robtex.com                (45/$total)"
 wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
 echo
 
 ###############################################################################################################################
 
-echo "Registered Domains        (45/$total)"
+echo "Registered Domains        (46/$total)"
 f_regdomain(){
 while read regdomain; do
      ipaddr=$(dig +short $regdomain)
@@ -507,7 +508,7 @@ fi
 
 ###############################################################################################################################
 
-echo "recon-ng                  (46/$total)"
+echo "recon-ng                  (47/$total)"
 echo "marketplace install all" > passive.rc
 echo "workspaces create $domain" >> passive.rc
 echo "db insert companies" >> passive.rc
@@ -608,21 +609,21 @@ else
      echo "</pre>" >> $home/data/$domain/data/names.htm
 fi
 
-if [ -s networks-final ]; then
-     networkcount=$(wc -l networks-final | cut -d ' ' -f1)
-     echo "Networks             $networkcount" >> zreport
-     echo "Networks ($networkcount)" >> tmp
-     echo $short >> tmp
-     cat networks-final >> tmp
-     echo >> tmp
-fi
-
 if [ -e records ]; then
      recordcount=$(wc -l records | cut -d ' ' -f1)
      echo "DNS Records          $recordcount" >> zreport
      echo "DNS Records ($recordcount)" >> tmp
      echo $long >> tmp
      cat records >> tmp
+     echo >> tmp
+fi
+
+if [ -s networks-final ]; then
+     networkcount=$(wc -l networks-final | cut -d ' ' -f1)
+     echo "Networks             $networkcount" >> zreport
+     echo "Networks ($networkcount)" >> tmp
+     echo $short >> tmp
+     cat networks-final >> tmp
      echo >> tmp
 fi
 
@@ -777,9 +778,7 @@ fi
 cat zreport >> $home/data/$domain/data/passive-recon.htm
 echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-rm /tmp/emails /tmp/names* /tmp/networks /tmp/sub* /tmp/tmp-emails /tmp/usernames
-rm tmp* zreport
-mv curl debug* email* hosts name* network* records registered* squatting sub* usernames whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
+mv curl debug* email* hosts name* network* records registered* squatting sub* tmp* usernames whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
 mv passive.rc passive2.rc $home/data/$domain/tools/recon-ng/
 cd /tmp/; mv emails names* networks sub* tmp-emails usernames $home/data/$domain/tools/recon-ng/ 2>/dev/null
 cd $CWD
@@ -797,61 +796,57 @@ echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${
 f_runlocally
 
 $web &
-sleep 5
+sleep 4
 $web https://www.google.com/search?q=site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
-sleep 5
-$web https://www.google.com/search?q=site:$domain+inurl:admin &
-sleep 5
-$web https://www.google.com/search?q=site:$domain+inurl:login &
-sleep 5
-$web https://www.google.com/search?q=site:$domain+%22index+of/%22+%22parent+directory%22 &
-sleep 5
-$web https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
-sleep 5
-$web https://www.google.com/search?q=site:*.$domain &
-sleep 5
-$web https://www.google.com/search?q=site:*.*.$domain &
-sleep 5
-$web https://www.google.com/search?q=site:pastebin.com+intext:$domain &
-sleep 2
+sleep 4
 $web https://$companyurl.s3.amazonaws.com &
-sleep 2
+sleep 4
+$web https://www.google.com/search?q=site:$domain+inurl:login &
+sleep 4
 $web https://www.censys.io/ipv4?q=$domain &
-sleep 2
+sleep 4
+$web https://www.google.com/search?q=site:$domain+%22index+of/%22+%22parent+directory%22 &
+sleep 4
 $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
-sleep 2
+sleep 4
+$web https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
+sleep 4
 $web http://toolbar.netcraft.com/site_report?url=$domain &
-sleep 2
+sleep 4
+$web https://www.google.com/search?q=site:*.$domain &
+sleep 4
 $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
-sleep 2
+sleep 4
+$web https://www.google.com/search?q=site:*.*.$domain &
+sleep 4
 $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
-sleep 2
-$web https://www.securityheaders.com/?q=$domain&followRedirects=on &
-sleep 2
+sleep 4
+$web https://www.google.com/search?q=site:pastebin.com+intext:$domain &
+sleep 4
 $web https://www.shodan.io/search?query=$domain &
-sleep 2
-$web https://www.ssllabs.com/ssltest/analyze.html?d=$domain &
-sleep 2
+sleep 4
+$web https://www.google.com/search?q=site:$domain+inurl:admin &
+sleep 4
 $web http://www.tcpiputils.com/browse/domain/$domain &
-sleep 2
+sleep 4
 $web http://viewdns.info/reversewhois/?q=$domain &
-sleep 2
+sleep 4
 $web https://www.zoomeye.org/searchResult/bugs?q=$domain &
-sleep 2
+sleep 4
 $web https://www.facebook.com &
-sleep 2
+sleep 4
 $web https://www.instagram.com &
-sleep 2
+sleep 4
 $web https://www.linkedin.com &
-sleep 2
+sleep 4
 $web https://www.pinterest.com &
-sleep 2
+sleep 4
 $web https://twitter.com &
-sleep 2
+sleep 4
 $web https://www.youtube.com &
-sleep 2
+sleep 4
 $web https://$domain &
-sleep 2
+sleep 4
 $web $home/data/$domain/index.htm &
 
 echo

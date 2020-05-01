@@ -274,6 +274,19 @@ else
      echo
 fi
 
+if [ -d /opt/URLCrazy/.git ]; then
+     echo -e "${BLUE}Updating URLCrazy.${NC}"
+     cd /opt/URLCrazy/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing URLCrazy.${NC}"
+     git clone https://github.com/urbanadventurer/urlcrazy /opt/URLCrazy
+     cd /opt/URLCrazy
+     bundle install
+#     echo 'Installing one more gem, this takes about 1 min 15 sec.' ; gem install pry
+     echo
+fi
+
 if [ -d /opt/Veil/.git ]; then
      echo -e "${BLUE}Updating Veil.${NC}"
      cd /opt/Veil/ ; git pull
