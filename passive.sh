@@ -114,8 +114,7 @@ echo
 
 echo "dnsrecon                  (4/$total)"
 dnsrecon -d $domain > tmp
-grep '*' tmp | egrep -v '(Bind Version|Checking|configured|DNSSEC|Enumerating|No SRV Records|Performing|PRIVATEDNS|Removing|Resolving|Servers found|SKEYs|Trying)' | 
-sed 's/\[\*\]//g; s/^[ \t]*//' | column -t | sort -k1 > records
+grep '*' tmp | egrep -v '(Bind Version|Checking|configured|DNSSEC|Enumerating|No SRV Records|Performing|PRIVATEDNS|Removing|Resolving|Servers found|SKEYs|Trying)' | sed 's/\[\*\]//g; s/^[ \t]*//' | column -t | sort -k1 > records
 cat records >> $home/data/$domain/data/records.htm
 echo "</pre>" >> $home/data/$domain/data/records.htm
 grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | grep -v '=' | column -t > sub-dnsrecon

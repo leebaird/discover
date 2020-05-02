@@ -68,6 +68,18 @@ if [ -d /opt/discover/.git ]; then
      echo
 fi
 
+if [ -d /opt/DNSRedon/.git ]; then
+     echo -e "${BLUE}Updating DNSRecon.${NC}"
+     cd /opt/DNSRecon/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing DNSRecon.${NC}"
+     git clone https://github.com/darkoperator/dnsrecon.git /opt/DNSRecon
+     cd /opt/DNSRecon/
+     python3 -m pip install -r requirements.txt
+     echo
+fi
+
 if [ -d /opt/dnstwist/.git ]; then
      echo -e "${BLUE}Updating dnstwist.${NC}"
      cd /opt/dnstwist/ ; git pull
