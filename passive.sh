@@ -114,7 +114,8 @@ echo
 
 echo "dnsrecon                  (4/$total)"
 dnsrecon -d $domain > tmp
-grep '*' tmp | egrep -v '(Bind Version|Checking|configured|DNSSEC|Enumerating|No SRV Records|Performing|PRIVATEDNS|Removing|Resolving|Servers found|SKEYs|Trying)' | sed 's/\[\*\]//g; s/^[ \t]*//' | column -t | sort -k1 > records
+grep '*' tmp | egrep -v '(Bind Version|Checking|configured|DNSSEC|Enumerating|No SRV Records|Performing|PRIVATEDNS|Removing|Resolving|Servers found|SKEYs|Trying)' | 
+sed 's/\[\*\]//g; s/^[ \t]*//' | column -t | sort -k1 > records
 cat records >> $home/data/$domain/data/records.htm
 echo "</pre>" >> $home/data/$domain/data/records.htm
 grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | grep -v '=' | column -t > sub-dnsrecon
@@ -170,9 +171,9 @@ if [ -d /pentest/intelligence-gathering/theharvester/ ]; then
      # PTF
      harvesterdir='/pentest/intelligence-gathering/theharvester'
 else
-     # Kali    
+     # Kali
      harvesterdir='/opt/theHarvester'
-fi 
+fi
 
 cd $harvesterdir
 
@@ -218,21 +219,21 @@ echo "     otx                  (26/$total)"
 echo "     securityTrails       (27/$total)"
 ./theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
 echo "     spyse                (28/$total)"
-./theHarvester.py -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' > zspyse
+./theHarvester.py -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
 echo "     threatcrowd          (29/$total)"
-./theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' > zthreatcrowd
+./theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
 echo "     trello               (30/$total)"
-./theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' > ztrello
+./theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
 echo "     twitter              (31/$total)"
-./theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' > ztwitter
+./theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
 echo "     vhost                (32/$total)"
-./theHarvester.py -d $domain -b vhost | egrep -v '(!|\*|--|\[|Searching)' > zvhost
+./theHarvester.py -d $domain -b vhost | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvhost
 echo "     virustotal           (33/$total)"
-./theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' > zvirustotal
+./theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
 echo "     yahoo                (34/$total)"
-./theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' > zyahoo
+./theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
 echo "     all                  (35/$total)"
-./theHarvester.py -d $domain -b all | egrep -v '(!|\*|--|\[|Searching)' > zall
+./theHarvester.py -d $domain -b all | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zall
 
 mv z* $CWD
 rm debug_results.txt stash.sqlite tmp* 2>/dev/null
@@ -256,9 +257,6 @@ echo
 
 echo "URLCrazy                  (37/$total)"
 /opt/URLCrazy/urlcrazy $domain > tmp
-# Replace 2 or more spaces with a comma
-#sed 's/ \{2,\}/,/g' tmp3 > urlcrazy
-
 # Find domains that contain an IP
 grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp | grep 'Wrong TLD' | grep -v 'RESERVED' | sed 's/UNITED STATES (US)//g' > tmp2
 # Remove trailing white space
@@ -393,19 +391,19 @@ sed -i 's/.*<thead>.*/     <table border="4">\n&/' $home/data/$domain/pages/conf
 sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' $home/data/$domain/pages/config.htm
 # Remove unnecessary JS at bottom of page
 sed -i '/Math\.random/I,+6 d' $home/data/$domain/pages/config.htm
-sed -i 's/I could use the nameservers listed below to performe recursive queries./The nameservers listed below could be used to perform recursive queries./' $home/data/$domain/pages/config.htm
+sed -i 's/I could use the nameservers listed below to performe/The nameservers listed below could be used to perform/' $home/data/$domain/pages/config.htm
 # Clean up
 sed -i 's/It may be that I am wrong but the chances of that are low.//; s/Good. //g; s/Ok. //g; s/OK. //g; s/WARNING: //g' $home/data/$domain/pages/config.htm
 rm tmp*
 echo
 
-###############################################################################################################################
+##############################################################################################################################
 
 echo "robtex.com                (45/$total)"
 wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
 echo
 
-###############################################################################################################################
+##############################################################################################################################
 
 echo "Registered Domains        (46/$total)"
 f_regdomain(){
@@ -472,21 +470,25 @@ else
 fi
 
 # Formatting & clean-up
-sort tmp4 | sed 's/111AAA--placeholder--/Domain,IP Address,Registration Email,Registration Org,Registrar,/' | grep -v 'Matches Found' > tmp6
+cat tmp4 | sed 's/111AAA--placeholder--/Domain,IP Address,Registration Email,Registration Org,Registrar,/' | grep -v 'Matches Found' > tmp6
 cat tmp6 | sed 's/LLC /LLC./g; s/No IP Found//g; s/REDACTED FOR PRIVACY//g; s/select contact domain holder link at https//g' > tmp7
-egrep -v '(connection timed out|please contact|redacted for privacy)' tmp7 | column -n -s ',' -t > tmp8
 # Remove lines that start with an IP
-grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp8 | grep @$domain > registered-domains
+grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp7 > tmp8
+egrep -v '(amazonaws.com|connection timed out|Domain Name|please contact|PrivacyGuard|redacted for privacy)' tmp8 > tmp9
+grep "@$domain" tmp9 | column -t -s ',' | sort -u > registered-domains
+
+exit
+
 rm tmp*
 echo
 
 ###############################################################################################################################
 
-cat z* | grep '@' | sed '/^@/d' | sort -u > emails
+cat z* | grep "@$domain" | sort -u > emails
 
-cat z* | grep ':' | sed 's/:/ /g; s/ empty//g' | column -t | sort -u > sub-theHarvester
+cat z* | grep "\.$domain" | egrep -v '(/|.aspx|cloudflare.net)' | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | column -t -s ':' | sort -u > sub-theHarvester
 
-cat z* | egrep -v '(@|:|\.)' | sort -u | cut -d '-' -f1 > tmp
+cat z* | egrep -v '(@|:|\.|Google)' | sort -u | cut -d '-' -f1 > tmp
 
 if [ -e tmp ]; then
      # Remove lines that start with .
