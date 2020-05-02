@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Number of tests
-total=9
+total=8
 
 ###############################################################################################################################
 
 clear
 f_banner
 
-echo -e "${BLUE}Uses dnsrecon, recon-ng, Traceroute, wafw00f, Whatweb.${NC}"
+echo -e "${BLUE}Uses recon-ng, Traceroute, wafw00f and Whatweb.${NC}"
 echo
 echo -e "${BLUE}[*] Acquire API keys for maximum results with recon-ng.${NC}"
 echo
@@ -41,33 +41,7 @@ echo
 
 ###############################################################################################################################
 
-echo "dnsrecon"
-echo "     DNS Records          (1/$total)"
-dnsrecon -d $domain -t std > tmp
-egrep -iv '(all queries|bind version|could not|enumerating srv|not configured|performing|records found|recursion|resolving|txt|wildcard)' tmp | sort > tmp2
-
-# Remove first 6 characters from each line
-sed 's/^......//g' tmp2 | column -t | sort > tmp3
-grep 'TXT' tmp | sed 's/^......//g' | sort > tmp4
-cat tmp3 tmp4 | column -t > records
-
-# If folder doesn't exist, create it
-if [ ! -d $home/data/$domain ]; then
-     cp -R $discover/report/ $home/data/$domain
-     sed -i "s/#COMPANY#/$company/" $home/data/$domain/index.htm
-     sed -i "s/#DOMAIN#/$domain/" $home/data/$domain/index.htm
-     sed -i "s/#DATE#/$rundate/" $home/data/$domain/index.htm
-else
-     cp $discover/report/data/records.htm $home/data/$domain/data/records.htm
-     cat records >> $home/data/$domain/data/records.htm
-     echo "</pre>" >> $home/data/$domain/data/records.htm
-fi
-
-rm tmp*
-
-###############################################################################################################################
-
-echo "     Sub-domains          (2/$total)"
+echo "     Sub-domains          (1/$total)"
 if [ -f /usr/share/dnsrecon/namelist.txt ]; then
      dnsrecon -d $domain -D /usr/share/dnsrecon/namelist.txt -f -t brt > tmp
 fi
@@ -95,14 +69,14 @@ grep -E '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' tmp | egrep -v '(-|=|:|1.1
 
 ###############################################################################################################################
 
-echo "     Zone Transfer        (3/$total)"
+echo "     Zone Transfer        (2/$total)"
 dnsrecon -d $domain -t axfr > tmp
 egrep -v '(Checking for|Failed|filtered|No answer|NS Servers|Removing|reset|TCP Open|Testing NS)' tmp | sed 's/^....//g; /^$/d' > zonetransfer
 echo
 
 ###############################################################################################################################
 
-echo "Web Application Firewall  (4/$total)"
+echo "Web Application Firewall  (3/$total)"
 wafw00f -a http://www.$domain > tmp 2>/dev/null
 sed '1,16d' tmp > waf
 echo
@@ -110,16 +84,16 @@ echo
 ###############################################################################################################################
 
 echo "Traceroute"
-echo "     UDP                  (5/$total)"
+echo "     UDP                  (4/$total)"
 echo "UDP" > tmp
 traceroute $domain | awk -F" " '{print $1,$2,$3}' >> tmp
 echo >> tmp
 echo "ICMP ECHO" >> tmp
-echo "     ICMP ECHO            (6/$total)"
+echo "     ICMP ECHO            (5/$total)"
 traceroute -I $domain | awk -F" " '{print $1,$2,$3}' >> tmp
 echo >> tmp
 echo "TCP SYN" >> tmp
-echo "     TCP SYN              (7/$total)"
+echo "     TCP SYN              (6/$total)"
 traceroute -T $domain | awk -F" " '{print $1,$2,$3}' >> tmp
 grep -v 'traceroute' tmp > tmp2
 # Remove blank lines from end of file
@@ -128,7 +102,7 @@ echo
 
 ###############################################################################################################################
 
-echo "Whatweb (~5 min)          (8/$total)"
+echo "Whatweb (~5 min)          (7/$total)"
 grep -v '<' $home/data/$domain/data/subdomains.htm | awk '{print $1}' > tmp
 whatweb -i tmp --color=never --no-errors > tmp2 2>/dev/null
 
@@ -146,7 +120,7 @@ echo
 
 ###############################################################################################################################
 
-echo "recon-ng                  (9/$total)"
+echo "recon-ng                  (8/$total)"
 echo "marketplace install all" > active.rc
 echo "workspaces load $domain" >> active.rc
 cat $discover/resource/recon-ng-active.rc >> active.rc
@@ -176,15 +150,6 @@ if [ -e hosts ]; then
      echo "Hosts ($hostcount)" >> tmp
      echo $short >> tmp
      cat hosts >> tmp
-     echo >> tmp
-fi
-
-if [ -e records ]; then
-     recordcount=$(wc -l records | cut -d ' ' -f1)
-     echo "DNS Records   $recordcount" >> zreport
-     echo "DNS Records ($recordcount)" >> tmp
-     echo $long >> tmp
-     cat records >> tmp
      echo >> tmp
 fi
 
@@ -245,7 +210,7 @@ if [[ -e $home/data/$domain/data/hosts.htm && -e hosts ]]; then
      echo "</pre>" >> $home/data/$domain/data/hosts.htm
 fi
 
-mv active.rc emails hosts record* sub* waf whatweb z* /tmp/subdomains-active $home/data/$domain/tools/active/ 2>/dev/null
+mv active.rc emails hosts sub* waf whatweb z* /tmp/subdomains-active $home/data/$domain/tools/active/ 2>/dev/null
 rm tmp*
 
 echo

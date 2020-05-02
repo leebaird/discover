@@ -8,7 +8,7 @@ total=47
 clear
 f_banner
 
-echo -e "${BLUE}Uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,${NC}"
+echo -e "${BLUE}Uses ARIN, DNSRecon, goofile, goog-mail, goohost, theHarvester,${NC}"
 echo -e "${BLUE}  Metasploit, URLCrazy, dnstwist, Whois, multiple websites and recon-ng.${NC}"
 echo
 echo -e "${BLUE}[*] Acquire API keys for maximum results with recon-ng and theHarvester.${NC}"
@@ -112,16 +112,17 @@ echo
 
 ###############################################################################################################################
 
-echo "dnsrecon                  (4/$total)"
-dnsrecon -d $domain > tmp
-grep '*' tmp | egrep -v '(Bind Version|Checking|configured|DNSSEC|Enumerating|No SRV Records|Performing|PRIVATEDNS|Removing|Resolving|Servers found|SKEYs|Trying)' | sed 's/\[\*\]//g; s/^[ \t]*//' | column -t | sort -k1 > records
+echo "DNSRecon                  (4/$total)"
+/opt/DNSRecon/dnsrecon -d $domain > tmp
+grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp | grep -v 'Version' | sed 's/\[\*\]//g; s/\[+\]//g' > tmp2
+# Remove leading whitespace from each line
+sed 's/^[ \t]*//' tmp2 | column -t | sort -k1 > records
+
 cat records >> $home/data/$domain/data/records.htm
 echo "</pre>" >> $home/data/$domain/data/records.htm
 grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | grep -v '=' | column -t > sub-dnsrecon
 
-# Remove all empty files
-find . -type f -empty -exec rm "{}" \;
-rm tmp 2>/dev/null
+rm tmp* 2>/dev/null
 echo
 
 ###############################################################################################################################
