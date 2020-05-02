@@ -397,13 +397,13 @@ sed -i 's/It may be that I am wrong but the chances of that are low.//; s/Good. 
 rm tmp*
 echo
 
-##############################################################################################################################
+###############################################################################################################################
 
 echo "robtex.com                (45/$total)"
 wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
 echo
 
-##############################################################################################################################
+###############################################################################################################################
 
 echo "Registered Domains        (46/$total)"
 f_regdomain(){
@@ -500,8 +500,8 @@ if [ -e tmp ]; then
      cat tmp4 | sed 's/iii/III/g; s/ii/II/g' > tmp5
      # Capitalize the first letter of every word and tweak
      cat tmp5 | sed 's/\b\(.\)/\u\1/g; s/ And / and /; s/ Av / AV /g; s/ It / IT /g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; 
-s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; 
-s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
+s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; 
+s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
      grep -v ',' tmp6 | awk '{print $2", "$1}' > tmp7
      grep ',' tmp7 > tmp8
      # Remove trailing whitespace from each line
