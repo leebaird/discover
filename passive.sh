@@ -206,11 +206,15 @@ echo "     hunter               (21/$total)"
 echo "     intelx               (22/$total)"
 ./theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
 echo "     linkedin             (23/$total)"
+sleep 5
 ./theHarvester.py -d "$company" -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z1
+sleep 5
 ./theHarvester.py -d $domain -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z2
 # Make first 2 columns title case.
+sleep 5
 cat z1 z2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sort -u > zlinkedin
 echo "     linkedin_links       (24/$total)"
+sleep 5
 ./theHarvester.py -d $domain -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
 echo "     netcraft             (25/$total)"
 ./theHarvester.py -d $domain -b netcraft | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > znetcraft
@@ -223,6 +227,7 @@ echo "     spyse                (28/$total)"
 echo "     threatcrowd          (29/$total)"
 ./theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
 echo "     trello               (30/$total)"
+sleep 5
 ./theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
 echo "     twitter              (31/$total)"
 ./theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
@@ -233,6 +238,7 @@ echo "     virustotal           (33/$total)"
 echo "     yahoo                (34/$total)"
 ./theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
 echo "     all                  (35/$total)"
+sleep 5
 ./theHarvester.py -d $domain -b all | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zall
 
 mv z* $CWD
