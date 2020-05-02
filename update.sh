@@ -68,7 +68,7 @@ if [ -d /opt/discover/.git ]; then
      echo
 fi
 
-if [ -d /opt/DNSRedon/.git ]; then
+if [ -d /opt/DNSRecon/.git ]; then
      echo -e "${BLUE}Updating DNSRecon.${NC}"
      cd /opt/DNSRecon/ ; git pull
      echo
