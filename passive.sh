@@ -114,15 +114,13 @@ echo
 
 echo "DNSRecon                  (4/$total)"
 /opt/DNSRecon/dnsrecon -d $domain > tmp
-grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp | grep -v 'Version' | sed 's/\[\*\]//g; s/\[+\]//g' > tmp2
-# Remove leading whitespace from each line
-sed 's/^[ \t]*//' tmp2 | column -t | sort -k1 > records
+cat tmp | egrep -v '(DNSSEC|Error|Performing|Records|Version)' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort > records
 
 cat records >> $home/data/$domain/data/records.htm
 echo "</pre>" >> $home/data/$domain/data/records.htm
-grep $domain tmp | awk '{print $3 " " $4}' | awk '$2 !~ /[a-z]/' | grep -v '=' | column -t > sub-dnsrecon
+grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp | awk '{print $3 " " $4}' | egrep -v '(_|=|Version)' | tr '[A-Z]' '[a-z]' | column -t | sort > sub-dnsrecon
 
-rm tmp* 2>/dev/null
+rm tmp 2>/dev/null
 echo
 
 ###############################################################################################################################
