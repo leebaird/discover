@@ -361,6 +361,7 @@ db query UPDATE contacts SET last_name = REPLACE(last_name,'OShea',"O'Shea")
 db query UPDATE contacts SET last_name = REPLACE(last_name,'XU','Xu')
 
 db query UPDATE contacts SET title = '' WHERE title LIKE '%...%'
+db query UPDATE contacts SET title = '' WHERE title LIKE '%Employee at%'
 db query UPDATE contacts SET title = '' WHERE title LIKE '%experience%'
 db query UPDATE contacts SET title = '' WHERE title LIKE '%first name%'
 db query UPDATE contacts SET title = '' WHERE title LIKE '%fortune%'
@@ -368,6 +369,7 @@ db query UPDATE contacts SET title = '' WHERE title LIKE '%includes%'
 db query UPDATE contacts SET title = '' WHERE title LIKE '%learn%'
 db query UPDATE contacts SET title = '' WHERE title LIKE '%linkedin%'
 db query UPDATE contacts SET title = '' WHERE title LIKE '%people also%'
+db query UPDATE contacts SET title = '' WHERE title LIKE '%PGP key association%'
 db query UPDATE contacts SET title = '' WHERE title LIKE '%profile%'
 db query UPDATE contacts SET title = '' WHERE title LIKE '%undetermined%'
 db query UPDATE contacts SET title = '' WHERE title LIKE '%whois%'
