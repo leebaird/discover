@@ -67,7 +67,7 @@ if [ -s tmp.xml ]; then
           xml_grep 'email' tmp2.xml --text_only >> tmp
      done < zurls.txt
 
-     cat tmp | tr '[A-Z]' '[a-z]' | sort -u > zarin-emails
+     cat tmp | grep -v '_' | tr '[A-Z]' '[a-z]' | sort -u > zarin-emails
 fi
 
 rm tmp* 2>/dev/null
@@ -113,7 +113,7 @@ echo
 ###############################################################################################################################
 
 echo "DNSRecon                  (4/$total)"
-/opt/DNSRecon/dnsrecon -d $domain > tmp
+/opt/DNSRecon/dnsrecon.py -d $domain > tmp
 cat tmp | egrep -v '(DNSSEC|Error|Performing|Records|Version)' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort > records
 
 cat records >> $home/data/$domain/data/records.htm
@@ -259,12 +259,12 @@ echo
 
 ###############################################################################################################################
 
-echo "URLCrazy                  (37/$total)"
-/opt/URLCrazy/urlcrazy $domain > tmp
+echo "URLCrazy                  (37/$total)   Disabled"
+#/opt/URLCrazy/urlcrazy $domain > tmp
 # Find domains that contain an IP
-grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp | grep 'Wrong TLD' | grep -v 'RESERVED' | sed 's/UNITED STATES (US)//g' > tmp2
+#grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp | grep 'Wrong TLD' | grep -v 'RESERVED' | sed 's/UNITED STATES (US)//g' > tmp2
 # Remove trailing white space
-sed 's/[ \t]*$//' tmp2 > urlcrazy
+#sed 's/[ \t]*$//' tmp2 > urlcrazy
 echo
 
 ###############################################################################################################################
@@ -481,8 +481,6 @@ grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp7 > tmp8
 egrep -v '(amazonaws.com|connection timed out|Domain Name|please contact|PrivacyGuard|redacted for privacy)' tmp8 > tmp9
 grep "@$domain" tmp9 | column -t -s ',' | sort -u > registered-domains
 
-exit
-
 rm tmp*
 echo
 
@@ -521,8 +519,10 @@ echo "db insert companies" >> passive.rc
 echo "$companyurl" >> passive.rc
 sed -i 's/%26/\&/g; s/%20/ /g; s/%2C/\,/g' passive.rc
 echo "none" >> passive.rc
+echo "none" >> passive.rc
 echo "db insert domains" >> passive.rc
 echo "$domain" >> passive.rc
+echo "none" >> passive.rc
 
 if [ -e emails ]; then
      cp emails /tmp/tmp-emails
@@ -543,22 +543,6 @@ recon-ng -r $CWD/passive.rc
 
 ###############################################################################################################################
 
-cat /tmp/usernames | awk '{print $2}' | grep '[0-9]$' | sed 's/-/ /g' | awk '{print $2 ", " $1}' | sed '/[0-9]/d' | sed '/^,/d' | 
-sed -e 's/\b\(.\)/\u\1/g' | sed 's/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; 
-s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g' | sort -u > usernames
-
-echo "last_name#first_name" > /tmp/names.csv
-sed 's/, /#/' usernames >> /tmp/names.csv
-
-echo "workspaces select $domain" > passive2.rc
-cat $discover/resource/recon-ng-import-names.rc >> passive2.rc
-cat $discover/resource/recon-ng-cleanup.rc >> passive2.rc
-sed -i "s/yyy/$domain/g" passive2.rc
-
-recon-ng -r $CWD/passive2.rc
-
-###############################################################################################################################
-
 grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|query|SELECT)' | sort -u > emails-final
 
 sed '1,4d' /tmp/names | head -n -5 > names-final
@@ -566,9 +550,12 @@ sed '1,4d' /tmp/names | head -n -5 > names-final
 grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > tmp
 cat networks-tmp tmp | sort -u | $sip > networks-final
 
-grep "$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > /tmp/sub-clean
-cat sub* /tmp/sub-clean | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(outlook|www)' | column -t | sort -u > subdomains-final
-awk '{print $2}' subdomains-final | grep -E '([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})' | egrep -v '(-|=|:)' | sed '/^$/d' | sed 's/,//g' | $sip > hosts
+grep "\.$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > tmp
+cat sub* tmp | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(outlook|www)' | column -t | sort -u > subdomains-final
+
+cut -d ' ' -f2- subdomains-final | sed 's/^[ \t]*//' | grep -v ',' | sort -u > tmp
+cut -d ' ' -f2- subdomains-final | sed 's/^[ \t]*//' | grep ',' | sed 's/,/\n/g' | sed 's/^[ \t]*//' | sort -u > tmp2
+cat tmp tmp2 | sort -u | $sip > hosts
 
 ###############################################################################################################################
 
@@ -784,9 +771,9 @@ fi
 cat zreport >> $home/data/$domain/data/passive-recon.htm
 echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-mv curl debug* email* hosts name* network* records registered* squatting sub* tmp* usernames whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
+mv curl debug* dnstwist email* hosts name* network* records registered* squatting sub* tmp* urlcrazy whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
 mv passive.rc passive2.rc $home/data/$domain/tools/recon-ng/
-cd /tmp/; mv emails names* networks sub* tmp-emails usernames $home/data/$domain/tools/recon-ng/ 2>/dev/null
+cd /tmp/; mv emails names* networks sub* tmp-emails $home/data/$domain/tools/recon-ng/ 2>/dev/null
 cd $CWD
 
 echo
@@ -829,11 +816,9 @@ $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude
 sleep 4
 $web https://www.google.com/search?q=site:pastebin.com+intext:$domain &
 sleep 4
-$web https://www.shodan.io/search?query=$domain &
+$web http://www.tcpiputils.com/browse/domain/$domain &
 sleep 4
 $web https://www.google.com/search?q=site:$domain+inurl:admin &
-sleep 4
-$web http://www.tcpiputils.com/browse/domain/$domain &
 sleep 4
 $web http://viewdns.info/reversewhois/?q=$domain &
 sleep 4
