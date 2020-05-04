@@ -458,7 +458,7 @@ db query SELECT DISTINCT username FROM credentials WHERE username LIKE "%@yyy" O
 spool stop
 
 spool start /tmp/names
-db query SELECT last_name,first_name,title FROM contacts WHERE last_name IS NOT NULL ORDER BY last_name,first_name ASC
+db query SELECT DISTINCT last_name,first_name,title FROM contacts WHERE last_name IS NOT NULL ORDER BY last_name,first_name ASC
 spool stop
 
 spool start /tmp/networks
