@@ -395,9 +395,9 @@ sed -i 's/.*<thead>.*/     <table border="4">\n&/' $home/data/$domain/pages/conf
 sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' $home/data/$domain/pages/config.htm
 # Remove unnecessary JS at bottom of page
 sed -i '/Math\.random/I,+6 d' $home/data/$domain/pages/config.htm
-sed -i 's/I could use the nameservers listed below to performe/The nameservers listed below could be used to perform/' $home/data/$domain/pages/config.htm
 # Clean up
-sed -i 's/It may be that I am wrong but the chances of that are low.//; s/Good. //g; s/Ok. //g; s/OK. //g; s/WARNING: //g' $home/data/$domain/pages/config.htm
+sed -i 's/I could use the nameservers/The nameservers/g' $home/data/$domain/pages/config.htm
+sed -i 's/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/The reverse (PTR) record://g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/Your/The/g; s/your/the/g' $home/data/$domain/pages/config.htm
 rm tmp*
 echo
 
