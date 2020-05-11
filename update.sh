@@ -286,18 +286,6 @@ else
      echo
 fi
 
-if [ -d /opt/URLCrazy/.git ]; then
-     echo -e "${BLUE}Updating URLCrazy.${NC}"
-     cd /opt/URLCrazy/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing URLCrazy.${NC}"
-     git clone https://github.com/urbanadventurer/urlcrazy /opt/URLCrazy
-     cd /opt/URLCrazy
-     bundle install
-     echo
-fi
-
 if [ -d /opt/Veil/.git ]; then
      echo -e "${BLUE}Updating Veil.${NC}"
      cd /opt/Veil/ ; git pull
