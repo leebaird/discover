@@ -8,10 +8,10 @@ total=47
 clear
 f_banner
 
-echo -e "${BLUE}Uses ARIN, DNSRecon, goofile, goog-mail, goohost, theHarvester,${NC}"
-echo -e "${BLUE}  Metasploit, URLCrazy, dnstwist, Whois, multiple websites and recon-ng.${NC}"
+echo -e "${BLUE}Uses ARIN, DNSRecon, dnstwist, goofile, goog-mail, goohost,${NC}"
+echo -e "${BLUE}theHarvester, Metasploit, Whois, multiple websites and recon-ng.${NC}"
 echo
-echo -e "${BLUE}[*] Acquire API keys for maximum results with recon-ng and theHarvester.${NC}"
+echo -e "${BLUE}[*] Acquire API keys for maximum results with theHarvester and recon-ng.${NC}"
 echo
 echo $medium
 echo
@@ -84,7 +84,7 @@ if [ -e zhandles.txt ]; then
      awk -F", " '{print $2,$1}' tmp2 | sed 's/  / /g' | grep -v 'Admin' | sort -u > zarin-names
 fi
 
-rm zurls.txt zhandles.txt 2>/dev/null
+rm tmp* zurls.txt zhandles.txt 2>/dev/null
 
 ###############################################################################################################################
 
@@ -125,7 +125,17 @@ echo
 
 ###############################################################################################################################
 
-echo "goofile                   (5/$total)"
+echo "dnstwist                  (5/$total)"
+/opt/dnstwist/dnstwist.py --registered $domain > tmp
+# Remove the first 9 lines
+sed '1,9d' tmp | column -t > squatting
+
+rm tmp 2>/dev/null
+echo
+
+###############################################################################################################################
+
+echo "goofile                   (6/$total)"
 python3 $discover/mods/goofile.py $domain doc > doc
 python3 $discover/mods/goofile.py $domain docx | sort -u >> doc
 python3 $discover/mods/goofile.py $domain pdf | sort -u > pdf
@@ -142,7 +152,7 @@ echo
 
 ###############################################################################################################################
 
-echo "goog-mail                 (6/$total)"
+echo "goog-mail                 (7/$total)"
 $discover/mods/goog-mail.py $domain | grep -v 'cannot' | tr '[A-Z]' '[a-z]' > zgoog-mail
 
 # Remove all empty files
@@ -152,9 +162,9 @@ echo
 ###############################################################################################################################
 
 echo "goohost"
-echo "     IP                   (7/$total)"
+echo "     IP                   (8/$total)"
 $discover/mods/goohost.sh -t $domain -m ip >/dev/null
-echo "     Email                (8/$total)"
+echo "     Email                (9/$total)"
 $discover/mods/goohost.sh -t $domain -m mail >/dev/null
 cat report-* | grep $domain | column -t | sort -u > zgoohost
 
@@ -175,83 +185,88 @@ fi
 
 cd $harvesterdir
 
-echo "     baidu                (9/$total)"
-./theHarvester.py -d $domain -b baidu | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbaidu
-echo "     bing                 (10/$total)"
-./theHarvester.py -d $domain -b bing | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing
-echo "     bingapi              (11/$total)"
-./theHarvester.py -d $domain -b bingapi | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbingapi
-echo "     bufferoverun         (12/$total)"
-./theHarvester.py -d $domain -b bufferoverun | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbufferoverun
-echo "     certspotter          (13/$total)"
-./theHarvester.py -d $domain -b certspotter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcertspotter
-echo "     crtsh                (14/$total)"
-./theHarvester.py -d $domain -b crtsh | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcrtsh
-echo "     dnsdumpster          (15/$total)"
-./theHarvester.py -d $domain -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdnsdumpster
-echo "     dogpile              (16/$total)"
-./theHarvester.py -d $domain -b dogpile | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdogpile
-echo "     duckduckgo           (17/$total)"
-./theHarvester.py -d $domain -b duckduckgo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zduckduckgo
-echo "     exalead              (18/$total)"
-./theHarvester.py -d $domain -b exalead | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zexalead
-echo "     github-code          (19/$total)"
-./theHarvester.py -d $domain -b github-code | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgithub-code
-echo "     google               (20/$total)"
-./theHarvester.py -d $domain -b google | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgoogle
-echo "     hunter               (21/$total)"
-./theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunter
-echo "     intelx               (22/$total)"
-./theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
-echo "     linkedin             (23/$total)"
+echo "     baidu                (10/$total)"
+python3 theHarvester.py -d $domain -b baidu | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbaidu
+echo "     bing                 (11/$total)"
+python3 theHarvester.py -d $domain -b bing | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing
+echo "     bingapi              (12/$total)"
+python3 theHarvester.py -d $domain -b bingapi | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbingapi
+echo "     bufferoverun         (13/$total)"
+python3 theHarvester.py -d $domain -b bufferoverun | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbufferoverun
+echo "     certspotter          (14/$total)"
+python3 theHarvester.py -d $domain -b certspotter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcertspotter
+echo "     crtsh                (15/$total)"
+python3 theHarvester.py -d $domain -b crtsh | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcrtsh
+echo "     dnsdumpster          (16/$total)"
+python3 theHarvester.py -d $domain -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdnsdumpster
+echo "     dogpile              (17/$total)"
+python3 theHarvester.py -d $domain -b dogpile | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdogpile
+echo "     duckduckgo           (18/$total)"
+python3 theHarvester.py -d $domain -b duckduckgo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zduckduckgo
+echo "     exalead              (19/$total)"
+python3 theHarvester.py -d $domain -b exalead | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zexalead
+echo "     github-code          (20/$total)"
+python3 theHarvester.py -d $domain -b github-code | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgithub-code
+echo "     google               (21/$total)"
+python3 theHarvester.py -d $domain -b google | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgoogle
+echo "     hackertarget         (22/$total)"
+python3 theHarvester.py -d $domain -b hackertarget | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhackertarget
+echo "     hunter               (23/$total)"
+python3 theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunter
+echo "     intelx               (24/$total)"
+python3 theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
+echo "     linkedin             (25/$total)"
 sleep 5
-./theHarvester.py -d "$company" -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z1
+python3 theHarvester.py -d "$company" -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z1
 sleep 5
-./theHarvester.py -d $domain -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z2
+python3 theHarvester.py -d $domain -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z2
 # Make first 2 columns title case.
 sleep 5
 cat z1 z2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sort -u > zlinkedin
-echo "     linkedin_links       (24/$total)"
+echo "     linkedin_links       (26/$total)"
 sleep 5
-./theHarvester.py -d $domain -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
-echo "     netcraft             (25/$total)"
-./theHarvester.py -d $domain -b netcraft | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > znetcraft
-echo "     otx                  (26/$total)"
-./theHarvester.py -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zotx
-echo "     securityTrails       (27/$total)"
-./theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
-echo "     spyse                (28/$total)"
-./theHarvester.py -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
-echo "     threatcrowd          (29/$total)"
-./theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
-echo "     trello               (30/$total)"
+python3 theHarvester.py -d $domain -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
+echo "     netcraft             (27/$total)"
+python3 theHarvester.py -d $domain -b netcraft | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > znetcraft
+echo "     otx                  (28/$total)"
+python3 theHarvester.py -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zotx
+echo "     pentesttools         (29/$total)"
+python3 theHarvester.py -d $domain -b pentesttools | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zpentesttools
+echo "     securityTrails       (30/$total)"
+python3 theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
+echo "     spyse                (31/$total)"
+python3 theHarvester.py -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
+echo "     threatcrowd          (32/$total)"
+python3 theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
+echo "     trello               (33/$total)"
 sleep 5
-./theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
-echo "     twitter              (31/$total)"
-./theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
-echo "     vhost                (32/$total)"
-./theHarvester.py -d $domain -b vhost | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvhost
-echo "     virustotal           (33/$total)"
-./theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
-echo "     yahoo                (34/$total)"
-./theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
-echo "     all                  (35/$total)"
+python3 theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
+echo "     twitter              (34/$total)"
+python3 theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
+echo "     vhost                (35/$total)"
+python3 theHarvester.py -d $domain -b vhost | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvhost
+echo "     virustotal           (36/$total)"
+python3 theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
+echo "     yahoo                (37/$total)"
+python3 theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
+echo "     all                  (38/$total)"
 sleep 5
-./theHarvester.py -d $domain -b all | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zall
+python3 theHarvester.py -d $domain -b all | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zall
 
 mv z* $CWD
-rm debug_results.txt stash.sqlite tmp* 2>/dev/null
 
 # Remove all empty files
 cd $CWD
 find . -type f -empty -exec rm "{}" \;
+rm debug_results.txt stash.sqlite tmp* 2>/dev/null
 echo
 
 ###############################################################################################################################
 
-echo "Metasploit                (36/$total)"
+echo "Metasploit                (39/$total)"
 msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
 grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sed '/^\./d' > zmsf
+
 # Remove all empty files
 find . -type f -empty -exec rm "{}" \;
 rm tmp 2>/dev/null
@@ -259,30 +274,8 @@ echo
 
 ###############################################################################################################################
 
-echo "URLCrazy                  (37/$total)   Disabled"
-#/opt/URLCrazy/urlcrazy $domain > tmp
-# Find domains that contain an IP
-#grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp | grep 'Wrong TLD' | grep -v 'RESERVED' | sed 's/UNITED STATES (US)//g' > tmp2
-# Remove trailing white space
-#sed 's/[ \t]*$//' tmp2 > urlcrazy
-echo
-
-###############################################################################################################################
-
-echo "dnstwist                  (38/$total)"
-/opt/dnstwist/dnstwist.py --registered $domain > tmp3
-# Remove the first 9 lines
-sed '1,9d' tmp3 | column -t > dnstwist
-
-cat dnstwist urlcrazy > squatting
-
-rm tmp* 2>/dev/null
-echo
-
-###############################################################################################################################
-
 echo "Whois"
-echo "     Domain               (39/$total)"
+echo "     Domain               (40/$total)"
 whois -H $domain > tmp 2>/dev/null
 # Remove leading whitespace
 sed 's/^[ \t]*//' tmp > tmp2
@@ -314,11 +307,12 @@ sed -i '/^Domain servers/{n; /.*/d}' tmp12
 awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp12 > tmp13
 # Format output
 sed 's/: /:#####/g' tmp13 | column -s '#' -t -n > whois-domain
-rm tmp*
+
+rm tmp* 2>/dev/null
 
 ###############################################################################################################################
 
-echo "     IP                   (40/$total)"
+echo "     IP                   (41/$total)"
 curl -s https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
 y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
@@ -342,17 +336,16 @@ if ! [ "$y" = "" ]; then
      sed 's/ \+ / /g' tmp8 > tmp9
      # Format output
      sed 's/: /:#####/g' tmp9 | column -s '#' -t -n > whois-ip
-     rm tmp*
 else
      echo > whois-ip
 fi
 
-rm ultratools
+rm tmp* ultratools 2>/dev/null
 echo
 
 ###############################################################################################################################
 
-echo "dnsdumpster.com           (41/$total)"
+echo "dnsdumpster.com           (42/$total)"
 # Generate a random cookie value
 rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com/static/map/$domain.png > /dev/null
@@ -362,17 +355,10 @@ echo
 
 ###############################################################################################################################
 
-echo "email-format.com          (42/$total)"
+echo "email-format.com          (43/$total)"
 curl -s https://www.email-format.com/d/$domain/ > tmp
 grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | sed '/^_/d' | egrep -v '(john.doe|johnsmith|john_smith|john.smith|)' | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
-rm tmp
-echo
-
-###############################################################################################################################
-
-echo "hackertarget.com          (43/$total)"
-curl -s http://api.hackertarget.com/pagelinks/?q=https://www.$domain > tmp
-grep $domain tmp | sort -u >> $home/data/$domain/data/pages.htm
+rm tmp 2>/dev/null
 echo
 
 ###############################################################################################################################
@@ -397,8 +383,8 @@ sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' $home/data/$domain/pages/config.htm
 sed -i '/Math\.random/I,+6 d' $home/data/$domain/pages/config.htm
 # Clean up
 sed -i 's/I could use the nameservers/The nameservers/g' $home/data/$domain/pages/config.htm
-sed -i 's/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/The reverse (PTR) record://g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/Your/The/g; s/your/the/g' $home/data/$domain/pages/config.htm
-rm tmp*
+sed -i 's/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/The reverse (PTR) record://g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/You must be/Be/g; s/Your/The/g; s/your/the/g' $home/data/$domain/pages/config.htm
+rm tmp* 2>/dev/null
 echo
 
 ###############################################################################################################################
@@ -480,9 +466,7 @@ cat tmp6 | sed 's/LLC /LLC./g; s/No IP Found//g; s/REDACTED FOR PRIVACY//g; s/se
 grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp7 > tmp8
 egrep -v '(amazonaws.com|connection timed out|Domain Name|please contact|PrivacyGuard|redacted for privacy)' tmp8 > tmp9
 grep "@$domain" tmp9 | column -t -s ',' | sort -u > registered-domains
-
-rm tmp*
-echo
+rm tmp* 2>/dev/null
 
 ###############################################################################################################################
 
@@ -508,6 +492,7 @@ s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
      grep ',' tmp7 > tmp8
      # Remove trailing whitespace from each line
      cat tmp7 tmp8 | sed 's/[ \t]*$//' | sed '/^\,/ d' | sort -u > names
+     rm tmp* 2>/dev/null
 fi
 
 ###############################################################################################################################
@@ -771,7 +756,7 @@ fi
 cat zreport >> $home/data/$domain/data/passive-recon.htm
 echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-mv curl debug* dnstwist email* hosts name* network* records registered* squatting sub* tmp* urlcrazy whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
+mv curl debug* dnstwist email* hosts name* network* records registered* squatting sub* tmp* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
 mv passive.rc passive2.rc $home/data/$domain/tools/recon-ng/
 cd /tmp/; mv emails names* networks sub* tmp-emails $home/data/$domain/tools/recon-ng/ 2>/dev/null
 cd $CWD
@@ -821,8 +806,6 @@ sleep 4
 $web https://www.google.com/search?q=site:$domain+inurl:admin &
 sleep 4
 $web http://viewdns.info/reversewhois/?q=$domain &
-sleep 4
-$web https://www.zoomeye.org/searchResult/bugs?q=$domain &
 sleep 4
 $web https://www.facebook.com &
 sleep 4
