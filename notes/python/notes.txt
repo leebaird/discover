@@ -225,6 +225,9 @@ subprocess.call('crack-wifi.sh')                   Run a bash script
 for i in file:                                     Remove lines that start with FOO
   if i[0] != "FOO":
       print i
+
+if len(i) > 1 and self.word.replace('www.', '') and not i.startswith("*") and not i.lstrip()[0].isdigit():
+     self.totalhosts.add(i[1:] if i[0] == '.' else i)
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Dictionary                                         Standard data types

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Number of tests
-total=47
+total=48
 
 ###############################################################################################################################
 
@@ -76,12 +76,12 @@ rm tmp* 2>/dev/null
 
 echo "     Names                (2/$total)"
 if [ -e zhandles.txt ]; then
-     while read y; do
-          curl -s https://whois.arin.net/rest/poc/$y.txt | grep 'Name' >> tmp
-     done < zhandles.txt
+     for i in $(cat zhandles.txt); do
+          curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -s https://whois.arin.net/rest/poc/$i.txt | grep 'Name' >> tmp
+     done
 
-     egrep -v '(@|Network|Telecom)' tmp | sed 's/Name:           //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp2
-     awk -F", " '{print $2,$1}' tmp2 | sed 's/  / /g' | grep -v 'Admin' | sort -u > zarin-names
+     egrep -v "($company|@|Abuse|Center|Network|Technical|Telecom)" tmp | sed 's/Name:           //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp2
+     awk -F", " '{print $2,$1}' tmp2 | sed 's/  / /g' > zarin-names
 fi
 
 rm tmp* zurls.txt zhandles.txt 2>/dev/null
@@ -89,21 +89,18 @@ rm tmp* zurls.txt zhandles.txt 2>/dev/null
 ###############################################################################################################################
 
 echo "     Networks             (3/$total)"
-wget -q https://whois.arin.net/rest/orgs\;name=$companyurl -O tmp.xml
+curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -s https://whois.arin.net/rest/orgs\;name=$companyurl -o tmp.xml
 
 if [ -s tmp.xml ]; then
      xmllint --format tmp.xml | grep 'handle' | cut -d '/' -f6 | cut -d '<' -f1 | sort -uV > tmp
 
-     while read handle; do
-          echo "          " $handle
-          curl -s https://whois.arin.net/rest/org/$handle/nets.txt > tmp2
-          if ! head -1 tmp2 | grep 'DOCTYPE' > /dev/null; then
-               awk '{print $4 "-" $6}' tmp2 >> tmp3
-          fi
-     done < tmp
+     for i in $(cat tmp); do
+          echo "          " $i
+          curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -s https://whois.arin.net/rest/org/$i/nets.txt >> tmp2
+     done
 fi
 
-$sip tmp3 > networks-tmp 2>/dev/null
+grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp2 | awk '{print $4 "-" $6}' | $sip > networks-tmp
 
 # Remove all empty files
 find . -type f -empty -exec rm "{}" \;
@@ -232,24 +229,28 @@ echo "     otx                  (28/$total)"
 python3 theHarvester.py -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zotx
 echo "     pentesttools         (29/$total)"
 python3 theHarvester.py -d $domain -b pentesttools | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zpentesttools
-echo "     securityTrails       (30/$total)"
+echo "     rapiddns             (30/$total)"
+python3 theHarvester.py -d $domain -b rapiddns | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zrapiddns
+echo "     securityTrails       (31/$total)"
 python3 theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
-echo "     spyse                (31/$total)"
+echo "     spyse                (32/$total)"
 python3 theHarvester.py -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
-echo "     threatcrowd          (32/$total)"
+echo "     suip                 (33/$total)"
+python3 theHarvester.py -d $domain -b suip | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsuip
+echo "     threatcrowd          (34/$total)"
 python3 theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
-echo "     trello               (33/$total)"
+echo "     trello               (35/$total)"
 sleep 5
 python3 theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
-echo "     twitter              (34/$total)"
+echo "     twitter              (36/$total)"
 python3 theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
-echo "     vhost                (35/$total)"
+echo "     vhost                (37/$total)"
 python3 theHarvester.py -d $domain -b vhost | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvhost
-echo "     virustotal           (36/$total)"
+echo "     virustotal           (38/$total)"
 python3 theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
-echo "     yahoo                (37/$total)"
+echo "     yahoo                (39/$total)"
 python3 theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
-echo "     all                  (38/$total)"
+echo "     all                  (40/$total)"
 sleep 5
 python3 theHarvester.py -d $domain -b all | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zall
 
@@ -257,13 +258,11 @@ mv z* $CWD
 
 # Remove all empty files
 cd $CWD
-find . -type f -empty -exec rm "{}" \;
-rm debug_results.txt stash.sqlite tmp* 2>/dev/null
 echo
 
 ###############################################################################################################################
 
-echo "Metasploit                (39/$total)"
+echo "Metasploit                (41/$total)"
 msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
 grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sed '/^\./d' > zmsf
 
@@ -275,7 +274,7 @@ echo
 ###############################################################################################################################
 
 echo "Whois"
-echo "     Domain               (40/$total)"
+echo "     Domain               (42/$total)"
 whois -H $domain > tmp 2>/dev/null
 # Remove leading whitespace
 sed 's/^[ \t]*//' tmp > tmp2
@@ -312,7 +311,7 @@ rm tmp* 2>/dev/null
 
 ###############################################################################################################################
 
-echo "     IP                   (41/$total)"
+echo "     IP                   (43/$total)"
 curl -s https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
 y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
@@ -335,7 +334,7 @@ if ! [ "$y" = "" ]; then
      # Change multiple spaces to single
      sed 's/ \+ / /g' tmp8 > tmp9
      # Format output
-     sed 's/: /:#####/g' tmp9 | column -s '#' -t -n > whois-ip
+     sed 's/: /:#####/g' tmp9 | column -t -s '#' -n > whois-ip
 else
      echo > whois-ip
 fi
@@ -345,7 +344,7 @@ echo
 
 ###############################################################################################################################
 
-echo "dnsdumpster.com           (42/$total)"
+echo "dnsdumpster.com           (44/$total)"
 # Generate a random cookie value
 rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com/static/map/$domain.png > /dev/null
@@ -355,15 +354,7 @@ echo
 
 ###############################################################################################################################
 
-echo "email-format.com          (43/$total)"
-curl -s https://www.email-format.com/d/$domain/ > tmp
-grep -o [A-Za-z0-9_.]*@[A-Za-z0-9_.]*[.][A-Za-z]* tmp | sed '/^_/d' | egrep -v '(john.doe|johnsmith|john_smith|john.smith|)' | tr '[A-Z]' '[a-z]' | sort -u > zemail-format
-rm tmp 2>/dev/null
-echo
-
-###############################################################################################################################
-
-echo "intodns.com               (44/$total)"
+echo "intodns.com               (45/$total)"
 wget -q http://www.intodns.com/$domain -O tmp
 cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
 cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -389,13 +380,13 @@ echo
 
 ###############################################################################################################################
 
-echo "robtex.com                (45/$total)"
+echo "robtex.com                (46/$total)"
 wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
 echo
 
 ###############################################################################################################################
 
-echo "Registered Domains        (46/$total)"
+echo "Registered Domains        (47/$total)"
 f_regdomain(){
 while read regdomain; do
      ipaddr=$(dig +short $regdomain)
@@ -497,7 +488,7 @@ fi
 
 ###############################################################################################################################
 
-echo "recon-ng                  (47/$total)"
+echo "recon-ng                  (48/$total)"
 echo "marketplace install all" > passive.rc
 echo "workspaces create $domain" >> passive.rc
 echo "db insert companies" >> passive.rc
