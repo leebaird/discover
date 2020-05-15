@@ -15,18 +15,18 @@ read choice
 
 case $choice in
      1) f_location
-     echo -n "Use SSL? (y/N) "
-     read ssl
+     echo -n "Use a prefix? (y/N) "
+     read prefix
 
      $web &
      sleep 2
 
-     if [ -z $ssl ]; then
+     if [ -z $prefix ]; then
           for i in $(cat $location); do
-               $web http://$i &
+               $web $i &
                sleep 1
           done
-     elif [ "$ssl" == "y" ]; then
+     elif [ "$prefix" == "y" ]; then
           for i in $(cat $location); do
                $web https://$i &
                sleep 1

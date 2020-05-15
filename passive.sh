@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Number of tests
-total=48
+total=47
 
 ###############################################################################################################################
 
@@ -213,15 +213,13 @@ python3 theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching)'
 echo "     intelx               (24/$total)"
 python3 theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
 echo "     linkedin             (25/$total)"
-sleep 5
 python3 theHarvester.py -d "$company" -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z1
-sleep 5
+sleep 15
 python3 theHarvester.py -d $domain -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z2
 # Make first 2 columns title case.
-sleep 5
 cat z1 z2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sort -u > zlinkedin
 echo "     linkedin_links       (26/$total)"
-sleep 5
+sleep 30
 python3 theHarvester.py -d $domain -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
 echo "     netcraft             (27/$total)"
 python3 theHarvester.py -d $domain -b netcraft | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > znetcraft
@@ -240,7 +238,7 @@ python3 theHarvester.py -d $domain -b suip | egrep -v '(!|\*|--|\[|Searching)' |
 echo "     threatcrowd          (34/$total)"
 python3 theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
 echo "     trello               (35/$total)"
-sleep 5
+sleep 30
 python3 theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
 echo "     twitter              (36/$total)"
 python3 theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
@@ -250,9 +248,6 @@ echo "     virustotal           (38/$total)"
 python3 theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
 echo "     yahoo                (39/$total)"
 python3 theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
-echo "     all                  (40/$total)"
-sleep 5
-python3 theHarvester.py -d $domain -b all | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zall
 
 mv z* $CWD
 
@@ -262,7 +257,7 @@ echo
 
 ###############################################################################################################################
 
-echo "Metasploit                (41/$total)"
+echo "Metasploit                (40/$total)"
 msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
 grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sed '/^\./d' > zmsf
 
@@ -274,7 +269,7 @@ echo
 ###############################################################################################################################
 
 echo "Whois"
-echo "     Domain               (42/$total)"
+echo "     Domain               (41/$total)"
 whois -H $domain > tmp 2>/dev/null
 # Remove leading whitespace
 sed 's/^[ \t]*//' tmp > tmp2
@@ -311,7 +306,7 @@ rm tmp* 2>/dev/null
 
 ###############################################################################################################################
 
-echo "     IP                   (43/$total)"
+echo "     IP                   (42/$total)"
 curl -s https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
 y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
@@ -344,7 +339,7 @@ echo
 
 ###############################################################################################################################
 
-echo "dnsdumpster.com           (44/$total)"
+echo "dnsdumpster.com           (43/$total)"
 # Generate a random cookie value
 rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com/static/map/$domain.png > /dev/null
@@ -354,7 +349,7 @@ echo
 
 ###############################################################################################################################
 
-echo "intodns.com               (45/$total)"
+echo "intodns.com               (44/$total)"
 wget -q http://www.intodns.com/$domain -O tmp
 cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
 cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -380,13 +375,13 @@ echo
 
 ###############################################################################################################################
 
-echo "robtex.com                (46/$total)"
+echo "robtex.com                (45/$total)"
 wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
 echo
 
 ###############################################################################################################################
 
-echo "Registered Domains        (47/$total)"
+echo "Registered Domains        (46/$total)"
 f_regdomain(){
 while read regdomain; do
      ipaddr=$(dig +short $regdomain)
@@ -473,7 +468,7 @@ if [ -e tmp ]; then
      # Change to lower case
      cat tmp2 | tr '[A-Z]' '[a-z]' > tmp3
      # Clean up
-     egrep -v '(~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|>|\.|\?|/|abuse|academy|account|achievement|acquisition|acting|action|active|adjuster|admin|advanced|adventure|advertising|agency|alliance|allstate|ambassador|america|american|analysis|analyst|analytics|animal|another|antivirus|apple seems|application|applications|architect|archivist|article|assembler|assembling|assembly|asian|assignment|assistant|associate|association|attorney|audience|audio|auditor|australia|authority|automation|automotive|aviation|balance|bank|bbc|beginning|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|breaches|broker|builder|business|buyer|buying|california|cannot|capital|career|carrying|cashing|center|centre|certified|cfi|challenger|championship|change|chapter|charge|chemistry|china|chinese|claim|class|clearance|cloud|cnc|code|cognitive|college|columbia|coming|commercial|communications|community|company pages|competition|competitive|compliance|computer|comsec|concept|conference|config|connections|connect|construction|consultant|contact|contract|contributor|control|cooperation|coordinator|corporate|corporation|counsel|create|creative|critical|crm|croatia|cryptologic|custodian|cyber|dallas|database|day care|dba|dc|death toll|delivery|delta|department|deputy|description|designer|design|destructive|detection|develop|devine|dialysis|digital|diploma|direct|disability|disaster|disclosure|dispatch|dispute|distribut|divinity|division|dns|document|dos poc|download|driver|during|economy|ecovillage|editor|education|effect|electronic|else|email|embargo|emerging|empower|employment|end user|energy|engineer|enterprise|entertainment|entreprises|entrepreneur|entry|environmental|error page|ethical|example|excellence|executive|expectations|expertzone|exploit|expressplay|facebook|facilit|faculty|failure|fall edition|fast track|fatherhood|fbi|federal|fellow|filmmaker|finance|financial|fitter|forensic|forklift|found|freelance|from|frontiers in tax|fulfillment|full|function|future|fuzzing|germany|get control|global|gnoc|google|governance|government|graphic|greater|group|guard|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|help|history|homepage|hospital|hostmaster|house|how to|hurricane|icmp|idc|in the news|index|infant|inform|innovation|installation|insurers|integrated|intellectual|international|internet|instructor|insurance|intelligence|interested|interns|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|language|laptops|large|leader|letter|level|liaison|licensing|lighting|linguist|linkedin|limitless|liveedu|llp|local|looking|lpn|ltd|lsu|luscous|machinist|macys|malware|managed|management|manager|managing|manufacturing|market|mastering|material|mathematician|maturity|md|mechanic|media|medical|medicine|member|merchandiser|meta tags|methane|metro|microsoft|middle east|migration|mission|mitigation|mn|money|monitor|more coming|mortgage|motor|museums|mutual|national|negative|network|network|new user|newspaper|new york|next page|night|nitrogen|nw|nyc|obtain|occupied|offers|office|online|onsite|operations|operator|order|organizational|outbreak|owner|packaging|page|palantir|paralegal|partner|pathology|peace|people|perceptions|person|pharmacist|philippines|photo|picker|picture|placement|places|planning|police|portfolio|postdoctoral|potassium|potential|preassigned|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|project|program|property|publichealth|published|pyramid|quality|questions|rcg|recruiter|redeem|redirect|region|register|registry|regulation|rehab|remote|report|representative|republic|research|resolving|responsable|restaurant|retired|revised|rising|rural health|russia|sales|sample|satellite|save the date|school|scheduling|science|scientist|search|searc|sections|secured|security|secretary|secrets|see more|selection|senior|server|service|services|social|software|solution|source|special|sql|station home|statistics|store|strategy|strength|student|study|substitute|successful|sunoikisis|superheroines|supervisor|support|surveillance|switch|system|systems|talent|targeted|tax|tcp|teach|technical|technician|technique|technology|temporary|tester|textoverflow|theater|thought|through|time in|tit for tat|title|toolbook|tools|toxic|traditions|trafficking|transfer|transformation|treasury|trojan|truck|twitter|training|ts|tylenol|types of scams|unclaimed|underground|underwriter|university|united states|untitled|vault|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|vp|wanted|web search|web site|website|welcome|west virginia|westchester|when the|whiskey|window|worker|world|www|xbox|zz)' tmp3 > tmp4
+     egrep -v '(~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|>|\.|\?|/|abuse|academic|academy|according|account|achievement|acquisition|acting|action|active|adjuster|admin|advance|adventure|advertising|agency|airline|alliance|allstate|ambassador|america|analysis|analyst|analytics|animal|another|answer|antivirus|apple seems|application|apply|approve|architect|archivist|article|asian|assembler|assembling|assembly|assignment|assistant|associate|association|attorney|audience|audio|audit|australia|austria|authority|automat|automotive|aviation|backward|balance|bank|barricade|basket|bbc|beginning|benefit|berlin|beta theta|between|big game|billion|bioimages|biometrics|bizspark|block|board|breaches|broke|builder|business|buyer|buying|california|cannot|capital|captain|career|carrying|cashing|catch|center|centre|certified|cfi|cfp|challenge|championship|change|chapter|charge|check|chemistry|china|chinese|claim|class|clearance|cloud|cnc|code|cognitive|collective|college|columbia|coming|commercial|communications|community|companies|company|competition|competitive|complete|compliance|computer|comsec|concept|conference|config|connect|construction|consult|contact|continuous|contract|contributor|control|convert|cooperation|coordinator|corporate|corporation|counsel|create|creative|critical|crm|croatia|cryptologic|custodian|customer|cyber|dallas|database|day care|dba|dc|death toll|decision|deduct|delivery|delta|depart|deputy|description|design|destruct|detection|develop|devine|dialysis|difference|digital|diploma|direct|disability|disaster|disclosure|dismiss|dispatch|dispute|distribut|district|divinity|division|dns|document|dos poc|download|driver|during|economic|economy|ecovillage|editor|education|effect|electronic|else|email|embargo|emerging|employ|empower|enable|end user|energy|engagement|engine|engineer|enterprise|entertainment|entrepreneur|entreprises|entry|environmental|equipment|error page|ethical|evolution|example|excellence|excellent|executive|expectations|expertzone|exploit|expose|expressplay|facebook|facilit|factory|faculty|failure|fall edition|fast track|fatherhood|favorite|fbi|federal|feeling|fellow|female|filmmaker|finance|financial|first|fitter|forensic|forklift|format|forward|found|freelance|from|frontiers in tax|fulfillment|full|function|future|fuzzing|germany|get control|global|gmail|gnoc|google|goto|governance|government|graphic|greater|group|guard|guide|hacker|hackers|hacking|harden|harder|hawaii|hazing|headquarters|health|healthcare|help|helpdesk|hipaa|history|holdings|homepage|hospital|hostmaster|house|how to|hurricane|icmp|idatasec|idc|impact|important|inclusive|index|infant|inform|information|innovation|innovations|installation|instructor|insurance|insurers|integrated|intellectual|intelligence|interested|intern|international|internet|interns|interview|in the news|investigation|investment|investor|israel|items|japan|job|justice|kelowna|knowing|kpmg|language|laptops|large|leader|leadership|legal|letter|level|leverage|liaison|licensing|lighting|limit|limitless|linguist|linked|linkedin|listen|liveedu|llp|local|looking|loyal|lpn|lsu|ltd|luscous|machinist|macys|maintenance|malware|manage|managed|management|manager|managing|manufacturing|market|marking|master|mastering|material|mathematician|maturity|md|mechanic|media|medical|medicat|medicine|meeting|member|mending|merchandiser|meta tags|methane|metro|microsoft|middle east|migration|military|mission|mitigation|mn|money|monitor|more coming|mortgage|motor|museums|mutual|national|negative|network|newspaper|new user|new york|next page|night|nitrogen|norwegian|nw|nyc|obtain|occupied|offers|office|officer|online|onsite|operation|operations|operator|opportunity|order|organizational|outbreak|overall|owner|packaging|page|palantir|paralegal|parkway|partner|parts|pathology|pattern|peace|people|perceptions|perfiles|person|pharmacist|philippines|photo|picker|picture|placement|places|planning|police|portfolio|position|positive|postdoctoral|potassium|potential|power|preassigned|premium|preparatory|president|principal|print|private|process|producer|product|professional|professor|profile|profili|program|project|promise|property|protocol|prpc|publichealth|published|pyramid|quality|question|questions|radio|ransomware|rcg|realty|recruiter|redeem|redirect|reform|region|register|registry|regulation|rehab|relationship|remote|report|representative|republic|research|resolving|responsable|restaurant|retired|retirement|revised|rising|robot|rural health|russia|sales|sample|satellite|save the date|scheduling|school|science|scientist|seachange|searc|search|secretariat|secretary|secrets|sections|secured|security|see more|selection|semiconductor|senior|server|service|services|should|singapore|singhealth|skill|soc2|social|society|software|solution|source|speak|special|specialist|sponsor|sport|sql|staff|standard|station home|statistics|store|strategy|strength|student|study|substitute|successful|successfully|sunoikisis|superheroines|supervisor|support|surveillance|switch|system|systems|takeda|talent|targeted|tax|tcp|teach|teamwork|technical|technician|technique|technolog|technology|temporary|tester|textoverflow|theater|therapeutic|thought|three|through|time in|tit for tat|title|today|toolbook|tools|toxic|traditions|trafficking|trainer|training|transfer|transform|transformation|transport|treasury|trojan|truck|trusted|ts|twitter|tylenol|types of scams|ultimate|unclaimed|underground|understand|underwriter|underwriting|united states|university|untitled|usa|value|vault|verification|vietnam|view|Violent|virginia bar|voice|volkswagen|volume|vp|walking|wanted|web search|web site|website|week|welcome|westchester|west virginia|when the|which|whiskey|window|without|worker|workplace|world|www|xbox|year|your|zz)' tmp3 > tmp4
      cat tmp4 | sed 's/iii/III/g; s/ii/II/g' > tmp5
      # Capitalize the first letter of every word and tweak
      cat tmp5 | sed 's/\b\(.\)/\u\1/g; s/ And / and /; s/ Av / AV /g; s/ It / IT /g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; 
@@ -488,7 +483,7 @@ fi
 
 ###############################################################################################################################
 
-echo "recon-ng                  (48/$total)"
+echo "recon-ng                  (47/$total)"
 echo "marketplace install all" > passive.rc
 echo "workspaces create $domain" >> passive.rc
 echo "db insert companies" >> passive.rc
@@ -545,13 +540,13 @@ cat tmp >> $home/data/$domain/data/hosts.htm
 echo "</pre>" >> $home/data/$domain/data/hosts.htm 2>/dev/null
 
 
-echo "Summary" > zreport
-echo $short >> zreport
+echo "Summary" > report
+echo $short >> report
 echo > tmp
 
 if [ -e emails-final ]; then
      emailcount=$(wc -l emails-final | cut -d ' ' -f1)
-     echo "Emails               $emailcount" >> zreport
+     echo "Emails               $emailcount" >> report
      echo "Emails ($emailcount)" >> tmp
      echo $short >> tmp
      cat emails-final >> tmp
@@ -565,7 +560,7 @@ fi
 
 if [ -e names-final ]; then
      namecount=$(wc -l names-final | cut -d ' ' -f1)
-     echo "Names                $namecount" >> zreport
+     echo "Names                $namecount" >> report
      echo "Names ($namecount)" >> tmp
      echo $long >> tmp
      cat names-final >> tmp
@@ -580,7 +575,7 @@ fi
 
 if [ -e records ]; then
      recordcount=$(wc -l records | cut -d ' ' -f1)
-     echo "DNS Records          $recordcount" >> zreport
+     echo "DNS Records          $recordcount" >> report
      echo "DNS Records ($recordcount)" >> tmp
      echo $long >> tmp
      cat records >> tmp
@@ -589,7 +584,7 @@ fi
 
 if [ -s networks-final ]; then
      networkcount=$(wc -l networks-final | cut -d ' ' -f1)
-     echo "Networks             $networkcount" >> zreport
+     echo "Networks             $networkcount" >> report
      echo "Networks ($networkcount)" >> tmp
      echo $short >> tmp
      cat networks-final >> tmp
@@ -598,7 +593,7 @@ fi
 
 if [ -e hosts ]; then
      hostcount=$(wc -l hosts | cut -d ' ' -f1)
-     echo "Hosts                $hostcount" >> zreport
+     echo "Hosts                $hostcount" >> report
      echo "Hosts ($hostcount)" >> tmp
      echo $long >> tmp
      cat hosts >> tmp
@@ -607,7 +602,7 @@ fi
 
 if [ -s registered-domains ]; then
      domaincount1=$(wc -l registered-domains | cut -d ' ' -f1)
-     echo "Registered Domains   $domaincount1" >> zreport
+     echo "Registered Domains   $domaincount1" >> report
      echo "Registered Domains ($domaincount1)" >> tmp
      echo $long >> tmp
      cat registered-domains >> tmp
@@ -623,7 +618,7 @@ fi
 
 if [ -e squatting ]; then
      urlcount2=$(wc -l squatting | cut -d ' ' -f1)
-     echo "Squatting            $urlcount2" >> zreport
+     echo "Squatting            $urlcount2" >> report
      echo "Squatting ($urlcount2)" >> tmp
      echo $long >> tmp
      cat squatting >> tmp
@@ -637,7 +632,7 @@ fi
 
 if [ -e subdomains-final ]; then
      urlcount=$(wc -l subdomains-final | cut -d ' ' -f1)
-     echo "Subdomains           $urlcount" >> zreport
+     echo "Subdomains           $urlcount" >> report
      echo "Subdomains ($urlcount)" >> tmp
      echo $long >> tmp
      cat subdomains-final >> tmp
@@ -651,7 +646,7 @@ fi
 
 if [ -e doc ]; then
      doccount=$(wc -l doc | cut -d ' ' -f1)
-     echo "Word                 $doccount" >> zreport
+     echo "Word                 $doccount" >> report
      echo "Word Files ($doccount)" >> tmp
      echo $long >> tmp
      cat doc >> tmp
@@ -665,7 +660,7 @@ fi
 
 if [ -e pdf ]; then
      pdfcount=$(wc -l pdf | cut -d ' ' -f1)
-     echo "PDF                  $pdfcount" >> zreport
+     echo "PDF                  $pdfcount" >> report
      echo "PDF Files ($pdfcount)" >> tmp
      echo $long >> tmp
      cat pdf >> tmp
@@ -679,7 +674,7 @@ fi
 
 if [ -e ppt ]; then
      pptcount=$(wc -l ppt | cut -d ' ' -f1)
-     echo "PowerPoint           $pptcount" >> zreport
+     echo "PowerPoint           $pptcount" >> report
      echo "PowerPoint Files ($pptcount)" >> tmp
      echo $long >> tmp
      cat ppt >> tmp
@@ -693,7 +688,7 @@ fi
 
 if [ -e txt ]; then
      txtcount=$(wc -l txt | cut -d ' ' -f1)
-     echo "Text                 $txtcount" >> zreport
+     echo "Text                 $txtcount" >> report
      echo "Text Files ($txtcount)" >> tmp
      echo $long >> tmp
      cat txt >> tmp
@@ -707,7 +702,7 @@ fi
 
 if [ -e xls ]; then
      xlscount=$(wc -l xls | cut -d ' ' -f1)
-     echo "Excel                $xlscount" >> zreport
+     echo "Excel                $xlscount" >> report
      echo "Excel Files ($xlscount)" >> tmp
      echo $long >> tmp
      cat xls >> tmp
@@ -719,12 +714,12 @@ else
      echo "</pre>" >> $home/data/$domain/data/xls.htm
 fi
 
-cat tmp >> zreport
+cat tmp >> report
 
 if [ -e whois-domain ]; then
-     echo "Whois Domain" >> zreport
-     echo $long >> zreport
-     cat whois-domain >> zreport
+     echo "Whois Domain" >> report
+     echo $long >> report
+     cat whois-domain >> report
      cat whois-domain >> $home/data/$domain/data/whois-domain.htm
      echo "</pre>" >> $home/data/$domain/data/whois-domain.htm
 else
@@ -733,10 +728,10 @@ else
 fi
 
 if [ -e whois-ip ]; then
-     echo >> zreport
-     echo "Whois IP" >> zreport
-     echo $long >> zreport
-     cat whois-ip >> zreport
+     echo >> report
+     echo "Whois IP" >> report
+     echo $long >> report
+     cat whois-ip >> report
      cat whois-ip >> $home/data/$domain/data/whois-ip.htm
      echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
 else
@@ -744,10 +739,11 @@ else
      echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
 fi
 
-cat zreport >> $home/data/$domain/data/passive-recon.htm
+cat report >> $home/data/$domain/data/passive-recon.htm
 echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-mv curl debug* dnstwist email* hosts name* network* records registered* squatting sub* tmp* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
+rm tmp*
+mv curl debug* dnstwist email* hosts name* network* records registered* report squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
 mv passive.rc passive2.rc $home/data/$domain/tools/recon-ng/
 cd /tmp/; mv emails names* networks sub* tmp-emails $home/data/$domain/tools/recon-ng/ 2>/dev/null
 cd $CWD
