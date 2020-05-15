@@ -110,7 +110,8 @@ echo
 ###############################################################################################################################
 
 echo "DNSRecon                  (4/$total)"
-/opt/DNSRecon/dnsrecon.py -d $domain > tmp
+cd /opt/DNSRecon/
+python3 dnsrecon.py -d $domain > tmp
 cat tmp | egrep -v '(DNSSEC|Error|Performing|Records|Version)' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort > records
 
 cat records >> $home/data/$domain/data/records.htm
@@ -118,7 +119,8 @@ echo "</pre>" >> $home/data/$domain/data/records.htm
 grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp | awk '{print $3 " " $4}' | egrep -v '(_|=|Version)' | tr '[A-Z]' '[a-z]' | column -t | sort > sub-dnsrecon
 
 rm tmp 2>/dev/null
-echo
+mv records sub-dnsrecon $CWD
+cd $CWD
 
 ###############################################################################################################################
 
@@ -250,8 +252,6 @@ echo "     yahoo                (39/$total)"
 python3 theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
 
 mv z* $CWD
-
-# Remove all empty files
 cd $CWD
 echo
 
