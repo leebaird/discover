@@ -55,9 +55,9 @@ echo
 ###############################################################################################################################
 
 echo "Amass                     (1/$total)"
-amass --silent enum -d $domain -ip -noalts -norecursive > tmp
+amass enum -d $domain -ip -noalts -norecursive > tmp
 grep "$domain" tmp | grep -v '_' | sed '/^[0-9]/d' | column -t | sort -u > zamass
-amass db -summary -d $domain -o asn
+amass db -summary -d $domain > asn
 echo
 
 ###############################################################################################################################
@@ -727,7 +727,7 @@ cat zreport >> $home/data/$domain/data/passive-recon.htm
 echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
 rm tmp*
-mv curl debug* dnstwist email* hosts name* network* records registered* squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
+mv asn curl debug* dnstwist email* hosts name* network* records registered* squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
 mv passive.rc passive2.rc $home/data/$domain/tools/recon-ng/
 cd /tmp/; mv emails names* networks sub* tmp-emails $home/data/$domain/tools/recon-ng/ 2>/dev/null
 cd $CWD
