@@ -55,9 +55,9 @@ echo
 ###############################################################################################################################
 
 echo "Amass                     (1/$total)"
-amass enum -d $domain -ip -noalts -norecursive > tmp
+amass --silent enum -d $domain -ip -noalts -norecursive > tmp
 grep "$domain" tmp | grep -v '_' | sed '/^[0-9]/d' | column -t | sort -u > zamass
-sed -n '/^ASN;/,$p' tmp > asn
+amass db -summary -d $domain -o asn
 echo
 
 ###############################################################################################################################
@@ -107,9 +107,6 @@ if [ -s tmp.xml ]; then
 fi
 
 grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp2 | awk '{print $4 "-" $6}' | $sip > networks-tmp
-
-# Remove all empty files
-find . -type f -empty -exec rm "{}" \;
 echo
 
 ###############################################################################################################################
@@ -125,6 +122,7 @@ grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp | awk '{print $3 " " $4}' | egrep 
 
 mv records sub-dnsrecon $CWD
 cd $CWD
+echo
 
 ###############################################################################################################################
 
@@ -145,18 +143,12 @@ python3 $discover/mods/goofile.py $domain pptx | sort -u >> ppt
 python3 $discover/mods/goofile.py $domain txt | sort -u > txt
 python3 $discover/mods/goofile.py $domain xls > xls
 python3 $discover/mods/goofile.py $domain xlsx | sort -u >> xls
-
-# Remove all empty files
-find . -type f -empty -exec rm "{}" \;
 echo
 
 ###############################################################################################################################
 
 echo "goog-mail                 (8/$total)"
 $discover/mods/goog-mail.py $domain | grep -v 'cannot' | tr '[A-Z]' '[a-z]' > zgoog-mail
-
-# Remove all empty files
-find . -type f -empty -exec rm "{}" \;
 echo
 
 ###############################################################################################################################
@@ -167,7 +159,6 @@ $discover/mods/goohost.sh -t $domain -m ip >/dev/null
 echo "     Email                (10/$total)"
 $discover/mods/goohost.sh -t $domain -m mail >/dev/null
 cat report-* | grep $domain | column -t | sort -u > zgoohost
-
 rm *-$domain.txt 2>/dev/null
 echo
 
@@ -261,9 +252,6 @@ echo
 echo "Metasploit                (41/$total)"
 msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
 grep @$domain tmp | awk '{print $2}' | grep -v '%' | grep -Fv '...@' | sed '/^\./d' > zmsf
-
-# Remove all empty files
-find . -type f -empty -exec rm "{}" \;
 echo
 
 ###############################################################################################################################
@@ -476,6 +464,8 @@ s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g; s/,,/,/g' > tmp6
      cat tmp7 tmp8 | sed 's/[ \t]*$//' | sed '/^\,/ d' | sort -u > names
 fi
 
+rm tmp*
+
 ###############################################################################################################################
 
 echo "recon-ng                  (48/$total)"
@@ -534,14 +524,13 @@ cat hosts >> tmp
 cat tmp >> $home/data/$domain/data/hosts.htm
 echo "</pre>" >> $home/data/$domain/data/hosts.htm 2>/dev/null
 
-
-echo "Summary" > report
-echo $short >> report
+echo "Summary" > zreport
+echo $short >> zreport
 echo > tmp
 
 if [ -e emails-final ]; then
      emailcount=$(wc -l emails-final | cut -d ' ' -f1)
-     echo "Emails               $emailcount" >> report
+     echo "Emails               $emailcount" >> zreport
      echo "Emails ($emailcount)" >> tmp
      echo $short >> tmp
      cat emails-final >> tmp
@@ -555,7 +544,7 @@ fi
 
 if [ -e names-final ]; then
      namecount=$(wc -l names-final | cut -d ' ' -f1)
-     echo "Names                $namecount" >> report
+     echo "Names                $namecount" >> zreport
      echo "Names ($namecount)" >> tmp
      echo $long >> tmp
      cat names-final >> tmp
@@ -570,7 +559,7 @@ fi
 
 if [ -e records ]; then
      recordcount=$(wc -l records | cut -d ' ' -f1)
-     echo "DNS Records          $recordcount" >> report
+     echo "DNS Records          $recordcount" >> zreport
      echo "DNS Records ($recordcount)" >> tmp
      echo $long >> tmp
      cat records >> tmp
@@ -579,7 +568,7 @@ fi
 
 if [ -s networks-final ]; then
      networkcount=$(wc -l networks-final | cut -d ' ' -f1)
-     echo "Networks             $networkcount" >> report
+     echo "Networks             $networkcount" >> zreport
      echo "Networks ($networkcount)" >> tmp
      echo $short >> tmp
      cat networks-final >> tmp
@@ -588,7 +577,7 @@ fi
 
 if [ -e hosts ]; then
      hostcount=$(wc -l hosts | cut -d ' ' -f1)
-     echo "Hosts                $hostcount" >> report
+     echo "Hosts                $hostcount" >> zreport
      echo "Hosts ($hostcount)" >> tmp
      echo $long >> tmp
      cat hosts >> tmp
@@ -597,7 +586,7 @@ fi
 
 if [ -s registered-domains ]; then
      domaincount1=$(wc -l registered-domains | cut -d ' ' -f1)
-     echo "Registered Domains   $domaincount1" >> report
+     echo "Registered Domains   $domaincount1" >> zreport
      echo "Registered Domains ($domaincount1)" >> tmp
      echo $long >> tmp
      cat registered-domains >> tmp
@@ -613,7 +602,7 @@ fi
 
 if [ -e squatting ]; then
      urlcount2=$(wc -l squatting | cut -d ' ' -f1)
-     echo "Squatting            $urlcount2" >> report
+     echo "Squatting            $urlcount2" >> zreport
      echo "Squatting ($urlcount2)" >> tmp
      echo $long >> tmp
      cat squatting >> tmp
@@ -627,7 +616,7 @@ fi
 
 if [ -e subdomains-final ]; then
      urlcount=$(wc -l subdomains-final | cut -d ' ' -f1)
-     echo "Subdomains           $urlcount" >> report
+     echo "Subdomains           $urlcount" >> zreport
      echo "Subdomains ($urlcount)" >> tmp
      echo $long >> tmp
      cat subdomains-final >> tmp
@@ -641,7 +630,7 @@ fi
 
 if [ -e doc ]; then
      doccount=$(wc -l doc | cut -d ' ' -f1)
-     echo "Word                 $doccount" >> report
+     echo "Word                 $doccount" >> zreport
      echo "Word Files ($doccount)" >> tmp
      echo $long >> tmp
      cat doc >> tmp
@@ -655,7 +644,7 @@ fi
 
 if [ -e pdf ]; then
      pdfcount=$(wc -l pdf | cut -d ' ' -f1)
-     echo "PDF                  $pdfcount" >> report
+     echo "PDF                  $pdfcount" >> zreport
      echo "PDF Files ($pdfcount)" >> tmp
      echo $long >> tmp
      cat pdf >> tmp
@@ -669,7 +658,7 @@ fi
 
 if [ -e ppt ]; then
      pptcount=$(wc -l ppt | cut -d ' ' -f1)
-     echo "PowerPoint           $pptcount" >> report
+     echo "PowerPoint           $pptcount" >> zreport
      echo "PowerPoint Files ($pptcount)" >> tmp
      echo $long >> tmp
      cat ppt >> tmp
@@ -683,7 +672,7 @@ fi
 
 if [ -e txt ]; then
      txtcount=$(wc -l txt | cut -d ' ' -f1)
-     echo "Text                 $txtcount" >> report
+     echo "Text                 $txtcount" >> zreport
      echo "Text Files ($txtcount)" >> tmp
      echo $long >> tmp
      cat txt >> tmp
@@ -697,7 +686,7 @@ fi
 
 if [ -e xls ]; then
      xlscount=$(wc -l xls | cut -d ' ' -f1)
-     echo "Excel                $xlscount" >> report
+     echo "Excel                $xlscount" >> zreport
      echo "Excel Files ($xlscount)" >> tmp
      echo $long >> tmp
      cat xls >> tmp
@@ -709,12 +698,12 @@ else
      echo "</pre>" >> $home/data/$domain/data/xls.htm
 fi
 
-cat tmp >> report
+cat tmp >> zreport
 
 if [ -e whois-domain ]; then
-     echo "Whois Domain" >> report
-     echo $long >> report
-     cat whois-domain >> report
+     echo "Whois Domain" >> zreport
+     echo $long >> zreport
+     cat whois-domain >> zreport
      cat whois-domain >> $home/data/$domain/data/whois-domain.htm
      echo "</pre>" >> $home/data/$domain/data/whois-domain.htm
 else
@@ -723,10 +712,10 @@ else
 fi
 
 if [ -e whois-ip ]; then
-     echo >> report
-     echo "Whois IP" >> report
-     echo $long >> report
-     cat whois-ip >> report
+     echo >> zreport
+     echo "Whois IP" >> zreport
+     echo $long >> zreport
+     cat whois-ip >> zreport
      cat whois-ip >> $home/data/$domain/data/whois-ip.htm
      echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
 else
@@ -734,11 +723,11 @@ else
      echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
 fi
 
-cat report >> $home/data/$domain/data/passive-recon.htm
+cat zreport >> $home/data/$domain/data/passive-recon.htm
 echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
 rm tmp*
-mv curl debug* dnstwist email* hosts name* network* records registered* report squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
+mv curl debug* dnstwist email* hosts name* network* records registered* squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
 mv passive.rc passive2.rc $home/data/$domain/tools/recon-ng/
 cd /tmp/; mv emails names* networks sub* tmp-emails $home/data/$domain/tools/recon-ng/ 2>/dev/null
 cd $CWD
@@ -777,11 +766,13 @@ $web https://www.google.com/search?q=site:pastebin.com+intext:$domain &
 sleep 4
 $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
 sleep 4
+$web https://www.google.com/search?q=site:$domain+intext:jira+intext:Atlassian+-inurl:careers &
+sleep 4
 $web http://www.tcpiputils.com/browse/domain/$domain &
 sleep 4
 $web https://www.google.com/search?q=site:$domain+inurl:admin &
 sleep 4
-$web http://viewdns.info/reversewhois/?q=$domain &
+$web https://networksdb.io/search/org/$companyurl &
 sleep 4
 $web https://www.facebook.com &
 sleep 4
