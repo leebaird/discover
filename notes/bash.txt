@@ -116,6 +116,7 @@ for a in z*; do grep -vE '^[\/\#\(\_\[\|\<\.\,\`\%\@]' "$a" > "$a.tmp"; mv "$a.t
 awk '$2 !~ /[a-z]/'                                           Remove lines that contain [a-z] in the second column
 sed '/[[:blank:]]/!d'                                         Remove lines that contain a single word
 awk 'NF != 2'                                                 Remove lines that contain two words
+awk '!(/FOO/ && /BAR/)'                                       Remove lines that contain FOO and BAR
 printf '%s\n' 'g/FOO/d\' '-d' w | ed -s                       Remove lines that contain FOO and the previous line
 sed '/@.*@/d'                                                 Remove lines that contain two @ symbols
 sed '/[0-9]$/'                                                Remove lines that contain a number
@@ -245,15 +246,9 @@ for i in $(cat tmp); do
      sudo chown -R $(whoami) $i
 done
 
-while read -r line; do
-     host $line | grep 'has address' | cut -d ' ' -f4
+while read i; do
+     host $i | grep 'has address' | cut -d ' ' -f4
 done < subdomains.txt
-
-while read -r line; do
-     x=$((x+1))
-     echo "$x - $line"
-     dnsrecon.py -d $line -t axfr -c axfr_results/$x-$line.csv
-done < names.txt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Uae a variable and set a constant

@@ -56,8 +56,9 @@ echo
 
 echo "Amass                     (1/$total)"
 amass enum -d $domain -ip -noalts -norecursive > tmp
-grep "$domain" tmp | grep -v '_' | sed '/^[0-9]/d' | column -t | sort -u > zamass
+grep "$domain" tmp | grep -v '_' | sed 's/ /:/g; s/,/, /g' | sort -u > zamass
 amass db -summary -d $domain > asn
+rm tmp
 echo
 
 ###############################################################################################################################
@@ -70,8 +71,8 @@ if [ -s tmp.xml ]; then
      xmllint --format tmp.xml | grep 'handle' | cut -d '>' -f2 | cut -d '<' -f1 | sort -u > zurls.txt
      xmllint --format tmp.xml | grep 'handle' | cut -d '"' -f2 | sort -u > zhandles.txt
 
-     while read x; do
-          wget -q $x -O tmp2.xml
+     while read i; do
+          wget -q $i -O tmp2.xml
           xml_grep 'email' tmp2.xml --text_only >> tmp
      done < zurls.txt
 
@@ -87,7 +88,7 @@ if [ -e zhandles.txt ]; then
      done
 
      egrep -v "($company|@|Abuse|Center|Network|Technical|Telecom)" tmp | sed 's/Name:           //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp2
-     awk -F", " '{print $2,$1}' tmp2 | sed 's/  / /g' > zarin-names
+     awk -F", " '{print $2,$1}' tmp2 | sed 's/  / /g' | sort -u > zarin-names
 fi
 
 rm zurls.txt zhandles.txt 2>/dev/null
@@ -106,7 +107,7 @@ if [ -s tmp.xml ]; then
      done
 fi
 
-grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp2 | awk '{print $4 "-" $6}' | $sip > networks-tmp
+grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp2 | awk '{print $4 "-" $6}' | sed '/^-/d' | $sip > networks
 echo
 
 ###############################################################################################################################
@@ -118,9 +119,9 @@ cat tmp | egrep -v '(DNSSEC|Error|Performing|Records|Version)' | sed 's/\[\*\]//
 
 cat records >> $home/data/$domain/data/records.htm
 echo "</pre>" >> $home/data/$domain/data/records.htm
-grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp | awk '{print $3 " " $4}' | egrep -v '(_|=|Version)' | tr '[A-Z]' '[a-z]' | column -t | sort > sub-dnsrecon
 
-mv records sub-dnsrecon $CWD
+mv records $CWD
+rm tmp
 cd $CWD
 echo
 
@@ -207,11 +208,11 @@ python3 theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching)'
 echo "     intelx               (25/$total)"
 python3 theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
 echo "     linkedin             (26/$total)"
-python3 theHarvester.py -d "$company" -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z1
+python3 theHarvester.py -d "$company" -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > tmp
 sleep 15
-python3 theHarvester.py -d $domain -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > z2
-# Make first 2 columns title case.
-cat z1 z2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | sort -u > zlinkedin
+python3 theHarvester.py -d $domain -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > tmp2
+# Make first 2 columns title case. Remove traiing whitespace.
+cat tmp tmp2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | egrep -iv '(about|google|retired)' | sed "s/ - $company//g" | sed 's/[ \t]*$//' | sort -u > zlinkedin
 echo "     linkedin_links       (27/$total)"
 sleep 30
 python3 theHarvester.py -d $domain -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
@@ -227,23 +228,24 @@ echo "     securityTrails       (32/$total)"
 python3 theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
 echo "     spyse                (33/$total)"
 python3 theHarvester.py -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
-echo "     suip                 (34/$total)"
-python3 theHarvester.py -d $domain -b suip | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsuip
-echo "     threatcrowd          (35/$total)"
+echo "     sublist3r            (34/$total)"
+python3 theHarvester.py -d $domain -b sublist3r | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsublist3r
+echo "     suip                 (35/$total)"
+python3 theHarvester.py -d https://$domain -b suip | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsuip
+echo "     threatcrowd          (36/$total)"
 python3 theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
-echo "     trello               (36/$total)"
+echo "     trello               (37/$total)"
 sleep 30
 python3 theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
-echo "     twitter              (37/$total)"
+echo "     twitter              (38/$total)"
 python3 theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
-echo "     vhost                (38/$total)"
-python3 theHarvester.py -d $domain -b vhost | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvhost
 echo "     virustotal           (39/$total)"
 python3 theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
 echo "     yahoo                (40/$total)"
 python3 theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
 
 mv z* $CWD
+rm tmp*
 cd $CWD
 echo
 
@@ -440,11 +442,20 @@ grep "@$domain" tmp9 | column -t -s ',' | sort -u > registered-domains
 
 ###############################################################################################################################
 
-cat z* | grep "@$domain" | sort -u > emails
+# Remove lines that contain FOO and BAR
+cat z* | grep "@$domain" | awk '!(/_/ && /-/)' | sort -u > emails
 
-cat z* | grep "\.$domain" | egrep -v '(/|.aspx|cloudflare.net)' | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | column -t -s ':' | sort -u > sub-theHarvester
+# Thanks Jason Ashton for cleaning up subdomains
+cut -d ':' -f2 z* | grep "\.$domain" | grep -v '/' | sort -u > tmp
 
-cat z* | egrep -v '(@|:|\.|Google)' | sort -u | cut -d '-' -f1 > tmp
+while read i; do
+     ipadd=$(grep -w "$i" z* | cut -d ':' -f3 | grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | sed 's/, /\n/g' | sort -uV | tr '\n' ',' | sed 's/,$//g')
+     echo "$i:$ipadd" >> raw
+done < tmp
+
+cat raw | sed 's/FOO$//; s/:,/:/g' | column -t -s ':' | sed 's/,/, /g' > subdomains
+
+cat z* | egrep -v '(@|:|\.|Google|Search)' | sort -u | cut -d '-' -f1 > tmp
 
 if [ -e tmp ]; then
      # Remove lines that start with .
@@ -501,13 +512,13 @@ recon-ng -r $CWD/passive.rc
 
 grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|query|SELECT)' | sort -u > emails-final
 
-sed '1,4d' /tmp/names | head -n -5 > names-final
+sed '1,4d' /tmp/names | head -n -5 | sort -u > names-final
 
 grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > tmp
-cat networks-tmp tmp | sort -u | $sip > networks-final
+cat tmp networks | sort -u | $sip > networks-final
 
 grep "\.$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > tmp
-cat sub* tmp | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(outlook|www)' | column -t | sort -u > subdomains-final
+cat subdomains tmp | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(outlook|www)' | column -t | sort -u > subdomains-final
 
 cut -d ' ' -f2- subdomains-final | sed 's/^[ \t]*//' | grep -v ',' | sort -u > tmp
 cut -d ' ' -f2- subdomains-final | sed 's/^[ \t]*//' | grep ',' | sed 's/,/\n/g' | sed 's/^[ \t]*//' | sort -u > tmp2
@@ -628,21 +639,21 @@ else
      echo "</pre>" >> $home/data/$domain/data/subdomains.htm
 fi
 
-if [ -e doc ]; then
-     doccount=$(wc -l doc | cut -d ' ' -f1)
-     echo "Word                 $doccount" >> zreport
-     echo "Word Files ($doccount)" >> tmp
+if [ -s xls ]; then
+     xlscount=$(wc -l xls | cut -d ' ' -f1)
+     echo "Excel                $xlscount" >> zreport
+     echo "Excel Files ($xlscount)" >> tmp
      echo $long >> tmp
-     cat doc >> tmp
+     cat xls >> tmp
      echo >> tmp
-     cat doc >> $home/data/$domain/data/doc.htm
-     echo '</pre>' >> $home/data/$domain/data/doc.htm
+     cat xls >> $home/data/$domain/data/xls.htm
+     echo '</pre>' >> $home/data/$domain/data/xls.htm
 else
-     echo "No data found." >> $home/data/$domain/data/doc.htm
-     echo "</pre>" >> $home/data/$domain/data/doc.htm
+     echo "No data found." >> $home/data/$domain/data/xls.htm
+     echo "</pre>" >> $home/data/$domain/data/xls.htm
 fi
 
-if [ -e pdf ]; then
+if [ -s pdf ]; then
      pdfcount=$(wc -l pdf | cut -d ' ' -f1)
      echo "PDF                  $pdfcount" >> zreport
      echo "PDF Files ($pdfcount)" >> tmp
@@ -656,7 +667,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/pdf.htm
 fi
 
-if [ -e ppt ]; then
+if [ -s ppt ]; then
      pptcount=$(wc -l ppt | cut -d ' ' -f1)
      echo "PowerPoint           $pptcount" >> zreport
      echo "PowerPoint Files ($pptcount)" >> tmp
@@ -670,7 +681,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/ppt.htm
 fi
 
-if [ -e txt ]; then
+if [ -s txt ]; then
      txtcount=$(wc -l txt | cut -d ' ' -f1)
      echo "Text                 $txtcount" >> zreport
      echo "Text Files ($txtcount)" >> tmp
@@ -684,18 +695,18 @@ else
      echo "</pre>" >> $home/data/$domain/data/txt.htm
 fi
 
-if [ -e xls ]; then
-     xlscount=$(wc -l xls | cut -d ' ' -f1)
-     echo "Excel                $xlscount" >> zreport
-     echo "Excel Files ($xlscount)" >> tmp
+if [ -s doc ]; then
+     doccount=$(wc -l doc | cut -d ' ' -f1)
+     echo "Word                 $doccount" >> zreport
+     echo "Word Files ($doccount)" >> tmp
      echo $long >> tmp
-     cat xls >> tmp
+     cat doc >> tmp
      echo >> tmp
-     cat xls >> $home/data/$domain/data/xls.htm
-     echo '</pre>' >> $home/data/$domain/data/xls.htm
+     cat doc >> $home/data/$domain/data/doc.htm
+     echo '</pre>' >> $home/data/$domain/data/doc.htm
 else
-     echo "No data found." >> $home/data/$domain/data/xls.htm
-     echo "</pre>" >> $home/data/$domain/data/xls.htm
+     echo "No data found." >> $home/data/$domain/data/doc.htm
+     echo "</pre>" >> $home/data/$domain/data/doc.htm
 fi
 
 cat tmp >> zreport
@@ -726,7 +737,7 @@ fi
 cat zreport >> $home/data/$domain/data/passive-recon.htm
 echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
-rm tmp*
+rm tmp* zreport
 mv asn curl debug* dnstwist email* hosts name* network* records registered* squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
 mv passive.rc passive2.rc $home/data/$domain/tools/recon-ng/
 cd /tmp/; mv emails names* networks sub* tmp-emails $home/data/$domain/tools/recon-ng/ 2>/dev/null
@@ -750,7 +761,7 @@ $web https://www.google.com/search?q=site=\&tbm=isch\&source=hp\&q=$companyurl%2
 sleep 4
 $web https://$companyurl.s3.amazonaws.com &
 sleep 4
-$web https://www.google.com/search?q=site:$domain+inurl:login &
+$web https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
 sleep 4
 $web https://www.censys.io/ipv4?q=$domain &
 sleep 4
@@ -758,21 +769,23 @@ $web https://www.google.com/search?q=site:$domain+%22index+of/%22+%22parent+dire
 sleep 4
 $web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
 sleep 4
-$web https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
+$web https://www.google.com/search?q=site:$domain+inurl:login &
 sleep 4
 $web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
 sleep 4
-$web https://www.google.com/search?q=site:pastebin.com+intext:$domain &
+$web https://www.google.com/search?q=site:$domain+intext:username+intext:password+inurl:ftp &
 sleep 4
 $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
 sleep 4
-$web https://www.google.com/search?q=site:$domain+intext:jira+intext:Atlassian+-inurl:careers &
+$web https://www.google.com/search?q=site:$domain+intext:username+intext:password+-inurl:careers &
 sleep 4
-$web http://www.tcpiputils.com/browse/domain/$domain &
+$web https://dnslytics.com/dns-lookup &
 sleep 4
-$web https://www.google.com/search?q=site:$domain+inurl:admin &
+$web https://www.google.com/search?q=site:$domain+intext:Atlassian+intext:jira+-inurl:careers &
 sleep 4
 $web https://networksdb.io/search/org/$companyurl &
+sleep 4
+$web https://www.google.com/search?q=site:pastebin.com+intext:$domain &
 sleep 4
 $web https://www.facebook.com &
 sleep 4
