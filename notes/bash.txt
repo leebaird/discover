@@ -8,23 +8,22 @@ zgrep                                                         Search for a strin
 grep -v                                                       Exclude a string from a file
 egrep -v '(FOO|BAR)'                                          Exclude multiple strings from a file
 
-cut -d ' ' -f2                                                Cut with a delimiter of a space, then show the second field
-cut -d ' ' -f2-5                                              Cut with a delimiter of a space, then show the second through the fifth fields
-cut -d ' ' -f2-                                               Cut with a delimiter of a space, then show the second filed to the end
+cut -d ' ' -f2                                                Cut with a delimiter of a space, then print the second field
+cut -d ' ' -f2-5                                              Cut with a delimiter of a space, then print the second through the fifth fields
+cut -d ' ' -f2-                                               Cut with a delimiter of a space, then print the second field to the end
 
-awk '{print $8}'                                              Show the 8th column
-awk '{print $8,$9}'                                           Show the 8th and 9th columns
-awk -F "https://" '{print $2}'                                Use a string as a delimiter
+awk '{print $2}'                                              Print the second column
+awk '{print $2,$5}'                                           Print the second and fifth columns
+awk -F "https://" '{print $2}'                                Use a string as a delimiter, then print the second column
 
-head                                                          Show the first 10 lines
-head -5                                                       Show the first 5 lines
-tail                                                          Show the last 10 lines
-tail -5                                                       Show the last 5 lines
-tail -f                                                       Show the contents of a file as it grows
+head                                                          Print the first 10 lines
+head -5                                                       Print the first 5 lines
+tail                                                          Print the last 10 lines
+tail -5                                                       Print the last 5 lines
+tail -f                                                       Print the contents of a file as it grows
 
 sort                                                          Sort a file
 sort -u                                                       Sort a file and show only unique values
-uniq -c                                                       Count the number of different occurences
 
 wc -l                                                         Count the number of lines
 wc -m                                                         Count the number of characters
@@ -98,7 +97,6 @@ sed -n '/FOO/,/BAR/p'                                         Print lines betwee
 sed -e '/./{H;$!d;}' -e 'x;/FOO/!d;'                          Print paragraphs that contains FOO
 awk '{print $2 " " $1}'                                       Print the second column, insert a space, then the first column
 
-for x in $(cat tmp); do rm $x; done                           Files in tmp
 find . -type f -empty -exec rm "{}" \;                        Remove all empty files
 sed 's/[A-Z]\{2\},//g'                                        Remove any 2 capital letters followed by a comma
 sed '/^$/d'                                                   Remove blank lines
@@ -110,9 +108,6 @@ sed 's/^[ \t]*//; s/[ \t]*$//'                                Remove leading and
 sed 's/^[ \t]*//'                                             Remove leading whitespace from each line
 sed '/FOO/,/BAR/d'                                            Remove lines between FOO and BAR
 awk '/FOO/{f=1} (!f || f>2){print} (f && /BAR/){f++}'         Remove lines from FOO and the second BAR
-awk '$2 !~ /[a-z]/'                                           Remove lines in the second columns that contain characters
-for a in z*; do grep -vE '^[\/\#\(\_\[\|\<\.\,\`\%\@]' "$a" > "$a.tmp"; mv "$a.tmp" "$a"; done    
-                                                              Remove lines starting with various non-characters
 awk '$2 !~ /[a-z]/'                                           Remove lines that contain [a-z] in the second column
 sed '/[[:blank:]]/!d'                                         Remove lines that contain a single word
 awk 'NF != 2'                                                 Remove lines that contain two words
@@ -146,17 +141,12 @@ sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4                   Sort IPs
 sed 's/[^ ]\+/\L\u&/g'                                        Title case
 
 tr -d '\t'                                                    Delete a tab
-tr -s ' '                                                     Squeeze any number of spaces down to a single space
 tr ',' '\n'                                                   Translate a comma to a new line
-tr '[A-Z]' '[a-z]'                                            Translate upper case to lower case
+tr -s ' '                                                     Translate any number of spaces to a single space
 tr '[a-z]' '[A-Z]'                                            Translate lower case to upper case
+tr '[A-Z]' '[a-z]'                                            Translate upper case to lower case
 
 sed "s/$FOO./$FOO/g"                                          Variables - use double quotes with sed or grep
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Special characters to escape
-
-~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|,|>|\.|\?|/|
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Check for argument. If not given, print usage
@@ -217,6 +207,25 @@ if [[ $port -lt 1 || $port -gt 65535 ]]; then
 fi
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Colors
+
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+BLUE='\033[1;34m'
+NC='\033[0m'
+
+echo -e "I ${RED}love${NC} Discover."
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Compare two dates
+
+date1=$(date +"%s")
+date2=$(date +"%s")
+diff=$(($date2-$date1))
+echo "$(($diff / 60)) min and $(($diff % 60)) sec."
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Files and folders
 
 if [ -e test ]; then
@@ -240,28 +249,6 @@ if [ ! -d test ]; then
 fi
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Read in a file and do something
-
-for i in $(cat tmp); do 
-     sudo chown -R $(whoami) $i
-done
-
-while read i; do
-     host $i | grep 'has address' | cut -d ' ' -f4
-done < subdomains.txt
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Uae a variable and set a constant
-
-if [ "$payload" == "1" ]; then
-     format="raw"
-     platform="android"
-else
-     format="exe"
-     platform="windows"
-fi
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # If a process is running, kill it
 
 pid=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
@@ -271,21 +258,29 @@ if [ -n "$pid" ]; then
 fi
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Colors
+# Read in a file and do something
 
-RED='\033[0;31m'
-YELLOW='\033[0;33m'
-GREEN='\033[0;32m'
-BLUE='\033[1;34m'
-NC='\033[0m'
+for i in $(cat subdomains); do
+     host $i | grep 'has address' | cut -d ' ' -f4
+done
 
-echo -e "I ${RED}love${NC} Discover."
+while read i; do
+     host $i | grep 'has address' | cut -d ' ' -f4
+done < subdomains
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Compare two dates
+# Special characters to escape
 
-date1=$(date +"%s")
-date2=$(date +"%s")
-diff=$(($date2-$date1))
-echo "$(($diff / 60)) min and $(($diff % 60)) sec."
+~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|,|>|\.|\?|/|
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Use a variable and set a constant
+
+if [ "$payload" == "1" ]; then
+     format="raw"
+     platform="android"
+else
+     format="exe"
+     platform="windows"
+fi
 
