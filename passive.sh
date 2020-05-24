@@ -181,64 +181,64 @@ echo "     baidu                (11/$total)"
 python3 theHarvester.py -d $domain -b baidu | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbaidu
 echo "     bing                 (12/$total)"
 python3 theHarvester.py -d $domain -b bing | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing
-echo "     bingapi              (13/$total)"
-python3 theHarvester.py -d $domain -b bingapi | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbingapi
-echo "     bufferoverun         (14/$total)"
+echo "     bufferoverun         (13/$total)"
 python3 theHarvester.py -d $domain -b bufferoverun | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbufferoverun
-echo "     certspotter          (15/$total)"
+echo "     certspotter          (14/$total)"
 python3 theHarvester.py -d $domain -b certspotter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcertspotter
-echo "     crtsh                (16/$total)"
+echo "     crtsh                (15/$total)"
 python3 theHarvester.py -d $domain -b crtsh | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcrtsh
-echo "     dnsdumpster          (17/$total)"
+echo "     dnsdumpster          (16/$total)"
 python3 theHarvester.py -d $domain -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdnsdumpster
-echo "     dogpile              (18/$total)"
+echo "     dogpile              (17/$total)"
 python3 theHarvester.py -d $domain -b dogpile | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdogpile
-echo "     duckduckgo           (19/$total)"
+echo "     duckduckgo           (18/$total)"
 python3 theHarvester.py -d $domain -b duckduckgo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zduckduckgo
-echo "     exalead              (20/$total)"
+echo "     exalead              (19/$total)"
 python3 theHarvester.py -d $domain -b exalead | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zexalead
-echo "     github-code          (21/$total)"
+echo "     github-code          (20/$total)"
 python3 theHarvester.py -d $domain -b github-code | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgithub-code
-echo "     google               (22/$total)"
+echo "     google               (21/$total)"
 python3 theHarvester.py -d $domain -b google | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgoogle
-echo "     hackertarget         (23/$total)"
+echo "     hackertarget         (22/$total)"
 python3 theHarvester.py -d $domain -b hackertarget | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhackertarget
-echo "     hunter               (24/$total)"
+echo "     hunter               (23/$total)"
 python3 theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunter
-echo "     intelx               (25/$total)"
+echo "     intelx               (24/$total)"
 python3 theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
-echo "     linkedin             (26/$total)"
+echo "     linkedin             (25/$total)"
 python3 theHarvester.py -d "$company" -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > tmp
 sleep 15
 python3 theHarvester.py -d $domain -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > tmp2
 # Make first 2 columns title case. Remove traiing whitespace.
 cat tmp tmp2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | egrep -iv '(about|google|retired)' | sed "s/ - $company//g" | sed 's/[ \t]*$//' | sort -u > zlinkedin
-echo "     linkedin_links       (27/$total)"
+echo "     linkedin_links       (26/$total)"
 sleep 30
 python3 theHarvester.py -d $domain -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
-echo "     netcraft             (28/$total)"
+echo "     netcraft             (27/$total)"
 python3 theHarvester.py -d $domain -b netcraft | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > znetcraft
-echo "     otx                  (29/$total)"
+echo "     otx                  (28/$total)"
 python3 theHarvester.py -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zotx
-echo "     pentesttools         (30/$total)"
+echo "     pentesttools         (29/$total)"
 python3 theHarvester.py -d $domain -b pentesttools | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zpentesttools
-echo "     rapiddns             (31/$total)"
+echo "     rapiddns             (30/$total)"
 python3 theHarvester.py -d $domain -b rapiddns | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zrapiddns
-echo "     securityTrails       (32/$total)"
+echo "     securityTrails       (31/$total)"
 python3 theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
-echo "     spyse                (33/$total)"
+echo "     spyse                (32/$total)"
 python3 theHarvester.py -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
-echo "     sublist3r            (34/$total)"
+echo "     sublist3r            (33/$total)"
 python3 theHarvester.py -d $domain -b sublist3r | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsublist3r
-echo "     suip                 (35/$total)"
+echo "     suip                 (34/$total)"
 python3 theHarvester.py -d https://$domain -b suip | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsuip
-echo "     threatcrowd          (36/$total)"
+echo "     threatcrowd          (35/$total)"
 python3 theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
-echo "     trello               (37/$total)"
+echo "     trello               (36/$total)"
 sleep 30
 python3 theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
-echo "     twitter              (38/$total)"
+echo "     twitter              (37/$total)"
 python3 theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
+echo "     URLscan              (38/$total)"
+python3 theHarvester.py -d $domain -b urlscan | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zurlscan
 echo "     virustotal           (39/$total)"
 python3 theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
 echo "     yahoo                (40/$total)"
