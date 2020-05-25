@@ -228,10 +228,10 @@ echo "     spyse                (32/$total)"
 python3 theHarvester.py -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
 echo "     sublist3r            (33/$total)"
 python3 theHarvester.py -d $domain -b sublist3r | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsublist3r
-echo "     suip                 (34/$total)"
-python3 theHarvester.py -d https://$domain -b suip | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsuip
-echo "     threatcrowd          (35/$total)"
+echo "     threatcrowd          (34/$total)"
 python3 theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
+echo "     threatminer          (35/$total)"
+python3 theHarvester.py -d $domain -b threatminer | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatminer
 echo "     trello               (36/$total)"
 sleep 30
 python3 theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello

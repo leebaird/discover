@@ -1,0 +1,111 @@
+Shodan
+
+
+# Country                     country:US
+                              Must use 2 letter country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+
+# State                       state:TN
+
+# City                        city:Nashville
+
+# Organization                org:"ACME Corp"
+
+# Hostname                    hostname:google
+                              hostname:.nist.gov
+                              hostname:.edu
+
+# Network                     net:172.16.0.0/16
+
+# OS                          os:"windows 7"
+
+# Port                        port:21
+                              -port:22
+
+# Product                     product:openssh
+
+# Timeframe                   before:31/12/2019 after:10/12/2019
+
+# Dorks                       "Additional Interfaces"
+                              "All Storage Devices" IPC$ 
+                              "Authentication: disabled" port:"445"
+				          "Cisco 3750"
+				          "Cisco 7606"
+				          "Original Siemens Equipment"
+				
+# Filters                     all:comments
+                              all:compromised
+                              all:hacked
+
+# Example                     country:mx city:"Playa del Carmen" port:445 all:comments
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+# CLI
+
+shodan download --limit 200 nginx.json.gz product:nginx
+
+shodan convert <data file> <file format>
+shodan convert nginx.json.gz xlsx
+
+shodan stats --facets org ssl.version:sslv2 http country:us
+shodan stats --facets org port:3389 country:us
+
+shodan stats --facets ssl.version has_ssl:true http country:us 
+shodan stats --facets ssl.cert.fingerprint has_ssl:true http country:us 
+shodan stats --facets ssl.cert.fingerprint:100 has_ssl:true http country:us 
+
+shodan download --limit -1 hacked 'http.title:"hacked by"'
+
+shodan parse --fields ip_str,product,title test.json.gz
+
+shodan convert remote-desktops.json.gz images
+
+shodan count port:22 country:US
+shodan host <target IP>
+shodan stats --facets country <service>		example: apache
+
+shodan count port:22 country:US
+shodan count microsoft iis 6.0
+
+shodan download test microsoft iis 6.0
+
+shodan search --fields ip_str,port,org,hostnames microsoft iis 6.0
+shodan stats --facets country <service>		example: apache
+
+shodan search --fields location.country_code,ip_str,port,org,hostnames <search term>
+
+shodan stats --facets country,org <search term>
+shodan stats --facets org country:<country code> <search term>
+shodan search org:<organization> country:<country code> <search term>
+
+shodan stats --facets port country:us
+
+shodan stats --facets org country:us ssl.version:sslv2
+
+shodan count country:us state:tn city:nashville
+shodan stats --facets org country:us state:tn city:nashville
+shodan search country:us state:tn city:nashville port:23
+
+shodan count "All Storage Devices"
+shodan stats --facets country "All Storage Devices"
+shodan search "All Storage Devices"
+
+shodan count city:Nashville "Authentication: disabled"
+shodan search city:Nashville "Authentication: disabled" > smb.json
+shodan search product:openssh -port:22
+
+shodan stats --facets org port:3389 country:us
+
+shodan download --limit 200 product:nginx
+shodan download --limit -1 test 'http.title:"hacked by"'
+shodan parse --fields title test.json.gz
+shodan parse --fields ip_str,product,title test.json.gz
+shodan parse --fields ip_str,port,org --separator , test.json.gz
+
+shodan convert <data file> <file format>
+shodan convert nginx.json.gz xlsx
+shodan convert remote-desktops.json.gz images
+
+shodan scan submit <target IP>
+shodan scan submit --filename test.json.gz <CIDR>
+shodan parse test.json.gz
+
