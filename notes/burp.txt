@@ -27,7 +27,7 @@ Use Burp defaults > Start Burp
 
 Open Firefox to http://burp
 CA Certificate > Save File
-Preferences > Advanced > Certificates > View Certificates > Authorities > Import
+Options > Privacy & Security > View Certificates > Authorities > Import
 Select the certificate that you previously downloaded > Open
 Check Trust this CA to identify websites > OK > OK
 Restart Firefox
@@ -60,13 +60,13 @@ Target > Site map: this should now populate
 
 Target > Site map:
     Right click on any pane > View > Tabs
-    Filter > restore defaults > Filter
+    Filter > click on the gear > Restore defaults > click out of the Filter
 
 Proxy > Options:
     Intercept Client Requests:
         Enable URL and move to the top.
         Select File extension > Edit: add jpeg.
-        Copy contents > OK
+        Copy the contents > OK
 
     Intercept Server Responses:
         Enable Intercept responses based on the following rules.
@@ -102,7 +102,7 @@ User options:
     Misc:
         Proxy Interception: Always disable
 
-Burp menu > User options > Save user options: user.json
+Burp menu > User options > Save user options: burp-user.json
 This will provide you a starting point for all future scans.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -110,6 +110,7 @@ This will provide you a starting point for all future scans.
 
 # Scope
 Firefox > surf to the target site and click on a couple of links.
+Proxy history logging > cleck Always take the same action in future > Yes
 Burp > Target > Site map > right click (RC) on the target URL > Add to scope
 Target > Scope: you will see the URL listed in the top window
 Target > Site map > Filter: enable Show only in-scope items > Filter
@@ -121,13 +122,13 @@ If not present, start exploring the target by clicking on every link on every pa
 Continue until you have thoroughly browsed the target.
 
 # Spider the app
-Target > Site map > RC on the target URL > Spider this host
-Spider > Control: watch the Requests made increase.
-When the Requests and Forms queued are both zero, click Spider is running to stop.
+Target > Site map > RC on the target URL > Scan > Open scan launcher
+Scan Type: Crawl > Ok
+Dashboard: watch the requests increase.
 
 Target > Site map > RC the target URL > Expand branch
 Scroll to the very bottom.
-RC on any folders that are greyed out > Delete branch
+RC on any folders that are greyed out > Delete branch > Yes
 RC on any pages that are grey or red > Copy URL > paste into Firefox
     Or RC on any pages that are grey or red > GET Empty Response
 

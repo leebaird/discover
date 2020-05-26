@@ -1,6 +1,12 @@
 Git
 
 
+# Setup your identity
+
+git config --global user.name "Joe Smith"
+git config --global user.email "joesmith@acme.com"
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Configure a proxy
 
 git config --global http.proxy http://proxy:port
