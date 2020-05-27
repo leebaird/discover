@@ -7,6 +7,13 @@ NC='\033[0m'
 
 ###############################################################################################################################
 
+# Part of CME, no longer needed
+if [ -d /opt/PowerSploit/docs ]; then
+     rm -rf /opt/PowerSploit/
+fi
+
+###############################################################################################################################
+
 clear
 echo
 
@@ -182,16 +189,6 @@ fi
 echo -e "${BLUE}Updating Nmap scripts.${NC}"
 nmap --script-updatedb | egrep -v '(Starting|seconds)' | sed 's/NSE: //'
 echo
-
-if [ -d /opt/PowerSploit/docs ]; then
-     echo -e "${BLUE}Updating PowerSploit.${NC}"
-     cd /opt/PowerSploit/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing PowerSploit.${NC}"
-     git clone -b dev https://github.com/PowerShellMafia/PowerSploit/ /opt/PowerSploit
-     echo
-fi
 
 if [ -d /opt/PowerUpSQL/.git ]; then
      echo -e "${BLUE}Updating PowerUpSQL.${NC}"

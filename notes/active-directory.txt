@@ -1,6 +1,18 @@
 Active Directory
 
 
+# Recon
+- Traditional
+net user /domain                           Show all domain users
+net user <user> /domain                    Show all Security Groups a domain user belongs to
+net group /domain                          Show all Security Groups in a domain
+
+- Modern
+Using Windows > cmd > powershell
+[System.DirectoryServices.ActiveDirectory.Domain]::GetCurrent Domain()
+Look for PdcRoleOwner and Name
+------------------------------------------------------------------------------------------------------
+
 # Responder
 
 Use Responder to poison LLMNR/NBT-NS requests and capture NTLM/NTLNv2 hashes. This happens when you
@@ -144,7 +156,6 @@ dsquery * -filter “&(objectclass=computer)(operatingsystem=*server*)” -attr 
 dsquery user -limit 0
 get-netuser 			This will display all accounts and their attributes.
 get-netuser | select-object samaccountname
-net user /domain
 
 # Show attributes of a user account
 dsquery * -filter “&(objectclass=user)(samaccountname=<user>)” -attr *
