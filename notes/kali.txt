@@ -54,15 +54,6 @@ Preferences
           Uncheck Use the system fixed width font
           Color Scheme: Oblivion
 
-- Terminator
-apt-get install terminator
-terminator
-Right click in the window > Preferences
-Profiles
-     General > Font: Monospace Regular 12
-     Colors > Built-in schemes: White on black
-     Scrolling: Infinite Scrollback
-
 - Discover scripts
 git clone git://github.com/leebaird/discover.git /opt/discover/
 cd /opt/discover/
