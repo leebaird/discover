@@ -186,6 +186,16 @@ if [ ! -f /usr/bin/xmllint ]; then
      echo
 fi
 
+if [ -d /opt/Nishang/.git ]; then
+     echo -e "${BLUE}Updating Nishang.${NC}"
+     cd /opt/Nishang/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing Nishang.${NC}"
+     git clone https://github.com/samratashok/nishang.git /opt/Nishang
+     echo
+fi
+
 echo -e "${BLUE}Updating Nmap scripts.${NC}"
 nmap --script-updatedb | egrep -v '(Starting|seconds)' | sed 's/NSE: //'
 echo
