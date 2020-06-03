@@ -105,14 +105,13 @@ echo
 
 echo "ARIN"
 echo "     Email                (2/$total)"
-wget -q https://whois.arin.net/rest/pocs\;domain=$domain -O tmp.xml
-
-if [ -s tmp.xml ]; then
+curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -k -s https://whois.arin.net/rest/pocs\;domain=$domain > tmp.xml
+if ! grep -q 'No Search Results' tmp.xml; then
      xmllint --format tmp.xml | grep 'handle' | cut -d '>' -f2 | cut -d '<' -f1 | sort -u > zurls.txt
      xmllint --format tmp.xml | grep 'handle' | cut -d '"' -f2 | sort -u > zhandles.txt
 
      while read i; do
-          wget -q $i -O tmp2.xml
+          curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -k -s $i > tmp2.xml
           xml_grep 'email' tmp2.xml --text_only >> tmp
      done < zurls.txt
 
@@ -124,7 +123,7 @@ fi
 echo "     Names                (3/$total)"
 if [ -e zhandles.txt ]; then
      for i in $(cat zhandles.txt); do
-          curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -s https://whois.arin.net/rest/poc/$i.txt | grep 'Name' >> tmp
+          curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -k -s https://whois.arin.net/rest/poc/$i.txt | grep 'Name' >> tmp
      done
 
      egrep -v "($company|@|Abuse|Center|Network|Technical|Telecom)" tmp | sed 's/Name:           //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp2
@@ -136,18 +135,18 @@ rm zurls.txt zhandles.txt 2>/dev/null
 ###############################################################################################################################
 
 echo "     Networks             (4/$total)"
-curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -s https://whois.arin.net/rest/orgs\;name=$companyurl -o tmp.xml
+curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -k -s https://whois.arin.net/rest/orgs\;name=$companyurl -o tmp.xml
 
-if [ -s tmp.xml ]; then
+if ! grep -q 'No Search Results' tmp.xml; then
      xmllint --format tmp.xml | grep 'handle' | cut -d '/' -f6 | cut -d '<' -f1 | sort -uV > tmp
 
      for i in $(cat tmp); do
           echo "          " $i
-          curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -s https://whois.arin.net/rest/org/$i/nets.txt >> tmp2
+          curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -k -s https://whois.arin.net/rest/org/$i/nets.txt >> tmp2
      done
+     grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp2 | awk '{print $4 "-" $6}' | sed '/^-/d' | $sip > networks
 fi
 
-grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp2 | awk '{print $4 "-" $6}' | sed '/^-/d' | $sip > networks
 echo
 
 ###############################################################################################################################
@@ -367,7 +366,7 @@ echo
 
 echo "dnsdumpster.com           (43/$total)"
 # Generate a random cookie value
-rando=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+rando=$(openssl rand -base64 32 | tr -dc 'a-zA-Z0-9' | cut -c 1-32)
 curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com/static/map/$domain.png > /dev/null
 sleep 15
 curl -s -o $home/data/$domain/assets/images/dnsdumpster.png https://dnsdumpster.com/static/map/$domain.png
