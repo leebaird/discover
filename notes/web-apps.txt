@@ -130,7 +130,7 @@ curl -ikLsX OPTIONS <target IP>
 <iframe src="http://<attacker IP>" width="1" height="1"></iframe>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Local file inclusion
+# Local File Inclusion
 
 http://<target IP>/test.php?page=/etc/passwd
 
@@ -242,52 +242,348 @@ https://nvisium.com/blog/2014/01/31/accurate-xss-detection-with-burpsuite/
 https://forum.bugcrowd.com/t/tutorial-injectx-to-find-xss/790
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Example Test
+# Example Assessment
 
-- Recon
+- Initial recon
 ping target.com
 whois <IP>
 whois target.com
 dig target.com
 
-- Enumeration
+- Service enumeration
 nmap -Pn -n -T4 --open -p- -A -sC target.com
 nmap -Pn -n -T4 --open -sU -A target.com
-
-sslscan https://target.com
-sslyze https://target.com
-
 wafw00f https://www.target.com
 whatweb https://target.com
 
-- Directory bruteforce
-dirb https://target.com -r -z 10
-gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50
-gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x php
+- SSL/TLS enumeration
+sslscan https://target.com
+sslyze https://target.com
 
-- Configuration
+- Default configurations and files
 nikto -h https://target.com -port 443 -Format htm --output target.htm
 
-- App specific
+- Application specific enumeration
 davtest -url https://target.com
 droopescan scan drupal -u https://target.com
 joomscan -u https://target.com
 uniscan -u https://www.target.com -qweds
 wpscan --url https://target.com --enumerate vp,vt,cb,u,m
 
-- Enumerate app
-Wappalyzer is a browser extension that uncovers the technologies used on websites. It detects CMS,
-   eCommerce platforms, web servers, JavaScript frameworks, analytics tools and more.
+- Bruteforce directories
+dirb https://target.com -r -z 10
+gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50
+gobuster dir -u https://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x php
 
-- Burp
-Manually craw the app by using Firefox to click on every link on every page.
+- Install Firefox Add-ons
+Firefox > Preferences > Add-ons > type Wappalyzer > click on the search result > Add to Firefox > Add
+Repeat steps for Web Developer
 
-Burp > Target > Site map > right click on root folder > Engagement tools > Discover content > Config > 
-  Target: check Directories only, and disable Recurse subdirectories
-Filenames: disable both long names
-Discovery Engine: Sensitive
-    Disable Copy content from suite site map
-    *** must use Burp wordlist, can save setting?
+- Configure proxy
+Firefox > Preferences > Network Settings > select Manual proxy configurtion
+HTTP Proxy: 127.0.0.1
+Port: 8080
+Check Use this proxy server for all protocols > OK
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Setup Burp Suite Pro
+
+Open Burp
+New project on disk > Choose file > burp-project > Save
+Name: Base
+Next
+Use Burp defaults > Start Burp
+
+- Import Burp certificate into Firefox
+
+Open Firefox to http://burp
+CA Certificate > Save File > OK
+Preferences > Options > Privacy & Security > View Certificates > Authorities > Import
+Select the certificate that you previously downloaded > Open
+Enable Trust this CA to identify websites > OK > OK
+Restart Firefox
+
+- Configure Burp options
+
+Open Burp > New project on disk > Name: burp-base
+Choose file > burp-base.burp > Save > Next > Sub Burp default > Start Burp
+Target > Site map:
+    Right click on any pane > View > Tabs
+    Filter > click on the gear > Restore defaults > click out of the Filter
+
+Proxy > Options > Intercept Client Requests:
+    Enable URL and click Up to move to the top
+    Select File extension > Edit: add jpeg
+    Copy the contents > OK
+
+Proxy > Options > Intercept Server Responses:
+    Enable Intercept responses based on the following rules
+    Disable Content type header
+    Enable URL and use the Up botton to move to the top
+    Add: And, File extension, Does not match, Match condition: paste contents from above, OK
+
+Match & Replace
+    Scroll to the bottom and enable X-XXS-Protection: 0
+
+Intruder > Options > Request Engine
+    Number of threads: 8
+    Number of retries on network failure: 2
+
+Extender > BApp Store > Refresh list > install the following extensions:
+    Active Scann++, Additional Scanner Checks, Backslash Powered Scanner, CO2, CSRF Scanner,
+    Error Message Checks, J2EEScan, Java Deserialization Scanner, JSON Beautifier, Paramalyzer,
+    Retire.js, Site Map Fetcher, Software Version Reporter, Software Vulnerability Scanner, Wsdler
+    and XSS Validator
+
+Options > Python Environment > Select file > Browse to /Applications/jython-standalone-2.7.0.jar > Open
+
+Project options > Misc > Burp Collaborator Server: Don't use Burp Collaborator
+
+User options > Connections > Platform Authentication > enable Prompt for credentials on platform authentication failure
+
+User options > Display
+    User Interface > Font size: 14
+    HTTP Message Display > Font: Courier 14
+
+User options > Misc > Proxy Interception: Always disable
+
+Burp menu > User options > Save user options: burp-user
+
+This will provide you a starting point for all future scans.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Testing from home? Tunnel all your traffic over SSH to Kali running in Amazon EC2.
+
+ssh -i amazon.pem ec2-user@kaliIP
+sudo -i
+vim /etc/proxychains.conf
+Add a new last line: socks5 127.0.0.1 1080
+exit
+exit
+
+ssh -D 1080 -f -N -i amazon.pem ec2-user@kaliIP
+
+Open Burp locally.
+User options > Connections > SOCKS Proxy
+Check Use SOCKS proxy
+SOCKS Proxy host: 127.0.0.1
+SOCKS Proxy port: 1080
+Check Do DNS lookups over SOCKS proxy
+
+Open Firefox to http://whatismyipaddress.com
+The IP address should be your Kali EC2.
+Target > Site map: this should now populate
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- New scan
+Copy burp-base.burp to the Desktop.
+Rename the file (client.burp)
+Open Burp > Open existing project > Choose file > Desktop > client.burp > open > Next
+Load from configuration file > Choose file > find your user prefs > Open > Next
+Dashboard > Resume
+
+- Establish scope
+Open Firefox > surf to the target site
+Target  > the Site map should be populating
+Right click on the target URL > Add to scope
+Filter > enable Show only in-scope items > Filter
+Target > Scope > you will see the URL listed in the top window
+
+- Browse the target
+Look for target.com/sitemap and target.com/robots.txt
+Browse every link on each page.
+If not present, click on every link on the homepage.
+Continue until you have thoroughly browsed the target.
+
+- Brute force directories
+Target > Site map > right click on the second line '/' > Send to Intruder
+Intruder > Position > Attack type: Sniper
+Clear §
+On the top line, select the forward slash '/' after GET > Add §
+Move the forward slash in front of the two symbols. It should look like: GET /§§
+Payloads > Payload Sets > Payload set: 1 > Payload type: Runtime file
+Payloads > Payload Options > Select file > raft-medium-directories.txt > Open
+Start attack
+
+- Sync results to Site map
+Scroll to the top of the list > sort by Payload
+Delete any blanks lines
+Move the Intruder window to the side so you can see the main window
+Target > Site map
+Compare the pages in the Site map to the Payloads in the Intruder window.
+Select a Payload that is not listed in the Site map
+Right click > Request in browser > In current session
+Enable In future, just copy the URL and don't show this dialog > Copy
+Open a new tab in Firefox and paste.
+Repeat as necessary.
+
+- Analyze anomolies
+Filter > uncheck 4xx [request error] > Filter
+Click Status to sort by ascending.
+Select the first line with a 302 Status.
+Hold down shift and select the last line with a 302 Status.
+Right click > Delete selected items > Yes
+Review uncomman HTTP status codes (5xx) > Response > Render
+Sort by Length, review minimum and maximum values > Response > Render
+
+- Review comments
+Target > Site map > right click on the target URL > Engagement tools > Find comments
+Sort by Item
+Select each line > Response > right arrow key > look for sensitive information.
+
+- Visit referenced URLs
+Target > Site map > right click on the target URL > Expand branch
+Scroll to the very bottom.
+Right click on any empty folders that are greyed out > Delete branch > Yes
+Right click on any pages that are grey or red > Copy URL > Firefox > Paste & Go
+Skip pages that end with css, jpg, js, pdf or png.
+Make sure at least one page has been visited under each folder.
+Select multiple URLs by holding down shift > right click > Copy selected URLs
+Firefox > select the + on the far right to access 'Open Multiple URLs' > paste > Open URLs
+Burp > once the URLs become black > Firefox > close the open tabs.
+
+- Scan the target
+Target > Site map > right click on the target URL > Actively scan this host
+
+- Capture a packet
+Burp > Proxy > enable intercept
+Firefox > try to login to a web page.
+Burp > right click on capture > Send to Intruder
+Intruder > Position > Attack type
+
+- Types of attack
+Sniper:
+    Uses a single wordlist against a single variable.
+Battering ram:
+    Uses a single wordlist against all variables.
+Pitchfork:
+    Uses multiple wordlists.
+    For example: you have a known list of usernames and a related list of passwords.
+    This will try the first username with the first password, then the second username with the second password, and so on.
+    This is useful when checking for old accounts that should have been deleted.
+Cluster bomb:
+    Uses multiple wordlists.
+    For example: you have a known list of usernames and a non-related list of passwords.
+    This will try the first username with each password, then the second username with each password, and so on.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Brute force basic authentication: Sniper
+    Clear $
+    Highlight the Authorization: Basic parameter > Add $
+    This parameter is Base64 encoded.
+    Copy the parameter > Decoder > paste in the top window
+    Select the top drop-down menu on the right > Base64
+    For example: YWRtaW46dGVzdDEyMw== decoded is admin:test123
+    Notice there is a colon between the username and password
+
+    Intruder > Payloads > Payload Sets > Payload type: Custom iterator
+    List 1 with the possible Usernames and List 2 with possible passwords.
+    Position: 1
+        Type in the username (admin in our example) > Add
+        Separator for position 1: : (colon in our example)
+    Position: 2
+        Load > choose your wordlist > Open
+    Now we need to encode the whole string into Base64.
+    <*** more stuff here ***>
+    Start attack
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Brute force a password: Sniper
+    Clear $
+    Highlight the password you entered > Add $
+    Intruder > Payloads > Payload Options
+    Load > choose your password list > Open
+    Start attack
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Brute force usernames and passwords: Cluster bomb
+    Clear $
+    Highlight the username you entered > Add $
+    Highlight the password you entered > Add $
+    Intruder > Payloads
+        Payload Sets
+            Payload set: 1
+            Payload type: Simple list
+        Payload Options
+            Clear > Load: choose your username list > Open
+        Payload Sets
+            Payload set: 2
+            Payload type: Simple list
+        Payload Options
+            Clear > Load: choose your password list > Open
+        Start attack
+
+Filter > uncheck 4xx [request error] > Filter
+Click Status to sort by ascending.
+Look for a 302 (redirect). This should be a successful login.
+
+- Other methods
+hydra -L users.txt -P pass.txt <target IP> http-get
+
+Metasploit
+    use auxiliary/scanner/http/http_login
+    set user_file user.txt
+    set pass_file pass.txt
+    set rhosts <target IP>
+    set stop_on_success true
+    exploit
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Check for 404 and 500 errors
+
+Add a single tick (') at the end of a URL.
+Add junk to the middle of a URL.
+Enter a single tick (') in any input field of a form and submit.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# CSRF
+
+You should be logged into the web application.
+Create a list of all POST requests that do not have a unique token called ‘CSRF_Token’.
+
+Proxy > HTTP history > Filter > Filter by search term
+    ^POST((?!CSRF_Token).)*$
+    Click Regex
+
+Right click on the first request > Engagement tools > Generate CSRF PoC
+Test in browser > Copy
+Open a new tab in Firefox > paste
+
+Look for evidence that it executed whatever that HTTP request was supposed to do.
+
+https://support.portswigger.net/customer/portal/articles/1965674-using-burp-to-test-for-cross-site-request-forgery-csrf-
+https://portswigger.net/burp/help/suite_functions_csrfpoc.html
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Manually Validate Findings
+
+File path traversal: right click in the Request body > Send to Repeater > modify the request
+XML Injection: Search in the Response body for http://www.w3.org/2001/XMLSchema. This is a false positive.
+XSS: right click in the Request body > Request in browser > In current browser session
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Mobile app testing
+
+Proxy > Options > Proxy Listeners > Add > Binding:
+    Bind to port: 8081
+    Bind to address: All interfaces
+    OK > Yes
+
+iPhone: Settings > Wi-Fi > select your network > scroll to the bottom
+HTTP PROXY > Manual
+    Server: your computer's IP address.
+    Port: 8081
+
+Safari > http://burp
+    Select CA Certificate
+    It will prompt you to install, then ask for your password
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Reporting
+
+Select all remaining findings
+Right click > Report selected issues > Next 4x > enter file location > Next > Close
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Right click on the very first request >  Send to intruder
 Clear
@@ -303,27 +599,4 @@ sort by Status
 Intruder > clear > select user agent string > Add
 Payload Options > Select file: sec lists > Discovery > Web_content > UserAgents.fuzz.txt
 Sort by Length > Response > Render
-
-- Automated Discovery
-Target > Site map > select root folder > Actively scan this host > ??? > sort by URL
-Manually remove duplicates
-
-- Test for account lockout
-Payload: Null payload : Generate 100 payloads.
-
-- Brute force ia Basic authentication login
-Cluster bomb - multiple usernames/passwords using all combinations.
-    username - simple list
-    passwords - runtime file
-    Look for a Status of 3xx then sort by Length.
-
-hydra -L users.txt -P pass.txt <target IP> http-get
-
-Metasploit
-    use auxiliary/scanner/http/http_login
-    set user_file user.txt
-    set pass_file pass.txt
-    set rhosts <target IP>
-    set stop_on_success true
-    exploit
 
