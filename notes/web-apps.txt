@@ -465,60 +465,39 @@ Cluster bomb:
     Uses multiple wordlists.
     For example: you have a known list of usernames and a non-related list of passwords.
     This will try the first username with each password, then the second username with each password, and so on.
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-- Brute force basic authentication: Sniper
-    Clear $
-    Highlight the Authorization: Basic parameter > Add $
-    This parameter is Base64 encoded.
-    Copy the parameter > Decoder > paste in the top window
-    Select the top drop-down menu on the right > Base64
-    For example: YWRtaW46dGVzdDEyMw== decoded is admin:test123
-    Notice there is a colon between the username and password
-
-    Intruder > Payloads > Payload Sets > Payload type: Custom iterator
-    List 1 with the possible Usernames and List 2 with possible passwords.
-    Position: 1
-        Type in the username (admin in our example) > Add
-        Separator for position 1: : (colon in our example)
-    Position: 2
-        Load > choose your wordlist > Open
-    Now we need to encode the whole string into Base64.
-    <*** more stuff here ***>
-    Start attack
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 - Brute force a password: Sniper
     Clear $
     Highlight the password you entered > Add $
     Intruder > Payloads > Payload Options
-    Load > choose your password list > Open
+    Load > choose a password list > Open
     Start attack
-------------------------------------------------------------------------------------------------------------------------------------------------------
+    Filter > uncheck 4xx [request error] > Filter
+    Click Status to sort by ascending.
+    Look for a 302 (redirect). This should be a successful login.
 
 - Brute force usernames and passwords: Cluster bomb
     Clear $
     Highlight the username you entered > Add $
     Highlight the password you entered > Add $
-    Intruder > Payloads
-        Payload Sets
-            Payload set: 1
-            Payload type: Simple list
-        Payload Options
-            Clear > Load: choose your username list > Open
-        Payload Sets
-            Payload set: 2
-            Payload type: Simple list
-        Payload Options
-            Clear > Load: choose your password list > Open
-        Start attack
-
-Filter > uncheck 4xx [request error] > Filter
-Click Status to sort by ascending.
-Look for a 302 (redirect). This should be a successful login.
+    Intruder > Payloads > Payload Sets
+        Payload set: 1
+        Payload type: Simple list
+    Intruder > Payloads > Payload Options
+    Clear > Load > choose a username list > Open
+    Intruder > Payloads > Payload Sets
+        Payload set: 2
+        Payload type: Simple list
+    Intruder > Payloads > Payload Options
+    Clear > Load: choose a password list > Open
+    Start attack
+    Filter > uncheck 4xx [request error] > Filter
+    Click Status to sort by ascending.
+    Look for a 302 (redirect). This should be a successful login.
 
 - Other methods
-hydra -L users.txt -P pass.txt <target IP> http-get
+Hydra
+    hydra -L users.txt -P pass.txt <target IP> http-get
 
 Metasploit
     use auxiliary/scanner/http/http_login
@@ -531,14 +510,14 @@ Metasploit
 
 # Check for 404 and 500 errors
 
-Add a single tick (') at the end of a URL.
 Add junk to the middle of a URL.
+Add a single tick (') at the end of a URL.
 Enter a single tick (') in any input field of a form and submit.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # CSRF
 
-You should be logged into the web application.
+Login to the target.
 Create a list of all POST requests that do not have a unique token called ‘CSRF_Token’.
 
 Proxy > HTTP history > Filter > Filter by search term
@@ -548,17 +527,17 @@ Proxy > HTTP history > Filter > Filter by search term
 Right click on the first request > Engagement tools > Generate CSRF PoC
 Test in browser > Copy
 Open a new tab in Firefox > paste
-
 Look for evidence that it executed whatever that HTTP request was supposed to do.
 
-https://support.portswigger.net/customer/portal/articles/1965674-using-burp-to-test-for-cross-site-request-forgery-csrf-
-https://portswigger.net/burp/help/suite_functions_csrfpoc.html
+https://portswigger.net/support/using-burp-to-test-for-cross-site-request-forgery-csrf
+https://portswigger.net/burp/documentation/desktop/functions/generate-csrf-poc
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Manually Validate Findings
 
 File path traversal: right click in the Request body > Send to Repeater > modify the request
-XML Injection: Search in the Response body for http://www.w3.org/2001/XMLSchema. This is a false positive.
+XML Injection: Search in the Response body for http://www.w3.org/2001/XMLSchema.
+This is a false positive.
 XSS: right click in the Request body > Request in browser > In current browser session
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -581,7 +560,8 @@ Safari > http://burp
 
 # Reporting
 
-Select all remaining findings
+Removed false positives.
+Select all remaining findings.
 Right click > Report selected issues > Next 4x > enter file location > Next > Close
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
