@@ -221,5 +221,5 @@ Metasploit Listeners
 
 ### Update
 
-* Use to update Kali Linux , Discover scripts, various tools, and the locate database.
+* Use to update Kali Linux , Discover scripts, various tools and the locate database.
 
