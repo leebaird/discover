@@ -63,7 +63,12 @@ chmod 755 test.sh                               Make a file executable
 /etc/passwd                                     User accounts
 /etc/shadow                                     Encrypted passwords
 ------------------------------------------------------------------------------------------------------------------------------------------------------
- 
+
+# File Transfer
+
+python3 -m http.server                          Starts a web sever on port 8000
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Files & Directories
  
 ls                                              List files in a directory

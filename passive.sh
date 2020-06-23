@@ -479,8 +479,7 @@ grep "@$domain" tmp9 | column -t -s ',' | sort -u > registered-domains
 
 ###############################################################################################################################
 
-# Remove lines that contain FOO and BAR
-cat z* | grep "@$domain" | awk '!(/_/ && /-/)' | sort -u > emails
+cat z* | grep "@$domain" | egrep -v '(_|,)' | sort -u > emails
 
 # Thanks Jason Ashton for cleaning up subdomains
 cut -d ':' -f2 z* | grep "\.$domain" | grep -v '/' | sort -u > tmp
@@ -492,9 +491,10 @@ done < tmp
 
 cat raw | sed 's/FOO$//; s/:,/:/g' | column -t -s ':' | sed 's/,/, /g' > subdomains
 
-cat z* | egrep -v '(@|:|\.|Google|Search)' | sed 's/ And / and /; s/ Av / AV /g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; 
-s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; 
-s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/ Ui / UI /g; s/ Ux / UX /g' | sed 's/ - /,/g; s/ /,/1' | awk -F ',' '{print $2"#"$1"#"$3}' | sort -u > names
+cat z* | egrep -v '(@|:|\.|Atlanta|Google|Maryland|North Carolina|Philadelphia|Planning|Search|United| University)' | sed 's/ And / and /; s/ Av / AV /g; 
+s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; 
+s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; 
+s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g' | sed 's/ - /,/g; s/ /,/1' | awk -F ',' '{print $2"#"$1"#"$3}' | sort -u > names
 
 ###############################################################################################################################
 
