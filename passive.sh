@@ -797,12 +797,10 @@ $web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude
 sleep 4
 $web https://www.google.com/search?q=site:$domain+intext:username+intext:password+-inurl:careers &
 sleep 4
-$web https://dnslytics.com/dns-lookup &
-sleep 4
-$web https://www.google.com/search?q=site:$domain+intext:Atlassian+intext:jira+-inurl:careers &
-sleep 4
 $web https://networksdb.io/search/org/$companyurl &
 sleep 4
+$web https://www.google.com/search?q=site:$domain+intext:Atlassian+intext:jira+-inurl:careers &
+sleep 6
 $web https://www.google.com/search?q=site:pastebin.com+intext:$domain &
 sleep 4
 $web https://www.facebook.com &
