@@ -11,10 +11,34 @@ Log in as root
 userdel -r kali
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Modify the Terminal
+# Modify
 
-Right click on the Terminal > Preferences
-Font > Change: 13 > OK
+- /root/.bashrc
+# Load external aliases.
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'
+
+- Desktop
+Right click on the Desktop > Desktop Settings
+Icons > Default Icons: uncheck Home and Trash
+
+- Mousepad
+Edit > Preferences
+View
+    Show line numbers
+    Highlight current line
+    Font: 11
+    Colour scheme: Oblivion
+Editor
+    Tab width: 4
+    Tab mode: Insert Spaces
+
+- Terminal
+File > Preferences
+Appearance > Font > Change: 11 > OK
 Application transparency: 0%
 Behavior: Unlimited history
 OK
@@ -33,26 +57,7 @@ Security > Lock screen when system is going to sleep: Off
 Close
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Update Kali
-
-apt-get update
-apt-get -y upgrade
-apt-get -y dist-upgrade
-updatedb
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Install tools
-
-- gedit
-apt install gedit
-gedit
-Preferences
-     Editor
-          Tab width: 5
-          Insert spaces instead of tabs
-     Fonts & Colors
-          Uncheck Use the system fixed width font
-          Color Scheme: Oblivion
 
 - Discover scripts
 git clone git://github.com/leebaird/discover.git /opt/discover/
@@ -94,8 +99,8 @@ set ruler          " Handy line at the bottom
 set title          " Terminal title is filename
 
 set expandtab      " Insert spaces instead of tabs
-set shiftwidth=5   " 5-space tabs
-set tabstop=5      " 5-space indents
+set shiftwidth=4   " 4-space tabs
+set tabstop=4      " 4-space indents
 
 " Allow backspacing over autoindent, line breaks and start of insert action
 set backspace=indent,eol,start
