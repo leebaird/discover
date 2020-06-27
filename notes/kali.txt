@@ -37,8 +37,9 @@ Editor
     Tab mode: Insert Spaces
 
 - Terminal
-File > Preferences
-Appearance > Font > Change: 11 > OK
+File > Preferences > Appearance
+Font: 11
+Color scheme: Tango
 Application transparency: 0%
 Behavior: Unlimited history
 OK
@@ -57,9 +58,8 @@ Security > Lock screen when system is going to sleep: Off
 Close
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Install tools
+# Install Discover scripts
 
-- Discover scripts
 git clone git://github.com/leebaird/discover.git /opt/discover/
 cd /opt/discover/
 ./update.sh
