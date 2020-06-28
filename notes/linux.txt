@@ -468,6 +468,7 @@ ctrl +b %                                       Rename a session
 
 ctrl +b "                                       Split the pane horizontally
 ctrl +b %                                       Split the pane vertically
+ctrl +b arrow key                               Switch between panes
 ctrl +d                                         Close the pane
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
