@@ -350,6 +350,8 @@ xhost +<target IP>                              attacker - authorize the target 
 
 # Screen
 
+Allows session sharing where tmux does not.
+
 screen -S test                                  Start a new screen session named test
 ctrl + a d                                      Detach from the session
 screen -ls                                      Sessions
@@ -450,31 +452,22 @@ ctrl + l                                        Clear the screen
 
 # tmux
 
-After you ssh into a box, use tmux. If your connection drops, you can ssh back in, connect to your
-previous tmux session and pick up where you left off. Great when running long scans or anything that
-you don't want to start over.
+After you ssh into a box, use tmux. If your connection drops, you can ssh back in, connect to your previous tmux
+session and pick up where you left off. Great when running long scans or anything that you don't want to start over.
 
 tmux                                            Start a new session
 tmux new -s <name>                              Start a new session with a specific name
 
 ctrl +b d                                       Detach from the current session
-exit                                            Exit the session
+exit                                            Exit the current session
 tmux ls                                         List sessions
 
 tmux attach                                     Attach to the previous session
 tmux attach -t <name>                           Attach to the previous session with a specific name
+ctrl +b %                                       Rename a session
 
-ctrl +b c                                       Create a new window
-ctrl +b 0                                       Go back to the first window
-
-ctrl +b %                                       Split the pane vertically
 ctrl +b "                                       Split the pane horizontally
-ctrl +b arrow                                   Switch between panes
-ctrl +b z                                       Makes the current pane full screen
-ctrl +b z (again)                               Zoom out
-
-ctrl +b (hold ctrl)                             Use the arrows to resize the pane
-
+ctrl +b %                                       Split the pane vertically
 ctrl +d                                         Close the pane
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
