@@ -454,13 +454,18 @@ After you ssh into a box, use tmux. If your connection drops, you can ssh back i
 previous tmux session and pick up where you left off. Great when running long scans or anything that
 you don't want to start over.
 
+tmux                                            Start a new session
+tmux new -s <name>                              Start a new session with a specific name
+
+ctrl +b d                                       Detach from the current session
+exit                                            Exit the session
 tmux ls                                         List sessions
-tmux new -s <name>                              Start a new session
+
+tmux attach                                     Attach to the previous session
+tmux attach -t <name>                           Attach to the previous session with a specific name
+
 ctrl +b c                                       Create a new window
 ctrl +b 0                                       Go back to the first window
-
-tmux attach -t <name>                           Attach to a previous session
-ctrl +b d                                       Detach from the current session
 
 ctrl +b %                                       Split the pane vertically
 ctrl +b "                                       Split the pane horizontally
