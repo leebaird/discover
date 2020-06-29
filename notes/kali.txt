@@ -11,9 +11,30 @@ Log in as root
 userdel -r kali
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Cleanup the Home folder
+
+rm -rf Documents/ Downloads/ Music/ Pictures/ Public/ Templates/ Videos/
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Disable screen lock
+
+Top right battery icon > Power manager settings
+Display > Display power management: Off
+Security > Lock screen when system is going to sleep: Off
+Close
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Install Discover scripts
+
+git clone git://github.com/leebaird/discover.git /opt/discover/
+cd /opt/discover/
+cp aliases /root/.bash_aliases
+./update.sh
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Modify
 
-- /root/.bashrc
+- vi /root/.bashrc
 # Load external aliases.
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
@@ -33,7 +54,7 @@ View
     Font: 11
     Colour scheme: Oblivion
 Editor
-    Tab width: 4
+    Tab width: 5
     Tab mode: Insert Spaces
 
 - Terminal
@@ -45,31 +66,12 @@ Behavior: Unlimited history
 OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Cleanup the Home folder
-
-rm -rf Documents/ Downloads/ Music/ Pictures/ Public/ Templates/ Videos/
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Disable screen lock
-
-Top right battery icon > Power manager settings
-Display > Display power management: Off
-Security > Lock screen when system is going to sleep: Off
-Close
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Install Discover scripts
-
-git clone git://github.com/leebaird/discover.git /opt/discover/
-cd /opt/discover/
-./update.sh
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # SSH
 
 ssh-keygen                                 Create new keys
+update-rc.d ssh enable                     Enable ssh to start at boot time
 
-/etc/ssh/sshd_config                       Daemon config file
+vi /etc/ssh/sshd_config                    Edit the aemon config file
 PermitRootLogin yes                        Change to yes
 AuthorizedKeysFile                         Uncomment
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -99,8 +101,8 @@ set ruler          " Handy line at the bottom
 set title          " Terminal title is filename
 
 set expandtab      " Insert spaces instead of tabs
-set shiftwidth=4   " 4-space tabs
-set tabstop=4      " 4-space indents
+set shiftwidth=5   " 5-space tabs
+set tabstop=5      " 5-space indents
 
 " Allow backspacing over autoindent, line breaks and start of insert action
 set backspace=indent,eol,start
