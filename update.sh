@@ -9,7 +9,7 @@ NC='\033[0m'
 
 # Part of CME, no longer needed
 if [ -d /opt/PowerSploit/docs ]; then
-     rm -rf /opt/PowerSploit/
+    rm -rf /opt/PowerSploit/
 fi
 
 ###############################################################################################################################
@@ -18,11 +18,11 @@ clear
 echo
 
 if [ -d /pentest ]; then
-     echo -e "${BLUE}Updating Discover.${NC}"
-     git pull -q
-     echo
-     echo
-     exit
+    echo -e "${BLUE}Updating Discover.${NC}"
+    git pull -q
+    echo
+    echo
+    exit
 fi
 
 echo -e "${BLUE}Updating Kali.${NC}"
@@ -34,6 +34,16 @@ if [ -d /opt/BloodHound-v3/.git ]; then
      cd /opt/BloodHound-v3/ ; git pull -q
      echo
 else
+     echo -e "${YELLOW}Installing Neo4j.${NC}"
+     echo "deb http://httpredir.debian.org/debian stretch-backports main" | sudo tee -a /etc/apt/sources.list.d/stretch-backports.list
+     apt-get update
+     wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
+     echo 'deb https://debian.neo4j.com stable 4.0' > /etc/apt/sources.list.d/neo4j.list
+     apt-get update
+     apt-get install apt-transport-https
+     apt-get -y install neo4j
+     systemctl stop neo4j
+     echo
      echo -e "${YELLOW}Installing BloodHound.${NC}"
      git clone https://github.com/BloodHoundAD/BloodHound.git /opt/BloodHound-v3
      apt -y install npm
@@ -65,7 +75,6 @@ else
      cd CrackMapExec && pipenv install
      pipenv shell
      python setup.py install
-     ln -s /usr/local/bin/cme /opt/CrackMapExec/cme/crackmapexec.py
      echo
 fi
 

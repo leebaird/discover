@@ -44,15 +44,11 @@ nmap -Pn -n -T4 --open -p- -sC -sV -iL targets.txt
 
 # BloodHound
 
-Firefox > seach neo4j download
-You must enter a valid email address to receive download link.
-
-tar -zxvf neo4j-enterprise-4.0.0-unix.tar.gz
-cd neo4j-enterprise-4.0.0/bin/
-
+cd /usr/bin
 ./neo4j console
+
 firefox http://localhost:7474/ &
-Enter the default password: neo4j
+username/password: neo4j
 Change the password
 
 cd /opt/BloodHound-v3/Ingestors/
