@@ -7,9 +7,9 @@ NC='\033[0m'
 
 ###############################################################################################################################
 
-# Part of CME, no longer needed
-if [ -d /opt/PowerSploit/docs ]; then
-    rm -rf /opt/PowerSploit/
+# Remove old non-supported version
+if [ -e /opt/Empire/.build.sh ]; then
+    rm -rf /opt/Empire/
 fi
 
 ###############################################################################################################################
@@ -161,7 +161,8 @@ if [ -d /opt/Egress-Assess/.git ]; then
 else
      echo -e "${YELLOW}Installing Egress-Assess.${NC}"
      git clone https://github.com/ChrisTruncer/Egress-Assess.git /opt/Egress-Assess
-     /opt/Egress-Assess/setup/setup.sh
+     cd /opt/Egress-Assess/setup/
+     ./setup.sh
      mv server.pem ../Egress-Assess/
      rm impacket*
      echo
@@ -173,9 +174,9 @@ if [ -d /opt/Empire/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing Empire.${NC}"
-     git clone https://github.com/PowerShellEmpire/Empire.git /opt/Empire
-     /opt/Empire/setup/install.sh
-     echo
+     git clone https://github.com/BC-SECURITY/Empire/ /opt/Empire
+     cd /opt/Empire/setup/
+     ./install.sh
 fi
 
 if [ -d /opt/EyeWitness/.git ]; then
@@ -185,7 +186,8 @@ if [ -d /opt/EyeWitness/.git ]; then
 else
      echo -e "${YELLOW}Installing EyeWitness.${NC}"
      git clone https://github.com/ChrisTruncer/EyeWitness.git /opt/EyeWitness
-     /opt/EyeWitness/setup/setup.sh
+     cd /opt/EyeWitness/setup/
+     ./setup.sh
      echo
 fi
 
@@ -249,7 +251,8 @@ if [ -d /opt/rawr/.git ]; then
 else
      echo -e "${YELLOW}Installing RAWR.${NC}"
      git clone https://bitbucket.org/al14s/rawr.git /opt/rawr
-     /opt/rawr/install.sh y
+     cd /opt/rawr/
+     ./install.sh y
 fi
 
 if [ -d /opt/SecLists/.git ]; then
@@ -309,7 +312,8 @@ if [ -d /opt/Veil/.git ]; then
 else
      echo -e "${YELLOW}Installing Veil.${NC}"
      git clone https://github.com/Veil-Framework/Veil /opt/Veil
-     /opt/Veil/config/setup.sh --force --silent
+     cd /opt/Veil/config/
+     ./setup.sh --force --silent
      echo
 fi
 
