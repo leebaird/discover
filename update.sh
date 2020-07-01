@@ -12,6 +12,13 @@ if [ -e /opt/Empire/.build.sh ]; then
     rm -rf /opt/Empire/
 fi
 
+if [ -d /opt/prowl/.git ]; then
+     rm -rf /opt/prowl/
+fi
+
+if [ -d /opt/rawr/.git ]; then
+     rm -rf /opt/rawr/
+fi
 ###############################################################################################################################
 
 clear
@@ -92,7 +99,7 @@ else
      echo -e "${YELLOW}Installing DNSRecon.${NC}"
      git clone https://github.com/darkoperator/dnsrecon.git /opt/DNSRecon
      cd /opt/DNSRecon/
-     python3 -m pip install -r requirements.txt
+     pip3 install -r requirements.txt
      echo
 fi
 
@@ -105,7 +112,7 @@ else
      git clone https://github.com/elceef/dnstwist.git /opt/dnstwist
      apt install python3-dnspython python3-geoip python3-whois python3-requests python3-ssdeep
      cd /opt/dnstwist/
-     python3 -m pip install -r requirements.txt | grep -v 'already'
+     pip3 install -r requirements.txt
      echo
 fi
 
@@ -117,7 +124,7 @@ else
      echo -e "${YELLOW}Installing Domain Hunter.${NC}"
      git clone https://github.com/threatexpress/domainhunter.git /opt/Domain-Hunter
      cd /opt/Domain-Hunter/
-     python3 -m pip install -r requirements.txt | grep -v 'already'
+     pip3 install -r requirements.txt
      chmod 755 domainhunter.py
      echo
 fi
@@ -150,7 +157,7 @@ else
      echo -e "${YELLOW}Installing droopescan.${NC}"
      git clone https://github.com/droope/droopescan.git /opt/droopescan
      cd /opt/droopescan/
-     python3 -m pip install -r requirements.txt | grep -v 'already'
+     pip3 install -r requirements.txt
      echo
 fi
 
@@ -186,7 +193,7 @@ if [ -d /opt/EyeWitness/.git ]; then
 else
      echo -e "${YELLOW}Installing EyeWitness.${NC}"
      git clone https://github.com/ChrisTruncer/EyeWitness.git /opt/EyeWitness
-     cd /opt/EyeWitness/setup/
+     cd /opt/EyeWitness/Python/setup/
      ./setup.sh
      echo
 fi
@@ -221,19 +228,6 @@ else
      echo
 fi
 
-if [ -d /opt/prowl/.git ]; then
-     echo -e "${BLUE}Updating Prowl.${NC}"
-     cd /opt/prowl/ ; git pull -q
-     echo
-else
-     echo -e "${YELLOW}Installing Prowl.${NC}"
-     git clone https://github.com/Pickfordmatt/Prowl /opt/prowl
-     chmod 755 /opt/prowl/prowl.py
-     apt-get install python-pip python-lxml
-     pip install dnspython Beautifulsoup4 Gitpython
-     echo
-fi
-
 if [ -d /opt/PS-Attack/.git ]; then
      echo -e "${BLUE}Updating PS>Attack.${NC}"
      cd /opt/PS-Attack/ ; git pull -q
@@ -242,17 +236,6 @@ else
      echo -e "${YELLOW}Installing PS>Attack.${NC}"
      git clone https://github.com/jaredhaight/PSAttack.git /opt/PS-Attack
      echo
-fi
-
-if [ -d /opt/rawr/.git ]; then
-     echo -e "${BLUE}Updating RAWR.${NC}"
-     cd /opt/rawr/ ; git pull -q
-     echo
-else
-     echo -e "${YELLOW}Installing RAWR.${NC}"
-     git clone https://bitbucket.org/al14s/rawr.git /opt/rawr
-     cd /opt/rawr/
-     ./install.sh y
 fi
 
 if [ -d /opt/SecLists/.git ]; then
@@ -273,7 +256,7 @@ else
      echo -e "${YELLOW}Installing SharpShooter.${NC}"
      git clone https://github.com/mdsecactivebreach/SharpShooter.git /opt/SharpShooter
      cd /opt/SharpShooter/
-     python3 -m pip install -r requirements.txt | grep -v 'already'
+     pip3 install -r requirements.txt
      echo
 fi
 
@@ -285,7 +268,7 @@ else
      echo -e "${YELLOW}Installing theHarvester.${NC}"
      git clone https://github.com/laramies/theHarvester.git /opt/theHarvester
      cd /opt/theHarvester/
-     python3 -m pip install -r requirements.txt | grep -v 'already'
+     pip3 install -r requirements.txt
      echo
 fi
 
