@@ -253,7 +253,7 @@ impersonate_token "NT AUTHORITY\SYSTEM"                     Impersonate a local 
 ps                                                          Show running processes
 steal_token <PID>
 getuid
-drop_token                                                  Revert back to the orginal token
+drop_token                                                  Revert back to the original token
 getuid
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 

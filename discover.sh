@@ -25,6 +25,8 @@
 # Securicon, LLC. - for sponsoring development of parsers
 # Steve Copland - report framework v1
 # Arthur Kay (@arthurakay) - python scripts
+# Brett Fitzpatrick (@brettfitz) - SQL query
+# Robleh Esa (@RoblehEsa) - SQL queries
 
 ###############################################################################################################################
 

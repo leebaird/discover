@@ -1,7 +1,5 @@
-# Thanks Brett Fitzpatrick @_brettfitz for this query.
 db query DELETE FROM contacts WHERE rowid NOT IN (SELECT min(rowid) FROM contacts GROUP BY first_name, last_name, email)
 
-# Thanks Robleh Esa @RoblehEsa for these two queries.
 db query UPDATE hosts SET ip_address = "" WHERE ip_address IS NULL
 db query DELETE FROM hosts WHERE rowid NOT IN (SELECT * FROM (SELECT max.rowid FROM hosts max LEFT JOIN hosts bigger ON max.host = bigger.host AND LENGTH(max.ip_address) < LENGTH(bigger.ip_address) WHERE bigger.ip_address IS NULL) AS keepers)
 
