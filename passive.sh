@@ -499,7 +499,8 @@ s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g' | sed 's/ - /,/g; s/ /,/1' | awk -F ','
 ###############################################################################################################################
 
 echo "recon-ng                  (47/$total)"
-echo "marketplace install all" > passive.rc
+echo "marketplace refresh" > passive.rc
+echo "marketplace install all" >> passive.rc
 echo "workspaces create $domain" >> passive.rc
 echo "db insert companies" >> passive.rc
 echo "$companyurl" >> passive.rc

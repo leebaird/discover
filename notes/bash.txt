@@ -35,8 +35,8 @@ diff -<c or u> file1 file2
 vimdiff file1 file2
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-sed -e 's/^/FOO/'                                             Add FOO to the beginning of each line
-sed -e 's/$/FOO/'                                             Add FOO to the end of each line
+sed 's/^/FOO/g'                                               Add FOO to the beginning of each line
+sed 's/$/FOO/g'                                               Add FOO to the end of each line
 
 column -t                                                     Align columns
 
