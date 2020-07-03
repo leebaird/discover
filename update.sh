@@ -26,7 +26,7 @@ echo
 
 if [ -d /pentest ]; then
     echo -e "${BLUE}Updating Discover.${NC}"
-    git pull -q
+    git pull
     echo
     echo
     exit
@@ -38,7 +38,7 @@ echo
 
 if [ -d /opt/BloodHound-v3/.git ]; then
      echo -e "${BLUE}Updating BloodHound.${NC}"
-     cd /opt/BloodHound-v3/ ; git pull -q
+     cd /opt/BloodHound-v3/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing Neo4j.${NC}"
@@ -62,7 +62,7 @@ fi
 
 if [ -d /opt/Cobalt-Strike-profiles/.git ]; then
      echo -e "${BLUE}Updating Cobalt Strike profiles.${NC}"
-     cd /opt/Cobalt-Strike-profiles/ ; git pull -q
+     cd /opt/Cobalt-Strike-profiles/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing Cobalt Strike profiles.${NC}"
@@ -72,7 +72,7 @@ fi
 
 if [ -d /opt/CrackMapExec/.git ]; then
      echo -e "${BLUE}Updating CrackMapExec.${NC}"
-     cd /opt/CrackMapExec/ ; git pull -q
+     cd /opt/CrackMapExec/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing CrackMapExec.${NC}"
@@ -87,13 +87,13 @@ fi
 
 if [ -d /opt/discover/.git ]; then
      echo -e "${BLUE}Updating Discover.${NC}"
-     cd /opt/discover ; git pull -q
+     cd /opt/discover ; git pull
      echo
 fi
 
 if [ -d /opt/DNSRecon/.git ]; then
      echo -e "${BLUE}Updating DNSRecon.${NC}"
-     cd /opt/DNSRecon/ ; git pull -q
+     cd /opt/DNSRecon/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing DNSRecon.${NC}"
@@ -105,7 +105,7 @@ fi
 
 if [ -d /opt/dnstwist/.git ]; then
      echo -e "${BLUE}Updating dnstwist.${NC}"
-     cd /opt/dnstwist/ ; git pull -q
+     cd /opt/dnstwist/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing dnstwist.${NC}"
@@ -118,7 +118,7 @@ fi
 
 if [ -d /opt/Domain-Hunter/.git ]; then
      echo -e "${BLUE}Updating Domain Hunter.${NC}"
-     cd /opt/Domain-Hunter/ ; git pull -q
+     cd /opt/Domain-Hunter/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing Domain Hunter.${NC}"
@@ -131,7 +131,7 @@ fi
 
 if [ -d /opt/DomainPasswordSpray/.git ]; then
      echo -e "${BLUE}Updating DomainPasswordSpray.${NC}"
-     cd /opt/DomainPasswordSpray/ ; git pull -q
+     cd /opt/DomainPasswordSpray/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing DomainPasswordSpray.${NC}"
@@ -141,7 +141,7 @@ fi
 
 if [ -d /opt/Donut/.git ]; then
      echo -e "${BLUE}Updating Donut.${NC}"
-     cd /opt/Donut/ ; git pull -q
+     cd /opt/Donut/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing Donut.${NC}"
@@ -151,7 +151,7 @@ fi
 
 if [ -d /opt/droopescan/.git ]; then
      echo -e "${BLUE}Updating droopescan.${NC}"
-     cd /opt/droopescan/ ; git pull -q
+     cd /opt/droopescan/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing droopescan.${NC}"
@@ -163,7 +163,7 @@ fi
 
 if [ -d /opt/Egress-Assess/.git ]; then
      echo -e "${BLUE}Updating Egress-Assess.${NC}"
-     cd /opt/Egress-Assess/ ; git pull -q
+     cd /opt/Egress-Assess/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing Egress-Assess.${NC}"
@@ -177,7 +177,7 @@ fi
 
 if [ -d /opt/Empire/.git ]; then
      echo -e "${BLUE}Updating Empire.${NC}"
-     cd /opt/Empire/ ; git pull -q
+     cd /opt/Empire/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing Empire.${NC}"
@@ -188,7 +188,7 @@ fi
 
 if [ -d /opt/EyeWitness/.git ]; then
      echo -e "${BLUE}Updating EyeWitness.${NC}"
-     cd /opt/EyeWitness/ ; git pull -q
+     cd /opt/EyeWitness/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing EyeWitness.${NC}"
@@ -206,7 +206,7 @@ fi
 
 if [ -d /opt/Nishang/.git ]; then
      echo -e "${BLUE}Updating Nishang.${NC}"
-     cd /opt/Nishang/ ; git pull -q
+     cd /opt/Nishang/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing Nishang.${NC}"
@@ -220,7 +220,7 @@ echo
 
 if [ -d /opt/PowerUpSQL/.git ]; then
      echo -e "${BLUE}Updating PowerUpSQL.${NC}"
-     cd /opt/PowerUpSQL/ ; git pull -q
+     cd /opt/PowerUpSQL/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing PowerUpSQL.${NC}"
@@ -230,7 +230,7 @@ fi
 
 if [ -d /opt/PS-Attack/.git ]; then
      echo -e "${BLUE}Updating PS>Attack.${NC}"
-     cd /opt/PS-Attack/ ; git pull -q
+     cd /opt/PS-Attack/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing PS>Attack.${NC}"
@@ -240,7 +240,7 @@ fi
 
 if [ -d /opt/SecLists/.git ]; then
      echo -e "${BLUE}Updating SecLists.${NC}"
-     cd /opt/SecLists/ ; git pull -q
+     cd /opt/SecLists/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing SecLists.${NC}"
@@ -250,7 +250,7 @@ fi
 
 if [ -d /opt/SharpShooter/.git ]; then
      echo -e "${BLUE}Updating SharpShooter.${NC}"
-     cd /opt/SharpShooter/ ; git pull -q
+     cd /opt/SharpShooter/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing SharpShooter.${NC}"
@@ -262,7 +262,7 @@ fi
 
 if [ -d /opt/theHarvester/.git ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
-     cd /opt/theHarvester/ ; git pull -q
+     cd /opt/theHarvester/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing theHarvester.${NC}"
@@ -280,7 +280,7 @@ fi
 
 if [ -d /opt/unicorn/.git ]; then
      echo -e "${BLUE}Updating unicorn.${NC}"
-     cd /opt/unicorn/ ; git pull -q
+     cd /opt/unicorn/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing unicorn.${NC}"
@@ -290,7 +290,7 @@ fi
 
 if [ -d /opt/Veil/.git ]; then
      echo -e "${BLUE}Updating Veil.${NC}"
-     cd /opt/Veil/ ; git pull -q
+     cd /opt/Veil/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing Veil.${NC}"
@@ -302,7 +302,7 @@ fi
 
 if [ -d /opt/Windows-Exploit-Suggester/.git ]; then
      echo -e "${BLUE}Updating Windows-Exploit-Suggester.${NC}"
-     cd /opt/Windows-Exploit-Suggester/ ; git pull -q
+     cd /opt/Windows-Exploit-Suggester/ ; git pull
      rm *.xls 2>/dev/null
      ./windows-exploit-suggester.py --update
      echo
