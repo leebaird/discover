@@ -1,3 +1,5 @@
+modules load recon/companies-contacts/censys_email_address
+run
 modules load recon/companies-contacts/pen
 run
 modules load recon/domains-contacts/hunter_io
@@ -10,25 +12,50 @@ modules load recon/domains-contacts/pgp_search
 run
 modules load recon/domains-contacts/whois_pocs
 run
+modules load recon/domains-contacts/wikileaker
+run
+modules load recon/companies-domains/censys_subdomains
+run
+db query DELETE FROM domains WHERE rowid > 1
+
 modules load recon/companies-domains/pen
 run
-modules load recon/companies-domains/viewdns_reverse_whois
+modules load recon/companies-hosts/censys_org
 run
+modules load recon/companies-hosts/censys_tls_subjects
+run
+db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
+db query DELETE FROM hosts WHERE host LIKE '%www%'
+db query DELETE FROM ports WHERE host NOT LIKE '%.yyy%'
+db query DELETE FROM ports WHERE host LIKE '%www%'
+
 modules load recon/companies-multi/github_miner
 run
 modules load recon/companies-multi/shodan_org
 run
+db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
+db query DELETE FROM hosts WHERE host LIKE '%www%'
+db query DELETE FROM ports WHERE host NOT LIKE '%.yyy%'
+
 modules load recon/companies-multi/whois_miner
 run
+db query DELETE FROM contacts WHERE email NOT LIKE '%@yyy%'
+
 modules load recon/contacts-credentials/hibp_breach
 run
+db query DELETE FROM credentials WHERE username NOT LIKE '%@yyy%'
+
 modules load recon/contacts-credentials/hibp_paste
 run
 modules load recon/contacts-profiles/fullcontact
 run
-modules load recon/domains-companies/pen
+modules load recon/profiles-profiles/namechk
 run
-modules load recon/domains-hosts/binaryedge
+modules load recon/profiles-profiles/profiler
+run
+modules load recon/domains-companies/censys_companies
+run
+modules load recon/domains-companies/pen
 run
 modules load recon/domains-hosts/bing_domain_api
 run
@@ -36,26 +63,51 @@ modules load recon/domains-hosts/bing_domain_web
 run
 modules load recon/domains-hosts/builtwith
 run
+modules load recon/domains-hosts/censys_domain
+run
+db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
+db query DELETE FROM hosts WHERE host LIKE '%www%'
+db query DELETE FROM ports WHERE host NOT LIKE '%.yyy%'
+db query DELETE FROM ports WHERE host LIKE '%www%'
+
 modules load recon/domains-hosts/certificate_transparency
 run
+db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
+db query DELETE FROM hosts WHERE host LIKE '%www%'
+
 modules load recon/domains-hosts/findsubdomains
 run
 modules load recon/domains-hosts/google_site_web
 run
 modules load recon/domains-hosts/hackertarget
 run
+db query DELETE FROM ports WHERE host LIKE '%www%'
+
 modules load recon/domains-hosts/netcraft
 run
 modules load recon/domains-hosts/shodan_hostname
+run
+db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
+db query DELETE FROM ports WHERE host NOT LIKE '%.yyy%'
+
+modules load recon/domains-hosts/ssl_san
 run
 modules load recon/domains-hosts/threatcrowd
 run
 modules load recon/domains-hosts/threatminer
 run
+modules load recon/hosts-hosts/censys_hostname
+run
+modules load recon/hosts-hosts/censys_ip
+run
+modules load recon/hosts-hosts/censys_query
+run
 modules load recon/hosts-ports/binaryedge
 run
 modules load recon/hosts-ports/shodan_ip
 run
+db query DELETE FROM ports WHERE host NOT LIKE '%.yyy%'
+
 modules load recon/ports-hosts/migrate_ports
 run
 

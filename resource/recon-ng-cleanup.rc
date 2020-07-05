@@ -247,8 +247,8 @@ db query DELETE FROM credentials WHERE username NOT LIKE "%@yyy"
 db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
 db query DELETE FROM hosts WHERE host LIKE '%www%'
 
-db query DELETE FROM ports WHERE host IS NULL
 db query DELETE FROM ports WHERE host NOT LIKE '%.yyy%'
+db query DELETE FROM ports WHERE host IS NULL
 
 db query DELETE FROM profiles WHERE LENGTH(username) < 4
 db query DELETE FROM profiles WHERE rowid NOT IN (SELECT min(rowid) FROM profiles GROUP BY username)
