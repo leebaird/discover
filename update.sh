@@ -260,6 +260,18 @@ else
      echo
 fi
 
+if [ -d /opt/spoofcheck/.git ]; then
+     echo -e "${BLUE}Updating spoofcheck.${NC}"
+     cd /opt/spoofcheck/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing spoofcheck.${NC}"
+     git clone https://github.com/BishopFox/spoofcheck.git /opt/spoofcheck
+     cd /opt/spoofcheck/
+     pip3 install -r requirements.txt
+     echo
+fi
+
 if [ -d /opt/theHarvester/.git ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
