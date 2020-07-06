@@ -94,6 +94,7 @@ fi
 if [ -d /opt/DNSRecon/.git ]; then
      echo -e "${BLUE}Updating DNSRecon.${NC}"
      cd /opt/DNSRecon/ ; git pull
+     pip3 install -r requirements.txt -q
      echo
 else
      echo -e "${YELLOW}Installing DNSRecon.${NC}"
@@ -106,6 +107,7 @@ fi
 if [ -d /opt/dnstwist/.git ]; then
      echo -e "${BLUE}Updating dnstwist.${NC}"
      cd /opt/dnstwist/ ; git pull
+     pip3 install -r requirements.txt -q
      echo
 else
      echo -e "${YELLOW}Installing dnstwist.${NC}"
@@ -119,6 +121,7 @@ fi
 if [ -d /opt/Domain-Hunter/.git ]; then
      echo -e "${BLUE}Updating Domain Hunter.${NC}"
      cd /opt/Domain-Hunter/ ; git pull
+     #pip3 install -r requirements.txt -q
      echo
 else
      echo -e "${YELLOW}Installing Domain Hunter.${NC}"
@@ -152,6 +155,7 @@ fi
 if [ -d /opt/droopescan/.git ]; then
      echo -e "${BLUE}Updating droopescan.${NC}"
      cd /opt/droopescan/ ; git pull
+     pip3 install -r requirements.txt -q
      echo
 else
      echo -e "${YELLOW}Installing droopescan.${NC}"
@@ -251,6 +255,7 @@ fi
 if [ -d /opt/SharpShooter/.git ]; then
      echo -e "${BLUE}Updating SharpShooter.${NC}"
      cd /opt/SharpShooter/ ; git pull
+     pip3 install -r requirements.txt -q
      echo
 else
      echo -e "${YELLOW}Installing SharpShooter.${NC}"
@@ -263,6 +268,7 @@ fi
 if [ -d /opt/spoofcheck/.git ]; then
      echo -e "${BLUE}Updating spoofcheck.${NC}"
      cd /opt/spoofcheck/ ; git pull
+     pip3 install -r requirements.txt -q
      echo
 else
      echo -e "${YELLOW}Installing spoofcheck.${NC}"
@@ -275,6 +281,7 @@ fi
 if [ -d /opt/theHarvester/.git ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
+     pip3 install -r requirements.txt -q
      echo
 else
      echo -e "${YELLOW}Installing theHarvester.${NC}"
