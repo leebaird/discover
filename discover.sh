@@ -695,6 +695,7 @@ case $choice in
      15) $discover/listener.sh && exit;;
      16) $discover/update.sh && exit;;
      17) clear && exit;;
+     98) $discover/vulns/cve-2020-5902.sh && exit;;
      99) $discover/newModules.sh && exit;;
      *) f_error;;
 esac
