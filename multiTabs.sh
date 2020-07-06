@@ -15,7 +15,7 @@ read choice
 
 case $choice in
      1) f_location
-     echo -n "Use a prefix? (y/N) "
+     echo -n "Use an https prefix? (y/N) "
      read prefix
 
      $web &
