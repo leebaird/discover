@@ -111,9 +111,9 @@ nc <target IP> 80
 HEAD / HTTP/1.0
 (hit enter 2x)
 
-curl -iksX HEAD <target IP>
+curl -ikL -X HEAD <target IP>
 
-for i in `cat 80.txt` ; do curl -iksX HEAD http://$i/ > $i 2>&1 ; echo Scanned $i ; done
+for i in `cat 80.txt` ; do curl -ikL -X HEAD http://$i/ > $i 2>&1 ; echo Scanned $i ; done
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # HTTP methods allowed
@@ -122,7 +122,7 @@ nc <target IP> 80
 OPTIONS / HTTP/1.0
 (hit enter 2x)
 
-curl -ikLsX OPTIONS <target IP>
+curl -ikL -X OPTIONS <target IP>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # iframe
