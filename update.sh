@@ -278,6 +278,19 @@ else
      echo
 fi
 
+if [ -d /opt/SprayingToolkit/.git ]; then
+     echo -e "${BLUE}Updating SprayingToolkit.${NC}"
+     cd /opt/SprayingToolkit/ ; git pull
+     pip3 install -r requirements.txt -q
+     echo
+else
+     echo -e "${YELLOW}Installing SprayingToolkit.${NC}"
+     git clone https://github.com/byt3bl33d3r/SprayingToolkit.git /opt/SprayingToolkit
+     cd /opt/SprayingToolkit/
+     pip3 install -r requirements.txt
+     echo
+fi
+
 if [ -d /opt/theHarvester/.git ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
@@ -331,6 +344,19 @@ else
      cd /opt/Windows-Exploit-Suggester/
      pip install xlrd --upgrade
      ./windows-exploit-suggester.py --update
+     echo
+fi
+
+if [ -d /opt/WitnessMe/.git ]; then
+     echo -e "${BLUE}Updating WitnessMe.${NC}"
+     cd /opt/WitnessMe/ ; git pull
+     pip3 install -r requirements.txt -q
+     echo
+else
+     echo -e "${YELLOW}Installing WitnessMe.${NC}"
+     git clone https://github.com/byt3bl33d3r/WitnessMe.git /opt/WitnessMe
+     cd /opt/WitnessMe/
+     pip3 install -r requirements.txt
      echo
 fi
 
