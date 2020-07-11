@@ -39,6 +39,30 @@ cat ~/.ssh/id_rsa.pub | ssh user@<target IP> 'cat >> .ssh/authorized_keys'
 timedatectl set-timezone EST                    Set the timezone to Eastern Standard Time
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Docker
+
+apt install docker.io
+systemctl start docker
+systemctl enable dockers
+docker search web-dvwa                          Search for an image
+docker pull vulnerables/web-dvwa                Install an image
+docker run -p 80:80 vulnerables/web-dvwa        Start the service for a package
+firefox localhost &
+
+docker pull szsecurity/mutillidae
+docker run -p 81:80 szsecurity/mutillidae
+firefox localhost:81 &
+
+docker pull szsecurity/webgoat
+docker run -p 82:80 szsecurity/webgoat
+firefox localhost:82/WebGoats &
+
+docker pull raesene/bwapp
+docker run -d -p 8080:80 raesene/bwapp
+firefox localhost:8080 &
+Default creds bee:bug
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Download Files
 
 wget -O <local file name> <server>              Download files using the http or ftp protocol
