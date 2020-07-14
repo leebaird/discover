@@ -49,13 +49,14 @@ Icons > Default Icons: uncheck Home and Trash
 - Mousepad
 Edit > Preferences
 View
-    Show line numbers
-    Highlight current line
-    Font: 11
-    Colour scheme: Oblivion
+     Show line numbers
+     Highlight current line
+     Wrap long lines
+     Font: 11
+     Colour scheme: Cobalt
 Editor
-    Tab width: 5
-    Tab mode: Insert Spaces
+     Tab width: 5
+     Tab mode: Insert Spaces
 
 - Terminal
 File > Preferences > Appearance
