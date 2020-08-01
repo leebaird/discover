@@ -281,7 +281,7 @@ fi
 if [ -d /opt/SprayingToolkit/.git ]; then
      echo -e "${BLUE}Updating SprayingToolkit.${NC}"
      cd /opt/SprayingToolkit/ ; git pull
-     pip3 install -r requirements.txt -q
+#     pip3 install -r requirements.txt -q
      echo
 else
      echo -e "${YELLOW}Installing SprayingToolkit.${NC}"
@@ -350,7 +350,7 @@ fi
 if [ -d /opt/WitnessMe/.git ]; then
      echo -e "${BLUE}Updating WitnessMe.${NC}"
      cd /opt/WitnessMe/ ; git pull
-     pip3 install -r requirements.txt -q
+#     pip3 install -r requirements.txt -q
      echo
 else
      echo -e "${YELLOW}Installing WitnessMe.${NC}"

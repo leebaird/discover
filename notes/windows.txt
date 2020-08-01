@@ -169,12 +169,6 @@ pip install xlrd --upgrade
 systeminfo.exe > systeminfo.txt                   Run this on the Windows target and d/l to attack VM
 
 ./windows-exploit-suggester.py --database 2020-01-18-mssb.xls --systeminfo systeminfo.txt
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Show domain users and group information
-
-DumpSec
-
-nltest /dclist:<domain>                           Locate the domain controller
-global.exe "domain admins" \\dc                   Show members of domain groups
+winPEAS.exe                                       Another method
 

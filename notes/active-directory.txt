@@ -129,7 +129,7 @@ cmd.exe /c set                             LOGONSERVER variable
 # Show DC in a specific domain
 dsquery server -domain <something.int>
 get-netdomaincontroller -domain <something.int>
-nslookup <something.int>	Internally, this will likely return DCs that are DNS servers
+nslookup <something.int>	               Internally, this will likely return DCs that are DNS servers
 nslookup                                   pseudo-shell
     set type=all
     _ldap._tcp.<something.int>
