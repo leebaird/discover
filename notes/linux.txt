@@ -171,9 +171,8 @@ route                                           Gateway
 /var/lib/dhcp/dhclient.leases                   DHCP
 
 /etc/resolv.conf                                DNS
-domain localdomain 
-search localdomain 
-nameserver 8.8.8.8
+search localdomain
+nameserver 192.168.1.2
 
 ifconfig                                        IP addresses to all network interfaces
 ifconfig eth0 down                              Bring interface down
@@ -188,12 +187,10 @@ ip link set <interface> up                      Bring interface up
 ip route                                        Show table routes
 
 /etc/network/interfaces                         Set a static IP address
+auto eth0
 iface eth0 inet static
-address 192.168.1.5
-netmask 255.255.255.224
-broadcast 192.168.1.31
-network 192.168.1.0
-gateway 192.168.1.2
+    address 192.168.1.5/24
+    gateway 192.168.1.2
 
 /etc/init.d/networking restart                  Restart networking
 ------------------------------------------------------------------------------------------------------------------------------------------------------
