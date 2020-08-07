@@ -1,52 +1,55 @@
 Kali
 
-# Change the root password & delete default account
+# Download VM
+https://www.offensive-security.com/kali-linux-vmware-virtualbox-image-download/
+Kali Linux VMware 64-Bit
 
+# Verify hash
+sha256sum kali-linux-2020.2a-vmware-amd64.7z
+
+# VM settings
+Processor & Memory > Processors: 2, Memory: 4096 > Show All
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Change kali password
+Login with kali:kali
+passwd
+kali
+Enter new password 2x.
+
+# Change root password
 sudo -i
 kali
 passwd
+Enter new root password 2x.
 reboot
-
-Log in as root
-userdel -r kali
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Cleanup the Home folder
+# Home folder
 
+Login as root.
+cp /home/kali/.bashrc .
 rm -rf Documents/ Downloads/ Music/ Pictures/ Public/ Templates/ Videos/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Disable screen lock
 
 Top right battery icon > Power manager settings
-Display > Display power management: Off
-Security > Lock screen when system is going to sleep: Off
+Display > Display power management: change all to 60 minutes
+Security > Lock screen when system is going to sleep: uncheck
 Close
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Install Discover scripts
+# Desktop
 
-git clone git://github.com/leebaird/discover.git /opt/discover/
-cd /opt/discover/
-cp aliases /root/.bash_aliases
-./update.sh
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Modify
-
-- vi /root/.bashrc
-# Load external aliases.
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
-
-PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'
-
-- Desktop
 Right click on the Desktop > Desktop Settings
 Icons > Default Icons: uncheck Home and Trash
+Close
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-- Mousepad
+# Mousepad
+
+Terminal > mousepad &
 Edit > Preferences
 View
      Show line numbers
@@ -57,14 +60,27 @@ View
 Editor
      Tab width: 5
      Tab mode: Insert Spaces
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-- Terminal
+# Terminal
+
 File > Preferences > Appearance
-Font: 11
-Color scheme: Tango
-Application transparency: 0%
-Behavior: Unlimited history
-OK
+     Font: 11
+     Color scheme: Tango
+     Application transparency: 0%
+Behavior:
+     Unlimited history
+Shortcuts:
+     Split Terminal Horizontally: Alt+H
+     Split Terminal Verticatally: Alt+V
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Install Discover scripts
+
+git clone git://github.com/leebaird/discover.git /opt/discover/
+cd /opt/discover/
+cp aliases /root/.bash_aliases
+./update.sh
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # SSH
