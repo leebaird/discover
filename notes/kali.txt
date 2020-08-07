@@ -75,6 +75,12 @@ Shortcuts:
      Split Terminal Verticatally: Alt+V
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Patch OS
+
+apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
+reboot
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Install Discover scripts
 
 git clone git://github.com/leebaird/discover.git /opt/discover/
