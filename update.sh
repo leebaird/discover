@@ -217,7 +217,6 @@ fi
 if [ ! -f /usr/bin/xmllint ]; then
      echo -e "${YELLOW}Installing libxml2-utils.${NC}"
      apt-get install -y libxml2-utils
-     echo
 fi
 
 if [ -d /opt/Nishang/.git ]; then
@@ -341,7 +340,6 @@ else
      git clone https://github.com/Veil-Framework/Veil /opt/Veil
      cd /opt/Veil/config/
      ./setup.sh --force --silent
-     echo
 fi
 
 if [ -d /opt/Windows-Exploit-Suggester/.git ]; then
