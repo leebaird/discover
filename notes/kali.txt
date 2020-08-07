@@ -94,7 +94,7 @@ cp aliases /root/.bash_aliases
 ssh-keygen                                 Create new keys
 update-rc.d ssh enable                     Enable ssh to start at boot time
 
-vi /etc/ssh/sshd_config                    Edit the aemon config file
+vi /etc/ssh/sshd_config                    Edit the daemon config file
 PermitRootLogin yes                        Change to yes
 AuthorizedKeysFile                         Uncomment
 ------------------------------------------------------------------------------------------------------------------------------------------------------
