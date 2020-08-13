@@ -49,7 +49,7 @@ Close
 
 # Mousepad
 
-Terminal > mousepad &
+Terminal > mousepad
 Edit > Preferences
 View
      Show line numbers
@@ -64,13 +64,14 @@ Editor
 
 # Terminal
 
-File > Preferences > Appearance
+File > Preferences
+Appearance
      Font: 11
      Color scheme: Tango
      Application transparency: 0%
-Behavior:
+Behavior
      Unlimited history
-Shortcuts:
+Shortcuts
      Split Terminal Horizontally: Alt+H
      Split Terminal Verticatally: Alt+V
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -81,7 +82,7 @@ apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y a
 reboot
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Install Discover scripts
+# Install Discover scripts and additional tools
 
 git clone git://github.com/leebaird/discover.git /opt/discover/
 cd /opt/discover/
