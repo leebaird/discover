@@ -56,7 +56,7 @@ View
      Highlight current line
      Wrap long lines
      Font: 11
-     Colour scheme: Cobalt
+     Colour scheme: Oblivion
 Editor
      Tab width: 5
      Tab mode: Insert Spaces
