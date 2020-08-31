@@ -3,12 +3,13 @@ PowerShell - Basics
 
 # cmdlets
 Every cmdlet in PS starts with a 'verb-noun'.
-Get-Verb		Show all verbs.
+
+Get-Command                                 Show all commands
+Get-Verb                                    Show all verbs
+
 Get-Process
 Start-Process .\notepad.exe
 Stop-Process -Name notepad
-
-Get-Command *COMPUTER*
 
 # Alias
 Get-Alias
@@ -64,17 +65,17 @@ while ($i -le 5){
 }
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-C:\> powershell -nop -exec bypass         Start PowerShell and bypass the execution policy
+C:\> powershell -nop -exec bypass           Start PowerShell and bypass the execution policy
 
-mode 300                                  Full screen
-Get-Command                               Show all commands
-Get- <tab>                                Tab through each command
-Get-History                               Show Command history
-Get-Process                               Show current running processes
+mode 300                                    Full screen
+Get-Command                                 Show all commands
+Get- <tab>                                  Tab through each command
+Get-History                                 Show Command history
+Get-Process                                 Show current running processes
 
-Get-Help <tool>                           Get help on any tool
-Get-Help invoke-mimikatz                  Show help for Mimikatz
-Get-Help invoke-mimikatz -examples        Show example of how to use Mimikatz
+Get-Help <tool>                             Get help on any tool
+Get-Help invoke-mimikatz                    Show help for Mimikatz
+Get-Help invoke-mimikatz -examples          Show example of how to use Mimikatz
 
 Get-Member
 
