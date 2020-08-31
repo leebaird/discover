@@ -4,7 +4,7 @@ Cobalt Strike
 Remove old data
     rm /opt/Cobalt-Strike/data/*.bin
 
-Start the teamserver
+Start the team server
     cd /opt/Cobalt-Strike
     ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons>
     The first 2 parameters are required.
@@ -12,7 +12,7 @@ Start the teamserver
     ./teamserver 192.168.1.5 password /opt/Cobalt-Strike-profiles/APT/etumbot.profile
     Copy the SHA256 hash and send to other members on your team.
 
-Login to the teamserver
+Login to the team server
     Right-click in the Terminal > Split Terminal Horizontally
     cd /opt/Cobalt-Strike
     ./cobaltstrike
