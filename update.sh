@@ -7,20 +7,6 @@ NC='\033[0m'
 
 ###############################################################################################################################
 
-# Remove old non-supported version
-if [ -e /opt/Empire/.build.sh ]; then
-    rm -rf /opt/Empire/
-fi
-
-if [ -d /opt/prowl/.git ]; then
-     rm -rf /opt/prowl/
-fi
-
-if [ -d /opt/rawr/.git ]; then
-     rm -rf /opt/rawr/
-fi
-###############################################################################################################################
-
 clear
 echo
 
@@ -252,6 +238,18 @@ else
      git clone https://github.com/jaredhaight/PSAttack.git /opt/PS-Attack
      echo
 fi
+
+
+if [ -d /opt/Seatbelt/.git ]; then
+     echo -e "${BLUE}Updating Seatbelt.${NC}"
+     cd /opt/Seatbelt/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing Seatbelt.${NC}"
+     git clone https://github.com/GhostPack/Seatbelt.git /opt/Seatbelt
+     echo
+fi
+
 
 if [ -d /opt/SecLists/.git ]; then
      echo -e "${BLUE}Updating SecLists.${NC}"
