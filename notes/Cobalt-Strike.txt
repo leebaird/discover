@@ -35,8 +35,8 @@ Create an HTTP Listener
 
 Launch an attack to gain a foothold.
 
-Turn off Real-time protection on your Windows VM.
-    Enterprise: Windows Security > Virus & threat protection > Manage settings
+Disable Windows Defender on your Windows VM.
+    Enterprise: Windows Security > Virus & threat protection > Manage settings > turn off Real-time protection > Yes
     Standard: Windows Defender
 
 Attack 1
