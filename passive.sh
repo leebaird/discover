@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Number of tests
-total=47
+total=46
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
@@ -228,60 +228,58 @@ echo "     crtsh                (15/$total)"
 python3 theHarvester.py -d $domain -b crtsh | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcrtsh
 echo "     dnsdumpster          (16/$total)"
 python3 theHarvester.py -d $domain -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdnsdumpster
-echo "     dogpile              (17/$total)"
-python3 theHarvester.py -d $domain -b dogpile | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdogpile
-echo "     duckduckgo           (18/$total)"
+echo "     duckduckgo           (17/$total)"
 python3 theHarvester.py -d $domain -b duckduckgo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zduckduckgo
-echo "     exalead              (19/$total)"
+echo "     exalead              (18/$total)"
 python3 theHarvester.py -d $domain -b exalead | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zexalead
-echo "     github-code          (20/$total)"
+echo "     github-code          (19/$total)"
 python3 theHarvester.py -d $domain -b github-code | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgithub-code
-echo "     google               (21/$total)"
+echo "     google               (20/$total)"
 python3 theHarvester.py -d $domain -b google | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgoogle
-echo "     hackertarget         (22/$total)"
+echo "     hackertarget         (21/$total)"
 python3 theHarvester.py -d $domain -b hackertarget | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhackertarget
-echo "     hunter               (23/$total)"
+echo "     hunter               (22/$total)"
 python3 theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunter
-echo "     intelx               (24/$total)"
+echo "     intelx               (23/$total)"
 python3 theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
-echo "     linkedin             (25/$total)"
+echo "     linkedin             (24/$total)"
 python3 theHarvester.py -d "$company" -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > tmp
 sleep 15
 python3 theHarvester.py -d $domain -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > tmp2
 # Make first 2 columns title case. Remove traiing whitespace.
 cat tmp tmp2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | egrep -iv '(about|google|retired)' | sed "s/ - $company//g" | sed 's/[ \t]*$//' | sort -u > zlinkedin
-echo "     linkedin_links       (26/$total)"
+echo "     linkedin_links       (25/$total)"
 sleep 30
 python3 theHarvester.py -d $domain -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
-echo "     netcraft             (27/$total)"
+echo "     netcraft             (26/$total)"
 python3 theHarvester.py -d $domain -b netcraft | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > znetcraft
-echo "     otx                  (28/$total)"
+echo "     otx                  (27/$total)"
 python3 theHarvester.py -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d's > zotx
 
 # pentesttools
 
-echo "     rapiddns             (29/$total)"
+echo "     rapiddns             (28/$total)"
 python3 theHarvester.py -d $domain -b rapiddns | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zrapiddns
-echo "     securityTrails       (30/$total)"
+echo "     securityTrails       (29/$total)"
 python3 theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
-echo "     spyse                (31/$total)"
+echo "     spyse                (30/$total)"
 python3 theHarvester.py -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
-echo "     sublist3r            (32/$total)"
+echo "     sublist3r            (31/$total)"
 python3 theHarvester.py -d $domain -b sublist3r | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsublist3r
-echo "     threatcrowd          (33/$total)"
+echo "     threatcrowd          (32/$total)"
 python3 theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
-echo "     threatminer          (34/$total)"
+echo "     threatminer          (33/$total)"
 python3 theHarvester.py -d $domain -b threatminer | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatminer
-echo "     trello               (35/$total)"
+echo "     trello               (34/$total)"
 sleep 30
 python3 theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
-echo "     twitter              (36/$total)"
+echo "     twitter              (35/$total)"
 python3 theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
-echo "     URLscan              (37/$total)"
+echo "     URLscan              (36/$total)"
 python3 theHarvester.py -d $domain -b urlscan | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zurlscan
-echo "     virustotal           (38/$total)"
+echo "     virustotal           (37/$total)"
 python3 theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
-echo "     yahoo                (39/$total)"
+echo "     yahoo                (38/$total)"
 python3 theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
 
 mv z* $CWD
@@ -291,7 +289,7 @@ echo
 
 ###############################################################################################################################
 
-echo "Metasploit                (40/$total)"
+echo "Metasploit                (39/$total)"
 msfconsole -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
 grep @$domain tmp | awk '{print $2}' | sort -u > zmsf
 echo
@@ -299,7 +297,7 @@ echo
 ###############################################################################################################################
 
 echo "Whois"
-echo "     Domain               (41/$total)"
+echo "     Domain               (40/$total)"
 whois -H $domain > tmp 2>/dev/null
 # Remove leading whitespace
 sed 's/^[ \t]*//' tmp > tmp2
@@ -334,7 +332,7 @@ sed 's/: /:#####/g' tmp13 | column -s '#' -t -n > whois-domain
 
 ###############################################################################################################################
 
-echo "     IP                   (42/$total)"
+echo "     IP                   (41/$total)"
 curl -s https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
 y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
 
@@ -367,7 +365,7 @@ echo
 
 ###############################################################################################################################
 
-echo "dnsdumpster.com           (43/$total)"
+echo "dnsdumpster.com           (42/$total)"
 # Generate a random cookie value
 rando=$(openssl rand -base64 32 | tr -dc 'a-zA-Z0-9' | cut -c 1-32)
 curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com/static/map/$domain.png > /dev/null
@@ -377,7 +375,7 @@ echo
 
 ###############################################################################################################################
 
-echo "intodns.com               (44/$total)"
+echo "intodns.com               (43/$total)"
 wget -q http://www.intodns.com/$domain -O tmp
 cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
 cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -402,13 +400,13 @@ echo
 
 ###############################################################################################################################
 
-echo "robtex.com                (45/$total)"
+echo "robtex.com                (44/$total)"
 wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
 echo
 
 ###############################################################################################################################
 
-echo "Registered Domains        (46/$total)"
+echo "Registered Domains        (45/$total)"
 f_regdomain(){
 while read regdomain; do
      ipaddr=$(dig +short $regdomain)
@@ -501,7 +499,7 @@ s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g' | sed 's/ - /,/g; s/ /,/1' | awk -F ','
 
 ###############################################################################################################################
 
-echo "recon-ng                  (47/$total)"
+echo "recon-ng                  (46/$total)"
 echo "marketplace refresh" > passive.rc
 echo "marketplace install all" >> passive.rc
 echo "workspaces create $domain" >> passive.rc
