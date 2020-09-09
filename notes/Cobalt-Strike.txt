@@ -136,7 +136,7 @@ Enumerate host
     jobs                                    Verify the keylogger is no longer running
 
 Seatbelt
-    Download xxx to a Windows VM.
+    Download https://github.com/GhostPack/Seatbelt to a Windows VM.
     Open C:\Downloads\Seatbelt\Seatbelt.sln with Visual Studio.
     Build > Build Solution.
     There will be no output on the screen.
