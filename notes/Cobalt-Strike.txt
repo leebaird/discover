@@ -9,7 +9,7 @@ Start the team server
     ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons>
     The first 2 parameters are required.
 
-    ./teamserver 192.168.1.5 password /opt/Cobalt-Strike-profiles/APT/etumbot.profile
+    ./teamserver 192.168.1.5 password /opt/Cobalt-Strike/third-party/profiles/APT/etumbot.profile
     Copy the SHA256 hash and send to other members on your team.
 
 Login to the team server
@@ -187,7 +187,7 @@ Controller IP: x.x.x.x
 ifconfig eth0 add x.x.x.x
 cd /opt/Cobalt-Strike
 rm data/*.bin
-./teamserver 192.168.1.5 password /opt/Cobalt-Strike-profiles/APT/etumbot.profile
+./teamserver 192.168.1.5 password /opt/Cobalt-Strike/third-party/profiles/APT/etumbot.profile
 
 Start Cobalt Strike and point to localhost.
 

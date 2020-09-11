@@ -7,6 +7,14 @@ NC='\033[0m'
 
 ###############################################################################################################################
 
+# Clean up 9-10-2020
+
+if [ -d /opt/Cobalt-Strike-profiles/.git ]; then
+     rm -rf /opt/Cobalt-Strike-profiles/
+fi
+
+###############################################################################################################################
+
 clear
 echo
 
@@ -46,16 +54,17 @@ else
      echo
 fi
 
-if [ -d /opt/Cobalt-Strike-profiles/.git ]; then
+if [ -d /opt/Cobalt-Strike/third-party/profiles/.git ]; then
      echo -e "${BLUE}Updating Cobalt Strike profiles.${NC}"
-     cd /opt/Cobalt-Strike-profiles/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing Cobalt Strike profiles.${NC}"
-     git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/Cobalt-Strike-profiles
+     cd /opt/Cobalt-Strike/third-party/profiles/ ; git pull
      echo
 fi
 
+if [ ! -d /opt/Cobalt-Strike/third-party/profiles ]; then
+     echo -e "${YELLOW}Installing Cobalt Strike profiles.${NC}"
+     git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/Cobalt-Strike/third-party/profiles
+     echo
+fi
 
 if [ -d /opt/Covenant/.git ]; then
      echo -e "${BLUE}Updating Covenant.${NC}"
@@ -66,7 +75,6 @@ else
      git clone --recurse-submodules https://github.com/cobbr/Covenant.git /opt/Covenant
      echo
 fi
-
 
 if [ -d /opt/CrackMapExec/.git ]; then
      echo -e "${BLUE}Updating CrackMapExec.${NC}"
@@ -297,6 +305,18 @@ else
      git clone https://github.com/byt3bl33d3r/SprayingToolkit.git /opt/SprayingToolkit
      cd /opt/SprayingToolkit/
      pip3 install -r requirements.txt
+     echo
+fi
+
+if [ -d /opt/Cobalt-Strike/third-party/taowu-scripts/.git ]; then
+     echo -e "${BLUE}Updating taowu.${NC}"
+     cd /opt/Cobalt-Strike/third-party/taowu-scripts/ ; git pull
+     echo
+fi
+
+if [ ! -d /opt/Cobalt-Strike/third-party/taowu-scripts ]; then
+     echo -e "${YELLOW}Installing taowu.${NC}"
+     git clone https://github.com/pandasec888/taowu-cobalt-strike.git /opt/Cobalt-Strike/third-party/taowu-scripts
      echo
 fi
 
