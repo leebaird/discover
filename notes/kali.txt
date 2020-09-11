@@ -90,6 +90,12 @@ cp aliases /root/.bash_aliases
 ./update.sh
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Fix GitHub issue
+
+git config --global user.name "Your Name"
+git config --global user.email "your email"
+git config --global pull.rebase false
+------------------------------------------------------------------------------------------------------------------------------------------------------
 # Set a static IP address
 
 vi /etc/network/interfaces                 Add the following 4 lines
