@@ -30,3 +30,40 @@ alias s='cd /opt/discover/ ; clear'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 alias update='/opt/discover/update.sh'
 
+alias cs='
+# Remove old data
+xdotool type "rm /opt/Cobalt-Strike/data/*.bin"
+xdotool key Return
+xdotool sleep 1
+# Start the teamserver
+xdotool type "cd /opt/Cobalt-Strike/"
+xdotool key Return
+xdotool sleep 1
+xdotool type "./teamserver 192.168.1.5 redteam"
+xdotool key Return
+xdotool sleep 1
+
+# Split Terminal horizontally
+xdotool key Ctrl+H
+xdotool sleep 3
+# Login to the teamserver
+xdotool type "cd /opt/Cobalt-Strike/"
+xdotool key Return
+xdotool sleep 1
+xdotool type "./cobaltstrike"
+xdotool key Return
+'
+
+alias cov='
+xdotool type "cd /opt/Covenant/Covenant/"
+xdotool key Return
+xdotool type "dotnet run"
+#xdotool key Return
+xdotool sleep 1
+
+# Split Terminal horizontally
+xdotool key Ctrl+H
+xdotool sleep 1
+xdotool type "firefox https://localhost:7443 &"
+'
+

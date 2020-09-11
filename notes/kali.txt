@@ -72,8 +72,8 @@ Appearance
 Behavior
      Unlimited history
 Shortcuts
-     Split Terminal Horizontally: Alt+H
-     Split Terminal Verticatally: Alt+V
+     Split Terminal Horizontally: Ctrl+H
+     Split Terminal Verticatally: Ctrl+V
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Patch OS
