@@ -54,16 +54,16 @@ else
      echo
 fi
 
-if [ -d /opt/Cobalt-Strike/third-party/profiles/.git ]; then
-     echo -e "${BLUE}Updating Cobalt Strike profiles.${NC}"
-     cd /opt/Cobalt-Strike/third-party/profiles/ ; git pull
-     echo
-fi
-
-if [ ! -d /opt/Cobalt-Strike/third-party/profiles ]; then
-     echo -e "${YELLOW}Installing Cobalt Strike profiles.${NC}"
-     git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/Cobalt-Strike/third-party/profiles
-     echo
+if [ -d /opt/Cobalt-Strike ]; then
+     if [ -d /opt/Cobalt-Strike/third-party/profiles/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike profiles.${NC}"
+          cd /opt/Cobalt-Strike/third-party/profiles/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing Cobalt Strike profiles.${NC}"
+          git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/Cobalt-Strike/third-party/profiles
+          echo
+     fi
 fi
 
 if [ -d /opt/Covenant/.git ]; then
@@ -314,10 +314,16 @@ if [ -d /opt/Cobalt-Strike/third-party/taowu-scripts/.git ]; then
      echo
 fi
 
-if [ ! -d /opt/Cobalt-Strike/third-party/taowu-scripts ]; then
-     echo -e "${YELLOW}Installing taowu.${NC}"
-     git clone https://github.com/pandasec888/taowu-cobalt-strike.git /opt/Cobalt-Strike/third-party/taowu-scripts
-     echo
+if [ -d /opt/Cobalt-Strike ]; then
+     if [ -d /opt/Cobalt-Strike/third-party/taowu-scripts/.git ]; then
+          echo -e "${BLUE}Updating taowu.${NC}"
+          cd /opt/Cobalt-Strike/third-party/taowu-scripts/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing taowu.${NC}"
+          git clone https://github.com/pandasec888/taowu-cobalt-strike.git /opt/Cobalt-Strike/third-party/taowu-scripts
+          echo
+     fi
 fi
 
 if [ -d /opt/theHarvester/.git ]; then
