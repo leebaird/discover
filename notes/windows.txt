@@ -137,6 +137,7 @@ net user /domain                                  Show domain users
 net user <user> /domain                           Show info on a domain user
 net group “Domain Admins" /domain                 Show domain admin   *** BREAKS remote shell
 net group “Domain Users" /domain                  Show domain users   *** BREAKS remote shell
+net group “Domain Controllers" /domain            Show domain controllers
 
 net localgroup Administrators /domain             Users in the domain Administrators Security Group
 net localgroup /domain                            Domain Security Groups

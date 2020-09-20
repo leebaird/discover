@@ -151,7 +151,7 @@ imap <F3> <C-R>=strftime("%Y-%m-%d %a %I:%M %p")<CR>
 nnoremap <F2> :set nonumber!<CR>:set foldcolumn=0<CR>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Web server with SSL
+# Web server with SSLon AWS
 
 - AWS
 EC2 > Security Groups > sg-xxxxxxxx - default
@@ -167,7 +167,8 @@ update-rc.d apache2 enable                 Enable Apache to start at boot time
 
 - Apache web root
 mkdir /var/www/html/acme.org               Place all your files here
-chown -R www-data:www-data /var/www/html/acme.org
+sudo adduser $USER www-data                While logged in as ec2-user
+sudo chown $USER:www-data -R /var/www
 
 - Install SSL cert
 apt install certbot
