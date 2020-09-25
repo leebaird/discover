@@ -7,14 +7,6 @@ NC='\033[0m'
 
 ###############################################################################################################################
 
-# Clean up 9-10-2020
-
-if [ -d /opt/Cobalt-Strike-profiles/.git ]; then
-     rm -rf /opt/Cobalt-Strike-profiles/
-fi
-
-###############################################################################################################################
-
 clear
 echo
 
@@ -55,6 +47,26 @@ else
 fi
 
 if [ -d /opt/Cobalt-Strike ]; then
+     if [ -d /opt/Cobalt-Strike/third-party/chryzsh-scripts/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike aggressor scripts - chryzsh.${NC}"
+          cd /opt/Cobalt-Strike/third-party/chryzsh-scripts/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - chryzsh.${NC}"
+          git clone https://github.com/chryzsh/Aggressor-Scripts.git /opt/Cobalt-Strike/third-party/chryzsh-scripts
+          echo
+     fi
+
+     if [ -d /opt/Cobalt-Strike/third-party/mgeeky-scripts/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike aggressor scripts - mgeeky.${NC}"
+          cd /opt/Cobalt-Strike/third-party/mgeeky-scripts/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - mgeeky.${NC}"
+          git clone https://github.com/mgeeky/cobalt-arsenal.git /opt/Cobalt-Strike/third-party/mgeeky-scripts
+          echo
+     fi
+
      if [ -d /opt/Cobalt-Strike/third-party/profiles/.git ]; then
           echo -e "${BLUE}Updating Cobalt Strike profiles.${NC}"
           cd /opt/Cobalt-Strike/third-party/profiles/ ; git pull
@@ -62,6 +74,16 @@ if [ -d /opt/Cobalt-Strike ]; then
      else
           echo -e "${YELLOW}Installing Cobalt Strike profiles.${NC}"
           git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/Cobalt-Strike/third-party/profiles
+          echo
+     fi
+
+     if [ -d /opt/Cobalt-Strike/third-party/taowu-scripts/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike aggressor scripts - taowu.${NC}"
+          cd /opt/Cobalt-Strike/third-party/taowu-scripts/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - taowu.${NC}"
+          git clone https://github.com/pandasec888/taowu-cobalt-strike.git /opt/Cobalt-Strike/third-party/taowu-scripts
           echo
      fi
 fi
@@ -306,24 +328,6 @@ else
      cd /opt/SprayingToolkit/
      pip3 install -r requirements.txt
      echo
-fi
-
-if [ -d /opt/Cobalt-Strike/third-party/taowu-scripts/.git ]; then
-     echo -e "${BLUE}Updating taowu.${NC}"
-     cd /opt/Cobalt-Strike/third-party/taowu-scripts/ ; git pull
-     echo
-fi
-
-if [ -d /opt/Cobalt-Strike ]; then
-     if [ -d /opt/Cobalt-Strike/third-party/taowu-scripts/.git ]; then
-          echo -e "${BLUE}Updating taowu.${NC}"
-          cd /opt/Cobalt-Strike/third-party/taowu-scripts/ ; git pull
-          echo
-     else
-          echo -e "${YELLOW}Installing taowu.${NC}"
-          git clone https://github.com/pandasec888/taowu-cobalt-strike.git /opt/Cobalt-Strike/third-party/taowu-scripts
-          echo
-     fi
 fi
 
 if [ -d /opt/theHarvester/.git ]; then
