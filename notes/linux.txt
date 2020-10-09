@@ -308,8 +308,7 @@ export https_proxy=https://username:password@proxy:port
 
 # Redirecting
 
-Suggest running socat within a screen session.
-socat TCP4-LISTEN:443,fork TCP4:<remoteIP>:443
+socat TCP4-LISTEN:443,fork TCP4:<remoteIP>:443         This should be done inside a screen session
 
 If you experience any slow traffic issues, switch to iptables.
 iptables -L
@@ -390,7 +389,7 @@ esc                                             Exit scrollback mode
 ssh-keygen                                      Generate new public/private key pair
 
 - Permissions
--rw-------  amazon.pem
+-rw-------  aws.pem
 -rw-------  authorized_keys
 -rw-r--r--  config
 -rw-------  id_rsa
@@ -403,7 +402,7 @@ ssh <target IP>                                 Connect with no user name on a s
 ssh root@<target IP> -p 2222                    Connect as root on a non-standard port
 ssh root@<target IP> -i key                     Connect as root and authenticate using an identity file
 
-- Local port forward
+- Local port forwarding
 ssh <gateway> -L <local port to listen>:<remote host>:<remote port>
 ssh user@<target IP> -L 5900:localhost:5900
 
@@ -413,8 +412,7 @@ ssh user@<target IP> -R 2222:localhost:22 -f -N
                                                 -f   Force to background
                                                 -N   Do not execute a remote command
 
-- Dynamic port forward
-ssh -D <local proxy port> -p <remote port> <target>
+- Dynamic port forwarding
 ssh -D <local proxy port> <target IP>
 ssh user@<target IP> -C -D 1080                 -C   Enable compression, good for web browsing
                                                 -D   Create a SOCKS tunnel on the default port
@@ -433,6 +431,24 @@ service ssh restart
 export DISPLAY=localhost:0.0
 exit
 ssh user@<target IP> -Y                         Connect and use X11 forwarding
+
+- Generate a new key pair for AWS
+Login to https://aws.amazon.com/console/
+EC2 > Network & Security > Key Pairs
+Create key pair > aws2 > pem > Create key pair
+The private key will auto d/l in your browser
+Move the key to ~/.ssh/
+chmod 600 aws2.pem
+ssh-keygen -y -f aws2.pem                       Show the public key, copy
+ssh to your Kali on AWS
+cd .ssh
+Add your new public key to authorized_keys      <new key> aws2
+sudo -i
+cd .ssh
+Add your new public key to authorized_keys      <rules> <new key> aws2
+exit
+exit
+ssh in with your new key
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Startup Services
@@ -515,7 +531,7 @@ Remote Kali                                     sudo -i
 OS X                                            Applications > VNC Viewer: localhost:5901
                                                 Enter a password twice, then No
 
-Remote Kali                                     vncserver -kill :1
+Terminate on Remote Kali                        vncserver -kill :1
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Upgrade to a full TTY session
@@ -561,7 +577,7 @@ groupadd                                        Add new group
 groupdel                                        Delete group
 groupmod                                        Modify group
 
-adduser <user> <group>                          Add user to group
+usermod -aG sudo lee                            Add a user to the sudo group
 
 - Create a password hash for a new user lee with a password of pass123.
 openssl passwd -1 –salt lee pass123
