@@ -227,7 +227,6 @@ else
      git clone https://github.com/ChrisTruncer/EyeWitness.git /opt/EyeWitness
      cd /opt/EyeWitness/Python/setup/
      ./setup.sh
-     echo
 fi
 
 if [ ! -f /usr/bin/xmllint ]; then
