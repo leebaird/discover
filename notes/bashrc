@@ -1,11 +1,34 @@
 
+force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+          color_prompt=yes
+     else
+          color_prompt=
+     fi
+fi
+
+if [ "$color_prompt" = yes ]; then
+     prompt_color='\[\033[1;34m\]'
+     path_color='\[\033[1;32m\]'
+     if [ "$EUID" -eq 0 ]; then # Change prompt colors for root user
+          prompt_color='\[\033[1;31m\]'
+          path_color='\[\033[1;34m\]'
+     fi
+     PS1='${debian_chroot:+($debian_chroot)}'$prompt_color'\u@\h\[\033[00m\]:'$path_color'\w\[\033[00m\]\$ '
+     unset prompt_color path_color
+else
+     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+
+# -----------------------------------------------------------------------------------------------
+
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
 extip=$(curl -s http://ip-api.com/ | grep 'query' | cut -d '"' -f4)
 ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
 mac=$(ifconfig | grep 'ether' | awk '{print $2}')
 user=$(whoami)
-
-alias awsf='sftp -i ~/.ssh/aws.pem ec2-user@'
 
 alias bh='/opt/BloodHound-v3/BloodHound-linux-x64/BloodHound --no-sandbox'
 alias c='clear'
