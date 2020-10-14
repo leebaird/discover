@@ -4,17 +4,17 @@ Egress-Assess
 Works as a client/server model.
 
 ./Egress-Assess.py -h
-./Egress-Assess.py --list-clients         http, icmp, dns, sftp, ftp, smtp, dns_resolved, smb, https
-./Egress-Assess.py --list-servers         smtp, icmp, ftp, http, smb, dns, https, sftp
-./Egress-Assess.py --list-actors          putterpanda, zeus, darkhotel, etumbot
-./Egress-Assess.py --list-datatypes       cc, identity, ssn, ni
+./Egress-Assess.py --list-clients        dns, dns_resolved, ftp, http, https, icmp, sftp, smb, smtp
+./Egress-Assess.py --list-servers        dns, ftp, http, https, icmp, sftp, smb, smtp
+./Egress-Assess.py --list-actors         darkhotel, etumbot, putterpanda, zeus
+./Egress-Assess.py --list-datatypes      cc, identity, ni, ssn
 
 - Server
 ./Egress-Assess.py --server <payload & options>
 ./Egress-Assess.py --server http --server-port 8000
 
 - Client
-./Egress-Assess.py --client <payload & options> --ip <server> --datatype <cc or ssn> --data-size <# in MB>
+./Egress-Assess.py --client <payload & options> --ip <server> --datatype <cc or ssn> --data-size <# of MB>
 ./Egress-Assess.py --client http --client-port 8000 --ip <server> --file /tmp/secret.txt
 ./Egress-Assess.py --client http --client-port 8000 --ip <server> --datatype cc --data-size 5
 
