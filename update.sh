@@ -207,6 +207,16 @@ else
      echo
 fi
 
+if [ -d /opt/egressbuster/.git ]; then
+     echo -e "${BLUE}Updating egressbuster.${NC}"
+     cd /opt/egressbuster/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing egressbuster.${NC}"
+     git clone https://github.com/trustedsec/egressbuster.git /opt/egressbuster
+echo
+fi
+
 if [ -d /opt/Empire/.git ]; then
      echo -e "${BLUE}Updating Empire.${NC}"
      cd /opt/Empire/ ; git pull
