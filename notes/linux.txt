@@ -559,33 +559,34 @@ id                                              User and group ids
 w                                               Users currently logged on
 last                                            Last 10 users logged on
 
-/etc/passwd                                     User accounts
-/etc/shadow                                     Encrypted passwords
+cat /etc/passwd                                 User accounts
+cat /etc/shadow                                 Encrypted passwords
 
 passwd                                          Change root password
 passwd <user>                                   Change another user's password
 
 su                                              Substitute user
 
-useradd                                         Add new user
-userdel                                         Delete user
-userdel -r                                      Delete user and user's home directory
-usermod                                         Modify user
+useradd <user>                                  Add new user
+userdel <user>                                  Delete user
+userdel -r <user>                               Delete user and user's home directory
+usermod <user>                                  Modify user
 
-/etc/group                                      Groups
-groupadd                                        Add new group
-groupdel                                        Delete group
-groupmod                                        Modify group
+cat /etc/group                                  Groups
+groupadd <group>                                Add new group
+groupdel <group>                                Delete group
+groupmod <group>                                Modify group
 
-usermod -aG sudo lee                            Add a user to the sudo group
-
-- Create a password hash for a new user lee with a password of pass123.
-openssl passwd -1 –salt lee pass123
-Use echo and taskset (part of sudoers) to add the new user with root privileges to /etc/passwd
-taskset 1 echo 'lee:$1$mark$PL9HIgTDwnE9sG27q2Nrb/:0:0:root/:root:/bin/bash' >>/etc/passwd
-sudo lee
-id
-------------------------------------------------------------------------------------------------------------------------------------------------------
+- New user setup
+sudo useradd -m -s /bin/bash lee                Add a new user, create home directory and set default shell
+sudo passwd lee                                 Set a password
+sudo usermod -aG sudo lee                       Add new user to the sudo group
+su - lee                                        Switch to new user
+ssh-keygen
+cd .ssh/
+vi authorized_keys                              Add your ssh key
+chmod 600 authorized_keys                       Set permissions
+-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Video resolution
  
