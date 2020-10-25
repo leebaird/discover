@@ -427,9 +427,10 @@ Select SOCKS v5 and Remote DNS
 ForwardX11 yes                                  Uncomment and change to yes
 ForwardX11Trusted yes                           Uncomment
 
-service ssh restart
+systemctl restart sshd                          Restart the SSH service
 export DISPLAY=localhost:0.0
 exit
+
 ssh user@<target IP> -Y                         Connect and use X11 forwarding
 
 - Generate a new key pair for AWS
@@ -580,7 +581,7 @@ groupmod <group>                                Modify group
 - New user setup
 sudo useradd -m -s /bin/bash lee                Add a new user, create home directory and set default shell
 sudo passwd lee                                 Set a password
-sudo usermod -aG sudo lee                       Add new user to the sudo group
+sudo usermod -aG sudo lee                       Add new user to the sudo group. Use wheel for CentOS.
 su - lee                                        Switch to new user
 ssh-keygen
 cd .ssh/
