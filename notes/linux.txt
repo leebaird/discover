@@ -26,8 +26,12 @@ zip -r test.zip test/
 
 # Copy Files (remotely)
  
-scp /path/to/local/file.txt user@<target IP>:/path/to/share     Local to remote
-scp -r user@<target IP>:/path/to/share /local/share             Remote to local
+scp file.txt user@<target IP>:~/.               Local to remote
+scp -r user@<target IP>:/path/to/share .        Remote to local
+
+- AWS
+scp -i aws2.pem file.txt ec2-user@<target IP>:~/.                    Local to remote
+scp -i aws2.pem -r ec2-user@<target IP>:/home/ec2-user/file.txt .    Remote to local
 
 # Append File (remotely)
 
