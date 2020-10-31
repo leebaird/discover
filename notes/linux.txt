@@ -1,6 +1,6 @@
 Linux
- 
- 
+
+
 # Compile
 
 gcc test.c -o test                              Compile test
@@ -22,10 +22,10 @@ tar -zcvf test.tar test                         Compress
 gzip test
 zip -9 test.zip test
 zip -r test.zip test/
------------------------------------------------------------------------------------------------------------------------------------------------------- 
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Copy Files (remotely)
- 
+
 scp file.txt user@<target IP>:~/.               Local to remote
 scp -r user@<target IP>:/path/to/share .        Remote to local
 
@@ -75,14 +75,14 @@ axel -a -n 20 -o <local file name> <server>     Download accelerator from an htt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # File Permissions
- 
+
 t rwx rwx rwx	 type / owner / group / world
 Type is directory (d) or file (-).
 
 read     (r)  4
 write    (w)  2
 execute  (e)  1
- 
+
 chmod 755 test.sh                               Make a file executable
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -98,7 +98,7 @@ python3 -m http.server                          Starts a web sever on port 8000
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Files & Directories
- 
+
 ls                                              List files in a directory
 ls -l                                           Long form listing
 ls -la                                          Long form listing with hidden files
@@ -150,7 +150,7 @@ find / -group <group> 2>/dev/null               All files owned by a particular 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Installation
- 
+
 ./configure                                     Install from source
 make
 make install
@@ -594,7 +594,7 @@ chmod 600 authorized_keys                       Set permissions
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Video resolution
- 
+
 xrandr                                          Supported resolutions
 xrandr -s <resolution>                          Set resolution
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -634,7 +634,7 @@ Enter new text.
 - Append mode
 Position the cursor on the last letter of the line.
 a
-Enter new text. This adds text AFTER the cursor. 
+Enter new text. This adds text AFTER the cursor.
 <esc> to return to command mode.
 
 - Replace mode
