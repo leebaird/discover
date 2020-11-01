@@ -40,7 +40,9 @@ cat ~/.ssh/id_rsa.pub | ssh user@<target IP> 'cat >> .ssh/authorized_keys'
 
 # Date & Time
 
-timedatectl set-timezone EST                    Set the timezone to Eastern Standard Time
+timedatectl list-timezones                      List timezones
+timedatectl set-timezone America/Chicago        Set timezone to Central Standard Time
+date +"%a %b %d, %Y - %r %Z"                    Sun Nov 01, 2020 - 04:06:10 PM CST
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Docker
