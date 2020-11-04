@@ -107,12 +107,9 @@ iface eth0 inet static
 
 # SSH
 
-ssh-keygen                                 Create new keys
+ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519 -C "john@example.com"
+                                           Create new keys
 update-rc.d ssh enable                     Enable ssh to start at boot time
-
-vi /etc/ssh/sshd_config                    Edit the daemon config file
-PermitRootLogin yes                        Change to yes
-AuthorizedKeysFile                         Uncomment
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Services

@@ -392,7 +392,9 @@ esc                                             Exit scrollback mode
 
 # SSH
 
-ssh-keygen                                      Generate new public/private key pair
+ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519 -C "john@example.com"
+                                                Create new keys
+update-rc.d ssh enable                          Enable ssh to start at boot time
 
 - Permissions
 -rw-------  aws.pem
@@ -403,10 +405,9 @@ ssh-keygen                                      Generate new public/private key 
 -rw-------  identity_file
 -rw-r--r--  known_hosts
 
-ssh root@<target IP>                            Connect as root on a standard port
-ssh <target IP>                                 Connect with no user name on a standard port
+ssh root@<target IP>                            Connect as root
 ssh root@<target IP> -p 2222                    Connect as root on a non-standard port
-ssh root@<target IP> -i key                     Connect as root and authenticate using an identity file
+ssh root@<target IP> -i key                     Connect as root using an identity file
 
 - Local port forwarding
 ssh <gateway> -L <local port to listen>:<remote host>:<remote port>
@@ -437,7 +438,7 @@ systemctl restart sshd                          Restart the SSH service
 export DISPLAY=localhost:0.0
 exit
 
-ssh user@<target IP> -Y                         Connect and use X11 forwarding
+ssh user@<target IP> -Y                         Connect and use Trusted X11 forwarding
 
 - Generate a new key pair for AWS
 Login to https://aws.amazon.com/console/

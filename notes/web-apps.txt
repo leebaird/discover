@@ -266,6 +266,8 @@ nikto -h https://target.com -port 443 -Format htm --output target.htm
 - Application specific enumeration
 davtest -url https://target.com
 droopescan scan drupal -u https://target.com
+ftp <target IP>
+wget --mirror ftp://<user:password>@<target IP>
 joomscan -u https://target.com
 uniscan -u https://www.target.com -qweds
 wpscan --url https://target.com --enumerate vp,vt,cb,u,m
@@ -274,6 +276,7 @@ wpscan --url https://target.com --enumerate vp,vt,cb,u,m
 dirb https://target.com -r -z 10
 gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/raft-medium-directories.txt -t 50
 gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/raft-medium-directories.txt -t 50 -x php
+gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/CMS/sharepoint.txt
 
 - Install Firefox Add-ons
 Firefox > Preferences > Add-ons > type Wappalyzer > click on the search result > Add to Firefox > Add
