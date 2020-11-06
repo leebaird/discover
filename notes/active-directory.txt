@@ -2,7 +2,11 @@ Active Directory
 
 
 # Recon
-- Traditional
+
+nltest /domain_trusts                      Show domain trusts
+nltest /dclist:<domain>                    Show domain controllers for a given domain
+net group "domain admins" /domain          Show users in the domain admins Security Group
+
 net user /domain                           Show all domain users
 net user <user> /domain                    Show all Security Groups a domain user belongs to
 net group /domain                          Show all Security Groups in a domain
@@ -15,7 +19,6 @@ dig -t SRV _kpasswd._tcp.acme.org          Kerberos password change server
 
 nmap --script dns-srv-enum --script-args "dns-srv-enum.domain='acme.org'"
 
-- Modern
 Using Windows > cmd > powershell
 [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrent Domain()
 Look for PdcRoleOwner and Name
