@@ -34,11 +34,18 @@ Places > Network > Browse Network
 
 # Connect anonymously
 
-smbclient -N -L <target IP>
+smbclient -L <target IP>                          List shares
+smbclient //<target IP>/<share>                   Connect to a share
+     dir                                          List directory contents
+     get file.txt                                 Download a file
+     more file.txt                                Read a file
+     put file.txt                                 Upload a file
 
 # Connect with credentials
 
-smbclient -W domain -U user -L <target IP>
+evil-winrm -i <target IP> -u <user> -p <password>
+smbclient //<target IP>/<share> -u <user> -p <password>
+smbmap -H <target IP> -u <user> -p <password>
 proxychains smbclient '//10.0.0.10/c$' -U 'domain.local/username%password'
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -54,10 +61,6 @@ nbtenum -q <target IP>
 
 nbtscan -r <target range>
 nbtscan -f hosts.txt
-
-smbclient //<target IP>/<share>
-   dir
-   get <filename>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Enumeration using a low level account
