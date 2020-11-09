@@ -251,8 +251,8 @@ whois target.com
 dig target.com
 
 - Service enumeration
-nmap -Pn -n -T4 --open -p- -A -sC target.com
-nmap -Pn -n -T4 --open -sU -A target.com
+nmap -Pn -n -T4 --open -p- -A target.com
+nmap -Pn -n -T4 --open -sU -sV target.com
 wafw00f https://www.target.com
 whatweb https://target.com
 
