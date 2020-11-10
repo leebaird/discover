@@ -82,6 +82,7 @@ net share
 ipconfig /all
 
 whoami
+whoami /priv
 hostname
 net users                                         Local users
 net localgroup Administrators                     Users in the local Administrators Security Group
@@ -169,10 +170,14 @@ git clone https://github.com/GDSSecurity/Windows-Exploit-Suggester
 cd Windows-Exploit-Suggester
 pip install xlrd --upgrade
 ./windows-exploit-suggester.py --update (note the database file name)
-
 systeminfo.exe > systeminfo.txt                   Run this on the Windows target and d/l to attack VM
-
 ./windows-exploit-suggester.py --database 2020-01-18-mssb.xls --systeminfo systeminfo.txt
 
-winPEAS.exe                                       Another method
+seatbelt.exe -group=system
+
+https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite
+winPEAS.exe
+
+PowerUp.ps1, Invoke-AllChecks
+SharpUp
 

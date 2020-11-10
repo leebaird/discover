@@ -258,6 +258,16 @@ echo -e "${BLUE}Updating Nmap scripts.${NC}"
 nmap --script-updatedb | egrep -v '(Starting|seconds)' | sed 's/NSE: //'
 echo
 
+if [ -d /opt/PEASS/.git ]; then
+     echo -e "${BLUE}Updating PEASS.${NC}"
+     cd /opt/PEASS/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing PEASS.${NC}"
+     git clone https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite.git /opt/PEASS
+     echo
+fi
+
 if [ -d /opt/PowerUpSQL/.git ]; then
      echo -e "${BLUE}Updating PowerUpSQL.${NC}"
      cd /opt/PowerUpSQL/ ; git pull
