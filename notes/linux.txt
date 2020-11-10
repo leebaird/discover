@@ -103,6 +103,7 @@ chmod 755 test.sh                               Make a file executable
 # File Transfer
 
 python3 -m http.server 80                       Starts a web sever on port 80
+curl 10.0.0.5/test.txt -o test.txt              Download a file
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Files & Directories
@@ -168,9 +169,12 @@ rpm -vhU app.rpm                                Install RPM package
 
 dpkg-query -l                                   Installed packages
 
-pip install -r requirements.txt                 Install required Python 2 packages listed in a file
-pip3 install -r requirements.txt                Install required Python 3 packages listed in a file
---proxy user:passwd@proxy.server:port           Append to previous pip commands when using a proxy
+pip3 install -r requirements.txt                Install required Python packages
+
+- CentOS
+yum -y install $(cat file)                      Install packages listed in a file
+yum list installed                              Show installed packages
+yum update                                      Refresh package database and install updates
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Networking
@@ -445,6 +449,7 @@ export DISPLAY=localhost:0.0
 exit
 
 ssh user@<target IP> -Y                         Connect and use Trusted X11 forwarding
+firefox                                         Start a GUI app
 
 - Generate a new key pair for AWS
 Login to https://aws.amazon.com/console/
