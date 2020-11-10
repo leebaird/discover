@@ -1,6 +1,12 @@
 Linux
 
 
+# Base64
+
+echo "lee:password123#" | base64                Encode
+echo "bGVlOnBhc3N3b3JkMTIzIwo=" | base64 -d     Decode
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Compile
 
 gcc test.c -o test                              Compile test
@@ -11,17 +17,17 @@ chmod 755 test                                  Make the file executable
 
 # Compression
 
+tar -zcvf test.tar test                         Compress
+gzip test
+zip -9 test.zip test
+zip -r test.zip test/
+
 tar xvfj test.tar.bz2                           Extract
 tar zxvf test.tar.gz
 tar zxvf test.tar
 gzip -d test.gz
 unzip test.zip
 zcat rockyou.txt.gz > rockyou.txt
-
-tar -zcvf test.tar test                         Compress
-gzip test
-zip -9 test.zip test
-zip -r test.zip test/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Copy Files (remotely)
@@ -96,7 +102,7 @@ chmod 755 test.sh                               Make a file executable
 
 # File Transfer
 
-python3 -m http.server                          Starts a web sever on port 8000
+python3 -m http.server 80                       Starts a web sever on port 80
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Files & Directories
