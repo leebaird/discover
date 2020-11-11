@@ -267,13 +267,15 @@ nikto -h https://target.com -port 443 -Format htm --output target.htm
 davtest -url https://target.com
 droopescan scan drupal -u https://target.com
 ftp <target IP>
-wget --mirror ftp://<user:password>@<target IP>
+     wget --mirror ftp://<user:password>@<target IP>
 joomscan -u https://target.com
 uniscan -u https://www.target.com -qweds
 wpscan --url https://target.com --enumerate vp,vt,cb,u,m
 
 - Bruteforce directories
-dirb https://target.com -r -z 10
+cewl https://target.com/ > dict.txt
+dirb https://target.com/ dict.txt
+
 gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/raft-medium-directories.txt -t 50
 gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/raft-medium-directories.txt -t 50 -x php
 gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/CMS/sharepoint.txt

@@ -24,6 +24,13 @@ Login to the team server
     VerifyFingerprint (compare with the SHA256 hash) > Yes
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# HTTP Redirector
+
+Set up an Ubuntu VM, install socat and point it to your CS server.
+
+socat TCP4-LISTEN:80,fork TCP4:<CS server IP>:80
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Create an HTTP Listener
 
 Cobalt Strike > Listeners > Add
