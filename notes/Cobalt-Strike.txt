@@ -27,7 +27,9 @@ Login to the team server
 # HTTP Redirector
 
 Set up an Ubuntu VM, install socat and point it to your CS server.
+When creating a listener, use the IP of your Ubuntu VM.
 
+screen
 socat TCP4-LISTEN:80,fork TCP4:<CS server IP>:80
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
