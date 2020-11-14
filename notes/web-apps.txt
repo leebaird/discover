@@ -281,16 +281,6 @@ cat small.txt | grep -v 403 | grep Status
 
 gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/CMS/sharepoint.txt --wildcard > share.txt
 cat share.txt | grep -v 403 | grep Status
-
-- Install Firefox Add-ons
-Firefox > Preferences > Add-ons > type Wappalyzer > click on the search result > Add to Firefox > Add
-Repeat steps for Web Developer
-
-- Configure proxy
-Firefox > Preferences > Network Settings > select Manual proxy configurtion
-HTTP Proxy: 127.0.0.1
-Port: 8080
-Check Use this proxy server for all protocols > OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Setup Burp Suite Pro
@@ -300,17 +290,6 @@ New project on disk > Choose file > burp-project > Save
 Name: Base
 Next
 Use Burp defaults > Start Burp
-
-- Import Burp certificate into Firefox
-
-Open Firefox to http://burp
-CA Certificate > Save File > OK
-Preferences > Options > Privacy & Security > View Certificates > Authorities > Import
-Select the certificate that you previously downloaded > Open
-Enable Trust this CA to identify websites > OK > OK
-Restart Firefox
-
-- Configure Burp options
 
 Open Burp > New project on disk > Name: burp-base
 Choose file > burp-base.burp > Save > Next > Sub Burp default > Start Burp
