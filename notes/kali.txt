@@ -73,7 +73,7 @@ Behavior
      Unlimited history
 Shortcuts
      Split Terminal Horizontally: Ctrl+H
-     Split Terminal Verticatally: Ctrl+V
+     Split Terminal Vertically: Ctrl+V
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Patch OS
@@ -96,6 +96,7 @@ git config --global user.name "Your Name"
 git config --global user.email "your email"
 git config --global pull.rebase false
 ------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Set a static IP address
 
 vi /etc/network/interfaces                 Add the following 4 lines
@@ -148,7 +149,7 @@ imap <F3> <C-R>=strftime("%Y-%m-%d %a %I:%M %p")<CR>
 nnoremap <F2> :set nonumber!<CR>:set foldcolumn=0<CR>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Web server with SSLon AWS
+# Web server with SSL on AWS
 
 - AWS
 EC2 > Security Groups > sg-xxxxxxxx - default
