@@ -277,7 +277,7 @@ find / -user root -perm -6000 -print 2>/dev/null     SGID - run the file with pe
 find / -perm -1000 2>/dev/null                  sticky - only the owner of a directory or a file can delete or rename
 
 - Check for world-writable files and folders
-find / -perm -o+w -type f 2>/dev/null        World-writeable files
+find / -perm -o+w -type f 2>/dev/null           World-writeable files
 find / -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print    World-writeable files
 
 find / -writable -type d 2>/dev/null            World-writeable folders
@@ -324,7 +324,7 @@ export https_proxy=https://username:password@proxy:port
 
 # Redirecting
 
-socat TCP4-LISTEN:443,fork TCP4:<remoteIP>:443         This should be done inside a screen session
+socat TCP4-LISTEN:443,fork TCP4:<remoteIP>:443     This should be done inside a screen session
 
 If you experience any slow traffic issues, switch to iptables.
 iptables -L
@@ -418,6 +418,26 @@ ctrl+a X                                        Close the current region
 ctrl+a esc                                      Use the up and down arrows or mouse to scroll
 esc                                             Exit scrollback mode
 ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# SMB
+
+cd /etc/samba/
+mv smb.conf smb.conf-old
+vi smb.conf
+[tools]
+   comment = Testing SMB sharing
+   path = /home/lee/share/
+   browseable = yes
+   read only = no
+   guest ok = no
+
+mkdir /home/lee/share/                          Create new directory to share
+chmod -R 777 /home/lee/share                    Give Everyone access
+service smbd start                              Start the SMB service
+service nmbd start
+service smbd status                             Check the status of the service
+smbpasswd -a lee                                Add a user and set the password for the share
+--------------------------------------------------------------------------------------------------------------------------------------------
 
 # SSH
 
@@ -526,9 +546,6 @@ ctrl + l                                        Clear the screen
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # tmux
-
-After you ssh into a box, use tmux. If your connection drops, you can ssh back in, connect to your previous tmux
-session and pick up where you left off. Great when running long scans or anything that you don't want to start over.
 
 tmux                                            Start a new session
 tmux new -s <name>                              Start a new session with a specific name
