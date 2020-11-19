@@ -5,13 +5,10 @@ https://www.offensive-security.com/kali-linux-vmware-virtualbox-image-download/
 Kali Linux VMware 64-Bit
 
 # Verify hash
-sha256sum kali-linux-2020.2a-vmware-amd64.7z
-
-# VM settings
-Processor & Memory > Processors: 2, Memory: 4096 > Show All
+sha256sum kali-linux-2020.4-vmware-amd64.7z
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Change kali password
+# Change default password
 Login with kali:kali
 passwd
 kali
@@ -25,10 +22,9 @@ Enter new root password 2x.
 reboot
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Home folder
+# Clean up root folder
 
 Login as root.
-cp /home/kali/.bashrc .
 rm -rf Documents/ Downloads/ Music/ Pictures/ Public/ Templates/ Videos/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -56,10 +52,10 @@ View
      Highlight current line
      Wrap long lines
      Font: 11
-     Colour scheme: Oblivion
 Editor
      Tab width: 5
      Tab mode: Insert Spaces
+Close
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Terminal
@@ -67,13 +63,13 @@ Editor
 File > Preferences
 Appearance
      Font: 11
-     Color scheme: Tango
      Application transparency: 0%
 Behavior
      Unlimited history
 Shortcuts
      Split Terminal Horizontally: Ctrl+H
      Split Terminal Vertically: Ctrl+V
+OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Patch OS
@@ -225,5 +221,5 @@ systemctl restart apache2                  Restart Apache
 apache2ctl -M                              Verity the ssl_module is running
 netstat -antp                              Verify ports 80 and 443 are listening
 
-firefox http://www.acme.org               Verify redirect and SSL are working
+firefox http://www.acme.org                Verify redirect and SSL are working
 
