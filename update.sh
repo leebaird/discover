@@ -7,6 +7,13 @@ NC='\033[0m'
 
 ###############################################################################################################################
 
+# No installed by default
+if [ -d /opt/CrackMapExec/.git ]; then
+     rm -rf /opt/CrackMapExec/
+fi
+
+###############################################################################################################################
+
 clear
 echo
 
@@ -95,21 +102,6 @@ if [ -d /opt/Covenant/.git ]; then
 else
      echo -e "${YELLOW}Installing Covenant.${NC}"
      git clone --recurse-submodules https://github.com/cobbr/Covenant.git /opt/Covenant
-     echo
-fi
-
-if [ -d /opt/CrackMapExec/.git ]; then
-     echo -e "${BLUE}Updating CrackMapExec.${NC}"
-     cd /opt/CrackMapExec/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing CrackMapExec.${NC}"
-     apt-get install -y libssl-dev libffi-dev python-dev build-essential
-     pip install --user pipenv
-     git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec /opt/CrackMapExec
-     cd CrackMapExec && pipenv install
-     pipenv shell
-     python setup.py install
      echo
 fi
 

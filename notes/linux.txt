@@ -206,7 +206,8 @@ ip route                                        Show table routes
 auto eth0
 iface eth0 inet static
     address 192.168.1.5/24
-    gateway 192.168.1.2
+    gateway 192.168.1.2                         *** macOS Catalina/VMware Fusion v11
+    gateway 192.168.1.1                         *** macOS Big Sur/Vmware Fusion v12
 
 /etc/init.d/networking restart                  Restart networking
 ------------------------------------------------------------------------------------------------------------------------------------------------------
