@@ -273,6 +273,8 @@ cat small.txt | grep -v 403 | grep Status
 
 gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/CMS/sharepoint.txt --wildcard > share.txt
 cat share.txt | grep -v 403 | grep Status
+
+If the webiste used PHP, use -x php
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Setup Burp Suite Pro
