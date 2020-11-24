@@ -93,6 +93,20 @@ git config --global user.email "your email"
 git config --global pull.rebase false
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Add API keys for theHarvester
+
+cd /opt/theHarvester/
+vi api-keys.yaml
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Add API keys for recon-ng
+
+recon-ng
+keys list
+keys add <key name> <API key>
+Or replace /root/.recon-ng/keys.db
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Set a static IP address
 
 vi /etc/network/interfaces                 Add the following 4 lines
@@ -100,13 +114,6 @@ auto eth0
 iface eth0 inet static
     address 192.168.1.5/24
     gateway 192.168.1.2
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# SSH
-
-ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519 -C "john@example.com"
-                                           Create new keys
-update-rc.d ssh enable                     Enable ssh to start at boot time
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Services
@@ -120,7 +127,13 @@ firefox localhost                          Verify the Apache service is running
 /var/www/html/                             Document root
 
 update-rc.d <service> <enable|disable>     Enable a service to start at boot time
-update-rc.d ssh enable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# SSH
+
+ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519 -C "john@example.com"
+                                           Create new keys
+update-rc.d ssh enable                     Enable ssh to start at boot time
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # .vimrc
