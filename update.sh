@@ -7,7 +7,12 @@ NC='\033[0m'
 
 ###############################################################################################################################
 
-# No installed by default
+# Removed old version
+if [ -d /opt/BloodHound-v3/.git ]; then
+     rm -rf /opt/BloodHound-v3/
+fi
+
+# Now installed by default
 if [ -d /opt/CrackMapExec/.git ]; then
      rm -rf /opt/CrackMapExec/
 fi
@@ -29,9 +34,9 @@ echo -e "${BLUE}Updating Kali.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 echo
 
-if [ -d /opt/BloodHound-v3/.git ]; then
+if [ -d /opt/BloodHound-v4/.git ]; then
      echo -e "${BLUE}Updating BloodHound.${NC}"
-     cd /opt/BloodHound-v3/ ; git pull
+     cd /opt/BloodHound-v4/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing Neo4j.${NC}"
@@ -45,9 +50,9 @@ else
      systemctl stop neo4j
      echo
      echo -e "${YELLOW}Installing BloodHound.${NC}"
-     git clone https://github.com/BloodHoundAD/BloodHound.git /opt/BloodHound-v3
+     git clone https://github.com/BloodHoundAD/BloodHound.git /opt/BloodHound-v4
      apt -y install npm
-     cd /opt/BloodHound-v3/
+     cd /opt/BloodHound-v4/
      npm install
      npm run linuxbuild
      echo

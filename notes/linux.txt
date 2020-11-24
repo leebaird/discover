@@ -409,9 +409,10 @@ ctrl+a 2                                        Switch to window 2 (by number)
 ctrl+n                                          Switch to the next window
 ctrl+p                                          Switch to the previous window
 
-ctrl+a S                                        Split current region horizontally
-ctrl+a |                                        Split current region vertically
-ctrl+a tab                                      Switch the input focus to the next region
+ctrl+a |                                        Split current region horizontally
+ctrl+a S                                        Split current region vertically
+ctrl+a tab                                      Switch to the next region
+ctrl+a c                                        Start a new session
 
 ctrl+a Q                                        Close all regions but the current one
 ctrl+a X                                        Close the current region
@@ -551,18 +552,22 @@ ctrl + l                                        Clear the screen
 tmux                                            Start a new session
 tmux new -s <name>                              Start a new session with a specific name
 
-ctrl +b d                                       Detach from the current session
+ctrl+b d                                        Detach from the current session
 exit                                            Exit the current session
 tmux ls                                         List sessions
 
 tmux attach                                     Attach to the previous session
-tmux attach -t <name>                           Attach to the previous session with a specific name
-ctrl +b %                                       Rename a session
+tmux attach -t <name>                           Attach to a session with a specific name
+ctrl+b %                                        Rename a session
 
-ctrl +b "                                       Split the pane horizontally
-ctrl +b %                                       Split the pane vertically
-ctrl +b arrow key                               Switch between panes
-ctrl +d                                         Close the pane
+ctrl+b c                                        Create a new window
+ctrl+b ,                                        Rename the current window
+ctrl+b w                                        List windows
+ctrl+b                                          Select a windows
+ctrl+b ""                                       Split the pane horizontally
+ctrl+b %                                        Split the pane vertically
+ctrl+b arrow key                                Switch between panes
+ctrl+d                                          Close the pane
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Traffic Capture

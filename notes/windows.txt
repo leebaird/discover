@@ -75,13 +75,14 @@ tasklist
 tasklist /m
 tasklist /svc
 net config workstation
-arp -a
 net user %username%
-ipconfig /displaydns
 net share
 ipconfig /all
+ipconfig /displaydns
+arp -a
+nltest.exe /dclist:                               Show Domain Controllers
 
-whoami
+whoami /user
 whoami /priv
 hostname
 net users                                         Local users
@@ -139,9 +140,10 @@ net view /domain                                  Computers in other domain
 net accounts /domain                              Domain password policy
 net user /domain                                  Show domain users
 net user <user> /domain                           Show info on a domain user
-net group “Domain Admins" /domain                 Show domain admin   *** BREAKS remote shell
-net group “Domain Users" /domain                  Show domain users   *** BREAKS remote shell
-net group “Domain Controllers" /domain            Show domain controllers
+net group /domain
+net group "Domain Admins" /domain                 Show domain admin   *** BREAKS remote shell
+net group "Domain Users" /domain                  Show domain users   *** BREAKS remote shell
+net group "Domain Controllers" /domain            Show domain controllers
 
 net localgroup Administrators /domain             Users in the domain Administrators Security Group
 net localgroup /domain                            Domain Security Groups
