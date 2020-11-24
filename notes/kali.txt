@@ -83,7 +83,7 @@ reboot
 git clone git://github.com/leebaird/discover.git /opt/discover/
 cat /opt/discover/notes/zshrc >> .zshrc
 source .zshrc
-./update.sh
+update
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Fix GitHub
