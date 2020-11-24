@@ -552,22 +552,25 @@ ctrl + l                                        Clear the screen
 tmux                                            Start a new session
 tmux new -s <name>                              Start a new session with a specific name
 
+tmux ls                                         List sessions
+tmux a                                          Attach to the previous session
+tmux a -t <name>                                Attach to a specific session name
+ctrl+b %                                        Rename a session
 ctrl+b d                                        Detach from the current session
 exit                                            Exit the current session
-tmux ls                                         List sessions
 
-tmux attach                                     Attach to the previous session
-tmux attach -t <name>                           Attach to a session with a specific name
-ctrl+b %                                        Rename a session
-
+ctrl+b w                                        List windows
 ctrl+b c                                        Create a new window
 ctrl+b ,                                        Rename the current window
-ctrl+b w                                        List windows
+ctrl+b x                                        Kill current window
 ctrl+b                                          Select a windows
 ctrl+b ""                                       Split the pane horizontally
 ctrl+b %                                        Split the pane vertically
 ctrl+b arrow key                                Switch between panes
 ctrl+d                                          Close the pane
+
+- Add file to home directory to remap prefix from b to c and other goodies.
+https://github.com/hamvocke/dotfiles/blob/master/tmux/.tmux.conf
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Traffic Capture

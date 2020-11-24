@@ -125,24 +125,17 @@ update-rc.d ssh enable
 
 # .vimrc
 
-syntax on          " Syntax highlighting
+set number                         " Show line numbers
+syntax on                          " Syntax highlighting
 
-set hlsearch       " Highlight all matches
-set incsearch      " Highlight first matches of searches while typing
-set number         " Show line numbers
-set expandtab      " Insert spaces instead of tabs
-set shiftwidth=5   " 5-space tabs
-set tabstop=5      " 5-space indents
+set ignorecase                     " Search is case-insensitive
+set hlsearch                       " Highlight search matches
+set incsearch                      " Highlight first matches of searches while typing
 
-" Allow backspacing over autoindent, line breaks and start of insert action
-set backspace=indent,eol,start
-
-" Insert timestamp with F3
-nmap <F3> i<C-R>=strftime("%Y-%m-%d %a %I:%M %p")<CR><Esc>
-imap <F3> <C-R>=strftime("%Y-%m-%d %a %I:%M %p")<CR>
-
-" Toggle line numbers with F2
-nnoremap <F2> :set nonumber!<CR>:set foldcolumn=0<CR>
+set expandtab                      " Insert spaces instead of tabs
+set shiftwidth=5                   " Tab = 5 spaces
+set softtabstop=5                  " Tab = 5 spaces
+set backspace=indent,eol,start     " Modern backspace behavior
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Web server with SSL on AWS
