@@ -81,14 +81,14 @@ reboot
 # Install Discover scripts and additional tools
 
 git clone git://github.com/leebaird/discover.git /opt/discover/
-cd /opt/discover/
-cp aliases /root/.bash_aliases
+cat /opt/discover/notes/zshrc >> .zshrc
+source .zshrc
 ./update.sh
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Fix GitHub issue
+# Fix GitHub
 
-git config --global user.name "Your Name"
+git config --global user.name "your name"
 git config --global user.email "your email"
 git config --global pull.rebase false
 ------------------------------------------------------------------------------------------------------------------------------------------------------
