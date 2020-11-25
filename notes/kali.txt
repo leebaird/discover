@@ -95,8 +95,7 @@ git config --global pull.rebase false
 
 # Add API keys for theHarvester
 
-cd /opt/theHarvester/
-vi api-keys.yaml
+vi /opt/theHarvester/api-keys.yaml
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Add API keys for recon-ng
