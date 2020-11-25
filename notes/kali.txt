@@ -1,24 +1,24 @@
 Kali
 
-# Download VM
+# Download VM and verify hash
+
 https://www.offensive-security.com/kali-linux-vmware-virtualbox-image-download/
 Kali Linux VMware 64-Bit
 
-# Verify hash
 sha256sum kali-linux-2020.4-vmware-amd64.7z
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Change default password
+# Change default passwords
+
 Login with kali:kali
 passwd
 kali
 Enter new password 2x.
 
-# Change root password
 sudo -i
 kali
 passwd
-Enter new root password 2x.
+Enter new password 2x.
 reboot
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -81,8 +81,8 @@ reboot
 # Install Discover scripts and additional tools
 
 git clone git://github.com/leebaird/discover.git /opt/discover/
-cat /opt/discover/notes/zshrc >> .zshrc
-source .zshrc
+cd /opt/discover/notes/config/
+./install.sh
 update
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -112,7 +112,7 @@ vi /etc/network/interfaces                 Add the following 4 lines
 auto eth0
 iface eth0 inet static
     address 192.168.1.5/24
-    gateway 192.168.1.2
+    gateway 192.168.1.1
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Services
