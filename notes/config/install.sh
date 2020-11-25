@@ -1,6 +1,14 @@
 #!/bin/bash
 
-cp /opt/discover/notes/config/tmux.conf /root/.tmux.conf
-cp /opt/discover/notes/config/vimrc /root/.vimrc
-cat /opt/discover/notes/config/zshrc >> /root/.zshrc
+if [[ $UID == 0 ]]; then
+     home='/root/'
+else
+     home=`(eval echo ~$USER/)`
+fi
+
+cp tmux.conf $home.tmux.conf
+cp vimrc $home.vimrc
+cat zshrc >> $home.zshrc
+
+source $home.zshrc 2>/dev/null
 
