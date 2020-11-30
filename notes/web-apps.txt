@@ -316,7 +316,7 @@ If the webiste used PHP, use -x php
 
 Target > Site map:
     Right click on any pane > View > Tabs
-    Filter > click on the gear > Restore defaults
+    Filter bar > click on the gear > Restore defaults
 
 Proxy > Options > Intercept Client Requests:
     Enable URL and click Up to move to the top
@@ -327,20 +327,9 @@ Proxy > Options > Intercept Server Responses:
     Enable URL and click Up to move to the top
     Add: And, File extension, Does not match, Match condition: paste contents from above, OK
 
-Match & Replace
-    Scroll to the bottom and enable X-XXS-Protection: 0
-
 Intruder > Options > Request Engine
     Number of threads: 8
     Number of retries on network failure: 2
-
-Extender > BApp Store > Refresh list > install the following extensions:
-    Active Scann++, Additional Scanner Checks, Backslash Powered Scanner, CO2, CSRF Scanner,
-    Error Message Checks, J2EEScan, Java Deserialization Scanner, Paramalyzer, Retire.js,
-    Site Map Fetcher, Software Version Reporter, Software Vulnerability Scanner, Wsdler
-    and XSS Validator
-
-Options > Python Environment > Select file > Browse to /Applications/jython-standalone-2.7.0.jar > Open
 
 User options > Connections > Platform Authentication > enable Prompt for credentials on platform authentication failure
 
@@ -384,13 +373,15 @@ Open browser > browse to the target site
 Target > Site map: this should be populating
 Right click on the target URL > Add to scope
 Proxy history logging: Yes
-Filter > enable Show only in-scope items
+Filter bar > enable Show only in-scope items
 
 - Browse the target
 Look for /robots.txt and /sitemap
 If either page exists, hold down on the Command button (Apple) and click on every link.
-Follow every link on each page and submit every form.
+Follow links, submit forms and login when prompted.
 Continue until you have thoroughly mapped the target.
+Target > Site map
+Locate any logout pages > right click > Remove from scope
 
 - Unrequested items
 Target > Site map > right click on the URL > Expand branch
@@ -422,7 +413,7 @@ Open a new tab in Chromium and paste.
 Repeat as necessary.
 
 - Analyze anomolies
-Filter > uncheck 4xx [request error] > Filter
+Filter bar > uncheck 4xx [request error]
 Click Status to sort by ascending.
 Select the first line with a 302 Status.
 Hold down shift and select the last line with a 302 Status.
@@ -481,7 +472,7 @@ Cluster bomb:
     Intruder > Payloads > Payload Options
     Load > choose a password list > Open
     Start attack
-    Filter > uncheck 4xx [request error] > Filter
+    Filter bar > uncheck 4xx [request error]
     Click Status to sort by ascending.
     Look for a 302 (redirect). This should be a successful login.
 
@@ -500,7 +491,7 @@ Cluster bomb:
     Intruder > Payloads > Payload Options
     Clear > Load: choose a password list > Open
     Start attack
-    Filter > uncheck 4xx [request error] > Filter
+    Filter bar > uncheck 4xx [request error]
     Click Status to sort by ascending.
     Look for a 302 (redirect). This should be a successful login.
 
@@ -529,7 +520,7 @@ Enter a single tick (') in any input field of a form and submit.
 Login to the target.
 Create a list of all POST requests that do not have a unique token called ‘CSRF_Token’.
 
-Proxy > HTTP history > Filter > Filter by search term
+Proxy > HTTP history > Filter bar > Filter by search term
     ^POST((?!CSRF_Token).)*$
     Click Regex
 

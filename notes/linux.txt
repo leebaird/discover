@@ -642,9 +642,9 @@ groupdel <group>                                Delete group
 groupmod <group>                                Modify group
 
 - New user setup
-sudo useradd -m -s /bin/bash lee                Add a new user, create home directory and set default shell
-sudo passwd lee                                 Set a password
-sudo usermod -aG sudo lee                       Add new user to the sudo group. Use wheel for CentOS.
+useradd -m lee                                  Add a new user, create home directory and set default shell
+passwd lee                                      Set a password
+usermod -aG sudo lee                            Add new user to the sudo group. Use wheel for CentOS.
 su - lee                                        Switch to new user
 ssh-keygen
 cd .ssh/
