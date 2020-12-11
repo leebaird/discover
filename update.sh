@@ -7,16 +7,14 @@ NC='\033[0m'
 
 ###############################################################################################################################
 
-# Removed old version
-if [ -d /opt/BloodHound-v3/.git ]; then
-     rm -rf /opt/BloodHound-v3/
+# Archived
+if [ -d /opt/PS-Attack/.git ]; then
+     rm -rf /opt/PS-Attack/
 fi
 
-# Now installed by default
-if [ -d /opt/CrackMapExec/.git ]; then
-     rm -rf /opt/CrackMapExec/
+if [ -d /opt/Windows-Exploit-Suggester/.git ]; then
+     rm -rf /opt/Windows-Exploit-Suggester/
 fi
-
 ###############################################################################################################################
 
 clear
@@ -275,17 +273,6 @@ else
      echo
 fi
 
-if [ -d /opt/PS-Attack/.git ]; then
-     echo -e "${BLUE}Updating PS>Attack.${NC}"
-     cd /opt/PS-Attack/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing PS>Attack.${NC}"
-     git clone https://github.com/jaredhaight/PSAttack.git /opt/PS-Attack
-     echo
-fi
-
-
 if [ -d /opt/Seatbelt/.git ]; then
      echo -e "${BLUE}Updating Seatbelt.${NC}"
      cd /opt/Seatbelt/ ; git pull
@@ -295,7 +282,6 @@ else
      git clone https://github.com/GhostPack/Seatbelt.git /opt/Seatbelt
      echo
 fi
-
 
 if [ -d /opt/SecLists/.git ]; then
      echo -e "${BLUE}Updating SecLists.${NC}"
@@ -386,18 +372,13 @@ else
      ./setup.sh --force --silent
 fi
 
-if [ -d /opt/Windows-Exploit-Suggester/.git ]; then
-     echo -e "${BLUE}Updating Windows-Exploit-Suggester.${NC}"
-     cd /opt/Windows-Exploit-Suggester/ ; git pull
-     rm *.xls 2>/dev/null
-     ./windows-exploit-suggester.py --update
+if [ -d /opt/Windows-Exploit-Suggester-NG/.git ]; then
+     echo -e "${BLUE}Updating Windows Exploit Suggester NG.${NC}"
+     cd /opt/Windows-Exploit-Suggester-NG/ ; git pull
      echo
 else
-     echo -e "${YELLOW}Installing Windows-Exploit-Suggester.${NC}"
-     git clone https://github.com/AonCyberLabs/Windows-Exploit-Suggester /opt/Windows-Exploit-Suggester
-     cd /opt/Windows-Exploit-Suggester/
-     pip install xlrd --upgrade
-     ./windows-exploit-suggester.py --update
+     echo -e "${YELLOW}Installing Windows Exploit Suggester NG.${NC}"
+     git clone https://github.com/bitsadmin/wesng.git /opt/Windows-Exploit-Suggester-NG
      echo
 fi
 
