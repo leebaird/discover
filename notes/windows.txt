@@ -65,42 +65,37 @@ nbtscan -f hosts.txt
 
 # Enumeration using a low level account
 
-systeminfo
-netstat -ano | findstr "LISTEN"
-netstat -ano | findstr "ESTABLISH"
+systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+hostname
+whoami /user
+whoami /priv
+net users                                         Local users
+net localgroup Administrators                     Users in the Administrators Security Group
+
+ipconfig /all
+ipconfig /displaydns
 route print
-echo %date% %time%
+arp -a
+netstat -ano | findstr "LISTEN"
+netstat -ano | findstr "ESTABLISH
+nltest.exe /dclist:                               Show Domain Controllers
+
+schtasks /query /fo LIST /v
+tasklist /SVC                                     Links running processes to started services
+net start
+
+doskey /history                                   Show command history
+gpresult /z
 set
-tasklist
-tasklist /m
-tasklist /svc
 net config workstation
 net user %username%
 net share
-ipconfig /all
-ipconfig /displaydns
-arp -a
-nltest.exe /dclist:                               Show Domain Controllers
-
-whoami /user
-whoami /priv
-hostname
-net users                                         Local users
-net localgroup Administrators                     Users in the local Administrators Security Group
-net start                                         Services that are started
-doskey /history                                   Show command history
-gpresult /z
 net session
 
-dir /s /p *password*                              Show filenames that include 'password'
-
-dir /s /b *.xls                                   Show Excel files
-dir /s /b *.xlsx                                  Show Excel files
-dir /s /b *.ppt                                   Show PowerPoint files
-dir /s /b *.pptx                                  Show PowerPoint files
-dir /s /b *.doc                                   Show Word files
-dir /s /b *.docx                                  Show Word files
-dir /s /b *.pdf                                   Show PDF files
+dir /s *pass* == *cred* == *vnc* == *.config*
+findstr /si password *.ini *.pdf *.txt *.docx *.xlsx
+reg query HKLM /f password /t REG_SZ /s
+reg query HKCU /f password /t REG_SZ /s
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Firewall

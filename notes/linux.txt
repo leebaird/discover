@@ -666,8 +666,8 @@ vi newfile                                      Create a new file
 Modes                                           Command, Insert, Append and Replace
 
 - Command mode
-:set number                                     Turn on line numbers
-:set nonumber                                   Turn off line numbers
+:set num                                        Turn on line numbers
+:set nonum                                      Turn off line numbers
 dd                                              Delete the current line
 yy                                              Copy the current line
 p                                               Paste the clipboard contents

@@ -1,11 +1,14 @@
 PowerShell - Basics
 
 
+# version
+$host.Version
+
 # cmdlets
 Every cmdlet in PS starts with a 'verb-noun'.
 
-Get-Command                                 Show all commands
-Get-Verb                                    Show all verbs
+Get-Command                            Show all commands
+Get-Verb                               Show all verbs
 
 Get-Process
 Start-Process .\notepad.exe
@@ -23,10 +26,10 @@ script data file       .psd1
 script module file     .psm1
 
 # Vocabulary
-string - Any combination of letters and numbers that are surrounded by quotes. Used for printing stuff.
-integer - A number without quotes. Used for math.
-boolean - True or false.
-variable - A value that can be assigned over the course of a script.
+string       Any combination of letters and numbers that are surrounded by quotes. Used for printing stuff.
+integer      A number without quotes. Used for math.
+boolean      True or false.
+variable     A value that can be assigned over the course of a script.
 
 # Objects
 PS C:\> $a = "apple" 
@@ -65,17 +68,19 @@ while ($i -le 5){
 }
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-C:\> powershell -nop -exec bypass           Start PowerShell and bypass the execution policy
+C:\> powershell -nop -exec bypass      Start PowerShell and bypass the execution policy
 
-mode 300                                    Full screen
-Get-Command                                 Show all commands
-Get- <tab>                                  Tab through each command
-Get-History                                 Show Command history
-Get-Process                                 Show current running processes
+mode 300                               Full screen
+Get-Command                            Show all commands
+Get- <tab>                             Tab through each command
+Get-History                            Show Command history
+Get-Process                            Show current running processes
 
-Get-Help <tool>                             Get help on any tool
-Get-Help invoke-mimikatz                    Show help for Mimikatz
-Get-Help invoke-mimikatz -examples          Show example of how to use Mimikatz
+Get-Help <tool>                        Get help on any tool
 
-Get-Member
+- Show Wi-Fi passwords
+(netsh wlan show profiles) | Select-String "\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)}  | Select-String "Key Content\W+\:(.+)$" | %{$pass=$_.Matches.Groups[1].Value.Trim(); $_} | %{[PSCustomObject]@{ PROFILE_NAME=$name;PASSWORD=$pass }} | Format-Table -AutoSize
+
+- Show AV installed
+Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct
 
