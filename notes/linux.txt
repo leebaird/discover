@@ -146,9 +146,8 @@ sha256sum test.iso                              SHA256 hash
 
 # Finding Files
 
-updatedb                                        Update the database of file names on the system
 locate file                                     Reads a database (locate.db) and shows the location of a file
-updatedb                                        Updates the locate database
+updatedb                                        Updates the db of all file names on the system
 which app                                       Path where the app is executed from
 
 find / -name pass*                              Find all the files that start with pass
@@ -481,16 +480,16 @@ SOCKS Host: 127.0.0.1   Port: 1080
 Select SOCKS v5 and Remote DNS
 
 - X11
-/etc/ssh/ssh_config                             Config file
+/etc/ssh/ssh_config                             Edit the SSH config file on the server
 ForwardX11 yes                                  Uncomment and change to yes
-ForwardX11Trusted yes                           Uncomment
 
-systemctl restart sshd                          Restart the SSH service
-export DISPLAY=localhost:0.0
+systemctl restart sshd                          Restart the SSH service on the server
 exit
 
-ssh user@<target IP> -Y                         Connect and use Trusted X11 forwarding
+ssh -X user@<target IP> -o "XAuthLocation=/opt/X11/bin/xauth"
 firefox                                         Start a GUI app
+
+Note: if using macOS as the client, install XQuartz.
 
 - Generate a new key pair for AWS
 Login to https://aws.amazon.com/console/
