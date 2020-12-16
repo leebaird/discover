@@ -481,7 +481,9 @@ Select SOCKS v5 and Remote DNS
 
 - X11
 /etc/ssh/ssh_config                             Edit the SSH config file on the server
-ForwardX11 yes                                  Uncomment and change to yes
+ForwardX11 yes
+/etc/ssh/sshd_config                            Edit the SSH config file on the server
+X11Forwarding yes
 
 systemctl restart sshd                          Restart the SSH service on the server
 exit
