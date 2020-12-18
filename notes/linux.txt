@@ -449,7 +449,7 @@ update-rc.d ssh enable                          Enable ssh to start at boot time
 - Permissions
 -rw-------  aws.pem
 -rw-------  authorized_keys
--rw-r--r--  config
+-rw-------  config
 -rw-------  id_rsa
 -rw-r--r--  id_rsa.pub
 -rw-------  identity_file
@@ -674,8 +674,10 @@ yy                                              Copy the current line
 p                                               Paste the clipboard contents
 <esc> u                                         Undo
 
-gg                                              Top of file
+gg                                              Beginning of file
 G                                               End of file
+0                                               Beginning of line
+$                                               End of line
 
 Search
 /                                               Search string
