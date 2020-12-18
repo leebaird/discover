@@ -5,7 +5,6 @@ dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
 extip=$(curl -s http://ip-api.com/ | grep 'query' | cut -d '"' -f4)
 ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
 mac=$(ifconfig | grep 'ether' | awk '{print $2}')
-user=$(whoami)
 
 alias bh='/opt/BloodHound-v4/BloodHound-linux-x64/BloodHound --no-sandbox'
 alias c='clear'
@@ -23,7 +22,7 @@ echo -n "Internal IP:  "$ip ; echo ;
 echo -n "MAC address:  "$mac ; echo ;
 echo -n "DNS           "$dns ; echo ; echo ;
 ping -c3 google.com ; echo'
-alias r='cd /$user/ ; clear'
+alias r='cd $HOME ; clear'
 alias s='cd /opt/discover/ ; clear'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 alias ssh='ssh -o "XAuthLocation=/opt/X11/bin/xauth"'
