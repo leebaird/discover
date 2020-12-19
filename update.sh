@@ -105,6 +105,12 @@ if [ -d /opt/Covenant/.git ]; then
 else
      echo -e "${YELLOW}Installing Covenant.${NC}"
      git clone --recurse-submodules https://github.com/cobbr/Covenant.git /opt/Covenant
+     wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+     dpkg -i packages-microsoft-prod.deb
+     apt update
+     apt install -y apt-transport-https
+     apt update
+     apt install -y dotnet-sdk-3.1
      echo
 fi
 
