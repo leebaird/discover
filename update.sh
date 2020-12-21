@@ -12,6 +12,10 @@ if [ -d /opt/PS-Attack/.git ]; then
      rm -rf /opt/PS-Attack/
 fi
 
+if [ -d /opt/Seatbelt/.git ]; then
+     rm -rf /opt/Seatbelt/
+fi
+
 if [ -d /opt/Windows-Exploit-Suggester/.git ]; then
      rm -rf /opt/Windows-Exploit-Suggester/
 fi
@@ -279,16 +283,6 @@ else
      echo
 fi
 
-if [ -d /opt/Seatbelt/.git ]; then
-     echo -e "${BLUE}Updating Seatbelt.${NC}"
-     cd /opt/Seatbelt/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing Seatbelt.${NC}"
-     git clone https://github.com/GhostPack/Seatbelt.git /opt/Seatbelt
-     echo
-fi
-
 if [ -d /opt/SecLists/.git ]; then
      echo -e "${BLUE}Updating SecLists.${NC}"
      cd /opt/SecLists/ ; git pull
@@ -422,7 +416,5 @@ fi
 echo -e "${BLUE}Updating locate database.${NC}"
 updatedb
 
-echo
-echo
 exit
 
