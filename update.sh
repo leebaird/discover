@@ -293,6 +293,23 @@ else
      echo
 fi
 
+if [ -d /opt/shad0w/.git ]; then
+     echo -e "${BLUE}Updating shad0w.${NC}"
+     cd /opt/shad0w/ ; git pull
+     cd bin/SharpCollection/ ; git pull
+     rm -rf *Any *86
+     echo
+else
+     echo -e "${YELLOW}Installing shad0w.${NC}"
+     git clone https://github.com/bats3c/shad0w.git /opt/shad0w
+     cd /opt/shad0w/bin/
+     rm -rf SharpCollection/
+     git clone https://github.com/Flangvik/SharpCollection.git
+     cd SharpCollection/
+     rm -rf *Any *86
+     echo
+fi
+
 if [ -d /opt/SharpShooter/.git ]; then
      echo -e "${BLUE}Updating SharpShooter.${NC}"
      cd /opt/SharpShooter/ ; git pull

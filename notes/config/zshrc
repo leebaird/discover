@@ -43,4 +43,5 @@ sleep 5
 cd /opt/Cobalt-Strike/ ; ./cobaltstrike'
 
 alias m='service postgresql start ; msfdb init ; msfconsole'
+alias pc='/opt/pycharm-community/bin/pycharm.sh'
 
