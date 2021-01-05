@@ -297,7 +297,7 @@ if [ -d /opt/shad0w/.git ]; then
      echo -e "${BLUE}Updating shad0w.${NC}"
      cd /opt/shad0w/ ; git pull
      cd bin/SharpCollection/ ; git pull
-     rm -rf *Any *86
+     rm -rf *Any
      echo
 else
      echo -e "${YELLOW}Installing shad0w.${NC}"
@@ -306,7 +306,7 @@ else
      rm -rf SharpCollection/
      git clone https://github.com/Flangvik/SharpCollection.git
      cd SharpCollection/
-     rm -rf *Any *86
+     rm -rf *Any
      echo
 fi
 
