@@ -7,18 +7,10 @@ NC='\033[0m'
 
 ###############################################################################################################################
 
-# Archived
-if [ -d /opt/PS-Attack/.git ]; then
-     rm -rf /opt/PS-Attack/
-fi
+#if [ -d /opt/shad0w/.git ]; then
+#     rm -rf /opt/shad0w/
+#fi
 
-if [ -d /opt/Seatbelt/.git ]; then
-     rm -rf /opt/Seatbelt/
-fi
-
-if [ -d /opt/Windows-Exploit-Suggester/.git ]; then
-     rm -rf /opt/Windows-Exploit-Suggester/
-fi
 ###############################################################################################################################
 
 clear
@@ -293,22 +285,24 @@ else
      echo
 fi
 
-if [ -d /opt/shad0w/.git ]; then
-     echo -e "${BLUE}Updating shad0w.${NC}"
-     cd /opt/shad0w/ ; git pull
-     cd bin/SharpCollection/ ; git pull
-     rm -rf *Any
-     echo
-else
-     echo -e "${YELLOW}Installing shad0w.${NC}"
-     git clone https://github.com/bats3c/shad0w.git /opt/shad0w
-     cd /opt/shad0w/bin/
-     rm -rf SharpCollection/
-     git clone https://github.com/Flangvik/SharpCollection.git
-     cd SharpCollection/
-     rm -rf *Any
-     echo
-fi
+# Needs to be installed in /root/
+
+#if [ -d /opt/shad0w/.git ]; then
+#     echo -e "${BLUE}Updating shad0w.${NC}"
+#     cd /opt/shad0w/ ; git pull
+#     cd bin/SharpCollection/ ; git pull
+#     rm -rf *Any
+#     echo
+#else
+#     echo -e "${YELLOW}Installing shad0w.${NC}"
+#     git clone https://github.com/bats3c/shad0w.git /opt/shad0w
+#     cd /opt/shad0w/bin/
+#     rm -rf SharpCollection/
+#     git clone https://github.com/Flangvik/SharpCollection.git
+#     cd SharpCollection/
+#     rm -rf *Any
+#     echo
+#fi
 
 if [ -d /opt/SharpShooter/.git ]; then
      echo -e "${BLUE}Updating SharpShooter.${NC}"
