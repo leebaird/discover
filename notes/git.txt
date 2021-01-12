@@ -66,6 +66,8 @@ Once your fork has been created, it does not automatically track with the upstre
     # Push the new changes to your fork.
     git push origin master
     You will need to authenticate.
+
+Refresh your web browser to see the changes.
 --------------------------------------------------------------------------------------------------------------------------------------    ----------------
 
     # Return to your dev branch.
