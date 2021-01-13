@@ -1,14 +1,14 @@
 Git
 
 
-# Setup your identity and suppress warnings
+# Setup your identity and suppress warnings.
 
 git config --global user.name "Lee Baird"
 git config --global user.email "leebaird@acme.com"
 git config --global pull.rebase false
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Configure a proxy
+# Configure a proxy.
 
 git config --global http.proxy http://proxy:port
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -28,29 +28,29 @@ git config --global http.proxy http://proxy:port
     git remote set-url origin https://github.com/<username>/<fork>
     git remote set-url origin https://github.com/leebaird/shad0w.git
 
-# Validate connectivity
+# Validate connectivity.
     ssh -T git@github.com
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Working on a new branch
+# Working on a new branch.
 
 Always avoid working on the master branch. It usually results in merge conflicts and/or update issues.
 Instead, work on dev branch whenever possible.
 
-    # Check the status
+    # Check the status.
     git status
 
-    # Show local branches
+    # Show local branches.
     git branch
 
-    # Show remote branches
+    # Show remote branches.
     git branch -r
 
-    # Create a new local branch and checkout
+    # Create a new local branch and checkout.
     git checkout -b <new branch>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Keep your fork updated
+# Keep your fork updated.
 
 Once your fork has been created, it does not automatically track with the upstream repo.
 
@@ -91,25 +91,14 @@ Refresh your web browser to see the changes.
     git stash
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Submit a pull request
-
-Once your code is ready to be submitted, you will need to submit a pull request with your changes.
+# Submit a pull request.
 
     Update your branch and make sure you are rebased off the latest upstream/master.
     Squash your commits onto a single revision.
-    Submit a pull request on GitHub.
+    With your web browser click on Pull request > Create pull request 2x
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Squash your changes into one revision
-
-Before you can submit a pull request, rebase all your changes onto a single commit. This makes it
-easier to review and also makes reverting the code easier in case of any build breakages.
-
-    git rebase -i master
-    #... squash commits ...
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Delete local and remote branches
+# Delete local and remote branches.
 
     # Local
     git branch -D <branch>
