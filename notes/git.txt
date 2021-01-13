@@ -63,6 +63,12 @@ Once your fork has been created, it does not automatically track with the upstre
     # Merge the latest upstream changes.
     git merge upstream/master
 
+    # Add any edited files.
+    git add <file1> <file2>
+
+    # Add commit message.
+    git commit -am 'message'
+
     # Push the new changes to your fork.
     git push origin master
     You will need to authenticate.
