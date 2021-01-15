@@ -63,8 +63,14 @@ Once your fork has been created, it does not automatically track with the upstre
     # Merge the latest upstream changes.
     git merge upstream/master
 
-    # Add any edited files.
+    # Check the status.
+    git status
+
+    # Option 1 - add any changes.
     git add <file1> <file2>
+
+    # Option 2 - add all changes.
+    git add -A
 
     # Add commit message.
     git commit -am 'message'
@@ -93,9 +99,7 @@ Refresh your web browser to see the changes.
 
 # Submit a pull request.
 
-    Update your branch and make sure you are rebased off the latest upstream/master.
-    Squash your commits onto a single revision.
-    With your web browser click on Pull request > Create pull request 2x
+With your web browser click on Pull request > Create pull request 2x
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Delete local and remote branches.

@@ -128,6 +128,7 @@ sed 's/[ \t]*$//'                                             Remove trailing wh
 sed 's/ \{2,\}/,/g'                                           Replace 2 or more spaces with a comma
 sed 's/\.\.\.//g'                                             Replace 3 periods with nothing
 sed 's/FOO/BAR/g'                                             Replace FOO with BAR
+find . -type f -exec sed -i 's/FOO/BAR/g' {} +                Replace FOO with BAR recursively in the current directory
 sed '/TEST/!s/FOO/BAR/g'                                      Replace FOO with BAR, except on lines that contain TEST
 sed '/TEST/s/FOO/BAR/g'                                       Replace FOO with BAR, on lines that contain TEST
 sed 's/FOO//g'                                                Replace FOO with nothing
