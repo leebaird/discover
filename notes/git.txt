@@ -8,11 +8,6 @@ git config --global user.email "leebaird@acme.com"
 git config --global pull.rebase false
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Configure a proxy.
-
-git config --global http.proxy http://proxy:port
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Fork a repo using your web browser.
 
 # Clone the new fork.
@@ -46,15 +41,18 @@ Instead, work on dev branch whenever possible.
     # Show remote branches.
     git branch -r
 
-    # Create a new local branch and checkout.
-    git checkout -b <new branch>
+    # Create a new dev branch.
+    git branch dev
+
+    # Switch to the dev branch
+    git checkout dev
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Keep your fork updated.
 
-Once your fork has been created, it does not automatically track with the upstream repo.
+Once you fork a project, it does not automatically track with the upstream repo.
 
-    # Pull the latest changes from upstream.
+    # Pull the latest changes from the upstream repo.
     git fetch upstream
 
     # Make sure you are working on the master branch.
@@ -66,43 +64,38 @@ Once your fork has been created, it does not automatically track with the upstre
     # Check the status.
     git status
 
-    # Option 1 - add any changes.
-    git add <file1> <file2>
-
-    # Option 2 - add all changes.
+    # Add all edits.
     git add -A
 
+    # Add specific edits.
+    git add <file1> <file2>
+
     # Add commit message.
-    git commit -am 'message'
+    git commit -am 'Brief description of edits.'
 
     # Push the new changes to your fork.
     git push origin master
+
     You will need to authenticate.
+    Refresh your web browser to see the changes.
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Refresh your web browser to see the changes.
---------------------------------------------------------------------------------------------------------------------------------------    ----------------
-
-    # Return to your dev branch.
+# The dev branch it out of date because you were working from the master branch.
     git checkout dev
+    git merger master
 
-    # Rebase this branch into the latest code from the master banch. Expect conflicts.
-    git rebase master
-
-    # Resolve conflicts.
-
-    # Push the rebased branch back to your fork.
+    # Push the updated branch back to the dev branch in your fork.
     git push origin dev -f
-
-    # Restore any un-committed changes.
-    git stash
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Submit a pull request.
 
-With your web browser click on Pull request > Create pull request 2x
+    Update your branch and make sure you are rebased off the latest upstream/master.
+    Squash your commits onto a single revision.
+    Using your web browser, click on Pull request > Create pull request 2x
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Delete local and remote branches.
+# Delete branches.
 
     # Local
     git branch -D <branch>
