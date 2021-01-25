@@ -23,65 +23,44 @@ git config --global pull.rebase false
     ssh -T git@github.com
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Working on a new branch.
-
-Always avoid working on the master branch. It usually results in merge conflicts and/or update issues.
-Instead, work on dev branch whenever possible.
-
-    # Check the status.
-    git status
-
-    # Show local branches.
-    git branch
-
-    # Show remote branches.
-    git branch -r
-
-    # Create a new dev branch.
-    git branch dev
-
-    # Switch to the dev branch
-    git checkout dev
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Keep your fork updated.
 
 Once you fork a project, it does not automatically track with the upstream repo.
 
-    # Pull the latest changes from the upstream repo.
-    git fetch upstream
-
-    # Make sure you are working on the master branch.
-    git checkout master
-
-    # Merge the latest upstream changes.
-    git merge upstream/master
-
-    # Check the status.
-    git status
-
-    # Add all edits.
-    git add -A
-
-    # Add specific edits.
-    git add <file1> <file2>
-
-    # Add commit message.
-    git commit -am 'Brief description of edits.'
-
-    # Push the new changes to your fork.
-    git push origin master
-
-    You will need to authenticate.
-    Refresh your web browser to see the changes.
+    git fetch upstream                    Pull the latest changes from the upstream repo
+    git checkout master                   Make sure you are working on the master branch
+    git merge upstream/master             Merge the latest upstream changes
+    git status                            Check the status
+    git push origin master                Push the new changes to your fork
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # The dev branch it out of date because you were working from the master branch.
-    git checkout dev
-    git merger master
 
-    # Push the updated branch back to the dev branch in your fork.
-    git push origin dev -f
+    git checkout dev                      Change to the dev branch
+    git merge master                      Merge the latest master changes
+    git push origin dev -f                Push the updated branch back to the dev branch in your fork
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Working on a new branch.
+
+Always avoid working on the master branch. It usually results in merge conflicts and/or update issues.
+Instead, work on a dev branch whenever possible.
+
+    git status                            Check the status
+    git branch                            Show local branches
+    git branch -r                         Show remote branches
+
+    git branch dev                        Create a new dev branch
+    git checkout dev                      Change to the dev branch
+
+    Make various changes to files.
+
+    git add -A                            Add all edits
+    git add <file1> <file2>               Add specific edits
+    git commit -am 'message'              Add commit message
+    git push origin master                Push the new changes to your fork
+
+    Refresh your web browser to see the changes.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Submit a pull request.
@@ -93,9 +72,6 @@ Once you fork a project, it does not automatically track with the upstream repo.
 
 # Delete branches.
 
-    # Local
-    git branch -D <branch>
-
-    # Remote
-    git push origin --delete <branch>
+    git branch -D <branch>                Local
+    git push origin --delete <branch>     Remote
 
