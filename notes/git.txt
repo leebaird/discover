@@ -11,17 +11,13 @@ git config --global pull.rebase false
 # Fork a repo using your web browser.
 
 # Clone the new fork.
-    git clone https://github.com/<username>/<forked repo>
-    git clone https://github.com/leebaird/shad0w.git
+    git clone git@github.com:<username>/<forked repo>
+    git clone git@github.com:leebaird/shad0w.git
     cd shad0w/
 
 # Add the upstream repo so that you can pull changes.
     git remote add upstream https://github.com/<original repo>
     git remote add upstream https://github.com/bats3c/shad0w.git
-
-# Stop errors pushing changes.
-    git remote set-url origin https://github.com/<username>/<fork>
-    git remote set-url origin https://github.com/leebaird/shad0w.git
 
 # Validate connectivity.
     ssh -T git@github.com
