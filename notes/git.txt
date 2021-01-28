@@ -25,16 +25,11 @@ git config --global pull.rebase false
 
 # Keep your fork updated.
 
-Once you fork a project, it does not automatically track with the upstream repo.
-
     git fetch upstream                    Pull the latest changes from the upstream repo
     git checkout master                   Make sure you are working on the master branch
     git merge upstream/master             Merge the latest upstream changes
     git status                            Check the status
     git push origin master                Push the new changes to your fork
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# The dev branch it out of date because you were working from the master branch.
 
     git checkout dev                      Change to the dev branch
     git merge master                      Merge the latest master changes
@@ -42,9 +37,6 @@ Once you fork a project, it does not automatically track with the upstream repo.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Working on a new branch.
-
-Always avoid working on the master branch. It usually results in merge conflicts and/or update issues.
-Instead, work on a dev branch whenever possible.
 
     git status                            Check the status
     git branch                            Show local branches
@@ -61,17 +53,14 @@ Instead, work on a dev branch whenever possible.
     git push origin master                Push the new changes to your fork
 
     Refresh your web browser to see the changes.
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Submit a pull request.
-
-    Update your branch and make sure you are rebased off the latest upstream/master.
-    Squash your commits onto a single revision.
-    Using your web browser, click on Pull request > Create pull request 2x
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Delete branches.
 
     git branch -D <branch>                Local
     git push origin --delete <branch>     Remote
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Submit a pull request.
+
+    Using your web browser, click on Pull request > Create pull request 2x
 
