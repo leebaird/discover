@@ -187,7 +187,7 @@ route                                           Gateway
 
 /etc/resolv.conf                                DNS
 search localdomain
-nameserver 192.168.1.2
+nameserver 192.168.1.1
 
 ifconfig                                        IP addresses to all network interfaces
 ifconfig eth0 down                              Bring interface down
