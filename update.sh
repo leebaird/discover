@@ -34,18 +34,12 @@ if [ -d /opt/BloodHound-v4/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing Neo4j.${NC}"
-     echo "deb http://httpredir.debian.org/debian stretch-backports main" | sudo tee -a /etc/apt/sources.list.d/stretch-backports.list
-     apt-get update
-     wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
-     echo 'deb https://debian.neo4j.com stable 4.0' > /etc/apt/sources.list.d/neo4j.list
-     apt-get update
-     apt-get install apt-transport-https
-     apt-get -y install neo4j
-     systemctl stop neo4j
+     apt -y install neo4j
      echo
      echo -e "${YELLOW}Installing BloodHound.${NC}"
-     git clone https://github.com/BloodHoundAD/BloodHound.git /opt/BloodHound-v4
      apt -y install npm
+     npm install -g electron-packager
+     git clone https://github.com/BloodHoundAD/BloodHound.git /opt/BloodHound-v4
      cd /opt/BloodHound-v4/
      npm install
      npm run linuxbuild

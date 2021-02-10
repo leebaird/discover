@@ -163,6 +163,14 @@ ctrl + alt + enter                                Toggle full screen mode
 
 # Privilege Escalation
 
+OS configuration issues
+software configuration issues
+weak service permissions
+weak file system permissions
+DLL hijacking
+
+PowerUp.ps1, Invoke-AllChecks
+
 git clone https://github.com/GDSSecurity/Windows-Exploit-Suggester
 cd Windows-Exploit-Suggester
 pip install xlrd --upgrade
@@ -172,8 +180,7 @@ systeminfo > win.txt                              Run this on the Windows target
 
 seatbelt.exe -group=system
 
-winPEASx64.exe cmd
+watson.exe
 
-PowerUp.ps1, Invoke-AllChecks
-SharpUp
+winPEASx64.exe cmd
 

