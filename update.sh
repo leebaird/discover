@@ -28,6 +28,14 @@ echo -e "${BLUE}Updating Kali.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 echo
 
+if [ ! -e /usr/bin/amass ]; then
+     echo -e "${YELLOW}Installing Amass.${NC}"
+     apt install -y amass
+     echo
+fi
+
+
+
 if [ -d /opt/BloodHound-v4/.git ]; then
      echo -e "${BLUE}Updating BloodHound.${NC}"
      cd /opt/BloodHound-v4/ ; git pull
