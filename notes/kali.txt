@@ -106,6 +106,16 @@ keys add <key name> <API key>
 Or replace /root/.recon-ng/keys.db
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Install Golang
+
+apt install -y golang
+
+- Add the following to .zshrc
+export GOROOT=/usr/lib/go
+export GOPATH=$HOME/go
+export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Set a static IP address
 
 vi /etc/network/interfaces                 Add the following 4 lines
