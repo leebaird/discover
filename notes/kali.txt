@@ -33,17 +33,19 @@ Close
 
 # Mousepad
 
-Terminal > mousepad
+apt install dbus-x11
+mousepad
+
 Edit > Preferences
 View
      Show line numbers
      Highlight current line
      Wrap long lines
-     Font: 11
+     Font: 13
 Editor
      Tab width: 5
      Tab mode: Insert Spaces
-Closei
+Close
 Quite mousepad
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -51,7 +53,7 @@ Quite mousepad
 
 File > Preferences
 Appearance
-     Font: 11
+     Font: 13
      Application transparency: 0%
 Behavior
      Unlimited history

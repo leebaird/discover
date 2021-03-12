@@ -446,8 +446,8 @@ ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519 -C "john@example.com"
 update-rc.d ssh enable                          Enable ssh to start at boot time
 
 - Permissions
--rw-------  aws.pem
 -rw-------  authorized_keys
+-rw-------  aws.pem
 -rw-------  config
 -rw-------  id_rsa
 -rw-r--r--  id_rsa.pub
