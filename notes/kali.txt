@@ -8,30 +8,18 @@ Kali Linux VMware 64-Bit
 sha256sum kali-linux-2020.4-vmware-amd64.7z
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Change default passwords
+# Change default password
 
 Login with kali:kali
 passwd
-kali
 Enter new password 2x.
-
 sudo -i
-kali
-passwd
-Enter new password 2x.
-reboot
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Clean up root folder
-
-Login as root.
-rm -rf Documents/ Downloads/ Music/ Pictures/ Public/ Templates/ Videos/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Disable screen lock
 
-Top right battery icon > Power manager settings
-Display > Display power management: change all to 60 minutes
+Top right battery icon > Settings
+Display > Display power management: change all to 60 minutes (On battery / Plugged in)
 Security > Lock screen when system is going to sleep: uncheck
 Close
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -55,7 +43,8 @@ View
 Editor
      Tab width: 5
      Tab mode: Insert Spaces
-Close
+Closei
+Quite mousepad
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Terminal
@@ -66,16 +55,12 @@ Appearance
      Application transparency: 0%
 Behavior
      Unlimited history
-Shortcuts
-     Split Terminal Horizontally: Ctrl+H
-     Split Terminal Vertically: Ctrl+V
 OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Patch OS
 
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
-reboot
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Install Discover scripts and additional tools
@@ -83,19 +68,34 @@ reboot
 git clone git://github.com/leebaird/discover.git /opt/discover/
 cd /opt/discover/notes/config/
 ./install.sh
+exit
+cd /opt/discover/notes/config/
+./install.sh
+exit
+
+Open a new Terminal
+sudo -i
 update
+Accept all defaults by hitting Enter.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Fix GitHub
 
-git config --global user.name "your name"
-git config --global user.email "your email"
+git config --global user.name "John Smith"
+git config --global user.email johnsmith@acme.org
 git config --global pull.rebase false
+update
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Add API keys for theHarvester
+# Set time zone
 
-vi /opt/theHarvester/api-keys.yaml
+Choose the correct city for your location.
+Eastern: New_York
+Central: Chicago
+Mountain: Denver
+Pacific: Los_Angeles
+
+timedatectl set-timezone America/Chicago
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Add API keys for recon-ng
@@ -104,6 +104,11 @@ recon-ng
 keys list
 keys add <key name> <API key>
 Or replace /root/.recon-ng/keys.db
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Add API keys for theHarvester
+
+/opt/theHarvester/api-keys.yaml
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Install Golang
