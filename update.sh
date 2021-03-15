@@ -54,44 +54,44 @@ else
      echo
 fi
 
-if [ -d /opt/Cobalt-Strike ]; then
-     if [ -d /opt/Cobalt-Strike/third-party/chryzsh-scripts/.git ]; then
+if [ -d /opt/cobaltstrike ]; then
+     if [ -d /opt/cobaltstrike/third-party/chryzsh-scripts/.git ]; then
           echo -e "${BLUE}Updating Cobalt Strike aggressor scripts - chryzsh.${NC}"
-          cd /opt/Cobalt-Strike/third-party/chryzsh-scripts/ ; git pull
+          cd /opt/cobaltstrike/third-party/chryzsh-scripts/ ; git pull
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - chryzsh.${NC}"
-          git clone https://github.com/chryzsh/Aggressor-Scripts.git /opt/Cobalt-Strike/third-party/chryzsh-scripts
+          git clone https://github.com/chryzsh/Aggressor-Scripts.git /opt/cobaltstrike/third-party/chryzsh-scripts
           echo
      fi
 
-     if [ -d /opt/Cobalt-Strike/third-party/mgeeky-scripts/.git ]; then
+     if [ -d /opt/cobaltstrike/third-party/mgeeky-scripts/.git ]; then
           echo -e "${BLUE}Updating Cobalt Strike aggressor scripts - mgeeky.${NC}"
-          cd /opt/Cobalt-Strike/third-party/mgeeky-scripts/ ; git pull
+          cd /opt/cobaltstrike/third-party/mgeeky-scripts/ ; git pull
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - mgeeky.${NC}"
-          git clone https://github.com/mgeeky/cobalt-arsenal.git /opt/Cobalt-Strike/third-party/mgeeky-scripts
+          git clone https://github.com/mgeeky/cobalt-arsenal.git /opt/cobaltstrike/third-party/mgeeky-scripts
           echo
      fi
 
-     if [ -d /opt/Cobalt-Strike/third-party/profiles/.git ]; then
+     if [ -d /opt/cobaltstrike/third-party/profiles/.git ]; then
           echo -e "${BLUE}Updating Cobalt Strike profiles.${NC}"
-          cd /opt/Cobalt-Strike/third-party/profiles/ ; git pull
+          cd /opt/cobaltstrike/third-party/profiles/ ; git pull
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike profiles.${NC}"
-          git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/Cobalt-Strike/third-party/profiles
+          git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/cobaltstrike/third-party/profiles
           echo
      fi
 
-     if [ -d /opt/Cobalt-Strike/third-party/taowu-scripts/.git ]; then
+     if [ -d /opt/cobaltstrike/third-party/taowu-scripts/.git ]; then
           echo -e "${BLUE}Updating Cobalt Strike aggressor scripts - taowu.${NC}"
-          cd /opt/Cobalt-Strike/third-party/taowu-scripts/ ; git pull
+          cd /opt/cobaltstrike/third-party/taowu-scripts/ ; git pull
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - taowu.${NC}"
-          git clone https://github.com/pandasec888/taowu-cobalt-strike.git /opt/Cobalt-Strike/third-party/taowu-scripts
+          git clone https://github.com/pandasec888/taowu-cobalt-strike.git /opt/cobaltstrike/third-party/taowu-scripts
           echo
      fi
 fi
