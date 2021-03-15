@@ -2,19 +2,19 @@ Cobalt Strike
 
 
 Remove old data
-    rm /opt/Cobalt-Strike/data/*.bin
+    rm /opt/cobaltstrike/data/*.bin
 
 Start the team server
-    cd /opt/Cobalt-Strike
+    cd /opt/cobaltstrike
     ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons>
     The first 2 parameters are required.
 
-    ./teamserver 192.168.1.5 password /opt/Cobalt-Strike/third-party/profiles/APT/etumbot.profile
+    ./teamserver 192.168.1.5 password /opt/cobaltstrike/third-party/profiles/APT/etumbot.profile
     Copy the SHA256 hash and send to other members on your team.
 
 Login to the team server
     Right-click in the Terminal > Split Terminal Horizontally
-    cd /opt/Cobalt-Strike
+    cd /opt/cobaltstrike
     ./cobaltstrike
     Host: 127.0.0.1
     Port: 50050
@@ -219,9 +219,9 @@ Controller domain: acme.org
 Controller IP: x.x.x.x
 
 ifconfig eth0 add x.x.x.x
-cd /opt/Cobalt-Strike
+cd /opt/cobaltstrike
 rm data/*.bin
-./teamserver 192.168.1.5 password /opt/Cobalt-Strike/third-party/profiles/APT/etumbot.profile
+./teamserver 192.168.1.5 password /opt/cobaltstrike/third-party/profiles/APT/etumbot.profile
 
 Start Cobalt Strike and point to localhost.
 
