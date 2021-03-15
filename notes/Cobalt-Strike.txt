@@ -18,8 +18,8 @@ Login to the team server
     ./cobaltstrike
     Host: 127.0.0.1
     Port: 50050
-    User: neo
-    Password: password
+    User: <your first name>
+    Password: <password you entered above>
     Connect
     VerifyFingerprint (compare with the SHA256 hash) > Yes
 ------------------------------------------------------------------------------------------------------------------------------------------------------
