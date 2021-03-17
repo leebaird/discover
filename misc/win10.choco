@@ -1,6 +1,7 @@
 # Modified from https://github.com/ZeroPointSecurity/RTOVMSetup
 #
-# Open a PowerShell console with administrative rights.
+# Open a Command Prompt with administrative rights.
+# powershell -nop -exec bypass
 # . { Invoke-WebRequest -useb https://boxstarter.org/bootstrapper.ps1 } | iex; Get-Boxstarter -Force
 # $Cred = Get-Credential $env:USERNAME
 # Install-BoxstarterPackage -PackageName https://raw.githubusercontent.com/leebaird/discover/master/misc/win10.choco -Credential $Cred
