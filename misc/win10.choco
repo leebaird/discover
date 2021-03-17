@@ -31,23 +31,35 @@ choco install sysinternals --params "/InstallDir:C:\tools\sysinternals"
 Invoke-WebRequest -Uri https://github.com/dnSpy/dnSpy/releases/latest/download/dnSpy-netframework.zip -OutFile "$env:TEMP\dnSpy-netframework.zip"
 Expand-Archive -Path "$env:TEMP\dnSpy-netframework.zip" -DestinationPath C:\tools\dnSpy
 
+git clone https://github.com/AlessandroZ/BeRoot.git C:\tools\BeRoot
+git clone https://github.com/antonioCoco/RoguePotato.git C:\tools\RoguePotato
+git clone https://github.com/besimorhino/powercat.git C:\tools\powercat
 git clone https://github.com/BloodHoundAD/SharpHound3.git C:\tools\SharpHound3
+git clone https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite.git C:\tools\PEASS
 git clone https://github.com/dafthack/MailSniper.git C:\tools\MailSniper
 git clone https://github.com/decoder-it/juicy-potato.git C:\tools\juicy-potato
+git clone https://github.com/dirkjanm/adidnsdump.git C:\tools\adidnsdump
 git clone https://github.com/djhohnstein/SharpChrome.git C:\tools\SharpChrome
 git clone https://github.com/FortyNorthSecurity/Egress-Assess.git C:\tools\Egress-Assess
 git clone https://github.com/FSecureLABS/SharpGPOAbuse.git C:\tools\SharpGPOAbuse
+git clone https://github.com/gentilkiwi/kekeo.git C:\tools\kekeo
 git clone https://github.com/gentilkiwi/mimikatz.git C:\tools\mimikatz
+git clone https://github.com/GhostPack/Rubeus.git C:\tools\Rubeus
 git clone https://github.com/GhostPack/Seatbelt.git C:\tools\Seatbelt
 git clone https://github.com/HarmJ0y/DAMP.git C:\tools\DAMP
 git clone https://github.com/hfiref0x/UACME.git C:\tools\UACME
+git clone https://github.com/itm4n/FullPowers.git C:\tools\FullPowers
+git clone https://github.com/itm4n/PrintSpoofer.git C:\tools\PrintSpoofer
 git clone https://github.com/leechristensen/SpoolSample.git C:\tools\SpoolSample
 git clone https://github.com/NetSPI/PowerUpSQL.git C:\tools\PowerUpSQL
+git clone https://github.com/nidem/kerberoast.git C:\tools\ kerberoast
+git clone https://github.com/ohpe/juicy-potato.git C:\tools\juicy-potato
 git clone https://github.com/p3nt4/PowerShdll.git C:\tools\PowerShdll
 git clone https://github.com/PowerShellMafia/PowerSploit.git C:\tools\PowerSploit
 git clone https://github.com/rasta-mouse/MiscTools.git C:\tools\MiscTools
 git clone https://github.com/rasta-mouse/Sherlock.git C:\tools\Sherlock
 git clone https://github.com/rasta-mouse/Watson.git C:\tools\Watson
+git clone https://github.com/sense-of-security/ADRecon.git C:\tools\ADRecon
 git clone https://github.com/tevora-threat/SharpView.git C:\tools\SharpView
 git clone https://github.com/TheWover/donut.git C:\tools\donut
 git clone https://github.com/ZeroPointSecurity/PhishingTemplates.git C:\tools\PhishingTemplates
