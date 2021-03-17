@@ -22,7 +22,7 @@ Set-MpPreference -SubmitSamplesConsent NeverSend
 choco feature enable -n allowGlobalConfirmation
 choco install 7zip
 choco install git
-choco install heidisql --version=11.2
+choco install heidisql --version=10.2.0.559900
 choco install openjdk11
 choco install putty
 choco install sysinternals --params "/InstallDir:C:\tools\sysinternals"
