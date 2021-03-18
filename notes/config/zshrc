@@ -37,7 +37,7 @@ rm /opt/Cobalt-Strike/data/*.bin 2>/dev/null ;
 # Start the teamserver
 cd /opt/Cobalt-Strike/ ; ./teamserver 192.168.1.5 password ;
 # Split Terminal horizontally
-xdotool key Ctrl+H
+xdotool key Ctrl+D
 sleep 5
 # Login to the teamserver
 cd /opt/Cobalt-Strike/ ; ./cobaltstrike'
