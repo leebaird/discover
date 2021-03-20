@@ -10,5 +10,6 @@ cp tmux.conf $home.tmux.conf
 cp vimrc $home.vimrc
 cat zshrc >> $home.zshrc
 
-source $home.zshrc 2>/dev/null
+cp /home/kali/.Xauthority $home.Xauthority
 
+source $home.zshrc 2>/dev/null

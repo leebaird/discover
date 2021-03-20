@@ -12,6 +12,7 @@ alias cla='clear ; ls -la --color=auto'
 alias d='cd $HOME/Desktop/ ; clear'
 alias date='date +"%a %b %d, %Y - %r %Z"'
 alias e='exit'
+alias firefox='XAUTHORITY=/root/.Xauthority firefox'
 alias l='ls -l --color=auto'
 alias la='ls -la --color=auto'
 alias n='echo ; netstat -antp; echo ;
@@ -33,15 +34,14 @@ alias cov='cd /opt/Covenant/Covenant/ ; dotnet run'
 
 alias cs='
 # Remove old data
-rm /opt/Cobalt-Strike/data/*.bin 2>/dev/null ;
+# rm /opt/cobaltstrike/data/*.bin 2>/dev/null ;
 # Start the teamserver
-cd /opt/Cobalt-Strike/ ; ./teamserver 192.168.1.5 password ;
+cd /opt/cobaltstrike/ ; ./teamserver 192.168.1.6 password &
 # Split Terminal horizontally
 xdotool key Ctrl+D
 sleep 5
 # Login to the teamserver
-cd /opt/Cobalt-Strike/ ; ./cobaltstrike'
+cd /opt/cobaltstrike/ ; ./cobaltstrike'
 
 alias m='service postgresql start ; msfdb init ; msfconsole'
 alias pc='/opt/pycharm-community/bin/pycharm.sh'
-
