@@ -1,6 +1,6 @@
 ```
 Custom bash scripts used to automate various penetration testing tasks including recon, scanning, 
-parsing, and creating malicious payloads and listeners with Metasploit. For use with Kali Linux 
+parsing and creating malicious payloads and listeners with Metasploit. For use with Kali Linux 
 and the Penetration Testers Framework (PTF).
 ```
 
@@ -11,7 +11,7 @@ and the Penetration Testers Framework (PTF).
 * [![Twitter Follow](https://img.shields.io/twitter/follow/jay_townsend1.svg?style=social&label=Follow)](https://twitter.com/jay_townsend1) Jay "L1ghtn1ng" Townsend @jay_townsend1
 * [![Twitter Follow](https://img.shields.io/twitter/follow/ninewires.svg?style=social&label=Follow)](https://twitter.com/ninewires) Jason Ashton @ninewires
 
-### Download, setup, and usage
+### Download, setup and usage
 * git clone https://github.com/leebaird/discover /opt/discover/
 * All scripts must be ran from this location.
 * cd /opt/discover/
@@ -26,7 +26,7 @@ SCANNING
 3.  Generate target list
 4.  CIDR
 5.  List
-6.  IP, range, or domain
+6.  IP, range or domain
 7.  Rerun Nmap scripts and MSF aux
 
 WEB
@@ -54,12 +54,12 @@ RECON
 ```
 
 Passive uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,
-    Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.
+    Metasploit, URLCrazy, Whois, multiple websites and recon-ng.
 
-Active uses dnsrecon, WAF00W, traceroute, Whatweb, and recon-ng.
+Active uses dnsrecon, WAF00W, traceroute, Whatweb and recon-ng.
 
 [*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub,
-    Google, Hashes, Hunter, SecurityTrails, and Shodan for
+    Google, Hashes, Hunter, SecurityTrails and Shodan for
     maximum results with recon-ng and theHarvester.
 
 ```
@@ -97,7 +97,7 @@ SCANNING
 
 * Use different tools to create a target list including Angry IP Scanner, arp-scan, netdiscover and nmap pingsweep.
 
-### CIDR, List, IP, Range, or URL
+### CIDR, List, IP, Range or URL
 ```
 Type of scan:
 
@@ -110,7 +110,7 @@ Type of scan:
 * Internal scan will set the nmap source port to 88 and the max-rrt-timeout to 500ms.
 * Nmap is used to perform host discovery, port scanning, service enumeration and OS identification.
 * Matching nmap scripts are used for additional enumeration.
-* Addition tools: enum4linux, smbclient, and ike-scan.
+* Addition tools: enum4linux, smbclient and ike-scan.
 * Matching Metasploit auxiliary modules are also leveraged.
 
 ## WEB

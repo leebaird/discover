@@ -60,7 +60,7 @@ else
 fi
 
 if [ ! -e /root/.Xauthority ]; then
-     cp /home/kali/.Xauthority /root/.Xauthority
+     cp /home/kali/.Xauthority /root/.Xauthority 2>/dev/null
 fi
 
 ###############################################################################################################################
@@ -376,7 +376,7 @@ f_banner
 f_scanname
 
 echo
-echo -n "IP, range, or URL: "
+echo -n "IP, range or URL: "
 read target
 
 # Check for no answer
@@ -659,7 +659,7 @@ echo -e "${BLUE}SCANNING${NC}"
 echo "3.  Generate target list"
 echo "4.  CIDR"
 echo "5.  List"
-echo "6.  IP, range, or URL"
+echo "6.  IP, range or URL"
 echo "7.  Rerun Nmap scripts and MSF aux"
 echo
 echo -e "${BLUE}WEB${NC}"
