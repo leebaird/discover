@@ -21,27 +21,26 @@ and the Penetration Testers Framework (PTF).
 RECON
 1.  Domain
 2.  Person
-3.  Parse salesforce
 
 SCANNING
-4.  Generate target list
-5.  CIDR
-6.  List
-7.  IP, range, or domain
-8.  Rerun Nmap scripts and MSF aux
+3.  Generate target list
+4.  CIDR
+5.  List
+6.  IP, range, or domain
+7.  Rerun Nmap scripts and MSF aux
 
 WEB
-9.  Insecure direct object reference
-10. Open multiple tabs in Firefox
-11. Nikto
-12. SSL
+8.  Insecure direct object reference
+9.  Open multiple tabs in Firefox
+10. Nikto
+11. SSL
 
 MISC
-13. Parse XML
-14. Generate a malicious payload
-15. Start a Metasploit listener
-16. Update
-17. Exit
+12. Parse XML
+13. Generate a malicious payload
+14. Start a Metasploit listener
+15. Update
+16. Exit
 ```
 ## RECON
 ### Domain
@@ -83,17 +82,6 @@ Last name:
 ```
 
 * Combines info from multiple websites.
-
-### Parse salesforce
-```
-Create a free account at salesforce (https://connect.data.com/login).
-Perform a search on your target company > select the company name > see all.
-Copy the results into a new file.
-
-Enter the location of your list:
-```
-
-* Gather names and positions into a clean list.
 
 ## SCANNING
 ### Generate target list
@@ -222,4 +210,3 @@ Metasploit Listeners
 ### Update
 
 * Use to update Kali Linux , Discover scripts, various tools and the locate database.
-
