@@ -42,6 +42,4 @@ sleep 2
 $web https://twitter.com/search?q=%22$firstName%20$lastName%22&src=typd &
 sleep 2
 $web https://www.youtube.com/results?search_query=$firstName+$lastName &
-sleep 2
-$web http://www.zabasearch.com/query1_zaba.php?sname=$firstName%20$lastName&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr= &
 

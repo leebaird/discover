@@ -41,8 +41,6 @@ time.sleep(2)
 webbrowser.open("https://twitter.com/search?q=%22"+firstName+"%20"+lastName+"%22")
 time.sleep(2)
 webbrowser.open("https://www.youtube.com/results?search_query="+firstName+"+"+lastName)
-time.sleep(2)
-webbrowser.open("http://www.zabasearch.com/query1_zaba.php?sname="+firstName+"%20"+lastName+"&state=ALL&ref=$ref&se=$se&doby=&city=&name_style=1&tm=&tmr=")
 
 print
 print
