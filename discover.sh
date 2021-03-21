@@ -652,27 +652,26 @@ fi
 echo -e "${BLUE}RECON${NC}"
 echo "1.  Domain"
 echo "2.  Person"
-echo "3.  Parse salesforce"
 echo
 echo -e "${BLUE}SCANNING${NC}"
-echo "4.  Generate target list"
-echo "5.  CIDR"
-echo "6.  List"
-echo "7.  IP, range, or URL"
-echo "8.  Rerun Nmap scripts and MSF aux"
+echo "3.  Generate target list"
+echo "4.  CIDR"
+echo "5.  List"
+echo "6.  IP, range, or URL"
+echo "7.  Rerun Nmap scripts and MSF aux"
 echo
 echo -e "${BLUE}WEB${NC}"
-echo "9.  Insecure direct object reference"
-echo "10. Open multiple tabs in Firefox"
-echo "11. Nikto"
-echo "12. SSL"
+echo "8.  Insecure direct object reference"
+echo "9. Open multiple tabs in Firefox"
+echo "10. Nikto"
+echo "11. SSL"
 echo
 echo -e "${BLUE}MISC${NC}"
-echo "13. Parse XML"
-echo "14. Generate a malicious payload"
-echo "15. Start a Metasploit listener"
-echo "16. Update"
-echo "17. Exit"
+echo "12. Parse XML"
+echo "13. Generate a malicious payload"
+echo "14. Start a Metasploit listener"
+echo "15. Update"
+echo "16. Exit"
 echo
 echo -n "Choice: "
 read choice
@@ -680,21 +679,20 @@ read choice
 case $choice in
      1) $discover/domain.sh && exit;;
      2) $discover/person.sh && exit;;
-     3) $discover/salesforce.sh && exit;;
-     4) $discover/generateTargets.sh && exit;;
-     5) f_cidr;;
-     6) f_list;;
-     7) f_single;;
-     8) f_enumerate;;
-     9) $discover/directObjectRef.sh && exit;;
-     10) $discover/multiTabs.sh && exit;;
-     11) $discover/nikto.sh && exit;;
-     12) $discover/ssl.sh && exit;;
-     13) $discover/parse.sh && exit;;
-     14) $discover/payload.sh && exit;;
-     15) $discover/listener.sh && exit;;
-     16) $discover/update.sh && exit;;
-     17) clear && exit;;
+     3) $discover/generateTargets.sh && exit;;
+     4) f_cidr;;
+     5) f_list;;
+     6) f_single;;
+     7) f_enumerate;;
+     8) $discover/directObjectRef.sh && exit;;
+     9) $discover/multiTabs.sh && exit;;
+     10) $discover/nikto.sh && exit;;
+     11) $discover/ssl.sh && exit;;
+     12) $discover/parse.sh && exit;;
+     13) $discover/payload.sh && exit;;
+     14) $discover/listener.sh && exit;;
+     15) $discover/update.sh && exit;;
+     16) clear && exit;;
      99) $discover/newModules.sh && exit;;
      *) f_error;;
 esac
