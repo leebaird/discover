@@ -59,6 +59,10 @@ else
      rm tmpinstance
 fi
 
+if [ ! -e /root/.Xauthority ]; then
+     cp /home/kali/.Xauthority /root/.Xauthority
+fi
+
 ###############################################################################################################################
 
 # Global variables
