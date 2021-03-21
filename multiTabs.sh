@@ -18,17 +18,17 @@ case $choice in
      echo -n "Use an https prefix? (y/N) "
      read prefix
 
-     $web &
+     XAUTHORITY=/root/.Xauthority firefox &
      sleep 2
 
      if [ -z $prefix ]; then
           for i in $(cat $location); do
-               $web $i &
+               XAUTHORITY=/root/.Xauthority firefox -new-tab $i &
                sleep 1
           done
      elif [ "$prefix" == "y" ]; then
           for i in $(cat $location); do
-               $web https://$i &
+               XAUTHORITY=/root/.Xauthority firefox -new-tab https://$i &
                sleep 1
           done
      else
@@ -66,11 +66,11 @@ case $choice in
 
      grep 'Disallow' robots.txt | awk '{print $2}' > tmp
 
-     $web &
+     XAUTHORITY=/root/.Xauthority firefox &
      sleep 2
 
      for i in $(cat tmp); do
-          $web http://$domain$i &
+          XAUTHORITY=/root/.Xauthority firefox -new-tab http://$domain$i &
           sleep 1
      done
 

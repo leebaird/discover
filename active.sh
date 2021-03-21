@@ -220,7 +220,7 @@ echo "***Scan complete.***"
 echo
 echo
 echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${NC}\n"
-$web $home/data/$domain/index.htm &
+XAUTHORITY=/root/.Xauthority firefox $home/data/$domain/index.htm &
 echo
 echo
 

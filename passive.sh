@@ -776,52 +776,51 @@ echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${
 
 f_runlocally
 
-$web &
+XAUTHORITY=/root/.Xauthority firefox &
 sleep 4
-$web https://www.google.com/search?q=site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.google.com/search?q=site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
 sleep 4
-$web https://$companyurl.s3.amazonaws.com &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://$companyurl.s3.amazonaws.com &
 sleep 4
-$web https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
 sleep 4
-$web https://www.censys.io/ipv4?q=$domain &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.censys.io/ipv4?q=$domain &
 sleep 4
-$web https://www.google.com/search?q=site:$domain+%22index+of/%22+%22parent+directory%22 &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.google.com/search?q=site:$domain+%22index+of/%22+%22parent+directory%22 &
 sleep 4
-$web https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
 sleep 4
-$web https://www.google.com/search?q=site:$domain+inurl:login &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.google.com/search?q=site:$domain+inurl:login &
 sleep 4
-$web http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
+XAUTHORITY=/root/.Xauthority firefox -new-tab http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
 sleep 4
-$web https://www.google.com/search?q=site:$domain+intext:username+intext:password+inurl:ftp &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.google.com/search?q=site:$domain+intext:username+intext:password+inurl:ftp &
 sleep 4
-$web https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
 sleep 4
-$web https://www.google.com/search?q=site:$domain+intext:username+intext:password+-inurl:careers &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.google.com/search?q=site:$domain+intext:username+intext:password+-inurl:careers &
 sleep 4
-$web https://networksdb.io/search/org/$companyurl &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://networksdb.io/search/org/$companyurl &
 sleep 4
-$web https://www.google.com/search?q=site:$domain+intext:Atlassian+intext:jira+-inurl:careers &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.google.com/search?q=site:$domain+intext:Atlassian+intext:jira+-inurl:careers &
 sleep 6
-$web https://www.google.com/search?q=site:pastebin.com+intext:$domain &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.google.com/search?q=site:pastebin.com+intext:$domain &
 sleep 4
-$web https://www.facebook.com &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.facebook.com &
 sleep 4
-$web https://www.instagram.com &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.instagram.com &
 sleep 4
-$web https://www.linkedin.com &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.linkedin.com &
 sleep 4
-$web https://www.pinterest.com &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.pinterest.com &
 sleep 4
-$web https://twitter.com &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://twitter.com &
 sleep 4
-$web https://www.youtube.com &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.youtube.com &
 sleep 4
-$web https://$domain &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://$domain &
 sleep 4
-$web $home/data/$domain/index.htm &
+XAUTHORITY=/root/.Xauthority firefox -new-tab $home/data/$domain/index.htm &
 
 echo
 echo
-

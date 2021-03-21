@@ -22,24 +22,23 @@ if [[ -z $lastName ]]; then
      f_error
 fi
 
-$web &
+XAUTHORITY=/root/.Xauthority firefox &
 sleep 2
-$web http://www.411.com/name/$firstName-$lastName/ &
+XAUTHORITY=/root/.Xauthority firefox -new-tab http://www.411.com/name/$firstName-$lastName/ &
 sleep 2
 uripath="http://www.advancedbackgroundchecks.com/search/results.aspx?type=&fn=${firstName}&mi=&ln=${lastName}&age=&city=&state="
-$web $uripath &
+XAUTHORITY=/root/.Xauthority firefox -new-tab $uripath &
 sleep 2
-$web https://www.linkedin.com/pub/dir/?first=$firstName\&last=$lastName\&search=Search &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.linkedin.com/pub/dir/?first=$firstName\&last=$lastName\&search=Search &
 sleep 2
-$web http://www.peekyou.com/$firstName%5f$lastName &
+XAUTHORITY=/root/.Xauthority firefox -new-tab http://www.peekyou.com/$firstName%5f$lastName &
 sleep 2
-$web http://phonenumbers.addresses.com/people/$firstName+$lastName &
+XAUTHORITY=/root/.Xauthority firefox -new-tab http://phonenumbers.addresses.com/people/$firstName+$lastName &
 sleep 2
-$web https://pipl.com/search/?q=$firstName+$lastName\&l=\&sloc=\&in=5 &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://pipl.com/search/?q=$firstName+$lastName\&l=\&sloc=\&in=5 &
 sleep 2
-$web http://www.spokeo.com/$firstName-$lastName &
+XAUTHORITY=/root/.Xauthority firefox -new-tab http://www.spokeo.com/$firstName-$lastName &
 sleep 2
-$web https://twitter.com/search?q=%22$firstName%20$lastName%22&src=typd &
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://twitter.com/search?q=%22$firstName%20$lastName%22&src=typd &
 sleep 2
-$web https://www.youtube.com/results?search_query=$firstName+$lastName &
-
+XAUTHORITY=/root/.Xauthority firefox -new-tab https://www.youtube.com/results?search_query=$firstName+$lastName &
