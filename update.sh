@@ -7,9 +7,9 @@ NC='\033[0m'
 
 ###############################################################################################################################
 
-#if [ -d /opt/shad0w/.git ]; then
-#     rm -rf /opt/shad0w/
-#fi
+if [ -d /opt/CrackMapExec/.git ]; then
+     rm -rf /opt/CrackMapExec/
+fi
 
 ###############################################################################################################################
 
@@ -109,19 +109,6 @@ else
      apt install -y apt-transport-https
      apt update
      apt install -y dotnet-sdk-3.1
-     echo
-fi
-
-if [ -d /opt/CrackMapExec/.git ]; then
-     echo -e "${BLUE}Updating CrackMapExec.${NC}"
-     cd /opt/CrackMapExec/ ; git pull
-     pip3 install -r requirements.txt -q
-     echo
-else
-     echo -e "${YELLOW}Installing CrackMapExec.${NC}"
-     git clone https://github.com/byt3bl33d3r/CrackMapExec.git /opt/CrackMapExec
-     cd /opt/CrackMapExec/
-     pip3 install -r requirements.txt
      echo
 fi
 
