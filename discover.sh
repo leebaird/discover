@@ -662,7 +662,7 @@ echo "7.  Rerun Nmap scripts and MSF aux"
 echo
 echo -e "${BLUE}WEB${NC}"
 echo "8.  Insecure direct object reference"
-echo "9. Open multiple tabs in Firefox"
+echo "9.  Open multiple tabs in Firefox"
 echo "10. Nikto"
 echo "11. SSL"
 echo
