@@ -238,6 +238,15 @@ else
      ./setup.sh
 fi
 
+if [ -d /opt/krbrelayx/.git ]; then
+     echo -e "${BLUE}Updating krbrelayx.${NC}"
+     cd /opt/krbrelayx/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing krbrelayx.${NC}"
+     git clone https://github.com/dirkjanm/krbrelayx.git /opt/krbrelayx
+fi
+
 if [ ! -f /usr/bin/xmllint ]; then
      echo -e "${YELLOW}Installing libxml2-utils.${NC}"
      apt-get install -y libxml2-utils
