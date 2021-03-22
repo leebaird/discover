@@ -245,6 +245,7 @@ if [ -d /opt/krbrelayx/.git ]; then
 else
      echo -e "${YELLOW}Installing krbrelayx.${NC}"
      git clone https://github.com/dirkjanm/krbrelayx.git /opt/krbrelayx
+     echo
 fi
 
 if [ ! -f /usr/bin/xmllint ]; then
