@@ -43,6 +43,7 @@ git clone https://github.com/dafthack/MailSniper.git C:\tools\MailSniper
 git clone https://github.com/decoder-it/juicy-potato.git C:\tools\juicy-potato
 git clone https://github.com/dirkjanm/adidnsdump.git C:\tools\adidnsdump
 git clone https://github.com/djhohnstein/SharpChrome.git C:\tools\SharpChrome
+git clone https://github.com/Flangvik/SharpCollection.git C:\tools\SharpCollection
 git clone https://github.com/FortyNorthSecurity/Egress-Assess.git C:\tools\Egress-Assess
 git clone https://github.com/FSecureLABS/SharpGPOAbuse.git C:\tools\SharpGPOAbuse
 git clone https://github.com/gentilkiwi/kekeo.git C:\tools\kekeo
