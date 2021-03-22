@@ -2,10 +2,10 @@ Cobalt Strike
 
 
 Remove old data
-    rm /opt/cobaltstrike/data/*.bin
+    Stop the team server and delete /opt/cobaltstrike/data/.
 
 Start the team server
-    cd /opt/cobaltstrike
+    cd /opt/cobaltstrike/
     ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons>
     The first 2 parameters are required.
 
@@ -14,7 +14,7 @@ Start the team server
 
 Login to the team server
     Right-click in the Terminal > Split Terminal Horizontally
-    cd /opt/cobaltstrike
+    cd /opt/cobaltstrike/
     ./cobaltstrike
     Host: 127.0.0.1
     Port: 50050
@@ -219,7 +219,7 @@ Controller domain: acme.org
 Controller IP: x.x.x.x
 
 ifconfig eth0 add x.x.x.x
-cd /opt/cobaltstrike
+cd /opt/cobaltstrike/
 rm data/*.bin
 ./teamserver 192.168.1.5 password /opt/cobaltstrike/third-party/profiles/APT/etumbot.profile
 
