@@ -58,12 +58,16 @@ nmap -Pn -n -T4 --open -p- -sC -sV -iL targets.txt
 
 # BloodHound
 
-cd /usr/bin
-./neo4j console
+neo4j console
+firefox http://localhost:7474 &
+Login with username and password: neo4j
+Set a new password
 
-firefox http://localhost:7474/ &
-username/password: neo4j
-Change the password
+- How to reset the default password for neo4j
+/usr/share/neo4j/bin/neo4j-admin set-initial-password neo4j
+firefox http://localhost:7474 &
+Login with username and password: neo4j
+Set a new password.
 
 cd /opt/BloodHound-v4/Collectors/
 python -m SimpleHTTPServer
