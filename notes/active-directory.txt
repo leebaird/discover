@@ -59,6 +59,7 @@ nmap -Pn -n -T4 --open -p- -sC -sV -iL targets.txt
 # BloodHound
 
 neo4j console
+Split the screen horizontally
 firefox http://localhost:7474 &
 Login with username and password: neo4j
 Set a new password
