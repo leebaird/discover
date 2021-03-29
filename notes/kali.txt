@@ -103,6 +103,8 @@ timedatectl set-timezone America/Chicago
 # Add API keys for recon-ng
 
 recon-ng
+marketplace refresh
+marketplace install all
 keys list
 keys add <key name> <API key>
 Or replace /root/.recon-ng/keys.db
