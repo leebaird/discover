@@ -46,11 +46,10 @@ echo >> tmp-updates
 
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
-recon-cli -M | grep 'recon' | egrep -v '(locations|vulnerabilities)' | sed 's/^[ \t]*//' > tmp
-egrep -iv '(abc|bing_ip|bing_linkedin|brute_hosts|brute_suffix|credentials-credentials|custom|dev_diver|github_commits|github_repos|github_users|ipinfo|ipstack|mailtester|mangle|migrate_contacts|migrate_hosts|netblocks|pwnedlist|scylla|ssl_scan|ssltools|twitter|virustotal)' tmp > tmp2
-cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'modules' | awk '{print $3}' | sort -u > tmp3
-diff tmp2 tmp3 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
-
+recon-cli -M | grep 'recon' | egrep -v '(\[|abc|bing|brute|censys|credentials-credentials|custom|dev_diver|github|google|hackertarget|hunter_io|ipinfo|ipstack|locations|mailtester|mangle|migrate|netblocks|netcraft|pwnedlist|scylla|shodan|spyse|ssl|threatcrowd|threatminer|twitter|virustotal|vulnerabilities)' | sed 's/^[ \t]*//' > tmp
+cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'modules' | awk '{print $3}' | sort -u > tmp2
+diff tmp tmp2 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
+exit
 echo >> tmp-updates
 echo >> tmp-updates
 

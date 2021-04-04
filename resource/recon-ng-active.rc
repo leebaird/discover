@@ -17,4 +17,3 @@ db query SELECT DISTINCT host,ip_address FROM ports WHERE host IS NOT NULL ORDER
 spool stop
 
 exit
-
