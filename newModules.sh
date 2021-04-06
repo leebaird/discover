@@ -46,10 +46,21 @@ echo >> tmp-updates
 
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
+
 recon-cli -M | grep 'recon' | egrep -v '(\[|abc|bing|brute|censys|credentials-credentials|custom|dev_diver|github|google|hackertarget|hunter_io|ipinfo|ipstack|locations|mailtester|mangle|migrate|netblocks|netcraft|pwnedlist|scylla|shodan|spyse|ssl|threatcrowd|threatminer|twitter|virustotal|vulnerabilities)' | sed 's/^[ \t]*//' > tmp
 cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'modules' | awk '{print $3}' | sort -u > tmp2
 diff tmp tmp2 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
-exit
+
+echo >> tmp-updates
+echo >> tmp-updates
+
+echo "theHarvester" >> tmp-updates
+echo "==============================" >> tmp-updates
+
+python3 /opt/theHarvester/theHarvester.py -h | sed -n '/baidu/,$p' | sed 's/^[ \t]*//' | tr ' ,' '\n' | sed '/^$/d' | grep -v 'bingapi' > tmp
+grep 'theHarvester.py' /opt/discover/passive.sh | awk '{print $6}' | sort -u > tmp2
+diff tmp tmp2 | grep '<' | awk '{print $2}' >> tmp-updates
+
 echo >> tmp-updates
 echo >> tmp-updates
 

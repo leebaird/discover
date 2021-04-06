@@ -222,6 +222,8 @@ echo "     bing                 (12/$total)"
 python3 theHarvester.py -d $domain -b bing | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing
 echo "     bufferoverun         (13/$total)"
 python3 theHarvester.py -d $domain -b bufferoverun | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbufferoverun
+echo "     censys               (11/$total)"
+python3 theHarvester.py -d $domain -b censys | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcensys
 echo "     certspotter          (14/$total)"
 python3 theHarvester.py -d $domain -b certspotter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcertspotter
 echo "     crtsh                (15/$total)"
