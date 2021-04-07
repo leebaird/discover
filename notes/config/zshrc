@@ -36,7 +36,7 @@ alias cs='
 # Remove old data
 # rm /opt/cobaltstrike/data/*.bin 2>/dev/null ;
 # Start the teamserver
-cd /opt/cobaltstrike/ ; ./teamserver 192.168.1.6 password &
+cd /opt/cobaltstrike/ ; ./teamserver $ip password &
 # Split Terminal horizontally
 xdotool key Ctrl+D
 sleep 5
@@ -45,3 +45,4 @@ cd /opt/cobaltstrike/ ; ./cobaltstrike'
 
 alias m='service postgresql start ; msfdb init ; msfconsole'
 alias pc='/opt/pycharm-community/bin/pycharm.sh'
+
