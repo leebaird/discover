@@ -784,7 +784,7 @@ echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${
 f_runlocally
 
 XAUTHORITY=/root/.Xauthority sudo firefox &
-XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://www.google.com/search?q=site=\&tbm=isch\&source=hp\&q=$companyurl%2Blogo &
+XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://www.google.com/search?q=$companyurl+logo &
 sleep 4
 XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://$companyurl.s3.amazonaws.com &
 sleep 4
@@ -802,7 +802,7 @@ XAUTHORITY=/root/.Xauthority sudo firefox -new-tab http://www.reuters.com/financ
 sleep 4
 XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://www.google.com/search?q=site:$domain+intext:username+intext:password+inurl:ftp &
 sleep 4
-XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://www.sec.gov/cgi-bin/browse-edgar?company=$companyurl\&owner=exclude\&action=getcompany &
+XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://secsearch.sec.gov/search/docs?affiliate=secsearch&query=$companyurl &
 sleep 4
 XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://www.google.com/search?q=site:$domain+intext:username+intext:password+-inurl:careers &
 sleep 4
@@ -825,8 +825,6 @@ sleep 4
 XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://www.youtube.com &
 sleep 4
 XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://$domain &
-sleep 4
-XAUTHORITY=/root/.Xauthority sudo firefox -new-tab $home/data/$domain/index.htm &
 sleep 4
 XAUTHORITY=/root/.Xauthority sudo firefox -new-tab $home/data/$domain/index.htm &
 
