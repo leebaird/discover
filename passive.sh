@@ -309,7 +309,7 @@ whois -H $domain > tmp 2>/dev/null
 # Remove leading whitespace
 sed 's/^[ \t]*//' tmp > tmp2
 # Clean up
-egrep -iv '(#|%|<a|=-=-=-=|;|access may|accuracy|additionally|afilias except|and dns hosting|and limitations|any use of|be sure|at the end|by submitting|by the terms|can easily|circumstances|clientdeleteprohibited|clienttransferprohibited|clientupdateprohibited|company may|compilation|complaint will|contact information|contact us|contacting|copy and paste|currently set|database|data contained|data presented|database|date of|details|dissemination|domaininfo ab|domain management|domain names in|domain status: ok|enable high|except as|existing|failure|facsimile|for commercial|for detailed|for information|for more|for the|get noticed|get a free|guarantee its|href|If you|in europe|in most|in obtaining|in the address|includes|including|information is|is not|is providing|its systems|learn|makes this|markmonitor|minimum|mining this|minute and|modify|must be sent|name cannot|namesbeyond|not to use|note:|notice|obtaining information about|of moniker|of this data|or hiding any|or otherwise support|other use of|please|policy|prior written|privacy is|problem reporting|professional and|prohibited without|promote your|protect the|public interest|queries or|receive|receiving|register your|registrars|registration record|relevant|repackaging|request|reserves the|responsible for|restricted to network|restrictions|see business|server at|solicitations|sponsorship|status|support questions|support the transmission|supporting|telephone, or facsimile|Temporary|that apply to|that you will|the right| The data is|The fact that|the transmission|this listing|this feature|this information|this service is|to collect or|to entities|to report any|to suppress|transmission of|trusted partner|united states|unlimited|unsolicited advertising|users may|version 6|via e-mail|visible|visit aboutus.org|visit|web-based|when you|while believed|will use this|with many different|with no guarantee|we reserve|whitelist|whois|you agree|You may not)' tmp2 > tmp3
+egrep -iv '(#|%|<a|=-=-=-=|;|access may|accuracy|additionally|afilias except|and dns hosting|and limitations|any use of|be sure|at the end|by submitting|by the terms|can easily|circumstances|clientdeleteprohibited|clienttransferprohibited|clientupdateprohibited|company may|compilation|complaint will|contact information|contact us|contacting|copy and paste|currently set|database|data contained|data presented|database|date of|details|dissemination|domaininfo ab|domain management|domain names in|domain status: ok|enable high|entirety|except as|existing|failure|facsimile|for commercial|for detailed|for information|for more|for the|get noticed|get a free|guarantee its|href|If you|in europe|in most|in obtaining|in the address|includes|including|information is|is not|is providing|its systems|learn|makes this|markmonitor|minimum|mining this|minute and|modify|must be sent|name cannot|namesbeyond|not to use|note:|notice|obtaining information about|of moniker|of this data|or hiding any|or otherwise support|other use of|please|policy|prior written|privacy is|problem reporting|professional and|prohibited without|promote your|protect the|public interest|queries or|receive|receiving|register your|registrars|registration record|relevant|repackaging|request|reserves the|responsible for|restricted to network|restrictions|see business|server at|solicitations|sponsorship|status|support questions|support the transmission|supporting|telephone, or facsimile|Temporary|that apply to|that you will|the right| The data is|The fact that|the transmission|this listing|this feature|this information|this service is|to collect or|to entities|to report any|to suppress|transmission of|trusted partner|united states|unlimited|unsolicited advertising|users may|version 6|via e-mail|visible|visit aboutus.org|visit|web-based|when you|while believed|will use this|with many different|with no guarantee|we reserve|whitelist|whois|you agree|You may not)' tmp2 > tmp3
 # Remove lines starting with "*"
 sed '/^*/d' tmp3 > tmp4
 # Remove lines starting with "-"
@@ -335,7 +335,7 @@ sed -i '/^Domain servers/{n; /.*/d}' tmp12
 # Remove blank lines from end of file
 awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp12 > tmp13
 # Format output
-sed 's/: /:#####/g' tmp13 | column -s '#' -t -n > whois-domain
+sed 's/: /:#####/g' tmp13 | column -s '#' -t > whois-domain
 
 ###############################################################################################################################
 
@@ -540,7 +540,7 @@ recon-ng -r $CWD/passive.rc
 
 grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|query|SELECT)' | sort -u > emails-final
 
-sed '1,4d' /tmp/names | head -n -5 | grep -v 'last_name' |  sort -u > names-final
+sed '1,4d' /tmp/names | head -n -5 | egrep -v '(last_name|substring)' | sort -u > names-final
 
 grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > tmp
 cat tmp networks | sort -u | $sip > networks-final
@@ -555,7 +555,7 @@ cat tmp tmp2 | sort -u | $sip > hosts
 ###############################################################################################################################
 
 if [ -e networks-final ]; then
-     cat networks-final > tmp
+     cat networks-final > tmp 2>/dev/null
      echo >> tmp
 fi
 
@@ -610,7 +610,7 @@ if [ -s networks-final ]; then
      echo "Networks             $networkcount" >> zreport
      echo "Networks ($networkcount)" >> tmp
      echo $short >> tmp
-     cat networks-final >> tmp
+     cat networks-final >> tmp 2>/dev/null
      echo >> tmp
 fi
 
@@ -767,7 +767,7 @@ echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
 
 rm tmp* zreport
 mv asn curl debug* dnstwist email* hosts name* network* raw records registered* squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
-mv passive.rc passive2.rc $home/data/$domain/tools/recon-ng/
+mv passive.rc passive2.rc $home/data/$domain/tools/recon-ng/ 2>/dev/null
 cd /tmp/; mv emails names* networks sub* tmp-emails $home/data/$domain/tools/recon-ng/ 2>/dev/null
 cd $CWD
 

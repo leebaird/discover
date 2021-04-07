@@ -55,11 +55,6 @@ run
 db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
 db query DELETE FROM hosts WHERE host LIKE '%www%'
 
-modules load recon/domains-hosts/findsubdomains
-run
-
-db query DELETE FROM ports WHERE host LIKE '%www%'
-
 modules load recon/domains-hosts/ssl_san
 run
 modules load recon/hosts-ports/binaryedge
