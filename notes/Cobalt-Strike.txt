@@ -1,5 +1,13 @@
 Cobalt Strike
 
+# Opsec
+
+/sbin/iptables -I INPUT 1 -p tcp -s 0.0.0.0/0 --dport 50050 -j DROP
+/sbin/iptables -I INPUT 1 -p tcp -s 127.0.0.1 --dport 50050 -j ACCEPT
+
+ssh user@teamserver -L 50050:127.0.0.1:50050
+Start the client, set the host to 127.0.0.1
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Remove old data
     Stop the team server and delete /opt/cobaltstrike/data/.
