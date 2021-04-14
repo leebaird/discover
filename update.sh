@@ -55,6 +55,10 @@ else
 fi
 
 if [ -d /opt/cobaltstrike ]; then
+     echo -e "${BLUE}Updating Cobalt Strike.${NC}"
+     cd /opt/cobaltstrike ; ./update
+     echo
+
      if [ -d /opt/cobaltstrike/third-party/chryzsh-scripts/.git ]; then
           echo -e "${BLUE}Updating Cobalt Strike aggressor scripts - chryzsh.${NC}"
           cd /opt/cobaltstrike/third-party/chryzsh-scripts/ ; git pull
