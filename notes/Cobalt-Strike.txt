@@ -9,27 +9,32 @@ ssh user@teamserver -L 50050:127.0.0.1:50050
 Start the client, set the host to 127.0.0.1
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Remove old data
-    Stop the team server and delete /opt/cobaltstrike/data/.
+Install or update
+    cd /opt/cobaltstrike/
+    ./update
 
 Start the team server
-    cd /opt/cobaltstrike/
+    There are 2 mandotory parameters and 2 optional parameters. The first 2 parameters are required.
     ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons>
-    The first 2 parameters are required.
 
-    ./teamserver 192.168.1.5 password /opt/cobaltstrike/third-party/profiles/APT/etumbot.profile
-    Copy the SHA256 hash and send to other members on your team.
+    ./teamserver 192.168.1.5 password /opt/cobaltstrike/third-party/profiles/APT/etumbot.profile 2021-12-31
+
+    When the team server starts, it will display the SHA256 hash of the SSL cert. Send this hash to your team members.
 
 Login to the team server
     Right-click in the Terminal > Split Terminal Horizontally
     cd /opt/cobaltstrike/
     ./cobaltstrike
-    Host: 127.0.0.1
+    Host: <127.0.0.1 if running locally or IP of remote team server>
     Port: 50050
-    User: <your first name>
+    User: <your nickname>
     Password: <password you entered above>
     Connect
-    VerifyFingerprint (compare with the SHA256 hash) > Yes
+    VerifyFingerprint (SHA256 hash) > Yes
+
+Remove old data as needed
+    Stop the team server
+    rm -rf /opt/cobaltstrike/data/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # HTTP Redirector
