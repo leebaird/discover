@@ -259,43 +259,52 @@ Ampersand           &foo
 
 # Example Assessment
 
+- Set variables
+url=target.com
+ip=10.0.0.10
+
 - Initial recon
-ping target.com
-whois <IP>
-whois target.com
-dig target.com
+ping -c3 $url
+dig $url
+host $ip
+host $url
+whois $ip
+whois $url
+https://builtwith.com
+shodan domain $url
+shodan host $ip
 
 - Service enumeration
-nmap -Pn -n -T4 --open -p- -A target.com
-nmap -Pn -n -T4 --open -sU -sV target.com
-wafw00f https://www.target.com
-whatweb https://target.com
+nmap -Pn -n -T4 --open -p- -A $url
+nmap -Pn -n -T4 --open -sU -sV $url
+wafw00f https://$url
+whatweb https://$url
 
 - SSL/TLS enumeration
-sslscan https://target.com
-sslyze https://target.com
+https://ssllabs.com/ssltest/
+sslscan https://$url
 
 - Default configurations and files
-nikto -h https://target.com -port 443 -Format htm --output target.htm
+nikto -h https://$url -Format htm --output nikto.htm
 
 - Application specific enumeration
-davtest -url https://target.com
-droopescan scan drupal -u https://target.com
+davtest -url https://$url
+droopescan scan drupal -u https://$url
 ftp <target IP>
      wget --mirror ftp://<user:password>@<target IP>
-joomscan -u https://target.com
-uniscan -u https://www.target.com -qweds
-wpscan --url https://target.com --enumerate vp,vt,cb,u,m
+joomscan -u https://$url
+uniscan -u https://www.$url -qweds
+wpscan --url https:/$url --enumerate vp,vt,cb,u,m
 
 - Bruteforce directories
 Create a custom wordlist
-cewl https://target.com/ > dict.txt
+cewl --lowercase -e --email_file emails.txt -w dict.txt https://$url
 
-gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/raft-small-directories.txt --wildcard > small.txt
+gobuster dir -u https://$url -w /opt/SecLists/Discovery/Web-Content/raft-small-directories.txt --wildcard > small.txt
 cat small.txt | grep -v 403 | grep Status
 
-gobuster dir -u https://target.com -w /opt/SecLists/Discovery/Web-Content/CMS/sharepoint.txt --wildcard > share.txt
-cat share.txt | grep -v 403 | grep Status
+gobuster dir -u https://$url -w /opt/SecLists/Discovery/Web-Content/CMS/sharepoint.txt --wildcard > share.txt
+sort -u share.txt | grep Status | egrep -v '(302|404)'
 
 If the webiste used PHP, use -x php
 ------------------------------------------------------------------------------------------------------------------------------------------------------
