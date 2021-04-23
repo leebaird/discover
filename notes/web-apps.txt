@@ -296,7 +296,7 @@ joomscan -u https://$url
 uniscan -u https://www.$url -qweds
 wpscan --url https:/$url --enumerate vp,vt,cb,u,m
 
-- Bruteforce directories
+- Brute force directories
 Create a custom wordlist
 cewl --lowercase -e --email_file emails.txt -w dict.txt https://$url
 
@@ -306,7 +306,7 @@ cat small.txt | grep -v 403 | grep Status
 gobuster dir -u https://$url -w /opt/SecLists/Discovery/Web-Content/CMS/sharepoint.txt --wildcard > share.txt
 sort -u share.txt | grep Status | egrep -v '(302|404)'
 
-If the webiste used PHP, use -x php
+If the website uses PHP, add -x php
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Setup Burp Suite Pro
