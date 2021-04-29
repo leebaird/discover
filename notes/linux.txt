@@ -337,10 +337,10 @@ sysctl net.ipv4.ip_forward=1
 
 # Remote Desktop
 
-rdesktop -u <username> -p <password> -g 1440×900 192.168.0.10
-rdesktop -u <username> -p <password> -g 85% 192.168.0.10
+rdesktop -u <username> -p <password> -g 1920×1080 10.0.0.10
+rdesktop -u <username> -p <password> -g 85% 10.0.0.10
 
-xfreerdp /u:"domain\username" /p:"password" /v:192.168.0.10
+xfreerdp /drive:share,/tmp /clipboard /v:10.0.0.10 /port:3389 /u:admin /p:password /size:1920x1080
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Reverse shells
