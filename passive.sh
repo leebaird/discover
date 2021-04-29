@@ -153,7 +153,7 @@ echo
 echo "DNSRecon                  (5/$total)"
 cd /opt/DNSRecon/
 python3 dnsrecon.py -d $domain -n 8.8.8.8 -t std > tmp
-cat tmp | egrep -v '(Could not|DNSSEC|Error|Performing|Records|Recursion|TXT|Version)' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort > records
+cat tmp | egrep -v '(All queries will|Could not|DNSSEC|Error|It is resolving|Performing|Records|Recursion|TXT|Version|Wildcard resolution)' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort > records
 cat tmp | grep 'TXT' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort >> records
 
 cat records >> $home/data/$domain/data/records.htm
