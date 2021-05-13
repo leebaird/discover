@@ -34,8 +34,6 @@ if [ ! -e /usr/bin/amass ]; then
      echo
 fi
 
-
-
 if [ -d /opt/BloodHound-v4/.git ]; then
      echo -e "${BLUE}Updating BloodHound.${NC}"
      cd /opt/BloodHound-v4/ ; git pull
@@ -79,16 +77,6 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      fi
 
-     if [ -d /opt/cobaltstrike/third-party/profiles/.git ]; then
-          echo -e "${BLUE}Updating Cobalt Strike profiles.${NC}"
-          cd /opt/cobaltstrike/third-party/profiles/ ; git pull
-          echo
-     else
-          echo -e "${YELLOW}Installing Cobalt Strike profiles.${NC}"
-          git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/cobaltstrike/third-party/profiles
-          echo
-     fi
-
      if [ -d /opt/cobaltstrike/third-party/taowu-scripts/.git ]; then
           echo -e "${BLUE}Updating Cobalt Strike aggressor scripts - taowu.${NC}"
           cd /opt/cobaltstrike/third-party/taowu-scripts/ ; git pull
@@ -96,6 +84,26 @@ if [ -d /opt/cobaltstrike ]; then
      else
           echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - taowu.${NC}"
           git clone https://github.com/pandasec888/taowu-cobalt-strike.git /opt/cobaltstrike/third-party/taowu-scripts
+          echo
+     fi
+
+     if [ -d /opt/cobaltstrike/third-party/trustedsec-bof/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike BOF - trustedsec.${NC}"
+          cd /opt/cobaltstrike/third-party/trustedsec-bof/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing Cobalt Strike BOF - trustedsec.${NC}"
+          git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF.git /opt/cobaltstrike/third-party/trustedsec-bof
+          echo
+     fi
+
+     if [ -d /opt/cobaltstrike/third-party/profiles/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike profiles.${NC}"
+          cd /opt/cobaltstrike/third-party/profiles/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing Cobalt Strike profiles.${NC}"
+          git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/cobaltstrike/third-party/profiles
           echo
      fi
 fi
