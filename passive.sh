@@ -340,34 +340,19 @@ sed 's/: /:#####/g' tmp13 | column -s '#' -t > whois-domain
 ###############################################################################################################################
 
 echo "     IP                   (46/$total)"
-curl -s https://www.ultratools.com/tools/ipWhoisLookupResult?ipAddress=$domain > ultratools
-y=$(sed -e 's/^[ \t]*//' ultratools | grep -A1 '>IP Address' | grep -v 'IP Address' | grep -o -P '(?<=>).*(?=<)')
-
-if ! [ "$y" = "" ]; then
-     whois -H $y > tmp
-     # Remove leading whitespace
-     sed 's/^[ \t]*//' tmp > tmp2
-     # Remove trailing whitespace from each line
-     sed 's/[ \t]*$//' tmp2 > tmp3
-     # Clean up
-     egrep -v '(\#|\%|\*|All reports|Comment|dynamic hosting|For fastest|For more|Found a referral|http|OriginAS:$|Parent:$|point in|RegDate:$|remarks:|The activity|the correct|this kind of object|Without these)' tmp3 > tmp4
-     # Remove leading whitespace from file
-     awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp4 > tmp5
-     # Remove blank lines from end of file
-     awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp5 > tmp6
-     # Compress blank lines
-     cat -s tmp6 > tmp7
-     # Clean up
-     sed 's/+1-//g' tmp7 > tmp8
-     # Change multiple spaces to single
-     sed 's/ \+ / /g' tmp8 > tmp9
-     # Format output
-     sed 's/: /:#####/g' tmp9 | column -t -s '#' -n > whois-ip
-else
-     echo > whois-ip
-fi
-
-rm ultratools 2>/dev/null
+ip=`ping -c1 $domain | grep PING | cut -d '(' -f2 | cut -d ')' -f1`
+whois $ip > tmp
+egrep -v '(\#|\%|\*|All reports|Comment|dynamic hosting|For fastest|For more|Found a referral|http|OriginAS:$|Parent:$|point in|RegDate:$|remarks:|The activity|the correct|this kind of object|Without these)' tmp > tmp2
+# Remove leading whitespace from file
+awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp2 > tmp3
+# Remove blank lines from end of file
+awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp3 > tmp4
+# Compress blank lines
+cat -s tmp4 > tmp5
+# Clean up
+sed 's/+1-//g' tmp5 > whois-ip
+echo > whois-ip
+rm tmp*
 echo
 
 ###############################################################################################################################
