@@ -7,8 +7,10 @@ NC='\033[0m'
 
 ###############################################################################################################################
 
-if [ -d /opt/CrackMapExec/.git ]; then
-     rm -rf /opt/CrackMapExec/
+# Clean up
+
+if [ -d /opt/cobaltstrike/third-party/profiles/.git ]; then
+     rm -rf /opt/cobaltstrike/third-party/profiles/
 fi
 
 ###############################################################################################################################
@@ -97,13 +99,23 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      fi
 
-     if [ -d /opt/cobaltstrike/third-party/profiles/.git ]; then
-          echo -e "${BLUE}Updating Cobalt Strike profiles.${NC}"
-          cd /opt/cobaltstrike/third-party/profiles/ ; git pull
+     if [ -d /opt/cobaltstrike/elevatekit/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike ElevateKit.${NC}"
+          cd /opt/cobaltstrike/elevatekit/ ; git pull
           echo
      else
-          echo -e "${YELLOW}Installing Cobalt Strike profiles.${NC}"
-          git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/cobaltstrike/third-party/profiles
+          echo -e "${YELLOW}Installing Cobalt Strike ElevateKit.${NC}"
+          git clone https://github.com/rsmudge/ElevateKit.git /opt/cobaltstrike/elevatekit
+          echo
+     fi
+
+     if [ -d /opt/cobaltstrike/malleable-c2-profiles/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike Malleable C2 profiles.${NC}"
+          cd /opt/cobaltstrike/malleable-c2-profiles/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing Cobalt Strike Malleable C2 profiles.${NC}"
+          git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/cobaltstrike/malleable-c2-profiles
           echo
      fi
 fi
