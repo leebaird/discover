@@ -7,6 +7,12 @@ echo "lee:password123#" | base64                Encode
 echo "bGVlOnBhc3N3b3JkMTIzIwo=" | base64 -d     Decode
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Boot time
+
+update-rc.d <service> enable                    Enable a service at boot time
+update-rc.d <service> disable                   Disable a service at boot time
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Compile
 
 gcc test.c -o test                              Compile test
@@ -73,6 +79,9 @@ docker pull raesene/bwapp
 docker run -d -p 8080:80 raesene/bwapp
 firefox localhost:8080 &
 Default creds bee:bug
+
+systemctl disable docker.service                Disable Docker at boot time
+systemctl disable docker.socket
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Download Files
@@ -443,7 +452,7 @@ smbpasswd -a lee                                Add a user and set the password 
 
 ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519 -C "john@example.com"
                                                 Create new keys
-update-rc.d ssh enable                          Enable ssh to start at boot time
+update-rc.d ssh enable                          Enable ssh at boot time
 
 - Permissions
 -rw-------  authorized_keys
