@@ -3,7 +3,7 @@
 
 dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
 extip=$(curl -s http://ip-api.com/ | grep 'query' | cut -d '"' -f4)
-ip=$(ifconfig | grep 'broadcast' | awk '{print $2}')
+ip=$(ifconfig | grep 'broadcast' | grep -v 'docker' | awk '{print $2}')
 mac=$(ifconfig | grep 'ether' | awk '{print $2}')
 
 alias c='clear'

