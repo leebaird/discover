@@ -9,8 +9,8 @@ NC='\033[0m'
 
 # Clean up
 
-if [ -d /opt/cobaltstrike/third-party/profiles/.git ]; then
-     rm -rf /opt/cobaltstrike/third-party/profiles/
+if [ -d /opt/Covenant/.git ]; then
+     rm -rf /opt/Covenant/
 fi
 
 ###############################################################################################################################
@@ -118,22 +118,16 @@ if [ -d /opt/cobaltstrike ]; then
           git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/cobaltstrike/malleable-c2-profiles
           echo
      fi
-fi
 
-if [ -d /opt/Covenant/.git ]; then
-     echo -e "${BLUE}Updating Covenant.${NC}"
-     cd /opt/Covenant/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing Covenant.${NC}"
-     git clone --recurse-submodules https://github.com/cobbr/Covenant /opt/Covenant
-     wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-     dpkg -i packages-microsoft-prod.deb
-     apt update
-     apt install -y apt-transport-https
-     apt update
-     apt install -y dotnet-sdk-3.1
-     echo
+     if [ -d /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike misc - bluescreenofjeff.${NC}"
+          cd /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing Cobalt Strike misc - bluescreenofjeff.${NC}"
+          git clone https://github.com/bluscreenofjeff/Malleable-C2-Randomizer.git /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer
+          echo
+     fi
 fi
 
 if [ -d /opt/discover/.git ]; then
