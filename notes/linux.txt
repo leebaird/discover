@@ -217,6 +217,8 @@ iface eth0 inet static
     gateway 192.168.1.1
 
 systemctl restart networking.service            Restart networking
+
+curl ifconfig.me                                Show external IP when NAT-ed
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
@@ -398,31 +400,32 @@ Allows session sharing where tmux does not.
 
 screen -ls                                      List sessions
 screen -S test                                  Start a new session named test
-ctrl+a d                                        Detach from the session
+screen -d -m -S test                            Start a new session in detached mode named test
+
+ctrl+a d                                        Detach from the current session
 screen -r                                       Attach to the current session
 screen -r <PID or name>                         Attach to a specific session
-
-screen -d -m -S share                           Start a new session named share, detach and enforce creation
-screen -x share                                 Attach to a multiscreen mode session named 'share'
-User 2: screen -x share                         A second user attaches to the session, now both users can see the same thing on the screen
+screen -x test                                  Attach to a session called 'test'
+User 2: screen -x test                          A second user attaches to the same session, now both users can see the same thing on the screen
 
 screen -X -S <PID or name> quit                 Kill a specific session
 exit                                            Exit the session
 
+-t title
+
 ctrl+a "                                        List windows
 ctrl+a c                                        Create a new window
-ctrl+a A                                        Rename the current window
+ctrl+a shift+a                                  Rename the current window
 ctrl+a 2                                        Switch to window 2 (by number)
-ctrl+n                                          Switch to the next window
-ctrl+p                                          Switch to the previous window
+ctrl+a n                                        Switch to the next window
+ctrl+a p                                        Switch to the previous window
 
 ctrl+a |                                        Split current region horizontally
-ctrl+a S                                        Split current region vertically
+ctrl+a shift+s                                  Split current region vertically
 ctrl+a tab                                      Switch to the next region
-ctrl+a c                                        Start a new session
 
-ctrl+a Q                                        Close all regions but the current one
-ctrl+a X                                        Close the current region
+ctrl+a shift+q                                  Close all regions but the current one
+ctrl+a shift+x                                  Close the current region
 
 ctrl+a esc                                      Use the up and down arrows or mouse to scroll
 esc                                             Exit scrollback mode
