@@ -37,6 +37,24 @@ Login to the team server
     VerifyFingerprint (SHA256 hash) > Yes
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Valid SSL Certificate for Beacon 
+
+Create a Java Keystore file. Use the fully qualified domain name to your Beacon server.
+keytool -genkey -keyalg RSA -keysize 2048 -keystore domain.store
+
+Generate a Certificate Signing Request (CSR). Submit this file to your SSL certificate vendor. 
+They will verify that you are who you are and issue a certificate.
+keytool -certreq -keyalg RSA -file domain.csr -keystore domain.store
+
+Import the Root and any Intermediate Certificates that your SSL vendor provides.
+keytool -import -trustcacerts -alias FILE -file FILE.crt -keystore domain.store
+
+Install your Domain Certificate.
+keytool -import -trustcacerts -alias mykey -file domain.crt -keystore domain.store
+ 
+Cobalt Strike expects to find the Java Keystore file in the same folder as your Malleable C2 profile.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Redirectors
 
 Create 3 free Ubuntu instances in AWS. These instances will be used for the following:
