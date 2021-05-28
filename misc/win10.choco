@@ -42,6 +42,7 @@ git clone https://github.com/CCob/SharpBlock.git C:\tools\SharpBlock
 git clone https://github.com/cyberark/ACLight.git C:\tools\ACLight
 git clone https://github.com/dafthack/MailSniper.git C:\tools\MailSniper
 git clone https://github.com/decoder-it/juicy-potato.git C:\tools\juicy-potato
+git clone https://github.com/dev-2null/ADCollector C:\tools\ADCollector
 git clone https://github.com/dirkjanm/adidnsdump.git C:\tools\adidnsdump
 git clone https://github.com/djhohnstein/SharpChrome.git C:\tools\SharpChrome
 git clone https://github.com/Flangvik/SharpCollection.git C:\tools\SharpCollection
