@@ -351,7 +351,8 @@ sysctl net.ipv4.ip_forward=1
 rdesktop -u <username> -p <password> -g 1920×1080 10.0.0.10
 rdesktop -u <username> -p <password> -g 85% 10.0.0.10
 
-xfreerdp /drive:share,/tmp /clipboard /v:10.0.0.10 /port:3389 /u:admin /p:password /size:1920x1080
+If Network Level Authentication is enabled:
+xfreerdp /u:admin /p:password /v:10.0.0.10 </clipboard /drive:share,/tmp /port:3390 /size:1920x1080>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Reverse shells

