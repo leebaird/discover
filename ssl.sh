@@ -14,7 +14,7 @@ echo
 echo $medium
 echo
 echo "Running sslyze."
-sslyze --targets_in=$location --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --hide_rejected_ciphers --openssl_ccs > tmp
+sslyze --targets_in=$location --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --openssl_ccs > tmp
 # Remove the first 20 lines and cleanup
 sed '1,20d' tmp | egrep -v '(=>|error:|ERROR|is trusted|NOT SUPPORTED|OK - Supported|OpenSSLError|Server rejected|timeout|unexpected error)' |
 # Find FOO, if the next line is blank, delete both lines
