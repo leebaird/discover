@@ -69,6 +69,16 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      fi
 
+     if [ -d /opt/cobaltstrike/third-party/josephkingstone-scripts/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike aggressor scripts - josephkingstone.${NC}"
+          cd /opt/cobaltstrike/third-party/josephkingstone-scripts/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - josephkingstone.${NC}"
+          git clone https://github.com/josephkingstone/cobalt_strike_extension_kit.git /opt/cobaltstrike/third-party/josephkingstone-scripts
+          echo
+     fi
+
      if [ -d /opt/cobaltstrike/third-party/mgeeky-scripts/.git ]; then
           echo -e "${BLUE}Updating Cobalt Strike aggressor scripts - mgeeky.${NC}"
           cd /opt/cobaltstrike/third-party/mgeeky-scripts/ ; git pull
