@@ -56,6 +56,7 @@ git clone https://github.com/HarmJ0y/DAMP.git C:\tools\DAMP
 git clone https://github.com/hfiref0x/UACME.git C:\tools\UACME
 git clone https://github.com/itm4n/FullPowers.git C:\tools\FullPowers
 git clone https://github.com/itm4n/PrintSpoofer.git C:\tools\PrintSpoofer
+git clone https://github.com/josephkingstone/cobalt_strike_extension_kit.git C:\toools\josephkingstone
 git clone https://github.com/leechristensen/SpoolSample.git C:\tools\SpoolSample
 git clone https://github.com/NetSPI/PowerUpSQL.git C:\tools\PowerUpSQL
 git clone https://github.com/nidem/kerberoast.git C:\tools\kerberoast

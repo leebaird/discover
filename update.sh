@@ -13,6 +13,10 @@ if [ -d /opt/Covenant/.git ]; then
      rm -rf /opt/Covenant/
 fi
 
+if [ -d /opt/cobaltstrike/third-party/josephkingstone-scripts/.git ]; then
+     rm -rf /opt/cobaltstrike/third-party/josephkingstone-scripts/
+fi
+
 ###############################################################################################################################
 
 clear
@@ -66,16 +70,6 @@ if [ -d /opt/cobaltstrike ]; then
      else
           echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - chryzsh.${NC}"
           git clone https://github.com/chryzsh/Aggressor-Scripts.git /opt/cobaltstrike/third-party/chryzsh-scripts
-          echo
-     fi
-
-     if [ -d /opt/cobaltstrike/third-party/josephkingstone-scripts/.git ]; then
-          echo -e "${BLUE}Updating Cobalt Strike aggressor scripts - josephkingstone.${NC}"
-          cd /opt/cobaltstrike/third-party/josephkingstone-scripts/ ; git pull
-          echo
-     else
-          echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - josephkingstone.${NC}"
-          git clone https://github.com/josephkingstone/cobalt_strike_extension_kit.git /opt/cobaltstrike/third-party/josephkingstone-scripts
           echo
      fi
 
