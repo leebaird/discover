@@ -132,6 +132,25 @@ if [ -d /opt/cobaltstrike ]; then
           git clone https://github.com/bluscreenofjeff/Malleable-C2-Randomizer.git /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer
           echo
      fi
+
+     if [ -d /opt/cobaltstrike/third-party/DidierStevens-DNS-stager/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike misc - DidierStevens.${NC}"
+          cd /opt/cobaltstrike/third-party/DidierStevens-DNS-stager/ ; git pull
+          mv cs-dns-stager.py cs-dns-stager.tmp
+          rm *.def *.md *.py *.txt *.yaml 2>/dev/null
+          mv cs-dns-stager.tmp cs-dns-stager.py
+          chmod 755 cs-dns-stager.py
+          echo
+     else
+          echo -e "${YELLOW}Installing Cobalt Strike misc - DidierStevens.${NC}"
+          git clone https://github.com/DidierStevens/Beta.git /opt/cobaltstrike/third-party/DidierStevens-DNS-stager
+          cd /opt/cobaltstrike/third-party/DidierStevens-DNS-stager/
+          mv cs-dns-stager.py cs-dns-stager.tmp
+          rm *.def *.md *.py *.txt *.yaml 2>/dev/null
+          mv cs-dns-stager.tmp cs-dns-stager.py
+          chmod 755 cs-dns-stager.py
+          echo
+     fi
 fi
 
 if [ -d /opt/discover/.git ]; then
