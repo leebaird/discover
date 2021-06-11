@@ -1,0 +1,7 @@
+setg RHOSTS file:
+setg THREADS 255
+setg RPORT 4786
+
+use auxiliary/scanner/misc/cisco_smart_install
+run
+

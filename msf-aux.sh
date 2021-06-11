@@ -285,6 +285,12 @@ if [[ -e $name/3500.txt ]]; then
      cat /tmp/resource/3500-emc.rc >> /tmp/master
 fi
 
+if [[ -e $name/4786.txt ]]; then
+     echo "     Cisco Smart Install"
+     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/4786.txt|g" /tmp/resource/4786-cisco-smart-install.rc
+     cat /tmp/resource/4786-cisco-smart-install.rc >> /tmp/master
+fi
+
 if [[ -e $name/4800.txt ]]; then
      echo "     Moxa"
      sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/4800.txt|g" /tmp/resource/4800-udp-moxa.rc
