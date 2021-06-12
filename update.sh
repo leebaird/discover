@@ -337,6 +337,16 @@ else
      echo
 fi
 
+if [ -d /opt/SharpCollection/.git ]; then
+     echo -e "${BLUE}Updating SharpCollection.${NC}"
+     cd /opt/SharpCollection/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing SharpCollection.${NC}"
+     git clone https://github.com/Flangvik/SharpCollection /opt/SharpCollection
+     echo
+fi
+
 if [ -d /opt/SharpShooter/.git ]; then
      echo -e "${BLUE}Updating SharpShooter.${NC}"
      cd /opt/SharpShooter/ ; git pull
