@@ -77,13 +77,22 @@ Add
 Name: HTTP
 Payload: Beacon HTTP
 HTTP Hosts: click + <Redirector2 IP>
+HTTP Host (Stager): <Redirector2 IP>
+HTTP Port (C2): 80
 OK > Save > OK
 
 Add
 Name: HTTPS
 Payload: Beacon HTTPS
 HTTPS Hosts: click + <Redirector3 IP>
+HTTP Host (Stager): <Redirector3 IP>
+HTTP Port (C2): 443
 OK > Save > OK
+
+Add
+Name: SMB
+Payload: Beacon SMB
+Save > OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Launch an attack to gain a foothold.
