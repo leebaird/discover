@@ -454,8 +454,14 @@ smbpasswd -a lee                                Add a user and set the password 
 
 # SSH
 
-ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519 -C "john@example.com"
-                                                Create new keys
+ssh-keygen                                      Create new keys
+
+- Configure a non-standard port
+vi  /etc/ssh/sshd_config
+#Port 22                                        Uncomment and change the port number
+
+- Service
+systemctl start ssh                             Start ssh service
 update-rc.d ssh enable                          Enable ssh at boot time
 
 - Permissions
@@ -639,23 +645,13 @@ last                                            Last 10 users logged on
 cat /etc/passwd                                 User accounts
 cat /etc/shadow                                 Encrypted passwords
 
-passwd                                          Change root password
+passwd                                          Change the current user's password
 passwd <user>                                   Change another user's password
 
-su                                              Substitute user
-
-useradd <user>                                  Add new user
-userdel <user>                                  Delete user
-userdel -r <user>                               Delete user and user's home directory
-usermod <user>                                  Modify user
-
-cat /etc/group                                  Groups
-groupadd <group>                                Add new group
-groupdel <group>                                Delete group
-groupmod <group>                                Modify group
+su                                              Switch to another user
 
 - New user setup
-useradd -m lee                                  Add a new user, create home directory and set default shell
+useradd -m lee                                  Add new user, create home directory and set default shell
 passwd lee                                      Set a password
 usermod -aG sudo lee                            Add new user to the sudo group. Use wheel for CentOS.
 su - lee                                        Switch to new user
@@ -663,6 +659,14 @@ ssh-keygen
 cd .ssh/
 vi authorized_keys                              Add your ssh key
 chmod 600 authorized_keys                       Set permissions
+
+userdel <user>                                  Delete user
+userdel -r <user>                               Delete user and user's home directory
+
+cat /etc/group                                  Groups
+groupadd <group>                                Add new group
+groupdel <group>                                Delete group
+groupmod <group>                                Modify group
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Video resolution
