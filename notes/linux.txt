@@ -229,6 +229,7 @@ curl ifconfig.me                                Show external IP when NAT-ed
 enum4linux -a <target IP>                       wget https://raw.githubusercontent.com/portcullislabs/enum4linux/master/enum4linux.pl
 linenum.sh                                      wget https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh
 linuxprivchecker.py                             wget https://raw.githubusercontent.com/sleventyeleven/linuxprivchecker/master/linuxprivchecker.py
+lse.sh                                          wget https://github.com/diego-treitos/linux-smart-enumeration/raw/master/lse.sh
 lynis audit system                              wget https://downloads.cisofy.com/lynis/lynis-2.7.5.tar.gz
 
 - sudoers
