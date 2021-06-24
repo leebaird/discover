@@ -201,20 +201,22 @@ nameserver 192.168.1.1
 ifconfig                                        IP addresses to all network interfaces
 ifconfig eth0 down                              Bring interface down
 ifconfig eth0 up                                Bring interface up
-ifconfig eth0 <IP> netmask <IP>                 Set IP and netmask
-route add default gw <IP>                       Set gateway
+ifconfig eth0 <IP> netmask <mask>               Set IP and netmask
+route add default gw <IP> eth0                  Set gateway
 
 ip addr                                         IP addresses to all network interfaces
 ip addr flush <interface>
 ip link set <interface> down                    Bring interface down
 ip link set <interface> up                      Bring interface up
-ip route                                        Show table routes
 
-/etc/network/interfaces                         Set a static IP address
+- Static IP address
+route                                           Note the gateway IP address, could be a 1 or 2
+
+/etc/network/interfaces
 auto eth0
 iface eth0 inet static
     address 192.168.1.5/24
-    gateway 192.168.1.1
+    gateway 192.168.1.x                         Make sure to set the correct IP from the route command above
 
 systemctl restart networking.service            Restart networking
 
