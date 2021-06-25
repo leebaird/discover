@@ -226,10 +226,14 @@ curl ifconfig.me                                Show external IP when NAT-ed
 # Privilege Escalation
 
 - Enumeration
+netstat -antp                                              Show ports that are listening
+arp -e
 cat /etc/issue                                             OS info
+cat /proc/version                                          OS name
 uname -a                                                   Kernel info
 uname -r                                                   Kernel version
 arch                                                       Architecture
+cat /etc/sysconfig/network                                 Hostname and domain name
 
 - Search for exploits
 searchsploit linux kernel ubuntu 16.04
