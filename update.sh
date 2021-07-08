@@ -9,12 +9,8 @@ NC='\033[0m'
 
 # Clean up
 
-if [ -d /opt/Covenant/.git ]; then
-     rm -rf /opt/Covenant/
-fi
-
-if [ -d /opt/cobaltstrike/third-party/josephkingstone-scripts/.git ]; then
-     rm -rf /opt/cobaltstrike/third-party/josephkingstone-scripts/
+if [ -f /opt/cobaltstrike/malleable-c2-profiles/packages-microsoft-prod.deb ]; then
+     rm -rf /opt/cobaltstrike/malleable-c2-profiles/
 fi
 
 ###############################################################################################################################
@@ -119,7 +115,7 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike Malleable C2 profiles.${NC}"
-          git clone https://github.com/rsmudge/Malleable-C2-Profiles.git /opt/cobaltstrike/malleable-c2-profiles
+          git clone https://github.com/Cobalt-Strike/Malleable-C2-Profiles.git /opt/cobaltstrike/malleable-c2-profiles
           echo
      fi
 
