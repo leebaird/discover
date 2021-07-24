@@ -23,15 +23,14 @@ Use Microsoft SQL Server Management Studio (SSMS)
 
 - View data
 In the Object Explorer, expand Databases.
-(### more stuff here ###)
+Select a db and expand > expand Tables
+Select a table > right-click > Select Top 1000 Rows
 
-- Export data
-Select a db > right-click > Task > Export Data
-Next > Data source: scroll down to SQL Server Native Client
-Select your authentication method
-Choose a Destination: Microsoft Excel
-Browse to your saved file path
-(### more stuff here ###)
+- Save data
+Modify the query above to include all records.
+Remove all of the fields.
+SELECT * FROM <table name>
+Right-click on the records > Save As
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # MySQL
