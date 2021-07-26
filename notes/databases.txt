@@ -23,14 +23,14 @@ Use Microsoft SQL Server Management Studio (SSMS)
 
 - View data
 In the Object Explorer, expand Databases.
-Select a db and expand > expand Tables
+Select a database and expand > expand Tables
 Select a table > right-click > Select Top 1000 Rows
 
 - Save data
-Modify the query above to include all records.
-Remove all of the fields.
-SELECT * FROM <table name>
-Right-click on the records > Save As
+Modify the query in the top pane to include all records.
+Remove all of the fields so the query looks like: SELECT * FROM <table name>
+Select Execute in the ribbon bar
+In the lower pane, right-click on the records > Save Results As
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # MySQL
