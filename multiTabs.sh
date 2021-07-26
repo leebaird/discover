@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cp /home/kali/.Xauthority /root/.Xauthority
+
 f_runlocally
 clear
 f_banner

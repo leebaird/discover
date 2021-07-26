@@ -172,7 +172,7 @@ getprivs                                                    Attempt to enable al
 getsystem                                                   Use a number of different techniques to attempt to gain SYSTEM level privileges
 getuid                                                      Check to see if priv esc worked
 background                                                  If this fails, background the current session and try other options
-use exploit/windows/local/                                  Show available Windows local exploits
+use exploit/windows/local/<tab>                             Show available Windows local exploits
 
 - Option 2
 use post/windows/escalate/getsystem
