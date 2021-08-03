@@ -323,6 +323,18 @@ else
      echo
 fi
 
+
+if [ -d /opt/PrivescCheck/.git ]; then
+     echo -e "${BLUE}Updating PrivescCheck.${NC}"
+     cd /opt/PrivescCheck/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing PrivescCheck.${NC}"
+     git clone https://github.com/itm4n/PrivescCheck/ /opt/PrivescCheck
+     echo
+fi
+
+
 if [ -d /opt/SecLists/.git ]; then
      echo -e "${BLUE}Updating SecLists.${NC}"
      cd /opt/SecLists/ ; git pull
