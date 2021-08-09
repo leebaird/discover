@@ -10,7 +10,6 @@
 # Install-BoxstarterPackage -PackageName https://raw.githubusercontent.com/leebaird/discover/master/misc/win10.choco -Credential $Cred
 
 New-Item -Path C:\ -Name Temp -ItemType Directory -ErrorAction SilentlyContinue
-New-Item -Path C:\ -Name payloads -ItemType Directory -ErrorAction SilentlyContinue
 
 $env:TEMP = "C:\Temp"
 $env:TMP = "C:\Temp"
@@ -61,7 +60,7 @@ git clone https://github.com/HarmJ0y/DAMP.git C:\tools\DAMP
 git clone https://github.com/hfiref0x/UACME.git C:\tools\UACME
 git clone https://github.com/itm4n/FullPowers.git C:\tools\FullPowers
 git clone https://github.com/itm4n/PrintSpoofer.git C:\tools\PrintSpoofer
-git clone https://github.com/josephkingstone/cobalt_strike_extension_kit.git C:\toools\josephkingstone
+git clone https://github.com/josephkingstone/cobalt_strike_extension_kit.git C:\tools\josephkingstone
 git clone https://github.com/leechristensen/SpoolSample.git C:\tools\SpoolSample
 git clone https://github.com/NetSPI/PowerUpSQL.git C:\tools\PowerUpSQL
 git clone https://github.com/nidem/kerberoast.git C:\tools\kerberoast
