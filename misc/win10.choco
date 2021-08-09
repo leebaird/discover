@@ -70,6 +70,7 @@ git clone https://github.com/rasta-mouse/MiscTools.git C:\tools\MiscTools
 git clone https://github.com/rasta-mouse/Sherlock.git C:\tools\Sherlock
 git clone https://github.com/rasta-mouse/Watson.git C:\tools\Watson
 git clone https://github.com/rejetto/hfs.git C:\tools\HFS
+git clone https://github.com/S3cur3Th1sSh1t/PowerSharpPack.git C:\tools\PowerSharpPack
 git clone https://github.com/sense-of-security/ADRecon.git C:\tools\ADRecon
 git clone https://github.com/sevagas/macro_pack C:\tools\macro-pack
 git clone https://github.com/tevora-threat/SharpView.git C:\tools\SharpView
