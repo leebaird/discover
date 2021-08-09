@@ -38,6 +38,7 @@ Expand-Archive -Path "$env:TEMP\dnSpy-netframework.zip" -DestinationPath C:\tool
 
 git clone https://github.com/AlessandroZ/BeRoot.git C:\tools\BeRoot
 git clone https://github.com/antonioCoco/RoguePotato.git C:\tools\RoguePotato
+git clone https://github.com/bats3c/ADCSPwn.git C:\tools\ADCSPwn
 git clone https://github.com/besimorhino/powercat.git C:\tools\powercat
 git clone https://github.com/BloodHoundAD/SharpHound3.git C:\tools\SharpHound3
 git clone https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite.git C:\tools\PEASS
