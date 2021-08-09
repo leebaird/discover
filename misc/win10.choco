@@ -55,6 +55,7 @@ git clone https://github.com/gentilkiwi/kekeo.git C:\tools\kekeo
 git clone https://github.com/gentilkiwi/mimikatz.git C:\tools\mimikatz
 git clone https://github.com/GhostPack/Rubeus.git C:\tools\Rubeus
 git clone https://github.com/GhostPack/Seatbelt.git C:\tools\Seatbelt
+git clone https://github.com/GossiTheDog/HiveNightmare C:\tools\HiveNightmare
 git clone https://github.com/HarmJ0y/DAMP.git C:\tools\DAMP
 git clone https://github.com/hfiref0x/UACME.git C:\tools\UACME
 git clone https://github.com/itm4n/FullPowers.git C:\tools\FullPowers
