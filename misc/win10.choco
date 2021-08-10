@@ -10,7 +10,6 @@
 # Install-BoxstarterPackage -PackageName https://raw.githubusercontent.com/leebaird/discover/master/misc/win10.choco -Credential $Cred
 
 New-Item -Path C:\ -Name Temp -ItemType Directory -ErrorAction SilentlyContinue
-New-Item -Path C:\ -Name payloads -ItemType Directory -ErrorAction SilentlyContinue
 
 $env:TEMP = "C:\Temp"
 $env:TMP = "C:\Temp"
@@ -18,7 +17,6 @@ $env:TMP = "C:\Temp"
 # Defender
 $Downloads = Get-ItemPropertyValue 'HKCU:\software\microsoft\windows\currentversion\explorer\shell folders\' -Name '{374DE290-123F-4565-9164-39C4925E467B}'
 Add-MpPreference -ExclusionPath $Downloads
-Add-MpPreference -ExclusionPath "C:\payloads\"
 Add-MpPreference -ExclusionPath "C:\tools\"
 Set-MpPreference -MAPSReporting Disabled
 Set-MpPreference -SubmitSamplesConsent NeverSend
@@ -38,6 +36,7 @@ Expand-Archive -Path "$env:TEMP\dnSpy-netframework.zip" -DestinationPath C:\tool
 
 git clone https://github.com/AlessandroZ/BeRoot.git C:\tools\BeRoot
 git clone https://github.com/antonioCoco/RoguePotato.git C:\tools\RoguePotato
+git clone https://github.com/bats3c/ADCSPwn.git C:\tools\ADCSPwn
 git clone https://github.com/besimorhino/powercat.git C:\tools\powercat
 git clone https://github.com/BloodHoundAD/SharpHound3.git C:\tools\SharpHound3
 git clone https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite.git C:\tools\PEASS
@@ -56,11 +55,12 @@ git clone https://github.com/gentilkiwi/kekeo.git C:\tools\kekeo
 git clone https://github.com/gentilkiwi/mimikatz.git C:\tools\mimikatz
 git clone https://github.com/GhostPack/Rubeus.git C:\tools\Rubeus
 git clone https://github.com/GhostPack/Seatbelt.git C:\tools\Seatbelt
+git clone https://github.com/GossiTheDog/HiveNightmare C:\tools\HiveNightmare
 git clone https://github.com/HarmJ0y/DAMP.git C:\tools\DAMP
 git clone https://github.com/hfiref0x/UACME.git C:\tools\UACME
 git clone https://github.com/itm4n/FullPowers.git C:\tools\FullPowers
 git clone https://github.com/itm4n/PrintSpoofer.git C:\tools\PrintSpoofer
-git clone https://github.com/josephkingstone/cobalt_strike_extension_kit.git C:\toools\josephkingstone
+git clone https://github.com/josephkingstone/cobalt_strike_extension_kit.git C:\tools\josephkingstone
 git clone https://github.com/leechristensen/SpoolSample.git C:\tools\SpoolSample
 git clone https://github.com/NetSPI/PowerUpSQL.git C:\tools\PowerUpSQL
 git clone https://github.com/nidem/kerberoast.git C:\tools\kerberoast
@@ -71,6 +71,7 @@ git clone https://github.com/rasta-mouse/MiscTools.git C:\tools\MiscTools
 git clone https://github.com/rasta-mouse/Sherlock.git C:\tools\Sherlock
 git clone https://github.com/rasta-mouse/Watson.git C:\tools\Watson
 git clone https://github.com/rejetto/hfs.git C:\tools\HFS
+git clone https://github.com/S3cur3Th1sSh1t/PowerSharpPack.git C:\tools\PowerSharpPack
 git clone https://github.com/sense-of-security/ADRecon.git C:\tools\ADRecon
 git clone https://github.com/sevagas/macro_pack C:\tools\macro-pack
 git clone https://github.com/tevora-threat/SharpView.git C:\tools\SharpView
