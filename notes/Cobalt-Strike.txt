@@ -1,9 +1,6 @@
 Cobalt Strike
 
-# Opsec
-
-/sbin/iptables -I INPUT 1 -p tcp -s 0.0.0.0/0 --dport 50050 -j DROP
-/sbin/iptables -I INPUT 1 -p tcp -s 127.0.0.1 --dport 50050 -j ACCEPT
+OPSEC: Never allow direct internet access to your team server.
 
 ssh user@teamserver -L 50050:127.0.0.1:50050
 Start the client, set the host to 127.0.0.1
@@ -96,6 +93,10 @@ Save > OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Launch an attack to gain a foothold.
+
+OPSEC: Staged payloads are typically less secure.
+Always prefer a fully staged/stageless payload and disable payload staging.
+When you see (S) in the framwork, it refers to a stageless payload.
 
 Disable Windows Defender on your target Windows VM.
     Enterprise: Windows Security > Virus & threat protection > Manage settings > turn off Real-time protection > Yes
