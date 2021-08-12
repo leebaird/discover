@@ -1,5 +1,8 @@
 Cobalt Strike
 
+Use the following install location: /opt/cobaltstrike/
+     This will allow you get get third-party apps installed when running update.sh
+
 OPSEC: Never allow direct internet access to your team server.
 
 ssh user@teamserver -L 50050:127.0.0.1:50050
@@ -12,13 +15,13 @@ Install or update
 
 Remove old data and Beacons (optional)
     Stop the team server
-    rm -rf /opt/cobaltstrike/data/
+    rm -rf data/
 
 Start the team server
     There are 2 mandotory parameters and 2 optional parameters. The first 2 parameters are required.
     ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons yyyy-mm-dd>
 
-    ./teamserver 192.168.1.5 password /opt/cobaltstrike/malleable-c2-profiles/APT/etumbot.profile 2021-12-31
+    ./teamserver 192.168.1.5 password malleable-c2-profiles/APT/etumbot.profile 2021-12-31
 
     When the team server starts, it will display the SHA256 hash of the SSL cert. Send this hash to your team members.
 
@@ -28,7 +31,7 @@ Login to the team server
     ./cobaltstrike
     Host: <127.0.0.1 if running locally or IP of remote team server>
     Port: 50050
-    User: <your nickname>
+    User: <your name>
     Password: <password you entered above>
     Connect
     VerifyFingerprint (SHA256 hash) > Yes
@@ -55,11 +58,12 @@ Cobalt Strike expects to find the Java Keystore file in the same folder as your 
 # Redirectors
 
 Create 3 free Ubuntu instances in AWS. These instances will be used for the following:
-    Redirector1 - DNS
-    Redirector2 - HTTP
-    Redirector3 - HTTP3
+    Redirector1 - HTTP
+    Redirector2 - HTTPS
+    Redirector3 - DNS
     
 Install socat on each instance.
+sudo apt install socat
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Create Listeners
