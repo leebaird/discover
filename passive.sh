@@ -777,8 +777,6 @@ XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://$companyurl.s3.amazon
 sleep 4
 XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
 sleep 4
-XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://www.censys.io/ipv4?q=$domain &
-sleep 4
 XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://www.google.com/search?q=site:$domain+%22index+of/%22+%22parent+directory%22 &
 sleep 4
 XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
