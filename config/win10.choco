@@ -75,6 +75,7 @@ git clone https://github.com/S3cur3Th1sSh1t/PowerSharpPack.git C:\tools\PowerSha
 git clone https://github.com/sense-of-security/ADRecon.git C:\tools\ADRecon
 git clone https://github.com/sevagas/macro_pack C:\tools\macro-pack
 git clone https://github.com/tevora-threat/SharpView.git C:\tools\SharpView
+git clone https://github.com/topotam/PetitPotam.git C:\tools\PetitPotam
 git clone https://github.com/TheWover/donut.git C:\tools\donut
 git clone https://github.com/ZeroPointSecurity/PhishingTemplates.git C:\tools\PhishingTemplates
 
