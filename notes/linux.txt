@@ -220,7 +220,7 @@ iface eth0 inet static
 
 systemctl restart networking.service            Restart networking
 
-curl ifconfig.me                                Show external IP when NAT-ed
+curl ifconfig.me                                Show external IP
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
@@ -340,20 +340,16 @@ git config --global http.proxy http://proxy:port
 Add to bottom of /root/.bashrc
 export http_proxy=http://username:password@proxy:port
 export https_proxy=https://username:password@proxy:port
+
+- Proxychains
+ssh -f -N -D 9050 user@host
+proxychains nmap <options>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Redirecting
 
-socat TCP4-LISTEN:443,fork TCP4:<remoteIP>:443     This should be done inside a screen session
-
-If you experience any slow traffic issues, switch to iptables.
-iptables -L
-iptables -I INPUT -p tcp -m tcp --dport 443 -j ACCEPT
-iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination <remoteIP>:80
-iptables -t nat -A POSTROUTING -j MASQUERADE
-iptables -I FORWARD -j ACCEPT
-iptables -P FORWARD ACCEPT
-sysctl net.ipv4.ip_forward=1
+screen -S test
+socat TCP4-LISTEN:443,fork TCP4:<remoteIP>:443
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Remote Desktop
@@ -483,23 +479,23 @@ update-rc.d ssh enable                          Enable ssh at boot time
 -rw-------  identity_file
 -rw-r--r--  known_hosts
 
-ssh root@<target IP>                            Connect as root
-ssh root@<target IP> -p 2222                    Connect as root on a non-standard port
-ssh root@<target IP> -i key                     Connect as root using an identity file
+ssh user@host                                   Standard connection
+ssh user@host -p 2222                           Connect on a non-standard port
+ssh user@host -i key                            Connect using an identity file
 
 - Local port forwarding
 ssh <gateway> -L <local port to listen>:<remote host>:<remote port>
-ssh user@<target IP> -L 5900:localhost:5900
+ssh user@host -L 5900:localhost:5900
 
 - Remote port forwarding
 ssh <gateway> -R <remote port to bind>:<local host>:<local port>
-ssh user@<target IP> -R 2222:localhost:22 -f -N
+ssh user@host -R 2222:localhost:22 -f -N
                                                 -f   Force to background
                                                 -N   Do not execute a remote command
 
 - Dynamic port forwarding
 ssh -D <local proxy port> <target IP>
-ssh user@<target IP> -C -D 1080                 -C   Enable compression, good for web browsing
+ssh user@host -D 1080
                                                 -D   Create a SOCKS tunnel on the default port
 
 Firefox Preferences > Advanced > Network > Settings > Manual proxy configuration
