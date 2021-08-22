@@ -30,17 +30,11 @@ alias update='/opt/discover/update.sh'
 #-----------------------------------------------------------------------------------------------
 
 alias bh='neo4j console & ; sleep 6 ; cd /opt/BloodHound-v4/BloodHound-linux-x64/ ; ./BloodHound --no-sandbox'
-alias cov='cd /opt/Covenant/Covenant/ ; dotnet run'
 
 alias cs='
-# Remove old data
-# rm /opt/cobaltstrike/data/*.bin 2>/dev/null ;
-# Start the teamserver
 cd /opt/cobaltstrike/ ; ./teamserver $ip password &
-# Split Terminal horizontally
 xdotool key Ctrl+D
 sleep 5
-# Login to the teamserver
 cd /opt/cobaltstrike/ ; ./cobaltstrike'
 
 alias m='service postgresql start ; msfdb init ; msfconsole'

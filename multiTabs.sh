@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cp /home/kali/.Xauthority /root/.Xauthority
-
 f_runlocally
 clear
 f_banner
@@ -20,17 +18,17 @@ case $choice in
      echo -n "Use an https prefix? (y/N) "
      read prefix
 
-     XAUTHORITY=/root/.Xauthority sudo firefox &
+     firefox-esr &
      sleep 2
 
      if [ -z $prefix ]; then
           for i in $(cat $location); do
-               XAUTHORITY=/root/.Xauthority sudo firefox -new-tab $i &
+               firefox-esr -new-tab $i &
                sleep 1
           done
      elif [ "$prefix" == "y" ]; then
           for i in $(cat $location); do
-               XAUTHORITY=/root/.Xauthority sudo firefox -new-tab https://$i &
+               firefox-esr -new-tab https://$i &
                sleep 1
           done
      else
@@ -68,11 +66,11 @@ case $choice in
 
      grep 'Disallow' robots.txt | awk '{print $2}' > tmp
 
-     XAUTHORITY=/root/.Xauthority sudo firefox &
+     firefox-esr &
      sleep 2
 
      for i in $(cat tmp); do
-          XAUTHORITY=/root/.Xauthority sudo firefox -new-tab http://$domain$i &
+          firefox-esr -new-tab http://$domain$i &
           sleep 1
      done
 
@@ -94,4 +92,3 @@ case $choice in
      *) f_error;;
 esac
 }
-

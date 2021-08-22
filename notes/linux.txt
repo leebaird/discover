@@ -340,10 +340,6 @@ git config --global http.proxy http://proxy:port
 Add to bottom of /root/.bashrc
 export http_proxy=http://username:password@proxy:port
 export https_proxy=https://username:password@proxy:port
-
-- Proxychains
-ssh -f -N -D 9050 user@host
-proxychains nmap <options>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Redirecting
@@ -461,6 +457,7 @@ smbpasswd -a lee                                Add a user and set the password 
 # SSH
 
 ssh-keygen                                      Create new keys
+ssh-copy-id -i ~/.ssh/id_rsa.pub user@host      Copy new key to server
 
 - Configure a non-standard port
 vi  /etc/ssh/sshd_config
@@ -494,9 +491,9 @@ ssh user@host -R 2222:localhost:22 -f -N
                                                 -N   Do not execute a remote command
 
 - Dynamic port forwarding
-ssh -D <local proxy port> <target IP>
-ssh user@host -D 1080
-                                                -D   Create a SOCKS tunnel on the default port
+ssh user@host -f -N -D 1080
+                                                -D   Create a SOCKS tunnel
+proxychains nmap <options>
 
 Firefox Preferences > Advanced > Network > Settings > Manual proxy configuration
 Remove everything for HTTP, SSL and FTP proxies and ports
@@ -512,28 +509,10 @@ X11Forwarding yes
 systemctl restart sshd                          Restart the SSH service on the server
 exit
 
-ssh -X user@<target IP> -o "XAuthLocation=/opt/X11/bin/xauth"
+ssh -X user@host -o "XAuthLocation=/opt/X11/bin/xauth"
 firefox                                         Start a GUI app
 
 Note: if using macOS as the client, install XQuartz.
-
-- Generate a new key pair for AWS
-Login to https://aws.amazon.com/console/
-EC2 > Network & Security > Key Pairs
-Create key pair > aws2 > pem > Create key pair
-The private key will auto d/l in your browser
-Move the key to ~/.ssh/
-chmod 600 aws2.pem
-ssh-keygen -y -f aws2.pem                       Show the public key, copy
-ssh to your Kali on AWS
-cd .ssh
-Add your new public key to authorized_keys      <new key> aws2
-sudo -i
-cd .ssh
-Add your new public key to authorized_keys      <rules> <new key> aws2
-exit
-exit
-ssh in with your new key
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Startup Services
@@ -610,7 +589,7 @@ tcpdump -w out.pcap -s 65535  'udp port 53'
 
 # Tunneling VNC over SSH
 
-OS X (awsv)                                     ssh -L 5901:localhost:5901 -i ~/.ssh/aws.pem ec2-user@<atter IP>
+OS X (awsv)                                     ssh -L 5901:localhost:5901 -i ~/.ssh/aws.pem ec2-user@host
 
 Remote Kali                                     sudo -i
                                                 vncserver -geometry 2560x1600
@@ -632,8 +611,7 @@ Perl                                            perl —e 'exec "/bin/bash";'
 Perl                                            exec "/bin/sh";
 Python                                          python -c 'import pty; pty.spawn("/bin/bash")'
 Ruby                                            exec "/bin/sh"
-sh                                              echo os.system('/bin/bash')
-sh                                              /bin/sh
+sh                                              /bin/bash
 Within IRB                                      exec "/bin/sh"
 Within vi                                       :!bash
 Within vi                                       :set shell=/bin/bash:shell

@@ -63,8 +63,6 @@ case $recon in
      echo $medium
      echo
      echo -e "The new files are located at ${YELLOW}$home/data/$workspace/${NC}\n"
-     echo
-     echo
      exit
      ;;
 
@@ -72,4 +70,3 @@ case $recon in
 
      *) f_error;;
 esac
-

@@ -86,7 +86,3 @@ if [[ -z $x ]]; then
 fi
 
 msfconsole -r /tmp/listener.rc
-
-echo
-echo
-

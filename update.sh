@@ -5,13 +5,16 @@ BLUE='\033[1;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+# Check for root
+if [[ $EUID -ne 0 ]]; then
+     echo
+     echo "[!] This script must be ran as root."
+     exit
+fi
+
 ###############################################################################################################################
 
 # Clean up
-
-if [ -f /opt/cobaltstrike/malleable-c2-profiles/packages-microsoft-prod.deb ]; then
-     rm -rf /opt/cobaltstrike/malleable-c2-profiles/
-fi
 
 ###############################################################################################################################
 
@@ -28,8 +31,8 @@ fi
 
 echo -e "${BLUE}Updating Kali.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
-echo
 
+exit
 if [ ! -e /usr/bin/amass ]; then
      echo -e "${YELLOW}Installing Amass.${NC}"
      apt install -y amass
@@ -477,4 +480,3 @@ echo -e "${BLUE}Updating locate database.${NC}"
 updatedb
 
 exit
-
