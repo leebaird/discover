@@ -303,7 +303,7 @@ else
 fi
 
 echo -e "${BLUE}Updating Nmap scripts.${NC}"
-nmap --script-updatedb | egrep -v '(Starting|seconds)' | sed 's/NSE: //'
+sudo nmap --script-updatedb | egrep -v '(Starting|seconds)' | sed 's/NSE: //'
 echo
 
 if [ -d /opt/PEASS/.git ]; then
