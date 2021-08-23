@@ -18,6 +18,9 @@ msf > use auxiliary/admin/mssql/mssql_escalate_dbowner
 Post exploitation
 msf > use auxiliary/admin/mssql/mssql_exec
 
+- xp_cmdshell
+https://www.hackingarticles.in/mssql-for-pentester-command-execution-with-xp_cmdshell/
+
 - Authenticate to a db
 Use Microsoft SQL Server Management Studio (SSMS)
 

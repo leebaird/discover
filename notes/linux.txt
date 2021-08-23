@@ -177,8 +177,6 @@ rpm -vhU app.rpm                                Install RPM package
 
 dpkg-query -l                                   Installed packages
 
-pip3 install -r requirements.txt                Install required Python packages
-
 - CentOS
 yum -y install $(cat file)                      Install packages listed in a file
 yum list installed                              Show installed packages
@@ -340,6 +338,13 @@ git config --global http.proxy http://proxy:port
 Add to bottom of /root/.bashrc
 export http_proxy=http://username:password@proxy:port
 export https_proxy=https://username:password@proxy:port
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Python
+
+pip3 install -r requirements.txt                Install required Python packages
+apt install python3-<package>                   Install a particular Python package
+apt upgrade python3-<package>                   Upgrade a particular Python package
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Redirecting
