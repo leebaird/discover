@@ -31,6 +31,7 @@ fi
 
 echo -e "${BLUE}Updating Kali.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
+echo
 
 if [ ! -e /usr/bin/amass ]; then
      echo -e "${YELLOW}Installing Amass.${NC}"
