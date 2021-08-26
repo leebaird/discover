@@ -770,45 +770,44 @@ echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${
 
 f_runlocally
 
-firefox-esr &
-firefox-esr -new-tab https://www.google.com/search?q=$companyurl+logo &
+xdg-open https://www.google.com/search?q=$companyurl+logo &
 sleep 4
-firefox-esr -new-tab https://$companyurl.s3.amazonaws.com &
+xdg-open https://$companyurl.s3.amazonaws.com &
 sleep 4
-firefox-esr -new-tab https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
+xdg-open https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
 sleep 4
-firefox-esr -new-tab https://www.google.com/search?q=site:$domain+%22index+of/%22+%22parent+directory%22 &
+xdg-open https://www.google.com/search?q=site:$domain+%22index+of/%22+%22parent+directory%22 &
 sleep 4
-firefox-esr -new-tab https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
+xdg-open https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
 sleep 4
-firefox-esr -new-tab https://www.google.com/search?q=site:$domain+inurl:login &
+xdg-open https://www.google.com/search?q=site:$domain+inurl:login &
 sleep 4
-firefox-esr -new-tab http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
+xdg-open http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
 sleep 4
-firefox-esr -new-tab https://www.google.com/search?q=site:$domain+intext:username+intext:password+inurl:ftp &
+xdg-open https://www.google.com/search?q=site:$domain+intext:username+intext:password+inurl:ftp &
 sleep 4
-firefox-esr -new-tab https://secsearch.sec.gov/search/docs?affiliate=secsearch&query=$companyurl &
+xdg-open https://secsearch.sec.gov/search/docs?affiliate=secsearch&query=$companyurl &
 sleep 4
-firefox-esr -new-tab https://www.google.com/search?q=site:$domain+intext:username+intext:password+-inurl:careers &
+xdg-open https://www.google.com/search?q=site:$domain+intext:username+intext:password+-inurl:careers &
 sleep 4
-firefox-esr -new-tab https://networksdb.io/search/org/$companyurl &
+xdg-open https://networksdb.io/search/org/$companyurl &
 sleep 4
-firefox-esr -new-tab https://www.google.com/search?q=site:$domain+intext:Atlassian+intext:jira+-inurl:careers &
+xdg-open https://www.google.com/search?q=site:$domain+intext:Atlassian+intext:jira+-inurl:careers &
 sleep 6
-firefox-esr -new-tab https://www.google.com/search?q=site:pastebin.com+intext:$domain &
+xdg-open https://www.google.com/search?q=site:pastebin.com+intext:$domain &
 sleep 4
-firefox-esr -new-tab https://www.facebook.com &
+xdg-open https://www.facebook.com &
 sleep 4
-firefox-esr -new-tab https://www.instagram.com &
+xdg-open https://www.instagram.com &
 sleep 4
-firefox-esr -new-tab https://www.linkedin.com &
+xdg-open https://www.linkedin.com &
 sleep 4
-firefox-esr -new-tab https://www.pinterest.com &
+xdg-open https://www.pinterest.com &
 sleep 4
-firefox-esr -new-tab https://twitter.com &
+xdg-open https://twitter.com &
 sleep 4
-firefox-esr -new-tab https://www.youtube.com &
+xdg-open https://www.youtube.com &
 sleep 4
-firefox-esr -new-tab https://$domain &
+xdg-open https://$domain &
 sleep 4
-firefox-esr -new-tab $home/data/$domain/index.htm &
+xdg-open $home/data/$domain/index.htm &

@@ -7,7 +7,7 @@ f_banner
 echo -e "${BLUE}Open multiple tabs in Firefox with:${NC}"
 echo
 echo "1.  List"
-echo "2.  Directories from robots.txt."
+echo "2.  Directories from robots.txt"
 echo "3.  Previous menu"
 echo
 echo -n "Choice: "
@@ -15,20 +15,18 @@ read choice
 
 case $choice in
      1) f_location
+     echo
      echo -n "Use an https prefix? (y/N) "
      read prefix
 
-     firefox-esr &
-     sleep 2
-
      if [ -z $prefix ]; then
           for i in $(cat $location); do
-               firefox-esr -new-tab $i &
+               xdg-open $i &
                sleep 1
           done
      elif [ "$prefix" == "y" ]; then
           for i in $(cat $location); do
-               firefox-esr -new-tab https://$i &
+               xdg-open https://$i &
                sleep 1
           done
      else
@@ -57,7 +55,7 @@ case $choice in
           echo
           echo -e "${RED}$medium${NC}"
           echo
-          echo -e "${RED}                          *** No robots file discovered. ***${NC}"
+          echo -e "${RED}                          *** No robots.txt file discovered. ***${NC}"
           echo
           echo -e "${RED}$medium${NC}"
           sleep 2
@@ -66,11 +64,8 @@ case $choice in
 
      grep 'Disallow' robots.txt | awk '{print $2}' > tmp
 
-     firefox-esr &
-     sleep 2
-
      for i in $(cat tmp); do
-          firefox-esr -new-tab http://$domain$i &
+          xdg-open http://$domain$i &
           sleep 1
      done
 

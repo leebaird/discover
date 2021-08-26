@@ -200,7 +200,7 @@ else
      # Move active files
      mkdir -p $save_dir/active/recon-ng/
      cd $discover/
-     mv active.rc emails hosts record* sub* tmp waf whatweb z* $save_dir/active/ 2>/dev/null
+     mv active.rc emails hosts record* robots.txt sub* tmp waf whatweb z* $save_dir/active/ 2>/dev/null
      cd /tmp/; mv subdomains $save_dir/active/recon-ng/ 2>/dev/null
      cd $discover/
 fi

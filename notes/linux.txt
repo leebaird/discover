@@ -65,19 +65,19 @@ systemctl enable dockers
 docker search web-dvwa                          Search for an image
 docker pull vulnerables/web-dvwa                Install an image
 docker run -p 80:80 vulnerables/web-dvwa        Start the service for a package
-firefox localhost &
+xdg-open localhost &
 
 docker pull szsecurity/mutillidae
 docker run -p 81:80 szsecurity/mutillidae
-firefox localhost:81 &
+xdg-open localhost:81 &
 
 docker pull szsecurity/webgoat
 docker run -p 82:80 szsecurity/webgoat
-firefox localhost:82/WebGoats &
+xdg-open localhost:82/WebGoats &
 
 docker pull raesene/bwapp
 docker run -d -p 8080:80 raesene/bwapp
-firefox localhost:8080 &
+xdg-open localhost:8080 &
 Default creds bee:bug
 
 systemctl disable docker.service                Disable Docker at boot time
@@ -515,7 +515,7 @@ systemctl restart sshd                          Restart the SSH service on the s
 exit
 
 ssh -X user@host -o "XAuthLocation=/opt/X11/bin/xauth"
-firefox                                         Start a GUI app
+xdg-open                                        Start a GUI app
 
 Note: if using macOS as the client, install XQuartz.
 ------------------------------------------------------------------------------------------------------------------------------------------------------

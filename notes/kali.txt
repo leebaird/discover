@@ -141,7 +141,7 @@ service ssh start                          Start ssh
 netstat -antp | grep ssh                   Verify the ssh service is running
 
 service apache2 start                      Start Apache
-firefox localhost                          Verify the Apache service is running
+xdg-open localhost                          Verify the Apache service is running
 /var/www/html/                             Document root
 
 update-rc.d <service> <enable|disable>     Enable a service to start at boot time
@@ -230,5 +230,5 @@ systemctl restart apache2                  Restart Apache
 apache2ctl -M                              Verity the ssl_module is running
 netstat -antp                              Verify ports 80 and 443 are listening
 
-firefox http://www.acme.org                Verify redirect and SSL are working
+xdg-open http://www.acme.org               Verify redirect and SSL are working
 
