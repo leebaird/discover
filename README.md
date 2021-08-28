@@ -128,7 +128,7 @@ Enter the location of your file:
 Open multiple tabs in Firefox with:
 
 1.  List
-2.  Directories from robots.txt.
+2.  Directories from robots.txt
 3.  Previous menu
 ```
 
@@ -139,8 +139,8 @@ Open multiple tabs in Firefox with:
 ```
 Run multiple instances of Nikto in parallel.
 
-1.  List of IPs.
-2.  List of IP:port.
+1.  List of IPs
+2.  List of IP:port
 3.  Previous menu
 ```
 ### SSL
@@ -156,7 +156,7 @@ Enter the location of your list:
 ## MISC
 ### Parse XML
 ```
-Parse XML to CSV.
+Parse XML to CSV
 
 1.  Burp (Base64)
 2.  Nessus (.nessus)
