@@ -5,8 +5,8 @@ f_banner
 
 echo -e "${BLUE}Run multiple instances of Nikto in parallel.${NC}"
 echo
-echo "1.  List of IPs."
-echo "2.  List of IP:port."
+echo "1.  List of IPs"
+echo "2.  List of IP:port"
 echo "3.  Previous menu"
 echo
 echo -n "Choice: "
@@ -72,3 +72,4 @@ echo "***Scan complete.***"
 echo
 echo
 echo -e "The new report is located at ${YELLOW}$home/data/nikto/${NC}\n"
+

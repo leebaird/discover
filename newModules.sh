@@ -71,3 +71,4 @@ echo
 echo $medium
 echo
 echo -e "The new report is located at ${YELLOW}$home/data/new-modules.txt${NC}\n"
+

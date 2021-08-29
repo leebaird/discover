@@ -159,7 +159,7 @@ case $choice in
 
      echo
      echo "Running an Nmap ping sweep for live hosts."
-     sudo nmap -sn -PS -PE --stats-every 10s -g $sourceport $manual > tmp
+     nmap -sn -PS -PE --stats-every 10s -g $sourceport $manual > tmp
      ;;
 
      *) f_error;;
@@ -184,3 +184,4 @@ exit
 ###############################################################################################################################
 
 while true; do f_sub; done
+

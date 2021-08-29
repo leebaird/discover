@@ -451,7 +451,7 @@ echo
 echo $medium
 echo
 
-sudo nmap -iL $location --excludefile $excludefile --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,5353,49152 -$S -$U -O --osscan-guess --max-os-tries 1 -p T:$tcp,U:$udp --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
+nmap -iL $location --excludefile $excludefile --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,5353,49152 -$S -$U -O --osscan-guess --max-os-tries 1 -p T:$tcp,U:$udp --max-retries 3 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 10s -g $sourceport --scan-delay $delay -oA $name/nmap
 
 if [[ -n $(grep '(0 hosts up)' $name/nmap.nmap) ]]; then
      rm -rf "$name" tmp*
@@ -659,7 +659,7 @@ echo -e "${BLUE}SCANNING${NC}"
 echo "3.  Generate target list"
 echo "4.  CIDR"
 echo "5.  List"
-echo "6.  IP, range or URL"
+echo "6.  IP, range, or URL"
 echo "7.  Rerun Nmap scripts and MSF aux"
 echo
 echo -e "${BLUE}WEB${NC}"
@@ -705,3 +705,4 @@ export -f f_main
 ###############################################################################################################################
 
 while true; do f_main; done
+

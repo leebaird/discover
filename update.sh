@@ -16,6 +16,10 @@ fi
 
 # Clean up
 
+if [ -d /opt/PEASS/.git ]; then
+     rm -rf /opt/PEASS/
+fi
+
 ###############################################################################################################################
 
 clear
@@ -50,7 +54,7 @@ else
      echo -e "${YELLOW}Installing BloodHound.${NC}"
      apt -y install npm
      npm install -g electron-packager
-     git clone https://github.com/BloodHoundAD/BloodHound.git /opt/BloodHound-v4
+     git clone https://github.com/BloodHoundAD/BloodHound /opt/BloodHound-v4
      cd /opt/BloodHound-v4/
      npm install
      npm run linuxbuild
@@ -68,7 +72,7 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - chryzsh.${NC}"
-          git clone https://github.com/chryzsh/Aggressor-Scripts.git /opt/cobaltstrike/third-party/chryzsh-scripts
+          git clone https://github.com/chryzsh/Aggressor-Scripts /opt/cobaltstrike/third-party/chryzsh-scripts
           echo
      fi
 
@@ -78,7 +82,7 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - mgeeky.${NC}"
-          git clone https://github.com/mgeeky/cobalt-arsenal.git /opt/cobaltstrike/third-party/mgeeky-scripts
+          git clone https://github.com/mgeeky/cobalt-arsenal /opt/cobaltstrike/third-party/mgeeky-scripts
           echo
      fi
 
@@ -88,7 +92,7 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike aggressor scripts - taowu.${NC}"
-          git clone https://github.com/pandasec888/taowu-cobalt-strike.git /opt/cobaltstrike/third-party/taowu-scripts
+          git clone https://github.com/pandasec888/taowu-cobalt-strike /opt/cobaltstrike/third-party/taowu-scripts
           echo
      fi
 
@@ -98,7 +102,7 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike BOF - trustedsec.${NC}"
-          git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF.git /opt/cobaltstrike/third-party/trustedsec-bof
+          git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/cobaltstrike/third-party/trustedsec-bof
           echo
      fi
 
@@ -108,7 +112,7 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike ElevateKit.${NC}"
-          git clone https://github.com/rsmudge/ElevateKit.git /opt/cobaltstrike/elevatekit
+          git clone https://github.com/rsmudge/ElevateKit /opt/cobaltstrike/elevatekit
           echo
      fi
 
@@ -118,7 +122,7 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike Malleable C2 profiles.${NC}"
-          git clone https://github.com/Cobalt-Strike/Malleable-C2-Profiles.git /opt/cobaltstrike/malleable-c2-profiles
+          git clone https://github.com/Cobalt-Strike/Malleable-C2-Profiles /opt/cobaltstrike/malleable-c2-profiles
           echo
      fi
 
@@ -128,7 +132,7 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike misc - bluescreenofjeff.${NC}"
-          git clone https://github.com/bluscreenofjeff/Malleable-C2-Randomizer.git /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer
+          git clone https://github.com/bluscreenofjeff/Malleable-C2-Randomizer /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer
           echo
      fi
 
@@ -142,7 +146,7 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      else
           echo -e "${YELLOW}Installing Cobalt Strike misc - DidierStevens.${NC}"
-          git clone https://github.com/DidierStevens/Beta.git /opt/cobaltstrike/third-party/DidierStevens-DNS-stager
+          git clone https://github.com/DidierStevens/Beta /opt/cobaltstrike/third-party/DidierStevens-DNS-stager
           cd /opt/cobaltstrike/third-party/DidierStevens-DNS-stager/
           mv cs-dns-stager.py cs-dns-stager.tmp
           rm *.def *.md *.py *.txt *.yaml 2>/dev/null
@@ -165,7 +169,7 @@ if [ -d /opt/DNSRecon/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing DNSRecon.${NC}"
-     git clone https://github.com/darkoperator/dnsrecon.git /opt/DNSRecon
+     git clone https://github.com/darkoperator/dnsrecon /opt/DNSRecon
      cd /opt/DNSRecon/
      pip3 install -r requirements.txt
      echo
@@ -178,7 +182,7 @@ if [ -d /opt/dnstwist/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing dnstwist.${NC}"
-     git clone https://github.com/elceef/dnstwist.git /opt/dnstwist
+     git clone https://github.com/elceef/dnstwist /opt/dnstwist
      apt install python3-dnspython python3-geoip python3-whois python3-requests python3-ssdeep
      cd /opt/dnstwist/
      pip3 install -r requirements.txt
@@ -191,7 +195,7 @@ if [ -d /opt/Domain-Hunter/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing Domain Hunter.${NC}"
-     git clone https://github.com/threatexpress/domainhunter.git /opt/Domain-Hunter
+     git clone https://github.com/threatexpress/domainhunter /opt/Domain-Hunter
      cd /opt/Domain-Hunter/
      pip3 install -r requirements.txt
      chmod 755 domainhunter.py
@@ -204,7 +208,7 @@ if [ -d /opt/DomainPasswordSpray/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing DomainPasswordSpray.${NC}"
-     git clone https://github.com/dafthack/DomainPasswordSpray.git /opt/DomainPasswordSpray
+     git clone https://github.com/dafthack/DomainPasswordSpray /opt/DomainPasswordSpray
      echo
 fi
 
@@ -214,7 +218,7 @@ if [ -d /opt/Donut/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing Donut.${NC}"
-     git clone https://github.com/TheWover/donut.git /opt/Donut
+     git clone https://github.com/TheWover/donut /opt/Donut
      echo
 fi
 
@@ -225,7 +229,7 @@ if [ -d /opt/droopescan/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing droopescan.${NC}"
-     git clone https://github.com/droope/droopescan.git /opt/droopescan
+     git clone https://github.com/droope/droopescan /opt/droopescan
      cd /opt/droopescan/
      pip3 install -r requirements.txt
      echo
@@ -237,7 +241,7 @@ if [ -d /opt/Egress-Assess/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing Egress-Assess.${NC}"
-     git clone https://github.com/ChrisTruncer/Egress-Assess.git /opt/Egress-Assess
+     git clone https://github.com/ChrisTruncer/Egress-Assess /opt/Egress-Assess
      cd /opt/Egress-Assess/setup/
      ./setup.sh
      mv server.pem ../Egress-Assess/
@@ -251,8 +255,8 @@ if [ -d /opt/egressbuster/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing egressbuster.${NC}"
-     git clone https://github.com/trustedsec/egressbuster.git /opt/egressbuster
-echo
+     git clone https://github.com/trustedsec/egressbuster /opt/egressbuster
+     echo
 fi
 
 if [ -d /opt/Empire/.git ]; then
@@ -261,7 +265,7 @@ if [ -d /opt/Empire/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing Empire.${NC}"
-     git clone https://github.com/BC-SECURITY/Empire/ /opt/Empire
+     git clone https://github.com/BC-SECURITY/Empire /opt/Empire
      cd /opt/Empire/setup/
      ./install.sh
 fi
@@ -272,7 +276,7 @@ if [ -d /opt/EyeWitness/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing EyeWitness.${NC}"
-     git clone https://github.com/ChrisTruncer/EyeWitness.git /opt/EyeWitness
+     git clone https://github.com/ChrisTruncer/EyeWitness /opt/EyeWitness
      cd /opt/EyeWitness/Python/setup/
      ./setup.sh
 fi
@@ -283,7 +287,7 @@ if [ -d /opt/krbrelayx/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing krbrelayx.${NC}"
-     git clone https://github.com/dirkjanm/krbrelayx.git /opt/krbrelayx
+     git clone https://github.com/dirkjanm/krbrelayx /opt/krbrelayx
      echo
 fi
 
@@ -298,21 +302,21 @@ if [ -d /opt/Nishang/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing Nishang.${NC}"
-     git clone https://github.com/samratashok/nishang.git /opt/Nishang
+     git clone https://github.com/samratashok/nishang /opt/Nishang
      echo
 fi
 
 echo -e "${BLUE}Updating Nmap scripts.${NC}"
-sudo nmap --script-updatedb | egrep -v '(Starting|seconds)' | sed 's/NSE: //'
+nmap --script-updatedb | egrep -v '(Starting|seconds)' | sed 's/NSE: //'
 echo
 
-if [ -d /opt/PEASS/.git ]; then
-     echo -e "${BLUE}Updating PEASS.${NC}"
-     cd /opt/PEASS/ ; git pull
+if [ -d /opt/PEASS-ng/.git ]; then
+     echo -e "${BLUE}Updating PEASS-ng.${NC}"
+     cd /opt/PEASS-ng/ ; git pull
      echo
 else
-     echo -e "${YELLOW}Installing PEASS.${NC}"
-     git clone https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite.git /opt/PEASS
+     echo -e "${YELLOW}Installing PEASS-ng.${NC}"
+     git clone https://github.com/carlospolop/PEASS-ng /opt/PEASS-ng
      echo
 fi
 
@@ -322,10 +326,9 @@ if [ -d /opt/PowerUpSQL/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing PowerUpSQL.${NC}"
-     git clone https://github.com/NetSPI/PowerUpSQL.git /opt/PowerUpSQL
+     git clone https://github.com/NetSPI/PowerUpSQL /opt/PowerUpSQL
      echo
 fi
-
 
 if [ -d /opt/PrivescCheck/.git ]; then
      echo -e "${BLUE}Updating PrivescCheck.${NC}"
@@ -333,10 +336,9 @@ if [ -d /opt/PrivescCheck/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing PrivescCheck.${NC}"
-     git clone https://github.com/itm4n/PrivescCheck/ /opt/PrivescCheck
+     git clone https://github.com/itm4n/PrivescCheck /opt/PrivescCheck
      echo
 fi
-
 
 if [ -d /opt/SecLists/.git ]; then
      echo -e "${BLUE}Updating SecLists.${NC}"
@@ -365,7 +367,7 @@ if [ -d /opt/SharpShooter/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing SharpShooter.${NC}"
-     git clone https://github.com/mdsecactivebreach/SharpShooter.git /opt/SharpShooter
+     git clone https://github.com/mdsecactivebreach/SharpShooter /opt/SharpShooter
      cd /opt/SharpShooter/
      pip3 install -r requirements.txt
      echo
@@ -378,7 +380,7 @@ if [ -d /opt/spoofcheck/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing spoofcheck.${NC}"
-     git clone https://github.com/BishopFox/spoofcheck.git /opt/spoofcheck
+     git clone https://github.com/BishopFox/spoofcheck /opt/spoofcheck
      cd /opt/spoofcheck/
      pip3 install -r requirements.txt
      echo
@@ -390,7 +392,7 @@ if [ -d /opt/SprayingToolkit/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing SprayingToolkit.${NC}"
-     git clone https://github.com/byt3bl33d3r/SprayingToolkit.git /opt/SprayingToolkit
+     git clone https://github.com/byt3bl33d3r/SprayingToolkit /opt/SprayingToolkit
      cd /opt/SprayingToolkit/
      pip3 install -r requirements.txt
      echo
@@ -403,7 +405,7 @@ if [ -d /opt/theHarvester/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing theHarvester.${NC}"
-     git clone https://github.com/laramies/theHarvester.git /opt/theHarvester
+     git clone https://github.com/laramies/theHarvester /opt/theHarvester
      cd /opt/theHarvester/
      pip3 install -r requirements.txt
      echo
@@ -421,7 +423,7 @@ if [ -d /opt/unicorn/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing unicorn.${NC}"
-     git clone https://github.com/trustedsec/unicorn.git /opt/unicorn
+     git clone https://github.com/trustedsec/unicorn /opt/unicorn
      echo
 fi
 
@@ -442,7 +444,7 @@ if [ -d /opt/Windows-Exploit-Suggester-NG/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing Windows Exploit Suggester NG.${NC}"
-     git clone https://github.com/bitsadmin/wesng.git /opt/Windows-Exploit-Suggester-NG
+     git clone https://github.com/bitsadmin/wesng /opt/Windows-Exploit-Suggester-NG
      echo
 fi
 
@@ -452,7 +454,7 @@ if [ -d /opt/WitnessMe/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing WitnessMe.${NC}"
-     git clone https://github.com/byt3bl33d3r/WitnessMe.git /opt/WitnessMe
+     git clone https://github.com/byt3bl33d3r/WitnessMe /opt/WitnessMe
      cd /opt/WitnessMe/
      pip3 install -r requirements.txt
      echo
@@ -480,3 +482,4 @@ echo -e "${BLUE}Updating locate database.${NC}"
 updatedb
 
 exit
+

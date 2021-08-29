@@ -228,3 +228,4 @@ echo "***Scan complete.***"
 echo
 echo
 echo -e "The new reports are located at ${YELLOW}$home/data/sslscan.txt, sslyze.txt, ${NC}and ${YELLOW}nmap-ssl.txt ${NC}"
+

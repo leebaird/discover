@@ -809,5 +809,4 @@ sleep 4
 xdg-open https://www.youtube.com &
 sleep 4
 xdg-open https://$domain &
-sleep 4
-xdg-open $home/data/$domain/index.htm &
+
