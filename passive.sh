@@ -350,10 +350,7 @@ awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp2 > tmp3
 # Remove blank lines from end of file
 awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp3 > tmp4
 # Compress blank lines
-cat -s tmp4 > tmp5
-# Clean up
-sed 's/+1-//g' tmp5 > whois-ip
-echo > whois-ip
+cat -s tmp4 > whois-ip
 rm tmp*
 echo
 

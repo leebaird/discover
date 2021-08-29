@@ -2,7 +2,7 @@ Bash
 
 
 grep                                                          Search for a string
-grep -i                                                       Search for a string but ignore the case
+grep -i                                                       Search for a string and ignore the case
 grep -r                                                       Search recursively for a string in a directory
 zgrep                                                         Search for a string in a zip file
 grep -v                                                       Exclude a string from a file
