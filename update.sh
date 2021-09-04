@@ -154,6 +154,17 @@ if [ -d /opt/cobaltstrike ]; then
           chmod 755 cs-dns-stager.py
           echo
      fi
+
+
+     if [ -d /opt/cobaltstrike/third-party/FortyNorthSecurity-C2concealer/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike misc - FortyNorthSecurity.${NC}"
+          cd /opt/cobaltstrike/third-party/FortyNorthSecurity-C2concealer/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing Cobalt Strike misc - FortyNorthSecurity.${NC}"
+          git clone https://github.com/FortyNorthSecurity/C2concealer /opt/cobaltstrike/third-party/FortyNorthSecurity-C2concealer
+          echo
+     fi
 fi
 
 if [ -d /opt/discover/.git ]; then
