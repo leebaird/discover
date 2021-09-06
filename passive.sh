@@ -96,7 +96,7 @@ echo
 
 echo "Amass                     (1/$total)"
 amass enum -d $domain -ipv4 -noalts -norecursive > tmp
-grep "$domain" tmp | grep -v '_' | sed 's/ /:/g; s/,/, /g' | sort -u > zamass
+grep "$domain" tmp | sed 's/_//g; s/ /:/g; s/,/, /g' | sort -u > zamass
 rm tmp
 echo
 

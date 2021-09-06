@@ -65,20 +65,23 @@ nbtscan -f hosts.txt
 
 # Enumeration using a low level account
 
-systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
 hostname
-whoami /user
-whoami /priv
+whoami
+whoami /groups
+systeminfo
 net users                                         Local users
-net localgroup Administrators                     Users in the Administrators Security Group
+net localgroup Administrators                     Local administrators
 
 ipconfig /all
-ipconfig /displaydns
 route print
 arp -a
 netstat -ano | findstr "LISTEN"
 netstat -ano | findstr "ESTABLISH
-nltest.exe /dclist:                               Show Domain Controllers
+
+nltest /dclist:                                   Domain controllers
+net group "Domain Admins" /domain
+net group "Enterprise Admins" /domain
+net group "Domain Computers" /domain
 
 schtasks /query /fo LIST /v
 tasklist /SVC                                     Links running processes to started services
