@@ -194,6 +194,17 @@ All commands and their output are written to the logs directory.
 ctrl+k will clear the current window.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Commands
+
+run                               Execute a shel command via cmd.exe
+powerpick                         Execute PowerShell via Unmanaged PowerShell
+psinject                          Inject Unmanaged PowerShell into a process
+powershell-inport                 Import a PowerShell script
+execute-assembly                  Run a local .NET executable
+spawn/spawnto                     Spawn a session in rundll32
+inject                            Inject a session into a process
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Enumeration
 
 Seatbelt
