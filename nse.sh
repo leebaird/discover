@@ -277,7 +277,7 @@ fi
 
 if [[ -e $name/1433.txt ]]; then
      echo "     MS-SQL"
-     sudo nmap -iL $name/1433.txt -Pn -n --open -p1433 --script-timeout 20s --script=ms-sql-dump-hashes,ms-sql-empty-password,ms-sql-info,ms-sql-ntlm-info --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
+     sudo nmap -iL $name/1433.txt -Pn -n --open -p1433 --script-timeout 20s --script=ms-sql-config,ms-sql-dac,ms-sql-dump-hashes,ms-sql-empty-password,ms-sql-info,ms-sql-ntlm-info --min-hostgroup 100 -g $sourceport --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-1433.txt
 fi
