@@ -13,12 +13,20 @@ crackmapexec ldap $ip -u Administrator -p passwords.txt
 crackmapexec ldap $ip --port 636 -u Administrator -p passwords.txt
 ---------------------------------------------------------------------------------------------------------------------
 
+# Autodiscover
+
+https://autodiscover.target.com/autodiscover/autodiscover.xml
+https://target.com/autodiscover/autodiscover.xml
+---------------------------------------------------------------------------------------------------------------------
+
 # SprayingToolkit
+
 This will show the internal domain name.
 atomizer.py owa 'https://webmail.acme.com/Autodiscover' --recon
 ---------------------------------------------------------------------------------------------------------------------
 
 # Apache Directory Studio, using valid creds, port 636
+
 File > New > LDAP Browser > LDAP Connection > Next
 Connection name: 636
 Hostname: target IP
