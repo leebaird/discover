@@ -81,6 +81,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%dismiss%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%distribut%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%district%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%economic%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%education%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%engine%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%emirate%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%employ%'
@@ -138,6 +139,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%loyal%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%ltd%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%maintenance%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%manage%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%manufacturing%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%market%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%master%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%mba%'
@@ -399,7 +401,9 @@ db query UPDATE contacts SET title = REPLACE(title,'Chief Information Security O
 db query UPDATE contacts SET title = REPLACE(title,'Chief Operating Officer','COO')
 db query UPDATE contacts SET title = REPLACE(title,'CFO of','CFO,')
 db query UPDATE contacts SET title = REPLACE(title,'Consultant:','Consultant,')
+db query UPDATE contacts SET title = REPLACE(title,'cnc','CNC')
 db query UPDATE contacts SET title = REPLACE(title,'court','Court')
+db query UPDATE contacts SET title = REPLACE(title,'delivery','Delivery')
 db query UPDATE contacts SET title = REPLACE(title,'director-','Director,')
 db query UPDATE contacts SET title = REPLACE(title,'director -','Director,')
 db query UPDATE contacts SET title = REPLACE(title,'director','Director,')
@@ -424,6 +428,7 @@ db query UPDATE contacts SET title = REPLACE(title,'lead','Lead,')
 db query UPDATE contacts SET title = REPLACE(title,'Lead-','Lead,')
 db query UPDATE contacts SET title = REPLACE(title,'Lead -','Lead,')
 db query UPDATE contacts SET title = REPLACE(title,'LOGISTICS','Logistics')
+db query UPDATE contacts SET title = REPLACE(title,'machinist','Machinist')
 db query UPDATE contacts SET title = REPLACE(title,'manager-','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'manager -','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'manager','Manager,')
