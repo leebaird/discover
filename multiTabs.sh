@@ -21,7 +21,7 @@ case $choice in
 
      if [ -z $prefix ]; then
           for i in $(cat $location); do
-               xdg-open $i &
+               xdg-open http://$i &
                sleep 1
           done
      elif [ "$prefix" == "y" ]; then
