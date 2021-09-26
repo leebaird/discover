@@ -155,7 +155,6 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      fi
 
-
      if [ -d /opt/cobaltstrike/third-party/FortyNorthSecurity-C2concealer/.git ]; then
           echo -e "${BLUE}Updating Cobalt Strike misc - FortyNorthSecurity.${NC}"
           cd /opt/cobaltstrike/third-party/FortyNorthSecurity-C2concealer/ ; git pull
@@ -290,6 +289,16 @@ else
      git clone https://github.com/ChrisTruncer/EyeWitness /opt/EyeWitness
      cd /opt/EyeWitness/Python/setup/
      ./setup.sh
+fi
+
+if [ -d /opt/impacket/.git ]; then
+     echo -e "${BLUE}Updating impacket.${NC}"
+     cd /opt/impacket/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing impacket.${NC}"
+     git clone https://github.com/SecureAuthCorp/impacket /opt/impacket
+     echo
 fi
 
 if [ -d /opt/krbrelayx/.git ]; then
