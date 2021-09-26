@@ -79,11 +79,6 @@ sed -i "s|aaa|$payload|g" /tmp/listener.rc
 sed -i "s/bbb/$lhost/g" /tmp/listener.rc
 sed -i "s/ccc/$lport/g" /tmp/listener.rc
 
-x=`ps aux | grep 'postgres' | grep -v 'grep'`
-
-if [[ -z $x ]]; then
-     service postgresql start
-fi
-
-msfconsole -r /tmp/listener.rc
+echo
+msfconsole -q -r /tmp/listener.rc
 

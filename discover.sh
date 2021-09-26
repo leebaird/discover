@@ -37,7 +37,9 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Check for instances of Discover >1
 updatedb
+
 locate discover.sh > tmpinstance
+
 instqty=$(wc -l tmpinstance | cut -d ' ' -f1)
 
 if [ $instqty -gt 1 ]; then
@@ -57,10 +59,6 @@ if [ $instqty -gt 1 ]; then
      exit
 else
      rm tmpinstance
-fi
-
-if [ ! -e /root/.Xauthority ]; then
-     cp /home/kali/.Xauthority /root/.Xauthority 2>/dev/null
 fi
 
 ###############################################################################################################################

@@ -151,17 +151,13 @@ echo
 ###############################################################################################################################
 
 echo "DNSRecon                  (5/$total)"
-cd /opt/DNSRecon/
-python3 dnsrecon.py -d $domain -n 8.8.8.8 -t std > tmp
+python3 /opt/DNSRecon/dnsrecon.py -d $domain -n 8.8.8.8 -t std > tmp
 cat tmp | egrep -v '(All queries will|Could not|DNSSEC|Error|It is resolving|Performing|Records|Recursion|TXT|Version|Wildcard resolution)' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort | sed 's/[ \t]*$//' > records
-cat tmp | grep 'TXT' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort | sed 's/[ \t]*$//' >> records
+cat tmp | grep 'TXT' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | sort | sed 's/[ \t]*$//' >> records
 
 cat records >> $home/data/$domain/data/records.htm
 echo "</pre>" >> $home/data/$domain/data/records.htm
-
-mv records $CWD
 rm tmp
-cd $CWD
 echo
 
 ###############################################################################################################################
