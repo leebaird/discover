@@ -49,7 +49,7 @@ case $choice in
      fi
 
      # Check for wrong answer
-     if [ ! -f $location ]; then
+     if [ ! -d $location ]; then
           f_error
      fi
 
