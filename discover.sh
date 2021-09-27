@@ -35,34 +35,6 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 
 ###############################################################################################################################
 
-# Check for instances of Discover >1
-updatedb
-
-locate discover.sh > tmpinstance
-
-instqty=$(wc -l tmpinstance | cut -d ' ' -f1)
-
-if [ $instqty -gt 1 ]; then
-     echo
-     echo -e "$medium ${NC}"
-     echo
-     echo -e "Found ${YELLOW}$instqty${NC} instances of Discover on your system."
-     echo 'Refer to the following paths:'
-     cat tmpinstance | sed 's/^/\t/'
-     echo
-     echo 'Remove or rename all but the install path and try again.'
-     echo -e "If renaming, ${YELLOW}'discover.sh'${NC} can't be in name. Try ${YELLOW}'discover.bu'${NC} etc."
-     echo
-     echo -e "${YELLOW}$medium ${NC}"
-     echo
-     rm tmpinstance
-     exit
-else
-     rm tmpinstance
-fi
-
-###############################################################################################################################
-
 # Global variables
 CWD=$(pwd)
 discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
