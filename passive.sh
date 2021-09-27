@@ -748,41 +748,41 @@ f_runlocally
 
 xdg-open https://www.google.com/search?q=$companyurl+logo &
 sleep 4
+xdg-open https://securityheaders.com/?q=$domain &
+sleep 4
 xdg-open https://$companyurl.s3.amazonaws.com &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
 sleep 4
-xdg-open https://www.google.com/search?q=site:$domain+%22index+of/%22+%22parent+directory%22 &
+xdg-open https://www.shodan.io/search?query=$companyurl &
+sleep 4
+xdg-open https://www.ssllabs.com/ssltest/analyze.html?d=$domain&latest &
+sleep 4
+xdg-open https://www.google.com/search?q=site:$domain+%22index+of/%22+OR+%22parent+directory%22 &
 sleep 4
 xdg-open https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
 sleep 4
-xdg-open https://www.google.com/search?q=site:$domain+inurl:login &
+xdg-open https://censys.io/ipv4?q=$companyurl &
 sleep 4
 xdg-open http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
 sleep 4
-xdg-open https://www.google.com/search?q=site:$domain+intext:username+intext:password+inurl:ftp &
+xdg-open https://www.google.com/search?q=site:$domain+username+OR+password+OR+login &
 sleep 4
 xdg-open https://secsearch.sec.gov/search/docs?affiliate=secsearch&query=$companyurl &
 sleep 4
-xdg-open https://www.google.com/search?q=site:$domain+intext:username+intext:password+-inurl:careers &
-sleep 4
 xdg-open https://networksdb.io/search/org/$companyurl &
 sleep 4
-xdg-open https://www.google.com/search?q=site:$domain+intext:Atlassian+intext:jira+-inurl:careers &
-sleep 6
-xdg-open https://www.google.com/search?q=site:pastebin.com+intext:$domain &
+xdg-open https://www.google.com/search?q=site:$domain+Atlassian+OR+jira &
 sleep 4
-xdg-open https://www.facebook.com &
-sleep 4
-xdg-open https://www.instagram.com &
-sleep 4
-xdg-open https://www.linkedin.com &
-sleep 4
-xdg-open https://www.pinterest.com &
-sleep 4
-xdg-open https://twitter.com &
-sleep 4
-xdg-open https://www.youtube.com &
+xdg-open https://www.google.com/search?q=site:pastebin.com+%22$companyurl%22 &
+sleep 5
+xdg-open https://www.google.com/search?q=site:$domain+ext:doc+OR+ext:docx &
+sleep 5
+xdg-open https://www.google.com/search?q=site:$domain+ext:xls+OR+ext:xlsx &
+sleep 5
+xdg-open https://www.google.com/search?q=site:$domain+ext:ppt+OR+ext:pptx &
+sleep 5
+xdg-open https://www.google.com/search?q=site:$domain+ext:txt+OR+ext:log+OR+ext:bak &
 sleep 4
 xdg-open https://$domain &
 

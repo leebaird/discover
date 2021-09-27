@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Check for root
+if [[ $EUID == 0 ]]; then
+     echo
+     echo
+     echo "[!] This option cannot be ran as root."
+     echo
+     exit
+fi
+
 clear
 f_banner
 
