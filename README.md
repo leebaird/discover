@@ -70,7 +70,7 @@ recon-ng
     keys add bing_api <value>
 
 theHarvester
-    /opt/theHarvester/api-keys.yaml
+    /etc/theHarvester/api-keys.yaml
 ```
 
 ### Person
@@ -128,8 +128,9 @@ Enter the location of your file:
 Open multiple tabs in Firefox with:
 
 1.  List
-2.  Directories from robots.txt
-3.  Previous menu
+2.  Files in a directory
+3.  Directories in robots.txt
+4.  Previous menu
 ```
 
 * Use a list containing IPs and/or URLs.
