@@ -7,14 +7,16 @@ f_banner
 echo -e "${BLUE}Open multiple tabs in Firefox with:${NC}"
 echo
 echo "1.  List"
-echo "2.  Directories from robots.txt"
-echo "3.  Previous menu"
+echo "2.  Files in a directory"
+echo "3.  Directories in robots.txt"
+echo "4.  Previous menu"
 echo
 echo -n "Choice: "
 read choice
 
 case $choice in
-     1) f_location
+     1)
+     f_location
      echo
      echo -n "Use an https prefix? (y/N) "
      read prefix
@@ -35,6 +37,31 @@ case $choice in
      ;;
 
      2)
+     echo
+     echo $medium
+     echo
+     echo -n "Enter the location of your directory: "
+     read -e location
+
+     # Check for no answer
+     if [[ -z $location ]]; then
+          f_error
+     fi
+
+     # Check for wrong answer
+     if [ ! -f $location ]; then
+          f_error
+     fi
+
+     cd $location
+
+     for i in $(ls -l | awk '{print $9}'); do
+          xdg-open $i &
+          sleep 1
+     done
+     ;;
+
+     3)
      echo
      echo $medium
      echo
@@ -83,7 +110,7 @@ case $choice in
      echo
      ;;
 
-     3) f_main;;
+     4) f_main;;
      *) f_error;;
 esac
 }
