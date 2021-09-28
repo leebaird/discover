@@ -134,6 +134,7 @@ Open multiple tabs in Firefox with:
 ```
 
 * Use a list containing IPs and/or URLs.
+* Say you finished scanning 10 web apps with Nikto and you want to open every htm report located in a directory.
 * Use wget to pull a domain's robot.txt file, then open all of the directories.
 
 ### Nikto
