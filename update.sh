@@ -16,6 +16,10 @@ fi
 
 # Clean up
 
+if [ -d /opt/Empire/.git ]; then
+     rm -rf /opt/Empire/
+fi
+
 if [ -d /opt/PEASS/.git ]; then
      rm -rf /opt/PEASS/
 fi
@@ -271,17 +275,6 @@ else
      echo -e "${YELLOW}Installing egressbuster.${NC}"
      git clone https://github.com/trustedsec/egressbuster /opt/egressbuster
      echo
-fi
-
-if [ -d /opt/Empire/.git ]; then
-     echo -e "${BLUE}Updating Empire.${NC}"
-     cd /opt/Empire/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing Empire.${NC}"
-     git clone https://github.com/BC-SECURITY/Empire /opt/Empire
-     cd /opt/Empire/setup/
-     ./install.sh
 fi
 
 if [ -d /opt/EyeWitness/.git ]; then
