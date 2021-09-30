@@ -57,8 +57,8 @@ echo >> tmp-updates
 echo "theHarvester" >> tmp-updates
 echo "==============================" >> tmp-updates
 
-python3 /opt/theHarvester/theHarvester.py -h | sed -n '/baidu/,$p' | sed 's/^[ \t]*//' | tr ' ,' '\n' | sed '/^$/d' | grep -v 'bingapi' > tmp
-grep 'theHarvester.py' /opt/discover/passive.sh | awk '{print $6}' | sort -u > tmp2
+theHarvester -h | sed -n '/baidu/,$p' | sed 's/^[ \t]*//' | tr ' ,' '\n' | sed '/^$/d' > tmp
+grep 'theHarvester' /opt/discover/passive.sh | grep -v '"' | awk '{print $5}' > tmp2
 diff tmp tmp2 | grep '<' | awk '{print $2}' >> tmp-updates
 
 echo >> tmp-updates
