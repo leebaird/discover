@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Number of tests
-total=51
+total=48
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
@@ -223,62 +223,55 @@ echo "     duckduckgo           (20/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b duckduckgo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zduckduckgo
 echo "     github-code          (21/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b github-code | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgithub-code
-echo "     google               (22/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b google | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgoogle
-echo "     hackertarget         (23/$total)"
+echo "     hackertarget         (22/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b hackertarget | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhackertarget
-echo "     hunter               (24/$total)"
+echo "     hunter               (23/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunter
-echo "     intelx               (25/$total)"
+echo "     intelx               (24/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
-echo "     linkedin             (26/$total)"
+echo "     linkedin             (25/$total)"
 /opt/theHarvester/theHarvester.py -d "$company" -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > tmp
 sleep 15
 /opt/theHarvester/theHarvester.py -d $domain -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > tmp2
 # Make first 2 columns title case. Remove traiing whitespace.
 cat tmp tmp2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | egrep -iv '(about|google|retired)' | sed "s/ - $company//g" | sed 's/[ \t]*$//' | sort -u > zlinkedin
-echo "     linkedin_links       (27/$total)"
+echo "     linkedin_links       (26/$total)"
 sleep 30
 /opt/theHarvester/theHarvester.py -d $domain -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
-echo "     omnisint             (28/$total)"
+echo "     omnisint             (27/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b omnisint | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zomnisint
-echo "     otx                  (29/$total)"
+echo "     otx                  (28/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zotx
-echo "     pentesttools         (30/$total)"
+echo "     pentesttools         (29/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b pentesttools | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zpentesttools
-echo "     projectdiscovery     (31/$total)"
+echo "     projectdiscovery     (30/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b projectdiscovery | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zprojectdiscovery
-echo "     qwant                (32/$total)"
+echo "     qwant                (31/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b qwant | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zqwant
-echo "     rapiddns             (33/$total)"
+echo "     rapiddns             (32/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b rapiddns | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zrapiddns
-echo "     securityTrails       (34/$total)"
+echo "     securityTrails       (33/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
-echo "     spyse                (35/$total)"
+echo "     spyse                (34/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
-echo "     sublist3r            (36/$total)"
+echo "     sublist3r            (35/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b sublist3r | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsublist3r
-echo "     threatcrowd          (37/$total)"
+echo "     threatcrowd          (36/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
-echo "     threatminer          (38/$total)"
+echo "     threatminer          (37/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b threatminer | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatminer
-echo "     trello               (39/$total)"
-sleep 30
-/opt/theHarvester/theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
-echo "     twitter              (40/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
-echo "     urlscan              (41/$total)"
+echo "     urlscan              (38/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b urlscan | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zurlscan
-echo "     virustotal           (42/$total)"
+echo "     virustotal           (39/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
-echo "     yahoo                (43/$total)"
+echo "     yahoo                (40/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
 rm tmp*
 echo
 
 ###############################################################################################################################
 
-echo "Metasploit                (44/$total)"
+echo "Metasploit                (41/$total)"
 msfconsole -q -x "use auxiliary/gather/search_email_collector; set DOMAIN $domain; run; exit y" > tmp 2>/dev/null
 grep @$domain tmp | awk '{print $2}' | tr '[A-Z]' '[a-z]' | sort -u > zmsf
 echo
@@ -286,7 +279,7 @@ echo
 ###############################################################################################################################
 
 echo "Whois"
-echo "     Domain               (45/$total)"
+echo "     Domain               (42/$total)"
 whois -H $domain > tmp 2>/dev/null
 # Remove leading whitespace
 sed 's/^[ \t]*//' tmp > tmp2
@@ -321,7 +314,7 @@ sed 's/: /:#####/g' tmp13 | column -s '#' -t > whois-domain
 
 ###############################################################################################################################
 
-echo "     IP                   (46/$total)"
+echo "     IP                   (43/$total)"
 ip=`ping -c1 $domain | grep PING | cut -d '(' -f2 | cut -d ')' -f1`
 whois $ip > tmp
 egrep -v '(\#|\%|\*|All reports|Comment|dynamic hosting|For fastest|For more|Found a referral|http|OriginAS:$|Parent:$|point in|RegDate:$|remarks:|The activity|the correct|this kind of object|Without these)' tmp > tmp2
@@ -336,7 +329,7 @@ echo
 
 ###############################################################################################################################
 
-echo "dnsdumpster.com           (47/$total)"
+echo "dnsdumpster.com           (44/$total)"
 # Generate a random cookie value
 rando=$(openssl rand -base64 32 | tr -dc 'a-zA-Z0-9' | cut -c 1-32)
 curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com/static/map/$domain.png > /dev/null
@@ -346,7 +339,7 @@ echo
 
 ###############################################################################################################################
 
-echo "intodns.com               (48/$total)"
+echo "intodns.com               (45/$total)"
 wget -q http://www.intodns.com/$domain -O tmp
 cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
 cat tmp2 >> $home/data/$domain/pages/config.htm
@@ -371,13 +364,13 @@ echo
 
 ###############################################################################################################################
 
-echo "robtex.com                (49/$total)"
+echo "robtex.com                (46/$total)"
 wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
 echo
 
 ###############################################################################################################################
 
-echo "Registered Domains        (50/$total)"
+echo "Registered Domains        (47/$total)"
 f_regdomain(){
 while read regdomain; do
      ipaddr=$(dig +short $regdomain)
@@ -463,7 +456,7 @@ done < tmp
 
 cat raw | sed 's/FOO$//; s/:,/:/g' | grep -v localhost | column -t -s ':' | sed 's/,/, /g' > subdomains
 
-cat z* | egrep -v '(@|:|\.|Atlanta|Boston|Detroit|Google|Maryland|North Carolina|Philadelphia|Planning|Search|substring|United|University)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g' | sed '/[0-9]/d' | sed 's/ - /,/g; s/ /,/1' | awk -F ',' '{print $2"#"$1"#"$3}' | sed '/^[[:alpha:]]\+ [[:alpha:]]\+#/ s/^[[:alpha:]]\+ //' | sort -u > names
+cat z* | egrep -iv '(@|:|\.|atlanta|boston|captcha|detroit|google|maryland|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g' | sed '/[0-9]/d' | sed 's/ - /,/g; s/ /,/1' | awk -F ',' '{print $2"#"$1"#"$3}' | sed '/^[[:alpha:]]\+ [[:alpha:]]\+#/ s/^[[:alpha:]]\+ //' | sed 's/^[ \t]*//' | sort -u > names
 
 grep '.doc' z* >> doc
 grep '.pdf' z* >> pdf
@@ -473,7 +466,7 @@ grep '.xls' z* >> xls
 
 ###############################################################################################################################
 
-echo "recon-ng                  (51/$total)"
+echo "recon-ng                  (48/$total)"
 echo "marketplace refresh" > passive.rc
 echo "marketplace install all" >> passive.rc
 echo "workspaces create $domain" >> passive.rc
@@ -750,13 +743,13 @@ echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${
 
 f_runlocally
 
-xdg-open https://www.google.com/search?q=$companyurl+logo &
+xdg-open https://www.google.com/search?q=%22$companyurl%22+logo &
 sleep 4
-xdg-open https://censys.io/ipv4?q=$companyurl &
+xdg-open https://censys.io/ipv4?q=%22$companyurl%22 &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
 sleep 4
-xdg-open https://www.shodan.io/search?query=$companyurl &
+xdg-open https://www.shodan.io/search?query=%22$companyurl%22 &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22index+of/%22+OR+%22parent+directory%22 &
 sleep 4
@@ -764,11 +757,11 @@ xdg-open https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostr
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+username+OR+password+OR+login &
 sleep 4
-xdg-open http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
+xdg-open http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=%22$companyurl%22 &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+Atlassian+OR+jira &
 sleep 4
-xdg-open https://networksdb.io/search/org/$companyurl &
+xdg-open https://networksdb.io/search/org/%22$companyurl%22 &
 sleep 4
 xdg-open https://www.google.com/search?q=site:pastebin.com+%22$companyurl%22 &
 sleep 6
