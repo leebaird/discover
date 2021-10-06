@@ -202,77 +202,77 @@ echo
 
 echo "theHarvester"
 echo "     anubis               (11/$total)"
-theHarvester -d $domain -b anubis | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zanubis
+/opt/theHarvester/theHarvester.py -d $domain -b anubis | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zanubis
 echo "     baidu                (12/$total)"
-theHarvester -d $domain -b baidu | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbaidu
+/opt/theHarvester/theHarvester.py -d $domain -b baidu | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbaidu
 echo "     binaryedge           (13/$total)"
-theHarvester -d $domain -b binaryedge | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbinaryedge
+/opt/theHarvester/theHarvester.py -d $domain -b binaryedge | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbinaryedge
 echo "     bing                 (14/$total)"
-theHarvester -d $domain -b bing | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing
+/opt/theHarvester/theHarvester.py -d $domain -b bing | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing
 echo "     bufferoverun         (15/$total)"
-theHarvester -d $domain -b bufferoverun | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbufferoverun
+/opt/theHarvester/theHarvester.py -d $domain -b bufferoverun | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbufferoverun
 echo "     censys               (16/$total)"
-theHarvester -d $domain -b censys | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcensys
+/opt/theHarvester/theHarvester.py -d $domain -b censys | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcensys
 echo "     certspotter          (17/$total)"
-theHarvester -d $domain -b certspotter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcertspotter
+/opt/theHarvester/theHarvester.py -d $domain -b certspotter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcertspotter
 echo "     crtsh                (18/$total)"
-theHarvester -d $domain -b crtsh | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcrtsh
+/opt/theHarvester/theHarvester.py -d $domain -b crtsh | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcrtsh
 echo "     dnsdumpster          (19/$total)"
-theHarvester -d $domain -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdnsdumpster
+/opt/theHarvester/theHarvester.py -d $domain -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdnsdumpster
 echo "     duckduckgo           (20/$total)"
-theHarvester -d $domain -b duckduckgo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zduckduckgo
+/opt/theHarvester/theHarvester.py -d $domain -b duckduckgo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zduckduckgo
 echo "     github-code          (21/$total)"
-theHarvester -d $domain -b github-code | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgithub-code
+/opt/theHarvester/theHarvester.py -d $domain -b github-code | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgithub-code
 echo "     google               (22/$total)"
-theHarvester -d $domain -b google | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgoogle
+/opt/theHarvester/theHarvester.py -d $domain -b google | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgoogle
 echo "     hackertarget         (23/$total)"
-theHarvester -d $domain -b hackertarget | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhackertarget
+/opt/theHarvester/theHarvester.py -d $domain -b hackertarget | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhackertarget
 echo "     hunter               (24/$total)"
-theHarvester -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunter
+/opt/theHarvester/theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunter
 echo "     intelx               (25/$total)"
-theHarvester -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
+/opt/theHarvester/theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
 echo "     linkedin             (26/$total)"
-theHarvester -d "$company" -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > tmp
+/opt/theHarvester/theHarvester.py -d "$company" -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > tmp
 sleep 15
-theHarvester -d $domain -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > tmp2
+/opt/theHarvester/theHarvester.py -d $domain -b linkedin | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > tmp2
 # Make first 2 columns title case. Remove traiing whitespace.
 cat tmp tmp2 | sed 's/\( *\)\([^ ]*\)\( *\)\([^ ]*\)/\1\L\u\2\3\L\u\4/' | egrep -iv '(about|google|retired)' | sed "s/ - $company//g" | sed 's/[ \t]*$//' | sort -u > zlinkedin
 echo "     linkedin_links       (27/$total)"
 sleep 30
-theHarvester -d $domain -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
+/opt/theHarvester/theHarvester.py -d $domain -b linkedin_links | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zlinkedin_links
 echo "     omnisint             (28/$total)"
-theHarvester -d $domain -b omnisint | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zomnisint
+/opt/theHarvester/theHarvester.py -d $domain -b omnisint | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zomnisint
 echo "     otx                  (29/$total)"
-theHarvester -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zotx
+/opt/theHarvester/theHarvester.py -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zotx
 echo "     pentesttools         (30/$total)"
-theHarvester -d $domain -b pentesttools | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zpentesttools
+/opt/theHarvester/theHarvester.py -d $domain -b pentesttools | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zpentesttools
 echo "     projectdiscovery     (31/$total)"
-theHarvester -d $domain -b projectdiscovery | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zprojectdiscovery
+/opt/theHarvester/theHarvester.py -d $domain -b projectdiscovery | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zprojectdiscovery
 echo "     qwant                (32/$total)"
-theHarvester -d $domain -b qwant | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zqwant
+/opt/theHarvester/theHarvester.py -d $domain -b qwant | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zqwant
 echo "     rapiddns             (33/$total)"
-theHarvester -d $domain -b rapiddns | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zrapiddns
+/opt/theHarvester/theHarvester.py -d $domain -b rapiddns | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zrapiddns
 echo "     securityTrails       (34/$total)"
-theHarvester -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
+/opt/theHarvester/theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
 echo "     spyse                (35/$total)"
-theHarvester -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
+/opt/theHarvester/theHarvester.py -d $domain -b spyse | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zspyse
 echo "     sublist3r            (36/$total)"
-theHarvester -d $domain -b sublist3r | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsublist3r
+/opt/theHarvester/theHarvester.py -d $domain -b sublist3r | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsublist3r
 echo "     threatcrowd          (37/$total)"
-theHarvester -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
+/opt/theHarvester/theHarvester.py -d $domain -b threatcrowd | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatcrowd
 echo "     threatminer          (38/$total)"
-theHarvester -d $domain -b threatminer | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatminer
+/opt/theHarvester/theHarvester.py -d $domain -b threatminer | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatminer
 echo "     trello               (39/$total)"
 sleep 30
-theHarvester -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
+/opt/theHarvester/theHarvester.py -d $domain -b trello | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztrello
 echo "     twitter              (40/$total)"
-theHarvester -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
+/opt/theHarvester/theHarvester.py -d $domain -b twitter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > ztwitter
 echo "     urlscan              (41/$total)"
-theHarvester -d $domain -b urlscan | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zurlscan
+/opt/theHarvester/theHarvester.py -d $domain -b urlscan | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zurlscan
 echo "     virustotal           (42/$total)"
-theHarvester -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
+/opt/theHarvester/theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
 echo "     yahoo                (43/$total)"
-theHarvester -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
+/opt/theHarvester/theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
 rm tmp*
 echo
 
@@ -752,40 +752,32 @@ f_runlocally
 
 xdg-open https://www.google.com/search?q=$companyurl+logo &
 sleep 4
-xdg-open https://securityheaders.com/?q=$domain &
-sleep 4
-xdg-open https://$companyurl.s3.amazonaws.com &
+xdg-open https://censys.io/ipv4?q=$companyurl &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
 sleep 4
 xdg-open https://www.shodan.io/search?query=$companyurl &
 sleep 4
-xdg-open https://www.ssllabs.com/ssltest/analyze.html?d=$domain&latest &
-sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22index+of/%22+OR+%22parent+directory%22 &
 sleep 4
 xdg-open https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
 sleep 4
-xdg-open https://censys.io/ipv4?q=$companyurl &
+xdg-open https://www.google.com/search?q=site:$domain+username+OR+password+OR+login &
 sleep 4
 xdg-open http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=$companyurl &
 sleep 4
-xdg-open https://www.google.com/search?q=site:$domain+username+OR+password+OR+login &
-sleep 4
-xdg-open https://secsearch.sec.gov/search/docs?affiliate=secsearch&query=$companyurl &
+xdg-open https://www.google.com/search?q=site:$domain+Atlassian+OR+jira &
 sleep 4
 xdg-open https://networksdb.io/search/org/$companyurl &
 sleep 4
-xdg-open https://www.google.com/search?q=site:$domain+Atlassian+OR+jira &
-sleep 4
 xdg-open https://www.google.com/search?q=site:pastebin.com+%22$companyurl%22 &
-sleep 5
+sleep 6
 xdg-open https://www.google.com/search?q=site:$domain+ext:doc+OR+ext:docx &
-sleep 5
+sleep 7
 xdg-open https://www.google.com/search?q=site:$domain+ext:xls+OR+ext:xlsx &
-sleep 5
+sleep 8
 xdg-open https://www.google.com/search?q=site:$domain+ext:ppt+OR+ext:pptx &
-sleep 5
+sleep 9
 xdg-open https://www.google.com/search?q=site:$domain+ext:txt+OR+ext:log+OR+ext:bak &
 sleep 4
 xdg-open https://$domain &
