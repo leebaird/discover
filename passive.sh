@@ -749,7 +749,9 @@ xdg-open https://censys.io/ipv4?q=%22$companyurl%22 &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
 sleep 4
-xdg-open https://www.shodan.io/search?query=%22$companyurl%22 &
+xdg-open https://www.shodan.io/search?query=$domain &
+sleep 4
+xdg-open https://www.shodan.io/search?query=org:%22$companyurl%22 &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22index+of/%22+OR+%22parent+directory%22 &
 sleep 4
