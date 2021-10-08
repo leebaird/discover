@@ -569,7 +569,7 @@ if [ -s networks-final ]; then
      networkcount=$(wc -l networks-final | cut -d ' ' -f1)
      echo "Networks             $networkcount" >> zreport
      echo "Networks ($networkcount)" >> tmp
-     echo $short >> tmp
+     echo $long >> tmp
      cat networks-final >> tmp 2>/dev/null
      echo >> tmp
 fi
