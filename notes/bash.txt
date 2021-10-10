@@ -74,7 +74,7 @@ awk -v n=-2 'NR==n+1 {if($0 ~ /BAR/) { next; } else { print hold } } /FOO/ {n=NR
                                                               Find FOO, if the next line contains BAR, delete both lines
 
 sed 's/.* //'                                                 Find lines that contin a space and print from the space to the end of the line
-grep -E 'FOO|BAR'                                             Find lines that contain either string 1 or 2
+grep -E 'FOO|BAR'                                             Find lines that contain FOO or BAR
 grep '[0-9]'                                                  Find lines that contain a number
 grep '[0-9]$'                                                 Find lines that end with a number
 grep 'FOO$'                                                   Find lines that end with FOO
