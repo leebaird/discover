@@ -53,14 +53,12 @@ RECON
 4.  Previous menu
 ```
 
-Passive uses ARIN, dnsrecon, goofile, goog-mail, goohost, theHarvester,
-    Metasploit, URLCrazy, Whois, multiple websites, and recon-ng.
+Passive uses Amass, ARIN, DNSRecon, dnstwist, goog-mail, goohost, theHarvester,
+    Metasploit, Whois, multiple websites, and recon-ng.
 
 Active uses dnsrecon, WAF00W, traceroute, Whatweb, and recon-ng.
 
-[*] Acquire API keys for Bing, Builtwith, Fullcontact, GitHub,
-    Google, Hashes, Hunter, SecurityTrails, and Shodan for
-    maximum results with recon-ng and theHarvester.
+[*] Acquire API keys for maximum results with theHarvester and recon-ng.
 
 ```
 API key locations:
@@ -70,7 +68,7 @@ recon-ng
     keys add bing_api <value>
 
 theHarvester
-    /etc/theHarvester/api-keys.yaml
+    /opt/theHarvester/api-keys.yaml
 ```
 
 ### Person

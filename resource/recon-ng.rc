@@ -1,7 +1,5 @@
 modules load recon/companies-contacts/pen
 run
-modules load recon/domains-contacts/metacrawler
-run
 modules load recon/domains-contacts/pen
 run
 modules load recon/domains-contacts/pgp_search
@@ -35,10 +33,6 @@ modules load recon/contacts-credentials/hibp_paste
 run
 modules load recon/contacts-profiles/fullcontact
 run
-modules load recon/profiles-profiles/namechk
-run
-modules load recon/profiles-profiles/profiler
-run
 modules load recon/domains-companies/pen
 run
 modules load recon/domains-hosts/builtwith
@@ -51,12 +45,17 @@ db query DELETE FROM ports WHERE host LIKE '%www%'
 
 modules load recon/domains-hosts/certificate_transparency
 run
+modules load recon/domains-hosts/hackertarget
+run
+modules load recon/domains-hosts/threatcrowd
+run
+modules load recon/domains-hosts/threatminer
+run
 
 db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
 db query DELETE FROM hosts WHERE host LIKE '%www%'
 
-modules load recon/domains-hosts/ssl_san
+modules load recon/hosts-hosts/resolve
 run
-
 modules load recon/ports-hosts/migrate_ports
 run

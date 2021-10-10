@@ -24,10 +24,6 @@ if [ -d /opt/PEASS/.git ]; then
      rm -rf /opt/PEASS/
 fi
 
-if [ -d /opt/theHarvester/.git ]; then
-     rm -rf /opt/theHarvester/
-fi
-
 ###############################################################################################################################
 
 clear
@@ -411,6 +407,18 @@ else
      echo -e "${YELLOW}Installing SprayingToolkit.${NC}"
      git clone https://github.com/byt3bl33d3r/SprayingToolkit /opt/SprayingToolkit
      cd /opt/SprayingToolkit/
+     pip3 install -r requirements.txt
+     echo
+fi
+
+if [ -d /opt/theHarvester/.git ]; then
+     echo -e "${BLUE}Updating theHarvester.${NC}"
+     cd /opt/theHarvester/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing theHarvester.${NC}"
+     git clone https://github.com/laramies/theHarvester /opt/theHarvester
+     cd /opt/theHarvester/
      pip3 install -r requirements.txt
      echo
 fi
