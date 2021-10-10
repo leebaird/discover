@@ -24,10 +24,6 @@ if [ -d /opt/PEASS/.git ]; then
      rm -rf /opt/PEASS/
 fi
 
-#if [ -d /opt/theHarvester/.git ]; then
-#     rm -rf /opt/theHarvester/
-#fi
-
 ###############################################################################################################################
 
 clear
