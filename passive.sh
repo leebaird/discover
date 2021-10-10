@@ -170,19 +170,6 @@ echo
 
 ###############################################################################################################################
 
-#echo "goofile                   (7/$total)"
-#python3 $discover/mods/goofile.py $domain doc > doc
-#python3 $discover/mods/goofile.py $domain docx | sort -u >> doc
-#python3 $discover/mods/goofile.py $domain pdf | sort -u > pdf
-#python3 $discover/mods/goofile.py $domain ppt > ppt
-#python3 $discover/mods/goofile.py $domain pptx | sort -u >> ppt
-#python3 $discover/mods/goofile.py $domain txt | sort -u > txt
-#python3 $discover/mods/goofile.py $domain xls > xls
-#python3 $discover/mods/goofile.py $domain xlsx | sort -u >> xls
-#echo
-
-###############################################################################################################################
-
 echo "goog-mail                 (7/$total)"
 $discover/mods/goog-mail.py $domain | grep -v 'cannot' | tr '[A-Z]' '[a-z]' > zgoog-mail
 echo
