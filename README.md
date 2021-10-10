@@ -70,7 +70,7 @@ recon-ng
     keys add bing_api <value>
 
 theHarvester
-    /etc/theHarvester/api-keys.yaml
+    /opt/theHarvester/api-keys.yaml
 ```
 
 ### Person
