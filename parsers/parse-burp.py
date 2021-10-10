@@ -1,18 +1,17 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # by John Kim
 # Thanks to Securicon, LLC. for sponsoring development
-#
-#-*- coding:utf-8 -*-
-
-from BaseHTTPServer import BaseHTTPRequestHandler
-from httplib import HTTPResponse
-from StringIO import StringIO
+# Ported to python3 by Jay Townsend 2021-10-11
+# -*- coding:utf-8 -*-
+import socket
+from http.server import BaseHTTPRequestHandler
+from http.client import HTTPResponse
+from io import StringIO, BytesIO
+from typing import Tuple
 import binascii
 import csv
-import datetime
 import sys
-import time
 
 ################################################################
 
@@ -20,20 +19,20 @@ import time
 try:
     from lxml import etree
 except ImportError:
-    print "Missing lxml library. Please install using PIP. https://pypi.python.org/pypi/lxml/3.4.2"
+    print("Missing lxml library. Please install using PIP3 or install using your distro python3 package if available. https://pypi.python.org/pypi/lxml/")
     exit()
 
 try:
     import html2text
 except ImportError:
-    print "Missing html2text library. Please install using PIP. https://pypi.python.org/pypi/html2text/2015.2.18"
+    print("Missing html2text library. Please install using PIP3 or install using your distro python3 package if available. https://pypi.python.org/pypi/html2text/")
     exit()
 
 # Custom libraries
 try:
     import utfdictcsv
 except ImportError:
-    print "Missing dict to csv converter custom library. utfdictcsv.py should be in the same path as this script."
+    print("Missing dict to csv converter custom library. utfdictcsv.py should be in the same path as this script.")
     exit()
 
 ################################################################
@@ -60,10 +59,12 @@ COLUMN_HEADERS = ['host', 'path', 'issueDetail', 'name', 'issueBackground', 'rem
 
 ################################################################
 
+
 class HTTPRequest(BaseHTTPRequestHandler):
-    def __init__(self, request_text):
-        self.rfile = StringIO(request_text)
-        self.raw_requestline = self.rfile.readline()
+    def __init__(self, request_text, request: bytes, client_address: Tuple[str, int], server: socket.BDADDR_ANY):
+        super().__init__(request, client_address, server)
+        self.rfile = BytesIO(request_text)
+        self.raw_requestline = self.rfile.readline().decode('utf-8')
         self.error_code = self.error_message = None
         self.parse_request()
 
@@ -73,7 +74,8 @@ class HTTPRequest(BaseHTTPRequestHandler):
 
 ################################################################
 
-class FakeSocket():
+
+class FakeSocket:
     def __init__(self, response_str):
         self._file = StringIO(response_str)
 
@@ -92,7 +94,8 @@ def report_writer(report_dic):
         csvWriter = utfdictcsv.DictUnicodeWriter(outFile, REPORT_HEADERS, quoting=csv.QUOTE_ALL)
         csvWriter.writerow(CUSTOM_HEADERS)
         csvWriter.writerows(report_dic)
-    print "Successfully parsed."
+    print("Successfully parsed.")
+
 
 ################################################################
 
@@ -113,7 +116,7 @@ def issue_row(raw_row):
     if request:
         parsed_request = HTTPRequest(binascii.a2b_base64(request))
         formatted_request_a = "command : {}\nuri : {}\nrequest_version : {}".format(parsed_request.command, parsed_request.path, parsed_request.request_version)
-        formatted_request_b = "\n".join("{}: {}".format(header, parsed_request.headers[header]) for header in parsed_request.headers.keys())
+        formatted_request_b = "\n".join("{}: {}".format(header, parsed_request.headers[header]) for header in list(parsed_request.headers.keys()))
         issue_row['requestHeaders'] = "{}\n{}".format(formatted_request_a, formatted_request_b)
 
     response = raw_row.findtext('./requestresponse/response')
@@ -134,6 +137,7 @@ def burp_parser(burp_xml_file):
 
 ################################################################
 
+
 if __name__ == "__main__":
 
     if len(sys.argv) > 1:
@@ -143,9 +147,9 @@ if __name__ == "__main__":
             try:
                 burp_parser(xml_file)
             except:
-                print "[!] Error processing file.\n"
+                print("[!] Error processing file.\n")
     else:
-        print "\nUsage: ./parse-burp.py Base64_input.xml"
-        print "Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0])
+        print("\nUsage: ./parse-burp.py Base64_input.xml")
+        print(("Any field longer than 32,000 characters will be truncated.\n".format(sys.argv[0])))
         exit()
 
