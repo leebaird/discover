@@ -1,15 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # by John Kim
 # Thanks to Securicon, LLC. for sponsoring development
-#
-#-*- coding:utf-8 -*-
+# Ported to python3 by Jay Townsend 2021-10-11
+# -*- coding:utf-8 -*-
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 import csv
 import argparse
-import StringIO
+import io
 
 ################################################################
 
@@ -17,20 +17,20 @@ import StringIO
 try:
     from lxml import etree
 except ImportError:
-    print "Missing lxml library. Please install using PIP. https://pypi.python.org/pypi/lxml/3.4.2"
+    print("Missing lxml library. Please install using PIP3 or install using your distro python3 package if available. https://pypi.python.org/pypi/lxml/")
     exit()
 
 try:
     import html2text
-except:
-    print "Missing html2text library by Aaron Shwartz. Please install using PIP. https://pypi.python.org/pypi/html2text/2015.2.18"
+except ImportError:
+    print("Missing html2text library by Aaron Shwartz. Please install using PIP3 or install using your distro python3 package if available. https://pypi.python.org/pypi/html2text/")
     exit()
 
 # custom libraries
 try:
     import utfdictcsv
 except ImportError:
-    print "Missing dict to csv converter custom lib. utfdictcsv.py should be in the same path as this file."
+    print("Missing dict to csv converter custom lib. utfdictcsv.py should be in the same path as this file.")
     exit()
 
 
@@ -54,7 +54,7 @@ REPORT_HEADERS_SECURITY_AUDIT = ['ip_address',
 
 
 def fix_text(txt):
-    lines = StringIO.StringIO(txt).readlines()
+    lines = io.StringIO(txt).readlines()
     _temp_stage_1 = " ".join([line.strip() for line in lines if line.strip()])
     return ' '.join(_temp_stage_1.split())
 
@@ -204,9 +204,9 @@ if __name__ == "__main__":
 
     try:
         nipper_parser(args.nipper_xml_file, args.outfile)
-        print "Successfully parsed!"
+        print("Successfully parsed!")
 
     except IOError:
-        print "ERROR processing file: {}.".format(args.nipper_xml_file)
+        print("ERROR processing file: {}.".format(args.nipper_xml_file))
         exit()
 
