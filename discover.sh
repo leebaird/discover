@@ -104,7 +104,7 @@ echo
 echo -e "${RED}$medium${NC}"
 echo
 echo
-exit
+exit 1
 }
 
 export -f f_error
@@ -179,7 +179,7 @@ echo
 echo "Saving complete."
 echo
 echo
-exit
+exit 1
 }
 
 export -f f_terminate
