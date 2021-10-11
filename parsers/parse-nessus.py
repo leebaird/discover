@@ -1,7 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Author  -- Alexander Sferrella
 # Created -- 13 September, 2017
+# Ported to python3 by Jay Townsend 2021-10-11
 
 import argparse
 from csv import QUOTE_ALL
@@ -12,26 +13,29 @@ import xml.etree.ElementTree as ET
 csvHeaders = ['CVSS Score', 'IP Address', 'FQDN', 'OS', 'Port', 'Vulnerability', 'Description', 'Proof', 'Solution', 'See Also', 'CVE']
 nessusFields = ['cvss_base_score', 'host-ip', 'host-fqdn', 'operating-system', 'port', 'plugin_name', 'description', 'plugin_output', 'solution', 'see_also', 'cve']
 
-# Create output CSV file
+
 def createCSV():
     outFile = open('nessus.csv', 'wb')
     csvWriter = utfdictcsv.DictUnicodeWriter(outFile, csvHeaders, quoting=QUOTE_ALL)
     csvWriter.writeheader()
     return csvWriter
 
-# Clean values from Nessus report
+
 def getValue(rawValue):
+    # Clean values from Nessus report
     cleanValue = rawValue.replace('\n', ' ').strip(' ')
     if len(cleanValue) > 32000:
         cleanValue = cleanValue[:32000] + ' [Trimmed due to length]'
     return cleanValue
 
-# Helper function for handleReport()
+
 def getKey(rawKey):
+    # Helper function for handleReport()
     return csvHeaders[nessusFields.index(rawKey)]
 
-# Handle a single report item
+
 def handleReport(report):
+    # Handle a single report item
     findings = []
     reportHost = dict.fromkeys(csvHeaders, '')
     for item in report:
@@ -49,14 +53,15 @@ def handleReport(report):
                 findings.append(reportRow)
     return findings
 
-# Get files 
+
 def handleArgs():
+    # Get files
     aparser = argparse.ArgumentParser(description='Converts Nessus scan findings from XML to a CSV file.', usage="\n./parse-nessus.py input.nessus\nAny fields longer than 32,000 characters will be truncated.")
     aparser.add_argument('nessus_xml_files', type=str, nargs='+', help="nessus xml file to parse")
     args = aparser.parse_args()
     return args.nessus_xml_files
 
-# Main
+
 if __name__ == '__main__':
     reportRows = []
     for nessusScan in handleArgs():
