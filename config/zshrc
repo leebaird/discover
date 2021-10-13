@@ -32,8 +32,8 @@ alias update='/opt/discover/update.sh'
 alias bh='neo4j console & ; sleep 6 ; cd /opt/BloodHound-v4/BloodHound-linux-x64/ ; ./BloodHound --no-sandbox'
 
 alias cs='
-cd /opt/cobaltstrike/ ; ./teamserver $ip password
-xdotool key Ctrl+D
+cd /opt/cobaltstrike/ ; ./teamserver $ip password &
+xdotool key ctrl+D
 sleep 5
 cd /opt/cobaltstrike/ ; ./cobaltstrike'
 
