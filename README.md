@@ -12,10 +12,10 @@ and the Penetration Testers Framework (PTF).
 * [![Twitter Follow](https://img.shields.io/twitter/follow/ninewires.svg?style=social&label=Follow)](https://twitter.com/ninewires) Jason Ashton @ninewires
 
 ### Download, setup and usage
-* git clone https://github.com/leebaird/discover /opt/discover/
+* `git clone https://github.com/leebaird/discover.git`
 * All scripts must be ran from this location.
-* cd /opt/discover/
-* ./update.sh
+* `cd /opt/discover/`
+* `./update.sh`
 
 ```
 RECON
