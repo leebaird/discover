@@ -289,4 +289,12 @@ else
      format="exe"
      platform="windows"
 fi
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# xterm
+
+Open an xterm window in the center of the screen, run a command, and stay open
+xterm -hold -bg blue -fg white -geometry 90x10 -T "Test ping" -e ping -c3 google.com
+
+Open an xterm window in the top right corner of the screen, run a command, and stay open
+xterm -hold -bg blue -fg white -geometry 90x10-0+0 -T "Test ping" -e ping -c3 google.com
