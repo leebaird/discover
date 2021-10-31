@@ -11,7 +11,7 @@ and the Penetration Testers Framework (PTF).
 * [![Twitter Follow](https://img.shields.io/twitter/follow/jay_townsend1.svg?style=social&label=Follow)](https://twitter.com/jay_townsend1) Jay "L1ghtn1ng" Townsend @jay_townsend1
 * [![Twitter Follow](https://img.shields.io/twitter/follow/ninewires.svg?style=social&label=Follow)](https://twitter.com/ninewires) Jason Ashton @ninewires
 
-### Download, setup and usage
+### Download, setup,usage
 * git clone https://github.com/leebaird/discover /opt/discover/
 * All scripts must be ran from this location.
 * cd /opt/discover/
