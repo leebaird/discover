@@ -19,6 +19,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%academic%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%acquisition%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%administrator%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%advance%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%advisor%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%aetna%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%airline%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%alliance%'
@@ -100,6 +101,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%favorite%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%feeling%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%female%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%finance%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%financial%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%first%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%format%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%former%'
@@ -131,6 +133,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%interview%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%kpmg%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%leadership%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%legal%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%lending%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%letter%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%leverage%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%linked%'
@@ -173,6 +176,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%positive%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%power%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%premium%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%president%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%private%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%process%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%product%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%professional%'
@@ -196,6 +200,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%retirement%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%robot%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%seachange%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%secretariat%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%securities%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%security%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%semiconductor%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%senior%'
@@ -397,6 +402,7 @@ db query UPDATE contacts SET title = REPLACE(title,'Associate-','Associate,')
 db query UPDATE contacts SET title = REPLACE(title,'Associate -','Associate,')
 db query UPDATE contacts SET title = REPLACE(title,'audio','Audio')
 db query UPDATE contacts SET title = REPLACE(title,'avp','Associate VP')
+db query UPDATE contacts SET title = REPLACE(title,'banker','Banker')
 db query UPDATE contacts SET title = REPLACE(title,'Chief Executive Officer','CEO')
 db query UPDATE contacts SET title = REPLACE(title,'Chief Financial Officer','CEO')
 db query UPDATE contacts SET title = REPLACE(title,'Chief Information Security Officer','CISO')
@@ -407,6 +413,7 @@ db query UPDATE contacts SET title = REPLACE(title,'Consultant:','Consultant,')
 db query UPDATE contacts SET title = REPLACE(title,'controller','Controller')
 db query UPDATE contacts SET title = REPLACE(title,'court','Court')
 db query UPDATE contacts SET title = REPLACE(title,'cnc','CNC')
+db query UPDATE contacts SET title = REPLACE(title,'customer','Customer')
 db query UPDATE contacts SET title = REPLACE(title,'delivery','Delivery')
 db query UPDATE contacts SET title = REPLACE(title,'director-','Director,')
 db query UPDATE contacts SET title = REPLACE(title,'director -','Director,')
@@ -420,6 +427,7 @@ db query UPDATE contacts SET title = REPLACE(title,'Director Of','Director,')
 db query UPDATE contacts SET title = REPLACE(title,'Director ','Director, ')
 db query UPDATE contacts SET title = REPLACE(title,'executive','Executive')
 db query UPDATE contacts SET title = REPLACE(title,'finance manager','Financial Manager')
+db query UPDATE contacts SET title = REPLACE(title,'financial','Financial')
 db query UPDATE contacts SET title = REPLACE(title,'GLOBAL','Global')
 db query UPDATE contacts SET title = REPLACE(title,'head-','Head,')
 db query UPDATE contacts SET title = REPLACE(title,'head -','Head,')
@@ -446,9 +454,12 @@ db query UPDATE contacts SET title = REPLACE(title,'Mgr','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'mgr','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'officer','Officer')
 db query UPDATE contacts SET title = REPLACE(title,'Officer -','Officer,')
+db query UPDATE contacts SET title = REPLACE(title,'operator','Operator')
 db query UPDATE contacts SET title = REPLACE(title,'OWNER','Owner')
 db query UPDATE contacts SET title = REPLACE(title,'preparation','Preparation')
+db query UPDATE contacts SET title = REPLACE(title,'personal','Personal')
 db query UPDATE contacts SET title = REPLACE(title,'Proj ','Project,')
+db query UPDATE contacts SET title = REPLACE(title,'processing','Processing')
 db query UPDATE contacts SET title = REPLACE(title,'receiving','Receiving')
 db query UPDATE contacts SET title = REPLACE(title,'security','Security')
 db query UPDATE contacts SET title = REPLACE(title,'senior ','Senior ')
