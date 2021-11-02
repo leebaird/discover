@@ -47,9 +47,9 @@ echo >> tmp-updates
 echo "recon-ng" >> tmp-updates
 echo "==============================" >> tmp-updates
 
-recon-cli -M | grep 'recon' | egrep -v '(\[|abc|bing|brute|censys|credentials-credentials|custom|dev_diver|github|google|hackertarget|hunter_io|ipinfo|ipstack|locations|mailtester|mangle|migrate|netblocks|netcraft|pwnedlist|scylla|shodan|spyse|ssl|threatcrowd|threatminer|twitter|virustotal|vulnerabilities)' | sed 's/^[ \t]*//' > tmp
+recon-cli -M | grep 'recon' | egrep -v '(\[|abc|bing|brute|censys|credentials-credentials|custom|dev_diver|github|google|hunter_io|ipinfo|ipstack|locations|mailtester|mangle|migrate|netblocks|netcraft|pwnedlist|scylla|shodan|spyse|ssl|twitter|virustotal|vulnerabilities)' | sed 's/^[ \t]*//' > tmp
 cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'modules' | awk '{print $3}' | sort -u > tmp2
-diff tmp tmp2 | grep '/' | awk '{print $2}' | sort -u >> tmp-updates
+diff tmp tmp2 | grep '/' | awk '{print $2}' | egrep -v '(binaryedge|hackertarget|metacrawler|migrate_ports|namechk|profiler|reverse_resolve|threatcrowd|threatminer|viewdns_reverse_whois|whois_miner|whoxy_dns|whoxy_whois)' | sort -u >> tmp-updates
 
 echo >> tmp-updates
 echo >> tmp-updates

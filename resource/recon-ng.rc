@@ -19,11 +19,6 @@ db query DELETE FROM hosts WHERE host LIKE '%www%'
 db query DELETE FROM ports WHERE host NOT LIKE '%.yyy%'
 db query DELETE FROM ports WHERE host LIKE '%www%'
 
-modules load recon/companies-multi/whois_miner
-run
-
-db query DELETE FROM contacts WHERE email NOT LIKE '%@yyy%'
-
 modules load recon/contacts-credentials/hibp_breach
 run
 
@@ -45,17 +40,9 @@ db query DELETE FROM ports WHERE host LIKE '%www%'
 
 modules load recon/domains-hosts/certificate_transparency
 run
-modules load recon/domains-hosts/hackertarget
-run
-modules load recon/domains-hosts/threatcrowd
-run
-modules load recon/domains-hosts/threatminer
-run
 
 db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
 db query DELETE FROM hosts WHERE host LIKE '%www%'
 
 modules load recon/hosts-hosts/resolve
-run
-modules load recon/ports-hosts/migrate_ports
 run
