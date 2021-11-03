@@ -166,8 +166,7 @@ echo
 
 echo "dnstwist                  (6/$total)"
 /opt/dnstwist/dnstwist.py --registered $domain > tmp
-# Remove the first 9 lines and clean up
-sed '1,9d' tmp | grep -v 'ServFail' | column -t > squatting
+sed '1,9d' tmp | grep -v 'ServFail' | sed 's/[ \t]*$//' | column -t > squatting
 echo
 
 ###############################################################################################################################
@@ -270,9 +269,7 @@ echo
 echo "Whois"
 echo "     Domain               (41/$total)"
 whois -H $domain > tmp 2>/dev/null
-# Remove leading whitespace
 sed 's/^[ \t]*//' tmp > tmp2
-# Clean up
 egrep -iv '(#|%|<a|=-=-=-=|;|access may|accuracy|additionally|afilias except|and dns hosting|and limitations|any use of|be sure|at the end|by submitting|by the terms|can easily|circumstances|clientdeleteprohibited|clienttransferprohibited|clientupdateprohibited|company may|compilation|complaint will|contact information|contact us|contacting|copy and paste|currently set|database|data contained|data presented|database|date of|details|dissemination|domaininfo ab|domain management|domain names in|domain status: ok|enable high|entirety|except as|existing|failure|facsimile|for commercial|for detailed|for information|for more|for the|get noticed|get a free|guarantee its|href|If you|in europe|in most|in obtaining|in the address|includes|including|information is|is not|is providing|its systems|learn|makes this|markmonitor|minimum|mining this|minute and|modify|must be sent|name cannot|namesbeyond|not to use|note:|notice|obtaining information about|of moniker|of this data|or hiding any|or otherwise support|other use of|please|policy|prior written|privacy is|problem reporting|professional and|prohibited without|promote your|protect the|protecting|public interest|queries or|receive|receiving|register your|registrars|registration record|relevant|repackaging|request|reserves all rights|reserves the|responsible for|restricted to network|restrictions|see business|server at|solicitations|sponsorship|status|support questions|support the transmission|supporting|telephone, or facsimile|Temporary|that apply to|that you will|the right|The data is|The fact that|the transmission|this listing|this feature|this information|this service is|to collect or|to entities|to report any|to suppress|to the systems|transmission of|trusted partner|united states|unlimited|unsolicited advertising|users may|version 6|via e-mail|visible|visit aboutus.org|visit|web-based|when you|while believed|will use this|with many different|with no guarantee|we reserve|whitelist|whois|you agree|You may not)' tmp2 > tmp3
 # Remove lines starting with "*"
 sed '/^*/d' tmp3 > tmp4
@@ -311,7 +308,6 @@ egrep -v '(\#|\%|\*|All reports|Comment|dynamic hosting|For fastest|For more|Fou
 awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp2 > tmp3
 # Remove blank lines from end of file
 awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp3 > tmp4
-# Compress blank lines
 cat -s tmp4 > whois-ip
 rm tmp*
 echo
@@ -488,7 +484,8 @@ recon-ng -r $CWD/passive.rc
 
 ###############################################################################################################################
 
-grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|query|SELECT)' | sort -u > emails-final
+grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|query|SELECT)' | sort -u > emails2
+cat emails emails2 | sort -u > emails-final
 
 sed '1,4d' /tmp/names | head -n -5 | egrep -v '(last_name|substring)' | sort -u > names-final
 
@@ -735,7 +732,7 @@ f_runlocally
 
 xdg-open https://www.google.com/search?q=%22$companyurl%22+logo &
 sleep 4
-xdg-open https://censys.io/ipv4?q=%22$companyurl%22 &
+xdg-open https://censys.io/ipv4?q=%28%22$companyurl%22%29+AND+location.country%3A+%22United+States%22 &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
 sleep 4
@@ -755,7 +752,7 @@ xdg-open https://www.google.com/search?q=site:$domain+Atlassian+OR+jira+-%22Job+
 sleep 4
 xdg-open https://networksdb.io/search/org/%22$companyurl%22 &
 sleep 4
-xdg-open https://www.google.com/search?q=site:pastebin.com+%22$companyurl%22 &
+xdg-open https://www.google.com/search?q=site:pastebin.com+%22$companyurl%22+password &
 sleep 6
 xdg-open https://www.google.com/search?q=site:$domain+ext:doc+OR+ext:docx &
 sleep 7
