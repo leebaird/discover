@@ -429,7 +429,7 @@ grep "@$domain" tmp9 | column -t -s ',' | sort -u > registered-domains
 
 ###############################################################################################################################
 
-cat z* | grep "@$domain" | egrep -v '(_|,|firstname|lastname|www|zzz)' | sort -u > emails
+cat z* | grep "@$domain" | grep -v '[0-9]' | egrep -v '(_|,|firstname|lastname|test|www|zzz)' | sort -u > emails
 
 # Thanks Jason Ashton for cleaning up subdomains
 cat z* | cut -d ':' -f2 | grep "\.$domain" | egrep -v '(@|/|www)' | awk '{print $1}' | grep "\.$domain$" | sort -u > tmp
