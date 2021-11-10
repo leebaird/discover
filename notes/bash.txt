@@ -48,8 +48,8 @@ apt-get install xml-twig-tools
 xml_grep ‘firstName' file.xml --text_only                     Extract data from XML element
 
 grep -oe '[a-zA-Z0-9._]\+@[a-zA-Z]\+.[a-zA-Z]\+'              Find emails
-grep -oe '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b'                    Find IPs
-grep -e '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b'                     Find lines that contain an IP
+grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b'                    Find IPs
+grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b'                     Find lines that contain an IP
 
 perl -pe 's/\d{2}\/\d{2}\/\d{2}//g'                           Find dates mm/dd/yy
 
