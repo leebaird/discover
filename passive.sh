@@ -495,7 +495,7 @@ cat tmp networks | sort -u | $sip > networks-final
 grep "\.$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > tmp
 cat subdomains tmp | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(outlook|www)' | column -t | sort -u | sed 's/[ \t]*$//' > subdomains-final
 
-cat z* subdomains-final | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | sort -u | $sip > hosts
+cat z* subdomains-final | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -v '127.0.0' | sort -u | $sip > hosts
 
 ###############################################################################################################################
 
