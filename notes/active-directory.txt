@@ -40,7 +40,7 @@ Look for PdcRoleOwner and Name
 Use Responder to poison LLMNR/NBT-NS requests and capture NTLM/NTLNv2 hashes. This happens when you
     try to identify a host and DNS fails.
 
-responder -A -I eth0
+responder -I eth0 -PvA     Analyze mode, no poisoning occurs
 responder -I eth0 -wrd
 
 - Crack the hash
