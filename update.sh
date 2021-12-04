@@ -353,6 +353,16 @@ else
      echo
 fi
 
+if [ -d /opt/Responder/.git ]; then
+     echo -e "${BLUE}Updating Responder.${NC}"
+     cd /opt/Responder/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing Responder.${NC}"
+     git clone https://github.com/lgandx/Responder /opt/Responder
+     echo
+fi
+
 if [ -d /opt/SecLists/.git ]; then
      echo -e "${BLUE}Updating SecLists.${NC}"
      cd /opt/SecLists/ ; git pull

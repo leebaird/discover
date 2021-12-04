@@ -103,6 +103,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%female%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%finance%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%financial%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%first%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%fitness%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%format%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%former%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%forward%'
@@ -172,6 +173,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%pdhi%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%people%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%perfiles%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%phr%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%pilates%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%position%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%positive%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%power%'
@@ -428,6 +430,8 @@ db query UPDATE contacts SET title = REPLACE(title,'Director for','Director,')
 db query UPDATE contacts SET title = REPLACE(title,'Director of','Director,')
 db query UPDATE contacts SET title = REPLACE(title,'Director Of','Director,')
 db query UPDATE contacts SET title = REPLACE(title,'Director ','Director, ')
+db query UPDATE contacts SET title = REPLACE(title,'doctype','Doctype')
+db query UPDATE contacts SET title = REPLACE(title,'driver','Driver')
 db query UPDATE contacts SET title = REPLACE(title,'executive','Executive')
 db query UPDATE contacts SET title = REPLACE(title,'finance manager','Financial Manager')
 db query UPDATE contacts SET title = REPLACE(title,'financial','Financial')
@@ -454,8 +458,10 @@ db query UPDATE contacts SET title = REPLACE(title,'Manager -','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'Manager of','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'Manager Of','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'Manager ','Manager, ')
+db query UPDATE contacts SET title = REPLACE(title,'MANAGER','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'Mgr','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'mgr','Manager,')
+db query UPDATE contacts SET title = REPLACE(title,'networks','Networks,')
 db query UPDATE contacts SET title = REPLACE(title,'officer','Officer')
 db query UPDATE contacts SET title = REPLACE(title,'Officer -','Officer,')
 db query UPDATE contacts SET title = REPLACE(title,'operator','Operator')
@@ -463,8 +469,11 @@ db query UPDATE contacts SET title = REPLACE(title,'OWNER','Owner')
 db query UPDATE contacts SET title = REPLACE(title,'preparation','Preparation')
 db query UPDATE contacts SET title = REPLACE(title,'personal','Personal')
 db query UPDATE contacts SET title = REPLACE(title,'Proj ','Project,')
+db query UPDATE contacts SET title = REPLACE(title,'PROJECT','Project,')
 db query UPDATE contacts SET title = REPLACE(title,'processing','Processing')
+db query UPDATE contacts SET title = REPLACE(title,'provider','Provider')
 db query UPDATE contacts SET title = REPLACE(title,'receiving','Receiving')
+db query UPDATE contacts SET title = REPLACE(title,'reports','Reports')
 db query UPDATE contacts SET title = REPLACE(title,'security','Security')
 db query UPDATE contacts SET title = REPLACE(title,'senior ','Senior ')
 db query UPDATE contacts SET title = REPLACE(title,'service','Service')
@@ -499,6 +508,7 @@ db query UPDATE contacts SET title = REPLACE(title,'vp','VP,')
 db query UPDATE contacts SET title = REPLACE(title,'VP -','VP,')
 db query UPDATE contacts SET title = REPLACE(title,'VP Of','VP,')
 db query UPDATE contacts SET title = REPLACE(title,'VP ','VP, ')
+db query UPDATE contacts SET title = REPLACE(title,'Webdeveloper','Web Developer')
 
 spool start /tmp/emails
 db query SELECT DISTINCT email FROM contacts WHERE email LIKE "%@yyy" ORDER BY email ASC
