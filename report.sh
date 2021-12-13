@@ -128,6 +128,14 @@ if [ -e $name/script-onesixtyone.txt ] || [ -e $name/script-smbclient.txt ] || [
           echo >> $filename
      fi
 
+     if [ -e $name/script-smbhost.txt ]; then
+          echo 'smbhost' >> $filename
+          echo >> $filename
+          cat $name/script-smbhost.txt >> $filename
+          echo $medium >> $filename
+          echo >> $filename
+     fi
+
      if [ -e $name/script-ike-scan.txt ]; then
           echo 'ike-scan' >> $filename
           echo >> $filename
