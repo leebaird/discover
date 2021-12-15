@@ -197,28 +197,28 @@ ctrl+k will clear the current window.
 
 # Commands
 
-run                               Execute a shel command via cmd.exe
-powerpick                         Execute PowerShell via Unmanaged PowerShell
-psinject                          Inject Unmanaged PowerShell into a process
-powershell-inport                 Import a PowerShell script
-execute-assembly                  Run a local .NET executable
-spawn/spawnto                     Spawn a session in rundll32
-inject                            Inject a session into a process
-dllinject                         Inject a reflective DLL into a process
-shinject                          Inject shellcode into a process
-ppid                              Change the Parent Process ID
-blockdlls start                   Ask a Beacon with a signature policy that prevents non-Microsft DLLs from loading
-upload/download                   Transfer files to and from a target
+run                                               Execute a shel command via cmd.exe
+powerpick                                         Execute PowerShell via Unmanaged PowerShell
+psinject                                          Inject Unmanaged PowerShell into a process
+powershell-inport                                 Import a PowerShell script
+execute-assembly                                  Run a local .NET executable
+spawn/spawnto                                     Spawn a session in rundll32
+inject                                            Inject a session into a process
+dllinject                                         Inject a reflective DLL into a process
+shinject                                          Inject shellcode into a process
+ppid                                              Change the Parent Process ID
+blockdlls start                                   Ask a Beacon with a signature policy that prevents non-Microsft DLLs from loading
+upload/download                                   Transfer files to and from a target
 keylogger
 screenshot
 socks 
 portscan
 elevate
-logonpassword                     Use Mimikatz to dump passwords
-dcsync                            Dump hashes from a domain controller
-steal_token                       Impersonate a user from another process
-make_token                        Create a token for a user using creds
-kerberos_ticket_use               Inject Kerberos ticket
+logonpassword                                     Use Mimikatz to dump passwords
+dcsync                                            Dump hashes from a domain controller
+steal_token                                       Impersonate a user from another process
+make_token                                        Create a token for a user using creds
+kerberos_ticket_use                               Inject Kerberos ticket
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Enumeration
