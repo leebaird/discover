@@ -57,7 +57,7 @@ Create a Java Keystore file. Use the fully qualified domain name of your Beacon 
 keytool -genkey -keyalg RSA -keysize 2048 -keystore domain.store
 
 Generate a Certificate Signing Request (CSR). Submit this file to your SSL certificate vendor. 
-They will verify that you are who you are and issue a certificate.
+They will verify that you are who you say are and issue a certificate.
 keytool -certreq -keyalg RSA -file domain.csr -keystore domain.store
 
 Import the Root and any Intermediate Certificates that your SSL vendor provides.
@@ -66,7 +66,8 @@ keytool -import -trustcacerts -alias FILE -file FILE.crt -keystore domain.store
 Install your Domain Certificate.
 keytool -import -trustcacerts -alias mykey -file domain.crt -keystore domain.store
  
-Cobalt Strike expects to find the Java Keystore file in the same folder as your Malleable C2 profile.
+Cobalt Strike expects to find the Java Keystore file in the same folder as your Malleable C2 profiles.
+/opt/cobaltstrike/malleable-c2-profiles
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Create listeners
