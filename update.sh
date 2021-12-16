@@ -16,12 +16,8 @@ fi
 
 # Clean up
 
-if [ -d /opt/Empire/.git ]; then
-     rm -rf /opt/Empire/
-fi
-
-if [ -d /opt/PEASS/.git ]; then
-     rm -rf /opt/PEASS/
+if [ -d /opt/SharpShooter/.git ]; then
+     rm -rf /opt/SharpShooter/
 fi
 
 ###############################################################################################################################
@@ -380,19 +376,6 @@ if [ -d /opt/SharpCollection/.git ]; then
 else
      echo -e "${YELLOW}Installing SharpCollection.${NC}"
      git clone https://github.com/Flangvik/SharpCollection /opt/SharpCollection
-     echo
-fi
-
-if [ -d /opt/SharpShooter/.git ]; then
-     echo -e "${BLUE}Updating SharpShooter.${NC}"
-     cd /opt/SharpShooter/ ; git pull
-     pip3 install -r requirements.txt -q
-     echo
-else
-     echo -e "${YELLOW}Installing SharpShooter.${NC}"
-     git clone https://github.com/mdsecactivebreach/SharpShooter /opt/SharpShooter
-     cd /opt/SharpShooter/
-     pip3 install -r requirements.txt
      echo
 fi
 
