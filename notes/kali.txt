@@ -2,10 +2,10 @@ Kali
 
 # Download VM and verify hash
 
-https://www.offensive-security.com/kali-linux-vmware-virtualbox-image-download/
-Kali Linux VMware 64-Bit
+https://www.kali.org/get-kali/#kali-virtual-machines
+Select 64-bit VMware
 
-sha256sum kali-linux-2020.4-vmware-amd64.7z
+shasum -a 256 kali-linux-2021.4-vmware-amd64.7z
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Change default password
@@ -18,10 +18,9 @@ sudo -i
 
 # Disable screen lock
 
-Top right battery icon > Settings
-Display > Display power management: change all to 60 minutes (On battery / Plugged in)
-Security > Lock screen when system is going to sleep: uncheck
-Close
+Click on the battery icon > Settings
+Display > drag the top slider to the right (changes all to 60 minutes)
+Repeat for Plugged in settings > Close
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Desktop
@@ -31,33 +30,44 @@ Icons > Default Icons: uncheck Home and Trash
 Close
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Mousepad
-
-apt install dbus-x11
-mousepad
-
-Edit > Preferences
-View
-     Show line numbers
-     Highlight current line
-     Wrap long lines
-     Font: 13
-Editor
-     Tab width: 5
-     Tab mode: Insert Spaces
-Close
-Quite mousepad
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Terminal
 
 File > Preferences
 Appearance
      Font: 13
      Application transparency: 0%
-Behavior
-     Unlimited history
 OK
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Shell
+
+kali-tweaks
+Select Shell & Prompt > Command Prompt
+Select One Line > Apply > OK > enter > esc 2x
+
+Open a new tab in Terminal (kali user) and repeat the steps above.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Mousepad
+
+mousepad
+
+Edit > Preferences
+View
+     Font: 13
+Editor
+     Tab width: 5
+     Tab mode: Insert Spaces
+Close > quit mousepad
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Timezone
+
+timedatectl set-timezone America/<city>
+Eastern: New_York
+Central: Chicago
+Mountain: Denver
+Pacific: Los_Angeles
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Patch OS
@@ -68,15 +78,16 @@ apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y a
 # Install Discover scripts and additional tools
 
 git clone git://github.com/leebaird/discover.git /opt/discover/
-cd /opt/discover/notes/config/
+cd /opt/discover/config/
 ./install.sh
-exit
-cd /opt/discover/notes/config/
+
+Change to the kali user tab
+cd /opt/discover/config/
 ./install.sh
 exit
 
-Open a new Terminal
-sudo -i
+cd /root/
+source .zshrc
 update
 Accept all defaults by hitting Enter.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -87,17 +98,6 @@ git config --global user.name "John Smith"
 git config --global user.email johnsmith@acme.org
 git config --global pull.rebase false
 update
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Set time zone
-
-Choose the correct city for your location.
-Eastern: New_York
-Central: Chicago
-Mountain: Denver
-Pacific: Los_Angeles
-
-timedatectl set-timezone America/Chicago
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Add API keys for recon-ng
@@ -113,25 +113,6 @@ Or replace /root/.recon-ng/keys.db
 # Add API keys for theHarvester
 
 /opt/theHarvester/api-keys.yaml
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Install Golang
-
-apt install -y golang
-
-- Add the following to .zshrc
-export GOROOT=/usr/lib/go
-export GOPATH=$HOME/go
-export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Set a static IP address
-
-vi /etc/network/interfaces                 Add the following 4 lines
-auto eth0
-iface eth0 inet static
-    address 192.168.1.5/24
-    gateway 192.168.1.1
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Services
