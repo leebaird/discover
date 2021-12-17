@@ -164,6 +164,16 @@ if [ -d /opt/cobaltstrike ]; then
           git clone https://github.com/FortyNorthSecurity/C2concealer /opt/cobaltstrike/third-party/FortyNorthSecurity-C2concealer
           echo
      fi
+
+     if [ -d /opt/cobaltstrike/third-party/outflanknl-helpcolor/.git ]; then
+          echo -e "${BLUE}Updating Cobalt Strike misc - outflanknl.${NC}"
+          cd /opt/cobaltstrike/third-party/outflanknl-helpcolor/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing Cobalt Strike misc - outflanknl.${NC}"
+          git clone https://github.com/outflanknl/HelpColor /opt/cobaltstrike/third-party/outflanknl-helpcolor
+          echo
+     fi
 fi
 
 if [ -d /opt/discover/.git ]; then
