@@ -410,6 +410,7 @@ else
      echo -e "${YELLOW}Installing SprayingToolkit.${NC}"
      git clone https://github.com/byt3bl33d3r/SprayingToolkit /opt/SprayingToolkit
      cd /opt/SprayingToolkit/
+     apt install -y libxml2-dev libxslt-dev
      pip3 install -r requirements.txt
      echo
 fi
