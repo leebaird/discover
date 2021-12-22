@@ -476,6 +476,36 @@ else
      echo
 fi
 
+if [ -d /opt/exploitdb/.git ]; then
+     echo -e "${BLUE}Updating exploitdb.${NC}"
+     cd /opt/exploitdb/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing exploitdb.${NC}"
+     git clone https://github.com/offensive-security/exploitdb.git /opt/exploitdb
+     echo
+fi
+
+if [ -d /opt/exploitdb-bin-sploits/.git ]; then
+     echo -e "${BLUE}Updating exploitdb-bin-sploits.${NC}"
+     cd /opt/exploitdb-bin-sploits/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing exploitdb-bin-sploits.${NC}"
+     git clone https://github.com/offensive-security/exploitdb-bin-sploits.git /opt/exploitdb-bin-sploits
+     echo
+fi
+
+if [ -d /opt/exploitdb-papers/.git ]; then
+     echo -e "${BLUE}Updating exploitdb-papers.${NC}"
+     cd /opt/exploitdb-papers/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing exploitdb-papers.${NC}"
+     git clone https://github.com/offensive-security/exploitdb-papers.git /opt/exploitdb-papers
+     echo
+fi
+
 if [ ! -f /usr/bin/xdotool ]; then
      echo -e "${YELLOW}Installing xdotool.${NC}"
      apt-get install -y xdotool
