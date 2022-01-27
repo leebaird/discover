@@ -154,18 +154,18 @@ tr '[A-Z]' '[a-z]'                                            Translate upper ca
 sed "s/$FOO./$FOO/g"                                          Variables - use double quotes with sed or grep
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Check for argument. If not given, print usage
+# Check for argument. If not given, print the usage
 if [ -z "$1" ]; then
-     echo "Usage : $0 <domain name>"
-     exit 0
+     echo "Usage: $0 <domain name>"
+     exit
 fi
 
 # Chech for argument. Give feedback to user
 echo -e "Usage: ./test.sh <target IP> <scan type>"
 if [ "$2" == "All" ]; then
-	echo "Running all scans on $1."
+     echo "Running all scans on $1."
 else
-	echo "Running a $2 scan on $1."
+     echo "Running a $2 scan on $1."
 fi
 
 # Check for root
