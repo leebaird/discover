@@ -201,7 +201,7 @@ echo "Scanner IP   $ip" >> tmp2
 
 mv tmp2 $home/data/sslscan.txt
 
-grep -v 'Issuer info not available.' tmp | grep -v 'Certificate subject info not available.' >> $home/data/sslscan.txt
+grep -v 'info not available.' tmp >> $home/data/sslscan.txt
 
 echo
 echo "Running nmap."
@@ -217,7 +217,7 @@ awk '/latency/ { latency = 1; next }  latency == 1 && /^$/ { latency = 0; next }
 awk -v n=-2 'NR==n+1 && NF{print hold} /sslv2-drown/ {n=NR;hold=$0;next}1' |
 awk -v n=-2 'NR==n+1 && NF{print hold} /least strength/ {n=NR;hold=$0;next}1' |
 awk -v n=-2 'NR==n+1 {if($0 ~ /NULL/) { next; } else { print hold } } /compressors/ {n=NR;hold=$0;next}1' |
-sed 's/Nmap scan report for //g' > $home/data/nmap-ssl.txt
+sed 's/Nmap scan report for //g' | grep -v 'does not represent' > $home/data/nmap-ssl.txt
 
 rm tmp* ssl_* 2>/dev/null
 
