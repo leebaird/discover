@@ -57,13 +57,6 @@ while read -r line; do
           error=$(grep 'ERROR:' tmp_$line)
 
           if [[ ! $error ]]; then
-               E=$(grep 'Authority Information Access' tmp_$line)
-
-               if [[ ! $E ]]; then
-                    echo "[*] Self-signed TLS/SSL Certificate" >> ssl_$line
-                    echo >> ssl_$line
-               fi
-
                echo $medium >> ssl_$line
                echo >> ssl_$line
                cat ssl_$line >> tmp
@@ -122,5 +115,4 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-echo -e "The new reports are located at ${YELLOW}$home/data/sslscan.txt, sslyze.txt, ${NC}and ${YELLOW}nmap-ssl.txt ${NC}"
-
+echo -e "The new reports are located at ${YELLOW}$home/data/sslscan.txt ${NC}and ${YELLOW}nmap-ssl.txt ${NC}"
