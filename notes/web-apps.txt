@@ -153,6 +153,7 @@ HEAD / HTTP/1.0
 curl -ikL -X HEAD target.com
 
 for i in `cat 80.txt` ; do curl -ikL -X HEAD http://$i/ > $i 2>&1 ; echo Scanned $i ; done
+for i in `cat ssl.txt` ; do curl -ikL -X HEAD https://$i/ > $i 2>&1 ; echo Scanned $i ; done
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # HTTP methods allowed
@@ -162,6 +163,8 @@ OPTIONS / HTTP/1.0
 (hit enter 2x)
 
 curl -ikL -X OPTIONS target.com
+
+for i in `cat ssl.txt` ; do curl -ikL -X OPTIONS https://$i/ > $i 2>&1 ; echo Scanned $i ; done
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # iframe
