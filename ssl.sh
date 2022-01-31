@@ -57,110 +57,6 @@ while read -r line; do
           error=$(grep 'ERROR:' tmp_$line)
 
           if [[ ! $error ]]; then
-               issuer=$(grep 'Issuer: ' tmp_$line)
-
-               if [[ $issuer ]]; then
-                    grep 'Issuer:' tmp_$line | sed 's/    Issuer: /    Issuer:  /g' >> ssl_$line
-               else
-                    echo "Issuer info not available." >> ssl_$line
-                    echo >> ssl_$line
-               fi
-
-               subject=$(grep 'Subject:' tmp_$line)
-
-               if [[ $subject ]]; then
-                    grep 'Subject:' tmp_$line >> ssl_$line
-                    echo >> ssl_$line
-               else
-                    echo "Certificate subject info not available." >> ssl_$line
-                    echo >> ssl_$line
-               fi
-
-               dns=$(grep 'DNS:' tmp_$line)
-
-               if [[ $dns ]]; then
-                    grep 'DNS:' tmp_$line | sed 's/        DNS:/    DNS:/g' >> ssl_$line
-                    echo >> ssl_$line
-               fi
-
-               A=$(grep -i 'MD5WithRSAEncryption' tmp_$line)
-
-               if [[ $A ]]; then
-                    echo "[*] MD5-based Signature in TLS/SSL Server X.509 Certificate" >> ssl_$line
-                    grep -i 'MD5WithRSAEncryption' tmp_$line >> ssl_$line
-                    echo >> ssl_$line
-               fi
-
-               B=$(grep 'NULL' tmp_$line)
-
-               if [[ $B ]]; then
-                    echo "[*] NULL Ciphers" >> ssl_$line
-                    grep 'NULL' tmp_$line >> ssl_$line
-                    echo >> ssl_$line
-               fi
-
-               C=$(grep 'SSLv2' tmp_$line)
-
-               if [[ $C ]]; then
-                    echo "[*] TLS/SSL Server Supports SSLv2" >> ssl_$line
-                    grep 'SSLv2' tmp_$line > ssltmp2_$line
-                    sed '/^    SSL/d' ssltmp2_$line >> ssl_$line
-                    echo >> ssl_$line
-               fi
-
-               D=$(grep ' 40 bits' tmp_$line)
-               D2=$(grep ' 56 bits' tmp_$line)
-
-               if [[ $D || $D2 ]]; then
-                    echo "[*] TLS/SSL Server Supports Weak Cipher Algorithms" >> ssl_$line
-                    grep ' 40 bits' tmp_$line >> ssl_$line
-                    grep ' 56 bits' tmp_$line >> ssl_$line
-                    echo >> ssl_$line
-               fi
-
-               expmonth=$(grep 'Not valid after:' tmp_$line | awk '{print $4}')
-
-               if [ "$expmonth" == "Jan" ]; then monthnum="01"; fi
-               if [ "$expmonth" == "Feb" ]; then monthnum="02"; fi
-               if [ "$expmonth" == "Mar" ]; then monthnum="03"; fi
-               if [ "$expmonth" == "Apr" ]; then monthnum="04"; fi
-               if [ "$expmonth" == "May" ]; then monthnum="05"; fi
-               if [ "$expmonth" == "Jun" ]; then monthnum="06"; fi
-               if [ "$expmonth" == "Jul" ]; then monthnum="07"; fi
-               if [ "$expmonth" == "Aug" ]; then monthnum="08"; fi
-               if [ "$expmonth" == "Sep" ]; then monthnum="09"; fi
-               if [ "$expmonth" == "Oct" ]; then monthnum="10"; fi
-               if [ "$expmonth" == "Nov" ]; then monthnum="11"; fi
-               if [ "$expmonth" == "Dec" ]; then monthnum="12"; fi
-
-               expyear=$(grep 'Not valid after:' tmp_$line | awk '{print $7}')
-               expday=$(grep 'Not valid after:' tmp_$line | awk '{print $5}')
-               expdate=$(echo $expyear-$monthnum-$expday)
-               datenow=$(date +%F)
-
-               date2stamp(){
-               date --utc --date "$1" +%s
-               }
-
-               datenowstamp=$(date2stamp $datenow)
-               expdatestamp=$(date2stamp $expdate)
-
-               certissuedate=$(grep 'Not valid before:' tmp_$line)
-               fmt_certissuedate=$(echo $certissuedate | sed 's/Not valid before:/Certificate Issue Date:/')
-
-               certexpiredate=$(grep 'Not valid after:' tmp_$line)
-               fmt_certexpiredate=$(echo $certexpiredate | sed 's/Not valid after:/Certificate Expiry Date:/')
-
-               echo "    $fmt_certissuedate" >> ssl_$line
-               echo "    $fmt_certexpiredate" >> ssl_$line
-               echo >> ssl_$line
-
-               if (($expdatestamp < $datenowstamp)); then
-                    echo "[*] X.509 Server Certificate is Invalid/Expired" >> ssl_$line
-                    echo "    Cert Expire Date: $expdate" >> ssl_$line
-                    echo >> ssl_$line
-               fi
-
                E=$(grep 'Authority Information Access' tmp_$line)
 
                if [[ ! $E ]]; then
@@ -188,7 +84,6 @@ while read -r line; do
           cat ssl_$line >> tmp
      fi
 done < "$location"
-
 
 END=$(date +%r\ %Z)
 
