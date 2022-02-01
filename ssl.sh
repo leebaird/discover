@@ -31,6 +31,8 @@ echo
 # Remove double spacing
 #cat -s > $home/data/sslyze.txt
 
+###############################################################################################################################
+
 echo "Running sslscan."
 echo
 
@@ -43,13 +45,12 @@ number=$(wc -l $location | cut -d ' ' -f1)
 N=0
 
 while read -r line; do
-     echo $line > ssl_$line
      N=$((N+1))
+     echo $line > ssl_$line
 
      echo -n "[$N/$number]  $line"
      sslscan --ipv4 --ssl2 --ssl3 --tlsall --no-colour --connect-timeout=30 $line > tmp_$line
-
-     echo "     completed."
+     echo
      echo >> ssl_$line
 
      if [ -e tmp_$line ]; then
@@ -92,21 +93,34 @@ mv tmp2 $home/data/sslscan.txt
 grep -v 'info not available.' tmp >> $home/data/sslscan.txt
 rm tmp* ssl_* 2>/dev/null
 
+###############################################################################################################################
+
 echo
 echo "Running nmap."
 echo
 
-cat $location | cut -d ':' -f1 > tmp
-sudo nmap -Pn -n -T4 --open -p443 --script-timeout 20s -sV --min-hostgroup 100 --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed -iL tmp > tmp2
+number=$(wc -l $location | cut -d ' ' -f1)
+N=0
 
-egrep -v '( - A|before|Ciphersuite|cipher preference|deprecated)' tmp2 |
-# Find FOO, if the next line is blank, delete both lines
-awk '/latency/ { latency = 1; next }  latency == 1 && /^$/ { latency = 0; next }  { latency = 0 }  { print }' |
-# Find FOO, if the next line is blank, delete the line containing FOO
-awk -v n=-2 'NR==n+1 && NF{print hold} /sslv2-drown/ {n=NR;hold=$0;next}1' |
-awk -v n=-2 'NR==n+1 && NF{print hold} /least strength/ {n=NR;hold=$0;next}1' |
-awk -v n=-2 'NR==n+1 {if($0 ~ /NULL/) { next; } else { print hold } } /compressors/ {n=NR;hold=$0;next}1' |
-sed 's/Nmap scan report for //g' | grep -v 'does not represent' > $home/data/nmap-ssl.txt
+while read -r line; do
+     N=$((N+1))
+     port=$(echo $line | cut -d ':' -f2)
+     target=$(echo $line | cut -d ':' -f1)
+
+     echo -n "[$N/$number]  $line"
+     sudo nmap -Pn -n -T4 --open -p $port -sV --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed --script-timeout 20s $target > tmp
+     echo
+
+     egrep -v '(does not|incorrect results)' tmp |
+     # Find FOO, if the next line is blank, delete both lines
+     awk '/latency/ { latency = 1; next }  latency == 1 && /^$/ { latency = 0; next }  { latency = 0 }  { print }' |
+     sed 's/Nmap scan report for //g' >> tmp2
+     echo $medium >> tmp2
+     echo >> tmp2
+done < $location
+
+mv tmp2 $home/data/nmap-ssl.txt
+rm tmp
 
 echo
 echo $medium
