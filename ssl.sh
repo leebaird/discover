@@ -36,7 +36,6 @@ echo
 
 START=$(date +%r\ %Z)
 
-echo > tmp
 echo $medium >> tmp
 echo >> tmp
 
@@ -57,6 +56,7 @@ while read -r line; do
           error=$(grep 'ERROR:' tmp_$line)
 
           if [[ ! $error ]]; then
+               cat tmp_$line >> ssl_$line
                echo $medium >> ssl_$line
                echo >> ssl_$line
                cat ssl_$line >> tmp
@@ -90,6 +90,7 @@ echo "Scanner IP   $ip" >> tmp2
 mv tmp2 $home/data/sslscan.txt
 
 grep -v 'info not available.' tmp >> $home/data/sslscan.txt
+rm tmp* ssl_* 2>/dev/null
 
 echo
 echo "Running nmap."
@@ -106,8 +107,6 @@ awk -v n=-2 'NR==n+1 && NF{print hold} /sslv2-drown/ {n=NR;hold=$0;next}1' |
 awk -v n=-2 'NR==n+1 && NF{print hold} /least strength/ {n=NR;hold=$0;next}1' |
 awk -v n=-2 'NR==n+1 {if($0 ~ /NULL/) { next; } else { print hold } } /compressors/ {n=NR;hold=$0;next}1' |
 sed 's/Nmap scan report for //g' | grep -v 'does not represent' > $home/data/nmap-ssl.txt
-
-rm tmp* ssl_* 2>/dev/null
 
 echo
 echo $medium
