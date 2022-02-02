@@ -111,10 +111,10 @@ while read -r line; do
      sudo nmap -Pn -n -T4 --open -p $port -sV --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed --script-timeout 20s $target > tmp
      echo
 
-     egrep -v '(does not|incorrect results)' tmp |
+     egrep -v '(does not|incorrect results|service unrecognized)' tmp | grep -v '^SF' |
      # Find FOO, if the next line is blank, delete both lines
      awk '/latency/ { latency = 1; next }  latency == 1 && /^$/ { latency = 0; next }  { latency = 0 }  { print }' |
-     sed 's/Nmap scan report for //g' >> tmp2
+     sed 's/Nmap scan report for //g; s/( https:\/\/nmap.org ) //g' >> tmp2
      echo $medium >> tmp2
      echo >> tmp2
 done < $location
