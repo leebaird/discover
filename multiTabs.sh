@@ -34,6 +34,8 @@ case $choice in
      else
           f_error
      fi
+     
+     exit
      ;;
 
      2)
@@ -59,6 +61,8 @@ case $choice in
           xdg-open $i &
           sleep 1
      done
+     
+     exit
      ;;
 
      3)
@@ -108,6 +112,7 @@ case $choice in
      echo -e "The new report is located at ${YELLOW}$home/data/$domain-robots.txt${NC}\n"
      echo
      echo
+     exit
      ;;
 
      4) f_main;;
