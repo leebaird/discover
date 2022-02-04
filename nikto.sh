@@ -54,6 +54,8 @@ case $choice in
           sleep 1
           xdotool key Return
      done < "$location"
+     
+     exit
      ;;
 
      2)
@@ -68,6 +70,8 @@ case $choice in
           sleep 1
           xdotool key Return
      done < "$location"
+     
+     exit
      ;;
 
      3) f_main;;
