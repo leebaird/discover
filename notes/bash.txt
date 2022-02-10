@@ -203,13 +203,23 @@ else
      echo
 fi
 
-# Validate input is a number and that it is greather than 0
-if ! [[ "$number" =~ ^[0-9]+$ ]] || [[ "$number" -le "0" ]]; then
+# Validate input is a number and greather than 0
+if ! [[ $number =~ ^[0-9]+$ ]] || [[ $number -le 0 ]]; then
      f_error
 fi
 
-# Check for valid port number
-if [[ $port -lt 1 || $port -gt 65535 ]]; then
+
+# Validate CIDR
+sub=$(echo $cidr | cut -d '/' -f2)
+min=8
+max=32
+
+if ! [[ $sub =~ ^[0-9]+$ ]] || [[ $sub -lt $min || $sub -gt $max ]]; then
+     f_error
+fi
+
+# Validate port number
+if ! [[ $port =~ ^[0-9]+$ ]] [[ $port -lt 1 || $port -gt 65535 ]]; then
      echo "Invalid port."
      exit
 fi

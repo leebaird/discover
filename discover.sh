@@ -1,18 +1,17 @@
 #!/bin/bash
 
 # by Lee Baird
-# Contact me via chat or email with any feedback or suggestions that you may have:
-# leebaird@gmail.com
+# Contact me via chat or email with any feedback or suggestions:leebaird@gmail.com
 #
-# Special thanks to the following people:
-#
+# Special thanks to:
 # Jay Townsend - everything, conversion from Backtrack to Kali
-# Jason Ashton (@ninewires)- Penetration Testers Framework (PTF) compatibility, Registered Domains, bug crusher and bash ninja
+# Jason Ashton (@ninewires)- Penetration Testers Framework (PTF) compatibility, bug crusher, and bash ninja
 #
+# Thanks to:
 # Ben Wood (@DilithiumCore) - regex master
-# Dave Klug - planning, testing and bug reports
-# Jason Arnold (@jasonarnold) - planning original concept, author of ssl-check and co-author of crack-wifi
-# John Kim - python guru, bug smasher, and parsers
+# Dave Klug - planning, testing, and bug reports
+# Jason Arnold (@jasonarnold) - original concept and planning, co-author of crack-wifi
+# John Kim - Python guru, bug smasher, and parsers
 # Eric Milam (@Brav0Hax) - total re-write using functions
 # Hector Portillo - report framework v3
 # Ian Norden (@iancnorden) - report framework v2
@@ -24,7 +23,7 @@
 # Saviour Emmanuel - Nmap parser
 # Securicon, LLC. - for sponsoring development of parsers
 # Steve Copland - report framework v1
-# Arthur Kay (@arthurakay) - python scripts
+# Arthur Kay (@arthurakay) - Python scripts
 # Brett Fitzpatrick (@brettfitz) - SQL query
 # Robleh Esa (@RoblehEsa) - SQL queries
 
@@ -265,16 +264,12 @@ if [[ -z $cidr ]]; then
      f_error
 fi
 
-# Check for wrong answer
+# Validate CIDR
 sub=$(echo $cidr | cut -d '/' -f2)
 min=8
 max=32
 
-if [ "$sub" -lt "$min" ]; then
-     f_error
-fi
-
-if [ "$sub" -gt "$max" ]; then
+if ! [[ $sub =~ ^[0-9]+$ ]] || [[ $sub -lt $min || $sub -gt $max ]]; then
      f_error
 fi
 
