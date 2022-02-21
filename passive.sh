@@ -189,6 +189,7 @@ echo
 ###############################################################################################################################
 
 echo "theHarvester"
+source /opt/theHarvester-venv/bin/activate
 echo "     anubis               (10/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b anubis | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zanubis
 echo "     baidu                (11/$total)"
@@ -257,6 +258,7 @@ echo "     virustotal           (39/$total)"
 echo "     yahoo                (40/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
 rm tmp*
+deactivate
 echo
 
 ###############################################################################################################################
