@@ -109,20 +109,16 @@ File will be saved to something like: domain_DOMAIN_adAclOutput<date>_<time>.csv
 
 nbtstat -a <target IP>
 
-The netbios hex code “1C” next to the domain name signifies that the system being polled is a domain
-controller for the domain name listed on the left. If the “1C” would have been next to an Inet service
-it would have signified it was an IIS server.
+The hex code “1C” next to the domain name signifies that the target is a domain controller for the domain name listed on the left. 
 
-Note the differences between the U and the G. U = UNIQUE and G = GROUP. When you see a hex code next
-to UNIQUE it is usually associated with the computer itself. With GROUP it is associated with the
-workgroup or domain.
+U = UNIQUE and G = GROUP. When you see a hex code next to UNIQUE it is usually associated with the computer itself. With GROUP it is associated with 
+the workgroup or domain.
 
-- Use the following MSF module to authenticate to the DC via SMB, create a volume shadow copy of the
-system drive, and downloads copies of NTDS.DIT and SYSTEM hive. Then use Impacket to perform
-extraction of the hashes.
+Use the following MSF module to authenticate to the DC via SMB, create a volume shadow copy of the system drive, and downloads copies of NTDS.DIT
+and SYSTEM hive. Then use Impacket to perform extraction of the hashes.
+
 auxiliary/admin/smb/psexec_ntdsgrab
 impacket-secretsdump -system SYSTEM -ntds NTDS.DIT LOCAL
-
 impacket-secretsdump -hashes <hash> -just-dc LAB/dc\$@10.0.0.1
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -135,6 +131,26 @@ Get-GPPPassword
 \\<DOMAIN>\SYSVOL\<DOMAIN>\Policies\
 Search xml files for cpassword.
 GetDecryptedCpassword 'AES 256-bit encrypted password'
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Key terms
+Service Principal Name (SPN)
+Unique name for a service account. Used by Kerberos authentication to associate a service instance with a service logon account. This allows a clients
+application to request that the service authticate an account even if the client does not have the account name.
+
+Key Distribution Center (KDC)                     DC that does the authentication
+Ticket Granting Ticket (TGT)                      Used to autheenticate to the KDC
+Ticket Granting Server (TGS)                      A service ticket
+
+# Kerberoasting
+Request the TGS ticket, which has the password hash of the SPN's account, then crack it offline.
+
+# Golden ticket
+A forged TGT that grants unlimited access and persistence to the domain. Use Empire, Metasploit, or Mimikatz.
+
+# Silver ticket
+A forged TGS ticket for a specific service. TGS tickets are encrypted with the password hash for the service. If you can get the hash for a service
+account, you can create a TGS ticket for that service.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Show DCs
