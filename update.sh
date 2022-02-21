@@ -415,15 +415,28 @@ else
      echo
 fi
 
-if [ -d /opt/theHarvester/.git ]; then
+if [ ! -e /usr/bin/virtualenv ]; then
+     echo -e "${YELLOW}Installing Virtualenv.${NC}"
+     apt install -y python3-virtualenv
+     echo
+fi
+
+if [ -d /opt/theHarvester/.git -a -d /opt/theHarvester-venv ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
+     source /opt/theHavester-venv/bin/activate
+     pip3 install -r requirements.txt --upgrade
+     deactivate
      echo
 else
      echo -e "${YELLOW}Installing theHarvester.${NC}"
      git clone https://github.com/laramies/theHarvester /opt/theHarvester
+     echo -e "${YELLOW}Setting up theHarvester virtualenv.${NC}"
+     virtualenv -p /usr/bin/python3 /opt/theHarvester-venv
+     source /opt/theHarvester-venv/bin/activate
      cd /opt/theHarvester/
      pip3 install -r requirements.txt
+     deactivate
      echo
 fi
 
