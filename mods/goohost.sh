@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 clear
 
 # License: GPLv3

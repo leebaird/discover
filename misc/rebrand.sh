@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 echo
 echo -n "Enter the location of your folder: "

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # Check for root
 if [[ $EUID == 0 ]]; then

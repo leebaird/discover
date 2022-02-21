@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # https://www.darrinward.com/lat-long/
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # Global variables
 BLUE='\033[1;34m'
@@ -424,7 +424,7 @@ fi
 if [ -d /opt/theHarvester/.git -a -d /opt/theHarvester-venv ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
-     source /opt/theHavester-venv/bin/activate
+     source /opt/theHarvester-venv/bin/activate
      pip3 install -r requirements.txt --upgrade
      deactivate
      echo

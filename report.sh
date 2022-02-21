@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 END=$(date +%r\ %Z)
 filename=$name/report.txt

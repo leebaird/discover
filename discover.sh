@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # by Lee Baird
 # Contact me via chat or email with any feedback or suggestions:leebaird@gmail.com
