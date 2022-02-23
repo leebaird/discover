@@ -431,6 +431,7 @@ if [ -d /opt/theHarvester/.git -a -d /opt/theHarvester-venv ]; then
 else
      echo -e "${YELLOW}Installing theHarvester.${NC}"
      git clone https://github.com/laramies/theHarvester /opt/theHarvester
+     echo
      echo -e "${YELLOW}Setting up theHarvester virtualenv.${NC}"
      virtualenv -p /usr/bin/python3 /opt/theHarvester-venv
      source /opt/theHarvester-venv/bin/activate
