@@ -78,20 +78,16 @@ arp -a
 netstat -ano | findstr "LISTEN"
 netstat -ano | findstr "ESTABLISH
 
-nltest /dclist:                                   Domain controllers
+nltest /dclist:<domain>                           Show domain controllers
+nltest /domain_trusts                             Show doamin trusts
+
 net group "Domain Admins" /domain
 net group "Enterprise Admins" /domain
 net group "Domain Computers" /domain
 
-schtasks /query /fo LIST /v
-tasklist /SVC                                     Links running processes to started services
-net start
-
 doskey /history                                   Show command history
 gpresult /z
-set
-net config workstation
-net user %username%
+
 net share
 net session
 
