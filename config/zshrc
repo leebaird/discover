@@ -13,8 +13,9 @@ alias d='cd $HOME/Desktop/ ; clear'
 alias date='date +"%a %b %d, %Y - %r %Z"'
 alias e='exit'
 alias kd='cd /home/kali/Desktop'
-alias l='ls -l --color=auto'
-alias la='ls -la --color=auto'
+alias l='ls -l'
+alias la='ls -la'
+alias lk='ls -l --block-size=KB'
 alias n='echo ; netstat -antp; echo ;
 echo -n "External IP:  "$extip ; echo ;
 echo -n "Internal IP:  "$ip ; echo ;
@@ -39,5 +40,4 @@ cd /opt/cobaltstrike/ ; ./cobaltstrike'
 
 alias csr='ssh -f -N -L 50050:localhost:50050 kali-2 ; cd /opt/cobaltstrike ; ./cobaltstrike'
 alias m='service postgresql start ; msfdb init ; msfconsole'
-alias pc='/opt/pycharm-community/bin/pycharm.sh'
 
