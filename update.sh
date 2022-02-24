@@ -289,16 +289,6 @@ else
      ./setup.sh
 fi
 
-if [ -d /opt/impacket/.git ]; then
-     echo -e "${BLUE}Updating impacket.${NC}"
-     cd /opt/impacket/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing impacket.${NC}"
-     git clone https://github.com/SecureAuthCorp/impacket /opt/impacket
-     echo
-fi
-
 if [ -d /opt/krbrelayx/.git ]; then
      echo -e "${BLUE}Updating krbrelayx.${NC}"
      cd /opt/krbrelayx/ ; git pull
