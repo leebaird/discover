@@ -191,7 +191,6 @@ else
      echo -e "${YELLOW}Installing DNSRecon.${NC}"
      git clone https://github.com/darkoperator/dnsrecon /opt/DNSRecon
      cd /opt/DNSRecon/
-     pip3 install -r requirements.txt
      echo
 fi
 
