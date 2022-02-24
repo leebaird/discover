@@ -185,7 +185,6 @@ fi
 if [ -d /opt/DNSRecon/.git ]; then
      echo -e "${BLUE}Updating DNSRecon.${NC}"
      cd /opt/DNSRecon/ ; git pull
-     pip3 install -r requirements.txt -q
      echo
 else
      echo -e "${YELLOW}Installing DNSRecon.${NC}"
