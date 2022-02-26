@@ -16,8 +16,20 @@ fi
 
 # Clean up
 
-if [ -d /opt/SharpShooter/.git ]; then
-     rm -rf /opt/SharpShooter/
+if [ -d /opt/droopescan/.git ]; then
+     rm -rf /opt/droopescan/
+fi
+
+if [ -d /opt/spoofcheck/.git ]; then
+     rm -rf /opt/spoofcheck/
+fi
+
+if [ -d /opt/unicorn/.git ]; then
+     rm -rf /opt/unicorn/
+fi
+
+if [ -d /opt/WitnessMe/.git ]; then
+     rm -rf /opt/WitnessMe/
 fi
 
 ###############################################################################################################################
@@ -25,17 +37,21 @@ fi
 clear
 echo
 
-if [ -d /pentest ]; then
-    echo -e "${BLUE}Updating Discover.${NC}"
-    git pull
-    echo
-    echo
-    exit
-fi
-
 echo -e "${BLUE}Updating Kali.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 echo
+
+if [ ! -e /usr/bin/pip ]; then
+     echo -e "${YELLOW}Installing Python pip.${NC}"
+     apt install -y python3-pip
+     echo
+fi
+
+if [ ! -e /usr/bin/virtualenv ]; then
+     echo -e "${YELLOW}Installing Python Virtualenv.${NC}"
+     apt install -y python3-virtualenv
+     echo
+fi
 
 if [ ! -e /usr/bin/amass ]; then
      echo -e "${YELLOW}Installing Amass.${NC}"
@@ -189,21 +205,19 @@ if [ -d /opt/DNSRecon/.git ]; then
 else
      echo -e "${YELLOW}Installing DNSRecon.${NC}"
      git clone https://github.com/darkoperator/dnsrecon /opt/DNSRecon
-     cd /opt/DNSRecon/
      echo
 fi
 
 if [ -d /opt/dnstwist/.git ]; then
      echo -e "${BLUE}Updating dnstwist.${NC}"
      cd /opt/dnstwist/ ; git pull
-     pip3 install -r requirements.txt -q
+     pip3 install .
      echo
 else
      echo -e "${YELLOW}Installing dnstwist.${NC}"
      git clone https://github.com/elceef/dnstwist /opt/dnstwist
-     apt install python3-dnspython python3-geoip python3-whois python3-requests python3-ssdeep
      cd /opt/dnstwist/
-     pip3 install -r requirements.txt
+     pip3 install .
      echo
 fi
 
@@ -219,6 +233,26 @@ else
      chmod 755 domainhunter.py
      echo
 fi
+
+#if [ -d /opt/Domain-Hunter/.git -a -d /opt/Domain-Hunter-venv ]; then
+#     echo -e "${BLUE}Updating Domain Hunter.${NC}"
+#     cd /opt/Domain-Hunter/ ; git pull
+#     source /opt/Domain-Hunter-venv/activate
+#     pip3 install -r requirements.txt --upgrade
+#     deactivate
+#     echo
+#else
+#     echo -e "${YELLOW}Installing Domain Hunter.${NC}"
+#     git clone https://github.com/threatexpress/domainhunter /opt/Domain-Hunter
+#     echo
+#     echo -e "${YELLOW}Setting up Domain Hunter virtualenv.${NC}"
+#     virtualenv -p /usr/bin/python3 /opt/Domain-Hunter-venv
+#     source /opt/Domain-Hunter-venv/activate
+#     cd /opt/Domain-Hunter/
+#     pip3 install -r requirements.txt
+#     deactivate
+#     echo
+#fi
 
 if [ -d /opt/DomainPasswordSpray/.git ]; then
      echo -e "${BLUE}Updating DomainPasswordSpray.${NC}"
@@ -237,19 +271,6 @@ if [ -d /opt/Donut/.git ]; then
 else
      echo -e "${YELLOW}Installing Donut.${NC}"
      git clone https://github.com/TheWover/donut /opt/Donut
-     echo
-fi
-
-if [ -d /opt/droopescan/.git ]; then
-     echo -e "${BLUE}Updating droopescan.${NC}"
-     cd /opt/droopescan/ ; git pull
-     pip3 install -r requirements.txt -q
-     echo
-else
-     echo -e "${YELLOW}Installing droopescan.${NC}"
-     git clone https://github.com/droope/droopescan /opt/droopescan
-     cd /opt/droopescan/
-     pip3 install -r requirements.txt
      echo
 fi
 
@@ -377,19 +398,6 @@ else
      echo
 fi
 
-if [ -d /opt/spoofcheck/.git ]; then
-     echo -e "${BLUE}Updating spoofcheck.${NC}"
-     cd /opt/spoofcheck/ ; git pull
-     pip3 install -r requirements.txt -q
-     echo
-else
-     echo -e "${YELLOW}Installing spoofcheck.${NC}"
-     git clone https://github.com/BishopFox/spoofcheck /opt/spoofcheck
-     cd /opt/spoofcheck/
-     pip3 install -r requirements.txt
-     echo
-fi
-
 if [ -d /opt/SprayingToolkit/.git ]; then
      echo -e "${BLUE}Updating SprayingToolkit.${NC}"
      cd /opt/SprayingToolkit/ ; git pull
@@ -400,12 +408,6 @@ else
      cd /opt/SprayingToolkit/
      apt install -y libxml2-dev libxslt-dev
      pip3 install -r requirements.txt
-     echo
-fi
-
-if [ ! -e /usr/bin/virtualenv ]; then
-     echo -e "${YELLOW}Installing Virtualenv.${NC}"
-     apt install -y python3-virtualenv
      echo
 fi
 
@@ -435,16 +437,6 @@ if [ ! -e /usr/lib/python3/dist-packages/texttable.py ]; then
      echo
 fi
 
-if [ -d /opt/unicorn/.git ]; then
-     echo -e "${BLUE}Updating unicorn.${NC}"
-     cd /opt/unicorn/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing unicorn.${NC}"
-     git clone https://github.com/trustedsec/unicorn /opt/unicorn
-     echo
-fi
-
 if [ -d /opt/Veil/.git ]; then
      echo -e "${BLUE}Updating Veil.${NC}"
      cd /opt/Veil/ ; git pull
@@ -463,18 +455,6 @@ if [ -d /opt/Windows-Exploit-Suggester-NG/.git ]; then
 else
      echo -e "${YELLOW}Installing Windows Exploit Suggester NG.${NC}"
      git clone https://github.com/bitsadmin/wesng /opt/Windows-Exploit-Suggester-NG
-     echo
-fi
-
-if [ -d /opt/WitnessMe/.git ]; then
-     echo -e "${BLUE}Updating WitnessMe.${NC}"
-     cd /opt/WitnessMe/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing WitnessMe.${NC}"
-     git clone https://github.com/byt3bl33d3r/WitnessMe /opt/WitnessMe
-     cd /opt/WitnessMe/
-     pip3 install -r requirements.txt
      echo
 fi
 

