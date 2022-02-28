@@ -26,7 +26,7 @@ getdompwinfo
 net use \\target IP\ipc$ "" /u:""
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# CIFS Share Writeable By Everyone
+# CIFS Share Writable By Everyone
 
 Places > Network > Browse Network
 

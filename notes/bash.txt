@@ -30,8 +30,8 @@ wc -l                                                         Count the number o
 wc -m                                                         Count the number of characters
 
 comm file1 file2                                              file1, file2, shared by both files
-comm -<123> file1 file2                                       Used to supress columns
-comm -12 file1 file2                                          Supress columns 1 and 2
+comm -<123> file1 file2                                       Used to suppress columns
+comm -12 file1 file2                                          Suppress columns 1 and 2
 diff -<c or u> file1 file2
 vimdiff file1 file2
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ column -t                                                     Align columns
 sed /^$/d                                                     Compress blank lines
 paste -s -d" "                                                Convert a list into a single line
 
-apt-get install xml-twig-tools
+apt install xml-twig-tools
 xml_grep ‘firstName' file.xml --text_only                     Extract data from XML element
 
 grep -oe '[a-zA-Z0-9._]\+@[a-zA-Z]\+.[a-zA-Z]\+'              Find emails
@@ -74,7 +74,7 @@ awk '/FOO/ { FOO = 1; next }  FOO == 1 && /^$/ { FOO = 0; next }  { FOO = 0 }  {
 awk -v n=-2 'NR==n+1 {if($0 ~ /BAR/) { next; } else { print hold } } /FOO/ {n=NR;hold=$0;next}1'
                                                               Find FOO, if the next line contains BAR, delete both lines
 
-sed 's/.* //'                                                 Find lines that contin a space and print from the space to the end of the line
+sed 's/.* //'                                                 Find lines that contain a space and print from the space to the end of the line
 grep -E 'FOO|BAR'                                             Find lines that contain FOO or BAR
 grep '[0-9]'                                                  Find lines that contain a number
 grep '[0-9]$'                                                 Find lines that end with a number
@@ -155,6 +155,13 @@ tr '[A-Z]' '[a-z]'                                            Translate upper ca
 sed "s/$FOO./$FOO/g"                                          Variables - use double quotes with sed or grep
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# String together commands
+
+semicolon (;)                                                 Does not depend on the first command completing with no errors
+double ampersand (&&)                                         Depends on the first command completing with no errors
+pipe (|)                                                      Uses output from the first command as input to the second command
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Check for argument. If not given, print the usage
 if [ -z "$1" ]; then
      echo "Usage: $0 <domain name>"
@@ -203,7 +210,7 @@ else
      echo
 fi
 
-# Validate input is a number and greather than 0
+# Validate input is a number and greater than 0
 if ! [[ $number =~ ^[0-9]+$ ]] || [[ $number -le 0 ]]; then
      f_error
 fi

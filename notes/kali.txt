@@ -58,6 +58,10 @@ View
 Editor
      Tab width: 5
      Tab mode: Insert Spaces
+Window
+     Enable Client-side decorations
+Plugins
+     Enable Spell Checking
 Close > quit mousepad
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -122,7 +126,7 @@ service ssh start                          Start ssh
 netstat -antp | grep ssh                   Verify the ssh service is running
 
 service apache2 start                      Start Apache
-xdg-open localhost                          Verify the Apache service is running
+xdg-open localhost                         Verify the Apache service is running
 /var/www/html/                             Document root
 
 update-rc.d <service> <enable|disable>     Enable a service to start at boot time

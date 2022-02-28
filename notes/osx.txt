@@ -54,7 +54,7 @@ $PATH                                   Show contents of PATH
 # SIP
 
 Reboot > command R
-Termnal
+Terminal
 csrutil disable; reboot
 
 Terminal
@@ -62,7 +62,7 @@ java -version
 More Info
 
 Reboot > command R
-Termnal
+Terminal
 csrutil enable
 reboot
 

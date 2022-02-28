@@ -20,7 +20,7 @@ Nexpose
     Top Remediations with Details
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Creat custom SQL query for Hosts
+# Create custom SQL query for Hosts
 
 SELECT da.ip_address AS "IP Address", da.host_name AS "Host", 
     dos.name AS "OS", dos.version AS "OS Version", 
@@ -39,7 +39,7 @@ FROM dim_asset_service das
 ORDER BY da.ip_address, das.port
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Creat custom SQL query for Findings
+# Create custom SQL query for Findings
 
 WITH
     vulnerability_cves AS (
@@ -90,7 +90,7 @@ FROM fact_asset_vulnerability_instance favi
 ORDER BY da.ip_address, dv.title
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Creat custom SQL query for all vulnerabilities
+# Create custom SQL query for all vulnerabilities
 
 SELECT title AS "Title", ROUND(cvss_score::numeric, 1) AS "CVSS Score"
 FROM dim_vulnerability

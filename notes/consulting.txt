@@ -7,7 +7,7 @@ Consulting
     4 port switch
     25’ CAT6 cable
     (2) 6’ CAT6 cables
-    (2) Thunderbolt to Ethernet adaptors
+    (2) Thunderbolt to Ethernet adapters
 
 # Dress
     No hats.

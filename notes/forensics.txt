@@ -9,7 +9,7 @@ hdc          secondary master IDE 
 hdd          secondary slave IDE
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# SCSI, USB or SATA hard drive naming conventions 
+# SCSI, USB, or SATA hard drive naming conventions 
 
 sda          1st
 sdb          2nd
