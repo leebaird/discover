@@ -86,11 +86,9 @@ Last name:
 ```
 SCANNING
 
-1.  Local area network
-2.  NetBIOS
-3.  netdiscover
-4.  Ping sweep
-5.  Previous menu
+1.  ARP scan
+2.  Ping sweep
+3.  Previous menu
 ```
 
 * Use different tools to create a target list including Angry IP Scanner, arp-scan, netdiscover, and nmap pingsweep.

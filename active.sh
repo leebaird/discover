@@ -24,7 +24,7 @@ echo -n "Domain:  "
 read domain
 
 # Check for no answer
-if [[ -z $domain ]]; then
+if [ -z $domain ]; then
      f_error
 fi
 
@@ -55,7 +55,7 @@ grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing|Records Found|xxx
 
 egrep -v '(\[|.nat.|1.1.1.1|6.9.6.9|127.0.0.1)' sub-dnsrecon | tr '[A-Z]' '[a-z]' | column -t | sort -u | awk '$2 !~ /[a-z]/' > subdomains
 
-if [ -e $home/data/$domain/data/subdomains.htm ]; then
+if [ -f $home/data/$domain/data/subdomains.htm ]; then
      cat $home/data/$domain/data/subdomains.htm subdomains | grep -v "<" | grep -v "$domain\." | column -t | sort -u > subdomains-combined
 
      cp $discover/report/data/subdomains.htm $home/data/$domain/data/subdomains.htm
@@ -135,7 +135,7 @@ echo $short >> zreport
 
 echo > tmp
 
-if [ -e emails ]; then
+if [ -f emails ]; then
      emailcount=$(wc -l emails | cut -d ' ' -f1)
      echo "Emails        $emailcount" >> zreport
      echo "Emails ($emailcount)" >> tmp
@@ -144,7 +144,7 @@ if [ -e emails ]; then
      echo >> tmp
 fi
 
-if [ -e hosts ]; then
+if [ -f hosts ]; then
      hostcount=$(wc -l hosts | cut -d ' ' -f1)
      echo "Hosts         $hostcount" >> zreport
      echo "Hosts ($hostcount)" >> tmp
@@ -153,7 +153,7 @@ if [ -e hosts ]; then
      echo >> tmp
 fi
 
-if [ -e subdomains ]; then
+if [ -f subdomains ]; then
      subdomaincount=$(wc -l subdomains | cut -d ' ' -f1)
      echo "Subdomains    $subdomaincount" >> zreport
      echo "Subdomains ($subdomaincount)" >> tmp
@@ -194,7 +194,7 @@ echo "</pre>" >> $home/data/$domain/data/whatweb.htm
 cat zonetransfer >> $home/data/$domain/data/zonetransfer.htm
 echo "</pre>" >> $home/data/$domain/data/zonetransfer.htm
 
-if [[ -e $home/data/$domain/data/emails.htm && -e emails ]]; then
+if [[ -f $home/data/$domain/data/emails.htm && -f emails ]]; then
      cat $home/data/$domain/data/emails.htm emails | grep -v '<' | sort -u > tmp-new-emails
      cat $home/data/$domain/data/emails.htm | grep '<' > tmp-new-page
      mv tmp-new-page $home/data/$domain/data/emails.htm
@@ -202,7 +202,7 @@ if [[ -e $home/data/$domain/data/emails.htm && -e emails ]]; then
      echo "</pre>" >> $home/data/$domain/data/emails.htm
 fi
 
-if [[ -e $home/data/$domain/data/hosts.htm && -e hosts ]]; then
+if [[ -f $home/data/$domain/data/hosts.htm && -f hosts ]]; then
      cat $home/data/$domain/data/hosts.htm hosts | grep -v '<' | $sip > tmp-new-hosts
      cat $home/data/$domain/data/hosts.htm | grep '<' > tmp-new-page
      mv tmp-new-page $home/data/$domain/data/hosts.htm

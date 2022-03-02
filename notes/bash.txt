@@ -177,7 +177,7 @@ else
 fi
 
 # Check for root
-if [[ $EUID -ne 0 ]]; then
+if [ $EUID -ne 0 ]; then
      echo
      echo "[!] This script must be ran as root."
      exit
@@ -191,6 +191,11 @@ fi
 # Check for wrong answer
 if [ ! -f $location ]; then
      f_Error
+fi
+
+# Check for no answer, need dbl brackets to handle a space in the name
+if [[ -z $company ]]; then
+     f_error
 fi
 
 # Check for two variables
@@ -214,7 +219,6 @@ fi
 if ! [[ $number =~ ^[0-9]+$ ]] || [[ $number -le 0 ]]; then
      f_error
 fi
-
 
 # Validate CIDR
 sub=$(echo $cidr | cut -d '/' -f2)
@@ -253,12 +257,16 @@ echo "$(($diff / 60)) min and $(($diff % 60)) sec."
 
 # Files and folders
 
-if [ -e test ]; then
+if [ -f test ]; then
      echo "This file exists."
 fi
 
-if [ ! -e test ]; then
+if [ ! -f test ]; then
      echo "This file does not exist."
+fi
+
+if [ -s test ]; then
+     echo "This file contains data."
 fi
 
 if [ ! -s test ]; then 

@@ -33,7 +33,7 @@ case $recon in
      read -e workspace
 
      # Check for no answer
-     if [[ -z $workspace ]]; then
+     if [ -z $workspace ]; then
           f_error
      fi
 

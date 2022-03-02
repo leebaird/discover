@@ -65,7 +65,7 @@ echo
 echo -n "Company: "
 read company
 
-# Check for no answer
+# Check for no answer, need dbl brackets to handle a space in the name
 if [[ -z $company ]]; then
      f_error
 fi
@@ -74,7 +74,7 @@ echo -n "Domain:  "
 read domain
 
 # Check for no answer
-if [[ -z $domain ]]; then
+if [ -z $domain ]; then
      f_error
 fi
 
@@ -121,7 +121,7 @@ fi
 ###############################################################################################################################
 
 echo "     Names                (3/$total)"
-if [ -e zhandles.txt ]; then
+if [ -f zhandles.txt ]; then
      for i in $(cat zhandles.txt); do
           curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -k -s https://whois.arin.net/rest/poc/$i.txt | grep 'Name' >> tmp
      done
@@ -274,7 +274,7 @@ echo "Whois"
 echo "     Domain               (42/$total)"
 whois -H $domain > tmp 2>/dev/null
 sed 's/^[ \t]*//' tmp > tmp2
-egrep -iv '(#|%|<a|=-=-=-=|;|access may|accuracy|additionally|afilias except|and dns hosting|and limitations|any use of|be sure|at the end|by submitting|by the terms|can easily|circumstances|clientdeleteprohibited|clienttransferprohibited|clientupdateprohibited|company may|compilation|complaint will|contact information|contact us|contacting|copy and paste|currently set|database|data contained|data presented|database|date of|details|dissemination|domaininfo ab|domain management|domain names in|domain status: ok|enable high|entirety|except as|existing|failure|facsimile|for commercial|for detailed|for information|for more|for the|get noticed|get a free|guarantee its|href|If you|in europe|in most|in obtaining|in the address|includes|including|information is|is not|is providing|its systems|learn|makes this|markmonitor|minimum|mining this|minute and|modify|must be sent|name cannot|namesbeyond|not to use|note:|notice|obtaining information about|of moniker|of this data|or hiding any|or otherwise support|other use of|please|policy|prior written|privacy is|problem reporting|professional and|prohibited without|promote your|protect the|protecting|public interest|queries or|receive|receiving|register your|registrars|registration record|relevant|repackaging|request|reserves all rights|reserves the|responsible for|restricted to network|restrictions|see business|server at|solicitations|sponsorship|status|support questions|support the transmission|supporting|telephone, or facsimile|Temporary|that apply to|that you will|the right|The data is|The fact that|the transmission|this listing|this feature|this information|this service is|to collect or|to entities|to report any|to suppress|to the systems|transmission of|trusted partner|united states|unlimited|unsolicited advertising|users may|version 6|via e-mail|visible|visit aboutus.org|visit|web-based|when you|while believed|will use this|with many different|with no guarantee|we reserve|whitelist|whois|you agree|You may not)' tmp2 > tmp3
+egrep -iv '(#|%|<a|=-=-=-=|;|access may|accuracy|additionally|afilias except|and dns hosting|and limitations|any use of|be sure|at the end|by submitting|by the terms|can easily|circumstances|clientdeleteprohibited|clienttransferprohibited|clientupdateprohibited|company may|compilation|complaint will|contact information|contact us|contacting|copy and paste|currently set|database|data contained|data presented|database|date of|details|dissemination|domaininfo ab|domain management|domain names in|domain status: ok|electronic processes|enable high|entirety|except as|existing|failure|facsimile|for commercial|for detailed|for information|for more|for the|get noticed|get a free|guarantee its|href|If you|in europe|in most|in obtaining|in the address|includes|including|information is|is not|is providing|its systems|learn|makes this|markmonitor|minimum|mining this|minute and|modify|must be sent|name cannot|namesbeyond|not to use|note:|notice|obtaining information about|of moniker|of this data|or hiding any|or otherwise support|other use of|please|policy|prior written|privacy is|problem reporting|professional and|prohibited without|promote your|protect the|protecting|public interest|queries or|receive|receiving|register your|registrars|registration record|relevant|repackaging|request|reserves all rights|reserves the|responsible for|restricted to network|restrictions|see business|server at|solicitations|sponsorship|status|support questions|support the transmission|supporting|telephone, or facsimile|Temporary|that apply to|that you will|the right|The data is|The fact that|the transmission|this listing|this feature|this information|this service is|to collect or|to entities|to report any|to suppress|to the systems|transmission of|trusted partner|united states|unlimited|unsolicited advertising|users may|version 6|via e-mail|visible|visit aboutus.org|visit|web-based|when you|while believed|will use this|with many different|with no guarantee|we reserve|whitelist|whois|you agree|You may not)' tmp2 > tmp3
 # Remove lines starting with "*"
 sed '/^*/d' tmp3 > tmp4
 # Remove lines starting with "-"
@@ -348,7 +348,7 @@ sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' $home/data/$domain/pages/config.htm
 sed -i '/Math\.random/I,+6 d' $home/data/$domain/pages/config.htm
 # Clean up
 sed -i 's/I could use the nameservers/The nameservers/g' $home/data/$domain/pages/config.htm
-sed -i 's/ERROR: //g; s/FAIL: //g; s/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/Oh well, //g; s/The reverse (PTR) record://g; s/the same ip./the same IP./g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/You must be/Be/g; s/Your/The/g; s/your/the/g' $home/data/$domain/pages/config.htm
+sed -i 's/ERROR: //g; s/FAIL: //g; s/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/Oh well, //g; s/The reverse (PTR) record://g; s/the same ip./the same IP./g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/use on having/use in having/g; s/You must be/Be/g; s/Your/The/g; s/your/the/g' $home/data/$domain/pages/config.htm
 echo
 
 ###############################################################################################################################
@@ -377,7 +377,7 @@ while read regdomain; do
 
      nomatch=$(grep -c -E 'No match for|Name or service not known' tmp5)
 
-     if [[ $nomatch -eq 1 ]]; then
+     if [ $nomatch -eq 1 ]; then
           echo "$regdomain -- No Whois Matches Found" >> tmp4
      else
           if [[ "$ipaddr" == "" ]]; then
@@ -416,8 +416,8 @@ elif grep -q 'paymenthash' tmp; then
      domcount=$(wc -l tmp3 | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
      f_regdomain
 else
-     grep 'ViewDNS.info' tmp | sed 's/<tr>/\n/g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
-     grep 'ViewDNS.info' tmp2 | sed 's/<tr>/\n/g' | grep '</td></tr>' | grep -v -E 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
+     grep 'ViewDNS.info' tmp | sed 's/<tr>/\n/g' | grep '</td></tr>' | grep -Ev 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
+     grep 'ViewDNS.info' tmp2 | sed 's/<tr>/\n/g' | grep '</td></tr>' | grep -Ev 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
      sort -uV tmp3 -o tmp3
      domcount=$(wc -l tmp3 | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
      f_regdomain
@@ -469,12 +469,12 @@ echo "db insert domains" >> passive.rc
 echo "$domain" >> passive.rc
 echo "none" >> passive.rc
 
-if [ -e emails ]; then
+if [ -f emails ]; then
      cp emails /tmp/tmp-emails
      cat $discover/resource/recon-ng-import-emails.rc >> passive.rc
 fi
 
-if [ -e names ]; then
+if [ -f names ]; then
      echo "last_name#first_name#title" > /tmp/names.csv
      cat names >> /tmp/names.csv
      cat $discover/resource/recon-ng-import-names.rc >> passive.rc
@@ -503,7 +503,7 @@ cat z* subdomains-final | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -v '
 
 ###############################################################################################################################
 
-if [ -e networks-final ]; then
+if [ -f networks-final ]; then
      cat networks-final > tmp 2>/dev/null
      echo >> tmp
 fi
@@ -516,7 +516,7 @@ echo "Summary" > zreport
 echo $short >> zreport
 echo > tmp
 
-if [ -e emails-final ]; then
+if [ -s emails-final ]; then
      emailcount=$(wc -l emails-final | cut -d ' ' -f1)
      echo "Emails               $emailcount" >> zreport
      echo "Emails ($emailcount)" >> tmp
@@ -530,7 +530,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/emails.htm
 fi
 
-if [ -e names-final ]; then
+if [ -f names-final ]; then
      namecount=$(wc -l names-final | cut -d ' ' -f1)
      echo "Names                $namecount" >> zreport
      echo "Names ($namecount)" >> tmp
@@ -545,7 +545,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/names.htm
 fi
 
-if [ -e records ]; then
+if [ -f records ]; then
      recordcount=$(wc -l records | cut -d ' ' -f1)
      echo "DNS Records          $recordcount" >> zreport
      echo "DNS Records ($recordcount)" >> tmp
@@ -563,7 +563,7 @@ if [ -s networks-final ]; then
      echo >> tmp
 fi
 
-if [ -e hosts ]; then
+if [ -f hosts ]; then
      hostcount=$(wc -l hosts | cut -d ' ' -f1)
      echo "Hosts                $hostcount" >> zreport
      echo "Hosts ($hostcount)" >> tmp
@@ -588,7 +588,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/registered-domains.htm
 fi
 
-if [ -e squatting ]; then
+if [ -s squatting ]; then
      urlcount2=$(wc -l squatting | cut -d ' ' -f1)
      echo "Squatting            $urlcount2" >> zreport
      echo "Squatting ($urlcount2)" >> tmp
@@ -602,7 +602,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/squatting.htm
 fi
 
-if [ -e subdomains-final ]; then
+if [ -f subdomains-final ]; then
      urlcount=$(wc -l subdomains-final | cut -d ' ' -f1)
      echo "Subdomains           $urlcount" >> zreport
      echo "Subdomains ($urlcount)" >> tmp
@@ -688,7 +688,7 @@ fi
 
 cat tmp >> zreport
 
-if [ -e whois-domain ]; then
+if [ -f whois-domain ]; then
      echo "Whois Domain" >> zreport
      echo $long >> zreport
      cat whois-domain >> zreport
@@ -699,7 +699,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/whois-domain.htm
 fi
 
-if [ -e whois-ip ]; then
+if [ -f whois-ip ]; then
      echo >> zreport
      echo "Whois IP" >> zreport
      echo $long >> zreport

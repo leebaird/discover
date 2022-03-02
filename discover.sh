@@ -39,7 +39,7 @@ CWD=$(pwd)
 discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
 home=$HOME
 interface=$(ip addr | grep 'global' | grep -v 'secondary' | awk '{print $9}')
-ip=$(ip addr | grep 'global' | grep -v 'docker' | cut -d '/' -f1 | awk '{print $2}')
+ip=$(ip addr | grep 'global' | egrep -v '(:|docker)' | cut -d '/' -f1 | awk '{print $2}')
 port=443
 range=$(ip addr | grep 'global' | grep -v 'secondary' | cut -d '/' -f1 | awk '{print $2}' | cut -d '.' -f1-3)'.1'
 rundate=$(date +%B' '%d,' '%Y)
@@ -103,7 +103,7 @@ echo
 echo -e "${RED}$medium${NC}"
 echo
 echo
-exit 1
+exit
 }
 
 export -f f_error
@@ -116,7 +116,7 @@ echo -n "Enter the location of your file: "
 read -e location
 
 # Check for no answer
-if [[ -z $location ]]; then
+if [ -z $location ]; then
      f_error
 fi
 
@@ -131,7 +131,7 @@ export -f f_location
 ###############################################################################################################################
 
 f_runlocally(){
-if [[ -z $DISPLAY ]]; then
+if [ -z $DISPLAY ]; then
      echo
      echo -e "${RED}$medium${NC}"
      echo
@@ -188,13 +188,13 @@ export -f f_terminate
 f_scanname(){
 f_typeofscan
 
-echo -e "${YELLOW}[*] Warning - spaces in the name will cause errors${NC}"
+echo -e "${YELLOW}[*] Warning: no spaces allowed${NC}"
 echo
 echo -n "Name of scan: "
 read name
 
 # Check for no answer
-if [[ -z $name ]]; then
+if [ -z $name ]; then
      f_error
 fi
 
@@ -259,7 +259,7 @@ echo -n "CIDR: "
 read cidr
 
 # Check for no answer
-if [[ -z $cidr ]]; then
+if [ -z $cidr ]; then
      rm -rf $name
      f_error
 fi
@@ -290,7 +290,7 @@ if [ "$exclude" == "y" ]; then
      echo -n "Enter the path to the file: "
      read excludefile
 
-     if [[ -z $excludefile ]]; then
+     if [ -z $excludefile ]; then
           f_error
      fi
 
@@ -345,7 +345,7 @@ echo -n "IP, range or URL: "
 read target
 
 # Check for no answer
-if [[ -z $target ]]; then
+if [ -z $target ]; then
      rm -rf $name
      f_error
 fi
@@ -400,7 +400,7 @@ echo -n "Set scan delay. (0-5, enter for normal) "
 read delay
 
 # Check for no answer
-if [[ -z $delay ]]; then
+if [ -z $delay ]; then
      delay='0'
 fi
 
@@ -473,11 +473,11 @@ for i in $TCP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/tcp\>" | cut -d ' ' -f2 > $name/$i.txt
 done
 
-if [[ -e $name/523.txt ]]; then
+if [ -f $name/523.txt ]; then
      mv $name/523.txt $name/523-tcp.txt
 fi
 
-if [[ -e $name/5060.txt ]]; then
+if [ -f $name/5060.txt ]; then
      mv $name/5060.txt $name/5060-tcp.txt
 fi
 
@@ -488,7 +488,7 @@ for i in $UDP_PORTS; do
      cat $name/nmap.gnmap | grep "\<$i/open/udp\>" | cut -d ' ' -f2 > $name/$i.txt
 done
 
-if [[ -e $name/523.txt ]]; then
+if [ -f $name/523.txt ]; then
      mv $name/523.txt $name/523-udp.txt
 fi
 
@@ -559,7 +559,7 @@ echo -n "Enter the location of your previous scan: "
 read -e location
 
 # Check for no answer
-if [[ -z $location ]]; then
+if [ -z $location ]; then
      f_error
 fi
 
@@ -575,7 +575,7 @@ echo -n "Set scan delay. (0-5, enter for normal) "
 read delay
 
 # Check for no answer
-if [[ -z $delay ]]; then
+if [ -z $delay ]; then
      delay='0'
 fi
 

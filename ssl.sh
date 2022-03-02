@@ -53,10 +53,10 @@ while read -r line; do
      echo
      echo >> ssl_$line
 
-     if [ -e tmp_$line ]; then
+     if [ -f tmp_$line ]; then
           error=$(grep 'ERROR:' tmp_$line)
 
-          if [[ ! $error ]]; then
+          if [ ! $error ]; then
                cat tmp_$line >> ssl_$line
                echo $medium >> ssl_$line
                echo >> ssl_$line

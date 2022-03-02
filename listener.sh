@@ -46,7 +46,7 @@ echo -n "LHOST: "
 read lhost
 
 # Check for no answer
-if [[ -z $lhost ]]; then
+if [ -z $lhost ]; then
      lhost=$ip
      echo "[*] Using $ip"
      echo
@@ -56,7 +56,7 @@ echo -n "LPORT: "
 read lport
 
 # Check for no answer
-if [[ -z $lport ]]; then
+if [ -z $lport ]; then
      lport=443
      echo "[*] Using 443"
 fi

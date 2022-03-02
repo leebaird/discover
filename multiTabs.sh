@@ -46,7 +46,7 @@ case $choice in
      read -e location
 
      # Check for no answer
-     if [[ -z $location ]]; then
+     if [ -z $location ]; then
           f_error
      fi
 
@@ -75,7 +75,7 @@ case $choice in
      read domain
 
      # Check for no answer
-     if [[ -z $domain ]]; then
+     if [ -z $domain ]; then
           f_error
      fi
 

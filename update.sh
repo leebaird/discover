@@ -6,7 +6,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # Check for root
-if [[ $EUID -ne 0 ]]; then
+if [ $EUID -ne 0 ]; then
      echo
      echo "[!] This script must be ran as root."
      exit
@@ -41,19 +41,19 @@ echo -e "${BLUE}Updating Kali.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 echo
 
-if [ ! -e /usr/bin/pip ]; then
+if [ ! -f /usr/bin/pip ]; then
      echo -e "${YELLOW}Installing Python pip.${NC}"
      apt install -y python3-pip
      echo
 fi
 
-if [ ! -e /usr/bin/virtualenv ]; then
+if [ ! -f /usr/bin/virtualenv ]; then
      echo -e "${YELLOW}Installing Python Virtualenv.${NC}"
      apt install -y python3-virtualenv
      echo
 fi
 
-if [ ! -e /usr/bin/amass ]; then
+if [ ! -f /usr/bin/amass ]; then
      echo -e "${YELLOW}Installing Amass.${NC}"
      apt install -y amass
      echo
@@ -431,7 +431,7 @@ else
      echo
 fi
 
-if [ ! -e /usr/lib/python3/dist-packages/texttable.py ]; then
+if [ ! -f /usr/lib/python3/dist-packages/texttable.py ]; then
      echo -e "${YELLOW}Installing Texttable.${NC}"
      apt install -y python3-texttable
      echo

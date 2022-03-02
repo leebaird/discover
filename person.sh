@@ -10,7 +10,7 @@ echo -n "First name: "
 read firstName
 
 # Check for no answer
-if [[ -z $firstName ]]; then
+if [ -z $firstName ]; then
      f_error
 fi
 
@@ -18,7 +18,7 @@ echo -n "Last name:  "
 read lastName
 
 # Check for no answer
-if [[ -z $lastName ]]; then
+if [ -z $lastName ]; then
      f_error
 fi
 
