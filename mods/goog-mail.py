@@ -22,8 +22,8 @@ def StripTags(text):
 
 
 if len(sys.argv) != 2:
-    print("\nExtracts emails from Google results.\n")
-    print("\nUsage: ./goog-mail.py <domain>\n")
+    print("\nExtracts emails from Google results.")
+    print("\nUsage: ./goog-mail.py <domain>")
     sys.exit(1)
 
 domain_name = sys.argv[1]

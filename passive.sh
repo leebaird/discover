@@ -450,7 +450,6 @@ cat z* | egrep -iv '(@|:|\.|atlanta|boston|captcha|detroit|google|maryland|north
 cat z* | cut -d ':' -f2 | grep -E '\.doc$|\.docx$' > doc
 cat z* | cut -d ':' -f2 | grep -E '\.ppt$|\.pptx$' > ppt
 cat z* | cut -d ':' -f2 | grep -E '\.xls$|\.xlsx$' > xls
-
 cat z* | cut -d ':' -f2 | grep '\.pdf$' > pdf
 cat z* | cut -d ':' -f2 | grep '\.txt$' > txt
 
@@ -499,7 +498,7 @@ cat tmp networks | sort -u | $sip > networks-final
 grep "\.$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > tmp
 cat subdomains tmp | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(outlook|www)' | column -t | sort -u | sed 's/[ \t]*$//' > subdomains-final
 
-cat z* subdomains-final | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -v '127.0.0' | sort -u | $sip > hosts
+cat z* subdomains-final | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(0.0.0.0|1.1.1.1|127.0.0.1)' | sort -u | $sip > hosts
 
 ###############################################################################################################################
 
