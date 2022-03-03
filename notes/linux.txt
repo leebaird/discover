@@ -80,14 +80,19 @@ systemctl disable docker.socket
 
 # File Permissions
 
-t rwx rwx rwx	 type / owner / group / world
-Type is directory (d) or file (-).
-
 read     (r)  4
 write    (w)  2
 execute  (e)  1
 
+-rw-r--r-- 1 root root 3116 Feb 20 15:38 /etc/passwd
+type, owner, group, world, # of hard links, user, group, file size, date, time, file
+Type: file (-), directory (d), link (l)
+
 chmod 755 test.sh                               Make a file executable
+
+chown <user>:<group> <file/directory>
+chown kali:kali test.sh                         Change owner permissions
+chown -R kali:kali data                         Change owner permissions recursively
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # File Transfer
@@ -132,7 +137,7 @@ rm -rf test                                     Force delete the directory
 ln -s /path/to/file /path/to/link               Create a symbolic link
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# File Descriptor
+# File Descriptors
 
 STDIN – 0                                       Data stream for input
 STDOUT – 1                                      Data stream for output
@@ -562,9 +567,11 @@ uptime                                          Current uptime
 # Terminal
 
 ctrl + alt + t                                  Open a Terminal
-ctrl + shift + t                                Open a new tab in Terminal
-ctrl + a                                        Go to the beginning of the line
+ctrl + shift + t                                Open a new tab in the Terminal
+ctrl + a                                        Move the cursor to the beginning of the line
+ctrl + e                                        Move the cursor to the end of the line
 ctrl + l                                        Clear the screen
+ctrl + c                                        End the current task or process
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # tmux
@@ -761,22 +768,19 @@ cat /root/.ssh/id_rsa.pub >> /tmp/mount/root/.ssh/authorized_keys
 
 showmount -e <target IP>
 
-apt-get install nfs-common
+apt install nfs-common
 mkdir /mnt/temp/
 mount -t nfs <target IP>:/<share> /mnt/temp/ -o nolock
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Anonymous Mountable SMB
 
-smbclient -L //<target IP>
+smbclient -L <target IP> -N
 smbclient //<target IP>/<share>
 smb: \> ls
 smb: \> cd <directory>
 smb: \> cd "<long directory>"
 smb: \> get <file>
-
-mkdir /mnt/temp/
-mount -t cifs //<target IP>/<share> /mnt/temp/ -o user=anonymous
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Rstatd enabled

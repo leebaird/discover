@@ -764,10 +764,6 @@ if [ -f $name/161.txt ] || [ -f $name/445.txt ] || [ -f $name/500.txt ]; then
                smbclient -L $i -N | egrep -v '(disabled|failed)' >> $name/script-smbclient.txt 2>/dev/null
                echo >> $name/script-smbclient.txt
           done
-
-          echo "     smbhost"
-          smbhost --host-file 445.txt > $name/script-smbhost.txt 2>/dev/null
-          echo >> $name/script-smbhost.txt
      fi
 
      if [ -f $name/500.txt ]; then
