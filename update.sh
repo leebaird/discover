@@ -235,30 +235,10 @@ else
      echo -e "${YELLOW}Installing Domain Hunter.${NC}"
      git clone https://github.com/threatexpress/domainhunter /opt/Domain-Hunter
      cd /opt/Domain-Hunter/
-     pip3 install -r requirements.txt
+     pip3 install pytesseract
      chmod 755 domainhunter.py
      echo
 fi
-
-#if [ -d /opt/Domain-Hunter/.git -a -d /opt/Domain-Hunter-venv ]; then
-#     echo -e "${BLUE}Updating Domain Hunter.${NC}"
-#     cd /opt/Domain-Hunter/ ; git pull
-#     source /opt/Domain-Hunter-venv/activate
-#     pip3 install -r requirements.txt --upgrade
-#     deactivate
-#     echo
-#else
-#     echo -e "${YELLOW}Installing Domain Hunter.${NC}"
-#     git clone https://github.com/threatexpress/domainhunter /opt/Domain-Hunter
-#     echo
-#     echo -e "${YELLOW}Setting up Domain Hunter virtualenv.${NC}"
-#     virtualenv -p /usr/bin/python3 /opt/Domain-Hunter-venv
-#     source /opt/Domain-Hunter-venv/activate
-#     cd /opt/Domain-Hunter/
-#     pip3 install -r requirements.txt
-#     deactivate
-#     echo
-#fi
 
 if [ -d /opt/DomainPasswordSpray/.git ]; then
      echo -e "${BLUE}Updating DomainPasswordSpray.${NC}"
