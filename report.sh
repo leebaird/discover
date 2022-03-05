@@ -116,14 +116,12 @@ if [ -f $name/script-onesixtyone.txt ] || [ -f $name/script-smbclient.txt ] || [
      fi
 
      if [ -f $name/script-smbclient.txt ]; then
-          echo $medium >> $filename
           echo >> $filename
           echo '- smbclient' >> $filename
           cat $name/script-smbclient.txt >> $filename
      fi
 
      if [ -f $name/script-ike-scan.txt ]; then
-          echo $medium >> $filename
           echo >> $filename
           echo '- ike-scan' >> $filename
           cat $name/script-ike-scan.txt >> $filename

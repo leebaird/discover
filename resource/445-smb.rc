@@ -27,6 +27,7 @@ use auxiliary/scanner/smb/smb_login
 run
 
 use auxiliary/scanner/smb/smb_lookupsid
+set MaxRID 1025
 run
 
 use auxiliary/scanner/smb/smb_ms17_010

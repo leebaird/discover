@@ -370,11 +370,10 @@ socat TCP4-LISTEN:443,fork TCP4:<remoteIP>:443
 
 # Remote Desktop
 
-rdesktop -u <username> -p <password> -g 1920×1080 10.0.0.10
-rdesktop -u <username> -p <password> -g 85% 10.0.0.10
+rdesktop -u <username> -p <password> -g 75% 10.0.0.10
 
 If Network Level Authentication is enabled:
-xfreerdp /u:admin /p:password /v:10.0.0.10 </clipboard /drive:share,/tmp /port:3390 /size:1920x1080>
+xfreerdp /u:user /p:password /v:10.0.0.10:port /size:75%h +drives
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Reverse shells
@@ -486,6 +485,9 @@ smbpasswd -a lee                                Add a user and set the password 
 --------------------------------------------------------------------------------------------------------------------------------------------
 
 # SSH
+
+It uses public-key cryptography to verify the remote host's identity. Based on the client-server architecture.
+Symmetric encryption methods and hashing algorithms.
 
 ssh-keygen                                      Create new keys
 ssh-copy-id -i ~/.ssh/id_rsa.pub user@host      Copy new key to server

@@ -41,6 +41,12 @@ echo -e "${BLUE}Updating Kali.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 echo
 
+if [ ! -d /usr/share/doc/golang-go ]; then
+     echo -e "${YELLOW}Installing Go.${NC}"
+     apt install -y golang-go
+     echo
+fi
+
 if [ ! -f /usr/bin/pip ]; then
      echo -e "${YELLOW}Installing Python pip.${NC}"
      apt install -y python3-pip
@@ -307,6 +313,19 @@ else
      git clone https://github.com/ChrisTruncer/EyeWitness /opt/EyeWitness
      cd /opt/EyeWitness/Python/setup/
      ./setup.sh
+fi
+
+if [ -d /opt/gobuster/.git ]; then
+     echo -e "${BLUE}Updating gobuster.${NC}"
+     cd /opt/gobuster/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing gobuster.${NC}"
+     git clone https://github.com/OJ/gobuster.git /opt/gobuster
+     cd /opt/gobuster/
+     go get && go build
+     make
+     echo
 fi
 
 if [ -d /opt/krbrelayx/.git ]; then

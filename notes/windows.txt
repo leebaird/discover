@@ -68,7 +68,7 @@ nbtscan -f hosts.txt
 hostname
 whoami
 whoami /groups
-systeminfo
+systeminfo                                        Show system info, hot fixes, and domain name
 net users                                         Local users
 net localgroup Administrators                     Local administrators
 
@@ -79,17 +79,16 @@ netstat -ano | findstr "LISTEN"
 netstat -ano | findstr "ESTABLISH
 
 nltest /dclist:<domain>                           Show domain controllers
-nltest /domain_trusts                             Show doamin trusts
+nltest /domain_trusts                             Show domain trusts
 
-net group "Domain Admins" /domain
-net group "Enterprise Admins" /domain
+net group "domain admins" /domain
+net group "enterprise admins" /domain
 net group "Domain Computers" /domain
 
 doskey /history                                   Show command history
 gpresult /z
 
 net share
-net session
 
 dir /s *pass* == *cred* == *vnc* == *.config*
 findstr /si password *.ini *.pdf *.txt *.docx *.xlsx
@@ -135,9 +134,10 @@ net accounts /domain                              Domain password policy
 net user /domain                                  Show domain users
 net user <user> /domain                           Show info on a domain user
 net group /domain
-net group "Domain Admins" /domain                 Show domain admin   *** BREAKS remote shell
-net group "Domain Users" /domain                  Show domain users   *** BREAKS remote shell
-net group "Domain Controllers" /domain            Show domain controllers
+net group "domain admins" /domain                 Show domain admin
+net group "domain users" /domain                  Show domain users
+net group "domain controllers" /domain            Show domain controllers
+nltest /domain_trusts                             Show domain trusts
 
 net localgroup Administrators /domain             Users in the domain Administrators Security Group
 net localgroup /domain                            Domain Security Groups
