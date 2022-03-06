@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # by John Kim
 # Thanks to Securicon, LLC. for sponsoring development
