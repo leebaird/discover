@@ -38,7 +38,7 @@ clear
 echo
 
 echo -e "${BLUE}Updating Kali.${NC}"
-apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
+apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean
 echo
 
 if [ ! -d /usr/share/doc/golang-go ]; then
@@ -397,16 +397,24 @@ else
      echo
 fi
 
-if [ -d /opt/SprayingToolkit/.git ]; then
+if [ -d /opt/SprayingToolkit/.git -a -d /opt/SprayingToolkit-venv ]; then
      echo -e "${BLUE}Updating SprayingToolkit.${NC}"
      cd /opt/SprayingToolkit/ ; git pull
+     source /opt/SprayingToolkit-venv/bin/activate
+     pip3 install -r requirements.txt --upgrade
+     deactivate
      echo
 else
      echo -e "${YELLOW}Installing SprayingToolkit.${NC}"
      git clone https://github.com/byt3bl33d3r/SprayingToolkit /opt/SprayingToolkit
+     echo
+     echo -e "${YELLOW}Setting up SprayingToolkit virtualenv.${NC}"
+     virtualenv -p /usr/bin/python3 /opt/SprayingToolkit-venv
+     source /opt/SprayingToolkit-venv/bin/activate
      cd /opt/SprayingToolkit/
      apt install -y libxml2-dev libxslt-dev
      pip3 install -r requirements.txt
+     deactivate
      echo
 fi
 
