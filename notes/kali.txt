@@ -5,7 +5,7 @@ Kali
 https://www.kali.org/get-kali/#kali-virtual-machines
 Select 64-bit VMware
 
-shasum -a 256 kali-linux-2021.4-vmware-amd64.7z
+shasum -a 256 kali-linux-2022.1-vmware-amd64.7z
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Change default password
@@ -34,7 +34,7 @@ Close
 
 File > Preferences
 Appearance
-     Font: 13
+     Font: 12
      Application transparency: 0%
 OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ mousepad
 
 Edit > Preferences
 View
-     Font: 13
+     Font: 12
 Editor
      Tab width: 5
      Tab mode: Insert Spaces
