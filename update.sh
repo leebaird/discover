@@ -24,6 +24,10 @@ if [ -d /opt/droopescan/.git ]; then
      rm -rf /opt/droopescan/
 fi
 
+if [ -d /opt/EyeWitness/.git ]; then
+     rm -rf /opt/EyeWitness/
+fi
+
 if [ -d /opt/spoofcheck/.git ]; then
      rm -rf /opt/spoofcheck/
 fi
@@ -278,17 +282,6 @@ else
      echo -e "${YELLOW}Installing egressbuster.${NC}"
      git clone https://github.com/trustedsec/egressbuster /opt/egressbuster
      echo
-fi
-
-if [ -d /opt/EyeWitness/.git ]; then
-     echo -e "${BLUE}Updating EyeWitness.${NC}"
-     cd /opt/EyeWitness/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing EyeWitness.${NC}"
-     git clone https://github.com/ChrisTruncer/EyeWitness /opt/EyeWitness
-     cd /opt/EyeWitness/Python/setup/
-     ./setup.sh
 fi
 
 if [ -d /opt/gobuster/.git ]; then
