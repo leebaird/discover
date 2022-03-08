@@ -20,6 +20,10 @@ if [ -d /opt/BloodHound-v4/.git ]; then
      rm -rf /opt/BloodHound-v4/
 fi
 
+if [ -d /opt/dnstwist/.git ]; then
+     rm -rf /opt/dnstwist/
+fi
+
 if [ -d /opt/droopescan/.git ]; then
      rm -rf /opt/droopescan/
 fi
@@ -214,16 +218,23 @@ else
      echo
 fi
 
-if [ -d /opt/dnstwist/.git ]; then
+if [ -d /opt/dnstwist/.git -a -d /opt/dnstwist-venv ]; then
      echo -e "${BLUE}Updating dnstwist.${NC}"
      cd /opt/dnstwist/ ; git pull
+     source /opt/dnstwist-venv/bin/activate
      pip3 install .
+     deactivate
      echo
 else
      echo -e "${YELLOW}Installing dnstwist.${NC}"
      git clone https://github.com/elceef/dnstwist /opt/dnstwist
+     echo
+     echo -e "${YELLOW}Setting up dnstwist virtualenv.${NC}"
+     virtualenv -p /usr/bin/python3 /opt/dnstwist-venv
+     source /opt/dnstwist-venv/bin/activate
      cd /opt/dnstwist/
      pip3 install .
+     deactivate
      echo
 fi
 
