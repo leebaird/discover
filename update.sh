@@ -16,6 +16,10 @@ fi
 
 # Clean up
 
+if [ -d /opt/BloodHound-v4/.git ]; then
+     rm -rf /opt/BloodHound-v4/
+fi
+
 if [ -d /opt/droopescan/.git ]; then
      rm -rf /opt/droopescan/
 fi
@@ -69,23 +73,10 @@ if [ ! -f /usr/bin/amass ]; then
      echo
 fi
 
-#if [ -d /opt/BloodHound-v4/.git ]; then
-#     echo -e "${BLUE}Updating BloodHound.${NC}"
-#     cd /opt/BloodHound-v4/ ; git pull
-#     echo
-#else
-#     echo -e "${YELLOW}Installing Neo4j.${NC}"
-#     apt -y install neo4j
-#     echo
-#     echo -e "${YELLOW}Installing BloodHound.${NC}"
-#     apt -y install npm
-#     npm install -g electron-packager
-#     git clone https://github.com/BloodHoundAD/BloodHound /opt/BloodHound-v4
-#     cd /opt/BloodHound-v4/
-#     npm install
-#     npm run linuxbuild
-#     echo
-#fi
+if [ ! -f /usr/bin/bloodhound ]; then
+     echo -e "${YELLOW}Installing BloodHound and Neo4j.${NC}"
+     apt install -y bloodhound
+fi
 
 if [ -d /opt/cobaltstrike ]; then
      echo -e "${BLUE}Updating Cobalt Strike.${NC}"
