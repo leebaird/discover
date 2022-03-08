@@ -96,12 +96,10 @@ update
 Accept all defaults by hitting Enter.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Fix GitHub
+# GitHub
 
 git config --global user.name "John Smith"
 git config --global user.email johnsmith@acme.org
-git config --global pull.rebase false
-update
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Add API keys for recon-ng
