@@ -76,6 +76,7 @@ fi
 if [ ! -f /usr/bin/bloodhound ]; then
      echo -e "${YELLOW}Installing BloodHound and Neo4j.${NC}"
      apt install -y bloodhound
+     echo
 fi
 
 if [ -d /opt/cobaltstrike ]; then
@@ -442,6 +443,7 @@ fi
 if [ ! -f /usr/bin/veil ]; then
      echo -e "${YELLOW}Installing Veil.${NC}"
      apt install -y veil
+     echo
 fi
 
 if [ -d /opt/Windows-Exploit-Suggester-NG/.git ]; then
