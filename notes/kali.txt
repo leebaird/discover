@@ -96,12 +96,6 @@ update
 Accept all defaults by hitting Enter.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# GitHub
-
-git config --global user.name "John Smith"
-git config --global user.email johnsmith@acme.org
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Add API keys for recon-ng
 
 recon-ng
@@ -115,6 +109,17 @@ Or replace /root/.recon-ng/keys.db
 # Add API keys for theHarvester
 
 /opt/theHarvester/api-keys.yaml
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Apache Directory Studio
+
+https://directory.apache.org/studio/download/download-linux.html
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# GitHub
+
+git config --global user.name "John Smith"
+git config --global user.email johnsmith@acme.org
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Services
