@@ -28,6 +28,10 @@ if [ -d /opt/unicorn/.git ]; then
      rm -rf /opt/unicorn/
 fi
 
+if [ -d /opt/Veil/.git ]; then
+     rm -rf /opt/Veil/
+fi
+
 if [ -d /opt/WitnessMe/.git ]; then
      rm -rf /opt/WitnessMe/
 fi
@@ -65,23 +69,23 @@ if [ ! -f /usr/bin/amass ]; then
      echo
 fi
 
-if [ -d /opt/BloodHound-v4/.git ]; then
-     echo -e "${BLUE}Updating BloodHound.${NC}"
-     cd /opt/BloodHound-v4/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing Neo4j.${NC}"
-     apt -y install neo4j
-     echo
-     echo -e "${YELLOW}Installing BloodHound.${NC}"
-     apt -y install npm
-     npm install -g electron-packager
-     git clone https://github.com/BloodHoundAD/BloodHound /opt/BloodHound-v4
-     cd /opt/BloodHound-v4/
-     npm install
-     npm run linuxbuild
-     echo
-fi
+#if [ -d /opt/BloodHound-v4/.git ]; then
+#     echo -e "${BLUE}Updating BloodHound.${NC}"
+#     cd /opt/BloodHound-v4/ ; git pull
+#     echo
+#else
+#     echo -e "${YELLOW}Installing Neo4j.${NC}"
+#     apt -y install neo4j
+#     echo
+#     echo -e "${YELLOW}Installing BloodHound.${NC}"
+#     apt -y install npm
+#     npm install -g electron-packager
+#     git clone https://github.com/BloodHoundAD/BloodHound /opt/BloodHound-v4
+#     cd /opt/BloodHound-v4/
+#     npm install
+#     npm run linuxbuild
+#     echo
+#fi
 
 if [ -d /opt/cobaltstrike ]; then
      echo -e "${BLUE}Updating Cobalt Strike.${NC}"
@@ -260,19 +264,19 @@ else
      echo
 fi
 
-if [ -d /opt/Egress-Assess/.git ]; then
-     echo -e "${BLUE}Updating Egress-Assess.${NC}"
-     cd /opt/Egress-Assess/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing Egress-Assess.${NC}"
-     git clone https://github.com/ChrisTruncer/Egress-Assess /opt/Egress-Assess
-     cd /opt/Egress-Assess/setup/
-     ./setup.sh
-     mv server.pem ../Egress-Assess/
-     rm impacket*
-     echo
-fi
+#if [ -d /opt/Egress-Assess/.git ]; then
+#     echo -e "${BLUE}Updating Egress-Assess.${NC}"
+#     cd /opt/Egress-Assess/ ; git pull
+#     echo
+#else
+#     echo -e "${YELLOW}Installing Egress-Assess.${NC}"
+#     git clone https://github.com/ChrisTruncer/Egress-Assess /opt/Egress-Assess
+#     cd /opt/Egress-Assess/setup/
+#     ./setup.sh
+#     mv server.pem ../Egress-Assess/
+#     rm impacket*
+#     echo
+#fi
 
 if [ -d /opt/egressbuster/.git ]; then
      echo -e "${BLUE}Updating egressbuster.${NC}"
@@ -444,15 +448,9 @@ if [ ! -f /usr/lib/python3/dist-packages/texttable.py ]; then
      echo
 fi
 
-if [ -d /opt/Veil/.git ]; then
-     echo -e "${BLUE}Updating Veil.${NC}"
-     cd /opt/Veil/ ; git pull
-     echo
-else
+if [ ! -f /usr/bin/veil ]; then
      echo -e "${YELLOW}Installing Veil.${NC}"
-     git clone https://github.com/Veil-Framework/Veil /opt/Veil
-     cd /opt/Veil/config/
-     ./setup.sh --force --silent
+     apt install -y veil
 fi
 
 if [ -d /opt/Windows-Exploit-Suggester-NG/.git ]; then
