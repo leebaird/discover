@@ -94,6 +94,9 @@ cd /root/
 source .zshrc
 update
 Accept all defaults by hitting Enter.
+
+- Apache Directory Studio
+https://directory.apache.org/studio/download/download-linux.html
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Add API keys for recon-ng
@@ -109,11 +112,6 @@ Or replace /root/.recon-ng/keys.db
 # Add API keys for theHarvester
 
 /opt/theHarvester/api-keys.yaml
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Apache Directory Studio
-
-https://directory.apache.org/studio/download/download-linux.html
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # GitHub
