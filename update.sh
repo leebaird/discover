@@ -20,10 +20,6 @@ if [ -d /opt/BloodHound-v4/.git ]; then
      rm -rf /opt/BloodHound-v4/
 fi
 
-if [ -d /opt/dnstwist/.git ]; then
-     rm -rf /opt/dnstwist/
-fi
-
 if [ -d /opt/droopescan/.git ]; then
      rm -rf /opt/droopescan/
 fi
