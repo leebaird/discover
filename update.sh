@@ -56,6 +56,7 @@ echo
 if [ ! -d /usr/share/doc/golang-go ]; then
      echo -e "${YELLOW}Installing Go.${NC}"
      apt install -y golang-go
+     mv /root/go /opt/
      echo
 fi
 
