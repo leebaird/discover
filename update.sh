@@ -489,11 +489,7 @@ else
      echo
 fi
 
-if [ -d /opt/xwatchwin/.git ]; then
-     echo -e "${BLUE}Updating xwatchwin.${NC}"
-     cd /opt/xwatchwin/ ; git pull
-     echo
-else
+if [ ! -f /opt/xwatchwin/xwatchwin ]; then
      echo -e "${YELLOW}Installing xwatchwin.${NC}"
      apt install -y imagemagick libxext-dev xutils-dev
      wget http://www.ibiblio.org/pub/X11/contrib/utilities/xwatchwin.tar.gz
@@ -504,8 +500,6 @@ else
      xmkmf && make && make install
      echo
 fi
-
-cd /root/
 
 echo -e "${BLUE}Updating locate database.${NC}"
 updatedb
