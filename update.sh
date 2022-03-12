@@ -475,6 +475,38 @@ if [ ! -f /usr/bin/xml_grep ]; then
      echo
 fi
 
+if [ -d /opt/xspy/.git ]; then
+     echo -e "${BLUE}Updating xspy.${NC}"
+     cd /opt/xspy/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing xspy.${NC}"
+     git clone https://github.com/mnp/xspy /opt/xspy
+     cd /opt/xspy/
+     apt install -y build-essential libx11-dev
+     apt install -y x11-utils xutils-dev imagemagick libxext-dev
+     make
+     echo
+fi
+
+if [ -d /opt/xwatchwin/.git ]; then
+     echo -e "${BLUE}Updating xwatchwin.${NC}"
+     cd /opt/xwatchwin/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing xwatchwin.${NC}"
+     apt install -y imagemagick libxext-dev xutils-dev
+     wget http://www.ibiblio.org/pub/X11/contrib/utilities/xwatchwin.tar.gz
+     tar zxvf xwatchwin.tar.gz
+     rm xwatchwin.tar.gz
+     mv xwatchwin/ /opt/
+     cd /opt/xwatchwin/
+     xmkmf && make && make install
+     echo
+fi
+
+cd /root/
+
 echo -e "${BLUE}Updating locate database.${NC}"
 updatedb
 
