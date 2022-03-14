@@ -32,23 +32,6 @@ Places > Network > Browse Network
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Connect anonymously
-
-smbclient -L <target IP>                          List shares
-smbclient //<target IP>/<share>                   Connect to a share
-     dir                                          List directory contents
-     get file.txt                                 Download a file
-     more file.txt                                Read a file
-     put file.txt                                 Upload a file
-
-# Connect with credentials
-
-evil-winrm -i <target IP> -u <user> -p <password>
-smbclient //<target IP>/<share> -u <user> -p <password>
-smbmap -H <target IP> -u <user> -p <password>
-proxychains smbclient '//10.0.0.10/c$' -U 'domain.local/username%password'
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Firewall
 
 netsh firewall show state
@@ -112,6 +95,21 @@ PS C:\> Get-WmiObject -Class win32_OperatingSystem | select version, buildnumber
 PS C:\> Get-Service | ? {$_.Status -eq "Running"} | select -First 2 |fl
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# SMB - open file shares
+
+- Anonymous
+smbclient -L <target IP>                          List shares
+smbclient //<target IP>/<share>                   Connect to a share
+smb: \> dir                                       List directory contents
+smb: \> more file.txt                             Read a file
+smb: \> get file.txt                              Download a file
+smb: \> put file.txt                              Upload a file
+
+- Using credentials
+evil-winrm -i <target IP> -u <user> -p <password>
+smbclient //<target IP>/<share> -U <user>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # User Accounts
 
 - Local
@@ -144,6 +142,7 @@ net localgroup /domain                            Domain Security Groups
 
 net user <user> <password> /add /domain           Add a user to the domain
 net group "Domain Admins" <user> /add /domain     Add a user to a specific Security Group on the domain
+------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Enumerate using a low level account

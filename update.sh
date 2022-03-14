@@ -28,10 +28,6 @@ if [ -d /opt/EyeWitness/.git ]; then
      rm -rf /opt/EyeWitness/
 fi
 
-if [ -d /opt/spoofcheck/.git ]; then
-     rm -rf /opt/spoofcheck/
-fi
-
 if [ -d /opt/unicorn/.git ]; then
      rm -rf /opt/unicorn/
 fi
@@ -401,6 +397,26 @@ if [ -d /opt/SharpCollection/.git ]; then
 else
      echo -e "${YELLOW}Installing SharpCollection.${NC}"
      git clone https://github.com/Flangvik/SharpCollection /opt/SharpCollection
+     echo
+fi
+
+if [ -d /opt/spoofcheck/.git -a -d /opt/spoofcheck-venv ]; then
+     echo -e "${BLUE}Updating spoofcheck.${NC}"
+     cd /opt/spoofcheck/ ; git pull
+     source /opt/spoofcheck-venv/bin/activate
+     pip3 install -r requirements.txt --upgrade
+     deactivate
+     echo
+else
+     echo -e "${YELLOW}Installing spoofcheck.${NC}"
+     git clone https://github.com/BishopFox/spoofcheck /opt/spoofcheck
+     echo
+     echo -e "${YELLOW}Setting up spoofcheck.${NC}"
+     virtualenv -p /usr/bin/python3 /opt/spoofcheck-venv
+     source /opt/spoofcheck-venv/bin/activate
+     cd /opt/spoofcheck/
+     pip3 install -r requirements.txt
+     deactivate
      echo
 fi
 

