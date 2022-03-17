@@ -531,7 +531,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/emails.htm
 fi
 
-if [ -f names-final ]; then
+if [ -s names-final ]; then
      namecount=$(wc -l names-final | cut -d ' ' -f1)
      echo "Names                $namecount" >> zreport
      echo "Names ($namecount)" >> tmp
@@ -546,7 +546,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/names.htm
 fi
 
-if [ -f records ]; then
+if [ -s records ]; then
      recordcount=$(wc -l records | cut -d ' ' -f1)
      echo "DNS Records          $recordcount" >> zreport
      echo "DNS Records ($recordcount)" >> tmp
