@@ -14,8 +14,12 @@ fi
 
 ###############################################################################################################################
 
-# Clean up
+# Fix DNSRecon
+if [ ! -f /opt/DNSRecon-venv/pyvenv.cfg ]; then
+     rm -rf /opt/DNSRecon/
+fi
 
+# Remove old stuff
 if [ -d /opt/BloodHound-v4/.git ]; then
      rm -rf /opt/BloodHound-v4/
 fi
@@ -211,13 +215,23 @@ if [ -d /opt/discover/.git ]; then
      echo
 fi
 
-if [ -d /opt/DNSRecon/.git ]; then
+if [ -d /opt/DNSRecon/.git -a -d /opt/DNSRecon-venv ]; then
      echo -e "${BLUE}Updating DNSRecon.${NC}"
      cd /opt/DNSRecon/ ; git pull
+     source /opt/DNSRecon-venv/bin/activate
+     pip3 install -r requirements.txt --upgrade
+     deactivate
      echo
 else
      echo -e "${YELLOW}Installing DNSRecon.${NC}"
      git clone https://github.com/darkoperator/dnsrecon /opt/DNSRecon
+     echo
+     echo -e "${YELLOW}Setting up DNSRecon.${NC}"
+     virtualenv -p /usr/bin/python3 /opt/DNSRecon-venv
+     source /opt/DNSRecon-venv/bin/activate
+     cd /opt/DNSRecon/
+     pip3 install -r requirements.txt
+     deactivate
      echo
 fi
 
