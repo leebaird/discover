@@ -236,7 +236,7 @@ else
      virtualenv -p /usr/bin/python3 /opt/dnstwist-venv
      source /opt/dnstwist-venv/bin/activate
      cd /opt/dnstwist/
-     pip3 install .
+     pip3 install -r requirements.txt
      deactivate
      echo
 fi
