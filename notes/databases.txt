@@ -17,6 +17,9 @@ msf > use auxiliary/admin/mssql/mssql_enum
 msf > use auxiliary/scanner/mssql/mssql_hashdump
 msf > use auxiliary/admin/mssql/mssql_escalate_dbowner
 
+- Connect with creds
+impacket-mssqlclient <host name>/<user>@<target IP> -windows-auth
+
 Post exploitation
 msf > use auxiliary/admin/mssql/mssql_exec
 
