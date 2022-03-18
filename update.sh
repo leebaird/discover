@@ -226,7 +226,7 @@ else
      echo -e "${YELLOW}Installing DNSRecon.${NC}"
      git clone https://github.com/darkoperator/dnsrecon /opt/DNSRecon
      echo
-     echo -e "${YELLOW}Setting up DNSRecon.${NC}"
+     echo -e "${YELLOW}Setting up DNSRecon virtualenv.${NC}"
      virtualenv -p /usr/bin/python3 /opt/DNSRecon-venv
      source /opt/DNSRecon-venv/bin/activate
      cd /opt/DNSRecon/
@@ -425,7 +425,7 @@ else
      echo -e "${YELLOW}Installing spoofcheck.${NC}"
      git clone https://github.com/BishopFox/spoofcheck /opt/spoofcheck
      echo
-     echo -e "${YELLOW}Setting up spoofcheck.${NC}"
+     echo -e "${YELLOW}Setting up spoofcheck virtualenv.${NC}"
      virtualenv -p /usr/bin/python3 /opt/spoofcheck-venv
      source /opt/spoofcheck-venv/bin/activate
      cd /opt/spoofcheck/
