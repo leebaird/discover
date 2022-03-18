@@ -14,9 +14,6 @@ run
 use auxiliary/scanner/snmp/brocade_enumhash
 run
 
-use auxiliary/scanner/snmp/cambium_snmp_loot
-run
-
 use auxiliary/scanner/snmp/cisco_config_tftp
 run
 
