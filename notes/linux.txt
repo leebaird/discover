@@ -22,11 +22,16 @@ gzip test
 zip -9 test.zip test
 zip -r test.zip test/
 
-tar xvfj test.tar.bz2                           Extract
-tar zxvf test.tar.gz
-tar zxvf test.tar
-gzip -d test.gz
+7z -x test.7z                                   Extract
+bzip2 -d test.bz2
+tar xvfj test.tar.bz2
+gunzip test.gz
+tar xvzf test.tar.gz
+tar xvzf test.tar
+tar xvjf test.tbz
+tar xvzf test.tgz
 unzip test.zip
+
 zcat rockyou.txt.gz > rockyou.txt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -510,7 +515,7 @@ groupdel <group>                                Delete group
 groupmod <group>                                Modify group
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Video resolution
+# Video Resolution
 
 xrandr                                          Supported resolutions
 xrandr -s <resolution>                          Set resolution
@@ -728,7 +733,7 @@ find / -perm 4000 2>/dev/null
 ./dirtypipez <binary>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Reverse shells
+# Reverse Shells
 
 - Setup a local listener
 nc -lvnp 443			                       Setup a listen on the attack box
@@ -768,7 +773,7 @@ Xnest :1                                        attacker - catch the incoming xt
 xhost +<target IP>                              attacker - authorize the target to connect to you
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Rstatd enabled
+# Rstatd Enabled
 
 rsysinfo <target IP>
 ------------------------------------------------------------------------------------------------------------------------------------------------------

