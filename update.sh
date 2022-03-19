@@ -312,6 +312,12 @@ else
      echo
 fi
 
+if [ ! -f /usr/local/bin/evil-winrm ]; then
+     echo -e "${YELLOW}Installing evil-winrm.${NC}"
+     gem install evil-winrm
+     echo
+fi
+
 if [ -d /opt/gobuster/.git ]; then
      echo -e "${BLUE}Updating gobuster.${NC}"
      cd /opt/gobuster/ ; git pull
