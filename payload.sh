@@ -3,6 +3,34 @@
 clear
 f_banner
 
+f_format(){
+echo
+echo -e "${BLUE}Formats${NC}"
+echo
+echo '1. aspx'
+echo '2. c'
+echo '3. csharp'
+echo '4. exe'
+echo '5. psh'
+echo
+echo -n "Choice: "
+read choice2
+
+case $choice2 in
+     1) extention=".aspx"
+          format="aspx";;
+     2) extention=".c"
+          format="c";;
+     3) extention=".cs"
+          format="csharp";;
+     4) extention=".exe"
+          format="exe";;
+     5) extention=".ps1"
+          format="psh";;
+     *) f_error;;
+esac
+}
+
 echo -e "${BLUE}Malicious Payloads${NC}"
 echo
 echo "1.   android/meterpreter/reverse_tcp         (.apk)"
@@ -18,12 +46,10 @@ echo "10.  osx/x64/meterpreter_reverse_tcp         (.macho)"
 echo "11.  php/meterpreter_reverse_tcp             (.php)"
 echo "12.  python/meterpreter_reverse_https        (.py)"
 echo "13.  python/meterpreter_reverse_tcp          (.py)"
-echo "14.  windows/x64/meterpreter_reverse_https   (.exe)"
-echo "15.  windows/x64/meterpreter_reverse_tcp     (.aspx)"
-echo "16.  windows/x64/meterpreter_reverse_tcp     (.c)"
-echo "17.  windows/x64/meterpreter_reverse_tcp     (.exe)"
-echo "18.  windows/x64/meterpreter_reverse_tcp     (.ps1)"
-echo "19.  Previous menu"
+echo "14.  windows/x64/meterpreter_reverse_https   (multi)"
+echo "15.  windows/x64/meterpreter_reverse_tcp     (multi)"
+echo "16.  Previous menu"
+
 echo
 echo -n "Choice: "
 read choice
@@ -96,31 +122,15 @@ case $choice in
           arch="python"
           platform="python";;
      14) payload="windows/x64/meterpreter_reverse_https"
-          extention=".exe"
-          format="exe"
           arch="x64"
-          platform="windows";;
+          platform="windows"
+          f_format;;
      15) payload="windows/x64/meterpreter_reverse_tcp"
-          extention=".aspx"
-          format="aspx"
           arch="x64"
-          platform="windows";;
-     16) payload="windows/x64/meterpreter_reverse_tcp"
-          extention=".c"
-          format="c"
-          arch="x64"
-          platform="windows";;
-     17) payload="windows/x64/meterpreter_reverse_tcp"
-          extention=".exe"
-          format="exe"
-          arch="x64"
-          platform="windows";;
-     18) payload="windows/x64/meterpreter_reverse_tcp"
-          extention=".ps1"
-          format="powershell"
-          arch="x64"
-          platform="windows";;
-     19) f_main;;
+          platform="windows"
+          f_format;;
+     16) f_main;;
+
      *) f_error;;
 esac
 

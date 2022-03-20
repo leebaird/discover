@@ -48,7 +48,7 @@ export -f f_terminate
 clear
 f_banner
 
-echo -e "${BLUE}Uses Amass, ARIN, DNSRecon, dnstwist, goog-mail, goohost,theHarvester,${NC}"
+echo -e "${BLUE}Uses Amass, ARIN, DNSRecon, dnstwist, goog-mail, goohost, theHarvester,${NC}"
 echo -e "${BLUE}Metasploit, Whois, multiple websites, and recon-ng.${NC}"
 echo
 echo -e "${BLUE}[*] Acquire API keys for maximum results with theHarvester and recon-ng.${NC}"

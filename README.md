@@ -26,7 +26,7 @@ SCANNING
 3.  Generate target list
 4.  CIDR
 5.  List
-6.  IP, range, or domain
+6.  IP, range, or URL
 7.  Rerun Nmap scripts and MSF aux
 
 WEB
@@ -56,7 +56,7 @@ RECON
 Passive uses Amass, ARIN, DNSRecon, dnstwist, goog-mail, goohost, theHarvester,
     Metasploit, Whois, multiple websites, and recon-ng.
 
-Active uses dnsrecon, WAF00W, traceroute, Whatweb, and recon-ng.
+Active uses DNSRecon, recon-ng, Traceroute, wafw00f, and Whatweb.
 
 [*] Acquire API keys for maximum results with theHarvester and recon-ng.
 
@@ -93,7 +93,7 @@ SCANNING
 
 * Use different tools to create a target list including Angry IP Scanner, arp-scan, netdiscover, and nmap pingsweep.
 
-### CIDR, List, IP, Range or URL
+### CIDR, List, IP, Range, or URL
 ```
 Type of scan:
 
@@ -113,8 +113,8 @@ Type of scan:
 ### Insecure direct object reference
 ````
 Using Burp, authenticate to a site, map & Spider, then log out.
-Target > Site map > select the URL > right click > Copy URLs in this host.
-Paste the results into a new file.
+Target > Site map > select the URL > right click > Copy URLs in
+this host. Paste the results into a new file.
 
 Enter the location of your file:
 ````
@@ -135,6 +135,8 @@ Open multiple tabs in Firefox with:
 
 ### Nikto
 ```
+This option cannot be ran as root.
+
 Run multiple instances of Nikto in parallel.
 
 1.  List of IPs
@@ -145,16 +147,19 @@ Run multiple instances of Nikto in parallel.
 ```
 Check for SSL certificate issues.
 
-Enter the location of your list:
+List of IP:port.
+
+
+Enter the location of your file:
 ```
 
-* Use sslscan and sslyze to check for SSL/TLS certificate issues.
+* Use sslscan, sslyze, and nmap to check for SSL/TLS certificate issues.
 
 
 ## MISC
 ### Parse XML
 ```
-Parse XML to CSV
+Parse XML to CSV.
 
 1.  Burp (Base64)
 2.  Nessus (.nessus)
@@ -168,21 +173,22 @@ Parse XML to CSV
 ```
 Malicious Payloads
 
-1.   android/meterpreter/reverse_tcp
-2.   cmd/windows/reverse_powershell
-3.   java/jsp_shell_reverse_tcp (Linux)
-4.   java/jsp_shell_reverse_tcp (Windows)
-5.   linux/x64/meterpreter_reverse_https
-6.   linux/x64/meterpreter_reverse_tcp
-7.   linux/x64/shell/reverse_tcp
-8.   osx/x64/meterpreter_reverse_https
-9.   osx/x64/meterpreter_reverse_tcp
-10.  php/meterpreter/reverse_tcp
-11.  python/meterpreter_reverse_https
-12.  python/meterpreter_reverse_tcp
-13.  windows/x64/meterpreter_reverse_https
-14.  windows/x64/meterpreter_reverse_tcp
-15.  Previous menu
+1.   android/meterpreter/reverse_tcp         (.apk)
+2.   cmd/windows/reverse_powershell          (.bat)
+3.   java/jsp_shell_reverse_tcp (Linux)      (.jsp)
+4.   java/jsp_shell_reverse_tcp (Windows)    (.jsp)
+5.   java/shell_reverse_tcp                  (.war)
+6.   linux/x64/meterpreter_reverse_https     (.elf)
+7.   linux/x64/meterpreter_reverse_tcp       (.elf)
+8.   linux/x64/shell/reverse_tcp             (.elf)
+9.   osx/x64/meterpreter_reverse_https       (.macho)
+10.  osx/x64/meterpreter_reverse_tcp         (.macho)
+11.  php/meterpreter_reverse_tcp             (.php)
+12.  python/meterpreter_reverse_https        (.py)
+13.  python/meterpreter_reverse_tcp          (.py)
+14.  windows/x64/meterpreter_reverse_https   (multi)
+15.  windows/x64/meterpreter_reverse_tcp     (multi)
+16.  Previous menu
 ```
 
 ### Start a Metasploit listener
@@ -207,4 +213,4 @@ Metasploit Listeners
 
 ### Update
 
-* Use to update Kali Linux , Discover scripts, various tools, and the locate database.
+* Update Kali Linux, Discover scripts, various tools, and the locate database.
