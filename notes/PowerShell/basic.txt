@@ -7,18 +7,28 @@ $host.Version
 # cmdlets
 Every cmdlet in PS starts with a 'verb-noun'.
 
-Get-Command                            Show all commands
-Get-Verb                               Show all verbs
+Get-Command                                    Show all commands
+Get-Verb                                       Show all verbs
 
+Get-ChildItem -Recurse                         Show the contents of thee current working directory and all subdirectories
+Get-ChildItem -Path C:\Users\lee\Downloads -Recurse
 Get-Process
 Start-Process .\notepad.exe
 Stop-Process -Name notepad
+Get-Process | select-object Processname, id    Show all running processes
 
 # Alias
-Get-Alias
-dir, gci, ls
+Get-Alias                                      Show all aliases
+New-Alias -Name "Show-Files" Get-ChildItem     Create a new alias
+Get-Alias -Name "Show-Files"                   Get info on an alias
 
+# Help
+Get-Help <package>                             Get help on a package
 help Import-Module -Examples
+
+# Execution Policy
+Get-ExecutionPolicy -List
+Set-ExecutionPolicy Bypass -Scope Process
 
 # File types
 script file            .ps1

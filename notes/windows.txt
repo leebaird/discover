@@ -87,7 +87,8 @@ Windows 8, Server 2012                            6.2
 Windows 8.1, Server 2012 R2                       6.3
 Windows 10, Server 2016, Server 2019              10.0
 
-PS C:\> Get-WmiObject -Class win32_OperatingSystem | select version, buildnumber
+wmic os list brief                                Show info about the OS
+PS C:\> Get-WmiObject -Class Win32_OperatingSystem | select SystemDirectory,BuildNumber,SerialNumber,Version | ft
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Services
@@ -214,3 +215,4 @@ menu
 Gather/Invoke-Mimikatz.ps1
 Invoke-Mimikatz
 evil-winrm -i <target IP> -u <user> -H <hash>
+
