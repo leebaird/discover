@@ -114,17 +114,18 @@ smbclient //<target IP>/<share> -U <user>
 
 - Local
 net users                                         Local users
-net user <current user>                           Show info on a local user
+net user <current user>                           Info on a local user
 net accounts                                      Local password policy
 net config workstation
-net localgroup                                    Local Security Groups
-net localgroup Administrators                     Users in the local Administrators Security Group
-net localgroup "Remote Desktop Users"             Users in the local Remote Desktop Users Security Group
+net localgroup                                    Local security groups
+net localgroup Administrators                     Users in the local Administrators security group
+net localgroup "Remote Desktop Users"             Users in the local Remote Desktop Users security group
 
-net user <user> <password> /add                   Add a local user
-net localgroup Administrators <user> /add         Add new user to the Administrators Security Group
+net user <user> <password> /add                   Add a new local user
+net localgroup HR /add                            Add a new local group
+net localgroup Administrators <user> /add         Add the new user to the local Administrators security group
 
-net view                                          Computers in the users domain and other domains
+net view                                          Domains, computers, or resources that are being shared by the specified computer
 net view /domain                                  Computers in other domain
 
 - Domain

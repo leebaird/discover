@@ -16,6 +16,7 @@ Get-Process
 Start-Process .\notepad.exe
 Stop-Process -Name notepad
 Get-Process | select-object Processname, id    Show all running processes
+get-process -IncludeUserName | ft Username, processname | findstr <user>     Show processes running under a specific user
 
 # Alias
 Get-Alias                                      Show all aliases
