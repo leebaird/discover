@@ -400,6 +400,9 @@ ssh -X user@host -o "XAuthLocation=/opt/X11/bin/xauth"
 xdg-open                                        Start a GUI app
 
 Note: if using macOS as the client, install XQuartz.
+
+- Authenticate using a specific key
+ssh -o KexAlgorithms=diffie-hellman-group-exchange-sha256 user@target
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # System

