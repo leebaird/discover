@@ -15,11 +15,14 @@ net group /domain                                 Show all Security Groups in a 
 
 AdFind.exe -f "(objectcategory=person)"
 AdFind.exe -f "(objectcategory=computer)"
-AdFind.exe -f "(objectcategory=organizationalUnit)"
 AdFind.exe -sc trustdmp
-AdFind.exe -subnets -f "(objectCategory=subnet)"
-AdFind.exe -f "(objectcategory=group)"
 AdFind.exe -gcb -sc trustdmp
+AdFind.exe -subnets -f "(objectCategory=subnet)"
+AdFind.exe -sc domainlist
+AdFind.exe -sc dcmodes
+AdFind.exe -sc adminfo
+AdFind.exe -sc dclist
+AdFind.exe -sc computers_pwdnotreqd
 
 dig -t SRV _gc._tcp.lab.acme.org                  Global catalog
 dig -t SRV _ldap._tcp.acme.org                    LDAP servers
