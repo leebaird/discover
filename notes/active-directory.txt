@@ -31,12 +31,46 @@ dig -t SRV _kpasswd._tcp.acme.org                 Kerberos password change serve
 
 nmap --script dns-srv-enum --script-args "dns-srv-enum.domain='acme.org'"
 
+nmap --script broadcast-dhcp-discover			Locate the DNS server
+dnsrecon -r <current Class C> -n <DNS server>
+
 Using Windows > cmd > powershell
 [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrent Domain()
 Look for PdcRoleOwner and Name
 ------------------------------------------------------------------------------------------------------
 
 # BloodHound
+
+BloodHound uses graph theory to identify critical attack paths in Active Directory.
+It enables you to quickly identify misconfigurations, simulate complex attack paths and bring greater awareness to Active Directory risks.
+
+SharpHound is built on top of Windows Native APIs.
+It uses Microsoft's System.DirectoryServices.Protocols namespace to query information via LDAP.
+It also leverages the following Microsoft Win32API functions to query information form servers and workstations:
+	NetSessionEnum
+	NetWkstUserEnum
+	NetWkstaGetInfo
+	NetLocalGroupMembers
+
+The default collection method will collect the following pieces of information from the domain controller:
+* Security group memberships
+* Domain trusts
+* Abusable rights on Active Directory objects
+* Group Policy links
+* OU tree structure
+* Several properties from computer, group and user objects
+* SQL admin links
+
+Additionally, SharpHound will attempt to collect the following information from each domain-joined Windows computer:
+* The members of the local administrators, remote desktop, distributed COM, and remote management groups
+* Active sessions, which SharpHound will attempt to correlate to systems where users are interactively logged on
+
+Anywhere from 1 second to a couple minutes.
+Session Enumeration on servers can take upwards of 10-15 minutes if theres a large number of sessions.
+
+https://github.com/BloodHoundAD/BloodHound/tree/master/Collectors
+PS> Import-Module .\SharpHound.ps1
+Invoke-BloodHound -CollectionMethod All
 
 neo4j console
 Split the screen horizontally
@@ -49,9 +83,6 @@ Set a new password
 xdg-open http://localhost:7474 &
 Login with username and password: neo4j
 Set a new password.
-
-cd /opt/BloodHound-v4/Collectors/
-python3 -m http.server
 
 - Windows
 cd to a discrete, writable directory (C:\Users\<user>\Desktop)
