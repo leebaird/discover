@@ -81,6 +81,12 @@ Default creds bee:bug
 
 systemctl disable docker.service                Disable Docker at boot time
 systemctl disable docker.socket
+
+- Fix error
+Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:
+Get http://%2Fvar%2Frun%2Fdocker.sock/v1.40/containers/json: dial unix /var/run/docker.sock: connect: permission denied
+
+chmod 666 /var/run/docker.sock
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # File Permissions
