@@ -87,6 +87,10 @@ Got permission denied while trying to connect to the Docker daemon socket at uni
 Get http://%2Fvar%2Frun%2Fdocker.sock/v1.40/containers/json: dial unix /var/run/docker.sock: connect: permission denied
 
 chmod 666 /var/run/docker.sock
+
+- Shell
+docker ps -a                                    Show the current container ID
+docker exec -it <ID> sh                         Connect to a container with a shell
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # File Permissions
