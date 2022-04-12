@@ -1,6 +1,25 @@
 Linux
 
 
+# This first section is for CentOS
+
+cat /etc/redhat-release                         Show OS version
+
+yum -y install $(cat file)                      Install packages listed in a file
+yum list installed                              Show installed packages
+yum update                                      Refresh package database and install updates
+
+firewall-cmd --state                            Show firewall state
+firewall-cmd --list-all                         Show firewall rules
+firewall-cmd --add-port 8080/tcp --permanent    Add a new incoming firewall rule
+firewall-cmd --reload                           Reload firewall rules
+firewall-cmd --list-all                         Verify new firewall rule
+
+/etc/firewalld/zones/public.xml                 Rules are stored here
+
+usermod -aG wheel lee                           Add new user to the wheel "sudo" group
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Base64
 
 echo "lee:password123#" | base64                Encode
@@ -199,11 +218,6 @@ dpkg -i app.deb                                 Install Debian package
 dpkg --list | grep 'ii' | wc -l                 Total number of packages installed
 
 rpm -vhU app.rpm                                Install RPM package
-
-- CentOS
-yum -y install $(cat file)                      Install packages listed in a file
-yum list installed                              Show installed packages
-yum update                                      Refresh package database and install updates
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Networking
@@ -512,7 +526,7 @@ su                                              Switch to another user
 - New user setup
 useradd -m lee                                  Add new user, create home directory and set default shell
 passwd lee                                      Set a password
-usermod -aG sudo lee                            Add new user to the sudo group. Use wheel for CentOS.
+usermod -aG sudo lee                            Add new user to the sudo group.
 su - lee                                        Switch to new user
 ssh-keygen
 cd .ssh/
