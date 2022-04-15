@@ -1,10 +1,10 @@
 
 # -----------------------------------------------------------------------------------------------
 
-dns=$(grep 'nameserver' /etc/resolv.conf | awk '{print $2}')
-extip=$(curl -s http://ip-api.com/ | grep 'query' | cut -d '"' -f4)
-ip=$(ifconfig | grep 'broadcast' | grep -v 'docker' | awk '{print $2}')
-mac=$(ifconfig | grep 'ether' | awk '{print $2}')
+dns=$(ip r | grep dhcp | awk '{print $3}')
+extip=$(curl -s http://ifconfig.me)
+ip=$(ip r | grep src | awk '{print $9}')
+mac=$(ip a | grep ether | awk '{print $2}')
 
 alias c='clear'
 alias cl='clear ; ls -l --color=auto'
@@ -16,12 +16,14 @@ alias kd='cd /home/kali/Desktop'
 alias l='ls -l'
 alias la='ls -la'
 alias lk='ls -l --block-size=KB'
-alias n='echo ; netstat -antp; echo ;
+alias m='service postgresql start ; msfdb init ; msfconsole'
+alias n='echo;
 echo -n "External IP:  "$extip ; echo ;
 echo -n "Internal IP:  "$ip ; echo ;
 echo -n "MAC address:  "$mac ; echo ;
-echo -n "DNS           "$dns ; echo ; echo ;
-ping -c3 google.com ; echo'
+echo -n "DNS           "$dns ; echo ;
+echo ; netstat -antp; echo ;
+ping -c3 google.com'
 alias r='cd $HOME ; clear'
 alias s='cd /opt/discover/ ; clear'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
