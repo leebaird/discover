@@ -370,6 +370,16 @@ else
      echo
 fi
 
+if [ -d /opt/PowerSharpPack/.git ]; then
+     echo -e "${BLUE}Updating PowerSharpPack.${NC}"
+     cd /opt/PowerSharpPack/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing PowerSharpPack.${NC}"
+     git clone https://github.com/S3cur3Th1sSh1t/PowerSharpPack /opt/PowerSharpPack
+     echo
+fi
+
 if [ -d /opt/PowerUpSQL/.git ]; then
      echo -e "${BLUE}Updating PowerUpSQL.${NC}"
      cd /opt/PowerUpSQL/ ; git pull

