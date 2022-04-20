@@ -2,6 +2,9 @@ setg RHOSTS file:
 setg THREADS 255
 setg RPORT 445
 
+use auxiliary/scanner/dcerpc/petitpotam
+run
+
 use auxiliary/scanner/smb/pipe_auditor
 run
 
