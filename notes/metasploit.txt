@@ -161,6 +161,9 @@ getuid                                                      Get the user that th
 ps                                                          List running processes
                                                             Search for a process running as NT AUTHORITY\SYSTEM (or root on *nix)
 migrate <PID>                                               Migrate to that process using its PID
+
+execute -H -f notepad                                       Start notepad
+migrate <notepad PID>                                       Migrate to notepad
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege escalation - Windows
