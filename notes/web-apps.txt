@@ -398,26 +398,36 @@ User options > Display
     HTTP Message Display > Font: Courier 18
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Testing from home? Tunnel all your traffic over SSH to Kali running in Amazon EC2.
+# Testing from home? Proxy your web traffic through a remote server.
 
-ssh -i amazon.pem ec2-user@kaliIP
+ssh -i amazon.pem kali@IP
 sudo -i
 vim /etc/proxychains.conf
 Add a new last line: socks5 127.0.0.1 1080
 exit
 exit
 
-ssh -D 1080 -f -N -i amazon.pem ec2-user@kaliIP
+ssh -D 1080 -f -N -i amazon.pem kali@IP
 
-Open Burp locally.
-User options > Connections > SOCKS Proxy
+- Firefox
+Settings > Network Settings
+Select Manual proxy configuration
+SOCKS Host: 127.0.0.1
+Port: 1080
+Select SOCKS v5
+No proxy for: localhost, 127.0.0.1
+Select Proxy DNS when using SOCKS v5
+OK
+
+- Burp
+Open Burp > User options > Connections > SOCKS Proxy
 Check Use SOCKS proxy
 SOCKS Proxy host: 127.0.0.1
 SOCKS Proxy port: 1080
 Check Do DNS lookups over SOCKS proxy
 
 Open embedded browser to http://whatismyipaddress.com
-The IP address should be your Kali EC2.
+The IP address should be your remote Kali box.
 Target > Site map: this should now populate
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
