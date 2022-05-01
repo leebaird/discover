@@ -14,34 +14,10 @@ fi
 
 ###############################################################################################################################
 
-# Fix DNSRecon
-if [ ! -f /opt/DNSRecon-venv/pyvenv.cfg ]; then
-     rm -rf /opt/DNSRecon/
-fi
-
 # Remove old stuff
-if [ -d /opt/BloodHound-v4/.git ]; then
-     rm -rf /opt/BloodHound-v4/
-fi
-
-if [ -d /opt/droopescan/.git ]; then
-     rm -rf /opt/droopescan/
-fi
-
-if [ -d /opt/EyeWitness/.git ]; then
-     rm -rf /opt/EyeWitness/
-fi
-
-if [ -d /opt/unicorn/.git ]; then
-     rm -rf /opt/unicorn/
-fi
-
-if [ -d /opt/Veil/.git ]; then
-     rm -rf /opt/Veil/
-fi
-
-if [ -d /opt/WitnessMe/.git ]; then
-     rm -rf /opt/WitnessMe/
+if [ -d /opt/SprayingToolkit/.git ]; then
+     rm -rf /opt/SprayingToolkit/
+     rm -rf /opt/SprayingToolkit-venv/
 fi
 
 ###############################################################################################################################
@@ -85,10 +61,6 @@ if [ ! -f /usr/bin/bloodhound ]; then
 fi
 
 if [ -d /opt/cobaltstrike ]; then
-     echo -e "${BLUE}Updating Cobalt Strike.${NC}"
-     cd /opt/cobaltstrike ; ./update
-     echo
-
      if [ -d /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/.git ]; then
           echo -e "${BLUE}Updating CS - bluescreenofjeff malleable C2 randomizer.${NC}"
           cd /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/ ; git pull
@@ -452,27 +424,6 @@ else
      virtualenv -p /usr/bin/python3 /opt/spoofcheck-venv
      source /opt/spoofcheck-venv/bin/activate
      cd /opt/spoofcheck/
-     pip3 install -r requirements.txt
-     deactivate
-     echo
-fi
-
-if [ -d /opt/SprayingToolkit/.git -a -d /opt/SprayingToolkit-venv ]; then
-     echo -e "${BLUE}Updating SprayingToolkit.${NC}"
-     cd /opt/SprayingToolkit/ ; git pull
-     source /opt/SprayingToolkit-venv/bin/activate
-     pip3 install -r requirements.txt --upgrade
-     deactivate
-     echo
-else
-     echo -e "${YELLOW}Installing SprayingToolkit.${NC}"
-     git clone https://github.com/byt3bl33d3r/SprayingToolkit /opt/SprayingToolkit
-     echo
-     echo -e "${YELLOW}Setting up SprayingToolkit virtualenv.${NC}"
-     virtualenv -p /usr/bin/python3 /opt/SprayingToolkit-venv
-     source /opt/SprayingToolkit-venv/bin/activate
-     cd /opt/SprayingToolkit/
-     apt install -y libxml2-dev libxslt-dev
      pip3 install -r requirements.txt
      deactivate
      echo
