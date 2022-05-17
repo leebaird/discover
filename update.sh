@@ -15,10 +15,6 @@ fi
 ###############################################################################################################################
 
 # Remove old stuff
-if [ -d /opt/SprayingToolkit/.git ]; then
-     rm -rf /opt/SprayingToolkit/
-     rm -rf /opt/SprayingToolkit-venv/
-fi
 
 ###############################################################################################################################
 
@@ -33,24 +29,6 @@ if [ ! -d /usr/share/doc/golang-go ]; then
      echo -e "${YELLOW}Installing Go.${NC}"
      apt install -y golang-go
      mv /root/go /opt/
-     echo
-fi
-
-if [ ! -f /usr/bin/pip ]; then
-     echo -e "${YELLOW}Installing Python pip.${NC}"
-     apt install -y python3-pip
-     echo
-fi
-
-if [ ! -f /usr/bin/virtualenv ]; then
-     echo -e "${YELLOW}Installing Python Virtualenv.${NC}"
-     apt install -y python3-virtualenv
-     echo
-fi
-
-if [ ! -f /usr/bin/amass ]; then
-     echo -e "${YELLOW}Installing Amass.${NC}"
-     apt install -y amass
      echo
 fi
 
@@ -260,19 +238,19 @@ else
      echo
 fi
 
-#if [ -d /opt/Egress-Assess/.git ]; then
-#     echo -e "${BLUE}Updating Egress-Assess.${NC}"
-#     cd /opt/Egress-Assess/ ; git pull
-#     echo
-#else
-#     echo -e "${YELLOW}Installing Egress-Assess.${NC}"
-#     git clone https://github.com/ChrisTruncer/Egress-Assess /opt/Egress-Assess
-#     cd /opt/Egress-Assess/setup/
-#     ./setup.sh
-#     mv server.pem ../Egress-Assess/
-#     rm impacket*
-#     echo
-#fi
+if [ -d /opt/Egress-Assess/.git ]; then
+     echo -e "${BLUE}Updating Egress-Assess.${NC}"
+     cd /opt/Egress-Assess/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing Egress-Assess.${NC}"
+     git clone https://github.com/ChrisTruncer/Egress-Assess /opt/Egress-Assess
+     cd /opt/Egress-Assess/setup/
+     ./setup.sh
+     mv server.pem ../Egress-Assess/
+     rm impacket*
+     echo
+fi
 
 if [ -d /opt/egressbuster/.git ]; then
      echo -e "${BLUE}Updating egressbuster.${NC}"
@@ -281,12 +259,6 @@ if [ -d /opt/egressbuster/.git ]; then
 else
      echo -e "${YELLOW}Installing egressbuster.${NC}"
      git clone https://github.com/trustedsec/egressbuster /opt/egressbuster
-     echo
-fi
-
-if [ ! -f /usr/local/bin/evil-winrm ]; then
-     echo -e "${YELLOW}Installing evil-winrm.${NC}"
-     gem install evil-winrm
      echo
 fi
 
@@ -311,11 +283,6 @@ else
      echo -e "${YELLOW}Installing krbrelayx.${NC}"
      git clone https://github.com/dirkjanm/krbrelayx /opt/krbrelayx
      echo
-fi
-
-if [ ! -f /usr/bin/xmllint ]; then
-     echo -e "${YELLOW}Installing libxml2-utils.${NC}"
-     apt-get install -y libxml2-utils
 fi
 
 if [ -d /opt/Nishang/.git ]; then
@@ -369,16 +336,6 @@ if [ -d /opt/PrivescCheck/.git ]; then
 else
      echo -e "${YELLOW}Installing PrivescCheck.${NC}"
      git clone https://github.com/itm4n/PrivescCheck /opt/PrivescCheck
-     echo
-fi
-
-if [ -d /opt/Responder/.git ]; then
-     echo -e "${BLUE}Updating Responder.${NC}"
-     cd /opt/Responder/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing Responder.${NC}"
-     git clone https://github.com/lgandx/Responder /opt/Responder
      echo
 fi
 
@@ -449,11 +406,12 @@ else
      echo
 fi
 
-if [ ! -f /usr/lib/python3/dist-packages/texttable.py ]; then
-     echo -e "${YELLOW}Installing Texttable.${NC}"
-     apt install -y python3-texttable
-     echo
-fi
+# Jay - is this still needed?
+#if [ ! -f /usr/lib/python3/dist-packages/texttable.py ]; then
+#     echo -e "${YELLOW}Installing Texttable.${NC}"
+#     apt install -y python3-texttable
+#     echo
+#fi
 
 if [ ! -f /usr/bin/veil ]; then
      echo -e "${YELLOW}Installing Veil.${NC}"
@@ -468,12 +426,6 @@ if [ -d /opt/Windows-Exploit-Suggester-NG/.git ]; then
 else
      echo -e "${YELLOW}Installing Windows Exploit Suggester NG.${NC}"
      git clone https://github.com/bitsadmin/wesng /opt/Windows-Exploit-Suggester-NG
-     echo
-fi
-
-if [ ! -f /usr/bin/xdotool ]; then
-     echo -e "${YELLOW}Installing xdotool.${NC}"
-     apt-get install -y xdotool
      echo
 fi
 
@@ -519,4 +471,3 @@ echo -e "${BLUE}Updating locate database.${NC}"
 updatedb
 
 exit
-
