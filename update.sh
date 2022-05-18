@@ -238,17 +238,20 @@ else
      echo
 fi
 
-if [ -d /opt/Egress-Assess/.git ]; then
+if [ -d /opt/Egress-Assess/.git -a -d /opt/Egress-Assess-venv ]; then
      echo -e "${BLUE}Updating Egress-Assess.${NC}"
      cd /opt/Egress-Assess/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing Egress-Assess.${NC}"
      git clone https://github.com/ChrisTruncer/Egress-Assess /opt/Egress-Assess
-     cd /opt/Egress-Assess/setup/
-     ./setup.sh
-     mv server.pem ../Egress-Assess/
-     rm impacket*
+     echo
+     echo -e "${YELLOW}Setting up Egress-Assess virtualenv.${NC}"
+     virtualenv -p /usr/bin/python3 /opt/Egress-Assess-venv
+     source /opt/Egress-Assess-venv/bin/activate
+     cd /opt/Egress-Assess
+     pip3 install -r requirements.txt
+     deactivate
      echo
 fi
 
@@ -405,13 +408,6 @@ else
      deactivate
      echo
 fi
-
-# Jay - is this still needed?
-#if [ ! -f /usr/lib/python3/dist-packages/texttable.py ]; then
-#     echo -e "${YELLOW}Installing Texttable.${NC}"
-#     apt install -y python3-texttable
-#     echo
-#fi
 
 if [ ! -f /usr/bin/veil ]; then
      echo -e "${YELLOW}Installing Veil.${NC}"
