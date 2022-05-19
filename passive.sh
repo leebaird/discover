@@ -166,12 +166,10 @@ echo
 
 ###############################################################################################################################
 
-echo "dnstwist                  (6/$total) - broken"
-#source /opt/dnstwist-venv/bin/activate
-#/opt/dnstwist/dnstwist.py --registered $domain > tmp
-#sed '1,9d' tmp | grep -v 'ServFail' | sed 's/[ \t]*$//' | column -t > squatting
-#deactivate
-#echo
+echo "dnstwist                  (6/$total)"
+dnstwist --registered $domain > tmp
+sed 's/!ServFail/        /' tmp | grep -v 'original' | column -t > squatting
+echo
 
 ###############################################################################################################################
 

@@ -12,12 +12,6 @@ if [ $EUID -ne 0 ]; then
      exit
 fi
 
-###############################################################################################################################
-
-# Remove old stuff
-
-###############################################################################################################################
-
 clear
 echo
 
@@ -185,23 +179,9 @@ else
      echo
 fi
 
-if [ -d /opt/dnstwist/.git -a -d /opt/dnstwist-venv ]; then
-     echo -e "${BLUE}Updating dnstwist.${NC}"
-     cd /opt/dnstwist/ ; git pull
-     source /opt/dnstwist-venv/bin/activate
-     pip3 install .
-     deactivate
-     echo
-else
+if [ ! -f /usr/bin/dnstwist ]; then
      echo -e "${YELLOW}Installing dnstwist.${NC}"
-     git clone https://github.com/elceef/dnstwist /opt/dnstwist
-     echo
-     echo -e "${YELLOW}Setting up dnstwist virtualenv.${NC}"
-     virtualenv -p /usr/bin/python3 /opt/dnstwist-venv
-     source /opt/dnstwist-venv/bin/activate
-     cd /opt/dnstwist/
-     pip3 install -r requirements.txt
-     deactivate
+     apt install -y dnstwist
      echo
 fi
 
