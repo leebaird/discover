@@ -95,4 +95,3 @@ ORDER BY da.ip_address, dv.title
 SELECT title AS "Title", ROUND(cvss_score::numeric, 1) AS "CVSS Score"
 FROM dim_vulnerability
 ORDER BY title
-

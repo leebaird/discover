@@ -75,4 +75,3 @@ xdotool key t
 xdotool key e
 xdotool key r
 xdotool key m
-

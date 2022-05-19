@@ -111,4 +111,3 @@ fdisk -l     Show info about hard drive and partitions
 3. magicrescue –r jpeg-jﬁf foundﬁles /dev/sda1 (or whatever device name is) 
 4. cd foundﬁles && ls 
 5. kolorpaint name of jpg ﬁle.jpg
-

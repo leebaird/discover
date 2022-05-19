@@ -775,4 +775,3 @@ if [ -f $name/161.txt ] || [ -f $name/445.txt ] || [ -f $name/500.txt ]; then
 
      rm tmp 2>/dev/null
 fi
-

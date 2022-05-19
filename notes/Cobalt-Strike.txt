@@ -498,4 +498,3 @@ psexec_psh site-dc smb
 Right-click on the new http Beacon > Interact
 sleep 2
 note 3rd hop
-

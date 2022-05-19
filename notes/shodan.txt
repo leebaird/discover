@@ -108,4 +108,3 @@ shodan convert remote-desktops.json.gz images
 shodan scan submit <target IP>
 shodan scan submit --filename test.json.gz <CIDR>
 shodan parse test.json.gz
-

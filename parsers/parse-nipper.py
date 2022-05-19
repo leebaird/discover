@@ -209,4 +209,3 @@ if __name__ == "__main__":
     except IOError:
         print("ERROR processing file: {}.".format(args.nipper_xml_file))
         exit()
-

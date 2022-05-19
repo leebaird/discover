@@ -39,4 +39,3 @@ Class   Start          End                IPs           Comment
 A       10.0.0.0       10.255.255.255     16,777,216      1 single Class A
 B       172.16.0.0     172.31.255.255      1,048,544     16 contiguous Class Bs
 C       192.168.0.0    192.168.255.255        65,534    256 contiguous Class Cs
-

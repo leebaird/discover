@@ -509,4 +509,3 @@ rm -f result-$TMPRND.log 2> /dev/null
 rm -f /tmp/goohost*-$TMPRND.log 2> /dev/null
 rm -f /tmp/random-$TMPRND.log 2> /dev/null
 rm -f /tmp/top6-$TMPRND.log 2> /dev/null
-

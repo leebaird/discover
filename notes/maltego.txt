@@ -39,4 +39,3 @@ Select all websites > Run Transform > All Transforms > To IP Address [DNS]
 RC > Run Transform > DNS from Domain > All in this set
 Select all  > Run Transform > All Transforms > To IP Address [DNS]
 Select all  IP addresses > Run Transform > All Transforms > To Netblock [Using whois info]
-

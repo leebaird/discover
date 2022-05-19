@@ -38,4 +38,3 @@ sleep 2
 xdg-open https://twitter.com/search?q=%22$firstName%20$lastName%22&src=typd &
 sleep 2
 xdg-open https://www.youtube.com/results?search_query=$firstName+$lastName &
-

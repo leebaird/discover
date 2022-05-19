@@ -217,4 +217,3 @@ apache2ctl -M                              Verity the ssl_module is running
 netstat -antp                              Verify ports 80 and 443 are listening
 
 xdg-open http://www.acme.org               Verify redirect and SSL are working
-

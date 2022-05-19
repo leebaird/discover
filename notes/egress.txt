@@ -67,4 +67,3 @@ Invoke-EgressAssess -Client http -Port 8000 -IP <server> -Datatype ni -Size 5 -F
 Invoke-EgressAssess -Client ftp -IP <server> -Username lee -Password hack -Datatype "c:\Users\lee\secret.txt"
 
 Note: Comcast blocks port 25 and 445. If you are testing smtp or smb, use alternate ports.
-

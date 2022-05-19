@@ -63,4 +63,3 @@ git config --global pull.rebase false
 # Submit a pull request.
 
     Using your web browser, click on Pull request > Create pull request 2x
-

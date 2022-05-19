@@ -220,4 +220,3 @@ echo "***Scan complete.***"
 echo
 echo
 echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${NC}\n"
-

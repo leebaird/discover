@@ -4,4 +4,3 @@ setg RPORT 4786
 
 use auxiliary/scanner/misc/cisco_smart_install
 run
-

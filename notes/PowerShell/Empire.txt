@@ -219,4 +219,3 @@ wmic /?
 switch-name /?
 wmic qfe get Caption,Description,HotFixID,InstalledOn
 wmic qfe get Caption,Description,HotFixID,InstalledOn | findstr /C:"KB.." /C:"KB.."
-

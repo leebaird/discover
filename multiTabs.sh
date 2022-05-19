@@ -119,4 +119,3 @@ case $choice in
      *) f_error;;
 esac
 }
-

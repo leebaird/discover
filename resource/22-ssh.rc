@@ -16,3 +16,6 @@ run
 
 use auxiliary/scanner/ssh/juniper_backdoor
 run
+
+use auxiliary/scanner/ssh/libssh_auth_bypass
+run

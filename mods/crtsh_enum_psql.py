@@ -120,4 +120,3 @@ def main(domain, resolve, output):
 
 if __name__ == '__main__':
     main()
-

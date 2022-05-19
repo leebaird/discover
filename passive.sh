@@ -763,4 +763,3 @@ sleep 9
 xdg-open https://www.google.com/search?q=site:$domain+ext:txt+OR+ext:log+OR+ext:bak &
 sleep 4
 xdg-open https://$domain &
-

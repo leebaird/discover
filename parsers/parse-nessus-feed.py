@@ -138,4 +138,3 @@ if __name__ == "__main__":
         print("\nUsage: ./parse-nessus-feed.py input.xml output.csv\n")
         print("Any field longer than 32,000 characters will be truncated.\n\n".format(sys.argv[0]))
         exit()
-

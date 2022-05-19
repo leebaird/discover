@@ -8,5 +8,8 @@ run
 use auxiliary/scanner/scada/modbusdetect
 run
 
+use auxiliary/scanner/scada/modbus_banner_grabbing
+run
+
 use auxiliary/scanner/scada/modbus_findunitid
 run

@@ -511,4 +511,3 @@ else
      rm $name/master.rc
      rm tmpmsf
 fi
-

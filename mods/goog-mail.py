@@ -64,4 +64,3 @@ except IOError as e:
 
 for uniq_emails_web in list(d.keys()):
     print(uniq_emails_web+"")
-

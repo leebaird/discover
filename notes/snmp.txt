@@ -26,4 +26,3 @@ snmpwalk -c public -v1 <target IP> <MIB>
 # Modify a variable
 
 snmpset -v <version> -c <community string> <target IP> <variable> s "<new string>"
-

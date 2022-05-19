@@ -195,4 +195,3 @@ run `python -c 'print "\x41" * 504 + "\x42" * 4'`
 y
 x/16wx $esp # not sure what this does
 info registers
-

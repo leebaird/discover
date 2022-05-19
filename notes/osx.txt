@@ -73,4 +73,3 @@ System Integrity Protection status: enabled.
 # Update locate database
 
 sudo /usr/libexec/locate.updatedb
-

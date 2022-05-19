@@ -24,4 +24,3 @@ echo "***Scan complete.***"
 echo
 echo
 echo -e "The new report is located at ${YELLOW}$home/data/DirectObjectRef.txt${NC}\n"
-

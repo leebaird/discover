@@ -348,4 +348,3 @@ BSides LV 2016             Building an EmPyre with Python                       
 DerbyCon 2016              A Year in the Empire                                             www.youtube.com/watch?v=ngvHshHCt_8
 DerbyCon 2016              Living Off the Land 2 A Minimalists Guide to Windows Defense     www.youtube.com/watch?v=dt-wMJwpX7g
 DerbyCon 2016              Attacking EvilCorp: Anatomy of a Corporate Hack                  www.youtube.com/watch?v=nJSMJyRNvlM
-

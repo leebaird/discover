@@ -109,4 +109,3 @@ ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Remote Desktop U
 
 https://github.com/franc-pentest/ldeep
 https://github.com/codewatchorg/PowerSniper
-

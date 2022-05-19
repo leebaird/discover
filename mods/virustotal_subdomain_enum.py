@@ -42,4 +42,3 @@ if __name__ == '__main__':
         print_results(search_results)
     except KeyboardInterrupt:
         print('CTRL + C detected, quiting.')
-
