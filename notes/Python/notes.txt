@@ -1,0 +1,255 @@
+Python
+
+
+tutorialspoint.com/python/index.htm
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Variables and Simple Data Types
+
+print("\nHello Python world!")
+
+message = "\nHello Python world!"
+print(message)
+
+name = "Lee Baird"
+print(name.upper())
+print(name.lower())
+
+first_name = "lee"
+last_name = "baird"
+full_name = first_name + " " + last_name
+print(full_name.title())
+
+first_name = "lee"
+last_name = "baird"
+full_name = first_name + " " + last_name
+print("\nHello, " + full_name.title() + "!")
+
+print("Languages:\n\tPython\n\tC\n\tJavaScript")
+
+favorite_language = ' python'
+print(favorite_language.lstrip())
+
+favorite_language = 'python '
+print(favorite_language.rstrip())
+
+favorite_language = ' python '
+print(favorite_language.strip())
+
+message = "One of Python's strengths is its diverse community."
+print(message)
+
+age = 51
+name = "Lee"
+message = "Happy " + str(age) + "st Birthday " + name + "!"
+print(message)
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Lists
+
+The first item in a list has an index of 0.
+The second item in a list has an index of 1.
+The last item in a list has an index of -1.
+
+fruit = ['apple', 'orange', 'grape']
+print(fruit[0].title())
+Apple
+
+print(fruit[-1])
+grape
+
+# Change the first element in a list.
+fruit[0] = 'pear'
+print(fruit.title())
+Pear, Orange, Grape
+
+# Append to a list.
+fruit.append('strawberry')
+print(fruit.title())
+Pear, Orange, Grape, Strawberry
+
+# Start with an empty list, then add to it.
+fruit = []
+fruit.append('pear')
+fruit.append('orange')
+fruit.append('grape')
+print(fruit.title())
+Pear, Orange, Grape
+
+# Insert an element at a specific position.
+fruit.insert(1, 'strawberry')
+print(fruit.title())
+Pear, Strawberry, Orange, Grape
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Color
+
+W = '\033[0m'    # white (normal)
+R = '\033[31m'   # red
+G = '\033[32m'   # green
+O = '\033[33m'   # orange
+B = '\033[34m'   # blue
+P = '\033[35m'   # purple
+C = '\033[36m'   # cyan
+GR = '\033[37m'  # gray
+T = '\033[93m'   # tan
+
+print R.format('Test')
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+import ipaddress
+
+with open('file.txt', 'r') as ip:
+   ips = sorted(ipaddress.ip_address(line.strip()) for line in set(ip))
+   print('\n'.join(map(str, ips)))
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+import os
+
+os.system('clear')                                 Clear the screen
+os.chdir('newdir')                                 Change directory
+os.mkdir('/root/test/')                            Create a directory
+os.system('mkdir tmp')                             Issue a command
+os.rmdir('tmp')                                    Remove a directory
+os.remove('tmp')                                   Remove a file
+os.rename('tmp' 'tmp2')                            Rename a file
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+import sys
+
+sys.exit(0)                                        Exit program OK
+sys.exit(1)                                        Exit program with an error
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+import time
+import webbrowser
+
+webbrowser.open_new("http://python.org")           Open URL in a new browser window
+time.sleep(1)                                      Sleep for 1 sec
+webbrowser.open_new_tab('http://www.cnn.com/')     Open URL in a new tab
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+firstname = raw_input('First name: ')              Get input from user
+raw_input("Press enter key to continue.")
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+if expression:
+     statement(s)
+
+if firstname == '':                                Check for no input
+     print 'You did not enter a name.'
+
+if int(port) in range(1,65535):                    Valid range
+     print 'That is a valid port.'
+
+if len(password) < 8:                              Valid size
+     print 'Your password is leak.'
+
+if not os.path.exists('/root/test'):               If folder does not exist, create it
+     os.mkdir('/root/test')
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+if expression:
+     statement(s)
+else:
+     statement(s)
+--------------------
+
+if expression1:
+     statement(s)
+elif expression2:
+     statement(s)
+else:
+     statement(s)
+--------------------
+
+while expression:
+     statement(s)
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Example
+#!/usr/bin/env python
+
+import os
+import sys
+
+os.system('clear')
+port = raw_input('\nEnter a valid port: ')
+
+if port == '':
+     print '\nYou did not enter anything.\n\n'
+     sys.exit(1)
+
+try:
+     val = int(port)
+except ValueError:
+     print('\nThat is not an number.\n\n')
+     sys.exit(1)
+
+if int(port) not in range(1,65535):
+     print '\nThat is an invalid port.\n\n'
+else:
+     print '\nThat is a valid port.\n\n'
+---------------------------------------------------
+
+Example
+count = 0
+while (count < 9):
+     print 'The count is:', count
+     count = count + 1
+---------------------------------------------------
+
+Example
+count = 0
+while count < 5:
+     print count, " is less than 5."
+     count = count + 1
+else:
+     print count, " equals 5."
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+f = open ('tmp','w')                               Setup a write connection to a file
+f.write('These are my notes.')                     Write data to file
+f.close()                                          Close the connection
+
+f = open('tmp','r')                                Setup a read connection to a file
+filedata = f.read()                                Read the file
+f.close()                                          Close the connection
+filedata = filedata.split('\n')                    Turn into a list
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+execfile('recon.py')                               Run a python script
+subprocess.call('crack-wifi.sh')                   Run a bash script
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+for i in file:                                     Remove lines that start with FOO
+  if i[0] != "FOO":
+      print i
+
+if len(i) > 1 and self.word.replace('www.', '') and not i.startswith("*") and not i.lstrip()[0].isdigit():
+     self.totalhosts.add(i[1:] if i[0] == '.' else i)
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Dictionary                                         Standard data types
+List
+Numbers
+String
+Tuple
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Misc
+
+try:
+    import xml.etree.cElementTree as ET            Much, much faster and consumes significantly less memory
+except ImportError:
+    import xml.etree.ElementTree as ET
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+import sys
+
+if len(sys.argv) != 3:
+    print "Usage: test.py <IP address> <port>"
+    sys.exit(0)
+
+ip_address = sys.argv[1].strip()
+port = sys.argv[2].strip()
