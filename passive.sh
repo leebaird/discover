@@ -733,8 +733,6 @@ f_runlocally
 
 xdg-open https://www.google.com/search?q=%22$companyurl%22+logo &
 sleep 4
-xdg-open https://censys.io/ipv4?q=%28%22$companyurl%22%29+AND+location.country%3A+%22United+States%22 &
-sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
 sleep 4
 xdg-open https://www.shodan.io/search?query=$domain &
@@ -746,8 +744,6 @@ sleep 4
 xdg-open https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+username+OR+password+OR+login+-Find &
-sleep 4
-xdg-open http://www.reuters.com/finance/stocks/lookup?searchType=any\&search=%22$companyurl%22 &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+Atlassian+OR+jira+-%22Job+Description%22+-filetype%3Apdf &
 sleep 4
