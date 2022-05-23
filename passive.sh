@@ -358,78 +358,7 @@ echo
 
 ###############################################################################################################################
 
-echo "Registered Domains        (46/$total)"
-f_jason(){
-while read regdomain; do
-     ipaddr=$(dig +short $regdomain)
-     whois -H "$regdomain" 2>&1 | sed -e 's/^[ \t]*//; s/ \+ //g; s/: /:/g' > tmp5
-     wait
-     registrar=$(grep -m1 -i 'Registrar:' tmp5 | cut -d ':' -f2 | sed 's/,//g')
-     regorg=$(grep -m1 -i 'Registrant Organization:' tmp5 | cut -d ':' -f2 | sed 's/,//g')
-     regemailtmp=$(grep -m1 -i 'Registrant Email:' tmp5 | cut -d ':' -f2 | tr 'A-Z' 'a-z')
-
-     if [[ $regemailtmp == *'query the rdds service'* ]]; then
-          regemail='REDACTED FOR PRIVACY'
-     else
-          regemail="$regemailtmp"
-     fi
-
-     nomatch=$(grep -c -E 'No match for|Name or service not known' tmp5)
-
-     if [ $nomatch -eq 1 ]; then
-          echo "$regdomain -- No Whois Matches Found" >> tmp4
-     else
-          if [[ "$ipaddr" == "" ]]; then
-               echo "$regdomain,No IP Found,$regemail,$regorg,$registrar" >> tmp4
-          else
-               echo "$regdomain,$ipaddr,$regemail,$regorg,$registrar" >> tmp4
-          fi
-     fi
-
-     let number=number+1
-     echo -ne "     ${YELLOW}$number ${NC}of ${YELLOW}$domcount ${NC}domains"\\r
-     sleep 2
-done < tmp3
-echo
-}
-
-# Get domains registered by company name and email address domain
-curl -sL --header "Host:viewdns.info" --referer https://viewdns.info --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" https://viewdns.info/reversewhois/?q=$domain > tmp
-sleep 2
-curl -sL --header "Host:viewdns.info" --referer https://viewdns.info --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" https://viewdns.info/reversewhois/?q=$companyurl > tmp2
-
-echo '111AAA--placeholder--' > tmp4
-
-if grep -q 'There are 0 domains' tmp && grep -q 'There are 0 domains' tmp2; then
-     rm tmp tmp2
-     echo 'No Domains Found.' > tmp6
-elif ! [ -s tmp ] && ! [ -s tmp2 ]; then
-     rm tmp tmp2
-     echo 'No Domains Found.' > tmp6
-
-# Loop thru list of domains, gathering details about the domain
-elif grep -q 'paymenthash' tmp; then
-     grep 'Domain Name' tmp | sed 's/<tr>/\n/g' | grep '</td></tr>' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
-     grep 'Domain Name' tmp2 | sed 's/<tr>/\n/g' | grep '</td></tr>' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
-     sort -uV tmp3 -o tmp3
-     domcount=$(wc -l tmp3 | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
-     f_jason
-else
-     grep 'ViewDNS.info' tmp | sed 's/<tr>/\n/g' | grep '</td></tr>' | grep -Ev 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 > tmp3
-     grep 'ViewDNS.info' tmp2 | sed 's/<tr>/\n/g' | grep '</td></tr>' | grep -Ev 'font size|Domain Name' | cut -d '>' -f2 | cut -d '<' -f1 >> tmp3
-     sort -uV tmp3 -o tmp3
-     domcount=$(wc -l tmp3 | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
-     f_jason
-fi
-
-# Formatting & clean-up
-cat tmp4 | sed 's/111AAA--placeholder--/Domain,IP Address,Registration Email,Registration Org,Registrar,/' | grep -v 'Matches Found' > tmp6
-cat tmp6 | sed 's/LLC /LLC./g; s/No IP Found//g; s/REDACTED FOR PRIVACY//g; s/select contact domain holder link at https//g' > tmp7
-
-# Remove lines that start with an IP
-grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp7 > tmp8
-egrep -v '(amazonaws.com|connection timed out|Domain Name|please contact|PrivacyGuard|redacted for privacy)' tmp8 > tmp9
-grep "@$domain" tmp9 | column -t -s ',' | sort -u > registered-domains
+echo "Registered Domains        (46/$total) - Work in progress."
 
 ###############################################################################################################################
 
