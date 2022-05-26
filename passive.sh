@@ -168,7 +168,7 @@ echo
 
 echo "dnstwist                  (6/$total)"
 dnstwist --registered $domain > tmp
-sed 's/!ServFail/        /' tmp | grep -v 'original' | column -t > squatting
+cat tmp | grep -v 'original' | sed 's/!ServFail/         /g; s/[ \t]*$//' | column -t > squatting
 echo
 
 ###############################################################################################################################
@@ -571,9 +571,10 @@ if [ -f hosts ]; then
 fi
 
 if [ -s registered-domains ]; then
-     domaincount1=$(wc -l registered-domains | cut -d ' ' -f1)
-     echo "Registered Domains   $domaincount1" >> zreport
-     echo "Registered Domains ($domaincount1)" >> tmp
+     x=$(wc -l registered-domains | cut -d ' ' -f1)
+     domaincount=$((x-1))
+     echo "Registered Domains   $domaincount" >> zreport
+     echo "Registered Domains ($domaincount)" >> tmp
      echo $long >> tmp
      cat registered-domains >> tmp
      echo >> tmp

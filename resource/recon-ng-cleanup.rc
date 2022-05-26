@@ -31,6 +31,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%application%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%apply%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%approved%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%architect%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%attorney%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%audit%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%australia%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%austria%'
@@ -147,6 +148,7 @@ db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%loyal%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%ltd%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%maintenance%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%manage%'
+db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%managing%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%manufacturing%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%market%'
 db query DELETE FROM contacts WHERE first_name OR last_name LIKE '%master%'
@@ -468,6 +470,7 @@ db query UPDATE contacts SET title = REPLACE(title,'Manager of','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'Manager Of','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'Manager ','Manager, ')
 db query UPDATE contacts SET title = REPLACE(title,'MANAGER','Manager,')
+db query UPDATE contacts SET title = REPLACE(title,'marketing','Marketing,')
 db query UPDATE contacts SET title = REPLACE(title,'Mgr','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'mgr','Manager,')
 db query UPDATE contacts SET title = REPLACE(title,'networks','Networks,')
