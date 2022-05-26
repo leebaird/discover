@@ -29,7 +29,7 @@ sort -u                                                       Sort a file and sh
 wc -l                                                         Count the number of lines
 wc -m                                                         Count the number of characters
 
-comm file1 file2                                              file1, file2, shared by both files
+comm file1 file2                                              Shared by both files
 comm -<123> file1 file2                                       Used to suppress columns
 comm -12 file1 file2                                          Suppress columns 1 and 2
 diff -<c or u> file1 file2
@@ -40,6 +40,7 @@ sed 's/^/FOO/g'                                               Add FOO to the beg
 sed 's/$/FOO/g'                                               Add FOO to the end of each line
 
 column -t                                                     Align columns
+column -t -s ','                                              Align columns using a comma
 
 sed /^$/d                                                     Compress blank lines
 paste -s -d" "                                                Convert a list into a single line
@@ -55,11 +56,11 @@ perl -pe 's/\d{2}\/\d{2}\/\d{2}//g'                           Find dates mm/dd/y
 
 sed '/[[:blank:]]/d'                                          Find lines that contain a single word
 grep 'FOO'                                                    Find FOO
-sed '/FOO/I,+12 d'                                            Find FOO, and delete that and the next 12 lines
-sed 's/FOO.*$//g'                                             Find FOO, and delete to the end of file
-sed 's/FOO/\n&/g'                                             Find FOO, and insert a new line and FOO
-grep 'FOO\|BAR'                                               Find FOO, and lines that contain BAR
-sed '1N;N;/\(.*\n\)\{2\}.*FOO/P;$d;D'                         Find FOO, and print the second line before that
+sed '/FOO/I,+12 d'                                            Find FOO and delete that and the next 12 lines
+sed 's/FOO.*$//g'                                             Find FOO and delete to the end of file
+sed 's/FOO/\n&/g'                                             Find FOO and insert a new line and FOO
+grep 'FOO\|BAR'                                               Find FOO and lines that contain BAR
+sed '1N;N;/\(.*\n\)\{2\}.*FOO/P;$d;D'                         Find FOO and print the second line before that
 awk -v n=-2 'NR==n+1 && !NF{next} /FOO/ {n=NR}1'              Find FOO, if the next line is blank, delete it
 
 awk -v n=-2 'NR==n+1 && !NF{next} /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/ {n=NR}1'
@@ -83,10 +84,10 @@ sed 's/FOO$//'                                                Find lines that en
 
 grep '^[0-9]'                                                 Find lines that start with a number
 grep '^FOO'                                                   Find lines that start with FOO
-sed '/^FOO/{n;d;}'                                            Find lines that start with FOO, and delete the following line
-printf '%s\n' 'g/^FOO/-1d' w | ed -s                          Find lines that start with FOO, and delete the previous line
-sed '/^FOO/i\ '                                               Find lines that start with FOO, and insert a line before
-sed '/^FOO/a\ '                                               Find lines that start with FOO, and insert a line after
+sed '/^FOO/{n;d;}'                                            Find lines that start with FOO and delete the following line
+printf '%s\n' 'g/^FOO/-1d' w | ed -s                          Find lines that start with FOO and delete the previous line
+sed '/^FOO/i\ '                                               Find lines that start with FOO and insert a line before
+sed '/^FOO/a\ '                                               Find lines that start with FOO and insert a line after
 sed -e :a -e '$!N;s/\nFOO/ /;ta' -e 'P;D'                     Find lines that start with FOO, insert a space and append to the previous line
 
 fmt -w 25                                                     Limit the number of characters on a line to 25
@@ -124,7 +125,7 @@ sed '/^[0-9]/d'                                               Remove lines that 
 sed '/^FOO/d'                                                 Remove lines that start with FOO
 grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b'                   Remove lines that start with an IP
 sed '/^.,/d'                                                  Remove lines where the second letter is a comma
-cat tmp | tr -d "\n" | tr -d " "                              Remove new lines and spaces. Ex copying a hash from Rubeus for use in Mimikatz
+cat tmp | tr -d "\n" | tr -d " "                              Remove new lines and spaces. Example: copying a hash from Rubeus for use in Mimikatz
 cat tmp | rev | sed 's/^[ \t]*//' | cut -d ' ' -f2- | rev     Remove the last column
 head -n -5                                                    Remove the last 5 lines
 sed 's/[ \t]*$//'                                             Remove trailing whitespace from each line
