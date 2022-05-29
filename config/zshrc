@@ -3,7 +3,7 @@
 
 dns=$(ip r | grep dhcp | awk '{print $3}')
 extip=$(curl -s http://ifconfig.me)
-ip=$(ip r | grep src | awk '{print $9}' | head -n1)
+ip=$(hostname -I | awk '{print $1}')
 mac=$(ip a | grep ether | awk '{print $2}')
 
 alias c='clear'
