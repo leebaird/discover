@@ -12,6 +12,7 @@ echo '2. c'
 echo '3. csharp'
 echo '4. exe'
 echo '5. psh'
+echo '6. raw'
 echo
 echo -n "Choice: "
 read choice2
@@ -27,6 +28,8 @@ case $choice2 in
           format="exe";;
      5) extention=".ps1"
           format="psh";;
+     6) extention=".raw"
+          format="raw";;
      *) f_error;;
 esac
 }
