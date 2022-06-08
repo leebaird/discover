@@ -1,7 +1,7 @@
 ```
 Custom bash scripts used to automate various penetration testing tasks including recon, scanning, 
-parsing and creating malicious payloads and listeners with Metasploit. For use with Kali Linux 
-and the Penetration Testers Framework (PTF).
+parsing and creating malicious payloads and listeners with Metasploit. For use on the Kali Linux.
+Please note, Windows Subsystem for Linux (WSL) is not supported.
 ```
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/leebaird/discover/blob/master/LICENSE)
