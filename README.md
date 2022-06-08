@@ -1,6 +1,6 @@
 ```
 Custom bash scripts used to automate various penetration testing tasks including recon, scanning, 
-parsing and creating malicious payloads and listeners with Metasploit. For use on the Kali Linux.
+parsing and creating malicious payloads and listeners with Metasploit. For use with Kali Linux.
 Please note, Windows Subsystem for Linux (WSL) is not supported.
 ```
 
