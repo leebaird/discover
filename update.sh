@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 
 # Global variables
-BLUE='\033[1;34m'
 YELLOW='\033[1;33m'
+BLUE='\033[1;34m'
 NC='\033[0m'
 
 # Check for root
