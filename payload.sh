@@ -28,7 +28,7 @@ case $choice2 in
           format="exe";;
      5) extention=".ps1"
           format="psh";;
-     6) extention=".raw"
+     6) extention=".bin"
           format="raw";;
      *) f_error;;
 esac
@@ -170,16 +170,16 @@ read iterations
 if [ -z $iterations ]; then
      iterations=1
      echo "[*] Using 1"
-     echo
 fi
 
 # Check for valid number that is reasonable.
-if [[ $iterations -lt 1 || $iterations -gt 10 ]]; then
+if [[ $iterations -lt 0 || $iterations -gt 10 ]]; then
      f_error
 fi
 
 x=$(echo $payload | sed 's/\//-/g')
 
+echo
 echo -n "Use a template file? (y/N) "
 read answer
 
