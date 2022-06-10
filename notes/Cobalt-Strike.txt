@@ -8,6 +8,18 @@ Use the following install location: /opt/cobaltstrike/
 cd /opt/cobaltstrike/
 ./update
 
+- Arsenal Kit
+https://download.cobaltstrike.com/scripts
+Included Kits:
+    Artifact Kit
+    Mimikatz Kit
+    Process Injection Kit
+    Resource Kit
+    Sleep Mask Kit
+    User Defined Reflective Loader Kit
+tar -zxvf /home/kali/Downloads/arsenal-kit20220427.tgz
+mv arsenal-kit/ .
+
 - Remove old data and Beacons (optional)
 Stop the team server
 rm -rf data/
