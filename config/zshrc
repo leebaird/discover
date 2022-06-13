@@ -30,16 +30,14 @@ alias s='cd /opt/discover/ ; clear'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 alias ssh='ssh -o "XAuthLocation=/opt/X11/bin/xauth"'
 alias update='/opt/discover/update.sh'
+alias www='python3 -m http.server 80'
 
 #-----------------------------------------------------------------------------------------------
 
 alias bh='neo4j console & ; sleep 6 ; bloodhound'
-
 alias cs='
 cd /opt/cobaltstrike/ ; ./teamserver $ip password malleable-c2-profiles/normal/amazon.profile &
 xdotool key ctrl+D
 sleep 5
 cd /opt/cobaltstrike/ ; ./cobaltstrike'
-
 alias csr='ssh -f -N -L 50050:localhost:50050 kali-2 ; cd /opt/cobaltstrike ; ./cobaltstrike'
-alias m='service postgresql start ; msfdb init ; msfconsole'
