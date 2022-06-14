@@ -373,7 +373,7 @@ if [ -d /opt/theHarvester/.git -a -d /opt/theHarvester-venv ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
      source /opt/theHarvester-venv/bin/activate
-     pip3 install -r requirements.txt --upgrade
+     /opt/theHarvester-venv/bin/pip3 install -r requirements.txt --upgrade
      deactivate
      echo
 else
@@ -384,7 +384,7 @@ else
      virtualenv -p /usr/bin/python3 /opt/theHarvester-venv
      source /opt/theHarvester-venv/bin/activate
      cd /opt/theHarvester/
-     pip3 install -r requirements.txt
+     /opt/theHarvester-venv/bin/pip3 install -r requirements.txt
      deactivate
      echo
 fi
