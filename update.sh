@@ -417,17 +417,9 @@ if [ ! -f /usr/bin/xml_grep ]; then
      echo
 fi
 
-if [ -d /opt/xspy/.git ]; then
-     echo -e "${BLUE}Updating xspy.${NC}"
-     cd /opt/xspy/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing xspy.${NC}"
-     git clone https://github.com/mnp/xspy /opt/xspy
-     cd /opt/xspy/
-     apt install -y build-essential libx11-dev
-     apt install -y x11-utils xutils-dev imagemagick libxext-dev
-     make
+if [ ! -f /usr/bin/xspy ]; then
+     echo -e "${BLUE}Installing xspy.${NC}"
+     apt install -y xspy
      echo
 fi
 
