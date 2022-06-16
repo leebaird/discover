@@ -2,7 +2,7 @@ Cobalt Strike
 
 
 Use the following install location: /opt/cobaltstrike/
-     This will allow you to get third-party apps installed when running /opt/discover/update.sh
+    This will allow you to get third-party apps installed when running /opt/discover/update.sh
 
 - Update
 cd /opt/cobaltstrike/
@@ -29,6 +29,15 @@ Start a screen or tmux session.
 
 Parameters wrapped in [ ] are mandatory, those in < > are optional
 ./teamserver [IP] [password] <Malleable C2 profile> <kill date for Beacons yyyy-mm-dd>
+
+OPSEC - add the following options to your Malleable C2 profile:
+    set startrwx        "false";
+    set userwx          "false";
+    set cleanup         "true";
+    set stomppe         "true";
+    set obfuscate       "true";
+    set sleep_mask      "true";
+    set smartinject     "true";
 
 ./teamserver 192.168.1.5 password malleable-c2-profiles/APT/etumbot.profile 2021-12-31
 
