@@ -392,7 +392,7 @@ nikto -h http://$url -Format htm --output nikto.htm
 - Brute force directories
 If the website uses PHP, add -x php
 gobuster dir -u <target IP> -w /usr/share/wordlists/dirb/common.txt -x php
-gobuster dir -u <target IP> -w /opt/SecLists/Discovery/Web-Content/raft-medium-directories.txt -x php
+gobuster dir -u <target IP> -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php
 
 - Create a custom word list
 cewl --lowercase -e --email_file emails.txt -w dict.txt https://$url

@@ -329,13 +329,9 @@ if [ ! -f /usr/share/wordlists/rockyou.txt ]; then
      echo
 fi
 
-if [ -d /opt/SecLists/.git ]; then
-     echo -e "${BLUE}Updating SecLists.${NC}"
-     cd /opt/SecLists/ ; git pull
-     echo
-else
+if [ ! -d /usr/share/seclists ]; then
      echo -e "${YELLOW}Installing SecLists.${NC}"
-     git clone https://github.com/danielmiessler/SecLists /opt/SecLists
+     apt install -y seclists
      echo
 fi
 
