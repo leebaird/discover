@@ -291,7 +291,7 @@ socat TCP4-LISTEN:443,fork TCP4:<remote IP>:443
 rdesktop -u <username> -p <password> -g 75% 10.0.0.10
 
 If Network Level Authentication is enabled:
-xfreerdp /u:user /p:password /d:domain /v:10.0.0.10 /size:75%h /drive:SHARE,/path/to/share
+xfreerdp /u:user /p:password /d:domain /v:10.0.0.10 /port:3389 /size:75%h /drive:share,/tmp /clipboard
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Screen
