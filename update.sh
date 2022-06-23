@@ -208,16 +208,6 @@ else
      echo
 fi
 
-if [ -d /opt/Donut/.git ]; then
-     echo -e "${BLUE}Updating Donut.${NC}"
-     cd /opt/Donut/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing Donut.${NC}"
-     git clone https://github.com/TheWover/donut /opt/Donut
-     echo
-fi
-
 if [ -d /opt/Egress-Assess/.git -a -d /opt/Egress-Assess-venv ]; then
      echo -e "${BLUE}Updating Egress-Assess.${NC}"
      cd /opt/Egress-Assess/ ; git pull
@@ -245,16 +235,9 @@ else
      echo
 fi
 
-if [ -d /opt/gobuster/.git ]; then
-     echo -e "${BLUE}Updating gobuster.${NC}"
-     cd /opt/gobuster/ ; git pull
-     echo
-else
+if [ ! -f /usr/bin/gobuster ]; then
      echo -e "${YELLOW}Installing gobuster.${NC}"
-     git clone https://github.com/OJ/gobuster.git /opt/gobuster
-     cd /opt/gobuster/
-     go get && go build
-     make
+     apt install -y gobuster
      echo
 fi
 
@@ -264,17 +247,13 @@ if [ -d /opt/krbrelayx/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing krbrelayx.${NC}"
-     git clone https://github.com/dirkjanm/krbrelayx /opt/krbrelayx
      echo
+     git clone https://github.com/dirkjanm/krbrelayx /opt/krbrelayx
 fi
 
-if [ -d /opt/Nishang/.git ]; then
-     echo -e "${BLUE}Updating Nishang.${NC}"
-     cd /opt/Nishang/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing Nishang.${NC}"
-     git clone https://github.com/samratashok/nishang /opt/Nishang
+if [ ! -f /usr/bin/nishang ]; then
+     echo -e "${YELLOW}Installing nishang.${NC}"
+     apt install -y nishang
      echo
 fi
 
