@@ -16,7 +16,7 @@ Please note, Windows Subsystem for Linux (WSL) is not supported.
 * Discover should be ran as root from this location.
 * cd /opt/discover/
 * ./discover.sh
-* Select option 15 to update various tools before useing the framework.
+* Select option 15 to update various tools before using the framework.
 
 ```
 RECON
