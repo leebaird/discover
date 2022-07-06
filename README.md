@@ -215,3 +215,55 @@ Metasploit Listeners
 ### Update
 
 * Update Kali Linux, Discover scripts, various tools, and the locate database.
+
+# Troubleshooting issues with ./discover.sh
+
+Some users have reported issues after launching `./discover.sh` as root.
+
+Reports center around being unable to use any options *except* for options 3, 4, and 5. These users will choose an unusable option (1, 2, 6, etc.), will hit `enter`, and then "nothing happens".
+
+## 1. Check the hash
+
+If you are running Kali through a VM, run the following command on your host computer against the guest VM
+
+### Linux
+
+1. Open Terminal
+2. `sha256sum /path/to/iso
+
+Example: `sha256sum ~/Downloads/kali-linux-2022.2-installer-amd64.iso`
+
+3. Compare that to the checksum provided by Kali (https://www.kali.org/get-kali/#kali-virtual-machines)
+
+### macOS
+
+1. Open Terminal
+2. `openssl sha256 /path/to/file`
+
+Example: `openssl sha256 /Users/tapple/Downloads/kali-linux-2022.2-installer-amd64.iso`
+
+3. Compare that to the checksum provided by Kali
+
+### Windows
+
+1. Open PowerShell
+2. `Get-FileHash C:\path\to\file`
+
+Example: `Get-FileHash C:\users\bgates\Downloads\kali-linux-2022.2-installer-amd64.iso`
+
+3. Compare that to the checksum provided by Kali
+
+## 2. Are you using VirtualBox or WSL to run Kali?
+
+Some users have reported the "fix" being to use the VMWare image instead of WSL. (https://kali.download/virtual-images/kali-2022.2/kali-linux-2022.2-vmware-amd64.7z.torrent)
+
+Other users had noticed issues when running a *pre-made* VirtualBox Kali image, instead of running the "bare metal" Kali iso through VirtualBox. (https://www.kali.org/get-kali/#kali-bare-metal)
+
+If you are unwilling or unable to use VMWare Workstation to run the Kali VM, we encourage you to try running a Kali iso as a Guest VM in VirtualBox. To do this, you would simply:
+1. Download the "bare metal" .iso provided by Kali
+2. Check the hash (see above)
+3. Start a new kali image within VirtualBox with the "bare metal" Kali iso
+
+There will be some basic installation instructions you will be required to fill out during the installation process, but it is all pretty straightforward.
+
+Note: If you have problems getting into root after setting up your bare metal iso, feel free to refer to this guide: https://linuxconfig.org/how-to-reset-kali-linux-root-password
