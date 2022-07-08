@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 # Number of tests
-total=47
+total=46
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
@@ -352,13 +352,7 @@ echo
 
 ###############################################################################################################################
 
-echo "robtex.com                (45/$total)"
-wget -q https://gfx.robtex.com/gfx/graph.png?dns=$domain -O $home/data/$domain/assets/images/robtex.png
-echo
-
-###############################################################################################################################
-
-echo "Registered Domains        (46/$total)"
+echo "Registered Domains        (45/$total)"
 
 curl -s \
 -H "Host: www.reversewhois.io" \
@@ -454,7 +448,7 @@ cat z* | cut -d ':' -f2 | grep '\.txt$' > txt
 
 ###############################################################################################################################
 
-echo "recon-ng                  (47/$total)"
+echo "recon-ng                  (46/$total)"
 echo "marketplace refresh" > passive.rc
 echo "marketplace install all" >> passive.rc
 echo "workspaces create $domain" >> passive.rc
