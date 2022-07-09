@@ -15,7 +15,7 @@ Please note, Windows Subsystem for Linux (WSL) is not supported.
 * git clone https://github.com/leebaird/discover /opt/discover/
 * Discover should be ran as root from this location.
 * cd /opt/discover/
-* ./discover.sh
+* sudo ./discover.sh
 * Select option 15 to update Kali Linux, Discover scripts, various tools, and the locate database before using the framework.
 
 
