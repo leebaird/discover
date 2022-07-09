@@ -217,8 +217,10 @@ Nothing happens when choosing other options (1, 2, 6, etc.).
 
 ## Always run Discover as root.
 
+```
 cd /opt/discover
 sudo ./discover.sh
+```
 
 ## Verify the ISO hash.
 
@@ -252,7 +254,7 @@ Example: Get-FileHash C:\users\lee\Downloads\kali-linux-2022.2-installer-amd64.i
 
 3. Compare the value to the checksum provided on the Kali website.
 
-## 3. Running Kali on VirtualBox or Windows Subsystem for Linux (WSL)
+## Running Kali on VirtualBox or Windows Subsystem for Linux (WSL)
 
 Some users have reported the "fix" is to use the VMWare image instead of WSL. 
 (https://kali.download/virtual-images/kali-2022.2/kali-linux-2022.2-vmware-amd64.7z.torrent)
