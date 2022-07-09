@@ -1,6 +1,6 @@
 ```
 Custom bash scripts used to automate various penetration testing tasks including recon, scanning, 
-parsing and creating malicious payloads and listeners with Metasploit. For use with Kali Linux.
+enumeration, and creating malicious payloads using Metasploit. For use with Kali Linux.
 Please note, Windows Subsystem for Linux (WSL) is not supported.
 ```
 
@@ -59,17 +59,10 @@ Passive uses Amass, ARIN, DNSRecon, dnstwist, goog-mail, goohost, theHarvester,
 
 Active uses DNSRecon, recon-ng, Traceroute, wafw00f, and Whatweb.
 
-[*] Acquire API keys for maximum results with theHarvester and recon-ng.
+[*] You should acquire multiple API keys for maximum results with theHarvester.
 
 ```
-API key locations:
-
-recon-ng
-    show keys
-    keys add bing_api <value>
-
-theHarvester
-    /opt/theHarvester/api-keys.yaml
+Location: /opt/theHarvester/api-keys.yaml
 ```
 
 ### Person
@@ -105,10 +98,9 @@ Type of scan:
 
 * External scan will set the nmap source port to 53 and the max-rrt-timeout to 1500ms.
 * Internal scan will set the nmap source port to 88 and the max-rrt-timeout to 500ms.
-* Nmap is used to perform host discovery, port scanning, service enumeration and OS identification.
-* Matching nmap scripts are used for additional enumeration.
+* Nmap is used to perform host discovery, port scanning, service enumeration, and OS identification.
+* Nmap scripts and Metasploit auxiliary modules are used for additional enumeration.
 * Addition tools: enum4linux, smbclient, and ike-scan.
-* Matching Metasploit auxiliary modules are also leveraged.
 
 ## WEB
 ### Insecure direct object reference
@@ -131,8 +123,8 @@ Open multiple tabs in Firefox with:
 ```
 
 * Use a list containing IPs and/or URLs.
-* Say you finished scanning 10 web apps with Nikto and you want to open every htm report located in a directory.
-* Use wget to pull a domain's robot.txt file, then open all of the directories.
+* You finished scanning multiple web apps with Nikto and you want to open every htm report located in a directory.
+* Use wget to download a domain's robot.txt file, then open all of the directories.
 
 ### Nikto
 ```
@@ -218,19 +210,19 @@ Metasploit Listeners
 
 # Troubleshooting
 
-Some users report being unable to use any options *except* for options 3, 4, and 5. Choosing other options, (1, 2, 6, etc.), then hitting `enter`, "nothing happens".
+Some users report being unable to use any options except for options 3, 4, and 5.
+Nothing happens when choosing other options (1, 2, 6, etc.).
 
-## 1. Run ./discover.sh as root
+## 1. Always run Discover as root.
 
-Always run discover as root.
-
-`cd /path/to/discover`
+`cd /opt/discover`
 
 `sudo ./discover.sh`
 
-## 2. Verify the hash
+## 2. Verify the ISO hash.
 
-Ensure that the ISO of your Guest VM is not corrupted.
+Hash-based verification ensures that a file has not been corrupted by comparing the file's hash 
+value to a previously calculated value. If these values match, the file is presumed to be unmodified.
 
 ### Linux
 
@@ -239,37 +231,44 @@ Ensure that the ISO of your Guest VM is not corrupted.
 
 Example: `sha256sum ~/Downloads/kali-linux-2022.2-installer-amd64.iso`
 
-3. Compare that to the checksum provided by Kali (https://www.kali.org/get-kali/)
+3. Compare the value to the checksum provided on the Kali website.
 
 ### macOS
 
 1. Open Terminal
-2. `openssl sha256 /path/to/file`
+2. `shasum -a 256 /path/to/iso`
 
-Example: `openssl sha256 /Users/tapple/Downloads/kali-linux-2022.2-installer-amd64.iso`
+Example: `shasum -a 256 /Users/lee/Downloads/kali-linux-2022.2-installer-amd64.iso`
 
-3. Compare that to the checksum provided by Kali
+3. Compare the value to the checksum provided on the Kali website.
 
 ### Windows
 
 1. Open PowerShell
-2. `Get-FileHash C:\path\to\file`
+2. `Get-FileHash C:\path\to\iso`
 
-Example: `Get-FileHash C:\users\bgates\Downloads\kali-linux-2022.2-installer-amd64.iso`
+Example: `Get-FileHash C:\users\lee\Downloads\kali-linux-2022.2-installer-amd64.iso`
 
-3. Compare that to the checksum provided by Kali
+3. Compare the value to the checksum provided on the Kali website.
 
-## 3. Are you using VirtualBox or WSL to run Kali?
+## 3. Running Kali on VirtualBox or Windows Subsystem for Linux (WSL)
 
-Some users have reported the "fix" being to use the VMWare image instead of WSL. (https://kali.download/virtual-images/kali-2022.2/kali-linux-2022.2-vmware-amd64.7z.torrent)
+Some users have reported the "fix" is to use the VMWare image instead of WSL.
+(https://kali.download/virtual-images/kali-2022.2/kali-linux-2022.2-vmware-amd64.7z.torrent)
 
-Other users had noticed issues when running a *pre-made* VirtualBox Kali image, instead of running the "bare metal" Kali ISO through VirtualBox. (https://www.kali.org/get-kali/#kali-bare-metal)
+Other users had noticed issues when running a pre-made VirtualBox Kali image, instead of running the
+"bare metal" Kali ISO through VirtualBox.
+(https://www.kali.org/get-kali/#kali-bare-metal)
 
-If you are unwilling or unable to use VMWare Workstation to run Kali, we encourage you to try running a Kali ISO as a Guest VM in VirtualBox. To do this, you would simply:
-1. Download the "bare metal" ISO provided by Kali
-2. Check the hash (see above)
-3. Start a new Kali VM within VirtualBox with the "bare metal" Kali ISO
+If you are unwilling or unable to use VMWare Workstation to run Kali, we encourage you to try running
+a Kali ISO as a Guest VM in VirtualBox.
 
-There will be some [basic installation instructions](https://www.kali.org/docs/installation/hard-disk-install/) you will be required to fill out during the installation process, but it is all pretty straightforward.
+1. Download the "bare metal" ISO provided by Kali.
+2. Verify the ISO hash (see above).
+3. Start a new Kali VM within VirtualBox with the "bare metal" Kali ISO.
 
-Note: If you have problems accessing root after setting up a bare metal ISO, please refer to: https://linuxconfig.org/how-to-reset-kali-linux-root-password
+There will be some [basic installation instructions](https://www.kali.org/docs/installation/hard-disk-install/) 
+you will be required to fill out during the installation process.
+
+Note: If you have problems accessing root after setting up a bare metal ISO, please refer to:
+https://linuxconfig.org/how-to-reset-kali-linux-root-password
