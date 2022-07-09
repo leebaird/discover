@@ -16,7 +16,8 @@ Please note, Windows Subsystem for Linux (WSL) is not supported.
 * Discover should be ran as root from this location.
 * cd /opt/discover/
 * ./discover.sh
-* Select option 15 to update Kali and various tools before using the framework.
+* Select option 15 to update Kali Linux, Discover scripts, various tools, and the locate database before using the framework.
+
 
 ```
 RECON
@@ -122,8 +123,9 @@ Open multiple tabs in Firefox with:
 4.  Previous menu
 ```
 
-* Use a list containing IPs and/or URLs.
-* You finished scanning multiple web apps with Nikto and you want to open every htm report located in a directory.
+Examples:
+* A list containing multiple IPs and/or URLs.
+* You finished scanning multiple web sites with Nikto and want to open every htm report located in a directory.
 * Use wget to download a domain's robot.txt file, then open all of the directories.
 
 ### Nikto
@@ -146,7 +148,7 @@ List of IP:port.
 Enter the location of your file:
 ```
 
-* Use sslscan, sslyze, and nmap to check for SSL/TLS certificate issues.
+* Uses sslscan, sslyze, and nmap to check for SSL/TLS certificate issues.
 
 
 ## MISC
