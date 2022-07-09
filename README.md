@@ -16,7 +16,7 @@ Please note, Windows Subsystem for Linux (WSL) is not supported.
 * Discover should be ran as root from this location.
 * cd /opt/discover/
 * ./discover.sh
-* Select option 15 to update various tools before using the framework.
+* Select option 15 to update Kali and various tools before using the framework.
 
 ```
 RECON
@@ -59,10 +59,10 @@ Passive uses Amass, ARIN, DNSRecon, dnstwist, goog-mail, goohost, theHarvester,
 
 Active uses DNSRecon, recon-ng, Traceroute, wafw00f, and Whatweb.
 
-[*] You should acquire multiple API keys for maximum results with theHarvester.
+[*] You should acquire various API keys for maximum results with theHarvester and add them here:
 
 ```
-Location: /opt/theHarvester/api-keys.yaml
+/opt/theHarvester/api-keys.yaml
 ```
 
 ### Person
