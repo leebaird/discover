@@ -212,16 +212,15 @@ Metasploit Listeners
 
 # Troubleshooting
 
-Some users report being unable to use any options except for options 3, 4, and 5.
+Some users report being unable to use any options except for options 3, 4, and 5. 
 Nothing happens when choosing other options (1, 2, 6, etc.).
 
-## 1. Always run Discover as root.
+## Always run Discover as root.
 
-`cd /opt/discover`
+cd /opt/discover
+sudo ./discover.sh
 
-`sudo ./discover.sh`
-
-## 2. Verify the ISO hash.
+## Verify the ISO hash.
 
 Hash-based verification ensures that a file has not been corrupted by comparing the file's hash 
 value to a previously calculated value. If these values match, the file is presumed to be unmodified.
@@ -229,40 +228,40 @@ value to a previously calculated value. If these values match, the file is presu
 ### Linux
 
 1. Open Terminal
-2. `sha256sum /path/to/iso`
+2. sha256sum /path/to/iso
 
-Example: `sha256sum ~/Downloads/kali-linux-2022.2-installer-amd64.iso`
+Example: sha256sum ~/Downloads/kali-linux-2022.2-installer-amd64.iso
 
 3. Compare the value to the checksum provided on the Kali website.
 
 ### macOS
 
 1. Open Terminal
-2. `shasum -a 256 /path/to/iso`
+2. shasum -a 256 /path/to/iso
 
-Example: `shasum -a 256 /Users/lee/Downloads/kali-linux-2022.2-installer-amd64.iso`
+Example: shasum -a 256 /Users/lee/Downloads/kali-linux-2022.2-installer-amd64.iso
 
 3. Compare the value to the checksum provided on the Kali website.
 
 ### Windows
 
 1. Open PowerShell
-2. `Get-FileHash C:\path\to\iso`
+2. Get-FileHash C:\path\to\iso
 
-Example: `Get-FileHash C:\users\lee\Downloads\kali-linux-2022.2-installer-amd64.iso`
+Example: Get-FileHash C:\users\lee\Downloads\kali-linux-2022.2-installer-amd64.iso
 
 3. Compare the value to the checksum provided on the Kali website.
 
 ## 3. Running Kali on VirtualBox or Windows Subsystem for Linux (WSL)
 
-Some users have reported the "fix" is to use the VMWare image instead of WSL.
+Some users have reported the "fix" is to use the VMWare image instead of WSL. 
 (https://kali.download/virtual-images/kali-2022.2/kali-linux-2022.2-vmware-amd64.7z.torrent)
 
-Other users had noticed issues when running a pre-made VirtualBox Kali image, instead of running the
-"bare metal" Kali ISO through VirtualBox.
+Other users had noticed issues when running a pre-made VirtualBox Kali image, instead of running the 
+"bare metal" Kali ISO through VirtualBox. 
 (https://www.kali.org/get-kali/#kali-bare-metal)
 
-If you are unwilling or unable to use VMWare Workstation to run Kali, we encourage you to try running
+If you are unwilling or unable to use VMWare Workstation to run Kali, we encourage you to try running 
 a Kali ISO as a Guest VM in VirtualBox.
 
 1. Download the "bare metal" ISO provided by Kali.
@@ -272,5 +271,5 @@ a Kali ISO as a Guest VM in VirtualBox.
 There will be some [basic installation instructions](https://www.kali.org/docs/installation/hard-disk-install/) 
 you will be required to fill out during the installation process.
 
-Note: If you have problems accessing root after setting up a bare metal ISO, please refer to:
+Note: If you have problems accessing root after setting up a bare metal ISO, please refer to: 
 https://linuxconfig.org/how-to-reset-kali-linux-root-password
