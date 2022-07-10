@@ -168,7 +168,7 @@ echo
 
 echo "dnstwist                  (6/$total)"
 dnstwist --registered $domain > tmp
-cat tmp | grep -v 'original' | sed 's/!ServFail/         /g; s/[ \t]*$//' | column -t > squatting
+cat tmp | grep -v 'original' | sed 's/!ServFail/         /g; s/[ \t]*$//' | column -t | sed 's/[ \t]*$//' > squatting
 echo
 
 ###############################################################################################################################
@@ -420,7 +420,7 @@ else
      echo 'Domain,IP Address,Registration Email,Registration Org,Registrar' > tmp7
      cat tmp7 tmp6 | grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(amazonaws.com|root-servers.net)' | sed 's/CORPORATION/Corporation/g; 
      s/DANESCO TRADING LTD./Danesco Trading Ltd./g; s/GLOBAL/Global/g; s/, LLC/ LLC/g; s/, Inc/ Inc/g; s/REGISTRAR OF DOMAIN NAMES/Registrar of Domain Names/g; 
-     s/, UAB/ UAB/g' | column -t -s ',' > registered-domains
+     s/, UAB/ UAB/g' | column -t -s ',' | sed 's/[ \t]*$//' > registered-domains
      rm tmp*
 fi
 
