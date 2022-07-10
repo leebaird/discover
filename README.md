@@ -1,7 +1,6 @@
 ```
 Custom bash scripts used to automate various penetration testing tasks including recon, scanning, 
 enumeration, and creating malicious payloads using Metasploit. For use with Kali Linux.
-Please note, Windows Subsystem for Linux (WSL) is not supported.
 ```
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/leebaird/discover/blob/master/LICENSE)
@@ -212,13 +211,13 @@ Metasploit Listeners
 
 # Troubleshooting
 
-Some users report being unable to use any options except for options 3, 4, and 5. 
+Some users have reported being unable to use any options except for 3, 4, and 5. 
 Nothing happens when choosing other options (1, 2, 6, etc.).
 
 ## Always run Discover as root.
 
 ```
-cd /opt/discover
+cd /opt/discover/
 sudo ./discover.sh
 ```
 
@@ -250,28 +249,28 @@ Example: shasum -a 256 /Users/lee/Downloads/kali-linux-2022.2-installer-amd64.is
 1. Open PowerShell
 2. Get-FileHash C:\path\to\iso
 
-Example: Get-FileHash C:\users\lee\Downloads\kali-linux-2022.2-installer-amd64.iso
+Example: Get-FileHash C:\Users\lee\Downloads\kali-linux-2022.2-installer-amd64.iso
 
 3. Compare the value to the checksum provided on the Kali website.
 
 ## Running Kali on VirtualBox or Windows Subsystem for Linux (WSL)
 
-Some users have reported the "fix" is to use the VMWare image instead of WSL. 
+Some users have reported the fix is to use the VMWare image instead of WSL. 
 (https://kali.download/virtual-images/kali-2022.2/kali-linux-2022.2-vmware-amd64.7z.torrent)
 
-Other users had noticed issues when running a pre-made VirtualBox Kali image, instead of running the 
-"bare metal" Kali ISO through VirtualBox. 
+Other users have noticed issues when running a pre-made VirtualBox Kali image, instead of running the 
+bare metal Kali ISO through VirtualBox. 
 (https://www.kali.org/get-kali/#kali-bare-metal)
 
 If you are unwilling or unable to use VMWare Workstation to run Kali, we encourage you to try running 
 a Kali ISO as a Guest VM in VirtualBox.
 
-1. Download the "bare metal" ISO provided by Kali.
+1. Download the bare metal ISO provided by Kali.
 2. Verify the ISO hash (see above).
-3. Start a new Kali VM within VirtualBox with the "bare metal" Kali ISO.
+3. Start a new Kali VM within VirtualBox with the bare metal Kali ISO.
 
 There will be some [basic installation instructions](https://www.kali.org/docs/installation/hard-disk-install/) 
-you will be required to fill out during the installation process.
+you will be required to fill out during the installation.
 
 Note: If you have problems accessing root after setting up a bare metal ISO, please refer to: 
 https://linuxconfig.org/how-to-reset-kali-linux-root-password
