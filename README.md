@@ -62,7 +62,7 @@ Active uses DNSRecon, recon-ng, Traceroute, wafw00f, and Whatweb.
 [*] You should acquire various API keys for maximum results with theHarvester and add them here:
 
 ```
-/opt/theHarvester/api-keys.yaml
+/etc/theHarvester/api-keys.yaml
 ```
 
 ### Person
