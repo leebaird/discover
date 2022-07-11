@@ -6,8 +6,6 @@ modules load recon/domains-contacts/pgp_search
 run
 modules load recon/domains-contacts/whois_pocs
 run
-modules load recon/domains-contacts/wikileaker
-run
 
 db query DELETE FROM domains WHERE rowid > 1
 
@@ -25,12 +23,6 @@ run
 db query DELETE FROM credentials WHERE username NOT LIKE '%@yyy%'
 
 modules load recon/contacts-credentials/hibp_paste
-run
-modules load recon/contacts-profiles/fullcontact
-run
-modules load recon/domains-companies/pen
-run
-modules load recon/domains-hosts/builtwith
 run
 
 db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
