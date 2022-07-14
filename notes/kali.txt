@@ -30,7 +30,7 @@ Icons > Default Icons: uncheck Home and Trash
 Close
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Terminal
+# Terminal (kali and root shells)
 
 File > Preferences
 Appearance
@@ -39,7 +39,7 @@ Appearance
 OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Shell
+# Shell (kali and root shells)
 
 kali-tweaks
 Select Shell & Prompt > Command Prompt
@@ -48,7 +48,7 @@ Select One Line > Apply > OK > enter > esc 2x
 Open a new tab in Terminal (kali user) and repeat the steps above.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Mousepad
+# Mousepad (kali and root shells)
 
 mousepad
 
@@ -58,11 +58,6 @@ View
 Editor
      Tab width: 5
      Tab mode: Insert Spaces
-Window
-     Enable Client-side decorations
-Plugins
-     Enable Spell Checking
-Close > quit mousepad
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Timezone
@@ -81,7 +76,7 @@ apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y a
 
 # Install Discover scripts and additional tools
 
-git clone git://github.com/leebaird/discover.git /opt/discover/
+git clone git://github.com/leebaird/discover /opt/discover/
 cd /opt/discover/config/
 ./install.sh
 
@@ -99,22 +94,12 @@ Accept all defaults by hitting Enter.
 https://directory.apache.org/studio/download/download-linux.html
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Add API keys for recon-ng
+# Add API keys
 
-recon-ng
-marketplace refresh
-marketplace install all
-keys list
-keys add <key name> <API key>
-Or replace /root/.recon-ng/keys.db
+/etc/theHarvester/api-keys.yaml
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Add API keys for theHarvester
-
-/opt/theHarvester/api-keys.yaml
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# GitHub
+# GitHub (optional)
 
 git config --global user.name "John Smith"
 git config --global user.email johnsmith@acme.org
