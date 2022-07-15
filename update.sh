@@ -252,6 +252,7 @@ else
 fi
 
 if [ ! -f /usr/bin/nishang ]; then
+     echo
      echo -e "${YELLOW}Installing nishang.${NC}"
      apt install -y nishang
      echo
@@ -393,7 +394,7 @@ if [ ! -f /usr/bin/xml_grep ]; then
 fi
 
 if [ ! -f /usr/bin/xspy ]; then
-     echo -e "${BLUE}Installing xspy.${NC}"
+     echo -e "${YELLOW}Installing xspy.${NC}"
      apt install -y xspy
      echo
 fi
