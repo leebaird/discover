@@ -10,8 +10,6 @@ f_banner
 
 echo -e "${BLUE}Uses DNSRecon, recon-ng, Traceroute, wafw00f, and Whatweb.${NC}"
 echo
-echo -e "${BLUE}[*] Acquire API keys for maximum results with recon-ng.${NC}"
-echo
 echo $medium
 echo
 echo "Usage"

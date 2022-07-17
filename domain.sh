@@ -7,7 +7,7 @@ echo -e "${BLUE}RECON${NC}"
 echo
 echo "1.  Passive"
 echo "2.  Active"
-echo "3.  Import names into an existing recon-ng workspace"
+echo "3.  Find registered domains"
 echo "4.  Previous menu"
 echo
 echo -n "Choice: "
@@ -22,47 +22,56 @@ case $recon in
      clear
      f_banner
 
-     echo -e "${BLUE}Import names into an existing recon-ng workspace.${NC}"
+     echo -e "${BLUE}Find registered domains.${NC}"
      echo
-     echo "Example: last, first"
+     echo 'Open a browser to https://www.reversewhois.io/'
+     echo 'Enter your domain and solve the captcha.'
+     echo 'Select all > copy all of the text and paste into a new file.'
+
      f_location
-     echo "last_name#first_name" > /tmp/names.csv
-     sed 's/, /#/' $location  >> /tmp/names.csv
+     echo
+     sed '1,10d' $location | head -n -27 | awk '{print $2}' | sort -u > tmp
+     total=$(wc -l tmp | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 
-     echo -n "Use Workspace: "
-     read -e workspace
+     while read regdomain; do
+          ipaddr=$(dig +short $regdomain | sed '/[a-z]/d')
+          whois -H "$regdomain" | grep -iv 'whois' > tmp2
+          wait
 
-     # Check for no answer
-     if [ -z $workspace ]; then
-          f_error
-     fi
+          regemail=$(grep 'Registrant Email:' tmp2 | cut -d ' ' -f3 | tr 'A-Z' 'a-z')
 
-     # Check for wrong answer
-     if [ ! -d /root/.recon-ng/workspaces/$workspace ]; then
-          f_error
-     fi
+          if [[ $regemail == *'contact-form'* || $regemail == *'contactprivacy'* || $regemail == *'domainprivacygroup'* || $regemail == *'email:'* || $regemail == *'networksolutionsprivateregistration'* || $regemail == *'please'* || $regemail == *'withheldforprivacy'* ]]; then
+               regemail=''
+          fi
 
-     if [ ! -d $home/data/$workspace ]; then
-          mkdir -p $home/data/$workspace
-     fi
+          regorg=$(grep 'Registrant Organization:' tmp2 | cut -d ':' -f2 | cut -d ' ' -f2-)
 
-     echo "workspaces select $workspace" > tmp.rc
-     cat $discover/resource/recon-ng-import-names.rc >> tmp.rc
-     cat $discover/resource/recon-ng-cleanup.rc >> tmp.rc
-     sed -i "s/yyy/$workspace/g" tmp.rc
+          if [[ $regorg == *'Contact Privacy'* || $regorg == *'Privacy service'* ]]; then
+               regorg=''
+          fi
 
-     recon-ng -r $discover/tmp.rc
-     rm tmp.rc
+          registrar=$(grep 'Registrar:' tmp2 | cut -d ' ' -f2- | sed 's/Registrar://g' | sed 's/^[ \t]*//' | head -n1)
 
-     grep '@' emails | cut -d ' ' -f4 | egrep -v '(email|SELECT|username)' | sort -u > $home/data/$workspace/emails.txt
-     sed '1,4d' /tmp/names | head -n -5 > $home/data/$workspace/names.txt
-     sed '1,4d' /tmp/usernames | head -n -5 > $home/data/$workspace/usernames.txt
-     cd /tmp/; rm emails names* usernames 2>/dev/null
+          echo "$regdomain,$ipaddr,$regemail,$regorg,$registrar" >> tmp3
+          let number=number+1
+          echo -ne "     ${YELLOW}$number ${NC}of ${YELLOW}$total ${NC}domains"\\r
+          sleep 2
+     done < tmp
 
+     echo 'Domain,IP Address,Registration Email,Registration Org,Registrar' > tmp4
+     cat tmp4 tmp3 | grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(amazonaws.com|root-servers.net)' | sed 's/CORPORATION/Corporation/g; 
+     s/DANESCO TRADING LTD./Danesco Trading Ltd./g; s/GLOBAL/Global/g; s/, LLC/ LLC/g; s/, Inc/ Inc/g; s/REGISTRAR OF DOMAIN NAMES/Registrar of Domain Names/g; 
+     s/, UAB/ UAB/g' | column -t -s ',' | sed 's/[ \t]*$//' > $home/data/registered-domains
+     rm tmp*
+
+     echo
      echo
      echo $medium
      echo
-     echo -e "The new files are located at ${YELLOW}$home/data/$workspace/${NC}\n"
+     echo '***Scan complete.***'
+     echo
+     echo
+     echo -e "The report is located at ${YELLOW}$home/data/registered-domains${NC}\n"
      exit
      ;;
 

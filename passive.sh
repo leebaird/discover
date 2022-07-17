@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 # Number of tests
-total=46
+total=45
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
@@ -51,7 +51,7 @@ f_banner
 echo -e "${BLUE}Uses Amass, ARIN, DNSRecon, dnstwist, goog-mail, goohost, theHarvester,${NC}"
 echo -e "${BLUE}Metasploit, Whois, multiple websites, and recon-ng.${NC}"
 echo
-echo -e "${BLUE}[*] Acquire API keys for maximum results with theHarvester and recon-ng.${NC}"
+echo -e "${BLUE}[*] Acquire API keys for maximum results with theHarvester.${NC}"
 echo
 echo $medium
 echo
@@ -352,80 +352,6 @@ echo
 
 ###############################################################################################################################
 
-echo "Registered Domains        (45/$total)"
-
-curl -s \
--H "Host: www.reversewhois.io" \
--H "Upgrade-Insecure-Requests: 1" \
--H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36" \
--H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" \
--H "Sec-Fetch-Site: same-origin" \
--H "Sec-Fetch-Mode: navigate" \
--H "Sec-Fetch-User: ?1" \
--H "Sec-Fetch-Dest: document" \
--H "Referer: https://www.reversewhois.io/" \
--H "Accept-Language: en-US,en;q=0.9" \
--H "Connection: close" \
-https://www.reversewhois.io/?searchterm=$domain > tmp
-
-curl -s \
--H "Host: www.reversewhois.io" \
--H "Upgrade-Insecure-Requests: 1" \
--H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36" \
--H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" \
--H "Sec-Fetch-Site: same-origin" \
--H "Sec-Fetch-Mode: navigate" \
--H "Sec-Fetch-User: ?1" \
--H "Sec-Fetch-Dest: document" \
--H "Referer: https://www.reversewhois.io/" \
--H "Accept-Language: en-US,en;q=0.9" \
--H "Connection: close" \
-https://www.reversewhois.io/?searchterm=$companyurl > tmp2
-
-if grep -q 'There are 0 domains' tmp && grep -q 'There are 0 domains' tmp2; then
-     echo 'No domains found.'
-     rm tmp*
-else
-     echo
-     grep 'results' tmp | sed 's/<tr>/\n/g' | grep '</td></tr>' | cut -d '>' -f4 | grep -v 'Domain Name' | cut -d '<' -f1 > tmp3
-     grep 'results' tmp2 | sed 's/<tr>/\n/g' | grep '</td></tr>' | cut -d '>' -f4 | grep -v 'Domain Name' | cut -d '<' -f1 >> tmp3
-     cat tmp3 | sort -u | sed '/^$/d' > tmp4
-     total=$(wc -l tmp4 | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
-
-     while read regdomain; do
-          ipaddr=$(dig +short $regdomain | sed '/[a-z]/d')
-          whois -H "$regdomain" | grep -iv 'whois' > tmp5
-          wait
-
-          regemail=$(grep 'Registrant Email:' tmp5 | cut -d ' ' -f3 | tr 'A-Z' 'a-z')
-
-          if [[ $regemail == *'contact-form'* || $regemail == *'contactprivacy'* || $regemail == *'domainprivacygroup'* || $regemail == *'email:'* || $regemail == *'networksolutionsprivateregistration'* || $regemail == *'please'* || $regemail == *'withheldforprivacy'* ]]; then
-               regemail=''
-          fi
-
-          regorg=$(grep 'Registrant Organization:' tmp5 | cut -d ':' -f2 | cut -d ' ' -f2-)
-
-          if [[ $regorg == *'Contact Privacy'* || $regorg == *'Privacy service'* ]]; then
-               regorg=''
-          fi
-
-          registrar=$(grep 'Registrar:' tmp5 | cut -d ' ' -f2- | sed 's/Registrar://g' | sed 's/^[ \t]*//' | head -n1)
-
-          echo "$regdomain,$ipaddr,$regemail,$regorg,$registrar" >> tmp6
-          let number=number+1
-          echo -ne "     ${YELLOW}$number ${NC}of ${YELLOW}$total ${NC}domains"\\r
-          sleep 2
-     done < tmp4
-
-     echo 'Domain,IP Address,Registration Email,Registration Org,Registrar' > tmp7
-     cat tmp7 tmp6 | grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(amazonaws.com|root-servers.net)' | sed 's/CORPORATION/Corporation/g; 
-     s/DANESCO TRADING LTD./Danesco Trading Ltd./g; s/GLOBAL/Global/g; s/, LLC/ LLC/g; s/, Inc/ Inc/g; s/REGISTRAR OF DOMAIN NAMES/Registrar of Domain Names/g; 
-     s/, UAB/ UAB/g' | column -t -s ',' | sed 's/[ \t]*$//' > registered-domains
-     rm tmp*
-fi
-
-###############################################################################################################################
-
 cat z* | grep "@$domain" | grep -v '[0-9]' | egrep -v '(_|,|firstname|lastname|test|www|zzz)' | sort -u > emails
 
 # Thanks Jason Ashton for cleaning up subdomains
@@ -448,7 +374,7 @@ cat z* | cut -d ':' -f2 | grep '\.txt$' > txt
 
 ###############################################################################################################################
 
-echo "recon-ng                  (46/$total)"
+echo "recon-ng                  (45/$total)"
 echo "marketplace refresh" > passive.rc
 echo "marketplace install all" >> passive.rc
 echo "workspaces create $domain" >> passive.rc

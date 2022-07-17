@@ -50,7 +50,7 @@ RECON
 
 1.  Passive
 2.  Active
-3.  Import names into an existing recon-ng workspace
+3.  Find registered domains
 4.  Previous menu
 ```
 
