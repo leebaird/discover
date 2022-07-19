@@ -17,7 +17,6 @@ diff tmp tmp2 | egrep '^[<>]' | awk '{print $2}' | sed '/^$/d' | egrep -v '(iec-
 rm tmp
 
 echo >> tmp-updates
-echo >> tmp-updates
 echo "Metasploit auxiliary/scanners" >> tmp-updates
 echo "==============================" >> tmp-updates
 
@@ -42,18 +41,6 @@ sed -e 's:.*/\(.*\):\1:g' tmp > tmp-msf-used
 grep -v -f tmp-msf-used tmp-msf-all >> tmp-updates
 
 echo >> tmp-updates
-echo >> tmp-updates
-
-echo "recon-ng" >> tmp-updates
-echo "==============================" >> tmp-updates
-
-recon-cli -M | grep 'recon' | egrep -v '(\[|abc|bing|brute|censys|credentials-credentials|custom|dev_diver|github|google|hunter_io|ipinfo|ipstack|locations|mailtester|mangle|migrate|netblocks|netcraft|pwnedlist|scylla|shodan|spyse|ssl|twitter|virustotal|vulnerabilities)' | sed 's/^[ \t]*//' > tmp
-cat $discover/resource/recon-ng.rc $discover/resource/recon-ng-active.rc | grep 'modules' | awk '{print $3}' | sort -u > tmp2
-diff tmp tmp2 | grep '/' | awk '{print $2}' | egrep -v '(binaryedge|hackertarget|metacrawler|migrate_ports|namechk|profiler|reverse_resolve|threatcrowd|threatminer|viewdns_reverse_whois|whois_miner|whoxy_dns|whoxy_whois)' | sort -u >> tmp-updates
-
-echo >> tmp-updates
-echo >> tmp-updates
-
 echo "theHarvester" >> tmp-updates
 echo "==============================" >> tmp-updates
 

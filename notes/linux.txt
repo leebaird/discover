@@ -333,13 +333,9 @@ esc                                             Exit scrollback mode
 
 # Services
 
-systemctl list-units --type=service             List all services
-
 systemctl <start/stop/restart/status> <service>
 systemctl enable <service>                      Enable a service at boot time
-
-update-rc.d <service> enable                    Enable a service at boot time
-update-rc.d <service> disable                   Disable a service at boot time
+systemctl disable <service>                     Disable a service at boot time
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # SMB
@@ -368,7 +364,7 @@ It uses public-key cryptography to verify the remote host's identity. Based on t
 Symmetric encryption methods and hashing algorithms.
 
 ssh-keygen                                      Create new keys
-ssh-copy-id -i ~/.ssh/id_rsa.pub user@host      Copy new key to server
+ssh-copy-id user@host                           Copy the public key to a server's authorized_keys file
 
 - Configure a non-standard port
 vi  /etc/ssh/sshd_config
@@ -376,7 +372,7 @@ vi  /etc/ssh/sshd_config
 
 - Service
 systemctl start ssh                             Start ssh service
-update-rc.d ssh enable                          Enable ssh at boot time
+systemctl enable ssh                            Enable ssh at boot time
 
 - Permissions
 -rw-------  authorized_keys
