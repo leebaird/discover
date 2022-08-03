@@ -469,6 +469,3 @@ Get-ForestTrust                                   Show all forest trusts for the
 Get-DomainComputer -Domain <test.domain>          Find a computer in a trusted domain.
 Get-DomainUser -Domain <dev.domain>               Find a user in a trusted domain.
 Get-DomainTrustMapping | Export-CSV -NoTypeInformation trusts.csv
-
-
-
