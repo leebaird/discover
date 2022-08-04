@@ -184,9 +184,16 @@ ${1}.SetValue($null,$true)
 net user <user> <password> /add
 net localgroup Administrators <user> /add
 
-- Autorun registry keys
+- Registry autorun key
+reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /v <key name> /t REG_SZ /f /d <path to binary>
+red delete HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /v <key name>
 
 - Scheduled task
+schtasks /create /f /tn <task name> /SC DAILY /st 09:00 /tr <path to binary>
+schtasks /delete /f /tn <task name>
+
+- Startup Directory
+%SystemDrive%\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
