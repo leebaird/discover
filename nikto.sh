@@ -50,7 +50,7 @@ case $choice in
 
      while read -r line; do
           xdotool key ctrl+shift+t
-          xdotool type "nikto -h $line -port $port -Format htm -maxtime 30m --output $home/data/nikto-$port/$line.htm ; exit"
+          xdotool type "nikto -h $line -port $port -Format htm -maxtime 20m --output $home/data/nikto-$port/$line.htm ; exit"
           sleep 1
           xdotool key Return
      done < "$location"
@@ -66,7 +66,7 @@ case $choice in
      while IFS=: read -r host port; do
           xdotool key ctrl+shift+t
           sleep 1
-          xdotool type "nikto -h $host -port $port -Format htm -maxtime 30m --output $home/data/nikto/$host-$port.htm ; exit"
+          xdotool type "nikto -h $host -port $port -Format htm -maxtime 20m --output $home/data/nikto/$host-$port.htm ; exit"
           sleep 1
           xdotool key Return
      done < "$location"
