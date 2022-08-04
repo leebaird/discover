@@ -8,58 +8,61 @@ git config --global user.email "leebaird@acme.com"
 git config --global pull.rebase false
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Fork a repo using your web browser.
+# Fork a repo
 
-# Clone the new fork.
-    git clone git@github.com:<username>/<forked repo>
-    git clone git@github.com:leebaird/shad0w.git
-    cd shad0w/
+- Using a web browser.
+Fork > Create fork
 
-# Add the upstream repo so that you can pull changes.
-    git remote add upstream https://github.com/<original repo>
-    git remote add upstream https://github.com/bats3c/shad0w.git
+- Using a Terminal.
+git clone git@github.com:<username>/<forked repo>
+git clone git@github.com:leebaird/shad0w.git
+cd shad0w/
 
-# Validate connectivity.
-    ssh -T git@github.com
+- Add the upstream repo so that you can pull changes.
+git remote add upstream https://github.com/<original repo>
+git remote add upstream https://github.com/bats3c/shad0w.git
+
+- Validate connectivity.
+ssh -T git@github.com
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Keep your fork updated.
 
-    git fetch upstream                    Pull the latest changes from the upstream repo
-    git checkout master                   Make sure you are working on the master branch
-    git merge upstream/master             Merge the latest upstream changes
-    git status                            Check the status
-    git push origin master                Push the new changes to your fork
+git fetch upstream                    Pull the latest changes from the upstream repo
+git checkout master                   Make sure you are working on the master branch
+git merge upstream/master             Merge the latest upstream changes
+git status                            Check the status
+git push origin master                Push the new changes to your fork
 
-    git checkout dev                      Change to the dev branch
-    git merge master                      Merge the latest master changes
-    git push origin dev -f                Push the updated branch back to the dev branch in your fork
+git checkout dev                      Change to the dev branch
+git merge master                      Merge the latest master changes
+git push origin dev -f                Push the updated branch back to the dev branch in your fork
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Working on a new branch.
 
-    git status                            Check the status
-    git branch                            Show local branches
-    git branch -r                         Show remote branches
+git status                            Check the status
+git branch                            Show local branches
+git branch -r                         Show remote branches
 
-    git branch dev                        Create a new dev branch
-    git checkout dev                      Change to the dev branch
+git branch dev                        Create a new dev branch
+git checkout dev                      Change to the dev branch
 
-    Make various changes to files.
+Make various changes to files.
 
-    git add -A                            Add all edits
-    git add <file1> <file2>               Add specific edits
-    git commit -am 'message'              Add commit message
-    git push origin master                Push the new changes to your fork
+git add -A                            Add all edits
+git add <file1> <file2>               Add specific edits
+git commit -am 'message'              Add commit message
+git push origin master                Push the new changes to your fork
 
-    Refresh your web browser to see the changes.
+Refresh your web browser to see the changes.
 
-# Delete branches.
+- Delete branches.
 
-    git branch -D <branch>                Local
-    git push origin --delete <branch>     Remote
+git branch -D <branch>                Local
+git push origin --delete <branch>     Remote
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Submit a pull request.
 
-    Using your web browser, click on Pull request > Create pull request 2x
+Using your web browser, click on Pull request > Create pull request 2x

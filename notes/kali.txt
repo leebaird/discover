@@ -122,7 +122,7 @@ update-rc.d <service> <enable|disable>     Enable a service to start at boot tim
 
 ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519 -C "john@example.com"
                                            Create new keys
-update-rc.d ssh enable                     Enable ssh to start at boot time
+systemctl enable ssh                       Enable ssh to start at boot time
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Web server with SSL on AWS
