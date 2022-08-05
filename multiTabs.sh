@@ -79,7 +79,7 @@ case $choice in
           f_error
      fi
 
-     wget -q $domain/robots.txt
+     curl -kLs $domain/robots.txt -o robots.txt
 
      # Check if the file is empty
      if [ ! -s robots.txt ]; then
