@@ -13,7 +13,7 @@ git config --global pull.rebase false
 - Using a web browser.
 Fork > Create fork
 
-- Using a Terminal.
+- Using the command line.
 git clone git@github.com:<username>/<forked repo>
 git clone git@github.com:leebaird/shad0w.git
 cd shad0w/
@@ -28,6 +28,10 @@ ssh -T git@github.com
 
 # Keep your fork updated.
 
+- Using a web browser.
+Select Sync fork.
+
+- Using the command line.
 git fetch upstream                    Pull the latest changes from the upstream repo
 git checkout master                   Make sure you are working on the master branch
 git merge upstream/master             Merge the latest upstream changes
@@ -63,6 +67,9 @@ git branch -D <branch>                Local
 git push origin --delete <branch>     Remote
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Submit a pull request.
+# Create a pull request.
 
-Using your web browser, click on Pull request > Create pull request 2x
+- Using a web browser.
+Click on Pull requests > New pull request > Create pull request
+Enter a description > Create pull request
+
