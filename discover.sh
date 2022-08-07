@@ -410,7 +410,9 @@ fi
 
 export delay
 
-f_metasploit
+echo
+echo -n "Run matching Metasploit auxiliaries? (y/N) "
+read msf
 
 echo
 echo $medium
@@ -531,14 +533,6 @@ grep -v -E 'Starting Nmap|Host is up|SF|:$|Service detection performed|https' tm
 }
 
 export -f f_cleanup
-
-###############################################################################################################################
-
-f_metasploit(){
-echo
-echo -n "Run matching Metasploit auxiliaries? (y/N) "
-read msf
-}
 
 ###############################################################################################################################
 

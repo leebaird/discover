@@ -50,12 +50,10 @@ case $choice in
 
      while read -r line; do
           xdotool key ctrl+shift+t
-          xdotool type "nikto -h $line -port $port -Format htm -maxtime 20m --output $home/data/nikto-$port/$line.htm ; exit"
+          xdotool type "nikto -h $line -port $port -no404 -maxtime 20m -Format htm --output $home/data/nikto-$port/$line.htm ; exit"
           sleep 1
           xdotool key Return
      done < "$location"
-     
-     exit
      ;;
 
      2)
@@ -66,12 +64,10 @@ case $choice in
      while IFS=: read -r host port; do
           xdotool key ctrl+shift+t
           sleep 1
-          xdotool type "nikto -h $host -port $port -Format htm -maxtime 20m --output $home/data/nikto/$host-$port.htm ; exit"
+          xdotool type "nikto -h $host -port $port -no404 -maxtime 20m -Format htm --output $home/data/nikto/$host-$port.htm ; exit"
           sleep 1
           xdotool key Return
      done < "$location"
-     
-     exit
      ;;
 
      3) f_main;;
@@ -84,4 +80,4 @@ echo
 echo "***Scan complete.***"
 echo
 echo
-echo -e "The new report is located at ${YELLOW}$home/data/nikto/${NC}\n"
+echo -e "The new report is located at ${YELLOW}$home/data/nikto-$port/${NC}\n"
