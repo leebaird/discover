@@ -32,36 +32,39 @@ artifactkit_stage_size=412256                     BokuLoader recommended size.
 ./build_arsenal_kit.sh
 
 - OPSEC - add the following options to your Malleable C2 profile:
-set pipename            "changeme##";             The default SMB Beacon named pipe is msagent_##.
-set ssh_banner          "changeme";               The dafault SSH banner is Cobalt Strike 4.2.
-set ssh_pipename        "changeme";               The default SSH Beacon named pipe is \\.\pipe\postex_ssh_####.
+set pipename            "changeme_###";           The default SMB Beacon named pipe is msagent_###.
+set pipename_stager     "changeme_##";            The default is status_##.
+set ssh_banner          "changeme";               The default SSH banner is Cobalt Strike 4.2.
+set ssh_pipename        "changeme_####";          The default SSH Beacon named pipe is postex_ssh_####.
 
 https-certificate {
     Change the location options.
 
 stage {
-    set userwx          "false";
-    set stomppe         "true";
-    set obfuscate       "true";
-    set name            "changeme.dll";
-    set cleanup         "true";
-    set sleep_mask      "true";
-    set smartinject     "true";
+    set cleanup          "true";
+    set obfuscate        "true";
+    set sleep_mask       "true";
+    set smartinject      "true";
+    set stomppe          "true";
+    set userwx           "false";
+    set name             "changeme.dll";
 
 process-inject {
-    set allocator       "NtMapViewOfSection";
-    set userwx          "false";
-    set smartinject     "true";
+    set allocator        "NtMapViewOfSection";
+    set userwx           "false";
+    set smartinject      "true";
 
 post-ex {
-    set spawnto_x86 "%windir%\\SYSWOW64\\dllhost.exe";
-    set spawnto_x64 "%windir%\\sysnative\\dllhost.exe";
-    set obfuscate       "true";
-    set smartinject     "true";
-    set amsi_disable    "true";
-    set pipename "changeme_####, win\\changeme_##";
+    set spawnto_x86      "%windir%\\syswow64\\dllhost.exe";
+    set spawnto_x64      "%windir%\\sysnative\\dllhost.exe";
+    set obfuscate        "true";
+    set pipename         "changeme_####, win\\changeme_##";
+    set smartinject      "true";
+    set amsi_disable     "true";
 
-Be sure to review malleable-c2-profiles/normal/reference.profile for more default settings.
+
+Review /opt/cobaltstrike/malleable-c2-profiles/normal/reference.profile for more default settings.
+See also https://thedfirreport.com/2021/08/29/cobalt-strike-a-defenders-guide/
 
 - Remove old data and Beacons (optional)
 Stop the team server.
