@@ -214,49 +214,34 @@ Metasploit Listeners
 Some users have reported being unable to use any options except for 3, 4, and 5. 
 Nothing happens when choosing other options (1, 2, 6, etc.).
 
-## Always run Discover as root.
+## Always run Discover as root
 
 ```
 cd /opt/discover/
 sudo ./discover.sh
 ```
 
-## Verify the ISO hash.
+## Verify the download hash
 
 Hash-based verification ensures that a file has not been corrupted by comparing the file's hash 
 value to a previously calculated value. If these values match, the file is presumed to be unmodified.
 
-### Linux
-
-1. Open Terminal
-2. sha256sum /path/to/iso
-
-Example: sha256sum ~/Downloads/kali-linux-2022.2-installer-amd64.iso
-
-3. Compare the value to the checksum provided on the Kali website.
-
 ### macOS
 
 1. Open Terminal
-2. shasum -a 256 /path/to/iso
-
-Example: shasum -a 256 /Users/lee/Downloads/kali-linux-2022.2-installer-amd64.iso
-
-3. Compare the value to the checksum provided on the Kali website.
+2. shasum -a 256 /path/to/file
+3. Compare the value to the checksum on the website.
 
 ### Windows
 
 1. Open PowerShell
-2. Get-FileHash C:\path\to\iso
-
-Example: Get-FileHash C:\Users\lee\Downloads\kali-linux-2022.2-installer-amd64.iso
-
-3. Compare the value to the checksum provided on the Kali website.
+2. Get-FileHash C:\path\to\file
+3. Compare the value to the checksum on the website.
 
 ## Running Kali on VirtualBox or Windows Subsystem for Linux (WSL)
 
 Some users have reported the fix is to use the VMWare image instead of WSL. 
-(https://kali.download/virtual-images/kali-2022.2/kali-linux-2022.2-vmware-amd64.7z.torrent)
+(https://kali.download/virtual-images/kali-2022.3/kali-linux-2022.3-vmware-amd64.7z.torrent)
 
 Other users have noticed issues when running a pre-made VirtualBox Kali image, instead of running the 
 bare metal Kali ISO through VirtualBox. 
