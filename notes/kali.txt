@@ -100,14 +100,12 @@ Accept all defaults by hitting Enter.
 
 - Apache Directory Studio
 https://directory.apache.org/studio/download/download-linux.html
+
+- PyCharm
+https://www.jetbrains.com/pycharm/download/#section=linux
+Move both tools to /opt/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Add API keys
 
 /etc/theHarvester/api-keys.yaml
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# GitHub (optional)
-
-git config --global user.name "John Smith"
-git config --global user.email johnsmith@acme.org
