@@ -1,0 +1,110 @@
+Terraform
+
+
+- Create a new IAM AWS user and keys
+Login to AWS
+Search for IAM > Users > Add users
+Enter a user name and select Access key > Next
+Add user to group > Create group
+Enter a group name
+Choose Filter policies, and then select AWS managed - job function
+Select AdministratorAccess > Create group > Next >  Create user
+Select Show > copy both keys
+
+Goto EC2 > Key pairs > Create key pair
+Name it deploy > Create key pair
+The .pem file should auto download.
+Move the file to ~/.ssh/
+cd ~/.ssh
+chmod 600 deploy.pem
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Install Terraform on Kali
+https://www.terraform.io/downloads
+Click Linux > Amd64
+cd /home/kali/Downloads
+unzip terraform_1.2.7_linux_amd64.zip
+sudo mv terraform /usr/local/bin/
+
+ - Install AWS CLI on Kali
+apt install -y awscli
+aws --version
+
+- Configure AWS CLI
+aws configure
+AWS Access Key ID [None]: <key>
+AWS Secret Access Key [None]: <key>
+Default region name [None]: us-east-1         # Use your default region
+Default output format [None]: json
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Download and configure JetBrains PyCharm
+https://www.jetbrains.com/pycharm/download/#section=linux
+File > Settings > Plugins > Marketplace
+Search for Ansible > Install
+Search for Terraform > Install
+
+- Getting started
+cd /home/kali
+mkdir deploy
+PyCharm > Open > /home/kali/deploy > OK > Trust Project
+In the left column, right click on main.py > Delete > OK
+File > New > File: main.tf
+Copy/paste the following config
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.16"
+    }
+  }
+
+  required_version = ">= 1.2.0"
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_instance" "payload" {
+  ami           = "ami-052efd3df9dad4825"     # Ubuntu for corresponding region
+  instance_type = "t2.micro"
+  key_name      = "deploy"                    # Key created via GUI in AWS
+
+  tags = {
+    Name = "Payload"
+  }
+}
+----------------------------------------------------------
+
+File > New > File: outputs.tf
+Copy/paste the following config
+
+output "instance_id" {
+  description = "ID of payload instance"
+  value       = aws_instance.payload.id
+}
+
+output "instance_ip" {
+  description = "IP of the payload instance"
+  value       = aws_instance.payload.public_ip
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+The value for 'region' will be specific to your AWS user account.
+
+ami-052efd3df9dad4825                         Ubuntu 22.04 LTS instance in the us-east-1 region.
+ami-023b8c5033c21d95d                         Kali Linux 2022.3 instance in the us-east-1 region.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+terraform init                                Initialize your directory
+terraform fmt                                 Format the config file
+terraform validate                            Validate the config file
+terraform apply                               Apply the config, type yes to approve
+
+Your AWS Ubuntu instance should start to be created.
+ssh -i ~/.ssh/deploy.pem ubuntu@<public IP>
+
+terraform show                                Inspect your current state
+terraform destroy                             Delete all of the instances you created
