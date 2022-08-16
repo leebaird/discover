@@ -206,9 +206,9 @@ SharpUp.exe audit
 
 - Executable
 /opt/SharpCollection/
-Seatbelt.exe -group=user
-Seatbelt.exe -group=system
-Seatbelt.exe -group=remote
+Seatbelt.exe -group=user -outputfile="C:\Users\Public\sb-user.txt"
+Seatbelt.exe -group=system -outputfile="C:\Users\Public\sb-system.txt"
+Seatbelt.exe -group=remote -outputfile="C:\Users\Public\sb-remote.txt"
 Watson.exe
 winPEAS.exe cmd
 

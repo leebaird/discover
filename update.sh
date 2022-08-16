@@ -19,10 +19,9 @@ echo -e "${BLUE}Updating Kali.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean
 echo
 
-if [ ! -d /usr/share/doc/golang-go ]; then
-     echo -e "${YELLOW}Installing Go.${NC}"
-     apt install -y golang-go
-     mv /root/go /opt/
+if [ ! -f /usr/bin/ansible ]; then
+     echo -e "${YELLOW}Installing Ansible.${NC}"
+     apt install -y ansible
      echo
 fi
 
@@ -232,6 +231,13 @@ if [ -d /opt/egressbuster/.git ]; then
 else
      echo -e "${YELLOW}Installing egressbuster.${NC}"
      git clone https://github.com/trustedsec/egressbuster /opt/egressbuster
+     echo
+fi
+
+if [ ! -d /usr/share/doc/golang-go ]; then
+     echo -e "${YELLOW}Installing Go.${NC}"
+     apt install -y golang-go
+     mv /root/go /opt/
      echo
 fi
 
