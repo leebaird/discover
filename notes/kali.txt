@@ -22,6 +22,7 @@ Login with kali:kali
 passwd
 Enter new password 2x.
 sudo -i
+Enter new password.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Disable screen lock
@@ -54,6 +55,9 @@ Select Shell & Prompt > Command Prompt
 Select One Line > Apply > OK > enter > esc 2x
 
 Open a new tab in Terminal (kali user) and repeat the steps above.
+Close the Terminal (both tabs).
+Open a new Terminal. The shell should now be a single line.
+sudo -i
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Mousepad (kali and root shells)
@@ -66,9 +70,12 @@ View
 Editor
      Tab width: 5
      Tab mode: Insert Spaces
+Close the windows
+
+Open a new tab and repeat the steps for the kali shell.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Timezone
+# Timezone (root shell)
 
 timedatectl set-timezone America/<city>
 Eastern: New_York
@@ -77,14 +84,14 @@ Mountain: Denver
 Pacific: Los_Angeles
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Patch OS
+# Patch the OS (root shell)
 
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Install Discover scripts and additional tools
+# Install Discover scripts and additional GitHub repos (root shell)
 
-git clone git://github.com/leebaird/discover /opt/discover/
+git clone https://github.com/leebaird/discover /opt/discover/
 cd /opt/discover/config/
 ./install.sh
 
@@ -93,10 +100,12 @@ cd /opt/discover/config/
 ./install.sh
 exit
 
-cd /root/
+cd ~
 source .zshrc
 update
-Accept all defaults by hitting Enter.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Install additional tools
 
 - Apache Directory Studio
 https://directory.apache.org/studio/download/download-linux.html

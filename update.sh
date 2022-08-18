@@ -253,7 +253,6 @@ if [ -d /opt/krbrelayx/.git ]; then
      echo
 else
      echo -e "${YELLOW}Installing krbrelayx.${NC}"
-     echo
      git clone https://github.com/dirkjanm/krbrelayx /opt/krbrelayx
 fi
 
