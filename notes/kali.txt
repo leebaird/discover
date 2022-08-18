@@ -100,10 +100,15 @@ Accept all defaults by hitting Enter.
 
 - Apache Directory Studio
 https://directory.apache.org/studio/download/download-linux.html
+Move to /opt/
 
 - PyCharm
 https://www.jetbrains.com/pycharm/download/#section=linux
-Move both tools to /opt/
+Move to /opt/
+
+- Terraform
+https://www.terraform.io/downloads
+Move to /usr/local/bin/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Add API keys
