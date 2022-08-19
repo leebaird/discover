@@ -4,7 +4,7 @@ Terraform
 - Create a new IAM AWS user and keys
 Login to AWS
 Search for IAM > Users > Add users
-Enter a user name and select Access key > Next
+Enter a user name > select Access key > Next
 Add user to group > Create group
 Enter a group name: deploy
 Search for AdministratorAccess under permissions policies (one word)
