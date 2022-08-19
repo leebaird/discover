@@ -8,25 +8,18 @@ Enter a user name and select Access key > Next
 Add user to group > Create group
 Enter a group name
 Choose Filter policies, and then select AWS managed - job function
-Select AdministratorAccess > Create group > Next >  Create user
+Select AdministratorAccess > Create group > Next > Create user
 Select Show > copy both keys
 
 Goto EC2 > Key pairs > Create key pair
-Name it deploy > Create key pair
+Name it deploy > select RSA > .pem > Create key pair
 The .pem file should auto download.
 Move the file to ~/.ssh/
 cd ~/.ssh
 chmod 600 deploy.pem
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-- Install Terraform on Kali
-https://www.terraform.io/downloads
-Click Linux > Amd64
-cd /home/kali/Downloads
-unzip terraform_1.2.7_linux_amd64.zip
-sudo mv terraform /usr/local/bin/
-
- - Install AWS CLI on Kali
+- Install AWS CLI on Kali
 apt install -y awscli
 aws --version
 
@@ -36,6 +29,13 @@ AWS Access Key ID [None]: <key>
 AWS Secret Access Key [None]: <key>
 Default region name [None]: us-east-1         # Use your default region
 Default output format [None]: json
+
+- Install Terraform on Kali
+https://www.terraform.io/downloads
+Click Linux > Amd64
+cd /home/kali/Downloads
+unzip terraform_1.2.7_linux_amd64.zip
+sudo mv terraform /usr/local/bin/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 - Download and configure JetBrains PyCharm

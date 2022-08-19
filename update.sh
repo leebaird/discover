@@ -25,6 +25,12 @@ if [ ! -f /usr/bin/ansible ]; then
      echo
 fi
 
+if [ ! -f /usr/bin/aws ]; then
+     echo -e "${YELLOW}Installing AWS.${NC}"
+     apt install -y awscli
+     echo
+fi
+
 if [ ! -f /usr/bin/bloodhound ]; then
      echo -e "${YELLOW}Installing BloodHound and Neo4j.${NC}"
      apt install -y bloodhound
