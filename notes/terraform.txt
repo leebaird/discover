@@ -6,9 +6,9 @@ Login to AWS
 Search for IAM > Users > Add users
 Enter a user name and select Access key > Next
 Add user to group > Create group
-Enter a group name
-Choose Filter policies, and then select AWS managed - job function
-Select AdministratorAccess > Create group > Next > Create user
+Enter a group name: deploy
+Search for AdministratorAccess under permissions policies (one word)
+Select the policy > Create group > Next > Create user
 Select Show > copy both keys
 
 Goto EC2 > Key pairs > Create key pair
@@ -29,6 +29,7 @@ AWS Access Key ID [None]: <key>
 AWS Secret Access Key [None]: <key>
 Default region name [None]: us-east-1         # Use your default region
 Default output format [None]: json
+This info is stored in ~/.aws/
 
 - Install Terraform on Kali
 https://www.terraform.io/downloads
@@ -41,8 +42,8 @@ sudo mv terraform /usr/local/bin/
 - Download and configure JetBrains PyCharm
 https://www.jetbrains.com/pycharm/download/#section=linux
 File > Settings > Plugins > Marketplace
-Search for Ansible > Install
-Search for Terraform > Install
+Search for Ansible > Install > Accept
+Search for Terraform > Install > OK
 
 - Getting started
 cd /home/kali
@@ -94,8 +95,8 @@ output "instance_ip" {
 
 The value for 'region' will be specific to your AWS user account.
 
-ami-052efd3df9dad4825                         Ubuntu 22.04 LTS instance in the us-east-1 region.
-ami-023b8c5033c21d95d                         Kali Linux 2022.3 instance in the us-east-1 region.
+ami-052efd3df9dad4825                         Ubuntu 22.04 LTS in the us-east-1 region.
+ami-023b8c5033c21d95d                         Kali Linux 2022.3 in the us-east-1 region.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 terraform init                                Initialize your directory

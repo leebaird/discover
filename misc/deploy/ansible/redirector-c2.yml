@@ -1,0 +1,36 @@
+---
+
+- hosts: all
+  become: yes
+  tasks:
+  - name: apt update
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+      force_apt_get: yes
+
+  - name: apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean
+    apt:
+      update_cache: yes
+#      upgrade: dist
+      cache_valid_time: 3600
+      force_apt_get: yes
+      autoremove: yes
+      autoclean: yes
+
+  - name: Install packages
+    apt:
+      name:
+      - apache2
+      - curl
+      - git
+      - locate
+      - net-tools
+      - socat
+      - wget
+      state: latest
+
+  - name: Enable apache2 rewrite module
+    apache2_module:
+      state: present
+      name: rewrite
