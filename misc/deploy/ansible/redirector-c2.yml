@@ -30,7 +30,24 @@
       - wget
       state: latest
 
-  - name: Enable apache2 rewrite module
-    apache2_module:
-      state: present
-      name: rewrite
+  - name: Install Apache modules
+    shell: |
+      a2enmod headers proxy proxy_html proxy_http rewrite ssl
+
+  - name: Start Apache
+    service:
+      name: apache2
+      state: started
+
+  - name: Change Apache config to allow for mod-rewrite
+    ansible.builtin.replace:
+      path: /etc/apache2/apache2.conf
+      after: '<Directory /var/www/>'
+      before: '</Directory>'
+      regexp: ^\tAllowOverride None$
+      replace: '\tAllowOverride All'
+
+  - name: Restart the Apache service
+    service:
+      name: apache2
+      state: restarted
