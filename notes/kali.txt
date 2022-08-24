@@ -117,7 +117,9 @@ Move to /opt/
 
 - Terraform
 https://www.terraform.io/downloads
-Move to /usr/local/bin/
+Ubuntu/Debian > LINUX BINARY DOWNLOAD > Amd64
+unzip terraform_1.2.7_linux_amd64.zip
+mv terraform /usr/local/bin/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Add API keys

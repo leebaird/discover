@@ -19,7 +19,7 @@ Included Kits:
     Sleep Mask Kit
     User Defined Reflective Loader Kit
 
-tar -zxvf /home/kali/Downloads/arsenal-kit20220613.tgz
+tar -zxf /home/kali/Downloads/arsenal-kit20220613.tgz
 cd arsenal-kit/
 vi arsenal_kit.config                             Make the following changes.
 include_udrl_kit="true"
@@ -71,7 +71,7 @@ Stop the team server.
 rm -rf data/
 
 - Start the team server
-Start a screen or tmux session.
+Start a screen session: screen -S test
 
 Parameters in <> are mandatory, those in [] are optional
 ./teamserver <IP> <password> [Malleable C2 profile] [kill date for Beacons yyyy-mm-dd]
@@ -104,16 +104,15 @@ Follow the steps from above.
 OPSEC: Never allow a Beacon to make direct connections to your team server. Always use a redirector to forward the traffic.
 
 - Create 3 free Ubuntu instances in the cloud. These instances will be used for the following:
-Redirector 1 - HTTP
-Redirector 2 - HTTPS
+Redirector 1 - domain1
+Redirector 2 - domain2
 Redirector 3 - DNS
 
 - Install socat on each instance
 sudo -i
 apt-get install -y socat
 screen
-socat tcp4-listen:80,fork tcp4:<team server IP>:80 &                   Redirector 1
-socat tcp4-listen:443,fork tcp4:<team server IP>:443 &                 Redirector 2
+socat tcp4-listen:443,fork tcp4:<team server IP>:443 &                 Redirector 1/2
 socat udp4-recvfrom:53,reuseaddr,fork udp4-sendto:<team server IP>     Redirector 3
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 

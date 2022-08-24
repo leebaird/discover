@@ -34,7 +34,7 @@ resource "aws_instance" "redirector" {
       private_key = file("~/.ssh/deploy.pem")
     }
 
-    inline = ["echo; echo; echo '[*] Connected to new server.'; echo; echo"]
+    inline = ["echo; echo '[*] Connected to new server.'; echo"]
   }
 
   provisioner "local-exec" {

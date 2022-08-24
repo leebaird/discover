@@ -43,12 +43,12 @@ zip -r test.zip test/
 
 7z -x test.7z                                   Extract
 bzip2 -d test.bz2
-tar xvfj test.tar.bz2
+tar jxf test.tar.bz2
 gunzip test.gz
-tar xvzf test.tar.gz
-tar xvzf test.tar
-tar xvjf test.tbz
-tar xvzf test.tgz
+tar zxf test.tar.gz
+tar zxf test.tar
+tar jxf test.tbz
+tar zxf test.tgz
 unzip test.zip
 
 zcat rockyou.txt.gz > rockyou.txt
