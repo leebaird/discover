@@ -111,16 +111,21 @@ update
 
 - Apache Directory Studio
 https://directory.apache.org/studio/download/download-linux.html
-Move to /opt/
+cd /home/kali/Downloads/
+tar zxf <package>
+mv ApacheDirectoryStudio /opt/
+rm <package>
 
 - PyCharm
 https://www.jetbrains.com/pycharm/download/#section=linux
-Move to /opt/
+tar zxf <package>
+mv pycharm-community-2022.2.1 /opt/
+rm <package>
 
 - Terraform
 https://www.terraform.io/downloads
 Ubuntu/Debian > LINUX BINARY DOWNLOAD > Amd64
-unzip terraform_1.2.7_linux_amd64.zip
+unzip <package>
 mv terraform /usr/local/bin/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
