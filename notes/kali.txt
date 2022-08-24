@@ -127,6 +127,7 @@ https://www.terraform.io/downloads
 Ubuntu/Debian > LINUX BINARY DOWNLOAD > Amd64
 unzip <package>
 mv terraform /usr/local/bin/
+rm <package>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Add API keys
