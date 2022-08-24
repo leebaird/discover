@@ -35,24 +35,24 @@ Repeat for Plugged in settings > Close
 # Desktop
 
 Right click on the Desktop > Desktop Settings
-Icons > Default Icons: uncheck Home and Trash
+Icons > Default Icons: uncheck Home, File System, and Trash
 Close
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Terminal (kali and root shells)
+# Terminal
 
 File > Preferences
 Appearance
-     Font: 12
+     Font: 11
      Application transparency: 0%
 OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Shell (kali and root shells)
+# Shell
 
 kali-tweaks
 Select Shell & Prompt > Command Prompt
-Select One Line > Apply > OK > enter > esc 2x
+Select One Line > Apply > OK > enter > esc 3x
 
 Open a new tab in Terminal (kali user) and repeat the steps above.
 Close the Terminal (both tabs).
@@ -60,23 +60,25 @@ Open a new Terminal. The shell should now be a single line.
 sudo -i
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Mousepad (kali and root shells)
+# Mousepad
 
 mousepad
 
 Edit > Preferences
 View
+     Uncheck Use system monospace font
      Font: 12
 Editor
      Tab width: 5
      Tab mode: Insert Spaces
-Close the windows
+Close preferenes > close mousepad
 
-Open a new tab and repeat the steps for the kali shell.
+Open a new tab in Terminal and repeat the same steps for the kali shell.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Timezone (root shell)
+# Timezone
 
+Go to the root tab in Terminal
 timedatectl set-timezone America/<city>
 Eastern: New_York
 Central: Chicago
@@ -84,7 +86,7 @@ Mountain: Denver
 Pacific: Los_Angeles
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Patch the OS (root shell)
+# Patch the OS
 
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 ------------------------------------------------------------------------------------------------------------------------------------------------------
