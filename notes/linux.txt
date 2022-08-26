@@ -208,6 +208,16 @@ updatedb                                        Updates the local database of al
 locate <file>                                   Searches a local database (locate.db) that contains information about existing files and folders
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Firewall
+
+ufw status numbered
+ufw enable/disable
+ufw allow proto tcp to any port 22              Allow all SSH traffic
+ufw allow from <IP/CIDR> proto tcp to any port 22        Allow SSH from a specific IP/CIDR
+ufw delete <#>                                  Delete a specific line number
+ufw reload                                      Run this command after any changes
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Installation
 
 ./configure                                     Install from source
@@ -306,7 +316,7 @@ Allows session sharing where tmux does not.
 
 screen -ls                                      List sessions
 screen -S test                                  Start a new session named test
-screen -d -m -S test                            Start a new session in detached mode named test
+screen -dmS test                                Start a new session in detached mode named test
 
 ctrl+a d                                        Detach from the current session
 screen -r                                       Attach to the current session
@@ -386,12 +396,11 @@ systemctl enable ssh                            Enable ssh at boot time
 -rw-------  config
 -rw-------  id_rsa
 -rw-r--r--  id_rsa.pub
--rw-------  identity_file
 -rw-r--r--  known_hosts
 
 ssh user@host                                   Standard connection
 ssh user@host -p 2222                           Connect on a non-standard port
-ssh user@host -i key                            Connect using an identity file
+ssh user@host -i <key>                          Connect using an identity file
 
 - Local port forwarding
 ssh <gateway> -L <local port to listen>:<remote host>:<remote port>
@@ -542,6 +551,8 @@ cat /etc/group                                  Groups
 groupadd <group>                                Add new group
 groupdel <group>                                Delete group
 groupmod <group>                                Modify group
+
+kali ALL=(ALL) NOPASSWD:ALL                     Add to /etc/sudoers, no password needed for kali to sudo
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Video Resolution
@@ -646,7 +657,7 @@ smb: \> get <file>
 
 # Privilege Escalation
 
-- sudoers
+- /etc/sudoers
 sudo -l                                                    Users that can run specific binaries with root permissions
 
 User www-data may run the following commands on winxp:
