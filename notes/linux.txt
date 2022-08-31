@@ -210,12 +210,12 @@ locate <file>                                   Searches a local database (locat
 
 # Firewall
 
-ufw status numbered
-ufw enable/disable
-ufw allow proto tcp to any port 22              Allow all SSH traffic
-ufw allow from <IP/CIDR> proto tcp to any port 22        Allow SSH from a specific IP/CIDR
-ufw delete <#>                                  Delete a specific line number
-ufw reload                                      Run this command after any changes
+sudo ufw status numbered
+sudo ufw enable/disable
+sudo ufw allow 22/tcp                           Allow all SSH traffic
+sudo ufw allow from <IP/CIDR> to any port 22 proto tcp comment 'Lee'
+sudo ufw delete <#>                             Delete a specific line number
+sudo ufw reload                                 Run after any changes are made
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Installation
