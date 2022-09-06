@@ -271,7 +271,8 @@ curl ifconfig.me                                Show external IP
 
 # Processes
 
-ps fawwwux                                      Show running processes
+ps faux                                         Show running processes
+ps -ef | grep ssh                               Show ssh processs
 ps -ef | grep root                              Processes running as root
 ps -ef | grep -v root                           Processes running under another account besides root
 jobs                                            Show background processes
@@ -322,22 +323,19 @@ ctrl+a d                                        Detach from the current session
 screen -r                                       Attach to the current session
 screen -r <PID or name>                         Attach to a specific session
 screen -x test                                  Attach to a session called 'test'
-User 2: screen -x test                          A second user attaches to the same session, now both users can see the same thing on the screen
+User 2: screen -x test                          A second user attaches to the same session, now both users can see the same screen
 
 screen -X -S <PID or name> quit                 Kill a specific session
 exit                                            Exit the session
 
--t title
-
 ctrl+a "                                        List windows
 ctrl+a c                                        Create a new window
-ctrl+a shift+a                                  Rename the current window
 ctrl+a 2                                        Switch to window 2 (by number)
 ctrl+a n                                        Switch to the next window
 ctrl+a p                                        Switch to the previous window
 
 ctrl+a |                                        Split current region horizontally
-ctrl+a shift+s                                  Split current region vertically
+ctrl+a S                                        Split current region vertically
 ctrl+a tab                                      Switch to the next region
 
 ctrl+a shift+q                                  Close all regions but the current one
