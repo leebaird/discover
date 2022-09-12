@@ -320,6 +320,21 @@ if [ ! -f /usr/share/wordlists/rockyou.txt ]; then
      echo
 fi
 
+if [ -d /opt/ScareCrow/.git ]; then
+     echo -e "${BLUE}Updating ScareCrow.${NC}"
+     cd /opt/ScareCrow/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing ScareCrow.${NC}"
+     git clone https://github.com/optiv/ScareCrow /opt/ScareCrow
+     apt install osslsigncode
+     cd /opt/ScareCrow/
+     go get github.com/fatih/color
+     go get github.com/yeka/zip
+     go get github.com/josephspurrier/goversioninfo
+     echo
+fi
+
 if [ ! -d /usr/share/seclists ]; then
      echo -e "${YELLOW}Installing SecLists.${NC}"
      apt install -y seclists
