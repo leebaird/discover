@@ -3,26 +3,29 @@ Active Directory
 
 # Recon
 
-net view /all                                     Show all shares
-net view /all /domain                             Show all shares in the domain
-nltest /domain_trusts /all_trusts                 Show domain trusts
-nltest /dclist:<domain>                           Show domain controllers for a given domain
-net localgroup "administrator"                    Show users in the local administrator group
-net group "domain admins" /domain                 Show users in the domain admins Security Group
-net user /domain                                  Show all domain users
-net user <user> /domain                           Show all Security Groups a domain user belongs to
-net group /domain                                 Show all Security Groups in a domain
 
-AdFind.exe -f "(objectcategory=person)"
-AdFind.exe -f "(objectcategory=computer)"
-AdFind.exe -sc trustdmp
-AdFind.exe -gcb -sc trustdmp
-AdFind.exe -subnets -f "(objectCategory=subnet)"
-AdFind.exe -sc domainlist
-AdFind.exe -sc dcmodes
-AdFind.exe -sc adminfo
-AdFind.exe -sc dclist
-AdFind.exe -sc computers_pwdnotreqd
+
+net user /domain                                  Domain users
+net user <user> /domain                           Security groups a domain user belongs to
+net group /domain                                 Security groups in a domain
+
+
+net group "Domain Computers" /domain
+net group "Domain Admins" /domain                 Users in the Domain Admins Security Group
+net group "Enterprise Admins" /domain             Users in the Enterprise Admins Security Group
+net users
+systeminfo
+nltest /dclist:<domain>                           Domain controllers for a given domain
+nltest /domain_trusts /all_trusts                 Domain trusts
+
+
+AdFind.exe -f "(objectcategory=person)" > ad_users.txt
+AdFind.exe -f "(objectcategory=computer)" > ad_computers.txt
+AdFind.exe -f "(objectcategory=organizationalUnit)" > ad_ous.txt
+AdFind.exe -sc trustdmp > trustdmp.txt
+AdFind.exe -gcb -sc trustdmp > trustdmp2.txt
+AdFind.exe -subnets -f (objectCategory=subnet)> subnets.txt
+AdFind.exe -f "(objectcategory=group)" > ad_group.txt
 
 dig -t SRV _gc._tcp.lab.acme.org                  Global catalog
 dig -t SRV _ldap._tcp.acme.org                    LDAP servers

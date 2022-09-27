@@ -70,7 +70,6 @@ smbclient //<target IP>/<share> -U <user>
 net users                                         Local users
 net user <current user>                           Info on a local user
 net accounts                                      Local password policy
-net config workstation
 net localgroup                                    Local security groups
 net localgroup Administrators                     Users in the local Administrators security group
 net localgroup "Remote Desktop Users"             Users in the local Remote Desktop Users security group
@@ -84,13 +83,13 @@ net view /domain                                  Computers in other domain
 
 - Domain
 net accounts /domain                              Domain password policy
-net user /domain                                  Show domain users
-net user <user> /domain                           Show info on a domain user
+net user /domain                                  Domain users
+net user <user> /domain                           Info on a domain user
 net group /domain
-net group "domain admins" /domain                 Show domain admin
-net group "domain users" /domain                  Show domain users
-net group "domain controllers" /domain            Show domain controllers
-nltest /domain_trusts                             Show domain trusts
+net group "domain admins" /domain                 Domain admin
+net group "domain users" /domain                  Domain users
+net group "domain controllers" /domain            Domain controllers
+nltest /domain_trusts                             Domain trusts
 
 net localgroup Administrators /domain             Users in the domain Administrators Security Group
 net localgroup /domain                            Domain Security Groups
@@ -107,10 +106,10 @@ whoami
 whoami /groups
 whoami /priv
 systeminfo                                        Hostname, OS name and version, domain, and hot fixes
-net share                                         Shared folders
-net session                                       Local sessions
 net users                                         Local users
 net localgroup administrators                     Local administrators
+net session                                       Local sessions
+net share                                         Local shares
 
 ipconfig /all
 ipconfig /displaydns
@@ -123,18 +122,19 @@ doskey /history                                   Command history
 gpresult /z
 
 - Domain
+net group "Domain Computers" /domain
+net group "Domain Admins" /domain
+net group "Enterprise Admins" /domain
+
+nltest /dclist:<domain>                           Domain controllers
+nltest /domain_trusts /all_trusts                 Domain trusts
+
 net localgroup administrators /domain
 net user /domain                                  Domain users
 net view /domain                                  Domain computers
 net user <user> /domain                           Info on a domain user
 net group /domain                                 Domain security groups
-net group "group name" /domain                    Users in a domain security groupt
-nltest /dclist:<domain>                           Domain controllers
-nltest /domain_trusts /all_trusts                 Domain trusts
-
-net group "domain admins" /domain
-net group "enterprise admins" /domain
-net group "Domain Computers" /domain
+net group "group name" /domain                    Users in a domain security group
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Data mining

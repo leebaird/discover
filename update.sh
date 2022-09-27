@@ -12,6 +12,11 @@ if [ $EUID -ne 0 ]; then
      exit
 fi
 
+# Clean up
+if [ -d /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/.git ]; then
+     rm -rf /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/
+fi
+
 clear
 echo
 
@@ -38,16 +43,6 @@ if [ ! -f /usr/bin/bloodhound ]; then
 fi
 
 if [ -d /opt/cobaltstrike ]; then
-     if [ -d /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/.git ]; then
-          echo -e "${BLUE}Updating CS - bluescreenofjeff malleable C2 randomizer.${NC}"
-          cd /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/ ; git pull
-          echo
-     else
-          echo -e "${YELLOW}Installing CS - bluescreenofjeff malleable C2 randomizer.${NC}"
-          git clone https://github.com/bluscreenofjeff/Malleable-C2-Randomizer /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer
-          echo
-     fi
-
      if [ -d /opt/cobaltstrike/third-party/bokuloader/.git ]; then
           echo -e "${BLUE}Updating CS - BokuLoader.${NC}"
           cd /opt/cobaltstrike/third-party/bokuloader/ ; git pull
@@ -240,10 +235,12 @@ else
      echo
 fi
 
-if [ ! -d /usr/share/doc/golang-go ]; then
+if [ ! -f /usr/bin/go ]; then
      echo -e "${YELLOW}Installing Go.${NC}"
      apt install -y golang-go
      mv /root/go /opt/
+     echo >> ~/.zshrc
+     echo "export GOBIN='/opt/go/'" >> ~/.zshrc
      echo
 fi
 
@@ -317,6 +314,12 @@ if [ ! -f /usr/share/wordlists/rockyou.txt ]; then
      echo -e "${YELLOW}Expanding Rockyou list.${NC}"
      zcat /usr/share/wordlists/rockyou.txt.gz > /usr/share/wordlists/rockyou.txt
      rm /usr/share/wordlists/rockyou.txt.gz
+     echo
+fi
+
+if [ ! -f /usr/bin/rustc ]; then
+     echo -e "${YELLOW}Installing Rust.${NC}"
+     apt install -y rustc
      echo
 fi
 

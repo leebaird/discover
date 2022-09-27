@@ -14,9 +14,8 @@ alias date='date +"%a %b %d, %Y - %r %Z"'
 alias e='exit'
 alias k='cd /home/kali/'
 alias kd='cd /home/kali/Desktop/'
-alias l='ls -l'
+alias l='ls -lh'
 alias la='ls -la'
-alias lk='ls -l --block-size=KB'
 alias m='service postgresql start ; msfdb init ; msfconsole'
 alias n='echo;
 echo -n "External IP:  "$extip ; echo ;
