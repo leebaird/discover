@@ -17,6 +17,11 @@ if [ -d /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/.
      rm -rf /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/
 fi
 
+if [ -d /opt/ScareCrow/.git ]; then
+     rm -rf /opt/ScareCrow/
+fi
+# -----------------------------------------------------------------------------------------------
+
 clear
 echo
 
@@ -238,7 +243,7 @@ fi
 if [ ! -f /usr/bin/go ]; then
      echo -e "${YELLOW}Installing Go.${NC}"
      apt install -y golang-go
-     mv /root/go /opt/
+     mv ~/go /opt/
      echo >> ~/.zshrc
      echo "export GOBIN='/opt/go/'" >> ~/.zshrc
      echo
@@ -257,6 +262,7 @@ if [ -d /opt/krbrelayx/.git ]; then
 else
      echo -e "${YELLOW}Installing krbrelayx.${NC}"
      git clone https://github.com/dirkjanm/krbrelayx /opt/krbrelayx
+     echo
 fi
 
 if [ ! -f ~/.nimble/bin/nim ]; then
@@ -268,7 +274,6 @@ if [ ! -f ~/.nimble/bin/nim ]; then
 fi
 
 if [ ! -f /usr/bin/nishang ]; then
-     echo
      echo -e "${YELLOW}Installing nishang.${NC}"
      apt install -y nishang
      echo
@@ -328,21 +333,6 @@ fi
 if [ ! -f /usr/bin/rustc ]; then
      echo -e "${YELLOW}Installing Rust.${NC}"
      apt install -y rustc
-     echo
-fi
-
-if [ -d /opt/ScareCrow/.git ]; then
-     echo -e "${BLUE}Updating ScareCrow.${NC}"
-     cd /opt/ScareCrow/ ; git pull
-     echo
-else
-     echo -e "${YELLOW}Installing ScareCrow.${NC}"
-     git clone https://github.com/optiv/ScareCrow /opt/ScareCrow
-     apt install osslsigncode
-     cd /opt/ScareCrow/
-     go get github.com/fatih/color
-     go get github.com/yeka/zip
-     go get github.com/josephspurrier/goversioninfo
      echo
 fi
 
