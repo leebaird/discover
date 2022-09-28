@@ -259,6 +259,14 @@ else
      git clone https://github.com/dirkjanm/krbrelayx /opt/krbrelayx
 fi
 
+if [ ! -f ~/.nimble/bin/nim ]; then
+     echo -e "${YELLOW}Installing Nim. Enter 'n' to continue.${NC}"
+     curl https://nim-lang.org/choosenim/init.sh -sSf | sh
+     echo >> ~/.zshrc
+     echo 'export PATH=~/.nimble/bin:$PATH' >> ~/.zshrc
+     echo
+fi
+
 if [ ! -f /usr/bin/nishang ]; then
      echo
      echo -e "${YELLOW}Installing nishang.${NC}"
