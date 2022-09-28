@@ -46,6 +46,7 @@ bzip2 -d test.bz2
 tar jxf test.tar.bz2
 gunzip test.gz
 tar zxf test.tar.gz
+tar xf test.tar.xz
 tar zxf test.tar
 tar jxf test.tbz
 tar zxf test.tgz
