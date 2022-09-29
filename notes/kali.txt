@@ -118,7 +118,7 @@ rm <package>
 
 - Nim
 https://nim-lang.org/install_unix.html
-Downnload x86_64 tarball
+Download x86_64 tarball
 tar xf nim-1.6.8-linux_x64.tar.xz
 mv nim-1.6.8 /opt/
 echo 'export PATH=$PATH:/opt/nim-1.6.8/bin/' >> ~/.zshrc

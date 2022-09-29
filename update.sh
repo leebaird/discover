@@ -245,7 +245,7 @@ if [ ! -f /usr/bin/go ]; then
      apt install -y golang-go
      mv ~/go /opt/
      echo >> ~/.zshrc
-     echo "export GOBIN='/opt/go/'" >> ~/.zshrc
+     echo 'export GOPATH=/opt/go/' >> ~/.zshrc
      echo
 fi
 

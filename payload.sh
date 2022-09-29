@@ -173,7 +173,7 @@ if [ -z $iterations ]; then
 fi
 
 # Check for valid number that is reasonable.
-if [[ $iterations -lt 0 || $iterations -gt 10 ]]; then
+if [[ $iterations -lt 0 || $iterations -gt 20 ]]; then
      f_error
 fi
 
