@@ -179,20 +179,29 @@ Payload: Beacon HTTPS
 HTTPS Hosts: click + <redirector2 IP>
 Save > OK
 
+Using your domain registar, add the following records for your DNS C2:
+@      A    <domain IP>
+ns1    A    <domain IP>
+data   NS   <domain>.com.
+
 Add
 Name: dns
 Payload: Beacon DNS
 DNS Hosts: click + <redirector3 IP>
 Save > OK
 
-Peer-to-peer listeners allow Beacons to chain their comms together over SMB or TCP.
-This is needed when a target you compromised cannot directly reach your team server over HTTP.
+OPSEC: Blend in with the named pipes of your target environment.
+Find an example using a similar Windows VM: ls \\.\pipe\
 
 Add
 Name: smb
 Payload: Beacon SMB
-Change the Pipename
+Using the example above, change the pipename.
 Save
+
+Peer-to-peer listeners allow Beacons to chain their comms together over SMB or TCP.
+This is needed when the target you compromised cannot directly reach your team server over HTTP/S.
+In graph mode, TCP Beacon are shown in green and SMB Beacons are shown in yellow.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Payloads
@@ -235,7 +244,9 @@ Right-click on a Beacon > Interact
 help                                              Show available help commands
 help <command>                                    Get more help on a particular command
 ctrl +/-                                          Increase or decrease the font size
-ctrl k                                            Clear the tab
+ctrl k                                            Clear the window
+
+Right-click the X to rename or detach to a floating window.
 
 Cobalt Strike > Script Manger > Load
 /opt/cobaltstrike/third-party/outflanknl-helpcolor/HelpColor.cna
