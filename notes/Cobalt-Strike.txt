@@ -58,6 +58,15 @@ set pipename_stager     "changeme_##";            The default is status_##
 set ssh_banner          "changeme";               The default SSH banner is Cobalt Strike 4.2
 set ssh_pipename        "changeme_####";          The default SSH Beacon named pipe is postex_ssh_####
 
+http-config {
+     set headers "Date, Server, Content-Length, Keep-Alive, Connection, Content-Type";
+	header "Server" "Apache";
+	header "Keep-Alive" "timeout=10, max=100";
+	header "Connection" "Keep-Alive";
+	set trust_x_forwarded_for "true";
+	set vlock_useragenets "curl*,lynx*,wget*";
+}
+
 https-certificate {
 	set CN "changgme.com";
 	set O "Changgme;
@@ -66,19 +75,7 @@ https-certificate {
 	set C "US";
 	set validity "365";
 }
-stage {
-    set userwx           "false";
-    set sleep_mask       "true";
-    set cleanup          "true";
-    set stomppe          "true";
-    set obfuscate        "true";
-    set name             "changeme.dll";
-}
-process-inject {
-    set allocator        "NtMapViewOfSection";  # Need to dbl check this.
-    set userwx           "false";
-    set smartinject      "true";
-}
+
 post-ex {
     set spawnto_x86      "%windir%\\syswow64\\dllhost.exe";
     set spawnto_x64      "%windir%\\sysnative\\dllhost.exe";
@@ -86,11 +83,34 @@ post-ex {
     set smartinject      "true";
     set amsi_disable     "true";
     set pipename         "changeme_####, win\\changeme_##";
+    set keylogger        "GetAsyncKeyState";
+    set threadhint       "module!function+0x##"
+}
+
+process-inject {
+    set allocator        "NtMapViewOfSection";
+    set min_alloc        "17500";
+    set startrwx         "false";
+    set userwx           "false";
+
+    transform-x64 {
+        prepend "\x90\x90";
+    }
+}
+
+stage {
+    set userwx           "false";
+    set cleanup          "true";
+    set stomppe          "true";
+    set obfuscate        "true";
+    set name             "changeme.dll";
 }
 
 Review /opt/cobaltstrike/malleable-c2-profiles/normal/reference.profile for more default settings.
 
-See also https://thedfirreport.com/2021/08/29/cobalt-strike-a-defenders-guide/
+See also:
+https://thedfirreport.com/2021/08/29/cobalt-strike-a-defenders-guide/
+https://blog.zsec.uk/cobalt-strike-profiles/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Start the team server
@@ -267,7 +287,9 @@ Right-click on the X in the tab for additional options.
 # Situational awareness
 
 - Beacon Object File (BOF)
-A compiled C program that executes within Beacon and can call Win32 and Beacon APIs without spawning and injecting into a new process.
+A compiled C program that executes within Beacon and can call Win32 and Beacon APIs without spawning and injecting into a new process. They run small
+commands for a short time.
+
 Cobalt Strike > Script Manger > Load
 /opt/cobaltstrike/third-party/trustedsec-bof/SA/SA.cna
 helpx                                              New commands added to 'help'
