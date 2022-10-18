@@ -13,13 +13,10 @@ if [ $EUID -ne 0 ]; then
 fi
 
 # Clean up
-if [ -d /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/.git ]; then
-     rm -rf /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/
+if [ -d /opt/cobaltstrike/third-party/trustedsec-bof/  ]; then
+     rm -rf /opt/cobaltstrike/third-party/trustedsec-bof/
 fi
 
-if [ -d /opt/ScareCrow/.git ]; then
-     rm -rf /opt/ScareCrow/
-fi
 # -----------------------------------------------------------------------------------------------
 
 clear
@@ -147,16 +144,31 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      fi
 
-     if [ -d /opt/cobaltstrike/third-party/trustedsec-bof/.git ]; then
+
+
+     if [ -d /opt/cobaltstrike/third-party/trustedsec-remote-ops/.git ]; then
+          echo -e "${BLUE}Updating CS - TrustedSec CS Remote OPs BOF.${NC}"
+          cd /opt/cobaltstrike/third-party/trustedsec-remote-ops/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing CS - TrustedSec CS Remote OPs BOF.${NC}"
+          git clone https://github.com/trustedsec/CS-Remote-OPs-BOF /opt/cobaltstrike/third-party/trustedsec-remote-ops
+          echo
+     fi
+
+     if [ -d /opt/cobaltstrike/third-party/trustedsec-sa/.git ]; then
           echo -e "${BLUE}Updating CS - TrustedSec SA BOF.${NC}"
-          cd /opt/cobaltstrike/third-party/trustedsec-bof/ ; git pull
+          cd /opt/cobaltstrike/third-party/trustedsec-sa/ ; git pull
           echo
      else
           echo -e "${YELLOW}Installing CS - TrustedSec SA BOF.${NC}"
-          git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/cobaltstrike/third-party/trustedsec-bof
+          git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/cobaltstrike/third-party/trustedsec-sa
           echo
      fi
 fi
+
+
+
 
 if [ -d /opt/discover/.git ]; then
      echo -e "${BLUE}Updating Discover.${NC}"
