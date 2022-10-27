@@ -3,8 +3,6 @@ Active Directory
 
 # Recon
 
-
-
 net user /domain                                  Domain users
 net user <user> /domain                           Security groups a domain user belongs to
 net group /domain                                 Security groups in a domain

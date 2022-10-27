@@ -12,11 +12,6 @@ if [ $EUID -ne 0 ]; then
      exit
 fi
 
-# Clean up
-if [ -d /opt/cobaltstrike/third-party/trustedsec-bof/  ]; then
-     rm -rf /opt/cobaltstrike/third-party/trustedsec-bof/
-fi
-
 # -----------------------------------------------------------------------------------------------
 
 clear
@@ -166,9 +161,6 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      fi
 fi
-
-
-
 
 if [ -d /opt/discover/.git ]; then
      echo -e "${BLUE}Updating Discover.${NC}"
