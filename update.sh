@@ -14,6 +14,29 @@ fi
 
 # -----------------------------------------------------------------------------------------------
 
+# Clean up
+if [ -d /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/.git ]; then
+      rm -rf /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/
+fi
+
+if [ -d /opt/cobaltstrike/third-party/chryzsh-scripts/.git ]; then
+     rm -rf /opt/cobaltstrike/third-party/chryzsh-scripts/
+fi
+
+if [ -d /opt/cobaltstrike/third-party/bokuloader/.git ]; then
+     rm -rf /opt/cobaltstrike/third-party/bokuloader/
+fi
+
+if [ -d /opt/cobaltstrike/third-party/DidierStevens-DNS-stager/.git ]; then
+     rm -rf /opt/cobaltstrike/third-party/DidierStevens-DNS-stager/
+fi
+
+if [ -d /opt/cobaltstrike/third-party/trustedsec-bof/  ]; then
+      rm -rf /opt/cobaltstrike/third-party/trustedsec-bof/
+fi
+
+# -----------------------------------------------------------------------------------------------
+
 clear
 echo
 
@@ -40,45 +63,6 @@ if [ ! -f /usr/bin/bloodhound ]; then
 fi
 
 if [ -d /opt/cobaltstrike ]; then
-     if [ -d /opt/cobaltstrike/third-party/bokuloader/.git ]; then
-          echo -e "${BLUE}Updating CS - BokuLoader.${NC}"
-          cd /opt/cobaltstrike/third-party/bokuloader/ ; git pull
-          echo
-     else
-          echo -e "${YELLOW}Installing CS - BokuLoader.${NC}"
-          git clone https://github.com/boku7/BokuLoader /opt/cobaltstrike/third-party/bokuloader
-          echo
-     fi
-
-     if [ -d /opt/cobaltstrike/third-party/chryzsh-scripts/.git ]; then
-          echo -e "${BLUE}Updating CS - chryzsh aggressor scripts.${NC}"
-          cd /opt/cobaltstrike/third-party/chryzsh-scripts/ ; git pull
-          echo
-     else
-          echo -e "${YELLOW}Installing CS - chryzsh aggressor scripts.${NC}"
-          git clone https://github.com/chryzsh/Aggressor-Scripts /opt/cobaltstrike/third-party/chryzsh-scripts
-          echo
-     fi
-
-     if [ -d /opt/cobaltstrike/third-party/DidierStevens-DNS-stager/.git ]; then
-          echo -e "${BLUE}Updating CS - Didier Stevens DNS stager.${NC}"
-          cd /opt/cobaltstrike/third-party/DidierStevens-DNS-stager/ ; git pull
-          mv cs-dns-stager.py cs-dns-stager.tmp
-          rm *.def *.md *.py *.txt *.yaml 2>/dev/null
-          mv cs-dns-stager.tmp cs-dns-stager.py
-          chmod 755 cs-dns-stager.py
-          echo
-     else
-          echo -e "${YELLOW}Installing CS - Didier Stevens DNS stager.${NC}"
-          git clone https://github.com/DidierStevens/Beta /opt/cobaltstrike/third-party/DidierStevens-DNS-stager
-          cd /opt/cobaltstrike/third-party/DidierStevens-DNS-stager/
-          mv cs-dns-stager.py cs-dns-stager.tmp
-          rm *.def *.md *.py *.txt *.yaml 2>/dev/null
-          mv cs-dns-stager.tmp cs-dns-stager.py
-          chmod 755 cs-dns-stager.py
-          echo
-     fi
-
      if [ -d /opt/cobaltstrike/elevatekit/.git ]; then
           echo -e "${BLUE}Updating CS - ElevateKit.${NC}"
           cd /opt/cobaltstrike/elevatekit/ ; git pull
@@ -99,6 +83,16 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      fi
 
+     if [ -d /opt/cobaltstrike/third-party/kyleavery-inject-assembly/.git ]; then
+          echo -e "${BLUE}Updating CS - kyleavery Inject Assembly.${NC}"
+          cd /opt/cobaltstrike/third-party/kyleavery-inject-assembly/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing CS - kyleavery Inject Assembly.${NC}"
+          git clone https://github.com/kyleavery/inject-assembly /opt/cobaltstrike/third-party/kyleavery-inject-assembly
+          echo
+     fi
+
      if [ -d /opt/cobaltstrike/malleable-c2-profiles/.git ]; then
           echo -e "${BLUE}Updating CS - Malleable C2 profiles.${NC}"
           cd /opt/cobaltstrike/malleable-c2-profiles/ ; git pull
@@ -110,12 +104,22 @@ if [ -d /opt/cobaltstrike ]; then
      fi
 
      if [ -d /opt/cobaltstrike/third-party/mgeeky-scripts/.git ]; then
-          echo -e "${BLUE}Updating CS - mgeeky aggressor scripts.${NC}"
+          echo -e "${BLUE}Updating CS - mgeeky cobalt arsenal.${NC}"
           cd /opt/cobaltstrike/third-party/mgeeky-scripts/ ; git pull
           echo
      else
-          echo -e "${YELLOW}Installing CS - mgeeky aggressor scripts.${NC}"
+          echo -e "${YELLOW}Installing CS - mgeeky cobalt arsenal.${NC}"
           git clone https://github.com/mgeeky/cobalt-arsenal /opt/cobaltstrike/third-party/mgeeky-scripts
+          echo
+     fi
+
+     if [ -d /opt/cobaltstrike/third-party/outflanknl-c2-tool-collection/.git ]; then
+          echo -e "${BLUE}Updating CS - Outflanknl C2 Tool Collection.${NC}"
+          cd /opt/cobaltstrike/third-party/outflanknl-c2-tool-collection/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing CS - Outflanknl C2 Tool Collection.${NC}"
+          git clone https://github.com/outflanknl/C2-Tool-Collection /opt/cobaltstrike/third-party/outflanknl-c2-tool-collection
           echo
      fi
 
@@ -139,8 +143,6 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      fi
 
-
-
      if [ -d /opt/cobaltstrike/third-party/trustedsec-remote-ops/.git ]; then
           echo -e "${BLUE}Updating CS - TrustedSec CS Remote OPs BOF.${NC}"
           cd /opt/cobaltstrike/third-party/trustedsec-remote-ops/ ; git pull
@@ -152,11 +154,11 @@ if [ -d /opt/cobaltstrike ]; then
      fi
 
      if [ -d /opt/cobaltstrike/third-party/trustedsec-sa/.git ]; then
-          echo -e "${BLUE}Updating CS - TrustedSec SA BOF.${NC}"
+          echo -e "${BLUE}Updating CS - TrustedSec Situational Awareness BOF.${NC}"
           cd /opt/cobaltstrike/third-party/trustedsec-sa/ ; git pull
           echo
      else
-          echo -e "${YELLOW}Installing CS - TrustedSec SA BOF.${NC}"
+          echo -e "${YELLOW}Installing CS - TrustedSec Situational Awareness BOF.${NC}"
           git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/cobaltstrike/third-party/trustedsec-sa
           echo
      fi

