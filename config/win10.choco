@@ -65,8 +65,8 @@ git clone https://github.com/leechristensen/SpoolSample.git C:\tools\SpoolSample
 git clone https://github.com/NetSPI/PowerUpSQL.git C:\tools\PowerUpSQL
 git clone https://github.com/nidem/kerberoast.git C:\tools\kerberoast
 git clone https://github.com/ohpe/juicy-potato.git C:\tools\juicy-potato
+git clone https://github.com/0xe7/PowerSploit.git C:\tools\PowerSploit
 git clone https://github.com/p3nt4/PowerShdll.git C:\tools\PowerShdll
-git clone https://github.com/PowerShellMafia/PowerSploit.git C:\tools\PowerSploit
 git clone https://github.com/rasta-mouse/MiscTools.git C:\tools\MiscTools
 git clone https://github.com/rasta-mouse/Sherlock.git C:\tools\Sherlock
 git clone https://github.com/rasta-mouse/Watson.git C:\tools\Watson

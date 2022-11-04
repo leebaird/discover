@@ -353,7 +353,7 @@ getprivs                                          Enable system privileges on cu
 getuid                                            Get User ID
 
 - PowerUp
-powershell-import /usr/share/windows-resources/powersploit/Privesc/PowerUp.ps1
+powershell-import /opt/PowerSploit/Privesc/PowerUp.ps1
 powerpick Invoke-PrivescAudit; "done"             Look for a vulnerable service
 Attacks > Packages > Windows Executable (S) > choose your listener
 Output: Windows Service EXE
@@ -428,7 +428,7 @@ lsadump::<module>                                 Interact with the Local Securi
 Right-click on a SYSTEM Beacon > Access > Make Token
 Select a user > Build
 
-powershell-import /usr/share/windows-resources/powersploit/Recon/PowerView.ps1
+powershell-import /opt/PowerSploit/Recon/PowerView.ps1
 powerpick Get-DomainUser <user>                   Show groups a user belongs to
 powerpick Get-DomainComputer -Ping -Properties dnshostname; "done"
 powerpick Get-NetLocalGroupMember <FQDN>          List users the administrator group on a remote computer

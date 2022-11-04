@@ -62,6 +62,15 @@ if [ ! -f /usr/bin/bloodhound ]; then
      echo
 fi
 
+if [ ! -f /usr/bin/go ]; then
+     echo -e "${YELLOW}Installing Go.${NC}"
+     apt install -y golang-go
+     mv ~/go /opt/
+     echo >> ~/.zshrc
+     echo 'export GOPATH=/opt/go/' >> ~/.zshrc
+     echo
+fi
+
 if [ -d /opt/cobaltstrike ]; then
      if [ -d /opt/cobaltstrike/elevatekit/.git ]; then
           echo -e "${BLUE}Updating CS - ElevateKit.${NC}"
@@ -259,15 +268,6 @@ else
      echo
 fi
 
-if [ ! -f /usr/bin/go ]; then
-     echo -e "${YELLOW}Installing Go.${NC}"
-     apt install -y golang-go
-     mv ~/go /opt/
-     echo >> ~/.zshrc
-     echo 'export GOPATH=/opt/go/' >> ~/.zshrc
-     echo
-fi
-
 if [ ! -f /usr/bin/gobuster ]; then
      echo -e "${YELLOW}Installing gobuster.${NC}"
      apt install -y gobuster
@@ -311,6 +311,16 @@ if [ -d /opt/PowerSharpPack/.git ]; then
 else
      echo -e "${YELLOW}Installing PowerSharpPack.${NC}"
      git clone https://github.com/S3cur3Th1sSh1t/PowerSharpPack /opt/PowerSharpPack
+     echo
+fi
+
+if [ -d /opt/PowerSploit/.git ]; then
+     echo -e "${BLUE}Updating PowerSploit.${NC}"
+     cd /opt/PowerSploit/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing PowerSploit.${NC}"
+     git clone https://github.com/0xe7/PowerSploit /opt/PowerSploit
      echo
 fi
 

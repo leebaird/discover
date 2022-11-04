@@ -7,7 +7,6 @@ net user /domain                                  Domain users
 net user <user> /domain                           Security groups a domain user belongs to
 net group /domain                                 Security groups in a domain
 
-
 net group "Domain Computers" /domain
 net group "Domain Admins" /domain                 Users in the Domain Admins Security Group
 net group "Enterprise Admins" /domain             Users in the Enterprise Admins Security Group
@@ -15,7 +14,6 @@ net users
 systeminfo
 nltest /dclist:<domain>                           Domain controllers for a given domain
 nltest /domain_trusts /all_trusts                 Domain trusts
-
 
 AdFind.exe -f "(objectcategory=person)" > ad_users.txt
 AdFind.exe -f "(objectcategory=computer)" > ad_computers.txt
