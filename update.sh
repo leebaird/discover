@@ -162,6 +162,19 @@ if [ -d /opt/cobaltstrike ]; then
           git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/cobaltstrike/third-party/trustedsec-sa
           echo
      fi
+
+     if [ -d /opt/cobaltstrike/third-party/tylous-sourcepoint/.git ]; then
+          echo -e "${BLUE}Updating CS - Tylous SourcePoint.${NC}"
+          cd /opt/cobaltstrike/third-party/tylous-sourcepoint/ ; git pull
+          echo
+     else
+          echo -e "${YELLOW}Installing CS - Tylous SourcePoint.${NC}"
+          git clone https://github.com/Tylous/SourcePoint /opt/cobaltstrike/third-party/tylous-sourcepoint
+          cd /opt/cobaltstrike/third-party/tylous-sourcepoint/
+          go get gopkg.in/yaml.v2
+          go build SourcePoint.go
+          echo
+     fi
 fi
 
 if [ -d /opt/discover/.git ]; then

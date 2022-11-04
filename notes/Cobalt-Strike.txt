@@ -42,7 +42,13 @@ mv arsenal-kit /opt/cobaltstrike/
 
 # Create a random C2 profile
 
-cd third-party/FortyNorthSecurity-C2concealer/
+- Option 1
+cd /opt/cobaltstrike/third-party/tylous-sourcepoint
+go build SourcePoint.go
+./SourcePoint -Host <IP> -Injector VirtualAllocEx -Outfile <name>.profile
+
+- Option 2
+cd /opt/cobaltstrike/third-party/FortyNorthSecurity-C2concealer/
 chmod 755 install.sh
 ./install.sh
 C2concealer --variant 3 --hostname target.com
