@@ -16,7 +16,7 @@ fi
 
 # Clean up
 if [ -d /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/.git ]; then
-      rm -rf /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/
+     rm -rf /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/
 fi
 
 if [ -d /opt/cobaltstrike/third-party/chryzsh-scripts/.git ]; then
@@ -32,7 +32,11 @@ if [ -d /opt/cobaltstrike/third-party/DidierStevens-DNS-stager/.git ]; then
 fi
 
 if [ -d /opt/cobaltstrike/third-party/trustedsec-bof/  ]; then
-      rm -rf /opt/cobaltstrike/third-party/trustedsec-bof/
+     rm -rf /opt/cobaltstrike/third-party/trustedsec-bof/
+fi
+
+if [ -d /opt/cobaltstrike/third-party/taowu-scripts/.git ]; then
+     rm -rf /opt/cobaltstrike/third-party/taowu-scripts/
 fi
 
 # -----------------------------------------------------------------------------------------------
@@ -139,16 +143,6 @@ if [ -d /opt/cobaltstrike ]; then
      else
           echo -e "${YELLOW}Installing CS - Outflanknl HelpColor.${NC}"
           git clone https://github.com/outflanknl/HelpColor /opt/cobaltstrike/third-party/outflanknl-helpcolor
-          echo
-     fi
-
-     if [ -d /opt/cobaltstrike/third-party/taowu-scripts/.git ]; then
-          echo -e "${BLUE}Updating CS - taowu aggressor scripts.${NC}"
-          cd /opt/cobaltstrike/third-party/taowu-scripts/ ; git pull
-          echo
-     else
-          echo -e "${YELLOW}Installing CS - taowu aggressor scripts.${NC}"
-          git clone https://github.com/pandasec888/taowu-cobalt-strike /opt/cobaltstrike/third-party/taowu-scripts
           echo
      fi
 
@@ -271,6 +265,17 @@ fi
 if [ ! -f /usr/bin/gobuster ]; then
      echo -e "${YELLOW}Installing gobuster.${NC}"
      apt install -y gobuster
+     echo
+fi
+
+if [ -d /opt/Havoc/.git ]; then
+     echo -e "${BLUE}Updating Havoc.${NC}"
+     cd /opt/Havoc/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing Havoc.${NC}"
+     git clone https://github.com/HavocFramework/Havoc /opt/Havoc
+     apt install -y git build-essential apt-utils cmake libfontconfig1 libglu1-mesa-dev libgtest-dev libspdlog-dev libboost-all-dev libncurses5-dev libgdbm-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev libbz2-dev mesa-common-dev qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libqt5websockets5 libqt5websockets5-dev qtdeclarative5-dev golang-go qtbase5-dev libqt5websockets5-dev libspdlog-dev python3-dev libboost-all-dev mingw-w64 nasm
      echo
 fi
 

