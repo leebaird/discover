@@ -35,6 +35,6 @@ alias w2="echo $ip ; python3 -m http.server 8000"
 #-----------------------------------------------------------------------------------------------
 
 alias bh='neo4j console & ; sleep 6 ; bloodhound'
-alias cs='cd /opt/cobaltstrike/ ; ./teamserver $ip password & ; sleep 5 ; ./cobaltstrike'
+alias cs='cd /opt/cobaltstrike/ ; ./teamserver $ip password <Malleable C2 prfile> & ; sleep 5 ; ./cobaltstrike'
 alias csr='ssh -f -N -L 50050:localhost:50050 <Hostname from SSH config> ; cd /opt/cobaltstrike ; ./cobaltstrike'
 alias pc='/opt/pycharm-community-2022.2.1/bin/pycharm.sh'

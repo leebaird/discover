@@ -411,6 +411,8 @@ cat subdomains tmp | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(outl
 
 cat z* subdomains-final | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(0.0.0.0|1.1.1.1|127.0.0.1)' | sort -u | $sip > hosts
 
+find . -type f -empty -delete
+
 ###############################################################################################################################
 
 if [ -f networks-final ]; then
@@ -426,7 +428,7 @@ echo "Summary" > zreport
 echo $short >> zreport
 echo > tmp
 
-if [ -s emails-final ]; then
+if [ -f emails-final ]; then
      emailcount=$(wc -l emails-final | cut -d ' ' -f1)
      echo "Emails               $emailcount" >> zreport
      echo "Emails ($emailcount)" >> tmp
@@ -440,7 +442,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/emails.htm
 fi
 
-if [ -s names-final ]; then
+if [ -f names-final ]; then
      namecount=$(wc -l names-final | cut -d ' ' -f1)
      echo "Names                $namecount" >> zreport
      echo "Names ($namecount)" >> tmp
@@ -455,7 +457,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/names.htm
 fi
 
-if [ -s records ]; then
+if [ -f records ]; then
      recordcount=$(wc -l records | cut -d ' ' -f1)
      echo "DNS Records          $recordcount" >> zreport
      echo "DNS Records ($recordcount)" >> tmp
@@ -464,7 +466,7 @@ if [ -s records ]; then
      echo >> tmp
 fi
 
-if [ -s networks-final ]; then
+if [ -f networks-final ]; then
      networkcount=$(wc -l networks-final | cut -d ' ' -f1)
      echo "Networks             $networkcount" >> zreport
      echo "Networks ($networkcount)" >> tmp
@@ -482,7 +484,7 @@ if [ -f hosts ]; then
      echo >> tmp
 fi
 
-if [ -s registered-domains ]; then
+if [ -f registered-domains ]; then
      x=$(wc -l registered-domains | cut -d ' ' -f1)
      domaincount=$((x-1))
      echo "Registered Domains   $domaincount" >> zreport
@@ -499,7 +501,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/registered-domains.htm
 fi
 
-if [ -s squatting ]; then
+if [ -f squatting ]; then
      urlcount2=$(wc -l squatting | cut -d ' ' -f1)
      echo "Squatting            $urlcount2" >> zreport
      echo "Squatting ($urlcount2)" >> tmp
@@ -523,11 +525,21 @@ if [ -f subdomains-final ]; then
      cat subdomains-final >> $home/data/$domain/data/subdomains.htm
      echo "</pre>" >> $home/data/$domain/data/subdomains.htm
 else
-     echo "No data found." >> $home/data/$domain/data/subdomains.htm
-     echo "</pre>" >> $home/data/$domain/data/subdomains.htm
+     if [ -f subdomains ]; then
+          urlcount=$(wc -l subdomains | cut -d ' ' -f1)
+          echo "Subdomains           $urlcount" >> zreport
+          echo "Subdomains ($urlcount)" >> tmp
+          echo $long >> tmp
+          cat subdomains >> tmp
+          echo >> tmp
+          cat subdomains >> $home/data/$domain/data/subdomains.htm
+          echo "</pre>" >> $home/data/$domain/data/subdomains.htm
+     else
+          echo "No data found." >> $home/data/$domain/data/subdomains.htm
+          echo "</pre>" >> $home/data/$domain/data/subdomains.htm
 fi
 
-if [ -s xls ]; then
+if [ -f xls ]; then
      xlscount=$(wc -l xls | cut -d ' ' -f1)
      echo "Excel                $xlscount" >> zreport
      echo "Excel Files ($xlscount)" >> tmp
@@ -541,7 +553,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/xls.htm
 fi
 
-if [ -s pdf ]; then
+if [ -f pdf ]; then
      pdfcount=$(wc -l pdf | cut -d ' ' -f1)
      echo "PDF                  $pdfcount" >> zreport
      echo "PDF Files ($pdfcount)" >> tmp
@@ -555,7 +567,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/pdf.htm
 fi
 
-if [ -s ppt ]; then
+if [ -f ppt ]; then
      pptcount=$(wc -l ppt | cut -d ' ' -f1)
      echo "PowerPoint           $pptcount" >> zreport
      echo "PowerPoint Files ($pptcount)" >> tmp
@@ -569,7 +581,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/ppt.htm
 fi
 
-if [ -s txt ]; then
+if [ -f txt ]; then
      txtcount=$(wc -l txt | cut -d ' ' -f1)
      echo "Text                 $txtcount" >> zreport
      echo "Text Files ($txtcount)" >> tmp
@@ -583,7 +595,7 @@ else
      echo "</pre>" >> $home/data/$domain/data/txt.htm
 fi
 
-if [ -s doc ]; then
+if [ -f doc ]; then
      doccount=$(wc -l doc | cut -d ' ' -f1)
      echo "Word                 $doccount" >> zreport
      echo "Word Files ($doccount)" >> tmp
