@@ -262,6 +262,16 @@ else
      echo
 fi
 
+if [ -d /opt/Freeze/.git ]; then
+     echo -e "${BLUE}Updating Freeze.${NC}"
+     cd /opt/Freeze/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing Freeze.${NC}"
+     git clone https://github.com/optiv/Freeze /opt/Freeze
+     echo
+fi
+
 if [ ! -f /usr/bin/gobuster ]; then
      echo -e "${YELLOW}Installing gobuster.${NC}"
      apt install -y gobuster
