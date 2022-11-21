@@ -62,7 +62,8 @@ Run c2lint against your new profile to check for possible OPSEC issues.
 
 # OPSEC: If you manually create a new C2 profile, change the following options:
 
-set host_stage          "false";t pipename     "changeme_###";     The default SMB Beacon named pipe is msagent_###
+set host_stage          "false";
+set pipename            "changeme_###";        The default SMB Beacon named pipe is msagent_###
 set pipename_stager     "changeme_##";         The default is status_##
 set ssh_banner          "changeme";            The default SSH banner is Cobalt Strike 4.2
 set ssh_pipename        "changeme_####";       The default SSH Beacon named pipe is postex_ssh_####
@@ -269,6 +270,10 @@ Output: Raw
 x64: Use x64 payload
 Generate > Save > OK
 Feed this raw shellcode into Freeze, msfvenom, or NinSyscallPacker ($) to bypass AV.
+
+- See what causes your payload to flag Windows Defender
+https://github.com/matterpreter/DefenderCheck
+https://github.com/rasta-mouse/ThreatCheck
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Interact with a Beacon

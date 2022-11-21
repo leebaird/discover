@@ -408,6 +408,18 @@ else
      echo
 fi
 
+if [ -d /opt/subfinder/.git ]; then
+     echo -e "${BLUE}Updating subfinder.${NC}"
+     cd /opt/subfinder/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing subfinder.${NC}"
+     git clone https://github.com/projectdiscovery/subfinder /opt/subfinder
+     cd /opt/subfinder/v2/cmd/subfinder
+     go build
+     echo
+fi
+
 if [ -d /opt/theHarvester/.git -a -d /opt/theHarvester-venv ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
