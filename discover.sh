@@ -66,6 +66,7 @@ export port
 export range
 export rundate
 export sip
+export terminate
 
 export long
 export medium
@@ -161,9 +162,9 @@ mv $name/ $save_dir 2>/dev/null
 
 if [ "$recon" == "1" ]; then
      # Move passive files
-     mkdir -p $save_dir/passive/recon-ng/
      cd $discover/
      mv curl debug* email* hosts name* network* records registered* squatting sub* tmp* ultratools usernames-recon whois* z* doc pdf ppt txt xls $save_dir/passive/ 2>/dev/null
+     mkdir -p $save_dir/passive/recon-ng/
      cd /tmp/; mv emails names* networks subdomains usernames $save_dir/passive/recon-ng/ 2>/dev/null
      cd $discover
 else

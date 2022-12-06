@@ -54,7 +54,7 @@ RECON
 4.  Previous menu
 ```
 
-Passive uses Amass, ARIN, DNSRecon, dnstwist, goog-mail, goohost, theHarvester,
+Passive uses ARIN, DNSRecon, dnstwist, goog-mail, goohost, theHarvester,
     Metasploit, Whois, multiple websites, and recon-ng.
 
 Active uses DNSRecon, recon-ng, Traceroute, wafw00f, and Whatweb.
