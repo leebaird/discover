@@ -312,7 +312,7 @@ done < tmp
 
 cat raw | sed 's/:,/:/g' | grep -v localhost | column -t -s ':' | sed 's/,/, /g' > subdomains
 
-cat z* | egrep -iv '(@|:|\.|atlanta|boston|captcha|detroit|google|maryland|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g' | sed '/[0-9]/d' | sed 's/ - /,/g; s/ /,/1' | awk -F ',' '{print $2"#"$1"#"$3}' | sed '/^[[:alpha:]]\+ [[:alpha:]]\+#/ s/^[[:alpha:]]\+ //' | sed 's/^[ \t]*//' | sort -u > names
+cat z* | egrep -iv '(@|:|\.|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g' | sed '/[0-9]/d' | sed 's/ - /,/g; s/ /,/1' | awk -F ',' '{print $2"#"$1"#"$3}' | sed '/^[[:alpha:]]\+ [[:alpha:]]\+#/ s/^[[:alpha:]]\+ //' | sed 's/^[ \t]*//' | sort -u > names
 
 cat z* | cut -d ':' -f2 | grep -E '\.doc$|\.docx$' > doc
 cat z* | cut -d ':' -f2 | grep -E '\.ppt$|\.pptx$' > ppt
@@ -372,7 +372,7 @@ find . -type f -empty -delete
 ###############################################################################################################################
 
 if [ -f networks-final ]; then
-     cat networks-final > tmp 2>/dev/null
+     cat networks-final > tmp
      echo >> tmp
 fi
 
@@ -458,9 +458,9 @@ else
 fi
 
 if [ -f squatting ]; then
-     urlcount2=$(wc -l squatting | cut -d ' ' -f1)
-     echo "Squatting            $urlcount2" >> zreport
-     echo "Squatting ($urlcount2)" >> tmp
+     squattingcount=$(wc -l squatting | cut -d ' ' -f1)
+     echo "Squatting            $squattingcount" >> zreport
+     echo "Squatting ($squattingcount)" >> tmp
      echo $long >> tmp
      cat squatting >> tmp
      echo >> tmp
@@ -493,6 +493,7 @@ else
      else
           echo "No data found." >> $home/data/$domain/data/subdomains.htm
           echo "</pre>" >> $home/data/$domain/data/subdomains.htm
+     fi
 fi
 
 if [ -f xls ]; then

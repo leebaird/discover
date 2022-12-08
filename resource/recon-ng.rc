@@ -4,37 +4,5 @@ modules load recon/domains-contacts/pen
 run
 modules load recon/domains-contacts/pgp_search
 run
-modules load recon/domains-contacts/whois_pocs
-run
-
-db query DELETE FROM domains WHERE rowid > 1
-
-modules load recon/companies-domains/pen
-run
-
-db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
-db query DELETE FROM hosts WHERE host LIKE '%www%'
-db query DELETE FROM ports WHERE host NOT LIKE '%.yyy%'
-db query DELETE FROM ports WHERE host LIKE '%www%'
-
-modules load recon/contacts-credentials/hibp_breach
-run
-
-db query DELETE FROM credentials WHERE username NOT LIKE '%@yyy%'
-
-modules load recon/contacts-credentials/hibp_paste
-run
-
-db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
-db query DELETE FROM hosts WHERE host LIKE '%www%'
-db query DELETE FROM ports WHERE host NOT LIKE '%.yyy%'
-db query DELETE FROM ports WHERE host LIKE '%www%'
-
-modules load recon/domains-hosts/certificate_transparency
-run
-
-db query DELETE FROM hosts WHERE host NOT LIKE '%.yyy%'
-db query DELETE FROM hosts WHERE host LIKE '%www%'
-
 modules load recon/hosts-hosts/resolve
 run
