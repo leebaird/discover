@@ -16,6 +16,7 @@ cut -f 2-                                                     Print from the sec
 awk '{print $NF}'                                             Print the last column
 awk '{print $2}'                                              Print the second column
 awk '{print $2,$5}'                                           Print the second and fifth columns
+awk '{printf "%-25s %s\n", $1, $2}'                           Print with the second column starting at 25 spaces
 awk -F "https://" '{print $2}'                                Use a string as a delimiter, then print the second column
 
 head                                                          Print the first 10 lines
@@ -105,6 +106,8 @@ awk '{print $2 " " $1}'                                       Print the second c
 find . -type f -empty -delete                                 Remove all empty files in a folder
 sed 's/[A-Z]\{2\},//g'                                        Remove any 2 capital letters followed by a comma
 sed '/^$/d'                                                   Remove blank lines
+sed '/./,$!d'                                                 Remove blank lines from the beginning of a file
+sed -e :a -e '/^\n*$/{$d;N;ba' -e '}'                         Remove blank lines from the end of a file
 sed 's/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g'                 Remove dates (mm/dd/yy)
 cat -s                                                        Remove double spacing
 sed 's/^....//'                                               Remove first 4 characters from each line

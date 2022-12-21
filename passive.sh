@@ -254,12 +254,14 @@ sed 's/: /:#####/g' tmp13 | column -s '#' -t > whois-domain
 echo "     IP                   (40/$total)"
 ip=`ping -c1 $domain | grep PING | cut -d '(' -f2 | cut -d ')' -f1`
 whois $ip > tmp
-egrep -v '(\#|\%|\*|All reports|Comment|dynamic hosting|For fastest|For more|Found a referral|http|OriginAS:$|Parent:$|point in|RegDate:$|remarks:|The activity|the correct|this kind of object|Without these)' tmp > tmp2
-# Remove leading whitespace from file
-awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp2 > tmp3
-# Remove blank lines from end of file
-awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp3 > tmp4
-cat -s tmp4 > whois-ip
+# Remove blank lines from the beginning of a file
+egrep -v '(#|Comment:)' tmp | sed '/./,$!d' > tmp2
+# Remove blank lines from the end of a file
+sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' tmp2 > tmp3
+# Compress blank lines
+cat -s tmp3 > tmp4
+# Print with the second column starting at 25 spaces
+awk '{printf "%-25s %s\n", $1, $2}' tmp4 > whois-ip
 rm tmp*
 echo
 
@@ -357,7 +359,7 @@ recon-ng -r $CWD/passive.rc
 grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|query|SELECT)' | sort -u > emails2
 cat emails emails2 | sort -u > emails-final
 
-sed '1,4d' /tmp/names | head -n -5 | egrep -v '(last_name|substring)' | sort -u > names-final
+grep '|' /tmp/names | grep -v last_name | sort -u | sed 's/|/ /g' | sed 's/^[ \t]*//' > names-final
 
 grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > tmp
 cat tmp networks | sort -u | $sip > networks-final
@@ -403,10 +405,13 @@ if [ -f names-final ]; then
      echo "Names                $namecount" >> zreport
      echo "Names ($namecount)" >> tmp
      echo $long >> tmp
+     echo 'Last name            First name' >> tmp
+     echo '-------------------------------' >> tmp
      cat names-final >> tmp
      echo >> tmp
+     echo 'Last name            First name' >> $home/data/$domain/data/names.htm
+     echo '-------------------------------' >> $home/data/$domain/data/names.htm
      cat names-final >> $home/data/$domain/data/names.htm
-     echo "</center>" >> $home/data/$domain/data/names.htm
      echo "</pre>" >> $home/data/$domain/data/names.htm
 else
      echo "No data found." >> $home/data/$domain/data/names.htm
