@@ -7,15 +7,15 @@ ip=$(hostname -I | awk '{print $1}')
 mac=$(ip a | grep ether | awk '{print $2}')
 
 alias c='clear'
-alias cl='clear ; ls -l --color=auto'
-alias cla='clear ; ls -la --color=auto'
+alias cl='clear ; ls -lh --color=auto'
+alias cla='clear ; ls -lah --color=auto'
 alias d='cd $HOME/Desktop/ ; clear'
 alias date='date +"%a %b %d, %Y - %r %Z"'
 alias e='exit'
 alias k='cd /home/kali/'
 alias kd='cd /home/kali/Desktop/'
 alias l='ls -lh'
-alias la='ls -la'
+alias la='ls -lah'
 alias m='service postgresql start ; msfdb init ; msfconsole'
 alias n='echo;
 echo -n "External IP:  "$extip ; echo ;

@@ -405,12 +405,12 @@ if [ -f names-final ]; then
      echo "Names                $namecount" >> zreport
      echo "Names ($namecount)" >> tmp
      echo $long >> tmp
-     echo 'Last name            First name' >> tmp
-     echo '-------------------------------' >> tmp
+     echo 'Last name       First name' >> tmp
+     echo '--------------------------' >> tmp
      cat names-final >> tmp
      echo >> tmp
-     echo 'Last name            First name' >> $home/data/$domain/data/names.htm
-     echo '-------------------------------' >> $home/data/$domain/data/names.htm
+     echo 'Last name       First name' >> $home/data/$domain/data/names.htm
+     echo '--------------------------' >> $home/data/$domain/data/names.htm
      cat names-final >> $home/data/$domain/data/names.htm
      echo "</pre>" >> $home/data/$domain/data/names.htm
 else
@@ -607,8 +607,6 @@ cd $CWD
 
 echo
 echo $medium
-echo
-echo "***Scan complete.***"
 echo
 echo
 echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${NC}\n"

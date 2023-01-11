@@ -110,6 +110,7 @@ sed '/./,$!d'                                                 Remove blank lines
 sed -e :a -e '/^\n*$/{$d;N;ba' -e '}'                         Remove blank lines from the end of a file
 sed 's/[0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{2\}//g'                 Remove dates (mm/dd/yy)
 cat -s                                                        Remove double spacing
+sed 's/[a-zA-Z0-9\-]*@acme.org//g'                            Remove emails from a particular domain
 sed 's/^....//'                                               Remove first 4 characters from each line
 sed '1,5d'                                                    Remove first 5 lines
 sed 's/^[ \t]*//; s/[ \t]*$//'                                Remove leading and trailing whitespace from each line
