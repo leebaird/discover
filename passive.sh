@@ -261,7 +261,7 @@ sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' tmp2 > tmp3
 # Compress blank lines
 cat -s tmp3 > tmp4
 # Print with the second column starting at 25 spaces
-awk '{printf "%-25s %s\n", $1, $2}' tmp4 > whois-ip
+awk '{printf "%-25s %s\n", $1, $2}' tmp4 | sed 's/+1-//g' > whois-ip
 rm tmp*
 echo
 
@@ -443,23 +443,6 @@ if [ -f hosts ]; then
      echo $long >> tmp
      cat hosts >> tmp
      echo >> tmp
-fi
-
-if [ -f registered-domains ]; then
-     x=$(wc -l registered-domains | cut -d ' ' -f1)
-     domaincount=$((x-1))
-     echo "Registered Domains   $domaincount" >> zreport
-     echo "Registered Domains ($domaincount)" >> tmp
-     echo $long >> tmp
-     cat registered-domains >> tmp
-     echo >> tmp
-     echo "Domains registered to $company using a corporate email." >> $home/data/$domain/data/registered-domains.htm
-     echo >> $home/data/$domain/data/registered-domains.htm
-     cat registered-domains >> $home/data/$domain/data/registered-domains.htm
-     echo "</pre>" >> $home/data/$domain/data/registered-domains.htm
-else
-     echo "No data found." >> $home/data/$domain/data/registered-domains.htm
-     echo "</pre>" >> $home/data/$domain/data/registered-domains.htm
 fi
 
 if [ -f squatting ]; then
