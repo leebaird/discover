@@ -606,6 +606,8 @@ xdg-open https://www.shodan.io/search?query=$domain &
 sleep 4
 xdg-open https://www.shodan.io/search?query=org:%22$companyurl%22 &
 sleep 4
+xdg-open https://www.owler.com/company/$companyurl
+sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22index+of/%22+OR+%22parent+directory%22 &
 sleep 4
 xdg-open https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
