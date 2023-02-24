@@ -30,7 +30,7 @@ case $recon in
 
      f_location
      echo
-     sed -n '/Created Date/,/Whois Lookup/p' $location | egrep -iv '(created date|benefits of)' | awk '{print $2}' | sort -u > tmp
+     grep '^[0-9]' $location | awk '{print $2}' | sort -u > tmp
      total=$(wc -l tmp | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 
      while read regdomain; do
