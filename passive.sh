@@ -76,7 +76,7 @@ if [ -f zhandles.txt ]; then
           curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -k -s https://whois.arin.net/rest/poc/$i.txt | grep 'Name' >> tmp
      done
 
-     egrep -iv "($company|@|abuse|center|domainnames|helpdesk|hostmaster|network|technical|telecom)" tmp > tmp2
+     egrep -iv "($company|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
      cat tmp2 | sed 's/Name:           //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp3
      awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sort -u > zarin-names
 fi
@@ -365,7 +365,7 @@ cat tmp networks | sort -u | $sip > networks-final
 grep "\.$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > tmp
 cat subdomains tmp | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(outlook|www)' | column -t | sort -u | sed 's/[ \t]*$//' > subdomains-final
 
-cat z* subdomains-final | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(0.0.0.0|1.1.1.1|127.0.0.1)' | sort -u | $sip > hosts
+cat z* subdomains-final | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(0.0.0.0|1.1.1.1|1.1.1.2|127.0.0.1)' | sort -u | $sip > hosts
 
 find . -type f -empty -delete
 
@@ -603,8 +603,6 @@ sleep 4
 xdg-open https://www.shodan.io/search?query=$domain &
 sleep 4
 xdg-open https://www.shodan.io/search?query=org:%22$companyurl%22 &
-sleep 4
-xdg-open https://www.owler.com &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22index+of/%22+OR+%22parent+directory%22 &
 sleep 4
