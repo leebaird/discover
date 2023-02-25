@@ -156,30 +156,30 @@ echo "     binaryedge           (12/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b binaryedge | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbinaryedge
 echo "     bing                 (13/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b bing | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing
-echo "     bufferoverun         (14/$total)"
+echo "     bing API             (14/$total)"
+/opt/theHarvester/theHarvester.py -d $domain -b bingapi | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing-api
+echo "     bufferoverun         (15/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b bufferoverun | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbufferoverun
-echo "     censys               (15/$total)"
+echo "     censys               (16/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b censys | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcensys
-echo "     certspotter          (16/$total)"
+echo "     certspotter          (17/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b certspotter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcertspotter
-echo "     crtsh                (17/$total)"
+echo "     crtsh                (18/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b crtsh | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcrtsh
-echo "     dnsdumpster          (18/$total)"
+echo "     dnsdumpster          (19/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdnsdumpster
-echo "     duckduckgo           (19/$total)"
+echo "     duckduckgo           (20/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b duckduckgo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zduckduckgo
-echo "     fullhunt             (20/$total)"
+echo "     fullhunt             (21/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b fullhunt | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zfullhunt
-echo "     github-code          (21/$total)"
+echo "     github-code          (22/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b github-code | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgithub-code
-echo "     hackertarget         (22/$total)"
+echo "     hackertarget         (23/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b hackertarget | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhackertarget
-echo "     hunter               (23/$total)"
+echo "     hunter               (24/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunter
-echo "     intelx               (24/$total)"
+echo "     intelx               (25/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
-echo "     omnisint             (25/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b omnisint | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zomnisint
 echo "     otx                  (26/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zotx
 echo "     pentesttools         (27/$total)"
