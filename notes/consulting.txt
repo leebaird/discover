@@ -1,37 +1,36 @@
 Consulting
 
 
-# Tool box
-    Update your tools
-    Power strip
-    4 port switch
-    25’ CAT6 cable
-    (2) 6’ CAT6 cables
-    (2) Thunderbolt to Ethernet adapters
+# Backpack
+     Update your VMs and tools.
+     Power strip and extension chord.
+     4 port switch.
+     25’ CAT6 cable.
+     (2) 6’ CAT6 cables.
+     (2) USB C ethernet adapters.
 
 # Dress
-    No hats.
-    Don’t wear sunglasses inside the building.
-    Hair - slicked back in a ponytail.
-    Beards are fine, just make sure to shave.
-    Shirt - button up, pressed, one button from the top, tucked in.
-    Pants - pressed, no jeans.
-    Belt
-    Shoes - shinny
+     No hats or sunglasses inside.
+     Shave
+     Long hair should be slicked back in a ponytail.
+     Shirt - pressed button up, one button from the top, tucked in.
+     Pants - pressed, belt, no jeans.
+     Shoes - shined.
 
 # Set expectations up front
-    Days
-    Start, lunch, and stop times
-    Deliverable
+     Number of days.
+     Start, lunch, and stop times.
+     Status updates.
+     Deliverable.
 
-# Beware of your environment
-    Where are the bathrooms?
-    People will be watching AND listening.
-    Leave your area clean.
+# Know your environment
+     Location of bathroom.
+     People will be watching AND listening.
+     Leave your area clean.
 
 # Client
-    Treat them as an officer (yes sir, no ma’am).
-    Be responsive.
-    Control the client and the engagement, don’t let them control you.
-    Hovering
-    You are not there to teach.
+     Treat them with respect (yes sir, no ma’am).
+     Be responsive.
+     Control the client and the engagement, don’t let them control you.
+     Beware hovering.
+     You are not there to teach.
