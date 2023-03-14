@@ -69,10 +69,10 @@ fi
 if [ ! -f /usr/bin/go ]; then
      echo -e "${YELLOW}Installing Go.${NC}"
      apt install -y golang-go
-     mv ~/go /opt/
      echo >> ~/.zshrc
      echo 'export GOPATH=/opt/go/' >> ~/.zshrc
      echo
+     mv /root/go/ /opt/
 fi
 
 if [ -d /opt/cobaltstrike ]; then
@@ -259,6 +259,12 @@ if [ -d /opt/egressbuster/.git ]; then
 else
      echo -e "${YELLOW}Installing egressbuster.${NC}"
      git clone https://github.com/trustedsec/egressbuster /opt/egressbuster
+     echo
+fi
+
+if [ ! -f /usr/bin/feroxbuster ]; then
+     echo -e "${YELLOW}Installing feroxbuster.${NC}"
+     apt install -y feroxbuster
      echo
 fi
 
