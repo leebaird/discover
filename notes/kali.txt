@@ -136,8 +136,3 @@ Linux > Binary download for Linux > AMD64
 unzip <package>
 mv terraform /usr/local/bin/
 rm <package>
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Add API keys
-
-/etc/theHarvester/api-keys.yaml
