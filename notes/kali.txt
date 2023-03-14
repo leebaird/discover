@@ -119,20 +119,20 @@ rm <package>
 - Nim
 https://nim-lang.org/install_unix.html
 Download x86_64 tarball
-tar xf nim-1.6.8-linux_x64.tar.xz
-mv nim-1.6.8 /opt/
-echo 'export PATH=$PATH:/opt/nim-1.6.8/bin/' >> ~/.zshrc
+tar xf <package>
+mv nim-1.6.12 /opt/
+echo 'export PATH=$PATH:/opt/nim-1.6.12/bin/' >> ~/.zshrc
 source ~/.zshrc
 
 - PyCharm
 https://www.jetbrains.com/pycharm/download/#section=linux
 tar zxf <package>
-mv pycharm-community-2022.2.1 /opt/
+mv pycharm-community-2022.3.3 /opt/
 rm <package>
 
 - Terraform
 https://www.terraform.io/downloads
-Ubuntu/Debian > LINUX BINARY DOWNLOAD > Amd64
+Linux > Binary download for Linux > AMD64
 unzip <package>
 mv terraform /usr/local/bin/
 rm <package>
