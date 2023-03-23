@@ -191,6 +191,8 @@ if [ -d /opt/DNSRecon/.git -a -d /opt/DNSRecon-venv ]; then
      cd /opt/DNSRecon/ ; git pull
      source /opt/DNSRecon-venv/bin/activate
      pip3 install -r requirements.txt --upgrade
+     # If you are in a corp env that is doing MITM with SSL use the following line instead.
+#     pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade
      deactivate
      echo
 else
@@ -202,6 +204,7 @@ else
      source /opt/DNSRecon-venv/bin/activate
      cd /opt/DNSRecon/
      pip3 install -r requirements.txt
+#     pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
      deactivate
      echo
 fi
@@ -248,6 +251,7 @@ else
      source /opt/Egress-Assess-venv/bin/activate
      cd /opt/Egress-Assess
      pip3 install -r requirements.txt
+#     pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
      deactivate
      echo
 fi
@@ -399,6 +403,7 @@ if [ -d /opt/spoofcheck/.git -a -d /opt/spoofcheck-venv ]; then
      cd /opt/spoofcheck/ ; git pull
      source /opt/spoofcheck-venv/bin/activate
      pip3 install -r requirements.txt --upgrade
+#     pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade
      deactivate
      echo
 else
@@ -410,6 +415,7 @@ else
      source /opt/spoofcheck-venv/bin/activate
      cd /opt/spoofcheck/
      pip3 install -r requirements.txt
+#     pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
      deactivate
      echo
 fi
@@ -431,6 +437,7 @@ if [ -d /opt/theHarvester/.git -a -d /opt/theHarvester-venv ]; then
      cd /opt/theHarvester/ ; git pull
      source /opt/theHarvester-venv/bin/activate
      /opt/theHarvester-venv/bin/pip3 install -r requirements.txt --upgrade
+#     /opt/theHarvester-venv/bin/pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade
      deactivate
      echo
 else
@@ -442,6 +449,7 @@ else
      source /opt/theHarvester-venv/bin/activate
      cd /opt/theHarvester/
      /opt/theHarvester-venv/bin/pip3 install -r requirements.txt
+#     /opt/theHarvester-venv/bin/pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
      deactivate
      echo
 fi
