@@ -389,6 +389,9 @@ nmap -Pn -n -T4 --open -p443 --script-timeout 20s -sV --min-hostgroup 100 --scri
 - Default configurations and files
 nikto -h http://$url -Format htm --output nikto.htm
 
+- Brute force subdomains
+wfuzz -u http://<target IP> -H "Host: FUZZ.acme.org" -w /opt/SecLists/Discovery/DNS/subdomains-top1million-5000.txt 
+
 - Brute force directories
 If the website uses PHP, add -x php
 gobuster dir -u <target IP> -w /usr/share/wordlists/dirb/common.txt -x php
