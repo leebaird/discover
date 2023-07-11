@@ -363,7 +363,7 @@ recon-ng -r $CWD/passive.rc
 grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|query|SELECT)' | sort -u > emails2
 cat emails emails2 | sort -u > emails-final
 
-grep '|' /tmp/names | grep -v last_name | sort -u | sed 's/|/ /g' | sed 's/^[ \t]*//' > names-final
+grep '|' /tmp/names | grep -v last_name | sort -u | sed 's/|/ /g' | sed 's/[ \t]*$//' > names-final
 
 grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > tmp
 cat tmp networks | sort -u | $sip > networks-final
@@ -608,6 +608,10 @@ xdg-open https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
 sleep 4
 xdg-open https://www.shodan.io/search?query=$domain &
 sleep 4
+xdg-open https://www.google.com/search?q=site:$domain+%22proprietary%22 &
+sleep 4
+xdg-open https://www.google.com/search?q=site:$domain+%22confidential%22 &
+sleep 4
 xdg-open https://www.shodan.io/search?query=org:%22$companyurl%22 &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22index+of/%22+OR+%22parent+directory%22 &
@@ -620,7 +624,7 @@ xdg-open https://www.google.com/search?q=site:$domain+Atlassian+OR+jira+-%22Job+
 sleep 4
 xdg-open https://networksdb.io/search/org/%22$companyurl%22 &
 sleep 4
-xdg-open https://www.google.com/search?q=site:pastebin.com+%22$companyurl%22+password &
+xdg-open https://www.google.com/search?q=site:pastebin.com+%22$domain%22+password &
 sleep 6
 xdg-open https://www.google.com/search?q=site:$domain+ext:doc+OR+ext:docx &
 sleep 7
