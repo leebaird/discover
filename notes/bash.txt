@@ -171,12 +171,20 @@ pipe (|)                                                      Uses output from t
 
 # Check for argument. If not given, print the usage
 if [ -z "$1" ]; then
+     echo
      echo "Usage: $0 <domain name>"
-     exit
+     exit 1
+fi
+
+# Check for two arguments. If not given, print the usage
+if [ $# -ne 2 ]; then
+     echo
+     echo "Usage: $0 <input file> <output file>"
+     exit 1
 fi
 
 # Chech for argument. Give feedback to user
-echo -e "Usage: ./test.sh <target IP> <scan type>"
+echo -e "Usage: test.sh <target IP> <scan type>"
 if [ "$2" == "All" ]; then
      echo "Running all scans on $1."
 else
@@ -307,6 +315,11 @@ done
 while read i; do
      host $i | grep 'has address' | cut -d ' ' -f4
 done < subdomains
+
+while read i; do
+    country=$(whois "$i" | grep -i country | head -n1 | sed 's/Country:        / /g')
+    echo "$i $country" >> tmp
+done < $1
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Special characters to escape
