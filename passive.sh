@@ -604,15 +604,9 @@ f_runlocally
 
 xdg-open https://www.google.com/search?q=%22$companyurl%22+logo &
 sleep 4
-xdg-open https://www.google.com/search?q=site:$domain+%22internal+use+only%22 &
+xdg-open https://www.google.com/search?q=site:$domain+%22confidential%22+OR+%22proprietary%22+OR+%22internal+use+only%22 &
 sleep 4
 xdg-open https://www.shodan.io/search?query=$domain &
-sleep 4
-xdg-open https://www.google.com/search?q=site:$domain+%22proprietary%22 &
-sleep 4
-xdg-open https://www.google.com/search?q=site:$domain+%22confidential%22 &
-sleep 4
-xdg-open https://www.shodan.io/search?query=org:%22$companyurl%22 &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22index+of/%22+OR+%22parent+directory%22 &
 sleep 4
@@ -626,12 +620,12 @@ xdg-open https://networksdb.io/search/org/%22$companyurl%22 &
 sleep 4
 xdg-open https://www.google.com/search?q=site:pastebin.com+%22$domain%22+password &
 sleep 6
-xdg-open https://www.google.com/search?q=site:$domain+ext:doc+OR+ext:docx &
+xdg-open https://www.google.com/search?q=site:$domain+filetype%3Adoc+OR+filetype%3Adocx &
 sleep 7
-xdg-open https://www.google.com/search?q=site:$domain+ext:xls+OR+ext:xlsx &
+xdg-open https://www.google.com/search?q=site:$domain+filetype%3Axls+OR+filetype%3Axlsx &
 sleep 8
-xdg-open https://www.google.com/search?q=site:$domain+ext:ppt+OR+ext:pptx &
+xdg-open https://www.google.com/search?q=site:$domain+filetype%3Appt+OR+filetype%3Apptx &
 sleep 9
-xdg-open https://www.google.com/search?q=site:$domain+ext:txt+OR+ext:log+OR+ext:bak &
+xdg-open https://www.google.com/search?q=site:$domain+filetype%3Atxt &
 sleep 4
 xdg-open https://$domain &
