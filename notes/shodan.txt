@@ -2,7 +2,7 @@ Shodan
 
 
 # Country                     country:US
-                              Must use 2 letters the country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+                              Must use 2 letters for sthe country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 
 # State                       state:TN
 

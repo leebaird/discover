@@ -44,17 +44,14 @@ echo >> tmp-updates
 echo "theHarvester" >> tmp-updates
 echo "==============================" >> tmp-updates
 
-theHarvester -h | sed -n '/baidu/,$p' | sed 's/^[ \t]*//' | tr ' ,' '\n' | sed '/^$/d' > tmp
-grep 'theHarvester' /opt/discover/passive.sh | grep -v '"' | awk '{print $5}' > tmp2
-diff tmp tmp2 | grep '<' | awk '{print $2}' >> tmp-updates
-
-echo >> tmp-updates
-echo >> tmp-updates
-
-mv tmp-updates $home/data/new-modules.txt
-rm tmp*
+theHarvester -h > tmp
+cat tmp | sed -n '/anubis/,$p' | sed 's/^[ \t]*//' | tr ' ,' '\n' | sed '/^$/d' > tmp2
+grep 'theHarvester' /opt/discover/passive.sh | grep -v '"' | awk '{print $5}' > tmp3
+diff tmp2 tmp3 | grep '<' | awk '{print $2}' >> tmp-updates
 
 echo
 echo $medium
 echo
-echo -e "The new report is located at ${YELLOW}$home/data/new-modules.txt${NC}\n"
+cat tmp-updates
+rm tmp*
+exit
