@@ -244,7 +244,7 @@ if [ -d /opt/Egress-Assess/.git -a -d /opt/Egress-Assess-venv ]; then
      echo
 else
      echo -e "${YELLOW}Installing Egress-Assess.${NC}"
-     git clone https://github.com/ChrisTruncer/Egress-Assess /opt/Egress-Assess
+     git clone https://github.com/RedSiege/Egress-Assess /opt/Egress-Assess
      echo
      echo -e "${YELLOW}Setting up Egress-Assess virtualenv.${NC}"
      virtualenv -p /usr/bin/python3 /opt/Egress-Assess-venv
