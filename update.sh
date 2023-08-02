@@ -309,6 +309,17 @@ else
      echo
 fi
 
+if [ -d /opt/manspider/.git ]; then
+     echo -e "${BLUE}Updating MAN-SPIDER.${NC}"
+     cd /opt/manspider/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing MAN-SPIDER.${NC}"
+     git clone https://github.com/blacklanternsecurity/MANSPIDER /opt/manspider
+     apt install -y antiword tesseract-ocr
+     echo
+fi
+
 if [ ! -f /usr/bin/nishang ]; then
      echo -e "${YELLOW}Installing nishang.${NC}"
      apt install -y nishang
