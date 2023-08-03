@@ -1,11 +1,10 @@
 #!/usr/bin/bash
 
-# by Lee Baird
-# Contact me via chat or email with any feedback or suggestions:leebaird@gmail.com
+# by Lee Baird (@discoverscripts)
 #
 # Special thanks to:
-# Jay Townsend - everything, conversion from Backtrack to Kali
-# Jason Ashton (@ninewires)- Penetration Testers Framework (PTF) compatibility, bug crusher, and bash ninja
+# Jay Townsend (@jay_townsend1) - everything, conversion from Backtrack to Kali
+# Jason Ashton (@ninewires) - Penetration Testers Framework (PTF) compatibility, bug crusher, and bash ninja
 #
 # Thanks to:
 # Ben Wood (@DilithiumCore) - regex master
