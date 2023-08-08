@@ -50,7 +50,7 @@ echo
 
 if [ ! -f /usr/bin/ansible ]; then
      echo -e "${YELLOW}Installing Ansible.${NC}"
-     apt install -y ansible
+     apt install -y ansible-core
      echo
 fi
 
@@ -68,11 +68,12 @@ fi
 
 if [ ! -f /usr/bin/go ]; then
      echo -e "${YELLOW}Installing Go.${NC}"
-     apt install -y golang-go
+     apt install -y gccgo-go golang-go
      echo >> ~/.zshrc
-     echo 'export GOPATH=/opt/go/' >> ~/.zshrc
+     echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.zshrc
+     echo 'export GOPATH=/opt/go' >> ~/.zshrc
+     echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.zshrc
      echo
-     mv /root/go/ /opt/
 fi
 
 if [ -d /opt/cobaltstrike ]; then
