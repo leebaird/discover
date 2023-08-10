@@ -59,7 +59,8 @@ Passive uses ARIN, DNSRecon, dnstwist, goog-mail, goohost, theHarvester,
 
 Active uses DNSRecon, recon-ng, Traceroute, wafw00f, and Whatweb.
 
-Acquire API keys for maximum results with theHarvester. Add keys to /etc/theHarvester/api-keys.yaml
+Acquire API keys for maximum results with theHarvester.
+* Add keys to /etc/theHarvester/api-keys.yaml
 
 ### Person
 ```
