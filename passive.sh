@@ -623,6 +623,8 @@ xdg-open https://www.google.com/search?q=site:$domain+Atlassian+OR+jira+-%22Job+
 sleep 4
 xdg-open https://networksdb.io/search/org/%22$companyurl%22 &
 sleep 4
+xdg-open https://phonebook.cz &
+sleep 4
 xdg-open https://www.google.com/search?q=site:pastebin.com+%22$domain%22+password &
 sleep 6
 xdg-open https://www.google.com/search?q=site:$domain+filetype%3Adoc+OR+filetype%3Adocx &
