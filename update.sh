@@ -449,6 +449,11 @@ else
      echo
 fi
 
+if [ $(lsb_release -si) == "Parrot" -a ! -d /usr/share/doc/python3-ujson ]; then
+     echo -e "${YELLOW}Installing theHarvester Deps For Parrot.${NC}"
+     apt install -yqq python3-ujson
+fi
+
 if [ -d /opt/theHarvester/.git -a -d /opt/theHarvester-venv ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
