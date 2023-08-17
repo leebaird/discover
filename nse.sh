@@ -22,7 +22,7 @@ fi
 
 if [ -f $name/22.txt ]; then
      echo "     SSH"
-     sudo nmap --randomize-hosts -iL $name/22.txt -Pn -n --open -p22 --sT -script-timeout 20s --script=rsa-vuln-roca,sshv1,ssh2-enum-algos --min-hostgroup 100 --scan-delay $delay > tmp
+     sudo nmap --randomize-hosts -iL $name/22.txt -Pn -n --open -p22 -sT -script-timeout 20s --script=rsa-vuln-roca,sshv1,ssh2-enum-algos --min-hostgroup 100 --scan-delay $delay > tmp
      f_cleanup
      mv tmp4 $name/script-22.txt
 fi
