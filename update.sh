@@ -1,10 +1,5 @@
 #!/usr/bin/bash
 
-# Global variables
-YELLOW='\033[1;33m'
-BLUE='\033[1;34m'
-NC='\033[0m'
-
 # Check for root
 if [ $EUID -ne 0 ]; then
      echo
@@ -12,31 +7,16 @@ if [ $EUID -ne 0 ]; then
      exit
 fi
 
+# Global variables
+YELLOW='\033[1;33m'
+BLUE='\033[1;34m'
+NC='\033[0m'
+
 # -----------------------------------------------------------------------------------------------
 
 # Clean up
-if [ -d /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/.git ]; then
-     rm -rf /opt/cobaltstrike/third-party/bluescreenofjeff-malleable-c2-randomizer/
-fi
-
-if [ -d /opt/cobaltstrike/third-party/chryzsh-scripts/.git ]; then
-     rm -rf /opt/cobaltstrike/third-party/chryzsh-scripts/
-fi
-
-if [ -d /opt/cobaltstrike/third-party/bokuloader/.git ]; then
-     rm -rf /opt/cobaltstrike/third-party/bokuloader/
-fi
-
-if [ -d /opt/cobaltstrike/third-party/DidierStevens-DNS-stager/.git ]; then
-     rm -rf /opt/cobaltstrike/third-party/DidierStevens-DNS-stager/
-fi
-
-if [ -d /opt/cobaltstrike/third-party/trustedsec-bof/  ]; then
-     rm -rf /opt/cobaltstrike/third-party/trustedsec-bof/
-fi
-
-if [ -d /opt/cobaltstrike/third-party/taowu-scripts/.git ]; then
-     rm -rf /opt/cobaltstrike/third-party/taowu-scripts/
+if [ -d /opt/cobaltstrike/third-party/ ]; then
+     rm -rf /opt/cobaltstrike/third-party/
 fi
 
 # -----------------------------------------------------------------------------------------------
@@ -76,7 +56,51 @@ if [ ! -f /usr/bin/go ]; then
      echo
 fi
 
-if [ -d /opt/cobaltstrike ]; then
+# -----------------------------------------------------------------------------------------------
+
+if [ -d /opt/C2-stuff/kyleavery-inject-assembly/.git ]; then
+     echo -e "${BLUE}Updating C2-stuff kyleavery Inject Assembly.${NC}"
+     cd /opt/C2-stuff/kyleavery-inject-assembly/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing C2-stuff kyleavery Inject Assembly.${NC}"
+     git clone https://github.com/kyleavery/inject-assembly /opt/C2-stuff/kyleavery-inject-assembly
+     echo
+fi
+
+if [ -d /opt/C2-stuff/outflanknl-c2-tool-collection/.git ]; then
+     echo -e "${BLUE}Updating C2-stuff Outflanknl C2 Tool Collection.${NC}"
+     cd /opt/C2-stuff/outflanknl-c2-tool-collection/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing C2-stuff Outflanknl C2 Tool Collection.${NC}"
+     git clone https://github.com/outflanknl/C2-Tool-Collection /opt/C2-stuff/outflanknl-c2-tool-collection
+     echo
+fi
+
+if [ -d /opt/C2-stuff/trustedsec-remote-ops/.git ]; then
+     echo -e "${BLUE}Updating C2-stuff TrustedSec CS Remote OPs BOF.${NC}"
+     cd /opt/C2-stuff/trustedsec-remote-ops/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing C2-stuff TrustedSec CS Remote OPs BOF.${NC}"
+     git clone https://github.com/trustedsec/CS-Remote-OPs-BOF /opt/C2-stuff/trustedsec-remote-ops
+     echo
+fi
+
+if [ -d /opt/C2-stuff/trustedsec-sa/.git ]; then
+     echo -e "${BLUE}Updating C2-stuff TrustedSec Situational Awareness BOF.${NC}"
+     cd /opt/C2-stuff/trustedsec-sa/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing C2-stuff TrustedSec Situational Awareness BOF.${NC}"
+     git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/C2-stuff/trustedsec-sa
+     echo
+fi
+
+# -----------------------------------------------------------------------------------------------
+
+if [ -d /opt/cobaltstrike/ ]; then
      if [ -d /opt/cobaltstrike/elevatekit/.git ]; then
           echo -e "${BLUE}Updating CS - ElevateKit.${NC}"
           cd /opt/cobaltstrike/elevatekit/ ; git pull
@@ -87,23 +111,13 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      fi
 
-     if [ -d /opt/cobaltstrike/third-party/FortyNorthSecurity-C2concealer/.git ]; then
-          echo -e "${BLUE}Updating CS - FortyNorthSecurity C2concealer.${NC}"
-          cd /opt/cobaltstrike/third-party/FortyNorthSecurity-C2concealer/ ; git pull
+     if [ -d /opt/cobaltstrike/RedSiege-C2concealer/.git ]; then
+          echo -e "${BLUE}Updating CS - RedSiege C2concealer.${NC}"
+          cd /opt/cobaltstrike/RedSiege-C2concealer/ ; git pull
           echo
      else
-          echo -e "${YELLOW}Installing CS - FortyNorthSecurity C2concealer.${NC}"
-          git clone https://github.com/FortyNorthSecurity/C2concealer /opt/cobaltstrike/third-party/FortyNorthSecurity-C2concealer
-          echo
-     fi
-
-     if [ -d /opt/cobaltstrike/third-party/kyleavery-inject-assembly/.git ]; then
-          echo -e "${BLUE}Updating CS - kyleavery Inject Assembly.${NC}"
-          cd /opt/cobaltstrike/third-party/kyleavery-inject-assembly/ ; git pull
-          echo
-     else
-          echo -e "${YELLOW}Installing CS - kyleavery Inject Assembly.${NC}"
-          git clone https://github.com/kyleavery/inject-assembly /opt/cobaltstrike/third-party/kyleavery-inject-assembly
+          echo -e "${YELLOW}Installing CS - RedSiege C2concealer.${NC}"
+          git clone https://github.com/RedSiege/C2concealer /opt/cobaltstrike/RedSiege-C2concealer
           echo
      fi
 
@@ -117,69 +131,41 @@ if [ -d /opt/cobaltstrike ]; then
           echo
      fi
 
-     if [ -d /opt/cobaltstrike/third-party/mgeeky-scripts/.git ]; then
+     if [ -d /opt/cobaltstrike/mgeeky-scripts/.git ]; then
           echo -e "${BLUE}Updating CS - mgeeky cobalt arsenal.${NC}"
-          cd /opt/cobaltstrike/third-party/mgeeky-scripts/ ; git pull
+          cd /opt/cobaltstrike/mgeeky-scripts/ ; git pull
           echo
      else
           echo -e "${YELLOW}Installing CS - mgeeky cobalt arsenal.${NC}"
-          git clone https://github.com/mgeeky/cobalt-arsenal /opt/cobaltstrike/third-party/mgeeky-scripts
+          git clone https://github.com/mgeeky/cobalt-arsenal /opt/cobaltstrike/mgeeky-scripts
           echo
      fi
 
-     if [ -d /opt/cobaltstrike/third-party/outflanknl-c2-tool-collection/.git ]; then
-          echo -e "${BLUE}Updating CS - Outflanknl C2 Tool Collection.${NC}"
-          cd /opt/cobaltstrike/third-party/outflanknl-c2-tool-collection/ ; git pull
-          echo
-     else
-          echo -e "${YELLOW}Installing CS - Outflanknl C2 Tool Collection.${NC}"
-          git clone https://github.com/outflanknl/C2-Tool-Collection /opt/cobaltstrike/third-party/outflanknl-c2-tool-collection
-          echo
-     fi
-
-     if [ -d /opt/cobaltstrike/third-party/outflanknl-helpcolor/.git ]; then
+     if [ -d /opt/cobaltstrike/outflanknl-helpcolor/.git ]; then
           echo -e "${BLUE}Updating CS - Outflanknl HelpColor.${NC}"
-          cd /opt/cobaltstrike/third-party/outflanknl-helpcolor/ ; git pull
+          cd /opt/cobaltstrike/outflanknl-helpcolor/ ; git pull
           echo
      else
           echo -e "${YELLOW}Installing CS - Outflanknl HelpColor.${NC}"
-          git clone https://github.com/outflanknl/HelpColor /opt/cobaltstrike/third-party/outflanknl-helpcolor
+          git clone https://github.com/outflanknl/HelpColor /opt/cobaltstrike/outflanknl-helpcolor
           echo
      fi
 
-     if [ -d /opt/cobaltstrike/third-party/trustedsec-remote-ops/.git ]; then
-          echo -e "${BLUE}Updating CS - TrustedSec CS Remote OPs BOF.${NC}"
-          cd /opt/cobaltstrike/third-party/trustedsec-remote-ops/ ; git pull
-          echo
-     else
-          echo -e "${YELLOW}Installing CS - TrustedSec CS Remote OPs BOF.${NC}"
-          git clone https://github.com/trustedsec/CS-Remote-OPs-BOF /opt/cobaltstrike/third-party/trustedsec-remote-ops
-          echo
-     fi
-
-     if [ -d /opt/cobaltstrike/third-party/trustedsec-sa/.git ]; then
-          echo -e "${BLUE}Updating CS - TrustedSec Situational Awareness BOF.${NC}"
-          cd /opt/cobaltstrike/third-party/trustedsec-sa/ ; git pull
-          echo
-     else
-          echo -e "${YELLOW}Installing CS - TrustedSec Situational Awareness BOF.${NC}"
-          git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/cobaltstrike/third-party/trustedsec-sa
-          echo
-     fi
-
-     if [ -d /opt/cobaltstrike/third-party/tylous-sourcepoint/.git ]; then
+     if [ -d /opt/cobaltstrike/tylous-sourcepoint/.git ]; then
           echo -e "${BLUE}Updating CS - Tylous SourcePoint.${NC}"
-          cd /opt/cobaltstrike/third-party/tylous-sourcepoint/ ; git pull
+          cd /opt/cobaltstrike/tylous-sourcepoint/ ; git pull
           echo
      else
           echo -e "${YELLOW}Installing CS - Tylous SourcePoint.${NC}"
-          git clone https://github.com/Tylous/SourcePoint /opt/cobaltstrike/third-party/tylous-sourcepoint
-          cd /opt/cobaltstrike/third-party/tylous-sourcepoint/
+          git clone https://github.com/Tylous/SourcePoint /opt/cobaltstrike/tylous-sourcepoint
+          cd /opt/cobaltstrike/tylous-sourcepoint/
           go get gopkg.in/yaml.v2
           go build SourcePoint.go
           echo
      fi
 fi
+
+# -----------------------------------------------------------------------------------------------
 
 if [ -d /opt/discover/.git ]; then
      echo -e "${BLUE}Updating Discover.${NC}"
