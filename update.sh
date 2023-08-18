@@ -46,6 +46,12 @@ if [ ! -f /usr/bin/bloodhound ]; then
      echo
 fi
 
+if [ ! -f /usr/bin/certbot ]; then
+     echo -e "${YELLOW}Installing Certbot.${NC}"
+     apt install -y certbot letsencrypt python3-certbot-apache
+     echo
+fi
+
 if [ ! -f /usr/bin/go ]; then
      echo -e "${YELLOW}Installing Go.${NC}"
      apt install -y gccgo-go golang-go
