@@ -634,5 +634,13 @@ sleep 8
 xdg-open https://www.google.com/search?q=site:$domain+filetype%3Appt+OR+filetype%3Apptx &
 sleep 9
 xdg-open https://www.google.com/search?q=site:$domain+filetype%3Atxt &
+sleep 8
+xdg-open https://www.google.com/search?q=site:http://s3.amazonaws.com+"$domain" &
+sleep 8
+xdg-open https://www.google.com/search?q=site:http://blob.core.windows.net+"$domain" &
+sleep 7
+xdg-open https://www.google.com/search?q=site:http://googleapis.com+"$domain" &
+sleep 7
+xdg-open https://www.google.com/search?q=site:http://drive.google.com+"$domain" &
 sleep 4
 xdg-open https://$domain &
