@@ -55,6 +55,19 @@ unzip test.zip
 zcat rockyou.txt.gz > rockyou.txt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Certificates
+
+openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes
+
+apt update && apt install -y certbot letsencrypt python3-certbot-apache
+certbot –-apache –d <domain>
+
+- namecheap
+Create 2 DNS records:
+A >  @  > IP of server
+CNAME > www > FQDN
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Copy Files (remotely)
 
 scp file.txt user@<target IP>:/tmp/             Local to remote
