@@ -221,8 +221,9 @@ dns       @      A    <redirector IP>
 dns       ns1    A    <redirector IP>
 dns       data   NS   <domain>.com.
 
-OPSEC: Blend in with the named pipes from your target environment.
-Find examples using a similar Windows VM: ls \\.\pipe\
+OPSEC: Blend in with the named pipes of your target environment.
+Find examples using a similar Windows VM.
+Open PowerShell: [System.IO.Directory]::GetFiles("\\.\\pipe\\")
 
 Add
 Name: smb
