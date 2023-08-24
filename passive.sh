@@ -635,12 +635,12 @@ xdg-open https://www.google.com/search?q=site:$domain+filetype%3Appt+OR+filetype
 sleep 9
 xdg-open https://www.google.com/search?q=site:$domain+filetype%3Atxt &
 sleep 8
-xdg-open https://www.google.com/search?q=site:http://s3.amazonaws.com+"$domain" &
+xdg-open https://www.google.com/search?q=site:http://s3.amazonaws.com+%22$domain%22 &
 sleep 8
-xdg-open https://www.google.com/search?q=site:http://blob.core.windows.net+"$domain" &
+xdg-open https://www.google.com/search?q=site:http://blob.core.windows.net+%22$domain%22 &
 sleep 7
-xdg-open https://www.google.com/search?q=site:http://googleapis.com+"$domain" &
+xdg-open https://www.google.com/search?q=site:http://googleapis.com+%22$domain%22 &
 sleep 7
-xdg-open https://www.google.com/search?q=site:http://drive.google.com+"$domain" &
+xdg-open https://www.google.com/search?q=site:http://drive.google.com+%22$domain%22 &
 sleep 4
 xdg-open https://$domain &
