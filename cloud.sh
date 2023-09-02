@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# by Lee Baird (@discoverscripts)
+
 echo
 echo "Seach cloud providers for spillage."
 echo
