@@ -190,9 +190,6 @@ filetype:pdf					                                 Locate all pdf files
 intitle:"index of" "parent directory"
 inurl:
 
-- recon-ng
-recon-ng
-
 keys list
 keys add <key> <value>
 
