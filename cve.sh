@@ -25,3 +25,11 @@ sleep 4
 xdg-open https://www.rapid7.com/db/?q=$cve&type=nexpose &
 sleep 4
 xdg-open https://www.tenable.com/plugins &
+
+shorthand="$(echo $CVE | cut -d '-' -f2)-$(echo $CVE | cut -d '-' -f3)"
+
+searchsploit $CVE
+
+echo
+
+msfconsole -x "search cve:$shorthand;exit" -q
