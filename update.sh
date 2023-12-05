@@ -62,6 +62,12 @@ if [ ! -f /usr/bin/go ]; then
      echo
 fi
 
+if [ ! -f /usr/bin/raven ]; then
+     echo -e "${YELLOW}Installing Raven.${NC}"
+     apt install -y raven
+     echo
+fi
+
 # -----------------------------------------------------------------------------------------------
 
 if [ -d /opt/C2-stuff/kyleavery-inject-assembly/.git ]; then
