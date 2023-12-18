@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 # Created by Jay Townsend
 import argparse
+import binascii
 from base64 import b64decode
-from typing import List, AnyStr
+from typing import List, AnyStr, Optional
 from bs4 import BeautifulSoup
 import csv
 import os
@@ -12,47 +13,82 @@ def main():
     parser = argparse.ArgumentParser(description='A script to parse Burp Suite XML base64 encoded files to CSV')
     parser.add_argument('-f', '--filename', help='XML file to parse', required=True)
     parser.add_argument('-o', '--outfile', help='Filename of the parsed XML to save as a CSV file', required=True)
-
     args = parser.parse_args()
-
     xml_file_to_parse: AnyStr = args.filename
     save_location: AnyStr = args.outfile
     dir_path: AnyStr = os.path.dirname(os.path.realpath(__file__)) + '/'
     file_path: AnyStr = dir_path + xml_file_to_parse
-    soup = BeautifulSoup(open(file_path, 'r'), features='lxml')
+
+    try:
+        with open(file_path, 'r') as file:
+            soup = BeautifulSoup(file, features='lxml')
+    except IOError:
+        print(f"Could not open file: {file_path}")
+        return
+    except Exception as ex:
+        print(f"Could not parse XML: {ex}")
+        return
+
     issues = soup.find_all('issues')
     issue_data: List = []
-
     for entries in issues:
-        vuln_name = entries.find('name').text.replace('<![CDATA[', '').replace(']]>', '')
-        host = entries.find('host')
-        ip = host['ip']
-        host = host.text
-        location = entries.find('location').text.replace('<![CDATA[', '').replace(']]>', '')
-        severity = entries.find('severity').text
-        confidence = entries.find('confidence').text
-
-        issue_background = entries.find('issuebackground').text.replace("<p>", "").replace("</p>", "").replace(
-            '<![CDATA[', '').replace(']]>', '').replace('\n', '')
-        remediation_background = entries.find('remediationbackground')
-        vulnerability_classification = entries.find('vulnerabilityclassifications')
-        data_request = entries.find('requestresponse').text
-        request = b64decode(data_request.replace('<![CDATA[', '').replace(']]>', '')).decode()
-        response = b64decode(
-            entries.find('requestresponse').find('response').text.replace('<![CDATA[', '').replace(']]>', '')).decode()
-        issue_detail = entries.find('issuedetail')
+        vuln_name = find_and_extract_text(entries, 'name')
+        host, ip = find_host_and_ip(entries, 'host')
+        location = find_and_extract_text(entries, 'location')
+        severity = find_and_extract_text(entries, 'severity')
+        confidence = find_and_extract_text(entries, 'confidence')
+        issue_background = find_and_extract_text(entries, 'issuebackground')
+        remediation_background = find_and_extract_text(entries, 'remediationbackground')
+        vulnerability_classification = find_and_extract_text(entries, 'vulnerabilityclassifications')
+        request, response = extract_request_response(entries)
+        issue_detail = find_and_extract_text(entries, 'issuedetail')
 
         results = (vuln_name, host, ip, location, severity, confidence, issue_background, remediation_background,
                    vulnerability_classification, issue_detail, request, response)
         issue_data.append(results)
 
+    try:
         with open(save_location, 'w+') as outfile:
-            if issue_data is not None:
+            if issue_data:
                 writer = csv.writer(outfile)
                 writer.writerow(
                     ['Vulnerability', 'Host', 'IP', 'Location', 'Severity', 'Confidence', 'Issue Background',
                      'Remediation Background', 'Vulnerability Classification', 'Issue Details', 'request', 'response'])
                 writer.writerows(issue_data)
+    except IOError:
+        print(f"Could not write to file: {save_location}")
+
+
+def find_and_extract_text(entry, tag):
+    element = entry.find(tag)
+    return element.text.replace('<![CDATA[', '').replace(']]>', '') if element is not None else ''
+
+
+def find_host_and_ip(entry, tag):
+    host_element = entry.find(tag)
+    if host_element is None:
+        return '', ''
+    ip = host_element.get('ip', '')
+    host = host_element.text
+    return host, ip
+
+
+def extract_request_response(entry):
+    request_response = entry.find('requestresponse')
+    if request_response is None:
+        return '', ''
+
+    try:
+        request = b64decode(find_and_extract_text(request_response, 'request')).decode()
+    except binascii.Error:
+        request = ''
+
+    try:
+        response = b64decode(find_and_extract_text(request_response, 'response')).decode()
+    except binascii.Error:
+        response = ''
+
+    return request, response
 
 
 if __name__ == '__main__':
