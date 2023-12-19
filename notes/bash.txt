@@ -145,7 +145,8 @@ sed '/TEST/!s/FOO/BAR/g'                                      Replace FOO with B
 sed '/TEST/s/FOO/BAR/g'                                       Replace FOO with BAR, on lines that contain TEST
 sed 's/FOO//g'                                                Replace FOO with nothing
 sed -n 'H; ${x; s/\n/|/g; p}'                                 Replace 'new line' with a pipe '|'
-cat tmp | tr ';' '\n'                                         Replace semicolon with a new line
+sed 's/\./ /g'                                                Replace a period with a space
+tr ';' '\n'                                                   Replace a semicolon with a new line
 sed 's/\([^,]*,\)\{7\}[^,]*,/&\n/g'                           Replace the 8th comma with a new line
 
 sort -k2                                                      Sort by the second column
