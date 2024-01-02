@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 # Created by Jay Townsend
+
 import argparse
 import binascii
-from base64 import b64decode
-from typing import List, AnyStr, Optional
-from bs4 import BeautifulSoup
 import csv
 import os
+from base64 import b64decode
+from bs4 import BeautifulSoup
+from typing import List, AnyStr, Optional
 
 
 def main():
@@ -14,10 +15,10 @@ def main():
     parser.add_argument('-f', '--filename', help='XML file to parse', required=True)
     parser.add_argument('-o', '--outfile', help='Filename of the parsed XML to save as a CSV file', required=True)
     args = parser.parse_args()
+
     xml_file_to_parse: AnyStr = args.filename
     save_location: AnyStr = args.outfile
-    dir_path: AnyStr = os.path.dirname(os.path.realpath(__file__)) + '/'
-    file_path: AnyStr = dir_path + xml_file_to_parse
+    file_path: AnyStr = xml_file_to_parse
 
     try:
         with open(file_path, 'r') as file:
@@ -43,8 +44,8 @@ def main():
         request, response = extract_request_response(entries)
         issue_detail = find_and_extract_text(entries, 'issuedetail')
 
-        results = (vuln_name, host, ip, location, severity, confidence, issue_background, remediation_background,
-                   vulnerability_classification, issue_detail, request, response)
+        results = (vulnerability_classification, vuln_name, severity, confidence, host, ip, location, issue_detail, issue_background, 
+                   remediation_background, request, response)
         issue_data.append(results)
 
     try:
@@ -52,8 +53,8 @@ def main():
             if issue_data:
                 writer = csv.writer(outfile)
                 writer.writerow(
-                    ['Vulnerability', 'Host', 'IP', 'Location', 'Severity', 'Confidence', 'Issue Background',
-                     'Remediation Background', 'Vulnerability Classification', 'Issue Details', 'request', 'response'])
+                    ['Classification', 'Vulnerability', 'Severity', 'Confidence', 'URL', 'IP', 'Location', 'Description', 'Background',
+                     'Remediation', 'Request', 'Response'])
                 writer.writerows(issue_data)
     except IOError:
         print(f"Could not write to file: {save_location}")
