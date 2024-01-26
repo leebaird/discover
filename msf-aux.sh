@@ -63,11 +63,11 @@ if [ -f $name/110.txt ]; then
      cat /tmp/resource/110-pop3.rc >> /tmp/master
 fi
 
-if [ -f $name/111.txt ]; then
-     echo "     RPC"
-     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/111.txt|g" /tmp/resource/111-rpc.rc
-     cat /tmp/resource/111-rpc.rc >> /tmp/master
-fi
+#if [ -f $name/111.txt ]; then
+#     echo "     RPC"
+#     sed -i "s|setg RHOSTS.*|setg RHOSTS file:$name\/111.txt|g" /tmp/resource/111-rpc.rc
+#     cat /tmp/resource/111-rpc.rc >> /tmp/master
+#fi
 
 if [ -f $name/123.txt ]; then
      echo "     NTP"
