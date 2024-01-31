@@ -450,6 +450,10 @@ Note: if using macOS as the client, install XQuartz.
 
 - Authenticate using a specific key
 ssh -o KexAlgorithms=diffie-hellman-group-exchange-sha256 user@target
+
+- Fix display variable
+echo $DISPLAY                                   Check what the current environmental variable is set to
+export DISPLAY=:0
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # System
