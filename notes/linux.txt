@@ -569,6 +569,10 @@ groupdel <group>                                Delete group
 groupmod <group>                                Modify group
 
 kali ALL=(ALL) NOPASSWD:ALL                     Add to /etc/sudoers, no password needed for kali to sudo
+
+- Change default shell to zsh
+vi /etc/passwd                                  Locate user acount and change /bin/bash to /bin/zsh
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Video Resolution
