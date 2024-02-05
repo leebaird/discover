@@ -189,9 +189,9 @@ if [ -d /opt/DNSRecon/.git -a -d /opt/DNSRecon-venv ]; then
      echo -e "${BLUE}Updating DNSRecon.${NC}"
      cd /opt/DNSRecon/ ; git pull
      source /opt/DNSRecon-venv/bin/activate
-     pip3 install -r requirements.txt --upgrade
+     pip3 install -r requirements.txt --upgrade | grep -v 'already satisfied'
      # If you are in a corp env that is doing MITM with SSL use the following line instead.
-#     pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade
+#     pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
      deactivate
      echo
 else
@@ -417,8 +417,8 @@ if [ -d /opt/spoofcheck/.git -a -d /opt/spoofcheck-venv ]; then
      echo -e "${BLUE}Updating spoofcheck.${NC}"
      cd /opt/spoofcheck/ ; git pull
      source /opt/spoofcheck-venv/bin/activate
-     pip3 install -r requirements.txt --upgrade
-#     pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade
+     pip3 install -r requirements.txt --upgrade | grep -v 'already satisfied'
+#     pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
      deactivate
      echo
 else
@@ -456,8 +456,8 @@ if [ -d /opt/theHarvester/.git -a -d /opt/theHarvester-venv ]; then
      echo -e "${BLUE}Updating theHarvester.${NC}"
      cd /opt/theHarvester/ ; git pull
      source /opt/theHarvester-venv/bin/activate
-     /opt/theHarvester-venv/bin/pip3 install -r requirements.txt --upgrade
-#     /opt/theHarvester-venv/bin/pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade
+     /opt/theHarvester-venv/bin/pip3 install -r requirements.txt --upgrade | grep -v 'already satisfied'
+#     /opt/theHarvester-venv/bin/pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
      deactivate
      echo
 else
