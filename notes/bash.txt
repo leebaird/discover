@@ -184,7 +184,7 @@ if [ $# -ne 2 ]; then
      exit 1
 fi
 
-# Chech for argument. Give feedback to user
+# Check for argument. Give feedback to user
 echo -e "Usage: test.sh <target IP> <scan type>"
 if [ "$2" == "All" ]; then
      echo "Running all scans on $1."
@@ -196,7 +196,7 @@ fi
 if [ $EUID -ne 0 ]; then
      echo
      echo "[!] This script must be ran as root."
-     exit
+     exit 1
 fi
 
 # Check for no answer
@@ -245,10 +245,18 @@ if ! [[ $sub =~ ^[0-9]+$ ]] || [[ $sub -lt $min || $sub -gt $max ]]; then
      f_error
 fi
 
+#Validate CVE
+if echo "$1" | grep -Eq '^CVE-[0-9]{4}-[0-9]{4,7}$'; then
+    echo 'Do more stuff here.'
+else
+    echo '[!] Not a valid CVE.'
+    exit 1
+fi
+
 # Validate port number
 if ! [[ $port =~ ^[0-9]+$ ]] [[ $port -lt 1 || $port -gt 65535 ]]; then
-     echo "Invalid port."
-     exit
+     echo "[!] Invalid port."
+     exit 1
 fi
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
