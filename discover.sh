@@ -390,10 +390,10 @@ echo -n "Perform version detection? (y/N) "
 read vdetection
 
 if [ "$vdetection" == "y" ]; then
-     S='sSV'
+     S='sTV'
      U='sUV'
 else
-     S='sS'
+     S='sT'
      U='sU'
 fi
 
