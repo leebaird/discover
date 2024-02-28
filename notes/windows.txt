@@ -101,6 +101,11 @@ net group "Domain Admins" <user> /add /domain     Add a user to a specific Secur
 
 # Situational awareness using a low level account
 
+tasklist /v
+netstat -anop tcp
+ipconfig /all
+net user <user> /domain
+
 hostname
 whoami
 whoami /groups
@@ -112,7 +117,6 @@ net localgroup administrators                     Local administrators
 net session                                       Local sessions
 net share                                         Local shares
 
-ipconfig /all
 ipconfig /displaydns
 route print                                       Route table
 arp -a                                            ARP table
@@ -133,7 +137,6 @@ nltest /domain_trusts /all_trusts                 Domain trusts
 net localgroup administrators /domain
 net user /domain                                  Domain users
 net view /domain                                  Domain computers
-net user <user> /domain                           Info on a domain user
 net group /domain                                 Domain security groups
 net group "group name" /domain                    Users in a domain security group
 ------------------------------------------------------------------------------------------------------------------------------------------------------
