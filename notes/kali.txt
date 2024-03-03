@@ -21,8 +21,8 @@ Select 64-bit VMware Weekly
 Login with kali:kali
 passwd
 Enter new password 2x.
-sudo -i
-Enter new password.
+
+rm -rf Music Pictures Public Templates Videos
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Disable screen lock
@@ -43,7 +43,7 @@ Close
 
 File > Preferences
 Appearance
-     Font: 12
+     Font > Change > 11 > OK
      Application transparency: 0%
 OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -52,12 +52,12 @@ OK
 
 kali-tweaks
 Select Shell & Prompt > Command Prompt
-Select One Line > Apply > OK > enter > esc 3x
+Select One Line > space bar > Apply > OK > enter > esc 3x
 
-Open a new tab in Terminal (kali user) and repeat the steps above.
-Close the Terminal (both tabs).
-Open a new Terminal. The shell should now be a single line.
 sudo -i
+Repeat the steps above.
+Close the Terminal.
+Open a new Terminal. The shell should now be a single line.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Mousepad
@@ -67,18 +67,25 @@ mousepad
 Edit > Preferences
 View
      Uncheck Use system monospace font
-     Font: 12
+     Font: 11 > Select
 Editor
      Tab width: 5
      Tab mode: Insert Spaces
+Window
+     Check Remember window position
 Close preferenes > close mousepad
 
-Open a new tab in Terminal and repeat the same steps for the kali shell.
+sudo -i
+Enter password
+Repeat the steps above.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Timezone
+# Clock
 
-Go to the root tab in Terminal
+right-click on the clock > Preferences
+Format: 03:23PM
+
+- Optional
 timedatectl set-timezone America/<city>
 Eastern: New_York
 Central: Chicago
@@ -88,6 +95,7 @@ Pacific: Los_Angeles
 
 # Patch the OS
 
+sudo -i
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -97,17 +105,12 @@ git clone https://github.com/leebaird/discover /opt/discover/
 cd /opt/discover/config/
 ./install.sh
 
-Change to the kali user tab
-cd /opt/discover/config/
-./install.sh
-exit
-
 cd ~
 source .zshrc
 update
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Install additional tools
+# Optional additional tools
 
 - Apache Directory Studio
 https://directory.apache.org/studio/download/download-linux.html
@@ -123,12 +126,6 @@ tar xf <package>
 mv nim-1.6.12 /opt/
 echo 'export PATH=$PATH:/opt/nim-1.6.12/bin/' >> ~/.zshrc
 source ~/.zshrc
-
-- PyCharm
-https://www.jetbrains.com/pycharm/download/#section=linux
-tar zxf <package>
-mv pycharm-community-2022.3.3 /opt/
-rm <package>
 
 - Terraform
 https://www.terraform.io/downloads
