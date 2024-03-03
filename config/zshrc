@@ -6,6 +6,7 @@ extip=$(curl -s http://ifconfig.me)
 ip=$(hostname -I | awk '{print $1}')
 mac=$(ip a | grep ether | awk '{print $2}')
 
+alias bh='neo4j console & ; sleep 6 ; bloodhound'
 alias c='clear'
 alias cl='clear ; ls -lh --color=auto'
 alias cla='clear ; ls -lah --color=auto'
@@ -31,10 +32,3 @@ alias ssh='ssh -o "XAuthLocation=/opt/X11/bin/xauth"'
 alias update='/opt/discover/update.sh'
 alias web="echo $ip ; python3 -m http.server 80"
 alias web2="echo $ip ; python3 -m http.server 8000"
-
-#-----------------------------------------------------------------------------------------------
-
-alias bh='neo4j console & ; sleep 6 ; bloodhound'
-alias cs='cd /opt/cobaltstrike/ ; ./teamserver $ip password <Malleable C2 prfile> & ; sleep 5 ; ./cobaltstrike'
-alias csr='ssh -f -N -L 50050:localhost:50050 <Hostname from SSH config> ; cd /opt/cobaltstrike ; ./cobaltstrike'
-alias pc='/opt/pycharm-community-2022.2.1/bin/pycharm.sh'
