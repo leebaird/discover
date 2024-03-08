@@ -15,8 +15,8 @@ NC='\033[0m'
 # -----------------------------------------------------------------------------------------------
 
 # Clean up
-if [ -d /opt/cobaltstrike/third-party/ ]; then
-     rm -rf /opt/cobaltstrike/third-party/
+if [ -d /opt/C2-stuff/ ]; then
+     rm -rf /opt/C2-stuff/
 fi
 
 # -----------------------------------------------------------------------------------------------
@@ -70,43 +70,43 @@ fi
 
 # -----------------------------------------------------------------------------------------------
 
-if [ -d /opt/C2-stuff/kyleavery-inject-assembly/.git ]; then
-     echo -e "${BLUE}Updating C2-stuff kyleavery Inject Assembly.${NC}"
-     cd /opt/C2-stuff/kyleavery-inject-assembly/ ; git pull
+if [ -d /opt/BOFs/anthemtotheego-inlineExecute-assembly/.git ]; then
+     echo -e "${BLUE}Updating C2-stuff anthemtotheego InlineExecute Assembly.${NC}"
+     cd /opt/BOFs/anthemtotheego-inlineExecute-assembly/ ; git pull
      echo
 else
-     echo -e "${YELLOW}Installing C2-stuff kyleavery Inject Assembly.${NC}"
-     git clone https://github.com/kyleavery/inject-assembly /opt/C2-stuff/kyleavery-inject-assembly
+     echo -e "${YELLOW}Installing C2-stuff anthemtotheego InlineExecute Assembly.${NC}"
+     git clone https://github.com/anthemtotheego/InlineExecute-Assembly /opt/BOFs/anthemtotheego-inlineExecute-assembly
      echo
 fi
 
-if [ -d /opt/C2-stuff/outflanknl-c2-tool-collection/.git ]; then
+if [ -d /opt/BOFs/outflanknl-c2-tool-collection/.git ]; then
      echo -e "${BLUE}Updating C2-stuff Outflanknl C2 Tool Collection.${NC}"
-     cd /opt/C2-stuff/outflanknl-c2-tool-collection/ ; git pull
+     cd /opt/BOFs/outflanknl-c2-tool-collection/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing C2-stuff Outflanknl C2 Tool Collection.${NC}"
-     git clone https://github.com/outflanknl/C2-Tool-Collection /opt/C2-stuff/outflanknl-c2-tool-collection
+     git clone https://github.com/outflanknl/C2-Tool-Collection /opt/BOFs/outflanknl-c2-tool-collection
      echo
 fi
 
-if [ -d /opt/C2-stuff/trustedsec-remote-ops/.git ]; then
+if [ -d /opt/BOFs/trustedsec-remote-ops/.git ]; then
      echo -e "${BLUE}Updating C2-stuff TrustedSec CS Remote OPs BOF.${NC}"
-     cd /opt/C2-stuff/trustedsec-remote-ops/ ; git pull
+     cd /opt/BOFs/trustedsec-remote-ops/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing C2-stuff TrustedSec CS Remote OPs BOF.${NC}"
-     git clone https://github.com/trustedsec/CS-Remote-OPs-BOF /opt/C2-stuff/trustedsec-remote-ops
+     git clone https://github.com/trustedsec/CS-Remote-OPs-BOF /opt/BOFs/trustedsec-remote-ops
      echo
 fi
 
-if [ -d /opt/C2-stuff/trustedsec-sa/.git ]; then
+if [ -d /opt/BOFs/trustedsec-sa/.git ]; then
      echo -e "${BLUE}Updating C2-stuff TrustedSec Situational Awareness BOF.${NC}"
-     cd /opt/C2-stuff/trustedsec-sa/ ; git pull
+     cd /opt/BOFs/trustedsec-sa/ ; git pull
      echo
 else
      echo -e "${YELLOW}Installing C2-stuff TrustedSec Situational Awareness BOF.${NC}"
-     git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/C2-stuff/trustedsec-sa
+     git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/BOFs/trustedsec-sa
      echo
 fi
 
