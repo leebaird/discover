@@ -397,12 +397,6 @@ if [ ! -f /usr/bin/rustc ]; then
      echo
 fi
 
-if [ ! -d /usr/share/seclists ]; then
-     echo -e "${YELLOW}Installing SecLists.${NC}"
-     apt install -y seclists
-     echo
-fi
-
 if [ -d /opt/SharpCollection/.git ]; then
      echo -e "${BLUE}Updating SharpCollection.${NC}"
      cd /opt/SharpCollection/ ; git pull
