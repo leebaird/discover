@@ -71,41 +71,41 @@ fi
 # -----------------------------------------------------------------------------------------------
 
 if [ -d /opt/BOFs/anthemtotheego-inlineExecute-assembly/.git ]; then
-     echo -e "${BLUE}Updating C2-stuff anthemtotheego InlineExecute Assembly.${NC}"
+     echo -e "${BLUE}Updating anthemtotheego InlineExecute Assembly BOF.${NC}"
      cd /opt/BOFs/anthemtotheego-inlineExecute-assembly/ ; git pull
      echo
 else
-     echo -e "${YELLOW}Installing C2-stuff anthemtotheego InlineExecute Assembly.${NC}"
+     echo -e "${YELLOW}Installing anthemtotheego InlineExecute Assembly BOF.${NC}"
      git clone https://github.com/anthemtotheego/InlineExecute-Assembly /opt/BOFs/anthemtotheego-inlineExecute-assembly
      echo
 fi
 
 if [ -d /opt/BOFs/outflanknl-c2-tool-collection/.git ]; then
-     echo -e "${BLUE}Updating C2-stuff Outflanknl C2 Tool Collection.${NC}"
+     echo -e "${BLUE}Updating Outflanknl C2 Tool Collection BOF.${NC}"
      cd /opt/BOFs/outflanknl-c2-tool-collection/ ; git pull
      echo
 else
-     echo -e "${YELLOW}Installing C2-stuff Outflanknl C2 Tool Collection.${NC}"
+     echo -e "${YELLOW}Installing Outflanknl C2 Tool Collection BOF.${NC}"
      git clone https://github.com/outflanknl/C2-Tool-Collection /opt/BOFs/outflanknl-c2-tool-collection
      echo
 fi
 
 if [ -d /opt/BOFs/trustedsec-remote-ops/.git ]; then
-     echo -e "${BLUE}Updating C2-stuff TrustedSec CS Remote OPs BOF.${NC}"
+     echo -e "${BLUE}Updating TrustedSec CS Remote OPs BOF.${NC}"
      cd /opt/BOFs/trustedsec-remote-ops/ ; git pull
      echo
 else
-     echo -e "${YELLOW}Installing C2-stuff TrustedSec CS Remote OPs BOF.${NC}"
+     echo -e "${YELLOW}Installing TrustedSec CS Remote OPs BOF.${NC}"
      git clone https://github.com/trustedsec/CS-Remote-OPs-BOF /opt/BOFs/trustedsec-remote-ops
      echo
 fi
 
 if [ -d /opt/BOFs/trustedsec-sa/.git ]; then
-     echo -e "${BLUE}Updating C2-stuff TrustedSec Situational Awareness BOF.${NC}"
+     echo -e "${BLUE}Updating TrustedSec Situational Awareness BOF.${NC}"
      cd /opt/BOFs/trustedsec-sa/ ; git pull
      echo
 else
-     echo -e "${YELLOW}Installing C2-stuff TrustedSec Situational Awareness BOF.${NC}"
+     echo -e "${YELLOW}Installing TrustedSec Situational Awareness BOF.${NC}"
      git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/BOFs/trustedsec-sa
      echo
 fi
