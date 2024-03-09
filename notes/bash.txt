@@ -354,3 +354,28 @@ xterm -hold -bg blue -fg white -geometry 90x10 -T "Test ping" -e ping -c3 google
 
 Open an xterm window in the top right corner of the screen, run a command, and stay open
 xterm -hold -bg blue -fg white -geometry 90x10-0+0 -T "Test ping" -e ping -c3 google.com
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Clone all repos from a GitHub account
+
+#!/bin/bash
+
+DESTINATION_FOLDER="/opt/GhostPack"
+REPOS_URL="https://api.github.com/users/GhostPack/repos"
+REPOS=$(curl -s "$REPOS_URL" | grep clone_url | cut -d '"' -f4)
+
+for REPO_URL in $REPOS; do
+    REPO_NAME=$(basename "$REPO_URL" .git)
+    REPO_DESTINATION="$DESTINATION_FOLDER/$REPO_NAME"
+
+    if [ -d "$REPO_DESTINATION" ]; then
+        echo "Updating $REPO_NAME."
+        cd "$REPO_DESTINATION"
+        git pull
+        echo
+    else
+        git clone "$REPO_URL" "$REPO_DESTINATION"
+        echo "Installing $REPO_NAME."
+        echo
+    fi
+done
