@@ -198,25 +198,36 @@ Pro Tip: Use the following repo to automate your infrastructure setup.
 https://github.com/ezra-buckingham/terry-the-terraformer
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Create listeners
+# Listeners
 
-Cobalt Strike > Listeners > Add
-Name: https
+- Create a primary HTTPS listener
+Click headphones > Add
+Name: https_primary
 Payload: Beacon HTTPS
-HTTP Hosts: click + <redirector1 IP> > OK
-Save > OK
+HTTPS Hosts: <domain.com>
+HTTPS Host (Stager): <domain.com>
+Profile: Primary
+HTTPS Port (C2): 443
+Save
 
-Add
-Name: https2
+- Create a backup HTTPS listener
+Click Add
+Name: https_backup
 Payload: Beacon HTTPS
-HTTPS Hosts: click + <redirector2 IP>
-Save > OK
+HTTPS Hosts: <domain2.com>
+HTTPS Host (Stager): <domain2.com>
+Profile: Backup
+HTTPS Port (C2): 443
+HTTPS Port (Bind): 4443
+Save
 
-Add
+- Create a DNS listener
+Click Add
 Name: dns
 Payload: Beacon DNS
-DNS Hosts: click + <redirector3 IP>
-Save > OK
+DNS Hosts: <domain3.com>
+DNS Host (Stager): <domain3.com>
+Save
 
 Using your domain registar, add the following records for each redirector:
 https            A    <redirector IP>
@@ -228,7 +239,8 @@ OPSEC: Blend in with the named pipes of your target environment.
 Find examples using a similar Windows VM.
 Open PowerShell: [System.IO.Directory]::GetFiles("\\.\\pipe\\")
 
-Add
+- Create SMB listener
+Click Add
 Name: smb
 Payload: Beacon SMB
 Using the example above, change the pipename.
@@ -262,7 +274,7 @@ Click on Cobalt Strike and you will see a Beacon session appear in the top pane.
 
 - Troubleshooting
 View > Web Log
-This is helpful to know when HTTP/S requests are accessing your team server.
+Check for HTTP/S requests to your team server.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Bypass AV
