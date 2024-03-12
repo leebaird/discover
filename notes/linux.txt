@@ -145,16 +145,15 @@ chown -R kali:kali data                         Change owner permissions recursi
 
 # File Transfer
 
-curl                                            Supports more protocols and APIs
-wget                                            No APIs, supports recursive download
-
 python3 -m http.server                          Starts a web sever on the default port 8000
 python3 -m http.server 80                       Starts a web sever on port 80
 
-curl 10.0.0.5/test.txt                          Dump a file to STDOUT
-curl -O 10.0.0.5/test.txt                       Download a file and keep the same filename
-curl 10.0.0.5/test.txt -o results.txt           Download a file and rename it
-wget 10.0.0.5/test.txt                          Download a file and keep the same filename
+curl                                            Supports more protocols and APIs
+curl -ikL 10.0.0.5/test.txt -O                  Download a file
+curl -ikL 10.0.0.5/test.txt -o results.txt      Download a file and rename it
+
+wget                                            No APIs, supports recursive download
+wget 10.0.0.5/test.txt                          Download a file
 wget 10.0.0.5/test.txt -O results.txt           Download a file and rename it
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -280,7 +279,7 @@ iface eth0 inet static
 
 systemctl restart networking.service            Restart networking
 
-curl ifconfig.me                                Show external IP
+curl -ikL ifconfig.me                           Show external IP
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Processes
@@ -415,18 +414,18 @@ ssh user@host -p 2222                           Connect on a non-standard port
 ssh user@host -i <key>                          Connect using an identity file
 
 - Local port forwarding
-ssh <gateway> -L <local port to listen>:<remote host>:<remote port>
+ssh <gateway> -L <local port>:<remote host>:<remote port>
 ssh user@host -L 5900:localhost:5900
 
 - Remote port forwarding
-ssh <gateway> -R <remote port to bind>:<local host>:<local port>
-ssh user@host -R 2222:localhost:22 -f -N
-                                                -f   Force to background
-                                                -N   Do not execute a remote command
+ssh <gateway> -R <local host>:<local port>:<remote host>:<remote port>
+ssh user@host -R 0.0.0.0:22:127.0.0.1:22
+
+Open a new tab in Terminal on the local host
+nc -lvnp 22
 
 - Dynamic port forwarding
-ssh user@host -f -N -D 1080
-                                                -D   Create a SOCKS tunnel
+ssh user@host -f -N -D 1080                     -D   Create a SOCKS tunnel
 proxychains nmap <options>
 
 Firefox Preferences > Advanced > Network > Settings > Manual proxy configuration
