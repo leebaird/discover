@@ -260,7 +260,7 @@ echo "     IP                   (43/$total)"
 ip=`ping -c1 $domain | grep PING | cut -d '(' -f2 | cut -d ')' -f1`
 whois $ip > tmp
 # Remove blank lines from the beginning of a file
-egrep -v '(#|Comment:)' tmp | sed '/./,$!d' > tmp2
+egrep -iv '(#|%|comment|remarks)' tmp | sed '/./,$!d' > tmp2
 # Remove blank lines from the end of a file
 sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' tmp2 > tmp3
 # Compress blank lines
