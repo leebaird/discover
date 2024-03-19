@@ -93,7 +93,7 @@ case $choice in
           f_main
      fi
 
-     grep 'Disallow' robots.txt | awk '{print $2}' > tmp
+     grep -i 'disallow' robots.txt | grep -v '*' | awk '{print $2}' > tmp
 
      for i in $(cat tmp); do
           xdg-open http://$domain$i &
