@@ -21,8 +21,6 @@ Select 64-bit VMware Weekly
 Login with kali:kali
 passwd
 Enter new password 2x.
-
-rm -rf Documents Music Pictures Public Templates Videos
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Disable screen lock
