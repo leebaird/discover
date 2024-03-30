@@ -22,7 +22,7 @@ Login with kali:kali
 passwd
 Enter new password 2x.
 
-rm -rf Music Pictures Public Templates Videos
+rm -rf Documents Music Pictures Public Templates Videos
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Disable screen lock
@@ -52,7 +52,8 @@ OK
 
 kali-tweaks
 Select Shell & Prompt > Command Prompt
-Select One Line > space bar > Apply > OK > enter > esc 3x
+Select One Line > space bar > Apply
+Virtualization > OK
 
 sudo -i
 Repeat the steps above.
@@ -69,7 +70,7 @@ View
      Uncheck Use system monospace font
      Font: 11 > Select
 Editor
-     Tab width: 5
+     Tab width: 4
      Tab mode: Insert Spaces
 Window
      Check Remember window position
@@ -82,15 +83,11 @@ Repeat the steps above.
 
 # Clock
 
-right-click on the clock > Preferences
-Format: 03:23PM
-
-- Optional
-timedatectl set-timezone America/<city>
-Eastern: New_York
-Central: Chicago
-Mountain: Denver
-Pacific: Los_Angeles
+Right-click on the clock > Preferences
+Eastern: America/New_York
+Central: America/Chicago
+Mountain: America/Denver
+Pacific: America/Los_Angeles
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Patch the OS
