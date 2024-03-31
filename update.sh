@@ -23,6 +23,10 @@ if [ -d /opt/cobaltstrike/third-party/outflanknl-helpcolor/ ]; then
     rm -rf /opt/cobaltstrike/third-party/outflanknl-helpcolor/
 fi
 
+if [ -d /opt/Havoc/ ]; then
+    rm -rf /opt/Havoc/
+fi
+
 # -----------------------------------------------------------------------------------------------
 
 clear
@@ -296,19 +300,9 @@ if [ ! -f /usr/bin/gobuster ]; then
     echo
 fi
 
-if [ -d /opt/Havoc/.git ]; then
-    echo -e "${BLUE}Updating Havoc.${NC}"
-    cd /opt/Havoc/ ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing Havoc.${NC}"
-    apt install -y git build-essential apt-utils cmake libfontconfig1 libglu1-mesa-dev libgtest-dev libspdlog-dev libboost-all-dev libncurses5-dev libgdbm-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev libbz2-dev mesa-common-dev qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libqt5websockets5 libqt5websockets5-dev qtdeclarative5-dev golang-go qtbase5-dev libqt5websockets5-dev python3-dev libboost-all-dev mingw-w64 nasm
-    git clone https://github.com/HavocFramework/Havoc /opt/Havoc
-    cd /opt/Havoc/teamserver/
-    go mod download golang.org/x/sys
-    go mod download github.com/ugorji/go
-    cd ..
-    make all
+if [ ! -f /usr/bin/havoc ]; then
+    echo -e "${BLUE}Installing Havoc.${NC}"
+    apt install -y havoc
     echo
 fi
 
