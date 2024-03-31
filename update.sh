@@ -225,9 +225,14 @@ if [ -d /opt/Domain-Hunter/.git ]; then
 else
      echo -e "${YELLOW}Installing Domain Hunter.${NC}"
      git clone https://github.com/threatexpress/domainhunter /opt/Domain-Hunter
+     echo
+     echo -e "${YELLOW}Setting up Domain Hunter virtualenv.${NC}"
+     virtualenv -p /usr/bin/python3 /opt/Domain-Hunter-venv
+     source /opt/Domain-Hunter-venv/bin/activate
      cd /opt/Domain-Hunter/
      pip3 install pytesseract
      chmod 755 domainhunter.py
+     deactivate
      echo
 fi
 
