@@ -235,6 +235,7 @@ else
     source /opt/Domain-Hunter-venv/bin/activate
     cd /opt/Domain-Hunter/
     pip3 install pytesseract
+#    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org pytesseract
     chmod 755 domainhunter.py
     deactivate
     echo
