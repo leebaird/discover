@@ -644,6 +644,20 @@ Enter the replacement character.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Situational Awareness
+
+unset HISTFILE                                  Ensure commands are not written to history file
+ps -ef                                          Show active processes
+uname -a                                        Show OS and build info
+last                                            Show previous logins
+w                                               Show current logins
+netstat -antpu                                  Show active network connections
+sudo -s                                         Enter admin session if possible
+ls /home/                                       Show home directories
+ls /home/<username>/.ssh                        Look for SSH keys
+cat /home/<USERNAME>/.bash_history | less       Show a user's command history, use up/down arrows
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Anonymous Mountable CIFS
 
 mkdir /mnt/temp/
@@ -702,19 +716,6 @@ export PATH=/tmp:$PATH                                     Add the /tmp director
 echo $PATH                                                 Check that the directory has been added
 demo                                                       Execute the binary
 id                                                         You should now have a uid of 0 (root)
-
-- Enumeration
-cat /etc/sysconfig/network                                 Hostname and domain name
-ifconfig                                                   IP addresses to all network interfaces
-route                                                      Gateway
-cat /etc/resolv.conf                                       DNS
-netstat -antp                                              Show ports that are listening
-arp -e
-cat /etc/issue                                             OS info
-cat /proc/version                                          OS name
-uname -a                                                   Kernel info
-cat /sys/class/dmi/id/product_name                         Computer model
-cat /etc/exports
 
 - Search for exploits
 searchsploit linux kernel ubuntu 16.04
