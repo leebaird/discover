@@ -150,67 +150,67 @@ echo
 echo "theHarvester"
 source /opt/theHarvester-venv/bin/activate
 echo "     anubis               (10/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b anubis | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zanubis
+/opt/theHarvester/theHarvester.py -d $domain -b anubis | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zanubis
 echo "     baidu                (11/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b baidu | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbaidu
+/opt/theHarvester/theHarvester.py -d $domain -b baidu | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zbaidu
 echo "     bevigil              (12/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b bevigil | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbevigil
+/opt/theHarvester/theHarvester.py -d $domain -b bevigil | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zbevigil
 echo "     binaryedge           (13/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b binaryedge | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbinaryedge
+/opt/theHarvester/theHarvester.py -d $domain -b binaryedge | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zbinaryedge
 echo "     bing                 (14/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b bing | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing
+/opt/theHarvester/theHarvester.py -d $domain -b bing | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zbing
 echo "     bing API             (15/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b bingapi | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbing-api
+/opt/theHarvester/theHarvester.py -d $domain -b bingapi | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zbing-api
 echo "     brave                (16/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b brave | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbrave
+/opt/theHarvester/theHarvester.py -d $domain -b brave | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zbrave
 echo "     bufferoverun         (17/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b bufferoverun | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zbufferoverun
+/opt/theHarvester/theHarvester.py -d $domain -b bufferoverun | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zbufferoverun
 echo "     censys               (18/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b censys | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcensys
+/opt/theHarvester/theHarvester.py -d $domain -b censys | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zcensys
 echo "     certspotter          (19/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b certspotter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcertspotter
+/opt/theHarvester/theHarvester.py -d $domain -b certspotter | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zcertspotter
 echo "     criminalip           (20/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b criminalip | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcriminalip
+/opt/theHarvester/theHarvester.py -d $domain -b criminalip | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zcriminalip
 echo "     crtsh                (21/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b crtsh | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zcrtsh
+/opt/theHarvester/theHarvester.py -d $domain -b crtsh | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zcrtsh
 echo "     dnsdumpster          (22/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zdnsdumpster
+/opt/theHarvester/theHarvester.py -d $domain -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zdnsdumpster
 echo "     duckduckgo           (23/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b duckduckgo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zduckduckgo
+/opt/theHarvester/theHarvester.py -d $domain -b duckduckgo | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zduckduckgo
 echo "     fullhunt             (24/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b fullhunt | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zfullhunt
+/opt/theHarvester/theHarvester.py -d $domain -b fullhunt | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zfullhunt
 echo "     github-code          (25/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b github-code | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zgithub-code
+/opt/theHarvester/theHarvester.py -d $domain -b github-code | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zgithub-code
 echo "     hackertarget         (26/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b hackertarget | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhackertarget
+/opt/theHarvester/theHarvester.py -d $domain -b hackertarget | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zhackertarget
 echo "     hunter               (27/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunter
+/opt/theHarvester/theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zhunter
 echo "     hunterhow            (28/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b hunterhow | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zhunterhow
+/opt/theHarvester/theHarvester.py -d $domain -b hunterhow | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zhunterhow
 echo "     intelx               (29/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zintelx
+/opt/theHarvester/theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zintelx
 echo "     otx                  (30/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zotx
+/opt/theHarvester/theHarvester.py -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zotx
 echo "     pentesttools         (31/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b pentesttools | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zpentesttools
+/opt/theHarvester/theHarvester.py -d $domain -b pentesttools | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zpentesttools
 echo "     projectdiscovery     (32/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b projectdiscovery | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zprojectdiscovery
+/opt/theHarvester/theHarvester.py -d $domain -b projectdiscovery | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zprojectdiscovery
 echo "     rapiddns             (33/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b rapiddns | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zrapiddns
+/opt/theHarvester/theHarvester.py -d $domain -b rapiddns | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zrapiddns
 echo "     securityTrails       (34/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsecuritytrails
+/opt/theHarvester/theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zsecuritytrails
 echo "     sitedossier          (35/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsitedossier
+/opt/theHarvester/theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zsitedossier
 echo "     subdomainfinderc99   (36/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b subdomainfinderc99 | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zsubdomainfinderc99
+/opt/theHarvester/theHarvester.py -d $domain -b subdomainfinderc99 | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zsubdomainfinderc99
 echo "     threatminer          (37/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b threatminer | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zthreatminer
+/opt/theHarvester/theHarvester.py -d $domain -b threatminer | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zthreatminer
 echo "     urlscan              (38/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b urlscan | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zurlscan
+/opt/theHarvester/theHarvester.py -d $domain -b urlscan | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zurlscan
 echo "     virustotal           (39/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zvirustotal
+/opt/theHarvester/theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zvirustotal
 echo "     yahoo                (40/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching)' | sed '/^$/d' > zyahoo
+/opt/theHarvester/theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' > zyahoo
 rm tmp*
 deactivate
 echo
