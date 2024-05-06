@@ -364,7 +364,8 @@ recon-ng -r $CWD/passive.rc
 grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|query|SELECT)' | sort -u > emails2
 cat emails emails2 | sort -u > emails-final
 
-grep '|' /tmp/names | grep -v last_name | sort -u | sed 's/|/ /g' | sed 's/[ \t]*$//' > names-final
+# Remove leading and trailing white space
+grep '|' /tmp/names | grep -v last_name | sort -u | sed 's/|/ /g' | sed 's/^[ \t]*//' | sed 's/[ \t]*$//' > names-final
 
 grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > tmp
 cat tmp networks | sort -u | $sip > networks-final
