@@ -1,4 +1,6 @@
 #!/usr/bin/bash
+
+# by Lee Baird (@discoverscripts) & Jason Arnold
 #
 # Things to do...
 #
@@ -28,15 +30,15 @@ iwconfig > tmp 2>/dev/null
 if [ ! -s tmp ]; then
      zenity --error --text "No wireless device found. If you are using a VM, make sure your USB card is enabled."
      rm tmp 2>/dev/null
-     exit
+     exit 1
 fi
 
 echo -e "\e[1;33m[*] Setting variables.\e[0m"
 
-break="=================================================="
 datestamp=$(date +%F_%T)
 interface=$(grep -m 1 '802' tmp | awk '{print $1}')
 kernmod=$(airmon-ng | grep $interface | awk -F" " {'print $4'})
+medium='=================================================================='
 monitor=$(grep -m 1 'Monitor' tmp | awk '{print $1}')
 resolution=$(xdpyinfo | grep 'dimensions:' | awk -F" " {'print $2'} | awk -F"x" {'print $1'})
 workdir=/root/wifi-keys
@@ -65,7 +67,7 @@ else
      rm tmp 2>/dev/null
      echo
      echo
-     exit
+     exit 1
 fi
 
 ##############################################################################################################
@@ -83,7 +85,7 @@ else
      rm tmp 2>/dev/null
      echo
      echo
-     exit
+     exit 1
 fi
 
 ##############################################################################################################
@@ -109,7 +111,7 @@ if [ -f $workdir/keys ]; then
           echo "Make these changes, then re-launch the program."
           echo
           echo
-          exit
+          exit 1
      fi
 
 else
@@ -192,11 +194,11 @@ rm tmp 2>/dev/null
 
 f_error(){
 echo
-echo -e "\e[1;31m$break\e[0m"
+echo -e "\e[1;31m$medium\e[0m"
 echo
 echo -e "\e[1;31m            *** Invalid choice. ***\e[0m"
 echo
-echo -e "\e[1;31m$break\e[0m"
+echo -e "\e[1;31m$medium\e[0m"
 sleep 2
 f_menu
 }
@@ -221,7 +223,7 @@ elif [[ $zz =  "Join a network" ]]; then
      y=$(cat tmp | awk -F"^" '{print $4}')
      z=$(cat tmp | awk -F"^" '{print $5}')
      echo
-     echo $break
+     echo $medium
      echo
 
      if [ $z = "WPA" ]; then
@@ -294,7 +296,7 @@ fi
 
 f_options(){
 echo
-echo $break
+echo $medium
 echo
 echo "Enter the options for your attack."
 echo
@@ -350,7 +352,7 @@ f_menu
 
 f_spoof(){
 echo
-echo $break
+echo $medium
 echo
 echo -e "\e[1;33m[*] Spoofing MAC address.\e[0m"
 echo
@@ -362,7 +364,7 @@ ifconfig $monitor up
 FakeMAC=`macchanger -s $monitor | awk '{print $3}'`
 
 echo
-echo $break
+echo $medium
 echo
 }
 
@@ -420,7 +422,7 @@ return $ERROR
 
 f_scan(){
 echo
-echo $break
+echo $medium
 echo
 echo -e "\e[1;33mOnce scanning begins, press ctl+c to exit and return to main menu.\e[0m"
 echo
@@ -463,7 +465,7 @@ fi
 
 f_scanWPS(){
 echo
-echo $break
+echo $medium
 echo
 echo -e "\e[1;33m[*] Run until you find a target network, then press ctl+c.\e[0m"
 echo

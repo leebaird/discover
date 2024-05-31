@@ -1,10 +1,12 @@
 #!/usr/bin/bash
 
+# by Lee Baird (@discoverscripts)
+
 clear
 
-break="========================================"
-DIR=/root/Desktop/compare-sites
+DIR=$home/compare-sites
 DIFFONLY=false
+medium='=================================================================='
 
 usage(){
 echo
@@ -17,7 +19,7 @@ echo "Usage: $0 [options] file"
 echo
 echo "Options:"
 echo " -c Compare versions."
-echo " -o Output directory. Default: /root/Desktop/compare-sites"
+echo " -o Output directory. Default: ~/compare-sites"
 echo
 echo
 }
@@ -39,16 +41,17 @@ FILE=$*
 
 if [ -z $FILE ]; then
      usage
-     exit
+     exit 1
 fi
 
 if [ ! -f $FILE ]; then
      echo
+     echo $medium
      echo
      echo "File does not exist."
      echo
      echo
-     exit
+     exit 1
 fi
 
 if [ ! -d $DIR ]; then
@@ -76,7 +79,7 @@ if ! $DIFFONLY; then
      done
 
      echo
-     echo $break
+     echo $medium
 else
      VERSION=$(($VERSION - 1))
 fi
@@ -100,7 +103,7 @@ if [ $VERSION -gt 1 ]; then
 
      for URL in $(cat $FILE); do
           echo
-          echo $break
+          echo $medium
           echo
           echo -e "\e[1;34m$URL\e[0m"
           HASH=$(sha256sum <<<$URL | tr -d " -")

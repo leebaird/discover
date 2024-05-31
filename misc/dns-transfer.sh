@@ -1,5 +1,9 @@
 #!/usr/bin/bash
 
+# by Lee Baird (@discoverscripts)
+
+medium='=================================================================='
+
 clear
 echo
 echo "DNS Transfer"
@@ -16,16 +20,16 @@ read -p "Domain: " domain
 
 if [ -z $domain ]; then
      echo
-     echo "========================================"
+     echo $medium
      echo
      echo "Invalid choice."
      echo
      echo
-     exit
+     exit 1
 fi
 
 echo
-echo "========================================"
+echo $medium
 echo
 
 for x in $(host -t ns $domain | cut -d ' ' -f4); do

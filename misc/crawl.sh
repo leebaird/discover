@@ -1,5 +1,9 @@
 #!/usr/bin/bash
 
+# by Lee Baird (@discoverscripts)
+
+medium='=================================================================='
+
 clear
 echo
 echo "Crawl"
@@ -16,31 +20,28 @@ read -p "Domain: " domain
 
 if [ -z $domain ]; then
      echo
-     echo "========================================"
+     echo $medium
      echo
      echo "Invalid choice."
      echo
      echo
-     exit
+     exit 1
 fi
 
 echo
-echo "========================================"
+echo $medium
 echo
 
-wget -q www.$domain
-
-if [ ! -e index.html ]; then
-     echo
-     exit
-fi
+wget www.$domain
 
 grep 'href=' index.html | cut -d '/' -f3 | grep $domain | egrep -v "(www.$domain|>)" | cut -d '"' -f1 | sort -u > tmp
 
 if [ ! -s tmp ]; then
      echo 'No subdomains found.'
 else
-     cat tmp | sort -u | column -t 2>/dev/null
+     echo $medium
+     echo
+     cat tmp | sed 's/\?.*//' | sort -u | column -t
 fi
 
 rm index.html tmp*

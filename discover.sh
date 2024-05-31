@@ -100,7 +100,7 @@ echo
 echo
 echo -e "${RED}$medium${NC}"
 echo
-echo -e "${RED}                *** Invalid choice or entry. ***${NC}"
+echo -e "${RED}                --- Invalid choice or entry. ---${NC}"
 echo
 echo -e "${RED}$medium${NC}"
 echo

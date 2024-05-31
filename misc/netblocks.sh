@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+# by Lee Baird (@discoverscripts)
+
 clear
 echo
 echo "Netblocks"
@@ -7,7 +9,7 @@ echo
 echo
 echo "By Lee Baird"
 echo
-echo "This returns a list of Class A owners and takes about 100 sec."
+echo "This returns a list of Class A owners. Takes about 100 sec."
 echo
 
 for x in `seq 1 255`; do

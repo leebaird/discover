@@ -1,8 +1,12 @@
 #!/usr/bin/bash
 
+# by Lee Baird (@discoverscripts)
+
+medium='=================================================================='
+
 clear
 echo
-echo "PIng Sweep"
+echo "Ping Sweep"
 echo
 echo
 echo "By Lee Baird"
@@ -16,16 +20,16 @@ read -p "Class: " class
 
 if [ -z $class ]; then
      echo
-     echo "========================================"
+     echo $medium
      echo
      echo "Invalid choice."
      echo
      echo
-     exit
+     exit 1
 fi
 
 echo
-echo "========================================"
+echo $medium
 echo
 
 for x in `seq 1 254`; do

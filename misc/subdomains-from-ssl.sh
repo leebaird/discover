@@ -1,5 +1,9 @@
 #!/usr/bin/bash
 
+# by Lee Baird (@discoverscripts)
+
+medium='=================================================================='
+
 clear
 echo
 echo
@@ -9,10 +13,12 @@ read domain
 # Check for no answer
 if [[ -z $domain ]]; then
      echo
-     echo "[!] You didn't enter a domain."
+     echo $medium
+     echo
+     echo "Invalid choice."
      echo
      echo
-     exit
+     exit 1
 fi
 
 sslyze $domain --resum --certinfo=basic --compression --reneg --sslv2 --sslv3 --hide_rejected_ciphers > tmp
