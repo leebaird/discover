@@ -15,23 +15,23 @@ METHOD=host      # Default method set to host
 usage (){
      echo
      echo
-     echo "goohost v.0.0.1 Beta"
+     echo "goohost v.0.0.2"
      echo
      echo "Extracts hosts/subdomains, IP or emails for a specific domain with Google search."
      echo "Author: watakushi"
      echo "Thanks to: Johnny Long and GHDB for inspiration stuff"
      echo "Special thanks to: Danya & Roberto"
      echo
-     echo "Usage: $0 -t domain [-m <host|ip|mail> -p <1-20> -v]"
-     echo "-t: domain"
-     echo "-m: method: <ip|host|mail>. Default value is set to host"
+     echo "Usage: $0 -d domain [-m <host|ip|mail> -p <1-20> -v]"
+     echo "-d: domain"
+     echo "-m: method: <host|ip|mail>. Default value is set to host"
      echo "      host: raw google hosts and subdomains search"
      echo "        ip: raw google hosts and subdomains search and performs a reverse DNS resolution"
      echo "      mail: raw google email search"
      echo "-p: pages [1-20]. Max number of pages to download. Default is 5."
      echo "-v: verbosity. Default is off"
      echo
-     echo "Example: $0 -t target.com -m ip -p 10 -v"
+     echo "Example: $0 -d target.com -m ip -p 10 -v"
      echo
      echo
      exit 1
@@ -43,9 +43,9 @@ getresult (){
      return $RESULT
 }
 
-while getopts "t:m:p:v" optname; do
+while getopts "d:m:p:v" optname; do
      case "$optname" in
-          "t")
+          "d")
           DOMAIN=$OPTARG
           ;;
 

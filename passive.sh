@@ -135,9 +135,9 @@ echo
 
 echo "goohost"
 echo "     IP                   (7/$total)"
-$discover/mods/goohost.sh -t $domain -m ip >/dev/null
-echo "     Email                (8/$total)"
-$discover/mods/goohost.sh -t $domain -m mail >/dev/null
+$discover/mods/goohost.sh -d $domain -m ip >/dev/null
+echo "     Mail                 (8/$total)"
+$discover/mods/goohost.sh -d $domain -m mail >/dev/null
 cat report-* | grep $domain | column -t | sort -u > zgoohost
 rm *-$domain.txt 2>/dev/null
 echo
@@ -619,30 +619,30 @@ xdg-open https://www.shodan.io/search?query=$domain &
 sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+%22index+of/%22+OR+%22parent+directory%22 &
 sleep 4
-xdg-open https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
-sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+username+OR+password+OR+login+-Find &
-sleep 6
-xdg-open https://www.google.com/search?q=site:$domain+Atlassian+OR+jira+-%22Job+Description%22+-filetype%3Apdf &
 sleep 4
 xdg-open https://networksdb.io/search/org/%22$companyurl%22 &
 sleep 4
-xdg-open https://phonebook.cz &
-sleep 4
 xdg-open https://www.google.com/search?q=site:pastebin.com+%22$domain%22+password &
 sleep 6
+xdg-open https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
+sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+filetype%3Adoc+OR+filetype%3Adocx &
 sleep 7
 xdg-open https://www.google.com/search?q=site:$domain+filetype%3Axls+OR+filetype%3Axlsx &
 sleep 8
 xdg-open https://www.google.com/search?q=site:$domain+filetype%3Appt+OR+filetype%3Apptx &
 sleep 9
+xdg-open https://shdn.io/analyze?target=$ip &
+sleep 4
 xdg-open https://www.google.com/search?q=site:$domain+filetype%3Atxt &
 sleep 8
 xdg-open https://www.google.com/search?q=site:http://s3.amazonaws.com+%22$domain%22 &
 sleep 8
 xdg-open https://www.google.com/search?q=site:http://blob.core.windows.net+%22$domain%22 &
 sleep 7
+xdg-open https://phonebook.cz &
+sleep 4
 xdg-open https://www.google.com/search?q=site:http://googleapis.com+%22$domain%22 &
 sleep 7
 xdg-open https://www.google.com/search?q=site:http://drive.google.com+%22$domain%22 &
