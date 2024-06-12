@@ -55,14 +55,14 @@ total=46
 
 echo "ARIN"
 echo "     Email                (1/$total)"
-curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -k -s https://whois.arin.net/rest/pocs\;domain=$domain > tmp.xml
+curl -k -s https://whois.arin.net/rest/pocs\;domain=$domain > tmp.xml
 
 if ! grep -q 'No Search Results' tmp.xml; then
      xmllint --format tmp.xml | grep 'handle' | cut -d '>' -f2 | cut -d '<' -f1 | sort -u > zurls.txt
      xmllint --format tmp.xml | grep 'handle' | cut -d '"' -f2 | sort -u > zhandles.txt
 
      while read i; do
-          curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -k -s $i > tmp2.xml
+          curl -k -s $i > tmp2.xml
           xml_grep 'email' tmp2.xml --text_only >> tmp
      done < zurls.txt
 
@@ -76,7 +76,7 @@ rm tmp*
 echo "     Names                (2/$total)"
 if [ -f zhandles.txt ]; then
      for i in $(cat zhandles.txt); do
-          curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -k -s https://whois.arin.net/rest/poc/$i.txt | grep 'Name' >> tmp
+          curl -k -s https://whois.arin.net/rest/poc/$i.txt | grep 'Name' >> tmp
      done
 
      egrep -iv "($company|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
@@ -89,14 +89,14 @@ rm tmp* zurls.txt zhandles.txt 2>/dev/null
 ###############################################################################################################################
 
 echo "     Networks             (3/$total)"
-curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -k -s https://whois.arin.net/rest/orgs\;name=$companyurl -o tmp.xml
+curl -k -s https://whois.arin.net/rest/orgs\;name=$companyurl -o tmp.xml
 
 if ! grep -q 'No Search Results' tmp.xml; then
      xmllint --format tmp.xml | grep 'handle' | cut -d '/' -f6 | cut -d '<' -f1 | sort -uV > tmp
 
      for i in $(cat tmp); do
           echo "          " $i
-          curl --cipher ECDHE-RSA-AES256-GCM-SHA384 -k -s https://whois.arin.net/rest/org/$i/nets.txt >> tmp2
+          curl -k -s https://whois.arin.net/rest/org/$i/nets.txt >> tmp2
      done
      grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp2 | awk '{print $4 "-" $6}' | sed '/^-/d' | $sip > networks
 fi
