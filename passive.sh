@@ -210,8 +210,8 @@ echo "     threatminer          (37/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b threatminer | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zthreatminer
 echo "     urlscan              (38/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b urlscan | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zurlscan
-echo "     virustotal           (39/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zvirustotal
+echo "     virustotal           (39/$total) disabled"
+#/opt/theHarvester/theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zvirustotal
 echo "     yahoo                (40/$total)"
 /opt/theHarvester/theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zyahoo
 rm tmp*
