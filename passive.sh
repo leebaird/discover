@@ -608,43 +608,41 @@ echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${
 f_runlocally
 
 xdg-open https://www.google.com/search?q=%22$companyurl%22+logo &
-sleep 4
+sleep 8
 xdg-open https://www.google.com/search?q=site:$domain+intext:%22internal+use+only%22 &
-sleep 5
+sleep 8
 xdg-open https://www.google.com/search?q=site:$domain+intext:%22proprietary+and+confidential%22&
-sleep 6
-xdg-open https://www.google.com/search?q=site:$domain+intext:%22top+secret%22 &
 sleep 4
 xdg-open https://www.shodan.io/search?query=$domain &
-sleep 4
+sleep 8
 xdg-open https://www.google.com/search?q=site:$domain+%22index+of/%22+OR+%22parent+directory%22 &
-sleep 4
+sleep 8
 xdg-open https://www.google.com/search?q=site:$domain+username+OR+password+OR+login+-Find &
 sleep 4
 xdg-open https://networksdb.io/search/org/%22$companyurl%22 &
-sleep 4
+sleep 8
 xdg-open https://www.google.com/search?q=site:pastebin.com+%22$domain%22+password &
-sleep 6
-xdg-open https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
 sleep 4
+xdg-open https://dockets.justia.com/search?parties=%22$companyurl%22&cases=mostrecent &
+sleep 8
+xdg-open https://www.google.com/search?q=site:http://googleapis.com+%22$domain%22+-patent &
+sleep 8
+xdg-open https://www.google.com/search?q=site:http://drive.google.com+%22$domain%22 &
+sleep 8
 xdg-open https://www.google.com/search?q=site:$domain+filetype%3Adoc+OR+filetype%3Adocx &
-sleep 7
+sleep 8
 xdg-open https://www.google.com/search?q=site:$domain+filetype%3Axls+OR+filetype%3Axlsx &
 sleep 8
 xdg-open https://www.google.com/search?q=site:$domain+filetype%3Appt+OR+filetype%3Apptx &
-sleep 9
-xdg-open https://shdn.io/analyze?target=$ip &
 sleep 4
+xdg-open https://shdn.io/analyze?target=$ip &
+sleep 8
 xdg-open https://www.google.com/search?q=site:$domain+filetype%3Atxt &
 sleep 8
 xdg-open https://www.google.com/search?q=site:http://s3.amazonaws.com+%22$domain%22 &
 sleep 8
 xdg-open https://www.google.com/search?q=site:http://blob.core.windows.net+%22$domain%22 &
-sleep 7
-xdg-open https://phonebook.cz &
 sleep 4
-xdg-open https://www.google.com/search?q=site:http://googleapis.com+%22$domain%22 &
-sleep 7
-xdg-open https://www.google.com/search?q=site:http://drive.google.com+%22$domain%22 &
+xdg-open https://phonebook.cz &
 sleep 4
 xdg-open https://$domain &
