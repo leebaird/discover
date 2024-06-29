@@ -170,21 +170,28 @@ double ampersand (&&)                                         Depends on the fir
 pipe (|)                                                      Uses output from the first command as input to the second command
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Check for argument. If not given, print the usage
+# Check for root when running a script
+if [ $EUID -ne 0 ]; then
+     echo
+     echo "[!] This script must be ran as root."
+     exit 1
+fi
+
+# Check for an argument when running a script. If not provided, print the usage
 if [ -z "$1" ]; then
      echo
      echo "Usage: $0 <domain name>"
      exit 1
 fi
 
-# Check for two arguments. If not given, print the usage
+# Check for two arguments when running a script. If both are not provided, print the usage
 if [ $# -ne 2 ]; then
      echo
      echo "Usage: $0 <input file> <output file>"
      exit 1
 fi
 
-# Check for argument. Give feedback to user
+# Check for a certain argument when running a script. Give feedback to user
 echo -e "Usage: test.sh <target IP> <scan type>"
 if [ "$2" == "All" ]; then
      echo "Running all scans on $1."
@@ -192,26 +199,23 @@ else
      echo "Running a $2 scan on $1."
 fi
 
-# Check for root
-if [ $EUID -ne 0 ]; then
-     echo
-     echo "[!] This script must be ran as root."
-     exit 1
-fi
 
 # Check for no answer
 if [ -z $location ]; then
-     f_Error
+     f_error
+     exit 1
 fi
 
 # Check for wrong answer
 if [ ! -f $location ]; then
-     f_Error
+     f_error
+     exit 1
 fi
 
-# Check for no answer, need dbl brackets to handle a space in the name
+# Check for no answer, double brackets are needed to handle a space in a variable (ex. Home Depot)
 if [[ -z $company ]]; then
      f_error
+     exit 1
 fi
 
 # Check for two variables
@@ -234,26 +238,25 @@ fi
 # Validate input is a number and greater than 0
 if ! [[ $number =~ ^[0-9]+$ ]] || [[ $number -le 0 ]]; then
      f_error
+     exit 1
 fi
 
-# Validate CIDR
+# Validate a CIDR
 sub=$(echo $cidr | cut -d '/' -f2)
-min=8
-max=32
-
-if ! [[ $sub =~ ^[0-9]+$ ]] || [[ $sub -lt $min || $sub -gt $max ]]; then
+if ! [[ $sub =~ ^[0-9]+$ ]] || [[ $sub -lt 8 || $sub -gt 32 ]]; then
      f_error
+     exit 1
 fi
 
-#Validate CVE
+# Validate a CVE
 if echo "$1" | grep -Eq '^CVE-[0-9]{4}-[0-9]{4,7}$'; then
     echo 'Do more stuff here.'
 else
-    echo '[!] Not a valid CVE.'
+    echo '[!] Invalid CVE.'
     exit 1
 fi
 
-# Validate port number
+# Validate a port number
 if ! [[ $port =~ ^[0-9]+$ ]] [[ $port -lt 1 || $port -gt 65535 ]]; then
      echo "[!] Invalid port."
      exit 1
@@ -280,6 +283,10 @@ echo "$(($diff / 60)) min and $(($diff % 60)) sec."
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Files and folders
+
+if [ ! which nmap >/dev/null ]; then
+     echo "Nmap is not installed."
+fi
 
 if [ -f test ]; then
      echo "This file exists."
