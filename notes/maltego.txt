@@ -4,8 +4,8 @@ Maltego
 # Example 1
 
 Create a new graph.
-Under the Emity Palette on the left, Infrastructure > Domain
-Drag the Domain icon to the right.
+From the palette on the left, scroll down to Infrastructure > Domain
+Drag the icon to the right.
 Edit the domain to your target.
 Right click > Run Transform > Email addresses from Domain > All
 
@@ -19,7 +19,8 @@ Select all emails > Other transforms > To Person, emailToMyspaceAccount, emailTo
 
 # Example 2
 
-Select IPv4 Address from the palette on the left and drag the icon to the right.
+From the palette on the left, scroll down to Infrastructure > IPv4 Address
+Drag the icon to the right.
 Edit the IP address to your target.
 Right click > Run Transform > DNS from IP > All in this set
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -30,12 +31,11 @@ Add a Domain > edit name to your target (www.target.com)
 
 Right click > Run Transform > All Transforms > To Domain [Find other TLDs]
 Select all TLDs > Run Transform > All Transforms > To Website [Quick lookup]
-
 Select all websites > Run Transform > All Transforms > To IP Address [DNS]
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Example 4
 
-RC > Run Transform > DNS from Domain > All in this set
-Select all  > Run Transform > All Transforms > To IP Address [DNS]
-Select all  IP addresses > Run Transform > All Transforms > To Netblock [Using whois info]
+Right click > Run Transform > DNS from Domain > All in this set
+Select all > Run Transform > All Transforms > To IP Address [DNS]
+Select all IP addresses > Run Transform > All Transforms > To Netblock [Using whois info]
