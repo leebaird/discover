@@ -1,9 +1,17 @@
 Maltego
 
 
+# Install Transforms
+
+Transforms > Transform Hub > install various Transforms
+Note that some require API keys.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Example 1
 
-Create a new graph.
+Investigate > New
+
 From the palette on the left, scroll down to Infrastructure > Domain
 Drag the icon to the right.
 Edit the domain to your target.
