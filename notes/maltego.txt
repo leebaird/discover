@@ -4,7 +4,7 @@ Maltego
 # Install Transforms
 
 Transforms > Transform Hub > install various Transforms
-Note that some require API keys.
+Note that some transforms require API keys.
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -37,13 +37,13 @@ Add a Domain > edit name to your target (www.target.com)
 
 # Example 3
 
-Right click > Run Transform > All Transforms > To Domain [Find other TLDs]
+Right-click > Run Transform > All Transforms > To Domain [Find other TLDs]
 Select all TLDs > Run Transform > All Transforms > To Website [Quick lookup]
 Select all websites > Run Transform > All Transforms > To IP Address [DNS]
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Example 4
 
-Right click > Run Transform > DNS from Domain > All in this set
+Right-click > Run Transform > DNS from Domain > All in this set
 Select all > Run Transform > All Transforms > To IP Address [DNS]
 Select all IP addresses > Run Transform > All Transforms > To Netblock [Using whois info]
