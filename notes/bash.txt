@@ -170,18 +170,38 @@ double ampersand (&&)                                         Depends on the fir
 pipe (|)                                                      Uses output from the first command as input to the second command
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Check for root when running a script
+# Check for root
 if [ $EUID -ne 0 ]; then
-     echo
-     echo "[!] This script must be ran as root."
-     exit 1
+    echo
+    echo "[!] This script must be run as root."
+    echo
+    exit 1
 fi
 
-# Check for an argument when running a script. If not provided, print the usage
-if [ -z "$1" ]; then
-     echo
-     echo "Usage: $0 <domain name>"
-     exit 1
+# Check for argument. If not provided, print the usage
+if [ $# -ne 1 ]; then
+    echo
+    echo "[!] Missing argument."
+    echo
+    echo "Usage: $0 <file>"
+    echo
+    exit 1
+fi
+
+# Check for proper file type
+if [[ "$1" != *.xlsx ]]; then
+    echo
+    echo "[!] Wrong file type. Only use .xlsx."
+    echo
+    exit 1
+fi
+
+# Check if file exists
+if [ ! -f "$1" ]; then
+    echo
+    echo "[!] The file does not exist."
+    echo
+    exit 1
 fi
 
 # Check for two arguments when running a script. If both are not provided, print the usage
@@ -194,28 +214,27 @@ fi
 # Check for a certain argument when running a script. Give feedback to user
 echo -e "Usage: test.sh <target IP> <scan type>"
 if [ "$2" == "All" ]; then
-     echo "Running all scans on $1."
+    echo "Running all scans on $1."
 else
-     echo "Running a $2 scan on $1."
+    echo "Running a $2 scan on $1."
 fi
-
 
 # Check for no answer
 if [ -z $location ]; then
-     f_error
-     exit 1
+    f_error
+    exit 1
 fi
 
 # Check for wrong answer
 if [ ! -f $location ]; then
-     f_error
-     exit 1
+    f_error
+    exit 1
 fi
 
 # Check for no answer, double brackets are needed to handle a space in a variable (ex. Home Depot)
 if [[ -z $company ]]; then
-     f_error
-     exit 1
+    f_error
+    exit 1
 fi
 
 # Check for two variables
@@ -225,27 +244,27 @@ echo -n "Enter another color: "
 read color2
 
 if [ $color = "red" ] && [ $color2 = "grey" ]; then
-     echo
-     echo "The Wall won't fall."
-     echo
-     exit
+    echo
+    echo "The Wall won't fall."
+    echo
+    exit
 else
-     echo
-     echo "Those colors are crap."
-     echo
+    echo
+    echo "Those colors are crap."
+    echo
 fi
 
 # Validate input is a number and greater than 0
 if ! [[ $number =~ ^[0-9]+$ ]] || [[ $number -le 0 ]]; then
-     f_error
-     exit 1
+    f_error
+    exit 1
 fi
 
 # Validate a CIDR
 sub=$(echo $cidr | cut -d '/' -f2)
 if ! [[ $sub =~ ^[0-9]+$ ]] || [[ $sub -lt 8 || $sub -gt 32 ]]; then
-     f_error
-     exit 1
+    f_error
+    exit 1
 fi
 
 # Validate a CVE
@@ -258,8 +277,8 @@ fi
 
 # Validate a port number
 if ! [[ $port =~ ^[0-9]+$ ]] [[ $port -lt 1 || $port -gt 65535 ]]; then
-     echo "[!] Invalid port."
-     exit 1
+    echo "[!] Invalid port."
+    exit 1
 fi
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -285,31 +304,31 @@ echo "$(($diff / 60)) min and $(($diff % 60)) sec."
 # Files and folders
 
 if [ ! which nmap >/dev/null ]; then
-     echo "Nmap is not installed."
+    echo "Nmap is not installed."
 fi
 
 if [ -f test ]; then
-     echo "This file exists."
+    echo "This file exists."
 fi
 
 if [ ! -f test ]; then
-     echo "This file does not exist."
+    echo "This file does not exist."
 fi
 
 if [ -s test ]; then
-     echo "This file contains data."
+    echo "This file contains data."
 fi
 
 if [ ! -s test ]; then 
-     echo "This file is empty."
+    echo "This file is empty."
 fi
 
 if [ -d test ]; then
-     echo "This folder exists."
+    echo "This folder exists."
 fi
 
 if [ ! -d test ]; then
-     echo "The folder does not exist."
+    echo "The folder does not exist."
 fi
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -318,18 +337,18 @@ fi
 pid=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
 
 if [ -n "$pid" ]; then
-     kill -9 $pid
+    kill -9 $pid
 fi
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Read in a file and do something
 
 for i in $(cat subdomains); do
-     host $i | grep 'has address' | cut -d ' ' -f4
+    host $i | grep 'has address' | cut -d ' ' -f4
 done
 
 while read i; do
-     host $i | grep 'has address' | cut -d ' ' -f4
+    host $i | grep 'has address' | cut -d ' ' -f4
 done < subdomains
 
 while read i; do
@@ -346,11 +365,11 @@ done < $1
 # Use a variable and set a constant
 
 if [ "$payload" == "1" ]; then
-     format="raw"
-     platform="android"
+    format="raw"
+    platform="android"
 else
-     format="exe"
-     platform="windows"
+    format="exe"
+    platform="windows"
 fi
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
