@@ -19,13 +19,13 @@ echo
 read -p "Class: " class
 
 if [ -z $class ]; then
-     echo
-     echo $medium
-     echo
-     echo "Invalid choice."
-     echo
-     echo
-     exit 1
+    echo
+    echo $medium
+    echo
+    echo "Invalid choice."
+    echo
+    echo
+    exit 1
 fi
 
 echo
@@ -33,7 +33,7 @@ echo $medium
 echo
 
 for x in `seq 1 254`; do
-     host $class.$x | grep 'name pointer' | cut -d ' ' -f1,5
+    host $class.$x | grep 'name pointer' | cut -d ' ' -f1,5
 done
 
 echo

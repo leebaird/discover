@@ -19,13 +19,13 @@ echo
 read -p "Domain: " domain
 
 if [ -z $domain ]; then
-     echo
-     echo $medium
-     echo
-     echo "Invalid choice."
-     echo
-     echo
-     exit 1
+    echo
+    echo $medium
+    echo
+    echo "Invalid choice."
+    echo
+    echo
+    exit 1
 fi
 
 echo
@@ -37,11 +37,11 @@ wget www.$domain
 grep 'href=' index.html | cut -d '/' -f3 | grep $domain | egrep -v "(www.$domain|>)" | cut -d '"' -f1 | sort -u > tmp
 
 if [ ! -s tmp ]; then
-     echo 'No subdomains found.'
+    echo 'No subdomains found.'
 else
-     echo $medium
-     echo
-     cat tmp | sed 's/\?.*//' | sort -u | column -t
+    echo $medium
+    echo
+    cat tmp | sed 's/\?.*//' | sort -u | column -t
 fi
 
 rm index.html tmp*
