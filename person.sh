@@ -11,7 +11,7 @@ read firstName
 
 # Check for no answer
 if [ -z $firstName ]; then
-     f_error
+    f_error
 fi
 
 echo -n "Last name:  "
@@ -19,7 +19,7 @@ read lastName
 
 # Check for no answer
 if [ -z $lastName ]; then
-     f_error
+    f_error
 fi
 
 xdg-open https://www.411.com/name/$firstName-$lastName/ &

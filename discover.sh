@@ -119,12 +119,12 @@ read -e location
 
 # Check for no answer
 if [ -z $location ]; then
-     f_error
+    f_error
 fi
 
 # Check for wrong answer
 if [ ! -f $location ]; then
-     f_error
+    f_error
 fi
 }
 
@@ -134,15 +134,15 @@ export -f f_location
 
 f_runlocally(){
 if [ -z $DISPLAY ]; then
-     echo
-     echo -e "${RED}$medium${NC}"
-     echo
-     echo -e "${RED}             *** This option must be ran locally. ***${NC}"
-     echo
-     echo -e "${RED}$medium${NC}"
-     echo
-     echo
-     exit
+    echo
+    echo -e "${RED}$medium${NC}"
+    echo
+    echo -e "${RED}             *** This option must be ran locally. ***${NC}"
+    echo
+    echo -e "${RED}$medium${NC}"
+    echo
+    echo
+    exit
 fi
 }
 
@@ -161,19 +161,19 @@ echo -e "${YELLOW}All data will be saved in $save_dir.${NC}"
 mv $name/ $save_dir 2>/dev/null
 
 if [ "$recon" == "1" ]; then
-     # Move passive files
-     cd $discover/
-     mv curl debug* email* hosts name* network* records registered* squatting sub* tmp* ultratools usernames-recon whois* z* doc pdf ppt txt xls $save_dir/passive/ 2>/dev/null
-     mkdir -p $save_dir/passive/recon-ng/
-     cd /tmp/; mv emails names* networks subdomains usernames $save_dir/passive/recon-ng/ 2>/dev/null
-     cd $discover
+    # Move passive files
+    cd $discover/
+    mv curl debug* email* hosts name* network* records registered* squatting sub* tmp* ultratools usernames-recon whois* z* doc pdf ppt txt xls $save_dir/passive/ 2>/dev/null
+    mkdir -p $save_dir/passive/recon-ng/
+    cd /tmp/; mv emails names* networks subdomains usernames $save_dir/passive/recon-ng/ 2>/dev/null
+    cd $discover
 else
-     # Move active files
-     mkdir -p $save_dir/active/recon-ng/
-     cd $discover/
-     mv active.rc emails hosts record* robots.txt sub* tmp waf whatweb z* $save_dir/active/ 2>/dev/null
-     cd /tmp/; mv subdomains $save_dir/active/recon-ng/ 2>/dev/null
-     cd $discover/
+    # Move active files
+    mkdir -p $save_dir/active/recon-ng/
+    cd $discover/
+    mv active.rc emails hosts record* robots.txt sub* tmp waf whatweb z* $save_dir/active/ 2>/dev/null
+    cd /tmp/; mv subdomains $save_dir/active/recon-ng/ 2>/dev/null
+    cd $discover/
 fi
 
 echo
@@ -197,7 +197,7 @@ read name
 
 # Check for no answer
 if [ -z $name ]; then
-     f_error
+    f_error
 fi
 
 mkdir -p $name
@@ -217,33 +217,33 @@ echo -n "Choice: "
 read choice
 
 case $choice in
-     1)
-     echo
-     echo -e "${YELLOW}[*] Setting source port to 53 and max probe round trip to 1.5s.${NC}"
-     sourceport=53
-     maxrtt=1500ms
-     export sourceport
-     export maxrtt
-     echo
-     echo $medium
-     echo
-     ;;
+    1)
+    echo
+    echo -e "${YELLOW}[*] Setting source port to 53 and max probe round trip to 1.5s.${NC}"
+    sourceport=53
+    maxrtt=1500ms
+    export sourceport
+    export maxrtt
+    echo
+    echo $medium
+    echo
+    ;;
 
-     2)
-     echo
-     echo -e "${YELLOW}[*] Setting source port to 88 and max probe round trip to 500ms.${NC}"
-     sourceport=88
-     maxrtt=500ms
-     export sourceport
-     export maxrtt
-     echo
-     echo $medium
-     echo
-     ;;
+    2)
+    echo
+    echo -e "${YELLOW}[*] Setting source port to 88 and max probe round trip to 500ms.${NC}"
+    sourceport=88
+    maxrtt=500ms
+    export sourceport
+    export maxrtt
+    echo
+    echo $medium
+    echo
+    ;;
 
-     3) f_main;;
+    3) f_main;;
 
-     *) f_error;;
+    *) f_error;;
 esac
 }
 
@@ -262,8 +262,8 @@ read cidr
 
 # Check for no answer
 if [ -z $cidr ]; then
-     rm -rf $name
-     f_error
+    rm -rf $name
+    f_error
 fi
 
 # Validate CIDR
@@ -272,13 +272,13 @@ min=8
 max=32
 
 if ! [[ $sub =~ ^[0-9]+$ ]] || [[ $sub -lt $min || $sub -gt $max ]]; then
-     f_error
+    f_error
 fi
 
 echo $cidr | grep '/' > /dev/null 2>&1
 
 if [ $? -ne 0 ]; then
-     f_error
+    f_error
 fi
 
 echo $cidr > tmp-list
@@ -289,19 +289,19 @@ echo -n "Do you have an exclusion list? (y/N) "
 read exclude
 
 if [ "$exclude" == "y" ]; then
-     echo -n "Enter the path to the file: "
-     read excludefile
+    echo -n "Enter the path to the file: "
+    read excludefile
 
-     if [ -z $excludefile ]; then
-          f_error
-     fi
+    if [ -z $excludefile ]; then
+        f_error
+    fi
 
-     if [ ! -f $excludefile ]; then
-          f_error
-     fi
+    if [ ! -f $excludefile ]; then
+        f_error
+    fi
 else
-     touch tmp
-     excludefile=tmp
+    touch tmp
+    excludefile=tmp
 fi
 
 START=$(date +%r\ %Z)
@@ -348,8 +348,8 @@ read target
 
 # Check for no answer
 if [ -z $target ]; then
-     rm -rf $name
-     f_error
+    rm -rf $name
+    f_error
 fi
 
 echo $target > tmp-target
@@ -380,9 +380,9 @@ echo -n "Perform full TCP port scan? (y/N) "
 read scan
 
 if [ "$scan" == "y" ]; then
-     tcp=$full
+    tcp=$full
 else
-     tcp=$custom
+    tcp=$custom
 fi
 
 echo
@@ -390,11 +390,11 @@ echo -n "Perform version detection? (y/N) "
 read vdetection
 
 if [ "$vdetection" == "y" ]; then
-     S='sTV'
-     U='sUV'
+    S='sTV'
+    U='sUV'
 else
-     S='sT'
-     U='sU'
+    S='sT'
+    U='sU'
 fi
 
 echo
@@ -403,11 +403,11 @@ read delay
 
 # Check for no answer
 if [ -z $delay ]; then
-     delay='0'
+    delay='0'
 fi
 
 if [ $delay -lt 0 ] || [ $delay -gt 5 ]; then
-     f_error
+    f_error
 fi
 
 export delay
@@ -423,17 +423,17 @@ echo
 nmap --randomize-hosts -iL $location --excludefile $excludefile --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -$S -$U -p T:$tcp,U:$udp -O --osscan-guess --max-os-tries 1 --max-retries 2 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 30s -g $sourceport --scan-delay $delay -oA $name/nmap
 
 if [[ -n $(grep '(0 hosts up)' $name/nmap.nmap) ]]; then
-     rm -rf "$name" tmp*
-     echo
-     echo $medium
-     echo
-     echo "***Scan complete.***"
-     echo
-     echo
-     echo -e "${YELLOW}[*] No live hosts were found.${NC}"
-     echo
-     echo
-     exit
+    rm -rf "$name" tmp*
+    echo
+    echo $medium
+    echo
+    echo "***Scan complete.***"
+    echo
+    echo
+    echo -e "${YELLOW}[*] No live hosts were found.${NC}"
+    echo
+    echo
+    exit
 fi
 
 # Clean up
@@ -449,11 +449,11 @@ grep 'udp' $name/ports.txt | cut -d '/' -f1 > $name/ports-udp.txt
 grep 'open' $name/nmap.txt | grep -v 'really open' | awk '{for (i=4;i<=NF;i++) {printf "%s%s",sep, $i;sep=" "}; printf "\n"}' | sed 's/^ //' | sort -u | sed '/^$/d' > $name/banners.txt
 
 for i in $(cat $name/ports-tcp.txt); do
-     TCPPORT=$i
-     cat $name/nmap.gnmap | grep " $i/open/tcp//appserv-http/| $i/open/tcp//http/\| $i/open/tcp//http-alt/\| $i/open/tcp//http-proxy/\| $i/open/tcp//snet-sensor-mgmt/\| $i/open/tcp//sun-answerbook/\| $i/open/tcp//vnc-http/\| $i/open/tcp//wbem-http/\| $i/open/tcp//wsman/" | 
-     sed -e 's/Host: //g' -e 's/ (.*//g' -e 's.^.http://.g' -e "s/$/:$i/g" | $sip >> tmp
-     cat $name/nmap.gnmap | grep " $i/open/tcp//compaq-https/\| $i/open/tcp//https/\| $i/open/tcp//https-alt/\| $i/open/tcp//ssl|giop/\| $i/open/tcp//ssl|http/\| $i/open/tcp//tungsten-https/\| $i/open/tcp//ssl|unknown/\| $i/open/tcp//wsmans/" |
-     sed -e 's/Host: //g' -e 's/ (.*//g' -e 's.^.https://.g' -e "s/$/:$i/g" | $sip >> tmp2
+    TCPPORT=$i
+    cat $name/nmap.gnmap | grep " $i/open/tcp//appserv-http/| $i/open/tcp//http/\| $i/open/tcp//http-alt/\| $i/open/tcp//http-proxy/\| $i/open/tcp//snet-sensor-mgmt/\| $i/open/tcp//sun-answerbook/\| $i/open/tcp//vnc-http/\| $i/open/tcp//wbem-http/\| $i/open/tcp//wsman/" | 
+    sed -e 's/Host: //g' -e 's/ (.*//g' -e 's.^.http://.g' -e "s/$/:$i/g" | $sip >> tmp
+    cat $name/nmap.gnmap | grep " $i/open/tcp//compaq-https/\| $i/open/tcp//https/\| $i/open/tcp//https-alt/\| $i/open/tcp//ssl|giop/\| $i/open/tcp//ssl|http/\| $i/open/tcp//tungsten-https/\| $i/open/tcp//ssl|unknown/\| $i/open/tcp//wsmans/" |
+    sed -e 's/Host: //g' -e 's/ (.*//g' -e 's.^.https://.g' -e "s/$/:$i/g" | $sip >> tmp2
 done
 
 sed 's/http:\/\///g' tmp > $name/http.txt
@@ -474,26 +474,26 @@ echo "     TCP"
 TCP_PORTS="13 19 21 22 23 25 37 69 70 79 80 102 110 111 119 135 139 143 389 433 443 445 465 502 512 513 514 523 524 548 554 563 587 623 631 636 771 831 873 902 993 995 998 1050 1080 1099 1158 1344 1352 1414 1433 1521 1720 1723 1883 1911 1962 2049 2202 2375 2628 2947 3000 3031 3050 3260 3306 3310 3389 3500 3632 4369 4786 5000 5019 5040 5060 5432 5560 5631 5632 5666 5672 5850 5900 5920 5984 5985 6000 6001 6002 6003 6004 6005 6379 6666 7210 7634 7777 8000 8009 8080 8081 8091 8140 8222 8332 8333 8400 8443 8834 9000 9084 9100 9160 9600 9999 10000 10443 10809 11211 12000 12345 13364 19150 20256 27017 28784 30718 35871 37777 46824 49152 50000 50030 50060 50070 50075 50090 60010 60030"
 
 for i in $TCP_PORTS; do
-     cat $name/nmap.gnmap | grep "\<$i/open/tcp\>" | cut -d ' ' -f2 > $name/$i.txt
+    cat $name/nmap.gnmap | grep "\<$i/open/tcp\>" | cut -d ' ' -f2 > $name/$i.txt
 done
 
 if [ -f $name/523.txt ]; then
-     mv $name/523.txt $name/523-tcp.txt
+    mv $name/523.txt $name/523-tcp.txt
 fi
 
 if [ -f $name/5060.txt ]; then
-     mv $name/5060.txt $name/5060-tcp.txt
+    mv $name/5060.txt $name/5060-tcp.txt
 fi
 
 echo "     UDP"
 UDP_PORTS="53 67 123 137 161 407 500 523 623 1434 1604 1900 2302 2362 3478 3671 4800 5353 5683 6481 17185 31337 44818 47808"
 
 for i in $UDP_PORTS; do
-     cat $name/nmap.gnmap | grep "\<$i/open/udp\>" | cut -d ' ' -f2 > $name/$i.txt
+    cat $name/nmap.gnmap | grep "\<$i/open/udp\>" | cut -d ' ' -f2 > $name/$i.txt
 done
 
 if [ -f $name/523.txt ]; then
-     mv $name/523.txt $name/523-udp.txt
+    mv $name/523.txt $name/523-udp.txt
 fi
 
 # Combine Apache HBase ports and sort
@@ -540,7 +540,7 @@ export -f f_cleanup
 
 f_run-metasploit(){
 if [ "$msf" == "y" ]; then
-     $discover/msf-aux.sh
+    $discover/msf-aux.sh
 fi
 }
 
@@ -556,12 +556,12 @@ read -e location
 
 # Check for no answer
 if [ -z $location ]; then
-     f_error
+    f_error
 fi
 
 # Check for wrong answer
 if [ ! -d $location ]; then
-     f_error
+    f_error
 fi
 
 name=$location
@@ -572,11 +572,11 @@ read delay
 
 # Check for no answer
 if [ -z $delay ]; then
-     delay='0'
+    delay='0'
 fi
 
 if [ $delay -lt 0 ] || [ $delay -gt 5 ]; then
-     f_error
+    f_error
 fi
 
 export delay
@@ -609,7 +609,7 @@ clear
 f_banner
 
 if [ ! -d $home/data ]; then
-     mkdir -p $home/data
+    mkdir -p $home/data
 fi
 
 echo -e "${BLUE}RECON${NC}"
@@ -640,24 +640,24 @@ echo -n "Choice: "
 read choice
 
 case $choice in
-     1) $discover/domain.sh && exit;;
-     2) $discover/person.sh && exit;;
-     3) $discover/generateTargets.sh && exit;;
-     4) f_cidr;;
-     5) f_list;;
-     6) f_single;;
-     7) f_enumerate;;
-     8) $discover/directObjectRef.sh && exit;;
-     9) $discover/multiTabs.sh && exit;;
-     10) $discover/nikto.sh && exit;;
-     11) $discover/ssl.sh && exit;;
-     12) $discover/parse.sh && exit;;
-     13) $discover/payload.sh && exit;;
-     14) $discover/listener.sh && exit;;
-     15) $discover/update.sh && exit;;
-     16) clear && exit;;
-     99) $discover/newModules.sh && exit;;
-     *) f_error;;
+    1) $discover/domain.sh && exit;;
+    2) $discover/person.sh && exit;;
+    3) $discover/generateTargets.sh && exit;;
+    4) f_cidr;;
+    5) f_list;;
+    6) f_single;;
+    7) f_enumerate;;
+    8) $discover/directObjectRef.sh && exit;;
+    9) $discover/multiTabs.sh && exit;;
+    10) $discover/nikto.sh && exit;;
+    11) $discover/ssl.sh && exit;;
+    12) $discover/parse.sh && exit;;
+    13) $discover/payload.sh && exit;;
+    14) $discover/listener.sh && exit;;
+    15) $discover/update.sh && exit;;
+    16) clear && exit;;
+    99) $discover/newModules.sh && exit;;
+    *) f_error;;
 esac
 }
 

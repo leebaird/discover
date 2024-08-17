@@ -15,107 +15,107 @@ echo -n "Choice: "
 read choice
 
 case $choice in
-     1)
-     f_location
-     echo
-     echo -n "Use an https prefix? (y/N) "
-     read prefix
+    1)
+    f_location
+    echo
+    echo -n "Use an https prefix? (y/N) "
+    read prefix
 
-     if [ -z $prefix ]; then
-          for i in $(cat $location); do
-               xdg-open http://$i &
-               sleep 1
-          done
-     elif [ "$prefix" == "y" ]; then
-          for i in $(cat $location); do
-               xdg-open https://$i &
-               sleep 1
-          done
-     else
-          f_error
-     fi
-     
-     exit
-     ;;
+    if [ -z $prefix ]; then
+        for i in $(cat $location); do
+            xdg-open http://$i &
+            sleep 1
+        done
+    elif [ "$prefix" == "y" ]; then
+        for i in $(cat $location); do
+            xdg-open https://$i &
+            sleep 1
+        done
+    else
+        f_error
+    fi
 
-     2)
-     echo
-     echo $medium
-     echo
-     echo -n "Enter the location of your directory: "
-     read -e location
+    exit
+    ;;
 
-     # Check for no answer
-     if [ -z $location ]; then
-          f_error
-     fi
+    2)
+    echo
+    echo $medium
+    echo
+    echo -n "Enter the location of your directory: "
+    read -e location
 
-     # Check for wrong answer
-     if [ ! -d $location ]; then
-          f_error
-     fi
+    # Check for no answer
+    if [ -z $location ]; then
+        f_error
+    fi
 
-     cd $location
+    # Check for wrong answer
+    if [ ! -d $location ]; then
+        f_error
+    fi
 
-     for i in $(ls -l | awk '{print $9}'); do
-          xdg-open $i &
-          sleep 1
-     done
-     
-     exit
-     ;;
+    cd $location
 
-     3)
-     echo
-     echo $medium
-     echo
-     echo "Usage: target.com or target-IP"
-     echo
-     echo -n "Domain: "
-     read domain
+    for i in $(ls -l | awk '{print $9}'); do
+        xdg-open $i &
+        sleep 1
+    done
 
-     # Check for no answer
-     if [ -z $domain ]; then
-          f_error
-     fi
+    exit
+    ;;
 
-     curl -kLs $domain/robots.txt -o robots.txt
+    3)
+    echo
+    echo $medium
+    echo
+    echo "Usage: target.com or target-IP"
+    echo
+    echo -n "Domain: "
+    read domain
 
-     # Check if the file is empty
-     if [ ! -s robots.txt ]; then
-          echo
-          echo -e "${RED}$medium${NC}"
-          echo
-          echo -e "${RED}                          *** No robots.txt file discovered. ***${NC}"
-          echo
-          echo -e "${RED}$medium${NC}"
-          sleep 2
-          f_main
-     fi
+    # Check for no answer
+    if [ -z $domain ]; then
+        f_error
+    fi
 
-     grep -i 'disallow' robots.txt | grep -v '*' | awk '{print $2}' > tmp
+    curl -kLs $domain/robots.txt -o robots.txt
 
-     for i in $(cat tmp); do
-          xdg-open http://$domain$i &
-          sleep 1
-     done
+    # Check if the file is empty
+    if [ ! -s robots.txt ]; then
+        echo
+        echo -e "${RED}$medium${NC}"
+        echo
+        echo -e "${RED}                     *** No robots.txt file discovered. ***${NC}"
+        echo
+        echo -e "${RED}$medium${NC}"
+        sleep 2
+        f_main
+    fi
 
-     rm robots.txt
-     mv tmp $home/data/$domain-robots.txt
+    grep -i 'disallow' robots.txt | grep -v '*' | awk '{print $2}' > tmp
 
-     echo
-     echo $medium
-     echo
-     echo "***Scan complete.***"
-     echo
-     echo
-     echo -e "The new report is located at ${YELLOW}$home/data/$domain-robots.txt${NC}\n"
-     echo
-     echo
-     exit
-     ;;
+    for i in $(cat tmp); do
+        xdg-open http://$domain$i &
+        sleep 1
+    done
 
-     4) f_main;;
-     *) f_error;;
+    rm robots.txt
+    mv tmp $home/data/$domain-robots.txt
+
+    echo
+    echo $medium
+    echo
+    echo "***Scan complete.***"
+    echo
+    echo
+    echo -e "The new report is located at ${YELLOW}$home/data/$domain-robots.txt${NC}\n"
+    echo
+    echo
+    exit
+    ;;
+
+    4) f_main;;
+    *) f_error;;
 esac
 }

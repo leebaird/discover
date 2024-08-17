@@ -10,7 +10,7 @@ echo -e "${BLUE}this host. Paste the results into a new file.${NC}"
 f_location
 
 for i in $(cat $location); do
-     curl -sk -w "%{http_code} - %{url_effective} \\n" "$i" -o /dev/null 2>&1 | tee -a tmp
+    curl -sk -w "%{http_code} - %{url_effective} \\n" "$i" -o /dev/null 2>&1 | tee -a tmp
 done
 
 cat tmp | sort -u > DirectObjectRef.txt

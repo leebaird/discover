@@ -168,7 +168,7 @@ if [ -d /opt/cobaltstrike/ ]; then
     else
         echo -e "${YELLOW}Installing CS - mgeeky cobalt arsenal.${NC}"
         git clone https://github.com/mgeeky/cobalt-arsenal /opt/cobaltstrike/mgeeky-scripts
-        echo
+    echo
     fi
 
     if [ -d /opt/cobaltstrike/tylous-sourcepoint/.git ]; then

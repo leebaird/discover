@@ -206,9 +206,9 @@ fi
 
 # Check for two arguments when running a script. If both are not provided, print the usage
 if [ $# -ne 2 ]; then
-     echo
-     echo "Usage: $0 <input file> <output file>"
-     exit 1
+    echo
+    echo "Usage: $0 <input file> <output file>"
+    exit 1
 fi
 
 # Check for a certain argument when running a script. Give feedback to user

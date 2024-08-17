@@ -45,38 +45,38 @@ number=$(wc -l $location | cut -d ' ' -f1)
 N=0
 
 while read -r line; do
-     N=$((N+1))
-     echo $line > ssl_$line
+    N=$((N+1))
+    echo $line > ssl_$line
 
-     echo -n "[$N/$number]  $line"
-     sslscan --ipv4 --ssl2 --ssl3 --tlsall --no-colour --connect-timeout=30 $line > tmp_$line
-     echo
-     echo >> ssl_$line
+    echo -n "[$N/$number]  $line"
+    sslscan --ipv4 --ssl2 --ssl3 --tlsall --no-colour --connect-timeout=30 $line > tmp_$line
+    echo
+    echo >> ssl_$line
 
-     if [ -f tmp_$line ]; then
-          error=$(grep 'ERROR:' tmp_$line)
+    if [ -f tmp_$line ]; then
+        error=$(grep 'ERROR:' tmp_$line)
 
-          if [ ! $error ]; then
-               cat tmp_$line >> ssl_$line
-               echo $medium >> ssl_$line
-               echo >> ssl_$line
-               cat ssl_$line >> tmp
-          else
-               echo -e "${RED}Could not open a connection.${NC}"
-               echo "[*] Could not open a connection." >> ssl_$line
-               echo >> ssl_$line
-               echo $medium >> ssl_$line
-               echo >> ssl_$line
-               cat ssl_$line >> tmp
-          fi
-     else
-          echo -e "${RED}No response.${NC}"
-          echo "[*] No response." >> ssl_$line
-          echo >> ssl_$line
-          echo $medium >> ssl_$line
-          echo >> ssl_$line
-          cat ssl_$line >> tmp
-     fi
+        if [ ! $error ]; then
+            cat tmp_$line >> ssl_$line
+            echo $medium >> ssl_$line
+            echo >> ssl_$line
+            cat ssl_$line >> tmp
+        else
+            echo -e "${RED}Could not open a connection.${NC}"
+            echo "[*] Could not open a connection." >> ssl_$line
+            echo >> ssl_$line
+            echo $medium >> ssl_$line
+            echo >> ssl_$line
+            cat ssl_$line >> tmp
+        fi
+    else
+        echo -e "${RED}No response.${NC}"
+        echo "[*] No response." >> ssl_$line
+        echo >> ssl_$line
+        echo $medium >> ssl_$line
+        echo >> ssl_$line
+        cat ssl_$line >> tmp
+    fi
 done < "$location"
 
 END=$(date +%r\ %Z)
@@ -103,20 +103,20 @@ number=$(wc -l $location | cut -d ' ' -f1)
 N=0
 
 while read -r line; do
-     N=$((N+1))
-     port=$(echo $line | cut -d ':' -f2)
-     target=$(echo $line | cut -d ':' -f1)
+    N=$((N+1))
+    port=$(echo $line | cut -d ':' -f2)
+    target=$(echo $line | cut -d ':' -f1)
 
-     echo -n "[$N/$number]  $line"
-     sudo nmap -Pn -n -T4 --open -p $port -sV --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed --script-timeout 20s $target > tmp
-     echo
+    echo -n "[$N/$number]  $line"
+    sudo nmap -Pn -n -T4 --open -p $port -sV --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed --script-timeout 20s $target > tmp
+    echo
 
-     egrep -v '(does not|incorrect results|service unrecognized)' tmp | grep -v '^SF' |
-     # Find FOO, if the next line is blank, delete both lines
-     awk '/latency/ { latency = 1; next }  latency == 1 && /^$/ { latency = 0; next }  { latency = 0 }  { print }' |
-     sed 's/Nmap scan report for //g; s/( https:\/\/nmap.org ) //g' >> tmp2
-     echo $medium >> tmp2
-     echo >> tmp2
+    egrep -v '(does not|incorrect results|service unrecognized)' tmp | grep -v '^SF' |
+    # Find FOO, if the next line is blank, delete both lines
+    awk '/latency/ { latency = 1; next }  latency == 1 && /^$/ { latency = 0; next }  { latency = 0 }  { print }' |
+    sed 's/Nmap scan report for //g; s/( https:\/\/nmap.org ) //g' >> tmp2
+    echo $medium >> tmp2
+    echo >> tmp2
 done < $location
 
 mv tmp2 $home/data/nmap-ssl.txt
