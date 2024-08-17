@@ -12,13 +12,13 @@ read domain
 
 # Check for no answer
 if [[ -z $domain ]]; then
-     echo
-     echo $medium
-     echo
-     echo "Invalid choice."
-     echo
-     echo
-     exit 1
+    echo
+    echo $medium
+    echo
+    echo "Invalid choice."
+    echo
+    echo
+    exit 1
 fi
 
 sslyze $domain --resum --certinfo=basic --compression --reneg --sslv2 --sslv3 --hide_rejected_ciphers > tmp
