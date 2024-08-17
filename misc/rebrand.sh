@@ -4,6 +4,7 @@
 
 medium='=================================================================='
 
+clear
 echo
 echo -n "Enter the location of your folder: "
 read -e location

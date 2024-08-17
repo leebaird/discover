@@ -10,7 +10,6 @@ medium='=================================================================='
 
 usage(){
 echo
-echo
 echo "Compare changes to home pages."
 echo
 echo

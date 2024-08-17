@@ -1,9 +1,9 @@
 #!/bin/bash
 
 if [[ $UID == 0 ]]; then
-     home='/root/'
+    home='/root/'
 else
-     home=`(eval echo ~$USER/)`
+    home=`(eval echo ~$USER/)`
 fi
 
 cp tmux.conf $home.tmux.conf

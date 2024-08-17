@@ -6,7 +6,6 @@ medium='=================================================================='
 
 clear
 echo
-echo
 echo -n "Enter a domain: "
 read domain
 
