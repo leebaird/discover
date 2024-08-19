@@ -238,14 +238,13 @@ value to a previously calculated value. If these values match, the file is presu
 
 ## Running Kali on VirtualBox or Windows Subsystem for Linux (WSL)
 
-Some users have reported the fix is to use the VMWare image instead of WSL. 
-(https://kali.download/virtual-images/kali-2022.3/kali-linux-2022.3-vmware-amd64.7z.torrent)
+Some users have reported the fix is to use the VMware image instead of WSL. 
 
 Other users have noticed issues when running a pre-made VirtualBox Kali image, instead of running the 
 bare metal Kali ISO through VirtualBox. 
 (https://www.kali.org/get-kali/#kali-bare-metal)
 
-If you are unwilling or unable to use VMWare Workstation to run Kali, we encourage you to try running 
+If you are unwilling or unable to use VMware Workstation to run Kali, we encourage you to try running 
 a Kali ISO as a Guest VM in VirtualBox.
 
 1. Download the bare metal ISO provided by Kali.
