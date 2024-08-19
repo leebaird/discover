@@ -33,7 +33,7 @@ clear
 echo
 
 echo -e "${BLUE}Updating Kali.${NC}"
-apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean
+apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 echo
 
 if [ ! -f /usr/bin/ansible ]; then
@@ -45,12 +45,6 @@ fi
 if [ ! -f /usr/bin/aws ]; then
     echo -e "${YELLOW}Installing AWS.${NC}"
     apt install -y awscli
-    echo
-fi
-
-if [ ! -f /usr/bin/bloodhound ]; then
-    echo -e "${YELLOW}Installing BloodHound and Neo4j.${NC}"
-    apt install -y bloodhound
     echo
 fi
 
@@ -198,7 +192,8 @@ if [ -d /opt/DNSRecon/.git -a -d /opt/DNSRecon-venv ]; then
     cd /opt/DNSRecon/ ; git pull
     source /opt/DNSRecon-venv/bin/activate
     pip3 install -r requirements.txt --upgrade | grep -v 'already satisfied'
-    # If you are in a corp env that is doing MITM with SSL use the following line instead.
+    # If you are in a corp env that is doing MITM with SSL, use the following line instead.
+    # Do the same for all Python repos.
 #    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
     deactivate
     echo
@@ -302,7 +297,7 @@ if [ ! -f /usr/bin/gobuster ]; then
 fi
 
 if [ ! -f /usr/bin/havoc ]; then
-    echo -e "${BLUE}Installing Havoc.${NC}"
+    echo -e "${YELLOW}Installing Havoc.${NC}"
     apt install -y havoc
     echo
 fi
@@ -469,12 +464,6 @@ else
     /opt/theHarvester-venv/bin/pip3 install -r requirements.txt
 #    /opt/theHarvester-venv/bin/pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
     deactivate
-    echo
-fi
-
-if [ ! -f /usr/bin/veil ]; then
-    echo -e "${YELLOW}Installing Veil.${NC}"
-    apt install -y veil
     echo
 fi
 
