@@ -23,10 +23,6 @@ if [ -d /opt/cobaltstrike/third-party/outflanknl-helpcolor/ ]; then
     rm -rf /opt/cobaltstrike/third-party/outflanknl-helpcolor/
 fi
 
-if [ -d /opt/Havoc/ ]; then
-    rm -rf /opt/Havoc/
-fi
-
 # -----------------------------------------------------------------------------------------------
 
 clear
@@ -56,11 +52,12 @@ fi
 
 if [ ! -f /usr/bin/go ]; then
     echo -e "${YELLOW}Installing Go.${NC}"
-    apt install -y gccgo-go golang-go
-    echo >> ~/.zshrc
-    echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.zshrc
-    echo 'export GOPATH=/opt/go' >> ~/.zshrc
-    echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.zshrc
+    apt install -y golang-go
+    echo "export GOROOT=/usr/local/go" >> ~/.profile
+    echo "export GOPATH=/opt/go" >> ~/.profile
+    echo "export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin" >> ~/.profile
+    sleep 2
+    source ~/.profile
     echo
 fi
 
