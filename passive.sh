@@ -7,7 +7,7 @@ echo -e "${BLUE}Uses ARIN, DNSRecon, dnstwist, goog-mail, goohost, theHarvester,
 echo -e "${BLUE}Metasploit, Whois, multiple websites, and recon-ng.${NC}"
 echo
 echo -e "${BLUE}[*] Acquire API keys for maximum results with theHarvester.${NC}"
-echo -e "${BLUE}[*] Add keys to /etc/theHarvester/api-keys.yaml${NC}"
+echo -e "${BLUE}[*] Add keys to /root/.theHarvester/api-keys.yaml${NC}"
 echo
 echo $medium
 echo
