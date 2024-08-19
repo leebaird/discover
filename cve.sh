@@ -60,7 +60,7 @@ xdg-open https://www.google.com/search?q=%22$cve%22+AND+exploit &
 sleep 4
 xdg-open https://www.rapid7.com/db/?q=$cve&type=nexpose &
 sleep 4
-xdg-open "https://nvd.nist.gov/vuln/search/results?form_type=Basic&results_type=overview&query=$cve&search_type=all&isCpeNameSearch=false" &
+xdg-open https://nvd.nist.gov/vuln/search/results?form_type=Basic&results_type=overview&query=$cve&search_type=all&isCpeNameSearch=false &
 sleep 4
 xdg-open https://www.tenable.com/plugins &
 
