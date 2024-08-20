@@ -53,11 +53,12 @@ fi
 if [ ! -f /usr/bin/go ]; then
     echo -e "${YELLOW}Installing Go.${NC}"
     apt install -y golang-go
-    echo "export GOROOT=/usr/local/go" >> ~/.profile
-    echo "export GOPATH=/opt/go" >> ~/.profile
-    echo "export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin" >> ~/.profile
-    sleep 2
-    source ~/.profile
+    echo "" >> ~/.zshrc
+    echo "export GOPATH=/opt/go" >> ~/.zshrc
+    echo "export GOROOT=/usr/lib/go" >> ~/.zshrc
+    echo "export PATH=\$PATH:/usr/lib/go/bin:/opt/go/bin" >> ~/.zshrc
+    mkdir -p /opt/go/{bin,src,pkg}
+    source ~/.zshrc
     echo
 fi
 
