@@ -145,7 +145,7 @@ echo
 ###############################################################################################################################
 
 echo "subfinder                (9/$total)"
-/opt/subfinder/v2/cmd/subfinder/main.go -d $domain -silent | sort -u > zsubfinder
+/opt/subfinder/v2/cmd/subfinder/subfinder -d $domain -silent | sort -u > zsubfinder
 echo
 
 ###############################################################################################################################
