@@ -429,7 +429,7 @@ fi
 
 if [ -f records ]; then
     recordcount=$(wc -l records | cut -d ' ' -f1)
-    echo "DNS Records        $recordcount" >> zreport
+    echo "DNS Records       $recordcount" >> zreport
     echo "DNS Records ($recordcount)" >> tmp
     echo $long >> tmp
     cat records >> tmp
@@ -456,7 +456,7 @@ fi
 
 if [ -f squatting ]; then
     squattingcount=$(wc -l squatting | cut -d ' ' -f1)
-    echo "Squatting          $squattingcount" >> zreport
+    echo "Squatting         $squattingcount" >> zreport
     echo "Squatting ($squattingcount)" >> tmp
     echo $long >> tmp
     cat squatting >> tmp
@@ -470,7 +470,7 @@ fi
 
 if [ -f subdomains-final ]; then
     urlcount=$(wc -l subdomains-final | cut -d ' ' -f1)
-    echo "Subdomains         $urlcount" >> zreport
+    echo "Subdomains        $urlcount" >> zreport
     echo "Subdomains ($urlcount)" >> tmp
     echo $long >> tmp
     cat subdomains-final >> tmp
