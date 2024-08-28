@@ -105,6 +105,21 @@ source .zshrc
 update
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Cloak system
+
+- Change the hostnames, make sure they match.
+/etc/hostname
+/etc/hosts
+
+- Change the contents to match Ubuntu.
+/etc/issue
+/etc/issue.net
+/etc/os-release     Use hostname for ID
+
+- nmap
+/usr/share/nmap/nselib/http.lua     Change the default user agent on line 160
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Optional additional tools
 
 - Apache Directory Studio
