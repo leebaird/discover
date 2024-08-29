@@ -171,11 +171,11 @@ pipe (|)                                                      Uses output from t
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Check for root
-if [ $EUID -ne 0 ]; then
+if [ "$EUID" -ne 0 ]; then
     echo
     echo "[!] This option cannot be ran as root."
     echo
-    exit
+    exit 1
 fi
 
 # Check for argument. If not provided, print the usage
