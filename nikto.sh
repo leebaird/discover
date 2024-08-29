@@ -1,8 +1,7 @@
 #!/usr/bin/bash
 
 # Check for root
-if [ $EUID == 0 ]; then
-    echo
+if [ $EUID -ne 0 ]; then
     echo
     echo "[!] This option cannot be ran as root."
     echo

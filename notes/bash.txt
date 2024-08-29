@@ -173,9 +173,9 @@ pipe (|)                                                      Uses output from t
 # Check for root
 if [ $EUID -ne 0 ]; then
     echo
-    echo "[!] This script must be run as root."
+    echo "[!] This option cannot be ran as root."
     echo
-    exit 1
+    exit
 fi
 
 # Check for argument. If not provided, print the usage
