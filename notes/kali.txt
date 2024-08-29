@@ -114,10 +114,23 @@ update
 - Change the contents to match Ubuntu.
 /etc/issue
 /etc/issue.net
-/etc/os-release     Use hostname for ID
+/etc/os-release     Use new hostname for ID
+
+- Firefox
+about:config
+browser.ping-centre.telemetry > false
+general.platform.override > Win32
+general.useragent.override > add the latest Firefox user agent string
+geo.enabled > false
+media.peerconnection.enabled > false
+network.http.sendRefererHeader > 0
+privacy.resistFingerprinting > true
+
+- nikto
+/etc/nikto.conf > add the latest Firefox user agent string
 
 - nmap
-/usr/share/nmap/nselib/http.lua     Change the default user agent on line 160
+/usr/share/nmap/nselib/http.lua > add the latest Firefox user agent string on line 160
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Optional additional tools
