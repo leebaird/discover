@@ -173,6 +173,14 @@ pipe (|)                                                      Uses output from t
 # Check for root
 if [ "$EUID" -ne 0 ]; then
     echo
+    echo "[!] This option must be ran as root."
+    echo
+    exit 1
+fi
+
+# Check for regular user
+if [ "$EUID" == 0 ]; then
+    echo
     echo "[!] This option cannot be ran as root."
     echo
     exit 1
@@ -188,62 +196,19 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-# Check for proper file type
-if [[ "$1" != *.xlsx ]]; then
-    echo
-    echo "[!] Wrong file type. Only use .xlsx."
-    echo
-    exit 1
-fi
-
-# Check if file exists
-if [ ! -f "$1" ]; then
-    echo
-    echo "[!] The file does not exist."
-    echo
-    exit 1
-fi
-
-# Check for two arguments when running a script. If both are not provided, print the usage
+# Check for two arguments. If both are not provided, print the usage
 if [ $# -ne 2 ]; then
     echo
     echo "Usage: $0 <input file> <output file>"
-    exit 1
-fi
-
-# Check for a certain argument when running a script. Give feedback to user
-echo -e "Usage: test.sh <target IP> <scan type>"
-if [ "$2" == "All" ]; then
-    echo "Running all scans on $1."
-else
-    echo "Running a $2 scan on $1."
-fi
-
-# Check for no answer
-if [ -z $location ]; then
-    f_error
-    exit 1
-fi
-
-# Check for wrong answer
-if [ ! -f $location ]; then
-    f_error
-    exit 1
-fi
-
-# Check for no answer, double brackets are needed to handle a space in a variable (ex. Home Depot)
-if [[ -z $company ]]; then
-    f_error
+    echo
     exit 1
 fi
 
 # Check for two variables
-echo -n "Enter color: "
-read color
-echo -n "Enter another color: "
-read color2
+read -p "Enter a color: " color
+read -p "Enter another color: " color2
 
-if [ $color = "red" ] && [ $color2 = "grey" ]; then
+if [ "$color" = "red" ] && [ "$color2" = "grey" ]; then
     echo
     echo "The Wall won't fall."
     echo
@@ -252,32 +217,86 @@ else
     echo
     echo "Those colors are crap."
     echo
+    exit 1
 fi
 
-# Validate input is a number and greater than 0
-if ! [[ $number =~ ^[0-9]+$ ]] || [[ $number -le 0 ]]; then
-    f_error
+# Check for a certain argument.
+echo -e "Usage: test.sh <target IP> <scan type>"
+if [ "$2" == "All" ]; then
+    echo "Running all scans on $1."
+else
+    echo "Running a $2 scan on $1."
+fi
+
+# Check for a program
+if ! command -v nmap &> /dev/null; then
+    echo
+    echo "Nmap is not installed."
+    echo
+    exit 1
+fi
+
+# Check for a certain file type
+if [[ "$1" != *.xlsx ]]; then
+    echo
+    echo "[!] Only .xlsx supported."
+    echo
+    exit 1
+fi
+
+# Check for no answer, double brackets are needed to handle a space in a variable (ex. Home Depot)
+if [ -z "$company" ]; then
+    echo
+    echo "[!] No data entered."
+    echo
+    exit 1
+fi
+
+# Check for wrong answer
+if [ ! -f "$location" ]; then
+    echo
+    echo "[!] The file does not exist."
+    echo
     exit 1
 fi
 
 # Validate a CIDR
-sub=$(echo $cidr | cut -d '/' -f2)
-if ! [[ $sub =~ ^[0-9]+$ ]] || [[ $sub -lt 8 || $sub -gt 32 ]]; then
-    f_error
+if [[ ! "$cidr" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]+$ ]]; then
+    echo
+    echo "[!] Not a valid CIDR."
+    echo
     exit 1
 fi
 
 # Validate a CVE
 if echo "$1" | grep -Eq '^CVE-[0-9]{4}-[0-9]{4,7}$'; then
-    echo 'Do more stuff here.'
-else
-    echo '[!] Invalid CVE.'
+    echo
+    echo "[!] Not a valid CVE."
+    echo
+    exit 1
+fi
+
+# Validate a domain
+if [[ ! "$domain" =~ ^([a-zA-Z0-9](-?[a-zA-Z0-9])*\.)+[a-zA-Z]{2,}$ ]]; then
+    echo
+    echo "[!] Not a valid domain."
+    echo
+    exit 1
+fi
+
+# Validate an IP address
+if [[ ! "$ip" =~ ^([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\.([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])){3}$ ]]; then
+    echo
+    echo "[!] Not a valid IP address."
+    echo
     exit 1
 fi
 
 # Validate a port number
-if ! [[ $port =~ ^[0-9]+$ ]] [[ $port -lt 1 || $port -gt 65535 ]]; then
-    echo "[!] Invalid port."
+if ! [ "$port" =~ ^[0-9]+$ ] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+    echo
+    echo "[!] Not a valid number or port."
+    echo
     exit 1
 fi
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -302,10 +321,6 @@ echo "$(($diff / 60)) min and $(($diff % 60)) sec."
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Files and folders
-
-if [ ! which nmap >/dev/null ]; then
-    echo "Nmap is not installed."
-fi
 
 if [ -f test ]; then
     echo "This file exists."
@@ -347,11 +362,11 @@ for i in $(cat subdomains); do
     host $i | grep 'has address' | cut -d ' ' -f4
 done
 
-while read i; do
+while read -r i; do
     host $i | grep 'has address' | cut -d ' ' -f4
 done < subdomains
 
-while read i; do
+while read -r i; do
     country=$(whois "$i" | grep -i country | head -n1 | sed 's/Country:        / /g')
     echo "$i $country" >> tmp
 done < $1
@@ -374,12 +389,30 @@ fi
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # xterm
+-T         title
+-bg        background color
+-fa/-fs    font selection/font size
+-fg        foreground color
+-geometry  windows size in characters (WxH)
+-e         execute command
 
-Open an xterm window in the center of the screen, run a command, and stay open
-xterm -hold -bg blue -fg white -geometry 90x10 -T "Test ping" -e ping -c3 google.com
+In order to control the font size, both switches are needeed
+xterm -fa 'Monospace' -fs 14
 
-Open an xterm window in the top right corner of the screen, run a command, and stay open
-xterm -hold -bg blue -fg white -geometry 90x10-0+0 -T "Test ping" -e ping -c3 google.com
+Postion a window center, run a command, and stay open
+xterm -T "ping" -bg navy -fg white -geometry 90x10 -hold -e ping -c3 google.com
+
+Position windows top right, run a command, and stay open
+xterm -T "ping" -bg navy -fg white -geometry 90x10-0+0 -hold -e ping -c3 google.com
+
+Change font size and ask for user input
+xterm -T "ping" -bg navy -fg white -fa 'Monospace' -fs 11 -e "ping -c 3 8.8.8.8; echo; echo 'Press Enter to close this window'; read"
+
+Change font size, position window top left, and ask for user input
+xterm -T "ping" -bg navy -fg white -geometry 70x12-900+0 -fa 'Monospace' -fs 11 -e "ping -c 3 8.8.8.8; echo; echo 'Press Enter to close this window'; read"
+
+Change font size, position window top right, and ask for user input
+xterm -T "ping" -bg navy -fg white -geometry 70x12-0+0 -fa 'Monospace' -fs 11 -e "ping -c 3 8.8.8.8; echo; echo 'Press Enter to close this window'; read"
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Clone all repos from a GitHub account

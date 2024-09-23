@@ -1,4 +1,0 @@
-lxml>=4.2.5
-requests>=2.21.1
-requests-html>=0.10.0
-texttable>=1.5.0

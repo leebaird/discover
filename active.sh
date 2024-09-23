@@ -1,4 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 # Number of tests
 total=8
@@ -19,18 +23,18 @@ echo
 echo $medium
 echo
 echo -n "Domain:  "
-read domain
+read -r domain
 
 # Check for no answer
 if [ -z $domain ]; then
     f_error
 fi
 
-if [ ! -d $home/data/$domain ]; then
-    cp -R $discover/report/ $home/data/$domain
-    sed -i "s/#COMPANY#/$company/" $home/data/$domain/index.htm
-    sed -i "s/#DOMAIN#/$domain/" $home/data/$domain/index.htm
-    sed -i "s/#DATE#/$rundate/" $home/data/$domain/index.htm
+if [ ! -d $HOME/data/$domain ]; then
+    cp -R $discover/report/ $HOME/data/$domain
+    sed -i "s/#COMPANY#/$company/" $HOME/data/$domain/index.htm
+    sed -i "s/#DOMAIN#/$domain/" $HOME/data/$domain/index.htm
+    sed -i "s/#DATE#/$rundate/" $HOME/data/$domain/index.htm
 fi
 
 echo
@@ -82,7 +86,7 @@ echo
 ###############################################################################################################################
 
 echo "Whatweb (~5 min)        (7/$total)     broken"
-#grep -v '<' $home/data/$domain/data/subdomains.htm | awk '{print $1}' > tmp
+#grep -v '<' $HOME/data/$domain/data/subdomains.htm | awk '{print $1}' > tmp
 #whatweb -i tmp --color=never --no-errors > tmp2 2>/dev/null
 #whatweb -i subdomains --color=never --no-errors > tmp2 2>/dev/null
 
@@ -111,7 +115,7 @@ recon-ng -r $CWD/active.rc
 ###############################################################################################################################
 
 echo "Summary" > zreport
-echo $short >> zreport
+echo $small >> zreport
 
 echo > tmp
 
@@ -119,60 +123,59 @@ if [ -f subdomains ]; then
     subdomaincount=$(wc -l subdomains | cut -d ' ' -f1)
     echo "Subdomains    $subdomaincount" >> zreport
     echo "Subdomains ($subdomaincount)" >> tmp
-    echo $long >> tmp
+    echo $large >> tmp
     cat subdomains >> tmp
     echo >> tmp
 fi
 
 echo >> zreport
 echo "Traceroute" >> zreport
-echo $long >> zreport
+echo $large >> zreport
 cat traceroute >> zreport
 
 echo >> zreport
 echo "Web Application Firewall" >> zreport
-echo $long >> zreport
+echo $large >> zreport
 cat waf >> zreport
 
 echo >> zreport
 echo "Zone Transfer" >> zreport
-echo $long >> zreport
+echo $large >> zreport
 cat zonetransfer >> zreport
 
-cat zreport >> $home/data/$domain/data/active-recon.htm
-echo "</pre>" >> $home/data/$domain/data/active-recon.htm
-cat ztraceroute >> $home/data/$domain/data/traceroute.htm
-echo "</pre>" >> $home/data/$domain/data/traceroute.htm
-cat waf >> $home/data/$domain/data/waf.htm
-echo "</pre>" >> $home/data/$domain/data/waf.htm
-#cat whatweb >> $home/data/$domain/data/whatweb.htm
-#echo "</pre>" >> $home/data/$domain/data/whatweb.htm
-cat zonetransfer >> $home/data/$domain/data/zonetransfer.htm
-echo "</pre>" >> $home/data/$domain/data/zonetransfer.htm
+cat zreport >> $HOME/data/$domain/data/active-recon.htm
+echo "</pre>" >> $HOME/data/$domain/data/active-recon.htm
+cat ztraceroute >> $HOME/data/$domain/data/traceroute.htm
+echo "</pre>" >> $HOME/data/$domain/data/traceroute.htm
+cat waf >> $HOME/data/$domain/data/waf.htm
+echo "</pre>" >> $HOME/data/$domain/data/waf.htm
+#cat whatweb >> $HOME/data/$domain/data/whatweb.htm
+#echo "</pre>" >> $HOME/data/$domain/data/whatweb.htm
+cat zonetransfer >> $HOME/data/$domain/data/zonetransfer.htm
+echo "</pre>" >> $HOME/data/$domain/data/zonetransfer.htm
 
-#if [[ -f $home/data/$domain/data/emails.htm && -f emails ]]; then
-#    cat $home/data/$domain/data/emails.htm emails | grep -v '<' | sort -u > tmp-new-emails
-#    cat $home/data/$domain/data/emails.htm | grep '<' > tmp-new-page
-#    mv tmp-new-page $home/data/$domain/data/emails.htm
-#    cat tmp-new-emails >> $home/data/$domain/data/emails.htm
-#    echo "</pre>" >> $home/data/$domain/data/emails.htm
+#if [[ -f $HOME/data/$domain/data/emails.htm && -f emails ]]; then
+#    cat $HOME/data/$domain/data/emails.htm emails | grep -v '<' | sort -u > tmp-new-emails
+#    cat $HOME/data/$domain/data/emails.htm | grep '<' > tmp-new-page
+#    mv tmp-new-page $HOME/data/$domain/data/emails.htm
+#    cat tmp-new-emails >> $HOME/data/$domain/data/emails.htm
+#    echo "</pre>" >> $HOME/data/$domain/data/emails.htm
 #fi
 
-#if [[ -f $home/data/$domain/data/hosts.htm && -f hosts ]]; then
-#    cat $home/data/$domain/data/hosts.htm hosts | grep -v '<' | $sip > tmp-new-hosts
-#    cat $home/data/$domain/data/hosts.htm | grep '<' > tmp-new-page
-#    mv tmp-new-page $home/data/$domain/data/hosts.htm
-#    cat tmp-new-hosts >> $home/data/$domain/data/hosts.htm
-#    echo "</pre>" >> $home/data/$domain/data/hosts.htm
+#if [[ -f $HOME/data/$domain/data/hosts.htm && -f hosts ]]; then
+#    cat $HOME/data/$domain/data/hosts.htm hosts | grep -v '<' | $sip > tmp-new-hosts
+#    cat $HOME/data/$domain/data/hosts.htm | grep '<' > tmp-new-page
+#    mv tmp-new-page $HOME/data/$domain/data/hosts.htm
+#    cat tmp-new-hosts >> $HOME/data/$domain/data/hosts.htm
+#    echo "</pre>" >> $HOME/data/$domain/data/hosts.htm
 #fi
 
-mv active.rc subdomains traceroute waf whatweb zonetransfer /tmp/subdomains-active $home/data/$domain/tools/active/ 2>/dev/null
+mv active.rc subdomains traceroute waf whatweb zonetransfer /tmp/subdomains-active $HOME/data/$domain/tools/active/ 2>/dev/null
 rm tmp*
 
 echo
 echo $medium
 echo
-echo "***Scan complete.***"
+echo "[*] Scan complete."
 echo
-echo
-echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${NC}\n"
+echo -e "The supporting data folder is located at ${YELLOW}$HOME/data/$domain/${NC}"

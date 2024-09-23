@@ -147,7 +147,7 @@ https://nim-lang.org/install_unix.html
 Download x86_64 tarball
 tar xf <package>
 mv nim-1.6.12 /opt/
-echo 'export PATH=$PATH:/opt/nim-1.6.12/bin/' >> ~/.zshrc
+echo "export PATH=$PATH:/opt/nim-1.6.12/bin/" >> ~/.zshrc
 source ~/.zshrc
 
 - Terraform

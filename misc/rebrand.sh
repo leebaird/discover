@@ -1,35 +1,39 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 medium='=================================================================='
 
 clear
 echo
 echo -n "Enter the location of your folder: "
-read -e location
+read -r location
 
 # Check for no answer
-if [[ -z $location ]]; then
+if [ -z "$location" ]; then
     echo
     echo $medium
     echo
-    echo "No answer."
+    echo "[!] No answer."
+    echo
     echo
     exit 1
 fi
 
 # Check for wrong answer
-if [ ! $location ]; then
+if [ ! -d "$location" ]; then
     echo
     echo $medium
     echo
-    echo "Wrong location."
+    echo "[!] Wrong location."
+    echo
     echo
     exit 1
 fi
 
-cd $location
+cd "$location"
 
 sed -i 's|href="https://github.com/leebaird/discover"|href="https://www.acme.org"|g' index.htm
 cd pages/

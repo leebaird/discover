@@ -168,7 +168,7 @@ cd test                                         Change to the test directory
 pwd                                             Print the current working directory
 
 touch tmp                                       Create a file
-mkdir tmp                                       Create a directory
+mkdir -p tmp                                    Create a directory
 mkdir -p tmp/{red,white,blue}                   Create a directory with 3 sub directories
 
 cat tmp                                         Show the contents of a file
@@ -377,7 +377,7 @@ vi smb.conf
    read only = no
    guest ok = no
 
-mkdir /home/lee/share/                          Create new directory to share
+mkdir -p /home/lee/share/                       Create new directory to share
 chmod -R 777 /home/lee/share                    Give Everyone access
 service smbd start                              Start the SMB service
 service nmbd start
@@ -660,7 +660,7 @@ cat /home/<USERNAME>/.bash_history | less       Show a user's command history, u
 
 # Anonymous Mountable CIFS
 
-mkdir /mnt/temp/
+mkdir -p /mnt/temp/
 mount -t cifs -o username=user,password=password,domain=foo //<target IP>/share /mnt/temp
 
 - OS X
@@ -674,7 +674,7 @@ cat /root/.ssh/id_rsa.pub >> /tmp/mount/root/.ssh/authorized_keys
 showmount -e <target IP>
 
 apt install nfs-common
-mkdir /mnt/temp/
+mkdir -p /mnt/temp/
 mount -t nfs <target IP>:/<share> /mnt/temp/ -o nolock
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -710,7 +710,7 @@ file /usr/bin/demo                                         Check for the file ty
 
 Example: the binary is using the cat command.
 cd /tmp/
-echo '/bin/sh' > cat
+echo "/bin/sh" > cat
 chmod 755 cat                                              Set execute privileges
 export PATH=/tmp:$PATH                                     Add the /tmp directory to the PATH environmental variable
 echo $PATH                                                 Check that the directory has been added

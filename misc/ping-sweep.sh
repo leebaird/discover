@@ -1,6 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 medium='=================================================================='
 
@@ -16,13 +18,14 @@ echo
 echo "Usage: 192.168.1"
 echo
 
-read -p "Class: " class
+echo -n "Class: "
+read -r class
 
-if [ -z $class ]; then
+if [ -z "$class" ]; then
     echo
     echo $medium
     echo
-    echo "Invalid choice."
+    echo "[!] Invalid choice."
     echo
     echo
     exit 1
@@ -32,8 +35,8 @@ echo
 echo $medium
 echo
 
-for x in `seq 1 254`; do
-    ping -c1 $class.$x | grep 'bytes from' | cut -d ' ' -f4 | cut -d ':' -f1 &
+for x in $(seq 1 254); do
+    ping -c1 "$class"."$x" | grep 'bytes from' | cut -d ' ' -f4 | cut -d ':' -f1 &
 done
 
 echo

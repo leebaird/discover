@@ -1,24 +1,28 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
 
-hname=`/bin/hostname`
-fndate=`/bin/date +%F_%H.%M.%S.%Z`
+set -euo pipefail
+
+hname=$(/bin/hostname)
+fndate=$(/bin/date +%F_%H.%M.%S.%Z)
 medium='=================================================================='
 user=$(whoami)
 
 clear
 
-if [ -z $1 ]; then
+if [ -z "$1" ]; then
     echo
-    echo 'Usage: user@targetIP'
+    echo $medium
+    echo
+    echo "Usage: user@targetIP"
     echo
     echo
     exit 1
 fi
 
-ssh -M -S discover.socket -f -N $1 misc/enum-linux.sh
-ssh -S discover.socket -O exit $1
+ssh -M -S discover.socket -f -N "$1" misc/enum-linux.sh
+ssh -S discover.socket -O exit "$1"
 
 # Based on Metasploit post Linux modules
 
@@ -26,60 +30,60 @@ echo > tmp
 /bin/date >> tmp
 echo >> tmp
 
-echo 'Whoami' >> tmp
+echo "Whoami" >> tmp
 /usr/bin/whoami >> tmp
 echo >> tmp
 
-echo 'Hostname' >> tmp
+echo "Hostname" >> tmp
 /bin/hostname >> tmp
 echo >> tmp
 
-echo 'Kernel' >> tmp
+echo "Kernel" >> tmp
 /bin/uname -a >> tmp
 echo >> tmp
 
-echo 'System uptime' >> tmp
+echo "System uptime" >> tmp
 /usr/bin/uptime >> tmp
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
 
-echo 'Users' >> tmp
+echo "Users" >> tmp
 echo >> tmp
 cat /etc/passwd >> tmp 2>/dev/null
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
 
-echo 'Passwords' >> tmp
+echo "Passwords" >> tmp
 echo >> tmp
 cat /etc/shadow >> tmp 2>/dev/null
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
 
-echo 'User groups' >> tmp
+echo "User groups" >> tmp
 echo >> tmp
 cat /etc/group >> tmp 2>/dev/null
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
 
-echo 'Last 25 logins' >> tmp
+echo "Last 25 logins" >> tmp
 echo >> tmp
 /usr/bin/last -25 >> tmp
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
 
-echo 'Listening ports' >> tmp
+echo "Listening ports" >> tmp
 echo >> tmp
 /bin/netstat -ant >> tmp
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
 
-echo 'Filesystem stats' >> tmp
+echo "Filesystem stats" >> tmp
 echo >> tmp
 /bin/mount >> tmp
 echo >> tmp
@@ -88,14 +92,14 @@ echo >> tmp
 echo $medium >> tmp
 echo >> tmp
 
-echo 'Processes' >> tmp
+echo "Processes" >> tmp
 echo >> tmp
 ps aux >> tmp
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
 
-echo 'Networking' >> tmp
+echo "Networking" >> tmp
 echo >> tmp
 /sbin/ifconfig -a >> tmp
 echo >> tmp
@@ -117,19 +121,19 @@ echo >> tmp
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
-echo '/etc/resolv.con' >> tmp
+echo "/etc/resolv.con" >> tmp
 echo >> tmp
 cat /etc/resolv.conf >> tmp 2>/dev/null
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
-echo 'SSH config' >> tmp
+echo "SSH config" >> tmp
 echo >> tmp
 cat /etc/ssh/sshd_config >> tmp 2>/dev/null
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
-echo '/etc/hosts' >> tmp
+echo "/etc/hosts" >> tmp
 echo >> tmp
 cat /etc/hosts >> tmp 2>/dev/null
 echo >> tmp
@@ -152,13 +156,13 @@ echo >> tmp
 echo $medium >> tmp
 echo >> tmp
 
-echo 'Apache config' >> tmp
+echo "Apache config" >> tmp
 echo >> tmp
 cat /etc/apache2/apache2.conf >> tmp 2>/dev/null
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
-echo 'Apache ports' >> tmp
+echo "Apache ports" >> tmp
 echo >> tmp
 cat /etc/apache2/ports.conf >> tmp 2>/dev/null
 echo >> tmp
@@ -168,13 +172,13 @@ cat /etc/nginx/nginx.conf >> tmp 2>/dev/null
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
-echo 'Snort config' >> tmp
+echo "Snort config" >> tmp
 echo >> tmp
 cat /etc/snort/snort.conf >> tmp 2>/dev/null
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
-echo 'MySQL config' >> tmp
+echo "MySQL config" >> tmp
 echo >> tmp
 cat /etc/mysql/my.cnf >> tmp 2>/dev/null
 echo >> tmp
@@ -236,25 +240,25 @@ cat /etc/rkhunter.conf >> tmp 2>/dev/null
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
-echo 'Samba config' >> tmp
+echo "Samba config" >> tmp
 echo >> tmp
 cat /etc/samba/smb.conf >> tmp 2>/dev/null
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
-echo 'LDAP config' >> tmp
+echo "LDAP config" >> tmp
 echo >> tmp
 cat /etc/ldap/ldap.conf >> tmp 2>/dev/null
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
-echo 'Open LDAP config' >> tmp
+echo "Open LDAP config" >> tmp
 echo >> tmp
 cat /etc/openldap/openldap.conf >> tmp 2>/dev/null
 echo >> tmp
 echo $medium >> tmp
 echo >> tmp
-echo 'CUPS config' >> tmp
+echo "CUPS config" >> tmp
 echo >> tmp
 cat /etc/cups/cups.conf >> tmp 2>/dev/null
 echo >> tmp
@@ -285,7 +289,7 @@ echo >> tmp
 echo $medium >> tmp
 echo >> tmp
 
-echo 'Misc' >> tmp
+echo "Misc" >> tmp
 echo >> tmp
 /usr/bin/dpkg -l >> tmp
 echo >> tmp
@@ -319,13 +323,13 @@ cat /etc/ppp/chap-secrets >> tmp 2>/dev/null
 
 ##############################################################################################################
 
-mv tmp /$user/$hname-$fndate.txt
+mv tmp /"$user"/"$hname"-"$fndate".txt
 
 echo
 echo $medium
 echo
 echo "Scan complete."
 echo
-echo "The new report is located at \e[1;33m%s\e[0m\n" /$user/$hname-$fndate.txt
+echo "The new report is located at \e[1;33m%s\e[0m\n" /"$user"/"$hname"-"$fndate".txt
 echo
 echo

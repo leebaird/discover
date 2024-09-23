@@ -1,4 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 END=$(date +%r\ %Z)
 filename=$name/report.txt
@@ -24,8 +28,7 @@ if [ ! -s $name/ports.txt ]; then
     echo
     echo $medium
     echo
-    echo "***Scan complete.***"
-    echo
+    echo "[*] Scan complete."
     echo
     echo -e "${YELLOW}No hosts found with open ports.${NC}"
     echo
@@ -111,24 +114,24 @@ if [ -f $name/script-onesixtyone.txt ] || [ -f $name/script-smbclient.txt ] || [
 
     if [ -f $name/script-onesixtyone.txt ]; then
         echo >> $filename
-        echo '- onesixtyone' >> $filename
+        echo "- onesixtyone" >> $filename
         cat $name/script-onesixtyone.txt >> $filename
     fi
 
     if [ -f $name/script-smbclient.txt ]; then
         echo >> $filename
-        echo '- smbclient' >> $filename
+        echo "- smbclient" >> $filename
         cat $name/script-smbclient.txt >> $filename
     fi
 
     if [ -f $name/script-ike-scan.txt ]; then
         echo >> $filename
-        echo '- ike-scan' >> $filename
+        echo "- ike-scan" >> $filename
         cat $name/script-ike-scan.txt >> $filename
     fi
 fi
 
-mv $name $home/data/
+mv $name $HOME/data/
 
 START=0
 END=0
@@ -136,7 +139,6 @@ END=0
 echo
 echo $medium
 echo
-echo "***Scan complete.***"
+echo "[*] Scan complete."
 echo
-echo
-echo -e "The new report is located at ${YELLOW}$home/data/$name/report.txt${NC}\n"
+echo -e "The new report is located at ${YELLOW}$HOME/data/$name/report.txt${NC}"

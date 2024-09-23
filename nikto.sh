@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
-# Make sure not root
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
+
+# Check for regular user
 if [ "$EUID" == 0 ]; then
-    echo
     echo
     echo "[!] This option cannot be ran as root."
     echo
-    exit   # Do not use exit 1, in this case it will break the script
+    exit   # In this case do not use exit 1, it will break the script
 fi
 
 clear
@@ -35,7 +38,7 @@ case "$choice" in
             port=80
         fi
 
-        # Validate port
+        # Validate number and port number
         if ! [[ "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
             f_error
         fi
@@ -78,4 +81,4 @@ echo "$medium"
 echo
 echo "[*] Scan complete."
 echo
-echo -e "The new report is located at ${YELLOW}$HOME/data/nikto-$port/${NC}\n"
+echo -e "The new report is located at ${YELLOW}$HOME/data/nikto-$port/${NC}"

@@ -272,7 +272,7 @@ nmap -Pn -n -T4 --open -p111 --script=rpcinfo <CIDR>
 ls -l /usr/share/nmap/scripts/nfs*                                  nmap NFS scripts
 nmap -Pn -n -T4 --open -p111 --script=nfs* <CIDR>
 
-mkdir remote-share                                                  Create a new folder
+mkdir -p remote-share                                               Create a new folder
 mount -o nolock <target IP>:/<share> remote-share/                  Mount remote share to new folder
 cd remote-share/
 ls -l

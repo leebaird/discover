@@ -116,7 +116,7 @@ shodan parse test.json.gz
 
 #!/bin/bash
 shodan init <API key>
-echo 'Gathering Shodan info on the following targets:'
+echo "Gathering Shodan info on the following targets:"
 
 for i in $(cat targets.txt); do
      echo $i

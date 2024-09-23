@@ -1,4 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 clear
 f_banner
@@ -14,13 +18,12 @@ for i in $(cat $location); do
 done
 
 cat tmp | sort -u > DirectObjectRef.txt
-mv DirectObjectRef.txt $home/data/DirectObjectRef.txt
+mv DirectObjectRef.txt $HOME/data/DirectObjectRef.txt
 rm tmp
 
 echo
 echo $medium
 echo
-echo "***Scan complete.***"
+echo "[*] Scan complete."
 echo
-echo
-echo -e "The new report is located at ${YELLOW}$home/data/DirectObjectRef.txt${NC}\n"
+echo -e "The new report is located at ${YELLOW}$HOME/data/DirectObjectRef.txt${NC}"

@@ -1,4 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 
 f_targets(){
@@ -12,7 +16,7 @@ echo "2.  Ping sweep"
 echo "3.  Previous menu"
 echo
 echo -n "Choice: "
-read choice
+read -r choice
 
 case $choice in
     1) f_arpscan;;
@@ -27,7 +31,7 @@ esac
 f_arpscan(){
 echo
 echo -n "Interface to scan: "
-read interface
+read -r interface
 
 # Check for no answer
 if [ -z $interface ]; then
@@ -35,17 +39,16 @@ if [ -z $interface ]; then
 fi
 
 arp-scan -l -I $interface | egrep -v '(arp-scan|DUP:|Interface|packets)' > tmp
-sed '/^$/d' tmp | sort -k3 > $home/data/arp-scan.txt
-awk '{print $1}' tmp | $sip | sed '/^$/d' > $home/data/targets-arp-scan.txt
+sed '/^$/d' tmp | sort -k3 > $HOME/data/arp-scan.txt
+awk '{print $1}' tmp | $sip | sed '/^$/d' > $HOME/data/targets-arp-scan.txt
 rm tmp
 
 echo
 echo $medium
 echo
-echo "***Scan complete.***"
+echo "[*] Scan complete."
 echo
-echo
-echo -e "The new report is located at ${YELLOW}$home/data/targets-arp-scan.txt${NC}\n"
+echo -e "The new report is located at ${YELLOW}$HOME/data/targets-arp-scan.txt${NC}"
 echo
 echo
 exit
@@ -61,7 +64,7 @@ echo "1.  List containing IPs, ranges, and/or CIDRs."
 echo "2.  Manual"
 echo
 echo -n "Choice: "
-read choice
+read -r choice
 
 case $choice in
     1)
@@ -75,7 +78,7 @@ case $choice in
     2)
     echo
     echo -n "Enter a CIDR or range: "
-    read manual
+    read -r manual
 
     # Check for no answer
     if [ -z $manual ]; then
@@ -90,16 +93,15 @@ case $choice in
     *) f_error;;
 esac
 
-grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp > $home/data/targets-pingsweep.txt
+grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp > $HOME/data/targets-pingsweep.txt
 rm tmp
 
 echo
 echo $medium
 echo
-echo "***Scan complete.***"
+echo "[*]Scan complete."
 echo
-echo
-echo -e "The new report is located at ${YELLOW}$home/data/targets-pingsweep.txt${NC}\n"
+echo -e "The new report is located at ${YELLOW}$HOME/data/targets-pingsweep.txt${NC}"
 echo
 echo
 exit

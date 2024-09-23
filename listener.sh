@@ -1,4 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 clear
 f_banner
@@ -21,7 +25,7 @@ echo "13.  windows/x64/meterpreter_reverse_tcp"
 echo "14.  Previous menu"
 echo
 echo -n "Choice: "
-read choice
+read -r choice
 
 case $choice in
     1) payload="android/meterpreter/reverse_tcp";;
@@ -43,7 +47,7 @@ esac
 
 echo
 echo -n "LHOST: "
-read lhost
+read -r lhost
 
 # Check for no answer
 if [ -z $lhost ]; then
@@ -53,7 +57,7 @@ if [ -z $lhost ]; then
 fi
 
 echo -n "LPORT: "
-read lport
+read -r lport
 
 # Check for no answer
 if [ -z $lport ]; then

@@ -1,4 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 f_runlocally
 clear
@@ -12,14 +16,14 @@ echo "3.  Directories in robots.txt"
 echo "4.  Previous menu"
 echo
 echo -n "Choice: "
-read choice
+read -r choice
 
 case $choice in
     1)
     f_location
     echo
     echo -n "Use an https prefix? (y/N) "
-    read prefix
+    read -r prefix
 
     if [ -z $prefix ]; then
         for i in $(cat $location); do
@@ -43,7 +47,7 @@ case $choice in
     echo $medium
     echo
     echo -n "Enter the location of your directory: "
-    read -e location
+    read -r location
 
     # Check for no answer
     if [ -z $location ]; then
@@ -72,7 +76,7 @@ case $choice in
     echo "Usage: target.com or target-IP"
     echo
     echo -n "Domain: "
-    read domain
+    read -r domain
 
     # Check for no answer
     if [ -z $domain ]; then
@@ -86,7 +90,7 @@ case $choice in
         echo
         echo -e "${RED}$medium${NC}"
         echo
-        echo -e "${RED}                     *** No robots.txt file discovered. ***${NC}"
+        echo -e "${RED}[*] No robots.txt file discovered.${NC}"
         echo
         echo -e "${RED}$medium${NC}"
         sleep 2
@@ -101,15 +105,14 @@ case $choice in
     done
 
     rm robots.txt
-    mv tmp $home/data/$domain-robots.txt
+    mv tmp $HOME/data/$domain-robots.txt
 
     echo
     echo $medium
     echo
-    echo "***Scan complete.***"
+    echo "[*] Scan complete."
     echo
-    echo
-    echo -e "The new report is located at ${YELLOW}$home/data/$domain-robots.txt${NC}\n"
+    echo -e "The new report is located at ${YELLOW}$HOME/data/$domain-robots.txt${NC}"
     echo
     echo
     exit

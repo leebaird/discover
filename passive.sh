@@ -1,4 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 clear
 f_banner
@@ -19,7 +23,7 @@ echo
 echo $medium
 echo
 echo -n "Company: "
-read company
+read -r company
 
 # Check for no answer, need dbl brackets to handle a space in the name
 if [[ -z $company ]]; then
@@ -27,7 +31,7 @@ if [[ -z $company ]]; then
 fi
 
 echo -n "Domain:  "
-read domain
+read -r domain
 
 # Check for no answer
 if [ -z $domain ]; then
@@ -37,11 +41,11 @@ fi
 companyurl=$( printf "%s\n" "$company" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
 rundate=$(date +%B' '%d,' '%Y)
 
-if [ ! -d $home/data/$domain ]; then
-    cp -R $discover/report/ $home/data/$domain
-    sed -i "s/#COMPANY#/$company/" $home/data/$domain/index.htm
-    sed -i "s/#DOMAIN#/$domain/" $home/data/$domain/index.htm
-    sed -i "s/#DATE#/$rundate/" $home/data/$domain/index.htm
+if [ ! -d $HOME/data/$domain ]; then
+    cp -R $discover/report/ $HOME/data/$domain
+    sed -i "s/#COMPANY#/$company/" $HOME/data/$domain/index.htm
+    sed -i "s/#DOMAIN#/$domain/" $HOME/data/$domain/index.htm
+    sed -i "s/#DATE#/$rundate/" $HOME/data/$domain/index.htm
 fi
 
 echo
@@ -61,7 +65,7 @@ if ! grep -q 'No Search Results' tmp.xml; then
     xmllint --format tmp.xml | grep 'handle' | cut -d '>' -f2 | cut -d '<' -f1 | sort -u > zurls.txt
     xmllint --format tmp.xml | grep 'handle' | cut -d '"' -f2 | sort -u > zhandles.txt
 
-    while read i; do
+    while read -r i; do
         curl -k -s $i > tmp2.xml
         xml_grep 'email' tmp2.xml --text_only >> tmp
     done < zurls.txt
@@ -80,7 +84,7 @@ if [ -f zhandles.txt ]; then
     done
 
     egrep -iv "($company|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
-    cat tmp2 | sed 's/Name:         //g' | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp3
+    sed 's/Name:         //g' tmp2 | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp3
     awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sort -u > zarin-names
 fi
 
@@ -112,8 +116,8 @@ python3 /opt/DNSRecon/dnsrecon.py -d $domain -n 8.8.8.8 -t std > tmp
 cat tmp | egrep -v '(All queries will|Could not|DNSKEYs|DNSSEC|Error|It is resolving|NSEC3|Performing|Records|Recursion|TXT|Version|Wildcard resolution)' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort | sed 's/[ \t]*$//' > records
 cat tmp | grep 'TXT' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | sort | sed 's/[ \t]*$//' >> records
 
-cat records >> $home/data/$domain/data/records.htm
-echo "</pre>" >> $home/data/$domain/data/records.htm
+cat records >> $HOME/data/$domain/data/records.htm
+echo "</pre>" >> $HOME/data/$domain/data/records.htm
 rm tmp
 deactivate
 echo
@@ -280,7 +284,7 @@ echo "dnsdumpster.com          (44/$total)"
 rando=$(openssl rand -base64 32 | tr -dc 'a-zA-Z0-9' | cut -c 1-32)
 curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$rando&targetip=$domain" --cookie "csrftoken=$rando; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com/static/map/$domain.png > /dev/null
 sleep 25
-curl -s -o $home/data/$domain/assets/images/dnsdumpster.png https://dnsdumpster.com/static/map/$domain.png
+curl -s -o $HOME/data/$domain/assets/images/dnsdumpster.png https://dnsdumpster.com/static/map/$domain.png
 echo
 
 ###############################################################################################################################
@@ -288,24 +292,24 @@ echo
 echo "intodns.com              (45/$total)"
 wget -q http://www.intodns.com/$domain -O tmp
 cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
-cat tmp2 >> $home/data/$domain/pages/config.htm
+cat tmp2 >> $HOME/data/$domain/pages/config.htm
 
 # Add new icons
-sed -i 's|/static/images/error.gif|\.\./assets/images/icons/fail.png|g' $home/data/$domain/pages/config.htm
-sed -i 's|/static/images/fail.gif|\.\./assets/images/icons/fail.png|g' $home/data/$domain/pages/config.htm
-sed -i 's|/static/images/info.gif|\.\./assets/images/icons/info.png|g' $home/data/$domain/pages/config.htm
-sed -i 's|/static/images/pass.gif|\.\./assets/images/icons/pass.png|g' $home/data/$domain/pages/config.htm
-sed -i 's|/static/images/warn.gif|\.\./assets/images/icons/warn.png|g' $home/data/$domain/pages/config.htm
-sed -i 's|\.\.\.\.|\.\.|g' $home/data/$domain/pages/config.htm
+sed -i 's|/static/images/error.gif|\.\./assets/images/icons/fail.png|g' $HOME/data/$domain/pages/config.htm
+sed -i 's|/static/images/fail.gif|\.\./assets/images/icons/fail.png|g' $HOME/data/$domain/pages/config.htm
+sed -i 's|/static/images/info.gif|\.\./assets/images/icons/info.png|g' $HOME/data/$domain/pages/config.htm
+sed -i 's|/static/images/pass.gif|\.\./assets/images/icons/pass.png|g' $HOME/data/$domain/pages/config.htm
+sed -i 's|/static/images/warn.gif|\.\./assets/images/icons/warn.png|g' $HOME/data/$domain/pages/config.htm
+sed -i 's|\.\.\.\.|\.\.|g' $HOME/data/$domain/pages/config.htm
 # Insert missing table tag
-sed -i 's/.*<thead>.*/    <table border="4">\n&/' $home/data/$domain/pages/config.htm
+sed -i 's/.*<thead>.*/    <table border="4">\n&/' $HOME/data/$domain/pages/config.htm
 # Add blank lines below table
-sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' $home/data/$domain/pages/config.htm
+sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' $HOME/data/$domain/pages/config.htm
 # Remove unnecessary JS at bottom of page
-sed -i '/Math\.random/I,+6 d' $home/data/$domain/pages/config.htm
+sed -i '/Math\.random/I,+6 d' $HOME/data/$domain/pages/config.htm
 # Clean up
-sed -i 's/I could use the nameservers/The nameservers/g' $home/data/$domain/pages/config.htm
-sed -i 's/below to performe/below can perform/g; s/ERROR: //g; s/FAIL: //g; s/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/Oh well, //g; s/This can be ok if you know what you are doing.//g; s/That is NOT OK//g; s/That is not so ok//g; s/The reverse (PTR) record://g; s/the same ip./the same IP./g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/use on having/use in having/g; s/You must be/Be/g; s/Your/The/g; s/your/the/g' $home/data/$domain/pages/config.htm
+sed -i 's/I could use the nameservers/The nameservers/g' $HOME/data/$domain/pages/config.htm
+sed -i 's/below to performe/below can perform/g; s/ERROR: //g; s/FAIL: //g; s/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/Oh well, //g; s/This can be ok if you know what you are doing.//g; s/That is NOT OK//g; s/That is not so ok//g; s/The reverse (PTR) record://g; s/the same ip./the same IP./g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/use on having/use in having/g; s/You must be/Be/g; s/Your/The/g; s/your/the/g' $HOME/data/$domain/pages/config.htm
 echo
 
 ###############################################################################################################################
@@ -315,7 +319,7 @@ cat z* | grep "@$domain" | grep -v '[0-9]' | egrep -v '(_|,|firstname|lastname|t
 # Thanks Jason Ashton for cleaning up subdomains
 cat z* | cut -d ':' -f2 | grep "\.$domain" | egrep -v '(@|/|www)' | awk '{print $1}' | grep "\.$domain$" | sort -u > tmp
 
-while read i; do
+while read -r i; do
     ipadd=$(grep -w "$i" z* | cut -d ':' -f3 | grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | sed 's/, /\n/g' | sort -uV | tr '\n' ',' | sed 's/,$//g')
     echo "$i:$ipadd" >> raw
 done < tmp
@@ -388,50 +392,50 @@ if [ -f networks-final ]; then
 fi
 
 cat hosts >> tmp
-cat tmp >> $home/data/$domain/data/hosts.htm
-echo "</pre>" >> $home/data/$domain/data/hosts.htm 2>/dev/null
+cat tmp >> $HOME/data/$domain/data/hosts.htm
+echo "</pre>" >> $HOME/data/$domain/data/hosts.htm 2>/dev/null
 
 echo "Summary" > zreport
-echo $short >> zreport
+echo $small >> zreport
 echo > tmp
 
 if [ -f emails-final ]; then
     emailcount=$(wc -l emails-final | cut -d ' ' -f1)
     echo "Emails            $emailcount" >> zreport
     echo "Emails ($emailcount)" >> tmp
-    echo $short >> tmp
+    echo $small >> tmp
     cat emails-final >> tmp
     echo >> tmp
-    cat emails-final >> $home/data/$domain/data/emails.htm
-    echo "</pre>" >> $home/data/$domain/data/emails.htm
+    cat emails-final >> $HOME/data/$domain/data/emails.htm
+    echo "</pre>" >> $HOME/data/$domain/data/emails.htm
 else
-    echo "No data found." >> $home/data/$domain/data/emails.htm
-    echo "</pre>" >> $home/data/$domain/data/emails.htm
+    echo "No data found." >> $HOME/data/$domain/data/emails.htm
+    echo "</pre>" >> $HOME/data/$domain/data/emails.htm
 fi
 
 if [ -f names-final ]; then
     namecount=$(wc -l names-final | cut -d ' ' -f1)
     echo "Names             $namecount" >> zreport
     echo "Names ($namecount)" >> tmp
-    echo $long >> tmp
-    echo 'Last name      First name' >> tmp
-    echo '--------------------------' >> tmp
+    echo $large >> tmp
+    echo "Last name      First name" >> tmp
+    echo "--------------------------" >> tmp
     cat names-final >> tmp
     echo >> tmp
-    echo 'Last name      First name' >> $home/data/$domain/data/names.htm
-    echo '--------------------------' >> $home/data/$domain/data/names.htm
-    cat names-final >> $home/data/$domain/data/names.htm
-    echo "</pre>" >> $home/data/$domain/data/names.htm
+    echo "Last name      First name" >> $HOME/data/$domain/data/names.htm
+    echo "--------------------------" >> $HOME/data/$domain/data/names.htm
+    cat names-final >> $HOME/data/$domain/data/names.htm
+    echo "</pre>" >> $HOME/data/$domain/data/names.htm
 else
-    echo "No data found." >> $home/data/$domain/data/names.htm
-    echo "</pre>" >> $home/data/$domain/data/names.htm
+    echo "No data found." >> $HOME/data/$domain/data/names.htm
+    echo "</pre>" >> $HOME/data/$domain/data/names.htm
 fi
 
 if [ -f records ]; then
     recordcount=$(wc -l records | cut -d ' ' -f1)
     echo "DNS Records       $recordcount" >> zreport
     echo "DNS Records ($recordcount)" >> tmp
-    echo $long >> tmp
+    echo $large >> tmp
     cat records >> tmp
     echo >> tmp
 fi
@@ -440,7 +444,7 @@ if [ -f networks-final ]; then
     networkcount=$(wc -l networks-final | cut -d ' ' -f1)
     echo "Networks           $networkcount" >> zreport
     echo "Networks ($networkcount)" >> tmp
-    echo $long >> tmp
+    echo $large >> tmp
     cat networks-final >> tmp 2>/dev/null
     echo >> tmp
 fi
@@ -449,7 +453,7 @@ if [ -f hosts ]; then
     hostcount=$(wc -l hosts | cut -d ' ' -f1)
     echo "Hosts             $hostcount" >> zreport
     echo "Hosts ($hostcount)" >> tmp
-    echo $long >> tmp
+    echo $large >> tmp
     cat hosts >> tmp
     echo >> tmp
 fi
@@ -458,38 +462,38 @@ if [ -f squatting ]; then
     squattingcount=$(wc -l squatting | cut -d ' ' -f1)
     echo "Squatting         $squattingcount" >> zreport
     echo "Squatting ($squattingcount)" >> tmp
-    echo $long >> tmp
+    echo $large >> tmp
     cat squatting >> tmp
     echo >> tmp
-    cat squatting >> $home/data/$domain/data/squatting.htm
-    echo "</pre>" >> $home/data/$domain/data/squatting.htm
+    cat squatting >> $HOME/data/$domain/data/squatting.htm
+    echo "</pre>" >> $HOME/data/$domain/data/squatting.htm
 else
-    echo "No data found." >> $home/data/$domain/data/squatting.htm
-    echo "</pre>" >> $home/data/$domain/data/squatting.htm
+    echo "No data found." >> $HOME/data/$domain/data/squatting.htm
+    echo "</pre>" >> $HOME/data/$domain/data/squatting.htm
 fi
 
 if [ -f subdomains-final ]; then
     urlcount=$(wc -l subdomains-final | cut -d ' ' -f1)
     echo "Subdomains        $urlcount" >> zreport
     echo "Subdomains ($urlcount)" >> tmp
-    echo $long >> tmp
+    echo $large >> tmp
     cat subdomains-final >> tmp
     echo >> tmp
-    cat subdomains-final >> $home/data/$domain/data/subdomains.htm
-    echo "</pre>" >> $home/data/$domain/data/subdomains.htm
+    cat subdomains-final >> $HOME/data/$domain/data/subdomains.htm
+    echo "</pre>" >> $HOME/data/$domain/data/subdomains.htm
 else
     if [ -f subdomains ]; then
         urlcount=$(wc -l subdomains | cut -d ' ' -f1)
         echo "Subdomains         $urlcount" >> zreport
         echo "Subdomains ($urlcount)" >> tmp
-        echo $long >> tmp
+        echo $large >> tmp
         cat subdomains >> tmp
         echo >> tmp
-        cat subdomains >> $home/data/$domain/data/subdomains.htm
-        echo "</pre>" >> $home/data/$domain/data/subdomains.htm
+        cat subdomains >> $HOME/data/$domain/data/subdomains.htm
+        echo "</pre>" >> $HOME/data/$domain/data/subdomains.htm
     else
-        echo "No data found." >> $home/data/$domain/data/subdomains.htm
-        echo "</pre>" >> $home/data/$domain/data/subdomains.htm
+        echo "No data found." >> $HOME/data/$domain/data/subdomains.htm
+        echo "</pre>" >> $HOME/data/$domain/data/subdomains.htm
     fi
 fi
 
@@ -497,111 +501,111 @@ if [ -f xls ]; then
     xlscount=$(wc -l xls | cut -d ' ' -f1)
     echo "Excel             $xlscount" >> zreport
     echo "Excel Files ($xlscount)" >> tmp
-    echo $long >> tmp
+    echo $large >> tmp
     cat xls >> tmp
     echo >> tmp
-    cat xls >> $home/data/$domain/data/xls.htm
-    echo '</pre>' >> $home/data/$domain/data/xls.htm
+    cat xls >> $HOME/data/$domain/data/xls.htm
+    echo "</pre>" >> $HOME/data/$domain/data/xls.htm
 else
-    echo "No data found." >> $home/data/$domain/data/xls.htm
-    echo "</pre>" >> $home/data/$domain/data/xls.htm
+    echo "No data found." >> $HOME/data/$domain/data/xls.htm
+    echo "</pre>" >> $HOME/data/$domain/data/xls.htm
 fi
 
 if [ -f pdf ]; then
     pdfcount=$(wc -l pdf | cut -d ' ' -f1)
     echo "PDF               $pdfcount" >> zreport
     echo "PDF Files ($pdfcount)" >> tmp
-    echo $long >> tmp
+    echo $large >> tmp
     cat pdf >> tmp
     echo >> tmp
-    cat pdf >> $home/data/$domain/data/pdf.htm
-    echo '</pre>' >> $home/data/$domain/data/pdf.htm
+    cat pdf >> $HOME/data/$domain/data/pdf.htm
+    echo "</pre>" >> $HOME/data/$domain/data/pdf.htm
 else
-    echo "No data found." >> $home/data/$domain/data/pdf.htm
-    echo "</pre>" >> $home/data/$domain/data/pdf.htm
+    echo "No data found." >> $HOME/data/$domain/data/pdf.htm
+    echo "</pre>" >> $HOME/data/$domain/data/pdf.htm
 fi
 
 if [ -f ppt ]; then
     pptcount=$(wc -l ppt | cut -d ' ' -f1)
     echo "PowerPoint         $pptcount" >> zreport
     echo "PowerPoint Files ($pptcount)" >> tmp
-    echo $long >> tmp
+    echo $large >> tmp
     cat ppt >> tmp
     echo >> tmp
-    cat ppt >> $home/data/$domain/data/ppt.htm
-    echo '</pre>' >> $home/data/$domain/data/ppt.htm
+    cat ppt >> $HOME/data/$domain/data/ppt.htm
+    echo "</pre>" >> $HOME/data/$domain/data/ppt.htm
 else
-    echo "No data found." >> $home/data/$domain/data/ppt.htm
-    echo "</pre>" >> $home/data/$domain/data/ppt.htm
+    echo "No data found." >> $HOME/data/$domain/data/ppt.htm
+    echo "</pre>" >> $HOME/data/$domain/data/ppt.htm
 fi
 
 if [ -f txt ]; then
     txtcount=$(wc -l txt | cut -d ' ' -f1)
     echo "Text              $txtcount" >> zreport
     echo "Text Files ($txtcount)" >> tmp
-    echo $long >> tmp
+    echo $large >> tmp
     cat txt >> tmp
     echo >> tmp
-    cat txt >> $home/data/$domain/data/txt.htm
-    echo '</pre>' >> $home/data/$domain/data/txt.htm
+    cat txt >> $HOME/data/$domain/data/txt.htm
+    echo "</pre>" >> $HOME/data/$domain/data/txt.htm
 else
-    echo "No data found." >> $home/data/$domain/data/txt.htm
-    echo "</pre>" >> $home/data/$domain/data/txt.htm
+    echo "No data found." >> $HOME/data/$domain/data/txt.htm
+    echo "</pre>" >> $HOME/data/$domain/data/txt.htm
 fi
 
 if [ -f doc ]; then
     doccount=$(wc -l doc | cut -d ' ' -f1)
     echo "Word              $doccount" >> zreport
     echo "Word Files ($doccount)" >> tmp
-    echo $long >> tmp
+    echo $large >> tmp
     cat doc >> tmp
     echo >> tmp
-    cat doc >> $home/data/$domain/data/doc.htm
-    echo '</pre>' >> $home/data/$domain/data/doc.htm
+    cat doc >> $HOME/data/$domain/data/doc.htm
+    echo "</pre>" >> $HOME/data/$domain/data/doc.htm
 else
-    echo "No data found." >> $home/data/$domain/data/doc.htm
-    echo "</pre>" >> $home/data/$domain/data/doc.htm
+    echo "No data found." >> $HOME/data/$domain/data/doc.htm
+    echo "</pre>" >> $HOME/data/$domain/data/doc.htm
 fi
 
 cat tmp >> zreport
 
 if [ -f whois-domain ]; then
     echo "Whois Domain" >> zreport
-    echo $long >> zreport
+    echo $large >> zreport
     cat whois-domain >> zreport
-    cat whois-domain >> $home/data/$domain/data/whois-domain.htm
-    echo "</pre>" >> $home/data/$domain/data/whois-domain.htm
+    cat whois-domain >> $HOME/data/$domain/data/whois-domain.htm
+    echo "</pre>" >> $HOME/data/$domain/data/whois-domain.htm
 else
-    echo "No data found." >> $home/data/$domain/data/whois-domain.htm
-    echo "</pre>" >> $home/data/$domain/data/whois-domain.htm
+    echo "No data found." >> $HOME/data/$domain/data/whois-domain.htm
+    echo "</pre>" >> $HOME/data/$domain/data/whois-domain.htm
 fi
 
 if [ -f whois-ip ]; then
     echo >> zreport
     echo "Whois IP" >> zreport
-    echo $long >> zreport
+    echo $large >> zreport
     cat whois-ip >> zreport
-    cat whois-ip >> $home/data/$domain/data/whois-ip.htm
-    echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
+    cat whois-ip >> $HOME/data/$domain/data/whois-ip.htm
+    echo "</pre>" >> $HOME/data/$domain/data/whois-ip.htm
 else
-    echo "No data found." >> $home/data/$domain/data/whois-ip.htm
-    echo "</pre>" >> $home/data/$domain/data/whois-ip.htm
+    echo "No data found." >> $HOME/data/$domain/data/whois-ip.htm
+    echo "</pre>" >> $HOME/data/$domain/data/whois-ip.htm
 fi
 
-cat zreport >> $home/data/$domain/data/passive-recon.htm
-echo "</pre>" >> $home/data/$domain/data/passive-recon.htm
+cat zreport >> $HOME/data/$domain/data/passive-recon.htm
+echo "</pre>" >> $HOME/data/$domain/data/passive-recon.htm
 
 rm tmp* zreport
-mv asn curl debug* dnstwist email* hosts name* network* raw records registered* squatting sub* whois* z* doc pdf ppt txt xls $home/data/$domain/tools/ 2>/dev/null
-mv passive.rc passive2.rc $home/data/$domain/tools/recon-ng/ 2>/dev/null
-cd /tmp/; mv emails names* networks sub* tmp-emails $home/data/$domain/tools/recon-ng/ 2>/dev/null
+mv asn curl debug* dnstwist email* hosts name* network* raw records registered* squatting sub* whois* z* doc pdf ppt txt xls $HOME/data/$domain/tools/ 2>/dev/null
+mv passive.rc passive2.rc $HOME/data/$domain/tools/recon-ng/ 2>/dev/null
+cd /tmp/; mv emails names* networks sub* tmp-emails $HOME/data/$domain/tools/recon-ng/ 2>/dev/null
 cd $CWD
 
 echo
 echo $medium
 echo
 echo
-echo -e "The supporting data folder is located at ${YELLOW}$home/data/$domain/${NC}\n"
+echo -e "The supporting data folder is located at ${YELLOW}$HOME/data/$domain/${NC}\n"
 
 ###############################################################################################################################
 

@@ -24,7 +24,7 @@ echo -n "Internal IP:  "$ip ; echo ;
 echo -n "MAC address:  "$mac ; echo ;
 echo -n "DNS:          "$dns ; echo ;
 echo ; netstat -antp; echo ;
-ping -c3 google.com'
+ping -c3 8.8.8.8'
 alias r='cd $HOME ; clear'
 alias s='cd /opt/discover/ ; clear'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'

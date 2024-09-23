@@ -1,4 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 f_runlocally
 clear
@@ -7,7 +11,7 @@ f_banner
 echo -e "${BLUE}RECON${NC}"
 echo
 echo -n "First name: "
-read firstName
+read -r firstName
 
 # Check for no answer
 if [ -z $firstName ]; then
@@ -15,7 +19,7 @@ if [ -z $firstName ]; then
 fi
 
 echo -n "Last name:  "
-read lastName
+read -r lastName
 
 # Check for no answer
 if [ -z $lastName ]; then

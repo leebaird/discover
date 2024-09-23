@@ -13,7 +13,7 @@ service apache2 start                      Start Apache
 update-rc.d apache2 enable                 Enable Apache to start at boot time
 
 - Apache web root
-mkdir /var/www/html/acme.org               Place all your files here
+mkdir -p /var/www/html/acme.org            Place all your files here
 sudo adduser $USER www-data                While logged in as ec2-user
 sudo chown $USER:www-data -R /var/www
 

@@ -1,6 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 medium='=================================================================='
 
@@ -16,13 +18,14 @@ echo
 echo "Usage: target.com"
 echo
 
-read -p "Domain: " domain
+echo -n "Domain: "
+read -r domain
 
-if [ -z $domain ]; then
+if [ -z "$domain" ]; then
     echo
     echo $medium
     echo
-    echo "Invalid choice."
+    echo "[!] Invalid choice."
     echo
     echo
     exit 1
@@ -32,19 +35,27 @@ echo
 echo $medium
 echo
 
-wget www.$domain
+if ! wget -q www."$domain" -O index.html; then
+    echo
+    echo "[!] Failed to download www.$domain."
+    echo
+    exit 1
+fi
 
-grep 'href=' index.html | cut -d '/' -f3 | grep $domain | egrep -v "(www.$domain|>)" | cut -d '"' -f1 | sort -u > tmp
+grep 'href=' index.html | cut -d '/' -f3 | grep "$domain" | grep -Ev "www.$domain|>" | cut -d '"' -f1 | sort -u > tmp
 
 if [ ! -s tmp ]; then
-    echo 'No subdomains found.'
+    echo
+    echo "[*] No subdomains found."
+    echo
+    exit 1
 else
     echo $medium
     echo
-    cat tmp | sed 's/\?.*//' | sort -u | column -t
+    sed 's/\?.*//' tmp | sort -u | column -t
 fi
 
-rm index.html tmp*
+rm index.html tmp
 
 echo
 echo

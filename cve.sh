@@ -1,10 +1,34 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
+
+# Check for a program
+if ! command -v jq &> /dev/null; then
+    echo
+    echo "[!] jq is not installed."
+    echo
+    echo
+    exit 1
+fi
+
+# Check if Firefox is running
+if pgrep firefox > /dev/null; then
+    echo
+    echo "[!] Close Firefox before running script."
+    echo
+    echo
+    exit 1
+fi
+
+clear
+echo
 echo
 echo "Search for info and exploits on a CVE."
 echo
 echo -n "CVE: "
-read cve
+read -r cve
 echo
 
 # Check for no answer
@@ -30,7 +54,6 @@ response=$(curl -s "https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=$cve"
 description=$(echo "$response" | jq -r '.vulnerabilities[0].cve.descriptions[0].value')
 published=$(echo "$response" | jq -r '.vulnerabilities[0].cve.published')
 last_modified=$(echo "$response" | jq -r '.vulnerabilities[0].cve.lastModified')
-vuln_status=$(echo "$response" | jq -r '.vulnerabilities[0].cve.vulnStatus')
 severity=$(echo "$response" | jq -r '.vulnerabilities[0].cve.metrics.cvssMetricV31[0].cvssData.baseSeverity')
 cvss_version=$(echo "$response" | jq -r '.vulnerabilities[0].cve.metrics.cvssMetricV31[0].cvssData.version')
 cvss_score=$(echo "$response" | jq -r '.vulnerabilities[0].cve.metrics.cvssMetricV31[0].cvssData.baseScore')
@@ -42,31 +65,28 @@ last_modified_formatted=$(date -d "$last_modified" "+%Y-%m-%d")
 
 # Output
 echo "Description:    $description"
+echo
 echo "Published:      $published_formatted"
 echo "Last modified:  $last_modified_formatted"
-echo "Status:         $vuln_status"
 echo "Severity:       $severity"
 echo "CVSS version:   $cvss_version"
 echo "CVSS score:     $cvss_score"
-echo "Reference URL:  $reference_url"
+echo "Reference:      $reference_url"
 
-exit
-
-# ---------------------------------------------------------------------------------------
-
-xdg-open https://github.com/search?q=$cve&type=repositories &
-sleep 4
-xdg-open https://www.google.com/search?q=%22$cve%22+AND+exploit &
-sleep 4
-xdg-open https://www.rapid7.com/db/?q=$cve&type=nexpose &
-sleep 4
-xdg-open https://nvd.nist.gov/vuln/search/results?form_type=Basic&results_type=overview&query=$cve&search_type=all&isCpeNameSearch=false &
-sleep 4
-xdg-open https://www.tenable.com/plugins &
-
-searchsploit $cve
+###############################################################################################################################
 
 echo
+echo "[*] seachsploit"
+searchsploit "$cve"
 
-shorthand="$(echo $cve | cut -d '-' -f2)-$(echo $cve | cut -d '-' -f3)"
-msfconsole -x "search cve:$shorthand;exit" -q
+###############################################################################################################################
+
+xdg-open https://github.com/search?q="$cve"&type=repositories &
+sleep 4
+xdg-open https://www.google.com/search?q=%22"$cve"%22+AND+exploit &
+sleep 4
+xdg-open https://www.rapid7.com/db/?q="$cve"&type=nexpose &
+sleep 4
+xdg-open https://nvd.nist.gov/vuln/search/results?form_type=Basic&results_type=overview&query="$cve"&search_type=all&isCpeNameSearch=false &
+sleep 4
+xdg-open https://www.tenable.com/plugins &

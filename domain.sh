@@ -1,4 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 clear
 f_banner
@@ -11,7 +15,7 @@ echo "3.  Find registered domains"
 echo "4.  Previous menu"
 echo
 echo -n "Choice: "
-read recon
+read -r recon
 
 case $recon in
     1) $discover/passive.sh && exit;;
@@ -24,16 +28,16 @@ case $recon in
 
     echo -e "${BLUE}Find registered domains.${NC}"
     echo
-    echo 'Open a browser to https://www.reversewhois.io/'
-    echo 'Enter your domain and solve the captcha.'
-    echo 'Select all > copy all of the text and paste into a new file.'
+    echo "Open a browser to https://www.reversewhois.io/"
+    echo "Enter your domain and solve the captcha."
+    echo "Select all > copy all of the text and paste into a new file."
 
     f_location
     echo
     grep '^[0-9]' $location | awk '{print $2}' | sort -u > tmp
     total=$(wc -l tmp | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 
-    while read regdomain; do
+    while read -r regdomain; do
         ipaddr=$(dig +short $regdomain | egrep -v '(0.0.0.0|127.0.0.1|127.0.0.6)' | sed '/[a-z]/d')
         whois -H "$regdomain" | egrep -iv '(#|please query|personal data|redacted|whois|you agree)' | sed '/^$/d' > tmp2
         wait
@@ -62,18 +66,18 @@ case $recon in
         sleep 2
     done < tmp
 
-    echo 'Domain,IP Address,Registration Email,Registration Org,Registrar' > tmp4
-    cat tmp4 tmp3 | grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | column -t -s ',' | sed 's/[ \t]*$//' > $home/data/registered-domains
+    echo "Domain,IP Address,Registration Email,Registration Org,Registrar" > tmp4
+    cat tmp4 tmp3 | grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | column -t -s ',' | sed 's/[ \t]*$//' > $HOME/data/registered-domains
     rm tmp*
 
     echo
-    echo
     echo $medium
     echo
-    echo '***Scan complete.***'
+    echo "[*] Scan complete."
+    echo
+    echo -e "The report is located at ${YELLOW}$HOME/data/registered-domains${NC}"
     echo
     echo
-    echo -e "The report is located at ${YELLOW}$home/data/registered-domains${NC}\n"
     exit
     ;;
 

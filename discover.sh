@@ -1,7 +1,9 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
-#
+
+set -euo pipefail
+
 # Special thanks to:
 # Jay Townsend (@jay_townsend1) - everything, conversion from Backtrack to Kali
 # Jason Ashton (@ninewires) - Penetration Testers Framework (PTF) compatibility, bug crusher, and bash ninja
@@ -37,29 +39,26 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 # Global variables
 CWD=$(pwd)
 discover=$(updatedb; locate discover.sh | sed 's:/[^/]*$::')
-home=$HOME
 interface=$(ip addr | grep 'global' | grep -v 'secondary' | awk '{print $9}')
 ip=$(ip addr | grep 'global' | egrep -v '(:|docker)' | cut -d '/' -f1 | awk '{print $2}')
 port=443
 range=$(ip addr | grep 'global' | grep -v 'secondary' | cut -d '/' -f1 | awk '{print $2}' | cut -d '.' -f1-3)'.1'
 rundate=$(date +%B' '%d,' '%Y)
 sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
-discover=$CWD
 
-long='==============================================================================================================================='
+large='==============================================================================================================================='
 medium='=================================================================='
-short='========================================'
+small='========================================'
 
+BLUE='\033[1;34m'
 RED='\033[1;31m'
 YELLOW='\033[1;33m'
-BLUE='\033[1;34m'
 NC='\033[0m'
 
 ###############################################################################################################################
 
 export CWD
 export discover
-export home
 export interface
 export ip
 export port
@@ -68,9 +67,9 @@ export rundate
 export sip
 export terminate
 
-export long
+export large
 export medium
-export short
+export small
 
 export BLUE
 export RED
@@ -97,15 +96,14 @@ export -f f_banner
 
 f_error(){
 echo
+echo -e "${RED}$small${NC}"
 echo
-echo -e "${RED}$medium${NC}"
+echo -e "${RED}[!] Invalid choice or entry.${NC}"
 echo
-echo -e "${RED}                --- Invalid choice or entry. ---${NC}"
-echo
-echo -e "${RED}$medium${NC}"
+echo -e "${RED}$small${NC}"
 echo
 echo
-exit
+exit 1
 }
 
 export -f f_error
@@ -115,7 +113,7 @@ export -f f_error
 f_location(){
 echo
 echo -n "Enter the location of your file: "
-read -e location
+read -r location
 
 # Check for no answer
 if [ -z $location ]; then
@@ -137,12 +135,12 @@ if [ -z $DISPLAY ]; then
     echo
     echo -e "${RED}$medium${NC}"
     echo
-    echo -e "${RED}             *** This option must be ran locally. ***${NC}"
+    echo -e "${RED}[!] This option must be ran locally.${NC}"
     echo
     echo -e "${RED}$medium${NC}"
     echo
     echo
-    exit
+    exit 1
 fi
 }
 
@@ -151,10 +149,10 @@ export -f f_runlocally
 ###############################################################################################################################
 
 f_terminate(){
-save_dir=$home/data/cancelled-$(date +%H:%M:%S)
+save_dir=$HOME/data/cancelled-$(date +%H:%M:%S)
 
 echo
-echo "Terminating..."
+echo "[!] Terminating..."
 echo
 echo -e "${YELLOW}All data will be saved in $save_dir.${NC}"
 
@@ -177,7 +175,7 @@ else
 fi
 
 echo
-echo "Saving complete."
+echo "[*] Saving complete."
 echo
 echo
 exit 1
@@ -193,7 +191,7 @@ f_typeofscan
 echo -e "${YELLOW}[*] Warning: no spaces allowed${NC}"
 echo
 echo -n "Name of scan: "
-read name
+read -r name
 
 # Check for no answer
 if [ -z $name ]; then
@@ -214,16 +212,13 @@ echo "2.  Internal"
 echo "3.  Previous menu"
 echo
 echo -n "Choice: "
-read choice
+read -r choice
 
 case $choice in
     1)
     echo
-    echo -e "${YELLOW}[*] Setting source port to 53 and max probe round trip to 1.5s.${NC}"
-    sourceport=53
+    echo -e "${YELLOW}[*] Setting the max probe round trip to 1.5s.${NC}"
     maxrtt=1500ms
-    export sourceport
-    export maxrtt
     echo
     echo $medium
     echo
@@ -231,11 +226,8 @@ case $choice in
 
     2)
     echo
-    echo -e "${YELLOW}[*] Setting source port to 88 and max probe round trip to 500ms.${NC}"
-    sourceport=88
+    echo -e "${YELLOW}[*] Setting the max probe round trip to 500ms.${NC}"
     maxrtt=500ms
-    export sourceport
-    export maxrtt
     echo
     echo $medium
     echo
@@ -258,7 +250,7 @@ echo
 echo Usage: 192.168.0.0/16
 echo
 echo -n "CIDR: "
-read cidr
+read -r cidr
 
 # Check for no answer
 if [ -z $cidr ]; then
@@ -286,11 +278,11 @@ location=tmp-list
 
 echo
 echo -n "Do you have an exclusion list? (y/N) "
-read exclude
+read -r exclude
 
 if [ "$exclude" == "y" ]; then
     echo -n "Enter the path to the file: "
-    read excludefile
+    read -r excludefile
 
     if [ -z $excludefile ]; then
         f_error
@@ -344,7 +336,7 @@ f_scanname
 
 echo
 echo -n "IP, range or URL: "
-read target
+read -r target
 
 # Check for no answer
 if [ -z $target ]; then
@@ -377,7 +369,7 @@ udp='53,67,123,137,161,407,500,523,623,1434,1604,1900,2302,2362,3478,3671,4800,5
 
 echo
 echo -n "Perform full TCP port scan? (y/N) "
-read scan
+read -r scan
 
 if [ "$scan" == "y" ]; then
     tcp=$full
@@ -387,7 +379,7 @@ fi
 
 echo
 echo -n "Perform version detection? (y/N) "
-read vdetection
+read -r vdetection
 
 if [ "$vdetection" == "y" ]; then
     S='sTV'
@@ -399,7 +391,7 @@ fi
 
 echo
 echo -n "Set scan delay. (0-5, enter for normal) "
-read delay
+read -r delay
 
 # Check for no answer
 if [ -z $delay ]; then
@@ -414,21 +406,20 @@ export delay
 
 echo
 echo -n "Run matching Metasploit auxiliaries? (y/N) "
-read msf
+read -r msf
 
 echo
 echo $medium
 echo
 
-nmap --randomize-hosts -iL $location --excludefile $excludefile --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -$S -$U -p T:$tcp,U:$udp -O --osscan-guess --max-os-tries 1 --max-retries 2 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 30s -g $sourceport --scan-delay $delay -oA $name/nmap
+nmap --randomize-hosts -iL $location --excludefile $excludefile --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -$S -$U -p T:$tcp,U:$udp -O --osscan-guess --max-os-tries 1 --max-retries 2 --min-rtt-timeout 100ms --max-rtt-timeout $maxrtt --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 30s --scan-delay $delay -oA $name/nmap
 
 if [[ -n $(grep '(0 hosts up)' $name/nmap.nmap) ]]; then
     rm -rf "$name" tmp*
     echo
     echo $medium
     echo
-    echo "***Scan complete.***"
-    echo
+    echo "[*] Scan complete."
     echo
     echo -e "${YELLOW}[*] No live hosts were found.${NC}"
     echo
@@ -531,7 +522,7 @@ find $name/ -type f -empty -exec rm {} +
 ###############################################################################################################################
 
 f_cleanup(){
-grep -v -E 'Starting Nmap|Host is up|SF|:$|Service detection performed|https' tmp | sed '/^Nmap scan report/{n;d}' | sed 's/Nmap scan report for/Host:/g' > tmp4
+grep -Ev 'Starting Nmap|Host is up|SF|:$|Service detection performed|https' tmp | sed '/^Nmap scan report/{n;d}' | sed 's/Nmap scan report for/Host:/g' > tmp4
 }
 
 export -f f_cleanup
@@ -552,7 +543,7 @@ f_banner
 f_typeofscan
 
 echo -n "Enter the location of your previous scan: "
-read -e location
+read -r location
 
 # Check for no answer
 if [ -z $location ]; then
@@ -568,7 +559,7 @@ name=$location
 
 echo
 echo -n "Set scan delay. (0-5, enter for normal) "
-read delay
+read -r delay
 
 # Check for no answer
 if [ -z $delay ]; then
@@ -593,10 +584,9 @@ service postgresql stop
 echo
 echo $medium
 echo
-echo "***Scan complete.***"
+echo "[*] Scan complete."
 echo
-echo
-echo -e "The supporting data folder is located at ${YELLOW}$name${NC}\n"
+echo -e "The supporting data folder is located at ${YELLOW}$name${NC}"
 echo
 echo
 exit
@@ -608,8 +598,8 @@ f_main(){
 clear
 f_banner
 
-if [ ! -d $home/data ]; then
-    mkdir -p $home/data
+if [ ! -d $HOME/data ]; then
+    mkdir -p $HOME/data
 fi
 
 echo -e "${BLUE}RECON${NC}"
@@ -637,7 +627,7 @@ echo "15. Update"
 echo "16. Exit"
 echo
 echo -n "Choice: "
-read choice
+read -r choice
 
 case $choice in
     1) $discover/domain.sh && exit;;

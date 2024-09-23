@@ -1,6 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 medium='=================================================================='
 
@@ -16,13 +18,24 @@ echo
 echo "Usage: target.com"
 echo
 
-read -p "Domain: " domain
+echo -n "Domain: "
+read -r domain
 
-if [ -z $domain ]; then
+if [ -z "$domain" ]; then
     echo
     echo $medium
     echo
-    echo "Invalid choice."
+    echo "[!] Invalid choice."
+    echo
+    echo
+    exit 1
+fi
+
+if [ ! -f /usr/share/dnsenum/dns.txt ]; then
+    echo
+    echo $medium
+    echo
+    echo "[!] Subdomain list not found at /usr/share/dnsenum/dns.txt"
     echo
     echo
     exit 1
@@ -32,9 +45,16 @@ echo
 echo $medium
 echo
 
-for x in $(cat /usr/share/dnsenum/dns.txt); do
-    host $x.$domain | grep 'has address' | cut -d ' ' -f1,4 >> tmp
-done
+while IFS= read -r x; do
+    if result=$(host "$x.$domain" | grep 'has address'); then
+        echo "$result" | cut -d ' ' -f1,4 >> tmp
+    else
+        echo "[!] Failed to resolve $x.$domain"
+        echo
+        echo
+        exit 1
+    fi
+done < /usr/share/dnsenum/dns.txt
 
 column -t tmp | sort -u
 

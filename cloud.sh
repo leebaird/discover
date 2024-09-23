@@ -1,12 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 echo
 echo "Seach cloud providers for spillage."
 echo
 echo -n "Domain: "
-read domain
+read -r domain
 
 # Check for no answer
 if [ -z "$domain" ]; then

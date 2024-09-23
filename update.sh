@@ -1,4 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 # Check for root
 if [ $EUID -ne 0 ]; then
@@ -189,7 +193,7 @@ if [ -d /opt/DNSRecon/.git -a -d /opt/DNSRecon-venv ]; then
     echo -e "${BLUE}Updating DNSRecon.${NC}"
     cd /opt/DNSRecon/ ; git pull
     source /opt/DNSRecon-venv/bin/activate
-    pip3 install -r requirements.txt --upgrade | grep -v 'already satisfied'
+    pip3 install -r requirements.txt --upgrade
     # If you are in a corp env that is doing MITM with SSL, use the following line instead.
     # Do the same for all Python repos.
 #    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'

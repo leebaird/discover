@@ -1,10 +1,12 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
 
+set -euo pipefail
+
 clear
 
-DIR=$home/compare-sites
+DIR=$HOME/compare-sites
 DIFFONLY=false
 medium='=================================================================='
 
@@ -17,7 +19,7 @@ echo "Where file contains a list of URLs to be compared."
 echo "Usage: $0 [options] file"
 echo
 echo "Options:"
-echo " -c Compare versions."
+echo " -c Compare versions without downloading new ones."
 echo " -o Output directory. Default: ~/compare-sites"
 echo
 echo
@@ -31,82 +33,94 @@ while getopts "o:c" OPTION; do
     case $OPTION in
         o) DIR="$OPTARG";;
         c) DIFFONLY=true;;
-        *) echo && echo && exit;;
+        *) usage && exit;;
     esac
 done
 
-shift $(($OPTIND - 1))
-FILE=$*
+shift $((OPTIND - 1))
 
-if [ -z $FILE ]; then
+# Check if a file is passed, if not, show usage
+if [ $# -eq 0 ]; then
     usage
     exit 1
 fi
 
-if [ ! -f $FILE ]; then
+FILE="$1"
+
+if [ ! -f "$FILE" ]; then
     echo
     echo $medium
     echo
-    echo "File does not exist."
+    echo "[!] File does not exist."
     echo
     echo
     exit 1
 fi
 
-if [ ! -d $DIR ]; then
-    mkdir $DIR
+if [ ! -d "$DIR" ]; then
+    mkdir -p "$DIR"
 fi
 
-FILEHASH=${FILEHASH%%$FILE} # remove input file name from hash string (sha256sum)
+FILEHASH=$(sha256sum "$FILE" | awk '{print $1}')
 HDIR="$DIR/$FILEHASH"
 VERSION=1
 
-while [ -f $HDIR/$VERSION ]; do
-    VERSION=$(($VERSION + 1))
+while [ -f "$HDIR/$VERSION" ]; do
+    VERSION=$((VERSION + 1))
 done
 
 if ! $DIFFONLY; then
-    date +%s > $HDIR/$VERSION
+    date +%s > "$HDIR/$VERSION"
     echo
     echo
     echo "Downloading:"
 
-    for URL in $(cat $FILE); do
-        HASH=$(sha256sum <<<$URL | tr -d " -")
+    while IFS= read -r URL; do
+        HASH=$(echo -n "$URL" | sha256sum | tr -d " -")
         echo "[*] $URL"
-        wget -q $URL -O $HDIR/$URL-$HASH-$VERSION
-    done
+        if ! wget -q "$URL" -O "$HDIR/$URL-$HASH-$VERSION"; then
+            echo "[!] Failed to download $URL"
+            echo
+            echo
+            exit 1
+        fi
+    done < "$FILE"
 
     echo
     echo $medium
 else
-     VERSION=$(($VERSION - 1))
+    VERSION=$((VERSION - 1))
 fi
 
-if [ $VERSION -gt 1 ]; then
+if [ "$VERSION" -gt 1 ]; then
     echo
     echo "Versions:"
 
-    for ((i=1; i<=${VERSION}; i++)); do
-        echo $i - $(ts2date $(cat $HDIR/$i))
+    for ((i=1; i<=VERSION; i++)); do
+        echo "$i - $(ts2date "$(cat "$HDIR/$i")")"
     done
 
     echo
     echo -n "Base version: "
-    read A
+    read -r A
     echo -n "Compare with: "
-    read B
+    read -r B
 
-    [ -z $A ] && A="1";
-    [ -z $B ] && B=$VERSION
+    [ -z "$A" ] && A="1"
+    [ -z "$B" ] && B=$VERSION
 
-    for URL in $(cat $FILE); do
+    # Check if selected versions are valid
+    if [ "$A" -gt "$VERSION" ] || [ "$B" -gt "$VERSION" ]; then
+        echo "[!] Error: Selected versions exceed the available versions."
+        exit 1
+    fi
+
+    while IFS= read -r URL; do
         echo
         echo $medium
         echo
         echo -e "\e[1;34m$URL\e[0m"
-        HASH=$(sha256sum <<<$URL | tr -d " -")
-        diff $HDIR/$URL-$HASH-$A $HDIR/$URL-$HASH-$B | grep '<iframe src='
-        # frames, window.location, window.href
-    done
+        HASH=$(echo -n "$URL" | sha256sum | tr -d " -")
+        diff "$HDIR/$URL-$HASH-$A" "$HDIR/$URL-$HASH-$B" | grep '<iframe src='
+    done < "$FILE"
 fi

@@ -1,4 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 # Check for argument. If not given, print the usage
 if [ -z "$1" ]; then
@@ -7,7 +11,7 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-while read i; do
+while read -r i; do
     country=$(whois "$i" | grep -i country | head -n1)
     echo "$i $country" >> tmp
 done < $1

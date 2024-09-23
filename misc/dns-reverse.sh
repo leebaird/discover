@@ -1,6 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 medium='=================================================================='
 
@@ -16,13 +18,15 @@ echo
 echo "Usage: 192.168.1"
 echo
 
-read -p "Class: " class
+echo -n "Class: "
+read -r class
 
-if [ -z $class ]; then
+# Check if class is empty
+if [ -z "$class" ]; then
     echo
     echo $medium
     echo
-    echo "Invalid choice."
+    echo "[!] Invalid choice."
     echo
     echo
     exit 1
@@ -32,8 +36,14 @@ echo
 echo $medium
 echo
 
-for x in `seq 1 254`; do
-    host $class.$x | grep 'name pointer' | cut -d ' ' -f1,5
+# Perform PTR DNS query on each IP in the Class C range
+for x in $(seq 1 254); do
+    # Check if the host command returns a valid PTR record
+    if result=$(host "$class.$x" | grep 'name pointer'); then
+        echo "$result" | cut -d ' ' -f1,5
+    else
+        echo "[!] No PTR record for $class.$x"
+    fi
 done
 
 echo

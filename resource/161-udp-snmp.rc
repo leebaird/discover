@@ -18,7 +18,7 @@ use auxiliary/scanner/snmp/cisco_config_tftp
 run
 
 use auxiliary/scanner/snmp/cisco_upload_file
-echo 'Hello world!' > /tmp/test.txt
+echo "Hello world!" > /tmp/test.txt
 set SOURCE /tmp/test.txt
 run
 

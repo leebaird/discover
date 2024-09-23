@@ -1,4 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+# by Lee Baird (@discoverscripts)
+
+set -euo pipefail
 
 clear
 f_banner
@@ -29,7 +33,7 @@ awk '/Unhandled/ { Unhandled = 1; next }  Unhandled == 1 && /^$/ { Unhandled = 0
 # Find a dash (-), if the next line is blank, delete it
 awk -v n=-2 'NR==n+1 && !NF{next} /-/ {n=NR}1' |
 # Remove double spacing
-cat -s > $home/data/sslyze.txt
+cat -s > $HOME/data/sslyze.txt
 
 ###############################################################################################################################
 
@@ -88,9 +92,9 @@ echo "Start time   $START" >> tmp2
 echo "Finish time  $END" >> tmp2
 echo "Scanner IP   $ip" >> tmp2
 
-mv tmp2 $home/data/sslscan.txt
+mv tmp2 $HOME/data/sslscan.txt
 
-grep -v 'info not available.' tmp >> $home/data/sslscan.txt
+grep -v 'info not available.' tmp >> $HOME/data/sslscan.txt
 rm tmp* ssl_* 2>/dev/null
 
 ###############################################################################################################################
@@ -119,13 +123,13 @@ while read -r line; do
     echo >> tmp2
 done < $location
 
-mv tmp2 $home/data/nmap-ssl.txt
+mv tmp2 $HOME/data/nmap-ssl.txt
 rm tmp
 
 echo
 echo $medium
 echo
-echo "***Scan complete.***"
+echo "[*] Scan complete."
 echo
 echo
-echo -e "The new reports are located at ${YELLOW}$home/data/sslscan.txt ${NC}and ${YELLOW}nmap-ssl.txt ${NC}"
+echo -e "The new reports are located at ${YELLOW}$HOME/data/sslscan.txt ${NC}and ${YELLOW}nmap-ssl.txt ${NC}"
