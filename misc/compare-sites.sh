@@ -41,7 +41,9 @@ shift $((OPTIND - 1))
 
 # Check if a file is passed, if not, show usage
 if [ $# -eq 0 ]; then
+    echo
     usage
+    echo
     exit 1
 fi
 
@@ -52,7 +54,6 @@ if [ ! -f "$FILE" ]; then
     echo $medium
     echo
     echo "[!] File does not exist."
-    echo
     echo
     exit 1
 fi
@@ -79,8 +80,8 @@ if ! $DIFFONLY; then
         HASH=$(echo -n "$URL" | sha256sum | tr -d " -")
         echo "[*] $URL"
         if ! wget -q "$URL" -O "$HDIR/$URL-$HASH-$VERSION"; then
-            echo "[!] Failed to download $URL"
             echo
+            echo "[!] Failed to download $URL"
             echo
             exit 1
         fi
@@ -111,7 +112,9 @@ if [ "$VERSION" -gt 1 ]; then
 
     # Check if selected versions are valid
     if [ "$A" -gt "$VERSION" ] || [ "$B" -gt "$VERSION" ]; then
+        echo
         echo "[!] Error: Selected versions exceed the available versions."
+        echo
         exit 1
     fi
 

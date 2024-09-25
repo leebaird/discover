@@ -58,4 +58,3 @@ echo $medium
 echo
 cat tmp-updates
 rm tmp*
-exit

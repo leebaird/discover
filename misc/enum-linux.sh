@@ -17,7 +17,6 @@ if [ -z "$1" ]; then
     echo
     echo "Usage: user@targetIP"
     echo
-    echo
     exit 1
 fi
 

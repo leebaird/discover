@@ -9,7 +9,6 @@ if ! command -v jq &> /dev/null; then
     echo
     echo "[!] jq is not installed."
     echo
-    echo
     exit 1
 fi
 
@@ -17,7 +16,6 @@ fi
 if pgrep firefox > /dev/null; then
     echo
     echo "[!] Close Firefox before running script."
-    echo
     echo
     exit 1
 fi

@@ -27,7 +27,6 @@ if [ -z "$domain" ]; then
     echo
     echo "[!] Invalid choice."
     echo
-    echo
     exit 1
 fi
 
@@ -36,7 +35,6 @@ if [ ! -f /usr/share/dnsenum/dns.txt ]; then
     echo $medium
     echo
     echo "[!] Subdomain list not found at /usr/share/dnsenum/dns.txt"
-    echo
     echo
     exit 1
 fi
@@ -49,8 +47,8 @@ while IFS= read -r x; do
     if result=$(host "$x.$domain" | grep 'has address'); then
         echo "$result" | cut -d ' ' -f1,4 >> tmp
     else
-        echo "[!] Failed to resolve $x.$domain"
         echo
+        echo "[!] Failed to resolve $x.$domain"
         echo
         exit 1
     fi
@@ -59,6 +57,3 @@ done < /usr/share/dnsenum/dns.txt
 column -t tmp | sort -u
 
 rm tmp
-
-echo
-echo

@@ -114,7 +114,6 @@ case $choice in
     echo
     echo -e "The new report is located at ${YELLOW}$HOME/data/$domain-robots.txt${NC}"
     echo
-    echo
     exit
     ;;
 

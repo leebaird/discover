@@ -77,7 +77,6 @@ case $recon in
     echo
     echo -e "The report is located at ${YELLOW}$HOME/data/registered-domains${NC}"
     echo
-    echo
     exit
     ;;
 

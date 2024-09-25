@@ -28,7 +28,6 @@ if [ -z "$class" ]; then
     echo
     echo "[!] Invalid choice."
     echo
-    echo
     exit 1
 fi
 
@@ -45,6 +44,3 @@ for x in $(seq 1 254); do
         echo "[!] No PTR record for $class.$x"
     fi
 done
-
-echo
-echo

@@ -30,7 +30,6 @@ if ! command -v xterm &> /dev/null; then
     echo
     echo "[!] xterm is not installed."
     echo
-    echo
     exit 1
 fi
 
@@ -59,7 +58,6 @@ if ! iwconfig 2>/dev/null | grep -q 'wlan0'; then
     echo "[!] No wireless device found."
     echo
     echo "If you are using a VM, make sure your USB card is enabled."
-    echo
     echo
     exit 1
 fi
@@ -95,7 +93,6 @@ else
     echo
     echo "If you are using a VM, make sure your USB card is enabled."
     echo
-    echo
     exit 1
 fi
 
@@ -111,8 +108,8 @@ if grep -q 'Injection is working!' tmp; then
     rm tmp 2>/dev/null
 else
     rm tmp 2>/dev/null
-    echo "[!] Injection is not working. Reconnect your wireless card and try again."
     echo
+    echo "[!] Injection is not working. Reconnect your wireless card and try again."
     echo
     exit 1
 fi
@@ -138,7 +135,6 @@ if [ -f "$workdir/keys" ]; then
         echo "2^WIFI NET^5^passphrase2^WPA^n/a^Note that this ESSID has a space in the name"
         echo
         echo "Make these changes, then re-launch the program."
-        echo
         echo
         exit 1
     fi

@@ -50,7 +50,6 @@ echo "[*] Scan complete."
 echo
 echo -e "The new report is located at ${YELLOW}$HOME/data/targets-arp-scan.txt${NC}"
 echo
-echo
 exit
 }
 
@@ -102,7 +101,6 @@ echo
 echo "[*]Scan complete."
 echo
 echo -e "The new report is located at ${YELLOW}$HOME/data/targets-pingsweep.txt${NC}"
-echo
 echo
 exit
 }

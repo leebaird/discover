@@ -8,7 +8,8 @@ set -euo pipefail
 if [ $EUID -ne 0 ]; then
     echo
     echo "[!] This script must be ran as root."
-    exit
+    echo
+    exit 1
 fi
 
 # Global variables

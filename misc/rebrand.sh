@@ -18,7 +18,6 @@ if [ -z "$location" ]; then
     echo
     echo "[!] No answer."
     echo
-    echo
     exit 1
 fi
 
@@ -28,7 +27,6 @@ if [ ! -d "$location" ]; then
     echo $medium
     echo
     echo "[!] Wrong location."
-    echo
     echo
     exit 1
 fi

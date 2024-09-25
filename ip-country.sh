@@ -8,6 +8,7 @@ set -euo pipefail
 if [ -z "$1" ]; then
     echo
     echo "Usage: $0 <list of IPs>"
+    echo
     exit 1
 fi
 

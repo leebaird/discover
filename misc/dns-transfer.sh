@@ -27,7 +27,6 @@ if [ -z "$domain" ]; then
     echo
     echo "[!] Invalid choice."
     echo
-    echo
     exit 1
 fi
 
@@ -43,14 +42,11 @@ for x in $(host -t ns "$domain" | cut -d ' ' -f4); do
     if host -l "$domain" "$x" > /dev/null 2>&1; then
         host -l "$domain" "$x"
     else
-        echo "[!] Failed or no zone transfer on $x."
         echo
+        echo "[!] Failed or no zone transfer on $x."
         echo
         exit 1
     fi
 
     echo $medium
 done
-
-echo
-echo

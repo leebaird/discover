@@ -18,7 +18,6 @@ if [ -z "$domain" ]; then
     echo
     echo "[!] Invalid choice."
     echo
-    echo
     exit 1
 fi
 
@@ -32,5 +31,3 @@ sed 's/[ \t]*$//' tmp2 | sort -u > tmp3
 echo
 cat tmp3
 rm tmp*
-echo
-echo

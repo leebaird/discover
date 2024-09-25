@@ -27,7 +27,6 @@ if [ -z "$domain" ]; then
     echo
     echo "[!] Invalid choice."
     echo
-    echo
     exit 1
 fi
 
@@ -56,6 +55,3 @@ else
 fi
 
 rm index.html tmp
-
-echo
-echo

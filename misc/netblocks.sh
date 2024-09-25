@@ -23,6 +23,3 @@ grep -Ev '%|No address' tmp > tmp2
 cat -s tmp2 > netblocks.txt
 
 rm tmp*
-
-echo
-echo

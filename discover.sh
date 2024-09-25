@@ -102,7 +102,6 @@ echo -e "${RED}[!] Invalid choice or entry.${NC}"
 echo
 echo -e "${RED}$small${NC}"
 echo
-echo
 exit 1
 }
 
@@ -138,7 +137,6 @@ if [ -z $DISPLAY ]; then
     echo -e "${RED}[!] This option must be ran locally.${NC}"
     echo
     echo -e "${RED}$medium${NC}"
-    echo
     echo
     exit 1
 fi
@@ -176,7 +174,6 @@ fi
 
 echo
 echo "[*] Saving complete."
-echo
 echo
 exit 1
 }
@@ -423,7 +420,6 @@ if [[ -n $(grep '(0 hosts up)' $name/nmap.nmap) ]]; then
     echo
     echo -e "${YELLOW}[*] No live hosts were found.${NC}"
     echo
-    echo
     exit
 fi
 
@@ -587,7 +583,6 @@ echo
 echo "[*] Scan complete."
 echo
 echo -e "The supporting data folder is located at ${YELLOW}$name${NC}"
-echo
 echo
 exit
 }

@@ -32,7 +32,6 @@ if [ ! -s $name/ports.txt ]; then
     echo
     echo -e "${YELLOW}No hosts found with open ports.${NC}"
     echo
-    echo
     exit
 else
     ports=$(wc -l $name/ports.txt | cut -d ' ' -f1)

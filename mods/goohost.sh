@@ -33,7 +33,6 @@ usage (){
     echo
     echo "Example: $0 -d target.com -m ip -p 10 -v"
     echo
-    echo
     exit 1
 }
 
@@ -80,12 +79,16 @@ done
 
 # Check for write permissions
 if [ ! -w /tmp ]; then
+    echo
     echo "[*] Error: Can't write to /tmp - Permission denied."
+    echo
     exit 1
 fi
 
 if [ ! -w ./ ]; then
+    echo
     echo "[*] Error: Can't write in ./ - Permission denied."
+    echo
     exit 1
 fi
 
