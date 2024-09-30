@@ -118,6 +118,5 @@ case $choice in
     ;;
 
     4) f_main;;
-    *) f_error;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2;"$discover"/multiTabs.sh;;
 esac
-}

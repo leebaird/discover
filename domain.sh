@@ -38,8 +38,8 @@ case $recon in
     total=$(wc -l tmp | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 
     while read -r regdomain; do
-        ipaddr=$(dig +short $regdomain | egrep -v '(0.0.0.0|127.0.0.1|127.0.0.6)' | sed '/[a-z]/d')
-        whois -H "$regdomain" | egrep -iv '(#|please query|personal data|redacted|whois|you agree)' | sed '/^$/d' > tmp2
+        ipaddr=$(dig +short $regdomain | grep -Eiv '(0.0.0.0|127.0.0.1|127.0.0.6)' | sed '/[a-z]/d')
+        whois -H "$regdomain" | grep -Eiv '(#|please query|personal data|redacted|whois|you agree)' | sed '/^$/d' > tmp2
         wait
 
         regemail=$(grep 'Registrant Email:' tmp2 | cut -d ' ' -f3 | tr 'A-Z' 'a-z')
@@ -82,5 +82,5 @@ case $recon in
 
     4) f_main;;
 
-    *) f_error;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$discover"/domain.sh;;
 esac

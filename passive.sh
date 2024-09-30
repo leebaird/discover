@@ -83,7 +83,7 @@ if [ -f zhandles.txt ]; then
         curl -k -s https://whois.arin.net/rest/poc/$i.txt | grep 'Name' >> tmp
     done
 
-    egrep -iv "($company|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
+    grep -Eiv "($company|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
     sed 's/Name:         //g' tmp2 | tr '[A-Z]' '[a-z]' | sed 's/\b\(.\)/\u\1/g' > tmp3
     awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sort -u > zarin-names
 fi
@@ -113,7 +113,7 @@ echo
 echo "DNSRecon                 (4/$total)"
 source /opt/DNSRecon-venv/bin/activate
 python3 /opt/DNSRecon/dnsrecon.py -d $domain -n 8.8.8.8 -t std > tmp
-cat tmp | egrep -v '(All queries will|Could not|DNSKEYs|DNSSEC|Error|It is resolving|NSEC3|Performing|Records|Recursion|TXT|Version|Wildcard resolution)' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort | sed 's/[ \t]*$//' > records
+cat tmp | grep -Eiv '(all queries will|could not|dnskeys|dnssec|error|it is resolving|nsec3|performing|records|recursion|txt|version|wildcard resolution)' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort | sed 's/[ \t]*$//' > records
 cat tmp | grep 'TXT' | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | sort | sed 's/[ \t]*$//' >> records
 
 cat records >> $HOME/data/$domain/data/records.htm
@@ -157,67 +157,67 @@ echo
 echo "theHarvester"
 source /opt/theHarvester-venv/bin/activate
 echo "    anubis               (10/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b anubis | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zanubis
+/opt/theHarvester/theHarvester.py -d $domain -b anubis | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zanubis
 echo "    baidu                (11/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b baidu | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zbaidu
+/opt/theHarvester/theHarvester.py -d $domain -b baidu | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbaidu
 echo "    bevigil              (12/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b bevigil | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zbevigil
+/opt/theHarvester/theHarvester.py -d $domain -b bevigil | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbevigil
 echo "    binaryedge           (13/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b binaryedge | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zbinaryedge
+/opt/theHarvester/theHarvester.py -d $domain -b binaryedge | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbinaryedge
 echo "    bing                 (14/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b bing | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zbing
+/opt/theHarvester/theHarvester.py -d $domain -b bing | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbing
 echo "    bing API             (15/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b bingapi | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zbing-api
+/opt/theHarvester/theHarvester.py -d $domain -b bingapi | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbing-api
 echo "    brave                (16/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b brave | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zbrave
+/opt/theHarvester/theHarvester.py -d $domain -b brave |grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbrave
 echo "    bufferoverun         (17/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b bufferoverun | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zbufferoverun
+/opt/theHarvester/theHarvester.py -d $domain -b bufferoverun | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbufferoverun
 echo "    censys               (18/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b censys | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zcensys
+/opt/theHarvester/theHarvester.py -d $domain -b censys | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcensys
 echo "    certspotter          (19/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b certspotter | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zcertspotter
+/opt/theHarvester/theHarvester.py -d $domain -b certspotter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcertspotter
 echo "    criminalip           (20/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b criminalip | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zcriminalip
+/opt/theHarvester/theHarvester.py -d $domain -b criminalip | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcriminalip
 echo "    crtsh                (21/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b crtsh | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zcrtsh
+/opt/theHarvester/theHarvester.py -d $domain -b crtsh | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcrtsh
 echo "    dnsdumpster          (22/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b dnsdumpster | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zdnsdumpster
+/opt/theHarvester/theHarvester.py -d $domain -b dnsdumpster | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zdnsdumpster
 echo "    duckduckgo           (23/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b duckduckgo | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zduckduckgo
+/opt/theHarvester/theHarvester.py -d $domain -b duckduckgo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zduckduckgo
 echo "    fullhunt             (24/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b fullhunt | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zfullhunt
+/opt/theHarvester/theHarvester.py -d $domain -b fullhunt | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zfullhunt
 echo "    github-code          (25/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b github-code | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zgithub-code
+/opt/theHarvester/theHarvester.py -d $domain -b github-code | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zgithub-code
 echo "    hackertarget         (26/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b hackertarget | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zhackertarget
+/opt/theHarvester/theHarvester.py -d $domain -b hackertarget | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhackertarget
 echo "    hunter               (27/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b hunter | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zhunter
+/opt/theHarvester/theHarvester.py -d $domain -b hunter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunter
 echo "    hunterhow            (28/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b hunterhow | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zhunterhow
+/opt/theHarvester/theHarvester.py -d $domain -b hunterhow | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunterhow
 echo "    intelx               (29/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b intelx | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zintelx
+/opt/theHarvester/theHarvester.py -d $domain -b intelx | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zintelx
 echo "    otx                  (30/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b otx | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zotx
+/opt/theHarvester/theHarvester.py -d $domain -b otx | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zotx
 echo "    pentesttools         (31/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b pentesttools | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zpentesttools
+/opt/theHarvester/theHarvester.py -d $domain -b pentesttools | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zpentesttools
 echo "    projectdiscovery     (32/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b projectdiscovery | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zprojectdiscovery
+/opt/theHarvester/theHarvester.py -d $domain -b projectdiscovery | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zprojectdiscovery
 echo "    rapiddns             (33/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b rapiddns | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zrapiddns
+/opt/theHarvester/theHarvester.py -d $domain -b rapiddns | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zrapiddns
 echo "    securityTrails       (34/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zsecuritytrails
+/opt/theHarvester/theHarvester.py -d $domain -b securityTrails | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsecuritytrails
 echo "    sitedossier          (35/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b securityTrails | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zsitedossier
+/opt/theHarvester/theHarvester.py -d $domain -b securityTrails | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsitedossier
 echo "    subdomainfinderc99   (36/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b subdomainfinderc99 | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zsubdomainfinderc99
+/opt/theHarvester/theHarvester.py -d $domain -b subdomainfinderc99 | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsubdomainfinderc99
 echo "    threatminer          (37/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b threatminer | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zthreatminer
+/opt/theHarvester/theHarvester.py -d $domain -b threatminer | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zthreatminer
 echo "    urlscan              (38/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b urlscan | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zurlscan
+/opt/theHarvester/theHarvester.py -d $domain -b urlscan | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zurlscan
 echo "    virustotal           (39/$total) disabled"
-#/opt/theHarvester/theHarvester.py -d $domain -b virustotal | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zvirustotal
+#/opt/theHarvester/theHarvester.py -d $domain -b virustotal | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zvirustotal
 echo "    yahoo                (40/$total)"
-/opt/theHarvester/theHarvester.py -d $domain -b yahoo | egrep -v '(!|\*|--|\[|Searching|yaml)' | sed '/^$/d' | sort -u > zyahoo
+/opt/theHarvester/theHarvester.py -d $domain -b yahoo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zyahoo
 rm tmp*
 deactivate
 echo
@@ -235,7 +235,7 @@ echo "Whois"
 echo "    Domain               (42/$total)"
 whois -H $domain > tmp 2>/dev/null
 sed 's/^[ \t]*//' tmp > tmp2
-egrep -iv '(#|%|<a|=-=-=-=|;|access may|accuracy|additionally|affiliates|afilias except|and dns hosting|and limitations|any use of|at www.|be sure|at the end|by submitting|by the terms|can easily|circumstances|clientdeleteprohibited|clienttransferprohibited|clientupdateprohibited|com laude|commercial purposes|company may|compilation|complaint will|contact information|contact us|contacting|copy and paste|currently set|database|data contained|data presented|database|date of|details|dissemination|domaininfo ab|domain management|domain names in|domain status: ok|electronic processes|enable high|entirety|except as|existing|ext:|failure|facsimile|following terms|for commercial|for detailed|for information|for more|for the|get noticed|get a free|guarantee its|href|If you|in europe|in most|in obtaining|in the address|includes|including|information is|informational purposes|intellectual|is not|is providing|its systems|learn|legitimate|makes this|markmonitor|minimum|mining this|minute and|modify|must be sent|name cannot|namesbeyond|not to use|note:|notice|obtaining information about|of moniker|of this data|or hiding any|or otherwise support|other use of|please|policy|prior written|privacy is|problem reporting|professional and|prohibited without|promote your|protect the|protecting|public interest|queried|queries|receive|receiving|redacted for|register your|registrars|registration record|relevant|repackaging|request|reserves all rights|reserves the|responsible for|restricted to network|restrictions|see business|server at|solicitations|sponsorship|status|support questions|support the transmission|supporting|telephone, or facsimile|Temporary|that apply to|that you will|the right|The data is|The fact that|the transmission|this listing|this feature|this information|this service is|to collect or|to entities|to report any|to suppress|to the systems|transmission of|trusted partner|united states|unlimited|unsolicited advertising|users may|version 6|via e-mail|visible|visit aboutus.org|visit|web-based|when you|while believed|will use this|with many different|with no guarantee|we reserve|whitelist|whois|you agree|You may not)' tmp2 > tmp3
+grep -Eiv '(#|%|<a|=-=-=-=|;|access may|accuracy|additionally|affiliates|afilias except|and dns hosting|and limitations|any use of|at www.|be sure|at the end|by submitting|by the terms|can easily|circumstances|clientdeleteprohibited|clienttransferprohibited|clientupdateprohibited|com laude|commercial purposes|company may|compilation|complaint will|contact information|contact us|contacting|copy and paste|currently set|database|data contained|data presented|database|date of|details|dissemination|domaininfo ab|domain management|domain names in|domain status: ok|electronic processes|enable high|entirety|except as|existing|ext:|failure|facsimile|following terms|for commercial|for detailed|for information|for more|for the|get noticed|get a free|guarantee its|href|If you|in europe|in most|in obtaining|in the address|includes|including|information is|informational purposes|intellectual|is not|is providing|its systems|learn|legitimate|makes this|markmonitor|minimum|mining this|minute and|modify|must be sent|name cannot|namesbeyond|not to use|note:|notice|obtaining information about|of moniker|of this data|or hiding any|or otherwise support|other use of|please|policy|prior written|privacy is|problem reporting|professional and|prohibited without|promote your|protect the|protecting|public interest|queried|queries|receive|receiving|redacted for|register your|registrars|registration record|relevant|repackaging|request|reserves all rights|reserves the|responsible for|restricted to network|restrictions|see business|server at|solicitations|sponsorship|status|support questions|support the transmission|supporting|telephone, or facsimile|temporary|that apply to|that you will|the right|the data is|The fact that|the transmission|this listing|this feature|this information|this service is|to collect or|to entities|to report any|to suppress|to the systems|transmission of|trusted partner|united states|unlimited|unsolicited advertising|users may|version 6|via e-mail|visible|visit aboutus.org|visit|web-based|when you|while believed|will use this|with many different|with no guarantee|we reserve|whitelist|whois|you agree|You may not)' tmp2 > tmp3
 # Remove lines starting with "*"
 sed '/^*/d' tmp3 > tmp4
 # Remove lines starting with "-"
@@ -253,7 +253,7 @@ sed 's/[ \t]*$//' tmp9 > tmp10
 # Compress blank lines
 cat -s tmp10 > tmp11
 # Remove lines that end with various words then a colon or period(s)
-egrep -v '(2:$|3:$|Address.$|Address........$|Address.........$|Ext.:$|FAX:$|Fax............$|Fax.............$|Province:$|Server:$)' tmp11 > tmp12
+grep -Eiv '(2:$|3:$|address.$|address........$|address.........$|ext.:$|fax:$|fax............$|fax.............$|province:$|server:$)' tmp11 > tmp12
 # Remove line after "Domain Servers:"
 sed -i '/^Domain Servers:/{n; /.*/d}' tmp12
 # Remove blank lines from end of file
@@ -267,7 +267,7 @@ echo "    IP                   (43/$total)"
 ip=`ping -c1 $domain | grep PING | cut -d '(' -f2 | cut -d ')' -f1`
 whois $ip > tmp
 # Remove blank lines from the beginning of a file
-egrep -iv '(#|%|comment|remarks)' tmp | sed '/./,$!d' > tmp2
+grep -Eiv '(#|%|comment|remarks)' tmp | sed '/./,$!d' > tmp2
 # Remove blank lines from the end of a file
 sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' tmp2 > tmp3
 # Compress blank lines
@@ -291,7 +291,7 @@ echo
 
 echo "intodns.com              (45/$total)"
 wget -q http://www.intodns.com/$domain -O tmp
-cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | egrep -v '(Processed in|UA-2900375-1|urchinTracker|script|Work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
+cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
 cat tmp2 >> $HOME/data/$domain/pages/config.htm
 
 # Add new icons
@@ -314,19 +314,19 @@ echo
 
 ###############################################################################################################################
 
-cat z* | grep "@$domain" | grep -v '[0-9]' | egrep -v '(_|,|firstname|lastname|test|www|xxx|zzz)' | sort -u > emails
+cat z* | grep "@$domain" | grep -v '[0-9]' | grep -Eiv '(_|,|firstname|lastname|test|www|xxx|zzz)' | sort -u > emails
 
 # Thanks Jason Ashton for cleaning up subdomains
-cat z* | cut -d ':' -f2 | grep "\.$domain" | egrep -v '(@|/|www)' | awk '{print $1}' | grep "\.$domain$" | sort -u > tmp
+cat z* | cut -d ':' -f2 | grep "\.$domain" | grep -Eiv '(@|/|www)' | awk '{print $1}' | grep "\.$domain$" | sort -u > tmp
 
 while read -r i; do
     ipadd=$(grep -w "$i" z* | cut -d ':' -f3 | grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | sed 's/, /\n/g' | sort -uV | tr '\n' ',' | sed 's/,$//g')
     echo "$i:$ipadd" >> raw
 done < tmp
 
-cat raw | sed 's/:,/:/g' | egrep -v '(1.1.1.1|localhost)' | column -t -s ':' | sed 's/,/, /g' > subdomains
+cat raw | sed 's/:,/:/g' | grep -Eiv '(1.1.1.1|localhost)' | column -t -s ':' | sed 's/,/, /g' > subdomains
 
-cat z* | egrep -iv '(@|:|\.|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g' | sed '/[0-9]/d' | sed 's/ - /,/g; s/ /,/1' | awk -F ',' '{print $2"#"$1"#"$3}' | sed '/^[[:alpha:]]\+ [[:alpha:]]\+#/ s/^[[:alpha:]]\+ //' | sed 's/^[ \t]*//; s/[ \t]*$//' | sort -u > names
+cat z* | grep -Eiv '(@|:|\.|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g' | sed '/[0-9]/d' | sed 's/ - /,/g; s/ /,/1' | awk -F ',' '{print $2"#"$1"#"$3}' | sed '/^[[:alpha:]]\+ [[:alpha:]]\+#/ s/^[[:alpha:]]\+ //' | sed 's/^[ \t]*//; s/[ \t]*$//' | sort -u > names
 
 cat z* | grep -E '\.doc$|\.docx$' | sort -u > doc
 cat z* | grep -E '\.ppt$|\.pptx$' | sort -u > ppt
@@ -368,7 +368,7 @@ recon-ng -r $CWD/passive.rc
 
 ###############################################################################################################################
 
-grep '@' /tmp/emails | awk '{print $2}' | egrep -v '(>|query|SELECT)' | sort -u > emails2
+grep '@' /tmp/emails | awk '{print $2}' | grep -Eiv '(>|query|select)' | sort -u > emails2
 cat emails emails2 | sort -u > emails-final
 
 # Remove leading and trailing white space
@@ -377,10 +377,10 @@ grep '|' /tmp/names | grep -v last_name | sort -u | sed 's/|/ /g' | sed 's/^[ \t
 grep '/' /tmp/networks | grep -v 'Spooling' | awk '{print $2}' | $sip > tmp
 cat tmp networks | sort -u | $sip > networks-final
 
-grep "\.$domain" /tmp/subdomains | egrep -v '(\*|%|>|SELECT|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > tmp
-cat subdomains tmp | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(outlook|www)' | tr '[A-Z]' '[a-z]' | column -t | sort -u | sed 's/[ \t]*$//' > subdomains-final
+grep "\.$domain" /tmp/subdomains | grep -Eiv '(\*|%|>|select|www)' | awk '{print $2,$4}' | sed 's/|//g' | column -t | sort -u > tmp
+cat subdomains tmp | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '(outlook|www)' | tr '[A-Z]' '[a-z]' | column -t | sort -u | sed 's/[ \t]*$//' > subdomains-final
 
-cat z* subdomains-final | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | egrep -v '(0.0.0.0|1.1.1.1|1.1.1.2|8.8.8.8|127.0.0.1)' | sort -u | $sip > hosts
+cat z* subdomains-final | grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '(0.0.0.0|1.1.1.1|1.1.1.2|8.8.8.8|127.0.0.1)' | sort -u | $sip > hosts
 
 find . -type f -empty -delete
 

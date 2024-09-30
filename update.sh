@@ -333,7 +333,7 @@ if [ ! -f /usr/bin/nishang ]; then
 fi
 
 echo -e "${BLUE}Updating Nmap scripts.${NC}"
-nmap --script-updatedb | egrep -v '(Starting|seconds)' | sed 's/NSE: //'
+nmap --script-updatedb | grep -Eiv '(starting|seconds)' | sed 's/NSE: //'
 echo
 
 if [ -d /opt/PEASS-ng/.git ]; then

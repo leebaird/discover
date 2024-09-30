@@ -67,13 +67,9 @@ case "$choice" in
         done < "$location"
         ;;
 
-    3)
-        f_main
-        ;;
+    3) f_main;;
 
-    *)
-        f_error
-        ;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2;"$discover"/nikto.sh;;
 esac
 
 echo

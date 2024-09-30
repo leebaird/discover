@@ -409,7 +409,7 @@ if [ -f $name/3389.txt ]; then
     echo "    Remote Desktop"
     sudo nmap --randomize-hosts -iL $name/3389.txt -Pn -n --open -p3389 -sT --script-timeout 20s --script=rdp-vuln-ms12-020,rdp-enum-encryption,rdp-ntlm-info --min-hostgroup 100 --scan-delay $delay > tmp
     f_cleanup
-    egrep -v '(attackers|Description|Disclosure|http|References|Risk factor)' tmp4 > $name/script-3389.txt
+    grep -Eiv '(attackers|description|disclosure|http|references|risk factor)' tmp4 > $name/script-3389.txt
 fi
 
 if [ -f $name/3478.txt ]; then
@@ -423,7 +423,7 @@ if [ -f $name/3632.txt ]; then
     echo "    Distributed Compiler Daemon"
     sudo nmap --randomize-hosts -iL $name/3632.txt -Pn -n --open -p3632 -sT --script-timeout 20s --script=distcc-cve2004-2687 --script-args="distcc-exec.cmd='id'" --min-hostgroup 100 --scan-delay $delay > tmp
     f_cleanup
-    egrep -v '(Allows|Description|Disclosure|earlier|Extra|http|IDs|References|Risk factor)' tmp4 > $name/script-3632.txt
+    grep -Eiv '(allows|description|disclosure|earlier|extra|http|ids|references|risk factor)' tmp4 > $name/script-3632.txt
 fi
 
 if [ -f $name/3671.txt ]; then
@@ -765,7 +765,7 @@ if [ -f $name/161.txt ] || [ -f $name/445.txt ] || [ -f $name/500.txt ]; then
         echo "    smbclient"
         for i in $(cat $name/445.txt); do
             echo $i >> $name/script-smbclient.txt
-            smbclient -L $i -N | egrep -v '(disabled|failed)' >> $name/script-smbclient.txt 2>/dev/null
+            smbclient -L $i -N | grep -Eiv '(disabled|failed)' >> $name/script-smbclient.txt 2>/dev/null
             echo >> $name/script-smbclient.txt
         done
     fi

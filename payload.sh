@@ -34,7 +34,7 @@ case $choice2 in
         format="psh";;
     6) extention=".bin"
         format="raw";;
-    *) f_error;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$discover"/payload.sh;;
 esac
 }
 
@@ -138,7 +138,7 @@ case $choice in
         f_format;;
     16) f_main;;
 
-    *) f_error;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$discover"/payload.sh;;
 esac
 
 echo

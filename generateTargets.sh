@@ -22,7 +22,7 @@ case $choice in
     1) f_arpscan;;
     2) f_pingsweep;;
     3) f_main;;
-    *) f_error;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2;"$discover"/generateTargets.sh;;
 esac
 }
 
@@ -38,7 +38,7 @@ if [ -z $interface ]; then
     f_error
 fi
 
-arp-scan -l -I $interface | egrep -v '(arp-scan|DUP:|Interface|packets)' > tmp
+arp-scan -l -I $interface | grep -Eiv '(arp-scan|dup:|interface|packets)' > tmp
 sed '/^$/d' tmp | sort -k3 > $HOME/data/arp-scan.txt
 awk '{print $1}' tmp | $sip | sed '/^$/d' > $HOME/data/targets-arp-scan.txt
 rm tmp
@@ -89,7 +89,7 @@ case $choice in
     nmap -sn -PS -PE --stats-every 10s $manual > tmp
     ;;
 
-    *) f_error;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2;"$discover"/generateTargets.sh;;
 esac
 
 grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp > $HOME/data/targets-pingsweep.txt

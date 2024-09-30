@@ -192,7 +192,7 @@ case $choice in
 
     f_clean
     echo && echo && exit;;
-    *) f_error;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2;;
 esac
 }
 

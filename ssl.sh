@@ -21,7 +21,7 @@ echo
 echo "Running sslyze."
 sslyze --targets_in=$location --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --openssl_ccs > tmp
 # Remove the first 20 lines and cleanup
-sed '1,20d' tmp | egrep -v '(=>|error:|ERROR|is trusted|NOT SUPPORTED|OK - Supported|OpenSSLError|Server rejected|timeout|unexpected error)' |
+sed '1,20d' tmp | grep -Eiv '(=>|error:|error|is trusted|not supported|ok - supported|opensslerror|server rejected|timeout|unexpected error)' |
 # Find FOO, if the next line is blank, delete both lines
 awk '/Compression/ { Compression = 1; next }  Compression == 1 && /^$/ { Compression = 0; next }  { Compression = 0 }  { print }' |
 awk '/Renegotiation/ { Renegotiation = 1; next }  Renegotiation == 1 && /^$/ { Renegotiation = 0; next }  { Renegotiation = 0 }  { print }' |
@@ -115,7 +115,7 @@ while read -r line; do
     sudo nmap -Pn -n -T4 --open -p $port -sV --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed --script-timeout 20s $target > tmp
     echo
 
-    egrep -v '(does not|incorrect results|service unrecognized)' tmp | grep -v '^SF' |
+    grep -Eiv '(does not|incorrect results|service unrecognized)' tmp | grep -v '^SF' |
     # Find FOO, if the next line is blank, delete both lines
     awk '/latency/ { latency = 1; next }  latency == 1 && /^$/ { latency = 0; next }  { latency = 0 }  { print }' |
     sed 's/Nmap scan report for //g; s/( https:\/\/nmap.org ) //g' >> tmp2

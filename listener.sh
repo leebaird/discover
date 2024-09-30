@@ -42,7 +42,7 @@ case $choice in
     12) payload="windows/x64/meterpreter_reverse_https";;
     13) payload="windows/x64/meterpreter_reverse_tcp";;
     14) f_main;;
-    *) f_error;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$discover"/listener.sh;;
 esac
 
 echo

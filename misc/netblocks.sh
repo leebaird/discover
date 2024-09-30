@@ -19,7 +19,7 @@ for x in $(seq 1 255); do
     echo >> tmp
 done
 
-grep -Ev '%|No address' tmp > tmp2
+grep -Eiv '%|no address' tmp > tmp2
 cat -s tmp2 > netblocks.txt
 
 rm tmp*

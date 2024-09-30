@@ -47,8 +47,8 @@ echo "DNSRecon"
 echo "    Sub-domains        (1/$total)"
 dnsrecon -d $domain -D /usr/share/dnsrecon/namelist.txt -f -t brt > tmp
 
-grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing)' | awk '{print $3}' > tmp2
-grep $domain tmp | grep -v "$domain\." | egrep -v '(Performing)' | awk '{print $4}' >> tmp2
+grep $domain tmp | grep -v "$domain\." | grep -Eiv '(performing)' | awk '{print $3}' > tmp2
+grep $domain tmp | grep -v "$domain\." | grep -Eiv '(performing)' | awk '{print $4}' >> tmp2
 cat tmp2 | sort -u > subdomains
 
 ###############################################################################################################################
@@ -93,7 +93,7 @@ echo "Whatweb (~5 min)        (7/$total)     broken"
 # Find lines that start with http, and insert a line after
 #sort tmp2 | sed '/^http/a\ ' > tmp3
 # Cleanup
-#cat tmp3 | sed 's/,/\n/g; s/\[200 OK\]/\n\[200 OK\]\n/g; s/\[301 Moved Permanently\]/\n\[301 Moved Permanently\]\n/g; s/\[302 Found\]/\n\[302 Found\]\n/g; s/\[404 Not Found\]/\n\[404 Not Found\]\n/g' | egrep -v '(Unassigned|UNITED STATES)' | sed 's/^[ \t]*//' | cat -s | more > whatweb
+#cat tmp3 | sed 's/,/\n/g; s/\[200 OK\]/\n\[200 OK\]\n/g; s/\[301 Moved Permanently\]/\n\[301 Moved Permanently\]\n/g; s/\[302 Found\]/\n\[302 Found\]\n/g; s/\[404 Not Found\]/\n\[404 Not Found\]\n/g' | grep -Eiv '(unassigned|united states)' | sed 's/^[ \t]*//' | cat -s | more > whatweb
 
 #grep '@' whatweb | sed 's/Email//g; s/\[//g; s/\]//g' | tr '[A-Z]' '[a-z]' | grep "@$domain" | grep -v 'hosting' | cut -d ' ' -f2 | sort -u > emails
 

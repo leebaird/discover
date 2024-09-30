@@ -6,7 +6,7 @@ grep -i                                                       Search for a strin
 grep -r                                                       Search recursively for a string in a directory
 zgrep                                                         Search for a string in a zip file
 grep -v                                                       Exclude a string from a file
-egrep -v '(FOO|BAR)'                                          Exclude multiple strings from a file
+grep -Ev '(FOO|BAR)'                                          Exclude multiple strings from a file
 
 cut -d ' ' -f2                                                Cut with a delimiter of a space, then print the second field
 cut -d ' ' -f2-5                                              Cut with a delimiter of a space, then print the second through the fifth fields
