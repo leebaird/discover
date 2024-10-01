@@ -2,9 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-set -euo pipefail
-set -o noclobber
-
 # Special thanks to:
 # Jay Townsend (@jay_townsend1) - everything, conversion from Backtrack to Kali
 # Jason Ashton (@ninewires) - Penetration Testers Framework (PTF) compatibility, bug crusher, and bash ninja
@@ -629,12 +626,11 @@ case $choice in
     15) "$discover"/update.sh && exit;;
     16) exit;;
     99) "$discover"/newModules.sh && exit;;
-    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main;;
 esac
 }
 
 export -f f_main
 
-###############################################################################################################################
-
-while true; do f_main; done
+# Run the script
+f_main
