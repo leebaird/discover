@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
+# Thanks to Aaron Stone
 
 set -euo pipefail
 
