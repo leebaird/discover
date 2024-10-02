@@ -31,6 +31,8 @@ sleep 2
 uripath="https://www.advancedbackgroundchecks.com/search/results.aspx?type=&fn=${firstName}&mi=&ln=${lastName}&age=&city=&state="
 xdg-open $uripath &
 sleep 2
+xdg-open https://www.familytreenow.com/search/genealogy/results?first=$firstName&last=$lastName &
+sleep 2
 xdg-open https://www.linkedin.com/pub/dir/?first=$firstName\&last=$lastName\&search=Search &
 sleep 2
 xdg-open https://www.peekyou.com/$firstName%5f$lastName &
