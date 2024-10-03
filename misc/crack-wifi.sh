@@ -47,6 +47,8 @@ echo
 ##############################################################################################################
 
 f_start(){
+f_banner
+
 # Detect wireless interface
 interface=$(iw dev | grep Interface | awk '{print $2}')
 
@@ -58,8 +60,6 @@ if [ -z "$interface" ]; then
     echo
     exit 1
 fi
-
-f_banner
 
 echo -e "${BLUE}[*] Setting variables.${NC}"
 

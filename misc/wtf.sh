@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Wireless Testing Framework
 # by Lee Baird @discoverscripts
 
 set -euo pipefail
@@ -16,6 +15,7 @@ scanfile="$HOME/scan_results"
 workdir="$HOME/wifi-engagement"
 
 BLUE='\033[1;34m'
+GREEN='\033[0;32m'
 RED='\033[1;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
@@ -39,15 +39,25 @@ __          __  _________   _________
 }
 
 dependencies() {
+    # Initialize an array to hold missing tools
+    missing_tools=()
+
     # Check for tools
-    for tool in airmon-ng airodump-ng aireplay-ng aircrack-ng; do
+    for tool in aircrack-ng aireplay-ng airmon-ng airodump-ng xterm; do
         if ! command -v "$tool" &> /dev/null; then
-            echo
-            echo -e "${RED}[!] $tool is not installed.${NC}"
-            echo
-            exit 1
+            missing_tools+=("$tool")
         fi
     done
+
+    # Display missing tools
+    if [ ${#missing_tools[@]} -ne 0 ]; then
+        echo
+        echo -e "${RED}[!] Missing tools: ${missing_tools[*]}${NC}"
+        echo
+        exit 1
+    fi
+
+    echo -e "${BLUE}[*] Required tools installed.${NC}"
 
     # Check for wireless interface
     interface=$(iw dev | awk '$1=="Interface"{print $2}' || true)
@@ -60,14 +70,7 @@ dependencies() {
         echo
         exit 1
     fi
-
-    echo -e "${BLUE}[*] Interface found: $interface${NC}"
-    sleep 2
 }
-
-if [ ! -d "$workdir" ]; then
-    mkdir -p "$workdir"
-fi
 
 start_monitor_mode() {
     # Validate interface availability before enabling monitor mode
@@ -76,7 +79,7 @@ start_monitor_mode() {
         echo
         echo -e "${RED}[!] No wireless device found. Unable to enable monitor mode.${NC}"
         echo
-        echo "Please check if your wireless adapter is connected or enabled."
+        echo "Check if your wireless adapter is connected and enabled."
         echo
         exit 1
     fi
@@ -84,28 +87,36 @@ start_monitor_mode() {
     # Kill interfering processes (NetworkManager, wpa_supplicant)
     airmon-ng check kill
 
-    echo -e "${YELLOW}[*] Enabling monitor mode.${NC}"    
+    echo -e "${BLUE}[*] Enabling monitor mode.${NC}"
 
     # Enable monitor mode on the interface
-    airmon-ng start "$interface"
+    airmon-ng start "$interface" | sed '/^$/d'
 
-    # Monitor interface name (may change to wlan0mon, etc.)
-    monitor=$(iwconfig 2>/dev/null | grep 'Mode:Monitor' | awk '{print $1}')
+    # Wait a moment to ensure the interface switches to monitor mode
+    sleep 2
 
-    # Validate the monitor interface exists using iwconfig
-    if [ -z "$monitor" ]; then
+    # Check if the interface is now in monitor mode using iwconfig
+    mode=$(iwconfig "$interface" 2>/dev/null | grep "Mode:Monitor")
+
+    if [ -z "$mode" ]; then
         echo
-        echo -e "${RED}[!] Failed to enable monitor mode.${NC}"
+        echo -e "${RED}[!] Failed to enable monitor mode on interface: $interface.${NC}"
         echo
         exit 1
+    else
+        monitor="$interface"  # Keep using the same interface name
+        echo -e "${BLUE}[*] Monitor mode enabled on interface:${NC} ${GREEN}$monitor${NC}"
     fi
 
     echo
-    echo -e "${BLUE}[*] Monitor mode enabled on $monitor.${NC}"
-    echo
-    echo -e "${YELLOW}Press Enter to return to the menu.${NC}"
+    echo -e "${YELLOW}Press <Enter> to continue.${NC}"
     read -r
+    banner; main_menu
 }
+
+if [ ! -d "$workdir" ]; then
+    mkdir -p "$workdir"
+fi
 
 scan_networks() {
     echo
@@ -114,11 +125,14 @@ scan_networks() {
     # Clear any previous results
     rm -f "${scanfile}"*
 
+    # Ensure monitor interface is being used
+    echo -e "${BLUE}[*] Using monitor interface:${NC} ${GREEN}$monitor${NC}"
+
     # Use the detected monitor interface for airodump-ng
-    airodump-ng --output-format csv -w "$scanfile" "$interface" &> "$workdir/airodump.log" &
+    airodump-ng --output-format csv -w "$scanfile" "$monitor" &> "$workdir/airodump.log" &
     pid_airodump=$!
-    
-    # Increase the scan time to 30 seconds to allow more data capture
+
+    # Increase sleep time to capture more data
     sleep 30
 
     # Check if the process is still running before trying to kill it
@@ -137,15 +151,15 @@ scan_networks() {
         awk -F, 'NR > 2 && $1 ~ /[0-9a-fA-F:]/ {print "BSSID: " $1, " | Channel: " $4, " | Encryption: " $6, " | ESSID: " $14}' "${scanfile}-01.csv" | column -t
     else
         echo
-        echo -e "${RED}[!] No wireless networks found or failed to write to file.${NC}"
+        echo -e "${RED}[!] No wireless networks found or failed to write data.${NC}"
         echo
         echo -e "${YELLOW}Check $workdir/airodump.log for errors.${NC}"
-        echo
     fi
     
     echo
-    echo -e "${YELLOW}Press Enter to return to the menu.${NC}"
+    echo -e "${YELLOW}Press <Enter> to continue.${NC}"
     read -r
+    banner; main_menu
 }
 
 crack_wep() {
@@ -268,28 +282,26 @@ cleanup() {
         pid_aireplay=""
     fi
 
-    if [ -n "$monitor" ]; then
-        airmon-ng stop "$monitor" &>/dev/null || true
-    fi
+    # Reset wireless interface
+    airmon-ng stop $interface &>/dev/null
 
-    rm -f wep_capture*.cap wpa_capture*.cap "${scanfile}"*
-    echo "Cleanup complete."
     echo
+    echo
+    echo -e "${BLUE}[*] Cleanup complete.${NC}"
+    echo
+    exit
 }
 
 main_menu() {
+    echo -e "${BLUE}[*] Wireless interface:${NC} ${GREEN}$interface${NC}"
+
     while true; do
-        clear
-        echo
-        echo -e "${BLUE}Wireless Test 1${NC}"
-        echo
         echo
         echo "1. Enable monitor mode"
         echo "2. Scan for networks"
         echo "3. Crack WEP"
         echo "4. Crack WPA"
-        echo "5. Clean up"
-        echo "6. Exit"
+        echo "5. Exit"
         echo
         echo -n "Choice: "
         read -r choice
@@ -300,8 +312,8 @@ main_menu() {
             3) crack_wep ;;
             4) crack_wpa ;;
             5) cleanup ;;
-            6) exit 0 ;;
-            *) echo; echo -e "${RED}[!] Invalid option, try again.${NC}"; echo; sleep 2 ;;
+            *) echo; echo -e "${RED}[!] Invalid option, try again.${NC}"; echo; sleep 2;
+               banner; main_menu ;;
         esac
     done
 }
