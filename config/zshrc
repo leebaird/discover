@@ -30,5 +30,6 @@ alias s='cd /opt/discover/ ; clear'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 alias ssh='ssh -o "XAuthLocation=/opt/X11/bin/xauth"'
 alias update='/opt/discover/update.sh'
+alias upload='raven $ip 3000 --upload-folder /home/kali/Desktop/'
 alias web="echo $ip ; python3 -m http.server 80"
 alias web2="echo $ip ; python3 -m http.server 8000"
