@@ -413,6 +413,11 @@ xterm -T "ping" -bg navy -fg white -geometry 70x12-900+0 -fa 'Monospace' -fs 11 
 
 Change font size, position window top right, and ask for user input
 xterm -T "ping" -bg navy -fg white -geometry 70x12-0+0 -fa 'Monospace' -fs 11 -e "ping -c 3 8.8.8.8; echo; echo 'Press Enter to close this window'; read"
+
+#!/bin/bash
+# Open a new xterm window, name it 'ping', ping 8.8.8.8 three times, and prompt to press Enter to close
+# -geometry 94x60+0+0
+xterm -T "ping" -bg blue -fa 'Monospace' -fs 11 -fg white -e "ping -c 3 8.8.8.8; echo; echo 'Press Enter to close this window'; read"
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Clone all repos from a GitHub account
