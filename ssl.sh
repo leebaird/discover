@@ -2,8 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-set -euo pipefail
-
 clear
 f_banner
 
@@ -15,11 +13,11 @@ echo
 f_location
 
 echo
-echo $medium
+echo "$MEDIUM"
 echo
 
 echo "Running sslyze."
-sslyze --targets_in=$location --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --openssl_ccs > tmp
+sslyze --targets_in="$LOCATION" --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --openssl_ccs > tmp
 # Remove the first 20 lines and cleanup
 sed '1,20d' tmp | grep -Eiv '(=>|error:|error|is trusted|not supported|ok - supported|opensslerror|server rejected|timeout|unexpected error)' |
 # Find FOO, if the next line is blank, delete both lines
@@ -33,7 +31,7 @@ awk '/Unhandled/ { Unhandled = 1; next }  Unhandled == 1 && /^$/ { Unhandled = 0
 # Find a dash (-), if the next line is blank, delete it
 awk -v n=-2 'NR==n+1 && !NF{next} /-/ {n=NR}1' |
 # Remove double spacing
-cat -s > $HOME/data/sslyze.txt
+cat -s > "$HOME"/data/sslyze.txt
 
 ###############################################################################################################################
 
@@ -42,46 +40,45 @@ echo
 
 START=$(date +%r\ %Z)
 
-echo $medium >> tmp
+echo "$MEDIUM" >> tmp
 echo >> tmp
 
-number=$(wc -l $location | cut -d ' ' -f1)
+NUMBER=$(wc -l "$LOCATION" | cut -d ' ' -f1)
 N=0
 
-while read -r line; do
+while read -r LINE; do
     N=$((N+1))
-    echo $line > ssl_$line
-
-    echo -n "[$N/$number]  $line"
-    sslscan --ipv4 --ssl2 --ssl3 --tlsall --no-colour --connect-timeout=30 $line > tmp_$line
+    echo "$LINE" > ssl_"$LINE"
+    echo -n "[$N/$NUMBER]  $LINE"
+    sslscan --ipv4 --ssl2 --ssl3 --tlsall --no-colour --connect-timeout=30 "$LINE" > tmp_"$LINE"
     echo
-    echo >> ssl_$line
+    echo >> ssl_"$LINE"
 
-    if [ -f tmp_$line ]; then
-        error=$(grep 'ERROR:' tmp_$line)
+    if [ -f tmp_"$LINE" ]; then
+        ERROR=$(grep 'ERROR:' tmp_"$LINE")
 
-        if [ ! $error ]; then
-            cat tmp_$line >> ssl_$line
-            echo $medium >> ssl_$line
-            echo >> ssl_$line
-            cat ssl_$line >> tmp
+        if [ ! "$ERROR" ]; then
+            cat tmp_"$LINE" >> ssl_"$LINE"
+            echo "$MEDIUM" >> ssl_"$LINE"
+            echo >> ssl_"$LINE"
+            cat ssl_"$LINE" >> tmp
         else
             echo -e "${RED}Could not open a connection.${NC}"
-            echo "[*] Could not open a connection." >> ssl_$line
-            echo >> ssl_$line
-            echo $medium >> ssl_$line
-            echo >> ssl_$line
-            cat ssl_$line >> tmp
+            echo "[*] Could not open a connection." >> ssl_"$LINE"
+            echo >> ssl_"$LINE"
+            echo "$MEDIUM" >> ssl_"$LINE"
+            echo >> ssl_"$LINE"
+            cat ssl_"$LINE" >> tmp
         fi
     else
         echo -e "${RED}No response.${NC}"
-        echo "[*] No response." >> ssl_$line
-        echo >> ssl_$line
-        echo $medium >> ssl_$line
-        echo >> ssl_$line
-        cat ssl_$line >> tmp
+        echo "[*] No response." >> ssl_"$LINE"
+        echo >> ssl_"$LINE"
+        echo "$MEDIUM" >> ssl_"$LINE"
+        echo >> ssl_"$LINE"
+        cat ssl_"$LINE" >> tmp
     fi
-done < "$location"
+done < "$LOCATION"
 
 END=$(date +%r\ %Z)
 
@@ -90,11 +87,11 @@ date +%A" - "%B" "%d", "%Y >> tmp2
 echo >> tmp2
 echo "Start time   $START" >> tmp2
 echo "Finish time  $END" >> tmp2
-echo "Scanner IP   $ip" >> tmp2
+echo "Scanner IP   $MYIP" >> tmp2
 
-mv tmp2 $HOME/data/sslscan.txt
+mv tmp2 "$HOME"/data/sslscan.txt
 
-grep -v 'info not available.' tmp >> $HOME/data/sslscan.txt
+grep -v 'info not available.' tmp >> "$HOME"/data/sslscan.txt
 rm tmp* ssl_* 2>/dev/null
 
 ###############################################################################################################################
@@ -103,31 +100,31 @@ echo
 echo "Running nmap."
 echo
 
-number=$(wc -l $location | cut -d ' ' -f1)
+NUMBER=$(wc -l "$LOCATION" | cut -d ' ' -f1)
 N=0
 
-while read -r line; do
+while read -r LINE; do
     N=$((N+1))
-    port=$(echo $line | cut -d ':' -f2)
-    target=$(echo $line | cut -d ':' -f1)
+    PORT=$(echo "$LINE" | cut -d ':' -f2)
+    TARGET=$(echo "$LINE" | cut -d ':' -f1)
 
-    echo -n "[$N/$number]  $line"
-    sudo nmap -Pn -n -T4 --open -p $port -sV --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed --script-timeout 20s $target > tmp
+    echo -n "[$N/$NUMBER]  $LINE"
+    sudo nmap -Pn -n -T4 --open -p "$PORT" -sV --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed --script-timeout 20s "$TARGET" > tmp
     echo
 
     grep -Eiv '(does not|incorrect results|service unrecognized)' tmp | grep -v '^SF' |
     # Find FOO, if the next line is blank, delete both lines
     awk '/latency/ { latency = 1; next }  latency == 1 && /^$/ { latency = 0; next }  { latency = 0 }  { print }' |
     sed 's/Nmap scan report for //g; s/( https:\/\/nmap.org ) //g' >> tmp2
-    echo $medium >> tmp2
+    echo "$MEDIUM" >> tmp2
     echo >> tmp2
-done < $location
+done < "$LOCATION"
 
-mv tmp2 $HOME/data/nmap-ssl.txt
+mv tmp2 "$HOME"/data/nmap-ssl.txt
 rm tmp
 
 echo
-echo $medium
+echo "$MEDIUM"
 echo
 echo "[*] Scan complete."
 echo

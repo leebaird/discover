@@ -2,38 +2,51 @@
 
 # by Lee Baird (@discoverscripts)
 
-set -euo pipefail
+MEDIUM='=================================================================='
 
-medium='=================================================================='
+BLUE='\033[1;34m'
+RED='\033[1;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-clear
 echo
-echo "Ping Sweep"
-echo
-echo
-echo "By Lee Baird"
+echo -e "${YELLOW}Ping Sweep\n\nBy Lee Baird\n${NC}"
 echo
 echo "Ping sweep a Class C."
 echo
 echo "Usage: 192.168.1"
 echo
-
 echo -n "Class: "
-read -r class
+read -r CLASS
 
-if [ -z "$class" ]; then
+# Check for a valid Class C
+if [[ -z "$CLASS" || ! "$CLASS" =~ ^([0-9]{1,3}\.){2}[0-9]{1,3}$ ]]; then
     echo
-    echo $medium
+    echo "$MEDIUM"
     echo
-    echo "[!] Invalid choice."
+    echo -e "${RED}[!] Invalid choice or entry.${NC}"
     echo
     exit 1
 fi
 
 echo
-echo $medium
+echo "$MEDIUM"
 echo
+echo "[*] Pinging each IP in $CLASS.0/24."
 
-for x in $(seq 1 254); do
-    ping -c1 "$class"."$x" | grep 'bytes from' | cut -d ' ' -f4 | cut -d ':' -f1 &
+# Ping sweep with controlled concurrency
+for i in $(seq 1 254); do
+    ping -c1 -W 1 "$CLASS.$i" | grep 'bytes from' | awk -F'[: ]+' '{print "[*] Active IP:", $4}' &
+    # Limit concurrent pings
+    if (( i % 10 == 0 )); then
+        wait
+    fi
 done
+
+# Wait for all background processes to complete
+wait
+echo
+echo "$MEDIUM"
+echo
+echo -e "${BLUE}Ping sweep complete.${NC}"
+echo

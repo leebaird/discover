@@ -2,8 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-set -euo pipefail
-
 clear
 f_banner
 
@@ -25,63 +23,64 @@ echo "13.  windows/x64/meterpreter_reverse_tcp"
 echo "14.  Previous menu"
 echo
 echo -n "Choice: "
-read -r choice
+read -r CHOICE
 
-case $choice in
-    1) payload="android/meterpreter/reverse_tcp";;
-    2) payload="cmd/windows/reverse_powershell";;
-    3) payload="java/jsp_shell_reverse_tcp";;
-    4) payload="linux/x64/meterpreter_reverse_https";;
-    5) payload="linux/x64/meterpreter_reverse_tcp";;
-    6) payload="linux/x64/shell/reverse_tcp";;
-    7) payload="osx/x64/meterpreter_reverse_https";;
-    8) payload="osx/x64/meterpreter_reverse_tcp";;
-    9) payload="php/meterpreter/reverse_tcp";;
-    10) payload="python/meterpreter_reverse_https";;
-    11) payload="python/meterpreter_reverse_tcp";;
-    12) payload="windows/x64/meterpreter_reverse_https";;
-    13) payload="windows/x64/meterpreter_reverse_tcp";;
-    14) f_main;;
-    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$discover"/listener.sh;;
+case "$CHOICE" in
+    1) PAYLOAD="android/meterpreter/reverse_tcp" ;;
+    2) PAYLOAD="cmd/windows/reverse_powershell" ;;
+    3) PAYLOAD="java/jsp_shell_reverse_tcp" ;;
+    4) PAYLOAD="linux/x64/meterpreter_reverse_https" ;;
+    5) PAYLOAD="linux/x64/meterpreter_reverse_tcp" ;;
+    6) PAYLOAD="linux/x64/shell/reverse_tcp" ;;
+    7) PAYLOAD="osx/x64/meterpreter_reverse_https" ;;
+    8) PAYLOAD="osx/x64/meterpreter_reverse_tcp" ;;
+    9) PAYLOAD="php/meterpreter/reverse_tcp" ;;
+    10) PAYLOAD="python/meterpreter_reverse_https" ;;
+    11) PAYLOAD="python/meterpreter_reverse_tcp" ;;
+    12) PAYLOAD="windows/x64/meterpreter_reverse_https" ;;
+    13) PAYLOAD="windows/x64/meterpreter_reverse_tcp" ;;
+    14) f_main ;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/listener.sh ;;
 esac
 
 echo
 echo -n "LHOST: "
-read -r lhost
+read -r LHOST
 
 # Check for no answer
-if [ -z $lhost ]; then
-    lhost=$ip
-    echo "[*] Using $ip"
+if [ -z "$LHOST" ]; then
+    LHOST="$MYIP"
+    echo "[*] Using $MYIP"
     echo
 fi
 
 echo -n "LPORT: "
-read -r lport
+read -r LPORT
 
 # Check for no answer
-if [ -z $lport ]; then
-    lport=443
+if [ -z "$LPORT" ]; then
+    LPORT=443
     echo "[*] Using 443"
 fi
 
 # Check for valid port number.
-if [[ $lport -lt 1 || $lport -gt 65535 ]]; then
+if [[ "$LPORT" -lt 1 || "$LPORT" -gt 65535 ]]; then
     f_error
 fi
 
 # Check for root when binding to a low port
-if [[ $lport -lt 1025 && "$(id -u)" != "0" ]]; then
-    echo "You must be root to bind to a port that low."
-    sleep 3
-    f_error
+if [[ "$LPORT" -lt 1025 && "$(id -u)" != "0" ]]; then
+    echo
+    echo "[!] You must be root to bind to a port below 1025."
+    echo
+    exit 1
 fi
 
-cp $discover/resource/listener.rc /tmp/
+cp "$DISCOVER"/resource/listener.rc /tmp/
 
-sed -i "s|aaa|$payload|g" /tmp/listener.rc
-sed -i "s/bbb/$lhost/g" /tmp/listener.rc
-sed -i "s/ccc/$lport/g" /tmp/listener.rc
+sed -i "s|aaa|$PAYLOAD|g" /tmp/listener.rc
+sed -i "s/bbb/$LHOST/g" /tmp/listener.rc
+sed -i "s/ccc/$LPORT/g" /tmp/listener.rc
 
 echo
 msfconsole -q -r /tmp/listener.rc

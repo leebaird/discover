@@ -173,7 +173,7 @@ Redirector 3 - DNS (long haul)
 - Use socat (not OPSEC friendly)
 Forwards all traffic on these ports.
 sudo -i
-apt-get install -y socat
+apt install -y socat
 screen -S <name>                                            Start a new screen session
 socat tcp4-listen:443,fork tcp4:<team server IP>:443        Redirector 1
 socat tcp4-listen:443,fork tcp4:<team server IP>:4443       Redirector 2

@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-# by Lee Baird (@discoverscripts)
-
-set -euo pipefail
-
 clear
 f_banner
 
@@ -17,17 +13,17 @@ echo "5.  Qualys"
 echo "6.  Previous menu"
 echo
 echo -n "Choice: "
-read -r choice
+read -r CHOICE
 
-case $choice in
+case "$CHOICE" in
     1)
     f_location
-    $discover/parsers/parse-burp.py $location
+    "$DISCOVER"/parsers/parse-burp.py "$LOCATION"
 
-    mv burp.csv $HOME/data/burp-`date +%H:%M:%S`.csv
+    mv burp.csv "$HOME"/data/burp-`date +%H:%M:%S`.csv
 
     echo
-    echo $medium
+    echo "$MEDIUM"
     echo
     echo -e "The new report is located at ${YELLOW}$HOME/data/burp-`date +%H:%M:%S`.csv${NC}\n"
     echo
@@ -36,7 +32,7 @@ case $choice in
 
     2)
     f_location
-    $discover/parsers/parse-nessus.py $location
+    "$DISCOVER"/parsers/parse-nessus.py "$LOCATION"
 
     # Delete findings with a solution of n/a
     grep -v 'n/a' nessus.csv > tmp.csv
@@ -50,12 +46,12 @@ case $choice in
     grep -Eiv '(dhcp server detection|mdns detection \(remote network\))' tmp2.csv > tmp3.csv
 
     # Clean up
-    cat tmp3.csv | sed 's/Algorithm :/Algorithm:/g; s/are :/are:/g; s/authorities :/authorities:/g; s/authority :/authority:/g; s/Banner         :/Banner:/g; s/ (banner check)//; s/before :/before/g; s/combinations :/combinations:/g; s/ (credentialed check)//; s/expired :/expired:/g; s/Here is the list of medium strength SSL ciphers supported by the remote server: Medium Strength Ciphers //g; s/httpOnly/HttpOnly/g; s/ (intrusive check)//g; s/is :/is:/g; s/P   /P /g; s/Issuer         :/Issuer:/g; s/Issuer  :/Issuer:/g; s/List of 64-bit block cipher suites supported by the remote server: Medium Strength Ciphers //g; s/Nessus collected the following banner from the remote Telnet server:  //g; s/ (remote check)//; s/ (safe check)//; s/server :/server:/g; s/Service Pack /SP/g; s/Source          :/Source:/g; s/source    :/source:/g; s/Subject        :/Subject:/g; s/Subject :/Subject:/g; s/supported :/supported:/g; s/The following certificate was at the top of the certificate chain sent by the remote host, but it is signed by an unknown certificate authority:  |-//g; s/The following certificate was found at the top of the certificate chain sent by the remote host, but is self-signed and was not found in the list of known certificate authorities:  |-//g; s/The following certificate was part of the certificate chain sent by the remote host, but it has expired :  |-//g; s/The following certificates were part of the certificate chain sent by the remote host, but they have expired :  |-//g; s/The following certificates were part of the certificate chain sent by the remote host, but contain hashes that are considered to be weak.  |-//g; s/The identities known by Nessus are: //g; s/ (uncredentialed check)//g; s/ (version check)//g; s/()//g; s/(un)//g; s/users :/users:/g; s/version    :/version:/g; s/version    :/version:/g; s/version  :/version:/g; s/version :/version:/g; s/           :/:/g; s/:    /: /g; s/:    /: /g; s/"   /"/g; s/"  /"/g; s/" /"/g; s/"h/" h/g; s/.   /. /g' > $HOME/data/nessus-`date +%H:%M:%S`.csv
+    cat tmp3.csv | sed 's/Algorithm :/Algorithm:/g; s/are :/are:/g; s/authorities :/authorities:/g; s/authority :/authority:/g; s/Banner         :/Banner:/g; s/ (banner check)//; s/before :/before/g; s/combinations :/combinations:/g; s/ (credentialed check)//; s/expired :/expired:/g; s/Here is the list of medium strength SSL ciphers supported by the remote server: Medium Strength Ciphers //g; s/httpOnly/HttpOnly/g; s/ (intrusive check)//g; s/is :/is:/g; s/P   /P /g; s/Issuer         :/Issuer:/g; s/Issuer  :/Issuer:/g; s/List of 64-bit block cipher suites supported by the remote server: Medium Strength Ciphers //g; s/Nessus collected the following banner from the remote Telnet server:  //g; s/ (remote check)//; s/ (safe check)//; s/server :/server:/g; s/Service Pack /SP/g; s/Source          :/Source:/g; s/source    :/source:/g; s/Subject        :/Subject:/g; s/Subject :/Subject:/g; s/supported :/supported:/g; s/The following certificate was at the top of the certificate chain sent by the remote host, but it is signed by an unknown certificate authority:  |-//g; s/The following certificate was found at the top of the certificate chain sent by the remote host, but is self-signed and was not found in the list of known certificate authorities:  |-//g; s/The following certificate was part of the certificate chain sent by the remote host, but it has expired :  |-//g; s/The following certificates were part of the certificate chain sent by the remote host, but they have expired :  |-//g; s/The following certificates were part of the certificate chain sent by the remote host, but contain hashes that are considered to be weak.  |-//g; s/The identities known by Nessus are: //g; s/ (uncredentialed check)//g; s/ (version check)//g; s/()//g; s/(un)//g; s/users :/users:/g; s/version    :/version:/g; s/version    :/version:/g; s/version  :/version:/g; s/version :/version:/g; s/           :/:/g; s/:    /: /g; s/:    /: /g; s/"   /"/g; s/"  /"/g; s/" /"/g; s/"h/" h/g; s/.   /. /g' > "$HOME"/data/nessus-`date +%H:%M:%S`.csv
 
     rm nessus* tmp*
 
     echo
-    echo $medium
+    echo "$MEDIUM"
     echo
     echo -e "The new report is located at ${YELLOW}$HOME/data/nessus-`date +%H:%M:%S`.csv${NC}\n"
     echo
@@ -64,12 +60,12 @@ case $choice in
 
     3)
     f_location
-    $discover/parsers/parse-nexpose.py $location
+    "$DISCOVER"/parsers/parse-nexpose.py "$LOCATION"
 
-    mv nexpose.csv $HOME/data/nexpose-`date +%H:%M:%S`.csv
+    mv nexpose.csv "$HOME"/data/nexpose-`date +%H:%M:%S`.csv
 
     echo
-    echo $medium
+    echo "$MEDIUM"
     echo
     echo -e "The new report is located at ${YELLOW}$HOME/data/nexpose-`date +%H:%M:%S`.csv${NC}\n"
     echo
@@ -78,13 +74,13 @@ case $choice in
 
     4)
     f_location
-    cp $location ./nmap.xml
-    $discover/parsers/parse-nmap.py
-    mv nmap.csv $HOME/data/nmap-`date +%H:%M:%S`.csv
+    cp "$LOCATION" ./nmap.xml
+    "$DISCOVER"/parsers/parse-nmap.py
+    mv nmap.csv "$HOME"/data/nmap-`date +%H:%M:%S`.csv
     rm nmap.xml
 
     echo
-    echo $medium
+    echo "$MEDIUM"
     echo
     echo -e "The new report is located at ${YELLOW}$HOME/data/nmap-`date +%H:%M:%S`.csv${NC}\n"
     echo
@@ -97,17 +93,17 @@ case $choice in
     echo "[!] This will take about 2.5 mins, be patient."
     echo
 
-    $discover/parsers/parse-qualys.py $location
-    mv qualys.csv $HOME/data/qualys-`date +%H:%M:%S`.csv
+    "$DISCOVER"/parsers/parse-qualys.py "$LOCATION"
+    mv qualys.csv "$HOME"/data/qualys-`date +%H:%M:%S`.csv
 
     echo
-    echo $medium
+    echo "$MEDIUM"
     echo
     echo -e "The new report is located at ${YELLOW}$HOME/data/qualys-`date +%H:%M:%S`.csv${NC}\n"
     echo
     echo
     ;;
 
-    6) f_main;;
-    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$discover"/parse.sh;;
+    6) f_main ;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/parse.sh ;;
 esac

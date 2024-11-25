@@ -164,7 +164,7 @@ g++ vuln.c -fno-stack-protector -mpreferred-stack-boundary=2 -o vuln
 ./vuln `python -c 'print "\x41" * 500'`
 ./vuln `python -c 'print "\x41" * 1000'` # Segmentation fault
 
-apt-get install gdb
+apt install gdb
 gdb -q vuln
 run `python -c 'print "\x41" * 1000'`
 

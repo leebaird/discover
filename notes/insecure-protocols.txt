@@ -33,7 +33,7 @@ hydra -t 4 -V -l administrator -P /usr/share/wordlists/rockyou.txt rdp://targetI
 # Rservices
 
 513/tcp
-apt-get install rsh-client
+apt install rsh-client
 rlogin -l root <target IP>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 

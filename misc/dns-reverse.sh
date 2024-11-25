@@ -2,45 +2,43 @@
 
 # by Lee Baird (@discoverscripts)
 
-set -euo pipefail
+MEDIUM='=================================================================='
 
-medium='=================================================================='
+BLUE='\033[1;34m'
+RED='\033[1;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-clear
 echo
-echo "DNS Reverse"
-echo
-echo
-echo "By Lee Baird"
+echo -e "${YELLOW}DNS Reverse\n\nBy Lee Baird\n${NC}"
 echo
 echo "Perform a PTR DNS query on a Class C range and return FQDNs."
 echo
 echo "Usage: 192.168.1"
 echo
-
 echo -n "Class: "
-read -r class
+read -r CLASS
 
-# Check if class is empty
-if [ -z "$class" ]; then
+# Check if class is empty or invalid
+if [[ -z "$CLASS" || ! "$CLASS" =~ ^([0-9]{1,3}\.){2}[0-9]{1,3}$ ]]; then
     echo
-    echo $medium
+    echo "$MEDIUM"
     echo
-    echo "[!] Invalid choice."
+    echo -e "${RED}[!] Invalid choice or entry.${NC}"
     echo
     exit 1
 fi
 
 echo
-echo $medium
+echo "$MEDIUM"
 echo
 
 # Perform PTR DNS query on each IP in the Class C range
-for x in $(seq 1 254); do
+for i in {1..254}; do
     # Check if the host command returns a valid PTR record
-    if result=$(host "$class.$x" | grep 'name pointer'); then
-        echo "$result" | cut -d ' ' -f1,5
+    if RESULT=$(host "$CLASS.$i" | grep 'name pointer'); then
+        echo "$RESULT" | cut -d ' ' -f1,5
     else
-        echo "[!] No PTR record for $class.$x"
+        echo -e "${RED}[!] No PTR record for $CLASS.$i${NC}"
     fi
 done

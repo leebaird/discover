@@ -2,8 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-set -euo pipefail
-
 # Check for root
 if [ $EUID -ne 0 ]; then
     echo
@@ -19,7 +17,7 @@ NC='\033[0m'
 
 # -----------------------------------------------------------------------------------------------
 
-# Clean up
+# Clean up deprecated repos
 if [ -d /opt/C2-stuff/ ]; then
     rm -rf /opt/C2-stuff/
 fi
@@ -28,34 +26,34 @@ if [ -d /opt/cobaltstrike/third-party/outflanknl-helpcolor/ ]; then
     rm -rf /opt/cobaltstrike/third-party/outflanknl-helpcolor/
 fi
 
+if [ -d /opt/DNSRecon/ ]; then
+    rm -rf /opt/DNSRecon/
+fi
+
+if [ -d /opt/DNSRecon-venv/ ]; then
+    rm -rf /opt/DNSRecon-venv/
+fi
+
 # -----------------------------------------------------------------------------------------------
 
-clear
 echo
-
 echo -e "${BLUE}Updating Kali.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 echo
 
-if [ ! -f /usr/bin/ansible ]; then
+if ! command -v ansible &> /dev/null; then
     echo -e "${YELLOW}Installing Ansible.${NC}"
     apt install -y ansible-core
     echo
 fi
 
-if [ ! -f /usr/bin/aws ]; then
+if ! command -v aws &> /dev/null; then
     echo -e "${YELLOW}Installing AWS.${NC}"
     apt install -y awscli
     echo
 fi
 
-if [ ! -f /usr/bin/certbot ]; then
-    echo -e "${YELLOW}Installing Certbot.${NC}"
-    apt install -y certbot letsencrypt python3-certbot-apache
-    echo
-fi
-
-if [ ! -f /usr/bin/go ]; then
+if ! command -v go &> /dev/null; then
     echo -e "${YELLOW}Installing Go.${NC}"
     apt install -y golang-go
     echo "" >> ~/.zshrc
@@ -67,9 +65,15 @@ if [ ! -f /usr/bin/go ]; then
     echo
 fi
 
-if [ ! -f /usr/bin/raven ]; then
+if ! command -v raven &> /dev/null; then
     echo -e "${YELLOW}Installing Raven.${NC}"
     apt install -y raven
+    echo
+fi
+
+if ! command -v sublist3r &> /dev/null; then
+    echo -e "${YELLOW}Installing Sublist3r.${NC}"
+    apt install -y sublist3r
     echo
 fi
 
@@ -190,31 +194,7 @@ if [ -d /opt/discover/.git ]; then
     echo
 fi
 
-if [ -d /opt/DNSRecon/.git -a -d /opt/DNSRecon-venv ]; then
-    echo -e "${BLUE}Updating DNSRecon.${NC}"
-    cd /opt/DNSRecon/ ; git pull
-    source /opt/DNSRecon-venv/bin/activate
-    pip3 install -r requirements.txt --upgrade
-    # If you are in a corp env that is doing MITM with SSL, use the following line instead.
-    # Do the same for all Python repos.
-#    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
-    deactivate
-    echo
-else
-    echo -e "${YELLOW}Installing DNSRecon.${NC}"
-    git clone https://github.com/darkoperator/dnsrecon /opt/DNSRecon
-    echo
-    echo -e "${YELLOW}Setting up DNSRecon virtualenv.${NC}"
-    virtualenv -p /usr/bin/python3 /opt/DNSRecon-venv
-    source /opt/DNSRecon-venv/bin/activate
-    cd /opt/DNSRecon/
-    pip3 install -r requirements.txt
-#    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
-    deactivate
-    echo
-fi
-
-if [ ! -f /usr/bin/dnstwist ]; then
+if ! command -v dnstwist &> /dev/null; then
     echo -e "${YELLOW}Installing dnstwist.${NC}"
     apt install -y dnstwist
     echo
@@ -262,7 +242,8 @@ else
     source /opt/Egress-Assess-venv/bin/activate
     cd /opt/Egress-Assess
     pip3 install -r requirements.txt
-#    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
+    # If you are in a corp env that is doing MITM with SSL, use the following line instead. Do the same for all Python repos.
+#    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
     deactivate
     echo
 fi
@@ -277,7 +258,7 @@ else
     echo
 fi
 
-if [ ! -f /usr/bin/feroxbuster ]; then
+if ! command -v feroxbuster &> /dev/null; then
     echo -e "${YELLOW}Installing feroxbuster.${NC}"
     apt install -y feroxbuster
     echo
@@ -293,13 +274,13 @@ else
     echo
 fi
 
-if [ ! -f /usr/bin/gobuster ]; then
+if ! command -v gobuster &> /dev/null; then
     echo -e "${YELLOW}Installing gobuster.${NC}"
     apt install -y gobuster
     echo
 fi
 
-if [ ! -f /usr/bin/havoc ]; then
+if ! command -v havoc &> /dev/null; then
     echo -e "${YELLOW}Installing Havoc.${NC}"
     apt install -y havoc
     echo
@@ -326,7 +307,7 @@ else
     echo
 fi
 
-if [ ! -f /usr/bin/nishang ]; then
+if ! command -v nishang &> /dev/null; then
     echo -e "${YELLOW}Installing nishang.${NC}"
     apt install -y nishang
     echo
@@ -393,7 +374,7 @@ if [ ! -f /usr/share/wordlists/rockyou.txt ]; then
     echo
 fi
 
-if [ ! -f /usr/bin/rustc ]; then
+if ! command -v rustc &> /dev/null; then
     echo -e "${YELLOW}Installing Rust.${NC}"
     apt install -y rustc
     echo
@@ -406,28 +387,6 @@ if [ -d /opt/SharpCollection/.git ]; then
 else
     echo -e "${YELLOW}Installing SharpCollection.${NC}"
     git clone https://github.com/Flangvik/SharpCollection /opt/SharpCollection
-    echo
-fi
-
-if [ -d /opt/spoofcheck/.git -a -d /opt/spoofcheck-venv ]; then
-    echo -e "${BLUE}Updating spoofcheck.${NC}"
-    cd /opt/spoofcheck/ ; git pull
-    source /opt/spoofcheck-venv/bin/activate
-    pip3 install -r requirements.txt --upgrade | grep -v 'already satisfied'
-#    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
-    deactivate
-    echo
-else
-    echo -e "${YELLOW}Installing spoofcheck.${NC}"
-    git clone https://github.com/BishopFox/spoofcheck /opt/spoofcheck
-    echo
-    echo -e "${YELLOW}Setting up spoofcheck virtualenv.${NC}"
-    virtualenv -p /usr/bin/python3 /opt/spoofcheck-venv
-    source /opt/spoofcheck-venv/bin/activate
-    cd /opt/spoofcheck/
-    pip3 install -r requirements.txt
-#    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
-    deactivate
     echo
 fi
 
@@ -480,25 +439,25 @@ else
     echo
 fi
 
-if [ ! -f /usr/bin/xlsx2csv ]; then
+if ! command -v xlsx2csv &> /dev/null; then
     echo -e "${YELLOW}Installing xlsx2csv.${NC}"
-    apt-get install -y xlsx2csv
+    apt install -y xlsx2csv
     echo
 fi
 
-if [ ! -f /usr/bin/xml_grep ]; then
+if ! command -v xml_grep &> /dev/null; then
     echo -e "${YELLOW}Installing xml_grep.${NC}"
-    apt-get install -y xml-twig-tools
+    apt install -y xml-twig-tools
     echo
 fi
 
-if [ ! -f /usr/bin/xspy ]; then
+if ! command -v xspy &> /dev/null; then
     echo -e "${YELLOW}Installing xspy.${NC}"
     apt install -y xspy
     echo
 fi
 
-if [ ! -f /opt/xwatchwin/xwatchwin ]; then
+if ! command -v xwatchwin &> /dev/null; then
     echo -e "${YELLOW}Installing xwatchwin.${NC}"
     apt install -y imagemagick libxext-dev xutils-dev
     wget http://www.ibiblio.org/pub/X11/contrib/utilities/xwatchwin.tar.gz

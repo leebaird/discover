@@ -1,10 +1,11 @@
 
 # -----------------------------------------------------------------------------------------------
 
-dns=$(ip r | grep dhcp | awk '{print $3}')
-extip=$(curl -s http://ifconfig.me)
-ip=$(hostname -I | awk '{print $1}')
-mac=$(ip a | grep ether | awk '{print $2}')
+DNS=$(ip r | grep dhcp | awk '{print $3}')
+EXTIP=$(curl -s http://ifconfig.me)
+INTERFACE=$(ip a | grep BROADCAST | awk '{print $2}' | cut -d ":" -f1)
+MYIP=$(hostname -I | awk '{print $1}')
+MAC=$(ip a | grep ether | awk '{print $2}')
 
 alias bh='neo4j console & ; sleep 6 ; bloodhound'
 alias c='clear'
@@ -18,11 +19,12 @@ alias kd='cd /home/kali/Desktop/'
 alias l='ls -lh'
 alias la='ls -lah'
 alias m='service postgresql start ; msfdb init ; msfconsole'
-alias n='echo;
-echo -n "External IP:  "$extip ; echo ;
-echo -n "Internal IP:  "$ip ; echo ;
-echo -n "MAC address:  "$mac ; echo ;
-echo -n "DNS:          "$dns ; echo ;
+alias n='echo; date ; echo ;
+echo -n "External IP:  "$EXTIP ; echo ;
+echo -n "Internal IP:  "$MYIP ; echo ;
+echo -n "MAC address:  "$MAC ; echo ;
+echo -n "DNS:          "$DNS ; echo ;
+echo -n "Interfaace:   "$INTERFACE ; echo ;
 echo ; netstat -antp; echo ;
 ping -c3 8.8.8.8'
 alias r='cd $HOME ; clear'
@@ -30,6 +32,10 @@ alias s='cd /opt/discover/ ; clear'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 alias ssh='ssh -o "XAuthLocation=/opt/X11/bin/xauth"'
 alias update='/opt/discover/update.sh'
-alias upload='raven $ip 3000 --upload-folder /home/kali/Desktop/'
-alias web="echo $ip ; python3 -m http.server 80"
-alias web2="echo $ip ; python3 -m http.server 8000"
+alias upload='raven $MYIP 3000 --upload-folder /home/kali/Desktop/'
+alias web='echo $MYIP ; python3 -m http.server 80'
+alias web2='echo $MYIP ; python3 -m http.server 8000'
+
+export GOPATH=/opt/go
+export GOROOT=/usr/lib/go
+export PATH=$PATH:/usr/lib/go/bin:/opt/go/bin

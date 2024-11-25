@@ -11,8 +11,10 @@ enumeration, and malicious payload creation using Metasploit. For use with Kali 
 * [![Twitter Follow](https://img.shields.io/twitter/follow/ninewires.svg?style=social&label=Follow)](https://twitter.com/ninewires) Jason Ashton @ninewires
 
 ### Download, setup, and usage
+* Open a Terminal as a regular user.
 * git clone https://github.com/leebaird/discover /opt/discover/
-* Discover should be ran as root from this location.
+* Discover should be ran as from this location.
+* Some options require Discover to be ran as root (like Update all SCANNING).
 * cd /opt/discover/
 * sudo ./discover.sh
 * Select option 15 to update Kali Linux, Discover scripts, various tools, and the locate database before using the framework.
@@ -49,19 +51,15 @@ MISC
 RECON
 
 1.  Passive
-2.  Active
-3.  Find registered domains
-4.  Previous menu
+2.  Find registered domains
+3.  Previous menu
 ```
 
-Passive uses ARIN, DNSRecon, dnstwist, goog-mail, goohost, theHarvester,
-    Metasploit, Whois, multiple websites, and recon-ng.
+Uses ARIN, DNSRecon, dnstwist, subfinder, sublist3r,
+theHarvester, Metasploit, Whois, and multiple websites.
 
-Active uses DNSRecon, recon-ng, Traceroute, wafw00f, and Whatweb.
-
-Acquire API keys for maximum results with theHarvester.
-* Add keys to /root/.theHarvester/api-keys.yaml
-* If this file doesn't exist, run theHarvester and it will be created.
+[*] Acquire API keys for maximum results with theHarvester.
+[*] Add keys to /home/kali/.theHarvester/api-keys.yaml
 
 ### Person
 ```
@@ -211,13 +209,6 @@ Metasploit Listeners
 
 Some users have reported being unable to use any options except for 3, 4, and 5. 
 Nothing happens when choosing other options (1, 2, 6, etc.).
-
-## Always run Discover as root
-
-```
-cd /opt/discover/
-sudo ./discover.sh
-```
 
 ## Verify the download hash
 

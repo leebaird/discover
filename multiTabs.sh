@@ -2,11 +2,17 @@
 
 # by Lee Baird (@discoverscripts)
 
-set -euo pipefail
-
 f_runlocally
 clear
 f_banner
+
+# Check if Firefox is running
+if pgrep firefox > /dev/null; then
+    echo
+    echo "[!] Close Firefox before running script."
+    echo
+    exit 1
+fi
 
 echo -e "${BLUE}Open multiple tabs in Firefox with:${NC}"
 echo
@@ -16,107 +22,114 @@ echo "3.  Directories in robots.txt"
 echo "4.  Previous menu"
 echo
 echo -n "Choice: "
-read -r choice
+read -r CHOICE
 
-case $choice in
+case "$CHOICE" in
     1)
-    f_location
-    echo
-    echo -n "Use an https prefix? (y/N) "
-    read -r prefix
+        f_location
+        echo
+        echo -n "Use an https prefix? (y/N) "
+        read -r PREFIX
 
-    if [ -z $prefix ]; then
-        for i in $(cat $location); do
-            xdg-open http://$i &
-            sleep 1
-        done
-    elif [ "$prefix" == "y" ]; then
-        for i in $(cat $location); do
-            xdg-open https://$i &
-            sleep 1
-        done
-    else
-        f_error
-    fi
+        if [ -z "$PREFIX" ]; then
+            while read -r i; do
+                xdg-open http://"$i" &
+                sleep 2
+            done < "$LOCATION"
 
-    exit
-    ;;
+        elif [ "$PREFIX" == "y" ]; then
+            while read -r i; do
+                xdg-open https://"$i" &
+                sleep 2
+            done < "$LOCATION"
 
+        else
+            f_error
+        fi
+
+        exit
+        ;;
     2)
-    echo
-    echo $medium
-    echo
-    echo -n "Enter the location of your directory: "
-    read -r location
+        echo
+        echo "$MEDIUM"
+        echo
+        echo -n "Enter the location of your directory: "
+        read -r LOCATION
 
-    # Check for no answer
-    if [ -z $location ]; then
-        f_error
-    fi
+        # Check for no answer
+        if [ -z "$LOCATION" ]; then
+            f_error
+        fi
 
-    # Check for wrong answer
-    if [ ! -d $location ]; then
-        f_error
-    fi
+        # Check for wrong answer
+        if [ ! -d "$LOCATION" ]; then
+            f_error
+        fi
 
-    cd $location
+        cd "$LOCATION"
 
-    for i in $(ls -l | awk '{print $9}'); do
-        xdg-open $i &
-        sleep 1
-    done
+        # option 1
+        for i in $(ls -l | awk '{print $9}'); do
+            xdg-open "$i" &
+            sleep 2
+        done
 
-    exit
-    ;;
-
+        exit
+        ;;
     3)
-    echo
-    echo $medium
-    echo
-    echo "Usage: target.com or target-IP"
-    echo
-    echo -n "Domain: "
-    read -r domain
-
-    # Check for no answer
-    if [ -z $domain ]; then
-        f_error
-    fi
-
-    curl -kLs $domain/robots.txt -o robots.txt
-
-    # Check if the file is empty
-    if [ ! -s robots.txt ]; then
         echo
-        echo -e "${RED}$medium${NC}"
+        echo "$MEDIUM"
         echo
-        echo -e "${RED}[*] No robots.txt file discovered.${NC}"
+        echo "Usage: target.com or target-IP"
         echo
-        echo -e "${RED}$medium${NC}"
-        sleep 2
-        f_main
-    fi
+        echo -n "Domain: "
+        read -r DOMAIN
 
-    grep -i 'disallow' robots.txt | grep -v '*' | awk '{print $2}' > tmp
+        # Check for no answer
+        if [ -z "$DOMAIN" ]; then
+            f_error
+        fi
 
-    for i in $(cat tmp); do
-        xdg-open http://$domain$i &
-        sleep 1
-    done
+        curl -kLs "$DOMAIN"/robots.txt -o robots.txt
 
-    rm robots.txt
-    mv tmp $HOME/data/$domain-robots.txt
+        if ! curl -kLs "$DOMAIN"/robots.txt -o robots.txt; then
+            echo
+            echo -e "${RED}[!] Failed to connect to $DOMAIN.${NC}"
+            echo
+            exit 1
+        fi
 
-    echo
-    echo $medium
-    echo
-    echo "[*] Scan complete."
-    echo
-    echo -e "The new report is located at ${YELLOW}$HOME/data/$domain-robots.txt${NC}"
-    echo
-    exit
-    ;;
+#        # Check if the file is empty
+#        if [ ! -s robots.txt ]; then
+#            echo
+#            echo -e "${RED}$MEDIUM${NC}"
+#            echo
+#            echo -e "${RED}[*] No robots.txt file discovered.${NC}"
+#            echo
+#            echo -e "${RED}$MEDIUM${NC}"
+#            echo
+#            exit 1
+#        fi
 
-    4) f_main;;
-    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2;"$discover"/multiTabs.sh;;
+        grep -i 'disallow' robots.txt | awk '{print $2}' | grep -iv disallow | sort -u > tmp
+
+        while read -r i; do
+            xdg-open "https://$DOMAIN$i" &
+            sleep 2
+        done < tmp
+
+        rm robots.txt
+        mv tmp "$HOME"/data/"$DOMAIN"-robots.txt
+
+        echo
+        echo "$MEDIUM"
+        echo
+        echo "[*] Scan complete."
+        echo
+        echo -e "The new report is located at ${YELLOW}$HOME/data/$DOMAIN-robots.txt${NC}"
+        echo
+        exit
+        ;;
+    4) f_main ;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/multiTabs.sh ;;
 esac

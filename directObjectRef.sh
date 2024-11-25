@@ -2,8 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-set -euo pipefail
-
 clear
 f_banner
 
@@ -13,16 +11,16 @@ echo -e "${BLUE}this host. Paste the results into a new file.${NC}"
 
 f_location
 
-for i in $(cat $location); do
+while read -r i; do
     curl -sk -w "%{http_code} - %{url_effective} \\n" "$i" -o /dev/null 2>&1 | tee -a tmp
-done
+done < "$LOCATION"
 
 cat tmp | sort -u > DirectObjectRef.txt
-mv DirectObjectRef.txt $HOME/data/DirectObjectRef.txt
+mv DirectObjectRef.txt "$HOME"/data/DirectObjectRef.txt
 rm tmp
 
 echo
-echo $medium
+echo "$MEDIUM"
 echo
 echo "[*] Scan complete."
 echo

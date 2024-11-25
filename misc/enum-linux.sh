@@ -2,333 +2,105 @@
 
 # by Lee Baird (@discoverscripts)
 
-set -euo pipefail
+MEDIUM='=================================================================='
 
-hname=$(/bin/hostname)
-fndate=$(/bin/date +%F_%H.%M.%S.%Z)
-medium='=================================================================='
-user=$(whoami)
+BLUE='\033[1;34m'
+RED='\033[1;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-clear
+echo
+echo -e "${YELLOW}Enumerate Remote Linux Box\n\nBy Lee Baird\n${NC}"
 
-if [ -z "$1" ]; then
+# If no arguments, print usage and exit
+if [ $# -eq 0 ]; then
     echo
-    echo $medium
-    echo
-    echo "Usage: user@targetIP"
+    echo "Usage: $0 user@targetIP"
     echo
     exit 1
 fi
 
+HNAME=$(ssh "$1" hostname)
+FNDATE=$(date +%b-%d-%Y_%H.%M.%Z)
+OUTPUT_FILE="$HOME/$HNAME-$FNDATE.txt"
+
+# Establish SSH session and run remote enumeration
 ssh -M -S discover.socket -f -N "$1" misc/enum-linux.sh
-ssh -S discover.socket -O exit "$1"
+ssh -S discover.socket -O exit "$1" &>/dev/null
 
-# Based on Metasploit post Linux modules
+# Trap to ensure cleanup on exit
+trap 'rm -f tmp tmp2' EXIT
 
+# Function to append section output to tmp file
+function add_section() {
+    echo "$1" >> tmp
+    echo >> tmp
+    eval "$2" >> tmp 2>/dev/null
+    echo >> tmp
+    echo "$MEDIUM" >> tmp
+    echo >> tmp
+}
+
+# Clear tmp file initially
 echo > tmp
-/bin/date >> tmp
+
+# Date and Host Infos
+date +"%b %-d, %Y %-I:%M%P %Z" >> tmp
 echo >> tmp
 
-echo "Whoami" >> tmp
-/usr/bin/whoami >> tmp
-echo >> tmp
+add_section "[*] Hostname" "ssh "$1" /bin/hostname"
+add_section "[*] Whoami" "whoami"
+add_section "[*] Kernel" "uname -a"
+add_section "[*] System uptime" "uptime"
 
-echo "Hostname" >> tmp
-/bin/hostname >> tmp
-echo >> tmp
+# User and Group Info
+add_section "[*] Users" "cat /etc/passwd"
+add_section "[*] Passwords" "cat /etc/shadow"
+add_section "[*] User groups" "cat /etc/group"
+add_section "[*] Last 25 logins" "last -25"
 
-echo "Kernel" >> tmp
-/bin/uname -a >> tmp
-echo >> tmp
+# Network and Listening Ports
+add_section "[*] Listening ports" "netstat -ant"
+add_section "[*] Filesystem stats" "mount && /bin/df -h"
+add_section "[*] Processes" "ps aux"
 
-echo "System uptime" >> tmp
-/usr/bin/uptime >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
+# Networking
+add_section "[*] Networking" "/sbin/ifconfig -a; /sbin/route -e; /sbin/iptables -L -v"
+add_section "[*] /etc/resolv.conf" "cat /etc/resolv.conf"
+add_section "[*] SSH config" "cat /etc/ssh/sshd_config"
+add_section "[*] /etc/hosts" "cat /etc/hosts"
+add_section "[*] Network Configuration" "ls -R /etc/network"
 
-echo "Users" >> tmp
-echo >> tmp
-cat /etc/passwd >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
+# Config files
+CONFIG_FILES=(
+    "[*] /etc/apache2/apache2.conf"
+    "[*] /etc/apache2/ports.conf"
+    "[*] /etc/nginx/nginx.conf"
+    "[*] /etc/snort/snort.conf"
+    "[*] /etc/mysql/my.cnf"
+    "[*] /etc/ufw/ufw.conf"
+    "[*] /etc/security/access.conf"
+    "[*] /etc/ldap/ldap.conf"
+    "[*] /etc/proxychains.conf"
+)
 
-echo "Passwords" >> tmp
-echo >> tmp
-cat /etc/shadow >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
+for FILE in "${CONFIG_FILES[@]}"; do
+    add_section "$FILE" "cat $FILE"
+done
 
-echo "User groups" >> tmp
-echo >> tmp
-cat /etc/group >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
+# Misc
+add_section "[*] Samba config" "cat /etc/samba/smb.conf"
+add_section "[*] CUPS config" "cat /etc/cups/cups.conf"
+add_section "[*] Service Status" "service --status-all"
+add_section "[*] Installed Packages" "/usr/bin/dpkg -l"
 
-echo "Last 25 logins" >> tmp
-echo >> tmp
-/usr/bin/last -25 >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-
-echo "Listening ports" >> tmp
-echo >> tmp
-/bin/netstat -ant >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-
-echo "Filesystem stats" >> tmp
-echo >> tmp
-/bin/mount >> tmp
-echo >> tmp
-/bin/df -h >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-
-echo "Processes" >> tmp
-echo >> tmp
-ps aux >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-
-echo "Networking" >> tmp
-echo >> tmp
-/sbin/ifconfig -a >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-/sbin/route -e >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-/sbin/iptables -L >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-/sbin/iptables -L -t nat >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-/sbin/iptables -L -t mangle >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-echo "/etc/resolv.con" >> tmp
-echo >> tmp
-cat /etc/resolv.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-echo "SSH config" >> tmp
-echo >> tmp
-cat /etc/ssh/sshd_config >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-echo "/etc/hosts" >> tmp
-echo >> tmp
-cat /etc/hosts >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-/usr/bin/lsof -nPi >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-/sbin/iwconfig >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-/bin/netstat -tulpn >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-ls -R /etc/network >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-
-echo "Apache config" >> tmp
-echo >> tmp
-cat /etc/apache2/apache2.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-echo "Apache ports" >> tmp
-echo >> tmp
-cat /etc/apache2/ports.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/nginx/nginx.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-echo "Snort config" >> tmp
-echo >> tmp
-cat /etc/snort/snort.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-echo "MySQL config" >> tmp
-echo >> tmp
-cat /etc/mysql/my.cnf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/ufw/ufw.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/ufw/sysctl.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/security.access.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/shells >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/security/sepermit.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/ca-certificates.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/security/access.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/gated.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/rpc >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/psad/psad.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/mysql/debian.cnf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/chkrootkit.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/logrotate.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/rkhunter.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-echo "Samba config" >> tmp
-echo >> tmp
-cat /etc/samba/smb.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-echo "LDAP config" >> tmp
-echo >> tmp
-cat /etc/ldap/ldap.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-echo "Open LDAP config" >> tmp
-echo >> tmp
-cat /etc/openldap/openldap.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-echo "CUPS config" >> tmp
-echo >> tmp
-cat /etc/cups/cups.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/opt/lampp/etc/httpd.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/sysctl.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/proxychains.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/cups/snmp.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/mail/sendmail.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/snmp/snmp.conf >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-
-echo "Misc" >> tmp
-echo >> tmp
-/usr/bin/dpkg -l >> tmp
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-/usr/sbin/service --status-all >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/sudoers >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /root/.bash_history >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /root/.mysql_history >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /root/.viminfo >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/fstab >> tmp 2>/dev/null
-echo >> tmp
-echo $medium >> tmp
-echo >> tmp
-cat /etc/ppp/chap-secrets >> tmp 2>/dev/null
-
-##############################################################################################################
-
-mv tmp /"$user"/"$hname"-"$fndate".txt
+# Save the final report and clean up
+mv tmp "$OUTPUT_FILE"
 
 echo
-echo $medium
+echo "$MEDIUM"
 echo
 echo "Scan complete."
 echo
-echo "The new report is located at \e[1;33m%s\e[0m\n" /"$user"/"$hname"-"$fndate".txt
-echo
+echo -e "The new report is located at ${YELLOW}$OUTPUT_FILE${NC}"
 echo

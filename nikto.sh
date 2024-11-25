@@ -2,8 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-set -euo pipefail
-
 # Check for regular user
 if [ "$EUID" == 0 ]; then
     echo
@@ -22,59 +20,57 @@ echo "2.  List of IP:port"
 echo "3.  Previous menu"
 echo
 echo -n "Choice: "
-read -r choice
+read -r CHOICE
 
-case "$choice" in
-    1)
-        f_location
+case "$CHOICE" in
+    1)  f_location
 
         echo
         echo -n "Port (default 80): "
-        read -r port
+        read -r PORT
         echo
 
         # Set default port to 80 if not provided
-        if [ -z "$port" ]; then
-            port=80
+        if [ -z "$PORT" ]; then
+            PORT=80
         fi
 
-        # Validate number and port number
-        if ! [[ "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+        # Check for a valid port number
+        if ! [[ "$PORT" =~ ^[0-9]+$ ]] || [ "$PORT" -lt 1 ] || [ "$PORT" -gt 65535 ]; then
             f_error
         fi
 
-        mkdir -p "$HOME/data/nikto-$port"
+        mkdir -p "$HOME/data/nikto-$PORT"
 
-        while IFS= read -r line; do
+        while IFS= read -r LINE; do
             xdotool key ctrl+shift+t
-            xdotool type "nikto -h $line -port $port -no404 -maxtime 15m -Format htm --output $HOME/data/nikto-$port/$line.htm ; exit"
+            xdotool type "nikto -h $LINE -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto-$PORT/$LINE.htm ; exit"
             sleep 1
             xdotool key Return
-        done < "$location"
+        done < "$LOCATION"
         ;;
 
-    2)
-        f_location
+    2)  f_location
 
         mkdir -p "$HOME/data/nikto"
 
-        while IFS=: read -r host port; do
+        while IFS=: read -r HOST PORT; do
             xdotool key ctrl+shift+t
             sleep 1
-            xdotool type "nikto -h $host -port $port -no404 -maxtime 15m -Format htm --output $HOME/data/nikto/$host-$port.htm ; exit"
+            xdotool type "nikto -h $HOST -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto/$HOST-$PORT.htm ; exit"
             sleep 1
             xdotool key Return
-        done < "$location"
+        done < "$LOCATION"
         ;;
 
-    3) f_main;;
+    3)  f_main ;;
 
-    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2;"$discover"/nikto.sh;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/nikto.sh ;;
 esac
 
 echo
-echo "$medium"
+echo "$MEDIUM"
 echo
 echo "[*] Scan complete."
 echo
-echo -e "The new report is located at ${YELLOW}$HOME/data/nikto-$port/${NC}"
+echo -e "The new report is located at ${YELLOW}$HOME/data/nikto-$PORT/${NC}"
