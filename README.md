@@ -14,7 +14,7 @@ enumeration, and malicious payload creation using Metasploit. For use with Kali 
 * Open a Terminal as a regular user.
 * git clone https://github.com/leebaird/discover /opt/discover/
 * Discover should be ran as from this location.
-* Some options require Discover to be ran as root (like Update all SCANNING).
+* Some options require Discover to be ran as root (i.e., Update and all SCANNING).
 * cd /opt/discover/
 * sudo ./discover.sh
 * Select option 15 to update Kali Linux, Discover scripts, various tools, and the locate database before using the framework.
@@ -58,8 +58,8 @@ RECON
 Uses ARIN, DNSRecon, dnstwist, subfinder, sublist3r,
 theHarvester, Metasploit, Whois, and multiple websites.
 
-[*] Acquire API keys for maximum results with theHarvester.
-[*] Add keys to /home/kali/.theHarvester/api-keys.yaml
+* Acquire all free API keys for maximum results with theHarvester.
+* Add API keys to /home/kali/.theHarvester/api-keys.yaml
 
 ### Person
 ```
@@ -81,7 +81,7 @@ SCANNING
 3.  Previous menu
 ```
 
-* Use different tools to create a target list including Angry IP Scanner, arp-scan, netdiscover, and nmap pingsweep.
+* Use different tools to create a target list including Angry IP Scanner, arp-scan, netdiscover, and Nmap pingsweep.
 
 ### CIDR, List, IP, Range, or URL
 ```
@@ -92,8 +92,8 @@ Type of scan:
 3.  Previous menu
 ```
 
-* External scan will set the nmap source port to 53 and the max-rrt-timeout to 1500ms.
-* Internal scan will set the nmap source port to 88 and the max-rrt-timeout to 500ms.
+* External scan will set the Nmap source port to 53 and the max-rrt-timeout to 1500ms.
+* Internal scan will set the Nmap source port to 88 and the max-rrt-timeout to 500ms.
 * Nmap is used to perform host discovery, port scanning, service enumeration, and OS identification.
 * Nmap scripts and Metasploit auxiliary modules are used for additional enumeration.
 * Addition tools: enum4linux, smbclient, and ike-scan.
@@ -143,7 +143,7 @@ List of IP:port.
 Enter the location of your file:
 ```
 
-* Uses sslscan, sslyze, and nmap to check for SSL/TLS certificate issues.
+* Uses sslscan, sslyze, and Nmap to check for SSL/TLS certificate issues.
 
 
 ## MISC
