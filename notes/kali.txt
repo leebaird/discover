@@ -111,10 +111,12 @@ update
 /etc/hostname
 /etc/hosts
 
-- Change the contents to match Ubuntu.
+- Change the contents to match another OS (Ubuntu 20.04.6 LTS).
 /etc/issue
 /etc/issue.net
 /etc/os-release     Use new hostname for ID
+
+hostnamectl
 
 - Firefox
 about:config
