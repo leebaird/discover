@@ -37,7 +37,7 @@ fi
 # -----------------------------------------------------------------------------------------------
 
 echo
-echo -e "${BLUE}Updating Kali.${NC}"
+echo -e "${BLUE}Updating operating system.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 echo
 
@@ -367,7 +367,7 @@ else
     echo
 fi
 
-if [ ! -f /usr/share/wordlists/rockyou.txt ]; then
+if [ -f /usr/share/wordlists/rockyou.txt.gz ]; then
     echo -e "${YELLOW}Expanding Rockyou list.${NC}"
     zcat /usr/share/wordlists/rockyou.txt.gz > /usr/share/wordlists/rockyou.txt
     rm /usr/share/wordlists/rockyou.txt.gz
