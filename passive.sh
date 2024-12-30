@@ -108,7 +108,6 @@ if ! curl -ks "https://whois.arin.net/rest/pocs;domain=$DOMAIN" -o tmp.xml; then
     echo
     echo "[!] Failed to fetch ARIN data."
     echo
-    exit 1
 fi
 
 # Check for results in the XML file
