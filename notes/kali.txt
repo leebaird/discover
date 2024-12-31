@@ -3,11 +3,11 @@ Kali
 # Download VM and verify the hash
 
 https://www.kali.org/get-kali/#kali-virtual-machines
-Select 64-bit VMware Weekly
+Scroll down and select VMware Weekly
 
 - macOS
 1. Open Terminal
-2. shasum -a 256 /path/to/file
+2. sha256sum /path/to/file
 3. Compare the value to the checksum on the website.
 
 - Windows
@@ -49,14 +49,14 @@ OK
 # Shell
 
 kali-tweaks
-Select Shell & Prompt > Command Prompt
-Select One Line > space bar > Apply
-Virtualization > OK
+Select Shell & Prompt > Configure Prompt
+Select One Line > space bar > Apply > OK > enter
+Back > Virtualization > Configure
+Quit
 
 sudo -i
 Repeat the steps above.
-Close the Terminal.
-Open a new Terminal. The shell should now be a single line.
+Close and open Terminal. The shell should now be a single line.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Mousepad
@@ -75,23 +75,37 @@ Window
 Close preferenes > close mousepad
 
 sudo -i
-Enter password
 Repeat the steps above.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Clock
 
-Right-click on the clock > Preferences
-Eastern: America/New_York
-Central: America/Chicago
-Mountain: America/Denver
-Pacific: America/Los_Angeles
+Right-click on the clock > Properties
+Time and Date Settings > Unlock > password
+Set Time Zone
+  Eastern: America/New_York
+  Central: America/Chicago
+  Mountain: America/Denver
+  Pacific: America/Los_Angeles
+Close 3x
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Configure sudo
+
+sudo visudo
+Add to the last line in the file.
+$USER ALL=(ALL) NOPASSWD: ALL
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Patch the OS
 
 sudo -i
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Snapshot
+
+Take a snapshot and name it Base.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Install Discover scripts and additional GitHub repos (root shell)
