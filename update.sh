@@ -264,25 +264,9 @@ if ! command -v feroxbuster &> /dev/null; then
     echo
 fi
 
-if [ -d /opt/Freeze/.git ]; then
-    echo -e "${BLUE}Updating Freeze.${NC}"
-    cd /opt/Freeze/ ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing Freeze.${NC}"
-    git clone https://github.com/optiv/Freeze /opt/Freeze
-    echo
-fi
-
 if ! command -v gobuster &> /dev/null; then
     echo -e "${YELLOW}Installing gobuster.${NC}"
     apt install -y gobuster
-    echo
-fi
-
-if ! command -v havoc &> /dev/null; then
-    echo -e "${YELLOW}Installing Havoc.${NC}"
-    apt install -y havoc
     echo
 fi
 
