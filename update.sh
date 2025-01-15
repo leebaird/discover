@@ -11,28 +11,13 @@ if [ $EUID -ne 0 ]; then
 fi
 
 # Global variables
-YELLOW='\033[1;33m'
 BLUE='\033[1;34m'
+YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # -----------------------------------------------------------------------------------------------
 
 # Clean up deprecated repos
-if [ -d /opt/C2-stuff/ ]; then
-    rm -rf /opt/C2-stuff/
-fi
-
-if [ -d /opt/cobaltstrike/third-party/outflanknl-helpcolor/ ]; then
-    rm -rf /opt/cobaltstrike/third-party/outflanknl-helpcolor/
-fi
-
-if [ -d /opt/DNSRecon/ ]; then
-    rm -rf /opt/DNSRecon/
-fi
-
-if [ -d /opt/DNSRecon-venv/ ]; then
-    rm -rf /opt/DNSRecon-venv/
-fi
 
 # -----------------------------------------------------------------------------------------------
 
