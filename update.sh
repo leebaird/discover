@@ -434,6 +434,12 @@ if ! command -v xwatchwin &> /dev/null; then
     rm xwatchwin.tar.gz
     mv xwatchwin/ /opt/
     cd /opt/xwatchwin/
+
+    # Patch source code
+    sed -i 's/_BSD_SOURCE/_DEFAULT_SOURCE/g' /opt/xwatchwin/xwatchwin.c
+    sed -i 's/_SVID_SOURCE/_DEFAULT_SOURCE/g' /opt/xwatchwin/xwatchwin.c
+    sed -i 's/^WinNamesEqual(/int WinNamesEqual(/g' /opt/xwatchwin/xwatchwin.c
+
     xmkmf && make && make install
     echo
 fi
