@@ -37,7 +37,7 @@ sleep 2
 URIPATH="https://www.advancedbackgroundchecks.com/search/results.aspx?type=&fn=${FIRST}&mi=&ln=${LAST}&age=&city=&state="
 xdg-open "$URIPATH" &
 sleep 2
-xdg-open https://www.familytreenow.com/search/genealogy/results?first="$FIRST"&last="$LAST" &
+xdg-open "https://www.familytreenow.com/search/genealogy/results?first=$FIRST&last=$LAST" &
 sleep 2
 xdg-open https://www.peekyou.com/"$FIRST"%5f"$LAST" &
 sleep 2
