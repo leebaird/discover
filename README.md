@@ -55,6 +55,8 @@ RECON
 3.  Previous menu
 ```
 
+Note: Passive cannot be ran as root.
+
 Uses ARIN, DNSRecon, dnstwist, subfinder, sublist3r,
 theHarvester, Metasploit, Whois, and multiple websites.
 

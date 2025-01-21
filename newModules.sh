@@ -50,15 +50,6 @@ sed -e 's:.*/\(.*\):\1:g' tmp > tmp-msf-used
 
 grep -v -f tmp-msf-used tmp-msf-all >> tmp-updates
 
-echo >> tmp-updates
-echo "theHarvester" >> tmp-updates
-echo "==============================" >> tmp-updates
-
-theHarvester -h > tmp
-cat tmp | sed -n '/anubis/,$p' | sed 's/^[ \t]*//' | tr ' ,' '\n' | sed '/^$/d' > tmp2
-grep 'theHarvester' /opt/discover/passive.sh | grep -v '"' | awk '{print $5}' > tmp3
-diff tmp2 tmp3 | grep '<' | awk '{print $2}' >> tmp-updates
-
 echo
 echo "$MEDIUM"
 echo
