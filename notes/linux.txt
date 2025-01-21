@@ -550,7 +550,8 @@ passwd <user>                                   Change another user's password
 su                                              Switch to another user
 
 - New user setup
-useradd -m lee                                  Add new user, create home directory and set default shell
+useradd -m lee                                  Add new user, create home directory, and set default shell
+useradd -m -s /usr/bin/zsh lee                  Add new user, create home directory, and set a different shell
 passwd lee                                      Set a password
 usermod -aG sudo lee                            Add new user to the sudo group.
 su - lee                                        Switch to new user
