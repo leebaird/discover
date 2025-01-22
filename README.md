@@ -14,9 +14,9 @@ enumeration, and malicious payload creation using Metasploit. For use with Kali 
 * Open a Terminal as a regular user.
 * git clone https://github.com/leebaird/discover /opt/discover/
 * Discover should be ran as from this location.
-* Some options require Discover to be ran as root (i.e., Update and all SCANNING).
+* Some options require Discover to be ran as root (i.e., all SCANNING options).
 * cd /opt/discover/
-* sudo ./discover.sh
+* ./discover.sh
 * Select option 15 to update Kali Linux, Discover scripts, various tools, and the locate database before using the framework.
 
 

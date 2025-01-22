@@ -2,14 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-# Check for root
-if [ $EUID -ne 0 ]; then
-    echo
-    echo "[!] This script must be ran as root."
-    echo
-    exit 1
-fi
-
 # Global variables
 BLUE='\033[1;34m'
 YELLOW='\033[1;33m'
@@ -23,24 +15,24 @@ NC='\033[0m'
 
 echo
 echo -e "${BLUE}Updating operating system.${NC}"
-apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
+sudo apt update ; sudo apt -y upgrade ; sudo apt -y dist-upgrade ; sudo apt -y autoremove ; sudo apt -y autoclean ; sudo updatedb
 echo
 
 if ! command -v ansible &> /dev/null; then
     echo -e "${YELLOW}Installing Ansible.${NC}"
-    apt install -y ansible-core
+    sudo apt install -y ansible-core
     echo
 fi
 
 if ! command -v aws &> /dev/null; then
     echo -e "${YELLOW}Installing AWS.${NC}"
-    apt install -y awscli
+    sudo apt install -y awscli
     echo
 fi
 
 if ! command -v go &> /dev/null; then
     echo -e "${YELLOW}Installing Go.${NC}"
-    apt install -y golang-go
+    sudo apt install -y golang-go
     echo "" >> ~/.zshrc
     echo "export GOPATH=/opt/go" >> ~/.zshrc
     echo "export GOROOT=/usr/lib/go" >> ~/.zshrc
@@ -52,13 +44,13 @@ fi
 
 if ! command -v raven &> /dev/null; then
     echo -e "${YELLOW}Installing Raven.${NC}"
-    apt install -y raven
+    sudo apt install -y raven
     echo
 fi
 
 if ! command -v sublist3r &> /dev/null; then
     echo -e "${YELLOW}Installing Sublist3r.${NC}"
-    apt install -y sublist3r
+    sudo apt install -y sublist3r
     echo
 fi
 
@@ -66,51 +58,51 @@ fi
 
 if [ -d /opt/BOFs/anthemtotheego-inlineExecute-assembly/.git ]; then
     echo -e "${BLUE}Updating anthemtotheego InlineExecute Assembly BOF.${NC}"
-    cd /opt/BOFs/anthemtotheego-inlineExecute-assembly/ ; git pull
+    cd /opt/BOFs/anthemtotheego-inlineExecute-assembly/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing anthemtotheego InlineExecute Assembly BOF.${NC}"
-    git clone https://github.com/anthemtotheego/InlineExecute-Assembly /opt/BOFs/anthemtotheego-inlineExecute-assembly
+    sudo git clone https://github.com/anthemtotheego/InlineExecute-Assembly /opt/BOFs/anthemtotheego-inlineExecute-assembly
     echo
 fi
 
 if [ -d /opt/BOFs/outflanknl-c2-tool-collection/.git ]; then
     echo -e "${BLUE}Updating Outflanknl C2 Tool Collection BOF.${NC}"
-    cd /opt/BOFs/outflanknl-c2-tool-collection/ ; git pull
+    cd /opt/BOFs/outflanknl-c2-tool-collection/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing Outflanknl C2 Tool Collection BOF.${NC}"
-    git clone https://github.com/outflanknl/C2-Tool-Collection /opt/BOFs/outflanknl-c2-tool-collection
+    sudo git clone https://github.com/outflanknl/C2-Tool-Collection /opt/BOFs/outflanknl-c2-tool-collection
     echo
 fi
 
 if [ -d /opt/BOFs/outflanknl-helpcolor/.git ]; then
     echo -e "${BLUE}Updating Outflanknl HelpColor BOF.${NC}"
-    cd /opt/BOFs/outflanknl-helpcolor/ ; git pull
+    cd /opt/BOFs/outflanknl-helpcolor/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing Outflanknl HelpColor BOF.${NC}"
-    git clone https://github.com/outflanknl/HelpColor /opt/BOFs/outflanknl-helpcolor
+    sudo git clone https://github.com/outflanknl/HelpColor /opt/BOFs/outflanknl-helpcolor
     echo
 fi
 
 if [ -d /opt/BOFs/trustedsec-remote-ops/.git ]; then
     echo -e "${BLUE}Updating TrustedSec Remote OPs BOF.${NC}"
-    cd /opt/BOFs/trustedsec-remote-ops/ ; git pull
+    cd /opt/BOFs/trustedsec-remote-ops/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing TrustedSec Remote OPs BOF.${NC}"
-    git clone https://github.com/trustedsec/CS-Remote-OPs-BOF /opt/BOFs/trustedsec-remote-ops
+    sudo git clone https://github.com/trustedsec/CS-Remote-OPs-BOF /opt/BOFs/trustedsec-remote-ops
     echo
 fi
 
 if [ -d /opt/BOFs/trustedsec-sa/.git ]; then
     echo -e "${BLUE}Updating TrustedSec Situational Awareness BOF.${NC}"
-    cd /opt/BOFs/trustedsec-sa/ ; git pull
+    cd /opt/BOFs/trustedsec-sa/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing TrustedSec Situational Awareness BOF.${NC}"
-    git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/BOFs/trustedsec-sa
+    sudo git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/BOFs/trustedsec-sa
     echo
 fi
 
@@ -181,270 +173,255 @@ fi
 
 if ! command -v dnstwist &> /dev/null; then
     echo -e "${YELLOW}Installing dnstwist.${NC}"
-    apt install -y dnstwist
+    sudo apt install -y dnstwist
     echo
 fi
 
 if [ -d /opt/Domain-Hunter/.git ]; then
     echo -e "${BLUE}Updating Domain Hunter.${NC}"
-    cd /opt/Domain-Hunter/ ; git pull
+    cd /opt/Domain-Hunter/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing Domain Hunter.${NC}"
-    git clone https://github.com/threatexpress/domainhunter /opt/Domain-Hunter
+    sudo git clone https://github.com/threatexpress/domainhunter /opt/Domain-Hunter
     echo
-    echo -e "${YELLOW}Setting up Domain Hunter virtualenv.${NC}"
-    virtualenv -p /usr/bin/python3 /opt/Domain-Hunter-venv
-    source /opt/Domain-Hunter-venv/bin/activate
-    cd /opt/Domain-Hunter/
-    pip3 install pytesseract
-#    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org pytesseract
-    chmod 755 domainhunter.py
-    deactivate
+    echo -e "${YELLOW}Setting up Domain Hunter virtual environment.${NC}"
+    sudo python3 -m venv /opt/Domain-Hunter-venv
+    sudo /opt/Domain-Hunter-venv/bin/python -m pip install pytesseract
+#    sudo /opt/Domain-Hunter-venv/bin/pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pytesseract
+    sudo chmod 755 /opt/Domain-Hunter/domainhunter.py
     echo
 fi
 
 if [ -d /opt/DomainPasswordSpray/.git ]; then
     echo -e "${BLUE}Updating DomainPasswordSpray.${NC}"
-    cd /opt/DomainPasswordSpray/ ; git pull
+    cd /opt/DomainPasswordSpray/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing DomainPasswordSpray.${NC}"
-    git clone https://github.com/dafthack/DomainPasswordSpray /opt/DomainPasswordSpray
+    sudo git clone https://github.com/dafthack/DomainPasswordSpray /opt/DomainPasswordSpray
     echo
 fi
 
 if [ -d /opt/Egress-Assess/.git -a -d /opt/Egress-Assess-venv ]; then
     echo -e "${BLUE}Updating Egress-Assess.${NC}"
-    cd /opt/Egress-Assess/ ; git pull
+    cd /opt/Egress-Assess/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing Egress-Assess.${NC}"
-    git clone https://github.com/RedSiege/Egress-Assess /opt/Egress-Assess
+    sudo git clone https://github.com/RedSiege/Egress-Assess /opt/Egress-Assess
     echo
     echo -e "${YELLOW}Setting up Egress-Assess virtualenv.${NC}"
-    virtualenv -p /usr/bin/python3 /opt/Egress-Assess-venv
-    source /opt/Egress-Assess-venv/bin/activate
-    cd /opt/Egress-Assess
-    pip3 install -r requirements.txt
+    sudo python3 -m venv /opt/Egress-Assess-venv
+    sudo /opt/Egress-Assess-venv/bin/python -m pip install -r /opt/Egress-Assess/requirements.txt
     # If you are in a corp env that is doing MITM with SSL, use the following line instead. Do the same for all Python repos.
 #    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
-    deactivate
     echo
 fi
 
 if [ -d /opt/egressbuster/.git ]; then
     echo -e "${BLUE}Updating egressbuster.${NC}"
-    cd /opt/egressbuster/ ; git pull
+    cd /opt/egressbuster/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing egressbuster.${NC}"
-    git clone https://github.com/trustedsec/egressbuster /opt/egressbuster
+    sudo git clone https://github.com/trustedsec/egressbuster /opt/egressbuster
     echo
 fi
 
 if ! command -v feroxbuster &> /dev/null; then
     echo -e "${YELLOW}Installing feroxbuster.${NC}"
-    apt install -y feroxbuster
+    sudo apt install -y feroxbuster
     echo
 fi
 
 if ! command -v gobuster &> /dev/null; then
     echo -e "${YELLOW}Installing gobuster.${NC}"
-    apt install -y gobuster
+    sudo apt install -y gobuster
     echo
 fi
 
 if [ -d /opt/krbrelayx/.git ]; then
     echo -e "${BLUE}Updating krbrelayx.${NC}"
-    cd /opt/krbrelayx/ ; git pull
+    cd /opt/krbrelayx/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing krbrelayx.${NC}"
-    git clone https://github.com/dirkjanm/krbrelayx /opt/krbrelayx
+    sudo git clone https://github.com/dirkjanm/krbrelayx /opt/krbrelayx
     echo
 fi
 
 if [ -d /opt/manspider/.git ]; then
     echo -e "${BLUE}Updating MAN-SPIDER.${NC}"
-    cd /opt/manspider/ ; git pull
+    cd /opt/manspider/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing MAN-SPIDER.${NC}"
-    git clone https://github.com/blacklanternsecurity/MANSPIDER /opt/manspider
-    apt install -y antiword tesseract-ocr
+    sudo git clone https://github.com/blacklanternsecurity/MANSPIDER /opt/manspider
+    sudo apt install -y antiword tesseract-ocr
     echo
 fi
 
 if ! command -v nishang &> /dev/null; then
     echo -e "${YELLOW}Installing nishang.${NC}"
-    apt install -y nishang
+    sudo apt install -y nishang
     echo
 fi
 
 echo -e "${BLUE}Updating Nmap scripts.${NC}"
-nmap --script-updatedb | grep -Eiv '(starting|seconds)' | sed 's/NSE: //'
+sudo nmap --script-updatedb | grep -Eiv '(starting|seconds)' | sed 's/NSE: //'
 echo
 
 if [ -d /opt/PEASS-ng/.git ]; then
     echo -e "${BLUE}Updating PEASS-ng.${NC}"
-    cd /opt/PEASS-ng/ ; git pull
+    cd /opt/PEASS-ng/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing PEASS-ng.${NC}"
-    git clone https://github.com/carlospolop/PEASS-ng /opt/PEASS-ng
+    sudo git clone https://github.com/carlospolop/PEASS-ng /opt/PEASS-ng
     echo
 fi
 
 if [ -d /opt/PowerSharpPack/.git ]; then
     echo -e "${BLUE}Updating PowerSharpPack.${NC}"
-    cd /opt/PowerSharpPack/ ; git pull
+    cd /opt/PowerSharpPack/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing PowerSharpPack.${NC}"
-    git clone https://github.com/S3cur3Th1sSh1t/PowerSharpPack /opt/PowerSharpPack
+    sudo git clone https://github.com/S3cur3Th1sSh1t/PowerSharpPack /opt/PowerSharpPack
     echo
 fi
 
 if [ -d /opt/PowerSploit/.git ]; then
     echo -e "${BLUE}Updating PowerSploit.${NC}"
-    cd /opt/PowerSploit/ ; git pull
+    cd /opt/PowerSploit/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing PowerSploit.${NC}"
-    git clone https://github.com/0xe7/PowerSploit /opt/PowerSploit
+    sudo git clone https://github.com/0xe7/PowerSploit /opt/PowerSploit
     echo
 fi
 
 if [ -d /opt/PowerUpSQL/.git ]; then
     echo -e "${BLUE}Updating PowerUpSQL.${NC}"
-    cd /opt/PowerUpSQL/ ; git pull
+    cd /opt/PowerUpSQL/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing PowerUpSQL.${NC}"
-    git clone https://github.com/NetSPI/PowerUpSQL /opt/PowerUpSQL
+    sudo git clone https://github.com/NetSPI/PowerUpSQL /opt/PowerUpSQL
     echo
 fi
 
 if [ -d /opt/PrivescCheck/.git ]; then
     echo -e "${BLUE}Updating PrivescCheck.${NC}"
-    cd /opt/PrivescCheck/ ; git pull
+    cd /opt/PrivescCheck/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing PrivescCheck.${NC}"
-    git clone https://github.com/itm4n/PrivescCheck /opt/PrivescCheck
+    sudo git clone https://github.com/itm4n/PrivescCheck /opt/PrivescCheck
     echo
 fi
 
 if [ -f /usr/share/wordlists/rockyou.txt.gz ]; then
     echo -e "${YELLOW}Expanding Rockyou list.${NC}"
-    zcat /usr/share/wordlists/rockyou.txt.gz > /usr/share/wordlists/rockyou.txt
+    sudo zcat /usr/share/wordlists/rockyou.txt.gz > /usr/share/wordlists/rockyou.txt
     rm /usr/share/wordlists/rockyou.txt.gz
     echo
 fi
 
 if ! command -v rustc &> /dev/null; then
     echo -e "${YELLOW}Installing Rust.${NC}"
-    apt install -y rustc
+    sudo apt install -y rustc
     echo
 fi
 
 if [ -d /opt/SharpCollection/.git ]; then
     echo -e "${BLUE}Updating SharpCollection.${NC}"
-    cd /opt/SharpCollection/ ; git pull
+    cd /opt/SharpCollection/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing SharpCollection.${NC}"
-    git clone https://github.com/Flangvik/SharpCollection /opt/SharpCollection
+    sudo git clone https://github.com/Flangvik/SharpCollection /opt/SharpCollection
     echo
 fi
 
 if [ -d /opt/subfinder/.git ]; then
     echo -e "${BLUE}Updating subfinder.${NC}"
-    cd /opt/subfinder/ ; git pull
+    cd /opt/subfinder/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing subfinder.${NC}"
-    git clone https://github.com/projectdiscovery/subfinder /opt/subfinder
+    sudo git clone https://github.com/projectdiscovery/subfinder /opt/subfinder
     cd /opt/subfinder/v2/cmd/subfinder
-    go build
+    sudo go build
     echo
-fi
-
-if [ $(lsb_release -si) == "Parrot" -a ! -d /usr/share/doc/python3-ujson ]; then
-    echo -e "${YELLOW}Installing theHarvester Deps For Parrot.${NC}"
-    apt install -yqq python3-ujson
 fi
 
 if [ -d /opt/theHarvester/.git -a -d /opt/theHarvester-venv ]; then
     echo -e "${BLUE}Updating theHarvester.${NC}"
-    cd /opt/theHarvester/ ; git pull
-    source /opt/theHarvester-venv/bin/activate
-    /opt/theHarvester-venv/bin/pip3 install -r requirements.txt --upgrade | grep -v 'already satisfied'
-#    /opt/theHarvester-venv/bin/pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
-    deactivate
+    cd /opt/theHarvester/ ; sudo git pull
+    sudo /opt/theHarvester-venv/bin/python -m pip install -r /opt/theHarvester/requirements.txt --upgrade | grep -v 'already satisfied'
+#    /opt/theHarvester-venv/bin/pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
     echo
 else
     echo -e "${YELLOW}Installing theHarvester.${NC}"
-    git clone https://github.com/laramies/theHarvester /opt/theHarvester
+    sudo git clone https://github.com/laramies/theHarvester /opt/theHarvester
     echo
     echo -e "${YELLOW}Setting up theHarvester virtualenv.${NC}"
-    virtualenv -p /usr/bin/python3 /opt/theHarvester-venv
-    source /opt/theHarvester-venv/bin/activate
-    cd /opt/theHarvester/
-    /opt/theHarvester-venv/bin/pip3 install -r requirements.txt
-#    /opt/theHarvester-venv/bin/pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
-    deactivate
+    sudo python3 -m venv /opt/theHarvester-venv
+    sudo /opt/theHarvester-venv/bin/python -m pip install -r /opt/theHarvester/requirements.txt
+#    /opt/theHarvester-venv/bin/pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
     echo
 fi
 
 if [ -d /opt/Windows-Exploit-Suggester-NG/.git ]; then
     echo -e "${BLUE}Updating Windows Exploit Suggester NG.${NC}"
-    cd /opt/Windows-Exploit-Suggester-NG/ ; git pull
+    cd /opt/Windows-Exploit-Suggester-NG/ ; sudo git pull
     echo
 else
     echo -e "${YELLOW}Installing Windows Exploit Suggester NG.${NC}"
-    git clone https://github.com/bitsadmin/wesng /opt/Windows-Exploit-Suggester-NG
+    sudo git clone https://github.com/bitsadmin/wesng /opt/Windows-Exploit-Suggester-NG
     echo
 fi
 
 if ! command -v xlsx2csv &> /dev/null; then
     echo -e "${YELLOW}Installing xlsx2csv.${NC}"
-    apt install -y xlsx2csv
+    sudo apt install -y xlsx2csv
     echo
 fi
 
 if ! command -v xml_grep &> /dev/null; then
     echo -e "${YELLOW}Installing xml_grep.${NC}"
-    apt install -y xml-twig-tools
+    sudo apt install -y xml-twig-tools
     echo
 fi
 
 if ! command -v xspy &> /dev/null; then
     echo -e "${YELLOW}Installing xspy.${NC}"
-    apt install -y xspy
+    sudo apt install -y xspy
     echo
 fi
 
-if ! command -v xwatchwin &> /dev/null; then
+if [ ! -f /opt/xwatchwin/xwatchwin ]; then
     echo -e "${YELLOW}Installing xwatchwin.${NC}"
-    apt install -y imagemagick libxext-dev xutils-dev
-    wget http://www.ibiblio.org/pub/X11/contrib/utilities/xwatchwin.tar.gz
-    tar zxvf xwatchwin.tar.gz
-    rm xwatchwin.tar.gz
-    mv xwatchwin/ /opt/
+    sudo apt install -y imagemagick libxext-dev xutils-dev
+    wget http://www.ibiblio.org/pub/X11/contrib/utilities/xwatchwin.tar.gz -O /tmp/xwatchwin.tar.gz
+    tar zxvf /tmp/xwatchwin.tar.gz -C /tmp/
+    rm /tmp/xwatchwin.tar.gz
+    sudo mv /tmp/xwatchwin/ /opt/
     cd /opt/xwatchwin/
 
     # Patch source code
-    sed -i 's/_BSD_SOURCE/_DEFAULT_SOURCE/g' /opt/xwatchwin/xwatchwin.c
-    sed -i 's/_SVID_SOURCE/_DEFAULT_SOURCE/g' /opt/xwatchwin/xwatchwin.c
-    sed -i 's/^WinNamesEqual(/int WinNamesEqual(/g' /opt/xwatchwin/xwatchwin.c
+    sudo sed -i 's/_BSD_SOURCE/_DEFAULT_SOURCE/g' /opt/xwatchwin/xwatchwin.c
+    sudo sed -i 's/_SVID_SOURCE/_DEFAULT_SOURCE/g' /opt/xwatchwin/xwatchwin.c
+    sudo sed -i 's/^WinNamesEqual(/int WinNamesEqual(/g' /opt/xwatchwin/xwatchwin.c
 
-    xmkmf && make && make install
+    sudo xmkmf && sudo make && sudo make install
+    sudo rm /usr/bin/xwatchwin
     echo
 fi
 
 echo -e "${BLUE}Updating locate database.${NC}"
-updatedb
+sudo updatedb
 
 exit
