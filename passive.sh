@@ -336,7 +336,6 @@ sed -i 's/below to performe/below can perform/g; s/ERROR: //g; s/FAIL: //g; s/I 
 
 # Cleanup temporary files
 rm tmp*
-echo
 
 ###############################################################################################################################
 
@@ -547,7 +546,10 @@ cat zreport >> "$HOME"/data/"$DOMAIN"/data/passive-recon.htm
 echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/passive-recon.htm
 
 rm tmp* zreport
-mv emails hosts names records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME"/data/"$DOMAIN"/tools/ 2>/dev/null
+
+# Ensure the destination directory exists then move files
+mkdir -p "$HOME/data/$DOMAIN/tools"
+mv emails hosts names records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
 cd "$CWD"
 
 echo
