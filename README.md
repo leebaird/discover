@@ -11,13 +11,12 @@ enumeration, and malicious payload creation using Metasploit. For use with Kali 
 * [![Twitter Follow](https://img.shields.io/twitter/follow/ninewires.svg?style=social&label=Follow)](https://twitter.com/ninewires) Jason Ashton @ninewires
 
 ### Download, setup, and usage
-* Open a Terminal as a regular user.
-* git clone https://github.com/leebaird/discover /opt/discover/
+* sudo git clone https://github.com/leebaird/discover /opt/discover/
 * Discover should be ran as from this location.
-* Some options require Discover to be ran as root (i.e., all SCANNING options).
 * cd /opt/discover/
 * ./discover.sh
-* Select option 15 to update Kali Linux, Discover scripts, various tools, and the locate database before using the framework.
+* Select option 15 to update the operating system and install various tools before using the framework.
+* Note: some options (15) will require credentials to be ran as root.
 
 
 ```
