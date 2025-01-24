@@ -2,14 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-# Check for root
-if [ $EUID -ne 0 ]; then
-    echo
-    echo "[!] This script must be ran as root."
-    echo
-    exit 1
-fi
-
 f_targets(){
     clear
     f_banner
@@ -37,7 +29,7 @@ f_arpscan(){
     echo
     echo "[*] Scanning"
 
-    arp-scan --localnet | grep -Eiv '(interface|arp-scan|packets)' > tmp
+    sudo arp-scan --localnet | grep -Eiv '(interface|arp-scan|packets)' > tmp
     sed '/^$/d' tmp | grep -v "$MYIP" | sort -t ' ' -k 1,1 -V > "$HOME"/data/arp-scan.txt
     awk '{print $1}' tmp | grep -v "$MYIP" | $SIP | sed '/^$/d' > "$HOME"/data/arp-scan-targets.txt
     rm tmp
@@ -74,17 +66,22 @@ f_pingsweep(){
             ;;
         2)
             echo
-            echo -n "Enter a CIDR or range: "
-            read -r MANUAL
+            echo -n "Enter a CIDR: "
+            read -r CIDR
 
             # Check for no answer
-            if [ -z "$MANUAL" ]; then
+            if [ -z "$CIDR" ]; then
+                f_error
+            fi
+
+            # Check for a valid CIDR
+            if [[ ! "$CIDR" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]+$ ]]; then
                 f_error
             fi
 
             echo
             echo "[*] Scanning"
-            nmap -sn -PS -PE --stats-every 10s "$MANUAL" > tmp
+            nmap -sn -PS -PE --stats-every 10s "$CIDR" > tmp
             ;;
         *)
             echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/generateTargets.sh ;;
