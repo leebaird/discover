@@ -93,17 +93,6 @@ export -f f_banner
 
 ###############################################################################################################################
 
-f_check4root(){
-    if [ $EUID -ne 0 ]; then
-        echo
-        echo "[!] This script must be ran as root."
-        echo
-        exit 1
-    fi
-}
-
-###############################################################################################################################
-
 f_error(){
     echo
     echo -e "${RED}$SMALL${NC}"
@@ -210,7 +199,6 @@ f_typeofscan(){
 ###############################################################################################################################
 
 f_cidr(){
-    f_check4root
     clear
     f_banner
     f_scanname
@@ -228,11 +216,7 @@ f_cidr(){
     fi
 
     # Check for a valid CIDR
-    SUB=$(echo "$CIDR" | cut -d '/' -f2)
-    MIN=8
-    MAX=32
-
-    if ! [[ "$SUB" =~ ^[0-9]+$ ]] || [[ "$SUB" -lt "$MIN" || "$SUB" -gt "$MAX" ]]; then
+    if [[ ! "$CIDR" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]+$ ]]; then
         f_error
     fi
 
@@ -272,7 +256,6 @@ f_cidr(){
 ###############################################################################################################################
 
 f_list(){
-    f_check4root
     clear
     f_banner
     f_scanname
@@ -294,7 +277,6 @@ f_list(){
 ###############################################################################################################################
 
 f_single(){
-    f_check4root
     clear
     f_banner
     f_scanname
@@ -377,7 +359,7 @@ f_scan(){
     echo "$MEDIUM"
     echo
 
-    nmap --randomize-hosts -iL "$LOCATION" --excludefile "$EXCLUDEFILE" --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -"$S" -"$U" -p T:"$TCP",U:"$UDP" -O --osscan-guess --max-os-tries 1 --max-retries 2 --min-rtt-timeout 100ms --max-rtt-timeout "$MAXRTT" --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 30s --scan-delay "$DELAY" -oA "$NAME"/nmap
+    sudo nmap --randomize-hosts -iL "$LOCATION" --excludefile "$EXCLUDEFILE" --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -"$S" -"$U" -p T:"$TCP",U:"$UDP" -O --osscan-guess --max-os-tries 1 --max-retries 2 --min-rtt-timeout 100ms --max-rtt-timeout "$MAXRTT" --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 30s --scan-delay "$DELAY" -oA "$NAME"/nmap
 
     if grep -q '(0 hosts up)' "$NAME"/nmap.nmap; then
         rm -rf "$NAME" tmp*
@@ -501,7 +483,6 @@ f_run-metasploit(){
 ###############################################################################################################################
 
 f_enumerate(){
-    f_check4root
     clear
     f_banner
     f_typeofscan
@@ -540,11 +521,6 @@ f_enumerate(){
     echo
     echo "$MEDIUM"
     f_run-metasploit
-
-    echo
-    echo -e "${BLUE}Stopping Postgres.${NC}"
-    service postgresql stop
-
     echo
     echo "$MEDIUM"
     echo

@@ -18,7 +18,7 @@ alias k='cd /home/kali/'
 alias kd='cd /home/kali/Desktop/'
 alias l='ls -lh'
 alias la='ls -lah'
-alias m='service postgresql start ; msfdb init ; msfconsole'
+alias m='sudo service postgresql start ; sudo msfdb init ; msfconsole'
 alias n='echo; date ; echo ;
 echo -n "External IP:  "$EXTIP ; echo ;
 echo -n "Internal IP:  "$MYIP ; echo ;

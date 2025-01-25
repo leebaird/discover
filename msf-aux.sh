@@ -6,7 +6,7 @@ echo
 echo "$MEDIUM"
 echo
 echo -e "${BLUE}Starting Postgres.${NC}"
-service postgresql start
+sudo service postgresql start
 
 echo
 echo -e "${BLUE}Starting Metasploit.${NC}"
@@ -507,9 +507,13 @@ if [ "$X" -eq 3 ]; then
 else
     echo
     sed 's/\/\//\//g' /tmp/master > "$NAME"/master.rc
-    msfdb init
+    sudo msfdb init
     msfconsole -r "$NAME"/master.rc
     cat tmpmsf | sed 's/Host is running Windows //g' | sed 's/\.\.\.//g' | grep -Eiv "(> exit|> run|% complete|1.0 error|appears to be safe|attempting authentication bypass|attempting to extract|authorization not requested|boot.ini not found|checking if file|completed|connecting to the server|connection reset by peer|data_connect failed|database|db_export|did not reply|does not appear|doesn't exist|erb directives|error occurred|failed to login|finished export|handshake failed|ineffective|invalid login|invalid sql|it doesn't seem|login failed|metasploit tip|negotiation failed|nomethoderror|no relay detected|no response|No users found|not allowed to connect|not be identified|not exploitable|not foundnot vulnerable|oracle - checking|oracle - refused|providing some time|request timeout|reset by peer|responded with error|rhosts|rport|scanning for vulnerable|shutting down the tftp|spool|starting export|starting tftp server|starting vnc login|threads|timed out|trying to acquire|unable to login|unknown state)" > "$NAME"/metasploit.txt
     rm "$NAME"/master.rc
     rm tmpmsf
 fi
+
+echo
+echo -e "${BLUE}Stopping Postgres.${NC}"
+sudo service postgresql stop
