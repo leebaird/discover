@@ -55,6 +55,19 @@ sed -e 's:.*/\(.*\):\1:g' tmp > tmp-msf-used
 
 grep -v -f tmp-msf-used tmp-msf-all >> tmp-updates
 
+###############################################################################################################################
+
+echo
+echo -e "${BLUE}theHarvester modules${NC}"
+echo -e "${BLUE}==============================${NC}"
+
+# All modules
+ls -l /opt/theHarvester/theHarvester/discovery | awk '{print $9}' | cut -d '.' -f1 | grep -v '_' | sed '/^$/d' > tmp
+# Modules in use
+grep theHarvester.py /opt/discover/passive.sh | awk '{print $5}' > tmp2
+# Modules needed
+diff tmp tmp2
+
 cat tmp-updates
 
 # Clean up temporary files

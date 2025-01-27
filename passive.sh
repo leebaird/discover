@@ -98,7 +98,7 @@ echo
 ###############################################################################################################################
 
 # Number of tests
-TOTAL=41
+TOTAL=40
 
 echo "ARIN"
 echo "    Email                (1/$TOTAL)"
@@ -207,45 +207,43 @@ echo "    criminalip           (16/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b criminalip | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcriminalip
 echo "    crtsh                (17/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b crtsh | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcrtsh
-echo "    dnsdumpster          (18/$TOTAL)"
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b dnsdumpster | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zdnsdumpster
-echo "    duckduckgo           (19/$TOTAL)"
+echo "    duckduckgo           (18/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b duckduckgo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zduckduckgo
-echo "    fullhunt             (20/$TOTAL)"
+echo "    fullhunt             (19/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b fullhunt | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zfullhunt
-echo "    github-code          (21/$TOTAL)"
+echo "    github-code          (20/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b github-code | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zgithub-code
-echo "    hackertarget         (22/$TOTAL)"
+echo "    hackertarget         (21/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b hackertarget | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhackertarget
-echo "    hunter               (23/$TOTAL)"
+echo "    hunter               (22/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b hunter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunter
-echo "    hunterhow            (24/$TOTAL)"
+echo "    hunterhow            (23/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b hunterhow | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunterhow
-echo "    intelx               (25/$TOTAL)"
+echo "    intelx               (24/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b intelx | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zintelx
-echo "    netlas               (26/$TOTAL)"
+echo "    netlas               (25/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b netlas | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > znetlas
-echo "    otx                  (27/$TOTAL)"
+echo "    otx                  (26/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b otx | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zotx
-echo "    pentesttools         (28/$TOTAL)"
+echo "    pentesttools         (27/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b pentesttools | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zpentesttools
-echo "    projectdiscovery     (29/$TOTAL)"
+echo "    projectdiscovery     (28/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b projectdiscovery | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zprojectdiscovery
-echo "    rapiddns             (30/$TOTAL)"
+echo "    rapiddns             (29/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b rapiddns | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zrapiddns
-echo "    securityTrails       (31/$TOTAL)"
+echo "    securityTrails       (30/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b securityTrails | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsecuritytrails
-echo "    sitedossier          (32/$TOTAL)"
+echo "    sitedossier          (31/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b securityTrails | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsitedossier
-echo "    subdomaincenter      (33/$TOTAL)"
+echo "    subdomaincenter      (32/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b subdomaincenter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsubdomaincenter
-echo "    subdomainfinderc99   (34/$TOTAL)"
+echo "    subdomainfinderc99   (33/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b subdomainfinderc99 | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsubdomainfinderc99
-echo "    threatminer          (35/$TOTAL)"
+echo "    threatminer          (34/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b threatminer | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zthreatminer
-echo "    urlscan              (36/$TOTAL)"
+echo "    urlscan              (35/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b urlscan | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zurlscan
-echo "    yahoo                (37/$TOTAL)"
+echo "    yahoo                (36/$TOTAL)"
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b yahoo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zyahoo
 deactivate
 
@@ -255,7 +253,7 @@ echo
 
 ###############################################################################################################################
 
-echo "Metasploit               (38/$TOTAL)"
+echo "Metasploit               (37/$TOTAL)"
 msfconsole -q -x "use auxiliary/gather/search_email_collector; set DOMAIN $DOMAIN; run; exit y" > tmp 2>/dev/null
 grep @"$DOMAIN" tmp | awk '{print $2}' | tr 'A-Z' 'a-z' | sort -u > zmsf
 echo
@@ -263,7 +261,7 @@ echo
 ###############################################################################################################################
 
 echo "Whois"
-echo "    Domain               (39/$TOTAL)"
+echo "    Domain               (38/$TOTAL)"
 whois -H "$DOMAIN" > tmp 2>/dev/null
 sed 's/^[ \t]*//' tmp > tmp2
 grep -Eiv '(#|%|<a|=-=-=-=|;|access may|accuracy|additionally|affiliates|afilias except|and dns hosting|and limitations|any use of|at www.|be sure|at the end|by submitting|by the terms|can easily|circumstances|clientdeleteprohibited|clienttransferprohibited|clientupdateprohibited|com laude|commercial purposes|company may|compilation|complaint will|contact information|contact us|contacting|copy and paste|currently set|database|data contained|data presented|database|date of|details|dissemination|domaininfo ab|domain management|domain names in|domain status: ok|electronic processes|enable high|entirety|except as|existing|ext:|failure|facsimile|following terms|for commercial|for detailed|for information|for more|for the|get noticed|get a free|guarantee its|href|If you|in europe|in most|in obtaining|in the address|includes|including|information is|informational purposes|intellectual|is not|is providing|its systems|learn|legitimate|makes this|markmonitor|minimum|mining this|minute and|modify|must be sent|name cannot|namesbeyond|not to use|note:|notice|obtaining information about|of moniker|of this data|or hiding any|or otherwise support|other use of|please|policy|prior written|privacy is|problem reporting|professional and|prohibited without|promote your|protect the|protecting|public interest|queried|queries|receive|receiving|redacted for|register your|registrars|registration record|relevant|repackaging|request|reserves all rights|reserves the|responsible for|restricted to network|restrictions|see business|server at|solicitations|sponsorship|status|support questions|support the transmission|supporting|telephone, or facsimile|temporary|that apply to|that you will|the right|the data is|The fact that|the transmission|this listing|this feature|this information|this service is|to collect or|to entities|to report any|to suppress|to the systems|transmission of|trusted partner|united states|unlimited|unsolicited advertising|users may|version 6|via e-mail|visible|visit aboutus.org|visit|web-based|when you|while believed|will use this|with many different|with no guarantee|we reserve|whitelist|whois|you agree|You may not)' tmp2 > tmp3
@@ -294,7 +292,7 @@ sed 's/: /:#####/g' tmp13 | column -s '#' -t > whois-domain
 
 ###############################################################################################################################
 
-echo "    IP                   (40/$TOTAL)"
+echo "    IP                   (39/$TOTAL)"
 DOMAINIP=$(ping -c1 "$DOMAIN" | grep PING | cut -d '(' -f2 | cut -d ')' -f1)
 whois "$DOMAINIP" > tmp
 # Remove blank lines from the beginning of a file
@@ -312,7 +310,7 @@ echo
 
 ###############################################################################################################################
 
-echo "intodns.com              (41/$TOTAL)"
+echo "intodns.com              (40/$TOTAL)"
 wget -q http://www.intodns.com/"$DOMAIN" -O tmp
 cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
 cat tmp2 >> "$HOME"/data/"$DOMAIN"/pages/config.htm
