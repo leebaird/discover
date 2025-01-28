@@ -42,6 +42,12 @@ if ! command -v go &> /dev/null; then
     echo
 fi
 
+if ! command -v jq &> /dev/null; then
+    echo -e "${YELLOW}Installing jq.${NC}"
+    apt install -y jq
+    echo
+fi
+
 if ! command -v raven &> /dev/null; then
     echo -e "${YELLOW}Installing Raven.${NC}"
     apt install -y raven
