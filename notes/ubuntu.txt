@@ -1,19 +1,22 @@
 Ubuntu
 
-Right-click on the Desktop > Open Terminal
-
 - Patch OS
-sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean; sudo updatedb  - Install tools
+Right-click on the Desktop > Open Terminal
+sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean; sudo updatedb  
+
+- Install tools
 sudo apt install -y curl gedit git jq net-tools nmap open-vm-tools-desktop plocate postgresql-client python3-pip redis-tools terminator whois xdotool
 
 Patch OS again.
 
 - Ignore case for tab completion
-echo set completion-ignore-case on | sudo tee -a /etc/inputrc Close Terminal.
+echo set completion-ignore-case on | sudo tee -a /etc/inputrc
+ Close Terminal.
+
  - Clean up
-Right-click on the Desktop > Open Termitator
-cd ..
+Open Termitator
 rm -rf documents/ music/ pictures/ public/ templates/ videos/
 
 - Settings
-Appearance: Dark Power: Screen Blank: Never
+Appearance: Dark Power:
+Screen Blank: Never
