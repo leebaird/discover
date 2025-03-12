@@ -2,21 +2,24 @@ Ubuntu
 
 - Patch OS
 Right-click on the Desktop > Open Terminal
-sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean; sudo updatedb  
+sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean
 
 - Install tools
-sudo apt install -y curl gedit git jq net-tools nmap open-vm-tools-desktop plocate postgresql-client python3-pip redis-tools terminator whois xdotool
+sudo apt install -y curl gedit git jq mousepad net-tools nmap open-vm-tools-desktop plocate postgresql-client python3-pip redis-tools terminator whois xdotool
 
-Patch OS again.
+Patch OS again and update locate database
+sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean; sudo updatedb 
 
 - Ignore case for tab completion
 echo set completion-ignore-case on | sudo tee -a /etc/inputrc
- Close Terminal.
 
- - Clean up
+Close Terminal.
+
+- Clean up
 Open Termitator
 rm -rf documents/ music/ pictures/ public/ templates/ videos/
 
 - Settings
-Appearance: Dark Power:
+Appearance: Dark
+Power:
 Screen Blank: Never
