@@ -29,6 +29,7 @@ echo ; netstat -antp; echo ;
 ping -c3 8.8.8.8'
 alias r='cd $HOME ; clear'
 alias s='cd /opt/discover/ ; clear'
+alias smb='impacket-smbserver share . -smb2support'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 alias ssh='ssh -o "XAuthLocation=/opt/X11/bin/xauth"'
 alias update='sudo /opt/discover/update.sh'
