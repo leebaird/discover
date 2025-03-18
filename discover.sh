@@ -38,7 +38,11 @@ f_terminate(){
     echo -e "${YELLOW}Saving data to $SAVE_DIR.${NC}"
 
     cd "$DISCOVER"/
-    mv "$NAME" "$SAVE_DIR" 2>/dev/null
+
+    if [ -d "$NAME" ]; then
+        mv "$NAME" "$SAVE_DIR"
+    fi
+
     mv tmp* "$SAVE_DIR" 2>/dev/null
 
     echo

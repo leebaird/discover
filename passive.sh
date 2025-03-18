@@ -98,11 +98,12 @@ echo
 ###############################################################################################################################
 
 # Number of tests
+COUNT=1
 TOTAL=40
 
 echo "ARIN"
-echo "    Email                (1/$TOTAL)"
-
+echo "    Email                ($COUNT/$TOTAL)"
+((COUNT++))
 # Fetch ARIN data
 if ! curl -ks "https://whois.arin.net/rest/pocs;domain=$DOMAIN" -o tmp.xml; then
     echo
@@ -131,7 +132,8 @@ rm tmp* zurls.txt 2>/dev/null
 
 ###############################################################################################################################
 
-echo "    Names                (2/$TOTAL)"
+echo "    Names                ($COUNT/$TOTAL)"
+((COUNT++))
 if [ -f zhandles.txt ]; then
     while read -r LINE; do
         curl -ks "https://whois.arin.net/rest/poc/$LINE.txt" | grep 'Name' >> tmp
@@ -149,7 +151,8 @@ echo
 
 ###############################################################################################################################
 
-echo "DNSRecon                 (3/$TOTAL)"
+echo "DNSRecon                 ($COUNT/$TOTAL)"
+((COUNT++))
 dnsrecon -d "$DOMAIN" -n 8.8.8.8 -t std > tmp 2>/dev/null
 grep -Eiv '(all queries will|could not|dnskeys|dnssec|error|it is resolving|nsec3|performing|records|recursion|txt|version|wildcard resolution)' tmp | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort | sed 's/[ \t]*$//' > records
 grep 'TXT' tmp | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | sort | sed 's/[ \t]*$//' >> records
@@ -163,20 +166,60 @@ echo
 
 ###############################################################################################################################
 
-echo "dnstwist                 (4/$TOTAL)"
+echo "dnstwist                 ($COUNT/$TOTAL)"
+((COUNT++))
 dnstwist --registered "$DOMAIN" > tmp
 sed -E 's/\b([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}\b//g' tmp | grep -v 'original' | sed 's/!ServFail/        /g; s/MX:$//g; s/MX:localhost//g; s/[ \t]*$//' | column -t | sed 's/[ \t]*$//' | sed -E 's/([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}/ /g' | sed 's/::28f//g; s/::28//g; s/::2e1//g; s/::200//g; s/:://g' > squatting
 echo
 
 ###############################################################################################################################
 
-echo "subfinder                (5/$TOTAL)"
+echo "intodns.com              ($COUNT/$TOTAL)"
+((COUNT++))
+wget -q http://www.intodns.com/"$DOMAIN" -O tmp
+cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
+cat tmp2 >> "$HOME"/data/"$DOMAIN"/pages/config.htm
+
+# Add new icons
+sed -i 's|/static/images/error.gif|\.\./assets/images/icons/fail.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+sed -i 's|/static/images/fail.gif|\.\./assets/images/icons/fail.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+sed -i 's|/static/images/info.gif|\.\./assets/images/icons/info.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+sed -i 's|/static/images/pass.gif|\.\./assets/images/icons/pass.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+sed -i 's|/static/images/warn.gif|\.\./assets/images/icons/warn.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+sed -i 's|\.\.\.\.|\.\.|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+# Insert missing table tag
+sed -i 's/.*<thead>.*/    <table border="4">\n&/' "$HOME"/data/"$DOMAIN"/pages/config.htm
+# Add blank lines below table
+sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' "$HOME"/data/"$DOMAIN"/pages/config.htm
+# Remove unnecessary JS at bottom of page
+sed -i '/Math\.random/I,+6 d' "$HOME"/data/"$DOMAIN"/pages/config.htm
+# Clean up
+sed -i 's/I could use the nameservers/The nameservers/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+sed -i 's/below to performe/below can perform/g; s/ERROR: //g; s/FAIL: //g; s/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/Oh well, //g; s/This can be ok if you know what you are doing.//g; s/That is NOT OK//g; s/That is not so ok//g; s/The reverse (PTR) record://g; s/the same ip./the same IP./g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/use on having/use in having/g; s/You must be/Be/g; s/Your/The/g; s/your/the/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+echo
+
+# Cleanup temporary files
+rm tmp*
+
+###############################################################################################################################
+
+echo "Metasploit               ($COUNT/$TOTAL)"
+((COUNT++))
+msfconsole -q -x "use auxiliary/gather/search_email_collector; set DOMAIN $DOMAIN; run; exit y" > tmp 2>/dev/null
+grep @"$DOMAIN" tmp | awk '{print $2}' | tr 'A-Z' 'a-z' | sort -u > zmsf
+echo
+
+###############################################################################################################################
+
+echo "subfinder                ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/subfinder/v2/cmd/subfinder/subfinder -d "$DOMAIN" -silent | sort -u > zsubfinder
 echo
 
 ###############################################################################################################################
 
-echo "sublist3r                (6/$TOTAL)"
+echo "sublist3r                ($COUNT/$TOTAL)"
+((COUNT++))
 sublist3r -d "$DOMAIN" > tmp 2>/dev/null
 sed 's/\x1B\[[0-9;]*m//g' tmp | sed '/^ /d' | grep -Eiv '(!|enumerating|enumeration|searching|total unique)' | tr 'A-Z' 'a-z' | sort -u > zsublist3r
 echo
@@ -185,65 +228,95 @@ echo
 
 echo "theHarvester"
 source /opt/theHarvester-venv/bin/activate
-echo "    anubis               (7/$TOTAL)"
+echo "    anubis               ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b anubis | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zanubis
-echo "    baidu                (8/$TOTAL)"
+echo "    baidu                ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b baidu | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbaidu
-echo "    bevigil              (9/$TOTAL)"
+echo "    bevigil              ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b bevigil | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbevigil
-echo "    binaryedge           (10/$TOTAL)"
+echo "    binaryedge           ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b binaryedge | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbinaryedge
-echo "    bing                 (11/$TOTAL)"
+echo "    bing                 ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b bing | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbing
-echo "    bing API             (12/$TOTAL)"
+echo "    bing API             ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b bingapi | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbing-api
-echo "    bufferoverun         (13/$TOTAL)"
+echo "    bufferoverun         ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b bufferoverun | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbufferoverun
-echo "    censys               (14/$TOTAL)"
+echo "    censys               ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b censys | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcensys
-echo "    certspotter          (15/$TOTAL)"
+echo "    certspotter          ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b certspotter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcertspotter
-echo "    criminalip           (16/$TOTAL)"
+echo "    criminalip           ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b criminalip | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcriminalip
-echo "    crtsh                (17/$TOTAL)"
+echo "    crtsh                ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b crtsh | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcrtsh
-echo "    duckduckgo           (18/$TOTAL)"
+echo "    duckduckgo           ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b duckduckgo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zduckduckgo
-echo "    fullhunt             (19/$TOTAL)"
+echo "    fullhunt             ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b fullhunt | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zfullhunt
-echo "    github-code          (20/$TOTAL)"
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b github-code | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zgithub-code
-echo "    hackertarget         (21/$TOTAL)"
+echo "    github-code          ($COUNT/$TOTAL)"
+((COUNT++))
+/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b github-code | grep -Eiv '(!|\*|--|\[|retrying|searching|yaml)' | sed '/^$/d' | sort -u > zgithub-code
+echo "    hackertarget         ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b hackertarget | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhackertarget
-echo "    hunter               (22/$TOTAL)"
+echo "    hunter               ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b hunter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunter
-echo "    hunterhow            (23/$TOTAL)"
+echo "    hunterhow            ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b hunterhow | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunterhow
-echo "    intelx               (24/$TOTAL)"
+echo "    intelx               ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b intelx | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zintelx
-echo "    netlas               (25/$TOTAL)"
+echo "    netlas               ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b netlas | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > znetlas
-echo "    otx                  (26/$TOTAL)"
+echo "    otx                  ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b otx | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zotx
-echo "    pentesttools         (27/$TOTAL)"
+echo "    pentesttools         ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b pentesttools | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zpentesttools
-echo "    projectdiscovery     (28/$TOTAL)"
+echo "    projectdiscovery     ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b projectdiscovery | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zprojectdiscovery
-echo "    rapiddns             (29/$TOTAL)"
+echo "    rapiddns             ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b rapiddns | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zrapiddns
-echo "    securityTrails       (30/$TOTAL)"
+echo "    securityTrails       ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b securityTrails | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsecuritytrails
-echo "    sitedossier          (31/$TOTAL)"
+echo "    sitedossier          ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b securityTrails | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsitedossier
-echo "    subdomaincenter      (32/$TOTAL)"
+echo "    subdomaincenter      ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b subdomaincenter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsubdomaincenter
-echo "    subdomainfinderc99   (33/$TOTAL)"
+echo "    subdomainfinderc99   ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b subdomainfinderc99 | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsubdomainfinderc99
-echo "    threatminer          (34/$TOTAL)"
+echo "    threatminer          ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b threatminer | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zthreatminer
-echo "    urlscan              (35/$TOTAL)"
+echo "    urlscan              ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b urlscan | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zurlscan
-echo "    yahoo                (36/$TOTAL)"
+echo "    yahoo                ($COUNT/$TOTAL)"
+((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b yahoo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zyahoo
 deactivate
 
@@ -253,15 +326,9 @@ echo
 
 ###############################################################################################################################
 
-echo "Metasploit               (37/$TOTAL)"
-msfconsole -q -x "use auxiliary/gather/search_email_collector; set DOMAIN $DOMAIN; run; exit y" > tmp 2>/dev/null
-grep @"$DOMAIN" tmp | awk '{print $2}' | tr 'A-Z' 'a-z' | sort -u > zmsf
-echo
-
-###############################################################################################################################
-
 echo "Whois"
-echo "    Domain               (38/$TOTAL)"
+echo "    Domain               ($COUNT/$TOTAL)"
+((COUNT++))
 whois -H "$DOMAIN" > tmp 2>/dev/null
 sed 's/^[ \t]*//' tmp > tmp2
 grep -Eiv '(#|%|<a|=-=-=-=|;|access may|accuracy|additionally|affiliates|afilias except|and dns hosting|and limitations|any use of|at www.|be sure|at the end|by submitting|by the terms|can easily|circumstances|clientdeleteprohibited|clienttransferprohibited|clientupdateprohibited|com laude|commercial purposes|company may|compilation|complaint will|contact information|contact us|contacting|copy and paste|currently set|database|data contained|data presented|database|date of|details|dissemination|domaininfo ab|domain management|domain names in|domain status: ok|electronic processes|enable high|entirety|except as|existing|ext:|failure|facsimile|following terms|for commercial|for detailed|for information|for more|for the|get noticed|get a free|guarantee its|href|If you|in europe|in most|in obtaining|in the address|includes|including|information is|informational purposes|intellectual|is not|is providing|its systems|learn|legitimate|makes this|markmonitor|minimum|mining this|minute and|modify|must be sent|name cannot|namesbeyond|not to use|note:|notice|obtaining information about|of moniker|of this data|or hiding any|or otherwise support|other use of|please|policy|prior written|privacy is|problem reporting|professional and|prohibited without|promote your|protect the|protecting|public interest|queried|queries|receive|receiving|redacted for|register your|registrars|registration record|relevant|repackaging|request|reserves all rights|reserves the|responsible for|restricted to network|restrictions|see business|server at|solicitations|sponsorship|status|support questions|support the transmission|supporting|telephone, or facsimile|temporary|that apply to|that you will|the right|the data is|The fact that|the transmission|this listing|this feature|this information|this service is|to collect or|to entities|to report any|to suppress|to the systems|transmission of|trusted partner|united states|unlimited|unsolicited advertising|users may|version 6|via e-mail|visible|visit aboutus.org|visit|web-based|when you|while believed|will use this|with many different|with no guarantee|we reserve|whitelist|whois|you agree|You may not)' tmp2 > tmp3
@@ -292,8 +359,9 @@ sed 's/: /:#####/g' tmp13 | column -s '#' -t > whois-domain
 
 ###############################################################################################################################
 
-echo "    IP                   (39/$TOTAL)"
-DOMAINIP=$(ping -c1 "$DOMAIN" | grep PING | cut -d '(' -f2 | cut -d ')' -f1)
+echo "    IP                   ($COUNT/$TOTAL)"
+((COUNT++))
+DOMAINIP=$(dig +short "$DOMAIN")
 whois "$DOMAINIP" > tmp
 # Remove blank lines from the beginning of a file
 grep -Eiv '(#|%|comment|remarks)' tmp | sed '/./,$!d' > tmp2
@@ -310,49 +378,22 @@ echo
 
 ###############################################################################################################################
 
-echo "intodns.com              (40/$TOTAL)"
-wget -q http://www.intodns.com/"$DOMAIN" -O tmp
-cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
-cat tmp2 >> "$HOME"/data/"$DOMAIN"/pages/config.htm
-
-# Add new icons
-sed -i 's|/static/images/error.gif|\.\./assets/images/icons/fail.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-sed -i 's|/static/images/fail.gif|\.\./assets/images/icons/fail.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-sed -i 's|/static/images/info.gif|\.\./assets/images/icons/info.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-sed -i 's|/static/images/pass.gif|\.\./assets/images/icons/pass.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-sed -i 's|/static/images/warn.gif|\.\./assets/images/icons/warn.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-sed -i 's|\.\.\.\.|\.\.|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-# Insert missing table tag
-sed -i 's/.*<thead>.*/    <table border="4">\n&/' "$HOME"/data/"$DOMAIN"/pages/config.htm
-# Add blank lines below table
-sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' "$HOME"/data/"$DOMAIN"/pages/config.htm
-# Remove unnecessary JS at bottom of page
-sed -i '/Math\.random/I,+6 d' "$HOME"/data/"$DOMAIN"/pages/config.htm
-# Clean up
-sed -i 's/I could use the nameservers/The nameservers/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-sed -i 's/below to performe/below can perform/g; s/ERROR: //g; s/FAIL: //g; s/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/Oh well, //g; s/This can be ok if you know what you are doing.//g; s/That is NOT OK//g; s/That is not so ok//g; s/The reverse (PTR) record://g; s/the same ip./the same IP./g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/use on having/use in having/g; s/You must be/Be/g; s/Your/The/g; s/your/the/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-
-# Cleanup temporary files
-rm tmp*
-
-###############################################################################################################################
-
-# Find eamils (cat is needed here)
+# Find eamils
 cat z* | grep "@$DOMAIN" | grep -v '[0-9]' | sed "/^'/d" | grep -Eiv '(_|,|firstname|lastname|test|www|xxx|zzz)' | sort -u > emails
 
 # Find hosts
-cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '(0.0.0.0|1.1.1.1|1.1.1.2|8.8.8.8|127.0.0.1)' | sort -u | $SIP > hosts
+cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '(0.0.0.0|1.1.1.1|1.1.1.2|8.8.8.8|127.0.0.1)' | sort -u | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
 
-# Find names (cat is needed here)
+# Find names
 cat z* | grep -Eiv '(@|:|\.|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
 
 # Find subdomains
 cat z* | cut -d ':' -f2 | grep "\.$DOMAIN" | grep -Eiv '(@|/|www)' | awk '{print $1}' | grep "\.$DOMAIN$" | tr 'A-Z' 'a-z' | sort -u > subdomains
 
 # Find documents (not sure if its needed here)
-cat z* | grep -Ei '\.doc$|\.docx$' | sort -u > doc
-cat z* | grep -Ei '\.ppt$|\.pptx$' | sort -u > ppt
-cat z* | grep -Ei '\.xls$|\.xlsx$' | sort -u > xls
+cat z* | grep -Ei '\.(doc|docx)$' | sort -u > doc
+cat z* | grep -Ei '\.(ppt|pptx)$' | sort -u > ppt
+cat z* | grep -Ei '\.(xls|xlsx)$' | sort -u > xls
 cat z* | grep -i '\.pdf$' | sort -u > pdf
 cat z* | grep -i '\.txt$' | sort -u > txt
 
@@ -390,8 +431,8 @@ if [ -f hosts ]; then
     cat hosts >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
     echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/hosts/names.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/hosts/names.htm
+    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
+    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
 fi
 
 if [ -f names ]; then
