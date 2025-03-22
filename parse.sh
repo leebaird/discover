@@ -105,5 +105,5 @@ case "$CHOICE" in
     ;;
 
     6) f_main ;;
-    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/parse.sh ;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"./parse.sh ;;
 esac

@@ -131,5 +131,5 @@ case "$CHOICE" in
         exit
         ;;
     4) f_main ;;
-    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/multiTabs.sh ;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"./multiTabs.sh ;;
 esac

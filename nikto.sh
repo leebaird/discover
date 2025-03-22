@@ -65,7 +65,7 @@ case "$CHOICE" in
 
     3)  f_main ;;
 
-    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/nikto.sh ;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"./nikto.sh ;;
 esac
 
 echo

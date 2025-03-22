@@ -573,23 +573,23 @@ f_main(){
     read -r CHOICE
 
     case "$CHOICE" in
-        1) "$DISCOVER"/domain.sh ;;
-        2) "$DISCOVER"/person.sh && exit ;;
-        3) "$DISCOVER"/generateTargets.sh && exit ;;
+        1) "$DISCOVER"./domain.sh ;;
+        2) "$DISCOVER"./person.sh && exit ;;
+        3) "$DISCOVER"./generateTargets.sh && exit ;;
         4) f_cidr ;;
         5) f_list ;;
         6) f_single ;;
         7) f_enumerate ;;
-        8) "$DISCOVER"/directObjectRef.sh && exit ;;
-        9) "$DISCOVER"/multiTabs.sh && exit ;;
-        10) "$DISCOVER"/nikto.sh && exit ;;
-        11) "$DISCOVER"/ssl.sh && exit ;;
-        12) "$DISCOVER"/parse.sh && exit ;;
-        13) "$DISCOVER"/payload.sh && exit ;;
-        14) "$DISCOVER"/listener.sh && exit ;;
-        15) sudo "$DISCOVER"/update.sh && exit ;;
+        8) "$DISCOVER"./directObjectRef.sh && exit ;;
+        9) "$DISCOVER"./multiTabs.sh && exit ;;
+        10) "$DISCOVER"./nikto.sh && exit ;;
+        11) "$DISCOVER"./ssl.sh && exit ;;
+        12) "$DISCOVER"./parse.sh && exit ;;
+        13) "$DISCOVER"./payload.sh && exit ;;
+        14) "$DISCOVER"./listener.sh && exit ;;
+        15) sudo "$DISCOVER"./update.sh && exit ;;
         16) exit ;;
-        99) sudo "$DISCOVER"/newModules.sh && exit ;;
+        99) sudo "$DISCOVER"./newModules.sh && exit ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;
     esac
 }
