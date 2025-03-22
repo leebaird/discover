@@ -19,7 +19,7 @@ f_targets(){
         1) f_arpscan ;;
         2) f_pingsweep ;;
         3) f_main ;;
-        *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"./generateTargets.sh ;;
+        *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/generateTargets.sh ;;
     esac
 }
 
@@ -84,7 +84,7 @@ f_pingsweep(){
             nmap -sn -PS -PE --stats-every 10s "$CIDR" > tmp
             ;;
         *)
-            echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"./generateTargets.sh ;;
+            echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/generateTargets.sh ;;
     esac
 
     grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' tmp | grep -v "$MYIP" | $SIP > "$HOME"/data/pingsweep.txt

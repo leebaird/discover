@@ -32,7 +32,7 @@ f_format(){
             FORMAT="psh" ;;
         6) EXTENTION=".bin"
             FORMAT="raw" ;;
-        *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"./payload.sh ;;
+        *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/payload.sh ;;
     esac
 }
 
@@ -135,7 +135,7 @@ case "$CHOICE" in
         f_format ;;
     16) f_main ;;
 
-    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"./payload.sh ;;
+    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/payload.sh ;;
 esac
 
 echo
