@@ -35,7 +35,7 @@ if [ ! -d "$LOCATION" ]; then
     exit 1
 fi
 
-cd "$LOCATION"
+cd "$LOCATION" || exit
 
 # Check if index.htm exists
 if [ ! -f index.htm ]; then
@@ -47,7 +47,7 @@ fi
 
 # Update link in index.htm
 sed -i 's|href="https://github.com/leebaird/discover"|href="https://www.acme.org"|g' index.htm
-cd pages/
+cd pages/ || exit
 sed -i 's|href="https://github.com/leebaird/discover"|href="https://www.acme.org"|g' *.htm
 
 # Open updated index.htm in Firefox

