@@ -58,7 +58,7 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Global variables
 CWD=$(pwd)
-DISCOVER=$(locate discover.sh | head -n1 | sed 's:/[^/]*$::')
+DISCOVER=$(/usr/bin/locate discover.sh | head -n1 | sed 's:/[^/]*$::')
 MYIP=$(ip addr | grep 'global' | grep -Eiv '(:|docker)' | cut -d '/' -f1 | awk '{print $2}')
 RUNDATE=$(date +%B' '%d,' '%Y)
 SIP='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'

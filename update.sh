@@ -174,8 +174,13 @@ fi
 
 if [ -d /opt/discover/.git ]; then
     echo -e "${BLUE}Updating Discover.${NC}"
+    chown -R $(logname):$(logname) /opt/discover/
     cd /opt/discover || exit ; git pull
     echo
+else
+    echo -e "${BLUE}Updating Discover.${NC}"
+    update_discover=$(/usr/bin/locate discover.sh | head -n1 | sed 's:/[^/]*$::')
+    cd "$update_discover" || exit && git pull
 fi
 
 if ! command -v dnstwist &> /dev/null; then
