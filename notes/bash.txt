@@ -159,8 +159,8 @@ sed 's/[^ ]\+/\L\u&/g'                                        Title case
 tr -d '\t'                                                    Delete a tab
 tr ',' '\n'                                                   Translate a comma to a new line
 tr -s ' '                                                     Translate any number of spaces to a single space
-tr 'a-z' 'A-Z'                                                Translate lower case to upper case
-tr 'A-Z' 'a-z'                                                Translate upper case to lower case
+tr '[:lower:]' '[:upper:]'                                    Translate lower case to upper case
+tr '[:upper:]' '[:lower:]'                                    Translate upper case to lower case
 
 sed "s/$FOO./$FOO/g"                                          Variables - use double quotes with sed or grep
 ------------------------------------------------------------------------------------------------------------------------------------------------------

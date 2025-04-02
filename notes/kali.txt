@@ -95,9 +95,10 @@ Set Time Zone
 Close 3x
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Patch the OS
+# Patch the OS and install VMware tools
 
 sudo apt update ; sudo apt -y upgrade ; sudo apt -y dist-upgrade ; sudo apt -y autoremove ; sudo apt -y autoclean ; sudo updatedb
+sudo apt install -y open-vm-tools
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Snapshot
