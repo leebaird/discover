@@ -43,8 +43,14 @@ xdg-open https://www.peekyou.com/"$FIRST"%5f"$LAST" &
 sleep 2
 xdg-open https://www.addresses.com/people/"$FIRST"+"$LAST" &
 sleep 2
+xdg-open https://radaris.com/p/"$FIRST"/"$LAST"/ &
+sleep 2
 xdg-open https://www.spokeo.com/"$FIRST"-"$LAST" &
 sleep 2
-xdg-open https://www.usphonebook.com/"$FIRST"-"$LAST"
+xdg-open https://www.truepeoplesearch.com/results?name="$FIRST"%20"$LAST" &
+sleep 2
+xdg-open https://www.usphonebook.com/"$FIRST"-"$LAST" &
+sleep 2
+xdg-open https://www.facebook.com/public/"$FIRST"-"$LAST" &
 sleep 2
 xdg-open https://www.youtube.com/results?search_query="$FIRST"+"$LAST" &

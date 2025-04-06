@@ -10,13 +10,13 @@ enumeration, and malicious payload creation using Metasploit. For use with Kali 
 * [![Twitter Follow](https://img.shields.io/twitter/follow/ninewires.svg?style=social&label=Follow)](https://twitter.com/ninewires) Jason Ashton @ninewires
 
 ### Download, setup, and usage
-* Make sure you are your user and not root
+* Download with a normal user account to your home directory.
+* cd ~
 * git clone https://github.com/leebaird/discover
-* Discover should be launched as from this location(home directory).
-* cd ~/discover/
+* cd discover/
 * ./discover.sh
 * Select option 15 to update the operating system and install various tools before using the framework.
-* Note: some options (15) will require credentials to be ran as root.
+* Some options will require root credentials to run.
 
 
 ```
