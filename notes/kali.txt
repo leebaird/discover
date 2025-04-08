@@ -107,9 +107,9 @@ Take a snapshot and name it Base.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Install Discover scripts and additional GitHub repos
-
-git clone https://github.com/leebaird/discover /opt/discover/
-cd /opt/discover/config/
+cd ~
+git clone https://github.com/leebaird/discover
+cd discover/config/
 ./install.sh
 
 cd ~

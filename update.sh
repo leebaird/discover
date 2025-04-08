@@ -179,8 +179,7 @@ if [ -d /opt/discover/.git ]; then
     echo
 else
     echo -e "${BLUE}Updating Discover.${NC}"
-    update_discover=$(/usr/bin/locate discover.sh | head -n1 | sed 's:/[^/]*$::')
-    cd "$update_discover" || exit && git pull
+    cd "$DISCOVER" || exit && git pull
 fi
 
 if ! command -v dnstwist &> /dev/null; then

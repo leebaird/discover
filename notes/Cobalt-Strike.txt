@@ -2,7 +2,7 @@ Cobalt Strike
 
 
 Use the following install location: /opt/cobaltstrike/
-    This will allow you to get third-party repos installed when running /opt/discover/update.sh
+    This will allow you to get third-party repos installed when running discover/update.sh.
 
 - Update
 cd /opt/cobaltstrike/
