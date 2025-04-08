@@ -589,7 +589,7 @@ f_main(){
         14) "$DISCOVER"/listener.sh && exit ;;
         15) sudo "$DISCOVER"/update.sh && exit ;;
         16) exit ;;
-        99) sudo "$DISCOVER"/newModules.sh && exit ;;
+        99) "$DISCOVER"/newModules.sh && exit ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;
     esac
 }
