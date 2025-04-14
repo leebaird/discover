@@ -33,7 +33,7 @@ alias smb='impacket-smbserver share . -smb2support'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 alias ssh='ssh -o "XAuthLocation=/opt/X11/bin/xauth"'
 alias update='sudo ~/discover/update.sh'
-alias upload='raven $MYIP 3000 --upload-folder $HOME/Desktop/'
+alias upload='raven $MYIP 3000 --upload-dir $HOME/Desktop/'
 alias web='echo $MYIP ; python3 -m http.server 80'
 alias web2='echo $MYIP ; python3 -m http.server 8000'
 
