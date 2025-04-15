@@ -38,9 +38,9 @@ Login as new user.
 
 # Disable screen lock
 
-Click on the battery icon > Settings
-Display > drag the top slider to the right (changes all to 60 minutes)
-Repeat for Plugged in settings > Close
+Applications > Settings > Settings Manager > Xfce Screensaver
+Screensaver > Activate screensaver when computer is idle: off
+Lock screen > Enable Lock Screen: off
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Desktop

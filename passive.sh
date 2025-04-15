@@ -375,7 +375,6 @@ awk '{printf "%-25s %s\n", $1, $2}' tmp4 | sed 's/+1-//g' > whois-ip
 
 # Cleanup temporary files
 rm tmp*
-echo
 
 ###############################################################################################################################
 
@@ -594,7 +593,6 @@ cd "$CWD" || exit
 
 echo
 echo "$MEDIUM"
-echo
 echo
 echo -e "The supporting data folder is located at ${YELLOW}$HOME/data/$DOMAIN/${NC}\n"
 
