@@ -19,7 +19,7 @@ f_terminate() {
 
     cd "$DISCOVER" || exit
     mv "$HOME"/data/"$DOMAIN" "$SAVE_DIR" 2>/dev/null
-    mv emails hosts names records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$SAVE_DIR" 2>/dev/null
+    mv names emails private-ips hosts records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$SAVE_DIR" 2>/dev/null
 
     echo
     echo "[*] Saving complete."
@@ -387,6 +387,9 @@ cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | gr
 # Find names
 cat z* | grep -Eiv '(@|:|\.|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
 
+# Find private IP addresses
+cat z* | grep -E '^(.*:((10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})|(172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.[0-9]{1,3})|(192\.168\.[0-9]{1,3}\.[0-9]{1,3})))' | sort -u | sed 's/:/ /g' | column -t > private-ips
+
 # Find subdomains
 cat z* | cut -d ':' -f2 | grep "\.$DOMAIN" | grep -Eiv '(@|/|www)' | awk '{print $1}' | grep "\.$DOMAIN$" | tr '[:upper:]' '[:lower:]' | sort -u > subdomains
 
@@ -407,6 +410,20 @@ echo "Summary" > zreport
 echo "$SMALL" >> zreport
 echo > tmp
 
+if [ -f names ]; then
+    namecount=$(wc -l names | cut -d ' ' -f1)
+    echo "Names             $namecount" >> zreport
+    echo "Names ($namecount)" >> tmp
+    echo "$LARGE" >> tmp
+    cat names >> tmp
+    echo >> tmp
+    cat names >> "$HOME"/data/"$DOMAIN"/data/names.htm
+    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/names.htm
+else
+    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/names.htm
+    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/names.htm
+fi
+
 if [ -f emails ]; then
     emailcount=$(wc -l emails | cut -d ' ' -f1)
     echo "Emails            $emailcount" >> zreport
@@ -421,6 +438,17 @@ else
     echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/emails.htm
 fi
 
+if [ -f private-ips ]; then
+    privateipcount=$(wc -l private-ips | cut -d ' ' -f1)
+    echo "Private IPs       $privateipcount" >> zreport
+    echo "Private IPs ($privateipcount)" >> tmp
+    echo "$LARGE" >> tmp
+    cat hosts >> tmp
+    echo >> tmp
+    cat private-ips >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
+    echo
+fi
+
 if [ -f hosts ]; then
     hostcount=$(wc -l hosts | cut -d ' ' -f1)
     echo "Hosts             $hostcount" >> zreport
@@ -433,20 +461,6 @@ if [ -f hosts ]; then
 else
     echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
     echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
-fi
-
-if [ -f names ]; then
-    namecount=$(wc -l names | cut -d ' ' -f1)
-    echo "Names             $namecount" >> zreport
-    echo "Names ($namecount)" >> tmp
-    echo "$LARGE" >> tmp
-    cat names >> tmp
-    echo >> tmp
-    cat names >> "$HOME"/data/"$DOMAIN"/data/names.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/names.htm
-else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/names.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/names.htm
 fi
 
 if [ -f records ]; then
@@ -588,7 +602,7 @@ rm tmp* zreport
 
 # Ensure the destination directory exists then move files
 mkdir -p "$HOME/data/$DOMAIN/tools"
-mv emails hosts names records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
+mv names emails private-ips hosts records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
 cd "$CWD" || exit
 
 echo
