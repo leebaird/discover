@@ -238,9 +238,6 @@ echo "    baidu                ($COUNT/$TOTAL)"
 echo "    bevigil              ($COUNT/$TOTAL)"
 ((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b bevigil | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbevigil
-echo "    binaryedge           ($COUNT/$TOTAL)"
-((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b binaryedge | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbinaryedge
 echo "    bing                 ($COUNT/$TOTAL)"
 ((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b bing | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbing
@@ -316,6 +313,9 @@ echo "    threatminer          ($COUNT/$TOTAL)"
 echo "    urlscan              ($COUNT/$TOTAL)"
 ((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b urlscan | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zurlscan
+echo "    whoisxml             ($COUNT/$TOTAL)"
+((COUNT++))
+/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b yahoo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zwhoisxml
 echo "    yahoo                ($COUNT/$TOTAL)"
 ((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b yahoo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zyahoo
