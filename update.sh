@@ -38,6 +38,7 @@ if ! command -v go &> /dev/null; then
     echo "export GOROOT=/usr/lib/go" >> ~/.zshrc
     echo "export PATH=\$PATH:/usr/lib/go/bin:/opt/go/bin" >> ~/.zshrc
     mkdir -p /opt/go/{bin,src,pkg}
+    # shellcheck disable=SC1090
     source ~/.zshrc
     echo
 fi
@@ -64,7 +65,7 @@ fi
 
 if [ -d /opt/BOFs/anthemtotheego-inlineExecute-assembly/.git ]; then
     echo -e "${BLUE}Updating anthemtotheego InlineExecute Assembly BOF.${NC}"
-    cd /opt/BOFs/anthemtotheego-inlineExecute-assembly/ ; git pull
+    cd /opt/BOFs/anthemtotheego-inlineExecute-assembly/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing anthemtotheego InlineExecute Assembly BOF.${NC}"
@@ -74,7 +75,7 @@ fi
 
 if [ -d /opt/BOFs/outflanknl-c2-tool-collection/.git ]; then
     echo -e "${BLUE}Updating Outflanknl C2 Tool Collection BOF.${NC}"
-    cd /opt/BOFs/outflanknl-c2-tool-collection/ ; git pull
+    cd /opt/BOFs/outflanknl-c2-tool-collection/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing Outflanknl C2 Tool Collection BOF.${NC}"
@@ -84,7 +85,7 @@ fi
 
 if [ -d /opt/BOFs/outflanknl-helpcolor/.git ]; then
     echo -e "${BLUE}Updating Outflanknl HelpColor BOF.${NC}"
-    cd /opt/BOFs/outflanknl-helpcolor/ ; git pull
+    cd /opt/BOFs/outflanknl-helpcolor/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing Outflanknl HelpColor BOF.${NC}"
@@ -94,7 +95,7 @@ fi
 
 if [ -d /opt/BOFs/trustedsec-remote-ops/.git ]; then
     echo -e "${BLUE}Updating TrustedSec Remote OPs BOF.${NC}"
-    cd /opt/BOFs/trustedsec-remote-ops/ ; git pull
+    cd /opt/BOFs/trustedsec-remote-ops/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing TrustedSec Remote OPs BOF.${NC}"
@@ -104,7 +105,7 @@ fi
 
 if [ -d /opt/BOFs/trustedsec-sa/.git ]; then
     echo -e "${BLUE}Updating TrustedSec Situational Awareness BOF.${NC}"
-    cd /opt/BOFs/trustedsec-sa/ ; git pull
+    cd /opt/BOFs/trustedsec-sa/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing TrustedSec Situational Awareness BOF.${NC}"
@@ -117,7 +118,7 @@ fi
 if [ -d /opt/cobaltstrike/ ]; then
     if [ -d /opt/cobaltstrike/elevatekit/.git ]; then
         echo -e "${BLUE}Updating CS - ElevateKit.${NC}"
-        cd /opt/cobaltstrike/elevatekit/ ; git pull
+        cd /opt/cobaltstrike/elevatekit/ || exit ; git pull
         echo
     else
         echo -e "${YELLOW}Installing CS - ElevateKit.${NC}"
@@ -127,7 +128,7 @@ if [ -d /opt/cobaltstrike/ ]; then
 
     if [ -d /opt/cobaltstrike/RedSiege-C2concealer/.git ]; then
         echo -e "${BLUE}Updating CS - RedSiege C2concealer.${NC}"
-        cd /opt/cobaltstrike/RedSiege-C2concealer/ ; git pull
+        cd /opt/cobaltstrike/RedSiege-C2concealer/ || exit ; git pull
         echo
     else
         echo -e "${YELLOW}Installing CS - RedSiege C2concealer.${NC}"
@@ -137,7 +138,7 @@ if [ -d /opt/cobaltstrike/ ]; then
 
     if [ -d /opt/cobaltstrike/malleable-c2-profiles/.git ]; then
         echo -e "${BLUE}Updating CS - Malleable C2 profiles.${NC}"
-        cd /opt/cobaltstrike/malleable-c2-profiles/ ; git pull
+        cd /opt/cobaltstrike/malleable-c2-profiles/ || exit ; git pull
         echo
     else
         echo -e "${YELLOW}Installing CS - Malleable C2 profiles.${NC}"
@@ -147,7 +148,7 @@ if [ -d /opt/cobaltstrike/ ]; then
 
     if [ -d /opt/cobaltstrike/mgeeky-scripts/.git ]; then
         echo -e "${BLUE}Updating CS - mgeeky cobalt arsenal.${NC}"
-        cd /opt/cobaltstrike/mgeeky-scripts/ ; git pull
+        cd /opt/cobaltstrike/mgeeky-scripts/ || exit ; git pull
         echo
     else
         echo -e "${YELLOW}Installing CS - mgeeky cobalt arsenal.${NC}"
@@ -157,12 +158,12 @@ if [ -d /opt/cobaltstrike/ ]; then
 
     if [ -d /opt/cobaltstrike/tylous-sourcepoint/.git ]; then
         echo -e "${BLUE}Updating CS - Tylous SourcePoint.${NC}"
-        cd /opt/cobaltstrike/tylous-sourcepoint/ ; git pull
+        cd /opt/cobaltstrike/tylous-sourcepoint/ || exit ; git pull
         echo
     else
         echo -e "${YELLOW}Installing CS - Tylous SourcePoint.${NC}"
         git clone https://github.com/Tylous/SourcePoint /opt/cobaltstrike/tylous-sourcepoint
-        cd /opt/cobaltstrike/tylous-sourcepoint/
+        cd /opt/cobaltstrike/tylous-sourcepoint/ || exit
         go get gopkg.in/yaml.v2
         go build SourcePoint.go
         echo
@@ -173,7 +174,12 @@ fi
 
 if [ -d /opt/discover/.git ]; then
     echo -e "${BLUE}Updating Discover.${NC}"
-    cd /opt/discover ; git pull
+    chown -R $(logname):$(logname) /opt/discover/
+    cd /opt/discover || exit ; git pull
+    echo
+else
+    echo -e "${BLUE}Updating Discover.${NC}"
+    cd "$DISCOVER" || exit ; git pull
     echo
 fi
 
@@ -185,7 +191,7 @@ fi
 
 if [ -d /opt/Domain-Hunter/.git ]; then
     echo -e "${BLUE}Updating Domain Hunter.${NC}"
-    cd /opt/Domain-Hunter/ ; git pull
+    cd /opt/Domain-Hunter/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing Domain Hunter.${NC}"
@@ -201,7 +207,7 @@ fi
 
 if [ -d /opt/DomainPasswordSpray/.git ]; then
     echo -e "${BLUE}Updating DomainPasswordSpray.${NC}"
-    cd /opt/DomainPasswordSpray/ ; git pull
+    cd /opt/DomainPasswordSpray/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing DomainPasswordSpray.${NC}"
@@ -209,9 +215,10 @@ else
     echo
 fi
 
+# shellcheck disable=SC2166
 if [ -d /opt/Egress-Assess/.git -a -d /opt/Egress-Assess-venv ]; then
     echo -e "${BLUE}Updating Egress-Assess.${NC}"
-    cd /opt/Egress-Assess/ ; git pull
+    cd /opt/Egress-Assess/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing Egress-Assess.${NC}"
@@ -227,7 +234,7 @@ fi
 
 if [ -d /opt/egressbuster/.git ]; then
     echo -e "${BLUE}Updating egressbuster.${NC}"
-    cd /opt/egressbuster/ ; git pull
+    cd /opt/egressbuster/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing egressbuster.${NC}"
@@ -249,7 +256,7 @@ fi
 
 if [ -d /opt/krbrelayx/.git ]; then
     echo -e "${BLUE}Updating krbrelayx.${NC}"
-    cd /opt/krbrelayx/ ; git pull
+    cd /opt/krbrelayx/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing krbrelayx.${NC}"
@@ -259,7 +266,7 @@ fi
 
 if [ -d /opt/manspider/.git ]; then
     echo -e "${BLUE}Updating MAN-SPIDER.${NC}"
-    cd /opt/manspider/ ; git pull
+    cd /opt/manspider/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing MAN-SPIDER.${NC}"
@@ -280,7 +287,7 @@ echo
 
 if [ -d /opt/PEASS-ng/.git ]; then
     echo -e "${BLUE}Updating PEASS-ng.${NC}"
-    cd /opt/PEASS-ng/ ; git pull
+    cd /opt/PEASS-ng/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing PEASS-ng.${NC}"
@@ -290,7 +297,7 @@ fi
 
 if [ -d /opt/PowerSharpPack/.git ]; then
     echo -e "${BLUE}Updating PowerSharpPack.${NC}"
-    cd /opt/PowerSharpPack/ ; git pull
+    cd /opt/PowerSharpPack/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing PowerSharpPack.${NC}"
@@ -300,7 +307,7 @@ fi
 
 if [ -d /opt/PowerSploit/.git ]; then
     echo -e "${BLUE}Updating PowerSploit.${NC}"
-    cd /opt/PowerSploit/ ; git pull
+    cd /opt/PowerSploit/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing PowerSploit.${NC}"
@@ -310,7 +317,7 @@ fi
 
 if [ -d /opt/PowerUpSQL/.git ]; then
     echo -e "${BLUE}Updating PowerUpSQL.${NC}"
-    cd /opt/PowerUpSQL/ ; git pull
+    cd /opt/PowerUpSQL/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing PowerUpSQL.${NC}"
@@ -320,7 +327,7 @@ fi
 
 if [ -d /opt/PrivescCheck/.git ]; then
     echo -e "${BLUE}Updating PrivescCheck.${NC}"
-    cd /opt/PrivescCheck/ ; git pull
+    cd /opt/PrivescCheck/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing PrivescCheck.${NC}"
@@ -343,7 +350,7 @@ fi
 
 if [ -d /opt/SharpCollection/.git ]; then
     echo -e "${BLUE}Updating SharpCollection.${NC}"
-    cd /opt/SharpCollection/ ; git pull
+    cd /opt/SharpCollection/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing SharpCollection.${NC}"
@@ -353,19 +360,20 @@ fi
 
 if [ -d /opt/subfinder/.git ]; then
     echo -e "${BLUE}Updating subfinder.${NC}"
-    cd /opt/subfinder/ ; git pull
+    cd /opt/subfinder/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing subfinder.${NC}"
     git clone https://github.com/projectdiscovery/subfinder /opt/subfinder
-    cd /opt/subfinder/v2/cmd/subfinder
+    cd /opt/subfinder/v2/cmd/subfinder || exit
     go build
     echo
 fi
 
+# shellcheck disable=SC2166
 if [ -d /opt/theHarvester/.git -a -d /opt/theHarvester-venv ]; then
     echo -e "${BLUE}Updating theHarvester.${NC}"
-    cd /opt/theHarvester/ ; git pull
+    cd /opt/theHarvester/ || exit ; git pull
     /opt/theHarvester-venv/bin/python -m pip install -r /opt/theHarvester/requirements.txt --upgrade | grep -v 'already satisfied'
 #    /opt/theHarvester-venv/bin/pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
     echo
@@ -382,7 +390,7 @@ fi
 
 if [ -d /opt/Windows-Exploit-Suggester-NG/.git ]; then
     echo -e "${BLUE}Updating Windows Exploit Suggester NG.${NC}"
-    cd /opt/Windows-Exploit-Suggester-NG/ ; git pull
+    cd /opt/Windows-Exploit-Suggester-NG/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing Windows Exploit Suggester NG.${NC}"
@@ -415,7 +423,7 @@ if [ ! -f /opt/xwatchwin/xwatchwin ]; then
     tar zxvf /tmp/xwatchwin.tar.gz -C /tmp/
     rm /tmp/xwatchwin.tar.gz
     mv /tmp/xwatchwin/ /opt/
-    cd /opt/xwatchwin/
+    cd /opt/xwatchwin/ || exit
 
     # Patch source code
     sed -i 's/_BSD_SOURCE/_DEFAULT_SOURCE/g' /opt/xwatchwin/xwatchwin.c

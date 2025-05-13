@@ -48,7 +48,7 @@ echo > tmp
 date +"%b %-d, %Y %-I:%M%P %Z" >> tmp
 echo >> tmp
 
-add_section "[*] Hostname" "ssh "$1" /bin/hostname"
+add_section "[*] Hostname" "ssh ""$1"" /bin/hostname"
 add_section "[*] Whoami" "whoami"
 add_section "[*] Kernel" "uname -a"
 add_section "[*] System uptime" "uptime"

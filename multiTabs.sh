@@ -66,7 +66,7 @@ case "$CHOICE" in
             f_error
         fi
 
-        cd "$LOCATION"
+        cd "$LOCATION" || exit
 
         # option 1
         for i in $(ls -l | awk '{print $9}'); do

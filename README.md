@@ -4,19 +4,19 @@ enumeration, and malicious payload creation using Metasploit. For use with Kali 
 ```
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/leebaird/discover/blob/master/LICENSE)
-[![Rawsec's CyberSecurity Inventory](https://inventory.rawsec.ml/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.rawsec.ml/tools.html#discover)
 
 * [![Twitter Follow](https://img.shields.io/twitter/follow/discoverscripts.svg?style=social&label=Follow)](https://twitter.com/discoverscripts) Lee Baird @discoverscripts
 * [![Twitter Follow](https://img.shields.io/twitter/follow/jay_townsend1.svg?style=social&label=Follow)](https://twitter.com/jay_townsend1) Jay "L1ghtn1ng" Townsend @jay_townsend1
 * [![Twitter Follow](https://img.shields.io/twitter/follow/ninewires.svg?style=social&label=Follow)](https://twitter.com/ninewires) Jason Ashton @ninewires
 
 ### Download, setup, and usage
-* sudo git clone https://github.com/leebaird/discover /opt/discover/
-* Discover should be ran as from this location.
-* cd /opt/discover/
+* Download with a normal user account to your home directory.
+* cd ~
+* git clone https://github.com/leebaird/discover
+* cd discover/
 * ./discover.sh
 * Select option 15 to update the operating system and install various tools before using the framework.
-* Note: some options (15) will require credentials to be ran as root.
+* Some options will require root credentials to run.
 
 
 ```

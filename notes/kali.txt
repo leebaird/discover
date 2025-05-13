@@ -23,27 +23,39 @@ passwd
 Enter new password 2x.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Create a new user, set the password and give sudo rights
+
+sudo useradd -m -s /usr/bin/zsh <NEW USER>
+sudo passwd <NEW USER>
+
+sudo visudo
+Add to the last line in the file.
+<NEW USER> ALL=(ALL) NOPASSWD:ALL
+
+sudo reboot
+Login as new user.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Disable screen lock
 
-Click on the battery icon > Settings
-Display > drag the top slider to the right (changes all to 60 minutes)
-Repeat for Plugged in settings > Close
+Applications > Settings > Settings Manager > Xfce Screensaver
+Screensaver > Activate screensaver when computer is idle: off
+Lock screen > Enable Lock Screen: off
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Desktop
 
-Right click on the Desktop > Desktop Settings
-Icons > Default Icons: uncheck Home, File System, and Trash
+Right click on the Desktop > Desktop Settings > File/Launcher Icons
+Default Icons: uncheck Home, File System, and Trash
 Close
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Terminal
 
-File > Preferences
+Open Terminal > File > Preferences
 Appearance
      Font > Change > 11 > OK
-     Application transparency: 0%
-OK
+     Application transparency: 0% > OK
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Shell
@@ -53,10 +65,6 @@ Select Shell & Prompt > Configure Prompt
 Select One Line > space bar > Apply > OK > enter
 Back > Virtualization > Configure
 Quit
-
-sudo -i
-Repeat the steps above.
-Close and open Terminal. The shell should now be a single line.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Mousepad
@@ -73,9 +81,6 @@ Editor
 Window
      Check Remember window position
 Close preferenes > close mousepad
-
-sudo -i
-Repeat the steps above.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Clock
@@ -90,17 +95,10 @@ Set Time Zone
 Close 3x
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Configure sudo
+# Patch the OS and install VMware tools
 
-sudo visudo
-Add to the last line in the file.
-$USER ALL=(ALL) NOPASSWD: ALL
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Patch the OS
-
-sudo -i
-apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
+sudo apt update ; sudo apt -y upgrade ; sudo apt -y dist-upgrade ; sudo apt -y autoremove ; sudo apt -y autoclean ; sudo updatedb
+sudo apt install -y open-vm-tools
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Snapshot
@@ -108,10 +106,10 @@ apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y a
 Take a snapshot and name it Base.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Install Discover scripts and additional GitHub repos (root shell)
-
-git clone https://github.com/leebaird/discover /opt/discover/
-cd /opt/discover/config/
+# Install Discover scripts and additional GitHub repos
+cd ~
+git clone https://github.com/leebaird/discover
+cd discover/config/
 ./install.sh
 
 cd ~

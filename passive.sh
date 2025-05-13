@@ -17,9 +17,9 @@ f_terminate() {
     echo
     echo -e "${YELLOW}Saving data to $SAVE_DIR.${NC}"
 
-    cd "$DISCOVER"
+    cd "$DISCOVER" || exit
     mv "$HOME"/data/"$DOMAIN" "$SAVE_DIR" 2>/dev/null
-    mv emails hosts names records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$SAVE_DIR" 2>/dev/null
+    mv names emails private-ips hosts records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$SAVE_DIR" 2>/dev/null
 
     echo
     echo "[*] Saving complete."
@@ -124,7 +124,7 @@ if ! grep -q 'No Search Results' tmp.xml; then
     done < zurls.txt
 
     # Filter and format emails
-    grep -v '_' tmp | tr 'A-Z' 'a-z' | sort -u > zarin-emails
+    grep -v '_' tmp | tr '[:upper:]' '[:lower:]' | sort -u > zarin-emails
 fi
 
 # Cleanup temporary files
@@ -141,7 +141,7 @@ if [ -f zhandles.txt ]; then
 
     # Process names
     grep -Eiv "($COMPANY|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
-    sed 's/Name:           //g' tmp2 | tr 'A-Z' 'a-z' | sed 's/\b\(.\)/\u\1/g' > tmp3
+    sed 's/Name:           //g' tmp2 | tr '[:upper:]' '[:lower:]' | sed 's/\b\(.\)/\u\1/g' > tmp3
     awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sort -u > zarin-names
 fi
 
@@ -177,6 +177,7 @@ echo
 echo "intodns.com              ($COUNT/$TOTAL)"
 ((COUNT++))
 wget -q http://www.intodns.com/"$DOMAIN" -O tmp
+# shellcheck disable=SC2002
 cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
 cat tmp2 >> "$HOME"/data/"$DOMAIN"/pages/config.htm
 
@@ -206,7 +207,7 @@ rm tmp*
 echo "Metasploit               ($COUNT/$TOTAL)"
 ((COUNT++))
 msfconsole -q -x "use auxiliary/gather/search_email_collector; set DOMAIN $DOMAIN; run; exit y" > tmp 2>/dev/null
-grep @"$DOMAIN" tmp | awk '{print $2}' | tr 'A-Z' 'a-z' | sort -u > zmsf
+grep @"$DOMAIN" tmp | awk '{print $2}' | tr '[:upper:]' '[:lower:]' | sort -u > zmsf
 echo
 
 ###############################################################################################################################
@@ -221,7 +222,7 @@ echo
 echo "sublist3r                ($COUNT/$TOTAL)"
 ((COUNT++))
 sublist3r -d "$DOMAIN" > tmp 2>/dev/null
-sed 's/\x1B\[[0-9;]*m//g' tmp | sed '/^ /d' | grep -Eiv '(!|enumerating|enumeration|searching|total unique)' | tr 'A-Z' 'a-z' | sort -u > zsublist3r
+sed 's/\x1B\[[0-9;]*m//g' tmp | sed '/^ /d' | grep -Eiv '(!|enumerating|enumeration|searching|total unique)' | tr '[:upper:]' '[:lower:]' | sort -u > zsublist3r
 echo
 
 ###############################################################################################################################
@@ -237,9 +238,6 @@ echo "    baidu                ($COUNT/$TOTAL)"
 echo "    bevigil              ($COUNT/$TOTAL)"
 ((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b bevigil | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbevigil
-echo "    binaryedge           ($COUNT/$TOTAL)"
-((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b binaryedge | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbinaryedge
 echo "    bing                 ($COUNT/$TOTAL)"
 ((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b bing | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbing
@@ -315,6 +313,9 @@ echo "    threatminer          ($COUNT/$TOTAL)"
 echo "    urlscan              ($COUNT/$TOTAL)"
 ((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b urlscan | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zurlscan
+echo "    whoisxml             ($COUNT/$TOTAL)"
+((COUNT++))
+/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b yahoo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zwhoisxml
 echo "    yahoo                ($COUNT/$TOTAL)"
 ((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b yahoo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zyahoo
@@ -374,7 +375,6 @@ awk '{printf "%-25s %s\n", $1, $2}' tmp4 | sed 's/+1-//g' > whois-ip
 
 # Cleanup temporary files
 rm tmp*
-echo
 
 ###############################################################################################################################
 
@@ -387,8 +387,11 @@ cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | gr
 # Find names
 cat z* | grep -Eiv '(@|:|\.|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
 
+# Find private IP addresses
+cat z* | grep -E '^(.*:((10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})|(172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.[0-9]{1,3})|(192\.168\.[0-9]{1,3}\.[0-9]{1,3})))' | sort -u | sed 's/:/ /g' | column -t > private-ips
+
 # Find subdomains
-cat z* | cut -d ':' -f2 | grep "\.$DOMAIN" | grep -Eiv '(@|/|www)' | awk '{print $1}' | grep "\.$DOMAIN$" | tr 'A-Z' 'a-z' | sort -u > subdomains
+cat z* | cut -d ':' -f2 | grep "\.$DOMAIN" | grep -Eiv '(@|/|www)' | awk '{print $1}' | grep "\.$DOMAIN$" | tr '[:upper:]' '[:lower:]' | sort -u > subdomains
 
 # Find documents (not sure if its needed here)
 cat z* | grep -Ei '\.(doc|docx)$' | sort -u > doc
@@ -407,6 +410,20 @@ echo "Summary" > zreport
 echo "$SMALL" >> zreport
 echo > tmp
 
+if [ -f names ]; then
+    namecount=$(wc -l names | cut -d ' ' -f1)
+    echo "Names             $namecount" >> zreport
+    echo "Names ($namecount)" >> tmp
+    echo "$LARGE" >> tmp
+    cat names >> tmp
+    echo >> tmp
+    cat names >> "$HOME"/data/"$DOMAIN"/data/names.htm
+    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/names.htm
+else
+    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/names.htm
+    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/names.htm
+fi
+
 if [ -f emails ]; then
     emailcount=$(wc -l emails | cut -d ' ' -f1)
     echo "Emails            $emailcount" >> zreport
@@ -421,6 +438,17 @@ else
     echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/emails.htm
 fi
 
+if [ -f private-ips ]; then
+    privateipcount=$(wc -l private-ips | cut -d ' ' -f1)
+    echo "Private IPs       $privateipcount" >> zreport
+    echo "Private IPs ($privateipcount)" >> tmp
+    echo "$LARGE" >> tmp
+    cat hosts >> tmp
+    echo >> tmp
+    cat private-ips >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
+    echo
+fi
+
 if [ -f hosts ]; then
     hostcount=$(wc -l hosts | cut -d ' ' -f1)
     echo "Hosts             $hostcount" >> zreport
@@ -433,20 +461,6 @@ if [ -f hosts ]; then
 else
     echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
     echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
-fi
-
-if [ -f names ]; then
-    namecount=$(wc -l names | cut -d ' ' -f1)
-    echo "Names             $namecount" >> zreport
-    echo "Names ($namecount)" >> tmp
-    echo "$LARGE" >> tmp
-    cat names >> tmp
-    echo >> tmp
-    cat names >> "$HOME"/data/"$DOMAIN"/data/names.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/names.htm
-else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/names.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/names.htm
 fi
 
 if [ -f records ]; then
@@ -588,12 +602,11 @@ rm tmp* zreport
 
 # Ensure the destination directory exists then move files
 mkdir -p "$HOME/data/$DOMAIN/tools"
-mv emails hosts names records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
-cd "$CWD"
+mv names emails private-ips hosts records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
+cd "$CWD" || exit
 
 echo
 echo "$MEDIUM"
-echo
 echo
 echo -e "The supporting data folder is located at ${YELLOW}$HOME/data/$DOMAIN/${NC}\n"
 

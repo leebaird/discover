@@ -38,7 +38,7 @@ f_terminate(){
     echo
     echo -e "${YELLOW}Saving data to $SAVE_DIR.${NC}"
 
-    cd "$DISCOVER"/
+    cd "$DISCOVER"/ || exit
 
     if [ -d "$NAME" ]; then
         mv "$NAME" "$SAVE_DIR"
@@ -59,7 +59,7 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Global variables
 CWD=$(pwd)
-DISCOVER=$(locate discover.sh | head -n1 | sed 's:/[^/]*$::')
+DISCOVER=$(/usr/bin/locate discover.sh | head -n1 | sed 's:/[^/]*$::')
 MYIP=$(ip addr | grep 'global' | grep -Eiv '(:|docker)' | cut -d '/' -f1 | awk '{print $2}')
 RUNDATE=$(date +%B' '%d,' '%Y)
 SIP='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
@@ -382,7 +382,7 @@ f_scan(){
     grep -Eiv '(0000:|0010:|0020:|0030:|0040:|0050:|0060:|0070:|0080:|0090:|00a0:|00b0:|00c0:|00d0:|1 hop|closed|guesses|guessing|filtered|fingerprint|general purpose|initiated|latency|network distance|no exact os|no os matches|os cpe|please report|rttvar|scanned in|unreachable|warning)' "$NAME"/nmap.nmap | sed 's/Nmap scan report for //g' | sed '/^OS:/d' > "$NAME"/nmap.txt
 
     grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' "$NAME"/nmap.nmap | $SIP > "$NAME"/hosts.txt
-    hosts=$(wc -l "$NAME"/hosts.txt | cut -d ' ' -f1)     # BUG: I don't think this is needed
+    wc -l "$NAME"/hosts.txt | cut -d ' ' -f1     # BUG: I don't think this is needed
 
     grep 'open' "$NAME"/nmap.txt | grep -v 'WARNING' | awk '{print $1}' | sort -un > "$NAME"/ports.txt
     grep 'tcp' "$NAME"/ports.txt | cut -d '/' -f1 > "$NAME"/ports-tcp.txt
@@ -580,6 +580,7 @@ f_main(){
     read -r CHOICE
 
     case "$CHOICE" in
+<<<<<<< HEAD
         1) f_domain ;;          # Domain
         2) bash "$DISCOVER"/person.sh ;;      # Person
         3) f_generate ;;        # Generate target list
@@ -602,6 +603,25 @@ f_main(){
         20) bash "$DISCOVER"/msf-web-api.sh ;;  # MSF Web & API Security Scanner
         21) bash "$DISCOVER"/update.sh ;;      # Update
         22) exit ;;             # Exit
+=======
+        1) "$DISCOVER"/domain.sh ;;
+        2) "$DISCOVER"/person.sh && exit ;;
+        3) "$DISCOVER"/generateTargets.sh && exit ;;
+        4) f_cidr ;;
+        5) f_list ;;
+        6) f_single ;;
+        7) f_enumerate ;;
+        8) "$DISCOVER"/directObjectRef.sh && exit ;;
+        9) "$DISCOVER"/multiTabs.sh && exit ;;
+        10) "$DISCOVER"/nikto.sh && exit ;;
+        11) "$DISCOVER"/ssl.sh && exit ;;
+        12) "$DISCOVER"/parse.sh && exit ;;
+        13) "$DISCOVER"/payload.sh && exit ;;
+        14) "$DISCOVER"/listener.sh && exit ;;
+        15) sudo "$DISCOVER"/update.sh && exit ;;
+        16) exit ;;
+        99) "$DISCOVER"/newModules.sh && exit ;;
+>>>>>>> upstream/main
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;
     esac
 }

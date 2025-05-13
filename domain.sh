@@ -36,7 +36,7 @@ case "$CHOICE" in
             whois -H "$REGDOMAIN" | grep -Eiv '(#|please query|personal data|redacted|whois|you agree)' | sed '/^$/d' > tmp2
             wait
 
-            REGEMAIL=$(grep 'Registrant Email:' tmp2 | cut -d ' ' -f3 | tr 'A-Z' 'a-z')
+            REGEMAIL=$(grep 'Registrant Email:' tmp2 | cut -d ' ' -f3 | tr '[:upper:]' '[:lower:]')
 
             if [[ "$REGEMAIL" == *'abuse'* || "$REGEMAIL" == *'anonymize.com'* || "$REGEMAIL" == *'buydomains.com'* || "$REGEMAIL" == *'cloudflareregistrar.com'* || "$REGEMAIL" == *'contact-form'* || "$REGEMAIL" == *'contact.gandi.net'* || "$REGEMAIL" == *'csl-registrar.com'* || "$REGEMAIL" == *'domaindiscreet.com'* || "$REGEMAIL" == *'dynadot.com'* || "$REGEMAIL" == *'email'* || "$REGEMAIL" == *'gname.com'* || "$REGEMAIL" == *'google.com'* || "$REGEMAIL" == *'identity-protect.org'* || "$REGEMAIL" == *'meshdigital.com'* || "$REGEMAIL" == *'mydomainprovider.com'* || "$REGEMAIL" == *'myprivatename.com'* || "$REGEMAIL" == *'networksolutionsprivateregistration'* || "$REGEMAIL" == *'please'* || "$REGEMAIL" == *'p.o-w-o.info'* || "$REGEMAIL" == *'privacy'* || "$REGEMAIL" == *'Redacted'* || "$REGEMAIL" == *'redacted'* || "$REGEMAIL" == *'select'* || "$REGEMAIL" == *'tieredaccess.com'* ]]; then
                 REGEMAIL=''
@@ -55,7 +55,7 @@ case "$CHOICE" in
             fi
 
             echo "$REGDOMAIN,$IPADDR,$REGEMAIL,$REGORG,$REGISTRAR" | grep -v ',,,,' >> tmp3
-            let NUMBER=NUMBER+1
+            ((NUMBER+1))
             echo -ne "$NUMBER of $TOTAL domains"\\r
             sleep 2
         done < tmp
