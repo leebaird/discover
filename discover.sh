@@ -580,48 +580,29 @@ f_main(){
     read -r CHOICE
 
     case "$CHOICE" in
-<<<<<<< HEAD
         1) f_domain ;;          # Domain
-        2) bash "$DISCOVER"/person.sh ;;      # Person
-        3) f_generate ;;        # Generate target list
+        2) "$DISCOVER"/person.sh && exit ;;      # Person
+        3) "$DISCOVER"/generateTargets.sh && exit ;;        # Generate target list
         4) f_cidr ;;            # CIDR
         5) f_list ;;            # List
         6) f_single ;;          # IP, Range, or URL
-        7) f_rerunmenu ;;       # Rerun
-        8) bash "$DISCOVER"/directObjectRef.sh ;;  # Direct Object Reference
-        9) bash "$DISCOVER"/multiTabs.sh ;;    # Open Multiple Tabs in Firefox
-        10) bash "$DISCOVER"/nikto.sh ;;       # Nikto
-        11) bash "$DISCOVER"/ssl.sh ;;         # SSL
-        12) bash "$DISCOVER"/parse.sh ;;       # Parse XML
-        13) bash "$DISCOVER"/payload.sh ;;     # Generate a malicious payload
-        14) bash "$DISCOVER"/listener.sh ;;    # Start a Metasploit listener
-        15) bash "$DISCOVER"/sensitive-detector.sh ;;  # Sensitive Information Detector
-        16) bash "$DISCOVER"/api-scanner.sh ;;  # API Security Scanner
-        17) bash "$DISCOVER"/oauth-jwt-tester.sh ;;  # OAuth/JWT Security Tester
-        18) bash "$DISCOVER"/cloud-scan.sh ;;  # Cloud Security Scanner
-        19) bash "$DISCOVER"/container-scan.sh ;;  # Container Security Scanner
-        20) bash "$DISCOVER"/msf-web-api.sh ;;  # MSF Web & API Security Scanner
-        21) bash "$DISCOVER"/update.sh ;;      # Update
+        7) f_enumerate ;;       # Enumerate
+        8) "$DISCOVER"/directObjectRef.sh && exit ;;  # Direct Object Reference
+        9) "$DISCOVER"/multiTabs.sh && exit ;;    # Open Multiple Tabs in Firefox
+        10) "$DISCOVER"/nikto.sh && exit ;;       # Nikto
+        11) "$DISCOVER"/ssl.sh && exit ;;         # SSL
+        12) "$DISCOVER"/parse.sh && exit ;;       # Parse XML
+        13) "$DISCOVER"/payload.sh && exit ;;     # Generate a malicious payload
+        14) "$DISCOVER"/listener.sh && exit ;;    # Start a Metasploit listener
+        15) "$DISCOVER"/sensitive-detector.sh && exit ;;  # Sensitive Information Detector
+        16) "$DISCOVER"/api-scanner.sh && exit ;;  # API Security Scanner
+        17) "$DISCOVER"/oauth-jwt-tester.sh && exit ;;  # OAuth/JWT Security Tester
+        18) "$DISCOVER"/cloud-scan.sh && exit ;;  # Cloud Security Scanner
+        19) "$DISCOVER"/container-scan.sh && exit ;;  # Container Security Scanner
+        20) "$DISCOVER"/msf-web-api.sh && exit ;;  # MSF Web & API Security Scanner
+        21) sudo "$DISCOVER"/update.sh && exit ;;      # Update
         22) exit ;;             # Exit
-=======
-        1) "$DISCOVER"/domain.sh ;;
-        2) "$DISCOVER"/person.sh && exit ;;
-        3) "$DISCOVER"/generateTargets.sh && exit ;;
-        4) f_cidr ;;
-        5) f_list ;;
-        6) f_single ;;
-        7) f_enumerate ;;
-        8) "$DISCOVER"/directObjectRef.sh && exit ;;
-        9) "$DISCOVER"/multiTabs.sh && exit ;;
-        10) "$DISCOVER"/nikto.sh && exit ;;
-        11) "$DISCOVER"/ssl.sh && exit ;;
-        12) "$DISCOVER"/parse.sh && exit ;;
-        13) "$DISCOVER"/payload.sh && exit ;;
-        14) "$DISCOVER"/listener.sh && exit ;;
-        15) sudo "$DISCOVER"/update.sh && exit ;;
-        16) exit ;;
-        99) "$DISCOVER"/newModules.sh && exit ;;
->>>>>>> upstream/main
+        99) "$DISCOVER"/newModules.sh && exit ;;  # New Modules
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;
     esac
 }
