@@ -566,30 +566,41 @@ f_main(){
     echo "12. Parse XML"
     echo "13. Generate a malicious payload"
     echo "14. Start a Metasploit listener"
-    echo "15. Update"
-    echo "16. Exit"
+    echo "15. Sensitive Information Detector"
+    echo "16. API Security Scanner"
+    echo "17. OAuth/JWT Security Tester"
+    echo "18. Cloud Security Scanner"
+    echo "19. Container Security Scanner"
+    echo "20. MSF Web & API Security Scanner"
+    echo "21. Update"
+    echo "22. Exit"
     echo
     echo -n "Choice: "
     read -r CHOICE
 
     case "$CHOICE" in
-        1) "$DISCOVER"/domain.sh ;;
-        2) "$DISCOVER"/person.sh && exit ;;
-        3) "$DISCOVER"/generateTargets.sh && exit ;;
-        4) f_cidr ;;
-        5) f_list ;;
-        6) f_single ;;
-        7) f_enumerate ;;
-        8) "$DISCOVER"/directObjectRef.sh && exit ;;
-        9) "$DISCOVER"/multiTabs.sh && exit ;;
-        10) "$DISCOVER"/nikto.sh && exit ;;
-        11) "$DISCOVER"/ssl.sh && exit ;;
-        12) "$DISCOVER"/parse.sh && exit ;;
-        13) "$DISCOVER"/payload.sh && exit ;;
-        14) "$DISCOVER"/listener.sh && exit ;;
-        15) sudo "$DISCOVER"/update.sh && exit ;;
-        16) exit ;;
-        99) sudo "$DISCOVER"/newModules.sh && exit ;;
+        1) f_domain ;;          # Domain
+        2) bash "$DISCOVER"/person.sh ;;      # Person
+        3) f_generate ;;        # Generate target list
+        4) f_cidr ;;            # CIDR
+        5) f_list ;;            # List
+        6) f_single ;;          # IP, Range, or URL
+        7) f_rerunmenu ;;       # Rerun
+        8) bash "$DISCOVER"/directObjectRef.sh ;;  # Direct Object Reference
+        9) bash "$DISCOVER"/multiTabs.sh ;;    # Open Multiple Tabs in Firefox
+        10) bash "$DISCOVER"/nikto.sh ;;       # Nikto
+        11) bash "$DISCOVER"/ssl.sh ;;         # SSL
+        12) bash "$DISCOVER"/parse.sh ;;       # Parse XML
+        13) bash "$DISCOVER"/payload.sh ;;     # Generate a malicious payload
+        14) bash "$DISCOVER"/listener.sh ;;    # Start a Metasploit listener
+        15) bash "$DISCOVER"/sensitive-detector.sh ;;  # Sensitive Information Detector
+        16) bash "$DISCOVER"/api-scanner.sh ;;  # API Security Scanner
+        17) bash "$DISCOVER"/oauth-jwt-tester.sh ;;  # OAuth/JWT Security Tester
+        18) bash "$DISCOVER"/cloud-scan.sh ;;  # Cloud Security Scanner
+        19) bash "$DISCOVER"/container-scan.sh ;;  # Container Security Scanner
+        20) bash "$DISCOVER"/msf-web-api.sh ;;  # MSF Web & API Security Scanner
+        21) bash "$DISCOVER"/update.sh ;;      # Update
+        22) exit ;;             # Exit
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;
     esac
 }
