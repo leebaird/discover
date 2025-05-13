@@ -25,6 +25,7 @@
 # Arthur Kay (@arthurakay) - Python scripts
 # Brett Fitzpatrick (@brettfitz) - SQL query
 # Robleh Esa (@RoblehEsa) - SQL queries
+# Yiğit ibrahim (ibrahimsql) - Container Security Scanner, Cloud Security Scanner, API Security modules
 
 # OPSEC: change your default nmap user agent located on line 160 at /usr/share/nmap/nselib/http.lua
 ###############################################################################################################################
