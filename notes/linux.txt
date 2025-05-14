@@ -325,6 +325,21 @@ If Network Level Authentication is enabled:
 xfreerdp /u:user /p:password /d:domain /v:10.0.0.10 /port:3389 /size:75%h /drive:share,/tmp /clipboard
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Reset a forgotten password
+
+Reboot your box and press 'e' at the GRUB menu to edit the boot options.
+Look for the line that starts with 'linux' and replace 'ro quiet splash' with 'rw init=/bin/bash'.
+ctrl x                       Reboot with changes.
+You may need to hit return or 'ls' to see the root shell.
+
+mount -o remount,rw /        Mount the filesystem and make it editable
+cat /etc/passwd              Show user accounts
+passwd <user>                Set a new password
+exec /sbin/init              Reboot
+
+Login as <user> with the new password.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Screen
 
 Allows session sharing where tmux does not.
@@ -542,8 +557,8 @@ id                                              User and group ids
 w                                               Users currently logged on
 last                                            Last 10 users logged on
 
-cat /etc/passwd                                 User accounts
-cat /etc/shadow                                 Encrypted passwords
+cat /etc/passwd                                 Show user accounts
+cat /etc/shadow                                 Show encrypted passwords
 
 passwd                                          Change the current user's password
 passwd <user>                                   Change another user's password
