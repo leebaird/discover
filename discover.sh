@@ -580,7 +580,7 @@ f_main(){
     read -r CHOICE
 
     case "$CHOICE" in
-        1) f_domain ;;          # Domain
+        1) "$DISCOVER"/domain.sh ;;          # Domain
         2) "$DISCOVER"/person.sh && exit ;;      # Person
         3) "$DISCOVER"/generateTargets.sh && exit ;;        # Generate target list
         4) f_cidr ;;            # CIDR
