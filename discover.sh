@@ -25,6 +25,7 @@
 # Arthur Kay (@arthurakay) - Python scripts
 # Brett Fitzpatrick (@brettfitz) - SQL query
 # Robleh Esa (@RoblehEsa) - SQL queries
+# Yiğit ibrahim (ibrahimsql) - Container Security Scanner, Cloud Security Scanner, API Security modules
 
 # OPSEC: change your default nmap user agent located on line 160 at /usr/share/nmap/nselib/http.lua
 ###############################################################################################################################
@@ -566,30 +567,42 @@ f_main(){
     echo "12. Parse XML"
     echo "13. Generate a malicious payload"
     echo "14. Start a Metasploit listener"
-    echo "15. Update"
-    echo "16. Exit"
+    echo "15. Sensitive Information Detector"
+    echo "16. API Security Scanner"
+    echo "17. OAuth/JWT Security Tester"
+    echo "18. Cloud Security Scanner"
+    echo "19. Container Security Scanner"
+    echo "20. MSF Web & API Security Scanner"
+    echo "21. Update"
+    echo "22. Exit"
     echo
     echo -n "Choice: "
     read -r CHOICE
 
     case "$CHOICE" in
-        1) "$DISCOVER"/domain.sh ;;
-        2) "$DISCOVER"/person.sh && exit ;;
-        3) "$DISCOVER"/generateTargets.sh && exit ;;
-        4) f_cidr ;;
-        5) f_list ;;
-        6) f_single ;;
-        7) f_enumerate ;;
-        8) "$DISCOVER"/directObjectRef.sh && exit ;;
-        9) "$DISCOVER"/multiTabs.sh && exit ;;
-        10) "$DISCOVER"/nikto.sh && exit ;;
-        11) "$DISCOVER"/ssl.sh && exit ;;
-        12) "$DISCOVER"/parse.sh && exit ;;
-        13) "$DISCOVER"/payload.sh && exit ;;
-        14) "$DISCOVER"/listener.sh && exit ;;
-        15) sudo "$DISCOVER"/update.sh && exit ;;
-        16) exit ;;
-        99) "$DISCOVER"/newModules.sh && exit ;;
+        1) "$DISCOVER"/domain.sh ;;          # Domain
+        2) "$DISCOVER"/person.sh && exit ;;      # Person
+        3) "$DISCOVER"/generateTargets.sh && exit ;;        # Generate target list
+        4) f_cidr ;;            # CIDR
+        5) f_list ;;            # List
+        6) f_single ;;          # IP, Range, or URL
+        7) f_enumerate ;;       # Enumerate
+        8) "$DISCOVER"/directObjectRef.sh && exit ;;  # Direct Object Reference
+        9) "$DISCOVER"/multiTabs.sh && exit ;;    # Open Multiple Tabs in Firefox
+        10) "$DISCOVER"/nikto.sh && exit ;;       # Nikto
+        11) "$DISCOVER"/ssl.sh && exit ;;         # SSL
+        12) "$DISCOVER"/parse.sh && exit ;;       # Parse XML
+        13) "$DISCOVER"/payload.sh && exit ;;     # Generate a malicious payload
+        14) "$DISCOVER"/listener.sh && exit ;;    # Start a Metasploit listener
+        15) "$DISCOVER"/sensitive-detector.sh && exit ;;  # Sensitive Information Detector
+        16) "$DISCOVER"/api-scanner.sh && exit ;;  # API Security Scanner
+        17) "$DISCOVER"/oauth-jwt-tester.sh && exit ;;  # OAuth/JWT Security Tester
+        18) "$DISCOVER"/cloud-scan.sh && exit ;;  # Cloud Security Scanner
+        19) "$DISCOVER"/container-scan.sh && exit ;;  # Container Security Scanner
+        20) "$DISCOVER"/msf-web-api.sh && exit ;;  # MSF Web & API Security Scanner
+        21) sudo "$DISCOVER"/update.sh && exit ;;      # Update
+        22) exit ;;             # Exit
+        99) "$DISCOVER"/newModules.sh && exit ;;  # New Modules
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;
     esac
 }
