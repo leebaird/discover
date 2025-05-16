@@ -172,16 +172,9 @@ fi
 
 # -----------------------------------------------------------------------------------------------
 
-if [ -d /opt/discover/.git ]; then
-    echo -e "${BLUE}Updating Discover.${NC}"
-    chown -R $(logname):$(logname) /opt/discover/
-    cd /opt/discover || exit ; git pull
-    echo
-else
-    echo -e "${BLUE}Updating Discover.${NC}"
-    cd "$DISCOVER" || exit ; git pull
-    echo
-fi
+echo -e "${BLUE}Updating Discover.${NC}"
+cd "$DISCOVER" || exit ; git pull
+echo
 
 if ! command -v dnstwist &> /dev/null; then
     echo -e "${YELLOW}Installing dnstwist.${NC}"
