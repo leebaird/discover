@@ -41,8 +41,14 @@ MISC
 12. Parse XML
 13. Generate a malicious payload
 14. Start a Metasploit listener
-15. Update
-16. Exit
+15. Sensitive Information Detector
+16. API Security Scanner
+17. OAuth/JWT Security Tester
+18. Cloud Security Scanner
+19. Container Security Scanner
+20. MSF Web & API Security Scanner
+21. Update
+22. Exit
 ```
 ## RECON
 ### Domain
