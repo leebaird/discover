@@ -1,0 +1,129 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "discover-framework"
+version = "1.0.0"
+description = "A collection of security testing tools for reconnaissance, scanning, enumeration, and more"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Lee Baird", email = "discoverscripts@gmail.com"},
+]
+maintainers = [
+    {name = "Jay Townsend", email = "jay.townsend@example.com"},
+    {name = "Lee Baird", email = "discoverscripts@gmail.com"},
+]
+keywords = ["security", "penetration testing", "reconnaissance", "scanning"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+
+dependencies = [
+    "beautifulsoup4==4.5.3",
+    "lxml==5.4.0",
+    "html2text==2025.4.15",
+    "ipaddress==1.0.23",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.5",
+    "pytest-cov==6.1.1",
+    "ruff==0.11.10",
+    "mypy>=1.15.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/leebaird/discover"
+"Bug Tracker" = "https://github.com/leebaird/discover/issues"
+
+[project.scripts]
+discover = "discover:main_menu"
+
+[tool.setuptools]
+packages = ["modules", "parsers"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_configs = true
+ignore_missing_imports = true
+show_traceback = true
+show_error_codes = true
+namespace_packages = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+python_classes = "Test*"
+
+[tool.uv]
+python-preference = "managed"
+
+[tool.uv.pip]
+python-version = "3.12"
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    "tests",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".mypy_cache",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".github",
+    ".venv",
+    ".vscode",
+    ".idea",
+    "__pypackages__",
+    "build",
+    "dist",
+    "site-packages",
+    "venv",
+]
+
+line-length = 130
+target-version = "py312"
+show-fixes = true
+
+[tool.ruff.lint]
+select = ["E4",
+    "E7",
+    "E9",
+    "F",
+    "I",
+    "UP",
+    "TCH",
+    "FA",
+    "RUF",
+    "PT",
+    ]
+ignore = ["S311", "RUF021", "RUF029", "F841"]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+
+skip-magic-trailing-comma = false
+
+line-ending = "auto"
