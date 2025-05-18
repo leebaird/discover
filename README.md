@@ -15,7 +15,7 @@ enumeration, and malicious payload creation using Metasploit. For use with Kali 
 * git clone https://github.com/leebaird/discover
 * cd discover/
 * ./discover.sh
-* Select option 15 to update the operating system and install various tools before using the framework.
+* Select the 'Update' option to update the operating system and install various tools before using the framework.
 * Some options will require root credentials to run.
 
 
