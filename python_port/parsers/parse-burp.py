@@ -6,8 +6,10 @@ import csv
 import os
 import re
 from base64 import b64decode
+from typing import AnyStr
+
 from bs4 import BeautifulSoup
-from typing import AnyStr, List, Optional
+
 
 def main():
     parser = argparse.ArgumentParser(description='Parse Burp Suite Pro XML base64 encoded files to CSV.')
@@ -20,17 +22,17 @@ def main():
     file_path: AnyStr = xml_file_to_parse
 
     try:
-        with open(file_path, 'r') as file:
+        with open(file_path) as file:
             soup = BeautifulSoup(file, 'xml')
-    except IOError:
-        print(f"Could not open file: {file_path}")
+    except OSError:
+        print(f'Could not open file: {file_path}')
         return
     except Exception as ex:
-        print(f"Could not parse XML: {ex}")
+        print(f'Could not parse XML: {ex}')
         return
 
     issues = soup.find_all('issues')
-    issue_data: List = []
+    issue_data: list = []
 
     for entries in issues:
         vulnerabilityClassifications = find_and_extract_text(entries, 'vulnerabilityClassifications')
@@ -45,18 +47,48 @@ def main():
         request, response = extract_request_response(entries)
         references = find_and_extract_text(entries, 'references')
 
-        results = (vulnerabilityClassifications, name, severity, confidence, host, ip, location, issueDetail, issueBackground,
-                   remediationBackground, request, response, references)
+        results = (
+            vulnerabilityClassifications,
+            name,
+            severity,
+            confidence,
+            host,
+            ip,
+            location,
+            issueDetail,
+            issueBackground,
+            remediationBackground,
+            request,
+            response,
+            references,
+        )
         issue_data.append(results)
 
     try:
         with open(save_location, 'w+', newline='', encoding='utf-8') as outfile:
             if issue_data:
                 writer = csv.writer(outfile, quoting=csv.QUOTE_MINIMAL, escapechar='\\')
-                writer.writerow(['Classification', 'Vulnerability', 'Severity', 'Confidence', 'URL', 'IP', 'Location', 'Description', 'Background', 'Remediation', 'Request', 'Response', 'See Also'])
+                writer.writerow(
+                    [
+                        'Classification',
+                        'Vulnerability',
+                        'Severity',
+                        'Confidence',
+                        'URL',
+                        'IP',
+                        'Location',
+                        'Description',
+                        'Background',
+                        'Remediation',
+                        'Request',
+                        'Response',
+                        'See Also',
+                    ]
+                )
                 writer.writerows(issue_data)
-    except IOError:
-        print(f"Could not write to file: {save_location}")
+    except OSError:
+        print(f'Could not write to file: {save_location}')
+
 
 def find_and_extract_text(entry, tag):
     element = entry.find(tag)
@@ -77,11 +109,12 @@ def find_and_extract_text(entry, tag):
     else:
         return ''
 
+
 def parse_issue_detail(html_content):
     soup = BeautifulSoup(html_content, 'html.parser')
     # Initialize a string to hold the formatted text
-    formatted_text = ""
-    
+    formatted_text = ''
+
     # Process each part of the HTML content
     for content in soup.contents:
         if content.name is None:
@@ -89,69 +122,76 @@ def parse_issue_detail(html_content):
             stripped_content = content.strip()
             if stripped_content:
                 # Add a newline before specific sentences
-                if stripped_content.startswith("Burp relies on the Java") or stripped_content.startswith("The server presented the following"):
-                    formatted_text += "\n" + stripped_content + "\n"
+                if stripped_content.startswith('Burp relies on the Java') or stripped_content.startswith(
+                    'The server presented the following'
+                ):
+                    formatted_text += '\n' + stripped_content + '\n'
                 else:
-                    formatted_text += stripped_content + "\n"
+                    formatted_text += stripped_content + '\n'
         elif content.name == 'ul':
             # Process list items
             for li in content.find_all('li'):
-                formatted_text += "- " + li.get_text(strip=True) + "\n"
+                formatted_text += '- ' + li.get_text(strip=True) + '\n'
         elif content.name == 'table':
             # Process table rows
             for row in content.find_all('tr'):
                 cells = [cell.get_text(strip=True) for cell in row.find_all('td')]
-                formatted_text += " ".join(cells).strip() + "\n"
+                formatted_text += ' '.join(cells).strip() + '\n'
         elif content.name == 'h4':
             # Include <h4> tag content
             h4_text = content.get_text(strip=True)
-            formatted_text += h4_text + "\n"
-    
+            formatted_text += h4_text + '\n'
+
     # Clean up the final formatted text
-    formatted_text = "\n".join(filter(None, formatted_text.split("\n")))  # Remove empty lines
+    formatted_text = '\n'.join(filter(None, formatted_text.split('\n')))  # Remove empty lines
     return formatted_text
+
 
 def parse_vulnerability_classifications(html_content):
     if not html_content.strip():
-        return "No content"
-    
+        return 'No content'
+
     li_texts = re.findall(r'<li>(.*?)<\/li>', html_content, re.DOTALL)
     formatted_text_lines = [re.sub(r'<[^>]+>', '', li_text).strip() for li_text in li_texts]
     formatted_text = '\n'.join(formatted_text_lines)
-    
+
     return formatted_text
+
 
 def find_host_and_ip(entry, tag):
     host_element = entry.find(tag)
     if host_element is None:
         return '', ''
-    
+
     ip = host_element.get('ip', '')
     host = host_element.text
-    
+
     return host, ip
+
 
 def extract_request_response(entry):
     request_response = entry.find('requestresponse')
     if request_response is None:
         return '', ''
-    
+
     try:
         request = b64decode(find_and_extract_text(request_response, 'request')).decode()
     except binascii.Error:
         request = ''
-    
+
     try:
         response = b64decode(find_and_extract_text(request_response, 'response')).decode()
     except binascii.Error:
         response = ''
-    
+
     return request, response
+
 
 def extract_urls(html_content):
     soup = BeautifulSoup(html_content, 'html.parser')
     urls = [a['href'] for a in soup.find_all('a', href=True)]
     return '\n'.join(urls)
+
 
 if __name__ == '__main__':
     main()

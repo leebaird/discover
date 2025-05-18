@@ -14,57 +14,68 @@ import re
 try:
     from lxml import etree
 except ImportError:
-    print("Missing lxml library. Please install using PIP3 or install using your distro python3 package if available. https://pypi.python.org/pypi/lxml/")
+    print(
+        'Missing lxml library. Please install using PIP3 or install using your distro python3 package if available. https://pypi.python.org/pypi/lxml/'
+    )
     exit()
 
 try:
     import html2text
 except ImportError:
-    print("Missing html2text library. Please install using PIP3 or install using your distro python3 package if available. https://pypi.python.org/pypi/html2text/")
+    print(
+        'Missing html2text library. Please install using PIP3 or install using your distro python3 package if available. https://pypi.python.org/pypi/html2text/'
+    )
     exit()
 
 # Custom libraries
 try:
     import utfdictcsv
 except ImportError:
-    print("Missing dict to csv converter custom library. utfdictcsv.py should be in the same path as this file.")
+    print('Missing dict to csv converter custom library. utfdictcsv.py should be in the same path as this file.')
     exit()
 
 ################################################################
 
-CUSTOM_HEADERS = {'CVSS_score': 'CVSS Score',
-                  'ip_address': 'IP Address',
-                  'fqdn': 'FQDN',
-                  'os': 'OS',
-                  'port_status': 'Port',
-                  'vuln_name': 'Vulnerability',
-                  'vuln_description': 'Description',
-                  'solution': 'Solution',
-                  'links': 'Links',
-                  'cve': 'CVE'}
+CUSTOM_HEADERS = {
+    'CVSS_score': 'CVSS Score',
+    'ip_address': 'IP Address',
+    'fqdn': 'FQDN',
+    'os': 'OS',
+    'port_status': 'Port',
+    'vuln_name': 'Vulnerability',
+    'vuln_description': 'Description',
+    'solution': 'Solution',
+    'links': 'Links',
+    'cve': 'CVE',
+}
 
-REPORT_HEADERS = ['CVSS_score',
-                  'ip_address',
-                  'fqdn',
-                  'os',
-                  'port_status',
-                  'vuln_name',
-                  'vuln_description',
-                  'solution',
-                  'links',
-                  'cve']
+REPORT_HEADERS = [
+    'CVSS_score',
+    'ip_address',
+    'fqdn',
+    'os',
+    'port_status',
+    'vuln_name',
+    'vuln_description',
+    'solution',
+    'links',
+    'cve',
+]
+
 
 def htmltext(blob):
     h = html2text.HTML2Text()
     h.ignore_links = False
     return h.handle(blob)
 
+
 def report_writer(report_dic, output_filename):
-    with open(output_filename, "wb") as outFile:
+    with open(output_filename, 'wb') as outFile:
         csvWriter = utfdictcsv.DictUnicodeWriter(outFile, REPORT_HEADERS, quoting=csv.QUOTE_ALL)
         csvWriter.writerow(CUSTOM_HEADERS)
         csvWriter.writerows(report_dic)
-    print("Successfully parsed.")
+    print('Successfully parsed.')
+
 
 def issue_r(raw_row, vuln):
     ret_rows = []
@@ -88,7 +99,7 @@ def issue_r(raw_row, vuln):
         _port = vuln_details.findtext('PORT')
         _temp['port_status'] = _port
 
-        search = "//GLOSSARY/VULN_DETAILS_LIST/VULN_DETAILS[@id='{}']".format(_gid)
+        search = f"//GLOSSARY/VULN_DETAILS_LIST/VULN_DETAILS[@id='{_gid}']"
         vuln_item = vuln.find(search)
         if vuln_item is not None:
             # Vuln name
@@ -98,8 +109,9 @@ def issue_r(raw_row, vuln):
             _temp['solution'] = re.sub('Workaround(s)?:.+\n', '', htmltext(vuln_item.findtext('SOLUTION')))
 
             # Vuln_description
-            _temp['vuln_description'] = "\n".join(
-                [htmltext(vuln_item.findtext('THREAT')), htmltext(vuln_item.findtext('IMPACT'))])
+            _temp['vuln_description'] = '\n'.join(
+                [htmltext(vuln_item.findtext('THREAT')), htmltext(vuln_item.findtext('IMPACT'))]
+            )
 
             # CVSS
             _temp['CVSS_score'] = vuln_item.findtext('CVSS_SCORE/CVSS_BASE')
@@ -108,12 +120,13 @@ def issue_r(raw_row, vuln):
             _temp_cve_details = vuln_item.iterfind('CVE_ID_LIST/CVE_ID')
             if _temp_cve_details:
                 _cl = {cve_detail.findtext('ID'): cve_detail.findtext('URL') for cve_detail in _temp_cve_details}
-                _temp['cve'] = "\n".join(list(_cl.keys()))
-                _temp['links'] = "\n".join(list(_cl.values()))
+                _temp['cve'] = '\n'.join(list(_cl.keys()))
+                _temp['links'] = '\n'.join(list(_cl.values()))
 
             ret_rows.append(_temp.copy())
 
     return ret_rows
+
 
 def qualys_parser(qualys_xml_file):
     parser = etree.XMLParser(remove_blank_text=True, no_network=True, recover=True)
@@ -126,21 +139,22 @@ def qualys_parser(qualys_xml_file):
 
     report_writer(master_list, args.outfile)
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     # Parse args
     aparser = argparse.ArgumentParser(description='Converts Qualys XML results to .csv file.')
-    aparser.add_argument('--out',
-                         dest='outfile',
-                         default='qualys.csv',
-                         help="WARNING: By default, output will overwrite current path to the file named 'qualys.csv'")
-    aparser.add_argument('qualys_xml_file',
-                         type=str,
-                         help='Qualys xml file.')
+    aparser.add_argument(
+        '--out',
+        dest='outfile',
+        default='qualys.csv',
+        help="WARNING: By default, output will overwrite current path to the file named 'qualys.csv'",
+    )
+    aparser.add_argument('qualys_xml_file', type=str, help='Qualys xml file.')
 
     args = aparser.parse_args()
 
     try:
         qualys_parser(args.qualys_xml_file)
-    except IOError:
-        print("[!] Error processing file: {}".format(args.qualys_xml_file))
+    except OSError:
+        print(f'[!] Error processing file: {args.qualys_xml_file}')
         exit()

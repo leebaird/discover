@@ -8,13 +8,14 @@
 # Last edited by Alexander Sferrella on 9/22/2017
 # Ported to python3 by Jay Townsend 2021-10-11
 import codecs
-from io import StringIO
 import csv
+from io import StringIO
 
 ################################################################
 
-class DictUnicodeWriter(object):
-    def __init__(self, f, fieldnames, dialect=csv.excel, encoding="utf-8", **kwds):
+
+class DictUnicodeWriter:
+    def __init__(self, f, fieldnames, dialect=csv.excel, encoding='utf-8', **kwds):
         # Redirect output to a queue
         self.queue = StringIO()
         self.writer = csv.DictWriter(self.queue, fieldnames, dialect=dialect, **kwds)
@@ -25,7 +26,7 @@ class DictUnicodeWriter(object):
         self.writer.writerow({k: v for k, v in D.items() if v})
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()
-        data = str.encode(data).decode("utf-8")
+        data = str.encode(data).decode('utf-8')
         # ... and re-encode it into the target encoding
         data = self.encoder.encode(data)
         # Write to the target stream

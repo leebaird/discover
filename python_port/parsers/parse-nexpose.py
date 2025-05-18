@@ -12,51 +12,60 @@ import io
 try:
     from lxml import etree
 except ImportError:
-    print("Missing lxml library. Please install using PIP3 or install using your distro python3 package if available. https://pypi.python.org/pypi/lxml/")
+    print(
+        'Missing lxml library. Please install using PIP3 or install using your distro python3 package if available. https://pypi.python.org/pypi/lxml/'
+    )
     exit()
 
 # Custom libraries
 try:
     import utfdictcsv
 except ImportError:
-    print("Missing dict to csv converter custom library. utfdictcsv.py should be in the same path as this file.")
+    print('Missing dict to csv converter custom library. utfdictcsv.py should be in the same path as this file.')
     exit()
 
-CUSTOM_HEADERS = {'CVSS_score': 'CVSS Score',
-                  'ip_address': 'IP Address',
-                  'fqdn': 'FQDN',
-                  'os': 'OS',
-                  'port_status': 'Port',
-                  'vuln_name': 'Vulnerability',
-                  'vuln_description': 'Description',
-                  'proof': 'Proof',
-                  'solution': 'Solution',
-                  'ref_url': 'See Also',
-                  'cve': 'CVE', }
+CUSTOM_HEADERS = {
+    'CVSS_score': 'CVSS Score',
+    'ip_address': 'IP Address',
+    'fqdn': 'FQDN',
+    'os': 'OS',
+    'port_status': 'Port',
+    'vuln_name': 'Vulnerability',
+    'vuln_description': 'Description',
+    'proof': 'Proof',
+    'solution': 'Solution',
+    'ref_url': 'See Also',
+    'cve': 'CVE',
+}
 
-REPORT_HEADERS = ['CVSS_score',
-                  'ip_address',
-                  'fqdn',
-                  'os',
-                  'port_status',
-                  'vuln_name',
-                  'vuln_description',
-                  'proof',
-                  'solution',
-                  'ref_url',
-                  'cve', ]
+REPORT_HEADERS = [
+    'CVSS_score',
+    'ip_address',
+    'fqdn',
+    'os',
+    'port_status',
+    'vuln_name',
+    'vuln_description',
+    'proof',
+    'solution',
+    'ref_url',
+    'cve',
+]
+
 
 def report_writer(report_dic, output_filename):
-    with open(output_filename, "wb") as outFile:
+    with open(output_filename, 'wb') as outFile:
         csvWriter = utfdictcsv.DictUnicodeWriter(outFile, REPORT_HEADERS, quoting=csv.QUOTE_ALL)
         csvWriter.writerow(CUSTOM_HEADERS)
         csvWriter.writerows(report_dic)
-    print("Successfully parsed.")
+    print('Successfully parsed.')
+
 
 def fix_text(txt):
     lines = io.StringIO(txt).readlines()
-    _temp_stage_1 = " ".join([line.strip() for line in lines if line.strip()])
+    _temp_stage_1 = ' '.join([line.strip() for line in lines if line.strip()])
     return ' '.join(_temp_stage_1.split())
+
 
 def issue_r(raw_row, vuln):
     ret_rows = []
@@ -101,14 +110,13 @@ def issue_r(raw_row, vuln):
                                 proof_items.append(child.text)
                             if child.tag == 'URLLink':
                                 proof_items.append(child.attrib['LinkURL'])
-                        _temp['proof'] = "\n".join(proof_items)
+                        _temp['proof'] = '\n'.join(proof_items)
 
                         search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'])
                         # print search
                         vuln_item = vuln.find(search)
                         if vuln_item is None:
-                            search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(
-                                ee.attrib['id'].upper())
+                            search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'].upper())
                             # print search
                             vuln_item = vuln.find(search)
 
@@ -133,7 +141,7 @@ def issue_r(raw_row, vuln):
                                     solution.append(solve_item.text.strip())
                                 if solve_item.tag == 'URLLink':
                                     solution.append(solve_item.attrib['LinkURL'])
-                            _temp['solution'] = "\n".join(solution)
+                            _temp['solution'] = '\n'.join(solution)
 
                         # Reference URL
                         _temp['ref_url'] = vuln_item.findtext("references/reference[@source='URL']")
@@ -159,7 +167,7 @@ def issue_r(raw_row, vuln):
                         proof_items.append(child.text)
                     if child.tag == 'URLLink':
                         proof_items.append(child.attrib['LinkURL'])
-                _temp['proof'] = "\n".join(proof_items)
+                _temp['proof'] = '\n'.join(proof_items)
 
                 search = "//VulnerabilityDefinitions/vulnerability[@id='{}']".format(ee.attrib['id'])
                 # print search
@@ -190,7 +198,7 @@ def issue_r(raw_row, vuln):
                             solution.append(solve_item.text.strip())
                         if solve_item.tag == 'URLLink':
                             solution.append(solve_item.attrib['LinkURL'])
-                    _temp['solution'] = "\n".join(solution)
+                    _temp['solution'] = '\n'.join(solution)
 
                 # Reference URL
                 _temp['ref_url'] = vuln_item.findtext("references/reference[@source='URL']")
@@ -201,6 +209,7 @@ def issue_r(raw_row, vuln):
                 ret_rows.append(_temp.copy())
 
     return ret_rows
+
 
 def nexpose_parser(nexpose_xml_file):
     parser = etree.XMLParser(remove_blank_text=True, no_network=True, recover=True)
@@ -213,21 +222,25 @@ def nexpose_parser(nexpose_xml_file):
 
     report_writer(master_list, args.outfile)
 
-if __name__ == "__main__":
-    aparser = argparse.ArgumentParser(description='Converts Nexpose XML results to .csv file. '
-                                                  'Only vunerabilities are converted. '
-                                                  'Rows with only ports are NOT included in the .csv file.')
-    aparser.add_argument('--out',
-                         dest='outfile',
-                         default='nexpose.csv',
-                         help="WARNING: By default, output will overwrite current path to the file named 'nexpose.csv'")
-    aparser.add_argument('nexpose_xml_file', type=str,
-                         help='Nexpose version 1 or 2 xml file to be converted to csv file')
+
+if __name__ == '__main__':
+    aparser = argparse.ArgumentParser(
+        description='Converts Nexpose XML results to .csv file. '
+        'Only vunerabilities are converted. '
+        'Rows with only ports are NOT included in the .csv file.'
+    )
+    aparser.add_argument(
+        '--out',
+        dest='outfile',
+        default='nexpose.csv',
+        help="WARNING: By default, output will overwrite current path to the file named 'nexpose.csv'",
+    )
+    aparser.add_argument('nexpose_xml_file', type=str, help='Nexpose version 1 or 2 xml file to be converted to csv file')
 
     args = aparser.parse_args()
 
     try:
         nexpose_parser(args.nexpose_xml_file)
-    except IOError:
-        print("[!] Error processing file: {}".format(args.nexpose_xml_file))
+    except OSError:
+        print(f'[!] Error processing file: {args.nexpose_xml_file}')
         exit()

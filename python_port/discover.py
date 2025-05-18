@@ -20,21 +20,20 @@ This Python port utilizes Python 3.12 features and best practices:
 
 from __future__ import annotations
 
-import os
-import sys
-import subprocess
-import signal
 import datetime
-import socket
+import os
 import re
+import signal
+import socket
+import sys
 from pathlib import Path
-from typing import Optional, Union, Callable, Any, NoReturn
+from typing import Any, NoReturn
 
 # Global variables
 CWD = Path.cwd()
 DISCOVER = Path(__file__).parent.absolute()
-MYIP: Optional[str] = None
-RUNDATE = datetime.datetime.now().strftime("%B %d, %Y")
+MYIP: str | None = None
+RUNDATE = datetime.datetime.now().strftime('%B %d, %Y')
 
 # ANSI colors
 BLUE = '\033[1;34m'
@@ -47,6 +46,7 @@ LARGE = '=======================================================================
 MEDIUM = '=================================================================='
 SMALL = '========================================'
 
+
 # Get local IP address
 def get_local_ip() -> str:
     """
@@ -57,14 +57,16 @@ def get_local_ip() -> str:
     """
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
+        s.connect(('8.8.8.8', 80))
         ip = s.getsockname()[0]
         s.close()
         return ip
-    except (socket.error, OSError):
-        return "127.0.0.1"
+    except OSError:
+        return '127.0.0.1'
+
 
 MYIP = get_local_ip()
+
 
 # Signal handler for graceful termination
 def terminate_handler(signum: int, frame: Any) -> NoReturn:
@@ -78,24 +80,26 @@ def terminate_handler(signum: int, frame: Any) -> NoReturn:
     Returns:
         Never returns, exits the program
     """
-    save_dir = Path.home() / "data" / f"cancelled-{datetime.datetime.now().strftime('%H:%M:%S')}"
+    save_dir = Path.home() / 'data' / f'cancelled-{datetime.datetime.now().strftime("%H:%M:%S")}'
     save_dir.mkdir(parents=True, exist_ok=True)
 
     print()
-    print("[!] Terminating.")
+    print('[!] Terminating.')
     print()
-    print(f"{YELLOW}Saving data to {save_dir}.{NC}")
+    print(f'{YELLOW}Saving data to {save_dir}.{NC}')
 
     # Move data to save directory (implementation would depend on what data needs to be saved)
 
     print()
-    print("[*] Saving complete.")
+    print('[*] Saving complete.')
     print()
     sys.exit(1)
+
 
 # Register signal handlers
 signal.signal(signal.SIGINT, terminate_handler)
 signal.signal(signal.SIGTERM, terminate_handler)
+
 
 def banner() -> None:
     """
@@ -114,6 +118,7 @@ By Lee Baird{NC}""")
     print()
     print()
 
+
 def error() -> NoReturn:
     """
     Display an error message and exit.
@@ -122,13 +127,14 @@ def error() -> NoReturn:
         Never returns, exits the program
     """
     print()
-    print(f"{RED}{SMALL}{NC}")
+    print(f'{RED}{SMALL}{NC}')
     print()
-    print(f"{RED}[!] Invalid choice or entry.{NC}")
+    print(f'{RED}[!] Invalid choice or entry.{NC}')
     print()
-    print(f"{RED}{SMALL}{NC}")
+    print(f'{RED}{SMALL}{NC}')
     print()
     sys.exit(1)
+
 
 def check_location(location: str) -> str:
     """
@@ -152,6 +158,7 @@ def check_location(location: str) -> str:
 
     return location
 
+
 def check_display() -> None:
     """
     Check if the script is running in a graphical environment.
@@ -164,13 +171,14 @@ def check_display() -> None:
     """
     if not os.environ.get('DISPLAY'):
         print()
-        print(f"{RED}{MEDIUM}{NC}")
+        print(f'{RED}{MEDIUM}{NC}')
         print()
-        print(f"{RED}[!] This option must be ran locally.{NC}")
+        print(f'{RED}[!] This option must be ran locally.{NC}')
         print()
-        print(f"{RED}{MEDIUM}{NC}")
+        print(f'{RED}{MEDIUM}{NC}')
         print()
         sys.exit(1)
+
 
 def type_of_scan() -> str:
     """
@@ -182,36 +190,37 @@ def type_of_scan() -> str:
     Raises:
         SystemExit: If an invalid choice is made
     """
-    print(f"{BLUE}Type of scan: {NC}")
+    print(f'{BLUE}Type of scan: {NC}')
     print()
-    print("1.  External")
-    print("2.  Internal")
-    print("3.  Previous menu")
+    print('1.  External')
+    print('2.  Internal')
+    print('3.  Previous menu')
     print()
-    choice = input("Choice: ")
+    choice = input('Choice: ')
 
     # Using match-case statement (Python 3.10+)
     match choice:
-        case "1":
+        case '1':
             print()
-            print(f"{YELLOW}[*] Setting the max probe round trip to 1.5s.{NC}")
-            maxrtt = "1500ms"
-            print()
-            print(MEDIUM)
-            print()
-            return maxrtt
-        case "2":
-            print()
-            print(f"{YELLOW}[*] Setting the max probe round trip to 500ms.{NC}")
-            maxrtt = "500ms"
+            print(f'{YELLOW}[*] Setting the max probe round trip to 1.5s.{NC}')
+            maxrtt = '1500ms'
             print()
             print(MEDIUM)
             print()
             return maxrtt
-        case "3":
+        case '2':
+            print()
+            print(f'{YELLOW}[*] Setting the max probe round trip to 500ms.{NC}')
+            maxrtt = '500ms'
+            print()
+            print(MEDIUM)
+            print()
+            return maxrtt
+        case '3':
             main_menu()
         case _:
             error()
+
 
 def scan_name() -> tuple[str, str]:
     """
@@ -225,9 +234,9 @@ def scan_name() -> tuple[str, str]:
     """
     maxrtt = type_of_scan()
 
-    print(f"{YELLOW}[*] Warning: no spaces allowed{NC}")
+    print(f'{YELLOW}[*] Warning: no spaces allowed{NC}')
     print()
-    name = input("Name of scan: ")
+    name = input('Name of scan: ')
 
     # Validate scan name: only allow alphanumeric, dashes, and underscores
     if not re.match(r'^[a-zA-Z0-9_-]+$', name):
@@ -238,6 +247,7 @@ def scan_name() -> tuple[str, str]:
     scan_dir.mkdir(exist_ok=True)
 
     return name, maxrtt
+
 
 def cidr_scan() -> None:
     """
@@ -255,9 +265,9 @@ def cidr_scan() -> None:
     name, maxrtt = scan_name()
 
     print()
-    print("Usage: 192.168.1.0/24")
+    print('Usage: 192.168.1.0/24')
     print()
-    cidr = input("CIDR: ")
+    cidr = input('CIDR: ')
 
     # Check for no answer
     if not cidr:
@@ -277,10 +287,10 @@ def cidr_scan() -> None:
     location = str(tmp_list)
 
     print()
-    exclude = input("Do you have an exclusion list? (y/N) ")
+    exclude = input('Do you have an exclusion list? (y/N) ')
 
     if exclude.lower() == 'y':
-        exclude_file = input("Enter the path to the file: ")
+        exclude_file = input('Enter the path to the file: ')
         if not exclude_file or not Path(exclude_file).is_file():
             error()
     else:
@@ -289,7 +299,7 @@ def cidr_scan() -> None:
         tmp_file.touch()
         exclude_file = str(tmp_file)
 
-    start_time = datetime.datetime.now().strftime("%r %Z")
+    start_time = datetime.datetime.now().strftime('%r %Z')
 
     try:
         # Call scanning module functions
@@ -307,6 +317,7 @@ def cidr_scan() -> None:
         if tmp_file.exists():
             tmp_file.unlink()
 
+
 def list_scan() -> None:
     """
     Perform a scan on a list of targets.
@@ -322,7 +333,7 @@ def list_scan() -> None:
     banner()
     name, maxrtt = scan_name()
 
-    location = input("Enter the location of your file: ")
+    location = input('Enter the location of your file: ')
     location = check_location(location)
 
     # Use Path object and context manager for file operations
@@ -330,7 +341,7 @@ def list_scan() -> None:
     tmp_file.touch()
     exclude_file = str(tmp_file)
 
-    start_time = datetime.datetime.now().strftime("%r %Z")
+    start_time = datetime.datetime.now().strftime('%r %Z')
 
     try:
         # Call scanning module functions
@@ -343,6 +354,7 @@ def list_scan() -> None:
         # Clean up using Path objects
         if tmp_file.exists():
             tmp_file.unlink()
+
 
 def single_scan() -> None:
     """
@@ -360,7 +372,7 @@ def single_scan() -> None:
     name, maxrtt = scan_name()
 
     print()
-    target = input("IP, range or URL: ")
+    target = input('IP, range or URL: ')
 
     # Check for no answer
     if not target:
@@ -380,7 +392,7 @@ def single_scan() -> None:
     tmp_file.touch()
     exclude_file = str(tmp_file)
 
-    start_time = datetime.datetime.now().strftime("%r %Z")
+    start_time = datetime.datetime.now().strftime('%r %Z')
 
     try:
         # Call scanning module functions
@@ -397,6 +409,7 @@ def single_scan() -> None:
         if tmp_file.exists():
             tmp_file.unlink()
 
+
 def domain_menu() -> None:
     """
     Display the domain reconnaissance menu.
@@ -411,27 +424,28 @@ def domain_menu() -> None:
 
     banner()
 
-    print(f"{BLUE}RECON{NC}")
+    print(f'{BLUE}RECON{NC}')
     print()
-    print("1.  Passive")
-    print("2.  Find registered domains")
-    print("3.  Previous menu")
+    print('1.  Passive')
+    print('2.  Find registered domains')
+    print('3.  Previous menu')
     print()
-    choice = input("Choice: ")
+    choice = input('Choice: ')
 
     # Using match-case statement (Python 3.10+)
     match choice:
-        case "1":
+        case '1':
             recon.passive_recon()
-        case "2":
+        case '2':
             recon.find_registered_domains()
-        case "3":
+        case '3':
             main_menu()
         case _:
             print()
-            print(f"{RED}[!] Invalid choice or entry, try again.{NC}")
+            print(f'{RED}[!] Invalid choice or entry, try again.{NC}')
             print()
             domain_menu()
+
 
 def person_recon() -> None:
     """
@@ -448,6 +462,7 @@ def person_recon() -> None:
     banner()
     recon.person_recon()
 
+
 def generate_targets() -> None:
     """
     Generate a target list.
@@ -463,6 +478,7 @@ def generate_targets() -> None:
     banner()
     scanning.generate_targets()
 
+
 def enumerate_scan() -> NoReturn:
     """
     Re-run Nmap scripts and MSF aux on a previous scan.
@@ -473,12 +489,11 @@ def enumerate_scan() -> NoReturn:
     Returns:
         Never returns, exits the program
     """
-    from modules import scanning
 
     banner()
     maxrtt = type_of_scan()
 
-    location = input("Enter the location of your previous scan: ")
+    location = input('Enter the location of your previous scan: ')
 
     # Check for no answer
     if not location:
@@ -492,7 +507,7 @@ def enumerate_scan() -> NoReturn:
     name = location
 
     print()
-    delay = input("Set scan delay. (0-5, enter for normal) ")
+    delay = input('Set scan delay. (0-5, enter for normal) ')
 
     # Check for no answer
     if not delay:
@@ -512,11 +527,12 @@ def enumerate_scan() -> NoReturn:
     print()
     print(MEDIUM)
     print()
-    print("[*] Scan complete.")
+    print('[*] Scan complete.')
     print()
-    print(f"The supporting data folder is located at {YELLOW}{name}{NC}")
+    print(f'The supporting data folder is located at {YELLOW}{name}{NC}')
     print()
     sys.exit(0)
+
 
 def main_menu() -> None:
     """
@@ -531,107 +547,122 @@ def main_menu() -> None:
     banner()
 
     # Create data directory if it doesn't exist using Path object
-    data_dir = Path.home() / "data"
+    data_dir = Path.home() / 'data'
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"{BLUE}RECON{NC}")
-    print("1.  Domain")
-    print("2.  Person")
+    print(f'{BLUE}RECON{NC}')
+    print('1.  Domain')
+    print('2.  Person')
     print()
-    print(f"{BLUE}SCANNING{NC}")
-    print("3.  Generate target list")
-    print("4.  CIDR")
-    print("5.  List")
-    print("6.  IP, range, or URL")
-    print("7.  Rerun Nmap scripts and MSF aux")
+    print(f'{BLUE}SCANNING{NC}')
+    print('3.  Generate target list')
+    print('4.  CIDR')
+    print('5.  List')
+    print('6.  IP, range, or URL')
+    print('7.  Rerun Nmap scripts and MSF aux')
     print()
-    print(f"{BLUE}WEB{NC}")
-    print("8.  Insecure direct object reference")
-    print("9.  Open multiple tabs in Firefox")
-    print("10. Nikto")
-    print("11. SSL")
+    print(f'{BLUE}WEB{NC}')
+    print('8.  Insecure direct object reference')
+    print('9.  Open multiple tabs in Firefox')
+    print('10. Nikto')
+    print('11. SSL')
     print()
-    print(f"{BLUE}MISC{NC}")
-    print("12. Parse XML")
-    print("13. Generate a malicious payload")
-    print("14. Start a Metasploit listener")
-    print("15. Sensitive Information Detector")
-    print("16. API Security Scanner")
-    print("17. OAuth/JWT Security Tester")
-    print("18. Cloud Security Scanner")
-    print("19. Container Security Scanner")
-    print("20. MSF Web & API Security Scanner")
-    print("21. Update")
-    print("22. Exit")
+    print(f'{BLUE}MISC{NC}')
+    print('12. Parse XML')
+    print('13. Generate a malicious payload')
+    print('14. Start a Metasploit listener')
+    print('15. Sensitive Information Detector')
+    print('16. API Security Scanner')
+    print('17. OAuth/JWT Security Tester')
+    print('18. Cloud Security Scanner')
+    print('19. Container Security Scanner')
+    print('20. MSF Web & API Security Scanner')
+    print('21. Update')
+    print('22. Exit')
     print()
-    choice = input("Choice: ")
+    choice = input('Choice: ')
 
     # Using match-case statement (Python 3.10+)
     match choice:
-        case "1":
+        case '1':
             domain_menu()
-        case "2":
+        case '2':
             person_recon()
-        case "3":
+        case '3':
             generate_targets()
-        case "4":
+        case '4':
             cidr_scan()
-        case "5":
+        case '5':
             list_scan()
-        case "6":
+        case '6':
             single_scan()
-        case "7":
+        case '7':
             enumerate_scan()
-        case "8":
+        case '8':
             from modules import web
+
             web.direct_object_ref()
-        case "9":
+        case '9':
             from modules import web
+
             web.multi_tabs()
-        case "10":
+        case '10':
             from modules import web
+
             web.nikto_scan()
-        case "11":
+        case '11':
             from modules import web
+
             web.ssl_check()
-        case "12":
+        case '12':
             from modules import misc
+
             misc.parse_xml()
-        case "13":
+        case '13':
             from modules import misc
+
             misc.generate_payload()
-        case "14":
+        case '14':
             from modules import misc
+
             misc.start_listener()
-        case "15":
+        case '15':
             from modules import misc
+
             misc.sensitive_detector()
-        case "16":
+        case '16':
             from modules import misc
+
             misc.api_scanner()
-        case "17":
+        case '17':
             from modules import misc
+
             misc.oauth_jwt_tester()
-        case "18":
+        case '18':
             from modules import misc
+
             misc.cloud_scanner()
-        case "19":
+        case '19':
             from modules import misc
+
             misc.container_scanner()
-        case "20":
+        case '20':
             from modules import misc
+
             misc.msf_web_api()
-        case "21":
+        case '21':
             from modules import misc
+
             misc.update_system()
-        case "22":
+        case '22':
             sys.exit(0)
         case _:
             print()
-            print(f"{RED}[!] Invalid choice or entry, try again.{NC}")
+            print(f'{RED}[!] Invalid choice or entry, try again.{NC}')
             print()
             main_menu()
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     # Entry point of the program
     main_menu()
