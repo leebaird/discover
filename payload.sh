@@ -15,6 +15,7 @@ f_format(){
     echo "4. exe"
     echo "5. psh"
     echo "6. raw"
+    echo "7. vba"
     echo
     echo -n "Choice: "
     read -r CHOICE2
@@ -32,6 +33,8 @@ f_format(){
             FORMAT="psh" ;;
         6) EXTENTION=".bin"
             FORMAT="raw" ;;
+        7) EXTENTION=".vba"
+            FORMAT="vba" ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/payload.sh ;;
     esac
 }
