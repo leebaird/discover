@@ -382,8 +382,6 @@ f_scan(){
     grep -Eiv '(0000:|0010:|0020:|0030:|0040:|0050:|0060:|0070:|0080:|0090:|00a0:|00b0:|00c0:|00d0:|1 hop|closed|guesses|guessing|filtered|fingerprint|general purpose|initiated|latency|network distance|no exact os|no os matches|os cpe|please report|rttvar|scanned in|unreachable|warning)' "$NAME"/nmap.nmap | sed 's/Nmap scan report for //g' | sed '/^OS:/d' > "$NAME"/nmap.txt
 
     grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' "$NAME"/nmap.nmap | $SIP > "$NAME"/hosts.txt
-    wc -l "$NAME"/hosts.txt | cut -d ' ' -f1     # BUG: I don't think this is needed
-
     grep 'open' "$NAME"/nmap.txt | grep -v 'WARNING' | awk '{print $1}' | sort -un > "$NAME"/ports.txt
     grep 'tcp' "$NAME"/ports.txt | cut -d '/' -f1 > "$NAME"/ports-tcp.txt
     grep 'udp' "$NAME"/ports.txt | cut -d '/' -f1 > "$NAME"/ports-udp.txt
@@ -438,8 +436,18 @@ f_ports(){
     fi
 
     # Combine Apache HBase ports and sort
-    cat "$NAME"/60010.txt "$NAME"/60030.txt > tmp
-    $SIP tmp > "$NAME"/apache-hbase.txt
+#    cat "$NAME"/60010.txt "$NAME"/60030.txt > tmp
+#    $SIP tmp > "$NAME"/apache-hbase.txt
+
+    tmp_files=()
+    for file in "$NAME"/60010.txt "$NAME"/60030.txt; do
+        [ -s "$file" ] && tmp_files+=("$file")
+    done
+
+    if [ ${#tmp_files[@]} -gt 0 ]; then
+        cat "${tmp_files[@]}" > tmp
+        $SIP tmp > "$NAME"/apache-hbase.txt
+    fi
 
     # Combine Bitcoin ports and sort
     cat "$NAME"/8332.txt "$NAME"/8333.txt > tmp
@@ -580,29 +588,29 @@ f_main(){
     read -r CHOICE
 
     case "$CHOICE" in
-        1) "$DISCOVER"/domain.sh ;;          # Domain
-        2) "$DISCOVER"/person.sh && exit ;;      # Person
-        3) "$DISCOVER"/generateTargets.sh && exit ;;        # Generate target list
-        4) f_cidr ;;            # CIDR
-        5) f_list ;;            # List
-        6) f_single ;;          # IP, Range, or URL
-        7) f_enumerate ;;       # Enumerate
-        8) "$DISCOVER"/directObjectRef.sh && exit ;;  # Direct Object Reference
-        9) "$DISCOVER"/multiTabs.sh && exit ;;    # Open Multiple Tabs in Firefox
-        10) "$DISCOVER"/nikto.sh && exit ;;       # Nikto
-        11) "$DISCOVER"/ssl.sh && exit ;;         # SSL
-        12) "$DISCOVER"/parse.sh && exit ;;       # Parse XML
-        13) "$DISCOVER"/payload.sh && exit ;;     # Generate a malicious payload
-        14) "$DISCOVER"/listener.sh && exit ;;    # Start a Metasploit listener
-        15) "$DISCOVER"/sensitive-detector.sh && exit ;;  # Sensitive Information Detector
-        16) "$DISCOVER"/api-scanner.sh && exit ;;  # API Security Scanner
-        17) "$DISCOVER"/oauth-jwt-tester.sh && exit ;;  # OAuth/JWT Security Tester
-        18) "$DISCOVER"/cloud-scan.sh && exit ;;  # Cloud Security Scanner
-        19) "$DISCOVER"/container-scan.sh && exit ;;  # Container Security Scanner
-        20) "$DISCOVER"/msf-web-api.sh && exit ;;  # MSF Web & API Security Scanner
-        21) sudo "$DISCOVER"/update.sh && exit ;;      # Update
-        22) exit ;;             # Exit
-        99) "$DISCOVER"/newModules.sh && exit ;;  # New Modules
+        1) ./domain.sh ;;
+        2) ./person.sh && exit ;;
+        3) ./generateTargets.sh && exit ;;
+        4) f_cidr ;;
+        5) f_list ;;
+        6) f_single ;;
+        7) f_enumerate ;;
+        8) ./directObjectRef.sh && exit ;;
+        9) ./multiTabs.sh && exit ;;
+        10) ./nikto.sh && exit ;;
+        11) ./ssl.sh && exit ;;
+        12) ./parse.sh && exit ;;
+        13) ./payload.sh && exit ;;
+        14) ./listener.sh && exit ;;
+        15) "$DISCOVER"/sensitive.sh && exit ;;
+        16) "$DISCOVER"/api-scanner.sh && exit ;;
+        17) "$DISCOVER"/oauth-jwt-tester.sh && exit ;;
+        18) "$DISCOVER"/cloud-scan.sh && exit ;;
+        19) "$DISCOVER"/container-scan.sh && exit ;;
+        20) "$DISCOVER"/msf-web-api.sh && exit ;;
+        21) sudo ./update.sh && exit ;;
+        22) exit ;;
+        99) ./newModules.sh && exit ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;
     esac
 }
