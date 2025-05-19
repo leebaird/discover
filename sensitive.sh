@@ -3,12 +3,8 @@
 # by ibrahimsql - Sensitive Information Detector
 # Discover framework compatibility module
 
-echo
-echo "$MEDIUM"
-echo
-echo "Sensitive Information Detector"
-echo "$MEDIUM"
-echo
+clear
+f_banner
 
 # Global settings
 DATESTAMP=$(date +%F)
@@ -30,57 +26,57 @@ f_scan_files(){
     local SCAN_DIR=$1
     local OUTPUT_DIR=$2
     
-    echo -e "${BLUE}[*] Scanning $SCAN_DIR for sensitive information...${NC}"
+    echo -e "${BLUE}[*] Scanning $SCAN_DIR for sensitive information.${NC}"
     
     # Create results directory
     mkdir -p "$OUTPUT_DIR/sensitive_info"
     
     # API Keys and credentials patterns
-    echo -e "${BLUE}[*] Searching for API keys and credentials...${NC}"
+    echo -e "${BLUE}[*] Searching for API keys and credentials.${NC}"
     grep -r -E "(api[_]?key|api[_]?token|secret|key|password|client[_]?id|client[_]?secret|access[_]?token|auth).*[=:][\"\'][0-9a-zA-Z\-_]{16,}[\"\']" "$SCAN_DIR" --include="*.{js,jsx,ts,tsx,php,py,rb,java,json,xml,yaml,yml,conf,config,env,ini,properties}" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/api_keys.txt"
     
     # AWS Keys
-    echo -e "${BLUE}[*] Searching for AWS access keys...${NC}"
+    echo -e "${BLUE}[*] Searching for AWS access keys.${NC}"
     grep -r -E "(AWS|aws).*(access|secret).*[=:][\"\'][A-Za-z0-9/\+]{20,}[\"\']" "$SCAN_DIR" --include="*.{js,jsx,ts,tsx,php,py,rb,java,json,xml,yaml,yml,conf,config,env,ini,properties}" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/aws_keys.txt"
     
     # Google API Keys
-    echo -e "${BLUE}[*] Searching for Google API keys...${NC}"
+    echo -e "${BLUE}[*] Searching for Google API keys.${NC}"
     grep -r -E "AIza[0-9A-Za-z-_]{35}" "$SCAN_DIR" --include="*.{js,jsx,ts,tsx,php,py,rb,java,json,xml,yaml,yml,html,htm}" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/google_api_keys.txt"
     
     # Private keys and certificates
-    echo -e "${BLUE}[*] Searching for private keys and certificates...${NC}"
+    echo -e "${BLUE}[*] Searching for private keys and certificates.${NC}"
     grep -r -A 3 -B 3 "BEGIN (RSA |DSA |EC |OPENSSH |)PRIVATE KEY" "$SCAN_DIR" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/private_keys.txt"
     
     # Database connection strings
-    echo -e "${BLUE}[*] Searching for database connection strings...${NC}"
+    echo -e "${BLUE}[*] Searching for database connection strings.${NC}"
     grep -r -E "(mongodb|postgresql|mysql|redis|sqlserver)://[^\s]+" "$SCAN_DIR" --include="*.{js,jsx,ts,tsx,php,py,rb,java,json,xml,yaml,yml,conf,config,env,ini,properties}" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/db_connections.txt"
     
     # Tokens (JWT, OAuth, etc)
-    echo -e "${BLUE}[*] Searching for authentication tokens...${NC}"
+    echo -e "${BLUE}[*] Searching for authentication tokens..${NC}"
     grep -r -E "(eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|bearer\s+[a-zA-Z0-9_-]+)" "$SCAN_DIR" --include="*.{js,jsx,ts,tsx,php,py,rb,java,json,xml,yaml,yml,conf,config,env,log,txt}" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/auth_tokens.txt"
 
     # Credit card numbers
-    echo -e "${BLUE}[*] Searching for credit card numbers...${NC}"
+    echo -e "${BLUE}[*] Searching for credit card numbers.${NC}"
     grep -r -E "[4-5][0-9]{3}[ -]?[0-9]{4}[ -]?[0-9]{4}[ -]?[0-9]{4}" "$SCAN_DIR" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/credit_cards.txt"
     
     # Social Security Numbers (SSN)
-    echo -e "${BLUE}[*] Searching for SSNs...${NC}"
+    echo -e "${BLUE}[*] Searching for SSNs.${NC}"
     grep -r -E "[0-9]{3}[-: ][0-9]{2}[-: ][0-9]{4}" "$SCAN_DIR" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/ssn.txt"
     
     # TC Kimlik Numaraları (Turkish National ID)
-    echo -e "${BLUE}[*] Searching for TC Kimlik numbers...${NC}"
+    echo -e "${BLUE}[*] Searching for TC Kimlik numbers.${NC}"
     grep -r -E "\b[1-9][0-9]{10}\b" "$SCAN_DIR" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/tc_kimlik.txt"
     
     # Email addresses
-    echo -e "${BLUE}[*] Searching for email addresses...${NC}"
+    echo -e "${BLUE}[*] Searching for email addresses.${NC}"
     grep -r -E "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}" "$SCAN_DIR" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/emails.txt"
     
     # Config files that might contain sensitive info
-    echo -e "${BLUE}[*] Searching for config files...${NC}"
+    echo -e "${BLUE}[*] Searching for config files.${NC}"
     find "$SCAN_DIR" -type f -name "*.conf" -o -name "*.config" -o -name "*.env" -o -name "*.ini" -o -name ".env*" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/config_files.txt"
     
     # Compile summary
-    echo -e "${BLUE}[*] Generating summary report...${NC}"
+    echo -e "${BLUE}[*] Generating summary report.${NC}"
     {
       echo "Sensitive Information Report"
       echo "-------------------------"
@@ -93,7 +89,7 @@ f_scan_files(){
           echo "  Found $(wc -l < "$OUTPUT_DIR/sensitive_info/api_keys.txt") potential matches"
           head -n 10 "$OUTPUT_DIR/sensitive_info/api_keys.txt" | sed 's/^/  - /'
           if [ "$(wc -l < "$OUTPUT_DIR/sensitive_info/api_keys.txt")" -gt 10 ]; then
-              echo "  (more results in file...)"
+              echo "  (More results in file.)"
           fi
       else
           echo "  None found"
@@ -105,7 +101,7 @@ f_scan_files(){
           echo "  Found $(wc -l < "$OUTPUT_DIR/sensitive_info/aws_keys.txt") potential matches"
           head -n 10 "$OUTPUT_DIR/sensitive_info/aws_keys.txt" | sed 's/^/  - /'
           if [ "$(wc -l < "$OUTPUT_DIR/sensitive_info/aws_keys.txt")" -gt 10 ]; then
-              echo "  (more results in file...)"
+              echo "  (More results in file.)"
           fi
       else
           echo "  None found"
@@ -117,7 +113,7 @@ f_scan_files(){
           echo "  Found $(wc -l < "$OUTPUT_DIR/sensitive_info/google_api_keys.txt") potential matches"
           head -n 10 "$OUTPUT_DIR/sensitive_info/google_api_keys.txt" | sed 's/^/  - /'
           if [ "$(wc -l < "$OUTPUT_DIR/sensitive_info/google_api_keys.txt")" -gt 10 ]; then
-              echo "  (more results in file...)"
+              echo "  (More results in file.)"
           fi
       else
           echo "  None found"
@@ -137,7 +133,7 @@ f_scan_files(){
           echo "  Found $(wc -l < "$OUTPUT_DIR/sensitive_info/db_connections.txt") potential matches"
           head -n 10 "$OUTPUT_DIR/sensitive_info/db_connections.txt" | sed 's/^/  - /'
           if [ "$(wc -l < "$OUTPUT_DIR/sensitive_info/db_connections.txt")" -gt 10 ]; then
-              echo "  (more results in file...)"
+              echo "  (More results in file.)"
           fi
       else
           echo "  None found"
@@ -183,7 +179,7 @@ f_scan_files(){
           echo "  Found $(wc -l < "$OUTPUT_DIR/sensitive_info/config_files.txt") potential configuration files"
           head -n 10 "$OUTPUT_DIR/sensitive_info/config_files.txt" | sed 's/^/  - /'
           if [ "$(wc -l < "$OUTPUT_DIR/sensitive_info/config_files.txt")" -gt 10 ]; then
-              echo "  (more results in file...)"
+              echo "  (More results in file.)"
           fi
       else
           echo "  None found"
@@ -198,19 +194,19 @@ f_scan_web(){
     local TARGET_URL=$1
     local OUTPUT_DIR=$2
     
-    echo -e "${BLUE}[*] Scanning $TARGET_URL for exposed sensitive information...${NC}"
+    echo -e "${BLUE}[*] Scanning $TARGET_URL for exposed sensitive information.${NC}"
     
     # Create results directory
     mkdir -p "$OUTPUT_DIR/web_sensitive"
     
     # Install required tools if not already installed
     if ! command -v wget &> /dev/null; then
-        echo -e "${YELLOW}[!] wget not found. Installing...${NC}"
+        echo -e "${YELLOW}[!] wget not found. Installing.${NC}"
         sudo apt-get install -y wget
     fi
     
     # Download robots.txt
-    echo -e "${BLUE}[*] Checking robots.txt for sensitive paths...${NC}"
+    echo -e "${BLUE}[*] Checking robots.txt for sensitive paths.${NC}"
     wget -q "$TARGET_URL/robots.txt" -O "$OUTPUT_DIR/web_sensitive/robots.txt"
     
     if [ -s "$OUTPUT_DIR/web_sensitive/robots.txt" ]; then
@@ -218,7 +214,7 @@ f_scan_web(){
     fi
     
     # Check for common sensitive URLs
-    echo -e "${BLUE}[*] Checking for common sensitive URLs...${NC}"
+    echo -e "${BLUE}[*] Checking for common sensitive URLs.${NC}"
     
     # Create a list of common sensitive paths
     cat > "$OUTPUT_DIR/web_sensitive/paths_to_check.txt" << EOF
@@ -461,17 +457,17 @@ EOF
     echo -e "\n${BLUE}[*] URL scanning completed${NC}"
     
     # Check for information disclosure in HTTP headers
-    echo -e "${BLUE}[*] Checking for information disclosure in HTTP headers...${NC}"
+    echo -e "${BLUE}[*] Checking for information disclosure in HTTP headers.${NC}"
     curl -s -I "$TARGET_URL" > "$OUTPUT_DIR/web_sensitive/http_headers.txt"
     
     # Check for exposed emails in website source
-    echo -e "${BLUE}[*] Checking for exposed emails in website content...${NC}"
+    echo -e "${BLUE}[*] Checking for exposed emails in website content.${NC}"
     wget -q --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" -O "$OUTPUT_DIR/web_sensitive/index.html" "$TARGET_URL"
     
     grep -oE "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}" "$OUTPUT_DIR/web_sensitive/index.html" > "$OUTPUT_DIR/web_sensitive/emails.txt"
     
     # Compile summary
-    echo -e "${BLUE}[*] Generating summary report...${NC}"
+    echo -e "${BLUE}[*] Generating summary report.${NC}"
     {
       echo "Web Sensitive Information Report"
       echo "-------------------------------"
@@ -522,14 +518,11 @@ EOF
 }
 
 # Main function
-f_sensitive_info_main(){
-    f_scanname
-    
+f_sensitive_main(){
+    echo -e "${BLUE}Sensitive Information Detector${NC}"
     echo
-    echo -e "${BLUE}Select scan type:${NC}"
-    echo
-    echo "1. File/Directory Scan"
-    echo "2. Web URL Scan"
+    echo "1. File or directory"
+    echo "2. URL"
     echo "3. Previous menu"
     echo
     echo -n "Choice: "
@@ -542,34 +535,31 @@ f_sensitive_info_main(){
             read -r SCAN_DIR
             
             if [ ! -d "$SCAN_DIR" ]; then
-                echo -e "${RED}[!] Directory does not exist${NC}"
+                echo -e "${RED}[!] This folder does not exist.${NC}"
                 echo
                 exit 1
             fi
             
-            f_scan_files "$SCAN_DIR" "$NAME"
-            ;;
+            f_scan_files "$SCAN_DIR" "$NAME" ;;
         2)
             echo
-            echo -n "Enter URL to scan (e.g., http://example.com): "
+            echo -n "Enter URL to scan (e.g., https://example.com): "
             read -r TARGET_URL
             
             if [[ ! "$TARGET_URL" =~ ^https?:// ]]; then
-                echo -e "${RED}[!] Invalid URL. Must start with http:// or https://${NC}"
+                echo -e "${RED}[!] Invalid URL.${NC}"
                 echo
                 exit 1
             fi
             
-            f_scan_web "$TARGET_URL" "$NAME"
-            ;;
-        3)
-            return
-            ;;
-        *)
-            f_error
-            ;;
+            f_scan_web "$TARGET_URL" "$NAME" ;;
+        3)  f_main ;;
+        *)  f_error ;;
     esac
 }
 
 # Export the main function
-export -f f_sensitive_info_main
+#export -f f_sensitive_main
+
+# Run the script
+f_sensitive_main
