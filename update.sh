@@ -172,10 +172,6 @@ fi
 
 # -----------------------------------------------------------------------------------------------
 
-echo -e "${BLUE}Updating Discover.${NC}"
-cd "$DISCOVER" || exit ; git pull
-echo
-
 if ! command -v dnstwist &> /dev/null; then
     echo -e "${YELLOW}Installing dnstwist.${NC}"
     apt install -y dnstwist

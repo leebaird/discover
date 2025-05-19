@@ -436,8 +436,8 @@ f_ports(){
     fi
 
     # Combine Apache HBase ports and sort
-#    cat "$NAME"/60010.txt "$NAME"/60030.txt > tmp
-#    $SIP tmp > "$NAME"/apache-hbase.txt
+#   cat "$NAME"/60010.txt "$NAME"/60030.txt > tmp
+#   $SIP tmp > "$NAME"/apache-hbase.txt
 
     tmp_files=()
     for file in "$NAME"/60010.txt "$NAME"/60030.txt; do
@@ -546,6 +546,15 @@ f_enumerate(){
 
 ###############################################################################################################################
 
+f_update(){
+    echo
+    echo -e "${BLUE}Updating Discover.${NC}"
+    git pull
+    sudo ./update.sh
+}
+
+###############################################################################################################################
+
 f_main(){
     clear
     f_banner
@@ -602,13 +611,13 @@ f_main(){
         12) ./parse.sh && exit ;;
         13) ./payload.sh && exit ;;
         14) ./listener.sh && exit ;;
-        15) "$DISCOVER"/sensitive.sh && exit ;;
-        16) "$DISCOVER"/api-scanner.sh && exit ;;
-        17) "$DISCOVER"/oauth-jwt-tester.sh && exit ;;
-        18) "$DISCOVER"/cloud-scan.sh && exit ;;
-        19) "$DISCOVER"/container-scan.sh && exit ;;
-        20) "$DISCOVER"/msf-web-api.sh && exit ;;
-        21) sudo ./update.sh && exit ;;
+        15) ./sensitive.sh && exit ;;
+        16) ./api-scanner.sh && exit ;;
+        17) ./oauth-jwt-tester.sh && exit ;;
+        18) ./cloud-scan.sh && exit ;;
+        19) ./container-scan.sh && exit ;;
+        20) ./msf-web-api.sh && exit ;;
+        21) f_update ;;
         22) exit ;;
         99) ./newModules.sh && exit ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;
