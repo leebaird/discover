@@ -521,7 +521,7 @@ EOF
 f_sensitive_main(){
     echo -e "${BLUE}Sensitive Information Detector${NC}"
     echo
-    echo "1. File or directory"
+    echo "1. File or folder"
     echo "2. URL"
     echo "3. Previous menu"
     echo
