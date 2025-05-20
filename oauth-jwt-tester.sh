@@ -160,7 +160,7 @@ f_oauth_analyze() {
         
     } > "$OUTPUT_DIR/oauth_security_report.txt"
     
-    echo -e "${GREEN}[+] OAuth security test complete. Results saved to $OUTPUT_DIR/oauth_security_report.txt${NC}"
+    echo -e "${GREEN}[*] OAuth security test complete. Results saved to $OUTPUT_DIR/oauth_security_report.txt${NC}"
 }
 
 # Function to perform JWT security tests
@@ -415,7 +415,7 @@ f_jwt_security() {
         
     } > "$OUTPUT_DIR/jwt_security_report.txt"
     
-    echo -e "${GREEN}[+] JWT security test complete. Results saved to $OUTPUT_DIR/jwt_security_report.txt${NC}"
+    echo -e "${GREEN}[*] JWT security test complete. Results saved to $OUTPUT_DIR/jwt_security_report.txt${NC}"
 }
 
 # Main function

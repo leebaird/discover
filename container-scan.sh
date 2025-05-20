@@ -82,7 +82,7 @@ f_check_requirements() {
                 esac
             done
             
-            echo -e "${GREEN}[+] Installation complete. You may need to log out and back in for Docker permissions to take effect.${NC}"
+            echo -e "${GREEN}[*] Installation complete. You may need to log out and back in for Docker permissions to take effect.${NC}"
         else
             echo -e "${RED}[!] Cannot proceed without required tools.${NC}"
             exit 1
@@ -110,7 +110,7 @@ f_scan_docker_images() {
     
     # Count total images for progress reporting
     TOTAL_IMAGES=$(wc -l < "$output_dir/docker/image_list.txt")
-    echo -e "${GREEN}[+] Found $TOTAL_IMAGES Docker images to analyze${NC}"
+    echo -e "${GREEN}[*] Found $TOTAL_IMAGES Docker images to analyze${NC}"
     
     # Create summary file
     echo "Docker Image Security Summary" > "$output_dir/docker/image_security_summary.txt"
@@ -236,7 +236,7 @@ f_scan_docker_images() {
         fi
         echo "$image|$RISK_SCORE|$CRITICAL_COUNT_IMG|$HIGH_COUNT_IMG|$MEDIUM_COUNT_IMG|$LOW_COUNT_IMG|$SECRETS_COUNT|$MISCONFIGS_COUNT" >> "$output_dir/docker/image_risk_scores.txt"
         
-        echo -e "${GREEN}[+] Image scan complete: $image (Risk Score: $RISK_SCORE/10)${NC}"
+        echo -e "${GREEN}[*] Image scan complete: $image (Risk Score: $RISK_SCORE/10)${NC}"
     done < "$output_dir/docker/image_list.txt"
     
     # Update summary file with totals
@@ -261,7 +261,7 @@ f_scan_docker_images() {
     
     if [ -s "$output_dir/docker/dockerfile_list.txt" ]; then
         DOCKERFILE_COUNT=$(wc -l < "$output_dir/docker/dockerfile_list.txt")
-        echo -e "${GREEN}[+] Found $DOCKERFILE_COUNT Dockerfiles to analyze${NC}"
+        echo -e "${GREEN}[*] Found $DOCKERFILE_COUNT Dockerfiles to analyze${NC}"
         echo -e "${BLUE}[*] Performing advanced Dockerfile security analysis...${NC}"
         
         DOCKERFILE_ISSUES_COUNT=0
@@ -423,7 +423,7 @@ f_scan_docker_images() {
         } >> "$output_dir/docker/image_security_summary.txt"
     fi
     
-    echo -e "${GREEN}[+] Docker image analysis complete! Results saved to $output_dir/docker/image_security_summary.txt${NC}"
+    echo -e "${GREEN}[*] Docker image analysis complete! Results saved to $output_dir/docker/image_security_summary.txt${NC}"
 }
 
 # Function to scan Docker containers
@@ -451,7 +451,7 @@ f_scan_docker_containers() {
     TOTAL_CONTAINERS=$(wc -l < "$output_dir/docker/container_list.txt")
     RUNNING_CONTAINERS=$(wc -l < "$output_dir/docker/running_containers.txt" 2>/dev/null || echo 0)
     
-    echo -e "${GREEN}[+] Found $TOTAL_CONTAINERS containers ($RUNNING_CONTAINERS running)${NC}"
+    echo -e "${GREEN}[*] Found $TOTAL_CONTAINERS containers ($RUNNING_CONTAINERS running)${NC}"
     
     # Create summary file
     echo "Docker Container Security Summary" > "$output_dir/docker/container_security_summary.txt"
@@ -797,7 +797,7 @@ f_scan_docker_containers() {
             # Check for setuid/setgid binaries
             docker exec "$container_id" find / -perm /6000 -type f 2>/dev/null > "$output_dir/docker/runtime_analysis/$container_name/setuid_setgid_binaries.txt" || true
             
-            echo -e "${GREEN}[+] Runtime analysis complete for container: $container_name${NC}"
+            echo -e "${GREEN}[*] Runtime analysis complete for container: $container_name${NC}"
         fi
     done < "$output_dir/docker/container_list.txt"
     
@@ -827,7 +827,7 @@ f_scan_docker_containers() {
         echo "Containers without health checks: $(wc -l < "$output_dir/docker/no_health_check_containers.txt" 2>/dev/null || echo 0)"
     } >> "$output_dir/docker/container_security_summary.txt"
     
-    echo -e "${GREEN}[+] Container security analysis complete! Results saved to $output_dir/docker/container_security_summary.txt${NC}"
+    echo -e "${GREEN}[*] Container security analysis complete! Results saved to $output_dir/docker/container_security_summary.txt${NC}"
 }
 
 # Function to scan Kubernetes resources
@@ -873,7 +873,7 @@ f_scan_kubernetes() {
         echo "WARNING: Kubernetes version $SERVER_VERSION is not the latest. Consider upgrading to 1.26+" >> "$output_dir/kubernetes/cluster/version_issues.txt"
         K8S_VERSION_ISSUES=1
     else
-        echo -e "${GREEN}[+] Kubernetes version $SERVER_VERSION is recent${NC}"
+        echo -e "${GREEN}[*] Kubernetes version $SERVER_VERSION is recent${NC}"
     fi
     
     # Add version info to summary
@@ -905,7 +905,7 @@ f_scan_kubernetes() {
         echo "WARNING: Cluster has nodes running $NODE_VERSION_COUNT different Kubernetes versions" >> "$output_dir/kubernetes/cluster/node_issues.txt"
         echo "Node Version Consistency: INCONSISTENT ($NODE_VERSION_COUNT versions)" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
     else
-        echo -e "${GREEN}[+] All nodes running the same Kubernetes version${NC}"
+        echo -e "${GREEN}[*] All nodes running the same Kubernetes version${NC}"
         echo "Node Version Consistency: CONSISTENT" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
     fi
     echo "" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
@@ -920,7 +920,7 @@ f_scan_kubernetes() {
     
     # Count namespaces
     NAMESPACE_COUNT=$(wc -l < "$output_dir/kubernetes/resources/namespace_list.txt")
-    echo -e "${GREEN}[+] Found $NAMESPACE_COUNT namespaces${NC}"
+    echo -e "${GREEN}[*] Found $NAMESPACE_COUNT namespaces${NC}"
     echo "Namespace Count: $NAMESPACE_COUNT" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
     
     # Initialize resource counters for various types
@@ -1204,7 +1204,7 @@ f_scan_kubernetes() {
         echo "- Implement Pod Security Policies or Pod Security Standards" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
         echo "- Use Secret management solutions instead of Kubernetes Secrets for sensitive data" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
         
-        echo -e "${GREEN}[+] Completed security analysis for namespace: $namespace${NC}"
+        echo -e "${GREEN}[*] Completed security analysis for namespace: $namespace${NC}"
     done < "$output_dir/kubernetes/resources/namespace_list.txt"
     
     # Check cluster-wide RBAC
@@ -1294,7 +1294,7 @@ f_scan_kubernetes() {
         echo "10. Enable audit logging and implement monitoring/alerting"
     } >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
     
-    echo -e "${GREEN}[+] Kubernetes security audit complete! Results are in $output_dir/kubernetes/kubernetes_security_summary.txt${NC}"
+    echo -e "${GREEN}[*] Kubernetes security audit complete! Results are in $output_dir/kubernetes/kubernetes_security_summary.txt${NC}"
 }
 
 # Function to generate a comprehensive report
@@ -1402,7 +1402,7 @@ f_generate_report() {
         
     } > "$output_dir/container_security_report.txt"
     
-    echo -e "${GREEN}[+] Container security scan complete. Results saved to $output_dir/container_security_report.txt${NC}"
+    echo -e "${GREEN}[*] Container security scan complete. Results saved to $output_dir/container_security_report.txt${NC}"
 }
 
 # Main function
@@ -1439,7 +1439,7 @@ f_container_scan(){
             ;;
     esac
     
-    echo -e "${GREEN}[+] Container security scan complete.${NC}"
+    echo -e "${GREEN}[*] Container security scan complete.${NC}"
     echo
 }
 

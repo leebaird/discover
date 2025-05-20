@@ -87,7 +87,7 @@ f_check_requirements() {
                 esac
             done
             
-            echo -e "${GREEN}[+] Installation complete.${NC}"
+            echo -e "${GREEN}[*] Installation complete.${NC}"
         else
             echo -e "${RED}[!] Cannot proceed without required tools.${NC}"
             exit 1
@@ -124,8 +124,8 @@ f_aws_security_check() {
     # Display account info
     ACCOUNT_ID=$(jq -r '.Account' "$output_dir/aws/account_info.json" 2>/dev/null)
     USER_ARN=$(jq -r '.Arn' "$output_dir/aws/account_info.json" 2>/dev/null)
-    echo -e "${GREEN}[+] AWS Account ID: $ACCOUNT_ID${NC}"
-    echo -e "${GREEN}[+] AWS User ARN: $USER_ARN${NC}"
+    echo -e "${GREEN}[*] AWS Account ID: $ACCOUNT_ID${NC}"
+    echo -e "${GREEN}[*] AWS User ARN: $USER_ARN${NC}"
     
     # Get organization details if available
     echo -e "${BLUE}[*] Checking AWS Organization details...${NC}"
@@ -141,7 +141,7 @@ f_aws_security_check() {
     
     # Count total buckets
     TOTAL_BUCKETS=$(jq '.Buckets | length' "$output_dir/aws/s3_buckets.json" 2>/dev/null || echo "0")
-    echo -e "${GREEN}[+] Found $TOTAL_BUCKETS S3 buckets${NC}"
+    echo -e "${GREEN}[*] Found $TOTAL_BUCKETS S3 buckets${NC}"
     
     # Initialize counters for statistics
     PUBLIC_COUNT=0
@@ -311,7 +311,7 @@ f_aws_security_check() {
     fi
     
     # Print S3 security summary
-    echo -e "${GREEN}[+] S3 Security Summary:${NC}"
+    echo -e "${GREEN}[*] S3 Security Summary:${NC}"
     echo -e "${YELLOW}[-] Buckets with public access issues: $PUBLIC_COUNT${NC}"
     echo -e "${YELLOW}[-] Buckets without default encryption: $UNENCRYPTED_COUNT${NC}"
     echo -e "${YELLOW}[-] Buckets without logging enabled: $LOGGING_DISABLED_COUNT${NC}"
@@ -547,7 +547,7 @@ f_aws_security_check() {
         echo -e "${YELLOW}[!] Found $ADMIN_USERS_COUNT users with administrative privileges${NC}"
         echo "WARNING: $ADMIN_USERS_COUNT users with administrative privileges" >> "$output_dir/aws/iam/security_issues.txt"
     else
-        echo -e "${GREEN}[+] No users with administrative privileges found${NC}"
+        echo -e "${GREEN}[*] No users with administrative privileges found${NC}"
     fi
     
     # Analyze custom IAM policies for overly permissive settings
@@ -579,7 +579,7 @@ f_aws_security_check() {
             echo -e "${RED}[!] Found $OVERLY_PERMISSIVE_COUNT overly permissive custom policies${NC}"
             echo "WARNING: $OVERLY_PERMISSIVE_COUNT overly permissive custom policies" >> "$output_dir/aws/iam/security_issues.txt"
         else
-            echo -e "${GREEN}[+] No overly permissive custom policies found${NC}"
+            echo -e "${GREEN}[*] No overly permissive custom policies found${NC}"
         fi
     fi
     
@@ -605,7 +605,7 @@ f_aws_security_check() {
                 # Extract finding details
                 jq -r '.findings[] | select(.status == "ACTIVE") | "Resource: " + .resource + ", Type: " + .resourceType + ", External Principal: " + (.principal | tostring)' "$output_dir/aws/iam/analyzer_${ANALYZER_ID}_findings.json" >> "$output_dir/aws/iam/access_analyzer_findings.txt"
             else
-                echo -e "${GREEN}[+] No active findings in Access Analyzer ${ANALYZER_ID}${NC}"
+                echo -e "${GREEN}[*] No active findings in Access Analyzer ${ANALYZER_ID}${NC}"
             fi
         done <<< "$ANALYZER_ARNS"
     else
@@ -614,7 +614,7 @@ f_aws_security_check() {
     fi
     
     # Summarize IAM findings
-    echo -e "${GREEN}[+] IAM Security Summary:${NC}"
+    echo -e "${GREEN}[*] IAM Security Summary:${NC}"
     if [ -f "$output_dir/aws/iam/security_issues.txt" ]; then
         TOTAL_IAM_ISSUES=$(wc -l < "$output_dir/aws/iam/security_issues.txt")
         echo -e "${YELLOW}[-] Found $TOTAL_IAM_ISSUES IAM security issues${NC}"
@@ -622,7 +622,7 @@ f_aws_security_check() {
         echo -e "${YELLOW}[-] Users with administrative access: $ADMIN_USERS_COUNT${NC}"
         echo -e "${YELLOW}[-] Overly permissive policies: $OVERLY_PERMISSIVE_COUNT${NC}"
     else
-        echo -e "${GREEN}[+] No IAM security issues found${NC}"
+        echo -e "${GREEN}[*] No IAM security issues found${NC}"
     fi
     
     # CloudTrail Checks
@@ -694,7 +694,7 @@ f_aws_security_check() {
         
     } > "$output_dir/aws_security_report.txt"
     
-    echo -e "${GREEN}[+] AWS security check complete. Results saved to $output_dir/aws_security_report.txt${NC}"
+    echo -e "${GREEN}[*] AWS security check complete. Results saved to $output_dir/aws_security_report.txt${NC}"
 }
 
 # Azure Security Check Function
@@ -786,7 +786,7 @@ f_azure_security_check() {
         
     } > "$output_dir/azure_security_report.txt"
     
-    echo -e "${GREEN}[+] Azure security check complete. Results saved to $output_dir/azure_security_report.txt${NC}"
+    echo -e "${GREEN}[*] Azure security check complete. Results saved to $output_dir/azure_security_report.txt${NC}"
 }
 
 # Google Cloud Platform Security Check Function
@@ -904,7 +904,7 @@ f_gcp_security_check() {
         
     } > "$output_dir/gcp_security_report.txt"
     
-    echo -e "${GREEN}[+] GCP security check complete. Results saved to $output_dir/gcp_security_report.txt${NC}"
+    echo -e "${GREEN}[*] GCP security check complete. Results saved to $output_dir/gcp_security_report.txt${NC}"
 }
 
 # Main function
@@ -996,7 +996,7 @@ f_cloud_scan(){
                 
             } > "$NAME/combined_cloud_security_report.txt"
             
-            echo -e "${GREEN}[+] Combined security report generated: $NAME/combined_cloud_security_report.txt${NC}"
+            echo -e "${GREEN}[*] Combined security report generated: $NAME/combined_cloud_security_report.txt${NC}"
             ;;
         5)
             return

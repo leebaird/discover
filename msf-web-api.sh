@@ -173,7 +173,7 @@ use auxiliary/scanner/http/graphql_introspection
 run
 EOF
 
-    echo -e "${GREEN}[+] Resource scripts created.${NC}"
+    echo -e "${GREEN}[*] Resource scripts created.${NC}"
 }
 
 # Function to create advanced password brute force resource scripts
@@ -223,7 +223,7 @@ setg KEY_FILE /usr/share/metasploit-framework/data/wordlists/common_passwords.tx
 run
 EOF
 
-    echo -e "${GREEN}[+] Brute force resource scripts created.${NC}"
+    echo -e "${GREEN}[*] Brute force resource scripts created.${NC}"
 }
 
 # Function to create advanced exploit resource scripts
@@ -296,7 +296,7 @@ use exploit/multi/http/solarwinds_orion_authenticated_rce
 check
 EOF
 
-    echo -e "${GREEN}[+] Exploit resource scripts created.${NC}"
+    echo -e "${GREEN}[*] Exploit resource scripts created.${NC}"
 }
 
 # Function to run web/API security scans
@@ -452,7 +452,7 @@ EOF
     # Clean up temporary files
     rm -f "/tmp/page.html" "$MSF_RESOURCE_DIR/tmp.rc"
     
-    echo -e "${GREEN}[+] Web and API security scan completed. Results saved to $OUTPUT_DIR/msf_web_api/scan_report.txt${NC}"
+    echo -e "${GREEN}[*] Web and API security scan complete. Results saved to $OUTPUT_DIR/msf_web_api/scan_report.txt${NC}"
 }
 
 # Main function for MSF Web & API Security testing
