@@ -181,21 +181,21 @@ f_typeofscan(){
 
     case "$CHOICE" in
         1)
-            echo
-            echo -e "${YELLOW}[*] Setting the max probe round trip to 1.5s.${NC}"
-            MAXRTT=1500ms
-            echo
-            echo "$MEDIUM"
-            echo
-            ;;
+           echo
+           echo -e "${YELLOW}[*] Setting the max probe round trip to 1.5s.${NC}"
+           MAXRTT=1500ms
+           echo
+           echo "$MEDIUM"
+           echo
+           ;;
         2)
-            echo
-            echo -e "${YELLOW}[*] Setting the max probe round trip to 500ms.${NC}"
-            MAXRTT=500ms
-            echo
-            echo "$MEDIUM"
-            echo
-            ;;
+           echo
+           echo -e "${YELLOW}[*] Setting the max probe round trip to 500ms.${NC}"
+           MAXRTT=500ms
+           echo
+           echo "$MEDIUM"
+           echo
+           ;;
         3) f_main ;;
         *) f_error ;;
     esac
@@ -434,10 +434,6 @@ f_ports(){
     if [ -f "$NAME"/523.txt ]; then
         mv "$NAME"/523.txt "$NAME"/523-udp.txt
     fi
-
-    # Combine Apache HBase ports and sort
-#   cat "$NAME"/60010.txt "$NAME"/60030.txt > tmp
-#   $SIP tmp > "$NAME"/apache-hbase.txt
 
     tmp_files=()
     for file in "$NAME"/60010.txt "$NAME"/60030.txt; do

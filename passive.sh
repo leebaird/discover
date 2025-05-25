@@ -34,10 +34,10 @@ clear
 f_banner
 
 # Check if Firefox is running
-if pgrep firefox > /dev/null; then
-    echo
-    echo "[!] Close Firefox before running script."
-    echo
+if pgrep -x "firefox|firefox-bin" > /dev/null; then
+	echo
+    echo "[!] Close all Firefox instances before running script."
+	echo
     exit 1
 fi
 

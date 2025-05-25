@@ -188,7 +188,8 @@ f_scan_files(){
     } > "$OUTPUT_DIR/sensitive_info_summary.txt"
 
     echo
-    echo -e "${GREEN}[*] Scan complete. Results saved to $OUTPUT_DIR/sensitive_info_summary.txt${NC}"
+    echo -e "${YELLOW}[*] Scan complete. Results saved to $OUTPUT_DIR/sensitive_info_summary.txt${NC}"
+    echo
 }
 
 # Function to scan web for sensitive info
@@ -451,7 +452,9 @@ EOF
             fi
         fi
     done < "$OUTPUT_DIR/web_sensitive/paths_to_check.txt"
-    echo -e "\n${BLUE}[*] URL scanning completed${NC}"
+
+    echo
+	echo -e "\n${BLUE}[*] URL scanning complete.${NC}"
 
     # Check for information disclosure in HTTP headers
     echo -e "${BLUE}[*] Checking for information disclosure in HTTP headers.${NC}"
@@ -512,11 +515,15 @@ EOF
 
     } > "$OUTPUT_DIR/web_sensitive_summary.txt"
 
-    echo -e "${GREEN}[*] Web scan complete. Results saved to $OUTPUT_DIR/web_sensitive_summary.txt${NC}"
+    echo
+    echo -e "${YELLOW}[*] Web scan complete. Results saved to $OUTPUT_DIR/web_sensitive_summary.txt${NC}"
+    echo
 }
 
 # Main function
 f_sensitive_main(){
+    NAME="$DATESTAMP_$TIMESTAMP"
+
     echo -e "${BLUE}Sensitive Information Detector${NC}"
     echo
     echo "1. File or folder"
@@ -528,32 +535,32 @@ f_sensitive_main(){
 
     case "$CHOICE" in
         1)
-            echo
-            echo -n "Enter path to scan: "
-            read -r SCAN_DIR
+           echo
+           echo -n "Enter path to scan: "
+           read -r SCAN_DIR
 
-            if [ ! -d "$SCAN_DIR" ]; then
-                echo
-                echo -e "${RED}[!] This file or folder does not exist.${NC}"
-                echo
-                exit 1
-            fi
+           if [ ! -d "$SCAN_DIR" ]; then
+               echo
+               echo -e "${RED}[!] This file or folder does not exist.${NC}"
+               echo
+               exit 1
+           fi
 
-            f_scan_files "$SCAN_DIR" "$NAME" ;;
+           f_scan_files "$SCAN_DIR" "$NAME" ;;
         2)
-            echo
-            echo -n "Enter URL to scan (e.g., https://example.com): "
-            read -r TARGET_URL
+           echo
+           echo -n "Enter URL to scan (e.g., https://example.com): "
+           read -r TARGET_URL
 
-            if [[ ! "$TARGET_URL" =~ ^https?:// ]]; then
-                echo
-                echo -e "${RED}[!] Invalid URL.${NC}"
-                echo
-                exit 1
-            fi
+           if [[ ! "$TARGET_URL" =~ ^https?:// ]]; then
+               echo
+               echo -e "${RED}[!] Invalid URL.${NC}"
+               echo
+               exit 1
+           fi
 
-            f_scan_web "$TARGET_URL" "$NAME" ;;
-        3)  f_main ;;
+           f_scan_web "$TARGET_URL" "$NAME" ;;
+        3) f_main ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_sensitive_main ;;
     esac
 }
