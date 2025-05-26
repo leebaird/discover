@@ -587,9 +587,9 @@ f_main(){
     echo "17. API Security"
     echo "18. Cloud Security"
     echo "19. Container Security"
-    echo "20. MSF Web & API Security"
-    echo "21. OAuth/JWT Security"
-    echo "22. Sensitive Information"
+    echo "20. OAuth and JWT Security"
+    echo "21. Sensitive Information"
+    echo "22. Web and API Security"
     echo
 
     echo
@@ -615,11 +615,11 @@ f_main(){
         16) echo && exit ;;
 
         17) ./api-scanner.sh && exit ;;
-        18) ./cloud-scan.sh && exit ;;
-        19) ./container-scan.sh && exit ;;
-        20) ./msf-web-api.sh && exit ;;
-        21) ./oauth-jwt-tester.sh && exit ;;
-        22) ./sensitive.sh && exit ;;
+        18) ./cloud-scanner.sh && exit ;;
+        19) ./container-scanner.sh && exit ;;
+        20) ./oauth-jwt-scanner.sh && exit ;;
+        21) ./sensitive-scanner.sh && exit ;;
+        22) ./web-api-scanner.sh && exit ;;
 
         99) ./newModules.sh && exit ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;
