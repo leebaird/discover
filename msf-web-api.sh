@@ -46,12 +46,40 @@ MSF_RESOURCE_DIR="/tmp/msf_resources"
 # Function to create web application security resource scripts
 f_create_web_resources() {
     echo -e "${BLUE}[*] Preparing web application security test resource scripts.${NC}"
-    
-    # WordPress Scanner Resource
-    cat > "$MSF_RESOURCE_DIR/wordpress.rc" << EOF
-use auxiliary/scanner/http/wordpress_scanner
-setg THREADS 5
-setg TIMEOUT 15
+
+    # Apache Vulnerabilities
+    cat > "$MSF_RESOURCE_DIR/apache_vulns.rc" << EOF
+use auxiliary/scanner/http/apache_optionsbleed
+run
+use auxiliary/scanner/http/mod_negotiation_scanner
+run
+use exploit/multi/http/struts2_rest_xstream
+check
+use exploit/multi/http/struts2_content_type_ognl
+check
+use exploit/multi/http/struts_code_exec_classloader
+check
+use exploit/multi/http/struts_dev_mode
+check
+EOF
+
+    # API Security Tests
+    cat > "$MSF_RESOURCE_DIR/api_security.rc" << EOF
+use auxiliary/scanner/http/http_login
+set AUTH_URI /api/login
+set USERPASS_FILE /usr/share/metasploit-framework/data/wordlists/http_default_userpass.txt
+run
+use auxiliary/scanner/http/soap_xml
+run
+use auxiliary/scanner/http/brute_dirs
+set DICTIONARY /usr/share/metasploit-framework/data/wordlists/directory.txt
+set FORMAT /api/%s
+run
+set FORMAT /v1/%s
+run
+set FORMAT /v2/%s
+run
+set FORMAT /rest/%s
 run
 EOF
 
@@ -60,6 +88,52 @@ EOF
 use auxiliary/scanner/http/drupal_scanner
 setg THREADS 5
 setg TIMEOUT 15
+run
+EOF
+
+    # GraphQL Scanner
+    cat > "$MSF_RESOURCE_DIR/graphql.rc" << EOF
+use auxiliary/scanner/http/graphql_introspection
+run
+EOF
+
+    # Jenkins Vulnerabilities
+    cat > "$MSF_RESOURCE_DIR/jenkins_vulns.rc" << EOF
+use auxiliary/scanner/http/jenkins_enum
+run
+use auxiliary/scanner/http/jenkins_command
+run
+EOF
+
+    # OAuth/OpenID Vulnerabilities
+    cat > "$MSF_RESOURCE_DIR/oauth_openid.rc" << EOF
+use auxiliary/gather/oauth_key_leak
+run
+use auxiliary/scanner/http/oauth_token
+run
+EOF
+
+    # JWT Scanner Resource
+    cat > "$MSF_RESOURCE_DIR/jwt.rc" << EOF
+use auxiliary/scanner/http/jwt_scanner
+run
+EOF
+
+    # SQL Injection Scanner Resources
+    cat > "$MSF_RESOURCE_DIR/sqli.rc" << EOF
+use auxiliary/scanner/http/blind_sql_query
+run
+use auxiliary/scanner/http/sql_injection
+run
+EOF
+
+    # Tomcat Vulnerabilities
+    cat > "$MSF_RESOURCE_DIR/tomcat_vulns.rc" << EOF
+use auxiliary/scanner/http/tomcat_mgr_login
+run
+use auxiliary/admin/http/tomcat_administration
+run
+use auxiliary/admin/http/tomcat_utf8_traversal
 run
 EOF
 
@@ -91,85 +165,11 @@ set DEPTH 2
 run
 EOF
 
-    # SQL Injection Scanner Resources
-    cat > "$MSF_RESOURCE_DIR/sqli.rc" << EOF
-use auxiliary/scanner/http/blind_sql_query
-run
-use auxiliary/scanner/http/sql_injection
-run
-EOF
-
-    # JWT Scanner Resource
-    cat > "$MSF_RESOURCE_DIR/jwt.rc" << EOF
-use auxiliary/scanner/http/jwt_scanner
-run
-EOF
-
-    # Apache Vulnerabilities
-    cat > "$MSF_RESOURCE_DIR/apache_vulns.rc" << EOF
-use auxiliary/scanner/http/apache_optionsbleed
-run
-use auxiliary/scanner/http/mod_negotiation_scanner
-run
-use exploit/multi/http/struts2_rest_xstream
-check
-use exploit/multi/http/struts2_content_type_ognl
-check
-use exploit/multi/http/struts_code_exec_classloader
-check
-use exploit/multi/http/struts_dev_mode
-check
-EOF
-
-    # Tomcat Vulnerabilities
-    cat > "$MSF_RESOURCE_DIR/tomcat_vulns.rc" << EOF
-use auxiliary/scanner/http/tomcat_mgr_login
-run
-use auxiliary/admin/http/tomcat_administration
-run
-use auxiliary/admin/http/tomcat_utf8_traversal
-run
-EOF
-
-    # Jenkins Vulnerabilities
-    cat > "$MSF_RESOURCE_DIR/jenkins_vulns.rc" << EOF
-use auxiliary/scanner/http/jenkins_enum
-run
-use auxiliary/scanner/http/jenkins_command
-run
-EOF
-
-    # API Security Tests
-    cat > "$MSF_RESOURCE_DIR/api_security.rc" << EOF
-use auxiliary/scanner/http/http_login
-set AUTH_URI /api/login
-set USERPASS_FILE /usr/share/metasploit-framework/data/wordlists/http_default_userpass.txt
-run
-use auxiliary/scanner/http/soap_xml
-run
-use auxiliary/scanner/http/brute_dirs
-set DICTIONARY /usr/share/metasploit-framework/data/wordlists/directory.txt
-set FORMAT /api/%s
-run
-set FORMAT /v1/%s
-run
-set FORMAT /v2/%s
-run
-set FORMAT /rest/%s
-run
-EOF
-
-    # OAuth/OpenID Vulnerabilities
-    cat > "$MSF_RESOURCE_DIR/oauth_openid.rc" << EOF
-use auxiliary/gather/oauth_key_leak
-run
-use auxiliary/scanner/http/oauth_token
-run
-EOF
-
-    # GraphQL Scanner
-    cat > "$MSF_RESOURCE_DIR/graphql.rc" << EOF
-use auxiliary/scanner/http/graphql_introspection
+    # WordPress Scanner Resource
+    cat > "$MSF_RESOURCE_DIR/wordpress.rc" << EOF
+use auxiliary/scanner/http/wordpress_scanner
+setg THREADS 5
+setg TIMEOUT 15
 run
 EOF
 
@@ -181,17 +181,6 @@ EOF
 # Function to create advanced password brute force resource scripts
 f_create_brute_resources() {
     echo -e "${BLUE}[*] Preparing brute force attack resource scripts.${NC}"
-    
-    # Web Form Brute Force
-    cat > "$MSF_RESOURCE_DIR/web_form_brute.rc" << EOF
-use auxiliary/scanner/http/http_login
-setg VERBOSE false
-setg STOP_ON_SUCCESS true
-setg BLANK_PASSWORDS true
-setg USER_AS_PASS true
-setg USERPASS_FILE /usr/share/metasploit-framework/data/wordlists/http_default_userpass.txt
-run
-EOF
 
     # API Key Brute Force
     cat > "$MSF_RESOURCE_DIR/api_key_brute.rc" << EOF
@@ -225,6 +214,17 @@ setg KEY_FILE /usr/share/metasploit-framework/data/wordlists/common_passwords.tx
 run
 EOF
 
+    # Web Form Brute Force
+    cat > "$MSF_RESOURCE_DIR/web_form_brute.rc" << EOF
+use auxiliary/scanner/http/http_login
+setg VERBOSE false
+setg STOP_ON_SUCCESS true
+setg BLANK_PASSWORDS true
+setg USER_AS_PASS true
+setg USERPASS_FILE /usr/share/metasploit-framework/data/wordlists/http_default_userpass.txt
+run
+EOF
+
     echo -e "${YELLOW}[*] Brute force resource scripts created.${NC}"
 }
 
@@ -233,7 +233,34 @@ EOF
 # Function to create advanced exploit resource scripts
 f_create_exploit_resources() {
     echo -e "${BLUE}[*] Preparing exploit resource scripts.${NC}"
-    
+
+    # API & Web Service Exploits
+    cat > "$MSF_RESOURCE_DIR/api_exploits.rc" << EOF
+use exploit/multi/http/zabbix_script_exec
+check
+
+use exploit/multi/http/splunk_upload_app_exec
+check
+
+use exploit/multi/http/mantisbt_php_exec
+check
+
+use exploit/multi/http/vtiger_php_exec
+check
+
+use exploit/multi/http/processmaker_exec
+check
+
+use exploit/multi/http/graphite_pickle_exec
+check
+
+use exploit/multi/http/saltstack_salt_api_cmd_exec
+check
+
+use exploit/multi/http/solarwinds_orion_authenticated_rce
+check
+EOF
+
     # Web Application Exploits
     cat > "$MSF_RESOURCE_DIR/web_exploits.rc" << EOF
 use exploit/multi/http/jenkins_script_console
@@ -273,33 +300,6 @@ use exploit/multi/http/phpmailer_arg_injection
 check
 EOF
 
-    # API & Web Service Exploits
-    cat > "$MSF_RESOURCE_DIR/api_exploits.rc" << EOF
-use exploit/multi/http/zabbix_script_exec
-check
-
-use exploit/multi/http/splunk_upload_app_exec
-check
-
-use exploit/multi/http/mantisbt_php_exec
-check
-
-use exploit/multi/http/vtiger_php_exec
-check
-
-use exploit/multi/http/processmaker_exec
-check
-
-use exploit/multi/http/graphite_pickle_exec
-check
-
-use exploit/multi/http/saltstack_salt_api_cmd_exec
-check
-
-use exploit/multi/http/solarwinds_orion_authenticated_rce
-check
-EOF
-
     echo -e "${YELLOW}[*] Exploit resource scripts created.${NC}"
 }
 
@@ -310,15 +310,15 @@ f_run_web_api_scan() {
     local TARGET_URL=$1
     local TARGET_IP=$2
     local OUTPUT_DIR=$3
-    
+
     echo -e "${BLUE}[*] Running advanced web and API security scans against $TARGET_URL.${NC}"
-    
+
     # Create output directory
     mkdir -p "$OUTPUT_DIR/msf_web_api"
-    
+
     # Extract host info
     DOMAIN=$(echo "$TARGET_URL" | sed -E 's|^https?://||' | sed -E 's|/.*$||')
-    
+
     # Generate master resource file with target information
     cat > "$MSF_RESOURCE_DIR/master_web.rc" << EOF
 workspace -a web_api_scan_${DATESTAMP//\-/_}
@@ -345,32 +345,32 @@ EOF
     echo "Date: $DATESTAMP $TIMESTAMP" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
     echo "=========================================================" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
     echo "" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
-    
+
     # Function to run a scan with a resource file and store results
     run_scan() {
         local resource_file=$1
         local output_name=$2
-        
+
         echo -e "${BLUE}[*] Running $output_name scan.${NC}"
-        
+
         # Update the report
         echo "= $output_name Scan Results =" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
         echo "" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
-        
+
         # Create combined resource file
         cat "$MSF_RESOURCE_DIR/master_web.rc" > "$MSF_RESOURCE_DIR/tmp.rc"
         echo "spool $OUTPUT_DIR/msf_web_api/${output_name// /_}.txt" >> "$MSF_RESOURCE_DIR/tmp.rc"
         cat "$MSF_RESOURCE_DIR/$resource_file" >> "$MSF_RESOURCE_DIR/tmp.rc"
         echo "spool off" >> "$MSF_RESOURCE_DIR/tmp.rc"
         echo "exit -y" >> "$MSF_RESOURCE_DIR/tmp.rc"
-        
+
         # Run Metasploit with the resource file
         msfconsole -q -r "$MSF_RESOURCE_DIR/tmp.rc"
-        
+
         # Extract findings from the output
         if [ -f "$OUTPUT_DIR/msf_web_api/${output_name// /_}.txt" ]; then
             grep -i -E "(vulnerability|exploit|credential|found|successful|available|accessible)" "$OUTPUT_DIR/msf_web_api/${output_name// /_}.txt" | sort -u > "$OUTPUT_DIR/msf_web_api/${output_name// /_}_findings.txt"
-            
+
             # Add findings to the report
             if [ -s "$OUTPUT_DIR/msf_web_api/${output_name// /_}_findings.txt" ]; then
                 cat "$OUTPUT_DIR/msf_web_api/${output_name// /_}_findings.txt" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
@@ -380,84 +380,84 @@ EOF
         else
             echo "Scan did not produce output." >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
         fi
-        
+
         echo "" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
         echo "" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
     }
-    
+
     # Detect web application technologies
     echo -e "${BLUE}[*] Detecting web technologies.${NC}"
     curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" -o "/tmp/page.html" "$TARGET_URL"
-    
+
     # Run relevant scans based on detected technologies
     run_scan "web_vulns.rc" "Web Vulnerability"
-    
-    # Check for WordPress
-    if grep -i -E "(wp-content|wp-includes|wordpress)" "/tmp/page.html"; then
-        echo -e "${YELLOW}[!] WordPress detected. Running WordPress-specific tests.${NC}"
-        run_scan "wordpress.rc" "WordPress Security"
-    fi
-    
-    # Check for Drupal
-    if grep -i -E "(drupal|sites/all)" "/tmp/page.html"; then
-        echo -e "${YELLOW}[!] Drupal detected. Running Drupal-specific tests.${NC}"
-        run_scan "drupal.rc" "Drupal Security"
-    fi
-    
+
     # Check for Apache
     if curl -s -I "$TARGET_URL" | grep -i "server: apache"; then
         echo -e "${YELLOW}[!] Apache detected. Running Apache-specific tests.${NC}"
         run_scan "apache_vulns.rc" "Apache Security"
     fi
-    
-    # Check for Tomcat
-    if grep -i -E "(tomcat|jakarta)" "/tmp/page.html" || curl -s -I "$TARGET_URL" | grep -i "server: tomcat"; then
-        echo -e "${YELLOW}[!] Tomcat detected. Running Tomcat-specific tests.${NC}"
-        run_scan "tomcat_vulns.rc" "Tomcat Security"
+
+    # Check for Drupal
+    if grep -i -E "(drupal|sites/all)" "/tmp/page.html"; then
+        echo -e "${YELLOW}[!] Drupal detected. Running Drupal-specific tests.${NC}"
+        run_scan "drupal.rc" "Drupal Security"
     fi
-    
+
     # Check for Jenkins
     if grep -i "jenkins" "/tmp/page.html" || curl -s "$TARGET_URL/jenkins/" | grep -i "jenkins"; then
         echo -e "${YELLOW}[!] Jenkins detected. Running Jenkins-specific tests.${NC}"
         run_scan "jenkins_vulns.rc" "Jenkins Security"
     fi
-    
+
+    # Check for Tomcat
+    if grep -i -E "(tomcat|jakarta)" "/tmp/page.html" || curl -s -I "$TARGET_URL" | grep -i "server: tomcat"; then
+        echo -e "${YELLOW}[!] Tomcat detected. Running Tomcat-specific tests.${NC}"
+        run_scan "tomcat_vulns.rc" "Tomcat Security"
+    fi
+
+    # Check for WordPress
+    if grep -i -E "(wp-content|wp-includes|wordpress)" "/tmp/page.html"; then
+        echo -e "${YELLOW}[!] WordPress detected. Running WordPress-specific tests.${NC}"
+        run_scan "wordpress.rc" "WordPress Security"
+    fi
+
     # Run API security tests
     echo -e "${BLUE}[*] Running API security tests.${NC}"
     run_scan "api_security.rc" "API Security"
-    
+
     # Check for GraphQL
     if curl -s -X POST -H "Content-Type: application/json" -d '{"query":"{__schema{queryType{name}}}"}' "$TARGET_URL/graphql" | grep -q "__schema" || \
        curl -s -X POST -H "Content-Type: application/json" -d '{"query":"{__schema{queryType{name}}}"}' "$TARGET_URL/api/graphql" | grep -q "__schema"; then
         echo -e "${YELLOW}[!] GraphQL detected. Running GraphQL-specific tests.${NC}"
         run_scan "graphql.rc" "GraphQL Security"
     fi
-    
+
     # Check for OAuth/OpenID
     if grep -i -E "(oauth|openid|connect|token|authorize)" "/tmp/page.html"; then
         echo -e "${YELLOW}[!] OAuth/OpenID detected. Running OAuth-specific tests.${NC}"
         run_scan "oauth_openid.rc" "OAuth Security"
     fi
-    
+
     # Run brute force tests on authentication mechanisms
     echo -e "${BLUE}[*] Running authentication testing.${NC}"
     run_scan "web_form_brute.rc" "Web Authentication"
     run_scan "basic_auth_brute.rc" "HTTP Basic Authentication"
     run_scan "api_key_brute.rc" "API Key Authentication"
-    
+
     # Run exploit checks
     echo -e "${BLUE}[*] Running exploit checks.${NC}"
     run_scan "web_exploits.rc" "Web Exploit Checks"
     run_scan "api_exploits.rc" "API Exploit Checks"
-    
+
     # Finalize report
     echo "=========================================================" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
     echo "                     END OF REPORT                        " >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
     echo "=========================================================" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
-    
+
     # Clean up temporary files
     rm -f "/tmp/page.html" "$MSF_RESOURCE_DIR/tmp.rc"
-    
+
     echo -e "${YELLOW}[*] Web and API security scan complete. Results saved to $OUTPUT_DIR/msf_web_api/scan_report.txt${NC}"
 }
 

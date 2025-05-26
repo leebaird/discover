@@ -580,17 +580,18 @@ f_main(){
     echo "12. Parse XML"
     echo "13. Generate a malicious payload"
     echo "14. Start a Metasploit listener"
+    echo "15. Update"
+    echo "16. Exit"
     echo
     echo -e "${BLUE}DEV${NC}"
-    echo "15. API Security"
-    echo "16. Cloud Security"
-    echo "17. Container Security"
-    echo "18. MSF Web & API Security"
-    echo "19. OAuth/JWT Security"
-    echo "20. Sensitive Information"
+    echo "17. API Security"
+    echo "18. Cloud Security"
+    echo "19. Container Security"
+    echo "20. MSF Web & API Security"
+    echo "21. OAuth/JWT Security"
+    echo "22. Sensitive Information"
     echo
-    echo "21. Update"
-    echo "22. Exit"
+
     echo
     echo -n "Choice: "
     read -r CHOICE
@@ -610,14 +611,16 @@ f_main(){
         12) ./parse.sh && exit ;;
         13) ./payload.sh && exit ;;
         14) ./listener.sh && exit ;;
-        15) ./api-scanner.sh && exit ;;
-        16) ./cloud-scan.sh && exit ;;
-        17) ./container-scan.sh && exit ;;
-        18) ./msf-web-api.sh && exit ;;
-        19) ./oauth-jwt-tester.sh && exit ;;
-        20) ./sensitive.sh && exit ;;
-        21) f_update ;;
-        22) echo && exit ;;
+        15) f_update ;;
+        16) echo && exit ;;
+
+        17) ./api-scanner.sh && exit ;;
+        18) ./cloud-scan.sh && exit ;;
+        19) ./container-scan.sh && exit ;;
+        20) ./msf-web-api.sh && exit ;;
+        21) ./oauth-jwt-tester.sh && exit ;;
+        22) ./sensitive.sh && exit ;;
+
         99) ./newModules.sh && exit ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;
     esac
