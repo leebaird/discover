@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
-# by ibrahimsql - Sensitive Information Detector
+# by ibrahimsql - Sensitive Information Scanner
 # Discover framework compatibility module
 
 clear
 f_banner
 
-# Global settings
+# Global variables
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
+NAME="_$TIMESTAMP"
 
 # Function to terminate script
 f_terminate(){
@@ -20,6 +21,8 @@ f_terminate(){
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
+
+###############################################################################################################################
 
 # Function to scan files for sensitive info
 f_scan_files(){
@@ -80,10 +83,10 @@ f_scan_files(){
     echo -e "${BLUE}[*] Generating summary report.${NC}"
     {
         echo "Sensitive Information Report"
-        echo "-------------------------"
+        echo
         echo "Date: $DATESTAMP $TIMESTAMP"
         echo "Target Directory: $SCAN_DIR"
-        echo "-------------------------"
+        echo "----------------------------"
         echo
         echo "[*] API Keys and Credentials:"
         if [ -s "$OUTPUT_DIR/sensitive_info/api_keys.txt" ]; then
@@ -191,6 +194,8 @@ f_scan_files(){
     echo -e "${YELLOW}[*] Scan complete. Results saved to $OUTPUT_DIR/sensitive_info_summary.txt${NC}"
     echo
 }
+
+###############################################################################################################################
 
 # Function to scan web for sensitive info
 f_scan_web(){
@@ -520,11 +525,11 @@ EOF
     echo
 }
 
+###############################################################################################################################
+
 # Main function
 f_sensitive_main(){
-    NAME="$DATESTAMP_$TIMESTAMP"
-
-    echo -e "${BLUE}Sensitive Information Detector${NC}"
+    echo -e "${BLUE}Sensitive Information Scanner${NC}"
     echo
     echo "1. File or folder"
     echo "2. URL"
@@ -549,7 +554,7 @@ f_sensitive_main(){
            f_scan_files "$SCAN_DIR" "$NAME" ;;
         2)
            echo
-           echo -n "Enter URL to scan (e.g., https://example.com): "
+           echo -n "Enter URL to scan (e.g., https://target.com): "
            read -r TARGET_URL
 
            if [[ ! "$TARGET_URL" =~ ^https?:// ]]; then

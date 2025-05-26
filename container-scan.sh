@@ -3,14 +3,10 @@
 # by ibrahimsql - Container Security Scanner
 # Discover framework compatibility module
 
-echo
-echo "$MEDIUM"
-echo
-echo "Container Security Scanner"
-echo "$MEDIUM"
-echo
+clear
+f_banner
 
-# Global settings
+# Global variables
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
 
@@ -24,6 +20,8 @@ f_terminate(){
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
+
+###############################################################################################################################
 
 # Check for required tools
 f_check_requirements() {
@@ -55,50 +53,57 @@ f_check_requirements() {
         read -r INSTALL_CHOICE
         
         if [[ "$INSTALL_CHOICE" =~ ^[Yy]$ ]]; then
-            echo -e "${BLUE}[*] Installing missing tools...${NC}"
+            echo -e "${BLUE}[*] Installing missing tools.${NC}"
             
             for tool in "${MISSING_TOOLS[@]}"; do
                 case "$tool" in
                     "docker")
-                        echo -e "${BLUE}[*] Installing Docker...${NC}"
+                        echo -e "${BLUE}[*] Installing Docker.${NC}"
                         sudo apt-get update && sudo apt-get install -y docker.io
                         sudo systemctl enable docker
                         sudo systemctl start docker
-                        sudo usermod -aG docker $USER
+                        sudo usermod -aG docker "$USER"
                         ;;
                     "kubectl")
-                        echo -e "${BLUE}[*] Installing kubectl...${NC}"
+                        echo -e "${BLUE}[*] Installing kubectl.${NC}"
                         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
                         chmod +x kubectl
                         sudo mv kubectl /usr/local/bin/
                         ;;
                     "trivy")
-                        echo -e "${BLUE}[*] Installing Trivy...${NC}"
+                        echo -e "${BLUE}[*] Installing Trivy.${NC}"
                         sudo apt-get install -y wget apt-transport-https gnupg lsb-release
                         wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-                        echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+                        echo deb https://aquasecurity.github.io/trivy-repo/deb "$(lsb_release -sc)" main | sudo tee -a /etc/apt/sources.list.d/trivy.list
                         sudo apt-get update && sudo apt-get install -y trivy
                         ;;
                 esac
             done
-            
-            echo -e "${GREEN}[*] Installation complete. You may need to log out and back in for Docker permissions to take effect.${NC}"
+
+            echo
+            echo -e "${YELLOW}[*] Installation complete. You may need to log out and back in for Docker permissions to take effect.${NC}"
+            echo
+            exit
         else
+            echo
             echo -e "${RED}[!] Cannot proceed without required tools.${NC}"
+            echo
             exit 1
         fi
     fi
 }
 
+###############################################################################################################################
+
 # Function to scan Docker images
 f_scan_docker_images() {
     local output_dir="$1"
     
-    echo -e "${BLUE}[*] Starting comprehensive Docker image security scan...${NC}"
+    echo -e "${BLUE}[*] Starting comprehensive Docker image security scan.${NC}"
     mkdir -p "$output_dir/docker/images" "$output_dir/docker/vulnerabilities" "$output_dir/docker/dockerfile_analysis"
     
     # List all Docker images with additional metadata
-    echo -e "${BLUE}[*] Collecting Docker image inventory...${NC}"
+    echo -e "${BLUE}[*] Collecting Docker image inventory.${NC}"
     docker images --format "{{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedAt}}" > "$output_dir/docker/image_inventory.tsv"
     docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" > "$output_dir/docker/image_list.txt"
     
@@ -110,7 +115,7 @@ f_scan_docker_images() {
     
     # Count total images for progress reporting
     TOTAL_IMAGES=$(wc -l < "$output_dir/docker/image_list.txt")
-    echo -e "${GREEN}[*] Found $TOTAL_IMAGES Docker images to analyze${NC}"
+    echo -e "${YELLOW}[*] Found $TOTAL_IMAGES Docker images to analyze${NC}"
     
     # Create summary file
     echo "Docker Image Security Summary" > "$output_dir/docker/image_security_summary.txt"
@@ -125,7 +130,7 @@ f_scan_docker_images() {
     LOW_COUNT=0
     
     # Scan each image with Trivy for vulnerabilities
-    echo -e "${BLUE}[*] Scanning images for vulnerabilities and misconfigurations...${NC}"
+    echo -e "${BLUE}[*] Scanning images for vulnerabilities and misconfigurations.${NC}"
     COUNTER=0
     while read -r image; do
         ((COUNTER++))
@@ -236,7 +241,7 @@ f_scan_docker_images() {
         fi
         echo "$image|$RISK_SCORE|$CRITICAL_COUNT_IMG|$HIGH_COUNT_IMG|$MEDIUM_COUNT_IMG|$LOW_COUNT_IMG|$SECRETS_COUNT|$MISCONFIGS_COUNT" >> "$output_dir/docker/image_risk_scores.txt"
         
-        echo -e "${GREEN}[*] Image scan complete: $image (Risk Score: $RISK_SCORE/10)${NC}"
+        echo -e "${YELLOW}[*] Image scan complete: $image (Risk Score: $RISK_SCORE/10)${NC}"
     done < "$output_dir/docker/image_list.txt"
     
     # Update summary file with totals
@@ -256,13 +261,13 @@ f_scan_docker_images() {
     } >> "$output_dir/docker/image_security_summary.txt"
     
     # Analyze Dockerfile security
-    echo -e "${BLUE}[*] Looking for Dockerfiles...${NC}"
+    echo -e "${BLUE}[*] Looking for Dockerfiles.${NC}"
     find . -name "Dockerfile" -type f > "$output_dir/docker/dockerfile_list.txt" 2>/dev/null
     
     if [ -s "$output_dir/docker/dockerfile_list.txt" ]; then
         DOCKERFILE_COUNT=$(wc -l < "$output_dir/docker/dockerfile_list.txt")
-        echo -e "${GREEN}[*] Found $DOCKERFILE_COUNT Dockerfiles to analyze${NC}"
-        echo -e "${BLUE}[*] Performing advanced Dockerfile security analysis...${NC}"
+        echo -e "${YELLOW}[*] Found $DOCKERFILE_COUNT Dockerfiles to analyze${NC}"
+        echo -e "${BLUE}[*] Performing advanced Dockerfile security analysis.${NC}"
         
         DOCKERFILE_ISSUES_COUNT=0
         
@@ -332,7 +337,7 @@ f_scan_docker_images() {
                 fi
                 
                 # Check for multi-stage builds
-                if [ $(grep -c "FROM" "$dockerfile") -eq 1 ] && grep -q "COPY --from=" "$dockerfile"; then
+                if [ "$(grep -c "FROM" "$dockerfile")" -eq 1 ] && grep -q "COPY --from=" "$dockerfile"; then
                     echo "GOOD PRACTICE: Using multi-stage builds to reduce image size"
                 fi
                 
@@ -423,18 +428,20 @@ f_scan_docker_images() {
         } >> "$output_dir/docker/image_security_summary.txt"
     fi
     
-    echo -e "${GREEN}[*] Docker image analysis complete! Results saved to $output_dir/docker/image_security_summary.txt${NC}"
+    echo -e "${YELLOW}[*] Docker image analysis complete! Results saved to $output_dir/docker/image_security_summary.txt${NC}"
 }
+
+###############################################################################################################################
 
 # Function to scan Docker containers
 f_scan_docker_containers() {
     local output_dir="$1"
     
-    echo -e "${BLUE}[*] Starting comprehensive Docker container security audit...${NC}"
+    echo -e "${BLUE}[*] Starting comprehensive Docker container security audit.${NC}"
     mkdir -p "$output_dir/docker/containers" "$output_dir/docker/container_reports" "$output_dir/docker/runtime_analysis"
     
     # List all Docker containers with additional metadata
-    echo -e "${BLUE}[*] Gathering container inventory...${NC}"
+    echo -e "${BLUE}[*] Gathering container inventory.${NC}"
     docker ps -a --format "{{.ID}}\t{{.Image}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Command}}" > "$output_dir/docker/container_inventory.tsv"
     docker ps -a --format "{{.ID}} {{.Image}} {{.Names}}" > "$output_dir/docker/container_list.txt"
     
@@ -451,7 +458,7 @@ f_scan_docker_containers() {
     TOTAL_CONTAINERS=$(wc -l < "$output_dir/docker/container_list.txt")
     RUNNING_CONTAINERS=$(wc -l < "$output_dir/docker/running_containers.txt" 2>/dev/null || echo 0)
     
-    echo -e "${GREEN}[*] Found $TOTAL_CONTAINERS containers ($RUNNING_CONTAINERS running)${NC}"
+    echo -e "${YELLOW}[*] Found $TOTAL_CONTAINERS containers ($RUNNING_CONTAINERS running)${NC}"
     
     # Create summary file
     echo "Docker Container Security Summary" > "$output_dir/docker/container_security_summary.txt"
@@ -467,7 +474,7 @@ f_scan_docker_containers() {
     MEDIUM_RISK_CONTAINERS=0
     
     # Analyze each container
-    echo -e "${BLUE}[*] Performing deep security analysis of container configurations...${NC}"
+    echo -e "${BLUE}[*] Performing deep security analysis of container configurations.${NC}"
     
     # Create detailed issue tracking files
     touch "$output_dir/docker/privileged_containers.txt"
@@ -797,7 +804,7 @@ f_scan_docker_containers() {
             # Check for setuid/setgid binaries
             docker exec "$container_id" find / -perm /6000 -type f 2>/dev/null > "$output_dir/docker/runtime_analysis/$container_name/setuid_setgid_binaries.txt" || true
             
-            echo -e "${GREEN}[*] Runtime analysis complete for container: $container_name${NC}"
+            echo -e "${YELLOW}[*] Runtime analysis complete for container: $container_name${NC}"
         fi
     done < "$output_dir/docker/container_list.txt"
     
@@ -827,14 +834,16 @@ f_scan_docker_containers() {
         echo "Containers without health checks: $(wc -l < "$output_dir/docker/no_health_check_containers.txt" 2>/dev/null || echo 0)"
     } >> "$output_dir/docker/container_security_summary.txt"
     
-    echo -e "${GREEN}[*] Container security analysis complete! Results saved to $output_dir/docker/container_security_summary.txt${NC}"
+    echo -e "${YELLOW}[*] Container security analysis complete! Results saved to $output_dir/docker/container_security_summary.txt${NC}"
 }
+
+###############################################################################################################################
 
 # Function to scan Kubernetes resources
 f_scan_kubernetes() {
     local output_dir="$1"
     
-    echo -e "${BLUE}[*] Starting comprehensive Kubernetes security audit...${NC}"
+    echo -e "${BLUE}[*] Starting comprehensive Kubernetes security audit.${NC}"
     mkdir -p "$output_dir/kubernetes/cluster" "$output_dir/kubernetes/resources" "$output_dir/kubernetes/vulnerabilities" "$output_dir/kubernetes/security_reports" "$output_dir/kubernetes/rbac" "$output_dir/kubernetes/workloads" "$output_dir/kubernetes/network"
     
     # Initialize summary file
@@ -851,7 +860,7 @@ f_scan_kubernetes() {
     fi
     
     # Get cluster info
-    echo -e "${BLUE}[*] Gathering Kubernetes cluster information...${NC}"
+    echo -e "${BLUE}[*] Gathering Kubernetes cluster information.${NC}"
     kubectl cluster-info > "$output_dir/kubernetes/cluster/cluster_info.txt" 2>/dev/null
     kubectl version --output=json > "$output_dir/kubernetes/cluster/version.json" 2>/dev/null
     
@@ -859,7 +868,7 @@ f_scan_kubernetes() {
     SERVER_VERSION=$(jq -r '.serverVersion.gitVersion' "$output_dir/kubernetes/cluster/version.json" 2>/dev/null)
     
     # Check Kubernetes version for known vulnerabilities
-    echo -e "${BLUE}[*] Checking Kubernetes version for known vulnerabilities...${NC}"
+    echo -e "${BLUE}[*] Checking Kubernetes version for known vulnerabilities.${NC}"
     MAJOR_VERSION=$(echo "$SERVER_VERSION" | cut -d'.' -f1 | tr -d 'v')
     MINOR_VERSION=$(echo "$SERVER_VERSION" | cut -d'.' -f2)
     
@@ -873,7 +882,7 @@ f_scan_kubernetes() {
         echo "WARNING: Kubernetes version $SERVER_VERSION is not the latest. Consider upgrading to 1.26+" >> "$output_dir/kubernetes/cluster/version_issues.txt"
         K8S_VERSION_ISSUES=1
     else
-        echo -e "${GREEN}[*] Kubernetes version $SERVER_VERSION is recent${NC}"
+        echo -e "${YELLOW}[*] Kubernetes version $SERVER_VERSION is recent${NC}"
     fi
     
     # Add version info to summary
@@ -887,7 +896,7 @@ f_scan_kubernetes() {
     echo "" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
     
     # Collect node information
-    echo -e "${BLUE}[*] Gathering node information...${NC}"
+    echo -e "${BLUE}[*] Gathering node information.${NC}"
     kubectl get nodes -o wide > "$output_dir/kubernetes/cluster/nodes_info.txt" 2>/dev/null
     kubectl get nodes -o json > "$output_dir/kubernetes/cluster/nodes.json" 2>/dev/null
     
@@ -896,7 +905,7 @@ f_scan_kubernetes() {
     echo "Node Count: $NODE_COUNT" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
     
     # Check node versions for consistency
-    echo -e "${BLUE}[*] Checking for node version consistency...${NC}"
+    echo -e "${BLUE}[*] Checking for node version consistency.${NC}"
     kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.nodeInfo.kubeletVersion}{"\n"}{end}' > "$output_dir/kubernetes/cluster/node_versions.txt" 2>/dev/null
     
     NODE_VERSION_COUNT=$(awk '{print $2}' "$output_dir/kubernetes/cluster/node_versions.txt" | sort | uniq | wc -l)
@@ -905,13 +914,13 @@ f_scan_kubernetes() {
         echo "WARNING: Cluster has nodes running $NODE_VERSION_COUNT different Kubernetes versions" >> "$output_dir/kubernetes/cluster/node_issues.txt"
         echo "Node Version Consistency: INCONSISTENT ($NODE_VERSION_COUNT versions)" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
     else
-        echo -e "${GREEN}[*] All nodes running the same Kubernetes version${NC}"
+        echo -e "${YELLOW}[*] All nodes running the same Kubernetes version${NC}"
         echo "Node Version Consistency: CONSISTENT" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
     fi
     echo "" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
     
     # Get and analyze all namespaces
-    echo -e "${BLUE}[*] Enumerating and analyzing Kubernetes namespaces...${NC}"
+    echo -e "${BLUE}[*] Enumerating and analyzing Kubernetes namespaces.${NC}"
     kubectl get namespaces -o json > "$output_dir/kubernetes/resources/namespaces.json" 2>/dev/null
     kubectl get namespaces > "$output_dir/kubernetes/resources/namespaces.txt" 2>/dev/null
     
@@ -920,7 +929,7 @@ f_scan_kubernetes() {
     
     # Count namespaces
     NAMESPACE_COUNT=$(wc -l < "$output_dir/kubernetes/resources/namespace_list.txt")
-    echo -e "${GREEN}[*] Found $NAMESPACE_COUNT namespaces${NC}"
+    echo -e "${YELLOW}[*] Found $NAMESPACE_COUNT namespaces${NC}"
     echo "Namespace Count: $NAMESPACE_COUNT" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
     
     # Initialize resource counters for various types
@@ -946,7 +955,7 @@ f_scan_kubernetes() {
     touch "$output_dir/kubernetes/vulnerabilities/secrets_as_env.txt"
     
     # For each namespace, get and analyze all resources
-    echo -e "${BLUE}[*] Starting detailed namespace analysis...${NC}"
+    echo -e "${BLUE}[*] Starting detailed namespace analysis.${NC}"
     NAMESPACE_COUNTER=0
     
     while read -r namespace; do
@@ -1204,18 +1213,18 @@ f_scan_kubernetes() {
         echo "- Implement Pod Security Policies or Pod Security Standards" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
         echo "- Use Secret management solutions instead of Kubernetes Secrets for sensitive data" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
         
-        echo -e "${GREEN}[*] Completed security analysis for namespace: $namespace${NC}"
+        echo -e "${YELLOW}[*] Completed security analysis for namespace: $namespace${NC}"
     done < "$output_dir/kubernetes/resources/namespace_list.txt"
     
     # Check cluster-wide RBAC
-    echo -e "${BLUE}[*] Analyzing cluster-wide RBAC settings...${NC}"
+    echo -e "${BLUE}[*] Analyzing cluster-wide RBAC settings.${NC}"
     mkdir -p "$output_dir/kubernetes/rbac/cluster-wide"
     
     # Get cluster roles and bindings
     kubectl get clusterroles,clusterrolebindings -o json > "$output_dir/kubernetes/rbac/cluster-roles.json" 2>/dev/null
     
     # Check for overly permissive cluster roles
-    echo -e "${BLUE}[*] Checking for overly permissive cluster roles...${NC}"
+    echo -e "${BLUE}[*] Checking for overly permissive cluster roles.${NC}"
     jq -r '.items[] | select(.kind == "ClusterRole") | select(any(.rules[]; .resources[] == "*" and .verbs[] == "*")) | .metadata.name' "$output_dir/kubernetes/rbac/cluster-roles.json" > "$output_dir/kubernetes/rbac/cluster-wide/permissive_cluster_roles.txt" 2>/dev/null
     
     PERMISSIVE_CLUSTER_ROLES=$(wc -l < "$output_dir/kubernetes/rbac/cluster-wide/permissive_cluster_roles.txt" 2>/dev/null || echo 0)
@@ -1224,7 +1233,7 @@ f_scan_kubernetes() {
     fi
     
     # Check for dangerous subjects in cluster role bindings
-    echo -e "${BLUE}[*] Checking for dangerous cluster role bindings...${NC}"
+    echo -e "${BLUE}[*] Checking for dangerous cluster role bindings.${NC}"
     jq -r '.items[] | select(.kind == "ClusterRoleBinding") | select(.roleRef.name == "cluster-admin") | .subjects[] | select(.kind == "Group" and .name == "system:authenticated") | "CRITICAL: cluster-admin bound to system:authenticated"' "$output_dir/kubernetes/rbac/cluster-roles.json" > "$output_dir/kubernetes/rbac/cluster-wide/dangerous_bindings.txt" 2>/dev/null
     
     if [ -s "$output_dir/kubernetes/rbac/cluster-wide/dangerous_bindings.txt" ]; then
@@ -1252,7 +1261,7 @@ f_scan_kubernetes() {
     } > "$output_dir/kubernetes/rbac/cluster-wide/rbac_summary.txt"
     
     # Create comprehensive Kubernetes security summary
-    echo -e "${BLUE}[*] Generating comprehensive Kubernetes security report...${NC}"
+    echo -e "${BLUE}[*] Generating comprehensive Kubernetes security report.${NC}"
     
     # Add resource stats to summary
     {
@@ -1294,14 +1303,16 @@ f_scan_kubernetes() {
         echo "10. Enable audit logging and implement monitoring/alerting"
     } >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
     
-    echo -e "${GREEN}[*] Kubernetes security audit complete! Results are in $output_dir/kubernetes/kubernetes_security_summary.txt${NC}"
+    echo -e "${YELLOW}[*] Kubernetes security audit complete! Results are in $output_dir/kubernetes/kubernetes_security_summary.txt${NC}"
 }
+
+###############################################################################################################################
 
 # Function to generate a comprehensive report
 f_generate_report() {
     local output_dir="$1"
     
-    echo -e "${BLUE}[*] Generating container security report...${NC}"
+    echo -e "${BLUE}[*] Generating container security report.${NC}"
     {
         echo "Container Security Scan Report"
         echo "=============================="
@@ -1402,46 +1413,49 @@ f_generate_report() {
         
     } > "$output_dir/container_security_report.txt"
     
-    echo -e "${GREEN}[*] Container security scan complete. Results saved to $output_dir/container_security_report.txt${NC}"
+    echo -e "${YELLOW}[*] Container security scan complete. Results saved to $output_dir/container_security_report.txt${NC}"
 }
 
+###############################################################################################################################
+
 # Main function
-f_container_scan(){
-    f_scanname
+f_container_main(){
     f_check_requirements
-    
+
+    echo -e "${BLUE}Container Security Scanner${NC}"
+
     # Parse scan type parameter
     local scan_type="$1"
-    
+
     case "$scan_type" in
         "docker-images")
-            echo -e "${BLUE}[*] Starting Docker image scan...${NC}"
+            echo -e "${BLUE}[*] Starting Docker image scan.${NC}"
             f_scan_docker_images "$NAME"
             f_generate_report "$NAME"
             ;;
         "docker-containers")
-            echo -e "${BLUE}[*] Starting Docker container scan...${NC}"
+            echo -e "${BLUE}[*] Starting Docker container scan.${NC}"
             f_scan_docker_containers "$NAME"
             f_generate_report "$NAME"
             ;;
         "kubernetes")
-            echo -e "${BLUE}[*] Starting Kubernetes scan...${NC}"
+            echo -e "${BLUE}[*] Starting Kubernetes scan.${NC}"
             f_scan_kubernetes "$NAME"
             f_generate_report "$NAME"
             ;;
         "all" | *)
             # Default to full scan if parameter is not recognized
-            echo -e "${BLUE}[*] Starting comprehensive container security scan...${NC}"
+            echo -e "${BLUE}[*] Starting comprehensive container security scan.${NC}"
             f_scan_docker_images "$NAME"
             f_scan_docker_containers "$NAME"
             f_scan_kubernetes "$NAME"
             f_generate_report "$NAME"
             ;;
     esac
-    
-    echo -e "${GREEN}[*] Container security scan complete.${NC}"
+
+    echo -e "${YELLOW}[*] Container security scan complete.${NC}"
     echo
 }
 
-# Export the main function
-export -f f_container_scan
+# Run the script
+f_container_main

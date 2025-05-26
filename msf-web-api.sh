@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 
-# by ibrahimsql - Advanced Metasploit Web and API Security Testing
+# by ibrahimsql - Metasploit Web and API Security Scanner
 # Discover framework compatibility module
 
-echo
-echo "$MEDIUM"
-echo
-echo "Advanced Metasploit Web & API Security Testing"
-echo "$MEDIUM"
-echo
+clear
+f_banner
 
-# Global settings
+# Global variables
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
 
@@ -25,16 +21,18 @@ f_terminate(){
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
 
+###############################################################################################################################
+
 # Check if PostgreSQL is running
 if ! service postgresql status | grep -q "active (running)"; then
-    echo -e "${BLUE}[*] Starting PostgreSQL service...${NC}"
+    echo -e "${BLUE}[*] Starting PostgreSQL service.${NC}"
     sudo service postgresql start
     sleep 2
 fi
 
 # Check if MSF database is connected
 if ! msfconsole -q -x "db_status; exit" | grep -q "postgresql connected"; then
-    echo -e "${RED}[!] Metasploit database is not connected. Running initialization...${NC}"
+    echo -e "${RED}[!] Metasploit database is not connected. Running initialization.${NC}"
     sudo msfdb init
     sleep 2
 fi
@@ -43,9 +41,11 @@ fi
 mkdir -p "/tmp/msf_resources"
 MSF_RESOURCE_DIR="/tmp/msf_resources"
 
+###############################################################################################################################
+
 # Function to create web application security resource scripts
 f_create_web_resources() {
-    echo -e "${BLUE}[*] Preparing web application security test resource scripts...${NC}"
+    echo -e "${BLUE}[*] Preparing web application security test resource scripts.${NC}"
     
     # WordPress Scanner Resource
     cat > "$MSF_RESOURCE_DIR/wordpress.rc" << EOF
@@ -173,12 +173,14 @@ use auxiliary/scanner/http/graphql_introspection
 run
 EOF
 
-    echo -e "${GREEN}[*] Resource scripts created.${NC}"
+    echo -e "${YELLOW}[*] Resource scripts created.${NC}"
 }
+
+###############################################################################################################################
 
 # Function to create advanced password brute force resource scripts
 f_create_brute_resources() {
-    echo -e "${BLUE}[*] Preparing brute force attack resource scripts...${NC}"
+    echo -e "${BLUE}[*] Preparing brute force attack resource scripts.${NC}"
     
     # Web Form Brute Force
     cat > "$MSF_RESOURCE_DIR/web_form_brute.rc" << EOF
@@ -223,12 +225,14 @@ setg KEY_FILE /usr/share/metasploit-framework/data/wordlists/common_passwords.tx
 run
 EOF
 
-    echo -e "${GREEN}[*] Brute force resource scripts created.${NC}"
+    echo -e "${YELLOW}[*] Brute force resource scripts created.${NC}"
 }
+
+###############################################################################################################################
 
 # Function to create advanced exploit resource scripts
 f_create_exploit_resources() {
-    echo -e "${BLUE}[*] Preparing exploit resource scripts...${NC}"
+    echo -e "${BLUE}[*] Preparing exploit resource scripts.${NC}"
     
     # Web Application Exploits
     cat > "$MSF_RESOURCE_DIR/web_exploits.rc" << EOF
@@ -296,8 +300,10 @@ use exploit/multi/http/solarwinds_orion_authenticated_rce
 check
 EOF
 
-    echo -e "${GREEN}[*] Exploit resource scripts created.${NC}"
+    echo -e "${YELLOW}[*] Exploit resource scripts created.${NC}"
 }
+
+###############################################################################################################################
 
 # Function to run web/API security scans
 f_run_web_api_scan() {
@@ -305,7 +311,7 @@ f_run_web_api_scan() {
     local TARGET_IP=$2
     local OUTPUT_DIR=$3
     
-    echo -e "${BLUE}[*] Running advanced web and API security scans against $TARGET_URL...${NC}"
+    echo -e "${BLUE}[*] Running advanced web and API security scans against $TARGET_URL.${NC}"
     
     # Create output directory
     mkdir -p "$OUTPUT_DIR/msf_web_api"
@@ -345,7 +351,7 @@ EOF
         local resource_file=$1
         local output_name=$2
         
-        echo -e "${BLUE}[*] Running $output_name scan...${NC}"
+        echo -e "${BLUE}[*] Running $output_name scan.${NC}"
         
         # Update the report
         echo "= $output_name Scan Results =" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
@@ -380,7 +386,7 @@ EOF
     }
     
     # Detect web application technologies
-    echo -e "${BLUE}[*] Detecting web technologies...${NC}"
+    echo -e "${BLUE}[*] Detecting web technologies.${NC}"
     curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" -o "/tmp/page.html" "$TARGET_URL"
     
     # Run relevant scans based on detected technologies
@@ -388,59 +394,59 @@ EOF
     
     # Check for WordPress
     if grep -i -E "(wp-content|wp-includes|wordpress)" "/tmp/page.html"; then
-        echo -e "${YELLOW}[!] WordPress detected. Running WordPress-specific tests...${NC}"
+        echo -e "${YELLOW}[!] WordPress detected. Running WordPress-specific tests.${NC}"
         run_scan "wordpress.rc" "WordPress Security"
     fi
     
     # Check for Drupal
     if grep -i -E "(drupal|sites/all)" "/tmp/page.html"; then
-        echo -e "${YELLOW}[!] Drupal detected. Running Drupal-specific tests...${NC}"
+        echo -e "${YELLOW}[!] Drupal detected. Running Drupal-specific tests.${NC}"
         run_scan "drupal.rc" "Drupal Security"
     fi
     
     # Check for Apache
     if curl -s -I "$TARGET_URL" | grep -i "server: apache"; then
-        echo -e "${YELLOW}[!] Apache detected. Running Apache-specific tests...${NC}"
+        echo -e "${YELLOW}[!] Apache detected. Running Apache-specific tests.${NC}"
         run_scan "apache_vulns.rc" "Apache Security"
     fi
     
     # Check for Tomcat
     if grep -i -E "(tomcat|jakarta)" "/tmp/page.html" || curl -s -I "$TARGET_URL" | grep -i "server: tomcat"; then
-        echo -e "${YELLOW}[!] Tomcat detected. Running Tomcat-specific tests...${NC}"
+        echo -e "${YELLOW}[!] Tomcat detected. Running Tomcat-specific tests.${NC}"
         run_scan "tomcat_vulns.rc" "Tomcat Security"
     fi
     
     # Check for Jenkins
     if grep -i "jenkins" "/tmp/page.html" || curl -s "$TARGET_URL/jenkins/" | grep -i "jenkins"; then
-        echo -e "${YELLOW}[!] Jenkins detected. Running Jenkins-specific tests...${NC}"
+        echo -e "${YELLOW}[!] Jenkins detected. Running Jenkins-specific tests.${NC}"
         run_scan "jenkins_vulns.rc" "Jenkins Security"
     fi
     
     # Run API security tests
-    echo -e "${BLUE}[*] Running API security tests...${NC}"
+    echo -e "${BLUE}[*] Running API security tests.${NC}"
     run_scan "api_security.rc" "API Security"
     
     # Check for GraphQL
     if curl -s -X POST -H "Content-Type: application/json" -d '{"query":"{__schema{queryType{name}}}"}' "$TARGET_URL/graphql" | grep -q "__schema" || \
        curl -s -X POST -H "Content-Type: application/json" -d '{"query":"{__schema{queryType{name}}}"}' "$TARGET_URL/api/graphql" | grep -q "__schema"; then
-        echo -e "${YELLOW}[!] GraphQL detected. Running GraphQL-specific tests...${NC}"
+        echo -e "${YELLOW}[!] GraphQL detected. Running GraphQL-specific tests.${NC}"
         run_scan "graphql.rc" "GraphQL Security"
     fi
     
     # Check for OAuth/OpenID
     if grep -i -E "(oauth|openid|connect|token|authorize)" "/tmp/page.html"; then
-        echo -e "${YELLOW}[!] OAuth/OpenID detected. Running OAuth-specific tests...${NC}"
+        echo -e "${YELLOW}[!] OAuth/OpenID detected. Running OAuth-specific tests.${NC}"
         run_scan "oauth_openid.rc" "OAuth Security"
     fi
     
     # Run brute force tests on authentication mechanisms
-    echo -e "${BLUE}[*] Running authentication testing...${NC}"
+    echo -e "${BLUE}[*] Running authentication testing.${NC}"
     run_scan "web_form_brute.rc" "Web Authentication"
     run_scan "basic_auth_brute.rc" "HTTP Basic Authentication"
     run_scan "api_key_brute.rc" "API Key Authentication"
     
     # Run exploit checks
-    echo -e "${BLUE}[*] Running exploit checks...${NC}"
+    echo -e "${BLUE}[*] Running exploit checks.${NC}"
     run_scan "web_exploits.rc" "Web Exploit Checks"
     run_scan "api_exploits.rc" "API Exploit Checks"
     
@@ -452,71 +458,64 @@ EOF
     # Clean up temporary files
     rm -f "/tmp/page.html" "$MSF_RESOURCE_DIR/tmp.rc"
     
-    echo -e "${GREEN}[*] Web and API security scan complete. Results saved to $OUTPUT_DIR/msf_web_api/scan_report.txt${NC}"
+    echo -e "${YELLOW}[*] Web and API security scan complete. Results saved to $OUTPUT_DIR/msf_web_api/scan_report.txt${NC}"
 }
 
-# Main function for MSF Web & API Security testing
-f_msf_web_api_scan() {
-    # Initialize
-    TITLE="MSF Web & API Security Scanner"
-    f_title
-    
-    # Get target
-    echo -e "${BLUE}[*] This module runs Metasploit Framework to perform comprehensive web application and API security testing.${NC}"
+###############################################################################################################################
+
+# Main function
+f_msf_web_api_main(){
+    echo -e "${BLUE}MSF Web and API Security Scanner${NC}"
     echo
-    echo -e "${GREEN}Target Options:${NC}"
-    echo "1. Scan a URL for web app/API vulnerabilities"
-    echo "2. Exit"
+    echo "1. Scan a URL for web app and API vulnerabilities"
+    echo "2. Previous menu"
     echo
     echo -n "Choice: "
-    read CHOICE
-    
+    read -r CHOICE
+
     case $CHOICE in
         1)
-            echo
-            echo -n "Enter target URL (e.g., http://example.com): "
-            read TARGET_URL
-            
-            if [ -z "$TARGET_URL" ]; then
-                echo -e "${RED}[!] No target specified.${NC}"
-                f_terminate
-            fi
-            
-            # Extract IP address
-            DOMAIN=$(echo "$TARGET_URL" | sed -E 's|^https?://||' | sed -E 's|/.*$||')
-            TARGET_IP=$(host "$DOMAIN" | grep "has address" | head -1 | awk '{print $4}')
-            
-            if [ -z "$TARGET_IP" ]; then
-                echo -e "${RED}[!] Could not resolve domain to IP address.${NC}"
-                echo -n "Enter target IP address manually: "
-                read TARGET_IP
-                
-                if [ -z "$TARGET_IP" ]; then
-                    echo -e "${RED}[!] No IP address specified.${NC}"
-                    f_terminate
-                fi
-            fi
-            
-            # Create resource scripts
-            f_create_web_resources
-            f_create_brute_resources
-            f_create_exploit_resources
-            
-            # Run the scan
-            f_run_web_api_scan "$TARGET_URL" "$TARGET_IP" "$OUTPUT"
-            ;;
-        2)
-            f_terminate
-            ;;
-        *)
-            echo -e "${RED}[!] Invalid choice.${NC}"
-            f_terminate
-            ;;
+           echo
+           echo -n "Enter target URL (e.g., http://target.com): "
+           read -r TARGET_URL
+
+           if [ -z "$TARGET_URL" ]; then
+               echo
+               echo -e "${RED}[!] No target specified.${NC}"
+               echo
+               f_terminate
+           fi
+
+           # Extract IP address
+           DOMAIN=$(echo "$TARGET_URL" | sed -E 's|^https?://||' | sed -E 's|/.*$||')
+           TARGET_IP=$(host "$DOMAIN" | grep "has address" | head -1 | awk '{print $4}')
+
+           if [ -z "$TARGET_IP" ]; then
+               echo
+               echo -e "${RED}[!] Could not resolve domain to IP address.${NC}"
+               echo -n "Enter target IP address manually: "
+               read -r TARGET_IP
+
+               if [ -z "$TARGET_IP" ]; then
+                   echo
+                   echo -e "${RED}[!] No IP address specified.${NC}"
+                   echo
+                   f_terminate
+               fi
+           fi
+
+           # Create resource scripts
+           f_create_web_resources
+           f_create_brute_resources
+           f_create_exploit_resources
+
+           # Run the scan
+           f_run_web_api_scan "$TARGET_URL" "$TARGET_IP" "$OUTPUT"
+           ;;
+        2) f_main ;;
+        *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_msf_web_api_main ;;
     esac
 }
 
-# Execute main function
-f_msf_web_api_scan
-
-# Export main function
-export -f f_msf_web_api_scan
+# Run the script
+f_msf_web_api_main

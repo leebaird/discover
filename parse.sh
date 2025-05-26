@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# by Lee Baird (@discoverscripts)
+
 clear
 f_banner
 

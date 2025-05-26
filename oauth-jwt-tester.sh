@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 
-# by ibrahimsql - OAuth/JWT Security Tester
+# by ibrahimsql - OAuth/JWT Security Scanner
 # Discover framework compatibility module
 
-echo
-echo "$MEDIUM"
-echo
-echo "OAuth/JWT Security Tester"
-echo "$MEDIUM"
-echo
+clear
+f_banner
 
-# Global settings
+# Global variables
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
 
@@ -25,19 +21,21 @@ f_terminate(){
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
 
+###############################################################################################################################
+
 # Function to analyze OAuth configuration
 f_oauth_analyze() {
     local TARGET_URL=$1
     local OUTPUT_DIR=$2
     
-    echo -e "${BLUE}[*] Analyzing OAuth configuration for $TARGET_URL...${NC}"
+    echo -e "${BLUE}[*] Analyzing OAuth configuration for $TARGET_URL.${NC}"
     echo
     
     # Create output directory
     mkdir -p "$OUTPUT_DIR/oauth_test"
     
     # Check common OAuth endpoints
-    echo -e "${BLUE}[*] Checking for common OAuth endpoints...${NC}"
+    echo -e "${BLUE}[*] Checking for common OAuth endpoints.${NC}"
     
     OAUTH_ENDPOINTS=(
         "/oauth/authorize"
@@ -71,7 +69,7 @@ f_oauth_analyze() {
     done
     
     # Check for OIDC discovery endpoints
-    echo -e "${BLUE}[*] Checking OpenID Connect discovery endpoints...${NC}"
+    echo -e "${BLUE}[*] Checking OpenID Connect discovery endpoints.${NC}"
     curl -s "${TARGET_URL%/}/.well-known/openid-configuration" > "$OUTPUT_DIR/oauth_test/oidc_config.json"
     
     if grep -q "issuer" "$OUTPUT_DIR/oauth_test/oidc_config.json"; then
@@ -80,14 +78,14 @@ f_oauth_analyze() {
     fi
     
     # Test for common OAuth vulnerabilities
-    echo -e "${BLUE}[*] Testing for OAuth security misconfigurations...${NC}"
+    echo -e "${BLUE}[*] Testing for OAuth security misconfigurations.${NC}"
     
     # Test 1: Check for redirect_uri validation issues
     if [ -f "$OUTPUT_DIR/oauth_test/found_oauth_endpoints.txt" ]; then
         AUTH_ENDPOINT=$(grep -m 1 "/authorize" "$OUTPUT_DIR/oauth_test/found_oauth_endpoints.txt" | cut -d ' ' -f1)
         
         if [ -n "$AUTH_ENDPOINT" ]; then
-            echo -e "${BLUE}[*] Testing redirect_uri validation...${NC}"
+            echo -e "${BLUE}[*] Testing redirect_uri validation.${NC}"
             malicious_redirect="${AUTH_ENDPOINT}?client_id=client_id&response_type=token&redirect_uri=https://evil.com"
             
             status=$(curl -s -o /dev/null -w "%{http_code}" "$malicious_redirect")
@@ -105,8 +103,8 @@ f_oauth_analyze() {
         AUTH_ENDPOINT=$(grep -m 1 "/authorize" "$OUTPUT_DIR/oauth_test/found_oauth_endpoints.txt" | cut -d ' ' -f1)
         
         if [ -n "$AUTH_ENDPOINT" ]; then
-            echo -e "${BLUE}[*] Testing state parameter usage...${NC}"
-            no_state_url="${AUTH_ENDPOINT}?client_id=client_id&response_type=code&redirect_uri=https://example.com/callback"
+            echo -e "${BLUE}[*] Testing state parameter usage.${NC}"
+            no_state_url="${AUTH_ENDPOINT}?client_id=client_id&response_type=code&redirect_uri=https://target.com/callback"
             
             curl -s -o "$OUTPUT_DIR/oauth_test/no_state_response.txt" "$no_state_url"
             
@@ -118,7 +116,7 @@ f_oauth_analyze() {
     fi
     
     # Generate summary report
-    echo -e "${BLUE}[*] Generating OAuth security report...${NC}"
+    echo -e "${BLUE}[*] Generating OAuth security report.${NC}"
     {
         echo "OAuth Security Test Report"
         echo "=========================="
@@ -160,15 +158,17 @@ f_oauth_analyze() {
         
     } > "$OUTPUT_DIR/oauth_security_report.txt"
     
-    echo -e "${GREEN}[*] OAuth security test complete. Results saved to $OUTPUT_DIR/oauth_security_report.txt${NC}"
+    echo -e "${YELLOW}[*] OAuth security test complete. Results saved to $OUTPUT_DIR/oauth_security_report.txt${NC}"
 }
+
+###############################################################################################################################
 
 # Function to perform JWT security tests
 f_jwt_security() {
     local JWT=$1
     local OUTPUT_DIR=$2
     
-    echo -e "${BLUE}[*] Running JWT security tests...${NC}"
+    echo -e "${BLUE}[*] Running JWT security tests.${NC}"
     echo
     
     # Create output directory
@@ -180,19 +180,19 @@ f_jwt_security() {
     SIGNATURE=$(echo "$JWT" | cut -d '.' -f3)
     
     # Decode header and payload
-    echo -e "${BLUE}[*] Decoding header...${NC}"
+    echo -e "${BLUE}[*] Decoding header.${NC}"
     echo "$HEADER" | base64 -d 2>/dev/null | jq . > "$OUTPUT_DIR/jwt_test/header.json" || echo "$HEADER" > "$OUTPUT_DIR/jwt_test/header.json"
     
-    echo -e "${BLUE}[*] Decoding payload...${NC}"
+    echo -e "${BLUE}[*] Decoding payload.${NC}"
     echo "$PAYLOAD" | base64 -d 2>/dev/null | jq . > "$OUTPUT_DIR/jwt_test/payload.json" || echo "$PAYLOAD" > "$OUTPUT_DIR/jwt_test/payload.json"
     
     # Security tests
-    echo -e "${BLUE}[*] Running JWT security checks...${NC}"
+    echo -e "${BLUE}[*] Running JWT security checks.${NC}"
     
     # Comprehensive JWT Security Tests
     
     # Test 1: Algorithm None Attack
-    echo -e "${BLUE}[*] Testing for algorithm none vulnerability...${NC}"
+    echo -e "${BLUE}[*] Testing for algorithm none vulnerability.${NC}"
     
     # Create multiple headers with alg=none variations
     echo '{"alg":"none"}' | base64 | tr '+/' '-_' | tr -d '=' > "$OUTPUT_DIR/jwt_test/none_header1.txt"
@@ -212,7 +212,7 @@ f_jwt_security() {
     echo -e "${YELLOW}[*] Created 8 algorithm none attack test tokens${NC}"
     
     # Test 2: Algorithm Confusion Attacks (RS256/HS256 confusion)
-    echo -e "${BLUE}[*] Testing for algorithm confusion vulnerabilities...${NC}"
+    echo -e "${BLUE}[*] Testing for algorithm confusion vulnerabilities.${NC}"
     
     # Check if current token uses RS256
     if grep -q '"alg":\s*"RS256"' "$OUTPUT_DIR/jwt_test/header.json"; then
@@ -226,7 +226,7 @@ f_jwt_security() {
     fi
     
     # Test 3: Check for weak algorithms and cryptographic issues
-    echo -e "${BLUE}[*] Checking for weak cryptographic implementation...${NC}"
+    echo -e "${BLUE}[*] Checking for weak cryptographic implementation.${NC}"
     
     # Create structured algorithm security assessment
     if grep -q '"alg":\s*"HS256"' "$OUTPUT_DIR/jwt_test/header.json"; then
@@ -246,7 +246,7 @@ f_jwt_security() {
     fi
     
     # Test 4: Check for kid manipulation vulnerabilities
-    echo -e "${BLUE}[*] Checking for kid (Key ID) parameter vulnerabilities...${NC}"
+    echo -e "${BLUE}[*] Checking for kid (Key ID) parameter vulnerabilities.${NC}"
     
     if grep -q '"kid"' "$OUTPUT_DIR/jwt_test/header.json"; then
         KID_VALUE=$(grep -o '"kid":\s*"[^"]*"' "$OUTPUT_DIR/jwt_test/header.json" | cut -d\" -f4)
@@ -272,11 +272,11 @@ f_jwt_security() {
     fi
     
     # Test 6: Check for JWT claims security
-    echo -e "${BLUE}[*] Analyzing JWT claims for security issues...${NC}"
+    echo -e "${BLUE}[*] Analyzing JWT claims for security issues.${NC}"
     jq . "$OUTPUT_DIR/jwt_test/payload.json" > "$OUTPUT_DIR/jwt_test/payload_formatted.json"
     
     # Create tokens with modified claims for testing
-    echo -e "${BLUE}[*] Generating test tokens with modified claims...${NC}"
+    echo -e "${BLUE}[*] Generating test tokens with modified claims.${NC}"
     
     # 6.1 Check critical security claims (exp, nbf, iat)
     # Expiration claim
@@ -338,7 +338,7 @@ f_jwt_security() {
     fi
     
     # Test 7: Check for sensitive info in payload
-    echo -e "${BLUE}[*] Checking for sensitive information in payload...${NC}"
+    echo -e "${BLUE}[*] Checking for sensitive information in payload.${NC}"
     grep -i -E "(password|secret|key|token|credential|auth|private|confidential|ssn|social|account|credit|card|cvv|routing|license|access|refresh)" "$OUTPUT_DIR/jwt_test/payload.json" > "$OUTPUT_DIR/jwt_test/sensitive.txt"
     
     if [ -s "$OUTPUT_DIR/jwt_test/sensitive.txt" ]; then
@@ -350,7 +350,7 @@ f_jwt_security() {
     fi
     
     # Test 8: Privilege escalation tests
-    echo -e "${BLUE}[*] Creating privilege escalation test tokens...${NC}"
+    echo -e "${BLUE}[*] Creating privilege escalation test tokens.${NC}"
     
     # Extract information from the original payload
     ORIG_PAYLOAD=$(cat "$OUTPUT_DIR/jwt_test/payload.json")
@@ -369,7 +369,7 @@ f_jwt_security() {
     fi
     
     # Generate final report
-    echo -e "${BLUE}[*] Generating JWT security report...${NC}"
+    echo -e "${BLUE}[*] Generating JWT security report.${NC}"
     {
         echo "JWT Security Test Report"
         echo "======================="
@@ -415,15 +415,14 @@ f_jwt_security() {
         
     } > "$OUTPUT_DIR/jwt_security_report.txt"
     
-    echo -e "${GREEN}[*] JWT security test complete. Results saved to $OUTPUT_DIR/jwt_security_report.txt${NC}"
+    echo -e "${YELLOW}[*] JWT security test complete. Results saved to $OUTPUT_DIR/jwt_security_report.txt${NC}"
 }
 
+###############################################################################################################################
+
 # Main function
-f_oauth_jwt_test(){
-    f_scanname
-    
-    echo
-    echo -e "${BLUE}Select test type:${NC}"
+f_oauth_jwt_main(){
+    echo -e "${BLUE}OAuth/JWT Security Scanner${NC}"
     echo
     echo "1. OAuth Configuration/Security Test"
     echo "2. JWT Security Test"
@@ -431,42 +430,40 @@ f_oauth_jwt_test(){
     echo
     echo -n "Choice: "
     read -r CHOICE
-    
+
     case "$CHOICE" in
         1)
-            echo
-            echo -n "Enter target URL (e.g., http://example.com): "
-            read -r TARGET_URL
-            
-            if [[ ! "$TARGET_URL" =~ ^https?:// ]]; then
-                echo -e "${RED}[!] Invalid URL. Must start with http:// or https://${NC}"
-                echo
-                exit 1
-            fi
-            
-            f_oauth_analyze "$TARGET_URL" "$NAME"
-            ;;
+           echo
+           echo -n "Enter target URL (e.g., http://target.com): "
+           read -r TARGET_URL
+
+           if [[ ! "$TARGET_URL" =~ ^https?:// ]]; then
+               echo
+               echo -e "${RED}[!] Invalid URL. Must start with http:// or https://${NC}"
+               echo
+               exit 1
+           fi
+
+           f_oauth_analyze "$TARGET_URL" "$NAME"
+           ;;
         2)
-            echo
-            echo -n "Enter JWT token to test: "
-            read -r JWT_TOKEN
-            
-            if [[ ! "$JWT_TOKEN" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]]; then
-                echo -e "${RED}[!] Invalid JWT format. Must be in format 'header.payload.signature'${NC}"
-                echo
-                exit 1
-            fi
-            
-            f_jwt_security "$JWT_TOKEN" "$NAME"
-            ;;
-        3)
-            return
-            ;;
-        *)
-            f_error
-            ;;
+           echo
+           echo -n "Enter JWT token to test: "
+           read -r JWT_TOKEN
+
+           if [[ ! "$JWT_TOKEN" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]]; then
+               echo
+               echo -e "${RED}[!] Invalid JWT format. Must be in format 'header.payload.signature'${NC}"
+               echo
+               exit 1
+           fi
+
+           f_jwt_security "$JWT_TOKEN" "$NAME"
+           ;;
+        3) f_main ;;
+        *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_oauth_jwt_main ;;
     esac
 }
 
-# Export the main function
-export -f f_oauth_jwt_test
+# Run the script
+f_oauth_jwt_main
