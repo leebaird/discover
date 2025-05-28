@@ -10,6 +10,13 @@ f_banner
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
 
+# Create output directory under $HOME/data
+OUTPUT_DIR="$HOME/data/web-api-scan_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$OUTPUT_DIR"
+
+# Set NAME variable for compatibility with other scripts
+NAME="$OUTPUT_DIR"
+
 # Function to terminate script
 f_terminate(){
     echo
@@ -483,7 +490,7 @@ f_msf_web_api_main(){
                echo
                echo -e "${RED}[!] No target specified.${NC}"
                echo
-               f_terminate
+               return 1
            fi
 
            # Extract IP address
@@ -500,7 +507,7 @@ f_msf_web_api_main(){
                    echo
                    echo -e "${RED}[!] No IP address specified.${NC}"
                    echo
-                   f_terminate
+                   return 1
                fi
            fi
 
@@ -510,12 +517,18 @@ f_msf_web_api_main(){
            f_create_exploit_resources
 
            # Run the scan
-           f_run_web_api_scan "$TARGET_URL" "$TARGET_IP" "$OUTPUT"
+           f_run_web_api_scan "$TARGET_URL" "$TARGET_IP" "$NAME"
            ;;
-        2) f_main ;;
+        2)
+           echo
+           return 0 ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_msf_web_api_main ;;
     esac
 }
 
-# Run the script
-f_msf_web_api_main
+# This allows the script to be sourced without running immediately
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    # Run standalone
+    f_msf_web_api_main
+    exit 0
+fi
