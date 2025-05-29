@@ -79,7 +79,7 @@ NC='\033[0m'
 # Export variables if needed
 export CWD DISCOVER MYIP RUNDATE SIP
 export LARGE MEDIUM SMALL
-export BLUE RED YELLOW NC
+export BLUE GREEN RED YELLOW NC
 
 ###############################################################################################################################
 
