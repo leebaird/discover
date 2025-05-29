@@ -603,7 +603,7 @@ rm tmp* zreport
 # Ensure the destination directory exists then move files
 mkdir -p "$HOME/data/$DOMAIN/tools"
 mv names emails private-ips hosts records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
-cd "$CWD" || exit
+cd "$PWD" || exit
 
 echo
 echo "$MEDIUM"

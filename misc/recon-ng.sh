@@ -34,7 +34,7 @@ cat "$DISCOVER"/resource/recon-ng.rc >> passive.rc
 cat "$DISCOVER"/resource/recon-ng-cleanup.rc >> passive.rc
 sed -i "s/yyy/$DOMAIN/g" passive.rc
 
-recon-ng -r "$CWD"/passive.rc
+recon-ng -r "$PWD"/passive.rc
 
 ###############################################################################################################################
 

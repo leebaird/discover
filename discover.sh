@@ -58,9 +58,9 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 ###############################################################################################################################
 
 # Global variables
-CWD=$(pwd)
 DISCOVER=$(/usr/bin/locate discover.sh | head -n1 | sed 's:/[^/]*$::')
 MYIP=$(ip addr | grep 'global' | grep -Eiv '(:|docker)' | cut -d '/' -f1 | awk '{print $2}')
+PWD=$(pwd)
 RUNDATE=$(date +%B' '%d,' '%Y)
 SIP='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 
@@ -70,14 +70,14 @@ SMALL='========================================'
 
 BLUE='\033[1;34m'
 GREEN='\033[1;32m'
+NC='\033[0m'
 RED='\033[1;31m'
 YELLOW='\033[1;33m'
-NC='\033[0m'
 
 ###############################################################################################################################
 
 # Export variables if needed
-export CWD DISCOVER MYIP RUNDATE SIP
+export PWD DISCOVER MYIP RUNDATE SIP
 export LARGE MEDIUM SMALL
 export BLUE GREEN RED YELLOW NC
 
