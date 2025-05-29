@@ -299,7 +299,7 @@ killall <service>                               Kill all processes named service
 
 git config --global http.proxy http://proxy:port
 
-Add to bottom of /root/.bashrc
+Add to bottom of $HOME/.bashrc
 export http_proxy=http://username:password@proxy:port
 export https_proxy=https://username:password@proxy:port
 ------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -108,7 +108,7 @@ import os
 
 os.system('clear')                                 Clear the screen
 os.chdir('newdir')                                 Change directory
-os.mkdir('/root/test/')                            Create a directory
+os.mkdir('$HOME/test/')                            Create a directory
 os.system('mkdir tmp')                             Issue a command
 os.rmdir('tmp')                                    Remove a directory
 os.remove('tmp')                                   Remove a file
@@ -145,8 +145,8 @@ if int(port) in range(1,65535):                    Valid range
 if len(password) < 8:                              Valid size
      print 'Your password is leak.'
 
-if not os.path.exists('/root/test'):               If folder does not exist, create it
-     os.mkdir('/root/test')
+if not os.path.exists('$HOME/test'):               If folder does not exist, create it
+     os.mkdir('$HOME/test')
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 if expression:

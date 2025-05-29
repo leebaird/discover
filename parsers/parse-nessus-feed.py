@@ -9,7 +9,7 @@
 # To genrate database:
 # Kali Linux
 #    /opt/nessus/sbin/nessusd -X
-#    mv /opt/nessus/lib/nessus/plugins/plugins.xml /root/
+#    mv /opt/nessus/lib/nessus/plugins/plugins.xml $HOME/
 #
 # OS X
 #    sudo /Library/Nessus/run/sbin/nessusd -X

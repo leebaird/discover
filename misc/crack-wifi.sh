@@ -10,7 +10,7 @@ trap f_clean EXIT
 DATESTAMP=$(date +%F_%T)
 MEDIUM='=================================================================='
 RESOLUTION=$(xdpyinfo | grep 'dimensions' | awk '{print $2}' | awk -F"x" '{print $1}')
-WORKDIR="/root/wifi-keys"
+WORKDIR="$HOME/wifi-keys"
 
 BLUE='\033[1;34m'
 RED='\033[1;31m'
