@@ -93,7 +93,7 @@ f_oauth_analyze() {
 
         if [ -n "$AUTH_ENDPOINT" ]; then
             echo -e "${BLUE}[*] Testing redirect_uri validation.${NC}"
-            malicious_redirect="${AUTH_ENDPOINT}?client_id=client_id&response_type=token&redirect_uri=https://evil.com"
+            malicious_redirect="${AUTH_ENDPOINT}?client_id=client_id&response_type=token&redirect_uri=https://target.com"
 
             status=$(curl -s -o /dev/null -w "%{http_code}" "$malicious_redirect")
 
@@ -341,7 +341,7 @@ f_jwt_security() {
         echo "RISK: Without audience validation, tokens might be accepted by unintended services" >> "$OUTPUT_DIR/jwt_test/vulnerabilities.txt"
     else
         # Create token with modified audience
-        jq '.aud = "evil.com"' "$OUTPUT_DIR/jwt_test/payload.json" > "$OUTPUT_DIR/jwt_test/payload_evil_aud.json"
+        jq '.aud = "target.com"' "$OUTPUT_DIR/jwt_test/payload.json" > "$OUTPUT_DIR/jwt_test/payload_evil_aud.json"
         EVIL_AUD_PAYLOAD=$(cat "$OUTPUT_DIR/jwt_test/payload_evil_aud.json" | base64 | tr -d '=' | tr '+/' '-_')
         echo "${HEADER}.${EVIL_AUD_PAYLOAD}.${SIGNATURE}" > "$OUTPUT_DIR/jwt_test/evil_aud_token.txt"
     fi
@@ -467,8 +467,9 @@ f_oauth_jwt_main(){
            f_jwt_security "$JWT_TOKEN" "$NAME"
            ;;
         3) 
-           echo
-           return 0 ;;
+            echo
+            f_main
+            return 0 ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_oauth_jwt_main ;;
     esac
 }

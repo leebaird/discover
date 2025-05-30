@@ -572,8 +572,9 @@ f_sensitive_main(){
 
            f_scan_web "$TARGET_URL" "$NAME" ;;
         3)
-           echo
-           return 0 ;;
+            echo
+            f_main
+            return 0 ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_sensitive_main ;;
     esac
 }
