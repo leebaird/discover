@@ -10,6 +10,13 @@ f_banner
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
 
+# Create output directory under $HOME/data
+OUTPUT_DIR="$HOME/data/oauth-jwt-scan_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$OUTPUT_DIR"
+
+# Set NAME variable for compatibility with other scripts
+NAME="$OUTPUT_DIR"
+
 # Function to terminate script
 f_terminate(){
     echo
@@ -86,7 +93,7 @@ f_oauth_analyze() {
 
         if [ -n "$AUTH_ENDPOINT" ]; then
             echo -e "${BLUE}[*] Testing redirect_uri validation.${NC}"
-            malicious_redirect="${AUTH_ENDPOINT}?client_id=client_id&response_type=token&redirect_uri=https://evil.com"
+            malicious_redirect="${AUTH_ENDPOINT}?client_id=client_id&response_type=token&redirect_uri=https://target.com"
 
             status=$(curl -s -o /dev/null -w "%{http_code}" "$malicious_redirect")
 
@@ -334,7 +341,7 @@ f_jwt_security() {
         echo "RISK: Without audience validation, tokens might be accepted by unintended services" >> "$OUTPUT_DIR/jwt_test/vulnerabilities.txt"
     else
         # Create token with modified audience
-        jq '.aud = "evil.com"' "$OUTPUT_DIR/jwt_test/payload.json" > "$OUTPUT_DIR/jwt_test/payload_evil_aud.json"
+        jq '.aud = "target.com"' "$OUTPUT_DIR/jwt_test/payload.json" > "$OUTPUT_DIR/jwt_test/payload_evil_aud.json"
         EVIL_AUD_PAYLOAD=$(cat "$OUTPUT_DIR/jwt_test/payload_evil_aud.json" | base64 | tr -d '=' | tr '+/' '-_')
         echo "${HEADER}.${EVIL_AUD_PAYLOAD}.${SIGNATURE}" > "$OUTPUT_DIR/jwt_test/evil_aud_token.txt"
     fi
@@ -440,7 +447,7 @@ f_oauth_jwt_main(){
                echo
                echo -e "${RED}[!] Invalid URL. Must start with http:// or https://${NC}"
                echo
-               exit 1
+               return 1
            fi
 
            f_oauth_analyze "$TARGET_URL" "$NAME"
@@ -454,15 +461,22 @@ f_oauth_jwt_main(){
                echo
                echo -e "${RED}[!] Invalid JWT format. Must be in format 'header.payload.signature'${NC}"
                echo
-               exit 1
+               return 1
            fi
 
            f_jwt_security "$JWT_TOKEN" "$NAME"
            ;;
-        3) f_main ;;
+        3) 
+            echo
+            f_main
+            return 0 ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_oauth_jwt_main ;;
     esac
 }
 
-# Run the script
-f_oauth_jwt_main
+# This allows the script to be sourced without running immediately
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    # Run standalone
+    f_oauth_jwt_main
+    exit 0
+fi

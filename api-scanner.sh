@@ -582,17 +582,17 @@ EOF
 
     # Prepare a list of origins to test with
     cat > "$OUTPUT_DIR/api_scanner/cors/test_origins.txt" << EOF
-http://evil.com
-https://evil.com
+http://target.com
+https://target.com
 null
 file://
-https://attacker.evil.com
-https://${TARGET_URL#*//}.evil.com
+https://attacker.target.com
+https://${TARGET_URL#*//}.target.com
 https://subdomain.${TARGET_URL#*//}
 data:
 https://\\${TARGET_URL#*//}
 https://attacker.com%60javascript:alert(1)
-https://evil.com\@${TARGET_URL#*//}
+https://target.com\@${TARGET_URL#*//}
 EOF
 
     # Combine all endpoints

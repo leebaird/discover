@@ -9,7 +9,13 @@ f_banner
 # Global variables
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
-NAME="_$TIMESTAMP"
+
+# Create output directory under $HOME/data
+OUTPUT_DIR="$HOME/data/sensitive-scan_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$OUTPUT_DIR"
+
+# Set NAME variable for compatibility with other scripts
+NAME="$OUTPUT_DIR"
 
 # Function to terminate script
 f_terminate(){
@@ -548,7 +554,7 @@ f_sensitive_main(){
                echo
                echo -e "${RED}[!] This file or folder does not exist.${NC}"
                echo
-               exit 1
+               return 1
            fi
 
            f_scan_files "$SCAN_DIR" "$NAME" ;;
@@ -561,14 +567,21 @@ f_sensitive_main(){
                echo
                echo -e "${RED}[!] Invalid URL.${NC}"
                echo
-               exit 1
+               return 1
            fi
 
            f_scan_web "$TARGET_URL" "$NAME" ;;
-        3) f_main ;;
+        3)
+            echo
+            f_main
+            return 0 ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_sensitive_main ;;
     esac
 }
 
-# Run the script
-f_sensitive_main
+# This allows the script to be sourced without running immediately
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    # Run standalone
+    f_sensitive_main
+    exit 0
+fi

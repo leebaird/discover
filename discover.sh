@@ -25,9 +25,9 @@
 # Arthur Kay (@arthurakay) - Python scripts
 # Brett Fitzpatrick (@brettfitz) - SQL query
 # Robleh Esa (@RoblehEsa) - SQL queries
-# Yiğit ibrahim (ibrahimsql) - Container Security Scanner, Cloud Security Scanner, API Security modules
+# Yiğit ibrahim (ibrahimsql) - Container Security Scanner, Cloud Security Scanner, API Security modules, Open Redirect Scanner, WAF Detection
 
-# OPSEC: change your default nmap user agent located on line 160 at /usr/share/nmap/nselib/http.lua
+# OPSEC: change your default nmap user agent located on line 160 at /usr/share/nmap/nselib/http.lua 
 ###############################################################################################################################
 
 f_terminate(){
@@ -588,9 +588,11 @@ f_main(){
     echo "17. API Security"
     echo "18. Cloud Security"
     echo "19. Container Security"
-    echo "20. OAuth and JWT Security"
-    echo "21. Sensitive Information"
-    echo "22. Web and API Security"
+    echo "20. WAF Detection"
+    echo "21. Web and API Security"
+    echo "22. OAuth and JWT Security"
+    echo "23. Sensitive Information"
+    echo "24. Open Redirect Scanner"
     echo
 
     echo
@@ -598,29 +600,39 @@ f_main(){
     read -r CHOICE
 
     case "$CHOICE" in
+        # RECON
         1) ./domain.sh ;;
         2) ./person.sh && exit ;;
+        
+        # SCANNING
         3) ./generateTargets.sh && exit ;;
         4) f_cidr ;;
         5) f_list ;;
         6) f_single ;;
         7) f_enumerate ;;
+        
+        # WEB
         8) ./directObjectRef.sh && exit ;;
         9) ./multiTabs.sh && exit ;;
         10) ./nikto.sh && exit ;;
         11) ./ssl.sh && exit ;;
+        
+        # MISC
         12) ./parse.sh && exit ;;
         13) ./payload.sh && exit ;;
         14) ./listener.sh && exit ;;
         15) f_update ;;
         16) echo && exit ;;
-
+        
+        # DEV
         17) ./api-scanner.sh && exit ;;
         18) ./cloud-scanner.sh && exit ;;
         19) ./container-scanner.sh && exit ;;
-        20) ./oauth-jwt-scanner.sh && exit ;;
-        21) ./sensitive-scanner.sh && exit ;;
-        22) ./web-api-scanner.sh && exit ;;
+        20) ./waf-detect.sh && exit ;;
+        21) ./web-api-scanner.sh && exit ;;
+        22) ./oauth-jwt-scanner.sh && exit ;;
+        23) ./sensitive-scanner.sh && exit ;;
+        24) ./openredirect.sh && exit ;;
 
         99) ./newModules.sh && exit ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;
