@@ -630,6 +630,7 @@ USER_AGENTS=(
 URLS=(
     "https://dnsdumpster.com"
     "https://dockets.justia.com/search?parties=%22$COMPANYURL%22&cases=mostrecent"
+    "https://intelx.io/?s=%40$DOMAIN&b=leaks.public.wikileaks,leaks.public.general,dumpster,documents.public.scihub"
     "https://networksdb.io/search/org/%22$COMPANYURL%22"
     "https://phonebook.cz"
     "https://shdn.io/analyze?target=$DOMAIN"
