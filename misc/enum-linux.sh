@@ -32,7 +32,7 @@ ssh -S discover.socket -O exit "$1" &>/dev/null
 trap 'rm -f tmp tmp2' EXIT
 
 # Function to append section output to tmp file
-function add_section() {
+function add_section(){
     echo "$1" >> tmp
     echo >> tmp
     eval "$2" >> tmp 2>/dev/null

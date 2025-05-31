@@ -10,7 +10,7 @@ if [ $EUID -eq 0 ]; then
     exit 1
 fi
 
-f_terminate() {
+f_terminate(){
     SAVE_DIR=$HOME/data/cancelled-$(date +%H:%M:%S)
     echo
     echo "[!] Terminating."

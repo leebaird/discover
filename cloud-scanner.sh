@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
 # by ibrahimsql - Cloud Security Scanner
-# Discover framework compatibility module
 
 clear
 f_banner
 
-# Global variables
+# Variables
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
 
@@ -23,85 +22,20 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 
 ###############################################################################################################################
 
-# Check for required tools
-f_check_requirements() {
-    MISSING_TOOLS=()
-
+# AWS Security Check Function
+f_aws_security_check(){
     # Check for AWS CLI
     if ! command -v aws &> /dev/null; then
-        MISSING_TOOLS+=("AWS CLI")
-    fi
-
-    # Check for Azure CLI
-    if ! command -v az &> /dev/null; then
-        MISSING_TOOLS+=("Azure CLI")
-    fi
-
-    # Check for Google Cloud CLI
-    if ! command -v gcloud &> /dev/null; then
-        MISSING_TOOLS+=("Google Cloud CLI")
-    fi
-
-    # Check for jq
-    if ! command -v jq &> /dev/null; then
-        MISSING_TOOLS+=("jq")
-    fi
-
-    # If there are missing tools, inform the user
-    if [ ${#MISSING_TOOLS[@]} -gt 0 ]; then
-        echo -e "${YELLOW}[!] The following tools are required but not installed:${NC}"
-
-        for TOOL in "${MISSING_TOOLS[@]}"; do
-            echo "  - $TOOL"
-        done
-
         echo
-        echo -e "${YELLOW}[!] Would you like to install the missing tools? (y/n)${NC}"
-        read -r INSTALL_CHOICE
-
-        if [[ "$INSTALL_CHOICE" =~ ^[Yy]$ ]]; then
-            for TOOL in "${MISSING_TOOLS[@]}"; do
-                case "$TOOL" in
-                    "AWS CLI")
-                        echo -e "${BLUE}[*] Installing AWS CLI.${NC}"
-                        sudo apt update && sudo apt install -y awscli
-                        ;;
-                    "Azure CLI")
-                        echo -e "${BLUE}[*] Installing Azure CLI.${NC}"
-                        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-                        ;;
-                    "Google Cloud CLI")
-                        echo -e "${BLUE}[*] Installing Google Cloud CLI.${NC}"
-                        echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-                        curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-                        sudo apt update && sudo apt install -y google-cloud-sdk
-                        ;;
-                    "jq")
-                        echo -e "${BLUE}[*] Installing jq.${NC}"
-                        sudo apt update && sudo apt install -y jq
-                        ;;
-                esac
-            done
-
-            echo
-            echo -e "${YELLOW}[*] Installation complete.${NC}"
-            echo
-            exit
-        else
-            echo
-            echo -e "${RED}[!] Cannot proceed without required tools.${NC}"
-            echo
-            exit 1
-        fi
+        echo -e "${YELLOW}Installing AWS CLI.${NC}"
+        sudo apt update
+        sudo apt install -y awscli
+        echo
     fi
-}
 
-###############################################################################################################################
-
-# AWS Security Check Function
-f_aws_security_check() {
     local OUTPUT_DIR="$1"
 
+    echo
     echo -e "${BLUE}[*] Performing comprehensive AWS security checks.${NC}"
     mkdir -p "$OUTPUT_DIR/aws/policies" "$OUTPUT_DIR/aws/acls" "$OUTPUT_DIR/aws/encryption" "$OUTPUT_DIR/aws/security" "$OUTPUT_DIR/aws/iam" "$OUTPUT_DIR/aws/monitoring" "$OUTPUT_DIR/aws/networking" "$OUTPUT_DIR/aws/compliance"
 
@@ -706,9 +640,19 @@ f_aws_security_check() {
 ###############################################################################################################################
 
 # Azure Security Check Function
-f_azure_security_check() {
+f_azure_security_check(){
+    # Check for Azure CLI
+    if ! command -v az &> /dev/null; then
+        echo
+        echo -e "${YELLOW}Installing Azure CLI.${NC}"
+        sudo apt update
+        sudo apt install -y azure-cli
+        echo
+    fi
+
     local OUTPUT_DIR="$1"
 
+    echo
     echo -e "${BLUE}[*] Performing Azure security checks.${NC}"
     mkdir -p "$OUTPUT_DIR/azure"
 
@@ -801,9 +745,22 @@ f_azure_security_check() {
 ###############################################################################################################################
 
 # Google Cloud Platform Security Check Function
-f_gcp_security_check() {
+f_gcp_security_check(){
+    # Check for Google Cloud CLI
+    if ! command -v gcloud &> /dev/null; then
+        echo
+        echo -e "${YELLOW}Installing Google Cloud CLI.${NC}"
+        cd "$HOME/"
+        curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz
+        tar -xf google-cloud-cli-linux-x86_64.tar.gz
+        rm google-cloud-cli-linux-x86_64.tar.gz
+        ./google-cloud-sdk/install.sh
+        echo
+    fi
+
     local OUTPUT_DIR="$1"
 
+    echo
     echo -e "${BLUE}[*] Performing Google Cloud Platform security checks.${NC}"
     mkdir -p "$OUTPUT_DIR/gcp"
 
@@ -925,14 +882,12 @@ f_gcp_security_check() {
 
 # Main function
 f_cloud_main(){
-    f_check_requirements
-
-    echo -e "${BLUE}Cloud Security Scanner${NC}"
+    echo -e "${BLUE}Cloud Security Scanner${NC} | ${YELLOW}by ibrahimsql${NC}"
     echo
     echo "1. AWS (Amazon Web Services)"
     echo "2. Azure (Microsoft Azure)"
     echo "3. GCP (Google Cloud Platform)"
-    echo "4. All Providers"
+    echo "4. All providers"
     echo "5. Previous menu"
     echo
     echo -n "Choice: "
@@ -940,81 +895,78 @@ f_cloud_main(){
 
     case "$CHOICE" in
         1)
-           echo -e "${BLUE}[*] Starting AWS security scan.${NC}"
-           f_aws_security_check "$NAME"
-           ;;
+            f_aws_security_check "$NAME" ;;
         2)
-           echo -e "${BLUE}[*] Starting Azure security scan.${NC}"
-           f_azure_security_check "$NAME"
-           ;;
+            f_azure_security_check "$NAME" ;;
         3)
-           echo -e "${BLUE}[*] Starting GCP security scan.${NC}"
-           f_gcp_security_check "$NAME"
-           ;;
+            f_gcp_security_check "$NAME" ;;
         4)
-           echo -e "${BLUE}[*] Starting scan of all cloud providers.${NC}"
-           f_aws_security_check "$NAME"
-           f_azure_security_check "$NAME"
-           f_gcp_security_check "$NAME"
+            f_aws_security_check "$NAME"
+            f_azure_security_check "$NAME"
+            f_gcp_security_check "$NAME"
 
-           # Generate combined report
-           echo -e "${BLUE}[*] Generating combined cloud security report.${NC}"
-           {
-               echo "Combined Cloud Security Report"
-               echo "=============================="
-               echo "Date: $DATESTAMP $TIMESTAMP"
-               echo
-               echo "This report contains security findings from multiple cloud providers."
-               echo "Please refer to the individual reports for detailed information:"
-               echo
+            # Generate combined report
+            echo -e "${BLUE}[*] Generating combined cloud security report.${NC}"
+            {
+                echo "Combined Cloud Security Report"
+                echo "=============================="
+                echo "Date: $DATESTAMP $TIMESTAMP"
+                echo
+                echo "This report contains security findings from multiple cloud providers."
+                echo "Please refer to the individual reports for detailed information:"
+                echo
 
-               if [ -f "$NAME/aws_security_report.txt" ]; then
-                   echo "[*] AWS Security Report: $NAME/aws_security_report.txt"
-               fi
+                if [ -f "$NAME/aws_security_report.txt" ]; then
+                    echo "[*] AWS Security Report: $NAME/aws_security_report.txt"
+                fi
 
-               if [ -f "$NAME/azure_security_report.txt" ]; then
-                   echo "[*] Azure Security Report: $NAME/azure_security_report.txt"
-               fi
+                if [ -f "$NAME/azure_security_report.txt" ]; then
+                    echo "[*] Azure Security Report: $NAME/azure_security_report.txt"
+                fi
 
-               if [ -f "$NAME/gcp_security_report.txt" ]; then
-                   echo "[*] GCP Security Report: $NAME/gcp_security_report.txt"
-               fi
+                if [ -f "$NAME/gcp_security_report.txt" ]; then
+                    echo "[*] GCP Security Report: $NAME/gcp_security_report.txt"
+                fi
 
-               echo
-               echo "Summary of Critical Findings"
-               echo "============================"
-               echo
+                echo
+                echo "Summary of Critical Findings"
+                echo "============================"
+                echo
+                echo "AWS Critical Issues:"
 
-               echo "AWS Critical Issues:"
-               if [ -f "$NAME/aws/public_buckets.txt" ] && [ -s "$NAME/aws/public_buckets.txt" ]; then
-                   echo "[*] Public S3 Buckets Detected"
-               fi
+                if [ -f "$NAME/aws/public_buckets.txt" ] && [ -s "$NAME/aws/public_buckets.txt" ]; then
+                    echo "[*] Public S3 Buckets Detected"
+                fi
 
-               if [ -f "$NAME/aws/overly_permissive_sgs.txt" ] && [ -s "$NAME/aws/overly_permissive_sgs.txt" ]; then
-                   echo "[*] Overly Permissive Security Groups Detected"
-               fi
+                if [ -f "$NAME/aws/overly_permissive_sgs.txt" ] && [ -s "$NAME/aws/overly_permissive_sgs.txt" ]; then
+                    echo "[*] Overly Permissive Security Groups Detected"
+                fi
 
-               echo
-               echo "Azure Critical Issues:"
-               if [ -f "$NAME/azure/public_storage_accounts.txt" ] && [ -s "$NAME/azure/public_storage_accounts.txt" ]; then
-                   echo "[*] Public Storage Accounts Detected"
-               fi
+                echo
+                echo "Azure Critical Issues:"
 
-               echo
-               echo "GCP Critical Issues:"
-               if [ -f "$NAME/gcp/public_buckets.txt" ] && [ -s "$NAME/gcp/public_buckets.txt" ]; then
-                   echo "[*] Public GCP Buckets Detected"
-               fi
+                if [ -f "$NAME/azure/public_storage_accounts.txt" ] && [ -s "$NAME/azure/public_storage_accounts.txt" ]; then
+                    echo "[*] Public Storage Accounts Detected"
+                fi
 
-               if [ -f "$NAME/gcp/permissive_firewall_rules.txt" ] && [ -s "$NAME/gcp/permissive_firewall_rules.txt" ]; then
-                   echo "[*] Overly Permissive Firewall Rules Detected"
-               fi
+                echo
+                echo "GCP Critical Issues:"
+
+                if [ -f "$NAME/gcp/public_buckets.txt" ] && [ -s "$NAME/gcp/public_buckets.txt" ]; then
+                    echo "[*] Public GCP Buckets Detected"
+                fi
+
+                if [ -f "$NAME/gcp/permissive_firewall_rules.txt" ] && [ -s "$NAME/gcp/permissive_firewall_rules.txt" ]; then
+                    echo "[*] Overly Permissive Firewall Rules Detected"
+                fi
            } > "$NAME/combined_cloud_security_report.txt"
 
-           echo -e "${YELLOW}[*] Combined security report generated: $NAME/combined_cloud_security_report.txt${NC}"
-           ;;
-        5) f_main ;;
-        *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_cloud_main ;;
+            echo -e "${YELLOW}[*] Combined security report generated: $NAME/combined_cloud_security_report.txt${NC}"
+            ;;
+        5)
+            f_main ;;
+        *)
+            echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_cloud_main ;;
     esac
 }
 

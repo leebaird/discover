@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
 
 # by ibrahimsql - OAuth/JWT Security Scanner
-# Discover framework compatibility module
 
 clear
 f_banner
 
-# Global variables
+# Variables
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
 
-# Create output directory under $HOME/data
+# Create output directory under $HOME/data/
 OUTPUT_DIR="$HOME/data/oauth-jwt-scan_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$OUTPUT_DIR"
-
-# Set NAME variable for compatibility with other scripts
-NAME="$OUTPUT_DIR"
 
 # Function to terminate script
 f_terminate(){
@@ -31,7 +27,7 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 ###############################################################################################################################
 
 # Function to analyze OAuth configuration
-f_oauth_analyze() {
+f_oauth_analyze(){
     local TARGET_URL=$1
     local OUTPUT_DIR=$2
 
@@ -130,7 +126,6 @@ f_oauth_analyze() {
         echo "Date: $DATESTAMP $TIMESTAMP"
         echo "Target: $TARGET_URL"
         echo
-
         echo "1. Discovered OAuth Endpoints"
         echo "----------------------------"
 
@@ -166,14 +161,14 @@ f_oauth_analyze() {
             echo "manual testing and analysis of the application's specific implementation."
         fi
     } > "$OUTPUT_DIR/oauth_security_report.txt"
-    
+
     echo -e "${YELLOW}[*] OAuth security test complete. Results saved to $OUTPUT_DIR/oauth_security_report.txt${NC}"
 }
 
 ###############################################################################################################################
 
 # Function to perform JWT security tests
-f_jwt_security() {
+f_jwt_security(){
     local JWT=$1
     local OUTPUT_DIR=$2
 
@@ -428,7 +423,7 @@ f_jwt_security() {
 
 # Main function
 f_oauth_jwt_main(){
-    echo -e "${BLUE}OAuth/JWT Security Scanner${NC}"
+    echo -e "${BLUE}OAuth/JWT Security Scanner${NC} | ${YELLOW}by ibrahimsql${NC}"
     echo
     echo "1. OAuth Configuration/Security Test"
     echo "2. JWT Security Test"
@@ -450,7 +445,7 @@ f_oauth_jwt_main(){
                return 1
            fi
 
-           f_oauth_analyze "$TARGET_URL" "$NAME"
+           f_oauth_analyze "$TARGET_URL" "$OUTPUT_DIR"
            ;;
         2)
            echo
@@ -464,19 +459,16 @@ f_oauth_jwt_main(){
                return 1
            fi
 
-           f_jwt_security "$JWT_TOKEN" "$NAME"
+           f_jwt_security "$JWT_TOKEN" "$OUTPUT_DIR"
            ;;
-        3) 
+        3)
             echo
             f_main
             return 0 ;;
-        *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_oauth_jwt_main ;;
+        *)
+            echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_oauth_jwt_main ;;
     esac
 }
 
-# This allows the script to be sourced without running immediately
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    # Run standalone
-    f_oauth_jwt_main
-    exit 0
-fi
+# Run the script
+f_oauth_jwt_main

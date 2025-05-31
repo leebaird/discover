@@ -35,7 +35,7 @@ __          __  _________   _________
     echo
 }
 
-dependencies() {
+dependencies(){
     # Initialize an array to hold missing tools
     missing_tools=()
 
@@ -69,7 +69,7 @@ dependencies() {
     fi
 }
 
-start_monitor_mode() {
+start_monitor_mode(){
     # Check for wireless interface
     INTERFACE=$(iw dev | awk '$1=="Interface"{print $2}' || true)
 
@@ -116,7 +116,7 @@ if [ ! -d "$WORKDIR" ]; then
     mkdir -p "$WORKDIR"
 fi
 
-scan_networks() {
+scan_networks(){
     echo
     echo -e "${BLUE}[*] Scanning for wireless networks.${NC}"
     echo -e "${BLUE}[*] Using monitor interface:${NC} ${GREEN}$MONITOR${NC}"
@@ -154,7 +154,7 @@ scan_networks() {
     banner; main_menu
 }
 
-crack_wep() {
+crack_wep(){
     echo
     echo -e "${BLUE}[*] Running airodump-ng to find WEP targets.${NC}"
     airodump-ng --encrypt WEP "$MONITOR"
@@ -197,7 +197,7 @@ crack_wep() {
     fi
 }
 
-crack_wpa() {
+crack_wpa(){
     echo
     echo -e "${BLUE}[*] Running airodump-ng to find WPA targets.${NC}"
     airodump-ng --encrypt WEP "$MONITOR"
@@ -261,7 +261,7 @@ crack_wpa() {
     fi
 }
 
-cleanup() {
+cleanup(){
     # Reset PIDs after killing them
     if [ -n "${PID_AIRODUMP:-}" ]; then
         kill "$PID_AIRODUMP" &>/dev/null || true
@@ -283,7 +283,7 @@ cleanup() {
     exit
 }
 
-main_menu() {
+main_menu(){
     echo -e "${BLUE}[*] Wireless interface:${NC} ${GREEN}$INTERFACE${NC}"
 
     while true; do

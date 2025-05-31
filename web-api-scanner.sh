@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
 
 # by ibrahimsql - Metasploit Web and API Security Scanner
-# Discover framework compatibility module
 
 clear
 f_banner
 
-# Global variables
+# Variables
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
 
 # Create output directory under $HOME/data
 OUTPUT_DIR="$HOME/data/web-api-scan_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$OUTPUT_DIR"
-
-# Set NAME variable for compatibility with other scripts
-NAME="$OUTPUT_DIR"
 
 # Function to terminate script
 f_terminate(){
@@ -51,7 +47,7 @@ MSF_RESOURCE_DIR="/tmp/msf_resources"
 ###############################################################################################################################
 
 # Function to create web application security resource scripts
-f_create_web_resources() {
+f_create_web_resources(){
     echo -e "${BLUE}[*] Preparing web application security test resource scripts.${NC}"
 
     # Apache Vulnerabilities
@@ -186,7 +182,7 @@ EOF
 ###############################################################################################################################
 
 # Function to create advanced password brute force resource scripts
-f_create_brute_resources() {
+f_create_brute_resources(){
     echo -e "${BLUE}[*] Preparing brute force attack resource scripts.${NC}"
 
     # API Key Brute Force
@@ -238,7 +234,7 @@ EOF
 ###############################################################################################################################
 
 # Function to create advanced exploit resource scripts
-f_create_exploit_resources() {
+f_create_exploit_resources(){
     echo -e "${BLUE}[*] Preparing exploit resource scripts.${NC}"
 
     # API & Web Service Exploits
@@ -313,7 +309,7 @@ EOF
 ###############################################################################################################################
 
 # Function to run web/API security scans
-f_run_web_api_scan() {
+f_run_web_api_scan(){
     local TARGET_URL=$1
     local TARGET_IP=$2
     local OUTPUT_DIR=$3
@@ -354,7 +350,7 @@ EOF
     echo "" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
 
     # Function to run a scan with a resource file and store results
-    run_scan() {
+    run_scan(){
         local resource_file=$1
         local output_name=$2
 
@@ -471,7 +467,7 @@ EOF
 ###############################################################################################################################
 
 # Main function
-f_msf_web_api_main(){
+f_web_api_main(){
     echo -e "${BLUE}MSF Web and API Security Scanner${NC}"
     echo
     echo "1. Scan a URL for web app and API vulnerabilities"
@@ -482,53 +478,49 @@ f_msf_web_api_main(){
 
     case $CHOICE in
         1)
-           echo
-           echo -n "Enter target URL (e.g., http://target.com): "
-           read -r TARGET_URL
+            echo
+            echo -n "Enter target URL (e.g., http://target.com): "
+            read -r TARGET_URL
 
-           if [ -z "$TARGET_URL" ]; then
-               echo
-               echo -e "${RED}[!] No target specified.${NC}"
-               echo
-               return 1
-           fi
+            if [ -z "$TARGET_URL" ]; then
+                echo
+                echo -e "${RED}[!] No target specified.${NC}"
+                echo
+                return 1
+            fi
 
-           # Extract IP address
-           DOMAIN=$(echo "$TARGET_URL" | sed -E 's|^https?://||' | sed -E 's|/.*$||')
-           TARGET_IP=$(host "$DOMAIN" | grep "has address" | head -1 | awk '{print $4}')
+            # Extract IP address
+            DOMAIN=$(echo "$TARGET_URL" | sed -E 's|^https?://||' | sed -E 's|/.*$||')
+            TARGET_IP=$(host "$DOMAIN" | grep "has address" | head -1 | awk '{print $4}')
 
-           if [ -z "$TARGET_IP" ]; then
-               echo
-               echo -e "${RED}[!] Could not resolve domain to IP address.${NC}"
-               echo -n "Enter target IP address manually: "
-               read -r TARGET_IP
+            if [ -z "$TARGET_IP" ]; then
+                echo
+                echo -e "${RED}[!] Could not resolve domain to IP address.${NC}"
+                echo -n "Enter target IP address manually: "
+                read -r TARGET_IP
 
-               if [ -z "$TARGET_IP" ]; then
-                   echo
-                   echo -e "${RED}[!] No IP address specified.${NC}"
-                   echo
-                   return 1
-               fi
-           fi
+                if [ -z "$TARGET_IP" ]; then
+                    echo
+                    echo -e "${RED}[!] No IP address specified.${NC}"
+                    echo
+                    return 1
+                fi
+            fi
 
-           # Create resource scripts
-           f_create_web_resources
-           f_create_brute_resources
-           f_create_exploit_resources
+            # Create resource scripts
+            f_create_web_resources
+            f_create_brute_resources
+            f_create_exploit_resources
 
-           # Run the scan
-           f_run_web_api_scan "$TARGET_URL" "$TARGET_IP" "$NAME"
-           ;;
+            # Run the scan
+            f_run_web_api_scan "$TARGET_URL" "$TARGET_IP" "$OUTPUT_DIR"
+            ;;
         2)
-           echo
-           return 0 ;;
-        *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_msf_web_api_main ;;
+            f_main ;;
+        *)
+            echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_web_api_main ;;
     esac
 }
 
-# This allows the script to be sourced without running immediately
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    # Run standalone
-    f_msf_web_api_main
-    exit 0
-fi
+# Run the script
+f_msf_web_api_main

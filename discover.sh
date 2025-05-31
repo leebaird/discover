@@ -6,6 +6,9 @@
 # Jay Townsend (@jay_townsend1) - everything, conversion from Backtrack to Kali
 # Jason Ashton (@ninewires) - Penetration Testers Framework (PTF) compatibility, bug crusher, and bash ninja
 #
+# New modules:
+# Yiğit ibrahim (ibrahimsql) - API Security modules, Cloud Security Scanner, Container Security Scanner, Open Redirect Scanner, WAF Detection
+#
 # Thanks to:
 # Ben Wood (@DilithiumCore) - regex master
 # Dave Klug - planning, testing, and bug reports
@@ -25,7 +28,6 @@
 # Arthur Kay (@arthurakay) - Python scripts
 # Brett Fitzpatrick (@brettfitz) - SQL query
 # Robleh Esa (@RoblehEsa) - SQL queries
-# Yiğit ibrahim (ibrahimsql) - Container Security Scanner, Cloud Security Scanner, API Security modules, Open Redirect Scanner, WAF Detection
 
 # OPSEC: change your default nmap user agent located on line 160 at /usr/share/nmap/nselib/http.lua 
 ###############################################################################################################################
@@ -58,7 +60,7 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 ###############################################################################################################################
 
 # Global variables
-DISCOVER=$(/usr/bin/locate discover.sh | head -n1 | sed 's:/[^/]*$::')
+DISCOVER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MYIP=$(ip addr | grep 'global' | grep -Eiv '(:|docker)' | cut -d '/' -f1 | awk '{print $2}')
 PWD=$(pwd)
 RUNDATE=$(date +%B' '%d,' '%Y)
@@ -76,10 +78,10 @@ YELLOW='\033[1;33m'
 
 ###############################################################################################################################
 
-# Export variables if needed
-export PWD DISCOVER MYIP RUNDATE SIP
+# Export variables
+export DISCOVER MYIP PWD RUNDATE SIP
 export LARGE MEDIUM SMALL
-export BLUE GREEN RED YELLOW NC
+export BLUE GREEN NC RED YELLOW
 
 ###############################################################################################################################
 
@@ -588,11 +590,11 @@ f_main(){
     echo "17. API Security"
     echo "18. Cloud Security"
     echo "19. Container Security"
-    echo "20. WAF Detection"
-    echo "21. Web and API Security"
-    echo "22. OAuth and JWT Security"
-    echo "23. Sensitive Information"
-    echo "24. Open Redirect Scanner"
+    echo "20. OAuth and JWT Security"
+    echo "21. Open Redirect Scanner"
+    echo "22. Sensitive Information"
+    echo "23. WAF Detection"
+    echo "24. Web and API Security"
     echo
 
     echo
@@ -603,36 +605,36 @@ f_main(){
         # RECON
         1) ./domain.sh ;;
         2) ./person.sh && exit ;;
-        
+
         # SCANNING
         3) ./generateTargets.sh && exit ;;
         4) f_cidr ;;
         5) f_list ;;
         6) f_single ;;
         7) f_enumerate ;;
-        
+
         # WEB
         8) ./directObjectRef.sh && exit ;;
         9) ./multiTabs.sh && exit ;;
         10) ./nikto.sh && exit ;;
         11) ./ssl.sh && exit ;;
-        
+
         # MISC
         12) ./parse.sh && exit ;;
         13) ./payload.sh && exit ;;
         14) ./listener.sh && exit ;;
         15) f_update ;;
         16) echo && exit ;;
-        
+
         # DEV
         17) ./api-scanner.sh && exit ;;
         18) ./cloud-scanner.sh && exit ;;
         19) ./container-scanner.sh && exit ;;
-        20) ./waf-detect.sh && exit ;;
-        21) ./web-api-scanner.sh && exit ;;
-        22) ./oauth-jwt-scanner.sh && exit ;;
-        23) ./sensitive-scanner.sh && exit ;;
-        24) ./openredirect.sh && exit ;;
+        20) ./oauth-jwt-scanner.sh && exit ;;
+        21) ./openredirect.sh && exit ;;
+        22) ./sensitive-scanner.sh && exit ;;
+        23) ./waf-detect.sh && exit ;;
+        24) ./web-api-scanner.sh && exit ;;
 
         99) ./newModules.sh && exit ;;
         *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;

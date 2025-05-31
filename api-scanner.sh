@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
 # by ibrahimsql - API Security Scanner Module
-# Discover framework compatibility module
 
 clear
 f_banner
 
-# Global variables
+# Variables
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
 
@@ -625,7 +624,7 @@ EOF
         # Test each origin
         while read -r ORIGIN; do
             [ -z "$ORIGIN" ] && continue
-            
+
             # Skip testing if we've already found a vulnerability for this endpoint
             if grep -q "^$ENDPOINT" "$OUTPUT_DIR/api_scanner/cors_vulnerable.txt" 2>/dev/null; then
                 continue
@@ -978,7 +977,7 @@ f_jwt_analysis(){
 
 # Main function
 f_api_main(){
-    echo -e "${BLUE}API Security Scanner${NC}"
+    echo -e "${BLUE}API Security Scanner${NC} | ${YELLOW}by ibrahimsql${NC}"
     echo
     echo "1. API Endpoint Discovery and Testing"
     echo "2. JWT Token Analysis"
@@ -989,33 +988,35 @@ f_api_main(){
 
     case "$CHOICE" in
         1)
-           echo
-           echo -n "Enter target URL (e.g., http://target.com): "
-           read -r TARGET_URL
+            echo
+            echo -n "Enter target URL (e.g., http://target.com): "
+            read -r TARGET_URL
 
-           if [[ ! "$TARGET_URL" =~ ^https?:// ]]; then
-               echo
-               echo -e "${RED}[!] Invalid URL. Must start with http:// or https://${NC}"
-               echo
-               exit 1
-           fi
+            if [[ ! "$TARGET_URL" =~ ^https?:// ]]; then
+                echo
+                echo -e "${RED}[!] Invalid URL. Must start with http:// or https://${NC}"
+                echo
+                exit 1
+            fi
 
-           f_discover_api "$TARGET_URL" "$NAME" ;;
+            f_discover_api "$TARGET_URL" "$NAME" ;;
         2)
-           echo
-           echo -n "Enter JWT token to analyze: "
-           read -r JWT_TOKEN
+            echo
+            echo -n "Enter JWT token to analyze: "
+            read -r JWT_TOKEN
 
-           if [[ ! "$JWT_TOKEN" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]]; then
-               echo
-               echo -e "${RED}[!] Invalid JWT format. Must be in format 'header.payload.signature'${NC}"
-               echo
-               exit 1
-           fi
+            if [[ ! "$JWT_TOKEN" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]]; then
+                echo
+                echo -e "${RED}[!] Invalid JWT format. Must be in format 'header.payload.signature'${NC}"
+                echo
+                exit 1
+            fi
 
-           f_jwt_analysis "$JWT_TOKEN" "$NAME" ;;
-        3) f_main ;;
-        *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_api_main ;;
+            f_jwt_analysis "$JWT_TOKEN" "$NAME" ;;
+        3)
+            f_main ;;
+        *)
+            echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_api_main ;;
     esac
 }
 

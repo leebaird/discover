@@ -49,8 +49,10 @@ DEV
 18. Cloud Security
 19. Container Security
 20. OAuth and JWT Security
-21. Sensitive Information
-22. Web and API Security
+21. Open Redirect Scanner
+22. Sensitive Information
+23. WAF Detection
+24. Web and API Security
 
 ```
 ## RECON
@@ -69,7 +71,7 @@ Uses ARIN, DNSRecon, dnstwist, subfinder, sublist3r,
 theHarvester, Metasploit, Whois, and multiple websites.
 
 * Acquire all free API keys for maximum results with theHarvester.
-* Add API keys to /home/kali/.theHarvester/api-keys.yaml
+* Add API keys to $HOME/.theHarvester/api-keys.yaml
 
 ### Person
 ```
