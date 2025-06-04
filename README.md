@@ -55,6 +55,7 @@ DEV
 24. Web and API Security
 
 ```
+
 ## RECON
 ### Domain
 ```
@@ -110,23 +111,6 @@ Type of scan:
 * Nmap scripts and Metasploit auxiliary modules are used for additional enumeration.
 * Addition tools: enum4linux, smbclient, and ike-scan.
 
-### Container Security Scanner
-```
-CONTAINER SECURITY
-
-1.  Docker Images
-2.  Docker Containers
-3.  Kubernetes Resources
-4.  All Container Resources
-5.  Previous menu
-```
-
-* Comprehensive security scanner for Docker and Kubernetes environments.
-* **Docker Images**: Scans Docker images using Trivy for vulnerabilities, misconfigurations, and secrets. Creates detailed security profiles with risk scores and analyzes Dockerfile security.
-* **Docker Containers**: Performs deep security analysis of running and stopped containers. Detects privileged containers, containers with sensitive mounts, exposed ports, and security misconfigurations.
-* **Kubernetes Resources**: Audits Kubernetes clusters for security issues including privileged pods, overly permissive RBAC roles, missing network policies, and containers running as root.
-* Generates comprehensive reports with security scores and actionable recommendations.
-
 ## WEB
 ### Insecure direct object reference
 ````
@@ -162,6 +146,7 @@ Run multiple instances of Nikto in parallel.
 2.  List of IP:port
 3.  Previous menu
 ```
+
 ### SSL
 ```
 Check for SSL certificate issues.
@@ -173,7 +158,6 @@ Enter the location of your file:
 ```
 
 * Uses sslscan, sslyze, and Nmap to check for SSL/TLS certificate issues.
-
 
 ## MISC
 ### Parse XML
@@ -233,6 +217,24 @@ Metasploit Listeners
 ### Update
 
 * Update Kali Linux, Discover scripts, various tools, and the locate database.
+
+## DEV
+### Container Security Scanner
+```
+CONTAINER SECURITY
+
+1.  Docker Images
+2.  Docker Containers
+3.  Kubernetes Resources
+4.  All Container Resources
+5.  Previous menu
+```
+
+* Comprehensive security scanner for Docker and Kubernetes environments.
+* **Docker Images**: Scans Docker images using Trivy for vulnerabilities, misconfigurations, and secrets. Creates detailed security profiles with risk scores and analyzes Dockerfile security.
+* **Docker Containers**: Performs deep security analysis of running and stopped containers. Detects privileged containers, containers with sensitive mounts, exposed ports, and security misconfigurations.
+* **Kubernetes Resources**: Audits Kubernetes clusters for security issues including privileged pods, overly permissive RBAC roles, missing network policies, and containers running as root.
+* Generates comprehensive reports with security scores and actionable recommendations.
 
 # Troubleshooting
 
