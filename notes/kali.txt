@@ -1,6 +1,6 @@
 Kali
 
-# Download VM and verify the hash
+# Download VM, verify the hash, and login
 
 https://www.kali.org/get-kali/#kali-virtual-machines
 Scroll down and select VMware Weekly
@@ -14,13 +14,8 @@ Scroll down and select VMware Weekly
 1. Open PowerShell
 2. Get-FileHash C:\path\to\file
 3. Compare the value to the checksum on the website.
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Change default password
 
 Login with kali:kali
-passwd
-Enter new password 2x.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Create a new user, set the password and give sudo rights
@@ -34,13 +29,16 @@ Add to the last line in the file.
 
 sudo reboot
 Login as new user.
+
+- Delete kali account
+sudo userdel -r kali
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Disable screen lock
 
-Applications > Settings > Settings Manager > Xfce Screensaver
-Screensaver > Activate screensaver when computer is idle: off
-Lock screen > Enable Lock Screen: off
+Kali menu > search for: Xfce Screensaver
+Screensaver > Enable Screensaver: off
+Lock Screen > Enable Lock Screen: off
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Desktop
@@ -54,17 +52,17 @@ Close
 
 Open Terminal > File > Preferences
 Appearance
-     Font > Change > 11 > OK
-     Application transparency: 0% > OK
-------------------------------------------------------------------------------------------------------------------------------------------------------
+    Font > Change > 11 > OK
+    Application transparency: 0% > OK
 
-# Shell
-
+- Shell
 kali-tweaks
 Select Shell & Prompt > Configure Prompt
 Select One Line > space bar > Apply > OK > enter
-Back > Virtualization > Configure
+Back > Virtualization > Configure > enter
 Quit
+
+Close Terminal and open an new one.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Mousepad
@@ -73,32 +71,31 @@ mousepad
 
 Edit > Preferences
 View
-     Uncheck Use system monospace font
-     Font: 11 > Select
+    Uncheck Use system monospace font
+    Font: 11 > Select
 Editor
-     Tab width: 4
-     Tab mode: Insert Spaces
+    Tab width: 4
+    Tab mode: Insert Spaces
+    Enable automatic indentation: off
 Window
-     Check Remember window position
+    Check Remember window position
 Close preferenes > close mousepad
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Clock
 
 Right-click on the clock > Properties
-Time and Date Settings > Unlock > password
-Set Time Zone
+Timezone
   Eastern: America/New_York
   Central: America/Chicago
   Mountain: America/Denver
   Pacific: America/Los_Angeles
-Close 3x
+Close
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Patch the OS and install VMware tools
 
 sudo apt update ; sudo apt -y upgrade ; sudo apt -y dist-upgrade ; sudo apt -y autoremove ; sudo apt -y autoclean ; sudo updatedb
-sudo apt install -y open-vm-tools
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Snapshot
@@ -151,18 +148,14 @@ privacy.resistFingerprinting > true
 
 - Apache Directory Studio
 https://directory.apache.org/studio/download/download-linux.html
-cd /home/kali/Downloads/
+cd /home/<USER>/Downloads/
 tar zxf <package>
-mv ApacheDirectoryStudio /opt/
+mv ApacheDirectoryStudio ..
 rm <package>
 
 - Nim
 https://nim-lang.org/install_unix.html
-Download x86_64 tarball
-tar xf <package>
-mv nim-1.6.12 /opt/
-echo "export PATH=$PATH:/opt/nim-1.6.12/bin/" >> ~/.zshrc
-source ~/.zshrc
+curl https://nim-lang.org/choosenim/init.sh -sSf | sh
 
 - Terraform
 https://www.terraform.io/downloads
