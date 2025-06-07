@@ -1,12 +1,17 @@
 
 # -----------------------------------------------------------------------------------------------
 
+# Variables
+BLUE='\033[1;34m'
+NC='\033[0m'
+
 DNS=$(ip r | grep dhcp | awk '{print $3}')
 EXTIP=$(curl -s http://ifconfig.me)
 INTERFACE=$(ip a | grep BROADCAST | awk '{print $2}' | cut -d ":" -f1)
 MYIP=$(hostname -I | awk '{print $1}')
 MAC=$(ip a | grep ether | awk '{print $2}')
 
+# Aliases
 alias bh='neo4j console & ; sleep 6 ; bloodhound'
 alias c='clear'
 alias cl='clear ; ls -lh --color=auto'
@@ -14,8 +19,6 @@ alias cla='clear ; ls -lah --color=auto'
 alias d='cd $HOME/Desktop/ ; clear'
 alias date='date +"%a %b %d, %Y - %r %Z"'
 alias e='exit'
-alias k='cd /home/kali/'
-alias kd='cd /home/kali/Desktop/'
 alias l='ls -lh'
 alias la='ls -lah'
 alias lc='ls -1 | wc -l'
@@ -29,11 +32,11 @@ echo -n "Interfaace:   "$INTERFACE ; echo ;
 echo ; netstat -antp; echo ;
 ping -c3 8.8.8.8'
 alias r='cd $HOME ; clear'
-alias s='cd ~/discover/ ; clear'
+alias s='cd $HOME/discover/ ; clear'
 alias smb='impacket-smbserver share . -smb2support'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 alias ssh='ssh -o "XAuthLocation=/opt/X11/bin/xauth"'
-alias update='sudo ~/discover/update.sh'
+alias update='echo ; echo -e "${BLUE}Updating Discover.${NC}" ; cd $HOME/discover ; git pull ; sudo ./update.sh'
 alias upload='cd $HOME/Desktop/ ; raven $MYIP 3000 --upload-dir $HOME/Desktop/'
 alias web='echo $MYIP ; python3 -m http.server 80'
 alias web2='echo $MYIP ; python3 -m http.server 8000'
