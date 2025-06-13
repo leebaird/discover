@@ -475,7 +475,6 @@ export DISPLAY=:0
 
 cal                                             Calendar
 date                                            Date and time
-df -h                                           Disk usage
 du                                              Directory space usage
 env                                             Environmental variables
 fdisk -l                                        Partition table
@@ -535,6 +534,18 @@ tcpdump -lnni eth0 'udp port 53'
 tcpdump -lnni eth0 'tcp port 443'
 tcpdump -lnni eth0 'dst 10.0.0.10 and dst port 443'
 tcpdump -w out.pcap -s 65535  'udp port 53'
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Troubleshooting
+
+Errors when updating the OS.
+
+df -h                                           Check the disk usage for /boot
+dpkg --list | grep linux-image                  List installed kernels
+uname -r                                        Show the current running kernel
+sudo apt purge linux-image-<old veresion>       Remove old kernel
+sudo apt autoremove --purge                     Clean up unused packages
+df -h                                           Verify disk usage again
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Tunneling VNC over SSH
