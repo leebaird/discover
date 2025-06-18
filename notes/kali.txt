@@ -84,6 +84,7 @@ Close preferenes > close mousepad
 
 # Clock
 
+- GUI timezone
 Right-click on the clock > Properties
 Timezone
   Eastern: America/New_York
@@ -91,6 +92,9 @@ Timezone
   Mountain: America/Denver
   Pacific: America/Los_Angeles
 Close
+
+- System timezone
+sudo timedatectl set-timezone America/<CITY>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Patch the OS and install VMware tools

@@ -99,7 +99,7 @@ echo
 
 # Number of tests
 COUNT=1
-TOTAL=40
+TOTAL=39
 
 echo "ARIN"
 echo "    Email                ($COUNT/$TOTAL)"
@@ -229,8 +229,6 @@ echo
 
 echo "theHarvester"
 source /opt/theHarvester-venv/bin/activate
-echo "    anubis               ($COUNT/$TOTAL)"
-((COUNT++))
 /opt/theHarvester/theHarvester.py -d "$DOMAIN" -b anubis | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zanubis
 echo "    baidu                ($COUNT/$TOTAL)"
 ((COUNT++))
