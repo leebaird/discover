@@ -10,6 +10,9 @@ YELLOW='\033[1;33m'
 ###############################################################################################################################
 
 # Clean up deprecated repos
+if [ -d /opt/PEASS-ng/.git ]; then
+    rm -rf /opt/PEASS-ng/
+fi
 
 ###############################################################################################################################
 
@@ -273,16 +276,6 @@ fi
 echo -e "${BLUE}Updating Nmap scripts.${NC}"
 nmap --script-updatedb | grep -Eiv '(starting|seconds)' | sed 's/NSE: //'
 echo
-
-if [ -d /opt/PEASS-ng/.git ]; then
-    echo -e "${BLUE}Updating PEASS-ng.${NC}"
-    cd /opt/PEASS-ng/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing PEASS-ng.${NC}"
-    git clone https://github.com/carlospolop/PEASS-ng /opt/PEASS-ng
-    echo
-fi
 
 if [ -d /opt/PowerSharpPack/.git ]; then
     echo -e "${BLUE}Updating PowerSharpPack.${NC}"
