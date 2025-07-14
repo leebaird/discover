@@ -17,7 +17,7 @@ fi
 ###############################################################################################################################
 
 echo
-echo -e "${BLUE}Updating operating system.${NC}"
+echo -e "${BLUE}Updating the operating system.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 echo
 
@@ -36,6 +36,7 @@ fi
 if ! command -v go &> /dev/null; then
     echo -e "${YELLOW}Installing Go.${NC}"
     apt install -y golang-go
+    # shellcheck disable=SC2129
     echo "" >> ~/.zshrc
     echo "export GOPATH=/opt/go" >> ~/.zshrc
     echo "export GOROOT=/usr/lib/go" >> ~/.zshrc
