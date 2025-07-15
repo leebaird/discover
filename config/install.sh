@@ -10,3 +10,6 @@ else
     cp zshrc "$HOME"/.bash_aliases
     source "$HOME"/.bash_aliases
 fi
+git clone https://github.com/leebaird/discover.git  
+cd discover  
+./update.sh
