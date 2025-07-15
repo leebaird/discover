@@ -1,0 +1,3 @@
+git clone https://github.com/leebaird/discover.git  
+cd discover  
+./update.sh
