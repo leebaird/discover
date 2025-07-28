@@ -9,6 +9,13 @@ enumeration, and malicious payload creation using Metasploit. For use with Kali 
 * [![Twitter Follow](https://img.shields.io/twitter/follow/jay_townsend1.svg?style=social&label=Follow)](https://twitter.com/jay_townsend1) Jay "L1ghtn1ng" Townsend @jay_townsend1
 * [![Twitter Follow](https://img.shields.io/twitter/follow/ninewires.svg?style=social&label=Follow)](https://twitter.com/ninewires) Jason Ashton @ninewires
 
+### Dependencies
+vu
+
+```
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
 ### Download, setup, and usage
 * Download with a normal user account to your home directory.
 * cd ~

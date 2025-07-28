@@ -104,40 +104,43 @@ TOTAL=39
 echo "ARIN"
 echo "    Email                ($COUNT/$TOTAL)"
 ((COUNT++))
+
 # Fetch ARIN data
 if ! curl -ks "https://whois.arin.net/rest/pocs;domain=$DOMAIN" -o tmp.xml; then
-    echo
-    echo "[!] Failed to fetch ARIN data."
-    echo
+    echo "[!] Failed to fetch ARIN data"
+    # Cleanup temp file
+    rm tmp.xml 2>/dev/null
 fi
 
 # Check for results in the XML file
 if ! grep -q 'No Search Results' tmp.xml; then
     # Extract handles and URLs
-    xmllint --format tmp.xml | grep 'handle' | cut -d '>' -f2 | cut -d '<' -f1 | sort -u > zurls.txt
-    xmllint --format tmp.xml | grep 'handle' | cut -d '"' -f2 | sort -u > zhandles.txt
+    xmllint --format tmp.xml | grep 'handle' | cut -d '>' -f2 | cut -d '<' -f1 | sort -u > zurls
+    xmllint --format tmp.xml | grep 'handle' | cut -d '"' -f2 | sort -u > zhandles
 
     # Process each URL for email extraction
     while read -r LINE; do
-        curl -k -s "$LINE" > tmp2.xml
-        xml_grep 'email' tmp2.xml --text_only >> tmp
-    done < zurls.txt
+        curl -ks "$LINE" > tmp2.xml
+        xml_grep 'email' tmp2.xml --text_only >> tmp 2>/dev/null
+    done < zurls
 
     # Filter and format emails
-    grep -v '_' tmp | tr '[:upper:]' '[:lower:]' | sort -u > zarin-emails
+    if [ -s tmp ]; then
+        grep -Eiv "(_|error)" tmp | tr '[:upper:]' '[:lower:]' | sort -u > zarin-emails
+    fi
 fi
 
-# Cleanup temporary files
-rm tmp* zurls.txt 2>/dev/null
+# Cleanup temp files
+rm tmp* zurls 2>/dev/null
 
 ###############################################################################################################################
 
 echo "    Names                ($COUNT/$TOTAL)"
 ((COUNT++))
-if [ -f zhandles.txt ]; then
+if [ -f zhandles ]; then
     while read -r LINE; do
         curl -ks "https://whois.arin.net/rest/poc/$LINE.txt" | grep 'Name' >> tmp
-    done < zhandles.txt
+    done < zhandles
 
     # Process names
     grep -Eiv "($COMPANY|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
@@ -145,8 +148,8 @@ if [ -f zhandles.txt ]; then
     awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sort -u > zarin-names
 fi
 
-# Cleanup temporary files
-rm tmp* zhandles.txt 2>/dev/null
+# Cleanup temp files
+rm tmp* zhandles 2>/dev/null
 echo
 
 ###############################################################################################################################
@@ -160,7 +163,7 @@ grep 'TXT' tmp | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | sort | sed 's/[ \t
 cat records >> "$HOME"/data/"$DOMAIN"/data/records.htm
 echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/records.htm
 
-# Cleanup temporary file
+# Cleanup temp file
 rm tmp 2>/dev/null
 echo
 
@@ -199,8 +202,8 @@ sed -i 's/I could use the nameservers/The nameservers/g' "$HOME"/data/"$DOMAIN"/
 sed -i 's/below to performe/below can perform/g; s/ERROR: //g; s/FAIL: //g; s/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/Oh well, //g; s/This can be ok if you know what you are doing.//g; s/That is NOT OK//g; s/That is not so ok//g; s/The reverse (PTR) record://g; s/the same ip./the same IP./g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/use on having/use in having/g; s/You must be/Be/g; s/Your/The/g; s/your/the/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
 echo
 
-# Cleanup temporary files
-rm tmp*
+# Cleanup temp files
+rm tmp* 2>/dev/null
 
 ###############################################################################################################################
 
@@ -225,102 +228,140 @@ sublist3r -d "$DOMAIN" > tmp 2>/dev/null
 sed 's/\x1B\[[0-9;]*m//g' tmp | sed '/^ /d' | grep -Eiv '(!|enumerating|enumeration|searching|total unique)' | tr '[:upper:]' '[:lower:]' | sort -u > zsublist3r
 echo
 
+# Cleanup temp file
+rm tmp 2>/dev/null
+
 ###############################################################################################################################
 
 echo "theHarvester"
-source /opt/theHarvester-venv/bin/activate
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b anubis | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zanubis
+cd "$HOME/theHarvester"
+uv sync; source .venv/bin/activate
+
 echo "    baidu                ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b baidu | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbaidu
+theHarvester -d "$DOMAIN" -b baidu | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbaidu
 echo "    bevigil              ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b bevigil | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbevigil
-echo "    bing                 ($COUNT/$TOTAL)"
+theHarvester -d "$DOMAIN" -b bevigil | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbevigil
+echo "    brave                ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b bing | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbing
-echo "    bing API             ($COUNT/$TOTAL)"
-((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b bingapi | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbing-api
+theHarvester -d "$DOMAIN" -b brave | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbrave
 echo "    bufferoverun         ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b bufferoverun | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbufferoverun
+theHarvester -d "$DOMAIN" -b bufferoverun | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbufferoverun
+echo "    builtwith            ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b builtwith | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbuiltwith
 echo "    censys               ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b censys | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcensys
+theHarvester -d "$DOMAIN" -b censys | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcensys
 echo "    certspotter          ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b certspotter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcertspotter
+theHarvester -d "$DOMAIN" -b certspotter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcertspotter
 echo "    criminalip           ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b criminalip | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcriminalip
+theHarvester -d "$DOMAIN" -b criminalip | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcriminalip
 echo "    crtsh                ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b crtsh | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcrtsh
+theHarvester -d "$DOMAIN" -b crtsh | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcrtsh
+echo "    dehashed             ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b dehashed | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zdehashed
+echo "    dnsdumpster          ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b dnsdumpster | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zdnsdumpster
 echo "    duckduckgo           ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b duckduckgo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zduckduckgo
+theHarvester -d "$DOMAIN" -b duckduckgo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zduckduckgo
 echo "    fullhunt             ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b fullhunt | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zfullhunt
+theHarvester -d "$DOMAIN" -b fullhunt | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zfullhunt
 echo "    github-code          ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b github-code | grep -Eiv '(!|\*|--|\[|retrying|searching|yaml)' | sed '/^$/d' | sort -u > zgithub-code
+theHarvester -d "$DOMAIN" -b github-code | grep -Eiv '(!|\*|--|\[|retrying|searching|yaml)' | sed '/^$/d' | sort -u > zgithub-code
 echo "    hackertarget         ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b hackertarget | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhackertarget
+theHarvester -d "$DOMAIN" -b hackertarget | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhackertarget
+echo "    haveibeenpwned       ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b haveibeenpwned | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhaveibeenpwned
 echo "    hunter               ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b hunter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunter
+theHarvester -d "$DOMAIN" -b hunter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunter
 echo "    hunterhow            ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b hunterhow | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunterhow
+theHarvester -d "$DOMAIN" -b hunterhow | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunterhow
 echo "    intelx               ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b intelx | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zintelx
+theHarvester -d "$DOMAIN" -b intelx | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zintelx
+echo "    leaklookup           ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b leaklookup | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zleaklookup
 echo "    netlas               ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b netlas | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > znetlas
+theHarvester -d "$DOMAIN" -b netlas | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > znetlas
+echo "    onyphe               ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b onyphe | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zonyphe
 echo "    otx                  ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b otx | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zotx
+theHarvester -d "$DOMAIN" -b otx | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zotx
 echo "    pentesttools         ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b pentesttools | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zpentesttools
+theHarvester -d "$DOMAIN" -b pentesttools | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zpentesttools
 echo "    projectdiscovery     ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b projectdiscovery | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zprojectdiscovery
+theHarvester -d "$DOMAIN" -b projectdiscovery | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zprojectdiscovery
 echo "    rapiddns             ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b rapiddns | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zrapiddns
+theHarvester -d "$DOMAIN" -b rapiddns | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zrapiddns
+echo "    rocketreach          ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b rocketreach | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zrocketreach
+echo "    securityscorecard    ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b securityscorecard | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsecurityscorecard
 echo "    securityTrails       ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b securityTrails | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsecuritytrails
+theHarvester -d "$DOMAIN" -b securityTrails | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsecurityTrails
+echo "    shodan               ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -s | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zshodan
 echo "    sitedossier          ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b securityTrails | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsitedossier
+theHarvester -d "$DOMAIN" -b sitedossier | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsitedossier
 echo "    subdomaincenter      ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b subdomaincenter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsubdomaincenter
+theHarvester -d "$DOMAIN" -b subdomaincenter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsubdomaincenter
 echo "    subdomainfinderc99   ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b subdomainfinderc99 | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsubdomainfinderc99
+theHarvester -d "$DOMAIN" -b subdomainfinderc99 | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsubdomainfinderc99
 echo "    threatminer          ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b threatminer | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zthreatminer
+theHarvester -d "$DOMAIN" -b threatminer | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zthreatminer
+echo "    tomba                ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b tomba | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > ztomba
 echo "    urlscan              ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b urlscan | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zurlscan
+theHarvester -d "$DOMAIN" -b urlscan | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zurlscan
+echo "    venacus              ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b venacus | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zvenacus
+echo "    virustotal           ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b virustotal | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zvirustotal
 echo "    whoisxml             ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b yahoo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zwhoisxml
+theHarvester -d "$DOMAIN" -b whoisxml | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zwhoisxml
 echo "    yahoo                ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/theHarvester/theHarvester.py -d "$DOMAIN" -b yahoo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zyahoo
-deactivate
+theHarvester -d "$DOMAIN" -b yahoo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zyahoo
+echo "    zoomeye              ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b zoomeye | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zzoomeye
 
-# Cleanup temporary files
-rm tmp*
+deactivate
 echo
 
 ###############################################################################################################################
@@ -371,10 +412,12 @@ cat -s tmp3 > tmp4
 # Print with the second column starting at 25 spaces
 awk '{printf "%-25s %s\n", $1, $2}' tmp4 | sed 's/+1-//g' > whois-ip
 
-# Cleanup temporary files
-rm tmp*
+# Cleanup temp files
+rm tmp* 2>/dev/null
 
 ###############################################################################################################################
+
+# Aggregation happens here
 
 # Find eamils
 cat z* | grep "@$DOMAIN" | grep -v '[0-9]' | sed "/^'/d" | grep -Eiv '(_|,|firstname|lastname|test|www|xxx|zzz)' | sort -u > emails
@@ -385,8 +428,16 @@ cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | gr
 # Find names
 cat z* | grep -Eiv '(@|:|\.|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
 
-# Find private IP addresses
-cat z* | grep -E '^(.*:((10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})|(172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.[0-9]{1,3})|(192\.168\.[0-9]{1,3}\.[0-9]{1,3})))' | sort -u | sed 's/:/ /g' | column -t > private-ips
+# Find private and public IPs
+while IFS= read -r IP; do
+    if [[ $IP =~ ^10\..* ]] || \
+       [[ $IP =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\..* ]] || \
+       [[ $IP =~ ^192\.168\..* ]]; then
+        echo "$IP" >> private-ips
+    else
+        echo "$IP" >> public-ips
+    fi
+done < hosts
 
 # Find subdomains
 cat z* | cut -d ':' -f2 | grep "\.$DOMAIN" | grep -Eiv '(@|/|www)' | awk '{print $1}' | grep "\.$DOMAIN$" | tr '[:upper:]' '[:lower:]' | sort -u > subdomains
@@ -441,20 +492,20 @@ if [ -f private-ips ]; then
     echo "Private IPs       $privateipcount" >> zreport
     echo "Private IPs ($privateipcount)" >> tmp
     echo "$LARGE" >> tmp
-    cat hosts >> tmp
+    cat private-ips >> tmp
     echo >> tmp
     cat private-ips >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
     echo
 fi
 
-if [ -f hosts ]; then
-    hostcount=$(wc -l hosts | cut -d ' ' -f1)
-    echo "Hosts             $hostcount" >> zreport
-    echo "Hosts ($hostcount)" >> tmp
+if [ -f public-ips ]; then
+    publicipcount=$(wc -l public-ips | cut -d ' ' -f1)
+    echo "Hosts             $publicipcount" >> zreport
+    echo "Hosts ($publicipcount)" >> tmp
     echo "$LARGE" >> tmp
-    cat hosts >> tmp
+    cat public-ips >> tmp
     echo >> tmp
-    cat hosts >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
+    cat public-ips >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
     echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
 else
     echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
@@ -596,7 +647,8 @@ fi
 cat zreport >> "$HOME"/data/"$DOMAIN"/data/passive-recon.htm
 echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/passive-recon.htm
 
-rm tmp* zreport
+# Cleanup temp files
+rm tmp* zreport 2>/dev/null
 
 # Ensure the destination directory exists then move files
 mkdir -p "$HOME/data/$DOMAIN/tools"

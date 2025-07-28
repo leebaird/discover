@@ -549,6 +549,21 @@ f_update(){
     echo
     echo -e "${BLUE}Updating Discover.${NC}"
     git pull
+    echo
+
+    # shellcheck disable=SC2166
+    cd "$HOME"
+    if [ -d theHarvester/.git ]; then
+        echo -e "${BLUE}Updating theHarvester.${NC}"
+        cd theHarvester/ || exit ; git pull
+    else
+        echo -e "${YELLOW}Installing theHarvester.${NC}"
+        git clone https://github.com/laramies/theHarvester theHarvester
+        cd theHarvester
+        uv sync
+    fi
+
+    cd "$HOME/discover"
     sudo ./update.sh
 }
 

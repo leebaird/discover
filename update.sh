@@ -14,6 +14,10 @@ if [ -d /opt/PEASS-ng/.git ]; then
     rm -rf /opt/PEASS-ng/
 fi
 
+if [ -d /opt/theHarvester/.git ]; then
+    rm -rf /opt/theHarvester/
+fi
+
 ###############################################################################################################################
 
 echo
@@ -350,24 +354,6 @@ else
     git clone https://github.com/projectdiscovery/subfinder /opt/subfinder
     cd /opt/subfinder/v2/cmd/subfinder || exit
     go build
-    echo
-fi
-
-# shellcheck disable=SC2166
-if [ -d /opt/theHarvester/.git -a -d /opt/theHarvester-venv ]; then
-    echo -e "${BLUE}Updating theHarvester.${NC}"
-    cd /opt/theHarvester/ || exit ; git pull
-    /opt/theHarvester-venv/bin/python -m pip install -r /opt/theHarvester/requirements.txt --upgrade | grep -v 'already satisfied'
-#    /opt/theHarvester-venv/bin/pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
-    echo
-else
-    echo -e "${YELLOW}Installing theHarvester.${NC}"
-    git clone https://github.com/laramies/theHarvester /opt/theHarvester
-    echo
-    echo -e "${YELLOW}Setting up theHarvester virtualenv.${NC}"
-    python3 -m venv /opt/theHarvester-venv
-    /opt/theHarvester-venv/bin/python -m pip install -r /opt/theHarvester/requirements.txt
-#    /opt/theHarvester-venv/bin/pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
     echo
 fi
 
