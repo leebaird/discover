@@ -435,36 +435,37 @@ User options > Display
 
 # Testing from home? Proxy your web traffic through a remote server.
 
-ssh -i amazon.pem kali@IP
-sudo -i
-vim /etc/proxychains.conf
-Add a new last line: socks5 127.0.0.1 1080
-exit
+To proxy Burp Suite Pro traffic through an Ubuntu EC2 instance on AWS, 
+you need to set up a SOCKS5 proxy using SSH dynamic port forwarding.
+This will allow you to route your Burp traffic through the EC2 instance, 
+effectively masking your local IP with the EC2 instance’s public IP.
+
+ssh -i <EC2 KEY.pem> ubuntu@<EC2 IP>
+sudo apt update
+sudo apt install proxychains
+sudo vim /etc/proxychains.conf
+Add a new line at the end: socks5 127.0.0.1 1080
 exit
 
-ssh -D 1080 -f -N -i amazon.pem kali@IP
+ssh -i <EC2 KEY.pem> -D 1080 -f -N ubuntu@<EC2 IP>
 
-- Firefox
-Settings > Network Settings
-Select Manual proxy configuration
-SOCKS Host: 127.0.0.1
-Port: 1080
-Select SOCKS v5
-No proxy for: localhost, 127.0.0.1
-Select Proxy DNS when using SOCKS v5
-OK
+Split the Terminal horizontally and test connection
+nc -v 127.0.0.1 1080
+Connection to 127.0.0.1 port 1080 [tcp/socks] succeeded!
 
 - Burp
-Open Burp > User options > Connections > SOCKS Proxy
-Check Use SOCKS proxy
-SOCKS Proxy host: 127.0.0.1
-SOCKS Proxy port: 1080
+Open Burp > Burp menu > Settings > Network > Connections
+SOCKS Proxy Host: 127.0.0.1
+SOCKS Proxy Port: 1080 (the port you specified in the SSH -D command above)
+Authentication: leave blank
 Check Do DNS lookups over SOCKS proxy
+Check Use SOCKS proxy
 
-Open embedded browser to http://whatismyipaddress.com
-The IP address should be your remote Kali box.
+Close the Settings > Proxy > Intercept > Open browser
+Enter https://whatismyip.org/
+The IP address should be your remote EC2 box.
 Target > Site map: this should now populate
-------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------
 
 - Create a new Burp project
 Start Burp > Open existing project: uncheck Pause Automated Tasks
