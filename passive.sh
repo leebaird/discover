@@ -5,7 +5,16 @@
 # Check for root
 if [ $EUID -eq 0 ]; then
     echo
-    echo "[!] This script cannot be ran as root."
+    echo -e "${YELLOW}[!] This script cannot be ran as root.${NC}"
+    echo
+    exit 1
+fi
+
+# Check for network connection
+ping -c 3 8.8.8.8 > /dev/null 2>&1
+
+if [ $? -ne 0 ]; then
+    echo -e "${YELLOW}[!] There is no network connection.${NC}"
     echo
     exit 1
 fi
@@ -420,13 +429,10 @@ rm tmp* 2>/dev/null
 # Aggregation happens here
 
 # Find eamils
-cat z* | grep "@$DOMAIN" | grep -v '[0-9]' | sed "/^'/d" | grep -Eiv '(_|,|firstname|lastname|test|www|xxx|zzz)' | sort -u > emails
+cat z* | grep "\@$DOMAIN" | grep -v '[0-9]' | grep -Eiv "(_|,|'|firstname|lastname|test|www|xxx|zzz)" | sort -u > emails
 
 # Find hosts
 cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '(0.0.0.0|1.1.1.1|1.1.1.2|8.8.8.8|127.0.0.1)' | sort -u | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
-
-# Find names
-cat z* | grep -Eiv '(@|:|\.|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
 
 # Find private and public IPs
 while IFS= read -r IP; do
@@ -438,6 +444,9 @@ while IFS= read -r IP; do
         echo "$IP" >> public-ips
     fi
 done < hosts
+
+# Find names
+cat z* | grep -Eiv '(@|:|\.|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
 
 # Find subdomains
 cat z* | cut -d ':' -f2 | grep "\.$DOMAIN" | grep -Eiv '(@|/|www)' | awk '{print $1}' | grep "\.$DOMAIN$" | tr '[:upper:]' '[:lower:]' | sort -u > subdomains
