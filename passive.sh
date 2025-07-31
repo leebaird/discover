@@ -451,6 +451,22 @@ cat z* | grep -Eiv '(@|:|\.|atlanta|boston|bufferoverun|captcha|detroit|google|i
 # Find subdomains
 cat z* | grep -Eiv '(@|\+|;|::|,|//|1.1.1.1|www)' | sed '/^[0-9]\|^\.\|^-/d' | sed '/\.$/d' | grep '\.' | sed 's/:/ /g' | column -t | tr '[:upper:]' '[:lower:]' | sort -u > subdomains
 
+# Find private subdomains
+while IFS= read -r line; do
+    second_column=$(echo "$line" | awk '{print $2}')
+
+    if [[ -n $second_column ]] && ( [[ $second_column =~ ^10\..* ]] || \
+       [[ $second_column =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\..* ]] || \
+       [[ $second_column =~ ^192\.168\..* ]] ); then
+        echo "$line" >> tmp
+    fi
+done < subdomains
+
+column -t tmp > private-subs
+
+# Cleanup temp file
+rm tmp 2>/dev/null
+
 # Find documents (not sure if its needed here)
 cat z* | grep -Ei '\.(doc|docx)$' | sort -u > doc
 cat z* | grep -Ei '\.(ppt|pptx)$' | sort -u > ppt
@@ -496,17 +512,6 @@ else
     echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/emails.htm
 fi
 
-if [ -f private-ips ]; then
-    privateipcount=$(wc -l private-ips | cut -d ' ' -f1)
-    echo "Private IPs       $privateipcount" >> zreport
-    echo "Private IPs ($privateipcount)" >> tmp
-    echo "$LARGE" >> tmp
-    cat private-ips >> tmp
-    echo >> tmp
-    cat private-ips >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
-    echo
-fi
-
 if [ -f public-ips ]; then
     publicipcount=$(wc -l public-ips | cut -d ' ' -f1)
     echo "Hosts             $publicipcount" >> zreport
@@ -544,10 +549,23 @@ else
     echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/squatting.htm
 fi
 
+if [ -f private-subs ]; then
+    privatesubcount=$(wc -l private-subs | cut -d ' ' -f1)
+    echo "Private Subs      $privatesubcount" >> zreport
+    echo "Private Subs ($privatesubcount)" >> tmp
+    echo "$LARGE" >> tmp
+    cat private-subs >> tmp
+    echo >> tmp
+    cat private-subs >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
+    echo >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
+    echo "$LARGE" >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
+    echo >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
+fi
+
 if [ -f subdomains ]; then
-    urlcount=$(wc -l subdomains | cut -d ' ' -f1)
-    echo "Subdomains        $urlcount" >> zreport
-    echo "Subdomains ($urlcount)" >> tmp
+    subcount=$(wc -l subdomains | cut -d ' ' -f1)
+    echo "Subdomains        $subcount" >> zreport
+    echo "Subdomains ($subcount)" >> tmp
     echo "$LARGE" >> tmp
     cat subdomains >> tmp
     echo >> tmp
