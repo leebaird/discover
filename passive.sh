@@ -10,15 +10,6 @@ if [ $EUID -eq 0 ]; then
     exit 1
 fi
 
-# Check for network connection
-ping -c 3 8.8.8.8 > /dev/null 2>&1
-
-if [ $? -ne 0 ]; then
-    echo -e "${YELLOW}[!] There is no network connection.${NC}"
-    echo
-    exit 1
-fi
-
 f_terminate(){
     SAVE_DIR=$HOME/data/cancelled-$(date +%H:%M:%S)
     echo
