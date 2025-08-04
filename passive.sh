@@ -142,10 +142,12 @@ if [ -f zhandles ]; then
         curl -ks "https://whois.arin.net/rest/poc/$LINE.txt" | grep 'Name' >> tmp
     done < zhandles
 
-    # Process names
-    grep -Eiv "($COMPANY|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
-    sed 's/Name:           //g' tmp2 | tr '[:upper:]' '[:lower:]' | sed 's/\b\(.\)/\u\1/g' > tmp3
-    awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sort -u > zarin-names
+    if [ -f tmp ]; then
+        # Process names
+        grep -Eiv "($COMPANY|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
+        sed 's/Name:           //g' tmp2 | tr '[:upper:]' '[:lower:]' | sed 's/\b\(.\)/\u\1/g' > tmp3
+        awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sort -u > zarin-names
+    fi
 fi
 
 # Cleanup temp files
