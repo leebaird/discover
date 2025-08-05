@@ -32,6 +32,10 @@ if [ -z "$LAST" ]; then
     f_error
 fi
 
+xdg-open https://www.whitepages.com/name/"$FIRST"-"$LAST"/ &
+sleep 2
+xdg-open https://www.fastbackgroundcheck.com/people/"$FIRST"-"$LAST" &
+sleep 2
 xdg-open https://www.411.com/name/"$FIRST"-"$LAST"/ &
 sleep 2
 URIPATH="https://www.advancedbackgroundchecks.com/search/results.aspx?type=&fn=${FIRST}&mi=&ln=${LAST}&age=&city=&state="
