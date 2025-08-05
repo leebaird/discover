@@ -99,7 +99,7 @@ echo
 
 # Number of tests
 COUNT=1
-TOTAL=39
+TOTAL=52
 
 echo "ARIN"
 echo "    Email                ($COUNT/$TOTAL)"
@@ -287,6 +287,9 @@ theHarvester -d "$DOMAIN" -b hackertarget | grep -Eiv '(!|\*|--|\[|searching|yam
 echo "    haveibeenpwned       ($COUNT/$TOTAL)"
 ((COUNT++))
 theHarvester -d "$DOMAIN" -b haveibeenpwned | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhaveibeenpwned
+echo "    hudsonrock           ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b hudsonrock | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhudsonrock
 echo "    hunter               ($COUNT/$TOTAL)"
 ((COUNT++))
 theHarvester -d "$DOMAIN" -b hunter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunter
@@ -442,7 +445,7 @@ done < hosts
 cat z* | grep -Eiv '(@|:|\.|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
 
 # Find subdomains
-cat z* | grep -Eiv '(@|\+|;|::|,|//|1.1.1.1|www)' | sed '/^[0-9]\|^\.\|^-/d' | sed '/\.$/d' | grep '\.' | sed 's/:/ /g' | column -t | tr '[:upper:]' '[:lower:]' | sort -u > subdomains
+cat z* | grep -Eiv '(•|@|\+|;|::|,|//|1.1.1.1|www)' | sed '/^[0-9]\|^\.\|^-/d' | sed '/\.$/d' | grep '\.' | sed 's/:/ /g' | column -t | tr '[:upper:]' '[:lower:]' | sort -u > subdomains
 
 # Find private subdomains
 while IFS= read -r line; do
