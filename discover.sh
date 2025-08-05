@@ -102,7 +102,7 @@ export -f f_banner
 ###############################################################################################################################
 
 f_check(){
-    ping -c 2 8.8.8.8 > /dev/null 2>&1
+    ping -c 1 -W 3 8.8.8.8 > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then
         f_banner
@@ -415,7 +415,7 @@ f_scan(){
     sed 's/https:\/\///g' tmp2 > "$NAME"/https.txt
 
     # Remove all empty files
-    find "$NAME"/ -type f -empty -exec rm {} +
+    find "$NAME"/ -type f -empty -delete
 }
 
 ###############################################################################################################################
@@ -486,7 +486,7 @@ f_ports(){
     $SIP tmp > "$NAME"/x11.txt
 
     # Remove all empty files
-    find "$NAME"/ -type f -empty -exec rm {} +
+    find "$NAME"/ -type f -empty -delete
 }
 
 ###############################################################################################################################
