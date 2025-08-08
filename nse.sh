@@ -10,7 +10,7 @@ echo -e "${BLUE}Running Nmap scripts.${NC}"
 # If the file for the corresponding port doesn't exist, skip
 if [ -f "$NAME"/13.txt ]; then
     echo "    Daytime"
-    nmap --randomize-hosts --randomize-hosts -iL "$NAME"/13.txt -Pn -n --open -p13 -sT --script-timeout 20s --script=daytime --min-hostgroup 100 --scan-delay "$DELAY" > tmp
+    nmap --randomize-hosts -iL "$NAME"/13.txt -Pn -n --open -p13 -sT --script-timeout 20s --script=daytime --min-hostgroup 100 --scan-delay "$DELAY" > tmp
     f_cleanup
     mv tmp4 "$NAME"/script-13.txt
 fi

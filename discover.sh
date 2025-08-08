@@ -198,8 +198,8 @@ f_typeofscan(){
     case "$CHOICE" in
         1)
            echo
-           echo -e "${YELLOW}[*] Setting the max probe round trip to 1.5s.${NC}"
-           MAXRTT=1500ms
+           echo -e "${YELLOW}[*] Setting the max probe round trip to 1s.${NC}"
+           MAXRTT=1000ms
            echo
            echo "$MEDIUM"
            echo
@@ -380,7 +380,7 @@ f_scan(){
     echo "$MEDIUM"
     echo
 
-    sudo nmap --randomize-hosts -iL "$LOCATION" --excludefile "$EXCLUDEFILE" --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -"$S" -"$U" -p T:"$TCP",U:"$UDP" -O --osscan-guess --max-os-tries 1 --max-retries 2 --min-rtt-timeout 100ms --max-rtt-timeout "$MAXRTT" --initial-rtt-timeout 500ms --defeat-rst-ratelimit --min-rate 450 --max-rate 15000 --open --stats-every 30s --scan-delay "$DELAY" -oA "$NAME"/nmap
+    sudo nmap --randomize-hosts -iL "$LOCATION" --excludefile "$EXCLUDEFILE" --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -"$S" -"$U" -p T:"$TCP",U:"$UDP" -O --osscan-guess --max-os-tries 1 --max-retries 2 --min-rtt-timeout 100ms --max-rtt-timeout "$MAXRTT" --initial-rtt-timeout 500ms --min-rate 450 --max-rate 5000 --open --stats-every 20s --scan-delay "$DELAY" -oA "$NAME"/nmap
 
     if grep -q '(0 hosts up)' "$NAME"/nmap.nmap; then
         rm -rf "$NAME" tmp*
@@ -395,7 +395,7 @@ f_scan(){
     fi
 
     # Clean up
-    grep -Eiv '(0000:|0010:|0020:|0030:|0040:|0050:|0060:|0070:|0080:|0090:|00a0:|00b0:|00c0:|00d0:|1 hop|closed|guesses|guessing|filtered|fingerprint|general purpose|initiated|latency|network distance|no exact os|no os matches|os cpe|please report|rttvar|scanned in|unreachable|warning)' "$NAME"/nmap.nmap | sed 's/Nmap scan report for //g' | sed '/^OS:/d' > "$NAME"/nmap.txt
+    grep -Eiv '(0000:|0010:|0020:|0030:|0040:|0050:|0060:|0070:|0080:|0090:|00a0:|00b0:|00c0:|00d0:|=|1 hop|closed|guesses|guessing|failed|filtered|fingerprint|general purpose|initiated|latency|network distance|no exact os|no os matches|not scanned|os:|os cpe|please report|rttvar|scanned in|sf:|unreachable|warning)' "$NAME"/nmap.nmap | sed 's/Nmap scan report for //g' > "$NAME"/nmap.txt
 
     grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' "$NAME"/nmap.nmap | $SIP > "$NAME"/hosts.txt
     grep 'open' "$NAME"/nmap.txt | grep -v 'WARNING' | awk '{print $1}' | sort -un > "$NAME"/ports.txt
