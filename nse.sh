@@ -83,8 +83,8 @@ if [ -f "$NAME"/79.txt ]; then
 fi
 
 if [ -f "$NAME"/102.txt ]; then
-    echo "    S7"
-    nmap --randomize-hosts -iL "$NAME"/102.txt -Pn -n --open -p102 -sT --script-timeout 20s --script=s7-info --min-hostgroup 100 --scan-delay "$DELAY" > tmp
+    echo "    IEC 61850-8-1 MMS and S7"
+    nmap --randomize-hosts -iL "$NAME"/102.txt -Pn -n --open -p102 -sT --script-timeout 20s --script=iec61850-mms,s7-info --min-hostgroup 100 --scan-delay "$DELAY" > tmp
     f_cleanup
     mv tmp4 "$NAME"/script-102.txt
 fi
@@ -119,7 +119,7 @@ fi
 
 if [ -f "$NAME"/137.txt ]; then
     echo "    NetBIOS"
-    nmap --randomize-hosts -iL "$NAME"/137.txt -Pn -n --open -p137 -sU --script-timeout 20s --script=nbstat --min-hostgroup 100 --scan-delay "$DELAY" > tmp
+    nmap --randomize-hosts -iL "$NAME"/137.txt -Pn -n --open -p137 -sU --script-timeout 20s --script=nbns-interfaces,nbstat --min-hostgroup 100 --scan-delay "$DELAY" > tmp
     f_cleanup
     sed -i '/^MAC/{n; /.*/d}' tmp4        # Find lines that start with MAC, and delete the following line
     sed -i '/^137\/udp/{n; /.*/d}' tmp4    # Find lines that start with 137/udp, and delete the following line
@@ -537,6 +537,13 @@ if [ -f "$NAME"/6481.txt ]; then
     nmap --randomize-hosts -iL "$NAME"/6481.txt -Pn -n --open -p6481 -sU --script-timeout 20s --script=servicetags --min-hostgroup 100 --scan-delay "$DELAY" > tmp
     f_cleanup
     mv tmp4 "$NAME"/script-6481.txt
+fi
+
+if [ -f "$NAME"/openflow.txt ]; then
+    echo "    X11"
+    nmap --randomize-hosts -iL "$NAME"/openflow.txt -Pn -n --open -p6633,6653 -sT --script-timeout 20s --script=openflow-info --min-hostgroup 100 --scan-delay "$DELAY" > tmp
+    f_cleanup
+    mv tmp4 "$NAME"/script-openflow.txt
 fi
 
 if [ -f "$NAME"/6666.txt ]; then
