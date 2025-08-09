@@ -268,6 +268,7 @@ f_cidr(){
     export START
 
     f_scan
+    f_cleanup
     f_ports
     "$DISCOVER"/nse.sh
     f_run-metasploit
@@ -289,6 +290,7 @@ f_list(){
     export START
 
     f_scan
+    f_cleanup
     f_ports
     "$DISCOVER"/nse.sh
     f_run-metasploit
@@ -322,6 +324,7 @@ f_single(){
     export START
 
     f_scan
+    f_cleanup
     f_ports
     "$DISCOVER"/nse.sh
     f_run-metasploit
@@ -393,8 +396,11 @@ f_scan(){
         echo
         exit
     fi
+}
 
-    # Clean up
+###############################################################################################################################
+
+f_cleanup(){
     grep -Eiv '(0000:|0010:|0020:|0030:|0040:|0050:|0060:|0070:|0080:|0090:|00a0:|00b0:|00c0:|00d0:|=|1 hop|closed|guesses|guessing|failed|filtered|fingerprint|general purpose|initiated|latency|network distance|no exact os|no os matches|not scanned|os:|os cpe|please report|rttvar|scanned in|sf:|unreachable|warning)' "$NAME"/nmap.nmap | sed 's/Nmap scan report for //g' > "$NAME"/nmap.txt
 
     grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' "$NAME"/nmap.nmap | $SIP > "$NAME"/hosts.txt
@@ -499,7 +505,7 @@ f_run-metasploit(){
 
 ###############################################################################################################################
 
-f_enumerate(){
+f_rerun(){
     clear
     f_banner
     f_typeofscan
@@ -632,7 +638,7 @@ f_main(){
         4) f_cidr ;;
         5) f_list ;;
         6) f_single ;;
-        7) f_enumerate ;;
+        7) f_rerun ;;
 
         # WEB
         8) ./directObjectRef.sh && exit ;;
