@@ -2,6 +2,10 @@
 
 # by Lee Baird (@discoverscripts)
 
+f_cleanup(){
+    grep -Eiv '(:$|host is up|https|service detection performed|sf|starting nmap)' tmp | sed '/^Nmap scan report/{n;d}' | sed 's/Nmap scan report for/Host:/g' > tmp4
+}
+
 echo
 echo "$MEDIUM"
 echo

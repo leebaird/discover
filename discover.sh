@@ -491,14 +491,6 @@ f_ports(){
 
 ###############################################################################################################################
 
-f_cleanup(){
-    grep -Eiv 'starting nmap|host is up|sf|:$|service detection performed|https' tmp | sed '/^Nmap scan report/{n;d}' | sed 's/Nmap scan report for/Host:/g' > tmp4
-}
-
-export -f f_cleanup
-
-###############################################################################################################################
-
 f_run-metasploit(){
     if [ "$MSF" == "y" ]; then
         "$DISCOVER"/msf-aux.sh
