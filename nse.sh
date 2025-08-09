@@ -435,6 +435,13 @@ if [ -f "$NAME"/3671.txt ]; then
     mv tmp4 "$NAME"/script-3671.txt
 fi
 
+if [ -f "$NAME"/4242.txt ]; then
+    echo "    DICOM"
+    nmap --randomize-hosts -iL "$NAME"/4242.txt -Pn -n --open -p4242 -sT --script-timeout 20s --script=dicom-ping --min-hostgroup 100 --scan-delay "$DELAY" > tmp
+    f_cleanup
+    mv tmp4 "$NAME"/script-4242.txt
+fi
+
 if [ -f "$NAME"/4369.txt ]; then
     echo "    Erlang Port Mapper"
     nmap --randomize-hosts -iL "$NAME"/4369.txt -Pn -n --open -p4369 -sT --script-timeout 20s --script=epmd-info --min-hostgroup 100 --scan-delay "$DELAY" > tmp
@@ -456,13 +463,19 @@ if [ -f "$NAME"/5060.txt ]; then
     mv tmp4 "$NAME"/script-5060.txt
 fi
 
+if [ -f "$NAME"/5094.txt ]; then
+    echo "    HART"
+    nmap --randomize-hosts -iL "$NAME"/5094.txt -Pn -n --open -p5094 -sT --script-timeout 20s --script=hartip-info --min-hostgroup 100 --scan-delay "$DELAY" > tmp
+    f_cleanup
+    mv tmp4 "$NAME"/script-5094.txt
+fi
+
 if [ -f "$NAME"/5353.txt ]; then
     echo "    DNS Service Discovery"
     nmap --randomize-hosts -iL "$NAME"/5353.txt -Pn -n --open -p5353 -sU --script-timeout 20s --script=dns-service-discovery --min-hostgroup 100 --scan-delay "$DELAY" > tmp
     f_cleanup
     mv tmp4 "$NAME"/script-5353.txt
 fi
-
 if [ -f "$NAME"/5666.txt ]; then
     echo "    Nagios"
     nmap --randomize-hosts -iL "$NAME"/5666.txt -Pn -n --open -p5666 -sT --script-timeout 20s --script=nrpe-enum --min-hostgroup 100 --scan-delay "$DELAY" > tmp

@@ -99,7 +99,7 @@ echo
 
 # Number of tests
 COUNT=1
-TOTAL=52
+TOTAL=50
 
 echo "ARIN"
 echo "    Email                ($COUNT/$TOTAL)"
@@ -241,130 +241,126 @@ uv sync; source .venv/bin/activate
 
 echo "    baidu                ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b baidu | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbaidu
-echo "    bevigil              ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b bevigil | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbevigil
+theHarvester -d "$DOMAIN" -b baidu -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zbaidu
 echo "    brave                ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b brave | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbrave
-echo "    bufferoverun         ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b bufferoverun | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbufferoverun
-echo "    builtwith            ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b builtwith | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zbuiltwith
-echo "    censys               ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b censys | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcensys
+theHarvester -d "$DOMAIN" -b brave -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zbrave
 echo "    certspotter          ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b certspotter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcertspotter
-echo "    criminalip           ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b criminalip | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcriminalip
+theHarvester -d "$DOMAIN" -b certspotter -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zcertspotter
 echo "    crtsh                ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b crtsh | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zcrtsh
-echo "    dehashed             ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b dehashed | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zdehashed
-echo "    dnsdumpster          ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b dnsdumpster | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zdnsdumpster
+theHarvester -d "$DOMAIN" -b crtsh -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zcrtsh
 echo "    duckduckgo           ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b duckduckgo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zduckduckgo
-echo "    fullhunt             ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b fullhunt | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zfullhunt
-echo "    github-code          ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b github-code | grep -Eiv '(!|\*|--|\[|retrying|searching|yaml)' | sed '/^$/d' | sort -u > zgithub-code
+theHarvester -d "$DOMAIN" -b duckduckgo -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zduckduckgo
 echo "    hackertarget         ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b hackertarget | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhackertarget
-echo "    haveibeenpwned       ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b haveibeenpwned | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhaveibeenpwned
+theHarvester -d "$DOMAIN" -b hackertarget -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zhackertarget
 echo "    hudsonrock           ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b hudsonrock | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhudsonrock
-echo "    hunter               ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b hunter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunter
-echo "    hunterhow            ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b hunterhow | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zhunterhow
-echo "    intelx               ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b intelx | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zintelx
-echo "    leaklookup           ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b leaklookup | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zleaklookup
-echo "    netlas               ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b netlas | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > znetlas
-echo "    onyphe               ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b onyphe | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zonyphe
+theHarvester -d "$DOMAIN" -b hudsonrock -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zhudsonrock
 echo "    otx                  ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b otx | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zotx
-echo "    pentesttools         ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b pentesttools | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zpentesttools
-echo "    projectdiscovery     ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b projectdiscovery | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zprojectdiscovery
+theHarvester -d "$DOMAIN" -b otx -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zotx
 echo "    rapiddns             ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b rapiddns | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zrapiddns
-echo "    rocketreach          ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b rocketreach | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zrocketreach
-echo "    securityscorecard    ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b securityscorecard | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsecurityscorecard
-echo "    securityTrails       ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b securityTrails | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsecurityTrails
-echo "    shodan               ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -s | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zshodan
-echo "    sitedossier          ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b sitedossier | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsitedossier
+theHarvester -d "$DOMAIN" -b rapiddns -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zrapiddns
 echo "    subdomaincenter      ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b subdomaincenter | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsubdomaincenter
+theHarvester -d "$DOMAIN" -b subdomaincenter -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zsubdomaincenter
 echo "    subdomainfinderc99   ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b subdomainfinderc99 | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zsubdomainfinderc99
+theHarvester -d "$DOMAIN" -b subdomainfinderc99 -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zsubdomainfinderc99
 echo "    threatminer          ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b threatminer | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zthreatminer
-echo "    tomba                ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b tomba | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > ztomba
+theHarvester -d "$DOMAIN" -b threatminer -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zthreatminer
 echo "    urlscan              ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b urlscan | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zurlscan
-echo "    venacus              ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b venacus | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zvenacus
-echo "    virustotal           ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b virustotal | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zvirustotal
-echo "    whoisxml             ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b whoisxml | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zwhoisxml
+theHarvester -d "$DOMAIN" -b urlscan -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zurlscan
 echo "    yahoo                ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b yahoo | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zyahoo
+theHarvester -d "$DOMAIN" -b yahoo -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zyahoo
+
+echo "  These modules require an API key."
+echo "    bevigil              ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b bevigil -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zbevigil
+echo "    bufferoverun         ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b bufferoverun -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zbufferoverun
+echo "    builtwith            ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b builtwith -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zbuiltwith
+echo "    censys               ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b censys -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zcensys
+echo "    criminalip           ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b criminalip -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zcriminalip
+echo "    dehashed             ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b dehashed -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zdehashed
+echo "    dnsdumpster          ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b dnsdumpster -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zdnsdumpster
+echo "    fullhunt             ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b fullhunt -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zfullhunt
+echo "    github-code          ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b github-code -r | grep -Eiv '(!|\*|--|\[|retrying|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zgithub-code
+echo "    haveibeenpwned       ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b haveibeenpwned -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zhaveibeenpwned
+echo "    hunter               ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b hunter -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zhunter
+echo "    hunterhow            ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b hunterhow -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zhunterhow
+echo "    intelx               ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b intelx -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zintelx
+echo "    leaklookup           ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b leaklookup -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zleaklookup
+echo "    netlas               ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b netlas -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > znetlas
+echo "    onyphe               ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b onyphe -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zonyphe
+echo "    pentesttools         ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b pentesttools -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zpentesttools
+echo "    projectdiscovery     ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b projectdiscovery -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zprojectdiscovery
+echo "    rocketreach          ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b rocketreach -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zrocketreach
+echo "    securityscorecard    ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b securityscorecard -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zsecurityscorecard
+echo "    securityTrails       ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b securityTrails -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zsecurityTrails
+echo "    tomba                ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b tomba -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > ztomba
+echo "    venacus              ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b venacus -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zvenacus
+echo "    virustotal           ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b virustotal -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zvirustotal
+echo "    whoisxml             ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b whoisxml -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zwhoisxml
 echo "    zoomeye              ($COUNT/$TOTAL)"
 ((COUNT++))
-theHarvester -d "$DOMAIN" -b zoomeye | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d' | sort -u > zzoomeye
+theHarvester -d "$DOMAIN" -b zoomeye -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zzoomeye
 
 deactivate
 echo
