@@ -637,6 +637,13 @@ if [ -f "$NAME"/9600.txt ]; then
     mv tmp4 "$NAME"/script-9600.txt
 fi
 
+if [ -f "$NAME"/9998.txt ]; then
+    echo "    Uptime"
+    nmap --randomize-hosts -iL "$NAME"/9998.txt -Pn -n --open -p9998 -sT --script-timeout 20s --script=uptime-agent-info --min-hostgroup 100 --scan-delay "$DELAY" > tmp
+    f_cleanup
+    mv tmp4 "$NAME"/script-9998.txt
+fi
+
 if [ -f "$NAME"/9999.txt ]; then
     echo "    Java Debug Wire Protocol"
     nmap --randomize-hosts -iL "$NAME"/9999.txt -Pn -n --open -p9999 -sT --script-timeout 20s --script=jdwp-version --min-hostgroup 100 --scan-delay "$DELAY" > tmp
@@ -707,6 +714,21 @@ if [ -f "$NAME"/31337.txt ]; then
     nmap --randomize-hosts -iL "$NAME"/31337.txt -Pn -n --open -p31337 -sU --script-timeout 20s --script=backorifice-info --min-hostgroup 100 --scan-delay "$DELAY" > tmp
     f_cleanup
     mv tmp4 "$NAME"/script-31337.txt
+fi
+
+
+if [ -f "$NAME"/31337.txt ]; then
+    echo "    BackOrifice"
+    nmap --randomize-hosts -iL "$NAME"/31337.txt -Pn -n --open -p31337 -sU --script-timeout 20s --script=backorifice-info --min-hostgroup 100 --scan-delay "$DELAY" > tmp
+    f_cleanup
+    mv tmp4 "$NAME"/script-31337.txt
+fi
+
+if [ -f "$NAME"/34964.txt ]; then
+    echo "    PROFINET"
+    nmap --randomize-hosts -iL "$NAME"/34964.txt -Pn -n --open -p34964 -sU --script-timeout 20s --script=profinet-cm-lookup --min-hostgroup 100 --scan-delay "$DELAY" > tmp
+    f_cleanup
+    mv tmp4 "$NAME"/script-34964.txt
 fi
 
 if [ -f "$NAME"/35871.txt ]; then
