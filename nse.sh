@@ -68,6 +68,13 @@ if [ -f "$NAME"/67.txt ]; then
     mv tmp4 "$NAME"/script-67.txt
 fi
 
+if [ -f "$NAME"/69.txt ]; then
+    echo "    TFTP"
+    nmap --randomize-hosts -iL "$NAME"/69.txt -Pn -n --open -p69 -sU --script-timeout 20s --script=tftp-version --min-hostgroup 100 --scan-delay "$DELAY" > tmp
+    f_cleanup
+    mv tmp4 "$NAME"/script-69.txt
+fi
+
 if [ -f "$NAME"/70.txt ]; then
     echo "    Gopher"
     nmap --randomize-hosts -iL "$NAME"/70.txt -Pn -n --open -p70 -sT --script-timeout 20s --script=gopher-ls --min-hostgroup 100 --scan-delay "$DELAY" > tmp
