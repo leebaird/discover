@@ -2,8 +2,11 @@ setg RHOSTS file:
 setg THREADS 255
 setg RPORT 3306
 
-use auxiliary/scanner/mysql/mysql_version
+use auxiliary/scanner/mssql/mssql_ping
 run
 
-use scanner/mysql/mysql_authbypass_hashdump
+use auxiliary/scanner/mssql/mssql_version
+run
+
+use auxiliary/scanner/mysql/mysql_authbypass_hashdump
 run

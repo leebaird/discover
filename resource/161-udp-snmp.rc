@@ -37,6 +37,9 @@ run
 use auxiliary/scanner/snmp/snmp_enum
 run
 
+use auxiliary/scanner/snmp/snmp_enum_hp_laserjet
+run
+
 use auxiliary/scanner/snmp/snmp_enumshares
 run
 
