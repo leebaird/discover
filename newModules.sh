@@ -65,10 +65,10 @@ echo -e "${BLUE}theHarvester modules available but not used${NC}"
 echo -e "${BLUE}===========================================${NC}"
 
 # List all theHarvester modules from README.md
-grep '\*' "$HOME"/theHarvester/README.md | grep -Eiv '(ahmed|brute force|installation|john|python|screenshots|twitter)' | sed 's/\* //g' | grep ':' | cut -d ':' -f1 | sed 's/-s, --//g' | sort > tmp
+grep '\*' "$HOME"/theHarvester/README.md | grep -Eiv '(ahmed|brute force|installation|john|python|screenshots|shodan|twitter)' | sed 's/\* //g' | grep ':' | cut -d ':' -f1 | sed 's/-s, --//g' | sort > tmp
 
 # Extract modules used in passive.sh
-grep '\-d "' ~/discover/passive.sh | awk '{print $5}' | sed '1,3d; s/|/shodan/' > tmp2
+grep '\-d "' "$HOME"/discover/passive.sh | awk '{print $5}' | sed '1,3d; s/|/shodan/' > tmp2
 
 # List theHarvester modules available but not used in passive.sh
 grep -vxFf tmp2 tmp | sort
