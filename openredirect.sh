@@ -18,19 +18,6 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 
 ###############################################################################################################################
 
-f_error(){
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    echo -e "${RED}[!] Invalid choice or entry.${NC}"
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    exit 1
-}
-
-###############################################################################################################################
-
 f_single_target(){
     echo
     echo -n "Enter the target URL or domain: "
@@ -207,18 +194,12 @@ f_openredirect_main(){
     read -r CHOICE
 
     case "$CHOICE" in
-        1)
-            f_single_target ;;
-        2)
-            f_domain_target ;;
-        3)
-            f_file_target ;;
-        4)
-            f_advanced_options ;;
-        5)
-            f_main ;;
-        *)
-            echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_openredirect_main ;;
+        1) f_single_target ;;
+        2) f_domain_target ;;
+        3) f_file_target ;;
+        4) f_advanced_options ;;
+        5) f_main ;;
+        *) f_error ;;
     esac
 }
 

@@ -2,12 +2,14 @@
 
 # by Lee Baird (@discoverscripts)
 
+trap 'pkill -f nikto; exit' INT TERM
+
 # Check for regular user
 if [ "$EUID" == 0 ]; then
     echo
     echo "[!] This option cannot be ran as root."
     echo
-    exit   # In this case do not use exit 1, it will break the script
+    exit   # Do not use exit 1 here, it will break the script
 fi
 
 clear
@@ -45,7 +47,7 @@ case "$CHOICE" in
         while IFS= read -r LINE; do
             xdotool key ctrl+shift+t
             xdotool type "nikto -h $LINE -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto-$PORT/$LINE.htm ; exit"
-            sleep 1
+            sleep 2
             xdotool key Return
         done < "$LOCATION"
         ;;
@@ -56,16 +58,16 @@ case "$CHOICE" in
 
         while IFS=: read -r HOST PORT; do
             xdotool key ctrl+shift+t
-            sleep 1
+            sleep 2
             xdotool type "nikto -h $HOST -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto/$HOST-$PORT.htm ; exit"
-            sleep 1
+            sleep 2
             xdotool key Return
         done < "$LOCATION"
         ;;
 
     3)  f_main ;;
 
-    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/nikto.sh ;;
+    *) f_error ;;
 esac
 
 echo
@@ -73,4 +75,9 @@ echo "$MEDIUM"
 echo
 echo "[*] Scan complete."
 echo
-echo -e "The new report is located at ${YELLOW}$HOME/data/nikto-$PORT/${NC}"
+
+if [ "$CHOICE" == 1 ]; then
+    echo -e "The new report is located at ${YELLOW}$HOME/data/nikto-$PORT/${NC}"
+else
+    echo -e "The new report is located at ${YELLOW}$HOME/data/nikto-multi/${NC}"
+fi

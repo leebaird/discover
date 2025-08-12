@@ -99,18 +99,6 @@ case "$CHOICE" in
             exit 1
         fi
 
-#        # Check if the file is empty
-#        if [ ! -s robots.txt ]; then
-#            echo
-#            echo -e "${RED}$MEDIUM${NC}"
-#            echo
-#            echo -e "${RED}[*] No robots.txt file discovered.${NC}"
-#            echo
-#            echo -e "${RED}$MEDIUM${NC}"
-#            echo
-#            exit 1
-#        fi
-
         grep -i 'disallow' robots.txt | awk '{print $2}' | grep -iv disallow | sort -u > tmp
 
         while read -r i; do
@@ -131,5 +119,5 @@ case "$CHOICE" in
         exit
         ;;
     4) f_main ;;
-    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/multiTabs.sh ;;
+    *) f_error ;;
 esac

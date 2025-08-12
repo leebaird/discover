@@ -38,17 +38,6 @@ declare -A WAF_SIGNATURES=(
     ["Yunsuo"]="yunsuo"
 )
 
-f_error(){
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    echo -e "${RED}[!] Invalid choice or entry.${NC}"
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    exit 1
-}
-
 ###############################################################################################################################
 
 f_create_output_dir(){
@@ -234,7 +223,7 @@ f_waf_main(){
         3)
             f_main ;;
         *)
-            echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_waf_main ;;
+            f_error ;;
     esac
 
     echo

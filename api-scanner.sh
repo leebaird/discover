@@ -1016,7 +1016,7 @@ f_api_main(){
         3)
             f_main ;;
         *)
-            echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_api_main ;;
+            f_error ;;
     esac
 }
 

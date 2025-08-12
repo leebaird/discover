@@ -35,7 +35,7 @@ f_format(){
             FORMAT="raw" ;;
         7) EXTENTION=".vba"
             FORMAT="vba" ;;
-        *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/payload.sh ;;
+        *) f_error ;;
     esac
 }
 
@@ -137,8 +137,7 @@ case "$CHOICE" in
         PLATFORM="windows"
         f_format ;;
     16) f_main ;;
-
-    *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; "$DISCOVER"/payload.sh ;;
+    *) f_error ;;
 esac
 
 echo

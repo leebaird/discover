@@ -582,7 +582,7 @@ f_sensitive_main(){
         3)
             f_main ;;
         *)
-            echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_sensitive_main ;;
+            f_error ;;
     esac
 }
 

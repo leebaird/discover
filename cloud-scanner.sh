@@ -966,7 +966,7 @@ f_cloud_main(){
         5)
             f_main ;;
         *)
-            echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; clear && f_banner && f_cloud_main ;;
+            f_error ;;
     esac
 }
 

@@ -61,7 +61,7 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Global variables
 DISCOVER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MYIP=$(ip addr | grep 'global' | grep -Eiv '(:|docker)' | cut -d '/' -f1 | awk '{print $2}')
+MYIP=$(ip addr | grep 'global' | grep -Eiv '(:|docker|tun0)' | cut -d '/' -f1 | awk '{print $2}')
 PWD=$(pwd)
 RUNDATE=$(date +%B' '%d,' '%Y)
 SIP='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
@@ -121,8 +121,8 @@ f_error(){
     echo -e "${RED}[!] Invalid choice or entry.${NC}"
     echo
     echo -e "${RED}$SMALL${NC}"
-    echo
-    exit 1
+    sleep 2
+    f_main
 }
 
 export -f f_error
@@ -676,7 +676,7 @@ f_main(){
         24) ./web-api-scanner.sh && exit ;;
 
         99) ./newModules.sh && exit ;;
-        *) echo; echo -e "${RED}[!] Invalid choice or entry, try again.${NC}"; echo; sleep 2; f_main ;;
+        *) f_error ;;
     esac
 }
 
