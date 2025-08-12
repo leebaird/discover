@@ -780,7 +780,10 @@ if [ -f "$NAME"/apache-hbase.txt ]; then
     mv tmp4 "$NAME"/script-apache-hbase.txt
 fi
 
+# Cleanup temp files
 rm tmp* 2>/dev/null
+
+###############################################################################################################################
 
 for x in "$NAME"/./script*; do
     if grep '|' "$x" > /dev/null 2>&1; then

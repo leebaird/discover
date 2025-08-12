@@ -422,6 +422,9 @@ f_cleanup(){
 
     # Remove all empty files
     find "$NAME"/ -type f -empty -delete
+
+    # Cleanup temp files
+    rm tmp* 2>/dev/null
 }
 
 ###############################################################################################################################
@@ -497,6 +500,9 @@ f_ports(){
 
     # Remove all empty files
     find "$NAME"/ -type f -empty -delete
+
+    # Cleanup temp files
+    rm tmp* 2>/dev/null
 }
 
 ###############################################################################################################################
@@ -512,9 +518,10 @@ f_run-metasploit(){
 f_rerun(){
     clear
     f_banner
-    f_typeofscan
 
-    echo -n "Enter the location of your previous scan: "
+    echo "Rerum NSEs and Metasploit aux modules against a previous nmap scan."
+    echo
+    echo -n "Enter the folder location of your previous scan: "
     read -r LOCATION
 
     # Check for no answer
@@ -528,6 +535,7 @@ f_rerun(){
     fi
 
     NAME=$LOCATION
+    export NAME
 
     echo
     echo -n "Set scan delay. (0-5, enter for normal) "
@@ -544,24 +552,15 @@ f_rerun(){
 
     export DELAY
 
-    # Check for clean nmap file
-    if [ ! -f "$LOCATION"/nmap.txt ]; then
-        f_cleanup
-        f_ports
-    fi
+    f_cleanup
+    f_ports
+
+    START=$(date +%r\ %Z)
+    export START
 
     "$DISCOVER"/nse.sh
-    echo
-    echo "$MEDIUM"
-    f_run-metasploit
-    echo
-    echo "$MEDIUM"
-    echo
-    echo "[*] Scan complete."
-    echo
-    echo -e "The supporting data folder is located at ${YELLOW}$NAME${NC}"
-    echo
-    exit
+    "$DISCOVER"/msf-aux.sh
+    "$DISCOVER"/report.sh && exit
 }
 
 ###############################################################################################################################

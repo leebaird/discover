@@ -128,7 +128,9 @@ if [ -f "$NAME"/script-onesixtyone.txt ] || [ -f "$NAME"/script-smbclient.txt ] 
     fi
 fi
 
-mv "$NAME" "$HOME"/data/
+if [[ "$NAME" != "$HOME"/data/* ]]; then
+    mv "$NAME" "$HOME"/data/
+fi
 
 START=0
 END=0
