@@ -413,12 +413,12 @@ f_cleanup(){
     while read -r i; do
         grep " $i/open/tcp//appserv-http/\| $i/open/tcp//http/\| $i/open/tcp//http-alt/\| $i/open/tcp//http-proxy/\| $i/open/tcp//snet-sensor-mgmt/\| $i/open/tcp//sun-answerbook/\| $i/open/tcp//vnc-http/\| $i/open/tcp//wbem-http/\| $i/open/tcp//wsman/" "$NAME"/nmap.gnmap |
         sed -e 's/Host: //g' -e 's/ (.*//g' -e 's.^.http://.g' -e "s/$/:$i/g" | $SIP >> tmp
-        grep " $i/open/tcp//compaq-https/\| $i/open/tcp//https/\| $i/open/tcp//https-alt/\| $i/open/tcp//ssl|giop/\| $i/open/tcp//ssl|http/\| $i/open/tcp//tungsten-https/\| $i/open/tcp//ssl|unknown/\| $i/open/tcp//wsmans/" "$NAME"/nmap.gnmap |
+        grep " $i/open/tcp//compaq-https/\| $i/open/tcp//https/\| $i/open/tcp//https-alt/\| $i/open/tcp//ssl|giop/\| $i/open/tcp//ssl|http/\| $i/open/tcp//ssl|https-alt/\| $i/open/tcp//tungsten-https/\| $i/open/tcp//ssl|unknown/\| $i/open/tcp//wsmans/" "$NAME"/nmap.gnmap |
         sed -e 's/Host: //g' -e 's/ (.*//g' -e 's.^.https://.g' -e "s/$/:$i/g" | $SIP >> tmp2
     done < "$NAME"/ports-tcp.txt
 
-    sed 's/http:\/\///g' tmp > "$NAME"/http.txt
-    sed 's/https:\/\///g' tmp2 > "$NAME"/https.txt
+    sed 's/http:\/\///g' tmp | $SIP > "$NAME"/http.txt
+    sed 's/https:\/\///g' tmp2 | $SIP > "$NAME"/https.txt
 
     # Remove all empty files
     find "$NAME"/ -type f -empty -delete
