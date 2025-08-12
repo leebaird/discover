@@ -128,16 +128,18 @@ if [ -f "$NAME"/script-onesixtyone.txt ] || [ -f "$NAME"/script-smbclient.txt ] 
     fi
 fi
 
+###############################################################################################################################
+
 if [[ "$NAME" != "$HOME"/data/* ]]; then
     mv "$NAME" "$HOME"/data/
+    NEW_NAME="$HOME/data/$(basename "$NAME")"
+else
+    NEW_NAME="$NAME"
 fi
-
-START=0
-END=0
 
 echo
 echo "$MEDIUM"
 echo
 echo "[*] Scan complete."
 echo
-echo -e "The new report is located at ${YELLOW}$HOME/data/$NAME/report.txt${NC}"
+echo -e "The new report is located at ${YELLOW}$NEW_NAME/report.txt${NC}"
