@@ -555,13 +555,13 @@ f_rerun(){
 
     export DELAY
 
-#    f_cleanup
-#    f_ports
+    f_cleanup
+    f_ports
 
     START=$(date +%r\ %Z)
     export START
 
-#    "$DISCOVER"/nse.sh
+    "$DISCOVER"/nse.sh
     "$DISCOVER"/msf-aux.sh
     "$DISCOVER"/report.sh && exit
 }
