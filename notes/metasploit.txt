@@ -484,3 +484,5 @@ services -c port,protocol,name                              Show specific column
 services -p 22                                              Search for hosts with a specific port open
 services -p 22 --rhosts                                     Search for hosts with a specific port open, and add those hosts to rhosts
 services -s http                                            Search for hosts with a specific service running
+
+hosts -d <IP>                                               Delete a host from the database

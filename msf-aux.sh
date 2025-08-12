@@ -2,11 +2,13 @@
 
 # by Lee Baird (@discoverscripts)
 
+trap 'rm -rf /tmp/resource/ /tmp/master tmpmsf; sudo systemctl stop postgresql.service' EXIT
+
 echo
 echo "$MEDIUM"
 echo
 echo -e "${BLUE}Starting Postgres.${NC}"
-sudo service postgresql start
+sudo systemctl start postgresql.service
 
 echo
 echo -e "${BLUE}Starting Metasploit.${NC}"
@@ -16,6 +18,8 @@ cp -R "$DISCOVER"/resource/ /tmp/
 
 echo workspace -a "$NAME" > /tmp/master
 echo spool tmpmsf > /tmp/master
+
+###############################################################################################################################
 
 if [ -f "$NAME"/19.txt ]; then
     echo "    Chargen Probe Utility"
@@ -497,23 +501,27 @@ if [ -f "$NAME"/50000.txt ]; then
     cat /tmp/resource/50000-db2.rc >> /tmp/master
 fi
 
+###############################################################################################################################
+
 echo db_export -f xml -a "$NAME"/metasploit.xml >> /tmp/master
 echo exit >> /tmp/master
 
 X=$(wc -l /tmp/master | cut -d ' ' -f1)
 
-if [ "$X" -eq 3 ]; then
-    echo 2>/dev/null
+if [ "$X" -eq 4 ]; then
+    echo
+    echo -e "${YELLOW}[*] No ports or modules to scan.${NC}"
 else
     echo
     sed 's/\/\//\//g' /tmp/master > "$NAME"/master.rc
     sudo msfdb init
     msfconsole -r "$NAME"/master.rc
     cat tmpmsf | sed 's/Host is running Windows //g' | sed 's/\.\.\.//g' | grep -Eiv "(> exit|> run|% complete|1.0 error|appears to be safe|attempting authentication bypass|attempting to extract|authorization not requested|boot.ini not found|checking if file|completed|connecting to the server|connection reset by peer|data_connect failed|database|db_export|did not reply|does not appear|doesn't exist|erb directives|error occurred|failed to login|finished export|handshake failed|ineffective|invalid login|invalid sql|it doesn't seem|login failed|metasploit tip|negotiation failed|nomethoderror|no relay detected|no response|No users found|not allowed to connect|not be identified|not exploitable|not foundnot vulnerable|oracle - checking|oracle - refused|providing some time|request timeout|reset by peer|responded with error|rhosts|rport|scanning for vulnerable|shutting down the tftp|spool|starting export|starting tftp server|starting vnc login|threads|timed out|trying to acquire|unable to login|unknown state)" > "$NAME"/metasploit.txt
-    rm "$NAME"/master.rc
-    rm tmpmsf
 fi
 
 echo
 echo -e "${BLUE}Stopping Postgres.${NC}"
-sudo service postgresql stop
+sudo systemctl stop postgresql.service
+
+# Cleanup temp files
+rm -rf /tmp/resource/ /tmp/master tmpmsf

@@ -22,7 +22,8 @@ alias e='exit'
 alias l='ls -lh'
 alias la='ls -lah'
 alias lc='ls -1 | wc -l'
-alias m='sudo service postgresql start ; sudo msfdb init ; msfconsole'
+alias m='sudo systemctl stop postgresql.service ; sudo msfdb init ; msfconsole -q'
+alias mm='sudo systemctl stop postgresql.service'
 alias n='echo; date ; echo ;
 echo -n "External IP:  "$EXTIP ; echo ;
 echo -n "Internal IP:  "$MYIP ; echo ;
@@ -36,10 +37,10 @@ alias s='cd $HOME/discover/ ; clear'
 alias smb='impacket-smbserver share . -smb2support'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 alias ssh='ssh -o "XAuthLocation=/opt/X11/bin/xauth"'
-alias update='echo ; echo -e "${BLUE}Updating Discover.${NC}" ; cd $HOME/discover ; git pull ; sudo ./update.sh'
 alias upload='cd $HOME/Desktop/ ; raven $MYIP 3000 --upload-dir $HOME/Desktop/'
 alias web='echo $MYIP ; python3 -m http.server 80'
 alias web2='echo $MYIP ; python3 -m http.server 8000'
+alias activate='cd ~/theHarvester; uv sync; source .venv/bin/activate'
 
 export GOPATH=/opt/go
 export GOROOT=/usr/lib/go
