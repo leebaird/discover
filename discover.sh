@@ -529,9 +529,12 @@ f_rerun(){
         f_error
     fi
 
-    # Check for wrong answer
-    if [ ! -d "$LOCATION" ]; then
-        f_error
+    # Check for file
+    if [ ! -f "$LOCATION"/nmap.nmap ]; then
+        echo
+        echo -e "${RED}[!] This folder must contain nmap.nmap.${NC}"
+        echo
+        exit 1
     fi
 
     NAME=$LOCATION
