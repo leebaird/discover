@@ -3,28 +3,28 @@ Web Apps
 
 # HTTP Methods or Verbs
 
-GET         Used to get data from a server. Passes all parameters in the URL
-POST        Used to send data to a server. Passes all parameters in the body of the request
-HEAD        The web app will only return the response headers, not the body
-OPTIONS     Show a list of HTTP options that the server supports
-CONNECT     Set up a tunnel between a client and a server for SSL encryption or an HTTP proxy
-TRACE       Used for debugging
-TRACK       Returns the full HTTP request back to the requesting client for proxy-debugging
-PUT         Used for adding content to a web app, common with RESTful APIs
-DELETE      Used for deleting content from a web app, common with RESTful APIs
+GET       Used to get data from a server. Passes all parameters in the URL
+POST      Used to send data to a server. Passes all parameters in the body of the request
+HEAD      The web app will only return the response headers, not the body
+OPTIONS   Show a list of HTTP options that the server supports
+CONNECT   Set up a tunnel between a client and a server for SSL encryption or an HTTP proxy
+TRACE     Used for debugging
+TRACK     Returns the full HTTP request back to the requesting client for proxy-debugging
+PUT       Used for adding content to a web app, common with RESTful APIs
+DELETE    Used for deleting content from a web app, common with RESTful APIs
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # HTTP Response Codes
 
-100  Continue
-200  OK
-301  Moved Permanently
-302  Found (redireect)
-400  Bad Request
-401  Unauthorized
-403  Forbidden
-404  Not Found
-500  Internal Server Error
+100       Continue
+200       OK
+301       Moved Permanently
+302       Found (redireect)
+400       Bad Request
+401       Unauthorized
+403       Forbidden
+404       Not Found
+500       Internal Server Error
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Browser Redirection
@@ -185,8 +185,8 @@ HEAD / HTTP/1.0
 
 curl -ikL -X HEAD target.com
 
-for i in `cat 80.txt` ; do curl -ikL -X HEAD http://$i/ > $i 2>&1 ; echo Scanning $i ; done
-for i in `cat ssl.txt` ; do curl -ikL -X HEAD https://$i/ > $i 2>&1 ; echo Scanning $i ; done
+for i in `cat 80.txt` ; do curl -ikL -X HEAD http://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
+for i in `cat ssl.txt` ; do curl -ikL -X HEAD https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # HTTP Methods Allowed
@@ -197,7 +197,7 @@ OPTIONS / HTTP/1.0
 
 curl -ikL -X OPTIONS target.com
 
-for i in `cat ssl.txt` ; do curl -ikL -X OPTIONS https://$i/ > $i 2>&1 ; echo Scanning $i ; done
+for i in `cat ssl.txt` ; do curl -ikL -X OPTIONS https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # iframe
@@ -374,7 +374,7 @@ url=target.com
 ip=10.0.0.10
 
 - Open ports and service enumeration
-nmap -Pn -n -T4 --open -p- -sCV $url
+nmap -Pn -n -T4 --open -p- -sTCV $url
 
 - Web technologies
 whatweb -a 3 https://$url
@@ -384,7 +384,7 @@ wafw00f -a https://$url
 https://ssllabs.com/ssltest/
 sslyze --targets_in=targets.txt --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --openssl_ccs
 sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour
-nmap -Pn -n -T4 --open -p443 --script-timeout 20s -sV --min-hostgroup 100 --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed -iL targets.txt
+nmap -Pn -n -T4 --open -p443 --script-timeout 20s -sTV --min-hostgroup 100 --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed -iL targets.txt
 
 - Default configurations and files
 nikto -h https://$url -Format htm --output nikto.htm

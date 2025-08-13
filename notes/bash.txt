@@ -138,6 +138,8 @@ head -n -5                                                    Remove the last 5 
 sed 's/[ \t]*$//'                                             Remove trailing whitespace from each line
 sed -r 's/([^ ]*acme\.org[^ ]*)/ /g'                          Remove URLs from a specific domain
 
+                                                              Rename every file in the cwd by adding .txt to the end
+for f in *; do [ -f "$f" ] && [[ ! "$f" =~ \. ]] && mv "$f" "$f.txt"; done
 sed 's/ \{2,\}/,/g'                                           Replace 2 or more spaces with a comma
 sed 's/\.\.\.//g'                                             Replace 3 periods with nothing
 sed 's/\t/:/g'                                                Replace a tab with a colon. Convert IP and ports columns from Excel into IP:port
