@@ -242,9 +242,6 @@ uv sync; source .venv/bin/activate
 echo "    baidu                ($COUNT/$TOTAL)"
 ((COUNT++))
 theHarvester -d "$DOMAIN" -b baidu -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zbaidu
-echo "    brave                ($COUNT/$TOTAL)"
-((COUNT++))
-theHarvester -d "$DOMAIN" -b brave -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zbrave
 echo "    certspotter          ($COUNT/$TOTAL)"
 ((COUNT++))
 theHarvester -d "$DOMAIN" -b certspotter -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zcertspotter
@@ -286,6 +283,9 @@ echo "  These modules require an API key."
 echo "    bevigil              ($COUNT/$TOTAL)"
 ((COUNT++))
 theHarvester -d "$DOMAIN" -b bevigil -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zbevigil
+echo "    brave                ($COUNT/$TOTAL)"
+((COUNT++))
+theHarvester -d "$DOMAIN" -b brave -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zbrave
 echo "    bufferoverun         ($COUNT/$TOTAL)"
 ((COUNT++))
 theHarvester -d "$DOMAIN" -b bufferoverun -r | grep -Eiv '(!|\*|--|\[|searching|yaml)' | sed '/^$/d;/:$/d' | sort -u > zbufferoverun
