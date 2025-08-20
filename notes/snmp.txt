@@ -3,26 +3,53 @@ SNMP
 
 # Default or Guessable SNMP Community Strings
 
-onesixtyone -c <password list> -i 161.txt
+onesixtyone -c /usr/share/doc/onesixtyone/dict.txt -i 161.txt
 
-snmpcheck -t <target IP> <private/public>
+snmp-check -v2c <target IP>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Management Information Bases (MIB) Tree
-
-1.3.6.1.2.1.25.1.6.0       System processes
-1.3.6.1.2.1.25.4.2.1.2     Running programs
-1.3.6.1.2.1.25.4.2.1.4     Processes path
-1.3.6.1.2.1.25.2.3.1.4     Storeage units
-1.3.6.1.2.1.25.6.3.1.2     Software name
-1.3.6.1.4.1.77.1.2.25      Windows user accounts
-1.3.6.1.2.1.6.13.1.3       Windows TCP ports
 
 # Read-only Community String of 'public'
 
-snmpwalk -c public -v1 <target IP> <MIB>
+# Management Information Bases (MIB) Tree
+
+1.3.6.1.2.1.1.1.0        System description (hardware, OS, model)
+1.3.6.1.2.1.1.2.0        Vendor-specific device identifier
+1.3.6.1.2.1.1.3.0        Time since last reboot
+1.3.6.1.2.1.1.4.0        Admin contact info
+1.3.6.1.2.1.1.5.0        Device hostname
+1.3.6.1.2.1.1.6.0        Physical location
+
+1.3.6.1.2.1.2.2.1        Table of network interfaces
+1.3.6.1.2.1.2.2.1.2      Interface names (e.g., "eth0")
+1.3.6.1.2.1.2.2.1.6      MAC addresses
+1.3.6.1.2.1.2.2.1.8      Interface status (up/down)
+
+1.3.6.1.2.1.25.1.1.0     Host uptime (alternative to sysUpTime)
+1.3.6.1.2.1.25.2.3       Storage details (disks, partitions)
+1.3.6.1.2.1.25.3.2       Hardware devices (CPU, disks)
+1.3.6.1.2.1.25.4.2       Running processes
+
+1.3.6.1.2.1.25.6.3       Installed software
+
+1.3.6.1.2.1.4.20         IP address table
+1.3.6.1.2.1.4.22         Routing table
+1.3.6.1.2.1.6.13         TCP connections
+1.3.6.1.2.1.7.5          UDP listeners
+
+1.3.6.1.2.1.11.1.0       SNMP packets received
+1.3.6.1.2.1.11.28.0      Traps for failed auth
+
+snmpwalk -v 2c -c <community string> <target IP> <MIB>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Modify a variable
 
 snmpset -v <version> -c <community string> <target IP> <variable> s "<new string>"
+
+Check if RW is open by changing harmless fields like sysLocation.
+If it changes, this indicates a critical vulnerability for the device.
+
+Use sysDescr/sysObjectID to get the IOS/IOS-XE version and correlate it with CVEs.
+Older 12.x and early 16.x versions are particularly problematic.
+
+Using interface/VLAN/topology information from SNMP, scan management services (SSH/HTTPS, etc.) to see what is exposed.
