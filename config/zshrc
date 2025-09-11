@@ -27,8 +27,8 @@ alias mm='sudo systemctl stop postgresql.service'
 alias n='echo; date ; echo ;
 echo -n "External IP:  "$EXTIP ; echo ;
 echo -n "Internal IP:  "$MYIP ; echo ;
-echo -n "MAC address:  "$MAC ; echo ;
 echo -n "DNS:          "$DNS ; echo ;
+echo -n "MAC address:  "$MAC ; echo ;
 echo -n "Interfaace:   "$INTERFACE ; echo ;
 echo ; netstat -antp; echo ;
 ping -c3 8.8.8.8'
