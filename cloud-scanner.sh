@@ -8,6 +8,7 @@ f_banner
 # Variables
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
+OUTPUT_DIR="$HOME/data/cloud-scanner/"
 
 # Function to terminate script
 f_terminate(){
@@ -33,7 +34,7 @@ f_aws_security_check(){
         echo
     fi
 
-    local OUTPUT_DIR="$1"
+#    local OUTPUT_DIR="$1"
 
     echo
     echo -e "${BLUE}[*] Performing comprehensive AWS security checks.${NC}"
@@ -650,7 +651,7 @@ f_azure_security_check(){
         echo
     fi
 
-    local OUTPUT_DIR="$1"
+#    local OUTPUT_DIR="$1"
 
     echo
     echo -e "${BLUE}[*] Performing Azure security checks.${NC}"
@@ -758,7 +759,7 @@ f_gcp_security_check(){
         echo
     fi
 
-    local OUTPUT_DIR="$1"
+#    local OUTPUT_DIR="$1"
 
     echo
     echo -e "${BLUE}[*] Performing Google Cloud Platform security checks.${NC}"

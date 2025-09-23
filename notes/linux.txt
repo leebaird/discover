@@ -500,21 +500,24 @@ ctrl + c                                        End the current task or process
 
 # tmux
 
+tmux ls                                         List sessions
+tmux a                                          Attach to the previous session
+tmux a -t <name>                                Attach to a specific session
+
 tmux                                            Start a new session
 tmux new -s <name>                              Start a new session with a specific name
 
-tmux ls                                         List sessions
-tmux a                                          Attach to the previous session
-tmux a -t <name>                                Attach to a specific session name
-ctrl+b %                                        Rename a session
 ctrl+b d                                        Detach from the current session
 exit                                            Exit the current session
+ctrl+b %                                        Rename a session
 
 ctrl+b w                                        List windows
+ctrl+b                                          Select a windows
+
 ctrl+b c                                        Create a new window
 ctrl+b ,                                        Rename the current window
 ctrl+b x                                        Kill current window
-ctrl+b                                          Select a windows
+
 ctrl+b ""                                       Split the pane horizontally
 ctrl+b %                                        Split the pane vertically
 ctrl+b arrow key                                Switch between panes
