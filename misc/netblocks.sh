@@ -11,7 +11,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo
-echo -e "${YELLOW}Netblocks\n\nBy Lee Baird\n${NC}"
+echo -e "${YELLOW}Netblocks\n\nby Lee Baird\n${NC}"
 echo
 echo "This returns a list of Class A owners."
 echo

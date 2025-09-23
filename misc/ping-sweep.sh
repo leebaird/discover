@@ -10,7 +10,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo
-echo -e "${YELLOW}Ping Sweep\n\nBy Lee Baird\n${NC}"
+echo -e "${YELLOW}Ping Sweep\n\nby Lee Baird\n${NC}"
 echo
 echo "Ping sweep a Class C."
 echo

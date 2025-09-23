@@ -10,7 +10,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo
-echo -e "${YELLOW}DNS Forward\n\nBy Lee Baird\n${NC}"
+echo -e "${YELLOW}DNS Forward\n\nby Lee Baird\n${NC}"
 echo
 echo "Show IP addresses of subdomains."
 echo

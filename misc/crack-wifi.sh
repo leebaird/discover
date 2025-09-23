@@ -36,7 +36,7 @@ echo -e "${YELLOW}
 |    |__/ |__| |    |_/     | | |   |__
 |___ |  \ |  | |___ | \_    |_|_| | |   |
 
-By Lee Baird & Jason Arnold${NC}"
+by Lee Baird & Jason Arnold${NC}"
 echo
 echo
 }

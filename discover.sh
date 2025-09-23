@@ -92,7 +92,7 @@ f_banner(){
 |     \  |  |____  |      |     |  \  /  |____  |____/
 |_____/ _|_ _____| |_____ |_____|   \/   |_____ |    \_
 
-By Lee Baird${NC}"
+by Lee Baird${NC}"
     echo
     echo
 }
@@ -666,14 +666,14 @@ f_main(){
         16) echo && exit ;;
 
         # DEV
-        17) ./api-scanner.sh && exit ;;
-        18) ./cloud-scanner.sh && exit ;;
-        19) ./container-scanner.sh && exit ;;
-        20) ./oauth-jwt-scanner.sh && exit ;;
-        21) ./openredirect.sh && exit ;;
-        22) ./sensitive-scanner.sh && exit ;;
-        23) ./waf-detect.sh && exit ;;
-        24) ./web-api-scanner.sh && exit ;;
+        17) ./dev-api-scanner.sh && exit ;;
+        18) ./dev-cloud-scanner.sh && exit ;;
+        19) ./dev-container-scanner.sh && exit ;;
+        20) ./dev-oauth-jwt-scanner.sh && exit ;;
+        21) ./dev-open-redirect.sh && exit ;;
+        22) ./dev-sensitive-scanner.sh && exit ;;
+        23) ./dev-waf-detect.sh && exit ;;
+        24) ./dev-web-api-scanner.sh && exit ;;
 
         99) ./newModules.sh && exit ;;
         *) f_error ;;

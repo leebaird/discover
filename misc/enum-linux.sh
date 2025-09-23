@@ -10,7 +10,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo
-echo -e "${YELLOW}Enumerate Remote Linux Box\n\nBy Lee Baird\n${NC}"
+echo -e "${YELLOW}Enumerate Remote Linux Box\n\nby Lee Baird\n${NC}"
 
 # If no arguments, print usage and exit
 if [ $# -eq 0 ]; then

@@ -30,7 +30,7 @@ __          __  _________   _________
 
         Wireless Testing Framework
 
-              By Lee Baird${NC}"
+              by Lee Baird${NC}"
     echo
     echo
 }

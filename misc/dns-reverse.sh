@@ -10,7 +10,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo
-echo -e "${YELLOW}DNS Reverse\n\nBy Lee Baird\n${NC}"
+echo -e "${YELLOW}DNS Reverse\n\nby Lee Baird\n${NC}"
 echo
 echo "Perform a PTR DNS query on a Class C range and return FQDNs."
 echo

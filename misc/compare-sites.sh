@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo
-echo -e "${YELLOW}Compare Changes to Home Pages\n\nBy Lee Baird\n${NC}"
+echo -e "${YELLOW}Compare Changes to Home Pages\n\nby Lee Baird\n${NC}"
 
 # If no arguments, print usage
 if [ $# -eq 0 ]; then

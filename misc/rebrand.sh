@@ -10,7 +10,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo
-echo -e "${YELLOW}Rebrand\n\nBy Lee Baird\n${NC}"
+echo -e "${YELLOW}Rebrand\n\nby Lee Baird\n${NC}"
 echo
 echo -n "Enter the location of your folder: "
 read -r LOCATION
