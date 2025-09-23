@@ -34,8 +34,6 @@ f_aws_security_check(){
         echo
     fi
 
-#    local OUTPUT_DIR="$1"
-
     echo
     echo -e "${BLUE}[*] Performing comprehensive AWS security checks.${NC}"
     mkdir -p "$OUTPUT_DIR/aws/policies" "$OUTPUT_DIR/aws/acls" "$OUTPUT_DIR/aws/encryption" "$OUTPUT_DIR/aws/security" "$OUTPUT_DIR/aws/iam" "$OUTPUT_DIR/aws/monitoring" "$OUTPUT_DIR/aws/networking" "$OUTPUT_DIR/aws/compliance"
@@ -651,8 +649,6 @@ f_azure_security_check(){
         echo
     fi
 
-#    local OUTPUT_DIR="$1"
-
     echo
     echo -e "${BLUE}[*] Performing Azure security checks.${NC}"
     mkdir -p "$OUTPUT_DIR/azure"
@@ -759,8 +755,6 @@ f_gcp_security_check(){
         echo
     fi
 
-#    local OUTPUT_DIR="$1"
-
     echo
     echo -e "${BLUE}[*] Performing Google Cloud Platform security checks.${NC}"
     mkdir -p "$OUTPUT_DIR/gcp"
@@ -826,7 +820,7 @@ f_gcp_security_check(){
     echo -e "${BLUE}[*] Generating GCP security report.${NC}"
     {
         echo "Google Cloud Platform Security Report"
-        echo "===================================="
+        echo "====================================="
         echo "Date: $DATESTAMP $TIMESTAMP"
         echo
 
@@ -888,86 +882,17 @@ f_cloud_main(){
     echo "1. AWS (Amazon Web Services)"
     echo "2. Azure (Microsoft Azure)"
     echo "3. GCP (Google Cloud Platform)"
-    echo "4. All providers"
-    echo "5. Previous menu"
+    echo "4. Previous menu"
     echo
     echo -n "Choice: "
     read -r CHOICE
 
     case "$CHOICE" in
-        1)
-            f_aws_security_check "$NAME" ;;
-        2)
-            f_azure_security_check "$NAME" ;;
-        3)
-            f_gcp_security_check "$NAME" ;;
-        4)
-            f_aws_security_check "$NAME"
-            f_azure_security_check "$NAME"
-            f_gcp_security_check "$NAME"
-
-            # Generate combined report
-            echo -e "${BLUE}[*] Generating combined cloud security report.${NC}"
-            {
-                echo "Combined Cloud Security Report"
-                echo "=============================="
-                echo "Date: $DATESTAMP $TIMESTAMP"
-                echo
-                echo "This report contains security findings from multiple cloud providers."
-                echo "Please refer to the individual reports for detailed information:"
-                echo
-
-                if [ -f "$NAME/aws_security_report.txt" ]; then
-                    echo "[*] AWS Security Report: $NAME/aws_security_report.txt"
-                fi
-
-                if [ -f "$NAME/azure_security_report.txt" ]; then
-                    echo "[*] Azure Security Report: $NAME/azure_security_report.txt"
-                fi
-
-                if [ -f "$NAME/gcp_security_report.txt" ]; then
-                    echo "[*] GCP Security Report: $NAME/gcp_security_report.txt"
-                fi
-
-                echo
-                echo "Summary of Critical Findings"
-                echo "============================"
-                echo
-                echo "AWS Critical Issues:"
-
-                if [ -f "$NAME/aws/public_buckets.txt" ] && [ -s "$NAME/aws/public_buckets.txt" ]; then
-                    echo "[*] Public S3 Buckets Detected"
-                fi
-
-                if [ -f "$NAME/aws/overly_permissive_sgs.txt" ] && [ -s "$NAME/aws/overly_permissive_sgs.txt" ]; then
-                    echo "[*] Overly Permissive Security Groups Detected"
-                fi
-
-                echo
-                echo "Azure Critical Issues:"
-
-                if [ -f "$NAME/azure/public_storage_accounts.txt" ] && [ -s "$NAME/azure/public_storage_accounts.txt" ]; then
-                    echo "[*] Public Storage Accounts Detected"
-                fi
-
-                echo
-                echo "GCP Critical Issues:"
-
-                if [ -f "$NAME/gcp/public_buckets.txt" ] && [ -s "$NAME/gcp/public_buckets.txt" ]; then
-                    echo "[*] Public GCP Buckets Detected"
-                fi
-
-                if [ -f "$NAME/gcp/permissive_firewall_rules.txt" ] && [ -s "$NAME/gcp/permissive_firewall_rules.txt" ]; then
-                    echo "[*] Overly Permissive Firewall Rules Detected"
-                fi
-           } > "$NAME/combined_cloud_security_report.txt"
-
-            echo -e "${YELLOW}[*] Combined security report generated: $NAME/combined_cloud_security_report.txt${NC}"
-            ;;
-        5)
-            f_main ;;
-        *)
-            f_error ;;
+        1) f_aws_security_check "$NAME" ;;
+        2) f_azure_security_check "$NAME" ;;
+        3) f_gcp_security_check "$NAME" ;;
+        4) f_main ;;
+        *) f_error ;;
     esac
 }
 
