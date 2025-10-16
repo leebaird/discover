@@ -1,7 +1,14 @@
 Python
 
 
-tutorialspoint.com/python/index.htm
+# Virtual environments are now required for Kali Linux
+
+git clone https://github.com/some/new/python/tool
+cd <new tool>/
+python3 -m venv venv
+source venv/bin/activate
+pip install <dependency>
+pip install -r requirements.txt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Variables and Simple Data Types
