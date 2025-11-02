@@ -11,20 +11,33 @@ sudo snap install --classic code
 Patch OS again and update locate database
 sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean; sudo updatedb
 
+- Ignore case for tab completion
+sudo open /etc/inputrc
+Uncomment: set completion-ignore-case On
+Close Terminal.
+
+- Clean up home folder
+Open Terminal.
+cd ~
+rm -rf documents/ music/ pictures/ public/ templates/ videos/
+
+- Settings
+# OS
+    Power > Automatic Screen Blank: off
+    Appearance: Dark
+
+# Terminal
+    Appearance: GNOME
+    Behavior > Restore Session: off
+
+# Text Editor
+    Display Line Numbers: on
+    Highlight Current Line: on
+    Show Right Margin: on
+    Spaces Per Tab: 4
+    Restore Session: off
+
 - Install dev tools
 https://github.com/nvm-sh/nvm
 https://docs.npmjs.com/cli/v8/commands/npx
 https://nextjs.org
-
-- Ignore case for tab completion
-echo set completion-ignore-case on | sudo tee -a /etc/inputrc
-Close Terminal.
-
-- Clean up
-Open Terminal.
-cd ..
-rm -rf documents/ music/ pictures/ public/ templates/ videos/
-
-- Settings
-Power > Automatic Screen Blank: off
-Appearance: Dark
