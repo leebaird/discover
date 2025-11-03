@@ -352,7 +352,7 @@ if [ -d /opt/subfinder/.git ]; then
 else
     echo -e "${YELLOW}Installing subfinder.${NC}"
     git clone https://github.com/projectdiscovery/subfinder /opt/subfinder
-    cd /opt/subfinder/v2/cmd/subfinder || exit
+    cd /opt/subfinder/cmd/subfinder || exit
     go build
     echo
 fi
