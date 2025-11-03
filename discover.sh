@@ -576,7 +576,17 @@ f_update(){
 
     # shellcheck disable=SC2166
     cd "$HOME"
+
+    if [ ! -f ~/.local/bin/uv ]; then
+        echo -e "${YELLOW}Installing uv.${NC}"
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+    else
+        echo -e "${BLUE}Updating uv.${NC}"
+        uv self update
+    fi
+
     if [ -d theHarvester/.git ]; then
+        echo
         echo -e "${BLUE}Updating theHarvester.${NC}"
         cd theHarvester/ || exit ; git pull
     else
