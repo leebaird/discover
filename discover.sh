@@ -590,6 +590,7 @@ f_update(){
         echo -e "${BLUE}Updating theHarvester.${NC}"
         cd theHarvester/ || exit ; git pull
     else
+        echo
         echo -e "${YELLOW}Installing theHarvester.${NC}"
         git clone https://github.com/laramies/theHarvester theHarvester
         cd theHarvester
