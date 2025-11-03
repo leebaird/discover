@@ -272,12 +272,6 @@ else
     echo
 fi
 
-if ! command -v nishang &> /dev/null; then
-    echo -e "${YELLOW}Installing nishang.${NC}"
-    apt install -y nishang
-    echo
-fi
-
 echo -e "${BLUE}Updating Nmap scripts.${NC}"
 nmap --script-updatedb | grep -Eiv '(starting|seconds)' | sed 's/NSE: //'
 echo
