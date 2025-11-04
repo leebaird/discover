@@ -6,7 +6,7 @@ sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y auto
 
 - Install tools
 sudo apt install -y curl git jq net-tools nmap open-vm-tools-desktop plocate postgresql-client python3-pip redis-tools whois xdotool
-sudo snap install --classic code
+sudo snap install --classic code (Intel only)
 
 Patch OS again and update locate database
 sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean; sudo updatedb
@@ -34,10 +34,12 @@ rm -rf documents/ music/ pictures/ public/ templates/ videos/
     Display Line Numbers: on
     Highlight Current Line: on
     Show Right Margin: on
+    Character: Space
     Spaces Per Tab: 4
     Restore Session: off
 
 - Install dev tools
+https://code.visualstudio.com/Download
 https://github.com/nvm-sh/nvm
 https://docs.npmjs.com/cli/v8/commands/npx
 https://nextjs.org
