@@ -9,23 +9,18 @@ enumeration, and malicious payload creation using Metasploit. For use with Kali 
 * [![Twitter Follow](https://img.shields.io/twitter/follow/jay_townsend1.svg?style=social&label=Follow)](https://twitter.com/jay_townsend1) Jay "L1ghtn1ng" Townsend @jay_townsend1
 * [![Twitter Follow](https://img.shields.io/twitter/follow/ninewires.svg?style=social&label=Follow)](https://twitter.com/ninewires) Jason Ashton @ninewires
 
-### Dependencies
-vu
-
+### Setup and usage
+* Download to your home directory.
 ```
-curl -LsSf https://astral.sh/uv/install.sh | sh
+cd ~
+git clone https://github.com/leebaird/discover
+cd discover/
+./discover.sh
 ```
-
-### Download, setup, and usage
-* Download with a normal user account to your home directory.
-* cd ~
-* git clone https://github.com/leebaird/discover
-* cd discover/
-* ./discover.sh
-* Select the 'Update' option to update the operating system and install various tools before using the framework.
+* Select the 'Update' option to update the operating system and install dependencies.
 * Some options will require root credentials to run.
 
-
+### Main menu
 ```
 RECON
 1.  Domain
@@ -223,7 +218,7 @@ Metasploit Listeners
 
 ### Update
 
-* Update Kali Linux, Discover scripts, various tools, and the locate database.
+* Updates the operating system, git pull from various repos, and update the locate database.
 
 ## DEV
 ### Container Security Scanner
