@@ -8,7 +8,16 @@ sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y auto
 sudo apt install -y curl git jq net-tools nmap open-vm-tools-desktop plocate postgresql-client python3-pip redis-tools whois xdotool
 sudo snap install --classic code (Intel only)
 
-Patch OS again and update locate database
+- Install Go
+wget https://go.dev/dl/go1.25.5.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.25.5.linux-amd64.tar.gz
+export PATH=$PATH:/usr/local/go/bin
+go version
+
+- Install uv
+sudo curl -LsSf https://astral.sh/uv/install.sh | sh
+
+- Patch OS again and update locate database
 sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean; sudo updatedb
 
 - Ignore case for tab completion
