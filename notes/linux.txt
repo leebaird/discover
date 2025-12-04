@@ -677,16 +677,19 @@ Enter the replacement character.
 
 # Situational Awareness
 
-unset HISTFILE                                  Ensure commands are not written to history file
-ps -ef                                          Show active processes
-uname -a                                        Show OS and build info
-last                                            Show previous logins
-w                                               Show current logins
+unset HISTFILE		                              Ensure commands are not written to history file
+id                                              Show user ID, look for 0 root
+sudo -l                                         See if you have sudo rights
+ifconfig or ip a                                Show IP info, look for additional network interfaces
 netstat -antpu                                  Show active network connections
-sudo -s                                         Enter admin session if possible
-ls /home/                                       Show home directories
-ls /home/<username>/.ssh                        Look for SSH keys
-cat /home/<USERNAME>/.bash_history | less       Show a user's command history, use up/down arrows
+uname -a                                        Show kernel info, look for related exploits
+history                                         Show command history, look for passwords
+ps -ef                                          Show active processes
+w                                               Show current logins
+last                                            Show previous logins
+ls /home/                                       Show user home directories
+ls /home/<username>/.ssh                        Look for SSH keys (elevated permissions needed)
+cat /home/<USERNAME>/.bash_history              Show a user's command history (elevated permissions needed)
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Anonymous Mountable CIFS
