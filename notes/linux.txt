@@ -677,7 +677,7 @@ Enter the replacement character.
 
 # Situational Awareness
 
-unset HISTFILE		                              Ensure commands are not written to history file
+unset HISTFILE                                  Ensure commands are not written to history file
 id                                              Show user ID, look for 0 root
 sudo -l                                         See if you have sudo rights
 ifconfig or ip a                                Show IP info, look for additional network interfaces
