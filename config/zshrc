@@ -41,7 +41,3 @@ alias upload='cd $HOME/Desktop/ ; raven $MYIP 3000 --upload-dir $HOME/Desktop/'
 alias web='echo $MYIP ; python3 -m http.server 80'
 alias web2='echo $MYIP ; python3 -m http.server 8000'
 alias activate='cd ~/theHarvester; uv sync; source .venv/bin/activate'
-
-export GOPATH=/opt/go
-export GOROOT=/usr/lib/go
-export PATH=$PATH:/usr/lib/go/bin:/opt/go/bin
