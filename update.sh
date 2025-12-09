@@ -37,20 +37,6 @@ if ! command -v aws &> /dev/null; then
     echo
 fi
 
-if ! command -v go &> /dev/null; then
-    echo -e "${YELLOW}Installing Go.${NC}"
-    apt install -y golang-go
-    # shellcheck disable=SC2129
-    echo "" >> ~/.zshrc
-    echo "export GOPATH=/opt/go" >> ~/.zshrc
-    echo "export GOROOT=/usr/lib/go" >> ~/.zshrc
-    echo "export PATH=\$PATH:/usr/lib/go/bin:/opt/go/bin" >> ~/.zshrc
-    mkdir -p /opt/go/{bin,src,pkg}
-    # shellcheck disable=SC1090
-    source ~/.zshrc
-    echo
-fi
-
 if ! command -v jq &> /dev/null; then
     echo -e "${YELLOW}Installing jq.${NC}"
     apt install -y jq
