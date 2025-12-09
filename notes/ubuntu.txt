@@ -54,6 +54,51 @@ rm -rf documents/ music/ pictures/ public/ templates/ videos/
     Restore Session: off
     rm tmp
 
+- Aliases
+    vi .bash_aliases
+
+# Variables
+BLUE='\033[1;34m'
+NC='\033[0m'
+
+DNS=$(ip r | grep dhcp | awk '{print $3}')
+EXTIP=$(curl -s http://ifconfig.me)
+INTERFACE=$(ip a | grep BROADCAST | awk '{print $2}' | cut -d ":" -f1)
+MYIP=$(hostname -I | awk '{print $1}')
+MAC=$(ip a | grep ether | awk '{print $2}')
+
+# Aliases
+alias bh='neo4j console & ; sleep 6 ; bloodhound'
+alias c='clear'
+alias cl='clear ; ls -lh --color=auto'
+alias cla='clear ; ls -lah --color=auto'
+alias d='cd $HOME/Desktop/ ; clear'
+alias date='date +"%a %b %d, %Y - %r %Z"'
+alias e='exit'
+alias l='ls -lh'
+alias la='ls -lah'
+alias lc='ls -1 | wc -l'
+alias m='sudo systemctl stop postgresql.service ; sudo msfdb init ; msfconsole -q'
+alias mm='sudo systemctl stop postgresql.service'
+alias n='echo; date ; echo ;
+echo -n "External IP:  "$EXTIP ; echo ;
+echo -n "Internal IP:  "$MYIP ; echo ;
+echo -n "DNS:          "$DNS ; echo ;
+echo -n "MAC address:  "$MAC ; echo ;
+echo -n "Interfaace:   "$INTERFACE ; echo ;
+echo ; netstat -antp; echo ;
+ping -c3 8.8.8.8'
+alias r='cd $HOME ; clear'
+alias s='cd $HOME/discover/ ; clear'
+alias smb='impacket-smbserver share . -smb2support'
+alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
+alias ssh='ssh -o "XAuthLocation=/opt/X11/bin/xauth"'
+alias update='sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean; sudo updatedb'
+alias upload='cd $HOME/Desktop/ ; raven $MYIP 3000 --upload-dir $HOME/Desktop/'
+alias web='echo $MYIP ; python3 -m http.server 80'
+alias web2='echo $MYIP ; python3 -m http.server 8000'
+alias activate='cd ~/theHarvester; uv sync; source .venv/bin/activate'
+
 - Install dev tools
 https://code.visualstudio.com/Download
 https://github.com/nvm-sh/nvm
