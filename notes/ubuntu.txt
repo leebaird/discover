@@ -1,5 +1,8 @@
 Ubuntu
 
+- Download
+https://ubuntu.com/download/desktop
+
 - Patch OS
 Right-click on the Desktop > Open Terminal
 sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean
@@ -10,12 +13,14 @@ sudo snap install --classic code (Intel only)
 
 - Install Go
 wget https://go.dev/dl/go1.25.5.linux-amd64.tar.gz
+cd ../Downloads/
 sudo tar -C /usr/local -xzf go1.25.5.linux-amd64.tar.gz
 export PATH=$PATH:/usr/local/go/bin
 go version
 
 - Install uv
 sudo curl -LsSf https://astral.sh/uv/install.sh | sh
+Close Terminal and reopen.
 
 - Patch OS again and update locate database
 sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean; sudo updatedb
@@ -23,29 +28,31 @@ sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y auto
 - Ignore case for tab completion
 sudo open /etc/inputrc
 Uncomment: set completion-ignore-case On
-Close Terminal.
+Close Terminal and reopen.
 
 - Clean up home folder
-Open Terminal.
 cd ~
 rm -rf documents/ music/ pictures/ public/ templates/ videos/
 
 - Settings
-# OS
     Power > Automatic Screen Blank: off
-    Appearance: Dark
+    Appearance > Style: Dark
 
-# Terminal
-    Appearance: GNOME
+- Terminal
+    Preferences > Appearance: GNOME
     Behavior > Restore Session: off
 
-# Text Editor
+- Text Editor
+    touch tmp
+    open tmp
+    Preferences
     Display Line Numbers: on
     Highlight Current Line: on
     Show Right Margin: on
     Character: Space
     Spaces Per Tab: 4
     Restore Session: off
+    rm tmp
 
 - Install dev tools
 https://code.visualstudio.com/Download
