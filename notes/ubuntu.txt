@@ -15,7 +15,7 @@ sudo snap install --classic code (Intel only)
 wget https://go.dev/dl/go1.25.5.linux-amd64.tar.gz
 cd ../Downloads/
 sudo tar -C /usr/local -xzf go1.25.5.linux-amd64.tar.gz
-export PATH=$PATH:/usr/local/go/bin
+echo "PATH=$PATH:/usr/local/go/bin" >> .bashrc
 go version
 
 - Install uv
