@@ -8,7 +8,7 @@ Right-click on the Desktop > Open Terminal
 sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean
 
 - Install tools
-sudo apt install -y curl git jq net-tools nmap open-vm-tools-desktop plocate postgresql-client python3-pip redis-tools whois xdotool
+sudo apt install -y curl git jq net-tools open-vm-tools-desktop plocate python3-pip whois
 sudo snap install --classic code (Intel only)
 
 - Install Go
