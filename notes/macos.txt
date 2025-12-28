@@ -1,31 +1,7 @@
 OS X
 
 
-# Add color to terminal
-
-sudo nano /etc/profile
-Add
-export CLICOLOR=1
-export LSCOLORS=ExFxBxDxCxegedabagacad
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Boot options
-
-c
-option                                  Select boot device
-Apple r                                 Recovery mode
-Apple s                                 Single user mode
-
-Terminal > resetpassword
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Cannon 8612 UPD broadcast
-
-killall CIJScannerRegister
-sudo rm  -rf /Library/Image\ Capture/Support/LegacyDeviceDiscoveryHelpers/
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Homebrew
+# Install Homebrew
 
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
@@ -45,31 +21,67 @@ brew update                             Run twice
 brew doctor
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# PATH
+# Insall updog
 
-$PATH                                   Show contents of PATH
-~/.profile                              Edit PATH
+pipx install updog
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# SIP
+# Create Aliases
 
-Reboot > command R
-Terminal
-csrutil disable; reboot
+vi ~/.bash_aliases
 
-Terminal
-java -version
-More Info
+BLUE='\033[1;34m'
+RED='\033[1;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-Reboot > command R
-Terminal
-csrutil enable
-reboot
+DNS=$(grep nameserver /etc/resolv.conf | awk '{print $2}')
+EXTIP=$(curl ifconfig.co)
+INTERFACE=$(ifconfig | grep ALLMULTI | awk '{print $1}' | cut -d ":" -f1)
+MYIP=$(ifconfig | grep broadcast | awk '{print $2}' | head -1)
+MAC=$(ifconfig | grep ether | awk '{print $2}' | head -1)
 
-csrutil status
-System Integrity Protection status: enabled.
-------------------------------------------------------------------------------------------------------------------------------------------------------
+alias c='clear'
+alias cl='clear ; gls -l --color=auto'
+alias cla='clear ; gls -la --color=auto'
+alias d='cd $HOME/Desktop/ ; clear'
+alias date='date +"%a %b %d, %Y - %r %Z"'
+alias e='exit'
+alias l='gls -l --color=auto'
+alias la='gls -la --color=auto'
+alias n='echo ;
+echo -n "External IP:  "$EXTIP ; echo ;
+echo -n "Internal IP:  "$MYIP ; echo ;
+echo -n "MAC address:  "$MAC ; echo ;
+echo -n "DNS:          "$DNS ; echo ;
+echo -n "Interface:    "$INTERFACE ; echo ; echo ;
+netstat -ant | egrep "(Address|ESTABLISHED)" | egrep -v "(:|Flags|Nextref)" ; echo
+ping -c3 google.com ; echo'
+alias r='cd $HOME ; clear'
+alias s='cd ~/tools/discover/ ; clear'
+alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
+alias ssh='ssh -o "XAuthLocation=/opt/X11/bin/xauth"'
+alias t='cd ~/tools/'
+alias update='
+clear
+echo
+echo -e "${BLUE}[*] Updating Homebrew.${NC}"
+brew update; brew upgrade
+echo
 
-# Update locate database
+if [ -d ~/tools/discover/.git ]; then
+    echo -e "${BLUE}[*] Updating Discover.${NC}"
+    cd ~/tools/discover/ && git pull
+    echo
+fi
 
+echo -e "${BLUE}[*] Updating locate database.${NC}" ; echo
+echo "Be patient, this takes a couple min." ; echo
+cd $HOME
 sudo /usr/libexec/locate.updatedb
+echo
+echo
+'
+alias upload='[ -d ~/Desktop/tmp ] | mkdir ~/Desktop/tmp; cd ~/Desktop/tmp/ ; updog -p8000 --ssl'
+alias web='[ -d ~/Desktop/tmp ] | mkdir ~/Desktop/tmp; echo $MYIP ; cd $HOME/Desktop/tmp/ ; echo ; python3 -m http.server 80'
+alias web2='[ -d ~/Desktop/tmp ] | mkdir ~/Desktop/tmp; echo $MYIP ; cd $HOME/Desktop/tmp/ ; echo ; python3 -m http.server 8000'
