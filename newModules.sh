@@ -34,6 +34,7 @@ rm tmp-all tmp-used
 
 ###############################################################################################################################
 
+if [ -d /usr/share/metasploit-framework ]; then
 echo
 echo -e "${BLUE}Metasploit scanner modules available but not used in resource/*.rc files${NC}"
 echo -e "${BLUE}=========================================================================${NC}"
@@ -57,6 +58,7 @@ grep -vxFf tmp-msf-used tmp-msf-all-clean | grep -v '/$' | sort
 
 # Clean up temporary files
 rm tmp-msf-all tmp-msf-all-clean tmp-msf-used
+fi
 
 ###############################################################################################################################
 
@@ -68,12 +70,13 @@ echo -e "${BLUE}===========================================${NC}"
 head -n 80 $HOME/theHarvester/theHarvester/__main__.py | grep ',' | grep -v 'from' | awk '{print $1}' | cut -d ',' -f1 > tmp
 
 # Extract modules used in passive.sh
-grep '\-d "' "$HOME"/discover/passive.sh | awk '{print $5}' | sed '1,3d; s/|/shodan/' > tmp2
+#grep '\-d "' "$HOME"/discover/passive.sh | awk '{print $5}' | sed '1,3d; s/|/shodan/' > tmp2
+grep 'sources_' "$HOME"/discover/passive.sh | grep -v '\@' | cut -d '(' -f2 | cut -d ')' -f1 | sed 's/ /\n/g' | sort > tmp2
 
 # List theHarvester modules available but not used in passive.sh
 grep -vxFf tmp2 tmp | sort
+echo
 
 # Clean up temporary files
 rm tmp tmp2
 
-###############################################################################################################################
