@@ -382,7 +382,7 @@ echo -e "${BLUE}Updating locate database.${NC}"
 updatedb
 echo
 
-if ! command -v subfinder &> /dev/null; then
+if [ -f "$HOME/go/bin/subfinder" ]; then
     echo -e "${YELLOW}You will need to manually install subfinder.${NC}"
     echo '1. open ~/.bashrc'
     echo '2. Add the following line to the end of the file: export PATH="$PATH:$HOME/go/bin"'
