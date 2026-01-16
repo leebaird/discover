@@ -331,18 +331,6 @@ else
     echo
 fi
 
-if [ -d /opt/subfinder/.git ]; then
-    echo -e "${BLUE}Updating subfinder.${NC}"
-    cd /opt/subfinder/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing subfinder.${NC}"
-    git clone https://github.com/projectdiscovery/subfinder /opt/subfinder
-    cd /opt/subfinder/cmd/subfinder || exit
-    go build
-    echo
-fi
-
 if [ -d /opt/Windows-Exploit-Suggester-NG/.git ]; then
     echo -e "${BLUE}Updating Windows Exploit Suggester NG.${NC}"
     cd /opt/Windows-Exploit-Suggester-NG/ || exit ; git pull
@@ -393,5 +381,13 @@ fi
 echo -e "${BLUE}Updating locate database.${NC}"
 updatedb
 echo
+
+if ! command -v subfinder &> /dev/null; then
+    echo -e "${YELLOW}You will need to manually install subfinder.${NC}"
+    echo '1. open ~/.bashrc'
+    echo '2. Add the following line to the end of the file: export PATH="$PATH:$HOME/go/bin"'
+    echo '3. go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest'
+    echo
+fi
 
 exit
