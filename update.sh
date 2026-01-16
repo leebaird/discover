@@ -55,6 +55,12 @@ if ! command -v sublist3r &> /dev/null; then
     echo
 fi
 
+if ! command -v xmllint &> /dev/null; then
+    echo -e "${YELLOW}Installing xmllint.${NC}"
+    apt install -y libxml2-utils
+    echo
+fi
+
 ###############################################################################################################################
 
 if [ -d /opt/BOFs/anthemtotheego-inlineExecute-assembly/.git ]; then
