@@ -1,10 +1,11 @@
 
 # -----------------------------------------------------------------------------------------------
 
-# Variables
+# Colors
 BLUE='\033[1;34m'
 NC='\033[0m'
 
+# Variables
 DNS=$(ip r | grep dhcp | awk '{print $3}')
 EXTIP=$(curl -s http://ifconfig.me)
 INTERFACE=$(ip a | grep BROADCAST | awk '{print $2}' | cut -d ":" -f1)
@@ -16,6 +17,7 @@ alias bh='neo4j console & ; sleep 6 ; bloodhound'
 alias c='clear'
 alias cl='clear ; ls -lh --color=auto'
 alias cla='clear ; ls -lah --color=auto'
+alias cpu='ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -10 ; echo'
 alias d='cd $HOME/Desktop/ ; clear'
 alias date='date +"%a %b %d, %Y - %r %Z"'
 alias e='exit'
@@ -24,20 +26,30 @@ alias la='ls -lah'
 alias lc='ls -1 | wc -l'
 alias m='sudo systemctl stop postgresql.service ; sudo msfdb init ; msfconsole -q'
 alias mm='sudo systemctl stop postgresql.service'
-alias n='echo; date ; echo ;
-echo -n "External IP:  "$EXTIP ; echo ;
-echo -n "Internal IP:  "$MYIP ; echo ;
-echo -n "DNS:          "$DNS ; echo ;
-echo -n "MAC address:  "$MAC ; echo ;
-echo -n "Interfaace:   "$INTERFACE ; echo ;
-echo ; netstat -antp; echo ;
-ping -c3 8.8.8.8'
+alias n='echo ; date ; echo
+echo -e "${BLUE}Networking info${NC}"
+echo -e "${BLUE}----------------------------------------${NC}"
+echo -n "External IP:  "$EXTIP ; echo
+echo -n "Internal IP:  "$MYIP ; echo
+echo -n "DNS:          "$DNS ; echo
+echo -n "MAC address:  "$MAC ; echo
+echo -n "Interface:    "$INTERFACE ; echo
+echo
+echo -e "${BLUE}Local connections${NC}"
+echo -e "${BLUE}----------------------------------------${NC}"
+netstat -antp
+echo
+echo -e "${BLUE}Verifying connectivity to Google${NC}"
+echo -e "${BLUE}----------------------------------------${NC}"
+ping -c3 8.8.8.8
+echo'
 alias r='cd $HOME ; clear'
 alias s='cd $HOME/discover/ ; clear'
 alias smb='impacket-smbserver share . -smb2support'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 alias ssh='ssh -o "XAuthLocation=/opt/X11/bin/xauth"'
+alias th='cd ~/theHarvester ; uv sync ; source .venv/bin/activate'
 alias upload='cd $HOME/Desktop/ ; raven $MYIP 3000 --upload-dir $HOME/Desktop/'
 alias web='echo $MYIP ; python3 -m http.server 80'
 alias web2='echo $MYIP ; python3 -m http.server 8000'
-alias activate='cd ~/theHarvester; uv sync; source .venv/bin/activate'
+
