@@ -596,6 +596,12 @@ f_update(){
         fi
     fi
 
+    if [ ! -f "$HOME/go/bin/subfinder" ]; then
+        echo
+        echo -e "${YELLOW}Installing subfinder.${NC}"
+        go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+    fi
+
     if [ -d theHarvester/.git ]; then
         echo
         echo -e "${BLUE}Updating theHarvester.${NC}"
