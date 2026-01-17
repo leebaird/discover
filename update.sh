@@ -2,7 +2,7 @@
 
 # by Lee Baird (@discoverscripts)
 
-# Variables
+# Colors
 BLUE='\033[1;34m'
 NC='\033[0m'
 YELLOW='\033[1;33m'
@@ -216,7 +216,7 @@ else
     echo -e "${YELLOW}Setting up Egress-Assess virtualenv.${NC}"
     python3 -m venv /opt/Egress-Assess-venv
     /opt/Egress-Assess-venv/bin/python -m pip install -r /opt/Egress-Assess/requirements.txt
-    # If you are in a corp env that is doing MITM with SSL, use the following line instead. Do the same for all Python repos.
+    # If you are in a corp env that is doing MiTM with SSL, use the following line instead. Do the same for all Python repos.
 #    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
     echo
 fi
@@ -228,12 +228,6 @@ if [ -d /opt/egressbuster/.git ]; then
 else
     echo -e "${YELLOW}Installing egressbuster.${NC}"
     git clone https://github.com/trustedsec/egressbuster /opt/egressbuster
-    echo
-fi
-
-if ! command -v feroxbuster &> /dev/null; then
-    echo -e "${YELLOW}Installing feroxbuster.${NC}"
-    apt install -y feroxbuster
     echo
 fi
 

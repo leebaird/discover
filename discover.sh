@@ -70,6 +70,7 @@ LARGE='=========================================================================
 MEDIUM='=================================================================='
 SMALL='========================================'
 
+# Colors
 BLUE='\033[1;34m'
 GREEN='\033[1;32m'
 NC='\033[0m'
@@ -583,6 +584,16 @@ f_update(){
     else
         echo -e "${BLUE}Updating uv.${NC}"
         uv self update
+    fi
+
+    if ! command -v feroxbuster &> /dev/null; then
+        echo
+        echo -e "${YELLOW}Installing feroxbuster.${NC}"
+        if hostnamectl | grep -qi ubuntu; then
+            curl -sL https://raw.githubusercontent.com/epi052/feroxbuster/main/install-nix.sh | bash -s "$HOME/.local/bin"
+        else
+            sudo apt install -y feroxbuster
+        fi
     fi
 
     if [ -d theHarvester/.git ]; then
