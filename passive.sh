@@ -219,7 +219,7 @@ echo
 
 echo "subfinder                ($COUNT/$TOTAL)"
 ((COUNT++))
-/opt/subfinder/v2/cmd/subfinder/subfinder -d "$DOMAIN" -silent | sort -u > zsubfinder
+subfinder -d "$DOMAIN" -silent | sort -u > zsubfinder
 echo
 
 ###############################################################################################################################
