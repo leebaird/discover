@@ -347,12 +347,6 @@ if ! command -v xml_grep &> /dev/null; then
     echo
 fi
 
-if ! command -v xspy &> /dev/null; then
-    echo -e "${YELLOW}Installing xspy.${NC}"
-    apt install -y xspy
-    echo
-fi
-
 if [ ! -f /opt/xwatchwin/xwatchwin ]; then
     echo -e "${YELLOW}Installing xwatchwin.${NC}"
     apt install -y imagemagick libxext-dev xutils-dev
