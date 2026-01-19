@@ -586,6 +586,18 @@ f_update(){
         uv self update
     fi
 
+    if [ -d "$HOME/dnsrecon/.git" ]; then
+        echo
+        echo -e "${BLUE}Updating dnsrecon.${NC}"
+        cd "$HOME/dnsrecon" || exit ; git pull
+    else
+        echo
+        echo -e "${YELLOW}Installing dnsrecon.${NC}"
+        git clone https://github.com/darkoperator/dnsrecon "$HOME/dnsrecon"
+        cd "$HOME/dnsrecon"
+        uv sync
+    fi
+
     if ! command -v feroxbuster &> /dev/null; then
         echo
         echo -e "${YELLOW}Installing feroxbuster.${NC}"
@@ -602,15 +614,15 @@ f_update(){
         go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
     fi
 
-    if [ -d theHarvester/.git ]; then
+    if [ -d "$HOME/theHarvester/.git" ]; then
         echo
         echo -e "${BLUE}Updating theHarvester.${NC}"
-        cd theHarvester/ || exit ; git pull
+        cd "$HOME/theHarvester" || exit ; git pull
     else
         echo
         echo -e "${YELLOW}Installing theHarvester.${NC}"
-        git clone https://github.com/laramies/theHarvester theHarvester
-        cd theHarvester
+        git clone https://github.com/laramies/theHarvester "$HOME/theHarvester"
+        cd "$HOME/theHarvester"
         uv sync
     fi
 
