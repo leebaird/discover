@@ -586,18 +586,6 @@ f_update(){
         uv self update
     fi
 
-    if [ -d "$HOME/dnsrecon/.git" ]; then
-        echo
-        echo -e "${BLUE}Updating dnsrecon.${NC}"
-        cd "$HOME/dnsrecon" || exit ; git pull
-    else
-        echo
-        echo -e "${YELLOW}Installing dnsrecon.${NC}"
-        git clone https://github.com/darkoperator/dnsrecon "$HOME/dnsrecon"
-        cd "$HOME/dnsrecon"
-        uv sync
-    fi
-
     if ! command -v feroxbuster &> /dev/null; then
         echo
         echo -e "${YELLOW}Installing feroxbuster.${NC}"

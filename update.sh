@@ -37,6 +37,12 @@ if ! command -v aws &> /dev/null; then
     echo
 fi
 
+if ! command -v dnsrecon &> /dev/null; then
+    echo -e "${YELLOW}Installing dnsrecon.${NC}"
+    apt install -y dnsrecon
+    echo
+fi
+
 if ! command -v jq &> /dev/null; then
     echo -e "${YELLOW}Installing jq.${NC}"
     apt install -y jq
