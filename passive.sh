@@ -159,8 +159,8 @@ echo
 echo "DNSRecon                 ($COUNT/$TOTAL)"
 ((COUNT++))
 dnsrecon -d "$DOMAIN" -n 8.8.8.8 -t std > tmp 2>/dev/null
-grep -Eiv '(all queries will|could not|dnskeys|dnssec|error|it is resolving|nsec3|performing|records|recursion|txt|version|wildcard resolution)' tmp | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort | sed 's/[ \t]*$//' > records
-grep 'TXT' tmp | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | sort | sed 's/[ \t]*$//' >> records
+grep -Eiv '(all queries will|could not|dnskeys|dnssec|error|it is resolving|nsec3|performing|records|recursion|starting|txt|version|wildcard resolution)' tmp | column -t | cut -d ' ' -f4- | sed 's/^[ \t]*//' | sort > records
+grep 'TXT' tmp | cut -d ' ' -f4- | sed 's/^[ \t]*//' | sort >> records
 
 cat records >> "$HOME"/data/"$DOMAIN"/data/records.htm
 echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/records.htm
