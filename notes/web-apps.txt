@@ -373,10 +373,10 @@ Ampersand           &foo
 URL=target.com
 IP=10.0.0.10
 
-- Open ports and service enumeration
+- Discover open ports and perform service enumeration
 nmap -Pn -n -T4 --open -p- -sTCV $URL
 
-- Web technologies
+- Enumerate web technologies
 whatweb -a 3 https://$URL
 for i in `cat targets.txt` ; do whatweb -a 3 https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
 
@@ -389,13 +389,11 @@ sslyze --targets_in=targets.txt --resum --reneg --heartbleed --certinfo --sslv2 
 sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour
 nmap -Pn -n -T4 --open -p443 --script-timeout 20s -sTV --min-hostgroup 100 --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed -iL targets.txt
 
-- Default configurations and files
+- Find default configurations and files
 nikto -h https://$URL -Format htm --output nikto.htm
 
-- Brute force subdomains
+- Directory enumeration
 ffuf -u https://$IP/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
-
-- Brute force directories
 feroxbuster -h https://$URL
 feroxbuster -h https://$URL -x php
 
