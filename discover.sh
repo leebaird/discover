@@ -586,16 +586,6 @@ f_update(){
         uv self update
     fi
 
-    if ! command -v feroxbuster &> /dev/null; then
-        echo
-        echo -e "${YELLOW}Installing feroxbuster.${NC}"
-        if hostnamectl | grep -qi ubuntu; then
-            curl -sL https://raw.githubusercontent.com/epi052/feroxbuster/main/install-nix.sh | bash -s "$HOME/.local/bin"
-        else
-            sudo apt install -y feroxbuster
-        fi
-    fi
-
     if [ ! -f "$HOME/go/bin/subfinder" ]; then
         echo
         echo -e "${YELLOW}Installing subfinder.${NC}"
