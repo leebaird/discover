@@ -9,17 +9,6 @@ YELLOW='\033[1;33m'
 
 ###############################################################################################################################
 
-# Clean up deprecated repos
-if [ -d /opt/PEASS-ng/.git ]; then
-    rm -rf /opt/PEASS-ng/
-fi
-
-if [ -d /opt/theHarvester/.git ]; then
-    rm -rf /opt/theHarvester/
-fi
-
-###############################################################################################################################
-
 echo
 echo -e "${BLUE}Updating the operating system.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
@@ -49,15 +38,45 @@ if ! command -v jq &> /dev/null; then
     echo
 fi
 
+if ! command -v nikto &> /dev/null; then
+    echo -e "${YELLOW}Installing nikto.${NC}"
+    apt install -y nikto
+    echo
+fi
+
+if ! command -v nmap &> /dev/null; then
+    echo -e "${YELLOW}Installing nmap.${NC}"
+    apt install -y nmap
+    echo
+fi
+
 if ! command -v raven &> /dev/null; then
     echo -e "${YELLOW}Installing Raven.${NC}"
     apt install -y raven
     echo
 fi
 
+if ! command -v sslscan &> /dev/null; then
+    echo -e "${YELLOW}Installing sslscan.${NC}"
+    apt install -y sslscan
+    echo
+fi
+
 if ! command -v sublist3r &> /dev/null; then
     echo -e "${YELLOW}Installing Sublist3r.${NC}"
     apt install -y sublist3r
+    echo
+fi
+
+if ! command -v wafw00f &> /dev/null; then
+    echo -e "${YELLOW}Installing wafw00f.${NC}"
+    apt install -y wafw00f
+    echo
+fi
+
+if ! command -v whatweb &> /dev/null; then
+    echo -e "${YELLOW}Installing whatweb.${NC}"
+    apt install -y whatweb
     echo
 fi
 
