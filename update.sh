@@ -32,6 +32,12 @@ if ! command -v dnsrecon &> /dev/null; then
     echo
 fi
 
+if ! command -v ffuf &> /dev/null; then
+    echo -e "${YELLOW}Installing ffuf.${NC}"
+    apt install -y ffuf
+    echo
+fi
+
 if ! command -v jq &> /dev/null; then
     echo -e "${YELLOW}Installing jq.${NC}"
     apt install -y jq
