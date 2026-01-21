@@ -369,12 +369,14 @@ Ampersand           &foo
 
 # Example Assessment
 
-- Set variables
+- Set variables and test connectivity
 URL=target.com
 IP=10.0.0.10
 
+ping -c3 $URL
+
 - Discover open ports and perform service enumeration
-nmap -Pn -n -T4 --open -p- -sTCV $URL
+nmap -Pn -n -T4 --open -p- -sTCV $URL --stats-every 20s -oA nmap
 
 - Enumerate web technologies
 whatweb -a 3 https://$URL
@@ -385,26 +387,37 @@ for i in `cat targets.txt` ; do wafw00f -a https://$i/ > $i.txt 2>&1 ; echo Scan
 
 - SSL/TLS enumeration
 https://ssllabs.com/ssltest/
-sslyze $URL --resum --ems --http_headers --fallback --openssl_ccs --certinfo --reneg --tlsv1 --elliptic_curves --tlsv1_1 --robot --heartbleed --sslv2 --sslv3
-sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour
-nmap -Pn -n -T4 --open -p443 --script-timeout 20s -sTV --min-hostgroup 100 --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed -iL targets.txt
 
-- Find default configurations and files
+sslyze $URL --resum --ems --http_headers --fallback --openssl_ccs --certinfo --reneg --tlsv1 --elliptic_curves --tlsv1_1 --robot --heartbleed --sslv2 --sslv3
+
+sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour
+sslscan --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour $IP:443
+
+- HTTP/S vulnerabilities
+nmap -Pn -n -T4 --open -p80,443 --script-timeout 20s -sT --script-timeout 20s --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed --min-hostgroup 100 -iL targets.txt
+nmap -Pn -n -T4 --open -p80,443 --script-timeout 20s -sT --script-timeout 20s --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed $URL
+
+- Default configurations and files
 nikto -h https://$URL -Format htm --output nikto.htm
 
 - Directory enumeration
 ffuf -u https://$IP/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
-feroxbuster -h https://$URL
-feroxbuster -h https://$URL -x php
+
+feroxbuster --url https://$URL
+feroxbuster --url https://$URL -x php
 
 - Create a custom word list
 cewl --lowercase -e --email_file emails.txt -w dict.txt https://$URL
 
 - Application specific enumeration
 davtest -url https://$URL
+
 droopescan scan drupal -u https://$URL
+
 joomscan -u https://$URL
+
 uniscan -u https://www.$URL -qweds
+
 wpscan --url https:/$URL --enumerate vp,vt,cb,u,m
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
