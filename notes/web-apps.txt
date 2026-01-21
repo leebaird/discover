@@ -385,7 +385,7 @@ for i in `cat targets.txt` ; do wafw00f -a https://$i/ > $i.txt 2>&1 ; echo Scan
 
 - SSL/TLS enumeration
 https://ssllabs.com/ssltest/
-sslyze --targets_in=targets.txt --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --openssl_ccs
+sslyze $URL --resum --ems --http_headers --fallback --openssl_ccs --certinfo --reneg --tlsv1 --elliptic_curves --tlsv1_1 --robot --heartbleed --sslv2 --sslv3
 sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour
 nmap -Pn -n -T4 --open -p443 --script-timeout 20s -sTV --min-hostgroup 100 --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed -iL targets.txt
 
