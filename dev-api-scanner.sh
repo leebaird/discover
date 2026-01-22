@@ -24,25 +24,31 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 
 # Function to discover and test API endpoints
 f_discover_api(){
-    local TARGET_URL=$1
-    local OUTPUT_DIR=$2
-
+    local TARGET_URL="$1"
     echo
     echo -e "${BLUE}[*] Discovering API endpoints for $TARGET_URL.${NC}"
 
-    # Create results directory
-    mkdir -p "$OUTPUT_DIR/api_scanner"
+    OUTPUT_DIR="${OUTPUT_DIR:-$(pwd)/api-scan-$(date +%Y%m%d-%H%M)}"
+    mkdir -p "$OUTPUT_DIR" || { echo "${RED}Cannot create base output directory $OUTPUT_DIR${NC}"; exit 1; }
+    mkdir -p "$OUTPUT_DIR/api_scanner" || { echo "${RED}Cannot create $OUTPUT_DIR/api_scanner${NC}"; exit 1; }
+
+    echo -e "${BLUE}[*] Using output directory:${NC} $OUTPUT_DIR/api_scanner"
 
     # Crawl for API endpoints
     echo -e "${BLUE}[*] Crawling target for API endpoints.${NC}"
-    wget -q --spider -r --no-parent -l 2 "$TARGET_URL" 2>&1 | grep '^--' | awk '{ print $3 }' | grep -E '(/v[0-9]+/|/api/|/docs/|/graph|/graphql|/gql|/query|/rest/|/schema/service/|/swagger)' | sort -u > "$OUTPUT_DIR/api_scanner/endpoints.txt"
-
-    # Check common API paths
-    echo -e "${BLUE}[*] Checking common API paths.${NC}"
+    wget -q --spider -r --no-parent -l 2 "$TARGET_URL" 2>&1 \
+      | grep '^--' \
+      | awk '{ print $3 }' \
+      | grep -E '(/v[0-9]+/|/api/|/docs/|/graph|/graphql|/gql|/query|/rest/|/schema/service/|/swagger)' \
+      | sort -u > "$OUTPUT_DIR/api_scanner/endpoints.txt"
 
     # Common API paths
-    cat > "$OUTPUT_DIR/api_scanner/api_paths.txt" << EOF
-# Admin & Management
+    echo -e "${BLUE}[*] Checking common API paths.${NC}"
+    API_PATHS_FILE="$OUTPUT_DIR/api_scanner/api_paths.txt"
+    mkdir -p "$(dirname "$API_PATHS_FILE")" || { echo "Cannot create dir for api_paths"; exit 1; }
+
+    cat > "$API_PATHS_FILE" << 'EOF'
+# Admin and Management
 /admin/api
 /api/admin
 /api/console
@@ -65,7 +71,7 @@ f_discover_api(){
 /schema.graphql
 /schema.json
 
-# Authentication/User APIs
+# Authentication and User APIs
 /api/account
 /api/accounts
 /api/auth
@@ -126,7 +132,7 @@ f_discover_api(){
 /graphql/schema
 /graphql/v1
 
-# Health & Monitoring
+# Health and Monitoring
 /actuator/health
 /api/health
 /api/healthcheck
@@ -223,7 +229,7 @@ f_discover_api(){
 /actuator/mappings
 /actuator/metrics
 
-# Swagger & API Documentation
+# Swagger and API Documentation
 /api-docs
 /api-explorer
 /api-guide
@@ -262,103 +268,95 @@ f_discover_api(){
 /v4
 EOF
 
-    # Test each path, ignoring comment lines
-    echo -e "${BLUE}[*] Testing ${YELLOW}$(grep -v '^#' "$OUTPUT_DIR/api_scanner/api_paths.txt" | wc -l)${BLUE} API paths.${NC}"
+    if [ ! -s "$API_PATHS_FILE" ]; then
+        echo "ERROR: api_paths.txt is empty or was not created!"
+        ls -ld "$OUTPUT_DIR/api_scanner"
+        exit 1
+    fi
 
-    # Create a directory for storing responses
+    echo -e "${BLUE}[*] Created a list of $(grep -cv '^#' "$API_PATHS_FILE") common API paths.${NC}"
+
+###############################################################################################################################
+
+# Path testing loop
+    echo -e "${BLUE}[*] Testing ${YELLOW}$(grep '/' "$API_PATHS_FILE" | wc -l)${BLUE} API paths.${NC}"
     mkdir -p "$OUTPUT_DIR/api_scanner/responses"
-
-    # Prepare a user agent to mimic a browser
     USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-
-    # Counter for progress display
-    TOTAL_PATHS=$(grep -v '^#' "$OUTPUT_DIR/api_scanner/api_paths.txt" | wc -l)
+    TOTAL_PATHS=$(grep '/' "$API_PATHS_FILE" | wc -l)
     CURRENT=0
-
-    # Create an empty file to store found endpoints
     touch "$OUTPUT_DIR/api_scanner/found_api_endpoints.txt"
 
     while read -r path; do
-        # Skip comment and empty lines
-        [[ "$PATH" =~ ^\s*# || -z "$PATH" ]] && continue
-
-        # Increment counter
+        [[ "$path" =~ ^[[:space:]]*# || -z "$path" ]] && continue
         ((CURRENT++))
-
-        # Calculate percentage
         PERCENTAGE=$((CURRENT * 100 / TOTAL_PATHS))
+        echo -ne "${BLUE}[*] Testing [${YELLOW}${PERCENTAGE}%${BLUE}] $path${NC}\r"
 
-        # Display progress
-        echo -ne "${BLUE}[*] Testing: [${YELLOW}${PERCENTAGE}%${BLUE}] $PATH${NC}\r"
+        URL="${TARGET_URL%/}$path"
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" -H "User-Agent: $USER_AGENT" --connect-timeout 3 -m 7 || echo "000")
 
-        URL="${TARGET_URL%/}$PATH"
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" -H "User-Agent: $USER_AGENT" --connect-timeout 3 -m 7)
+        if [[ "$STATUS" == "200" || "$STATUS" == "201" || "$STATUS" == "204" ||
+              "$STATUS" == "301" || "$STATUS" == "302" || "$STATUS" == "307" ||
+              "$STATUS" == "401" || "$STATUS" == "403" || "$STATUS" == "500" ]]; then
 
-        # Check for success or interesting responses
-        if [[ "$STATUS" == "200" || "$STATUS" == "201" || "$STATUS" == "204" || 
-              "$STATUS" == "301" || "$STATUS" == "302" || "$STATUS" == "307" || 
-              "$STATUS" == "401" || "$STATUS" == "403" ]]; then
+            SAFE_NAME=$(echo "$path" | sed 's/[\/:#?=&% ]/_/g' | tr -cd 'a-zA-Z0-9_.-')
+            RESPONSE_FILE="$OUTPUT_DIR/api_scanner/responses/response_${SAFE_NAME}.txt"
 
-            # Create safe filename from path
-            SAFE_NAME=$(echo "$PATH" | sed 's/\//_/g')
-            RESPONSE_FILE="$OUTPUT_DIR/api_scanner/responses/response$SAFE_NAME"
-
-            # Store the status
             STATUS_MESSAGE=""
             case "$STATUS" in
                 200|201|204) STATUS_MESSAGE="SUCCESS";;
                 301|302|307) STATUS_MESSAGE="REDIRECT";;
                 401) STATUS_MESSAGE="UNAUTHORIZED";;
                 403) STATUS_MESSAGE="FORBIDDEN";;
+                500) STATUS_MESSAGE="SERVER ERROR";;
             esac
 
             echo -e "\n${YELLOW}[*] Found API Endpoint: $URL ($STATUS - $STATUS_MESSAGE)${NC}"
             echo "$URL ($STATUS - $STATUS_MESSAGE)" >> "$OUTPUT_DIR/api_scanner/found_api_endpoints.txt"
 
-            # Get response and headers
-            curl -s -i "$URL" -H "User-Agent: $USER_AGENT" -H "Accept: application/json, text/plain, */*" --connect-timeout 3 -m 7 > "$RESPONSE_FILE"
+            if curl -s -i "$URL" -H "User-Agent: $USER_AGENT" -H "Accept: application/json, text/plain, */*" --connect-timeout 3 -m 7 > "$RESPONSE_FILE" 2>"$OUTPUT_DIR/api_scanner/curl_err_${SAFE_NAME}.txt"; then
+                [ -s "$OUTPUT_DIR/api_scanner/curl_err_${SAFE_NAME}.txt" ] && echo -e "${YELLOW}[*] Curl warning for $URL: $(cat "$OUTPUT_DIR/api_scanner/curl_err_${SAFE_NAME}.txt")${NC}"
 
-            # Try to detect if it's JSON
-            grep -q "Content-Type:.*json" "$RESPONSE_FILE"
-            is_json=$?
+                if grep -qi "Content-Type:.*json" "$RESPONSE_FILE" 2>/dev/null; then
+                    echo -e "${YELLOW}[*] JSON response detected${NC}"
+                    sed -n '/^\r\{0,1\}$/,$p' "$RESPONSE_FILE" | sed '1d' > "$RESPONSE_FILE.json" 2>/dev/null || cp "$RESPONSE_FILE" "$RESPONSE_FILE.json"
 
-            if [[ $is_json -eq 0 ]]; then
-                echo -e "${YELLOW}[*] JSON response detected${NC}"
+                    if command -v jq >/dev/null 2>&1 && jq . "$RESPONSE_FILE.json" >/dev/null 2>&1; then
+                        echo -e "${YELLOW}[*] Valid JSON response${NC}"
 
-                # Extract the body (remove headers)
-                sed '1,/^\r\?$/d' "$RESPONSE_FILE" > "$RESPONSE_FILE.json"
-
-                # Check if response is valid JSON
-                jq . "$RESPONSE_FILE.json" &> /dev/null
-                if [[ $? -eq 0 ]]; then
-                    echo -e "${YELLOW}[*] Valid JSON response${NC}"
-
-                    # If this is a GraphQL endpoint, try introspection
-                    if [[ "$PATH" == *graphql* || "$PATH" == *gql* ]]; then
-                        echo -e "${YELLOW}[*] Testing GraphQL endpoint for introspection.${NC}"
-                        INTROSPECTION_QUERY='{"query":"{__schema{queryType{name}}}"}'
-                        curl -s -X POST -H "Content-Type: application/json" -d "$INTROSPECTION_QUERY" "$URL" > "$OUTPUT_DIR/api_scanner/responses/graphql_introspection$SAFE_NAME.json"
+                        if [[ "$path" == *graphql* || "$path" == *gql* ]]; then
+                            echo -e "${YELLOW}[*] Testing GraphQL endpoint for introspection.${NC}"
+                            INTROSPECTION_QUERY='{"query":"{__schema{queryType{name}}}"}'
+                            curl -s -X POST -H "Content-Type: application/json" -d "$INTROSPECTION_QUERY" "$URL" > "$OUTPUT_DIR/api_scanner/responses/graphql_introspection_${SAFE_NAME}.json" 2>/dev/null || echo "{}" > "$OUTPUT_DIR/api_scanner/responses/graphql_introspection_${SAFE_NAME}.json"
+                        fi
+                    else
+                        echo -e "${YELLOW}[*] Invalid/malformed JSON response${NC}"
                     fi
-                else
-                    echo -e "${YELLOW}[*] Invalid JSON response, might be protected or not a standard API${NC}"
                 fi
-            fi
 
-            # Check for sensitive info in response
-            grep -i -E "(api[-_]?key|auth|credential|key|password|secrettoken)" "$RESPONSE_FILE" > "$RESPONSE_FILE.sensitive" 2>/dev/null
+                grep -i -E "(api[-_]?key|auth|credential|key|password|secrettoken)" "$RESPONSE_FILE" > "$RESPONSE_FILE.sensitive" 2>/dev/null
 
-            if [ -s "$RESPONSE_FILE.sensitive" ]; then
-                echo -e "${RED}[!] Potential sensitive information leaked in API response!${NC}"
-                echo "$URL" >> "$OUTPUT_DIR/api_scanner/sensitive_endpoints.txt"
+                if [ -s "$RESPONSE_FILE.sensitive" ]; then
+                    echo -e "${RED}[!] Potential sensitive information leaked!${NC}"
+                    echo "$URL" >> "$OUTPUT_DIR/api_scanner/sensitive_endpoints.txt"
+                fi
+            else
+                echo -e "${RED}[!] Failed to fetch full response for $URL${NC}"
             fi
         fi
-    done < "$OUTPUT_DIR/api_scanner/api_paths.txt"
+        sleep 0.3
+    done < "$API_PATHS_FILE"
 
     echo -e "\n${BLUE}[*] API path scan complete.${NC}"
-
-    # Count discovered endpoints
     ENDPOINT_COUNT=$(wc -l < "$OUTPUT_DIR/api_scanner/found_api_endpoints.txt" 2>/dev/null || echo "0")
     echo -e "${YELLOW}[*] Discovered $ENDPOINT_COUNT API endpoints${NC}"
+
+###############################################################################################################################
+
+
+    # Lee start here
+    exit 0
+
 
     # Enhanced GraphQL Testing
     echo -e "${BLUE}[*] Performing enhanced GraphQL endpoint testing.${NC}"
