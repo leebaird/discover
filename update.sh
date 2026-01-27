@@ -94,56 +94,57 @@ fi
 
 ###############################################################################################################################
 
-if [ -d /opt/BOFs/anthemtotheego-inlineExecute-assembly/.git ]; then
-    echo -e "${BLUE}Updating anthemtotheego InlineExecute Assembly BOF.${NC}"
-    cd /opt/BOFs/anthemtotheego-inlineExecute-assembly/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing anthemtotheego InlineExecute Assembly BOF.${NC}"
-    git clone https://github.com/anthemtotheego/InlineExecute-Assembly /opt/BOFs/anthemtotheego-inlineExecute-assembly
-    echo
-fi
+if [ -d /opt/bruteratel/ ] || [ -d /opt/cobaltstrike/ ]; then
+    if [ -d /opt/BOFs/anthemtotheego-inlineExecute-assembly/.git ]; then
+        echo -e "${BLUE}Updating anthemtotheego InlineExecute Assembly BOF.${NC}"
+        cd /opt/BOFs/anthemtotheego-inlineExecute-assembly/ || exit ; git pull
+        echo
+    else
+        echo -e "${YELLOW}Installing anthemtotheego InlineExecute Assembly BOF.${NC}"
+        git clone https://github.com/anthemtotheego/InlineExecute-Assembly /opt/BOFs/anthemtotheego-inlineExecute-assembly
+        echo
+    fi
 
-if [ -d /opt/BOFs/outflanknl-c2-tool-collection/.git ]; then
-    echo -e "${BLUE}Updating Outflanknl C2 Tool Collection BOF.${NC}"
-    cd /opt/BOFs/outflanknl-c2-tool-collection/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing Outflanknl C2 Tool Collection BOF.${NC}"
-    git clone https://github.com/outflanknl/C2-Tool-Collection /opt/BOFs/outflanknl-c2-tool-collection
-    echo
-fi
+    if [ -d /opt/BOFs/outflanknl-c2-tool-collection/.git ]; then
+        echo -e "${BLUE}Updating Outflanknl C2 Tool Collection BOF.${NC}"
+        cd /opt/BOFs/outflanknl-c2-tool-collection/ || exit ; git pull
+        echo
+    else
+        echo -e "${YELLOW}Installing Outflanknl C2 Tool Collection BOF.${NC}"
+        git clone https://github.com/outflanknl/C2-Tool-Collection /opt/BOFs/outflanknl-c2-tool-collection
+        echo
+    fi
 
-if [ -d /opt/BOFs/outflanknl-helpcolor/.git ]; then
-    echo -e "${BLUE}Updating Outflanknl HelpColor BOF.${NC}"
-    cd /opt/BOFs/outflanknl-helpcolor/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing Outflanknl HelpColor BOF.${NC}"
-    git clone https://github.com/outflanknl/HelpColor /opt/BOFs/outflanknl-helpcolor
-    echo
-fi
+    if [ -d /opt/BOFs/outflanknl-helpcolor/.git ]; then
+        echo -e "${BLUE}Updating Outflanknl HelpColor BOF.${NC}"
+        cd /opt/BOFs/outflanknl-helpcolor/ || exit ; git pull
+        echo
+    else
+        echo -e "${YELLOW}Installing Outflanknl HelpColor BOF.${NC}"
+        git clone https://github.com/outflanknl/HelpColor /opt/BOFs/outflanknl-helpcolor
+        echo
+    fi
 
-if [ -d /opt/BOFs/trustedsec-remote-ops/.git ]; then
-    echo -e "${BLUE}Updating TrustedSec Remote OPs BOF.${NC}"
-    cd /opt/BOFs/trustedsec-remote-ops/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing TrustedSec Remote OPs BOF.${NC}"
-    git clone https://github.com/trustedsec/CS-Remote-OPs-BOF /opt/BOFs/trustedsec-remote-ops
-    echo
-fi
+    if [ -d /opt/BOFs/trustedsec-remote-ops/.git ]; then
+        echo -e "${BLUE}Updating TrustedSec Remote OPs BOF.${NC}"
+        cd /opt/BOFs/trustedsec-remote-ops/ || exit ; git pull
+        echo
+    else
+        echo -e "${YELLOW}Installing TrustedSec Remote OPs BOF.${NC}"
+        git clone https://github.com/trustedsec/CS-Remote-OPs-BOF /opt/BOFs/trustedsec-remote-ops
+        echo
+    fi
 
-if [ -d /opt/BOFs/trustedsec-sa/.git ]; then
-    echo -e "${BLUE}Updating TrustedSec Situational Awareness BOF.${NC}"
-    cd /opt/BOFs/trustedsec-sa/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing TrustedSec Situational Awareness BOF.${NC}"
-    git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/BOFs/trustedsec-sa
-    echo
+    if [ -d /opt/BOFs/trustedsec-sa/.git ]; then
+        echo -e "${BLUE}Updating TrustedSec Situational Awareness BOF.${NC}"
+        cd /opt/BOFs/trustedsec-sa/ || exit ; git pull
+        echo
+    else
+        echo -e "${YELLOW}Installing TrustedSec Situational Awareness BOF.${NC}"
+        git clone https://github.com/trustedsec/CS-Situational-Awareness-BOF /opt/BOFs/trustedsec-sa
+        echo
+    fi
 fi
-
 ###############################################################################################################################
 
 if [ -d /opt/cobaltstrike/ ]; then
