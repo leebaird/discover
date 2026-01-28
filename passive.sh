@@ -258,7 +258,7 @@ for source in "${sources_no_api[@]}"; do
 done
 
 echo
-echo "    These modules require an API key."
+echo "    These sources require API keys."
 for source in "${sources_api[@]}"; do
     run_harvester "$source"
 done
