@@ -13,8 +13,8 @@ YELLOW='\033[1;33m'
 if [ $# -eq 0 ]; then
     echo
     echo "Usage:"
-    echo "  $0 example.com           # Use free sources"
-    echo "  $0 example.com api       # Use API sources"
+    echo "  $0 www.example.com           # Use free sources"
+    echo "  $0 www.example.com api       # Use API sources"
     echo
     exit 1
 fi
@@ -31,8 +31,8 @@ else
     echo -e "${RED}[!] Invalid argument.${NC}"
     echo
     echo "Usage:"
-    echo "  $0 example.com           # Use free sources"
-    echo "  $0 example.com api       # Use API sources"
+    echo "  $0 www.example.com           # Use free sources"
+    echo "  $0 www.example.com api       # Use API sources"
     echo
     exit 1
 fi
@@ -105,14 +105,14 @@ done
 
 if ls z* >/dev/null 2>&1; then
     mv z* "$WORK_DIR/" 2>/dev/null || true
-    echo -e "[*] Results moved to ${YELLOW}$WORK_DIR${NC}"
+    echo
+    echo -e "${BLUE}[*] Finished.${NC}"
+    echo
+    echo -e "[*] Results saved to ${YELLOW}$WORK_DIR${NC}"
 else
+    echo
     echo -e "${YELLOW}[*] No results files were created.${NC}"
 fi
-
-echo
-echo -e "${BLUE}[*] Finished.${NC}"
-echo
 
 deactivate
 
