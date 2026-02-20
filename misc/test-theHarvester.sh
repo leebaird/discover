@@ -49,7 +49,8 @@ TH_DIR="$HOME/theHarvester"
 WORK_DIR="$HOME/${DOMAIN}-test"
 
 sources_no_api=(baidu certspotter chaos commoncrawl crtsh duckduckgo gitlab hudsonrock otx rapiddns robtex subdomaincenter subdomainfinderc99 thc threatcrowd urlscan waybackarchive yahoo)
-sources_api=(bevigil bitbucket brave bufferoverun builtwith censys criminalip dehashed dnsdumpster fofa fullhunt github-code hackertarget haveibeenpwned hunter hunterhow intelx leakix leaklookup netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails tomba venacus virustotal whoisxml windvane zoomeye)
+sources_api=(bevigil bitbucket brave bufferoverun builtwith censys criminalip dehashed dnsdumpster fofa fullhunt github-code hackertarget haveibeenpwned hunter hunterhow intelx leakix leaklookup netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails tomba venacus virustotal whoisxml zoomeye)
+# windvane (broken)
 
 ###############################################################################################################################
 
@@ -87,7 +88,7 @@ run_harvester() {
 
     printf "    %-22s  (%2d / %2d)\n" "$source" "$COUNT" "$total"
 
-    theHarvester -d "$DOMAIN" -b "$source" -r -n | sed '/^$/d; /:$/d' | sort -u > "z${source}.tmp" 2>/dev/null || true
+    theHarvester -d "$DOMAIN" -b "$source" -n -r | sed '/^$/d; /:$/d' | sort -u > "z${source}.tmp" 2>/dev/null || true
 
     if [ -s "z${source}.tmp" ]; then
         mv "z${source}.tmp" "z${source}"

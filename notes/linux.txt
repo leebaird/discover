@@ -42,7 +42,7 @@ gzip test
 zip -9 test.zip test
 zip -r test.zip test/
 
-7z -x test.7z                                   Extract
+7z x test.7z                                    Extract
 bzip2 -d test.bz2
 tar jxf test.tar.bz2
 gunzip test.gz

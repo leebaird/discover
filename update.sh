@@ -14,6 +14,12 @@ echo -e "${BLUE}Updating the operating system.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 echo
 
+if ! command -v 7z &> /dev/null; then
+    echo -e "${YELLOW}Installing 7-Zip.${NC}"
+    apt install -y 7zip
+    echo
+fi
+
 if ! command -v ansible &> /dev/null; then
     echo -e "${YELLOW}Installing Ansible.${NC}"
     apt install -y ansible-core

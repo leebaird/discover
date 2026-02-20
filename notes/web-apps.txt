@@ -1,6 +1,64 @@
 Web Apps
 
 
+# Example Assessment
+
+- Set variables and test connectivity
+URL=target.com
+IP=$(dig +short $TARGET)
+AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/145.0.3800.58'
+
+ping -c 3 $URL
+traceroute $URL
+
+- Check headers passively
+curl -I https://$URL
+
+- Discover open ports and perform service enumeration
+nmap -Pn -n -T4 --open -p- -sTCV --script=http-title,http-server-header --stats-every 20s $URL -oA nmap
+
+- Enumerate web technologies
+whatweb -a 3 -U=$AGENT https://$URL
+for i in `cat targets.txt` ; do whatweb -a 3 -U=$AGENT https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
+
+wafw00f -a https://$URL
+for i in `cat targets.txt` ; do wafw00f -a https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
+
+- SSL/TLS enumeration
+https://ssllabs.com/ssltest/
+
+sslyze $URL --resum --ems --http_headers --fallback --openssl_ccs --certinfo --reneg --tlsv1 --elliptic_curves --tlsv1_1 --robot --heartbleed --sslv2 --sslv3
+
+sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour
+sslscan --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour $IP:443
+
+- Discover vulnerabilities
+nuclei -u https://$URL -t vulnerabilities/ -c 10 -rl 50
+
+- Default configurations and files
+nikto -h https://$URL -Format htm --output nikto.htm
+
+feroxbuster --url https://$URL
+feroxbuster --url https://$URL -x php
+
+- Directory enumeration
+ffuf -u https://$IP/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
+
+- Create a custom word list
+cewl --lowercase -e --email_file emails.txt -w dict.txt https://$URL
+
+- Application specific enumeration
+davtest -url https://$URL
+
+droopescan scan drupal -u https://$URL
+
+joomscan -u https://$URL
+
+uniscan -u https://www.$URL -qweds
+
+wpscan --url https:/$URL --enumerate vp,vt,cb,u,m
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # HTTP Methods or Verbs
 
 GET       Used to get data from a server. Passes all parameters in the URL
@@ -367,60 +425,6 @@ Comment tag         foo<!--
 Ampersand           &foo
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Example Assessment
-
-- Set variables and test connectivity
-URL=target.com
-IP=10.0.0.10
-
-ping -c3 $URL
-
-- Discover open ports and perform service enumeration
-nmap -Pn -n -T4 --open -p- -sTCV $URL --stats-every 20s -oA nmap
-
-- Enumerate web technologies
-whatweb -a 3 https://$URL
-for i in `cat targets.txt` ; do whatweb -a 3 https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
-
-wafw00f -a https://$URL
-for i in `cat targets.txt` ; do wafw00f -a https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
-
-- SSL/TLS enumeration
-https://ssllabs.com/ssltest/
-
-sslyze $URL --resum --ems --http_headers --fallback --openssl_ccs --certinfo --reneg --tlsv1 --elliptic_curves --tlsv1_1 --robot --heartbleed --sslv2 --sslv3
-
-sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour
-sslscan --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour $IP:443
-
-- HTTP/S vulnerabilities
-nmap -Pn -n -T4 --open -p80,443 --script-timeout 20s -sT --script-timeout 20s --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed --min-hostgroup 100 -iL targets.txt
-nmap -Pn -n -T4 --open -p80,443 --script-timeout 20s -sT --script-timeout 20s --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed $URL
-
-- Default configurations and files
-nikto -h https://$URL -Format htm --output nikto.htm
-
-- Directory enumeration
-ffuf -u https://$IP/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
-
-feroxbuster --url https://$URL
-feroxbuster --url https://$URL -x php
-
-- Create a custom word list
-cewl --lowercase -e --email_file emails.txt -w dict.txt https://$URL
-
-- Application specific enumeration
-davtest -url https://$URL
-
-droopescan scan drupal -u https://$URL
-
-joomscan -u https://$URL
-
-uniscan -u https://www.$URL -qweds
-
-wpscan --url https:/$URL --enumerate vp,vt,cb,u,m
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
 # Setup Burp Suite Pro
 
 Target > Site map:
@@ -573,16 +577,16 @@ Intruder > Position > Attack type
 
 - Types of attack
 Sniper:
-    Uses a single wordlist against a single variable.
+    Uses a single word list against a single variable.
 Battering ram:
-    Uses a single wordlist against all variables.
+    Uses a single word list against all variables.
 Pitchfork:
-    Uses multiple wordlists.
+    Uses multiple word lists.
     For example: you have a known list of usernames and a related list of passwords.
     This will try the first username with the first password, then the second username with the second password, and so on.
     This is useful when checking for old accounts that should have been deleted.
 Cluster bomb:
-    Uses multiple wordlists.
+    Uses multiple word lists.
     For example: you have a known list of usernames and a non-related list of passwords.
     This will try the first username with each password, then the second username with each password, and so on.
 
