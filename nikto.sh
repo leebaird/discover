@@ -12,6 +12,20 @@ if [ "$EUID" == 0 ]; then
     exit   # Do not use exit 1 here, it will break the script
 fi
 
+if grep -q 'Nikto/@VERSION' /etc/nikto/config.txt; then
+    echo
+    echo -e "[!] Remove the default user agent string located at ${YELLOW}/etc/nikto/config.txt${NC}"
+    echo
+    exit 0
+fi
+
+if grep -q '^RFIURL=http://cirt.net/rfiinc.txt?' /etc/nikto/config.txt; then
+    echo
+    echo -e "[!] Comment out RFIURL checks located at ${YELLOW}/etc/nikto/config.txt${NC}"
+    echo
+    exit 0
+fi
+
 clear
 f_banner
 
