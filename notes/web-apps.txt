@@ -11,32 +11,35 @@ AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like
 ping -c 3 $URL
 traceroute $URL
 
-- Check headers passively
-curl -I https://$URL
-
 - Discover open ports and perform service enumeration
-nmap -Pn -n -T4 --open -p- -sTCV --script=http-title,http-server-header --stats-every 20s $URL -oA nmap
+nmap -Pn -n -T4 --open -sVC --stats-every 20s $URL -oA nmap
 
 - Enumerate web technologies
-whatweb -a 3 -U=$AGENT https://$URL
-for i in `cat targets.txt` ; do whatweb -a 3 -U=$AGENT https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.3800.70
+whatweb -a 3 -U='AGENT ABOVE' https://$URL
+for i in `cat 443.txt` ; do whatweb -a 3 -U='AGENT ABOVE' https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
 
-wafw00f -a https://$URL
-for i in `cat targets.txt` ; do wafw00f -a https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
+Create a file called headers.txt
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.3800.70
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+
+wafw00f -H headers.txt -a -i 443.txt
 
 - SSL/TLS enumeration
 https://ssllabs.com/ssltest/
 
 sslyze $URL --resum --ems --http_headers --fallback --openssl_ccs --certinfo --reneg --tlsv1 --elliptic_curves --tlsv1_1 --robot --heartbleed --sslv2 --sslv3
 
-sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour
 sslscan --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour $IP:443
-
-- Discover vulnerabilities
-nuclei -u https://$URL -t vulnerabilities/ -c 10 -rl 50
+sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour
 
 - Default configurations and files
 nikto -h https://$URL -Format htm --output nikto.htm
+Discover option 10
 
 feroxbuster --url https://$URL
 feroxbuster --url https://$URL -x php
@@ -44,8 +47,8 @@ feroxbuster --url https://$URL -x php
 - Directory enumeration
 ffuf -u https://$IP/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
 
-- Create a custom word list
-cewl --lowercase -e --email_file emails.txt -w dict.txt https://$URL
+- Discover vulnerabilities
+nuclei -u https://$URL -t vulnerabilities/ -c 10 -rl 50
 
 - Application specific enumeration
 davtest -url https://$URL

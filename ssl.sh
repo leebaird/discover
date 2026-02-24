@@ -110,7 +110,7 @@ while read -r LINE; do
 
     echo -n "[$N/$NUMBER]  $LINE"
     # shellcheck disable=SC2024
-    sudo nmap -Pn -n -T4 --open -p "$PORT" -sV --script=rsa-vuln-roca,ssl*,tls-alpn,tls-ticketbleed --script-timeout 20s "$TARGET" > tmp
+    sudo nmap -Pn -n -T4 --open -p "$PORT" -sV --script rsa-vuln-roca,ssl*,tls* --script-timeout 20s "$TARGET" > tmp
     echo
 
     grep -Eiv '(does not|incorrect results|service unrecognized)' tmp | grep -v '^SF' |

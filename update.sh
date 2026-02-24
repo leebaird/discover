@@ -92,6 +92,12 @@ if ! command -v whatweb &> /dev/null; then
     echo
 fi
 
+if ! command -v xdotool &> /dev/null; then
+    echo -e "${YELLOW}Installing xdotool.${NC}"
+    apt install -y xdotool
+    echo
+fi
+
 if ! command -v xmllint &> /dev/null; then
     echo -e "${YELLOW}Installing xmllint.${NC}"
     apt install -y libxml2-utils
