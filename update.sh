@@ -92,13 +92,20 @@ if ! command -v whatweb &> /dev/null; then
     echo
 fi
 
-if ! command -v ydotool >/dev/null 2>&1 || command -v xdotool >/dev/null 2>&1; then
-    if grep -qi '^ID=ubuntu' /etc/os-release; then
+if grep -qi '^ID=ubuntu' /etc/os-release; then
+    if ! command -v ydotool >/dev/null 2>&1 || ! command -v ydotoold >/dev/null 2>&1; then
         echo -e "${YELLOW}Installing ydotool.${NC}"
         apt install -y ydotool
-    else
+        echo
+        echo -e "${YELLOW}Installing ydotoold.${NC}"
+        apt install -y ydotoold
+        echo
+    fi
+else
+    if ! command -v xdotool >/dev/null 2>&1; then
         echo -e "${YELLOW}Installing xdotool.${NC}"
         apt install -y xdotool
+        echo
     fi
 fi
 

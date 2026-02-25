@@ -30,9 +30,23 @@ clear
 f_banner
 
 if command -v ydotool >/dev/null 2>&1; then
-    XDOTOOL="ydotool"
+    if ! pgrep ydotoold >/dev/null; then
+        echo -e "${YELLOW}[!] ydotoold daemon is not running.${NC}"
+        echo -e "${YELLOW}[!] Start the daemon manually (sudo ydotoold &) then re-run the Nikto option.${NC}"
+        echo
+        exit 0
+    fi
+    XDOTOOL="sudo ydotool"
+    ENTER="enter"
 elif command -v xdotool >/dev/null 2>&1; then
     XDOTOOL="xdotool"
+    ENTER="Return"
+else
+    echo
+    echo -e "${YELLOW}[!] Neither xdotool nor ydotool is installed.${NC}"
+    echo -e "${YELLOW}[!] Run the Update option from the main menu.${NC}"
+    echo
+    exit 0
 fi
 
 echo -e "${BLUE}Run multiple instances of Nikto in parallel.${NC}"
@@ -68,7 +82,7 @@ case "$CHOICE" in
             $XDOTOOL key ctrl+shift+t
             $XDOTOOL type "nikto -h $LINE -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto-$PORT/$LINE.htm ; exit"
             sleep 2
-            $XDOTOOL key Return
+            $XDOTOOL key $ENTER
         done < "$LOCATION"
         ;;
 
@@ -81,7 +95,7 @@ case "$CHOICE" in
             sleep 2
             $XDOTOOL type "nikto -h $HOST -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto/$HOST-$PORT.htm ; exit"
             sleep 2
-            $XDOTOOL key Return
+            $XDOTOOL key $ENTER
         done < "$LOCATION"
         ;;
 
@@ -101,3 +115,5 @@ if [ "$CHOICE" == 1 ]; then
 else
     echo -e "The new report is located at ${YELLOW}$HOME/data/nikto-multi/${NC}"
 fi
+
+echo
