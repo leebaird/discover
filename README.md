@@ -1,6 +1,6 @@
 ```
 Custom bash scripts used to automate various penetration testing tasks including recon, scanning, 
-enumeration, and malicious payload creation using Metasploit. For use with Kali Linux.
+enumeration, and malicious payload creation using Metasploit. For use with Kali Linux or Ubuntu.
 ```
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/leebaird/discover/blob/master/LICENSE)

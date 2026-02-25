@@ -29,6 +29,12 @@ fi
 clear
 f_banner
 
+if command -v ydotool >/dev/null 2>&1; then
+    XDOTOOL="ydotool"
+elif command -v xdotool >/dev/null 2>&1; then
+    XDOTOOL="xdotool"
+fi
+
 echo -e "${BLUE}Run multiple instances of Nikto in parallel.${NC}"
 echo
 echo "1.  List of IPs"
@@ -59,10 +65,10 @@ case "$CHOICE" in
         mkdir -p "$HOME/data/nikto-$PORT"
 
         while IFS= read -r LINE; do
-            xdotool key ctrl+shift+t
-            xdotool type "nikto -h $LINE -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto-$PORT/$LINE.htm ; exit"
+            $XDOTOOL key ctrl+shift+t
+            $XDOTOOL type "nikto -h $LINE -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto-$PORT/$LINE.htm ; exit"
             sleep 2
-            xdotool key Return
+            $XDOTOOL key Return
         done < "$LOCATION"
         ;;
 
@@ -71,11 +77,11 @@ case "$CHOICE" in
         mkdir -p "$HOME/data/nikto"
 
         while IFS=: read -r HOST PORT; do
-            xdotool key ctrl+shift+t
+            $XDOTOOL key ctrl+shift+t
             sleep 2
-            xdotool type "nikto -h $HOST -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto/$HOST-$PORT.htm ; exit"
+            $XDOTOOL type "nikto -h $HOST -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto/$HOST-$PORT.htm ; exit"
             sleep 2
-            xdotool key Return
+            $XDOTOOL key Return
         done < "$LOCATION"
         ;;
 
