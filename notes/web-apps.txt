@@ -43,9 +43,10 @@ Discover option 10
 
 feroxbuster -u https://$URL -a 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.3800.70' \
     --auto-tune -C 404,502,503 --no-recursion -w directory-list-2.3-small.txt --output feroxbuster.txt
+Or replace -C <CODES> with -s 200
 
 - Directory enumeration
-ffuf -u https://$IP/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
+ffuf -u https://$IP/FUZZ -mc 200,301,302 -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.3800.70" -w /usr/share/wordlists/directory-list-2.3-small.txt
 
 - Discover vulnerabilities
 nuclei -u https://$URL -t vulnerabilities/ -c 10 -rl 50
