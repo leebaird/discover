@@ -38,6 +38,21 @@ if ! command -v dnsrecon &> /dev/null; then
     echo
 fi
 
+if grep -qi '^ID=ubuntu' /etc/os-release; then
+    if ! command -v feroxbuster >/dev/null; then
+        echo -e "${YELLOW}Installing feroxbuster.${NC}"
+        curl -sL https://raw.githubusercontent.com/epi052/feroxbuster/main/install-nix.sh | bash
+        mv feroxbuster /usr/local/bin/
+        echo
+    fi
+else
+    if ! command -v feroxbuster >/dev/null; then
+        echo -e "${YELLOW}Installing feroxbuster.${NC}"
+        apt install -y feroxbuster
+        echo
+    fi
+fi
+
 if ! command -v ffuf &> /dev/null; then
     echo -e "${YELLOW}Installing ffuf.${NC}"
     apt install -y ffuf

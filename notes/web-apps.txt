@@ -41,8 +41,8 @@ sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall -
 nikto -h https://$URL -Format htm --output nikto.htm
 Discover option 10
 
-feroxbuster --url https://$URL
-feroxbuster --url https://$URL -x php
+feroxbuster -u https://$URL -a 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.3800.70' \
+    --auto-tune -C 404,502,503 --no-recursion -w directory-list-2.3-small.txt --output feroxbuster.txt
 
 - Directory enumeration
 ffuf -u https://$IP/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
