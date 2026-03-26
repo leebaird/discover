@@ -612,6 +612,7 @@ URLS=(
     "https://www.google.com/search?q=%22$COMPANYURL%22+logo"
     "https://www.google.com/search?q=site:http://s3.amazonaws.com+%22$DOMAIN%22"
     "https://www.google.com/search?q=site:http://blob.core.windows.net+%22$DOMAIN%22"
+	"https://www.google.com/search?q=site:dev.azure.com "example[.]com"
     "https://www.google.com/search?q=site:http://drive.google.com+%22$DOMAIN%22"
     "https://www.google.com/search?q=site:http://googleapis.com+%22$DOMAIN%22"
     "https://www.google.com/search?q=site:pastebin.com+%22$DOMAIN%22+password"
@@ -623,6 +624,7 @@ URLS=(
     "https://www.google.com/search?q=site:$DOMAIN+%22index+of/%22+OR+%22parent+directory%22"
     "https://www.google.com/search?q=site:$DOMAIN+intext:%22internal+use+only%22"
     "https://www.google.com/search?q=site:$DOMAIN+intext:%22proprietary+and+confidential%22"
+	"https://www.google.com/search?q=site:$DOMAIN+intitle%3Alogin+%7C+inurl%3Alogin+%7C+intitle%3Asignin+%7C+inurl%3Asignin+%7C+inurl%3Asecure"
     "https://$DOMAIN"
 )
 
