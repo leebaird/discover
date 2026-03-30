@@ -580,18 +580,19 @@ passwd <user>                                   Change another user's password
 su                                              Switch to another user
 
 - New user setup
-useradd -m lee                                  Add new user, create home directory, and set default shell
-useradd -m -s /usr/bin/zsh lee                  Add new user, create home directory, and set a different shell
+sudo adduser lee                                Add new user, create home directory, and set default shell
+sudo usermod -aG sudo lee                       Add new user to the sudo group.
 passwd lee                                      Set a password
-usermod -aG sudo lee                            Add new user to the sudo group.
 su - lee                                        Switch to new user
+
 ssh-keygen
 cd .ssh/
 vi authorized_keys                              Add your ssh key
 chmod 600 authorized_keys                       Set permissions
 
-userdel <user>                                  Delete user
-userdel -r <user>                               Delete user and user's home directory
+sudo deluser --remove-home <user>               Delete user
+id <user>                                       Validate user was deleted
+cat /etc/passwd                                 Validate user was deleted
 
 cat /etc/group                                  Groups
 groupadd <group>                                Add new group
