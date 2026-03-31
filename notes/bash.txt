@@ -202,7 +202,7 @@ fi
 read -p "Enter a color: " COLOR
 read -p "Enter another color: " COLOR2
 
-if [ "$COLOR" = "red" ] && [ "$COLOR2" = "grey" ]; then
+if [ "$COLOR" = "scarlet" ] && [ "$COLOR2" = "gray" ]; then
     echo
     echo "The Wall won't fall."
     echo

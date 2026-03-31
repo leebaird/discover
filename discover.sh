@@ -586,7 +586,7 @@ f_update(){
         uv self update
     fi
 
-    if [ ! -f "$HOME/go/bin/subfinder" ]; then
+    if [ -f /usr/local/go/bin/go ] && [ ! -f "$HOME/go/bin/subfinder" ]; then
         echo
         echo -e "${YELLOW}Installing subfinder.${NC}"
         go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
