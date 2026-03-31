@@ -393,12 +393,6 @@ else
     echo
 fi
 
-if ! command -v xlsx2csv &> /dev/null; then
-    echo -e "${YELLOW}Installing xlsx2csv.${NC}"
-    apt install -y xlsx2csv
-    echo
-fi
-
 if ! command -v xml_grep &> /dev/null; then
     echo -e "${YELLOW}Installing xml_grep.${NC}"
     apt install -y xml-twig-tools
