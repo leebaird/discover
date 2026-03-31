@@ -60,10 +60,17 @@ rm -rf Documents/ Music/ Pictures/ Public/ Templates/ Videos/
     Spaces Per Tab: 4
     Close and delete
 
-- Aliases
-    Copy the content of Discover > config > zshrc
-    cd ~
-    vi .bash_aliases
-    Paste, save, and close
-    source .bash_aliases
+- Install Discover
+    cd ~/
+    sudo git clone https://github.com/leebaird/discover.git
+    cd discover/config/
+    ./install.sh
+    Exit Terminal and reopen
     Test your network connection with 'n'
+
+Take a snapshot of your VM.
+
+- Update OS and install additional tools
+    cd discover/
+    ./discover.sh
+    Option 15
