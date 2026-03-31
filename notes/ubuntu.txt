@@ -33,34 +33,37 @@ sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y auto
 - Ignore case for tab completion
 sudo open /etc/inputrc
 Uncomment: set completion-ignore-case On
+Save the file and close.
 Close Terminal and reopen.
 
 - Clean up home folder
 rm -rf Documents/ Music/ Pictures/ Public/ Templates/ Videos/
 
 - Settings
-    Power > Automatic Screen Blank: off
+    Click on the 3 icons in the top right corner > cog icon
+    Power > Power Saving > Screen Blank: Never
     Appearance > Style: Dark
-
-- Terminal
-    Preferences > Appearance: GNOME
-    Behavior > Restore Session: off
 
 - Text Editor
     touch tmp
     open tmp
     Preferences
-    Display Line Numbers: on
+    Appearance: Builder Dark
     Highlight Current Line: on
-    Show Right Margin: on
-    Margin Position: 100
-    Character: Space
-    Spaces Per Tab: 4
-    Restore Session: off
-    rm tmp
+    Margin Position: 120
+    Close
 
-- Optional dev tools
-https://code.visualstudio.com/Download
-https://github.com/nvm-sh/nvm
-https://docs.npmjs.com/cli/v8/commands/npx
-https://nextjs.org
+    Click on the cog
+    Show Line Numbers: on
+    Show Right Margin: on
+    Spaces: on
+    Spaces Per Tab: 4
+    Close and delete
+
+- Aliases
+    Copy the content of Discover > config > zshrc
+    cd ~
+    vi .bash_aliases
+    Paste, save, and close
+    source .bash_aliases
+    Test your network connection with 'n'
