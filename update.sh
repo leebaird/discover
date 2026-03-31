@@ -77,12 +77,6 @@ if ! command -v nmap &> /dev/null; then
     echo
 fi
 
-if ! command -v raven &> /dev/null; then
-    echo -e "${YELLOW}Installing Raven.${NC}"
-    apt install -y raven
-    echo
-fi
-
 if ! command -v sslscan &> /dev/null; then
     echo -e "${YELLOW}Installing sslscan.${NC}"
     apt install -y sslscan
