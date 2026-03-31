@@ -581,6 +581,8 @@ f_update(){
     if [ ! -f ~/.local/bin/uv ]; then
         echo -e "${YELLOW}Installing uv.${NC}"
         curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo -e "${YELLOW}Close your Terminal then rerun Discover update.${NC}"
+        exit
     else
         echo -e "${BLUE}Updating uv.${NC}"
         uv self update

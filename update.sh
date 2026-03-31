@@ -26,12 +26,6 @@ if ! command -v ansible &> /dev/null; then
     echo
 fi
 
-if ! command -v aws &> /dev/null; then
-    echo -e "${YELLOW}Installing AWS.${NC}"
-    apt install -y awscli
-    echo
-fi
-
 if ! command -v dnsrecon &> /dev/null; then
     echo -e "${YELLOW}Installing dnsrecon.${NC}"
     apt install -y dnsrecon
@@ -408,25 +402,6 @@ fi
 if ! command -v xml_grep &> /dev/null; then
     echo -e "${YELLOW}Installing xml_grep.${NC}"
     apt install -y xml-twig-tools
-    echo
-fi
-
-if [ ! -f /opt/xwatchwin/xwatchwin ]; then
-    echo -e "${YELLOW}Installing xwatchwin.${NC}"
-    apt install -y imagemagick libxext-dev xutils-dev
-    wget http://www.ibiblio.org/pub/X11/contrib/utilities/xwatchwin.tar.gz -O /tmp/xwatchwin.tar.gz
-    tar zxvf /tmp/xwatchwin.tar.gz -C /tmp/
-    rm /tmp/xwatchwin.tar.gz
-    mv /tmp/xwatchwin/ /opt/
-    cd /opt/xwatchwin/ || exit
-
-    # Patch source code
-    sed -i 's/_BSD_SOURCE/_DEFAULT_SOURCE/g' /opt/xwatchwin/xwatchwin.c
-    sed -i 's/_SVID_SOURCE/_DEFAULT_SOURCE/g' /opt/xwatchwin/xwatchwin.c
-    sed -i 's/^WinNamesEqual(/int WinNamesEqual(/g' /opt/xwatchwin/xwatchwin.c
-
-    xmkmf && make && make install
-    rm /usr/bin/xwatchwin
     echo
 fi
 
