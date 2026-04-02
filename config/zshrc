@@ -22,6 +22,7 @@ alias d='cd $HOME/Desktop/ ; clear'
 alias date='date +"%a %b %d, %Y - %r %Z"'
 alias e='exit'
 alias gitc='git log @{u}..'
+alias h='cd $HOME ; clear'
 alias l='ls -lh'
 alias la='ls -lah'
 alias lc='ls -1 | wc -l'
@@ -44,7 +45,6 @@ echo -e "${BLUE}Verifying connectivity to Google${NC}"
 echo -e "${BLUE}----------------------------------------${NC}"
 ping -c3 8.8.8.8
 echo'
-alias r='cd $HOME ; clear'
 alias s='cd $HOME/discover/ ; clear'
 alias smb='impacket-smbserver share . -smb2support'
 alias sip='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
