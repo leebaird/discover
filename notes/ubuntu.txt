@@ -83,3 +83,8 @@ Take a snapshot of your VM.
 
     nmap
     sudo open /usr/share/nmap/nselib/http.lua > line 160
+
+- Fix Burp Suite Pro browser permissions
+find / -name "chrome-sandbox" 2>/dev/null | grep Burp
+sudo chown root:root /path/to/chrome-sandbox
+sudo chmod 4755 /path/to/chrome-sandbox
