@@ -74,3 +74,12 @@ Take a snapshot of your VM.
     cd discover/
     ./discover.sh
     Option 15
+
+- Update default user agent strings
+    https://www.whatismybrowser.com/guides/the-latest-user-agent/edge
+
+    nikto
+    sudo open /etc/nikto/nikto.txt
+
+    nmap
+    sudo open /usr/share/nmap/nselib/http.lua > line 160
