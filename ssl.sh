@@ -16,12 +16,13 @@ echo
 echo "$MEDIUM"
 echo
 
-echo "Running sslyze."
-sslyze --targets_in="$LOCATION" --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --openssl_ccs > tmp
-# Remove the first 20 lines and cleanup
-sed '1,20d' tmp | grep -Eiv '(=>|error:|error|is trusted|not supported|ok - supported|opensslerror|server rejected|timeout|unexpected error)' |
-# Find FOO, if the next line is blank, delete both lines
-awk '/Compression/ { Compression = 1; next }  Compression == 1 && /^$/ { Compression = 0; next }  { Compression = 0 }  { print }' |
+if command -v sslyze >/dev/null 2>&1; then
+    echo "Running sslyze."
+    sslyze --targets_in="$LOCATION" --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --openssl_ccs > tmp
+    # Remove the first 20 lines and cleanup
+    sed '1,20d' tmp | grep -Eiv '(=>|error:|error|is trusted|not supported|ok - supported|opensslerror|server rejected|timeout|unexpected error)' |
+    # Find FOO, if the next line is blank, delete both lines
+    awk '/Compression/ { Compression = 1; next }  Compression == 1 && /^$/ { Compression = 0; next }  { Compression = 0 }  { print }' |
 awk '/Renegotiation/ { Renegotiation = 1; next }  Renegotiation == 1 && /^$/ { Renegotiation = 0; next }  { Renegotiation = 0 }  { print }' |
 awk '/Resumption/ { Resumption = 1; next }  Resumption == 1 && /^$/ { Resumption = 0; next }  { Resumption = 0 }  { print }' |
 awk '/SSLV2/ { SSLV2 = 1; next }  SSLV2 == 1 && /^$/ { SSLV2 = 0; next }  { SSLV2 = 0 }  { print }' |
@@ -32,6 +33,7 @@ awk '/Unhandled/ { Unhandled = 1; next }  Unhandled == 1 && /^$/ { Unhandled = 0
 awk -v n=-2 'NR==n+1 && !NF{next} /-/ {n=NR}1' |
 # Remove double spacing
 cat -s > "$HOME"/data/sslyze.txt
+fi
 
 ###############################################################################################################################
 
