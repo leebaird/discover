@@ -77,6 +77,12 @@ if ! command -v sslscan &> /dev/null; then
     echo
 fi
 
+if ! command -v sqlmap &> /dev/null; then
+    echo -e "${YELLOW}Installing sqlmap.${NC}"
+    apt install -y sqlmap
+    echo
+fi
+
 if ! command -v sublist3r &> /dev/null; then
     echo -e "${YELLOW}Installing Sublist3r.${NC}"
     apt install -y sublist3r
