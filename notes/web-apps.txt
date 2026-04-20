@@ -46,9 +46,11 @@ feroxbuster -u https://$URL -a 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleW
 Or replace -C <CODES> with -s 200
 
 - Directory enumeration
-ffuf -u https://$IP/FUZZ -mc 200,301,302 -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.3800.70" -w /usr/share/wordlists/directory-list-2.3-small.txt
-
-ffuf -u https://$URL''/FUZZ -mc all -fc 404 -r -c -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.3800.70" -w /usr/share/seclists/Discovery/Web-Content/common.txt
+ffuf -u https://$URL/FUZZ -mc 200,204,301,302,307,401,403 -fc 404 -c -r -t 20-40 \
+     -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.3800.70" \
+     -recursion -recursion-depth 2 \
+     -e .php,.asp,.aspx,.jsp,.html,.js,.json,.bak,.old,.txt,.log \
+     -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt
 
 - Discover vulnerabilities
 nuclei -u https://$URL -t vulnerabilities/ -c 10 -rl 50
