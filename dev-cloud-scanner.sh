@@ -8,7 +8,6 @@ f_banner
 # Variables
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
-OUTPUT_DIR="$HOME/data/cloud-scanner/"
 
 # Function to terminate script
 f_terminate(){
@@ -20,6 +19,10 @@ f_terminate(){
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
+
+# Create output directory
+OUTPUT_DIR="$HOME/data/cloud-scanner_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$OUTPUT_DIR"
 
 ###############################################################################################################################
 

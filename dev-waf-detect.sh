@@ -5,8 +5,20 @@
 clear
 f_banner
 
-# Variables
-OUTPUT_DIR="waf-detection-$(date +%s)"
+# Function to terminate script
+f_terminate(){
+    echo
+    echo -e "${RED}[!] Terminating.${NC}"
+    echo
+    exit 1
+}
+
+# Catch process termination
+trap f_terminate SIGHUP SIGINT SIGTERM
+
+# Create output directory
+OUTPUT_DIR="$HOME/data/waf-detection_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$OUTPUT_DIR"
 
 # WAF signatures
 declare -A WAF_SIGNATURES=(
@@ -37,15 +49,6 @@ declare -A WAF_SIGNATURES=(
     ["Wordfence"]="wordfence"
     ["Yunsuo"]="yunsuo"
 )
-
-###############################################################################################################################
-
-f_create_output_dir(){
-    if [ ! -d "$OUTPUT_DIR" ]; then
-        mkdir -p "$OUTPUT_DIR"
-        echo -e "[*] Created output directory: ${GREEN}$OUTPUT_DIR${NC}"
-    fi
-}
 
 ###############################################################################################################################
 
@@ -193,8 +196,7 @@ f_single_target(){
 ###############################################################################################################################
 
 f_waf_main(){
-    f_create_output_dir
-
+    echo
     echo -e "${BLUE}WAF Detection${NC} | ${YELLOW}by ibrahimsql${NC}"
     echo
     echo "1. Single target"

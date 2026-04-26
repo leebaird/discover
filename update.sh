@@ -138,21 +138,21 @@ if [ -d /opt/bruteratel/ ] || [ -d /opt/cobaltstrike/ ]; then
     fi
 
     if [ -d /opt/BOFs/outflanknl-c2-tool-collection/.git ]; then
-        echo -e "${BLUE}Updating Outflanknl C2 Tool Collection BOF.${NC}"
+        echo -e "${BLUE}Updating Outflank C2 Tool Collection BOF.${NC}"
         cd /opt/BOFs/outflanknl-c2-tool-collection/ || exit ; git pull
         echo
     else
-        echo -e "${YELLOW}Installing Outflanknl C2 Tool Collection BOF.${NC}"
+        echo -e "${YELLOW}Installing Outflank C2 Tool Collection BOF.${NC}"
         git clone https://github.com/outflanknl/C2-Tool-Collection /opt/BOFs/outflanknl-c2-tool-collection
         echo
     fi
 
     if [ -d /opt/BOFs/outflanknl-helpcolor/.git ]; then
-        echo -e "${BLUE}Updating Outflanknl HelpColor BOF.${NC}"
+        echo -e "${BLUE}Updating Outflank HelpColor BOF.${NC}"
         cd /opt/BOFs/outflanknl-helpcolor/ || exit ; git pull
         echo
     else
-        echo -e "${YELLOW}Installing Outflanknl HelpColor BOF.${NC}"
+        echo -e "${YELLOW}Installing Outflank HelpColor BOF.${NC}"
         git clone https://github.com/outflanknl/HelpColor /opt/BOFs/outflanknl-helpcolor
         echo
     fi
@@ -376,6 +376,16 @@ fi
 if ! command -v rustc &> /dev/null; then
     echo -e "${YELLOW}Installing Rust.${NC}"
     apt install -y rustc
+    echo
+fi
+
+if [ -d /usr/share/seclists/.git ]; then
+    echo -e "${BLUE}Updating SecLists.${NC}"
+    cd /usr/share/seclists/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing SecLists.${NC}"
+    git clone https://github.com/danielmiessler/seclists /usr/share/seclists
     echo
 fi
 

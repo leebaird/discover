@@ -96,31 +96,31 @@ f_check_requirements(){
 
 # Function to scan Docker images
 f_scan_docker_images(){
-    local output_dir="$1"
+    local OUTPUT_DIR="$1"
 
     echo -e "${BLUE}[*] Starting comprehensive Docker image security scan.${NC}"
-    mkdir -p "$output_dir/docker/images" "$output_dir/docker/vulnerabilities" "$output_dir/docker/dockerfile_analysis"
+    mkdir -p "$OUTPUT_DIR/docker/images" "$OUTPUT_DIR/docker/vulnerabilities" "$OUTPUT_DIR/docker/dockerfile_analysis"
 
     # List all Docker images with additional metadata
     echo -e "${BLUE}[*] Collecting Docker image inventory.${NC}"
-    docker images --format "{{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedAt}}" > "$output_dir/docker/image_inventory.tsv"
-    docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" > "$output_dir/docker/image_list.txt"
+    docker images --format "{{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedAt}}" > "$OUTPUT_DIR/docker/image_inventory.tsv"
+    docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" > "$OUTPUT_DIR/docker/image_list.txt"
 
     # Check if there are any images
-    if [ ! -s "$output_dir/docker/image_list.txt" ]; then
+    if [ ! -s "$OUTPUT_DIR/docker/image_list.txt" ]; then
         echo -e "${YELLOW}[!] No Docker images found.${NC}"
         return
     fi
 
     # Count total images for progress reporting
-    TOTAL_IMAGES=$(wc -l < "$output_dir/docker/image_list.txt")
+    TOTAL_IMAGES=$(wc -l < "$OUTPUT_DIR/docker/image_list.txt")
     echo -e "${YELLOW}[*] Found $TOTAL_IMAGES Docker images to analyze${NC}"
 
     # Create summary file
-    echo "Docker Image Security Summary" > "$output_dir/docker/image_security_summary.txt"
-    echo "===========================" >> "$output_dir/docker/image_security_summary.txt"
-    echo "Analysis Date: $DATESTAMP $TIMESTAMP" >> "$output_dir/docker/image_security_summary.txt"
-    echo "" >> "$output_dir/docker/image_security_summary.txt"
+    echo "Docker Image Security Summary" > "$OUTPUT_DIR/docker/image_security_summary.txt"
+    echo "===========================" >> "$OUTPUT_DIR/docker/image_security_summary.txt"
+    echo "Analysis Date: $DATESTAMP $TIMESTAMP" >> "$OUTPUT_DIR/docker/image_security_summary.txt"
+    echo "" >> "$OUTPUT_DIR/docker/image_security_summary.txt"
 
     # Initialize vulnerability counters
     CRITICAL_COUNT=0
@@ -137,10 +137,10 @@ f_scan_docker_images(){
         image_name=$(echo "$image" | tr '/:' '_')
 
         # Run comprehensive Trivy scan with all security checks
-        trivy image --format json --security-checks vuln,config,secret "$image" > "$output_dir/docker/images/$image_name.json" 2>/dev/null
+        trivy image --format json --security-checks vuln,config,secret "$image" > "$OUTPUT_DIR/docker/images/$image_name.json" 2>/dev/null
 
         # Run additional scan for SBOM (Software Bill of Materials)
-        trivy image --format json --list-all-pkgs "$image" > "$output_dir/docker/images/${image_name}_sbom.json" 2>/dev/null
+        trivy image --format json --list-all-pkgs "$image" > "$OUTPUT_DIR/docker/images/${image_name}_sbom.json" 2>/dev/null
 
         # Extract metadata to create image profile
         IMAGE_ID=$(docker inspect --format '{{.Id}}' "$image" 2>/dev/null | cut -d':' -f2 | cut -c1-12)
@@ -150,10 +150,10 @@ f_scan_docker_images(){
         PARENT_IMAGE=$(docker history --format "{{.CreatedBy}}" "$image" | grep -i "FROM" | head -1)
 
         # Extract vulnerabilities by severity
-        CRITICAL_VULNS=$(jq -r '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | select(.Severity == "CRITICAL")' "$output_dir/docker/images/$image_name.json" 2>/dev/null)
-        HIGH_VULNS=$(jq -r '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | select(.Severity == "HIGH")' "$output_dir/docker/images/$image_name.json" 2>/dev/null)
-        MEDIUM_VULNS=$(jq -r '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | select(.Severity == "MEDIUM")' "$output_dir/docker/images/$image_name.json" 2>/dev/null)
-        LOW_VULNS=$(jq -r '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | select(.Severity == "LOW")' "$output_dir/docker/images/$image_name.json" 2>/dev/null)
+        CRITICAL_VULNS=$(jq -r '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | select(.Severity == "CRITICAL")' "$OUTPUT_DIR/docker/images/$image_name.json" 2>/dev/null)
+        HIGH_VULNS=$(jq -r '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | select(.Severity == "HIGH")' "$OUTPUT_DIR/docker/images/$image_name.json" 2>/dev/null)
+        MEDIUM_VULNS=$(jq -r '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | select(.Severity == "MEDIUM")' "$OUTPUT_DIR/docker/images/$image_name.json" 2>/dev/null)
+        LOW_VULNS=$(jq -r '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | select(.Severity == "LOW")' "$OUTPUT_DIR/docker/images/$image_name.json" 2>/dev/null)
 
         # Count vulnerabilities
         CRITICAL_COUNT_IMG=$(echo "$CRITICAL_VULNS" | grep -v '^$' | wc -l)
@@ -168,11 +168,11 @@ f_scan_docker_images(){
         LOW_COUNT=$((LOW_COUNT + LOW_COUNT_IMG))
 
         # Check for secrets or sensitive data
-        SECRETS=$(jq -r '.Results[] | select(.Secrets != null) | .Secrets[]' "$output_dir/docker/images/$image_name.json" 2>/dev/null)
+        SECRETS=$(jq -r '.Results[] | select(.Secrets != null) | .Secrets[]' "$OUTPUT_DIR/docker/images/$image_name.json" 2>/dev/null)
         SECRETS_COUNT=$(echo "$SECRETS" | grep -v '^$' | wc -l)
 
         # Check for misconfigurations
-        MISCONFIGS=$(jq -r '.Results[] | select(.Misconfigurations != null) | .Misconfigurations[]' "$output_dir/docker/images/$image_name.json" 2>/dev/null)
+        MISCONFIGS=$(jq -r '.Results[] | select(.Misconfigurations != null) | .Misconfigurations[]' "$OUTPUT_DIR/docker/images/$image_name.json" 2>/dev/null)
         MISCONFIGS_COUNT=$(echo "$MISCONFIGS" | grep -v '^$' | wc -l)
 
         # Create detailed image security profile
@@ -202,37 +202,37 @@ f_scan_docker_images(){
             echo
 
             # Extract OS and package information
-            OS_INFO=$(jq -r '.Results[] | select(.Type == "os-pkgs") | .Target' "$output_dir/docker/images/$image_name.json" 2>/dev/null)
+            OS_INFO=$(jq -r '.Results[] | select(.Type == "os-pkgs") | .Target' "$OUTPUT_DIR/docker/images/$image_name.json" 2>/dev/null)
             echo "OS: $OS_INFO"
 
             # List top 10 critical/high vulnerabilities
             if [ "$CRITICAL_COUNT_IMG" -gt 0 ] || [ "$HIGH_COUNT_IMG" -gt 0 ]; then
                 echo
                 echo "TOP CRITICAL/HIGH VULNERABILITIES:"
-                jq -r '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | select(.Severity == "CRITICAL" or .Severity == "HIGH") | "["+.Severity+"] "+.VulnerabilityID+" - "+.PkgName+" "+.InstalledVersion+" (Fixed: "+(.FixedVersion // "Not Available")+") - "+.Title' "$output_dir/docker/images/$image_name.json" 2>/dev/null | head -10
+                jq -r '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | select(.Severity == "CRITICAL" or .Severity == "HIGH") | "["+.Severity+"] "+.VulnerabilityID+" - "+.PkgName+" "+.InstalledVersion+" (Fixed: "+(.FixedVersion // "Not Available")+") - "+.Title' "$OUTPUT_DIR/docker/images/$image_name.json" 2>/dev/null | head -10
             fi
 
             # Extract any secrets found (without revealing actual secrets)
             if [ "$SECRETS_COUNT" -gt 0 ]; then
                 echo
                 echo "SECRETS DETECTED:"
-                jq -r '.Results[] | select(.Secrets != null) | .Secrets[] | "- Found in "+.RuleID+" ("+.Category+")"' "$output_dir/docker/images/$image_name.json" 2>/dev/null
+                jq -r '.Results[] | select(.Secrets != null) | .Secrets[] | "- Found in "+.RuleID+" ("+.Category+")"' "$OUTPUT_DIR/docker/images/$image_name.json" 2>/dev/null
             fi
 
             # Extract misconfigurations
             if [ "$MISCONFIGS_COUNT" -gt 0 ]; then
                 echo
                 echo "SECURITY MISCONFIGURATIONS:"
-                jq -r '.Results[] | select(.Misconfigurations != null) | .Misconfigurations[] | "["+.Severity+"] "+.ID+" - "+.Title' "$output_dir/docker/images/$image_name.json" 2>/dev/null
+                jq -r '.Results[] | select(.Misconfigurations != null) | .Misconfigurations[] | "["+.Severity+"] "+.ID+" - "+.Title' "$OUTPUT_DIR/docker/images/$image_name.json" 2>/dev/null
             fi
 
             echo
-            echo "For full details, see: $output_dir/docker/images/$image_name.json"
-        } > "$output_dir/docker/vulnerabilities/${image_name}_profile.txt"
+            echo "For full details, see: $OUTPUT_DIR/docker/images/$image_name.json"
+        } > "$OUTPUT_DIR/docker/vulnerabilities/${image_name}_profile.txt"
 
         # Add to summary list
         if [ "$CRITICAL_COUNT_IMG" -gt 0 ] || [ "$HIGH_COUNT_IMG" -gt 0 ]; then
-            echo "$image: Critical: $CRITICAL_COUNT_IMG, High: $HIGH_COUNT_IMG, Medium: $MEDIUM_COUNT_IMG, Low: $LOW_COUNT_IMG" >> "$output_dir/docker/vulnerable_images.txt"
+            echo "$image: Critical: $CRITICAL_COUNT_IMG, High: $HIGH_COUNT_IMG, Medium: $MEDIUM_COUNT_IMG, Low: $LOW_COUNT_IMG" >> "$OUTPUT_DIR/docker/vulnerable_images.txt"
         fi
 
         # Create machine-readable risk score (1-10)
@@ -240,10 +240,10 @@ f_scan_docker_images(){
         if [ "$RISK_SCORE" -gt 10 ]; then
             RISK_SCORE=10
         fi
-        echo "$image|$RISK_SCORE|$CRITICAL_COUNT_IMG|$HIGH_COUNT_IMG|$MEDIUM_COUNT_IMG|$LOW_COUNT_IMG|$SECRETS_COUNT|$MISCONFIGS_COUNT" >> "$output_dir/docker/image_risk_scores.txt"
+        echo "$image|$RISK_SCORE|$CRITICAL_COUNT_IMG|$HIGH_COUNT_IMG|$MEDIUM_COUNT_IMG|$LOW_COUNT_IMG|$SECRETS_COUNT|$MISCONFIGS_COUNT" >> "$OUTPUT_DIR/docker/image_risk_scores.txt"
 
         echo -e "${YELLOW}[*] Image scan complete: $image (Risk Score: $RISK_SCORE/10)${NC}"
-    done < "$output_dir/docker/image_list.txt"
+    done < "$OUTPUT_DIR/docker/image_list.txt"
 
     # Update summary file with totals
     {
@@ -253,21 +253,21 @@ f_scan_docker_images(){
         echo "Medium: $MEDIUM_COUNT"
         echo "Low: $LOW_COUNT"
         echo
-        echo "Images with critical/high vulnerabilities: $(wc -l < "$output_dir/docker/vulnerable_images.txt" 2>/dev/null || echo 0)"
+        echo "Images with critical/high vulnerabilities: $(wc -l < "$OUTPUT_DIR/docker/vulnerable_images.txt" 2>/dev/null || echo 0)"
         echo
 
-        if [ -s "$output_dir/docker/vulnerable_images.txt" ]; then
+        if [ -s "$OUTPUT_DIR/docker/vulnerable_images.txt" ]; then
             echo "VULNERABLE IMAGES (Ordered by Risk):"
-            sort -t'|' -k2,2nr "$output_dir/docker/image_risk_scores.txt" | awk -F'|' '{print $1 " (Risk: " $2 "/10, Critical: " $3 ", High: " $4 ")"}' | head -10
+            sort -t'|' -k2,2nr "$OUTPUT_DIR/docker/image_risk_scores.txt" | awk -F'|' '{print $1 " (Risk: " $2 "/10, Critical: " $3 ", High: " $4 ")"}' | head -10
         fi
-    } >> "$output_dir/docker/image_security_summary.txt"
+    } >> "$OUTPUT_DIR/docker/image_security_summary.txt"
 
     # Analyze Dockerfile security
     echo -e "${BLUE}[*] Looking for Dockerfiles.${NC}"
-    find . -name "Dockerfile" -type f > "$output_dir/docker/dockerfile_list.txt" 2>/dev/null
+    find . -name "Dockerfile" -type f > "$OUTPUT_DIR/docker/dockerfile_list.txt" 2>/dev/null
 
-    if [ -s "$output_dir/docker/dockerfile_list.txt" ]; then
-        DOCKERFILE_COUNT=$(wc -l < "$output_dir/docker/dockerfile_list.txt")
+    if [ -s "$OUTPUT_DIR/docker/dockerfile_list.txt" ]; then
+        DOCKERFILE_COUNT=$(wc -l < "$OUTPUT_DIR/docker/dockerfile_list.txt")
         echo -e "${YELLOW}[*] Found $DOCKERFILE_COUNT Dockerfiles to analyze${NC}"
         echo -e "${BLUE}[*] Performing advanced Dockerfile security analysis.${NC}"
 
@@ -403,17 +403,17 @@ f_scan_docker_images(){
                 echo "- Implement principle of least privilege for all operations"
 
                 echo
-            } > "$output_dir/docker/dockerfile_analysis/dockerfile_${dockerfile_name}_analysis.txt"
+            } > "$OUTPUT_DIR/docker/dockerfile_analysis/dockerfile_${dockerfile_name}_analysis.txt"
 
             # Extract risk score for summary
-            DOCKERFILE_RISK_SCORE=$(grep "Dockerfile Risk Score:" "$output_dir/docker/dockerfile_analysis/dockerfile_${dockerfile_name}_analysis.txt" | awk '{print $4}' | cut -d'/' -f1)
-            ISSUES_COUNT=$(grep "Critical issues:" "$output_dir/docker/dockerfile_analysis/dockerfile_${dockerfile_name}_analysis.txt" -A2 | awk '{sum+=$3} END {print sum}')
+            DOCKERFILE_RISK_SCORE=$(grep "Dockerfile Risk Score:" "$OUTPUT_DIR/docker/dockerfile_analysis/dockerfile_${dockerfile_name}_analysis.txt" | awk '{print $4}' | cut -d'/' -f1)
+            ISSUES_COUNT=$(grep "Critical issues:" "$OUTPUT_DIR/docker/dockerfile_analysis/dockerfile_${dockerfile_name}_analysis.txt" -A2 | awk '{sum+=$3} END {print sum}')
 
             if [ "$ISSUES_COUNT" -gt 0 ]; then
-                echo "$dockerfile|$DOCKERFILE_RISK_SCORE|$ISSUES_COUNT" >> "$output_dir/docker/dockerfile_risk_scores.txt"
+                echo "$dockerfile|$DOCKERFILE_RISK_SCORE|$ISSUES_COUNT" >> "$OUTPUT_DIR/docker/dockerfile_risk_scores.txt"
                 ((DOCKERFILE_ISSUES_COUNT++))
             fi
-        done < "$output_dir/docker/dockerfile_list.txt"
+        done < "$OUTPUT_DIR/docker/dockerfile_list.txt"
 
         # Add Dockerfile analysis to summary
         {
@@ -423,52 +423,52 @@ f_scan_docker_images(){
             echo "Dockerfiles with security issues: $DOCKERFILE_ISSUES_COUNT"
             echo
 
-            if [ -s "$output_dir/docker/dockerfile_risk_scores.txt" ]; then
+            if [ -s "$OUTPUT_DIR/docker/dockerfile_risk_scores.txt" ]; then
                 echo "TOP RISKY DOCKERFILES:"
-                sort -t'|' -k2,2nr "$output_dir/docker/dockerfile_risk_scores.txt" | awk -F'|' '{print $1 " (Risk: " $2 "/10, Issues: " $3 ")"}' | head -5
+                sort -t'|' -k2,2nr "$OUTPUT_DIR/docker/dockerfile_risk_scores.txt" | awk -F'|' '{print $1 " (Risk: " $2 "/10, Issues: " $3 ")"}' | head -5
             fi
-        } >> "$output_dir/docker/image_security_summary.txt"
+        } >> "$OUTPUT_DIR/docker/image_security_summary.txt"
     fi
 
-    echo -e "${YELLOW}[*] Docker image analysis complete! Results saved to $output_dir/docker/image_security_summary.txt${NC}"
+    echo -e "${YELLOW}[*] Docker image analysis complete! Results saved to $OUTPUT_DIR/docker/image_security_summary.txt${NC}"
 }
 
 ###############################################################################################################################
 
 # Function to scan Docker containers
 f_scan_docker_containers(){
-    local output_dir="$1"
+    local OUTPUT_DIR="$1"
 
     echo -e "${BLUE}[*] Starting comprehensive Docker container security audit.${NC}"
-    mkdir -p "$output_dir/docker/containers" "$output_dir/docker/container_reports" "$output_dir/docker/runtime_analysis"
+    mkdir -p "$OUTPUT_DIR/docker/containers" "$OUTPUT_DIR/docker/container_reports" "$OUTPUT_DIR/docker/runtime_analysis"
 
     # List all Docker containers with additional metadata
     echo -e "${BLUE}[*] Gathering container inventory.${NC}"
-    docker ps -a --format "{{.ID}}\t{{.Image}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Command}}" > "$output_dir/docker/container_inventory.tsv"
-    docker ps -a --format "{{.ID}} {{.Image}} {{.Names}}" > "$output_dir/docker/container_list.txt"
+    docker ps -a --format "{{.ID}}\t{{.Image}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Command}}" > "$OUTPUT_DIR/docker/container_inventory.tsv"
+    docker ps -a --format "{{.ID}} {{.Image}} {{.Names}}" > "$OUTPUT_DIR/docker/container_list.txt"
 
     # Get running containers in a separate list
-    docker ps --format "{{.ID}} {{.Image}} {{.Names}}" > "$output_dir/docker/running_containers.txt"
+    docker ps --format "{{.ID}} {{.Image}} {{.Names}}" > "$OUTPUT_DIR/docker/running_containers.txt"
 
     # Check if there are any containers
-    if [ ! -s "$output_dir/docker/container_list.txt" ]; then
+    if [ ! -s "$OUTPUT_DIR/docker/container_list.txt" ]; then
         echo -e "${YELLOW}[!] No Docker containers found.${NC}"
         return
     fi
 
     # Count total containers
-    TOTAL_CONTAINERS=$(wc -l < "$output_dir/docker/container_list.txt")
-    RUNNING_CONTAINERS=$(wc -l < "$output_dir/docker/running_containers.txt" 2>/dev/null || echo 0)
+    TOTAL_CONTAINERS=$(wc -l < "$OUTPUT_DIR/docker/container_list.txt")
+    RUNNING_CONTAINERS=$(wc -l < "$OUTPUT_DIR/docker/running_containers.txt" 2>/dev/null || echo 0)
 
     echo -e "${YELLOW}[*] Found $TOTAL_CONTAINERS containers ($RUNNING_CONTAINERS running)${NC}"
 
     # Create summary file
-    echo "Docker Container Security Summary" > "$output_dir/docker/container_security_summary.txt"
-    echo "================================" >> "$output_dir/docker/container_security_summary.txt"
-    echo "Analysis Date: $DATESTAMP $TIMESTAMP" >> "$output_dir/docker/container_security_summary.txt"
-    echo "Total Containers: $TOTAL_CONTAINERS" >> "$output_dir/docker/container_security_summary.txt"
-    echo "Running Containers: $RUNNING_CONTAINERS" >> "$output_dir/docker/container_security_summary.txt"
-    echo "" >> "$output_dir/docker/container_security_summary.txt"
+    echo "Docker Container Security Summary" > "$OUTPUT_DIR/docker/container_security_summary.txt"
+    echo "================================" >> "$OUTPUT_DIR/docker/container_security_summary.txt"
+    echo "Analysis Date: $DATESTAMP $TIMESTAMP" >> "$OUTPUT_DIR/docker/container_security_summary.txt"
+    echo "Total Containers: $TOTAL_CONTAINERS" >> "$OUTPUT_DIR/docker/container_security_summary.txt"
+    echo "Running Containers: $RUNNING_CONTAINERS" >> "$OUTPUT_DIR/docker/container_security_summary.txt"
+    echo "" >> "$OUTPUT_DIR/docker/container_security_summary.txt"
 
     # Initialize risk counters
     CRITICAL_CONTAINERS=0
@@ -479,12 +479,12 @@ f_scan_docker_containers(){
     echo -e "${BLUE}[*] Performing deep security analysis of container configurations.${NC}"
 
     # Create detailed issue tracking files
-    touch "$output_dir/docker/privileged_containers.txt"
-    touch "$output_dir/docker/root_containers.txt"
-    touch "$output_dir/docker/sensitive_mount_containers.txt"
-    touch "$output_dir/docker/network_sensitive_containers.txt"
-    touch "$output_dir/docker/capability_containers.txt"
-    touch "$output_dir/docker/no_health_check_containers.txt"
+    touch "$OUTPUT_DIR/docker/privileged_containers.txt"
+    touch "$OUTPUT_DIR/docker/root_containers.txt"
+    touch "$OUTPUT_DIR/docker/sensitive_mount_containers.txt"
+    touch "$OUTPUT_DIR/docker/network_sensitive_containers.txt"
+    touch "$OUTPUT_DIR/docker/capability_containers.txt"
+    touch "$OUTPUT_DIR/docker/no_health_check_containers.txt"
 
     COUNTER=0
     while read -r container_info; do
@@ -496,12 +496,12 @@ f_scan_docker_containers(){
         echo -e "${BLUE}[*] [$COUNTER/$TOTAL_CONTAINERS] Analyzing container: $container_name ($container_id)${NC}"
 
         # Get container details
-        docker inspect "$container_id" > "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null
+        docker inspect "$container_id" > "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null
 
         # Extract container status
-        CONTAINER_STATUS=$(jq -r '.[0].State.Status' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
-        CONTAINER_CREATED=$(jq -r '.[0].Created' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
-        CONTAINER_PLATFORM=$(jq -r '.[0].Platform' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+        CONTAINER_STATUS=$(jq -r '.[0].State.Status' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+        CONTAINER_CREATED=$(jq -r '.[0].Created' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+        CONTAINER_PLATFORM=$(jq -r '.[0].Platform' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
 
         # Initialize security issue counter for this container
         CRITICAL_ISSUES=0
@@ -524,25 +524,25 @@ f_scan_docker_containers(){
             echo "SECURITY FINDINGS:"
 
             # Check if container is running in privileged mode
-            privileged=$(jq -r '.[0].HostConfig.Privileged' "$output_dir/docker/containers/${container_name}_inspect.json")
+            privileged=$(jq -r '.[0].HostConfig.Privileged' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json")
             if [ "$privileged" = "true" ]; then
                 echo "CRITICAL: Container is running in privileged mode (full access to host devices)"
-                echo "$container_name" >> "$output_dir/docker/privileged_containers.txt"
+                echo "$container_name" >> "$OUTPUT_DIR/docker/privileged_containers.txt"
                 ((CRITICAL_ISSUES++))
             fi
 
             # Check for user running container (root vs non-root)
-            user=$(jq -r '.[0].Config.User' "$output_dir/docker/containers/${container_name}_inspect.json")
+            user=$(jq -r '.[0].Config.User' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json")
             if [ -z "$user" ] || [ "$user" = "0" ] || [ "$user" = "root" ]; then
                 echo "HIGH-RISK: Container is running as root user"
-                echo "$container_name" >> "$output_dir/docker/root_containers.txt"
+                echo "$container_name" >> "$OUTPUT_DIR/docker/root_containers.txt"
                 ((HIGH_ISSUES++))
             else
                 echo "GOOD PRACTICE: Container is running as non-root user: $user"
             fi
 
             # Check for additional Linux capabilities
-            caps_add=$(jq -r '.[0].HostConfig.CapAdd[]' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+            caps_add=$(jq -r '.[0].HostConfig.CapAdd[]' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
             if [ -n "$caps_add" ]; then
                 echo "HIGH-RISK: Container has additional Linux capabilities:"
                 echo "$caps_add" | sed 's/^/  /' 
@@ -555,11 +555,11 @@ f_scan_docker_containers(){
                     ((HIGH_ISSUES++))
                 fi
 
-                echo "$container_name: $caps_add" >> "$output_dir/docker/capability_containers.txt"
+                echo "$container_name: $caps_add" >> "$OUTPUT_DIR/docker/capability_containers.txt"
             fi
 
             # Check for sensitive env variables
-            sensitive_env=$(jq -r '.[0].Config.Env[]' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null | grep -Ei "(password|token|key|secret|credential|api_key|apikey|access_key|auth)")
+            sensitive_env=$(jq -r '.[0].Config.Env[]' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null | grep -Ei "(password|token|key|secret|credential|api_key|apikey|access_key|auth)")
             if [ -n "$sensitive_env" ]; then
                 echo "CRITICAL: Container has sensitive environment variables (potential secret exposure):"
                 echo "$sensitive_env" | sed 's/^/  /' | cut -d'=' -f1
@@ -567,14 +567,14 @@ f_scan_docker_containers(){
             fi
 
             # Check for mounted sensitive directories
-            sensitive_mounts=$(jq -r '.[0].Mounts[] | select(.Source | test("/etc|/var/run|/var/lib|/usr|/root|/.ssh|/.aws|/.kube|/docker.sock"))' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+            sensitive_mounts=$(jq -r '.[0].Mounts[] | select(.Source | test("/etc|/var/run|/var/lib|/usr|/root|/.ssh|/.aws|/.kube|/docker.sock"))' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
             if [ -n "$sensitive_mounts" ]; then
                 echo "HIGH-RISK: Container has sensitive host directories mounted:"
-                jq -r '.[0].Mounts[] | select(.Source | test("/etc|/var/run|/var/lib|/usr|/root|/.ssh|/.aws|/.kube|/docker.sock")) | .Source + " -> " + .Destination' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null | sed 's/^/  /'
-                echo "$container_name" >> "$output_dir/docker/sensitive_mount_containers.txt"
+                jq -r '.[0].Mounts[] | select(.Source | test("/etc|/var/run|/var/lib|/usr|/root|/.ssh|/.aws|/.kube|/docker.sock")) | .Source + " -> " + .Destination' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null | sed 's/^/  /'
+                echo "$container_name" >> "$OUTPUT_DIR/docker/sensitive_mount_containers.txt"
 
                 # Check specifically for docker.sock which is especially dangerous
-                if jq -r '.[0].Mounts[].Source' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null | grep -q "/var/run/docker.sock"; then
+                if jq -r '.[0].Mounts[].Source' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null | grep -q "/var/run/docker.sock"; then
                     echo "CRITICAL: Container has docker.sock mounted - this allows complete control of the host Docker daemon!"
                     ((CRITICAL_ISSUES++))
                 else
@@ -583,34 +583,34 @@ f_scan_docker_containers(){
             fi
 
             # Check for network mode
-            network_mode=$(jq -r '.[0].HostConfig.NetworkMode' "$output_dir/docker/containers/${container_name}_inspect.json")
+            network_mode=$(jq -r '.[0].HostConfig.NetworkMode' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json")
             if [ "$network_mode" = "host" ]; then
                 echo "HIGH-RISK: Container is using host network mode (no network isolation)"
-                echo "$container_name" >> "$output_dir/docker/network_sensitive_containers.txt"
+                echo "$container_name" >> "$OUTPUT_DIR/docker/network_sensitive_containers.txt"
                 ((HIGH_ISSUES++))
             fi
 
             # Check for PID mode
-            pid_mode=$(jq -r '.[0].HostConfig.PidMode' "$output_dir/docker/containers/${container_name}_inspect.json")
+            pid_mode=$(jq -r '.[0].HostConfig.PidMode' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json")
             if [ "$pid_mode" = "host" ]; then
                 echo "HIGH-RISK: Container is using host PID mode (can see all processes on host)"
-                echo "$container_name" >> "$output_dir/docker/network_sensitive_containers.txt"
+                echo "$container_name" >> "$OUTPUT_DIR/docker/network_sensitive_containers.txt"
                 ((HIGH_ISSUES++))
             fi
 
             # Check for IPC mode
-            ipc_mode=$(jq -r '.[0].HostConfig.IpcMode' "$output_dir/docker/containers/${container_name}_inspect.json")
+            ipc_mode=$(jq -r '.[0].HostConfig.IpcMode' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json")
             if [ "$ipc_mode" = "host" ]; then
                 echo "MEDIUM-RISK: Container is using host IPC mode (shared memory with host)"
-                echo "$container_name" >> "$output_dir/docker/network_sensitive_containers.txt"
+                echo "$container_name" >> "$OUTPUT_DIR/docker/network_sensitive_containers.txt"
                 ((MEDIUM_ISSUES++))
             fi
 
             # Check for port bindings (especially sensitive ports)
-            port_bindings=$(jq -r '.[0].HostConfig.PortBindings | keys[]' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+            port_bindings=$(jq -r '.[0].HostConfig.PortBindings | keys[]' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
             if [ -n "$port_bindings" ]; then
                 echo "INFO: Container exposes the following ports:"
-                jq -r '.[0].HostConfig.PortBindings | to_entries[] | .key + " -> " + (.value[0].HostPort // "ephemeral")' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null | sed 's/^/  /'
+                jq -r '.[0].HostConfig.PortBindings | to_entries[] | .key + " -> " + (.value[0].HostPort // "ephemeral")' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null | sed 's/^/  /'
 
                 # Check for sensitive ports
                 if echo "$port_bindings" | grep -qE '22/|3306/|5432/|27017/|6379/|9200/|8080/|443/|80/'; then
@@ -620,7 +620,7 @@ f_scan_docker_containers(){
             fi
 
             # Check read-only filesystem
-            readonly_fs=$(jq -r '.[0].HostConfig.ReadonlyRootfs' "$output_dir/docker/containers/${container_name}_inspect.json")
+            readonly_fs=$(jq -r '.[0].HostConfig.ReadonlyRootfs' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json")
             if [ "$readonly_fs" = "true" ]; then
                 echo "GOOD PRACTICE: Container uses read-only root filesystem"
             else
@@ -629,17 +629,17 @@ f_scan_docker_containers(){
             fi
 
             # Check for health checks
-            health_check=$(jq -r '.[0].Config.Healthcheck' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+            health_check=$(jq -r '.[0].Config.Healthcheck' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
             if [ "$health_check" = "null" ] || [ -z "$health_check" ]; then
                 echo "MEDIUM-RISK: Container does not have a health check defined"
-                echo "$container_name" >> "$output_dir/docker/no_health_check_containers.txt"
+                echo "$container_name" >> "$OUTPUT_DIR/docker/no_health_check_containers.txt"
                 ((MEDIUM_ISSUES++))
             else
                 echo "GOOD PRACTICE: Container has health check defined"
             fi
 
             # Check for restart policy
-            restart_policy=$(jq -r '.[0].HostConfig.RestartPolicy.Name' "$output_dir/docker/containers/${container_name}_inspect.json")
+            restart_policy=$(jq -r '.[0].HostConfig.RestartPolicy.Name' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json")
             if [ "$restart_policy" = "no" ] || [ -z "$restart_policy" ]; then
                 echo "INFO: Container has no restart policy defined"
             else
@@ -647,7 +647,7 @@ f_scan_docker_containers(){
             fi
 
             # Check for security options
-            security_opts=$(jq -r '.[0].HostConfig.SecurityOpt[]' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+            security_opts=$(jq -r '.[0].HostConfig.SecurityOpt[]' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
             if [ -n "$security_opts" ]; then
                 echo "GOOD PRACTICE: Container uses security options:"
                 echo "$security_opts" | sed 's/^/  /'
@@ -657,7 +657,7 @@ f_scan_docker_containers(){
             fi
 
             # Check for AppArmor profile
-            apparmor_profile=$(jq -r '.[0].AppArmorProfile' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+            apparmor_profile=$(jq -r '.[0].AppArmorProfile' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
             if [ -z "$apparmor_profile" ] || [ "$apparmor_profile" = "unconfined" ]; then
                 echo "MEDIUM-RISK: Container does not use AppArmor confinement"
                 ((MEDIUM_ISSUES++))
@@ -666,7 +666,7 @@ f_scan_docker_containers(){
             fi
 
             # Check for Seccomp profile
-            seccomp_profile=$(jq -r '.[0].HostConfig.SecurityOpt[] | select(startswith("seccomp"))' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+            seccomp_profile=$(jq -r '.[0].HostConfig.SecurityOpt[] | select(startswith("seccomp"))' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
             if [ -z "$seccomp_profile" ]; then
                 echo "MEDIUM-RISK: Container does not use custom Seccomp profile"
                 ((MEDIUM_ISSUES++))
@@ -675,7 +675,7 @@ f_scan_docker_containers(){
             fi
 
             # Check for memory limits
-            memory_limit=$(jq -r '.[0].HostConfig.Memory' "$output_dir/docker/containers/${container_name}_inspect.json")
+            memory_limit=$(jq -r '.[0].HostConfig.Memory' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json")
             if [ "$memory_limit" = "0" ]; then
                 echo "MEDIUM-RISK: Container has no memory limits set (potential DoS vector)"
                 ((MEDIUM_ISSUES++))
@@ -685,7 +685,7 @@ f_scan_docker_containers(){
             fi
 
             # Check for CPU limits
-            cpu_limit=$(jq -r '.[0].HostConfig.CpuShares' "$output_dir/docker/containers/${container_name}_inspect.json")
+            cpu_limit=$(jq -r '.[0].HostConfig.CpuShares' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json")
             if [ "$cpu_limit" = "0" ]; then
                 echo "INFO: Container has no CPU limits set"
             else
@@ -693,8 +693,8 @@ f_scan_docker_containers(){
             fi
 
             # Look for common vulnerable software patterns in commands/entrypoint
-            cmd=$(jq -r '.[0].Config.Cmd[]' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
-            entrypoint=$(jq -r '.[0].Config.Entrypoint[]' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+            cmd=$(jq -r '.[0].Config.Cmd[]' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+            entrypoint=$(jq -r '.[0].Config.Entrypoint[]' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
 
             # Check running commands for potential issues
             if echo "$cmd $entrypoint" | grep -qiE 'telnet|ftp|eval|exec|nc -l|netcat -l'; then
@@ -705,7 +705,7 @@ f_scan_docker_containers(){
             fi
 
             # Check for tmpfs mounts (good security practice)
-            tmpfs_mounts=$(jq -r '.[0].HostConfig.Tmpfs' "$output_dir/docker/containers/${container_name}_inspect.json" 2>/dev/null)
+            tmpfs_mounts=$(jq -r '.[0].HostConfig.Tmpfs' "$OUTPUT_DIR/docker/containers/${container_name}_inspect.json" 2>/dev/null)
             if [ -n "$tmpfs_mounts" ] && [ "$tmpfs_mounts" != "null" ]; then
                 echo "GOOD PRACTICE: Container uses tmpfs mounts for sensitive temporary data"
             fi
@@ -767,9 +767,9 @@ f_scan_docker_containers(){
             echo "- Implement least privilege principle for all container configurations"
             echo "- Regularly update base images and scan for vulnerabilities"
             echo
-            echo "For full container inspection details, see: $output_dir/docker/containers/${container_name}_inspect.json"
+            echo "For full container inspection details, see: $OUTPUT_DIR/docker/containers/${container_name}_inspect.json"
 
-        } > "$output_dir/docker/container_reports/${container_name}_security_analysis.txt"
+        } > "$OUTPUT_DIR/docker/container_reports/${container_name}_security_analysis.txt"
 
         # Update global counters based on risk level
         if [ "$CRITICAL_ISSUES" -gt 0 ]; then
@@ -781,33 +781,33 @@ f_scan_docker_containers(){
         fi
 
         # Generate machine-readable risk data
-        echo "$container_name|$container_id|$CONTAINER_RISK_SCORE|$CRITICAL_ISSUES|$HIGH_ISSUES|$MEDIUM_ISSUES" >> "$output_dir/docker/container_risk_scores.txt"
+        echo "$container_name|$container_id|$CONTAINER_RISK_SCORE|$CRITICAL_ISSUES|$HIGH_ISSUES|$MEDIUM_ISSUES" >> "$OUTPUT_DIR/docker/container_risk_scores.txt"
 
         # If container is running, perform additional runtime checks
         if docker ps -q | grep -q "$container_id"; then
             echo -e "${BLUE}[*] Performing runtime analysis of container: $container_name${NC}"
 
             # Create directory for runtime analysis
-            mkdir -p "$output_dir/docker/runtime_analysis/$container_name"
+            mkdir -p "$OUTPUT_DIR/docker/runtime_analysis/$container_name"
 
             # Get process list
-            docker top "$container_id" aux > "$output_dir/docker/runtime_analysis/$container_name/processes.txt" 2>/dev/null
+            docker top "$container_id" aux > "$OUTPUT_DIR/docker/runtime_analysis/$container_name/processes.txt" 2>/dev/null
 
             # Get network information
-            docker exec "$container_id" netstat -tulpn > "$output_dir/docker/runtime_analysis/$container_name/netstat.txt" 2>/dev/null || true
+            docker exec "$container_id" netstat -tulpn > "$OUTPUT_DIR/docker/runtime_analysis/$container_name/netstat.txt" 2>/dev/null || true
 
             # Check for listening ports inside container
-            docker exec "$container_id" netstat -tulpn | grep LISTEN > "$output_dir/docker/runtime_analysis/$container_name/listening_ports.txt" 2>/dev/null || true
+            docker exec "$container_id" netstat -tulpn | grep LISTEN > "$OUTPUT_DIR/docker/runtime_analysis/$container_name/listening_ports.txt" 2>/dev/null || true
 
             # Get environment variables in running container
-            docker exec "$container_id" env > "$output_dir/docker/runtime_analysis/$container_name/environment.txt" 2>/dev/null || true
+            docker exec "$container_id" env > "$OUTPUT_DIR/docker/runtime_analysis/$container_name/environment.txt" 2>/dev/null || true
 
             # Check for setuid/setgid binaries
-            docker exec "$container_id" find / -perm /6000 -type f 2>/dev/null > "$output_dir/docker/runtime_analysis/$container_name/setuid_setgid_binaries.txt" || true
+            docker exec "$container_id" find / -perm /6000 -type f 2>/dev/null > "$OUTPUT_DIR/docker/runtime_analysis/$container_name/setuid_setgid_binaries.txt" || true
 
             echo -e "${YELLOW}[*] Runtime analysis complete for container: $container_name${NC}"
         fi
-    done < "$output_dir/docker/container_list.txt"
+    done < "$OUTPUT_DIR/docker/container_list.txt"
 
     # Update summary with risk breakdown
     {
@@ -819,54 +819,54 @@ f_scan_docker_containers(){
         echo
 
         # List top risky containers
-        if [ -s "$output_dir/docker/container_risk_scores.txt" ]; then
+        if [ -s "$OUTPUT_DIR/docker/container_risk_scores.txt" ]; then
             echo "TOP RISKY CONTAINERS:"
-            sort -t'|' -k3,3nr "$output_dir/docker/container_risk_scores.txt" | head -5 | \
+            sort -t'|' -k3,3nr "$OUTPUT_DIR/docker/container_risk_scores.txt" | head -5 | \
                 awk -F'|' '{print $1 " (" $2 "): Risk Score " $3 "/10, Critical: " $4 ", High: " $5 ", Medium: " $6}'
         fi
 
         echo
         echo "SECURITY ISSUE BREAKDOWN:"
-        echo "Privileged containers: $(wc -l < "$output_dir/docker/privileged_containers.txt" 2>/dev/null || echo 0)"
-        echo "Root user containers: $(wc -l < "$output_dir/docker/root_containers.txt" 2>/dev/null || echo 0)"
-        echo "Sensitive mount containers: $(wc -l < "$output_dir/docker/sensitive_mount_containers.txt" 2>/dev/null || echo 0)"
-        echo "Host network mode containers: $(wc -l < "$output_dir/docker/network_sensitive_containers.txt" 2>/dev/null || echo 0)"
-        echo "Containers with added capabilities: $(wc -l < "$output_dir/docker/capability_containers.txt" 2>/dev/null || echo 0)"
-        echo "Containers without health checks: $(wc -l < "$output_dir/docker/no_health_check_containers.txt" 2>/dev/null || echo 0)"
-    } >> "$output_dir/docker/container_security_summary.txt"
+        echo "Privileged containers: $(wc -l < "$OUTPUT_DIR/docker/privileged_containers.txt" 2>/dev/null || echo 0)"
+        echo "Root user containers: $(wc -l < "$OUTPUT_DIR/docker/root_containers.txt" 2>/dev/null || echo 0)"
+        echo "Sensitive mount containers: $(wc -l < "$OUTPUT_DIR/docker/sensitive_mount_containers.txt" 2>/dev/null || echo 0)"
+        echo "Host network mode containers: $(wc -l < "$OUTPUT_DIR/docker/network_sensitive_containers.txt" 2>/dev/null || echo 0)"
+        echo "Containers with added capabilities: $(wc -l < "$OUTPUT_DIR/docker/capability_containers.txt" 2>/dev/null || echo 0)"
+        echo "Containers without health checks: $(wc -l < "$OUTPUT_DIR/docker/no_health_check_containers.txt" 2>/dev/null || echo 0)"
+    } >> "$OUTPUT_DIR/docker/container_security_summary.txt"
 
-    echo -e "${YELLOW}[*] Container security analysis complete! Results saved to $output_dir/docker/container_security_summary.txt${NC}"
+    echo -e "${YELLOW}[*] Container security analysis complete! Results saved to $OUTPUT_DIR/docker/container_security_summary.txt${NC}"
 }
 
 ###############################################################################################################################
 
 # Function to scan Kubernetes resources
 f_scan_kubernetes(){
-    local output_dir="$1"
+    local OUTPUT_DIR="$1"
 
     echo -e "${BLUE}[*] Starting comprehensive Kubernetes security audit.${NC}"
-    mkdir -p "$output_dir/kubernetes/cluster" "$output_dir/kubernetes/resources" "$output_dir/kubernetes/vulnerabilities" "$output_dir/kubernetes/security_reports" "$output_dir/kubernetes/rbac" "$output_dir/kubernetes/workloads" "$output_dir/kubernetes/network"
+    mkdir -p "$OUTPUT_DIR/kubernetes/cluster" "$OUTPUT_DIR/kubernetes/resources" "$OUTPUT_DIR/kubernetes/vulnerabilities" "$OUTPUT_DIR/kubernetes/security_reports" "$OUTPUT_DIR/kubernetes/rbac" "$OUTPUT_DIR/kubernetes/workloads" "$OUTPUT_DIR/kubernetes/network"
 
     # Initialize summary file
-    echo "Kubernetes Security Audit Report" > "$output_dir/kubernetes/kubernetes_security_summary.txt"
-    echo "==============================" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
-    echo "Analysis Date: $DATESTAMP $TIMESTAMP" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
-    echo "" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
+    echo "Kubernetes Security Audit Report" > "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
+    echo "==============================" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
+    echo "Analysis Date: $DATESTAMP $TIMESTAMP" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
+    echo "" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
 
     # Check if kubectl can connect to a cluster
     if ! kubectl cluster-info &> /dev/null; then
         echo -e "${YELLOW}[!] Cannot connect to Kubernetes cluster. Skipping Kubernetes scan.${NC}"
-        echo "ERROR: Could not connect to Kubernetes cluster. Scan aborted." >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
+        echo "ERROR: Could not connect to Kubernetes cluster. Scan aborted." >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
         return
     fi
 
     # Get cluster info
     echo -e "${BLUE}[*] Gathering Kubernetes cluster information.${NC}"
-    kubectl cluster-info > "$output_dir/kubernetes/cluster/cluster_info.txt" 2>/dev/null
-    kubectl version --output=json > "$output_dir/kubernetes/cluster/version.json" 2>/dev/null
+    kubectl cluster-info > "$OUTPUT_DIR/kubernetes/cluster/cluster_info.txt" 2>/dev/null
+    kubectl version --output=json > "$OUTPUT_DIR/kubernetes/cluster/version.json" 2>/dev/null
 
     # Extract important cluster metadata
-    SERVER_VERSION=$(jq -r '.serverVersion.gitVersion' "$output_dir/kubernetes/cluster/version.json" 2>/dev/null)
+    SERVER_VERSION=$(jq -r '.serverVersion.gitVersion' "$OUTPUT_DIR/kubernetes/cluster/version.json" 2>/dev/null)
 
     # Check Kubernetes version for known vulnerabilities
     echo -e "${BLUE}[*] Checking Kubernetes version for known vulnerabilities.${NC}"
@@ -876,65 +876,65 @@ f_scan_kubernetes(){
     K8S_VERSION_ISSUES=0
     if [ "$MAJOR_VERSION" -lt 1 ] || ([ "$MAJOR_VERSION" -eq 1 ] && [ "$MINOR_VERSION" -lt 19 ]); then
         echo -e "${RED}[!] WARNING: Kubernetes version $SERVER_VERSION is outdated and may have known security vulnerabilities${NC}"
-        echo "CRITICAL: Kubernetes version $SERVER_VERSION is outdated (current stable is 1.26+)" >> "$output_dir/kubernetes/cluster/version_issues.txt"
+        echo "CRITICAL: Kubernetes version $SERVER_VERSION is outdated (current stable is 1.26+)" >> "$OUTPUT_DIR/kubernetes/cluster/version_issues.txt"
         K8S_VERSION_ISSUES=1
     elif [ "$MAJOR_VERSION" -eq 1 ] && [ "$MINOR_VERSION" -lt 24 ]; then
         echo -e "${YELLOW}[!] WARNING: Kubernetes version $SERVER_VERSION is not the latest. Consider upgrading.${NC}"
-        echo "WARNING: Kubernetes version $SERVER_VERSION is not the latest. Consider upgrading to 1.26+" >> "$output_dir/kubernetes/cluster/version_issues.txt"
+        echo "WARNING: Kubernetes version $SERVER_VERSION is not the latest. Consider upgrading to 1.26+" >> "$OUTPUT_DIR/kubernetes/cluster/version_issues.txt"
         K8S_VERSION_ISSUES=1
     else
         echo -e "${YELLOW}[*] Kubernetes version $SERVER_VERSION is recent${NC}"
     fi
 
     # Add version info to summary
-    echo "CLUSTER INFORMATION:" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
-    echo "Kubernetes Version: $SERVER_VERSION" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
+    echo "CLUSTER INFORMATION:" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
+    echo "Kubernetes Version: $SERVER_VERSION" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
 
     if [ "$K8S_VERSION_ISSUES" -eq 1 ]; then
-        echo "Version Status: Outdated - see version_issues.txt for details" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
+        echo "Version Status: Outdated - see version_issues.txt for details" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
     else
-        echo "Version Status: Current" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
+        echo "Version Status: Current" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
     fi
 
-    echo "" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
+    echo "" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
 
     # Collect node information
     echo -e "${BLUE}[*] Gathering node information.${NC}"
-    kubectl get nodes -o wide > "$output_dir/kubernetes/cluster/nodes_info.txt" 2>/dev/null
-    kubectl get nodes -o json > "$output_dir/kubernetes/cluster/nodes.json" 2>/dev/null
+    kubectl get nodes -o wide > "$OUTPUT_DIR/kubernetes/cluster/nodes_info.txt" 2>/dev/null
+    kubectl get nodes -o json > "$OUTPUT_DIR/kubernetes/cluster/nodes.json" 2>/dev/null
 
     # Count and analyze nodes
-    NODE_COUNT=$(jq -r '.items | length' "$output_dir/kubernetes/cluster/nodes.json" 2>/dev/null)
-    echo "Node Count: $NODE_COUNT" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
+    NODE_COUNT=$(jq -r '.items | length' "$OUTPUT_DIR/kubernetes/cluster/nodes.json" 2>/dev/null)
+    echo "Node Count: $NODE_COUNT" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
 
     # Check node versions for consistency
     echo -e "${BLUE}[*] Checking for node version consistency.${NC}"
-    kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.nodeInfo.kubeletVersion}{"\n"}{end}' > "$output_dir/kubernetes/cluster/node_versions.txt" 2>/dev/null
+    kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.nodeInfo.kubeletVersion}{"\n"}{end}' > "$OUTPUT_DIR/kubernetes/cluster/node_versions.txt" 2>/dev/null
 
-    NODE_VERSION_COUNT=$(awk '{print $2}' "$output_dir/kubernetes/cluster/node_versions.txt" | sort | uniq | wc -l)
+    NODE_VERSION_COUNT=$(awk '{print $2}' "$OUTPUT_DIR/kubernetes/cluster/node_versions.txt" | sort | uniq | wc -l)
     if [ "$NODE_VERSION_COUNT" -gt 1 ]; then
         echo -e "${YELLOW}[!] Multiple Kubernetes versions detected across nodes. This could lead to unexpected behavior${NC}"
-        echo "WARNING: Cluster has nodes running $NODE_VERSION_COUNT different Kubernetes versions" >> "$output_dir/kubernetes/cluster/node_issues.txt"
-        echo "Node Version Consistency: INCONSISTENT ($NODE_VERSION_COUNT versions)" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
+        echo "WARNING: Cluster has nodes running $NODE_VERSION_COUNT different Kubernetes versions" >> "$OUTPUT_DIR/kubernetes/cluster/node_issues.txt"
+        echo "Node Version Consistency: INCONSISTENT ($NODE_VERSION_COUNT versions)" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
     else
         echo -e "${YELLOW}[*] All nodes running the same Kubernetes version${NC}"
-        echo "Node Version Consistency: CONSISTENT" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
+        echo "Node Version Consistency: CONSISTENT" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
     fi
 
-    echo "" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
+    echo "" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
 
     # Get and analyze all namespaces
     echo -e "${BLUE}[*] Enumerating and analyzing Kubernetes namespaces.${NC}"
-    kubectl get namespaces -o json > "$output_dir/kubernetes/resources/namespaces.json" 2>/dev/null
-    kubectl get namespaces > "$output_dir/kubernetes/resources/namespaces.txt" 2>/dev/null
+    kubectl get namespaces -o json > "$OUTPUT_DIR/kubernetes/resources/namespaces.json" 2>/dev/null
+    kubectl get namespaces > "$OUTPUT_DIR/kubernetes/resources/namespaces.txt" 2>/dev/null
 
     # Save namespaces in a list
-    jq -r '.items[].metadata.name' "$output_dir/kubernetes/resources/namespaces.json" > "$output_dir/kubernetes/resources/namespace_list.txt" 2>/dev/null
+    jq -r '.items[].metadata.name' "$OUTPUT_DIR/kubernetes/resources/namespaces.json" > "$OUTPUT_DIR/kubernetes/resources/namespace_list.txt" 2>/dev/null
 
     # Count namespaces
-    NAMESPACE_COUNT=$(wc -l < "$output_dir/kubernetes/resources/namespace_list.txt")
+    NAMESPACE_COUNT=$(wc -l < "$OUTPUT_DIR/kubernetes/resources/namespace_list.txt")
     echo -e "${YELLOW}[*] Found $NAMESPACE_COUNT namespaces${NC}"
-    echo "Namespace Count: $NAMESPACE_COUNT" >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
+    echo "Namespace Count: $NAMESPACE_COUNT" >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
 
     # Initialize resource counters for various types
     TOTAL_DEPLOYMENTS=0
@@ -949,14 +949,14 @@ f_scan_kubernetes(){
     TOTAL_CONFIGMAPS=0
 
     # Initialize map files for tracking issues
-    touch "$output_dir/kubernetes/vulnerabilities/privileged_pods.txt"
-    touch "$output_dir/kubernetes/vulnerabilities/hostnetwork_pods.txt"
-    touch "$output_dir/kubernetes/vulnerabilities/hostpath_volumes.txt"
-    touch "$output_dir/kubernetes/vulnerabilities/root_pods.txt"
-    touch "$output_dir/kubernetes/vulnerabilities/no_resource_limits.txt"
-    touch "$output_dir/kubernetes/vulnerabilities/deprecated_apis.txt"
-    touch "$output_dir/kubernetes/vulnerabilities/insecure_capabilities.txt"
-    touch "$output_dir/kubernetes/vulnerabilities/secrets_as_env.txt"
+    touch "$OUTPUT_DIR/kubernetes/vulnerabilities/privileged_pods.txt"
+    touch "$OUTPUT_DIR/kubernetes/vulnerabilities/hostnetwork_pods.txt"
+    touch "$OUTPUT_DIR/kubernetes/vulnerabilities/hostpath_volumes.txt"
+    touch "$OUTPUT_DIR/kubernetes/vulnerabilities/root_pods.txt"
+    touch "$OUTPUT_DIR/kubernetes/vulnerabilities/no_resource_limits.txt"
+    touch "$OUTPUT_DIR/kubernetes/vulnerabilities/deprecated_apis.txt"
+    touch "$OUTPUT_DIR/kubernetes/vulnerabilities/insecure_capabilities.txt"
+    touch "$OUTPUT_DIR/kubernetes/vulnerabilities/secrets_as_env.txt"
 
     # For each namespace, get and analyze all resources
     echo -e "${BLUE}[*] Starting detailed namespace analysis.${NC}"
@@ -965,25 +965,25 @@ f_scan_kubernetes(){
     while read -r namespace; do
         ((NAMESPACE_COUNTER++))
         echo -e "${BLUE}[*] Analyzing namespace [$NAMESPACE_COUNTER/$NAMESPACE_COUNT]: $namespace${NC}"
-        mkdir -p "$output_dir/kubernetes/workloads/$namespace" "$output_dir/kubernetes/network/$namespace" "$output_dir/kubernetes/security_reports/$namespace"
+        mkdir -p "$OUTPUT_DIR/kubernetes/workloads/$namespace" "$OUTPUT_DIR/kubernetes/network/$namespace" "$OUTPUT_DIR/kubernetes/security_reports/$namespace"
 
         # Create namespace summary file
-        echo "Security Analysis for Namespace: $namespace" > "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
-        echo "=================================" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
-        echo "" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+        echo "Security Analysis for Namespace: $namespace" > "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+        echo "=================================" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+        echo "" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
 
         # Get all resource types in namespace
         echo -e "${BLUE}[*] Collecting all resources in namespace: $namespace${NC}"
-        kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found -n "$namespace" > "$output_dir/kubernetes/resources/$namespace-all_resources.txt" 2>/dev/null
+        kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found -n "$namespace" > "$OUTPUT_DIR/kubernetes/resources/$namespace-all_resources.txt" 2>/dev/null
 
         # Get workload resources
-        kubectl get deployments,statefulsets,daemonsets,replicasets,pods -n "$namespace" -o json > "$output_dir/kubernetes/workloads/$namespace/workloads.json" 2>/dev/null
+        kubectl get deployments,statefulsets,daemonsets,replicasets,pods -n "$namespace" -o json > "$OUTPUT_DIR/kubernetes/workloads/$namespace/workloads.json" 2>/dev/null
 
         # Get network resources
-        kubectl get services,ingresses,networkpolicies -n "$namespace" -o json > "$output_dir/kubernetes/network/$namespace/network.json" 2>/dev/null
+        kubectl get services,ingresses,networkpolicies -n "$namespace" -o json > "$OUTPUT_DIR/kubernetes/network/$namespace/network.json" 2>/dev/null
 
         # Get secrets and config resources
-        kubectl get secrets,configmaps -n "$namespace" -o json > "$output_dir/kubernetes/workloads/$namespace/configs.json" 2>/dev/null
+        kubectl get secrets,configmaps -n "$namespace" -o json > "$OUTPUT_DIR/kubernetes/workloads/$namespace/configs.json" 2>/dev/null
 
         # Get specific counts
         DEPLOYMENT_COUNT=$(kubectl get deployments -n "$namespace" 2>/dev/null | grep -v NAME | wc -l)
@@ -1002,167 +1002,167 @@ f_scan_kubernetes(){
         TOTAL_CONFIGMAPS=$((TOTAL_CONFIGMAPS + CONFIGMAP_COUNT))
 
         # Add to namespace summary
-        echo "Resource Counts:" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
-        echo "- Deployments: $DEPLOYMENT_COUNT" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
-        echo "- Pods: $POD_COUNT" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
-        echo "- Services: $SERVICE_COUNT" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
-        echo "- Ingresses: $INGRESS_COUNT" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
-        echo "- Secrets: $SECRET_COUNT" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
-        echo "- ConfigMaps: $CONFIGMAP_COUNT" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
-        echo "" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+        echo "Resource Counts:" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+        echo "- Deployments: $DEPLOYMENT_COUNT" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+        echo "- Pods: $POD_COUNT" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+        echo "- Services: $SERVICE_COUNT" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+        echo "- Ingresses: $INGRESS_COUNT" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+        echo "- Secrets: $SECRET_COUNT" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+        echo "- ConfigMaps: $CONFIGMAP_COUNT" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+        echo "" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
 
         # Security Analysis
         echo -e "${BLUE}[*] Performing security analysis for namespace: $namespace${NC}"
 
         # Check pods for security issues
         if [ "$POD_COUNT" -gt 0 ]; then
-            echo "POD SECURITY ANALYSIS:" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "POD SECURITY ANALYSIS:" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
 
             # Check for privileged containers
             PRIV_PODS=$(kubectl get pods -n "$namespace" -o json | jq -r '.items[] | select(any(.spec.containers[]; .securityContext.privileged == true)) | .metadata.name' 2>/dev/null)
             if [ -n "$PRIV_PODS" ]; then
                 PRIV_POD_COUNT=$(echo "$PRIV_PODS" | wc -l)
-                echo "WARNING: Found $PRIV_POD_COUNT pods with privileged containers" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "WARNING: Found $PRIV_POD_COUNT pods with privileged containers" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
                 echo "$PRIV_PODS" | while read -r pod; do
-                    echo "$namespace/$pod" >> "$output_dir/kubernetes/vulnerabilities/privileged_pods.txt"
+                    echo "$namespace/$pod" >> "$OUTPUT_DIR/kubernetes/vulnerabilities/privileged_pods.txt"
                 done
                 TOTAL_PRIVILEGED_PODS=$((TOTAL_PRIVILEGED_PODS + PRIV_POD_COUNT))
             else
-                echo "GOOD: No privileged containers found" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "GOOD: No privileged containers found" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
             fi
 
             # Check for hostNetwork
             HOSTNET_PODS=$(kubectl get pods -n "$namespace" -o json | jq -r '.items[] | select(.spec.hostNetwork == true) | .metadata.name' 2>/dev/null)
             if [ -n "$HOSTNET_PODS" ]; then
                 HOSTNET_POD_COUNT=$(echo "$HOSTNET_PODS" | wc -l)
-                echo "WARNING: Found $HOSTNET_POD_COUNT pods using host network" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "WARNING: Found $HOSTNET_POD_COUNT pods using host network" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
                 echo "$HOSTNET_PODS" | while read -r pod; do
-                    echo "$namespace/$pod" >> "$output_dir/kubernetes/vulnerabilities/hostnetwork_pods.txt"
+                    echo "$namespace/$pod" >> "$OUTPUT_DIR/kubernetes/vulnerabilities/hostnetwork_pods.txt"
                 done
                 TOTAL_HOSTNETWORK_PODS=$((TOTAL_HOSTNETWORK_PODS + HOSTNET_POD_COUNT))
             else
-                echo "GOOD: No pods using host network" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "GOOD: No pods using host network" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
             fi
 
             # Check for hostPath volumes
             HOSTPATH_PODS=$(kubectl get pods -n "$namespace" -o json | jq -r '.items[] | select(any(.spec.volumes[]; .hostPath != null)) | .metadata.name' 2>/dev/null)
             if [ -n "$HOSTPATH_PODS" ]; then
                 HOSTPATH_POD_COUNT=$(echo "$HOSTPATH_PODS" | wc -l)
-                echo "WARNING: Found $HOSTPATH_POD_COUNT pods using hostPath volumes" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "WARNING: Found $HOSTPATH_POD_COUNT pods using hostPath volumes" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
                 echo "$HOSTPATH_PODS" | while read -r pod; do
-                    echo "$namespace/$pod" >> "$output_dir/kubernetes/vulnerabilities/hostpath_volumes.txt"
+                    echo "$namespace/$pod" >> "$OUTPUT_DIR/kubernetes/vulnerabilities/hostpath_volumes.txt"
                 done
                 TOTAL_HOSTPATH_PODS=$((TOTAL_HOSTPATH_PODS + HOSTPATH_POD_COUNT))
             else
-                echo "GOOD: No pods using hostPath volumes" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "GOOD: No pods using hostPath volumes" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
             fi
 
             # Check for root containers
             ROOT_PODS=$(kubectl get pods -n "$namespace" -o json | jq -r '.items[] | select(any(.spec.containers[]; .securityContext.runAsNonRoot != true and (.securityContext.runAsUser == null or .securityContext.runAsUser == 0))) | .metadata.name' 2>/dev/null)
             if [ -n "$ROOT_PODS" ]; then
                 ROOT_POD_COUNT=$(echo "$ROOT_PODS" | wc -l)
-                echo "WARNING: Found $ROOT_POD_COUNT pods running as root" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "WARNING: Found $ROOT_POD_COUNT pods running as root" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
                 echo "$ROOT_PODS" | while read -r pod; do
-                    echo "$namespace/$pod" >> "$output_dir/kubernetes/vulnerabilities/root_pods.txt"
+                    echo "$namespace/$pod" >> "$OUTPUT_DIR/kubernetes/vulnerabilities/root_pods.txt"
                 done
                 TOTAL_ROOT_PODS=$((TOTAL_ROOT_PODS + ROOT_POD_COUNT))
             else
-                echo "GOOD: No pods running as root" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "GOOD: No pods running as root" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
             fi
 
             # Check for missing resource limits
             NOLIMIT_PODS=$(kubectl get pods -n "$namespace" -o json | jq -r '.items[] | select(any(.spec.containers[]; .resources.limits == null or .resources.limits.cpu == null or .resources.limits.memory == null)) | .metadata.name' 2>/dev/null)
             if [ -n "$NOLIMIT_PODS" ]; then
                 NOLIMIT_POD_COUNT=$(echo "$NOLIMIT_PODS" | wc -l)
-                echo "WARNING: Found $NOLIMIT_POD_COUNT pods without complete resource limits" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "WARNING: Found $NOLIMIT_POD_COUNT pods without complete resource limits" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
                 echo "$NOLIMIT_PODS" | while read -r pod; do
-                    echo "$namespace/$pod" >> "$output_dir/kubernetes/vulnerabilities/no_resource_limits.txt"
+                    echo "$namespace/$pod" >> "$OUTPUT_DIR/kubernetes/vulnerabilities/no_resource_limits.txt"
                 done
             else
-                echo "GOOD: All pods have resource limits defined" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "GOOD: All pods have resource limits defined" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
             fi
 
-            echo "" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         fi
 
         # Network Security Analysis 
         if [ "$SERVICE_COUNT" -gt 0 ] || [ "$INGRESS_COUNT" -gt 0 ]; then
-            echo "NETWORK SECURITY ANALYSIS:" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "NETWORK SECURITY ANALYSIS:" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
 
             # Check for NodePort services
             NODEPORT_SERVICES=$(kubectl get services -n "$namespace" -o json | jq -r '.items[] | select(.spec.type == "NodePort") | .metadata.name' 2>/dev/null)
             if [ -n "$NODEPORT_SERVICES" ]; then
                 NODEPORT_COUNT=$(echo "$NODEPORT_SERVICES" | wc -l)
-                echo "INFO: Found $NODEPORT_COUNT NodePort services (ensure these are properly secured)" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "INFO: Found $NODEPORT_COUNT NodePort services (ensure these are properly secured)" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
             fi
 
             # Check for LoadBalancer services
             LB_SERVICES=$(kubectl get services -n "$namespace" -o json | jq -r '.items[] | select(.spec.type == "LoadBalancer") | .metadata.name' 2>/dev/null)
             if [ -n "$LB_SERVICES" ]; then
                 LB_COUNT=$(echo "$LB_SERVICES" | wc -l)
-                echo "INFO: Found $LB_COUNT LoadBalancer services (ensure these are properly secured)" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "INFO: Found $LB_COUNT LoadBalancer services (ensure these are properly secured)" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
             fi
 
             # Check for Network Policies
             NP_COUNT=$(kubectl get networkpolicies -n "$namespace" 2>/dev/null | grep -v NAME | wc -l)
             if [ "$NP_COUNT" -eq 0 ]; then
-                echo "WARNING: No NetworkPolicies found in namespace. Consider implementing network segmentation." >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "WARNING: No NetworkPolicies found in namespace. Consider implementing network segmentation." >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
             else
-                echo "GOOD: Found $NP_COUNT NetworkPolicies" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "GOOD: Found $NP_COUNT NetworkPolicies" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
             fi
 
-            echo "" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         fi
 
         # Secrets analysis
         if [ "$SECRET_COUNT" -gt 0 ]; then
-            echo "SECRETS ANALYSIS:" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "SECRETS ANALYSIS:" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
 
             # Check for secrets mounted as environment variables (less secure than volumes)
             SECRET_ENV_PODS=$(kubectl get pods -n "$namespace" -o json | jq -r '.items[] | select(any(.spec.containers[]; any(.env[]; .valueFrom.secretKeyRef != null))) | .metadata.name' 2>/dev/null)
             if [ -n "$SECRET_ENV_PODS" ]; then
                 SECRET_ENV_COUNT=$(echo "$SECRET_ENV_PODS" | wc -l)
-                echo "INFO: Found $SECRET_ENV_COUNT pods using secrets as environment variables" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "INFO: Found $SECRET_ENV_COUNT pods using secrets as environment variables" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
                 echo "$SECRET_ENV_PODS" | while read -r pod; do
-                    echo "$namespace/$pod" >> "$output_dir/kubernetes/vulnerabilities/secrets_as_env.txt"
+                    echo "$namespace/$pod" >> "$OUTPUT_DIR/kubernetes/vulnerabilities/secrets_as_env.txt"
                 done
             fi
 
             # List any default-token secrets that might be automatically mounted
             DEFAULT_TOKEN=$(kubectl get secrets -n "$namespace" | grep -c "default-token")
             if [ "$DEFAULT_TOKEN" -gt 0 ]; then
-                echo "INFO: Found default-token secrets that are auto-mounted in pods" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+                echo "INFO: Found default-token secrets that are auto-mounted in pods" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
             fi
 
-            echo "" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         fi
 
         # Check RBAC permissions in namespace
-        echo "RBAC ANALYSIS:" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+        echo "RBAC ANALYSIS:" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
 
         # Get roles and role bindings
-        kubectl get roles,rolebindings -n "$namespace" -o json > "$output_dir/kubernetes/rbac/$namespace-rbac.json" 2>/dev/null
+        kubectl get roles,rolebindings -n "$namespace" -o json > "$OUTPUT_DIR/kubernetes/rbac/$namespace-rbac.json" 2>/dev/null
 
         # Check for permissive roles
-        PERMISSIVE_ROLES=$(jq -r '.items[] | select(.kind == "Role") | select(any(.rules[]; .resources[] == "*" and .verbs[] == "*")) | .metadata.name' "$output_dir/kubernetes/rbac/$namespace-rbac.json" 2>/dev/null)
+        PERMISSIVE_ROLES=$(jq -r '.items[] | select(.kind == "Role") | select(any(.rules[]; .resources[] == "*" and .verbs[] == "*")) | .metadata.name' "$OUTPUT_DIR/kubernetes/rbac/$namespace-rbac.json" 2>/dev/null)
         if [ -n "$PERMISSIVE_ROLES" ]; then
             PERMISSIVE_ROLE_COUNT=$(echo "$PERMISSIVE_ROLES" | wc -l)
-            echo "WARNING: Found $PERMISSIVE_ROLE_COUNT overly permissive roles with wildcard resources and verbs" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "WARNING: Found $PERMISSIVE_ROLE_COUNT overly permissive roles with wildcard resources and verbs" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         else
-            echo "GOOD: No overly permissive roles found" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "GOOD: No overly permissive roles found" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         fi
 
         # Check service accounts with elevated permissions
-        SA_WITH_BINDINGS=$(jq -r '.items[] | select(.kind == "RoleBinding") | select(.subjects[] | select(.kind == "ServiceAccount")) | .metadata.name' "$output_dir/kubernetes/rbac/$namespace-rbac.json" 2>/dev/null)
+        SA_WITH_BINDINGS=$(jq -r '.items[] | select(.kind == "RoleBinding") | select(.subjects[] | select(.kind == "ServiceAccount")) | .metadata.name' "$OUTPUT_DIR/kubernetes/rbac/$namespace-rbac.json" 2>/dev/null)
         if [ -n "$SA_WITH_BINDINGS" ]; then
             SA_BINDING_COUNT=$(echo "$SA_WITH_BINDINGS" | wc -l)
-            echo "INFO: Found $SA_BINDING_COUNT role bindings to service accounts" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "INFO: Found $SA_BINDING_COUNT role bindings to service accounts" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         fi
 
-        echo "" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+        echo "" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
 
         # Summarize namespace security posture
-        echo "NAMESPACE SECURITY SCORE:" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+        echo "NAMESPACE SECURITY SCORE:" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
 
         # Initialize score (10 = most secure)
         SECURITY_SCORE=10
@@ -1179,68 +1179,68 @@ f_scan_kubernetes(){
         if [ "$SECURITY_SCORE" -lt 1 ]; then SECURITY_SCORE=1; fi
 
         # Record the score
-        echo "Security Score: $SECURITY_SCORE/10" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
-        echo "$namespace|$SECURITY_SCORE|$POD_COUNT" >> "$output_dir/kubernetes/namespace_security_scores.txt"
+        echo "Security Score: $SECURITY_SCORE/10" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+        echo "$namespace|$SECURITY_SCORE|$POD_COUNT" >> "$OUTPUT_DIR/kubernetes/namespace_security_scores.txt"
 
         # Add recommendations
-        echo "" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
-        echo "SECURITY RECOMMENDATIONS:" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+        echo "" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+        echo "SECURITY RECOMMENDATIONS:" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
 
         if [ -n "$PRIV_PODS" ]; then
-            echo "- Avoid using privileged containers when possible" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "- Avoid using privileged containers when possible" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         fi
 
         if [ -n "$HOSTNET_PODS" ]; then
-            echo "- Avoid using host network namespace" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "- Avoid using host network namespace" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         fi
 
         if [ -n "$HOSTPATH_PODS" ]; then
-            echo "- Avoid using hostPath volumes, prefer PersistentVolumes instead" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "- Avoid using hostPath volumes, prefer PersistentVolumes instead" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         fi
 
         if [ -n "$ROOT_PODS" ]; then
-            echo "- Run containers as non-root users with runAsNonRoot: true" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "- Run containers as non-root users with runAsNonRoot: true" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         fi
 
         if [ -n "$NOLIMIT_PODS" ]; then
-            echo "- Set resource limits for all containers to prevent resource exhaustion attacks" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "- Set resource limits for all containers to prevent resource exhaustion attacks" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         fi
 
         if [ "$NP_COUNT" -eq 0 ] && [ "$POD_COUNT" -gt 0 ]; then
-            echo "- Implement NetworkPolicies to enforce network segmentation" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "- Implement NetworkPolicies to enforce network segmentation" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         fi
 
         if [ -n "$PERMISSIVE_ROLES" ]; then
-            echo "- Refine RBAC roles to use least privilege principle instead of wildcard permissions" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+            echo "- Refine RBAC roles to use least privilege principle instead of wildcard permissions" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
         fi
 
-        echo "- Implement Pod Security Policies or Pod Security Standards" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
-        echo "- Use Secret management solutions instead of Kubernetes Secrets for sensitive data" >> "$output_dir/kubernetes/security_reports/$namespace/summary.txt"
+        echo "- Implement Pod Security Policies or Pod Security Standards" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+        echo "- Use Secret management solutions instead of Kubernetes Secrets for sensitive data" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
 
         echo -e "${YELLOW}[*] Completed security analysis for namespace: $namespace${NC}"
-    done < "$output_dir/kubernetes/resources/namespace_list.txt"
+    done < "$OUTPUT_DIR/kubernetes/resources/namespace_list.txt"
 
     # Check cluster-wide RBAC
     echo -e "${BLUE}[*] Analyzing cluster-wide RBAC settings.${NC}"
-    mkdir -p "$output_dir/kubernetes/rbac/cluster-wide"
+    mkdir -p "$OUTPUT_DIR/kubernetes/rbac/cluster-wide"
 
     # Get cluster roles and bindings
-    kubectl get clusterroles,clusterrolebindings -o json > "$output_dir/kubernetes/rbac/cluster-roles.json" 2>/dev/null
+    kubectl get clusterroles,clusterrolebindings -o json > "$OUTPUT_DIR/kubernetes/rbac/cluster-roles.json" 2>/dev/null
 
     # Check for overly permissive cluster roles
     echo -e "${BLUE}[*] Checking for overly permissive cluster roles.${NC}"
-    jq -r '.items[] | select(.kind == "ClusterRole") | select(any(.rules[]; .resources[] == "*" and .verbs[] == "*")) | .metadata.name' "$output_dir/kubernetes/rbac/cluster-roles.json" > "$output_dir/kubernetes/rbac/cluster-wide/permissive_cluster_roles.txt" 2>/dev/null
+    jq -r '.items[] | select(.kind == "ClusterRole") | select(any(.rules[]; .resources[] == "*" and .verbs[] == "*")) | .metadata.name' "$OUTPUT_DIR/kubernetes/rbac/cluster-roles.json" > "$OUTPUT_DIR/kubernetes/rbac/cluster-wide/permissive_cluster_roles.txt" 2>/dev/null
 
-    PERMISSIVE_CLUSTER_ROLES=$(wc -l < "$output_dir/kubernetes/rbac/cluster-wide/permissive_cluster_roles.txt" 2>/dev/null || echo 0)
+    PERMISSIVE_CLUSTER_ROLES=$(wc -l < "$OUTPUT_DIR/kubernetes/rbac/cluster-wide/permissive_cluster_roles.txt" 2>/dev/null || echo 0)
     if [ "$PERMISSIVE_CLUSTER_ROLES" -gt 0 ]; then
         echo -e "${RED}[!] WARNING: Found $PERMISSIVE_CLUSTER_ROLES overly permissive cluster roles${NC}"
     fi
 
     # Check for dangerous subjects in cluster role bindings
     echo -e "${BLUE}[*] Checking for dangerous cluster role bindings.${NC}"
-    jq -r '.items[] | select(.kind == "ClusterRoleBinding") | select(.roleRef.name == "cluster-admin") | .subjects[] | select(.kind == "Group" and .name == "system:authenticated") | "CRITICAL: cluster-admin bound to system:authenticated"' "$output_dir/kubernetes/rbac/cluster-roles.json" > "$output_dir/kubernetes/rbac/cluster-wide/dangerous_bindings.txt" 2>/dev/null
+    jq -r '.items[] | select(.kind == "ClusterRoleBinding") | select(.roleRef.name == "cluster-admin") | .subjects[] | select(.kind == "Group" and .name == "system:authenticated") | "CRITICAL: cluster-admin bound to system:authenticated"' "$OUTPUT_DIR/kubernetes/rbac/cluster-roles.json" > "$OUTPUT_DIR/kubernetes/rbac/cluster-wide/dangerous_bindings.txt" 2>/dev/null
 
-    if [ -s "$output_dir/kubernetes/rbac/cluster-wide/dangerous_bindings.txt" ]; then
+    if [ -s "$OUTPUT_DIR/kubernetes/rbac/cluster-wide/dangerous_bindings.txt" ]; then
         echo -e "${RED}[!] CRITICAL: Found dangerous cluster role bindings that grant admin to all authenticated users!${NC}"
     fi
 
@@ -1250,7 +1250,7 @@ f_scan_kubernetes(){
         echo "========================="
         echo "Overly permissive cluster roles: $PERMISSIVE_CLUSTER_ROLES"
 
-        if [ -s "$output_dir/kubernetes/rbac/cluster-wide/dangerous_bindings.txt" ]; then
+        if [ -s "$OUTPUT_DIR/kubernetes/rbac/cluster-wide/dangerous_bindings.txt" ]; then
             echo "CRITICAL: Found dangerous cluster role bindings (see dangerous_bindings.txt)"
         else
             echo "GOOD: No dangerous cluster role bindings found"
@@ -1262,7 +1262,7 @@ f_scan_kubernetes(){
         echo "- Never bind cluster-admin role to broad groups like system:authenticated"
         echo "- Apply least privilege principle to all RBAC configurations"
         echo "- Regularly audit cluster role bindings"
-    } > "$output_dir/kubernetes/rbac/cluster-wide/rbac_summary.txt"
+    } > "$OUTPUT_DIR/kubernetes/rbac/cluster-wide/rbac_summary.txt"
 
     # Create comprehensive Kubernetes security summary
     echo -e "${BLUE}[*] Generating comprehensive Kubernetes security report.${NC}"
@@ -1288,8 +1288,8 @@ f_scan_kubernetes(){
         echo
 
         echo "NAMESPACE SECURITY SCORES (Highest Risk First):"
-        if [ -f "$output_dir/kubernetes/namespace_security_scores.txt" ]; then
-            sort -t'|' -k2,2n "$output_dir/kubernetes/namespace_security_scores.txt" | head -10 | \
+        if [ -f "$OUTPUT_DIR/kubernetes/namespace_security_scores.txt" ]; then
+            sort -t'|' -k2,2n "$OUTPUT_DIR/kubernetes/namespace_security_scores.txt" | head -10 | \
                 awk -F'|' '{print $1 ": " $2 "/10 (" $3 " pods)"}'  
         fi
         echo
@@ -1305,16 +1305,16 @@ f_scan_kubernetes(){
         echo "8. Implement resource quotas and limits on all namespaces"
         echo "9. Use image scanning and admission controllers to prevent vulnerable images"
         echo "10. Enable audit logging and implement monitoring/alerting"
-    } >> "$output_dir/kubernetes/kubernetes_security_summary.txt"
+    } >> "$OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt"
 
-    echo -e "${YELLOW}[*] Kubernetes security audit complete! Results are in $output_dir/kubernetes/kubernetes_security_summary.txt${NC}"
+    echo -e "${YELLOW}[*] Kubernetes security audit complete! Results are in $OUTPUT_DIR/kubernetes/kubernetes_security_summary.txt${NC}"
 }
 
 ###############################################################################################################################
 
 # Function to generate a comprehensive report
 f_generate_report(){
-    local output_dir="$1"
+    local OUTPUT_DIR="$1"
 
     echo -e "${BLUE}[*] Generating container security report.${NC}"
     {
@@ -1325,12 +1325,12 @@ f_generate_report(){
         echo "1. Docker Image Analysis"
         echo "----------------------"
 
-        if [ -f "$output_dir/docker/image_list.txt" ]; then
-            echo "Total Docker Images: $(wc -l < "$output_dir/docker/image_list.txt")"
+        if [ -f "$OUTPUT_DIR/docker/image_list.txt" ]; then
+            echo "Total Docker Images: $(wc -l < "$OUTPUT_DIR/docker/image_list.txt")"
 
-            if [ -f "$output_dir/docker/vulnerable_images.txt" ] && [ -s "$output_dir/docker/vulnerable_images.txt" ]; then
+            if [ -f "$OUTPUT_DIR/docker/vulnerable_images.txt" ] && [ -s "$OUTPUT_DIR/docker/vulnerable_images.txt" ]; then
                 echo "WARNING: The following images have HIGH or CRITICAL vulnerabilities:"
-                cat "$output_dir/docker/vulnerable_images.txt"
+                cat "$OUTPUT_DIR/docker/vulnerable_images.txt"
             else
                 echo "No images with HIGH or CRITICAL vulnerabilities detected."
             fi
@@ -1342,12 +1342,12 @@ f_generate_report(){
         echo "2. Docker Container Analysis"
         echo "--------------------------"
 
-        if [ -f "$output_dir/docker/container_list.txt" ]; then
-            echo "Total Docker Containers: $(wc -l < "$output_dir/docker/container_list.txt")"
+        if [ -f "$OUTPUT_DIR/docker/container_list.txt" ]; then
+            echo "Total Docker Containers: $(wc -l < "$OUTPUT_DIR/docker/container_list.txt")"
 
-            if [ -f "$output_dir/docker/privileged_containers.txt" ] && [ -s "$output_dir/docker/privileged_containers.txt" ]; then
+            if [ -f "$OUTPUT_DIR/docker/privileged_containers.txt" ] && [ -s "$OUTPUT_DIR/docker/privileged_containers.txt" ]; then
                 echo "CRITICAL: The following containers are running in privileged mode:"
-                cat "$output_dir/docker/privileged_containers.txt"
+                cat "$OUTPUT_DIR/docker/privileged_containers.txt"
             else
                 echo "No containers running in privileged mode detected."
             fi
@@ -1359,11 +1359,11 @@ f_generate_report(){
         echo "3. Dockerfile Analysis"
         echo "--------------------"
 
-        if [ -f "$output_dir/docker/dockerfile_list.txt" ]; then
-            echo "Total Dockerfiles: $(wc -l < "$output_dir/docker/dockerfile_list.txt")"
+        if [ -f "$OUTPUT_DIR/docker/dockerfile_list.txt" ]; then
+            echo "Total Dockerfiles: $(wc -l < "$OUTPUT_DIR/docker/dockerfile_list.txt")"
 
             # List Dockerfiles with issues
-            for df_analysis in "$output_dir"/docker/dockerfile_*.txt; do
+            for df_analysis in "$OUTPUT_DIR"/docker/dockerfile_*.txt; do
                 if grep -q "WARNING\|CRITICAL" "$df_analysis"; then
                     echo "Issues found in $(basename "$df_analysis" | sed 's/dockerfile_//' | sed 's/.txt//'):"
                     grep "WARNING\|CRITICAL" "$df_analysis" | sed 's/^/  /'
@@ -1378,39 +1378,39 @@ f_generate_report(){
         echo "4. Kubernetes Analysis"
         echo "--------------------"
 
-        if [ -f "$output_dir/kubernetes/namespace_list.txt" ]; then
-            echo "Total Kubernetes Namespaces: $(wc -l < "$output_dir/kubernetes/namespace_list.txt")"
+        if [ -f "$OUTPUT_DIR/kubernetes/namespace_list.txt" ]; then
+            echo "Total Kubernetes Namespaces: $(wc -l < "$OUTPUT_DIR/kubernetes/namespace_list.txt")"
 
             # List insecure pods across all namespaces
             insecure_pods_found=false
             while read -r namespace; do
-                if [ -f "$output_dir/kubernetes/$namespace/insecure_pods.txt" ] && [ -s "$output_dir/kubernetes/$namespace/insecure_pods.txt" ]; then
+                if [ -f "$OUTPUT_DIR/kubernetes/$namespace/insecure_pods.txt" ] && [ -s "$OUTPUT_DIR/kubernetes/$namespace/insecure_pods.txt" ]; then
                     echo "CRITICAL: Insecure pods in namespace $namespace:"
-                    cat "$output_dir/kubernetes/$namespace/insecure_pods.txt" | sed 's/^/  /'
+                    cat "$OUTPUT_DIR/kubernetes/$namespace/insecure_pods.txt" | sed 's/^/  /'
                     insecure_pods_found=true
                 fi
 
-                if [ -f "$output_dir/kubernetes/$namespace/root_pods.txt" ] && [ -s "$output_dir/kubernetes/$namespace/root_pods.txt" ]; then
+                if [ -f "$OUTPUT_DIR/kubernetes/$namespace/root_pods.txt" ] && [ -s "$OUTPUT_DIR/kubernetes/$namespace/root_pods.txt" ]; then
                     echo "WARNING: Pods running as root in namespace $namespace:"
-                    cat "$output_dir/kubernetes/$namespace/root_pods.txt" | sed 's/^/  /'
+                    cat "$OUTPUT_DIR/kubernetes/$namespace/root_pods.txt" | sed 's/^/  /'
                     insecure_pods_found=true
                 fi
 
-                if [ -f "$output_dir/kubernetes/$namespace/sensitive_mount_pods.txt" ] && [ -s "$output_dir/kubernetes/$namespace/sensitive_mount_pods.txt" ]; then
+                if [ -f "$OUTPUT_DIR/kubernetes/$namespace/sensitive_mount_pods.txt" ] && [ -s "$OUTPUT_DIR/kubernetes/$namespace/sensitive_mount_pods.txt" ]; then
                     echo "WARNING: Pods with sensitive host mounts in namespace $namespace:"
-                    cat "$output_dir/kubernetes/$namespace/sensitive_mount_pods.txt" | sed 's/^/  /'
+                    cat "$OUTPUT_DIR/kubernetes/$namespace/sensitive_mount_pods.txt" | sed 's/^/  /'
                     insecure_pods_found=true
                 fi
-            done < "$output_dir/kubernetes/namespace_list.txt"
+            done < "$OUTPUT_DIR/kubernetes/namespace_list.txt"
 
             if [ "$insecure_pods_found" = false ]; then
                 echo "No insecure Kubernetes pod configurations detected."
             fi
 
             # Check for permissive RBAC roles
-            if [ -f "$output_dir/kubernetes/permissive_roles.txt" ] && [ -s "$output_dir/kubernetes/permissive_roles.txt" ]; then
+            if [ -f "$OUTPUT_DIR/kubernetes/permissive_roles.txt" ] && [ -s "$OUTPUT_DIR/kubernetes/permissive_roles.txt" ]; then
                 echo "CRITICAL: The following cluster roles have overly permissive permissions:"
-                cat "$output_dir/kubernetes/permissive_roles.txt" | sed 's/^/  /'
+                cat "$OUTPUT_DIR/kubernetes/permissive_roles.txt" | sed 's/^/  /'
             else
                 echo "No overly permissive RBAC roles detected."
             fi
@@ -1418,9 +1418,9 @@ f_generate_report(){
             echo "No Kubernetes resources found or unable to connect to Kubernetes cluster."
         fi
 
-    } > "$output_dir/container_security_report.txt"
+    } > "$OUTPUT_DIR/container_security_report.txt"
 
-    echo -e "${YELLOW}[*] Container security scan complete. Results saved to $output_dir/container_security_report.txt${NC}"
+    echo -e "${YELLOW}[*] Container security scan complete. Results saved to $OUTPUT_DIR/container_security_report.txt${NC}"
 }
 
 ###############################################################################################################################

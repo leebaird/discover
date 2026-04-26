@@ -9,10 +9,6 @@ f_banner
 DATESTAMP=$(date +%F)
 TIMESTAMP=$(date +%T)
 
-# Create output directory under $HOME/data
-OUTPUT_DIR="$HOME/data/web-api-scan_$(date +%Y%m%d_%H%M%S)"
-mkdir -p "$OUTPUT_DIR"
-
 # Function to terminate script
 f_terminate(){
     echo
@@ -23,6 +19,10 @@ f_terminate(){
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
+
+# Create output directory
+OUTPUT_DIR="$HOME/data/web-api-scan_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$OUTPUT_DIR"
 
 ###############################################################################################################################
 

