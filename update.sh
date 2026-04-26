@@ -415,6 +415,18 @@ if ! command -v xml_grep &> /dev/null; then
     echo
 fi
 
+# Get the original user's home directory even if run with sudo
+if [ -n "$SUDO_USER" ]; then
+    USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+else
+    USER_HOME="$HOME"
+fi
+
+# Delete folder if it is empty
+if [ -d "$USER_HOME/data/" ] && [ -z "$(ls -A "$USER_HOME/data/" 2>/dev/null)" ]; then
+    rm -rf "$USER_HOME/data/"
+fi
+
 echo -e "${BLUE}Updating locate database.${NC}"
 updatedb
 echo
