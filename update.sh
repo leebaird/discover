@@ -106,9 +106,6 @@ if grep -qi '^ID=ubuntu' /etc/os-release; then
         echo -e "${YELLOW}Installing ydotool.${NC}"
         apt install -y ydotool
         echo
-        echo -e "${YELLOW}Installing ydotoold.${NC}"
-        apt install -y ydotoold
-        echo
     fi
 else
     if ! command -v xdotool >/dev/null 2>&1; then
