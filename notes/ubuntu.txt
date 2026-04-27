@@ -8,19 +8,8 @@ Right-click on the Desktop > Open Terminal
 sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean
 
 - Install basic tools
-sudo apt install -y curl git net-tools open-vm-tools-desktop plocate python3-pip whois
+sudo apt install -y curl git golang net-tools open-vm-tools-desktop plocate python3-pip whois
 sudo snap install --classic code (Intel only)
-
-- Install Go
-Check for the latest version at https://go.dev/doc/install
-Choose the correct architecture.
-wget https://go.dev/dl/go1.25.6.linux-arm64.tar.gz
-sudo tar -C /usr/local -xzf go1.25.6.linux-arm64.tar.gz
-rm go1.25.6.linux-arm64.tar.gz
-open .bashrc
-PATH=$PATH:/usr/local/go/bin
-source .bashrc
-go version
 
 - Install uv
 sudo curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -41,24 +30,24 @@ rm -rf Documents/ Music/ Pictures/ Public/ Templates/ Videos/
 
 - Settings
     Click on the 3 icons in the top right corner > cog icon
-    Power > Power Saving > Screen Blank: Never
-    Appearance > Style: Dark
+    Power > Power Saving > Automatic Screen Blank: off
 
 - Text Editor
     touch tmp
     open tmp
     Preferences
-    Appearance: Builder Dark
+    Display Line Numbers: on
     Highlight Current Line: on
-    Margin Position: 120
-    Close
-
-    Click on the cog
-    Show Line Numbers: on
     Show Right Margin: on
-    Spaces: on
+    Margin Position: 120
+
+    Auto Indentation: off
+    Character: Space
     Spaces Per Tab: 4
+    Spaces Per Indent: 4
     Close and delete
+
+    Restore Session: off
 
 - Install Discover
     cd ~/
