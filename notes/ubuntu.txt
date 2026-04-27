@@ -68,7 +68,7 @@ Take a snapshot of your VM.
     https://www.whatismybrowser.com/guides/the-latest-user-agent/edge
 
     nikto
-    sudo open /etc/nikto/nikto.txt
+    sudo open /etc/nikto/config.txt
 
     nmap
     sudo open /usr/share/nmap/nselib/http.lua > line 160
