@@ -321,7 +321,18 @@ fi
 
 echo -e "${BLUE}Updating Nmap scripts.${NC}"
 nmap --script-updatedb | grep -Eiv '(starting|seconds)' | sed 's/NSE: //'
-echo
+
+if [ -d /usr/share/nmap/scripts/custom/.git ]; then
+    echo
+    echo -e "${BLUE}Updating custom Nmap scripts.${NC}"
+    cd /usr/share/nmap/scripts/custom/ || exit ; git pull
+    echo
+else
+    echo
+    echo -e "${YELLOW}Installing custom Nmap scripts.${NC}"
+    git clone https://github.com/ibrahmsql/Custom-Nse /usr/share/nmap/scripts/custom/
+    echo
+fi
 
 if [ -d /opt/PowerSharpPack/.git ]; then
     echo -e "${BLUE}Updating PowerSharpPack.${NC}"
