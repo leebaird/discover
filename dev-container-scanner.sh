@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
 # by ibrahimsql - Container Security Scanner
+# Upgrades and bug fixes by Lee Baird (@discoverscripts)
 
 clear
 f_banner
 
 # Variables
-DATESTAMP=$(date +%F)
-TIMESTAMP=$(date +%T)
+DATESTAMP=$(date +"%B %d, %Y")
+TIMESTAMP=$(date +"%-I:%M %p %Z")
 
 # Function to terminate script
 f_terminate(){
@@ -430,7 +431,10 @@ f_scan_docker_images(){
         } >> "$OUTPUT_DIR/docker/image_security_summary.txt"
     fi
 
-    echo -e "${YELLOW}[*] Docker image analysis complete! Results saved to $OUTPUT_DIR/docker/image_security_summary.txt${NC}"
+    echo
+    echo -e "${YELLOW}[*] Docker image analysis complete.${NC}"
+    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/docker/image_security_summary.txt${NC}"
+    echo
 }
 
 ###############################################################################################################################
@@ -835,7 +839,10 @@ f_scan_docker_containers(){
         echo "Containers without health checks: $(wc -l < "$OUTPUT_DIR/docker/no_health_check_containers.txt" 2>/dev/null || echo 0)"
     } >> "$OUTPUT_DIR/docker/container_security_summary.txt"
 
-    echo -e "${YELLOW}[*] Container security analysis complete! Results saved to $OUTPUT_DIR/docker/container_security_summary.txt${NC}"
+    echo
+    echo -e "${YELLOW}[*] Container security analysis complete.${NC}"
+    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/docker/container_security_summary.txt${NC}"
+    echo
 }
 
 ###############################################################################################################################
@@ -1420,7 +1427,10 @@ f_generate_report(){
 
     } > "$OUTPUT_DIR/container_security_report.txt"
 
-    echo -e "${YELLOW}[*] Container security scan complete. Results saved to $OUTPUT_DIR/container_security_report.txt${NC}"
+    echo
+    echo -e "${YELLOW}[*] Container security scan complete.${NC}"
+    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/container_security_report.txt${NC}"
+    echo
 }
 
 ###############################################################################################################################

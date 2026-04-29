@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 
 # by ibrahimsql - OAuth/JWT Security Scanner
+# Upgrades and bug fixes by Lee Baird (@discoverscripts)
 
 clear
 f_banner
 
 # Variables
-DATESTAMP=$(date +%F)
-TIMESTAMP=$(date +%T)
+DATESTAMP=$(date +"%B %d, %Y")
+TIMESTAMP=$(date +"%-I:%M %p %Z")
+
+OUTPUT_DIR="$HOME/data/oauth-jwt-scan_$(date +%Y%m%d_%H%M)"
+mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create output directory $OUTPUT_DIR${NC}"; exit 1; }
 
 # Function to terminate script
 f_terminate(){
@@ -19,10 +23,6 @@ f_terminate(){
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
-
-# Create output directory
-OUTPUT_DIR="$HOME/data/oauth-jwt-scan_$(date +%Y%m%d_%H%M%S)"
-mkdir -p "$OUTPUT_DIR"
 
 ###############################################################################################################################
 
@@ -162,7 +162,10 @@ f_oauth_analyze(){
         fi
     } > "$OUTPUT_DIR/oauth_security_report.txt"
 
-    echo -e "${YELLOW}[*] OAuth security test complete. Results saved to $OUTPUT_DIR/oauth_security_report.txt${NC}"
+    echo
+    echo -e "${YELLOW}[*] OAuth security test complete.${NC}"
+    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/oauth_security_report.txt${NC}"
+    echo
 }
 
 ###############################################################################################################################
@@ -416,7 +419,10 @@ f_jwt_security(){
 
     } > "$OUTPUT_DIR/jwt_security_report.txt"
 
-    echo -e "${YELLOW}[*] JWT security test complete. Results saved to $OUTPUT_DIR/jwt_security_report.txt${NC}"
+    echo
+    echo -e "${YELLOW}[*] JWT security test complete.${NC}"
+    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/jwt_security_report.txt${NC}"
+    echo
 }
 
 ###############################################################################################################################

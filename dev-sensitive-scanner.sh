@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 
 # by ibrahimsql - Sensitive Information Scanner
+# Upgrades and bug fixes by Lee Baird (@discoverscripts)
 
 clear
 f_banner
 
 # Variables
-DATESTAMP=$(date +%F)
-TIMESTAMP=$(date +%T)
+DATESTAMP=$(date +"%B %d, %Y")
+TIMESTAMP=$(date +"%-I:%M %p %Z")
+
+OUTPUT_DIR="$HOME/data/sensitive-scan_$(date +%Y%m%d-%H%M)"
+mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create output directory $OUTPUT_DIR${NC}"; exit 1; }
 
 # Function to terminate script
 f_terminate(){
@@ -19,10 +23,6 @@ f_terminate(){
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
-
-# Create output directory
-OUTPUT_DIR="$HOME/data/sensitive-scan_$(date +%Y%m%d_%H%M%S)"
-mkdir -p "$OUTPUT_DIR"
 
 ###############################################################################################################################
 
@@ -203,7 +203,8 @@ f_scan_files(){
     } > "$OUTPUT_DIR/sensitive_info_summary.txt"
 
     echo
-    echo -e "${YELLOW}[*] Scan complete. Results saved to $OUTPUT_DIR/sensitive_info_summary.txt${NC}"
+    echo -e "${YELLOW}[*] Scan complete.${NC}"
+    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/sensitive_info_summary.txt${NC}"
     echo
 }
 
@@ -535,7 +536,8 @@ EOF
     } > "$OUTPUT_DIR/web_sensitive_summary.txt"
 
     echo
-    echo -e "${YELLOW}[*] Web scan complete. Results saved to $OUTPUT_DIR/web_sensitive_summary.txt${NC}"
+    echo -e "${YELLOW}[*] Web scan complete.${NC}"
+    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/web_sensitive_summary.txt${NC}"
     echo
 }
 

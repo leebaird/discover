@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # by ibrahimsql - Open Redirect Scanner Wrapper
+# Upgrades and bug fixes by Lee Baird (@discoverscripts)
 
 clear
 f_banner

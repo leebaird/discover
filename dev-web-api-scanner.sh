@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 
 # by ibrahimsql - Metasploit Web and API Security Scanner
+# Upgrades and bug fixes by Lee Baird (@discoverscripts)
 
 clear
 f_banner
 
 # Variables
-DATESTAMP=$(date +%F)
-TIMESTAMP=$(date +%T)
+DATESTAMP=$(date +"%B %d, %Y")
+TIMESTAMP=$(date +"%-I:%M %p %Z")
+
+OUTPUT_DIR="$HOME/data/web-api-scan_$(date +%Y%m%d-%H%M)"
+mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create output directory $OUTPUT_DIR${NC}"; exit 1; }
 
 # Function to terminate script
 f_terminate(){
@@ -19,10 +23,6 @@ f_terminate(){
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
-
-# Create output directory
-OUTPUT_DIR="$HOME/data/web-api-scan_$(date +%Y%m%d_%H%M%S)"
-mkdir -p "$OUTPUT_DIR"
 
 ###############################################################################################################################
 
@@ -340,12 +340,12 @@ setg THREADS 5
 EOF
 
     # Initialize report file
-    echo "=========================================================" > "$OUTPUT_DIR/msf_web_api/scan_report.txt"
-    echo "      METASPLOIT WEB & API SECURITY SCAN REPORT          " >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
-    echo "=========================================================" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
+    echo "Metasploit Web & API Security Scan Report" > "$OUTPUT_DIR/msf_web_api/scan_report.txt"
+    echo "" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
     echo "Target: $TARGET_URL" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
     echo "IP: $TARGET_IP" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
-    echo "Date: $DATESTAMP $TIMESTAMP" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
+    echo "Date: $DATESTAMP" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
+    echo "Time: $TIMESTAMP" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
     echo "=========================================================" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
     echo "" >> "$OUTPUT_DIR/msf_web_api/scan_report.txt"
 
@@ -461,7 +461,10 @@ EOF
     # Clean up temporary files
     rm -f "/tmp/page.html" "$MSF_RESOURCE_DIR/tmp.rc"
 
-    echo -e "${YELLOW}[*] Web and API security scan complete. Results saved to $OUTPUT_DIR/msf_web_api/scan_report.txt${NC}"
+    echo
+    echo -e "${YELLOW}[*] Web and API security scan complete.${NC}"
+    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/msf_web_api/scan_report.txt${NC}"
+    echo
 }
 
 ###############################################################################################################################
@@ -479,7 +482,7 @@ f_web_api_main(){
     case $CHOICE in
         1)
             echo
-            echo -n "Enter target URL (e.g., http://target.com): "
+            echo -n "Enter target URL: "
             read -r TARGET_URL
 
             if [ -z "$TARGET_URL" ]; then

@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
 # by ibrahimsql - WAF Detection Tool
+# Upgrades and bug fixes by Lee Baird (@discoverscripts)
 
 clear
 f_banner
+
+OUTPUT_DIR="$HOME/data/waf-detection_$(date +%Y%m%d-%H%M)"
+mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create output directory $OUTPUT_DIR${NC}"; exit 1; }
 
 # Function to terminate script
 f_terminate(){
@@ -15,10 +19,6 @@ f_terminate(){
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
-
-# Create output directory
-OUTPUT_DIR="$HOME/data/waf-detection_$(date +%Y%m%d_%H%M%S)"
-mkdir -p "$OUTPUT_DIR"
 
 # WAF signatures
 declare -A WAF_SIGNATURES=(

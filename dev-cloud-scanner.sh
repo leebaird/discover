@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 
 # by ibrahimsql - Cloud Security Scanner
+# Upgrades and bug fixes by Lee Baird (@discoverscripts)
 
 clear
 f_banner
 
 # Variables
-DATESTAMP=$(date +%F)
-TIMESTAMP=$(date +%T)
+DATESTAMP=$(date +"%B %d, %Y")
+TIMESTAMP=$(date +"%-I:%M %p %Z")
+
+OUTPUT_DIR="$HOME/data/cloud-scanner_$(date +%Y%m%d-%H%M)"
+mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create output directory $OUTPUT_DIR${NC}"; exit 1; }
 
 # Function to terminate script
 f_terminate(){
@@ -19,10 +23,6 @@ f_terminate(){
 
 # Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
-
-# Create output directory
-OUTPUT_DIR="$HOME/data/cloud-scanner_$(date +%Y%m%d_%H%M%S)"
-mkdir -p "$OUTPUT_DIR"
 
 ###############################################################################################################################
 
@@ -636,7 +636,10 @@ f_aws_security_check(){
         fi
     } > "$OUTPUT_DIR/aws_security_report.txt"
 
-    echo -e "${YELLOW}[*] AWS security check complete. Results saved to $OUTPUT_DIR/aws_security_report.txt${NC}"
+    echo
+    echo -e "${YELLOW}[*] AWS security check complete.${NC}"
+    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/aws_security_report.txt${NC}"
+    echo
 }
 
 ###############################################################################################################################
@@ -739,7 +742,10 @@ f_azure_security_check(){
         echo "Total Key Vaults: $(jq -r '. | length' "$OUTPUT_DIR/azure/keyvaults.json" 2>/dev/null)"
     } > "$OUTPUT_DIR/azure_security_report.txt"
 
-    echo -e "${YELLOW}[*] Azure security check complete. Results saved to $OUTPUT_DIR/azure_security_report.txt${NC}"
+    echo
+    echo -e "${YELLOW}[*] Azure security check complete.${NC}"
+    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/azure_security_report.txt${NC}"
+    echo
 }
 
 ###############################################################################################################################
@@ -873,7 +879,10 @@ f_gcp_security_check(){
         fi
     } > "$OUTPUT_DIR/gcp_security_report.txt"
 
-    echo -e "${YELLOW}[*] GCP security check complete. Results saved to $OUTPUT_DIR/gcp_security_report.txt${NC}"
+    echo
+    echo -e "${YELLOW}[*] GCP security check complete.${NC}"
+    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/gcp_security_report.txt${NC}"
+    echo
 }
 
 ###############################################################################################################################
