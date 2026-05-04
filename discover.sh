@@ -32,39 +32,14 @@
 # OPSEC: change your default nmap user agent located on line 160 at /usr/share/nmap/nselib/http.lua 
 ###############################################################################################################################
 
-f_terminate(){
-    SAVE_DIR=$HOME/data/cancelled-$(date +%H:%M:%S)
-    mkdir -p "$SAVE_DIR"
-    echo
-    echo "[!] Terminating."
-    echo
-    echo -e "${YELLOW}Saving data to $SAVE_DIR.${NC}"
-
-    cd "$DISCOVER"/ || exit
-
-    if [ -d "$NAME" ]; then
-        mv "$NAME" "$SAVE_DIR"
-    fi
-
-    mv tmp* "$SAVE_DIR" 2>/dev/null
-
-    echo
-    echo "[*] Saving complete."
-    echo
-    exit 1
-}
-
-# Catch process termination
-trap f_terminate SIGHUP SIGINT SIGTERM
-
-###############################################################################################################################
-
 # Global variables
+DATESTAMP=$(date +"%B %d, %Y")
 DISCOVER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MYIP=$(ip addr | grep 'global' | grep -Eiv '(:|docker|tun0)' | cut -d '/' -f1 | awk '{print $2}')
 PWD=$(pwd)
-RUNDATE=$(date +%B' '%d,' '%Y)
 SIP='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
+TIMESTAMP=$(date +"%-I:%M %p %Z")
+USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.3912.86"
 
 LARGE='==============================================================================================================================='
 MEDIUM='=================================================================='
@@ -80,9 +55,36 @@ YELLOW='\033[1;33m'
 ###############################################################################################################################
 
 # Export variables
-export DISCOVER MYIP PWD RUNDATE SIP
+export DATESTAMP DISCOVER MYIP PWD SIP TIMESTAMP USER_AGENT
 export LARGE MEDIUM SMALL
 export BLUE GREEN NC RED YELLOW
+
+###############################################################################################################################
+
+f_terminate(){
+    OUTPUT_DIR=$HOME/data/cancelled-$(date +%H:%M)
+    mkdir -p "$OUTPUT_DIR"
+    echo
+    echo "[!] Terminating."
+    echo
+    echo -e "${YELLOW}Saving data to $OUTPUT_DIR.${NC}"
+
+    cd "$DISCOVER"/ || exit
+
+    if [ -d "$NAME" ]; then
+        mv "$NAME" "$OUTPUT_DIR"
+    fi
+
+    mv tmp* "$OUTPUT_DIR" 2>/dev/null
+
+    echo
+    echo "[*] Saving complete."
+    echo
+    exit 1
+}
+
+# Catch process termination
+trap f_terminate SIGHUP SIGINT SIGTERM
 
 ###############################################################################################################################
 

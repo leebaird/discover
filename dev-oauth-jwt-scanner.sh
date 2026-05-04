@@ -7,10 +7,7 @@ clear
 f_banner
 
 # Variables
-DATESTAMP=$(date +"%B %d, %Y")
-TIMESTAMP=$(date +"%-I:%M %p %Z")
-
-OUTPUT_DIR="$HOME/data/oauth-jwt-scan_$(date +%Y%m%d_%H%M)"
+OUTPUT_DIR="$HOME/data/oauth-jwt-scan_$(date +%Y%m%d-%H%M)"
 mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create output directory $OUTPUT_DIR${NC}"; exit 1; }
 
 # Function to terminate script

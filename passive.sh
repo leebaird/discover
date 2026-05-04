@@ -11,15 +11,15 @@ if [ $EUID -eq 0 ]; then
 fi
 
 f_terminate(){
-    SAVE_DIR=$HOME/data/cancelled-$(date +%H:%M:%S)
+    OUTPUT_DIR=$HOME/data/cancelled-$(date +%H:%M)
     echo
     echo "[!] Terminating."
     echo
-    echo -e "${YELLOW}Saving data to $SAVE_DIR.${NC}"
+    echo -e "${YELLOW}Saving data to $OUTPUT_DIR.${NC}"
 
     cd "$DISCOVER" || exit
-    mv "$HOME"/data/"$DOMAIN" "$SAVE_DIR" 2>/dev/null
-    mv names emails hosts private-ips private-subs public-ips records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$SAVE_DIR" 2>/dev/null
+    mv "$HOME"/data/"$DOMAIN" "$OUTPUT_DIR" 2>/dev/null
+    mv names emails hosts private-ips private-subs public-ips records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$OUTPUT_DIR" 2>/dev/null
 
     echo
     echo "[*] Saving complete."
@@ -89,7 +89,7 @@ COMPANYURL=$( printf "%s\n" "$COMPANY" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g'
 cp -R "$DISCOVER"/report/ "$HOME"/data/"$DOMAIN"
 sed -i "s/#COMPANY#/$COMPANY/" "$HOME"/data/"$DOMAIN"/index.htm
 sed -i "s/#DOMAIN#/$DOMAIN/" "$HOME"/data/"$DOMAIN"/index.htm
-sed -i "s/#DATE#/$RUNDATE/" "$HOME"/data/"$DOMAIN"/index.htm
+sed -i "s/#DATE#/$DATESTAMP/" "$HOME"/data/"$DOMAIN"/index.htm
 
 echo
 echo "$MEDIUM"

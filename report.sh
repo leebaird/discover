@@ -2,6 +2,7 @@
 
 # by Lee Baird (@discoverscripts)
 
+# Variables
 END=$(date +%r\ %Z)
 FILENAME="$NAME"/report.txt
 host=$(wc -l "$NAME"/hosts.txt | cut -d ' ' -f1)

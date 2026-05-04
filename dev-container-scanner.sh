@@ -6,10 +6,6 @@
 clear
 f_banner
 
-# Variables
-DATESTAMP=$(date +"%B %d, %Y")
-TIMESTAMP=$(date +"%-I:%M %p %Z")
-
 # Function to terminate script
 f_terminate(){
     echo

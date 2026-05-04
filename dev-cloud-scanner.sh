@@ -7,9 +7,6 @@ clear
 f_banner
 
 # Variables
-DATESTAMP=$(date +"%B %d, %Y")
-TIMESTAMP=$(date +"%-I:%M %p %Z")
-
 OUTPUT_DIR="$HOME/data/cloud-scanner_$(date +%Y%m%d-%H%M)"
 mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create output directory $OUTPUT_DIR${NC}"; exit 1; }
 

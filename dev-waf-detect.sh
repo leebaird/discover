@@ -6,6 +6,7 @@
 clear
 f_banner
 
+# Variables
 OUTPUT_DIR="$HOME/data/waf-detection_$(date +%Y%m%d-%H%M)"
 mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create output directory $OUTPUT_DIR${NC}"; exit 1; }
 
@@ -140,10 +141,10 @@ f_detect_waf(){
     if $detected; then
         local wafs_string=$(printf "%s," "${detected_wafs[@]}")
         wafs_string=${wafs_string%,} # Remove trailing comma
-        echo "$target,Yes,$wafs_string,$(date +%Y-%m-%d' '%H:%M:%S)" >> "$OUTPUT_DIR/waf_results.csv"
+        echo "$target,Yes,$wafs_string,$(date +%Y-%m-%d' '%H:%M)" >> "$OUTPUT_DIR/waf_results.csv"
     else
         echo -e "[-] ${RED}No WAF detected for: $target${NC}"
-        echo "$target,No,-,$(date +%Y-%m-%d' '%H:%M:%S)" >> "$OUTPUT_DIR/waf_results.csv"
+        echo "$target,No,-,$(date +%Y-%m-%d' '%H:%M)" >> "$OUTPUT_DIR/waf_results.csv"
     fi
 }
 

@@ -6,8 +6,8 @@ trap f_clean EXIT
 
 ##############################################################################################################
 
-# Global variables
-DATESTAMP=$(date +%F_%T)
+# Variables
+DATESTAMP=$(date +"%B %d, %Y")
 MEDIUM='=================================================================='
 RESOLUTION=$(xdpyinfo | grep 'dimensions' | awk '{print $2}' | awk -F"x" '{print $1}')
 WORKDIR="$HOME/wifi-keys"

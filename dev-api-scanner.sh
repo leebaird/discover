@@ -7,10 +7,6 @@ clear
 f_banner
 
 # Variables
-DATESTAMP=$(date +"%B %d, %Y")
-TIMESTAMP=$(date +"%-I:%M %p %Z")
-USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.3912.86"
-
 OUTPUT_DIR="$HOME/data/api-scan_$(date +%Y%m%d-%H%M)"
 mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create output directory $OUTPUT_DIR${NC}"; exit 1; }
 

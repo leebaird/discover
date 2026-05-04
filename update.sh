@@ -2,13 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-# Colors
-BLUE='\033[1;34m'
-NC='\033[0m'
-YELLOW='\033[1;33m'
-
-###############################################################################################################################
-
 echo
 echo -e "${BLUE}Updating the operating system.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
