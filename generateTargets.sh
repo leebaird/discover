@@ -30,8 +30,8 @@ f_arpscan(){
     echo "[*] Scanning"
 
     sudo arp-scan --localnet | grep -Eiv '(interface|arp-scan|packets)' > tmp
-    sed '/^$/d' tmp | grep -v "$MYIP" | sort -t ' ' -k 1,1 -V > "$HOME"/data/arp-scan.txt
-    awk '{print $1}' tmp | grep -v "$MYIP" | $SIP | sed '/^$/d' > "$HOME"/data/arp-scan-targets.txt
+    sed '/^$/d' tmp | grep -v "$MYIP" | sort -t ' ' -k 1,1 -V > "$HOME"/data/ip-mac-vendor.txt
+    awk '{print $1}' tmp | grep -v "$MYIP" | $SIP | sed '/^$/d' > "$HOME"/data/arp-scan.txt
     rm tmp
 
     echo
@@ -62,7 +62,7 @@ f_pingsweep(){
 
             echo
             echo "[*] Scanning"
-            nmap -sn -PS -PE --stats-every 10s -iL "$LOCATION" > tmp
+            sudo nmap -sn -PS -PE --stats-every 10s -iL "$LOCATION" > tmp
             ;;
         2)
             echo
@@ -81,7 +81,7 @@ f_pingsweep(){
 
             echo
             echo "[*] Scanning"
-            nmap -sn -PS -PE --stats-every 10s "$CIDR" > tmp
+            sudo nmap -sn -PS -PE --stats-every 10s "$CIDR" > tmp
             ;;
         *)
             f_error ;;
