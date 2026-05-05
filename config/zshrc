@@ -26,8 +26,8 @@ alias h='cd $HOME ; clear'
 alias l='ls -lh'
 alias la='ls -lah'
 alias lc='ls -1 | wc -l'
-alias m='sudo systemctl stop postgresql.service ; sudo msfdb init ; msfconsole -q'
-alias mm='sudo systemctl stop postgresql.service'
+alias m='msfdb start ; msfconsole -q'
+alias ms='msfdb stop'
 alias n='echo ; date ; echo
 echo -e "${BLUE}Networking info${NC}"
 echo -e "${BLUE}----------------------------------------${NC}"

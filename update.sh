@@ -24,7 +24,7 @@ if ! command -v ansible &> /dev/null; then
     echo
 fi
 
-if ! command -v arpscan &> /dev/null; then
+if ! command -v arp-scan &> /dev/null; then
     echo -e "${YELLOW}Installing arpscan.${NC}"
     apt install -y arp-scan/questing
     echo
@@ -60,6 +60,12 @@ fi
 if ! command -v jq &> /dev/null; then
     echo -e "${YELLOW}Installing jq.${NC}"
     apt install -y jq
+    echo
+fi
+
+if ! command -v msfconsole &> /dev/null; then
+    echo -e "${YELLOW}Installing Metasploit.${NC}"
+    snap install metasploit-framework
     echo
 fi
 
