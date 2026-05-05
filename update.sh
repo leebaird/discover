@@ -24,6 +24,12 @@ if ! command -v ansible &> /dev/null; then
     echo
 fi
 
+if ! command -v arpscan &> /dev/null; then
+    echo -e "${YELLOW}Installing arpscan.${NC}"
+    apt install -y arp-scan/questing
+    echo
+fi
+
 if ! command -v dnsrecon &> /dev/null; then
     echo -e "${YELLOW}Installing dnsrecon.${NC}"
     apt install -y dnsrecon
@@ -385,13 +391,13 @@ if ! command -v rustc &> /dev/null; then
     echo
 fi
 
-if [ -d /usr/share/seclists/.git ]; then
+if [ -d /usr/share/wordlists/seclists/.git ]; then
     echo -e "${BLUE}Updating SecLists.${NC}"
-    cd /usr/share/seclists/ || exit ; git pull
+    cd /usr/share/wordlists/seclists/ || exit ; git pull
     echo
 else
     echo -e "${YELLOW}Installing SecLists.${NC}"
-    git clone https://github.com/danielmiessler/seclists /usr/share/seclists
+    git clone https://github.com/danielmiessler/seclists /usr/share/wordlists/seclists
     echo
 fi
 
