@@ -99,7 +99,7 @@ echo
 
 # Number of tests
 COUNT=1
-TOTAL=59
+TOTAL=60
 
 echo "ARIN"
 echo "    Email                ($COUNT/$TOTAL)"
@@ -329,7 +329,7 @@ rm tmp* 2>/dev/null
 cat z* | grep "\@$DOMAIN" | grep -v '[0-9]' | grep -Eiv "(_|,|'|firstname|lastname|test|www|xxx|zzz)" | sort -u > emails
 
 # Find names
-cat z* | grep -Eiv '(@|:|\.|>|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
+cat z* | grep -Eiv '(@|:|\.|>|additionally|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
 
 # Find hosts
 cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '(0.0.0.0|1.1.1.1|1.1.1.2|8.8.8.8|127.0.0.1)' | sort -u | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
@@ -612,7 +612,7 @@ URLS=(
     "https://www.google.com/search?q=%22$COMPANYURL%22+logo"
     "https://www.google.com/search?q=site:http://s3.amazonaws.com+%22$DOMAIN%22"
     "https://www.google.com/search?q=site:http://blob.core.windows.net+%22$DOMAIN%22"
-	"https://www.google.com/search?q=site:dev.azure.com "example[.]com"
+    "https://www.google.com/search?q=site:dev.azure.com+%22$DOMAIN%22"
     "https://www.google.com/search?q=site:http://drive.google.com+%22$DOMAIN%22"
     "https://www.google.com/search?q=site:http://googleapis.com+%22$DOMAIN%22"
     "https://www.google.com/search?q=site:pastebin.com+%22$DOMAIN%22+password"
