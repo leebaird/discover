@@ -16,22 +16,14 @@ if [ -d /usr/share/metasploit-framework ]; then
     # Categories to scan (excluding http and sap as noted)
     CATEGORIES="afp backdoor chargen couchdb db2 dcerpc dect discovery emc finger ftp h323 imap ip ipmi lotus misc mongodb motorola msf mssql mysql natpmp nessus netbios nexpose nfs ntp openvas oracle pcanywhere pop3 portscan postgres printer rdp rogue rservices scada sip smb smtp snmp ssh telephony telnet tftp upnp vmware vnc voice vxworks winrm x11"
 
-    # List all available Metasploit scanner modules with category prefix
-    for i in $CATEGORIES; do
-        ls -l /usr/share/metasploit-framework/modules/auxiliary/scanner/$i | awk -v cat="$i" '{print cat "/" $9}' | cut -d '.' -f1 >> tmp-msf-all
-    done
-
-    # Remove empty lines and apply exclusions
-    sed '/^$/d' tmp-msf-all | grep -Eiv '(ack|apache_karaf_command_execution|arp_sweep|call_scanner|cerberus_sftp_enumusers|cisco_smart_install|couchdb_enum|dvr_config_disclosure|empty_udp|endpoint_mapper|ftpbounce|hidden|ibm_mq_channel_brute|indusoft_ntwebserver_fileaccess|ipidseq|ipv6|login|lotus_domino_hashes|lotus_domino_version|management|ms08_067_check|mysql_file_enum|mssql_hashdump|mysql_schemadump|mysql_writable_dirs|natpmp_portscan|poisonivy_control_scanner|profinet_siemens|psexec_loggedin_users|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_enum_git_keys|ssh_enumusers|ssh_identify_pubkeys|station_scanner|syn|tcp|tftpbrute|udp_probe|udp_sweep|vmware_enum_users|vmware_enum_permissions|vmware_enum_sessions|vmware_enum_vms|vmware_host_details|vmware_screenshot_stealer|wardial|winrm_cmd|winrm_wql|xmas)' | sort > tmp-msf-all-clean
-
-    # Extract modules used in .rc files starting with a number, http, or java, keeping category/module format
-    grep 'use ' "$PWD"/resource/[0-9hj]*.rc | awk '{print $2}' | sed 's/auxiliary\/scanner\///' | sort -u > tmp-msf-used
-
     # List Metasploit modules available but not used in resource/*.rc files, filtering out empty categories
-    grep -vxFf tmp-msf-used tmp-msf-all-clean | grep -v '/$' | sort
-
-    # Clean up temporary files
-    rm tmp-msf-all tmp-msf-all-clean tmp-msf-used
+    grep -vxFf <(
+        grep -h 'use ' "$DISCOVER/resource/"[0-9hj]*.rc 2>/dev/null | awk '{print $2}' | sed 's/auxiliary\/scanner\///' | sort -u
+    ) <(
+        for cat in $CATEGORIES; do
+            find "/usr/share/metasploit-framework/modules/auxiliary/scanner/$cat" -maxdepth 1 -type f -name '*.rb' -printf "${cat}/%f\n" 2>/dev/null
+        done | sed 's/\.rb$//' | grep -Eiv '(ack|apache_karaf_command_execution|arp_sweep|call_scanner|cerberus_sftp_enumusers|cisco_smart_install|couchdb_enum|dvr_config_disclosure|empty_udp|endpoint_mapper|ftpbounce|hidden|ibm_mq_channel_brute|indusoft_ntwebserver_fileaccess|ipidseq|ipv6|login|lotus_domino_hashes|lotus_domino_version|management|ms08_067_check|mysql_file_enum|mssql_hashdump|mysql_schemadump|mysql_writable_dirs|natpmp_portscan|poisonivy_control_scanner|profinet_siemens|psexec_loggedin_users|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_enum_git_keys|ssh_enumusers|ssh_identify_pubkeys|station_scanner|syn|tcp|tftpbrute|udp_probe|udp_sweep|vmware_enum_users|vmware_enum_permissions|vmware_enum_sessions|vmware_enum_vms|vmware_host_details|vmware_screenshot_stealer|wardial|winrm_cmd|winrm_wql|xmas)' | sort -u
+    ) | sort
 fi
 
 ###############################################################################################################################
@@ -40,25 +32,23 @@ echo
 echo -e "${BLUE}theHarvester modules available for passive.sh${NC}"
 echo -e "${BLUE}==============================================${NC}"
 
-# List theHarvester modules
-grep "            '" $HOME/theHarvester/theHarvester/lib/core.py | grep -Eiv 'mozilla|ssl_arg' | cut -d "'" -f2 > tmp
-
-# Extract modules used in passive.sh
-#grep '\-d "' "$HOME"/discover/passive.sh | awk '{print $5}' | sed '1,3d; s/|/shodan/' > tmp2
-grep 'sources_' "$HOME"/discover/passive.sh | grep -v '\@' | cut -d '(' -f2 | cut -d ')' -f1 | sed 's/ /\n/g' | sort > tmp2
-
-# List theHarvester modules available but not used in passive.sh
-grep -vxFf tmp2 tmp | sort
-
-# Clean up temporary files
-rm tmp tmp2
+if [ -f "$HOME/theHarvester/theHarvester/lib/core.py" ]; then
+    grep -vxFf <(
+        grep 'sources_' "$DISCOVER/passive.sh" 2>/dev/null | grep -v '\@' | cut -d '(' -f2 | cut -d ')' -f1 | sed 's/ /\n/g' | sort -u
+    ) <(
+        sed -n '/def get_supportedengines/,/\]/p' "$HOME/theHarvester/theHarvester/lib/core.py" 2>/dev/null | grep -oP "(?<=').*?(?=')" | sort -u
+    ) | sort
+else
+    echo -e "${YELLOW}[!] $HOME/theHarvester/theHarvester/lib/core.py not found.${NC}"
+fi
 
 ###############################################################################################################################
 
 NMAP_SCRIPT_DIR="/usr/share/nmap/scripts"
 
-# Scripts to exclude
-mapfile -t EXCLUDES < <(cat <<'END_EXCLUDES'
+if [ -d "$NMAP_SCRIPT_DIR" ]; then
+    # Scripts to exclude
+    mapfile -t EXCLUDES < <(cat <<'END_EXCLUDES'
 address-info
 ajp-auth
 ajp-headers
@@ -193,22 +183,18 @@ whois
 xmlrpc-methods
 xmpp-info
 END_EXCLUDES
-)
+    )
 
-# All scripts less broadcast, brute, and excludes list
-find "$NMAP_SCRIPT_DIR" -maxdepth 1 -name '*.nse' -printf '%f\n' | sed 's/\.nse$//' | grep -Eiv 'broadcast|brute' \
-  | grep -v -F -x -f <(printf '%s\n' "${EXCLUDES[@]}") | sort > tmp-available.txt
+    echo
+    echo -e "${BLUE}Nmap scripts available for nse.sh${NC}"
+    echo -e "${BLUE}==================================${NC}"
 
-# Scripts used in nse.sh
-grep -E 'script=' nse.sh | sed -E 's/.*script=([^#]*).*/\1/' | tr ',' '\n' \
-  | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | grep -v '^$' | sort -u > tmp-used.txt
-
-echo
-echo -e "${BLUE}Nmap scripts available for nse.sh${NC}"
-echo -e "${BLUE}==================================${NC}"
-comm -23 tmp-available.txt tmp-used.txt
-echo
-
-# Clean up temporary files
-rm tmp-available.txt tmp-used.txt
-
+    comm -23 <(
+        find "$NMAP_SCRIPT_DIR" -maxdepth 1 -name '*.nse' -printf '%f\n' | sed 's/\.nse$//' | grep -Eiv '(broadcast|brute)' \
+          | grep -v -F -x -f <(printf '%s\n' "${EXCLUDES[@]}") | sort
+    ) <(
+        grep -E 'script=' "$DISCOVER/nse.sh" 2>/dev/null | sed -E 's/.*script=([^#]*).*/\1/' | tr ',' '\n' \
+          | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | grep -v '^$' | sort -u
+    )
+    echo
+fi
