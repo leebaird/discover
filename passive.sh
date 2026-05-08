@@ -332,7 +332,7 @@ cat z* | grep "\@$DOMAIN" | grep -v '[0-9]' | grep -Eiv "(_|,|'|firstname|lastna
 cat z* | grep -Eiv '(@|:|\.|>|additionally|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
 
 # Find hosts
-cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '(0.0.0.0|1.1.1.1|1.1.1.2|8.8.8.8|127.0.0.1)' | sort -u | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
+cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '\b(0\.0\.0\.0|1\.1\.1\.1|1\.1\.1\.2|8\.8\.8\.8|127\.0\.0\.1|127\.0\.0\.53)\b|\.0$' | sort -u | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
 
 # Find private and public IPs
 while IFS= read -r IP; do
@@ -346,7 +346,30 @@ while IFS= read -r IP; do
 done < hosts
 
 # Find subdomains
-cat z* | grep -Eiv '(•|@|\+|;|::|,|>|//|1.1.1.1|failed to process|www)' | sed '/^[0-9]\|^\.\|^-/d' | sed '/\.$/d' | grep '\.' | sed 's/:/ /g' | column -t | tr '[:upper:]' '[:lower:]' | sort -u > subdomains
+cat z* | grep -Eiv '(•|@|\+|;|::|,|>|//|\b1\.1\.1\.1\b|\b127\.0\.0\.53\b|failed to|no response|www)' | sed '/^[0-9]\|^\.\|^-/d' | sed '/\.$/d' | grep '\.' | sed 's/:/ /g' | column -t | tr '[:upper:]' '[:lower:]' | sort -u | awk '$2 ~ /[a-z]/ {next} NF==1{if(a) print l; a=$1; l=$0; next} $1==a{print; a=""; next} a{print l; a=""} 1; END{if(a) print l}' | sed 's/[ \t]*$//' > tmp
+
+# Resolve subdomains with no IPs or delete the line
+echo -e "${BLUE}[*] Resolving subdomains with no IPs using dig.${NC}"
+
+total=$(wc -l < tmp)
+current=0
+> tmp2
+while read -r col1 col2; do
+    ((current++))
+    echo -ne "\r    $current of $total"
+    if [ -z "$col2" ]; then
+        ip=$(dig +short "$col1" | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -n 1)
+        if [ -n "$ip" ] && [ "$ip" != "1.1.1.1" ] && [ "$ip" != "127.0.0.53" ]; then
+            echo "$col1 $ip" >> tmp2
+        fi
+    else
+        echo "$col1 $col2" >> tmp2
+    fi
+done < tmp
+echo
+
+column -t tmp2 > subdomains
+rm tmp tmp2 2>/dev/null
 
 # Find private subdomains
 while IFS= read -r line; do
@@ -383,7 +406,7 @@ echo > tmp
 
 if [ -f names ]; then
     namecount=$(wc -l names | cut -d ' ' -f1)
-    echo "Names             $namecount" >> zreport
+    echo "Names                 $namecount" >> zreport
     echo "Names ($namecount)" >> tmp
     echo "$LARGE" >> tmp
     cat names >> tmp
@@ -397,7 +420,7 @@ fi
 
 if [ -f emails ]; then
     emailcount=$(wc -l emails | cut -d ' ' -f1)
-    echo "Emails            $emailcount" >> zreport
+    echo "Emails                $emailcount" >> zreport
     echo "Emails ($emailcount)" >> tmp
     echo "$SMALL" >> tmp
     cat emails >> tmp
@@ -409,23 +432,9 @@ else
     echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/emails.htm
 fi
 
-if [ -f public-ips ]; then
-    publicipcount=$(wc -l public-ips | cut -d ' ' -f1)
-    echo "Hosts             $publicipcount" >> zreport
-    echo "Hosts ($publicipcount)" >> tmp
-    echo "$LARGE" >> tmp
-    cat public-ips >> tmp
-    echo >> tmp
-    cat public-ips >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
-else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
-fi
-
 if [ -f records ]; then
     recordcount=$(wc -l records | cut -d ' ' -f1)
-    echo "DNS Records       $recordcount" >> zreport
+    echo "DNS Records           $recordcount" >> zreport
     echo "DNS Records ($recordcount)" >> tmp
     echo "$LARGE" >> tmp
     cat records >> tmp
@@ -434,7 +443,7 @@ fi
 
 if [ -f squatting ]; then
     squattingcount=$(wc -l squatting | cut -d ' ' -f1)
-    echo "Squatting         $squattingcount" >> zreport
+    echo "Squatting             $squattingcount" >> zreport
     echo "Squatting ($squattingcount)" >> tmp
     echo "$LARGE" >> tmp
     cat squatting >> tmp
@@ -446,10 +455,24 @@ else
     echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/squatting.htm
 fi
 
+if [ -f public-ips ]; then
+    publicipcount=$(wc -l public-ips | cut -d ' ' -f1)
+    echo "Hosts                 $publicipcount" >> zreport
+    echo "Hosts ($publicipcount)" >> tmp
+    echo "$LARGE" >> tmp
+    cat public-ips >> tmp
+    echo >> tmp
+    cat public-ips >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
+    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
+else
+    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
+    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
+fi
+
 if [ -f private-subs ]; then
     privatesubcount=$(wc -l private-subs | cut -d ' ' -f1)
-    echo "Private Subs      $privatesubcount" >> zreport
-    echo "Private Subs ($privatesubcount)" >> tmp
+    echo "Private Subdomains    $privatesubcount" >> zreport
+    echo "Private Subdomains ($privatesubcount)" >> tmp
     echo "$LARGE" >> tmp
     cat private-subs >> tmp
     echo >> tmp
@@ -461,7 +484,7 @@ fi
 
 if [ -f subdomains ]; then
     subcount=$(wc -l subdomains | cut -d ' ' -f1)
-    echo "Subdomains        $subcount" >> zreport
+    echo "Subdomains            $subcount" >> zreport
     echo "Subdomains ($subcount)" >> tmp
     echo "$LARGE" >> tmp
     cat subdomains >> tmp
@@ -475,7 +498,7 @@ fi
 
 if [ -f xls ]; then
     xlscount=$(wc -l xls | cut -d ' ' -f1)
-    echo "Excel             $xlscount" >> zreport
+    echo "Excel                 $xlscount" >> zreport
     echo "Excel Files ($xlscount)" >> tmp
     echo "$LARGE" >> tmp
     cat xls >> tmp
@@ -489,7 +512,7 @@ fi
 
 if [ -f pdf ]; then
     pdfcount=$(wc -l pdf | cut -d ' ' -f1)
-    echo "PDF               $pdfcount" >> zreport
+    echo "PDF                   $pdfcount" >> zreport
     echo "PDF Files ($pdfcount)" >> tmp
     echo "$LARGE" >> tmp
     cat pdf >> tmp
@@ -503,7 +526,7 @@ fi
 
 if [ -f ppt ]; then
     pptcount=$(wc -l ppt | cut -d ' ' -f1)
-    echo "PowerPoint        $pptcount" >> zreport
+    echo "PowerPoint            $pptcount" >> zreport
     echo "PowerPoint Files ($pptcount)" >> tmp
     echo "$LARGE" >> tmp
     cat ppt >> tmp
@@ -517,7 +540,7 @@ fi
 
 if [ -f txt ]; then
     txtcount=$(wc -l txt | cut -d ' ' -f1)
-    echo "Text              $txtcount" >> zreport
+    echo "Text                  $txtcount" >> zreport
     echo "Text Files ($txtcount)" >> tmp
     echo "$LARGE" >> tmp
     cat txt >> tmp
@@ -531,7 +554,7 @@ fi
 
 if [ -f doc ]; then
     doccount=$(wc -l doc | cut -d ' ' -f1)
-    echo "Word              $doccount" >> zreport
+    echo "Word                  $doccount" >> zreport
     echo "Word Files ($doccount)" >> tmp
     echo "$LARGE" >> tmp
     cat doc >> tmp
