@@ -99,7 +99,7 @@ echo
 
 # Number of tests
 COUNT=1
-TOTAL=60
+TOTAL=63
 
 echo "ARIN"
 echo "    Email                ($COUNT/$TOTAL)"
@@ -236,7 +236,7 @@ rm tmp 2>/dev/null
 ###############################################################################################################################
 
 # List of theHarvester sources
-sources_no_api=(baidu certspotter chaos commoncrawl crtsh duckduckgo gitlab hudsonrock otx rapiddns robtex subdomaincenter subdomainfinderc99 thc threatcrowd urlscan waybackarchive yahoo)
+sources_no_api=(baidu certspotter chaos commoncrawl crtsh duckduckgo gitlab hudsonrock mojeek netcraft omnisint otx rapiddns robtex subdomaincenter subdomainfinderc99 thc threatcrowd urlscan waybackarchive yahoo)
 sources_api=(bevigil bitbucket brave bufferoverun builtwith censys criminalip dehashed dnsdumpster fofa fullhunt github-code hackertarget haveibeenpwned hunter hunterhow intelx leakix leaklookup netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails tomba venacus virustotal whoisxml windvane zoomeye)
 
 run_harvester() {
@@ -250,7 +250,6 @@ run_harvester() {
 
 echo "theHarvester"
 cd "$HOME/theHarvester"
-uv sync
 source .venv/bin/activate
 
 for source in "${sources_no_api[@]}"; do

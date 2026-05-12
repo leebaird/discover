@@ -185,6 +185,7 @@ f_update(){
         echo
         echo -e "${BLUE}Updating theHarvester.${NC}"
         cd "$HOME/theHarvester" || exit ; git pull
+        uv sync
     else
         echo
         echo -e "${YELLOW}Installing theHarvester.${NC}"
