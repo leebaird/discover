@@ -13,17 +13,26 @@ if [ -d /usr/share/metasploit-framework ]; then
     echo -e "${BLUE}Metasploit modules available but not used in resource/*.rc files${NC}"
     echo -e "${BLUE}=================================================================${NC}"
 
-    # Categories to scan (excluding http and sap as noted)
     CATEGORIES="afp backdoor chargen couchdb db2 dcerpc dect discovery emc finger ftp h323 imap ip ipmi lotus misc mongodb motorola msf mssql mysql natpmp nessus netbios nexpose nfs ntp openvas oracle pcanywhere pop3 portscan postgres printer rdp rogue rservices scada sip smb smtp snmp ssh telephony telnet tftp upnp vmware vnc voice vxworks winrm x11"
 
-    # List Metasploit modules available but not used in resource/*.rc files, filtering out empty categories
-    grep -vxFf <(
-        grep -h 'use ' "$DISCOVER/resource/"[0-9hj]*.rc 2>/dev/null | awk '{print $2}' | sed 's/auxiliary\/scanner\///' | sort -u
-    ) <(
-        for cat in $CATEGORIES; do
-            find "/usr/share/metasploit-framework/modules/auxiliary/scanner/$cat" -maxdepth 1 -type f -name '*.rb' -printf "${cat}/%f\n" 2>/dev/null
-        done | sed 's/\.rb$//' | grep -Eiv '(ack|apache_karaf_command_execution|arp_sweep|call_scanner|cerberus_sftp_enumusers|cisco_smart_install|couchdb_enum|dvr_config_disclosure|empty_udp|endpoint_mapper|ftpbounce|hidden|ibm_mq_channel_brute|indusoft_ntwebserver_fileaccess|ipidseq|ipv6|login|lotus_domino_hashes|lotus_domino_version|management|ms08_067_check|mysql_file_enum|mssql_hashdump|mysql_schemadump|mysql_writable_dirs|natpmp_portscan|poisonivy_control_scanner|profinet_siemens|psexec_loggedin_users|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_enum_git_keys|ssh_enumusers|ssh_identify_pubkeys|station_scanner|syn|tcp|tftpbrute|udp_probe|udp_sweep|vmware_enum_users|vmware_enum_permissions|vmware_enum_sessions|vmware_enum_vms|vmware_host_details|vmware_screenshot_stealer|wardial|winrm_cmd|winrm_wql|xmas)' | sort -u
-    ) | sort
+    # Used modules
+    grep -h 'use ' "$DISCOVER/resource/"[0-9hj]*.rc 2>/dev/null |
+        awk '{print $2}' |
+        sed 's/auxiliary\/scanner\///' |
+        sort -u > /tmp/used_ms.txt
+
+    # Available modules
+    for cat in $CATEGORIES; do
+        find "/usr/share/metasploit-framework/modules/auxiliary/scanner/$cat" \
+            -maxdepth 1 -type f -name '*.rb' -printf "${cat}/%f\n" 2>/dev/null
+    done | sed 's/\.rb$//' |
+    grep -Eiv '(ack|apache_karaf_command_execution|arp_sweep|call_scanner|cerberus_sftp_enumusers|cisco_smart_install|couchdb_enum|dvr_config_disclosure|empty_udp|endpoint_mapper|ftpbounce|hidden|ibm_mq_channel_brute|indusoft_ntwebserver_fileaccess|ipidseq|ipv6|login|lotus_domino_hashes|lotus_domino_version|management|ms08_067_check|mysql_file_enum|mssql_hashdump|mysql_schemadump|mysql_writable_dirs|natpmp_portscan|poisonivy_control_scanner|profinet_siemens|psexec_loggedin_users|recorder|rogue_recv|rogue_send|sipdroid_ext_enum|snmp_set|ssh_enum_git_keys|ssh_enumusers|ssh_identify_pubkeys|station_scanner|syn|tcp|tftpbrute|udp_probe|udp_sweep|vmware_enum_users|vmware_enum_permissions|vmware_enum_sessions|vmware_enum_vms|vmware_host_details|vmware_screenshot_stealer|wardial|winrm_cmd|winrm_wql|xmas)' |
+    sort -u > /tmp/avail_ms.txt
+
+    # Output: Available but not used
+    grep -vxFf /tmp/used_ms.txt /tmp/avail_ms.txt
+
+    rm -f /tmp/used_ms.txt /tmp/avail_ms.txt
 fi
 
 ###############################################################################################################################
@@ -33,11 +42,19 @@ echo -e "${BLUE}theHarvester modules available for passive.sh${NC}"
 echo -e "${BLUE}==============================================${NC}"
 
 if [ -f "$HOME/theHarvester/theHarvester/lib/core.py" ]; then
-    grep -vxFf <(
-        grep 'sources_' "$DISCOVER/passive.sh" 2>/dev/null | grep -v '\@' | cut -d '(' -f2 | cut -d ')' -f1 | sed 's/ /\n/g' | sort -u
-    ) <(
-        sed -n '/def get_supportedengines/,/\]/p' "$HOME/theHarvester/theHarvester/lib/core.py" 2>/dev/null | grep -oP "(?<=').*?(?=')" | sort -u
-    ) | sort
+    # Used sources
+    grep 'sources_' "$DISCOVER/passive.sh" 2>/dev/null |
+        grep -v '\@' |
+        cut -d '(' -f2 | cut -d ')' -f1 |
+        tr ' ' '\n' | sort -u > /tmp/used_harv.txt
+
+    # Available engines
+    sed -n '/def get_supportedengines/,/\]/p' "$HOME/theHarvester/theHarvester/lib/core.py" 2>/dev/null |
+        grep -oP "(?<=').*?(?=')" | sort -u > /tmp/avail_harv.txt
+
+    grep -vxFf /tmp/used_harv.txt /tmp/avail_harv.txt
+
+    rm -f /tmp/used_harv.txt /tmp/avail_harv.txt
 else
     echo -e "${YELLOW}[!] $HOME/theHarvester/theHarvester/lib/core.py not found.${NC}"
 fi
@@ -47,8 +64,12 @@ fi
 NMAP_SCRIPT_DIR="/usr/share/nmap/scripts"
 
 if [ -d "$NMAP_SCRIPT_DIR" ]; then
-    # Scripts to exclude
-    mapfile -t EXCLUDES < <(cat <<'END_EXCLUDES'
+    echo
+    echo -e "${BLUE}Nmap scripts available for nse.sh${NC}"
+    echo -e "${BLUE}==================================${NC}"
+
+    # Excluded scripts
+    cat <<'END_EXCLUDES' > /tmp/excludes_nmap.txt
 address-info
 ajp-auth
 ajp-headers
@@ -183,18 +204,26 @@ whois
 xmlrpc-methods
 xmpp-info
 END_EXCLUDES
-    )
 
-    echo
-    echo -e "${BLUE}Nmap scripts available for nse.sh${NC}"
-    echo -e "${BLUE}==================================${NC}"
+    # Available scripts
+    find "$NMAP_SCRIPT_DIR" -maxdepth 1 -name '*.nse' -printf '%f\n' |
+        sed 's/\.nse$//' |
+        grep -Eiv '(broadcast|brute)' |
+        grep -v -F -x -f /tmp/excludes_nmap.txt |
+        sort -u > /tmp/avail_nmap.txt
 
-    comm -23 <(
-        find "$NMAP_SCRIPT_DIR" -maxdepth 1 -name '*.nse' -printf '%f\n' | sed 's/\.nse$//' | grep -Eiv '(broadcast|brute)' \
-          | grep -v -F -x -f <(printf '%s\n' "${EXCLUDES[@]}") | sort
-    ) <(
-        grep -E 'script=' "$DISCOVER/nse.sh" 2>/dev/null | sed -E 's/.*script=([^#]*).*/\1/' | tr ',' '\n' \
-          | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | grep -v '^$' | sort -u
-    )
+    # Used scripts
+    grep -E 'script=' "$DISCOVER/nse.sh" 2>/dev/null |
+        sed -E 's/.*script=([^#]*).*/\1/' |
+        tr ',' '\n' |
+        sed 's/^[[:space:]]*//; s/[[:space:]]*$//' |
+        grep -v '^$' |
+        sort -u > /tmp/used_nmap.txt
+
+    # Output: Available but not used
+    grep -vxFf /tmp/used_nmap.txt /tmp/avail_nmap.txt
+
+    rm -f /tmp/excludes_nmap.txt /tmp/avail_nmap.txt /tmp/used_nmap.txt
     echo
 fi
+
