@@ -179,8 +179,17 @@ f_dnsrecon() {
 f_dnstwist() {
     echo "dnstwist                 ($COUNT/$TOTAL)"
     ((COUNT++))
-    dnstwist --registered "$DOMAIN" > tmp
-    sed -E 's/\b([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}\b//g' tmp | grep -v 'original' | sed 's/!ServFail/        /g; s/MX:$//g; s/MX:localhost//g; s/[ \t]*$//' | column -t | sed 's/[ \t]*$//' | sed -E 's/([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}/ /g' | sed 's/::28f//g; s/::28//g; s/::2e1//g; s/::200//g; s/:://g; s/ 2 //g; s/ 64 //g; s/ 2b2 //g' | sed '/NS:$/d' > squatting
+    dnstwist --registered -f csv "$DOMAIN" > tmp
+    awk -F',' '
+    NR==1 || $1 == "*original" { next }
+    $6 == "" || $6 == "!ServFail" { next }
+    {
+        ip = ($3 != "" && $3 != "!ServFail") ? $3 : ""
+        ns = "NS:" $6
+        mx = ($5 != "" && $5 != "!ServFail") ? "MX:" $5 : ""
+        printf "%s\t%s\t%s\t%s\t%s\n", $1, $2, ip, ns, mx
+    }' tmp | column -t -s $'\t' > squatting
+    rm tmp 2>/dev/null
     echo
 }
 
