@@ -158,9 +158,21 @@ echo
 
 echo "DNSRecon                 ($COUNT/$TOTAL)"
 ((COUNT++))
-dnsrecon -d "$DOMAIN" -n 8.8.8.8 -t std > tmp 2>/dev/null
-grep -Eiv '(all queries will|could not|dnskeys|dnssec|error|it is resolving|nsec3|performing|records|recursion|txt|version|wildcard resolution)' tmp | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | column -t | sort | sed 's/[ \t]*$//' > records
-grep 'TXT' tmp | sed 's/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | sort | sed 's/[ \t]*$//' >> records
+DNSRECON=''
+if [ -x /opt/dnsrecon-venv/bin/dnsrecon ] && /opt/dnsrecon-venv/bin/dnsrecon --version >/dev/null 2>&1; then
+    DNSRECON=/opt/dnsrecon-venv/bin/dnsrecon
+elif command -v dnsrecon >/dev/null 2>&1 && dnsrecon --version >/dev/null 2>&1; then
+    DNSRECON=$(command -v dnsrecon)
+fi
+
+if [ -n "$DNSRECON" ]; then
+    "$DNSRECON" -d "$DOMAIN" -n 8.8.8.8 -t std > tmp 2>&1
+    grep -Eiv '(all queries will|bind version|completed|could not|dnskeys|dnssec|error|enumeration for|it is resolving|nsec |nsec3|performing|records|recursion|starting enumeration|txt |wildcard resolution)' tmp | sed -E 's/^.*INFO[[:space:]]+//; s/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | grep -Eiv '^$' | column -t | sort -u | sed 's/[ \t]*$//' > records
+    grep -i 'TXT' tmp | sed -E 's/^.*INFO[[:space:]]+//; s/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | sort -u | sed 's/[ \t]*$//' >> records
+else
+    echo -e "${YELLOW}[!] dnsrecon is unavailable (broken on Python 3.13+). Run Discover update to install a compatible version.${NC}"
+    : > records
+fi
 
 cat records >> "$HOME"/data/"$DOMAIN"/data/records.htm
 echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/records.htm
@@ -168,7 +180,7 @@ echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/records.htm
 # Cleanup temp file
 rm tmp 2>/dev/null
 echo
-
+exit
 ###############################################################################################################################
 
 echo "dnstwist                 ($COUNT/$TOTAL)"

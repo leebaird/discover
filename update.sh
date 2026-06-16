@@ -30,7 +30,38 @@ if ! command -v arp-scan &> /dev/null; then
     echo
 fi
 
-if ! command -v dnsrecon &> /dev/null; then
+f_dnsrecon_working() {
+    command -v dnsrecon >/dev/null 2>&1 && dnsrecon --version >/dev/null 2>&1
+}
+
+if [ -x /opt/dnsrecon-venv/bin/dnsrecon ]; then
+    echo -e "${BLUE}Updating DNSRecon.${NC}"
+    cd /opt/dnsrecon/ || exit
+    git pull
+    /opt/dnsrecon-venv/bin/python -m pip install -q /opt/dnsrecon
+    ln -sf /opt/dnsrecon-venv/bin/dnsrecon /usr/local/bin/dnsrecon
+    echo
+elif f_dnsrecon_working; then
+    :
+elif python3 -c 'import sys; exit(0 if sys.version_info >= (3, 13) else 1)' 2>/dev/null; then
+    echo -e "${YELLOW}Installing DNSRecon from upstream (apt package is incompatible with Python 3.13+).${NC}"
+    apt remove -y dnsrecon 2>/dev/null
+    if ! python3 -m venv /tmp/dnsrecon-venv-check 2>/dev/null; then
+        apt install -y python3-venv
+        rm -rf /tmp/dnsrecon-venv-check
+    fi
+    if [ -d /opt/dnsrecon/.git ]; then
+        cd /opt/dnsrecon/ || exit
+        git pull
+    else
+        git clone https://github.com/darkoperator/dnsrecon /opt/dnsrecon
+    fi
+    python3 -m venv /opt/dnsrecon-venv
+    /opt/dnsrecon-venv/bin/python -m pip install -q -U pip
+    /opt/dnsrecon-venv/bin/python -m pip install -q /opt/dnsrecon
+    ln -sf /opt/dnsrecon-venv/bin/dnsrecon /usr/local/bin/dnsrecon
+    echo
+else
     echo -e "${YELLOW}Installing dnsrecon.${NC}"
     apt install -y dnsrecon
     echo
