@@ -255,12 +255,12 @@ f_sublist3r() {
 run_harvester() {
     local source=$1
     printf "    %-20s (%s/%s)\n" "${source}" "${COUNT}" "${TOTAL}"
-    theHarvester -d "$DOMAIN" -b "$source" -r 2>&1 | grep -Ev ' - INFO - ' | grep -Eiv '(!|\*|--|\[|searching|yaml|retrying)' | sed '/^$/d;/:$/d' | sort -u > "z${source}"
+    theHarvester -d "$DOMAIN" -b "$source" -r 2>&1 | grep -Ev ' - INFO - ' | grep -Eiv '(!|\*|--|\[|\:\:|failed to detect|no response|retrying|searching|yaml)' | sed '/^$/d;/:$/d; /^AS/d; s|https://||g; s|www\.||g' | sort -u > "z${source}"
     ((COUNT++))
 }
 
 f_theharvester() {
-    local sources_no_api=(baidu certspotter chaos commoncrawl crtsh duckduckgo gitlab hudsonrock mojeek netcraft omnisint otx rapiddns robtex subdomaincenter subdomainfinderc99 thc threatcrowd urlscan waybackarchive yahoo)
+    local sources_no_api=(baidu certspotter chaos commoncrawl crtsh duckduckgo gitlab hudsonrock netcraft omnisint otx rapiddns robtex subdomaincenter subdomainfinderc99 thc threatcrowd urlscan waybackarchive yahoo)
     local source
 
     echo "theHarvester"
@@ -274,6 +274,7 @@ f_theharvester() {
     mv z* "$DISCOVER" 2>/dev/null
     deactivate
     cd "$DISCOVER"
+    find . -type f -empty -delete
     echo
 }
 
@@ -293,6 +294,7 @@ f_theharvester_api() {
     mv z* "$DISCOVER" 2>/dev/null
     deactivate
     cd "$DISCOVER"
+    find . -type f -empty -delete
     echo
 }
 
