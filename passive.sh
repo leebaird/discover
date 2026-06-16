@@ -225,6 +225,8 @@ f_metasploit() {
     ((COUNT++))
     msfconsole -q -x "use auxiliary/gather/search_email_collector; set DOMAIN $DOMAIN; run; exit y" > tmp 2>/dev/null
     grep @"$DOMAIN" tmp | awk '{print $2}' | tr '[:upper:]' '[:lower:]' | sort -u > zmsf
+    [ ! -s zmsf ] && rm -f zmsf
+    rm -f tmp
     echo
 }
 
@@ -653,9 +655,9 @@ f_firefox() {
 
 #f_arin
 #f_dnsrecon
-f_dnstwist
+#f_dnstwist
 #f_intodns
-#f_metasploit
+f_metasploit
 #f_subfinder
 #f_sublist3r
 #f_theharvester
