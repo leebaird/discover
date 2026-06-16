@@ -319,6 +319,7 @@ f_whois_domain() {
     sed -i '/^Domain Servers:/{n; /.*/d}' tmp12
     awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp12 > tmp13
     sed 's/: /:#####/g' tmp13 | column -s '#' -t > whois-domain
+    rm tmp*
 }
 
 ###############################################################################################################################
@@ -674,9 +675,9 @@ f_firefox() {
 #f_metasploit
 #f_subfinder
 #f_sublist3r
-f_theharvester
+#f_theharvester
 #f_theharvester_api
-#f_whois_domain
+f_whois_domain
 #f_whois_ip
 #f_aggregate
 #f_report
