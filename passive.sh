@@ -244,10 +244,18 @@ f_subfinder() {
 f_sublist3r() {
     echo "sublist3r                ($COUNT/$TOTAL)"
     ((COUNT++))
-    sublist3r -d "$DOMAIN" > tmp 2>/dev/null
+    if [ -x /opt/Sublist3r-venv/bin/python ] && [ -f /opt/Sublist3r/sublist3r.py ]; then
+        /opt/Sublist3r-venv/bin/python /opt/Sublist3r/sublist3r.py -d "$DOMAIN" > tmp 2>/dev/null
+    elif command -v sublist3r >/dev/null 2>&1; then
+        sublist3r -d "$DOMAIN" > tmp 2>/dev/null
+    else
+        echo -e "${YELLOW}[!] sublist3r is unavailable. Run Discover update to install a compatible version.${NC}"
+        : > tmp
+    fi
     sed 's/\x1B\[[0-9;]*m//g' tmp | sed '/^ /d' | grep -Eiv '(!|enumerating|enumeration|searching|total unique)' | tr '[:upper:]' '[:lower:]' | sort -u > zsublist3r
+    [ ! -s zsublist3r ] && rm -f zsublist3r
+    rm -f tmp
     echo
-    rm tmp 2>/dev/null
 }
 
 ###############################################################################################################################
@@ -657,9 +665,9 @@ f_firefox() {
 #f_dnsrecon
 #f_dnstwist
 #f_intodns
-f_metasploit
+#f_metasploit
 #f_subfinder
-#f_sublist3r
+f_sublist3r
 #f_theharvester
 #f_whois_domain
 #f_whois_ip
