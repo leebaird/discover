@@ -252,7 +252,7 @@ f_sublist3r() {
         echo -e "${YELLOW}[!] sublist3r is unavailable. Run Discover update to install a compatible version.${NC}"
         : > tmp
     fi
-    sed 's/\x1B\[[0-9;]*m//g' tmp | sed '/^ /d' | grep -Eiv '(!|enumerating|enumeration|searching|total unique)' | tr '[:upper:]' '[:lower:]' | sort -u > zsublist3r
+    sed 's/\x1B\[[0-9;]*m//g' tmp | sed '/^ /d' | grep -Eiv '(!|enumerating|enumeration|searching|total unique)' | tr '[:upper:]' '[:lower:]' | sort -u | sed '/^$/d' > zsublist3r
     [ ! -s zsublist3r ] && rm -f zsublist3r
     rm -f tmp
     echo
