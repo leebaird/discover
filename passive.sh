@@ -126,7 +126,7 @@ if ! grep -q 'No Search Results' tmp.xml; then
 
     # Filter and format emails
     if [ -s tmp ]; then
-        grep -Eiv "(_|error)" tmp | tr '[:upper:]' '[:lower:]' | sort -u > zarin-emails
+        grep -Eiv "(_|error)" tmp | tr '[:upper:]' '[:lower:]' | grep "$DOMAIN" | sort -u > zarin-emails
     fi
 fi
 
@@ -146,7 +146,7 @@ if [ -f zhandles ]; then
         # Process names
         grep -Eiv "($COMPANY|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
         sed 's/Name:           //g' tmp2 | tr '[:upper:]' '[:lower:]' | sed 's/\b\(.\)/\u\1/g' > tmp3
-        awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sort -u > zarin-names
+        awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sed '/^ /d' | sort -u > zarin-names
     fi
 fi
 
@@ -180,7 +180,7 @@ echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/records.htm
 # Cleanup temp file
 rm tmp 2>/dev/null
 echo
-exit
+
 ###############################################################################################################################
 
 echo "dnstwist                 ($COUNT/$TOTAL)"
