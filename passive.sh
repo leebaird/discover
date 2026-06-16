@@ -101,321 +101,290 @@ echo
 COUNT=1
 TOTAL=63
 
-echo "ARIN"
-echo "    Email                ($COUNT/$TOTAL)"
-((COUNT++))
-
-# Fetch ARIN data
-if ! curl -ks "https://whois.arin.net/rest/pocs;domain=$DOMAIN" -o tmp.xml; then
-    echo "[!] Failed to fetch ARIN data"
-    # Cleanup temp file
-    rm tmp.xml 2>/dev/null
-fi
-
-# Check for results in the XML file
-if ! grep -q 'No Search Results' tmp.xml; then
-    # Extract handles and URLs
-    xmllint --format tmp.xml | grep 'handle' | cut -d '>' -f2 | cut -d '<' -f1 | sort -u > zurls
-    xmllint --format tmp.xml | grep 'handle' | cut -d '"' -f2 | sort -u > zhandles
-
-    # Process each URL for email extraction
-    while read -r LINE; do
-        curl -ks "$LINE" > tmp2.xml
-        xml_grep 'email' tmp2.xml --text_only >> tmp 2>/dev/null
-    done < zurls
-
-    # Filter and format emails
-    if [ -s tmp ]; then
-        grep -Eiv "(_|error)" tmp | tr '[:upper:]' '[:lower:]' | grep "$DOMAIN" | sort -u > zarin-emails
-    fi
-fi
-
-# Cleanup temp files
-rm tmp* zurls 2>/dev/null
-
 ###############################################################################################################################
 
-echo "    Names                ($COUNT/$TOTAL)"
-((COUNT++))
-if [ -f zhandles ]; then
-    while read -r LINE; do
-        curl -ks "https://whois.arin.net/rest/poc/$LINE.txt" | grep 'Name' >> tmp
-    done < zhandles
-
-    if [ -f tmp ]; then
-        # Process names
-        grep -Eiv "($COMPANY|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
-        sed 's/Name:           //g' tmp2 | tr '[:upper:]' '[:lower:]' | sed 's/\b\(.\)/\u\1/g' > tmp3
-        awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sed '/^ /d' | sort -u > zarin-names
-    fi
-fi
-
-# Cleanup temp files
-rm tmp* zhandles 2>/dev/null
-echo
-
-###############################################################################################################################
-
-echo "DNSRecon                 ($COUNT/$TOTAL)"
-((COUNT++))
-DNSRECON=''
-if [ -x /opt/dnsrecon-venv/bin/dnsrecon ] && /opt/dnsrecon-venv/bin/dnsrecon --version >/dev/null 2>&1; then
-    DNSRECON=/opt/dnsrecon-venv/bin/dnsrecon
-elif command -v dnsrecon >/dev/null 2>&1 && dnsrecon --version >/dev/null 2>&1; then
-    DNSRECON=$(command -v dnsrecon)
-fi
-
-if [ -n "$DNSRECON" ]; then
-    "$DNSRECON" -d "$DOMAIN" -n 8.8.8.8 -t std > tmp 2>&1
-    grep -Eiv '(all queries will|bind version|completed|could not|dnskeys|dnssec|error|enumeration for|it is resolving|nsec |nsec3|performing|records|recursion|starting enumeration|txt |wildcard resolution)' tmp | sed -E 's/^.*INFO[[:space:]]+//; s/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | grep -Eiv '^$' | column -t | sort -u | sed 's/[ \t]*$//' > records
-    grep -i 'TXT' tmp | sed -E 's/^.*INFO[[:space:]]+//; s/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | sort -u | sed 's/[ \t]*$//' >> records
-else
-    echo -e "${YELLOW}[!] dnsrecon is unavailable (broken on Python 3.13+). Run Discover update to install a compatible version.${NC}"
-    : > records
-fi
-
-cat records >> "$HOME"/data/"$DOMAIN"/data/records.htm
-echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/records.htm
-
-# Cleanup temp file
-rm tmp 2>/dev/null
-echo
-
-###############################################################################################################################
-
-echo "dnstwist                 ($COUNT/$TOTAL)"
-((COUNT++))
-dnstwist --registered "$DOMAIN" > tmp
-sed -E 's/\b([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}\b//g' tmp | grep -v 'original' | sed 's/!ServFail/        /g; s/MX:$//g; s/MX:localhost//g; s/[ \t]*$//' | column -t | sed 's/[ \t]*$//' | sed -E 's/([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}/ /g' | sed 's/::28f//g; s/::28//g; s/::2e1//g; s/::200//g; s/:://g' > squatting
-echo
-
-###############################################################################################################################
-
-echo "intodns.com              ($COUNT/$TOTAL)"
-((COUNT++))
-wget -q http://www.intodns.com/"$DOMAIN" -O tmp
-# shellcheck disable=SC2002
-cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
-cat tmp2 >> "$HOME"/data/"$DOMAIN"/pages/config.htm
-
-# Add new icons
-sed -i 's|/static/images/error.gif|\.\./assets/images/icons/fail.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-sed -i 's|/static/images/fail.gif|\.\./assets/images/icons/fail.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-sed -i 's|/static/images/info.gif|\.\./assets/images/icons/info.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-sed -i 's|/static/images/pass.gif|\.\./assets/images/icons/pass.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-sed -i 's|/static/images/warn.gif|\.\./assets/images/icons/warn.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-sed -i 's|\.\.\.\.|\.\.|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-# Insert missing table tag
-sed -i 's/.*<thead>.*/    <table border="4">\n&/' "$HOME"/data/"$DOMAIN"/pages/config.htm
-# Add blank lines below table
-sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' "$HOME"/data/"$DOMAIN"/pages/config.htm
-# Remove unnecessary JS at bottom of page
-sed -i '/Math\.random/I,+6 d' "$HOME"/data/"$DOMAIN"/pages/config.htm
-# Clean up
-sed -i 's/I could use the nameservers/The nameservers/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-sed -i 's/below to performe/below can perform/g; s/ERROR: //g; s/FAIL: //g; s/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/Oh well, //g; s/This can be ok if you know what you are doing.//g; s/That is NOT OK//g; s/That is not so ok//g; s/The reverse (PTR) record://g; s/the same ip./the same IP./g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/use on having/use in having/g; s/You must be/Be/g; s/Your/The/g; s/your/the/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-echo
-
-# Cleanup temp files
-rm tmp* 2>/dev/null
-
-###############################################################################################################################
-
-echo "Metasploit               ($COUNT/$TOTAL)"
-((COUNT++))
-msfconsole -q -x "use auxiliary/gather/search_email_collector; set DOMAIN $DOMAIN; run; exit y" > tmp 2>/dev/null
-grep @"$DOMAIN" tmp | awk '{print $2}' | tr '[:upper:]' '[:lower:]' | sort -u > zmsf
-echo
-
-###############################################################################################################################
-
-echo "subfinder                ($COUNT/$TOTAL)"
-((COUNT++))
-subfinder -d "$DOMAIN" -silent | sort -u > zsubfinder
-echo
-
-###############################################################################################################################
-
-echo "sublist3r                ($COUNT/$TOTAL)"
-((COUNT++))
-sublist3r -d "$DOMAIN" > tmp 2>/dev/null
-sed 's/\x1B\[[0-9;]*m//g' tmp | sed '/^ /d' | grep -Eiv '(!|enumerating|enumeration|searching|total unique)' | tr '[:upper:]' '[:lower:]' | sort -u > zsublist3r
-echo
-
-# Cleanup temp file
-rm tmp 2>/dev/null
-
-###############################################################################################################################
-
-# List of theHarvester sources
-sources_no_api=(baidu certspotter chaos commoncrawl crtsh duckduckgo gitlab hudsonrock mojeek netcraft omnisint otx rapiddns robtex subdomaincenter subdomainfinderc99 thc threatcrowd urlscan waybackarchive yahoo)
-sources_api=(bevigil bitbucket brave bufferoverun builtwith censys criminalip dehashed dnsdumpster fofa fullhunt github-code hackertarget haveibeenpwned hunter hunterhow intelx leakix leaklookup mojeek netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails tomba venacus virustotal whoisxml windvane zoomeye)
-
-run_harvester() {
-    local source=$1
-    # Use printf for perfectly aligned real-time output
-    printf "    %-20s (%s/%s)\n" "${source}" "${COUNT}" "${TOTAL}"
-
-    theHarvester -d "$DOMAIN" -b "$source" -r | grep -Eiv '(!|\*|--|\[|searching|yaml|retrying)' | sed '/^$/d;/:$/d' | sort -u > "z${source}"
+f_arin() {
+    echo "ARIN"
+    echo "    Email                ($COUNT/$TOTAL)"
     ((COUNT++))
+
+    if ! curl -ks "https://whois.arin.net/rest/pocs;domain=$DOMAIN" -o tmp.xml; then
+        echo "[!] Failed to fetch ARIN data"
+        rm tmp.xml 2>/dev/null
+    fi
+
+    if ! grep -q 'No Search Results' tmp.xml; then
+        xmllint --format tmp.xml | grep 'handle' | cut -d '>' -f2 | cut -d '<' -f1 | sort -u > zurls
+        xmllint --format tmp.xml | grep 'handle' | cut -d '"' -f2 | sort -u > zhandles
+
+        while read -r LINE; do
+            curl -ks "$LINE" > tmp2.xml
+            xml_grep 'email' tmp2.xml --text_only >> tmp 2>/dev/null
+        done < zurls
+
+        if [ -s tmp ]; then
+            grep -Eiv "(_|error)" tmp | tr '[:upper:]' '[:lower:]' | grep "$DOMAIN" | sort -u > zarin-emails
+        fi
+    fi
+
+    rm tmp* zurls 2>/dev/null
+
+    echo "    Names                ($COUNT/$TOTAL)"
+    ((COUNT++))
+    if [ -f zhandles ]; then
+        while read -r LINE; do
+            curl -ks "https://whois.arin.net/rest/poc/$LINE.txt" | grep 'Name' >> tmp
+        done < zhandles
+
+        if [ -f tmp ]; then
+            grep -Eiv "($COMPANY|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
+            sed 's/Name:           //g' tmp2 | tr '[:upper:]' '[:lower:]' | sed 's/\b\(.\)/\u\1/g' > tmp3
+            awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sed '/^ /d' | sort -u > zarin-names
+        fi
+    fi
+
+    rm tmp* zhandles 2>/dev/null
+    echo
 }
 
-echo "theHarvester"
-cd "$HOME/theHarvester"
-source .venv/bin/activate
-
-for source in "${sources_no_api[@]}"; do
-    run_harvester "$source"
-done
-
-echo
-echo "    These sources require API keys."
-for source in "${sources_api[@]}"; do
-    run_harvester "$source"
-done
-
-mv z* "$DISCOVER"
-
-deactivate
-
-cd "$DISCOVER"
-echo
-
 ###############################################################################################################################
 
-echo "Whois"
-echo "    Domain               ($COUNT/$TOTAL)"
-((COUNT++))
-whois -H "$DOMAIN" > tmp 2>/dev/null
-sed 's/^[ \t]*//' tmp > tmp2
-grep -Eiv '(#|%|<a|=-=-=-=|;|access may|accuracy|additionally|affiliates|afilias except|and dns hosting|and limitations|any use of|at www.|be sure|at the end|by submitting|by the terms|can easily|circumstances|clientdeleteprohibited|clienttransferprohibited|clientupdateprohibited|com laude|commercial purposes|company may|compilation|complaint will|contact information|contact us|contacting|copy and paste|currently set|database|data contained|data presented|database|date of|details|dissemination|domaininfo ab|domain management|domain names in|domain status: ok|electronic processes|enable high|entirety|except as|existing|ext:|failure|facsimile|following terms|for commercial|for detailed|for information|for more|for the|get noticed|get a free|guarantee its|href|If you|in europe|in most|in obtaining|in the address|includes|including|information is|informational purposes|intellectual|is not|is providing|its systems|learn|legitimate|makes this|markmonitor|minimum|mining this|minute and|modify|must be sent|name cannot|namesbeyond|not to use|note:|notice|obtaining information about|of moniker|of this data|or hiding any|or otherwise support|other use of|please|policy|prior written|privacy is|problem reporting|professional and|prohibited without|promote your|protect the|protecting|public interest|queried|queries|receive|receiving|redacted for|register your|registrars|registration record|relevant|repackaging|request|reserves all rights|reserves the|responsible for|restricted to network|restrictions|see business|server at|solicitations|sponsorship|status|support questions|support the transmission|supporting|telephone, or facsimile|temporary|that apply to|that you will|the right|the data is|The fact that|the transmission|this listing|this feature|this information|this service is|to collect or|to entities|to report any|to suppress|to the systems|transmission of|trusted partner|united states|unlimited|unsolicited advertising|users may|version 6|via e-mail|visible|visit aboutus.org|visit|web-based|when you|while believed|will use this|with many different|with no guarantee|we reserve|whitelist|whois|you agree|You may not)' tmp2 > tmp3
-# Remove lines starting with "*"
-sed '/^*/d' tmp3 > tmp4
-# Remove lines starting with "-"
-sed '/^-/d' tmp4 > tmp5
-# Remove lines starting with http
-sed '/^http/d' tmp5 > tmp6
-# Remove lines starting with US
-sed '/^US/d' tmp6 > tmp7
-# Clean up phone numbers
-sed 's/+1.//g' tmp7 > tmp8
-# Remove leading whitespace from file
-awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp8 > tmp9
-# Remove trailing whitespace from each line
-sed 's/[ \t]*$//' tmp9 > tmp10
-# Compress blank lines
-cat -s tmp10 > tmp11
-# Remove lines that end with various words then a colon or period(s)
-grep -Eiv '(2:$|3:$|address.$|address........$|address.........$|ext.:$|fax:$|fax............$|fax.............$|province:$|server:$)' tmp11 > tmp12
-# Remove line after "Domain Servers:"
-sed -i '/^Domain Servers:/{n; /.*/d}' tmp12
-# Remove blank lines from end of file
-awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp12 > tmp13
-# Format output
-sed 's/: /:#####/g' tmp13 | column -s '#' -t > whois-domain
-
-###############################################################################################################################
-
-echo "    IP                   ($COUNT/$TOTAL)"
-((COUNT++))
-DOMAINIP=$(dig +short "$DOMAIN")
-whois "$DOMAINIP" > tmp
-# Remove blank lines from the beginning of a file
-grep -Eiv '(#|%|comment|remarks)' tmp | sed '/./,$!d' > tmp2
-# Remove blank lines from the end of a file
-sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' tmp2 > tmp3
-# Compress blank lines
-cat -s tmp3 > tmp4
-# Print with the second column starting at 25 spaces
-awk '{printf "%-25s %s\n", $1, $2}' tmp4 | sed 's/+1-//g' > whois-ip
-
-# Cleanup temp files
-rm tmp* 2>/dev/null
-
-###############################################################################################################################
-
-# Aggregation happens here
-
-# Find eamils
-cat z* | grep "\@$DOMAIN" | grep -v '[0-9]' | grep -Eiv "(_|,|'|firstname|lastname|test|www|xxx|zzz)" | sort -u > emails
-
-# Find names
-cat z* | grep -Eiv '(@|:|\.|>|additionally|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
-
-# Find hosts
-cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '\b(0\.0\.0\.0|1\.1\.1\.1|1\.1\.1\.2|8\.8\.8\.8|127\.0\.0\.1|127\.0\.0\.53)\b|\.0$' | sort -u | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
-
-# Find private and public IPs
-while IFS= read -r IP; do
-    if [[ $IP =~ ^10\..* ]] || \
-       [[ $IP =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\..* ]] || \
-       [[ $IP =~ ^192\.168\..* ]]; then
-        echo "$IP" >> private-ips
-    else
-        echo "$IP" >> public-ips
+f_dnsrecon() {
+    echo "DNSRecon                 ($COUNT/$TOTAL)"
+    ((COUNT++))
+    local DNSRECON=''
+    if [ -x /opt/dnsrecon-venv/bin/dnsrecon ] && /opt/dnsrecon-venv/bin/dnsrecon --version >/dev/null 2>&1; then
+        DNSRECON=/opt/dnsrecon-venv/bin/dnsrecon
+    elif command -v dnsrecon >/dev/null 2>&1 && dnsrecon --version >/dev/null 2>&1; then
+        DNSRECON=$(command -v dnsrecon)
     fi
-done < hosts
 
-# Find subdomains
-cat z* | grep -Eiv '(•|@|\+|;|::|,|>|//|\b1\.1\.1\.1\b|\b127\.0\.0\.53\b|failed to|no response|www)' | sed '/^[0-9]\|^\.\|^-/d' | sed '/\.$/d' | grep '\.' | sed 's/:/ /g' | column -t | tr '[:upper:]' '[:lower:]' | sort -u | awk '$2 ~ /[a-z]/ {next} NF==1{if(a) print l; a=$1; l=$0; next} $1==a{print; a=""; next} a{print l; a=""} 1; END{if(a) print l}' | sed 's/[ \t]*$//' > tmp
+    if [ -n "$DNSRECON" ]; then
+        "$DNSRECON" -d "$DOMAIN" -n 8.8.8.8 -t std > tmp 2>&1
+        grep -Eiv '(all queries will|bind version|completed|could not|dnskeys|dnssec|error|enumeration for|it is resolving|nsec |nsec3|performing|records|recursion|starting enumeration|txt |wildcard resolution)' tmp | sed -E 's/^.*INFO[[:space:]]+//; s/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | grep -Eiv '^$' | column -t | sort -u | sed 's/[ \t]*$//' > records
+        grep -i 'TXT' tmp | sed -E 's/^.*INFO[[:space:]]+//; s/\[\*\]//g; s/\[+\]//g; s/^[ \t]*//' | sort -u | sed 's/[ \t]*$//' >> records
+    else
+        echo -e "${YELLOW}[!] dnsrecon is unavailable (broken on Python 3.13+). Run Discover update to install a compatible version.${NC}"
+        : > records
+    fi
 
-# Resolve subdomains with no IPs or delete the line
-echo -e "${BLUE}[*] Resolving subdomains with no IPs using dig.${NC}"
+    cat records >> "$HOME"/data/"$DOMAIN"/data/records.htm
+    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/records.htm
+    rm tmp 2>/dev/null
+    echo
+}
 
-total=$(wc -l < tmp)
-current=0
-> tmp2
-while read -r col1 col2; do
-    ((current++))
-    echo -ne "\r    $current of $total"
-    if [ -z "$col2" ]; then
-        ip=$(dig +short "$col1" | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -n 1)
-        if [ -n "$ip" ] && [ "$ip" != "1.1.1.1" ] && [ "$ip" != "127.0.0.53" ]; then
-            echo "$col1 $ip" >> tmp2
+###############################################################################################################################
+
+f_dnstwist() {
+    echo "dnstwist                 ($COUNT/$TOTAL)"
+    ((COUNT++))
+    dnstwist --registered "$DOMAIN" > tmp
+    sed -E 's/\b([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}\b//g' tmp | grep -v 'original' | sed 's/!ServFail/        /g; s/MX:$//g; s/MX:localhost//g; s/[ \t]*$//' | column -t | sed 's/[ \t]*$//' | sed -E 's/([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}/ /g' | sed 's/::28f//g; s/::28//g; s/::2e1//g; s/::200//g; s/:://g; s/ 2 //g; s/ 64 //g; s/ 2b2 //g' | sed '/NS:$/d' > squatting
+    echo
+}
+
+###############################################################################################################################
+
+f_intodns() {
+    echo "intodns.com              ($COUNT/$TOTAL)"
+    ((COUNT++))
+    wget -q http://www.intodns.com/"$DOMAIN" -O tmp
+    # shellcheck disable=SC2002
+    cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
+    cat tmp2 >> "$HOME"/data/"$DOMAIN"/pages/config.htm
+
+    sed -i 's|/static/images/error.gif|\.\./assets/images/icons/fail.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    sed -i 's|/static/images/fail.gif|\.\./assets/images/icons/fail.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    sed -i 's|/static/images/info.gif|\.\./assets/images/icons/info.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    sed -i 's|/static/images/pass.gif|\.\./assets/images/icons/pass.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    sed -i 's|/static/images/warn.gif|\.\./assets/images/icons/warn.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    sed -i 's|\.\.\.\.|\.\.|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    sed -i 's/.*<thead>.*/    <table border="4">\n&/' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    sed -i '/Math\.random/I,+6 d' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    sed -i 's/I could use the nameservers/The nameservers/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    sed -i 's/below to performe/below can perform/g; s/ERROR: //g; s/FAIL: //g; s/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/Oh well, //g; s/This can be ok if you know what you are doing.//g; s/That is NOT OK//g; s/That is not so ok//g; s/The reverse (PTR) record://g; s/the same ip./the same IP./g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/use on having/use in having/g; s/You must be/Be/g; s/Your/The/g; s/your/the/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    echo
+    rm tmp* 2>/dev/null
+}
+
+###############################################################################################################################
+
+f_metasploit() {
+    echo "Metasploit               ($COUNT/$TOTAL)"
+    ((COUNT++))
+    msfconsole -q -x "use auxiliary/gather/search_email_collector; set DOMAIN $DOMAIN; run; exit y" > tmp 2>/dev/null
+    grep @"$DOMAIN" tmp | awk '{print $2}' | tr '[:upper:]' '[:lower:]' | sort -u > zmsf
+    echo
+}
+
+###############################################################################################################################
+
+f_subfinder() {
+    echo "subfinder                ($COUNT/$TOTAL)"
+    ((COUNT++))
+    subfinder -d "$DOMAIN" -silent | sort -u > zsubfinder
+    echo
+}
+
+###############################################################################################################################
+
+f_sublist3r() {
+    echo "sublist3r                ($COUNT/$TOTAL)"
+    ((COUNT++))
+    sublist3r -d "$DOMAIN" > tmp 2>/dev/null
+    sed 's/\x1B\[[0-9;]*m//g' tmp | sed '/^ /d' | grep -Eiv '(!|enumerating|enumeration|searching|total unique)' | tr '[:upper:]' '[:lower:]' | sort -u > zsublist3r
+    echo
+    rm tmp 2>/dev/null
+}
+
+###############################################################################################################################
+
+f_theharvester() {
+    local sources_no_api=(baidu certspotter chaos commoncrawl crtsh duckduckgo gitlab hudsonrock mojeek netcraft omnisint otx rapiddns robtex subdomaincenter subdomainfinderc99 thc threatcrowd urlscan waybackarchive yahoo)
+    local sources_api=(bevigil bitbucket brave bufferoverun builtwith censys criminalip dehashed dnsdumpster fofa fullhunt github-code hackertarget haveibeenpwned hunter hunterhow intelx leakix leaklookup mojeek netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails tomba venacus virustotal whoisxml windvane zoomeye)
+    local source
+
+    run_harvester() {
+        local source=$1
+        printf "    %-20s (%s/%s)\n" "${source}" "${COUNT}" "${TOTAL}"
+        theHarvester -d "$DOMAIN" -b "$source" -r | grep -Eiv '(!|\*|--|\[|searching|yaml|retrying)' | sed '/^$/d;/:$/d' | sort -u > "z${source}"
+        ((COUNT++))
+    }
+
+    echo "theHarvester"
+    cd "$HOME/theHarvester"
+    source .venv/bin/activate
+
+    for source in "${sources_no_api[@]}"; do
+        run_harvester "$source"
+    done
+
+    echo
+    echo "    These sources require API keys."
+    for source in "${sources_api[@]}"; do
+        run_harvester "$source"
+    done
+
+    mv z* "$DISCOVER"
+    deactivate
+    cd "$DISCOVER"
+    echo
+}
+
+###############################################################################################################################
+
+f_whois_domain() {
+    echo "Whois"
+    echo "    Domain               ($COUNT/$TOTAL)"
+    ((COUNT++))
+    whois -H "$DOMAIN" > tmp 2>/dev/null
+    sed 's/^[ \t]*//' tmp > tmp2
+    grep -Eiv '(#|%|<a|=-=-=-=|;|access may|accuracy|additionally|affiliates|afilias except|and dns hosting|and limitations|any use of|at www.|be sure|at the end|by submitting|by the terms|can easily|circumstances|clientdeleteprohibited|clienttransferprohibited|clientupdateprohibited|com laude|commercial purposes|company may|compilation|complaint will|contact information|contact us|contacting|copy and paste|currently set|database|data contained|data presented|database|date of|details|dissemination|domaininfo ab|domain management|domain names in|domain status: ok|electronic processes|enable high|entirety|except as|existing|ext:|failure|facsimile|following terms|for commercial|for detailed|for information|for more|for the|get noticed|get a free|guarantee its|href|If you|in europe|in most|in obtaining|in the address|includes|including|information is|informational purposes|intellectual|is not|is providing|its systems|learn|legitimate|makes this|markmonitor|minimum|mining this|minute and|modify|must be sent|name cannot|namesbeyond|not to use|note:|notice|obtaining information about|of moniker|of this data|or hiding any|or otherwise support|other use of|please|policy|prior written|privacy is|problem reporting|professional and|prohibited without|promote your|protect the|protecting|public interest|queried|queries|receive|receiving|redacted for|register your|registrars|registration record|relevant|repackaging|request|reserves all rights|reserves the|responsible for|restricted to network|restrictions|see business|server at|solicitations|sponsorship|status|support questions|support the transmission|supporting|telephone, or facsimile|temporary|that apply to|that you will|the right|the data is|The fact that|the transmission|this listing|this feature|this information|this service is|to collect or|to entities|to report any|to suppress|to the systems|transmission of|trusted partner|united states|unlimited|unsolicited advertising|users may|version 6|via e-mail|visible|visit aboutus.org|visit|web-based|when you|while believed|will use this|with many different|with no guarantee|we reserve|whitelist|whois|you agree|You may not)' tmp2 > tmp3
+    sed '/^*/d' tmp3 > tmp4
+    sed '/^-/d' tmp4 > tmp5
+    sed '/^http/d' tmp5 > tmp6
+    sed '/^US/d' tmp6 > tmp7
+    sed 's/+1.//g' tmp7 > tmp8
+    awk '!d && NF {sub(/^[[:blank:]]*/,""); d=1} d' tmp8 > tmp9
+    sed 's/[ \t]*$//' tmp9 > tmp10
+    cat -s tmp10 > tmp11
+    grep -Eiv '(2:$|3:$|address.$|address........$|address.........$|ext.:$|fax:$|fax............$|fax.............$|province:$|server:$)' tmp11 > tmp12
+    sed -i '/^Domain Servers:/{n; /.*/d}' tmp12
+    awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp12 > tmp13
+    sed 's/: /:#####/g' tmp13 | column -s '#' -t > whois-domain
+}
+
+###############################################################################################################################
+
+f_whois_ip() {
+    echo "    IP                   ($COUNT/$TOTAL)"
+    ((COUNT++))
+    local DOMAINIP
+    DOMAINIP=$(dig +short "$DOMAIN")
+    whois "$DOMAINIP" > tmp
+    grep -Eiv '(#|%|comment|remarks)' tmp | sed '/./,$!d' > tmp2
+    sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' tmp2 > tmp3
+    cat -s tmp3 > tmp4
+    awk '{printf "%-25s %s\n", $1, $2}' tmp4 | sed 's/+1-//g' > whois-ip
+    rm tmp* 2>/dev/null
+}
+
+###############################################################################################################################
+
+f_aggregate() {
+    cat z* | grep "\@$DOMAIN" | grep -v '[0-9]' | grep -Eiv "(_|,|'|firstname|lastname|test|www|xxx|zzz)" | sort -u > emails
+
+    cat z* | grep -Eiv '(@|:|\.|>|additionally|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
+
+    cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '\b(0\.0\.0\.0|1\.1\.1\.1|1\.1\.1\.2|8\.8\.8\.8|127\.0\.0\.1|127\.0\.0\.53)\b|\.0$' | sort -u | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
+
+    while IFS= read -r IP; do
+        if [[ $IP =~ ^10\..* ]] || \
+           [[ $IP =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\..* ]] || \
+           [[ $IP =~ ^192\.168\..* ]]; then
+            echo "$IP" >> private-ips
+        else
+            echo "$IP" >> public-ips
         fi
-    else
-        echo "$col1 $col2" >> tmp2
-    fi
-done < tmp
-echo
+    done < hosts
 
-column -t tmp2 > subdomains
-rm tmp tmp2 2>/dev/null
+    cat z* | grep -Eiv '(•|@|\+|;|::|,|>|//|\b1\.1\.1\.1\b|\b127\.0\.0\.53\b|failed to|no response|www)' | sed '/^[0-9]\|^\.\|^-/d' | sed '/\.$/d' | grep '\.' | sed 's/:/ /g' | column -t | tr '[:upper:]' '[:lower:]' | sort -u | awk '$2 ~ /[a-z]/ {next} NF==1{if(a) print l; a=$1; l=$0; next} $1==a{print; a=""; next} a{print l; a=""} 1; END{if(a) print l}' | sed 's/[ \t]*$//' > tmp
 
-# Find private subdomains
-while IFS= read -r line; do
-    second_column=$(echo "$line" | awk '{print $2}')
+    echo -e "${BLUE}[*] Resolving subdomains with no IPs using dig.${NC}"
 
-    if [[ -n $second_column ]] && ( [[ $second_column =~ ^10\..* ]] || \
-       [[ $second_column =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\..* ]] || \
-       [[ $second_column =~ ^192\.168\..* ]] ); then
-        echo "$line" >> tmp
-    fi
-done < subdomains
+    local total current ip col1 col2 second_column line
+    total=$(wc -l < tmp)
+    current=0
+    > tmp2
+    while read -r col1 col2; do
+        ((current++))
+        echo -ne "\r    $current of $total"
+        if [ -z "$col2" ]; then
+            ip=$(dig +short "$col1" | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -n 1)
+            if [ -n "$ip" ] && [ "$ip" != "1.1.1.1" ] && [ "$ip" != "127.0.0.53" ]; then
+                echo "$col1 $ip" >> tmp2
+            fi
+        else
+            echo "$col1 $col2" >> tmp2
+        fi
+    done < tmp
+    echo
 
-column -t tmp > private-subs
+    column -t tmp2 > subdomains
+    rm tmp tmp2 2>/dev/null
 
-# Cleanup temp file
-rm tmp 2>/dev/null
+    while IFS= read -r line; do
+        second_column=$(echo "$line" | awk '{print $2}')
 
-# Find documents (not sure if its needed here)
-cat z* | grep -Ei '\.(doc|docx)$' | sort -u > doc
-cat z* | grep -Ei '\.(ppt|pptx)$' | sort -u > ppt
-cat z* | grep -Ei '\.(xls|xlsx)$' | sort -u > xls
-cat z* | grep -i '\.pdf$' | sort -u > pdf
-cat z* | grep -i '\.txt$' | sort -u > txt
+        if [[ -n $second_column ]] && ( [[ $second_column =~ ^10\..* ]] || \
+           [[ $second_column =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\..* ]] || \
+           [[ $second_column =~ ^192\.168\..* ]] ); then
+            echo "$line" >> tmp
+        fi
+    done < subdomains
 
-# Remove empty files in the current folder
-find . -type f -empty -delete
+    column -t tmp > private-subs
+    rm tmp 2>/dev/null
+
+    cat z* | grep -Ei '\.(doc|docx)$' | sort -u > doc
+    cat z* | grep -Ei '\.(ppt|pptx)$' | sort -u > ppt
+    cat z* | grep -Ei '\.(xls|xlsx)$' | sort -u > xls
+    cat z* | grep -i '\.pdf$' | sort -u > pdf
+    cat z* | grep -i '\.txt$' | sort -u > txt
+
+    find . -type f -empty -delete
+}
 
 ###############################################################################################################################
 
-# Generate report and htm data
-echo "Summary" > zreport
-echo "$SMALL" >> zreport
-echo > tmp
+f_report() {
+    echo "Summary" > zreport
+    echo "$SMALL" >> zreport
+    echo > tmp
 
-if [ -f names ]; then
+    if [ -f names ]; then
     namecount=$(wc -l names | cut -d ' ' -f1)
     echo "Names                 $namecount" >> zreport
     echo "Names ($namecount)" >> tmp
@@ -602,27 +571,27 @@ else
     echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/whois-ip.htm
 fi
 
-cat zreport >> "$HOME"/data/"$DOMAIN"/data/passive-recon.htm
-echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/passive-recon.htm
+    cat zreport >> "$HOME"/data/"$DOMAIN"/data/passive-recon.htm
+    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/passive-recon.htm
 
-# Cleanup temp files
-rm tmp* zreport 2>/dev/null
+    rm tmp* zreport 2>/dev/null
 
-# Ensure the destination directory exists then move files
-mkdir -p "$HOME/data/$DOMAIN/tools"
-mv names emails hosts private-ips private-subs public-ips records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
-cd "$PWD" || exit
+    mkdir -p "$HOME/data/$DOMAIN/tools"
+    mv names emails hosts private-ips private-subs public-ips records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
+    cd "$PWD" || exit
 
-echo
-echo "$MEDIUM"
-echo
-echo -e "The supporting data folder is located at ${YELLOW}$HOME/data/$DOMAIN/${NC}\n"
+    echo
+    echo "$MEDIUM"
+    echo
+    echo -e "The supporting data folder is located at ${YELLOW}$HOME/data/$DOMAIN/${NC}\n"
+}
 
 ###############################################################################################################################
 
-f_runlocally
+f_firefox() {
+    local USER_AGENTS URLS i USER_AGENT
 
-USER_AGENTS=(
+    USER_AGENTS=(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
@@ -633,9 +602,9 @@ USER_AGENTS=(
     "Mozilla/5.0 (X11; Linux i686; rv:132.0) Gecko/20100101 Firefox/132.0"
     "Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/132.0 Mobile/15E148 Safari/605.1.15"
     "Mozilla/5.0 (Android 15; Mobile; rv:132.0) Gecko/132.0 Firefox/132.0"
-)
+    )
 
-URLS=(
+    URLS=(
     "https://dnsdumpster.com"
     "https://dockets.justia.com/search?parties=%22$COMPANYURL%22&cases=mostrecent"
     "https://intelx.io/?s=%40$DOMAIN&b=leaks.public.wikileaks,leaks.public.general,dumpster,documents.public.scihub"
@@ -660,10 +629,34 @@ URLS=(
     "https://www.google.com/search?q=site:$DOMAIN+intext:%22proprietary+and+confidential%22"
 	"https://www.google.com/search?q=site:$DOMAIN+intitle%3Alogin+%7C+inurl%3Alogin+%7C+intitle%3Asignin+%7C+inurl%3Asignin+%7C+inurl%3Asecure"
     "https://$DOMAIN"
-)
+    )
 
-for ((i = 0; i < ${#URLS[@]}; i++)); do
-    USER_AGENT="${USER_AGENTS[$((i % ${#USER_AGENTS[@]}))]}"
-    firefox "${URLS[$i]}" --user-agent="$USER_AGENT" &
-    sleep $((RANDOM % 4 + 3))
-done
+    for ((i = 0; i < ${#URLS[@]}; i++)); do
+        USER_AGENT="${USER_AGENTS[$((i % ${#USER_AGENTS[@]}))]}"
+        firefox "${URLS[$i]}" --user-agent="$USER_AGENT" &
+        sleep $((RANDOM % 4 + 3))
+    done
+}
+
+###############################################################################################################################
+
+# Comment out functions for tools you don't want to run.
+
+#f_arin
+#f_dnsrecon
+f_dnstwist
+#f_intodns
+#f_metasploit
+#f_subfinder
+#f_sublist3r
+#f_theharvester
+#f_whois_domain
+#f_whois_ip
+#f_aggregate
+#f_report
+
+###############################################################################################################################
+
+f_runlocally
+#f_firefox
+
