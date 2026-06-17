@@ -318,7 +318,7 @@ f_whois_domain() {
     grep -Eiv '(2:$|3:$|address.$|address........$|address.........$|ext.:$|fax:$|fax............$|fax.............$|province:$|server:$)' tmp11 > tmp12
     sed -i '/^Domain Servers:/{n; /.*/d}' tmp12
     awk '/^[[:space:]]*$/{p++;next} {for(i=0;i<p;i++){printf "\n"}; p=0; print}' tmp12 > tmp13
-    sed 's/: /:#####/g' tmp13 | column -s '#' -t > whois-domain
+    sed 's/: /:#####/g' tmp13 | column -s '#' -t | sed 's/[ \t]*$//' > whois-domain
     rm tmp*
 }
 
@@ -342,7 +342,7 @@ f_whois_ip() {
 f_aggregate() {
     cat z* | grep "\@$DOMAIN" | grep -v '[0-9]' | grep -Eiv "(_|,|'|firstname|lastname|test|www|xxx|zzz)" | sort -u > emails
 
-    cat z* | grep -Eiv '(@|:|\.|>|additionally|atlanta|boston|bufferoverun|captcha|detroit|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
+    cat z* | grep -Eiv '(@|:|\.|>|additionally|atlanta|boston|bufferoverun|captcha|detroit|exception|found character|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university|while scanning)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
 
     cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '\b(0\.0\.0\.0|1\.1\.1\.1|1\.1\.1\.2|8\.8\.8\.8|127\.0\.0\.1|127\.0\.0\.53)\b|\.0$' | sort -u | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
 
@@ -414,7 +414,7 @@ f_report() {
     namecount=$(wc -l names | cut -d ' ' -f1)
     echo "Names                 $namecount" >> zreport
     echo "Names ($namecount)" >> tmp
-    echo "$LARGE" >> tmp
+    echo "$SMALL" >> tmp
     cat names >> tmp
     echo >> tmp
     cat names >> "$HOME"/data/"$DOMAIN"/data/names.htm
