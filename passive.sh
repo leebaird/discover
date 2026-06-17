@@ -260,7 +260,7 @@ run_harvester() {
 }
 
 f_theharvester() {
-    local sources_no_api=(baidu certspotter chaos commoncrawl crtsh duckduckgo gitlab hudsonrock netcraft omnisint otx rapiddns robtex subdomaincenter subdomainfinderc99 thc threatcrowd urlscan waybackarchive yahoo)
+    local sources_no_api=(baidu certspotter commoncrawl crtsh duckduckgo gitlab hudsonrock netcraft omnisint otx rapiddns robtex subdomaincenter subdomainfinderc99 thc threatcrowd urlscan waybackarchive yahoo)
     local source
 
     echo "theHarvester"
@@ -279,7 +279,7 @@ f_theharvester() {
 }
 
 f_theharvester_api() {
-    local sources_api=(bevigil bitbucket brave bufferoverun builtwith censys criminalip dehashed dnsdumpster fofa fullhunt github-code hackertarget haveibeenpwned hunter hunterhow intelx leakix leaklookup mojeek netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails tomba venacus virustotal whoisxml windvane zoomeye)
+    local sources_api=(bevigil bitbucket brave bufferoverun builtwith censys chaos criminalip dehashed dnsdumpster fofa fullhunt github-code hackertarget haveibeenpwned hunter hunterhow intelx leakix leaklookup mojeek netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails tomba venacus virustotal whoisxml windvane zoomeye)
     local source
 
     echo "theHarvester (API)"
