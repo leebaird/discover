@@ -615,22 +615,24 @@ fi
 ###############################################################################################################################
 
 f_firefox() {
-    local USER_AGENTS URLS i USER_AGENT
+    local USER_AGENTS OTHER_URLS GOOGLE_URLS url USER_AGENT sleep_time
 
     USER_AGENTS=(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/131.0.6778.73 Mobile/15E148 Safari/604.1"
-    "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.39 Mobile Safari/537.36"
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0"
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:132.0) Gecko/20100101 Firefox/132.0"
-    "Mozilla/5.0 (X11; Linux i686; rv:132.0) Gecko/20100101 Firefox/132.0"
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/132.0 Mobile/15E148 Safari/605.1.15"
-    "Mozilla/5.0 (Android 15; Mobile; rv:132.0) Gecko/132.0 Firefox/132.0"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.3912.86"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15"
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (X11; Linux x86_64; rv:145.0) Gecko/20100101 Firefox/145.0"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:145.0) Gecko/20100101 Firefox/145.0"
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/147.0.6778.73 Mobile/15E148 Safari/604.1"
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Mobile/15E148 Safari/604.1"
+    "Mozilla/5.0 (Linux; Android 15; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.6778.39 Mobile Safari/537.36"
+    "Mozilla/5.0 (Android 15; Mobile; rv:145.0) Gecko/145.0 Firefox/145.0"
     )
 
-    URLS=(
+    OTHER_URLS=(
     "https://dnsdumpster.com"
     "https://dockets.justia.com/search?parties=%22$COMPANYURL%22&cases=mostrecent"
     "https://intelx.io/?s=%40$DOMAIN&b=leaks.public.wikileaks,leaks.public.general,dumpster,documents.public.scihub"
@@ -638,6 +640,10 @@ f_firefox() {
     "https://phonebook.cz"
     "https://shdn.io/analyze?target=$DOMAIN"
     "https://www.shodan.io/search?query=$DOMAIN"
+    "https://$DOMAIN"
+    )
+
+    GOOGLE_URLS=(
     "https://www.google.com/search?q=%22$COMPANYURL%22+logo"
     "https://www.google.com/search?q=site:http://s3.amazonaws.com+%22$DOMAIN%22"
     "https://www.google.com/search?q=site:http://blob.core.windows.net+%22$DOMAIN%22"
@@ -646,21 +652,23 @@ f_firefox() {
     "https://www.google.com/search?q=site:http://googleapis.com+%22$DOMAIN%22"
     "https://www.google.com/search?q=site:pastebin.com+%22$DOMAIN%22+password"
     "https://www.google.com/search?q=site:$DOMAIN+username+OR+password+OR+login+-Find"
-    "https://www.google.com/search?q=site:$DOMAIN+filetype%3Adoc+OR+filetype%3Adocx"
-    "https://www.google.com/search?q=site:$DOMAIN+filetype%3Axls+OR+filetype%3Axlsx"
-    "https://www.google.com/search?q=site:$DOMAIN+filetype%3Appt+OR+filetype%3Apptx"
-    "https://www.google.com/search?q=site:$DOMAIN+filetype%3Atxt"
+    "https://www.google.com/search?q=site:$DOMAIN+ext:(doc+|docx+|xls+|xlsx+|ppt+|pptx)"
+    "https://www.google.com/search?q=site:$DOMAIN+(filetype:pdf+OR+filetype:txt)"
     "https://www.google.com/search?q=site:$DOMAIN+%22index+of/%22+OR+%22parent+directory%22"
-    "https://www.google.com/search?q=site:$DOMAIN+intext:%22internal+use+only%22"
-    "https://www.google.com/search?q=site:$DOMAIN+intext:%22proprietary+and+confidential%22"
-	"https://www.google.com/search?q=site:$DOMAIN+intitle%3Alogin+%7C+inurl%3Alogin+%7C+intitle%3Asignin+%7C+inurl%3Asignin+%7C+inurl%3Asecure"
-    "https://$DOMAIN"
+    "https://www.google.com/search?q=site:$DOMAIN+(%22highly+confidential%22+OR+%22restricted+access%22+OR+%22sensitive+data%22+OR+%22social+security+number%22+OR+%22passport+number%22+OR+%22employee+details%22+OR+%22salary+report%22+OR+%22performance+review%22+OR+%22personal+information%22+OR+%22internal+use+only%22+OR+%22proprietary+and+confidential%22)"
+    "https://www.google.com/search?q=site:$DOMAIN+intitle%3Alogin+%7C+inurl%3Alogin+%7C+intitle%3Asignin+%7C+inurl%3Asignin+%7C+inurl%3Asecure"
     )
 
-    for ((i = 0; i < ${#URLS[@]}; i++)); do
-        USER_AGENT="${USER_AGENTS[$((i % ${#USER_AGENTS[@]}))]}"
-        firefox "${URLS[$i]}" --user-agent="$USER_AGENT" &
+    for url in "${OTHER_URLS[@]}"; do
+        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
+        firefox "$url" --user-agent="$USER_AGENT" &
         sleep $((RANDOM % 4 + 3))
+    done
+
+    for url in "${GOOGLE_URLS[@]}"; do
+        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
+        firefox "$url" --user-agent="$USER_AGENT"
+        sleep $((RANDOM % 8 + 8))
     done
 }
 
@@ -668,22 +676,22 @@ f_firefox() {
 
 # Comment out functions for tools you don't want to run.
 
-#f_arin
-#f_dnsrecon
-#f_dnstwist
-#f_intodns
-#f_metasploit
-#f_subfinder
-#f_sublist3r
-#f_theharvester
-#f_theharvester_api
+f_arin
+f_dnsrecon
+f_dnstwist
+f_intodns
+f_metasploit
+f_subfinder
+f_sublist3r
+f_theharvester
+f_theharvester_api
 f_whois_domain
-#f_whois_ip
-#f_aggregate
-#f_report
+f_whois_ip
+f_aggregate
+f_report
 
 ###############################################################################################################################
 
 f_runlocally
-#f_firefox
+f_firefox
 
