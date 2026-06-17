@@ -255,7 +255,7 @@ f_sublist3r() {
 run_harvester() {
     local source=$1
     printf "    %-20s (%s/%s)\n" "${source}" "${COUNT}" "${TOTAL}"
-    theHarvester -d "$DOMAIN" -b "$source" -r 2>&1 | grep -Ev ' - INFO - ' | grep -Eiv '(!|\*|--|\[|\:\:|failed to detect|no response|retrying|searching|yaml)' | sed '/^$/d;/:$/d; /^AS/d; s|https://||g; s|www\.||g' | sort -u > "z${source}"
+    theHarvester -d "$DOMAIN" -b "$source" -r 2>&1 | grep -Ev ' - INFO - ' | grep -Eiv '(!|\*|--|=|\[|\:\:|failed to detect|no response|retrying|searching|yaml)' | sed '/^$/d;/:$/d; /^AS/d; s|https://||g; s|www\.||g' | sort -u > "z${source}"
     ((COUNT++))
 }
 
@@ -661,13 +661,13 @@ f_firefox() {
 
     for url in "${OTHER_URLS[@]}"; do
         USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
-        firefox "$url" --user-agent="$USER_AGENT" &
+        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null &
         sleep $((RANDOM % 4 + 3))
     done
 
     for url in "${GOOGLE_URLS[@]}"; do
         USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
-        firefox "$url" --user-agent="$USER_AGENT"
+        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null
         sleep $((RANDOM % 8 + 8))
     done
 }
