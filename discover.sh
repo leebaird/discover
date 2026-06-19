@@ -251,7 +251,7 @@ f_main(){
 
     case "$CHOICE" in
         # RECON
-        1) ./domain.sh ;;
+        1) unset LOCATION; ./domain.sh ;;
         2) ./person.sh && exit ;;
 
         # SCANNING

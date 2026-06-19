@@ -278,6 +278,133 @@ f_regdomain_report_progress(){
     ) 201>"$REGDOMAIN_TMPDIR/progress.lock"
 }
 
+f_regdomain_read_report(){
+    echo
+    echo -n "Enter the location of your previous passive scan: "
+    read -r DISCOVER_REPORT
+
+    DISCOVER_REPORT="${DISCOVER_REPORT#"${DISCOVER_REPORT%%[![:space:]]*}"}"
+    DISCOVER_REPORT="${DISCOVER_REPORT%"${DISCOVER_REPORT##*[![:space:]]}"}"
+    DISCOVER_REPORT="${DISCOVER_REPORT/#\~/$HOME}"
+
+    if [ -z "$DISCOVER_REPORT" ] \
+        || [ -f "$DISCOVER_REPORT" ] \
+        || [ ! -d "$DISCOVER_REPORT" ] \
+        || [ ! -r "$DISCOVER_REPORT" ] \
+        || [ ! -x "$DISCOVER_REPORT" ] \
+        || [ ! -d "$DISCOVER_REPORT/pages" ] \
+        || [ ! -f "$DISCOVER_REPORT/pages/registered-domains.htm" ]; then
+        f_regdomain_die "Passive scan not found."
+    fi
+}
+
+f_regdomain_build_rows(){
+    local RESULTS_FILE="$1"
+    local ROWS_FILE="$2"
+
+    if [ ! -s "$RESULTS_FILE" ]; then
+        printf '                <tr><td colspan="5">No registration data found.</td></tr>\n' > "$ROWS_FILE"
+        return 0
+    fi
+
+    python3 - "$RESULTS_FILE" "$ROWS_FILE" <<'PY'
+import csv
+import html
+import sys
+
+results_path, rows_path = sys.argv[1], sys.argv[2]
+lines = []
+with open(results_path, newline="") as handle:
+    for row in csv.reader(handle):
+        if len(row) < 1:
+            continue
+        while len(row) < 5:
+            row.append("")
+        domain, ipaddr, email, org, registrar = [cell.strip() for cell in row[:5]]
+        if domain.lower() == "domain" or not domain:
+            continue
+        if not any((ipaddr, email, org, registrar)):
+            continue
+        lines.append(
+            "                <tr>"
+            f"<td>{html.escape(domain)}</td>"
+            f"<td>{html.escape(ipaddr)}</td>"
+            f"<td>{html.escape(email)}</td>"
+            f"<td>{html.escape(org)}</td>"
+            f"<td>{html.escape(registrar)}</td>"
+            "</tr>"
+        )
+
+if not lines:
+    lines.append('                <tr><td colspan="5">No registration data found.</td></tr>')
+
+with open(rows_path, "w") as handle:
+    handle.write("\n".join(lines) + "\n")
+PY
+}
+
+f_regdomain_patch_table(){
+    local ROWS_FILE="$1"
+    local TARGET_FILE="$2"
+
+    [ -f "$TARGET_FILE" ] || return 0
+
+    python3 - "$ROWS_FILE" "$TARGET_FILE" <<'PY'
+import re
+import sys
+
+rows = open(sys.argv[1]).read()
+path = sys.argv[2]
+text = open(path).read()
+new_text, count = re.subn(
+    r"(<tbody>).*?(</tbody>)",
+    r"\1\n" + rows + r"            \2",
+    text,
+    count=1,
+    flags=re.S,
+)
+if count:
+    open(path, "w").write(new_text)
+PY
+}
+
+f_regdomain_write_report(){
+    local RESULTS_FILE="$1"
+    local REPORT_DIR="$2"
+    local ROWS_FILE="$3"
+
+    f_regdomain_build_rows "$RESULTS_FILE" "$ROWS_FILE"
+    f_regdomain_patch_table "$ROWS_FILE" "$REPORT_DIR/pages/registered-domains.htm"
+    f_regdomain_patch_table "$ROWS_FILE" "$REPORT_DIR/data/registered-domains.htm"
+}
+
+f_regdomain_read_file(){
+    echo
+    echo -n "Enter the location of your reversewhois.io file: "
+    read -r LOCATION
+
+    LOCATION="${LOCATION#"${LOCATION%%[![:space:]]*}"}"
+    LOCATION="${LOCATION%"${LOCATION##*[![:space:]]}"}"
+
+    if [ -z "$LOCATION" ]; then
+        f_regdomain_die "No file location provided."
+    fi
+
+    LOCATION="${LOCATION/#\~/$HOME}"
+
+    if [ ! -f "$LOCATION" ]; then
+        f_regdomain_die "Input file not found: $LOCATION"
+    fi
+
+    if [ ! -r "$LOCATION" ]; then
+        f_regdomain_die "Input file is not readable: $LOCATION"
+    fi
+
+    if ! grep -q '^[0-9]' "$LOCATION" 2>/dev/null; then
+        f_regdomain_die "No reversewhois.io entries found. Paste must include numbered rows (lines starting with a digit)."
+    fi
+}
+
 clear
 f_banner
 
@@ -296,25 +423,22 @@ case "$CHOICE" in
         f_banner
 
         echo -e "${BLUE}Find registered domains.${NC}"
+
+        for CMD in awk column dig flock python3 sort timeout whois xargs; do
+            if ! command -v "$CMD" >/dev/null 2>&1; then
+                f_regdomain_die "$CMD is not installed. Run Discover update to install dependencies."
+            fi
+        done
+
+        f_regdomain_read_report
         echo
         echo "Open a browser to https://www.reversewhois.io/"
         echo "Enter your domain and solve the captcha."
         echo "Select all > copy all of the text and paste into a new file."
-
-        f_location
+        f_regdomain_read_file
         echo
 
         ERROR_LOG=""
-
-        for cmd in awk column dig sort timeout whois xargs; do
-            if ! command -v "$cmd" >/dev/null 2>&1; then
-                f_regdomain_die "$cmd is not installed. Run Discover update to install dependencies."
-            fi
-        done
-
-        if ! grep -q '^[0-9]' "$LOCATION"; then
-            f_regdomain_die "No reversewhois.io entries found. Paste must include numbered rows (lines starting with a digit)."
-        fi
 
         TMPDIR=$(mktemp -d)
         f_regdomain_cancel(){
@@ -414,10 +538,11 @@ case "$CHOICE" in
 
         mkdir -p "$HOME/data" || f_regdomain_die "Cannot create $HOME/data."
 
+        REPORT_TXT="$HOME/data/registered-domains.txt"
         echo "Domain,IP Address,Registration Email,Registration Org,Registrar" > "$TMPDIR/tmp4"
         # Drop rows that are bare IPs (malformed reversewhois.io paste lines).
-        if ! cat "$TMPDIR/tmp4" "$TMPDIR/tmp3" | grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | column -t -s ',' | sed 's/[ \t]*$//' > "$HOME/data/registered-domains.txt"; then
-            f_regdomain_die "Failed to write report to $HOME/data/registered-domains.txt."
+        if ! cat "$TMPDIR/tmp4" "$TMPDIR/tmp3" | grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | column -t -s ',' | sed 's/[ \t]*$//' > "$REPORT_TXT"; then
+            f_regdomain_die "Failed to write report to $REPORT_TXT."
         fi
 
         if [ -s "$TMPDIR/errors.log" ]; then
@@ -425,16 +550,21 @@ case "$CHOICE" in
             cp "$TMPDIR/errors.log" "$ERROR_LOG"
         fi
 
+        ROWS_FILE="$TMPDIR/registered-domains-rows.html"
+        f_regdomain_write_report "$TMPDIR/tmp3" "$DISCOVER_REPORT" "$ROWS_FILE"
+
         echo "$MEDIUM"
         echo
-        echo "[*] Scan complete."
+        echo "[*] Scan complete. Found $RESULT_COUNT of $TOTAL domains with registration data."
         echo
-        echo -e "The report is located at ${YELLOW}$HOME/data/registered-domains.txt${NC}"
+        echo -e "The text report is located at ${YELLOW}$REPORT_TXT${NC}"
+        echo -e "The HTML report was updated in ${YELLOW}$DISCOVER_REPORT${NC}"
         if [ -n "$ERROR_LOG" ]; then
             echo -e "Lookup errors logged at ${YELLOW}$ERROR_LOG${NC}"
         fi
         echo
-        exit
+        unset LOCATION DISCOVER_REPORT
+        exit 0
         ;;
     3) f_main ;;
     *) f_error ;;

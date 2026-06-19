@@ -75,6 +75,7 @@ theHarvester, Metasploit, Whois, and multiple websites.
 
 * Acquire all free API keys for maximum results with theHarvester.
 * Add API keys to $HOME/.theHarvester/api-keys.yaml
+* Find registered domains writes $HOME/data/registered-domains.txt.
 
 ### Person
 ```

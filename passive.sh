@@ -597,8 +597,8 @@ else
     echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/whois-ip.htm
 fi
 
-    cat zreport >> "$HOME"/data/"$DOMAIN"/data/passive-recon.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/passive-recon.htm
+    cat zreport >> "$HOME"/data/"$DOMAIN"/data/report.htm
+    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/report.htm
 
     rm tmp* zreport 2>/dev/null
 
