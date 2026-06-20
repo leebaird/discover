@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="../assets/css/styles.css"/>
+    <link rel="stylesheet" type="text/css" href="../assets/css/modern.css"/>
     <script src="../assets/javascript/jquery.min.js"></script>
     <script src="../assets/javascript/bootstrap.min.js"></script>
 </head>
@@ -84,15 +85,28 @@
 </nav>
 
 <!-- Page Content -->
-<div class="container-fluid">
-    <!-- Container to center contents -->
+<div class="container inc-container-dynamic">
     <div class="inc-page-header">
         <h1>Domain <span class="inc-icon inc-icon-angle-right"></span> Registered Domains</h1>
     </div>
-    <div>
-        <iframe src="../data/registered-domains.htm" class="inc-iframe-full-width"></iframe>
+    <div class="inc-content-frame inc-content-frame--table">
+        <table class="table table-bordered inc-data-table">
+            <thead>
+                <tr>
+                    <th scope="col" class="inc-sortable">Domain</th>
+                    <th scope="col" class="inc-sortable">IP Address</th>
+                    <th scope="col" class="inc-sortable">Registration Email</th>
+                    <th scope="col" class="inc-sortable">Registration Org</th>
+                    <th scope="col" class="inc-sortable">Registrar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="5">Run Domain &gt; Find registered domains to populate this table.</td></tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
+<script src="../assets/javascript/inc-data-table.js"></script>
 </body>
 </html>

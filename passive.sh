@@ -200,7 +200,7 @@ f_intodns() {
     ((COUNT++))
     wget -q http://www.intodns.com/"$DOMAIN" -O tmp
     # shellcheck disable=SC2002
-    cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
+    cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="inc-dns-config table">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
     cat tmp2 >> "$HOME"/data/"$DOMAIN"/pages/config.htm
 
     sed -i 's|/static/images/error.gif|\.\./assets/images/icons/fail.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
@@ -209,7 +209,9 @@ f_intodns() {
     sed -i 's|/static/images/pass.gif|\.\./assets/images/icons/pass.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
     sed -i 's|/static/images/warn.gif|\.\./assets/images/icons/warn.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
     sed -i 's|\.\.\.\.|\.\.|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    sed -i 's/.*<thead>.*/    <table border="4">\n&/' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    sed -i 's/<table border="4">/<table class="inc-dns-config table">/g; s/<table class="table table-bordered">/<table class="inc-dns-config table">/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    grep -q 'inc-dns-config' "$HOME"/data/"$DOMAIN"/pages/config.htm || \
+        sed -i '0,/<thead>/{s/<thead>/    <table class="inc-dns-config table">\n<thead>/}' "$HOME"/data/"$DOMAIN"/pages/config.htm
     sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' "$HOME"/data/"$DOMAIN"/pages/config.htm
     sed -i '/Math\.random/I,+6 d' "$HOME"/data/"$DOMAIN"/pages/config.htm
     sed -i 's/I could use the nameservers/The nameservers/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
@@ -328,13 +330,28 @@ f_whois_ip() {
     echo "    IP                   ($COUNT/$TOTAL)"
     ((COUNT++))
     local DOMAINIP
-    DOMAINIP=$(dig +short "$DOMAIN")
+    DOMAINIP=$(dig +short "$DOMAIN" | head -1)
+    [ -n "$DOMAINIP" ] || return 0
     whois "$DOMAINIP" > tmp
     grep -Eiv '(#|%|comment|remarks)' tmp | sed '/./,$!d' > tmp2
     sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' tmp2 > tmp3
     cat -s tmp3 > tmp4
     awk '{printf "%-25s %s\n", $1, $2}' tmp4 | sed 's/+1-//g' > whois-ip
     rm tmp* 2>/dev/null
+
+    if [ ! -s whois-ip ]; then
+        rm -f whois-ip
+        return 0
+    fi
+
+    if grep -qiE '^no[[:space:]]+whois' whois-ip; then
+        rm -f whois-ip
+        return 0
+    fi
+
+    if ! grep -qiE '^(inetnum|inet6num|netrange|netname|orgname|organization|descr|org-name|cust-name|owner):' whois-ip; then
+        rm -f whois-ip
+    fi
 }
 
 ###############################################################################################################################
@@ -405,6 +422,28 @@ f_aggregate() {
 
 ###############################################################################################################################
 
+f_report_append_pre_page(){
+    local SRC="$1"
+    local PAGE="$2"
+
+    if [ -n "$SRC" ] && [ -f "$SRC" ]; then
+        cat "$SRC" >> "$PAGE"
+    else
+        echo "No data found." >> "$PAGE"
+    fi
+
+    {
+        echo "</pre>"
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo "</body>"
+        echo "</html>"
+    } >> "$PAGE"
+}
+
+###############################################################################################################################
+
 f_report() {
     echo "Summary" > zreport
     echo "$SMALL" >> zreport
@@ -417,11 +456,9 @@ f_report() {
     echo "$SMALL" >> tmp
     cat names >> tmp
     echo >> tmp
-    cat names >> "$HOME"/data/"$DOMAIN"/data/names.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/names.htm
+    f_report_append_pre_page names "$HOME"/data/"$DOMAIN"/pages/names.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/names.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/names.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/names.htm
 fi
 
 if [ -f emails ]; then
@@ -431,11 +468,9 @@ if [ -f emails ]; then
     echo "$SMALL" >> tmp
     cat emails >> tmp
     echo >> tmp
-    cat emails >> "$HOME"/data/"$DOMAIN"/data/emails.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/emails.htm
+    f_report_append_pre_page emails "$HOME"/data/"$DOMAIN"/pages/emails.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/emails.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/emails.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/emails.htm
 fi
 
 if [ -f records ]; then
@@ -468,11 +503,9 @@ if [ -f public-ips ]; then
     echo "$LARGE" >> tmp
     cat public-ips >> tmp
     echo >> tmp
-    cat public-ips >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
+    f_report_append_pre_page public-ips "$HOME"/data/"$DOMAIN"/pages/hosts.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/hosts.htm
 fi
 
 if [ -f private-subs ]; then
@@ -509,11 +542,9 @@ if [ -f xls ]; then
     echo "$LARGE" >> tmp
     cat xls >> tmp
     echo >> tmp
-    cat xls >> "$HOME"/data/"$DOMAIN"/data/xls.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/xls.htm
+    f_report_append_pre_page xls "$HOME"/data/"$DOMAIN"/pages/xls.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/xls.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/xls.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/xls.htm
 fi
 
 if [ -f pdf ]; then
@@ -523,11 +554,9 @@ if [ -f pdf ]; then
     echo "$LARGE" >> tmp
     cat pdf >> tmp
     echo >> tmp
-    cat pdf >> "$HOME"/data/"$DOMAIN"/data/pdf.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/pdf.htm
+    f_report_append_pre_page pdf "$HOME"/data/"$DOMAIN"/pages/pdf.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/pdf.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/pdf.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/pdf.htm
 fi
 
 if [ -f ppt ]; then
@@ -537,11 +566,9 @@ if [ -f ppt ]; then
     echo "$LARGE" >> tmp
     cat ppt >> tmp
     echo >> tmp
-    cat ppt >> "$HOME"/data/"$DOMAIN"/data/ppt.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/ppt.htm
+    f_report_append_pre_page ppt "$HOME"/data/"$DOMAIN"/pages/ppt.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/ppt.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/ppt.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/ppt.htm
 fi
 
 if [ -f txt ]; then
@@ -551,11 +578,9 @@ if [ -f txt ]; then
     echo "$LARGE" >> tmp
     cat txt >> tmp
     echo >> tmp
-    cat txt >> "$HOME"/data/"$DOMAIN"/data/txt.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/txt.htm
+    f_report_append_pre_page txt "$HOME"/data/"$DOMAIN"/pages/txt.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/txt.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/txt.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/txt.htm
 fi
 
 if [ -f doc ]; then
@@ -565,11 +590,9 @@ if [ -f doc ]; then
     echo "$LARGE" >> tmp
     cat doc >> tmp
     echo >> tmp
-    cat doc >> "$HOME"/data/"$DOMAIN"/data/doc.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/doc.htm
+    f_report_append_pre_page doc "$HOME"/data/"$DOMAIN"/pages/doc.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/doc.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/doc.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/doc.htm
 fi
 
 cat tmp >> zreport
