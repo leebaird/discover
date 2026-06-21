@@ -84,12 +84,15 @@ if [[ ! "$DOMAIN" =~ ^([a-zA-Z0-9](-?[a-zA-Z0-9])*\.)+[a-zA-Z]{2,63}$ ]]; then
     exit 1
 fi
 
-COMPANYURL=$( printf "%s\n" "$COMPANY" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
+COMPANYURL=$( printf "%s\n" "$COMPANY" | tr '[:upper:]' '[:lower:]' | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
 
 cp -R "$DISCOVER"/report/ "$HOME"/data/"$DOMAIN"
 sed -i "s/#COMPANY#/$COMPANY/" "$HOME"/data/"$DOMAIN"/index.htm
 sed -i "s/#DOMAIN#/$DOMAIN/" "$HOME"/data/"$DOMAIN"/index.htm
 sed -i "s/#DATE#/$DATESTAMP/" "$HOME"/data/"$DOMAIN"/index.htm
+sed -i "s/#COMPANY#/$COMPANY/" "$HOME"/data/"$DOMAIN"/pages/summary.htm
+sed -i "s/#DOMAIN#/$DOMAIN/" "$HOME"/data/"$DOMAIN"/pages/summary.htm
+sed -i "s/COMPANYURL/$COMPANYURL/" "$HOME"/data/"$DOMAIN"/pages/summary.htm
 
 echo
 echo "$MEDIUM"

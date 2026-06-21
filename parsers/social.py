@@ -327,15 +327,21 @@ def load_manual(path: Path) -> dict[str, str]:
 
 
 def format_block(rows: list[tuple[str, str, str]]) -> str:
+    label_width = 16
+    followers_gap = 5
+    max_url_len = max((len(url) for _, url, _ in rows), default=len("URL"))
+
     lines = [
-        "Social Media     URL                                                          Followers",
+        f"{'Social Media':<{label_width}} {'URL':<{max_url_len}}{' ' * followers_gap}Followers",
         "",
     ]
     if not rows:
         lines.append("(none found)")
     else:
         for label, url, followers in rows:
-            lines.append(f"{label:<16} {url:<60} {followers}")
+            lines.append(
+                f"{label:<{label_width}} {url:<{max_url_len}}{' ' * followers_gap}{followers}"
+            )
     lines.append("=" * 127)
     return "\n".join(lines)
 
@@ -349,7 +355,7 @@ def patch_summary(page: Path, block: str) -> None:
 
     updated = re.sub(
         rf"{re.escape(start)}.*?{re.escape(end)}",
-        f"{start}\n{block}\n{end}",
+        f"{start}{block}{end}",
         text,
         count=1,
         flags=re.S,
