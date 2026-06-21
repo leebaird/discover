@@ -91,6 +91,26 @@
     function initTable(table) {
         var state = { col: -1, dir: 1 };
         var headers = table.querySelectorAll('thead th.inc-sortable');
+        var defaultCol = table.getAttribute('data-default-col');
+
+        if (defaultCol !== null) {
+            state.col = parseInt(defaultCol, 10);
+            state.dir = parseInt(table.getAttribute('data-default-dir') || '1', 10);
+        } else if (
+            table.closest('.inc-subdomains-tables') ||
+            table.closest('.inc-registered-domains-page') ||
+            table.closest('.inc-squatting-page') ||
+            table.closest('.inc-emails-page') ||
+            table.closest('.inc-names-page')
+        ) {
+            state.col = 0;
+            state.dir = 1;
+        }
+
+        if (state.col >= 0 && !isNaN(state.col) && state.col < headers.length) {
+            sortTable(table, state.col, state.dir);
+            updateHeaders(table, state.col, state.dir);
+        }
 
         headers.forEach(function (th, colIndex) {
             th.setAttribute('role', 'button');
