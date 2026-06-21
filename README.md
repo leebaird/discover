@@ -106,6 +106,17 @@ Import names merges three sources, then refreshes pages/names.htm:
 The merged TSV is saved back to tools/names. The names page is a sortable
 three-column table: Name, Title, Phone.
 
+#### Social media (Summary page)
+
+During passive recon, Discover fetches the company homepage and extracts
+official social profile links (facebook, Instagram, LinkedIn, X, YouTube).
+It then attempts to pull follower counts from each profile.
+
+* Results are written to tools/social.tsv and injected into pages/summary.htm.
+* If a platform blocks scraping, the follower count shows **Blocked**.
+* If the homepage is bot-blocked, add URLs to tools/social-manual.tsv
+  (tab-separated: Platform, URL) before or after the scan.
+
 ### Person
 ```
 RECON

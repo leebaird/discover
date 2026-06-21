@@ -99,7 +99,7 @@ echo
 
 # Number of tests
 COUNT=1
-TOTAL=63
+TOTAL=64
 
 ###############################################################################################################################
 
@@ -1084,6 +1084,30 @@ PY
 
 ###############################################################################################################################
 
+f_social() {
+    echo "Social Media             ($COUNT/$TOTAL)"
+    ((COUNT++))
+
+    mkdir -p "$HOME/data/$DOMAIN/tools"
+    if [ ! -f "$HOME/data/$DOMAIN/tools/social-manual.tsv" ]; then
+        cat > "$HOME/data/$DOMAIN/tools/social-manual.tsv" <<'EOF'
+# Manual social profiles — tab-separated: Platform, URL
+# Use when the homepage is bot-blocked or a profile was missed.
+# Example:
+# facebook	https://www.facebook.com/example
+# Instagram	https://www.instagram.com/example
+# Linkedin	https://www.linkedin.com/company/example
+# X	https://x.com/example
+# YouTube	https://www.youtube.com/@example
+EOF
+    fi
+
+    python3 "$DISCOVER"/parsers/social.py "$DOMAIN" "$HOME/data/$DOMAIN/tools" "$HOME/data/$DOMAIN/pages/summary.htm"
+    echo
+}
+
+###############################################################################################################################
+
 f_report() {
     echo "Summary" > zreport
     echo "$SMALL" >> zreport
@@ -1261,7 +1285,13 @@ fi
 # Add one person per line, then run Domain > Import names.
 EOF
     fi
-    mv names emails hosts private-ips private-subs public-ips records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
+    if [ ! -f "$HOME/data/$DOMAIN/tools/social-manual.tsv" ]; then
+        cat > "$HOME/data/$DOMAIN/tools/social-manual.tsv" <<'EOF'
+# Manual social profiles — tab-separated: Platform, URL
+# Use when the homepage is bot-blocked or a profile was missed.
+EOF
+    fi
+    mv names emails hosts private-ips private-subs public-ips records social.tsv homepage.html squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
     cd "$PWD" || exit
 
     echo
@@ -1346,6 +1376,7 @@ f_theharvester_api
 f_whois_domain
 f_whois_ip
 f_aggregate
+f_social
 f_report
 
 ###############################################################################################################################
