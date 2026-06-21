@@ -393,20 +393,10 @@ f_aggregate() {
     done < tmp
     echo
 
-    column -t tmp2 > subdomains
+    awk '{print $1 "\t" $2}' tmp2 > subdomains
     rm tmp tmp2 2>/dev/null
 
-    while IFS= read -r line; do
-        second_column=$(echo "$line" | awk '{print $2}')
-
-        if [[ -n $second_column ]] && ( [[ $second_column =~ ^10\..* ]] || \
-           [[ $second_column =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\..* ]] || \
-           [[ $second_column =~ ^192\.168\..* ]] ); then
-            echo "$line" >> tmp
-        fi
-    done < subdomains
-
-    column -t tmp > private-subs
+    awk -F'[ \t]+' 'NF >= 2 && ($2 ~ /^10\./ || $2 ~ /^172\.(1[6-9]|2[0-9]|3[0-1])\./ || $2 ~ /^192\.168\./) { print $1 "\t" $2 }' subdomains > private-subs
     rm tmp 2>/dev/null
 
     cat z* | grep -Ei '\.(doc|docx)$' | sort -u > doc
@@ -528,24 +518,122 @@ PY
 f_report_append_subdomains_page(){
     local PAGE="$1"
 
-    if [ -f private-subs ]; then
-        cat private-subs >> "$PAGE"
-        echo >> "$PAGE"
-        echo "$LARGE" >> "$PAGE"
-        echo >> "$PAGE"
-    fi
+    python3 - "$PAGE" private-subs subdomains <<'PY'
+import csv
+import html
+import os
+import re
+import sys
 
-    if [ -f subdomains ]; then
-        cat subdomains >> "$PAGE"
-    elif [ ! -f private-subs ]; then
-        echo "No data found." >> "$PAGE"
-    fi
+IPV4_RE = re.compile(r"^(\d{1,3}\.){3}\d{1,3}$")
+
+def is_private_ip(ip):
+    if not IPV4_RE.match(ip):
+        return False
+    octets = [int(part) for part in ip.split(".")]
+    if octets[0] == 10:
+        return True
+    if octets[0] == 172 and 16 <= octets[1] <= 31:
+        return True
+    if octets[0] == 192 and octets[1] == 168:
+        return True
+    return False
+
+def parse_row(raw):
+    raw = raw.strip()
+    if not raw:
+        return None
+
+    if "\t" in raw:
+        row = next(csv.reader([raw], delimiter="\t"))
+        while len(row) < 2:
+            row.append("")
+        subdomain, ipaddr = row[0].strip(), row[1].strip()
+    else:
+        parts = raw.split()
+        if not parts:
+            return None
+        if len(parts) == 1:
+            return parts[0], ""
+        if IPV4_RE.match(parts[-1]):
+            return " ".join(parts[:-1]), parts[-1]
+        return parts[0], parts[1] if len(parts) > 1 else ""
+
+    if not subdomain:
+        return None
+    return subdomain, ipaddr
+
+def load_rows(path):
+    rows = []
+    if not path or not os.path.isfile(path):
+        return rows
+    with open(path, newline="") as handle:
+        for raw in handle:
+            parsed = parse_row(raw)
+            if parsed:
+                rows.append(parsed)
+    return rows
+
+def build_table(rows, empty_message, ip_header="IP Address"):
+    lines = [
+        '        <table class="table table-bordered inc-data-table">',
+        "            <thead>",
+        "                <tr>",
+        '                    <th scope="col" class="inc-sortable">Subdomain</th>',
+        f'                    <th scope="col" class="inc-sortable">{html.escape(ip_header)}</th>',
+        "                </tr>",
+        "            </thead>",
+        "            <tbody>",
+    ]
+
+    if rows:
+        for subdomain, ipaddr in rows:
+            lines.append(
+                "                <tr>"
+                f'<td class="inc-col-domain">{html.escape(subdomain)}</td>'
+                f"<td>{html.escape(ipaddr)}</td>"
+                "</tr>"
+            )
+    else:
+        lines.append(f'                <tr><td colspan="2">{html.escape(empty_message)}</td></tr>')
+
+    lines.extend(
+        [
+            "            </tbody>",
+            "        </table>",
+        ]
+    )
+    return lines
+
+page_path, private_path, public_path = sys.argv[1:4]
+private_rows = load_rows(private_path)
+public_rows = [
+    row for row in load_rows(public_path) if not is_private_ip(row[1])
+]
+
+out = []
+if private_rows:
+    out.append('    <div class="inc-content-frame inc-content-frame--table">')
+    out.extend(build_table(private_rows, "No private subdomains found.", "Private IP Address"))
+    out.append("    </div>")
+
+if public_rows or not private_rows:
+    out.append('    <div class="inc-content-frame inc-content-frame--table">')
+    if public_rows:
+        out.extend(build_table(public_rows, "No data found."))
+    else:
+        out.extend(build_table([], "No data found."))
+    out.append("    </div>")
+
+with open(page_path, "a") as handle:
+    handle.write("\n".join(out) + "\n")
+PY
 
     {
-        echo "</pre>"
         echo "    </div>"
         echo "</div>"
         echo
+        echo '<script src="../assets/javascript/inc-data-table.js"></script>'
         echo "</body>"
         echo "</html>"
     } >> "$PAGE"
@@ -623,7 +711,7 @@ if [ -f private-subs ]; then
     echo "Private Subdomains    $privatesubcount" >> zreport
     echo "Private Subdomains ($privatesubcount)" >> tmp
     echo "$LARGE" >> tmp
-    cat private-subs >> tmp
+    column -t -s $'\t' private-subs >> tmp
     echo >> tmp
 fi
 
@@ -632,7 +720,7 @@ if [ -f subdomains ]; then
     echo "Subdomains            $subcount" >> zreport
     echo "Subdomains ($subcount)" >> tmp
     echo "$LARGE" >> tmp
-    cat subdomains >> tmp
+    column -t -s $'\t' subdomains >> tmp
     echo >> tmp
 fi
 

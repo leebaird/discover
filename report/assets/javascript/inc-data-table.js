@@ -1,4 +1,51 @@
 (function () {
+    var IPV4_RE = /^(\d{1,3}\.){3}\d{1,3}$/;
+
+    function isIPv4(value) {
+        if (!IPV4_RE.test(value)) {
+            return false;
+        }
+
+        return value.split('.').every(function (part) {
+            var octet = Number(part);
+            return octet >= 0 && octet <= 255;
+        });
+    }
+
+    function compareIPv4(aVal, bVal) {
+        var aParts = aVal.split('.').map(Number);
+        var bParts = bVal.split('.').map(Number);
+        var i;
+
+        for (i = 0; i < 4; i++) {
+            if (aParts[i] !== bParts[i]) {
+                return aParts[i] - bParts[i];
+            }
+        }
+
+        return 0;
+    }
+
+    function compareValues(aVal, bVal) {
+        if (aVal === bVal) {
+            return 0;
+        }
+
+        if (!aVal) {
+            return 1;
+        }
+
+        if (!bVal) {
+            return -1;
+        }
+
+        if (isIPv4(aVal) && isIPv4(bVal)) {
+            return compareIPv4(aVal, bVal);
+        }
+
+        return aVal.localeCompare(bVal, undefined, { sensitivity: 'base' });
+    }
+
     function sortTable(table, colIndex, dir) {
         var tbody = table.tBodies[0];
         if (!tbody) {
@@ -9,7 +56,7 @@
         rows.sort(function (a, b) {
             var aVal = a.cells[colIndex].textContent.trim();
             var bVal = b.cells[colIndex].textContent.trim();
-            var cmp = aVal.localeCompare(bVal, undefined, { sensitivity: 'base' });
+            var cmp = compareValues(aVal, bVal);
 
             if (cmp !== 0) {
                 return dir * cmp;
@@ -18,7 +65,7 @@
             if (colIndex === 0 && a.cells.length > 1 && b.cells.length > 1) {
                 var aSub = a.cells[1].textContent.trim();
                 var bSub = b.cells[1].textContent.trim();
-                return dir * aSub.localeCompare(bSub, undefined, { sensitivity: 'base' });
+                return dir * compareValues(aSub, bSub);
             }
 
             return 0;

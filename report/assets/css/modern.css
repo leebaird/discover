@@ -203,6 +203,25 @@ body.inc-home-page {
     font-size: 13px;
 }
 
+.inc-subdomains-tables {
+    display: grid;
+    width: max-content;
+    max-width: 100%;
+}
+
+.inc-subdomains-tables .inc-content-frame--table {
+    width: 100%;
+    max-width: 100%;
+}
+
+.inc-subdomains-tables .inc-content-frame--table table.inc-data-table {
+    width: 100%;
+}
+
+.inc-subdomains-tables .inc-content-frame--table + .inc-content-frame--table {
+    margin-top: 32px;
+}
+
 .inc-data-table tbody tr:nth-child(even) {
     background-color: rgba(255, 255, 255, 0.02);
 }
