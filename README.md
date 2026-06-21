@@ -106,6 +106,20 @@ Import names merges three sources, then refreshes pages/names.htm:
 The merged TSV is saved back to tools/names. The names page is a sortable
 three-column table: Name, Title, Phone.
 
+#### Company HQ (Summary page)
+
+During passive recon, Discover attempts to fill the address and phone block on
+pages/summary.htm between the company name and domain.
+
+1. **SEC EDGAR 10-K** — for US public companies, reads principal executive
+   office fields from the latest 10-K (inline XBRL `dei:` tags).
+2. **Website footer** — if SEC has no match, scans the cached homepage footer
+   (and contact pages) for address/phone patterns.
+3. **Manual override** — add entries to tools/company-manual.tsv when discovery
+   is wrong or blocked.
+
+Results are written to tools/company.json and injected into pages/summary.htm.
+
 #### Social media (Summary page)
 
 During passive recon, Discover fetches the company homepage and extracts

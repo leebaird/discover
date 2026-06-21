@@ -1087,6 +1087,17 @@ PY
 
 ###############################################################################################################################
 
+f_company() {
+    echo "Company HQ               ($COUNT/$TOTAL)"
+    ((COUNT++))
+
+    mkdir -p "$HOME/data/$DOMAIN/tools"
+    python3 "$DISCOVER"/parsers/company.py "$COMPANY" "$DOMAIN" "$HOME/data/$DOMAIN/tools" "$HOME/data/$DOMAIN/pages/summary.htm"
+    echo
+}
+
+###############################################################################################################################
+
 f_social() {
     echo "Social Media             ($COUNT/$TOTAL)"
     ((COUNT++))
@@ -1294,7 +1305,7 @@ EOF
 # Use when the homepage is bot-blocked or a profile was missed.
 EOF
     fi
-    mv names emails hosts private-ips private-subs public-ips records social.tsv homepage.html squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
+    mv names emails hosts private-ips private-subs public-ips records social.tsv company.json sec-company-tickers.json homepage.html squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
     cd "$PWD" || exit
 
     echo
@@ -1380,6 +1391,7 @@ f_whois_domain
 f_whois_ip
 f_aggregate
 f_social
+f_company
 f_report
 
 ###############################################################################################################################
