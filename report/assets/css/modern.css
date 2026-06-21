@@ -430,6 +430,7 @@ body:not(.inc-iframe-parent) pre {
     background-color: #475261;
     width: 100%;
     border: none;
+    margin-top: 0;
 }
 
 .inc-dns-config.table > thead > tr > th,
