@@ -197,7 +197,8 @@ body.inc-home-page {
     padding-right: 32px;
 }
 
-.inc-data-table td:first-child {
+.inc-data-table td:first-child,
+.inc-data-table td.inc-col-domain {
     font-family: var(--font-mono);
     font-size: 13px;
 }

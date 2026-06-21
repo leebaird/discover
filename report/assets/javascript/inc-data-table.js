@@ -9,7 +9,19 @@
         rows.sort(function (a, b) {
             var aVal = a.cells[colIndex].textContent.trim();
             var bVal = b.cells[colIndex].textContent.trim();
-            return dir * aVal.localeCompare(bVal, undefined, { sensitivity: 'base' });
+            var cmp = aVal.localeCompare(bVal, undefined, { sensitivity: 'base' });
+
+            if (cmp !== 0) {
+                return dir * cmp;
+            }
+
+            if (colIndex === 0 && a.cells.length > 1 && b.cells.length > 1) {
+                var aSub = a.cells[1].textContent.trim();
+                var bSub = b.cells[1].textContent.trim();
+                return dir * aSub.localeCompare(bSub, undefined, { sensitivity: 'base' });
+            }
+
+            return 0;
         });
 
         rows.forEach(function (row) {

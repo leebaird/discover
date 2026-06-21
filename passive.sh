@@ -186,7 +186,7 @@ f_dnstwist() {
         ns = "NS:" $6
         mx = ($5 != "" && $5 != "!ServFail") ? "MX:" $5 : ""
         printf "%s\t%s\t%s\t%s\t%s\n", $1, $2, ip, ns, mx
-    }' tmp | column -t -s $'\t' > squatting
+    }' tmp > squatting
     rm tmp 2>/dev/null
     echo
 }
@@ -440,6 +440,91 @@ f_report_append_pre_page(){
     } >> "$PAGE"
 }
 
+f_report_append_squatting_page(){
+    local PAGE="$1"
+
+    if [ -f squatting ] && [ -s squatting ]; then
+        python3 - squatting >> "$PAGE" <<'PY'
+import csv
+import html
+import sys
+
+def parse_row(raw):
+    raw = raw.strip()
+    if not raw:
+        return None
+
+    if "\t" in raw:
+        row = next(csv.reader([raw], delimiter="\t"))
+        while len(row) < 5:
+            row.append("")
+        fuzzer, domain, ipaddr, ns, mx = [cell.strip() for cell in row[:5]]
+    else:
+        parts = raw.split()
+        if len(parts) < 2:
+            return None
+        fuzzer, domain = parts[0], parts[1]
+        ipaddr = ns = mx = ""
+        for part in parts[2:]:
+            if part.startswith("NS:"):
+                ns = part
+            elif part.startswith("MX:"):
+                mx = part
+            elif not ipaddr:
+                ipaddr = part
+
+    if ipaddr.startswith("NS:"):
+        if not ns:
+            ns = ipaddr
+        ipaddr = ""
+    elif ipaddr.startswith("MX:"):
+        if not mx:
+            mx = ipaddr
+        ipaddr = ""
+
+    if not domain:
+        return None
+    return fuzzer, domain, ipaddr, ns, mx
+
+path = sys.argv[1]
+lines = []
+with open(path, newline="") as handle:
+    for raw in handle:
+        parsed = parse_row(raw)
+        if not parsed:
+            continue
+        fuzzer, domain, ipaddr, ns, mx = parsed
+        lines.append(
+            "                <tr>"
+            f"<td>{html.escape(fuzzer)}</td>"
+            f'<td class="inc-col-domain">{html.escape(domain)}</td>'
+            f"<td>{html.escape(ipaddr)}</td>"
+            f"<td>{html.escape(ns)}</td>"
+            f"<td>{html.escape(mx)}</td>"
+            "</tr>"
+        )
+
+if not lines:
+    lines.append('                <tr><td colspan="5">No data found.</td></tr>')
+
+print("\n".join(lines))
+PY
+    else
+        echo '                <tr><td colspan="5">No data found.</td></tr>' >> "$PAGE"
+    fi
+
+    {
+        echo "            </tbody>"
+        echo "        </table>"
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo '<script src="../assets/javascript/inc-data-table.js"></script>'
+        echo "</body>"
+        echo "</html>"
+    } >> "$PAGE"
+}
+
 f_report_append_subdomains_page(){
     local PAGE="$1"
 
@@ -514,11 +599,11 @@ if [ -f squatting ]; then
     echo "Squatting             $squattingcount" >> zreport
     echo "Squatting ($squattingcount)" >> tmp
     echo "$LARGE" >> tmp
-    cat squatting >> tmp
+    column -t -s $'\t' squatting >> tmp
     echo >> tmp
-    f_report_append_pre_page squatting "$HOME"/data/"$DOMAIN"/pages/squatting.htm
+    f_report_append_squatting_page "$HOME"/data/"$DOMAIN"/pages/squatting.htm
 else
-    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/squatting.htm
+    f_report_append_squatting_page "$HOME"/data/"$DOMAIN"/pages/squatting.htm
 fi
 
 if [ -f public-ips ]; then
