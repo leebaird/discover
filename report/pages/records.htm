@@ -85,9 +85,17 @@
 </nav>
 
 <!-- Page Content -->
-<div class="container">
+<div class="container inc-container-dynamic inc-records-page">
     <div class="inc-page-header">
         <h1>DNS <span class="inc-icon inc-icon-angle-right"></span> Records</h1>
     </div>
-    <div class="inc-content-frame inc-content-frame--fit">
-<pre class="inc-pre">
+    <div class="inc-content-frame inc-content-frame--table">
+        <table class="table table-bordered inc-data-table">
+            <thead>
+                <tr>
+                    <th scope="col" class="inc-sortable">Type</th>
+                    <th scope="col" class="inc-sortable">Name</th>
+                    <th scope="col" class="inc-sortable">Value</th>
+                </tr>
+            </thead>
+            <tbody>

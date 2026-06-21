@@ -754,6 +754,84 @@ PY
     } >> "$PAGE"
 }
 
+f_report_append_records_page(){
+    local PAGE="$1"
+
+    if [ -f records ] && [ -s records ]; then
+        python3 - records >> "$PAGE" <<'PY'
+import html
+import sys
+
+
+def parse_row(raw):
+    raw = raw.strip()
+    if not raw:
+        return None
+
+    parts = raw.split()
+    if len(parts) < 3:
+        return None
+
+    rtype = parts[0].upper()
+    name = parts[1]
+
+    if rtype == "SRV" and len(parts) >= 5:
+        target, address, port = parts[2], parts[3], parts[4]
+        value = f"{target} → {address}:{port}"
+    else:
+        value = " ".join(parts[2:])
+
+    if not name or not value:
+        return None
+
+    return rtype, name, value
+
+
+def render_row(rtype, name, value):
+    row_class = ' class="inc-record-txt"' if rtype == "TXT" else ""
+    title = ""
+    if rtype == "TXT" and len(value) > 120:
+        title = f' title="{html.escape(value, quote=True)}"'
+
+    return (
+        f"                <tr{row_class}>"
+        f"<td>{html.escape(rtype)}</td>"
+        f'<td class="inc-col-name">{html.escape(name)}</td>'
+        f"<td{title}>{html.escape(value)}</td>"
+        "</tr>"
+    )
+
+
+path = sys.argv[1]
+lines = []
+with open(path, newline="") as handle:
+    for raw in handle:
+        parsed = parse_row(raw)
+        if not parsed:
+            continue
+        lines.append(render_row(*parsed))
+
+if not lines:
+    lines.append('                <tr><td colspan="3">No data found.</td></tr>')
+
+print("\n".join(lines))
+PY
+    else
+        echo '                <tr><td colspan="3">No data found.</td></tr>' >> "$PAGE"
+    fi
+
+    {
+        echo "            </tbody>"
+        echo "        </table>"
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo '<script src="../assets/javascript/inc-data-table.js"></script>'
+        echo "</body>"
+        echo "</html>"
+    } >> "$PAGE"
+}
+
 f_report_append_emails_page(){
     local PAGE="$1"
 
@@ -1042,9 +1120,9 @@ if [ -f records ]; then
     echo "$LARGE" >> tmp
     cat records >> tmp
     echo >> tmp
-    f_report_append_pre_page records "$HOME"/data/"$DOMAIN"/pages/records.htm
+    f_report_append_records_page "$HOME"/data/"$DOMAIN"/pages/records.htm
 else
-    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/records.htm
+    f_report_append_records_page "$HOME"/data/"$DOMAIN"/pages/records.htm
 fi
 
 if [ -f squatting ]; then

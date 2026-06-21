@@ -207,9 +207,37 @@ body.inc-home-page {
 }
 
 .inc-data-table td:first-child,
-.inc-data-table td.inc-col-domain {
+.inc-data-table td.inc-col-domain,
+.inc-data-table td.inc-col-name {
     font-family: var(--font-mono);
     font-size: 13px;
+}
+
+.inc-records-page .inc-data-table > thead > tr > th:first-child,
+.inc-records-page .inc-data-table > tbody > tr > td:first-child {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.inc-records-page .inc-data-table > thead > tr > th:nth-child(2),
+.inc-records-page .inc-data-table > tbody > tr > td:nth-child(2) {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.inc-records-page .inc-data-table > thead > tr > th:last-child,
+.inc-records-page .inc-data-table > tbody > tr > td:last-child {
+    min-width: 36rem;
+    white-space: nowrap;
+}
+
+.inc-records-page .inc-data-table tr.inc-record-txt td:last-child {
+    white-space: normal;
+    min-width: 36rem;
+    max-width: 75rem;
+    word-break: break-word;
+    font-family: var(--font-mono);
+    font-size: 12px;
 }
 
 .inc-subdomains-tables {
