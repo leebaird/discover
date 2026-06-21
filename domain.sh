@@ -35,52 +35,160 @@ f_regdomain_log_error(){
 
 f_regdomain_filter_privacy_email(){
     local email="$1"
+    local localpart
 
-    if [[ "$email" == *'abuse'* || "$email" == *'anonymize.com'* || "$email" == *'buydomains.com'* || "$email" == *'cloudflareregistrar.com'* || "$email" == *'contact-form'* || "$email" == *'contact.gandi.net'* || "$email" == *'csl-registrar.com'* || "$email" == *'domaindiscreet.com'* || "$email" == *'dynadot.com'* || "$email" == *'email'* || "$email" == *'gname.com'* || "$email" == *'google.com'* || "$email" == *'identity-protect.org'* || "$email" == *'meshdigital.com'* || "$email" == *'mydomainprovider.com'* || "$email" == *'myprivatename.com'* || "$email" == *'networksolutionsprivateregistration'* || "$email" == *'please'* || "$email" == *'p.o-w-o.info'* || "$email" == *'privacy'* || "$email" == *'Redacted'* || "$email" == *'redacted'* || "$email" == *'select'* || "$email" == *'tieredaccess.com'* ]]; then
+    if [[ "$email" == *'@abuse.'* || "$email" == abuse@* || "$email" == *'anonymize.com'* || "$email" == *'buydomains.com'* || "$email" == *'cloudflareregistrar.com'* || "$email" == *'contact-form'* || "$email" == *'contact.gandi.net'* || "$email" == *'csl-registrar.com'* || "$email" == *'domaindiscreet.com'* || "$email" == *'gname.com'* || "$email" == *'identity-protect.org'* || "$email" == *'meshdigital.com'* || "$email" == *'mydomainprovider.com'* || "$email" == *'myprivatename.com'* || "$email" == *'networksolutionsprivateregistration'* || "$email" == *'please'* || "$email" == *'p.o-w-o.info'* || "$email" == *'privacy'* || "$email" == *'Redacted'* || "$email" == *'redacted'* || "$email" == *'select@'* || "$email" == *'tieredaccess.com'* || "$email" == *'whoisproxy.org'* ]]; then
         email=''
+    fi
+
+    if [ -n "$email" ]; then
+        localpart="${email%%@*}"
+        if [[ "$localpart" =~ ^[0-9a-f]{20,}$ ]]; then
+            email=''
+        fi
     fi
 
     printf '%s' "$email"
 }
 
-f_regdomain_normalize_org(){
-    local org="$1"
+f_regdomain_read_report(){
+    echo
+    echo -n "Enter the location of your previous passive scan: "
+    read -r DISCOVER_REPORT
 
-    org=$(sed 's/     //g; s/administration/Administration/g; s/Anonymize, Inc/Anonymize Inc/g; s/By /by /g; s/, Corp/ Corp/g; s/Data Protected//g; s/family/Family/g; s/Identity Protect Limited//g; s/Identity Protection Service//g; s/, Inc. / Inc/g; s/, Inc/ Inc/g; s/, Inc /Inc/g; s/Inc./Inc/g; s/INFORMATION SYSTEMS AND MANAGEMENT CONSLANTS/Information Systems and Management Consultants/g; s/INSTITUTE/Institute/g; s/, LLC/ LLC/g; s/MEMORIAL/Memorial/g; s/, N.A./ N.A./g; s/N\/A//g; s/Not Disclosed//g; s/None//g; s/NULL//g; s/ (NYHQ)//g; s/Redacted for privacy//g; s/S.L./SL/g; s/Statutory Masking Enabled//g; s/UNIVERSITY/University/g; s/(US) //g; s/WEST VIRGINIA/West Virginia/g' <<< "$org")
+    DISCOVER_REPORT="${DISCOVER_REPORT#"${DISCOVER_REPORT%%[![:space:]]*}"}"
+    DISCOVER_REPORT="${DISCOVER_REPORT%"${DISCOVER_REPORT##*[![:space:]]}"}"
+    DISCOVER_REPORT="${DISCOVER_REPORT/#\~/$HOME}"
 
-    if [[ "$org" == *'Privacy'* || "$org" == *'PRIVACY'* ]]; then
-        org=''
+    if [ -z "$DISCOVER_REPORT" ] \
+        || [ -f "$DISCOVER_REPORT" ] \
+        || [ ! -d "$DISCOVER_REPORT" ] \
+        || [ ! -r "$DISCOVER_REPORT" ] \
+        || [ ! -x "$DISCOVER_REPORT" ] \
+        || [ ! -d "$DISCOVER_REPORT/pages" ] \
+        || [ ! -f "$DISCOVER_REPORT/pages/registered-domains.htm" ]; then
+        f_regdomain_die "Passive scan not found."
     fi
-
-    printf '%s' "$org"
 }
 
-f_regdomain_normalize_registrar(){
-    local registrar="$1"
+f_regdomain_build_rows(){
+    local RESULTS_FILE="$1"
+    local ROWS_FILE="$2"
 
-    registrar=$(sed 's/Co.,/Co./g; s/Corp.,/Corp/g; s/Hongkong/Hong Kong/g; s/Identity Protection Service//g; s/Gransy,/Gransy/g; s/, Inc/ Inc/g; s/Inc./Inc/g; s/IncUSA/Inc/g; s/KEY-SYSTEMS/Key-Systems/g; s/Limited,/Ltd /g; s/, LLC/ LLC/g; s/Ltd./Ltd/g; s/, Ltd/ Ltd/g; s/MARKMONITOR/MarkMonitor/g; s/MarkMonitor./MarkMonitor /g; s/Registrar://g; s/REGISTRAR OF DOMAIN NAMES//g; s/s.l./SL/g; s/, S.L./SL/g; s/technologies/Technologies/g; s/technology/Technology/g; s/^[ \t]*//' <<< "$registrar" | head -n1)
-
-    if [[ "$registrar" == 'Domains' ]]; then
-        registrar=''
+    if [ ! -s "$RESULTS_FILE" ]; then
+        printf '                <tr><td colspan="2">No registration data found.</td></tr>\n' > "$ROWS_FILE"
+        return 0
     fi
 
-    printf '%s' "$registrar"
+    python3 - "$RESULTS_FILE" "$ROWS_FILE" <<'PY'
+import csv
+import html
+import sys
+
+results_path, rows_path = sys.argv[1], sys.argv[2]
+lines = []
+with open(results_path, newline="") as handle:
+    for row in csv.reader(handle):
+        if len(row) < 2:
+            continue
+        domain, email = row[0].strip(), row[1].strip() if len(row) > 1 else ""
+        if domain.lower() == "domain" or not domain:
+            continue
+        lines.append(
+            "                <tr>"
+            f"<td>{html.escape(domain)}</td>"
+            f"<td>{html.escape(email)}</td>"
+            "</tr>"
+        )
+
+if not lines:
+    lines.append('                <tr><td colspan="2">No registration data found.</td></tr>')
+
+with open(rows_path, "w") as handle:
+    handle.write("\n".join(lines) + "\n")
+PY
 }
 
-f_regdomain_parse_whois_data(){
+f_regdomain_patch_table(){
+    local ROWS_FILE="$1"
+    local TARGET_FILE="$2"
+
+    [ -f "$TARGET_FILE" ] || return 0
+
+    python3 - "$ROWS_FILE" "$TARGET_FILE" <<'PY'
+import re
+import sys
+
+rows = open(sys.argv[1]).read()
+path = sys.argv[2]
+text = open(path).read()
+new_text, count = re.subn(
+    r"(<tbody>).*?(</tbody>)",
+    r"\1\n" + rows + r"            \2",
+    text,
+    count=1,
+    flags=re.S,
+)
+if count:
+    open(path, "w").write(new_text)
+PY
+}
+
+f_regdomain_write_report(){
+    local RESULTS_FILE="$1"
+    local REPORT_PAGE="$2"
+    local ROWS_FILE="$3"
+
+    f_regdomain_build_rows "$RESULTS_FILE" "$ROWS_FILE"
+    f_regdomain_patch_table "$ROWS_FILE" "$REPORT_PAGE"
+}
+
+f_regdomain_read_file(){
+    echo
+    echo -n "Enter the location of your reversewhois.io file: "
+    read -r LOCATION
+
+    LOCATION="${LOCATION#"${LOCATION%%[![:space:]]*}"}"
+    LOCATION="${LOCATION%"${LOCATION##*[![:space:]]}"}"
+
+    if [ -z "$LOCATION" ]; then
+        f_regdomain_die "No file location provided."
+    fi
+
+    LOCATION="${LOCATION/#\~/$HOME}"
+
+    if [ ! -f "$LOCATION" ]; then
+        f_regdomain_die "Input file not found: $LOCATION"
+    fi
+
+    if [ ! -r "$LOCATION" ]; then
+        f_regdomain_die "Input file is not readable: $LOCATION"
+    fi
+
+    if ! grep -q '^[0-9]' "$LOCATION" 2>/dev/null; then
+        f_regdomain_die "No reversewhois.io entries found. Paste must include numbered rows (lines starting with a digit)."
+    fi
+}
+
+f_regdomain_extract_search_email(){
+    local input="$1"
+    local email
+
+    email=$(grep -vi '^[0-9]' "$input" | grep -oiE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' | head -1 | tr '[:upper:]' '[:lower:]')
+    f_regdomain_filter_privacy_email "$email"
+}
+
+f_regdomain_parse_whois_email(){
     local whois_data="$1"
-    local regemail regorg registrar
+    local regemail
 
-    regemail=$(grep 'Registrant Email:' <<< "$whois_data" | cut -d ' ' -f3 | tr '[:upper:]' '[:lower:]')
-    regemail=$(f_regdomain_filter_privacy_email "$regemail")
-
-    regorg=$(grep 'Registrant Organization:' <<< "$whois_data" | cut -d ':' -f2 | cut -d ' ' -f2-)
-    regorg=$(f_regdomain_normalize_org "$regorg")
-
-    registrar=$(grep 'Registrar:' <<< "$whois_data" | cut -d ' ' -f2-)
-    registrar=$(f_regdomain_normalize_registrar "$registrar")
-
-    printf '%s|%s|%s' "$regemail" "$regorg" "$registrar"
+    regemail=$(
+        grep -iE '^(Registry Registrant Email|Registrant Email):' <<< "$whois_data" \
+            | grep -oiE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' \
+            | head -1 \
+            | tr '[:upper:]' '[:lower:]'
+    )
+    f_regdomain_filter_privacy_email "$regemail"
 }
 
 f_regdomain_check_lookup_network(){
@@ -104,9 +212,9 @@ f_regdomain_check_lookup_network(){
     fi
 }
 
-f_regdomain_fetch_rdap_fields(){
+f_regdomain_fetch_rdap_email(){
     local domain="$1"
-    local json regemail regorg registrar
+    local json regemail
 
     [ "${RDAP_SKIP:-0}" -eq 1 ] && return 1
     command -v jq >/dev/null 2>&1 || return 1
@@ -123,14 +231,8 @@ f_regdomain_fetch_rdap_fields(){
 
     regemail=$(echo "$json" | jq -r '([.entities[]? | select(.roles[]? == "registrant") | .vcardArray[1][]? | select(.[0] == "email") | .[3]] | first) // empty' | tr '[:upper:]' '[:lower:]')
     regemail=$(f_regdomain_filter_privacy_email "$regemail")
-
-    regorg=$(echo "$json" | jq -r '([.entities[]? | select(.roles[]? == "registrant") | .vcardArray[1][]? | select(.[0] == "org") | .[3]] | first) // ([.entities[]? | select(.roles[]? == "registrant") | .vcardArray[1][]? | select(.[0] == "fn") | .[3]] | first) // empty')
-    regorg=$(f_regdomain_normalize_org "$regorg")
-
-    registrar=$(echo "$json" | jq -r '([.entities[]? | select(.roles[]? == "registrar") | .vcardArray[1][]? | select(.[0] == "fn") | .[3]] | first) // empty')
-    registrar=$(f_regdomain_normalize_registrar "$registrar")
-
-    printf '%s|%s|%s' "$regemail" "$regorg" "$registrar"
+    printf '%s' "$regemail"
+    return 0
 }
 
 f_regdomain_whois_lookup(){
@@ -142,7 +244,7 @@ f_regdomain_whois_lookup(){
         sleep "$WHOIS_DELAY"
         whois_raw=$(timeout 10 whois -H "$domain" 2>/dev/null)
         whois_exit=$?
-        whois_data=$(grep -Eiv '(#|please query|personal data|redacted|whois|you agree)' <<< "$whois_raw" | sed '/^$/d')
+        whois_data=$(grep -Eiv '(^#|please query the|personal data|redacted for privacy|you agree to)' <<< "$whois_raw" | sed '/^$/d')
 
         if [ "$whois_exit" -eq 124 ]; then
             f_regdomain_log_error "$domain" "whois timed out"
@@ -158,63 +260,36 @@ f_regdomain_whois_lookup(){
 
 f_regdomain_process_domain(){
     local regdomain="$1"
-    local ipaddr="$2"
-    local fields regemail regorg registrar result
+    local default_email="$2"
+    local regemail whois_data attempt
 
-    if fields=$(f_regdomain_fetch_rdap_fields "$regdomain"); then
-        IFS='|' read -r regemail regorg registrar <<< "$fields"
-        if [ -z "$regemail" ] && [ -z "$regorg" ] && [ -z "$registrar" ]; then
-            fields=$(f_regdomain_parse_whois_data "$(f_regdomain_whois_lookup "$regdomain")")
-            IFS='|' read -r regemail regorg registrar <<< "$fields"
+    if regemail=$(f_regdomain_fetch_rdap_email "$regdomain"); then
+        if [ -z "$regemail" ]; then
+            for attempt in 1 2 3; do
+                whois_data=$(f_regdomain_whois_lookup "$regdomain")
+                regemail=$(f_regdomain_parse_whois_email "$whois_data")
+                [ -n "$regemail" ] && break
+                [ "$attempt" -lt 3 ] && sleep 1
+            done
         fi
     else
-        fields=$(f_regdomain_parse_whois_data "$(f_regdomain_whois_lookup "$regdomain")")
-        IFS='|' read -r regemail regorg registrar <<< "$fields"
+        for attempt in 1 2 3; do
+            whois_data=$(f_regdomain_whois_lookup "$regdomain")
+            regemail=$(f_regdomain_parse_whois_email "$whois_data")
+            [ -n "$regemail" ] && break
+            [ "$attempt" -lt 3 ] && sleep 1
+        done
     fi
 
-    result=$(echo "$regdomain,$ipaddr,$regemail,$regorg,$registrar" | grep -v ',,,,' || true)
-    if [ -z "$result" ]; then
-        f_regdomain_log_error "$regdomain" "no registration data"
+    if [ -z "$regemail" ] && [ -n "$default_email" ]; then
+        regemail="$default_email"
     fi
 
-    printf '%s' "$result"
-}
-
-f_regdomain_batch_dns(){
-    local domains_file="$1"
-    local output_file="$2"
-    local dns_jobs="${DNS_JOBS:-16}"
-    local total
-
-    if ! command -v dig >/dev/null 2>&1; then
-        return 1
+    if [ -z "$regemail" ]; then
+        f_regdomain_log_error "$regdomain" "no registration email"
     fi
 
-    total=$(wc -l < "$domains_file" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
-    echo 0 > "$REGDOMAIN_TMPDIR/dns.progress"
-    printf '  DNS 0/%s\r' "$total" >&2
-
-    if ! xargs -P "$dns_jobs" -a "$domains_file" -I{} bash -c '
-        domain="{}"
-        ip=$(dig +short +time=2 +tries=1 "$domain" 2>/dev/null | grep -Eiv "(0.0.0.0|127.0.0.1|127.0.0.6)" | sed "/[a-z]/d" | tr "\n" " " | sed "s/ $//")
-        printf "%s,%s\n" "$domain" "$ip"
-        (
-            flock -x 304
-            n=$(($(cat "$REGDOMAIN_TMPDIR/dns.progress" 2>/dev/null || echo 0) + 1))
-            echo "$n" > "$REGDOMAIN_TMPDIR/dns.progress"
-            printf "  DNS %s/%s\r" "$n" "'"$total"'" >&2
-        ) 304>"$REGDOMAIN_TMPDIR/dns.progress.lock"
-    ' > "$output_file"; then
-        return 1
-    fi
-
-    echo >&2
-
-    if [ ! -s "$output_file" ]; then
-        return 1
-    fi
-
-    return 0
+    printf '%s,%s' "$regdomain" "$regemail"
 }
 
 f_regdomain_wait_for_slot(){
@@ -278,133 +353,6 @@ f_regdomain_report_progress(){
     ) 201>"$REGDOMAIN_TMPDIR/progress.lock"
 }
 
-f_regdomain_read_report(){
-    echo
-    echo -n "Enter the location of your previous passive scan: "
-    read -r DISCOVER_REPORT
-
-    DISCOVER_REPORT="${DISCOVER_REPORT#"${DISCOVER_REPORT%%[![:space:]]*}"}"
-    DISCOVER_REPORT="${DISCOVER_REPORT%"${DISCOVER_REPORT##*[![:space:]]}"}"
-    DISCOVER_REPORT="${DISCOVER_REPORT/#\~/$HOME}"
-
-    if [ -z "$DISCOVER_REPORT" ] \
-        || [ -f "$DISCOVER_REPORT" ] \
-        || [ ! -d "$DISCOVER_REPORT" ] \
-        || [ ! -r "$DISCOVER_REPORT" ] \
-        || [ ! -x "$DISCOVER_REPORT" ] \
-        || [ ! -d "$DISCOVER_REPORT/pages" ] \
-        || [ ! -f "$DISCOVER_REPORT/pages/registered-domains.htm" ]; then
-        f_regdomain_die "Passive scan not found."
-    fi
-}
-
-f_regdomain_build_rows(){
-    local RESULTS_FILE="$1"
-    local ROWS_FILE="$2"
-
-    if [ ! -s "$RESULTS_FILE" ]; then
-        printf '                <tr><td colspan="5">No registration data found.</td></tr>\n' > "$ROWS_FILE"
-        return 0
-    fi
-
-    python3 - "$RESULTS_FILE" "$ROWS_FILE" <<'PY'
-import csv
-import html
-import sys
-
-results_path, rows_path = sys.argv[1], sys.argv[2]
-lines = []
-with open(results_path, newline="") as handle:
-    for row in csv.reader(handle):
-        if len(row) < 1:
-            continue
-        while len(row) < 5:
-            row.append("")
-        domain, ipaddr, email, org, registrar = [cell.strip() for cell in row[:5]]
-        if domain.lower() == "domain" or not domain:
-            continue
-        if not any((ipaddr, email, org, registrar)):
-            continue
-        lines.append(
-            "                <tr>"
-            f"<td>{html.escape(domain)}</td>"
-            f"<td>{html.escape(ipaddr)}</td>"
-            f"<td>{html.escape(email)}</td>"
-            f"<td>{html.escape(org)}</td>"
-            f"<td>{html.escape(registrar)}</td>"
-            "</tr>"
-        )
-
-if not lines:
-    lines.append('                <tr><td colspan="5">No registration data found.</td></tr>')
-
-with open(rows_path, "w") as handle:
-    handle.write("\n".join(lines) + "\n")
-PY
-}
-
-f_regdomain_patch_table(){
-    local ROWS_FILE="$1"
-    local TARGET_FILE="$2"
-
-    [ -f "$TARGET_FILE" ] || return 0
-
-    python3 - "$ROWS_FILE" "$TARGET_FILE" <<'PY'
-import re
-import sys
-
-rows = open(sys.argv[1]).read()
-path = sys.argv[2]
-text = open(path).read()
-new_text, count = re.subn(
-    r"(<tbody>).*?(</tbody>)",
-    r"\1\n" + rows + r"            \2",
-    text,
-    count=1,
-    flags=re.S,
-)
-if count:
-    open(path, "w").write(new_text)
-PY
-}
-
-f_regdomain_write_report(){
-    local RESULTS_FILE="$1"
-    local REPORT_DIR="$2"
-    local ROWS_FILE="$3"
-
-    f_regdomain_build_rows "$RESULTS_FILE" "$ROWS_FILE"
-    f_regdomain_patch_table "$ROWS_FILE" "$REPORT_DIR/pages/registered-domains.htm"
-    f_regdomain_patch_table "$ROWS_FILE" "$REPORT_DIR/data/registered-domains.htm"
-}
-
-f_regdomain_read_file(){
-    echo
-    echo -n "Enter the location of your reversewhois.io file: "
-    read -r LOCATION
-
-    LOCATION="${LOCATION#"${LOCATION%%[![:space:]]*}"}"
-    LOCATION="${LOCATION%"${LOCATION##*[![:space:]]}"}"
-
-    if [ -z "$LOCATION" ]; then
-        f_regdomain_die "No file location provided."
-    fi
-
-    LOCATION="${LOCATION/#\~/$HOME}"
-
-    if [ ! -f "$LOCATION" ]; then
-        f_regdomain_die "Input file not found: $LOCATION"
-    fi
-
-    if [ ! -r "$LOCATION" ]; then
-        f_regdomain_die "Input file is not readable: $LOCATION"
-    fi
-
-    if ! grep -q '^[0-9]' "$LOCATION" 2>/dev/null; then
-        f_regdomain_die "No reversewhois.io entries found. Paste must include numbered rows (lines starting with a digit)."
-    fi
-}
-
 clear
 f_banner
 
@@ -424,7 +372,7 @@ case "$CHOICE" in
 
         echo -e "${BLUE}Find registered domains.${NC}"
 
-        for CMD in awk column dig flock python3 sort timeout whois xargs; do
+        for CMD in awk column flock python3 sort timeout whois; do
             if ! command -v "$CMD" >/dev/null 2>&1; then
                 f_regdomain_die "$CMD is not installed. Run Discover update to install dependencies."
             fi
@@ -438,8 +386,6 @@ case "$CHOICE" in
         f_regdomain_read_file
         echo
 
-        ERROR_LOG=""
-
         TMPDIR=$(mktemp -d)
         f_regdomain_cancel(){
             echo
@@ -452,16 +398,21 @@ case "$CHOICE" in
         REGDOMAIN_TMPDIR="$TMPDIR"
         export REGDOMAIN_TMPDIR TMPDIR
 
-        WHOIS_DELAY="${WHOIS_DELAY:-0.5}"
-        WHOIS_JOBS="${WHOIS_JOBS:-4}"
+        WHOIS_DELAY="${WHOIS_DELAY:-1}"
+        WHOIS_JOBS="${WHOIS_JOBS:-2}"
         WHOIS_LOCK="$TMPDIR/whois.lock"
         export WHOIS_DELAY WHOIS_LOCK
 
-        grep '^[0-9]' "$LOCATION" | awk '{print $2}' | sort -u > "$TMPDIR/domains"
+        grep '^[0-9]' "$LOCATION" | awk '{print $2}' | sed -e 's/^[0-9]*\.//' -e 's/\.$//' | grep -Ev '^([0-9]{1,3}\.){3}[0-9]{1,3}$' | sort -u > "$TMPDIR/domains"
         TOTAL=$(wc -l < "$TMPDIR/domains" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 
         if [ "$TOTAL" -eq 0 ]; then
             f_regdomain_die "No domains found in file."
+        fi
+
+        SEARCH_EMAIL=$(f_regdomain_extract_search_email "$LOCATION")
+        if [ -n "$SEARCH_EMAIL" ]; then
+            echo "[*] Using search email from paste: $SEARCH_EMAIL"
         fi
 
         if ! command -v jq >/dev/null 2>&1 || ! command -v curl >/dev/null 2>&1; then
@@ -470,26 +421,12 @@ case "$CHOICE" in
             export RDAP_SKIP
         fi
 
-        echo "[*] Resolving $TOTAL domains in parallel."
-        f_regdomain_batch_dns "$TMPDIR/domains" "$TMPDIR/dns.map"
-        DNS_RC=$?
-
-        if [ "$DNS_RC" -ne 0 ]; then
-            f_regdomain_die "DNS resolution failed. Check that dig is installed and working."
-        fi
-
-        echo "[*] DNS complete."
-
-        MAP_TOTAL=$(wc -l < "$TMPDIR/dns.map" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
-        if [ "$MAP_TOTAL" -ne "$TOTAL" ]; then
-            f_regdomain_die "DNS mapping failed. Expected $TOTAL entries, got $MAP_TOTAL."
-        fi
-
+        echo "[*] Found $TOTAL domains in reversewhois file."
         echo "[*] Checking WHOIS/RDAP connectivity."
         f_regdomain_check_lookup_network
         export RDAP_SKIP
 
-        echo "[*] Looking up registration data ($WHOIS_JOBS parallel workers)."
+        echo "[*] Looking up registration emails ($WHOIS_JOBS parallel workers)."
         echo 0 > "$TMPDIR/progress"
         echo 0 > "$TMPDIR/started"
         echo 0 > "$TMPDIR/running"
@@ -497,71 +434,59 @@ case "$CHOICE" in
         touch "$WHOIS_LOCK" "$TMPDIR/results"
         printf 'Lookup 0 of %s (0 completed)\r' "$TOTAL" >&2
 
-        while IFS=, read -r REGDOMAIN IPADDR; do
+        while read -r REGDOMAIN; do
             f_regdomain_wait_for_slot
             f_regdomain_report_progress "$TOTAL" start
 
             {
-                result=$(f_regdomain_process_domain "$REGDOMAIN" "$IPADDR")
-                if [ -n "$result" ]; then
-                    (
-                        flock -x 202
-                        printf '%s\n' "$result" >> "$REGDOMAIN_TMPDIR/results"
-                    ) 202>"$REGDOMAIN_TMPDIR/results.lock"
-                fi
+                result=$(f_regdomain_process_domain "$REGDOMAIN" "$SEARCH_EMAIL")
+                (
+                    flock -x 202
+                    printf '%s\n' "$result" >> "$REGDOMAIN_TMPDIR/results"
+                ) 202>"$REGDOMAIN_TMPDIR/results.lock"
                 f_regdomain_report_progress "$TOTAL" done
                 f_regdomain_release_slot
             } &
-        done < "$TMPDIR/dns.map"
+        done < "$TMPDIR/domains"
 
         wait
         echo >&2
 
+        if [ -s "$TMPDIR/results" ]; then
+            sort -t, -k1,1 -u "$TMPDIR/results" -o "$TMPDIR/results"
+        fi
+
         RESULT_COUNT=$(wc -l < "$TMPDIR/results" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
         RESULT_COUNT=${RESULT_COUNT:-0}
 
-        if [ "$RESULT_COUNT" -eq 0 ]; then
+        if [ "$RESULT_COUNT" -ne "$TOTAL" ]; then
+            f_regdomain_die "Lookup incomplete. Expected $TOTAL domains, wrote $RESULT_COUNT."
+        fi
+
+        EMAIL_COUNT=$(awk -F, 'NF > 1 && $2 != "" { count++ } END { print count + 0 }' "$TMPDIR/results")
+
+        if [ "$EMAIL_COUNT" -eq 0 ]; then
             if [ -s "$TMPDIR/errors.log" ]; then
                 echo "[*] Lookup errors:"
                 column -t -s ',' "$TMPDIR/errors.log" 2>/dev/null || cat "$TMPDIR/errors.log"
                 echo
             fi
-            f_regdomain_die "No registration data collected. Check network connectivity and input file format."
+            f_regdomain_die "No registration emails found. Check network connectivity and WHOIS/RDAP access."
         fi
 
-        if [ "$RESULT_COUNT" -lt "$TOTAL" ]; then
-            SKIPPED=$((TOTAL - RESULT_COUNT))
-            f_regdomain_warn "$SKIPPED of $TOTAL domains produced no registration data."
-        fi
-
-        sort -t, -k1,1 "$TMPDIR/results" > "$TMPDIR/tmp3"
-
-        mkdir -p "$HOME/data" || f_regdomain_die "Cannot create $HOME/data."
-
-        REPORT_TXT="$HOME/data/registered-domains.txt"
-        echo "Domain,IP Address,Registration Email,Registration Org,Registrar" > "$TMPDIR/tmp4"
-        # Drop rows that are bare IPs (malformed reversewhois.io paste lines).
-        if ! cat "$TMPDIR/tmp4" "$TMPDIR/tmp3" | grep -Ev '^\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | column -t -s ',' | sed 's/[ \t]*$//' > "$REPORT_TXT"; then
-            f_regdomain_die "Failed to write report to $REPORT_TXT."
-        fi
-
-        if [ -s "$TMPDIR/errors.log" ]; then
-            ERROR_LOG="$HOME/data/registered-domains-errors-$(date +%H:%M).txt"
-            cp "$TMPDIR/errors.log" "$ERROR_LOG"
+        if [ "$EMAIL_COUNT" -lt "$TOTAL" ]; then
+            SKIPPED=$((TOTAL - EMAIL_COUNT))
+            f_regdomain_warn "$SKIPPED of $TOTAL domains had no registration email."
         fi
 
         ROWS_FILE="$TMPDIR/registered-domains-rows.html"
-        f_regdomain_write_report "$TMPDIR/tmp3" "$DISCOVER_REPORT" "$ROWS_FILE"
+        f_regdomain_write_report "$TMPDIR/results" "$DISCOVER_REPORT/pages/registered-domains.htm" "$ROWS_FILE"
 
         echo "$MEDIUM"
         echo
-        echo "[*] Scan complete. Found $RESULT_COUNT of $TOTAL domains with registration data."
+        echo "[*] Scan complete. Found $EMAIL_COUNT of $TOTAL domains with registration emails."
         echo
-        echo -e "The text report is located at ${YELLOW}$REPORT_TXT${NC}"
         echo -e "The HTML report was updated in ${YELLOW}$DISCOVER_REPORT${NC}"
-        if [ -n "$ERROR_LOG" ]; then
-            echo -e "Lookup errors logged at ${YELLOW}$ERROR_LOG${NC}"
-        fi
         echo
         unset LOCATION DISCOVER_REPORT
         exit 0

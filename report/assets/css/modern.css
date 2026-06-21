@@ -77,6 +77,11 @@ body.inc-home-page {
     width: 100%;
 }
 
+.inc-container-dynamic .inc-content-frame--fit {
+    width: max-content;
+    max-width: 100%;
+}
+
 .inc-content-frame--fit .inc-pre {
     background: #0f1114;
     border: none;
@@ -118,7 +123,11 @@ body.inc-home-page {
 }
 
 .inc-content-frame--table {
-    padding: 20px 24px;
+    background: #0f1114;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
     overflow-x: auto;
     width: max-content;
     max-width: 100%;

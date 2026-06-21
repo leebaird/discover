@@ -168,8 +168,6 @@ f_dnsrecon() {
         : > records
     fi
 
-    cat records >> "$HOME"/data/"$DOMAIN"/data/records.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/records.htm
     rm tmp 2>/dev/null
     echo
 }
@@ -442,6 +440,32 @@ f_report_append_pre_page(){
     } >> "$PAGE"
 }
 
+f_report_append_subdomains_page(){
+    local PAGE="$1"
+
+    if [ -f private-subs ]; then
+        cat private-subs >> "$PAGE"
+        echo >> "$PAGE"
+        echo "$LARGE" >> "$PAGE"
+        echo >> "$PAGE"
+    fi
+
+    if [ -f subdomains ]; then
+        cat subdomains >> "$PAGE"
+    elif [ ! -f private-subs ]; then
+        echo "No data found." >> "$PAGE"
+    fi
+
+    {
+        echo "</pre>"
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo "</body>"
+        echo "</html>"
+    } >> "$PAGE"
+}
+
 ###############################################################################################################################
 
 f_report() {
@@ -480,6 +504,9 @@ if [ -f records ]; then
     echo "$LARGE" >> tmp
     cat records >> tmp
     echo >> tmp
+    f_report_append_pre_page records "$HOME"/data/"$DOMAIN"/pages/records.htm
+else
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/records.htm
 fi
 
 if [ -f squatting ]; then
@@ -489,11 +516,9 @@ if [ -f squatting ]; then
     echo "$LARGE" >> tmp
     cat squatting >> tmp
     echo >> tmp
-    cat squatting >> "$HOME"/data/"$DOMAIN"/data/squatting.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/squatting.htm
+    f_report_append_pre_page squatting "$HOME"/data/"$DOMAIN"/pages/squatting.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/squatting.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/squatting.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/squatting.htm
 fi
 
 if [ -f public-ips ]; then
@@ -515,10 +540,6 @@ if [ -f private-subs ]; then
     echo "$LARGE" >> tmp
     cat private-subs >> tmp
     echo >> tmp
-    cat private-subs >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
-    echo >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
-    echo "$LARGE" >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
-    echo >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
 fi
 
 if [ -f subdomains ]; then
@@ -528,12 +549,9 @@ if [ -f subdomains ]; then
     echo "$LARGE" >> tmp
     cat subdomains >> tmp
     echo >> tmp
-    cat subdomains >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
-else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
 fi
+
+f_report_append_subdomains_page "$HOME"/data/"$DOMAIN"/pages/subdomains.htm
 
 if [ -f xls ]; then
     xlscount=$(wc -l xls | cut -d ' ' -f1)
@@ -601,11 +619,9 @@ if [ -f whois-domain ]; then
     echo "Whois Domain" >> zreport
     echo "$LARGE" >> zreport
     cat whois-domain >> zreport
-    cat whois-domain >> "$HOME"/data/"$DOMAIN"/data/whois-domain.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/whois-domain.htm
+    f_report_append_pre_page whois-domain "$HOME"/data/"$DOMAIN"/pages/whois-domain.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/whois-domain.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/whois-domain.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/whois-domain.htm
 fi
 
 if [ -f whois-ip ]; then
@@ -613,15 +629,12 @@ if [ -f whois-ip ]; then
     echo "Whois IP" >> zreport
     echo "$LARGE" >> zreport
     cat whois-ip >> zreport
-    cat whois-ip >> "$HOME"/data/"$DOMAIN"/data/whois-ip.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/whois-ip.htm
+    f_report_append_pre_page whois-ip "$HOME"/data/"$DOMAIN"/pages/whois-ip.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/whois-ip.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/whois-ip.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/whois-ip.htm
 fi
 
-    cat zreport >> "$HOME"/data/"$DOMAIN"/data/report.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/report.htm
+    f_report_append_pre_page zreport "$HOME"/data/"$DOMAIN"/pages/report.htm
 
     rm tmp* zreport 2>/dev/null
 
