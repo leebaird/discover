@@ -430,6 +430,47 @@ f_report_append_pre_page(){
     } >> "$PAGE"
 }
 
+f_report_append_emails_page(){
+    local PAGE="$1"
+
+    if [ -f emails ] && [ -s emails ]; then
+        python3 - emails >> "$PAGE" <<'PY'
+import html
+import sys
+
+lines = []
+with open(sys.argv[1]) as handle:
+    for raw in handle:
+        email = raw.strip()
+        if not email:
+            continue
+        lines.append(
+            "                <tr>"
+            f"<td>{html.escape(email)}</td>"
+            "</tr>"
+        )
+
+if not lines:
+    lines.append('                <tr><td>No data found.</td></tr>')
+
+print("\n".join(lines))
+PY
+    else
+        echo '                <tr><td>No data found.</td></tr>' >> "$PAGE"
+    fi
+
+    {
+        echo "            </tbody>"
+        echo "        </table>"
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo '<script src="../assets/javascript/inc-data-table.js"></script>'
+        echo "</body>"
+        echo "</html>"
+    } >> "$PAGE"
+}
+
 f_report_append_squatting_page(){
     local PAGE="$1"
 
@@ -665,9 +706,9 @@ if [ -f emails ]; then
     echo "$SMALL" >> tmp
     cat emails >> tmp
     echo >> tmp
-    f_report_append_pre_page emails "$HOME"/data/"$DOMAIN"/pages/emails.htm
+    f_report_append_emails_page "$HOME"/data/"$DOMAIN"/pages/emails.htm
 else
-    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/emails.htm
+    f_report_append_emails_page "$HOME"/data/"$DOMAIN"/pages/emails.htm
 fi
 
 if [ -f records ]; then
