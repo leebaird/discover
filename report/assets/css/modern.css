@@ -97,6 +97,15 @@ body.inc-home-page {
     box-shadow: none;
 }
 
+/* Whois — shrink frame to column-aligned pre width */
+.inc-whois-page .inc-content-frame--fit .inc-pre {
+    width: max-content;
+    max-width: 100%;
+    white-space: pre;
+    overflow-x: auto;
+    word-break: normal;
+}
+
 .container.inc-container-dynamic {
     width: max-content;
     max-width: 100%;
