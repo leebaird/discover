@@ -360,7 +360,8 @@ echo -e "${BLUE}RECON${NC}"
 echo
 echo "1.  Passive"
 echo "2.  Find registered domains"
-echo "3.  Previous menu"
+echo "3.  Import names"
+echo "4.  Previous menu"
 echo
 echo -n "Choice: "
 read -r CHOICE
@@ -491,6 +492,7 @@ case "$CHOICE" in
         unset LOCATION DISCOVER_REPORT
         exit 0
         ;;
-    3) f_main ;;
+    3) "$DISCOVER"/names.sh && exit ;;
+    4) f_main ;;
     *) f_error ;;
 esac

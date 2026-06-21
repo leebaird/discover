@@ -132,18 +132,96 @@ f_arin() {
     echo "    Names                ($COUNT/$TOTAL)"
     ((COUNT++))
     if [ -f zhandles ]; then
+        > tmp-pocs
         while read -r LINE; do
-            curl -ks "https://whois.arin.net/rest/poc/$LINE.txt" | grep 'Name' >> tmp
+            {
+                curl -ks "https://whois.arin.net/rest/poc/$LINE.txt"
+                printf '\n---POC---\n'
+            } >> tmp-pocs
         done < zhandles
 
-        if [ -f tmp ]; then
-            grep -Eiv "($COMPANY|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
-            sed 's/Name:           //g' tmp2 | tr '[:upper:]' '[:lower:]' | sed 's/\b\(.\)/\u\1/g' > tmp3
-            awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sed '/^ /d' | sort -u > zarin-names
+        if [ -s tmp-pocs ]; then
+            COMPANY_FILTER="$COMPANY" python3 - tmp-pocs zarin-contacts.tsv zarin-names <<'PY'
+import os
+import re
+import sys
+
+poc_blob = open(sys.argv[1]).read()
+out_tsv = sys.argv[2]
+out_names = sys.argv[3]
+company_filter = os.environ.get("COMPANY_FILTER", "")
+
+skip_re = re.compile(
+    r"(@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)",
+    re.I,
+)
+if company_filter:
+    skip_re = re.compile(
+        rf"(@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom|{re.escape(company_filter)})",
+        re.I,
+    )
+
+def title_case_name(last_first):
+    last_first = last_first.strip()
+    if not last_first:
+        return ""
+    parts = [p.strip() for p in last_first.split(",", 1)]
+    if len(parts) == 2:
+        last, first = parts
+        name = f"{first} {last}"
+    else:
+        name = last_first
+    return " ".join(word[:1].upper() + word[1:].lower() if word else "" for word in name.split())
+
+def pick_office_phone(block):
+    phones = []
+    for line in block.splitlines():
+        if not line.startswith("Phone:"):
+            continue
+        value = line.split(":", 1)[1].strip()
+        if "(Office)" in value:
+            return re.sub(r"\s*\(Office\)\s*$", "", value).strip()
+        phones.append(re.sub(r"\s*\([^)]+\)\s*$", "", value).strip())
+    return phones[0] if phones else ""
+
+rows = []
+plain_names = []
+seen = set()
+
+for block in poc_blob.split("---POC---"):
+    name_raw = company = phone = ""
+    for line in block.splitlines():
+        if line.startswith("Name:"):
+            name_raw = line.split(":", 1)[1].strip()
+        elif line.startswith("Company:"):
+            company = line.split(":", 1)[1].strip()
+    if not name_raw or skip_re.search(name_raw):
+        continue
+    name = title_case_name(name_raw)
+    if not name:
+        continue
+    phone = pick_office_phone(block)
+    key = name.lower()
+    if key in seen:
+        continue
+    seen.add(key)
+    rows.append((name, company, phone))
+    plain_names.append(name)
+
+rows.sort(key=lambda row: row[0].lower())
+plain_names.sort(key=str.lower)
+
+with open(out_tsv, "w") as handle:
+    for name, company, phone in rows:
+        handle.write(f"{name}\t{company}\t{phone}\n")
+
+with open(out_names, "w") as handle:
+    handle.write("\n".join(plain_names) + ("\n" if plain_names else ""))
+PY
         fi
     fi
 
-    rm tmp* zhandles 2>/dev/null
+    rm tmp* tmp-pocs zhandles 2>/dev/null
     echo
 }
 
@@ -357,7 +435,207 @@ f_whois_ip() {
 f_aggregate() {
     cat z* | grep "\@$DOMAIN" | grep -v '[0-9]' | grep -Eiv "(_|,|'|firstname|lastname|test|www|xxx|zzz)" | sort -u > emails
 
-    cat z* | grep -Eiv '(@|:|\.|>|additionally|atlanta|boston|bufferoverun|captcha|detroit|exception|found character|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university|while scanning)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
+    python3 - "$DOMAIN" names <<'PY'
+import ast
+import csv
+import glob
+import os
+import re
+import sys
+
+domain = sys.argv[1]
+out_path = sys.argv[2]
+
+PHONE_TAIL_RE = re.compile(
+    r"(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}$"
+)
+TITLE_START_RE = re.compile(
+    r"^(VP|SVP|EVP|Director|President|Manager|Consultant|Lead|Chief|Senior|Associate|Head|Officer|Engineer|Analyst|Coordinator|Supervisor|Managing|Executive|Board|CFO|CEO|COO|CISO|CTO)",
+    re.I,
+)
+SKIP_RE = re.compile(
+    r"(@|:|\.|>|additionally|atlanta|boston|bufferoverun|captcha|detroit|exception|found character|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university|while scanning|failed to|no response|error message|an exception)",
+    re.I,
+)
+NAME_MC_RE = [
+    (re.compile(r"\bMacd\b", re.I), "MacD"),
+    (re.compile(r"\bMacn\b", re.I), "MacN"),
+    (re.compile(r"\bMca\b", re.I), "McA"),
+    (re.compile(r"\bMcb\b", re.I), "McB"),
+    (re.compile(r"\bMcc\b", re.I), "McC"),
+    (re.compile(r"\bMcd\b", re.I), "McD"),
+    (re.compile(r"\bMce\b", re.I), "McE"),
+    (re.compile(r"\bMcf\b", re.I), "McF"),
+    (re.compile(r"\bMcg\b", re.I), "McG"),
+    (re.compile(r"\bMch\b", re.I), "McH"),
+    (re.compile(r"\bMci\b", re.I), "McI"),
+    (re.compile(r"\bMcj\b", re.I), "McJ"),
+    (re.compile(r"\bMck\b", re.I), "McK"),
+    (re.compile(r"\bMcl\b", re.I), "McL"),
+    (re.compile(r"\bMcm\b", re.I), "McM"),
+    (re.compile(r"\bMcn\b", re.I), "McN"),
+    (re.compile(r"\bMcp\b", re.I), "McP"),
+    (re.compile(r"\bMcq\b", re.I), "McQ"),
+    (re.compile(r"\bMcs\b", re.I), "McS"),
+    (re.compile(r"\bMcv\b", re.I), "McV"),
+]
+
+
+def normalize_whitespace(value):
+    return " ".join(value.split()).strip()
+
+
+def normalize_name(name):
+    name = normalize_whitespace(name)
+    for pattern, replacement in NAME_MC_RE:
+        name = pattern.sub(replacement, name)
+    replacements = {
+        " And ": " and ",
+        " Av ": " AV ",
+        " It ": " IT ",
+        " Of ": " of ",
+        " Ui ": " UI ",
+        " Ux ": " UX ",
+    }
+    for old, new in replacements.items():
+        name = name.replace(old, new)
+    for token, repl in (("Dj", "DJ"), ("Jb", "JB"), ("Tj", "TJ"), ("iii", "III"), ("ii", "II")):
+        name = re.sub(rf"\b{token}\b", repl, name)
+    return name
+
+
+def merge_key(name):
+    return normalize_name(name).lower()
+
+
+def upsert(store, name, title="", phone=""):
+    name = normalize_name(name)
+    if not name or not re.search(r"[A-Za-z]{2,}", name) or SKIP_RE.search(name):
+        return
+    key = merge_key(name)
+    row = store.setdefault(key, {"name": name, "title": "", "phone": ""})
+    title = normalize_whitespace(title)
+    phone = normalize_whitespace(phone)
+    if title and (not row["title"] or len(title) > len(row["title"])):
+        row["title"] = title
+    if phone and not row["phone"]:
+        row["phone"] = phone
+
+
+def parse_dict_line(line):
+    try:
+        data = ast.literal_eval(line)
+    except (SyntaxError, ValueError):
+        return
+    if not isinstance(data, dict):
+        return
+    first = normalize_whitespace(str(data.get("firstname", "") or data.get("first_name", "")))
+    last = normalize_whitespace(str(data.get("lastname", "") or data.get("last_name", "")))
+    name = normalize_whitespace(f"{first} {last}".strip())
+    if not name:
+        name = normalize_whitespace(str(data.get("name", "")))
+    title = normalize_whitespace(
+        str(
+            data.get("job_title")
+            or data.get("title")
+            or data.get("role")
+            or data.get("department")
+            or ""
+        )
+    )
+    phone = normalize_whitespace(str(data.get("phone", "") or data.get("mobile", "")))
+    upsert(contacts, name, title, phone)
+
+
+def parse_spaced_columns(line):
+    match = re.match(r"^(.+?)\s{2,}(.+?)(?:\s{2,}(.+))?$", line)
+    if not match:
+        return False
+    name, middle, tail = match.group(1).strip(), match.group(2).strip(), (match.group(3) or "").strip()
+    title = middle
+    phone = ""
+    if tail and PHONE_TAIL_RE.search(tail):
+        phone = tail
+    elif PHONE_TAIL_RE.search(middle):
+        phone = middle
+        title = ""
+    upsert(contacts, name, title, phone)
+    return True
+
+
+def parse_freeform_line(line):
+    phone = ""
+    working = line
+    phone_match = re.search(r"\s{2,}((?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4})\s*$", working)
+    if phone_match:
+        phone = phone_match.group(1).strip()
+        working = working[: phone_match.start()].rstrip()
+
+    if re.search(r"\s{2,}", working):
+        parts = [part.strip() for part in re.split(r"\s{2,}", working) if part.strip()]
+        if len(parts) >= 2:
+            upsert(contacts, parts[0], " ".join(parts[1:]), phone)
+            return
+
+    title_match = TITLE_START_RE.search(working)
+    if title_match:
+        upsert(contacts, working[: title_match.start()].strip(), working[title_match.start() :].strip(), phone)
+        return
+
+    upsert(contacts, working, "", phone)
+
+
+contacts = {}
+
+for path in sorted(glob.glob("z*")):
+    if not os.path.isfile(path):
+        continue
+    with open(path, newline="") as handle:
+        for raw in handle:
+            line = raw.strip()
+            if not line or line.startswith("[*]") or line.startswith("---") or line.startswith("^"):
+                continue
+
+            if line.startswith("{") and line.endswith("}"):
+                parse_dict_line(line)
+                continue
+
+            if "\t" in line:
+                row = next(csv.reader([line], delimiter="\t"))
+                while len(row) < 3:
+                    row.append("")
+                name, title, phone = [cell.strip() for cell in row[:3]]
+                if name.lower() in {"name", "first_name", "last_name"}:
+                    continue
+                upsert(contacts, name, title, phone)
+                continue
+
+            if "|" in line and line.count("|") >= 2:
+                parts = [part.strip() for part in line.split("|")]
+                if parts[0].lower() in {"last_name", "first_name"}:
+                    continue
+                if len(parts) >= 3:
+                    last, first, title = parts[0], parts[1], parts[2]
+                    upsert(contacts, f"{first} {last}".strip(), title)
+                continue
+
+            if "@" in line or SKIP_RE.search(line):
+                continue
+
+            if parse_spaced_columns(line):
+                continue
+
+            if re.search(r"\d", line):
+                continue
+
+            parse_freeform_line(line)
+
+rows = sorted(contacts.values(), key=lambda row: row["name"].lower())
+with open(out_path, "w", newline="") as handle:
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    for row in rows:
+        writer.writerow([row["name"], row["title"], row["phone"]])
+PY
 
     cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '\b(0\.0\.0\.0|1\.1\.1\.1|1\.1\.1\.2|8\.8\.8\.8|127\.0\.0\.1|127\.0\.0\.53)\b|\.0$' | sort -u | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
 
@@ -425,6 +703,52 @@ f_report_append_pre_page(){
         echo "    </div>"
         echo "</div>"
         echo
+        echo "</body>"
+        echo "</html>"
+    } >> "$PAGE"
+}
+
+f_report_append_names_page(){
+    local PAGE="$1"
+
+    if [ -f names ] && [ -s names ]; then
+        python3 - names >> "$PAGE" <<'PY'
+import csv
+import html
+import sys
+
+lines = []
+with open(sys.argv[1], newline="") as handle:
+    for row in csv.reader(handle, delimiter="\t"):
+        while len(row) < 3:
+            row.append("")
+        name, title, phone = [cell.strip() for cell in row[:3]]
+        if not name:
+            continue
+        lines.append(
+            "                <tr>"
+            f"<td>{html.escape(name)}</td>"
+            f"<td>{html.escape(title)}</td>"
+            f"<td>{html.escape(phone)}</td>"
+            "</tr>"
+        )
+
+if not lines:
+    lines.append('                <tr><td colspan="3">No data found.</td></tr>')
+
+print("\n".join(lines))
+PY
+    else
+        echo '                <tr><td colspan="3">No data found.</td></tr>' >> "$PAGE"
+    fi
+
+    {
+        echo "            </tbody>"
+        echo "        </table>"
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo '<script src="../assets/javascript/inc-data-table.js"></script>'
         echo "</body>"
         echo "</html>"
     } >> "$PAGE"
@@ -694,9 +1018,9 @@ f_report() {
     echo "$SMALL" >> tmp
     cat names >> tmp
     echo >> tmp
-    f_report_append_pre_page names "$HOME"/data/"$DOMAIN"/pages/names.htm
+    f_report_append_names_page "$HOME"/data/"$DOMAIN"/pages/names.htm
 else
-    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/names.htm
+    f_report_append_names_page "$HOME"/data/"$DOMAIN"/pages/names.htm
 fi
 
 if [ -f emails ]; then
@@ -853,6 +1177,12 @@ fi
     rm tmp* zreport 2>/dev/null
 
     mkdir -p "$HOME/data/$DOMAIN/tools"
+    if [ ! -f "$HOME/data/$DOMAIN/tools/names-manual.tsv" ]; then
+        cat > "$HOME/data/$DOMAIN/tools/names-manual.tsv" <<'EOF'
+# Manual contacts — tab-separated: Name, Title, Phone
+# Add one person per line, then run Domain > Import names.
+EOF
+    fi
     mv names emails hosts private-ips private-subs public-ips records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
     cd "$PWD" || exit
 

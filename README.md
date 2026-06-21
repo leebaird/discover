@@ -65,7 +65,8 @@ RECON
 
 1.  Passive
 2.  Find registered domains
-3.  Previous menu
+3.  Import names
+4.  Previous menu
 ```
 
 Note: Passive cannot be ran as root.
@@ -75,7 +76,35 @@ theHarvester, Metasploit, Whois, and multiple websites.
 
 * Acquire all free API keys for maximum results with theHarvester.
 * Add API keys to $HOME/.theHarvester/api-keys.yaml
-* Find registered domains writes $HOME/data/registered-domains.txt.
+* Passive builds an HTML report at $HOME/data/<domain>/.
+* Find registered domains updates pages/registered-domains.htm in an existing report.
+
+#### Import names
+
+Run after a passive scan when you want to add or enrich contacts from manual research
+(LinkedIn, company sites, phone directories, etc.).
+
+```
+Enter the location of your previous passive scan:
+/home/user/data/example.com
+
+Enter manual contacts file (or press Enter for default):
+```
+
+* Edit $HOME/data/<domain>/tools/names-manual.tsv
+* Format: Name, Title, Phone (tab-separated, one person per line)
+* Lines starting with # are comments
+* Title and phone may be left blank
+* Re-run Import names whenever you add rows to the manual file
+
+Import names merges three sources, then refreshes pages/names.htm:
+
+1. tools/names — auto-discovered names from the passive scan
+2. pages/names.htm — existing report table (preserves work already in the page)
+3. tools/names-manual.tsv — manual entries; wins for title and phone when filled in
+
+The merged TSV is saved back to tools/names. The names page is a sortable
+three-column table: Name, Title, Phone.
 
 ### Person
 ```
