@@ -206,6 +206,12 @@ f_update(){
     git pull
     echo
 
+    if command -v grok &> /dev/null; then
+        echo -e "${BLUE}Updating Grok.${NC}"
+        grok update
+        echo
+    fi
+
     # shellcheck disable=SC2166
     cd "$HOME"
 
