@@ -418,7 +418,7 @@ f_banner
 echo -e "${BLUE}RECON${NC}"
 echo
 echo "1.  Passive"
-echo "2.  Web search"
+echo "2.  Web search and Google dorks"
 echo "3.  Find registered domains"
 echo "4.  Import names"
 echo "5.  Previous menu"
