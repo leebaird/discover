@@ -152,6 +152,50 @@ export -f f_runlocally
 
 ###############################################################################################################################
 
+f_company_domain(){
+    echo
+    echo "$MEDIUM"
+    echo
+    echo "Usage"
+    echo
+    echo "Company: Target"
+    echo "Domain:  target.com"
+    echo
+    echo "$MEDIUM"
+    echo
+    echo -n "Company: "
+    read -r COMPANY
+
+    if [[ -z "$COMPANY" ]]; then
+        f_error
+    fi
+
+    echo -n "Domain:  "
+    read -r DOMAIN
+
+    if [ -z "$DOMAIN" ]; then
+        f_error
+    fi
+
+    if [[ ! "$DOMAIN" =~ ^([a-zA-Z0-9](-?[a-zA-Z0-9])*\.)+[a-zA-Z]{2,63}$ ]]; then
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        echo -e "${RED}[!] Invalid domain.${NC}"
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        exit 1
+    fi
+
+    COMPANYURL=$( printf "%s\n" "$COMPANY" | tr '[:upper:]' '[:lower:]' | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
+    export COMPANY DOMAIN COMPANYURL
+}
+
+export -f f_company_domain
+
+###############################################################################################################################
+
 source "$DISCOVER/nmap.sh"
 
 ###############################################################################################################################

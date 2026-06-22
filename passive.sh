@@ -39,44 +39,7 @@ echo
 echo -e "${BLUE}[*] Acquire API keys for maximum results with theHarvester.${NC}"
 echo -e "${BLUE}[*] Add keys to $HOME/.theHarvester/api-keys.yaml${NC}"
 echo
-echo "$MEDIUM"
-echo
-echo "Usage"
-echo
-echo "Company: Target"
-echo "Domain:  target.com"
-echo
-echo "$MEDIUM"
-echo
-echo -n "Company: "
-read -r COMPANY
-
-# Check for no answer, need dbl brackets to handle a space in the name
-if [[ -z "$COMPANY" ]]; then
-    f_error
-fi
-
-echo -n "Domain:  "
-read -r DOMAIN
-
-# Check for no answer
-if [ -z "$DOMAIN" ]; then
-    f_error
-fi
-
-# Check for a valid domain
-if [[ ! "$DOMAIN" =~ ^([a-zA-Z0-9](-?[a-zA-Z0-9])*\.)+[a-zA-Z]{2,63}$ ]]; then
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    echo -e "${RED}[!] Invalid domain.${NC}"
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    exit 1
-fi
-
-COMPANYURL=$( printf "%s\n" "$COMPANY" | tr '[:upper:]' '[:lower:]' | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
+f_company_domain
 
 cp -R "$DISCOVER"/report/ "$HOME"/data/"$DOMAIN"
 sed -i "s/#COMPANY#/$COMPANY/" "$HOME"/data/"$DOMAIN"/index.htm
