@@ -569,6 +569,6 @@ case "$CHOICE" in
         exit 0
         ;;
     4) "$DISCOVER"/names.sh && exit ;;
-    5) f_main ;;
+    5) exec "$DISCOVER"/discover.sh ;;
     *) f_error ;;
 esac

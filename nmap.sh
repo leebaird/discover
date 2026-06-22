@@ -421,3 +421,5 @@ f_rerun(){
     "$DISCOVER"/msf-aux.sh
     "$DISCOVER"/report.sh && exit
 }
+
+export -f f_typeofscan f_scanname f_scan f_cleanup f_ports f_cidr f_list f_single f_rerun f_run-metasploit
