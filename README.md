@@ -65,7 +65,8 @@ RECON
 
 1.  Passive
 2.  Find registered domains
-3.  Previous menu
+3.  Import names
+4.  Previous menu
 ```
 
 Note: Passive cannot be ran as root.
@@ -75,7 +76,74 @@ theHarvester, Metasploit, Whois, and multiple websites.
 
 * Acquire all free API keys for maximum results with theHarvester.
 * Add API keys to $HOME/.theHarvester/api-keys.yaml
-* Find registered domains writes $HOME/data/registered-domains.txt.
+* Passive builds an HTML report at $HOME/data/<domain>/.
+* Find registered domains updates pages/registered-domains.htm in an existing report.
+
+#### Import names
+
+Run after a passive scan when you want to add or enrich contacts from manual research
+(LinkedIn, company sites, phone directories, etc.).
+
+```
+Enter the location of your previous passive scan:
+/home/user/data/example.com
+
+Enter manual contacts file (or press Enter for default):
+```
+
+* Edit $HOME/data/<domain>/tools/names-manual.tsv
+* Format: Name, Title, Phone (tab-separated, one person per line)
+* Lines starting with # are comments
+* Title and phone may be left blank
+* Re-run Import names whenever you add rows to the manual file
+
+Import names merges three sources, then refreshes pages/names.htm:
+
+1. tools/names — auto-discovered names from the passive scan
+2. pages/names.htm — existing report table (preserves work already in the page)
+3. tools/names-manual.tsv — manual entries; wins for title and phone when filled in
+
+The merged TSV is saved back to tools/names. The names page is a sortable
+three-column table: Name, Title, Phone.
+
+#### SEC leadership (Names page)
+
+For US public companies, Discover pulls executives and directors from SEC
+EDGAR before the names merge step:
+
+1. **DEF 14A** — proxy statement prose and board tables for full titles
+2. **Form 4** — recent insider filings to supplement officers and directors
+
+* Results are written to zsec-people and merged into tools/names with the
+  existing Name, Title, Phone columns (phone left blank).
+* SEC filings do not provide work emails or per-person phone numbers.
+* The Names page layout is unchanged — no email column is added.
+* Manual override: tools/sec-people-manual.tsv (tab-separated: Name, Title, Phone).
+
+#### Company HQ (Summary page)
+
+During passive recon, Discover attempts to fill the address and phone block on
+pages/summary.htm between the company name and domain.
+
+1. **SEC EDGAR 10-K** — for US public companies, reads principal executive
+   office fields from the latest 10-K (inline XBRL `dei:` tags).
+2. **Website footer** — if SEC has no match, scans the cached homepage footer
+   (and contact pages) for address/phone patterns.
+3. **Manual override** — add entries to tools/company-manual.tsv when discovery
+   is wrong or blocked.
+
+Results are written to tools/company.json and injected into pages/summary.htm.
+
+#### Social media (Summary page)
+
+During passive recon, Discover fetches the company homepage and extracts
+official social profile links (facebook, Instagram, LinkedIn, X, YouTube).
+It then attempts to pull follower counts from each profile.
+
+* Results are written to tools/social.tsv and injected into pages/summary.htm.
+* If a platform blocks scraping, the follower count shows **Blocked**.
+* If the homepage is bot-blocked, add URLs to tools/social-manual.tsv
+  (tab-separated: Platform, URL) before or after the scan.
 
 ### Person
 ```

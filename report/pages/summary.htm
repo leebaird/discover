@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="../assets/css/styles.css"/>
+    <link rel="stylesheet" type="text/css" href="../assets/css/modern.css"/>
     <script src="../assets/javascript/jquery.min.js"></script>
     <script src="../assets/javascript/bootstrap.min.js"></script>
 </head>
@@ -85,12 +86,38 @@
 
 <!-- Page Content -->
 <div class="container">
-    <!-- Container to center contents -->
     <div class="inc-page-header">
         <h1>General <span class="inc-icon inc-icon-angle-right"></span> Summary</h1>
     </div>
-    <div class="embed-responsive embed-responsive-16by9">
-        <iframe src="../data/summary.htm" class="embed-responsive-item"></iframe>
+    <div class="inc-content-frame inc-content-frame--fit">
+<pre class="inc-pre">
+#COMPANY#
+
+<!-- INC_COMPANY_START -->Address
+City, State Zip
+Phone<!-- INC_COMPANY_END -->
+#DOMAIN#
+===============================================================================================================================
+
+# Summary paragraph about the company.
+
+https://finance.yahoo.com
+https://www.google.com/finance
+https://www.reuters.com/finance/stocks/lookup
+https://www.sec.gov/edgar/searchedgar/companysearch.html
+
+Accourding to Justia Dockets & Filings, #COMPANY# is currently involved in ### cases.
+https://dockets.justia.com/search?parties=%22COMPANYURL%22
+===============================================================================================================================
+
+<!-- INC_SOCIAL_START -->Social Media     URL                                                          Followers
+
+(none found)
+===============================================================================================================================<!-- INC_SOCIAL_END -->
+
+Google Dork                             Results
+
+</pre>
     </div>
 </div>
 

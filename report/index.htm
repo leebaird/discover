@@ -7,19 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="author v3" content="Hector Portillo">
     <meta name="Description" content="Discover Script's Report Readout">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="assets/css/styles.css"/>
+    <link rel="stylesheet" type="text/css" href="assets/css/modern.css"/>
 
     <script src="assets/javascript/jquery.min.js"></script>
     <script src="assets/javascript/bootstrap.min.js"></script>
 </head>
 
-<body class="inc-iframe-parent">
+<body class="inc-iframe-parent inc-home-page">
 <!-- Start nav bar-->
 <nav class="navbar inc-app-bar">
     <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#incPrimaryAppBar"
                     aria-expanded="false">
@@ -33,7 +33,6 @@
             </a>
         </div>
 
-        <!-- Start of the navbar -->
         <div class="collapse navbar-collapse inc-primary-nav" id="incPrimaryAppBar">
             <ul class="nav navbar-nav">
                 <li class="active"><a href="index.htm">Home</a></li>
@@ -81,22 +80,33 @@
                 <li><a href="pages/report.htm">Report</a></li>
 
             </ul>
-        </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
+        </div>
+    </div>
 </nav>
 
-<!--  -->
-<div class="inc-home-intro">
-    <h1>Open-Source Intelligence</h1>
-    <h1>Threat Landscape</h1>
-    <h3>#DATE#</h3>
-    <br>
-    <h2>#COMPANY#</h2>
-    <h2>#DOMAIN#</h2>
-    <div class="inc-home-intro_customer-logo">
-        <img src="assets/images/logo.png">
+<main class="inc-home-main">
+    <div class="inc-home-hero">
+        <p class="inc-home-eyebrow">Discover Report</p>
+        <h1>Open-Source Intelligence</h1>
+        <p class="inc-home-subtitle">External Threat Landscape</p>
+        <div class="inc-home-meta">
+            <div class="inc-home-meta-item">
+                <span class="value">#DATE#</span>
+            </div>
+            <div class="inc-home-meta-item">
+                <span class="inc-home-meta-label">Company</span>
+                <span class="value">#COMPANY#</span>
+            </div>
+            <div class="inc-home-meta-item">
+                <span class="inc-home-meta-label">Domain</span>
+                <span class="value">#DOMAIN#</span>
+            </div>
+        </div>
+        <div class="inc-home-logo">
+            <img src="assets/images/logo.png" alt="#COMPANY#">
+        </div>
     </div>
-</div>
+</main>
 
 </body>
 </html>

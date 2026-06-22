@@ -84,12 +84,15 @@ if [[ ! "$DOMAIN" =~ ^([a-zA-Z0-9](-?[a-zA-Z0-9])*\.)+[a-zA-Z]{2,63}$ ]]; then
     exit 1
 fi
 
-COMPANYURL=$( printf "%s\n" "$COMPANY" | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
+COMPANYURL=$( printf "%s\n" "$COMPANY" | tr '[:upper:]' '[:lower:]' | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
 
 cp -R "$DISCOVER"/report/ "$HOME"/data/"$DOMAIN"
 sed -i "s/#COMPANY#/$COMPANY/" "$HOME"/data/"$DOMAIN"/index.htm
 sed -i "s/#DOMAIN#/$DOMAIN/" "$HOME"/data/"$DOMAIN"/index.htm
 sed -i "s/#DATE#/$DATESTAMP/" "$HOME"/data/"$DOMAIN"/index.htm
+sed -i "s/#COMPANY#/$COMPANY/" "$HOME"/data/"$DOMAIN"/pages/summary.htm
+sed -i "s/#DOMAIN#/$DOMAIN/" "$HOME"/data/"$DOMAIN"/pages/summary.htm
+sed -i "s/COMPANYURL/$COMPANYURL/" "$HOME"/data/"$DOMAIN"/pages/summary.htm
 
 echo
 echo "$MEDIUM"
@@ -99,7 +102,7 @@ echo
 
 # Number of tests
 COUNT=1
-TOTAL=63
+TOTAL=64
 
 ###############################################################################################################################
 
@@ -132,18 +135,96 @@ f_arin() {
     echo "    Names                ($COUNT/$TOTAL)"
     ((COUNT++))
     if [ -f zhandles ]; then
+        > tmp-pocs
         while read -r LINE; do
-            curl -ks "https://whois.arin.net/rest/poc/$LINE.txt" | grep 'Name' >> tmp
+            {
+                curl -ks "https://whois.arin.net/rest/poc/$LINE.txt"
+                printf '\n---POC---\n'
+            } >> tmp-pocs
         done < zhandles
 
-        if [ -f tmp ]; then
-            grep -Eiv "($COMPANY|@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)" tmp > tmp2
-            sed 's/Name:           //g' tmp2 | tr '[:upper:]' '[:lower:]' | sed 's/\b\(.\)/\u\1/g' > tmp3
-            awk -F", " '{print $2,$1}' tmp3 | sed 's/  / /g' | sed '/^ /d' | sort -u > zarin-names
+        if [ -s tmp-pocs ]; then
+            COMPANY_FILTER="$COMPANY" python3 - tmp-pocs zarin-contacts.tsv zarin-names <<'PY'
+import os
+import re
+import sys
+
+poc_blob = open(sys.argv[1]).read()
+out_tsv = sys.argv[2]
+out_names = sys.argv[3]
+company_filter = os.environ.get("COMPANY_FILTER", "")
+
+skip_re = re.compile(
+    r"(@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom)",
+    re.I,
+)
+if company_filter:
+    skip_re = re.compile(
+        rf"(@|abuse|center|domainnames|helpdesk|hostmaster|network|support|technical|telecom|{re.escape(company_filter)})",
+        re.I,
+    )
+
+def title_case_name(last_first):
+    last_first = last_first.strip()
+    if not last_first:
+        return ""
+    parts = [p.strip() for p in last_first.split(",", 1)]
+    if len(parts) == 2:
+        last, first = parts
+        name = f"{first} {last}"
+    else:
+        name = last_first
+    return " ".join(word[:1].upper() + word[1:].lower() if word else "" for word in name.split())
+
+def pick_office_phone(block):
+    phones = []
+    for line in block.splitlines():
+        if not line.startswith("Phone:"):
+            continue
+        value = line.split(":", 1)[1].strip()
+        if "(Office)" in value:
+            return re.sub(r"\s*\(Office\)\s*$", "", value).strip()
+        phones.append(re.sub(r"\s*\([^)]+\)\s*$", "", value).strip())
+    return phones[0] if phones else ""
+
+rows = []
+plain_names = []
+seen = set()
+
+for block in poc_blob.split("---POC---"):
+    name_raw = company = phone = ""
+    for line in block.splitlines():
+        if line.startswith("Name:"):
+            name_raw = line.split(":", 1)[1].strip()
+        elif line.startswith("Company:"):
+            company = line.split(":", 1)[1].strip()
+    if not name_raw or skip_re.search(name_raw):
+        continue
+    name = title_case_name(name_raw)
+    if not name:
+        continue
+    phone = pick_office_phone(block)
+    key = name.lower()
+    if key in seen:
+        continue
+    seen.add(key)
+    rows.append((name, company, phone))
+    plain_names.append(name)
+
+rows.sort(key=lambda row: row[0].lower())
+plain_names.sort(key=str.lower)
+
+with open(out_tsv, "w") as handle:
+    for name, company, phone in rows:
+        handle.write(f"{name}\t{company}\t{phone}\n")
+
+with open(out_names, "w") as handle:
+    handle.write("\n".join(plain_names) + ("\n" if plain_names else ""))
+PY
         fi
     fi
 
-    rm tmp* zhandles 2>/dev/null
+    rm tmp* tmp-pocs zhandles 2>/dev/null
     echo
 }
 
@@ -168,8 +249,6 @@ f_dnsrecon() {
         : > records
     fi
 
-    cat records >> "$HOME"/data/"$DOMAIN"/data/records.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/records.htm
     rm tmp 2>/dev/null
     echo
 }
@@ -188,7 +267,7 @@ f_dnstwist() {
         ns = "NS:" $6
         mx = ($5 != "" && $5 != "!ServFail") ? "MX:" $5 : ""
         printf "%s\t%s\t%s\t%s\t%s\n", $1, $2, ip, ns, mx
-    }' tmp | column -t -s $'\t' > squatting
+    }' tmp > squatting
     rm tmp 2>/dev/null
     echo
 }
@@ -200,7 +279,7 @@ f_intodns() {
     ((COUNT++))
     wget -q http://www.intodns.com/"$DOMAIN" -O tmp
     # shellcheck disable=SC2002
-    cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="table table-bordered">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
+    cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="inc-dns-config table">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
     cat tmp2 >> "$HOME"/data/"$DOMAIN"/pages/config.htm
 
     sed -i 's|/static/images/error.gif|\.\./assets/images/icons/fail.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
@@ -209,7 +288,9 @@ f_intodns() {
     sed -i 's|/static/images/pass.gif|\.\./assets/images/icons/pass.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
     sed -i 's|/static/images/warn.gif|\.\./assets/images/icons/warn.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
     sed -i 's|\.\.\.\.|\.\.|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    sed -i 's/.*<thead>.*/    <table border="4">\n&/' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    sed -i 's/<table border="4">/<table class="inc-dns-config table">/g; s/<table class="table table-bordered">/<table class="inc-dns-config table">/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    grep -q 'inc-dns-config' "$HOME"/data/"$DOMAIN"/pages/config.htm || \
+        sed -i '0,/<thead>/{s/<thead>/    <table class="inc-dns-config table">\n<thead>/}' "$HOME"/data/"$DOMAIN"/pages/config.htm
     sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' "$HOME"/data/"$DOMAIN"/pages/config.htm
     sed -i '/Math\.random/I,+6 d' "$HOME"/data/"$DOMAIN"/pages/config.htm
     sed -i 's/I could use the nameservers/The nameservers/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
@@ -328,13 +409,47 @@ f_whois_ip() {
     echo "    IP                   ($COUNT/$TOTAL)"
     ((COUNT++))
     local DOMAINIP
-    DOMAINIP=$(dig +short "$DOMAIN")
+    DOMAINIP=$(dig +short "$DOMAIN" | head -1)
+    [ -n "$DOMAINIP" ] || return 0
     whois "$DOMAINIP" > tmp
     grep -Eiv '(#|%|comment|remarks)' tmp | sed '/./,$!d' > tmp2
     sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' tmp2 > tmp3
     cat -s tmp3 > tmp4
     awk '{printf "%-25s %s\n", $1, $2}' tmp4 | sed 's/+1-//g' > whois-ip
     rm tmp* 2>/dev/null
+
+    if [ ! -s whois-ip ]; then
+        rm -f whois-ip
+        return 0
+    fi
+
+    if grep -qiE '^no[[:space:]]+whois' whois-ip; then
+        rm -f whois-ip
+        return 0
+    fi
+
+    if ! grep -qiE '^(inetnum|inet6num|netrange|netname|orgname|organization|descr|org-name|cust-name|owner):' whois-ip; then
+        rm -f whois-ip
+    fi
+}
+
+###############################################################################################################################
+
+f_sec_people() {
+    echo "SEC Leadership           ($COUNT/$TOTAL)"
+    ((COUNT++))
+
+    mkdir -p "$HOME/data/$DOMAIN/tools"
+    if [ ! -f "$HOME/data/$DOMAIN/tools/sec-people-manual.tsv" ]; then
+        cat > "$HOME/data/$DOMAIN/tools/sec-people-manual.tsv" <<'EOF'
+# Manual SEC leadership — tab-separated: Name, Title, Phone
+# Example:
+# Robyn Denholm	Chair of the Board
+EOF
+    fi
+
+    python3 "$DISCOVER"/parsers/sec_people.py "$COMPANY" "$DOMAIN" "$HOME/data/$DOMAIN/tools" "$DISCOVER/zsec-people"
+    echo
 }
 
 ###############################################################################################################################
@@ -342,7 +457,207 @@ f_whois_ip() {
 f_aggregate() {
     cat z* | grep "\@$DOMAIN" | grep -v '[0-9]' | grep -Eiv "(_|,|'|firstname|lastname|test|www|xxx|zzz)" | sort -u > emails
 
-    cat z* | grep -Eiv '(@|:|\.|>|additionally|atlanta|boston|bufferoverun|captcha|detroit|exception|found character|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university|while scanning)' | sed 's/ And / and /; s/ Av / AV /g; s/Dj/DJ/g; s/iii/III/g; s/ii/II/g; s/ It / IT /g; s/Jb/JB/g; s/ Of / of /g; s/Macd/MacD/g; s/Macn/MacN/g; s/Mca/McA/g; s/Mcb/McB/g; s/Mcc/McC/g; s/Mcd/McD/g; s/Mce/McE/g; s/Mcf/McF/g; s/Mcg/McG/g; s/Mch/McH/g; s/Mci/McI/g; s/Mcj/McJ/g; s/Mck/McK/g; s/Mcl/McL/g; s/Mcm/McM/g; s/Mcn/McN/g; s/Mcp/McP/g; s/Mcq/McQ/g; s/Mcs/McS/g; s/Mcv/McV/g; s/Tj/TJ/g; s/ Ui / UI /g; s/ Ux / UX /g; /[0-9]/d; /^ /d; /^$/d' | sort -u > names
+    python3 - "$DOMAIN" names <<'PY'
+import ast
+import csv
+import glob
+import os
+import re
+import sys
+
+domain = sys.argv[1]
+out_path = sys.argv[2]
+
+PHONE_TAIL_RE = re.compile(
+    r"(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}$"
+)
+TITLE_START_RE = re.compile(
+    r"^(VP|SVP|EVP|Director|President|Manager|Consultant|Lead|Chief|Senior|Associate|Head|Officer|Engineer|Analyst|Coordinator|Supervisor|Managing|Executive|Board|CFO|CEO|COO|CISO|CTO)",
+    re.I,
+)
+SKIP_RE = re.compile(
+    r"(@|:|\.|>|additionally|atlanta|boston|bufferoverun|captcha|detroit|exception|found character|google|integers|maryland|must be|north carolina|philadelphia|planning|postmaster|resolutions|search|substring|united|university|while scanning|failed to|no response|error message|an exception)",
+    re.I,
+)
+NAME_MC_RE = [
+    (re.compile(r"\bMacd\b", re.I), "MacD"),
+    (re.compile(r"\bMacn\b", re.I), "MacN"),
+    (re.compile(r"\bMca\b", re.I), "McA"),
+    (re.compile(r"\bMcb\b", re.I), "McB"),
+    (re.compile(r"\bMcc\b", re.I), "McC"),
+    (re.compile(r"\bMcd\b", re.I), "McD"),
+    (re.compile(r"\bMce\b", re.I), "McE"),
+    (re.compile(r"\bMcf\b", re.I), "McF"),
+    (re.compile(r"\bMcg\b", re.I), "McG"),
+    (re.compile(r"\bMch\b", re.I), "McH"),
+    (re.compile(r"\bMci\b", re.I), "McI"),
+    (re.compile(r"\bMcj\b", re.I), "McJ"),
+    (re.compile(r"\bMck\b", re.I), "McK"),
+    (re.compile(r"\bMcl\b", re.I), "McL"),
+    (re.compile(r"\bMcm\b", re.I), "McM"),
+    (re.compile(r"\bMcn\b", re.I), "McN"),
+    (re.compile(r"\bMcp\b", re.I), "McP"),
+    (re.compile(r"\bMcq\b", re.I), "McQ"),
+    (re.compile(r"\bMcs\b", re.I), "McS"),
+    (re.compile(r"\bMcv\b", re.I), "McV"),
+]
+
+
+def normalize_whitespace(value):
+    return " ".join(value.split()).strip()
+
+
+def normalize_name(name):
+    name = normalize_whitespace(name)
+    for pattern, replacement in NAME_MC_RE:
+        name = pattern.sub(replacement, name)
+    replacements = {
+        " And ": " and ",
+        " Av ": " AV ",
+        " It ": " IT ",
+        " Of ": " of ",
+        " Ui ": " UI ",
+        " Ux ": " UX ",
+    }
+    for old, new in replacements.items():
+        name = name.replace(old, new)
+    for token, repl in (("Dj", "DJ"), ("Jb", "JB"), ("Tj", "TJ"), ("iii", "III"), ("ii", "II")):
+        name = re.sub(rf"\b{token}\b", repl, name)
+    return name
+
+
+def merge_key(name):
+    return normalize_name(name).lower()
+
+
+def upsert(store, name, title="", phone=""):
+    name = normalize_name(name)
+    if not name or not re.search(r"[A-Za-z]{2,}", name) or SKIP_RE.search(name):
+        return
+    key = merge_key(name)
+    row = store.setdefault(key, {"name": name, "title": "", "phone": ""})
+    title = normalize_whitespace(title)
+    phone = normalize_whitespace(phone)
+    if title and (not row["title"] or len(title) > len(row["title"])):
+        row["title"] = title
+    if phone and not row["phone"]:
+        row["phone"] = phone
+
+
+def parse_dict_line(line):
+    try:
+        data = ast.literal_eval(line)
+    except (SyntaxError, ValueError):
+        return
+    if not isinstance(data, dict):
+        return
+    first = normalize_whitespace(str(data.get("firstname", "") or data.get("first_name", "")))
+    last = normalize_whitespace(str(data.get("lastname", "") or data.get("last_name", "")))
+    name = normalize_whitespace(f"{first} {last}".strip())
+    if not name:
+        name = normalize_whitespace(str(data.get("name", "")))
+    title = normalize_whitespace(
+        str(
+            data.get("job_title")
+            or data.get("title")
+            or data.get("role")
+            or data.get("department")
+            or ""
+        )
+    )
+    phone = normalize_whitespace(str(data.get("phone", "") or data.get("mobile", "")))
+    upsert(contacts, name, title, phone)
+
+
+def parse_spaced_columns(line):
+    match = re.match(r"^(.+?)\s{2,}(.+?)(?:\s{2,}(.+))?$", line)
+    if not match:
+        return False
+    name, middle, tail = match.group(1).strip(), match.group(2).strip(), (match.group(3) or "").strip()
+    title = middle
+    phone = ""
+    if tail and PHONE_TAIL_RE.search(tail):
+        phone = tail
+    elif PHONE_TAIL_RE.search(middle):
+        phone = middle
+        title = ""
+    upsert(contacts, name, title, phone)
+    return True
+
+
+def parse_freeform_line(line):
+    phone = ""
+    working = line
+    phone_match = re.search(r"\s{2,}((?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4})\s*$", working)
+    if phone_match:
+        phone = phone_match.group(1).strip()
+        working = working[: phone_match.start()].rstrip()
+
+    if re.search(r"\s{2,}", working):
+        parts = [part.strip() for part in re.split(r"\s{2,}", working) if part.strip()]
+        if len(parts) >= 2:
+            upsert(contacts, parts[0], " ".join(parts[1:]), phone)
+            return
+
+    title_match = TITLE_START_RE.search(working)
+    if title_match:
+        upsert(contacts, working[: title_match.start()].strip(), working[title_match.start() :].strip(), phone)
+        return
+
+    upsert(contacts, working, "", phone)
+
+
+contacts = {}
+
+for path in sorted(glob.glob("z*")):
+    if not os.path.isfile(path):
+        continue
+    with open(path, newline="") as handle:
+        for raw in handle:
+            line = raw.strip()
+            if not line or line.startswith("[*]") or line.startswith("---") or line.startswith("^"):
+                continue
+
+            if line.startswith("{") and line.endswith("}"):
+                parse_dict_line(line)
+                continue
+
+            if "\t" in line:
+                row = next(csv.reader([line], delimiter="\t"))
+                while len(row) < 3:
+                    row.append("")
+                name, title, phone = [cell.strip() for cell in row[:3]]
+                if name.lower() in {"name", "first_name", "last_name"}:
+                    continue
+                upsert(contacts, name, title, phone)
+                continue
+
+            if "|" in line and line.count("|") >= 2:
+                parts = [part.strip() for part in line.split("|")]
+                if parts[0].lower() in {"last_name", "first_name"}:
+                    continue
+                if len(parts) >= 3:
+                    last, first, title = parts[0], parts[1], parts[2]
+                    upsert(contacts, f"{first} {last}".strip(), title)
+                continue
+
+            if "@" in line or SKIP_RE.search(line):
+                continue
+
+            if parse_spaced_columns(line):
+                continue
+
+            if re.search(r"\d", line):
+                continue
+
+            parse_freeform_line(line)
+
+rows = sorted(contacts.values(), key=lambda row: row["name"].lower())
+with open(out_path, "w", newline="") as handle:
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    for row in rows:
+        writer.writerow([row["name"], row["title"], row["phone"]])
+PY
 
     cat z* | awk -F: '{print $NF}' | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | grep -Eiv '\b(0\.0\.0\.0|1\.1\.1\.1|1\.1\.1\.2|8\.8\.8\.8|127\.0\.0\.1|127\.0\.0\.53)\b|\.0$' | sort -u | sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > hosts
 
@@ -378,20 +693,10 @@ f_aggregate() {
     done < tmp
     echo
 
-    column -t tmp2 > subdomains
+    awk '{print $1 "\t" $2}' tmp2 > subdomains
     rm tmp tmp2 2>/dev/null
 
-    while IFS= read -r line; do
-        second_column=$(echo "$line" | awk '{print $2}')
-
-        if [[ -n $second_column ]] && ( [[ $second_column =~ ^10\..* ]] || \
-           [[ $second_column =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\..* ]] || \
-           [[ $second_column =~ ^192\.168\..* ]] ); then
-            echo "$line" >> tmp
-        fi
-    done < subdomains
-
-    column -t tmp > private-subs
+    awk -F'[ \t]+' 'NF >= 2 && ($2 ~ /^10\./ || $2 ~ /^172\.(1[6-9]|2[0-9]|3[0-1])\./ || $2 ~ /^192\.168\./) { print $1 "\t" $2 }' subdomains > private-subs
     rm tmp 2>/dev/null
 
     cat z* | grep -Ei '\.(doc|docx)$' | sort -u > doc
@@ -401,6 +706,437 @@ f_aggregate() {
     cat z* | grep -i '\.txt$' | sort -u > txt
 
     find . -type f -empty -delete
+}
+
+###############################################################################################################################
+
+f_report_append_pre_page(){
+    local SRC="$1"
+    local PAGE="$2"
+
+    if [ -n "$SRC" ] && [ -f "$SRC" ]; then
+        cat "$SRC" >> "$PAGE"
+    else
+        echo "No data found." >> "$PAGE"
+    fi
+
+    {
+        echo "</pre>"
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo "</body>"
+        echo "</html>"
+    } >> "$PAGE"
+}
+
+f_report_append_names_page(){
+    local PAGE="$1"
+
+    if [ -f names ] && [ -s names ]; then
+        python3 - names >> "$PAGE" <<'PY'
+import csv
+import html
+import sys
+
+lines = []
+with open(sys.argv[1], newline="") as handle:
+    for row in csv.reader(handle, delimiter="\t"):
+        while len(row) < 3:
+            row.append("")
+        name, title, phone = [cell.strip() for cell in row[:3]]
+        if not name:
+            continue
+        lines.append(
+            "                <tr>"
+            f"<td>{html.escape(name)}</td>"
+            f"<td>{html.escape(title)}</td>"
+            f"<td>{html.escape(phone)}</td>"
+            "</tr>"
+        )
+
+if not lines:
+    lines.append('                <tr><td colspan="3">No data found.</td></tr>')
+
+print("\n".join(lines))
+PY
+    else
+        echo '                <tr><td colspan="3">No data found.</td></tr>' >> "$PAGE"
+    fi
+
+    {
+        echo "            </tbody>"
+        echo "        </table>"
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo '<script src="../assets/javascript/inc-data-table.js"></script>'
+        echo "</body>"
+        echo "</html>"
+    } >> "$PAGE"
+}
+
+f_report_append_records_page(){
+    local PAGE="$1"
+
+    if [ -f records ] && [ -s records ]; then
+        python3 - records >> "$PAGE" <<'PY'
+import html
+import sys
+
+
+def parse_row(raw):
+    raw = raw.strip()
+    if not raw:
+        return None
+
+    parts = raw.split()
+    if len(parts) < 3:
+        return None
+
+    rtype = parts[0].upper()
+    name = parts[1]
+
+    if rtype == "SRV" and len(parts) >= 5:
+        target, address, port = parts[2], parts[3], parts[4]
+        value = f"{target} → {address}:{port}"
+    else:
+        value = " ".join(parts[2:])
+
+    if not name or not value:
+        return None
+
+    return rtype, name, value
+
+
+def render_row(rtype, name, value):
+    row_class = ' class="inc-record-txt"' if rtype == "TXT" else ""
+    title = ""
+    if rtype == "TXT" and len(value) > 120:
+        title = f' title="{html.escape(value, quote=True)}"'
+
+    return (
+        f"                <tr{row_class}>"
+        f"<td>{html.escape(rtype)}</td>"
+        f'<td class="inc-col-name">{html.escape(name)}</td>'
+        f"<td{title}>{html.escape(value)}</td>"
+        "</tr>"
+    )
+
+
+path = sys.argv[1]
+lines = []
+with open(path, newline="") as handle:
+    for raw in handle:
+        parsed = parse_row(raw)
+        if not parsed:
+            continue
+        lines.append(render_row(*parsed))
+
+if not lines:
+    lines.append('                <tr><td colspan="3">No data found.</td></tr>')
+
+print("\n".join(lines))
+PY
+    else
+        echo '                <tr><td colspan="3">No data found.</td></tr>' >> "$PAGE"
+    fi
+
+    {
+        echo "            </tbody>"
+        echo "        </table>"
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo '<script src="../assets/javascript/inc-data-table.js"></script>'
+        echo "</body>"
+        echo "</html>"
+    } >> "$PAGE"
+}
+
+f_report_append_emails_page(){
+    local PAGE="$1"
+
+    if [ -f emails ] && [ -s emails ]; then
+        python3 - emails >> "$PAGE" <<'PY'
+import html
+import sys
+
+lines = []
+with open(sys.argv[1]) as handle:
+    for raw in handle:
+        email = raw.strip()
+        if not email:
+            continue
+        lines.append(
+            "                <tr>"
+            f"<td>{html.escape(email)}</td>"
+            "</tr>"
+        )
+
+if not lines:
+    lines.append('                <tr><td>No data found.</td></tr>')
+
+print("\n".join(lines))
+PY
+    else
+        echo '                <tr><td>No data found.</td></tr>' >> "$PAGE"
+    fi
+
+    {
+        echo "            </tbody>"
+        echo "        </table>"
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo '<script src="../assets/javascript/inc-data-table.js"></script>'
+        echo "</body>"
+        echo "</html>"
+    } >> "$PAGE"
+}
+
+f_report_append_squatting_page(){
+    local PAGE="$1"
+
+    if [ -f squatting ] && [ -s squatting ]; then
+        python3 - squatting >> "$PAGE" <<'PY'
+import csv
+import html
+import sys
+
+def parse_row(raw):
+    raw = raw.strip()
+    if not raw:
+        return None
+
+    if "\t" in raw:
+        row = next(csv.reader([raw], delimiter="\t"))
+        while len(row) < 5:
+            row.append("")
+        fuzzer, domain, ipaddr, ns, mx = [cell.strip() for cell in row[:5]]
+    else:
+        parts = raw.split()
+        if len(parts) < 2:
+            return None
+        fuzzer, domain = parts[0], parts[1]
+        ipaddr = ns = mx = ""
+        for part in parts[2:]:
+            if part.startswith("NS:"):
+                ns = part
+            elif part.startswith("MX:"):
+                mx = part
+            elif not ipaddr:
+                ipaddr = part
+
+    if ipaddr.startswith("NS:"):
+        if not ns:
+            ns = ipaddr
+        ipaddr = ""
+    elif ipaddr.startswith("MX:"):
+        if not mx:
+            mx = ipaddr
+        ipaddr = ""
+
+    if not domain:
+        return None
+    return fuzzer, domain, ipaddr, ns, mx
+
+path = sys.argv[1]
+lines = []
+with open(path, newline="") as handle:
+    for raw in handle:
+        parsed = parse_row(raw)
+        if not parsed:
+            continue
+        fuzzer, domain, ipaddr, ns, mx = parsed
+        lines.append(
+            "                <tr>"
+            f"<td>{html.escape(fuzzer)}</td>"
+            f'<td class="inc-col-domain">{html.escape(domain)}</td>'
+            f"<td>{html.escape(ipaddr)}</td>"
+            f"<td>{html.escape(ns)}</td>"
+            f"<td>{html.escape(mx)}</td>"
+            "</tr>"
+        )
+
+if not lines:
+    lines.append('                <tr><td colspan="5">No data found.</td></tr>')
+
+print("\n".join(lines))
+PY
+    else
+        echo '                <tr><td colspan="5">No data found.</td></tr>' >> "$PAGE"
+    fi
+
+    {
+        echo "            </tbody>"
+        echo "        </table>"
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo '<script src="../assets/javascript/inc-data-table.js"></script>'
+        echo "</body>"
+        echo "</html>"
+    } >> "$PAGE"
+}
+
+f_report_append_subdomains_page(){
+    local PAGE="$1"
+
+    python3 - "$PAGE" private-subs subdomains <<'PY'
+import csv
+import html
+import os
+import re
+import sys
+
+IPV4_RE = re.compile(r"^(\d{1,3}\.){3}\d{1,3}$")
+
+def is_private_ip(ip):
+    if not IPV4_RE.match(ip):
+        return False
+    octets = [int(part) for part in ip.split(".")]
+    if octets[0] == 10:
+        return True
+    if octets[0] == 172 and 16 <= octets[1] <= 31:
+        return True
+    if octets[0] == 192 and octets[1] == 168:
+        return True
+    return False
+
+def parse_row(raw):
+    raw = raw.strip()
+    if not raw:
+        return None
+
+    if "\t" in raw:
+        row = next(csv.reader([raw], delimiter="\t"))
+        while len(row) < 2:
+            row.append("")
+        subdomain, ipaddr = row[0].strip(), row[1].strip()
+    else:
+        parts = raw.split()
+        if not parts:
+            return None
+        if len(parts) == 1:
+            return parts[0], ""
+        if IPV4_RE.match(parts[-1]):
+            return " ".join(parts[:-1]), parts[-1]
+        return parts[0], parts[1] if len(parts) > 1 else ""
+
+    if not subdomain:
+        return None
+    return subdomain, ipaddr
+
+def load_rows(path):
+    rows = []
+    if not path or not os.path.isfile(path):
+        return rows
+    with open(path, newline="") as handle:
+        for raw in handle:
+            parsed = parse_row(raw)
+            if parsed:
+                rows.append(parsed)
+    return rows
+
+def build_table(rows, empty_message, ip_header="IP Address"):
+    lines = [
+        '        <table class="table table-bordered inc-data-table">',
+        "            <thead>",
+        "                <tr>",
+        '                    <th scope="col" class="inc-sortable">Subdomain</th>',
+        f'                    <th scope="col" class="inc-sortable">{html.escape(ip_header)}</th>',
+        "                </tr>",
+        "            </thead>",
+        "            <tbody>",
+    ]
+
+    if rows:
+        for subdomain, ipaddr in rows:
+            lines.append(
+                "                <tr>"
+                f'<td class="inc-col-domain">{html.escape(subdomain)}</td>'
+                f"<td>{html.escape(ipaddr)}</td>"
+                "</tr>"
+            )
+    else:
+        lines.append(f'                <tr><td colspan="2">{html.escape(empty_message)}</td></tr>')
+
+    lines.extend(
+        [
+            "            </tbody>",
+            "        </table>",
+        ]
+    )
+    return lines
+
+page_path, private_path, public_path = sys.argv[1:4]
+private_rows = load_rows(private_path)
+public_rows = [
+    row for row in load_rows(public_path) if not is_private_ip(row[1])
+]
+
+out = []
+if private_rows:
+    out.append('    <div class="inc-content-frame inc-content-frame--table">')
+    out.extend(build_table(private_rows, "No private subdomains found.", "Private IP Address"))
+    out.append("    </div>")
+
+if public_rows or not private_rows:
+    out.append('    <div class="inc-content-frame inc-content-frame--table">')
+    if public_rows:
+        out.extend(build_table(public_rows, "No data found."))
+    else:
+        out.extend(build_table([], "No data found."))
+    out.append("    </div>")
+
+with open(page_path, "a") as handle:
+    handle.write("\n".join(out) + "\n")
+PY
+
+    {
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo '<script src="../assets/javascript/inc-data-table.js"></script>'
+        echo "</body>"
+        echo "</html>"
+    } >> "$PAGE"
+}
+
+###############################################################################################################################
+
+f_company() {
+    echo "Company HQ               ($COUNT/$TOTAL)"
+    ((COUNT++))
+
+    mkdir -p "$HOME/data/$DOMAIN/tools"
+    python3 "$DISCOVER"/parsers/company.py "$COMPANY" "$DOMAIN" "$HOME/data/$DOMAIN/tools" "$HOME/data/$DOMAIN/pages/summary.htm"
+    echo
+}
+
+###############################################################################################################################
+
+f_social() {
+    echo "Social Media             ($COUNT/$TOTAL)"
+    ((COUNT++))
+
+    mkdir -p "$HOME/data/$DOMAIN/tools"
+    if [ ! -f "$HOME/data/$DOMAIN/tools/social-manual.tsv" ]; then
+        cat > "$HOME/data/$DOMAIN/tools/social-manual.tsv" <<'EOF'
+# Manual social profiles — tab-separated: Platform, URL
+# Use when the homepage is bot-blocked or a profile was missed.
+# Example:
+# facebook	https://www.facebook.com/example
+# Instagram	https://www.instagram.com/example
+# Linkedin	https://www.linkedin.com/company/example
+# X	https://x.com/example
+# YouTube	https://www.youtube.com/@example
+EOF
+    fi
+
+    python3 "$DISCOVER"/parsers/social.py "$DOMAIN" "$HOME/data/$DOMAIN/tools" "$HOME/data/$DOMAIN/pages/summary.htm"
+    echo
 }
 
 ###############################################################################################################################
@@ -417,11 +1153,9 @@ f_report() {
     echo "$SMALL" >> tmp
     cat names >> tmp
     echo >> tmp
-    cat names >> "$HOME"/data/"$DOMAIN"/data/names.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/names.htm
+    f_report_append_names_page "$HOME"/data/"$DOMAIN"/pages/names.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/names.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/names.htm
+    f_report_append_names_page "$HOME"/data/"$DOMAIN"/pages/names.htm
 fi
 
 if [ -f emails ]; then
@@ -431,11 +1165,9 @@ if [ -f emails ]; then
     echo "$SMALL" >> tmp
     cat emails >> tmp
     echo >> tmp
-    cat emails >> "$HOME"/data/"$DOMAIN"/data/emails.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/emails.htm
+    f_report_append_emails_page "$HOME"/data/"$DOMAIN"/pages/emails.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/emails.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/emails.htm
+    f_report_append_emails_page "$HOME"/data/"$DOMAIN"/pages/emails.htm
 fi
 
 if [ -f records ]; then
@@ -445,6 +1177,9 @@ if [ -f records ]; then
     echo "$LARGE" >> tmp
     cat records >> tmp
     echo >> tmp
+    f_report_append_records_page "$HOME"/data/"$DOMAIN"/pages/records.htm
+else
+    f_report_append_records_page "$HOME"/data/"$DOMAIN"/pages/records.htm
 fi
 
 if [ -f squatting ]; then
@@ -452,13 +1187,11 @@ if [ -f squatting ]; then
     echo "Squatting             $squattingcount" >> zreport
     echo "Squatting ($squattingcount)" >> tmp
     echo "$LARGE" >> tmp
-    cat squatting >> tmp
+    column -t -s $'\t' squatting >> tmp
     echo >> tmp
-    cat squatting >> "$HOME"/data/"$DOMAIN"/data/squatting.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/squatting.htm
+    f_report_append_squatting_page "$HOME"/data/"$DOMAIN"/pages/squatting.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/squatting.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/squatting.htm
+    f_report_append_squatting_page "$HOME"/data/"$DOMAIN"/pages/squatting.htm
 fi
 
 if [ -f public-ips ]; then
@@ -468,11 +1201,9 @@ if [ -f public-ips ]; then
     echo "$LARGE" >> tmp
     cat public-ips >> tmp
     echo >> tmp
-    cat public-ips >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
+    f_report_append_pre_page public-ips "$HOME"/data/"$DOMAIN"/pages/hosts.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/hosts.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/hosts.htm
 fi
 
 if [ -f private-subs ]; then
@@ -480,12 +1211,8 @@ if [ -f private-subs ]; then
     echo "Private Subdomains    $privatesubcount" >> zreport
     echo "Private Subdomains ($privatesubcount)" >> tmp
     echo "$LARGE" >> tmp
-    cat private-subs >> tmp
+    column -t -s $'\t' private-subs >> tmp
     echo >> tmp
-    cat private-subs >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
-    echo >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
-    echo "$LARGE" >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
-    echo >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
 fi
 
 if [ -f subdomains ]; then
@@ -493,14 +1220,11 @@ if [ -f subdomains ]; then
     echo "Subdomains            $subcount" >> zreport
     echo "Subdomains ($subcount)" >> tmp
     echo "$LARGE" >> tmp
-    cat subdomains >> tmp
+    column -t -s $'\t' subdomains >> tmp
     echo >> tmp
-    cat subdomains >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
-else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/subdomains.htm
 fi
+
+f_report_append_subdomains_page "$HOME"/data/"$DOMAIN"/pages/subdomains.htm
 
 if [ -f xls ]; then
     xlscount=$(wc -l xls | cut -d ' ' -f1)
@@ -509,11 +1233,9 @@ if [ -f xls ]; then
     echo "$LARGE" >> tmp
     cat xls >> tmp
     echo >> tmp
-    cat xls >> "$HOME"/data/"$DOMAIN"/data/xls.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/xls.htm
+    f_report_append_pre_page xls "$HOME"/data/"$DOMAIN"/pages/xls.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/xls.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/xls.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/xls.htm
 fi
 
 if [ -f pdf ]; then
@@ -523,11 +1245,9 @@ if [ -f pdf ]; then
     echo "$LARGE" >> tmp
     cat pdf >> tmp
     echo >> tmp
-    cat pdf >> "$HOME"/data/"$DOMAIN"/data/pdf.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/pdf.htm
+    f_report_append_pre_page pdf "$HOME"/data/"$DOMAIN"/pages/pdf.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/pdf.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/pdf.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/pdf.htm
 fi
 
 if [ -f ppt ]; then
@@ -537,11 +1257,9 @@ if [ -f ppt ]; then
     echo "$LARGE" >> tmp
     cat ppt >> tmp
     echo >> tmp
-    cat ppt >> "$HOME"/data/"$DOMAIN"/data/ppt.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/ppt.htm
+    f_report_append_pre_page ppt "$HOME"/data/"$DOMAIN"/pages/ppt.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/ppt.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/ppt.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/ppt.htm
 fi
 
 if [ -f txt ]; then
@@ -551,11 +1269,9 @@ if [ -f txt ]; then
     echo "$LARGE" >> tmp
     cat txt >> tmp
     echo >> tmp
-    cat txt >> "$HOME"/data/"$DOMAIN"/data/txt.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/txt.htm
+    f_report_append_pre_page txt "$HOME"/data/"$DOMAIN"/pages/txt.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/txt.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/txt.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/txt.htm
 fi
 
 if [ -f doc ]; then
@@ -565,11 +1281,9 @@ if [ -f doc ]; then
     echo "$LARGE" >> tmp
     cat doc >> tmp
     echo >> tmp
-    cat doc >> "$HOME"/data/"$DOMAIN"/data/doc.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/doc.htm
+    f_report_append_pre_page doc "$HOME"/data/"$DOMAIN"/pages/doc.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/doc.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/doc.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/doc.htm
 fi
 
 cat tmp >> zreport
@@ -578,11 +1292,9 @@ if [ -f whois-domain ]; then
     echo "Whois Domain" >> zreport
     echo "$LARGE" >> zreport
     cat whois-domain >> zreport
-    cat whois-domain >> "$HOME"/data/"$DOMAIN"/data/whois-domain.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/whois-domain.htm
+    f_report_append_pre_page whois-domain "$HOME"/data/"$DOMAIN"/pages/whois-domain.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/whois-domain.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/whois-domain.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/whois-domain.htm
 fi
 
 if [ -f whois-ip ]; then
@@ -590,20 +1302,29 @@ if [ -f whois-ip ]; then
     echo "Whois IP" >> zreport
     echo "$LARGE" >> zreport
     cat whois-ip >> zreport
-    cat whois-ip >> "$HOME"/data/"$DOMAIN"/data/whois-ip.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/whois-ip.htm
+    f_report_append_pre_page whois-ip "$HOME"/data/"$DOMAIN"/pages/whois-ip.htm
 else
-    echo "No data found." >> "$HOME"/data/"$DOMAIN"/data/whois-ip.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/whois-ip.htm
+    f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/whois-ip.htm
 fi
 
-    cat zreport >> "$HOME"/data/"$DOMAIN"/data/report.htm
-    echo "</pre>" >> "$HOME"/data/"$DOMAIN"/data/report.htm
+    f_report_append_pre_page zreport "$HOME"/data/"$DOMAIN"/pages/report.htm
 
     rm tmp* zreport 2>/dev/null
 
     mkdir -p "$HOME/data/$DOMAIN/tools"
-    mv names emails hosts private-ips private-subs public-ips records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
+    if [ ! -f "$HOME/data/$DOMAIN/tools/names-manual.tsv" ]; then
+        cat > "$HOME/data/$DOMAIN/tools/names-manual.tsv" <<'EOF'
+# Manual contacts — tab-separated: Name, Title, Phone
+# Add one person per line, then run Domain > Import names.
+EOF
+    fi
+    if [ ! -f "$HOME/data/$DOMAIN/tools/social-manual.tsv" ]; then
+        cat > "$HOME/data/$DOMAIN/tools/social-manual.tsv" <<'EOF'
+# Manual social profiles — tab-separated: Platform, URL
+# Use when the homepage is bot-blocked or a profile was missed.
+EOF
+    fi
+    mv names emails hosts private-ips private-subs public-ips records social.tsv company.json sec-company-tickers.json sec-people.json homepage.html squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
     cd "$PWD" || exit
 
     echo
@@ -687,7 +1408,10 @@ f_theharvester
 f_theharvester_api
 f_whois_domain
 f_whois_ip
+f_sec_people
 f_aggregate
+f_social
+f_company
 f_report
 
 ###############################################################################################################################
