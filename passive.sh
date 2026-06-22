@@ -435,6 +435,25 @@ f_whois_ip() {
 
 ###############################################################################################################################
 
+f_sec_people() {
+    echo "SEC Leadership           ($COUNT/$TOTAL)"
+    ((COUNT++))
+
+    mkdir -p "$HOME/data/$DOMAIN/tools"
+    if [ ! -f "$HOME/data/$DOMAIN/tools/sec-people-manual.tsv" ]; then
+        cat > "$HOME/data/$DOMAIN/tools/sec-people-manual.tsv" <<'EOF'
+# Manual SEC leadership — tab-separated: Name, Title, Phone
+# Example:
+# Robyn Denholm	Chair of the Board
+EOF
+    fi
+
+    python3 "$DISCOVER"/parsers/sec_people.py "$COMPANY" "$DOMAIN" "$HOME/data/$DOMAIN/tools" "$DISCOVER/zsec-people"
+    echo
+}
+
+###############################################################################################################################
+
 f_aggregate() {
     cat z* | grep "\@$DOMAIN" | grep -v '[0-9]' | grep -Eiv "(_|,|'|firstname|lastname|test|www|xxx|zzz)" | sort -u > emails
 
@@ -1305,7 +1324,7 @@ EOF
 # Use when the homepage is bot-blocked or a profile was missed.
 EOF
     fi
-    mv names emails hosts private-ips private-subs public-ips records social.tsv company.json sec-company-tickers.json homepage.html squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
+    mv names emails hosts private-ips private-subs public-ips records social.tsv company.json sec-company-tickers.json sec-people.json homepage.html squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
     cd "$PWD" || exit
 
     echo
@@ -1389,6 +1408,7 @@ f_theharvester
 f_theharvester_api
 f_whois_domain
 f_whois_ip
+f_sec_people
 f_aggregate
 f_social
 f_company

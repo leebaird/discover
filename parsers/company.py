@@ -5,13 +5,13 @@ from __future__ import annotations
 
 import json
 import re
-import subprocess
 import sys
 import urllib.parse
 from pathlib import Path
 
-SEC_USER_AGENT = "Discover Script discover@example.com"
-WEB_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from sec_common import SEC_USER_AGENT, WEB_USER_AGENT, fetch_url, find_cik, latest_filing_url
 
 BLOCKED_HOME_MARKERS = (
     "access denied",
@@ -44,34 +44,6 @@ STREET_HINT_RE = re.compile(
 )
 
 
-def fetch_url(url: str, timeout: int = 25, user_agent: str = WEB_USER_AGENT) -> str:
-    result = subprocess.run(
-        [
-            "curl",
-            "-ksL",
-            "--compressed",
-            "-A",
-            user_agent,
-            "--max-time",
-            str(timeout),
-            url,
-        ],
-        capture_output=True,
-        text=True,
-        errors="replace",
-    )
-    if result.returncode == 0 and result.stdout:
-        return result.stdout
-
-    wget = subprocess.run(
-        ["wget", "-q", "-U", user_agent, f"--timeout={timeout}", "-O", "-", url],
-        capture_output=True,
-        text=True,
-        errors="replace",
-    )
-    return wget.stdout if wget.returncode == 0 else ""
-
-
 def html_to_lines(html: str) -> list[str]:
     text = re.sub(r"<(script|style|noscript)[^>]*>[\s\S]*?</\1>", " ", html, flags=re.I)
     text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
@@ -90,80 +62,6 @@ def extract_footer_html(html: str) -> str:
     if match:
         return match.group(0)
     return html[-20000:]
-
-
-def normalize_name(value: str) -> str:
-    value = value.lower()
-    value = re.sub(r"[^a-z0-9]+", " ", value)
-    return re.sub(r"\s+", " ", value).strip()
-
-
-def company_name_tokens(company: str, domain: str) -> list[str]:
-    tokens = [normalize_name(company)]
-    base = domain.split(".", 1)[0]
-    if base:
-        tokens.append(normalize_name(base))
-    return tokens
-
-
-def find_cik(company: str, domain: str, cache_path: Path) -> str | None:
-    if cache_path.exists():
-        try:
-            payload = json.loads(cache_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            payload = None
-    else:
-        payload = None
-
-    if not isinstance(payload, dict):
-        raw = fetch_url(
-            "https://www.sec.gov/files/company_tickers.json",
-            user_agent=SEC_USER_AGENT,
-        )
-        if not raw or not raw.lstrip().startswith("{"):
-            return None
-        try:
-            payload = json.loads(raw)
-        except json.JSONDecodeError:
-            return None
-        cache_path.write_text(json.dumps(payload), encoding="utf-8")
-
-    tokens = company_name_tokens(company, domain)
-    best: tuple[int, str] | None = None
-    for entry in payload.values():
-        title = normalize_name(str(entry.get("title", "")))
-        cik = str(entry.get("cik_str", "")).strip()
-        if not title or not cik:
-            continue
-        for token in tokens:
-            if not token:
-                continue
-            if title == token or token in title or title in token:
-                score = 100 if title == token else 80 if title.startswith(token) else 60
-                if best is None or score > best[0]:
-                    best = (score, cik.zfill(10))
-    return best[1] if best else None
-
-
-def latest_10k_url(cik: str) -> str | None:
-    cik_num = str(int(cik))
-    raw = fetch_url(
-        f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json",
-        user_agent=SEC_USER_AGENT,
-    )
-    if not raw:
-        return None
-
-    data = json.loads(raw)
-    recent = data.get("filings", {}).get("recent", {})
-    forms = recent.get("form", [])
-    for index, form in enumerate(forms):
-        if form != "10-K":
-            continue
-        accession = recent["accessionNumber"][index].replace("-", "")
-        primary = recent["primaryDocument"][index]
-        return f"https://www.sec.gov/Archives/edgar/data/{cik_num}/{accession}/{primary}"
-    return None
 
 
 def parse_dei_fields(html: str) -> dict[str, str]:
@@ -191,7 +89,7 @@ def sec_contact(company: str, domain: str, tools_dir: Path) -> tuple[list[str], 
     if not cik:
         return None
 
-    filing_url = latest_10k_url(cik)
+    filing_url = latest_filing_url(cik, ("10-K",))
     if not filing_url:
         return None
 

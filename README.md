@@ -106,6 +106,20 @@ Import names merges three sources, then refreshes pages/names.htm:
 The merged TSV is saved back to tools/names. The names page is a sortable
 three-column table: Name, Title, Phone.
 
+#### SEC leadership (Names page)
+
+For US public companies, Discover pulls executives and directors from SEC
+EDGAR before the names merge step:
+
+1. **DEF 14A** — proxy statement prose and board tables for full titles
+2. **Form 4** — recent insider filings to supplement officers and directors
+
+* Results are written to zsec-people and merged into tools/names with the
+  existing Name, Title, Phone columns (phone left blank).
+* SEC filings do not provide work emails or per-person phone numbers.
+* The Names page layout is unchanged — no email column is added.
+* Manual override: tools/sec-people-manual.tsv (tab-separated: Name, Title, Phone).
+
 #### Company HQ (Summary page)
 
 During passive recon, Discover attempts to fill the address and phone block on
