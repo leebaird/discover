@@ -1336,7 +1336,9 @@ EOF
 ###############################################################################################################################
 
 f_firefox() {
-    local USER_AGENTS OTHER_URLS GOOGLE_URLS url USER_AGENT sleep_time
+    local USER_AGENTS OTHER_URLS GOOGLE_URLS GOOGLE_INTEXT_EXCLUDE url USER_AGENT sleep_time
+
+    GOOGLE_INTEXT_EXCLUDE='-intext:%22MANAGEMENT%27S+DISCUSSION+AND+ANALYSIS%22+-intext:%22General+Services+Administration%22+-intext:public'
 
     USER_AGENTS=(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
@@ -1359,7 +1361,6 @@ f_firefox() {
     "https://intelx.io/?s=%40$DOMAIN&b=leaks.public.wikileaks,leaks.public.general,dumpster,documents.public.scihub"
     "https://networksdb.io/search/org/%22$COMPANYURL%22"
     "https://phonebook.cz"
-    "https://shdn.io/analyze?target=$DOMAIN"
     "https://www.shodan.io/search?query=$DOMAIN"
     "https://$DOMAIN"
     )
@@ -1372,12 +1373,12 @@ f_firefox() {
     "https://www.google.com/search?q=site:http://drive.google.com+%22$DOMAIN%22"
     "https://www.google.com/search?q=site:http://googleapis.com+%22$DOMAIN%22"
     "https://www.google.com/search?q=site:pastebin.com+%22$DOMAIN%22+password"
-    "https://www.google.com/search?q=site:$DOMAIN+username+OR+password+OR+login+-Find"
-    "https://www.google.com/search?q=site:$DOMAIN+ext:(doc+|docx+|xls+|xlsx+|ppt+|pptx)"
-    "https://www.google.com/search?q=site:$DOMAIN+(filetype:pdf+OR+filetype:txt)"
-    "https://www.google.com/search?q=site:$DOMAIN+%22index+of/%22+OR+%22parent+directory%22"
-    "https://www.google.com/search?q=site:$DOMAIN+(%22highly+confidential%22+OR+%22restricted+access%22+OR+%22sensitive+data%22+OR+%22social+security+number%22+OR+%22passport+number%22+OR+%22employee+details%22+OR+%22salary+report%22+OR+%22performance+review%22+OR+%22personal+information%22+OR+%22internal+use+only%22+OR+%22proprietary+and+confidential%22)"
-    "https://www.google.com/search?q=site:$DOMAIN+intitle%3Alogin+%7C+inurl%3Alogin+%7C+intitle%3Asignin+%7C+inurl%3Asignin+%7C+inurl%3Asecure"
+    "https://www.google.com/search?q=site:$DOMAIN+username+OR+password+OR+login+-Find+$GOOGLE_INTEXT_EXCLUDE"
+    "https://www.google.com/search?q=site:$DOMAIN+ext:(doc+|docx+|xls+|xlsx+|ppt+|pptx)+$GOOGLE_INTEXT_EXCLUDE"
+    "https://www.google.com/search?q=site:$DOMAIN+(filetype:pdf+OR+filetype:txt)+$GOOGLE_INTEXT_EXCLUDE"
+    "https://www.google.com/search?q=site:$DOMAIN+%22index+of/%22+OR+%22parent+directory%22+$GOOGLE_INTEXT_EXCLUDE"
+    "https://www.google.com/search?q=site:$DOMAIN+(%22highly+confidential%22+OR+%22restricted+access%22+OR+%22sensitive+data%22+OR+%22social+security+number%22+OR+%22passport+number%22+OR+%22employee+details%22+OR+%22salary+report%22+OR+%22performance+review%22+OR+%22personal+information%22+OR+%22internal+use+only%22+OR+%22proprietary+and+confidential%22)+$GOOGLE_INTEXT_EXCLUDE"
+    "https://www.google.com/search?q=site:$DOMAIN+intitle%3Alogin+%7C+inurl%3Alogin+%7C+intitle%3Asignin+%7C+inurl%3Asignin+%7C+inurl%3Asecure+$GOOGLE_INTEXT_EXCLUDE"
     )
 
     for url in "${OTHER_URLS[@]}"; do
