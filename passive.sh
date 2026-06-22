@@ -33,14 +33,6 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 clear
 f_banner
 
-# Check if Firefox is running
-if pgrep -x "firefox|firefox-bin" > /dev/null; then
-	echo
-    echo "[!] Close all Firefox instances before running script."
-	echo
-    exit 1
-fi
-
 echo -e "${BLUE}Uses ARIN, DNSRecon, dnstwist, subfinder, sublist3r,${NC}"
 echo -e "${BLUE}theHarvester, Metasploit, Whois, and multiple websites.${NC}"
 echo
@@ -1335,67 +1327,6 @@ EOF
 
 ###############################################################################################################################
 
-f_firefox() {
-    local USER_AGENTS OTHER_URLS GOOGLE_URLS GOOGLE_INTEXT_EXCLUDE url USER_AGENT sleep_time
-
-    GOOGLE_INTEXT_EXCLUDE='-intext:%22MANAGEMENT%27S+DISCUSSION+AND+ANALYSIS%22+-intext:%22General+Services+Administration%22+-intext:public'
-
-    USER_AGENTS=(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.3912.86"
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15"
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
-    "Mozilla/5.0 (X11; Linux x86_64; rv:145.0) Gecko/20100101 Firefox/145.0"
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0"
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:145.0) Gecko/20100101 Firefox/145.0"
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/147.0.6778.73 Mobile/15E148 Safari/604.1"
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Mobile/15E148 Safari/604.1"
-    "Mozilla/5.0 (Linux; Android 15; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.6778.39 Mobile Safari/537.36"
-    "Mozilla/5.0 (Android 15; Mobile; rv:145.0) Gecko/145.0 Firefox/145.0"
-    )
-
-    OTHER_URLS=(
-    "https://dnsdumpster.com"
-    "https://dockets.justia.com/search?parties=%22$COMPANYURL%22&cases=mostrecent"
-    "https://intelx.io/?s=%40$DOMAIN&b=leaks.public.wikileaks,leaks.public.general,dumpster,documents.public.scihub"
-    "https://networksdb.io/search/org/%22$COMPANYURL%22"
-    "https://phonebook.cz"
-    "https://www.shodan.io/search?query=$DOMAIN"
-    "https://$DOMAIN"
-    )
-
-    GOOGLE_URLS=(
-    "https://www.google.com/search?q=%22$COMPANYURL%22+logo"
-    "https://www.google.com/search?q=site:http://s3.amazonaws.com+%22$DOMAIN%22"
-    "https://www.google.com/search?q=site:http://blob.core.windows.net+%22$DOMAIN%22"
-    "https://www.google.com/search?q=site:dev.azure.com+%22$DOMAIN%22"
-    "https://www.google.com/search?q=site:http://drive.google.com+%22$DOMAIN%22"
-    "https://www.google.com/search?q=site:http://googleapis.com+%22$DOMAIN%22"
-    "https://www.google.com/search?q=site:pastebin.com+%22$DOMAIN%22+password"
-    "https://www.google.com/search?q=site:$DOMAIN+username+OR+password+OR+login+-Find+$GOOGLE_INTEXT_EXCLUDE"
-    "https://www.google.com/search?q=site:$DOMAIN+ext:(doc+|docx+|xls+|xlsx+|ppt+|pptx)+$GOOGLE_INTEXT_EXCLUDE"
-    "https://www.google.com/search?q=site:$DOMAIN+(filetype:pdf+OR+filetype:txt)+$GOOGLE_INTEXT_EXCLUDE"
-    "https://www.google.com/search?q=site:$DOMAIN+%22index+of/%22+OR+%22parent+directory%22+$GOOGLE_INTEXT_EXCLUDE"
-    "https://www.google.com/search?q=site:$DOMAIN+(%22highly+confidential%22+OR+%22restricted+access%22+OR+%22sensitive+data%22+OR+%22social+security+number%22+OR+%22passport+number%22+OR+%22employee+details%22+OR+%22salary+report%22+OR+%22performance+review%22+OR+%22personal+information%22+OR+%22internal+use+only%22+OR+%22proprietary+and+confidential%22)+$GOOGLE_INTEXT_EXCLUDE"
-    "https://www.google.com/search?q=site:$DOMAIN+intitle%3Alogin+%7C+inurl%3Alogin+%7C+intitle%3Asignin+%7C+inurl%3Asignin+%7C+inurl%3Asecure+$GOOGLE_INTEXT_EXCLUDE"
-    )
-
-    for url in "${OTHER_URLS[@]}"; do
-        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
-        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null &
-        sleep $((RANDOM % 4 + 3))
-    done
-
-    for url in "${GOOGLE_URLS[@]}"; do
-        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
-        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null
-        sleep $((RANDOM % 8 + 8))
-    done
-}
-
-###############################################################################################################################
-
 # Comment out functions for tools you don't want to run.
 
 f_arin
@@ -1414,9 +1345,4 @@ f_aggregate
 f_social
 f_company
 f_report
-
-###############################################################################################################################
-
-f_runlocally
-f_firefox
 

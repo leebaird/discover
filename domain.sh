@@ -353,22 +353,134 @@ f_regdomain_report_progress(){
     ) 201>"$REGDOMAIN_TMPDIR/progress.lock"
 }
 
+f_web_search() {
+    local USER_AGENTS OTHER_URLS GOOGLE_URLS GOOGLE_INTEXT_EXCLUDE url USER_AGENT sleep_time
+
+    GOOGLE_INTEXT_EXCLUDE='-intext:%22MANAGEMENT%27S+DISCUSSION+AND+ANALYSIS%22+-intext:%22General+Services+Administration%22+-intext:public'
+
+    USER_AGENTS=(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.3912.86"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15"
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (X11; Linux x86_64; rv:145.0) Gecko/20100101 Firefox/145.0"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:145.0) Gecko/20100101 Firefox/145.0"
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/147.0.6778.73 Mobile/15E148 Safari/604.1"
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Mobile/15E148 Safari/604.1"
+    "Mozilla/5.0 (Linux; Android 15; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.6778.39 Mobile Safari/537.36"
+    "Mozilla/5.0 (Android 15; Mobile; rv:145.0) Gecko/145.0 Firefox/145.0"
+    )
+
+    OTHER_URLS=(
+    "https://dnsdumpster.com"
+    "https://dockets.justia.com/search?parties=%22$COMPANYURL%22&cases=mostrecent"
+    "https://intelx.io/?s=%40$DOMAIN&b=leaks.public.wikileaks,leaks.public.general,dumpster,documents.public.scihub"
+    "https://networksdb.io/search/org/%22$COMPANYURL%22"
+    "https://phonebook.cz"
+    "https://www.shodan.io/search?query=$DOMAIN"
+    "https://$DOMAIN"
+    )
+
+    GOOGLE_URLS=(
+    "https://www.google.com/search?q=%22$COMPANYURL%22+logo"
+    "https://www.google.com/search?q=site:http://s3.amazonaws.com+%22$DOMAIN%22"
+    "https://www.google.com/search?q=site:http://blob.core.windows.net+%22$DOMAIN%22"
+    "https://www.google.com/search?q=site:dev.azure.com+%22$DOMAIN%22"
+    "https://www.google.com/search?q=site:http://drive.google.com+%22$DOMAIN%22"
+    "https://www.google.com/search?q=site:http://googleapis.com+%22$DOMAIN%22"
+    "https://www.google.com/search?q=site:pastebin.com+%22$DOMAIN%22+password"
+    "https://www.google.com/search?q=site:$DOMAIN+username+OR+password+OR+login+-Find+$GOOGLE_INTEXT_EXCLUDE"
+    "https://www.google.com/search?q=site:$DOMAIN+ext:(doc+|docx+|xls+|xlsx+|ppt+|pptx)+$GOOGLE_INTEXT_EXCLUDE"
+    "https://www.google.com/search?q=site:$DOMAIN+(filetype:pdf+OR+filetype:txt)+$GOOGLE_INTEXT_EXCLUDE"
+    "https://www.google.com/search?q=site:$DOMAIN+%22index+of/%22+OR+%22parent+directory%22+$GOOGLE_INTEXT_EXCLUDE"
+    "https://www.google.com/search?q=site:$DOMAIN+(%22highly+confidential%22+OR+%22restricted+access%22+OR+%22sensitive+data%22+OR+%22social+security+number%22+OR+%22passport+number%22+OR+%22employee+details%22+OR+%22salary+report%22+OR+%22performance+review%22+OR+%22personal+information%22+OR+%22internal+use+only%22+OR+%22proprietary+and+confidential%22)+$GOOGLE_INTEXT_EXCLUDE"
+    "https://www.google.com/search?q=site:$DOMAIN+intitle%3Alogin+%7C+inurl%3Alogin+%7C+intitle%3Asignin+%7C+inurl%3Asignin+%7C+inurl%3Asecure+$GOOGLE_INTEXT_EXCLUDE"
+    )
+
+    for url in "${OTHER_URLS[@]}"; do
+        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
+        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null &
+        sleep $((RANDOM % 4 + 3))
+    done
+
+    for url in "${GOOGLE_URLS[@]}"; do
+        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
+        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null
+        sleep $((RANDOM % 8 + 8))
+    done
+}
+
 clear
 f_banner
 
 echo -e "${BLUE}RECON${NC}"
 echo
 echo "1.  Passive"
-echo "2.  Find registered domains"
-echo "3.  Import names"
-echo "4.  Previous menu"
+echo "2.  Web search"
+echo "3.  Find registered domains"
+echo "4.  Import names"
+echo "5.  Previous menu"
 echo
 echo -n "Choice: "
 read -r CHOICE
 
 case "$CHOICE" in
     1) "$DISCOVER"/passive.sh && exit ;;
-    2)  clear
+    2)  f_runlocally
+        clear
+        f_banner
+
+        if pgrep -x "firefox|firefox-bin" > /dev/null; then
+            echo
+            echo "[!] Close all Firefox instances before running script."
+            echo
+            exit 1
+        fi
+
+        echo -e "${BLUE}Web search.${NC}"
+        echo
+        echo "$MEDIUM"
+        echo
+        echo "Usage"
+        echo
+        echo "Company: Target"
+        echo "Domain:  target.com"
+        echo
+        echo "$MEDIUM"
+        echo
+        echo -n "Company: "
+        read -r COMPANY
+
+        if [[ -z "$COMPANY" ]]; then
+            f_error
+        fi
+
+        echo -n "Domain:  "
+        read -r DOMAIN
+
+        if [ -z "$DOMAIN" ]; then
+            f_error
+        fi
+
+        if [[ ! "$DOMAIN" =~ ^([a-zA-Z0-9](-?[a-zA-Z0-9])*\.)+[a-zA-Z]{2,63}$ ]]; then
+            echo
+            echo -e "${RED}$SMALL${NC}"
+            echo
+            echo -e "${RED}[!] Invalid domain.${NC}"
+            echo
+            echo -e "${RED}$SMALL${NC}"
+            echo
+            exit 1
+        fi
+
+        COMPANYURL=$( printf "%s\n" "$COMPANY" | tr '[:upper:]' '[:lower:]' | sed 's/ /%20/g; s/\&/%26/g; s/\,/%2C/g' )
+
+        f_web_search
+        exit
+        ;;
+    3)  clear
         f_banner
 
         echo -e "${BLUE}Find registered domains.${NC}"
@@ -492,7 +604,7 @@ case "$CHOICE" in
         unset LOCATION DISCOVER_REPORT
         exit 0
         ;;
-    3) "$DISCOVER"/names.sh && exit ;;
-    4) f_main ;;
+    4) "$DISCOVER"/names.sh && exit ;;
+    5) f_main ;;
     *) f_error ;;
 esac
