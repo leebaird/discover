@@ -397,6 +397,7 @@ f_web_search() {
     "https://www.google.com/search?q=site:$DOMAIN+%22index+of/%22+OR+%22parent+directory%22+$GOOGLE_INTEXT_EXCLUDE"
     "https://www.google.com/search?q=site:$DOMAIN+(%22highly+confidential%22+OR+%22restricted+access%22+OR+%22sensitive+data%22+OR+%22social+security+number%22+OR+%22passport+number%22+OR+%22employee+details%22+OR+%22salary+report%22+OR+%22performance+review%22+OR+%22personal+information%22+OR+%22internal+use+only%22+OR+%22proprietary+and+confidential%22)+$GOOGLE_INTEXT_EXCLUDE"
     "https://www.google.com/search?q=site:$DOMAIN+intitle%3Alogin+%7C+inurl%3Alogin+%7C+intitle%3Asignin+%7C+inurl%3Asignin+%7C+inurl%3Asecure+$GOOGLE_INTEXT_EXCLUDE"
+    "https://www.google.com/search?q=site:$DOMAIN+ext:log+%7C+ext:txt+%7C+ext:conf+%7C+ext:cnf+%7C+ext:ini+%7C+ext:env+%7C+ext:sh+%7C+ext:bak+%7C+ext:backup+%7C+ext:swp+%7C+ext:old+%7C+ext:~+%7C+ext:git+%7C+ext:svn+%7C+ext:htpasswd+%7C+ext:htaccess+%7C+ext:json"
     )
 
     for url in "${OTHER_URLS[@]}"; do
