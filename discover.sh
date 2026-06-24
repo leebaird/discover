@@ -346,4 +346,6 @@ f_main(){
 export -f f_main
 
 # Run the script
-f_main
+if [[ -z "${DISCOVER_SOURCE_ONLY:-}" ]]; then
+    f_main
+fi

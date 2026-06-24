@@ -65,8 +65,10 @@ RECON
 
 1.  Passive
 2.  Find registered domains
-3.  Import names
-4.  Previous menu
+3.  Google dorks
+4.  Web search
+5.  Import names
+6.  Previous menu
 ```
 
 Note: Passive cannot be ran as root.

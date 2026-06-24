@@ -2,6 +2,13 @@
 
 # by Lee Baird (@discoverscripts)
 
+DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+export DISCOVER
+
+shopt -u expand_aliases 2>/dev/null || true
+
+DISCOVER_SOURCE_ONLY=1 source "$DISCOVER/discover.sh"
+
 f_regdomain_die(){
     echo
     echo -e "${RED}$SMALL${NC}"
@@ -353,11 +360,16 @@ f_regdomain_report_progress(){
     ) 201>"$REGDOMAIN_TMPDIR/progress.lock"
 }
 
-f_web_search() {
-    local USER_AGENTS OTHER_URLS GOOGLE_URLS GOOGLE_INTEXT_EXCLUDE url USER_AGENT sleep_time
+f_firefox_check(){
+    if pgrep -x "firefox|firefox-bin" > /dev/null; then
+        echo
+        echo "[!] Close all Firefox instances before running script."
+        echo
+        exit 1
+    fi
+}
 
-    GOOGLE_INTEXT_EXCLUDE='-intext:%22MANAGEMENT%27S+DISCUSSION+AND+ANALYSIS%22+-intext:%22General+Services+Administration%22+-intext:public'
-
+f_firefox_user_agents(){
     USER_AGENTS=(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.3912.86"
@@ -372,6 +384,12 @@ f_web_search() {
     "Mozilla/5.0 (Linux; Android 15; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.6778.39 Mobile Safari/537.36"
     "Mozilla/5.0 (Android 15; Mobile; rv:145.0) Gecko/145.0 Firefox/145.0"
     )
+}
+
+f_web_search() {
+    local USER_AGENTS OTHER_URLS url USER_AGENT
+
+    f_firefox_user_agents
 
     OTHER_URLS=(
     "https://dnsdumpster.com"
@@ -382,6 +400,20 @@ f_web_search() {
     "https://www.shodan.io/search?query=$DOMAIN"
     "https://$DOMAIN"
     )
+
+    for url in "${OTHER_URLS[@]}"; do
+        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
+        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null &
+        sleep $((RANDOM % 4 + 3))
+    done
+}
+
+f_google_dorks() {
+    local USER_AGENTS GOOGLE_URLS GOOGLE_INTEXT_EXCLUDE url USER_AGENT
+
+    GOOGLE_INTEXT_EXCLUDE='-intext:%22MANAGEMENT%27S+DISCUSSION+AND+ANALYSIS%22+-intext:%22General+Services+Administration%22+-intext:public'
+
+    f_firefox_user_agents
 
     GOOGLE_URLS=(
     "https://www.google.com/search?q=%22$COMPANYURL%22+logo"
@@ -400,12 +432,6 @@ f_web_search() {
     "https://www.google.com/search?q=site:$DOMAIN+ext:log+%7C+ext:txt+%7C+ext:conf+%7C+ext:cnf+%7C+ext:ini+%7C+ext:env+%7C+ext:sh+%7C+ext:bak+%7C+ext:backup+%7C+ext:swp+%7C+ext:old+%7C+ext:~+%7C+ext:git+%7C+ext:svn+%7C+ext:htpasswd+%7C+ext:htaccess+%7C+ext:json"
     )
 
-    for url in "${OTHER_URLS[@]}"; do
-        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
-        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null &
-        sleep $((RANDOM % 4 + 3))
-    done
-
     for url in "${GOOGLE_URLS[@]}"; do
         USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
         firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null
@@ -419,33 +445,18 @@ f_banner
 echo -e "${BLUE}RECON${NC}"
 echo
 echo "1.  Passive"
-echo "2.  Web search and Google dorks"
-echo "3.  Find registered domains"
-echo "4.  Import names"
-echo "5.  Previous menu"
+echo "2.  Find registered domains"
+echo "3.  Google dorks"
+echo "4.  Web search"
+echo "5.  Import names"
+echo "6.  Previous menu"
 echo
 echo -n "Choice: "
 read -r CHOICE
 
 case "$CHOICE" in
     1) "$DISCOVER"/passive.sh && exit ;;
-    2)  f_runlocally
-        clear
-        f_banner
-
-        if pgrep -x "firefox|firefox-bin" > /dev/null; then
-            echo
-            echo "[!] Close all Firefox instances before running script."
-            echo
-            exit 1
-        fi
-
-        echo -e "${BLUE}Web search.${NC}"
-        f_company_domain
-        f_web_search
-        exit
-        ;;
-    3)  clear
+    2)  clear
         f_banner
 
         echo -e "${BLUE}Find registered domains.${NC}"
@@ -569,7 +580,29 @@ case "$CHOICE" in
         unset LOCATION DISCOVER_REPORT
         exit 0
         ;;
-    4) "$DISCOVER"/names.sh && exit ;;
-    5) exec "$DISCOVER"/discover.sh ;;
+    3)  f_runlocally
+        clear
+        f_banner
+        f_firefox_check
+
+        echo -e "${BLUE}Google dorks.${NC}"
+        f_company_domain
+        f_google_dorks
+        echo
+        exit
+        ;;
+    4)  f_runlocally
+        clear
+        f_banner
+        f_firefox_check
+
+        echo -e "${BLUE}Web search.${NC}"
+        f_company_domain
+        f_web_search
+        echo
+        exit
+        ;;
+    5) "$DISCOVER"/names.sh && exit ;;
+    6) exec "$DISCOVER"/discover.sh ;;
     *) f_error ;;
 esac
