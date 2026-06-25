@@ -9,6 +9,17 @@ shopt -u expand_aliases 2>/dev/null || true
 
 DISCOVER_SOURCE_ONLY=1 source "$DISCOVER/discover.sh"
 
+f_error(){
+    echo
+    echo -e "${RED}$SMALL${NC}"
+    echo
+    echo -e "${RED}[!] Invalid choice or entry.${NC}"
+    echo
+    echo -e "${RED}$SMALL${NC}"
+    sleep 2
+    f_domain_menu
+}
+
 f_regdomain_die(){
     echo
     echo -e "${RED}$SMALL${NC}"
@@ -360,12 +371,19 @@ f_regdomain_report_progress(){
     ) 201>"$REGDOMAIN_TMPDIR/progress.lock"
 }
 
+f_firefox_running(){
+    pgrep -x firefox >/dev/null 2>&1 \
+        || pgrep -x firefox-bin >/dev/null 2>&1 \
+        || pgrep -x firefox-esr >/dev/null 2>&1 \
+        || pgrep -f '/[f]irefox/' >/dev/null 2>&1
+}
+
 f_firefox_check(){
-    if pgrep -x "firefox|firefox-bin" > /dev/null; then
+    if f_firefox_running; then
         echo
         echo "[!] Close all Firefox instances before running script."
         echo
-        exit 1
+        return 1
     fi
 }
 
@@ -398,13 +416,34 @@ f_web_search() {
     "https://networksdb.io/search/org/%22$COMPANYURL%22"
     "https://phonebook.cz"
     "https://www.shodan.io/search?query=$DOMAIN"
-    "https://$DOMAIN"
     )
 
     for url in "${OTHER_URLS[@]}"; do
         USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
         firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null &
         sleep $((RANDOM % 4 + 3))
+    done
+}
+
+f_breaches() {
+    local USER_AGENTS BREACH_URLS url USER_AGENT
+
+    f_firefox_user_agents
+
+    BREACH_URLS=(
+    "https://app.dehashed.com"
+    "https://intelx.io"
+    "https://leak-lookup.com"
+    "https://leakcheck.io"
+    "https://leakradar.io"
+    "https://www.proxynova.com/tools/comb"
+    "https://snusbase.com/"
+    )
+
+    for url in "${BREACH_URLS[@]}"; do
+        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
+        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null &
+        sleep 1
     done
 }
 
@@ -439,24 +478,35 @@ f_google_dorks() {
     done
 }
 
-clear
-f_banner
+f_domain_menu(){
+    clear
+    f_banner
 
-echo -e "${BLUE}RECON${NC}"
-echo
-echo "1.  Passive"
-echo "2.  Find registered domains"
-echo "3.  Google dorks"
-echo "4.  Web search"
-echo "5.  Import names"
-echo "6.  Previous menu"
-echo
-echo -n "Choice: "
-read -r CHOICE
+    echo -e "${BLUE}RECON${NC}"
+    echo
+    echo "1.  Passive"
+    echo "2.  Breaches"
+    echo "3.  Find registered domains"
+    echo "4.  Google dorks"
+    echo "5.  Web search"
+    echo "6.  Import names"
+    echo "7.  Previous menu"
+    echo
+    echo -n "Choice: "
+    read -r CHOICE
 
-case "$CHOICE" in
+    case "$CHOICE" in
     1) "$DISCOVER"/passive.sh && exit ;;
-    2)  clear
+    2)  f_runlocally
+        clear
+        f_banner
+
+        echo -e "${BLUE}Breaches.${NC}"
+        f_breaches
+        echo
+        exit
+        ;;
+    3)  clear
         f_banner
 
         echo -e "${BLUE}Find registered domains.${NC}"
@@ -580,10 +630,10 @@ case "$CHOICE" in
         unset LOCATION DISCOVER_REPORT
         exit 0
         ;;
-    3)  f_runlocally
+    4)  f_runlocally
+        f_firefox_check || { f_domain_menu; return; }
         clear
         f_banner
-        f_firefox_check
 
         echo -e "${BLUE}Google dorks.${NC}"
         f_company_domain
@@ -591,10 +641,10 @@ case "$CHOICE" in
         echo
         exit
         ;;
-    4)  f_runlocally
+    5)  f_runlocally
+        f_firefox_check || { f_domain_menu; return; }
         clear
         f_banner
-        f_firefox_check
 
         echo -e "${BLUE}Web search.${NC}"
         f_company_domain
@@ -602,7 +652,10 @@ case "$CHOICE" in
         echo
         exit
         ;;
-    5) "$DISCOVER"/names.sh && exit ;;
-    6) exec "$DISCOVER"/discover.sh ;;
+    6) "$DISCOVER"/names.sh && exit ;;
+    7) exec "$DISCOVER"/discover.sh ;;
     *) f_error ;;
-esac
+    esac
+}
+
+f_domain_menu

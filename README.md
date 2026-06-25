@@ -64,11 +64,12 @@ DEV
 RECON
 
 1.  Passive
-2.  Find registered domains
-3.  Google dorks
-4.  Web search
-5.  Import names
-6.  Previous menu
+2.  Breaches
+3.  Find registered domains
+4.  Google dorks
+5.  Web search
+6.  Import names
+7.  Previous menu
 ```
 
 Note: Passive cannot be ran as root.
