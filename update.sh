@@ -124,57 +124,6 @@ if ! command -v sqlmap &> /dev/null; then
     echo
 fi
 
-f_sublist3r_patch() {
-    sed -i \
-        -e 's/class enumratorBaseThreaded(multiprocessing.Process, enumratorBase)/class enumratorBaseThreaded(threading.Thread, enumratorBase)/' \
-        -e 's/multiprocessing.Process.__init__(self)/threading.Thread.__init__(self)/' \
-        -e 's/subdomains_queue = multiprocessing.Manager().list()/subdomains_queue = list()/' \
-        /opt/Sublist3r/sublist3r.py
-}
-
-f_sublist3r_working() {
-    command -v sublist3r >/dev/null 2>&1 && sublist3r -d example.com 2>&1 | grep -q 'Total Unique Subdomains Found'
-}
-
-if [ -x /opt/Sublist3r-venv/bin/python ] && [ -f /opt/Sublist3r/sublist3r.py ]; then
-    echo -e "${BLUE}Updating Sublist3r.${NC}"
-    cd /opt/Sublist3r/ || exit
-    git pull
-    f_sublist3r_patch
-    /opt/Sublist3r-venv/bin/python -m pip install -q -r requirements.txt
-    echo '#!/bin/bash' > /usr/local/bin/sublist3r
-    echo 'exec /opt/Sublist3r-venv/bin/python /opt/Sublist3r/sublist3r.py "$@"' >> /usr/local/bin/sublist3r
-    chmod 755 /usr/local/bin/sublist3r
-    echo
-elif f_sublist3r_working; then
-    :
-elif python3 -c 'import sys; exit(0 if sys.version_info >= (3, 13) else 1)' 2>/dev/null; then
-    echo -e "${YELLOW}Installing Sublist3r from upstream (apt package is incompatible with Python 3.13+).${NC}"
-    apt remove -y sublist3r 2>/dev/null
-    if ! python3 -m venv /tmp/sublist3r-venv-check 2>/dev/null; then
-        apt install -y python3-venv
-        rm -rf /tmp/sublist3r-venv-check
-    fi
-    if [ -d /opt/Sublist3r/.git ]; then
-        cd /opt/Sublist3r/ || exit
-        git pull
-    else
-        git clone https://github.com/aboul3la/Sublist3r /opt/Sublist3r
-    fi
-    f_sublist3r_patch
-    python3 -m venv /opt/Sublist3r-venv
-    /opt/Sublist3r-venv/bin/python -m pip install -q -U pip
-    /opt/Sublist3r-venv/bin/python -m pip install -q -r /opt/Sublist3r/requirements.txt
-    echo '#!/bin/bash' > /usr/local/bin/sublist3r
-    echo 'exec /opt/Sublist3r-venv/bin/python /opt/Sublist3r/sublist3r.py "$@"' >> /usr/local/bin/sublist3r
-    chmod 755 /usr/local/bin/sublist3r
-    echo
-else
-    echo -e "${YELLOW}Installing Sublist3r.${NC}"
-    apt install -y sublist3r
-    echo
-fi
-
 if ! command -v wafw00f &> /dev/null; then
     echo -e "${YELLOW}Installing wafw00f.${NC}"
     apt install -y wafw00f
@@ -490,6 +439,57 @@ if [ -d /opt/SharpCollection/.git ]; then
 else
     echo -e "${YELLOW}Installing SharpCollection.${NC}"
     git clone https://github.com/Flangvik/SharpCollection /opt/SharpCollection
+    echo
+fi
+
+f_sublist3r_patch() {
+    sed -i \
+        -e 's/class enumratorBaseThreaded(multiprocessing.Process, enumratorBase)/class enumratorBaseThreaded(threading.Thread, enumratorBase)/' \
+        -e 's/multiprocessing.Process.__init__(self)/threading.Thread.__init__(self)/' \
+        -e 's/subdomains_queue = multiprocessing.Manager().list()/subdomains_queue = list()/' \
+        /opt/Sublist3r/sublist3r.py
+}
+
+f_sublist3r_working() {
+    command -v sublist3r >/dev/null 2>&1 && sublist3r -d example.com 2>&1 | grep -q 'Total Unique Subdomains Found'
+}
+
+if [ -x /opt/Sublist3r-venv/bin/python ] && [ -f /opt/Sublist3r/sublist3r.py ]; then
+    echo -e "${BLUE}Updating Sublist3r.${NC}"
+    cd /opt/Sublist3r/ || exit
+    git pull
+    f_sublist3r_patch
+    /opt/Sublist3r-venv/bin/python -m pip install -q -r requirements.txt
+    echo '#!/bin/bash' > /usr/local/bin/sublist3r
+    echo 'exec /opt/Sublist3r-venv/bin/python /opt/Sublist3r/sublist3r.py "$@"' >> /usr/local/bin/sublist3r
+    chmod 755 /usr/local/bin/sublist3r
+    echo
+elif f_sublist3r_working; then
+    :
+elif python3 -c 'import sys; exit(0 if sys.version_info >= (3, 13) else 1)' 2>/dev/null; then
+    echo -e "${YELLOW}Installing Sublist3r from upstream (apt package is incompatible with Python 3.13+).${NC}"
+    apt remove -y sublist3r 2>/dev/null
+    if ! python3 -m venv /tmp/sublist3r-venv-check 2>/dev/null; then
+        apt install -y python3-venv
+        rm -rf /tmp/sublist3r-venv-check
+    fi
+    if [ -d /opt/Sublist3r/.git ]; then
+        cd /opt/Sublist3r/ || exit
+        git pull
+    else
+        git clone https://github.com/aboul3la/Sublist3r /opt/Sublist3r
+    fi
+    f_sublist3r_patch
+    python3 -m venv /opt/Sublist3r-venv
+    /opt/Sublist3r-venv/bin/python -m pip install -q -U pip
+    /opt/Sublist3r-venv/bin/python -m pip install -q -r /opt/Sublist3r/requirements.txt
+    echo '#!/bin/bash' > /usr/local/bin/sublist3r
+    echo 'exec /opt/Sublist3r-venv/bin/python /opt/Sublist3r/sublist3r.py "$@"' >> /usr/local/bin/sublist3r
+    chmod 755 /usr/local/bin/sublist3r
+    echo
+else
+    echo -e "${YELLOW}Installing Sublist3r.${NC}"
+    apt install -y sublist3r
     echo
 fi
 
