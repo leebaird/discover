@@ -404,27 +404,6 @@ f_firefox_user_agents(){
     )
 }
 
-f_web_search() {
-    local USER_AGENTS OTHER_URLS url USER_AGENT
-
-    f_firefox_user_agents
-
-    OTHER_URLS=(
-    "https://dnsdumpster.com"
-    "https://dockets.justia.com/search?parties=%22$COMPANYURL%22&cases=mostrecent"
-    "https://intelx.io/?s=%40$DOMAIN&b=leaks.public.wikileaks,leaks.public.general,dumpster,documents.public.scihub"
-    "https://networksdb.io/search/org/%22$COMPANYURL%22"
-    "https://phonebook.cz"
-    "https://www.shodan.io/search?query=$DOMAIN"
-    )
-
-    for url in "${OTHER_URLS[@]}"; do
-        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
-        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null &
-        sleep $((RANDOM % 4 + 3))
-    done
-}
-
 f_breaches() {
     local USER_AGENTS BREACH_URLS url USER_AGENT
 
@@ -437,7 +416,7 @@ f_breaches() {
     "https://leakcheck.io"
     "https://leakradar.io"
     "https://www.proxynova.com/tools/comb"
-    "https://snusbase.com/"
+    "https://snusbase.com"
     )
 
     for url in "${BREACH_URLS[@]}"; do
@@ -475,6 +454,28 @@ f_google_dorks() {
         USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
         firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null
         sleep $((RANDOM % 8 + 8))
+    done
+}
+
+f_web_search() {
+    local USER_AGENTS OTHER_URLS url USER_AGENT
+
+    f_firefox_user_agents
+
+    OTHER_URLS=(
+    "https://dnsdumpster.com"
+    "https://dockets.justia.com/search?parties=%22$COMPANYURL%22&cases=mostrecent"
+    "https://intelx.io/?s=%40$DOMAIN&b=leaks.public.wikileaks,leaks.public.general,dumpster,documents.public.scihub"
+    "https://networksdb.io/search/org/%22$COMPANYURL%22"
+    "https://pentest-tools.com"
+    "https://www.shodan.io/search?query=$DOMAIN"
+    "https://viewdns.info"
+    )
+
+    for url in "${OTHER_URLS[@]}"; do
+        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
+        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null &
+        sleep $((RANDOM % 4 + 3))
     done
 }
 
