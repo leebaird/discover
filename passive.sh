@@ -27,7 +27,7 @@ f_terminate(){
 
     cd "$DISCOVER" || exit
     mv "$HOME"/data/"$DOMAIN" "$OUTPUT_DIR" 2>/dev/null
-    mv names emails hosts private-ips private-subs public-ips records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$OUTPUT_DIR" 2>/dev/null
+    mv names emails hosts hudsonrock*.json hudsonrock.txt private-ips private-subs public-ips records squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$OUTPUT_DIR" 2>/dev/null
 
     echo
     echo "[*] Saving complete."
@@ -67,7 +67,7 @@ fi
 
 # Number of tests
 COUNT=1
-TOTAL=64
+TOTAL=65
 
 ###############################################################################################################################
 
@@ -234,6 +234,142 @@ f_dnstwist() {
         printf "%s\t%s\t%s\t%s\t%s\n", $1, $2, ip, ns, mx
     }' tmp > squatting
     rm tmp 2>/dev/null
+    echo
+}
+
+###############################################################################################################################
+
+f_hudsonrock() {
+    echo "Hudson Rock              ($COUNT/$TOTAL)"
+    ((COUNT++))
+
+    local API_URL TMPFILE
+    API_URL="https://cavalier.hudsonrock.com/api/json/v2/osint-tools/search-by-domain?domain=${DOMAIN}"
+    TMPFILE=$(mktemp)
+
+    if ! curl -fsS "$API_URL" -o "$TMPFILE"; then
+        echo -e "${YELLOW}[!] Hudson Rock request failed.${NC}"
+        rm -f "$TMPFILE"
+        echo
+        return
+    fi
+
+    cp "$TMPFILE" "hudsonrock-${DOMAIN}.json"
+
+    if python3 - "$TMPFILE" "$DOMAIN" zhudsonrock1 <<'PY' > hudsonrock.txt
+import json
+import sys
+from pathlib import Path
+from urllib.parse import urlparse
+
+path = Path(sys.argv[1])
+domain = sys.argv[2]
+subdomain_file = Path(sys.argv[3])
+
+try:
+    doc = json.loads(path.read_text())
+except json.JSONDecodeError as exc:
+    print(f"[!] Invalid JSON: {exc}")
+    sys.exit(1)
+
+def section(title):
+    print()
+    print(title)
+    print("=" * 66)
+
+def unique_urls(rows):
+    urls = set()
+    for row in rows:
+        url = row.get("url", "").lower()
+        if not url or url.endswith("/") or "=" in url:
+            continue
+        urls.add(url)
+    return sorted(urls)
+
+def split_urls(urls):
+    hosts = set()
+    full_urls = []
+    for url in urls:
+        parsed = urlparse(url)
+        host = parsed.netloc.lower()
+        if host.startswith("www."):
+            host = host[4:]
+        if host:
+            hosts.add(host)
+        if url.count("/") > 2:
+            full_urls.append(url)
+    return sorted(full_urls), sorted(hosts)
+
+def print_url_rows(urls):
+    if not urls:
+        print("(none)")
+        return
+    for url in urls:
+        print(url)
+
+def cap(text):
+    text = text.replace("_", " ")
+    return text[:1].upper() + text[1:] if text else text
+
+LABEL_WIDTH = 26
+VALUE_WIDTH = 6
+PCT_WIDTH = 6
+
+def print_row(label, value):
+    print(f"{cap(label):<{LABEL_WIDTH}} {value}")
+
+def print_password_stat(label, qty, perc):
+    pct = f"{round(float(perc), 1):.1f}%"
+    print(f"{cap(label):<{LABEL_WIDTH}} {qty:<{VALUE_WIDTH}} {pct:>{PCT_WIDTH}}")
+
+section(f"Hudson Rock OSINT: {domain}")
+
+summary = {
+    "total records": doc.get("total"),
+    "employees": doc.get("employees"),
+    "users": doc.get("users"),
+    "third parties": doc.get("third_parties"),
+    "total urls": doc.get("totalUrls"),
+    "last employee compromised": doc.get("last_employee_compromised"),
+    "last user compromised": doc.get("last_user_compromised"),
+}
+for label, value in summary.items():
+    print_row(label, value)
+
+for label, key in (("Employee passwords", "employeePasswords"), ("User passwords", "userPasswords")):
+    block = doc.get(key)
+    if not block:
+        continue
+    section(label)
+    print_row("total passwords", block.get("totalPass"))
+    for strength in ("too_weak", "weak", "medium", "strong"):
+        item = block.get(strength) or {}
+        print_password_stat(strength, item.get("qty", 0), item.get("perc", 0))
+
+data = doc.get("data") or {}
+url_rows = (
+    (data.get("employees_urls") or [])
+    + (data.get("clients_urls") or [])
+    + (data.get("all_urls") or [])
+)
+
+urls, subdomains = split_urls(unique_urls(url_rows))
+
+section(f"URLs ({len(urls)})")
+print_url_rows(urls)
+
+subdomain_file.write_text("\n".join(subdomains) + ("\n" if subdomains else ""))
+
+print()
+PY
+    then
+        cat hudsonrock.txt
+    else
+        echo -e "${YELLOW}[!] Hudson Rock parse failed.${NC}"
+        rm -f hudsonrock.txt zhudsonrock1 "hudsonrock-${DOMAIN}.json"
+    fi
+
+    rm -f "$TMPFILE"
     echo
 }
 
@@ -1289,7 +1425,7 @@ EOF
 # Use when the homepage is bot-blocked or a profile was missed.
 EOF
     fi
-    mv names emails hosts private-ips private-subs public-ips records social.tsv company.json sec-company-tickers.json sec-people.json homepage.html squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
+    mv names emails hosts hudsonrock*.json hudsonrock.txt private-ips private-subs public-ips records social.tsv company.json sec-company-tickers.json sec-people.json homepage.html squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
     cd "$PWD" || exit
 
     echo
@@ -1310,6 +1446,7 @@ esac
 f_arin
 f_dnsrecon
 f_dnstwist
+f_hudsonrock
 f_intodns
 f_metasploit
 f_subfinder
