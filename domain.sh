@@ -498,6 +498,8 @@ f_domain_menu(){
 
     case "$CHOICE" in
     1) "$DISCOVER"/passive.sh && exit ;;
+    98) "$DISCOVER"/passive.sh 98 && exit ;;
+    99) "$DISCOVER"/passive.sh 99 && exit ;;
     2)  f_runlocally
         clear
         f_banner

@@ -10,6 +10,14 @@ if [ $EUID -eq 0 ]; then
     exit 1
 fi
 
+DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+export DISCOVER
+PASSIVE_MODE="${1:-}"
+
+if ! declare -f f_banner >/dev/null 2>&1; then
+    DISCOVER_SOURCE_ONLY=1 source "$DISCOVER/discover.sh"
+fi
+
 f_terminate(){
     OUTPUT_DIR=$HOME/data/cancelled-$(date +%H:%M)
     echo
@@ -41,6 +49,7 @@ echo -e "${BLUE}[*] Add keys to $HOME/.theHarvester/api-keys.yaml${NC}"
 echo
 f_company_domain
 
+if [ "$PASSIVE_MODE" != "98" ] && [ "$PASSIVE_MODE" != "99" ]; then
 cp -R "$DISCOVER"/report/ "$HOME"/data/"$DOMAIN"
 sed -i "s/#COMPANY#/$COMPANY/" "$HOME"/data/"$DOMAIN"/index.htm
 sed -i "s/#DOMAIN#/$DOMAIN/" "$HOME"/data/"$DOMAIN"/index.htm
@@ -52,6 +61,7 @@ sed -i "s/COMPANYURL/$COMPANYURL/" "$HOME"/data/"$DOMAIN"/pages/summary.htm
 echo
 echo "$MEDIUM"
 echo
+fi
 
 ###############################################################################################################################
 
@@ -1291,6 +1301,11 @@ EOF
 ###############################################################################################################################
 
 # Comment out functions for tools you don't want to run.
+
+case "$PASSIVE_MODE" in
+98) f_theharvester; echo; exit 0 ;;
+99) f_theharvester_api; echo; exit 0 ;;
+esac
 
 f_arin
 f_dnsrecon
