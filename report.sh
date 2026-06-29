@@ -8,7 +8,7 @@ FILENAME="$NAME"/report.txt
 host=$(wc -l "$NAME"/hosts.txt | cut -d ' ' -f1)
 
 echo "Nmap Report" > "$FILENAME"
-date +%A" - "%B" "%d", "%Y >> "$FILENAME"
+date +"%A - %B %d, %Y" >> "$FILENAME"
 echo >> "$FILENAME"
 echo "Start time   $START" >> "$FILENAME"
 echo "Finish time  $END" >> "$FILENAME"
@@ -107,7 +107,7 @@ if [ -f "$NAME"/script-smbvulns.txt ]; then
     echo >> "$FILENAME"
 fi
 
-if [ -f "$NAME"/script-onesixtyone.txt ] || [ -f "$NAME"/script-smbclient.txt ] || [ -f "$NAME"/ike-scan.txt ]; then
+if [ -f "$NAME"/script-onesixtyone.txt ] || [ -f "$NAME"/script-smbclient.txt ] || [ -f "$NAME"/script-ike-scan.txt ]; then
     echo "Additional enumeration" >> "$FILENAME"
 
     if [ -f "$NAME"/script-onesixtyone.txt ]; then

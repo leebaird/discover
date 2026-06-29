@@ -49,14 +49,22 @@ echo -e "${BLUE}[*] Add keys to $HOME/.theHarvester/api-keys.yaml${NC}"
 echo
 f_company_domain
 
+f_sed_replacement_escape(){
+    printf '%s' "$1" | sed 's/[\\&|]/\\&/g'
+}
+
 if [ "$PASSIVE_MODE" != "98" ] && [ "$PASSIVE_MODE" != "99" ]; then
+COMPANY_SED=$(f_sed_replacement_escape "$COMPANY")
+DOMAIN_SED=$(f_sed_replacement_escape "$DOMAIN")
+DATESTAMP_SED=$(f_sed_replacement_escape "$DATESTAMP")
+COMPANYURL_SED=$(f_sed_replacement_escape "$COMPANYURL")
 cp -R "$DISCOVER"/report/ "$HOME"/data/"$DOMAIN"
-sed -i "s/#COMPANY#/$COMPANY/" "$HOME"/data/"$DOMAIN"/index.htm
-sed -i "s/#DOMAIN#/$DOMAIN/" "$HOME"/data/"$DOMAIN"/index.htm
-sed -i "s/#DATE#/$DATESTAMP/" "$HOME"/data/"$DOMAIN"/index.htm
-sed -i "s/#COMPANY#/$COMPANY/" "$HOME"/data/"$DOMAIN"/pages/summary.htm
-sed -i "s/#DOMAIN#/$DOMAIN/" "$HOME"/data/"$DOMAIN"/pages/summary.htm
-sed -i "s/COMPANYURL/$COMPANYURL/" "$HOME"/data/"$DOMAIN"/pages/summary.htm
+sed -i "s|#COMPANY#|$COMPANY_SED|" "$HOME"/data/"$DOMAIN"/index.htm
+sed -i "s|#DOMAIN#|$DOMAIN_SED|" "$HOME"/data/"$DOMAIN"/index.htm
+sed -i "s|#DATE#|$DATESTAMP_SED|" "$HOME"/data/"$DOMAIN"/index.htm
+sed -i "s|#COMPANY#|$COMPANY_SED|" "$HOME"/data/"$DOMAIN"/pages/summary.htm
+sed -i "s|#DOMAIN#|$DOMAIN_SED|" "$HOME"/data/"$DOMAIN"/pages/summary.htm
+sed -i "s|COMPANYURL|$COMPANYURL_SED|" "$HOME"/data/"$DOMAIN"/pages/summary.htm
 
 echo
 echo "$MEDIUM"
@@ -100,7 +108,7 @@ f_arin() {
     echo "    Names                ($COUNT/$TOTAL)"
     ((COUNT++))
     if [ -f zhandles ]; then
-        > tmp-pocs
+        : > tmp-pocs
         while read -r LINE; do
             {
                 curl -ks "https://whois.arin.net/rest/poc/$LINE.txt"
@@ -480,7 +488,7 @@ f_theharvester() {
 
     mv z* "$DISCOVER" 2>/dev/null
     deactivate
-    cd "$DISCOVER"
+    cd "$DISCOVER" || return 1
     find . -type f -empty -delete
     echo
 }
@@ -507,7 +515,7 @@ f_theharvester_api() {
 
     mv z* "$DISCOVER" 2>/dev/null
     deactivate
-    cd "$DISCOVER"
+    cd "$DISCOVER" || return 1
     find . -type f -empty -delete
     echo
 }
@@ -808,10 +816,10 @@ PY
 
     echo -e "${BLUE}[*] Resolving subdomains with no IPs using dig.${NC}"
 
-    local total current ip col1 col2 second_column line
+    local total current ip col1 col2
     total=$(wc -l < tmp)
     current=0
-    > tmp2
+    : > tmp2
     while read -r col1 col2; do
         ((current++))
         echo -ne "\r    $current of $total"
@@ -1498,4 +1506,3 @@ f_aggregate
 f_social
 f_company
 f_report
-

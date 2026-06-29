@@ -34,13 +34,34 @@ f_scan_files(){
     # Create results directory
     mkdir -p "$OUTPUT_DIR/sensitive_info"
 
+    COMMON_INCLUDES=(
+        --include="*.js" --include="*.jsx" --include="*.ts" --include="*.tsx"
+        --include="*.php" --include="*.py" --include="*.rb" --include="*.java"
+        --include="*.json" --include="*.xml" --include="*.yaml" --include="*.yml"
+        --include="*.conf" --include="*.config" --include="*.env"
+        --include="*.ini" --include="*.properties"
+    )
+    WEB_INCLUDES=(
+        --include="*.js" --include="*.jsx" --include="*.ts" --include="*.tsx"
+        --include="*.php" --include="*.py" --include="*.rb" --include="*.java"
+        --include="*.json" --include="*.xml" --include="*.yaml" --include="*.yml"
+        --include="*.html" --include="*.htm"
+    )
+    TOKEN_INCLUDES=(
+        --include="*.js" --include="*.jsx" --include="*.ts" --include="*.tsx"
+        --include="*.php" --include="*.py" --include="*.rb" --include="*.java"
+        --include="*.json" --include="*.xml" --include="*.yaml" --include="*.yml"
+        --include="*.conf" --include="*.config" --include="*.env"
+        --include="*.log" --include="*.txt"
+    )
+
     # API Keys and credentials patterns
     echo -e "${BLUE}[*] Searching for API keys and credentials.${NC}"
-    grep -r -E "(api[_]?key|api[_]?token|secret|key|password|client[_]?id|client[_]?secret|access[_]?token|auth).*[=:][\"\'][0-9a-zA-Z\-_]{16,}[\"\']" "$SCAN_DIR" --include="*.{js,jsx,ts,tsx,php,py,rb,java,json,xml,yaml,yml,conf,config,env,ini,properties}" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/api_keys.txt"
+    grep -r -E "(api[_]?key|api[_]?token|secret|key|password|client[_]?id|client[_]?secret|access[_]?token|auth).*[=:][\"\'][0-9a-zA-Z\-_]{16,}[\"\']" "${COMMON_INCLUDES[@]}" "$SCAN_DIR" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/api_keys.txt"
 
     # AWS Keys
     echo -e "${BLUE}[*] Searching for AWS access keys.${NC}"
-    grep -r -E "(AWS|aws).*(access|secret).*[=:][\"\'][A-Za-z0-9/\+]{20,}[\"\']" "$SCAN_DIR" --include="*.{js,jsx,ts,tsx,php,py,rb,java,json,xml,yaml,yml,conf,config,env,ini,properties}" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/aws_keys.txt"
+    grep -r -E "(AWS|aws).*(access|secret).*[=:][\"\'][A-Za-z0-9/\+]{20,}[\"\']" "${COMMON_INCLUDES[@]}" "$SCAN_DIR" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/aws_keys.txt"
 
     # Config files that might contain sensitive info
     echo -e "${BLUE}[*] Searching for config files.${NC}"
@@ -52,7 +73,7 @@ f_scan_files(){
 
     # Database connection strings
     echo -e "${BLUE}[*] Searching for database connection strings.${NC}"
-    grep -r -E "(mongodb|postgresql|mysql|redis|sqlserver)://[^\s]+" "$SCAN_DIR" --include="*.{js,jsx,ts,tsx,php,py,rb,java,json,xml,yaml,yml,conf,config,env,ini,properties}" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/db_connections.txt"
+    grep -r -E "(mongodb|postgresql|mysql|redis|sqlserver)://[^\s]+" "${COMMON_INCLUDES[@]}" "$SCAN_DIR" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/db_connections.txt"
 
     # Email addresses
     echo -e "${BLUE}[*] Searching for email addresses.${NC}"
@@ -60,7 +81,7 @@ f_scan_files(){
 
     # Google API Keys
     echo -e "${BLUE}[*] Searching for Google API keys.${NC}"
-    grep -r -E "AIza[0-9A-Za-z-_]{35}" "$SCAN_DIR" --include="*.{js,jsx,ts,tsx,php,py,rb,java,json,xml,yaml,yml,html,htm}" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/google_api_keys.txt"
+    grep -r -E "AIza[0-9A-Za-z-_]{35}" "${WEB_INCLUDES[@]}" "$SCAN_DIR" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/google_api_keys.txt"
 
     # Private keys and certificates
     echo -e "${BLUE}[*] Searching for private keys and certificates.${NC}"
@@ -76,7 +97,7 @@ f_scan_files(){
 
     # Tokens (JWT, OAuth, etc)
     echo -e "${BLUE}[*] Searching for authentication tokens..${NC}"
-    grep -r -E "(eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|bearer\s+[a-zA-Z0-9_-]+)" "$SCAN_DIR" --include="*.{js,jsx,ts,tsx,php,py,rb,java,json,xml,yaml,yml,conf,config,env,log,txt}" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/auth_tokens.txt"
+    grep -r -E "(eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|bearer\s+[a-zA-Z0-9_-]+)" "${TOKEN_INCLUDES[@]}" "$SCAN_DIR" 2>/dev/null > "$OUTPUT_DIR/sensitive_info/auth_tokens.txt"
 
     # Compile summary
     echo -e "${BLUE}[*] Generating summary report.${NC}"

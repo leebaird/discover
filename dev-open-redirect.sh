@@ -165,18 +165,20 @@ f_advanced_options(){
     esac
 
     # Build the command
-    CMD="python3 $DISCOVER/openredirect-scanner.py -u $TARGET -o $FORMAT"
+    CMD=(python3 "$DISCOVER/openredirect-scanner.py" -u "$TARGET" -o "$FORMAT")
 
     if [ -n "$WORDLIST" ]; then
-        CMD="$CMD -w $WORDLIST"
+        CMD+=(-w "$WORDLIST")
     fi
+
+    printf -v CMD_DISPLAY '%q ' "${CMD[@]}"
 
     # Run the Python script
     echo
     echo -e "[*] Running Open Redirect Scanner with custom options"
-    echo -e "[*] Command: ${BLUE}$CMD${NC}"
+    echo -e "[*] Command: ${BLUE}${CMD_DISPLAY% }${NC}"
     echo
-    eval "$CMD"
+    "${CMD[@]}"
 }
 
 ###############################################################################################################################

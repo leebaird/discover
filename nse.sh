@@ -828,7 +828,7 @@ if [ -f "$NAME"/161.txt ] || [ -f "$NAME"/445.txt ] || [ -f "$NAME"/500.txt ]; t
         echo "    ike-scan"
         while read -r LINE; do
                 ike-scan -f "$LINE" >> "$NAME"/script-ike-scan.txt
-        done < "$NAME"/445.txt
+        done < "$NAME"/500.txt
     fi
 
     rm tmp 2>/dev/null
