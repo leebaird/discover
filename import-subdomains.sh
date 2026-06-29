@@ -89,6 +89,108 @@ EOF
     fi
 }
 
+f_subdomains_require_snappy(){
+    if python3 -c 'import cramjam' 2>/dev/null || python3 -c 'import snappy' 2>/dev/null; then
+        return 0
+    fi
+
+    echo "[!] Snappy decoder not found (needed for Firefox localStorage)."
+    echo "[*] Install one of:"
+    echo "    pip install cramjam --break-system-packages"
+    echo "    pip install python-snappy --break-system-packages"
+    return 1
+}
+
+f_subdomains_extract_firefox_pinia(){
+    local outfile=$1
+
+    f_subdomains_require_snappy || return 1
+
+    python3 - "$outfile" <<'PY'
+import os
+import shutil
+import sqlite3
+import sys
+import tempfile
+from pathlib import Path
+
+outfile = Path(sys.argv[1])
+roots = [
+    Path.home() / "snap/firefox/common/.mozilla/firefox",
+    Path.home() / ".mozilla/firefox",
+]
+
+def find_ls_db():
+    matches = []
+    for root in roots:
+        if not root.is_dir():
+            continue
+        pattern = "storage/default/https+++pentest-tools.com/ls/data.sqlite"
+        for profile in root.iterdir():
+            if not profile.is_dir() or profile.name in {"Crash Reports", "Pending Pings", "Profile Groups"}:
+                continue
+            candidate = profile / pattern
+            if candidate.is_file():
+                matches.append(candidate)
+    if not matches:
+        return None
+    return max(matches, key=lambda path: path.stat().st_mtime)
+
+def decode_value(blob, conversion_type, compression_type):
+    if compression_type == 1:
+        try:
+            import cramjam
+            data = bytes(cramjam.snappy.decompress_raw(blob))
+        except ImportError:
+            import snappy
+            data = snappy.decompress(blob)
+    else:
+        data = blob
+
+    if conversion_type == 0:
+        return data.decode("utf-16-be")
+    return data.decode("utf-8")
+
+source = find_ls_db()
+if not source:
+    print("Firefox profile with pentest-tools.com localStorage not found", file=sys.stderr)
+    print("Run a free Subdomain Finder scan in Firefox first", file=sys.stderr)
+    sys.exit(1)
+
+tmpdir = tempfile.mkdtemp(prefix="discover-ff-ls-")
+try:
+    copied = Path(tmpdir) / "data.sqlite"
+    shutil.copy2(source, copied)
+    conn = sqlite3.connect(f"file:{copied}?mode=ro", uri=True)
+    try:
+        row = conn.execute(
+            "SELECT value, conversion_type, compression_type FROM data WHERE key = ?",
+            ("pinia/scans",),
+        ).fetchone()
+    finally:
+        conn.close()
+
+    if not row:
+        print("pinia/scans not found in Firefox localStorage", file=sys.stderr)
+        print(f"Profile: {source.parents[3]}", file=sys.stderr)
+        sys.exit(1)
+
+    value, conversion_type, compression_type = row
+    try:
+        text = decode_value(value, conversion_type, compression_type)
+    except Exception as exc:
+        print(f"failed to decode pinia/scans: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    outfile.parent.mkdir(parents=True, exist_ok=True)
+    outfile.write_text(text)
+    print(f"[*] Firefox profile: {source.parents[3]}", file=os.sys.stderr)
+    print(f"[*] pinia/scans: {len(text)} bytes from {source}", file=os.sys.stderr)
+finally:
+    shutil.rmtree(tmpdir, ignore_errors=True)
+PY
+}
+
 f_subdomains_write_report(){
     local PRIVATE_FILE="$1"
     local PUBLIC_FILE="$2"
@@ -339,7 +441,7 @@ if [ "$SUBDOMAINS_IMPORT" = "firefox" ]; then
     echo
     echo "[*] Reading pinia/scans from Firefox localStorage"
     echo
-    if ! PENTEST_TOOLS_QUIET=1 "$DISCOVER/test.sh" --firefox-extract "$SUBDOMAINS_IMPORT"; then
+    if ! f_subdomains_extract_firefox_pinia "$SUBDOMAINS_IMPORT"; then
         f_subdomains_die "Failed to read pinia/scans from Firefox."
     fi
     SUBDOMAINS_SOURCE="Firefox localStorage (pinia/scans)"
