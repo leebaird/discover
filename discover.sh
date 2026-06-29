@@ -260,10 +260,6 @@ f_main(){
     f_check
     f_banner
 
-    if [ ! -d "$HOME"/data ]; then
-        mkdir -p "$HOME"/data
-    fi
-
     echo -e "${BLUE}RECON${NC}"
     echo "1.  Domain"
     echo "2.  Person"
@@ -304,42 +300,50 @@ f_main(){
     read -r CHOICE
 
     case "$CHOICE" in
-        # RECON
-        1) unset LOCATION; ./domain.sh ;;
-        2) ./person.sh && exit ;;
-
-        # SCANNING
-        3) ./generateTargets.sh && exit ;;
-        4) f_cidr ;;    # Located in nmap.sh
-        5) f_list ;;    # Located in nmap.sh
-        6) f_single ;;  # Located in nmap.sh
-        7) f_rerun ;;   # Located in nmap.sh
-
-        # WEB
-        8) ./directObjectRef.sh && exit ;;
-        9) ./multiTabs.sh && exit ;;
-        10) ./nikto.sh && exit ;;
-        11) ./ssl.sh && exit ;;
-
-        # MISC
-        12) ./parse.sh && exit ;;
-        13) ./payload.sh && exit ;;
-        14) ./listener.sh && exit ;;
         15) f_update ;;
         16) echo && exit ;;
+        *)
+            if [ ! -d "$HOME"/data ]; then
+                mkdir -p "$HOME"/data
+            fi
 
-        # DEV
-        17) ./dev-api-scanner.sh && exit ;;
-        18) ./dev-cloud-scanner.sh && exit ;;
-        19) ./dev-container-scanner.sh && exit ;;
-        20) ./dev-oauth-jwt-scanner.sh && exit ;;
-        21) ./dev-open-redirect.sh && exit ;;
-        22) ./dev-sensitive-scanner.sh && exit ;;
-        23) ./dev-waf-detect.sh && exit ;;
-        24) ./dev-web-api-scanner.sh && exit ;;
+            case "$CHOICE" in
+                # RECON
+                1) unset LOCATION; ./domain.sh ;;
+                2) ./person.sh && exit ;;
 
-        99) ./newModules.sh && exit ;;
-        *) f_error ;;
+                # SCANNING
+                3) ./generateTargets.sh && exit ;;
+                4) f_cidr ;;    # Located in nmap.sh
+                5) f_list ;;    # Located in nmap.sh
+                6) f_single ;;  # Located in nmap.sh
+                7) f_rerun ;;   # Located in nmap.sh
+
+                # WEB
+                8) ./directObjectRef.sh && exit ;;
+                9) ./multiTabs.sh && exit ;;
+                10) ./nikto.sh && exit ;;
+                11) ./ssl.sh && exit ;;
+
+                # MISC
+                12) ./parse.sh && exit ;;
+                13) ./payload.sh && exit ;;
+                14) ./listener.sh && exit ;;
+
+                # DEV
+                17) ./dev-api-scanner.sh && exit ;;
+                18) ./dev-cloud-scanner.sh && exit ;;
+                19) ./dev-container-scanner.sh && exit ;;
+                20) ./dev-oauth-jwt-scanner.sh && exit ;;
+                21) ./dev-open-redirect.sh && exit ;;
+                22) ./dev-sensitive-scanner.sh && exit ;;
+                23) ./dev-waf-detect.sh && exit ;;
+                24) ./dev-web-api-scanner.sh && exit ;;
+
+                99) ./newModules.sh && exit ;;
+                *) f_error ;;
+            esac
+            ;;
     esac
 }
 

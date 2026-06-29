@@ -135,8 +135,9 @@ Supported imports:
 * Hosts without an IP are resolved with `dig` during import
 * Re-run Import subdomains whenever you add rows or run a new Pentest-Tools scan
 
-Import subdomains merges with existing `tools/subdomains`, splits private IPs to
-`tools/private-subs`, and refreshes `pages/subdomains.htm`.
+Import subdomains merges with existing `tools/subdomains`, assigns categories from
+`resource/subdomain-categories.tsv`, splits private IPs to `tools/private-subs`, and
+refreshes `pages/subdomains.htm` (Subdomain, Category, IP columns).
 
 #### SEC leadership (Names page)
 

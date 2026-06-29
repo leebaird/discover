@@ -837,7 +837,14 @@ PY
     awk '{print $1 "\t" $2}' tmp2 > subdomains
     rm tmp tmp2 2>/dev/null
 
-    awk -F'[ \t]+' 'NF >= 2 && ($2 ~ /^10\./ || $2 ~ /^172\.(1[6-9]|2[0-9]|3[0-1])\./ || $2 ~ /^192\.168\./) { print $1 "\t" $2 }' subdomains > private-subs
+    if [ -s subdomains ]; then
+        python3 "$DISCOVER/misc/subdomain-categorize.py" \
+            "$DISCOVER/resource/subdomain-categories.tsv" \
+            subdomains > subdomains.categorized
+        mv subdomains.categorized subdomains
+    fi
+
+    awk -F'[ \t]+' 'NF >= 2 && ($2 ~ /^10\./ || $2 ~ /^172\.(1[6-9]|2[0-9]|3[0-1])\./ || $2 ~ /^192\.168\./) { print }' subdomains > private-subs
     rm tmp 2>/dev/null
 
     cat z* | grep -Ei '\.(doc|docx)$' | sort -u > doc
@@ -1152,22 +1159,26 @@ def parse_row(raw):
 
     if "\t" in raw:
         row = next(csv.reader([raw], delimiter="\t"))
-        while len(row) < 2:
+        while len(row) < 3:
             row.append("")
-        subdomain, ipaddr = row[0].strip(), row[1].strip()
+        subdomain, ipaddr, category = row[0].strip(), row[1].strip(), row[2].strip()
     else:
         parts = raw.split()
         if not parts:
             return None
         if len(parts) == 1:
-            return parts[0], ""
+            return parts[0], "", ""
         if IPV4_RE.match(parts[-1]):
-            return " ".join(parts[:-1]), parts[-1]
-        return parts[0], parts[1] if len(parts) > 1 else ""
+            subdomain, ipaddr = " ".join(parts[:-1]), parts[-1]
+            category = ""
+        else:
+            subdomain = parts[0]
+            ipaddr = parts[1] if len(parts) > 1 else ""
+            category = parts[2] if len(parts) > 2 else ""
 
     if not subdomain:
         return None
-    return subdomain, ipaddr
+    return subdomain, ipaddr, category
 
 def load_rows(path):
     rows = []
@@ -1176,7 +1187,7 @@ def load_rows(path):
     with open(path, newline="") as handle:
         for raw in handle:
             parsed = parse_row(raw)
-            if parsed:
+            if parsed and parsed[1]:
                 rows.append(parsed)
     return rows
 
@@ -1186,6 +1197,7 @@ def build_table(rows, empty_message, ip_header="IP Address"):
         "            <thead>",
         "                <tr>",
         '                    <th scope="col" class="inc-sortable">Subdomain</th>',
+        '                    <th scope="col" class="inc-sortable">Category</th>',
         f'                    <th scope="col" class="inc-sortable">{html.escape(ip_header)}</th>',
         "                </tr>",
         "            </thead>",
@@ -1193,15 +1205,16 @@ def build_table(rows, empty_message, ip_header="IP Address"):
     ]
 
     if rows:
-        for subdomain, ipaddr in rows:
+        for subdomain, ipaddr, category in rows:
             lines.append(
                 "                <tr>"
                 f'<td class="inc-col-domain">{html.escape(subdomain)}</td>'
+                f"<td>{html.escape(category)}</td>"
                 f"<td>{html.escape(ipaddr)}</td>"
                 "</tr>"
             )
     else:
-        lines.append(f'                <tr><td colspan="2">{html.escape(empty_message)}</td></tr>')
+        lines.append(f'                <tr><td colspan="3">{html.escape(empty_message)}</td></tr>')
 
     lines.extend(
         [
