@@ -213,7 +213,7 @@ f_update(){
     fi
 
     # shellcheck disable=SC2166
-    cd "$HOME"
+    cd "$HOME" || exit
 
     if [ ! -f ~/.local/bin/uv ]; then
         echo -e "${YELLOW}Installing uv.${NC}"
@@ -242,11 +242,11 @@ f_update(){
         echo
         echo -e "${YELLOW}Installing theHarvester.${NC}"
         git clone https://github.com/laramies/theHarvester "$HOME/theHarvester"
-        cd "$HOME/theHarvester"
+        cd "$HOME/theHarvester" || exit
         uv sync
     fi
 
-    cd "$HOME/discover"
+    cd "$HOME/discover" || exit
     echo
     sudo ./update.sh
 }

@@ -62,7 +62,7 @@ f_pingsweep(){
 
             echo
             echo "[*] Scanning"
-            sudo nmap -sn -PS -PE --stats-every 10s -iL "$LOCATION" > tmp
+            sudo nmap -sn -PS -PE --stats-every 10s -iL "$LOCATION" -oN tmp >/dev/null
             ;;
         2)
             echo
@@ -81,7 +81,7 @@ f_pingsweep(){
 
             echo
             echo "[*] Scanning"
-            sudo nmap -sn -PS -PE --stats-every 10s "$CIDR" > tmp
+            sudo nmap -sn -PS -PE --stats-every 10s "$CIDR" -oN tmp >/dev/null
             ;;
         *)
             f_error ;;

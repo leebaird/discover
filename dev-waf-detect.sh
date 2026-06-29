@@ -66,8 +66,10 @@ f_detect_waf(){
     fi
 
     # Create temporary files
-    local headers_file="$OUTPUT_DIR/tmp_headers_$(date +%s).txt"
-    local body_file="$OUTPUT_DIR/tmp_body_$(date +%s).txt"
+    local headers_file
+    local body_file
+    headers_file="$OUTPUT_DIR/tmp_headers_$(date +%s).txt"
+    body_file="$OUTPUT_DIR/tmp_body_$(date +%s).txt"
 
     # Make request with custom headers to trigger WAF
     local user_agents=(
@@ -111,12 +113,14 @@ f_detect_waf(){
     done
 
     # Behavioral analysis for WAF detection
-    local status_code=$(grep -E "^HTTP/[0-9]\.[0-9] [0-9]{3}" "$headers_file.trigger" | tail -1 | awk '{print $2}')
+    local status_code
+    status_code=$(grep -E "^HTTP/[0-9]\.[0-9] [0-9]{3}" "$headers_file.trigger" | tail -1 | awk '{print $2}')
 
     # Common WAF behavior patterns
     if [[ "$status_code" =~ ^(403|406|429|500|502)$ ]]; then
         # Get normal status code
-        local normal_status_code=$(grep -E "^HTTP/[0-9]\.[0-9] [0-9]{3}" "$headers_file" | tail -1 | awk '{print $2}')
+        local normal_status_code
+        normal_status_code=$(grep -E "^HTTP/[0-9]\.[0-9] [0-9]{3}" "$headers_file" | tail -1 | awk '{print $2}')
 
         # If the normal request succeeded but the trigger request failed, likely a WAF
         if [[ "$normal_status_code" =~ ^(200|301|302|307|308)$ ]]; then
@@ -139,7 +143,8 @@ f_detect_waf(){
 
     # Return results for CSV logging
     if $detected; then
-        local wafs_string=$(printf "%s," "${detected_wafs[@]}")
+        local wafs_string
+        wafs_string=$(printf "%s," "${detected_wafs[@]}")
         wafs_string=${wafs_string%,} # Remove trailing comma
         echo "$target,Yes,$wafs_string,$(date +%Y-%m-%d' '%H:%M)" >> "$OUTPUT_DIR/waf_results.csv"
     else
@@ -162,7 +167,8 @@ f_load_from_file(){
     echo "Target,WAF Detected,WAF Names,Timestamp" > "$OUTPUT_DIR/waf_results.csv"
 
     # Process each line in the file
-    local total_lines=$(wc -l < "$file_path")
+    local total_lines
+    total_lines=$(wc -l < "$file_path")
     local current_line=0
 
     while IFS= read -r target || [ -n "$target" ]; do

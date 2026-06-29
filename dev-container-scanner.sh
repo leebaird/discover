@@ -1471,4 +1471,4 @@ f_container_main(){
 }
 
 # Run the script
-f_container_main
+f_container_main "$@"

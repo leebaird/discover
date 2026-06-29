@@ -659,7 +659,7 @@ MISSING=$(awk -F '\t' 'NF < 2 || $2 == "" { count++ } END { print count + 0 }' "
 DIG_RESOLVED=0
 
 if [ "$MISSING" -gt 0 ]; then
-    > "$RESOLVED"
+    : > "$RESOLVED"
     CURRENT=0
 
     echo -e "${BLUE}[*] Resolving $MISSING subdomains without IPs using dig.${NC}"

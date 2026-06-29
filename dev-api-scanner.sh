@@ -553,7 +553,7 @@ EOF
 
                             # Add to our endpoints list for testing
                             while read -r endpoint; do
-                                echo "${TARGET_URL%/}$ENDPOINT" >> "$OUTPUT_DIR/api_scanner/all_endpoints.txt"
+                                echo "${TARGET_URL%/}$endpoint" >> "$OUTPUT_DIR/api_scanner/all_endpoints.txt"
                             done < "$OUTPUT_DIR/api_scanner/documentation/extracted_endpoints${SAFE_PATH}.txt"
                         fi
                     fi

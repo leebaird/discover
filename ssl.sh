@@ -85,7 +85,7 @@ done < "$LOCATION"
 END=$(date +%r\ %Z)
 
 echo "sslscan Report" > tmp2
-date +%A" - "%B" "%d", "%Y >> tmp2
+date +"%A - %B %d, %Y" >> tmp2
 echo >> tmp2
 echo "Start time   $START" >> tmp2
 echo "Finish time  $END" >> tmp2

@@ -289,11 +289,9 @@ f_banner
 
 echo -e "${BLUE}Import names.${NC}"
 
-for CMD in python3; do
-    if ! command -v "$CMD" >/dev/null 2>&1; then
-        f_names_die "$CMD is not installed. Run Discover update to install dependencies."
-    fi
-done
+if ! command -v python3 >/dev/null 2>&1; then
+    f_names_die "python3 is not installed. Run Discover update to install dependencies."
+fi
 
 f_names_read_report
 f_names_read_manual

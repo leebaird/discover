@@ -57,7 +57,6 @@ f_aws_security_check(){
 
     # Get AWS regions and set default region if not specified
     aws ec2 describe-regions --query "Regions[].RegionName" --output json > "$OUTPUT_DIR/aws/regions.json" 2>/dev/null
-    REGIONS=$(jq -r '.[]' "$OUTPUT_DIR/aws/regions.json" 2>/dev/null) # Lee: This variable is not used
 
     # Display account info
     ACCOUNT_ID=$(jq -r '.Account' "$OUTPUT_DIR/aws/account_info.json" 2>/dev/null)
@@ -90,10 +89,10 @@ f_aws_security_check(){
     SECURE_TRANSPORT_DISABLED_COUNT=0
 
     # Create summary files (Lee: should touch be used here to create this files?)
-    > "$OUTPUT_DIR/aws/s3_security_issues.txt"
-    > "$OUTPUT_DIR/aws/public_buckets.txt"
-    > "$OUTPUT_DIR/aws/unencrypted_buckets.txt"
-    > "$OUTPUT_DIR/aws/s3_compliance_issues.txt"
+    : > "$OUTPUT_DIR/aws/s3_security_issues.txt"
+    : > "$OUTPUT_DIR/aws/public_buckets.txt"
+    : > "$OUTPUT_DIR/aws/unencrypted_buckets.txt"
+    : > "$OUTPUT_DIR/aws/s3_compliance_issues.txt"
 
     # Extract bucket names
     bucket_names=$(jq -r '.Buckets[].Name' "$OUTPUT_DIR/aws/s3_buckets.json" 2>/dev/null)
@@ -363,7 +362,7 @@ f_aws_security_check(){
         echo -e "${BLUE}[*] Checking for users with old credentials.${NC}"
         CURRENT_DATE=$(date +%s)
 
-        while IFS=',' read -r user mfa access_key_1_active access_key_1_last_rotated access_key_2_active access_key_2_last_rotated password_enabled password_last_changed password_next_rotation mfa_active rest; do
+        while IFS=',' read -r user _mfa access_key_1_active access_key_1_last_rotated access_key_2_active access_key_2_last_rotated password_enabled password_last_changed _password_next_rotation _mfa_active rest; do
             [ "$user" = "user" ] && continue  # Skip header
 
             # Skip root account
@@ -693,7 +692,12 @@ f_azure_security_check(){
     az vm list > "$OUTPUT_DIR/azure/vms.json" 2>/dev/null
 
     # Check for VMs without disk encryption
-    az vm encryption show --ids $(az vm list --query "[].id" -o tsv) > "$OUTPUT_DIR/azure/vm_encryption.json" 2>/dev/null
+    mapfile -t vm_ids < <(az vm list --query "[].id" -o tsv 2>/dev/null)
+    if [ "${#vm_ids[@]}" -gt 0 ]; then
+        az vm encryption show --ids "${vm_ids[@]}" > "$OUTPUT_DIR/azure/vm_encryption.json" 2>/dev/null
+    else
+        : > "$OUTPUT_DIR/azure/vm_encryption.json"
+    fi
 
     # Key Vault Checks
     echo -e "${BLUE}[*] Checking Key Vault configurations.${NC}"
@@ -753,7 +757,7 @@ f_gcp_security_check(){
     if ! command -v gcloud &> /dev/null; then
         echo
         echo -e "${YELLOW}Installing Google Cloud CLI.${NC}"
-        cd "$HOME/"
+        cd "$HOME/" || return 1
         curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz
         tar -xf google-cloud-cli-linux-x86_64.tar.gz
         rm google-cloud-cli-linux-x86_64.tar.gz
