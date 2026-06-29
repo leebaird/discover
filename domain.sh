@@ -491,7 +491,8 @@ f_domain_menu(){
     echo "4.  Google dorks"
     echo "5.  Web search"
     echo "6.  Import names"
-    echo "7.  Previous menu"
+    echo "7.  Import subdomains"
+    echo "8.  Previous menu"
     echo
     echo -n "Choice: "
     read -r CHOICE
@@ -655,8 +656,9 @@ f_domain_menu(){
         echo
         exit
         ;;
-    6) "$DISCOVER"/names.sh && exit ;;
-    7) exec "$DISCOVER"/discover.sh ;;
+    6) "$DISCOVER"/import-names.sh && exit ;;
+    7) "$DISCOVER"/import-subdomains.sh && exit ;;
+    8) exec "$DISCOVER"/discover.sh ;;
     *) f_error ;;
     esac
 }

@@ -69,7 +69,8 @@ RECON
 4.  Google dorks
 5.  Web search
 6.  Import names
-7.  Previous menu
+7.  Import subdomains
+8.  Previous menu
 ```
 
 Note: Passive cannot be ran as root.
@@ -82,7 +83,7 @@ theHarvester, Metasploit, Whois, and multiple websites.
 * Passive builds an HTML report at $HOME/data/<domain>/.
 * Find registered domains updates pages/registered-domains.htm in an existing report.
 
-#### Import names
+#### Import names (`import-names.sh`)
 
 Run after a passive scan when you want to add or enrich contacts from manual research
 (LinkedIn, company sites, phone directories, etc.).
@@ -108,6 +109,34 @@ Import names merges three sources, then refreshes pages/names.htm:
 
 The merged TSV is saved back to tools/names. The names page is a sortable
 three-column table: Name, Title, Phone.
+
+#### Import subdomains (`import-subdomains.sh`)
+
+Run after a passive scan when you want to add or enrich hosts from Pentest-Tools
+or manual research.
+
+```
+Enter the location of your previous passive scan:
+/home/user/data/example.com
+
+Enter import file or firefox (or press Enter for default):
+```
+
+Supported imports:
+
+* `firefox` — pull `pinia/scans` from your Firefox profile (free Pentest-Tools scans)
+* Firefox `pinia/scans` export (`pinia-scans.json`)
+* Pentest-Tools JSON (`pentest-tools-<domain>.json`)
+* Pentest-Tools text export (`pentest-tools.txt`)
+* Tab-separated host/IP rows
+
+* Edit `$HOME/data/<domain>/tools/subdomains-import.tsv` for manual entries
+* Format: Subdomain, IP (tab-separated; IP optional)
+* Hosts without an IP are resolved with `dig` during import
+* Re-run Import subdomains whenever you add rows or run a new Pentest-Tools scan
+
+Import subdomains merges with existing `tools/subdomains`, splits private IPs to
+`tools/private-subs`, and refreshes `pages/subdomains.htm`.
 
 #### SEC leadership (Names page)
 

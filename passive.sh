@@ -1450,6 +1450,12 @@ fi
 # Add one person per line, then run Domain > Import names.
 EOF
     fi
+    if [ ! -f "$HOME/data/$DOMAIN/tools/subdomains-import.tsv" ]; then
+        cat > "$HOME/data/$DOMAIN/tools/subdomains-import.tsv" <<'EOF'
+# Manual subdomains — tab-separated: Subdomain, IP (IP optional)
+# Add one host per line, then run Domain > Import subdomains.
+EOF
+    fi
     if [ ! -f "$HOME/data/$DOMAIN/tools/social-manual.tsv" ]; then
         cat > "$HOME/data/$DOMAIN/tools/social-manual.tsv" <<'EOF'
 # Manual social profiles — tab-separated: Platform, URL
