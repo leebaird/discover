@@ -471,6 +471,7 @@ f_theharvester() {
     fi
 
     cd "$harvester_dir" || return 1
+    uv sync --all-groups
     source .venv/bin/activate
 
     for source in "${sources_no_api[@]}"; do
