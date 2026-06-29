@@ -8,13 +8,12 @@ import os
 import sys
 import time
 import requests
-import re
 import random
 import json
 import csv
 import threading
 from datetime import datetime
-from urllib.parse import urlparse, parse_qs, urlencode, urlunparse, quote, unquote
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from requests.adapters import HTTPAdapter
@@ -425,7 +424,7 @@ def save_results(results, output_format='all'):
         txt_file = f"{base_filename}.txt"
         try:
             with open(txt_file, 'w', encoding='utf-8') as f:
-                f.write(f"Open Redirect Vulnerability Scan Results\n")
+                f.write("Open Redirect Vulnerability Scan Results\n")
                 f.write(f"Scan Date: {CURRENT_DATE} {CURRENT_TIME}\n")
                 f.write(f"Total Vulnerabilities Found: {len(results)}\n")
                 f.write("="*80 + "\n\n")

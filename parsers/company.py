@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from sec_common import SEC_USER_AGENT, WEB_USER_AGENT, fetch_url, find_cik, latest_filing_url
+from sec_common import SEC_USER_AGENT, fetch_url, find_cik, latest_filing_url
 
 BLOCKED_HOME_MARKERS = (
     "access denied",

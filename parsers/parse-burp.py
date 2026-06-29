@@ -8,7 +8,7 @@ import os
 import re
 from base64 import b64decode
 from bs4 import BeautifulSoup
-from typing import AnyStr, List, Optional
+from typing import AnyStr, List
 
 
 def main():
