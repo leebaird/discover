@@ -441,12 +441,36 @@ run_harvester() {
     ((COUNT++))
 }
 
+find_theharvester_dir() {
+    local harvester_dir
+
+    if [ -d "$HOME/theHarvester" ]; then
+        printf '%s\n' "$HOME/theHarvester"
+        return 0
+    fi
+
+    harvester_dir=$(find "$HOME" -type d -name theHarvester 2>/dev/null | sort | head -n 1)
+    if [ -n "$harvester_dir" ]; then
+        printf '%s\n' "$harvester_dir"
+        return 0
+    fi
+
+    return 1
+}
+
 f_theharvester() {
     local sources_no_api=(baidu certspotter commoncrawl crtsh duckduckgo gitlab hudsonrock netcraft omnisint otx rapiddns robtex subdomaincenter subdomainfinderc99 thc threatcrowd urlscan waybackarchive yahoo)
+    local harvester_dir
     local source
 
     echo "theHarvester"
-    cd "$HOME/theHarvester"
+    if ! harvester_dir=$(find_theharvester_dir); then
+        echo "    [!] theHarvester directory not found under $HOME."
+        echo
+        return 0
+    fi
+
+    cd "$harvester_dir" || return 1
     source .venv/bin/activate
 
     for source in "${sources_no_api[@]}"; do
@@ -462,11 +486,18 @@ f_theharvester() {
 
 f_theharvester_api() {
     local sources_api=(bevigil bitbucket brave bufferoverun builtwith censys chaos criminalip dehashed dnsdumpster fofa fullhunt github-code hackertarget haveibeenpwned hunter hunterhow intelx leakix leaklookup mojeek netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails tomba venacus virustotal whoisxml windvane zoomeye)
+    local harvester_dir
     local source
 
     echo "theHarvester (API)"
     echo "    These sources require API keys."
-    cd "$HOME/theHarvester"
+    if ! harvester_dir=$(find_theharvester_dir); then
+        echo "    [!] theHarvester directory not found under $HOME."
+        echo
+        return 0
+    fi
+
+    cd "$harvester_dir" || return 1
     source .venv/bin/activate
 
     for source in "${sources_api[@]}"; do
