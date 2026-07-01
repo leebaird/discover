@@ -246,6 +246,14 @@ body.inc-home-page {
     max-width: 100%;
 }
 
+.inc-subdomains-note {
+    grid-column: 1 / -1;
+    margin: 1em 0 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+}
+
 .inc-subdomains-tables .inc-content-frame--table {
     width: 100%;
     max-width: 100%;
