@@ -6,13 +6,54 @@ f_runlocally
 clear
 f_banner
 
-# Check if Firefox is running
-if pgrep firefox > /dev/null; then
+f_firefox_tabs(){
+    local -a urls=()
+    local url
+
+    for url in "$@"; do
+        [ -n "$url" ] && urls+=("$url")
+    done
+
+    if [ ${#urls[@]} -eq 0 ]; then
+        echo
+        echo "[!] No URLs to open."
+        echo
+        return 1
+    fi
+
+    if ! command -v firefox >/dev/null 2>&1; then
+        echo
+        echo -e "${RED}[!] firefox is not installed.${NC}"
+        echo
+        return 1
+    fi
+
     echo
-    echo "[!] Close Firefox before running script."
+    echo "[*] Opening ${#urls[@]} tabs in Firefox."
     echo
-    exit 1
-fi
+
+    MOZ_DISABLE_ATK_BRIDGE=1 GTK_A11Y=none firefox --new-window "${urls[@]}" >/dev/null 2>&1 &
+}
+
+f_firefox_tabs_from_list(){
+    local scheme="$1"
+    local file="$2"
+    local -a urls=()
+    local line
+
+    while IFS= read -r line || [ -n "$line" ]; do
+        line="${line#"${line%%[![:space:]]*}"}"
+        line="${line%"${line##*[![:space:]]}"}"
+        [ -z "$line" ] && continue
+        if [[ "$line" =~ ^https?:// ]]; then
+            urls+=("$line")
+        else
+            urls+=("${scheme}://${line}")
+        fi
+    done < "$file"
+
+    f_firefox_tabs "${urls[@]}"
+}
 
 echo -e "${BLUE}Open multiple tabs in Firefox with:${NC}"
 echo
@@ -32,17 +73,9 @@ case "$CHOICE" in
         read -r PREFIX
 
         if [ -z "$PREFIX" ]; then
-            while read -r i; do
-                xdg-open http://"$i" &
-                sleep 2
-            done < "$LOCATION"
-
+            f_firefox_tabs_from_list "http" "$LOCATION"
         elif [ "$PREFIX" == "y" ]; then
-            while read -r i; do
-                xdg-open https://"$i" &
-                sleep 2
-            done < "$LOCATION"
-
+            f_firefox_tabs_from_list "https" "$LOCATION"
         else
             f_error
         fi
@@ -56,24 +89,22 @@ case "$CHOICE" in
         echo -n "Enter the location of your directory: "
         read -r LOCATION
 
-        # Check for no answer
         if [ -z "$LOCATION" ]; then
             f_error
         fi
 
-        # Check for wrong answer
         if [ ! -d "$LOCATION" ]; then
             f_error
         fi
 
-        cd "$LOCATION" || exit
-
-        # option 1
-        for i in $(ls -l | awk '{print $9}'); do
-            xdg-open "$i" &
-            sleep 2
+        LOCATION="$(cd "$LOCATION" && pwd)"
+        urls=()
+        for i in "$LOCATION"/*; do
+            [ -f "$i" ] || continue
+            urls+=("file://$i")
         done
 
+        f_firefox_tabs "${urls[@]}"
         exit
         ;;
     3)
@@ -85,12 +116,9 @@ case "$CHOICE" in
         echo -n "Domain: "
         read -r DOMAIN
 
-        # Check for no answer
         if [ -z "$DOMAIN" ]; then
             f_error
         fi
-
-        curl -kLs "$DOMAIN"/robots.txt -o robots.txt
 
         if ! curl -kLs "$DOMAIN"/robots.txt -o robots.txt; then
             echo
@@ -101,10 +129,13 @@ case "$CHOICE" in
 
         grep -i 'disallow' robots.txt | awk '{print $2}' | grep -iv disallow | sort -u > tmp
 
-        while read -r i; do
-            xdg-open "https://$DOMAIN$i" &
-            sleep 2
+        urls=()
+        while IFS= read -r i || [ -n "$i" ]; do
+            [ -z "$i" ] && continue
+            urls+=("https://$DOMAIN$i")
         done < tmp
+
+        f_firefox_tabs "${urls[@]}"
 
         rm robots.txt
         mv tmp "$HOME"/data/"$DOMAIN"-robots.txt
