@@ -707,7 +707,6 @@ PAGE="$DISCOVER_REPORT/pages/subdomains.htm"
 REPORT_PAGE="$DISCOVER_REPORT/pages/report.htm"
 
 python3 "$DISCOVER/misc/subdomain-categorize.py" \
-    "$DISCOVER/resource/subdomain-categories.tsv" \
     "$FILTERED" > "$TMPDIR/subdomains-categorized.tsv"
 cp "$TMPDIR/subdomains-categorized.tsv" "$SUBDOMAINS_FILE"
 

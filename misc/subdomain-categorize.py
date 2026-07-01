@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 IPV4_RE = re.compile(r"^(?:\d{1,3}\.){3}\d{1,3}$")
+DEFAULT_RULES = Path(__file__).resolve().parent / "subdomain-categories.tsv"
 
 
 def load_rules(path):
@@ -83,12 +84,19 @@ def parse_input_row(raw):
 
 
 def main():
-    if len(sys.argv) != 3:
-        print("usage: subdomain-categorize.py RULES.tsv INPUT.tsv", file=sys.stderr)
+    if len(sys.argv) == 2:
+        rules_path = DEFAULT_RULES
+        input_path = Path(sys.argv[1])
+    elif len(sys.argv) == 3:
+        rules_path = Path(sys.argv[1])
+        input_path = Path(sys.argv[2])
+    else:
+        print(
+            "usage: subdomain-categorize.py INPUT.tsv [RULES.tsv]",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
-    rules_path = Path(sys.argv[1])
-    input_path = Path(sys.argv[2])
     rules = load_rules(rules_path)
 
     rows = []

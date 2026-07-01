@@ -136,7 +136,7 @@ Supported imports:
 * Re-run Import subdomains whenever you add rows or run a new Pentest-Tools scan
 
 Import subdomains merges with existing `tools/subdomains`, assigns categories from
-`resource/subdomain-categories.tsv`, splits private IPs to `tools/private-subs`, and
+`misc/subdomain-categories.tsv`, splits private IPs to `tools/private-subs`, and
 refreshes `pages/subdomains.htm` (Subdomain, Category, IP columns).
 
 #### SEC leadership (Names page)

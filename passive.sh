@@ -839,7 +839,6 @@ PY
 
     if [ -s subdomains ]; then
         python3 "$DISCOVER/misc/subdomain-categorize.py" \
-            "$DISCOVER/resource/subdomain-categories.tsv" \
             subdomains > subdomains.categorized
         mv subdomains.categorized subdomains
     fi
