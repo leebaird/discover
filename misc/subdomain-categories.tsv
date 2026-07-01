@@ -240,6 +240,9 @@ Email	*mail
 Email	autodiscover
 Email	email
 Email	exchange
+Email	exch-ddc.minfra
+Email	exch-eu.minfra
+Email	exch-mdc.minfra
 Email	globalmail
 Email	globalmail-*
 Email	imap
