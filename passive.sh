@@ -965,7 +965,7 @@ def render_row(rtype, name, value):
     return (
         f"                <tr{row_class}>"
         f"<td>{html.escape(rtype)}</td>"
-        f'<td class="inc-col-name">{html.escape(name)}</td>'
+        f"<td>{html.escape(name)}</td>"
         f"<td{title}>{html.escape(value)}</td>"
         "</tr>"
     )
@@ -1088,6 +1088,13 @@ def parse_row(raw):
         return None
     return fuzzer, domain, ipaddr, ns, mx
 
+
+def format_fuzzer(value):
+    value = value.strip()
+    if not value:
+        return value
+    return value[0].upper() + value[1:]
+
 path = sys.argv[1]
 lines = []
 with open(path, newline="") as handle:
@@ -1098,8 +1105,8 @@ with open(path, newline="") as handle:
         fuzzer, domain, ipaddr, ns, mx = parsed
         lines.append(
             "                <tr>"
-            f"<td>{html.escape(fuzzer)}</td>"
-            f'<td class="inc-col-domain">{html.escape(domain)}</td>'
+            f"<td>{html.escape(format_fuzzer(fuzzer))}</td>"
+            f"<td>{html.escape(domain)}</td>"
             f"<td>{html.escape(ipaddr)}</td>"
             f"<td>{html.escape(ns)}</td>"
             f"<td>{html.escape(mx)}</td>"
@@ -1207,7 +1214,7 @@ def build_table(rows, empty_message, ip_header="IP Address"):
         for subdomain, ipaddr, category in rows:
             lines.append(
                 "                <tr>"
-                f'<td class="inc-col-domain">{html.escape(subdomain)}</td>'
+                f"<td>{html.escape(subdomain)}</td>"
                 f"<td>{html.escape(category)}</td>"
                 f"<td>{html.escape(ipaddr)}</td>"
                 "</tr>"

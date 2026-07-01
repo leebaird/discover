@@ -51,7 +51,7 @@ body.inc-home-page {
 .inc-page-header h1 {
     font-family: var(--font);
     font-weight: 500;
-    font-size: 13px;
+    font-size: 15px;
     letter-spacing: 0.02em;
 }
 
@@ -204,13 +204,6 @@ body.inc-home-page {
 .inc-data-body table.inc-data-table > thead > tr > th:last-child,
 .inc-data-body table.inc-data-table > tbody > tr > td:last-child {
     padding-right: 32px;
-}
-
-.inc-data-table td:first-child,
-.inc-data-table td.inc-col-domain,
-.inc-data-table td.inc-col-name {
-    font-family: var(--font-mono);
-    font-size: 13px;
 }
 
 .inc-records-page .inc-data-table > thead > tr > th:first-child,

@@ -275,7 +275,7 @@ def build_table(rows, empty_message, ip_header="IP Address"):
         for subdomain, ipaddr, category in rows:
             lines.append(
                 "                <tr>"
-                f'<td class="inc-col-domain">{html.escape(subdomain)}</td>'
+                f"<td>{html.escape(subdomain)}</td>"
                 f"<td>{html.escape(category)}</td>"
                 f"<td>{html.escape(ipaddr)}</td>"
                 "</tr>"
