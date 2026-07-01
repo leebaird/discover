@@ -14,9 +14,13 @@ def load_rules(path):
         line = raw.strip()
         if not line or line.startswith("#"):
             continue
-        if "\t" not in line:
-            continue
-        category, pattern = line.split("\t", 1)
+        if "\t" in line:
+            category, pattern = line.split("\t", 1)
+        else:
+            parts = line.split(None, 1)
+            if len(parts) < 2:
+                continue
+            category, pattern = parts
         category = category.strip()
         pattern = pattern.strip().lower()
         if category and pattern:
@@ -25,14 +29,25 @@ def load_rules(path):
 
 
 def label_matches(label, pattern):
+    if pattern.startswith("*") and pattern.endswith("*") and len(pattern) > 2:
+        return pattern[1:-1] in label
+    if pattern.startswith("*"):
+        return label.endswith(pattern[1:])
     if pattern.endswith("*"):
         return label.startswith(pattern[:-1])
+    if pattern.startswith("-"):
+        return label.endswith(pattern)
     return label == pattern
 
 
 def categorize_host(host, rules):
-    labels = host.strip().lower().split(".")
+    host = host.strip().lower()
+    labels = host.split(".")
     for category, pattern in rules:
+        if "." in pattern:
+            if pattern in host:
+                return category
+            continue
         for label in labels:
             if label_matches(label, pattern):
                 return category
