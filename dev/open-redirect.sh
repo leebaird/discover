@@ -2,11 +2,19 @@
 
 # by ibrahimsql - Open Redirect Scanner
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
+#
+# Standalone scanner: writes only under $HOME/data/openredirect-scan_*/ (or --output-dir).
+# Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
 
-clear
-f_banner
+if ! declare -f f_banner >/dev/null 2>&1; then
+    OPEN_REDIRECT_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    DISCOVER_SOURCE_ONLY=1 source "${OPEN_REDIRECT_SCANNER_ROOT}/../discover.sh"
+fi
 
-# Function to terminate script
+OPEN_REDIRECT_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/open-redirect-scanner/common.sh
+source "${OPEN_REDIRECT_SCANNER_ROOT}/lib/open-redirect-scanner/common.sh"
+
 f_terminate(){
     echo
     echo -e "${RED}[!] Terminating.${NC}"
@@ -14,197 +22,168 @@ f_terminate(){
     exit 1
 }
 
-# Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
 
-###############################################################################################################################
+f_openredirect_run_scans(){
+    local rc=0
+    f_openredirect_run_engine || rc=$?
+    f_openredirect_generate_reports
+    return "$rc"
+}
 
-f_single_target(){
-    echo
-    echo -n "Enter the target URL or domain: "
-    read -r TARGET
-
-    # Check for no answer
-    if [ -z "$TARGET" ]; then
-        f_error
-    fi
-
-    # Make sure the target has a schema
-    if [[ ! $TARGET =~ ^https?:// ]]; then
-        # Ask if HTTP or HTTPS should be used
+f_openredirect_interactive_menu(){
+    while true; do
+        clear
+        f_banner
+        echo -e "${BLUE}Open Redirect Scanner${NC} originally by ${YELLOW}ibrahimsql${NC}"
         echo
-        echo -n "Use HTTPS? (y/n): "
-        read -r USE_HTTPS
-
-        if [[ $USE_HTTPS =~ ^[Yy]$ ]]; then
-            TARGET="https://$TARGET"
-        else
-            TARGET="http://$TARGET"
-        fi
-    fi
-
-    # Run the Python script
-    echo
-    echo -e "[*] Running Open Redirect Scanner on: ${BLUE}$TARGET${NC}"
-    echo
-    python3 "$DISCOVER"/dev/openredirect-scanner.py -u "$TARGET"
-}
-
-###############################################################################################################################
-
-f_domain_target(){
-    echo
-    echo -n "Enter the domain name: "
-    read -r DOMAIN
-
-    # Check for no answer
-    if [ -z "$DOMAIN" ]; then
-        f_error
-    fi
-
-    # Run the Python script
-    echo
-    echo -e "[*] Running Open Redirect Scanner on domain: ${BLUE}$DOMAIN${NC}"
-    echo
-    python3 "$DISCOVER"/dev/openredirect-scanner.py -d "$DOMAIN"
-}
-
-###############################################################################################################################
-
-f_file_target(){
-    echo
-    echo -n "Enter the path to the file containing URLs: "
-    read -r FILE_PATH
-
-    # Check for no answer
-    if [ -z "$FILE_PATH" ]; then
-        f_error
-    fi
-
-    # Check if file exists
-    if [ ! -f "$FILE_PATH" ]; then
+        echo "1. Scan a single URL"
+        echo "2. Scan a domain"
+        echo "3. Scan multiple URLs from a file"
+        echo "4. Advanced options (wordlist, crawl, rate limits)"
+        echo "5. Scan URLs from prior Discover scan dir"
+        echo "6. Previous menu"
         echo
-        echo -e "${RED}[!] File not found: $FILE_PATH${NC}"
-        f_error
-    fi
+        echo -n "Choice: "
+        read -r CHOICE
 
-    # Ask for output format
-    echo
-    echo "Select output format:"
-    echo "1. All formats (txt, json, csv)"
-    echo "2. Text only"
-    echo "3. JSON only"
-    echo "4. CSV only"
-    echo
-    echo -n "Choice (1-4): "
-    read -r FORMAT_CHOICE
+        OPEN_REDIRECT_URL=""
+        OPEN_REDIRECT_DOMAIN=""
+        OPEN_REDIRECT_FILE=""
+        OPEN_REDIRECT_WORDLIST=""
+        OPEN_REDIRECT_SCAN_DIR=""
+        OPEN_REDIRECT_CRAWL=0
+        OPEN_REDIRECT_DELAY=0
+        OPEN_REDIRECT_RPS=0
+        OPEN_REDIRECT_MAX_REQUESTS=0
+        OPEN_REDIRECT_NO_CONFIRM=0
 
-    case "$FORMAT_CHOICE" in
-        1) FORMAT="all" ;;
-        2) FORMAT="txt" ;;
-        3) FORMAT="json" ;;
-        4) FORMAT="csv" ;;
-        *) f_error ;;
-    esac
+        case "$CHOICE" in
+            1)
+                echo
+                echo -n "Target URL or domain: "
+                read -r OPEN_REDIRECT_URL
+                [ -n "$OPEN_REDIRECT_URL" ] || { f_error; continue; }
+                OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
+                ;;
+            2)
+                echo
+                echo -n "Domain name: "
+                read -r OPEN_REDIRECT_DOMAIN
+                [ -n "$OPEN_REDIRECT_DOMAIN" ] || { f_error; continue; }
+                OPEN_REDIRECT_DOMAIN=$(f_openredirect_normalize_domain "$OPEN_REDIRECT_DOMAIN")
+                ;;
+            3)
+                echo
+                echo -n "Path to URL list file: "
+                read -r OPEN_REDIRECT_FILE
+                [ -n "$OPEN_REDIRECT_FILE" ] && [ -f "$OPEN_REDIRECT_FILE" ] || { f_error; continue; }
+                ;;
+            4)
+                echo
+                echo -n "Target URL or domain: "
+                read -r OPEN_REDIRECT_URL
+                [ -n "$OPEN_REDIRECT_URL" ] || { f_error; continue; }
+                OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
+                echo -n "Custom parameter wordlist (optional): "
+                read -r OPEN_REDIRECT_WORDLIST
+                if [ -n "$OPEN_REDIRECT_WORDLIST" ] && [ ! -f "$OPEN_REDIRECT_WORDLIST" ]; then
+                    f_error
+                    continue
+                fi
+                echo -n "Crawl links from target? (y/n) [n]: "
+                read -r CRAWL_IN
+                [[ "$CRAWL_IN" =~ ^[Yy] ]] && OPEN_REDIRECT_CRAWL=1
+                echo -n "Max requests (0=unlimited) [0]: "
+                read -r OPEN_REDIRECT_MAX_REQUESTS
+                OPEN_REDIRECT_MAX_REQUESTS="${OPEN_REDIRECT_MAX_REQUESTS:-0}"
+                echo -n "Delay between requests in seconds [0]: "
+                read -r OPEN_REDIRECT_DELAY
+                OPEN_REDIRECT_DELAY="${OPEN_REDIRECT_DELAY:-0}"
+                ;;
+            5)
+                echo
+                echo -n "Prior scan output dir (e.g. ~/data/api-scan_*): "
+                read -r OPEN_REDIRECT_SCAN_DIR
+                [ -n "$OPEN_REDIRECT_SCAN_DIR" ] && [ -d "$OPEN_REDIRECT_SCAN_DIR" ] || { f_error; continue; }
+                echo -n "Also seed with a single URL (optional): "
+                read -r OPEN_REDIRECT_URL
+                if [ -n "$OPEN_REDIRECT_URL" ]; then
+                    OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
+                fi
+                ;;
+            6) f_main; return 0 ;;
+            *) f_error; continue ;;
+        esac
 
-    # Run the Python script
-    echo
-    echo -e "[*] Running Open Redirect Scanner on URLs from file: ${BLUE}$FILE_PATH${NC}"
-    echo -e "[*] Output format: ${BLUE}$FORMAT${NC}"
-    echo
-    python3 "$DISCOVER"/dev/openredirect-scanner.py -f "$FILE_PATH" -o "$FORMAT"
-}
-
-###############################################################################################################################
-
-f_advanced_options(){
-    echo
-    echo -n "Enter the target URL or domain: "
-    read -r TARGET
-
-    # Check for no answer
-    if [ -z "$TARGET" ]; then
-        f_error
-    fi
-
-    # Make sure the target has a schema
-    if [[ ! $TARGET =~ ^https?:// ]]; then
         echo
-        echo -n "Use HTTPS? (y/n): "
-        read -r USE_HTTPS
+        echo "Scan mode:"
+        echo "1. Quick"
+        echo "2. Full"
+        echo -n "Choice [2]: "
+        read -r MODE_CHOICE
+        case "$MODE_CHOICE" in
+            1) OPEN_REDIRECT_SCAN_MODE="quick" ;;
+            *) OPEN_REDIRECT_SCAN_MODE="full" ;;
+        esac
 
-        if [[ $USE_HTTPS =~ ^[Yy]$ ]]; then
-            TARGET="https://$TARGET"
-        else
-            TARGET="http://$TARGET"
-        fi
-    fi
+        echo -n "Canary host [${OPEN_REDIRECT_CANARY_HOST}]: "
+        read -r CANARY_IN
+        [ -n "$CANARY_IN" ] && OPEN_REDIRECT_CANARY_HOST="$CANARY_IN"
 
-    # Ask for custom parameter wordlist
-    echo
-    echo -n "Enter path to custom parameter wordlist (leave empty to use default): "
-    read -r WORDLIST
-
-    # Ask for output format
-    echo
-    echo "Select output format:"
-    echo "1. All formats (txt, json, csv)"
-    echo "2. Text only"
-    echo "3. JSON only"
-    echo "4. CSV only"
-    echo
-    echo -n "Choice (1-4): "
-    read -r FORMAT_CHOICE
-
-    case "$FORMAT_CHOICE" in
-        1) FORMAT="all" ;;
-        2) FORMAT="txt" ;;
-        3) FORMAT="json" ;;
-        4) FORMAT="csv" ;;
-        *) f_error ;;
-    esac
-
-    # Build the command
-    CMD=(python3 "$DISCOVER/dev/openredirect-scanner.py" -u "$TARGET" -o "$FORMAT")
-
-    if [ -n "$WORDLIST" ]; then
-        CMD+=(-w "$WORDLIST")
-    fi
-
-    printf -v CMD_DISPLAY '%q ' "${CMD[@]}"
-
-    # Run the Python script
-    echo
-    echo -e "[*] Running Open Redirect Scanner with custom options"
-    echo -e "[*] Command: ${BLUE}${CMD_DISPLAY% }${NC}"
-    echo
-    "${CMD[@]}"
+        f_openredirect_setup_output
+        f_openredirect_check_deps
+        echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
+        echo -e "${YELLOW}[*] Mode: $OPEN_REDIRECT_SCAN_MODE | Canary: $OPEN_REDIRECT_CANARY_HOST${NC}"
+        f_openredirect_run_scans || true
+        echo -e "${YELLOW}[*] Reports: report.txt, report.md, findings.json${NC}"
+        echo -n "Press Enter..."
+        read -r _
+    done
 }
-
-###############################################################################################################################
 
 f_openredirect_main(){
-    echo -e "${BLUE}Open Redirect Scanner${NC} | ${YELLOW}by ibrahimsql${NC}"
-    echo
-    echo "1. Scan a single URL"
-    echo "2. Scan a domain"
-    echo "3. Scan multiple URLs from a file"
-    echo "4. Advanced options"
-    echo "5. Previous menu"
-    echo
+    f_openredirect_parse_cli "$@"
 
-    echo -n "Choice: "
-    read -r CHOICE
+    if [ "$OPEN_REDIRECT_USE_MENU" = "1" ]; then
+        f_openredirect_interactive_menu
+        return 0
+    fi
 
-    case "$CHOICE" in
-        1) f_single_target ;;
-        2) f_domain_target ;;
-        3) f_file_target ;;
-        4) f_advanced_options ;;
-        5) f_main ;;
-        *) f_error ;;
-    esac
+    if [ "$OPEN_REDIRECT_CLI_INVOKED" = "0" ] && [ $# -eq 0 ] && [ -t 0 ]; then
+        f_openredirect_interactive_menu
+        return 0
+    fi
+
+    if ! f_openredirect_has_target; then
+        f_openredirect_usage
+        exit 1
+    fi
+
+    if [ -n "$OPEN_REDIRECT_URL" ]; then
+        OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
+    fi
+    if [ -n "$OPEN_REDIRECT_DOMAIN" ]; then
+        OPEN_REDIRECT_DOMAIN=$(f_openredirect_normalize_domain "$OPEN_REDIRECT_DOMAIN")
+    fi
+
+    f_openredirect_setup_output
+    f_openredirect_check_deps
+
+    clear
+    f_banner
+    echo -e "${BLUE}Open Redirect Scanner${NC}"
+    echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
+    echo -e "${YELLOW}[*] Mode: $OPEN_REDIRECT_SCAN_MODE | Canary: $OPEN_REDIRECT_CANARY_HOST${NC}"
+
+    f_openredirect_run_scans || exit $?
+
+    echo -e "${YELLOW}[*] Reports: report.txt, report.md, findings.json${NC}"
+    echo -e "${YELLOW}[*] Findings: findings_registry.tsv${NC}"
+    echo -e "${YELLOW}[*] Scan log: ${OUTPUT_DIR}/scan.log${NC}"
+    echo
 }
 
-# Run the script
-f_openredirect_main
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    f_openredirect_main "$@"
+fi

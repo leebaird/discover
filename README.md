@@ -81,6 +81,7 @@ dev/
 ├── web-api-scanner.sh
 ├── data/
 │   ├── api-paths.txt
+│   ├── openredirect-payloads.txt
 │   └── swagger-paths.txt
 └── lib/
     ├── api-scanner/
@@ -94,10 +95,12 @@ dev/
     │   ├── common.sh
     │   ├── docker.sh
     │   └── k8s.sh
-    └── oauth-jwt-scanner/
-        ├── common.sh
-        ├── oauth.sh
-        └── jwt.sh
+    ├── oauth-jwt-scanner/
+    │   ├── common.sh
+    │   ├── oauth.sh
+    │   └── jwt.sh
+    └── open-redirect-scanner/
+        └── common.sh
 ```
 
 ## RECON
@@ -507,15 +510,23 @@ OAuth/OIDC discovery, live authorize probes, offline JWT analysis, and optional 
 
 ### Open Redirect Scanner (`dev/open-redirect.sh`)
 
-```
-1. Scan a single URL
-2. Scan a domain
-3. Scan multiple URLs from a file
-4. Advanced options
-5. Previous menu
+Fuzzes redirect parameters (inject + mutate existing query params) with configurable canary hosts. Detects 3xx `Location` (with one-hop follow), meta refresh, and JavaScript/body redirects. Full mode adds POST and header probes. Confirmation pass uses a second canary host to reduce false positives. Python engine: `dev/openredirect-scanner.py`; payloads: `dev/data/openredirect-payloads.txt`. Standalone output under `$HOME/data/openredirect-scan_*`.
+
+**Menu:** Single URL, domain, URL file, advanced options, prior scan dir, or previous menu.
+
+**CLI examples:**
+```bash
+./dev/open-redirect.sh --url https://app.example.com/login?next=/home --full
+./dev/open-redirect.sh --domain example.com --quick
+./dev/open-redirect.sh --scan-dir ~/data/api-scan_20260101-1200 --crawl --quick
+./dev/open-redirect.sh --file ~/targets.txt --max-requests 500 --rps 5
 ```
 
-Python engine: `dev/openredirect-scanner.py`.
+**Options:** `--url`, `--domain`, `--file`, `--scan-dir`, `--wordlist`, `--canary-host`, `--quick`, `--full`, `--crawl`, `--workers`, `--delay`, `--rps`, `--max-requests`, `--no-confirm`, `--quiet`, `--output-dir`, `--resume`, `--menu`, `-h`
+
+**Output:** `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `scan.log`, `openredirect_engine/results.json`, `openredirect_engine/checkpoint.json`
+
+**Dependencies:** `python3`, `requests` (Discover Update installs `python3-requests`), `jq`
 
 ### Sensitive Information Scanner (`dev/sensitive-scanner.sh`)
 

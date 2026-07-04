@@ -94,6 +94,12 @@ if ! command -v jq &> /dev/null; then
     echo
 fi
 
+if ! python3 -c 'import requests' &> /dev/null; then
+    echo -e "${YELLOW}Installing python3-requests (open-redirect scanner).${NC}"
+    apt install -y python3-requests
+    echo
+fi
+
 if ! command -v msfconsole &> /dev/null; then
     echo -e "${YELLOW}Installing Metasploit.${NC}"
     snap install metasploit-framework

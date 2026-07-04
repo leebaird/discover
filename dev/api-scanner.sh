@@ -573,13 +573,19 @@ f_api_orchestrate(){
     echo
     echo -e "${BLUE}Related Discover scanners for deeper coverage:${NC}"
     echo "  - dev/oauth-jwt-scanner.sh  (OAuth/OIDC)"
+    echo "  - dev/open-redirect.sh      (open redirect fuzzing)"
     echo "  - dev/sensitive-scanner.sh  (secret leakage)"
     echo "  - dev/web-api-scanner.sh    (Metasploit web/API modules)"
     echo
     echo -n "Run oauth-jwt-scanner on same target now? (y/n): "
     read -r run_oauth
     if [[ "$run_oauth" =~ ^[Yy] ]]; then
-        echo -e "${YELLOW}[*] Run: ${_API_SCANNER_DIR}/oauth-jwt-scanner.sh${NC}"
+        echo -e "${YELLOW}[*] Run: ${_API_SCANNER_DIR}/oauth-jwt-scanner.sh --target $target${NC}"
+    fi
+    echo -n "Run open-redirect on api-scan output? (y/n): "
+    read -r run_redirect
+    if [[ "$run_redirect" =~ ^[Yy] ]]; then
+        echo -e "${YELLOW}[*] Run: ${_API_SCANNER_DIR}/open-redirect.sh --scan-dir $OUTPUT_DIR --quick${NC}"
     fi
     echo -n "Run sensitive-scanner on same target? (y/n): "
     read -r run_sens
