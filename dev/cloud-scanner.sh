@@ -50,7 +50,7 @@ f_cloud_run_providers(){
     f_cloud_generate_reports
     echo
     echo -e "${YELLOW}[*] Results: ${OUTPUT_DIR}/${NC}"
-    echo -e "${YELLOW}[*] Reports: report.txt, report.md${NC}"
+    echo -e "${YELLOW}[*] Reports: report.txt, report.md, findings.json${NC}"
     echo -e "${YELLOW}[*] Findings: findings_registry.tsv${NC}"
     echo -e "${YELLOW}[*] Scan log: ${OUTPUT_DIR}/scan.log${NC}"
     echo

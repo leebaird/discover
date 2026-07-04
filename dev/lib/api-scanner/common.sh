@@ -238,6 +238,58 @@ f_api_jwt_deep_check(){
     fi
 }
 
+f_api_write_findings_json(){
+    local generated="$1" scan_id="$2" requests="$3" endpoints="$4" vuln_urls="$5"
+    local json_file="${OUTPUT_DIR}/api_scanner/findings.json"
+    local findings total
+
+    total=$(awk 'NR > 1 { n++ } END { print n + 0 }' "$API_FINDINGS_FILE" 2>/dev/null || echo 0)
+
+    if [ "$total" -gt 0 ]; then
+        findings=$(tail -n +2 "$API_FINDINGS_FILE" | jq -R -s '
+            split("\n")
+            | map(select(length > 0))
+            | map(split("\t"))
+            | map({
+                severity: .[0],
+                confidence: .[1],
+                category: .[2],
+                url: .[3],
+                evidence: .[4],
+                description: .[5]
+            })
+        ')
+    else
+        findings='[]'
+    fi
+
+    jq -n \
+        --arg scanner "api-scanner" \
+        --arg generated "$generated" \
+        --arg target "$API_TARGET_URL" \
+        --arg scan_id "$scan_id" \
+        --arg mode "$API_SCAN_MODE" \
+        --argjson requests "$requests" \
+        --argjson endpoints "$endpoints" \
+        --argjson vulnerable_urls "$vuln_urls" \
+        --argjson total "$total" \
+        --argjson findings "$findings" \
+        '{
+            scanner: $scanner,
+            generated: $generated,
+            target: $target,
+            scan_id: $scan_id,
+            mode: $mode,
+            summary: {
+                requests: $requests,
+                endpoints: $endpoints,
+                vulnerable_urls: $vulnerable_urls,
+                total: $total
+            },
+            findings: $findings
+        }' > "$json_file"
+}
+
 f_api_count_findings(){
     local category="$1" confidence="${2:-}"
     local count

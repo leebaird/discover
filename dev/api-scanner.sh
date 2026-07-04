@@ -515,9 +515,12 @@ EOF
 
     echo "" >> "${OUTPUT_DIR}/api_scanner/report.md"
     echo "Request log: \`${API_SCAN_LOG}\`" >> "${OUTPUT_DIR}/api_scanner/report.md"
+    echo "Findings JSON: \`findings.json\`" >> "${OUTPUT_DIR}/api_scanner/report.md"
+
+    f_api_write_findings_json "$report_generated" "api-scan_${SCAN_STAMP}" "$API_REQUEST_COUNT" "$endpoints_count" "$vuln_count"
 
     find "${OUTPUT_DIR}/api_scanner" -type f \( -name 'curl_err_*' -o -name 'rate_*.txt' \) -empty -delete 2>/dev/null || true
-    f_api_log "Scan complete. Requests: $API_REQUEST_COUNT Findings: $(tail -n +2 "$API_FINDINGS_FILE" | wc -l)"
+    f_api_log "Scan complete. Requests: $API_REQUEST_COUNT Findings: $(tail -n +2 "$API_FINDINGS_FILE" | wc -l) (findings.json)"
 }
 
 ###############################################################################################################################
@@ -678,7 +681,7 @@ f_api_main(){
             f_api_run_scan "$API_CLI_URL"
         fi
         echo -e "${YELLOW}[*] Results: ${OUTPUT_DIR}/api_scanner/${NC}"
-        echo -e "${YELLOW}[*] Reports: report.txt, report.md${NC}"
+        echo -e "${YELLOW}[*] Reports: report.txt, report.md, findings.json${NC}"
         echo -e "${YELLOW}[*] Request log: ${OUTPUT_DIR}/api_scanner/scan.log${NC}"
         return 0
     fi

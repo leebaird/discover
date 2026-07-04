@@ -404,7 +404,8 @@ Phased API discovery and security testing. Shared helpers and wordlists are in `
 **Output:** `$HOME/data/api-scan_<timestamp>/api_scanner/`
 
 * `report.txt` and `report.md` — scanner-local findings (not merged into Discover recon report)
-* `findings_registry.tsv` — machine-friendly finding log
+* `findings.json` — consolidated JSON export of all findings
+* `findings_registry.tsv` — tab-separated finding log (source for JSON export)
 * `scan.log` — request audit trail
 * `.checkpoint/` — resume markers per phase
 
@@ -446,6 +447,7 @@ Phased cloud misconfiguration audit for AWS, Azure, and GCP. Shared helpers live
 Results are written under `$HOME/data/cloud-scan_YYYYMMDD-HHMM/` (or `--output-dir`):
 
 * `findings_registry.tsv` — severity, provider, service, resource, check, detail, evidence
+* `findings.json` — consolidated JSON export of all findings
 * `report.txt` / `report.md` — scanner-local rollup (not merged into Discover recon report)
 * `scan.log` — API activity and finding log
 * `.checkpoint/` — phase markers for `--resume`

@@ -183,6 +183,63 @@ f_cloud_aws_wait_credential_report(){
     return 1
 }
 
+f_cloud_write_findings_json(){
+    local stamp="$1"
+    local json_file="${OUTPUT_DIR}/findings.json"
+    local findings crit high warn info total
+
+    crit=$(f_cloud_count_findings critical)
+    high=$(f_cloud_count_findings high)
+    warn=$(f_cloud_count_findings warning)
+    info=$(f_cloud_count_findings info)
+    total=$(awk 'NR > 1 { n++ } END { print n + 0 }' "$CLOUD_FINDINGS_FILE")
+
+    if [ "$total" -gt 0 ]; then
+        findings=$(tail -n +2 "$CLOUD_FINDINGS_FILE" | jq -R -s '
+            split("\n")
+            | map(select(length > 0))
+            | map(split("\t"))
+            | map({
+                severity: .[0],
+                provider: .[1],
+                service: .[2],
+                resource: .[3],
+                check: .[4],
+                detail: .[5],
+                evidence: (if length > 6 then .[6] else "" end)
+            })
+        ')
+    else
+        findings='[]'
+    fi
+
+    jq -n \
+        --arg scanner "cloud-scanner" \
+        --arg generated "$stamp" \
+        --arg mode "$CLOUD_SCAN_MODE" \
+        --arg output_dir "$OUTPUT_DIR" \
+        --argjson critical "$crit" \
+        --argjson high "$high" \
+        --argjson warning "$warn" \
+        --argjson info "$info" \
+        --argjson total "$total" \
+        --argjson findings "$findings" \
+        '{
+            scanner: $scanner,
+            generated: $generated,
+            mode: $mode,
+            output_dir: $output_dir,
+            summary: {
+                critical: $critical,
+                high: $high,
+                warning: $warning,
+                info: $info,
+                total: $total
+            },
+            findings: $findings
+        }' > "$json_file"
+}
+
 f_cloud_generate_reports(){
     local stamp
     stamp=$(date -Iseconds)
@@ -252,7 +309,10 @@ EOF
     }' "$CLOUD_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.md"
 
     echo "Scan log: \`${CLOUD_SCAN_LOG}\`" >> "${OUTPUT_DIR}/report.md"
-    f_cloud_log "Reports written. Findings: $total"
+    echo "Findings JSON: \`findings.json\`" >> "${OUTPUT_DIR}/report.md"
+
+    f_cloud_write_findings_json "$stamp"
+    f_cloud_log "Reports written. Findings: $total (findings.json)"
 }
 
 f_cloud_usage(){
