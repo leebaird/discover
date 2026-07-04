@@ -456,13 +456,21 @@ Requires `jq` and the relevant cloud CLI (`aws`, `az`, `gcloud`/`gsutil`) with c
 
 ### Container Security Scanner (`dev/container-scanner.sh`)
 
-Comprehensive Docker and Kubernetes security assessment using Trivy, Docker, and kubectl.
+Comprehensive Docker and Kubernetes security assessment using Trivy, Docker, and kubectl. Standalone output under `$HOME/data/container-scan_*` (does not update Discover recon HTML reports).
 
-* **Docker images** — vulnerability and misconfiguration scanning
-* **Docker containers** — privileged mode, mounts, exposed ports
-* **Kubernetes** — RBAC, network policies, pod security, workload risks
+* **Docker images** — Trivy vulnerability/secret/config scan, SBOM (full mode), Dockerfile analysis
+* **Docker containers** — privileged mode, mounts, capabilities, runtime checks (full mode)
+* **Kubernetes** — RBAC, NetworkPolicies, PSS labels, deprecated APIs, pod security
 
-Optional CLI argument: `docker-images`, `docker-containers`, `kubernetes`, or `all` (default).
+**Scan types:** `docker-images`, `docker-containers`, `kubernetes`, or `all` (default when run from Discover menu).
+
+**CLI options:** `--quick`, `--full`, `--output-dir`, `--resume`, `--dockerfile-root`, `--include-ns`, `--exclude-ns`, `--trivy-jobs`, `--menu`, `-h`
+
+**Output artifacts:** `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `scan.log`, `container_security_report.txt`
+
+**Dependencies:** `docker`, `kubectl` (kubernetes scan), `trivy`, `jq`, `numfmt` — install via Discover Update; no auto-install.
+
+**Environment:** `CONTAINER_OUTPUT_DIR`, `CONTAINER_DOCKERFILE_ROOT`, `CONTAINER_SCAN_MODE`, `CONTAINER_EXCLUDE_NS`
 
 ### OAuth and JWT Security Scanner (`dev/oauth-jwt-scanner.sh`)
 
