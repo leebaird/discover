@@ -255,6 +255,52 @@ export -f f_update
 
 ###############################################################################################################################
 
+f_dev(){
+    clear
+    f_banner
+
+    echo -e "${BLUE}Dev scripts${NC} | ${YELLOW}by ibrahimsql${NC}"
+    echo
+    echo "1. API Security"
+    echo "2. Cloud Security"
+    echo "3. Container Security"
+    echo "4. OAuth and JWT Security"
+    echo "5. Open Redirect Scanner"
+    echo "6. Sensitive Information"
+    echo "7. WAF Detection"
+    echo "8. Web and API Security"
+    echo "9. Previous menu"
+    echo
+
+    echo -n "Choice: "
+    read -r CHOICE
+
+    case "$CHOICE" in
+        9) f_main ;;
+        *)
+            if [ ! -d "$HOME"/data ]; then
+                mkdir -p "$HOME"/data
+            fi
+
+            case "$CHOICE" in
+                1) ./dev/api-scanner.sh && exit ;;
+                2) ./dev/cloud-scanner.sh && exit ;;
+                3) ./dev/container-scanner.sh && exit ;;
+                4) ./dev/oauth-jwt-scanner.sh && exit ;;
+                5) ./dev/open-redirect.sh && exit ;;
+                6) ./dev/sensitive-scanner.sh && exit ;;
+                7) ./dev/waf-detect.sh && exit ;;
+                8) ./dev/web-api-scanner.sh && exit ;;
+                *) f_error ;;
+            esac
+            ;;
+    esac
+}
+
+export -f f_dev
+
+###############################################################################################################################
+
 f_main(){
     clear
     f_check
@@ -281,18 +327,9 @@ f_main(){
     echo "12. Parse XML"
     echo "13. Generate a malicious payload"
     echo "14. Start a Metasploit listener"
-    echo "15. Update"
-    echo "16. Exit"
-    echo
-    echo -e "${BLUE}DEV${NC}"
-    echo "17. API Security"
-    echo "18. Cloud Security"
-    echo "19. Container Security"
-    echo "20. OAuth and JWT Security"
-    echo "21. Open Redirect Scanner"
-    echo "22. Sensitive Information"
-    echo "23. WAF Detection"
-    echo "24. Web and API Security"
+    echo "15. Dev"
+    echo "16. Update"
+    echo "17. Exit"
     echo
 
     echo
@@ -300,8 +337,9 @@ f_main(){
     read -r CHOICE
 
     case "$CHOICE" in
-        15) f_update ;;
-        16) echo && exit ;;
+        15) f_dev ;;
+        16) f_update ;;
+        17) echo && exit ;;
         *)
             if [ ! -d "$HOME"/data ]; then
                 mkdir -p "$HOME"/data
@@ -329,16 +367,6 @@ f_main(){
                 12) ./parse.sh && exit ;;
                 13) ./payload.sh && exit ;;
                 14) ./listener.sh && exit ;;
-
-                # DEV
-                17) ./dev-api-scanner.sh && exit ;;
-                18) ./dev-cloud-scanner.sh && exit ;;
-                19) ./dev-container-scanner.sh && exit ;;
-                20) ./dev-oauth-jwt-scanner.sh && exit ;;
-                21) ./dev-open-redirect.sh && exit ;;
-                22) ./dev-sensitive-scanner.sh && exit ;;
-                23) ./dev-waf-detect.sh && exit ;;
-                24) ./dev-web-api-scanner.sh && exit ;;
 
                 99) ./newModules.sh && exit ;;
                 *) f_error ;;

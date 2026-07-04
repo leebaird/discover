@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# by ibrahimsql - Open Redirect Scanner Wrapper
+# by ibrahimsql - Open Redirect Scanner
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
 
 clear
@@ -47,7 +47,7 @@ f_single_target(){
     echo
     echo -e "[*] Running Open Redirect Scanner on: ${BLUE}$TARGET${NC}"
     echo
-    python3 "$DISCOVER"/openredirect-scanner.py -u "$TARGET"
+    python3 "$DISCOVER"/dev/openredirect-scanner.py -u "$TARGET"
 }
 
 ###############################################################################################################################
@@ -66,7 +66,7 @@ f_domain_target(){
     echo
     echo -e "[*] Running Open Redirect Scanner on domain: ${BLUE}$DOMAIN${NC}"
     echo
-    python3 "$DISCOVER"/openredirect-scanner.py -d "$DOMAIN"
+    python3 "$DISCOVER"/dev/openredirect-scanner.py -d "$DOMAIN"
 }
 
 ###############################################################################################################################
@@ -112,7 +112,7 @@ f_file_target(){
     echo -e "[*] Running Open Redirect Scanner on URLs from file: ${BLUE}$FILE_PATH${NC}"
     echo -e "[*] Output format: ${BLUE}$FORMAT${NC}"
     echo
-    python3 "$DISCOVER"/openredirect-scanner.py -f "$FILE_PATH" -o "$FORMAT"
+    python3 "$DISCOVER"/dev/openredirect-scanner.py -f "$FILE_PATH" -o "$FORMAT"
 }
 
 ###############################################################################################################################
@@ -165,7 +165,7 @@ f_advanced_options(){
     esac
 
     # Build the command
-    CMD=(python3 "$DISCOVER/openredirect-scanner.py" -u "$TARGET" -o "$FORMAT")
+    CMD=(python3 "$DISCOVER/dev/openredirect-scanner.py" -u "$TARGET" -o "$FORMAT")
 
     if [ -n "$WORDLIST" ]; then
         CMD+=(-w "$WORDLIST")

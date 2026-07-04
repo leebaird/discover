@@ -523,4 +523,4 @@ f_web_api_main(){
 }
 
 # Run the script
-f_msf_web_api_main
+f_web_api_main
