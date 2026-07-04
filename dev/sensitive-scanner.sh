@@ -105,7 +105,7 @@ f_sensitive_interactive_menu(){
                 [ -n "$SENSITIVE_SCAN_DIR" ] && [ -d "$SENSITIVE_SCAN_DIR" ] || { f_error; continue; }
                 SENSITIVE_SCAN_TYPES="all"
                 ;;
-            5) f_main; return 0 ;;
+            5) f_dev; return 0 ;;
             *) f_error; continue ;;
         esac
 

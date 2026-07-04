@@ -80,7 +80,7 @@ f_webapi_interactive_menu(){
                 echo -n "Press Enter..."
                 read -r _
                 ;;
-            2) f_main; return 0 ;;
+            2) f_dev; return 0 ;;
             *) f_error; continue ;;
         esac
     done

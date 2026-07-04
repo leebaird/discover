@@ -112,7 +112,7 @@ f_openredirect_interactive_menu(){
                     OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
                 fi
                 ;;
-            6) f_main; return 0 ;;
+            6) f_dev; return 0 ;;
             *) f_error; continue ;;
         esac
 

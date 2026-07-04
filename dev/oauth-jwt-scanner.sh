@@ -71,7 +71,7 @@ f_oauth_jwt_interactive_menu(){
             1) OAUTH_JWT_SCAN_TYPES="oauth" ;;
             2) OAUTH_JWT_SCAN_TYPES="jwt" ;;
             3) OAUTH_JWT_SCAN_TYPES="all" ;;
-            4) f_main; return 0 ;;
+            4) f_dev; return 0 ;;
             *) f_error; continue ;;
         esac
 

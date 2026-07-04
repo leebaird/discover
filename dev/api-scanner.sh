@@ -780,7 +780,7 @@ f_api_main(){
             [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
             API_SCAN_MODE="full"
             f_api_orchestrate "$TARGET_URL" ;;
-        5) f_main ;;
+        5) f_dev ;;
         *) f_error ;;
     esac
 }

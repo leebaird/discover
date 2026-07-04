@@ -57,7 +57,7 @@ f_waf_interactive_menu(){
                 read -r WAF_FILE
                 [ -n "$WAF_FILE" ] && [ -f "$WAF_FILE" ] || { f_error; continue; }
                 ;;
-            3) f_main; return 0 ;;
+            3) f_dev; return 0 ;;
             *) f_error; continue ;;
         esac
 
