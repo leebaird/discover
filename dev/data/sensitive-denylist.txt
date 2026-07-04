@@ -1,0 +1,21 @@
+# Lines matching these patterns are ignored (false positives / placeholders)
+(?i)example\.com
+(?i)your[_-]?api[_-]?key
+(?i)changeme
+(?i)replace[_-]?me
+(?i)xxx+
+(?i)placeholder
+(?i)dummy[_-]?key
+(?i)test[_-]?key
+(?i)sample[_-]?key
+(?i)not[_-]?a[_-]?real[_-]?key
+(?i)insert[_-]?key[_-]?here
+(?i)00000000-0000-0000-0000-000000000000
+(?i)password\s*[=:]\s*["']?(password|secret|changeme|test|admin)["']?
+(?i)api[_-]?key\s*[=:]\s*["']?(api[_-]?key|your[_-]?key|changeme|test)["']?
+4111111111111111
+4242424242424242
+(?i)noreply@
+(?i)user@example\.com
+(?i)admin@example\.com
+(?i)foo@bar\.com

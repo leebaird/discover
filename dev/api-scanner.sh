@@ -140,8 +140,19 @@ f_api_probe_single_path(){
                     -o "${OUTPUT_DIR}/api_scanner/responses/graphql_introspection_${safe}.json" 2>/dev/null || true
             fi
         fi
-        grep -i -E '(api[-_]?key[[:space:]:=]|apikey[[:space:]:=]|password[[:space:]:=]|secrettoken[[:space:]:=]|credential[[:space:]:=]|bearer[[:space:]]+[a-zA-Z0-9._-]{20,}|"secret"[[:space:]]*:)' \
-            "$response_file" > "${response_file}.sensitive" 2>/dev/null
+        if [ -f "${_API_SCANNER_DIR}/lib/sensitive-scanner/filescan.py" ]; then
+            _api_sens_tmp=$(mktemp -d)
+            python3 "${_API_SCANNER_DIR}/lib/sensitive-scanner/filescan.py" \
+                --file "$response_file" \
+                --output-dir "$_api_sens_tmp" \
+                --domain "$url" \
+                --mode quick \
+                --sensitive-out "${response_file}.sensitive" >/dev/null 2>&1 || true
+            rm -rf "$_api_sens_tmp"
+        else
+            grep -i -E '(api[-_]?key[[:space:]:=]|apikey[[:space:]:=]|password[[:space:]:=]|secrettoken[[:space:]:=]|credential[[:space:]:=]|bearer[[:space:]]+[a-zA-Z0-9._-]{20,}|"secret"[[:space:]]*:)' \
+                "$response_file" > "${response_file}.sensitive" 2>/dev/null
+        fi
         if [ -s "${response_file}.sensitive" ]; then
             f_api_record_finding "high" "likely" "sensitive" "$url" "$response_file.sensitive" "Potential sensitive data in response"
         fi
@@ -590,7 +601,10 @@ f_api_orchestrate(){
     echo -n "Run sensitive-scanner on same target? (y/n): "
     read -r run_sens
     if [[ "$run_sens" =~ ^[Yy] ]]; then
-        echo -e "${YELLOW}[*] Run: ${_API_SCANNER_DIR}/sensitive-scanner.sh${NC}"
+        _sens_args=(--url "$target" --scan-dir "$OUTPUT_DIR" --all --quick)
+        [ -n "$API_BEARER_TOKEN" ] && _sens_args+=(--bearer-token "$API_BEARER_TOKEN")
+        echo -e "${YELLOW}[*] Launching sensitive-scanner...${NC}"
+        "${_API_SCANNER_DIR}/sensitive-scanner.sh" "${_sens_args[@]}"
     fi
 }
 

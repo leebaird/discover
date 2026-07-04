@@ -81,6 +81,11 @@ dev/
 ├── data/
 │   ├── api-paths.txt
 │   ├── openredirect-payloads.txt
+│   ├── sensitive-denylist.txt
+│   ├── sensitive-patterns.tsv
+│   ├── sensitive-skip-paths.txt
+│   ├── sensitive-web-paths-quick.txt
+│   ├── sensitive-web-paths-full.txt
 │   └── swagger-paths.txt
 └── lib/
     ├── api-scanner/
@@ -98,9 +103,17 @@ dev/
     │   ├── common.sh
     │   ├── oauth.sh
     │   └── jwt.sh
-    └── open-redirect-scanner/
+    ├── open-redirect-scanner/
+    │   ├── common.sh
+    │   └── engine.py
+    └── sensitive-scanner/
         ├── common.sh
-        └── engine.py
+        ├── files.sh
+        ├── web.sh
+        ├── filescan.py
+        ├── engine.py
+        ├── fixtures/
+        └── run-tests.sh
 ```
 
 ## RECON
@@ -530,13 +543,30 @@ Fuzzes redirect parameters (inject + mutate existing query params) with configur
 
 ### Sensitive Information Scanner (`dev/sensitive-scanner.sh`)
 
+Hunts for secrets, credentials, and PII in local files/directories and exposed web paths. Bash orchestration plus Python engines: `filescan.py` (single-pass file scan) and `engine.py` (parallel web probing). Pattern data: `dev/data/sensitive-patterns.tsv`, `sensitive-denylist.txt`, `sensitive-skip-paths.txt`. Standalone output under `$HOME/data/sensitive-scan_*`.
+
+* **File scan** — one pass per file via `filescan.py`; denylist, skip globs, entropy filter, Luhn/SSN/TC validation; optional `gitleaks` / `trufflehog` (`--external auto`)
+* **Web scan** — parallel workers/RPS, per-path checkpoint resume, robots disallow + sitemap paths, api-scanner endpoint import, soft-404 guard, directory listing detection, deep `filescan.py` on HTTP 200 bodies
+* **api-scanner hook** — inline response checks use `filescan.py`; orchestrator can auto-launch `--all` with bearer token
+* **Reports** — deduplicated `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`; `--no-store-content` / `--shred-content` for safer artifacts
+
+**Menu:** File or folder, URL, file/folder + prior scan dir, URL + api-scan output, or previous menu.
+
+**Examples:**
+
 ```
-1. File or folder
-2. URL
-3. Previous menu
+./dev/sensitive-scanner.sh --path ./myapp --files --full
+./dev/sensitive-scanner.sh --url https://app.example.com --web --quick --workers 8 --rps 5
+./dev/sensitive-scanner.sh --url https://app.example.com --scan-dir ~/data/api-scan_20260101-1200 --all --quick --bearer-token "$TOKEN"
+./dev/sensitive-scanner.sh --path /var/www/html/config.php --files --external gitleaks
+./dev/lib/sensitive-scanner/run-tests.sh
 ```
 
-Hunts for secrets, credentials, and sensitive data in files or web content.
+**Options:** `--path`, `--url`, `--scan-dir`, `--wordlist`, `--quick`, `--full`, `--workers`, `--delay`, `--rps`, `--max-paths`, `--bearer-token`, `--insecure`, `--no-store-content`, `--shred-content`, `--redact-emails`, `--entropy-min`, `--external`, `--files`, `--web`, `--all`, `--output-dir`, `--resume`, `--quiet`, `--menu`, `-h`
+
+**Output:** `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `scan.log`, `sensitive_info/`, `web_sensitive/engine/{results,checkpoint}.json`
+
+**Dependencies:** `python3`, `jq`, `find`; web scans need `python3-requests`; optional `gitleaks`, `trufflehog`, `rg`
 
 ### WAF Detection (`dev/waf-detect.sh`)
 

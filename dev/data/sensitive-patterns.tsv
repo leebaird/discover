@@ -1,0 +1,32 @@
+# id	severity	check	regex	profile	quick	entropy
+api_credential	high	api_credential	(api[_-]?key|api[_-]?token|client[_-]?secret|access[_-]?token|secret[_-]?key)\s*[=:]\s*["']?[A-Za-z0-9_\-+/=]{12,}	common	1	1
+aws_access_key	critical	aws_key	AKIA[0-9A-Z]{16}	common	1	0
+aws_session_key	critical	aws_key	ASIA[0-9A-Z]{16}	common	1	0
+aws_secret_key	critical	aws_key	aws[_-]?secret[_-]?access[_-]?key\s*[=:]\s*["']?[A-Za-z0-9/+=]{20,}	common	1	1
+github_token	high	service_token	ghp_[A-Za-z0-9_]{20,}	common	1	0
+github_oauth	high	service_token	gho_[A-Za-z0-9_]{20,}	common	0	0
+github_user	high	service_token	ghu_[A-Za-z0-9_]{20,}	common	0	0
+github_server	high	service_token	ghs_[A-Za-z0-9_]{20,}	common	0	0
+github_refresh	high	service_token	ghr_[A-Za-z0-9_]{20,}	common	0	0
+stripe_key	high	service_token	sk_(live|test)_[A-Za-z0-9]{20,}	common	1	0
+slack_token	high	service_token	xox[baprs]-[A-Za-z0-9\-]{10,}	common	1	0
+npm_token	high	service_token	npm_[A-Za-z0-9]{30,}	common	0	0
+google_api_key	high	google_api_key	AIza[0-9A-Za-z\-_]{35}	web	1	0
+db_connection	critical	db_connection	(mongodb|postgresql|postgres|mysql|redis|sqlserver)(\+srv)?://[^[:space:]"']+	common	1	0
+azure_conn	critical	db_connection	DefaultEndpointsProtocol=https;AccountName=[^;]+;AccountKey=[A-Za-z0-9+/=]{40,}	common	0	0
+gcp_sa_json	critical	gcp_credential	"type"\s*:\s*"service_account"	common	0	0
+jwt_token	high	auth_token	eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*	token	1	0
+bearer_token	high	auth_token	bearer\s+[A-Za-z0-9._\-+/=]{20,}	token	1	0
+django_secret	high	framework_secret	SECRET_KEY\s*=\s*["'][^"']{16,}["']	common	0	0
+laravel_env	high	framework_secret	APP_KEY\s*=\s*base64:[A-Za-z0-9+/=]{20,}	common	0	0
+terraform_state	critical	infra_secret	"terraform_version"	common	0	0
+kubeconfig	critical	infra_secret	kind:\s*Config	all	0	0
+vcs_git	info	vcs_exposure	\[core\]	all	1	0
+vcs_svn	info	vcs_exposure	\[svn\]	all	0	0
+email	warning	email	[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}	web	1	0
+credit_card_raw	critical	credit_card_raw	[0-9]{4}[ -]?[0-9]{4}[ -]?[0-9]{4}[ -]?[0-9]{4}	all	0	0
+ssn_raw	critical	ssn_raw	[0-9]{3}[-: ][0-9]{2}[-: ][0-9]{4}	all	0	0
+tc_kimlik_raw	critical	tc_kimlik_raw	\b[1-9][0-9]{10}\b	all	0	0
+ssh_private	critical	private_key	-----BEGIN (RSA |DSA |EC |OPENSSH |ED25519 )?PRIVATE KEY-----	all	1	0
+pgp_private	critical	private_key	-----BEGIN PGP PRIVATE KEY BLOCK-----	all	0	0
+wallet_mnemonic	critical	crypto_secret	(abandon|ability|able|about|above)([ \t]+[a-z]{3,9}){11,}	all	0	0
