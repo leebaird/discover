@@ -17,7 +17,8 @@ git clone https://github.com/leebaird/discover
 cd discover/
 ./discover.sh
 ```
-* Select the 'Update' option to update the operating system and install dependencies.
+* Select **Update** (main menu option 16) to update the operating system and install dependencies (`ffuf`, `feroxbuster`, `jq`, etc.).
+* Dev scanners are under `dev/` and are also reachable from main menu option **15. Dev**.
 * Some options will require root credentials to run.
 
 ### Main menu
@@ -43,19 +44,47 @@ MISC
 12. Parse XML
 13. Generate a malicious payload
 14. Start a Metasploit listener
-15. Update
-16. Exit
+15. Dev
+16. Update
+17. Exit
 
-DEV
-17. API Security
-18. Cloud Security
-19. Container Security
-20. OAuth and JWT Security
-21. Open Redirect Scanner
-22. Sensitive Information
-23. WAF Detection
-24. Web and API Security
+```
 
+### Dev submenu (option 15)
+
+Security scanners by [Yiğit ibrahim (ibrahimsql)](https://github.com/ibrahimsql). Scripts live under `dev/` and can also be run directly.
+
+```
+Dev scripts | by ibrahimsql
+
+1. API Security
+2. Cloud Security
+3. Container Security
+4. OAuth and JWT Security
+5. Open Redirect Scanner
+6. Sensitive Information
+7. WAF Detection
+8. Web and API Security
+9. Previous menu
+```
+
+```
+dev/
+├── api-scanner.sh
+├── cloud-scanner.sh
+├── container-scanner.sh
+├── oauth-jwt-scanner.sh
+├── open-redirect.sh
+├── openredirect-scanner.py
+├── sensitive-scanner.sh
+├── waf-detect.sh
+├── web-api-scanner.sh
+├── data/
+│   ├── api-paths.txt
+│   └── swagger-paths.txt
+└── lib/
+    └── api-scanner/
+        └── common.sh
 ```
 
 ## RECON
@@ -318,27 +347,135 @@ Metasploit Listeners
 14.  Previous menu
 ```
 
-### Update
+### Update (main menu option 16)
 
 * Updates the operating system, git pull from various repos, and update the locate database.
+* Installs tools used by dev scanners (for example `ffuf`, `feroxbuster`, `jq`, `trivy`).
 
 ## DEV
-### Container Security Scanner
-```
-CONTAINER SECURITY
 
-1.  Docker Images
-2.  Docker Containers
-3.  Kubernetes Resources
-4.  All Container Resources
-5.  Previous menu
+Scan results are written under `$HOME/data/` unless noted otherwise.
+
+### API Security Scanner (`dev/api-scanner.sh`)
+
+Phased API discovery and security testing. Shared helpers and wordlists are in `dev/lib/api-scanner/` and `dev/data/`.
+
+**Interactive menu**
+
+```
+1. API Discovery and Testing (full)
+2. API Quick Scan (discovery + docs)
+3. JWT Token Analysis
+4. Full API Assessment (orchestrated)
+5. Previous menu
 ```
 
-* Comprehensive security scanner for Docker and Kubernetes environments.
-* **Docker Images**: Scans Docker images using Trivy for vulnerabilities, misconfigurations, and secrets. Creates detailed security profiles with risk scores and analyzes Dockerfile security.
-* **Docker Containers**: Performs deep security analysis of running and stopped containers. Detects privileged containers, containers with sensitive mounts, exposed ports, and security misconfigurations.
-* **Kubernetes Resources**: Audits Kubernetes clusters for security issues including privileged pods, overly permissive RBAC roles, missing network policies, and containers running as root.
-* Generates comprehensive reports with security scores and actionable recommendations.
+**CLI** (skips the menu when `-u` is set):
+
+```
+./dev/api-scanner.sh -u https://target.example --quick --authorized
+./dev/api-scanner.sh -u https://target.example --full --token 'eyJ…' --authorized
+./dev/api-scanner.sh --resume ~/data/api-scan_20260703-1200 -u https://target.example
+./dev/api-scanner.sh -u https://target.example --orchestrate --authorized
+./dev/api-scanner.sh --help
+```
+
+| Flag | Purpose |
+|------|---------|
+| `--quick` | Discovery and documentation only |
+| `--full` | All phases (default) |
+| `--orchestrate` | Full scan, then prompts for related scanners |
+| `--token` | Bearer token for authenticated requests |
+| `--cookie-file` | Netscape cookie jar |
+| `--max-parallel N` | Concurrent workers (default: 3) |
+| `--max-endpoints N` | Cap endpoints tested after merge |
+| `--skip PHASE` | Skip a phase (repeatable) |
+| `--resume DIR` | Resume using an existing output directory |
+| `--authorized` | Skip the authorization confirmation prompt |
+| `--aggressive-http` | Include TRACE/CONNECT method tests |
+
+**Phases (full scan):** HTML/JS link extraction, ffuf/feroxbuster fuzzing, path probing, OpenAPI/Swagger discovery, GraphQL tests (introspection, depth, batching), CORS (GET + preflight), HTTP method checks, rate-limit burst, JWT analysis.
+
+**Output:** `$HOME/data/api-scan_<timestamp>/api_scanner/`
+
+* `report.txt` and `report.md` — findings with severity, confidence, and evidence paths
+* `findings_registry.tsv` — machine-friendly finding log
+* `scan.log` — request audit trail
+* `.checkpoint/` — resume markers per phase
+
+Requires `curl` and `jq`. Uses `ffuf` or `feroxbuster` when installed (install via Discover **Update**).
+
+### Cloud Security Scanner (`dev/cloud-scanner.sh`)
+
+```
+1. AWS (Amazon Web Services)
+2. Azure (Microsoft Azure)
+3. GCP (Google Cloud Platform)
+4. Previous menu
+```
+
+Audits cloud CLI configuration and common misconfigurations. Requires the relevant cloud SDK/CLI and credentials.
+
+### Container Security Scanner (`dev/container-scanner.sh`)
+
+Comprehensive Docker and Kubernetes security assessment using Trivy, Docker, and kubectl.
+
+* **Docker images** — vulnerability and misconfiguration scanning
+* **Docker containers** — privileged mode, mounts, exposed ports
+* **Kubernetes** — RBAC, network policies, pod security, workload risks
+
+Optional CLI argument: `docker-images`, `docker-containers`, `kubernetes`, or `all` (default).
+
+### OAuth and JWT Security Scanner (`dev/oauth-jwt-scanner.sh`)
+
+```
+1. OAuth Configuration/Security Test
+2. JWT Security Test
+3. Previous menu
+```
+
+Tests OAuth/OIDC discovery endpoints and JWT handling. Complements the API scanner JWT checks.
+
+### Open Redirect Scanner (`dev/open-redirect.sh`)
+
+```
+1. Scan a single URL
+2. Scan a domain
+3. Scan multiple URLs from a file
+4. Advanced options
+5. Previous menu
+```
+
+Python engine: `dev/openredirect-scanner.py`.
+
+### Sensitive Information Scanner (`dev/sensitive-scanner.sh`)
+
+```
+1. File or folder
+2. URL
+3. Previous menu
+```
+
+Hunts for secrets, credentials, and sensitive data in files or web content.
+
+### WAF Detection (`dev/waf-detect.sh`)
+
+```
+1. Single target
+2. Multiple targets from file
+3. Previous menu
+```
+
+Identifies web application firewalls in front of targets.
+
+### Web and API Security (`dev/web-api-scanner.sh`)
+
+```
+1. Scan a URL for web app and API vulnerabilities
+2. Previous menu
+```
+
+Runs Metasploit resource scripts for web/API enumeration and testing. Requires PostgreSQL and Metasploit.
 
 # Troubleshooting
 

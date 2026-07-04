@@ -3,14 +3,17 @@
 # by ibrahimsql - API Security Scanner
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
 
-clear
-f_banner
+if ! declare -f f_banner >/dev/null 2>&1; then
+    _API_SCANNER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    DISCOVER_SOURCE_ONLY=1 source "${_API_SCANNER_DIR}/../discover.sh"
+fi
 
-# Variables
-OUTPUT_DIR="$HOME/data/api-scan_$(date +%Y%m%d-%H%M)"
-mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create output directory $OUTPUT_DIR${NC}"; exit 1; }
+_API_SCANNER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/api-scanner/common.sh
+source "${_API_SCANNER_DIR}/lib/api-scanner/common.sh"
 
-# Function to terminate script
+###############################################################################################################################
+
 f_terminate(){
     echo
     echo -e "${RED}[!] Terminating.${NC}"
@@ -18,1029 +21,709 @@ f_terminate(){
     exit 1
 }
 
-# Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
 
 ###############################################################################################################################
+# Phase: passive link extraction from HTML/JS
 
-# Function to discover and test API endpoints
-f_discover_api(){
-    local TARGET_URL="$1"
-    echo
-    echo -e "${BLUE}[*] Discovering API endpoints for $TARGET_URL.${NC}"
+f_api_phase_link_extract(){
+    f_api_should_run_phase "link_extract" || return 0
+    echo -e "${BLUE}[*] Extracting API links from target HTML/JS.${NC}"
 
-    mkdir -p "$OUTPUT_DIR/api_scanner" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR/api_scanner${NC}"; exit 1; }
+    local page="${OUTPUT_DIR}/api_scanner/crawl/index.html"
+    mkdir -p "${OUTPUT_DIR}/api_scanner/crawl"
+    f_api_request GET "$API_TARGET_URL" -o "$page" 2>/dev/null || true
 
-    echo -e "${BLUE}[*] Using output directory:${NC} $OUTPUT_DIR/api_scanner"
-    echo -e "${BLUE}[*] Crawling target for API endpoints.${NC}"
+    if [ -s "$page" ]; then
+        grep -oiE 'href=["'\'']([^"'\'']+)["'\'']|src=["'\'']([^"'\'']+)["'\'']|["'\''](/api[^"'\'']*|/graphql[^"'\'']*|/swagger[^"'\'']*|/v[0-9]+/[^"'\'']*)["'\'']' "$page" 2>/dev/null \
+            | sed -E 's/^[^"\x27]*["'\'']([^"'\'']+)["'\'']$/\1/; s/^["'\'']([^"'\'']+)["'\'']$/\1/' \
+            | grep -E '^https?://|^\.' | sed "s|^\./|${API_TARGET_URL%/}/|" \
+            | grep -E '/api/|/graphql|/gql|/swagger|/openapi|/v[0-9]+/' \
+            | while read -r u; do f_url_normalize "$u"; done \
+            | sort -u > "${OUTPUT_DIR}/api_scanner/endpoints_html.txt"
 
-    wget -q --spider -r --no-parent -l 2 "$TARGET_URL" 2>&1 \
-      | grep '^--' \
-      | awk '{ print $3 }' \
-      | grep -E '(/v[0-9]+/|/api/|/docs/|/graph|/graphql|/gql|/query|/rest/|/schema/service/|/swagger)' \
-      | sort -u > "$OUTPUT_DIR/api_scanner/endpoints.txt"
-
-    echo -e "${BLUE}[*] Checking common API paths.${NC}"
-
-    API_PATHS_FILE="$OUTPUT_DIR/api_scanner/api_paths.txt"
-
-    mkdir -p "$(dirname "$API_PATHS_FILE")" || { echo -e "${RED}[!] Cannot create dir for api_paths${NC}"; exit 1; }
-
-    cat > "$API_PATHS_FILE" << 'EOF'
-# Admin and Management
-/admin/api
-/api/admin
-/api/console
-/api/internal
-/api/manage
-/api/system
-/console/api
-/control/api
-/manage/api
-/management
-/management/api
-
-# API Schema Info
-/api/model
-/api/schema
-/json-schema
-/jsonschema
-/metadata
-/schema
-/schema.graphql
-/schema.json
-
-# Authentication and User APIs
-/api/account
-/api/accounts
-/api/auth
-/api/authenticate
-/api/login
-/api/profile
-/api/refresh
-/api/token
-/api/user
-/api/users
-/auth
-/auth/login
-/login
-/oauth
-/oauth/authorize
-/oauth/token
-/oauth2
-/oauth2/authorize
-/oauth2/token
-/sso
-
-# Common Resource Endpoints
-/api/cart
-/api/checkout
-/api/comments
-/api/config
-/api/customers
-/api/dashboard
-/api/download
-/api/events
-/api/files
-/api/images
-/api/items
-/api/logs
-/api/messages
-/api/notifications
-/api/orders
-/api/payments
-/api/products
-/api/reports
-/api/search
-/api/settings
-/api/stats
-/api/transactions
-/api/upload
-
-# GraphQL Endpoints
-/gql
-/graph
-/graph/api
-/graph/v1
-/graphiql
-/graphql
-/graphql-api
-/graphql/console
-/graphql/explorer
-/graphql/playground
-/graphql/schema
-/graphql/v1
-
-# Health and Monitoring
-/actuator/health
-/api/health
-/api/healthcheck
-/api/metrics
-/api/ping
-/api/status
-/health
-/health-check
-/healthcheck
-/heartbeat
-/isalive
-/liveness
-/metrics
-/monitor
-/monitoring
-/ping
-/readiness
-/status
-
-# REST API Base Paths
-/api
-/api/admin
-/api/app
-/api/backend
-/api/client
-/api/cloud
-/api/core
-/api/current
-/api/data
-/api/external
-/api/gateway
-/api/integration
-/api/internal
-/api/latest
-/api/mobile
-/api/open
-/api/private
-/api/public
-/api/server
-/api/service
-/api/services
-/api/stable
-/api/system
-/api/v1
-/api/v2
-/api/v3
-/api/v4
-/api/web
-/apis
-/apis/v1
-/apis/v2
-
-# RESTful Variants
-/apirest
-/rest
-/rest/api
-/rest/api/latest
-/rest/api/v1
-/rest/api/v2
-/rest/v1
-/rest/v2
-/rest/v3
-/restapi
-/restapi/v1
-/restapi/v2
-/restful
-/restful/api
-/restservices
-/restws
-
-# Special Case APIs
-/api/async
-/api/batch
-/api/callback
-/api/jobs
-/api/queue
-/api/rpc
-/api/stream
-/api/webhook
-/jsonrpc
-/rpc
-/soap
-/wsdl
-
-# Spring Boot Actuator Endpoints
-/actuator
-/actuator/beans
-/actuator/config
-/actuator/configprops
-/actuator/env
-/actuator/httptrace
-/actuator/info
-/actuator/loggers
-/actuator/mappings
-/actuator/metrics
-
-# Swagger and API Documentation
-/api-docs
-/api-explorer
-/api-guide
-/api/docs
-/api/documentation
-/api/explorer
-/api/spec
-/api/swagger
-/apidocs
-/docs/api
-/openapi
-/openapi.json
-/openapi.yaml
-/openapi/v3
-/specs
-/specs/v1
-/swagger
-/swagger-resources
-/swagger-ui
-/swagger-ui.html
-/swagger.json
-/swagger.yaml
-/swagger/index.html
-/swagger/ui
-/swagger/ui.html
-
-# Version Paths
-/v1
-/v1.0
-/v1.1
-/v2
-/v2.0
-/v2.1
-/v3
-/v3.0
-/v4
-EOF
-
-    if [ ! -s "$API_PATHS_FILE" ]; then
-        echo "ERROR: api_paths.txt is empty or was not created!"
-        ls -ld "$OUTPUT_DIR/api_scanner"
-        exit 1
+        if [ -s "${OUTPUT_DIR}/api_scanner/endpoints_html.txt" ]; then
+            local n
+            n=$(wc -l < "${OUTPUT_DIR}/api_scanner/endpoints_html.txt")
+            echo -e "${YELLOW}[*] HTML/JS extraction found $n URLs.${NC}"
+            while read -r u; do
+                echo "$u (200 - HTML)" >> "${OUTPUT_DIR}/api_scanner/found_api_endpoints.txt"
+            done < "${OUTPUT_DIR}/api_scanner/endpoints_html.txt"
+        fi
     fi
-
-    echo -e "${BLUE}[*] Created a list of ${NC}$(grep -cv '^#' "$API_PATHS_FILE") ${BLUE}common API paths.${NC}"
+    f_api_mark_phase "link_extract"
+}
 
 ###############################################################################################################################
+# Phase: ffuf / feroxbuster path discovery
 
-# Path testing loop
-    echo -e "${BLUE}[*] Testing ${NC}$(grep '/' "$API_PATHS_FILE" | wc -l)${BLUE} API paths.${NC}"
-    mkdir -p "$OUTPUT_DIR/api_scanner/responses" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR/api_scanner/responses${NC}"; exit 1; }
+f_api_phase_fuzzer(){
+    f_api_should_run_phase "fuzzer" || return 0
+    local wordlist="${OUTPUT_DIR}/api_scanner/_wordlist.txt"
+    f_api_paths_file "$wordlist"
 
-    TOTAL_PATHS=$(grep '/' "$API_PATHS_FILE" | wc -l)
-    CURRENT=0
-    touch "$OUTPUT_DIR/api_scanner/found_api_endpoints.txt" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR/api_scanner/found_api_endpoints.txt${NC}"; exit 1; }
+    if command -v ffuf >/dev/null 2>&1; then
+        echo -e "${BLUE}[*] Running ffuf path discovery (threads: $API_MAX_PARALLEL).${NC}"
+        f_api_log "ffuf User-Agent: $USER_AGENT"
+        f_api_request GET "${API_TARGET_URL%/}/" -o /dev/null 2>/dev/null || true
+        local ffuf_args=(-u "${API_TARGET_URL%/}/FUZZ" -w "$wordlist" -H "User-Agent: ${USER_AGENT}")
+        [ -n "$API_BEARER_TOKEN" ] && ffuf_args+=(-H "Authorization: Bearer ${API_BEARER_TOKEN}")
+        ffuf "${ffuf_args[@]}" \
+            -mc 200,201,204,301,302,307,401,403,405,500 \
+            -t "$API_MAX_PARALLEL" -s -o "${OUTPUT_DIR}/api_scanner/ffuf.json" -of json 2>>"$API_SCAN_LOG" || true
+
+        if [ -s "${OUTPUT_DIR}/api_scanner/ffuf.json" ] && command -v jq >/dev/null 2>&1; then
+            jq -r '.results[]? | .url' "${OUTPUT_DIR}/api_scanner/ffuf.json" 2>/dev/null | while read -r u; do
+                [ -n "$u" ] && echo "$u (200 - FFUF)" >> "${OUTPUT_DIR}/api_scanner/found_api_endpoints.txt"
+            done
+            local fn
+            fn=$(jq -r '.results | length' "${OUTPUT_DIR}/api_scanner/ffuf.json" 2>/dev/null || echo 0)
+            echo -e "${YELLOW}[*] ffuf discovered $fn paths.${NC}"
+        fi
+    elif command -v feroxbuster >/dev/null 2>&1; then
+        echo -e "${BLUE}[*] Running feroxbuster path discovery.${NC}"
+        f_api_log "feroxbuster User-Agent: $USER_AGENT"
+        feroxbuster -u "$API_TARGET_URL" -w "$wordlist" -a "$USER_AGENT" -t "$API_MAX_PARALLEL" \
+            -C 404 -q --no-recursion -o "${OUTPUT_DIR}/api_scanner/feroxbuster.txt" 2>>"$API_SCAN_LOG" || true
+        if [ -s "${OUTPUT_DIR}/api_scanner/feroxbuster.txt" ]; then
+            awk '{print $2}' "${OUTPUT_DIR}/api_scanner/feroxbuster.txt" | while read -r u; do
+                [ -n "$u" ] && echo "$u (200 - FEROX)" >> "${OUTPUT_DIR}/api_scanner/found_api_endpoints.txt"
+            done
+        fi
+    else
+        echo -e "${YELLOW}[*] Skipping fuzzer (ffuf/feroxbuster not installed).${NC}"
+    fi
+    rm -f "$wordlist"
+    f_api_mark_phase "fuzzer"
+}
+
+###############################################################################################################################
+# Phase: sequential path probe (fallback / complement)
+
+f_api_probe_single_path(){
+    local path="$1"
+    local url="${API_TARGET_URL%/}${path}"
+    local status safe response_file status_message curl_args=()
+
+    f_api_curl_args curl_args
+    status=$(curl "${curl_args[@]}" -o /dev/null -w "%{http_code}" "$url" || echo "000")
+    ((API_REQUEST_COUNT++))
+    f_api_log "REQUEST #$API_REQUEST_COUNT GET $url -> $status"
+
+    [[ "$status" == "200" || "$status" == "201" || "$status" == "204" ||
+       "$status" == "301" || "$status" == "302" || "$status" == "307" ||
+       "$status" == "401" || "$status" == "403" || "$status" == "405" ||
+       "$status" == "500" ]] || return 0
+
+    case "$status" in
+        200|201|204) status_message="SUCCESS";;
+        301|302|307) status_message="REDIRECT";;
+        401) status_message="UNAUTHORIZED";;
+        403) status_message="FORBIDDEN";;
+        405) status_message="METHOD NOT ALLOWED";;
+        500) status_message="SERVER ERROR";;
+    esac
+
+    echo "$url ($status - $status_message)" >> "${OUTPUT_DIR}/api_scanner/found_api_endpoints.txt"
+    safe=$(echo "$path" | sed 's/[\/:#?=&% ]/_/g' | tr -cd 'a-zA-Z0-9_.-')
+    response_file="${OUTPUT_DIR}/api_scanner/responses/response_${safe}.txt"
+
+    if curl "${curl_args[@]}" -i -H "Accept: application/json, text/plain, */*" "$url" > "$response_file" 2>"${OUTPUT_DIR}/api_scanner/curl_err_${safe}.txt"; then
+        if grep -qi "Content-Type:.*json" "$response_file" 2>/dev/null; then
+            sed -n '/^\r\{0,1\}$/,$p' "$response_file" | sed '1d' > "${response_file}.json" 2>/dev/null || cp "$response_file" "${response_file}.json"
+            if [[ "$path" == *graphql* || "$path" == *gql* ]]; then
+                local intro='{"query":"{__schema{queryType{name}}}"}'
+                f_api_request POST "$url" -H "Content-Type: application/json" -d "$intro" \
+                    -o "${OUTPUT_DIR}/api_scanner/responses/graphql_introspection_${safe}.json" 2>/dev/null || true
+            fi
+        fi
+        grep -i -E '(api[-_]?key[[:space:]:=]|apikey[[:space:]:=]|password[[:space:]:=]|secrettoken[[:space:]:=]|credential[[:space:]:=]|bearer[[:space:]]+[a-zA-Z0-9._-]{20,}|"secret"[[:space:]]*:)' \
+            "$response_file" > "${response_file}.sensitive" 2>/dev/null
+        if [ -s "${response_file}.sensitive" ]; then
+            f_api_record_finding "high" "likely" "sensitive" "$url" "$response_file.sensitive" "Potential sensitive data in response"
+        fi
+    fi
+}
+
+f_api_phase_path_probe(){
+    f_api_should_run_phase "path_probe" || return 0
+    if [ -f "${API_CHECKPOINT_DIR}/fuzzer.done" ] && \
+       grep -q 'FFUF\|FEROX' "${OUTPUT_DIR}/api_scanner/found_api_endpoints.txt" 2>/dev/null && \
+       [ "${API_FORCE_PATH_PROBE:-0}" != "1" ]; then
+        echo -e "${YELLOW}[*] Skipping sequential path probe (fuzzer found endpoints). Set API_FORCE_PATH_PROBE=1 to override.${NC}"
+        f_api_mark_phase "path_probe"
+        return 0
+    fi
+    echo -e "${BLUE}[*] Probing common API paths (parallel: $API_MAX_PARALLEL).${NC}"
+    mkdir -p "${OUTPUT_DIR}/api_scanner/responses"
+    local paths_file="${OUTPUT_DIR}/api_scanner/_paths_probe.txt"
+    f_api_paths_file "$paths_file"
+    local total=0 active=0 path
 
     while read -r path; do
         [[ "$path" =~ ^[[:space:]]*# || -z "$path" ]] && continue
-        ((CURRENT++))
-        PERCENTAGE=$((CURRENT * 100 / TOTAL_PATHS))
-        echo -ne "${BLUE}[*] Testing [${YELLOW}${PERCENTAGE}%${BLUE}] $path${NC}\r"
-
-        URL="${TARGET_URL%/}$path"
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" -H "User-Agent: $USER_AGENT" --connect-timeout 3 -m 7 || echo "000")
-
-        if [[ "$STATUS" == "200" || "$STATUS" == "201" || "$STATUS" == "204" ||
-              "$STATUS" == "301" || "$STATUS" == "302" || "$STATUS" == "307" ||
-              "$STATUS" == "401" || "$STATUS" == "403" || "$STATUS" == "500" ]]; then
-
-            SAFE_NAME=$(echo "$path" | sed 's/[\/:#?=&% ]/_/g' | tr -cd 'a-zA-Z0-9_.-')
-            RESPONSE_FILE="$OUTPUT_DIR/api_scanner/responses/response_${SAFE_NAME}.txt"
-
-            STATUS_MESSAGE=""
-            case "$STATUS" in
-                200|201|204) STATUS_MESSAGE="SUCCESS";;
-                301|302|307) STATUS_MESSAGE="REDIRECT";;
-                401) STATUS_MESSAGE="UNAUTHORIZED";;
-                403) STATUS_MESSAGE="FORBIDDEN";;
-                500) STATUS_MESSAGE="SERVER ERROR";;
-            esac
-
-            echo -e "\033[2K\r${YELLOW}[*] Found API Endpoint: $URL ($STATUS - $STATUS_MESSAGE)${NC}"
-            echo "$URL ($STATUS - $STATUS_MESSAGE)" >> "$OUTPUT_DIR/api_scanner/found_api_endpoints.txt"
-
-            if curl -s -i "$URL" -H "User-Agent: $USER_AGENT" -H "Accept: application/json, text/plain, */*" --connect-timeout 3 -m 7 > "$RESPONSE_FILE" 2>"$OUTPUT_DIR/api_scanner/curl_err_${SAFE_NAME}.txt"; then
-                [ -s "$OUTPUT_DIR/api_scanner/curl_err_${SAFE_NAME}.txt" ] && echo -e "${YELLOW}[*] Curl warning for $URL: $(cat "$OUTPUT_DIR/api_scanner/curl_err_${SAFE_NAME}.txt")${NC}"
-
-                if grep -qi "Content-Type:.*json" "$RESPONSE_FILE" 2>/dev/null; then
-                    echo -e "${YELLOW}[*] JSON response detected${NC}"
-                    sed -n '/^\r\{0,1\}$/,$p' "$RESPONSE_FILE" | sed '1d' > "$RESPONSE_FILE.json" 2>/dev/null || cp "$RESPONSE_FILE" "$RESPONSE_FILE.json"
-
-                    if command -v jq >/dev/null 2>&1 && jq . "$RESPONSE_FILE.json" >/dev/null 2>&1; then
-                        echo -e "${YELLOW}[*] Valid JSON response${NC}"
-
-                        if [[ "$path" == *graphql* || "$path" == *gql* ]]; then
-                            echo -e "${YELLOW}[*] Testing GraphQL endpoint for introspection.${NC}"
-                            INTROSPECTION_QUERY='{"query":"{__schema{queryType{name}}}"}'
-                            curl -s -X POST -H "Content-Type: application/json" -d "$INTROSPECTION_QUERY" "$URL" > "$OUTPUT_DIR/api_scanner/responses/graphql_introspection_${SAFE_NAME}.json" 2>/dev/null || echo "{}" > "$OUTPUT_DIR/api_scanner/responses/graphql_introspection_${SAFE_NAME}.json"
-                        fi
-                    else
-                        echo -e "${YELLOW}[*] Invalid/malformed JSON response${NC}"
-                    fi
-                fi
-
-                grep -i -E "(api[-_]?key|auth|credential|key|password|secrettoken)" "$RESPONSE_FILE" > "$RESPONSE_FILE.sensitive" 2>/dev/null
-
-                if [ -s "$RESPONSE_FILE.sensitive" ]; then
-                    echo -e "${RED}[!] Potential sensitive information leaked!${NC}"
-                    echo "$URL" >> "$OUTPUT_DIR/api_scanner/sensitive_endpoints.txt"
-                fi
-            else
-                echo -e "${RED}[!] Failed to fetch full response for $URL${NC}"
-            fi
-        fi
-        sleep 0.3
-    done < "$API_PATHS_FILE"
-
-    [ "$CURRENT" -gt 0 ] && echo
-    echo -e "${BLUE}[*] API path scan complete.${NC}"
-    ENDPOINT_COUNT=$(wc -l < "$OUTPUT_DIR/api_scanner/found_api_endpoints.txt" 2>/dev/null || echo "0")
-    echo -e "${YELLOW}[*] Discovered $ENDPOINT_COUNT API endpoints.${NC}"
+        ((total++))
+        f_api_probe_single_path "$path" &
+        ((active++))
+        while [ "$(jobs -rp | wc -l)" -ge "$API_MAX_PARALLEL" ]; do
+            wait -n 2>/dev/null || wait
+        done
+    done < "$paths_file"
+    wait
+    rm -f "$paths_file"
+    echo -e "${YELLOW}[*] Path probe complete ($total paths tested).${NC}"
+    f_api_mark_phase "path_probe"
+}
 
 ###############################################################################################################################
+# Phase: GraphQL testing (introspection, depth, batching)
 
-    # Enhanced GraphQL Testing
-    echo -e "${BLUE}[*] Performing enhanced GraphQL endpoint testing.${NC}"
-    mkdir -p "$OUTPUT_DIR/api_scanner/graphql" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR/api_scanner/graphql${NC}"; exit 1; }
+f_api_phase_graphql(){
+    f_api_should_run_phase "graphql" || return 0
+    echo -e "${BLUE}[*] GraphQL security testing.${NC}"
+    mkdir -p "${OUTPUT_DIR}/api_scanner/graphql"
 
-    # Gather all potential GraphQL endpoints
-    GRAPHQL_ENDPOINTS=$(grep -E '(graphql|gql)' "$OUTPUT_DIR/api_scanner/found_api_endpoints.txt" 2>/dev/null | cut -d ' ' -f1)
+    grep -iE '(graphql|gql)' "${OUTPUT_DIR}/api_scanner/found_api_endpoints.txt" 2>/dev/null | cut -d ' ' -f1 | sort -u | while read -r gql_url; do
+        [ -z "$gql_url" ] && continue
+        local name intro_file schema_file
+        name=$(echo "$gql_url" | sed 's|https\?://||' | sed 's|[/.:]|_|g')
+        intro_file="${OUTPUT_DIR}/api_scanner/graphql/${name}_introspection_basic.json"
 
-    if [ -n "$GRAPHQL_ENDPOINTS" ]; then
-        echo -e "${YELLOW}[*] Found $(echo "$GRAPHQL_ENDPOINTS" | wc -l) potential GraphQL endpoints${NC}"
+        f_api_request POST "$gql_url" -H "Content-Type: application/json" \
+            -d '{"query":"{__schema{queryType{name}}}"}' -o "$intro_file" 2>/dev/null || true
 
-        while read -r GRAPHQL_URL; do
-            [ -z "$GRAPHQL_URL" ] && continue
+        if f_graphql_introspection_ok "$intro_file"; then
+            f_api_record_finding "high" "confirmed" "graphql" "$gql_url" "$intro_file" "GraphQL introspection enabled"
+            schema_file="${OUTPUT_DIR}/api_scanner/graphql/${name}_schema_full.json"
+            f_api_request POST "$gql_url" -H "Content-Type: application/json" \
+                -d '{"query":"query IntrospectionQuery { __schema { queryType { name } types { kind name fields { name } } } }"}' \
+                -o "$schema_file" 2>/dev/null || true
+        fi
 
-            echo -e "${BLUE}[*] Testing GraphQL endpoint: $GRAPHQL_URL${NC}"
-            ENDPOINT_NAME=$(echo "$GRAPHQL_URL" | sed 's/https\?:\/\///' | sed 's/[\/:.]/_/g')
+        # Depth limit test
+        local depth_file="${OUTPUT_DIR}/api_scanner/graphql/${name}_depth_test.json"
+        f_api_request POST "$gql_url" -H "Content-Type: application/json" \
+            -d '{"query":"{__typename __typename __typename __typename __typename __typename __typename __typename __typename __typename}"}' \
+            -o "$depth_file" 2>/dev/null || true
+        if f_graphql_has_data "$depth_file" 2>/dev/null || ! grep -q '"errors"' "$depth_file" 2>/dev/null; then
+            [ -s "$depth_file" ] && f_api_record_finding "medium" "likely" "graphql" "$gql_url" "$depth_file" "GraphQL may lack depth limiting"
+        fi
 
-            # Test 1: Basic Introspection
-            echo -e "${BLUE}[*] Testing introspection.${NC}"
-            INTROSPECTION_QUERY='{"query":"{__schema{queryType{name}}}"}'
-            curl -s -X POST -H "Content-Type: application/json" -H "User-Agent: $USER_AGENT" -d "$INTROSPECTION_QUERY" "$GRAPHQL_URL" > "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_introspection_basic.json"
+        # Batch query test
+        local batch_file="${OUTPUT_DIR}/api_scanner/graphql/${name}_batch_test.json"
+        f_api_request POST "$gql_url" -H "Content-Type: application/json" \
+            -d '[{"query":"{__typename}"},{"query":"{__schema{queryType{name}}}"}]' \
+            -o "$batch_file" 2>/dev/null || true
+        if f_graphql_has_data "$batch_file" 2>/dev/null; then
+            f_api_record_finding "medium" "likely" "graphql" "$gql_url" "$batch_file" "GraphQL batch queries accepted"
+        fi
 
-            # Check if introspection is enabled
-            if grep -q "__schema" "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_introspection_basic.json"; then
-                echo -e "${RED}[!] GraphQL introspection is enabled (information disclosure vulnerability)${NC}"
-                echo "$GRAPHQL_URL: Introspection enabled" >> "$OUTPUT_DIR/api_scanner/graphql_vulnerable.txt"
-
-                # Test 2: Full Schema Introspection
-                echo -e "${BLUE}[*] Getting full schema.${NC}"
-                FULL_INTROSPECTION='{"query":"query IntrospectionQuery {__schema {queryType {name} mutationType {name} subscriptionType {name} types {kind name description fields(includeDeprecated: true) {name description args {name description type {kind name ofType {kind name ofType {kind name ofType {kind name}}}} defaultValue} type {kind name ofType {kind name ofType {kind name ofType {kind name}}}} isDeprecated deprecationReason} inputFields {name description type {kind name ofType {kind name ofType {kind name ofType {kind name}}}} defaultValue} interfaces {kind name ofType {kind name ofType {kind name ofType {kind name}}}} enumValues(includeDeprecated: true) {name description isDeprecated deprecationReason} possibleTypes {kind name ofType {kind name ofType {kind name ofType {kind name}}}}}}}"}'
-                curl -s -X POST -H "Content-Type: application/json" -H "User-Agent: $USER_AGENT" -d "$FULL_INTROSPECTION" "$GRAPHQL_URL" > "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_schema_full.json"
-
-                # Extract types and fields for analysis
-                jq -r '.data.__schema.types[] | select(.kind == "OBJECT") | .name' "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_schema_full.json" > "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_types.txt" 2>/dev/null
-
-                # Check for sensitive types
-                grep -i -E '(user|admin|account|password|secret|token|auth|credential|key|payment|credit|card|personal|profile|address|private|internal)' "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_types.txt" > "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_sensitive_types.txt" 2>/dev/null
-
-                if [ -s "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_sensitive_types.txt" ]; then
-                    echo -e "${RED}[!] Potentially sensitive GraphQL types detected:${NC}"
-                    cat "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_sensitive_types.txt" | sed 's/^/  - /'
-                    echo "$GRAPHQL_URL: Sensitive types detected" >> "$OUTPUT_DIR/api_scanner/graphql_vulnerable.txt"
-                fi
-
-                # Test 3: Test for Direct Queries on Sensitive Types
-                echo -e "${BLUE}[*] Testing sample queries for sensitive data.${NC}"
-                while read -r type_name; do
-                    # Get fields for this type
-                    FIELDS=$(jq -r ".data.__schema.types[] | select(.name == \"$type_name\") | .fields[].name" "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_schema_full.json" 2>/dev/null | paste -sd "," -)
-
-                    if [ -n "$FIELDS" ]; then
-                        # Create a basic query for this type
-                        QUERY_FIELDS=$(echo "$FIELDS" | sed 's/,/ /g' | awk '{for(i=1; i<=NF && i<=5; i++) printf "%s ", $i}')
-                        TEST_QUERY="{\"query\":\"{${type_name}s{${QUERY_FIELDS}}}\"}"
-
-                        # Try the query
-                        curl -s -X POST -H "Content-Type: application/json" -H "User-Agent: $USER_AGENT" -d "$TEST_QUERY" "$GRAPHQL_URL" > "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_query_${type_name}.json"
-
-                        # Check if query succeeded
-                        if ! grep -q "errors" "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_query_${type_name}.json"; then
-                            echo -e "${RED}[!] Successful query on sensitive type: $type_name${NC}"
-                            echo "$GRAPHQL_URL: Successful query on $type_name" >> "$OUTPUT_DIR/api_scanner/graphql_vulnerable.txt"
-                        fi
-                    fi
-                done < "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_sensitive_types.txt"
-
-                # Test 4: NoSQL Injection Test (basic)
-                echo -e "${BLUE}[*] Testing for basic NoSQL injection.${NC}"
-                NOSQL_TEST_QUERY='{"query":"{user(id:{\\\"$gt\\\":\\\"\\\"}){username}}"}'
-                curl -s -X POST -H "Content-Type: application/json" -H "User-Agent: $USER_AGENT" -d "$NOSQL_TEST_QUERY" "$GRAPHQL_URL" > "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_nosql_test.json"
-
-                # Check for successful injection (highly dependent on implementation)
-                if ! grep -q "errors" "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_nosql_test.json"; then
-                    echo -e "${RED}[!] Potential NoSQL injection vulnerability${NC}"
-                    echo "$GRAPHQL_URL: Potential NoSQL injection" >> "$OUTPUT_DIR/api_scanner/graphql_vulnerable.txt"
-                fi
-            else
-                echo -e "${YELLOW}[*] GraphQL introspection is properly disabled${NC}"
-
-                # Test 5: Try common queries blindly
-                echo -e "${BLUE}[*] Testing common GraphQL queries.${NC}"
-
-                # Array of common queries to try
-                common_queries=(
-                    '{"query":"{users{id username email}}"}'
-                    '{"query":"{user(id:1){id username email}}"}'
-                    '{"query":"{me{id username email}}"}'
-                    '{"query":"{products{id name price}}"}'
-                    '{"query":"{orders{id status}}"}'
-                )
-
-                for (( i=0; i<${#common_queries[@]}; i++ )); do
-                    QUERY=${common_queries[$i]}
-                    QUERY_NAME="query_$(($i+1))"
-
-                    curl -s -X POST -H "Content-Type: application/json" -H "User-Agent: $USER_AGENT" -d "$QUERY" "$GRAPHQL_URL" > "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_${QUERY_NAME}.json"
-
-                    # If query succeeds (no errors field)
-                    if ! grep -q "errors" "$OUTPUT_DIR/api_scanner/graphql/${ENDPOINT_NAME}_${QUERY_NAME}.json"; then
-                        echo -e "${YELLOW}[!] Successful blind query: ${QUERY_NAME}${NC}"
-                        echo "$GRAPHQL_URL: Successful blind query: ${QUERY_NAME}" >> "$OUTPUT_DIR/api_scanner/graphql_vulnerable.txt"
-                    fi
-                done
-            fi
-        done <<< "$GRAPHQL_ENDPOINTS"
-    else
-        echo -e "${BLUE}[*] No GraphQL endpoints found.${NC}"
-    fi
-
-    # Enhanced Swagger/OpenAPI Documentation Check
-    echo -e "${BLUE}[*] Performing comprehensive check for API documentation.${NC}"
-    mkdir -p "$OUTPUT_DIR/api_scanner/documentation" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR/api_scanner/documentation${NC}"; exit 1; }
-
-    # More complete paths for API documentation
-    swagger_paths=(
-        "/api-doc"
-        "/api-docs"
-        "/api-explorer"
-        "/api-schema"
-        "/api/docs"
-        "/api/documentation"
-        "/api/explorer"
-        "/api/schema"
-        "/api/specs"
-        "/api/swagger"
-        "/apidocs"
-        "/docs"
-        "/docs/api"
-        "/docs/swagger.json"
-        "/docs/swagger.yaml"
-        "/openapi.json"
-        "/openapi.yaml"
-        "/openapi"
-        "/redoc"
-        "/specs"
-        "/swagger-resources"
-        "/swagger-ui.html"
-        "/swagger-ui"
-        "/swagger.json"
-        "/swagger.yaml"
-        "/swagger"
-        "/swagger/index.html"
-        "/swagger/ui.html"
-        "/swagger/ui"
-        "/v1/api-docs"
-        "/v2/api-docs"
-        "/v3/api-docs"
-    )
-
-    echo -e "${BLUE}[*] Testing ${#swagger_paths[@]} potential documentation paths.${NC}"
-
-    # Counter for progress display
-    TOTAL_PATHS=${#swagger_paths[@]}
-    CURRENT=0
-    FOUND_DOCS=0
-
-    for path in "${swagger_paths[@]}"; do
-        # Increment counter
-        ((CURRENT++))
-
-        # Calculate percentage
-        PERCENTAGE=$((CURRENT * 100 / TOTAL_PATHS))
-
-        # Display progress
-        echo -ne "${BLUE}[*] Testing doc path: [${YELLOW}${PERCENTAGE}%${BLUE}] $PATH${NC}\r"
-
-        URL="${TARGET_URL%/}$PATH"
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" -H "User-Agent: $USER_AGENT" --connect-timeout 3 -m 7)
-
-        if [[ "$STATUS" == "200" ]]; then
-            # Create a safe filename
-            SAFE_PATH=$(echo "$PATH" | sed 's/\//./g')
-
-            # Check file type and save accordingly
-            echo -e "\033[2K\r${RED}[!] API documentation found at $URL ($STATUS)${NC}"
-            curl -s "$URL" -H "User-Agent: $USER_AGENT" > "$OUTPUT_DIR/api_scanner/documentation/api_doc${SAFE_PATH}.txt"
-
-            # Check if it's JSON format
-            if grep -q "swagger\|openapi" "$OUTPUT_DIR/api_scanner/documentation/api_doc${SAFE_PATH}.txt"; then
-                echo -e "${RED}[!] Valid API specification found (Swagger/OpenAPI)${NC}"
-
-                # Try to extract version info
-                if grep -q "\"swagger\":\|\"openapi\":" "$OUTPUT_DIR/api_scanner/documentation/api_doc${SAFE_PATH}.txt"; then
-                    VERSION=$(grep -o '"\(swagger\|openapi\)":[[:space:]]*"[^"]*"' "$OUTPUT_DIR/api_scanner/documentation/api_doc${SAFE_PATH}.txt" | head -1)
-                    echo -e "${YELLOW}[*] API Specification version: ${VERSION:-Unknown}${NC}"
-                fi
-
-                # Try to get endpoints count
-                ENDPOINTS_COUNT=$(grep -o '"paths"\|"endpoints"' "$OUTPUT_DIR/api_scanner/documentation/api_doc${SAFE_PATH}.txt" | wc -l)
-                if [ "$ENDPOINTS_COUNT" -gt 0 ]; then
-                    echo -e "${YELLOW}[*] Specification contains endpoint definitions${NC}"
-
-                    # Extract endpoints if possible
-                    if command -v jq &> /dev/null; then
-                        jq -r '.paths | keys[]' "$OUTPUT_DIR/api_scanner/documentation/api_doc${SAFE_PATH}.txt" > "$OUTPUT_DIR/api_scanner/documentation/extracted_endpoints${SAFE_PATH}.txt" 2>/dev/null
-                        ENDPOINT_COUNT=$(wc -l < "$OUTPUT_DIR/api_scanner/documentation/extracted_endpoints${SAFE_PATH}.txt" 2>/dev/null || echo 0)
-                        if [ "$ENDPOINT_COUNT" -gt 0 ]; then
-                            echo -e "${YELLOW}[*] Extracted $ENDPOINT_COUNT API endpoints from documentation${NC}"
-
-                            # Add to our endpoints list for testing
-                            while read -r endpoint; do
-                                echo "${TARGET_URL%/}$endpoint" >> "$OUTPUT_DIR/api_scanner/all_endpoints.txt"
-                            done < "$OUTPUT_DIR/api_scanner/documentation/extracted_endpoints${SAFE_PATH}.txt"
-                        fi
-                    fi
-                fi
-                echo "$URL: API documentation" >> "$OUTPUT_DIR/api_scanner/findings.txt"
-            fi
-
-            ((FOUND_DOCS++))
+        # Alias overload (light)
+        local alias_file="${OUTPUT_DIR}/api_scanner/graphql/${name}_alias_test.json"
+        f_api_request POST "$gql_url" -H "Content-Type: application/json" \
+            -d '{"query":"{a1:__typename a2:__typename a3:__typename a4:__typename a5:__typename}"}' \
+            -o "$alias_file" 2>/dev/null || true
+        if f_graphql_has_data "$alias_file" 2>/dev/null; then
+            f_api_record_finding "low" "inconclusive" "graphql" "$gql_url" "$alias_file" "GraphQL alias queries accepted"
         fi
     done
+    f_api_mark_phase "graphql"
+}
 
-    [ "$CURRENT" -gt 0 ] && echo
-    echo -e "${BLUE}[*] Documentation scan complete. Found $FOUND_DOCS documents.${NC}"
+###############################################################################################################################
+# Phase: OpenAPI / Swagger documentation
 
-    # Enhanced CORS Misconfiguration Testing
-    echo -e "${BLUE}[*] Performing comprehensive CORS security testing.${NC}"
-    mkdir -p "$OUTPUT_DIR/api_scanner/cors" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR/api_scanner/cors${NC}"; exit 1; }
+f_api_phase_documentation(){
+    f_api_should_run_phase "documentation" || return 0
+    echo -e "${BLUE}[*] API documentation discovery.${NC}"
+    mkdir -p "${OUTPUT_DIR}/api_scanner/documentation"
+    API_FOUND_DOCS=0
 
-    # Prepare a list of origins to test with
-    cat > "$OUTPUT_DIR/api_scanner/cors/test_origins.txt" << EOF
-http://target.com
-https://target.com
-null
-file://
-https://attacker.target.com
-https://${TARGET_URL#*//}.target.com
-https://subdomain.${TARGET_URL#*//}
-data:
-https://\\${TARGET_URL#*//}
-https://attacker.com%60javascript:alert(1)
-https://target.com\@${TARGET_URL#*//}
-EOF
+    f_api_probe_doc_path(){
+        local path="$1"
+        local url="${API_TARGET_URL%/}${path}" safe status spec_file
+        safe=$(echo "$path" | sed 's|/|.|g')
+        status=$(f_api_request GET "$url" -o /dev/null -w "%{http_code}" 2>/dev/null || echo "000")
+        [[ "$status" == "200" ]] || return 0
 
-    # Combine all endpoints
-    cat "$OUTPUT_DIR/api_scanner/found_api_endpoints.txt" 2>/dev/null | cut -d ' ' -f1 > "$OUTPUT_DIR/api_scanner/all_endpoints.txt" 2>/dev/null
+        spec_file="${OUTPUT_DIR}/api_scanner/documentation/api_doc${safe}.txt"
+        f_api_request GET "$url" -o "$spec_file" 2>/dev/null || true
+        f_api_record_finding "medium" "confirmed" "documentation" "$url" "$spec_file" "API documentation exposed"
+        echo 1 >> "${OUTPUT_DIR}/api_scanner/_doc_hits.txt"
 
-    ENDPOINT_COUNT=$(wc -l < "$OUTPUT_DIR/api_scanner/all_endpoints.txt" 2>/dev/null || echo "0")
-    echo -e "${BLUE}[*] Testing CORS policies on $ENDPOINT_COUNT endpoints.${NC}"
+        if command -v jq >/dev/null 2>&1 && jq -e '.paths' "$spec_file" >/dev/null 2>&1; then
+            jq -r '.paths | to_entries[] | .key as $p | .value | to_entries[] | "\($p)|\(.key)|\(.value|keys|join(","))"' "$spec_file" \
+                > "${OUTPUT_DIR}/api_scanner/documentation/openapi_ops${safe}.txt" 2>/dev/null
+            jq -r '.paths | keys[]' "$spec_file" 2>/dev/null >> "${OUTPUT_DIR}/api_scanner/openapi_endpoints.txt"
+            head -5 "${OUTPUT_DIR}/api_scanner/documentation/openapi_ops${safe}.txt" 2>/dev/null | while IFS='|' read -r ep method _keys; do
+                f_api_request "$method" "${API_TARGET_URL%/}${ep}" \
+                    -o "${OUTPUT_DIR}/api_scanner/documentation/probe_${safe}_${method}.txt" 2>/dev/null || true
+            done
+        fi
+    }
 
-    CURRENT=0
-    CORS_VULNS=0
+    : > "${OUTPUT_DIR}/api_scanner/_doc_hits.txt"
+    while read -r path; do
+        [ -z "$path" ] && continue
+        f_api_probe_doc_path "$path" &
+        while [ "$(jobs -rp | wc -l)" -ge "$API_MAX_PARALLEL" ]; do wait -n 2>/dev/null || wait; done
+    done < <(f_api_swagger_paths)
+    wait
+    API_FOUND_DOCS=$(wc -l < "${OUTPUT_DIR}/api_scanner/_doc_hits.txt" 2>/dev/null || echo 0)
+    rm -f "${OUTPUT_DIR}/api_scanner/_doc_hits.txt"
 
-    touch "$OUTPUT_DIR/api_scanner/cors/cors_headers.txt" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR/api_scanner/cors/cors_headers.txt${NC}"; exit 1; }
-    touch "$OUTPUT_DIR/api_scanner/cors_vulnerable.txt" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR/api_scanner/cors_vulnerable.txt${NC}"; exit 1; }
+    echo -e "${YELLOW}[*] Documentation scan found $API_FOUND_DOCS resources.${NC}"
+    f_api_mark_phase "documentation"
+}
 
-    while read -r ENDPOINT; do
-        [ -z "$ENDPOINT" ] && continue
+###############################################################################################################################
+# Phase: merge and normalize endpoints
 
-        # Increment counter
-        ((CURRENT++))
+f_api_phase_merge_endpoints(){
+    f_api_should_run_phase "merge" || return 0
+    cut -d ' ' -f1 "${OUTPUT_DIR}/api_scanner/found_api_endpoints.txt" 2>/dev/null > "${OUTPUT_DIR}/api_scanner/_found_urls.txt"
+    f_merge_endpoint_lists "${OUTPUT_DIR}/api_scanner/all_endpoints.txt" \
+        "${OUTPUT_DIR}/api_scanner/_found_urls.txt" \
+        "${OUTPUT_DIR}/api_scanner/openapi_endpoints.txt" \
+        "${OUTPUT_DIR}/api_scanner/endpoints_html.txt"
+    rm -f "${OUTPUT_DIR}/api_scanner/_found_urls.txt"
+    f_api_limit_endpoints "${OUTPUT_DIR}/api_scanner/all_endpoints.txt"
+    local n
+    n=$(wc -l < "${OUTPUT_DIR}/api_scanner/all_endpoints.txt" 2>/dev/null || echo 0)
+    echo -e "${YELLOW}[*] $n unique endpoints ready for testing.${NC}"
+    f_api_mark_phase "merge"
+}
 
-        # Calculate percentage
-        PERCENTAGE=$((CURRENT * 100 / ENDPOINT_COUNT))
+###############################################################################################################################
+# Phase: CORS (simple + preflight)
 
-        # Display progress
-        echo -ne "${BLUE}[*] Testing CORS: [${YELLOW}${PERCENTAGE}%${BLUE}] $ENDPOINT${NC}\r"
+f_api_phase_cors(){
+    f_api_should_run_phase "cors" || return 0
+    echo -e "${BLUE}[*] CORS security testing (GET + preflight).${NC}"
+    mkdir -p "${OUTPUT_DIR}/api_scanner/cors"
+    local origins_file="${OUTPUT_DIR}/api_scanner/cors/test_origins.txt"
+    f_api_build_cors_origins "$API_TARGET_HOST" "$API_TARGET_AUTHORITY" "$origins_file"
 
-        ENDPOINT_SAFE=$(echo "$ENDPOINT" | sed 's/[:\/]/_/g')
+    while read -r endpoint; do
+        [ -z "$endpoint" ] && continue
+        local safe origin cors_file preflight_file
+        safe=$(echo "$endpoint" | sed 's|[:/]|_|g')
 
-        # Test each origin
-        while read -r ORIGIN; do
-            [ -z "$ORIGIN" ] && continue
+        while read -r origin; do
+            [ -z "$origin" ] && continue
+            cors_file="${OUTPUT_DIR}/api_scanner/cors/get_${safe}_$(echo "$origin" | sed 's|[^a-zA-Z0-9]|_|g').txt"
+            f_api_request GET "$endpoint" -H "Origin: $origin" -D "$cors_file" -o /dev/null 2>/dev/null || true
 
-            # Skip testing if we've already found a vulnerability for this endpoint
-            if grep -q "^$ENDPOINT" "$OUTPUT_DIR/api_scanner/cors_vulnerable.txt" 2>/dev/null; then
-                continue
-            fi
-
-            CORS_RESPONSE=$(curl -s -I -H "Origin: $ORIGIN" "$ENDPOINT" -H "User-Agent: $USER_AGENT" --connect-timeout 3 -m 7)
-            echo "$CORS_RESPONSE" > "$OUTPUT_DIR/api_scanner/cors/headers_${ENDPOINT_SAFE}_${ORIGIN//[:\/]/_}.txt"
-
-            # Check for various CORS vulnerabilities
-            if echo "$CORS_RESPONSE" | grep -i "access-control-allow-origin: $ORIGIN" &>/dev/null; then
-                echo -e "\033[2K\r${RED}[!] CORS Vulnerability: $ENDPOINT allows requests from arbitrary origin: $ORIGIN${NC}"
-                echo "$ENDPOINT - Allows arbitrary origin: $ORIGIN" >> "$OUTPUT_DIR/api_scanner/cors_vulnerable.txt"
-                ((CORS_VULNS++))
-
-                # Check for allow-credentials
-                if echo "$CORS_RESPONSE" | grep -i "access-control-allow-credentials: true" &>/dev/null; then
-                    echo -e "${RED}[!] HIGH Severity: Allows credentials with specific arbitrary origin${NC}"
-                    echo "$ENDPOINT - HIGH: Allows credentials with arbitrary origin: $ORIGIN" >> "$OUTPUT_DIR/api_scanner/cors_vulnerable.txt"
-                fi
-
-                # No need to check other origins for this endpoint
+            if grep -qi "access-control-allow-origin:" "$cors_file" 2>/dev/null && \
+               { grep -qiF "access-control-allow-origin: ${origin}" "$cors_file" 2>/dev/null || \
+                 grep -qi "access-control-allow-origin: \*" "$cors_file" 2>/dev/null; }; then
+                local sev="high" cred
+                grep -qi 'access-control-allow-credentials: true' "$cors_file" && sev="critical"
+                f_api_record_finding "$sev" "confirmed" "cors" "$endpoint" "$cors_file" "CORS reflects origin: $origin"
                 break
             fi
 
-            # Check for wildcard
-            if echo "$CORS_RESPONSE" | grep -i "access-control-allow-origin: \*" &>/dev/null; then
-                echo -e "\033[2K\r${YELLOW}[!] CORS Warning: $ENDPOINT allows requests from any origin (*)${NC}"
-                echo "$ENDPOINT - Allows any origin (*)" >> "$OUTPUT_DIR/api_scanner/cors_vulnerable.txt"
-                ((CORS_VULNS++))
+            preflight_file="${OUTPUT_DIR}/api_scanner/cors/preflight_${safe}_$(echo "$origin" | sed 's|[^a-zA-Z0-9]|_|g').txt"
+            f_api_request OPTIONS "$endpoint" \
+                -H "Origin: $origin" \
+                -H "Access-Control-Request-Method: POST" \
+                -H "Access-Control-Request-Headers: Content-Type, Authorization" \
+                -D "$preflight_file" -o /dev/null 2>/dev/null || true
 
-                # Check for credentials with wildcard (severe security issue)
-                if echo "$CORS_RESPONSE" | grep -i "access-control-allow-credentials: true" &>/dev/null; then
-                    echo -e "${RED}[!] CRITICAL: Allows credentials with wildcard origin (severe configuration error)${NC}"
-                    echo "$ENDPOINT - CRITICAL: Allows credentials with wildcard origin" >> "$OUTPUT_DIR/api_scanner/cors_vulnerable.txt"
-                fi
-
-                # No need to check other origins for this endpoint
+            if grep -qi "access-control-allow-origin:" "$preflight_file" 2>/dev/null && \
+               { grep -qiF "access-control-allow-origin: ${origin}" "$preflight_file" 2>/dev/null || \
+                 grep -qi "access-control-allow-origin: \*" "$preflight_file" 2>/dev/null; }; then
+                local psev="high"
+                grep -qi 'access-control-allow-credentials: true' "$preflight_file" && psev="critical"
+                f_api_record_finding "$psev" "confirmed" "cors" "$endpoint" "$preflight_file" "CORS preflight allows origin: $origin"
                 break
             fi
-        done < "$OUTPUT_DIR/api_scanner/cors/test_origins.txt"
-    done < "$OUTPUT_DIR/api_scanner/all_endpoints.txt"
+        done < "$origins_file"
+    done < "${OUTPUT_DIR}/api_scanner/all_endpoints.txt"
+    f_api_mark_phase "cors"
+}
 
-    [ "$CURRENT" -gt 0 ] && echo
-    echo -e "${BLUE}[*] CORS testing complete. Found ${NC}$CORS_VULNS${BLUE} vulnerabilities.${NC}"
+###############################################################################################################################
+# Phase: HTTP methods
 
-    # API Security Testing
-    echo -e "${BLUE}[*] Performing additional API security tests.${NC}"
-    mkdir -p "$OUTPUT_DIR/api_scanner/security" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR/api_scanner/security${NC}"; exit 1; }
+f_api_phase_http_methods(){
+    f_api_should_run_phase "http_methods" || return 0
+    echo -e "${BLUE}[*] HTTP method testing (sample).${NC}"
+    mkdir -p "${OUTPUT_DIR}/api_scanner/security"
+    head -10 "${OUTPUT_DIR}/api_scanner/all_endpoints.txt" > "${OUTPUT_DIR}/api_scanner/sample_endpoints.txt"
 
-    # Test for HTTP methods allowed (VERB tampering)
-    echo -e "${BLUE}[*] Testing HTTP method handling.${NC}"
+    local methods=("GET" "POST" "PUT" "DELETE" "PATCH" "OPTIONS" "HEAD")
+    [ "$API_AGGRESSIVE_HTTP" = "1" ] && methods+=("TRACE" "CONNECT")
 
-    # Take sample of endpoints to test (max 10 to avoid excessive requests)
-    head -10 "$OUTPUT_DIR/api_scanner/all_endpoints.txt" > "$OUTPUT_DIR/api_scanner/sample_endpoints.txt"
+    while read -r endpoint; do
+        [ -z "$endpoint" ] && continue
+        local safe opts_file allowed
+        safe=$(echo "$endpoint" | sed 's|[:/]|_|g')
+        opts_file="${OUTPUT_DIR}/api_scanner/security/options_${safe}.txt"
+        f_api_request OPTIONS "$endpoint" -D "$opts_file" -o /dev/null 2>/dev/null || true
+        allowed=$(grep -iE '^Allow:|access-control-allow-methods:' "$opts_file" | cut -d: -f2- | tr -d '\r')
 
-    HTTP_METHODS=("GET" "POST" "PUT" "DELETE" "PATCH" "OPTIONS" "HEAD" "TRACE" "CONNECT")
-
-    while read -r ENDPOINT; do
-        [ -z "$ENDPOINT" ] && continue
-
-        ENDPOINT_SAFE=$(echo "$ENDPOINT" | sed 's/[:\/]/_/g')
-        echo -e "${BLUE}[*] Testing HTTP methods on: $ENDPOINT${NC}"
-
-        # First get OPTIONS to check declared allowed methods
-        OPTIONS_RESPONSE=$(curl -s -I -X OPTIONS "$ENDPOINT" -H "User-Agent: $USER_AGENT" --connect-timeout 3 -m 7)
-        echo "$OPTIONS_RESPONSE" > "$OUTPUT_DIR/api_scanner/security/options_${ENDPOINT_SAFE}.txt"
-
-        # Extract allowed methods from OPTIONS response
-        ALLOWED_METHODS=$(echo "$OPTIONS_RESPONSE" | grep -i "Allow\|Access-Control-Allow-Methods" | cut -d ':' -f2- | tr -d '\r')
-        ALLOWED_METHODS=${ALLOWED_METHODS:-"None specified"}
-        echo "Declared allowed methods: $ALLOWED_METHODS" > "$OUTPUT_DIR/api_scanner/security/methods_${ENDPOINT_SAFE}.txt"
-
-        # Test each method
-        for METHOD in "${HTTP_METHODS[@]}"; do
-            STATUS=$(curl -s -o "$OUTPUT_DIR/api_scanner/security/response_${ENDPOINT_SAFE}_${METHOD}.txt" -w "%{http_code}" -X "$METHOD" "$ENDPOINT" -H "User-Agent: $USER_AGENT" --connect-timeout 3 -m 7)
-            echo "$METHOD: $STATUS" >> "$OUTPUT_DIR/api_scanner/security/methods_${ENDPOINT_SAFE}.txt"
-
-            # Check for successful status codes with potentially dangerous methods
-            if [[ "$METHOD" != "GET" && "$METHOD" != "HEAD" && "$METHOD" != "OPTIONS" ]] && \
-               [[ "$STATUS" == "200" || "$STATUS" == "201" || "$STATUS" == "202" || "$STATUS" == "204" ]]; then
-                echo -e "${RED}[!] Potentially unsafe HTTP method $METHOD allowed on $ENDPOINT${NC}"
-                echo "$ENDPOINT - Unsafe method $METHOD returned $STATUS" >> "$OUTPUT_DIR/api_scanner/security_findings.txt"
+        for method in "${methods[@]}"; do
+            local mfile="${OUTPUT_DIR}/api_scanner/security/response_${safe}_${method}.txt"
+            local status
+            status=$(f_api_request "$method" "$endpoint" -o "$mfile" -w "%{http_code}" 2>/dev/null || echo "000")
+            [[ "$status" =~ ^(200|201|202|204)$ ]] || continue
+            if [[ "$method" == "TRACE" || "$method" == "CONNECT" ]]; then
+                f_api_record_finding "high" "confirmed" "http_methods" "$endpoint" "$mfile" "Unsafe method $method returned $status"
+            elif [[ "$method" != "GET" && "$method" != "HEAD" && "$method" != "OPTIONS" ]] && \
+                 ! echo "$allowed" | grep -qi "$method"; then
+                f_api_record_finding "medium" "likely" "http_methods" "$endpoint" "$mfile" "Undeclared method $method returned $status"
             fi
         done
-    done < "$OUTPUT_DIR/api_scanner/sample_endpoints.txt"
+    done < "${OUTPUT_DIR}/api_scanner/sample_endpoints.txt"
+    f_api_mark_phase "http_methods"
+}
 
-    # Test for missing rate limiting
-    echo -e "${BLUE}[*] Testing for rate limiting.${NC}"
-    RATE_TEST_ENDPOINT=$(head -1 "$OUTPUT_DIR/api_scanner/all_endpoints.txt")
+###############################################################################################################################
+# Phase: rate limiting burst
 
-    if [ -n "$RATE_TEST_ENDPOINT" ]; then
-        echo -e "${BLUE}[*] Testing rate limiting on: $RATE_TEST_ENDPOINT${NC}"
+f_api_phase_rate_limit(){
+    f_api_should_run_phase "rate_limit" || return 0
+    local test_ep
+    test_ep=$(head -1 "${OUTPUT_DIR}/api_scanner/all_endpoints.txt")
+    [ -z "$test_ep" ] && { f_api_mark_phase "rate_limit"; return 0; }
 
-        # Make 20 rapid requests
-        for i in {1..20}; do
-            echo -ne "${BLUE}[*] Rate limit test: request $i/20${NC}\r"
-            curl -s -I "$RATE_TEST_ENDPOINT" -H "User-Agent: $USER_AGENT" --connect-timeout 2 -m 3 > "$OUTPUT_DIR/api_scanner/security/rate_limit_${i}.txt"
-            # Small sleep to avoid completely hammering the server
-            sleep 0.2
-        done
+    echo -e "${BLUE}[*] Rate limit burst test (50 requests).${NC}"
+    mkdir -p "${OUTPUT_DIR}/api_scanner/security"
+    local hits429=0 i status
 
-        # Check for rate limiting headers
-        if grep -q -i "rate\|limit\|quota\|throttle" "$OUTPUT_DIR/api_scanner/security"/rate_limit_*.txt 2>/dev/null; then
-            echo -e "\033[2K\r${BLUE}[*] Rate limiting appears to be implemented${NC}"
-            echo "Rate limiting implemented" >> "$OUTPUT_DIR/api_scanner/security_findings.txt"
-        else
-            echo -e "\033[2K\r${YELLOW}[!] No evidence of rate limiting found.${NC}"
-            echo "$RATE_TEST_ENDPOINT - No evidence of rate limiting found." >> "$OUTPUT_DIR/api_scanner/security_findings.txt"
-        fi
-    fi
+    for i in $(seq 1 50); do
+        status=$(f_api_request GET "$test_ep" -o "${OUTPUT_DIR}/api_scanner/security/rate_${i}.txt" -w "%{http_code}" 2>/dev/null || echo "000")
+        [[ "$status" == "429" || "$status" == "503" ]] && ((hits429++))
+    done
 
-    # Authentication Analysis
-    echo -e "${BLUE}[*] Performing authentication analysis.${NC}"
-
-    # Check for authentication headers
-    if [ -n "$RATE_TEST_ENDPOINT" ]; then
-        AUTH_RESPONSE=$(curl -s -I "$RATE_TEST_ENDPOINT" -H "User-Agent: $USER_AGENT")
-
-        # Check for WWW-Authenticate header
-        if echo "$AUTH_RESPONSE" | grep -i "www-authenticate" &>/dev/null; then
-            AUTH_TYPE=$(echo "$AUTH_RESPONSE" | grep -i "www-authenticate" | awk '{print $2}' | tr -d '"\r')
-            echo -e "${YELLOW}[!] Authentication required: $AUTH_TYPE${NC}"
-            echo "$RATE_TEST_ENDPOINT - Authentication type: $AUTH_TYPE" >> "$OUTPUT_DIR/api_scanner/security_findings.txt"
-        fi
-
-        # Check for common authorization headers in responses
-        if echo "$AUTH_RESPONSE" | grep -i "authorization\|x-api-key\|api-key" &>/dev/null; then
-            echo -e "${RED}[!] Authorization headers in response - potential information disclosure${NC}"
-            echo "$RATE_TEST_ENDPOINT - Authorization headers exposed" >> "$OUTPUT_DIR/api_scanner/security_findings.txt"
-        fi
-    fi
-
-    # JWT Token Testing
-    echo -e "${BLUE}[*] Testing for JWT token vulnerabilities.${NC}"
-
-    # Check if we can find JWT tokens in any of the responses
-    grep -R -h -o "eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*" "$OUTPUT_DIR/api_scanner" --include="*.txt" --include="*.json" 2>/dev/null | sort -u > "$OUTPUT_DIR/api_scanner/jwt_found.txt"
-
-    if [ -s "$OUTPUT_DIR/api_scanner/jwt_found.txt" ]; then
-        echo -e "${YELLOW}[!] Found JWT tokens in responses${NC}"
-
-        # Extract and analyze each token
-        while read -r TOKEN; do
-            echo -e "${BLUE}[*] Analyzing JWT token: ${TOKEN:0:20}.${NC}"
-
-            # Extract header and payload
-            RAW_HEADER=$(echo "$TOKEN" | cut -d. -f1)
-            RAW_PAYLOAD=$(echo "$TOKEN" | cut -d. -f2)
-
-            # Add missing padding and handle base64url characters
-            [ $((${#RAW_HEADER} % 4)) -eq 2 ] && RAW_HEADER="${RAW_HEADER}=="
-            [ $((${#RAW_HEADER} % 4)) -eq 3 ] && RAW_HEADER="${RAW_HEADER}="
-            [ $((${#RAW_PAYLOAD} % 4)) -eq 2 ] && RAW_PAYLOAD="${RAW_PAYLOAD}=="
-            [ $((${#RAW_PAYLOAD} % 4)) -eq 3 ] && RAW_PAYLOAD="${RAW_PAYLOAD}="
-            RAW_HEADER=$(echo "$RAW_HEADER" | tr '_-' '/+')
-            RAW_PAYLOAD=$(echo "$RAW_PAYLOAD" | tr '_-' '/+')
-
-            # Decode header
-            HEADER=$(echo "$RAW_HEADER" | base64 -d 2>/dev/null | tr -d '\0')
-
-            # Check for weak algorithms
-            if echo "$HEADER" | grep -q '"alg":"none\|"alg":"HS256\|"alg":"HS1"'; then
-                echo -e "${RED}[!] JWT using weak algorithm: $(echo "$HEADER" | grep -o '"alg":"[^"]*"')${NC}"
-                echo "JWT with weak algorithm found: $(echo "$HEADER" | grep -o '"alg":"[^"]*"')" >> "$OUTPUT_DIR/api_scanner/security_findings.txt"
-            fi
-
-            # Decode payload
-            PAYLOAD=$(echo "$RAW_PAYLOAD" | base64 -d 2>/dev/null | tr -d '\0')
-
-            # Check for sensitive data in payload
-            if echo "$PAYLOAD" | grep -q '"password\|"api_key\|"secret\|"private'; then
-                echo -e "${RED}[!] JWT contains sensitive data in payload${NC}"
-                echo "JWT with sensitive data in payload" >> "$OUTPUT_DIR/api_scanner/security_findings.txt"
-            fi
-
-            # Save decoded token
-            echo "Header: $HEADER" > "$OUTPUT_DIR/api_scanner/security/jwt_decoded_${TOKEN:0:10}.txt"
-            echo "Payload: $PAYLOAD" >> "$OUTPUT_DIR/api_scanner/security/jwt_decoded_${TOKEN:0:10}.txt"
-        done < "$OUTPUT_DIR/api_scanner/jwt_found.txt"
+    if [ "$hits429" -gt 0 ]; then
+        f_api_record_finding "info" "confirmed" "rate_limit" "$test_ep" "${OUTPUT_DIR}/api_scanner/security/rate_*.txt" "Rate limiting observed ($hits429/50 throttled)"
+    elif grep -qi 'rate\|limit\|quota\|throttle' "${OUTPUT_DIR}"/api_scanner/security/rate_*.txt 2>/dev/null; then
+        f_api_record_finding "info" "confirmed" "rate_limit" "$test_ep" "${OUTPUT_DIR}/api_scanner/security/rate_1.txt" "Rate limit headers present"
     else
-        echo -e "${BLUE}[*] No JWT tokens found in responses.${NC}"
+        f_api_record_finding "low" "inconclusive" "rate_limit" "$test_ep" "${OUTPUT_DIR}/api_scanner/security/rate_1.txt" "No rate limiting observed in 50-request burst"
     fi
+    f_api_mark_phase "rate_limit"
+}
 
-    # Generate Enhanced Summary Report
-    echo -e "${BLUE}[*] Generating comprehensive summary report.${NC}"
+###############################################################################################################################
+# Phase: JWT discovery and deep analysis
 
-    cat > "$OUTPUT_DIR/api_scanner/report.txt" << EOF
+f_api_phase_jwt(){
+    f_api_should_run_phase "jwt" || return 0
+    echo -e "${BLUE}[*] JWT token analysis.${NC}"
+    mkdir -p "${OUTPUT_DIR}/api_scanner/security"
+    grep -Rho "eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*" "${OUTPUT_DIR}/api_scanner" --include="*.txt" --include="*.json" 2>/dev/null \
+        | sort -u > "${OUTPUT_DIR}/api_scanner/jwt_found.txt" || true
+
+    if [ -s "${OUTPUT_DIR}/api_scanner/jwt_found.txt" ]; then
+        while read -r token; do
+            f_api_jwt_deep_check "$token" "${OUTPUT_DIR}/api_scanner/security"
+        done < "${OUTPUT_DIR}/api_scanner/jwt_found.txt"
+        echo -e "${YELLOW}[*] For OAuth/OIDC testing, also run: dev/oauth-jwt-scanner.sh${NC}"
+    fi
+    f_api_mark_phase "jwt"
+}
+
+###############################################################################################################################
+# Reporting
+
+f_api_phase_report(){
+    echo -e "${BLUE}[*] Generating reports.${NC}"
+    API_REQUEST_COUNT=$(grep -c 'REQUEST #' "$API_SCAN_LOG" 2>/dev/null || echo 0)
+    local vuln_count endpoints_count
+    vuln_count=$(wc -l < "$API_VULN_URL_FILE" 2>/dev/null || echo 0)
+    endpoints_count=$(wc -l < "${OUTPUT_DIR}/api_scanner/all_endpoints.txt" 2>/dev/null || echo 0)
+
+    cat > "${OUTPUT_DIR}/api_scanner/report.txt" <<EOF
 API Security Scanner Report
 
-Target: $TARGET_URL
-Date:   $DATESTAMP
-Time:   $TIMESTAMP
+Target:     $API_TARGET_URL
+Scan ID:    api-scan_${SCAN_STAMP}
+Mode:       $API_SCAN_MODE
+Date:       $DATESTAMP
+Time:       $TIMESTAMP
+Requests:   $API_REQUEST_COUNT
 --------------------------------------------
 
-EXECUTIVE SUMMARY
-------------------
-API Endpoints: $(wc -l < "$OUTPUT_DIR/api_scanner/all_endpoints.txt" 2>/dev/null || echo "0")
-API Documentation Resources: $FOUND_DOCS
-GraphQL Endpoints: $(cat "$OUTPUT_DIR/api_scanner/all_endpoints.txt" 2>/dev/null | grep -c graphql)
-Vulnerable Endpoints: $(( $(wc -l < "$OUTPUT_DIR/api_scanner/cors_vulnerable.txt" 2>/dev/null || echo "0") + $(cat "$OUTPUT_DIR/api_scanner/security_findings.txt" 2>/dev/null | grep -c "vulnerability\|unsafe\|sensitive") + $(cat "$OUTPUT_DIR/api_scanner/graphql_vulnerable.txt" 2>/dev/null | grep -c "Introspection enabled\|Sensitive types\|Successful query\|NoSQL injection") ))
+EXECUTIVE SUMMARY BY CATEGORY
+------------------------------
+Documentation (confirmed):     $(f_api_count_findings documentation confirmed)
+CORS (confirmed):              $(f_api_count_findings cors confirmed)
+GraphQL (confirmed):           $(f_api_count_findings graphql confirmed)
+GraphQL (likely/inconclusive): $(($(f_api_count_findings graphql likely) + $(f_api_count_findings graphql inconclusive)))
+HTTP methods (confirmed):    $(f_api_count_findings http_methods confirmed)
+Rate limit (inconclusive):     $(f_api_count_findings rate_limit inconclusive)
+JWT issues:                    $(f_api_count_findings jwt confirmed)
+Sensitive data (likely):       $(f_api_count_findings sensitive likely)
 
-FINDINGS
----------
+Total endpoints:               $endpoints_count
+Unique vulnerable endpoints:   $vuln_count
+Documentation resources:       ${API_FOUND_DOCS:-0}
+
+DETAILED FINDINGS (with evidence)
+----------------------------------
 EOF
 
-    # Add CORS findings
-    echo "CORS Security Issues:" >> "$OUTPUT_DIR/api_scanner/report.txt"
-    if [ -f "$OUTPUT_DIR/api_scanner/cors_vulnerable.txt" ] && [ -s "$OUTPUT_DIR/api_scanner/cors_vulnerable.txt" ]; then
-        cat "$OUTPUT_DIR/api_scanner/cors_vulnerable.txt" | sed 's/^/  - /' >> "$OUTPUT_DIR/api_scanner/report.txt"
-    else
-        echo "  - None" >> "$OUTPUT_DIR/api_scanner/report.txt"
-    fi
+    tail -n +2 "$API_FINDINGS_FILE" 2>/dev/null | while IFS=$'\t' read -r sev conf cat url ev desc; do
+        echo "  [$sev/$conf] $cat — $url" >> "${OUTPUT_DIR}/api_scanner/report.txt"
+        echo "    Evidence: $ev" >> "${OUTPUT_DIR}/api_scanner/report.txt"
+        echo "    $desc" >> "${OUTPUT_DIR}/api_scanner/report.txt"
+        echo "" >> "${OUTPUT_DIR}/api_scanner/report.txt"
+    done
 
-    echo "" >> "$OUTPUT_DIR/api_scanner/report.txt"
+    # Markdown report
+    cat > "${OUTPUT_DIR}/api_scanner/report.md" <<EOF
+# API Security Scanner Report
 
-    # Add GraphQL findings
-    echo "GRAPHQL Security Issues:" >> "$OUTPUT_DIR/api_scanner/report.txt"
-    if [ -f "$OUTPUT_DIR/api_scanner/graphql_vulnerable.txt" ] && [ -s "$OUTPUT_DIR/api_scanner/graphql_vulnerable.txt" ]; then
-        cat "$OUTPUT_DIR/api_scanner/graphql_vulnerable.txt" | sed 's/^/  - /' >> "$OUTPUT_DIR/api_scanner/report.txt"
-    else
-        echo "  - None" >> "$OUTPUT_DIR/api_scanner/report.txt"
-    fi
+| Field | Value |
+|-------|-------|
+| Target | $API_TARGET_URL |
+| Scan ID | api-scan_${SCAN_STAMP} |
+| Mode | $API_SCAN_MODE |
+| Date | $DATESTAMP |
+| Requests | $API_REQUEST_COUNT |
+| Endpoints | $endpoints_count |
+| Vulnerable URLs | $vuln_count |
 
-    echo "" >> "$OUTPUT_DIR/api_scanner/report.txt"
+## Summary by Category
 
-    # Add API Documentation findings
-    echo "API Documentation:" >> "$OUTPUT_DIR/api_scanner/report.txt"
-    if [ "$FOUND_DOCS" -gt 0 ]; then
-        grep -h ": API documentation" "$OUTPUT_DIR/api_scanner/findings.txt" 2>/dev/null | sed 's/^/  - /' >> "$OUTPUT_DIR/api_scanner/report.txt" || echo "  - API documentation found but with unknown format" >> "$OUTPUT_DIR/api_scanner/report.txt"
-    else
-        echo "  - None" >> "$OUTPUT_DIR/api_scanner/report.txt"
-    fi
+| Category | Confirmed | Likely | Inconclusive |
+|----------|-----------|--------|--------------|
+| Documentation | $(f_api_count_findings documentation confirmed) | $(f_api_count_findings documentation likely) | $(f_api_count_findings documentation inconclusive) |
+| CORS | $(f_api_count_findings cors confirmed) | $(f_api_count_findings cors likely) | $(f_api_count_findings cors inconclusive) |
+| GraphQL | $(f_api_count_findings graphql confirmed) | $(f_api_count_findings graphql likely) | $(f_api_count_findings graphql inconclusive) |
+| HTTP Methods | $(f_api_count_findings http_methods confirmed) | $(f_api_count_findings http_methods likely) | $(f_api_count_findings http_methods inconclusive) |
+| Rate Limiting | $(f_api_count_findings rate_limit confirmed) | $(f_api_count_findings rate_limit likely) | $(f_api_count_findings rate_limit inconclusive) |
+| JWT | $(f_api_count_findings jwt confirmed) | $(f_api_count_findings jwt likely) | $(f_api_count_findings jwt inconclusive) |
 
-    echo "" >> "$OUTPUT_DIR/api_scanner/report.txt"
+## Findings
 
-    # Add Security Testing findings
-    echo "API Security Testing Results:" >> "$OUTPUT_DIR/api_scanner/report.txt"
-    if [ -f "$OUTPUT_DIR/api_scanner/security_findings.txt" ] && [ -s "$OUTPUT_DIR/api_scanner/security_findings.txt" ]; then
-        cat "$OUTPUT_DIR/api_scanner/security_findings.txt" | sed 's/^/  - /' >> "$OUTPUT_DIR/api_scanner/report.txt"
-    else
-        echo "  - None" >> "$OUTPUT_DIR/api_scanner/report.txt"
-    fi
-
-    echo "" >> "$OUTPUT_DIR/api_scanner/report.txt"
-
-    # Discovered endpoints summary
-    echo "Discovered API Endpoints:" >> "$OUTPUT_DIR/api_scanner/report.txt"
-    if [ -f "$OUTPUT_DIR/api_scanner/found_api_endpoints.txt" ] && [ -s "$OUTPUT_DIR/api_scanner/found_api_endpoints.txt" ]; then
-        head -20 "$OUTPUT_DIR/api_scanner/found_api_endpoints.txt" | sed 's/^/  - /' >> "$OUTPUT_DIR/api_scanner/report.txt"
-
-        # If there are more than 20 endpoints, indicate that
-        ENDPOINT_COUNT=$(wc -l < "$OUTPUT_DIR/api_scanner/found_api_endpoints.txt")
-        if [ "$ENDPOINT_COUNT" -gt 20 ]; then
-            echo "  - ... and $(($ENDPOINT_COUNT - 20)) more endpoints (see full list in found_api_endpoints.txt)" >> "$OUTPUT_DIR/api_scanner/report.txt"
-        fi
-    else
-        echo "  - None" >> "$OUTPUT_DIR/api_scanner/report.txt"
-    fi
-
-    # Add recommendations section
-    cat >> "$OUTPUT_DIR/api_scanner/report.txt" << EOF
-
-RECOMMENDATIONS
-----------------
-1. API Documentation: $([ "$FOUND_DOCS" -gt 0 ] && echo "Restrict access to API documentation in production environments." || echo "None")
-2. CORS Policy: $(grep -q ". CORS" "$OUTPUT_DIR/api_scanner/cors_vulnerable.txt" 2>/dev/null && echo "Fix CORS configuration to only allow trusted origins and never use wildcards with credentials." || echo "None")
-3. GraphQL Security: $(grep -q "GraphQL" "$OUTPUT_DIR/api_scanner/graphql_vulnerable.txt" 2>/dev/null && echo "Disable introspection in production and implement proper authorization checks." || echo "None")
-4. Rate Limiting: $(grep -q "No evidence of rate limiting" "$OUTPUT_DIR/api_scanner/security_findings.txt" 2>/dev/null && echo "Implement proper rate limiting to prevent API abuse." || echo "None")
-5. HTTP Methods: $(grep -q "Unsafe method" "$OUTPUT_DIR/api_scanner/security_findings.txt" 2>/dev/null && echo "Restrict HTTP methods to only those required for each endpoint." || echo "None")
-6. JWT Tokens: $(grep -q "JWT with weak algorithm" "$OUTPUT_DIR/api_scanner/security_findings.txt" 2>/dev/null && echo "Use strong algorithms for JWT tokens and avoid storing sensitive data in the payload." || echo "None")
 EOF
 
-    # Clean up temporary files, empty files and empty directories
-    rm -f "$API_PATHS_FILE" 2>/dev/null
-    find "$OUTPUT_DIR" -type f -empty -delete 2>/dev/null
-    find "$OUTPUT_DIR" -type d -empty -delete 2>/dev/null
+    tail -n +2 "$API_FINDINGS_FILE" 2>/dev/null | while IFS=$'\t' read -r sev conf cat url ev desc; do
+        echo "### [$sev] $cat — $url" >> "${OUTPUT_DIR}/api_scanner/report.md"
+        echo "- **Confidence:** $conf" >> "${OUTPUT_DIR}/api_scanner/report.md"
+        echo "- **Evidence:** \`$ev\`" >> "${OUTPUT_DIR}/api_scanner/report.md"
+        echo "- $desc" >> "${OUTPUT_DIR}/api_scanner/report.md"
+        echo "" >> "${OUTPUT_DIR}/api_scanner/report.md"
+    done
 
-    echo
-    echo -e "${YELLOW}[*] API scan complete.${NC}"
-    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/api_scanner/${NC}"
-    echo
+    echo "" >> "${OUTPUT_DIR}/api_scanner/report.md"
+    echo "Request log: \`${API_SCAN_LOG}\`" >> "${OUTPUT_DIR}/api_scanner/report.md"
+
+    find "${OUTPUT_DIR}/api_scanner" -type f \( -name 'curl_err_*' -o -name 'rate_*.txt' \) -empty -delete 2>/dev/null || true
+    f_api_log "Scan complete. Requests: $API_REQUEST_COUNT Findings: $(tail -n +2 "$API_FINDINGS_FILE" | wc -l)"
 }
 
 ###############################################################################################################################
+# Scan orchestration
 
-# Function for JWT token analysis
+f_api_require_authorization(){
+    [ "$API_AUTHORIZED" = "1" ] && return 0
+    echo -e "${YELLOW}[!] Full scans send many requests to the target.${NC}"
+    echo -n "Confirm you have authorization to test this target? (yes/no): "
+    read -r ans
+    [[ "$ans" == "yes" ]] || { echo "Aborted."; exit 1; }
+    API_AUTHORIZED=1
+}
+
+f_api_run_scan(){
+    local target="$1"
+    mkdir -p "${OUTPUT_DIR}/api_scanner"
+    touch "${OUTPUT_DIR}/api_scanner/found_api_endpoints.txt" "${OUTPUT_DIR}/api_scanner/all_endpoints.txt"
+    f_api_init_scan "$target" "$([ -n "$API_RESUME_DIR" ] && echo 1 || echo 0)"
+
+    if [ "$API_SCAN_MODE" = "full" ]; then
+        f_api_require_authorization
+    fi
+
+    f_api_phase_link_extract
+    f_api_phase_fuzzer
+    f_api_phase_path_probe
+    f_api_phase_documentation
+    f_api_phase_merge_endpoints
+
+    if [ "$API_SCAN_MODE" = "quick" ]; then
+        f_api_phase_report
+        echo -e "${YELLOW}[*] Quick scan complete (discovery + documentation).${NC}"
+        echo -e "${YELLOW}[*] Run with --full for CORS, methods, rate limit, and JWT testing.${NC}"
+        return 0
+    fi
+
+    f_api_phase_graphql
+    f_api_phase_cors
+    f_api_phase_http_methods
+    f_api_phase_rate_limit
+    f_api_phase_jwt
+    f_api_phase_report
+}
+
+f_api_orchestrate(){
+    local target="$1"
+    echo -e "${BLUE}[*] Full API assessment orchestrator.${NC}"
+    f_api_run_scan "$target"
+    echo
+    echo -e "${BLUE}Related Discover scanners for deeper coverage:${NC}"
+    echo "  - dev/oauth-jwt-scanner.sh  (OAuth/OIDC)"
+    echo "  - dev/sensitive-scanner.sh  (secret leakage)"
+    echo "  - dev/web-api-scanner.sh    (Metasploit web/API modules)"
+    echo
+    echo -n "Run oauth-jwt-scanner on same target now? (y/n): "
+    read -r run_oauth
+    if [[ "$run_oauth" =~ ^[Yy] ]]; then
+        echo -e "${YELLOW}[*] Run: ${_API_SCANNER_DIR}/oauth-jwt-scanner.sh${NC}"
+    fi
+    echo -n "Run sensitive-scanner on same target? (y/n): "
+    read -r run_sens
+    if [[ "$run_sens" =~ ^[Yy] ]]; then
+        echo -e "${YELLOW}[*] Run: ${_API_SCANNER_DIR}/sensitive-scanner.sh${NC}"
+    fi
+}
+
+###############################################################################################################################
+# JWT standalone analysis (menu option 2)
+
 f_jwt_analysis(){
     local JWT=$1
-    local OUTPUT_DIR=${2:-"$OUTPUT_DIR/jwt_analysis"}
-    mkdir -p "$OUTPUT_DIR"
-
+    local out=${2:-"$OUTPUT_DIR/jwt_analysis"}
+    mkdir -p "$out"
     echo -e "${BLUE}[*] Analyzing JWT token.${NC}"
-    echo
-
-    # Split JWT into header, payload, and signature
-    RAW_HEADER=$(echo "$JWT" | cut -d '.' -f1)
-    RAW_PAYLOAD=$(echo "$JWT" | cut -d '.' -f2)
-
-    # Add missing padding and handle base64url characters
-    [ $((${#RAW_HEADER} % 4)) -eq 2 ] && RAW_HEADER="${RAW_HEADER}=="
-    [ $((${#RAW_HEADER} % 4)) -eq 3 ] && RAW_HEADER="${RAW_HEADER}="
-    [ $((${#RAW_PAYLOAD} % 4)) -eq 2 ] && RAW_PAYLOAD="${RAW_PAYLOAD}=="
-    [ $((${#RAW_PAYLOAD} % 4)) -eq 3 ] && RAW_PAYLOAD="${RAW_PAYLOAD}="
-    RAW_HEADER=$(echo "$RAW_HEADER" | tr '_-' '/+')
-    RAW_PAYLOAD=$(echo "$RAW_PAYLOAD" | tr '_-' '/+')
-
-    # Decode header and payload
-    echo -e "${BLUE}[*] Decoding header.${NC}"
-    DECODED_HEADER=$(echo "$RAW_HEADER" | base64 -d 2>/dev/null)
-    echo "$DECODED_HEADER" | jq . > "$OUTPUT_DIR/jwt_header.json" 2>/dev/null || echo "$DECODED_HEADER" > "$OUTPUT_DIR/jwt_header.json"
-
-    echo -e "${BLUE}[*] Decoding payload.${NC}"
-    DECODED_PAYLOAD=$(echo "$RAW_PAYLOAD" | base64 -d 2>/dev/null)
-    echo "$DECODED_PAYLOAD" | jq . > "$OUTPUT_DIR/jwt_payload.json" 2>/dev/null || echo "$DECODED_PAYLOAD" > "$OUTPUT_DIR/jwt_payload.json"
-
-    # Check for weak algorithm
-    if grep -q '"alg":\s*"none"' "$OUTPUT_DIR/jwt_header.json"; then
-        echo -e "${RED}[!] CRITICAL: JWT uses 'none' algorithm (alg:none vulnerability)${NC}"
-    fi
-
-    if grep -q '"alg":\s*"HS256"' "$OUTPUT_DIR/jwt_header.json"; then
-        echo -e "${YELLOW}[!] WARNING: JWT uses HMAC-SHA256 algorithm which may be vulnerable to brute force if weak key is used${NC}"
-    fi
-
-    # Check for sensitive info in payload
-    echo -e "${BLUE}[*] Checking for sensitive information in payload.${NC}"
-    grep -E "(auth|credential|key|password|secret|token)" "$OUTPUT_DIR/jwt_payload.json" > "$OUTPUT_DIR/jwt_sensitive.txt"
-
-    if [ -s "$OUTPUT_DIR/jwt_sensitive.txt" ]; then
-        echo -e "${RED}[!] CRITICAL: JWT contains potentially sensitive information${NC}"
-        cat "$OUTPUT_DIR/jwt_sensitive.txt"
-    fi
-
-    # Check for expiration
-    if ! grep -q '"exp"' "$OUTPUT_DIR/jwt_payload.json"; then
-        echo -e "${RED}[!] CRITICAL: JWT does not have an expiration claim (exp)${NC}"
-    fi
-
-    # Generate summary
-    {
-        echo "JWT Token Analysis"
-        echo
-        echo "Date: $DATESTAMP"
-        echo "Time: $TIMESTAMP"
-        echo "-------------------"
-        echo
-        echo "Header:"
-        cat "$OUTPUT_DIR/jwt_header.json"
-        echo
-        echo "Payload:"
-        cat "$OUTPUT_DIR/jwt_payload.json"
-        echo
-
-        echo "Security Issues:"
-        if grep -q '"alg":\s*"none"' "$OUTPUT_DIR/jwt_header.json"; then
-            echo "- CRITICAL: JWT uses 'none' algorithm (alg:none vulnerability)"
-        fi
-
-        if grep -q '"alg":\s*"HS256"' "$OUTPUT_DIR/jwt_header.json"; then
-            echo "- WARNING: JWT uses HMAC-SHA256 algorithm which may be vulnerable to brute force if weak key is used"
-        fi
-
-        if [ -s "$OUTPUT_DIR/jwt_sensitive.txt" ]; then
-            echo "- CRITICAL: JWT contains potentially sensitive information:"
-            cat "$OUTPUT_DIR/jwt_sensitive.txt"
-        fi
-
-        if ! grep -q '"exp"' "$OUTPUT_DIR/jwt_payload.json"; then
-            echo "- CRITICAL: JWT does not have an expiration claim (exp)"
-        fi
-    } > "$OUTPUT_DIR/jwt_analysis.txt"
-
-    echo
-    echo -e "${YELLOW}[*] JWT analysis complete.${NC}"
-    echo -e "${YELLOW}[*] Results saved to $OUTPUT_DIR/jwt_analysis.txt${NC}"
-    echo
+    f_api_jwt_deep_check "$JWT" "$out"
+    echo -e "${YELLOW}[*] For OAuth/OIDC flows, use dev/oauth-jwt-scanner.sh${NC}"
+    echo -e "${YELLOW}[*] Results in $out${NC}"
 }
 
 ###############################################################################################################################
+# CLI
 
-# Main function
+f_api_usage(){
+    cat <<EOF
+Usage: api-scanner.sh [options]
+
+Options:
+  -u, --url URL           Target URL (skips menu when set)
+  --quick                 Discovery + documentation only
+  --full                  All test phases (default)
+  --orchestrate           Full scan + prompt for sibling scanners
+  --token TOKEN           Bearer token for authenticated scanning
+  --cookie-file FILE      Netscape cookie jar for authenticated scanning
+  --max-endpoints N       Limit endpoints tested after merge
+  --max-parallel N        Concurrent workers (default: 3)
+  --connect-timeout SEC   curl connect timeout (default: 3)
+  --max-time SEC          curl max time (default: 7)
+  --skip PHASE            Skip phase (link_extract,fuzzer,path_probe,graphql,
+                          documentation,merge,cors,http_methods,rate_limit,jwt)
+  --resume DIR            Resume scan using existing output directory
+  --authorized            Skip authorization prompt
+  --aggressive-http       Include TRACE/CONNECT method tests
+  -h, --help              Show this help
+
+Environment: API_MAX_PARALLEL, API_BEARER_TOKEN, API_COOKIE_FILE, etc.
+EOF
+}
+
+f_api_parse_cli(){
+    API_CLI_URL=""
+    API_CLI_MODE=""
+    API_RESUME_DIR=""
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -u|--url) API_CLI_URL="$2"; shift 2 ;;
+            --quick) API_SCAN_MODE="quick"; shift ;;
+            --full) API_SCAN_MODE="full"; shift ;;
+            --orchestrate) API_CLI_MODE="orchestrate"; shift ;;
+            --token) API_BEARER_TOKEN="$2"; shift 2 ;;
+            --cookie-file) API_COOKIE_FILE="$2"; shift 2 ;;
+            --max-endpoints) API_MAX_ENDPOINTS="$2"; shift 2 ;;
+            --max-parallel) API_MAX_PARALLEL="$2"; shift 2 ;;
+            --connect-timeout) API_CONNECT_TIMEOUT="$2"; shift 2 ;;
+            --max-time) API_MAX_TIME="$2"; shift 2 ;;
+            --skip) API_SKIP_PHASES="${API_SKIP_PHASES},$2,"; shift 2 ;;
+            --resume) API_RESUME_DIR="$2"; shift 2 ;;
+            --authorized) API_AUTHORIZED=1; shift ;;
+            --aggressive-http) API_AGGRESSIVE_HTTP=1; shift ;;
+            -h|--help) f_api_usage; exit 0 ;;
+            *) echo "Unknown option: $1"; f_api_usage; exit 1 ;;
+        esac
+    done
+}
+
+###############################################################################################################################
+# Main menu
+
 f_api_main(){
+    f_api_parse_cli "$@"
+
+    if [ -n "$API_RESUME_DIR" ]; then
+        OUTPUT_DIR="$API_RESUME_DIR"
+        SCAN_STAMP=$(basename "$OUTPUT_DIR" | sed 's/api-scan_//')
+    else
+        SCAN_STAMP=$(date +%Y%m%d-%H%M)
+        OUTPUT_DIR="$HOME/data/api-scan_${SCAN_STAMP}"
+        mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR${NC}"; exit 1; }
+    fi
+
+    f_api_check_deps
+
+    if [ -n "$API_CLI_URL" ]; then
+        [[ "$API_CLI_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
+        if [ "$API_CLI_MODE" = "orchestrate" ]; then
+            f_api_orchestrate "$API_CLI_URL"
+        else
+            f_api_run_scan "$API_CLI_URL"
+        fi
+        echo -e "${YELLOW}[*] Results: ${OUTPUT_DIR}/api_scanner/${NC}"
+        echo -e "${YELLOW}[*] Reports: report.txt, report.md${NC}"
+        echo -e "${YELLOW}[*] Request log: ${OUTPUT_DIR}/api_scanner/scan.log${NC}"
+        return 0
+    fi
+
+    clear
+    f_banner
     echo -e "${BLUE}API Security Scanner${NC} | ${YELLOW}by ibrahimsql${NC}"
     echo
-    echo "1. API Discovery and Testing"
-    echo "2. JWT Token Analysis"
-    echo "3. Previous menu"
+    echo "1. API Discovery and Testing (full)"
+    echo "2. API Quick Scan (discovery + docs)"
+    echo "3. JWT Token Analysis"
+    echo "4. Full API Assessment (orchestrated)"
+    echo "5. Previous menu"
     echo
     echo -n "Choice: "
     read -r CHOICE
 
     case "$CHOICE" in
         1)
-            echo
             echo -n "Enter target URL: "
             read -r TARGET_URL
-
-            if [[ ! "$TARGET_URL" =~ ^https?:// ]]; then
-                echo
-                echo -e "${RED}[!] Invalid URL. Must start with http:// or https://${NC}"
-                echo
-                exit 1
-            fi
-
-            f_discover_api "$TARGET_URL" ;;
+            [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
+            echo -n "Bearer token (optional, Enter to skip): "
+            read -r API_BEARER_TOKEN
+            API_SCAN_MODE="full"
+            f_api_run_scan "$TARGET_URL" ;;
         2)
-            echo
+            echo -n "Enter target URL: "
+            read -r TARGET_URL
+            [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
+            API_SCAN_MODE="quick"
+            f_api_run_scan "$TARGET_URL" ;;
+        3)
             echo -n "Enter JWT token: "
             read -r JWT_TOKEN
-
-            if [[ ! "$JWT_TOKEN" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]]; then
-                echo
-                echo -e "${RED}[!] Invalid JWT format. Must be in format 'header.payload.signature'${NC}"
-                echo
-                exit 1
-            fi
-
+            [[ "$JWT_TOKEN" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]] || { echo "Invalid JWT"; exit 1; }
             f_jwt_analysis "$JWT_TOKEN" ;;
-        3)
-            f_main ;;
-        *)
-            f_error ;;
+        4)
+            echo -n "Enter target URL: "
+            read -r TARGET_URL
+            [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
+            API_SCAN_MODE="full"
+            f_api_orchestrate "$TARGET_URL" ;;
+        5) f_main ;;
+        *) f_error ;;
     esac
 }
 
-# Run the script
-f_api_main
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    f_api_main "$@"
+fi
