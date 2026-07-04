@@ -1,12 +1,9 @@
 # Cloud Scanner shared library — sourced by dev/cloud-scanner.sh
+#
+# Output policy: all artifacts live under \$HOME/data/cloud-scan_*/ (or --output-dir).
+# Never writes to Discover recon report paths (\$NAME, pages/*.htm, report.sh).
 
 CLOUD_SCANNER_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Colors (used when launched standalone; discover.sh sets these when sourced from menu)
-: "${RED:=$'\033[1;31m'}"
-: "${YELLOW:=$'\033[1;33m'}"
-: "${BLUE:=$'\033[1;34m'}"
-: "${NC:=$'\033[0m'}"
 
 CLOUD_SCAN_MODE="${CLOUD_SCAN_MODE:-full}"
 CLOUD_PROVIDERS="${CLOUD_PROVIDERS:-}"
@@ -315,5 +312,6 @@ f_cloud_setup_output(){
         OUTPUT_DIR="$HOME/data/cloud-scan_$(date +%Y%m%d-%H%M)"
     fi
     mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR${NC}"; exit 1; }
+    # Isolated from Discover recon \$NAME / report.sh — scanner-owned directory only.
     f_cloud_init_scan 0
 }

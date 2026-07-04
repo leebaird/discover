@@ -359,7 +359,7 @@ Metasploit Listeners
 
 ## DEV
 
-Scan results are written under `$HOME/data/` unless noted otherwise.
+Scan results are written under `$HOME/data/` unless noted otherwise. Dev scanners produce **standalone reports** in their own output directories (`api-scan_*`, `cloud-scan_*`, etc.). They source `discover.sh` for menu helpers and colors when needed, but **do not** write to or update Discover's recon HTML report (`report.sh`, `$NAME`, `pages/*.htm`).
 
 ### API Security Scanner (`dev/api-scanner.sh`)
 
@@ -403,12 +403,12 @@ Phased API discovery and security testing. Shared helpers and wordlists are in `
 
 **Output:** `$HOME/data/api-scan_<timestamp>/api_scanner/`
 
-* `report.txt` and `report.md` — findings with severity, confidence, and evidence paths
+* `report.txt` and `report.md` — scanner-local findings (not merged into Discover recon report)
 * `findings_registry.tsv` — machine-friendly finding log
 * `scan.log` — request audit trail
 * `.checkpoint/` — resume markers per phase
 
-Requires `curl` and `jq`. Uses `ffuf` or `feroxbuster` when installed (install via Discover **Update**).
+Requires `curl` and `jq`. Uses `ffuf` or `feroxbuster` when installed (install via Discover **Update**). Sources `discover.sh` when run directly for `f_banner` / menu helpers.
 
 ### Cloud Security Scanner (`dev/cloud-scanner.sh`)
 
@@ -446,11 +446,11 @@ Phased cloud misconfiguration audit for AWS, Azure, and GCP. Shared helpers live
 Results are written under `$HOME/data/cloud-scan_YYYYMMDD-HHMM/` (or `--output-dir`):
 
 * `findings_registry.tsv` — severity, provider, service, resource, check, detail, evidence
-* `report.txt` / `report.md` — consolidated rollup
+* `report.txt` / `report.md` — scanner-local rollup (not merged into Discover recon report)
 * `scan.log` — API activity and finding log
 * `.checkpoint/` — phase markers for `--resume`
 
-Requires `jq` and the relevant cloud CLI (`aws`, `az`, `gcloud`/`gsutil`) with credentials configured before scanning. The scanner does not auto-install CLIs or run interactive `aws configure` / `gcloud init`.
+Requires `jq` and the relevant cloud CLI (`aws`, `az`, `gcloud`/`gsutil`) with credentials configured before scanning. The scanner does not auto-install CLIs or run interactive `aws configure` / `gcloud init`. Sources `discover.sh` when run directly for `f_banner` / menu helpers.
 
 ### Container Security Scanner (`dev/container-scanner.sh`)
 

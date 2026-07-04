@@ -1,4 +1,7 @@
 # API Scanner shared library — sourced by dev/api-scanner.sh
+#
+# Output policy: all artifacts live under \$HOME/data/api-scan_*/api_scanner/.
+# Never writes to Discover recon report paths (\$NAME, pages/*.htm, report.sh).
 
 API_SCANNER_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)"
 API_DATA_DIR="${API_SCANNER_SCRIPT_DIR}/data"

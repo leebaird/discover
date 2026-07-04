@@ -2,6 +2,9 @@
 
 # by ibrahimsql - API Security Scanner
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
+#
+# Standalone scanner: writes only under $HOME/data/api-scan_*/ (or --resume).
+# Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
 
 if ! declare -f f_banner >/dev/null 2>&1; then
     _API_SCANNER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -432,9 +435,10 @@ f_api_phase_jwt(){
 f_api_phase_report(){
     echo -e "${BLUE}[*] Generating reports.${NC}"
     API_REQUEST_COUNT=$(grep -c 'REQUEST #' "$API_SCAN_LOG" 2>/dev/null || echo 0)
-    local vuln_count endpoints_count
+    local vuln_count endpoints_count report_generated
     vuln_count=$(wc -l < "$API_VULN_URL_FILE" 2>/dev/null || echo 0)
     endpoints_count=$(wc -l < "${OUTPUT_DIR}/api_scanner/all_endpoints.txt" 2>/dev/null || echo 0)
+    report_generated=$(date -Iseconds)
 
     cat > "${OUTPUT_DIR}/api_scanner/report.txt" <<EOF
 API Security Scanner Report
@@ -442,8 +446,7 @@ API Security Scanner Report
 Target:     $API_TARGET_URL
 Scan ID:    api-scan_${SCAN_STAMP}
 Mode:       $API_SCAN_MODE
-Date:       $DATESTAMP
-Time:       $TIMESTAMP
+Generated:  $report_generated
 Requests:   $API_REQUEST_COUNT
 --------------------------------------------
 
@@ -482,7 +485,7 @@ EOF
 | Target | $API_TARGET_URL |
 | Scan ID | api-scan_${SCAN_STAMP} |
 | Mode | $API_SCAN_MODE |
-| Date | $DATESTAMP |
+| Generated | $report_generated |
 | Requests | $API_REQUEST_COUNT |
 | Endpoints | $endpoints_count |
 | Vulnerable URLs | $vuln_count |
