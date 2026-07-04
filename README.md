@@ -83,8 +83,13 @@ dev/
 │   ├── api-paths.txt
 │   └── swagger-paths.txt
 └── lib/
-    └── api-scanner/
-        └── common.sh
+    ├── api-scanner/
+    │   └── common.sh
+    └── cloud-scanner/
+        ├── common.sh
+        ├── aws.sh
+        ├── azure.sh
+        └── gcp.sh
 ```
 
 ## RECON
@@ -407,14 +412,45 @@ Requires `curl` and `jq`. Uses `ffuf` or `feroxbuster` when installed (install v
 
 ### Cloud Security Scanner (`dev/cloud-scanner.sh`)
 
+Phased cloud misconfiguration audit for AWS, Azure, and GCP. Shared helpers live in `dev/lib/cloud-scanner/`.
+
+**Interactive menu**
+
 ```
 1. AWS (Amazon Web Services)
 2. Azure (Microsoft Azure)
 3. GCP (Google Cloud Platform)
-4. Previous menu
+4. All providers
+5. Previous menu
 ```
 
-Audits cloud CLI configuration and common misconfigurations. Requires the relevant cloud SDK/CLI and credentials.
+**CLI** (skips the menu when provider flags are set):
+
+```
+./dev/cloud-scanner.sh --aws --quick
+./dev/cloud-scanner.sh --azure --gcp --full
+./dev/cloud-scanner.sh --aws --output-dir ~/data/cloud-scan_custom
+./dev/cloud-scanner.sh --resume ~/data/cloud-scan_20260704-1200 --aws
+./dev/cloud-scanner.sh --help
+```
+
+| Flag | Purpose |
+|------|---------|
+| `--aws` / `--azure` / `--gcp` | Run one provider (combine for multiple) |
+| `--quick` | Exposure-focused checks (public access, MFA, open ingress) |
+| `--full` | Comprehensive audit including IAM deep-dive, multi-region EC2/SG, extras |
+| `--output-dir DIR` | Custom output directory |
+| `--resume DIR` | Resume using an existing scan directory (skips completed phases) |
+| `-h`, `--help` | Show usage |
+
+Results are written under `$HOME/data/cloud-scan_YYYYMMDD-HHMM/` (or `--output-dir`):
+
+* `findings_registry.tsv` — severity, provider, service, resource, check, detail, evidence
+* `report.txt` / `report.md` — consolidated rollup
+* `scan.log` — API activity and finding log
+* `.checkpoint/` — phase markers for `--resume`
+
+Requires `jq` and the relevant cloud CLI (`aws`, `az`, `gcloud`/`gsutil`) with credentials configured before scanning. The scanner does not auto-install CLIs or run interactive `aws configure` / `gcloud init`.
 
 ### Container Security Scanner (`dev/container-scanner.sh`)
 
