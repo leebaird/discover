@@ -89,6 +89,8 @@ dev/
 │   ├── waf-aliases.tsv
 │   ├── waf-labels.tsv
 │   ├── waf-signatures.tsv
+│   ├── web-api-phases.tsv
+│   ├── web-api-tech-signatures.tsv
 │   └── swagger-paths.txt
 └── lib/
     ├── api-scanner/
@@ -117,8 +119,18 @@ dev/
     │   ├── engine.py
     │   ├── fixtures/
     │   └── run-tests.sh
-    └── waf-detect/
+    ├── waf-detect/
+    │   ├── common.sh
+    │   ├── probe.sh
+    │   ├── fixtures/
+    │   └── run-tests.sh
+    └── web-api-scanner/
         ├── common.sh
+        ├── phases.sh
+        ├── waf.sh
+        ├── targets.sh
+        ├── msf.sh
+        ├── msf_parse.py
         ├── probe.sh
         ├── fixtures/
         └── run-tests.sh
@@ -610,12 +622,38 @@ Identifies web application firewalls and CDN edge layers in front of targets. Mo
 
 ### Web and API Security (`dev/web-api-scanner.sh`)
 
+Metasploit-based web/API assessment. Modular library: `dev/lib/web-api-scanner/{common,phases,msf,probe,waf,targets}.sh`, `msf_parse.py`; data: `dev/data/web-api-{phases,tech-signatures}.tsv`. Standalone output under `$HOME/data/web-api-scan_*`.
+
+* **Tiers** — `passive` (recon) | `standard`/`--quick` (recon + tech scanners) | `intrusive` (+ SQLi/brute) | `exploit` (+ exploit checks)
+* **Phase control** — `--phases`, `--skip-phases`; per-phase `msfconsole` with `--phase-timeout`
+* **Technology fingerprint** — weighted `web-api-tech-signatures.tsv` (Laravel, Spring, Swagger, nginx, …)
+* **WAF-aware** — skips brute phases when WAF/CDN detected (`--scan-dir` or header signatures)
+* **Auth** — `--bearer-token`, `--cookie-file` for curl + MSF
+* **api-scanner integration** — `--scan-dir` loads `api_scanner/all_endpoints.txt` for `brute_dirs` paths
+* **Structured hits** — `msf_parse.py` → `msf_engine/hits.jsonl` + `findings.json` `hits[]`
+* **Multi-target** — `--file`, `--workers`, `--max-targets`
+* **Stealth** — `--delay`, `--jitter`, `--proxy`, tier-based `THREADS`
+* **MSF DB** — checks only by default; `--msf-db-bootstrap` for opt-in setup
+
+**Menu:** Scan URL (passive default) or previous menu.
+
+**Examples:**
+
 ```
-1. Scan a URL for web app and API vulnerabilities
-2. Previous menu
+./dev/web-api-scanner.sh --url https://app.example.com --passive
+./dev/web-api-scanner.sh --url example.com --quick --scan-dir ~/data/api-scan_*/ 
+./dev/web-api-scanner.sh --url example.com --tier exploit --i-understand --bearer-token "$TOKEN"
+./dev/web-api-scanner.sh --file ~/targets.txt --quick --workers 2 --max-targets 10
+WEBAPI_RUN_LIVE_MSF=1 ./dev/lib/web-api-scanner/run-tests.sh
 ```
 
-Runs Metasploit resource scripts for web/API enumeration and testing. Requires PostgreSQL and Metasploit.
+**Options:** `--url`, `--file`, `--tier`, `--quick`, `--phases`, `--skip-phases`, `--scan-dir`, `--bearer-token`, `--cookie-file`, `--proxy`, `--phase-timeout`, `--workers`, `--threads`, `--jitter`, `--target-ip`, `--output-dir`, `--resume`, `--passive`, `--i-understand`, `--dry-run`, `--skip-msf-db`, `--msf-db-bootstrap`, `--keep-resources`, `--no-waf-aware`, `--insecure`, `--delay`, `--quiet`, `--menu`, `-h`
+
+**Output:** `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `scan.log`, `msf_engine/`
+
+**Dependencies:** `curl`, `jq`, `grep`, `msfconsole`; PostgreSQL recommended for MSF DB (optional with `--skip-msf-db`)
+
+**api-scanner integration:** `api-scanner.sh --orchestrate` prompts to run web-api-scanner (passive by default).
 
 # Troubleshooting
 

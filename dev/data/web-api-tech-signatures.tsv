@@ -1,0 +1,44 @@
+# tech	type	pattern	match	weight
+# type: header (response headers), body (page HTML), path (GET path; match in response body)
+apache	header	^server:[[:space:]]*[Aa]pache	.	3
+apache	header	^server:[[:space:]]*[Aa]pache/	.	3
+nginx	header	^server:[[:space:]]*nginx	.	3
+iis	header	^server:[[:space:]]*Microsoft-IIS	.	3
+iis	header	^x-powered-by:[[:space:]]*ASP\.NET	.	2
+tomcat	header	^server:[[:space:]]*(Apache-Coyote|Tomcat)	.	3
+tomcat	body	Apache Tomcat/	.	3
+tomcat	body	org\.apache\.catalina	.	2
+drupal	body	/sites/all/modules/	.	3
+drupal	body	Drupal\.settings	.	3
+drupal	body	Generator" content="Drupal	.	3
+wordpress	body	/wp-includes/	.	3
+wordpress	body	/wp-content/	.	3
+wordpress	body	WordPress	.	2
+jenkins	body	/jenkins/static/	.	2
+jenkins	body	id="jenkins-head-icon"	.	3
+jenkins	path	/jenkins/	jenkins	3
+laravel	body	laravel_session	.	3
+laravel	header	^set-cookie:[[:space:]]*laravel_session	.	3
+spring	body	Whitelabel Error Page	.	2
+spring	header	^x-application-context:	.	3
+spring	body	\"status\":[0-9]+,\"error\"	.	2
+django	body	csrfmiddlewaretoken	.	3
+django	body	__admin_media_prefix__	.	2
+rails	body	authenticity_token	.	2
+rails	header	^x-runtime:	.	2
+rails	body	data-turbo-track	.	2
+express	header	^x-powered-by:[[:space:]]*Express	.	3
+swagger	body	"openapi"	.	4
+swagger	body	"swagger"	.	3
+swagger	path	/swagger	"swagger"	3
+swagger	path	/openapi.json	openapi	4
+swagger	path	/api-docs	swagger	3
+graphql	path	/graphql	__schema	4
+graphql	path	/api/graphql	__schema	4
+oauth	body	"/oauth2/authorize"	.	3
+oauth	body	"authorization_endpoint"	.	3
+oauth	body	openid-configuration	.	3
+oauth	body	/oauth2/token	.	2
+jwt	body	Bearer eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+	.	3
+jwt	body	"typ"[[:space:]]*:[[:space:]]*"JWT"	.	3
+jwt	body	alg"[[:space:]]*:[[:space:]]*"HS256"	.	2

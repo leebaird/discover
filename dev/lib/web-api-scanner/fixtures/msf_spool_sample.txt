@@ -1,0 +1,7 @@
+[*] Processing /tmp/test.rc...
+[*] auxiliary(scanner/http/http_version) - Scanned 1 of 1 hosts (100% complete)
+[+] 93.184.216.34:443   - nginx/1.18.0
+[-] 93.184.216.34:443   - not vulnerable
+[*] auxiliary(scanner/http/sql_injection) - Running
+[+] SQL injection found on parameter id
+[!] Something failed to connect

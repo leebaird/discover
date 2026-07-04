@@ -623,6 +623,24 @@ f_api_orchestrate(){
         echo -e "${YELLOW}[*] Launching waf-detect...${NC}"
         "${_API_SCANNER_DIR}/waf-detect.sh" "${_waf_args[@]}"
     fi
+    echo -n "Run web-api-scanner on same target? (y/n): "
+    read -r run_webapi
+    if [[ "$run_webapi" =~ ^[Yy] ]]; then
+        echo "Scan mode:"
+        echo "1. Passive (MSF recon only — recommended)"
+        echo "2. Active (brute force, exploits, SQLi)"
+        echo -n "Choice [1]: "
+        read -r webapi_mode
+        _webapi_args=(--url "$target" --quiet --skip-msf-db --scan-dir "$OUTPUT_DIR")
+        [ -n "$API_BEARER_TOKEN" ] && _webapi_args+=(--bearer-token "$API_BEARER_TOKEN")
+        [ -n "$API_COOKIE_FILE" ] && _webapi_args+=(--cookie-file "$API_COOKIE_FILE")
+        case "$webapi_mode" in
+            2) _webapi_args+=(--tier intrusive --i-understand) ;;
+            *) _webapi_args+=(--quick) ;;
+        esac
+        echo -e "${YELLOW}[*] Launching web-api-scanner...${NC}"
+        "${_API_SCANNER_DIR}/web-api-scanner.sh" "${_webapi_args[@]}"
+    fi
 }
 
 ###############################################################################################################################

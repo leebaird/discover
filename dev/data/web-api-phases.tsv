@@ -1,0 +1,20 @@
+# phase_id	min_tier	skip_if_waf	tech_required
+# min_tier: passive | standard | intrusive | exploit
+web_recon	passive	0	
+web_active	standard	0	
+apache_security	standard	0	apache
+drupal_security	standard	0	drupal
+jenkins_security	standard	0	jenkins
+tomcat_security	standard	0	tomcat
+wordpress_security	standard	0	wordpress
+api_security	standard	0	
+graphql_security	standard	0	graphql
+oauth_security	standard	0	oauth
+jwt_security	standard	0	jwt
+sqli_security	intrusive	0	
+web_auth_brute	intrusive	1	
+basic_auth_brute	intrusive	1	
+api_key_brute	intrusive	1	
+jwt_brute	intrusive	1	jwt
+web_exploit_checks	exploit	0	
+api_exploit_checks	exploit	0
