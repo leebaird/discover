@@ -263,7 +263,7 @@ f_openredirect_run_engine(){
     echo -e "${BLUE}[*] Running open redirect engine (${OPEN_REDIRECT_SCAN_MODE} mode).${NC}"
 
     cmd=(
-        python3 "${OPEN_REDIRECT_SCANNER_ROOT}/openredirect-scanner.py"
+        python3 "${OPEN_REDIRECT_SCANNER_LIB_DIR}/engine.py"
         --output-dir "$OUTPUT_DIR"
         --mode "$OPEN_REDIRECT_SCAN_MODE"
         --canary-host "$OPEN_REDIRECT_CANARY_HOST"

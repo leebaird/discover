@@ -75,7 +75,6 @@ dev/
 ├── container-scanner.sh
 ├── oauth-jwt-scanner.sh
 ├── open-redirect.sh
-├── openredirect-scanner.py
 ├── sensitive-scanner.sh
 ├── waf-detect.sh
 ├── web-api-scanner.sh
@@ -100,7 +99,8 @@ dev/
     │   ├── oauth.sh
     │   └── jwt.sh
     └── open-redirect-scanner/
-        └── common.sh
+        ├── common.sh
+        └── engine.py
 ```
 
 ## RECON
@@ -510,7 +510,7 @@ OAuth/OIDC discovery, live authorize probes, offline JWT analysis, and optional 
 
 ### Open Redirect Scanner (`dev/open-redirect.sh`)
 
-Fuzzes redirect parameters (inject + mutate existing query params) with configurable canary hosts. Detects 3xx `Location` (with one-hop follow), meta refresh, and JavaScript/body redirects. Full mode adds POST and header probes. Confirmation pass uses a second canary host to reduce false positives. Python engine: `dev/openredirect-scanner.py`; payloads: `dev/data/openredirect-payloads.txt`. Standalone output under `$HOME/data/openredirect-scan_*`.
+Fuzzes redirect parameters (inject + mutate existing query params) with configurable canary hosts. Detects 3xx `Location` (with one-hop follow), meta refresh, and JavaScript/body redirects. Full mode adds POST and header probes. Confirmation pass uses a second canary host to reduce false positives. Python engine: `dev/lib/open-redirect-scanner/engine.py`; payloads: `dev/data/openredirect-payloads.txt`. Standalone output under `$HOME/data/openredirect-scan_*`.
 
 **Menu:** Single URL, domain, URL file, advanced options, prior scan dir, or previous menu.
 

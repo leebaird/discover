@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-# by ibrahimsql - openredirect-scanner
-# Engine for dev/open-redirect.sh
+# by ibrahimsql - openredirect-scanner engine
+# Invoked by dev/open-redirect.sh via dev/lib/open-redirect-scanner/engine.py
 
 from __future__ import annotations
 
@@ -28,8 +28,8 @@ from urllib3.util.retry import Retry
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_PAYLOAD_FILE = SCRIPT_DIR / "data" / "openredirect-payloads.txt"
+DEV_DIR = Path(__file__).resolve().parent.parent.parent
+DEFAULT_PAYLOAD_FILE = DEV_DIR / "data" / "openredirect-payloads.txt"
 CONFIRM_CANARY = "confirm-canary.invalid"
 
 REQUEST_TIMEOUT = 10
