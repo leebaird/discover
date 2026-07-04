@@ -1,0 +1,27 @@
+# name	header_regex	body_regex
+# Header/body patterns for supplemental detection (no broad generic terms)
+Akamai	akamai|x-akamai-transformed	
+AWS WAF	aws-waf|awswaf|x-amzn-waf	
+Barracuda	barracuda|barra_counter	
+ChinaCache	chinacache	
+Citrix NetScaler	citrix|netscaler	
+Cloudflare	cloudflare|cf-ray|cf-cache-status	
+Comodo	comodo|protected by comodo	
+DDoS-Guard	ddos-guard|ddosguard	
+Distil	distil|x-distil	
+Edgecast	edgecast|ecdf	
+F5 BIG-IP	big-ip|f5-trafficshield|x-wa-info	
+Fastly	fastly|x-fastly	
+Fortinet	fortinet|fortigate|fortiweb	
+Imperva	imperva|incapsula|x-cdn	
+ModSecurity	mod_security|modsecurity	
+Radware	radware|x-sl-compstate	
+Reblaze	reblaze	
+StackPath	stackpath	
+Sucuri	sucuri|cloudproxy|x-sucuri-id	
+USP Secure Entry	usp-secure-entry	
+Varnish	varnish|x-varnish	
+Wallarm	wallarm|nginx-wallarm	
+Wordfence	wordfence	
+Yunsuo	yunsuo	
+WAF Header Indicator	^(x-waf|x-web-application-firewall|x-protected-by):

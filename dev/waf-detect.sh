@@ -2,248 +2,135 @@
 
 # by ibrahimsql - WAF Detection Tool
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
+#
+# Standalone scanner: writes only under $HOME/data/waf-detection_*/ (or --output-dir).
+# Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
 
-clear
-f_banner
+if ! declare -f f_banner >/dev/null 2>&1; then
+    WAF_DETECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    DISCOVER_SOURCE_ONLY=1 source "${WAF_DETECT_ROOT}/../discover.sh"
+fi
 
-# Variables
-OUTPUT_DIR="$HOME/data/waf-detection_$(date +%Y%m%d-%H%M)"
-mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create output directory $OUTPUT_DIR${NC}"; exit 1; }
+WAF_DETECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/waf-detect/common.sh
+source "${WAF_DETECT_ROOT}/lib/waf-detect/common.sh"
+# shellcheck source=lib/waf-detect/probe.sh
+source "${WAF_DETECT_ROOT}/lib/waf-detect/probe.sh"
 
-# Function to terminate script
 f_terminate(){
     echo
-    echo -e "${RED}[!] Terminating.${NC}"
+    echo -e "${YELLOW}[!] Interrupted — saving partial reports.${NC}"
+    if [ -n "${OUTPUT_DIR:-}" ] && [ -d "${OUTPUT_DIR:-}" ]; then
+        f_waf_generate_reports 2>/dev/null || true
+    fi
     echo
-    exit 1
+    exit 130
 }
 
-# Catch process termination
 trap f_terminate SIGHUP SIGINT SIGTERM
 
-# WAF signatures
-declare -A WAF_SIGNATURES=(
-    ["Akamai"]="akamai|x-akamai-transformed"
-    ["AWS_WAF"]="aws-waf|awswaf|aws protect"
-    ["Barracuda"]="barracuda|barra_counter"
-    ["ChinaCache"]="chinacache"
-    ["Citrix"]="citrix|netscaler"
-    ["Cloudflare"]="cloudflare|ray-id|cf-ray|cloudflare-nginx"
-    ["Comodo"]="comodo|protected by comodo"
-    ["DDoS-Guard"]="ddos-guard|ddosguard"
-    ["Distil"]="distil|x-distil"
-    ["Edgecast"]="edgecast|ecdf"
-    ["F5_BIG-IP"]="big-ip|f5-trafficshield"
-    ["Fastly"]="fastly|x-fastly"
-    ["Fortinet"]="fortinet|fortigate|fortiweb"
-    ["Generic"]="waf|security|firewall|protection"
-    ["Imperva"]="imperva|incapsula"
-    ["MaxCDN"]="maxcdn"
-    ["ModSecurity"]="mod_security|modsecurity"
-    ["Radware"]="radware|x-sl-compstate"
-    ["Reblaze"]="reblaze"
-    ["Stackpath"]="stackpath"
-    ["Sucuri"]="sucuri|cloudproxy"
-    ["USP_Secure_Entry"]="usp-secure-entry"
-    ["Varnish"]="varnish|x-varnish"
-    ["Wallarm"]="wallarm|nginx-wallarm"
-    ["Wordfence"]="wordfence"
-    ["Yunsuo"]="yunsuo"
-)
+f_waf_interactive_menu(){
+    while true; do
+        clear
+        f_banner
+        echo -e "${BLUE}WAF Detection${NC} originally by ${YELLOW}ibrahimsql${NC}"
+        echo -e "${YELLOW}Authorized testing only. Active mode sends benign WAF triggers.${NC}"
+        echo
+        echo "1. Single target"
+        echo "2. Multiple targets from file"
+        echo "3. Previous menu"
+        echo
+        echo -n "Choice: "
+        read -r CHOICE
 
-###############################################################################################################################
+        WAF_URL=""
+        WAF_FILE=""
 
-f_detect_waf(){
-    local target=$1
-    local detected=false
-    local detected_wafs=()
+        case "$CHOICE" in
+            1)
+                echo -n "Target (URL or hostname): "
+                read -r WAF_URL
+                [ -n "$WAF_URL" ] || { f_error; continue; }
+                ;;
+            2)
+                echo -n "Path to targets file: "
+                read -r WAF_FILE
+                [ -n "$WAF_FILE" ] && [ -f "$WAF_FILE" ] || { f_error; continue; }
+                ;;
+            3) f_main; return 0 ;;
+            *) f_error; continue ;;
+        esac
 
-    echo -e "[*] Testing target: ${BLUE}$target${NC}"
+        echo
+        echo "Probe mode:"
+        echo "1. Active (wafw00f + triggers)"
+        echo "2. Passive (no attack triggers)"
+        echo -n "Choice [1]: "
+        read -r MODE_CHOICE
+        case "$MODE_CHOICE" in
+            2) WAF_PASSIVE=1 ;;
+            *) WAF_PASSIVE=0 ;;
+        esac
 
-    # Ensure target has http:// or https:// prefix
-    if [[ ! $target =~ ^https?:// ]]; then
-        target="http://$target"
-    fi
-
-    # Create temporary files
-    local headers_file
-    local body_file
-    headers_file="$OUTPUT_DIR/tmp_headers_$(date +%s).txt"
-    body_file="$OUTPUT_DIR/tmp_body_$(date +%s).txt"
-
-    # Make request with custom headers to trigger WAF
-    local user_agents=(
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-        "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-        "sqlmap/1.4.11#dev (http://sqlmap.org)"
-    )
-
-    local random_agent=${user_agents[$RANDOM % ${#user_agents[@]}]}
-
-    # Basic request to get headers and initial response
-    curl -s -k -L -A "$random_agent" -o "$body_file" -D "$headers_file" \
-         -H "X-Forwarded-For: 127.0.0.1" \
-         -H "X-Originating-IP: 127.0.0.1" \
-         -H "X-Remote-IP: 127.0.0.1" \
-         -H "X-Remote-Addr: 127.0.0.1" \
-         "$target" > /dev/null 2>&1
-
-    # Trigger-based request with common attack patterns
-    local trigger_url="${target}/?id=1'%20OR%20'1'%3D'1'%20--%20"
-    curl -s -k -L -A "$random_agent" -o /dev/null -D "$headers_file.trigger" \
-         -H "X-Forwarded-For: 127.0.0.1" \
-         -H "X-Originating-IP: 127.0.0.1" \
-         -H "X-Remote-IP: 127.0.0.1" \
-         -H "X-Remote-Addr: 127.0.0.1" \
-         "$trigger_url" > /dev/null 2>&1
-
-    # Combine header files for analysis
-    cat "$headers_file" "$headers_file.trigger" > "$headers_file.combined"
-
-    # Check for WAF signatures in headers and body
-    for waf_name in "${!WAF_SIGNATURES[@]}"; do
-        local signature=${WAF_SIGNATURES[$waf_name]}
-        display_name=${waf_name//_/ } # Replace underscores with spaces for display
-
-        if grep -i -E "$signature" "$headers_file.combined" > /dev/null || grep -i -E "$signature" "$body_file" > /dev/null; then
-            detected=true
-            detected_wafs+=("$display_name")
-            echo -e "[+] ${GREEN}Detected WAF: $display_name${NC}"
+        f_waf_setup_output
+        f_waf_check_deps
+        f_waf_require_active_consent
+        f_waf_say "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
+        if [ "$WAF_PASSIVE" = "1" ]; then
+            f_waf_say "${GREEN}[*] Passive mode: normal GET + header signatures only (no wafw00f)${NC}"
         fi
+        f_waf_run_scan || true
+        f_waf_say "${YELLOW}[*] Reports: report.txt, report.md, findings.json, waf_results.tsv${NC}"
+        echo -n "Press Enter..."
+        read -r _
     done
-
-    # Behavioral analysis for WAF detection
-    local status_code
-    status_code=$(grep -E "^HTTP/[0-9]\.[0-9] [0-9]{3}" "$headers_file.trigger" | tail -1 | awk '{print $2}')
-
-    # Common WAF behavior patterns
-    if [[ "$status_code" =~ ^(403|406|429|500|502)$ ]]; then
-        # Get normal status code
-        local normal_status_code
-        normal_status_code=$(grep -E "^HTTP/[0-9]\.[0-9] [0-9]{3}" "$headers_file" | tail -1 | awk '{print $2}')
-
-        # If the normal request succeeded but the trigger request failed, likely a WAF
-        if [[ "$normal_status_code" =~ ^(200|301|302|307|308)$ ]]; then
-            detected=true
-            detected_wafs+=("Unknown WAF (Behavioral Detection)")
-            echo -e "[+] ${GREEN}Detected WAF: Unknown WAF (Behavioral Detection)${NC}"
-            echo -e "    ${YELLOW}Normal request: $normal_status_code, Attack request: $status_code${NC}"
-        fi
-    fi
-
-    # Check for special response headers that indicate WAF
-    if grep -i -E "x-firewall|x-web-protection|x-security|challenge|captcha|blocked|protect" "$headers_file.combined" > /dev/null; then
-        detected=true
-        detected_wafs+=("Unknown WAF (Header Detection)")
-        echo -e "[+] ${GREEN}Detected WAF: Unknown WAF (Header Detection)${NC}"
-    fi
-
-    # Clean up temporary files
-    rm -f "$headers_file" "$headers_file.trigger" "$headers_file.combined" "$body_file"
-
-    # Return results for CSV logging
-    if $detected; then
-        local wafs_string
-        wafs_string=$(printf "%s," "${detected_wafs[@]}")
-        wafs_string=${wafs_string%,} # Remove trailing comma
-        echo "$target,Yes,$wafs_string,$(date +%Y-%m-%d' '%H:%M)" >> "$OUTPUT_DIR/waf_results.csv"
-    else
-        echo -e "[-] ${RED}No WAF detected for: $target${NC}"
-        echo "$target,No,-,$(date +%Y-%m-%d' '%H:%M)" >> "$OUTPUT_DIR/waf_results.csv"
-    fi
 }
-
-###############################################################################################################################
-
-f_load_from_file(){
-    local file_path=$1
-
-    if [ ! -f "$file_path" ]; then
-        echo -e "${RED}[!] File not found: $file_path${NC}"
-        f_error
-    fi
-
-    # Create CSV header
-    echo "Target,WAF Detected,WAF Names,Timestamp" > "$OUTPUT_DIR/waf_results.csv"
-
-    # Process each line in the file
-    local total_lines
-    total_lines=$(wc -l < "$file_path")
-    local current_line=0
-
-    while IFS= read -r target || [ -n "$target" ]; do
-        # Skip empty lines and comments
-        if [[ -z "$target" || "$target" =~ ^# ]]; then
-            continue
-        fi
-
-        current_line=$((current_line + 1))
-        echo -e "\n${YELLOW}[$current_line/$total_lines]${NC} Processing target: $target"
-        f_detect_waf "$target"
-    done < "$file_path"
-}
-
-###############################################################################################################################
-
-f_single_target(){
-    echo -n "Enter the target (domain or IP): "
-    read -r TARGET
-
-    # Check for no answer
-    if [ -z "$TARGET" ]; then
-        f_error
-    fi
-
-    # Create CSV header
-    echo "Target,WAF Detected,WAF Names,Timestamp" > "$OUTPUT_DIR/waf_results.csv"
-
-    f_detect_waf "$TARGET"
-}
-
-###############################################################################################################################
 
 f_waf_main(){
-    echo
-    echo -e "${BLUE}WAF Detection${NC} | ${YELLOW}by ibrahimsql${NC}"
-    echo
-    echo "1. Single target"
-    echo "2. Multiple targets from file"
-    echo "3. Previous menu"
-    echo
+    f_waf_parse_cli "$@"
 
-    echo -n "Choice: "
-    read -r CHOICE
+    if [ "$WAF_USE_MENU" = "1" ]; then
+        f_waf_interactive_menu
+        return 0
+    fi
 
-    case "$CHOICE" in
-        1)
-            f_single_target
-            ;;
-        2)
-            echo -n "Enter the path to the targets file: "
-            read -r FILE_PATH
+    if [ "$WAF_CLI_INVOKED" = "0" ] && [ $# -eq 0 ] && [ -t 0 ]; then
+        f_waf_interactive_menu
+        return 0
+    fi
 
-            # Check for no answer
-            if [ -z "$FILE_PATH" ]; then
-                f_error
-            fi
+    if [ -z "$WAF_URL" ] && [ -z "$WAF_FILE" ]; then
+        f_waf_usage
+        exit 1
+    fi
 
-            f_load_from_file "$FILE_PATH"
-            ;;
-        3)
-            f_main ;;
-        *)
-            f_error ;;
-    esac
+    f_waf_setup_output
+    f_waf_check_deps
+    f_waf_require_active_consent
 
-    echo
-    echo "$MEDIUM"
-    echo
-    echo -e "[*] WAF detection completed."
-    echo
-    echo -e "Results saved to ${YELLOW}$OUTPUT_DIR/waf_results.csv${NC}"
-    echo
-    exit 0
+    if [ "$WAF_QUIET" != "1" ]; then
+        clear
+        f_banner
+        echo -e "${BLUE}WAF Detection${NC}"
+        echo -e "${YELLOW}Authorized security testing only. Active mode sends benign WAF triggers.${NC}"
+        if [ "$WAF_PASSIVE" = "1" ]; then
+            echo -e "${GREEN}[*] Passive mode: normal GET + header signatures only (no wafw00f)${NC}"
+        fi
+        echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
+    else
+        f_waf_log "CLI scan passive=$WAF_PASSIVE"
+    fi
+
+    f_waf_run_scan || exit $?
+
+    if [ "$WAF_QUIET" != "1" ]; then
+        echo -e "${YELLOW}[*] Reports: report.txt, report.md, findings.json${NC}"
+        echo -e "${YELLOW}[*] Results: waf_results.tsv${NC}"
+        echo -e "${YELLOW}[*] Scan log: ${OUTPUT_DIR}/scan.log${NC}"
+        echo
+    fi
 }
 
-# Run the script
-f_waf_main
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    f_waf_main "$@"
+fi

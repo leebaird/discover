@@ -1,0 +1,28 @@
+# name	type
+# type: waf, cdn, both
+Cloudflare	both
+Akamai	both
+Fastly	cdn
+Varnish	cdn
+Edgecast	cdn
+StackPath	both
+Imperva	waf
+AWS WAF	waf
+ModSecurity	waf
+Sucuri	waf
+Fortinet	waf
+Barracuda	waf
+F5 BIG-IP	waf
+BIG-IP	waf
+NetScaler	waf
+Citrix NetScaler	waf
+ChinaCache	cdn
+Comodo	waf
+DDoS-Guard	waf
+Distil	waf
+Radware	waf
+Reblaze	waf
+USP Secure Entry	waf
+Wallarm	waf
+Wordfence	waf
+Yunsuo	waf

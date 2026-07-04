@@ -1,0 +1,2 @@
+# Sample targets for waf-detect tests
+https://example.com

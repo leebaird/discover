@@ -586,6 +586,7 @@ f_api_orchestrate(){
     echo "  - dev/oauth-jwt-scanner.sh  (OAuth/OIDC)"
     echo "  - dev/open-redirect.sh      (open redirect fuzzing)"
     echo "  - dev/sensitive-scanner.sh  (secret leakage)"
+    echo "  - dev/waf-detect.sh           (WAF/CDN detection)"
     echo "  - dev/web-api-scanner.sh    (Metasploit web/API modules)"
     echo
     echo -n "Run oauth-jwt-scanner on same target now? (y/n): "
@@ -605,6 +606,22 @@ f_api_orchestrate(){
         [ -n "$API_BEARER_TOKEN" ] && _sens_args+=(--bearer-token "$API_BEARER_TOKEN")
         echo -e "${YELLOW}[*] Launching sensitive-scanner...${NC}"
         "${_API_SCANNER_DIR}/sensitive-scanner.sh" "${_sens_args[@]}"
+    fi
+    echo -n "Run waf-detect on same target? (y/n): "
+    read -r run_waf
+    if [[ "$run_waf" =~ ^[Yy] ]]; then
+        echo "Probe mode:"
+        echo "1. Passive (recommended — normal GET only)"
+        echo "2. Active (wafw00f + triggers)"
+        echo -n "Choice [1]: "
+        read -r waf_mode
+        _waf_args=(--url "$target" --quiet)
+        case "$waf_mode" in
+            2) _waf_args+=(--i-understand) ;;
+            *) _waf_args+=(--passive) ;;
+        esac
+        echo -e "${YELLOW}[*] Launching waf-detect...${NC}"
+        "${_API_SCANNER_DIR}/waf-detect.sh" "${_waf_args[@]}"
     fi
 }
 

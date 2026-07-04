@@ -86,6 +86,9 @@ dev/
 │   ├── sensitive-skip-paths.txt
 │   ├── sensitive-web-paths-quick.txt
 │   ├── sensitive-web-paths-full.txt
+│   ├── waf-aliases.tsv
+│   ├── waf-labels.tsv
+│   ├── waf-signatures.tsv
 │   └── swagger-paths.txt
 └── lib/
     ├── api-scanner/
@@ -106,12 +109,17 @@ dev/
     ├── open-redirect-scanner/
     │   ├── common.sh
     │   └── engine.py
-    └── sensitive-scanner/
+    ├── sensitive-scanner/
+    │   ├── common.sh
+    │   ├── files.sh
+    │   ├── web.sh
+    │   ├── filescan.py
+    │   ├── engine.py
+    │   ├── fixtures/
+    │   └── run-tests.sh
+    └── waf-detect/
         ├── common.sh
-        ├── files.sh
-        ├── web.sh
-        ├── filescan.py
-        ├── engine.py
+        ├── probe.sh
         ├── fixtures/
         └── run-tests.sh
 ```
@@ -570,13 +578,35 @@ Hunts for secrets, credentials, and PII in local files/directories and exposed w
 
 ### WAF Detection (`dev/waf-detect.sh`)
 
+Identifies web application firewalls and CDN edge layers in front of targets. Modular library: `dev/lib/waf-detect/{common,probe}.sh`, `wafw00f_run.py`; data: `dev/data/waf-signatures.tsv`, `waf-aliases.tsv`, `waf-labels.tsv`. Standalone output under `$HOME/data/waf-detection_*`.
+
+* **True passive (default for api-scanner hook)** — `--passive` sends a normal HTTP GET only; matches response headers/body against `waf-signatures.tsv`. No wafw00f, no SQLi triggers, no `X-Forwarded-For` injection.
+* **Active mode** — wafw00f via `wafw00f_run.py` (primary, high confidence) plus supplemental signature/behavioral probes. Non-interactive active scans require `--i-understand`.
+* **Supplemental** — `--supplemental auto` skips redundant probes after a confident wafw00f hit; behavioral findings require WAF header corroboration
+* **Consolidated findings** — one row per vendor with confidence (`high`/`medium`/`low`), source, and type (`waf`/`cdn`/`both`)
+* **Structured hits** — `waf_engine/hits.jsonl` and `findings.json` `hits[]` for downstream tooling
+* **Resume** — `--resume DIR` continues from `waf_engine/checkpoint.json`
+* **Reports** — `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `waf_results.tsv`
+
+**Menu:** Single target, targets file, or previous menu (with active/passive choice).
+
+**Examples:**
+
 ```
-1. Single target
-2. Multiple targets from file
-3. Previous menu
+./dev/waf-detect.sh --url https://app.example.com --passive
+./dev/waf-detect.sh --file ~/targets.txt --passive --delay 2
+./dev/waf-detect.sh --url example.com --i-understand --output-dir ~/data/waf-test
+./dev/waf-detect.sh --resume ~/data/waf-detection_20260704-1200 --workers 4
+./dev/lib/waf-detect/run-tests.sh
 ```
 
-Identifies web application firewalls in front of targets.
+**Options:** `--url`, `--file`, `--output-dir`, `--resume`, `--passive`, `--i-understand`, `--waf-only`, `--insecure`, `--no-redirect`, `--proxy`, `--delay`, `--max-targets`, `--workers`, `--wafw00f`, `--supplemental`, `--input-format`, `--quiet`, `--menu`, `-h`
+
+**Output:** `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `waf_results.tsv`, `scan.log`, `waf_engine/{hits.jsonl,checkpoint.json,*.json}`
+
+**Dependencies:** `curl`, `jq`, `grep`, `python3`; optional `wafw00f` (active mode, recommended)
+
+**api-scanner integration:** `api-scanner.sh --orchestrate` prompts to run waf-detect after the main scan (passive by default).
 
 ### Web and API Security (`dev/web-api-scanner.sh`)
 

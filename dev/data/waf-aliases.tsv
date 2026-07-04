@@ -1,0 +1,26 @@
+# wafw00f_name	signature_name
+# Map supplemental signature labels to wafw00f vendor names for deduplication
+NetScaler	Citrix NetScaler
+BIG-IP	F5 BIG-IP
+Cloudflare (Cloudflare Inc.)	Cloudflare
+F5 BIG-IP (F5 Networks)	F5 BIG-IP
+Barracuda (Barracuda Networks)	Barracuda
+Amazon Web Services Web Application Firewall (AWS)	AWS WAF
+AWS Elastic Load Balancing (Amazon)	AWS WAF
+Sucuri WebSite Firewall (Sucuri Inc.)	Sucuri
+Incapsula (Imperva Inc.)	Imperva
+FortiWeb (Fortinet)	Fortinet
+ModSecurity (Trustwave)	ModSecurity
+AkamaiGHost (Akamai)	Akamai
+Edgecast (Verizon)	Edgecast
+DDoS-GUARD (DDOS-GUARD LTD)	DDoS-Guard
+Wallarm (Wallarm Inc.)	Wallarm
+Wordfence (Defiant)	Wordfence
+Reblaze (Reblaze)	Reblaze
+Radware AppWall (Radware)	Radware
+Comodo WAF (Comodo)	Comodo
+ChinaCache (ChinaCache)	ChinaCache
+Distil (Distil Networks)	Distil
+StackPath (StackPath)	StackPath
+Fastly (Fastly)	Fastly
+Varnish (Varnish)	Varnish
