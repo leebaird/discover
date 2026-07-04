@@ -33,9 +33,11 @@ f_cloud_check_deps(){
     fi
 
     if [ ${#missing[@]} -gt 0 ]; then
+        echo
         echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
         echo -e "${YELLOW}[*] Install the cloud CLI(s) and jq before running this scanner.${NC}"
         echo -e "${YELLOW}[*] Example: apt install awscli jq  |  az login  |  gcloud auth login${NC}"
+        echo
         exit 1
     fi
 

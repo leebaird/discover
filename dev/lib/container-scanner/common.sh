@@ -202,8 +202,10 @@ f_container_check_deps(){
     if [ "$need_trivy" -eq 1 ] && ! command -v trivy >/dev/null 2>&1; then missing+=("trivy"); fi
 
     if [ ${#missing[@]} -gt 0 ]; then
+        echo
         echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
         echo -e "${YELLOW}[*] Install dependencies (Discover Update installs trivy, jq, etc.) and retry.${NC}"
+        echo
         exit 1
     fi
     : "$need_docker" "$need_kubectl" "$need_trivy"

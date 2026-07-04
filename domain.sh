@@ -9,17 +9,6 @@ shopt -u expand_aliases 2>/dev/null || true
 
 DISCOVER_SOURCE_ONLY=1 source "$DISCOVER/discover.sh"
 
-f_error(){
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    echo -e "${RED}[!] Invalid choice or entry.${NC}"
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    sleep 2
-    f_domain_menu
-}
-
 f_regdomain_die(){
     echo
     echo -e "${RED}$SMALL${NC}"

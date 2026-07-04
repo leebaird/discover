@@ -149,7 +149,9 @@ f_waf_check_deps(){
     command -v grep >/dev/null 2>&1 || missing+=("grep")
     command -v python3 >/dev/null 2>&1 || missing+=("python3")
     if [ ${#missing[@]} -gt 0 ]; then
+        echo
         echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
+        echo
         exit 1
     fi
     if [ "$WAF_PASSIVE" != "1" ] && [ "$WAF_USE_WAFW00F" != "none" ]; then

@@ -34,7 +34,6 @@ f_waf_interactive_menu(){
         clear
         f_banner
         echo -e "${BLUE}WAF Detection${NC} originally by ${YELLOW}ibrahimsql${NC}"
-        echo -e "${YELLOW}Authorized testing only. Active mode sends benign WAF triggers.${NC}"
         echo
         echo "1. Single target"
         echo "2. Multiple targets from file"

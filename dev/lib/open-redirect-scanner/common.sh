@@ -97,8 +97,10 @@ f_openredirect_check_deps(){
         missing+=("python3-requests")
     fi
     if [ ${#missing[@]} -gt 0 ]; then
+        echo
         echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
         echo -e "${YELLOW}[*] Run Discover Update or: apt install python3-requests jq${NC}"
+        echo
         exit 1
     fi
 }

@@ -30,8 +30,10 @@ f_api_check_deps(){
         command -v "$cmd" >/dev/null 2>&1 || missing+=("$cmd")
     done
     if [ ${#missing[@]} -gt 0 ]; then
+        echo
         echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
         echo -e "${YELLOW}[*] Run Discover update.sh to install dependencies.${NC}"
+        echo
         exit 1
     fi
     if ! command -v ffuf >/dev/null 2>&1 && ! command -v feroxbuster >/dev/null 2>&1; then

@@ -42,7 +42,6 @@ f_webapi_interactive_menu(){
         clear
         f_banner
         echo -e "${BLUE}Web and API Security${NC} originally by ${YELLOW}ibrahimsql${NC}"
-        echo -e "${YELLOW}Authorized testing only.${NC}"
         echo
         echo "1. Scan a URL"
         echo "2. Previous menu"
