@@ -55,7 +55,7 @@ MISC
 Security scanners by [Yiğit ibrahim (ibrahimsql)](https://github.com/ibrahimsql). Scripts live under `dev/` and can also be run directly.
 
 ```
-Dev scripts | by ibrahimsql
+Dev scripts originally by ibrahimsql
 
 1. API Security
 2. Cloud Security
@@ -85,11 +85,19 @@ dev/
 └── lib/
     ├── api-scanner/
     │   └── common.sh
-    └── cloud-scanner/
+    ├── cloud-scanner/
+    │   ├── common.sh
+    │   ├── aws.sh
+    │   ├── azure.sh
+    │   └── gcp.sh
+    ├── container-scanner/
+    │   ├── common.sh
+    │   ├── docker.sh
+    │   └── k8s.sh
+    └── oauth-jwt-scanner/
         ├── common.sh
-        ├── aws.sh
-        ├── azure.sh
-        └── gcp.sh
+        ├── oauth.sh
+        └── jwt.sh
 ```
 
 ## RECON
@@ -474,13 +482,28 @@ Comprehensive Docker and Kubernetes security assessment using Trivy, Docker, and
 
 ### OAuth and JWT Security Scanner (`dev/oauth-jwt-scanner.sh`)
 
-```
-1. OAuth Configuration/Security Test
-2. JWT Security Test
-3. Previous menu
+OAuth/OIDC discovery, live authorize probes, offline JWT analysis, and optional live token verification. Complements `api-scanner.sh` JWT checks. Standalone output under `$HOME/data/oauth-jwt-scan_*`.
+
+* **OAuth/OIDC** — discovery metadata, JWKS, redirect_uri/state/PKCE/implicit probes
+* **JWT offline** — alg=none, RS256→HS256 confusion, jku/x5u/kid attacks, claim hygiene, privilege-escalation payloads
+* **JWT live** — optional Bearer tests against `--jwt-endpoint` (auto-filled from userinfo when discovered)
+
+**Scan types:** `oauth`, `jwt`, or `all` (combined).
+
+**Menu:** OAuth test, JWT test, combined scan, or previous menu.
+
+**CLI examples:**
+```bash
+./dev/oauth-jwt-scanner.sh --target https://app.example.com --full
+./dev/oauth-jwt-scanner.sh --jwt 'eyJhbG...' --jwt-endpoint https://app.example.com/api/me
+./dev/oauth-jwt-scanner.sh --target https://app.example.com --api-scan-dir ~/data/api-scan_20260101-1200 --all
 ```
 
-Tests OAuth/OIDC discovery endpoints and JWT handling. Complements the API scanner JWT checks.
+**Options:** `--target`, `--jwt`, `--jwt-file`, `--api-scan-dir`, `--jwt-endpoint`, `--client-id`, `--redirect-uri`, `--quick`, `--full`, `--oauth`, `--jwt-only`, `--all`, `--output-dir`, `--resume`, `--menu`, `-h`
+
+**Output:** `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `scan.log`
+
+**Dependencies:** `curl`, `jq`
 
 ### Open Redirect Scanner (`dev/open-redirect.sh`)
 

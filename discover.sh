@@ -259,7 +259,7 @@ f_dev(){
     clear
     f_banner
 
-    echo -e "${BLUE}Dev scripts${NC} | ${YELLOW}by ibrahimsql${NC}"
+    echo -e "${BLUE}Dev scripts originally by ${YELLOW}ibrahimsql${NC}"
     echo
     echo "1. API Security"
     echo "2. Cloud Security"
