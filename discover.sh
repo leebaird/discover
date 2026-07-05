@@ -225,6 +225,7 @@ f_update(){
     else
         echo -e "${BLUE}Updating uv.${NC}"
         uv self update
+        echo
     fi
 
     if [ -f /usr/local/go/bin/go ] && [ ! -f "$HOME/go/bin/subfinder" ]; then
@@ -234,12 +235,10 @@ f_update(){
     fi
 
     if [ -d "$HOME/theHarvester/.git" ]; then
-        echo
         echo -e "${BLUE}Updating theHarvester.${NC}"
         cd "$HOME/theHarvester" || exit ; git pull
         uv sync
     else
-        echo
         echo -e "${YELLOW}Installing theHarvester.${NC}"
         git clone https://github.com/laramies/theHarvester "$HOME/theHarvester"
         cd "$HOME/theHarvester" || exit
@@ -247,7 +246,6 @@ f_update(){
     fi
 
     cd "$HOME/discover" || exit
-    echo
     sudo ./update.sh
 }
 

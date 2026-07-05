@@ -99,6 +99,59 @@ if ! command -v docker &> /dev/null; then
     echo
 fi
 
+if [ -d /opt/Domain-Hunter/.git ]; then
+    echo -e "${BLUE}Updating Domain Hunter.${NC}"
+    cd /opt/Domain-Hunter/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing Domain Hunter.${NC}"
+    git clone https://github.com/threatexpress/domainhunter /opt/Domain-Hunter
+    echo
+    echo -e "${YELLOW}Setting up Domain Hunter virtual environment.${NC}"
+    python3 -m venv /opt/Domain-Hunter-venv
+    /opt/Domain-Hunter-venv/bin/python -m pip install pytesseract
+#    /opt/Domain-Hunter-venv/bin/pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pytesseract
+    chmod 755 /opt/Domain-Hunter/domainhunter.py
+    echo
+fi
+
+if [ -d /opt/DomainPasswordSpray/.git ]; then
+    echo -e "${BLUE}Updating DomainPasswordSpray.${NC}"
+    cd /opt/DomainPasswordSpray/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing DomainPasswordSpray.${NC}"
+    git clone https://github.com/dafthack/DomainPasswordSpray /opt/DomainPasswordSpray
+    echo
+fi
+
+# shellcheck disable=SC2166
+if [ -d /opt/Egress-Assess/.git -a -d /opt/Egress-Assess-venv ]; then
+    echo -e "${BLUE}Updating Egress-Assess.${NC}"
+    cd /opt/Egress-Assess/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing Egress-Assess.${NC}"
+    git clone https://github.com/RedSiege/Egress-Assess /opt/Egress-Assess
+    echo
+    echo -e "${YELLOW}Setting up Egress-Assess virtualenv.${NC}"
+    python3 -m venv /opt/Egress-Assess-venv
+    /opt/Egress-Assess-venv/bin/python -m pip install -r /opt/Egress-Assess/requirements.txt
+    # If you are in a corp env that is doing MiTM with SSL, use the following line instead. Do the same for all Python repos.
+#    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
+    echo
+fi
+
+if [ -d /opt/egressbuster/.git ]; then
+    echo -e "${BLUE}Updating egressbuster.${NC}"
+    cd /opt/egressbuster/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing egressbuster.${NC}"
+    git clone https://github.com/trustedsec/egressbuster /opt/egressbuster
+    echo
+fi
+
 if grep -qi '^ID=ubuntu' /etc/os-release; then
     if ! command -v feroxbuster >/dev/null; then
         echo -e "${YELLOW}Installing feroxbuster.${NC}"
@@ -120,6 +173,17 @@ if ! command -v ffuf &> /dev/null; then
     echo
 fi
 
+if ! command -v gitleaks &> /dev/null; then
+    echo -e "${YELLOW}Installing gitleaks.${NC}"
+    apt install -y gitleaks
+    echo
+fi
+
+if ! command -v go &> /dev/null && [ ! -x /usr/local/go/bin/go ]; then
+    echo -e "${YELLOW}Go is not installed. Install manually: https://go.dev/doc/install${NC}"
+    echo
+fi
+
 if ! command -v gobuster &> /dev/null; then
     echo -e "${YELLOW}Installing gobuster.${NC}"
     apt install -y gobuster
@@ -138,15 +202,19 @@ if ! command -v gcloud &> /dev/null || ! command -v gsutil &> /dev/null; then
     echo
 fi
 
-if ! command -v gitleaks &> /dev/null; then
-    echo -e "${YELLOW}Installing gitleaks.${NC}"
-    apt install -y gitleaks
-    echo
-fi
-
 if ! command -v jq &> /dev/null; then
     echo -e "${YELLOW}Installing jq.${NC}"
     apt install -y jq
+    echo
+fi
+
+if [ -d /opt/krbrelayx/.git ]; then
+    echo -e "${BLUE}Updating krbrelayx.${NC}"
+    cd /opt/krbrelayx/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing krbrelayx.${NC}"
+    git clone https://github.com/dirkjanm/krbrelayx /opt/krbrelayx
     echo
 fi
 
@@ -163,6 +231,17 @@ if ! command -v kubectl &> /dev/null; then
     echo
 fi
 
+if [ -d /opt/manspider/.git ]; then
+    echo -e "${BLUE}Updating MAN-SPIDER.${NC}"
+    cd /opt/manspider/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing MAN-SPIDER.${NC}"
+    git clone https://github.com/blacklanternsecurity/MANSPIDER /opt/manspider
+    apt install -y antiword tesseract-ocr
+    echo
+fi
+
 if ! command -v msfconsole &> /dev/null; then
     echo -e "${YELLOW}Installing Metasploit.${NC}"
     snap install metasploit-framework
@@ -175,9 +254,63 @@ if ! command -v nikto &> /dev/null; then
     echo
 fi
 
+if [ -d /usr/share/nmap/scripts/custom/.git ]; then
+    echo -e "${BLUE}Updating custom Nmap scripts.${NC}"
+    cd /usr/share/nmap/scripts/custom/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing custom Nmap scripts.${NC}"
+    git clone https://github.com/ibrahmsql/Custom-Nse /usr/share/nmap/scripts/custom/
+    echo
+fi
+
 if ! command -v nmap &> /dev/null; then
     echo -e "${YELLOW}Installing nmap.${NC}"
     apt install -y nmap
+    echo
+fi
+
+echo -e "${BLUE}Updating Nmap scripts.${NC}"
+nmap --script-updatedb | grep -Eiv '(starting|seconds)' | sed 's/NSE: //'
+echo
+
+if [ -d /opt/PowerSharpPack/.git ]; then
+    echo -e "${BLUE}Updating PowerSharpPack.${NC}"
+    cd /opt/PowerSharpPack/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing PowerSharpPack.${NC}"
+    git clone https://github.com/S3cur3Th1sSh1t/PowerSharpPack /opt/PowerSharpPack
+    echo
+fi
+
+if [ -d /opt/PowerSploit/.git ]; then
+    echo -e "${BLUE}Updating PowerSploit.${NC}"
+    cd /opt/PowerSploit/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing PowerSploit.${NC}"
+    git clone https://github.com/0xe7/PowerSploit /opt/PowerSploit
+    echo
+fi
+
+if [ -d /opt/PowerUpSQL/.git ]; then
+    echo -e "${BLUE}Updating PowerUpSQL.${NC}"
+    cd /opt/PowerUpSQL/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing PowerUpSQL.${NC}"
+    git clone https://github.com/NetSPI/PowerUpSQL /opt/PowerUpSQL
+    echo
+fi
+
+if [ -d /opt/PrivescCheck/.git ]; then
+    echo -e "${BLUE}Updating PrivescCheck.${NC}"
+    cd /opt/PrivescCheck/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing PrivescCheck.${NC}"
+    git clone https://github.com/itm4n/PrivescCheck /opt/PrivescCheck
     echo
 fi
 
@@ -187,15 +320,99 @@ if ! python3 -c 'import requests' &> /dev/null; then
     echo
 fi
 
-if ! command -v sslscan &> /dev/null; then
-    echo -e "${YELLOW}Installing sslscan.${NC}"
-    apt install -y sslscan
+if [ -f /usr/share/wordlists/rockyou.txt.gz ]; then
+    echo -e "${YELLOW}Expanding Rockyou list.${NC}"
+    zcat /usr/share/wordlists/rockyou.txt.gz > /usr/share/wordlists/rockyou.txt
+    rm /usr/share/wordlists/rockyou.txt.gz
+    echo
+fi
+
+if ! command -v rustc &> /dev/null; then
+    echo -e "${YELLOW}Installing Rust.${NC}"
+    apt install -y rustc
+    echo
+fi
+
+if [ -d /usr/share/wordlists/seclists/.git ]; then
+    echo -e "${BLUE}Updating SecLists.${NC}"
+    cd /usr/share/wordlists/seclists/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing SecLists.${NC}"
+    git clone https://github.com/danielmiessler/seclists /usr/share/wordlists/seclists
+    echo
+fi
+
+if [ -d /opt/SharpCollection/.git ]; then
+    echo -e "${BLUE}Updating SharpCollection.${NC}"
+    cd /opt/SharpCollection/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing SharpCollection.${NC}"
+    git clone https://github.com/Flangvik/SharpCollection /opt/SharpCollection
     echo
 fi
 
 if ! command -v sqlmap &> /dev/null; then
     echo -e "${YELLOW}Installing sqlmap.${NC}"
     apt install -y sqlmap
+    echo
+fi
+
+if ! command -v sslscan &> /dev/null; then
+    echo -e "${YELLOW}Installing sslscan.${NC}"
+    apt install -y sslscan
+    echo
+fi
+
+f_sublist3r_patch() {
+    sed -i \
+        -e 's/class enumratorBaseThreaded(multiprocessing.Process, enumratorBase)/class enumratorBaseThreaded(threading.Thread, enumratorBase)/' \
+        -e 's/multiprocessing.Process.__init__(self)/threading.Thread.__init__(self)/' \
+        -e 's/subdomains_queue = multiprocessing.Manager().list()/subdomains_queue = list()/' \
+        /opt/Sublist3r/sublist3r.py
+}
+
+f_sublist3r_working() {
+    command -v sublist3r >/dev/null 2>&1 && sublist3r -d example.com 2>&1 | grep -q 'Total Unique Subdomains Found'
+}
+
+if [ -x /opt/Sublist3r-venv/bin/python ] && [ -f /opt/Sublist3r/sublist3r.py ]; then
+    echo -e "${BLUE}Updating Sublist3r.${NC}"
+    cd /opt/Sublist3r/ || exit
+    git pull
+    f_sublist3r_patch
+    /opt/Sublist3r-venv/bin/python -m pip install -q -r requirements.txt
+    echo '#!/bin/bash' > /usr/local/bin/sublist3r
+    echo 'exec /opt/Sublist3r-venv/bin/python /opt/Sublist3r/sublist3r.py "$@"' >> /usr/local/bin/sublist3r
+    chmod 755 /usr/local/bin/sublist3r
+    echo
+elif f_sublist3r_working; then
+    :
+elif python3 -c 'import sys; exit(0 if sys.version_info >= (3, 13) else 1)' 2>/dev/null; then
+    echo -e "${YELLOW}Installing Sublist3r from upstream (apt package is incompatible with Python 3.13+).${NC}"
+    apt remove -y sublist3r 2>/dev/null
+    if ! python3 -m venv /tmp/sublist3r-venv-check 2>/dev/null; then
+        apt install -y python3-venv
+        rm -rf /tmp/sublist3r-venv-check
+    fi
+    if [ -d /opt/Sublist3r/.git ]; then
+        cd /opt/Sublist3r/ || exit
+        git pull
+    else
+        git clone https://github.com/aboul3la/Sublist3r /opt/Sublist3r
+    fi
+    f_sublist3r_patch
+    python3 -m venv /opt/Sublist3r-venv
+    /opt/Sublist3r-venv/bin/python -m pip install -q -U pip
+    /opt/Sublist3r-venv/bin/python -m pip install -q -r /opt/Sublist3r/requirements.txt
+    echo '#!/bin/bash' > /usr/local/bin/sublist3r
+    echo 'exec /opt/Sublist3r-venv/bin/python /opt/Sublist3r/sublist3r.py "$@"' >> /usr/local/bin/sublist3r
+    chmod 755 /usr/local/bin/sublist3r
+    echo
+else
+    echo -e "${YELLOW}Installing Sublist3r.${NC}"
+    apt install -y sublist3r
     echo
 fi
 
@@ -213,10 +430,7 @@ fi
 
 if ! command -v trufflehog &> /dev/null; then
     echo -e "${YELLOW}Installing trufflehog.${NC}"
-    if command -v go &> /dev/null; then
-        GO111MODULE=on go install github.com/trufflesecurity/trufflehog/v3@latest
-        install -m 755 "$(go env GOPATH)/bin/trufflehog" /usr/local/bin/trufflehog 2>/dev/null || true
-    fi
+    curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b /usr/local/bin
     echo
 fi
 
@@ -232,9 +446,25 @@ if ! command -v whatweb &> /dev/null; then
     echo
 fi
 
+if [ -d /opt/Windows-Exploit-Suggester-NG/.git ]; then
+    echo -e "${BLUE}Updating Windows Exploit Suggester NG.${NC}"
+    cd /opt/Windows-Exploit-Suggester-NG/ || exit ; git pull
+    echo
+else
+    echo -e "${YELLOW}Installing Windows Exploit Suggester NG.${NC}"
+    git clone https://github.com/bitsadmin/wesng /opt/Windows-Exploit-Suggester-NG
+    echo
+fi
+
 if ! command -v xdotool >/dev/null 2>&1; then
     echo -e "${YELLOW}Installing xdotool.${NC}"
     apt install -y xdotool
+    echo
+fi
+
+if ! command -v xml_grep &> /dev/null; then
+    echo -e "${YELLOW}Installing xml_grep.${NC}"
+    apt install -y xml-twig-tools
     echo
 fi
 
@@ -361,237 +591,7 @@ if [ -d /opt/cobaltstrike/ ]; then
         echo
     fi
 fi
-
 ###############################################################################################################################
-
-if [ -d /opt/Domain-Hunter/.git ]; then
-    echo -e "${BLUE}Updating Domain Hunter.${NC}"
-    cd /opt/Domain-Hunter/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing Domain Hunter.${NC}"
-    git clone https://github.com/threatexpress/domainhunter /opt/Domain-Hunter
-    echo
-    echo -e "${YELLOW}Setting up Domain Hunter virtual environment.${NC}"
-    python3 -m venv /opt/Domain-Hunter-venv
-    /opt/Domain-Hunter-venv/bin/python -m pip install pytesseract
-#    /opt/Domain-Hunter-venv/bin/pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pytesseract
-    chmod 755 /opt/Domain-Hunter/domainhunter.py
-    echo
-fi
-
-if [ -d /opt/DomainPasswordSpray/.git ]; then
-    echo -e "${BLUE}Updating DomainPasswordSpray.${NC}"
-    cd /opt/DomainPasswordSpray/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing DomainPasswordSpray.${NC}"
-    git clone https://github.com/dafthack/DomainPasswordSpray /opt/DomainPasswordSpray
-    echo
-fi
-
-# shellcheck disable=SC2166
-if [ -d /opt/Egress-Assess/.git -a -d /opt/Egress-Assess-venv ]; then
-    echo -e "${BLUE}Updating Egress-Assess.${NC}"
-    cd /opt/Egress-Assess/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing Egress-Assess.${NC}"
-    git clone https://github.com/RedSiege/Egress-Assess /opt/Egress-Assess
-    echo
-    echo -e "${YELLOW}Setting up Egress-Assess virtualenv.${NC}"
-    python3 -m venv /opt/Egress-Assess-venv
-    /opt/Egress-Assess-venv/bin/python -m pip install -r /opt/Egress-Assess/requirements.txt
-    # If you are in a corp env that is doing MiTM with SSL, use the following line instead. Do the same for all Python repos.
-#    pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt --upgrade | grep -v 'already satisfied'
-    echo
-fi
-
-if [ -d /opt/egressbuster/.git ]; then
-    echo -e "${BLUE}Updating egressbuster.${NC}"
-    cd /opt/egressbuster/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing egressbuster.${NC}"
-    git clone https://github.com/trustedsec/egressbuster /opt/egressbuster
-    echo
-fi
-
-if [ -d /opt/krbrelayx/.git ]; then
-    echo -e "${BLUE}Updating krbrelayx.${NC}"
-    cd /opt/krbrelayx/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing krbrelayx.${NC}"
-    git clone https://github.com/dirkjanm/krbrelayx /opt/krbrelayx
-    echo
-fi
-
-if [ -d /opt/manspider/.git ]; then
-    echo -e "${BLUE}Updating MAN-SPIDER.${NC}"
-    cd /opt/manspider/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing MAN-SPIDER.${NC}"
-    git clone https://github.com/blacklanternsecurity/MANSPIDER /opt/manspider
-    apt install -y antiword tesseract-ocr
-    echo
-fi
-
-echo -e "${BLUE}Updating Nmap scripts.${NC}"
-nmap --script-updatedb | grep -Eiv '(starting|seconds)' | sed 's/NSE: //'
-
-if [ -d /usr/share/nmap/scripts/custom/.git ]; then
-    echo
-    echo -e "${BLUE}Updating custom Nmap scripts.${NC}"
-    cd /usr/share/nmap/scripts/custom/ || exit ; git pull
-    echo
-else
-    echo
-    echo -e "${YELLOW}Installing custom Nmap scripts.${NC}"
-    git clone https://github.com/ibrahmsql/Custom-Nse /usr/share/nmap/scripts/custom/
-    echo
-fi
-
-if [ -d /opt/PowerSharpPack/.git ]; then
-    echo -e "${BLUE}Updating PowerSharpPack.${NC}"
-    cd /opt/PowerSharpPack/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing PowerSharpPack.${NC}"
-    git clone https://github.com/S3cur3Th1sSh1t/PowerSharpPack /opt/PowerSharpPack
-    echo
-fi
-
-if [ -d /opt/PowerSploit/.git ]; then
-    echo -e "${BLUE}Updating PowerSploit.${NC}"
-    cd /opt/PowerSploit/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing PowerSploit.${NC}"
-    git clone https://github.com/0xe7/PowerSploit /opt/PowerSploit
-    echo
-fi
-
-if [ -d /opt/PowerUpSQL/.git ]; then
-    echo -e "${BLUE}Updating PowerUpSQL.${NC}"
-    cd /opt/PowerUpSQL/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing PowerUpSQL.${NC}"
-    git clone https://github.com/NetSPI/PowerUpSQL /opt/PowerUpSQL
-    echo
-fi
-
-if [ -d /opt/PrivescCheck/.git ]; then
-    echo -e "${BLUE}Updating PrivescCheck.${NC}"
-    cd /opt/PrivescCheck/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing PrivescCheck.${NC}"
-    git clone https://github.com/itm4n/PrivescCheck /opt/PrivescCheck
-    echo
-fi
-
-if [ -f /usr/share/wordlists/rockyou.txt.gz ]; then
-    echo -e "${YELLOW}Expanding Rockyou list.${NC}"
-    zcat /usr/share/wordlists/rockyou.txt.gz > /usr/share/wordlists/rockyou.txt
-    rm /usr/share/wordlists/rockyou.txt.gz
-    echo
-fi
-
-if ! command -v rustc &> /dev/null; then
-    echo -e "${YELLOW}Installing Rust.${NC}"
-    apt install -y rustc
-    echo
-fi
-
-if [ -d /usr/share/wordlists/seclists/.git ]; then
-    echo -e "${BLUE}Updating SecLists.${NC}"
-    cd /usr/share/wordlists/seclists/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing SecLists.${NC}"
-    git clone https://github.com/danielmiessler/seclists /usr/share/wordlists/seclists
-    echo
-fi
-
-if [ -d /opt/SharpCollection/.git ]; then
-    echo -e "${BLUE}Updating SharpCollection.${NC}"
-    cd /opt/SharpCollection/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing SharpCollection.${NC}"
-    git clone https://github.com/Flangvik/SharpCollection /opt/SharpCollection
-    echo
-fi
-
-f_sublist3r_patch() {
-    sed -i \
-        -e 's/class enumratorBaseThreaded(multiprocessing.Process, enumratorBase)/class enumratorBaseThreaded(threading.Thread, enumratorBase)/' \
-        -e 's/multiprocessing.Process.__init__(self)/threading.Thread.__init__(self)/' \
-        -e 's/subdomains_queue = multiprocessing.Manager().list()/subdomains_queue = list()/' \
-        /opt/Sublist3r/sublist3r.py
-}
-
-f_sublist3r_working() {
-    command -v sublist3r >/dev/null 2>&1 && sublist3r -d example.com 2>&1 | grep -q 'Total Unique Subdomains Found'
-}
-
-if [ -x /opt/Sublist3r-venv/bin/python ] && [ -f /opt/Sublist3r/sublist3r.py ]; then
-    echo -e "${BLUE}Updating Sublist3r.${NC}"
-    cd /opt/Sublist3r/ || exit
-    git pull
-    f_sublist3r_patch
-    /opt/Sublist3r-venv/bin/python -m pip install -q -r requirements.txt
-    echo '#!/bin/bash' > /usr/local/bin/sublist3r
-    echo 'exec /opt/Sublist3r-venv/bin/python /opt/Sublist3r/sublist3r.py "$@"' >> /usr/local/bin/sublist3r
-    chmod 755 /usr/local/bin/sublist3r
-    echo
-elif f_sublist3r_working; then
-    :
-elif python3 -c 'import sys; exit(0 if sys.version_info >= (3, 13) else 1)' 2>/dev/null; then
-    echo -e "${YELLOW}Installing Sublist3r from upstream (apt package is incompatible with Python 3.13+).${NC}"
-    apt remove -y sublist3r 2>/dev/null
-    if ! python3 -m venv /tmp/sublist3r-venv-check 2>/dev/null; then
-        apt install -y python3-venv
-        rm -rf /tmp/sublist3r-venv-check
-    fi
-    if [ -d /opt/Sublist3r/.git ]; then
-        cd /opt/Sublist3r/ || exit
-        git pull
-    else
-        git clone https://github.com/aboul3la/Sublist3r /opt/Sublist3r
-    fi
-    f_sublist3r_patch
-    python3 -m venv /opt/Sublist3r-venv
-    /opt/Sublist3r-venv/bin/python -m pip install -q -U pip
-    /opt/Sublist3r-venv/bin/python -m pip install -q -r /opt/Sublist3r/requirements.txt
-    echo '#!/bin/bash' > /usr/local/bin/sublist3r
-    echo 'exec /opt/Sublist3r-venv/bin/python /opt/Sublist3r/sublist3r.py "$@"' >> /usr/local/bin/sublist3r
-    chmod 755 /usr/local/bin/sublist3r
-    echo
-else
-    echo -e "${YELLOW}Installing Sublist3r.${NC}"
-    apt install -y sublist3r
-    echo
-fi
-
-if [ -d /opt/Windows-Exploit-Suggester-NG/.git ]; then
-    echo -e "${BLUE}Updating Windows Exploit Suggester NG.${NC}"
-    cd /opt/Windows-Exploit-Suggester-NG/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing Windows Exploit Suggester NG.${NC}"
-    git clone https://github.com/bitsadmin/wesng /opt/Windows-Exploit-Suggester-NG
-    echo
-fi
-
-if ! command -v xml_grep &> /dev/null; then
-    echo -e "${YELLOW}Installing xml_grep.${NC}"
-    apt install -y xml-twig-tools
-    echo
-fi
 
 # Get the original user's home directory even if run with sudo
 if [ -n "$SUDO_USER" ]; then
