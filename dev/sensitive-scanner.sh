@@ -121,7 +121,6 @@ f_sensitive_interactive_menu(){
         esac
 
         f_sensitive_setup_output
-        f_sensitive_check_deps
         echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
         echo -e "${YELLOW}[*] Mode: $SENSITIVE_SCAN_MODE | Scan: $SENSITIVE_SCAN_TYPES${NC}"
         f_sensitive_run_scans || true
@@ -157,7 +156,6 @@ f_sensitive_main(){
     fi
 
     f_sensitive_setup_output
-    f_sensitive_check_deps
 
     if [ "$SENSITIVE_QUIET" != "1" ]; then
         clear

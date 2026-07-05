@@ -142,30 +142,6 @@ f_waf_detect_input_format(){
     esac
 }
 
-f_waf_check_deps(){
-    local missing=()
-    command -v curl >/dev/null 2>&1 || missing+=("curl")
-    command -v jq >/dev/null 2>&1 || missing+=("jq")
-    command -v grep >/dev/null 2>&1 || missing+=("grep")
-    command -v python3 >/dev/null 2>&1 || missing+=("python3")
-    if [ ${#missing[@]} -gt 0 ]; then
-        echo
-        echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
-        echo
-        exit 1
-    fi
-    if [ "$WAF_PASSIVE" != "1" ] && [ "$WAF_USE_WAFW00F" != "none" ]; then
-        command -v wafw00f >/dev/null 2>&1 || python3 -c 'import wafw00f' 2>/dev/null || {
-            if [ "$WAF_USE_WAFW00F" = "auto" ]; then
-                f_waf_log "wafw00f not found; passive/supplemental only"
-            else
-                echo -e "${RED}[!] wafw00f required (install via Discover Update)${NC}"
-                exit 1
-            fi
-        }
-    fi
-}
-
 f_waf_setup_output(){
     if [ -n "$WAF_RESUME_DIR" ]; then
         OUTPUT_DIR="$WAF_RESUME_DIR"

@@ -183,34 +183,6 @@ f_container_k8s_version_thresholds(){
     echo "$eol $current"
 }
 
-f_container_check_deps(){
-    local need_docker=0 need_kubectl=0 need_trivy=0
-    local missing=()
-
-    case "$CONTAINER_SCAN_TYPES" in
-        docker-images|docker-containers|all) need_docker=1; need_trivy=1 ;;
-    esac
-    case "$CONTAINER_SCAN_TYPES" in
-        kubernetes|all) need_kubectl=1 ;;
-    esac
-
-    command -v jq >/dev/null 2>&1 || missing+=("jq")
-    command -v numfmt >/dev/null 2>&1 || missing+=("numfmt")
-
-    if [ "$need_docker" -eq 1 ] && ! command -v docker >/dev/null 2>&1; then missing+=("docker"); fi
-    if [ "$need_kubectl" -eq 1 ] && ! command -v kubectl >/dev/null 2>&1; then missing+=("kubectl"); fi
-    if [ "$need_trivy" -eq 1 ] && ! command -v trivy >/dev/null 2>&1; then missing+=("trivy"); fi
-
-    if [ ${#missing[@]} -gt 0 ]; then
-        echo
-        echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
-        echo -e "${YELLOW}[*] Install dependencies (Discover Update installs trivy, jq, etc.) and retry.${NC}"
-        echo
-        exit 1
-    fi
-    : "$need_docker" "$need_kubectl" "$need_trivy"
-}
-
 f_container_setup_output(){
     if [ -n "$CONTAINER_RESUME_DIR" ]; then
         OUTPUT_DIR="$CONTAINER_RESUME_DIR"

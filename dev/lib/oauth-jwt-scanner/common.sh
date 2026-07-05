@@ -193,18 +193,6 @@ f_oauth_jwt_count_findings(){
     ' "$OAUTH_JWT_FINDINGS_FILE"
 }
 
-f_oauth_jwt_check_deps(){
-    local missing=()
-    command -v curl >/dev/null 2>&1 || missing+=("curl")
-    command -v jq >/dev/null 2>&1 || missing+=("jq")
-    if [ ${#missing[@]} -gt 0 ]; then
-        echo
-        echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
-        echo
-        exit 1
-    fi
-}
-
 f_oauth_jwt_setup_output(){
     if [ -n "$OAUTH_JWT_RESUME_DIR" ]; then
         OUTPUT_DIR="$OAUTH_JWT_RESUME_DIR"

@@ -94,7 +94,6 @@ f_container_interactive_menu(){
         esac
 
         f_container_setup_output
-        f_container_check_deps
         echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
         echo -e "${YELLOW}[*] Mode: $CONTAINER_SCAN_MODE${NC}"
         f_container_run_scans
@@ -116,7 +115,6 @@ f_container_main(){
     fi
 
     f_container_setup_output
-    f_container_check_deps
     clear
     f_banner
     echo -e "${BLUE}Container Security Scanner${NC}"

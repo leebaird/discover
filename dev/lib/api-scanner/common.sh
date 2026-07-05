@@ -24,18 +24,7 @@ API_BEARER_TOKEN="${API_BEARER_TOKEN:-}"
 API_COOKIE_FILE="${API_COOKIE_FILE:-}"
 API_REQUEST_COUNT=0
 
-f_api_check_deps(){
-    local missing=()
-    for cmd in curl jq; do
-        command -v "$cmd" >/dev/null 2>&1 || missing+=("$cmd")
-    done
-    if [ ${#missing[@]} -gt 0 ]; then
-        echo
-        echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
-        echo -e "${YELLOW}[*] Run Discover update.sh to install dependencies.${NC}"
-        echo
-        exit 1
-    fi
+f_api_note_discovery_tools(){
     if ! command -v ffuf >/dev/null 2>&1 && ! command -v feroxbuster >/dev/null 2>&1; then
         echo -e "${YELLOW}[*] ffuf/feroxbuster not found; using sequential path probing only.${NC}"
     fi

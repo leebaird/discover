@@ -105,7 +105,6 @@ f_oauth_jwt_interactive_menu(){
         read -r OAUTH_JWT_ENDPOINT
 
         f_oauth_jwt_setup_output
-        f_oauth_jwt_check_deps
         echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
         f_oauth_jwt_run_scans || true
         echo -e "${YELLOW}[*] Reports: report.txt, report.md, findings.json${NC}"
@@ -133,7 +132,6 @@ f_oauth_jwt_main(){
     fi
 
     f_oauth_jwt_setup_output
-    f_oauth_jwt_check_deps
 
     clear
     f_banner

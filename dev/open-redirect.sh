@@ -132,7 +132,6 @@ f_openredirect_interactive_menu(){
         [ -n "$CANARY_IN" ] && OPEN_REDIRECT_CANARY_HOST="$CANARY_IN"
 
         f_openredirect_setup_output
-        f_openredirect_check_deps
         echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
         echo -e "${YELLOW}[*] Mode: $OPEN_REDIRECT_SCAN_MODE | Canary: $OPEN_REDIRECT_CANARY_HOST${NC}"
         f_openredirect_run_scans || true
@@ -168,7 +167,6 @@ f_openredirect_main(){
     fi
 
     f_openredirect_setup_output
-    f_openredirect_check_deps
 
     clear
     f_banner

@@ -182,25 +182,6 @@ f_sensitive_count_findings(){
     ' "$SENSITIVE_FINDINGS_FILE"
 }
 
-f_sensitive_check_deps(){
-    local missing=()
-    command -v find >/dev/null 2>&1 || missing+=("find")
-    command -v jq >/dev/null 2>&1 || missing+=("jq")
-    command -v python3 >/dev/null 2>&1 || missing+=("python3")
-    if [ ${#missing[@]} -gt 0 ]; then
-        echo
-        echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
-        echo
-        exit 1
-    fi
-    if [ "$SENSITIVE_SCAN_TYPES" = "web" ] || [ "$SENSITIVE_SCAN_TYPES" = "all" ]; then
-        python3 -c 'import requests' 2>/dev/null || {
-            echo -e "${RED}[!] python3-requests required for web scans (Discover Update installs python3-requests)${NC}"
-            exit 1
-        }
-    fi
-}
-
 f_sensitive_setup_output(){
     if [ -n "$SENSITIVE_RESUME_DIR" ]; then
         OUTPUT_DIR="$SENSITIVE_RESUME_DIR"

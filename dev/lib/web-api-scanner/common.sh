@@ -373,26 +373,6 @@ EOF
     f_webapi_log "Reports written. Findings: $total"
 }
 
-f_webapi_check_deps(){
-    local missing=()
-    command -v curl >/dev/null 2>&1 || missing+=("curl")
-    command -v jq >/dev/null 2>&1 || missing+=("jq")
-    command -v grep >/dev/null 2>&1 || missing+=("grep")
-    command -v python3 >/dev/null 2>&1 || missing+=("python3")
-    if [ ${#missing[@]} -gt 0 ]; then
-        echo
-        echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
-        echo
-        exit 1
-    fi
-    if [ "$WEBAPI_DRY_RUN" != "1" ]; then
-        command -v msfconsole >/dev/null 2>&1 || {
-            echo -e "${RED}[!] msfconsole required (install Metasploit via Discover Update)${NC}"
-            exit 1
-        }
-    fi
-}
-
 f_webapi_msf_db_connected(){
     msfconsole -q -x "db_status; exit" 2>/dev/null | grep -qi "connected to"
 }

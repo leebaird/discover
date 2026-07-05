@@ -72,7 +72,6 @@ f_waf_interactive_menu(){
         esac
 
         f_waf_setup_output
-        f_waf_check_deps
         f_waf_require_active_consent
         f_waf_say "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
         if [ "$WAF_PASSIVE" = "1" ]; then
@@ -104,7 +103,6 @@ f_waf_main(){
     fi
 
     f_waf_setup_output
-    f_waf_check_deps
     f_waf_require_active_consent
 
     if [ "$WAF_QUIET" != "1" ]; then

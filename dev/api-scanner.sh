@@ -726,7 +726,7 @@ f_api_main(){
         mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR${NC}"; exit 1; }
     fi
 
-    f_api_check_deps
+    f_api_note_discovery_tools
 
     if [ -n "$API_CLI_URL" ]; then
         [[ "$API_CLI_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }

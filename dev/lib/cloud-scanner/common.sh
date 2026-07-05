@@ -12,39 +12,6 @@ CLOUD_RESUME_DIR=""
 # Sensitive ingress ports for security-group / NSG highlighting
 CLOUD_SENSITIVE_PORTS=(22 3389 3306 5432 6379 9200 27017 8080 8443)
 
-f_cloud_check_deps(){
-    local need_aws=0 need_azure=0 need_gcp=0
-    local missing=()
-
-    command -v jq >/dev/null 2>&1 || missing+=("jq")
-
-    if [ -z "$CLOUD_PROVIDERS" ] || [[ "$CLOUD_PROVIDERS" == *aws* ]]; then
-        need_aws=1
-        command -v aws >/dev/null 2>&1 || missing+=("aws")
-    fi
-    if [ -z "$CLOUD_PROVIDERS" ] || [[ "$CLOUD_PROVIDERS" == *azure* ]]; then
-        need_azure=1
-        command -v az >/dev/null 2>&1 || missing+=("az")
-    fi
-    if [ -z "$CLOUD_PROVIDERS" ] || [[ "$CLOUD_PROVIDERS" == *gcp* ]]; then
-        need_gcp=1
-        command -v gcloud >/dev/null 2>&1 || missing+=("gcloud")
-        command -v gsutil >/dev/null 2>&1 || missing+=("gsutil")
-    fi
-
-    if [ ${#missing[@]} -gt 0 ]; then
-        echo
-        echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
-        echo -e "${YELLOW}[*] Install the cloud CLI(s) and jq before running this scanner.${NC}"
-        echo -e "${YELLOW}[*] Example: apt install awscli jq  |  az login  |  gcloud auth login${NC}"
-        echo
-        exit 1
-    fi
-
-    # Silence unused-variable warnings when only one provider selected
-    : "$need_aws" "$need_azure" "$need_gcp"
-}
-
 f_cloud_init_scan(){
     local resuming="${1:-0}"
     CLOUD_SCAN_LOG="${OUTPUT_DIR}/scan.log"

@@ -30,6 +30,26 @@ if ! command -v arp-scan &> /dev/null; then
     echo
 fi
 
+if ! command -v aws &> /dev/null; then
+    echo -e "${YELLOW}Installing awscli.${NC}"
+    apt install -y awscli
+    echo
+fi
+
+if ! command -v az &> /dev/null; then
+    echo -e "${YELLOW}Installing azure-cli.${NC}"
+    if ! apt install -y azure-cli 2>/dev/null || ! command -v az &> /dev/null; then
+        curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+    fi
+    echo
+fi
+
+if ! command -v curl &> /dev/null; then
+    echo -e "${YELLOW}Installing curl.${NC}"
+    apt install -y curl
+    echo
+fi
+
 f_dnsrecon_working() {
     command -v dnsrecon >/dev/null 2>&1 && dnsrecon --version >/dev/null 2>&1
 }
@@ -67,6 +87,18 @@ else
     echo
 fi
 
+if ! command -v dnstwist &> /dev/null; then
+    echo -e "${YELLOW}Installing dnstwist.${NC}"
+    apt install -y dnstwist
+    echo
+fi
+
+if ! command -v docker &> /dev/null; then
+    echo -e "${YELLOW}Installing docker.${NC}"
+    apt install -y docker.io
+    echo
+fi
+
 if grep -qi '^ID=ubuntu' /etc/os-release; then
     if ! command -v feroxbuster >/dev/null; then
         echo -e "${YELLOW}Installing feroxbuster.${NC}"
@@ -88,15 +120,46 @@ if ! command -v ffuf &> /dev/null; then
     echo
 fi
 
+if ! command -v gobuster &> /dev/null; then
+    echo -e "${YELLOW}Installing gobuster.${NC}"
+    apt install -y gobuster
+    echo
+fi
+
+if ! command -v gcloud &> /dev/null || ! command -v gsutil &> /dev/null; then
+    echo -e "${YELLOW}Installing google-cloud-cli.${NC}"
+    if ! apt install -y google-cloud-cli 2>/dev/null || ! command -v gcloud &> /dev/null; then
+        apt install -y apt-transport-https ca-certificates gnupg
+        curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+        echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list
+        apt update
+        apt install -y google-cloud-cli
+    fi
+    echo
+fi
+
+if ! command -v gitleaks &> /dev/null; then
+    echo -e "${YELLOW}Installing gitleaks.${NC}"
+    apt install -y gitleaks
+    echo
+fi
+
 if ! command -v jq &> /dev/null; then
     echo -e "${YELLOW}Installing jq.${NC}"
     apt install -y jq
     echo
 fi
 
-if ! python3 -c 'import requests' &> /dev/null; then
-    echo -e "${YELLOW}Installing python3-requests (open-redirect scanner).${NC}"
-    apt install -y python3-requests
+if ! command -v kubectl &> /dev/null; then
+    echo -e "${YELLOW}Installing kubectl.${NC}"
+    if command -v snap &> /dev/null; then
+        snap install kubectl --classic 2>/dev/null || true
+    fi
+    if ! command -v kubectl &> /dev/null; then
+        KUBECTL_VERSION=$(curl -fsSL https://dl.k8s.io/release/stable.txt)
+        curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /usr/local/bin/kubectl
+        chmod +x /usr/local/bin/kubectl
+    fi
     echo
 fi
 
@@ -118,6 +181,12 @@ if ! command -v nmap &> /dev/null; then
     echo
 fi
 
+if ! python3 -c 'import requests' &> /dev/null; then
+    echo -e "${YELLOW}Installing python3-requests.${NC}"
+    apt install -y python3-requests
+    echo
+fi
+
 if ! command -v sslscan &> /dev/null; then
     echo -e "${YELLOW}Installing sslscan.${NC}"
     apt install -y sslscan
@@ -127,6 +196,27 @@ fi
 if ! command -v sqlmap &> /dev/null; then
     echo -e "${YELLOW}Installing sqlmap.${NC}"
     apt install -y sqlmap
+    echo
+fi
+
+if ! command -v trivy &> /dev/null; then
+    echo -e "${YELLOW}Installing trivy.${NC}"
+    if ! apt install -y trivy 2>/dev/null || ! command -v trivy &> /dev/null; then
+        apt install -y wget gnupg apt-transport-https
+        wget -qO- https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor -o /usr/share/keyrings/trivy.gpg
+        echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" > /etc/apt/sources.list.d/trivy.list
+        apt update
+        apt install -y trivy
+    fi
+    echo
+fi
+
+if ! command -v trufflehog &> /dev/null; then
+    echo -e "${YELLOW}Installing trufflehog.${NC}"
+    if command -v go &> /dev/null; then
+        GO111MODULE=on go install github.com/trufflesecurity/trufflehog/v3@latest
+        install -m 755 "$(go env GOPATH)/bin/trufflehog" /usr/local/bin/trufflehog 2>/dev/null || true
+    fi
     echo
 fi
 
@@ -142,24 +232,24 @@ if ! command -v whatweb &> /dev/null; then
     echo
 fi
 
-if grep -qi '^ID=ubuntu' /etc/os-release; then
-    if ! command -v ydotool >/dev/null 2>&1 || ! command -v ydotoold >/dev/null 2>&1; then
-        echo -e "${YELLOW}Installing ydotool.${NC}"
-        apt install -y ydotool
-        echo
-    fi
-else
-    if ! command -v xdotool >/dev/null 2>&1; then
-        echo -e "${YELLOW}Installing xdotool.${NC}"
-        apt install -y xdotool
-        echo
-    fi
+if ! command -v xdotool >/dev/null 2>&1; then
+    echo -e "${YELLOW}Installing xdotool.${NC}"
+    apt install -y xdotool
+    echo
 fi
 
 if ! command -v xmllint &> /dev/null; then
     echo -e "${YELLOW}Installing xmllint.${NC}"
     apt install -y libxml2-utils
     echo
+fi
+
+if grep -qi '^ID=ubuntu' /etc/os-release; then
+    if ! command -v ydotool >/dev/null 2>&1 || ! command -v ydotoold >/dev/null 2>&1; then
+        echo -e "${YELLOW}Installing ydotool.${NC}"
+        apt install -y ydotool
+        echo
+    fi
 fi
 
 ###############################################################################################################################
@@ -274,12 +364,6 @@ fi
 
 ###############################################################################################################################
 
-if ! command -v dnstwist &> /dev/null; then
-    echo -e "${YELLOW}Installing dnstwist.${NC}"
-    apt install -y dnstwist
-    echo
-fi
-
 if [ -d /opt/Domain-Hunter/.git ]; then
     echo -e "${BLUE}Updating Domain Hunter.${NC}"
     cd /opt/Domain-Hunter/ || exit ; git pull
@@ -330,12 +414,6 @@ if [ -d /opt/egressbuster/.git ]; then
 else
     echo -e "${YELLOW}Installing egressbuster.${NC}"
     git clone https://github.com/trustedsec/egressbuster /opt/egressbuster
-    echo
-fi
-
-if ! command -v gobuster &> /dev/null; then
-    echo -e "${YELLOW}Installing gobuster.${NC}"
-    apt install -y gobuster
     echo
 fi
 

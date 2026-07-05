@@ -94,7 +94,6 @@ f_cloud_interactive_menu(){
         esac
 
         f_cloud_setup_output
-        f_cloud_check_deps
         f_cloud_run_providers || {
             echo -e "${YELLOW}[*] One or more provider checks failed. Fix credentials and retry.${NC}"
             echo
@@ -111,7 +110,6 @@ f_cloud_main(){
 
     if [ "$CLOUD_CLI_PROVIDERS" = "1" ] || [ -n "$CLOUD_RESUME_DIR" ]; then
         f_cloud_setup_output
-        f_cloud_check_deps
         f_cloud_run_providers
         return $?
     fi

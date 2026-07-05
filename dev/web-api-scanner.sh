@@ -70,7 +70,6 @@ f_webapi_interactive_menu(){
                     *) WEBAPI_TIER=passive; WEBAPI_PASSIVE=1 ;;
                 esac
                 f_webapi_setup_output
-                f_webapi_check_deps
                 f_webapi_require_active_consent
                 f_webapi_say "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
                 f_webapi_say "${GREEN}[*] Tier: ${WEBAPI_TIER}${NC}"
@@ -104,7 +103,6 @@ f_webapi_main(){
     fi
 
     f_webapi_setup_output
-    f_webapi_check_deps
     f_webapi_require_active_consent
     f_webapi_resolve_tier
 

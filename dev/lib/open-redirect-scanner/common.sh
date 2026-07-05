@@ -89,22 +89,6 @@ f_openredirect_count_findings(){
     ' "$OPEN_REDIRECT_FINDINGS_FILE"
 }
 
-f_openredirect_check_deps(){
-    local missing=()
-    command -v python3 >/dev/null 2>&1 || missing+=("python3")
-    command -v jq >/dev/null 2>&1 || missing+=("jq")
-    if ! python3 -c 'import requests' >/dev/null 2>&1; then
-        missing+=("python3-requests")
-    fi
-    if [ ${#missing[@]} -gt 0 ]; then
-        echo
-        echo -e "${RED}[!] Missing required tools: ${missing[*]}${NC}"
-        echo -e "${YELLOW}[*] Run Discover Update or: apt install python3-requests jq${NC}"
-        echo
-        exit 1
-    fi
-}
-
 f_openredirect_setup_output(){
     if [ -n "$OPEN_REDIRECT_RESUME_DIR" ]; then
         OUTPUT_DIR="$OPEN_REDIRECT_RESUME_DIR"
