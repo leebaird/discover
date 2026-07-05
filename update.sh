@@ -30,6 +30,36 @@ if ! command -v arp-scan &> /dev/null; then
     echo
 fi
 
+f_go_bin() {
+    command -v go 2>/dev/null || { [ -x /usr/local/go/bin/go ] && echo /usr/local/go/bin/go; }
+}
+
+f_go_install_tool() {
+    local module=$1
+    local name=$2
+    local go_bin
+    go_bin=$(f_go_bin) || return 1
+    GO111MODULE=on "$go_bin" install "$module"
+    install -m 755 "$("$go_bin" env GOPATH)/bin/$name" /usr/local/bin/"$name" 2>/dev/null || true
+}
+
+if command -v asnmap &> /dev/null; then
+    echo -e "${BLUE}Updating asnmap.${NC}"
+    asnmap_out=$(NO_COLOR=1 asnmap -up -silent 2>&1) || true
+    if echo "$asnmap_out" | grep -qi 'already updated'; then
+        echo "Already up to date."
+    elif echo "$asnmap_out" | grep -qE '^\[INF\]'; then
+        echo "Updated."
+    else
+        f_go_install_tool github.com/projectdiscovery/asnmap/cmd/asnmap@latest asnmap
+    fi
+    echo
+elif [ -n "$(f_go_bin)" ]; then
+    echo -e "${YELLOW}Installing asnmap.${NC}"
+    f_go_install_tool github.com/projectdiscovery/asnmap/cmd/asnmap@latest asnmap
+    echo
+fi
+
 if ! command -v aws &> /dev/null; then
     echo -e "${YELLOW}Installing awscli.${NC}"
     apt install -y awscli
@@ -362,6 +392,23 @@ fi
 if ! command -v sslscan &> /dev/null; then
     echo -e "${YELLOW}Installing sslscan.${NC}"
     apt install -y sslscan
+    echo
+fi
+
+if command -v subfinder &> /dev/null; then
+    echo -e "${BLUE}Updating subfinder.${NC}"
+    subfinder_out=$(NO_COLOR=1 subfinder -up -silent 2>&1) || true
+    if echo "$subfinder_out" | grep -qi 'already updated'; then
+        echo "Already up to date."
+    elif echo "$subfinder_out" | grep -qE '^\[INF\]'; then
+        echo "Updated."
+    else
+        f_go_install_tool github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest subfinder
+    fi
+    echo
+elif [ -n "$(f_go_bin)" ]; then
+    echo -e "${YELLOW}Installing subfinder.${NC}"
+    f_go_install_tool github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest subfinder
     echo
 fi
 

@@ -228,12 +228,6 @@ f_update(){
         echo
     fi
 
-    if [ -f /usr/local/go/bin/go ] && [ ! -f "$HOME/go/bin/subfinder" ]; then
-        echo
-        echo -e "${YELLOW}Installing subfinder.${NC}"
-        go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
-    fi
-
     if [ -d "$HOME/theHarvester/.git" ]; then
         echo -e "${BLUE}Updating theHarvester.${NC}"
         cd "$HOME/theHarvester" || exit ; git pull
