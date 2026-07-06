@@ -261,6 +261,23 @@ elif [ -n "$(f_go_bin)" ]; then
     echo
 fi
 
+if command -v httpx &> /dev/null; then
+    echo -e "${BLUE}Updating httpx.${NC}"
+    httpx_out=$(NO_COLOR=1 httpx -up -silent 2>&1) || true
+    if echo "$httpx_out" | grep -qi 'already updated'; then
+        echo "Already up to date."
+    elif echo "$httpx_out" | grep -qE '^\[INF\]'; then
+        echo "Updated."
+    else
+        f_go_install_tool github.com/projectdiscovery/httpx/cmd/httpx@latest httpx
+    fi
+    echo
+elif [ -n "$(f_go_bin)" ]; then
+    echo -e "${YELLOW}Installing httpx.${NC}"
+    f_go_install_tool github.com/projectdiscovery/httpx/cmd/httpx@latest httpx
+    echo
+fi
+
 if ! command -v jq &> /dev/null; then
     echo -e "${YELLOW}Installing jq.${NC}"
     apt install -y jq
