@@ -41,7 +41,7 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 clear
 f_banner
 
-echo -e "${BLUE}Uses ARIN, DNSRecon, dnstwist, subfinder, sublist3r,${NC}"
+echo -e "${BLUE}Uses Amass, ARIN, DNSRecon, dnstwist, subfinder, sublist3r,${NC}"
 echo -e "${BLUE}theHarvester, Metasploit, Whois, and multiple websites.${NC}"
 echo
 echo -e "${BLUE}[*] Acquire API keys for maximum results with theHarvester.${NC}"
@@ -75,7 +75,16 @@ fi
 
 # Number of tests
 COUNT=1
-TOTAL=65
+TOTAL=66
+
+###############################################################################################################################
+
+f_amass() {
+    echo "Amass                    ($COUNT/$TOTAL)"
+    ((COUNT++))
+    amass enum -passive -d "$DOMAIN" | sed 's/www\.//g' | sort -u > zamass
+    echo
+}
 
 ###############################################################################################################################
 
@@ -1508,6 +1517,7 @@ case "$PASSIVE_MODE" in
 99) f_theharvester_api; echo; exit 0 ;;
 esac
 
+f_amass
 f_arin
 f_dnsrecon
 f_dnstwist
