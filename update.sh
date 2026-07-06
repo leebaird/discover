@@ -74,6 +74,17 @@ if ! command -v az &> /dev/null; then
     echo
 fi
 
+if ! command -v chromium &> /dev/null && \
+   ! command -v chromium-browser &> /dev/null && \
+   ! command -v google-chrome &> /dev/null && \
+   ! command -v google-chrome-stable &> /dev/null; then
+    echo -e "${YELLOW}Installing chromium.${NC}"
+    if ! apt install -y chromium 2>/dev/null || ! command -v chromium &> /dev/null; then
+        apt install -y chromium-browser 2>/dev/null || true
+    fi
+    echo
+fi
+
 if ! command -v curl &> /dev/null; then
     echo -e "${YELLOW}Installing curl.${NC}"
     apt install -y curl
@@ -229,6 +240,24 @@ if ! command -v gcloud &> /dev/null || ! command -v gsutil &> /dev/null; then
         apt update
         apt install -y google-cloud-cli
     fi
+    echo
+fi
+
+if command -v gowitness &> /dev/null; then
+    echo -e "${BLUE}Updating gowitness.${NC}"
+    gowitness_before=$(sha256sum "$(command -v gowitness)" 2>/dev/null | awk '{print $1}')
+    if f_go_install_tool github.com/sensepost/gowitness@latest gowitness; then
+        gowitness_after=$(sha256sum "$(command -v gowitness)" 2>/dev/null | awk '{print $1}')
+        if [ -n "$gowitness_before" ] && [ "$gowitness_before" = "$gowitness_after" ]; then
+            echo "Already up to date."
+        else
+            echo "Updated."
+        fi
+    fi
+    echo
+elif [ -n "$(f_go_bin)" ]; then
+    echo -e "${YELLOW}Installing gowitness.${NC}"
+    f_go_install_tool github.com/sensepost/gowitness@latest gowitness
     echo
 fi
 
