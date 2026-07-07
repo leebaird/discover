@@ -196,16 +196,20 @@ f_active_write_report(){
     local private_file="$1"
     local public_file="$2"
     local alive_tsv="$3"
-    local page="$4"
+    local gowitness_jsonl="$4"
+    local screenshots_dir="$5"
+    local page="$6"
 
     cp "$DISCOVER/report/pages/subdomains.htm" "$page"
 
-    python3 - "$page" "$private_file" "$public_file" "$alive_tsv" <<'PY'
+    python3 - "$page" "$private_file" "$public_file" "$alive_tsv" "$gowitness_jsonl" "$screenshots_dir" <<'PY'
 import csv
 import html
+import json
 import os
 import re
 import sys
+from urllib.parse import urlparse
 
 IPV4_RE = re.compile(r"^(\d{1,3}\.){3}\d{1,3}$")
 
@@ -268,8 +272,59 @@ def load_alive_hosts(path):
         for raw in handle:
             parts = raw.rstrip("\n").split("\t")
             if parts and parts[0]:
-                alive.add(parts[0])
+                alive.add(parts[0].lower())
     return alive
+
+def host_from_url(url):
+    if not url:
+        return ""
+    if "://" not in url:
+        url = "https://" + url
+    return (urlparse(url).hostname or "").lower()
+
+def load_photo_hosts(jsonl_path, screenshots_dir):
+    photos = {}
+    if not jsonl_path or not os.path.isfile(jsonl_path) or not screenshots_dir:
+        return photos
+
+    with open(jsonl_path, encoding="utf-8") as handle:
+        for raw in handle:
+            raw = raw.strip()
+            if not raw:
+                continue
+            try:
+                entry = json.loads(raw)
+            except json.JSONDecodeError:
+                continue
+
+            if entry.get("failed"):
+                continue
+
+            file_name = (entry.get("file_name") or "").strip()
+            if not file_name:
+                continue
+
+            screenshot_path = os.path.join(screenshots_dir, file_name)
+            if not os.path.isfile(screenshot_path):
+                continue
+
+            url_value = entry.get("url") or entry.get("final_url") or ""
+            if "://" not in url_value:
+                url_value = "https://" + url_value
+
+            parsed = urlparse(url_value)
+            host = (parsed.hostname or "").lower()
+            if not host:
+                continue
+
+            scheme = parsed.scheme
+
+            rel_href = f"../tools/gowitness/screenshots/{file_name}"
+            current = photos.get(host)
+            if not current or scheme == "https":
+                photos[host] = rel_href
+
+    return photos
 
 def build_private_table(rows, empty_message, ip_header="IP Address"):
     lines = [
@@ -304,7 +359,13 @@ def build_private_table(rows, empty_message, ip_header="IP Address"):
     )
     return lines
 
-def build_public_table(rows, alive_hosts, empty_message, ip_header="IP Address"):
+def photo_cell(subdomain, photo_hosts):
+    href = photo_hosts.get(subdomain.lower())
+    if not href:
+        return ""
+    return f'<a href="{html.escape(href)}" target="_blank">Yes</a>'
+
+def build_public_table(rows, alive_hosts, photo_hosts, empty_message, ip_header="IP Address"):
     lines = [
         '        <table class="table table-bordered inc-data-table">',
         "            <thead>",
@@ -313,6 +374,7 @@ def build_public_table(rows, alive_hosts, empty_message, ip_header="IP Address")
         '                    <th scope="col" class="inc-sortable">Category</th>',
         f'                    <th scope="col" class="inc-sortable">{html.escape(ip_header)}</th>',
         '                    <th scope="col" class="inc-sortable">Alive</th>',
+        '                    <th scope="col" class="inc-sortable">Photo</th>',
         "                </tr>",
         "            </thead>",
         "            <tbody>",
@@ -320,17 +382,19 @@ def build_public_table(rows, alive_hosts, empty_message, ip_header="IP Address")
 
     if rows:
         for subdomain, ipaddr, category in rows:
-            alive = "Yes" if subdomain in alive_hosts else ""
+            alive = "Yes" if subdomain.lower() in alive_hosts else ""
+            photo = photo_cell(subdomain, photo_hosts)
             lines.append(
                 "                <tr>"
                 f"<td>{html.escape(subdomain)}</td>"
                 f"<td>{html.escape(category)}</td>"
                 f"<td>{html.escape(ipaddr)}</td>"
                 f"<td>{html.escape(alive)}</td>"
+                f"<td>{photo}</td>"
                 "</tr>"
             )
     else:
-        lines.append(f'                <tr><td colspan="4">{html.escape(empty_message)}</td></tr>')
+        lines.append(f'                <tr><td colspan="5">{html.escape(empty_message)}</td></tr>')
 
     lines.extend(
         [
@@ -340,12 +404,13 @@ def build_public_table(rows, alive_hosts, empty_message, ip_header="IP Address")
     )
     return lines
 
-page_path, private_path, public_path, alive_path = sys.argv[1:5]
+page_path, private_path, public_path, alive_path, gowitness_jsonl, screenshots_dir = sys.argv[1:7]
 private_rows = load_rows(private_path)
 public_rows = [
     row for row in load_rows(public_path) if not is_private_ip(row[1])
 ]
 alive_hosts = load_alive_hosts(alive_path)
+photo_hosts = load_photo_hosts(gowitness_jsonl, screenshots_dir)
 
 out = []
 if private_rows:
@@ -356,9 +421,9 @@ if private_rows:
 if public_rows or not private_rows:
     out.append('    <div class="inc-content-frame inc-content-frame--table">')
     if public_rows:
-        out.extend(build_public_table(public_rows, alive_hosts, "No data found."))
+        out.extend(build_public_table(public_rows, alive_hosts, photo_hosts, "No data found."))
     else:
-        out.extend(build_public_table([], alive_hosts, "No data found."))
+        out.extend(build_public_table([], alive_hosts, photo_hosts, "No data found."))
     out.append("    </div>")
 
 out.extend(
@@ -396,6 +461,8 @@ ALIVE_TSV="$TOOLS_DIR/active-alive.tsv"
 ACTIVE_TXT="$TOOLS_DIR/active.txt"
 WHATWEB_JSON="$TOOLS_DIR/whatweb.json"
 GOWITNESS_DIR="$TOOLS_DIR/gowitness"
+GOWITNESS_JSONL="$GOWITNESS_DIR/gowitness.jsonl"
+SCREENSHOTS_DIR="$GOWITNESS_DIR/screenshots"
 WHATWEB_UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
 PAGE="$DISCOVER_REPORT/pages/subdomains.htm"
 
@@ -411,7 +478,7 @@ done
 
 CHROME_PATH=$(f_active_chrome_path) || f_active_die "Chrome or Chromium is not installed. Run Discover update to install dependencies."
 
-mkdir -p "$TOOLS_DIR" "$GOWITNESS_DIR/screenshots"
+mkdir -p "$TOOLS_DIR" "$SCREENSHOTS_DIR"
 
 echo
 echo -e "${BLUE}[*] Building active target list from public subdomains.${NC}"
@@ -447,8 +514,6 @@ ALIVE_HOST_COUNT=${ALIVE_HOST_COUNT:-0}
 
 echo "[*] $ALIVE_COUNT alive responses across $ALIVE_HOST_COUNT hostnames ($URL_COUNT URLs for gowitness)."
 echo
-echo -e "${BLUE}[*] Updating subdomains report with Alive column.${NC}"
-f_active_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$ALIVE_TSV" "$PAGE"
 
 if [ "$URL_COUNT" -gt 0 ]; then
     echo
@@ -460,31 +525,76 @@ if [ "$URL_COUNT" -gt 0 ]; then
 
     echo
     echo -e "${BLUE}[*] Running gowitness on alive URLs.${NC}"
-    rm -rf "$GOWITNESS_DIR/screenshots"/*
+    rm -rf "$SCREENSHOTS_DIR"/*
     gowitness scan file -f "$ACTIVE_TXT" \
         --chrome-path "$CHROME_PATH" \
-        --screenshot-path "$GOWITNESS_DIR/screenshots" \
-        --write-jsonl --write-jsonl-file "$GOWITNESS_DIR/gowitness.jsonl" \
+        --screenshot-path "$SCREENSHOTS_DIR" \
+        --write-jsonl --write-jsonl-file "$GOWITNESS_JSONL" \
         --write-db --write-db-uri "sqlite://$GOWITNESS_DIR/gowitness.db"
     echo
 else
     echo
     echo "[*] No alive URLs found. Skipping whatweb and gowitness."
+    rm -f "$GOWITNESS_JSONL" "$GOWITNESS_DIR/gowitness.db" 2>/dev/null
+    rm -rf "$SCREENSHOTS_DIR"/*
     echo
 fi
 
 SCREENSHOT_COUNT=0
-if [ -d "$GOWITNESS_DIR/screenshots" ]; then
-    SCREENSHOT_COUNT=$(find "$GOWITNESS_DIR/screenshots" -type f \( -name '*.jpeg' -o -name '*.jpg' -o -name '*.png' \) 2>/dev/null | wc -l | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
+if [ -d "$SCREENSHOTS_DIR" ]; then
+    SCREENSHOT_COUNT=$(find "$SCREENSHOTS_DIR" -type f \( -name '*.jpeg' -o -name '*.jpg' -o -name '*.png' \) 2>/dev/null | wc -l | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
     SCREENSHOT_COUNT=${SCREENSHOT_COUNT:-0}
 fi
+
+PHOTO_HOST_COUNT=$(python3 - "$GOWITNESS_JSONL" "$SCREENSHOTS_DIR" <<'PY'
+import json
+import os
+import sys
+from urllib.parse import urlparse
+
+jsonl_path, screenshots_dir = sys.argv[1:3]
+hosts = set()
+
+if not os.path.isfile(jsonl_path):
+    print(0)
+    raise SystemExit(0)
+
+with open(jsonl_path, encoding="utf-8") as handle:
+    for raw in handle:
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            entry = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        if entry.get("failed"):
+            continue
+        file_name = (entry.get("file_name") or "").strip()
+        if not file_name or not os.path.isfile(os.path.join(screenshots_dir, file_name)):
+            continue
+        url = entry.get("url") or entry.get("final_url") or ""
+        if "://" not in url:
+            url = "https://" + url
+        host = (urlparse(url).hostname or "").lower()
+        if host:
+            hosts.add(host)
+
+print(len(hosts))
+PY
+)
+PHOTO_HOST_COUNT=${PHOTO_HOST_COUNT:-0}
+
+echo -e "${BLUE}[*] Updating subdomains report with Alive and Photo columns.${NC}"
+f_active_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$ALIVE_TSV" "$GOWITNESS_JSONL" "$SCREENSHOTS_DIR" "$PAGE"
+echo
 
 echo "$MEDIUM"
 echo
 echo "[*] Active scan complete."
 echo "[*] Probed $TARGET_COUNT hostnames; $ALIVE_HOST_COUNT marked alive in report."
 if [ "$URL_COUNT" -gt 0 ]; then
-    echo "[*] Captured $SCREENSHOT_COUNT screenshots."
+    echo "[*] Captured $SCREENSHOT_COUNT screenshots; $PHOTO_HOST_COUNT linked in report."
 fi
 echo
 echo -e "Artifacts saved under ${YELLOW}$TOOLS_DIR${NC}"
