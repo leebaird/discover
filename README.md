@@ -165,7 +165,7 @@ sublist3r, theHarvester, Whois, and multiple websites.
 * Add API keys to $HOME/.theHarvester/api-keys.yaml
 * Passive builds an HTML report at $HOME/data/<domain>/.
 * Find registered domains updates pages/registered-domains.htm in an existing report.
-* Active uses httpx and gowitness.
+* Active uses httpx, whatweb, and gowitness.
 
 #### Import names (`import-names.sh`)
 
@@ -235,21 +235,23 @@ Enter the location of your previous passive scan:
 /home/user/data/example.com
 ```
 
-Requires `httpx`, `gowitness`, and Chrome or Chromium (install via **Update**).
+Requires `httpx`, `whatweb`, `gowitness`, and Chrome or Chromium (install via **Update**).
 
 * Reads public hostnames from `tools/subdomains` (RFC1918 IPs are skipped)
 * Probes hostnames with httpx; writes `tools/httpx.jsonl`
 * Marks hosts **Alive** on the public subdomains table when httpx returns status
   200–399, 401, 403, or 405; private subdomains table stays three columns
+* Fingerprints alive URLs with whatweb; writes `tools/whatweb.json`
 * Screenshots alive URLs with gowitness under `tools/gowitness/`
-* Re-run Active to replace httpx/gowitness artifacts and rebuild the Alive column
+* Re-run Active to replace httpx/whatweb/gowitness artifacts and rebuild the Alive column
 
 Artifacts written under `tools/`:
 
 * `active-targets.txt` — public hostnames sent to httpx
 * `httpx.jsonl` — httpx JSON output
 * `active-alive.tsv` — host, URL, and status for alive responses
-* `active.txt` — alive URLs sent to gowitness
+* `active.txt` — alive URLs sent to whatweb and gowitness
+* `whatweb.json` — whatweb JSON output
 * `gowitness/screenshots/` — JPEG screenshots
 * `gowitness/gowitness.jsonl` and `gowitness/gowitness.db` — gowitness metadata
 

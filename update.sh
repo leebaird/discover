@@ -533,9 +533,114 @@ if ! command -v wafw00f &> /dev/null; then
     echo
 fi
 
-if ! command -v whatweb &> /dev/null; then
-    echo -e "${YELLOW}Installing whatweb.${NC}"
-    apt install -y whatweb
+f_ruby_bin() {
+    local ruby_bin
+
+    for ruby_bin in \
+        "$(command -v ruby 2>/dev/null)" \
+        /opt/metasploit-framework/embedded/bin/ruby \
+        /snap/metasploit-framework/current/opt/metasploit-framework/embedded/bin/ruby; do
+        if [ -n "$ruby_bin" ] && [ -x "$ruby_bin" ]; then
+            printf '%s\n' "$ruby_bin"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+f_whatweb_ensure_deps() {
+    local ruby_bin
+
+    if ruby_bin=$(f_ruby_bin); then
+        if "$ruby_bin" -e 'require "addressable"' >/dev/null 2>&1; then
+            return 0
+        fi
+    fi
+
+    if ! command -v ruby >/dev/null 2>&1; then
+        echo -e "${YELLOW}Installing Ruby for WhatWeb.${NC}"
+        apt install -y ruby
+    fi
+    if ! ruby -e 'require "addressable"' >/dev/null 2>&1; then
+        apt install -y ruby-addressable 2>/dev/null || true
+    fi
+}
+
+f_whatweb_restore_script() {
+    if [ ! -f /opt/WhatWeb/whatweb ]; then
+        return 1
+    fi
+
+    if head -1 /opt/WhatWeb/whatweb | grep -q '^#!/usr/bin/env ruby'; then
+        return 0
+    fi
+
+    if [ ! -d /opt/WhatWeb/.git ]; then
+        return 1
+    fi
+
+    echo -e "${YELLOW}Restoring WhatWeb script from git.${NC}"
+    git -C /opt/WhatWeb checkout -- whatweb
+}
+
+f_whatweb_install_wrapper() {
+    rm -f /usr/local/bin/whatweb /usr/bin/whatweb
+
+    cat > /usr/local/bin/whatweb <<'EOF'
+#!/bin/bash
+RUBY=""
+for candidate in \
+    "$(command -v ruby 2>/dev/null)" \
+    /opt/metasploit-framework/embedded/bin/ruby \
+    /snap/metasploit-framework/current/opt/metasploit-framework/embedded/bin/ruby; do
+    if [ -n "$candidate" ] && [ -x "$candidate" ]; then
+        RUBY=$candidate
+        break
+    fi
+done
+if [ -z "$RUBY" ]; then
+    echo "[!] Ruby not found. Run Discover update to install dependencies." >&2
+    exit 1
+fi
+exec "$RUBY" /opt/WhatWeb/whatweb "$@"
+EOF
+    chmod 755 /usr/local/bin/whatweb
+    ln -sf /usr/local/bin/whatweb /usr/bin/whatweb
+}
+
+f_whatweb_working() {
+    command -v whatweb >/dev/null 2>&1 && whatweb --version >/dev/null 2>&1
+}
+
+f_whatweb_remove_apt_package() {
+    if dpkg-query -W -f='${Status}' whatweb 2>/dev/null | grep -q 'install ok installed'; then
+        apt remove -y -qq whatweb
+    fi
+}
+
+if [ -d /opt/WhatWeb/.git ]; then
+    echo -e "${BLUE}Updating WhatWeb.${NC}"
+    f_whatweb_ensure_deps
+    f_whatweb_restore_script
+    cd /opt/WhatWeb/ || exit
+    whatweb_pull=$(git pull 2>&1) || true
+    if echo "$whatweb_pull" | grep -qi 'already up to date'; then
+        echo "Already up to date."
+    else
+        echo "Updated."
+    fi
+    f_whatweb_restore_script
+    f_whatweb_install_wrapper
+    echo
+elif f_whatweb_working; then
+    :
+else
+    echo -e "${YELLOW}Installing WhatWeb from upstream (apt package is broken).${NC}"
+    f_whatweb_remove_apt_package
+    f_whatweb_ensure_deps
+    git clone https://github.com/urbanadventurer/WhatWeb /opt/WhatWeb
+    f_whatweb_install_wrapper
     echo
 fi
 

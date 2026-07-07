@@ -382,7 +382,7 @@ f_banner
 
 echo -e "${BLUE}ACTIVE RECON${NC}"
 echo
-echo -e "${BLUE}Uses httpx and gowitness.${NC}"
+echo -e "${BLUE}Uses httpx, whatweb, and gowitness.${NC}"
 echo
 
 f_active_read_report
@@ -394,14 +394,16 @@ TARGETS_FILE="$TOOLS_DIR/active-targets.txt"
 HTTPX_JSONL="$TOOLS_DIR/httpx.jsonl"
 ALIVE_TSV="$TOOLS_DIR/active-alive.tsv"
 ACTIVE_TXT="$TOOLS_DIR/active.txt"
+WHATWEB_JSON="$TOOLS_DIR/whatweb.json"
 GOWITNESS_DIR="$TOOLS_DIR/gowitness"
+WHATWEB_UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
 PAGE="$DISCOVER_REPORT/pages/subdomains.htm"
 
 if [ ! -f "$SUBDOMAINS_FILE" ] || [ ! -s "$SUBDOMAINS_FILE" ]; then
     f_active_die "Subdomains data not found. Run a passive scan or import subdomains first."
 fi
 
-for CMD in httpx gowitness python3; do
+for CMD in httpx whatweb gowitness python3; do
     if ! command -v "$CMD" >/dev/null 2>&1; then
         f_active_die "$CMD is not installed. Run Discover update to install dependencies."
     fi
@@ -450,6 +452,13 @@ f_active_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$ALIVE_TSV" "$PAGE"
 
 if [ "$URL_COUNT" -gt 0 ]; then
     echo
+    echo -e "${BLUE}[*] Running whatweb on alive URLs.${NC}"
+    whatweb -a 3 -i "$ACTIVE_TXT" \
+        -U "$WHATWEB_UA" \
+        --log-json="$WHATWEB_JSON" \
+        --no-errors -q
+
+    echo
     echo -e "${BLUE}[*] Running gowitness on alive URLs.${NC}"
     rm -rf "$GOWITNESS_DIR/screenshots"/*
     gowitness scan file -f "$ACTIVE_TXT" \
@@ -460,7 +469,7 @@ if [ "$URL_COUNT" -gt 0 ]; then
     echo
 else
     echo
-    echo "[*] No alive URLs found. Skipping gowitness."
+    echo "[*] No alive URLs found. Skipping whatweb and gowitness."
     echo
 fi
 
