@@ -156,14 +156,16 @@ RECON
 
 Note: Passive and Active cannot be ran as root.
 
-Uses Amass, ARIN, DNSRecon, dnstwist, subfinder, sublist3r,
-theHarvester, Metasploit, Whois, and multiple websites.
+PASSIVE RECON
+
+Uses Amass, ARIN, DNSRecon, dnstwist, Metasploit, subfinder,
+sublist3r, theHarvester, Whois, and multiple websites.
 
 * Acquire all free API keys for maximum results with theHarvester.
 * Add API keys to $HOME/.theHarvester/api-keys.yaml
 * Passive builds an HTML report at $HOME/data/<domain>/.
 * Find registered domains updates pages/registered-domains.htm in an existing report.
-* Active probes public subdomains with httpx and captures screenshots with gowitness.
+* Active uses httpx and gowitness.
 
 #### Import names (`import-names.sh`)
 
@@ -222,6 +224,8 @@ Import subdomains merges with existing `tools/subdomains`, assigns categories fr
 refreshes `pages/subdomains.htm` (Subdomain, Category, IP columns).
 
 #### Active (`active.sh`)
+
+ACTIVE RECON
 
 Run after a passive scan (and optionally Import subdomains) when you want to probe
 which public hosts respond over HTTP/HTTPS and capture screenshots.

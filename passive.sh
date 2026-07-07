@@ -41,8 +41,10 @@ trap f_terminate SIGHUP SIGINT SIGTERM
 clear
 f_banner
 
-echo -e "${BLUE}Uses Amass, ARIN, DNSRecon, dnstwist, subfinder, sublist3r,${NC}"
-echo -e "${BLUE}theHarvester, Metasploit, Whois, and multiple websites.${NC}"
+echo -e "${BLUE}PASSIVE RECON${NC}"
+echo
+echo -e "${BLUE}Uses Amass, ARIN, DNSRecon, dnstwist, Metasploit, subfinder,${NC}"
+echo -e "${BLUE}sublist3r, theHarvester, Whois, and multiple websites.${NC}"
 echo
 echo -e "${BLUE}[*] Acquire API keys for maximum results with theHarvester.${NC}"
 echo -e "${BLUE}[*] Add keys to $HOME/.theHarvester/api-keys.yaml${NC}"

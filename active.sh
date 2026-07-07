@@ -31,7 +31,7 @@ f_active_die(){
     echo
     echo -e "${RED}$SMALL${NC}"
     echo
-    exit 1
+    exec "$DISCOVER/discover.sh"
 }
 
 f_active_read_report(){
@@ -380,8 +380,9 @@ PY
 clear
 f_banner
 
-echo -e "${BLUE}Active reconnaissance.${NC}"
-echo -e "${BLUE}Probes public subdomains with httpx and captures screenshots with gowitness.${NC}"
+echo -e "${BLUE}ACTIVE RECON${NC}"
+echo
+echo -e "${BLUE}Uses httpx and gowitness.${NC}"
 echo
 
 f_active_read_report
