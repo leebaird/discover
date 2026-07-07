@@ -78,8 +78,8 @@ f_container_interactive_menu(){
             2) CONTAINER_SCAN_TYPES="docker-containers" ;;
             3) CONTAINER_SCAN_TYPES="kubernetes" ;;
             4) CONTAINER_SCAN_TYPES="all" ;;
-            5) f_dev; return 0 ;;
-            *) f_error; continue ;;
+            5) f_dev ;;
+            *) f_invalid; continue ;;
         esac
 
         echo

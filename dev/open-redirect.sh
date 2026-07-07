@@ -63,32 +63,32 @@ f_openredirect_interactive_menu(){
                 echo
                 echo -n "Target URL or domain: "
                 read -r OPEN_REDIRECT_URL
-                [ -n "$OPEN_REDIRECT_URL" ] || { f_error; continue; }
+                [ -n "$OPEN_REDIRECT_URL" ] || { f_invalid; continue; }
                 OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
                 ;;
             2)
                 echo
                 echo -n "Domain name: "
                 read -r OPEN_REDIRECT_DOMAIN
-                [ -n "$OPEN_REDIRECT_DOMAIN" ] || { f_error; continue; }
+                [ -n "$OPEN_REDIRECT_DOMAIN" ] || { f_invalid; continue; }
                 OPEN_REDIRECT_DOMAIN=$(f_openredirect_normalize_domain "$OPEN_REDIRECT_DOMAIN")
                 ;;
             3)
                 echo
                 echo -n "Path to URL list file: "
                 read -r OPEN_REDIRECT_FILE
-                [ -n "$OPEN_REDIRECT_FILE" ] && [ -f "$OPEN_REDIRECT_FILE" ] || { f_error; continue; }
+                [ -n "$OPEN_REDIRECT_FILE" ] && [ -f "$OPEN_REDIRECT_FILE" ] || { f_invalid; continue; }
                 ;;
             4)
                 echo
                 echo -n "Target URL or domain: "
                 read -r OPEN_REDIRECT_URL
-                [ -n "$OPEN_REDIRECT_URL" ] || { f_error; continue; }
+                [ -n "$OPEN_REDIRECT_URL" ] || { f_invalid; continue; }
                 OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
                 echo -n "Custom parameter wordlist (optional): "
                 read -r OPEN_REDIRECT_WORDLIST
                 if [ -n "$OPEN_REDIRECT_WORDLIST" ] && [ ! -f "$OPEN_REDIRECT_WORDLIST" ]; then
-                    f_error
+                    f_invalid
                     continue
                 fi
                 echo -n "Crawl links from target? (y/n) [n]: "
@@ -105,15 +105,15 @@ f_openredirect_interactive_menu(){
                 echo
                 echo -n "Prior scan output dir (e.g. ~/data/api-scan_*): "
                 read -r OPEN_REDIRECT_SCAN_DIR
-                [ -n "$OPEN_REDIRECT_SCAN_DIR" ] && [ -d "$OPEN_REDIRECT_SCAN_DIR" ] || { f_error; continue; }
+                [ -n "$OPEN_REDIRECT_SCAN_DIR" ] && [ -d "$OPEN_REDIRECT_SCAN_DIR" ] || { f_invalid; continue; }
                 echo -n "Also seed with a single URL (optional): "
                 read -r OPEN_REDIRECT_URL
                 if [ -n "$OPEN_REDIRECT_URL" ]; then
                     OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
                 fi
                 ;;
-            6) f_dev; return 0 ;;
-            *) f_error; continue ;;
+            6) f_dev ;;
+            *) f_invalid; continue ;;
         esac
 
         echo

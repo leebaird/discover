@@ -849,7 +849,7 @@ PY
     rm tmp tmp2 2>/dev/null
 
     if [ -s subdomains ]; then
-        python3 "$DISCOVER/misc/subdomain-categorize.py" \
+        python3 "$DISCOVER/old/subdomain-categorize.py" \
             subdomains > subdomains.categorized
         mv subdomains.categorized subdomains
     fi

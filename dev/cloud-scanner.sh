@@ -78,8 +78,8 @@ f_cloud_interactive_menu(){
             2) CLOUD_PROVIDERS="azure" ;;
             3) CLOUD_PROVIDERS="gcp" ;;
             4) CLOUD_PROVIDERS="" ;;
-            5) f_dev; return 0 ;;
-            *) f_error; continue ;;
+            5) f_dev ;;
+            *) f_invalid; continue ;;
         esac
 
         echo

@@ -228,13 +228,13 @@ host -t <type> target.com                                           Query for a 
     ns = name server
 
 - Forward lookup
-See discover/misc/dns-forward.sh
+See discover/old/dns-forward.sh
 
 - Reverse lookup
-See discover/misc/dns-reverse.sh
+See discover/old/dns-reverse.sh
 
 - Zone transfer
-See discover/misc/dns-transfer.sh
+See discover/old/dns-transfer.sh
 
 - Automated tools
 dnsrecon

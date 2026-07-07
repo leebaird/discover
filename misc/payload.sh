@@ -35,7 +35,7 @@ f_format(){
             FORMAT="raw" ;;
         7) EXTENTION=".vba"
             FORMAT="vba" ;;
-        *) f_error ;;
+        *) f_invalid ;;
     esac
 }
 
@@ -136,8 +136,8 @@ case "$CHOICE" in
         ARCH="x64"
         PLATFORM="windows"
         f_format ;;
-    16) f_main ;;
-    *) f_error ;;
+    16) f_return_main ;;
+    *) f_return_main ;;
 esac
 
 echo

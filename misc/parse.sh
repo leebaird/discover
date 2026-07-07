@@ -111,6 +111,6 @@ case "$CHOICE" in
     echo
     ;;
 
-    6) f_main ;;
-    *) f_error ;;
+    6) f_return_main ;;
+    *) f_return_main ;;
 esac

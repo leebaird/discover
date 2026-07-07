@@ -741,48 +741,56 @@ f_api_main(){
         return 0
     fi
 
-    clear
-    f_banner
-    echo -e "${BLUE}API Security Scanner${NC} | ${YELLOW}by ibrahimsql${NC}"
-    echo
-    echo "1. API Discovery and Testing (full)"
-    echo "2. API Quick Scan (discovery + docs)"
-    echo "3. JWT Token Analysis"
-    echo "4. Full API Assessment (orchestrated)"
-    echo "5. Previous menu"
-    echo
-    echo -n "Choice: "
-    read -r CHOICE
+    while true; do
+        clear
+        f_banner
+        echo -e "${BLUE}API Security Scanner${NC} | ${YELLOW}by ibrahimsql${NC}"
+        echo
+        echo "1. API Discovery and Testing (full)"
+        echo "2. API Quick Scan (discovery + docs)"
+        echo "3. JWT Token Analysis"
+        echo "4. Full API Assessment (orchestrated)"
+        echo "5. Previous menu"
+        echo
+        echo -n "Choice: "
+        read -r CHOICE
+        CHOICE="${CHOICE#"${CHOICE%%[![:space:]]*}"}"
+        CHOICE="${CHOICE%"${CHOICE##*[![:space:]]}"}"
 
-    case "$CHOICE" in
-        1)
-            echo -n "Enter target URL: "
-            read -r TARGET_URL
-            [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
-            echo -n "Bearer token (optional, Enter to skip): "
-            read -r API_BEARER_TOKEN
-            API_SCAN_MODE="full"
-            f_api_run_scan "$TARGET_URL" ;;
-        2)
-            echo -n "Enter target URL: "
-            read -r TARGET_URL
-            [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
-            API_SCAN_MODE="quick"
-            f_api_run_scan "$TARGET_URL" ;;
-        3)
-            echo -n "Enter JWT token: "
-            read -r JWT_TOKEN
-            [[ "$JWT_TOKEN" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]] || { echo "Invalid JWT"; exit 1; }
-            f_jwt_analysis "$JWT_TOKEN" ;;
-        4)
-            echo -n "Enter target URL: "
-            read -r TARGET_URL
-            [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
-            API_SCAN_MODE="full"
-            f_api_orchestrate "$TARGET_URL" ;;
-        5) f_dev ;;
-        *) f_error ;;
-    esac
+        case "$CHOICE" in
+            1)
+                echo -n "Enter target URL: "
+                read -r TARGET_URL
+                [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
+                echo -n "Bearer token (optional, Enter to skip): "
+                read -r API_BEARER_TOKEN
+                API_SCAN_MODE="full"
+                f_api_run_scan "$TARGET_URL"
+                return 0 ;;
+            2)
+                echo -n "Enter target URL: "
+                read -r TARGET_URL
+                [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
+                API_SCAN_MODE="quick"
+                f_api_run_scan "$TARGET_URL"
+                return 0 ;;
+            3)
+                echo -n "Enter JWT token: "
+                read -r JWT_TOKEN
+                [[ "$JWT_TOKEN" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]] || { echo "Invalid JWT"; exit 1; }
+                f_jwt_analysis "$JWT_TOKEN"
+                return 0 ;;
+            4)
+                echo -n "Enter target URL: "
+                read -r TARGET_URL
+                [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
+                API_SCAN_MODE="full"
+                f_api_orchestrate "$TARGET_URL"
+                return 0 ;;
+            5) f_dev ;;
+            *) f_invalid ;;
+        esac
+    done
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

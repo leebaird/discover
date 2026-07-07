@@ -29,8 +29,8 @@ f_typeofscan(){
            echo "$MEDIUM"
            echo
            ;;
-        3) f_main ;;
-        *) f_error ;;
+        3) f_return_main ;;
+        *) f_invalid ;;
     esac
 }
 

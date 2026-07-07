@@ -23,7 +23,7 @@ FNDATE=$(date +%b-%d-%Y_%H.%M.%Z)
 OUTPUT_FILE="$HOME/$HNAME-$FNDATE.txt"
 
 # Establish SSH session and run remote enumeration
-ssh -M -S discover.socket -f -N "$1" misc/enum-linux.sh
+ssh -M -S discover.socket -f -N "$1" old/enum-linux.sh
 ssh -S discover.socket -O exit "$1" &>/dev/null
 
 # Trap to ensure cleanup on exit

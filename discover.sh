@@ -39,7 +39,7 @@ DISCOVER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RECON_DIR="$DISCOVER/recon"
 SCAN_DIR="$DISCOVER/scan"
 WEB_DIR="$DISCOVER/web"
-MISC_MENU_DIR="$DISCOVER/misc-menu"
+MISC_DIR="$DISCOVER/misc"
 MYIP=$(ip addr | grep 'global' | grep -Eiv '(:|docker|tun0)' | cut -d '/' -f1 | awk '{print $2}')
 PWD=$(pwd)
 SIP='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
@@ -60,7 +60,7 @@ YELLOW='\033[1;33m'
 ###############################################################################################################################
 
 # Export variables
-export DATESTAMP DISCOVER RECON_DIR SCAN_DIR WEB_DIR MISC_MENU_DIR MYIP PWD SIP TIMESTAMP USER_AGENT
+export DATESTAMP DISCOVER RECON_DIR SCAN_DIR WEB_DIR MISC_DIR MYIP PWD SIP TIMESTAMP USER_AGENT
 export LARGE MEDIUM SMALL
 export BLUE GREEN NC RED YELLOW
 
@@ -124,7 +124,7 @@ export -f f_check
 
 ###############################################################################################################################
 
-f_error(){
+f_invalid(){
     echo
     echo -e "${RED}$SMALL${NC}"
     echo
@@ -132,10 +132,18 @@ f_error(){
     echo
     echo -e "${RED}$SMALL${NC}"
     sleep 2
-    f_main
 }
 
-export -f f_error
+f_error(){
+    f_invalid
+    exec "$DISCOVER/discover.sh"
+}
+
+f_return_main(){
+    exit 0
+}
+
+export -f f_invalid f_error f_return_main
 
 ###############################################################################################################################
 
@@ -156,6 +164,43 @@ export -f f_runlocally
 
 ###############################################################################################################################
 
+f_firefox_running(){
+    pgrep -x firefox >/dev/null 2>&1 \
+        || pgrep -x firefox-bin >/dev/null 2>&1 \
+        || pgrep -x firefox-esr >/dev/null 2>&1 \
+        || pgrep -f '/[f]irefox/' >/dev/null 2>&1
+}
+
+f_firefox_check(){
+    if f_firefox_running; then
+        echo
+        echo "[!] Close all Firefox instances before running script."
+        echo
+        return 1
+    fi
+}
+
+f_firefox_user_agents(){
+    USER_AGENTS=(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.3912.86"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15"
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (X11; Linux x86_64; rv:145.0) Gecko/20100101 Firefox/145.0"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:145.0) Gecko/20100101 Firefox/145.0"
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/147.0.6778.73 Mobile/15E148 Safari/604.1"
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Mobile/15E148 Safari/604.1"
+    "Mozilla/5.0 (Linux; Android 15; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.6778.39 Mobile Safari/537.36"
+    "Mozilla/5.0 (Android 15; Mobile; rv:145.0) Gecko/145.0 Firefox/145.0"
+    )
+}
+
+export -f f_firefox_running f_firefox_check f_firefox_user_agents
+
+###############################################################################################################################
+
 f_company_domain(){
     echo
     echo "$MEDIUM"
@@ -167,19 +212,19 @@ f_company_domain(){
     echo
     echo "$MEDIUM"
     echo
-    echo -n "Company: "
-    read -r COMPANY
+    while [[ -z "$COMPANY" ]]; do
+        echo -n "Company: "
+        read -r COMPANY
+        COMPANY="${COMPANY#"${COMPANY%%[![:space:]]*}"}"
+        COMPANY="${COMPANY%"${COMPANY##*[![:space:]]}"}"
+    done
 
-    if [[ -z "$COMPANY" ]]; then
-        f_error
-    fi
-
-    echo -n "Domain:  "
-    read -r DOMAIN
-
-    if [ -z "$DOMAIN" ]; then
-        f_error
-    fi
+    while [[ -z "$DOMAIN" ]]; do
+        echo -n "Domain:  "
+        read -r DOMAIN
+        DOMAIN="${DOMAIN#"${DOMAIN%%[![:space:]]*}"}"
+        DOMAIN="${DOMAIN%"${DOMAIN##*[![:space:]]}"}"
+    done
 
     if [[ ! "$DOMAIN" =~ ^([a-zA-Z0-9](-?[a-zA-Z0-9])*\.)+[a-zA-Z]{2,63}$ ]]; then
         echo
@@ -252,45 +297,49 @@ export -f f_update
 ###############################################################################################################################
 
 f_dev(){
-    clear
-    f_banner
+    while true; do
+        clear
+        f_banner
 
-    echo -e "${BLUE}Dev scripts originally by ${YELLOW}ibrahimsql${NC}"
-    echo
-    echo "1. API Security"
-    echo "2. Cloud Security"
-    echo "3. Container Security"
-    echo "4. OAuth and JWT Security"
-    echo "5. Open Redirect Scanner"
-    echo "6. Sensitive Information"
-    echo "7. WAF Detection"
-    echo "8. Web and API Security"
-    echo "9. Previous menu"
-    echo
+        echo -e "${BLUE}Dev scripts originally by ${YELLOW}ibrahimsql${NC}"
+        echo
+        echo "1. API Security"
+        echo "2. Cloud Security"
+        echo "3. Container Security"
+        echo "4. OAuth and JWT Security"
+        echo "5. Open Redirect Scanner"
+        echo "6. Sensitive Information"
+        echo "7. WAF Detection"
+        echo "8. Web and API Security"
+        echo "9. Previous menu"
+        echo
 
-    echo -n "Choice: "
-    read -r CHOICE
+        echo -n "Choice: "
+        read -r CHOICE
+        CHOICE="${CHOICE#"${CHOICE%%[![:space:]]*}"}"
+        CHOICE="${CHOICE%"${CHOICE##*[![:space:]]}"}"
 
-    case "$CHOICE" in
-        9) f_main ;;
-        *)
-            if [ ! -d "$HOME"/data ]; then
-                mkdir -p "$HOME"/data
-            fi
+        case "$CHOICE" in
+            9) return 0 ;;
+            *)
+                if [ ! -d "$HOME"/data ]; then
+                    mkdir -p "$HOME"/data
+                fi
 
-            case "$CHOICE" in
-                1) ./dev/api-scanner.sh && exit ;;
-                2) ./dev/cloud-scanner.sh && exit ;;
-                3) ./dev/container-scanner.sh && exit ;;
-                4) ./dev/oauth-jwt-scanner.sh && exit ;;
-                5) ./dev/open-redirect.sh && exit ;;
-                6) ./dev/sensitive-scanner.sh && exit ;;
-                7) ./dev/waf-detect.sh && exit ;;
-                8) ./dev/web-api-scanner.sh && exit ;;
-                *) f_error ;;
-            esac
-            ;;
-    esac
+                case "$CHOICE" in
+                    1) ./dev/api-scanner.sh && exit ;;
+                    2) ./dev/cloud-scanner.sh && exit ;;
+                    3) ./dev/container-scanner.sh && exit ;;
+                    4) ./dev/oauth-jwt-scanner.sh && exit ;;
+                    5) ./dev/open-redirect.sh && exit ;;
+                    6) ./dev/sensitive-scanner.sh && exit ;;
+                    7) ./dev/waf-detect.sh && exit ;;
+                    8) ./dev/web-api-scanner.sh && exit ;;
+                    *) f_invalid ;;
+                esac
+                ;;
+        esac
+    done
 }
 
 export -f f_dev
@@ -320,22 +369,25 @@ f_main(){
     echo "11. SSL"
     echo
     echo -e "${BLUE}MISC${NC}"
-    echo "12. Parse XML"
-    echo "13. Generate a malicious payload"
-    echo "14. Start a Metasploit listener"
-    echo "15. Dev"
-    echo "16. Update"
-    echo "17. Exit"
+    echo "12. Generate a malicious payload"
+    echo "13. Start a Metasploit listener"
+    echo "14. CVE lookup"
+    echo "15. Parse XML"
+    echo "16. Dev"
+    echo "17. Update"
+    echo "18. Exit"
     echo
 
     echo
     echo -n "Choice: "
     read -r CHOICE
+    CHOICE="${CHOICE#"${CHOICE%%[![:space:]]*}"}"
+    CHOICE="${CHOICE%"${CHOICE##*[![:space:]]}"}"
 
     case "$CHOICE" in
-        15) f_dev ;;
-        16) f_update ;;
-        17) echo && exit ;;
+        16) f_dev ;;
+        17) f_update ;;
+        18) echo && exit ;;
         *)
             if [ ! -d "$HOME"/data ]; then
                 mkdir -p "$HOME"/data
@@ -344,28 +396,29 @@ f_main(){
             case "$CHOICE" in
                 # RECON
                 1) unset LOCATION; "$RECON_DIR/domain.sh" ;;
-                2) "$RECON_DIR/person.sh" && exit ;;
+                2) "$RECON_DIR/person.sh" ;;
 
                 # SCANNING
-                3) "$SCAN_DIR/generateTargets.sh" && exit ;;
+                3) "$SCAN_DIR/generateTargets.sh" ;;
                 4) f_cidr ;;    # Located in nmap.sh
                 5) f_list ;;    # Located in nmap.sh
                 6) f_single ;;  # Located in nmap.sh
                 7) f_rerun ;;   # Located in nmap.sh
 
                 # WEB
-                8) "$WEB_DIR/directObjectRef.sh" && exit ;;
-                9) "$WEB_DIR/multiTabs.sh" && exit ;;
-                10) "$WEB_DIR/nikto.sh" && exit ;;
-                11) "$WEB_DIR/ssl.sh" && exit ;;
+                8) "$WEB_DIR/directObjectRef.sh" ;;
+                9) "$WEB_DIR/multiTabs.sh" ;;
+                10) "$WEB_DIR/nikto.sh" ;;
+                11) "$WEB_DIR/ssl.sh" ;;
 
                 # MISC
-                12) "$MISC_MENU_DIR/parse.sh" && exit ;;
-                13) "$MISC_MENU_DIR/payload.sh" && exit ;;
-                14) "$MISC_MENU_DIR/listener.sh" && exit ;;
+                12) "$MISC_DIR/payload.sh" ;;
+                13) "$MISC_DIR/listener.sh" ;;
+                14) "$MISC_DIR/cve.sh" ;;
+                15) "$MISC_DIR/parse.sh" ;;
 
-                99) "$DISCOVER/misc/newModules.sh" && exit ;;
-                *) f_error ;;
+                99) "$DISCOVER/old/newModules.sh" ;;
+                *) f_invalid ;;
             esac
             ;;
     esac
@@ -375,5 +428,7 @@ export -f f_main
 
 # Run the script
 if [[ -z "${DISCOVER_SOURCE_ONLY:-}" ]]; then
-    f_main
+    while true; do
+        f_main
+    done
 fi

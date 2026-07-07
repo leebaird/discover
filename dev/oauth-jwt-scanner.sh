@@ -71,8 +71,8 @@ f_oauth_jwt_interactive_menu(){
             1) OAUTH_JWT_SCAN_TYPES="oauth" ;;
             2) OAUTH_JWT_SCAN_TYPES="jwt" ;;
             3) OAUTH_JWT_SCAN_TYPES="all" ;;
-            4) f_dev; return 0 ;;
-            *) f_error; continue ;;
+            4) f_dev ;;
+            *) f_invalid; continue ;;
         esac
 
         echo
@@ -89,7 +89,7 @@ f_oauth_jwt_interactive_menu(){
         if [ "$OAUTH_JWT_SCAN_TYPES" != "jwt" ]; then
             echo -n "Target URL: "
             read -r OAUTH_JWT_TARGET
-            [[ "$OAUTH_JWT_TARGET" =~ ^https?:// ]] || { f_error; continue; }
+            [[ "$OAUTH_JWT_TARGET" =~ ^https?:// ]] || { f_invalid; continue; }
         fi
 
         if [ "$OAUTH_JWT_SCAN_TYPES" != "oauth" ]; then

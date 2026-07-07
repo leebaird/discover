@@ -18,8 +18,8 @@ f_targets(){
     case "$CHOICE" in
         1) f_arpscan ;;
         2) f_pingsweep ;;
-        3) f_main ;;
-        *) f_error ;;
+        3) f_return_main ;;
+        *) f_invalid ;;
     esac
 }
 

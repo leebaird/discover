@@ -49,15 +49,15 @@ f_waf_interactive_menu(){
             1)
                 echo -n "Target (URL or hostname): "
                 read -r WAF_URL
-                [ -n "$WAF_URL" ] || { f_error; continue; }
+                [ -n "$WAF_URL" ] || { f_invalid; continue; }
                 ;;
             2)
                 echo -n "Path to targets file: "
                 read -r WAF_FILE
-                [ -n "$WAF_FILE" ] && [ -f "$WAF_FILE" ] || { f_error; continue; }
+                [ -n "$WAF_FILE" ] && [ -f "$WAF_FILE" ] || { f_invalid; continue; }
                 ;;
-            3) f_dev; return 0 ;;
-            *) f_error; continue ;;
+            3) f_dev ;;
+            *) f_invalid; continue ;;
         esac
 
         echo

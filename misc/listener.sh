@@ -39,8 +39,8 @@ case "$CHOICE" in
     11) PAYLOAD="python/meterpreter_reverse_tcp" ;;
     12) PAYLOAD="windows/x64/meterpreter_reverse_https" ;;
     13) PAYLOAD="windows/x64/meterpreter_reverse_tcp" ;;
-    14) f_main ;;
-    *) f_error ;;
+    14) f_return_main ;;
+    *) f_return_main ;;
 esac
 
 echo

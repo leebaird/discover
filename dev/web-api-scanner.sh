@@ -54,7 +54,7 @@ f_webapi_interactive_menu(){
                 echo
                 echo -n "Target URL or hostname: "
                 read -r WEBAPI_URL
-                [ -n "$WEBAPI_URL" ] || { f_error; continue; }
+                [ -n "$WEBAPI_URL" ] || { f_invalid; continue; }
                 echo
                 echo "Scan tier:"
                 echo "1. Passive (MSF recon only — recommended)"
@@ -78,8 +78,8 @@ f_webapi_interactive_menu(){
                 echo -n "Press Enter..."
                 read -r _
                 ;;
-            2) f_dev; return 0 ;;
-            *) f_error; continue ;;
+            2) f_dev ;;
+            *) f_invalid; continue ;;
         esac
     done
 }

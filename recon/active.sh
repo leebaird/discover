@@ -31,7 +31,7 @@ f_active_die(){
     echo
     echo -e "${RED}$SMALL${NC}"
     echo
-    exec "$DISCOVER/discover.sh"
+    exit 0
 }
 
 f_active_read_report(){

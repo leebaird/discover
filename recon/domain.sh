@@ -469,6 +469,7 @@ f_web_search() {
 }
 
 f_domain_menu(){
+    while true; do
     clear
     f_banner
 
@@ -488,6 +489,8 @@ f_domain_menu(){
     echo
     echo -n "Choice: "
     read -r CHOICE
+    CHOICE="${CHOICE#"${CHOICE%%[![:space:]]*}"}"
+    CHOICE="${CHOICE%"${CHOICE##*[![:space:]]}"}"
 
     case "$CHOICE" in
     1) "$RECON_DIR/passive.sh" && exit ;;
@@ -627,7 +630,7 @@ f_domain_menu(){
         exit 0
         ;;
     4)  f_runlocally
-        f_firefox_check || { f_domain_menu; return; }
+        f_firefox_check || continue
         clear
         f_banner
 
@@ -638,7 +641,7 @@ f_domain_menu(){
         exit
         ;;
     5)  f_runlocally
-        f_firefox_check || { f_domain_menu; return; }
+        f_firefox_check || continue
         clear
         f_banner
 
@@ -651,9 +654,10 @@ f_domain_menu(){
     6) "$RECON_DIR/import-names.sh" && exit ;;
     7) "$RECON_DIR/import-subdomains.sh" && exit ;;
     8) "$RECON_DIR/active.sh" && exit ;;
-    9) exec "$DISCOVER"/discover.sh ;;
-    *) f_error ;;
+    9) exit 0 ;;
+    *) f_invalid ;;
     esac
+    done
 }
 
 f_domain_menu

@@ -79,19 +79,19 @@ f_sensitive_interactive_menu(){
             1)
                 echo -n "Path to file or folder: "
                 read -r SENSITIVE_PATH
-                [ -e "$SENSITIVE_PATH" ] || { f_error; continue; }
+                [ -e "$SENSITIVE_PATH" ] || { f_invalid; continue; }
                 SENSITIVE_SCAN_TYPES="files"
                 ;;
             2)
                 echo -n "URL (https://target.com): "
                 read -r SENSITIVE_URL
-                [[ "$SENSITIVE_URL" =~ ^https?:// ]] || { f_error; continue; }
+                [[ "$SENSITIVE_URL" =~ ^https?:// ]] || { f_invalid; continue; }
                 SENSITIVE_SCAN_TYPES="web"
                 ;;
             3)
                 echo -n "Path to file or folder: "
                 read -r SENSITIVE_PATH
-                [ -e "$SENSITIVE_PATH" ] || { f_error; continue; }
+                [ -e "$SENSITIVE_PATH" ] || { f_invalid; continue; }
                 echo -n "Prior scan dir (optional): "
                 read -r SENSITIVE_SCAN_DIR
                 SENSITIVE_SCAN_TYPES="files"
@@ -99,14 +99,14 @@ f_sensitive_interactive_menu(){
             4)
                 echo -n "URL: "
                 read -r SENSITIVE_URL
-                [[ "$SENSITIVE_URL" =~ ^https?:// ]] || { f_error; continue; }
+                [[ "$SENSITIVE_URL" =~ ^https?:// ]] || { f_invalid; continue; }
                 echo -n "Prior scan dir (e.g. ~/data/api-scan_*): "
                 read -r SENSITIVE_SCAN_DIR
-                [ -n "$SENSITIVE_SCAN_DIR" ] && [ -d "$SENSITIVE_SCAN_DIR" ] || { f_error; continue; }
+                [ -n "$SENSITIVE_SCAN_DIR" ] && [ -d "$SENSITIVE_SCAN_DIR" ] || { f_invalid; continue; }
                 SENSITIVE_SCAN_TYPES="all"
                 ;;
-            5) f_dev; return 0 ;;
-            *) f_error; continue ;;
+            5) f_dev ;;
+            *) f_invalid; continue ;;
         esac
 
         echo

@@ -149,6 +149,6 @@ case "$CHOICE" in
         echo
         exit
         ;;
-    4) f_main ;;
-    *) f_error ;;
+    4) f_return_main ;;
+    *) f_return_main ;;
 esac

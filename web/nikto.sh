@@ -105,8 +105,7 @@ case "$CHOICE" in
         fi
 
         if ! [[ "$PORT" =~ ^[0-9]+$ ]] || [ "$PORT" -lt 1 ] || [ "$PORT" -gt 65535 ]; then
-            f_error
-            exit 0
+            f_return_main
         fi
 
         mkdir -p "$HOME/data/nikto-$PORT"
@@ -140,12 +139,10 @@ case "$CHOICE" in
         ;;
 
     3)
-        f_main
-        exit 0
+        f_return_main
         ;;
 
     *)
-        f_error
-        exit 0
+        f_return_main
         ;;
 esac
