@@ -146,20 +146,24 @@ RECON
 3.  Find registered domains
 4.  Google dorks
 5.  Web search
+
 6.  Import names
 7.  Import subdomains
-8.  Previous menu
+
+8.  Active
+9.  Previous menu
 ```
 
-Note: Passive cannot be ran as root.
+Note: Passive and Active cannot be ran as root.
 
-Uses ARIN, DNSRecon, dnstwist, subfinder, sublist3r,
+Uses Amass, ARIN, DNSRecon, dnstwist, subfinder, sublist3r,
 theHarvester, Metasploit, Whois, and multiple websites.
 
 * Acquire all free API keys for maximum results with theHarvester.
 * Add API keys to $HOME/.theHarvester/api-keys.yaml
 * Passive builds an HTML report at $HOME/data/<domain>/.
 * Find registered domains updates pages/registered-domains.htm in an existing report.
+* Active probes public subdomains with httpx and captures screenshots with gowitness.
 
 #### Import names (`import-names.sh`)
 
@@ -216,6 +220,34 @@ Supported imports:
 Import subdomains merges with existing `tools/subdomains`, assigns categories from
 `misc/subdomain-categories.tsv`, splits private IPs to `tools/private-subs`, and
 refreshes `pages/subdomains.htm` (Subdomain, Category, IP columns).
+
+#### Active (`active.sh`)
+
+Run after a passive scan (and optionally Import subdomains) when you want to probe
+which public hosts respond over HTTP/HTTPS and capture screenshots.
+
+```
+Enter the location of your previous passive scan:
+/home/user/data/example.com
+```
+
+Requires `httpx`, `gowitness`, and Chrome or Chromium (install via **Update**).
+
+* Reads public hostnames from `tools/subdomains` (RFC1918 IPs are skipped)
+* Probes hostnames with httpx; writes `tools/httpx.jsonl`
+* Marks hosts **Alive** on the public subdomains table when httpx returns status
+  200–399, 401, 403, or 405; private subdomains table stays three columns
+* Screenshots alive URLs with gowitness under `tools/gowitness/`
+* Re-run Active to replace httpx/gowitness artifacts and rebuild the Alive column
+
+Artifacts written under `tools/`:
+
+* `active-targets.txt` — public hostnames sent to httpx
+* `httpx.jsonl` — httpx JSON output
+* `active-alive.tsv` — host, URL, and status for alive responses
+* `active.txt` — alive URLs sent to gowitness
+* `gowitness/screenshots/` — JPEG screenshots
+* `gowitness/gowitness.jsonl` and `gowitness/gowitness.db` — gowitness metadata
 
 #### SEC leadership (Names page)
 
