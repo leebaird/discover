@@ -300,9 +300,9 @@ f_cidr(){
     f_scan
     f_cleanup
     f_ports
-    "$DISCOVER"/nse.sh
+    "$SCAN_DIR/nse.sh"
     f_run-metasploit
-    "$DISCOVER"/report.sh && exit
+    "$SCAN_DIR/report.sh" && exit
 }
 
 ###############################################################################################################################
@@ -322,9 +322,9 @@ f_list(){
     f_scan
     f_cleanup
     f_ports
-    "$DISCOVER"/nse.sh
+    "$SCAN_DIR/nse.sh"
     f_run-metasploit
-    "$DISCOVER"/report.sh && exit
+    "$SCAN_DIR/report.sh" && exit
 }
 
 ###############################################################################################################################
@@ -356,16 +356,16 @@ f_single(){
     f_scan
     f_cleanup
     f_ports
-    "$DISCOVER"/nse.sh
+    "$SCAN_DIR/nse.sh"
     f_run-metasploit
-    "$DISCOVER"/report.sh && exit
+    "$SCAN_DIR/report.sh" && exit
 }
 
 ###############################################################################################################################
 
 f_run-metasploit(){
     if [ "$MSF" == "y" ]; then
-        "$DISCOVER"/msf-aux.sh
+        "$SCAN_DIR/msf-aux.sh"
     fi
 }
 
@@ -417,9 +417,9 @@ f_rerun(){
     START=$(date +%r\ %Z)
     export START
 
-    "$DISCOVER"/nse.sh
-    "$DISCOVER"/msf-aux.sh
-    "$DISCOVER"/report.sh && exit
+    "$SCAN_DIR/nse.sh"
+    "$SCAN_DIR/msf-aux.sh"
+    "$SCAN_DIR/report.sh" && exit
 }
 
 export -f f_typeofscan f_scanname f_scan f_cleanup f_ports f_cidr f_list f_single f_rerun f_run-metasploit

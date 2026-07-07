@@ -2,7 +2,7 @@
 
 # by Lee Baird (@discoverscripts)
 
-DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 export DISCOVER
 
 shopt -u expand_aliases 2>/dev/null || true
@@ -490,9 +490,9 @@ f_domain_menu(){
     read -r CHOICE
 
     case "$CHOICE" in
-    1) "$DISCOVER"/passive.sh && exit ;;
-    98) "$DISCOVER"/passive.sh 98 && exit ;;
-    99) "$DISCOVER"/passive.sh 99 && exit ;;
+    1) "$RECON_DIR/passive.sh" && exit ;;
+    98) "$RECON_DIR/passive.sh" 98 && exit ;;
+    99) "$RECON_DIR/passive.sh" 99 && exit ;;
     2)  f_runlocally
         clear
         f_banner
@@ -648,9 +648,9 @@ f_domain_menu(){
         echo
         exit
         ;;
-    6) "$DISCOVER"/import-names.sh && exit ;;
-    7) "$DISCOVER"/import-subdomains.sh && exit ;;
-    8) "$DISCOVER"/active.sh && exit ;;
+    6) "$RECON_DIR/import-names.sh" && exit ;;
+    7) "$RECON_DIR/import-subdomains.sh" && exit ;;
+    8) "$RECON_DIR/active.sh" && exit ;;
     9) exec "$DISCOVER"/discover.sh ;;
     *) f_error ;;
     esac

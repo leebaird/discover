@@ -10,7 +10,7 @@ if [ $EUID -eq 0 ]; then
     exit 1
 fi
 
-DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 export DISCOVER
 PASSIVE_MODE="${1:-}"
 

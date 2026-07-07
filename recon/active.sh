@@ -10,7 +10,7 @@ if [ $EUID -eq 0 ]; then
     exit 1
 fi
 
-DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 BLUE="${BLUE:-\033[1;34m}"
 YELLOW="${YELLOW:-\033[1;33m}"

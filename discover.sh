@@ -36,6 +36,10 @@
 # Global variables
 DATESTAMP=$(date +"%B %d, %Y")
 DISCOVER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RECON_DIR="$DISCOVER/recon"
+SCAN_DIR="$DISCOVER/scan"
+WEB_DIR="$DISCOVER/web"
+MISC_MENU_DIR="$DISCOVER/misc-menu"
 MYIP=$(ip addr | grep 'global' | grep -Eiv '(:|docker|tun0)' | cut -d '/' -f1 | awk '{print $2}')
 PWD=$(pwd)
 SIP='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
@@ -56,7 +60,7 @@ YELLOW='\033[1;33m'
 ###############################################################################################################################
 
 # Export variables
-export DATESTAMP DISCOVER MYIP PWD SIP TIMESTAMP USER_AGENT
+export DATESTAMP DISCOVER RECON_DIR SCAN_DIR WEB_DIR MISC_MENU_DIR MYIP PWD SIP TIMESTAMP USER_AGENT
 export LARGE MEDIUM SMALL
 export BLUE GREEN NC RED YELLOW
 
@@ -196,7 +200,7 @@ export -f f_company_domain
 
 ###############################################################################################################################
 
-source "$DISCOVER/nmap.sh"
+source "$SCAN_DIR/nmap.sh"
 
 ###############################################################################################################################
 
@@ -339,28 +343,28 @@ f_main(){
 
             case "$CHOICE" in
                 # RECON
-                1) unset LOCATION; ./domain.sh ;;
-                2) ./person.sh && exit ;;
+                1) unset LOCATION; "$RECON_DIR/domain.sh" ;;
+                2) "$RECON_DIR/person.sh" && exit ;;
 
                 # SCANNING
-                3) ./generateTargets.sh && exit ;;
+                3) "$SCAN_DIR/generateTargets.sh" && exit ;;
                 4) f_cidr ;;    # Located in nmap.sh
                 5) f_list ;;    # Located in nmap.sh
                 6) f_single ;;  # Located in nmap.sh
                 7) f_rerun ;;   # Located in nmap.sh
 
                 # WEB
-                8) ./directObjectRef.sh && exit ;;
-                9) ./multiTabs.sh && exit ;;
-                10) ./nikto.sh && exit ;;
-                11) ./ssl.sh && exit ;;
+                8) "$WEB_DIR/directObjectRef.sh" && exit ;;
+                9) "$WEB_DIR/multiTabs.sh" && exit ;;
+                10) "$WEB_DIR/nikto.sh" && exit ;;
+                11) "$WEB_DIR/ssl.sh" && exit ;;
 
                 # MISC
-                12) ./parse.sh && exit ;;
-                13) ./payload.sh && exit ;;
-                14) ./listener.sh && exit ;;
+                12) "$MISC_MENU_DIR/parse.sh" && exit ;;
+                13) "$MISC_MENU_DIR/payload.sh" && exit ;;
+                14) "$MISC_MENU_DIR/listener.sh" && exit ;;
 
-                99) ./newModules.sh && exit ;;
+                99) "$DISCOVER/misc/newModules.sh" && exit ;;
                 *) f_error ;;
             esac
             ;;

@@ -2,7 +2,7 @@
 
 # by Lee Baird (@discoverscripts)
 
-DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 BLUE="${BLUE:-\033[1;34m}"
 YELLOW="${YELLOW:-\033[1;33m}"

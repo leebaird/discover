@@ -43,7 +43,7 @@ echo -e "${BLUE}==============================================${NC}"
 
 if [ -f "$HOME/theHarvester/theHarvester/lib/core.py" ]; then
     # Used sources
-    grep 'sources_' "$DISCOVER/passive.sh" 2>/dev/null |
+    grep 'sources_' "$DISCOVER/recon/passive.sh" 2>/dev/null |
         grep -v '\@' |
         cut -d '(' -f2 | cut -d ')' -f1 |
         tr ' ' '\n' | sort -u > /tmp/used_harv.txt
@@ -213,7 +213,7 @@ END_EXCLUDES
         sort -u > /tmp/avail_nmap.txt
 
     # Used scripts
-    grep -E 'script=' "$DISCOVER/nse.sh" 2>/dev/null |
+    grep -E 'script=' "$DISCOVER/scan/nse.sh" 2>/dev/null |
         sed -E 's/.*script=([^#]*).*/\1/' |
         tr ',' '\n' |
         sed 's/^[[:space:]]*//; s/[[:space:]]*$//' |
