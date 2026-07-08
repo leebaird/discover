@@ -186,21 +186,30 @@ PY
 f_active_write_report(){
     local private_file="$1"
     local public_file="$2"
-    local alive_tsv="$3"
-    local gowitness_jsonl="$4"
-    local screenshots_dir="$5"
-    local page="$6"
+    local gowitness_jsonl="$3"
+    local screenshots_dir="$4"
+    local httpx_jsonl="$5"
+    local whatweb_json="$6"
+    local page="$7"
 
     cp "$DISCOVER/report/pages/subdomains.htm" "$page"
 
-    python3 - "$page" "$private_file" "$public_file" "$alive_tsv" "$gowitness_jsonl" "$screenshots_dir" <<'PY'
+    python3 - "$page" "$DISCOVER/recon/active-tech.py" "$private_file" "$public_file" "$gowitness_jsonl" "$screenshots_dir" "$httpx_jsonl" "$whatweb_json" <<'PY'
 import csv
 import html
+import importlib.util
 import json
 import os
 import re
 import sys
 from urllib.parse import urlparse
+
+page_path, tech_module_path, private_path, public_path, gowitness_jsonl, screenshots_dir, httpx_path, whatweb_path = sys.argv[1:9]
+
+spec = importlib.util.spec_from_file_location("active_tech", tech_module_path)
+active_tech = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(active_tech)
+host_tech = active_tech.load_host_tech(httpx_path, whatweb_path)
 
 IPV4_RE = re.compile(r"^(\d{1,3}\.){3}\d{1,3}$")
 
@@ -254,17 +263,6 @@ def load_rows(path):
             if parsed and parsed[1]:
                 rows.append(parsed)
     return rows
-
-def load_alive_hosts(path):
-    alive = set()
-    if not path or not os.path.isfile(path):
-        return alive
-    with open(path, newline="") as handle:
-        for raw in handle:
-            parts = raw.rstrip("\n").split("\t")
-            if parts and parts[0]:
-                alive.add(parts[0].lower())
-    return alive
 
 def host_from_url(url):
     if not url:
@@ -356,7 +354,7 @@ def photo_cell(subdomain, photo_hosts):
         return ""
     return f'<a href="{html.escape(href)}" target="_blank">Yes</a>'
 
-def build_public_table(rows, alive_hosts, photo_hosts, empty_message, ip_header="IP Address"):
+def build_public_table(rows, photo_hosts, host_tech, empty_message, ip_header="IP Address"):
     lines = [
         '        <table class="table table-bordered inc-data-table">',
         "            <thead>",
@@ -364,8 +362,10 @@ def build_public_table(rows, alive_hosts, photo_hosts, empty_message, ip_header=
         '                    <th scope="col" class="inc-sortable">Subdomain</th>',
         '                    <th scope="col" class="inc-sortable">Category</th>',
         f'                    <th scope="col" class="inc-sortable">{html.escape(ip_header)}</th>',
-        '                    <th scope="col" class="inc-sortable inc-col-center">Alive</th>',
         '                    <th scope="col" class="inc-sortable inc-col-center">Photo</th>',
+        '                    <th scope="col" class="inc-sortable inc-col-center">Status</th>',
+        '                    <th scope="col" class="inc-sortable">Web Server</th>',
+        '                    <th scope="col" class="inc-sortable">Technologies</th>',
         "                </tr>",
         "            </thead>",
         "            <tbody>",
@@ -373,19 +373,25 @@ def build_public_table(rows, alive_hosts, photo_hosts, empty_message, ip_header=
 
     if rows:
         for subdomain, ipaddr, category in rows:
-            alive = "Yes" if subdomain.lower() in alive_hosts else ""
             photo = photo_cell(subdomain, photo_hosts)
+            tech = host_tech.get(subdomain.lower(), {})
+            status = tech.get("status", "")
+            webserver = tech.get("webserver", "")
+            technologies = tech.get("technologies", "")
+            tech_title = f' title="{html.escape(technologies)}"' if technologies else ""
             lines.append(
                 "                <tr>"
-                f"<td>{html.escape(subdomain)}</td>"
+                f'<td class="inc-subdomain-host">{html.escape(subdomain)}</td>'
                 f"<td>{html.escape(category)}</td>"
                 f"<td>{html.escape(ipaddr)}</td>"
-                f'<td class="inc-col-center">{html.escape(alive)}</td>'
                 f'<td class="inc-col-center">{photo}</td>'
+                f'<td class="inc-col-center">{html.escape(status)}</td>'
+                f'<td class="inc-subdomain-webserver">{html.escape(webserver)}</td>'
+                f'<td class="inc-subdomain-tech"{tech_title}>{html.escape(technologies)}</td>'
                 "</tr>"
             )
     else:
-        lines.append(f'                <tr><td colspan="5">{html.escape(empty_message)}</td></tr>')
+        lines.append(f'                <tr><td colspan="7">{html.escape(empty_message)}</td></tr>')
 
     lines.extend(
         [
@@ -395,12 +401,10 @@ def build_public_table(rows, alive_hosts, photo_hosts, empty_message, ip_header=
     )
     return lines
 
-page_path, private_path, public_path, alive_path, gowitness_jsonl, screenshots_dir = sys.argv[1:7]
 private_rows = load_rows(private_path)
 public_rows = [
     row for row in load_rows(public_path) if not is_private_ip(row[1])
 ]
-alive_hosts = load_alive_hosts(alive_path)
 photo_hosts = load_photo_hosts(gowitness_jsonl, screenshots_dir)
 
 out = []
@@ -412,9 +416,9 @@ if private_rows:
 if public_rows or not private_rows:
     out.append('    <div class="inc-content-frame inc-content-frame--table inc-subdomains-public">')
     if public_rows:
-        out.extend(build_public_table(public_rows, alive_hosts, photo_hosts, "No data found."))
+        out.extend(build_public_table(public_rows, photo_hosts, host_tech, "No data found."))
     else:
-        out.extend(build_public_table([], alive_hosts, photo_hosts, "No data found."))
+        out.extend(build_public_table([], photo_hosts, host_tech, "No data found."))
     out.append("    </div>")
 
 out.extend(
@@ -430,118 +434,6 @@ out.extend(
 
 with open(page_path, "a") as handle:
     handle.write("\n".join(out) + "\n")
-PY
-}
-
-f_active_write_tech(){
-    local whatweb_json="$1"
-    local page="$2"
-
-    cp "$DISCOVER/report/pages/tech.htm" "$page"
-
-    python3 - "$page" "$whatweb_json" <<'PY'
-import html
-import json
-import os
-import sys
-
-page_path, whatweb_path = sys.argv[1:3]
-
-def plugin_label(name, data):
-    if not isinstance(data, dict):
-        return name
-
-    values = []
-    for key in ("version", "string", "os", "account", "model", "firmware", "module", "filepath"):
-        raw = data.get(key)
-        if raw is None:
-            continue
-        if isinstance(raw, list):
-            values.extend(str(item) for item in raw if str(item).strip())
-        elif str(raw).strip():
-            values.append(str(raw))
-
-    if values:
-        return f"{name}[{', '.join(values)}]"
-    return name
-
-def format_technologies(plugins):
-    if not isinstance(plugins, dict) or not plugins:
-        return ""
-
-    labels = []
-    for name in sorted(plugins.keys(), key=lambda value: value.lower()):
-        labels.append(plugin_label(str(name), plugins[name]))
-    return ", ".join(labels)
-
-def load_entries(path):
-    if not path or not os.path.isfile(path):
-        return []
-
-    try:
-        with open(path, encoding="utf-8") as handle:
-            payload = json.load(handle)
-    except (OSError, json.JSONDecodeError):
-        return []
-
-    if isinstance(payload, list):
-        return payload
-    if isinstance(payload, dict):
-        return [payload]
-    return []
-
-def format_status(value):
-    if value is None or value == "":
-        return ""
-    return str(value)
-
-entries = load_entries(whatweb_path)
-entries.sort(key=lambda item: (item.get("target") or "").lower())
-
-lines = [
-    '    <div class="inc-content-frame inc-content-frame--table">',
-    '        <table class="table table-bordered inc-data-table">',
-    "            <thead>",
-    "                <tr>",
-    '                    <th scope="col" class="inc-sortable">URL</th>',
-    '                    <th scope="col" class="inc-sortable">Status</th>',
-    '                    <th scope="col" class="inc-sortable">Technologies</th>',
-    "                </tr>",
-    "            </thead>",
-    "            <tbody>",
-]
-
-if entries:
-    for entry in entries:
-        url = entry.get("target") or ""
-        status = format_status(entry.get("http_status"))
-        technologies = format_technologies(entry.get("plugins"))
-        lines.append(
-            "                <tr>"
-            f"<td>{html.escape(url)}</td>"
-            f"<td>{html.escape(status)}</td>"
-            f"<td>{html.escape(technologies)}</td>"
-            "</tr>"
-        )
-else:
-    lines.append('                <tr><td colspan="3">No technology data found.</td></tr>')
-
-lines.extend(
-    [
-        "            </tbody>",
-        "        </table>",
-        "    </div>",
-        "    </div>",
-        "</div>",
-        "",
-        '<script src="../assets/javascript/inc-data-table.js"></script>',
-        "</body>",
-        "</html>",
-    ]
-)
-
-with open(page_path, "a") as handle:
-    handle.write("\n".join(lines) + "\n")
 PY
 }
 
@@ -568,7 +460,6 @@ GOWITNESS_JSONL="$GOWITNESS_DIR/gowitness.jsonl"
 SCREENSHOTS_DIR="$GOWITNESS_DIR/screenshots"
 WHATWEB_UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
 PAGE="$DISCOVER_REPORT/pages/subdomains.htm"
-TECH_PAGE="$DISCOVER_REPORT/pages/tech.htm"
 
 if [ ! -f "$SUBDOMAINS_FILE" ] || [ ! -s "$SUBDOMAINS_FILE" ]; then
     f_active_die "Subdomains data not found. Run a passive scan or import subdomains first."
@@ -689,17 +580,14 @@ PY
 )
 PHOTO_HOST_COUNT=${PHOTO_HOST_COUNT:-0}
 
-echo -e "${BLUE}[*] Updating subdomains report with Alive and Photo columns.${NC}"
-f_active_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$ALIVE_TSV" "$GOWITNESS_JSONL" "$SCREENSHOTS_DIR" "$PAGE"
-
-echo -e "${BLUE}[*] Updating Tech page from whatweb results.${NC}"
-f_active_write_tech "$WHATWEB_JSON" "$TECH_PAGE"
+echo -e "${BLUE}[*] Updating subdomains report with Photo, Status, Web Server, and Technologies.${NC}"
+f_active_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$GOWITNESS_JSONL" "$SCREENSHOTS_DIR" "$HTTPX_JSONL" "$WHATWEB_JSON" "$PAGE"
 echo
 
 echo "$MEDIUM"
 echo
 echo "[*] Active scan complete."
-echo "[*] Probed $TARGET_COUNT hostnames; $ALIVE_HOST_COUNT marked alive in report."
+echo "[*] Probed $TARGET_COUNT hostnames; $ALIVE_HOST_COUNT with active probe data in report."
 if [ "$URL_COUNT" -gt 0 ]; then
     echo "[*] Captured $SCREENSHOT_COUNT screenshots; $PHOTO_HOST_COUNT linked in report."
 fi

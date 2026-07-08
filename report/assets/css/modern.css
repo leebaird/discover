@@ -233,27 +233,46 @@ body.inc-home-page {
     font-size: 12px;
 }
 
+body.inc-subdomains-page .container.inc-container-dynamic {
+    width: 100%;
+    max-width: 100%;
+}
+
 .inc-subdomains-tables {
-    display: grid;
-    width: max-content;
+    display: block;
+    width: 100%;
     max-width: 100%;
 }
 
 .inc-subdomains-note {
-    grid-column: 1 / -1;
     margin: 1em 0 16px;
     color: var(--text-muted);
     font-size: 13px;
     text-align: center;
 }
 
-.inc-subdomains-tables .inc-content-frame--table {
-    width: 100%;
+.inc-subdomains-tables .inc-content-frame--table:not(.inc-subdomains-public) {
+    width: max-content;
     max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-x: auto;
 }
 
-.inc-subdomains-tables .inc-content-frame--table table.inc-data-table {
+.inc-subdomains-tables .inc-content-frame--table:not(.inc-subdomains-public) table.inc-data-table {
+    width: auto;
+    table-layout: auto;
+}
+
+.inc-subdomains-tables .inc-content-frame--table.inc-subdomains-public {
     width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.inc-subdomains-tables .inc-content-frame--table.inc-subdomains-public table.inc-data-table {
+    width: 100%;
+    table-layout: auto;
 }
 
 .inc-subdomains-tables .inc-content-frame--table + .inc-content-frame--table {
@@ -263,6 +282,25 @@ body.inc-home-page {
 .inc-subdomains-public .inc-data-table > thead > tr > th.inc-col-center,
 .inc-subdomains-public .inc-data-table > tbody > tr > td.inc-col-center {
     text-align: center;
+    white-space: nowrap;
+}
+
+.inc-subdomains-public .inc-data-table > thead > tr > th:nth-child(7),
+.inc-subdomains-public .inc-data-table > tbody > tr > td.inc-subdomain-tech {
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+    vertical-align: top;
+}
+
+.inc-subdomains-public .inc-data-table > thead > tr > th:nth-child(6),
+.inc-subdomains-public .inc-data-table > tbody > tr > td.inc-subdomain-webserver {
+    width: 1%;
+    max-width: 38ch;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: normal;
+    vertical-align: top;
 }
 
 .inc-data-table tbody tr:nth-child(even) {
