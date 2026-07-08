@@ -142,7 +142,23 @@ f_return_main(){
     exit 0
 }
 
-export -f f_invalid f_error f_return_main
+f_dev_die(){
+    echo
+    echo -e "${RED}$SMALL${NC}"
+    echo
+    echo -e "${RED}[!] $1${NC}"
+    echo
+    echo -e "${RED}$SMALL${NC}"
+    echo
+    sleep 2
+    exit 1
+}
+
+f_dev_previous(){
+    exit 2
+}
+
+export -f f_invalid f_error f_return_main f_dev_die f_dev_previous
 
 ###############################################################################################################################
 
@@ -173,8 +189,13 @@ f_firefox_running(){
 f_firefox_check(){
     if f_firefox_running; then
         echo
-        echo "[!] Close all Firefox instances before running script."
+        echo -e "${RED}$SMALL${NC}"
         echo
+        echo -e "${RED}[!] Close all Firefox instances before running script.${NC}"
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        sleep 2
         return 1
     fi
 }
@@ -211,19 +232,39 @@ f_company_domain(){
     echo
     echo "$MEDIUM"
     echo
-    while [[ -z "$COMPANY" ]]; do
-        echo -n "Company: "
-        read -r COMPANY
-        COMPANY="${COMPANY#"${COMPANY%%[![:space:]]*}"}"
-        COMPANY="${COMPANY%"${COMPANY##*[![:space:]]}"}"
-    done
+    echo -n "Company: "
+    read -r COMPANY
+    COMPANY="${COMPANY#"${COMPANY%%[![:space:]]*}"}"
+    COMPANY="${COMPANY%"${COMPANY##*[![:space:]]}"}"
 
-    while [[ -z "$DOMAIN" ]]; do
-        echo -n "Domain:  "
-        read -r DOMAIN
-        DOMAIN="${DOMAIN#"${DOMAIN%%[![:space:]]*}"}"
-        DOMAIN="${DOMAIN%"${DOMAIN##*[![:space:]]}"}"
-    done
+    if [ -z "$COMPANY" ]; then
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        echo -e "${RED}[!] A company name is required.${NC}"
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        sleep 2
+        exit 1
+    fi
+
+    echo -n "Domain:  "
+    read -r DOMAIN
+    DOMAIN="${DOMAIN#"${DOMAIN%%[![:space:]]*}"}"
+    DOMAIN="${DOMAIN%"${DOMAIN##*[![:space:]]}"}"
+
+    if [ -z "$DOMAIN" ]; then
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        echo -e "${RED}[!] A domain is required.${NC}"
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        sleep 2
+        exit 1
+    fi
 
     if [[ ! "$DOMAIN" =~ ^([a-zA-Z0-9](-?[a-zA-Z0-9])*\.)+[a-zA-Z]{2,63}$ ]]; then
         echo
@@ -233,6 +274,7 @@ f_company_domain(){
         echo
         echo -e "${RED}$SMALL${NC}"
         echo
+        sleep 2
         exit 1
     fi
 
@@ -295,50 +337,73 @@ export -f f_update
 
 ###############################################################################################################################
 
+f_dev_run(){
+    local script="$1"
+    local status
+
+    "$script"
+    status=$?
+    if [ "$status" -eq 0 ]; then
+        exit 0
+    fi
+    if [ "$status" -eq 2 ]; then
+        f_dev
+        return 0
+    fi
+    if [ "$status" -eq 3 ]; then
+        exit 1
+    fi
+    return 0
+}
+
 f_dev(){
-    while true; do
-        clear
-        f_banner
+    clear
+    f_banner
 
-        echo -e "${BLUE}Dev scripts originally by ${YELLOW}ibrahimsql${NC}"
-        echo
-        echo "1. API Security"
-        echo "2. Cloud Security"
-        echo "3. Container Security"
-        echo "4. OAuth and JWT Security"
-        echo "5. Open Redirect Scanner"
-        echo "6. Sensitive Information"
-        echo "7. WAF Detection"
-        echo "8. Web and API Security"
-        echo "9. Previous menu"
-        echo
+    echo -e "${BLUE}Dev scripts originally by ${YELLOW}ibrahimsql${NC}"
+    echo
+    echo "1. API Security"
+    echo "2. Cloud Security"
+    echo "3. Container Security"
+    echo "4. OAuth and JWT Security"
+    echo "5. Open Redirect Scanner"
+    echo "6. Sensitive Information"
+    echo "7. WAF Detection"
+    echo "8. Web and API Security"
+    echo "9. Previous menu"
+    echo
 
-        echo -n "Choice: "
-        read -r CHOICE
-        CHOICE="${CHOICE#"${CHOICE%%[![:space:]]*}"}"
-        CHOICE="${CHOICE%"${CHOICE##*[![:space:]]}"}"
+    echo -n "Choice: "
+    read -r CHOICE
+    CHOICE="${CHOICE//$'\r'/}"
+    CHOICE="${CHOICE#"${CHOICE%%[![:space:]]*}"}"
+    CHOICE="${CHOICE%"${CHOICE##*[![:space:]]}"}"
 
-        case "$CHOICE" in
-            9) return 0 ;;
-            *)
-                if [ ! -d "$HOME"/data ]; then
-                    mkdir -p "$HOME"/data
-                fi
+    if [ -z "$CHOICE" ]; then
+        f_invalid
+        return 0
+    fi
 
-                case "$CHOICE" in
-                    1) ./dev/api-scanner.sh && exit ;;
-                    2) ./dev/cloud-scanner.sh && exit ;;
-                    3) ./dev/container-scanner.sh && exit ;;
-                    4) ./dev/oauth-jwt-scanner.sh && exit ;;
-                    5) ./dev/open-redirect.sh && exit ;;
-                    6) ./dev/sensitive-scanner.sh && exit ;;
-                    7) ./dev/waf-detect.sh && exit ;;
-                    8) ./dev/web-api-scanner.sh && exit ;;
-                    *) f_invalid ;;
-                esac
-                ;;
-        esac
-    done
+    case "$CHOICE" in
+        9) return 0 ;;
+        *)
+            if [ ! -d "$HOME"/data ]; then
+                mkdir -p "$HOME"/data
+            fi
+
+            case "$CHOICE" in
+                1) f_dev_run "$DISCOVER/dev/api-scanner.sh" ;;
+                2) f_dev_run "$DISCOVER/dev/cloud-scanner.sh" ;;
+                3) f_dev_run "$DISCOVER/dev/container-scanner.sh" ;;
+                4) f_dev_run "$DISCOVER/dev/oauth-jwt-scanner.sh" ;;
+                5) f_dev_run "$DISCOVER/dev/open-redirect.sh" ;;
+                6) f_dev_run "$DISCOVER/dev/sensitive-scanner.sh" ;;
+                7) f_dev_run "$DISCOVER/dev/waf-detect.sh" ;;
+                8) f_dev_run "$DISCOVER/dev/web-api-scanner.sh" ;;
+                *) f_invalid; return 0 ;;
+            esac
+            ;;
+    esac
 }
 
 export -f f_dev
@@ -394,8 +459,8 @@ f_main(){
 
             case "$CHOICE" in
                 # RECON
-                1) unset LOCATION; "$RECON_DIR/domain.sh" ;;
-                2) "$RECON_DIR/person.sh"; exit ;;
+                1) unset LOCATION; "$RECON_DIR/domain.sh"; [ $? -eq 2 ] && exit ;;
+                2) "$RECON_DIR/person.sh"; [ $? -eq 0 ] && exit ;;
 
                 # SCANNING
                 3) "$SCAN_DIR/generateTargets.sh" || exit ;;
@@ -411,8 +476,8 @@ f_main(){
                 11) "$WEB_DIR/ssl.sh" ;;
 
                 # MISC
-                12) "$MISC_DIR/payload.sh" ;;
-                13) "$MISC_DIR/listener.sh" ;;
+                12) "$MISC_DIR/payload.sh"; [ $? -eq 0 ] && exit ;;
+                13) "$MISC_DIR/listener.sh"; [ $? -eq 0 ] && exit ;;
                 14) "$MISC_DIR/cve.sh" ;;
                 15) "$MISC_DIR/parse.sh" ;;
 

@@ -18,7 +18,8 @@ f_active_die(){
     echo
     echo -e "${RED}$SMALL${NC}"
     echo
-    exit 0
+    sleep 2
+    exit 1
 }
 
 f_active_read_report(){
@@ -30,8 +31,11 @@ f_active_read_report(){
     DISCOVER_REPORT="${DISCOVER_REPORT%"${DISCOVER_REPORT##*[![:space:]]}"}"
     DISCOVER_REPORT="${DISCOVER_REPORT/#\~/$HOME}"
 
-    if [ -z "$DISCOVER_REPORT" ] \
-        || [ -f "$DISCOVER_REPORT" ] \
+    if [ -z "$DISCOVER_REPORT" ]; then
+        f_active_die "No scan location provided."
+    fi
+
+    if [ -f "$DISCOVER_REPORT" ] \
         || [ ! -d "$DISCOVER_REPORT" ] \
         || [ ! -r "$DISCOVER_REPORT" ] \
         || [ ! -x "$DISCOVER_REPORT" ] \
@@ -429,6 +433,118 @@ with open(page_path, "a") as handle:
 PY
 }
 
+f_active_write_tech(){
+    local whatweb_json="$1"
+    local page="$2"
+
+    cp "$DISCOVER/report/pages/tech.htm" "$page"
+
+    python3 - "$page" "$whatweb_json" <<'PY'
+import html
+import json
+import os
+import sys
+
+page_path, whatweb_path = sys.argv[1:3]
+
+def plugin_label(name, data):
+    if not isinstance(data, dict):
+        return name
+
+    values = []
+    for key in ("version", "string", "os", "account", "model", "firmware", "module", "filepath"):
+        raw = data.get(key)
+        if raw is None:
+            continue
+        if isinstance(raw, list):
+            values.extend(str(item) for item in raw if str(item).strip())
+        elif str(raw).strip():
+            values.append(str(raw))
+
+    if values:
+        return f"{name}[{', '.join(values)}]"
+    return name
+
+def format_technologies(plugins):
+    if not isinstance(plugins, dict) or not plugins:
+        return ""
+
+    labels = []
+    for name in sorted(plugins.keys(), key=lambda value: value.lower()):
+        labels.append(plugin_label(str(name), plugins[name]))
+    return ", ".join(labels)
+
+def load_entries(path):
+    if not path or not os.path.isfile(path):
+        return []
+
+    try:
+        with open(path, encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return []
+
+    if isinstance(payload, list):
+        return payload
+    if isinstance(payload, dict):
+        return [payload]
+    return []
+
+def format_status(value):
+    if value is None or value == "":
+        return ""
+    return str(value)
+
+entries = load_entries(whatweb_path)
+entries.sort(key=lambda item: (item.get("target") or "").lower())
+
+lines = [
+    '    <div class="inc-content-frame inc-content-frame--table">',
+    '        <table class="table table-bordered inc-data-table">',
+    "            <thead>",
+    "                <tr>",
+    '                    <th scope="col" class="inc-sortable">URL</th>',
+    '                    <th scope="col" class="inc-sortable">Status</th>',
+    '                    <th scope="col" class="inc-sortable">Technologies</th>',
+    "                </tr>",
+    "            </thead>",
+    "            <tbody>",
+]
+
+if entries:
+    for entry in entries:
+        url = entry.get("target") or ""
+        status = format_status(entry.get("http_status"))
+        technologies = format_technologies(entry.get("plugins"))
+        lines.append(
+            "                <tr>"
+            f"<td>{html.escape(url)}</td>"
+            f"<td>{html.escape(status)}</td>"
+            f"<td>{html.escape(technologies)}</td>"
+            "</tr>"
+        )
+else:
+    lines.append('                <tr><td colspan="3">No technology data found.</td></tr>')
+
+lines.extend(
+    [
+        "            </tbody>",
+        "        </table>",
+        "    </div>",
+        "    </div>",
+        "</div>",
+        "",
+        '<script src="../assets/javascript/inc-data-table.js"></script>',
+        "</body>",
+        "</html>",
+    ]
+)
+
+with open(page_path, "a") as handle:
+    handle.write("\n".join(lines) + "\n")
+PY
+}
+
 clear
 f_banner
 
@@ -452,6 +568,7 @@ GOWITNESS_JSONL="$GOWITNESS_DIR/gowitness.jsonl"
 SCREENSHOTS_DIR="$GOWITNESS_DIR/screenshots"
 WHATWEB_UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
 PAGE="$DISCOVER_REPORT/pages/subdomains.htm"
+TECH_PAGE="$DISCOVER_REPORT/pages/tech.htm"
 
 if [ ! -f "$SUBDOMAINS_FILE" ] || [ ! -s "$SUBDOMAINS_FILE" ]; then
     f_active_die "Subdomains data not found. Run a passive scan or import subdomains first."
@@ -522,7 +639,7 @@ if [ "$URL_COUNT" -gt 0 ]; then
 else
     echo
     echo "[*] No alive URLs found. Skipping whatweb and gowitness."
-    rm -f "$GOWITNESS_JSONL" "$GOWITNESS_DIR/gowitness.db" 2>/dev/null
+    rm -f "$WHATWEB_JSON" "$GOWITNESS_JSONL" "$GOWITNESS_DIR/gowitness.db" 2>/dev/null
     rm -rf "$SCREENSHOTS_DIR"/*
     echo
 fi
@@ -574,6 +691,9 @@ PHOTO_HOST_COUNT=${PHOTO_HOST_COUNT:-0}
 
 echo -e "${BLUE}[*] Updating subdomains report with Alive and Photo columns.${NC}"
 f_active_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$ALIVE_TSV" "$GOWITNESS_JSONL" "$SCREENSHOTS_DIR" "$PAGE"
+
+echo -e "${BLUE}[*] Updating Tech page from whatweb results.${NC}"
+f_active_write_tech "$WHATWEB_JSON" "$TECH_PAGE"
 echo
 
 echo "$MEDIUM"

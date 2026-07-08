@@ -7,6 +7,8 @@
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
 
 OAUTH_JWT_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/menu.sh
+source "${OAUTH_JWT_SCANNER_ROOT}/lib/menu.sh"
 # shellcheck source=lib/oauth-jwt-scanner/common.sh
 source "${OAUTH_JWT_SCANNER_ROOT}/lib/oauth-jwt-scanner/common.sh"
 # shellcheck source=lib/oauth-jwt-scanner/oauth.sh
@@ -60,44 +62,33 @@ f_oauth_jwt_interactive_menu(){
         echo "4. Previous menu"
         echo
         echo -n "Choice: "
-        read -r CHOICE
+        f_dev_read_choice CHOICE
+        f_dev_menu_validate "$CHOICE"
 
         case "$CHOICE" in
             1) OAUTH_JWT_SCAN_TYPES="oauth" ;;
             2) OAUTH_JWT_SCAN_TYPES="jwt" ;;
             3) OAUTH_JWT_SCAN_TYPES="all" ;;
-            4) f_dev ;;
-            *) f_invalid; continue ;;
+            4) f_dev_previous ;;
+            *) f_dev_die "Invalid choice or entry." ;;
         esac
 
-        echo
         echo "Scan mode:"
         echo "1. Quick"
         echo "2. Full"
-        echo -n "Choice [2]: "
-        read -r MODE_CHOICE
-        case "$MODE_CHOICE" in
-            1) OAUTH_JWT_SCAN_MODE="quick" ;;
-            *) OAUTH_JWT_SCAN_MODE="full" ;;
-        esac
+        f_dev_read_scan_mode OAUTH_JWT_SCAN_MODE
 
         if [ "$OAUTH_JWT_SCAN_TYPES" != "jwt" ]; then
-            echo -n "Target URL: "
-            read -r OAUTH_JWT_TARGET
-            [[ "$OAUTH_JWT_TARGET" =~ ^https?:// ]] || { f_invalid; continue; }
+            f_dev_read_url OAUTH_JWT_TARGET "Target URL: "
         fi
 
         if [ "$OAUTH_JWT_SCAN_TYPES" != "oauth" ]; then
-            echo -n "JWT token (leave blank to use jwt_found.txt from api-scanner dir): "
-            read -r OAUTH_JWT_TOKEN
+            f_dev_read_optional_jwt OAUTH_JWT_TOKEN "JWT token (leave blank to use jwt_found.txt from api-scanner dir): "
             if [ -z "$OAUTH_JWT_TOKEN" ]; then
-                echo -n "API scanner output dir (optional): "
-                read -r OAUTH_JWT_API_SCAN_DIR
+                f_dev_read_optional OAUTH_JWT_API_SCAN_DIR "API scanner output dir (optional): "
             fi
+            f_dev_read_optional OAUTH_JWT_ENDPOINT "JWT live-test endpoint (optional): "
         fi
-
-        echo -n "JWT live-test endpoint (optional): "
-        read -r OAUTH_JWT_ENDPOINT
 
         f_oauth_jwt_setup_output
         echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"

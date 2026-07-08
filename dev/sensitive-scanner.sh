@@ -7,6 +7,8 @@
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
 
 SENSITIVE_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/menu.sh
+source "${SENSITIVE_SCANNER_ROOT}/lib/menu.sh"
 # shellcheck source=lib/sensitive-scanner/common.sh
 source "${SENSITIVE_SCANNER_ROOT}/lib/sensitive-scanner/common.sh"
 # shellcheck source=lib/sensitive-scanner/files.sh
@@ -64,7 +66,8 @@ f_sensitive_interactive_menu(){
         echo "5. Previous menu"
         echo
         echo -n "Choice: "
-        read -r CHOICE
+        f_dev_read_choice CHOICE
+        f_dev_menu_validate "$CHOICE"
 
         SENSITIVE_PATH=""
         SENSITIVE_URL=""
@@ -72,48 +75,34 @@ f_sensitive_interactive_menu(){
 
         case "$CHOICE" in
             1)
-                echo -n "Path to file or folder: "
-                read -r SENSITIVE_PATH
-                [ -e "$SENSITIVE_PATH" ] || { f_invalid; continue; }
+                f_dev_read_path SENSITIVE_PATH "Path to file or folder: " "Path not found."
                 SENSITIVE_SCAN_TYPES="files"
                 ;;
             2)
-                echo -n "URL (https://target.com): "
-                read -r SENSITIVE_URL
-                [[ "$SENSITIVE_URL" =~ ^https?:// ]] || { f_invalid; continue; }
+                f_dev_read_url SENSITIVE_URL "URL (https://target.com): "
                 SENSITIVE_SCAN_TYPES="web"
                 ;;
             3)
-                echo -n "Path to file or folder: "
-                read -r SENSITIVE_PATH
-                [ -e "$SENSITIVE_PATH" ] || { f_invalid; continue; }
+                f_dev_read_path SENSITIVE_PATH "Path to file or folder: " "Path not found."
                 echo -n "Prior scan dir (optional): "
                 read -r SENSITIVE_SCAN_DIR
+                SENSITIVE_SCAN_DIR=$(f_dev_trim "$SENSITIVE_SCAN_DIR")
+                SENSITIVE_SCAN_DIR="${SENSITIVE_SCAN_DIR/#\~/$HOME}"
                 SENSITIVE_SCAN_TYPES="files"
                 ;;
             4)
-                echo -n "URL: "
-                read -r SENSITIVE_URL
-                [[ "$SENSITIVE_URL" =~ ^https?:// ]] || { f_invalid; continue; }
-                echo -n "Prior scan dir (e.g. ~/data/api-scan_*): "
-                read -r SENSITIVE_SCAN_DIR
-                [ -n "$SENSITIVE_SCAN_DIR" ] && [ -d "$SENSITIVE_SCAN_DIR" ] || { f_invalid; continue; }
+                f_dev_read_url SENSITIVE_URL "URL: "
+                f_dev_read_dir SENSITIVE_SCAN_DIR "Prior scan dir (e.g. ~/data/api-scan_*): " "Scan directory not found."
                 SENSITIVE_SCAN_TYPES="all"
                 ;;
-            5) f_dev ;;
-            *) f_invalid; continue ;;
+            5) f_dev_previous ;;
+            *) f_dev_die "Invalid choice or entry." ;;
         esac
 
-        echo
         echo "Scan mode:"
         echo "1. Quick"
         echo "2. Full"
-        echo -n "Choice [2]: "
-        read -r MODE_CHOICE
-        case "$MODE_CHOICE" in
-            1) SENSITIVE_SCAN_MODE="quick" ;;
-            *) SENSITIVE_SCAN_MODE="full" ;;
-        esac
+        f_dev_read_scan_mode SENSITIVE_SCAN_MODE
 
         f_sensitive_setup_output
         echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"

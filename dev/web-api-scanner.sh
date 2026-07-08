@@ -7,6 +7,8 @@
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
 
 WEBAPI_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/menu.sh
+source "${WEBAPI_ROOT}/lib/menu.sh"
 # shellcheck source=lib/web-api-scanner/common.sh
 source "${WEBAPI_ROOT}/lib/web-api-scanner/common.sh"
 # shellcheck source=lib/web-api-scanner/phases.sh
@@ -42,21 +44,19 @@ f_webapi_interactive_menu(){
         echo "2. Previous menu"
         echo
         echo -n "Choice: "
-        read -r CHOICE
+        f_dev_read_choice CHOICE
+        f_dev_menu_validate "$CHOICE"
 
         case "$CHOICE" in
             1)
-                echo
-                echo -n "Target URL or hostname: "
-                read -r WEBAPI_URL
-                [ -n "$WEBAPI_URL" ] || { f_invalid; continue; }
-                echo
+                f_dev_read_required WEBAPI_URL "Target URL or hostname: " "No target provided."
                 echo "Scan tier:"
                 echo "1. Passive (MSF recon only — recommended)"
                 echo "2. Quick/standard (recon + tech scanners)"
                 echo "3. Intrusive (+ SQLi + auth brute)"
                 echo "4. Exploit (+ exploit checks)"
-                echo -n "Choice [1]: "
+                echo
+                echo -n "Choice: "
                 read -r TIER_CHOICE
                 case "$TIER_CHOICE" in
                     2) WEBAPI_TIER=standard; WEBAPI_QUICK=1 ;;
@@ -73,8 +73,8 @@ f_webapi_interactive_menu(){
                 echo -n "Press Enter..."
                 read -r _
                 ;;
-            2) f_dev ;;
-            *) f_invalid; continue ;;
+            2) f_dev_previous ;;
+            *) f_dev_die "Invalid choice or entry." ;;
         esac
     done
 }

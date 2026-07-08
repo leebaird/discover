@@ -71,7 +71,7 @@ fi
 clear
 f_banner
 
-echo -e "${BLUE}CVE lookup${NC}"
+echo -e "${BLUE}CVE lookup.${NC}"
 echo
 echo -n "CVE: "
 read -r CVE

@@ -7,6 +7,8 @@
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
 
 _API_SCANNER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/menu.sh
+source "${_API_SCANNER_DIR}/lib/menu.sh"
 # shellcheck source=lib/api-scanner/common.sh
 source "${_API_SCANNER_DIR}/lib/api-scanner/common.sh"
 
@@ -608,7 +610,8 @@ f_api_orchestrate(){
         echo "Probe mode:"
         echo "1. Passive (recommended — normal GET only)"
         echo "2. Active (wafw00f + triggers)"
-        echo -n "Choice [1]: "
+        echo
+        echo -n "Choice: "
         read -r waf_mode
         _waf_args=(--url "$target" --quiet)
         case "$waf_mode" in
@@ -624,7 +627,8 @@ f_api_orchestrate(){
         echo "Scan mode:"
         echo "1. Passive (MSF recon only — recommended)"
         echo "2. Active (brute force, exploits, SQLi)"
-        echo -n "Choice [1]: "
+        echo
+        echo -n "Choice: "
         read -r webapi_mode
         _webapi_args=(--url "$target" --quiet --skip-msf-db --scan-dir "$OUTPUT_DIR")
         [ -n "$API_BEARER_TOKEN" ] && _webapi_args+=(--bearer-token "$API_BEARER_TOKEN")
@@ -724,7 +728,7 @@ f_api_main(){
     f_api_note_discovery_tools
 
     if [ -n "$API_CLI_URL" ]; then
-        [[ "$API_CLI_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
+        [[ "$API_CLI_URL" =~ ^https?:// ]] || f_dev_die "Invalid URL."
         if [ "$API_CLI_MODE" = "orchestrate" ]; then
             f_api_orchestrate "$API_CLI_URL"
         else
@@ -748,42 +752,33 @@ f_api_main(){
         echo "5. Previous menu"
         echo
         echo -n "Choice: "
-        read -r CHOICE
-        CHOICE="${CHOICE#"${CHOICE%%[![:space:]]*}"}"
-        CHOICE="${CHOICE%"${CHOICE##*[![:space:]]}"}"
+        f_dev_read_choice CHOICE
+        f_dev_menu_validate "$CHOICE"
 
         case "$CHOICE" in
             1)
-                echo -n "Enter target URL: "
-                read -r TARGET_URL
-                [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
+                f_dev_read_url TARGET_URL "Enter target URL: "
                 echo -n "Bearer token (optional, Enter to skip): "
                 read -r API_BEARER_TOKEN
                 API_SCAN_MODE="full"
                 f_api_run_scan "$TARGET_URL"
                 return 0 ;;
             2)
-                echo -n "Enter target URL: "
-                read -r TARGET_URL
-                [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
+                f_dev_read_url TARGET_URL "Enter target URL: "
                 API_SCAN_MODE="quick"
                 f_api_run_scan "$TARGET_URL"
                 return 0 ;;
             3)
-                echo -n "Enter JWT token: "
-                read -r JWT_TOKEN
-                [[ "$JWT_TOKEN" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]] || { echo "Invalid JWT"; exit 1; }
+                f_dev_read_jwt JWT_TOKEN
                 f_jwt_analysis "$JWT_TOKEN"
                 return 0 ;;
             4)
-                echo -n "Enter target URL: "
-                read -r TARGET_URL
-                [[ "$TARGET_URL" =~ ^https?:// ]] || { echo "Invalid URL"; exit 1; }
+                f_dev_read_url TARGET_URL "Enter target URL: "
                 API_SCAN_MODE="full"
                 f_api_orchestrate "$TARGET_URL"
                 return 0 ;;
-            5) f_dev ;;
-            *) f_invalid ;;
+            5) f_dev_previous ;;
+            *) f_dev_die "Invalid choice or entry." ;;
         esac
     done
 }

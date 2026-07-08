@@ -10,6 +10,7 @@ f_names_die(){
     echo
     echo -e "${RED}$SMALL${NC}"
     echo
+    sleep 2
     exit 1
 }
 
@@ -22,8 +23,11 @@ f_names_read_report(){
     DISCOVER_REPORT="${DISCOVER_REPORT%"${DISCOVER_REPORT##*[![:space:]]}"}"
     DISCOVER_REPORT="${DISCOVER_REPORT/#\~/$HOME}"
 
-    if [ -z "$DISCOVER_REPORT" ] \
-        || [ -f "$DISCOVER_REPORT" ] \
+    if [ -z "$DISCOVER_REPORT" ]; then
+        f_names_die "No scan location provided."
+    fi
+
+    if [ -f "$DISCOVER_REPORT" ] \
         || [ ! -d "$DISCOVER_REPORT" ] \
         || [ ! -r "$DISCOVER_REPORT" ] \
         || [ ! -x "$DISCOVER_REPORT" ] \

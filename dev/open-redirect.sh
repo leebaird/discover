@@ -7,6 +7,8 @@
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
 
 OPEN_REDIRECT_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/menu.sh
+source "${OPEN_REDIRECT_SCANNER_ROOT}/lib/menu.sh"
 # shellcheck source=lib/open-redirect-scanner/common.sh
 source "${OPEN_REDIRECT_SCANNER_ROOT}/lib/open-redirect-scanner/common.sh"
 
@@ -40,7 +42,8 @@ f_openredirect_interactive_menu(){
         echo "6. Previous menu"
         echo
         echo -n "Choice: "
-        read -r CHOICE
+        f_dev_read_choice CHOICE
+        f_dev_menu_validate "$CHOICE"
 
         OPEN_REDIRECT_URL=""
         OPEN_REDIRECT_DOMAIN=""
@@ -55,36 +58,25 @@ f_openredirect_interactive_menu(){
 
         case "$CHOICE" in
             1)
-                echo
-                echo -n "Target URL or domain: "
-                read -r OPEN_REDIRECT_URL
-                [ -n "$OPEN_REDIRECT_URL" ] || { f_invalid; continue; }
+                f_dev_read_required OPEN_REDIRECT_URL "Target URL or domain: " "No target provided."
                 OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
                 ;;
             2)
-                echo
-                echo -n "Domain name: "
-                read -r OPEN_REDIRECT_DOMAIN
-                [ -n "$OPEN_REDIRECT_DOMAIN" ] || { f_invalid; continue; }
+                f_dev_read_required OPEN_REDIRECT_DOMAIN "Domain name: " "No domain provided."
                 OPEN_REDIRECT_DOMAIN=$(f_openredirect_normalize_domain "$OPEN_REDIRECT_DOMAIN")
                 ;;
             3)
-                echo
-                echo -n "Path to URL list file: "
-                read -r OPEN_REDIRECT_FILE
-                [ -n "$OPEN_REDIRECT_FILE" ] && [ -f "$OPEN_REDIRECT_FILE" ] || { f_invalid; continue; }
+                f_dev_read_file OPEN_REDIRECT_FILE "Path to URL list file: " "Input file not found."
                 ;;
             4)
-                echo
-                echo -n "Target URL or domain: "
-                read -r OPEN_REDIRECT_URL
-                [ -n "$OPEN_REDIRECT_URL" ] || { f_invalid; continue; }
+                f_dev_read_required OPEN_REDIRECT_URL "Target URL or domain: " "No target provided."
                 OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
                 echo -n "Custom parameter wordlist (optional): "
                 read -r OPEN_REDIRECT_WORDLIST
+                OPEN_REDIRECT_WORDLIST=$(f_dev_trim "$OPEN_REDIRECT_WORDLIST")
+                OPEN_REDIRECT_WORDLIST="${OPEN_REDIRECT_WORDLIST/#\~/$HOME}"
                 if [ -n "$OPEN_REDIRECT_WORDLIST" ] && [ ! -f "$OPEN_REDIRECT_WORDLIST" ]; then
-                    f_invalid
-                    continue
+                    f_dev_die "Input file not found."
                 fi
                 echo -n "Crawl links from target? (y/n) [n]: "
                 read -r CRAWL_IN
@@ -97,30 +89,22 @@ f_openredirect_interactive_menu(){
                 OPEN_REDIRECT_DELAY="${OPEN_REDIRECT_DELAY:-0}"
                 ;;
             5)
-                echo
-                echo -n "Prior scan output dir (e.g. ~/data/api-scan_*): "
-                read -r OPEN_REDIRECT_SCAN_DIR
-                [ -n "$OPEN_REDIRECT_SCAN_DIR" ] && [ -d "$OPEN_REDIRECT_SCAN_DIR" ] || { f_invalid; continue; }
+                f_dev_read_dir OPEN_REDIRECT_SCAN_DIR "Prior scan output dir (e.g. ~/data/api-scan_*): " "Scan directory not found."
                 echo -n "Also seed with a single URL (optional): "
                 read -r OPEN_REDIRECT_URL
+                OPEN_REDIRECT_URL=$(f_dev_trim "$OPEN_REDIRECT_URL")
                 if [ -n "$OPEN_REDIRECT_URL" ]; then
                     OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
                 fi
                 ;;
-            6) f_dev ;;
-            *) f_invalid; continue ;;
+            6) f_dev_previous ;;
+            *) f_dev_die "Invalid choice or entry." ;;
         esac
 
-        echo
         echo "Scan mode:"
         echo "1. Quick"
         echo "2. Full"
-        echo -n "Choice [2]: "
-        read -r MODE_CHOICE
-        case "$MODE_CHOICE" in
-            1) OPEN_REDIRECT_SCAN_MODE="quick" ;;
-            *) OPEN_REDIRECT_SCAN_MODE="full" ;;
-        esac
+        f_dev_read_scan_mode OPEN_REDIRECT_SCAN_MODE
 
         echo -n "Canary host [${OPEN_REDIRECT_CANARY_HOST}]: "
         read -r CANARY_IN

@@ -10,6 +10,7 @@ f_regdomain_die(){
     echo
     echo -e "${RED}$SMALL${NC}"
     echo
+    sleep 2
     exit 1
 }
 
@@ -60,8 +61,11 @@ f_regdomain_read_report(){
     DISCOVER_REPORT="${DISCOVER_REPORT%"${DISCOVER_REPORT##*[![:space:]]}"}"
     DISCOVER_REPORT="${DISCOVER_REPORT/#\~/$HOME}"
 
-    if [ -z "$DISCOVER_REPORT" ] \
-        || [ -f "$DISCOVER_REPORT" ] \
+    if [ -z "$DISCOVER_REPORT" ]; then
+        f_regdomain_die "No scan location provided."
+    fi
+
+    if [ -f "$DISCOVER_REPORT" ] \
         || [ ! -d "$DISCOVER_REPORT" ] \
         || [ ! -r "$DISCOVER_REPORT" ] \
         || [ ! -x "$DISCOVER_REPORT" ] \
@@ -401,7 +405,7 @@ f_google_dorks() {
 
     for url in "${GOOGLE_URLS[@]}"; do
         USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
-        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null
+        MOZ_DISABLE_ATK_BRIDGE=1 GTK_A11Y=none firefox "$url" --user-agent="$USER_AGENT" >/dev/null 2>&1 &
         sleep $((RANDOM % 8 + 8))
     done
 }
@@ -453,9 +457,9 @@ f_domain_menu(){
     CHOICE="${CHOICE%"${CHOICE##*[![:space:]]}"}"
 
     case "$CHOICE" in
-    1) "$RECON_DIR/passive.sh" && exit ;;
-    98) "$RECON_DIR/passive.sh" 98 && exit ;;
-    99) "$RECON_DIR/passive.sh" 99 && exit ;;
+    1) "$RECON_DIR/passive.sh"; exit ;;
+    98) "$RECON_DIR/passive.sh" 98; exit ;;
+    99) "$RECON_DIR/passive.sh" 99; exit ;;
     2)  f_runlocally
         clear
         f_banner
@@ -463,7 +467,7 @@ f_domain_menu(){
         echo -e "${BLUE}Breaches.${NC}"
         f_breaches
         echo
-        exit
+        exit 2
         ;;
     3)  clear
         f_banner
@@ -590,7 +594,9 @@ f_domain_menu(){
         exit 0
         ;;
     4)  f_runlocally
-        f_firefox_check || continue
+        if ! f_firefox_check; then
+            exit 1
+        fi
         clear
         f_banner
 
@@ -601,7 +607,9 @@ f_domain_menu(){
         exit
         ;;
     5)  f_runlocally
-        f_firefox_check || continue
+        if ! f_firefox_check; then
+            exit 1
+        fi
         clear
         f_banner
 
@@ -611,9 +619,9 @@ f_domain_menu(){
         echo
         exit
         ;;
-    6) "$RECON_DIR/import-names.sh" && exit ;;
-    7) "$RECON_DIR/import-subdomains.sh" && exit ;;
-    8) "$RECON_DIR/active.sh" && exit ;;
+    6) "$RECON_DIR/import-names.sh"; exit ;;
+    7) "$RECON_DIR/import-subdomains.sh"; exit ;;
+    8) "$RECON_DIR/active.sh"; exit ;;
     9) exit 0 ;;
     *) f_invalid ;;
     esac

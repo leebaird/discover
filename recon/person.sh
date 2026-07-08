@@ -21,6 +21,7 @@ if [ -z "$FIRST" ]; then
     echo
     echo -e "${RED}$SMALL${NC}"
     echo
+    sleep 2
     exit 1
 fi
 
@@ -35,6 +36,7 @@ if [ -z "$LAST" ]; then
     echo
     echo -e "${RED}$SMALL${NC}"
     echo
+    sleep 2
     exit 1
 fi
 

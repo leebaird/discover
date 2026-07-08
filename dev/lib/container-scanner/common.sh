@@ -14,6 +14,7 @@ CONTAINER_INCLUDE_NS="${CONTAINER_INCLUDE_NS:-}"
 CONTAINER_EXCLUDE_NS="${CONTAINER_EXCLUDE_NS:-kube-system,kube-public,kube-node-lease}"
 CONTAINER_TRIVY_JOBS="${CONTAINER_TRIVY_JOBS:-4}"
 CONTAINER_USE_MENU="${CONTAINER_USE_MENU:-0}"
+CONTAINER_CLI_INVOKED="${CONTAINER_CLI_INVOKED:-0}"
 
 CONTAINER_SCAN_LOG=""
 CONTAINER_CHECKPOINT_DIR=""
@@ -101,6 +102,30 @@ f_container_init_scan(){
 
 f_container_log(){
     echo "[$(f_container_now)] $*" >> "$CONTAINER_SCAN_LOG"
+}
+
+f_container_docker_available(){
+    if ! command -v docker >/dev/null 2>&1; then
+        echo -e "${RED}[!] Docker is not installed.${NC}"
+        return 1
+    fi
+    if ! docker info >/dev/null 2>>"${CONTAINER_SCAN_LOG:-/dev/null}"; then
+        echo -e "${RED}[!] Cannot access Docker. Add your user to the docker group or use sudo.${NC}"
+        return 1
+    fi
+    return 0
+}
+
+f_container_k8s_available(){
+    if ! command -v kubectl >/dev/null 2>&1; then
+        echo -e "${RED}[!] kubectl is not installed.${NC}"
+        return 1
+    fi
+    if ! kubectl cluster-info >/dev/null 2>>"${CONTAINER_SCAN_LOG:-/dev/null}"; then
+        echo -e "${RED}[!] Cannot connect to a Kubernetes cluster.${NC}"
+        return 1
+    fi
+    return 0
 }
 
 f_container_should_run_phase(){
@@ -455,21 +480,22 @@ f_container_parse_cli(){
     CONTAINER_DOCKERFILE_ROOT=""
     CONTAINER_INCLUDE_NS=""
     CONTAINER_EXCLUDE_NS="kube-system,kube-public,kube-node-lease"
+    CONTAINER_CLI_INVOKED=0
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --quick) CONTAINER_SCAN_MODE="quick"; shift ;;
-            --full) CONTAINER_SCAN_MODE="full"; shift ;;
-            --output-dir) CONTAINER_OUTPUT_DIR="$2"; shift 2 ;;
-            --resume) CONTAINER_RESUME_DIR="$2"; shift 2 ;;
-            --dockerfile-root) CONTAINER_DOCKERFILE_ROOT="$2"; shift 2 ;;
-            --include-ns) CONTAINER_INCLUDE_NS="$2"; shift 2 ;;
-            --exclude-ns) CONTAINER_EXCLUDE_NS="$2"; shift 2 ;;
-            --trivy-jobs) CONTAINER_TRIVY_JOBS="$2"; shift 2 ;;
+            --quick) CONTAINER_SCAN_MODE="quick"; CONTAINER_CLI_INVOKED=1; shift ;;
+            --full) CONTAINER_SCAN_MODE="full"; CONTAINER_CLI_INVOKED=1; shift ;;
+            --output-dir) CONTAINER_OUTPUT_DIR="$2"; CONTAINER_CLI_INVOKED=1; shift 2 ;;
+            --resume) CONTAINER_RESUME_DIR="$2"; CONTAINER_CLI_INVOKED=1; shift 2 ;;
+            --dockerfile-root) CONTAINER_DOCKERFILE_ROOT="$2"; CONTAINER_CLI_INVOKED=1; shift 2 ;;
+            --include-ns) CONTAINER_INCLUDE_NS="$2"; CONTAINER_CLI_INVOKED=1; shift 2 ;;
+            --exclude-ns) CONTAINER_EXCLUDE_NS="$2"; CONTAINER_CLI_INVOKED=1; shift 2 ;;
+            --trivy-jobs) CONTAINER_TRIVY_JOBS="$2"; CONTAINER_CLI_INVOKED=1; shift 2 ;;
             --menu) CONTAINER_USE_MENU=1; shift ;;
             -h|--help) f_container_usage; exit 0 ;;
             docker-images|docker-containers|kubernetes|all)
-                CONTAINER_SCAN_TYPES="$1"; shift ;;
+                CONTAINER_SCAN_TYPES="$1"; CONTAINER_CLI_INVOKED=1; shift ;;
             *)
                 echo "Unknown option: $1"
                 f_container_usage

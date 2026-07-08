@@ -24,6 +24,8 @@ echo "14.  Previous menu"
 echo
 echo -n "Choice: "
 read -r CHOICE
+CHOICE="${CHOICE#"${CHOICE%%[![:space:]]*}"}"
+CHOICE="${CHOICE%"${CHOICE##*[![:space:]]}"}"
 
 case "$CHOICE" in
     1) PAYLOAD="android/meterpreter/reverse_tcp" ;;
@@ -39,8 +41,8 @@ case "$CHOICE" in
     11) PAYLOAD="python/meterpreter_reverse_tcp" ;;
     12) PAYLOAD="windows/x64/meterpreter_reverse_https" ;;
     13) PAYLOAD="windows/x64/meterpreter_reverse_tcp" ;;
-    14) f_return_main ;;
-    *) f_invalid; exit ;;
+    14) exit 1 ;;
+    *) f_invalid; exit 1 ;;
 esac
 
 echo
@@ -64,23 +66,51 @@ if [ -z "$LPORT" ]; then
 fi
 
 # Check for valid port number.
-if [[ "$LPORT" -lt 1 || "$LPORT" -gt 65535 ]]; then
-    f_error
+if ! [[ "$LPORT" =~ ^[0-9]+$ ]] || [[ "$LPORT" -lt 1 || "$LPORT" -gt 65535 ]]; then
+    f_invalid; exit 1
 fi
 
 # Check for root when binding to a low port
 if [[ "$LPORT" -lt 1025 && "$(id -u)" != "0" ]]; then
     echo
-    echo "[!] You must be root to bind to a port below 1025."
+    echo -e "${RED}$SMALL${NC}"
     echo
+    echo -e "${RED}[!] You must be root to bind to a port below 1025.${NC}"
+    echo
+    echo -e "${RED}$SMALL${NC}"
+    echo
+    sleep 2
     exit 1
 fi
 
-cp "$DISCOVER"/resource/listener.rc /tmp/
+if ! command -v msfconsole >/dev/null 2>&1; then
+    echo
+    echo -e "${RED}[!] msfconsole is not installed.${NC}"
+    echo
+    sleep 2
+    exit 1
+fi
 
-sed -i "s|aaa|$PAYLOAD|g" /tmp/listener.rc
-sed -i "s/bbb/$LHOST/g" /tmp/listener.rc
-sed -i "s/ccc/$LPORT/g" /tmp/listener.rc
+LISTENER_RC="$HOME/data/listener.rc"
+mkdir -p "$HOME/data"
+cp "$DISCOVER"/resource/listener.rc "$LISTENER_RC"
+
+sed -i "s|aaa|$PAYLOAD|g" "$LISTENER_RC"
+sed -i "s/bbb/$LHOST/g" "$LISTENER_RC"
+sed -i "s/ccc/$LPORT/g" "$LISTENER_RC"
+
+if [ ! -f "$LISTENER_RC" ]; then
+    echo
+    echo -e "${RED}[!] Listener resource file was not created.${NC}"
+    echo
+    sleep 2
+    exit 1
+fi
 
 echo
-msfconsole -q -r /tmp/listener.rc
+echo "[*] Starting listener: $PAYLOAD on $LHOST:$LPORT"
+echo "[*] Metasploit database warnings can be ignored if the handler starts."
+echo "[*] Press Ctrl+C or type 'exit' in msfconsole to stop."
+echo
+msfconsole -q -r "$LISTENER_RC"
+exit 0

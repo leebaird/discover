@@ -7,6 +7,8 @@
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
 
 WAF_DETECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/menu.sh
+source "${WAF_DETECT_ROOT}/lib/menu.sh"
 # shellcheck source=lib/waf-detect/common.sh
 source "${WAF_DETECT_ROOT}/lib/waf-detect/common.sh"
 # shellcheck source=lib/waf-detect/probe.sh
@@ -35,31 +37,28 @@ f_waf_interactive_menu(){
         echo "3. Previous menu"
         echo
         echo -n "Choice: "
-        read -r CHOICE
+        f_dev_read_choice CHOICE
+        f_dev_menu_validate "$CHOICE"
 
         WAF_URL=""
         WAF_FILE=""
 
         case "$CHOICE" in
             1)
-                echo -n "Target (URL or hostname): "
-                read -r WAF_URL
-                [ -n "$WAF_URL" ] || { f_invalid; continue; }
+                f_dev_read_required WAF_URL "Target (URL or hostname): " "No target provided."
                 ;;
             2)
-                echo -n "Path to targets file: "
-                read -r WAF_FILE
-                [ -n "$WAF_FILE" ] && [ -f "$WAF_FILE" ] || { f_invalid; continue; }
+                f_dev_read_file WAF_FILE "Path to targets file: " "Input file not found."
                 ;;
-            3) f_dev ;;
-            *) f_invalid; continue ;;
+            3) f_dev_previous ;;
+            *) f_dev_die "Invalid choice or entry." ;;
         esac
 
-        echo
         echo "Probe mode:"
         echo "1. Active (wafw00f + triggers)"
         echo "2. Passive (no attack triggers)"
-        echo -n "Choice [1]: "
+        echo
+        echo -n "Choice: "
         read -r MODE_CHOICE
         case "$MODE_CHOICE" in
             2) WAF_PASSIVE=1 ;;
