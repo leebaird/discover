@@ -159,7 +159,7 @@ case "$CHOICE" in
         ARCH="x64"
         PLATFORM="windows"
         f_format ;;
-    16) exit 1 ;;
+    16) f_return_main ;;
     *) f_invalid; exit 1 ;;
 esac
 

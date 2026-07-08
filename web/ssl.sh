@@ -133,3 +133,5 @@ echo "[*] Scan complete."
 echo
 echo
 echo -e "The new reports are located at ${YELLOW}$HOME/data/sslscan.txt ${NC}and ${YELLOW}nmap-ssl.txt ${NC}"
+echo
+exit 0

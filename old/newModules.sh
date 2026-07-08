@@ -227,3 +227,5 @@ END_EXCLUDES
     echo
 fi
 
+exit 0
+

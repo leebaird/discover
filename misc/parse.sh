@@ -31,6 +31,7 @@ case "$CHOICE" in
     echo -e "New report located at ${YELLOW}$OUTPUT_FILE${NC}\n"
     echo
     echo
+    exit 0
     ;;
 
     2)
@@ -60,6 +61,7 @@ case "$CHOICE" in
     echo -e "New report located at ${YELLOW}$OUTPUT_FILE${NC}\n"
     echo
     echo
+    exit 0
     ;;
 
     3)
@@ -75,6 +77,7 @@ case "$CHOICE" in
     echo -e "New report located at ${YELLOW}$OUTPUT_FILE${NC}\n"
     echo
     echo
+    exit 0
     ;;
 
     4)
@@ -91,6 +94,7 @@ case "$CHOICE" in
     echo -e "New report located at ${YELLOW}$OUTPUT_FILE${NC}\n"
     echo
     echo
+    exit 0
     ;;
 
     5)
@@ -109,8 +113,9 @@ case "$CHOICE" in
     echo -e "New report located at ${YELLOW}$OUTPUT_FILE${NC}\n"
     echo
     echo
+    exit 0
     ;;
 
     6) f_return_main ;;
-    *) f_invalid ;;
+    *) f_invalid; exit 1 ;;
 esac

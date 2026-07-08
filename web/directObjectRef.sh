@@ -39,3 +39,5 @@ echo
 echo "[*] Scan complete."
 echo
 echo -e "New report located at ${YELLOW}$HOME/data/DirectObjectRef.txt${NC}"
+echo
+exit 0

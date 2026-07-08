@@ -9,21 +9,21 @@ if [ "$EUID" == 0 ]; then
     echo
     echo "[!] This option cannot be ran as root."
     echo
-    exit   # Do not use exit 1 here, it will break the script
+    exit 1
 fi
 
 if grep -q 'Nikto/@VERSION' /etc/nikto/config.txt; then
     echo
     echo -e "[!] Remove the default user agent string located at ${YELLOW}/etc/nikto/config.txt${NC}"
     echo
-    exit 0
+    exit 1
 fi
 
 if grep -q '^RFIURL=http://cirt.net/rfiinc.txt?' /etc/nikto/config.txt; then
     echo
     echo -e "[!] Comment out RFIURL checks located at ${YELLOW}/etc/nikto/config.txt${NC}"
     echo
-    exit 0
+    exit 1
 fi
 
 f_nikto_select_tool(){
@@ -73,7 +73,7 @@ f_nikto_complete(){
 clear
 f_banner
 
-f_nikto_select_tool || exit 0
+f_nikto_select_tool || exit 1
 
 echo -e "${BLUE}Run multiple instances of Nikto in parallel.${NC}"
 echo
@@ -112,6 +112,7 @@ case "$CHOICE" in
         done < "$LOCATION"
 
         f_nikto_complete 1 "$PORT"
+        exit 0
         ;;
 
     2)
@@ -129,6 +130,7 @@ case "$CHOICE" in
         done < "$LOCATION"
 
         f_nikto_complete 2
+        exit 0
         ;;
 
     3)

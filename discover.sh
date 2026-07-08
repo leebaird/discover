@@ -131,6 +131,25 @@ f_invalid(){
     echo
     echo -e "${RED}$SMALL${NC}"
     sleep 2
+    return 1
+}
+
+f_run_script(){
+    "$@"
+    local status=$?
+
+    if [ "$status" -eq 0 ]; then
+        exit 0
+    fi
+}
+
+f_run_submenu(){
+    "$@"
+    local status=$?
+
+    if [ "$status" -eq 2 ]; then
+        exit 0
+    fi
 }
 
 f_error(){
@@ -139,7 +158,7 @@ f_error(){
 }
 
 f_return_main(){
-    exit 0
+    exit 4
 }
 
 f_dev_die(){
@@ -158,7 +177,7 @@ f_dev_previous(){
     exit 2
 }
 
-export -f f_invalid f_error f_return_main f_dev_die f_dev_previous
+export -f f_invalid f_error f_return_main f_dev_die f_dev_previous f_run_script f_run_submenu
 
 ###############################################################################################################################
 
@@ -459,29 +478,29 @@ f_main(){
 
             case "$CHOICE" in
                 # RECON
-                1) unset LOCATION; "$RECON_DIR/domain.sh"; [ $? -eq 2 ] && exit ;;
-                2) "$RECON_DIR/person.sh"; [ $? -eq 0 ] && exit ;;
+                1) unset LOCATION; f_run_submenu "$RECON_DIR/domain.sh" ;;
+                2) f_run_script "$RECON_DIR/person.sh" ;;
 
                 # SCANNING
-                3) "$SCAN_DIR/generateTargets.sh" || exit ;;
+                3) f_run_script "$SCAN_DIR/generateTargets.sh" ;;
                 4) f_cidr ;;    # Located in nmap.sh
                 5) f_list ;;    # Located in nmap.sh
                 6) f_single ;;  # Located in nmap.sh
                 7) f_rerun ;;   # Located in nmap.sh
 
                 # WEB
-                8) "$WEB_DIR/directObjectRef.sh" ;;
-                9) "$WEB_DIR/multiTabs.sh" ;;
-                10) "$WEB_DIR/nikto.sh" ;;
-                11) "$WEB_DIR/ssl.sh" ;;
+                8) f_run_script "$WEB_DIR/directObjectRef.sh" ;;
+                9) f_run_script "$WEB_DIR/multiTabs.sh" ;;
+                10) f_run_script "$WEB_DIR/nikto.sh" ;;
+                11) f_run_script "$WEB_DIR/ssl.sh" ;;
 
                 # MISC
-                12) "$MISC_DIR/payload.sh"; [ $? -eq 0 ] && exit ;;
-                13) "$MISC_DIR/listener.sh"; [ $? -eq 0 ] && exit ;;
-                14) "$MISC_DIR/cve.sh" ;;
-                15) "$MISC_DIR/parse.sh" ;;
+                12) f_run_script "$MISC_DIR/payload.sh" ;;
+                13) f_run_script "$MISC_DIR/listener.sh" ;;
+                14) f_run_script "$MISC_DIR/cve.sh" ;;
+                15) f_run_script "$MISC_DIR/parse.sh" ;;
 
-                99) "$DISCOVER/old/newModules.sh"; exit ;;
+                99) f_run_script "$DISCOVER/old/newModules.sh" ;;
                 *) f_invalid ;;
             esac
             ;;

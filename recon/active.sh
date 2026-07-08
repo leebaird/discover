@@ -707,3 +707,4 @@ echo
 echo -e "Artifacts saved under ${YELLOW}$TOOLS_DIR${NC}"
 echo -e "HTML report updated: ${YELLOW}$DISCOVER_REPORT${NC}"
 echo
+exit 0

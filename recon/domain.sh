@@ -458,9 +458,9 @@ f_domain_menu(){
     CHOICE="${CHOICE%"${CHOICE##*[![:space:]]}"}"
 
     case "$CHOICE" in
-    1) "$RECON_DIR/passive.sh"; exit ;;
-    98) "$RECON_DIR/passive.sh" 98; exit ;;
-    99) "$RECON_DIR/passive.sh" 99; exit ;;
+    1) "$RECON_DIR/passive.sh"; exit 2 ;;
+    98) "$RECON_DIR/passive.sh" 98; exit 2 ;;
+    99) "$RECON_DIR/passive.sh" 99; exit 2 ;;
     2)  f_runlocally
         clear
         f_banner
@@ -592,7 +592,7 @@ f_domain_menu(){
         echo -e "The HTML report was updated in ${YELLOW}$DISCOVER_REPORT${NC}"
         echo
         unset LOCATION DISCOVER_REPORT
-        exit 0
+        exit 2
         ;;
     4)  f_runlocally
         if ! f_firefox_check; then
@@ -605,7 +605,7 @@ f_domain_menu(){
         f_company_domain
         f_google_dorks
         echo
-        exit
+        exit 2
         ;;
     5)  f_runlocally
         if ! f_firefox_check; then
@@ -618,7 +618,7 @@ f_domain_menu(){
         f_company_domain
         f_web_search
         echo
-        exit
+        exit 2
         ;;
     6) "$RECON_DIR/import-names.sh"
         status=$?
@@ -635,7 +635,7 @@ f_domain_menu(){
         [ "$status" -eq 0 ] && exit 2
         exit "$status"
         ;;
-    9) "$RECON_DIR/active.sh"; exit ;;
+    9) "$RECON_DIR/active.sh"; exit 2 ;;
     10) exit 0 ;;
     *) f_invalid ;;
     esac
