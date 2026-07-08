@@ -248,6 +248,6 @@ fi
 echo
 echo "$MEDIUM"
 echo
-echo -e "The new payload is located at ${YELLOW}$OUTPUT_FILE${NC}"
+echo -e "New payload located at ${YELLOW}$OUTPUT_FILE${NC}"
 echo
 exit 0

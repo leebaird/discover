@@ -28,7 +28,7 @@ case "$CHOICE" in
     echo
     echo "$MEDIUM"
     echo
-    echo -e "The new report is located at ${YELLOW}$OUTPUT_FILE${NC}\n"
+    echo -e "New report located at ${YELLOW}$OUTPUT_FILE${NC}\n"
     echo
     echo
     ;;
@@ -57,7 +57,7 @@ case "$CHOICE" in
     echo
     echo "$MEDIUM"
     echo
-    echo -e "The new report is located at ${YELLOW}$OUTPUT_FILE${NC}\n"
+    echo -e "New report located at ${YELLOW}$OUTPUT_FILE${NC}\n"
     echo
     echo
     ;;
@@ -72,7 +72,7 @@ case "$CHOICE" in
     echo
     echo "$MEDIUM"
     echo
-    echo -e "The new report is located at ${YELLOW}$OUTPUT_FILE${NC}\n"
+    echo -e "New report located at ${YELLOW}$OUTPUT_FILE${NC}\n"
     echo
     echo
     ;;
@@ -88,7 +88,7 @@ case "$CHOICE" in
     echo
     echo "$MEDIUM"
     echo
-    echo -e "The new report is located at ${YELLOW}$OUTPUT_FILE${NC}\n"
+    echo -e "New report located at ${YELLOW}$OUTPUT_FILE${NC}\n"
     echo
     echo
     ;;
@@ -106,7 +106,7 @@ case "$CHOICE" in
     echo
     echo "$MEDIUM"
     echo
-    echo -e "The new report is located at ${YELLOW}$OUTPUT_FILE${NC}\n"
+    echo -e "New report located at ${YELLOW}$OUTPUT_FILE${NC}\n"
     echo
     echo
     ;;

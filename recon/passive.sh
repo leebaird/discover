@@ -1501,7 +1501,7 @@ EOF
     echo
     echo "$MEDIUM"
     echo
-    echo -e "The supporting data folder is located at ${YELLOW}$HOME/data/$DOMAIN/${NC}\n"
+    echo -e "Supporting data folder located at ${YELLOW}$HOME/data/$DOMAIN/${NC}\n"
 }
 
 ###############################################################################################################################

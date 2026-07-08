@@ -62,9 +62,9 @@ f_nikto_complete(){
     echo
 
     if [ "$mode" = "1" ]; then
-        echo -e "The new report is located at ${YELLOW}$HOME/data/nikto-$port/${NC}"
+        echo -e "New report located at ${YELLOW}$HOME/data/nikto-$port/${NC}"
     else
-        echo -e "The new report is located at ${YELLOW}$HOME/data/nikto/${NC}"
+        echo -e "New report located at ${YELLOW}$HOME/data/nikto/${NC}"
     fi
 
     echo

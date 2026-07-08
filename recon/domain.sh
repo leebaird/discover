@@ -446,10 +446,11 @@ f_domain_menu(){
     echo "5.  Web search"
     echo
     echo "6.  Import names"
-    echo "7.  Import subdomains"
+    echo "7.  Import names, titles, and emails"
+    echo "8.  Import subdomains"
     echo
-    echo "8.  Active"
-    echo "9.  Previous menu"
+    echo "9.  Active"
+    echo "10. Previous menu"
     echo
     echo -n "Choice: "
     read -r CHOICE
@@ -619,10 +620,23 @@ f_domain_menu(){
         echo
         exit
         ;;
-    6) "$RECON_DIR/import-names.sh"; exit ;;
-    7) "$RECON_DIR/import-subdomains.sh"; exit ;;
-    8) "$RECON_DIR/active.sh"; exit ;;
-    9) exit 0 ;;
+    6) "$RECON_DIR/import-names.sh"
+        status=$?
+        [ "$status" -eq 0 ] && exit 2
+        exit "$status"
+        ;;
+    7) "$RECON_DIR/import-names-titles-emails.sh"
+        status=$?
+        [ "$status" -eq 0 ] && exit 2
+        exit "$status"
+        ;;
+    8) "$RECON_DIR/import-subdomains.sh"
+        status=$?
+        [ "$status" -eq 0 ] && exit 2
+        exit "$status"
+        ;;
+    9) "$RECON_DIR/active.sh"; exit ;;
+    10) exit 0 ;;
     *) f_invalid ;;
     esac
     done

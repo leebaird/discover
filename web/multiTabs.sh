@@ -145,7 +145,7 @@ case "$CHOICE" in
         echo
         echo "[*] Scan complete."
         echo
-        echo -e "The new report is located at ${YELLOW}$HOME/data/$DOMAIN-robots.txt${NC}"
+        echo -e "New report located at ${YELLOW}$HOME/data/$DOMAIN-robots.txt${NC}"
         echo
         exit
         ;;

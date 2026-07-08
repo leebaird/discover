@@ -143,4 +143,4 @@ echo "$MEDIUM"
 echo
 echo "[*] Scan complete."
 echo
-echo -e "The new report is located at ${YELLOW}$NEW_NAME/report.txt${NC}"
+echo -e "New report located at ${YELLOW}$NEW_NAME/report.txt${NC}"

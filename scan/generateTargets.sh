@@ -39,7 +39,7 @@ f_arpscan(){
     echo
     echo "[*] Scan complete."
     echo
-    echo -e "The new report is located at ${YELLOW}$HOME/data/arp-scan.txt${NC}"
+    echo -e "New report located at ${YELLOW}$HOME/data/arp-scan.txt${NC}"
     echo
     exit 1
 }
@@ -95,7 +95,7 @@ f_pingsweep(){
     echo
     echo "[*] Scan complete."
     echo
-    echo -e "The new report is located at ${YELLOW}$HOME/data/pingsweep.txt${NC}"
+    echo -e "New report located at ${YELLOW}$HOME/data/pingsweep.txt${NC}"
     echo
     exit
 }

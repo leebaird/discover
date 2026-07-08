@@ -279,6 +279,131 @@ f_names_write_report(){
     f_names_patch_table "$ROWS_FILE" "$REPORT_PAGE"
 }
 
+f_names_update_report(){
+    local NAMES_FILE="$1"
+    local REPORT_PAGE="$2"
+
+    [ -f "$REPORT_PAGE" ] || return 0
+
+    python3 - "$REPORT_PAGE" "$NAMES_FILE" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+report_path = Path(sys.argv[1])
+names_path = Path(sys.argv[2])
+separator = "=" * 40
+
+SUMMARY_LABEL = re.compile(r"^[A-Za-z][A-Za-z ]+\s+\d+$")
+DETAIL_HEADER = re.compile(r"^[A-Za-z][A-Za-z ]+ \(\d+\)$")
+
+
+def load_rows(path):
+    if not path.is_file() or path.stat().st_size == 0:
+        return []
+    rows = []
+    for raw in path.read_text().splitlines():
+        line = raw.strip()
+        if line:
+            rows.append(line)
+    return rows
+
+
+def replace_section(lines, section_name, count, body_lines):
+    header = f"{section_name} ({count})"
+    for i, line in enumerate(lines):
+        if re.fullmatch(rf"{re.escape(section_name)} \(\d+\)", line):
+            j = i + 2
+            while j < len(lines) and not DETAIL_HEADER.match(lines[j]):
+                j += 1
+            block = [header, separator]
+            if body_lines:
+                block.extend(body_lines)
+                block.append("")
+            lines[i:j] = block
+            return True
+    return False
+
+
+def update_summary_count(lines, label, count):
+    width = 22
+    pattern = re.compile(rf"^{re.escape(label)}\s+\d+$")
+    for i, line in enumerate(lines):
+        if pattern.match(line):
+            lines[i] = f"{label:<{width}}{count}"
+            return True
+    return False
+
+
+def insert_summary_count(lines, label, count):
+    width = 22
+    entry = f"{label:<{width}}{count}"
+    for i, line in enumerate(lines):
+        if line.strip() == "Summary":
+            j = i + 1
+            while j < len(lines) and lines[j].strip() == "":
+                j += 1
+            if j < len(lines) and lines[j].startswith("="):
+                j += 1
+            lines.insert(j, entry)
+            return True
+    return False
+
+
+def insert_detail_section(lines, section_name, count, body_lines):
+    header = f"{section_name} ({count})"
+    block = ["", header, separator]
+    if body_lines:
+        block.extend(body_lines)
+        block.append("")
+
+    for i, line in enumerate(lines):
+        if DETAIL_HEADER.match(line):
+            lines[i:i] = block
+            return True
+
+    for i, line in enumerate(lines):
+        if SUMMARY_LABEL.match(line):
+            continue
+        if line.strip() == "" and i + 1 < len(lines) and DETAIL_HEADER.match(lines[i + 1]):
+            lines[i + 1:i + 1] = block[1:]
+            return True
+
+    if lines and lines[-1].strip() != "":
+        lines.append("")
+    lines.extend(block[1:] if block[0] == "" else block)
+    return True
+
+
+text = report_path.read_text()
+marker_open = '<pre class="inc-pre">\n'
+marker_close = "</pre>"
+open_at = text.find(marker_open)
+if open_at == -1:
+    sys.exit(0)
+
+body_start = open_at + len(marker_open)
+close_at = text.find(marker_close, body_start)
+if close_at == -1:
+    sys.exit(0)
+
+prefix = text[:body_start]
+suffix = text[close_at:]
+lines = text[body_start:close_at].splitlines()
+
+name_rows = load_rows(names_path)
+name_count = len(name_rows)
+
+if not update_summary_count(lines, "Names", name_count):
+    insert_summary_count(lines, "Names", name_count)
+
+if not replace_section(lines, "Names", name_count, name_rows):
+    insert_detail_section(lines, "Names", name_count, name_rows)
+
+report_path.write_text(prefix + "\n".join(lines) + suffix)
+PY
+}
+
 clear
 f_banner
 
@@ -301,6 +426,7 @@ MERGED="$TMPDIR/names.tsv"
 AUTO="$TOOLS_DIR/names"
 MANUAL="$NAMES_MANUAL"
 PAGE="$DISCOVER_REPORT/pages/names.htm"
+REPORT_PAGE="$DISCOVER_REPORT/pages/report.htm"
 
 f_names_merge "$MERGED" "$AUTO" "$PAGE" "$MANUAL"
 
@@ -312,6 +438,7 @@ fi
 cp "$MERGED" "$TOOLS_DIR/names"
 ROWS_FILE="$TMPDIR/names-rows.html"
 f_names_write_report "$MERGED" "$PAGE" "$ROWS_FILE"
+f_names_update_report "$MERGED" "$REPORT_PAGE"
 
 WITH_TITLE=$(awk -F '\t' 'NF > 1 && $2 != "" { count++ } END { print count + 0 }' "$MERGED")
 WITH_PHONE=$(awk -F '\t' 'NF > 2 && $3 != "" { count++ } END { print count + 0 }' "$MERGED")
