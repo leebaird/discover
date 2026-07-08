@@ -364,8 +364,8 @@ def build_public_table(rows, alive_hosts, photo_hosts, empty_message, ip_header=
         '                    <th scope="col" class="inc-sortable">Subdomain</th>',
         '                    <th scope="col" class="inc-sortable">Category</th>',
         f'                    <th scope="col" class="inc-sortable">{html.escape(ip_header)}</th>',
-        '                    <th scope="col" class="inc-sortable">Alive</th>',
-        '                    <th scope="col" class="inc-sortable">Photo</th>',
+        '                    <th scope="col" class="inc-sortable inc-col-center">Alive</th>',
+        '                    <th scope="col" class="inc-sortable inc-col-center">Photo</th>',
         "                </tr>",
         "            </thead>",
         "            <tbody>",
@@ -380,8 +380,8 @@ def build_public_table(rows, alive_hosts, photo_hosts, empty_message, ip_header=
                 f"<td>{html.escape(subdomain)}</td>"
                 f"<td>{html.escape(category)}</td>"
                 f"<td>{html.escape(ipaddr)}</td>"
-                f"<td>{html.escape(alive)}</td>"
-                f"<td>{photo}</td>"
+                f'<td class="inc-col-center">{html.escape(alive)}</td>'
+                f'<td class="inc-col-center">{photo}</td>'
                 "</tr>"
             )
     else:
@@ -410,7 +410,7 @@ if private_rows:
     out.append("    </div>")
 
 if public_rows or not private_rows:
-    out.append('    <div class="inc-content-frame inc-content-frame--table">')
+    out.append('    <div class="inc-content-frame inc-content-frame--table inc-subdomains-public">')
     if public_rows:
         out.extend(build_public_table(public_rows, alive_hosts, photo_hosts, "No data found."))
     else:
