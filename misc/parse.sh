@@ -112,5 +112,5 @@ case "$CHOICE" in
     ;;
 
     6) f_return_main ;;
-    *) f_return_main ;;
+    *) f_invalid ;;
 esac

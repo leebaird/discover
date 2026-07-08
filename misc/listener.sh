@@ -40,7 +40,7 @@ case "$CHOICE" in
     12) PAYLOAD="windows/x64/meterpreter_reverse_https" ;;
     13) PAYLOAD="windows/x64/meterpreter_reverse_tcp" ;;
     14) f_return_main ;;
-    *) f_return_main ;;
+    *) f_invalid; exit ;;
 esac
 
 echo

@@ -2,13 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-export DISCOVER
-
-shopt -u expand_aliases 2>/dev/null || true
-
-DISCOVER_SOURCE_ONLY=1 source "$DISCOVER/discover.sh"
-
 f_regdomain_die(){
     echo
     echo -e "${RED}$SMALL${NC}"
@@ -358,39 +351,6 @@ f_regdomain_report_progress(){
             printf 'Lookup %s of %s (%s completed)\r' "$started" "$total" "$completed" >&2
         fi
     ) 201>"$REGDOMAIN_TMPDIR/progress.lock"
-}
-
-f_firefox_running(){
-    pgrep -x firefox >/dev/null 2>&1 \
-        || pgrep -x firefox-bin >/dev/null 2>&1 \
-        || pgrep -x firefox-esr >/dev/null 2>&1 \
-        || pgrep -f '/[f]irefox/' >/dev/null 2>&1
-}
-
-f_firefox_check(){
-    if f_firefox_running; then
-        echo
-        echo "[!] Close all Firefox instances before running script."
-        echo
-        return 1
-    fi
-}
-
-f_firefox_user_agents(){
-    USER_AGENTS=(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.3912.86"
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15"
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
-    "Mozilla/5.0 (X11; Linux x86_64; rv:145.0) Gecko/20100101 Firefox/145.0"
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0"
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:145.0) Gecko/20100101 Firefox/145.0"
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/147.0.6778.73 Mobile/15E148 Safari/604.1"
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Mobile/15E148 Safari/604.1"
-    "Mozilla/5.0 (Linux; Android 15; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.6778.39 Mobile Safari/537.36"
-    "Mozilla/5.0 (Android 15; Mobile; rv:145.0) Gecko/145.0 Firefox/145.0"
-    )
 }
 
 f_breaches() {

@@ -6,8 +6,7 @@
 # Jay Townsend (@jay_townsend1) - everything, conversion from Backtrack to Kali
 # Jason Ashton (@ninewires) - Penetration Testers Framework (PTF) compatibility, bug crusher, and bash ninja
 #
-# New modules:
-# Yiğit ibrahim (ibrahimsql) - API Security modules, Cloud Security Scanner, Container Security Scanner, Open Redirect Scanner, WAF Detection
+# Dev modules by Yiğit ibrahim (ibrahimsql)
 #
 # Thanks to:
 # Ben Wood (@DilithiumCore) - regex master
@@ -288,8 +287,8 @@ f_update(){
         uv sync
     fi
 
-    cd "$HOME/discover" || exit
-    sudo ./update.sh
+    sudo "$MISC_DIR/update.sh"
+    exit
 }
 
 export -f f_update
@@ -396,10 +395,10 @@ f_main(){
             case "$CHOICE" in
                 # RECON
                 1) unset LOCATION; "$RECON_DIR/domain.sh" ;;
-                2) "$RECON_DIR/person.sh" ;;
+                2) "$RECON_DIR/person.sh"; exit ;;
 
                 # SCANNING
-                3) "$SCAN_DIR/generateTargets.sh" ;;
+                3) "$SCAN_DIR/generateTargets.sh" || exit ;;
                 4) f_cidr ;;    # Located in nmap.sh
                 5) f_list ;;    # Located in nmap.sh
                 6) f_single ;;  # Located in nmap.sh
@@ -417,7 +416,7 @@ f_main(){
                 14) "$MISC_DIR/cve.sh" ;;
                 15) "$MISC_DIR/parse.sh" ;;
 
-                99) "$DISCOVER/old/newModules.sh" ;;
+                99) "$DISCOVER/old/newModules.sh"; exit ;;
                 *) f_invalid ;;
             esac
             ;;

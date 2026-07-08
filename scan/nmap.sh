@@ -29,15 +29,15 @@ f_typeofscan(){
            echo "$MEDIUM"
            echo
            ;;
-        3) f_return_main ;;
-        *) f_invalid ;;
+        3) exec "$DISCOVER/discover.sh" ;;
+        *) f_invalid; exec "$DISCOVER/discover.sh" ;;
     esac
 }
 
 ###############################################################################################################################
 
 f_scanname(){
-    f_typeofscan
+    f_typeofscan || return
 
     echo -e "${YELLOW}[*] Warning: no spaces allowed${NC}"
     echo
@@ -252,7 +252,7 @@ export -f f_location
 f_cidr(){
     clear
     f_banner
-    f_scanname
+    f_scanname || return
 
     echo
     echo "Usage: 192.168.1.0/24"
@@ -310,7 +310,7 @@ f_cidr(){
 f_list(){
     clear
     f_banner
-    f_scanname
+    f_scanname || return
     f_location
 
     touch tmp
@@ -332,7 +332,7 @@ f_list(){
 f_single(){
     clear
     f_banner
-    f_scanname
+    f_scanname || return
 
     echo
     echo -n "IP, range or URL: "

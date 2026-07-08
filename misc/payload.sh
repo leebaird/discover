@@ -137,7 +137,7 @@ case "$CHOICE" in
         PLATFORM="windows"
         f_format ;;
     16) f_return_main ;;
-    *) f_return_main ;;
+    *) f_invalid; exit ;;
 esac
 
 echo

@@ -2,12 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-
-if ! declare -f f_banner >/dev/null 2>&1; then
-    DISCOVER_SOURCE_ONLY=1 source "$DISCOVER/discover.sh"
-fi
-
 f_cve_trim(){
     local value="$1"
     value="${value#"${value%%[![:space:]]*}"}"
@@ -28,7 +22,6 @@ f_cve_valid(){
 
 f_cve_fail(){
     local message="$1"
-    local cli_mode="$2"
 
     echo
     echo -e "${RED}$SMALL${NC}"
@@ -37,11 +30,7 @@ f_cve_fail(){
     echo
     echo -e "${RED}$SMALL${NC}"
     echo
-
-    if [ "$cli_mode" -eq 1 ]; then
-        exit 1
-    fi
-
+    sleep 2
     exit 0
 }
 
@@ -73,49 +62,30 @@ f_cve_open_tabs(){
     done
 }
 
-CLI_MODE=0
-CVE=''
-
-if [ -n "${1:-}" ]; then
-    CLI_MODE=1
-    CVE=$(f_cve_normalize "$1")
-else
-    clear
-    f_banner
-
-    echo -e "${BLUE}CVE lookup${NC}"
-    echo
-    echo -n "CVE: "
-    read -r CVE
-    echo
-    CVE=$(f_cve_normalize "$CVE")
-fi
-
 f_runlocally
 
 if ! f_firefox_check; then
-    if [ "$CLI_MODE" -eq 1 ]; then
-        exit 1
-    fi
     exit 0
 fi
 
+clear
+f_banner
+
+echo -e "${BLUE}CVE lookup${NC}"
+echo
+echo -n "CVE: "
+read -r CVE
+CVE=$(f_cve_normalize "$CVE")
+
 if [ -z "$CVE" ]; then
-    if [ "$CLI_MODE" -eq 1 ]; then
-        f_cve_fail "No CVE provided." 1
-    fi
-    f_error
+    f_cve_fail "No CVE provided."
 fi
 
 if ! f_cve_valid "$CVE"; then
-    f_cve_fail "Invalid CVE format. Expected CVE-YYYY-NNNN." "$CLI_MODE"
+    f_cve_fail "Invalid CVE format. Expected CVE-YYYY-NNNN."
 fi
 
 echo "[*] Opening CVE resources for $CVE."
 f_cve_open_tabs "$CVE"
-
-if [ "$CLI_MODE" -eq 1 ]; then
-    exit 0
-fi
 
 exit 0

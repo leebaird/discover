@@ -150,5 +150,5 @@ case "$CHOICE" in
         exit
         ;;
     4) f_return_main ;;
-    *) f_return_main ;;
+    *) f_invalid; exit ;;
 esac

@@ -10,13 +10,7 @@ if [ $EUID -eq 0 ]; then
     exit 1
 fi
 
-DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-export DISCOVER
 PASSIVE_MODE="${1:-}"
-
-if ! declare -f f_banner >/dev/null 2>&1; then
-    DISCOVER_SOURCE_ONLY=1 source "$DISCOVER/discover.sh"
-fi
 
 f_terminate(){
     OUTPUT_DIR=$HOME/data/cancelled-$(date +%H:%M)

@@ -3,13 +3,8 @@
 # by ibrahimsql - Cloud Security Scanner
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
 #
-# Standalone scanner: writes only under $HOME/data/cloud-scan_*/ (or --output-dir).
+# Dev menu scanner: writes under $HOME/data/cloud-scan_*/.
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
-
-if ! declare -f f_banner >/dev/null 2>&1; then
-    _CLOUD_SCANNER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    DISCOVER_SOURCE_ONLY=1 source "${_CLOUD_SCANNER_DIR}/../discover.sh"
-fi
 
 _CLOUD_SCANNER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/cloud-scanner/common.sh
@@ -117,6 +112,4 @@ f_cloud_main(){
     f_cloud_interactive_menu
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    f_cloud_main "$@"
-fi
+f_cloud_main "$@"

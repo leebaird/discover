@@ -19,7 +19,7 @@ f_targets(){
         1) f_arpscan ;;
         2) f_pingsweep ;;
         3) f_return_main ;;
-        *) f_invalid ;;
+        *) f_invalid; exit ;;
     esac
 }
 
@@ -41,7 +41,7 @@ f_arpscan(){
     echo
     echo -e "The new report is located at ${YELLOW}$HOME/data/arp-scan.txt${NC}"
     echo
-    exit
+    exit 1
 }
 
 ###############################################################################################################################

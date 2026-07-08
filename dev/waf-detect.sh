@@ -3,13 +3,8 @@
 # by ibrahimsql - WAF Detection Tool
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
 #
-# Standalone scanner: writes only under $HOME/data/waf-detection_*/ (or --output-dir).
+# Dev menu scanner: writes under $HOME/data/waf-detection_*/.
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
-
-if ! declare -f f_banner >/dev/null 2>&1; then
-    WAF_DETECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    DISCOVER_SOURCE_ONLY=1 source "${WAF_DETECT_ROOT}/../discover.sh"
-fi
 
 WAF_DETECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/waf-detect/common.sh
@@ -128,6 +123,4 @@ f_waf_main(){
     fi
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    f_waf_main "$@"
-fi
+f_waf_main "$@"

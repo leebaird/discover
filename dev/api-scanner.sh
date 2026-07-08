@@ -3,13 +3,8 @@
 # by ibrahimsql - API Security Scanner
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
 #
-# Standalone scanner: writes only under $HOME/data/api-scan_*/ (or --resume).
+# Dev menu scanner: writes under $HOME/data/api-scan_*/.
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
-
-if ! declare -f f_banner >/dev/null 2>&1; then
-    _API_SCANNER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    DISCOVER_SOURCE_ONLY=1 source "${_API_SCANNER_DIR}/../discover.sh"
-fi
 
 _API_SCANNER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/api-scanner/common.sh
@@ -793,6 +788,4 @@ f_api_main(){
     done
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    f_api_main "$@"
-fi
+f_api_main "$@"

@@ -2,13 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-export DISCOVER
-
-if ! declare -f f_banner >/dev/null 2>&1; then
-    DISCOVER_SOURCE_ONLY=1 source "$DISCOVER/discover.sh"
-fi
-
 trap 'pkill -f nikto; exit' INT TERM
 
 # Check for regular user
@@ -143,6 +136,7 @@ case "$CHOICE" in
         ;;
 
     *)
-        f_return_main
+        f_invalid
+        exit
         ;;
 esac

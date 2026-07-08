@@ -3,13 +3,8 @@
 # by ibrahimsql - Sensitive Information Scanner
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
 #
-# Standalone scanner: writes only under $HOME/data/sensitive-scan_*/ (or --output-dir).
+# Dev menu scanner: writes under $HOME/data/sensitive-scan_*/.
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
-
-if ! declare -f f_banner >/dev/null 2>&1; then
-    SENSITIVE_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    DISCOVER_SOURCE_ONLY=1 source "${SENSITIVE_SCANNER_ROOT}/../discover.sh"
-fi
 
 SENSITIVE_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/sensitive-scanner/common.sh
@@ -178,6 +173,4 @@ f_sensitive_main(){
     fi
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    f_sensitive_main "$@"
-fi
+f_sensitive_main "$@"

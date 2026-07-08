@@ -3,13 +3,8 @@
 # by ibrahimsql - Container Security Scanner
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
 #
-# Standalone scanner: writes only under $HOME/data/container-scan_*/ (or --output-dir).
+# Dev menu scanner: writes under $HOME/data/container-scan_*/.
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
-
-if ! declare -f f_banner >/dev/null 2>&1; then
-    CONTAINER_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    DISCOVER_SOURCE_ONLY=1 source "${CONTAINER_SCANNER_ROOT}/../discover.sh"
-fi
 
 CONTAINER_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/container-scanner/common.sh
@@ -127,6 +122,4 @@ f_container_main(){
     echo
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    f_container_main "$@"
-fi
+f_container_main "$@"

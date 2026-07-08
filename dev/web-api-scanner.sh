@@ -3,13 +3,8 @@
 # by ibrahimsql - Metasploit Web and API Security Scanner
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
 #
-# Standalone scanner: writes only under $HOME/data/web-api-scan_*/ (or --output-dir).
+# Dev menu scanner: writes under $HOME/data/web-api-scan_*/.
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
-
-if ! declare -f f_banner >/dev/null 2>&1; then
-    WEBAPI_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    DISCOVER_SOURCE_ONLY=1 source "${WEBAPI_ROOT}/../discover.sh"
-fi
 
 WEBAPI_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/web-api-scanner/common.sh
@@ -130,6 +125,4 @@ f_webapi_main(){
     fi
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    f_webapi_main "$@"
-fi
+f_webapi_main "$@"

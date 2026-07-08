@@ -3,13 +3,8 @@
 # by ibrahimsql - OAuth/JWT Security Scanner
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
 #
-# Standalone scanner: writes only under $HOME/data/oauth-jwt-scan_*/.
+# Dev menu scanner: writes under $HOME/data/oauth-jwt-scan_*/.
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
-
-if ! declare -f f_banner >/dev/null 2>&1; then
-    OAUTH_JWT_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    DISCOVER_SOURCE_ONLY=1 source "${OAUTH_JWT_SCANNER_ROOT}/../discover.sh"
-fi
 
 OAUTH_JWT_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/oauth-jwt-scanner/common.sh
@@ -147,6 +142,4 @@ f_oauth_jwt_main(){
     echo
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    f_oauth_jwt_main "$@"
-fi
+f_oauth_jwt_main "$@"

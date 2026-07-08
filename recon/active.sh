@@ -10,19 +10,6 @@ if [ $EUID -eq 0 ]; then
     exit 1
 fi
 
-DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-
-BLUE="${BLUE:-\033[1;34m}"
-YELLOW="${YELLOW:-\033[1;33m}"
-RED="${RED:-\033[1;31m}"
-NC="${NC:-\033[0m}"
-SMALL="${SMALL:-========================================}"
-MEDIUM="${MEDIUM:-==================================================================}"
-
-if ! declare -f f_banner >/dev/null 2>&1; then
-    DISCOVER_SOURCE_ONLY=1 source "$DISCOVER/discover.sh"
-fi
-
 f_active_die(){
     echo
     echo -e "${RED}$SMALL${NC}"

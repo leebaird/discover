@@ -2,15 +2,6 @@
 
 # by Lee Baird (@discoverscripts)
 
-DISCOVER="${DISCOVER:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-
-BLUE="${BLUE:-\033[1;34m}"
-YELLOW="${YELLOW:-\033[1;33m}"
-RED="${RED:-\033[1;31m}"
-NC="${NC:-\033[0m}"
-SMALL="${SMALL:-========================================}"
-MEDIUM="${MEDIUM:-==================================================================}"
-
 f_names_die(){
     echo
     echo -e "${RED}$SMALL${NC}"

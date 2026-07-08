@@ -3,13 +3,8 @@
 # by ibrahimsql - Open Redirect Scanner
 # Upgrades and bug fixes by Lee Baird (@discoverscripts)
 #
-# Standalone scanner: writes only under $HOME/data/openredirect-scan_*/ (or --output-dir).
+# Dev menu scanner: writes under $HOME/data/openredirect-scan_*/.
 # Does not call Discover report helpers (f_report*, report.sh) or update recon HTML.
-
-if ! declare -f f_banner >/dev/null 2>&1; then
-    OPEN_REDIRECT_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    DISCOVER_SOURCE_ONLY=1 source "${OPEN_REDIRECT_SCANNER_ROOT}/../discover.sh"
-fi
 
 OPEN_REDIRECT_SCANNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/open-redirect-scanner/common.sh
@@ -182,6 +177,4 @@ f_openredirect_main(){
     echo
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    f_openredirect_main "$@"
-fi
+f_openredirect_main "$@"
