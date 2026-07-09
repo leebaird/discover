@@ -172,12 +172,57 @@
         return compareSortKeys(sortKey(aVal), sortKey(bVal));
     }
 
+    function getTiebreakerCols(table, colIndex) {
+        var headers = table.querySelectorAll('thead th.inc-sortable');
+        var header = headers[colIndex];
+        var attr;
+
+        if (!header) {
+            return null;
+        }
+
+        attr = header.getAttribute('data-sort-then');
+        if (!attr) {
+            return null;
+        }
+
+        return attr.split(',').map(function (part) {
+            return parseInt(part.trim(), 10);
+        }).filter(function (index) {
+            return !isNaN(index);
+        });
+    }
+
+    function compareTiebreakers(a, b, tiebreakers, dir) {
+        var i;
+        var tieCol;
+        var tieCmp;
+
+        for (i = 0; i < tiebreakers.length; i++) {
+            tieCol = tiebreakers[i];
+            if (tieCol >= a.cells.length || tieCol >= b.cells.length) {
+                continue;
+            }
+
+            tieCmp = compareValues(
+                a.cells[tieCol].textContent.trim(),
+                b.cells[tieCol].textContent.trim()
+            );
+            if (tieCmp !== 0) {
+                return dir * tieCmp;
+            }
+        }
+
+        return 0;
+    }
+
     function sortTable(table, colIndex, dir) {
         var tbody = table.tBodies[0];
         if (!tbody) {
             return;
         }
 
+        var tiebreakers = getTiebreakerCols(table, colIndex);
         var rows = Array.prototype.slice.call(tbody.rows);
         rows.sort(function (a, b) {
             var aVal = a.cells[colIndex].textContent.trim();
@@ -186,6 +231,10 @@
 
             if (cmp !== 0) {
                 return dir * cmp;
+            }
+
+            if (tiebreakers && tiebreakers.length) {
+                return compareTiebreakers(a, b, tiebreakers, dir);
             }
 
             if (a.cells.length > 1 && b.cells.length > 1) {

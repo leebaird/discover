@@ -362,7 +362,7 @@ def build_public_table(rows, photo_hosts, host_tech, empty_message, ip_header="I
         '                    <th scope="col" class="inc-sortable">Subdomain</th>',
         '                    <th scope="col" class="inc-sortable">Category</th>',
         f'                    <th scope="col" class="inc-sortable">{html.escape(ip_header)}</th>',
-        '                    <th scope="col" class="inc-sortable inc-col-center">Photo</th>',
+        '                    <th scope="col" class="inc-sortable inc-col-center" data-sort-then="4,5">Photo</th>',
         '                    <th scope="col" class="inc-sortable inc-col-center">Status</th>',
         '                    <th scope="col" class="inc-sortable">Web Server</th>',
         '                    <th scope="col" class="inc-sortable">Technologies</th>',
