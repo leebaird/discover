@@ -1,40 +1,157 @@
 DNS
 
 
-# General
+# Overview
 
-dig target.com <type>                    a, mx, ns, soa, srv, txt, any
-dig -x <target IP>                       Pointer records
-dig @nameserverIP target.com axfr        Zone transfer
-dig @nameserverIP target.com afro        Forward zone transfer
+Enumerate DNS records, test zone transfers, and probe nameservers for cache snooping, open recursion, and amplification risk. AD-specific SRV discovery lives in active-directory.txt.
 
-host -t ns target.com                    Show name servers 
-host -t mx target.com                    Show mail servers
-host www.target.com
-host -l target.com <nameserver>          Zone transfer
-------------------------------------------------------------------------------------------------------------------------------------------------------
- 
-# Cache snooping
 
-host -r www.google.com <nameserver IP>
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Related Notes
 
-# DNS cache poisioning
+active-directory.txt     AD SRV records and dnsrecon reverse lookups
+pwk.txt                  Lab DNS scripts and dnsenum
+smtp.txt                 MX record discovery
+nmap-fire.txt            Port 53 scan and nmap DNS scripts
 
-for i in `53.txt`; do dig @"$i" +short porttest.dns-oarc.net TXT; done; > CachePoison.txt
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Non-recursive DNS queries
+# Contents
 
-for i in `cat 53.txt`; do dig @"$i" www.google.com A +norecurse; done > NonRecurive.txt
-------------------------------------------------------------------------------------------------------------------------------------------------------
+General Enumeration, Zone Transfer, Cache Snooping, Open Resolver, Recursion and Amplification, Bulk Testing
 
-# Open DNS resolution against a DNS server.
 
-Supply a hostname not cached or inside a company owned domain.
-nslookup www.nsa.gov <nameserver IP>
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# General Enumeration
 
-# Spoofed request amplification DDoS
+## Overview
 
-for i in `cat 53.txt`; do dig @"$i" . NS; done > AmpDDoS.txt
+Query common record types and reverse PTR records before deeper misconfiguration testing.
+
+## Commands
+
+dig:
+    dig <domain> <type>                    # a, mx, ns, soa, srv, txt, any
+    dig +short <domain> mx
+    dig +trace <domain>
+    dig -x <target IP>                     # PTR reverse lookup
+
+host:
+    host -t ns <domain>
+    host -t mx <domain>
+    host www.<domain>
+
+dnsrecon:
+    dnsrecon -d <domain>
+    dnsrecon -r <class C> -n <nameserver IP>
+
+## Validation / False Positives
+
+ANY queries are often blocked or truncated — failure is not proof the server is hardened.
+A single A record mismatch between NS and web does not indicate zone transfer exposure.
+
+
+# Zone Transfer
+
+## Overview
+
+AXFR should be restricted to secondary nameservers. Successful transfer against an external NS is a high-severity misconfiguration.
+
+## Commands
+
+dig:
+    dig @<nameserver IP> <domain> axfr
+
+host:
+    host -l <domain> <nameserver IP>
+
+## Validation / False Positives
+
+REFUSED or NOTAUTH is expected on properly configured zones — not a finding.
+Timeout differs from explicit refusal — note which occurred.
+Transfer only the zones in scope; document record count and sensitive entries (internal hostnames).
+
+
+# Cache Snooping
+
+## Overview
+
+Determine whether a resolver returns cached answers for third-party names — indicates snooping or shared-cache leakage on internal resolvers.
+
+## Commands
+
+    host -r www.google.com <nameserver IP>
+
+Repeat with a name unlikely to be cached if the first query returns data.
+
+## Validation / False Positives
+
+A cached hit on a busy public name (google.com) is weak evidence — prefer a unique external hostname not recently queried from your test path.
+Internal resolvers forwarding to upstreams may show cache from other clients — document resolver role before reporting.
+
+
+# Open Resolver
+
+## Overview
+
+An open resolver answers recursive queries for arbitrary clients on external names — abusable for amplification and spoofed-source attacks.
+
+## Commands
+
+Query an external name through the target nameserver:
+    nslookup www.nsa.gov <nameserver IP>
+    dig @<nameserver IP> www.nsa.gov A
+
+## Validation / False Positives
+
+SERVFAIL or timeout on external names may mean the server is not recursive — distinguish from REFUSED.
+Confirm recursion is enabled for your source IP, not merely that port 53 is open.
+
+
+# Recursion and Amplification
+
+## Overview
+
+Test recursion policy and response size behavior. dns-oarc porttest helps identify open resolvers and source-port randomization weaknesses.
+
+## Commands
+
+Non-recursive query (should not recurse):
+    dig @<nameserver IP> www.google.com A +norecurse
+
+dns-oarc porttest (cache poisoning / entropy check):
+    dig @<nameserver IP> +short porttest.dns-oarc.net TXT
+
+Amplification probe (large NS response at root):
+    dig @<nameserver IP> . NS
+
+## Validation / False Positives
+
+Large responses alone are not a finding without open recursion to arbitrary clients.
+porttest.dns-oarc.net TXT output must be interpreted per dns-oarc guidance — capture full TXT in the report.
+
+
+# Bulk Testing
+
+## Overview
+
+Run probes against a list of nameserver IPs (53.txt — one IP per line).
+
+## Commands
+
+dns-oarc porttest across list:
+    while read -r ns; do
+        dig @"$ns" +short porttest.dns-oarc.net TXT
+    done < 53.txt > CachePoison.txt
+
+Non-recursive across list:
+    while read -r ns; do
+        dig @"$ns" www.google.com A +norecurse
+    done < 53.txt > NonRecursive.txt
+
+Amplification across list:
+    while read -r ns; do
+        dig @"$ns" . NS
+    done < 53.txt > AmpDDoS.txt
+
+## Validation / False Positives
+
+Bulk output needs per-host interpretation — a single open resolver in a list is still in scope if customer-owned.
+Rate-limit loops against production NS pairs to avoid operational impact.
