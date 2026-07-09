@@ -9,7 +9,7 @@ sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y auto
 
 - Install basic tools
 sudo apt install -y curl git golang net-tools open-vm-tools-desktop plocate python3-pip whois
-sudo snap install --classic code (Intel only)
+sudo snap install --classic code
 
 - Install uv
 sudo curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -20,7 +20,7 @@ uv
 sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean; sudo updatedb
 
 - Ignore case for tab completion
-sudo open /etc/inputrc
+sudo gedit /etc/inputrc
 Uncomment: set completion-ignore-case On
 Save the file and close.
 Close Terminal and reopen.
@@ -34,7 +34,7 @@ rm -rf Documents/ Music/ Pictures/ Public/ Templates/ Videos/
 
 - Text Editor
     touch tmp
-    open tmp
+    gedit tmp
     Preferences
     Display Line Numbers: on
     Highlight Current Line: on
@@ -62,16 +62,17 @@ Take a snapshot of your VM.
 - Update OS and install additional tools
     cd discover/
     ./discover.sh
-    Option 15
+    Option 17
 
 - Update default user agent strings
     https://www.whatismybrowser.com/guides/the-latest-user-agent/edge
 
     nikto
-    sudo open /etc/nikto/config.txt
+    sudo gedit /etc/nikto/config.txt
 
     nmap
-    sudo open /usr/share/nmap/nselib/http.lua > line 160
+    sudo gedit /usr/share/nmap/nselib/http.lua
+    # Edit the default user agent around line 160
 
 - Fix Burp Suite Pro browser permissions
 find / -name "chrome-sandbox" 2>/dev/null | grep Burp

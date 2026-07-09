@@ -1,169 +1,164 @@
-Kali
+Kali Linux VM Setup
 
-# Download VM, verify the hash, and login
+
+# Overview
+
+Bootstrap a Kali VM for Discover: verify the image, create your user, tune the desktop, install Discover, and optionally cloak scanner fingerprints.
+
+
+# Related Notes
+
+pwk.txt                  Shells, netcat, and lab recon fundamentals
+ubuntu.txt               Alternate Ubuntu VM setup (not maintained here)
+bash.txt                 Bash text search and manipulation
+
+
+# Contents
+
+Download and Login, User Setup, Desktop and Terminal, Install Discover, Snapshot, Cloak System, Optional Tools
+
+
+# Download and Login
+
+## Commands
 
 https://www.kali.org/get-kali/#kali-virtual-machines
-Scroll down and select VMware Weekly
+Select VMware Weekly (or your hypervisor format).
 
-- macOS
-1. Open Terminal
-2. sha256sum /path/to/file
-3. Compare the value to the checksum on the website.
+Verify hash:
+    sha256sum /path/to/kali-image
+    # Compare to checksum on the download page
 
-- Windows
-1. Open PowerShell
-2. Get-FileHash C:\path\to\file
-3. Compare the value to the checksum on the website.
+Default login: kali:kali
 
-Login with kali:kali
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Create a new user, set the password and give sudo rights
+# User Setup
+
+## Commands
 
 sudo useradd -m -s /usr/bin/zsh <NEW USER>
 sudo passwd <NEW USER>
 
 sudo visudo
-Add to the last line in the file.
+# Add last line:
 <NEW USER> ALL=(ALL) NOPASSWD:ALL
 
 sudo reboot
-Login as new user.
+Login as the new user.
 
-- Delete kali account
-sudo userdel -r kali
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Remove default account (optional, after confirming new user works):
+    sudo userdel -r kali
 
-# Disable screen lock
 
-Kali menu > search for: Xfce Screensaver
-Screensaver > Enable Screensaver: off
-Lock Screen > Enable Lock Screen: off
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Desktop and Terminal
 
-# Desktop
+## Commands
 
-Right click on the Desktop > Desktop Settings > File/Launcher Icons
-Default Icons: uncheck Home, File System, and Trash
-Close
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Disable screen lock:
+    Kali menu > Xfce Screensaver
+    Screensaver > Enable Screensaver: off
+    Lock Screen > Enable Lock Screen: off
 
-# Terminal
+Desktop icons:
+    Right click Desktop > Desktop Settings > File/Launcher Icons
+    Uncheck Home, File System, and Trash
 
-Open Terminal > File > Preferences
-Appearance
-    Font > Change > 11 > OK
-    Application transparency: 0% > OK
+Terminal font:
+    Terminal > Preferences > Appearance > Font 11, transparency 0%
 
-- Shell
-kali-tweaks
-Select Shell & Prompt > Configure Prompt
-Select One Line > space bar > Apply > OK > enter
-Back > Virtualization > Configure > enter
-Quit
+Shell prompt (optional):
+    kali-tweaks > Shell & Prompt > Configure Prompt > One Line
 
-Close Terminal and open an new one.
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Mousepad:
+    Edit > Preferences
+    View: Font 11, uncheck system monospace
+    Editor: tab width 4, spaces, automatic indentation off
 
-# Mousepad
+Timezone:
+    sudo timedatectl set-timezone America/New_York
+    # Central: America/Chicago, Mountain: America/Denver, Pacific: America/Los_Angeles
 
-mousepad
+Patch OS:
+    sudo apt update ; sudo apt -y upgrade ; sudo apt -y dist-upgrade ; sudo apt -y autoremove ; sudo apt -y autoclean ; sudo updatedb
 
-Edit > Preferences
-View
-    Uncheck Use system monospace font
-    Font: 11 > Select
-Editor
-    Tab width: 4
-    Tab mode: Insert Spaces
-    Enable automatic indentation: off
-Window
-    Check Remember window position
-Close preferenes > close mousepad
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Clock
+# Install Discover
 
-- GUI timezone
-Right-click on the clock > Properties
-Timezone
-  Eastern: America/New_York
-  Central: America/Chicago
-  Mountain: America/Denver
-  Pacific: America/Los_Angeles
-Close
+## Commands
 
-- System timezone
-sudo timedatectl set-timezone America/<CITY>
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Patch the OS and install VMware tools
-
-sudo apt update ; sudo apt -y upgrade ; sudo apt -y dist-upgrade ; sudo apt -y autoremove ; sudo apt -y autoclean ; sudo updatedb
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Snapshot
-
-Take a snapshot and name it Base.
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Install Discover scripts and additional GitHub repos
 cd ~
-git clone https://github.com/leebaird/discover
+git clone https://github.com/leebaird/discover.git
 cd discover/config/
 ./install.sh
 
 cd ~
-source .zshrc
+source ~/.zshrc
 update
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Cloak system
+cd ~/discover/
+./discover.sh
+Option 17
 
-- Change the hostnames, make sure they match.
-/etc/hostname
-/etc/hosts
+## Validation / False Positives
 
-- Change the contents to match another OS (Ubuntu 20.04.6 LTS).
-/etc/issue
-/etc/issue.net
-/etc/os-release     Use new hostname for ID
+The update alias is defined in Discover config — open a new shell after install.sh if update is not found.
+Option 17 runs misc/update.sh; confirm key tools with which nmap ffuf gowitness.
+
+
+# Snapshot
+
+Take a VM snapshot named Base after Discover install and update complete.
+
+
+# Cloak System
+
+## Overview
+
+Optional OPSEC for lab assessments: align hostname, OS banner strings, and scanner user agents. Editing /etc/os-release incorrectly can break package management — change only what you understand.
+
+## Commands
+
+Match hostname in:
+    /etc/hostname
+    /etc/hosts
+
+Banner strings (lab use only):
+    /etc/issue
+    /etc/issue.net
+    /etc/os-release
 
 hostnamectl
 
-- Firefox
-about:config
-browser.ping-centre.telemetry > false
-general.platform.override > Win32
-general.useragent.override > add the latest Firefox user agent string
-geo.enabled > false
-media.peerconnection.enabled > false
-network.http.sendRefererHeader > 0
-privacy.resistFingerprinting > true
+Firefox about:config (examples):
+    general.platform.override > Win32
+    general.useragent.override > <current Firefox UA>
+    privacy.resistFingerprinting > true
+    media.peerconnection.enabled > false
 
-- nikto
-/etc/nikto.conf > add the latest Firefox user agent string
+Scanner user agents:
+    https://www.whatismybrowser.com/guides/the-latest-user-agent/firefox
+    sudo gedit /etc/nikto/nikto.conf
+    # or /etc/nikto/config.txt on some installs
+    sudo gedit /usr/share/nmap/nselib/http.lua
+    # Edit default user agent around line 160
 
-- nmap
-/usr/share/nmap/nselib/http.lua > add the latest Firefox user agent string on line 160
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## Validation / False Positives
 
-# Optional additional tools
+Cloaking UA strings reduces scanner fingerprinting — it does not hide network-level TLS or behavior fingerprints.
 
-- Apache Directory Studio
-https://directory.apache.org/studio/download/download-linux.html
-cd /home/<USER>/Downloads/
-tar zxf <package>
-mv ApacheDirectoryStudio ..
-rm <package>
 
-- Nim
-https://nim-lang.org/install_unix.html
-curl https://nim-lang.org/choosenim/init.sh -sSf | sh
+# Optional Tools
 
-- Terraform
-https://www.terraform.io/downloads
-Linux > Binary download for Linux > AMD64
-unzip <package>
-mv terraform /usr/local/bin/
-rm <package>
+Apache Directory Studio:
+    https://directory.apache.org/studio/download/download-linux.html
+    cd ~/Downloads/
+    tar zxf <package>
+    mv ApacheDirectoryStudio ~/
+
+Nim:
+    curl https://nim-lang.org/choosenim/init.sh -sSf | sh
+
+Terraform:
+    https://www.terraform.io/downloads
+    unzip terraform_linux_amd64.zip
+    sudo mv terraform /usr/local/bin/
