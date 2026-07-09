@@ -1,6 +1,26 @@
 Bash
 
 
+# Overview
+
+grep, awk, sed, and sort one-liners with searchable descriptions, plus Discover script snippets. Search this file by description text to find the command you need.
+
+
+# Related Notes
+
+kali.txt                   VM setup
+pwk.txt                    Lab scripts referencing these patterns
+git.txt                    Git workflow beyond bulk clone
+cidr.txt                   CIDR notation context
+exploits.txt               CVE research workflow
+
+
+# Contents
+
+Text Processing Cookbook, Command Chaining, Script Validation, Colors, Files and Loops,
+xterm, GitHub Bulk Clone, NVD CVE Lookup
+
+
 grep                                                          Search for a string
 grep -i                                                       Search for a string and ignore the case
 grep -r                                                       Search recursively for a string in a directory
@@ -37,7 +57,6 @@ comm -<123> file1 file2                                       Used to suppress c
 comm -12 file1 file2                                          Suppress columns 1 and 2
 diff -<c or u> file1 file2
 vimdiff file1 file2
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 sed 's/^/FOO/g'                                               Add FOO to the beginning of each line
 sed 's/$/FOO/g'                                               Add FOO to the end of each line
@@ -45,11 +64,11 @@ sed 's/$/FOO/g'                                               Add FOO to the end
 column -t                                                     Align columns
 column -t -s ','                                              Align columns using a comma
 
-sed /^$/d                                                     Compress blank lines
+sed '/^$/d'                                                     Compress blank lines
 paste -s -d" "                                                Convert a list into a single line
 
 apt install xml-twig-tools
-xml_grep ‘firstName' file.xml --text_only                     Extract data from XML element
+xml_grep 'firstName' file.xml --text_only                     Extract data from XML element
 
 grep -oe '[a-zA-Z0-9._]\+@[a-zA-Z]\+.[a-zA-Z]\+'              Find emails
 grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b'                    Find IPs
@@ -96,7 +115,7 @@ sed -e :a -e '$!N;s/\nFOO/ /;ta' -e 'P;D'                     Find lines that st
 fmt -w 25                                                     Limit the number of characters on a line to 25
 
 sed -n '/FOO/,$p'                                             Print from FOO to the end of the file
-sed s/FOO.*//                                                 Print from FOO to the end of the line
+sed 's/FOO.*//'                                                 Print from FOO to the end of the line
 sed -n '5,/^$/p'                                              Print from the 5th line to the first blank line
 awk 'NR == 1 || NR % 3 == 0'                                  Print the first and every third line
 awk 'NR % 3 == 0'                                             Print every third line
@@ -165,14 +184,12 @@ tr '[:lower:]' '[:upper:]'                                    Translate lower ca
 tr '[:upper:]' '[:lower:]'                                    Translate upper case to lower case
 
 sed "s/$FOO./$FOO/g"                                          Variables - use double quotes with sed or grep
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # String together commands
 
 semicolon (;)                                                 Does not depend on the first command completing with no errors
 double ampersand (&&)                                         Depends on the first command completing with no errors
 pipe (|)                                                      Uses output from the first command as input to the second command
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Check for root
 if [ "$EUID" -ne 0 ]; then
@@ -309,7 +326,6 @@ elif [[ ! "$CHOICE" =~ ^[Yy]$ ]]; then
     echo
     exit 1
 fi
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Colors
 
@@ -320,7 +336,6 @@ BLUE='\033[1;34m'
 NC='\033[0m'
 
 echo -e "I ${RED}love${NC} Discover."
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Compare two dates
 
@@ -328,7 +343,6 @@ date1=$(date +"%s")
 date2=$(date +"%s")
 diff=$(($date2-$date1))
 echo "$(($diff / 60)) min and $(($diff % 60)) sec."
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Files and folders
 
@@ -355,7 +369,6 @@ fi
 if [ ! -d test ]; then
     echo "The folder does not exist."
 fi
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # If a process is running, kill it
 
@@ -364,7 +377,6 @@ PID=$(ps -ef | grep 'discover.sh' | grep -v 'grep' | awk '{print $2}')
 if [ -n "$PID" ]; then
     kill -9 $PID
 fi
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Read in a file and do something
 
@@ -375,12 +387,10 @@ done < subdomains
 while read -r LINE; do
     ike-scan -f "$LINE" >> "$NAME"/script-ike-scan.txt
 done < "$NAME"/445.txt
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Special characters to escape
 
 ~|`|!|@|#|\$|%|\^|&|\*|\(|\)|_|-|\+|=|{|\[|}|]|\|:|;|"|<|,|>|\.|\?|/|
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Use a variable and set a constant
 
@@ -391,7 +401,6 @@ else
     FORMAT="exe"
     PLATFORM="windows"
 fi
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # xterm
 -T         title
@@ -423,7 +432,6 @@ xterm -T "ping" -bg navy -fg white -geometry 70x12-0+0 -fa 'Monospace' -fs 11 -e
 # Open a new xterm window, name it 'ping', ping 8.8.8.8 three times, and prompt to press Enter to close
 # -geometry 94x60+0+0
 xterm -T "ping" -bg blue -fa 'Monospace' -fs 11 -fg white -e "ping -c 3 8.8.8.8; echo; echo 'Press Enter to close this window'; read"
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Clone all repos from a GitHub account
 
@@ -448,7 +456,6 @@ for REPO_URL in $REPOS; do
         echo
     fi
 done
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Thanks for Aaron Stone
 
