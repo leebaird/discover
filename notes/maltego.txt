@@ -1,49 +1,118 @@
 Maltego
 
 
-# Install Transforms
+# Overview
 
-Transforms > Transform Hub > install various Transforms
-Note that some transforms require API keys.
+Graph-based passive OSINT using Maltego transforms. Install transforms from Transform Hub before running workflows — many require third-party API keys. Confirm DNS and IP findings with live scans.
 
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Example 1
+# Related Notes
+
+pwk.txt                    Passive recon (theHarvester, Shodan, Google dorks)
+dns.txt                    Live DNS enumeration and zone transfer testing
+shodan.txt                 Exposed-service lookup after infrastructure pivots
+
+
+# Contents
+
+Setup, Example 1 Domain to Infrastructure, Example 2 IPv4 to DNS, Example 3 TLD Expansion,
+Example 4 Domain to Netblock, Validation / False Positives
+
+
+# Setup
+
+## Overview
+
+New graph per investigation. Some transforms are paid or API-gated.
+
+## Commands
 
 Investigate > New
 
-From the palette on the left, scroll down to Infrastructure > Domain
-Drag the icon to the right.
-Edit the domain to your target.
-Right click > Run Transform > Email addresses from Domain > All
+Install transforms:
+    Transforms > Transform Hub > install various Transforms
+    Note that some transforms require API keys.
 
-DNS from Domain > All
-ctrl + down to select servers > Resolve to IP > All
-ctrl + down to select IPs > DNS from IP > All
-ctrl + down to select servers > Convert to Domain > All
-ctrl + down to select domains > Email addresses from Domain > All
-Select all emails > Other transforms > To Person, emailToMyspaceAccount, emailToFlickerAccount
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Example 2
+# Example 1: Domain to Infrastructure
 
-From the palette on the left, scroll down to Infrastructure > IPv4 Address
-Drag the icon to the right.
-Edit the IP address to your target.
-Right click > Run Transform > DNS from IP > All in this set
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## Overview
 
-Add a Domain > edit name to your target (www.target.com)
+Seed from a domain; pivot to emails, DNS, IPs, related domains, and person/social entities.
 
-# Example 3
+## Commands
 
-Right-click > Run Transform > All Transforms > To Domain [Find other TLDs]
-Select all TLDs > Run Transform > All Transforms > To Website [Quick lookup]
-Select all websites > Run Transform > All Transforms > To IP Address [DNS]
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Palette > Infrastructure > Domain — drag to graph, edit to <domain>.
 
-# Example 4
+Right-click > Run Transform:
+    Email addresses from Domain > All
+    DNS from Domain > All
+
+Extend selection (Ctrl+Down), then run:
+    Resolve to IP > All
+    DNS from IP > All
+    Convert to Domain > All
+    Email addresses from Domain > All
+
+Select all emails > Other transforms:
+    To Person
+    emailToMyspaceAccount
+    emailToFlickrAccount
+
+
+# Example 2: IPv4 to DNS
+
+## Overview
+
+Seed from an IP address and enumerate associated DNS names.
+
+## Commands
+
+Palette > Infrastructure > IPv4 Address — drag to graph, edit to <target IP>.
+
+Right-click > Run Transform > DNS from IP > All in this set
+
+
+# Example 3: TLD Expansion
+
+## Overview
+
+Seed from a domain (often www.<domain>) and discover alternate TLDs, websites, and IPs.
+
+## Commands
+
+Palette > Infrastructure > Domain — drag to graph, edit to www.<domain>.
+
+Right-click > Run Transform:
+    All Transforms > To Domain [Find other TLDs]
+
+Select all TLDs > Run Transform:
+    All Transforms > To Website [Quick lookup]
+
+Select all websites > Run Transform:
+    All Transforms > To IP Address [DNS]
+
+
+# Example 4: Domain to Netblock
+
+## Overview
+
+Map a domain through DNS to IPs and upstream netblocks via whois.
+
+## Commands
+
+Palette > Infrastructure > Domain — drag to graph, edit to <domain>.
 
 Right-click > Run Transform > DNS from Domain > All in this set
+
 Select all > Run Transform > All Transforms > To IP Address [DNS]
+
 Select all IP addresses > Run Transform > All Transforms > To Netblock [Using whois info]
+
+
+# Validation / False Positives
+
+Transform output is passive and can be stale — verify hostnames and ports with dns.txt or nmap before reporting.
+Social transforms (Myspace, Flickr) are legacy; empty results are common and not evidence of a clean target.
+API-gated transforms fail silently or return partial graphs when keys are missing — check Transform Hub auth before long chains.
+Ctrl+Down extends selection down the entity list; on macOS Maltego may use Cmd+Down instead.
