@@ -1,118 +1,171 @@
-LDAP-OWA
+LDAP and OWA
+
+
+# Overview
+
+Enumerate LDAP and Exchange/OWA from Linux or Windows, spray passwords carefully, and extract users when credentials or anonymous bind are available. Domain-joined PowerView enumeration lives in active-directory.txt.
 
 
 # Related Notes
 
-active-directory.txt     Domain recon and on-domain enumeration
-ad-attacks.txt           Kerberoasting and credential attacks
-passwords.txt            Hash cracking and spraying wordlists
+active-directory.txt     On-domain PowerView and dsquery enumeration
+ad-attacks.txt           Kerberoasting and NTLM attacks after creds
+ad-bloodhound.txt        BloodHound analysis
+passwords.txt            Wordlists, john, hashcat, and spray tooling
 
 
-Lightweight Directory Access Protocol
-Leverages Kerberos v5 for authentication.
+# Contents
 
-ip=10.0.0.10
+LDAP Discovery, LDAP Enumeration, LDAP Password Spraying, OWA and Exchange, GUI Enumeration
+
+
+# LDAP Discovery
+
+## Overview
+
+Find LDAP services and test whether unauthenticated or weakly authenticated access is possible.
+
+## Commands
+
+ip=<target IP>
 echo $ip
 
 shodan host $ip
 
 nmap -Pn -n -T4 --open $ip
 nmap -Pn -n -T4 --open -p389,636,3269 --script=ldap*,ssl* $ip
----------------------------------------------------------------------------------------------------------------------
 
-crackmapexec ldap $ip -u Administrator -p passwords.txt
-crackmapexec ldap $ip --port 636 -u Administrator -p passwords.txt
----------------------------------------------------------------------------------------------------------------------
+Anonymous / null bind test:
+    ldapsearch -x -H ldap://$ip -b "dc=target,dc=com" -s sub
+    ldapsearch -x -H ldap://$ip:389 -b "dc=target,dc=com" "*" | awk '/^dn: / {print $2}'
 
-# Autodiscover
+Unauthenticated bind with DN and blank password:
+    ldapsearch -x -D "cn=admin,dc=target,dc=com" -s sub "cn=*" -h $ip
 
-https://autodiscover.target.com/autodiscover/autodiscover.xml
-https://target.com/autodiscover/autodiscover.xml
----------------------------------------------------------------------------------------------------------------------
+## Validation / False Positives
 
-# SprayingToolkit
+Anonymous LDAP bind is disabled on most modern domain controllers — failure is expected, not proof of hardening unless other enum still fails.
+An open port 389 confirms LDAP service — not proof of useful data without a successful bind.
 
-This will show the internal domain name.
-atomizer.py owa 'https://webmail.target.com/Autodiscover' --recon
-atomizer.py owa 'https://webmail.target.com/ews/exchange.asmx' --recon
----------------------------------------------------------------------------------------------------------------------
 
-# LDAPdomainDump
+# LDAP Enumeration
 
-ldapdomaindump -u domain\\username -p password --no-json --no-grep ldaps://ip$:port
----------------------------------------------------------------------------------------------------------------------
+## Overview
 
-# MailSniper
+Extract users, computers, and groups with valid credentials or tools that wrap LDAP.
 
-- Import the module.
-PS C:\> ipmo C:\Tools\MailSniper\MailSniper.ps1
+## Commands
 
-- Enumerate the NetBIOS name of the target domain.
-PS C:\> Invoke-DomainHarvestOWA -ExchHostname <mail server IP>
+ldapsearch (authenticated):
+    ldapsearch -x -h <IP> -D 'DOMAIN\username' -w '<password>' -b "CN=Users,DC=target,DC=com"
+    ldapsearch -x -h <IP> -D 'DOMAIN\username' -w '<password>' -b "CN=Computers,DC=target,DC=com"
+    ldapsearch -x -h <IP> -D 'DOMAIN\username' -w '<password>' -b "CN=Domain Admins,CN=Users,DC=target,DC=com"
+    ldapsearch -x -h <IP> -D 'DOMAIN\username' -w '<password>' -b "CN=Administrators,CN=Builtin,DC=target,DC=com"
+    ldapsearch -x -h <IP> -D 'DOMAIN\username' -w '<password>' -b "CN=Remote Desktop Users,CN=Builtin,DC=target,DC=com"
 
-PS C:\> Invoke-SelfSearch -Mailbox joe.smith@target.com -Remote
-PS C:\> Invoke-SelfSearch -Mailbox joe.smith@target.com -ExchHostname webmail.target.com
+LDAPS:
+    ldapsearch -x -H ldaps://<IP>:636 -D 'DOMAIN\username' -w '<password>' -b "DC=target,DC=com"
 
-- Perform a password spray.
-PS C:\> Invoke-PasswordSprayOWA -ExchHostname mail.target.com -UserList C:\users.txt -Password Spring2022! -OutFile creds.txt
+ldapdomaindump:
+    ldapdomaindump -u 'domain\username' -p '<password>' --no-json --no-grep ldap://<IP>
+    ldapdomaindump -u 'domain\username' -p '<password>' --no-json --no-grep ldaps://<IP>:636
 
-- Download the GAL.
-PS C:\> GetGlobalAddressList -UserName domain\username -Password Spring2022! -ExchHostname webmail.target.com/ews/exchange.asmx -OutFile gal.txt
----------------------------------------------------------------------------------------------------------------------
+ldeep:
+    ldeep ldap -u 'domain\username' -p '<password>' -d <domain.fqdn> -s ldap://<IP> enum
+    ldeep ldap -u 'domain\username' -p '<password>' -d <domain.fqdn> -s ldap://<IP> bloodhound
 
-# Apache Directory Studio, using valid creds, port 636
+crackmapexec LDAP auth check:
+    crackmapexec ldap <IP> -u <user> -p '<password>'
+    crackmapexec ldap <IP> --port 636 -u <user> -p '<password>'
 
-File > New > LDAP Browser > LDAP Connection > Next
-Connection name: 636
-Hostname: target IP
-Port: 636
-Encryption method: Use SSL
-Authentication Method: Simple Authentication
-User: domain\user Check Authentication
+## Validation / False Positives
 
-- Search
-LDAP - New Search
-Search Name: admin accounts
-Connection > Browse: select the name you entered <636>
-Search Base > Browse: select the root of the domain
-Filter: (cn=admin*)
-Returning Attributes: cn, mail, description
-Search results may take a few seconds to return.
+ldapsearch returning only built-in groups may mean limited bind rights — try Users and Computers bases separately.
+ldapdomaindump output should be reviewed for stale disabled accounts before spraying.
 
-- Reuse a search
-Expand Searches in the bottom left lane
-Right-click > Copy Search
-Select Search > right-click > Paste Search
-Edit as needed > Apply and Close
----------------------------------------------------------------------------------------------------------------------
 
-# Enumerate anonymous or null binding
-ldapsearch -x -H ldap://URI:port/ -b "searchbase" -s sub
+# LDAP Password Spraying
 
-# Enumerate anonymous or null binding
-ldapsearch -x -b "dc=target,dc=com" "*" -h $ip | awk '/dn: / {print $2}'
+## Overview
 
-# Unauthenticated Bind Enumeration (DN with no password)
-ldapsearch -x -D "cn=admin,dc=target,dc=com" -s sub "cn=*" -h $ip | awk '/uid: /{print $2}' | nl
+Try one password against many accounts. Watch lockout policy — coordinate spray volume with the customer.
 
-# Extract  users
-ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Users,DC=target,DC=com"
+## Commands
 
-# Extract computers
-ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Computers,DC=<SUBDOMAIN>,DC=<TDL>"
+Single password against user list:
+    crackmapexec ldap <IP> -u users.txt -p '<password>' --continue-on-success
+    crackmapexec ldap <IP> --port 636 -u users.txt -p '<password>' --continue-on-success
 
-# Extract my info
-ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=<MY NAME>,CN=Users,DC=<SUBDOMAIN>,DC=<TDL>"
+Password list against one user (noisier):
+    crackmapexec ldap <IP> -u <user> -p passwords.txt
 
-# Extract domain admins
-ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Domain Admins,CN=Users,DC=<1_SUBDOMAIN>,DC=<TDL>"
+User list sources:
+    /usr/share/wordlists/seclists/Usernames/
+    enum4linux-ng -A <IP>
+    ldapdomaindump / ldeep output
 
-# Extract administrators
-ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Administrators,CN=Builtin,DC=<SUBDOMAIN>,DC=<TDL>"
+## Validation / False Positives
 
-# Extract remote desktop group
-ldapsearch -x -h <IP> -D 'DOMAIN\username' -w 'password' -b "CN=Remote Desktop Users,CN=Builtin,DC=<SUBDOMAIN>,DC=<TDL>"
----------------------------------------------------------------------------------------------------------------------
+LDAP auth success must be followed by SMB, WinRM, or OWA verification — LDAP-only success may be a low-priv service account.
+Stop spraying after the agreed attempt count; one lockout event is a finding even if no creds are recovered.
 
-https://github.com/franc-pentest/ldeep
-https://github.com/codewatchorg/PowerSniper
+
+# OWA and Exchange
+
+## Overview
+
+Enumerate and spray Outlook Web Access / Exchange endpoints when LDAP or mail services are exposed.
+
+## Commands
+
+Autodiscover:
+    https://autodiscover.<domain>/autodiscover/autodiscover.xml
+    https://<domain>/autodiscover/autodiscover.xml
+    curl -ik "https://<domain>/autodiscover/autodiscover.xml"
+
+SprayingToolkit recon:
+    atomizer.py owa 'https://webmail.<domain>/Autodiscover' --recon
+    atomizer.py owa 'https://webmail.<domain>/ews/exchange.asmx' --recon
+
+MailSniper (PowerShell on Windows attack host):
+    ipmo C:\Tools\MailSniper\MailSniper.ps1
+    Invoke-DomainHarvestOWA -ExchHostname <mail server IP>
+    Invoke-PasswordSprayOWA -ExchHostname mail.<domain> -UserList C:\users.txt -Password '<password>' -OutFile creds.txt
+    GetGlobalAddressList -UserName domain\username -Password '<password>' -ExchHostname webmail.<domain>/ews/exchange.asmx -OutFile gal.txt
+
+Mailbox / username discovery:
+    Invoke-SelfSearch -Mailbox user@<domain> -ExchHostname webmail.<domain>
+
+Additional tools:
+    https://github.com/franc-pentest/ldeep
+    https://github.com/codewatchorg/PowerSniper
+
+## Validation / False Positives
+
+Autodiscover XML confirms Exchange presence — not proof of weak credentials until spray or login succeeds.
+OWA spray lockouts can affect mobile clients — document time window and account scope with the customer.
+
+
+# GUI Enumeration
+
+## Overview
+
+Apache Directory Studio is optional when you already have valid LDAPS credentials and prefer GUI browsing.
+
+## Commands
+
+File > New > LDAP Browser > LDAP Connection
+    Hostname: <target IP>
+    Port: 636
+    Encryption: SSL
+    Authentication: Simple
+    User: domain\user
+
+Search example:
+    Search base: DC=target,DC=com
+    Filter: (cn=admin*)
+    Returning attributes: cn, mail, description
+
+## Validation / False Positives
+
+GUI results should be exported or screenshotted for reporting — manual browsing alone is hard to reproduce in the report.

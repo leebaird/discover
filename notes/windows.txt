@@ -11,7 +11,7 @@ Entry point for Windows host reconnaissance, situational awareness, credential h
 active-directory.txt     Domain recon and on-domain enumeration
 ad-attacks.txt           Kerberoasting, DCSync, GPP, ACL abuse
 ad-bloodhound.txt        SharpHound and BloodHound analysis
-ldap-owa.txt             LDAP and OWA enumeration
+ldap-owa.txt             LDAP and OWA enumeration and spraying
 passwords.txt            Wordlists and cracking
 windows-credentials.txt  LSASS and hash dumping
 windows-lateral.txt      WinRM, RDP, pass-the-hash, PsExec

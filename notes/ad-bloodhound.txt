@@ -81,6 +81,10 @@ Useful queries:
 A path through many hops may be theoretical — validate ownership of each node in the path.
 Pre-built queries highlight candidates; exploitation still requires credentials or ACL rights.
 
+Relay path examples (NTLM relay / coercion):
+    MATCH p=(c1:Computer)-[r1:MemberOf*1..]->(g:Group)-[r2:AdminTo]->(n:Computer) RETURN p
+    MATCH (c1:Computer)-[r1:MemberOf*1..]->(g:Group)-[r2:AdminTo]->(c2:Computer) RETURN c1.name,c2.name
+
 
 # ADACLScanner
 

