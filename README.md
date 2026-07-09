@@ -244,7 +244,7 @@ via **Update**).
 * Probes hostnames with httpx; writes `tools/httpx.jsonl`
 * Treats responses with status 200–399, 401, 403, or 405 as alive
 * Fingerprints alive URLs with whatweb; writes `tools/whatweb.json`
-* Screenshots alive URLs with gowitness under `tools/gowitness/`
+* Screenshots alive URLs with gowitness (go-rod driver) under `tools/gowitness/`
 * Merges httpx and whatweb with `recon/active-tech.py` and refreshes
   `pages/subdomains.htm`
 * Writes an Active summary to `pages/active.htm` (Reports menu → Active)

@@ -603,6 +603,7 @@ if [ "$URL_COUNT" -gt 0 ]; then
     echo -e "${BLUE}[*] Running gowitness on alive URLs.${NC}"
     rm -rf "$SCREENSHOTS_DIR"/*
     gowitness scan file -f "$ACTIVE_TXT" \
+        --driver gorod \
         --chrome-path "$CHROME_PATH" \
         --screenshot-path "$SCREENSHOTS_DIR" \
         --write-jsonl --write-jsonl-file "$GOWITNESS_JSONL" \
