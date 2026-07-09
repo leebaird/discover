@@ -8,7 +8,9 @@ Entry point for Windows host reconnaissance, situational awareness, credential h
 
 # Related Notes
 
-active-directory.txt     Domain recon, BloodHound, AD abuse
+active-directory.txt     Domain recon and on-domain enumeration
+ad-attacks.txt           Kerberoasting, DCSync, GPP, ACL abuse
+ad-bloodhound.txt        SharpHound and BloodHound analysis
 ldap-owa.txt             LDAP and OWA enumeration
 passwords.txt            Wordlists and cracking
 windows-credentials.txt  LSASS and hash dumping

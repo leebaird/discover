@@ -8,7 +8,9 @@ Move between Windows hosts using harvested credentials, WinRM, RDP, SMB, and rem
 
 # Related Notes
 
-active-directory.txt     Domain attack paths and BloodHound
+active-directory.txt     Domain recon
+ad-attacks.txt           Credential attacks and DCSync
+ad-bloodhound.txt        Attack path analysis
 windows-credentials.txt  Obtaining NTLM hashes for PtH
 windows-privesc.txt      Open RDP via firewall if needed
 passwords.txt            Crack hashes offline

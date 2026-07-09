@@ -1,6 +1,13 @@
 LDAP-OWA
 
 
+# Related Notes
+
+active-directory.txt     Domain recon and on-domain enumeration
+ad-attacks.txt           Kerberoasting and credential attacks
+passwords.txt            Hash cracking and spraying wordlists
+
+
 Lightweight Directory Access Protocol
 Leverages Kerberos v5 for authentication.
 
