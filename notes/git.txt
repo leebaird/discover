@@ -1,75 +1,111 @@
 Git
 
 
-# Setup your identity and suppress warnings.
+# Overview
 
-git config --global user.name "Lee Baird"
-git config --global user.email "leebaird@acme.com"
-git config --global pull.rebase false
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Fork workflow, upstream sync, branching, and pull requests for GitHub repos. Commands include inline descriptions for quick search.
 
-# Fork a repo
 
-- Using a web browser.
-Fork > Create fork
+# Related Notes
 
-- Using the command line.
-git clone git@github.com:<username>/<forked repo>
-git clone git@github.com:leebaird/shad0w.git
-cd shad0w/
+bash.txt                 Shell one-liners and Discover script helpers
 
-- Add the upstream repo so that you can pull changes.
-git remote add upstream https://github.com/<original repo>
-git remote add upstream https://github.com/bats3c/shad0w.git
 
-- Validate connectivity.
-ssh -T git@github.com
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Contents
 
-# Keep your fork updated.
+Identity and Config, Fork a Repo, Keep Fork Updated, Working on a Branch, Pull Request
 
-- Using a web browser.
-Select Sync fork.
 
-- Using the command line.
-git fetch upstream                    Pull the latest changes from the upstream repo
-git checkout master                   Make sure you are working on the master branch
-git merge upstream/master             Merge the latest upstream changes
-git status                            Check the status
-git push origin master                Push the new changes to your fork
+# Identity and Config
 
-git checkout dev                      Change to the dev branch
-git merge master                      Merge the latest master changes
-git push origin dev -f                Push the updated branch back to the dev branch in your fork
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## Overview
 
-# Working on a new branch.
+Set commit identity and suppress warnings (missing user.name / user.email on first commit).
 
-git status                            Check the status
-git branch                            Show local branches
-git branch -r                         Show remote branches
+## Commands
 
-git branch dev                        Create a new dev branch
-git checkout dev                      Change to the dev branch
+    git config --global user.name "Lee Baird"              Set commit author name
+    git config --global user.email "leebaird@acme.com"     Set commit author email
+    git config --global pull.rebase false                  Merge on pull (not rebase)
+
+
+# Fork a Repo
+
+## Overview
+
+Create a fork on GitHub, clone it, and add upstream for later sync.
+
+## Commands
+
+Browser: Fork > Create fork
+
+Clone fork:
+    git clone git@github.com:<username>/<forked repo>
+    git clone git@github.com:leebaird/shad0w.git
+    cd shad0w/
+
+Add upstream:
+    git remote add upstream https://github.com/<original repo>
+    git remote add upstream https://github.com/bats3c/shad0w.git
+
+Validate SSH:
+    ssh -T git@github.com
+
+
+# Keep Fork Updated
+
+## Overview
+
+Pull upstream changes into your fork via browser sync or command line.
+
+## Commands
+
+Browser: Select Sync fork
+
+Command line:
+    git fetch upstream                    Pull the latest changes from the upstream repo
+    git checkout master                   Make sure you are working on the master branch
+    git merge upstream/master             Merge the latest upstream changes
+    git status                            Check the status
+    git push origin master                Push the new changes to your fork
+
+    git checkout dev                      Change to the dev branch
+    git merge master                      Merge the latest master changes
+    git push origin dev -f                Push the updated branch back to the dev branch in your fork
+
+
+# Working on a Branch
+
+## Overview
+
+Create a branch, commit changes, push to your fork, and delete branches when done.
+
+## Commands
+
+    git status                            Check the status
+    git branch                            Show local branches
+    git branch -r                         Show remote branches
+
+    git branch dev                        Create a new dev branch
+    git checkout dev                      Change to the dev branch
 
 Make various changes to files.
 
-git add -A                            Add all edits
-git add <file1> <file2>               Add specific edits
-git commit -am 'message'              Add commit message
-git push origin master                Push the new changes to your fork
+    git add -A                            Add all edits
+    git add <file1> <file2>               Add specific edits
+    git commit -am 'message'              Add commit message
+    git push origin dev                   Push the new changes to your fork
 
 Refresh your web browser to see the changes.
 
-- Delete branches.
+Delete branches:
+    git branch -D <branch>                Local
+    git push origin --delete <branch>     Remote
 
-git branch -D <branch>                Local
-git push origin --delete <branch>     Remote
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Create a pull request.
+# Pull Request
 
-- Using a web browser.
-Click on Pull requests > New pull request > Create pull request
+## Commands
+
+Browser: Pull requests > New pull request > Create pull request
 Enter a description > Create pull request
-

