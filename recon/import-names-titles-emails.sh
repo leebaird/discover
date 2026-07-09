@@ -83,7 +83,7 @@ report_dir = Path(sys.argv[2])
 stats_path = Path(sys.argv[3])
 tools_dir = report_dir / "tools"
 names_page = report_dir / "pages" / "names.htm"
-report_page = report_dir / "pages" / "report.htm"
+report_page = report_dir / "pages" / "passive.htm"
 names_file = tools_dir / "names"
 emails_file = tools_dir / "emails"
 
@@ -98,6 +98,14 @@ TITLE_START = re.compile(
 )
 SUMMARY_LABEL = re.compile(r"^[A-Za-z][A-Za-z0-9 ]+\s+\d+$")
 DETAIL_HEADER = re.compile(r"^[A-Za-z][A-Za-z0-9 ]+ \(\d+\)$")
+
+
+def plain_line(line):
+    return re.sub(r"<[^>]+>", "", line)
+
+
+def report_heading(text):
+    return f'<span class="inc-report-heading">{text}</span>'
 
 
 def normalize(value):
@@ -259,11 +267,11 @@ def update_summary_count(lines, label, count):
 
 
 def replace_detail_section(lines, section_name, count, body_lines, separator):
-    header = f"{section_name} ({count})"
+    header = report_heading(f"{section_name} ({count})")
     for index, line in enumerate(lines):
-        if re.fullmatch(rf"{re.escape(section_name)} \(\d+\)", line):
+        if re.fullmatch(rf"{re.escape(section_name)} \(\d+\)", plain_line(line)):
             end = index + 2
-            while end < len(lines) and not DETAIL_HEADER.match(lines[end]):
+            while end < len(lines) and not DETAIL_HEADER.match(plain_line(lines[end])):
                 end += 1
             block = [header, separator]
             if body_lines:

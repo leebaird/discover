@@ -221,29 +221,58 @@ Supported imports:
 
 Import subdomains merges with existing `tools/subdomains`, assigns categories from
 `old/subdomain-categories.tsv`, splits private IPs to `tools/private-subs`, and
-refreshes `pages/subdomains.htm` (Subdomain, Category, IP columns).
+refreshes `pages/subdomains.htm` with Subdomain, Category, and IP columns only.
+Run **Active** afterward to populate Photo, Status, Web Server, and Technologies.
 
 #### Active (`active.sh`)
 
 ACTIVE RECON
 
 Run after a passive scan (and optionally Import subdomains) when you want to probe
-which public hosts respond over HTTP/HTTPS and capture screenshots.
+which public hosts respond over HTTP/HTTPS, fingerprint technologies, and capture
+screenshots.
 
 ```
 Enter the location of your previous passive scan:
 /home/user/data/example.com
 ```
 
-Requires `httpx`, `whatweb`, `gowitness`, and Chrome or Chromium (install via **Update**).
+Requires `httpx`, `whatweb`, `gowitness`, `python3`, and Chrome or Chromium (install
+via **Update**).
 
 * Reads public hostnames from `tools/subdomains` (RFC1918 IPs are skipped)
 * Probes hostnames with httpx; writes `tools/httpx.jsonl`
-* Marks hosts **Alive** on the public subdomains table when httpx returns status
-  200–399, 401, 403, or 405; private subdomains table stays three columns
+* Treats responses with status 200–399, 401, 403, or 405 as alive
 * Fingerprints alive URLs with whatweb; writes `tools/whatweb.json`
 * Screenshots alive URLs with gowitness under `tools/gowitness/`
-* Re-run Active to replace httpx/whatweb/gowitness artifacts and rebuild the Alive column
+* Merges httpx and whatweb with `recon/active-tech.py` and refreshes
+  `pages/subdomains.htm`
+* Writes an Active summary to `pages/active.htm` (Reports menu → Active)
+* Re-run Active to replace httpx/whatweb/gowitness artifacts, rebuild the
+  active columns on `pages/subdomains.htm`, and refresh `pages/active.htm`
+
+The **Reports** menu contains **Passive** (`pages/passive.htm`, the former
+`report.htm` rollup) and **Active** (`pages/active.htm`, httpx/whatweb stats).
+
+**Public subdomains table** (after Active):
+
+| Column | Source |
+|--------|--------|
+| Subdomain, Category, IP | passive scan / Import subdomains |
+| Photo | gowitness screenshot link when captured |
+| Status | httpx status code |
+| Web Server | httpx/whatweb Server header |
+| Technologies | httpx tech + filtered whatweb plugins |
+
+The private subdomains table stays three columns (Subdomain, Category, Private IP
+Address).
+
+`active-tech.py` merges and deduplicates overlapping data between columns — for
+example, OpenSSL and mod_jk versions drop out of Web Server when already listed in
+Technologies, `Microsoft-IIS/10` shortens to `Microsoft-IIS` when `IIS:10` is
+present, `Apache/2.4.37` shortens to `Apache` when `Apache HTTP Server:2.4.37` is
+present, OS names such as Red Hat are removed from Technologies when already shown
+in the Web Server banner, and httpx `Nginx` labels are normalized to `nginx`.
 
 Artifacts written under `tools/`:
 

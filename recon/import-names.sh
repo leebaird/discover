@@ -298,6 +298,14 @@ SUMMARY_LABEL = re.compile(r"^[A-Za-z][A-Za-z ]+\s+\d+$")
 DETAIL_HEADER = re.compile(r"^[A-Za-z][A-Za-z ]+ \(\d+\)$")
 
 
+def plain_line(line):
+    return re.sub(r"<[^>]+>", "", line)
+
+
+def report_heading(text):
+    return f'<span class="inc-report-heading">{text}</span>'
+
+
 def load_rows(path):
     if not path.is_file() or path.stat().st_size == 0:
         return []
@@ -310,11 +318,11 @@ def load_rows(path):
 
 
 def replace_section(lines, section_name, count, body_lines):
-    header = f"{section_name} ({count})"
+    header = report_heading(f"{section_name} ({count})")
     for i, line in enumerate(lines):
-        if re.fullmatch(rf"{re.escape(section_name)} \(\d+\)", line):
+        if re.fullmatch(rf"{re.escape(section_name)} \(\d+\)", plain_line(line)):
             j = i + 2
-            while j < len(lines) and not DETAIL_HEADER.match(lines[j]):
+            while j < len(lines) and not DETAIL_HEADER.match(plain_line(lines[j])):
                 j += 1
             block = [header, separator]
             if body_lines:
@@ -339,7 +347,7 @@ def insert_summary_count(lines, label, count):
     width = 22
     entry = f"{label:<{width}}{count}"
     for i, line in enumerate(lines):
-        if line.strip() == "Summary":
+        if plain_line(line).strip() == "Summary":
             j = i + 1
             while j < len(lines) and lines[j].strip() == "":
                 j += 1
@@ -351,21 +359,21 @@ def insert_summary_count(lines, label, count):
 
 
 def insert_detail_section(lines, section_name, count, body_lines):
-    header = f"{section_name} ({count})"
+    header = report_heading(f"{section_name} ({count})")
     block = ["", header, separator]
     if body_lines:
         block.extend(body_lines)
         block.append("")
 
     for i, line in enumerate(lines):
-        if DETAIL_HEADER.match(line):
+        if DETAIL_HEADER.match(plain_line(line)):
             lines[i:i] = block
             return True
 
     for i, line in enumerate(lines):
-        if SUMMARY_LABEL.match(line):
+        if SUMMARY_LABEL.match(plain_line(line)):
             continue
-        if line.strip() == "" and i + 1 < len(lines) and DETAIL_HEADER.match(lines[i + 1]):
+        if line.strip() == "" and i + 1 < len(lines) and DETAIL_HEADER.match(plain_line(lines[i + 1])):
             lines[i + 1:i + 1] = block[1:]
             return True
 
@@ -426,7 +434,7 @@ MERGED="$TMPDIR/names.tsv"
 AUTO="$TOOLS_DIR/names"
 MANUAL="$NAMES_MANUAL"
 PAGE="$DISCOVER_REPORT/pages/names.htm"
-REPORT_PAGE="$DISCOVER_REPORT/pages/report.htm"
+REPORT_PAGE="$DISCOVER_REPORT/pages/passive.htm"
 
 f_names_merge "$MERGED" "$AUTO" "$PAGE" "$MANUAL"
 

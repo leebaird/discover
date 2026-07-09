@@ -341,6 +341,14 @@ NEXT_SECTION = re.compile(
 )
 
 
+def plain_line(line):
+    return re.sub(r"<[^>]+>", "", line)
+
+
+def report_heading(text):
+    return f'<span class="inc-report-heading">{text}</span>'
+
+
 def format_rows(path):
     if not path.is_file() or path.stat().st_size == 0:
         return []
@@ -355,11 +363,11 @@ def format_rows(path):
 
 
 def replace_section(lines, section_name, count, body_lines):
-    header = f"{section_name} ({count})"
+    header = report_heading(f"{section_name} ({count})")
     for i, line in enumerate(lines):
-        if re.fullmatch(rf"{re.escape(section_name)} \(\d+\)", line):
+        if re.fullmatch(rf"{re.escape(section_name)} \(\d+\)", plain_line(line)):
             j = i + 2
-            while j < len(lines) and not NEXT_SECTION.match(lines[j]):
+            while j < len(lines) and not NEXT_SECTION.match(plain_line(lines[j])):
                 j += 1
             block = [header, separator]
             if body_lines:
@@ -695,7 +703,7 @@ fi
 SUBDOMAINS_FILE="$TOOLS_DIR/subdomains"
 PRIVATE_FILE="$TOOLS_DIR/private-subs"
 PAGE="$DISCOVER_REPORT/pages/subdomains.htm"
-REPORT_PAGE="$DISCOVER_REPORT/pages/report.htm"
+REPORT_PAGE="$DISCOVER_REPORT/pages/passive.htm"
 
 python3 "$DISCOVER/old/subdomain-categorize.py" \
     "$FILTERED" > "$TMPDIR/subdomains-categorized.tsv"

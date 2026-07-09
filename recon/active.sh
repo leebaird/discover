@@ -437,6 +437,86 @@ with open(page_path, "a") as handle:
 PY
 }
 
+f_active_report_substitute_placeholders(){
+    local page="$1"
+    local index="$2"
+
+    [ -f "$page" ] || return 0
+    [ -f "$index" ] || return 0
+
+    python3 - "$page" "$index" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+page = Path(sys.argv[1])
+index = Path(sys.argv[2])
+text = index.read_text()
+
+
+def extract(label):
+    match = re.search(
+        rf'inc-home-meta-label">{label}</span>\s*<span class="value">([^<]*)</span>',
+        text,
+    )
+    return match.group(1).strip() if match else ""
+
+
+company = extract("Company")
+domain = extract("Domain")
+if not domain:
+    domain = index.parent.name
+
+content = page.read_text()
+content = content.replace("#COMPANY#", company)
+content = content.replace("#DOMAIN#", domain)
+page.write_text(content)
+PY
+}
+
+f_active_write_active_page(){
+    local subdomains_file="$1"
+    local private_file="$2"
+    local alive_tsv="$3"
+    local httpx_jsonl="$4"
+    local whatweb_json="$5"
+    local page="$6"
+
+    cp "$DISCOVER/report/pages/active.htm" "$page"
+
+    local report_dir
+    report_dir=$(dirname "$(dirname "$page")")
+
+    python3 - "$page" "$DISCOVER/recon/active-tech.py" "$subdomains_file" "$private_file" "$alive_tsv" "$httpx_jsonl" "$whatweb_json" <<'PY'
+import importlib.util
+import sys
+
+page_path, tech_module_path, subdomains_path, private_path, alive_tsv_path, httpx_path, whatweb_path = sys.argv[1:8]
+
+spec = importlib.util.spec_from_file_location("active_tech", tech_module_path)
+active_tech = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(active_tech)
+
+summary = active_tech.build_active_summary(
+    subdomains_path,
+    private_path,
+    alive_tsv_path,
+    httpx_path,
+    whatweb_path,
+)
+
+with open(page_path, "a") as handle:
+    handle.write(summary + "\n")
+    handle.write("</pre>\n")
+    handle.write("    </div>\n")
+    handle.write("</div>\n\n")
+    handle.write("</body>\n")
+    handle.write("</html>\n")
+PY
+
+    f_active_report_substitute_placeholders "$page" "$report_dir/index.htm"
+}
+
 clear
 f_banner
 
@@ -460,6 +540,7 @@ GOWITNESS_JSONL="$GOWITNESS_DIR/gowitness.jsonl"
 SCREENSHOTS_DIR="$GOWITNESS_DIR/screenshots"
 WHATWEB_UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
 PAGE="$DISCOVER_REPORT/pages/subdomains.htm"
+ACTIVE_PAGE="$DISCOVER_REPORT/pages/active.htm"
 
 if [ ! -f "$SUBDOMAINS_FILE" ] || [ ! -s "$SUBDOMAINS_FILE" ]; then
     f_active_die "Subdomains data not found. Run a passive scan or import subdomains first."
@@ -582,6 +663,9 @@ PHOTO_HOST_COUNT=${PHOTO_HOST_COUNT:-0}
 
 echo -e "${BLUE}[*] Updating subdomains report with Photo, Status, Web Server, and Technologies.${NC}"
 f_active_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$GOWITNESS_JSONL" "$SCREENSHOTS_DIR" "$HTTPX_JSONL" "$WHATWEB_JSON" "$PAGE"
+
+echo -e "${BLUE}[*] Updating Active report.${NC}"
+f_active_write_active_page "$SUBDOMAINS_FILE" "$PRIVATE_FILE" "$ALIVE_TSV" "$HTTPX_JSONL" "$WHATWEB_JSON" "$ACTIVE_PAGE"
 echo
 
 echo "$MEDIUM"

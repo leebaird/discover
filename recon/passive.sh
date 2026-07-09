@@ -55,12 +55,17 @@ DOMAIN_SED=$(f_sed_replacement_escape "$DOMAIN")
 DATESTAMP_SED=$(f_sed_replacement_escape "$DATESTAMP")
 COMPANYURL_SED=$(f_sed_replacement_escape "$COMPANYURL")
 cp -R "$DISCOVER"/report/ "$HOME"/data/"$DOMAIN"
+mkdir -p "$HOME"/data/"$DOMAIN"/tools
 sed -i "s|#COMPANY#|$COMPANY_SED|" "$HOME"/data/"$DOMAIN"/index.htm
 sed -i "s|#DOMAIN#|$DOMAIN_SED|" "$HOME"/data/"$DOMAIN"/index.htm
 sed -i "s|#DATE#|$DATESTAMP_SED|" "$HOME"/data/"$DOMAIN"/index.htm
 sed -i "s|#COMPANY#|$COMPANY_SED|" "$HOME"/data/"$DOMAIN"/pages/summary.htm
 sed -i "s|#DOMAIN#|$DOMAIN_SED|" "$HOME"/data/"$DOMAIN"/pages/summary.htm
 sed -i "s|COMPANYURL|$COMPANYURL_SED|" "$HOME"/data/"$DOMAIN"/pages/summary.htm
+sed -i "s|#COMPANY#|$COMPANY_SED|" "$HOME"/data/"$DOMAIN"/pages/passive.htm
+sed -i "s|#DOMAIN#|$DOMAIN_SED|" "$HOME"/data/"$DOMAIN"/pages/passive.htm
+sed -i "s|#COMPANY#|$COMPANY_SED|" "$HOME"/data/"$DOMAIN"/pages/active.htm
+sed -i "s|#DOMAIN#|$DOMAIN_SED|" "$HOME"/data/"$DOMAIN"/pages/active.htm
 
 echo
 echo "$MEDIUM"
@@ -862,6 +867,96 @@ PY
 
 ###############################################################################################################################
 
+f_passive_scan_date(){
+    local tools_dir="$HOME/data/$DOMAIN/tools"
+    local index_file="$HOME/data/$DOMAIN/index.htm"
+    local derived=""
+
+    derived=$(python3 - "$tools_dir" "$(pwd)" <<'PY'
+import sys
+from collections import Counter
+from datetime import datetime
+from pathlib import Path
+
+MARKERS = (
+    "zsubfinder",
+    "zcrtsh",
+    "zcertspotter",
+    "zcommoncrawl",
+    "zduckduckgo",
+    "zgitlab",
+    "zhudsonrock",
+    "zmsf",
+    "zrapiddns",
+    "zrobtex",
+    "zsublist3r",
+    "zthc",
+    "zurlscan",
+    "zwaybackarchive",
+    "zwindvane",
+    "zarin-emails",
+    "zarin-names",
+    "whois-domain",
+    "whois-ip",
+    "records",
+)
+
+def marker_dates(*roots):
+    dates = []
+    for root in roots:
+        root = Path(root)
+        if not root.is_dir():
+            continue
+        for name in MARKERS:
+            path = root / name
+            if path.is_file():
+                dates.append(datetime.fromtimestamp(path.stat().st_mtime).date())
+    return dates
+
+tools_dir, cwd = sys.argv[1:3]
+dates = marker_dates(tools_dir, cwd)
+if not dates:
+    raise SystemExit(1)
+
+scan_day = Counter(dates).most_common(1)[0][0]
+print(scan_day.strftime("%m-%d-%Y"))
+PY
+) || true
+
+    if [ -n "$derived" ]; then
+        printf '%s' "$derived"
+        return 0
+    fi
+
+    if [ -f "$tools_dir/passive-scan-date" ]; then
+        cat "$tools_dir/passive-scan-date"
+        return 0
+    fi
+
+    if [ -f "$index_file" ]; then
+        python3 - "$index_file" <<'PY'
+import re
+import sys
+from datetime import datetime
+from pathlib import Path
+
+text = Path(sys.argv[1]).read_text()
+match = re.search(
+    r'<div class="inc-home-meta-item">\s*<span class="value">([^<]+)</span>',
+    text,
+)
+if not match:
+    raise SystemExit(1)
+
+parsed = datetime.strptime(match.group(1).strip(), "%B %d, %Y")
+print(parsed.strftime("%m-%d-%Y"))
+PY
+        return 0
+    fi
+
+    date +"%m-%d-%Y"
+}
+
 f_report_append_pre_page(){
     local SRC="$1"
     local PAGE="$2"
@@ -1306,15 +1401,64 @@ EOF
 
 ###############################################################################################################################
 
+f_report_heading(){
+    printf '<span class="inc-report-heading">%s</span>\n' "$1"
+}
+
+f_report_substitute_placeholders(){
+    local page="$1"
+    local index="$2"
+
+    [ -f "$page" ] || return 0
+    [ -f "$index" ] || return 0
+
+    python3 - "$page" "$index" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+page = Path(sys.argv[1])
+index = Path(sys.argv[2])
+text = index.read_text()
+
+
+def extract(label):
+    match = re.search(
+        rf'inc-home-meta-label">{label}</span>\s*<span class="value">([^<]*)</span>',
+        text,
+    )
+    return match.group(1).strip() if match else ""
+
+
+company = extract("Company")
+domain = extract("Domain")
+if not domain:
+    domain = index.parent.name
+
+content = page.read_text()
+content = content.replace("#COMPANY#", company)
+content = content.replace("#DOMAIN#", domain)
+page.write_text(content)
+PY
+}
+
 f_report() {
-    echo "Summary" > zreport
-    echo "$SMALL" >> zreport
+    PASSIVE_DATE=$(f_passive_scan_date)
+    {
+        f_report_heading "Passive Recon"
+        echo "$PASSIVE_DATE"
+        echo "#COMPANY#"
+        echo "#DOMAIN#"
+        echo
+        f_report_heading "Summary"
+        echo "$SMALL"
+    } > zreport
     echo > tmp
 
     if [ -f names ]; then
     namecount=$(wc -l names | cut -d ' ' -f1)
     echo "Names                 $namecount" >> zreport
-    echo "Names ($namecount)" >> tmp
+    f_report_heading "Names ($namecount)" >> tmp
     echo "$SMALL" >> tmp
     cat names >> tmp
     echo >> tmp
@@ -1326,7 +1470,7 @@ fi
 if [ -f emails ]; then
     emailcount=$(wc -l emails | cut -d ' ' -f1)
     echo "Emails                $emailcount" >> zreport
-    echo "Emails ($emailcount)" >> tmp
+    f_report_heading "Emails ($emailcount)" >> tmp
     echo "$SMALL" >> tmp
     cat emails >> tmp
     echo >> tmp
@@ -1338,7 +1482,7 @@ fi
 if [ -f records ]; then
     recordcount=$(wc -l records | cut -d ' ' -f1)
     echo "DNS Records           $recordcount" >> zreport
-    echo "DNS Records ($recordcount)" >> tmp
+    f_report_heading "DNS Records ($recordcount)" >> tmp
     echo "$LARGE" >> tmp
     cat records >> tmp
     echo >> tmp
@@ -1350,7 +1494,7 @@ fi
 if [ -f squatting ]; then
     squattingcount=$(wc -l squatting | cut -d ' ' -f1)
     echo "Squatting             $squattingcount" >> zreport
-    echo "Squatting ($squattingcount)" >> tmp
+    f_report_heading "Squatting ($squattingcount)" >> tmp
     echo "$LARGE" >> tmp
     column -t -s $'\t' squatting >> tmp
     echo >> tmp
@@ -1362,7 +1506,7 @@ fi
 if [ -f public-ips ]; then
     publicipcount=$(wc -l public-ips | cut -d ' ' -f1)
     echo "Hosts                 $publicipcount" >> zreport
-    echo "Hosts ($publicipcount)" >> tmp
+    f_report_heading "Hosts ($publicipcount)" >> tmp
     echo "$LARGE" >> tmp
     cat public-ips >> tmp
     echo >> tmp
@@ -1374,7 +1518,7 @@ fi
 if [ -f private-subs ]; then
     privatesubcount=$(wc -l private-subs | cut -d ' ' -f1)
     echo "Private Subdomains    $privatesubcount" >> zreport
-    echo "Private Subdomains ($privatesubcount)" >> tmp
+    f_report_heading "Private Subdomains ($privatesubcount)" >> tmp
     echo "$LARGE" >> tmp
     column -t -s $'\t' private-subs >> tmp
     echo >> tmp
@@ -1383,7 +1527,7 @@ fi
 if [ -f subdomains ]; then
     subcount=$(wc -l subdomains | cut -d ' ' -f1)
     echo "Subdomains            $subcount" >> zreport
-    echo "Subdomains ($subcount)" >> tmp
+    f_report_heading "Subdomains ($subcount)" >> tmp
     echo "$LARGE" >> tmp
     column -t -s $'\t' subdomains >> tmp
     echo >> tmp
@@ -1394,7 +1538,7 @@ f_report_append_subdomains_page "$HOME"/data/"$DOMAIN"/pages/subdomains.htm
 if [ -f xls ]; then
     xlscount=$(wc -l xls | cut -d ' ' -f1)
     echo "Excel                 $xlscount" >> zreport
-    echo "Excel Files ($xlscount)" >> tmp
+    f_report_heading "Excel Files ($xlscount)" >> tmp
     echo "$LARGE" >> tmp
     cat xls >> tmp
     echo >> tmp
@@ -1406,7 +1550,7 @@ fi
 if [ -f pdf ]; then
     pdfcount=$(wc -l pdf | cut -d ' ' -f1)
     echo "PDF                   $pdfcount" >> zreport
-    echo "PDF Files ($pdfcount)" >> tmp
+    f_report_heading "PDF Files ($pdfcount)" >> tmp
     echo "$LARGE" >> tmp
     cat pdf >> tmp
     echo >> tmp
@@ -1418,7 +1562,7 @@ fi
 if [ -f ppt ]; then
     pptcount=$(wc -l ppt | cut -d ' ' -f1)
     echo "PowerPoint            $pptcount" >> zreport
-    echo "PowerPoint Files ($pptcount)" >> tmp
+    f_report_heading "PowerPoint Files ($pptcount)" >> tmp
     echo "$LARGE" >> tmp
     cat ppt >> tmp
     echo >> tmp
@@ -1430,7 +1574,7 @@ fi
 if [ -f txt ]; then
     txtcount=$(wc -l txt | cut -d ' ' -f1)
     echo "Text                  $txtcount" >> zreport
-    echo "Text Files ($txtcount)" >> tmp
+    f_report_heading "Text Files ($txtcount)" >> tmp
     echo "$LARGE" >> tmp
     cat txt >> tmp
     echo >> tmp
@@ -1442,7 +1586,7 @@ fi
 if [ -f doc ]; then
     doccount=$(wc -l doc | cut -d ' ' -f1)
     echo "Word                  $doccount" >> zreport
-    echo "Word Files ($doccount)" >> tmp
+    f_report_heading "Word Files ($doccount)" >> tmp
     echo "$LARGE" >> tmp
     cat doc >> tmp
     echo >> tmp
@@ -1454,7 +1598,7 @@ fi
 cat tmp >> zreport
 
 if [ -f whois-domain ]; then
-    echo "Whois Domain" >> zreport
+    f_report_heading "Whois Domain" >> zreport
     echo "$LARGE" >> zreport
     cat whois-domain >> zreport
     f_report_append_pre_page whois-domain "$HOME"/data/"$DOMAIN"/pages/whois-domain.htm
@@ -1464,7 +1608,7 @@ fi
 
 if [ -f whois-ip ]; then
     echo >> zreport
-    echo "Whois IP" >> zreport
+    f_report_heading "Whois IP" >> zreport
     echo "$LARGE" >> zreport
     cat whois-ip >> zreport
     f_report_append_pre_page whois-ip "$HOME"/data/"$DOMAIN"/pages/whois-ip.htm
@@ -1472,7 +1616,13 @@ else
     f_report_append_pre_page "" "$HOME"/data/"$DOMAIN"/pages/whois-ip.htm
 fi
 
-    f_report_append_pre_page zreport "$HOME"/data/"$DOMAIN"/pages/report.htm
+    f_report_append_pre_page zreport "$HOME"/data/"$DOMAIN"/pages/passive.htm
+    f_report_substitute_placeholders \
+        "$HOME/data/$DOMAIN/pages/passive.htm" \
+        "$HOME/data/$DOMAIN/index.htm"
+
+    mkdir -p "$HOME/data/$DOMAIN/tools"
+    echo "$PASSIVE_DATE" > "$HOME/data/$DOMAIN/tools/passive-scan-date"
 
     rm tmp* zreport 2>/dev/null
 
