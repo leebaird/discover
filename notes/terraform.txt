@@ -1,86 +1,161 @@
 Terraform
 
 
-- Create a new IAM AWS user and keys
-Login to AWS
-Search for IAM > Users > Add users
-Enter a user name > select Access key > Next
-Add user to group > Create group
-Enter a group name: deploy
-Search for AdministratorAccess under permissions policies (one word)
-Select the policy > Create group > Next > Create user
-Select Show > copy both keys
+# Overview
 
-Goto EC2 > Key pairs > Create key pair
-Name it deploy > select RSA > .pem > Create key pair
-The .pem file should auto download.
-Move the file to ~/.ssh/
-cd ~/.ssh
-chmod 600 deploy.pem
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Spin up an AWS EC2 payload VM with Terraform from Kali: IAM keys, CLI config, minimal HCL, apply/destroy lifecycle. Lab workflow only — not production IaC. For manual EC2 + Apache + TLS, see ssl-setup.txt.
 
-- Install AWS CLI on Kali
-apt install -y awscli
-aws --version
 
-- Configure AWS CLI
-aws configure
-AWS Access Key ID [None]: <key>
-AWS Secret Access Key [None]: <key>
-Default region name [None]: us-east-1         # Use your default region
-Default output format [None]: json
-This info is stored in ~/.aws/
+# Related Notes
 
-- Install Terraform on Kali
-https://www.terraform.io/downloads
-Click Linux > Amd64
-cd /home/kali/Downloads
-unzip terraform_1.2.7_linux_amd64.zip
-sudo mv terraform /usr/local/bin/
-------------------------------------------------------------------------------------------------------------------------------------------------------
+kali.txt                   Terraform binary install shortcut
+ssl-setup.txt              Manual EC2 Apache + Let's Encrypt deployment
+linux.txt                  SCP and SSH key usage
+web-burp.txt               SSH dynamic port forward through EC2
 
-- Download and configure JetBrains PyCharm
-https://www.jetbrains.com/pycharm/download/#section=linux
-File > Settings > Plugins > Marketplace
-Search for Ansible > Install > Accept
-Search for Terraform > Install > OK
 
-- Getting started
-cd /home/kali
-mkdir deploy
-PyCharm > Open > /home/kali/deploy > OK > Trust Project
-In the left column, right click on main.py > Delete > OK
-File > New > File: main.tf
-Copy/paste the following config
+# Contents
+
+IAM and EC2 Key Pair, AWS CLI, Terraform Install, Project Setup, HCL Configuration,
+AMI Reference, Apply and Verify, Teardown
+
+
+# IAM and EC2 Key Pair
+
+## Overview
+
+Create a deploy IAM user with programmatic access and an EC2 key pair for SSH.
+
+## Commands
+
+IAM > Users > Add users:
+    Enter user name > Access key > Next
+    Add user to group > Create group
+    Group name: deploy
+    Attach AdministratorAccess (lab only) > Create group > Next > Create user
+    Show > copy Access Key ID and Secret Access Key
+
+EC2 > Key pairs > Create key pair:
+    Name: deploy > RSA > .pem > Create key pair
+
+Move key:
+    mv ~/Downloads/deploy.pem ~/.ssh/
+    chmod 600 ~/.ssh/deploy.pem
+
+## Validation / False Positives
+
+AdministratorAccess is convenient for labs but dangerous if keys leak — rotate keys and tear down when done.
+Missing `chmod 600` on the .pem causes SSH to reject the key before you reach the instance.
+
+
+# AWS CLI
+
+## Commands
+
+Install:
+    sudo apt install -y awscli
+    aws --version
+
+Configure (stored in ~/.aws/):
+    aws configure
+    AWS Access Key ID [None]: <AWS access key>
+    AWS Secret Access Key [None]: <AWS secret key>
+    Default region name [None]: us-east-1              # Match your account default
+    Default output format [None]: json
+
+
+# Terraform Install
+
+## Overview
+
+Install the Terraform CLI on Kali. Shorter path also in kali.txt.
+
+## Commands
+
+    https://developer.hashicorp.com/terraform/install
+    cd ~/Downloads
+    unzip terraform_*_linux_amd64.zip
+    sudo mv terraform /usr/local/bin/
+    terraform version
+
+
+# Project Setup
+
+## Overview
+
+Create a project directory and add HCL files. PyCharm with Terraform/Ansible plugins is optional.
+
+## Commands
+
+CLI:
+    cd ~
+    mkdir deploy && cd deploy
+
+PyCharm (optional):
+    https://www.jetbrains.com/pycharm/download/#section=linux
+    File > Settings > Plugins > Marketplace > Terraform > Install
+    PyCharm > Open > ~/deploy > Trust Project
+    Delete default main.py if present
+    File > New > File: main.tf
+    File > New > File: outputs.tf
+
+
+# HCL Configuration
+
+## Overview
+
+Minimal Ubuntu payload in us-east-1 with SSH security group. Region and AMI must match your account.
+
+## Commands
+
+main.tf:
 
 terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.16"
+      version = "~> 5.0"
     }
   }
 
-  required_version = ">= 1.2.0"
+  required_version = ">= 1.5.0"
 }
 
 provider "aws" {
   region = "us-east-1"
 }
 
+resource "aws_security_group" "payload" {
+  name        = "payload-sg"
+  description = "SSH for payload lab instance"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["<your IP>/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_instance" "payload" {
-  ami           = "ami-052efd3df9dad4825"     # Ubuntu for corresponding region
-  instance_type = "t2.micro"
-  key_name      = "deploy"                    # Key created via GUI in AWS
+  ami                    = "ami-052efd3df9dad4825"   # Verify in AMI Reference — AMIs go stale
+  instance_type          = "t2.micro"
+  key_name               = "deploy"
+  vpc_security_group_ids = [aws_security_group.payload.id]
 
   tags = {
     Name = "Payload"
   }
 }
-----------------------------------------------------------
 
-File > New > File: outputs.tf
-Copy/paste the following config
+outputs.tf:
 
 output "instance_id" {
   description = "ID of payload instance"
@@ -88,24 +163,68 @@ output "instance_id" {
 }
 
 output "instance_ip" {
-  description = "IP of the payload instance"
+  description = "IP of payload instance"
   value       = aws_instance.payload.public_ip
 }
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-The value for 'region' will be specific to your AWS user account.
+## Validation / False Positives
 
-ami-052efd3df9dad4825                         Ubuntu 22.04 LTS in the us-east-1 region.
-ami-023b8c5033c21d95d                         Kali Linux 2022.3 in the us-east-1 region.
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Region in provider, AMI, and aws configure must agree — mismatched region yields invalid AMI errors.
+`<your IP>/32` must be your current public IP — dynamic home IPs break SSH after ISP rotation until you re-apply.
 
-terraform init                                Initialize your directory
-terraform fmt                                 Format the config file
-terraform validate                            Validate the config file
-terraform apply                               Apply the config, type yes to approve
 
-Your AWS Ubuntu instance should start to be created.
-ssh -i ~/.ssh/deploy.pem ubuntu@<public IP>
+# AMI Reference
 
-terraform show                                Inspect your current state
-terraform destroy                             Delete all of the instances you created
+## Overview
+
+Hardcoded AMIs expire. Confirm a current image in EC2 > AMIs before apply.
+
+## Commands
+
+Console: EC2 > AMIs > search Ubuntu 22.04 or Kali for your region.
+
+CLI (Ubuntu 22.04, Canonical owner in us-east-1):
+    aws ec2 describe-images --region us-east-1 --owners 099720109477 \
+        --filters "Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*" \
+        --query 'sort_by(Images, &CreationDate)[-1].ImageId' --output text
+
+Examples (us-east-1 — verify before use):
+    ami-052efd3df9dad4825                         Ubuntu 22.04 LTS
+    ami-023b8c5033c21d95d                         Kali Linux 2022.3
+
+## Validation / False Positives
+
+`InvalidAMIID.NotFound` on apply means the AMI was retired — run describe-images or pick a new AMI in console.
+
+
+# Apply and Verify
+
+## Commands
+
+    terraform init                                Initialize your directory
+    terraform fmt                                 Format the config file
+    terraform validate                            Validate the config file
+    terraform plan                                Preview changes before apply
+    terraform apply                               Apply the config, type yes to approve
+
+SSH after apply (use output IP or console):
+    ssh -i ~/.ssh/deploy.pem ubuntu@<EC2 public IP>
+
+Inspect state:
+    terraform show                                Inspect your current state
+
+## Validation / False Positives
+
+`apply` succeeding without reachable SSH usually means security group CIDR or wrong key_name — check SG ingress and EC2 key pair name match HCL.
+Instance running in console but SSH timeout often means port 22 blocked or wrong username (ubuntu vs kali vs ec2-user per AMI).
+
+
+# Teardown
+
+## Commands
+
+    terraform destroy                             Delete all resources created by this config
+
+## Validation / False Positives
+
+destroy removes the instance and security group but not the IAM user, access keys, or local .pem — clean those up separately in lab teardown.
