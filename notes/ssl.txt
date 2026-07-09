@@ -1,22 +1,140 @@
 SSL
 
- 
-Redirect
-Examine the response of a 301 message or Javascript.
-curl -vvvv http://target.com
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Renegotiating (NULL-SHA or NULL-MD5)
+# Overview
 
-sslscan --no-failed <target IP>
+Test TLS configuration, certificates, and legacy protocol flaws. Host lists for bulk scans use 443.txt (IP:port per line) — not this notes file.
 
-sslscan --no-failed --targets=443.txt
 
-openssl s_client -connect target:443
+# Related Notes
 
-telnet <target IP> 443
-GET / HTTP/1.0
-R
-------------------------------------------------------------------------------------------------------------------------------------------------------
+web-apps.txt             Web recon workflow and bulk HEAD/OPTIONS loops
+ssl-setup.txt            Deploy Let's Encrypt on AWS Apache
+smtp.txt                 STARTTLS testing with openssl s_client
 
-cat 443.txt | while read -r IP port; do echo "----START "$IP":"$port"----"; echo -e "HEAD / HTTP/1.0\nR\n\n" | ncat --ssl "$IP" "$port"; echo -e "\$
+
+# Contents
+
+Protocol Scanning, Certificate Inspection, Renegotiation, HTTP Redirect, Bulk Testing
+
+
+# Protocol Scanning
+
+## Overview
+
+Automated scanners flag weak protocols, cipher suites, and known TLS bugs. Discover option: web/ssl.sh.
+
+## Commands
+
+sslscan (single host):
+    sslscan --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour <target IP>:443
+
+sslscan (host list):
+    sslscan --no-failed --targets=443.txt
+    sslscan --targets=443.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour
+
+sslyze:
+    sslyze <domain> --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --openssl_ccs
+    sslyze --targets_in=443.txt --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --openssl_ccs
+
+nmap:
+    nmap -p443 --script ssl-enum-ciphers,ssl-cert,ssl-heartbleed,tls-nextprotoneg <target IP>
+
+External benchmark:
+    https://ssllabs.com/ssltest/
+
+## Validation / False Positives
+
+sslscan ERROR lines often mean filtered 443 or wrong SNI — retry with hostname in openssl s_client.
+SSLv3 disabled everywhere is baseline on modern hosts — focus on cert trust, expiry, and TLS 1.0/1.1.
+
+
+# Certificate Inspection
+
+## Overview
+
+Inspect chain, expiry, and hostname mismatch outside scanner summaries.
+
+## Commands
+
+    openssl s_client -connect <domain>:443 -servername <domain> -showcerts
+    openssl s_client -connect <target IP>:443 </dev/null 2>/dev/null | openssl x509 -noout -dates -subject -issuer
+
+Check SAN and wildcard:
+    echo | openssl s_client -connect <domain>:443 -servername <domain> 2>/dev/null | \
+        openssl x509 -noout -ext subjectAltName
+
+## Validation / False Positives
+
+Self-signed certs on internal admin panels may be acceptable per scope — document trust chain and audience.
+Expired cert on a redirect-only vhost still breaks clients — confirm live HTTPS handshake, not just HTTP redirect.
+
+
+# Renegotiation
+
+## Overview
+
+Test for insecure renegotiation and NULL cipher acceptance (NULL-SHA / NULL-MD5).
+
+## Commands
+
+sslscan:
+    sslscan --no-failed <target IP>:443
+
+openssl (manual):
+    openssl s_client -connect <domain>:443
+
+telnet (send R after initial request):
+    telnet <target IP> 443
+    GET / HTTP/1.0
+    R
+
+Bulk renegotiation probe (443.txt: IP port per line):
+    while read -r IP port; do
+        echo "----START ${IP}:${port}----"
+        echo -e "HEAD / HTTP/1.0\nR\n\n" | ncat --ssl "$IP" "$port"
+        echo "----END ${IP}:${port}----"
+    done < 443.txt
+
+## Validation / False Positives
+
+Renegotiation support alone is not CVE-2009-3555 — demonstrate client-initiated renegotiation injection or NULL cipher in negotiated suite.
+Connection reset during R may mean patched server — capture full transcript.
+
+
+# HTTP Redirect
+
+## Overview
+
+Confirm cleartext HTTP redirects to HTTPS and inspect whether HSTS is present on the TLS response.
+
+## Commands
+
+    curl -vvvv http://<domain>/
+    curl -vkI https://<domain>/ | grep -i strict-transport-security
+
+## Validation / False Positives
+
+301 to HTTPS without HSTS still leaves first-visit downgrade risk — note missing max-age separately from redirect presence.
+JavaScript-only redirects are not HTTP Strict Transport Security substitutes.
+
+
+# Bulk Testing
+
+## Overview
+
+443.txt contains one target per line (hostname or IP:port). Used by ssl.sh, sslscan, and web-apps bulk curls.
+
+## Commands
+
+Example 443.txt:
+    192.0.2.10:443
+    www.example.com:443
+
+Discover ssl.sh input:
+    # menu prompts for IP:port list file
+
+## Validation / False Positives
+
+Do not use notes/ssl.txt as a host list — web-apps HEAD/OPTIONS loops read 443.txt for HTTPS targets.
+Mixed HTTP/HTTPS lists belong in 80.txt and 443.txt separately.

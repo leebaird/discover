@@ -56,13 +56,8 @@ EOF
 wafw00f -H headers.txt -a -i 443.txt
 
 - SSL/TLS enumeration
-https://ssllabs.com/ssltest/
-See ssl.txt for additional commands.
-
-sslyze "$URL" --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --openssl_ccs
-
-sslscan --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour "$IP:443"
-sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour
+See ssl.txt for sslscan, sslyze, nmap scripts, and certificate checks.
+Discover option: web/ssl.sh (reads IP:port list from 443.txt).
 
 - Default configurations and files
 nikto -h "https://$URL" -Format htm --output nikto.htm
@@ -141,7 +136,7 @@ HEAD / HTTP/1.0
 curl -ikL -X HEAD target.com
 
 while read -r i; do curl -ikL -X HEAD "http://$i/" > "$i.txt" 2>&1; echo "Scanning $i"; done < 80.txt
-while read -r i; do curl -ikL -X HEAD "https://$i/" > "$i.txt" 2>&1; echo "Scanning $i"; done < ssl.txt
+while read -r i; do curl -ikL -X HEAD "https://$i/" > "$i.txt" 2>&1; echo "Scanning $i"; done < 443.txt
 
 
 # HTTP Methods Allowed
@@ -154,7 +149,7 @@ OPTIONS / HTTP/1.0
 
 curl -ikL -X OPTIONS target.com
 
-while read -r i; do curl -ikL -X OPTIONS "https://$i/" > "$i.txt" 2>&1; echo "Scanning $i"; done < ssl.txt
+while read -r i; do curl -ikL -X OPTIONS "https://$i/" > "$i.txt" 2>&1; echo "Scanning $i"; done < 443.txt
 
 
 # Fuzzing
