@@ -1,33 +1,77 @@
-OS X
+macOS
 
 
-# Install Homebrew
+# Overview
 
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-brew install curl
-brew install wget --with-libressl
+macOS assessment workstation setup: Homebrew, proxychains over SSH SOCKS, updog, and ~/.bash_aliases for navigation and quick HTTP serving. Default shell is zsh — source aliases from ~/.zshrc or ~/.bash_profile. For Linux equivalents, see linux.txt and web-burp.txt.
 
-brew install proxychains-ng
-nano /usr/local/etc/proxychains.conf
-socks5  127.0.0.1    1080               Add to the bottom
 
-ssh -D 1080 -f -C -q -N user@target
-proxychains4 curl http://target.com
+# Related Notes
 
-- Troubleshooting
-brew update
-brew update                             Run twice
-brew doctor
-------------------------------------------------------------------------------------------------------------------------------------------------------
+linux.txt                  SSH X11 forwarding and macOS CIFS mount syntax
+web-burp.txt               Proxychains + Burp workflow (Linux apt variant)
+git.txt                    Fork and pull workflow for Discover updates
+bash.txt                   Shell one-liners and script patterns
 
-# Insall updog
 
-pipx install updog
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Contents
 
-# Create Aliases
+Homebrew Setup, Proxychains, updog, Aliases, Validation / False Positives
 
-vi ~/.bash_aliases
+
+# Homebrew Setup
+
+## Commands
+
+Install:
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    brew install curl wget coreutils proxychains-ng
+
+Troubleshooting:
+    brew update                                      Run twice if the first pass errors
+    brew doctor
+
+## Validation / False Positives
+
+`gls` in aliases requires coreutils — install via brew above or aliases fall back to errors.
+Apple Silicon Homebrew prefix is /opt/homebrew; Intel uses /usr/local — adjust paths below if commands not found.
+
+
+# Proxychains
+
+## Overview
+
+Dynamic SOCKS via SSH, then route tools through proxychains. Burp integration in web-burp.txt.
+
+## Commands
+
+Config (Intel: /usr/local/etc/proxychains.conf — Apple Silicon: /opt/homebrew/etc/proxychains.conf):
+    nano /usr/local/etc/proxychains.conf
+    socks5  127.0.0.1    1080                         Add to the bottom
+
+SOCKS tunnel:
+    ssh -D 1080 -f -C -q -N <user>@<target IP>
+
+Test:
+    proxychains4 curl http://<domain>
+
+
+# updog
+
+## Commands
+
+    pipx install updog
+
+
+# Aliases
+
+## Overview
+
+Paste into ~/.bash_aliases and source from ~/.bash_profile, or copy into ~/.zshrc on default zsh. Preserves searchable one-liners.
+
+## Commands
+
+    vi ~/.bash_aliases
 
 BLUE='\033[1;34m'
 NC='\033[0m'
@@ -88,6 +132,15 @@ cd $HOME
 sudo /usr/libexec/locate.updatedb
 echo'
 
-alias upload='[ -d ~/Desktop/tmp ] | mkdir ~/Desktop/tmp; cd ~/Desktop/tmp/ ; updog -p8000 --ssl'
-alias web='[ -d ~/Desktop/tmp ] | mkdir ~/Desktop/tmp; echo $MYIP ; cd $HOME/Desktop/tmp/ ; echo ; python3 -m http.server 80'
-alias web2='[ -d ~/Desktop/tmp ] | mkdir ~/Desktop/tmp; echo $MYIP ; cd $HOME/Desktop/tmp/ ; echo ; python3 -m http.server 8000'
+alias upload='mkdir -p ~/Desktop/tmp; cd ~/Desktop/tmp/ ; updog -p8000 --ssl'
+alias web='mkdir -p ~/Desktop/tmp; echo $MYIP ; cd $HOME/Desktop/tmp/ ; echo ; python3 -m http.server 80'
+alias web2='mkdir -p ~/Desktop/tmp; echo $MYIP ; cd $HOME/Desktop/tmp/ ; echo ; python3 -m http.server 8000'
+
+
+# Validation / False Positives
+
+Aliases in ~/.bash_aliases do not load in zsh until sourced — copy to ~/.zshrc or add `[ -f ~/.bash_aliases ] && . ~/.bash_aliases` to ~/.zshrc.
+`web` on port 80 usually requires sudo on macOS — use `web2` (8000) or `sudo` when binding to 80.
+`ifconfig | grep broadcast` for MYIP is fragile on newer macOS — try `ipconfig getifaddr en0` if internal IP is blank.
+EXTIP via ifconfig.co requires outbound HTTPS — fails on isolated lab networks.
+X11 forwarding from macOS requires XQuartz — see linux.txt SSH X11 section.
