@@ -1,55 +1,132 @@
 SNMP
 
 
-# Default or Guessable SNMP Community Strings
+# Overview
 
-onesixtyone -c /usr/share/doc/onesixtyone/dict.txt -i 161.txt
+Enumerate SNMP community strings, walk MIB trees for host and network intelligence, and test for read-write access. UDP/161 — confirm scope before snmpwalk on large subnets.
 
-snmp-check -v2c <target IP>
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Read-only Community String of 'public'
+# Related Notes
 
-# Management Information Bases (MIB) Tree
+nmap-fire.txt            Port scan and script discovery
+passwords.txt            Wordlists for community brute force
+pwk.txt                  Lab SNMP stubs and alternate wordlists
+linux.txt                Pivot to SSH and web services from SNMP data
 
-1.3.6.1.2.1.1.1.0        System description (hardware, OS, model)
-1.3.6.1.2.1.1.2.0        Vendor-specific device identifier
-1.3.6.1.2.1.1.3.0        Time since last reboot
-1.3.6.1.2.1.1.4.0        Admin contact info
-1.3.6.1.2.1.1.5.0        Device hostname
-1.3.6.1.2.1.1.6.0        Physical location
 
-1.3.6.1.2.1.2.2.1        Table of network interfaces
-1.3.6.1.2.1.2.2.1.2      Interface names (e.g., "eth0")
-1.3.6.1.2.1.2.2.1.6      MAC addresses
-1.3.6.1.2.1.2.2.1.8      Interface status (up/down)
+# Contents
 
-1.3.6.1.2.1.25.1.1.0     Host uptime (alternative to sysUpTime)
-1.3.6.1.2.1.25.2.3       Storage details (disks, partitions)
-1.3.6.1.2.1.25.3.2       Hardware devices (CPU, disks)
-1.3.6.1.2.1.25.4.2       Running processes
+Community Enumeration, MIB Walk, Read-Write Testing, Post-Enumeration
 
-1.3.6.1.2.1.25.6.3       Installed software
 
-1.3.6.1.2.1.4.20         IP address table
-1.3.6.1.2.1.4.22         Routing table
-1.3.6.1.2.1.6.13         TCP connections
-1.3.6.1.2.1.7.5          UDP listeners
+# Community Enumeration
 
-1.3.6.1.2.1.11.1.0       SNMP packets received
-1.3.6.1.2.1.11.28.0      Traps for failed auth
+## Overview
 
-snmpwalk -v 2c -c <community string> <target IP> <MIB>
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Default communities (public, private) and guessable strings grant read access to system data.
 
-# Modify a variable
+## Commands
 
-snmpset -v <version> -c <community string> <target IP> <variable> s "<new string>"
+Discover SNMP service:
+    nmap -sU -p161 --script=snmp-info <target IP>
 
-Check if RW is open by changing harmless fields like sysLocation.
-If it changes, this indicates a critical vulnerability for the device.
+Brute force from host list:
+    onesixtyone -c /usr/share/doc/onesixtyone/dict.txt -i 161.txt
+    onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp-onesixtyone.txt -i targets.txt
 
-Use sysDescr/sysObjectID to get the IOS/IOS-XE version and correlate it with CVEs.
-Older 12.x and early 16.x versions are particularly problematic.
+Quick check (defaults to public if no -c):
+    snmp-check -v2c -c public <target IP>
 
-Using interface/VLAN/topology information from SNMP, scan management services (SSH/HTTPS, etc.) to see what is exposed.
+Manual probe:
+    snmpwalk -v2c -c public <target IP> 1.3.6.1.2.1.1.1.0
+    snmpwalk -v1 -c public <target IP> 1.3.6.1.2.1.1.1.0
+
+## Validation / False Positives
+
+Timeout or no response is not proof SNMP is disabled — verify UDP/161 is reachable and try v1 and v2c.
+A single failed community does not rule out a custom string — use a targeted wordlist.
+
+
+# MIB Walk
+
+## Overview
+
+Standard MIB OIDs expose OS version, interfaces, routes, processes, and installed software.
+
+## Commands
+
+System and host:
+    1.3.6.1.2.1.1.1.0        sysDescr (hardware, OS, model)
+    1.3.6.1.2.1.1.2.0        sysObjectID
+    1.3.6.1.2.1.1.3.0        sysUpTime
+    1.3.6.1.2.1.1.4.0        sysContact
+    1.3.6.1.2.1.1.5.0        sysName (hostname)
+    1.3.6.1.2.1.1.6.0        sysLocation
+
+Interfaces:
+    1.3.6.1.2.1.2.2.1        ifTable
+    1.3.6.1.2.1.2.2.1.2      ifDescr (e.g., eth0)
+    1.3.6.1.2.1.2.2.1.6      ifPhysAddress (MAC)
+    1.3.6.1.2.1.2.2.1.8      ifOperStatus (up/down)
+
+Host resources:
+    1.3.6.1.2.1.25.1.1.0     hrSystemUptime
+    1.3.6.1.2.1.25.2.3       hrStorage
+    1.3.6.1.2.1.25.3.2       hrDevice
+    1.3.6.1.2.1.25.4.2       hrSWRun (processes)
+    1.3.6.1.2.1.25.6.3       hrSWInstalled
+
+Network:
+    1.3.6.1.2.1.4.20         ipAddrTable
+    1.3.6.1.2.1.4.22         ipRouteTable
+    1.3.6.1.2.1.6.13         tcpConnTable
+    1.3.6.1.2.1.7.5          udpTable
+
+SNMP stats:
+    1.3.6.1.2.1.11.1.0       snmpInPkts
+    1.3.6.1.2.1.11.28.0      snmpSilentDrops (failed auth)
+
+Walk a branch:
+    snmpwalk -v2c -c <community string> <target IP> <MIB>
+
+## Validation / False Positives
+
+Partial walks on busy devices may truncate — increase timeout or walk specific OIDs.
+sysDescr strings are informational — correlate with CVE databases before claiming exploitability.
+
+
+# Read-Write Testing
+
+## Overview
+
+RW community strings allow configuration changes. Test only with approval using harmless OIDs.
+
+## Commands
+
+Attempt a benign write (sysLocation):
+    snmpset -v2c -c <community string> <target IP> 1.3.6.1.2.1.1.6.0 s "pentest-marker"
+
+Verify:
+    snmpwalk -v2c -c <community string> <target IP> 1.3.6.1.2.1.1.6.0
+
+## Validation / False Positives
+
+snmpset returning success on a read-only community may be misleading — re-walk the OID to confirm persistence.
+Restore any changed values after testing.
+
+
+# Post-Enumeration
+
+## Overview
+
+Turn SNMP output into follow-on targets — version strings for CVEs, interfaces for VLAN mapping, routes for internal ranges.
+
+## Payloads / Techniques
+
+Correlate sysDescr/sysObjectID with IOS/IOS-XE or vendor firmware CVEs (older Cisco 12.x and early 16.x are high value).
+Map interface and VLAN data, then scan exposed management services (SSH, HTTPS, Telnet) on adjacent subnets.
+Use process and software tables to identify backup agents, AV, or domain-joined services.
+
+## Validation / False Positives
+
+SNMP-reported software versions may lag actual installed patches — treat as a lead, not proof of exploitability.

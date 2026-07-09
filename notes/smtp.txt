@@ -1,87 +1,194 @@
 SMTP
 
 
-# SMTP relay, EXPN/VRFY command enabled
+# Overview
 
-telnet <target IP> 25
-EHLO root
-MAIL FROM:root@target.com
-RCPT TO:jsmith@gmail.com
-DATA
-Subject: Testing open mail relay.
-Testing SMTP open mail relay. Have a nice day.
-.
-QUIT
+Test SMTP for open relay, user enumeration (VRFY/EXPN), and known protocol quirks. Use only on authorized assessments — external relay tests can send real mail.
 
-for x in $(cat users.txt); do echo VRFY $x | nc -nv -w 1 <target IP> 25 2>/dev/null | grep ^’250’; done
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-sendemail -f root@target.com -t jsmith@gmail.com -u Testing open mail relay. -m Testing SMTP open mail relay. Have a nice day. -s <target IP>
+# Related Notes
 
-SMTP Service STARTTLS Plaintext Command Injection
+passwords.txt            User lists and wordlists for VRFY loops
+pwk.txt                  Lab fundamentals and service stubs
 
-telnet <target IP> 25
-S: <waits for connection on TCP port 25>
-C: <opens connection>
-S: 220 mail.target.com SMTP service ready
-C: EHLO mail.ietf.org
-S: 250-mail.target.com offers a warm hug of welcome
-S: 250 STARTTLS
-C: STARTTLS
-S: 220 Go ahead
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Internal IPs
+# Contents
 
-When viewing test email, view the full headers and look for internal IPs and host names.
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Open Relay Testing, User Enumeration, sendemail and swaks, STARTTLS Injection, Relay Bypass Formatting, Header Analysis, Relay Check Script
 
-STARTTLS\r\nRSET\r\n
 
-And the server sent the following two responses:
-220 Server ready Ready to start TLS
-250 +OK Reset
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Open Relay Testing
+
+## Overview
+
+Confirm whether the server accepts mail from an external sender to an external recipient.
+
+## Commands
+
+Manual telnet (port 25):
+    telnet <target IP> 25
+    EHLO test.local
+    MAIL FROM:<root@target.com>
+    RCPT TO:<user@gmail.com>
+    DATA
+    Subject: Relay test
+    Relay test body.
+    .
+    QUIT
+
+Submission port (try if 25 is blocked):
+    openssl s_client -connect <target IP>:587 -starttls smtp
+
+sendemail:
+    sendemail -f root@target.com -t user@gmail.com -u "Relay test" -m "Relay test body" -s <target IP>
+
+swaks:
+    swaks --to user@gmail.com --from root@target.com --server <target IP> --port 25
+    swaks --to user@gmail.com --from root@target.com --server <target IP> --port 587 --tls
+
+nmap:
+    nmap -p25,465,587 --script=smtp-open-relay,smtp-commands <target IP>
+
+## Validation / False Positives
+
+Open relay requires acceptance of an external RCPT (250 after RCPT TO) and successful delivery or queueing — not merely an open TCP port.
+A 550 on external RCPT after DATA may still mean internal relay only — document internal vs external tests separately.
+Only test external relay with customer approval.
+
+
+# User Enumeration
+
+## Overview
+
+VRFY and EXPN reveal valid usernames when enabled. Many servers disable both.
+
+## Commands
+
+VRFY:
+    telnet <target IP> 25
+    VRFY root
+    VRFY idontexist
+    QUIT
+
+VRFY loop:
+    while read -r user; do
+        echo "VRFY $user" | nc -nv -w 2 <target IP> 25 2>/dev/null | grep -E '^250|^252'
+    done < users.txt
+
+EXPN:
+    telnet <target IP> 25
+    EXPN mailinglist
+    QUIT
+
+swaks:
+    swaks --server <target IP> --port 25 --vrfy root
+
+## Validation / False Positives
+
+250/252 on VRFY suggests the address exists; 550 on a decoy does not prove VRFY is disabled globally.
+EXPN may list distribution lists — treat output as usernames for further spraying, not as proof of mailbox login.
+
+
+# STARTTLS Command Injection
+
+## Overview
+
+Some MTAs mishandle smuggled commands after STARTTLS negotiation. Applies only to vulnerable versions — confirm with vendor/CVE context.
+
+## Payloads / Techniques
+
+Inject after STARTTLS:
+    STARTTLS\r\nRSET\r\n
+
+Expected vulnerable responses may include:
+    220 Server ready / Ready to start TLS
+    250 OK Reset
+
+Manual probe:
+    telnet <target IP> 25
+    EHLO test.local
+    STARTTLS
+    # Send smuggled command sequence per test plan
+
+## Validation / False Positives
+
+A normal STARTTLS banner exchange is not a finding — demonstrate unauthorized command execution or mail routing change.
+
+
+# Relay Bypass Formatting
+
+## Overview
+
+Malformed envelope addresses sometimes bypass weak relay filters.
+
+## Payloads / Techniques
 
 HELO <anything>
-Identical to/from - mail from: <nobody@domain> rcpt to: <nobody@domain>
-Unknown domain - mail from: <user@unknown_domain>
-Domain not present - mail from: <user@localhost>
-Domain not supplied - mail from: <user>
-Source address omission - mail from: <> rcpt to: <nobody@recipient_domain>
-Use IP address of target server - mail from: <user@IP_Address> rcpt to: <nobody@recipient_domain>
-Use double quotes - mail from: <user@domain> rcpt to: <"user@recipent-domain">
-User IP address of the target server - mail from: <user@domain> rcpt to: <nobody@recipient_domain@[IP Address]>
-Disparate formatting - mail from: <user@[IP Address]> rcpt to: <@domain:nobody@recipient-domain>
-Disparate formatting2 - mail from: <user@[IP Address]> rcpt to: <recipient_domain!nobody@[IP Address]>
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Identical to/from: mail from:<nobody@domain> rcpt to:<nobody@domain>
+Unknown domain: mail from:<user@unknown_domain>
+Domain not present: mail from:<user@localhost>
+Domain not supplied: mail from:<user>
+Source omission: mail from:<> rcpt to:<nobody@recipient_domain>
+Target server IP in path: mail from:<user@domain> rcpt to:<nobody@recipient_domain@[IP Address]>
+Quoted recipient: mail from:<user@domain> rcpt to:<"user@recipient-domain">
+Disparate formatting: mail from:<user@[IP Address]> rcpt to:<@domain:nobody@recipient-domain>
+
+## Validation / False Positives
+
+Bypass attempts that still return 550 on RCPT TO are not relay — capture full SMTP transcript in the report.
+
+
+# Header Analysis
+
+## Overview
+
+Received test messages may leak internal hostnames and RFC1918 addresses in headers.
+
+## Commands
+
+Send a test message through an allowed path (internal relay or web form).
+View full message headers in the received copy.
+Look for:
+    Received: lines with internal FQDNs
+    X-Originating-IP or X-Authenticated-User
+    Private ranges (10.x, 172.16–31.x, 192.168.x)
+
+## Validation / False Positives
+
+A single internal hostname in a Received header is informational — pair with scope discussion on internal network disclosure.
+
+
+# Relay Check Script
+
+## Commands
 
 #!/bin/bash
-clear
+# Usage: ./smtp-relay-check.sh <host> [port]
 
-echo "SMTP open mail relay checker."
+HOST=$1
+PORT=${2:-25}
+TMP=$(mktemp)
 
-if [[ $1 == "" ]]; then
-    echo "ERROR - Specify host."
-else
-    if [[ $2 == "" ]]; then
-        PORT=25
-    else
-        PORT=$2
-    fi
-
-    cat >> tmp << EOF
-    mail from: root@target.com
-    rcpt to: jsmith@gmail.com
-    data
-    Subject: Testing open mail relay.
-    Testing SMTP open mail relay from $1.
-    Have a nice day.
-    .
-    quit
-    EOF
-
-    echo "[*] Using target $1:$PORT"
-    cat tmp | nc $1 $PORT
-    rm tmp
+if [[ -z "$HOST" ]]; then
+    echo "Usage: $0 <host> [port]"
+    exit 1
 fi
+
+cat > "$TMP" <<EOF
+ehlo test.local
+mail from:<root@target.com>
+rcpt to:<user@gmail.com>
+data
+Subject: SMTP relay test
+Relay test from $HOST
+.
+quit
+EOF
+
+echo "[*] Testing $HOST:$PORT"
+nc -nv -w 5 "$HOST" "$PORT" < "$TMP"
+rm -f "$TMP"
+
+## Validation / False Positives
+
+Script output showing 250 after RCPT TO still requires approval before sending to real third-party addresses — use a recipient you control.
