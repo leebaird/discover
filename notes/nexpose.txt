@@ -1,32 +1,66 @@
 Nexpose
 
 
-# Full Audit
+# Overview
 
-# Exclude Vulnerabilities
+Nexpose / InsightVM reporting: reduce audit noise, export PDFs, and run custom SQL against the reporting warehouse. Export scan XML 2.0 for Discover CSV parsing via misc/parse.sh.
+
+
+# Related Notes
+
+exploits.txt                CVE and exploit follow-up after findings export
+ssl.txt                     Manual TLS verification for SSL-related findings
+bash.txt                    Discover script helpers
+
+
+# Contents
+
+Full Audit Exclusions, PDF Reports, Custom SQL Hosts, Custom SQL Findings,
+Custom SQL All Vulnerabilities, XML Export and Parse, Validation / False Positives
+
+
+# Full Audit Exclusions
+
+## Overview
+
+Exclude low-value informational findings from full-audit reports — not evidence they were remediated on hosts.
+
+## Commands
+
+Typical exclusions:
     ICMP timestamp response
     NetBIOS NBSTAT Traffic Amplification
     TCP Sequence Number Approximation Vulnerability
     TCP timestamp response
     UDP IP ID Zero
 
-    Exclude > Reason: Acceptable Risk > Submit and approve
-------------------------------------------------------------------------------------------------------------------------------------------------------
+GUI:
+    Reports or finding list > Exclude > Reason: Acceptable Risk > Submit and approve
 
-# Create PDF reports
+
+# PDF Reports
+
+## Commands
+
     Audit Report
     Executive Overview
     Remediation Plan
     Top Remediations with Details
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Create custom SQL query for Hosts
 
-SELECT da.ip_address AS "IP Address", da.host_name AS "Host", 
-    dos.name AS "OS", dos.version AS "OS Version", 
-    das.port AS "Port", 
-    dp.name AS "Protocol", 
-    ds.name AS "Service", 
+# Custom SQL Hosts
+
+## Overview
+
+Asset inventory with OS, port, protocol, service, and fingerprint. Run in Nexpose reporting custom SQL / Report Builder.
+
+## Commands
+
+SELECT da.ip_address AS "IP Address", da.host_name AS "Host",
+    dos.name AS "OS", dos.version AS "OS Version",
+    das.port AS "Port",
+    dp.name AS "Protocol",
+    ds.name AS "Service",
     dsf.name AS "Name", dsf.version AS "Version"
 
 FROM dim_asset_service das
@@ -37,9 +71,15 @@ FROM dim_asset_service das
     JOIN dim_service_fingerprint dsf USING (service_fingerprint_id)
 
 ORDER BY da.ip_address, das.port
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Create custom SQL query for Findings
+
+# Custom SQL Findings
+
+## Overview
+
+Per-asset findings with CVSS, proof, remediation, CVE, and DISA references. Includes solution supercedence rollup.
+
+## Commands
 
 WITH
     vulnerability_cves AS (
@@ -54,7 +94,7 @@ WITH
         WHERE source = 'DISA_VMSKEY'
         GROUP BY vulnerability_id
     ),
-    ulnerability_disa_severity AS (
+    vulnerability_disa_severity AS (
         SELECT vulnerability_id, array_to_string(array_agg(reference), ',') AS disa_severity
         FROM dim_vulnerability_reference
         WHERE source = 'DISA_SEVERITY'
@@ -74,8 +114,8 @@ SELECT ROUND(cvss_score::numeric, 1) AS "CVSS Score",
     ds.summary AS "Remediation",
     proofAsText(ds.fix) AS "Steps",
     vcves.cves AS "CVE",
-    disa_vmskey AS "DISA VMS Key",
-    disa_severity AS "DISA Severity"
+    dvms.disa_vmskey AS "DISA VMS Key",
+    dvs.disa_severity AS "DISA Severity"
 
 FROM fact_asset_vulnerability_instance favi
     JOIN dim_asset da USING (asset_id)
@@ -88,10 +128,38 @@ FROM fact_asset_vulnerability_instance favi
     LEFT OUTER JOIN vulnerability_disa_severity dvs USING (vulnerability_id)
 
 ORDER BY da.ip_address, dv.title
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Create custom SQL query for all vulnerabilities
+
+# Custom SQL All Vulnerabilities
+
+## Commands
 
 SELECT title AS "Title", ROUND(cvss_score::numeric, 1) AS "CVSS Score"
 FROM dim_vulnerability
 ORDER BY title
+
+
+# XML Export and Parse
+
+## Overview
+
+Export Nexpose XML 2.0 from the console, then convert to CSV with Discover.
+
+## Commands
+
+Export from Nexpose / InsightVM console (XML 2.0 format).
+
+Discover:
+    misc/parse.sh
+    3. Nexpose (XML 2.0)
+    parsers/parse-nexpose.py <nexpose.xml>
+
+Output moves to ~/data/nexpose-<time>.csv
+
+
+# Validation / False Positives
+
+Excluded findings remain on assets — exclusions only affect report visibility, not scan results.
+Reporting warehouse SQL reflects last import/sync — not live host state; re-scan before claiming remediation.
+Custom SQL targets the reporting DB schema (dim_* / fact_* tables) — verify against your InsightVM version if columns error.
+ICMP/timestamp and sequence-number findings are often informational — document risk acceptance, not dismissal as false positive.
