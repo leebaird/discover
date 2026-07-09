@@ -1,0 +1,190 @@
+Web Authentication and Access Control
+
+
+# Overview
+
+Testing authentication, session handling, access control, and cross-origin trust boundaries in web applications.
+
+
+# Related Notes
+
+web-burp.txt         Burp Intruder and validation workflow
+databases.txt        SQL injection
+open-redirect.txt    Open redirect parameters and payloads
+web-apps.txt         Recon and enumeration commands
+web-vulns.txt        Injection and file-handling vulnerabilities
+
+
+# CSRF
+
+## Overview
+
+Cross-Site Request Forgery forces a victim's browser to perform a state-changing action while authenticated.
+
+## Commands
+
+Login to the target.
+Create a list of all POST requests that do not have a unique token called 'CSRF_Token'.
+
+Proxy > HTTP history > Filter bar > Filter by search term
+    ^POST((?!CSRF_Token).)*$
+    Click Regex
+
+Right click on the first request > Engagement tools > Generate CSRF PoC
+Test in browser > Copy
+Open a new tab in Chromium > paste
+Look for evidence that it executed whatever that HTTP request was supposed to do.
+
+https://portswigger.net/support/using-burp-to-test-for-cross-site-request-forgery-csrf
+https://portswigger.net/burp/documentation/desktop/functions/generate-csrf-poc
+
+## Validation / False Positives
+
+A missing token alone is not a finding — confirm the action succeeds cross-origin without user intent.
+SameSite cookies, Referer checks, or custom headers may block exploitation; document what you tested.
+
+
+# IDOR
+
+## Overview
+
+Insecure Direct Object Reference — access objects by changing an identifier (ID, UUID, filename, account number) without authorization checks.
+
+## Payloads / Techniques
+
+- Horizontal: access another user's record at the same privilege level
+    /api/orders/1041  change to /api/orders/1042
+    ?user_id=1001     change to ?user_id=1002
+
+- Vertical: access admin or privileged objects as a normal user
+    /admin/users/1
+    /reports/export?role=user  change role or endpoint
+
+- Blind IDOR: compare response length, status, or timing when swapping IDs
+- Mass assignment: add JSON fields such as "role":"admin" or "is_admin":true on profile update
+
+## Commands
+
+Burp > HTTP history > filter by parameter names: id, uid, user, account, order, file, doc, uuid
+Send suspicious requests to Repeater and swap only the object identifier.
+Repeat with a second low-privilege account to confirm horizontal access.
+
+## Validation / False Positives
+
+A 200 with empty JSON may still leak data — compare body, headers, and ETags.
+UUIDs are not safe by default if authorization is missing server-side.
+
+
+# JWT
+
+## Overview
+
+JSON Web Tokens used for session or API authentication. Test algorithm, signature, and claim handling.
+
+## Payloads / Techniques
+
+- Decode at jwt.io or: echo '<token>' | cut -d. -f2 | base64 -d 2>/dev/null
+- alg=none: change header to {"alg":"none"} and remove signature
+- Weak secret: hashcat -m 16500 -a 0 jwt.txt wordlist.txt
+- kid injection: "kid":"../../dev/null" or path to attacker-controlled key file
+- Claim tampering: change sub, role, admin, exp, iss after re-signing with known or blank key
+
+## Commands
+
+Capture Authorization: Bearer token from Burp Proxy.
+Send API requests to Repeater; modify claims and re-issue requests.
+Test expired token reuse, missing exp validation, and audience (aud) checks.
+
+## Validation / False Positives
+
+A decoded token in the browser is not a vulnerability by itself — prove privilege escalation or account takeover.
+
+
+# OAuth and SSO
+
+## Overview
+
+OpenID Connect and OAuth 2.0 misconfigurations often appear in login, API, and mobile flows.
+
+## Payloads / Techniques
+
+- redirect_uri manipulation: open redirect, subdomain takeover, path traversal, or allowlisted fragment abuse
+- Missing or weak state parameter: CSRF on OAuth login
+- Token leakage: token in URL fragment, Referer header, or browser history
+- Scope escalation: request broader scopes than the app needs
+- PKCE downgrades on public clients
+
+## Commands
+
+Intercept the authorize request in Burp Proxy.
+Modify redirect_uri, client_id, scope, response_type, and state.
+Exchange returned codes at /token or /oauth/token endpoints in Repeater.
+
+## Validation / False Positives
+
+Document the exact redirect_uri accepted and whether a victim can be forced through the flow.
+
+
+# CORS
+
+## Overview
+
+Cross-Origin Resource Sharing misconfigurations may let attacker-controlled sites read authenticated responses.
+
+## Payloads / Techniques
+
+Origin: https://evil.com
+Origin: null
+Origin: https://target.com.evil.com
+Origin: https://eviltarget.com
+
+## Commands
+
+curl -ik "https://target.com/api/profile" -H "Origin: https://evil.com" -H "Cookie: session=<value>"
+Check for Access-Control-Allow-Origin reflecting the Origin and Access-Control-Allow-Credentials: true
+
+Burp > send request to Repeater > add or change Origin header > compare ACAO and ACAC headers.
+
+## Validation / False Positives
+
+Access-Control-Allow-Origin: * without credentials is usually not exploitable for credentialed reads.
+Confirm sensitive data is returned and readable from a cross-origin context.
+
+
+# Login Brute Force
+
+## Overview
+
+Password guessing via Burp Intruder or command-line tools.
+
+## Commands
+
+- Burp Intruder: Sniper on password field
+    Clear §
+    Highlight the password > Add §
+    Load password list > Start attack
+    Filter bar > uncheck 4xx
+    Look for 302 redirect as success signal
+
+- Burp Intruder: Cluster bomb on username and password
+    Mark both fields with §
+    Payload set 1: username list
+    Payload set 2: password list
+    Start attack > sort by Status
+
+Hydra
+    hydra -L users.txt -P pass.txt <target IP> https-get /
+    hydra -L users.txt -P pass.txt <target IP> http-post-form "/login:user=^USER^&pass=^PASS^:F=incorrect"
+
+Metasploit
+    use auxiliary/scanner/http/http_login
+    set user_file users.txt
+    set pass_file pass.txt
+    set rhosts <target IP>
+    set stop_on_success true
+    exploit
+
+## Validation / False Positives
+
+Account lockout and CAPTCHA change success criteria — note lockout threshold.
+A 200 with "invalid password" is not a successful login; confirm session cookie or redirect to authenticated area.

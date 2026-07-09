@@ -1,0 +1,225 @@
+Burp Suite
+
+
+# Overview
+
+Burp Suite Pro workflow for web application assessments: setup, scoped crawling, Intruder attacks, validation, and reporting.
+
+
+# Related Notes
+
+mobile.txt           Proxy setup for iOS and Android
+web-apps.txt         Recon and enumeration commands
+web-auth.txt         Authentication and access-control testing
+web-vulns.txt        Vulnerability payloads and techniques
+
+
+# Setup Burp Suite Pro
+
+## Commands
+
+Target > Site map:
+    Right click on any pane > View > Tabs
+    Filter bar > click on the gear > Restore defaults
+
+Proxy > Options > Intercept Client Requests:
+    Enable URL and click Up to move to the top
+    Select File extension > Edit > copy the Match condition > OK
+
+Proxy > Options > Intercept Server Responses:
+    Enable Intercept responses based on the following rules
+    Enable URL and click Up to move to the top
+    Add: And, File extension, Does not match, Match condition: paste contents from above, OK
+
+Intruder > Options > Request Engine
+    Number of threads: 8
+    Number of retries on network failure: 2
+
+User options > Connections > Platform Authentication > enable Prompt for credentials on platform authentication failure
+
+User options > Display
+    User Interface > Font size: 15
+    HTTP Message Display > Font: Courier 15
+
+
+# Remote SOCKS Proxy
+
+## Overview
+
+Route Burp traffic through a remote server (for example an Ubuntu EC2 instance) to mask your local IP.
+
+## Commands
+
+ssh -i <EC2 KEY.pem> ubuntu@<EC2 IP>
+sudo apt update
+sudo apt install proxychains
+sudo vim /etc/proxychains.conf
+Add a new line at the end: socks5 127.0.0.1 1080
+exit
+
+ssh -i <EC2 KEY.pem> -D 1080 -f -N ubuntu@<EC2 IP>
+
+nc -v 127.0.0.1 1080
+Connection to 127.0.0.1 port 1080 [tcp/socks] succeeded!
+
+Open Burp > Burp menu > Settings > Network > Connections
+SOCKS Proxy Host: 127.0.0.1
+SOCKS Proxy Port: 1080
+Authentication: leave blank
+Check Do DNS lookups over SOCKS proxy
+Check Use SOCKS proxy
+
+Close Settings > Proxy > Intercept > Open browser
+Enter https://whatismyip.org/
+The IP address should be your remote EC2 box.
+
+
+# Web App Assessment
+
+## Overview
+
+End-to-end manual assessment workflow using Burp Site map, Intruder, and the scanner.
+
+## Commands
+
+- Create a new Burp project
+Start Burp > Open existing project: uncheck Pause Automated Tasks
+New project on disk
+Enter a name
+Tab > rename the file if needed > Next > Start Burp
+
+- Establish scope
+Proxy > turn off the Intercept
+Open browser > browse to the target site
+Target > Site map: this should be populating
+Right click on the target URL > Add to scope > Yes
+Right click on the target URL > Expand branch
+Select Issues in the top right pane.
+
+- Browse the target
+Look for /robots.txt and /sitemap
+If either page exists, hold down Cmd (macOS) or Ctrl (Windows/Linux) and click on every link.
+Follow links, submit forms and login when prompted.
+Continue until you have thoroughly mapped the target.
+Target > Site map
+Locate any logout pages > right click > Remove from scope
+
+- Unrequested items
+Target > Site map > right click on the URL > Expand branch
+Look for items shown in gray.
+Sort the top right pane by Time requested.
+Right click on each item > Copy URL > paste in your browser.
+
+- Brute force directories
+Target > Site map > right click on the second line '/' > Send to Intruder
+Intruder > Position > Attack type: Sniper
+Clear §
+On the top line, select the forward slash '/' after GET > Add §
+Move the forward slash in front of the two symbols. It should look like: GET /§§
+Payloads > Payload Sets > Payload set: 1 > Payload type: Runtime file
+Payloads > Payload Options > Select file > /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt > Open
+Start attack
+
+- Sync results to Site map
+Scroll to the top of the list > sort by Payload
+Delete any blank lines
+Compare Site map pages to Intruder payloads.
+Select a Payload not listed in Site map
+Right click > Request in browser > In current session > Copy
+Open a new tab in Chromium and paste.
+
+- Analyze anomalies
+Filter bar > uncheck 4xx [request error]
+Click Status to sort by ascending.
+Select 302 responses, review, then delete noise if appropriate.
+Review uncommon HTTP status codes (5xx) > Response > Render
+Sort by Length, review minimum and maximum values > Response > Render
+
+- Attack surface
+Target > Site map > right click on the target URL > Engagement tools > Target analyzer
+
+- Review comments
+Target > Site map > right click on the target URL > Engagement tools > Find comments
+Sort by Item > Response > review each hit for sensitive data
+
+- Visit referenced URLs
+Target > Site map > right click on the target URL > Expand branch
+Delete empty grey folders.
+Copy grey or red URLs into Chromium (skip css, jpg, js, pdf, png).
+Use Open Multiple URLs for batches.
+
+- Scan the target
+Target > Site map > right click on the target URL > Actively scan this host
+
+## Validation / False Positives
+
+Confirm scanner findings manually in Repeater before reporting.
+Delete logout pages, static assets, and duplicate routes from scope before scanning.
+A 200 on directory brute force still requires opening the page to confirm content.
+
+
+# Intruder
+
+## Overview
+
+Burp Intruder attack types and quick-reference workflows.
+
+## Payloads / Techniques
+
+Sniper:       single word list against a single variable
+Battering ram: single word list against all variables
+Pitchfork:    paired word lists (username[1] with password[1], and so on)
+Cluster bomb:  one username against every password, then the next username
+
+- Directory brute force
+Right click on the very first request > Send to Intruder
+Clear §
+Put your cursor right after the / > Add §
+Payload Sets > Payload type: Runtime file
+Payload Options > Select file: /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt
+Start attack
+Sort by Status
+    500  Server error
+    405  Method not allowed
+
+- User-Agent fuzzing
+Intruder > Clear § > select user agent string > Add §
+Payload Options > Select file: /usr/share/seclists/Discovery/Web-Content/UserAgents.fuzz.txt
+Sort by Length > Response > Render
+
+- Capture a login request
+Burp > Proxy > enable intercept
+Chromium > try to login
+Burp > right click on capture > Send to Intruder
+
+## Validation / False Positives
+
+405 on OPTIONS or HEAD during directory brute force is not a hidden directory.
+Sort by response length, not status alone, when fuzzing User-Agent strings.
+
+
+# Reporting
+
+## Commands
+
+Removed false positives.
+Select all remaining findings.
+Right click > Report selected issues > Next 4x > enter file location > Next > Close
+
+
+# Manually Validate Findings
+
+## Overview
+
+Quick checks before elevating Burp scanner output to a confirmed finding.
+
+## Validation / False Positives
+
+File path traversal:  Request body > Send to Repeater > modify path > confirm file contents in response
+XML Injection:        Response containing http://www.w3.org/2001/XMLSchema alone is usually a false positive
+XSS:                  Request in browser > In current browser session; confirm alert or DOM change
+Open redirect:        Confirm Location header or JavaScript redirect reaches an external domain you control
+SSRF:                 Confirm outbound request hits your collaborator or callback server with target-specific data
+SQL injection:        Confirm with a reproducible error, delay, or extracted data — not a single 500
+CSRF:                 Confirm the PoC performs the state-changing action without user intent beyond visiting a page
+IDOR:                 Confirm access to another user's object by swapping only the identifier

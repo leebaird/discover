@@ -1,6 +1,15 @@
 Active Directory
 
 
+# Related Notes
+
+ldap-owa.txt             LDAP and OWA enumeration
+passwords.txt            Hash cracking
+windows.txt              SMB and host situational awareness
+windows-credentials.txt  LSASS and domain hash dumping
+windows-lateral.txt      Pass-the-hash and WinRM
+
+
 # Recon
 
 net user /domain                                  Domain users

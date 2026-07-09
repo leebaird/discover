@@ -1,19 +1,99 @@
-Mobile App Testing for iOS
+Mobile App Testing
 
 
-iOS 7.1.1
-Pangu Jailbreak 1.2.0
-http://cydiainstaller.net/download/install-cydia-ios-7-1-to-7-1-2/
+# Overview
 
-Cydia
-Run updates
-Install
-    OpenSSH
-    iFile
-    Apple File Conduit 2
+Intercept and inspect mobile application traffic with Burp Suite. Covers current iOS and Android proxy setup, certificate trust, and basic static analysis entry points.
 
-ssh root@<targetIP>
-password: alpine
 
-iExplorer $35
-www.macroplant.com/iexplorer
+# Related Notes
+
+web-burp.txt         Burp proxy listeners and assessment workflow
+web-apps.txt         Web recon and API discovery
+web-auth.txt         JWT, OAuth, and session testing on mobile APIs
+
+
+# Burp Proxy Listener
+
+## Commands
+
+Proxy > Options > Proxy Listeners > Add > Binding:
+    Bind to port: 8081
+    Bind to address: All interfaces
+    OK > Yes
+
+Export CA certificate:
+Proxy > TLS > Import / export CA certificate > Certificate in DER format > save as cacert.der
+
+
+# iOS
+
+## Overview
+
+Route device traffic through Burp and trust the Burp CA for HTTPS interception.
+
+## Commands
+
+Wi-Fi proxy
+    Settings > Wi-Fi > (i) on your network > Configure Proxy > Manual
+    Server: <your computer IP>
+    Port: 8081
+
+Install Burp CA
+    Safari > http://burp (or browse to http://<your computer IP>:8081)
+    Download CA certificate
+    Settings > General > VPN & Device Management > install profile
+    Settings > General > About > Certificate Trust Settings > enable full trust for Burp CA
+
+Optional jailbroken device tooling
+    objection -g <bundle id> explore
+    frida-ps -U
+
+## Validation / False Positives
+
+Certificate pinning blocks interception — look for SSL errors in Burp or use a pinned bypass only on authorized assessments.
+Confirm traffic appears in Burp HTTP history before testing authenticated flows.
+
+
+# Android
+
+## Overview
+
+Proxy configuration differs by Android version. User-installed CAs are not trusted by most apps targeting Android 7+ unless the app allows user CAs.
+
+## Commands
+
+Wi-Fi proxy (emulator or device)
+    Settings > Network & internet > Internet > Wi-Fi > Modify > Advanced > Proxy Manual
+    Host: <your computer IP>  Port: 8081
+
+Install Burp CA (Android 10 and below, or apps that trust user CAs)
+    Browse to http://burp > download cacert.der
+    Settings > Security > Encryption & credentials > Install a certificate > CA certificate
+
+adb reverse (USB-connected device or emulator — no Wi-Fi proxy needed)
+    adb reverse tcp:8081 tcp:8081
+    Set app proxy to 127.0.0.1:8081 if supported
+
+Static analysis entry points
+    apktool d app.apk
+    jadx-gui app.apk
+    grep -i api_key\|secret\|password\|token res/ assets/
+
+## Validation / False Positives
+
+A successful HTTPS request in the app with no Burp entry usually means pinning or direct IP — document the behavior.
+User CA trust alone is often insufficient on modern Android — note Android version and whether a rooted bypass was required.
+
+
+# API Testing from Mobile
+
+## Commands
+
+After traffic flows through Burp, replay API calls in Repeater.
+Test IDOR, JWT claims, and OAuth redirect handling — see web-auth.txt.
+Compare mobile API hosts and headers to the web application — mobile endpoints are often less hardened.
+
+## Validation / False Positives
+
+Hard-coded API keys in the APK are findings only if the key grants unauthorized access to sensitive data or actions.
