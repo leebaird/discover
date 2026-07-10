@@ -1,0 +1,269 @@
+{
+  "title": "Discover Notes",
+  "sections": [
+    {
+      "title": "Setup",
+      "items": [
+        {
+          "file": "kali.txt",
+          "title": "Kali Linux"
+        },
+        {
+          "file": "macos.txt",
+          "title": "macOS"
+        },
+        {
+          "file": "ubuntu.txt",
+          "title": "Ubuntu"
+        }
+      ]
+    },
+    {
+      "title": "Fundamentals",
+      "items": [
+        {
+          "file": "cidr.txt",
+          "title": "CIDR"
+        },
+        {
+          "file": "services-ports.txt",
+          "title": "Services and Ports"
+        }
+      ]
+    },
+    {
+      "title": "Linux",
+      "items": [
+        {
+          "file": "linux.txt",
+          "title": "Linux"
+        },
+        {
+          "file": "pwk.txt",
+          "title": "PWK Lab Fundamentals"
+        }
+      ]
+    },
+    {
+      "title": "Coding",
+      "items": [
+        {
+          "file": "bash.txt",
+          "title": "Bash"
+        },
+        {
+          "file": "Python/ex1.py",
+          "title": "ex1.py",
+          "type": "script"
+        },
+        {
+          "file": "Python/fuzzer-pop3.py",
+          "title": "fuzzer-pop3.py",
+          "type": "script"
+        },
+        {
+          "file": "git.txt",
+          "title": "Git"
+        },
+        {
+          "file": "Python/python.txt",
+          "title": "Python"
+        },
+        {
+          "file": "Python/scrape.py",
+          "title": "scrape.py",
+          "type": "script"
+        },
+        {
+          "file": "Python/test.py",
+          "title": "test.py",
+          "type": "script"
+        }
+      ]
+    },
+    {
+      "title": "Recon",
+      "items": [
+        {
+          "file": "maltego.txt",
+          "title": "Maltego"
+        },
+        {
+          "file": "shodan.txt",
+          "title": "Shodan"
+        }
+      ]
+    },
+    {
+      "title": "Windows",
+      "items": [
+        {
+          "file": "windows.txt",
+          "title": "Windows"
+        },
+        {
+          "file": "windows-credentials.txt",
+          "title": "Windows Credentials"
+        },
+        {
+          "file": "windows-lateral.txt",
+          "title": "Windows Lateral Movement"
+        },
+        {
+          "file": "windows-privesc.txt",
+          "title": "Windows Privilege Escalation"
+        }
+      ]
+    },
+    {
+      "title": "Active Directory",
+      "items": [
+        {
+          "file": "active-directory.txt",
+          "title": "Active Directory"
+        },
+        {
+          "file": "ad-attacks.txt",
+          "title": "Attacks"
+        },
+        {
+          "file": "ad-bloodhound.txt",
+          "title": "BloodHound"
+        },
+        {
+          "file": "ldap-owa.txt",
+          "title": "LDAP and OWA"
+        }
+      ]
+    },
+    {
+      "title": "PowerShell",
+      "items": [
+        {
+          "file": "PowerShell/powershell.txt",
+          "title": "PowerShell"
+        },
+        {
+          "file": "PowerShell/powerview.txt",
+          "title": "PowerView"
+        },
+        {
+          "file": "PowerShell/ps-attack.txt",
+          "title": "PSAttack"
+        }
+      ]
+    },
+    {
+      "title": "Infrastructure",
+      "items": [
+        {
+          "file": "dns.txt",
+          "title": "DNS"
+        },
+        {
+          "file": "insecure-protocols.txt",
+          "title": "Insecure Protocols"
+        },
+        {
+          "file": "smtp.txt",
+          "title": "SMTP"
+        },
+        {
+          "file": "snmp.txt",
+          "title": "SNMP"
+        },
+        {
+          "file": "ssl-setup.txt",
+          "title": "SSL Setup"
+        },
+        {
+          "file": "ssl.txt",
+          "title": "SSL/TLS"
+        },
+        {
+          "file": "terraform.txt",
+          "title": "Terraform"
+        }
+      ]
+    },
+    {
+      "title": "Offensive",
+      "items": [
+        {
+          "file": "buffer-overflows.txt",
+          "title": "Buffer Overflows"
+        },
+        {
+          "file": "cobalt-strike.txt",
+          "title": "Cobalt Strike"
+        },
+        {
+          "file": "exploits.txt",
+          "title": "Exploits"
+        },
+        {
+          "file": "metasploit.txt",
+          "title": "Metasploit"
+        },
+        {
+          "file": "passwords.txt",
+          "title": "Passwords"
+        }
+      ]
+    },
+    {
+      "title": "Web",
+      "items": [
+        {
+          "file": "web-burp.txt",
+          "title": "Burp Suite"
+        },
+        {
+          "file": "mobile.txt",
+          "title": "Mobile App Testing"
+        },
+        {
+          "file": "open-redirect.txt",
+          "title": "Open Redirect"
+        },
+        {
+          "file": "web-apps.txt",
+          "title": "Web Apps"
+        },
+        {
+          "file": "web-auth.txt",
+          "title": "Web Authentication"
+        },
+        {
+          "file": "web-vulns.txt",
+          "title": "Web Vulnerabilities"
+        }
+      ]
+    },
+    {
+      "title": "Misc",
+      "items": [
+        {
+          "file": "consulting.txt",
+          "title": "Consulting"
+        },
+        {
+          "file": "databases.txt",
+          "title": "Databases"
+        },
+        {
+          "file": "egress.txt",
+          "title": "Egress Testing"
+        },
+        {
+          "file": "forensics.txt",
+          "title": "Forensics"
+        },
+        {
+          "file": "nexpose.txt",
+          "title": "Nexpose"
+        }
+      ]
+    }
+  ]
+}

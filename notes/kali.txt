@@ -97,12 +97,12 @@ update
 
 cd ~/discover/
 ./discover.sh
-Option 17
+Option 18
 
 ## Validation / False Positives
 
 The update alias is defined in Discover config — open a new shell after install.sh if update is not found.
-Option 17 runs misc/update.sh; confirm key tools with which nmap ffuf gowitness.
+Option 18 runs misc/update.sh; confirm key tools with which nmap ffuf gowitness.
 
 
 # Snapshot

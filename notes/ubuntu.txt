@@ -1,80 +1,166 @@
 Ubuntu
 
-- Download
+
+# Overview
+
+Ubuntu Desktop setup for a secondary attack or dev VM: patch OS, install tooling, tune the desktop, install Discover, and snapshot before heavy customization. Kali remains the primary pentest image; see kali.txt.
+
+
+# Related Notes
+
+kali.txt                   Primary Kali VM setup and Discover install
+linux.txt                  Linux commands and package management
+bash.txt                   Shell scripting on Ubuntu
+git.txt                    Clone and maintain git repos
+
+
+# Contents
+
+Download, Patch OS, Basic Tools, uv, Desktop Tuning, Discover Install, Snapshot,
+Discover Update, Scanner User Agents, Burp Browser Sandbox
+
+
+# Download
+
+## Overview
+
+Ubuntu Desktop ISO for a GUI-based secondary VM.
+
+## Commands
+
 https://ubuntu.com/download/desktop
 
-- Patch OS
-Right-click on the Desktop > Open Terminal
-sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean
 
-- Install basic tools
-sudo apt install -y curl git golang net-tools open-vm-tools-desktop plocate python3-pip whois
-sudo snap install --classic code
+# Patch OS
 
-- Install uv
-sudo curl -LsSf https://astral.sh/uv/install.sh | sh
-Close Terminal and reopen.
-uv
+## Commands
 
-- Patch OS again and update locate database
-sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean; sudo updatedb
+Right-click Desktop > Open Terminal:
 
-- Ignore case for tab completion
-sudo gedit /etc/inputrc
-Uncomment: set completion-ignore-case On
-Save the file and close.
-Close Terminal and reopen.
+    sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean
 
-- Clean up home folder
-rm -rf Documents/ Music/ Pictures/ Public/ Templates/ Videos/
 
-- Settings
-    Click on the 3 icons in the top right corner > cog icon
-    Power > Power Saving > Automatic Screen Blank: off
+# Basic Tools
 
-- Text Editor
-    touch tmp
-    gedit tmp
-    Preferences
+## Commands
+
+    sudo apt install -y curl git golang net-tools open-vm-tools-desktop plocate python3-pip whois
+    sudo snap install --classic code
+
+
+# uv
+
+## Overview
+
+Install uv for fast Python tooling (PEP 668-safe workflows).
+
+## Commands
+
+    sudo curl -LsSf https://astral.sh/uv/install.sh | sh
+
+Close Terminal and reopen, then verify:
+
+    uv
+
+Patch again and refresh locate:
+
+    sudo apt update; sudo apt -y upgrade; sudo apt -y dist-upgrade; sudo apt -y autoremove; sudo apt -y autoclean; sudo updatedb
+
+
+# Desktop Tuning
+
+## Tab completion
+
+    sudo gedit /etc/inputrc
+
+Uncomment: `set completion-ignore-case On`
+Save, close Terminal, and reopen.
+
+## Home folder cleanup
+
+    rm -rf Documents/ Music/ Pictures/ Public/ Templates/ Videos/
+
+## Power settings
+
+Settings (top-right cog) > Power > Power Saving > Automatic Screen Blank: off
+
+## Text editor (gedit)
+
+    touch tmp && gedit tmp
+
+Preferences:
     Display Line Numbers: on
     Highlight Current Line: on
     Show Right Margin: on
     Margin Position: 120
-
     Auto Indentation: off
     Character: Space
     Spaces Per Tab: 4
     Spaces Per Indent: 4
-    Close and delete
-
     Restore Session: off
 
-- Install Discover
+Close gedit and delete tmp.
+
+
+# Discover Install
+
+## Commands
+
     cd ~/
     sudo git clone https://github.com/leebaird/discover.git
     cd discover/config/
     ./install.sh
-    Exit Terminal and reopen
-    Test your network connection with 'n'
 
-Take a snapshot of your VM.
+Exit Terminal and reopen.
+Test network with Discover option that runs connection check, or `./discover.sh` and verify connectivity.
 
-- Update OS and install additional tools
-    cd discover/
+Take a VM snapshot before further customization.
+
+
+# Discover Update
+
+## Commands
+
+    cd ~/discover/
     ./discover.sh
-    Option 17
 
-- Update default user agent strings
+Option 18 (Update) — installs tool updates via misc/update.sh and rebuilds notes HTML.
+
+
+# Scanner User Agents
+
+## Overview
+
+Refresh default user agent strings in Nikto and Nmap to match current browser builds.
+
+## Commands
+
+Reference:
     https://www.whatismybrowser.com/guides/the-latest-user-agent/edge
 
-    nikto
+Nikto:
     sudo gedit /etc/nikto/config.txt
 
-    nmap
+Nmap:
     sudo gedit /usr/share/nmap/nselib/http.lua
-    # Edit the default user agent around line 160
+    # edit the default user agent around line 160
 
-- Fix Burp Suite Pro browser permissions
-find / -name "chrome-sandbox" 2>/dev/null | grep Burp
-sudo chown root:root /path/to/chrome-sandbox
-sudo chmod 4755 /path/to/chrome-sandbox
+
+# Burp Browser Sandbox
+
+## Overview
+
+Fix Burp Suite Pro embedded browser sandbox permissions on Linux.
+
+## Commands
+
+    find / -name "chrome-sandbox" 2>/dev/null | grep Burp
+    sudo chown root:root /path/to/chrome-sandbox
+    sudo chmod 4755 /path/to/chrome-sandbox
+
+
+# Validation / False Positives
+
+uv install requires a new shell before `uv` is on PATH; reopen Terminal if command not found.
+Discover install.sh must finish before first `./discover.sh` run; missing config breaks menu options.
+Burp chrome-sandbox path changes per Burp version; re-run find after upgrades.

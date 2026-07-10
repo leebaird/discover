@@ -349,10 +349,42 @@ f_update(){
     fi
 
     sudo "$MISC_DIR/update.sh"
+
+    if [ -f "$DISCOVER/notes/build.py" ]; then
+        echo -e "${BLUE}Rebuilding notes site.${NC}"
+        python3 "$DISCOVER/notes/build.py" || true
+        echo
+    fi
+
     exit
 }
 
 export -f f_update
+
+###############################################################################################################################
+
+f_notes(){
+    echo
+    echo "[*] Building notes site."
+    if ! python3 "$DISCOVER/notes/build.py"; then
+        echo -e "${RED}[!] Notes build failed.${NC}"
+        echo
+        sleep 2
+        return 0
+    fi
+    echo "[*] Opening notes in browser."
+    if command -v xdg-open &> /dev/null; then
+        xdg-open "$DISCOVER/notes/index.htm" >/dev/null 2>&1 &
+    elif command -v sensible-browser &> /dev/null; then
+        sensible-browser "$DISCOVER/notes/index.htm" >/dev/null 2>&1 &
+    else
+        echo "$DISCOVER/notes/index.htm"
+    fi
+    echo
+    exit 0
+}
+
+export -f f_notes
 
 ###############################################################################################################################
 
@@ -457,8 +489,9 @@ f_main(){
     echo "14. CVE lookup"
     echo "15. Parse XML"
     echo "16. Dev"
-    echo "17. Update"
-    echo "18. Exit"
+    echo "17. Notes"
+    echo "18. Update"
+    echo "19. Exit"
     echo
 
     echo
@@ -469,8 +502,9 @@ f_main(){
 
     case "$CHOICE" in
         16) f_dev ;;
-        17) f_update ;;
-        18) echo && exit ;;
+        17) f_notes ;;
+        18) f_update ;;
+        19) echo && exit ;;
         *)
             if [ ! -d "$HOME"/data ]; then
                 mkdir -p "$HOME"/data
