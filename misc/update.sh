@@ -7,6 +7,43 @@ BLUE='\033[1;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+f_disable_auto_updates(){
+    echo -e "${BLUE}Disabling automatic OS update checks.${NC}"
+
+    cat > /etc/apt/apt.conf.d/99discover-no-auto-updates <<'EOF'
+// Managed by Discover update.sh — manual updates only
+APT::Periodic::Update-Package-Lists "0";
+APT::Periodic::Unattended-Upgrade "0";
+APT::Periodic::Download-Upgradeable-Packages "0";
+APT::Periodic::AutocleanInterval "0";
+EOF
+
+    local unit
+    for unit in unattended-upgrades apt-daily.timer apt-daily-upgrade.timer \
+        update-notifier-download.timer update-notifier-motd.timer \
+        fwupd-refresh.timer motd-news.timer ua-timer.timer snapd.snap-repair.timer; do
+        systemctl disable --now "$unit" >/dev/null 2>&1 || true
+    done
+
+    mkdir -p /etc/xdg/autostart
+    local desktop
+    for desktop in update-notifier ubuntu-advantage-notification ubuntu-report-on-upgrade; do
+        cat > "/etc/xdg/autostart/${desktop}.desktop" <<EOF
+[Desktop Entry]
+Hidden=true
+EOF
+    done
+
+    if command -v snap &> /dev/null; then
+        snap set system refresh.hold="$(date -u --date='+90 days' +%Y-%m-%dT%H:%M:%SZ)" \
+            >/dev/null 2>&1 || true
+    fi
+
+    echo
+}
+
+f_disable_auto_updates
+
 echo
 echo -e "${BLUE}Updating the operating system.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
@@ -814,6 +851,12 @@ fi
 # Delete folder if it is empty
 if [ -d "$USER_HOME/data/" ] && [ -z "$(ls -A "$USER_HOME/data/" 2>/dev/null)" ]; then
     rm -rf "$USER_HOME/data/"
+fi
+
+if command -v snap &> /dev/null; then
+    echo -e "${BLUE}Refreshing snaps.${NC}"
+    snap refresh 2>/dev/null || true
+    echo
 fi
 
 echo -e "${BLUE}Updating locate database.${NC}"
