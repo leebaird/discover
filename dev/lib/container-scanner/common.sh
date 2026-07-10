@@ -110,6 +110,15 @@ f_container_docker_available(){
         return 1
     fi
     if ! docker info >/dev/null 2>>"${CONTAINER_SCAN_LOG:-/dev/null}"; then
+        if command -v systemctl >/dev/null 2>&1; then
+            systemctl start docker 2>/dev/null || sudo systemctl start docker 2>/dev/null || true
+            sleep 2
+        elif command -v service >/dev/null 2>&1; then
+            service docker start 2>/dev/null || sudo service docker start 2>/dev/null || true
+            sleep 2
+        fi
+    fi
+    if ! docker info >/dev/null 2>>"${CONTAINER_SCAN_LOG:-/dev/null}"; then
         echo -e "${RED}[!] Cannot access Docker. Add your user to the docker group or use sudo.${NC}"
         return 1
     fi
