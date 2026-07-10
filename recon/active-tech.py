@@ -8,6 +8,7 @@ NOISE_PLUGINS = {
     "access-control-allow-headers",
     "access-control-allow-methods",
     "access-control-allow-origin",
+    "content-language",
     "cookies",
     "country",
     "email",
@@ -26,8 +27,23 @@ NOISE_PLUGINS = {
     "x-xss-protection",
 }
 
+
+def technology_base_name(label):
+    label = str(label).strip()
+    if ":" in label:
+        label = label.split(":", 1)[0].strip()
+    elif "[" in label:
+        label = label.split("[", 1)[0].strip()
+    return label.lower().replace(" ", "-")
+
+
+def is_noise_technology(label):
+    return technology_base_name(label) in NOISE_PLUGINS
+
+
 TECH_ALIASES = {
     "apache http server": "apache",
+    "asp_net": "asp.net",
     "google cloud cdn": "google cloud",
     "google cloud load balancing": "google cloud",
     "jquery": "jquery",
@@ -58,8 +74,10 @@ def plugin_label(name, data):
         elif str(raw).strip():
             values.append(str(raw))
 
+    values = [value for value in values if str(value).strip().upper() != "N/A"]
+
     if values:
-        return f"{name}[{', '.join(values)}]"
+        return f"{name}:{', '.join(values)}"
     return name
 
 
@@ -69,6 +87,10 @@ def tech_key(label):
         return ""
 
     lower = label.lower()
+
+    if lower.startswith("x-powered-by:"):
+        inner = label.split(":", 1)[1].strip().lower()
+        return TECH_ALIASES.get(inner, inner.replace(" ", ""))
 
     if lower.startswith("x-powered-by["):
         inner = label[label.index("[") + 1 : label.rindex("]")].strip().lower()
@@ -263,6 +285,19 @@ def strip_redundant_technology_labels(technologies, webserver):
     return ", ".join(kept)
 
 
+def strip_noise_technology_labels(technologies):
+    if not technologies:
+        return technologies
+
+    kept = []
+    for label in technologies.split(","):
+        label = label.strip()
+        if not label or is_noise_technology(label):
+            continue
+        kept.append(label)
+    return ", ".join(kept)
+
+
 def strip_redundant_webserver_tokens(webserver, technologies):
     if not webserver:
         return webserver
@@ -291,12 +326,24 @@ def strip_redundant_webserver_tokens(webserver, technologies):
 
 def format_technology_label(label):
     label = str(label).strip()
+    bracket = re.match(r"^([^:\[]+)\[(.+)\]$", label)
+    if bracket:
+        label = f"{bracket.group(1)}:{bracket.group(2)}"
+    if ":" in label:
+        name, version = label.split(":", 1)
+        if version.strip().upper() == "N/A":
+            label = name.strip()
     match = re.match(r"^IIS:(.+)$", label, re.IGNORECASE)
     if match:
         return f"IIS:{trim_version(match.group(1))}"
-    if re.match(r"^Nginx(?=:|$|\[)", label, re.IGNORECASE):
+    if re.match(r"^Nginx(?=:|$)", label, re.IGNORECASE):
         return f"nginx{label[5:]}"
     return label
+
+
+def has_version_suffix(label):
+    label = str(label).strip()
+    return ":" in label or "[" in label
 
 
 def merge_technologies(httpx_tech, whatweb_plugins):
@@ -304,6 +351,8 @@ def merge_technologies(httpx_tech, whatweb_plugins):
     httpx_keys = set()
 
     for item in httpx_tech:
+        if is_noise_technology(item):
+            continue
         key = tech_key(item)
         if not key:
             continue
@@ -318,9 +367,9 @@ def merge_technologies(httpx_tech, whatweb_plugins):
         if current is None:
             merged[key] = item
         elif key in httpx_keys:
-            if "[" not in current and ":" not in current and "[" in item:
+            if not has_version_suffix(current) and has_version_suffix(item):
                 merged[key] = item
-        elif "[" in item and "[" not in current:
+        elif has_version_suffix(item) and not has_version_suffix(current):
             merged[key] = item
 
     labels = sorted(
@@ -346,6 +395,7 @@ def host_tech_row(httpx_row, whatweb_row):
     )
     webserver = strip_redundant_webserver_tokens(webserver, technologies)
     technologies = strip_redundant_technology_labels(technologies, webserver)
+    technologies = strip_noise_technology_labels(technologies)
 
     return {
         "status": format_status(status),
