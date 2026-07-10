@@ -1,3 +1,25 @@
+CIDR
+
+
+# Overview
+
+CIDR prefix, netmask, and usable host counts. The Networks column uses legacy classful labels (Class A/B/C) as shorthand — routing today is prefix-based only.
+
+
+# Related Notes
+
+bash.txt                   CIDR validation regex and script snippets
+pwk.txt                    Lab scanning with CIDR targets
+services-ports.txt         Port reference after host discovery
+
+
+# Contents
+
+Prefix Reference, Reserved Networks, Validation / False Positives
+
+
+# Prefix Reference
+
 CIDR    Netmask             Networks           Usable IPs
 /1      128.0.0.0             128 Class As     2,147,483,646
 /2      192.0.0.0              64 Class As     1,073,741,822
@@ -31,14 +53,20 @@ CIDR    Netmask             Networks           Usable IPs
 /30     255.255.255.252      1/64 Class C                  2
 /31     255.255.255.254     1/128 Class C                  2
 /32     255.255.255.255     1/256 Class C                  1
-------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 # Reserved Networks
 
 CIDR               Usable IPs     Comment
-10.0.0.0/8         16,777,214     1 Class A, non-routable private networks
-172.16.0.0/12      1,048,574      16 contiguous Class Bs, non-routable private networks
-192.168.0.0/16     65,534         256 contiguous Class Cs, non-routable private networks
+10.0.0.0/8         16,777,214     RFC 1918 private — 1 Class A
+172.16.0.0/12      1,048,574      RFC 1918 private — 16 contiguous Class Bs
+192.168.0.0/16     65,534         RFC 1918 private — 256 contiguous Class Cs
+169.254.0.0/16     65,534         Link-local (APIPA) when DHCP is unavailable
+127.0.0.0/8        16,777,214     Loopback
 
-169.254.0.0/16     65,534         Self assigned IP when DHCP is not available      
 
+# Validation / False Positives
+
+Usable counts above assume network and broadcast are not assignable (/30 and wider) — /31 and /32 use point-to-point and single-host rules instead.
+Scanning a large CIDR (e.g. /8) from a lab VM is not practical — expand to host list or smaller scope first.
+Private ranges are non-routable on the public internet — still in scope for internal assessments.
