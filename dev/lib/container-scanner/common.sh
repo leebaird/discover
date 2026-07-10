@@ -111,9 +111,11 @@ f_container_docker_available(){
     fi
     if ! docker info >/dev/null 2>>"${CONTAINER_SCAN_LOG:-/dev/null}"; then
         if command -v systemctl >/dev/null 2>&1; then
+            systemctl start containerd 2>/dev/null || sudo systemctl start containerd 2>/dev/null || true
             systemctl start docker 2>/dev/null || sudo systemctl start docker 2>/dev/null || true
             sleep 2
         elif command -v service >/dev/null 2>&1; then
+            service containerd start 2>/dev/null || sudo service containerd start 2>/dev/null || true
             service docker start 2>/dev/null || sudo service docker start 2>/dev/null || true
             sleep 2
         fi

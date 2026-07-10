@@ -137,9 +137,9 @@ fi
 if ! command -v docker &> /dev/null; then
     echo -e "${YELLOW}Installing docker.${NC}"
     apt install -y docker.io
-    systemctl disable docker docker.socket >/dev/null 2>&1 || true
-    systemctl stop docker docker.socket >/dev/null 2>&1 || true
-    echo -e "${YELLOW}Docker installed but not enabled at boot (start manually or via container scanner).${NC}"
+    systemctl disable docker docker.socket containerd >/dev/null 2>&1 || true
+    systemctl stop docker docker.socket containerd >/dev/null 2>&1 || true
+    echo -e "${YELLOW}Docker/containerd installed but not enabled at boot (start manually or via container scanner).${NC}"
     echo
 fi
 
