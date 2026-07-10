@@ -1,36 +1,61 @@
 Consulting
 
 
+# Overview
+
+On-site consulting checklist: field kit, dress, engagement expectations, environment awareness, and client interaction. Professional conduct only — technical depth lives in topic notes.
+
+
+# Related Notes
+
+kali.txt                   VM and tool updates before travel
+macos.txt                  macOS workstation update alias
+
+
+# Contents
+
+Backpack, Dress, Set Expectations, Know Your Environment, Client
+
+
 # Backpack
-     Update your VMs and tools.
-     Power strip and extension chord.
-     4 port switch.
-     25’ CAT6 cable.
-     (2) 6’ CAT6 cables.
-     (2) USB C ethernet adapters.
+
+Update your VMs and tools.
+Power strip and extension cord.
+4 port switch.
+25' CAT6 cable.
+(2) 6' CAT6 cables.
+(2) USB-C to Ethernet adapters.
+
 
 # Dress
-     No hats or sunglasses inside.
-     Shave
-     Long hair should be slicked back in a ponytail.
-     Shirt - pressed button up, one button from the top, tucked in.
-     Pants - pressed, belt, no jeans.
-     Shoes - shined.
 
-# Set expectations up front
-     Number of days.
-     Start, lunch, and stop times.
-     Status updates.
-     Deliverable.
+No hats or sunglasses inside.
+Shave.
+Long hair slicked back in a ponytail.
+Shirt — pressed button-up, one button from the top, tucked in.
+Pants — pressed, belt, no jeans.
+Shoes — shined.
 
-# Know your environment
-     Location of bathroom.
-     People will be watching AND listening.
-     Leave your area clean.
+
+# Set Expectations
+
+Number of days.
+Start, lunch, and stop times.
+Status updates.
+Deliverable.
+
+
+# Know Your Environment
+
+Location of bathroom and cafeteria.
+People will be watching you AND listening.
+Leave your work area clean.
+
 
 # Client
-     Treat them with respect (yes sir, no ma’am).
-     Be responsive.
-     Control the client and the engagement, don’t let them control you.
-     Beware hovering.
-     You are not there to teach.
+
+Treat client with respect (yes sir, no ma'am).
+Be responsive.
+Control the client and the engagement — do not let them control you.
+Beware of hovering.
+You are not there to teach.
