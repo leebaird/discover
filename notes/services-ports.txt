@@ -1,0 +1,100 @@
+Services and Ports
+
+
+# Overview
+
+Default ports organized by technology. TCP/UDP tagged per line for scan planning.
+
+
+# Related Notes
+
+windows.txt                SMB, RDP, and Windows service testing
+linux.txt                  SSH, NFS, and Linux service testing
+macos.txt                  macOS workstation setup
+web-apps.txt               Web recon on HTTP/HTTPS ports
+ssl.txt                    TLS testing on 443 and bulk 443.txt scans
+databases.txt              Database enumeration and auth testing
+smtp.txt                   SMTP and mail-related testing
+active-directory.txt       AD LDAP, DNS SRV, and domain recon
+dns.txt                    DNS enumeration
+
+
+# Windows
+
+NetBIOS       139      TCP
+SMB           445      TCP
+RDP           3389     TCP
+VNC           5900     TCP
+
+NetBIOS       137      UDP
+UPnP          1900     UDP
+
+
+# Linux
+
+FTP           21       TCP
+SSH           22       TCP
+Telnet        23       TCP
+RPC           111      TCP
+CUPS          631      TCP
+SOCKS         1080     TCP
+NFS           2049     TCP
+X11           6000     TCP
+
+NTP           123      UDP
+SNMP          161      UDP
+IKE           500      UDP
+
+
+# macOS
+
+AFP           548      TCP
+ARD           3031     TCP
+mDNS          5353     UDP
+
+
+# Web
+
+HTTP          80       TCP
+HTTPS         443      TCP
+HTTP-alt      8000     TCP
+HTTP-alt      8080     TCP
+HTTP-alt      8888     TCP
+HTTPS-alt     8443     TCP
+
+
+# Database
+
+MS SQL        1433     TCP
+Oracle        1521     TCP
+MySQL         3306     TCP
+Postgres      5432     TCP
+Redis         6379     TCP
+
+MS SQL        1434     UDP
+
+
+# Mail
+
+SMTP          25       TCP
+POP3          110      TCP
+IMAP          143      TCP
+SMTP/S        465      TCP
+Submission    587      TCP
+IMAP/S        993      TCP
+POP3/S        995      TCP
+
+
+# Active Directory
+
+Kerberos      88       TCP
+LDAP          389      TCP
+LDAP/S        636      TCP
+
+Kerberos      88       UDP
+
+
+# Infrastructure
+
+DNS           53       UDP
+DHCP          67       UDP

@@ -8,7 +8,7 @@ Enumerate SNMP community strings, walk MIB trees for host and network intelligen
 
 # Related Notes
 
-nmap-fire.txt            Port scan and script discovery
+services-ports.txt         Port reference — SNMP 161 UDP
 passwords.txt            Wordlists for community brute force
 pwk.txt                  Lab SNMP stubs and alternate wordlists
 linux.txt                Pivot to SSH and web services from SNMP data

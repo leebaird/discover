@@ -11,7 +11,7 @@ Enumerate DNS records, test zone transfers, and probe nameservers for cache snoo
 active-directory.txt     AD SRV records and dnsrecon reverse lookups
 pwk.txt                  Lab DNS scripts and dnsenum
 smtp.txt                 MX record discovery
-nmap-fire.txt            Port 53 scan and nmap DNS scripts
+services-ports.txt       Port reference — DNS 53 UDP
 
 
 # Contents

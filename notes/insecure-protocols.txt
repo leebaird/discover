@@ -10,7 +10,7 @@ Test legacy and cleartext services for weak authentication, missing encryption, 
 
 passwords.txt            Online brute force with hydra
 linux.txt                X11 access detail and xspy compile notes
-nmap-fire.txt            Service discovery scripts
+services-ports.txt         Port reference by technology
 
 
 # Contents
