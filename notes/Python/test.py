@@ -1,25 +1,40 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import os
+import argparse
+import webbrowser
+from time import sleep
 
-os.system("clear")
 
-f = open("tmp","r")                                # Setup a read connection to file
-filedata = f.read()                                # Read the file
-f.close()                                          # Close the connection
-filedata = filedata.split("\n")                    # Turn into a list
+def main():
+    parser = argparse.ArgumentParser(description='Open recon URLs in browser tabs.')
+    parser.add_argument('--domain', required=True, help='target domain')
+    parser.add_argument('--company', required=True, help='target company name')
+    parser.add_argument('--delay', type=float, default=2, help='seconds between tabs')
+    args = parser.parse_args()
 
-##############################
+    urls_domain = [
+        'https://api.hackertarget.com/dnslookup/?q=',
+        'https://api.hackertarget.com/reversedns/?q=',
+        'https://api.hackertarget.com/pagelinks/?q=',
+        'https://seositecheckup.com/seo-audit/',
+        'http://viewdns.info/reversewhois/?q=',
+        'http://viewdns.info/dnsreport/?domain=',
+        'http://www.spyonweb.com/'
+    ]
 
-out = []                                           # Create an empty array
+    urls_company = [
+        'https://censys.io/ipv4?q=',
+        'https://www.shodan.io/search?query='
+    ]
 
-for i in filedata:
-     if "@" in i:                                  # grep '@'
-          if not "apples" in i:                    # grep -v 'apples'
-               out.append(i.lower())               # Append to array and change to lower case
+    for url in urls_domain:
+        webbrowser.open_new_tab(url + args.domain)
+        sleep(args.delay)
 
-out = list(set(out))                               # Make list unique
-out.sort()                                         # Sort
+    for url in urls_company:
+        webbrowser.open_new_tab(url + args.company)
+        sleep(args.delay)
 
-for j in out:
-     print j
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,2 @@
+# Optional dependencies for examples in python.txt (install inside a venv)
+requests>=2.28.0

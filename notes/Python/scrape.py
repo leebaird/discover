@@ -1,40 +1,29 @@
 #!/usr/bin/env python3
 
-import sys
-import webbrowser
-from time import sleep
+import argparse
+import os
 
 
 def main():
-    company = 'Google'
-    domain = 'google.com'
+    parser = argparse.ArgumentParser(description='Filter lines from a file, dedupe, and sort.')
+    parser.add_argument('file', help='input file path')
+    parser.add_argument('--match', default='@', help='substring required in line')
+    parser.add_argument('--exclude', default='apples', help='substring that excludes a line')
+    args = parser.parse_args()
 
-    # Add only URL's that take the domain URL
-    urls_domain = [
-        'https://api.hackertarget.com/dnslookup/?q=',
-        'https://api.hackertarget.com/reversedns/?q=',
-        'https://api.hackertarget.com/pagelinks/?q=',
-        'https://seositecheckup.com/seo-audit/',
-        'http://viewdns.info/reversewhois/?q=',
-        'http://viewdns.info/dnsreport/?domain=',
-        'http://www.spyonweb.com/'
-    ]
+    os.system('clear')
 
-    # Add only URL's that take the company name
-    urls_company = [
-        'https://censys.io/ipv4?q=',
-        'https://www.shodan.io/search?query='
-    ]
+    with open(args.file, 'r') as f:
+        filedata = f.read().split('\n')
 
-    for url in urls_domain:
-        webbrowser.open_new_tab(url + domain)
-        sleep(2)
+    out = []
+    for line in filedata:
+        if args.match in line and args.exclude not in line:
+            out.append(line.lower())
 
-    for comp in urls_company:
-        webbrowser.open_new_tab(comp + company)
-        sleep(2)
+    for line in sorted(set(out)):
+        print(line)
 
 
 if __name__ == '__main__':
     main()
-    sys.exit(0)
