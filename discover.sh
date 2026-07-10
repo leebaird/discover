@@ -341,11 +341,13 @@ f_update(){
         echo -e "${BLUE}Updating theHarvester.${NC}"
         cd "$HOME/theHarvester" || exit ; git pull
         uv sync
+        echo
     else
         echo -e "${YELLOW}Installing theHarvester.${NC}"
         git clone https://github.com/laramies/theHarvester "$HOME/theHarvester"
         cd "$HOME/theHarvester" || exit
         uv sync
+        echo
     fi
 
     sudo "$MISC_DIR/update.sh"

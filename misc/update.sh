@@ -44,7 +44,6 @@ EOF
 
 f_disable_auto_updates
 
-echo
 echo -e "${BLUE}Updating the operating system.${NC}"
 apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
 echo
