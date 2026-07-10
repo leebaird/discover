@@ -13,7 +13,7 @@ active-directory.txt     dsquery and on-domain enumeration
 ad-attacks.txt           Kerberoasting, DCSync, and ACL abuse
 windows-lateral.txt      Movement after creds and share access
 windows-credentials.txt  Mimikatz and hash handling
-Cobalt-Strike.txt        Beacon powerpick PowerView equivalents
+cobalt-strike.txt        Beacon powerpick PowerView equivalents
 
 
 # Contents
