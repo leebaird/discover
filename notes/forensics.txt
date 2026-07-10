@@ -1,113 +1,174 @@
 Forensics
 
 
-# IDE hard drive naming conventions
+# Overview
 
-hda          primary master IDE 
-hdb          primary slave IDE 
-hdc          secondary master IDE 
-hdd          secondary slave IDE
-------------------------------------------------------------------------------------------------------------------------------------------------------
+Disk imaging, partition naming, and legacy BackTrack/Kali forensic tool workflows (dd, Autopsy, pasco, vinetto, magicrescue). Use read-only mounts and authorized evidence handling only.
 
-# SCSI, USB, or SATA hard drive naming conventions 
 
-sda          1st
-sdb          2nd
-sde          5th
-sdz          26th
-------------------------------------------------------------------------------------------------------------------------------------------------------
+# Related Notes
 
-# Partition and logical drive numbering 
+linux.txt                  fdisk, mount, and dd fundamentals
+bash.txt                   find, split, and shell one-liners
+kali.txt                   VM setup and tooling paths
+metasploit.txt             timestomp and timeline integrity caveats
 
-1–4          Partitions, primary or extended 
-5 and up     Logical drives
 
-Examples 
-hda3         Primary IDE master, 3rd partition 
-hdd4         Secondary IDE slave, 4th partition 
-hdc5         Secondary IDE master, 1st logical partition 
-sdb9         Second SCSI device, 5th logical partition 
+# Contents
 
-bt nohd      Mount NTFS partitions in read only mode at startup
-fdisk -l     Show info about hard drive and partitions
-------------------------------------------------------------------------------------------------------------------------------------------------------
- 
-# Imaging a hard drive with dd
+Drive Naming, Partition Numbering, Imaging with dd, Autopsy, pasco index.dat,
+vinetto Thumbs.db, magicrescue JPEG Recovery, Validation / False Positives
 
-1. Turn the computer on and enter the BIOS. 
-2. Verify that the CD/DVD-ROM drive is the ﬁrst device in the boot order. 
-3. Boot to Backtrack with the bt nohd option at the boot prompt.  
-4. Open a terminal session. 
-5. Type fdisk –l. You will see the drive letter and numbering designation of the source disk.
-     This is most likely hda1 for a single IDE drive with one partition.
-6. Mount the drive as read only: 
-     cd /mnt 
-     mkdir hda1 
-     mount –o ro /dev/hda1 /mnt/hda1 
-7. Plug in a USB drive.
-8. Type fdisk –l again. You should see a new, added drive letter and partition, most likely sda1. 
-     This is your destination disk. Mount this drive as read/write: 
-       cd /mnt 
-       mkdir sda1 
-       mount -o rw /dev/sda1 /mnt/sda1 
-9. Type mount to verify that the device is mounted properly as read/write. 
-10. cd /mnt/sda1 (or whatever the designation for your destination disk was after step 9). 
-11. mkdir backup
-12. cd backup
-13. dd if=/dev/hda bs=512 conv=sync,noerror | split -b 640 m – hd.img
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# View a dd image with Autopsy
+# Drive Naming
 
-1. Connect the external drive with the dd image. 
-2. K > Backtrack > Digital Forensics > Forensic Analysis > Autopsy 
-3. Open Firefox > http://localhost:9999/autopsy
-4. Open Case > New Case
-5. Enter a description and investigator > New Case > Add Host
-6. Enter descriptive info > Add Host > Add Image  
-     The external drive will probably be /mnt/sda1/BackTrack/hd.img∗
-7. Select Disk or Partition > Default import method: Symlink > Next 
-8. Verify all parts > Next
-9. Calculate the hash value for this image. 
-10. Under partition 1, note the mount point and ﬁle system type > Add > OK
-11. C:/ > Analyze > File Analysis
-------------------------------------------------------------------------------------------------------------------------------------------------------
+## IDE (legacy)
 
-# Using pasco to read index.dat files
+hda         primary master IDE
+hdb         primary slave IDE
+hdc         secondary master IDE
+hdd         secondary slave IDE
 
-1. ﬁnd / -name index.dat 
-2. pasco full path to the ﬁle in quotes: 
-     pasco “/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat” 
-3. Separate the output into comma-delimited format: 
-     pasco –t , “/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat” 
-4. Try to extract more info: 
-     pasco –d “/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat” 
-5. Redirect output to a text ﬁle: 
-     pasco “/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat” > browser.txt
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Using Vinetto to extract thumbnail files
+# SCSI USB SATA Naming
 
-1. Connect a USB drive. 
-2. K > Backtrack > Digital Forensics > Forensic Analysis > Vinetto 
-3. find / -name Thumbs.db 
-4. vinetto –o “/mnt/hda1/Documents and Settings/Administrator/My Documents/My Pictures/Thumbs.db”
-5. Type vinetto –o to extract the pictures within the thumbnail files. Make a directory on your removable drive 
-     mkdir /mnt/sda1/thumbs
-     vinetto –o /mnt/sda1/thumbs “/mnt/hda1/Documents and Settings/Administrator/My Documents/My Pictures/Thumbs.db” 
-6. HTML report to go along with the extracted pictures.
-     vinetto –oH /mnt/sda1/thumbs “/mnt/ hda1/Documents and Settings/Administrator/My Documents/My Pictures/Thumbs.db”
-------------------------------------------------------------------------------------------------------------------------------------------------------
+sda         1st
+sdb         2nd
+sde         5th
+sdz         26th
 
-# Using Magicrescue to Find JPEG Files on a USB Thumb Drive 
 
-1. Open a terminal: 
-     cd /usr/local/share/magicrescue/recipes 
-     ls 
-     This will list 13 predeﬁ ned recipe ﬁ les for the Magicrescue program. 
-2. Insert a USB thumb drive: 
-     fdisk –l (Should be /dev/sda1) 
-     mkdir foundﬁles 
-3. magicrescue –r jpeg-jﬁf foundﬁles /dev/sda1 (or whatever device name is) 
-4. cd foundﬁles && ls 
-5. kolorpaint name of jpg ﬁle.jpg
+# Partition Numbering
+
+## Overview
+
+1–4          partitions, primary or extended
+5 and up     logical drives
+
+Examples:
+    hda3       primary IDE master, 3rd partition
+    hdd4       secondary IDE slave, 4th partition
+    hdc5       secondary IDE master, 1st logical partition
+    sdb9       second SCSI device, 5th logical partition
+
+## Commands
+
+bt nohd                      mount NTFS read-only at BackTrack/Kali boot
+fdisk -l                     show disk and partition info
+
+
+# Imaging with dd
+
+## Overview
+
+Boot read-only, image source disk to USB destination in split chunks. Legacy single-IDE example uses hda1 → sda1.
+
+## Commands
+
+1. Enter BIOS — CD/DVD first in boot order
+2. Boot BackTrack/Kali with bt nohd at boot prompt
+3. Identify source:
+    fdisk -l
+4. Mount source read-only:
+    cd /mnt
+    mkdir hda1
+    mount -o ro /dev/hda1 /mnt/hda1
+5. Plug in USB destination drive
+6. Identify destination:
+    fdisk -l
+7. Mount destination read/write:
+    cd /mnt
+    mkdir sda1
+    mount -o rw /dev/sda1 /mnt/sda1
+    mount
+8. Image to split files:
+    cd /mnt/sda1
+    mkdir backup && cd backup
+    dd if=/dev/hda bs=512 conv=sync,noerror | split -b 640m - hd.img
+
+
+# Autopsy
+
+## Overview
+
+View dd image in Autopsy browser UI. Menu paths are legacy BackTrack — on Kali use autopsy package or Sleuth Kit equivalent.
+
+## Commands
+
+1. Connect external drive with dd image
+2. Launch Autopsy (legacy: K > Backtrack > Digital Forensics > Forensic Analysis > Autopsy)
+3. Firefox > http://localhost:9999/autopsy
+4. Open Case > New Case — enter description and investigator
+5. New Case > Add Host — enter host info
+6. Add Host > Add Image — e.g. /mnt/sda1/BackTrack/hd.img*
+7. Select Disk or Partition > Default import: Symlink > Next
+8. Verify all parts > Next
+9. Calculate image hash
+10. Under partition 1, note mount point and filesystem > Add > OK
+11. C:/ > Analyze > File Analysis
+
+
+# pasco index.dat
+
+## Overview
+
+Parse Internet Explorer index.dat URL history from mounted image paths.
+
+## Commands
+
+    find / -name index.dat
+
+    pasco "/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat"
+    pasco -t , "/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat"
+    pasco -d "/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat"
+    pasco "/mnt/hda1/Documents and Settings/Administrator/UserData/index.dat" > browser.txt
+
+
+# vinetto Thumbs.db
+
+## Overview
+
+Extract thumbnails from Windows Thumbs.db. Legacy menu: K > Backtrack > Digital Forensics > Forensic Analysis > Vinetto.
+
+## Commands
+
+    find / -name Thumbs.db
+
+    vinetto -o "/mnt/hda1/Documents and Settings/Administrator/My Documents/My Pictures/Thumbs.db"
+
+    mkdir /mnt/sda1/thumbs
+    vinetto -o /mnt/sda1/thumbs "/mnt/hda1/Documents and Settings/Administrator/My Documents/My Pictures/Thumbs.db"
+
+HTML report with extracted pictures:
+    vinetto -oH /mnt/sda1/thumbs "/mnt/hda1/Documents and Settings/Administrator/My Documents/My Pictures/Thumbs.db"
+
+
+# magicrescue JPEG Recovery
+
+## Overview
+
+Carve JPEG files from a USB device using predefined recipes.
+
+## Commands
+
+    cd /usr/local/share/magicrescue/recipes
+    ls
+
+Insert USB thumb drive:
+    fdisk -l
+    mkdir foundfiles
+
+    magicrescue -r jpeg-jfif foundfiles /dev/sda1
+    cd foundfiles && ls
+
+View recovered image:
+    kolorpaint <file>.jpg
+
+
+# Validation / False Positives
+
+Always mount evidence read-only (bt nohd or mount -o ro) before imaging — writes destroy forensic integrity.
+fdisk -l device names vary by machine (NVMe /dev/nvme0n1, USB /dev/sdb1) — verify before dd, not assumed hda1/sda1.
+split -b 640m requires lowercase m on modern coreutils — 640 m was legacy split syntax.
+Autopsy, pasco, and vinetto menu paths target BackTrack — on current Kali confirm package install and paths.
+magicrescue output is carved data, not file-system metadata — false JPEG headers are common; verify with file or viewer.
