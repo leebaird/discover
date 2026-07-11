@@ -1,7 +1,7 @@
 (function () {
     var IPV4_RE = /^(\d{1,3}\.){3}\d{1,3}$/;
     var SRV_VALUE_RE = /→\s*([^:\s]+)(?::\d+)?\s*$/;
-    var SORT_TYPE_ORDER = { ipv4: 0, ipv6: 1, text: 2 };
+    var SORT_TYPE_ORDER = { ipv4: 0, ipv6: 1, integer: 2, text: 3 };
 
     function isIPv4(value) {
         if (!IPV4_RE.test(value)) {
@@ -111,9 +111,27 @@
         return 0;
     }
 
+    function parseInteger(value) {
+        var normalized = value.trim().replace(/,/g, '');
+
+        if (/^\d+$/.test(normalized)) {
+            return parseInt(normalized, 10);
+        }
+
+        return null;
+    }
+
     function sortKey(value) {
         var candidate = value.trim();
+        var integerValue = parseInteger(candidate);
         var srvMatch = candidate.match(SRV_VALUE_RE);
+
+        if (integerValue !== null) {
+            return {
+                type: 'integer',
+                value: integerValue
+            };
+        }
 
         if (srvMatch) {
             candidate = srvMatch[1];
@@ -151,6 +169,10 @@
 
         if (aKey.type === 'ipv6') {
             return compareParts([aKey.parts, bKey.parts], 8);
+        }
+
+        if (aKey.type === 'integer') {
+            return aKey.value - bKey.value;
         }
 
         return aKey.text.localeCompare(bKey.text, undefined, { sensitivity: 'base' });
@@ -225,8 +247,17 @@
         var tiebreakers = getTiebreakerCols(table, colIndex);
         var rows = Array.prototype.slice.call(tbody.rows);
         rows.sort(function (a, b) {
-            var aVal = a.cells[colIndex].textContent.trim();
-            var bVal = b.cells[colIndex].textContent.trim();
+            var aCell = a.cells[colIndex];
+            var bCell = b.cells[colIndex];
+            var aSortLast = aCell && aCell.hasAttribute('data-sort-last');
+            var bSortLast = bCell && bCell.hasAttribute('data-sort-last');
+
+            if (aSortLast !== bSortLast) {
+                return aSortLast ? 1 : -1;
+            }
+
+            var aVal = aCell.textContent.trim();
+            var bVal = bCell.textContent.trim();
             var cmp = compareValues(aVal, bVal);
 
             if (cmp !== 0) {
@@ -276,14 +307,7 @@
         if (defaultCol !== null) {
             state.col = parseInt(defaultCol, 10);
             state.dir = parseInt(table.getAttribute('data-default-dir') || '1', 10);
-        } else if (
-            table.closest('.inc-subdomains-tables') ||
-            table.closest('.inc-registered-domains-page') ||
-            table.closest('.inc-squatting-page') ||
-            table.closest('.inc-emails-page') ||
-            table.closest('.inc-names-page') ||
-            table.closest('.inc-records-page')
-        ) {
+        } else if (headers.length > 0) {
             state.col = 0;
             state.dir = 1;
         }

@@ -504,14 +504,13 @@ summary = active_tech.build_active_summary(
     httpx_path,
     whatweb_path,
 )
+scan_date = active_tech.httpx_scan_date(httpx_path)
 
-with open(page_path, "a") as handle:
-    handle.write(summary + "\n")
-    handle.write("</pre>\n")
-    handle.write("    </div>\n")
-    handle.write("</div>\n\n")
-    handle.write("</body>\n")
-    handle.write("</html>\n")
+content = open(page_path, encoding="utf-8").read()
+content = content.replace("#ACTIVE_CONTENT#", summary)
+content = content.replace("#ACTIVE_SCAN_DATE#", scan_date)
+with open(page_path, "w", encoding="utf-8") as handle:
+    handle.write(content)
 PY
 
     f_active_report_substitute_placeholders "$page" "$report_dir/index.htm"

@@ -327,6 +327,89 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     background-color: rgba(34, 100, 214, 0.08);
 }
 
+.inc-active-page.container.inc-container-dynamic {
+    width: 100%;
+    max-width: 100%;
+}
+
+.inc-active-page .inc-active-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space);
+    align-items: start;
+    width: 100%;
+    margin-top: calc(var(--space) * 2);
+}
+
+.inc-active-page .inc-active-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    min-width: 0;
+}
+
+.inc-page-header--active,
+.inc-page-header--passive {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space);
+}
+
+.inc-page-header--active h1,
+.inc-page-header--passive h1 {
+    margin: 0;
+}
+
+.inc-page-header--active .inc-active-scan-date,
+.inc-page-header--passive .inc-passive-scan-date {
+    color: var(--text-bright);
+    font-size: 15px;
+    white-space: nowrap;
+    margin-left: auto;
+}
+
+.inc-page-header--active .inc-active-scan-date:empty,
+.inc-page-header--passive .inc-passive-scan-date:empty {
+    display: none;
+}
+
+.inc-active-page .inc-active-section {
+    margin-bottom: 0;
+}
+
+.inc-active-page .inc-active-section--technologies {
+    margin-top: calc(var(--space-lg) + 4px);
+}
+
+.inc-active-page .inc-active-section-title {
+    color: var(--accent-hover);
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 var(--space-xs);
+    text-align: center;
+}
+
+.inc-active-page .inc-active-section .inc-content-frame--table {
+    margin-bottom: 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+.inc-active-page .inc-active-column .inc-data-table {
+    width: 100%;
+}
+
+.inc-active-page .inc-active-column .inc-content-frame--table table.inc-data-table > thead > tr > th,
+.inc-active-page .inc-active-column .inc-content-frame--table table.inc-data-table > tbody > tr > td {
+    padding: 8px 12px;
+}
+
+.inc-active-page .inc-data-table > thead > tr > th.inc-col-center,
+.inc-active-page .inc-data-table > tbody > tr > td.inc-col-center {
+    text-align: center;
+}
+
 .inc-data-body {
     margin: 0;
     padding: var(--space);

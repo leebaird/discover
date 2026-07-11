@@ -1,3 +1,4 @@
+import html
 import json
 import os
 import re
@@ -417,11 +418,6 @@ def load_host_tech(httpx_path, whatweb_path):
 
 IPV4_RE = re.compile(r"^(\d{1,3}\.){3}\d{1,3}$")
 STATUS_CODE_ORDER = (200, 301, 303, 403, 302, 404, 503)
-SECTION_RULE = "=" * 40
-
-
-def report_heading(text):
-    return f'<span class="inc-report-heading">{text}</span>'
 
 
 def is_private_ip(ip):
@@ -500,18 +496,66 @@ def httpx_scan_date(path):
     return ""
 
 
-def stat_line(label, value):
-    return f"{label:<32}{value:>6,}"
+def format_count(value):
+    return f"{value:,}"
 
 
-def section_counts(counter, limit=None):
-    items = counter.most_common(limit)
-    lines = [stat_line(label, count) for label, count in items]
+def summary_table(title, label_header, rows, sort_last_labels=None, section_class=""):
+    sort_last_labels = set(sort_last_labels or [])
+    class_names = "inc-active-section"
+    if section_class:
+        class_names = f"{class_names} {section_class}"
+    lines = [
+        f'    <section class="{class_names}">',
+        f'        <h3 class="inc-active-section-title">{html.escape(title)}</h3>',
+        '        <div class="inc-content-frame inc-content-frame--table">',
+        '        <table class="table table-bordered inc-data-table">',
+        "            <thead>",
+        "                <tr>",
+        f'                    <th scope="col" class="inc-sortable">{html.escape(label_header)}</th>',
+        '                    <th scope="col" class="inc-sortable inc-col-center">Count</th>',
+        "                </tr>",
+        "            </thead>",
+        "            <tbody>",
+    ]
+
+    for label, count in rows:
+        sort_last_attr = ' data-sort-last' if label in sort_last_labels else ""
+        lines.append(
+            "                <tr>"
+            f"<td{sort_last_attr}>{html.escape(label)}</td>"
+            f'<td class="inc-col-center">{format_count(count)}</td>'
+            "</tr>"
+        )
+
+    lines.extend(
+        [
+            "            </tbody>",
+            "        </table>",
+            "        </div>",
+            "    </section>",
+        ]
+    )
     return lines
 
 
-def section_block(title, body_lines):
-    return [report_heading(title), SECTION_RULE, *body_lines]
+def active_grid(columns):
+    lines = ['    <div class="inc-active-grid">']
+
+    for sections in columns:
+        lines.append('        <div class="inc-active-column">')
+        for index, section in enumerate(sections):
+            if index:
+                lines.append("")
+            lines.extend(section)
+        lines.append("        </div>")
+
+    lines.append("    </div>")
+    return lines
+
+
+def counter_rows(counter, limit=None):
+    return list(counter.most_common(limit))
 
 
 def webserver_label(value):
@@ -571,49 +615,60 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
     technology_counter = Counter(technology_counts)
     status_counter = Counter(status_counts)
 
-    scan_date = httpx_scan_date(httpx_path)
-    lines = [report_heading("Active Recon")]
-    if scan_date:
-        lines.append(scan_date)
-    lines.append("#COMPANY#")
-    lines.append("#DOMAIN#")
-    lines.append("")
-    lines.append("")
+    alive_count = sum(status_counter.values())
+    lines = []
+
+    status_rows = [
+        (str(code), status_counter.get(code, 0)) for code in STATUS_CODE_ORDER
+    ]
+    for code in sorted(status_counter):
+        if code not in STATUS_CODE_ORDER:
+            status_rows.append((str(code), status_counter[code]))
 
     lines.extend(
-        section_block(
-            "Scope",
+        active_grid(
             [
-                stat_line("Public subdomains", len(public_rows)),
-                stat_line("Private subdomains (not probed)", private_count),
-            ],
+                [
+                    summary_table(
+                        "Scope",
+                        "Metric",
+                        [
+                            ("Public subdomains", len(public_rows)),
+                            ("Private subdomains", private_count),
+                            ("Alive hosts", alive_count),
+                        ],
+                    ),
+                ],
+                [
+                    summary_table(
+                        "Alive by category",
+                        "Category",
+                        counter_rows(category_counter),
+                        sort_last_labels={"(none)"},
+                    ),
+                ],
+                [
+                    summary_table(
+                        "Status codes (alive hosts)",
+                        "Status Code",
+                        status_rows,
+                    ),
+                ],
+                [
+                    summary_table(
+                        "Top web servers",
+                        "Web Server",
+                        counter_rows(webserver_counter, 5),
+                    ),
+                    summary_table(
+                        "Top technologies",
+                        "Technology",
+                        counter_rows(technology_counter, 6),
+                        section_class="inc-active-section--technologies",
+                    ),
+                ],
+            ]
         )
     )
-    lines.append("")
-
-    lines.extend(
-        section_block("Alive by category", section_counts(category_counter))
-    )
-    lines.append("")
-
-    lines.extend(
-        section_block("Top web servers", section_counts(webserver_counter, 5))
-    )
-    lines.append("")
-
-    lines.extend(
-        section_block("Top technologies", section_counts(technology_counter, 6))
-    )
-    lines.append("")
-
-    status_lines = []
-    known_total = 0
-    for code in STATUS_CODE_ORDER:
-        count = status_counter.get(code, 0)
-        known_total += count
-        status_lines.append(stat_line(str(code), count))
-    other = sum(status_counter.values()) - known_total
-    status_lines.append(stat_line("Other", other))
-    lines.extend(section_block("Status codes (alive hosts)", status_lines))
 
     return "\n".join(lines)

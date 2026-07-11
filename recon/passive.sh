@@ -1445,11 +1445,6 @@ PY
 f_report() {
     PASSIVE_DATE=$(f_passive_scan_date)
     {
-        f_report_heading "Passive Recon"
-        echo "$PASSIVE_DATE"
-        echo "#COMPANY#"
-        echo "#DOMAIN#"
-        echo
         f_report_heading "Summary"
         echo "$SMALL"
     } > zreport
@@ -1617,6 +1612,10 @@ else
 fi
 
     f_report_append_pre_page zreport "$HOME"/data/"$DOMAIN"/pages/passive.htm
+    if [ -n "$PASSIVE_DATE" ]; then
+        PASSIVE_DATE_SED=$(f_sed_replacement_escape "$PASSIVE_DATE")
+        sed -i "s|#PASSIVE_SCAN_DATE#|$PASSIVE_DATE_SED|" "$HOME"/data/"$DOMAIN"/pages/passive.htm
+    fi
     f_report_substitute_placeholders \
         "$HOME/data/$DOMAIN/pages/passive.htm" \
         "$HOME/data/$DOMAIN/index.htm"
