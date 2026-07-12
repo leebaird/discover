@@ -155,33 +155,47 @@ body.inc-home-page {
     z-index: 1;
 }
 
-.inc-data-table th.inc-sortable {
+.inc-data-table .inc-sortable {
     cursor: pointer;
     user-select: none;
     white-space: nowrap;
 }
 
-.inc-data-table th.inc-sortable:hover {
+.inc-data-table th.inc-sortable {
+    white-space: nowrap;
+}
+
+.inc-data-table .inc-sortable:hover {
     color: var(--text-bright);
 }
 
-.inc-data-table th.inc-sortable::after {
+.inc-data-table .inc-sortable::after {
     content: '↕';
     margin-left: 6px;
     font-size: 11px;
     opacity: 0.35;
 }
 
-.inc-data-table th.inc-sort-asc::after {
+.inc-data-table .inc-sortable.inc-sort-asc::after {
     content: '▲';
     opacity: 1;
     color: var(--accent-hover);
 }
 
-.inc-data-table th.inc-sort-desc::after {
+.inc-data-table .inc-sortable.inc-sort-desc::after {
     content: '▼';
     opacity: 1;
     color: var(--accent-hover);
+}
+
+.inc-data-table th.inc-subdomain-title-tech-header {
+    white-space: normal;
+    vertical-align: bottom;
+    line-height: 1.35;
+}
+
+.inc-data-table th.inc-subdomain-title-tech-header .inc-sortable {
+    display: block;
 }
 
 .inc-content-frame--table table.inc-data-table > thead > tr > th,
@@ -317,6 +331,16 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     word-break: normal;
     overflow-wrap: break-word;
     vertical-align: top;
+    line-height: 1.35;
+}
+
+.inc-subdomains-public .inc-data-table > tbody > tr > td.inc-subdomain-tech .inc-subdomain-title {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.inc-subdomains-public .inc-data-table > tbody > tr > td.inc-subdomain-tech .inc-subdomain-techs {
+    color: inherit;
 }
 
 .inc-data-table tbody tr:nth-child(even) {

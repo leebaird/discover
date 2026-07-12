@@ -194,16 +194,57 @@
         return compareSortKeys(sortKey(aVal), sortKey(bVal));
     }
 
-    function getTiebreakerCols(table, colIndex) {
-        var headers = table.querySelectorAll('thead th.inc-sortable');
-        var header = headers[colIndex];
-        var attr;
+    function getSortables(table) {
+        return table.querySelectorAll('thead .inc-sortable');
+    }
 
-        if (!header) {
-            return null;
+    function getSortCol(sortableEl) {
+        var attr = sortableEl.getAttribute('data-sort-col');
+        var th;
+
+        if (attr !== null && attr !== '') {
+            return parseInt(attr, 10);
         }
 
-        attr = header.getAttribute('data-sort-then');
+        if (sortableEl.tagName === 'TH') {
+            return sortableEl.cellIndex;
+        }
+
+        th = sortableEl.closest('th');
+        return th ? th.cellIndex : -1;
+    }
+
+    function getSortField(sortableEl) {
+        return sortableEl.getAttribute('data-sort-field') || '';
+    }
+
+    function getCellSortValue(cell, sortField) {
+        var fieldEl;
+        var value;
+
+        if (!cell) {
+            return '';
+        }
+
+        if (sortField) {
+            fieldEl = cell.querySelector('[data-sort-field="' + sortField + '"]');
+            if (!fieldEl) {
+                return '';
+            }
+            value = fieldEl.textContent.trim();
+            // Placeholder dash sorts with empty values (last).
+            if (value === '-') {
+                return '';
+            }
+            return value;
+        }
+
+        return cell.textContent.trim();
+    }
+
+    function getTiebreakerCols(sortableEl) {
+        var attr = sortableEl.getAttribute('data-sort-then');
+
         if (!attr) {
             return null;
         }
@@ -238,13 +279,12 @@
         return 0;
     }
 
-    function sortTable(table, colIndex, dir) {
+    function sortTable(table, colIndex, dir, sortField, tiebreakers) {
         var tbody = table.tBodies[0];
-        if (!tbody) {
+        if (!tbody || colIndex < 0) {
             return;
         }
 
-        var tiebreakers = getTiebreakerCols(table, colIndex);
         var rows = Array.prototype.slice.call(tbody.rows);
         rows.sort(function (a, b) {
             var aCell = a.cells[colIndex];
@@ -256,8 +296,8 @@
                 return aSortLast ? 1 : -1;
             }
 
-            var aVal = aCell.textContent.trim();
-            var bVal = bCell.textContent.trim();
+            var aVal = getCellSortValue(aCell, sortField);
+            var bVal = getCellSortValue(bCell, sortField);
             var cmp = compareValues(aVal, bVal);
 
             if (cmp !== 0) {
@@ -287,55 +327,82 @@
         });
     }
 
-    function updateHeaders(table, activeCol, dir) {
-        var headers = table.querySelectorAll('thead th.inc-sortable');
-        headers.forEach(function (th, index) {
-            th.classList.remove('inc-sort-asc', 'inc-sort-desc');
-            th.removeAttribute('aria-sort');
-            if (index === activeCol) {
-                th.classList.add(dir === 1 ? 'inc-sort-asc' : 'inc-sort-desc');
-                th.setAttribute('aria-sort', dir === 1 ? 'ascending' : 'descending');
-            }
+    function updateHeaders(table, activeEl, dir) {
+        getSortables(table).forEach(function (el) {
+            el.classList.remove('inc-sort-asc', 'inc-sort-desc');
+            el.removeAttribute('aria-sort');
         });
+
+        if (activeEl) {
+            activeEl.classList.add(dir === 1 ? 'inc-sort-asc' : 'inc-sort-desc');
+            activeEl.setAttribute('aria-sort', dir === 1 ? 'ascending' : 'descending');
+        }
     }
 
     function initTable(table) {
-        var state = { col: -1, dir: 1 };
-        var headers = table.querySelectorAll('thead th.inc-sortable');
+        var state = { el: null, col: -1, field: '', dir: 1 };
+        var headers = getSortables(table);
         var defaultCol = table.getAttribute('data-default-col');
+        var defaultSortable = null;
 
         if (defaultCol !== null) {
             state.col = parseInt(defaultCol, 10);
             state.dir = parseInt(table.getAttribute('data-default-dir') || '1', 10);
+            headers.forEach(function (el) {
+                if (!defaultSortable && getSortCol(el) === state.col && !getSortField(el)) {
+                    defaultSortable = el;
+                }
+            });
+            if (!defaultSortable) {
+                headers.forEach(function (el) {
+                    if (!defaultSortable && getSortCol(el) === state.col) {
+                        defaultSortable = el;
+                    }
+                });
+            }
         } else if (headers.length > 0) {
-            state.col = 0;
+            defaultSortable = headers[0];
+            state.col = getSortCol(defaultSortable);
+            state.field = getSortField(defaultSortable);
             state.dir = 1;
         }
 
-        if (state.col >= 0 && !isNaN(state.col) && state.col < headers.length) {
-            sortTable(table, state.col, state.dir);
-            updateHeaders(table, state.col, state.dir);
+        if (defaultSortable && state.col >= 0 && !isNaN(state.col)) {
+            state.el = defaultSortable;
+            state.field = getSortField(defaultSortable);
+            sortTable(table, state.col, state.dir, state.field, getTiebreakerCols(defaultSortable));
+            updateHeaders(table, state.el, state.dir);
         }
 
-        headers.forEach(function (th, colIndex) {
-            th.setAttribute('role', 'button');
-            th.setAttribute('tabindex', '0');
+        headers.forEach(function (el) {
+            el.setAttribute('role', 'button');
+            el.setAttribute('tabindex', '0');
 
             function activate() {
-                if (state.col === colIndex) {
+                var col = getSortCol(el);
+                var field = getSortField(el);
+
+                if (state.el === el) {
                     state.dir *= -1;
                 } else {
-                    state.col = colIndex;
+                    state.el = el;
+                    state.col = col;
+                    state.field = field;
                     state.dir = 1;
                 }
-                sortTable(table, colIndex, state.dir);
-                updateHeaders(table, state.col, state.dir);
+
+                sortTable(table, col, state.dir, field, getTiebreakerCols(el));
+                updateHeaders(table, state.el, state.dir);
             }
 
-            th.addEventListener('click', activate);
-            th.addEventListener('keydown', function (event) {
+            el.addEventListener('click', function (event) {
+                event.stopPropagation();
+                activate();
+            });
+            el.addEventListener('keydown', function (event) {
                 if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
+                    event.stopPropagation();
                     activate();
                 }
             });

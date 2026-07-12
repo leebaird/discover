@@ -354,6 +354,18 @@ def photo_cell(subdomain, photo_hosts):
         return ""
     return f'<a href="{html.escape(href)}" target="_blank">Yes</a>'
 
+def tech_cell(title, technologies):
+    title_text = title.strip() if title else ""
+    if not title_text:
+        title_text = "-"
+    tech_title = f' title="{html.escape(technologies)}"' if technologies else ""
+    return (
+        f'<td class="inc-subdomain-tech">'
+        f'<div class="inc-subdomain-title" data-sort-field="title">{html.escape(title_text)}</div>'
+        f'<div class="inc-subdomain-techs" data-sort-field="tech"{tech_title}>{html.escape(technologies)}</div>'
+        f"</td>"
+    )
+
 def build_public_table(rows, photo_hosts, host_tech, empty_message, ip_header="IP Address"):
     lines = [
         '        <table class="table table-bordered inc-data-table">',
@@ -365,7 +377,10 @@ def build_public_table(rows, photo_hosts, host_tech, empty_message, ip_header="I
         '                    <th scope="col" class="inc-sortable inc-col-center" data-sort-then="4,5">Photo</th>',
         '                    <th scope="col" class="inc-sortable inc-col-center">Status</th>',
         '                    <th scope="col" class="inc-sortable">Web Server</th>',
-        '                    <th scope="col" class="inc-sortable">Technologies</th>',
+        '                    <th scope="col" class="inc-subdomain-title-tech-header">',
+        '                        <span class="inc-sortable" data-sort-field="title">Title</span>',
+        '                        <span class="inc-sortable" data-sort-field="tech">Technologies</span>',
+        "                    </th>",
         "                </tr>",
         "            </thead>",
         "            <tbody>",
@@ -377,8 +392,8 @@ def build_public_table(rows, photo_hosts, host_tech, empty_message, ip_header="I
             tech = host_tech.get(subdomain.lower(), {})
             status = tech.get("status", "")
             webserver = tech.get("webserver", "")
+            title = tech.get("title", "")
             technologies = tech.get("technologies", "")
-            tech_title = f' title="{html.escape(technologies)}"' if technologies else ""
             lines.append(
                 "                <tr>"
                 f'<td class="inc-subdomain-host">{html.escape(subdomain)}</td>'
@@ -387,7 +402,7 @@ def build_public_table(rows, photo_hosts, host_tech, empty_message, ip_header="I
                 f'<td class="inc-col-center">{photo}</td>'
                 f'<td class="inc-col-center">{html.escape(status)}</td>'
                 f'<td class="inc-subdomain-webserver">{html.escape(webserver)}</td>'
-                f'<td class="inc-subdomain-tech"{tech_title}>{html.escape(technologies)}</td>'
+                f"{tech_cell(title, technologies)}"
                 "</tr>"
             )
     else:
@@ -661,7 +676,7 @@ PY
 )
 PHOTO_HOST_COUNT=${PHOTO_HOST_COUNT:-0}
 
-echo -e "${BLUE}[*] Updating subdomains report with Photo, Status, Web Server, and Technologies.${NC}"
+echo -e "${BLUE}[*] Updating subdomains report with Photo, Status, Web Server, Title, and Technologies.${NC}"
 f_active_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$GOWITNESS_JSONL" "$SCREENSHOTS_DIR" "$HTTPX_JSONL" "$WHATWEB_JSON" "$PAGE"
 
 echo -e "${BLUE}[*] Updating Active report.${NC}"

@@ -29,28 +29,58 @@ NOISE_PLUGINS = {
 }
 
 
+# Semantic renames only (keys must be separator-normalized: lowercase, spaces).
+TECH_ALIASES = {
+    "apache http server": "apache",
+    "asp net": "asp.net",
+    "google cloud cdn": "google cloud",
+    "google cloud load balancing": "google cloud",
+    "microsoft asp.net": "asp.net",
+    "microsoft iis": "iis",
+}
+
+# Canonical display names keyed by tech_key().
+TECH_DISPLAY_NAMES = {
+    "amazon cloudfront": "Amazon CloudFront",
+    "apache": "Apache",
+    "asp.net": "Microsoft ASP.NET",
+    "f5 bigip": "F5 BigIP",
+    "google analytics": "Google Analytics",
+    "google cloud": "Google Cloud",
+    "iis": "IIS",
+    "jquery": "jQuery",
+    "jquery migrate": "jQuery Migrate",
+    "jquery ui": "jQuery UI",
+    "microsoft httpapi": "Microsoft HTTPAPI",
+    "mod jk": "mod_jk",
+    "nginx": "nginx",
+}
+
+
+def normalize_tech_separators(value):
+    """Collapse -, _, and whitespace so spelling variants share one identity."""
+    value = str(value).strip().lower()
+    if not value:
+        return ""
+    return re.sub(r"[-_\s]+", " ", value).strip()
+
+
 def technology_base_name(label):
-    label = str(label).strip()
-    if ":" in label:
-        label = label.split(":", 1)[0].strip()
-    elif "[" in label:
-        label = label.split("[", 1)[0].strip()
-    return label.lower().replace(" ", "-")
+    """Noise-list form: separator-normalized key with spaces as hyphens."""
+    key = tech_key(label)
+    if not key:
+        return ""
+    return key.replace(" ", "-")
 
 
 def is_noise_technology(label):
-    return technology_base_name(label) in NOISE_PLUGINS
-
-
-TECH_ALIASES = {
-    "apache http server": "apache",
-    "asp_net": "asp.net",
-    "google cloud cdn": "google cloud",
-    "google cloud load balancing": "google cloud",
-    "jquery": "jquery",
-    "microsoft asp.net": "asp.net",
-    "microsoft-iis": "iis",
-}
+    base = technology_base_name(label)
+    if not base:
+        return False
+    if base in NOISE_PLUGINS:
+        return True
+    # Also match space-form keys if any are ever added to the noise set.
+    return base.replace("-", " ") in NOISE_PLUGINS
 
 
 def host_from_url(url):
@@ -78,8 +108,31 @@ def plugin_label(name, data):
     values = [value for value in values if str(value).strip().upper() != "N/A"]
 
     if values:
-        return f"{name}:{', '.join(values)}"
+        # Do not use commas — technology lists are comma-separated.
+        return f"{name}:{'; '.join(values)}"
     return name
+
+
+def tech_name_and_version(label):
+    """Split a tech label into (name, version) with bracket form normalized."""
+    label = str(label).strip()
+    if not label:
+        return "", ""
+
+    bracket = re.match(r"^([^:\[]+)\[(.+)\]$", label)
+    if bracket:
+        return bracket.group(1).strip(), bracket.group(2).strip()
+
+    if ":" in label:
+        # Keep X-Powered-By / X-UA-Compatible style headers intact as the name
+        # when the whole label is a header-style token handled in tech_key.
+        lower = label.lower()
+        if lower.startswith("x-powered-by:") or lower.startswith("x-ua-compatible:"):
+            return label, ""
+        name, version = label.split(":", 1)
+        return name.strip(), version.strip()
+
+    return label, ""
 
 
 def tech_key(label):
@@ -90,17 +143,22 @@ def tech_key(label):
     lower = label.lower()
 
     if lower.startswith("x-powered-by:"):
-        inner = label.split(":", 1)[1].strip().lower()
-        return TECH_ALIASES.get(inner, inner.replace(" ", ""))
+        inner = normalize_tech_separators(label.split(":", 1)[1])
+        return TECH_ALIASES.get(inner, inner)
 
     if lower.startswith("x-powered-by["):
-        inner = label[label.index("[") + 1 : label.rindex("]")].strip().lower()
-        return TECH_ALIASES.get(inner, inner.replace(" ", ""))
+        inner = normalize_tech_separators(label[label.index("[") + 1 : label.rindex("]")])
+        return TECH_ALIASES.get(inner, inner)
 
-    base = label.split("[", 1)[0].strip().lower()
-    if ":" in base:
-        base = base.split(":", 1)[0].strip()
+    name, _version = tech_name_and_version(label)
+    if not name:
+        return ""
 
+    # Header-style labels without a real product version suffix.
+    if name.lower().startswith("x-ua-compatible:"):
+        return normalize_tech_separators(name)
+
+    base = normalize_tech_separators(name)
     return TECH_ALIASES.get(base, base)
 
 
@@ -197,6 +255,7 @@ def load_httpx_rows(path):
                 "host": host,
                 "status": entry.get("status_code"),
                 "webserver": (entry.get("webserver") or "").strip(),
+                "title": format_page_title(entry.get("title")),
                 "httpx_tech": [
                     str(item).strip() for item in (entry.get("tech") or []) if str(item).strip()
                 ],
@@ -207,6 +266,54 @@ def load_httpx_rows(path):
             if not current or candidate["score"] > current["score"]:
                 rows[host] = candidate
     return rows
+
+
+# Generic HTTP status page titles — hide these from the report Title row.
+SUPPRESSED_PAGE_TITLES = {
+    "301 moved permanently",
+    "302 found",
+    "401 unauthorized",
+    "403 - forbidden: access is denied.",
+    "403 forbidden",
+    "404 not found",
+    "404 - file or directory not found.",
+    "503 service currently unavailable",
+    "503 service unavailable",
+    "error 401 unauthorized",
+    "error 404",
+    "error: the request could not be satisfied",
+    "error",
+    "invalid url",
+    "http status 404 - not found",
+    "not found",
+    "object moved",
+    "page not found",
+    "redirect",
+    "server unavailable",
+}
+
+
+def normalize_page_title_key(title):
+    # Treat en/em dashes like ASCII hyphens for suppress matching.
+    return title.replace("\u2013", "-").replace("\u2014", "-").casefold()
+
+
+def format_page_title(value):
+    title = (value or "").strip()
+    if not title:
+        return ""
+    # Drop a leading "- " (or multiple) before the real title text.
+    while title.startswith("-"):
+        stripped = title[1:].lstrip()
+        if stripped == title:
+            break
+        title = stripped
+    title = title.strip()
+    if not title:
+        return ""
+    if normalize_page_title_key(title) in SUPPRESSED_PAGE_TITLES:
+        return ""
+    return title
 
 
 def format_status(value):
@@ -256,13 +363,11 @@ def direct_tech_versions(technologies):
     return versions
 
 
-WEBSERVER_TECH_ALIASES = {
-    "microsoft-iis": "iis",
-}
-
+# When a versioned tech already covers this product, optionally keep a short
+# server token instead of dropping it entirely.
 WEBSERVER_SHORT_NAMES = {
     "apache": "Apache",
-    "microsoft-iis": "Microsoft-IIS",
+    "iis": "Microsoft-IIS",
     "nginx": "nginx",
 }
 
@@ -281,6 +386,9 @@ def strip_redundant_technology_labels(technologies, webserver):
             kept.append(label)
             continue
         if label.lower() in webserver_lower:
+            continue
+        # Also drop unversioned tech that matches a normalized webserver product.
+        if tech_key(label) and tech_key(label) == tech_key(webserver.split("/")[0]):
             continue
         kept.append(label)
     return ", ".join(kept)
@@ -312,11 +420,10 @@ def strip_redundant_webserver_tokens(webserver, technologies):
         match = re.match(r"^([^/]+)/(.+)$", segment)
         if match:
             raw_name = match.group(1).strip()
-            name = re.sub(r"\s+", "", raw_name.lower())
             version = trim_version(match.group(2).strip())
-            tech_name = WEBSERVER_TECH_ALIASES.get(name, name)
-            if tech_name in covered and version in covered[tech_name]:
-                short_name = WEBSERVER_SHORT_NAMES.get(name)
+            product_key = tech_key(raw_name)
+            if product_key in covered and version in covered[product_key]:
+                short_name = WEBSERVER_SHORT_NAMES.get(product_key)
                 if short_name:
                     kept.append(short_name)
                     continue
@@ -327,19 +434,35 @@ def strip_redundant_webserver_tokens(webserver, technologies):
 
 def format_technology_label(label):
     label = str(label).strip()
-    bracket = re.match(r"^([^:\[]+)\[(.+)\]$", label)
-    if bracket:
-        label = f"{bracket.group(1)}:{bracket.group(2)}"
-    if ":" in label:
-        name, version = label.split(":", 1)
-        if version.strip().upper() == "N/A":
-            label = name.strip()
-    match = re.match(r"^IIS:(.+)$", label, re.IGNORECASE)
-    if match:
-        return f"IIS:{trim_version(match.group(1))}"
-    if re.match(r"^Nginx(?=:|$)", label, re.IGNORECASE):
-        return f"nginx{label[5:]}"
-    return label
+    if not label:
+        return ""
+
+    name, version = tech_name_and_version(label)
+    if version.upper() == "N/A":
+        version = ""
+
+    key = tech_key(label if not version else name)
+    # Header-style labels (X-UA-Compatible, etc.): keep original text.
+    if name.lower().startswith("x-ua-compatible:") or name.lower().startswith("x-powered-by"):
+        return name if not version else f"{name}:{version}"
+
+    pretty = TECH_DISPLAY_NAMES.get(key)
+    if pretty:
+        base = pretty
+    else:
+        base = name.strip()
+        # Prefer spaces over hyphens for multi-word product names; keep
+        # underscore products (mod_jk is handled via TECH_DISPLAY_NAMES).
+        if "_" not in base:
+            base = re.sub(r"-+", " ", base)
+            base = re.sub(r"\s+", " ", base).strip()
+
+    if version:
+        # Only collapse trailing ".0" for IIS (IIS:10.0 -> IIS:10).
+        if key == "iis":
+            version = trim_version(version)
+        return f"{base}:{version}"
+    return base
 
 
 def has_version_suffix(label):
@@ -401,6 +524,7 @@ def host_tech_row(httpx_row, whatweb_row):
     return {
         "status": format_status(status),
         "webserver": webserver,
+        "title": format_page_title(httpx_row.get("title")),
         "technologies": technologies,
     }
 
