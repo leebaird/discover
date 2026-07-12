@@ -432,6 +432,19 @@ def strip_redundant_webserver_tokens(webserver, technologies):
     return " ".join(kept)
 
 
+# Analytics / ads property IDs are not software versions.
+TRACKING_ID_RE = re.compile(
+    r"(?i)(?:^|[\s;,:]+)(?:UA-\d{4,}-\d+|G-[A-Z0-9]+|GTM-[A-Z0-9]+|AW-\d+)\b"
+)
+
+
+def strip_tracking_ids(value):
+    value = TRACKING_ID_RE.sub("", value or "")
+    value = re.sub(r"\s*;\s*", "; ", value)
+    value = re.sub(r"[\s;,:]+$", "", value)
+    return value.strip(" ;,")
+
+
 def format_technology_label(label):
     label = str(label).strip()
     if not label:
@@ -440,6 +453,9 @@ def format_technology_label(label):
     name, version = tech_name_and_version(label)
     if version.upper() == "N/A":
         version = ""
+    version = strip_tracking_ids(version)
+    # If the whole label was only a tracking id (unusual), drop it from name too.
+    name = strip_tracking_ids(name) if name else name
 
     key = tech_key(label if not version else name)
     # Header-style labels (X-UA-Compatible, etc.): keep original text.
@@ -461,6 +477,10 @@ def format_technology_label(label):
         # Only collapse trailing ".0" for IIS (IIS:10.0 -> IIS:10).
         if key == "iis":
             version = trim_version(version)
+        # Non-numeric leftovers like "Universal" are product editions, not
+        # useful as a software-version suffix when the ID was the only signal.
+        if key in {"google analytics", "google tag manager"} and not re.search(r"\d", version):
+            return base
         return f"{base}:{version}"
     return base
 
@@ -698,6 +718,21 @@ def technology_label_key(label):
     return label
 
 
+def is_software_version_label(label):
+    """True for versioned product labels useful in the Software versions table."""
+    label = (label or "").strip()
+    if not label:
+        return False
+
+    low = label.lower()
+    if low.startswith("x-ua-compatible"):
+        return False
+    if re.fullmatch(r"iis:\s*10(\.0)?", low):
+        return False
+
+    return bool(re.search(r":\s*.*\d", label) or re.search(r"\[\s*.*\d", label))
+
+
 def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_path, whatweb_path):
     public_rows = load_subdomain_rows(subdomains_path)
     private_count = sum(1 for _ in load_subdomain_rows(private_path))
@@ -707,6 +742,7 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
     category_counts = {}
     webserver_counts = {}
     technology_counts = {}
+    software_version_counts = {}
     status_counts = {}
 
     for host, _ipaddr, category in public_rows:
@@ -733,10 +769,15 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                     continue
                 key = technology_label_key(item)
                 technology_counts[key] = technology_counts.get(key, 0) + 1
+                if is_software_version_label(item):
+                    software_version_counts[item] = (
+                        software_version_counts.get(item, 0) + 1
+                    )
 
     category_counter = Counter(category_counts)
     webserver_counter = Counter(webserver_counts)
     technology_counter = Counter(technology_counts)
+    software_version_counter = Counter(software_version_counts)
     status_counter = Counter(status_counts)
 
     alive_count = sum(status_counter.values())
@@ -748,6 +789,11 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
     for code in sorted(status_counter):
         if code not in STATUS_CODE_ORDER:
             status_rows.append((str(code), status_counter[code]))
+
+    software_version_rows = sorted(
+        software_version_counter.items(),
+        key=lambda item: item[0].lower(),
+    )
 
     lines.extend(
         active_grid(
@@ -762,6 +808,12 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                             ("Alive hosts", alive_count),
                         ],
                     ),
+                    summary_table(
+                        "Status codes (alive hosts)",
+                        "Status Code",
+                        status_rows,
+                        section_class="inc-active-section--status",
+                    ),
                 ],
                 [
                     summary_table(
@@ -769,13 +821,7 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                         "Category",
                         counter_rows(category_counter),
                         sort_last_labels={"(none)"},
-                    ),
-                ],
-                [
-                    summary_table(
-                        "Status codes (alive hosts)",
-                        "Status Code",
-                        status_rows,
+                        section_class="inc-active-section--categories",
                     ),
                 ],
                 [
@@ -789,6 +835,14 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                         "Technology",
                         counter_rows(technology_counter, 6),
                         section_class="inc-active-section--technologies",
+                    ),
+                ],
+                [
+                    summary_table(
+                        "Software versions",
+                        "Software versions",
+                        software_version_rows,
+                        section_class="inc-active-section--software-versions",
                     ),
                 ],
             ]
