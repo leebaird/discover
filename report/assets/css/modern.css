@@ -454,17 +454,58 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     white-space: nowrap;
 }
 
-.inc-active-page .inc-subdomain-cve-links {
-    white-space: nowrap;
+/*
+ * Top CVE column layout.
+ * Note: Active tables set td { width: 1% } with higher element specificity, so
+ * column width is enforced on the inner wrapper (not only the td).
+ */
+.inc-active-page .inc-active-section--software-versions .inc-active-column .inc-content-frame--table table.inc-data-table > thead > tr > th:last-child,
+.inc-active-page .inc-active-section--software-versions .inc-active-column .inc-content-frame--table table.inc-data-table > tbody > tr > td.inc-subdomain-cve-links {
+    width: 17rem !important;
+    min-width: 17rem !important;
+    max-width: 17rem !important;
+    white-space: nowrap !important;
+    box-sizing: border-box;
 }
 
-.inc-active-page .inc-subdomain-cve-links a {
+.inc-active-page .inc-cve-cell-inner {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    min-width: 15rem;
+    box-sizing: border-box;
+    gap: 12px;
+}
+
+.inc-active-page .inc-cve-cell-inner--kev {
+    justify-content: space-between;
+}
+
+.inc-active-page .inc-subdomain-cve-links a.inc-cve-id,
+.inc-active-page .inc-subdomain-cve-links .inc-cve-id {
     color: var(--accent-hover);
     text-decoration: none;
+    flex: 0 1 auto;
 }
 
-.inc-active-page .inc-subdomain-cve-links a:hover {
+.inc-active-page .inc-subdomain-cve-links a.inc-cve-id:hover {
     text-decoration: underline;
+}
+
+/* CISA KEV badge — right side of the Top CVE cell */
+.inc-active-page .inc-kev-badge {
+    display: inline-block;
+    flex: 0 0 auto;
+    margin-left: 12px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    color: #ffffff;
+    background: #c62828;
+    border: 1px solid #b71c1c;
 }
 
 .inc-data-body {

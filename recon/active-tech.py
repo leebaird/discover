@@ -685,25 +685,35 @@ def summary_table(title, label_header, rows, sort_last_labels=None, section_clas
     return lines
 
 
-def cve_nvd_link_html(cve_id):
-    """Render a single CVE id as an NVD detail link."""
+def cve_nvd_link_html(cve_id, is_kev=False):
+    """Render a single CVE id as an NVD detail link; badge when CISA KEV."""
     cve_id = str(cve_id or "").strip()
     if not cve_id:
         return ""
     if re.fullmatch(r"CVE-\d{4}-\d+", cve_id, flags=re.IGNORECASE):
         cve_id = cve_id.upper()
         href = f"https://nvd.nist.gov/vuln/detail/{cve_id}"
-        return (
-            f'<a href="{html.escape(href, quote=True)}" target="_blank" '
+        link = (
+            f'<a class="inc-cve-id" href="{html.escape(href, quote=True)}" target="_blank" '
             f'rel="noopener noreferrer">{html.escape(cve_id)}</a>'
         )
-    return html.escape(cve_id)
+    else:
+        link = f'<span class="inc-cve-id">{html.escape(cve_id)}</span>'
+
+    if is_kev:
+        badge = (
+            '<span class="inc-kev-badge" title="CISA Known Exploited Vulnerability">'
+            "KEV</span>"
+        )
+        # Inner flex wrapper so badge can pin right even when table cells use width:1%.
+        return f'<span class="inc-cve-cell-inner inc-cve-cell-inner--kev">{link}{badge}</span>'
+    return f'<span class="inc-cve-cell-inner">{link}</span>'
 
 
 def software_versions_table(rows, section_class="inc-active-section--software-versions"):
     """Render Software versions with Count, CVSS, CVE count, and top CVE link.
 
-    rows: iterable of (label, count, max_cvss, cve_count, top_cve)
+    rows: iterable of (label, count, max_cvss, cve_count, top_cve, top_is_kev)
     """
     class_names = "inc-active-section"
     if section_class:
@@ -725,8 +735,13 @@ def software_versions_table(rows, section_class="inc-active-section--software-ve
         "            <tbody>",
     ]
 
-    for label, count, max_cvss, cve_count, top_cve in rows:
-        cve_cell = cve_nvd_link_html(top_cve)
+    for row in rows:
+        if len(row) >= 6:
+            label, count, max_cvss, cve_count, top_cve, top_is_kev = row[:6]
+        else:
+            label, count, max_cvss, cve_count, top_cve = row[:5]
+            top_is_kev = False
+        cve_cell = cve_nvd_link_html(top_cve, is_kev=bool(top_is_kev))
         lines.append(
             "                <tr>"
             f"<td>{html.escape(str(label))}</td>"
@@ -776,7 +791,7 @@ def enrich_software_rows_for_report(software_version_rows, httpx_path):
 
         if (os.environ.get("DISCOVER_SKIP_CVE") or "").strip() in {"1", "true", "yes"}:
             return [
-                (label, count, "", "", "")
+                (label, count, "", "", "", False)
                 for label, count in software_version_rows
             ]
 
@@ -792,7 +807,7 @@ def enrich_software_rows_for_report(software_version_rows, httpx_path):
         )
     except Exception:
         return [
-            (label, count, "", "", "")
+            (label, count, "", "", "", False)
             for label, count in software_version_rows
         ]
 

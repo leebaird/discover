@@ -372,6 +372,11 @@ Catalog: https://www.cisa.gov/known-exploited-vulnerabilities-catalog
 If the download fails, any previous local catalog is left in place. The file is
 gitignored (refreshed by Update, not committed).
 
+On the Active **Software versions** table, **Top CVE** prefers a CISA KEV match
+when any of the product’s NVD CVEs appear in the KEV catalog (highest CVSS among
+KEVs wins). Otherwise Top CVE is the highest-CVSS NVD result. KEV selections show
+an orange **KEV** badge next to the linked CVE ID.
+
 #### SEC leadership (Names page)
 
 For US public companies, Discover pulls executives and directors from SEC

@@ -360,18 +360,71 @@ def query_nvd_keyword(product: str, version: str, results_per_page: int = 50) ->
     return out
 
 
-def summarize_cves(cves: list[dict[str, Any]]) -> dict[str, Any]:
+def cisa_kev_catalog_path() -> str:
+    return os.path.join(discover_root(), "resource", "known_exploited_vulnerabilities.json")
+
+
+def load_cisa_kev_ids(path: str | None = None) -> set[str]:
+    """Load CVE IDs from the CISA KEV catalog (resource/ or explicit path)."""
+    catalog = path or cisa_kev_catalog_path()
+    if not catalog or not os.path.isfile(catalog):
+        return set()
+
+    try:
+        with open(catalog, encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return set()
+
+    ids: set[str] = set()
+    for entry in payload.get("vulnerabilities") or []:
+        if not isinstance(entry, dict):
+            continue
+        cve_id = (entry.get("cveID") or entry.get("cve_id") or "").strip().upper()
+        if cve_id.startswith("CVE-"):
+            ids.add(cve_id)
+    return ids
+
+
+def _cve_sort_key(item: dict[str, Any]) -> tuple:
+    return (
+        item.get("score") is None,
+        -(item.get("score") or 0),
+        item.get("id") or "",
+    )
+
+
+def select_top_cve(
+    cves: list[dict[str, Any]],
+    kev_ids: set[str] | None = None,
+) -> tuple[str, bool]:
+    """Pick Top CVE: prefer CISA KEV matches (highest CVSS), else highest CVSS.
+
+    Returns (cve_id, is_kev).
+    """
+    kev_ids = kev_ids or set()
+    if not cves:
+        return "", False
+
+    kev_matches = [
+        entry
+        for entry in cves
+        if (entry.get("id") or "").strip().upper() in kev_ids
+    ]
+    pool = kev_matches if kev_matches else cves
+    ordered = sorted(pool, key=_cve_sort_key)
+    top = ordered[0]
+    cve_id = (top.get("id") or "").strip().upper()
+    return cve_id, bool(cve_id and cve_id in kev_ids)
+
+
+def summarize_cves(
+    cves: list[dict[str, Any]],
+    kev_ids: set[str] | None = None,
+) -> dict[str, Any]:
     max_score = None
     max_severity = ""
-    top_cve = ""
-    ordered = sorted(
-        cves,
-        key=lambda item: (
-            item.get("score") is None,
-            -(item.get("score") or 0),
-            item.get("id") or "",
-        ),
-    )
+    ordered = sorted(cves, key=_cve_sort_key)
     for entry in ordered:
         score = entry.get("score")
         if score is None:
@@ -379,14 +432,15 @@ def summarize_cves(cves: list[dict[str, Any]]) -> dict[str, Any]:
         if max_score is None or score > max_score:
             max_score = score
             max_severity = entry.get("severity") or ""
-            top_cve = entry.get("id") or ""
+
+    top_cve, top_is_kev = select_top_cve(cves, kev_ids)
 
     return {
         "cve_count": len(cves),
         "max_cvss": max_score,
         "max_severity": max_severity,
         "top_cve": top_cve,
-        # Full list (score-desc) for report hyperlinks.
+        "top_is_kev": top_is_kev,
         "cves": ordered,
         "source": "nvd",
     }
@@ -412,6 +466,7 @@ def lookup_software(
         "max_cvss": None,
         "max_severity": "",
         "top_cve": "",
+        "top_is_kev": False,
         "cves": [],
         "source": "",
         "error": "",
@@ -444,7 +499,9 @@ def lookup_software(
         entries[key] = result
         return result
 
-    summary = summarize_cves(cves)
+    # KEV preference applied at enrich time against the current catalog so
+    # Update-refreshed KEV data applies without re-querying NVD.
+    summary = summarize_cves(cves, kev_ids=None)
     result.update(summary)
     entries[key] = result
     return result
@@ -461,21 +518,22 @@ def enrich_software_version_rows(
     cache_path: str,
     sleep_seconds: float | None = None,
     progress: bool = False,
-) -> list[tuple[str, int, str, str, str]]:
+    kev_catalog_path: str | None = None,
+) -> list[tuple[str, int, str, str, str, bool]]:
     """Enrich (label, count) rows with CVSS fields.
 
     Returns list of:
-      (label, count, max_cvss_display, cve_count_display, top_cve)
+      (label, count, max_cvss_display, cve_count_display, top_cve, top_is_kev)
 
-    Missing CVSS/CVE data uses blank cells (not dashes) so descending
-    sorts put real scores first. ``top_cve`` is the highest-scoring CVE id.
+    Top CVE prefers CISA KEV matches when present; otherwise highest CVSS.
     """
     if sleep_seconds is None:
         # Authenticated NVD allows ~50 req/30s; unauthenticated ~5/30s.
         sleep_seconds = 0.7 if get_nvd_api_key() else DEFAULT_SLEEP_SECONDS
 
+    kev_ids = load_cisa_kev_ids(kev_catalog_path)
     cache = load_cache(cache_path)
-    enriched: list[tuple[str, int, str, str, str]] = []
+    enriched: list[tuple[str, int, str, str, str, bool]] = []
     dirty = False
 
     for index, (label, count) in enumerate(rows, start=1):
@@ -492,18 +550,25 @@ def enrich_software_version_rows(
         error = cached.get("error") or ""
         max_cvss = format_cvss(cached.get("max_cvss"))
         cve_count = cached.get("cve_count") or 0
-        top_cve = (cached.get("top_cve") or "").strip()
+        cves_list = cached.get("cves") or []
+        top_cve, top_is_kev = select_top_cve(cves_list, kev_ids)
+        if not top_cve:
+            top_cve = (cached.get("top_cve") or "").strip().upper()
+            top_is_kev = bool(top_cve and top_cve in kev_ids)
 
         if error in {"skipped", "no-cpe", "nvd-error"} or not max_cvss:
             max_cvss = ""
             top_cve = ""
+            top_is_kev = False
             cve_count_display = ""
         elif cve_count:
             cve_count_display = str(cve_count)
         else:
             cve_count_display = ""
 
-        enriched.append((label, count, max_cvss, cve_count_display, top_cve))
+        enriched.append(
+            (label, count, max_cvss, cve_count_display, top_cve, top_is_kev)
+        )
 
     if dirty:
         save_cache(cache_path, cache)
