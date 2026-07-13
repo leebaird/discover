@@ -562,7 +562,8 @@ def load_host_tech(httpx_path, whatweb_path):
 
 
 IPV4_RE = re.compile(r"^(\d{1,3}\.){3}\d{1,3}$")
-STATUS_CODE_ORDER = (200, 301, 303, 403, 302, 404, 503)
+# Preferred display order for common HTTP statuses (others follow sorted).
+STATUS_CODE_ORDER = (200, 204, 301, 302, 303, 400, 401, 403, 404, 500, 502, 503, 504)
 
 
 def is_private_ip(ip):
@@ -744,12 +745,6 @@ def enrich_software_rows_for_report(software_version_rows, httpx_path):
     if not software_version_rows:
         return []
 
-    if (os.environ.get("DISCOVER_SKIP_CVE") or "").strip() in {"1", "true", "yes"}:
-        return [
-            (label, count, "", "", "")
-            for label, count in software_version_rows
-        ]
-
     cache_path = ""
     if httpx_path:
         cache_path = os.path.join(
@@ -759,6 +754,16 @@ def enrich_software_rows_for_report(software_version_rows, httpx_path):
 
     try:
         software_cve = _load_software_cve_module()
+        # Load private .env before reading DISCOVER_SKIP_CVE / progress flags
+        # so values defined only in .env are honored (shell exports still win).
+        software_cve.load_discover_env_files()
+
+        if (os.environ.get("DISCOVER_SKIP_CVE") or "").strip() in {"1", "true", "yes"}:
+            return [
+                (label, count, "", "", "")
+                for label, count in software_version_rows
+            ]
+
         progress = (os.environ.get("DISCOVER_CVE_PROGRESS") or "").strip() in {
             "1",
             "true",
@@ -826,28 +831,63 @@ def is_software_version_label(label):
     return bool(re.search(r":\s*.*\d", label) or re.search(r"\[\s*.*\d", label))
 
 
+def ordered_status_rows(status_counter):
+    """Build status rows from real counts only (no padded zeros)."""
+    rows = []
+    seen = set()
+    for code in STATUS_CODE_ORDER:
+        count = status_counter.get(code, 0)
+        if count:
+            rows.append((str(code), count))
+            seen.add(code)
+    for code in sorted(status_counter):
+        if code not in seen and status_counter[code]:
+            rows.append((str(code), status_counter[code]))
+    return rows
+
+
+def load_httpx_status_counts(httpx_path):
+    """One status per host from httpx (same host pick as tech enrichment)."""
+    counts = Counter()
+    for _host, row in load_httpx_rows(httpx_path).items():
+        status = row.get("status")
+        if status is None or status == "":
+            continue
+        try:
+            counts[int(status)] += 1
+        except (TypeError, ValueError):
+            continue
+    return counts
+
+
 def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_path, whatweb_path):
-    public_rows = load_subdomain_rows(subdomains_path)
+    all_subdomain_rows = load_subdomain_rows(subdomains_path)
+    # Scope "Public" must exclude RFC1918 rows that live in tools/subdomains.
+    public_rows = [
+        (host, ipaddr, category)
+        for host, ipaddr, category in all_subdomain_rows
+        if ipaddr and not is_private_ip(ipaddr)
+    ]
     private_count = sum(1 for _ in load_subdomain_rows(private_path))
     alive_hosts = load_alive_hosts(alive_tsv_path)
     host_tech = load_host_tech(httpx_path, whatweb_path)
+
+    # Status codes: all httpx responses (includes 404/5xx filtered out of "alive").
+    status_counter = load_httpx_status_counts(httpx_path)
+    responding_hosts = sum(status_counter.values())
 
     category_counts = {}
     webserver_counts = {}
     technology_counts = {}
     software_version_counts = {}
-    status_counts = {}
 
+    # Category / tech / software: alive public hosts only (screenshot/whatweb scope).
     for host, _ipaddr, category in public_rows:
         host_key = host.lower()
         if host_key not in alive_hosts:
             continue
         label = category.strip() or "(none)"
         category_counts[label] = category_counts.get(label, 0) + 1
-
-        status_counts[alive_hosts[host_key]] = (
-            status_counts.get(alive_hosts[host_key], 0) + 1
-        )
 
         tech = host_tech.get(host_key, {})
         webserver = webserver_label(tech.get("webserver", ""))
@@ -871,17 +911,10 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
     webserver_counter = Counter(webserver_counts)
     technology_counter = Counter(technology_counts)
     software_version_counter = Counter(software_version_counts)
-    status_counter = Counter(status_counts)
 
-    alive_count = sum(status_counter.values())
     lines = []
 
-    status_rows = [
-        (str(code), status_counter.get(code, 0)) for code in STATUS_CODE_ORDER
-    ]
-    for code in sorted(status_counter):
-        if code not in STATUS_CODE_ORDER:
-            status_rows.append((str(code), status_counter[code]))
+    status_rows = ordered_status_rows(status_counter)
 
     software_version_rows = sorted(
         software_version_counter.items(),
@@ -902,7 +935,7 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                         [
                             ("Public subdomains", len(public_rows)),
                             ("Private subdomains", private_count),
-                            ("Alive hosts", alive_count),
+                            ("Responding hosts", responding_hosts),
                         ],
                     ),
                     summary_table(

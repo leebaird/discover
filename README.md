@@ -165,7 +165,8 @@ sublist3r, theHarvester, Whois, and multiple websites.
 * Add API keys to $HOME/.theHarvester/api-keys.yaml
 * Passive builds an HTML report at $HOME/data/<domain>/.
 * Find registered domains updates pages/registered-domains.htm in an existing report.
-* Active uses httpx, whatweb, and gowitness.
+* Active uses httpx, whatweb, and gowitness; optional NVD API key speeds CVSS
+  enrichment on the Active report (see **NVD API key** below).
 
 #### Import names (`import-names.sh`)
 
@@ -247,12 +248,25 @@ via **Update**).
 * Screenshots alive URLs with gowitness (go-rod driver) under `tools/gowitness/`
 * Merges httpx and whatweb with `recon/active-tech.py` and refreshes
   `pages/subdomains.htm`
-* Writes an Active summary to `pages/active.htm` (Reports menu → Active)
+* Writes an Active summary to `pages/active.htm` (Reports menu → Active),
+  including software versions enriched with NVD CVSS when available
 * Re-run Active to replace httpx/whatweb/gowitness artifacts, rebuild the
   active columns on `pages/subdomains.htm`, and refresh `pages/active.htm`
 
 The **Reports** menu contains **Passive** (`pages/passive.htm`, the former
 `report.htm` rollup) and **Active** (`pages/active.htm`, httpx/whatweb stats).
+
+**Active Scope metrics**
+
+| Metric | Meaning |
+|--------|---------|
+| Public subdomains | Hosts in `tools/subdomains` with non-RFC1918 IPs |
+| Private subdomains | Rows in `tools/private-subs` |
+| Responding hosts | Unique hosts with an httpx status (any code) |
+
+**Status codes** on the Active page count **all** httpx responses (including 404/5xx).
+Screenshots, whatweb, and **Alive by category** still use the alive subset only
+(status 200–399, 401, 403, or 405).
 
 **Public subdomains table** (after Active):
 
@@ -262,7 +276,7 @@ The **Reports** menu contains **Passive** (`pages/passive.htm`, the former
 | Photo | gowitness screenshot link when captured |
 | Status | httpx status code |
 | Web Server | httpx/whatweb Server header |
-| Technologies | httpx tech + filtered whatweb plugins |
+| Title / Technologies | httpx page title (filtered) + httpx tech / whatweb plugins |
 
 The private subdomains table stays three columns (Subdomain, Category, Private IP
 Address).
@@ -283,6 +297,63 @@ Artifacts written under `tools/`:
 * `whatweb.json` — whatweb JSON output
 * `gowitness/screenshots/` — JPEG screenshots
 * `gowitness/gowitness.jsonl` and `gowitness/gowitness.db` — gowitness metadata
+* `software-cves-cache.json` — cached NVD CVSS/CVE lookups for the Active report
+
+#### NVD API key (optional, Active CVSS)
+
+Active recon can enrich the **Software versions** table on `pages/active.htm` with
+CVSS scores and CVE IDs from the [National Vulnerability Database](https://nvd.nist.gov/).
+Lookups are implemented in `recon/software-cve.py`.
+
+**Without a key:** enrichment still runs, but NVD’s anonymous rate limits apply
+(slower; roughly several seconds between requests).
+
+**With a key:** authenticated rate limits (much faster).
+
+**Skip enrichment entirely:**
+
+```
+export DISCOVER_SKIP_CVE=1
+```
+
+**Get a free API key**
+
+1. Request a key: https://nvd.nist.gov/developers/request-an-api-key
+2. Confirm the email NIST sends
+3. Provide the key to Discover (shell export and/or private `.env` — see below)
+
+**How Discover finds the key**
+
+Order of precedence (non-empty values higher in the list always win):
+
+1. Shell environment — `export NVD_API_KEY=...`
+2. Private `.env` in the Discover install — `$DISCOVER/.env`
+3. Private `.env` in your home config — `~/.discover/.env`
+
+Example `.env` line (no quotes required):
+
+```
+NVD_API_KEY=your-key-here
+```
+
+* Copy the template (assumes Discover lives in `~/discover` as documented above):
+  `cp ~/discover/.env.example ~/discover/.env`
+  or `mkdir -p ~/.discover && cp ~/discover/.env.example ~/.discover/.env`
+* If you cloned elsewhere, use that path (or `$DISCOVER/.env.example`) instead of `~/discover`
+* `.env` is gitignored; never commit real keys
+* `.env.example` is tracked as documentation only
+
+**Other useful variables**
+
+| Variable | Purpose |
+|----------|---------|
+| `NVD_API_KEY` | Optional NVD API key for faster CVSS lookups |
+| `DISCOVER_SKIP_CVE=1` | Skip NVD queries; Software table still lists versions |
+| `DISCOVER_CVE_PROGRESS=1` | Print each product lookup while building Active |
+
+Cache file: `<report>/tools/software-cves-cache.json` (per engagement; re-runs reuse
+cached product:version results). CVSS values are **triage leads** from NVD CPE
+matches, not confirmed findings — validate before reporting to a client.
 
 #### SEC leadership (Names page)
 

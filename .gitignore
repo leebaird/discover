@@ -2,3 +2,7 @@
 __pycache__/
 notes/pages/
 notes/index.htm
+# Private secrets (NVD_API_KEY, etc.) — never commit
+.env
+.env.*
+!.env.example

@@ -22,6 +22,60 @@ f_active_die(){
     exit 1
 }
 
+# Load private .env files without overriding non-empty shell exports.
+# Paths: $DISCOVER/.env then ~/.discover/.env
+f_discover_load_env(){
+    local env_file line key value
+
+    if [ -z "${DISCOVER:-}" ]; then
+        DISCOVER="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    fi
+
+    for env_file in "$DISCOVER/.env" "$HOME/.discover/.env"; do
+        [ -f "$env_file" ] || continue
+        while IFS= read -r line || [ -n "$line" ]; do
+            # Trim whitespace
+            line="${line#"${line%%[![:space:]]*}"}"
+            line="${line%"${line##*[![:space:]]}"}"
+            [ -z "$line" ] && continue
+            case "$line" in
+                \#*) continue ;;
+            esac
+            case "$line" in
+                export\ *) line="${line#export }"
+                    line="${line#"${line%%[![:space:]]*}"}"
+                    ;;
+            esac
+            case "$line" in
+                *=*) ;;
+                *) continue ;;
+            esac
+            key="${line%%=*}"
+            value="${line#*=}"
+            key="${key%"${key##*[![:space:]]}"}"
+            key="${key#"${key%%[![:space:]]*}"}"
+            case "$key" in
+                ''|*[!A-Za-z0-9_]*|[0-9]*) continue ;;
+            esac
+            value="${value#"${value%%[![:space:]]*}"}"
+            value="${value%"${value##*[![:space:]]}"}"
+            # Strip matching single/double quotes
+            if [ "${#value}" -ge 2 ]; then
+                if [ "${value:0:1}" = '"' ] && [ "${value: -1}" = '"' ]; then
+                    value="${value:1:${#value}-2}"
+                elif [ "${value:0:1}" = "'" ] && [ "${value: -1}" = "'" ]; then
+                    value="${value:1:${#value}-2}"
+                fi
+            fi
+            # Shell export wins over .env
+            if [ -n "${!key:-}" ]; then
+                continue
+            fi
+            export "$key=$value"
+        done < "$env_file"
+    done
+}
+
 f_active_read_report(){
     echo
     echo -n "Enter the location of your previous passive scan: "
@@ -679,8 +733,17 @@ PHOTO_HOST_COUNT=${PHOTO_HOST_COUNT:-0}
 echo -e "${BLUE}[*] Updating subdomains report with Photo, Status, Web Server, Title, and Technologies.${NC}"
 f_active_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$GOWITNESS_JSONL" "$SCREENSHOTS_DIR" "$HTTPX_JSONL" "$WHATWEB_JSON" "$PAGE"
 
+f_discover_load_env
+
 echo -e "${BLUE}[*] Updating Active report (includes NVD CVSS lookup for software versions).${NC}"
-echo -e "${BLUE}    Set NVD_API_KEY for faster lookups, or DISCOVER_SKIP_CVE=1 to skip.${NC}"
+if [ -n "${NVD_API_KEY:-}" ]; then
+    echo -e "${BLUE}    NVD_API_KEY found (shell export or private .env) — using authenticated rate limits.${NC}"
+else
+    echo -e "${BLUE}    No NVD_API_KEY — anonymous NVD rate limits (slower).${NC}"
+    echo -e "${BLUE}    Add export NVD_API_KEY=... or put it in $DISCOVER/.env or ~/.discover/.env${NC}"
+    echo -e "${BLUE}    Free key: https://nvd.nist.gov/developers/request-an-api-key${NC}"
+    echo -e "${BLUE}    Skip lookups: DISCOVER_SKIP_CVE=1${NC}"
+fi
 f_active_write_active_page "$SUBDOMAINS_FILE" "$PRIVATE_FILE" "$ALIVE_TSV" "$HTTPX_JSONL" "$WHATWEB_JSON" "$ACTIVE_PAGE"
 echo
 

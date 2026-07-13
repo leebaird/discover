@@ -1,7 +1,16 @@
 """Map Discover software version labels to NVD CVEs / CVSS scores.
 
 Results are cached under the report tools directory so active report rebuilds
-do not re-query NVD for every run. Set NVD_API_KEY for higher rate limits.
+do not re-query NVD for every run.
+
+NVD_API_KEY (optional) enables higher rate limits. Discover checks, in order:
+  1. Existing shell environment (export NVD_API_KEY=...)
+  2. Private .env files (never override a non-empty shell export):
+       $DISCOVER/.env
+       ~/.discover/.env
+
+Request a free key: https://nvd.nist.gov/developers/request-an-api-key
+Skip lookups: DISCOVER_SKIP_CVE=1
 """
 
 from __future__ import annotations
@@ -19,6 +28,7 @@ NVD_CVE_API = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 USER_AGENT = "Discover-software-cve/1.0 (https://github.com/leebaird/discover)"
 DEFAULT_SLEEP_SECONDS = 6.5  # stay under unauthenticated NVD rate limits
 CACHE_VERSION = 1
+_ENV_FILES_LOADED = False
 
 # product base name (after tech normalization) -> (cpe_vendor, cpe_product)
 CPE_PRODUCT_MAP = {
@@ -157,12 +167,93 @@ def extract_cvss(metrics: dict[str, Any]) -> tuple[float | None, str]:
     return None, ""
 
 
+def discover_root() -> str:
+    explicit = (os.environ.get("DISCOVER") or "").strip()
+    if explicit:
+        return explicit
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def env_file_paths() -> list[str]:
+    """Private .env locations (first existing files are applied in order)."""
+    candidates = [
+        os.path.join(discover_root(), ".env"),
+        os.path.join(os.path.expanduser("~"), ".discover", ".env"),
+    ]
+    seen: set[str] = set()
+    paths: list[str] = []
+    for path in candidates:
+        abs_path = os.path.abspath(path)
+        if abs_path in seen:
+            continue
+        seen.add(abs_path)
+        paths.append(abs_path)
+    return paths
+
+
+def parse_env_line(line: str) -> tuple[str, str] | None:
+    line = line.strip()
+    if not line or line.startswith("#"):
+        return None
+    if line.startswith("export "):
+        line = line[7:].strip()
+    if "=" not in line:
+        return None
+
+    key, _, value = line.partition("=")
+    key = key.strip()
+    if not key or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", key):
+        return None
+
+    value = value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+        value = value[1:-1]
+    return key, value
+
+
+def load_discover_env_files() -> list[str]:
+    """Load KEY=VALUE pairs from private .env files.
+
+    Non-empty variables already present in the process environment (e.g. from
+    ``export NVD_API_KEY=...``) are never overridden.
+    """
+    global _ENV_FILES_LOADED
+    loaded: list[str] = []
+
+    for path in env_file_paths():
+        if not os.path.isfile(path):
+            continue
+        try:
+            with open(path, encoding="utf-8") as handle:
+                for raw in handle:
+                    parsed = parse_env_line(raw)
+                    if not parsed:
+                        continue
+                    key, value = parsed
+                    if (os.environ.get(key) or "").strip():
+                        continue
+                    os.environ[key] = value
+            loaded.append(path)
+        except OSError:
+            continue
+
+    _ENV_FILES_LOADED = True
+    return loaded
+
+
+def get_nvd_api_key() -> str:
+    """Return NVD API key from shell env or private .env files."""
+    if not _ENV_FILES_LOADED:
+        load_discover_env_files()
+    return (os.environ.get("NVD_API_KEY") or "").strip()
+
+
 def nvd_headers() -> dict[str, str]:
     headers = {
         "User-Agent": USER_AGENT,
         "Accept": "application/json",
     }
-    api_key = (os.environ.get("NVD_API_KEY") or "").strip()
+    api_key = get_nvd_api_key()
     if api_key:
         headers["apiKey"] = api_key
     return headers
@@ -348,7 +439,7 @@ def enrich_software_version_rows(
     """
     if sleep_seconds is None:
         # Authenticated NVD allows ~50 req/30s; unauthenticated ~5/30s.
-        sleep_seconds = 0.7 if (os.environ.get("NVD_API_KEY") or "").strip() else DEFAULT_SLEEP_SECONDS
+        sleep_seconds = 0.7 if get_nvd_api_key() else DEFAULT_SLEEP_SECONDS
 
     cache = load_cache(cache_path)
     enriched: list[tuple[str, int, str, str, str]] = []
