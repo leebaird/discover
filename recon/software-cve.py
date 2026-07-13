@@ -27,8 +27,9 @@ from typing import Any
 NVD_CVE_API = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 USER_AGENT = "Discover-software-cve/1.0 (https://github.com/leebaird/discover)"
 DEFAULT_SLEEP_SECONDS = 6.5  # stay under unauthenticated NVD rate limits
-CACHE_VERSION = 1
+CACHE_VERSION = 2
 _ENV_FILES_LOADED = False
+NVD_RESULTS_PER_PAGE = 2000  # NVD maximum per request
 
 # product base name (after tech normalization) -> (cpe_vendor, cpe_product)
 CPE_PRODUCT_MAP = {
@@ -270,16 +271,7 @@ def nvd_get(params: dict[str, str], timeout: float = 45.0) -> dict[str, Any] | N
         return None
 
 
-def query_nvd_for_cpe(cpe23: str, results_per_page: int = 100) -> list[dict[str, Any]]:
-    """Return simplified CVE records for a CPE name."""
-    params = {
-        "cpeName": cpe23,
-        "resultsPerPage": str(results_per_page),
-    }
-    payload = nvd_get(params)
-    if not payload:
-        return []
-
+def _parse_nvd_vulnerabilities(payload: dict[str, Any]) -> list[dict[str, Any]]:
     out = []
     for item in payload.get("vulnerabilities") or []:
         cve = item.get("cve") if isinstance(item, dict) else None
@@ -296,6 +288,43 @@ def query_nvd_for_cpe(cpe23: str, results_per_page: int = 100) -> list[dict[str,
                 "severity": severity,
             }
         )
+    return out
+
+
+def query_nvd_for_cpe(
+    cpe23: str,
+    results_per_page: int = NVD_RESULTS_PER_PAGE,
+    sleep_seconds: float = 0.0,
+) -> list[dict[str, Any]]:
+    """Return simplified CVE records for a CPE name (paginated)."""
+    out: list[dict[str, Any]] = []
+    start_index = 0
+    total_results = None
+
+    while True:
+        params = {
+            "cpeName": cpe23,
+            "resultsPerPage": str(results_per_page),
+            "startIndex": str(start_index),
+        }
+        payload = nvd_get(params)
+        if not payload:
+            break
+
+        batch = _parse_nvd_vulnerabilities(payload)
+        out.extend(batch)
+        if total_results is None:
+            try:
+                total_results = int(payload.get("totalResults") or 0)
+            except (TypeError, ValueError):
+                total_results = 0
+
+        start_index += len(batch)
+        if not batch or start_index >= total_results:
+            break
+        if sleep_seconds > 0:
+            time.sleep(sleep_seconds)
+
     return out
 
 
@@ -335,12 +364,18 @@ def summarize_cves(cves: list[dict[str, Any]]) -> dict[str, Any]:
     max_score = None
     max_severity = ""
     top_cve = ""
-    scored = []
-    for entry in cves:
+    ordered = sorted(
+        cves,
+        key=lambda item: (
+            item.get("score") is None,
+            -(item.get("score") or 0),
+            item.get("id") or "",
+        ),
+    )
+    for entry in ordered:
         score = entry.get("score")
         if score is None:
             continue
-        scored.append(entry)
         if max_score is None or score > max_score:
             max_score = score
             max_severity = entry.get("severity") or ""
@@ -351,10 +386,8 @@ def summarize_cves(cves: list[dict[str, Any]]) -> dict[str, Any]:
         "max_cvss": max_score,
         "max_severity": max_severity,
         "top_cve": top_cve,
-        "cves": sorted(
-            scored,
-            key=lambda item: (-(item.get("score") or 0), item.get("id") or ""),
-        )[:20],
+        # Full list (score-desc) for report hyperlinks.
+        "cves": ordered,
         "source": "nvd",
     }
 
@@ -394,7 +427,7 @@ def lookup_software(
     cves: list[dict[str, Any]] = []
 
     if cpe:
-        cves = query_nvd_for_cpe(cpe)
+        cves = query_nvd_for_cpe(cpe, sleep_seconds=sleep_seconds)
         if sleep_seconds > 0:
             time.sleep(sleep_seconds)
     elif allow_keyword_fallback:
@@ -435,7 +468,7 @@ def enrich_software_version_rows(
       (label, count, max_cvss_display, cve_count_display, top_cve)
 
     Missing CVSS/CVE data uses blank cells (not dashes) so descending
-    sorts put real scores first.
+    sorts put real scores first. ``top_cve`` is the highest-scoring CVE id.
     """
     if sleep_seconds is None:
         # Authenticated NVD allows ~50 req/30s; unauthenticated ~5/30s.
@@ -459,7 +492,7 @@ def enrich_software_version_rows(
         error = cached.get("error") or ""
         max_cvss = format_cvss(cached.get("max_cvss"))
         cve_count = cached.get("cve_count") or 0
-        top_cve = cached.get("top_cve") or ""
+        top_cve = (cached.get("top_cve") or "").strip()
 
         if error in {"skipped", "no-cpe", "nvd-error"} or not max_cvss:
             max_cvss = ""

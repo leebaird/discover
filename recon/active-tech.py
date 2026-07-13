@@ -685,8 +685,23 @@ def summary_table(title, label_header, rows, sort_last_labels=None, section_clas
     return lines
 
 
+def cve_nvd_link_html(cve_id):
+    """Render a single CVE id as an NVD detail link."""
+    cve_id = str(cve_id or "").strip()
+    if not cve_id:
+        return ""
+    if re.fullmatch(r"CVE-\d{4}-\d+", cve_id, flags=re.IGNORECASE):
+        cve_id = cve_id.upper()
+        href = f"https://nvd.nist.gov/vuln/detail/{cve_id}"
+        return (
+            f'<a href="{html.escape(href, quote=True)}" target="_blank" '
+            f'rel="noopener noreferrer">{html.escape(cve_id)}</a>'
+        )
+    return html.escape(cve_id)
+
+
 def software_versions_table(rows, section_class="inc-active-section--software-versions"):
-    """Render Software versions with Count, Max CVSS, CVE count, and top CVE.
+    """Render Software versions with Count, CVSS, CVE count, and top CVE link.
 
     rows: iterable of (label, count, max_cvss, cve_count, top_cve)
     """
@@ -711,13 +726,14 @@ def software_versions_table(rows, section_class="inc-active-section--software-ve
     ]
 
     for label, count, max_cvss, cve_count, top_cve in rows:
+        cve_cell = cve_nvd_link_html(top_cve)
         lines.append(
             "                <tr>"
             f"<td>{html.escape(str(label))}</td>"
             f'<td class="inc-col-center">{format_count(count)}</td>'
             f'<td class="inc-col-center">{html.escape(str(max_cvss))}</td>'
             f'<td class="inc-col-center">{html.escape(str(cve_count))}</td>'
-            f"<td>{html.escape(str(top_cve))}</td>"
+            f'<td class="inc-subdomain-cve-links">{cve_cell}</td>'
             "</tr>"
         )
 

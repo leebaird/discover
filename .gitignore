@@ -6,3 +6,5 @@ notes/index.htm
 .env
 .env.*
 !.env.example
+# CISA KEV catalog (downloaded by Update into resource/)
+resource/known_exploited_vulnerabilities.json

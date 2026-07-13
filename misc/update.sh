@@ -6,11 +6,20 @@
 BLUE='\033[1;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
+# Discover install root (parent of misc/) — reliable when this script is executed directly
+DISCOVER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 f_disable_auto_updates(){
+    local marker=/etc/apt/apt.conf.d/99discover-no-auto-updates
+
+    # Only run (and print) once — marker file means this machine was already configured.
+    if [ -f "$marker" ] && grep -q 'Managed by Discover update.sh' "$marker" 2>/dev/null; then
+        return 0
+    fi
+
     echo -e "${BLUE}Disabling automatic OS update checks.${NC}"
 
-    cat > /etc/apt/apt.conf.d/99discover-no-auto-updates <<'EOF'
+    cat > "$marker" <<'EOF'
 // Managed by Discover update.sh — manual updates only
 APT::Periodic::Update-Package-Lists "0";
 APT::Periodic::Unattended-Upgrade "0";
@@ -121,10 +130,65 @@ if ! command -v chromium &> /dev/null && \
     echo
 fi
 
+# CISA Known Exploited Vulnerabilities catalog (used by Active CVSS / Top CVE)
+# Stored under Discover's resource/ folder. Alphabetical order: after chromium, before curl.
+# curl is installed just below; use it if already present, otherwise soft-fail until curl installs.
+f_update_cisa_kev(){
+    local kev_dir="$DISCOVER_ROOT/resource"
+    local kev_url="https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+    local kev_file="$kev_dir/known_exploited_vulnerabilities.json"
+    local tmp_file
+    local count
+
+    echo -e "${BLUE}Updating CISA KEV catalog.${NC}"
+    if ! command -v curl &> /dev/null; then
+        echo -e "${YELLOW}curl not installed yet; skipping CISA KEV until curl is available.${NC}"
+        echo
+        return 0
+    fi
+    mkdir -p "$kev_dir" || {
+        echo -e "${YELLOW}Could not create $kev_dir; skipping CISA KEV update.${NC}"
+        echo
+        return 0
+    }
+
+    tmp_file=$(mktemp) || {
+        echo -e "${YELLOW}Could not create temp file; skipping CISA KEV update.${NC}"
+        echo
+        return 0
+    }
+
+    if curl -fsSL --connect-timeout 30 --max-time 180 \
+        -A "Discover-update/1.0 (https://github.com/leebaird/discover)" \
+        -o "$tmp_file" "$kev_url"; then
+        if python3 -c "import json,sys; json.load(open(sys.argv[1], encoding='utf-8'))" "$tmp_file" 2>/dev/null; then
+            mv "$tmp_file" "$kev_file"
+            chmod 644 "$kev_file" 2>/dev/null || true
+            if [ -n "$SUDO_USER" ]; then
+                chown "$SUDO_USER:" "$kev_file" 2>/dev/null || true
+            fi
+            count=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1], encoding='utf-8')).get('count', '?'))" "$kev_file" 2>/dev/null || echo "?")
+            echo "Saved $kev_file"
+            echo "$count vulnerabilities."
+        else
+            rm -f "$tmp_file"
+            echo -e "${YELLOW}CISA KEV download was not valid JSON; keeping previous catalog if any.${NC}"
+        fi
+    else
+        rm -f "$tmp_file"
+        echo -e "${YELLOW}Failed to download CISA KEV catalog; keeping previous catalog if any.${NC}"
+    fi
+    echo
+}
+
+f_update_cisa_kev
+
 if ! command -v curl &> /dev/null; then
     echo -e "${YELLOW}Installing curl.${NC}"
     apt install -y curl
     echo
+    # Retry KEV now that curl is available (first-time installs).
+    f_update_cisa_kev
 fi
 
 f_dnsrecon_working() {

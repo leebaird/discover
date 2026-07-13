@@ -314,7 +314,7 @@ def main() -> int:
     index_path = NOTES_DIR / 'index.htm'
     index_path.write_text(build_index(manifest), encoding='utf-8')
 
-    print(f'[*] Built {built} note pages and index.htm')
+    print(f'Built {built} note pages and index.htm')
     return 0
 
 

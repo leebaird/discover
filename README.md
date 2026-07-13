@@ -355,6 +355,23 @@ Cache file: `<report>/tools/software-cves-cache.json` (per engagement; re-runs r
 cached product:version results). CVSS values are **triage leads** from NVD CPE
 matches, not confirmed findings — validate before reporting to a client.
 
+**CISA Known Exploited Vulnerabilities (KEV)**
+
+Discover **Update** (main menu option 16 / `misc/update.sh`) downloads the CISA KEV
+JSON catalog into Discover’s `resource/` folder:
+
+```
+$DISCOVER/resource/known_exploited_vulnerabilities.json
+```
+
+(e.g. `~/discover/resource/known_exploited_vulnerabilities.json`)
+
+Source: https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json  
+Catalog: https://www.cisa.gov/known-exploited-vulnerabilities-catalog
+
+If the download fails, any previous local catalog is left in place. The file is
+gitignored (refreshed by Update, not committed).
+
 #### SEC leadership (Names page)
 
 For US public companies, Discover pulls executives and directors from SEC

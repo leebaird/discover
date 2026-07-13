@@ -454,6 +454,19 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     white-space: nowrap;
 }
 
+.inc-active-page .inc-subdomain-cve-links {
+    white-space: nowrap;
+}
+
+.inc-active-page .inc-subdomain-cve-links a {
+    color: var(--accent-hover);
+    text-decoration: none;
+}
+
+.inc-active-page .inc-subdomain-cve-links a:hover {
+    text-decoration: underline;
+}
+
 .inc-data-body {
     margin: 0;
     padding: var(--space);
