@@ -1,4 +1,5 @@
 import html
+import importlib.util
 import json
 import os
 import re
@@ -683,6 +684,98 @@ def summary_table(title, label_header, rows, sort_last_labels=None, section_clas
     return lines
 
 
+def software_versions_table(rows, section_class="inc-active-section--software-versions"):
+    """Render Software versions with Count, Max CVSS, CVE count, and top CVE.
+
+    rows: iterable of (label, count, max_cvss, cve_count, top_cve)
+    """
+    class_names = "inc-active-section"
+    if section_class:
+        class_names = f"{class_names} {section_class}"
+    lines = [
+        f'    <section class="{class_names}">',
+        '        <h3 class="inc-active-section-title">Software versions</h3>',
+        '        <div class="inc-content-frame inc-content-frame--table">',
+        '        <table class="table table-bordered inc-data-table">',
+        "            <thead>",
+        "                <tr>",
+        '                    <th scope="col" class="inc-sortable">Software</th>',
+        '                    <th scope="col" class="inc-sortable inc-col-center">Count</th>',
+        '                    <th scope="col" class="inc-sortable inc-col-center">CVSS</th>',
+        '                    <th scope="col" class="inc-sortable inc-col-center">CVEs</th>',
+        '                    <th scope="col" class="inc-sortable">Top CVE</th>',
+        "                </tr>",
+        "            </thead>",
+        "            <tbody>",
+    ]
+
+    for label, count, max_cvss, cve_count, top_cve in rows:
+        lines.append(
+            "                <tr>"
+            f"<td>{html.escape(str(label))}</td>"
+            f'<td class="inc-col-center">{format_count(count)}</td>'
+            f'<td class="inc-col-center">{html.escape(str(max_cvss))}</td>'
+            f'<td class="inc-col-center">{html.escape(str(cve_count))}</td>'
+            f"<td>{html.escape(str(top_cve))}</td>"
+            "</tr>"
+        )
+
+    lines.extend(
+        [
+            "            </tbody>",
+            "        </table>",
+            "        </div>",
+            "    </section>",
+        ]
+    )
+    return lines
+
+
+def _load_software_cve_module():
+    module_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "software-cve.py")
+    spec = importlib.util.spec_from_file_location("software_cve", module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def enrich_software_rows_for_report(software_version_rows, httpx_path):
+    """Attach CVSS/CVE fields; degrade gracefully if NVD is unavailable."""
+    if not software_version_rows:
+        return []
+
+    if (os.environ.get("DISCOVER_SKIP_CVE") or "").strip() in {"1", "true", "yes"}:
+        return [
+            (label, count, "", "", "")
+            for label, count in software_version_rows
+        ]
+
+    cache_path = ""
+    if httpx_path:
+        cache_path = os.path.join(
+            os.path.dirname(os.path.abspath(httpx_path)),
+            "software-cves-cache.json",
+        )
+
+    try:
+        software_cve = _load_software_cve_module()
+        progress = (os.environ.get("DISCOVER_CVE_PROGRESS") or "").strip() in {
+            "1",
+            "true",
+            "yes",
+        }
+        return software_cve.enrich_software_version_rows(
+            software_version_rows,
+            cache_path,
+            progress=progress,
+        )
+    except Exception:
+        return [
+            (label, count, "", "", "")
+            for label, count in software_version_rows
+        ]
+
+
 def active_grid(columns):
     lines = ['    <div class="inc-active-grid">']
 
@@ -794,6 +887,10 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
         software_version_counter.items(),
         key=lambda item: item[0].lower(),
     )
+    software_version_enriched = enrich_software_rows_for_report(
+        software_version_rows,
+        httpx_path,
+    )
 
     lines.extend(
         active_grid(
@@ -809,7 +906,7 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                         ],
                     ),
                     summary_table(
-                        "Status codes (alive hosts)",
+                        "Status codes",
                         "Status Code",
                         status_rows,
                         section_class="inc-active-section--status",
@@ -838,12 +935,7 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                     ),
                 ],
                 [
-                    summary_table(
-                        "Software versions",
-                        "Software versions",
-                        software_version_rows,
-                        section_class="inc-active-section--software-versions",
-                    ),
+                    software_versions_table(software_version_enriched),
                 ],
             ]
         )

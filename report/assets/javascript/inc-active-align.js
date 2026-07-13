@@ -40,7 +40,8 @@
         statusSection.style.marginTop = '0px';
         delta = legacyRow.getBoundingClientRect().top - statusRow.getBoundingClientRect().top;
 
-        if (Math.abs(delta) < 0.5) {
+        // Never pull the status table upward over Scope (negative margin).
+        if (delta < 0.5) {
             statusSection.style.marginTop = '';
             return;
         }
@@ -54,19 +55,10 @@
         });
     }
 
+    // Align once after initial table sorts, and again on resize/load.
+    // Do not re-align on column sort clicks — that moves rows and caused
+    // the status table to jump up over the Scope section.
     scheduleAlign();
     window.addEventListener('load', scheduleAlign);
     window.addEventListener('resize', scheduleAlign);
-
-    // Re-align after column sorts change row order.
-    document.querySelectorAll(
-        '.inc-active-section--status .inc-sortable, .inc-active-section--categories .inc-sortable'
-    ).forEach(function (el) {
-        el.addEventListener('click', scheduleAlign);
-        el.addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' || event.key === ' ') {
-                scheduleAlign();
-            }
-        });
-    });
 })();

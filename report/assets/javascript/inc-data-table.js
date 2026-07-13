@@ -1,7 +1,8 @@
 (function () {
     var IPV4_RE = /^(\d{1,3}\.){3}\d{1,3}$/;
     var SRV_VALUE_RE = /→\s*([^:\s]+)(?::\d+)?\s*$/;
-    var SORT_TYPE_ORDER = { ipv4: 0, ipv6: 1, integer: 2, text: 3 };
+    var NUMBER_RE = /^-?\d+(?:\.\d+)?$/;
+    var SORT_TYPE_ORDER = { ipv4: 0, ipv6: 1, number: 2, integer: 2, text: 3 };
 
     function isIPv4(value) {
         if (!IPV4_RE.test(value)) {
@@ -121,15 +122,31 @@
         return null;
     }
 
+    function parseNumber(value) {
+        var normalized = value.trim().replace(/,/g, '');
+
+        // Full-string numeric match only (so IPv4 like 1.2.3.4 is not a number).
+        if (!NUMBER_RE.test(normalized)) {
+            return null;
+        }
+
+        return parseFloat(normalized);
+    }
+
+    function isEmptySortValue(value) {
+        var normalized = value.trim();
+        return !normalized || normalized === '-' || normalized === '—' || normalized === '–';
+    }
+
     function sortKey(value) {
         var candidate = value.trim();
-        var integerValue = parseInteger(candidate);
+        var numberValue = parseNumber(candidate);
         var srvMatch = candidate.match(SRV_VALUE_RE);
 
-        if (integerValue !== null) {
+        if (numberValue !== null && !isNaN(numberValue)) {
             return {
-                type: 'integer',
-                value: integerValue
+                type: 'number',
+                value: numberValue
             };
         }
 
@@ -171,7 +188,7 @@
             return compareParts([aKey.parts, bKey.parts], 8);
         }
 
-        if (aKey.type === 'integer') {
+        if (aKey.type === 'number' || aKey.type === 'integer') {
             return aKey.value - bKey.value;
         }
 
@@ -183,11 +200,11 @@
             return 0;
         }
 
-        if (!aVal) {
+        if (isEmptySortValue(aVal)) {
             return 1;
         }
 
-        if (!bVal) {
+        if (isEmptySortValue(bVal)) {
             return -1;
         }
 
@@ -232,14 +249,18 @@
                 return '';
             }
             value = fieldEl.textContent.trim();
-            // Placeholder dash sorts with empty values (last).
-            if (value === '-') {
+            // Placeholder dashes sort with empty values (always last).
+            if (isEmptySortValue(value)) {
                 return '';
             }
             return value;
         }
 
-        return cell.textContent.trim();
+        value = cell.textContent.trim();
+        if (isEmptySortValue(value)) {
+            return '';
+        }
+        return value;
     }
 
     function getTiebreakerCols(sortableEl) {
@@ -291,14 +312,36 @@
             var bCell = b.cells[colIndex];
             var aSortLast = aCell && aCell.hasAttribute('data-sort-last');
             var bSortLast = bCell && bCell.hasAttribute('data-sort-last');
+            var aVal;
+            var bVal;
+            var aEmpty;
+            var bEmpty;
+            var cmp;
+            var secondaryCol;
+            var aSub;
+            var bSub;
+            var subCmp;
 
             if (aSortLast !== bSortLast) {
+                // data-sort-last rows always stay at the bottom, either direction.
                 return aSortLast ? 1 : -1;
             }
 
-            var aVal = getCellSortValue(aCell, sortField);
-            var bVal = getCellSortValue(bCell, sortField);
-            var cmp = compareValues(aVal, bVal);
+            aVal = getCellSortValue(aCell, sortField);
+            bVal = getCellSortValue(bCell, sortField);
+            aEmpty = isEmptySortValue(aVal);
+            bEmpty = isEmptySortValue(bVal);
+
+            // Empty / placeholder cells always sort AFTER real values.
+            // Important: do not multiply by dir, or descending puts blanks first.
+            if (aEmpty || bEmpty) {
+                if (aEmpty && bEmpty) {
+                    return 0;
+                }
+                return aEmpty ? 1 : -1;
+            }
+
+            cmp = compareSortKeys(sortKey(aVal), sortKey(bVal));
 
             if (cmp !== 0) {
                 return dir * cmp;
@@ -309,10 +352,16 @@
             }
 
             if (a.cells.length > 1 && b.cells.length > 1) {
-                var secondaryCol = colIndex === 1 ? 0 : 1;
-                var aSub = a.cells[secondaryCol].textContent.trim();
-                var bSub = b.cells[secondaryCol].textContent.trim();
-                var subCmp = compareValues(aSub, bSub);
+                secondaryCol = colIndex === 1 ? 0 : 1;
+                aSub = a.cells[secondaryCol].textContent.trim();
+                bSub = b.cells[secondaryCol].textContent.trim();
+                if (isEmptySortValue(aSub) || isEmptySortValue(bSub)) {
+                    if (isEmptySortValue(aSub) && isEmptySortValue(bSub)) {
+                        return 0;
+                    }
+                    return isEmptySortValue(aSub) ? 1 : -1;
+                }
+                subCmp = compareSortKeys(sortKey(aSub), sortKey(bSub));
 
                 if (subCmp !== 0) {
                     return dir * subCmp;

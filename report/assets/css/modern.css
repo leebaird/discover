@@ -351,24 +351,39 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     background-color: rgba(34, 100, 214, 0.08);
 }
 
+/* Active report: use full page width (four summary columns + CVSS). */
+.inc-iframe-parent:not(.inc-home-page) .container.inc-active-page.inc-container-dynamic {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: var(--space-lg);
+    padding-right: var(--space-lg);
+    box-sizing: border-box;
+}
+
 .inc-active-page.container.inc-container-dynamic {
     width: 100%;
-    max-width: 100%;
+    max-width: none;
 }
 
 .inc-active-page .inc-active-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--space);
+    grid-template-columns: repeat(4, max-content);
+    gap: var(--space-lg);
     align-items: start;
+    justify-content: space-between;
     width: 100%;
     margin-top: calc(var(--space) * 2);
+    overflow-x: auto;
 }
 
 .inc-active-page .inc-active-column {
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
+    width: max-content;
+    max-width: 100%;
     min-width: 0;
 }
 
@@ -416,22 +431,27 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 
 .inc-active-page .inc-active-section .inc-content-frame--table {
     margin-bottom: 0;
-    width: 100%;
+    width: max-content;
     max-width: 100%;
 }
 
 .inc-active-page .inc-active-column .inc-data-table {
-    width: 100%;
+    width: auto;
+    table-layout: auto;
 }
 
 .inc-active-page .inc-active-column .inc-content-frame--table table.inc-data-table > thead > tr > th,
 .inc-active-page .inc-active-column .inc-content-frame--table table.inc-data-table > tbody > tr > td {
-    padding: 8px 12px;
+    padding: 8px 10px;
+    width: 1%;
+    white-space: nowrap;
+    vertical-align: top;
 }
 
 .inc-active-page .inc-data-table > thead > tr > th.inc-col-center,
 .inc-active-page .inc-data-table > tbody > tr > td.inc-col-center {
     text-align: center;
+    white-space: nowrap;
 }
 
 .inc-data-body {
@@ -670,4 +690,10 @@ body:not(.inc-iframe-parent) pre {
 
 .inc-iframe-parent:not(.inc-home-page) .container {
     max-width: 1200px;
+}
+
+/* Keep Active on full viewport width even if generic container rules tighten. */
+.inc-iframe-parent:not(.inc-home-page) .container.inc-active-page {
+    max-width: none;
+    width: 100%;
 }

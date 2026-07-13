@@ -679,7 +679,8 @@ PHOTO_HOST_COUNT=${PHOTO_HOST_COUNT:-0}
 echo -e "${BLUE}[*] Updating subdomains report with Photo, Status, Web Server, Title, and Technologies.${NC}"
 f_active_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$GOWITNESS_JSONL" "$SCREENSHOTS_DIR" "$HTTPX_JSONL" "$WHATWEB_JSON" "$PAGE"
 
-echo -e "${BLUE}[*] Updating Active report.${NC}"
+echo -e "${BLUE}[*] Updating Active report (includes NVD CVSS lookup for software versions).${NC}"
+echo -e "${BLUE}    Set NVD_API_KEY for faster lookups, or DISCOVER_SKIP_CVE=1 to skip.${NC}"
 f_active_write_active_page "$SUBDOMAINS_FILE" "$PRIVATE_FILE" "$ALIVE_TSV" "$HTTPX_JSONL" "$WHATWEB_JSON" "$ACTIVE_PAGE"
 echo
 
