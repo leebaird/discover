@@ -408,6 +408,25 @@ def photo_cell(subdomain, photo_hosts):
         return ""
     return f'<a href="{html.escape(href)}" target="_blank">Yes</a>'
 
+def host_cell(subdomain, status, url):
+    """Link subdomain when it has an HTTP status (opens target in a new tab)."""
+    text = html.escape(subdomain)
+    if not str(status or "").strip():
+        return f'<td class="inc-subdomain-host">{text}</td>'
+
+    href = (url or "").strip()
+    if not href:
+        href = f"https://{subdomain}"
+    elif "://" not in href:
+        href = f"https://{href}"
+
+    return (
+        f'<td class="inc-subdomain-host">'
+        f'<a class="inc-subdomain-host-link" href="{html.escape(href, quote=True)}" '
+        f'target="_blank" rel="noopener noreferrer">{text}</a>'
+        f"</td>"
+    )
+
 def tech_cell(title, technologies):
     title_text = title.strip() if title else ""
     if not title_text:
@@ -450,7 +469,7 @@ def build_public_table(rows, photo_hosts, host_tech, empty_message, ip_header="I
             technologies = tech.get("technologies", "")
             lines.append(
                 "                <tr>"
-                f'<td class="inc-subdomain-host">{html.escape(subdomain)}</td>'
+                f"{host_cell(subdomain, status, tech.get('url', ''))}"
                 f"<td>{html.escape(category)}</td>"
                 f"<td>{html.escape(ipaddr)}</td>"
                 f'<td class="inc-col-center">{photo}</td>'
@@ -496,6 +515,7 @@ out.extend(
         "</div>",
         "",
         '<script src="../assets/javascript/inc-data-table.js"></script>',
+        '<script src="../assets/javascript/inc-subdomains-filter.js"></script>',
         "</body>",
         "</html>",
     ]

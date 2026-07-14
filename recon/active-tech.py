@@ -4,7 +4,7 @@ import json
 import os
 import re
 from collections import Counter
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 NOISE_PLUGINS = {
     "access-control-allow-headers",
@@ -248,12 +248,19 @@ def load_httpx_rows(path):
             except json.JSONDecodeError:
                 continue
 
-            host = host_from_url(entry.get("url") or entry.get("input") or "")
+            raw_url = (entry.get("url") or entry.get("input") or "").strip()
+            host = host_from_url(raw_url)
             if not host:
                 continue
 
+            # Prefer the full httpx URL for report hyperlinks.
+            link_url = (entry.get("url") or "").strip()
+            if not link_url and raw_url:
+                link_url = raw_url if "://" in raw_url else f"https://{raw_url}"
+
             candidate = {
                 "host": host,
+                "url": link_url,
                 "status": entry.get("status_code"),
                 "webserver": (entry.get("webserver") or "").strip(),
                 "title": format_page_title(entry.get("title")),
@@ -335,9 +342,27 @@ def format_webserver(value):
     if not value or value.upper() == "N/A":
         return ""
 
-    match = re.match(r"^Microsoft-IIS/(.+)$", value, re.IGNORECASE)
+    match = re.match(r"^Microsoft-IIS(?:/(.+))?$", value, re.IGNORECASE)
     if match:
-        return f"Microsoft-IIS/{trim_version(match.group(1))}"
+        version = (match.group(1) or "").strip()
+        if version:
+            return f"Microsoft IIS/{trim_version(version)}"
+        return "Microsoft IIS"
+
+    # httpx/Azure header forms → readable labels
+    if re.fullmatch(
+        r"Microsoft-Azure-Application-Gateway/v2",
+        value,
+        flags=re.IGNORECASE,
+    ):
+        return "Microsoft Azure Application Gateway v2"
+
+    if re.fullmatch(
+        r"Microsoft-Azure-Application-LB/AGC",
+        value,
+        flags=re.IGNORECASE,
+    ):
+        return "Microsoft Azure Application LB/AGC"
 
     return value
 
@@ -368,7 +393,7 @@ def direct_tech_versions(technologies):
 # server token instead of dropping it entirely.
 WEBSERVER_SHORT_NAMES = {
     "apache": "Apache",
-    "iis": "Microsoft-IIS",
+    "iis": "Microsoft IIS",
     "nginx": "nginx",
 }
 
@@ -542,8 +567,13 @@ def host_tech_row(httpx_row, whatweb_row):
     technologies = strip_redundant_technology_labels(technologies, webserver)
     technologies = strip_noise_technology_labels(technologies)
 
+    link_url = (httpx_row.get("url") or "").strip()
+    if link_url and "://" not in link_url:
+        link_url = f"https://{link_url}"
+
     return {
         "status": format_status(status),
+        "url": link_url,
         "webserver": webserver,
         "title": format_page_title(httpx_row.get("title")),
         "technologies": technologies,
@@ -722,6 +752,35 @@ def cve_nvd_link_html(cve_id, is_kev=False):
     return f'<span class="inc-cve-cell-inner">{link}</span>'
 
 
+def software_has_cves(cve_count, top_cve):
+    """True when NVD enrichment found at least one CVE for this software."""
+    if str(top_cve or "").strip():
+        return True
+    raw = str(cve_count or "").strip()
+    if not raw or raw in {"-", "—", "n/a", "N/A"}:
+        return False
+    try:
+        return float(raw) > 0
+    except ValueError:
+        return bool(raw)
+
+
+def software_label_html(label, cve_count, top_cve):
+    """Link versioned software with CVEs to a filtered Subdomains list."""
+    label_text = str(label)
+    escaped = html.escape(label_text)
+    if not software_has_cves(cve_count, top_cve):
+        return escaped
+    # Hosts carry software tokens in tech; CVEs attach at the version level.
+    href = f"subdomains.htm?software={quote(label_text, safe='')}"
+    return (
+        f'<a class="inc-software-subdomains-link" '
+        f'href="{html.escape(href, quote=True)}" '
+        f'title="Show subdomains with this software">'
+        f"{escaped}</a>"
+    )
+
+
 def software_versions_table(rows, section_class="inc-active-section--software-versions"):
     """Render Software versions with Count, CVSS, CVE count, and top CVE link.
 
@@ -734,7 +793,9 @@ def software_versions_table(rows, section_class="inc-active-section--software-ve
         f'    <section class="{class_names}">',
         '        <h3 class="inc-active-section-title">Software versions</h3>',
         '        <div class="inc-content-frame inc-content-frame--table">',
-        '        <table class="table table-bordered inc-data-table">',
+        # Default sort: CVSS column (index 2) descending — highest risk first.
+        '        <table class="table table-bordered inc-data-table" '
+        'data-default-col="2" data-default-dir="-1">',
         "            <thead>",
         "                <tr>",
         '                    <th scope="col" class="inc-sortable">Software</th>',
@@ -754,9 +815,10 @@ def software_versions_table(rows, section_class="inc-active-section--software-ve
             label, count, max_cvss, cve_count, top_cve = row[:5]
             top_is_kev = False
         cve_cell = cve_nvd_link_html(top_cve, is_kev=bool(top_is_kev))
+        label_cell = software_label_html(label, cve_count, top_cve)
         lines.append(
             "                <tr>"
-            f"<td>{html.escape(str(label))}</td>"
+            f"<td>{label_cell}</td>"
             f'<td class="inc-col-center">{format_count(count)}</td>'
             f'<td class="inc-col-center">{html.escape(str(max_cvss))}</td>'
             f'<td class="inc-col-center">{html.escape(str(cve_count))}</td>'
@@ -844,10 +906,15 @@ def counter_rows(counter, limit=None):
 
 
 def webserver_label(value):
+    """Normalize web server for Active Top web servers counts.
+
+    Drops parenthetical notes (e.g. ``Apache (Debian)`` → ``Apache``) but keeps
+    multi-word product names intact.
+    """
     value = (value or "").strip()
     if not value:
         return ""
-    return value.split()[0].split("(")[0].strip()
+    return re.sub(r"\s*\([^)]*\)", "", value).strip()
 
 
 def technology_label_key(label):

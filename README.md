@@ -283,7 +283,7 @@ Address).
 
 `active-tech.py` merges and deduplicates overlapping data between columns — for
 example, OpenSSL and mod_jk versions drop out of Web Server when already listed in
-Technologies, `Microsoft-IIS/10` shortens to `Microsoft-IIS` when `IIS:10` is
+Technologies, `Microsoft IIS/10` shortens to `Microsoft IIS` when `IIS:10` is
 present, `Apache/2.4.37` shortens to `Apache` when `Apache HTTP Server:2.4.37` is
 present, OS names such as Red Hat are removed from Technologies when already shown
 in the Web Server banner, and httpx `Nginx` labels are normalized to `nginx`.

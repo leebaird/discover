@@ -303,30 +303,55 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     vertical-align: bottom;
 }
 
-.inc-subdomains-public .inc-data-table > thead > tr > th:nth-child(6) {
+/*
+ * Columns 1–3 (Subdomain, Category, IP): shrink to content.
+ * Columns 4–5 (Photo, Status): tight fixed-ish width.
+ * Column 6 (Web Server): capped share.
+ * Column 7 (Title/Technologies): absorbs remaining width.
+ */
+.inc-subdomains-public .inc-data-table > thead > tr > th:nth-child(-n+3),
+.inc-subdomains-public .inc-data-table > tbody > tr > td:nth-child(-n+3) {
     width: 1%;
-    max-width: 38ch;
-    white-space: normal;
-    word-break: normal;
-    overflow-wrap: normal;
+    white-space: nowrap;
+    vertical-align: top;
 }
 
-.inc-subdomains-public .inc-data-table > tbody > tr > td.inc-subdomain-webserver {
+.inc-subdomains-public .inc-data-table > thead > tr > th:nth-child(4),
+.inc-subdomains-public .inc-data-table > thead > tr > th:nth-child(5),
+.inc-subdomains-public .inc-data-table > tbody > tr > td:nth-child(4),
+.inc-subdomains-public .inc-data-table > tbody > tr > td:nth-child(5) {
     width: 1%;
-    max-width: 38ch;
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+    white-space: nowrap;
+    vertical-align: top;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.inc-subdomains-public .inc-data-table > tbody > tr > td.inc-subdomain-host a.inc-subdomain-host-link {
+    color: var(--accent-hover);
+    text-decoration: none;
+}
+
+.inc-subdomains-public .inc-data-table > tbody > tr > td.inc-subdomain-host a.inc-subdomain-host-link:hover {
+    text-decoration: underline;
+}
+
+.inc-subdomains-public .inc-data-table > thead > tr > th:nth-child(6),
+.inc-subdomains-public .inc-data-table > tbody > tr > td.inc-subdomain-webserver {
+    width: 15%;
+    min-width: 22rem;
+    max-width: 28rem;
     white-space: normal;
     word-break: normal;
     overflow-wrap: normal;
     vertical-align: top;
 }
 
-.inc-subdomains-public .inc-data-table > thead > tr > th:nth-child(7) {
-    white-space: normal;
-    word-break: normal;
-    overflow-wrap: break-word;
-}
-
+.inc-subdomains-public .inc-data-table > thead > tr > th:nth-child(7),
 .inc-subdomains-public .inc-data-table > tbody > tr > td.inc-subdomain-tech {
+    width: 99%;
     white-space: normal;
     word-break: normal;
     overflow-wrap: break-word;
@@ -492,11 +517,24 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     text-decoration: underline;
 }
 
-/* CISA KEV badge — right side of the Top CVE cell (link to CISA catalog) */
-.inc-active-page .inc-kev-badge {
+/* Software versions → filtered Subdomains list (rows with NVD CVEs only) */
+.inc-active-page .inc-software-subdomains-link {
+    color: var(--accent-hover);
+    text-decoration: none;
+}
+
+.inc-active-page .inc-software-subdomains-link:hover {
+    text-decoration: underline;
+}
+
+/*
+ * Red pill badge — Active KEV and Subdomains applied software filter.
+ * Shared look; KEV keeps extra left margin in the Top CVE cell.
+ */
+.inc-active-page .inc-kev-badge,
+.inc-subdomains-filter-banner .inc-filter-applied {
     display: inline-block;
     flex: 0 0 auto;
-    margin-left: 12px;
     padding: 1px 6px;
     border-radius: 4px;
     font-size: 10px;
@@ -507,6 +545,11 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     background: #c62828;
     border: 1px solid #b71c1c;
     text-decoration: none !important;
+    vertical-align: middle;
+}
+
+.inc-active-page .inc-kev-badge {
+    margin-left: 12px;
     cursor: pointer;
 }
 
@@ -514,6 +557,40 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     background: #b71c1c;
     color: #ffffff !important;
     text-decoration: none !important;
+}
+
+/* Subdomains software-filter banner (Active → Software versions) */
+.inc-subdomains-filter-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    margin: 0 0 0.75rem;
+    padding: 0.6rem 0.85rem;
+    background: #1e1e1e;
+    color: #f5f5f5;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.inc-subdomains-filter-banner strong {
+    font-weight: 600;
+}
+
+.inc-subdomains-filter-banner a.inc-filter-clear {
+    color: #8ab4f8;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.inc-subdomains-filter-banner a.inc-filter-clear:hover {
+    text-decoration: underline;
+}
+
+tr.inc-subdomains-filter-hide {
+    display: none !important;
 }
 
 .inc-data-body {
