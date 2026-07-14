@@ -107,9 +107,9 @@
         banner.innerHTML =
             "Showing <strong>" +
             shown +
-            "</strong> public subdomain" +
+            "</strong> subdomain" +
             (shown === 1 ? "" : "s") +
-            " with software " +
+            " running " +
             '<span class="inc-filter-applied"></span> ' +
             '<a class="inc-filter-clear" href="' +
             clearUrl() +
