@@ -911,6 +911,62 @@ else
     USER_HOME="$HOME"
 fi
 
+# Register discover-cve: handler so Active report Top CVE links open
+# NVD + Rapid7 + Tenable via Firefox CLI (same method as recon/domain.sh).
+f_install_discover_cve_handler(){
+    local apps_dir="$USER_HOME/.local/share/applications"
+    local desktop="$apps_dir/discover-cve.desktop"
+    local mimeapps="$USER_HOME/.config/mimeapps.list"
+    local opener="$DISCOVER_ROOT/misc/open-cve-tabs.sh"
+    local owner="${SUDO_USER:-$USER}"
+
+    [ -x "$opener" ] || chmod +x "$opener" 2>/dev/null || true
+    [ -f "$opener" ] || return 0
+
+    mkdir -p "$apps_dir" "$USER_HOME/.config"
+    cat > "$desktop" <<EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Discover CVE Tabs
+Comment=Open NVD, Rapid7, Tenable, Exploit-DB, and GitHub for a CVE (Discover)
+Exec=$opener %u
+Terminal=false
+Categories=Network;Security;
+MimeType=x-scheme-handler/discover-cve;
+NoDisplay=true
+EOF
+
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$desktop" 2>/dev/null || true
+    fi
+
+    if [ -f "$mimeapps" ]; then
+        if grep -q 'x-scheme-handler/discover-cve=' "$mimeapps" 2>/dev/null; then
+            sed -i 's|x-scheme-handler/discover-cve=.*|x-scheme-handler/discover-cve=discover-cve.desktop|' "$mimeapps"
+        elif grep -q '^\[Default Applications\]' "$mimeapps"; then
+            sed -i '/^\[Default Applications\]/a x-scheme-handler/discover-cve=discover-cve.desktop' "$mimeapps"
+        else
+            printf '\n[Default Applications]\nx-scheme-handler/discover-cve=discover-cve.desktop\n' >> "$mimeapps"
+        fi
+    else
+        printf '[Default Applications]\nx-scheme-handler/discover-cve=discover-cve.desktop\n' > "$mimeapps"
+    fi
+
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$mimeapps" 2>/dev/null || true
+        sudo -u "$SUDO_USER" xdg-mime default discover-cve.desktop x-scheme-handler/discover-cve >/dev/null 2>&1 || true
+        sudo -u "$SUDO_USER" update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+    else
+        xdg-mime default discover-cve.desktop x-scheme-handler/discover-cve >/dev/null 2>&1 || true
+        update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+    fi
+
+    unset owner
+}
+
+f_install_discover_cve_handler
+
 # Delete folder if it is empty
 if [ -d "$USER_HOME/data/" ] && [ -z "$(ls -A "$USER_HOME/data/" 2>/dev/null)" ]; then
     rm -rf "$USER_HOME/data/"

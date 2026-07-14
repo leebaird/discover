@@ -492,7 +492,7 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     text-decoration: underline;
 }
 
-/* CISA KEV badge — right side of the Top CVE cell */
+/* CISA KEV badge — right side of the Top CVE cell (link to CISA catalog) */
 .inc-active-page .inc-kev-badge {
     display: inline-block;
     flex: 0 0 auto;
@@ -503,9 +503,17 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     font-weight: 700;
     letter-spacing: 0.04em;
     line-height: 1.4;
-    color: #ffffff;
+    color: #ffffff !important;
     background: #c62828;
     border: 1px solid #b71c1c;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
+.inc-active-page .inc-kev-badge:hover {
+    background: #b71c1c;
+    color: #ffffff !important;
+    text-decoration: none !important;
 }
 
 .inc-data-body {

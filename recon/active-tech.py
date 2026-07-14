@@ -694,16 +694,28 @@ def cve_nvd_link_html(cve_id, is_kev=False):
         cve_id = cve_id.upper()
         href = f"https://nvd.nist.gov/vuln/detail/{cve_id}"
         link = (
-            f'<a class="inc-cve-id" href="{html.escape(href, quote=True)}" target="_blank" '
-            f'rel="noopener noreferrer">{html.escape(cve_id)}</a>'
+            f'<a class="inc-cve-id" href="{html.escape(href, quote=True)}" '
+            f'data-cve="{html.escape(cve_id, quote=True)}" target="_blank" '
+            f'rel="noopener noreferrer" '
+            f'title="Open NVD, Rapid7, Tenable, Exploit-DB, and GitHub in Firefox">'
+            f"{html.escape(cve_id)}</a>"
         )
     else:
         link = f'<span class="inc-cve-id">{html.escape(cve_id)}</span>'
 
     if is_kev:
+        # CISA catalog search for this CVE (opens in a new tab).
+        kev_href = (
+            "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+            f"?search={html.escape(cve_id, quote=True)}"
+            "&field_date_added_wrapper=all&field_cve=&sort_by=field_date_added"
+            "&items_per_page=20&url="
+        )
         badge = (
-            '<span class="inc-kev-badge" title="CISA Known Exploited Vulnerability">'
-            "KEV</span>"
+            f'<a class="inc-kev-badge" href="{kev_href}" target="_blank" '
+            f'rel="noopener noreferrer" '
+            f'title="CISA Known Exploited Vulnerability — open catalog entry">'
+            "KEV</a>"
         )
         # Inner flex wrapper so badge can pin right even when table cells use width:1%.
         return f'<span class="inc-cve-cell-inner inc-cve-cell-inner--kev">{link}{badge}</span>'
