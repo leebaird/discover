@@ -269,6 +269,30 @@ else
     echo
 fi
 
+# droopescan — CMS scanner (Drupal, WordPress, …); upstream recommends pip/pipx.
+# Install system-wide via pipx so the binary lands in /usr/local/bin (Discover style).
+if ! command -v pipx &> /dev/null; then
+    echo -e "${YELLOW}Installing pipx (required for droopescan).${NC}"
+    apt install -y pipx
+    echo
+fi
+
+if command -v droopescan &> /dev/null; then
+    echo -e "${BLUE}Updating droopescan.${NC}"
+    if PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx upgrade droopescan 2>/dev/null; then
+        :
+    else
+        # Not managed by our pipx home yet — install/reinstall into /usr/local/bin.
+        PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install --force droopescan
+    fi
+    echo
+else
+    echo -e "${YELLOW}Installing droopescan.${NC}"
+    mkdir -p /opt/pipx
+    PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install droopescan
+    echo
+fi
+
 # shellcheck disable=SC2166
 if [ -d /opt/Egress-Assess/.git -a -d /opt/Egress-Assess-venv ]; then
     echo -e "${BLUE}Updating Egress-Assess.${NC}"
