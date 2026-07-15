@@ -136,11 +136,10 @@ Firefox about:config (examples):
     media.peerconnection.enabled > false
 
 Scanner user agents:
-    https://www.whatismybrowser.com/guides/the-latest-user-agent/firefox
-    sudo gedit /etc/nikto/nikto.conf
-    # or /etc/nikto/config.txt on some installs
-    sudo gedit /usr/share/nmap/nselib/http.lua
-    # Edit default user agent around line 160
+    Discover Update refreshes resource/user-agent.txt (Edge) and patches Nikto, Nmap, and ffuf.
+    Manual reference: https://www.whatismybrowser.com/guides/the-latest-user-agent/edge
+    Inspect: cat $DISCOVER/resource/user-agent.txt
+    ffuf config: ~/.config/ffuf/ffufrc
 
 ## Validation / False Positives
 

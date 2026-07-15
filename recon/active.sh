@@ -626,7 +626,18 @@ WHATWEB_JSON="$TOOLS_DIR/whatweb.json"
 GOWITNESS_DIR="$TOOLS_DIR/gowitness"
 GOWITNESS_JSONL="$GOWITNESS_DIR/gowitness.jsonl"
 SCREENSHOTS_DIR="$GOWITNESS_DIR/screenshots"
-WHATWEB_UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+# Prefer Discover-refreshed Edge UA (resource/user-agent.txt via f_discover_user_agent).
+if [ -z "${USER_AGENT:-}" ] || [[ "$USER_AGENT" != Mozilla/* ]]; then
+    if declare -F f_discover_user_agent >/dev/null 2>&1; then
+        USER_AGENT="$(f_discover_user_agent)"
+    elif [ -n "${DISCOVER:-}" ] && [ -f "$DISCOVER/resource/user-agent.txt" ]; then
+        USER_AGENT=$(grep -v '^[[:space:]]*#' "$DISCOVER/resource/user-agent.txt" | sed '/^[[:space:]]*$/d' | head -n 1)
+    fi
+fi
+if [ -z "${USER_AGENT:-}" ] || [[ "$USER_AGENT" != Mozilla/* ]]; then
+    USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0'
+fi
+WHATWEB_UA="$USER_AGENT"
 PAGE="$DISCOVER_REPORT/pages/subdomains.htm"
 ACTIVE_PAGE="$DISCOVER_REPORT/pages/active.htm"
 
@@ -658,9 +669,11 @@ fi
 echo "[*] $TARGET_COUNT public hostnames queued for httpx."
 echo
 echo -e "${BLUE}[*] Running httpx.${NC}"
+echo "[*] User-Agent: $USER_AGENT"
 
-httpx -l "$TARGETS_FILE" -silent -random-agent -sc -title -server -td -cl -ip -cname -cdn \
+httpx -l "$TARGETS_FILE" -silent -sc -title -server -td -cl -ip -cname -cdn \
     -fhr -maxr 2 \
+    -H "User-Agent: $USER_AGENT" \
     -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
     -json -o "$HTTPX_JSONL" >/dev/null
 

@@ -131,19 +131,20 @@ Option 18 (Update) — installs tool updates via misc/update.sh and rebuilds not
 
 ## Overview
 
-Refresh default user agent strings in Nikto and Nmap to match current browser builds.
+Discover Update refreshes a Microsoft Edge User-Agent into
+`resource/user-agent.txt` and applies it to Nikto, Nmap, and ffuf (`~/.config/ffuf/ffufrc`)
+when those configs are writable. Active (httpx/whatweb) and other Discover scripts
+read the same file via `f_discover_user_agent` / `$USER_AGENT`.
 
-## Commands
+Manual override or inspection:
 
-Reference:
+    cat /path/to/discover/resource/user-agent.txt
+
+Reference list (human):
     https://www.whatismybrowser.com/guides/the-latest-user-agent/edge
 
-Nikto:
-    sudo gedit /etc/nikto/config.txt
-
-Nmap:
-    sudo gedit /usr/share/nmap/nselib/http.lua
-    # edit the default user agent around line 160
+JSON source used by Update:
+    https://jnrbsn.github.io/user-agents/user-agents.json
 
 
 # Burp Browser Sandbox

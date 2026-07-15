@@ -183,12 +183,260 @@ f_update_cisa_kev(){
 
 f_update_cisa_kev
 
+# Refresh Microsoft Edge User-Agent for scanners (Nikto, Nmap, ffuf, Active, scripts).
+# Primary source: jnrbsn user-agents JSON; backup: microlink top desktop list.
+# Soft-fail: keep existing resource/user-agent.txt if download fails.
+f_update_user_agent(){
+    local ua_dir="$DISCOVER_ROOT/resource"
+    local ua_file="$ua_dir/user-agent.txt"
+    local primary_url="https://jnrbsn.github.io/user-agents/user-agents.json"
+    local backup_url="https://raw.githubusercontent.com/microlinkhq/top-user-agents/master/src/desktop.json"
+    local tmp_file
+    local ua=""
+    local nikto_cfg=/etc/nikto/config.txt
+    local nmap_http=/usr/share/nmap/nselib/http.lua
+
+    echo -e "${BLUE}Updating scanner User-Agent (Microsoft Edge).${NC}"
+
+    if ! command -v curl &> /dev/null; then
+        echo -e "${YELLOW}curl not installed yet; skipping User-Agent refresh until curl is available.${NC}"
+        echo
+        return 0
+    fi
+
+    mkdir -p "$ua_dir" || {
+        echo -e "${YELLOW}Could not create $ua_dir; skipping User-Agent refresh.${NC}"
+        echo
+        return 0
+    }
+
+    tmp_file=$(mktemp) || {
+        echo -e "${YELLOW}Could not create temp file; skipping User-Agent refresh.${NC}"
+        echo
+        return 0
+    }
+
+    f_ua_from_json(){
+        local json_path="$1"
+        python3 - "$json_path" <<'PY'
+import json, sys
+
+path = sys.argv[1]
+try:
+    data = json.load(open(path, encoding="utf-8"))
+except Exception:
+    sys.exit(1)
+
+items = data if isinstance(data, list) else []
+if isinstance(data, dict):
+    for value in data.values():
+        if isinstance(value, list):
+            items = value
+            break
+
+chosen = ""
+for entry in items:
+    if not isinstance(entry, str):
+        continue
+    if "Edg/" not in entry:
+        continue
+    if "Windows NT" not in entry and "Windows" not in entry:
+        continue
+    if not entry.startswith("Mozilla/"):
+        continue
+    chosen = entry.strip()
+    break
+
+if not chosen:
+    sys.exit(1)
+print(chosen)
+PY
+    }
+
+    if curl -fsSL --connect-timeout 20 --max-time 60 \
+        -A "Discover-update/1.0 (https://github.com/leebaird/discover)" \
+        -o "$tmp_file" "$primary_url"; then
+        ua=$(f_ua_from_json "$tmp_file" 2>/dev/null || true)
+    fi
+
+    if [ -z "$ua" ]; then
+        if curl -fsSL --connect-timeout 20 --max-time 60 \
+            -A "Discover-update/1.0 (https://github.com/leebaird/discover)" \
+            -o "$tmp_file" "$backup_url"; then
+            ua=$(f_ua_from_json "$tmp_file" 2>/dev/null || true)
+        fi
+    fi
+    rm -f "$tmp_file"
+
+    if [ -z "$ua" ] || [[ "$ua" != Mozilla/* ]]; then
+        if [ -f "$ua_file" ]; then
+            echo -e "${YELLOW}Could not refresh User-Agent; keeping existing $ua_file.${NC}"
+        else
+            echo -e "${YELLOW}Could not refresh User-Agent; tools will use built-in Edge fallback.${NC}"
+        fi
+        echo
+        return 0
+    fi
+
+    {
+        echo "# Discover scanner User-Agent (Microsoft Edge on Windows)."
+        echo "# Refreshed by misc/update.sh — do not commit secrets here."
+        echo "# Primary: $primary_url"
+        echo "$ua"
+    } > "$ua_file"
+    chmod 644 "$ua_file" 2>/dev/null || true
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$ua_file" 2>/dev/null || true
+    fi
+    echo "Saved $ua_file"
+    echo "$ua"
+
+    # Nikto — replace USERAGENT= line (remove default Nikto/@VERSION if present).
+    if [ -f "$nikto_cfg" ] && [ -w "$nikto_cfg" ]; then
+        if grep -qE '^USERAGENT=' "$nikto_cfg"; then
+            # Use | delimiter; UA has no pipes.
+            sed -i "s|^USERAGENT=.*|USERAGENT=$ua|" "$nikto_cfg"
+        else
+            printf '\nUSERAGENT=%s\n' "$ua" >> "$nikto_cfg"
+        fi
+        echo "Updated Nikto USERAGENT in $nikto_cfg"
+    elif [ -f "$nikto_cfg" ]; then
+        echo -e "${YELLOW}Nikto config not writable: $nikto_cfg${NC}"
+    fi
+
+    # Nmap NSE http library default User-Agent (best-effort across upgrades).
+    if [ -f "$nmap_http" ] && [ -w "$nmap_http" ]; then
+        if python3 - "$nmap_http" "$ua" <<'PY'
+import re, sys
+
+path, new_ua = sys.argv[1], sys.argv[2]
+text = open(path, encoding="utf-8", errors="replace").read()
+# stdnse.get_script_args('http.useragent') or "...."
+pattern = re.compile(
+    r"(stdnse\.get_script_args\(\s*['\"]http\.useragent['\"]\s*\)\s*or\s*)([\"'])(.*?)\2",
+    re.DOTALL,
+)
+match = pattern.search(text)
+if not match:
+    sys.exit(1)
+quote = match.group(2)
+escaped = new_ua.replace("\\", "\\\\").replace(quote, "\\" + quote)
+new_text, count = pattern.subn(r"\1" + quote + escaped + quote, text, count=1)
+if count != 1:
+    sys.exit(1)
+open(path, "w", encoding="utf-8").write(new_text)
+PY
+        then
+            echo "Updated Nmap default User-Agent in $nmap_http"
+        else
+            echo -e "${YELLOW}Could not patch Nmap http.lua User-Agent (pattern mismatch).${NC}"
+        fi
+    elif [ -f "$nmap_http" ]; then
+        echo -e "${YELLOW}Nmap http.lua not writable: $nmap_http${NC}"
+    fi
+
+    # ffuf — per-user default headers in ~/.config/ffuf/ffufrc (no system-wide default).
+    # When Update runs under sudo, patch the invoking user's config (and root if needed).
+    f_patch_ffuf_ua(){
+        local home_dir="$1"
+        local owner="$2"
+        local conf_dir conf_file
+
+        [ -n "$home_dir" ] && [ -d "$home_dir" ] || return 1
+        conf_dir="$home_dir/.config/ffuf"
+        conf_file="$conf_dir/ffufrc"
+        mkdir -p "$conf_dir" || return 1
+
+        if python3 - "$conf_file" "$ua" <<'PY'
+import re, sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+new_ua = sys.argv[2]
+header_line = f'        "User-Agent: {new_ua}"'
+
+if path.is_file():
+    text = path.read_text(encoding="utf-8", errors="replace")
+else:
+    text = ""
+
+# Replace existing User-Agent entry in headers list if present.
+ua_hdr = re.compile(
+    r'^([ \t]*"[Uu]ser-[Aa]gent:\s*)([^"]*)(")',
+    re.MULTILINE,
+)
+if ua_hdr.search(text):
+    text = ua_hdr.sub(r'\1' + new_ua.replace("\\", "\\\\") + r'\3', text, count=1)
+    path.write_text(text, encoding="utf-8")
+    sys.exit(0)
+
+# Insert into existing headers = [ ... ] block under [http] if possible.
+headers_block = re.compile(
+    r'(headers\s*=\s*\[)(.*?)(\n[ \t]*\])',
+    re.DOTALL | re.IGNORECASE,
+)
+m = headers_block.search(text)
+if m:
+    inner = m.group(2).rstrip()
+    if inner and not inner.rstrip().endswith(","):
+        # last entry may need trailing comma before new line
+        inner = inner.rstrip() + ","
+    insertion = inner + "\n" + header_line
+    text = text[: m.start(2)] + insertion + text[m.end(2) :]
+    path.write_text(text, encoding="utf-8")
+    sys.exit(0)
+
+# Ensure [http] section exists, then append headers list.
+if re.search(r'^\[http\]', text, re.MULTILINE):
+    text = text.rstrip() + "\n\n    headers = [\n" + header_line + "\n    ]\n"
+else:
+    prefix = text.rstrip()
+    block = (
+        "# User-Agent managed by Discover update.sh\n"
+        "[http]\n"
+        "    headers = [\n"
+        f"{header_line}\n"
+        "    ]\n"
+    )
+    text = (prefix + "\n\n" + block) if prefix else block
+
+path.write_text(text, encoding="utf-8")
+PY
+        then
+            if [ -n "$owner" ] && [ "$owner" != "root" ]; then
+                chown -R "$owner:" "$conf_dir" 2>/dev/null || true
+            fi
+            echo "Updated ffuf User-Agent in $conf_file"
+            return 0
+        fi
+        echo -e "${YELLOW}Could not update ffuf config: $conf_file${NC}"
+        return 1
+    }
+
+    if [ -n "$SUDO_USER" ]; then
+        sudo_home=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+        f_patch_ffuf_ua "$sudo_home" "$SUDO_USER" || true
+    fi
+    # Also patch the effective home (root when Update is run with sudo).
+    if [ -z "$SUDO_USER" ] || [ "$(id -u)" -eq 0 ]; then
+        # Avoid double-writing the same path when not using sudo.
+        if [ -z "$SUDO_USER" ] || [ "${sudo_home:-}" != "$HOME" ]; then
+            f_patch_ffuf_ua "$HOME" "$(id -un)" || true
+        fi
+    fi
+
+    echo
+}
+
+f_update_user_agent
+
 if ! command -v curl &> /dev/null; then
     echo -e "${YELLOW}Installing curl.${NC}"
     apt install -y curl
     echo
     # Retry KEV now that curl is available (first-time installs).
     f_update_cisa_kev
+    f_update_user_agent
 fi
 
 f_dnsrecon_working() {

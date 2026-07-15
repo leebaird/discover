@@ -28,7 +28,9 @@
 # Brett Fitzpatrick (@brettfitz) - SQL query
 # Robleh Esa (@RoblehEsa) - SQL queries
 
-# OPSEC: change your default nmap user agent located on line 160 at /usr/share/nmap/nselib/http.lua 
+# OPSEC: default scanner User-Agent is refreshed by misc/update.sh into
+# resource/user-agent.txt (latest Microsoft Edge). Nmap http.lua is patched
+# on Update when possible; otherwise edit /usr/share/nmap/nselib/http.lua.
 
 ###############################################################################################################################
 
@@ -43,7 +45,8 @@ MYIP=$(ip addr | grep 'global' | grep -Eiv '(:|docker|tun0)' | cut -d '/' -f1 | 
 PWD=$(pwd)
 SIP='sort -n -u -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4'
 TIMESTAMP=$(date +"%-I:%M %p %Z")
-USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.3912.86"
+# Fallback if resource/user-agent.txt is missing (Update refreshes the file).
+DISCOVER_USER_AGENT_DEFAULT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
 
 LARGE='==============================================================================================================================='
 MEDIUM='=================================================================='
@@ -58,10 +61,32 @@ YELLOW='\033[1;33m'
 
 ###############################################################################################################################
 
+# Return Discover's scanner User-Agent (latest Edge when Update has run).
+f_discover_user_agent(){
+    local ua_file="$DISCOVER/resource/user-agent.txt"
+    local ua=""
+
+    if [ -f "$ua_file" ]; then
+        ua=$(grep -v '^[[:space:]]*#' "$ua_file" | sed '/^[[:space:]]*$/d' | head -n 1)
+        ua="${ua#"${ua%%[![:space:]]*}"}"
+        ua="${ua%"${ua##*[![:space:]]}"}"
+    fi
+
+    if [ -z "$ua" ] || [[ "$ua" != Mozilla/* ]]; then
+        ua="$DISCOVER_USER_AGENT_DEFAULT"
+    fi
+
+    printf '%s' "$ua"
+}
+
+USER_AGENT="$(f_discover_user_agent)"
+
 # Export variables
 export DATESTAMP DISCOVER RECON_DIR SCAN_DIR WEB_DIR MISC_DIR MYIP PWD SIP TIMESTAMP USER_AGENT
+export DISCOVER_USER_AGENT_DEFAULT
 export LARGE MEDIUM SMALL
 export BLUE GREEN NC RED YELLOW
+export -f f_discover_user_agent
 
 ###############################################################################################################################
 
@@ -220,12 +245,15 @@ f_firefox_check(){
 }
 
 f_firefox_user_agents(){
+    # Prefer Discover's refreshed Edge UA first, then a small browser mix.
+    local edge_ua
+    edge_ua="$(f_discover_user_agent)"
     USER_AGENTS=(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.3912.86"
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    "$edge_ua"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15"
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
     "Mozilla/5.0 (X11; Linux x86_64; rv:145.0) Gecko/20100101 Firefox/145.0"
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0"
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:145.0) Gecko/20100101 Firefox/145.0"
