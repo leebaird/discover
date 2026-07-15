@@ -453,6 +453,23 @@ echo -e "${BLUE}Updating Nmap scripts.${NC}"
 nmap --script-updatedb | grep -Eiv '(starting|seconds)' | sed 's/NSE: //'
 echo
 
+if command -v nuclei &> /dev/null; then
+    echo -e "${BLUE}Updating nuclei.${NC}"
+    nuclei_out=$(NO_COLOR=1 nuclei -up -silent 2>&1) || true
+    if echo "$nuclei_out" | grep -qi 'already updated'; then
+        echo "Already up to date."
+    elif echo "$nuclei_out" | grep -qE '^\[INF\]'; then
+        echo "Updated."
+    else
+        f_go_install_tool github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest nuclei
+    fi
+    echo
+elif [ -n "$(f_go_bin)" ]; then
+    echo -e "${YELLOW}Installing nuclei.${NC}"
+    f_go_install_tool github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest nuclei
+    echo
+fi
+
 if [ -d /opt/PEASS-ng/.git ]; then
     echo -e "${BLUE}Updating PEASS-ng.${NC}"
     cd /opt/PEASS-ng/ || exit ; git pull
