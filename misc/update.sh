@@ -911,6 +911,13 @@ else
     echo
 fi
 
+# TigerVNC client (vncviewer) — lightweight VNC viewer for operator desktops.
+if ! command -v vncviewer >/dev/null 2>&1 && ! command -v xtigervncviewer >/dev/null 2>&1; then
+    echo -e "${YELLOW}Installing TigerVNC viewer.${NC}"
+    apt install -y tigervnc-viewer
+    echo
+fi
+
 if ! command -v trivy &> /dev/null; then
     echo -e "${YELLOW}Installing trivy.${NC}"
     if ! apt install -y trivy 2>/dev/null || ! command -v trivy &> /dev/null; then

@@ -58,7 +58,7 @@ Kali Linux or Ubuntu.
   - [WAF Detection](#waf-detection)
   - [Web and API Security](#web-and-api-security)
 
----
+----------------------------------------------------------------------------------------------
 
 ## Setup and usage
 
@@ -107,7 +107,7 @@ MISC
 19. Exit
 ```
 
----
+----------------------------------------------------------------------------------------------
 
 ## RECON
 
@@ -485,7 +485,7 @@ Last name:
 
 * Combines info from multiple websites.
 
----
+----------------------------------------------------------------------------------------------
 
 ## SCANNING
 
@@ -519,7 +519,7 @@ Type of scan:
 * Nmap scripts and Metasploit auxiliary modules provide additional enumeration.
 * Additional tools: enum4linux, smbclient, and ike-scan.
 
----
+----------------------------------------------------------------------------------------------
 
 ## WEB
 
@@ -580,7 +580,7 @@ Enter the location of your file:
 
 * Uses sslscan, sslyze, and Nmap to check for SSL/TLS certificate issues.
 
----
+----------------------------------------------------------------------------------------------
 
 ## MISC
 

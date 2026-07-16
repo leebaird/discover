@@ -420,8 +420,4 @@ else
 fi
 
 echo
-echo "$MEDIUM"
-echo
-echo "[*] Report imported."
-echo
 exit 0
