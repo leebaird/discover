@@ -1,11 +1,14 @@
+/**
+ * Planning by Lee Baird (@discoverscripts)
+ * Coded by Grok (xAI)
+ *
+ * Filter the public Subdomains table by software version.
+ * Active Software versions links use: subdomains.htm?software=Apache:2.4.37
+ *
+ * Matches exact tech tokens (comma-separated) so Apache:2.4.6 does not
+ * match Apache:2.4.67.
+ */
 (function () {
-    /**
-     * Filter the public Subdomains table by software version.
-     * Active Software versions links use: subdomains.htm?software=Apache:2.4.37
-     *
-     * Matches exact tech tokens (comma-separated) so Apache:2.4.6 does not
-     * match Apache:2.4.67.
-     */
     function querySoftware() {
         try {
             var params = new URLSearchParams(window.location.search || "");

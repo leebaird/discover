@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
-
+#
+# Extra special thanks to Grok (xAI)
+#
 # Special thanks to:
 # Jay Townsend (@jay_townsend1) - everything, conversion from Backtrack to Kali
 # Jason Ashton (@ninewires) - Penetration Testers Framework (PTF) compatibility, bug crusher, and bash ninja
@@ -81,12 +83,53 @@ f_discover_user_agent(){
 
 USER_AGENT="$(f_discover_user_agent)"
 
+# Egress IP of the Discover host (consultant), for engagement audit logs.
+f_audit_egress_ip(){
+    local ip
+    ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
+    if [ -z "$ip" ]; then
+        ip=unknown
+    fi
+    printf '%s' "$ip"
+}
+
+# Append one engagement audit line:
+#   mm-dd-yyyy Z - hh:mm | <egress IP> | <action>
+# Usage: f_audit_log "$DISCOVER_REPORT" "Ran passive recon."
+f_audit_log(){
+    local report_root="$1"
+    local action="$2"
+    local audit_dir audit_log ts ip
+
+    if [ -z "$report_root" ] || [ -z "$action" ]; then
+        return 1
+    fi
+    if [ ! -d "$report_root" ]; then
+        return 1
+    fi
+
+    audit_dir="$report_root/tools/audit"
+    audit_log="$audit_dir/log.txt"
+    mkdir -p "$audit_dir" 2>/dev/null || return 1
+
+    ts=$(date -u +"%m-%d-%Y Z - %H:%M")
+    ip=$(f_audit_egress_ip)
+    # Ensure action ends with a period for consistent log style.
+    case "$action" in
+        *.) ;;
+        *) action="${action}." ;;
+    esac
+
+    printf '%s | %s | %s\n' "$ts" "$ip" "$action" >> "$audit_log" 2>/dev/null || return 1
+    return 0
+}
+
 # Export variables
 export DATESTAMP DISCOVER RECON_DIR SCAN_DIR WEB_DIR MISC_DIR MYIP PWD SIP TIMESTAMP USER_AGENT
 export DISCOVER_USER_AGENT_DEFAULT
 export LARGE MEDIUM SMALL
 export BLUE GREEN NC RED YELLOW
-export -f f_discover_user_agent
+export -f f_discover_user_agent f_audit_egress_ip f_audit_log
 
 ###############################################################################################################################
 

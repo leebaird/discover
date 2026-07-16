@@ -1256,6 +1256,59 @@ EOF
 
 f_install_discover_cve_handler
 
+# discover-scan: — operator host scans (nikto/nuclei/ffuf) from filtered Subdomains.
+f_install_discover_scan_handler(){
+    local apps_dir="$USER_HOME/.local/share/applications"
+    local desktop="$apps_dir/discover-scan.desktop"
+    local mimeapps="$USER_HOME/.config/mimeapps.list"
+    local opener="$DISCOVER_ROOT/misc/discover-scan-handler.sh"
+
+    [ -x "$opener" ] || chmod +x "$opener" 2>/dev/null || true
+    [ -f "$opener" ] || return 0
+    chmod +x "$DISCOVER_ROOT/misc/run-host-scan.sh" 2>/dev/null || true
+
+    mkdir -p "$apps_dir" "$USER_HOME/.config"
+    cat > "$desktop" <<EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Discover Host Scan
+Comment=Run nikto/nuclei/ffuf from Discover reports (operator)
+Exec=$opener %u
+Terminal=true
+Categories=Network;Security;
+MimeType=x-scheme-handler/discover-scan;
+NoDisplay=true
+EOF
+
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$desktop" 2>/dev/null || true
+    fi
+
+    if [ -f "$mimeapps" ]; then
+        if grep -q 'x-scheme-handler/discover-scan=' "$mimeapps" 2>/dev/null; then
+            sed -i 's|x-scheme-handler/discover-scan=.*|x-scheme-handler/discover-scan=discover-scan.desktop|' "$mimeapps"
+        elif grep -q '^\[Default Applications\]' "$mimeapps"; then
+            sed -i '/^\[Default Applications\]/a x-scheme-handler/discover-scan=discover-scan.desktop' "$mimeapps"
+        else
+            printf '\n[Default Applications]\nx-scheme-handler/discover-scan=discover-scan.desktop\n' >> "$mimeapps"
+        fi
+    else
+        printf '[Default Applications]\nx-scheme-handler/discover-scan=discover-scan.desktop\n' > "$mimeapps"
+    fi
+
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$mimeapps" 2>/dev/null || true
+        sudo -u "$SUDO_USER" xdg-mime default discover-scan.desktop x-scheme-handler/discover-scan >/dev/null 2>&1 || true
+        sudo -u "$SUDO_USER" update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+    else
+        xdg-mime default discover-scan.desktop x-scheme-handler/discover-scan >/dev/null 2>&1 || true
+        update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+    fi
+}
+
+f_install_discover_scan_handler
+
 # Delete folder if it is empty
 if [ -d "$USER_HOME/data/" ] && [ -z "$(ls -A "$USER_HOME/data/" 2>/dev/null)" ]; then
     rm -rf "$USER_HOME/data/"

@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!--
+      Planning by Lee Baird (@discoverscripts)
+      Coded by Grok (xAI)
+    -->
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <title>Reporting Framework</title>
@@ -10,12 +14,12 @@
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="../assets/css/styles.css"/>
-    <link rel="stylesheet" type="text/css" href="../assets/css/modern.css"/>
+    <link rel="stylesheet" type="text/css" href="../assets/css/modern.css?v=audit5"/>
     <script src="../assets/javascript/jquery.min.js"></script>
     <script src="../assets/javascript/bootstrap.min.js"></script>
 </head>
 
-<body class="inc-iframe-parent">
+<body class="inc-iframe-parent inc-audit-page">
 <!-- Start nav bar-->
 <nav class="navbar inc-app-bar">
     <div class="container-fluid">
@@ -46,7 +50,7 @@
                     </ul>
                 </li>
 
-                <li class="active dropdown">
+                <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">DNS <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li><a href="config.htm">Config</a></li>
@@ -77,12 +81,12 @@
                         <li><a href="doc.htm">Word</a></li>
                     </ul>
                 </li>
-                <li class="dropdown">
+                <li class="active dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reports <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li><a href="passive.htm">Passive</a></li>
                         <li><a href="active.htm">Active</a></li>
-                        <li><a href="audit.htm">Audit</a></li>
+                        <li class="active"><a href="audit.htm">Audit</a></li>
                     </ul>
                 </li>
 
@@ -92,15 +96,14 @@
 </nav>
 
 <!-- Page Content -->
-<div class="container">
-    <!-- Container to center contents -->
+<div class="container inc-container-dynamic inc-audit-page">
     <div class="inc-page-header">
-        <h1>DNS <span class="inc-icon inc-icon-angle-right"></span> Maps</h1>
+        <h1>Report <span class="inc-icon inc-icon-angle-right"></span> Audit</h1>
     </div>
-    <div class="inc-media-card">
-        <img src="../assets/images/dnsdumpster.png" class="img-responsive" alt="DNS Dumpster map">
-    </div>
+#AUDIT_CONTENT#
 </div>
 
+<script src="../assets/javascript/inc-data-table.js"></script>
+<script src="../assets/javascript/inc-audit-status.js?v=1"></script>
 </body>
 </html>

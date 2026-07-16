@@ -304,10 +304,15 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 }
 
 /*
+ * Public Subdomains column layout (same on regular and filtered pages).
+ * Order: Subdomain, Category, IP, Photo, Status, Web Server, Title
+ *          [optional host-scan toggle appended last on filtered only].
+ *
  * Columns 1–3 (Subdomain, Category, IP): shrink to content.
  * Columns 4–5 (Photo, Status): tight fixed-ish width.
  * Column 6 (Web Server): capped share.
  * Column 7 (Title/Technologies): absorbs remaining width.
+ * Toggle (class only): does not use nth-child so data columns stay aligned.
  */
 .inc-subdomains-public .inc-data-table > thead > tr > th:nth-child(-n+3),
 .inc-subdomains-public .inc-data-table > tbody > tr > td:nth-child(-n+3) {
@@ -357,6 +362,19 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     overflow-wrap: break-word;
     vertical-align: top;
     line-height: 1.35;
+}
+
+/* Filtered host-scan toggle — last column only; does not shift data columns */
+.inc-subdomains-public .inc-data-table > thead > tr > th.inc-host-scan-toggle-h,
+.inc-subdomains-public .inc-data-table > tbody > tr > td.inc-host-scan-toggle {
+    width: 1%;
+    max-width: 2rem;
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+    white-space: nowrap;
+    vertical-align: middle;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .inc-subdomains-public .inc-data-table > tbody > tr > td.inc-subdomain-tech .inc-subdomain-title {
@@ -591,6 +609,266 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 
 tr.inc-subdomains-filter-hide {
     display: none !important;
+}
+
+/* Audit page */
+.inc-audit-page .inc-audit-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0 0 1.25rem;
+}
+
+.inc-audit-page .inc-audit-card {
+    min-width: 8rem;
+    padding: 0.65rem 0.9rem;
+    background: #1e1e1e;
+    border: 1px solid #444;
+    border-radius: 6px;
+}
+
+.inc-audit-page .inc-audit-card-label {
+    font-size: 11px;
+    color: var(--text-muted, #aaa);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.inc-audit-page .inc-audit-card-value {
+    margin-top: 0.2rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.inc-audit-page .inc-audit-section {
+    margin: 2.25rem 0;
+}
+
+.inc-audit-page .inc-audit-section + .inc-audit-section {
+    margin-top: 2.5rem;
+}
+
+/* Match Active section titles */
+.inc-audit-page .inc-audit-section-title {
+    color: var(--accent-hover);
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 var(--space-xs);
+}
+
+.inc-audit-page .inc-audit-note {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin: 0 0 1rem;
+}
+
+/*
+ * Audit tables: same type, color, and density as Active report tables.
+ * Active uses .inc-active-page … padding 8px 10px and inherits body font (15px / Inter).
+ */
+.inc-audit-page .inc-content-frame--table {
+    margin-bottom: 0;
+    width: max-content;
+    max-width: 100%;
+}
+
+/* Deliverables + Audit log share full content width */
+.inc-audit-page .inc-content-frame--table.inc-audit-frame-wide {
+    width: 100%;
+    max-width: 100%;
+}
+
+.inc-audit-page .inc-content-frame--table table.inc-data-table,
+.inc-audit-page table.inc-data-table {
+    width: auto;
+    table-layout: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    font-family: var(--font);
+    font-size: 15px;
+    color: var(--text);
+}
+
+.inc-audit-page .inc-audit-frame-wide table.inc-data-table {
+    width: 100%;
+}
+
+/* Label / Kind / Exported / Operator IPs shrink; File takes the rest */
+.inc-audit-page table.inc-audit-deliverables > thead > tr > th:nth-child(-n+4),
+.inc-audit-page table.inc-audit-deliverables > tbody > tr > td:nth-child(-n+4) {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.inc-audit-page table.inc-audit-deliverables > thead > tr > th.inc-audit-col-file,
+.inc-audit-page table.inc-audit-deliverables > tbody > tr > td.inc-audit-col-file {
+    width: 99%;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.inc-audit-page .inc-content-frame--table table.inc-data-table > thead > tr > th,
+.inc-audit-page table.inc-data-table > thead > tr > th {
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    background-color: #343c47 !important;
+    color: #e8f2ff !important;
+    padding: 8px 10px;
+    white-space: nowrap;
+    vertical-align: top;
+}
+
+.inc-audit-page .inc-content-frame--table table.inc-data-table > tbody > tr > td,
+.inc-audit-page table.inc-data-table > tbody > tr > td {
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+    background-color: transparent !important;
+    padding: 8px 10px;
+    white-space: nowrap;
+    vertical-align: top;
+}
+
+.inc-audit-page .inc-data-table tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.inc-audit-page .inc-data-table tbody tr:hover {
+    background-color: rgba(34, 100, 214, 0.08);
+}
+
+.inc-audit-page .inc-audit-empty {
+    text-align: center;
+}
+
+.inc-audit-page .inc-audit-muted {
+    color: var(--text-muted);
+    font-family: var(--font);
+    font-size: 15px;
+}
+
+.inc-audit-page .inc-audit-running {
+    color: #f0ad4e;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+/* Filtered Subdomains host-scan expand panel */
+.inc-subdomains-public tr.inc-host-scan-panel-row > td {
+    background: #161616;
+    border-top: none;
+    padding: 0.75rem 1rem 1rem;
+}
+
+.inc-host-scan-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    align-items: flex-start;
+}
+
+.inc-host-scan-panel-meta {
+    flex: 1 1 14rem;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #ccc;
+}
+
+.inc-host-scan-panel-meta code {
+    color: #eee;
+}
+
+.inc-host-scan-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.inc-host-scan-tool {
+    min-width: 7.5rem;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid #444;
+    border-radius: 6px;
+    background: #1e1e1e;
+    text-align: center;
+}
+
+.inc-host-scan-tool .inc-host-scan-tool-name {
+    display: block;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.inc-host-scan-tool a.inc-host-scan-launch {
+    display: inline-block;
+    margin-top: 0.25rem;
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fff !important;
+    background: #2e7d32;
+    border: 1px solid #1b5e20;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
+.inc-host-scan-tool a.inc-host-scan-launch:hover {
+    background: #1b5e20;
+}
+
+.inc-host-scan-tool a.inc-host-scan-launch.is-disabled,
+.inc-host-scan-tool span.inc-host-scan-launch-disabled {
+    display: inline-block;
+    margin-top: 0.25rem;
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #999 !important;
+    background: #333;
+    border: 1px solid #444;
+    text-decoration: none !important;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.inc-host-scan-tool .inc-host-scan-last {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 11px;
+    color: #aaa;
+}
+
+.inc-host-scan-tool .inc-host-scan-last a {
+    color: #8ab4f8;
+}
+
+.inc-subdomains-public td.inc-host-scan-toggle {
+    width: 1%;
+    padding: 0.35rem 0.4rem !important;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    color: #8ab4f8;
+    user-select: none;
+}
+
+.inc-subdomains-public td.inc-host-scan-toggle:hover {
+    color: #fff;
+}
+
+.inc-subdomains-public tr.inc-host-scan-open td.inc-host-scan-toggle {
+    color: #f0ad4e;
 }
 
 .inc-data-body {

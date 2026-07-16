@@ -450,7 +450,9 @@ f_domain_menu(){
     echo "8.  Import subdomains"
     echo
     echo "9.  Active"
-    echo "10. Previous menu"
+    echo "10. Import report"
+    echo "11. Export report"
+    echo "12. Previous menu"
     echo
     echo -n "Choice: "
     read -r CHOICE
@@ -636,7 +638,11 @@ f_domain_menu(){
         exit "$status"
         ;;
     9) "$RECON_DIR/active.sh"; exit 2 ;;
-    10) exit 0 ;;
+    # Always exit 2 after Import/Export so Discover leaves the menu
+    # (same as Active/Passive). Error paths already show [!] and sleep.
+    10) "$RECON_DIR/import-report.sh"; exit 2 ;;
+    11) "$RECON_DIR/export-report.sh"; exit 2 ;;
+    12) exit 0 ;;
     *) f_invalid ;;
     esac
     done

@@ -1647,6 +1647,20 @@ EOF
     mv names emails hosts hudsonrock*.json hudsonrock.txt private-ips private-subs public-ips records social.tsv company.json sec-company-tickers.json sec-people.json homepage.html squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
     cd "$PWD" || exit
 
+    # Engagement audit log + Audit page
+    if declare -F f_audit_log >/dev/null 2>&1; then
+        f_audit_log "$HOME/data/$DOMAIN" "Ran passive recon"
+    else
+        mkdir -p "$HOME/data/$DOMAIN/tools/audit" 2>/dev/null || true
+        ts=$(date -u +"%m-%d-%Y Z - %H:%M")
+        ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
+        [ -n "$ip" ] || ip=unknown
+        printf '%s | %s | Ran passive recon.\n' "$ts" "$ip" >> "$HOME/data/$DOMAIN/tools/audit/log.txt" 2>/dev/null || true
+    fi
+    if [ -n "${DISCOVER:-}" ] && [ -f "$DISCOVER/recon/audit-build.py" ]; then
+        python3 "$DISCOVER/recon/audit-build.py" "$HOME/data/$DOMAIN" "$DISCOVER/report/pages/audit.htm" >/dev/null 2>&1 || true
+    fi
+
     echo
     echo "$MEDIUM"
     echo

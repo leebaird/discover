@@ -515,7 +515,8 @@ out.extend(
         "</div>",
         "",
         '<script src="../assets/javascript/inc-data-table.js"></script>',
-        '<script src="../assets/javascript/inc-subdomains-filter.js"></script>',
+        '<script src="../assets/javascript/inc-subdomains-filter.js?v=5"></script>',
+        '<script src="../assets/javascript/inc-host-scan.js?v=5"></script>',
         "</body>",
         "</html>",
     ]
@@ -779,6 +780,36 @@ else
 fi
 f_active_write_active_page "$SUBDOMAINS_FILE" "$PRIVATE_FILE" "$ALIVE_TSV" "$HTTPX_JSONL" "$WHATWEB_JSON" "$ACTIVE_PAGE"
 echo
+
+# Engagement session + audit
+printf '%s\n' "$DISCOVER_REPORT" > "${HOME}/.discover/current-report" 2>/dev/null || true
+mkdir -p "${HOME}/.discover" "$DISCOVER_REPORT/assets" "$DISCOVER_REPORT/tools/audit" "$DISCOVER_REPORT/tools/host-scans" 2>/dev/null || true
+cat > "$DISCOVER_REPORT/assets/report-mode.json" <<'EOF'
+{
+  "mode": "operator",
+  "launches": true
+}
+EOF
+if declare -F f_audit_log >/dev/null 2>&1; then
+    f_audit_log "$DISCOVER_REPORT" "Ran active recon"
+else
+    ts=$(date -u +"%m-%d-%Y Z - %H:%M")
+    ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
+    [ -n "$ip" ] || ip=unknown
+    printf '%s | %s | Ran active recon.\n' "$ts" "$ip" >> "$DISCOVER_REPORT/tools/audit/log.txt" 2>/dev/null || true
+fi
+
+if [ -f "$DISCOVER/recon/audit-build.py" ]; then
+    python3 "$DISCOVER/recon/audit-build.py" "$DISCOVER_REPORT" "$DISCOVER/report/pages/audit.htm" >/dev/null 2>&1 || true
+fi
+
+# Status helper for live host-scan UI (localhost only)
+if [ -f "$DISCOVER/misc/host-scan-statusd.py" ]; then
+    if ! curl -fsS --connect-timeout 1 --max-time 2 "http://127.0.0.1:17322/health" >/dev/null 2>&1; then
+        nohup python3 "$DISCOVER/misc/host-scan-statusd.py" "$DISCOVER_REPORT" 17322 \
+            >/dev/null 2>&1 &
+    fi
+fi
 
 echo "$MEDIUM"
 echo
