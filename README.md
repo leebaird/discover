@@ -17,8 +17,8 @@ git clone https://github.com/leebaird/discover
 cd discover/
 ./discover.sh
 ```
-* Select **Update** (main menu option 16) to update the operating system and install dependencies (`ffuf`, `feroxbuster`, `jq`, etc.).
-* Dev scanners are under `dev/` and are also reachable from main menu option **15. Dev**.
+* Select **Update** (main menu option **18**) to update the operating system and install dependencies (`ffuf`, `nuclei`, `droopescan`, `feroxbuster`, `jq`, etc.).
+* Dev scanners are under `dev/` and are also reachable from main menu option **16. Dev**.
 * Some options will require root credentials to run.
 
 ### Main menu
@@ -41,16 +41,17 @@ WEB
 11. SSL
 
 MISC
-12. Parse XML
-13. Generate a malicious payload
-14. Start a Metasploit listener
-15. Dev
-16. Update
-17. Exit
-
+12. Generate a malicious payload
+13. Start a Metasploit listener
+14. CVE lookup
+15. Parse XML
+16. Dev
+17. Notes
+18. Update
+19. Exit
 ```
 
-### Dev submenu (option 15)
+### Dev submenu (option 16)
 
 Security scanners by [Yiğit ibrahim (ibrahimsql)](https://github.com/ibrahimsql). Scripts live under `dev/` and can also be run directly.
 
@@ -148,10 +149,13 @@ RECON
 5.  Web search
 
 6.  Import names
-7.  Import subdomains
+7.  Import names, titles, and emails
+8.  Import subdomains
 
-8.  Active
-9.  Previous menu
+9.  Active
+10. Import report
+11. Export report
+12. Previous menu
 ```
 
 Note: Passive and Active cannot be ran as root.
@@ -167,6 +171,9 @@ sublist3r, theHarvester, Whois, and multiple websites.
 * Find registered domains updates pages/registered-domains.htm in an existing report.
 * Active uses httpx, whatweb, and gowitness; optional NVD API key speeds CVSS
   enrichment on the Active report (see **NVD API key** below).
+* After Active, open a software version on the Active page to filter Subdomains,
+  expand a host, and launch **ffuf**, **Nikto**, or **Nuclei** (operator mode).
+* **Reports** menu in the HTML report: **Passive**, **Active**, and **Audit**.
 
 #### Import names (`import-names.sh`)
 
@@ -194,6 +201,23 @@ Import names merges three sources, then refreshes pages/names.htm:
 
 The merged TSV is saved back to tools/names. The names page is a sortable
 three-column table: Name, Title, Phone.
+
+#### Import names, titles, and emails (`import-names-titles-emails.sh`)
+
+Merge a separate names file (with optional titles and emails) into an existing
+passive engagement’s Names page and `tools/names`.
+
+```
+Enter the location of the names file:
+/home/user/data/names-from-osint.txt
+
+Enter the location of your previous passive scan:
+/home/user/data/example.com
+```
+
+* Expects a readable names source file, plus a report that already has
+  `pages/names.htm`
+* Useful when contacts come from a tool or dump outside Discover’s manual TSV
 
 #### Import subdomains (`import-subdomains.sh`)
 
@@ -253,8 +277,25 @@ via **Update**).
 * Re-run Active to replace httpx/whatweb/gowitness artifacts, rebuild the
   active columns on `pages/subdomains.htm`, and refresh `pages/active.htm`
 
-The **Reports** menu contains **Passive** (`pages/passive.htm`, the former
-`report.htm` rollup) and **Active** (`pages/active.htm`, httpx/whatweb stats).
+The **Reports** menu contains **Passive** (`pages/passive.htm`), **Active**
+(`pages/active.htm`, httpx/whatweb stats), and **Audit** (`pages/audit.htm`,
+host scans and deliverables — see **Import report** / **Export report** below).
+
+**Software filter and host scans**
+
+On Active **Software versions**, click a version that has CVEs to open Subdomains
+filtered to hosts with that tech token (`subdomains.htm?software=…`). In operator
+mode (report opened via Discover **Import report**), expandable rows can launch:
+
+| Tool | Role |
+|------|------|
+| ffuf | Content discovery (quiet defaults) |
+| Nikto | Web server checks |
+| Nuclei | Template-based vuln checks |
+
+Launches use the `discover-scan:` protocol / `misc/run-host-scan.sh` (one tool at a
+time). Live status is optional via localhost `misc/host-scan-statusd.py`. Client
+and defender export packages disable launches.
 
 **Active Scope metrics**
 
@@ -355,9 +396,65 @@ Cache file: `<report>/tools/software-cves-cache.json` (per engagement; re-runs r
 cached product:version results). CVSS values are **triage leads** from NVD CPE
 matches, not confirmed findings — validate before reporting to a client.
 
+#### Import report (`import-report.sh`)
+
+Domain menu **10. Import report**. Reopen an existing engagement HTML report for
+continued operator work (does not re-run Passive/Active).
+
+```
+Enter the location of your report:
+/home/user/data/example.com
+```
+
+* Accepts a report root directory (or a page under it such as `index.htm` /
+  `pages/active.htm`)
+* Marks the live tree as **operator** mode (`assets/report-mode.json`, launches on)
+* Saves the engagement path to `~/.discover/current-report` for host-scan helpers
+* Seeds `tools/audit/` and refreshes `pages/audit.htm`
+* Syncs host-scan UI assets and ensures **Reports → Audit** on all pages
+* Opens the report in a browser when possible
+
+Empty or invalid paths show an error and exit (same style as Active / Import names).
+
+#### Export report (`export-report.sh`)
+
+Domain menu **11. Export report**. Package a snapshot for delivery without leaving
+the live tree in client mode.
+
+```
+Package for:
+  c) Client   — HTML report; audit log redacts operator egress IPs (default)
+  d) Defender — HTML report; audit log keeps operator egress IPs
+  a) Audit only (defenders) — plain-text audit log with operator IPs
+
+Export label (e.g. briefing, update) [briefing]:
+```
+
+* Prefers the session engagement from Import report when available
+* **Client** — ZIP of the HTML report; operator IPs redacted in the shipped audit log;
+  scan launches disabled in the package
+* **Defender** — ZIP of the HTML report; operator IPs kept; launches disabled
+* **Audit only** — plain-text audit log with operator IPs (for defenders)
+* Writes a deliverables entry under `tools/exports/` and an audit log line
+* Live report under `$HOME/data/<domain>/` stays operator mode for continued testing
+
+#### Audit page (`pages/audit.htm`, built by `audit-build.py`)
+
+HTML report **Reports → Audit**. Summarizes engagement activity for operators and
+for packages sent to clients or defenders.
+
+| Section | Content |
+|---------|---------|
+| Host scan activity | Per-host ffuf / Nikto / Nuclei run history |
+| Deliverables | Export label, kind (Client / Defender / Audit only), time (UTC), operator IPs (Included / Redacted), file name |
+| Audit log | UTC timestamps (`mm-dd-yyyy Z - hh:mm`), consultant egress IP, action |
+
+Import report and Active refresh this page when tools/audit data changes. Export
+records appear under Deliverables.
+
 **CISA Known Exploited Vulnerabilities (KEV)**
 
-Discover **Update** (main menu option 16 / `misc/update.sh`) downloads the CISA KEV
+Discover **Update** (main menu option **18** / `misc/update.sh`) downloads the CISA KEV
 JSON catalog into Discover’s `resource/` folder:
 
 ```
@@ -502,19 +599,7 @@ Enter the location of your file:
 * Uses sslscan, sslyze, and Nmap to check for SSL/TLS certificate issues.
 
 ## MISC
-### Parse XML
-```
-Parse XML to CSV.
-
-1.  Burp (Base64)
-2.  Nessus (.nessus)
-3.  Nexpose (XML 2.0)
-4.  Nmap
-5.  Qualys
-6.  Previous menu
-```
-
-### Generate a malicious payload
+### Generate a malicious payload (main menu option 12)
 ```
 Malicious Payloads
 
@@ -536,7 +621,7 @@ Malicious Payloads
 16.  Previous menu
 ```
 
-### Start a Metasploit listener
+### Start a Metasploit listener (main menu option 13)
 ```
 Metasploit Listeners
 
@@ -556,10 +641,39 @@ Metasploit Listeners
 14.  Previous menu
 ```
 
-### Update (main menu option 16)
+### CVE lookup (main menu option 14)
+
+Look up a CVE and open related references (used with Active Top CVE multi-tab
+workflow). See also `misc/cve.sh` and `misc/open-cve-tabs.sh`.
+
+### Parse XML (main menu option 15)
+```
+Parse XML to CSV.
+
+1.  Burp (Base64)
+2.  Nessus (.nessus)
+3.  Nexpose (XML 2.0)
+4.  Nmap
+5.  Qualys
+6.  Previous menu
+```
+
+### Dev (main menu option 16)
+
+See **Dev submenu** and **DEV** sections above.
+
+### Notes (main menu option 17)
+
+Opens Discover’s notes HTML (`notes/index.htm`) in a browser when available.
+
+### Update (main menu option 18)
 
 * Updates the operating system, git pull from various repos, and update the locate database.
-* Installs tools used by dev scanners (for example `ffuf`, `feroxbuster`, `jq`, `trivy`).
+* Installs tools used by recon and dev scanners (for example `ffuf`, `nuclei`,
+  `droopescan`, `feroxbuster`, `jq`, `trivy`, ProjectDiscovery stack).
+* Refreshes the default scanner User-Agent (Microsoft Edge) in
+  `resource/user-agent.txt` for Nikto, Nmap, ffuf, Active, and related tools.
+* Downloads/refreshes the CISA KEV catalog under `resource/`.
 
 ## DEV
 
