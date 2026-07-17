@@ -100,9 +100,23 @@ def format_export_time(exp: dict) -> str:
 
 
 def _audit_action_hidden(action: str) -> bool:
-    """Skip routine noise (e.g. Import report open) on the Audit page."""
+    """Skip routine noise on the Audit page."""
     a = (action or "").strip().rstrip(".").lower()
-    return a.startswith("opened report in discover")
+    if a.startswith("opened report in discover"):
+        return True
+    # Pass-2 start/finish are redundant with the parent nuclei lines + Output links.
+    if "nuclei pass-2" in a or "nuclei pass 2" in a:
+        return True
+    return False
+
+
+def _normalize_audit_action(action: str) -> str:
+    """Display cleanup: drop successful exit noise; keep non-zero exits."""
+    text = (action or "").strip()
+    # "(exit 0)" / "(exit 0)." mid-string or before other notes
+    text = re.sub(r"\s*\(exit\s+0\)\s*", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s{2,}", " ", text).strip()
+    return text
 
 
 def load_audit_lines(report_root: Path) -> list[tuple[str, str, str]]:
@@ -116,14 +130,14 @@ def load_audit_lines(report_root: Path) -> list[tuple[str, str, str]]:
             continue
         m = LINE_RE.match(raw)
         if m:
-            action = m.group(3).strip()
+            action = _normalize_audit_action(m.group(3).strip())
             if _audit_action_hidden(action):
                 continue
             rows.append((m.group(1), m.group(2).strip(), action))
         else:
             if _audit_action_hidden(raw):
                 continue
-            rows.append(("", "", raw))
+            rows.append(("", "", _normalize_audit_action(raw)))
     rows.reverse()  # newest first
     return rows
 
@@ -189,6 +203,102 @@ def _pages_href(path_from_report_root: str) -> str:
     return rel
 
 
+# Audit log Action → host-scan tool / pass-2 / URL (for Output column links).
+_AUDIT_SCAN_ACTION_RE = re.compile(
+    r"(?i)\b(?P<verb>started|finished)\s+"
+    r"(?P<tool>nuclei\s+pass-2|ffuf|nikto|nuclei)\b"
+    r".*?\bon\s+(?P<url>https?://[^\s)(]+)"
+)
+
+
+def _hostname_from_url(url: str) -> str:
+    from urllib.parse import urlparse
+
+    return (urlparse(url).hostname or "").lower()
+
+
+def build_host_scan_output_index(report_root: Path) -> dict[str, dict[str, dict]]:
+    """host -> tool -> latest meta dict (status/output paths)."""
+    index: dict[str, dict[str, dict]] = {}
+    for row in load_host_scan_summary(report_root):
+        host = (row.get("host") or "").lower()
+        tools = row.get("tools") if isinstance(row.get("tools"), dict) else {}
+        if not host:
+            continue
+        index[host] = {k: v for k, v in tools.items() if isinstance(v, dict)}
+    return index
+
+
+def audit_output_cell(
+    action: str,
+    report_root: Path,
+    scan_index: dict[str, dict[str, dict]],
+) -> str:
+    """Output column: scan / htm / pass2 buttons when the action is a host scan."""
+    m = _AUDIT_SCAN_ACTION_RE.search(action or "")
+    if not m:
+        return '<span class="inc-audit-muted">—</span>'
+
+    tool_raw = re.sub(r"\s+", " ", m.group("tool").strip().lower())
+    url = m.group("url").rstrip(".,;")
+    host = _hostname_from_url(url)
+    if not host:
+        return '<span class="inc-audit-muted">—</span>'
+
+    is_pass2 = tool_raw.startswith("nuclei pass-2") or tool_raw == "nuclei pass-2"
+    tool = "nuclei" if is_pass2 or tool_raw == "nuclei" else tool_raw
+    if tool not in {"ffuf", "nikto", "nuclei"}:
+        return '<span class="inc-audit-muted">—</span>'
+
+    meta = (scan_index.get(host) or {}).get(tool) or {}
+    output = str(meta.get("output") or meta.get("output_rel") or "").strip()
+    status = (meta.get("status") or "").lower()
+
+    if status == "running" and not is_pass2:
+        return '<span class="inc-audit-running">Running…</span>'
+
+    links: list[str] = []
+    if is_pass2:
+        # nuclei-pass2.txt lives next to output.txt for the latest nuclei run
+        if output:
+            pass2_rel = str(Path(output).with_name("nuclei-pass2.txt")).replace("\\", "/")
+            pass2_disk = report_root / pass2_rel.lstrip("/")
+            if pass2_disk.is_file() and pass2_disk.stat().st_size > 0:
+                href = _pages_href(pass2_rel)
+                links.append(
+                    f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
+                    f'target="_blank" rel="noopener">txt</a>'
+                )
+            elif pass2_disk.is_file():
+                # empty file = templates ran, no hits — still linkable
+                href = _pages_href(pass2_rel)
+                links.append(
+                    f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
+                    f'target="_blank" rel="noopener">txt</a>'
+                )
+        if not links:
+            return '<span class="inc-audit-muted">—</span>'
+    else:
+        if output:
+            href = _pages_href(output)
+            links.append(
+                f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
+                f'target="_blank" rel="noopener">txt</a>'
+            )
+            if tool == "nikto":
+                htm_rel = str(Path(output).with_name("nikto.htm")).replace("\\", "/")
+                htm_disk = report_root / htm_rel.lstrip("/")
+                if htm_disk.is_file():
+                    links.append(
+                        f'<a class="inc-audit-btn" href="{html.escape(_pages_href(htm_rel), quote=True)}" '
+                        f'target="_blank" rel="noopener">htm</a>'
+                    )
+        if not links:
+            return '<span class="inc-audit-muted">—</span>'
+
+    return '<span class="inc-audit-btn-row">' + "".join(links) + "</span>"
+
+
 def tool_cell(
     tool_meta: dict | None,
     *,
@@ -214,7 +324,7 @@ def tool_cell(
         rel = _pages_href(str(output))
         links.append(
             f'<a class="inc-audit-btn" href="{html.escape(rel, quote=True)}" '
-            f'target="_blank" rel="noopener">scan</a>'
+            f'target="_blank" rel="noopener">txt</a>'
         )
         # Nikto HTML report lives next to output.txt as nikto.htm
         if tool == "nikto":
@@ -245,6 +355,7 @@ def build_html(report_root: Path) -> str:
 
     audit_rows = load_audit_lines(report_root)
     host_rows = load_host_scan_summary(report_root)
+    scan_output_index = build_host_scan_output_index(report_root)
     exports = load_exports(report_root)
 
     lines: list[str] = []
@@ -260,9 +371,9 @@ def build_html(report_root: Path) -> str:
             "Tool launches are disabled.</p>"
         )
 
-    # Host scan activity
+    # Target scans
     lines.append('<section class="inc-audit-section">')
-    lines.append('<h3 class="inc-audit-section-title">Host scan activity</h3>')
+    lines.append('<h3 class="inc-audit-section-title">Target scans</h3>')
     lines.append(
         '<div class="inc-content-frame inc-content-frame--table inc-audit-frame-wide">'
     )
@@ -304,9 +415,44 @@ def build_html(report_root: Path) -> str:
         )
     lines.append("</tbody></table></div></section>")
 
-    # Deliverables
+    # Audit log
+    lines.append('<section class="inc-audit-section inc-audit-section--log">')
+    lines.append('<h3 class="inc-audit-section-title">Audit log</h3>')
+    lines.append(
+        '<div class="inc-content-frame inc-content-frame--table inc-audit-frame-wide">'
+    )
+    lines.append(
+        '<table class="table table-bordered inc-data-table" id="inc-audit-log-table" '
+        'data-default-col="0" data-default-dir="-1">'
+    )
+    lines.append(
+        "<thead><tr>"
+        '<th scope="col" class="inc-sortable inc-audit-col-time">Time (UTC)</th>'
+        '<th scope="col" class="inc-sortable inc-audit-col-ip">Operator IP</th>'
+        '<th scope="col" class="inc-sortable inc-audit-col-action">Action</th>'
+        '<th scope="col" class="inc-audit-col-trail">Output</th>'
+        "</tr></thead><tbody>"
+    )
+    if audit_rows:
+        for ts, ip, action in audit_rows:
+            out_cell = audit_output_cell(action, report_root, scan_output_index)
+            lines.append(
+                "<tr>"
+                f'<td class="inc-audit-col-time">{html.escape(ts)}</td>'
+                f'<td class="inc-audit-col-ip">{html.escape(ip)}</td>'
+                f'<td class="inc-audit-col-action">{html.escape(action)}</td>'
+                f'<td class="inc-audit-col-trail">{out_cell}</td>'
+                "</tr>"
+            )
+    else:
+        lines.append(
+            '<tr><td colspan="4" class="inc-audit-muted">No audit events yet.</td></tr>'
+        )
+    lines.append("</tbody></table></div></section>")
+
+    # Exports (bottom)
     lines.append('<section class="inc-audit-section inc-audit-section--deliverables">')
-    lines.append('<h3 class="inc-audit-section-title">Deliverables</h3>')
+    lines.append('<h3 class="inc-audit-section-title">Exports</h3>')
     lines.append(
         '<div class="inc-content-frame inc-content-frame--table inc-audit-frame-wide">'
     )
@@ -342,37 +488,6 @@ def build_html(report_root: Path) -> str:
     else:
         lines.append(
             '<tr><td colspan="5" class="inc-audit-muted inc-audit-empty">No exports recorded yet.</td></tr>'
-        )
-    lines.append("</tbody></table></div></section>")
-
-    # Audit log
-    lines.append('<section class="inc-audit-section inc-audit-section--log">')
-    lines.append('<h3 class="inc-audit-section-title">Audit log</h3>')
-    lines.append(
-        '<div class="inc-content-frame inc-content-frame--table inc-audit-frame-wide">'
-    )
-    lines.append(
-        '<table class="table table-bordered inc-data-table" id="inc-audit-log-table">'
-    )
-    lines.append(
-        "<thead><tr>"
-        '<th scope="col" class="inc-sortable">Time (UTC)</th>'
-        '<th scope="col" class="inc-sortable">Operator IP</th>'
-        '<th scope="col" class="inc-sortable">Action</th>'
-        "</tr></thead><tbody>"
-    )
-    if audit_rows:
-        for ts, ip, action in audit_rows:
-            lines.append(
-                "<tr>"
-                f"<td>{html.escape(ts)}</td>"
-                f"<td>{html.escape(ip)}</td>"
-                f"<td>{html.escape(action)}</td>"
-                "</tr>"
-            )
-    else:
-        lines.append(
-            '<tr><td colspan="3" class="inc-audit-muted">No audit events yet.</td></tr>'
         )
     lines.append("</tbody></table></div></section>")
 

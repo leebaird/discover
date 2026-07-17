@@ -415,6 +415,14 @@ print(f"{','.join(picked)}|{kev_n}|{len(picked)}|{note}")
 PY
 }
 
+# If nuclei wrote no findings, leave a clear operator-facing message (not a blank file).
+f_nuclei_ensure_findings_message(){
+    local path="$1"
+    if [ ! -f "$path" ] || [ ! -s "$path" ]; then
+        printf '%s\n' "No vulnerabilities discovered." > "$path"
+    fi
+}
+
 # Quiet ffuf wordlist
 f_ffuf_wordlist(){
     local soft_lc
@@ -554,34 +562,47 @@ case "$TOOL" in
         fi
         ;;
     nuclei)
-        # Pass-1: software-tagged recon (quiet). Pass-2: auto CVE/KEV from cache.
+        # Pass 1: software-tagged recon. Pass 2: auto CVE/KEV from cache.
+        # output.txt layout is fixed (Command → Results/Findings → paths); do not tee
+        # live nuclei lines into the report file.
         f_nuclei_args
         NUCLEI_OUT="$RUN_DIR/nuclei.txt"
         NUCLEI_CMD="nuclei -u $(f_shell_quote "$URL") -H $(f_shell_quote "User-Agent: $UA")"
-        # Extra flags are simple tokens (-tags drupal -c 5 …); do not over-quote.
         if [ "${#NUCLEI_EXTRA[@]}" -gt 0 ]; then
             NUCLEI_CMD+=" ${NUCLEI_EXTRA[*]}"
         fi
         NUCLEI_CMD+=" -silent -nc -duc -o $(f_shell_quote "$NUCLEI_OUT")"
-        f_write_run_header "$NUCLEI_CMD"
+
         {
-            echo "=== Pass-1: software recon tags ==="
+            echo "Started: $STAMP_DISPLAY"
             echo
-        } >> "$OUT_FILE"
-        echo "[*] Pass-1: software recon (${NUCLEI_EXTRA[*]:-tags tech})"
+            echo "=== Pass 1: software recon tags ==="
+            echo
+            echo "Command:"
+            echo "$NUCLEI_CMD"
+            echo
+        } > "$OUT_FILE"
+
+        echo "[*] Pass 1: software recon (${NUCLEI_EXTRA[*]:-tags tech})"
         set +e
+        # Findings go to -o only; keep terminal visible but keep output.txt structured.
         nuclei -u "$URL" -H "User-Agent: $UA" "${NUCLEI_EXTRA[@]}" \
             -silent -nc -duc \
-            -o "$NUCLEI_OUT" 2>&1 | tee -a "$OUT_FILE"
-        PASS1_CODE=${PIPESTATUS[0]}
+            -o "$NUCLEI_OUT"
+        PASS1_CODE=$?
         set -e
         EXIT_CODE=$PASS1_CODE
-        if [ -f "$NUCLEI_OUT" ] && [ -s "$NUCLEI_OUT" ]; then
-            echo "" >> "$OUT_FILE"
-            echo "Pass-1 findings file: $NUCLEI_OUT" >> "$OUT_FILE"
-        fi
+        f_nuclei_ensure_findings_message "$NUCLEI_OUT"
+        {
+            echo "Results:"
+            cat "$NUCLEI_OUT"
+            echo
+            echo "Output:"
+            echo "$NUCLEI_OUT"
+            echo
+        } >> "$OUT_FILE"
 
-        # Pass-2: CVE/KEV IDs that exist as local nuclei templates (+ product CVE YAMLs).
+        # Pass 2: CVE/KEV IDs that exist as local nuclei templates (+ product CVE YAMLs).
         PASS2_META=$(f_nuclei_pass2_ids || true)
         PASS2_IDS=""
         PASS2_KEV_N=0
@@ -596,43 +617,47 @@ case "$TOOL" in
 
         if [ -n "$PASS2_IDS" ]; then
             NUCLEI_PASS2_OUT="$RUN_DIR/nuclei-pass2.txt"
-            # Longer timeout: intrusive CVE templates (e.g. Drupalgeddon) often need >10s.
             NUCLEI_PASS2_CMD="nuclei -u $(f_shell_quote "$URL") -H $(f_shell_quote "User-Agent: $UA") -id $(f_shell_quote "$PASS2_IDS") -c 5 -rl 25 -timeout 15 -retries 1 -silent -nc -duc -o $(f_shell_quote "$NUCLEI_PASS2_OUT")"
+            # Comma-space list for readability in the report
+            PASS2_IDS_DISPLAY=$(printf '%s' "$PASS2_IDS" | sed 's/,/, /g')
             {
+                echo "=== Pass 2: CVE and KEV templates ==="
                 echo
-                echo "=== Pass-2: CVE/KEV templates (auto) ==="
-                echo "Software: ${SOFTWARE:-—}"
-                echo "Runnable templates (${PASS2_TOTAL:-?}, KEV ${PASS2_KEV_N:-?}): $PASS2_IDS"
-                [ -n "$PASS2_NOTE" ] && echo "Selection: $PASS2_NOTE"
-                echo "Note: empty findings = templates ran but matchers did not fire (not vulnerable / blocked / timeout)."
+                echo "Software:"
+                echo "${SOFTWARE:-—}"
+                echo
+                echo "Templates (${PASS2_TOTAL:-?}, KEV ${PASS2_KEV_N:-?}):"
+                echo "$PASS2_IDS_DISPLAY"
+                echo
+                echo "Selection:"
+                echo "${PASS2_NOTE:-(none)}"
                 echo
                 echo "Command:"
                 echo "$NUCLEI_PASS2_CMD"
                 echo
             } >> "$OUT_FILE"
             echo
-            echo "[*] Pass-2: CVE/KEV templates (${PASS2_TOTAL:-?} runnable, ${PASS2_KEV_N:-?} KEV) — auto"
-            f_audit "Started nuclei pass-2 (CVE/KEV, ${PASS2_TOTAL:-?} templates) on $URL$SOFT_NOTE"
+            echo "[*] Pass 2: CVE and KEV templates (${PASS2_TOTAL:-?} runnable, ${PASS2_KEV_N:-?} KEV)"
+            # Do not audit pass-2 start/finish — covered by parent nuclei Started/Finished + Output.
             set +e
             nuclei -u "$URL" -H "User-Agent: $UA" \
                 -id "$PASS2_IDS" \
                 -c 5 -rl 25 \
                 -timeout 15 -retries 1 \
                 -silent -nc -duc \
-                -o "$NUCLEI_PASS2_OUT" 2>&1 | tee -a "$OUT_FILE"
-            PASS2_CODE=${PIPESTATUS[0]}
+                -o "$NUCLEI_PASS2_OUT"
+            PASS2_CODE=$?
             set -e
             if [ "$PASS2_CODE" -ne 0 ] && [ "$EXIT_CODE" -eq 0 ]; then
                 EXIT_CODE=$PASS2_CODE
             fi
-            if [ -f "$NUCLEI_PASS2_OUT" ] && [ -s "$NUCLEI_PASS2_OUT" ]; then
-                echo "" >> "$OUT_FILE"
-                echo "Pass-2 findings file: $NUCLEI_PASS2_OUT" >> "$OUT_FILE"
-            else
-                echo "" >> "$OUT_FILE"
-                echo "Pass-2 findings file: (empty — templates executed; no matcher hits on this host)" >> "$OUT_FILE"
-            fi
-            f_audit "Finished nuclei pass-2 on $URL (exit ${PASS2_CODE:-1})$SOFT_NOTE"
+            f_nuclei_ensure_findings_message "$NUCLEI_PASS2_OUT"
+            {
+                echo "Findings:"
+                cat "$NUCLEI_PASS2_OUT"
+                echo
+            } >> "$OUT_FILE"
+            # Do not audit "Finished nuclei pass-2 …" — redundant with parent Finished + Output.
             python3 - "$META_FILE" "$PASS2_IDS" "${PASS2_KEV_N:-0}" "${PASS2_TOTAL:-0}" "${PASS2_CODE:-1}" "${PASS2_NOTE:-}" <<'PY'
 import json, sys
 path, ids, kev_n, total, code, note = sys.argv[1:7]
@@ -653,13 +678,13 @@ open(path, "a", encoding="utf-8").write("\n")
 PY
         else
             {
+                echo "=== Pass 2: skipped ==="
                 echo
-                echo "=== Pass-2: skipped ==="
                 echo "No runnable CVE templates for software '${SOFTWARE:-—}'."
                 echo "Need Active CVE cache and/or local nuclei-templates CVE YAML for this product."
                 echo
             } >> "$OUT_FILE"
-            echo "[*] Pass-2: skipped (no runnable CVE templates for this software)"
+            echo "[*] Pass 2: skipped (no runnable CVE templates for this software)"
         fi
         ;;
     ffuf)
@@ -702,7 +727,12 @@ open(path, "a", encoding="utf-8").write("\n")
 PY
 
 f_write_status 0
-f_audit "Finished $TOOL on $URL (exit $EXIT_CODE)$SOFT_NOTE"
+# Omit "(exit 0)" — success is the default; keep non-zero exits visible.
+if [ "${EXIT_CODE:-1}" -eq 0 ]; then
+    f_audit "Finished $TOOL on $URL$SOFT_NOTE"
+else
+    f_audit "Finished $TOOL on $URL (exit $EXIT_CODE)$SOFT_NOTE"
+fi
 
 # Rebuild audit page
 if [ -f "$DISCOVER_ROOT/recon/audit-build.py" ]; then
