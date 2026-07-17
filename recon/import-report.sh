@@ -399,7 +399,7 @@ echo
 
 if [ -n "$OPEN_PAGE" ]; then
     if f_import_report_open_browser "$OPEN_PAGE"; then
-        echo "[*] Opened report in browser."
+        echo "[*] Opening report in browser."
     else
         echo "[*] Open this file in a browser:"
         echo "    $OPEN_PAGE"

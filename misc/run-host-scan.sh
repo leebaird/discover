@@ -11,6 +11,8 @@
 # - Visible terminal (desktop entry uses Terminal=true)
 # - One scan at a time (engagement lock)
 # - Software-aware nuclei/ffuf profiles
+# - Nuclei is two-pass auto: (1) software tags recon, (2) CVE/KEV IDs
+#   from tools/software-cves-cache.json + CISA KEV catalog
 
 set -euo pipefail
 
@@ -187,7 +189,7 @@ f_audit(){
     printf '%s | %s | %s\n' "$ts" "$ip" "$action" >> "$audit_log"
 }
 
-# Software-aware nuclei tags
+# Software-aware nuclei tags (pass-1 recon / fingerprint)
 f_nuclei_args(){
     local soft_lc
     soft_lc=$(printf '%s' "$SOFTWARE" | tr '[:upper:]' '[:lower:]')
@@ -208,6 +210,209 @@ f_nuclei_args(){
         # Quiet generic: tech detection / low noise only — not full CVE farm
         NUCLEI_EXTRA=(-tags tech -c 5 -rl 20)
     fi
+}
+
+# Pass-2: CVE/KEV template IDs that nuclei can actually run.
+# Sources (priority):
+#   1) Engagement software-cves-cache (KEV first, then high CVSS) ∩ local templates
+#   2) Local nuclei-templates CVE YAML tagged/named for this product (fills NVD gaps)
+# Prints: "ID1,ID2,...|kev_count|total|note" or empty if nothing runnable.
+f_nuclei_pass2_ids(){
+    python3 - "$REPORT_ROOT" "$SOFTWARE" "$DISCOVER_ROOT" <<'PY'
+import json
+import re
+import sys
+from pathlib import Path
+
+report_root = Path(sys.argv[1])
+software = (sys.argv[2] or "").strip()
+discover_root = Path(sys.argv[3])
+max_ids = 30
+min_score = 7.0
+
+if not software:
+    sys.exit(0)
+
+label = software
+product, version = "", ""
+m = re.match(r"^([^:\[]+)\[(.+)\]$", label)
+if m:
+    product, version = m.group(1).strip(), m.group(2).strip()
+elif ":" in label:
+    product, version = [p.strip() for p in label.split(":", 1)]
+else:
+    product, version = label, ""
+
+prod_key = re.sub(r"[-_\s]+", " ", product.lower()).strip()
+if not prod_key:
+    sys.exit(0)
+cache_key = f"{prod_key}|{version}" if version else prod_key
+
+# --- local nuclei templates (only IDs that can actually run) ---
+def find_templates_root() -> Path | None:
+    env = (Path.home() / "nuclei-templates")
+    candidates = [
+        Path.home() / "nuclei-templates",
+        Path.home() / ".local" / "nuclei-templates",
+        Path.home() / ".local" / "share" / "nuclei" / "templates",
+        Path("/opt/nuclei-templates"),
+        Path("/usr/share/nuclei-templates"),
+    ]
+    # config may point at custom dir
+    cfg = Path.home() / ".config" / "nuclei" / "config.yaml"
+    if cfg.is_file():
+        try:
+            text = cfg.read_text(encoding="utf-8", errors="replace")
+            for line in text.splitlines():
+                line = line.strip()
+                if line.startswith("templates-directory:") or line.startswith("#templates-directory:"):
+                    # skip comments unless value present after
+                    if line.startswith("#"):
+                        continue
+                    val = line.split(":", 1)[1].strip().strip("'\"")
+                    if val:
+                        candidates.insert(0, Path(val).expanduser())
+        except OSError:
+            pass
+    for c in candidates:
+        if c.is_dir() and any(c.rglob("CVE-*.yaml")):
+            return c
+    return None
+
+
+templates_root = find_templates_root()
+template_ids: set[str] = set()
+product_template_ids: list[str] = []
+if templates_root is not None:
+    for p in templates_root.rglob("CVE-*.yaml"):
+        cid = p.stem.upper()
+        if not cid.startswith("CVE-"):
+            continue
+        template_ids.add(cid)
+        # Product-linked CVE templates (tags/body mention product)
+        try:
+            head = p.read_text(encoding="utf-8", errors="replace")[:4000].lower()
+        except OSError:
+            continue
+        # require product token in tags line or metadata vendor/product
+        if (
+            f" {prod_key}" in f" {head.replace(',', ' ').replace(':', ' ')}"
+            or f"tags:" in head
+            and prod_key in head
+        ):
+            # tighter: tags/vendor/product fields
+            if re.search(
+                rf"(?m)^\s*(tags:|vendor:|product:).*{re.escape(prod_key)}",
+                head,
+            ) or re.search(
+                rf"(?m)^\s*tags:.*\b{re.escape(prod_key)}\b",
+                head,
+            ):
+                product_template_ids.append(cid)
+
+    product_template_ids = sorted(set(product_template_ids))
+
+# --- KEV catalog ---
+kev_ids: set[str] = set()
+kev_path = discover_root / "resource" / "known_exploited_vulnerabilities.json"
+if kev_path.is_file():
+    try:
+        payload = json.loads(kev_path.read_text(encoding="utf-8"))
+        for row in payload.get("vulnerabilities") or []:
+            if not isinstance(row, dict):
+                continue
+            cid = (row.get("cveID") or row.get("cve_id") or "").strip().upper()
+            if cid.startswith("CVE-"):
+                kev_ids.add(cid)
+    except (OSError, json.JSONDecodeError):
+        pass
+
+# --- engagement NVD cache ---
+entry = None
+cache_path = report_root / "tools" / "software-cves-cache.json"
+if cache_path.is_file():
+    try:
+        cache = json.loads(cache_path.read_text(encoding="utf-8"))
+        entries = cache.get("entries") or {}
+        entry = entries.get(cache_key)
+        if not isinstance(entry, dict):
+            for k, v in entries.items():
+                if isinstance(v, dict) and (k == prod_key or k.startswith(prod_key + "|")):
+                    entry = v
+                    break
+    except (OSError, json.JSONDecodeError):
+        entry = None
+
+def sort_key(item: dict) -> tuple:
+    return (item.get("score") is None, -(item.get("score") or 0), item.get("id") or "")
+
+normalized: list[dict] = []
+if isinstance(entry, dict):
+    for row in entry.get("cves") or []:
+        if not isinstance(row, dict):
+            continue
+        cid = (row.get("id") or "").strip().upper()
+        if not cid.startswith("CVE-"):
+            continue
+        normalized.append(
+            {"id": cid, "score": row.get("score"), "is_kev": cid in kev_ids}
+        )
+
+picked: list[str] = []
+seen: set[str] = set()
+
+def add(cid: str) -> None:
+    cid = (cid or "").strip().upper()
+    if not cid.startswith("CVE-") or cid in seen or len(picked) >= max_ids:
+        return
+    # Only IDs nuclei can load (when we know the catalog)
+    if template_ids and cid not in template_ids:
+        return
+    seen.add(cid)
+    picked.append(cid)
+
+# 1) Cache KEV with templates
+for c in sorted([c for c in normalized if c["is_kev"]], key=sort_key):
+    add(c["id"])
+# 2) Cache top_cve
+if isinstance(entry, dict):
+    add((entry.get("top_cve") or "").strip().upper())
+# 3) Cache high CVSS with templates
+for c in sorted(
+    [
+        c
+        for c in normalized
+        if not c["is_kev"]
+        and c.get("score") is not None
+        and float(c["score"]) >= min_score
+    ],
+    key=sort_key,
+):
+    add(c["id"])
+# 4) Product CVE templates from local nuclei catalog (covers NVD gaps
+#    e.g. CVE-2014-3704 for Drupal even when CPE cache is incomplete)
+for cid in product_template_ids:
+    # KEV product templates first
+    if cid in kev_ids:
+        add(cid)
+for cid in product_template_ids:
+    add(cid)
+
+# 5) Fallback: any remaining cache IDs that have templates
+if not picked:
+    for c in sorted(normalized, key=sort_key):
+        add(c["id"])
+
+if not picked:
+    sys.exit(0)
+
+kev_n = sum(1 for cid in picked if cid in kev_ids)
+# note for logs: how many cache IDs lacked templates
+cache_ids = {c["id"] for c in normalized}
+cache_with_tpl = sum(1 for cid in cache_ids if cid in template_ids) if template_ids else 0
+note = f"templates={len(picked)};cache_cves={len(cache_ids)};cache_with_template={cache_with_tpl};product_tpl={len(product_template_ids)}"
+print(f"{','.join(picked)}|{kev_n}|{len(picked)}|{note}")
+PY
 }
 
 # Quiet ffuf wordlist
@@ -349,7 +554,7 @@ case "$TOOL" in
         fi
         ;;
     nuclei)
-        # Quiet: findings only, no color, no template-update chatter.
+        # Pass-1: software-tagged recon (quiet). Pass-2: auto CVE/KEV from cache.
         f_nuclei_args
         NUCLEI_OUT="$RUN_DIR/nuclei.txt"
         NUCLEI_CMD="nuclei -u $(f_shell_quote "$URL") -H $(f_shell_quote "User-Agent: $UA")"
@@ -359,16 +564,102 @@ case "$TOOL" in
         fi
         NUCLEI_CMD+=" -silent -nc -duc -o $(f_shell_quote "$NUCLEI_OUT")"
         f_write_run_header "$NUCLEI_CMD"
+        {
+            echo "=== Pass-1: software recon tags ==="
+            echo
+        } >> "$OUT_FILE"
+        echo "[*] Pass-1: software recon (${NUCLEI_EXTRA[*]:-tags tech})"
         set +e
         nuclei -u "$URL" -H "User-Agent: $UA" "${NUCLEI_EXTRA[@]}" \
             -silent -nc -duc \
             -o "$NUCLEI_OUT" 2>&1 | tee -a "$OUT_FILE"
-        EXIT_CODE=${PIPESTATUS[0]}
+        PASS1_CODE=${PIPESTATUS[0]}
         set -e
-        # findings already streamed via -silent; note sidecar path if present
+        EXIT_CODE=$PASS1_CODE
         if [ -f "$NUCLEI_OUT" ] && [ -s "$NUCLEI_OUT" ]; then
             echo "" >> "$OUT_FILE"
-            echo "Findings file: $NUCLEI_OUT" >> "$OUT_FILE"
+            echo "Pass-1 findings file: $NUCLEI_OUT" >> "$OUT_FILE"
+        fi
+
+        # Pass-2: CVE/KEV IDs that exist as local nuclei templates (+ product CVE YAMLs).
+        PASS2_META=$(f_nuclei_pass2_ids || true)
+        PASS2_IDS=""
+        PASS2_KEV_N=0
+        PASS2_TOTAL=0
+        PASS2_NOTE=""
+        if [ -n "$PASS2_META" ]; then
+            PASS2_IDS=$(printf '%s' "$PASS2_META" | cut -d'|' -f1)
+            PASS2_KEV_N=$(printf '%s' "$PASS2_META" | cut -d'|' -f2)
+            PASS2_TOTAL=$(printf '%s' "$PASS2_META" | cut -d'|' -f3)
+            PASS2_NOTE=$(printf '%s' "$PASS2_META" | cut -d'|' -f4-)
+        fi
+
+        if [ -n "$PASS2_IDS" ]; then
+            NUCLEI_PASS2_OUT="$RUN_DIR/nuclei-pass2.txt"
+            # Longer timeout: intrusive CVE templates (e.g. Drupalgeddon) often need >10s.
+            NUCLEI_PASS2_CMD="nuclei -u $(f_shell_quote "$URL") -H $(f_shell_quote "User-Agent: $UA") -id $(f_shell_quote "$PASS2_IDS") -c 5 -rl 25 -timeout 15 -retries 1 -silent -nc -duc -o $(f_shell_quote "$NUCLEI_PASS2_OUT")"
+            {
+                echo
+                echo "=== Pass-2: CVE/KEV templates (auto) ==="
+                echo "Software: ${SOFTWARE:-—}"
+                echo "Runnable templates (${PASS2_TOTAL:-?}, KEV ${PASS2_KEV_N:-?}): $PASS2_IDS"
+                [ -n "$PASS2_NOTE" ] && echo "Selection: $PASS2_NOTE"
+                echo "Note: empty findings = templates ran but matchers did not fire (not vulnerable / blocked / timeout)."
+                echo
+                echo "Command:"
+                echo "$NUCLEI_PASS2_CMD"
+                echo
+            } >> "$OUT_FILE"
+            echo
+            echo "[*] Pass-2: CVE/KEV templates (${PASS2_TOTAL:-?} runnable, ${PASS2_KEV_N:-?} KEV) — auto"
+            f_audit "Started nuclei pass-2 (CVE/KEV, ${PASS2_TOTAL:-?} templates) on $URL$SOFT_NOTE"
+            set +e
+            nuclei -u "$URL" -H "User-Agent: $UA" \
+                -id "$PASS2_IDS" \
+                -c 5 -rl 25 \
+                -timeout 15 -retries 1 \
+                -silent -nc -duc \
+                -o "$NUCLEI_PASS2_OUT" 2>&1 | tee -a "$OUT_FILE"
+            PASS2_CODE=${PIPESTATUS[0]}
+            set -e
+            if [ "$PASS2_CODE" -ne 0 ] && [ "$EXIT_CODE" -eq 0 ]; then
+                EXIT_CODE=$PASS2_CODE
+            fi
+            if [ -f "$NUCLEI_PASS2_OUT" ] && [ -s "$NUCLEI_PASS2_OUT" ]; then
+                echo "" >> "$OUT_FILE"
+                echo "Pass-2 findings file: $NUCLEI_PASS2_OUT" >> "$OUT_FILE"
+            else
+                echo "" >> "$OUT_FILE"
+                echo "Pass-2 findings file: (empty — templates executed; no matcher hits on this host)" >> "$OUT_FILE"
+            fi
+            f_audit "Finished nuclei pass-2 on $URL (exit ${PASS2_CODE:-1})$SOFT_NOTE"
+            python3 - "$META_FILE" "$PASS2_IDS" "${PASS2_KEV_N:-0}" "${PASS2_TOTAL:-0}" "${PASS2_CODE:-1}" "${PASS2_NOTE:-}" <<'PY'
+import json, sys
+path, ids, kev_n, total, code, note = sys.argv[1:7]
+try:
+    meta = json.load(open(path, encoding="utf-8"))
+except Exception:
+    meta = {}
+meta["pass2"] = {
+    "ids": [x for x in ids.split(",") if x],
+    "kev_count": int(kev_n) if str(kev_n).isdigit() else kev_n,
+    "id_count": int(total) if str(total).isdigit() else total,
+    "exit_code": int(code) if str(code).lstrip("-").isdigit() else code,
+    "selection": note,
+    "output": "nuclei-pass2.txt",
+}
+json.dump(meta, open(path, "w", encoding="utf-8"), indent=2)
+open(path, "a", encoding="utf-8").write("\n")
+PY
+        else
+            {
+                echo
+                echo "=== Pass-2: skipped ==="
+                echo "No runnable CVE templates for software '${SOFTWARE:-—}'."
+                echo "Need Active CVE cache and/or local nuclei-templates CVE YAML for this product."
+                echo
+            } >> "$OUT_FILE"
+            echo "[*] Pass-2: skipped (no runnable CVE templates for this software)"
         fi
         ;;
     ffuf)
