@@ -265,6 +265,54 @@ cat > "$META_FILE" <<EOF
 }
 EOF
 
+# Shell-quote a single argument for a reproducible Command: line.
+f_shell_quote(){
+    python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$1"
+}
+
+# Write Started timestamp + exact Command: header (tools append after this).
+f_write_run_header(){
+    local cmd="$1"
+    {
+        echo "Started: $STAMP_DISPLAY"
+        echo
+        echo "Command:"
+        echo "$cmd"
+        echo
+        echo
+    } > "$OUT_FILE"
+}
+
+# Nikto 2.1.x has no CLI -useragent; set USERAGENT= via a per-run config.
+f_nikto_write_config(){
+    local conf_path="$1"
+    local ua="$2"
+    python3 - "$conf_path" "$ua" <<'PY'
+import sys
+from pathlib import Path
+
+out = Path(sys.argv[1])
+ua = sys.argv[2]
+base = ""
+for candidate in (Path("/etc/nikto/config.txt"), Path("/etc/nikto.conf")):
+    if candidate.is_file():
+        base = candidate.read_text(encoding="utf-8", errors="replace")
+        break
+lines = base.splitlines() if base else []
+found = False
+new_lines = []
+for line in lines:
+    if line.startswith("USERAGENT=") or line.startswith("#USERAGENT="):
+        new_lines.append("USERAGENT=" + ua)
+        found = True
+    else:
+        new_lines.append(line)
+if not found:
+    new_lines.append("USERAGENT=" + ua)
+out.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+PY
+}
+
 echo
 echo "============================================================"
 echo " Discover host scan (quiet / Red Team defaults)"
@@ -282,19 +330,46 @@ echo
 EXIT_CODE=0
 case "$TOOL" in
     nikto)
-        # Tuning 1-3 style quieter profile; still operator-chosen
+        # Quiet-ish profile; HTML report is a sidecar so output.txt keeps the header.
+        # Nikto 2.1.x: User-Agent via config USERAGENT= (no CLI -useragent).
+        NIKTO_HTM="$RUN_DIR/nikto.htm"
+        NIKTO_CONF="$RUN_DIR/nikto.conf"
+        f_nikto_write_config "$NIKTO_CONF" "$UA"
+        NIKTO_CMD="nikto -config $(f_shell_quote "$NIKTO_CONF") -h $(f_shell_quote "$URL") -no404 -maxtime 15m -Format htm -output $(f_shell_quote "$NIKTO_HTM")"
+        f_write_run_header "$NIKTO_CMD"
         set +e
-        nikto -h "$URL" -useragent "$UA" -output "$OUT_FILE" 2>&1 | tee -a "$OUT_FILE"
+        nikto -config "$NIKTO_CONF" -h "$URL" -no404 -maxtime 15m \
+            -Format htm -output "$NIKTO_HTM" \
+            2>&1 | tee -a "$OUT_FILE"
         EXIT_CODE=${PIPESTATUS[0]}
         set -e
+        if [ -f "$NIKTO_HTM" ]; then
+            echo "" >> "$OUT_FILE"
+            echo "HTML report: $NIKTO_HTM" >> "$OUT_FILE"
+        fi
         ;;
     nuclei)
+        # Quiet: findings only, no color, no template-update chatter.
         f_nuclei_args
+        NUCLEI_OUT="$RUN_DIR/nuclei.txt"
+        NUCLEI_CMD="nuclei -u $(f_shell_quote "$URL") -H $(f_shell_quote "User-Agent: $UA")"
+        # Extra flags are simple tokens (-tags drupal -c 5 …); do not over-quote.
+        if [ "${#NUCLEI_EXTRA[@]}" -gt 0 ]; then
+            NUCLEI_CMD+=" ${NUCLEI_EXTRA[*]}"
+        fi
+        NUCLEI_CMD+=" -silent -nc -duc -o $(f_shell_quote "$NUCLEI_OUT")"
+        f_write_run_header "$NUCLEI_CMD"
         set +e
         nuclei -u "$URL" -H "User-Agent: $UA" "${NUCLEI_EXTRA[@]}" \
-            -o "$OUT_FILE" 2>&1 | tee -a "$OUT_FILE"
+            -silent -nc -duc \
+            -o "$NUCLEI_OUT" 2>&1 | tee -a "$OUT_FILE"
         EXIT_CODE=${PIPESTATUS[0]}
         set -e
+        # findings already streamed via -silent; note sidecar path if present
+        if [ -f "$NUCLEI_OUT" ] && [ -s "$NUCLEI_OUT" ]; then
+            echo "" >> "$OUT_FILE"
+            echo "Findings file: $NUCLEI_OUT" >> "$OUT_FILE"
+        fi
         ;;
     ffuf)
         f_ffuf_wordlist
@@ -303,17 +378,20 @@ case "$TOOL" in
         if [[ "$FFUF_URL" != *FUZZ* ]]; then
             FFUF_URL="${FFUF_URL%/}/FUZZ"
         fi
+        FFUF_JSON="$RUN_DIR/ffuf.json"
+        FFUF_CMD="ffuf -u $(f_shell_quote "$FFUF_URL") -w $(f_shell_quote "$FFUF_WL") -t 8 -rate 20 -H $(f_shell_quote "User-Agent: $UA") -of json -o $(f_shell_quote "$FFUF_JSON") -mc 200,204,301,302,307,401,403"
+        f_write_run_header "$FFUF_CMD"
         set +e
         ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 8 -rate 20 \
             -H "User-Agent: $UA" \
-            -of json -o "$RUN_DIR/ffuf.json" \
+            -of json -o "$FFUF_JSON" \
             -mc 200,204,301,302,307,401,403 \
-            2>&1 | tee "$OUT_FILE"
+            2>&1 | tee -a "$OUT_FILE"
         EXIT_CODE=${PIPESTATUS[0]}
         set -e
-        if [ -f "$RUN_DIR/ffuf.json" ]; then
+        if [ -f "$FFUF_JSON" ]; then
             echo "" >> "$OUT_FILE"
-            echo "JSON results: $RUN_DIR/ffuf.json" >> "$OUT_FILE"
+            echo "JSON results: $FFUF_JSON" >> "$OUT_FILE"
         fi
         ;;
 esac
@@ -325,7 +403,8 @@ path, finished, code = sys.argv[1], sys.argv[2], int(sys.argv[3])
 meta = json.load(open(path, encoding="utf-8"))
 meta["status"] = "done" if code == 0 else "failed"
 meta["finished_display"] = finished
-meta["finished_utc"] = __import__("datetime").datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+from datetime import datetime, timezone
+meta["finished_utc"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 meta["exit_code"] = code
 json.dump(meta, open(path, "w", encoding="utf-8"), indent=2)
 open(path, "a", encoding="utf-8").write("\n")

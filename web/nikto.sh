@@ -51,6 +51,33 @@ f_nikto_select_tool(){
     return 1
 }
 
+# Same Edge UA as host-scan / Update (resource/user-agent.txt or Discover export).
+f_nikto_user_agent(){
+    local ua=""
+
+    if [ -n "${USER_AGENT:-}" ]; then
+        printf '%s' "$USER_AGENT"
+        return 0
+    fi
+
+    if declare -F f_discover_user_agent >/dev/null 2>&1; then
+        ua=$(f_discover_user_agent)
+    elif [ -n "${DISCOVER:-}" ] && [ -f "$DISCOVER/resource/user-agent.txt" ]; then
+        ua=$(grep -v '^[[:space:]]*#' "$DISCOVER/resource/user-agent.txt" | sed '/^[[:space:]]*$/d' | head -n 1)
+    elif [ -f "$(dirname "${BASH_SOURCE[0]}")/../resource/user-agent.txt" ]; then
+        ua=$(grep -v '^[[:space:]]*#' "$(dirname "${BASH_SOURCE[0]}")/../resource/user-agent.txt" | sed '/^[[:space:]]*$/d' | head -n 1)
+    fi
+
+    ua="${ua#"${ua%%[![:space:]]*}"}"
+    ua="${ua%"${ua##*[![:space:]]}"}"
+
+    if [ -z "$ua" ] || [[ "$ua" != Mozilla/* ]]; then
+        ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
+    fi
+
+    printf '%s' "$ua"
+}
+
 f_nikto_complete(){
     local mode="$1"
     local port="${2:-}"
@@ -75,7 +102,40 @@ f_banner
 
 f_nikto_select_tool || exit 1
 
+NIKTO_UA=$(f_nikto_user_agent)
+
+# Nikto 2.1.x has no CLI -useragent; set USERAGENT= in a Discover-owned config.
+NIKTO_CONF="$HOME/data/nikto-discover.conf"
+mkdir -p "$HOME/data"
+python3 - "$NIKTO_CONF" "$NIKTO_UA" <<'PY'
+import sys
+from pathlib import Path
+
+out = Path(sys.argv[1])
+ua = sys.argv[2]
+base = ""
+for candidate in (Path("/etc/nikto/config.txt"), Path("/etc/nikto.conf")):
+    if candidate.is_file():
+        base = candidate.read_text(encoding="utf-8", errors="replace")
+        break
+lines = base.splitlines() if base else []
+found = False
+new_lines = []
+for line in lines:
+    if line.startswith("USERAGENT=") or line.startswith("#USERAGENT="):
+        new_lines.append("USERAGENT=" + ua)
+        found = True
+    else:
+        new_lines.append(line)
+if not found:
+    new_lines.append("USERAGENT=" + ua)
+out.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+PY
+
 echo -e "${BLUE}Run multiple instances of Nikto in parallel.${NC}"
+echo
+echo -e "User-Agent: ${YELLOW}$NIKTO_UA${NC}"
+echo -e "Config:     ${YELLOW}$NIKTO_CONF${NC}"
 echo
 echo "1.  List of IPs"
 echo "2.  List of IP:port"
@@ -106,7 +166,7 @@ case "$CHOICE" in
         while IFS= read -r LINE; do
             [ -z "$LINE" ] && continue
             $XDOTOOL key ctrl+shift+t
-            $XDOTOOL type "nikto -h $LINE -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto-$PORT/$LINE.htm ; exit"
+            $XDOTOOL type "nikto -config $NIKTO_CONF -h $LINE -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto-$PORT/$LINE.htm ; exit"
             sleep 2
             $XDOTOOL key $ENTER
         done < "$LOCATION"
@@ -124,7 +184,7 @@ case "$CHOICE" in
             [ -z "$HOST" ] || [ -z "$PORT" ] && continue
             $XDOTOOL key ctrl+shift+t
             sleep 2
-            $XDOTOOL type "nikto -h $HOST -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto/$HOST-$PORT.htm ; exit"
+            $XDOTOOL type "nikto -config $NIKTO_CONF -h $HOST -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto/$HOST-$PORT.htm ; exit"
             sleep 2
             $XDOTOOL key $ENTER
         done < "$LOCATION"

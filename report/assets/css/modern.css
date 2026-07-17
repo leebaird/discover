@@ -611,6 +611,23 @@ tr.inc-subdomains-filter-hide {
     display: none !important;
 }
 
+/*
+ * Audit width: fixed px (NOT rem). Bootstrap sets html { font-size: 10px },
+ * so 1rem = 10px and "82rem" was only 820px — looked like no change / too narrow.
+ * 1000px — modest nudge down from 1100px; last columns absorb slack.
+ */
+.inc-iframe-parent:not(.inc-home-page) .container.inc-audit-page.inc-container-dynamic,
+.inc-audit-page.container.inc-container-dynamic {
+    width: 1000px;
+    min-width: 0;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--space);
+    padding-right: var(--space);
+    box-sizing: border-box;
+}
+
 /* Audit page */
 .inc-audit-page .inc-audit-summary {
     display: flex;
@@ -672,10 +689,12 @@ tr.inc-subdomains-filter-hide {
     max-width: 100%;
 }
 
-/* Deliverables + Audit log share full content width */
+/* Wide Audit frames/tables fill the container so last columns can stretch. */
 .inc-audit-page .inc-content-frame--table.inc-audit-frame-wide {
     width: 100%;
     max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .inc-audit-page .inc-content-frame--table table.inc-data-table,
@@ -691,6 +710,39 @@ tr.inc-subdomains-filter-hide {
 
 .inc-audit-page .inc-audit-frame-wide table.inc-data-table {
     width: 100%;
+    table-layout: auto;
+}
+
+/* Host scan activity: Host + tools; last tool column fills remaining width.
+ * Columns: 1 Target, 2 ffuf, 3 Nikto, 4 Nuclei.
+ * Nikto min-width fits timestamp + SCAN + HTM without overlapping Nuclei. */
+/* Target (was Host): fixed floor so hostname has a little room */
+.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(1),
+.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(1) {
+    width: 1%;
+    min-width: 180px;
+    white-space: nowrap;
+}
+
+/* ffuf: a little wider than tight content (timestamp + scan) */
+.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(2),
+.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(2) {
+    width: 1%;
+    min-width: 235px;
+    white-space: nowrap;
+}
+
+.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(3),
+.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(3) {
+    width: 1%;
+    min-width: 280px; /* px: rem is 10px under Bootstrap html font-size */
+    white-space: nowrap;
+}
+
+.inc-audit-page table.inc-audit-host-scans > thead > tr > th:last-child,
+.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:last-child {
+    width: 99%;
+    white-space: nowrap;
 }
 
 /* Label / Kind / Exported / Operator IPs shrink; File takes the rest */
@@ -702,6 +754,23 @@ tr.inc-subdomains-filter-hide {
 
 .inc-audit-page table.inc-audit-deliverables > thead > tr > th.inc-audit-col-file,
 .inc-audit-page table.inc-audit-deliverables > tbody > tr > td.inc-audit-col-file {
+    width: 99%;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+/* Audit log: Time + IP shrink; Action takes remaining width */
+.inc-audit-page #inc-audit-log-table > thead > tr > th:nth-child(1),
+.inc-audit-page #inc-audit-log-table > tbody > tr > td:nth-child(1),
+.inc-audit-page #inc-audit-log-table > thead > tr > th:nth-child(2),
+.inc-audit-page #inc-audit-log-table > tbody > tr > td:nth-child(2) {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.inc-audit-page #inc-audit-log-table > thead > tr > th:last-child,
+.inc-audit-page #inc-audit-log-table > tbody > tr > td:last-child {
     width: 99%;
     white-space: normal;
     word-break: break-word;
@@ -755,6 +824,38 @@ tr.inc-subdomains-filter-hide {
     color: #f0ad4e;
     font-weight: 600;
     font-size: 15px;
+}
+
+/* Small scan / htm buttons inline with host-scan timestamps */
+.inc-audit-page .inc-audit-btn-row {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    vertical-align: middle;
+}
+
+.inc-audit-page a.inc-audit-btn {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    color: #fff !important;
+    background: #2e7d32;
+    border: 1px solid #1b5e20;
+    line-height: 1.4;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.inc-audit-page a.inc-audit-btn:hover {
+    background: #1b5e20;
+    color: #fff !important;
 }
 
 /* Filtered Subdomains host-scan expand panel */
@@ -1113,4 +1214,11 @@ body:not(.inc-iframe-parent) pre {
 .inc-iframe-parent:not(.inc-home-page) .container.inc-active-page {
     max-width: none;
     width: 100%;
+}
+
+/* Audit: fixed px width (not Active full-bleed; rem is 10px under Bootstrap). */
+.inc-iframe-parent:not(.inc-home-page) .container.inc-audit-page {
+    width: 1000px;
+    min-width: 0;
+    max-width: 100%;
 }

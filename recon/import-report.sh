@@ -359,17 +359,6 @@ if [ ! -f "$AUDIT_LOG" ]; then
     touch "$AUDIT_LOG" 2>/dev/null || true
 fi
 
-if declare -F f_audit_log >/dev/null 2>&1; then
-    f_audit_log "$DISCOVER_REPORT" "Opened report in Discover (operator)"
-else
-    AUDIT_TS=$(date -u +"%m-%d-%Y Z - %H:%M")
-    AUDIT_IP=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
-    [ -n "$AUDIT_IP" ] || AUDIT_IP=unknown
-    if [ -w "$AUDIT_LOG" ] || touch "$AUDIT_LOG" 2>/dev/null; then
-        printf '%s | %s | Opened report in Discover (operator).\n' "$AUDIT_TS" "$AUDIT_IP" >> "$AUDIT_LOG"
-    fi
-fi
-
 # Build/refresh Audit page
 if [ -n "$DISCOVER_ROOT" ] && [ -f "$DISCOVER_ROOT/recon/audit-build.py" ]; then
     python3 "$DISCOVER_ROOT/recon/audit-build.py" "$DISCOVER_REPORT" "$DISCOVER_ROOT/report/pages/audit.htm" >/dev/null 2>&1 || true

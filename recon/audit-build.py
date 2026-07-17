@@ -99,6 +99,12 @@ def format_export_time(exp: dict) -> str:
         return raw
 
 
+def _audit_action_hidden(action: str) -> bool:
+    """Skip routine noise (e.g. Import report open) on the Audit page."""
+    a = (action or "").strip().rstrip(".").lower()
+    return a.startswith("opened report in discover")
+
+
 def load_audit_lines(report_root: Path) -> list[tuple[str, str, str]]:
     log = report_root / "tools" / "audit" / "log.txt"
     if not log.is_file():
@@ -110,8 +116,13 @@ def load_audit_lines(report_root: Path) -> list[tuple[str, str, str]]:
             continue
         m = LINE_RE.match(raw)
         if m:
-            rows.append((m.group(1), m.group(2).strip(), m.group(3).strip()))
+            action = m.group(3).strip()
+            if _audit_action_hidden(action):
+                continue
+            rows.append((m.group(1), m.group(2).strip(), action))
         else:
+            if _audit_action_hidden(raw):
+                continue
             rows.append(("", "", raw))
     rows.reverse()  # newest first
     return rows
@@ -170,7 +181,20 @@ def load_exports(report_root: Path) -> list[dict]:
     return rows
 
 
-def tool_cell(tool_meta: dict | None) -> str:
+def _pages_href(path_from_report_root: str) -> str:
+    """Href from pages/*.htm into the report tree."""
+    rel = str(path_from_report_root).lstrip("/")
+    if not rel.startswith("../"):
+        rel = "../" + rel
+    return rel
+
+
+def tool_cell(
+    tool_meta: dict | None,
+    *,
+    tool: str = "",
+    report_root: Path | None = None,
+) -> str:
     if not tool_meta:
         return '<span class="inc-audit-muted">—</span>'
     finished = tool_meta.get("finished") or tool_meta.get("finished_display") or ""
@@ -180,18 +204,39 @@ def tool_cell(tool_meta: dict | None) -> str:
         return '<span class="inc-audit-running">Running…</span>'
     if not finished and not output:
         return '<span class="inc-audit-muted">—</span>'
-    parts = []
+
+    chunks: list[str] = []
     if finished:
-        parts.append(html.escape(str(finished)))
+        chunks.append(html.escape(str(finished)))
+
+    links: list[str] = []
     if output:
-        # Prefer relative path from pages/
-        rel = str(output)
-        if not rel.startswith("../"):
-            rel = "../" + rel.lstrip("/")
-        parts.append(
-            f'<a href="{html.escape(rel, quote=True)}" target="_blank" rel="noopener">output</a>'
+        rel = _pages_href(str(output))
+        links.append(
+            f'<a class="inc-audit-btn" href="{html.escape(rel, quote=True)}" '
+            f'target="_blank" rel="noopener">scan</a>'
         )
-    return " · ".join(parts) if parts else '<span class="inc-audit-muted">—</span>'
+        # Nikto HTML report lives next to output.txt as nikto.htm
+        if tool == "nikto":
+            htm_rel_root = str(Path(str(output)).with_name("nikto.htm")).replace("\\", "/")
+            htm_disk = (
+                (report_root / str(output).lstrip("/")).with_name("nikto.htm")
+                if report_root is not None
+                else None
+            )
+            if htm_disk is None or htm_disk.is_file():
+                htm_href = _pages_href(htm_rel_root)
+                links.append(
+                    f'<a class="inc-audit-btn" href="{html.escape(htm_href, quote=True)}" '
+                    f'target="_blank" rel="noopener">htm</a>'
+                )
+
+    if links:
+        # Buttons on the same line as the timestamp
+        btn_block = '<span class="inc-audit-btn-row">' + "".join(links) + "</span>"
+        chunks.append(btn_block)
+
+    return " · ".join(chunks) if chunks else '<span class="inc-audit-muted">—</span>'
 
 
 def build_html(report_root: Path) -> str:
@@ -218,15 +263,19 @@ def build_html(report_root: Path) -> str:
     # Host scan activity
     lines.append('<section class="inc-audit-section">')
     lines.append('<h3 class="inc-audit-section-title">Host scan activity</h3>')
-    lines.append('<div class="inc-content-frame inc-content-frame--table">')
-    lines.append('<table class="table table-bordered inc-data-table">')
+    lines.append(
+        '<div class="inc-content-frame inc-content-frame--table inc-audit-frame-wide">'
+    )
+    lines.append(
+        '<table class="table table-bordered inc-data-table inc-audit-host-scans">'
+    )
     tool_headers = "".join(
         f'<th scope="col" class="inc-sortable">{html.escape(label)}</th>'
         for _key, label in HOST_SCAN_TOOLS
     )
     lines.append(
         "<thead><tr>"
-        '<th scope="col" class="inc-sortable">Host</th>'
+        '<th scope="col" class="inc-sortable">Target</th>'
         f"{tool_headers}"
         "</tr></thead><tbody>"
     )
@@ -237,7 +286,11 @@ def build_html(report_root: Path) -> str:
             for key, _label in HOST_SCAN_TOOLS:
                 meta = tools.get(key)
                 cells.append(
-                    tool_cell(meta if isinstance(meta, dict) else None)
+                    tool_cell(
+                        meta if isinstance(meta, dict) else None,
+                        tool=key,
+                        report_root=report_root,
+                    )
                 )
             lines.append(
                 "<tr>"
@@ -288,7 +341,7 @@ def build_html(report_root: Path) -> str:
             )
     else:
         lines.append(
-            '<tr><td colspan="5" class="inc-audit-muted">No exports recorded yet.</td></tr>'
+            '<tr><td colspan="5" class="inc-audit-muted inc-audit-empty">No exports recorded yet.</td></tr>'
         )
     lines.append("</tbody></table></div></section>")
 
@@ -304,7 +357,7 @@ def build_html(report_root: Path) -> str:
     lines.append(
         "<thead><tr>"
         '<th scope="col" class="inc-sortable">Time (UTC)</th>'
-        '<th scope="col" class="inc-sortable">Consultant IP</th>'
+        '<th scope="col" class="inc-sortable">Operator IP</th>'
         '<th scope="col" class="inc-sortable">Action</th>'
         "</tr></thead><tbody>"
     )
