@@ -7,14 +7,17 @@
 # Invoked via discover-scan: scheme or CLI:
 #   run-host-scan.sh <tool> <url> [software] [report_root]
 #
-# Tools: nikto | nuclei | ffuf
+# Tools: nuclei | droopescan | nikto | ffuf  (quietest → loudest)
 # - Visible terminal (desktop entry uses Terminal=true)
 # - One scan at a time (engagement lock)
-# - Software-aware nuclei/ffuf profiles
+# - Software-aware nuclei/ffuf/droopescan profiles
 # - Nuclei is two-pass auto: (1) software tags recon, (2) CVE/KEV IDs
-#   from tools/software-cves-cache.json + CISA KEV catalog
+# - droopescan only when software is a supported CMS (Drupal, WP, …)
 
 set -euo pipefail
+
+# Prefer user pipx (Python 3.14-patched) over a broken system install.
+export PATH="${HOME}/.local/bin:/usr/local/bin:${PATH:-/usr/bin:/bin}"
 
 TOOL="${1:-}"
 URL="${2:-}"
@@ -29,7 +32,7 @@ f_die(){
     exit 1
 }
 
-[[ "$TOOL" =~ ^(nikto|nuclei|ffuf)$ ]] || f_die "Tool must be nikto, nuclei, or ffuf."
+[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|droopescan)$ ]] || f_die "Tool must be nuclei, droopescan, nikto, or ffuf."
 [ -n "$URL" ] || f_die "URL is required."
 
 # Resolve report root
@@ -423,6 +426,57 @@ f_nuclei_ensure_findings_message(){
     fi
 }
 
+# Strip ANSI / progress junk (ffuf draws progress with ESC sequences that show as
+# little boxes with stacked numbers in plain text viewers).
+f_clean_scan_text(){
+    python3 -c '
+import re, sys
+raw = sys.stdin.read()
+# CSI / OSC / charset ANSI
+raw = re.sub(r"\x1b\[[0-9;?]*[ -/]*[@-~]", "", raw)
+raw = re.sub(r"\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)", "", raw)
+raw = re.sub(r"\x1b[()][0-9A-B]", "", raw)
+raw = re.sub(r"\x1b.", "", raw)
+raw = raw.replace("\r\n", "\n").replace("\r", "\n")
+out = []
+prev_empty = False
+for ln in raw.splitlines():
+    s = ln.strip()
+    # Drop live progress lines
+    if re.match(r"^::\s*Progress:", s, re.I) or re.match(r"^Progress:", s, re.I):
+        continue
+    if re.search(r"\bReq/sec\b", s) and re.search(r"\bErrors\b", s, re.I):
+        continue
+    empty = not s
+    if empty and prev_empty:
+        continue
+    # Drop per-hit timing only (keep Status, Size, Words, Lines)
+    ln = re.sub(r",\s*Duration:\s*\d+ms", "", ln, flags=re.I)
+    out.append(ln.rstrip())
+    prev_empty = empty
+sys.stdout.write("\n".join(out))
+if out:
+    sys.stdout.write("\n")
+'
+}
+
+# Map Discover software label → droopescan CMS plugin (empty if unsupported).
+f_droopescan_cms(){
+    local soft_lc base
+    soft_lc=$(printf '%s' "${SOFTWARE:-}" | tr '[:upper:]' '[:lower:]')
+    soft_lc="${soft_lc%%[*}"
+    base="${soft_lc%%:*}"
+    base="${base// /}"
+    case "$base" in
+        drupal) printf '%s' "drupal" ;;
+        wordpress|wp) printf '%s' "wordpress" ;;
+        joomla) printf '%s' "joomla" ;;
+        moodle) printf '%s' "moodle" ;;
+        silverstripe|ss) printf '%s' "silverstripe" ;;
+        *) printf '%s' "" ;;
+    esac
+}
+
 # Quiet ffuf wordlist
 f_ffuf_wordlist(){
     local soft_lc
@@ -687,6 +741,35 @@ PY
             echo "[*] Pass 2: skipped (no runnable CVE templates for this software)"
         fi
         ;;
+    droopescan)
+        CMS=$(f_droopescan_cms)
+        [ -n "$CMS" ] || f_die "droopescan requires CMS software (Drupal, WordPress, Joomla, Moodle, Silverstripe). Got: ${SOFTWARE:-none}"
+        command -v droopescan >/dev/null 2>&1 || f_die "droopescan is not installed (or not on PATH). Run Discover Update; prefer ~/.local/bin after Python 3.14 patch."
+        DROOP_OUT="$RUN_DIR/droopescan.txt"
+        # Quiet-ish: all enums, modest threads, standard text output.
+        DROOP_CMD="droopescan scan $CMS -u $(f_shell_quote "$URL") -e a -t 4 -o standard"
+        f_write_run_header "$DROOP_CMD"
+        {
+            echo "CMS: $CMS"
+            echo "Software: ${SOFTWARE:-—}"
+            echo
+        } >> "$OUT_FILE"
+        echo "[*] droopescan scan $CMS on $URL"
+        set +e
+        # Capture full text report (stdout+stderr); also keep a sidecar copy.
+        droopescan scan "$CMS" -u "$URL" -e a -t 4 -o standard \
+            2>&1 | tee "$DROOP_OUT" | tee -a "$OUT_FILE"
+        EXIT_CODE=${PIPESTATUS[0]}
+        set -e
+        if [ ! -s "$DROOP_OUT" ]; then
+            printf '%s\n' "No droopescan output captured." > "$DROOP_OUT"
+        fi
+        {
+            echo
+            echo "Output: $DROOP_OUT"
+            echo
+        } >> "$OUT_FILE"
+        ;;
     ffuf)
         f_ffuf_wordlist
         # Ensure URL has FUZZ path
@@ -695,16 +778,28 @@ PY
             FFUF_URL="${FFUF_URL%/}/FUZZ"
         fi
         FFUF_JSON="$RUN_DIR/ffuf.json"
-        FFUF_CMD="ffuf -u $(f_shell_quote "$FFUF_URL") -w $(f_shell_quote "$FFUF_WL") -t 8 -rate 20 -H $(f_shell_quote "User-Agent: $UA") -of json -o $(f_shell_quote "$FFUF_JSON") -mc 200,204,301,302,307,401,403"
+        # Quiet default: no custom -mc (use ffuf defaults: 2xx,301,302,307,500,…)
+        # Filter noise with -fc. Keep 2xx + 500s (version banners). Drop auth/forbid,
+        # empty, rate-limit, and redirects (301/302/307 are often real paths that still
+        # aren't useful to open anonymously — clutter for operators).
+        FFUF_FC="301,302,307,400,401,403,404,405,429"
+        FFUF_CMD="ffuf -u $(f_shell_quote "$FFUF_URL") -w $(f_shell_quote "$FFUF_WL") -t 8 -rate 20 -H $(f_shell_quote "User-Agent: $UA") -of json -o $(f_shell_quote "$FFUF_JSON") -fc $FFUF_FC -noninteractive"
         f_write_run_header "$FFUF_CMD"
+        FFUF_RAW="$RUN_DIR/ffuf.raw.txt"
         set +e
         ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 8 -rate 20 \
             -H "User-Agent: $UA" \
             -of json -o "$FFUF_JSON" \
-            -mc 200,204,301,302,307,401,403 \
-            2>&1 | tee -a "$OUT_FILE"
+            -fc "$FFUF_FC" \
+            -noninteractive \
+            2>&1 | tee "$FFUF_RAW"
         EXIT_CODE=${PIPESTATUS[0]}
         set -e
+        # Append cleaned text to operator report (no ESC boxes / progress spam).
+        if [ -f "$FFUF_RAW" ]; then
+            f_clean_scan_text < "$FFUF_RAW" >> "$OUT_FILE"
+            rm -f "$FFUF_RAW"
+        fi
         if [ -f "$FFUF_JSON" ]; then
             echo "" >> "$OUT_FILE"
             echo "JSON results: $FFUF_JSON" >> "$OUT_FILE"

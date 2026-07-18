@@ -2,13 +2,25 @@
  * Planning by Lee Baird (@discoverscripts)
  * Coded by Grok (xAI)
  *
- * Software-filtered Subdomains: expand host row → launch nikto/nuclei/ffuf.
+ * Software-filtered Subdomains: expand host row → launch host-scan tools.
  * Operator only (report-mode launches true + Discover session).
  * One tool at a time; live status via 127.0.0.1 statusd when available.
+ * droopescan is gated: only when software is a supported CMS.
  */
 (function () {
     /** Host-scan expand panel logic. */
-    var TOOLS = ["ffuf", "nikto", "nuclei"];
+    // Base tools quietest → loudest (droopescan inserted when CMS filter matches).
+    var TOOLS_BASE = ["nuclei", "nikto", "ffuf"];
+    // droopescan CMS label → plugin name (must match run-host-scan.sh).
+    var DROOPESCAN_CMS = {
+        drupal: "drupal",
+        wordpress: "wordpress",
+        wp: "wordpress",
+        joomla: "joomla",
+        moodle: "moodle",
+        silverstripe: "silverstripe",
+        ss: "silverstripe"
+    };
     var STATUS_PORT_DEFAULT = 17322;
     var pollTimer = null;
 
@@ -18,6 +30,26 @@
         } catch (e) {
             return "";
         }
+    }
+
+    /** Map software filter (e.g. Drupal:7) → droopescan CMS or null. */
+    function droopescanCms(software) {
+        var s = (software || "").toLowerCase().trim();
+        if (!s) {
+            return null;
+        }
+        s = s.split("[")[0];
+        s = s.split(":")[0];
+        s = s.replace(/\s+/g, "");
+        return DROOPESCAN_CMS[s] || null;
+    }
+
+    /** Tools for this expand panel (includes droopescan when gated CMS). */
+    function toolsForSoftware(software) {
+        if (droopescanCms(software)) {
+            return ["nuclei", "droopescan", "nikto", "ffuf"];
+        }
+        return TOOLS_BASE.slice();
     }
 
     function reportMode() {
@@ -105,6 +137,86 @@
         return h[tool] || null;
     }
 
+    /** Build TXT (+ HTM for nikto) buttons for a finished tool run. */
+    function outputButtonsHtml(tool, st) {
+        if (!st || !(st.output || st.output_rel)) {
+            return "";
+        }
+        var rel = st.output_rel || st.output;
+        if (String(rel).indexOf("../") !== 0) {
+            rel = "../" + String(rel).replace(/^\//, "");
+        }
+        var safe = String(rel).replace(/"/g, "&quot;");
+        var html =
+            '<span class="inc-host-scan-btn-row">' +
+            '<a class="inc-host-scan-out" href="' +
+            safe +
+            '" target="_blank" rel="noopener">txt</a>';
+        if (tool === "nikto") {
+            // nikto.htm lives next to output.txt in the run directory
+            var htmRel = String(rel).replace(/[^/]+$/, "nikto.htm");
+            html +=
+                '<a class="inc-host-scan-out" href="' +
+                htmRel.replace(/"/g, "&quot;") +
+                '" target="_blank" rel="noopener">htm</a>';
+        }
+        if (tool === "ffuf") {
+            // Absolute path via discover-ffuf: → open-ffuf-tabs.sh (Firefox CLI)
+            var jsonRel = String(rel).replace(/[^/]+$/, "ffuf.json");
+            var absJson = ffufJsonAbsolutePath(jsonRel);
+            if (absJson) {
+                html +=
+                    '<a class="inc-host-scan-out" href="discover-ffuf:' +
+                    encodeURI(absJson).replace(/"/g, "&quot;") +
+                    '" title="Open each ffuf finding URL in Firefox">url</a>';
+            }
+        }
+        html += "</span>";
+        return html;
+    }
+
+    /** Best-effort absolute path for ffuf.json (for discover-ffuf: handler). */
+    function ffufJsonAbsolutePath(relFromPages) {
+        try {
+            var a = document.createElement("a");
+            a.href = relFromPages;
+            // file:// or http(s):// to the report; handler wants filesystem path when possible
+            var href = a.href || "";
+            if (href.indexOf("file://") === 0) {
+                return decodeURIComponent(href.replace(/^file:\/\//, ""));
+            }
+            // Served via http: pass report-relative tools/... path (handler resolves via current-report)
+            var m = String(relFromPages).match(/(tools\/host-scans\/.+)/);
+            if (m) {
+                return m[1];
+            }
+            return relFromPages.replace(/^\.\.\//, "");
+        } catch (e) {
+            return "";
+        }
+    }
+
+    function lastRunHtml(tool, st) {
+        if (st && st.status === "running") {
+            return "Running…";
+        }
+        if (st && (st.finished_display || st.finished)) {
+            var last = st.finished_display || st.finished;
+            var btns = outputButtonsHtml(tool, st);
+            if (btns) {
+                // Timestamp in its own span; buttons follow (CSS flex aligns them).
+                return (
+                    '<span class="inc-host-scan-last-time">' +
+                    last +
+                    "</span>" +
+                    btns
+                );
+            }
+            return '<span class="inc-host-scan-last-time">' + last + "</span>";
+        }
+        return "Not run";
+    }
+
     function renderPanel(row, info, software, canLaunch, status) {
         var safeHost = String(info.host).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
         var existing = row.parentNode.querySelector(
@@ -139,26 +251,9 @@
         }
         html += '<div class="inc-host-scan-tools">';
 
-        TOOLS.forEach(function (tool) {
+        var panelTools = toolsForSoftware(software);
+        panelTools.forEach(function (tool) {
             var st = toolState(status, info.host, tool);
-            var last = "Not run";
-            var outLink = "";
-            if (st && st.status === "running") {
-                last = "Running…";
-            } else if (st && (st.finished_display || st.finished)) {
-                last = st.finished_display || st.finished;
-                if (st.output || st.output_rel) {
-                    var rel = st.output_rel || st.output;
-                    if (rel.indexOf("../") !== 0) {
-                        rel = "../" + String(rel).replace(/^\//, "");
-                    }
-                    outLink =
-                        ' · <a href="' +
-                        rel.replace(/"/g, "&quot;") +
-                        '" target="_blank" rel="noopener">output</a>';
-                }
-            }
-
             var launchHtml;
             if (canLaunch && !running) {
                 launchHtml =
@@ -170,12 +265,16 @@
             }
 
             html += '<div class="inc-host-scan-tool" data-tool="' + tool + '">';
-            html += '<span class="inc-host-scan-tool-name">' + tool + "</span>";
+            html += '<div class="inc-host-scan-tool-head">';
+            html +=
+                '<span class="inc-host-scan-tool-name">' +
+                (tool === "droopescan" ? "droopescan" : tool) +
+                "</span>";
             html += launchHtml;
+            html += "</div>";
             html +=
                 '<span class="inc-host-scan-last">' +
-                last +
-                outLink +
+                lastRunHtml(tool, st) +
                 "</span></div>";
         });
 
@@ -284,24 +383,7 @@
                     if (!lastEl) {
                         return;
                     }
-                    var last = "Not run";
-                    var outLink = "";
-                    if (st && st.status === "running") {
-                        last = "Running…";
-                    } else if (st && (st.finished_display || st.finished)) {
-                        last = st.finished_display || st.finished;
-                        if (st.output || st.output_rel) {
-                            var rel = st.output_rel || st.output;
-                            if (String(rel).indexOf("../") !== 0) {
-                                rel = "../" + String(rel).replace(/^\//, "");
-                            }
-                            outLink =
-                                ' · <a href="' +
-                                rel +
-                                '" target="_blank" rel="noopener">output</a>';
-                        }
-                    }
-                    lastEl.innerHTML = last + outLink;
+                    lastEl.innerHTML = lastRunHtml(tool, st);
                 });
                 var running = !!(status && status.running);
                 panel.querySelectorAll("a.inc-host-scan-launch").forEach(function (a) {

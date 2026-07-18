@@ -11,16 +11,20 @@ import os
 import re
 import sys
 from pathlib import Path
+from urllib.parse import quote, urlparse
 
 LINE_RE = re.compile(
     r"^(\d{2}-\d{2}-\d{4} Z - \d{2}:\d{2}) \| ([^|]+) \| (.*)$"
 )
 
-# Host-scan tools: storage key → display label (alphabetical by key).
+# Host-scan tools: storage key → display label (quietest → loudest).
+# droopescan is gated on the Subdomains panel (CMS filters only) but always
+# appears as a Target scans column so prior runs remain visible.
 HOST_SCAN_TOOLS: list[tuple[str, str]] = [
-    ("ffuf", "ffuf"),
-    ("nikto", "Nikto"),
     ("nuclei", "Nuclei"),
+    ("droopescan", "droopescan"),
+    ("nikto", "Nikto"),
+    ("ffuf", "ffuf"),
 ]
 
 # Known export kinds / common labels → display text on the Audit page.
@@ -206,14 +210,12 @@ def _pages_href(path_from_report_root: str) -> str:
 # Audit log Action → host-scan tool / pass-2 / URL (for Output column links).
 _AUDIT_SCAN_ACTION_RE = re.compile(
     r"(?i)\b(?P<verb>started|finished)\s+"
-    r"(?P<tool>nuclei\s+pass-2|ffuf|nikto|nuclei)\b"
+    r"(?P<tool>nuclei\s+pass-2|droopescan|ffuf|nikto|nuclei)\b"
     r".*?\bon\s+(?P<url>https?://[^\s)(]+)"
 )
 
 
 def _hostname_from_url(url: str) -> str:
-    from urllib.parse import urlparse
-
     return (urlparse(url).hostname or "").lower()
 
 
@@ -247,7 +249,7 @@ def audit_output_cell(
 
     is_pass2 = tool_raw.startswith("nuclei pass-2") or tool_raw == "nuclei pass-2"
     tool = "nuclei" if is_pass2 or tool_raw == "nuclei" else tool_raw
-    if tool not in {"ffuf", "nikto", "nuclei"}:
+    if tool not in {"ffuf", "nikto", "nuclei", "droopescan"}:
         return '<span class="inc-audit-muted">—</span>'
 
     meta = (scan_index.get(host) or {}).get(tool) or {}
@@ -315,10 +317,6 @@ def tool_cell(
     if not finished and not output:
         return '<span class="inc-audit-muted">—</span>'
 
-    chunks: list[str] = []
-    if finished:
-        chunks.append(html.escape(str(finished)))
-
     links: list[str] = []
     if output:
         rel = _pages_href(str(output))
@@ -340,13 +338,38 @@ def tool_cell(
                     f'<a class="inc-audit-btn" href="{html.escape(htm_href, quote=True)}" '
                     f'target="_blank" rel="noopener">htm</a>'
                 )
+        # ffuf: open each finding URL in Firefox (discover-ffuf: protocol)
+        if tool == "ffuf" and report_root is not None:
+            json_rel = str(Path(str(output)).with_name("ffuf.json")).replace("\\", "/")
+            json_disk = report_root / json_rel.lstrip("/")
+            if json_disk.is_file():
+                # Absolute path so the desktop handler can open the JSON reliably
+                abs_json = str(json_disk.resolve())
+                href = "discover-ffuf:" + quote(abs_json, safe="/:")
+                links.append(
+                    f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
+                    f'title="Open each ffuf finding URL in Firefox">'
+                    f"url</a>"
+                )
 
-    if links:
-        # Buttons on the same line as the timestamp
-        btn_block = '<span class="inc-audit-btn-row">' + "".join(links) + "</span>"
-        chunks.append(btn_block)
+    btn_block = (
+        '<span class="inc-audit-btn-row">' + "".join(links) + "</span>" if links else ""
+    )
+    time_html = html.escape(str(finished)) if finished else ""
 
-    return " · ".join(chunks) if chunks else '<span class="inc-audit-muted">—</span>'
+    if time_html and btn_block:
+        # Flex row vertically centers timestamp with TXT/HTM (gap ~ four spaces).
+        return (
+            '<span class="inc-audit-tool-cell">'
+            f'<span class="inc-audit-tool-cell-time">{time_html}</span>'
+            f"{btn_block}"
+            "</span>"
+        )
+    if btn_block:
+        return btn_block
+    if time_html:
+        return time_html
+    return '<span class="inc-audit-muted">—</span>'
 
 
 def build_html(report_root: Path) -> str:
@@ -411,7 +434,7 @@ def build_html(report_root: Path) -> str:
             )
     else:
         lines.append(
-            '<tr><td colspan="4" class="inc-audit-muted inc-audit-empty">No host scans recorded yet.</td></tr>'
+            '<tr><td colspan="5" class="inc-audit-muted inc-audit-empty">No host scans recorded yet.</td></tr>'
         )
     lines.append("</tbody></table></div></section>")
 

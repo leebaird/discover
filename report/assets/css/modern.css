@@ -713,29 +713,32 @@ tr.inc-subdomains-filter-hide {
     table-layout: auto;
 }
 
-/* Target scans: Target absorbs leftover width; tool cols share fixed floors.
- * Columns: 1 Target, 2 ffuf, 3 Nikto, 4 Nuclei.
- * Nuclei matches ffuf (235px); Nikto fits timestamp + TXT + HTM. */
+/* Target scans columns (px). Target = Audit log Time+IP (170+140=310).
+ * Tools quietest→loudest: Nuclei (2), droopescan (3), Nikto (4), ffuf (5). */
 .inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(1),
 .inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(1) {
-    width: 99%;
-    min-width: 180px;
+    width: 1%;
+    min-width: 310px;
+    max-width: 310px;
     white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(2),
 .inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(2),
-.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(4),
-.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(4) {
+.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(3),
+.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(3),
+.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(5),
+.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(5) {
     width: 1%;
     min-width: 235px;
     white-space: nowrap;
 }
 
-.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(3),
-.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(3) {
+.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(4),
+.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(4) {
     width: 1%;
-    min-width: 280px; /* px: Bootstrap html rem is 10px */
+    min-width: 280px;
     white-space: nowrap;
 }
 
@@ -857,7 +860,23 @@ tr.inc-subdomains-filter-hide {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.35rem;
+    gap: 6px;
+    vertical-align: middle;
+}
+
+/* Target scans: timestamp + TXT/HTM on one vertically centered row */
+.inc-audit-page table.inc-audit-host-scans > tbody > tr > td {
+    vertical-align: middle;
+}
+
+.inc-audit-page .inc-audit-tool-cell {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    white-space: nowrap;
+    line-height: 1.4;
     vertical-align: middle;
 }
 
@@ -912,49 +931,76 @@ tr.inc-subdomains-filter-hide {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    width: 100%;
 }
 
 .inc-host-scan-tool {
-    min-width: 7.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex: 1 1 0;
+    min-width: 120px;
     padding: 0.45rem 0.6rem;
     border: 1px solid #444;
     border-radius: 6px;
     background: #1e1e1e;
-    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Tool name + Run on one centered row */
+.inc-host-scan-tool-head {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px; /* ~four spaces between tool name and Run */
+    width: 100%;
 }
 
 .inc-host-scan-tool .inc-host-scan-tool-name {
-    display: block;
+    display: inline;
+    width: auto;
     font-weight: 700;
     font-size: 12px;
     letter-spacing: 0.03em;
     text-transform: uppercase;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0;
+    text-align: center;
 }
 
 .inc-host-scan-tool a.inc-host-scan-launch {
     display: inline-block;
-    margin-top: 0.25rem;
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 0;
     padding: 1px 8px;
     border-radius: 4px;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.04em;
     color: #fff !important;
-    background: #2e7d32;
-    border: 1px solid #1b5e20;
+    background: var(--accent); /* blue — distinct from green TXT/HTM */
+    border: 1px solid #1a4a9e;
     text-decoration: none !important;
     cursor: pointer;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .inc-host-scan-tool a.inc-host-scan-launch:hover {
-    background: #1b5e20;
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
 }
 
 .inc-host-scan-tool a.inc-host-scan-launch.is-disabled,
 .inc-host-scan-tool span.inc-host-scan-launch-disabled {
     display: inline-block;
-    margin-top: 0.25rem;
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 0;
     padding: 1px 8px;
     border-radius: 4px;
     font-size: 10px;
@@ -966,17 +1012,62 @@ tr.inc-subdomains-filter-hide {
     text-decoration: none !important;
     cursor: not-allowed;
     pointer-events: none;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .inc-host-scan-tool .inc-host-scan-last {
-    display: block;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center; /* vertical center timestamp with TXT/HTM */
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
     margin-top: 0.3rem;
     font-size: 11px;
     color: #aaa;
+    text-align: center;
+    line-height: 1.4;
+    box-sizing: border-box;
 }
 
-.inc-host-scan-tool .inc-host-scan-last a {
-    color: #8ab4f8;
+.inc-host-scan-tool .inc-host-scan-last-time {
+    display: inline-block;
+    line-height: 1.4;
+    vertical-align: middle;
+}
+
+/* TXT button — same look as Audit scan/output buttons */
+.inc-host-scan-tool .inc-host-scan-btn-row {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    vertical-align: middle;
+}
+
+.inc-host-scan-tool a.inc-host-scan-out {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    color: #fff !important;
+    background: #2e7d32;
+    border: 1px solid #1b5e20;
+    line-height: 1.4;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.inc-host-scan-tool a.inc-host-scan-out:hover {
+    background: #1b5e20;
+    color: #fff !important;
 }
 
 .inc-subdomains-public td.inc-host-scan-toggle {

@@ -519,6 +519,7 @@ fi
 
 # droopescan — CMS scanner (Drupal, WordPress, …); upstream recommends pip/pipx.
 # Install system-wide via pipx so the binary lands in /usr/local/bin (Discover style).
+# Python 3.12+ needs a small cement/setuptools patch (stdlib imp/distutils removed).
 if ! command -v pipx &> /dev/null; then
     echo -e "${YELLOW}Installing pipx (required for droopescan).${NC}"
     apt install -y pipx
@@ -538,6 +539,14 @@ else
     echo -e "${YELLOW}Installing droopescan.${NC}"
     mkdir -p /opt/pipx
     PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install droopescan
+    echo
+fi
+
+# Apply Python 3.12+ compatibility patches (cement imp + setuptools/distutils).
+if [ -x "$DISCOVER_ROOT/misc/patch-droopescan-py314.sh" ]; then
+    echo -e "${BLUE}Patching droopescan for modern Python (if needed).${NC}"
+    bash "$DISCOVER_ROOT/misc/patch-droopescan-py314.sh" /opt/pipx/venvs/droopescan 2>/dev/null || \
+        bash "$DISCOVER_ROOT/misc/patch-droopescan-py314.sh" 2>/dev/null || true
     echo
 fi
 
@@ -1280,7 +1289,7 @@ f_install_discover_scan_handler(){
 Version=1.0
 Type=Application
 Name=Discover Host Scan
-Comment=Run nikto/nuclei/ffuf from Discover reports (operator)
+Comment=Run nuclei/droopescan/nikto/ffuf from Discover reports (operator)
 Exec=$opener %u
 Terminal=true
 Categories=Network;Security;
@@ -1315,6 +1324,58 @@ EOF
 }
 
 f_install_discover_scan_handler
+
+# discover-ffuf: — open each ffuf finding URL in Firefox from Audit / Subdomains.
+f_install_discover_ffuf_handler(){
+    local apps_dir="$USER_HOME/.local/share/applications"
+    local desktop="$apps_dir/discover-ffuf.desktop"
+    local mimeapps="$USER_HOME/.config/mimeapps.list"
+    local opener="$DISCOVER_ROOT/misc/open-ffuf-tabs.sh"
+
+    [ -x "$opener" ] || chmod +x "$opener" 2>/dev/null || true
+    [ -f "$opener" ] || return 0
+
+    mkdir -p "$apps_dir" "$USER_HOME/.config"
+    cat > "$desktop" <<EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Discover ffuf Tabs
+Comment=Open each ffuf finding URL in Firefox (Discover)
+Exec=$opener %u
+Terminal=false
+Categories=Network;Security;
+MimeType=x-scheme-handler/discover-ffuf;
+NoDisplay=true
+EOF
+
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$desktop" 2>/dev/null || true
+    fi
+
+    if [ -f "$mimeapps" ]; then
+        if grep -q 'x-scheme-handler/discover-ffuf=' "$mimeapps" 2>/dev/null; then
+            sed -i 's|x-scheme-handler/discover-ffuf=.*|x-scheme-handler/discover-ffuf=discover-ffuf.desktop|' "$mimeapps"
+        elif grep -q '^\[Default Applications\]' "$mimeapps"; then
+            sed -i '/^\[Default Applications\]/a x-scheme-handler/discover-ffuf=discover-ffuf.desktop' "$mimeapps"
+        else
+            printf '\n[Default Applications]\nx-scheme-handler/discover-ffuf=discover-ffuf.desktop\n' >> "$mimeapps"
+        fi
+    else
+        printf '[Default Applications]\nx-scheme-handler/discover-ffuf=discover-ffuf.desktop\n' > "$mimeapps"
+    fi
+
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$mimeapps" 2>/dev/null || true
+        sudo -u "$SUDO_USER" xdg-mime default discover-ffuf.desktop x-scheme-handler/discover-ffuf >/dev/null 2>&1 || true
+        sudo -u "$SUDO_USER" update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+    else
+        xdg-mime default discover-ffuf.desktop x-scheme-handler/discover-ffuf >/dev/null 2>&1 || true
+        update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+    fi
+}
+
+f_install_discover_ffuf_handler
 
 # Delete folder if it is empty
 if [ -d "$USER_HOME/data/" ] && [ -z "$(ls -A "$USER_HOME/data/" 2>/dev/null)" ]; then

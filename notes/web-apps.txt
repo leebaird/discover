@@ -40,58 +40,45 @@ traceroute $URL
 - Discover open ports and perform service enumeration
 nmap -Pn -n -T4 --open -sTVC --stats-every 20s $URL -oA nmap
 
-- Enumerate web technologies
-whatweb -a 3 -U="$AGENT" https://$URL
-while read -r i; do whatweb -a 3 -U="$AGENT" "https://$i/" > "$i.txt" 2>&1; echo "Scanning $i"; done < 443.txt
-
-cat > headers.txt <<EOF
-User-Agent: $AGENT
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
-Accept-Language: en-US,en;q=0.5
-Accept-Encoding: gzip, deflate, br
-Connection: keep-alive
-Upgrade-Insecure-Requests: 1
-EOF
-
-wafw00f -H headers.txt -a -i 443.txt
-
 - SSL/TLS enumeration
 See ssl.txt for sslscan, sslyze, nmap scripts, and certificate checks.
 Discover option: web/ssl.sh (reads IP:port list from 443.txt).
 
-- Default configurations and files
-nikto -h "https://$URL" -Format htm --output nikto.htm
+- Enumerate web technologies
+httpx -l targets.txt -silent -sc -title -server -td -cl -ip -cname -cdn \
+  -fhr -maxr 2 -H "User-Agent: $USER_AGENT" \
+  -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+  -json -o httpx.jsonl
 
-feroxbuster -u "https://$URL" -a "$AGENT" --auto-tune -C 404,502,503 --no-recursion \
-     -w "$SECLISTS/directory-list-2.3-small.txt" --output feroxbuster.txt
-Or replace -C <CODES> with -s 200
+whatweb -a 3 -i targets.txt -U "$USER_AGENT" --log-json="$TOOLS/whatweb.json" --no-errors -q
 
-- Directory enumeration
-ffuf -u "https://$URL/FUZZ" -mc 200,204,301,302,307,401,403 -fc 404 -c -r -t 40 \
-     -H "User-Agent: $AGENT" -recursion -recursion-depth 2 \
-     -e .php,.asp,.aspx,.jsp,.html,.js,.json,.bak,.old,.txt,.log \
-     -w "$SECLISTS/directory-list-2.3-medium.txt"
+gowitness scan file -f targets.txt --driver gorod --chrome-path "$CHROME_PATH" \
+  --screenshot-path "$TOOLS/gowitness/screenshots" \
+  --write-jsonl --write-jsonl-file "$TOOLS/gowitness/gowitness.jsonl" \
+  --write-db --write-db-uri "sqlite://$TOOLS/gowitness/gowitness.db"
 
 - Discover vulnerabilities
 nuclei -update-templates
 nuclei -u "https://$URL" -tags cve,exposure,misconfig,vuln -c 10 -rl 50
 
-- API and schema discovery
-ffuf -u "https://$URL/FUZZ" -w "$SECLISTS/raft-large-words.txt" -mc 200,301,302,401,403 \
-     -H "User-Agent: $AGENT" -t 40
-Common paths: /api, /api/v1, /swagger, /swagger.json, /openapi.json, /graphql, /graphiql, /docs
+- Default configurations and files
+nikto -h "https://$URL" -Format htm --output nikto.htm
+
+feroxbuster -u "https://$URL" -a "$AGENT" --auto-tune -C 500,502,503 --no-recursion \
+  -w "$SECLISTS/directory-list-2.3-small.txt" --output feroxbuster.txt
+
+- Directory enumeration
+ffuf -u "$URL/FUZZ" \
+  -w /usr/share/wordlists/seclists/Discovery/Web-Content/common.txt \
+  -t 8 -rate 20 -H "User-Agent: $UA" -of json -o "$RUN_DIR/ffuf.json" \
+  -fc 301,302,307,400,401,403,404,405,429 -noninteractive
 
 - Application specific enumeration
 davtest -url "https://$URL"
-droopescan scan drupal -u "https://$URL"
+droopescan scan <cms> -u "https://$URL" -e a -t 4 -o standard
 joomscan -u "https://$URL"
 uniscan -u "https://$URL" -qw
 wpscan --url "https://$URL" --enumerate vp,vt,cb,u,m
-
-## Validation / False Positives
-
-Review nikto and nuclei output in Repeater before reporting — see web-burp.txt.
-A 403 on /api or /swagger still confirms the path exists; note it for manual review.
 
 
 # HTTP Methods
