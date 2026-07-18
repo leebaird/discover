@@ -143,10 +143,10 @@ Typical domain engagement path:
 1. **Passive** — build `$HOME/data/<domain>/` HTML report.
 2. **Import names** / **Import names, titles, and emails** / **Import subdomains** — enrich contacts and hosts.
 3. **Active** — httpx / whatweb / gowitness; Active and Subdomains pages; optional NVD CVSS.
-4. Software filter on Active → filtered Subdomains → host scans (ffuf, Nikto, Nuclei) in operator mode.
+4. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, Nikto, ffuf) in operator mode.
 5. **Import report** — reopen the live tree later for more testing (operator mode).
 6. **Export report** — Client, Defender, or Audit-only package for delivery.
-7. **Reports → Audit** in the HTML report — host-scan history, deliverables, audit log.
+7. **Reports → Audit** in the HTML report — Target scans, Audit log, and Exports.
 
 ---
 
@@ -269,15 +269,28 @@ HTML **Reports** menu: **Passive** (`pages/passive.htm`), **Active** (`pages/act
 
 ##### Software filter and host scans
 
-On Active **Software versions**, versions that have NVD CVEs are linked to a filtered Subdomains view (`subdomains.htm?software=…`). In **operator** mode (live tree opened via **Import report**), expandable rows can launch:
+On Active **Software versions**, versions that have NVD CVEs are linked to a filtered Subdomains view (`subdomains.htm?software=…`). In **operator** mode (live tree opened via **Import report**), expandable rows show host-scan **boxes** (quietest → loudest):
 
-| Tool | Role |
-|------|------|
-| ffuf | Content discovery (quiet defaults) |
-| Nikto | Web server checks |
-| Nuclei | Template-based vulnerability checks |
+| Tool | Role | When shown |
+|------|------|------------|
+| **Nuclei** | Template recon (software tags) then auto **Pass 2** CVE/KEV templates from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | Always on filtered expand |
+| **droopescan** | CMS enum (`scan drupal` / `wordpress` / …; `-e a -t 4`) | **Gated:** only when the software filter is a supported CMS (Drupal, WordPress, Joomla, Moodle, Silverstripe — including version labels like `Drupal:7`) |
+| **Nikto** | Web server checks; report **TXT** + **HTM** when present | Always on filtered expand |
+| **ffuf** | Content discovery (quiet defaults); report **TXT** + **URL** (open each finding in Firefox) | Always on filtered expand |
 
-Launches use the `discover-scan:` handler / `misc/run-host-scan.sh` (one tool at a time). Optional live status via localhost `misc/host-scan-statusd.py`. Client and defender export packages disable launches.
+Each box shows the tool name and a blue **Run** button on one line, plus last-run time and green output buttons (**TXT** / **HTM** / **URL** as applicable).
+
+**ffuf quiet defaults** (`misc/run-host-scan.sh`):
+
+* No custom `-mc` (ffuf defaults keep 2xx, 500, etc.)
+* `-fc 301,302,307,400,401,403,404,405,429` (drop redirects and common noise; keep 500s for version banners)
+* `-t 8 -rate 20 -noninteractive`; SecLists `common.txt` (or fallbacks)
+* Report text is ANSI-cleaned (no progress ESC junk); **Duration** stripped from hit lines
+* **URL** uses `discover-ffuf:` → `misc/open-ffuf-tabs.sh` (Firefox CLI, one tab per unique finding URL; cap 40)
+
+**Nuclei** writes a structured `output.txt` (Pass 1 / Pass 2). Empty findings files say `No vulnerabilities discovered.`
+
+Launches use the `discover-scan:` handler / `misc/run-host-scan.sh` (one tool at a time). Prefer `~/.local/bin` for **droopescan** on Python 3.12+ (Update runs `misc/patch-droopescan-py314.sh` for cement/`imp` + setuptools). Optional live status via localhost `misc/host-scan-statusd.py`. Client and defender export packages disable launches.
 
 ##### Active Scope metrics
 
@@ -420,7 +433,7 @@ Export label (e.g. briefing, update) [briefing]:
 * **Client** — ZIP of the HTML report; operator IPs redacted in the shipped audit log; scan launches disabled
 * **Defender** — ZIP of the HTML report; operator IPs kept; launches disabled
 * **Audit only** — plain-text audit log with operator IPs (for defenders)
-* Writes a deliverables entry under `tools/exports/` and an audit log line
+* Writes an **Exports** entry under `tools/exports/` and an audit log line
 * Live report under `$HOME/data/<domain>/` stays operator mode for continued testing
 
 ---
@@ -431,11 +444,11 @@ Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit
 
 | Section | Content |
 |---------|---------|
-| Host scan activity | Per-host ffuf / Nikto / Nuclei run history |
-| Deliverables | Label, kind (Client / Defender / Audit only), exported time (UTC), operator IPs (Included / Redacted), file name |
-| Audit log | UTC timestamps (`mm-dd-yyyy Z - hh:mm`), consultant egress IP, action |
+| **Target scans** | Per-host history for **Nuclei**, **droopescan**, **Nikto**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
+| **Audit log** | Newest-first by default; **Time (UTC)**, **Operator IP**, **Action**, **Output**. Hides routine noise (report open, nuclei pass-2 start/finish). Strips successful `(exit 0)` from display |
+| **Exports** | Label, kind (Client / Defender / Audit only), exported time (UTC), operator IPs (Included / Redacted), file name |
 
-Import report rebuilds this page. Host scans and exports append data under `tools/` that appears on Audit after the next rebuild (Import or export path).
+Import report rebuilds this page. Host scans and exports append data under `tools/` that appears on Audit after the next rebuild (Import, host-scan finish, or export path).
 
 ---
 
@@ -682,6 +695,8 @@ Main menu option **18** (`misc/update.sh`).
 
 * Updates the operating system, git pull from various repos, and update the locate database
 * Installs tools used by recon and dev scanners (for example `ffuf`, `nuclei`, `droopescan`, `feroxbuster`, `jq`, `trivy`, ProjectDiscovery stack)
+* Patches **droopescan** for modern Python (3.12+) via `misc/patch-droopescan-py314.sh` after pipx install (cement `imp` + setuptools/`distutils`)
+* Registers desktop handlers: `discover-scan:`, `discover-cve:`, `discover-ffuf:` (open ffuf finding URLs in Firefox)
 * Refreshes the default scanner User-Agent (Microsoft Edge) in `resource/user-agent.txt` for Nikto, Nmap, ffuf, Active, and related tools
 * Downloads/refreshes the CISA KEV catalog under `resource/`
 
