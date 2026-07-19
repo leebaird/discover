@@ -91,6 +91,7 @@ f_import_report_sync_assets(){
 
     for js in \
         inc-host-scan.js \
+        inc-shodan.js \
         inc-subdomains-filter.js \
         inc-data-table.js \
         inc-audit-status.js \
@@ -102,15 +103,16 @@ f_import_report_sync_assets(){
         fi
     done
 
-    # Column layout for filtered host-scan toggle lives in modern.css
+    # Column layout for filtered host-scan toggle + Shodan lives in modern.css
     if [ -f "$src/css/modern.css" ]; then
         cp -f "$src/css/modern.css" "$report/assets/css/modern.css" 2>/dev/null || \
             f_import_report_warn "Could not copy modern.css into report assets."
-        # Bust browser cache on Subdomains after layout / host-scan fixes.
+        # Bust browser cache on Subdomains after layout / host-scan / Shodan fixes.
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
-                -e 's|modern\.css?v=[^"]*|modern.css?v=ws8|g' \
+                -e 's|modern\.css?v=[^"]*|modern.css?v=ws17|g' \
                 -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=5|g' \
+                -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=13|g' \
                 "$report/pages/subdomains.htm" 2>/dev/null || true
         fi
     fi
@@ -216,6 +218,8 @@ changed = False
 # Required scripts (idempotent: only insert when key filename is absent).
 need = [
     ("inc-subdomains-filter.js", '<script src="../assets/javascript/inc-subdomains-filter.js?v=5"></script>'),
+    ("tools/shodan/index.js", '<script src="../tools/shodan/index.js"></script>'),
+    ("inc-shodan.js", '<script src="../assets/javascript/inc-shodan.js?v=13"></script>'),
     ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=5"></script>'),
 ]
 insert = [tag for key, tag in need if key not in text]

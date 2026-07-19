@@ -26,6 +26,7 @@ Kali Linux or Ubuntu.
     - [CISA KEV](#cisa-known-exploited-vulnerabilities-kev)
     - [Import report](#import-report)
     - [Export report](#export-report)
+    - [Enrich with Shodan](#enrich-with-shodan)
     - [Audit page](#audit-page)
     - [SEC leadership](#sec-leadership-names-page)
     - [Company HQ](#company-hq-summary-page)
@@ -128,8 +129,9 @@ RECON
 
 9.  Active
 10. Import report
-11. Export report
-12. Previous menu
+11. Enrich with Shodan
+12. Export report
+13. Previous menu
 ```
 
 Note: Passive and Active cannot be run as root.
@@ -143,10 +145,11 @@ Typical domain engagement path:
 1. **Passive** — build `$HOME/data/<domain>/` HTML report.
 2. **Import names** / **Import names, titles, and emails** / **Import subdomains** — enrich contacts and hosts.
 3. **Active** — httpx / whatweb / gowitness; Active and Subdomains pages; optional NVD CVSS.
-4. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, Nikto, ffuf) in operator mode.
-5. **Import report** — reopen the live tree later for more testing (operator mode).
-6. **Export report** — Client, Defender, or Audit-only package for delivery.
-7. **Reports → Audit** in the HTML report — Target scans, Audit log, and Exports.
+4. **Enrich with Shodan** (optional) — host-by-IP OSINT for public IPs from Active httpx.
+5. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, Nikto, ffuf) in operator mode.
+6. **Import report** — reopen the live tree later for more testing (operator mode).
+7. **Export report** — Client, Defender, or Audit-only package for delivery.
+8. **Reports → Audit** in the HTML report — Target scans, Audit log, and Exports.
 
 ---
 
@@ -370,8 +373,63 @@ NVD_API_KEY=your-key-here
 | `NVD_API_KEY` | Optional NVD API key for faster CVSS lookups |
 | `DISCOVER_SKIP_CVE=1` | Skip NVD queries; Software table still lists versions |
 | `DISCOVER_CVE_PROGRESS=1` | Print each product lookup while building Active |
+| `SHODAN_API_KEY` | Optional Shodan key for post-Active host enrichment (Domain menu **11**) |
 
 Cache file: `<report>/tools/software-cves-cache.json`. CVSS values are **triage leads** from NVD CPE matches, not confirmed findings — validate before reporting to a client.
+
+---
+
+#### Enrich with Shodan
+
+Script: `recon/shodan-enrich.sh` + `recon/shodan-enrich.py` (Domain menu **11**).
+
+After **Active** recon, look up unique **public** IPs from `tools/httpx.jsonl` in the [Shodan](https://www.shodan.io/) host database (org, ports, banners, vulns when present).
+
+**Requires a Shodan membership (or higher) API key.** Without a key the option soft-skips (prints how to add the key and exits cleanly). IP host lookups do **not** consume Shodan query credits.
+
+**Get a key**
+
+1. [Shodan account](https://account.shodan.io/) / [Membership](https://www.shodan.io/store/member)
+2. Copy the API key from the account page
+3. Provide it to Discover (same pattern as NVD):
+
+```
+export SHODAN_API_KEY=...
+# or
+# SHODAN_API_KEY=...  in $DISCOVER/.env or ~/.discover/.env
+```
+
+**How it works**
+
+1. Prefers the current engagement from Import report / Active (`~/.discover/current-report`)
+2. Collects unique public IPv4/IPv6 from `tools/httpx.jsonl` (`host_ip`, then `a[]`)
+3. Calls `GET https://api.shodan.io/shodan/host/{ip}` (rate-limited; default ~1.1s between requests)
+4. Resumes: skips IPs that already have a successful cache under `tools/shodan/hosts/`
+5. Appends an Audit log line and refreshes `pages/audit.htm`
+
+**Artifacts** (`<report>/tools/shodan/`)
+
+| Path | Content |
+|------|---------|
+| `hosts/<ip>.json` | Per-IP raw Shodan response (wrapped with Discover status) |
+| `summary.json` | Aggregate stats + flattened host rows |
+| `summary.tsv` | Spreadsheet-friendly (org, ports, vulns, hostnames) |
+| `index.json` | Compact IP → org / ports / hostnames |
+
+**Subdomains UI:** when enrichment has run, public rows whose IP is in Shodan show a small **▸** to the left of the subdomain. Click it for Hostnames, Location, Org, ISP, Ports, and NVD-linked CVEs. Values are **IP-level** (same record on every hostname sharing that IP).
+
+Powered by `tools/shodan/index.js` (works under local `file://`). `index.json` is the same data for tools/scripts. No index → no toggles. Hard-refresh Subdomains after enrichment.
+
+**CLI** (outside the menu):
+
+```
+python3 $DISCOVER/recon/shodan-enrich.py /path/to/report
+python3 $DISCOVER/recon/shodan-enrich.py /path/to/report --dry-run
+python3 $DISCOVER/recon/shodan-enrich.py /path/to/report --limit 5
+python3 $DISCOVER/recon/shodan-enrich.py /path/to/report --force
+```
+
+Shodan data can be stale — confirm open ports and services with live scans before reporting.
 
 ---
 
@@ -416,7 +474,7 @@ Empty or invalid paths show an error and exit (same style as Active / Import nam
 
 #### Export report
 
-Script: `recon/export-report.sh` (Domain menu **11**).
+Script: `recon/export-report.sh` (Domain menu **12**).
 
 Package a snapshot for delivery without leaving the live tree in client mode.
 

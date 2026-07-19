@@ -449,7 +449,7 @@ def build_public_table(rows, photo_hosts, host_tech, empty_message, ip_header="I
         f'                    <th scope="col" class="inc-sortable">{html.escape(ip_header)}</th>',
         '                    <th scope="col" class="inc-sortable inc-col-center" data-sort-then="4,5">Photo</th>',
         '                    <th scope="col" class="inc-sortable inc-col-center">Status</th>',
-        '                    <th scope="col" class="inc-sortable">Web Server</th>',
+        '                    <th scope="col" class="inc-sortable inc-subdomain-webserver-h">Web Server</th>',
         '                    <th scope="col" class="inc-subdomain-title-tech-header">',
         '                        <span class="inc-sortable" data-sort-field="title">Title</span>',
         '                        <span class="inc-sortable" data-sort-field="tech">Technologies</span>',
@@ -471,7 +471,7 @@ def build_public_table(rows, photo_hosts, host_tech, empty_message, ip_header="I
                 "                <tr>"
                 f"{host_cell(subdomain, status, tech.get('url', ''))}"
                 f"<td>{html.escape(category)}</td>"
-                f"<td>{html.escape(ipaddr)}</td>"
+                f'<td class="inc-subdomain-ip">{html.escape(ipaddr)}</td>'
                 f'<td class="inc-col-center">{photo}</td>'
                 f'<td class="inc-col-center">{html.escape(status)}</td>'
                 f'<td class="inc-subdomain-webserver">{html.escape(webserver)}</td>'
@@ -516,6 +516,8 @@ out.extend(
         "",
         '<script src="../assets/javascript/inc-data-table.js"></script>',
         '<script src="../assets/javascript/inc-subdomains-filter.js?v=5"></script>',
+        '<script src="../tools/shodan/index.js"></script>',
+        '<script src="../assets/javascript/inc-shodan.js?v=13"></script>',
         '<script src="../assets/javascript/inc-host-scan.js?v=5"></script>',
         "</body>",
         "</html>",
