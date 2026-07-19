@@ -416,9 +416,9 @@ export SHODAN_API_KEY=...
 | `summary.tsv` | Spreadsheet-friendly (org, ports, vulns, hostnames) |
 | `index.json` | Compact IP → org / ports / hostnames |
 
-**Subdomains UI:** when enrichment has run, public rows whose IP is in Shodan show a small **▸** to the left of the subdomain. Click it for Hostnames, Location, Org, ISP, Ports, and NVD-linked CVEs. Values are **IP-level** (same record on every hostname sharing that IP).
+**Subdomains UI:** when enrichment has run, public rows whose IP is in Shodan show a small **▸** to the left of the subdomain. Click it for Hostnames, Location, Org, ISP, Ports, and NVD-linked CVEs. CVEs that appear in the CISA KEV catalog get a red **KEV** badge (links to the catalog search). Values are **IP-level** (same record on every hostname sharing that IP).
 
-Powered by `tools/shodan/index.js` (works under local `file://`). `index.json` is the same data for tools/scripts. No index → no toggles. Hard-refresh Subdomains after enrichment.
+Powered by `tools/shodan/index.js` and `tools/shodan/kev-ids.js` (works under local `file://`). `index.json` is the same data for tools/scripts. KEV IDs come from Discover’s CISA catalog (`resource/known_exploited_vulnerabilities.json`, refreshed by **Update**). No index → no toggles. Hard-refresh Subdomains after enrichment.
 
 **CLI** (outside the menu):
 

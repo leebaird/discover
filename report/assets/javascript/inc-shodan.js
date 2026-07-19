@@ -16,6 +16,7 @@
 
     var indexByIp = null;
     var hostCache = {};
+    var kevSet = null; // uppercase CVE-ID → true
 
     function esc(s) {
         return String(s == null ? "" : s)
@@ -135,6 +136,67 @@
         });
     }
 
+    function ensureKevSet() {
+        if (kevSet) {
+            return kevSet;
+        }
+        kevSet = Object.create(null);
+        var raw = window.DISCOVER_KEV_IDS;
+        if (Array.isArray(raw)) {
+            raw.forEach(function (id) {
+                if (id) {
+                    kevSet[String(id).toUpperCase()] = true;
+                }
+            });
+        } else if (raw && typeof raw === "object") {
+            Object.keys(raw).forEach(function (id) {
+                kevSet[String(id).toUpperCase()] = true;
+            });
+        }
+        return kevSet;
+    }
+
+    function isKev(cveId) {
+        return !!ensureKevSet()[String(cveId || "").toUpperCase()];
+    }
+
+    function kevBadgeHtml(cveId) {
+        var id = String(cveId || "").toUpperCase();
+        var href =
+            "https://www.cisa.gov/known-exploited-vulnerabilities-catalog" +
+            "?search=" +
+            encodeURIComponent(id) +
+            "&field_date_added_wrapper=all&field_cve=&sort_by=field_date_added" +
+            "&items_per_page=20&url=";
+        return (
+            '<a class="inc-kev-badge" href="' +
+            href +
+            '" target="_blank" rel="noopener noreferrer" ' +
+            'title="CISA Known Exploited Vulnerability">' +
+            "KEV</a>"
+        );
+    }
+
+    function cveItemHtml(id) {
+        var cve = String(id).toUpperCase();
+        var link =
+            '<a class="inc-shodan-cve" href="' +
+            NVD_CVE +
+            encodeURIComponent(cve) +
+            '" target="_blank" rel="noopener noreferrer">' +
+            esc(cve) +
+            "</a>";
+        if (isKev(cve)) {
+            return (
+                '<span class="inc-shodan-cve-item inc-shodan-cve-item--kev">' +
+                link +
+                kevBadgeHtml(cve) +
+                "</span>"
+            );
+        }
+        return '<span class="inc-shodan-cve-item">' + link + "</span>";
+    }
+
     function formatVulnList(vulns) {
         var ids = [];
         if (Array.isArray(vulns)) {
@@ -153,25 +215,22 @@
         ids = ids.filter(function (id) {
             return /^CVE-\d{4}-\d+/i.test(id);
         });
-        ids.sort();
+        // KEV first, then alphabetical
+        ids.sort(function (a, b) {
+            var ak = isKev(a) ? 0 : 1;
+            var bk = isKev(b) ? 0 : 1;
+            if (ak !== bk) {
+                return ak - bk;
+            }
+            return String(a).toUpperCase().localeCompare(String(b).toUpperCase());
+        });
         if (!ids.length) {
             return "—";
         }
         var show = ids.slice(0, VULN_SHOW);
         var html =
             '<span class="inc-shodan-cve-list">' +
-            show
-                .map(function (id) {
-                    return (
-                        '<a class="inc-shodan-cve" href="' +
-                        NVD_CVE +
-                        encodeURIComponent(id) +
-                        '" target="_blank" rel="noopener noreferrer">' +
-                        esc(id) +
-                        "</a>"
-                    );
-                })
-                .join(" ") +
+            show.map(cveItemHtml).join(" ") +
             "</span>";
         if (ids.length > VULN_SHOW) {
             html +=
@@ -431,10 +490,26 @@
         });
     }
 
+    /** Load a relative script once; resolve even on error (optional assets). */
+    function loadScript(src) {
+        return new Promise(function (resolve) {
+            var s = document.createElement("script");
+            s.src = src;
+            s.async = true;
+            s.onload = function () {
+                resolve(true);
+            };
+            s.onerror = function () {
+                resolve(false);
+            };
+            (document.head || document.documentElement).appendChild(s);
+        });
+    }
+
     /**
      * Load Shodan IP index.
      * Prefer tools/shodan/index.js (works under file:// via <script>).
-     * fetch(index.json) fails on file:// in most browsers — that hid the column.
+     * fetch(index.json) fails on file:// in most browsers.
      */
     function loadIndex() {
         if (
@@ -444,27 +519,27 @@
             return Promise.resolve(window.DISCOVER_SHODAN_INDEX);
         }
 
-        return new Promise(function (resolve, reject) {
-            var s = document.createElement("script");
-            s.src = "../tools/shodan/index.js";
-            s.async = true;
-            s.onload = function () {
-                if (
-                    typeof window.DISCOVER_SHODAN_INDEX === "object" &&
-                    window.DISCOVER_SHODAN_INDEX !== null
-                ) {
-                    resolve(window.DISCOVER_SHODAN_INDEX);
-                } else {
-                    reject(new Error("index.js loaded without DISCOVER_SHODAN_INDEX"));
-                }
-            };
-            s.onerror = function () {
-                reject(new Error("index.js missing"));
-            };
-            (document.head || document.documentElement).appendChild(s);
-        }).catch(function () {
+        return loadScript("../tools/shodan/index.js").then(function (ok) {
+            if (
+                ok &&
+                typeof window.DISCOVER_SHODAN_INDEX === "object" &&
+                window.DISCOVER_SHODAN_INDEX !== null
+            ) {
+                return window.DISCOVER_SHODAN_INDEX;
+            }
             // HTTP / same-origin servers can still use JSON
             return fetchJson(INDEX_URL);
+        });
+    }
+
+    /** Optional CISA KEV id list for CVE badges (tools/shodan/kev-ids.js). */
+    function loadKevIds() {
+        if (window.DISCOVER_KEV_IDS) {
+            ensureKevSet();
+            return Promise.resolve();
+        }
+        return loadScript("../tools/shodan/kev-ids.js").then(function () {
+            ensureKevSet();
         });
     }
 
@@ -480,8 +555,10 @@
         tagLayoutHeaders(table);
         tagIpCells(table);
 
-        loadIndex()
-            .then(function (index) {
+        // Load KEV in parallel with index so badges are ready when panels open.
+        Promise.all([loadIndex(), loadKevIds()])
+            .then(function (pair) {
+                var index = pair[0];
                 if (!index || typeof index !== "object") {
                     return;
                 }

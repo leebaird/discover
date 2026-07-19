@@ -579,10 +579,11 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 }
 
 /*
- * Red pill badge — Active KEV and Subdomains applied software filter.
+ * Red pill badge — Active KEV, Shodan panel KEV, Subdomains software filter.
  * Shared look; KEV keeps extra left margin in the Top CVE cell.
  */
 .inc-active-page .inc-kev-badge,
+.inc-shodan-panel .inc-kev-badge,
 .inc-subdomains-filter-banner .inc-filter-applied {
     display: inline-block;
     flex: 0 0 auto;
@@ -604,10 +605,24 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     cursor: pointer;
 }
 
-.inc-active-page .inc-kev-badge:hover {
+.inc-active-page .inc-kev-badge:hover,
+.inc-shodan-panel .inc-kev-badge:hover {
     background: #b71c1c;
     color: #ffffff !important;
     text-decoration: none !important;
+}
+
+/* Shodan expand: CVE link + optional KEV pill stay on one unit, wrap between items */
+.inc-shodan-panel .inc-shodan-cve-item {
+    display: inline-block;
+    white-space: nowrap;
+    margin: 2px 8px 2px 0;
+    vertical-align: middle;
+}
+
+.inc-shodan-panel .inc-shodan-cve-item .inc-kev-badge {
+    margin-left: 4px;
+    cursor: pointer;
 }
 
 /* Subdomains software-filter banner (Active → Software versions) */
