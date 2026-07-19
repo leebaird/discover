@@ -418,7 +418,9 @@ export SHODAN_API_KEY=...
 
 **Subdomains UI:** when enrichment has run, public rows whose IP is in Shodan show a small **▸** to the left of the subdomain. Click it for Hostnames, Location, Org, ISP, Ports, and NVD-linked CVEs. CVEs that appear in the CISA KEV catalog get a red **KEV** badge (links to the catalog search). Values are **IP-level** (same record on every hostname sharing that IP).
 
-Powered by `tools/shodan/index.js` and `tools/shodan/kev-ids.js` (works under local `file://`). `index.json` is the same data for tools/scripts. KEV IDs come from Discover’s CISA catalog (`resource/known_exploited_vulnerabilities.json`, refreshed by **Update**). No index → no toggles. Hard-refresh Subdomains after enrichment.
+Powered by `tools/shodan/index.js` and `tools/shodan/kev-ids.js` (works under local `file://`). `index.json` is the same data for tools/scripts. KEV IDs come from Discover’s CISA catalog (`resource/known_exploited_vulnerabilities.json`).
+
+**Keeping KEV badges current:** **Update** only refreshes the install-wide CISA catalog (reports can live on the Desktop or anywhere — Update cannot find them all). **Import report** rewrites `tools/shodan/kev-ids.js` for the report you open, using that catalog (no Shodan API re-query). Import any engagement after Update to pick up new KEV entries. No Shodan index → no toggles. Hard-refresh Subdomains after Import.
 
 **CLI** (outside the menu):
 
@@ -427,6 +429,9 @@ python3 $DISCOVER/recon/shodan-enrich.py /path/to/report
 python3 $DISCOVER/recon/shodan-enrich.py /path/to/report --dry-run
 python3 $DISCOVER/recon/shodan-enrich.py /path/to/report --limit 5
 python3 $DISCOVER/recon/shodan-enrich.py /path/to/report --force
+# After Update (or manually): refresh KEV badges only
+python3 $DISCOVER/recon/shodan-enrich.py --refresh-kev --all-engagements
+python3 $DISCOVER/recon/shodan-enrich.py --refresh-kev /path/to/report
 ```
 
 Shodan data can be stale — confirm open ports and services with live scans before reporting.
@@ -446,6 +451,8 @@ $DISCOVER/resource/known_exploited_vulnerabilities.json
 
 If the download fails, any previous local catalog is left in place. The file is gitignored (refreshed by Update, not committed).
 
+Reports may live under `$HOME/data/`, the Desktop, or elsewhere. Update does **not** rewrite every engagement’s `kev-ids.js`. After Update, **Import report** on each engagement that has Shodan data to refresh Subdomains **KEV** badges from the new catalog (no Shodan API re-query).
+
 On the Active **Software versions** table, **Top CVE** prefers a CISA KEV match when any of the product’s NVD CVEs appear in the KEV catalog (highest CVSS among KEVs wins). Otherwise Top CVE is the highest-CVSS NVD result. KEV selections show an orange **KEV** badge next to the linked CVE ID.
 
 ---
@@ -461,11 +468,12 @@ Enter the location of your report:
 /home/user/data/example.com
 ```
 
-* Accepts a report root directory (or a page under it such as `index.htm` / `pages/active.htm`)
+* Accepts a report root directory (or a page under it such as `index.htm` / `pages/active.htm`) — any path (Desktop, `$HOME/data/`, external disk)
 * Marks the live tree as **operator** mode (`assets/report-mode.json`, launches enabled)
 * Saves the engagement path to `~/.discover/current-report` for host-scan helpers
 * Seeds `tools/audit/` and refreshes `pages/audit.htm`
 * Syncs host-scan UI assets and ensures **Reports → Audit** on all pages (including the homepage)
+* If the report has Shodan artifacts (`tools/shodan/`), rewrites `tools/shodan/kev-ids.js` from Discover’s CISA KEV catalog (keeps Subdomains **KEV** badges current after **Update**)
 * Opens the report in a browser when possible
 
 Empty or invalid paths show an error and exit (same style as Active / Import names).
@@ -756,7 +764,7 @@ Main menu option **18** (`misc/update.sh`).
 * Patches **droopescan** for modern Python (3.12+) via `misc/patch-droopescan-py314.sh` after pipx install (cement `imp` + setuptools/`distutils`)
 * Registers desktop handlers: `discover-scan:`, `discover-cve:`, `discover-ffuf:` (open ffuf finding URLs in Firefox)
 * Refreshes the default scanner User-Agent (Microsoft Edge) in `resource/user-agent.txt` for Nikto, Nmap, ffuf, Active, and related tools
-* Downloads/refreshes the CISA KEV catalog under `resource/`
+* Downloads/refreshes the CISA KEV catalog under `resource/` (Subdomains Shodan **KEV** badges pick up new catalog entries when you **Import report** that engagement)
 
 Main menu option **16. Dev** is documented in the [DEV](#dev) section below.
 

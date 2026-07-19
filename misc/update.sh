@@ -139,6 +139,7 @@ f_update_cisa_kev(){
     local kev_file="$kev_dir/known_exploited_vulnerabilities.json"
     local tmp_file
     local count
+    local kev_ok=0
 
     echo -e "${BLUE}Updating CISA KEV catalog.${NC}"
     if ! command -v curl &> /dev/null; then
@@ -170,6 +171,7 @@ f_update_cisa_kev(){
             count=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1], encoding='utf-8')).get('count', '?'))" "$kev_file" 2>/dev/null || echo "?")
             echo "Saved $kev_file"
             echo "$count vulnerabilities."
+            kev_ok=1
         else
             rm -f "$tmp_file"
             echo -e "${YELLOW}CISA KEV download was not valid JSON; keeping previous catalog if any.${NC}"
@@ -179,6 +181,15 @@ f_update_cisa_kev(){
         echo -e "${YELLOW}Failed to download CISA KEV catalog; keeping previous catalog if any.${NC}"
     fi
     echo
+
+    # Do not walk engagement trees here: reports may live on Desktop, external
+    # disks, etc. Import report refreshes tools/shodan/kev-ids.js for whatever
+    # path the operator opens. Update only keeps the install catalog current.
+    if [ "$kev_ok" -eq 1 ]; then
+        echo -e "${BLUE}Note:${NC} Subdomains Shodan KEV badges refresh when you Import a report"
+        echo "      that already has tools/shodan/ (any location)."
+        echo
+    fi
 }
 
 f_update_cisa_kev

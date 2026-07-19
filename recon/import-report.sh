@@ -358,6 +358,25 @@ if [ -n "$DISCOVER_ROOT" ]; then
     f_import_report_sync_assets "$DISCOVER_REPORT" "$DISCOVER_ROOT"
 fi
 
+# Refresh Shodan KEV badges from Discover's CISA catalog for *this* report
+# wherever it lives (Desktop, $HOME/data, external disk). No Shodan API calls.
+# Import is the reliable path for reports outside $HOME/data — Update only
+# downloads the catalog and cannot find every copy of a report tree.
+if [ -n "$DISCOVER_ROOT" ] \
+    && [ -f "$DISCOVER_ROOT/recon/shodan-enrich.py" ] \
+    && { [ -f "$DISCOVER_REPORT/tools/shodan/index.js" ] \
+        || [ -f "$DISCOVER_REPORT/tools/shodan/index.json" ] \
+        || [ -d "$DISCOVER_REPORT/tools/shodan/hosts" ]; }; then
+    echo
+    echo -e "${BLUE}Refreshing Shodan KEV badges from CISA catalog.${NC}"
+    if DISCOVER="$DISCOVER_ROOT" python3 "$DISCOVER_ROOT/recon/shodan-enrich.py" \
+        --refresh-kev "$DISCOVER_REPORT"; then
+        :
+    else
+        f_import_report_warn "Could not refresh tools/shodan/kev-ids.js (catalog missing? Run Discover Update)."
+    fi
+fi
+
 # Seed audit log if missing (format locked for Audit page).
 AUDIT_LOG="$DISCOVER_REPORT/tools/audit/log.txt"
 if [ ! -f "$AUDIT_LOG" ]; then

@@ -18,6 +18,8 @@ a successful cache file under tools/shodan/hosts/.
 Usage:
   python3 recon/shodan-enrich.py <report_dir> [--force] [--limit N] [--sleep SEC]
   python3 recon/shodan-enrich.py <report_dir> --dry-run
+  python3 recon/shodan-enrich.py --refresh-kev [--all-engagements]
+  python3 recon/shodan-enrich.py --refresh-kev <report_dir>
 """
 
 from __future__ import annotations
@@ -389,6 +391,80 @@ def write_kev_ids_js(shodan_dir: str) -> int:
     return len(ids)
 
 
+def report_has_shodan_artifacts(report_dir: str) -> bool:
+    """True when engagement already has Shodan enrichment output."""
+    shodan_dir = os.path.join(report_dir, "tools", "shodan")
+    if not os.path.isdir(shodan_dir):
+        return False
+    for name in ("index.js", "index.json", "summary.json"):
+        if os.path.isfile(os.path.join(shodan_dir, name)):
+            return True
+    hosts = os.path.join(shodan_dir, "hosts")
+    if os.path.isdir(hosts):
+        try:
+            return any(fn.endswith(".json") for fn in os.listdir(hosts))
+        except OSError:
+            return False
+    return False
+
+
+def find_shodan_engagements(
+    data_root: str | None = None,
+    session_file: str | None = None,
+) -> list[str]:
+    """Engagement roots that already have tools/shodan artifacts."""
+    home = os.path.expanduser("~")
+    if not data_root:
+        data_root = os.environ.get("DISCOVER_DATA_ROOT") or os.path.join(home, "data")
+    if not session_file:
+        session_file = os.environ.get("DISCOVER_SESSION_FILE") or os.path.join(
+            home, ".discover", "current-report"
+        )
+
+    candidates: list[str] = []
+    if session_file and os.path.isfile(session_file):
+        try:
+            line = open(session_file, encoding="utf-8").readline().strip()
+            if line:
+                candidates.append(os.path.expanduser(line))
+        except OSError:
+            pass
+
+    if data_root and os.path.isdir(data_root):
+        try:
+            for name in sorted(os.listdir(data_root)):
+                path = os.path.join(data_root, name)
+                if os.path.isdir(path):
+                    candidates.append(path)
+        except OSError:
+            pass
+
+    seen: set[str] = set()
+    out: list[str] = []
+    for raw in candidates:
+        path = os.path.abspath(os.path.expanduser(raw))
+        if path in seen:
+            continue
+        seen.add(path)
+        if not os.path.isdir(path):
+            continue
+        if not os.path.isdir(os.path.join(path, "pages")):
+            continue
+        if report_has_shodan_artifacts(path):
+            out.append(path)
+    return out
+
+
+def refresh_kev_for_report(report_dir: str) -> tuple[bool, int]:
+    """Rewrite tools/shodan/kev-ids.js for one engagement. Returns (ok, id_count)."""
+    report_dir = os.path.abspath(os.path.expanduser(report_dir))
+    if not report_has_shodan_artifacts(report_dir):
+        return False, 0
+    shodan_dir = os.path.join(report_dir, "tools", "shodan")
+    n = write_kev_ids_js(shodan_dir)
+    return n > 0, n
+
+
 def write_summary_tsv(path: str, rows: list[dict[str, Any]]) -> None:
     fields = [
         "ip",
@@ -459,6 +535,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "report_dir",
+        nargs="?",
+        default=None,
         help="Path to engagement report root (contains tools/ and pages/)",
     )
     parser.add_argument(
@@ -488,7 +566,83 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Do not append audit log or rebuild audit.htm (shell wrapper handles it)",
     )
+    parser.add_argument(
+        "--refresh-kev",
+        action="store_true",
+        help="Only rewrite tools/shodan/kev-ids.js from the CISA KEV catalog (no API calls)",
+    )
+    parser.add_argument(
+        "--all-engagements",
+        action="store_true",
+        help="With --refresh-kev: refresh every $HOME/data/* report that has Shodan artifacts "
+        "(plus ~/.discover/current-report)",
+    )
+    parser.add_argument(
+        "--data-root",
+        default=None,
+        help="Engagement data root for --all-engagements (default: $HOME/data)",
+    )
+    parser.add_argument(
+        "--session-file",
+        default=None,
+        help="Path to current-report session file (default: ~/.discover/current-report)",
+    )
     args = parser.parse_args(argv)
+
+    # --- KEV-only refresh (used by Discover Update; no Shodan API) ---
+    if args.refresh_kev:
+        catalog_ids = load_cisa_kev_ids()
+        if not catalog_ids:
+            eprint("[!] CISA KEV catalog not found or empty.")
+            eprint(f"    Expected: {_discover_root()}/resource/known_exploited_vulnerabilities.json")
+            eprint("    Run Discover Update to download it.")
+            return 1
+
+        targets: list[str] = []
+        if args.all_engagements or not args.report_dir:
+            targets = find_shodan_engagements(
+                data_root=args.data_root,
+                session_file=args.session_file,
+            )
+            if args.report_dir:
+                one = os.path.abspath(os.path.expanduser(args.report_dir))
+                if one not in targets and report_has_shodan_artifacts(one):
+                    targets.insert(0, one)
+        else:
+            one = os.path.abspath(os.path.expanduser(args.report_dir))
+            if not os.path.isdir(one):
+                eprint(f"[!] Report directory not found: {one}")
+                return 1
+            targets = [one]
+
+        if not targets:
+            print(
+                f"[*] CISA KEV catalog has {len(catalog_ids)} IDs; "
+                "no engagement reports with tools/shodan/ found to refresh.",
+                flush=True,
+            )
+            return 0
+
+        print(
+            f"[*] Refreshing Shodan KEV badges from catalog ({len(catalog_ids)} IDs) "
+            f"for {len(targets)} engagement(s).",
+            flush=True,
+        )
+        ok_n = 0
+        for report in targets:
+            ok, n = refresh_kev_for_report(report)
+            if ok:
+                ok_n += 1
+                print(f"    {report}/tools/shodan/kev-ids.js  ({n} IDs)", flush=True)
+            else:
+                eprint(f"    [!] skipped {report} (no Shodan artifacts or write failed)")
+        print(f"[*] Updated {ok_n} of {len(targets)} report(s).", flush=True)
+        return 0 if ok_n == len(targets) else (0 if ok_n > 0 else 1)
+
+    if not args.report_dir:
+        eprint("[!] report_dir is required (unless using --refresh-kev).")
+        parser.print_help()
+        return 1
 
     report_dir = os.path.abspath(os.path.expanduser(args.report_dir))
     if not os.path.isdir(report_dir):
