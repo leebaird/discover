@@ -543,10 +543,25 @@ else
 fi
 
 # Apply Python 3.12+ compatibility patches (cement imp + setuptools/distutils).
+# Re-run after every upgrade — pipx overwrites cement and re-breaks py3.12+.
 if [ -x "$DISCOVER_ROOT/misc/patch-droopescan-py314.sh" ]; then
     echo -e "${BLUE}Patching droopescan for modern Python (if needed).${NC}"
-    bash "$DISCOVER_ROOT/misc/patch-droopescan-py314.sh" /opt/pipx/venvs/droopescan 2>/dev/null || \
-        bash "$DISCOVER_ROOT/misc/patch-droopescan-py314.sh" 2>/dev/null || true
+    if [ -d /opt/pipx/venvs/droopescan ]; then
+        if ! bash "$DISCOVER_ROOT/misc/patch-droopescan-py314.sh" /opt/pipx/venvs/droopescan; then
+            echo -e "${YELLOW}[!] System droopescan patch failed. Re-run:${NC}"
+            echo "    sudo $DISCOVER_ROOT/misc/patch-droopescan-py314.sh /opt/pipx/venvs/droopescan"
+        fi
+    fi
+    # User pipx install (PATH often prefers ~/.local/bin over /usr/local/bin)
+    _ds_user_home="$HOME"
+    if [ -n "${SUDO_USER:-}" ]; then
+        _ds_user_home=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+    fi
+    if [ -d "$_ds_user_home/.local/pipx/venvs/droopescan" ]; then
+        bash "$DISCOVER_ROOT/misc/patch-droopescan-py314.sh" \
+            "$_ds_user_home/.local/pipx/venvs/droopescan" || true
+    fi
+    unset _ds_user_home
     echo
 fi
 
