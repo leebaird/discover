@@ -421,6 +421,11 @@ f_update(){
         echo
     fi
 
+    # Blank line only when sudo actually prompts for a password (cached ticket → no extra blank).
+    if ! sudo -n true 2>/dev/null; then
+        sudo -v || return 1
+        echo
+    fi
     sudo "$MISC_DIR/update.sh"
 
     if [ -f "$DISCOVER/notes/build.py" ]; then
