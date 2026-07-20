@@ -14,6 +14,7 @@ Kali Linux or Ubuntu.
 ## Table of contents
 
 - [Setup and usage](#setup-and-usage)
+  - [Shell helpers](#shell-helpers-configzshrc)
 - [Main menu](#main-menu)
 - [RECON](#recon)
   - [Domain](#domain)
@@ -74,6 +75,49 @@ cd discover/
 
 * Select **Update** (main menu option **18**) to update the operating system and install dependencies (`droopescan`, `feroxbuster`, `ffuf`, `jq`, `nuclei`, etc.).
 * Some options require root credentials to run.
+* Optional: install operator shell helpers from `config/` (see below).
+
+---
+
+### Shell helpers (`config/zshrc`)
+
+Discover ships interactive shell helpers used on assessment workstations (network summary, Metasploit, Discover shortcuts, etc.). Source file: **`config/zshrc`** (shared by bash and zsh).
+
+**Install** from the config directory:
+
+```
+cd ~/discover/config/
+./install.sh
+```
+
+| Host | What `install.sh` does |
+|------|-------------------------|
+| **Kali** (detected via `/etc/os-release`) | Appends `zshrc` to `~/.zshrc` |
+| **Other** (e.g. Ubuntu) | Copies `zshrc` to `~/.bash_aliases` and sources it |
+
+Also installs `tmux.conf` → `~/.tmux.conf` and `vimrc` → `~/.vimrc`.
+
+**Useful commands** (after install / new shell):
+
+| Command | Purpose |
+|---------|---------|
+| `n` | Network summary (external/internal IP, DNS, MAC, iface; `ss` without TIME-WAIT; ping 8.8.8.8) |
+| `s` | `cd ~/discover` and short `git status` (no pull) |
+| `m` / `ms` | Start MSF DB + console / stop MSF DB |
+| `web` / `web2` | HTTP server on port 80 (sudo) / 8000 |
+| `now` | Formatted date/time (does not override `date`) |
+| `update` | Grok update + full apt upgrade chain |
+| `bh`, `th`, `smb`, `sip`, … | BloodHound, theHarvester, smbserver, IP sort, etc. |
+
+Network identity (IPs, DNS, MAC) is computed **when you run** `n` / `web` / `upload` — not at shell startup — so new shells stay fast and values stay current after VPN/wifi changes.
+
+**Notes**
+
+* On Kali, re-running `install.sh` **appends** again and can duplicate the block; edit `~/.zshrc` or install only once.
+* On non-Kali, re-running overwrites `~/.bash_aliases` with the repo copy.
+* Default zsh on macOS/Kali does not load `~/.bash_aliases` unless you source it from `~/.zshrc`.
+
+Also covered in the HTML notes: `notes/kali.txt`, `notes/ubuntu.txt`, `notes/macos.txt`.
 
 ---
 
