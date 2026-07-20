@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="../assets/css/styles.css"/>
-    <link rel="stylesheet" type="text/css" href="../assets/css/modern.css?v=soft2"/>
+    <link rel="stylesheet" type="text/css" href="../assets/css/modern.css?v=ws24"/>
     <script src="../assets/javascript/jquery.min.js"></script>
     <script src="../assets/javascript/bootstrap.min.js"></script>
 </head>
@@ -95,6 +95,20 @@
 <div class="container inc-container-dynamic inc-active-page">
     <div class="inc-page-header inc-page-header--active">
         <h1>Report <span class="inc-icon inc-icon-angle-right"></span> Active</h1>
+        <form id="inc-active-cve-search-form" class="inc-active-cve-search" action="subdomains.htm" method="get" role="search">
+            <label class="sr-only" for="inc-active-cve-search-input">Search CVE</label>
+            <input
+                type="search"
+                name="cve"
+                id="inc-active-cve-search-input"
+                class="inc-active-cve-search-input"
+                placeholder="CVE-YYYY-NNNNN"
+                autocomplete="off"
+                spellcheck="false"
+                title="Find subdomains running software linked to this CVE"
+            />
+            <button type="submit" class="inc-active-cve-search-btn">Search</button>
+        </form>
         <span class="inc-active-scan-date">#ACTIVE_SCAN_DATE#</span>
     </div>
 #ACTIVE_CONTENT#
@@ -103,5 +117,6 @@
 <script src="../assets/javascript/inc-data-table.js"></script>
 <script src="../assets/javascript/inc-active-align.js"></script>
 <script src="../assets/javascript/inc-active-cve-tabs.js?v=8"></script>
+<script src="../assets/javascript/inc-active-cve-search.js?v=1"></script>
 </body>
 </html>

@@ -32,6 +32,14 @@
         }
     }
 
+    function queryCve() {
+        try {
+            return (new URLSearchParams(window.location.search || "").get("cve") || "").trim();
+        } catch (e) {
+            return "";
+        }
+    }
+
     /** Map software filter (e.g. Drupal:7) → droopescan CMS or null. */
     function droopescanCms(software) {
         var s = (software || "").toLowerCase().trim();
@@ -399,13 +407,16 @@
 
     function init() {
         var software = querySoftware();
-        if (!software) {
+        var cve = queryCve();
+        // Enable host-scan UI for software filter or CVE filter (same filtered layout).
+        // CVE mode has no single CMS label → base tools only (no droopescan).
+        if (!software && !cve) {
             return;
         }
 
         loadMode().then(function (mode) {
             var canLaunch = launchesAllowed(mode);
-            addToggles(software, canLaunch);
+            addToggles(software || "", canLaunch);
             if (canLaunch) {
                 startPolling();
             }

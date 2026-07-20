@@ -316,7 +316,9 @@ HTML **Reports** menu: **Passive** (`pages/passive.htm`), **Active** (`pages/act
 
 ##### Software filter and host scans
 
-On Active **Software versions**, versions that have NVD CVEs are linked to a filtered Subdomains view (`subdomains.htm?software=…`). In **operator** mode (live tree opened via **Import report**), expandable rows show host-scan **boxes** (quietest → loudest):
+On Active **Software versions**, versions that have NVD CVEs are linked to a filtered Subdomains view (`subdomains.htm?software=…`). The Active page header also has a centered **CVE search** bar: enter `CVE-YYYY-NNNNN` (or `YYYY-NNNNN`) to open Subdomains filtered to hosts running software linked to that CVE in the engagement NVD cache (`tools/cve-software-index.js`). Same filter banner / host-scan layout as software links (`subdomains.htm?cve=…`).
+
+In **operator** mode (live tree opened via **Import report**), expandable rows show host-scan **boxes** (quietest → loudest):
 
 | Tool | Role | When shown |
 |------|------|------------|

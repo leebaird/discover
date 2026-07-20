@@ -95,7 +95,8 @@ f_import_report_sync_assets(){
         inc-subdomains-filter.js \
         inc-data-table.js \
         inc-audit-status.js \
-        inc-active-cve-tabs.js
+        inc-active-cve-tabs.js \
+        inc-active-cve-search.js
     do
         if [ -f "$src/javascript/$js" ]; then
             cp -f "$src/javascript/$js" "$report/assets/javascript/$js" 2>/dev/null || \
@@ -217,11 +218,12 @@ changed = False
 
 # Required scripts (idempotent: only insert when key filename is absent).
 need = [
-    ("inc-subdomains-filter.js", '<script src="../assets/javascript/inc-subdomains-filter.js?v=5"></script>'),
+    ("inc-subdomains-filter.js", '<script src="../assets/javascript/inc-subdomains-filter.js?v=6"></script>'),
+    ("tools/cve-software-index.js", '<script src="../tools/cve-software-index.js"></script>'),
     ("tools/shodan/index.js", '<script src="../tools/shodan/index.js"></script>'),
     ("tools/shodan/kev-ids.js", '<script src="../tools/shodan/kev-ids.js"></script>'),
     ("inc-shodan.js", '<script src="../assets/javascript/inc-shodan.js?v=14"></script>'),
-    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=5"></script>'),
+    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=6"></script>'),
 ]
 insert = [tag for key, tag in need if key not in text]
 if insert:
@@ -232,6 +234,62 @@ if insert:
         text = text[:idx] + block + text[idx:]
     else:
         text = text.rstrip() + "\n" + block
+    changed = True
+
+if changed:
+    try:
+        page.write_text(text, encoding="utf-8")
+    except OSError:
+        sys.exit(0)
+PY
+}
+
+# Ensure Active page has CVE search bar + script (older engagements).
+f_import_report_ensure_active_cve_search(){
+    local page="$1"
+
+    [ -f "$page" ] || return 0
+    command -v python3 >/dev/null 2>&1 || return 0
+
+    python3 - "$page" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+page = Path(sys.argv[1])
+try:
+    text = page.read_text(encoding="utf-8", errors="replace")
+except OSError:
+    sys.exit(0)
+
+changed = False
+
+if "inc-active-cve-search-form" not in text and "inc-page-header--active" in text:
+    new_text, n = re.subn(
+        r'(<div class="inc-page-header inc-page-header--active">\s*<h1>.*?</h1>\s*)'
+        r'(<span class="inc-active-scan-date">)',
+        r'''\1<form id="inc-active-cve-search-form" class="inc-active-cve-search" action="subdomains.htm" method="get" role="search">
+            <label class="sr-only" for="inc-active-cve-search-input">Search CVE</label>
+            <input type="search" name="cve" id="inc-active-cve-search-input" class="inc-active-cve-search-input" placeholder="CVE-YYYY-NNNNN" autocomplete="off" spellcheck="false" title="Find subdomains running software linked to this CVE" />
+            <button type="submit" class="inc-active-cve-search-btn">Search</button>
+        </form>
+        \2''',
+        text,
+        count=1,
+        flags=re.S,
+    )
+    if n:
+        text = new_text
+        changed = True
+
+if "inc-active-cve-search.js" not in text:
+    lower = text.lower()
+    idx = lower.rfind("</body>")
+    tag = '<script src="../assets/javascript/inc-active-cve-search.js?v=1"></script>\n'
+    if idx != -1:
+        text = text[:idx] + tag + text[idx:]
+    else:
+        text = text.rstrip() + "\n" + tag
     changed = True
 
 if changed:
@@ -393,6 +451,23 @@ fi
 # Audit under Reports on every page; host-scan UI on Subdomains when filtered
 f_import_report_ensure_audit_nav "$DISCOVER_REPORT"
 f_import_report_ensure_subdomains_ui "$DISCOVER_REPORT/pages/subdomains.htm"
+f_import_report_ensure_active_cve_search "$DISCOVER_REPORT/pages/active.htm"
+
+# Build CVE → software index for Subdomains ?cve= when NVD cache exists
+if [ -n "$DISCOVER_ROOT" ] \
+    && [ -f "$DISCOVER_ROOT/recon/software-cve.py" ] \
+    && [ -f "$DISCOVER_REPORT/tools/software-cves-cache.json" ]; then
+    DISCOVER="$DISCOVER_ROOT" python3 -c "
+import importlib.util
+from pathlib import Path
+mod_path = Path(r'''$DISCOVER_ROOT''') / 'recon' / 'software-cve.py'
+cache_path = Path(r'''$DISCOVER_REPORT''') / 'tools' / 'software-cves-cache.json'
+spec = importlib.util.spec_from_file_location('software_cve', mod_path)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+mod.write_cve_software_index_js(str(cache_path))
+" 2>/dev/null || true
+fi
 
 # Localhost status helper for live host-scan UI (rebind to this engagement)
 STATUSD=""

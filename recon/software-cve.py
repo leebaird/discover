@@ -573,7 +573,62 @@ def enrich_software_version_rows(
     if dirty:
         save_cache(cache_path, cache)
 
+    # Always refresh CVE → software map for Active CVE search / Subdomains ?cve=
+    write_cve_software_index_js(cache_path)
+
     return enriched
+
+
+def write_cve_software_index_js(cache_path: str) -> str:
+    """Write tools/cve-software-index.js (file://-safe) beside the NVD cache.
+
+    Maps CVE-ID → software version labels used on Subdomains tech tokens
+    (e.g. ``Apache:2.4.37``).
+    """
+    if not cache_path:
+        return ""
+    cache = load_cache(cache_path)
+    index: dict[str, list[str]] = {}
+    for ent in (cache.get("entries") or {}).values():
+        if not isinstance(ent, dict):
+            continue
+        product = (ent.get("product") or "").strip()
+        version = (ent.get("version") or "").strip()
+        if not product:
+            continue
+        label = f"{product}:{version}" if version else product
+        ids: set[str] = set()
+        for item in ent.get("cves") or []:
+            if not isinstance(item, dict):
+                continue
+            cid = (item.get("id") or "").strip().upper()
+            if cid.startswith("CVE-"):
+                ids.add(cid)
+        top = (ent.get("top_cve") or "").strip().upper()
+        if top.startswith("CVE-"):
+            ids.add(top)
+        for cid in ids:
+            bucket = index.setdefault(cid, [])
+            if label not in bucket:
+                bucket.append(label)
+    for cid in index:
+        index[cid] = sorted(index[cid], key=str.lower)
+
+    out_path = os.path.join(
+        os.path.dirname(os.path.abspath(cache_path)),
+        "cve-software-index.js",
+    )
+    try:
+        with open(out_path, "w", encoding="utf-8") as handle:
+            handle.write(
+                "/* Generated from software-cves-cache.json — CVE → software labels. */\n"
+            )
+            handle.write("window.DISCOVER_CVE_SOFTWARE = ")
+            json.dump(index, handle, separators=(",", ":"), sort_keys=True)
+            handle.write(";\n")
+    except OSError:
+        return ""
+    return out_path
 
 
 def collect_httpx_cpes(httpx_path: str) -> dict[str, list[str]]:
