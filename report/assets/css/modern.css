@@ -374,13 +374,13 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 
 .inc-subdomains-public .inc-shodan-toggle {
     display: inline-block;
-    width: 12px;
+    width: 16px;
     margin-right: 6px;
     padding: 0;
     border: none;
     background: transparent;
     color: var(--accent-hover, #6eb6ff);
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1;
     cursor: pointer;
     user-select: none;
@@ -950,6 +950,8 @@ tr.inc-subdomains-filter-hide {
     max-width: 170px;
     white-space: nowrap;
     box-sizing: border-box;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .inc-audit-page #inc-audit-log-table > thead > tr > th.inc-audit-col-ip,
@@ -981,12 +983,19 @@ tr.inc-subdomains-filter-hide {
     justify-content: center;
 }
 
-.inc-audit-page #inc-audit-log-table > thead > tr > th.inc-audit-col-action,
+.inc-audit-page #inc-audit-log-table > thead > tr > th.inc-audit-col-action {
+    width: 99%;
+    text-align: center; /* header only */
+    vertical-align: middle;
+}
+
 .inc-audit-page #inc-audit-log-table > tbody > tr > td.inc-audit-col-action {
     width: 99%;
     white-space: normal;
     word-break: break-word;
     overflow-wrap: anywhere;
+    text-align: left;
+    vertical-align: middle;
 }
 
 .inc-audit-page .inc-content-frame--table table.inc-data-table > thead > tr > th,

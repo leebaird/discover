@@ -550,9 +550,67 @@ f_write_run_header(){
     } > "$OUT_FILE"
 }
 
+# Nikto 2.1.x → LW2 has no TLS SNI. Shadow system LW2 with a patched copy so
+# Azure ALB / modern HTTPS front ends complete the handshake.
+# Sets globals: NIKTO_SNI_LIBDIR (path) and exports PERL5LIB in the *current*
+# shell. Must NOT be invoked via $(...) or a pipe left-hand side — those run in
+# a subshell and the export would be discarded (that bug made Nikto look
+# "SNI-enabled" in the log while still using stock LW2).
+f_nikto_ensure_sni(){
+    local sys_lw2="/usr/share/perl5/LW2.pm"
+    local libdir="${XDG_CACHE_HOME:-$HOME/.cache}/discover/perl5"
+    local out_lw2="$libdir/LW2.pm"
+    local patcher="$DISCOVER_ROOT/misc/patch-lw2-sni.py"
+
+    NIKTO_SNI_LIBDIR=""
+    NIKTO_SNI_RC=1
+
+    if [ ! -f "$sys_lw2" ]; then
+        echo "[*] LW2.pm not found at $sys_lw2 — skipping SNI patch."
+        return 1
+    fi
+    if [ ! -f "$patcher" ]; then
+        echo "[!] Missing $patcher — Nikto may fail on SNI-only hosts."
+        return 1
+    fi
+
+    if [ ! -f "$out_lw2" ] || [ "$sys_lw2" -nt "$out_lw2" ] || ! grep -q 'Discover: TLS SNI' "$out_lw2" 2>/dev/null; then
+        python3 "$patcher" "$sys_lw2" "$out_lw2" || {
+            echo "[!] Failed to build SNI-enabled LW2 at $out_lw2"
+            return 1
+        }
+    fi
+
+    if ! grep -q 'set_tlsext_host_name' "$out_lw2" 2>/dev/null; then
+        echo "[!] Patched LW2 missing set_tlsext_host_name — refusing to claim SNI."
+        return 1
+    fi
+
+    NIKTO_SNI_LIBDIR="$libdir"
+    NIKTO_SNI_RC=0
+    # Critical: export in caller shell (this function must run without subshell).
+    export PERL5LIB="${libdir}${PERL5LIB:+:$PERL5LIB}"
+    echo "[*] Nikto SSL: using SNI-enabled LW2 (PERL5LIB=$libdir)."
+    # Prove which LW2 Perl will load (catches empty PERL5LIB / wrong order).
+    if command -v perl >/dev/null 2>&1; then
+        local loaded
+        loaded=$(perl -e 'use LW2; print $INC{"LW2.pm"} // "?"' 2>/dev/null || echo "?")
+        echo "[*] Nikto SSL: Perl loads LW2 from $loaded"
+        case "$loaded" in
+            "$libdir"/*) ;;
+            *)
+                echo "[!] WARNING: expected LW2 under $libdir — SNI may not apply."
+                NIKTO_SNI_RC=1
+                return 1
+                ;;
+        esac
+    fi
+    return 0
+}
+
 # Nikto 2.1.x has no CLI -useragent; set USERAGENT= via a per-run config.
-# Force non-interactive settings so maxtime cannot leave Nikto waiting on stdin
-# (system config often has UPDATES=yes / PROMPTS unset — operator hits Enter forever).
+# Force non-interactive + modern HTTP settings (Azure ALB etc. reject HTTP/1.0
+# with 426; HEAD often hangs — use GET + HTTP/1.1 for host discovery).
 f_nikto_write_config(){
     local conf_path="$1"
     local ua="$2"
@@ -568,11 +626,12 @@ for candidate in (Path("/etc/nikto/config.txt"), Path("/etc/nikto.conf")):
         base = candidate.read_text(encoding="utf-8", errors="replace")
         break
 
-# key -> value (None = ensure line stays commented / omit active assignment)
 force = {
     "USERAGENT": ua,
-    "PROMPTS": "no",      # never block on stdin
-    "UPDATES": "no",      # do not ask to submit version strings to cirt.net
+    "PROMPTS": "no",           # never block on stdin
+    "UPDATES": "no",           # no cirt.net prompts
+    "DEFAULTHTTPVER": "1.1",   # HTTP/1.0 → 426 Upgrade Required on many ALBs
+    "CHECKMETHODS": "GET",     # HEAD often hangs/times out on Azure App LB
     # RFIURL intentionally not enabled (no third-party RFI callouts)
 }
 
@@ -580,18 +639,15 @@ seen: set[str] = set()
 new_lines: list[str] = []
 for raw in base.splitlines() if base else []:
     stripped = raw.strip()
-    # Active KEY=value line
     if stripped and not stripped.startswith("#") and "=" in stripped:
         key = stripped.split("=", 1)[0].strip()
         if key in force:
             if key not in seen:
                 new_lines.append(f"{key}={force[key]}")
                 seen.add(key)
-            # drop duplicate / old values (e.g. UPDATES=yes)
             continue
         new_lines.append(raw)
         continue
-    # Comment or blank — keep as documentation only
     new_lines.append(raw)
 
 for key, value in force.items():
@@ -600,6 +656,51 @@ for key, value in force.items():
 
 out.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 PY
+}
+
+# Pre-flight: can curl reach the URL with HTTP/1.1? Prints notes to stdout.
+# Returns 0 = try Nikto, 1 = skip Nikto (unreachable / no HTTP response).
+f_nikto_precheck(){
+    local url="$1"
+    local code time_total err http10
+    local curl_bin
+
+    if ! command -v curl >/dev/null 2>&1; then
+        echo "[*] curl not available — skipping pre-check."
+        return 0
+    fi
+
+    echo "[*] Pre-check (curl HTTP/1.1 GET, 15s)…"
+    # Follow redirects once; accept any HTTP status as "web server present"
+    code=$(curl -sS -k -o /dev/null -w "%{http_code}" \
+        --http1.1 --connect-timeout 8 --max-time 15 \
+        -A "$UA" \
+        "$url" 2>/dev/null) || code="000"
+    time_total=$(curl -sS -k -o /dev/null -w "%{time_total}" \
+        --http1.1 --connect-timeout 8 --max-time 15 \
+        -A "$UA" \
+        "$url" 2>/dev/null) || time_total="?"
+
+    if [ -z "$code" ] || [ "$code" = "000" ]; then
+        echo "[!] Pre-check failed: no HTTP response from $url within 15s."
+        echo "    Nikto would likely report 'No web server found' after burning maxtime."
+        echo "    Skipping Nikto. Verify the host is reachable from this network."
+        return 1
+    fi
+
+    echo "[*] Pre-check OK: HTTP $code in ${time_total}s (HTTP/1.1)."
+
+    # Warn if HTTP/1.0 is rejected (explains old Nikto defaults failing)
+    http10=$(curl -sS -k -o /dev/null -w "%{http_code}" \
+        --http1.0 --connect-timeout 5 --max-time 10 \
+        -A "$UA" \
+        "$url" 2>/dev/null) || http10="000"
+    if [ "$http10" = "426" ]; then
+        echo "[*] Note: HTTP/1.0 returns 426 Upgrade Required (common on Azure ALB)."
+        echo "    Discover forces DEFAULTHTTPVER=1.1 and CHECKMETHODS=GET for Nikto."
+    fi
+
+    return 0
 }
 
 echo
@@ -621,45 +722,103 @@ case "$TOOL" in
     nikto)
         # Quiet-ish profile; HTML report is a sidecar so output.txt keeps the header.
         # Nikto 2.1.x: User-Agent via config USERAGENT= (no CLI -useragent).
-        # -maxtime is Nikto-internal and does not always exit; PROMPTS/UPDATES can
-        # leave the process blocked on stdin until the operator presses Enter.
-        # Hard wall: timeout 16m (15m maxtime + 1m grace) then SIGTERM/SIGKILL.
+        # -maxtime is Nikto-internal; hard wall via timeout 16m.
+        # Azure ALB: HTTP/1.0→426, HEAD flaky; also needs TLS SNI (LW2 patch).
         NIKTO_HTM="$RUN_DIR/nikto.htm"
         NIKTO_CONF="$RUN_DIR/nikto.conf"
         NIKTO_MAXTIME="15m"
         NIKTO_HARD_TIMEOUT="16m"
+        # -ssl skips plain-HTTP probe on :443 (saves time; ALBs rarely speak cleartext there).
+        NIKTO_SSL_FLAG=""
+        if [[ "$URL" =~ ^https:// ]]; then
+            NIKTO_SSL_FLAG="-ssl"
+        fi
         f_nikto_write_config "$NIKTO_CONF" "$UA"
-        NIKTO_CMD="nikto -config $(f_shell_quote "$NIKTO_CONF") -h $(f_shell_quote "$URL") -no404 -maxtime $NIKTO_MAXTIME -Format htm -output $(f_shell_quote "$NIKTO_HTM")"
+        NIKTO_CMD="nikto -config $(f_shell_quote "$NIKTO_CONF") -h $(f_shell_quote "$URL")${NIKTO_SSL_FLAG:+ $NIKTO_SSL_FLAG} -no404 -maxtime $NIKTO_MAXTIME -Format htm -output $(f_shell_quote "$NIKTO_HTM")"
         f_write_run_header "$NIKTO_CMD"
         {
-            echo "[*] Nikto non-interactive (PROMPTS=no, UPDATES=no); maxtime ${NIKTO_MAXTIME}; hard stop ${NIKTO_HARD_TIMEOUT}."
+            echo "[*] Nikto: non-interactive (PROMPTS=no, UPDATES=no); HTTP/1.1 + GET discovery;"
+            echo "    maxtime ${NIKTO_MAXTIME}; hard stop ${NIKTO_HARD_TIMEOUT}; TLS SNI via patched LW2."
             echo
         } | tee -a "$OUT_FILE"
+
+        # Run in current shell (not $(...) / pipe) so PERL5LIB export sticks.
         set +e
-        if command -v timeout >/dev/null 2>&1; then
-            # --foreground: Ctrl+C reaches nikto in a terminal; kill-after if TERM ignored
-            timeout --foreground --signal=TERM --kill-after=45s "$NIKTO_HARD_TIMEOUT" \
-                nikto -config "$NIKTO_CONF" -h "$URL" -no404 -maxtime "$NIKTO_MAXTIME" \
-                -Format htm -output "$NIKTO_HTM" \
-                2>&1 | tee -a "$OUT_FILE"
-            # PIPESTATUS[0]=timeout, [1]=tee
-            EXIT_CODE=${PIPESTATUS[0]}
-        else
-            nikto -config "$NIKTO_CONF" -h "$URL" -no404 -maxtime "$NIKTO_MAXTIME" \
-                -Format htm -output "$NIKTO_HTM" \
-                2>&1 | tee -a "$OUT_FILE"
-            EXIT_CODE=${PIPESTATUS[0]}
-        fi
+        f_nikto_ensure_sni >"$RUN_DIR/.sni-setup.log" 2>&1
+        SNI_RC=$?
         set -e
-        if [ "${EXIT_CODE:-0}" -eq 124 ]; then
-            {
-                echo
-                echo "[*] Discover hard stop: Nikto exceeded ${NIKTO_HARD_TIMEOUT} wall clock (maxtime ${NIKTO_MAXTIME} + grace)."
-                echo "    Scan stopped automatically — no operator input required."
-            } | tee -a "$OUT_FILE"
-            # Treat time limit as a completed partial scan, not a crash
-            EXIT_CODE=0
+        # Belt-and-suspenders: re-export from global set by f_nikto_ensure_sni.
+        if [ -n "${NIKTO_SNI_LIBDIR:-}" ]; then
+            export PERL5LIB="${NIKTO_SNI_LIBDIR}${PERL5LIB:+:$PERL5LIB}"
         fi
+        tee -a "$OUT_FILE" <"$RUN_DIR/.sni-setup.log"
+
+        set +e
+        PRECHECK_OUT=$(f_nikto_precheck "$URL" 2>&1)
+        PRECHECK_RC=$?
+        set -e
+        printf '%s\n' "$PRECHECK_OUT" | tee -a "$OUT_FILE"
+        echo | tee -a "$OUT_FILE"
+
+        if [ "$PRECHECK_RC" -ne 0 ]; then
+            {
+                echo "[!] Nikto skipped after failed pre-check."
+                echo "    Result: no scan (host not answering HTTP from this network)."
+            } | tee -a "$OUT_FILE"
+            EXIT_CODE=1
+        else
+            # Pass PERL5LIB explicitly so timeout/env cannot drop it.
+            NIKTO_ENV=(env "PERL5LIB=${PERL5LIB:-}")
+            set +e
+            # shellcheck disable=SC2086
+            if command -v timeout >/dev/null 2>&1; then
+                timeout --foreground --signal=TERM --kill-after=45s "$NIKTO_HARD_TIMEOUT" \
+                    "${NIKTO_ENV[@]}" \
+                    nikto -config "$NIKTO_CONF" -h "$URL" $NIKTO_SSL_FLAG \
+                    -no404 -maxtime "$NIKTO_MAXTIME" \
+                    -Format htm -output "$NIKTO_HTM" \
+                    2>&1 | tee -a "$OUT_FILE"
+                EXIT_CODE=${PIPESTATUS[0]}
+            else
+                "${NIKTO_ENV[@]}" \
+                    nikto -config "$NIKTO_CONF" -h "$URL" $NIKTO_SSL_FLAG \
+                    -no404 -maxtime "$NIKTO_MAXTIME" \
+                    -Format htm -output "$NIKTO_HTM" \
+                    2>&1 | tee -a "$OUT_FILE"
+                EXIT_CODE=${PIPESTATUS[0]}
+            fi
+            set -e
+
+            if [ "${EXIT_CODE:-0}" -eq 124 ]; then
+                {
+                    echo
+                    echo "[*] Discover hard stop: Nikto exceeded ${NIKTO_HARD_TIMEOUT} wall clock (maxtime ${NIKTO_MAXTIME} + grace)."
+                    echo "    Scan stopped automatically — no operator input required."
+                } | tee -a "$OUT_FILE"
+                EXIT_CODE=0
+            fi
+
+            # Clear operator note when Nikto never detected a host (common on Azure ALB
+            # with stock Nikto/LW2; pre-check may have succeeded with curl).
+            if grep -q 'No web server found on' "$OUT_FILE" 2>/dev/null; then
+                {
+                    echo
+                    echo "[!] Nikto host discovery failed: no web server found (0 hosts tested)."
+                    echo "    Pre-check may still have seen HTTP. Common causes with Nikto 2.1.x:"
+                    echo "      • missing TLS SNI (stock LW2) — Discover patches this via PERL5LIB"
+                    echo "      • HTTP/1.0 rejected (426) / broken HEAD — we force 1.1 + GET"
+                    if [ -z "${NIKTO_SNI_LIBDIR:-}" ] || [ "${SNI_RC:-1}" -ne 0 ]; then
+                        echo "    SNI patch was NOT active this run (PERL5LIB empty or wrong LW2)."
+                    else
+                        echo "    SNI patch was active (PERL5LIB=$NIKTO_SNI_LIBDIR) — other TLS/HTTP issue."
+                    fi
+                    echo "    Treat as inconclusive; use nuclei/ffuf/manual review instead."
+                    echo "    (Maxtime ERROR lines can appear even on short runs when discovery fails.)"
+                } | tee -a "$OUT_FILE"
+                EXIT_CODE=1
+            fi
+        fi
+
         if [ -f "$NIKTO_HTM" ]; then
             echo "" >> "$OUT_FILE"
             echo "HTML report: $NIKTO_HTM" >> "$OUT_FILE"

@@ -740,6 +740,23 @@ if ! command -v nikto &> /dev/null; then
     echo
 fi
 
+# Nikto 2.1.x / libwhisker2: add TLS SNI so Azure ALB and other SNI-only
+# front ends complete HTTPS (otherwise "No web server found").
+LW2_PM=/usr/share/perl5/LW2.pm
+PATCH_LW2_SNI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/patch-lw2-sni.py"
+if [ -f "$LW2_PM" ] && [ -f "$PATCH_LW2_SNI" ]; then
+    if grep -q 'Discover: TLS SNI' "$LW2_PM" 2>/dev/null; then
+        echo -e "${BLUE}LW2 already has Discover TLS SNI patch.${NC}"
+    elif [ -w "$LW2_PM" ]; then
+        echo -e "${BLUE}Patching LW2.pm for TLS SNI (Nikto HTTPS).${NC}"
+        python3 "$PATCH_LW2_SNI" --in-place "$LW2_PM" || true
+        echo
+    else
+        echo -e "${YELLOW}LW2.pm not writable; run-host-scan uses a user-local SNI copy via PERL5LIB.${NC}"
+        echo
+    fi
+fi
+
 if [ -d /usr/share/nmap/scripts/custom/.git ]; then
     echo -e "${BLUE}Updating custom Nmap scripts.${NC}"
     cd /usr/share/nmap/scripts/custom/ || exit ; git pull

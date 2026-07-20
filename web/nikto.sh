@@ -105,8 +105,25 @@ f_nikto_select_tool || exit 1
 NIKTO_UA=$(f_nikto_user_agent)
 
 # Nikto 2.1.x has no CLI -useragent; set USERAGENT= in a Discover-owned config.
+# Also shadow LW2 with TLS SNI (Azure ALB / modern HTTPS require it).
 NIKTO_CONF="$HOME/data/nikto-discover.conf"
 mkdir -p "$HOME/data"
+NIKTO_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+NIKTO_DISCOVER_ROOT="$(cd "$NIKTO_SCRIPT_DIR/.." && pwd)"
+NIKTO_LW2_LIB="${XDG_CACHE_HOME:-$HOME/.cache}/discover/perl5"
+if [ -f "$NIKTO_DISCOVER_ROOT/misc/patch-lw2-sni.py" ] && [ -f /usr/share/perl5/LW2.pm ]; then
+    if [ ! -f "$NIKTO_LW2_LIB/LW2.pm" ] || [ /usr/share/perl5/LW2.pm -nt "$NIKTO_LW2_LIB/LW2.pm" ] \
+        || ! grep -q 'Discover: TLS SNI' "$NIKTO_LW2_LIB/LW2.pm" 2>/dev/null; then
+        python3 "$NIKTO_DISCOVER_ROOT/misc/patch-lw2-sni.py" /usr/share/perl5/LW2.pm "$NIKTO_LW2_LIB/LW2.pm" \
+            || true
+    fi
+    if [ -f "$NIKTO_LW2_LIB/LW2.pm" ] && grep -q 'set_tlsext_host_name' "$NIKTO_LW2_LIB/LW2.pm" 2>/dev/null; then
+        export PERL5LIB="${NIKTO_LW2_LIB}${PERL5LIB:+:$PERL5LIB}"
+        # New xdotool tabs may not inherit this shell; prefix typed commands.
+        NIKTO_ENV_PREFIX="PERL5LIB=${NIKTO_LW2_LIB}:\$PERL5LIB "
+    fi
+fi
+NIKTO_ENV_PREFIX="${NIKTO_ENV_PREFIX:-}"
 python3 - "$NIKTO_CONF" "$NIKTO_UA" <<'PY'
 import sys
 from pathlib import Path
@@ -122,6 +139,8 @@ force = {
     "USERAGENT": ua,
     "PROMPTS": "no",
     "UPDATES": "no",
+    "DEFAULTHTTPVER": "1.1",
+    "CHECKMETHODS": "GET",
 }
 seen: set[str] = set()
 new_lines: list[str] = []
@@ -177,7 +196,7 @@ case "$CHOICE" in
         while IFS= read -r LINE; do
             [ -z "$LINE" ] && continue
             $XDOTOOL key ctrl+shift+t
-            $XDOTOOL type "nikto -config $NIKTO_CONF -h $LINE -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto-$PORT/$LINE.htm ; exit"
+            $XDOTOOL type "${NIKTO_ENV_PREFIX}nikto -config $NIKTO_CONF -h $LINE -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto-$PORT/$LINE.htm ; exit"
             sleep 2
             $XDOTOOL key $ENTER
         done < "$LOCATION"
@@ -195,7 +214,7 @@ case "$CHOICE" in
             [ -z "$HOST" ] || [ -z "$PORT" ] && continue
             $XDOTOOL key ctrl+shift+t
             sleep 2
-            $XDOTOOL type "nikto -config $NIKTO_CONF -h $HOST -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto/$HOST-$PORT.htm ; exit"
+            $XDOTOOL type "${NIKTO_ENV_PREFIX}nikto -config $NIKTO_CONF -h $HOST -port $PORT -no404 -maxtime 15m -Format htm --output $HOME/data/nikto/$HOST-$PORT.htm ; exit"
             sleep 2
             $XDOTOOL key $ENTER
         done < "$LOCATION"
