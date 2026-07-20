@@ -551,6 +551,8 @@ f_write_run_header(){
 }
 
 # Nikto 2.1.x has no CLI -useragent; set USERAGENT= via a per-run config.
+# Force non-interactive settings so maxtime cannot leave Nikto waiting on stdin
+# (system config often has UPDATES=yes / PROMPTS unset — operator hits Enter forever).
 f_nikto_write_config(){
     local conf_path="$1"
     local ua="$2"
@@ -565,17 +567,37 @@ for candidate in (Path("/etc/nikto/config.txt"), Path("/etc/nikto.conf")):
     if candidate.is_file():
         base = candidate.read_text(encoding="utf-8", errors="replace")
         break
-lines = base.splitlines() if base else []
-found = False
-new_lines = []
-for line in lines:
-    if line.startswith("USERAGENT=") or line.startswith("#USERAGENT="):
-        new_lines.append("USERAGENT=" + ua)
-        found = True
-    else:
-        new_lines.append(line)
-if not found:
-    new_lines.append("USERAGENT=" + ua)
+
+# key -> value (None = ensure line stays commented / omit active assignment)
+force = {
+    "USERAGENT": ua,
+    "PROMPTS": "no",      # never block on stdin
+    "UPDATES": "no",      # do not ask to submit version strings to cirt.net
+    # RFIURL intentionally not enabled (no third-party RFI callouts)
+}
+
+seen: set[str] = set()
+new_lines: list[str] = []
+for raw in base.splitlines() if base else []:
+    stripped = raw.strip()
+    # Active KEY=value line
+    if stripped and not stripped.startswith("#") and "=" in stripped:
+        key = stripped.split("=", 1)[0].strip()
+        if key in force:
+            if key not in seen:
+                new_lines.append(f"{key}={force[key]}")
+                seen.add(key)
+            # drop duplicate / old values (e.g. UPDATES=yes)
+            continue
+        new_lines.append(raw)
+        continue
+    # Comment or blank — keep as documentation only
+    new_lines.append(raw)
+
+for key, value in force.items():
+    if key not in seen:
+        new_lines.append(f"{key}={value}")
+
 out.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 PY
 }
@@ -599,17 +621,45 @@ case "$TOOL" in
     nikto)
         # Quiet-ish profile; HTML report is a sidecar so output.txt keeps the header.
         # Nikto 2.1.x: User-Agent via config USERAGENT= (no CLI -useragent).
+        # -maxtime is Nikto-internal and does not always exit; PROMPTS/UPDATES can
+        # leave the process blocked on stdin until the operator presses Enter.
+        # Hard wall: timeout 16m (15m maxtime + 1m grace) then SIGTERM/SIGKILL.
         NIKTO_HTM="$RUN_DIR/nikto.htm"
         NIKTO_CONF="$RUN_DIR/nikto.conf"
+        NIKTO_MAXTIME="15m"
+        NIKTO_HARD_TIMEOUT="16m"
         f_nikto_write_config "$NIKTO_CONF" "$UA"
-        NIKTO_CMD="nikto -config $(f_shell_quote "$NIKTO_CONF") -h $(f_shell_quote "$URL") -no404 -maxtime 15m -Format htm -output $(f_shell_quote "$NIKTO_HTM")"
+        NIKTO_CMD="nikto -config $(f_shell_quote "$NIKTO_CONF") -h $(f_shell_quote "$URL") -no404 -maxtime $NIKTO_MAXTIME -Format htm -output $(f_shell_quote "$NIKTO_HTM")"
         f_write_run_header "$NIKTO_CMD"
+        {
+            echo "[*] Nikto non-interactive (PROMPTS=no, UPDATES=no); maxtime ${NIKTO_MAXTIME}; hard stop ${NIKTO_HARD_TIMEOUT}."
+            echo
+        } | tee -a "$OUT_FILE"
         set +e
-        nikto -config "$NIKTO_CONF" -h "$URL" -no404 -maxtime 15m \
-            -Format htm -output "$NIKTO_HTM" \
-            2>&1 | tee -a "$OUT_FILE"
-        EXIT_CODE=${PIPESTATUS[0]}
+        if command -v timeout >/dev/null 2>&1; then
+            # --foreground: Ctrl+C reaches nikto in a terminal; kill-after if TERM ignored
+            timeout --foreground --signal=TERM --kill-after=45s "$NIKTO_HARD_TIMEOUT" \
+                nikto -config "$NIKTO_CONF" -h "$URL" -no404 -maxtime "$NIKTO_MAXTIME" \
+                -Format htm -output "$NIKTO_HTM" \
+                2>&1 | tee -a "$OUT_FILE"
+            # PIPESTATUS[0]=timeout, [1]=tee
+            EXIT_CODE=${PIPESTATUS[0]}
+        else
+            nikto -config "$NIKTO_CONF" -h "$URL" -no404 -maxtime "$NIKTO_MAXTIME" \
+                -Format htm -output "$NIKTO_HTM" \
+                2>&1 | tee -a "$OUT_FILE"
+            EXIT_CODE=${PIPESTATUS[0]}
+        fi
         set -e
+        if [ "${EXIT_CODE:-0}" -eq 124 ]; then
+            {
+                echo
+                echo "[*] Discover hard stop: Nikto exceeded ${NIKTO_HARD_TIMEOUT} wall clock (maxtime ${NIKTO_MAXTIME} + grace)."
+                echo "    Scan stopped automatically — no operator input required."
+            } | tee -a "$OUT_FILE"
+            # Treat time limit as a completed partial scan, not a crash
+            EXIT_CODE=0
+        fi
         if [ -f "$NIKTO_HTM" ]; then
             echo "" >> "$OUT_FILE"
             echo "HTML report: $NIKTO_HTM" >> "$OUT_FILE"

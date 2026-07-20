@@ -118,17 +118,28 @@ for candidate in (Path("/etc/nikto/config.txt"), Path("/etc/nikto.conf")):
     if candidate.is_file():
         base = candidate.read_text(encoding="utf-8", errors="replace")
         break
-lines = base.splitlines() if base else []
-found = False
-new_lines = []
-for line in lines:
-    if line.startswith("USERAGENT=") or line.startswith("#USERAGENT="):
-        new_lines.append("USERAGENT=" + ua)
-        found = True
-    else:
-        new_lines.append(line)
-if not found:
-    new_lines.append("USERAGENT=" + ua)
+force = {
+    "USERAGENT": ua,
+    "PROMPTS": "no",
+    "UPDATES": "no",
+}
+seen: set[str] = set()
+new_lines: list[str] = []
+for raw in base.splitlines() if base else []:
+    stripped = raw.strip()
+    if stripped and not stripped.startswith("#") and "=" in stripped:
+        key = stripped.split("=", 1)[0].strip()
+        if key in force:
+            if key not in seen:
+                new_lines.append(f"{key}={force[key]}")
+                seen.add(key)
+            continue
+        new_lines.append(raw)
+        continue
+    new_lines.append(raw)
+for key, value in force.items():
+    if key not in seen:
+        new_lines.append(f"{key}={value}")
 out.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 PY
 
