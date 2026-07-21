@@ -387,8 +387,17 @@ f_update(){
     echo
 
     if command -v grok &> /dev/null; then
+        # Same look as other Update sections: blue header + plain status line.
         echo -e "${BLUE}Updating Grok.${NC}"
-        grok update
+        _grok_out=$(grok update 2>&1) || true
+        if echo "$_grok_out" | grep -qiE 'already up to date|up to date|already the latest'; then
+            echo "Already up to date."
+        elif [ -n "$_grok_out" ]; then
+            echo "$_grok_out"
+        else
+            echo "Already up to date."
+        fi
+        unset _grok_out
         echo
     fi
 
@@ -403,21 +412,32 @@ f_update(){
         echo
         exit
     else
+        # Same look as other Update sections: blue header + plain status line.
         echo -e "${BLUE}Updating uv.${NC}"
-        uv self update
+        _uv_out=$(uv self update 2>&1) || true
+        if echo "$_uv_out" | grep -qiE 'already on version|already the latest|up to date'; then
+            echo "Already up to date."
+        elif [ -n "$_uv_out" ]; then
+            echo "$_uv_out"
+        else
+            echo "Already up to date."
+        fi
+        unset _uv_out
         echo
     fi
 
     if [ -d "$HOME/theHarvester/.git" ]; then
+        # Blue header + git pull status; keep uv sync quiet (no Resolved/Checked spam).
         echo -e "${BLUE}Updating theHarvester.${NC}"
-        cd "$HOME/theHarvester" || exit ; git pull
-        uv sync
+        cd "$HOME/theHarvester" || exit
+        git pull
+        uv sync -q 2>/dev/null || uv sync -q || true
         echo
     else
         echo -e "${YELLOW}Installing theHarvester.${NC}"
         git clone https://github.com/laramies/theHarvester "$HOME/theHarvester"
         cd "$HOME/theHarvester" || exit
-        uv sync
+        uv sync -q 2>/dev/null || uv sync || true
         echo
     fi
 
@@ -430,7 +450,7 @@ f_update(){
 
     if [ -f "$DISCOVER/notes/build.py" ]; then
         echo -e "${BLUE}Rebuilding notes site.${NC}"
-        python3 "$DISCOVER/notes/build.py" || true
+        python3 "$DISCOVER/notes/build.py" >/dev/null || true
         echo
     fi
 

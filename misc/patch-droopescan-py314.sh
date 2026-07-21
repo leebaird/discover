@@ -7,16 +7,25 @@
 #   - cement still imports removed stdlib 'imp' → patch to importlib
 #   - droopescan uses distutils.util.strtobool → ensure setuptools
 #
-# Safe to run multiple times. Rewrites cement module headers cleanly
-# (avoids leftover else:/broken indentation from partial patches).
-#
-# Usage: patch-droopescan-py314.sh [venv_root]
+# Quiet when already patched (safe to run every Update).
+# Usage: patch-droopescan-py314.sh [-v] [venv_root]
 # Default: /opt/pipx/venvs/droopescan
-# User:    ~/.local/pipx/venvs/droopescan
 
 set -euo pipefail
 
+VERBOSE=0
+if [ "${1:-}" = "-v" ] || [ "${1:-}" = "--verbose" ]; then
+    VERBOSE=1
+    shift
+fi
+
 VENV="${1:-/opt/pipx/venvs/droopescan}"
+
+log(){
+    if [ "$VERBOSE" -eq 1 ]; then
+        echo "$*"
+    fi
+}
 
 if [ ! -d "$VENV" ]; then
     echo "[!] droopescan venv not found: $VENV"
@@ -29,9 +38,6 @@ if [ ! -x "$PY" ]; then
     exit 1
 fi
 
-echo "[*] Ensuring setuptools (distutils) in droopescan venv"
-"$PY" -m pip install -q setuptools >/dev/null
-
 CEMENT=$(find "$VENV/lib" -type d -path '*/site-packages/cement' 2>/dev/null | head -1)
 if [ -z "$CEMENT" ]; then
     echo "[!] cement package not found under $VENV"
@@ -39,13 +45,51 @@ if [ -z "$CEMENT" ]; then
 fi
 
 SITE=$(dirname "$CEMENT")
-echo "[*] Patching cement under $SITE (imp → importlib)"
+FOUNDATION="$SITE/cement/core/foundation.py"
+EXTENSION="$SITE/cement/core/extension.py"
+PLUGIN="$SITE/cement/ext/ext_plugin.py"
 
-python3 - "$SITE" <<'PY'
+# Already fully patched?
+need_setuptools=0
+need_cement=0
+if ! "$PY" -c 'from distutils.util import strtobool' 2>/dev/null; then
+    need_setuptools=1
+fi
+if [ ! -f "$FOUNDATION" ] || ! grep -q 'Discover patch: Python 3.12+ removed imp' "$FOUNDATION" 2>/dev/null; then
+    need_cement=1
+fi
+if [ ! -f "$EXTENSION" ] || ! grep -q 'Discover patch: Python 3.12+ removed imp' "$EXTENSION" 2>/dev/null; then
+    need_cement=1
+fi
+if [ -f "$PLUGIN" ] && grep -qE '^import imp$' "$PLUGIN" 2>/dev/null \
+    && ! grep -q 'class _ImpShim' "$PLUGIN" 2>/dev/null; then
+    need_cement=1
+fi
+
+if [ "$need_setuptools" -eq 0 ] && [ "$need_cement" -eq 0 ]; then
+    # Smoke-test quietly; only noise on failure
+    if [ -x "$VENV/bin/droopescan" ] && ! "$VENV/bin/droopescan" --help >/dev/null 2>&1; then
+        echo "[!] droopescan present but --help failed ($VENV)"
+        "$VENV/bin/droopescan" --help 2>&1 | head -15 || true
+        exit 1
+    fi
+    log "[*] droopescan already patched ($VENV)"
+    exit 0
+fi
+
+if [ "$need_setuptools" -eq 1 ]; then
+    log "[*] Ensuring setuptools in $VENV"
+    "$PY" -m pip install -q setuptools >/dev/null
+fi
+
+if [ "$need_cement" -eq 1 ]; then
+    log "[*] Patching cement under $SITE"
+    python3 - "$SITE" <<'PY'
 import sys
 from pathlib import Path
 
 root = Path(sys.argv[1])
+changed = []
 
 FOUNDATION_HEADER = '''"""Cement core foundation module."""
 
@@ -131,59 +175,48 @@ def rest_from(text: str, marker: str) -> str:
     return text[i:]
 
 
-# --- foundation.py: replace entire header through LOG ---
 fp = root / "cement/core/foundation.py"
 ft = fp.read_text(encoding="utf-8", errors="replace")
-# Drop any non-printable garbage from prior bad patches
 ft = "".join(ch for ch in ft if ch == "\n" or ch == "\t" or (ord(ch) >= 32))
-rest = rest_from(ft, "class NullOut")
-fp.write_text(FOUNDATION_HEADER + rest, encoding="utf-8")
-print("  patched cement/core/foundation.py")
+if "Discover patch: Python 3.12+ removed imp" not in ft:
+    rest = rest_from(ft, "class NullOut")
+    fp.write_text(FOUNDATION_HEADER + rest, encoding="utf-8")
+    changed.append("cement/core/foundation.py")
 
-# --- extension.py ---
 ep = root / "cement/core/extension.py"
 et = ep.read_text(encoding="utf-8", errors="replace")
 et = "".join(ch for ch in et if ch == "\n" or ch == "\t" or (ord(ch) >= 32))
-rest = rest_from(et, "def extension_validator")
-ep.write_text(EXTENSION_HEADER + rest, encoding="utf-8")
-print("  patched cement/core/extension.py")
+if "Discover patch: Python 3.12+ removed imp" not in et:
+    rest = rest_from(et, "def extension_validator")
+    ep.write_text(EXTENSION_HEADER + rest, encoding="utf-8")
+    changed.append("cement/core/extension.py")
 
-# --- ext_plugin.py ---
 pp = root / "cement/ext/ext_plugin.py"
 if pp.is_file():
     pt = pp.read_text(encoding="utf-8", errors="replace")
-    if "class _ImpShim" in pt:
-        print("  ok cement/ext/ext_plugin.py (already patched)")
-    elif "import imp\n" in pt:
-        # strip prior discover shims if re-running
-        if "Discover patch: Python 3.12+ removed imp" in pt and "import imp" in pt:
-            # rewrite from original-style start
-            pass
-        pt2 = pt
-        # If already has try/import imp shim from us, leave
-        if "class _ImpShim" not in pt2:
-            pt2 = pt2.replace("import imp\n", PLUGIN_SHIM, 1)
-            pp.write_text(pt2, encoding="utf-8")
-            print("  patched cement/ext/ext_plugin.py")
-    else:
-        print("  ok cement/ext/ext_plugin.py")
-else:
-    print("  missing cement/ext/ext_plugin.py")
+    if "class _ImpShim" not in pt and "import imp\n" in pt:
+        pt2 = pt.replace("import imp\n", PLUGIN_SHIM, 1)
+        pp.write_text(pt2, encoding="utf-8")
+        changed.append("cement/ext/ext_plugin.py")
 
-print("[*] cement patch complete")
+for c in changed:
+    print(f"  patched {c}")
+if not changed:
+    print("  (cement already current)")
 PY
-
-BIN=""
-if [ -x "$VENV/bin/droopescan" ]; then
-    BIN="$VENV/bin/droopescan"
 fi
 
-if [ -n "$BIN" ]; then
-    if "$BIN" --help >/dev/null 2>&1; then
-        echo "[+] droopescan OK ($BIN)"
-    else
-        echo "[!] droopescan still failing:"
-        "$BIN" --help 2>&1 | head -25 || true
+if [ -x "$VENV/bin/droopescan" ]; then
+    if ! "$VENV/bin/droopescan" --help >/dev/null 2>&1; then
+        echo "[!] droopescan still failing after patch ($VENV):"
+        "$VENV/bin/droopescan" --help 2>&1 | head -25 || true
         exit 1
     fi
+fi
+
+# One line when we actually did work (non-verbose)
+if [ "$VERBOSE" -eq 0 ]; then
+    echo "[+] droopescan patched ($VENV)"
+else
+    echo "[+] droopescan OK ($VENV/bin/droopescan)"
 fi

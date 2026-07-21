@@ -53,9 +53,42 @@ EOF
 
 f_disable_auto_updates
 
-echo -e "${BLUE}Updating the operating system.${NC}"
-apt update ; apt -y upgrade ; apt -y dist-upgrade ; apt -y autoremove ; apt -y autoclean ; updatedb
-echo
+# OS packages — quiet when nothing to do; one upgrade pass (no upgrade+dist-upgrade double chatter).
+f_update_os(){
+    local held
+    export DEBIAN_FRONTEND=noninteractive
+
+    echo -e "${BLUE}Updating the operating system.${NC}"
+    # -qq: no Hit:/Get: spam or Ubuntu Pro walls of text
+    if ! apt-get update -qq 2>/dev/null; then
+        apt-get update 2>&1 | tail -20 || true
+    fi
+
+    # Always include phased updates so Ubuntu does not leave packages "held".
+    # dist-upgrade alone covers normal upgrades; avoids a second Summary block.
+    local apt_phase=(-o APT::Get::Always-Include-Phased-Updates=true)
+    if ! apt-get -y -qq \
+        "${apt_phase[@]}" \
+        -o APT::Get::Show-User-Simulation-Note=false \
+        -o Dpkg::Use-Pty=0 \
+        -o APT::Color=0 \
+        dist-upgrade 2>/dev/null; then
+        apt-get -y "${apt_phase[@]}" dist-upgrade 2>&1 | tail -30 || true
+    fi
+    apt-get -y -qq autoremove >/dev/null 2>&1 || true
+    apt-get -y -qq autoclean >/dev/null 2>&1 || true
+    updatedb 2>/dev/null || true
+
+    held=$(apt list --upgradable 2>/dev/null | awk 'NR > 1 && $0 ~ /\// { n++ } END { print n+0 }')
+    if [ "${held:-0}" -gt 0 ]; then
+        echo "OS: ${held} package(s) still upgradable."
+    else
+        echo "OS packages up to date."
+    fi
+    echo
+}
+f_update_os
+unset -f f_update_os
 
 if ! command -v 7z &> /dev/null; then
     echo -e "${YELLOW}Installing 7-Zip.${NC}"
@@ -139,7 +172,6 @@ f_update_cisa_kev(){
     local kev_file="$kev_dir/known_exploited_vulnerabilities.json"
     local tmp_file
     local count
-    local kev_ok=0
 
     echo -e "${BLUE}Updating CISA KEV catalog.${NC}"
     if ! command -v curl &> /dev/null; then
@@ -171,7 +203,6 @@ f_update_cisa_kev(){
             count=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1], encoding='utf-8')).get('count', '?'))" "$kev_file" 2>/dev/null || echo "?")
             echo "Saved $kev_file"
             echo "$count vulnerabilities."
-            kev_ok=1
         else
             rm -f "$tmp_file"
             echo -e "${YELLOW}CISA KEV download was not valid JSON; keeping previous catalog if any.${NC}"
@@ -181,15 +212,8 @@ f_update_cisa_kev(){
         echo -e "${YELLOW}Failed to download CISA KEV catalog; keeping previous catalog if any.${NC}"
     fi
     echo
-
-    # Do not walk engagement trees here: reports may live on Desktop, external
-    # disks, etc. Import report refreshes tools/shodan/kev-ids.js for whatever
-    # path the operator opens. Update only keeps the install catalog current.
-    if [ "$kev_ok" -eq 1 ]; then
-        echo -e "${BLUE}Note:${NC} Subdomains Shodan KEV badges refresh when you Import a report"
-        echo "      that already has tools/shodan/ (any location)."
-        echo
-    fi
+    # Engagement trees are not walked here (Desktop/external paths). Import
+    # rewrites tools/shodan/kev-ids.js for the report the operator opens.
 }
 
 f_update_cisa_kev
@@ -204,7 +228,14 @@ f_update_user_agent(){
     local backup_url="https://raw.githubusercontent.com/microlinkhq/top-user-agents/master/src/desktop.json"
     local tmp_file
     local ua=""
-    local nikto_cfg=/etc/nikto/config.txt
+    # Prefer GitHub Nikto install; fall back to legacy apt paths.
+    local nikto_cfg=""
+    for candidate in /opt/nikto/program/nikto.conf /etc/nikto/config.txt /etc/nikto.conf; do
+        if [ -f "$candidate" ]; then
+            nikto_cfg="$candidate"
+            break
+        fi
+    done
     local nmap_http=/usr/share/nmap/nselib/http.lua
 
     echo -e "${BLUE}Updating scanner User-Agent (Microsoft Edge).${NC}"
@@ -302,8 +333,8 @@ PY
     echo "Saved $ua_file"
     echo "$ua"
 
-    # Nikto — replace USERAGENT= line (remove default Nikto/@VERSION if present).
-    if [ -f "$nikto_cfg" ] && [ -w "$nikto_cfg" ]; then
+    # Nikto — USERAGENT= when present (2.5+ also accepts -useragent CLI).
+    if [ -n "$nikto_cfg" ] && [ -f "$nikto_cfg" ] && [ -w "$nikto_cfg" ]; then
         if grep -qE '^USERAGENT=' "$nikto_cfg"; then
             # Use | delimiter; UA has no pipes.
             sed -i "s|^USERAGENT=.*|USERAGENT=$ua|" "$nikto_cfg"
@@ -311,7 +342,7 @@ PY
             printf '\nUSERAGENT=%s\n' "$ua" >> "$nikto_cfg"
         fi
         echo "Updated Nikto USERAGENT in $nikto_cfg"
-    elif [ -f "$nikto_cfg" ]; then
+    elif [ -n "$nikto_cfg" ] && [ -f "$nikto_cfg" ]; then
         echo -e "${YELLOW}Nikto config not writable: $nikto_cfg${NC}"
     fi
 
@@ -528,52 +559,61 @@ else
     echo
 fi
 
-# droopescan — CMS scanner (Drupal, WordPress, …); upstream recommends pip/pipx.
-# Install system-wide via pipx so the binary lands in /usr/local/bin (Discover style).
-# Python 3.12+ needs a small cement/setuptools patch (stdlib imp/distutils removed).
+# droopescan — CMS scanner (Drupal, WordPress, …); pipx under /opt/pipx → /usr/local/bin.
+# Python 3.12+ needs cement/setuptools patch after install or upgrade (re-run is quiet if already applied).
 if ! command -v pipx &> /dev/null; then
     echo -e "${YELLOW}Installing pipx (required for droopescan).${NC}"
     apt install -y pipx
     echo
 fi
 
-if command -v droopescan &> /dev/null; then
+_ds_pipx(){
+    PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx "$@"
+}
+
+if [ -d /opt/pipx/venvs/droopescan ]; then
+    # Same look as DomainPasswordSpray / Egress-Assess: blue header + plain status line.
     echo -e "${BLUE}Updating droopescan.${NC}"
-    if PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx upgrade droopescan 2>/dev/null; then
-        :
+    _ds_out=$(_ds_pipx upgrade -q droopescan 2>&1) || true
+    if [ -n "$_ds_out" ] && ! echo "$_ds_out" | grep -qiE 'already at latest|already installed'; then
+        echo "$_ds_out"
     else
-        # Not managed by our pipx home yet — install/reinstall into /usr/local/bin.
-        PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install --force droopescan
+        echo "Already up to date."
     fi
+    unset _ds_out
+    echo
+elif command -v droopescan &> /dev/null; then
+    # Binary on PATH but not under /opt/pipx — install Discover's copy
+    echo -e "${YELLOW}Installing droopescan.${NC}"
+    mkdir -p /opt/pipx
+    _ds_pipx install droopescan
     echo
 else
     echo -e "${YELLOW}Installing droopescan.${NC}"
     mkdir -p /opt/pipx
-    PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install droopescan
+    _ds_pipx install droopescan
     echo
 fi
+unset -f _ds_pipx
 
-# Apply Python 3.12+ compatibility patches (cement imp + setuptools/distutils).
-# Re-run after every upgrade — pipx overwrites cement and re-breaks py3.12+.
+# Py3.12+ cement/imp patch — silent when already applied; prints only if it changes files.
 if [ -x "$DISCOVER_ROOT/misc/patch-droopescan-py314.sh" ]; then
-    echo -e "${BLUE}Patching droopescan for modern Python (if needed).${NC}"
+    _ds_patch="$DISCOVER_ROOT/misc/patch-droopescan-py314.sh"
     if [ -d /opt/pipx/venvs/droopescan ]; then
-        if ! bash "$DISCOVER_ROOT/misc/patch-droopescan-py314.sh" /opt/pipx/venvs/droopescan; then
-            echo -e "${YELLOW}[!] System droopescan patch failed. Re-run:${NC}"
-            echo "    sudo $DISCOVER_ROOT/misc/patch-droopescan-py314.sh /opt/pipx/venvs/droopescan"
+        if ! bash "$_ds_patch" /opt/pipx/venvs/droopescan; then
+            echo -e "${YELLOW}[!] System droopescan patch failed:${NC}"
+            echo "    sudo $_ds_patch -v /opt/pipx/venvs/droopescan"
         fi
     fi
-    # User pipx install (PATH often prefers ~/.local/bin over /usr/local/bin)
+    # User pipx (PATH often prefers ~/.local/bin over /usr/local/bin)
     _ds_user_home="$HOME"
     if [ -n "${SUDO_USER:-}" ]; then
         _ds_user_home=$(getent passwd "$SUDO_USER" | cut -d: -f6)
     fi
     if [ -d "$_ds_user_home/.local/pipx/venvs/droopescan" ]; then
-        bash "$DISCOVER_ROOT/misc/patch-droopescan-py314.sh" \
-            "$_ds_user_home/.local/pipx/venvs/droopescan" || true
+        bash "$_ds_patch" "$_ds_user_home/.local/pipx/venvs/droopescan" || true
     fi
-    unset _ds_user_home
-    echo
+    unset _ds_user_home _ds_patch
 fi
 
 # shellcheck disable=SC2166
@@ -734,28 +774,128 @@ if ! command -v msfconsole &> /dev/null; then
     echo
 fi
 
-if ! command -v nikto &> /dev/null; then
-    echo -e "${YELLOW}Installing nikto.${NC}"
-    apt install -y nikto
-    echo
-fi
+# Nikto from GitHub (sullo/nikto) — apt 2.1.5 is years behind (2.6.x has TLS SNI,
+# current tests DBs, -useragent / -nointeractive). Install under /opt/nikto.
+f_install_nikto_github(){
+    local nikto_root=/opt/nikto
+    local nikto_prog="$nikto_root/program"
+    local nikto_pl="$nikto_prog/nikto.pl"
+    local nikto_conf="$nikto_prog/nikto.conf"
+    local nikto_default="$nikto_prog/nikto.conf.default"
+    local wrapper=/usr/local/bin/nikto
+    local repo=https://github.com/sullo/nikto.git
 
-# Nikto 2.1.x / libwhisker2: add TLS SNI so Azure ALB and other SNI-only
-# front ends complete HTTPS (otherwise "No web server found").
-LW2_PM=/usr/share/perl5/LW2.pm
-PATCH_LW2_SNI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/patch-lw2-sni.py"
-if [ -f "$LW2_PM" ] && [ -f "$PATCH_LW2_SNI" ]; then
-    if grep -q 'Discover: TLS SNI' "$LW2_PM" 2>/dev/null; then
-        echo -e "${BLUE}LW2 already has Discover TLS SNI patch.${NC}"
-    elif [ -w "$LW2_PM" ]; then
-        echo -e "${BLUE}Patching LW2.pm for TLS SNI (Nikto HTTPS).${NC}"
-        python3 "$PATCH_LW2_SNI" --in-place "$LW2_PM" || true
-        echo
-    else
-        echo -e "${YELLOW}LW2.pm not writable; run-host-scan uses a user-local SNI copy via PERL5LIB.${NC}"
+    # Drop distro package so /usr/bin/nikto cannot shadow GitHub install.
+    if dpkg -l nikto 2>/dev/null | grep -q '^ii'; then
+        echo -e "${YELLOW}Removing apt nikto (stale 2.1.x) in favor of GitHub.${NC}"
+        apt remove -y nikto 2>/dev/null || true
+        # Optional system LW2 only used by old apt Nikto.
+        apt remove -y libwhisker2-perl 2>/dev/null || true
         echo
     fi
-fi
+
+    # Perl modules required by Nikto 2.5+/2.6 (see upstream Dockerfile).
+    # Only apt-install what's missing so Update stays quiet on repeat runs.
+    local pkg missing=()
+    for pkg in \
+        libnet-ssleay-perl \
+        libio-socket-ssl-perl \
+        libwww-perl \
+        libjson-perl \
+        libxml-writer-perl \
+        libtimedate-perl
+    do
+        if ! dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q 'install ok installed'; then
+            missing+=("$pkg")
+        fi
+    done
+    if [ "${#missing[@]}" -gt 0 ]; then
+        echo -e "${YELLOW}Installing Nikto Perl deps: ${missing[*]}${NC}"
+        apt install -y "${missing[@]}" || true
+        echo
+    fi
+
+    if [ -d "$nikto_root/.git" ]; then
+        # Same pattern as MAN-SPIDER / custom Nmap scripts:
+        # blue header + git pull ("Already up to date." or real pull).
+        echo -e "${BLUE}Updating Nikto.${NC}"
+        git -C "$nikto_root" fetch --force --prune origin >/dev/null 2>&1 || true
+        git -C "$nikto_root" checkout -q main 2>/dev/null \
+            || git -C "$nikto_root" checkout -q master 2>/dev/null || true
+        git -C "$nikto_root" pull --ff-only origin main 2>/dev/null \
+            || git -C "$nikto_root" pull --ff-only 2>/dev/null || true
+        echo
+    else
+        echo -e "${YELLOW}Installing Nikto.${NC}"
+        rm -rf "$nikto_root"
+        if ! git clone "$repo" "$nikto_root"; then
+            echo -e "${YELLOW}Nikto git clone failed.${NC}"
+            echo
+            return 1
+        fi
+        git -C "$nikto_root" checkout -q main 2>/dev/null || true
+        echo
+    fi
+
+    if [ ! -f "$nikto_pl" ]; then
+        echo -e "${YELLOW}Nikto install incomplete: missing $nikto_pl${NC}"
+        echo
+        return 1
+    fi
+    chmod 755 "$nikto_pl" 2>/dev/null || true
+
+    # Discover-owned site config — rewrite only when content changes (silent).
+    if [ -f "$nikto_default" ]; then
+        python3 - "$nikto_default" "$nikto_conf" <<'PY' >/dev/null
+import sys
+from pathlib import Path
+
+src, dst = Path(sys.argv[1]), Path(sys.argv[2])
+base = src.read_text(encoding="utf-8", errors="replace")
+force = {
+    "PROMPTS": "no",
+    "UPDATES": "no",
+    "DEFAULTHTTPVER": "1.1",
+    "CHECKMETHODS": "GET",
+}
+comment_keys = {"RFIURL"}
+seen = set()
+lines = []
+for raw in base.splitlines():
+    stripped = raw.strip()
+    if stripped and not stripped.startswith("#") and "=" in stripped:
+        key = stripped.split("=", 1)[0].strip()
+        if key in comment_keys:
+            lines.append("#" + raw if not raw.lstrip().startswith("#") else raw)
+            continue
+        if key in force:
+            if key not in seen:
+                lines.append(f"{key}={force[key]}")
+                seen.add(key)
+            continue
+    lines.append(raw)
+for key, value in force.items():
+    if key not in seen:
+        lines.append(f"{key}={value}")
+new = "\n".join(lines) + "\n"
+old = dst.read_text(encoding="utf-8", errors="replace") if dst.is_file() else None
+if old != new:
+    dst.write_text(new, encoding="utf-8")
+PY
+    fi
+
+    # Wrapper (silent unless missing).
+    if [ ! -x "$wrapper" ] || ! grep -q '/opt/nikto/program/nikto.pl' "$wrapper" 2>/dev/null; then
+        cat > "$wrapper" <<'WRAP'
+#!/usr/bin/env bash
+# Discover wrapper — GitHub Nikto (sullo/nikto) under /opt/nikto
+exec perl /opt/nikto/program/nikto.pl "$@"
+WRAP
+        chmod 755 "$wrapper"
+    fi
+    hash -r 2>/dev/null || true
+}
+f_install_nikto_github
 
 if [ -d /usr/share/nmap/scripts/custom/.git ]; then
     echo -e "${BLUE}Updating custom Nmap scripts.${NC}"

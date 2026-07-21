@@ -807,6 +807,7 @@ Main menu option **18** (`misc/update.sh`).
 
 * Updates the operating system, git pull from various repos, and update the locate database
 * Installs tools used by recon and dev scanners (for example `ffuf`, `nuclei`, `droopescan`, `feroxbuster`, `jq`, `trivy`, ProjectDiscovery stack)
+* Installs **Nikto** from [sullo/nikto](https://github.com/sullo/nikto) under `/opt/nikto` (wrapper `/usr/local/bin/nikto`); removes the stale apt `2.1.5` package when present
 * Patches **droopescan** for modern Python (3.12+) via `misc/patch-droopescan-py314.sh` after pipx install (cement `imp` + setuptools/`distutils`)
 * Registers desktop handlers: `discover-scan:`, `discover-cve:`, `discover-ffuf:` (open ffuf finding URLs in Firefox)
 * Refreshes the default scanner User-Agent (Microsoft Edge) in `resource/user-agent.txt` for Nikto, Nmap, ffuf, Active, and related tools
