@@ -715,6 +715,19 @@ def webserver_label_html(label):
     )
 
 
+def technology_label_html(label):
+    """Link Top technologies to filtered Subdomains (?tech=jQuery)."""
+    label_text = str(label).strip()
+    escaped = html.escape(label_text)
+    href = f"subdomains.htm?tech={quote(label_text, safe='')}"
+    return (
+        f'<a class="inc-tech-subdomains-link" '
+        f'href="{html.escape(href, quote=True)}" '
+        f'title="Show subdomains with this technology">'
+        f"{escaped}</a>"
+    )
+
+
 def summary_table(
     title,
     label_header,
@@ -1129,6 +1142,7 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                         "Technology",
                         counter_rows(technology_counter, 6),
                         section_class="inc-active-section--technologies",
+                        label_html_fn=technology_label_html,
                     ),
                 ],
                 [

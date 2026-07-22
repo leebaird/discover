@@ -2,16 +2,18 @@
  * Planning by Lee Baird (@discoverscripts)
  * Coded by Grok (xAI)
  *
- * Filter the public Subdomains table by software, CVE, category, status, or web server.
+ * Filter the public Subdomains table by software, CVE, category, status,
+ * web server, or technology.
  * Active Software versions:  subdomains.htm?software=Apache:2.4.37
  * Active CVE search:         subdomains.htm?cve=CVE-2024-38475
  * Active Alive by category:  subdomains.htm?category=Dev  (or category=(none))
  * Active Status codes:       subdomains.htm?status=200
  * Active Top web servers:    subdomains.htm?webserver=Apache
+ * Active Top technologies:   subdomains.htm?tech=jQuery  (matches jQuery:3.x too)
  *
  * CVE mode resolves software labels via tools/cve-software-index.js
  * (or software-cves-cache.json) then matches tech tokens like software=.
- * Category / status / webserver match the corresponding Subdomains columns.
+ * Category / status / webserver / tech match Subdomains row fields.
  */
 (function () {
     function queryParam(name) {
@@ -54,6 +56,10 @@
 
     function queryWebserver() {
         return queryParam("webserver");
+    }
+
+    function queryTech() {
+        return queryParam("tech");
     }
 
     function queryCve() {
@@ -148,6 +154,49 @@
         return normalizeWebserver(raw) === normalizeWebserver(w);
     }
 
+    /**
+     * Technology base name (Active Top technologies uses technology_label_key):
+     * strip version after ":" or "[".
+     */
+    function technologyBase(s) {
+        var t = String(s || "").trim();
+        if (!t) {
+            return "";
+        }
+        var i = t.indexOf(":");
+        if (i >= 0) {
+            t = t.slice(0, i);
+        }
+        i = t.indexOf("[");
+        if (i >= 0) {
+            t = t.slice(0, i);
+        }
+        return t.replace(/\s+/g, " ").trim().toLowerCase();
+    }
+
+    function rowHasTechnology(row, want) {
+        var tokens = techTokens(row);
+        var w = String(want || "").trim();
+        if (!w) {
+            return tokens.length === 0;
+        }
+        var wantBase = technologyBase(w);
+        var wantNorm = normalizeLabel(w);
+        var i;
+        var tok;
+        for (i = 0; i < tokens.length; i++) {
+            tok = tokens[i];
+            if (tok === w || normalizeLabel(tok) === wantNorm) {
+                return true;
+            }
+            // Top tech is product-only; match jQuery against jQuery:3.4.1
+            if (technologyBase(tok) === wantBase) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function normalizeLabel(s) {
         return String(s || "")
             .toLowerCase()
@@ -187,6 +236,7 @@
             url.searchParams.delete("category");
             url.searchParams.delete("status");
             url.searchParams.delete("webserver");
+            url.searchParams.delete("tech");
             var qs = url.searchParams.toString();
             return url.pathname + (qs ? "?" + qs : "") + url.hash;
         } catch (err) {
@@ -345,6 +395,26 @@
         }
     }
 
+    function applyTechFilter(tech) {
+        var want = String(tech || "").trim();
+        var result = filterRows(function (row) {
+            return rowHasTechnology(row, want);
+        });
+        var banner = ensureBanner(result.publicFrame);
+        banner.innerHTML =
+            "Showing <strong>" +
+            result.shown +
+            "</strong> subdomain" +
+            (result.shown === 1 ? "" : "s") +
+            " with technology " +
+            '<span class="inc-filter-applied"></span> ' +
+            filterNavHtml();
+        var applied = banner.querySelector(".inc-filter-applied");
+        if (applied) {
+            applied.textContent = want;
+        }
+    }
+
     function applyCveFilter(cve, softwares) {
         var result = filterRows(function (row) {
             return softwares.length ? rowHasAnySoftware(row, softwares) : false;
@@ -479,6 +549,7 @@
         var category = queryCategory();
         var status = queryStatus();
         var webserver = queryWebserver();
+        var tech = queryTech();
 
         if (software) {
             applySoftwareFilter(software);
@@ -494,6 +565,10 @@
         }
         if (webserver) {
             applyWebserverFilter(webserver);
+            return;
+        }
+        if (tech) {
+            applyTechFilter(tech);
             return;
         }
         if (!cve) {
