@@ -809,6 +809,7 @@ Main menu option **18** (`misc/update.sh`).
 * Updates the operating system, git pull from various repos, and update the locate database
 * Installs tools used by recon and dev scanners (for example `ffuf`, `nuclei`, `droopescan`, `wpscan`, `feroxbuster`, `jq`, `trivy`, ProjectDiscovery stack)
 * Installs **Nikto** from [sullo/nikto](https://github.com/sullo/nikto) under `/opt/nikto` (wrapper `/usr/local/bin/nikto`); removes the stale apt `2.1.5` package when present
+* Updates **Metasploit** via `snap refresh metasploit-framework` when already installed (installs the snap if missing; snap MSF does not use `msfupdate`)
 * Installs **WPScan** via RubyGems (`gem install wpscan`) for WordPress host scans; refreshes the local WPScan DB with `wpscan --update`
 * Patches **droopescan** for modern Python (3.12+) via `misc/patch-droopescan-py314.sh` after pipx install (cement `imp` + setuptools/`distutils`)
 * Registers desktop handlers: `discover-scan:`, `discover-cve:`, `discover-ffuf:` (open ffuf finding URLs in Firefox)

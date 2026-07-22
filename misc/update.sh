@@ -768,7 +768,24 @@ else
     echo
 fi
 
-if ! command -v msfconsole &> /dev/null; then
+# Metasploit (snap). Alphabetical: after MAN-SPIDER, before Nikto.
+# Snap installs do not support msfupdate — use snap refresh.
+if command -v msfconsole >/dev/null 2>&1 \
+    || snap list metasploit-framework >/dev/null 2>&1; then
+    echo -e "${BLUE}Updating Metasploit.${NC}"
+    _msf_out=$(snap refresh metasploit-framework 2>&1) || true
+    if echo "$_msf_out" | grep -qiE 'is up to date|already|no updates|no revisions|has no updates'; then
+        echo "Already up to date."
+    elif echo "$_msf_out" | grep -qiE 'access denied|error:'; then
+        echo "$_msf_out" | head -3
+    elif [ -n "$_msf_out" ]; then
+        echo "$_msf_out" | grep -viE '^$' | head -8 || echo "Updated."
+    else
+        echo "Already up to date."
+    fi
+    unset _msf_out
+    echo
+else
     echo -e "${YELLOW}Installing Metasploit.${NC}"
     snap install metasploit-framework
     echo
