@@ -676,7 +676,27 @@ def format_count(value):
     return f"{value:,}"
 
 
-def summary_table(title, label_header, rows, sort_last_labels=None, section_class=""):
+def category_label_html(label):
+    """Link Alive-by-category labels to filtered Subdomains (?category=)."""
+    label_text = str(label)
+    escaped = html.escape(label_text)
+    href = f"subdomains.htm?category={quote(label_text, safe='')}"
+    return (
+        f'<a class="inc-category-subdomains-link" '
+        f'href="{html.escape(href, quote=True)}" '
+        f'title="Show subdomains in this category">'
+        f"{escaped}</a>"
+    )
+
+
+def summary_table(
+    title,
+    label_header,
+    rows,
+    sort_last_labels=None,
+    section_class="",
+    label_html_fn=None,
+):
     sort_last_labels = set(sort_last_labels or [])
     class_names = "inc-active-section"
     if section_class:
@@ -697,9 +717,13 @@ def summary_table(title, label_header, rows, sort_last_labels=None, section_clas
 
     for label, count in rows:
         sort_last_attr = ' data-sort-last' if label in sort_last_labels else ""
+        if label_html_fn is not None:
+            label_cell = label_html_fn(label)
+        else:
+            label_cell = html.escape(label)
         lines.append(
             "                <tr>"
-            f"<td{sort_last_attr}>{html.escape(label)}</td>"
+            f"<td{sort_last_attr}>{label_cell}</td>"
             f'<td class="inc-col-center">{format_count(count)}</td>'
             "</tr>"
         )
@@ -1062,6 +1086,7 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                         counter_rows(category_counter),
                         sort_last_labels={"(none)"},
                         section_class="inc-active-section--categories",
+                        label_html_fn=category_label_html,
                     ),
                 ],
                 [

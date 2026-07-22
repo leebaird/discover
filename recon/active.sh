@@ -516,7 +516,7 @@ out.extend(
         "",
         '<script src="../assets/javascript/inc-data-table.js"></script>',
         '<script src="../tools/cve-software-index.js"></script>',
-        '<script src="../assets/javascript/inc-subdomains-filter.js?v=6"></script>',
+        '<script src="../assets/javascript/inc-subdomains-filter.js?v=7"></script>',
         '<script src="../tools/shodan/index.js"></script>',
         '<script src="../tools/shodan/kev-ids.js"></script>',
         '<script src="../assets/javascript/inc-shodan.js?v=14"></script>',

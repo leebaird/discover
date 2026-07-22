@@ -2,6 +2,10 @@
 
 Conventions agreed with the operator for Discover development. **Read and follow this file.** When we discuss and agree on a durable rule (layout, install order, Update UX, host-scan gating, etc.), **add or update it here** in the same change set when practical—do not leave it only in chat history.
 
+## Git commits
+
+- **Only commit when the operator explicitly asks** (e.g. “do a commit”). Do not commit proactively after finishing a feature or when they only ask whether a commit is needed.
+
 ## Report UI layout (CSS)
 
 When designing or tweaking **report page layouts** (especially Audit and other `modern.css` tables/containers):

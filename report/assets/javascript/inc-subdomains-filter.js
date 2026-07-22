@@ -2,12 +2,14 @@
  * Planning by Lee Baird (@discoverscripts)
  * Coded by Grok (xAI)
  *
- * Filter the public Subdomains table by software version or CVE.
- * Active Software versions links: subdomains.htm?software=Apache:2.4.37
- * Active CVE search:              subdomains.htm?cve=CVE-2024-38475
+ * Filter the public Subdomains table by software version, CVE, or category.
+ * Active Software versions:  subdomains.htm?software=Apache:2.4.37
+ * Active CVE search:         subdomains.htm?cve=CVE-2024-38475
+ * Active Alive by category:  subdomains.htm?category=Dev  (or category=(none))
  *
  * CVE mode resolves software labels via tools/cve-software-index.js
  * (or software-cves-cache.json) then matches tech tokens like software=.
+ * Category matches the Category column on public Subdomains rows.
  */
 (function () {
     function queryParam(name) {
@@ -20,6 +22,19 @@
 
     function querySoftware() {
         return queryParam("software");
+    }
+
+    function queryCategory() {
+        // Preserve intentional empty via (none) from Active category table.
+        try {
+            var params = new URLSearchParams(window.location.search || "");
+            if (!params.has("category")) {
+                return null;
+            }
+            return (params.get("category") || "").trim();
+        } catch (err) {
+            return null;
+        }
     }
 
     function queryCve() {
@@ -50,6 +65,14 @@
         return raw.split(",").map(function (part) {
             return part.trim();
         }).filter(Boolean);
+    }
+
+    /** Category cell is column index 1 (Subdomain, Category, IP, …). */
+    function rowCategory(row) {
+        if (!row || !row.cells || row.cells.length < 2) {
+            return "";
+        }
+        return (row.cells[1].textContent || "").trim();
     }
 
     function normalizeLabel(s) {
@@ -88,6 +111,7 @@
             var url = new URL(window.location.href);
             url.searchParams.delete("software");
             url.searchParams.delete("cve");
+            url.searchParams.delete("category");
             var qs = url.searchParams.toString();
             return url.pathname + (qs ? "?" + qs : "") + url.hash;
         } catch (err) {
@@ -169,6 +193,34 @@
         var applied = banner.querySelector(".inc-filter-applied");
         if (applied) {
             applied.textContent = software;
+        }
+    }
+
+    function applyCategoryFilter(category) {
+        // Active table uses "(none)" for empty category cells.
+        var want = category === "(none)" ? "" : category;
+        var result = filterRows(function (row) {
+            var cat = rowCategory(row);
+            if (want === "") {
+                return !cat;
+            }
+            return cat === want;
+        });
+        var banner = ensureBanner(result.publicFrame);
+        var display = category === "" ? "(none)" : category;
+        banner.innerHTML =
+            "Showing <strong>" +
+            result.shown +
+            "</strong> subdomain" +
+            (result.shown === 1 ? "" : "s") +
+            " in category " +
+            '<span class="inc-filter-applied"></span> ' +
+            '<a class="inc-filter-clear" href="' +
+            clearUrl() +
+            '">Clear filter</a>';
+        var applied = banner.querySelector(".inc-filter-applied");
+        if (applied) {
+            applied.textContent = display;
         }
     }
 
@@ -304,9 +356,14 @@
     function init() {
         var software = querySoftware();
         var cve = queryCve();
+        var category = queryCategory();
 
         if (software) {
             applySoftwareFilter(software);
+            return;
+        }
+        if (category !== null) {
+            applyCategoryFilter(category);
             return;
         }
         if (!cve) {
