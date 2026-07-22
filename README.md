@@ -190,7 +190,7 @@ Typical domain engagement path:
 2. **Import names** / **Import names, titles, and emails** / **Import subdomains** — enrich contacts and hosts.
 3. **Active** — httpx / whatweb / gowitness; Active and Subdomains pages; optional NVD CVSS.
 4. **Enrich with Shodan** (optional) — host-by-IP OSINT for public IPs from Active httpx.
-5. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, Nikto, ffuf) in operator mode.
+5. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, WPScan when WordPress, Nikto, ffuf) in operator mode.
 6. **Import report** — reopen the live tree later for more testing (operator mode).
 7. **Export report** — Client, Defender, or Audit-only package for delivery.
 8. **Reports → Audit** in the HTML report — Target scans, Audit log, and Exports.
@@ -324,6 +324,7 @@ In **operator** mode (live tree opened via **Import report**), expandable rows s
 |------|------|------------|
 | **Nuclei** | Template recon (software tags) then auto **Pass 2** CVE/KEV templates from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | Always on filtered expand |
 | **droopescan** | CMS enum (`scan drupal` / `wordpress` / …; `-e a -t 4`) | **Gated:** only when the software filter is a supported CMS (Drupal, WordPress, Joomla, Moodle, Silverstripe — including version labels like `Drupal:7`) |
+| **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** only when the software filter is WordPress (`WordPress`, `wp`, `WordPress:6.x`, …). Optional `WPSCAN_API_TOKEN` for vuln DB |
 | **Nikto** | Web server checks; report **TXT** + **HTM** when present | Always on filtered expand |
 | **ffuf** | Content discovery (quiet defaults); report **TXT** + **URL** (open each finding in Firefox) | Always on filtered expand |
 
@@ -556,7 +557,7 @@ Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit
 
 | Section | Content |
 |---------|---------|
-| **Target scans** | Per-host history for **Nuclei**, **droopescan**, **Nikto**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
+| **Target scans** | Per-host history for **Nuclei**, **droopescan**, **WPScan**, **Nikto**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
 | **Audit log** | Newest-first by default; **Time (UTC)**, **Operator IP**, **Action**, **Output**. Hides routine noise (report open, nuclei pass-2 start/finish). Strips successful `(exit 0)` from display |
 | **Exports** | Label, kind (Client / Defender / Audit only), exported time (UTC), operator IPs (Included / Redacted), file name |
 
@@ -806,8 +807,9 @@ Opens Discover’s notes HTML (`notes/index.htm`) in a browser when available.
 Main menu option **18** (`misc/update.sh`).
 
 * Updates the operating system, git pull from various repos, and update the locate database
-* Installs tools used by recon and dev scanners (for example `ffuf`, `nuclei`, `droopescan`, `feroxbuster`, `jq`, `trivy`, ProjectDiscovery stack)
+* Installs tools used by recon and dev scanners (for example `ffuf`, `nuclei`, `droopescan`, `wpscan`, `feroxbuster`, `jq`, `trivy`, ProjectDiscovery stack)
 * Installs **Nikto** from [sullo/nikto](https://github.com/sullo/nikto) under `/opt/nikto` (wrapper `/usr/local/bin/nikto`); removes the stale apt `2.1.5` package when present
+* Installs **WPScan** via RubyGems (`gem install wpscan`) for WordPress host scans; refreshes the local WPScan DB with `wpscan --update`
 * Patches **droopescan** for modern Python (3.12+) via `misc/patch-droopescan-py314.sh` after pipx install (cement `imp` + setuptools/`distutils`)
 * Registers desktop handlers: `discover-scan:`, `discover-cve:`, `discover-ffuf:` (open ffuf finding URLs in Firefox)
 * Refreshes the default scanner User-Agent (Microsoft Edge) in `resource/user-agent.txt` for Nikto, Nmap, ffuf, Active, and related tools

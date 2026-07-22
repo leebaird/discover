@@ -882,10 +882,10 @@ tr.inc-subdomains-filter-hide {
     table-layout: auto;
 }
 
-/* Target scans columns (px). Target + Nuclei + droopescan + Nikto + ffuf.
+/* Target scans columns (px). Target + Nuclei + droopescan + WPScan + Nikto + ffuf.
  * Full width matches Audit log table below (same frame).
  * Target = Time (170) + Operator IP (140) = 310.
- * Nuclei / Nikto / ffuf stay tight; droopescan absorbs leftover width. */
+ * Tool columns share remaining width with a content floor. */
 .inc-audit-page .inc-audit-frame-wide table.inc-data-table.inc-audit-host-scans,
 .inc-audit-page table.inc-audit-host-scans {
     width: 100%;
@@ -903,24 +903,11 @@ tr.inc-subdomains-filter-hide {
     box-sizing: border-box;
 }
 
-/* Nuclei (2), Nikto (4), ffuf (5): content floors only */
-.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(2),
-.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(2),
-.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(4),
-.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(4),
-.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(5),
-.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(5) {
+/* Nuclei (2), droopescan (3), WPScan (4), Nikto (5), ffuf (6) */
+.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(n+2),
+.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(n+2) {
     width: 1%;
-    min-width: 280px;
-    white-space: nowrap;
-    box-sizing: border-box;
-}
-
-/* droopescan (3): a bit wider floor; takes remaining table width */
-.inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(3),
-.inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(3) {
-    width: 99%;
-    min-width: 320px;
+    min-width: 240px;
     white-space: nowrap;
     box-sizing: border-box;
 }

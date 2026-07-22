@@ -520,7 +520,7 @@ out.extend(
         '<script src="../tools/shodan/index.js"></script>',
         '<script src="../tools/shodan/kev-ids.js"></script>',
         '<script src="../assets/javascript/inc-shodan.js?v=14"></script>',
-        '<script src="../assets/javascript/inc-host-scan.js?v=6"></script>',
+        '<script src="../assets/javascript/inc-host-scan.js?v=7"></script>',
         "</body>",
         "</html>",
     ]

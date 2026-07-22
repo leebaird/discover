@@ -7,12 +7,13 @@
 # Invoked via discover-scan: scheme or CLI:
 #   run-host-scan.sh <tool> <url> [software] [report_root]
 #
-# Tools: nuclei | droopescan | nikto | ffuf  (quietest → loudest)
+# Tools: nuclei | droopescan | wpscan | nikto | ffuf  (quietest → loudest)
 # - Visible terminal (desktop entry uses Terminal=true)
 # - One scan at a time (engagement lock)
-# - Software-aware nuclei/ffuf/droopescan profiles
+# - Software-aware nuclei/ffuf/droopescan/wpscan profiles
 # - Nuclei is two-pass auto: (1) software tags recon, (2) CVE/KEV IDs
 # - droopescan only when software is a supported CMS (Drupal, WP, …)
+# - wpscan only when software is WordPress
 
 set -euo pipefail
 
@@ -32,7 +33,7 @@ f_die(){
     exit 1
 }
 
-[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|droopescan)$ ]] || f_die "Tool must be nuclei, droopescan, nikto, or ffuf."
+[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|droopescan|wpscan)$ ]] || f_die "Tool must be nuclei, droopescan, wpscan, nikto, or ffuf."
 [ -n "$URL" ] || f_die "URL is required."
 
 # Resolve report root
@@ -474,6 +475,19 @@ f_droopescan_cms(){
         moodle) printf '%s' "moodle" ;;
         silverstripe|ss) printf '%s' "silverstripe" ;;
         *) printf '%s' "" ;;
+    esac
+}
+
+# True when software filter is WordPress (for wpscan gating).
+f_is_wordpress(){
+    local soft_lc base
+    soft_lc=$(printf '%s' "${SOFTWARE:-}" | tr '[:upper:]' '[:lower:]')
+    soft_lc="${soft_lc%%[*}"
+    base="${soft_lc%%:*}"
+    base="${base// /}"
+    case "$base" in
+        wordpress|wp) return 0 ;;
+        *) return 1 ;;
     esac
 }
 
@@ -927,6 +941,57 @@ PY
         {
             echo
             echo "Output: $DROOP_OUT"
+            echo
+        } >> "$OUT_FILE"
+        ;;
+    wpscan)
+        f_is_wordpress || f_die "wpscan requires WordPress software filter. Got: ${SOFTWARE:-none}"
+        command -v wpscan >/dev/null 2>&1 || f_die "wpscan is not installed. Run Discover Update (gem install wpscan)."
+        WPSCAN_OUT="$RUN_DIR/wpscan.txt"
+        # Quiet-ish Red Team defaults: passive plugin detection + moderate enum.
+        # Optional free API token: export WPSCAN_API_TOKEN=… (vuln DB lookups).
+        WPSCAN_CMD="wpscan --url $(f_shell_quote "$URL") --random-user-agent --user-agent $(f_shell_quote "$UA") --disable-tls-checks --plugins-detection passive --enumerate vp,vt,tt,cb,dbe,u --format cli-no-colour --no-banner"
+        if [ -n "${WPSCAN_API_TOKEN:-}" ]; then
+            WPSCAN_CMD+=" --api-token $(f_shell_quote "$WPSCAN_API_TOKEN")"
+        fi
+        f_write_run_header "$WPSCAN_CMD"
+        {
+            echo "Software: ${SOFTWARE:-—}"
+            if [ -n "${WPSCAN_API_TOKEN:-}" ]; then
+                echo "API token: set (WPSCAN_API_TOKEN)"
+            else
+                echo "API token: not set (optional — free token improves vuln matching)"
+            fi
+            echo
+        } >> "$OUT_FILE"
+        echo "[*] wpscan on $URL"
+        set +e
+        if [ -n "${WPSCAN_API_TOKEN:-}" ]; then
+            wpscan --url "$URL" \
+                --random-user-agent --user-agent "$UA" \
+                --disable-tls-checks \
+                --plugins-detection passive \
+                --enumerate vp,vt,tt,cb,dbe,u \
+                --format cli-no-colour --no-banner \
+                --api-token "$WPSCAN_API_TOKEN" \
+                2>&1 | tee "$WPSCAN_OUT" | tee -a "$OUT_FILE"
+        else
+            wpscan --url "$URL" \
+                --random-user-agent --user-agent "$UA" \
+                --disable-tls-checks \
+                --plugins-detection passive \
+                --enumerate vp,vt,tt,cb,dbe,u \
+                --format cli-no-colour --no-banner \
+                2>&1 | tee "$WPSCAN_OUT" | tee -a "$OUT_FILE"
+        fi
+        EXIT_CODE=${PIPESTATUS[0]}
+        set -e
+        if [ ! -s "$WPSCAN_OUT" ]; then
+            printf '%s\n' "No wpscan output captured." > "$WPSCAN_OUT"
+        fi
+        {
+            echo
+            echo "Output: $WPSCAN_OUT"
             echo
         } >> "$OUT_FILE"
         ;;

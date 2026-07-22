@@ -6,10 +6,11 @@
  * Operator only (report-mode launches true + Discover session).
  * One tool at a time; live status via 127.0.0.1 statusd when available.
  * droopescan is gated: only when software is a supported CMS.
+ * wpscan is gated: only when software is WordPress.
  */
 (function () {
     /** Host-scan expand panel logic. */
-    // Base tools quietest → loudest (droopescan inserted when CMS filter matches).
+    // Base tools quietest → loudest (CMS tools inserted when filters match).
     var TOOLS_BASE = ["nuclei", "nikto", "ffuf"];
     // droopescan CMS label → plugin name (must match run-host-scan.sh).
     var DROOPESCAN_CMS = {
@@ -40,24 +41,41 @@
         }
     }
 
-    /** Map software filter (e.g. Drupal:7) → droopescan CMS or null. */
-    function droopescanCms(software) {
+    /** Normalize software filter to product base (e.g. Drupal:7 → drupal). */
+    function softwareBase(software) {
         var s = (software || "").toLowerCase().trim();
         if (!s) {
-            return null;
+            return "";
         }
         s = s.split("[")[0];
         s = s.split(":")[0];
         s = s.replace(/\s+/g, "");
-        return DROOPESCAN_CMS[s] || null;
+        return s;
     }
 
-    /** Tools for this expand panel (includes droopescan when gated CMS). */
+    /** Map software filter (e.g. Drupal:7) → droopescan CMS or null. */
+    function droopescanCms(software) {
+        var s = softwareBase(software);
+        return s ? DROOPESCAN_CMS[s] || null : null;
+    }
+
+    /** True when software filter is WordPress (for wpscan). */
+    function isWordpress(software) {
+        var s = softwareBase(software);
+        return s === "wordpress" || s === "wp";
+    }
+
+    /** Tools for this expand panel (CMS tools when gated). */
     function toolsForSoftware(software) {
+        var tools = ["nuclei"];
         if (droopescanCms(software)) {
-            return ["nuclei", "droopescan", "nikto", "ffuf"];
+            tools.push("droopescan");
         }
-        return TOOLS_BASE.slice();
+        if (isWordpress(software)) {
+            tools.push("wpscan");
+        }
+        tools.push("nikto", "ffuf");
+        return tools;
     }
 
     function reportMode() {
@@ -276,7 +294,7 @@
             html += '<div class="inc-host-scan-tool-head">';
             html +=
                 '<span class="inc-host-scan-tool-name">' +
-                (tool === "droopescan" ? "droopescan" : tool) +
+                (tool === "droopescan" ? "droopescan" : tool === "wpscan" ? "wpscan" : tool) +
                 "</span>";
             html += launchHtml;
             html += "</div>";
@@ -409,7 +427,7 @@
         var software = querySoftware();
         var cve = queryCve();
         // Enable host-scan UI for software filter or CVE filter (same filtered layout).
-        // CVE mode has no single CMS label → base tools only (no droopescan).
+        // CVE mode has no single CMS label → base tools only (no droopescan/wpscan).
         if (!software && !cve) {
             return;
         }

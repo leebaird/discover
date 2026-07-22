@@ -1255,6 +1255,62 @@ else
     echo
 fi
 
+# WPScan — WordPress security scanner (Ruby gem). Alphabetical: after Windows…, before xdotool.
+# https://github.com/wpscanteam/wpscan
+f_install_wpscan(){
+    local pkg missing=()
+    local out
+
+    # Build deps for native gem extensions (nokogiri, etc.)
+    for pkg in ruby ruby-dev build-essential libcurl4-openssl-dev libxml2-dev libxslt1-dev zlib1g-dev; do
+        if ! dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q 'install ok installed'; then
+            missing+=("$pkg")
+        fi
+    done
+    if [ "${#missing[@]}" -gt 0 ]; then
+        echo -e "${YELLOW}Installing WPScan build deps: ${missing[*]}${NC}"
+        apt install -y "${missing[@]}" || true
+        echo
+    fi
+
+    if ! command -v gem >/dev/null 2>&1; then
+        echo -e "${YELLOW}gem not available; skipping WPScan install.${NC}"
+        echo
+        return 0
+    fi
+
+    if command -v wpscan >/dev/null 2>&1; then
+        echo -e "${BLUE}Updating wpscan.${NC}"
+        out=$(gem update wpscan 2>&1) || true
+        if echo "$out" | grep -qiE 'Nothing to update|already|up to date|latest|Gems already up-to-date'; then
+            echo "Already up to date."
+        elif echo "$out" | grep -qiE 'Successfully installed|Updating|updated|Fetching'; then
+            echo "$out" | grep -iE 'Successfully installed|Updating|updated|Fetching' | head -5 \
+                || echo "Updated."
+        else
+            echo "Already up to date."
+        fi
+    else
+        echo -e "${YELLOW}Installing wpscan.${NC}"
+        # -n /usr/local/bin so the binary is on PATH without gem env setup
+        if ! gem install -n /usr/local/bin wpscan; then
+            gem install wpscan || {
+                echo -e "${YELLOW}WPScan gem install failed.${NC}"
+                echo
+                return 0
+            }
+        fi
+    fi
+
+    # Local DB refresh (quiet when already current)
+    if command -v wpscan >/dev/null 2>&1; then
+        wpscan --update >/dev/null 2>&1 || true
+    fi
+    echo
+}
+f_install_wpscan
+unset -f f_install_wpscan
+
 if ! command -v xdotool >/dev/null 2>&1; then
     echo -e "${YELLOW}Installing xdotool.${NC}"
     apt install -y xdotool
@@ -1472,7 +1528,7 @@ f_install_discover_scan_handler(){
 Version=1.0
 Type=Application
 Name=Discover Host Scan
-Comment=Run nuclei/droopescan/nikto/ffuf from Discover reports (operator)
+Comment=Run nuclei/droopescan/wpscan/nikto/ffuf from Discover reports (operator)
 Exec=$opener %u
 Terminal=true
 Categories=Network;Security;

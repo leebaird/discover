@@ -18,11 +18,12 @@ LINE_RE = re.compile(
 )
 
 # Host-scan tools: storage key → display label (quietest → loudest).
-# droopescan is gated on the Subdomains panel (CMS filters only) but always
-# appears as a Target scans column so prior runs remain visible.
+# droopescan / wpscan are gated on the Subdomains panel (CMS / WordPress)
+# but always appear as Target scans columns so prior runs remain visible.
 HOST_SCAN_TOOLS: list[tuple[str, str]] = [
     ("nuclei", "Nuclei"),
     ("droopescan", "droopescan"),
+    ("wpscan", "WPScan"),
     ("nikto", "Nikto"),
     ("ffuf", "ffuf"),
 ]
@@ -210,7 +211,7 @@ def _pages_href(path_from_report_root: str) -> str:
 # Audit log Action → host-scan tool / pass-2 / URL (for Output column links).
 _AUDIT_SCAN_ACTION_RE = re.compile(
     r"(?i)\b(?P<verb>started|finished)\s+"
-    r"(?P<tool>nuclei\s+pass-2|droopescan|ffuf|nikto|nuclei)\b"
+    r"(?P<tool>nuclei\s+pass-2|droopescan|wpscan|ffuf|nikto|nuclei)\b"
     r".*?\bon\s+(?P<url>https?://[^\s)(]+)"
 )
 
@@ -249,7 +250,7 @@ def audit_output_cell(
 
     is_pass2 = tool_raw.startswith("nuclei pass-2") or tool_raw == "nuclei pass-2"
     tool = "nuclei" if is_pass2 or tool_raw == "nuclei" else tool_raw
-    if tool not in {"ffuf", "nikto", "nuclei", "droopescan"}:
+    if tool not in {"ffuf", "nikto", "nuclei", "droopescan", "wpscan"}:
         return '<span class="inc-audit-muted">—</span>'
 
     meta = (scan_index.get(host) or {}).get(tool) or {}
