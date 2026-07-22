@@ -318,15 +318,15 @@ HTML **Reports** menu: **Passive** (`pages/passive.htm`), **Active** (`pages/act
 
 On Active **Software versions**, versions that have NVD CVEs are linked to a filtered Subdomains view (`subdomains.htm?software=…`). The Active page header also has a centered **CVE search** bar: enter `CVE-YYYY-NNNNN` (or `YYYY-NNNNN`) to open Subdomains filtered to hosts running software linked to that CVE in the engagement NVD cache (`tools/cve-software-index.js`). Same filter banner / host-scan layout as software links (`subdomains.htm?cve=…`).
 
-In **operator** mode (live tree opened via **Import report**), expandable rows show host-scan **boxes** (quietest → loudest):
+In **operator** mode (live tree opened via **Import report**), Subdomains public rows with an HTTP status get a host-scan expand control (also on `?software=` / `?cve=` filtered views). Expandable rows show host-scan **boxes** (quietest → loudest):
 
 | Tool | Role | When shown |
 |------|------|------------|
-| **Nuclei** | Template recon (software tags) then auto **Pass 2** CVE/KEV templates from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | Always on filtered expand |
-| **droopescan** | CMS enum (`scan drupal` / `wordpress` / …; `-e a -t 4`) | **Gated:** only when the software filter is a supported CMS (Drupal, WordPress, Joomla, Moodle, Silverstripe — including version labels like `Drupal:7`) |
-| **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** only when the software filter is WordPress (`WordPress`, `wp`, `WordPress:6.x`, …). Optional `WPSCAN_API_TOKEN` for vuln DB |
-| **Nikto** | Web server checks; report **TXT** + **HTM** when present | Always on filtered expand |
-| **ffuf** | Content discovery (quiet defaults); report **TXT** + **URL** (open each finding in Firefox) | Always on filtered expand |
+| **Nuclei** | Template recon (software tags) then auto **Pass 2** CVE/KEV templates from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | Always on expand |
+| **droopescan** | CMS enum (`scan drupal` / `wordpress` / …; `-e a -t 4`) | **Gated:** supported CMS from `?software=` filter **or** row Title/Technologies fingerprint (Drupal, WordPress, Joomla, Moodle, Silverstripe) |
+| **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** WordPress from `?software=` **or** row tech/title (e.g. tech list contains WordPress). Optional `WPSCAN_API_TOKEN` for vuln DB |
+| **Nikto** | Web server checks; report **TXT** + **HTM** when present | Always on expand |
+| **ffuf** | Content discovery (quiet defaults); report **TXT** + **URL** (open each finding in Firefox) | Always on expand |
 
 Each box shows the tool name and a blue **Run** button on one line, plus last-run time and green output buttons (**TXT** / **HTM** / **URL** as applicable).
 

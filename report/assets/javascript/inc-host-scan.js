@@ -2,15 +2,14 @@
  * Planning by Lee Baird (@discoverscripts)
  * Coded by Grok (xAI)
  *
- * Software-filtered Subdomains: expand host row → launch host-scan tools.
- * Operator only (report-mode launches true + Discover session).
+ * Subdomains expand host row → launch host-scan tools (operator mode).
+ * Enabled on the full public Subdomains table and on ?software= / ?cve= filters.
  * One tool at a time; live status via 127.0.0.1 statusd when available.
- * droopescan is gated: only when software is a supported CMS.
- * wpscan is gated: only when software is WordPress.
+ * droopescan / wpscan gate on software query when present, else row tech/title.
  */
 (function () {
     /** Host-scan expand panel logic. */
-    // Base tools quietest → loudest (CMS tools inserted when filters match).
+    // Base tools quietest → loudest (CMS tools inserted when software matches).
     var TOOLS_BASE = ["nuclei", "nikto", "ffuf"];
     // droopescan CMS label → plugin name (must match run-host-scan.sh).
     var DROOPESCAN_CMS = {
@@ -65,7 +64,47 @@
         return s === "wordpress" || s === "wp";
     }
 
-    /** Tools for this expand panel (CMS tools when gated). */
+    /**
+     * Infer software label from Subdomains row tech/title (unfiltered page).
+     * Prefer explicit product names so run-host-scan CMS gates still work.
+     */
+    function softwareFromRow(row) {
+        if (!row) {
+            return "";
+        }
+        var techEl = row.querySelector(".inc-subdomain-techs");
+        var titleEl = row.querySelector(".inc-subdomain-title");
+        var tech =
+            (techEl && (techEl.getAttribute("title") || techEl.textContent || "")) || "";
+        var title = (titleEl && titleEl.textContent) || "";
+        var blob = (tech + " " + title).toLowerCase();
+        if (/\bwordpress\b/.test(blob) || /wp-login/.test(blob) || /— wordpress/.test(blob)) {
+            return "WordPress";
+        }
+        if (/\bdrupal\b/.test(blob)) {
+            return "Drupal";
+        }
+        if (/\bjoomla\b/.test(blob)) {
+            return "Joomla";
+        }
+        if (/\bmoodle\b/.test(blob)) {
+            return "Moodle";
+        }
+        if (/\bsilverstripe\b/.test(blob)) {
+            return "Silverstripe";
+        }
+        return "";
+    }
+
+    /** Query software wins; else fingerprint from the host row. */
+    function resolveSoftware(querySoftware, row) {
+        if (querySoftware) {
+            return querySoftware;
+        }
+        return softwareFromRow(row);
+    }
+
+    /** Tools for this expand panel (CMS tools when software matches). */
     function toolsForSoftware(software) {
         var tools = ["nuclei"];
         if (droopescanCms(software)) {
@@ -371,12 +410,14 @@
                     var mode = pair[0];
                     var status = pair[1];
                     var allow = canLaunch && launchesAllowed(mode);
+                    // Per-row software: query filter when set, else tech/title fingerprint.
+                    var rowSoftware = resolveSoftware(software, row);
                     if (row.classList.contains("inc-host-scan-open")) {
                         td.textContent = "▸";
                     } else {
                         td.textContent = "▾";
                     }
-                    renderPanel(row, info, software, allow, status);
+                    renderPanel(row, info, rowSoftware, allow, status);
                 });
             });
             row.appendChild(td);
@@ -424,13 +465,8 @@
     }
 
     function init() {
+        // Host-scan expand on full Subdomains and on ?software= / ?cve= filtered views.
         var software = querySoftware();
-        var cve = queryCve();
-        // Enable host-scan UI for software filter or CVE filter (same filtered layout).
-        // CVE mode has no single CMS label → base tools only (no droopescan/wpscan).
-        if (!software && !cve) {
-            return;
-        }
 
         loadMode().then(function (mode) {
             var canLaunch = launchesAllowed(mode);

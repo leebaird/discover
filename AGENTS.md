@@ -18,3 +18,9 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Do **not** group by feature (e.g. “CMS tools together”). Place new tools where the alphabet says, not next to a related tool.
 - Comments already mark some blocks this way (e.g. CISA KEV after chromium, before curl); follow that convention.
 - Same idea for README Update bullet lists when they mirror install order.
+
+## Host-scan expand (Subdomains)
+
+- Host-scan triangles appear on the **full** public Subdomains table (rows with HTTP status), not only `?software=` / `?cve=` filtered views (operator mode + launches enabled).
+- **droopescan** / **wpscan** gate on the `software` query when present; otherwise infer from the row’s Title/Technologies text (e.g. tech list contains `WordPress`).
+- Base tools (`nuclei`, `nikto`, `ffuf`) are always offered on expand. Bust `inc-host-scan.js?v=…` after JS changes and sync via Import when testing live reports.
