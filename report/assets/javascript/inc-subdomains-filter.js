@@ -2,14 +2,15 @@
  * Planning by Lee Baird (@discoverscripts)
  * Coded by Grok (xAI)
  *
- * Filter the public Subdomains table by software version, CVE, or category.
+ * Filter the public Subdomains table by software, CVE, category, or HTTP status.
  * Active Software versions:  subdomains.htm?software=Apache:2.4.37
  * Active CVE search:         subdomains.htm?cve=CVE-2024-38475
  * Active Alive by category:  subdomains.htm?category=Dev  (or category=(none))
+ * Active Status codes:       subdomains.htm?status=200
  *
  * CVE mode resolves software labels via tools/cve-software-index.js
  * (or software-cves-cache.json) then matches tech tokens like software=.
- * Category matches the Category column on public Subdomains rows.
+ * Category matches the Category column; status matches the Status column.
  */
 (function () {
     function queryParam(name) {
@@ -35,6 +36,19 @@
         } catch (err) {
             return null;
         }
+    }
+
+    function queryStatus() {
+        var raw = queryParam("status");
+        if (!raw) {
+            return "";
+        }
+        // Normalize to digits only when possible (e.g. "200" / " 200 ").
+        var s = String(raw).trim();
+        if (/^\d{3}$/.test(s)) {
+            return s;
+        }
+        return s;
     }
 
     function queryCve() {
@@ -75,6 +89,31 @@
         return (row.cells[1].textContent || "").trim();
     }
 
+    /**
+     * HTTP status: prefer column index 4 (Photo=3, Status=4); fall back to any
+     * centered cell that is exactly three digits.
+     */
+    function rowStatus(row) {
+        if (!row || !row.cells) {
+            return "";
+        }
+        if (row.cells.length > 4) {
+            var cell = (row.cells[4].textContent || "").trim();
+            if (/^\d{3}$/.test(cell)) {
+                return cell;
+            }
+        }
+        var i;
+        var tds = row.querySelectorAll("td.inc-col-center");
+        for (i = 0; i < tds.length; i++) {
+            var t = (tds[i].textContent || "").trim();
+            if (/^\d{3}$/.test(t)) {
+                return t;
+            }
+        }
+        return "";
+    }
+
     function normalizeLabel(s) {
         return String(s || "")
             .toLowerCase()
@@ -112,11 +151,22 @@
             url.searchParams.delete("software");
             url.searchParams.delete("cve");
             url.searchParams.delete("category");
+            url.searchParams.delete("status");
             var qs = url.searchParams.toString();
             return url.pathname + (qs ? "?" + qs : "") + url.hash;
         } catch (err) {
             return "subdomains.htm";
         }
+    }
+
+    /** Clear filter (full Subdomains) + Back (Active page). */
+    function filterNavHtml() {
+        return (
+            '<a class="inc-filter-clear" href="' +
+            clearUrl() +
+            '">Clear filter</a>' +
+            ' <a class="inc-filter-back" href="active.htm">Back</a>'
+        );
     }
 
     function hidePrivateTables() {
@@ -187,9 +237,7 @@
             (result.shown === 1 ? "" : "s") +
             " running " +
             '<span class="inc-filter-applied"></span> ' +
-            '<a class="inc-filter-clear" href="' +
-            clearUrl() +
-            '">Clear filter</a>';
+            filterNavHtml();
         var applied = banner.querySelector(".inc-filter-applied");
         if (applied) {
             applied.textContent = software;
@@ -215,12 +263,30 @@
             (result.shown === 1 ? "" : "s") +
             " in category " +
             '<span class="inc-filter-applied"></span> ' +
-            '<a class="inc-filter-clear" href="' +
-            clearUrl() +
-            '">Clear filter</a>';
+            filterNavHtml();
         var applied = banner.querySelector(".inc-filter-applied");
         if (applied) {
             applied.textContent = display;
+        }
+    }
+
+    function applyStatusFilter(status) {
+        var want = String(status || "").trim();
+        var result = filterRows(function (row) {
+            return rowStatus(row) === want;
+        });
+        var banner = ensureBanner(result.publicFrame);
+        banner.innerHTML =
+            "Showing <strong>" +
+            result.shown +
+            "</strong> subdomain" +
+            (result.shown === 1 ? "" : "s") +
+            " with status " +
+            '<span class="inc-filter-applied"></span> ' +
+            filterNavHtml();
+        var applied = banner.querySelector(".inc-filter-applied");
+        if (applied) {
+            applied.textContent = want;
         }
     }
 
@@ -256,9 +322,8 @@
             " for " +
             '<span class="inc-filter-applied"></span>' +
             softHtml +
-            ' <a class="inc-filter-clear" href="' +
-            clearUrl() +
-            '">Clear filter</a>';
+            " " +
+            filterNavHtml();
         var applied = banner.querySelector(".inc-filter-applied");
         if (applied) {
             applied.textContent = cve;
@@ -357,6 +422,7 @@
         var software = querySoftware();
         var cve = queryCve();
         var category = queryCategory();
+        var status = queryStatus();
 
         if (software) {
             applySoftwareFilter(software);
@@ -364,6 +430,10 @@
         }
         if (category !== null) {
             applyCategoryFilter(category);
+            return;
+        }
+        if (status) {
+            applyStatusFilter(status);
             return;
         }
         if (!cve) {

@@ -689,6 +689,19 @@ def category_label_html(label):
     )
 
 
+def status_label_html(label):
+    """Link Status codes to filtered Subdomains (?status=200)."""
+    label_text = str(label).strip()
+    escaped = html.escape(label_text)
+    href = f"subdomains.htm?status={quote(label_text, safe='')}"
+    return (
+        f'<a class="inc-status-subdomains-link" '
+        f'href="{html.escape(href, quote=True)}" '
+        f'title="Show subdomains with this HTTP status">'
+        f"{escaped}</a>"
+    )
+
+
 def summary_table(
     title,
     label_header,
@@ -1077,6 +1090,7 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                         "Status Code",
                         status_rows,
                         section_class="inc-active-section--status",
+                        label_html_fn=status_label_html,
                     ),
                 ],
                 [

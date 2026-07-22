@@ -689,13 +689,15 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 
 /* Software versions → filtered Subdomains list (rows with NVD CVEs only) */
 .inc-active-page .inc-software-subdomains-link,
-.inc-active-page .inc-category-subdomains-link {
+.inc-active-page .inc-category-subdomains-link,
+.inc-active-page .inc-status-subdomains-link {
     color: var(--accent-hover);
     text-decoration: none;
 }
 
 .inc-active-page .inc-software-subdomains-link:hover,
-.inc-active-page .inc-category-subdomains-link:hover {
+.inc-active-page .inc-category-subdomains-link:hover,
+.inc-active-page .inc-status-subdomains-link:hover {
     text-decoration: underline;
 }
 
@@ -766,13 +768,16 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     font-weight: 600;
 }
 
-.inc-subdomains-filter-banner a.inc-filter-clear {
+.inc-subdomains-filter-banner a.inc-filter-clear,
+.inc-subdomains-filter-banner a.inc-filter-back {
     color: #8ab4f8;
     font-weight: 600;
     text-decoration: none;
+    margin-left: 8px;
 }
 
-.inc-subdomains-filter-banner a.inc-filter-clear:hover {
+.inc-subdomains-filter-banner a.inc-filter-clear:hover,
+.inc-subdomains-filter-banner a.inc-filter-back:hover {
     text-decoration: underline;
 }
 
