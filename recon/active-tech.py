@@ -702,6 +702,19 @@ def status_label_html(label):
     )
 
 
+def webserver_label_html(label):
+    """Link Top web servers to filtered Subdomains (?webserver=Apache)."""
+    label_text = str(label).strip()
+    escaped = html.escape(label_text)
+    href = f"subdomains.htm?webserver={quote(label_text, safe='')}"
+    return (
+        f'<a class="inc-webserver-subdomains-link" '
+        f'href="{html.escape(href, quote=True)}" '
+        f'title="Show subdomains with this web server">'
+        f"{escaped}</a>"
+    )
+
+
 def summary_table(
     title,
     label_header,
@@ -1108,6 +1121,8 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                         "Top web servers",
                         "Web Server",
                         counter_rows(webserver_counter, 5),
+                        section_class="inc-active-section--webservers",
+                        label_html_fn=webserver_label_html,
                     ),
                     summary_table(
                         "Top technologies",

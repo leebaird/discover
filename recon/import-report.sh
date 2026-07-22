@@ -218,7 +218,7 @@ changed = False
 
 # Required scripts (idempotent: only insert when key filename is absent).
 need = [
-    ("inc-subdomains-filter.js", '<script src="../assets/javascript/inc-subdomains-filter.js?v=10"></script>'),
+    ("inc-subdomains-filter.js", '<script src="../assets/javascript/inc-subdomains-filter.js?v=12"></script>'),
     ("tools/cve-software-index.js", '<script src="../tools/cve-software-index.js"></script>'),
     ("tools/shodan/index.js", '<script src="../tools/shodan/index.js"></script>'),
     ("tools/shodan/kev-ids.js", '<script src="../tools/shodan/kev-ids.js"></script>'),

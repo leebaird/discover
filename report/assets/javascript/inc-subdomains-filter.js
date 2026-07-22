@@ -2,15 +2,16 @@
  * Planning by Lee Baird (@discoverscripts)
  * Coded by Grok (xAI)
  *
- * Filter the public Subdomains table by software, CVE, category, or HTTP status.
+ * Filter the public Subdomains table by software, CVE, category, status, or web server.
  * Active Software versions:  subdomains.htm?software=Apache:2.4.37
  * Active CVE search:         subdomains.htm?cve=CVE-2024-38475
  * Active Alive by category:  subdomains.htm?category=Dev  (or category=(none))
  * Active Status codes:       subdomains.htm?status=200
+ * Active Top web servers:    subdomains.htm?webserver=Apache
  *
  * CVE mode resolves software labels via tools/cve-software-index.js
  * (or software-cves-cache.json) then matches tech tokens like software=.
- * Category matches the Category column; status matches the Status column.
+ * Category / status / webserver match the corresponding Subdomains columns.
  */
 (function () {
     function queryParam(name) {
@@ -49,6 +50,10 @@
             return s;
         }
         return s;
+    }
+
+    function queryWebserver() {
+        return queryParam("webserver");
     }
 
     function queryCve() {
@@ -114,6 +119,35 @@
         return "";
     }
 
+    /** Match Active webserver_label(): drop parenthetical notes for compare. */
+    function normalizeWebserver(s) {
+        return String(s || "")
+            .replace(/\s*\([^)]*\)/g, "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLowerCase();
+    }
+
+    function rowWebserver(row) {
+        var el = row.querySelector(".inc-subdomain-webserver");
+        if (!el) {
+            return "";
+        }
+        return (el.textContent || "").trim();
+    }
+
+    function rowHasWebserver(row, want) {
+        var raw = rowWebserver(row);
+        var w = String(want || "").trim();
+        if (!w) {
+            return !raw;
+        }
+        if (raw === w) {
+            return true;
+        }
+        return normalizeWebserver(raw) === normalizeWebserver(w);
+    }
+
     function normalizeLabel(s) {
         return String(s || "")
             .toLowerCase()
@@ -152,6 +186,7 @@
             url.searchParams.delete("cve");
             url.searchParams.delete("category");
             url.searchParams.delete("status");
+            url.searchParams.delete("webserver");
             var qs = url.searchParams.toString();
             return url.pathname + (qs ? "?" + qs : "") + url.hash;
         } catch (err) {
@@ -282,6 +317,26 @@
             "</strong> subdomain" +
             (result.shown === 1 ? "" : "s") +
             " with status " +
+            '<span class="inc-filter-applied"></span> ' +
+            filterNavHtml();
+        var applied = banner.querySelector(".inc-filter-applied");
+        if (applied) {
+            applied.textContent = want;
+        }
+    }
+
+    function applyWebserverFilter(webserver) {
+        var want = String(webserver || "").trim();
+        var result = filterRows(function (row) {
+            return rowHasWebserver(row, want);
+        });
+        var banner = ensureBanner(result.publicFrame);
+        banner.innerHTML =
+            "Showing <strong>" +
+            result.shown +
+            "</strong> subdomain" +
+            (result.shown === 1 ? "" : "s") +
+            " with web server " +
             '<span class="inc-filter-applied"></span> ' +
             filterNavHtml();
         var applied = banner.querySelector(".inc-filter-applied");
@@ -423,6 +478,7 @@
         var cve = queryCve();
         var category = queryCategory();
         var status = queryStatus();
+        var webserver = queryWebserver();
 
         if (software) {
             applySoftwareFilter(software);
@@ -434,6 +490,10 @@
         }
         if (status) {
             applyStatusFilter(status);
+            return;
+        }
+        if (webserver) {
+            applyWebserverFilter(webserver);
             return;
         }
         if (!cve) {

@@ -308,7 +308,7 @@ out.extend(
         "</div>",
         "",
         '<script src="../assets/javascript/inc-data-table.js"></script>',
-        '<script src="../assets/javascript/inc-subdomains-filter.js?v=10"></script>',
+        '<script src="../assets/javascript/inc-subdomains-filter.js?v=12"></script>',
         "</body>",
         "</html>",
     ]

@@ -690,14 +690,16 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 /* Software versions → filtered Subdomains list (rows with NVD CVEs only) */
 .inc-active-page .inc-software-subdomains-link,
 .inc-active-page .inc-category-subdomains-link,
-.inc-active-page .inc-status-subdomains-link {
+.inc-active-page .inc-status-subdomains-link,
+.inc-active-page .inc-webserver-subdomains-link {
     color: var(--accent-hover);
     text-decoration: none;
 }
 
 .inc-active-page .inc-software-subdomains-link:hover,
 .inc-active-page .inc-category-subdomains-link:hover,
-.inc-active-page .inc-status-subdomains-link:hover {
+.inc-active-page .inc-status-subdomains-link:hover,
+.inc-active-page .inc-webserver-subdomains-link:hover {
     text-decoration: underline;
 }
 
