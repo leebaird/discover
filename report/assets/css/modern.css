@@ -616,6 +616,47 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     margin-top: calc(var(--space-lg) + 4px);
 }
 
+/*
+ * CMS / Technologies only: frame width matched via JS (px).
+ * Specificity must beat .inc-active-column .inc-data-table { width:auto }.
+ * table-layout:fixed + label column absorbs slack so Count stays shared px.
+ * Do not alter Category or Web Servers layout beyond shared Count width.
+ */
+.inc-active-page .inc-active-section--cms .inc-content-frame--table,
+.inc-active-page .inc-active-section--technologies .inc-content-frame--table {
+    box-sizing: border-box;
+}
+
+.inc-active-page .inc-active-column .inc-active-section--cms .inc-data-table,
+.inc-active-page .inc-active-column .inc-active-section--technologies .inc-data-table {
+    width: 100%;
+    table-layout: fixed;
+    box-sizing: border-box;
+}
+
+/* Label column takes remaining width; Count is pinned below. */
+.inc-active-page .inc-active-column .inc-active-section--cms .inc-content-frame--table table.inc-data-table > thead > tr > th:first-child,
+.inc-active-page .inc-active-column .inc-active-section--cms .inc-content-frame--table table.inc-data-table > tbody > tr > td:first-child,
+.inc-active-page .inc-active-column .inc-active-section--technologies .inc-content-frame--table table.inc-data-table > thead > tr > th:first-child,
+.inc-active-page .inc-active-column .inc-active-section--technologies .inc-content-frame--table table.inc-data-table > tbody > tr > td:first-child {
+    width: auto;
+}
+
+/*
+ * Uniform Count column width for all Active summary tables (px, not rem).
+ * Specificity must beat .inc-active-column … th/td { width: 1% }.
+ * 72px fits "Count" + sort glyph with padding 8px 10px (56px clipped).
+ */
+.inc-active-page .inc-active-column .inc-content-frame--table table.inc-data-table > thead > tr > th.inc-active-count,
+.inc-active-page .inc-active-column .inc-content-frame--table table.inc-data-table > tbody > tr > td.inc-active-count {
+    width: 72px;
+    min-width: 72px;
+    max-width: 72px;
+    box-sizing: border-box;
+    text-align: center;
+    white-space: nowrap;
+}
+
 .inc-active-page .inc-active-section-title {
     color: var(--accent-hover);
     font-size: 15px;

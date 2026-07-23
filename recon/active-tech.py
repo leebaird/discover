@@ -761,7 +761,7 @@ def summary_table(
         "            <thead>",
         "                <tr>",
         f'                    <th scope="col" class="inc-sortable">{html.escape(label_header)}</th>',
-        '                    <th scope="col" class="inc-sortable inc-col-center">Count</th>',
+        '                    <th scope="col" class="inc-sortable inc-col-center inc-active-count">Count</th>',
         "                </tr>",
         "            </thead>",
         "            <tbody>",
@@ -776,7 +776,7 @@ def summary_table(
         lines.append(
             "                <tr>"
             f"<td{sort_last_attr}>{label_cell}</td>"
-            f'<td class="inc-col-center">{format_count(count)}</td>'
+            f'<td class="inc-col-center inc-active-count">{format_count(count)}</td>'
             "</tr>"
         )
 
@@ -875,7 +875,7 @@ def software_versions_table(rows, section_class="inc-active-section--software-ve
         "            <thead>",
         "                <tr>",
         '                    <th scope="col" class="inc-sortable">Software</th>',
-        '                    <th scope="col" class="inc-sortable inc-col-center">Count</th>',
+        '                    <th scope="col" class="inc-sortable inc-col-center inc-active-count">Count</th>',
         '                    <th scope="col" class="inc-sortable inc-col-center">CVSS</th>',
         '                    <th scope="col" class="inc-sortable inc-col-center">CVEs</th>',
         '                    <th scope="col" class="inc-sortable">Top CVE</th>',
@@ -895,7 +895,7 @@ def software_versions_table(rows, section_class="inc-active-section--software-ve
         lines.append(
             "                <tr>"
             f"<td>{label_cell}</td>"
-            f'<td class="inc-col-center">{format_count(count)}</td>'
+            f'<td class="inc-col-center inc-active-count">{format_count(count)}</td>'
             f'<td class="inc-col-center">{html.escape(str(max_cvss))}</td>'
             f'<td class="inc-col-center">{html.escape(str(cve_count))}</td>'
             f'<td class="inc-subdomain-cve-links">{cve_cell}</td>'
