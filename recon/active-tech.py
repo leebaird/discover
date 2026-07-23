@@ -728,6 +728,19 @@ def technology_label_html(label):
     )
 
 
+def cms_label_html(label):
+    """Link CMS table labels to filtered Subdomains (?tech=WordPress)."""
+    label_text = str(label).strip()
+    escaped = html.escape(label_text)
+    href = f"subdomains.htm?tech={quote(label_text, safe='')}"
+    return (
+        f'<a class="inc-tech-subdomains-link" '
+        f'href="{html.escape(href, quote=True)}" '
+        f'title="Show subdomains with this CMS">'
+        f"{escaped}</a>"
+    )
+
+
 def summary_table(
     title,
     label_header,
@@ -989,6 +1002,37 @@ def technology_label_key(label):
     return label
 
 
+# CMS product bases → display label (aligned with droopescan / wpscan host-scan gates).
+CMS_ALIASES = {
+    "wordpress": "WordPress",
+    "wp": "WordPress",
+    "drupal": "Drupal",
+    "joomla": "Joomla",
+    "moodle": "Moodle",
+    "silverstripe": "Silverstripe",
+    "ss": "Silverstripe",
+}
+
+
+def detect_cms_labels(technologies):
+    """Return set of canonical CMS display names found in a tech string."""
+    found = set()
+    if not technologies:
+        return found
+    for item in str(technologies).split(","):
+        item = item.strip()
+        if not item:
+            continue
+        base = technology_label_key(item).lower().replace(" ", "")
+        # also try full lower key without strip of spaces mid-name
+        base_sp = technology_label_key(item).lower().strip()
+        for key in (base, base_sp, base_sp.replace(" ", "")):
+            if key in CMS_ALIASES:
+                found.add(CMS_ALIASES[key])
+                break
+    return found
+
+
 def is_software_version_label(label):
     """True for versioned product labels useful in the Software versions table."""
     label = (label or "").strip()
@@ -1053,8 +1097,9 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
     webserver_counts = {}
     technology_counts = {}
     software_version_counts = {}
+    cms_counts = {}
 
-    # Category / tech / software: alive public hosts only (screenshot/whatweb scope).
+    # Category / tech / software / CMS: alive public hosts only (screenshot/whatweb scope).
     for host, _ipaddr, category in public_rows:
         host_key = host.lower()
         if host_key not in alive_hosts:
@@ -1079,11 +1124,15 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                     software_version_counts[item] = (
                         software_version_counts.get(item, 0) + 1
                     )
+            # One count per CMS product per host (not per version token).
+            for cms_name in detect_cms_labels(technologies):
+                cms_counts[cms_name] = cms_counts.get(cms_name, 0) + 1
 
     category_counter = Counter(category_counts)
     webserver_counter = Counter(webserver_counts)
     technology_counter = Counter(technology_counts)
     software_version_counter = Counter(software_version_counts)
+    cms_counter = Counter(cms_counts)
 
     lines = []
 
@@ -1127,6 +1176,14 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                         sort_last_labels={"(none)"},
                         section_class="inc-active-section--categories",
                         label_html_fn=category_label_html,
+                    ),
+                    # CMS products found on alive hosts (droopescan/wpscan set); links use ?tech=
+                    summary_table(
+                        "CMS",
+                        "CMS",
+                        counter_rows(cms_counter),
+                        section_class="inc-active-section--cms",
+                        label_html_fn=cms_label_html,
                     ),
                 ],
                 [
