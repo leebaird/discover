@@ -112,7 +112,7 @@ f_import_report_sync_assets(){
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
                 -e 's|modern\.css?v=[^"]*|modern.css?v=ws17|g' \
-                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=8|g' \
+                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=11|g' \
                 -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=14|g' \
                 "$report/pages/subdomains.htm" 2>/dev/null || true
         fi
@@ -223,7 +223,7 @@ need = [
     ("tools/shodan/index.js", '<script src="../tools/shodan/index.js"></script>'),
     ("tools/shodan/kev-ids.js", '<script src="../tools/shodan/kev-ids.js"></script>'),
     ("inc-shodan.js", '<script src="../assets/javascript/inc-shodan.js?v=14"></script>'),
-    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=8"></script>'),
+    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=11"></script>'),
 ]
 insert = [tag for key, tag in need if key not in text]
 if insert:
@@ -497,8 +497,22 @@ echo -e "Session: ${YELLOW}$SESSION_DIR/current-report${NC}"
 echo
 
 if [ -n "$OPEN_PAGE" ]; then
-    if f_import_report_open_browser "$OPEN_PAGE"; then
+    # Prefer statusd HTTP so host-scan chevrons only appear for Discover-opened
+    # reports (manual file:// open never gets the expand UI).
+    OPEN_URL="$OPEN_PAGE"
+    STATUSD_PORT=17322
+    if [ -n "$STATUSD" ] && curl -fsS --connect-timeout 1 --max-time 2 \
+        "http://127.0.0.1:${STATUSD_PORT}/health" >/dev/null 2>&1; then
+        REL_PAGE="${OPEN_PAGE#"$DISCOVER_REPORT"/}"
+        if [ "$REL_PAGE" != "$OPEN_PAGE" ] && [ -n "$REL_PAGE" ]; then
+            OPEN_URL="http://127.0.0.1:${STATUSD_PORT}/${REL_PAGE}"
+        fi
+    fi
+    if f_import_report_open_browser "$OPEN_URL"; then
         echo "[*] Opening report in browser."
+        if [[ "$OPEN_URL" == http://127.0.0.1:* ]]; then
+            echo -e "    ${YELLOW}$OPEN_URL${NC}"
+        fi
     else
         echo "[*] Open this file in a browser:"
         echo "    $OPEN_PAGE"

@@ -2,9 +2,10 @@
  * Planning by Lee Baird (@discoverscripts)
  * Coded by Grok (xAI)
  *
- * Subdomains expand host row → launch host-scan tools (operator mode).
- * Enabled on the full public Subdomains table and on ?software= / ?cve= filters.
- * One tool at a time; live status via 127.0.0.1 statusd when available.
+ * Subdomains expand host row → launch host-scan tools (operator mode only).
+ * Chevrons only when the page is served by Discover statusd
+ * (http://127.0.0.1:17322/… from Import report / Active) — not file:// manual open.
+ * One tool at a time; live status via same origin /mode|/status when hosted.
  * droopescan / wpscan gate on software query when present, else row tech/title.
  */
 (function () {
@@ -156,6 +157,29 @@
         return STATUS_PORT_DEFAULT;
     }
 
+    /**
+     * True only when this page is served by Discover statusd on localhost.
+     * Manual file:// open never qualifies, even if statusd is still running.
+     */
+    function isDiscoverHostedPage() {
+        var host = location.hostname;
+        if (host !== "127.0.0.1" && host !== "localhost") {
+            return false;
+        }
+        var port = location.port;
+        if (!port) {
+            return false;
+        }
+        return port === String(statusPort());
+    }
+
+    function statusdUrl(path) {
+        if (isDiscoverHostedPage()) {
+            return path;
+        }
+        return "http://127.0.0.1:" + statusPort() + path;
+    }
+
     function fetchJson(url) {
         return fetch(url, { cache: "no-store" }).then(function (r) {
             if (!r.ok) {
@@ -166,18 +190,21 @@
     }
 
     function loadMode() {
-        return fetchJson("http://127.0.0.1:" + statusPort() + "/mode").catch(function () {
-            return fetchJson("../assets/report-mode.json").catch(function () {
-                return { mode: "operator", launches: true };
-            });
+        // Only when hosted by statusd; no file:// / report-mode.json fallback.
+        if (!isDiscoverHostedPage()) {
+            return Promise.resolve({ mode: "client", launches: false });
+        }
+        return fetchJson(statusdUrl("/mode")).catch(function () {
+            return { mode: "client", launches: false };
         });
     }
 
     function loadStatus() {
-        return fetchJson("http://127.0.0.1:" + statusPort() + "/status").catch(function () {
-            return fetchJson("../tools/host-scans/status.json").catch(function () {
-                return { running: false, hosts: {} };
-            });
+        if (!isDiscoverHostedPage()) {
+            return Promise.resolve({ running: false, hosts: {} });
+        }
+        return fetchJson(statusdUrl("/status")).catch(function () {
+            return { running: false, hosts: {} };
         });
     }
 
@@ -465,15 +492,19 @@
     }
 
     function init() {
-        // Host-scan expand on full Subdomains and on ?software= / ?cve= filtered views.
+        // Chevrons only on http://127.0.0.1:<statusd>/… (Import opens this URL).
+        // Manual file:// open of the same tree: never show host-scan UI.
+        if (!isDiscoverHostedPage()) {
+            return;
+        }
         var software = querySoftware();
 
         loadMode().then(function (mode) {
-            var canLaunch = launchesAllowed(mode);
-            addToggles(software || "", canLaunch);
-            if (canLaunch) {
-                startPolling();
+            if (!launchesAllowed(mode)) {
+                return;
             }
+            addToggles(software || "", true);
+            startPolling();
         });
     }
 

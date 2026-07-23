@@ -318,7 +318,7 @@ HTML **Reports** menu: **Passive** (`pages/passive.htm`), **Active** (`pages/act
 
 On Active **Software versions**, versions that have NVD CVEs are linked to a filtered Subdomains view (`subdomains.htm?software=…`). **Alive by category** labels link to Subdomains filtered by that category (`subdomains.htm?category=Dev`, or `category=(none)` for empty). **CMS** lists Content Management Systems found on alive hosts (WordPress, Drupal, Joomla, Moodle, Silverstripe — same set as host-scan CMS tools) with counts and `?tech=` links. **Status codes** link to Subdomains with that HTTP status (`subdomains.htm?status=200`). **Top web servers** link by server name (`subdomains.htm?webserver=Apache`; parenthetical variants like `Apache (Debian)` match). **Top technologies** link by product name (`subdomains.htm?tech=jQuery`; also matches versioned tokens like `jQuery:3.4.1`). The Active page header also has a centered **CVE search** bar: enter `CVE-YYYY-NNNNN` (or `YYYY-NNNNN`) to open Subdomains filtered to hosts running software linked to that CVE in the engagement NVD cache (`tools/cve-software-index.js`). Same filter banner / host-scan layout as software links (`subdomains.htm?cve=…`).
 
-In **operator** mode (live tree opened via **Import report**), Subdomains public rows with an HTTP status get a host-scan expand control (also on `?software=` / `?cve=` filtered views). Expandable rows show host-scan **boxes** (quietest → loudest):
+In **operator** mode only (report opened via **Import report** / Active at `http://127.0.0.1:17322/…`), Subdomains public rows with an HTTP status get a host-scan expand control (also on `?software=` / `?cve=` filtered views). Manual `file://` open never shows chevrons. Expandable rows show host-scan **boxes** (quietest → loudest):
 
 | Tool | Role | When shown |
 |------|------|------------|
@@ -340,7 +340,7 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 
 **Nuclei** writes a structured `output.txt` (Pass 1 / Pass 2). Empty findings files say `No vulnerabilities discovered.`
 
-Launches use the `discover-scan:` handler / `misc/run-host-scan.sh` (one tool at a time). Prefer `~/.local/bin` for **droopescan** on Python 3.12+ (Update runs `misc/patch-droopescan-py314.sh` for cement/`imp` + setuptools). Optional live status via localhost `misc/host-scan-statusd.py`. Client and defender export packages disable launches.
+Launches use the `discover-scan:` handler / `misc/run-host-scan.sh` (one tool at a time). Prefer `~/.local/bin` for **droopescan** on Python 3.12+ (Update runs `misc/patch-droopescan-py314.sh` for cement/`imp` + setuptools). **Import report** starts `misc/host-scan-statusd.py` (localhost static server + `/mode`/`/status`) and opens the report over `http://127.0.0.1:17322/` so host-scan chevrons work; opening the same tree as `file://` does not show them. Client/defender packages hide chevrons and disable launches.
 
 ##### Active Scope metrics
 
