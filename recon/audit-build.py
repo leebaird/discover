@@ -219,6 +219,105 @@ def _command_for_host_scan(
     return ""
 
 
+def _format_scan_duration(seconds: float | int) -> str:
+    """Human duration for Finished rows: '5 min 14 sec', '45 sec', '2 min'."""
+    try:
+        total = int(round(float(seconds)))
+    except (TypeError, ValueError):
+        return ""
+    if total < 0:
+        total = 0
+    hours, rem = divmod(total, 3600)
+    minutes, secs = divmod(rem, 60)
+    parts: list[str] = []
+    if hours:
+        parts.append(f"{hours} hr")
+    if minutes:
+        parts.append(f"{minutes} min")
+    if secs or not parts:
+        parts.append(f"{secs} sec")
+    return " ".join(parts)
+
+
+def _parse_meta_utc(raw: str):
+    """Parse meta started_utc / finished_utc → aware UTC datetime or None."""
+    from datetime import datetime, timezone
+
+    text = (raw or "").strip()
+    if not text:
+        return None
+    try:
+        cleaned = text.replace("Z", "+00:00") if text.endswith("Z") else text
+        dt = datetime.fromisoformat(cleaned)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc)
+    except Exception:
+        return None
+
+
+def _duration_for_finished_scan(
+    report_root: Path,
+    host: str,
+    tool: str,
+    audit_ts: str,
+    scan_index: dict[str, dict[str, dict]],
+) -> str:
+    """Duration string from meta.json started_utc/finished_utc for this finish event."""
+    host = (host or "").lower()
+    tool = (tool or "").lower()
+    if tool.startswith("nuclei pass"):
+        tool = "nuclei"
+    if not host or tool not in {"ffuf", "nikto", "nuclei", "droopescan", "wpscan"}:
+        return ""
+
+    audit_ts = (audit_ts or "").strip()
+    base = report_root / "tools" / "host-scans" / host / tool
+    metas: list[dict] = []
+
+    if base.is_dir():
+        for run_dir in sorted(base.iterdir(), reverse=True):
+            if not run_dir.is_dir():
+                continue
+            meta_path = run_dir / "meta.json"
+            if meta_path.is_file():
+                meta = load_json(meta_path, {})
+                if isinstance(meta, dict) and meta:
+                    metas.append(meta)
+
+    # latest.json may lack started_utc; still try sibling meta via output path
+    meta_latest = (scan_index.get(host) or {}).get(tool) or {}
+    rel = str(meta_latest.get("output") or meta_latest.get("output_rel") or "").strip()
+    if rel:
+        meta_path = (report_root / rel.lstrip("/")).with_name("meta.json")
+        if meta_path.is_file():
+            meta = load_json(meta_path, {})
+            if isinstance(meta, dict) and meta and meta not in metas:
+                metas.insert(0, meta)
+
+    def duration_from_meta(meta: dict) -> str:
+        start = _parse_meta_utc(str(meta.get("started_utc") or ""))
+        end = _parse_meta_utc(str(meta.get("finished_utc") or ""))
+        if not start or not end:
+            return ""
+        return _format_scan_duration((end - start).total_seconds())
+
+    # Prefer meta whose finished_display matches the audit finish time.
+    for meta in metas:
+        fin_disp = str(meta.get("finished_display") or meta.get("finished") or "").strip()
+        if audit_ts and fin_disp == audit_ts:
+            dur = duration_from_meta(meta)
+            if dur:
+                return dur
+
+    # Fall back to newest meta with both timestamps.
+    for meta in metas:
+        dur = duration_from_meta(meta)
+        if dur:
+            return dur
+    return ""
+
+
 def _display_audit_action(
     action: str,
     *,
@@ -226,7 +325,7 @@ def _display_audit_action(
     scan_index: dict[str, dict[str, dict]] | None = None,
     ts: str = "",
 ) -> str:
-    """Action column: Started → exact Command; Finished → short verb+tool."""
+    """Action column: Started → exact Command; Finished → tool + duration."""
     text = _normalize_audit_action(action)
     if not text:
         return text
@@ -239,12 +338,13 @@ def _display_audit_action(
     if m:
         verb = m.group(1).lower()
         tool_raw = re.sub(r"\s+", " ", m.group(2).strip().lower())
+        scan_m = _AUDIT_SCAN_ACTION_RE.search(action or "")
+        host = ""
+        if scan_m:
+            host = _hostname_from_url(scan_m.group("url").rstrip(".,;"))
+        tool = "nuclei" if tool_raw.startswith("nuclei") else tool_raw
+
         if verb == "started" and report_root is not None:
-            scan_m = _AUDIT_SCAN_ACTION_RE.search(action or "")
-            host = ""
-            if scan_m:
-                host = _hostname_from_url(scan_m.group("url").rstrip(".,;"))
-            tool = "nuclei" if tool_raw.startswith("nuclei") else tool_raw
             cmd = _command_for_host_scan(
                 report_root,
                 host,
@@ -256,12 +356,24 @@ def _display_audit_action(
                 return cmd
             return f"Started {tool_raw}."
 
-        # Finished …
-        tool = tool_raw
+        # Finished … in N min M sec. (keep non-zero exit)
         exit_m = re.search(r"\(exit\s+(\d+)\)", text, re.I)
+        exit_note = ""
         if exit_m and exit_m.group(1) != "0":
-            return f"Finished {tool} (exit {exit_m.group(1)})."
-        return f"Finished {tool}."
+            exit_note = f" (exit {exit_m.group(1)})"
+
+        duration = ""
+        if report_root is not None:
+            duration = _duration_for_finished_scan(
+                report_root,
+                host,
+                tool,
+                ts,
+                scan_index or {},
+            )
+        if duration:
+            return f"Finished {tool_raw} in {duration}{exit_note}."
+        return f"Finished {tool_raw}{exit_note}."
 
     # Ran Shodan enrichment (long stats…). → Ran Shodan enrichment.
     if re.match(r"(?i)^ran shodan enrichment\b", text):
