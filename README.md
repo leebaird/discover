@@ -559,7 +559,7 @@ Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit
 | Section | Content |
 |---------|---------|
 | **Target scans** | Per-host history for **Nuclei**, **droopescan**, **WPScan**, **Nikto**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
-| **Audit log** | Newest-first by default; **Time (UTC)**, **Operator** (first name from `~/.discover/operator-name`), **Operator IP**, **Action**, **Output**. Log format: `mm-dd-yyyy Z - hh:mm \| name \| ip \| action`. Hides routine noise (report open, nuclei pass-2 start/finish). Strips successful `(exit 0)` from display |
+| **Audit log** | Newest-first by default; **Time (UTC)**, **Operator**, **Operator IP**, **Target**, **Action** (**Started** rows show the exact `Command:` from the run’s `output.txt`; **Finished** is short e.g. `Finished ffuf.`), **Output**. Full log lines stay in `tools/audit/log.txt` |
 | **Exports** | Label, kind (Client / Defender / Audit only), exported time (UTC), operator IPs (Included / Redacted), file name |
 
 Import report rebuilds this page. Host scans and exports append data under `tools/` that appears on Audit after the next rebuild (Import, host-scan finish, or export path).

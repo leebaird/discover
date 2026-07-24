@@ -1015,6 +1015,17 @@ tr.inc-subdomains-filter-hide {
     vertical-align: middle;
 }
 
+.inc-audit-page #inc-audit-log-table > thead > tr > th.inc-audit-col-target,
+.inc-audit-page #inc-audit-log-table > tbody > tr > td.inc-audit-col-target {
+    width: 1%;
+    min-width: 140px;
+    max-width: 220px;
+    white-space: nowrap;
+    box-sizing: border-box;
+    text-align: center;
+    vertical-align: middle;
+}
+
 /* Output: button column — between full IP width and over-tight */
 .inc-audit-page #inc-audit-log-table > thead > tr > th.inc-audit-col-trail,
 .inc-audit-page #inc-audit-log-table > tbody > tr > td.inc-audit-col-trail {

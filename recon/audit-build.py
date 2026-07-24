@@ -121,12 +121,155 @@ def _audit_action_hidden(action: str) -> bool:
 
 
 def _normalize_audit_action(action: str) -> str:
-    """Display cleanup: drop successful exit noise; keep non-zero exits."""
+    """Light cleanup on stored action text (still used for Target/Output parse)."""
     text = (action or "").strip()
     # "(exit 0)" / "(exit 0)." mid-string or before other notes
     text = re.sub(r"\s*\(exit\s+0\)\s*", " ", text, flags=re.IGNORECASE)
     text = re.sub(r"\s{2,}", " ", text).strip()
     return text
+
+
+def _extract_command_from_output_text(text: str) -> str:
+    """First Command: block from a host-scan output.txt (run-host-scan header)."""
+    lines = (text or "").splitlines()
+    for i, line in enumerate(lines):
+        if line.strip() != "Command:":
+            continue
+        parts: list[str] = []
+        for j in range(i + 1, len(lines)):
+            s = lines[j].strip()
+            if not s:
+                if parts:
+                    break
+                continue
+            if s.startswith("===") or s in {
+                "Results:",
+                "Findings:",
+                "Output:",
+                "HTML report:",
+                "JSON results:",
+                "CMS:",
+                "Software:",
+            }:
+                break
+            if s.startswith("Results:") or s.startswith("Findings:"):
+                break
+            parts.append(s)
+        if parts:
+            return " ".join(parts)
+    return ""
+
+
+def _command_for_host_scan(
+    report_root: Path,
+    host: str,
+    tool: str,
+    audit_ts: str,
+    scan_index: dict[str, dict[str, dict]],
+) -> str:
+    """Resolve exact Command line for a Started host-scan audit event."""
+    host = (host or "").lower()
+    tool = (tool or "").lower()
+    if tool.startswith("nuclei pass"):
+        tool = "nuclei"
+    if not host or tool not in {"ffuf", "nikto", "nuclei", "droopescan", "wpscan"}:
+        return ""
+
+    base = report_root / "tools" / "host-scans" / host / tool
+    candidates: list[Path] = []
+
+    # Prefer run whose output Started: timestamp matches the audit line.
+    if base.is_dir():
+        for run_dir in sorted(base.iterdir(), reverse=True):
+            if not run_dir.is_dir() or run_dir.name == "latest.json":
+                continue
+            out = run_dir / "output.txt"
+            if out.is_file():
+                candidates.append(out)
+
+    meta = (scan_index.get(host) or {}).get(tool) or {}
+    rel = str(meta.get("output") or meta.get("output_rel") or "").strip()
+    if rel:
+        p = report_root / rel.lstrip("/")
+        if p.is_file() and p not in candidates:
+            candidates.insert(0, p)
+
+    audit_ts = (audit_ts or "").strip()
+    for out in candidates:
+        try:
+            text = out.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if audit_ts and f"Started: {audit_ts}" not in text:
+            # Keep scanning other runs; fall back to any command if none match.
+            continue
+        cmd = _extract_command_from_output_text(text)
+        if cmd:
+            return cmd
+
+    # No timestamp match — use newest file that has a Command block.
+    for out in candidates:
+        try:
+            text = out.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        cmd = _extract_command_from_output_text(text)
+        if cmd:
+            return cmd
+    return ""
+
+
+def _display_audit_action(
+    action: str,
+    *,
+    report_root: Path | None = None,
+    scan_index: dict[str, dict[str, dict]] | None = None,
+    ts: str = "",
+) -> str:
+    """Action column: Started → exact Command; Finished → short verb+tool."""
+    text = _normalize_audit_action(action)
+    if not text:
+        return text
+
+    m = re.match(
+        r"(?i)^(started|finished)\s+"
+        r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|ffuf|nikto)\b",
+        text,
+    )
+    if m:
+        verb = m.group(1).lower()
+        tool_raw = re.sub(r"\s+", " ", m.group(2).strip().lower())
+        if verb == "started" and report_root is not None:
+            scan_m = _AUDIT_SCAN_ACTION_RE.search(action or "")
+            host = ""
+            if scan_m:
+                host = _hostname_from_url(scan_m.group("url").rstrip(".,;"))
+            tool = "nuclei" if tool_raw.startswith("nuclei") else tool_raw
+            cmd = _command_for_host_scan(
+                report_root,
+                host,
+                tool,
+                ts,
+                scan_index or {},
+            )
+            if cmd:
+                return cmd
+            return f"Started {tool_raw}."
+
+        # Finished …
+        tool = tool_raw
+        exit_m = re.search(r"\(exit\s+(\d+)\)", text, re.I)
+        if exit_m and exit_m.group(1) != "0":
+            return f"Finished {tool} (exit {exit_m.group(1)})."
+        return f"Finished {tool}."
+
+    # Ran Shodan enrichment (long stats…). → Ran Shodan enrichment.
+    if re.match(r"(?i)^ran shodan enrichment\b", text):
+        return "Ran Shodan enrichment."
+
+    if text.endswith("."):
+        return text
+    return text + "."
 
 
 def load_audit_lines(report_root: Path) -> list[tuple[str, str, str, str]]:
@@ -239,6 +382,15 @@ _AUDIT_SCAN_ACTION_RE = re.compile(
 
 def _hostname_from_url(url: str) -> str:
     return (urlparse(url).hostname or "").lower()
+
+
+def audit_target_from_action(action: str) -> str:
+    """Host/target for audit log Target column (host scans only)."""
+    m = _AUDIT_SCAN_ACTION_RE.search(action or "")
+    if not m:
+        return ""
+    url = m.group("url").rstrip(".,;")
+    return _hostname_from_url(url)
 
 
 def build_host_scan_output_index(report_root: Path) -> dict[str, dict[str, dict]]:
@@ -475,26 +627,37 @@ def build_html(report_root: Path) -> str:
         '<th scope="col" class="inc-sortable inc-audit-col-time">Time (UTC)</th>'
         '<th scope="col" class="inc-sortable inc-audit-col-op">Operator</th>'
         '<th scope="col" class="inc-sortable inc-audit-col-ip">Operator IP</th>'
+        '<th scope="col" class="inc-sortable inc-audit-col-target">Target</th>'
         '<th scope="col" class="inc-sortable inc-audit-col-action">Action</th>'
         '<th scope="col" class="inc-audit-col-trail">Output</th>'
         "</tr></thead><tbody>"
     )
     if audit_rows:
         for ts, operator, ip, action in audit_rows:
+            # Parse Target/Output from full action; show shortened Action text.
             out_cell = audit_output_cell(action, report_root, scan_output_index)
             op_disp = operator if operator else "—"
+            target = audit_target_from_action(action)
+            target_disp = target if target else "—"
+            action_disp = _display_audit_action(
+                action,
+                report_root=report_root,
+                scan_index=scan_output_index,
+                ts=ts,
+            )
             lines.append(
                 "<tr>"
                 f'<td class="inc-audit-col-time">{html.escape(ts)}</td>'
                 f'<td class="inc-audit-col-op">{html.escape(op_disp)}</td>'
                 f'<td class="inc-audit-col-ip">{html.escape(ip)}</td>'
-                f'<td class="inc-audit-col-action">{html.escape(action)}</td>'
+                f'<td class="inc-audit-col-target">{html.escape(target_disp)}</td>'
+                f'<td class="inc-audit-col-action">{html.escape(action_disp)}</td>'
                 f'<td class="inc-audit-col-trail">{out_cell}</td>'
                 "</tr>"
             )
     else:
         lines.append(
-            '<tr><td colspan="5" class="inc-audit-muted">No audit events yet.</td></tr>'
+            '<tr><td colspan="6" class="inc-audit-muted">No audit events yet.</td></tr>'
         )
     lines.append("</tbody></table></div></section>")
 
