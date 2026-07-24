@@ -979,14 +979,25 @@ tr.inc-subdomains-filter-hide {
     overflow-wrap: anywhere;
 }
 
-/* Audit log: Time shrink; Operator IP + right trail share the same fixed floor;
- * Action takes remaining width. (Use px — Bootstrap html rem is 10px.)
+/* Audit log: Time / Operator / IP shrink; Action takes remaining width.
+ * (Use px — Bootstrap html rem is 10px.)
  * Do not use table-layout:fixed here — it clips Action/Output on the right. */
 .inc-audit-page #inc-audit-log-table > thead > tr > th.inc-audit-col-time,
 .inc-audit-page #inc-audit-log-table > tbody > tr > td.inc-audit-col-time {
     width: 1%;
     min-width: 170px;
     max-width: 170px;
+    white-space: nowrap;
+    box-sizing: border-box;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.inc-audit-page #inc-audit-log-table > thead > tr > th.inc-audit-col-op,
+.inc-audit-page #inc-audit-log-table > tbody > tr > td.inc-audit-col-op {
+    width: 1%;
+    min-width: 90px;
+    max-width: 100px;
     white-space: nowrap;
     box-sizing: border-box;
     text-align: center;

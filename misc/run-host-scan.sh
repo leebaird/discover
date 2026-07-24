@@ -185,12 +185,23 @@ f_audit(){
     local audit_dir="$REPORT_ROOT/tools/audit"
     local audit_log="$audit_dir/log.txt"
     mkdir -p "$audit_dir"
-    local ts ip
+    local ts ip op
     ts=$(date -u +"%m-%d-%Y Z - %H:%M")
-    ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
-    [ -n "$ip" ] || ip=unknown
+    if declare -F f_audit_operator_name >/dev/null 2>&1; then
+        op=$(f_audit_operator_name)
+    else
+        op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
+        [ -n "$op" ] || op=unknown
+    fi
+    if declare -F f_audit_egress_ip >/dev/null 2>&1; then
+        ip=$(f_audit_egress_ip)
+    else
+        ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
+        [ -n "$ip" ] || ip=unknown
+    fi
     case "$action" in *.) ;; *) action="${action}." ;; esac
-    printf '%s | %s | %s\n' "$ts" "$ip" "$action" >> "$audit_log"
+    # mm-dd-yyyy Z - hh:mm | operator | egress IP | action
+    printf '%s | %s | %s | %s\n' "$ts" "$op" "$ip" "$action" >> "$audit_log"
 }
 
 # Software-aware nuclei tags (pass-1 recon / fingerprint)

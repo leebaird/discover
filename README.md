@@ -73,6 +73,7 @@ cd discover/
 ./discover.sh
 ```
 
+* On first run, Discover asks for your **first name** (max 10 letters) and saves it to `~/.discover/operator-name`. That name is written on every engagement **audit log** line. To change it later, edit or delete that file and restart Discover.
 * Select **Update** (main menu option **18**) to update the operating system and install dependencies (`droopescan`, `feroxbuster`, `ffuf`, `jq`, `nuclei`, etc.).
 * Some options require root credentials to run.
 * Optional: install operator shell helpers from `config/` (see below).
@@ -558,7 +559,7 @@ Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit
 | Section | Content |
 |---------|---------|
 | **Target scans** | Per-host history for **Nuclei**, **droopescan**, **WPScan**, **Nikto**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
-| **Audit log** | Newest-first by default; **Time (UTC)**, **Operator IP**, **Action**, **Output**. Hides routine noise (report open, nuclei pass-2 start/finish). Strips successful `(exit 0)` from display |
+| **Audit log** | Newest-first by default; **Time (UTC)**, **Operator** (first name from `~/.discover/operator-name`), **Operator IP**, **Action**, **Output**. Log format: `mm-dd-yyyy Z - hh:mm \| name \| ip \| action`. Hides routine noise (report open, nuclei pass-2 start/finish). Strips successful `(exit 0)` from display |
 | **Exports** | Label, kind (Client / Defender / Audit only), exported time (UTC), operator IPs (Included / Redacted), file name |
 
 Import report rebuilds this page. Host scans and exports append data under `tools/` that appears on Audit after the next rebuild (Import, host-scan finish, or export path).

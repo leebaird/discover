@@ -6,6 +6,12 @@ Conventions agreed with the operator for Discover development. **Read and follow
 
 - **Only commit when the operator explicitly asks** (e.g. “do a commit”). Do not commit proactively after finishing a feature or when they only ask whether a commit is needed.
 
+## Operator name (audit log)
+
+- First name only, max 10 letters only, stored at `~/.discover/operator-name`.
+- Prompted once when Discover starts if missing/invalid (`f_ensure_operator_name` in `discover.sh`).
+- Audit lines: `mm-dd-yyyy Z - hh:mm | <name> | <egress IP> | <action>` (`f_audit_log` / host-scan `f_audit`). Legacy 3-field lines still parse on the Audit page.
+
 ## Report UI layout (CSS)
 
 When designing or tweaking **report page layouts** (especially Audit and other `modern.css` tables/containers):

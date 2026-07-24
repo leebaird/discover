@@ -242,7 +242,9 @@ PY
     else
         mkdir -p "$DISCOVER_REPORT/tools/audit" 2>/dev/null || true
         ts=$(date -u +"%m-%d-%Y Z - %H:%M")
-        printf '%s | unknown | %s.\n' "$ts" "$ACTION" >> "$DISCOVER_REPORT/tools/audit/log.txt" 2>/dev/null || true
+        op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
+        [ -n "$op" ] || op=unknown
+        printf '%s | %s | unknown | %s.\n' "$ts" "$op" "$ACTION" >> "$DISCOVER_REPORT/tools/audit/log.txt" 2>/dev/null || true
     fi
 
     if [ -f "$DISCOVER_ROOT/recon/audit-build.py" ]; then

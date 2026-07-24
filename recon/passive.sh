@@ -1653,9 +1653,11 @@ EOF
     else
         mkdir -p "$HOME/data/$DOMAIN/tools/audit" 2>/dev/null || true
         ts=$(date -u +"%m-%d-%Y Z - %H:%M")
+        op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
+        [ -n "$op" ] || op=unknown
         ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
         [ -n "$ip" ] || ip=unknown
-        printf '%s | %s | Ran passive recon.\n' "$ts" "$ip" >> "$HOME/data/$DOMAIN/tools/audit/log.txt" 2>/dev/null || true
+        printf '%s | %s | %s | Ran passive recon.\n' "$ts" "$op" "$ip" >> "$HOME/data/$DOMAIN/tools/audit/log.txt" 2>/dev/null || true
     fi
     if [ -n "${DISCOVER:-}" ] && [ -f "$DISCOVER/recon/audit-build.py" ]; then
         python3 "$DISCOVER/recon/audit-build.py" "$HOME/data/$DOMAIN" "$DISCOVER/report/pages/audit.htm" >/dev/null 2>&1 || true

@@ -501,8 +501,18 @@ def append_audit_log(report_dir: str, action: str) -> None:
     ts = datetime.now(timezone.utc).strftime("%m-%d-%Y Z - %H:%M")
     if not action.endswith("."):
         action = action + "."
-    # Egress IP: leave as unknown here; shell wrapper uses f_audit_log when available.
-    line = f"{ts} | unknown | {action}\n"
+    # Operator + egress IP: shell wrapper prefers f_audit_log; fallback name from ~/.discover.
+    op = "unknown"
+    try:
+        op_path = os.path.join(os.path.expanduser("~"), ".discover", "operator-name")
+        if os.path.isfile(op_path):
+            raw = open(op_path, encoding="utf-8", errors="replace").readline().strip()
+            cleaned = re.sub(r"[^A-Za-z]", "", raw)[:10]
+            if cleaned:
+                op = cleaned
+    except OSError:
+        pass
+    line = f"{ts} | {op} | unknown | {action}\n"
     try:
         with open(audit_log, "a", encoding="utf-8") as handle:
             handle.write(line)

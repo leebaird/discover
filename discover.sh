@@ -93,13 +93,121 @@ f_audit_egress_ip(){
     printf '%s' "$ip"
 }
 
+# Operator first name for audit log (~/.discover/operator-name, max 10 chars).
+f_audit_operator_name(){
+    local file="${HOME}/.discover/operator-name"
+    local name="${OPERATOR_NAME:-}"
+
+    if [ -z "$name" ] && [ -f "$file" ]; then
+        name=$(head -n 1 "$file" 2>/dev/null | tr -d '\r')
+        name="${name#"${name%%[![:space:]]*}"}"
+        name="${name%"${name##*[![:space:]]}"}"
+    fi
+    # Letters only; max 10; first letter capital for audit display.
+    name=$(printf '%s' "$name" | tr -cd "A-Za-z" | cut -c1-10)
+    if [ -z "$name" ]; then
+        name=unknown
+    else
+        name=$(f_operator_name_canonical "$name")
+    fi
+    printf '%s' "$name"
+}
+
+# True if name is valid first-name for audit (1–10 letters only).
+# No spaces, hyphen, apostrophe, or silent trim of bad input.
+f_operator_name_valid(){
+    local name="$1"
+    [ -n "$name" ] || return 1
+    [ "${#name}" -le 10 ] || return 1
+    [[ "$name" =~ ^[A-Za-z]{1,10}$ ]] || return 1
+    return 0
+}
+
+# First letter uppercase, rest lowercase (e.g. lee / LEE → Lee).
+f_operator_name_canonical(){
+    local name="$1"
+    local first rest
+    [ -n "$name" ] || return 1
+    first=$(printf '%s' "${name:0:1}" | tr '[:lower:]' '[:upper:]')
+    rest=$(printf '%s' "${name:1}" | tr '[:upper:]' '[:lower:]')
+    printf '%s%s' "$first" "$rest"
+}
+
+# Prompt once if operator-name is missing or invalid; store under ~/.discover.
+f_ensure_operator_name(){
+    local dir="${HOME}/.discover"
+    local file="$dir/operator-name"
+    local name=""
+
+    mkdir -p "$dir" 2>/dev/null || true
+
+    if [ -f "$file" ]; then
+        name=$(head -n 1 "$file" 2>/dev/null | tr -d '\r')
+        if f_operator_name_valid "$name"; then
+            name=$(f_operator_name_canonical "$name")
+            OPERATOR_NAME="$name"
+            export OPERATOR_NAME
+            # Rewrite file if casing was not canonical.
+            if [ "$(head -n 1 "$file" 2>/dev/null | tr -d '\r')" != "$name" ]; then
+                printf '%s\n' "$name" > "$file" 2>/dev/null || true
+                chmod 600 "$file" 2>/dev/null || true
+            fi
+            return 0
+        fi
+        name=""
+    fi
+
+    echo
+    echo -e "${BLUE}Operator identity (audit log)${NC}"
+    echo "First name only — used on engagement audit lines (max 10 letters)."
+    echo "Letters only — no spaces, numbers, hyphen, or apostrophe."
+    echo
+    while true; do
+        echo -n "Enter your first name: "
+        # IFS= keeps leading/trailing spaces so they fail validation (default
+        # read would strip them and silently accept "   lee" as Lee).
+        IFS= read -r name
+        name="${name//$'\r'/}"
+        if [ -z "$name" ]; then
+            echo -e "${YELLOW}[!] Name is required (letters only).${NC}"
+            echo
+            continue
+        fi
+        if [[ "$name" =~ [[:space:]] ]]; then
+            echo -e "${YELLOW}[!] No spaces allowed (including before or after the name).${NC}"
+            echo
+            continue
+        fi
+        if [ "${#name}" -gt 10 ]; then
+            echo -e "${YELLOW}[!] Max 10 characters (you entered ${#name}).${NC}"
+            echo
+            continue
+        fi
+        if ! f_operator_name_valid "$name"; then
+            echo -e "${YELLOW}[!] Letters only (A–Z, a–z).${NC}"
+            echo
+            continue
+        fi
+        name=$(f_operator_name_canonical "$name")
+        break
+    done
+
+    printf '%s\n' "$name" > "$file" 2>/dev/null || true
+    chmod 600 "$file" 2>/dev/null || true
+    OPERATOR_NAME="$name"
+    export OPERATOR_NAME
+    echo -e "${GREEN}[*] Saved operator name to ~/.discover/operator-name${NC}"
+    echo
+    sleep 1
+}
+
 # Append one engagement audit line:
-#   mm-dd-yyyy Z - hh:mm | <egress IP> | <action>
+#   mm-dd-yyyy Z - hh:mm | <operator> | <egress IP> | <action>
 # Usage: f_audit_log "$DISCOVER_REPORT" "Ran passive recon."
 f_audit_log(){
     local report_root="$1"
     local action="$2"
-    local audit_dir audit_log ts ip
+    local audit_dir audit_log ts ip op
 
     if [ -z "$report_root" ] || [ -z "$action" ]; then
         return 1
@@ -113,6 +221,7 @@ f_audit_log(){
     mkdir -p "$audit_dir" 2>/dev/null || return 1
 
     ts=$(date -u +"%m-%d-%Y Z - %H:%M")
+    op=$(f_audit_operator_name)
     ip=$(f_audit_egress_ip)
     # Ensure action ends with a period for consistent log style.
     case "$action" in
@@ -120,7 +229,7 @@ f_audit_log(){
         *) action="${action}." ;;
     esac
 
-    printf '%s | %s | %s\n' "$ts" "$ip" "$action" >> "$audit_log" 2>/dev/null || return 1
+    printf '%s | %s | %s | %s\n' "$ts" "$op" "$ip" "$action" >> "$audit_log" 2>/dev/null || return 1
     return 0
 }
 
@@ -129,7 +238,7 @@ export DATESTAMP DISCOVER RECON_DIR SCAN_DIR WEB_DIR MISC_DIR MYIP PWD SIP TIMES
 export DISCOVER_USER_AGENT_DEFAULT
 export LARGE MEDIUM SMALL
 export BLUE GREEN NC RED YELLOW
-export -f f_discover_user_agent f_audit_egress_ip f_audit_log
+export -f f_discover_user_agent f_audit_egress_ip f_audit_operator_name f_operator_name_valid f_operator_name_canonical f_ensure_operator_name f_audit_log
 
 ###############################################################################################################################
 
@@ -643,6 +752,7 @@ export -f f_main
 
 # Run the script
 if [[ -z "${DISCOVER_SOURCE_ONLY:-}" ]]; then
+    f_ensure_operator_name
     while true; do
         f_main
     done

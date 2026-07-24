@@ -204,7 +204,7 @@ if [ "$EXPORT_KIND" = "audit-only" ]; then
         echo "# Label: $EXPORT_LABEL"
         echo "# Exported (UTC): $EXPORT_TS_UTC"
         echo "# Operator egress IPs: included"
-        echo "# Format: mm-dd-yyyy Z - hh:mm | operator_egress_ip | action"
+        echo "# Format: mm-dd-yyyy Z - hh:mm | operator | egress_ip | action"
         echo "#"
         cat "$LIVE_AUDIT"
         echo
@@ -232,8 +232,15 @@ PY
     AUDIT_LOG="$DISCOVER_REPORT/tools/audit/log.txt"
     touch "$AUDIT_LOG" 2>/dev/null || true
     if [ -w "$AUDIT_LOG" ]; then
-        printf '%s | %s | Exported audit log for defenders (label: %s; operator IPs included).\n' \
-            "$EXPORT_TS_UTC" "$AUDIT_IP" "$EXPORT_LABEL" >> "$AUDIT_LOG" 2>/dev/null || true
+        if declare -F f_audit_log >/dev/null 2>&1; then
+            f_audit_log "$DISCOVER_REPORT" \
+                "Exported audit log for defenders (label: $EXPORT_LABEL; operator IPs included)"
+        else
+            op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
+            [ -n "$op" ] || op=unknown
+            printf '%s | %s | %s | Exported audit log for defenders (label: %s; operator IPs included).\n' \
+                "$EXPORT_TS_UTC" "$op" "$AUDIT_IP" "$EXPORT_LABEL" >> "$AUDIT_LOG" 2>/dev/null || true
+        fi
     fi
 
     echo
@@ -318,7 +325,7 @@ if [ "$INCLUDE_OPERATOR_IPS" -eq 1 ] && [ -f "$DISCOVER_REPORT/tools/audit/log.t
         echo "# Source: $DISCOVER_REPORT"
         echo "# Label: $EXPORT_LABEL"
         echo "# Exported (UTC): $EXPORT_TS_UTC"
-        echo "# Format: mm-dd-yyyy Z - hh:mm | operator_egress_ip | action"
+        echo "# Format: mm-dd-yyyy Z - hh:mm | operator | egress_ip | action"
         echo "#"
         cat "$DISCOVER_REPORT/tools/audit/log.txt"
         echo
@@ -332,15 +339,23 @@ import re, sys
 from pathlib import Path
 path = Path(sys.argv[1])
 text = path.read_text(encoding="utf-8", errors="replace")
-# mm-dd-yyyy Z - hh:mm | IP | action
-line_re = re.compile(
+# New: mm-dd-yyyy Z - hh:mm | operator | IP | action
+# Legacy: mm-dd-yyyy Z - hh:mm | IP | action
+line_re4 = re.compile(
+    r"^(\d{2}-\d{2}-\d{4} Z - \d{2}:\d{2}) \| ([^|]+) \| ([^|]+) \| (.*)$"
+)
+line_re3 = re.compile(
     r"^(\d{2}-\d{2}-\d{4} Z - \d{2}:\d{2}) \| ([^|]+) \| (.*)$"
 )
 out = []
 for line in text.splitlines():
-    m = line_re.match(line)
-    if m:
-        out.append(f"{m.group(1)} | redacted | {m.group(3)}")
+    m4 = line_re4.match(line)
+    if m4:
+        out.append(f"{m4.group(1)} | {m4.group(2).strip()} | redacted | {m4.group(4)}")
+        continue
+    m3 = line_re3.match(line)
+    if m3:
+        out.append(f"{m3.group(1)} | redacted | {m3.group(3)}")
     else:
         out.append(line)
 path.write_text("\n".join(out) + ("\n" if out else ""), encoding="utf-8")
@@ -384,12 +399,24 @@ PY
 AUDIT_LOG="$DISCOVER_REPORT/tools/audit/log.txt"
 touch "$AUDIT_LOG" 2>/dev/null || true
 if [ -w "$AUDIT_LOG" ]; then
-    if [ "$INCLUDE_OPERATOR_IPS" -eq 1 ]; then
-        printf '%s | %s | Exported defender report (label: %s; operator IPs included).\n' \
-            "$EXPORT_TS_UTC" "$AUDIT_IP" "$EXPORT_LABEL" >> "$AUDIT_LOG" 2>/dev/null || true
+    if declare -F f_audit_log >/dev/null 2>&1; then
+        if [ "$INCLUDE_OPERATOR_IPS" -eq 1 ]; then
+            f_audit_log "$DISCOVER_REPORT" \
+                "Exported defender report (label: $EXPORT_LABEL; operator IPs included)"
+        else
+            f_audit_log "$DISCOVER_REPORT" \
+                "Exported client report (label: $EXPORT_LABEL)"
+        fi
     else
-        printf '%s | %s | Exported client report (label: %s).\n' \
-            "$EXPORT_TS_UTC" "$AUDIT_IP" "$EXPORT_LABEL" >> "$AUDIT_LOG" 2>/dev/null || true
+        op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
+        [ -n "$op" ] || op=unknown
+        if [ "$INCLUDE_OPERATOR_IPS" -eq 1 ]; then
+            printf '%s | %s | %s | Exported defender report (label: %s; operator IPs included).\n' \
+                "$EXPORT_TS_UTC" "$op" "$AUDIT_IP" "$EXPORT_LABEL" >> "$AUDIT_LOG" 2>/dev/null || true
+        else
+            printf '%s | %s | %s | Exported client report (label: %s).\n' \
+                "$EXPORT_TS_UTC" "$op" "$AUDIT_IP" "$EXPORT_LABEL" >> "$AUDIT_LOG" 2>/dev/null || true
+        fi
     fi
 fi
 

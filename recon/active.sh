@@ -798,9 +798,11 @@ if declare -F f_audit_log >/dev/null 2>&1; then
     f_audit_log "$DISCOVER_REPORT" "Ran active recon"
 else
     ts=$(date -u +"%m-%d-%Y Z - %H:%M")
+    op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
+    [ -n "$op" ] || op=unknown
     ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
     [ -n "$ip" ] || ip=unknown
-    printf '%s | %s | Ran active recon.\n' "$ts" "$ip" >> "$DISCOVER_REPORT/tools/audit/log.txt" 2>/dev/null || true
+    printf '%s | %s | %s | Ran active recon.\n' "$ts" "$op" "$ip" >> "$DISCOVER_REPORT/tools/audit/log.txt" 2>/dev/null || true
 fi
 
 if [ -f "$DISCOVER/recon/audit-build.py" ]; then

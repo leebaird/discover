@@ -13,7 +13,12 @@ import sys
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
-LINE_RE = re.compile(
+# New: time | operator | ip | action
+LINE_RE4 = re.compile(
+    r"^(\d{2}-\d{2}-\d{4} Z - \d{2}:\d{2}) \| ([^|]+) \| ([^|]+) \| (.*)$"
+)
+# Legacy: time | ip | action
+LINE_RE3 = re.compile(
     r"^(\d{2}-\d{2}-\d{4} Z - \d{2}:\d{2}) \| ([^|]+) \| (.*)$"
 )
 
@@ -124,7 +129,8 @@ def _normalize_audit_action(action: str) -> str:
     return text
 
 
-def load_audit_lines(report_root: Path) -> list[tuple[str, str, str]]:
+def load_audit_lines(report_root: Path) -> list[tuple[str, str, str, str]]:
+    """Return (time, operator, ip, action). Legacy 3-field lines use empty operator."""
     log = report_root / "tools" / "audit" / "log.txt"
     if not log.is_file():
         return []
@@ -133,16 +139,31 @@ def load_audit_lines(report_root: Path) -> list[tuple[str, str, str]]:
         raw = raw.strip()
         if not raw or raw.startswith("#"):
             continue
-        m = LINE_RE.match(raw)
-        if m:
-            action = _normalize_audit_action(m.group(3).strip())
+        m4 = LINE_RE4.match(raw)
+        if m4:
+            action = _normalize_audit_action(m4.group(4).strip())
             if _audit_action_hidden(action):
                 continue
-            rows.append((m.group(1), m.group(2).strip(), action))
+            rows.append(
+                (
+                    m4.group(1),
+                    m4.group(2).strip(),
+                    m4.group(3).strip(),
+                    action,
+                )
+            )
+            continue
+        m3 = LINE_RE3.match(raw)
+        if m3:
+            action = _normalize_audit_action(m3.group(3).strip())
+            if _audit_action_hidden(action):
+                continue
+            # Legacy: second field is IP (no operator name).
+            rows.append((m3.group(1), "", m3.group(2).strip(), action))
         else:
             if _audit_action_hidden(raw):
                 continue
-            rows.append(("", "", _normalize_audit_action(raw)))
+            rows.append(("", "", "", _normalize_audit_action(raw)))
     rows.reverse()  # newest first
     return rows
 
@@ -452,17 +473,20 @@ def build_html(report_root: Path) -> str:
     lines.append(
         "<thead><tr>"
         '<th scope="col" class="inc-sortable inc-audit-col-time">Time (UTC)</th>'
+        '<th scope="col" class="inc-sortable inc-audit-col-op">Operator</th>'
         '<th scope="col" class="inc-sortable inc-audit-col-ip">Operator IP</th>'
         '<th scope="col" class="inc-sortable inc-audit-col-action">Action</th>'
         '<th scope="col" class="inc-audit-col-trail">Output</th>'
         "</tr></thead><tbody>"
     )
     if audit_rows:
-        for ts, ip, action in audit_rows:
+        for ts, operator, ip, action in audit_rows:
             out_cell = audit_output_cell(action, report_root, scan_output_index)
+            op_disp = operator if operator else "—"
             lines.append(
                 "<tr>"
                 f'<td class="inc-audit-col-time">{html.escape(ts)}</td>'
+                f'<td class="inc-audit-col-op">{html.escape(op_disp)}</td>'
                 f'<td class="inc-audit-col-ip">{html.escape(ip)}</td>'
                 f'<td class="inc-audit-col-action">{html.escape(action)}</td>'
                 f'<td class="inc-audit-col-trail">{out_cell}</td>'
@@ -470,7 +494,7 @@ def build_html(report_root: Path) -> str:
             )
     else:
         lines.append(
-            '<tr><td colspan="4" class="inc-audit-muted">No audit events yet.</td></tr>'
+            '<tr><td colspan="5" class="inc-audit-muted">No audit events yet.</td></tr>'
         )
     lines.append("</tbody></table></div></section>")
 
