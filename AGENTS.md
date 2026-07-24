@@ -28,4 +28,4 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Host-scan chevrons appear **only** when the report is opened via Discover statusd HTTP (`http://127.0.0.1:17322/…`, Import report / Active). Manual `file://` open never shows chevrons, even if statusd is still running.
 - Chevrons on the **full** public Subdomains table (rows with HTTP status), not only `?software=` / `?cve=` filtered views.
 - **droopescan** / **wpscan** gate on the `software` query when present; otherwise infer from the row’s Title/Technologies text (e.g. tech list contains `WordPress`).
-- Base tools (`nuclei`, `nikto`, `ffuf`) are always offered on expand when the UI is shown. Bust `inc-host-scan.js?v=…` after JS changes and sync via Import when testing live reports.
+- Base tools (`nuclei`, `nikto`, `ffuf`) are always offered on expand when the UI is shown. Each tool box has a Unicode ⓘ that opens a short help modal. Bust `inc-host-scan.js?v=…` (and `modern.css?v=…` on Subdomains) after changes and sync via Import when testing live reports.

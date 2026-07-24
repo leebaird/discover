@@ -328,7 +328,7 @@ In **operator** mode only (report opened via **Import report** / Active at `http
 | **Nikto** | Web server checks; report **TXT** + **HTM** when present | Always on expand |
 | **ffuf** | Content discovery (quiet defaults); report **TXT** + **URL** (open each finding in Firefox) | Always on expand |
 
-Each box shows the tool name and a blue **Run** button on one line, plus last-run time and green output buttons (**TXT** / **HTM** / **URL** as applicable).
+Each box shows the tool name and a blue **Run** button on one line, plus last-run time and green output buttons (**TXT** / **HTM** / **URL** as applicable). A Unicode **ⓘ** in the top-right of each box opens a short modal (what the tool does, when it appears, what Run does, and outputs).
 
 **ffuf quiet defaults** (`misc/run-host-scan.sh`):
 

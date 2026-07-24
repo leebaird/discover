@@ -1281,6 +1281,7 @@ tr.inc-subdomains-filter-hide {
 }
 
 .inc-host-scan-tool {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1288,11 +1289,176 @@ tr.inc-subdomains-filter-hide {
     text-align: center;
     flex: 1 1 0;
     min-width: 120px;
-    padding: 0.45rem 0.6rem;
+    padding: 10px 12px 8px;
     border: 1px solid #444;
     border-radius: 6px;
     background: #1e1e1e;
     box-sizing: border-box;
+}
+
+/* Unicode ⓘ — tool help modal trigger */
+.inc-host-scan-tool .inc-host-scan-info-btn {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #fff;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: center;
+    cursor: pointer;
+    opacity: 1;
+}
+
+.inc-host-scan-tool .inc-host-scan-info-btn:hover,
+.inc-host-scan-tool .inc-host-scan-info-btn:focus {
+    color: var(--accent-hover);
+    outline: none;
+}
+
+/* Host-scan tool info modal (operator help) */
+.inc-host-scan-info-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.inc-host-scan-info-modal[hidden] {
+    display: none !important;
+}
+
+.inc-host-scan-info-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.inc-host-scan-info-dialog {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    max-height: min(80vh, 560px);
+    overflow: auto;
+    padding: 16px 18px 18px;
+    border: 1px solid #2f3844;
+    border-radius: 10px;
+    background: #1e2329;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    box-sizing: border-box;
+    color: #aeb5bf;
+}
+
+/* Longer tools: taller dialog so operator does not need to scroll */
+.inc-host-scan-info-modal--nuclei .inc-host-scan-info-dialog,
+.inc-host-scan-info-modal--nikto .inc-host-scan-info-dialog,
+.inc-host-scan-info-modal--ffuf .inc-host-scan-info-dialog {
+    max-width: 520px;
+    max-height: min(94vh, 820px);
+}
+
+.inc-host-scan-info-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.inc-host-scan-info-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.97);
+}
+
+.inc-host-scan-info-close {
+    flex: 0 0 auto;
+    margin: -4px -4px 0 0;
+    padding: 0 6px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: #8a9199;
+    font-size: 22px;
+    line-height: 1.2;
+    cursor: pointer;
+}
+
+.inc-host-scan-info-close:hover,
+.inc-host-scan-info-close:focus {
+    color: #fff;
+    outline: none;
+}
+
+.inc-host-scan-info-body {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.inc-host-scan-info-section {
+    margin: 0 0 12px;
+}
+
+.inc-host-scan-info-section:last-child {
+    margin-bottom: 0;
+}
+
+.inc-host-scan-info-section h3 {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--accent-hover);
+}
+
+.inc-host-scan-info-section p {
+    margin: 0;
+    color: #aeb5bf;
+}
+
+.inc-host-scan-info-cmd {
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid #2f3844;
+    border-radius: 6px;
+    background: #0f1114;
+    color: rgba(255, 255, 255, 0.92);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+/* One blank line between Command box and User-Agent note */
+.inc-host-scan-info-spacer {
+    height: 1.45em;
+    margin: 0;
+    padding: 0;
+}
+
+.inc-host-scan-info-ua-note {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #9aa3ad;
 }
 
 /* Tool name + Run on one centered row */
