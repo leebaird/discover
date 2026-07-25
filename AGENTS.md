@@ -10,7 +10,7 @@ Conventions agreed with the operator for Discover development. **Read and follow
 
 - First name only, max 10 letters only, stored at `~/.discover/operator-name`.
 - Prompted once when Discover starts if missing/invalid (`f_ensure_operator_name` in `discover.sh`).
-- Audit lines: `mm-dd-yyyy Z - hh:mm | <name> | <egress IP> | <action>` (`f_audit_log` / host-scan `f_audit`). Legacy 3-field lines still parse on the Audit page.
+- Audit lines: `mm-dd-yyyy - hh:mm Z | <name> | <egress IP> | <action>` (`f_audit_log` / host-scan `f_audit`). Legacy stamps (`mm-dd-yyyy Z - hh:mm`) and 3-field lines still parse on the Audit page.
 
 ## Report UI layout (CSS)
 
@@ -35,3 +35,10 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Chevrons on the **full** public Subdomains table (rows with HTTP status), not only `?software=` / `?cve=` filtered views.
 - **droopescan** / **wpscan** gate on the `software` query when present; otherwise infer from the row’s Title/Technologies text (e.g. tech list contains `WordPress`).
 - Base tools (`nuclei`, `nikto`, `ffuf`) are always offered on expand when the UI is shown. Each tool box has a Unicode ⓘ that opens a short help modal. Bust `inc-host-scan.js?v=…` (and `modern.css?v=…` on Subdomains) after changes and sync via Import when testing live reports.
+
+## Report Export (Passive / Active / Audit)
+
+- **No Domain menu item** for export. UI is an **Export** button at the top of Report → Passive / Active / Audit only when the page is Discover-hosted (`http://127.0.0.1:17322/…`). Manual `file://` never shows the button.
+- Modal: Client / Defender / Operator radios + **Export** + **Cancel**; success shows the output path (`$HOME/data` by default).
+- Backend: statusd `POST /export` → `recon/export-report.sh --kind … --report … --out-dir … --quiet` (JSON path on stdout).
+- Assets: `inc-report-export.js`, `modern.css` (export classes); import-report syncs JS and injects the script on those three pages. Bust `inc-report-export.js?v=…` / `modern.css?v=export…` after changes.

@@ -797,7 +797,7 @@ EOF
 if declare -F f_audit_log >/dev/null 2>&1; then
     f_audit_log "$DISCOVER_REPORT" "Ran active recon"
 else
-    ts=$(date -u +"%m-%d-%Y Z - %H:%M")
+    ts=$(date -u +"%m-%d-%Y - %H:%M Z")
     op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
     [ -n "$op" ] || op=unknown
     ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')

@@ -13,14 +13,12 @@ import sys
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
-# New: time | operator | ip | action
-LINE_RE4 = re.compile(
-    r"^(\d{2}-\d{2}-\d{4} Z - \d{2}:\d{2}) \| ([^|]+) \| ([^|]+) \| (.*)$"
-)
+# Display stamp: "mm-dd-yyyy - hh:mm Z" (current) or legacy "mm-dd-yyyy Z - hh:mm"
+_AUDIT_TS = r"(\d{2}-\d{2}-\d{4}(?: - \d{2}:\d{2} Z| Z - \d{2}:\d{2}))"
+# Current: time | operator | ip | action
+LINE_RE4 = re.compile(rf"^{_AUDIT_TS} \| ([^|]+) \| ([^|]+) \| (.*)$")
 # Legacy: time | ip | action
-LINE_RE3 = re.compile(
-    r"^(\d{2}-\d{2}-\d{4} Z - \d{2}:\d{2}) \| ([^|]+) \| (.*)$"
-)
+LINE_RE3 = re.compile(rf"^{_AUDIT_TS} \| ([^|]+) \| (.*)$")
 
 # Host-scan tools: storage key → display label (quietest → loudest).
 # droopescan / wpscan are gated on the Subdomains panel (CMS / WordPress)
@@ -38,7 +36,7 @@ EXPORT_KIND_DISPLAY = {
     "client": "Client",
     "defender": "Defender",
     "defenders": "Defenders",
-    "audit-only": "Audit only",
+    "audit-only": "Defender",  # legacy kind name
     "operator": "Operator",
 }
 
@@ -80,18 +78,28 @@ def format_export_label(label: str) -> str:
     return " ".join(part.capitalize() for part in raw.replace("_", " ").replace("-", " ").split())
 
 
+def _is_audit_display_ts(s: str) -> bool:
+    """True if s is mm-dd-yyyy - hh:mm Z or legacy mm-dd-yyyy Z - hh:mm."""
+    return bool(
+        re.fullmatch(
+            r"\d{2}-\d{2}-\d{4}(?: - \d{2}:\d{2} Z| Z - \d{2}:\d{2})",
+            (s or "").strip(),
+        )
+    )
+
+
 def format_export_time(exp: dict) -> str:
-    """Match audit log times: mm-dd-yyyy Z - hh:mm (UTC)."""
+    """Match audit log times: mm-dd-yyyy - hh:mm Z (UTC)."""
     display = (exp.get("exported_at_display") or "").strip()
-    if display and " Z - " in display:
+    if display and _is_audit_display_ts(display):
         return display
 
     raw = (exp.get("exported_at_utc") or display or "").strip()
     if not raw:
         return "—"
 
-    # Already audit-log style
-    if " Z - " in raw:
+    # Already audit-log style (current or legacy)
+    if _is_audit_display_ts(raw):
         return raw
 
     # ISO-8601 UTC: 2026-07-16T00:37:51Z or with offset
@@ -104,15 +112,19 @@ def format_export_time(exp: dict) -> str:
             dt = dt.replace(tzinfo=timezone.utc)
         else:
             dt = dt.astimezone(timezone.utc)
-        return dt.strftime("%m-%d-%Y Z - %H:%M")
+        return dt.strftime("%m-%d-%Y - %H:%M Z")
     except Exception:
         return raw
 
 
 def _audit_action_hidden(action: str) -> bool:
-    """Skip routine noise on the Audit page."""
+    """Skip routine noise on the Audit page (action field or full raw line)."""
     a = (action or "").strip().rstrip(".").lower()
-    if a.startswith("opened report in discover"):
+    # Import / reopen noise — never show on Audit log.
+    if a.startswith("opened report in discover") or "opened report in discover" in a:
+        return True
+    # Exports are listed in the Exports table; omit from the audit log.
+    if a.startswith("exported ") or " | exported " in a:
         return True
     # Pass-2 start/finish are redundant with the parent nuclei lines + Output links.
     if "nuclei pass-2" in a or "nuclei pass 2" in a:
@@ -784,8 +796,7 @@ def build_html(report_root: Path) -> str:
     )
     lines.append(
         "<thead><tr>"
-        '<th scope="col" class="inc-sortable">Label</th>'
-        '<th scope="col" class="inc-sortable">Kind</th>'
+        '<th scope="col" class="inc-sortable">Type</th>'
         '<th scope="col" class="inc-sortable">Exported (UTC)</th>'
         '<th scope="col" class="inc-sortable">Operator IPs</th>'
         '<th scope="col" class="inc-audit-col-file">File</th>'
@@ -793,7 +804,6 @@ def build_html(report_root: Path) -> str:
     )
     if exports:
         for exp in exports:
-            label = format_export_label(str(exp.get("label") or ""))
             kind = format_export_kind(str(exp.get("kind") or "client"))
             exported = format_export_time(exp)
             ips = "Included" if exp.get("include_operator_ips") else "Redacted"
@@ -801,7 +811,6 @@ def build_html(report_root: Path) -> str:
             arch_cell = html.escape(os.path.basename(archive)) if archive else "—"
             lines.append(
                 "<tr>"
-                f"<td>{html.escape(label)}</td>"
                 f"<td>{html.escape(kind)}</td>"
                 f"<td>{html.escape(exported)}</td>"
                 f"<td>{html.escape(ips)}</td>"
@@ -810,11 +819,52 @@ def build_html(report_root: Path) -> str:
             )
     else:
         lines.append(
-            '<tr><td colspan="5" class="inc-audit-muted inc-audit-empty">No exports recorded yet.</td></tr>'
+            '<tr><td colspan="4" class="inc-audit-muted inc-audit-empty">No exports recorded yet.</td></tr>'
         )
     lines.append("</tbody></table></div></section>")
 
     return "\n".join(lines)
+
+
+def write_defender_csv(report_root: Path, dest: Path) -> Path:
+    """Write defender CSV using the same Action text as the Audit HTML page.
+
+    Started host-scans → exact tool command; Finished → tool + duration.
+    Same row filters as the Audit log (no Opened report / Exported noise).
+    """
+    import csv
+
+    report_root = report_root.resolve()
+    dest = Path(dest)
+    scan_index = build_host_scan_output_index(report_root)
+    rows_out: list[dict[str, str]] = []
+    for ts, operator, ip, action in load_audit_lines(report_root):
+        action_disp = _display_audit_action(
+            action,
+            report_root=report_root,
+            scan_index=scan_index,
+            ts=ts,
+        )
+        rows_out.append(
+            {
+                "time_utc": ts,
+                "operator": operator,
+                "operator_ip": ip,
+                "target": audit_target_from_action(action) or "",
+                "action": action_disp,
+            }
+        )
+
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with dest.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=["time_utc", "operator", "operator_ip", "target", "action"],
+            quoting=csv.QUOTE_MINIMAL,
+        )
+        writer.writeheader()
+        writer.writerows(rows_out)
+    return dest
 
 
 def write_audit_page(report_root: Path, template_path: Path | None = None) -> Path:
@@ -846,8 +896,24 @@ def write_audit_page(report_root: Path, template_path: Path | None = None) -> Pa
 
 
 def main(argv: list[str]) -> int:
+    # Defender CSV: audit-build.py --defender-csv <report_root> <out.csv>
+    if len(argv) >= 2 and argv[1] in {"--defender-csv", "-d"}:
+        if len(argv) < 4:
+            print(
+                "Usage: audit-build.py --defender-csv <report_root> <out.csv>",
+                file=sys.stderr,
+            )
+            return 2
+        path = write_defender_csv(Path(argv[2]), Path(argv[3]))
+        print(path)
+        return 0
+
     if len(argv) < 2:
         print("Usage: audit-build.py <report_root> [template_audit.htm]", file=sys.stderr)
+        print(
+            "       audit-build.py --defender-csv <report_root> <out.csv>",
+            file=sys.stderr,
+        )
         return 2
     report_root = Path(argv[1])
     template = Path(argv[2]) if len(argv) > 2 else None

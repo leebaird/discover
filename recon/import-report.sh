@@ -96,7 +96,8 @@ f_import_report_sync_assets(){
         inc-data-table.js \
         inc-audit-status.js \
         inc-active-cve-tabs.js \
-        inc-active-cve-search.js
+        inc-active-cve-search.js \
+        inc-report-export.js
     do
         if [ -f "$src/javascript/$js" ]; then
             cp -f "$src/javascript/$js" "$report/assets/javascript/$js" 2>/dev/null || \
@@ -111,11 +112,24 @@ f_import_report_sync_assets(){
         # Bust browser cache on Subdomains after layout / host-scan / Shodan fixes.
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
-                -e 's|modern\.css?v=[^"]*|modern.css?v=ws24|g' \
+                -e 's|modern\.css?v=[^"]*|modern.css?v=export7|g' \
                 -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=18|g' \
                 -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=14|g' \
                 "$report/pages/subdomains.htm" 2>/dev/null || true
         fi
+        # Report section pages: Export UI + CSS bust
+        for page in passive.htm active.htm audit.htm; do
+            if [ -f "$report/pages/$page" ]; then
+                sed -i \
+                    -e 's|modern\.css?v=[^"]*|modern.css?v=export7|g' \
+                    -e 's|inc-report-export\.js?v=[0-9]*|inc-report-export.js?v=3|g' \
+                    "$report/pages/$page" 2>/dev/null || true
+                if ! grep -q 'inc-report-export.js' "$report/pages/$page" 2>/dev/null; then
+                    sed -i 's|</body>|<script src="../assets/javascript/inc-report-export.js?v=3"></script>\n</body>|' \
+                        "$report/pages/$page" 2>/dev/null || true
+                fi
+            fi
+        done
     fi
 }
 

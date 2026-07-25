@@ -498,7 +498,7 @@ def append_audit_log(report_dir: str, action: str) -> None:
         os.makedirs(audit_dir, exist_ok=True)
     except OSError:
         return
-    ts = datetime.now(timezone.utc).strftime("%m-%d-%Y Z - %H:%M")
+    ts = datetime.now(timezone.utc).strftime("%m-%d-%Y - %H:%M Z")
     if not action.endswith("."):
         action = action + "."
     # Operator + egress IP: shell wrapper prefers f_audit_log; fallback name from ~/.discover.

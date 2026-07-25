@@ -134,7 +134,7 @@ if [ -f "$LOCK" ]; then
 fi
 
 STAMP=$(date -u +"%Y%m%dT%H%M%SZ")
-STAMP_DISPLAY=$(date -u +"%m-%d-%Y Z - %H:%M")
+STAMP_DISPLAY=$(date -u +"%m-%d-%Y - %H:%M Z")
 RUN_DIR="$SCANS_DIR/$HOST/$TOOL/$STAMP"
 mkdir -p "$RUN_DIR"
 OUT_FILE="$RUN_DIR/output.txt"
@@ -186,7 +186,7 @@ f_audit(){
     local audit_log="$audit_dir/log.txt"
     mkdir -p "$audit_dir"
     local ts ip op
-    ts=$(date -u +"%m-%d-%Y Z - %H:%M")
+    ts=$(date -u +"%m-%d-%Y - %H:%M Z")
     if declare -F f_audit_operator_name >/dev/null 2>&1; then
         op=$(f_audit_operator_name)
     else
@@ -200,7 +200,7 @@ f_audit(){
         [ -n "$ip" ] || ip=unknown
     fi
     case "$action" in *.) ;; *) action="${action}." ;; esac
-    # mm-dd-yyyy Z - hh:mm | operator | egress IP | action
+    # mm-dd-yyyy - hh:mm Z | operator | egress IP | action
     printf '%s | %s | %s | %s\n' "$ts" "$op" "$ip" "$action" >> "$audit_log"
 }
 
@@ -1043,7 +1043,7 @@ PY
         ;;
 esac
 
-FINISHED=$(date -u +"%m-%d-%Y Z - %H:%M")
+FINISHED=$(date -u +"%m-%d-%Y - %H:%M Z")
 python3 - "$META_FILE" "$FINISHED" "$EXIT_CODE" <<'PY'
 import json, sys
 path, finished, code = sys.argv[1], sys.argv[2], int(sys.argv[3])

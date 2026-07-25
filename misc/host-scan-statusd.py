@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Planning by Lee Baird (@discoverscripts)
 # Coded by Grok (xAI)
-"""Localhost-only status helper + static report server for host-scan UI.
+"""Localhost-only status helper + static report server for Discover operator UI.
 
 Usage:
   host-scan-statusd.py <report_root> [port]
@@ -10,15 +10,19 @@ Binds 127.0.0.1 only. Serves:
   GET /status  -> tools/host-scans/status.json
   GET /mode    -> assets/report-mode.json
   GET /health  -> ok
+  POST /export -> run recon/export-report.sh (JSON body: {"kind":"client"|"defender"|"operator"})
   GET /*       -> files under report_root (operator browser via http://127.0.0.1:port/)
 
-Host-scan chevrons only appear when the report is opened through this server
-(Import report / Active), not via file:// manual open.
+Host-scan chevrons and Export button only appear when the report is opened
+through this server (Import report / Active), not via file:// manual open.
 """
 
 from __future__ import annotations
 
+import json
 import mimetypes
+import os
+import subprocess
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -39,12 +43,15 @@ def main(argv: list[str]) -> int:
     status_path = report_root / "tools" / "host-scans" / "status.json"
     mode_path = report_root / "assets" / "report-mode.json"
 
+    # Discover install root (…/discover) from this script: misc/ → parent
+    discover_root = Path(__file__).resolve().parent.parent
+    export_script = discover_root / "recon" / "export-report.sh"
+
     def safe_report_file(url_path: str) -> Path | None:
         """Map URL path to a file under report_root, or None."""
         rel = unquote(url_path).split("?", 1)[0]
         rel = rel.lstrip("/")
         if not rel:
-            # Prefer index.htm at report root
             for name in ("index.htm", "index.html"):
                 cand = report_root / name
                 if cand.is_file():
@@ -77,9 +84,127 @@ def main(argv: list[str]) -> int:
             self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
             self.send_header("Cache-Control", cache)
             self.end_headers()
             self.wfile.write(body)
+
+        def do_OPTIONS(self):
+            self._send(204, b"")
+
+        def do_POST(self):
+            parsed = urlparse(self.path)
+            path = parsed.path or "/"
+            if path != "/export":
+                self._send(404, b'{"ok":false,"error":"not found"}\n')
+                return
+
+            length = int(self.headers.get("Content-Length") or "0")
+            raw = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                body = json.loads(raw.decode("utf-8") or "{}")
+            except json.JSONDecodeError:
+                self._send(400, b'{"ok":false,"error":"invalid JSON"}\n')
+                return
+
+            kind = str(body.get("kind") or "").strip().lower()
+            if kind not in {"client", "defender", "operator"}:
+                self._send(
+                    400,
+                    b'{"ok":false,"error":"kind must be client, defender, or operator"}\n',
+                )
+                return
+
+            if not export_script.is_file():
+                self._send(
+                    500,
+                    json.dumps(
+                        {"ok": False, "error": f"export script missing: {export_script}"}
+                    ).encode()
+                    + b"\n",
+                )
+                return
+
+            out_dir = Path.home() / "data"
+            try:
+                out_dir.mkdir(parents=True, exist_ok=True)
+            except OSError as exc:
+                self._send(
+                    500,
+                    json.dumps({"ok": False, "error": f"out dir: {exc}"}).encode()
+                    + b"\n",
+                )
+                return
+
+            env = os.environ.copy()
+            env["DISCOVER"] = str(discover_root)
+            env["HOME"] = str(Path.home())
+
+            try:
+                proc = subprocess.run(
+                    [
+                        "bash",
+                        str(export_script),
+                        "--kind",
+                        kind,
+                        "--report",
+                        str(report_root),
+                        "--out-dir",
+                        str(out_dir),
+                        "--quiet",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=3600,
+                    env=env,
+                    cwd=str(discover_root),
+                )
+            except subprocess.TimeoutExpired:
+                self._send(504, b'{"ok":false,"error":"export timed out"}\n')
+                return
+            except OSError as exc:
+                self._send(
+                    500,
+                    json.dumps({"ok": False, "error": str(exc)}).encode() + b"\n",
+                )
+                return
+
+            # Last non-empty line should be JSON from export-report.sh
+            lines = [
+                ln.strip()
+                for ln in (proc.stdout or "").splitlines()
+                if ln.strip()
+            ]
+            result = None
+            for ln in reversed(lines):
+                try:
+                    result = json.loads(ln)
+                    if isinstance(result, dict):
+                        break
+                except json.JSONDecodeError:
+                    continue
+
+            if not isinstance(result, dict):
+                err = (proc.stderr or proc.stdout or "export failed").strip()
+                self._send(
+                    500 if proc.returncode else 500,
+                    json.dumps(
+                        {
+                            "ok": False,
+                            "error": err[:500] or f"export exit {proc.returncode}",
+                        }
+                    ).encode()
+                    + b"\n",
+                )
+                return
+
+            code = 200 if result.get("ok") and proc.returncode == 0 else 400
+            if proc.returncode != 0 and result.get("ok"):
+                result["ok"] = False
+                result.setdefault("error", f"export exit {proc.returncode}")
+                code = 500
+            self._send(code, json.dumps(result).encode() + b"\n")
 
         def do_GET(self):
             parsed = urlparse(self.path)
@@ -104,7 +229,6 @@ def main(argv: list[str]) -> int:
                     self._send(200, b'{"running":false,"hosts":{}}\n')
                 return
 
-            # Static report files (operator UI over http://127.0.0.1)
             if path == "/":
                 path = "/index.htm"
             fpath = safe_report_file(path)
@@ -128,7 +252,6 @@ def main(argv: list[str]) -> int:
                     ctype = "application/json"
                 else:
                     ctype = "application/octet-stream"
-            # HTML/JS need revalidation so host-scan cache-busts work
             cache = "no-cache" if fpath.suffix.lower() in {
                 ".htm",
                 ".html",

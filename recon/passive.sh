@@ -972,6 +972,12 @@ f_report_append_pre_page(){
         echo "    </div>"
         echo "</div>"
         echo
+        # Discover-hosted Export on Report → Passive only
+        case "$PAGE" in
+            *passive.htm)
+                echo '<script src="../assets/javascript/inc-report-export.js?v=3"></script>'
+                ;;
+        esac
         echo "</body>"
         echo "</html>"
     } >> "$PAGE"
@@ -1652,7 +1658,7 @@ EOF
         f_audit_log "$HOME/data/$DOMAIN" "Ran passive recon"
     else
         mkdir -p "$HOME/data/$DOMAIN/tools/audit" 2>/dev/null || true
-        ts=$(date -u +"%m-%d-%Y Z - %H:%M")
+        ts=$(date -u +"%m-%d-%Y - %H:%M Z")
         op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
         [ -n "$op" ] || op=unknown
         ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')

@@ -175,8 +175,7 @@ RECON
 9.  Active
 10. Import report
 11. Enrich with Shodan
-12. Export report
-13. Previous menu
+12. Previous menu
 ```
 
 Note: Passive and Active cannot be run as root.
@@ -193,7 +192,7 @@ Typical domain engagement path:
 4. **Enrich with Shodan** (optional) — host-by-IP OSINT for public IPs from Active httpx.
 5. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, WPScan when WordPress, Nikto, ffuf) in operator mode.
 6. **Import report** — reopen the live tree later for more testing (operator mode).
-7. **Export report** — Client, Defender, or Audit-only package for delivery.
+7. **Export** — on Report → Passive / Active / Audit (Discover-hosted only): Client, Defender (audit CSV), or Operator package; path shown after export.
 8. **Reports → Audit** in the HTML report — Target scans, Audit log, and Exports.
 
 ---
@@ -530,25 +529,20 @@ Empty or invalid paths show an error and exit (same style as Active / Import nam
 
 #### Export report
 
-Script: `recon/export-report.sh` (Domain menu **12**).
+**UI (preferred):** Open the engagement via **Import report** (or Active) so it is served at `http://127.0.0.1:17322/…`. On **Report → Passive**, **Active**, or **Audit**, use the **Export** button (top of the page; Discover-hosted only). A modal offers:
 
-Package a snapshot for delivery without leaving the live tree in client mode.
+| Kind | Package |
+|------|---------|
+| **Client** | HTML ZIP; operator IPs redacted; scans disabled |
+| **Defender** | Audit log CSV only (`time_utc`, `operator`, `operator_ip`, `target`, `action`) — Action matches the Audit page (tool command / finished + duration) |
+| **Operator** | Full HTML ZIP; IPs included; launches enabled in package stamp |
 
-```
-Package for:
-  c) Client   — HTML report; audit log redacts operator egress IPs (default)
-  d) Defender — HTML report; audit log keeps operator egress IPs
-  a) Audit only (defenders) — plain-text audit log with operator IPs
+After **Export**, the modal shows the output path (default directory `$HOME/data`).
 
-Export label (e.g. briefing, update) [briefing]:
-```
+**CLI / statusd:** `recon/export-report.sh --kind client|defender|operator --report <path> [--out-dir <path>] [--quiet]`
 
-* Prefers the session engagement from Import report when available
-* **Client** — ZIP of the HTML report; operator IPs redacted in the shipped audit log; scan launches disabled
-* **Defender** — ZIP of the HTML report; operator IPs kept; launches disabled
-* **Audit only** — plain-text audit log with operator IPs (for defenders)
+* Live engagement stays operator mode
 * Writes an **Exports** entry under `tools/exports/` and an audit log line
-* Live report under `$HOME/data/<domain>/` stays operator mode for continued testing
 
 ---
 
@@ -560,7 +554,7 @@ Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit
 |---------|---------|
 | **Target scans** | Per-host history for **Nuclei**, **droopescan**, **WPScan**, **Nikto**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
 | **Audit log** | Newest-first by default; **Time (UTC)**, **Operator**, **Operator IP**, **Target**, **Action** (**Started** = exact command; **Finished** = e.g. `Finished nikto in 5 min 14 sec.`), **Output**. Full log lines stay in `tools/audit/log.txt` |
-| **Exports** | Label, kind (Client / Defender / Audit only), exported time (UTC), operator IPs (Included / Redacted), file name |
+| **Exports** | Type (Client / Defender / Operator), exported time (UTC), operator IPs (Included / Redacted), file name |
 
 Import report rebuilds this page. Host scans and exports append data under `tools/` that appears on Audit after the next rebuild (Import, host-scan finish, or export path).
 

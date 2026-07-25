@@ -561,7 +561,7 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     margin: 0;
     padding: 0 12px;
     border: 1px solid #1a4a9e;
-    border-radius: 4px;
+    border-radius: 6px;
     background: var(--accent, #2264d6);
     color: #fff;
     font-family: var(--font);
@@ -1871,4 +1871,252 @@ body:not(.inc-iframe-parent) pre {
     width: 1100px;
     min-width: 0;
     max-width: 100%;
+}
+/* Report Export button (Discover-hosted Passive / Active / Audit only).
+   Absolute top-right so Active’s 3-col CVE grid and Passive flex stay intact. */
+.inc-page-header.inc-page-header--with-export {
+    position: relative;
+    padding-right: 96px;
+    box-sizing: border-box;
+}
+
+.inc-page-header .inc-report-export-btn {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    z-index: 2;
+    margin: 0;
+    padding: 6px 14px;
+    border: 1px solid #1a4a9e;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.inc-page-header .inc-report-export-btn:hover,
+.inc-page-header .inc-report-export-btn:focus {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    outline: none;
+}
+
+.inc-report-export-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10060;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.inc-report-export-modal[hidden] {
+    display: none !important;
+}
+
+.inc-report-export-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.inc-report-export-dialog {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 480px;
+    max-height: min(90vh, 640px);
+    overflow: auto;
+    padding: 16px 18px 18px;
+    border: 1px solid #2f3844;
+    border-radius: 10px;
+    background: #1e2329;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    box-sizing: border-box;
+    color: #aeb5bf;
+}
+
+.inc-report-export-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.inc-report-export-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.97);
+}
+
+.inc-report-export-x {
+    flex: 0 0 auto;
+    margin: -4px -4px 0 0;
+    padding: 0 6px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: #8a9199;
+    font-size: 22px;
+    line-height: 1.2;
+    cursor: pointer;
+}
+
+.inc-report-export-x:hover {
+    color: #fff;
+}
+
+.inc-report-export-lead {
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: #9aa3ad;
+}
+
+.inc-report-export-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.inc-report-export-choice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid #2f3844;
+    border-radius: 8px;
+    background: #161a1f;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: normal;
+    color: #aeb5bf;
+}
+
+.inc-report-export-choice:hover {
+    border-color: #3d4a5a;
+}
+
+/* Purple radios (override OS theme orange/red) + selected card */
+.inc-report-export-choice input {
+    margin-top: 3px;
+    flex: 0 0 auto;
+    accent-color: #9c27b0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.inc-report-export-choice:has(input:checked) {
+    border-color: #9c27b0;
+    background: #1a1022;
+    box-shadow: 0 0 0 1px rgba(156, 39, 176, 0.35);
+}
+
+.inc-report-export-choice strong {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.inc-report-export-status {
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.45;
+    word-break: break-word;
+    font-family: var(--font-mono);
+}
+
+.inc-report-export-status.is-ok {
+    background: #0f1a12;
+    border: 1px solid #2e7d32;
+    color: #a5d6a7;
+}
+
+.inc-report-export-status.is-error {
+    background: #1a1024 !important;
+    border: 1px solid #9c27b0 !important;
+    color: #e1bee7 !important;
+}
+
+/* Success path: label on its own line; path never wraps (scroll if long) */
+.inc-report-export-status.is-path {
+    word-break: normal;
+    overflow: hidden;
+}
+
+.inc-report-export-status-label {
+    margin: 0 0 6px;
+    font-family: var(--font);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.inc-report-export-status-path {
+    margin: 0;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    word-break: normal;
+    overflow-wrap: normal;
+    max-width: 100%;
+    scrollbar-width: thin;
+}
+
+.inc-report-export-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.inc-report-export-actions[hidden] {
+    display: none !important;
+}
+
+.inc-report-export-cancel,
+.inc-report-export-go {
+    margin: 0;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.inc-report-export-cancel {
+    border: 1px solid #2f3844;
+    background: transparent;
+    color: #aeb5bf;
+}
+
+.inc-report-export-cancel:hover {
+    border-color: #4a5563;
+    color: #fff;
+}
+
+.inc-report-export-go {
+    border: 1px solid #1a4a9e;
+    background: var(--accent);
+    color: #fff;
+}
+
+.inc-report-export-go:hover:not(:disabled) {
+    background: var(--accent-hover);
+}
+
+.inc-report-export-go:disabled {
+    opacity: 0.55;
+    cursor: wait;
 }
