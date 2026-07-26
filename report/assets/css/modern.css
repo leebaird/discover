@@ -934,15 +934,15 @@ tr.inc-subdomains-filter-hide {
     table-layout: auto;
 }
 
-/* Target scans columns (px). Target + Nuclei + droopescan + WPScan + Nikto + ffuf.
- * Full width matches Audit log table below (same frame).
- * Target = Time (170) + Operator IP (140) = 310.
- * Tool columns share remaining width with a content floor. */
+/* Target scans columns (px).
+ * Target 310 + 5 tool cols × 200 = 1310 (Nuclei, droopescan, WPScan, Nikto, ffuf).
+ * table-layout:fixed + explicit table width so tool cols stay 200px (no stretch). */
 .inc-audit-page .inc-audit-frame-wide table.inc-data-table.inc-audit-host-scans,
 .inc-audit-page table.inc-audit-host-scans {
-    width: 100%;
-    max-width: 100%;
-    table-layout: auto;
+    width: 1310px;
+    min-width: 1310px;
+    max-width: 1310px;
+    table-layout: fixed;
     box-sizing: border-box;
 }
 
@@ -955,12 +955,14 @@ tr.inc-subdomains-filter-hide {
     box-sizing: border-box;
 }
 
-/* Nuclei (2), droopescan (3), WPScan (4), Nikto (5), ffuf (6) */
+/* Nuclei (2), droopescan (3), WPScan (4), Nikto (5), ffuf (6) — each 200px */
 .inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(n+2),
 .inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(n+2) {
-    width: 1%;
-    min-width: 240px;
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
     white-space: nowrap;
+    overflow: hidden;
     box-sizing: border-box;
 }
 
@@ -1108,35 +1110,52 @@ tr.inc-subdomains-filter-hide {
     font-size: 15px;
 }
 
-/* Small scan / htm buttons inline with host-scan timestamps */
+/* Small scan / htm buttons under host-scan timestamps */
 .inc-audit-page .inc-audit-btn-row {
     display: inline-flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    margin: 0;
     vertical-align: middle;
 }
 
-/* Target scans: timestamp + TXT/HTM on one vertically centered row */
+/* Target scans: compact cells — date above buttons, tight gap */
+.inc-audit-page table.inc-audit-host-scans > thead > tr > th,
 .inc-audit-page table.inc-audit-host-scans > tbody > tr > td {
+    padding: 6px 8px;
     vertical-align: middle;
 }
 
 .inc-audit-page .inc-audit-tool-cell {
     display: inline-flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 16px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 6px;
     white-space: nowrap;
-    line-height: 1.4;
+    line-height: 1.2;
     vertical-align: middle;
+}
+
+.inc-audit-page .inc-audit-tool-cell-time {
+    display: block;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+    font-size: 15px;
+}
+
+.inc-audit-page .inc-audit-tool-cell .inc-audit-btn-row {
+    margin: 0;
+    line-height: 1.2;
 }
 
 .inc-audit-page a.inc-audit-btn {
     display: inline-block;
-    padding: 1px 8px;
+    padding: 0 6px;
     border-radius: 4px;
     font-size: 10px;
     font-weight: 700;
@@ -1146,7 +1165,7 @@ tr.inc-subdomains-filter-hide {
     color: #fff !important;
     background: #2e7d32;
     border: 1px solid #1b5e20;
-    line-height: 1.4;
+    line-height: 1.35;
     cursor: pointer;
     vertical-align: middle;
 }
