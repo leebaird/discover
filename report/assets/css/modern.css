@@ -966,19 +966,59 @@ tr.inc-subdomains-filter-hide {
     box-sizing: border-box;
 }
 
-/* Label / Kind / Exported / Operator IPs shrink; File takes the rest */
-.inc-audit-page table.inc-audit-deliverables > thead > tr > th:nth-child(-n+4),
-.inc-audit-page table.inc-audit-deliverables > tbody > tr > td:nth-child(-n+4) {
-    width: 1%;
-    white-space: nowrap;
+/* Exports table: all columns fixed px so File edits never reflow Type/Exported/IPs.
+ * Type 110 + Exported 170 + Operator IPs 120 + File 400 = 800. */
+.inc-audit-page .inc-audit-frame-wide table.inc-data-table.inc-audit-deliverables,
+.inc-audit-page table.inc-audit-deliverables {
+    width: 800px;
+    min-width: 800px;
+    max-width: 800px;
+    table-layout: fixed;
+    box-sizing: border-box;
 }
 
+/* Type */
+.inc-audit-page table.inc-audit-deliverables > thead > tr > th:nth-child(1),
+.inc-audit-page table.inc-audit-deliverables > tbody > tr > td:nth-child(1) {
+    width: 110px;
+    min-width: 110px;
+    max-width: 110px;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+/* Exported (UTC) — same stamp width as Audit log Time */
+.inc-audit-page table.inc-audit-deliverables > thead > tr > th:nth-child(2),
+.inc-audit-page table.inc-audit-deliverables > tbody > tr > td:nth-child(2) {
+    width: 170px;
+    min-width: 170px;
+    max-width: 170px;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+/* Operator IPs */
+.inc-audit-page table.inc-audit-deliverables > thead > tr > th:nth-child(3),
+.inc-audit-page table.inc-audit-deliverables > tbody > tr > td:nth-child(3) {
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+/* File */
 .inc-audit-page table.inc-audit-deliverables > thead > tr > th.inc-audit-col-file,
-.inc-audit-page table.inc-audit-deliverables > tbody > tr > td.inc-audit-col-file {
-    width: 99%;
+.inc-audit-page table.inc-audit-deliverables > thead > tr > th:nth-child(4),
+.inc-audit-page table.inc-audit-deliverables > tbody > tr > td.inc-audit-col-file,
+.inc-audit-page table.inc-audit-deliverables > tbody > tr > td:nth-child(4) {
+    width: 400px;
+    min-width: 400px;
+    max-width: 400px;
     white-space: normal;
     word-break: break-word;
     overflow-wrap: anywhere;
+    box-sizing: border-box;
 }
 
 /* Audit log: Time / Operator / IP shrink; Action takes remaining width.
@@ -2138,4 +2178,147 @@ body:not(.inc-iframe-parent) pre {
 .inc-report-export-go:disabled {
     opacity: 0.55;
     cursor: wait;
+}
+
+/* Active: Status codes title → help modal */
+.inc-active-page .inc-active-section-title-btn {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.inc-active-page .inc-active-section-title-btn:hover,
+.inc-active-page .inc-active-section-title-btn:focus {
+    color: #fff;
+    text-decoration: underline;
+    outline: none;
+}
+
+.inc-active-status-codes-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10060;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.inc-active-status-codes-modal[hidden] {
+    display: none !important;
+}
+
+.inc-active-status-codes-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.inc-active-status-codes-dialog {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    max-height: min(90vh, 720px);
+    overflow: auto;
+    padding: 16px 18px 18px;
+    border: 1px solid #2f3844;
+    border-radius: 10px;
+    background: #1e2329;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    box-sizing: border-box;
+    color: #aeb5bf;
+    font-family: var(--font);
+    font-size: 15px; /* match Active report tables */
+}
+
+.inc-active-status-codes-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.inc-active-status-codes-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.97);
+}
+
+.inc-active-status-codes-x {
+    flex: 0 0 auto;
+    margin: -4px -4px 0 0;
+    padding: 0 6px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: #8a9199;
+    font-size: 22px;
+    line-height: 1.2;
+    cursor: pointer;
+}
+
+.inc-active-status-codes-x:hover,
+.inc-active-status-codes-x:focus {
+    color: #fff;
+    outline: none;
+}
+
+.inc-active-status-codes-lead {
+    margin: 0 0 12px;
+    font-size: 15px;
+    color: #9aa3ad;
+}
+
+.inc-active-status-codes-list {
+    margin: 0;
+    padding: 0;
+    font-size: 15px;
+}
+
+.inc-active-status-codes-row {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border: 1px solid #2f3844;
+    border-radius: 6px;
+    background: #161a1f;
+}
+
+.inc-active-status-codes-row:last-child {
+    margin-bottom: 0;
+}
+
+.inc-active-status-codes-row dt {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.inc-active-status-codes-code {
+    display: inline-block;
+    min-width: 36px;
+    margin-right: 4px;
+    color: var(--accent-hover, #4d9aff);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.inc-active-status-codes-row dd {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #aeb5bf;
 }

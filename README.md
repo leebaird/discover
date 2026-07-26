@@ -552,8 +552,8 @@ Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit
 
 | Section | Content |
 |---------|---------|
-| **Target scans** | Per-host history for **Nuclei**, **droopescan**, **WPScan**, **Nikto**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
 | **Audit log** | Newest-first by default; **Time (UTC)**, **Operator**, **Operator IP**, **Target**, **Action** (**Started** = exact command; **Finished** = e.g. `Finished nikto in 5 min 14 sec.`), **Output**. Full log lines stay in `tools/audit/log.txt` |
+| **Target scans** | Per-host history for **Nuclei**, **droopescan**, **WPScan**, **Nikto**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
 | **Exports** | Type (Client / Defender / Operator), exported time (UTC), operator IPs (Included / Redacted), file name |
 
 Import report rebuilds this page. Host scans and exports append data under `tools/` that appears on Audit after the next rebuild (Import, host-scan finish, or export path).

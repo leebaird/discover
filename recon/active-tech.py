@@ -748,14 +748,25 @@ def summary_table(
     sort_last_labels=None,
     section_class="",
     label_html_fn=None,
+    title_help=False,
 ):
     sort_last_labels = set(sort_last_labels or [])
     class_names = "inc-active-section"
     if section_class:
         class_names = f"{class_names} {section_class}"
+    if title_help:
+        # Clickable section title (e.g. Status codes → HTTP reference modal).
+        title_html = (
+            f'<button type="button" class="inc-active-section-title-btn" '
+            f'data-inc-active-status-codes-help="1" '
+            f'title="HTTP status code reference">'
+            f"{html.escape(title)}</button>"
+        )
+    else:
+        title_html = html.escape(title)
     lines = [
         f'    <section class="{class_names}">',
-        f'        <h3 class="inc-active-section-title">{html.escape(title)}</h3>',
+        f'        <h3 class="inc-active-section-title">{title_html}</h3>',
         '        <div class="inc-content-frame inc-content-frame--table">',
         '        <table class="table table-bordered inc-data-table">',
         "            <thead>",
@@ -1166,6 +1177,7 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
                         status_rows,
                         section_class="inc-active-section--status",
                         label_html_fn=status_label_html,
+                        title_help=True,
                     ),
                 ],
                 [

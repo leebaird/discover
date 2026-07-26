@@ -692,51 +692,7 @@ def build_html(report_root: Path) -> str:
             "Tool launches are disabled.</p>"
         )
 
-    # Target scans
-    lines.append('<section class="inc-audit-section">')
-    lines.append('<h3 class="inc-audit-section-title">Target scans</h3>')
-    lines.append(
-        '<div class="inc-content-frame inc-content-frame--table inc-audit-frame-wide">'
-    )
-    lines.append(
-        '<table class="table table-bordered inc-data-table inc-audit-host-scans">'
-    )
-    tool_headers = "".join(
-        f'<th scope="col" class="inc-sortable">{html.escape(label)}</th>'
-        for _key, label in HOST_SCAN_TOOLS
-    )
-    lines.append(
-        "<thead><tr>"
-        '<th scope="col" class="inc-sortable">Target</th>'
-        f"{tool_headers}"
-        "</tr></thead><tbody>"
-    )
-    if host_rows:
-        for row in host_rows:
-            tools = row.get("tools") or {}
-            cells = []
-            for key, _label in HOST_SCAN_TOOLS:
-                meta = tools.get(key)
-                cells.append(
-                    tool_cell(
-                        meta if isinstance(meta, dict) else None,
-                        tool=key,
-                        report_root=report_root,
-                    )
-                )
-            lines.append(
-                "<tr>"
-                f"<td>{html.escape(row['host'])}</td>"
-                + "".join(f"<td>{c}</td>" for c in cells)
-                + "</tr>"
-            )
-    else:
-        lines.append(
-            '<tr><td colspan="5" class="inc-audit-muted inc-audit-empty">No host scans recorded yet.</td></tr>'
-        )
-    lines.append("</tbody></table></div></section>")
-
-    # Audit log
+    # Audit log (primary — above Target scans)
     lines.append('<section class="inc-audit-section inc-audit-section--log">')
     lines.append('<h3 class="inc-audit-section-title">Audit log</h3>')
     lines.append(
@@ -782,6 +738,51 @@ def build_html(report_root: Path) -> str:
     else:
         lines.append(
             '<tr><td colspan="6" class="inc-audit-muted">No audit events yet.</td></tr>'
+        )
+    lines.append("</tbody></table></div></section>")
+
+    # Target scans
+    lines.append('<section class="inc-audit-section">')
+    lines.append('<h3 class="inc-audit-section-title">Target scans</h3>')
+    lines.append(
+        '<div class="inc-content-frame inc-content-frame--table inc-audit-frame-wide">'
+    )
+    lines.append(
+        '<table class="table table-bordered inc-data-table inc-audit-host-scans">'
+    )
+    tool_headers = "".join(
+        f'<th scope="col" class="inc-sortable">{html.escape(label)}</th>'
+        for _key, label in HOST_SCAN_TOOLS
+    )
+    lines.append(
+        "<thead><tr>"
+        '<th scope="col" class="inc-sortable">Target</th>'
+        f"{tool_headers}"
+        "</tr></thead><tbody>"
+    )
+    if host_rows:
+        for row in host_rows:
+            tools = row.get("tools") or {}
+            cells = []
+            for key, _label in HOST_SCAN_TOOLS:
+                meta = tools.get(key)
+                cells.append(
+                    tool_cell(
+                        meta if isinstance(meta, dict) else None,
+                        tool=key,
+                        report_root=report_root,
+                    )
+                )
+            lines.append(
+                "<tr>"
+                f"<td>{html.escape(row['host'])}</td>"
+                + "".join(f"<td>{c}</td>" for c in cells)
+                + "</tr>"
+            )
+    else:
+        lines.append(
+            f'<tr><td colspan="{1 + len(HOST_SCAN_TOOLS)}" class="inc-audit-muted inc-audit-empty">'
+            "No host scans recorded yet.</td></tr>"
         )
     lines.append("</tbody></table></div></section>")
 
