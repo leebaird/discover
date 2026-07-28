@@ -378,13 +378,18 @@ PY
     fi
 
     # ffuf — per-user default headers in ~/.config/ffuf/ffufrc (no system-wide default).
-    # When Update runs under sudo, patch the invoking user's config (and root if needed).
+    # Discover host-scan passes -H User-Agent from resource/user-agent.txt; ffufrc is for
+    # bare/manual ffuf. Only patch the operator's home — never /root (ffuf is not run as root).
     f_patch_ffuf_ua(){
         local home_dir="$1"
         local owner="$2"
         local conf_dir conf_file
 
         [ -n "$home_dir" ] && [ -d "$home_dir" ] || return 1
+        # Never write root's ffuf config.
+        if [ "$home_dir" = "/root" ] || [ "$owner" = "root" ]; then
+            return 0
+        fi
         conf_dir="$home_dir/.config/ffuf"
         conf_file="$conf_dir/ffufrc"
         mkdir -p "$conf_dir" || return 1
@@ -455,16 +460,12 @@ PY
         return 1
     }
 
-    if [ -n "$SUDO_USER" ]; then
+    # Prefer the sudo-invoking operator; otherwise non-root $HOME only.
+    if [ -n "$SUDO_USER" ] && [ "$SUDO_USER" != "root" ]; then
         sudo_home=$(getent passwd "$SUDO_USER" | cut -d: -f6)
         f_patch_ffuf_ua "$sudo_home" "$SUDO_USER" || true
-    fi
-    # Also patch the effective home (root when Update is run with sudo).
-    if [ -z "$SUDO_USER" ] || [ "$(id -u)" -eq 0 ]; then
-        # Avoid double-writing the same path when not using sudo.
-        if [ -z "$SUDO_USER" ] || [ "${sudo_home:-}" != "$HOME" ]; then
-            f_patch_ffuf_ua "$HOME" "$(id -un)" || true
-        fi
+    elif [ "$(id -u)" -ne 0 ]; then
+        f_patch_ffuf_ua "$HOME" "$(id -un)" || true
     fi
 
     echo

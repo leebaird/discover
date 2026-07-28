@@ -534,9 +534,17 @@ def audit_output_cell(
     report_root: Path,
     scan_index: dict[str, dict[str, dict]],
 ) -> str:
-    """Output column: scan / htm / pass2 buttons when the action is a host scan."""
+    """Output column: scan / htm / pass2 buttons when the action is a host scan.
+
+    Icons appear on the Started line only. Finished rows already share the same
+    report via the prior scan line, so they show a muted dash.
+    """
     m = _AUDIT_SCAN_ACTION_RE.search(action or "")
     if not m:
+        return '<span class="inc-audit-muted">—</span>'
+
+    # Finished … already linked from the Started row for that scan.
+    if m.group("verb").lower() == "finished":
         return '<span class="inc-audit-muted">—</span>'
 
     tool_raw = re.sub(r"\s+", " ", m.group("tool").strip().lower())
