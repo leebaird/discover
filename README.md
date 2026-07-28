@@ -264,29 +264,48 @@ Enter the location of your previous passive scan:
 
 Script: `recon/import-subdomains.sh` (Domain menu **8**).
 
-Run after a passive scan to add or enrich hosts from Pentest-Tools or manual research.
+Run after a passive scan to add or enrich hosts. The menu offers **two choices**:
+
+1. **Existing sources** — Firefox / Pentest-Tools / manual TSV (previous behavior)
+2. **Team CSV** — `subdomain,ip,category` from teammate tools (one IPv4 per host)
 
 ```
 Enter the location of your previous passive scan:
 /home/user/data/example.com
 
-Enter import file or firefox (or press Enter for default):
+1. Existing sources (Firefox / Pentest-Tools / TSV)
+2. Team CSV (subdomain, IPv4, category)
+Choice: 2
+
+Enter path to team CSV:
+/home/user/team-hosts.csv
 ```
 
-Supported imports:
+**Choice 1 — existing sources**
 
 * `firefox` — pull `pinia/scans` from your Firefox profile (free Pentest-Tools scans)
 * Firefox `pinia/scans` export (`pinia-scans.json`)
 * Pentest-Tools JSON (`pentest-tools-<domain>.json`)
 * Pentest-Tools text export (`pentest-tools.txt`)
-* Tab-separated host/IP rows
+* Tab-separated host/IP rows (full path required, e.g. `tools/subdomains-import.tsv`)
+* Empty or invalid paths error out (no auto-create)
+* Hosts without an IP are resolved with `dig`
+* Categories from Discover `old/subdomain-categories.tsv` only
 
-* Edit `$HOME/data/<domain>/tools/subdomains-import.tsv` for manual entries
-* Format: Subdomain, IP (tab-separated; IP optional)
-* Hosts without an IP are resolved with `dig` during import
-* Re-run Import subdomains whenever you add rows or run a new Pentest-Tools scan
+**Choice 2 — team CSV**
 
-Merges with existing `tools/subdomains`, assigns categories from `old/subdomain-categories.tsv`, splits private IPs to `tools/private-subs`, and refreshes `pages/subdomains.htm` with Subdomain, Category, and IP columns only. Run **Active** afterward to populate Photo, Status, Web Server, and Technologies.
+* Format: `subdomain,ip,category` (header optional; comma or tab)
+* One IPv4 per subdomain; empty IP → `dig`
+* **Skip if already in the report** (`tools/subdomains`) — existing hosts are not re-imported or overwritten
+* **Category:** Discover patterns first; if no match, use CSV category. Discover’s category file is **never** modified.
+* Writes `tools/import-batch-hosts.txt` (**new** public hosts from this CSV only)
+* Optionally prompts to run **Active** on those imported public hosts only (merges into existing httpx/whatweb/gowitness)
+
+**Both choices**
+
+* Merge into `tools/subdomains`, split private IPs to `tools/private-subs`
+* Refresh `pages/subdomains.htm` and `pages/hosts.htm` (unique public IPv4s)
+* Run full **Active** (menu 9) anytime to probe all public hosts
 
 ---
 

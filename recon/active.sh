@@ -104,6 +104,14 @@ f_discover_load_env(){
 }
 
 f_active_read_report(){
+    # Allow caller (Import subdomains) to pre-set DISCOVER_REPORT.
+    if [ -n "${DISCOVER_REPORT:-}" ] \
+        && [ -d "$DISCOVER_REPORT/pages" ] \
+        && [ -f "$DISCOVER_REPORT/pages/subdomains.htm" ]; then
+        DISCOVER_REPORT="$(cd "$DISCOVER_REPORT" && pwd)"
+        return 0
+    fi
+
     echo
     echo -n "Enter the location of your previous passive scan: "
     read -r DISCOVER_REPORT
@@ -687,9 +695,50 @@ CHROME_PATH=$(f_active_chrome_path) || f_active_die "Chrome or Chromium is not i
 
 mkdir -p "$TOOLS_DIR" "$SCREENSHOTS_DIR"
 
+ACTIVE_SCOPE="${DISCOVER_ACTIVE_SCOPE:-all}"
+BATCH_HOSTS_FILE="$TOOLS_DIR/import-batch-hosts.txt"
+TMPDIR_ACTIVE=$(mktemp -d)
+trap 'rm -rf "$TMPDIR_ACTIVE"' EXIT
+HTTPX_BATCH="$TMPDIR_ACTIVE/httpx-batch.jsonl"
+WHATWEB_BATCH="$TMPDIR_ACTIVE/whatweb-batch.json"
+GOWITNESS_BATCH="$TMPDIR_ACTIVE/gowitness-batch.jsonl"
+ACTIVE_TXT_BATCH="$TMPDIR_ACTIVE/active-batch.txt"
+
 echo
-echo -e "${BLUE}[*] Building active target list from public subdomains.${NC}"
-f_active_build_targets "$SUBDOMAINS_FILE" "$TARGETS_FILE"
+if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
+    echo -e "${BLUE}[*] Building active target list from last team CSV import (public hosts only).${NC}"
+    if [ ! -s "$BATCH_HOSTS_FILE" ]; then
+        f_active_die "No import-batch hosts at tools/import-batch-hosts.txt. Run Import subdomains (team CSV) first."
+    fi
+    # Only hosts still public in tools/subdomains
+    python3 - "$SUBDOMAINS_FILE" "$BATCH_HOSTS_FILE" "$TARGETS_FILE" <<'PY'
+import csv, re, sys
+from pathlib import Path
+IPV4_RE = re.compile(r"^(\d{1,3}\.){3}\d{1,3}$")
+def is_private(ip):
+    if not IPV4_RE.match(ip): return True
+    o=[int(x) for x in ip.split(".")]
+    if o[0]==10: return True
+    if o[0]==172 and 16<=o[1]<=31: return True
+    if o[0]==192 and o[1]==168: return True
+    return False
+sub_path, batch_path, out_path = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
+host_ip={}
+for raw in sub_path.read_text(encoding="utf-8", errors="replace").splitlines():
+    p=raw.split("\t")
+    if len(p)>=2: host_ip[p[0].strip().lower()]=p[1].strip()
+hosts=[]
+for raw in batch_path.read_text(encoding="utf-8", errors="replace").splitlines():
+    h=raw.strip().lower()
+    if not h: continue
+    ip=host_ip.get(h,"")
+    if ip and not is_private(ip): hosts.append(h)
+out_path.write_text("\n".join(sorted(set(hosts)))+("\n" if hosts else ""), encoding="utf-8")
+PY
+else
+    echo -e "${BLUE}[*] Building active target list from public subdomains.${NC}"
+    f_active_build_targets "$SUBDOMAINS_FILE" "$TARGETS_FILE"
+fi
 
 TARGET_COUNT=$(wc -l < "$TARGETS_FILE" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 TARGET_COUNT=${TARGET_COUNT:-0}
@@ -703,50 +752,212 @@ echo
 echo -e "${BLUE}[*] Running httpx.${NC}"
 echo "[*] User-Agent: $USER_AGENT"
 
+HTTPX_OUT="$HTTPX_JSONL"
+if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
+    HTTPX_OUT="$HTTPX_BATCH"
+fi
+
 httpx -l "$TARGETS_FILE" -silent -sc -title -server -td -cl -ip -cname -cdn \
     -fhr -maxr 2 \
     -H "User-Agent: $USER_AGENT" \
     -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
-    -json -o "$HTTPX_JSONL" >/dev/null
+    -json -o "$HTTPX_OUT" >/dev/null
+
+if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
+    # Merge batch httpx into engagement jsonl (replace lines for batch hosts).
+    python3 - "$HTTPX_JSONL" "$HTTPX_BATCH" "$TARGETS_FILE" <<'PY'
+import json, sys
+from pathlib import Path
+from urllib.parse import urlparse
+
+main_path, batch_path, targets_path = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
+batch_hosts = {
+    h.strip().lower()
+    for h in targets_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    if h.strip()
+}
+
+def host_of(entry):
+    for key in ("input", "host", "url", "final_url"):
+        v = entry.get(key) or ""
+        if not v:
+            continue
+        if "://" in str(v):
+            h = (urlparse(str(v)).hostname or "").lower()
+        else:
+            h = str(v).split("/")[0].split(":")[0].lower()
+        if h:
+            return h
+    return ""
+
+kept = []
+if main_path.is_file():
+    for raw in main_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            e = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        h = host_of(e)
+        if h and h in batch_hosts:
+            continue
+        kept.append(raw)
+if batch_path.is_file():
+    for raw in batch_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if raw.strip():
+            kept.append(raw.strip())
+main_path.parent.mkdir(parents=True, exist_ok=True)
+main_path.write_text("\n".join(kept) + ("\n" if kept else ""), encoding="utf-8")
+PY
+fi
 
 echo
 echo -e "${BLUE}[*] Parsing httpx results.${NC}"
+# Parse full merged set for report tables; for batch-only whatweb/gowitness use batch alive.
 f_active_parse_httpx "$HTTPX_JSONL" "$ALIVE_TSV" "$ACTIVE_TXT"
+
+if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
+    python3 - "$ALIVE_TSV" "$ACTIVE_TXT" "$TARGETS_FILE" "$TMPDIR_ACTIVE/alive-batch.tsv" "$ACTIVE_TXT_BATCH" <<'PY'
+import sys
+from pathlib import Path
+alive_path, urls_path, targets_path, alive_out, urls_out = [Path(p) for p in sys.argv[1:6]]
+batch = {h.strip().lower() for h in targets_path.read_text().splitlines() if h.strip()}
+alive_lines = []
+if alive_path.is_file():
+    for raw in alive_path.read_text().splitlines():
+        host = raw.split("\t")[0].strip().lower() if raw.strip() else ""
+        if host in batch:
+            alive_lines.append(raw)
+alive_out.write_text("\n".join(alive_lines) + ("\n" if alive_lines else ""), encoding="utf-8")
+url_lines = []
+if urls_path.is_file():
+    from urllib.parse import urlparse
+    for raw in urls_path.read_text().splitlines():
+        u = raw.strip()
+        if not u:
+            continue
+        h = (urlparse(u if "://" in u else "https://" + u).hostname or "").lower()
+        if h in batch:
+            url_lines.append(u)
+urls_out.write_text("\n".join(url_lines) + ("\n" if url_lines else ""), encoding="utf-8")
+PY
+    WHATWEB_INPUT="$ACTIVE_TXT_BATCH"
+    GOWITNESS_INPUT="$ACTIVE_TXT_BATCH"
+    URL_COUNT=$(wc -l < "$ACTIVE_TXT_BATCH" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
+else
+    WHATWEB_INPUT="$ACTIVE_TXT"
+    GOWITNESS_INPUT="$ACTIVE_TXT"
+    URL_COUNT=$(wc -l < "$ACTIVE_TXT" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
+fi
+URL_COUNT=${URL_COUNT:-0}
 
 ALIVE_COUNT=$(wc -l < "$ALIVE_TSV" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 ALIVE_COUNT=${ALIVE_COUNT:-0}
-URL_COUNT=$(wc -l < "$ACTIVE_TXT" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
-URL_COUNT=${URL_COUNT:-0}
 
 ALIVE_HOST_COUNT=$(awk -F '\t' 'NF >= 1 && $1 != "" { print $1 }' "$ALIVE_TSV" | sort -u | wc -l | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 ALIVE_HOST_COUNT=${ALIVE_HOST_COUNT:-0}
 
-echo "[*] $ALIVE_COUNT alive responses across $ALIVE_HOST_COUNT hostnames ($URL_COUNT URLs for gowitness)."
+echo "[*] $ALIVE_COUNT alive responses across $ALIVE_HOST_COUNT hostnames ($URL_COUNT URLs for this run)."
 echo
 
 if [ "$URL_COUNT" -gt 0 ]; then
     echo
     echo -e "${BLUE}[*] Running whatweb on alive URLs.${NC}"
-    whatweb -a 3 -i "$ACTIVE_TXT" \
-        -U "$WHATWEB_UA" \
-        --log-json="$WHATWEB_JSON" \
-        --no-errors -q
+    if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
+        whatweb -a 3 -i "$WHATWEB_INPUT" \
+            -U "$WHATWEB_UA" \
+            --log-json="$WHATWEB_BATCH" \
+            --no-errors -q
+        # Merge whatweb JSON arrays / NDJSON-ish
+        python3 - "$WHATWEB_JSON" "$WHATWEB_BATCH" <<'PY'
+import json, sys
+from pathlib import Path
+main_p, batch_p = Path(sys.argv[1]), Path(sys.argv[2])
+
+def load_entries(path):
+    if not path.is_file() or path.stat().st_size == 0:
+        return []
+    text = path.read_text(encoding="utf-8", errors="replace").strip()
+    if not text:
+        return []
+    try:
+        data = json.loads(text)
+        if isinstance(data, list):
+            return data
+        if isinstance(data, dict):
+            return [data]
+    except json.JSONDecodeError:
+        pass
+    out = []
+    for raw in text.splitlines():
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            out.append(json.loads(raw))
+        except json.JSONDecodeError:
+            continue
+    return out
+
+def target_key(entry):
+    if not isinstance(entry, dict):
+        return ""
+    return str(entry.get("target") or entry.get("http_status") or entry.get("uri") or json.dumps(entry, sort_keys=True)[:200])
+
+main = load_entries(main_p)
+batch = load_entries(batch_p)
+# Drop main entries whose target host is in batch set (best-effort by target URL)
+from urllib.parse import urlparse
+def host_of(e):
+    t = str(e.get("target") or "")
+    if "://" in t:
+        return (urlparse(t).hostname or "").lower()
+    return t.split("/")[0].lower()
+batch_hosts = {host_of(e) for e in batch if host_of(e)}
+kept = [e for e in main if host_of(e) not in batch_hosts]
+merged = kept + batch
+main_p.parent.mkdir(parents=True, exist_ok=True)
+main_p.write_text(json.dumps(merged, indent=2) + "\n", encoding="utf-8")
+PY
+    else
+        whatweb -a 3 -i "$WHATWEB_INPUT" \
+            -U "$WHATWEB_UA" \
+            --log-json="$WHATWEB_JSON" \
+            --no-errors -q
+    fi
 
     echo
     echo -e "${BLUE}[*] Running gowitness on alive URLs.${NC}"
-    rm -rf "$SCREENSHOTS_DIR"/*
-    gowitness scan file -f "$ACTIVE_TXT" \
-        --driver gorod \
-        --chrome-path "$CHROME_PATH" \
-        --screenshot-path "$SCREENSHOTS_DIR" \
-        --write-jsonl --write-jsonl-file "$GOWITNESS_JSONL" \
-        --write-db --write-db-uri "sqlite://$GOWITNESS_DIR/gowitness.db"
+    if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
+        # Do not wipe existing screenshots; append batch jsonl
+        gowitness scan file -f "$GOWITNESS_INPUT" \
+            --driver gorod \
+            --chrome-path "$CHROME_PATH" \
+            --screenshot-path "$SCREENSHOTS_DIR" \
+            --write-jsonl --write-jsonl-file "$GOWITNESS_BATCH" \
+            --write-db --write-db-uri "sqlite://$GOWITNESS_DIR/gowitness.db"
+        if [ -f "$GOWITNESS_BATCH" ]; then
+            cat "$GOWITNESS_BATCH" >> "$GOWITNESS_JSONL" 2>/dev/null || cp "$GOWITNESS_BATCH" "$GOWITNESS_JSONL"
+        fi
+    else
+        rm -rf "$SCREENSHOTS_DIR"/*
+        gowitness scan file -f "$GOWITNESS_INPUT" \
+            --driver gorod \
+            --chrome-path "$CHROME_PATH" \
+            --screenshot-path "$SCREENSHOTS_DIR" \
+            --write-jsonl --write-jsonl-file "$GOWITNESS_JSONL" \
+            --write-db --write-db-uri "sqlite://$GOWITNESS_DIR/gowitness.db"
+    fi
     echo
 else
     echo
-    echo "[*] No alive URLs found. Skipping whatweb and gowitness."
-    rm -f "$WHATWEB_JSON" "$GOWITNESS_JSONL" "$GOWITNESS_DIR/gowitness.db" 2>/dev/null
-    rm -rf "$SCREENSHOTS_DIR"/*
+    echo "[*] No alive URLs found for this run. Skipping whatweb and gowitness."
+    if [ "$ACTIVE_SCOPE" != "import-batch" ]; then
+        rm -f "$WHATWEB_JSON" "$GOWITNESS_JSONL" "$GOWITNESS_DIR/gowitness.db" 2>/dev/null
+        rm -rf "$SCREENSHOTS_DIR"/*
+    fi
     echo
 fi
 
@@ -822,7 +1033,11 @@ cat > "$DISCOVER_REPORT/assets/report-mode.json" <<'EOF'
 }
 EOF
 if declare -F f_audit_log >/dev/null 2>&1; then
-    f_audit_log "$DISCOVER_REPORT" "Ran active recon"
+    if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
+        f_audit_log "$DISCOVER_REPORT" "Ran active recon on imported hosts ($TARGET_COUNT targets)"
+    else
+        f_audit_log "$DISCOVER_REPORT" "Ran active recon"
+    fi
 else
     ts=$(date -u +"%m-%d-%Y - %H:%M Z")
     op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)

@@ -522,13 +522,27 @@ f_update(){
         exit
     else
         # Same look as other Update sections: blue header + plain status line.
+        # uv self update is chatty (info:/success:/release URL) — collapse to one line.
         echo -e "${BLUE}Updating uv.${NC}"
         _uv_out=$(uv self update 2>&1) || true
-        if echo "$_uv_out" | grep -qiE 'already on version|already the latest|up to date'; then
+        if echo "$_uv_out" | grep -qiE 'already on (the )?latest|already up to date|up to date|nothing to (do|update)'; then
             echo "Already up to date."
-        elif [ -n "$_uv_out" ]; then
-            echo "$_uv_out"
+        elif echo "$_uv_out" | grep -qiE 'upgraded uv from|success:.*upgrad'; then
+            # e.g. success: Upgraded uv from v0.11.33 to v0.12.0! https://...
+            # Keep a single clean line: Upgraded uv from v0.11.33 to v0.12.0
+            _uv_line=$(echo "$_uv_out" | grep -oiE 'Upgraded uv from v?[0-9]+\.[0-9]+(\.[0-9]+)? to v?[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)
+            if [ -n "$_uv_line" ]; then
+                echo "$_uv_line"
+            else
+                echo "Upgraded."
+            fi
+            unset _uv_line
+        elif echo "$_uv_out" | grep -qiE 'error|failed|denied|permission'; then
+            # Keep real failures visible (trimmed).
+            echo "$_uv_out" | grep -iE 'error|failed|denied|permission' | head -3
+            echo "Update may have failed — check uv manually: uv self update"
         else
+            # Unknown quiet success / no output
             echo "Already up to date."
         fi
         unset _uv_out

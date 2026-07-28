@@ -1,8 +1,22 @@
 #!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
+#
+# Fail fast: any unexpected command failure prints [!] and exits.
+
+set -euo pipefail
+
+# Colors / separators when not launched from Discover menu.
+RED=${RED:-'\033[1;31m'}
+YELLOW=${YELLOW:-'\033[1;33m'}
+BLUE=${BLUE:-'\033[1;34m'}
+NC=${NC:-'\033[0m'}
+SMALL=${SMALL:-'========================================'}
+MEDIUM=${MEDIUM:-'=================================================================='}
 
 f_subdomains_die(){
+    # Disable ERR trap so exit 1 does not re-enter.
+    trap - ERR
     echo
     echo -e "${RED}$SMALL${NC}"
     echo
@@ -14,32 +28,36 @@ f_subdomains_die(){
     exit 1
 }
 
+f_subdomains_on_err(){
+    local line="${1:-?}"
+    f_subdomains_die "Command failed (line ${line})."
+}
+
+trap 'f_subdomains_on_err $LINENO' ERR
+
 f_subdomains_read_report(){
     echo
     echo -n "Enter the location of your previous passive scan: "
-    read -r DISCOVER_REPORT
+    read -r DISCOVER_REPORT || f_subdomains_die "Incorrect file path."
 
     DISCOVER_REPORT="${DISCOVER_REPORT#"${DISCOVER_REPORT%%[![:space:]]*}"}"
     DISCOVER_REPORT="${DISCOVER_REPORT%"${DISCOVER_REPORT##*[![:space:]]}"}"
     DISCOVER_REPORT="${DISCOVER_REPORT/#\~/$HOME}"
 
-    if [ -z "$DISCOVER_REPORT" ]; then
-        f_subdomains_die "No scan location provided."
-    fi
-
-    if [ -f "$DISCOVER_REPORT" ] \
+    # Empty, missing, not a dir, unreadable, or not a passive report → same message.
+    if [ -z "$DISCOVER_REPORT" ] \
+        || [ -f "$DISCOVER_REPORT" ] \
         || [ ! -d "$DISCOVER_REPORT" ] \
         || [ ! -r "$DISCOVER_REPORT" ] \
         || [ ! -x "$DISCOVER_REPORT" ] \
         || [ ! -d "$DISCOVER_REPORT/pages" ] \
         || [ ! -f "$DISCOVER_REPORT/pages/subdomains.htm" ]; then
-        f_subdomains_die "Passive scan not found."
+        f_subdomains_die "Incorrect file path."
     fi
 }
 
 f_subdomains_read_import(){
     local domain="$1"
-    local default="$DISCOVER_REPORT/tools/subdomains-import.tsv"
 
     echo
     echo "Supported imports:"
@@ -47,17 +65,17 @@ f_subdomains_read_import(){
     echo "  - Firefox pinia/scans export (pinia-scans.json)"
     echo "  - Pentest-Tools JSON (pentest-tools-${domain}.json)"
     echo "  - Pentest-Tools text export (pentest-tools.txt)"
-    echo "  - Tab-separated host/IP rows"
+    echo "  - Tab-separated host/IP rows (e.g. tools/subdomains-import.tsv)"
     echo
-    echo -n "Enter import file or firefox (or press Enter for default): "
-    read -r SUBDOMAINS_IMPORT
+    echo -n "Enter import file or firefox: "
+    read -r SUBDOMAINS_IMPORT || f_subdomains_die "Incorrect file path."
 
     SUBDOMAINS_IMPORT="${SUBDOMAINS_IMPORT#"${SUBDOMAINS_IMPORT%%[![:space:]]*}"}"
     SUBDOMAINS_IMPORT="${SUBDOMAINS_IMPORT%"${SUBDOMAINS_IMPORT##*[![:space:]]}"}"
     SUBDOMAINS_IMPORT="${SUBDOMAINS_IMPORT/#\~/$HOME}"
 
     if [ -z "$SUBDOMAINS_IMPORT" ]; then
-        SUBDOMAINS_IMPORT="$default"
+        f_subdomains_die "Incorrect file path."
     fi
 
     SUBDOMAINS_IMPORT_LOWER="${SUBDOMAINS_IMPORT,,}"
@@ -66,17 +84,14 @@ f_subdomains_read_import(){
         return 0
     fi
 
-    if [ ! -f "$SUBDOMAINS_IMPORT" ]; then
-        mkdir -p "$DISCOVER_REPORT/tools"
-        cat > "$SUBDOMAINS_IMPORT" <<'EOF'
-# Manual subdomains — tab-separated: Subdomain, IP (IP optional)
-# Add one host per line, then re-run Import subdomains.
-EOF
-        f_subdomains_die "Import file created. Add rows or point to a Pentest-Tools export, then run Import subdomains again."
+    # Must be an existing readable non-empty file (not a directory).
+    if [ -d "$SUBDOMAINS_IMPORT" ] \
+        || [ ! -f "$SUBDOMAINS_IMPORT" ] \
+        || [ ! -r "$SUBDOMAINS_IMPORT" ]; then
+        f_subdomains_die "Incorrect file path."
     fi
-
     if [ ! -s "$SUBDOMAINS_IMPORT" ] || ! grep -qv '^[[:space:]]*#' "$SUBDOMAINS_IMPORT" 2>/dev/null; then
-        f_subdomains_die "Import file is empty. Add data, then run Import subdomains again."
+        f_subdomains_die "Incorrect file path."
     fi
 }
 
@@ -180,6 +195,78 @@ try:
 finally:
     shutil.rmtree(tmpdir, ignore_errors=True)
 PY
+}
+
+# Unique public IPv4 list + pages/hosts.htm from tools/subdomains.
+f_subdomains_write_hosts_page(){
+    local subdomains_file="$1"
+    local public_ips_file="$2"
+    local page="$3"
+    local template="${DISCOVER:-}/report/pages/hosts.htm"
+
+    python3 - "$subdomains_file" "$public_ips_file" <<'PY'
+import csv
+import re
+import sys
+from pathlib import Path
+
+IPV4_RE = re.compile(r"^(\d{1,3}\.){3}\d{1,3}$")
+
+def is_private(ip: str) -> bool:
+    if not IPV4_RE.match(ip):
+        return True
+    o = [int(x) for x in ip.split(".")]
+    if o[0] == 10:
+        return True
+    if o[0] == 172 and 16 <= o[1] <= 31:
+        return True
+    if o[0] == 192 and o[1] == 168:
+        return True
+    return False
+
+sub_path, out_path = Path(sys.argv[1]), Path(sys.argv[2])
+ips = set()
+if sub_path.is_file():
+    for raw in sub_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "\t" in line:
+            parts = line.split("\t")
+            ip = parts[1].strip() if len(parts) > 1 else ""
+        else:
+            parts = line.split()
+            ip = parts[-1] if len(parts) >= 2 and IPV4_RE.match(parts[-1]) else ""
+        if ip and not is_private(ip):
+            ips.add(ip)
+
+def ip_key(ip: str):
+    return tuple(int(x) for x in ip.split("."))
+
+out_path.parent.mkdir(parents=True, exist_ok=True)
+with out_path.open("w", encoding="utf-8") as handle:
+    for ip in sorted(ips, key=ip_key):
+        handle.write(ip + "\n")
+PY
+
+    if [ ! -f "$template" ]; then
+        echo "[!] hosts.htm template missing — skip Hosts page."
+        return 0
+    fi
+    cp -f "$template" "$page"
+    if [ -s "$public_ips_file" ]; then
+        cat "$public_ips_file" >> "$page"
+    else
+        echo "No data found." >> "$page"
+    fi
+    {
+        echo "</pre>"
+        echo "    </div>"
+        echo "</div>"
+        echo
+        echo "</body>"
+        echo "</html>"
+    } >> "$page"
 }
 
 f_subdomains_write_report(){
@@ -419,10 +506,46 @@ report_path.write_text(prefix + "\n".join(lines) + suffix)
 PY
 }
 
-clear
+# Discover install root (templates / categorizer). Prefer env from menu; else repo parent of recon/.
+if [ -z "${DISCOVER:-}" ] || [ ! -d "${DISCOVER:-/}/report/pages" ]; then
+    _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [ -d "$_script_dir/../report/pages" ]; then
+        DISCOVER="$(cd "$_script_dir/.." && pwd)"
+    fi
+    unset _script_dir
+fi
+if [ -z "${DISCOVER:-}" ] || [ ! -d "${DISCOVER}/report/pages" ]; then
+    f_subdomains_die "DISCOVER install root not found (set DISCOVER or run from Discover menu)."
+fi
+export DISCOVER
+
+if ! declare -F f_banner >/dev/null 2>&1; then
+    f_banner(){ echo; }
+fi
+
+clear 2>/dev/null || true
 f_banner
 
 echo -e "${BLUE}Import subdomains.${NC}"
+echo
+echo "1. Existing sources (Firefox / Pentest-Tools / TSV)"
+echo "2. Team CSV (subdomain, IPv4, category)"
+echo
+echo -n "Choice: "
+# Do not treat EOF alone as "command failed" under set -e; die with a clear message.
+if ! read -r IMPORT_CHOICE; then
+    f_subdomains_die "No choice entered. Enter 1 or 2."
+fi
+IMPORT_CHOICE="${IMPORT_CHOICE//$'\r'/}"
+IMPORT_CHOICE="${IMPORT_CHOICE#"${IMPORT_CHOICE%%[![:space:]]*}"}"
+IMPORT_CHOICE="${IMPORT_CHOICE%"${IMPORT_CHOICE##*[![:space:]]}"}"
+
+case "$IMPORT_CHOICE" in
+    1) IMPORT_MODE="existing" ;;
+    2) IMPORT_MODE="team-csv" ;;
+    "") f_subdomains_die "No choice entered. Enter 1 or 2." ;;
+    *) f_subdomains_die "Invalid choice. Enter 1 or 2." ;;
+esac
 
 for CMD in python3 dig; do
     if ! command -v "$CMD" >/dev/null 2>&1; then
@@ -434,29 +557,247 @@ f_subdomains_read_report
 
 REPORT_DOMAIN=$(basename "$DISCOVER_REPORT")
 TOOLS_DIR="$DISCOVER_REPORT/tools"
-mkdir -p "$TOOLS_DIR"
-
-f_subdomains_read_import "$REPORT_DOMAIN"
+mkdir -p "$TOOLS_DIR" || f_subdomains_die "Could not create tools directory: $TOOLS_DIR"
 
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
-SUBDOMAINS_SOURCE="$SUBDOMAINS_IMPORT"
-if [ "$SUBDOMAINS_IMPORT" = "firefox" ]; then
-    SUBDOMAINS_IMPORT="$TMPDIR/pinia-scans.json"
-    echo
-    echo "[*] Reading pinia/scans from Firefox localStorage"
-    echo
-    if ! f_subdomains_extract_firefox_pinia "$SUBDOMAINS_IMPORT"; then
-        f_subdomains_die "Failed to read pinia/scans from Firefox."
-    fi
-    SUBDOMAINS_SOURCE="Firefox localStorage (pinia/scans)"
-fi
-
 MERGED="$TMPDIR/subdomains.tsv"
 EXISTING="$TOOLS_DIR/subdomains"
+BATCH_HOSTS="$TOOLS_DIR/import-batch-hosts.txt"
+CSV_CATS="$TMPDIR/csv-categories.tsv"
 
-if ! python3 - "$SUBDOMAINS_IMPORT" "$REPORT_DOMAIN" "$MERGED" "$EXISTING" 2>"$TMPDIR/import.err" <<'PY'
+# ---------------------------------------------------------------------------
+# Choice 2: Team CSV (subdomain, IPv4, category)
+# ---------------------------------------------------------------------------
+if [ "$IMPORT_MODE" = "team-csv" ]; then
+    echo
+    echo "CSV format: subdomain,ip,category  (header optional; one IPv4 per host)"
+    echo "Category: Discover rules first; CSV used only when Discover has no match."
+    echo "Hosts already in the report are skipped (not re-imported)."
+    echo "Discover category patterns are never modified."
+    echo
+    echo -n "Enter path to team CSV: "
+    read -r TEAM_CSV || f_subdomains_die "Incorrect file path."
+    TEAM_CSV="${TEAM_CSV#"${TEAM_CSV%%[![:space:]]*}"}"
+    TEAM_CSV="${TEAM_CSV%"${TEAM_CSV##*[![:space:]]}"}"
+    TEAM_CSV="${TEAM_CSV/#\~/$HOME}"
+    if [ -z "$TEAM_CSV" ] \
+        || [ -d "$TEAM_CSV" ] \
+        || [ ! -f "$TEAM_CSV" ] \
+        || [ ! -r "$TEAM_CSV" ] \
+        || [ ! -s "$TEAM_CSV" ]; then
+        f_subdomains_die "Incorrect file path."
+    fi
+
+    SUBDOMAINS_SOURCE="$TEAM_CSV"
+    SKIP_STATS="$TMPDIR/team-csv-skip.stats"
+
+    if ! python3 - "$TEAM_CSV" "$REPORT_DOMAIN" "$MERGED" "$EXISTING" "$CSV_CATS" "$BATCH_HOSTS" "$SKIP_STATS" \
+        >"$TMPDIR/import.out" 2>"$TMPDIR/import.err" <<'PY'
+import csv
+import re
+import sys
+from pathlib import Path
+
+import_path = Path(sys.argv[1])
+_domain = sys.argv[2].strip().lower()
+out_path = Path(sys.argv[3])
+existing_path = Path(sys.argv[4])
+cats_path = Path(sys.argv[5])
+batch_path = Path(sys.argv[6])
+stats_path = Path(sys.argv[7])
+
+IPV4_RE = re.compile(r"^(?:\d{1,3}\.){3}\d{1,3}$")
+HOST_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
+store = {}  # host -> {host, ip, csv_category}
+existing_hosts = set()
+new_csv_hosts = set()
+skipped_existing = 0
+csv_rows_seen = 0
+
+
+def normalize_host(value):
+    value = str(value or "").strip().lower()
+    if value.startswith("www."):
+        value = value[4:]
+    return value
+
+
+def normalize_ip(value):
+    value = str(value or "").strip()
+    if not value:
+        return ""
+    if not IPV4_RE.match(value):
+        return ""
+    parts = [int(x) for x in value.split(".")]
+    if any(p > 255 for p in parts):
+        return ""
+    return value
+
+
+def upsert_existing(host, ip=""):
+    """Keep existing report rows as-is (IP/category not overwritten by CSV)."""
+    host = normalize_host(host)
+    if not host or not HOST_RE.fullmatch(host):
+        return
+    existing_hosts.add(host)
+    ip = normalize_ip(ip)
+    row = store.setdefault(host, {"host": host, "ip": "", "csv_category": ""})
+    if ip and not row["ip"]:
+        row["ip"] = ip
+    elif ip:
+        row["ip"] = ip  # keep report IP as currently stored
+
+
+def add_new_from_csv(host, ip="", csv_category=""):
+    global skipped_existing, csv_rows_seen
+    host = normalize_host(host)
+    if not host or not HOST_RE.fullmatch(host):
+        return
+    csv_rows_seen += 1
+    # Already in the engagement report → do not import.
+    if host in existing_hosts:
+        skipped_existing += 1
+        return
+    ip = normalize_ip(ip)
+    row = store.setdefault(host, {"host": host, "ip": "", "csv_category": ""})
+    if ip:
+        row["ip"] = ip
+    if csv_category:
+        row["csv_category"] = csv_category.strip()
+    new_csv_hosts.add(host)
+
+
+# Existing inventory first (authoritative for "already in report")
+if existing_path.is_file():
+    for raw in existing_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "\t" in line:
+            parts = line.split("\t")
+            host = parts[0] if parts else ""
+            ip = parts[1] if len(parts) > 1 else ""
+        else:
+            parts = line.split()
+            if not parts:
+                continue
+            host, ip = parts[0], ""
+            if len(parts) >= 2 and IPV4_RE.match(parts[-1]):
+                host, ip = " ".join(parts[:-1]), parts[-1]
+            elif len(parts) >= 2:
+                host, ip = parts[0], parts[1]
+        upsert_existing(host, ip)
+
+
+def looks_like_header(cells):
+    joined = " ".join(c.lower() for c in cells)
+    return "subdomain" in joined or "hostname" in joined or (
+        cells and "host" in cells[0].lower() and len(cells) > 1
+    )
+
+
+text = import_path.read_text(encoding="utf-8", errors="replace")
+sample = ""
+for raw in text.splitlines():
+    if raw.strip() and not raw.strip().startswith("#"):
+        sample = raw
+        break
+delim = "," if sample.count(",") >= sample.count("\t") else "\t"
+
+reader = csv.reader(text.splitlines(), delimiter=delim)
+first = True
+for cells in reader:
+    if not cells:
+        continue
+    cells = [c.strip() for c in cells]
+    if not any(cells):
+        continue
+    if cells[0].startswith("#"):
+        continue
+    if first:
+        first = False
+        if looks_like_header(cells):
+            continue
+    while len(cells) < 3:
+        cells.append("")
+    host, ip, cat = cells[0], cells[1], cells[2]
+    if ip and not IPV4_RE.match(ip) and not cat:
+        cat, ip = ip, ""
+    add_new_from_csv(host, ip, cat)
+
+if not new_csv_hosts and skipped_existing == 0:
+    raise SystemExit("no subdomains found in team CSV")
+if not new_csv_hosts and skipped_existing > 0:
+    raise SystemExit(
+        f"all {skipped_existing} CSV host(s) already in the report — nothing new to import"
+    )
+
+with out_path.open("w", newline="", encoding="utf-8") as handle:
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    for row in sorted(store.values(), key=lambda item: item["host"]):
+        writer.writerow([row["host"], row["ip"]])
+
+with cats_path.open("w", newline="", encoding="utf-8") as handle:
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    for host in sorted(new_csv_hosts):
+        writer.writerow([host, store[host].get("csv_category") or ""])
+
+with batch_path.open("w", encoding="utf-8") as handle:
+    for host in sorted(new_csv_hosts):
+        handle.write(host + "\n")
+
+stats_path.write_text(
+    f"csv_rows={csv_rows_seen}\n"
+    f"new={len(new_csv_hosts)}\n"
+    f"skipped_existing={skipped_existing}\n",
+    encoding="utf-8",
+)
+print(
+    f"[*] Team CSV: {len(new_csv_hosts)} new, "
+    f"{skipped_existing} already in report (skipped), "
+    f"{csv_rows_seen} CSV data row(s).",
+    flush=True,
+)
+PY
+    then
+        _err=$(head -n 8 "$TMPDIR/import.err" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]*$//')
+        if [ -n "$_err" ]; then
+            f_subdomains_die "Failed to parse team CSV: ${_err}"
+        fi
+        f_subdomains_die "Failed to parse team CSV."
+    fi
+    if [ -s "$TMPDIR/import.out" ]; then
+        cat "$TMPDIR/import.out"
+    fi
+    if [ -f "$SKIP_STATS" ]; then
+        TEAM_CSV_NEW=$(awk -F= '/^new=/ {print $2}' "$SKIP_STATS")
+        TEAM_CSV_SKIP=$(awk -F= '/^skipped_existing=/ {print $2}' "$SKIP_STATS")
+        TEAM_CSV_ROWS=$(awk -F= '/^csv_rows=/ {print $2}' "$SKIP_STATS")
+        echo "[*] Team CSV: ${TEAM_CSV_NEW:-0} new host(s); ${TEAM_CSV_SKIP:-0} already in report (skipped); ${TEAM_CSV_ROWS:-0} CSV row(s)."
+    fi
+
+# ---------------------------------------------------------------------------
+# Choice 1: Existing sources
+# ---------------------------------------------------------------------------
+else
+    f_subdomains_read_import "$REPORT_DOMAIN"
+
+    SUBDOMAINS_SOURCE="$SUBDOMAINS_IMPORT"
+    if [ "$SUBDOMAINS_IMPORT" = "firefox" ]; then
+        SUBDOMAINS_IMPORT="$TMPDIR/pinia-scans.json"
+        echo
+        echo "[*] Reading pinia/scans from Firefox localStorage"
+        echo
+        if ! f_subdomains_extract_firefox_pinia "$SUBDOMAINS_IMPORT"; then
+            f_subdomains_die "Failed to read pinia/scans from Firefox."
+        fi
+        SUBDOMAINS_SOURCE="Firefox localStorage (pinia/scans)"
+    fi
+
+    if ! python3 - "$SUBDOMAINS_IMPORT" "$REPORT_DOMAIN" "$MERGED" "$EXISTING" \
+        2>"$TMPDIR/import.err" <<'PY'
 import csv
 import json
 import re
@@ -653,13 +994,20 @@ with out_path.open("w", newline="") as handle:
     for row in sorted(store.values(), key=lambda item: item["host"]):
         writer.writerow([row["host"], row["ip"]])
 PY
-then
-    sed -n '1,6p' "$TMPDIR/import.err" >&2
-    f_subdomains_die "Failed to parse import file."
+    then
+        _err=$(head -n 8 "$TMPDIR/import.err" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]*$//')
+        if [ -n "$_err" ]; then
+            f_subdomains_die "Failed to parse import file: ${_err}"
+        fi
+        f_subdomains_die "Failed to parse import file."
+    fi
 fi
 
+[ -f "$MERGED" ] || f_subdomains_die "Internal error: merge output missing."
+[ -s "$MERGED" ] || f_subdomains_die "No subdomains to process after import."
+
 RESOLVED="$TMPDIR/subdomains-resolved.tsv"
-cp "$MERGED" "$RESOLVED"
+cp "$MERGED" "$RESOLVED" || f_subdomains_die "Could not stage resolved subdomains file."
 
 MISSING=$(awk -F '\t' 'NF < 2 || $2 == "" { count++ } END { print count + 0 }' "$MERGED")
 DIG_RESOLVED=0
@@ -673,14 +1021,15 @@ if [ "$MISSING" -gt 0 ]; then
         HOST="${HOST//$'\r'/}"
         IP="${IP//$'\r'/}"
         if [ -z "$IP" ]; then
-            ((CURRENT++))
+            CURRENT=$((CURRENT + 1))
             echo -ne "\r    $CURRENT of $MISSING"
-            IP=$(dig +timeout=2 +tries=1 +short "$HOST" 2>/dev/null | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -n 1)
+            # dig may return non-zero for NXDOMAIN — treat as empty IP, not script death.
+            IP=$(dig +timeout=2 +tries=1 +short "$HOST" 2>/dev/null | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -n 1 || true)
             if [ "$IP" = "1.1.1.1" ] || [ "$IP" = "127.0.0.53" ]; then
                 IP=""
             fi
             if [ -n "$IP" ]; then
-                ((DIG_RESOLVED++))
+                DIG_RESOLVED=$((DIG_RESOLVED + 1))
             fi
         fi
         if [ -n "$IP" ]; then
@@ -703,12 +1052,126 @@ fi
 
 SUBDOMAINS_FILE="$TOOLS_DIR/subdomains"
 PRIVATE_FILE="$TOOLS_DIR/private-subs"
+PUBLIC_IPS_FILE="$TOOLS_DIR/public-ips"
 PAGE="$DISCOVER_REPORT/pages/subdomains.htm"
 REPORT_PAGE="$DISCOVER_REPORT/pages/passive.htm"
+HOSTS_PAGE="$DISCOVER_REPORT/pages/hosts.htm"
+RULES_FILE="${DISCOVER:-}/old/subdomain-categories.tsv"
 
-python3 "$DISCOVER/old/subdomain-categorize.py" \
-    "$FILTERED" > "$TMPDIR/subdomains-categorized.tsv"
-cp "$TMPDIR/subdomains-categorized.tsv" "$SUBDOMAINS_FILE"
+# Categorize: team CSV uses Discover rules first, then CSV fallback (never write rules).
+if [ "$IMPORT_MODE" = "team-csv" ]; then
+    if ! python3 - "$FILTERED" "$CSV_CATS" "$RULES_FILE" "$TMPDIR/subdomains-categorized.tsv" <<'PY'
+import csv
+import re
+import sys
+from pathlib import Path
+
+# Inline categorize_host (same rules as old/subdomain-categorize.py) — read-only rules file.
+filtered_path = Path(sys.argv[1])
+cats_path = Path(sys.argv[2])
+rules_path = Path(sys.argv[3])
+out_path = Path(sys.argv[4])
+
+def load_rules(path):
+    rules = []
+    if not path.is_file():
+        return rules
+    for raw in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "\t" in line:
+            category, pattern = line.split("\t", 1)
+        else:
+            parts = line.split(None, 1)
+            if len(parts) < 2:
+                continue
+            category, pattern = parts
+        category = category.strip()
+        pattern = pattern.strip().lower()
+        if category and pattern:
+            rules.append((category, pattern))
+    return rules
+
+def label_matches(label, pattern):
+    if pattern.startswith("*") and pattern.endswith("*") and len(pattern) > 2:
+        return pattern[1:-1] in label
+    if pattern.startswith("*"):
+        return label.endswith(pattern[1:])
+    if pattern.endswith("*"):
+        return label.startswith(pattern[:-1])
+    if pattern.startswith("-"):
+        return label.endswith(pattern)
+    return label == pattern
+
+def categorize_host(host, rules):
+    host = host.strip().lower()
+    labels = host.split(".")
+    for category, pattern in rules:
+        if "." in pattern:
+            if pattern in host:
+                return category
+            continue
+        for label in labels:
+            if label_matches(label, pattern):
+                return category
+    return ""
+
+csv_cats = {}
+if cats_path.is_file():
+    for raw in cats_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if not raw.strip():
+            continue
+        parts = raw.split("\t")
+        h = parts[0].strip().lower()
+        c = parts[1].strip() if len(parts) > 1 else ""
+        if h:
+            csv_cats[h] = c
+
+rules = load_rules(rules_path)
+rows = []
+for raw in filtered_path.read_text(encoding="utf-8", errors="replace").splitlines():
+    line = raw.strip()
+    if not line:
+        continue
+    parts = line.split("\t")
+    host = parts[0].strip()
+    ip = parts[1].strip() if len(parts) > 1 else ""
+    if not host or not ip:
+        continue
+    disc = categorize_host(host, rules)
+    cat = disc if disc else (csv_cats.get(host.lower()) or "")
+    rows.append((host, ip, cat))
+
+rows.sort(key=lambda r: r[0].lower())
+with out_path.open("w", newline="", encoding="utf-8") as handle:
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    for row in rows:
+        writer.writerow(row)
+PY
+    then
+        f_subdomains_die "Failed to categorize team CSV import."
+    fi
+    [ -s "$TMPDIR/subdomains-categorized.tsv" ] \
+        || f_subdomains_die "Categorize produced no output."
+    cp "$TMPDIR/subdomains-categorized.tsv" "$SUBDOMAINS_FILE" \
+        || f_subdomains_die "Could not write $SUBDOMAINS_FILE"
+else
+    if [ ! -f "$DISCOVER/old/subdomain-categorize.py" ]; then
+        f_subdomains_die "Missing categorizer: $DISCOVER/old/subdomain-categorize.py"
+    fi
+    if ! python3 "$DISCOVER/old/subdomain-categorize.py" \
+        "$FILTERED" > "$TMPDIR/subdomains-categorized.tsv" 2>"$TMPDIR/cat.err"; then
+        _err=$(head -n 5 "$TMPDIR/cat.err" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]*$//')
+        f_subdomains_die "Failed to categorize subdomains${_err:+: $_err}"
+    fi
+    [ -s "$TMPDIR/subdomains-categorized.tsv" ] \
+        || f_subdomains_die "Categorize produced no output."
+    cp "$TMPDIR/subdomains-categorized.tsv" "$SUBDOMAINS_FILE" \
+        || f_subdomains_die "Could not write $SUBDOMAINS_FILE"
+    # existing path: no batch file
+    : > "$BATCH_HOSTS"
+fi
 
 CATEGORIZED=$(awk -F '\t' 'NF >= 3 && $3 != "" { count++ } END { print count + 0 }' "$SUBDOMAINS_FILE")
 
@@ -717,15 +1180,84 @@ awk -F'\t' 'NF >= 2 && $2 ~ /^172\.(1[6-9]|2[0-9]|3[0-1])\./ { print }' "$SUBDOM
 awk -F'\t' 'NF >= 2 && $2 ~ /^192\.168\./ { print }' "$SUBDOMAINS_FILE" >> "$PRIVATE_FILE"
 sort -u -o "$PRIVATE_FILE" "$PRIVATE_FILE"
 
-f_subdomains_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$PAGE"
-f_subdomains_update_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$REPORT_PAGE"
+# Public batch hosts only (for Active import-batch)
+if [ "$IMPORT_MODE" = "team-csv" ] && [ -f "$BATCH_HOSTS" ]; then
+    python3 - "$SUBDOMAINS_FILE" "$BATCH_HOSTS" "$TMPDIR/batch-public.txt" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+IPV4_RE = re.compile(r"^(\d{1,3}\.){3}\d{1,3}$")
+
+def is_private(ip):
+    if not IPV4_RE.match(ip):
+        return True
+    o = [int(x) for x in ip.split(".")]
+    if o[0] == 10:
+        return True
+    if o[0] == 172 and 16 <= o[1] <= 31:
+        return True
+    if o[0] == 192 and o[1] == 168:
+        return True
+    return False
+
+sub_path, batch_path, out_path = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
+host_ip = {}
+for raw in sub_path.read_text(encoding="utf-8", errors="replace").splitlines():
+    parts = raw.strip().split("\t")
+    if len(parts) >= 2:
+        host_ip[parts[0].strip().lower()] = parts[1].strip()
+batch = []
+if batch_path.is_file():
+    for raw in batch_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        h = raw.strip().lower()
+        if not h:
+            continue
+        ip = host_ip.get(h, "")
+        if ip and not is_private(ip):
+            batch.append(h)
+out_path.write_text("\n".join(sorted(set(batch))) + ("\n" if batch else ""), encoding="utf-8")
+PY
+    cp "$TMPDIR/batch-public.txt" "$BATCH_HOSTS"
+fi
+
+if ! f_subdomains_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$PAGE"; then
+    f_subdomains_die "Failed to update pages/subdomains.htm"
+fi
+# Passive summary is optional on some trees
+if [ -f "$REPORT_PAGE" ]; then
+    f_subdomains_update_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$REPORT_PAGE" \
+        || f_subdomains_die "Failed to update pages/passive.htm"
+fi
+if ! f_subdomains_write_hosts_page "$SUBDOMAINS_FILE" "$PUBLIC_IPS_FILE" "$HOSTS_PAGE"; then
+    f_subdomains_die "Failed to update pages/hosts.htm"
+fi
 
 PRIVATE_COUNT=$(wc -l < "$PRIVATE_FILE" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
+PUBLIC_IP_COUNT=0
+if [ -f "$PUBLIC_IPS_FILE" ]; then
+    PUBLIC_IP_COUNT=$(wc -l < "$PUBLIC_IPS_FILE" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
+fi
+PUBLIC_IP_COUNT=${PUBLIC_IP_COUNT:-0}
+BATCH_COUNT=0
+if [ -f "$BATCH_HOSTS" ] && [ -s "$BATCH_HOSTS" ]; then
+    BATCH_COUNT=$(grep -cve '^[[:space:]]*$' "$BATCH_HOSTS" || true)
+fi
+BATCH_COUNT=${BATCH_COUNT:-0}
+
+if declare -F f_audit_log >/dev/null 2>&1; then
+    if [ "$IMPORT_MODE" = "team-csv" ]; then
+        f_audit_log "$DISCOVER_REPORT" "Imported team CSV subdomains ($FINAL_COUNT hosts, $BATCH_COUNT public in batch)"
+    else
+        f_audit_log "$DISCOVER_REPORT" "Imported subdomains ($FINAL_COUNT hosts)"
+    fi
+fi
 
 echo "$MEDIUM"
 echo
 echo "[*] Subdomains import complete."
 echo "[*] $FINAL_COUNT subdomains in report ($PRIVATE_COUNT private, $CATEGORIZED categorized)."
+echo "[*] Hosts page: $PUBLIC_IP_COUNT unique public IPv4 address(es)."
 if [ "$MISSING" -gt 0 ]; then
     echo "[*] dig resolved $DIG_RESOLVED of $MISSING subdomains without IPs."
 fi
@@ -737,3 +1269,22 @@ echo -e "Merged data saved to ${YELLOW}$SUBDOMAINS_FILE${NC}"
 echo -e "Import source: ${YELLOW}$SUBDOMAINS_SOURCE${NC}"
 echo -e "HTML report updated: ${YELLOW}$DISCOVER_REPORT${NC}"
 echo
+
+# Offer Active on imported public hosts only (team CSV)
+if [ "$IMPORT_MODE" = "team-csv" ] && [ "${BATCH_COUNT:-0}" -gt 0 ]; then
+    echo -n "Run Active recon on newly imported public hosts only ($BATCH_COUNT)? (y/N) "
+    read -r RUN_ACTIVE
+    RUN_ACTIVE="${RUN_ACTIVE//$'\r'/}"
+    if [[ "$RUN_ACTIVE" =~ ^[Yy]$ ]]; then
+        if [ -f "${DISCOVER:-}/recon/active.sh" ]; then
+            export DISCOVER_REPORT
+            export DISCOVER_ACTIVE_SCOPE=import-batch
+            # shellcheck disable=SC1090
+            bash "${DISCOVER}/recon/active.sh"
+            unset DISCOVER_ACTIVE_SCOPE
+        else
+            echo "[!] active.sh not found — run Domain → Active manually."
+        fi
+    fi
+    echo
+fi

@@ -59,6 +59,12 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Backend: statusd `POST /export` → `recon/export-report.sh --kind … --report … --out-dir … --quiet` (JSON path on stdout).
 - Assets: `inc-report-export.js`, `modern.css` (export classes); import-report syncs JS and injects the script on those three pages. Bust `inc-report-export.js?v=…` / `modern.css?v=export…` after changes.
 
+## Import subdomains (Domain menu 8)
+
+- Two choices: **(1)** existing Firefox/Pentest-Tools/TSV **(2)** team CSV (`subdomain,ip,category`).
+- Team CSV: one IPv4 per host (empty IP → dig). **Skip hosts already in `tools/subdomains`** (no overwrite). Category = **Discover rules first**, else CSV. Never write `old/subdomain-categories.tsv`.
+- After import: refresh `pages/subdomains.htm` and `pages/hosts.htm` (unique public IPs). Team CSV also writes `tools/import-batch-hosts.txt` (**new** public hosts only) and may offer Active on that batch only (`DISCOVER_ACTIVE_SCOPE=import-batch`).
+
 ## Active page Update (Shodan + Software CVEs)
 
 - **Update** button on Active (statusd only), left of Export. Modal checkboxes (default both on):
