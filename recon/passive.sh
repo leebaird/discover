@@ -38,7 +38,7 @@ f_banner
 echo -e "${BLUE}PASSIVE RECON${NC}"
 echo
 echo -e "${BLUE}Uses Amass, ARIN, DNSRecon, dnstwist, Metasploit, subfinder,${NC}"
-echo -e "${BLUE}sublist3r, theHarvester, Whois, and multiple websites.${NC}"
+echo -e "${BLUE}sublist3r, Shodan CTL, theHarvester, Whois, and multiple websites.${NC}"
 echo
 echo -e "${BLUE}[*] Acquire API keys for maximum results with theHarvester.${NC}"
 echo -e "${BLUE}[*] Add keys to $HOME/.theHarvester/api-keys.yaml${NC}"
@@ -76,7 +76,7 @@ fi
 
 # Number of tests
 COUNT=1
-TOTAL=66
+TOTAL=67
 
 ###############################################################################################################################
 
@@ -448,6 +448,92 @@ f_sublist3r() {
     sed 's/\x1B\[[0-9;]*m//g' tmp | sed '/^ /d' | grep -Eiv '(!|enumerating|enumeration|searching|total unique)' | tr '[:upper:]' '[:lower:]' | sort -u > zsublist3r
     echo
     rm tmp 2>/dev/null
+}
+
+###############################################################################################################################
+
+# Free Shodan Certificate Transparency hostnames (no SHODAN_API_KEY).
+# https://ctl.shodan.io/api/v1/domain/{domain}/hostnames
+f_shodan_ctl() {
+    echo "Shodan CTL               ($COUNT/$TOTAL)"
+    ((COUNT++))
+
+    local out="zshodanctl"
+    local err_file
+    err_file=$(mktemp)
+
+    # Fail soft: timeout / non-200 / bad JSON must not stop passive.
+    if ! python3 - "$DOMAIN" "$out" 2>"$err_file" <<'PY'
+import json
+import sys
+import urllib.error
+import urllib.request
+
+domain = sys.argv[1].strip().lower().strip(".")
+out_path = sys.argv[2]
+url = f"https://ctl.shodan.io/api/v1/domain/{domain}/hostnames"
+
+req = urllib.request.Request(
+    url,
+    headers={"User-Agent": "Discover-passive/1.0", "Accept": "application/json"},
+)
+try:
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        raw = resp.read()
+except urllib.error.HTTPError as exc:
+    print(f"HTTP {exc.code}", file=sys.stderr)
+    sys.exit(1)
+except Exception as exc:
+    print(str(exc), file=sys.stderr)
+    sys.exit(1)
+
+try:
+    data = json.loads(raw.decode("utf-8", errors="replace"))
+except json.JSONDecodeError:
+    print("invalid JSON", file=sys.stderr)
+    sys.exit(1)
+
+if not isinstance(data, list):
+    print("unexpected response shape", file=sys.stderr)
+    sys.exit(1)
+
+suffix = "." + domain
+hosts = set()
+for item in data:
+    if not isinstance(item, str):
+        continue
+    host = item.strip().lower().rstrip(".")
+    if host.startswith("www."):
+        host = host[4:]
+    if not host:
+        continue
+    if host == domain or host.endswith(suffix):
+        hosts.add(host)
+
+with open(out_path, "w", encoding="utf-8") as handle:
+    for host in sorted(hosts):
+        handle.write(host + "\n")
+print(len(hosts), file=sys.stderr)
+PY
+    then
+        _err=$(head -n 1 "$err_file" 2>/dev/null | tr -d '\r')
+        if [ -n "$_err" ]; then
+            echo "    [!] Shodan CTL failed (${_err}) — skipping."
+        else
+            echo "    [!] Shodan CTL failed — skipping."
+        fi
+        rm -f "$err_file" "$out" 2>/dev/null
+        echo
+        return 0
+    fi
+
+    _count=$(tail -n 1 "$err_file" 2>/dev/null | tr -d '\r')
+    if [[ "$_count" =~ ^[0-9]+$ ]]; then
+        echo "    [*] ${_count} hostname(s)."
+    fi
+    rm -f "$err_file" 2>/dev/null
+    unset _err _count
+    echo
 }
 
 ###############################################################################################################################
@@ -880,6 +966,7 @@ from pathlib import Path
 
 MARKERS = (
     "zsubfinder",
+    "zshodanctl",
     "zcrtsh",
     "zcertspotter",
     "zcommoncrawl",
@@ -1693,6 +1780,7 @@ f_intodns
 f_metasploit
 f_subfinder
 f_sublist3r
+f_shodan_ctl
 f_theharvester
 f_theharvester_api
 f_whois_domain

@@ -199,7 +199,7 @@ Typical domain engagement path:
 
 #### Passive recon
 
-Uses Amass, ARIN, DNSRecon, dnstwist, Metasploit, subfinder, sublist3r, theHarvester, Whois, and multiple websites.
+Uses Amass, ARIN, DNSRecon, dnstwist, Metasploit, subfinder, sublist3r, Shodan CTL (free CT hostnames; no API key), theHarvester, Whois, and multiple websites.
 
 * Acquire free API keys for maximum results with theHarvester.
 * Add API keys to `$HOME/.theHarvester/api-keys.yaml`.
