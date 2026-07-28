@@ -1238,7 +1238,8 @@ tr.inc-subdomains-filter-hide {
 }
 
 .inc-shodan-panel {
-    font-size: 13px;
+    /* Match Subdomains table / body (15px) — do not shrink labels or values */
+    font-size: 15px;
     line-height: 1.45;
     color: #ccc;
     max-width: 100%;
@@ -1250,6 +1251,14 @@ tr.inc-subdomains-filter-hide {
 .inc-shodan-panel-head {
     margin-bottom: 8px;
     color: #eee;
+}
+
+.inc-shodan-panel-head-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .inc-shodan-panel-head a,
@@ -1272,9 +1281,47 @@ tr.inc-subdomains-filter-hide {
     color: #eee;
 }
 
+/* Operator-only: force-refresh this IP from Shodan (statusd POST /shodan-refresh).
+   Match Report Export button size/type (padding + 13px). */
+.inc-shodan-update-btn {
+    margin: 0;
+    padding: 6px 14px;
+    border: 1px solid #1a4a9e;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.inc-shodan-update-btn:hover,
+.inc-shodan-update-btn:focus {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    outline: none;
+}
+
+.inc-shodan-update-btn:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}
+
+.inc-shodan-update-status {
+    margin-top: 6px;
+    font-size: 15px;
+    color: #9aa3ad;
+}
+
+.inc-shodan-update-status.is-error {
+    color: #e57373;
+}
+
 .inc-shodan-muted {
     color: #888;
-    font-size: 12px;
+    font-size: 15px;
 }
 
 .inc-shodan-panel-body {
@@ -1294,11 +1341,11 @@ tr.inc-subdomains-filter-hide {
 
 .inc-shodan-k {
     display: inline-block;
-    min-width: 100px;
+    min-width: 110px;
     margin-right: 8px;
     color: #9aa3ad;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 15px;
     vertical-align: top;
 }
 
@@ -1314,7 +1361,7 @@ tr.inc-subdomains-filter-hide {
     margin: 0 6px 0 0;
     color: var(--accent-hover);
     text-decoration: none;
-    font-size: 12px;
+    font-size: 15px;
     font-variant-numeric: tabular-nums;
     white-space: nowrap; /* keep each CVE id intact; wrap between them */
 }
@@ -1325,13 +1372,13 @@ tr.inc-subdomains-filter-hide {
 
 .inc-shodan-more {
     color: #888;
-    font-size: 12px;
+    font-size: 15px;
     white-space: nowrap;
 }
 
 .inc-shodan-note {
     margin-top: 10px;
-    font-size: 12px;
+    font-size: 15px;
     color: #888;
     font-style: italic;
 }

@@ -13,10 +13,13 @@
     var SHODAN_WEB = "https://www.shodan.io/host/";
     var NVD_CVE = "https://nvd.nist.gov/vuln/detail/";
     var VULN_SHOW = 200;  // show full CVE lists for typical hosts
+    var STATUS_PORT = 17322;
 
     var indexByIp = null;
     var hostCache = {};
     var kevSet = null; // uppercase CVE-ID → true
+    var updateClicksBound = false;
+    var updateInFlight = Object.create(null);
 
     function esc(s) {
         return String(s == null ? "" : s)
@@ -241,14 +244,71 @@
         return html;
     }
 
-    /** Panel title: linked "Shodan" → host page on shodan.io */
+    /**
+     * Format Shodan last_update (ISO) as "mm-dd-yyyy - hh:mm Z".
+     * Shodan timestamps are UTC (with or without a trailing Z).
+     */
+    function formatLastUpdate(raw) {
+        if (raw == null || raw === "") {
+            return "";
+        }
+        var s = String(raw).trim();
+        var m = s.match(
+            /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::\d{2})?/
+        );
+        if (m) {
+            return m[2] + "-" + m[3] + "-" + m[1] + " - " + m[4] + ":" + m[5] + " Z";
+        }
+        return s;
+    }
+
+    function lastUpdatedKvHtml(raw) {
+        var formatted = formatLastUpdate(raw);
+        if (!formatted) {
+            return "";
+        }
+        return (
+            '<div class="inc-shodan-kv"><span class="inc-shodan-k">Last updated</span> ' +
+            esc(formatted) +
+            "</div>"
+        );
+    }
+
+    /**
+     * True only when this page is served by Discover statusd on localhost.
+     * Update (API refresh) is operator-only — never on file:// or exports.
+     */
+    function isDiscoverHostedPage() {
+        var host = location.hostname;
+        if (host !== "127.0.0.1" && host !== "localhost") {
+            return false;
+        }
+        var port = location.port;
+        if (!port) {
+            return false;
+        }
+        return port === String(STATUS_PORT);
+    }
+
+    /** Panel title: linked "Shodan" → host page; Update when statusd-hosted. */
     function panelHeadHtml(ip) {
+        var updateBtn = "";
+        if (isDiscoverHostedPage()) {
+            updateBtn =
+                '<button type="button" class="inc-shodan-update-btn" data-ip="' +
+                esc(ip) +
+                '" title="Pull fresh data from Shodan for this IP">Update</button>';
+        }
         return (
             '<div class="inc-shodan-panel-head">' +
+            '<div class="inc-shodan-panel-head-row">' +
             '<a class="inc-shodan-title-link" href="' +
             SHODAN_WEB +
             encodeURIComponent(ip) +
             '" target="_blank" rel="noopener noreferrer"><strong>Shodan</strong></a>' +
+            updateBtn +
+            "</div>" +
+            '<div class="inc-shodan-update-status" hidden></div>' +
             "</div>"
         );
     }
@@ -269,11 +329,12 @@
         var ports = formatPorts(meta && meta.ports);
         var hostnames = formatHostnames(meta && meta.hostnames);
         var loc = formatLocation(meta && meta.city, meta && meta.country);
-        // Order: Hostnames, Location, Org, ISP, Ports, Vulns (CVE links)
+        // Order: Last updated, Hostnames, Location, Org, ISP, Ports, Vulns
         return (
             '<div class="inc-shodan-panel">' +
             panelHeadHtml(ip) +
             '<div class="inc-shodan-panel-body">' +
+            lastUpdatedKvHtml(meta && meta.last_update) +
             '<div class="inc-shodan-kv"><span class="inc-shodan-k">Hostnames</span> ' +
             esc(hostnames || "—") +
             "</div>" +
@@ -323,11 +384,12 @@
         var hostnames = Array.isArray(sh.hostnames) ? sh.hostnames : [];
         var loc = formatLocation(sh.city, sh.country_code || sh.country_name);
 
-        // Order: Hostnames, Location, Org, ISP, Ports, Vulns
+        // Order: Last updated, Hostnames, Location, Org, ISP, Ports, Vulns
         return (
             '<div class="inc-shodan-panel">' +
             panelHeadHtml(ip) +
             '<div class="inc-shodan-panel-body">' +
+            lastUpdatedKvHtml(sh.last_update) +
             '<div class="inc-shodan-kv"><span class="inc-shodan-k">Hostnames</span> ' +
             esc(hostnames.length ? formatHostnames(hostnames) : "—") +
             "</div>" +
@@ -349,6 +411,155 @@
             "</div>" +
             "</div>"
         );
+    }
+
+    function setPanelHtml(panelRow, td, html) {
+        var body = panelRow.querySelector(".inc-shodan-panel");
+        if (body) {
+            body.outerHTML = html;
+        } else if (td) {
+            td.innerHTML = html;
+        }
+    }
+
+    function setUpdateStatus(panelRow, message, isError) {
+        var el = panelRow && panelRow.querySelector(".inc-shodan-update-status");
+        if (!el) {
+            return;
+        }
+        if (!message) {
+            el.hidden = true;
+            el.textContent = "";
+            el.classList.remove("is-error");
+            return;
+        }
+        el.hidden = false;
+        el.textContent = message;
+        if (isError) {
+            el.classList.add("is-error");
+        } else {
+            el.classList.remove("is-error");
+        }
+    }
+
+    function refreshShodanIp(ip, panelRow, td) {
+        if (!ip || updateInFlight[ip]) {
+            return;
+        }
+        updateInFlight[ip] = true;
+        var btn = panelRow.querySelector(".inc-shodan-update-btn");
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = "Updating…";
+        }
+        setUpdateStatus(panelRow, "Querying Shodan…", false);
+
+        fetch("/shodan-refresh", {
+            method: "POST",
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ip: ip }),
+        })
+            .then(function (res) {
+                return res.json().then(function (data) {
+                    return { httpOk: res.ok, data: data || {} };
+                });
+            })
+            .then(function (pack) {
+                var data = pack.data;
+                if (!data.ok) {
+                    var err =
+                        (data && data.error) ||
+                        (!pack.httpOk ? "Refresh failed" : "Shodan update failed");
+                    setUpdateStatus(panelRow, err, true);
+                    return;
+                }
+
+                if (data.status === "not_found") {
+                    delete hostCache[ip];
+                    if (indexByIp) {
+                        delete indexByIp[ip];
+                    }
+                    setPanelHtml(
+                        panelRow,
+                        td,
+                        panelHtmlFromHost(ip, {
+                            discover_status: "not_found",
+                            ip: ip,
+                        })
+                    );
+                    setUpdateStatus(
+                        panelRow,
+                        "IP not present in the Shodan database.",
+                        false
+                    );
+                    return;
+                }
+
+                var rec = data.host;
+                if (rec) {
+                    hostCache[ip] = rec;
+                }
+                if (data.index && indexByIp) {
+                    indexByIp[ip] = data.index;
+                }
+                if (rec) {
+                    setPanelHtml(panelRow, td, panelHtmlFromHost(ip, rec));
+                } else if (data.index) {
+                    setPanelHtml(
+                        panelRow,
+                        td,
+                        panelHtmlFromIndex(ip, data.index)
+                    );
+                }
+                setUpdateStatus(panelRow, "Updated from Shodan.", false);
+            })
+            .catch(function () {
+                setUpdateStatus(
+                    panelRow,
+                    "Could not reach Discover statusd (is the report open via Import?).",
+                    true
+                );
+            })
+            .then(function () {
+                delete updateInFlight[ip];
+                var liveBtn = panelRow.querySelector(".inc-shodan-update-btn");
+                if (liveBtn) {
+                    liveBtn.disabled = false;
+                    liveBtn.textContent = "Update";
+                }
+            });
+    }
+
+    function bindUpdateClicks(table) {
+        if (updateClicksBound || !table) {
+            return;
+        }
+        updateClicksBound = true;
+        table.addEventListener("click", function (ev) {
+            var btn = ev.target && ev.target.closest
+                ? ev.target.closest(".inc-shodan-update-btn")
+                : null;
+            if (!btn || !table.contains(btn)) {
+                return;
+            }
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (btn.disabled) {
+                return;
+            }
+            var panelRow = btn.closest("tr.inc-shodan-panel-row");
+            if (!panelRow) {
+                return;
+            }
+            var ip =
+                btn.getAttribute("data-ip") ||
+                panelRow.getAttribute("data-for-ip") ||
+                "";
+            var td = panelRow.cells && panelRow.cells[0];
+            refreshShodanIp(ip, panelRow, td);
+        });
     }
 
     function openPanel(row, toggle, ip, meta) {
@@ -383,13 +594,10 @@
             row.parentNode.appendChild(panelRow);
         }
 
+        bindUpdateClicks(table);
+
         function setBody(html) {
-            var body = panelRow.querySelector(".inc-shodan-panel");
-            if (body) {
-                body.outerHTML = html;
-            } else {
-                td.innerHTML = html;
-            }
+            setPanelHtml(panelRow, td, html);
         }
 
         if (hostCache[ip]) {

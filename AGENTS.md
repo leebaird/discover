@@ -36,6 +36,12 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - **droopescan** / **wpscan** gate on the `software` query when present; otherwise infer from the row’s Title/Technologies text (e.g. tech list contains `WordPress`).
 - Base tools (`nuclei`, `nikto`, `ffuf`) are always offered on expand when the UI is shown. Each tool box has a Unicode ⓘ that opens a short help modal. Bust `inc-host-scan.js?v=…` (and `modern.css?v=…` on Subdomains) after changes and sync via Import when testing live reports.
 
+## Shodan panel Update (Subdomains)
+
+- Shodan ▸ expand panel shows an **Update** button **only** on Discover-hosted pages (`http://127.0.0.1:17322/…`). Manual `file://` never shows it.
+- Backend: statusd `POST /shodan-refresh` → `recon/shodan-enrich.py <report> --ip <IP> --json` (force host API lookup; rewrites that host cache + index; audit log line).
+- Requires `SHODAN_API_KEY`. Bust `inc-shodan.js?v=…` / `modern.css?v=…` after UI changes; restart statusd (Import report) so the new endpoint is live.
+
 ## Report Export (Passive / Active / Audit)
 
 - **No Domain menu item** for export. UI is an **Export** button at the top of Report → Passive / Active / Audit only when the page is Discover-hosted (`http://127.0.0.1:17322/…`). Manual `file://` never shows the button.

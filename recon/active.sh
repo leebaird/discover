@@ -519,7 +519,7 @@ out.extend(
         '<script src="../assets/javascript/inc-subdomains-filter.js?v=13"></script>',
         '<script src="../tools/shodan/index.js"></script>',
         '<script src="../tools/shodan/kev-ids.js"></script>',
-        '<script src="../assets/javascript/inc-shodan.js?v=14"></script>',
+        '<script src="../assets/javascript/inc-shodan.js?v=16"></script>',
         '<script src="../assets/javascript/inc-host-scan.js?v=18"></script>',
         "</body>",
         "</html>",

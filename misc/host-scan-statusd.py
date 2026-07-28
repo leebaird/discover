@@ -11,10 +11,11 @@ Binds 127.0.0.1 only. Serves:
   GET /mode    -> assets/report-mode.json
   GET /health  -> ok
   POST /export -> run recon/export-report.sh (JSON body: {"kind":"client"|"defender"|"operator"})
+  POST /shodan-refresh -> force-refresh one IP via recon/shodan-enrich.py --ip (JSON: {"ip":"..."})
   GET /*       -> files under report_root (operator browser via http://127.0.0.1:port/)
 
-Host-scan chevrons and Export button only appear when the report is opened
-through this server (Import report / Active), not via file:// manual open.
+Host-scan chevrons, Export, and Shodan Update only appear when the report is
+opened through this server (Import report / Active), not via file:// manual open.
 """
 
 from __future__ import annotations
@@ -46,6 +47,7 @@ def main(argv: list[str]) -> int:
     # Discover install root (…/discover) from this script: misc/ → parent
     discover_root = Path(__file__).resolve().parent.parent
     export_script = discover_root / "recon" / "export-report.sh"
+    shodan_enrich = discover_root / "recon" / "shodan-enrich.py"
 
     def safe_report_file(url_path: str) -> Path | None:
         """Map URL path to a file under report_root, or None."""
@@ -96,7 +98,7 @@ def main(argv: list[str]) -> int:
         def do_POST(self):
             parsed = urlparse(self.path)
             path = parsed.path or "/"
-            if path != "/export":
+            if path not in {"/export", "/shodan-refresh"}:
                 self._send(404, b'{"ok":false,"error":"not found"}\n')
                 return
 
@@ -108,6 +110,95 @@ def main(argv: list[str]) -> int:
                 self._send(400, b'{"ok":false,"error":"invalid JSON"}\n')
                 return
 
+            env = os.environ.copy()
+            env["DISCOVER"] = str(discover_root)
+            env["HOME"] = str(Path.home())
+
+            if path == "/shodan-refresh":
+                ip = str(body.get("ip") or "").strip()
+                if not ip:
+                    self._send(400, b'{"ok":false,"error":"ip is required"}\n')
+                    return
+                if not shodan_enrich.is_file():
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": f"shodan-enrich missing: {shodan_enrich}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                try:
+                    proc = subprocess.run(
+                        [
+                            sys.executable,
+                            str(shodan_enrich),
+                            str(report_root),
+                            "--ip",
+                            ip,
+                            "--json",
+                        ],
+                        capture_output=True,
+                        text=True,
+                        timeout=90,
+                        env=env,
+                        cwd=str(discover_root),
+                    )
+                except subprocess.TimeoutExpired:
+                    self._send(
+                        504,
+                        b'{"ok":false,"error":"Shodan refresh timed out"}\n',
+                    )
+                    return
+                except OSError as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)}).encode()
+                        + b"\n",
+                    )
+                    return
+
+                result = None
+                for ln in reversed(
+                    [x.strip() for x in (proc.stdout or "").splitlines() if x.strip()]
+                ):
+                    try:
+                        cand = json.loads(ln)
+                        if isinstance(cand, dict):
+                            result = cand
+                            break
+                    except json.JSONDecodeError:
+                        continue
+
+                if not isinstance(result, dict):
+                    err = (proc.stderr or proc.stdout or "shodan refresh failed").strip()
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": err[:500]
+                                or f"shodan-enrich exit {proc.returncode}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+
+                code = 200 if result.get("ok") else 400
+                if proc.returncode != 0 and result.get("ok"):
+                    result["ok"] = False
+                    result.setdefault(
+                        "error", f"shodan-enrich exit {proc.returncode}"
+                    )
+                    code = 500
+                self._send(code, json.dumps(result).encode() + b"\n")
+                return
+
+            # --- /export ---
             kind = str(body.get("kind") or "").strip().lower()
             if kind not in {"client", "defender", "operator"}:
                 self._send(
@@ -136,10 +227,6 @@ def main(argv: list[str]) -> int:
                     + b"\n",
                 )
                 return
-
-            env = os.environ.copy()
-            env["DISCOVER"] = str(discover_root)
-            env["HOME"] = str(Path.home())
 
             try:
                 proc = subprocess.run(
