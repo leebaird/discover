@@ -18,3 +18,9 @@
 # IP host lookups do not consume query credits.
 #
 # SHODAN_API_KEY=your-key-here
+#
+# Optional: WPScan API token for WordPress host scans (vuln DB / better matching).
+# Free token: https://wpscan.com/api (or https://wpscan.com/register)
+# Used as --api-token when launching wpscan from Subdomains expand.
+#
+# WPSCAN_API_TOKEN=your-token-here

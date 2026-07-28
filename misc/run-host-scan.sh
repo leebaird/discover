@@ -12,13 +12,67 @@
 # - One scan at a time (engagement lock)
 # - Software-aware nuclei/ffuf/droopescan/wpscan profiles
 # - Nuclei is two-pass auto: (1) software tags recon, (2) CVE/KEV IDs
-# - droopescan only when software is a supported CMS (Drupal, WP, …)
+# - droopescan only when software is a supported CMS (Drupal, Joomla, …) — not WordPress
 # - wpscan only when software is WordPress
 
 set -euo pipefail
 
 # Prefer user pipx (Python 3.14-patched) over a broken system install.
 export PATH="${HOME}/.local/bin:/usr/local/bin:${PATH:-/usr/bin:/bin}"
+
+# Load ~/.discover/api-keys (and legacy .env) without overriding shell exports.
+# Picks up WPSCAN_API_TOKEN, SHODAN_API_KEY, NVD_API_KEY for host-scan tools.
+f_host_scan_load_api_keys(){
+    local env_file line key value discover_root
+    discover_root="${DISCOVER:-}"
+    if [ -z "$discover_root" ] && [ -f "$(dirname "${BASH_SOURCE[0]}")/../discover.sh" ]; then
+        discover_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    fi
+    for env_file in \
+        "${HOME}/.discover/api-keys" \
+        ${discover_root:+"$discover_root/.env"} \
+        "${HOME}/.discover/.env"
+    do
+        [ -n "$env_file" ] && [ -f "$env_file" ] || continue
+        while IFS= read -r line || [ -n "$line" ]; do
+            line="${line#"${line%%[![:space:]]*}"}"
+            line="${line%"${line##*[![:space:]]}"}"
+            [ -z "$line" ] && continue
+            case "$line" in
+                \#*) continue ;;
+                export\ *) line="${line#export }"
+                    line="${line#"${line%%[![:space:]]*}"}"
+                    ;;
+            esac
+            case "$line" in
+                *=*) ;;
+                *) continue ;;
+            esac
+            key="${line%%=*}"
+            value="${line#*=}"
+            key="${key%"${key##*[![:space:]]}"}"
+            key="${key#"${key%%[![:space:]]*}"}"
+            case "$key" in
+                ''|*[!A-Za-z0-9_]*|[0-9]*) continue ;;
+            esac
+            value="${value#"${value%%[![:space:]]*}"}"
+            value="${value%"${value##*[![:space:]]}"}"
+            if [ "${#value}" -ge 2 ]; then
+                if [ "${value:0:1}" = '"' ] && [ "${value: -1}" = '"' ]; then
+                    value="${value:1:${#value}-2}"
+                elif [ "${value:0:1}" = "'" ] && [ "${value: -1}" = "'" ]; then
+                    value="${value:1:${#value}-2}"
+                fi
+            fi
+            if [ -n "${!key:-}" ]; then
+                continue
+            fi
+            export "$key=$value"
+        done < "$env_file"
+    done
+}
+f_host_scan_load_api_keys
+unset -f f_host_scan_load_api_keys
 
 TOOL="${1:-}"
 URL="${2:-}"
@@ -481,7 +535,7 @@ f_droopescan_cms(){
     base="${base// /}"
     case "$base" in
         drupal) printf '%s' "drupal" ;;
-        wordpress|wp) printf '%s' "wordpress" ;;
+        # WordPress: use wpscan only (droopescan WP results were poor in testing).
         joomla) printf '%s' "joomla" ;;
         moodle) printf '%s' "moodle" ;;
         silverstripe|ss) printf '%s' "silverstripe" ;;
@@ -928,7 +982,7 @@ PY
         ;;
     droopescan)
         CMS=$(f_droopescan_cms)
-        [ -n "$CMS" ] || f_die "droopescan requires CMS software (Drupal, WordPress, Joomla, Moodle, Silverstripe). Got: ${SOFTWARE:-none}"
+        [ -n "$CMS" ] || f_die "droopescan requires CMS software (Drupal, Joomla, Moodle, Silverstripe — not WordPress; use wpscan). Got: ${SOFTWARE:-none}"
         command -v droopescan >/dev/null 2>&1 || f_die "droopescan is not installed (or not on PATH). Run Discover Update; prefer ~/.local/bin after Python 3.14 patch."
         DROOP_OUT="$RUN_DIR/droopescan.txt"
         # Quiet-ish: all enums, modest threads, standard text output.

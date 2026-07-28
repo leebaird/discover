@@ -14,10 +14,9 @@
     // Base tools quietest → loudest (CMS tools inserted when software matches).
     var TOOLS_BASE = ["nuclei", "nikto", "ffuf"];
     // droopescan CMS label → plugin name (must match run-host-scan.sh).
+    // WordPress is wpscan-only — do not offer droopescan for WP (poor results).
     var DROOPESCAN_CMS = {
         drupal: "drupal",
-        wordpress: "wordpress",
-        wp: "wordpress",
         joomla: "joomla",
         moodle: "moodle",
         silverstripe: "silverstripe",
@@ -66,12 +65,12 @@
                 {
                     h: "What it does",
                     p:
-                        "CMS enumeration (plugins, themes, and related checks) for supported products such as Drupal, WordPress, Joomla, Moodle, and Silverstripe."
+                        "CMS enumeration (plugins, themes, and related checks) for Drupal, Joomla, Moodle, and Silverstripe. WordPress uses wpscan instead."
                 },
                 {
                     h: "When shown",
                     p:
-                        "When the software filter is a supported CMS, or when the row’s Title/Technologies text looks like that CMS (e.g. contains “Drupal”)."
+                        "When the software filter is a supported CMS (not WordPress), or when the row’s Title/Technologies text looks like that CMS (e.g. contains “Drupal”)."
                 },
                 {
                     h: "What Run does",
@@ -100,7 +99,7 @@
                 {
                     h: "What Run does",
                     p:
-                        "Runs WPScan against the host URL. Optional free API token: export WPSCAN_API_TOKEN=… for richer vuln matching."
+                        "Runs WPScan against the host URL. Optional free API token (richer vuln DB matching): set WPSCAN_API_TOKEN in ~/.discover/api-keys (preferred), or export WPSCAN_API_TOKEN=…. Get a free token at https://wpscan.com/api. Without a token the scan still runs with local enumeration only."
                 },
                 {
                     h: "Outputs",

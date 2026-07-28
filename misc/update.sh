@@ -142,7 +142,7 @@ f_ensure_discover_api_keys(){
         chown "$owner:$owner" "$conf_dir" "$dest" 2>/dev/null || true
     fi
     echo "    $dest"
-    echo "    Edit and set NVD_API_KEY / SHODAN_API_KEY as needed."
+    echo "    Edit and set NVD_API_KEY / SHODAN_API_KEY / WPSCAN_API_TOKEN as needed."
     echo
 }
 f_ensure_discover_api_keys

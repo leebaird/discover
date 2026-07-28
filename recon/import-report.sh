@@ -114,7 +114,7 @@ f_import_report_sync_assets(){
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
                 -e 's|modern\.css?v=[^"]*|modern.css?v=ws29|g' \
-                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=18|g' \
+                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=20|g' \
                 -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=18|g' \
                 "$report/pages/subdomains.htm" 2>/dev/null || true
         fi
@@ -242,7 +242,7 @@ need = [
     ("tools/shodan/index.js", '<script src="../tools/shodan/index.js"></script>'),
     ("tools/shodan/kev-ids.js", '<script src="../tools/shodan/kev-ids.js"></script>'),
     ("inc-shodan.js", '<script src="../assets/javascript/inc-shodan.js?v=18"></script>'),
-    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=18"></script>'),
+    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=20"></script>'),
 ]
 insert = [tag for key, tag in need if key not in text]
 if insert:

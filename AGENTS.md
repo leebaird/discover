@@ -34,6 +34,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Host-scan chevrons appear **only** when the report is opened via Discover statusd HTTP (`http://127.0.0.1:17322/…`, Import report / Active). Manual `file://` open never shows chevrons, even if statusd is still running.
 - Chevrons on the **full** public Subdomains table (rows with HTTP status), not only `?software=` / `?cve=` filtered views.
 - **droopescan** / **wpscan** gate on the `software` query when present; otherwise infer from the row’s Title/Technologies text (e.g. tech list contains `WordPress`).
+- **WordPress → wpscan only.** Do not offer droopescan for WordPress (UI map and `run-host-scan.sh` both exclude WP/droopescan). Drupal / Joomla / Moodle / Silverstripe still use droopescan when matched.
 - Base tools (`nuclei`, `nikto`, `ffuf`) are always offered on expand when the UI is shown. Each tool box has a Unicode ⓘ that opens a short help modal. Bust `inc-host-scan.js?v=…` (and `modern.css?v=…` on Subdomains) after changes and sync via Import when testing live reports.
 
 ## Shodan panel Update (Subdomains)
@@ -46,6 +47,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 ## API keys
 
 - Preferred file: **`~/.discover/api-keys`** (`KEY=value` lines; `chmod 600`). Template: `resource/api-keys.example`.
+- Keys: `NVD_API_KEY`, `SHODAN_API_KEY`, **`WPSCAN_API_TOKEN`** (optional free token for wpscan vuln DB; `run-host-scan.sh` loads api-keys and passes `--api-token`).
 - Lookup order: shell export → `~/.discover/api-keys` (first non-empty wins per key).
 - **Update:** `misc/update.sh` ensures the file exists — if missing, copies `resource/api-keys.example` → `~/.discover/api-keys` (`chmod 600`). Under `sudo`, seeds the **invoking user’s** home (`SUDO_USER`), not only root. If already present, only re-applies `chmod 600` (quiet).
 - **Auto-migrate:** if `$DISCOVER/.env` or `~/.discover/.env` still exist, Discover merges them into `~/.discover/api-keys` (existing `api-keys` values win) and **removes** the legacy files. Implemented in `software-cve.migrate_legacy_api_key_files()` (also run from Active / Shodan shell loaders).

@@ -421,6 +421,7 @@ NVD_API_KEY=your-key-here
 | `DISCOVER_SKIP_CVE=1` | Skip NVD queries; Software table still lists versions |
 | `DISCOVER_CVE_PROGRESS=1` | Print each product lookup while building Active |
 | `SHODAN_API_KEY` | Optional Shodan key for post-Active host enrichment (Domain menu **11**) |
+| `WPSCAN_API_TOKEN` | Optional WPScan API token for WordPress host scans (vuln DB) |
 
 Cache file: `<report>/tools/software-cves-cache.json`. CVSS values are **triage leads** from NVD CPE matches, not confirmed findings — validate before reporting to a client.
 
