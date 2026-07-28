@@ -90,6 +90,64 @@ f_update_os(){
 f_update_os
 unset -f f_update_os
 
+# Operator API keys file (~/.discover/api-keys). Quiet if already present.
+# When Update runs under sudo, seed the invoking user's home (not only root).
+f_ensure_discover_api_keys(){
+    local template home_dir owner conf_dir dest
+
+    template="$DISCOVER_ROOT/resource/api-keys.example"
+    if [ ! -f "$template" ]; then
+        return 0
+    fi
+
+    if [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ]; then
+        home_dir=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+        owner="$SUDO_USER"
+    elif [ "$(id -u)" -ne 0 ]; then
+        home_dir="${HOME:-}"
+        owner="$(id -un)"
+    else
+        # Bare root (no SUDO_USER): still ensure /root/.discover/api-keys
+        home_dir="/root"
+        owner="root"
+    fi
+
+    [ -n "$home_dir" ] && [ -d "$home_dir" ] || return 0
+
+    conf_dir="$home_dir/.discover"
+    dest="$conf_dir/api-keys"
+
+    if [ -f "$dest" ]; then
+        # Normalize permissions on every Update
+        chmod 600 "$dest" 2>/dev/null || true
+        if [ -n "$owner" ] && [ "$(id -u)" -eq 0 ]; then
+            chown "$owner:$owner" "$dest" 2>/dev/null || true
+        fi
+        return 0
+    fi
+
+    echo -e "${BLUE}Creating operator API keys file.${NC}"
+    if ! mkdir -p "$conf_dir" 2>/dev/null; then
+        echo -e "${YELLOW}Could not create $conf_dir — skip api-keys template.${NC}"
+        echo
+        return 0
+    fi
+    if ! cp -f "$template" "$dest" 2>/dev/null; then
+        echo -e "${YELLOW}Could not write $dest — skip api-keys template.${NC}"
+        echo
+        return 0
+    fi
+    chmod 600 "$dest" 2>/dev/null || true
+    if [ "$(id -u)" -eq 0 ] && [ -n "$owner" ]; then
+        chown "$owner:$owner" "$conf_dir" "$dest" 2>/dev/null || true
+    fi
+    echo "    $dest"
+    echo "    Edit and set NVD_API_KEY / SHODAN_API_KEY as needed."
+    echo
+}
+f_ensure_discover_api_keys
+unset -f f_ensure_discover_api_keys
+
 if ! command -v 7z &> /dev/null; then
     echo -e "${YELLOW}Installing 7-Zip.${NC}"
     apt install -y 7zip

@@ -7,9 +7,10 @@ Shodan host API (membership / paid keys), write artifacts under
 
 SHODAN_API_KEY is required. Discover checks, in order:
   1. Existing shell environment (export SHODAN_API_KEY=...)
-  2. Private .env files (never override a non-empty shell export):
-       $DISCOVER/.env
-       ~/.discover/.env
+  2. Private key file: ~/.discover/api-keys
+
+Legacy ``$DISCOVER/.env`` and ``~/.discover/.env`` are moved into
+``~/.discover/api-keys`` automatically when found.
 
 IP lookups do not consume Shodan query credits. Rate-limit with a short
 sleep between requests (default 1.1s). Resume skips IPs that already have
@@ -94,9 +95,10 @@ def _parse_env_line(line: str) -> tuple[str, str] | None:
 
 
 def load_discover_env_files() -> list[str]:
-    """Load KEY=VALUE from private .env files (shell exports win).
+    """Load KEY=VALUE from private key files (shell exports win).
 
-    Prefers software-cve.py's loader when present so NVD/Shodan share one path.
+    Prefers software-cve.py's loader when present so NVD/Shodan share one path
+    (``~/.discover/api-keys``, then legacy ``.env`` files).
     """
     global _ENV_FILES_LOADED
     software_cve = _load_software_cve_module()
@@ -106,9 +108,11 @@ def load_discover_env_files() -> list[str]:
         return list(loaded or [])
 
     loaded: list[str] = []
+    home_discover = os.path.join(os.path.expanduser("~"), ".discover")
     candidates = [
+        os.path.join(home_discover, "api-keys"),
         os.path.join(_discover_root(), ".env"),
-        os.path.join(os.path.expanduser("~"), ".discover", ".env"),
+        os.path.join(home_discover, ".env"),
     ]
     seen: set[str] = set()
     for path in candidates:
@@ -887,8 +891,8 @@ def main(argv: list[str] | None = None) -> int:
     api_key = get_shodan_api_key()
     if not api_key:
         print("[!] SHODAN_API_KEY not set — skipping Shodan enrichment.", flush=True)
-        print("    export SHODAN_API_KEY=... or add it to $DISCOVER/.env / ~/.discover/.env", flush=True)
-        print("    See .env.example and README (Shodan enrichment).", flush=True)
+        print("    export SHODAN_API_KEY=... or add it to ~/.discover/api-keys", flush=True)
+        print("    Template: resource/api-keys.example — see README (Shodan enrichment).", flush=True)
         return 0  # soft skip — not a hard failure
 
     shodan_dir = os.path.join(report_dir, "tools", "shodan")

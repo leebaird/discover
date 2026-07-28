@@ -1319,6 +1319,30 @@ tr.inc-subdomains-filter-hide {
     color: #e57373;
 }
 
+/* Shown when statusd reports no SHODAN_API_KEY (path only — never the key). */
+.inc-shodan-key-notice {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border: 1px solid #5c4a1f;
+    border-radius: 6px;
+    background: rgba(255, 193, 7, 0.08);
+    color: #e0c56a;
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.inc-shodan-key-notice code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: #f0d78c;
+    white-space: nowrap;
+}
+
+.inc-shodan-key-notice strong {
+    color: #f5e0a0;
+    font-weight: 600;
+}
+
 .inc-shodan-muted {
     color: #888;
     font-size: 15px;
@@ -1342,7 +1366,8 @@ tr.inc-subdomains-filter-hide {
 .inc-shodan-k {
     display: inline-block;
     min-width: 110px;
-    margin-right: 8px;
+    /* Value column: existing 8px gap + four spaces */
+    margin-right: calc(8px + 4ch);
     color: #9aa3ad;
     font-weight: 600;
     font-size: 15px;

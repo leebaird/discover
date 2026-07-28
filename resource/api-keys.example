@@ -1,0 +1,20 @@
+# Discover API keys — preferred location: ~/.discover/api-keys
+# Shell exports always win over values in this file.
+#
+# Install:
+#   mkdir -p ~/.discover
+#   cp resource/api-keys.example ~/.discover/api-keys
+#   chmod 600 ~/.discover/api-keys
+#   # edit ~/.discover/api-keys and fill in keys
+#
+# Optional: NVD API key for faster CVSS lookups during Active recon.
+# Request a free key: https://nvd.nist.gov/developers/request-an-api-key
+#
+# NVD_API_KEY=your-key-here
+#
+# Optional: Shodan API key for post-Active host enrichment (Domain menu 11)
+# and Subdomains Shodan Update. Membership or higher:
+#   https://account.shodan.io / https://www.shodan.io/store/member
+# IP host lookups do not consume query credits.
+#
+# SHODAN_API_KEY=your-key-here

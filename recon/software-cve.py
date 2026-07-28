@@ -5,9 +5,11 @@ do not re-query NVD for every run.
 
 NVD_API_KEY (optional) enables higher rate limits. Discover checks, in order:
   1. Existing shell environment (export NVD_API_KEY=...)
-  2. Private .env files (never override a non-empty shell export):
-       $DISCOVER/.env
-       ~/.discover/.env
+  2. Private key file: ~/.discover/api-keys
+
+Legacy ``$DISCOVER/.env`` and ``~/.discover/.env`` are moved into
+``~/.discover/api-keys`` automatically when found (merge; existing api-keys
+values win; legacy files are removed after a successful write).
 
 Request a free key: https://nvd.nist.gov/developers/request-an-api-key
 Skip lookups: DISCOVER_SKIP_CVE=1
@@ -176,10 +178,16 @@ def discover_root() -> str:
 
 
 def env_file_paths() -> list[str]:
-    """Private .env locations (first existing files are applied in order)."""
+    """Private API key file locations (after legacy migration).
+
+    Preferred: ``~/.discover/api-keys``. Legacy ``.env`` paths are listed only
+    as a fallback if migration could not remove them.
+    """
+    home_discover = os.path.join(os.path.expanduser("~"), ".discover")
     candidates = [
+        os.path.join(home_discover, "api-keys"),
         os.path.join(discover_root(), ".env"),
-        os.path.join(os.path.expanduser("~"), ".discover", ".env"),
+        os.path.join(home_discover, ".env"),
     ]
     seen: set[str] = set()
     paths: list[str] = []
@@ -190,6 +198,15 @@ def env_file_paths() -> list[str]:
         seen.add(abs_path)
         paths.append(abs_path)
     return paths
+
+
+def legacy_api_key_env_paths() -> list[str]:
+    """Legacy locations that should be moved into ``~/.discover/api-keys``."""
+    home_discover = os.path.join(os.path.expanduser("~"), ".discover")
+    return [
+        os.path.abspath(os.path.join(discover_root(), ".env")),
+        os.path.abspath(os.path.join(home_discover, ".env")),
+    ]
 
 
 def parse_env_line(line: str) -> tuple[str, str] | None:
@@ -212,14 +229,129 @@ def parse_env_line(line: str) -> tuple[str, str] | None:
     return key, value
 
 
-def load_discover_env_files() -> list[str]:
-    """Load KEY=VALUE pairs from private .env files.
+def _read_env_file_pairs(path: str) -> list[tuple[str, str]]:
+    """Return ordered (key, value) pairs from a KEY=VALUE file."""
+    pairs: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    try:
+        with open(path, encoding="utf-8") as handle:
+            for raw in handle:
+                parsed = parse_env_line(raw)
+                if not parsed:
+                    continue
+                key, value = parsed
+                if key in seen:
+                    continue
+                seen.add(key)
+                pairs.append((key, value))
+    except OSError:
+        return []
+    return pairs
 
+
+def migrate_legacy_api_key_files() -> list[str]:
+    """Move legacy ``.env`` key files into ``~/.discover/api-keys``.
+
+    - If ``api-keys`` is missing, create it from legacy content (home ``.env``
+      first, then ``$DISCOVER/.env`` for keys not already present).
+    - If ``api-keys`` exists, keep its values; fill missing keys from legacy.
+    - After a successful write, remove each legacy file that was migrated.
+
+    Returns absolute paths of legacy files successfully removed.
+    """
+    home_discover = os.path.join(os.path.expanduser("~"), ".discover")
+    api_keys_path = os.path.abspath(os.path.join(home_discover, "api-keys"))
+    legacy_paths = [p for p in legacy_api_key_env_paths() if os.path.isfile(p)]
+    # Never treat api-keys itself as legacy
+    legacy_paths = [p for p in legacy_paths if p != api_keys_path]
+    if not legacy_paths:
+        return []
+
+    # Merge: existing api-keys wins, then home .env, then $DISCOVER/.env
+    # legacy_api_key_env_paths order is discover then home — prefer home first
+    # for content when api-keys is empty.
+    home_env = os.path.abspath(os.path.join(home_discover, ".env"))
+    disc_env = os.path.abspath(os.path.join(discover_root(), ".env"))
+    read_order: list[str] = []
+    if os.path.isfile(api_keys_path):
+        read_order.append(api_keys_path)
+    for p in (home_env, disc_env):
+        if p in legacy_paths and p not in read_order:
+            read_order.append(p)
+
+    merged: list[tuple[str, str]] = []
+    seen_keys: set[str] = set()
+    for path in read_order:
+        for key, value in _read_env_file_pairs(path):
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            merged.append((key, value))
+
+    if not merged and not os.path.isfile(api_keys_path):
+        # Empty legacy files — still remove them so they don't linger
+        removed: list[str] = []
+        for path in legacy_paths:
+            try:
+                os.remove(path)
+                removed.append(path)
+            except OSError:
+                pass
+        return removed
+
+    try:
+        os.makedirs(home_discover, exist_ok=True)
+        tmp_path = api_keys_path + ".tmp"
+        with open(tmp_path, "w", encoding="utf-8") as handle:
+            handle.write("# Discover API keys — ~/.discover/api-keys\n")
+            handle.write("# Shell exports always win over values in this file.\n")
+            if legacy_paths:
+                handle.write(
+                    "# Migrated from legacy .env location(s); edit this file only.\n"
+                )
+            handle.write("\n")
+            for key, value in merged:
+                # Values may contain spaces; write unquoted when safe
+                handle.write(f"{key}={value}\n")
+        os.replace(tmp_path, api_keys_path)
+        try:
+            os.chmod(api_keys_path, 0o600)
+        except OSError:
+            pass
+    except OSError:
+        # Leave legacy files in place if we cannot write the destination
+        try:
+            if os.path.isfile(api_keys_path + ".tmp"):
+                os.remove(api_keys_path + ".tmp")
+        except OSError:
+            pass
+        return []
+
+    removed = []
+    for path in legacy_paths:
+        try:
+            os.remove(path)
+            removed.append(path)
+        except OSError:
+            pass
+    return removed
+
+
+def load_discover_env_files() -> list[str]:
+    """Load KEY=VALUE pairs from private key files (api-keys / legacy .env).
+
+    Migrates legacy ``.env`` files into ``~/.discover/api-keys`` first.
     Non-empty variables already present in the process environment (e.g. from
     ``export NVD_API_KEY=...``) are never overridden.
     """
     global _ENV_FILES_LOADED
     loaded: list[str] = []
+
+    try:
+        migrate_legacy_api_key_files()
+    except Exception:
+        # Never block key loading if migration fails
+        pass
 
     for path in env_file_paths():
         if not os.path.isfile(path):
@@ -243,7 +375,7 @@ def load_discover_env_files() -> list[str]:
 
 
 def get_nvd_api_key() -> str:
-    """Return NVD API key from shell env or private .env files."""
+    """Return NVD API key from shell env or private key files."""
     if not _ENV_FILES_LOADED:
         load_discover_env_files()
     return (os.environ.get("NVD_API_KEY") or "").strip()

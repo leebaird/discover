@@ -40,7 +40,15 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 
 - Shodan ▸ expand panel shows an **Update** button **only** on Discover-hosted pages (`http://127.0.0.1:17322/…`). Manual `file://` never shows it.
 - Backend: statusd `POST /shodan-refresh` → `recon/shodan-enrich.py <report> --ip <IP> --json` (force host API lookup; rewrites that host cache + index; audit log line).
-- Requires `SHODAN_API_KEY`. Bust `inc-shodan.js?v=…` / `modern.css?v=…` after UI changes; restart statusd (Import report) so the new endpoint is live.
+- Requires `SHODAN_API_KEY` from shell or **`~/.discover/api-keys`**. Bust `inc-shodan.js?v=…` / `modern.css?v=…` after UI changes; restart statusd (Import report) so the new endpoint is live.
+- Opening the panel on statusd calls `GET /shodan-status` (`api_key` true/false only). If false, show where to add the key (`~/.discover/api-keys`) and disable **Update**.
+
+## API keys
+
+- Preferred file: **`~/.discover/api-keys`** (`KEY=value` lines; `chmod 600`). Template: `resource/api-keys.example`.
+- Lookup order: shell export → `~/.discover/api-keys` (first non-empty wins per key).
+- **Update:** `misc/update.sh` ensures the file exists — if missing, copies `resource/api-keys.example` → `~/.discover/api-keys` (`chmod 600`). Under `sudo`, seeds the **invoking user’s** home (`SUDO_USER`), not only root. If already present, only re-applies `chmod 600` (quiet).
+- **Auto-migrate:** if `$DISCOVER/.env` or `~/.discover/.env` still exist, Discover merges them into `~/.discover/api-keys` (existing `api-keys` values win) and **removes** the legacy files. Implemented in `software-cve.migrate_legacy_api_key_files()` (also run from Active / Shodan shell loaders).
 
 ## Report Export (Passive / Active / Audit)
 

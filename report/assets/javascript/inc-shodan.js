@@ -20,6 +20,9 @@
     var kevSet = null; // uppercase CVE-ID → true
     var updateClicksBound = false;
     var updateInFlight = Object.create(null);
+    // null = unknown / not statusd; true|false after /shodan-status
+    var shodanApiKeyConfigured = null;
+    var shodanApiKeyPath = "~/.discover/api-keys";
 
     function esc(s) {
         return String(s == null ? "" : s)
@@ -290,14 +293,79 @@
         return port === String(STATUS_PORT);
     }
 
+    /**
+     * Load whether SHODAN_API_KEY is configured (statusd only; never the key).
+     * Resolves to true/false, or null when not Discover-hosted / check failed.
+     */
+    function loadShodanApiKeyStatus() {
+        if (!isDiscoverHostedPage()) {
+            shodanApiKeyConfigured = null;
+            return Promise.resolve(null);
+        }
+        return fetch("/shodan-status", {
+            credentials: "same-origin",
+            cache: "no-store",
+        })
+            .then(function (res) {
+                if (!res.ok) {
+                    throw new Error("http " + res.status);
+                }
+                return res.json();
+            })
+            .then(function (data) {
+                shodanApiKeyConfigured = !!(data && data.api_key);
+                if (data && data.path) {
+                    shodanApiKeyPath = String(data.path);
+                }
+                return shodanApiKeyConfigured;
+            })
+            .catch(function () {
+                // Leave prior value if any; null means "unknown"
+                if (shodanApiKeyConfigured === null) {
+                    shodanApiKeyConfigured = null;
+                }
+                return shodanApiKeyConfigured;
+            });
+    }
+
+    /** Notice when operator has no Shodan API key configured. */
+    function noApiKeyNoticeHtml() {
+        if (shodanApiKeyConfigured !== false) {
+            return "";
+        }
+        var pathDisp = shodanApiKeyPath || "~/.discover/api-keys";
+        // Prefer short home-relative display when path is under the user home
+        if (pathDisp.indexOf("/.discover/api-keys") !== -1) {
+            pathDisp = "~/.discover/api-keys";
+        }
+        return (
+            '<div class="inc-shodan-key-notice" role="status">' +
+            "<strong>Shodan API key is not set.</strong> " +
+            "Add <code>SHODAN_API_KEY=…</code> to <code>" +
+            esc(pathDisp) +
+            "</code> " +
+            "(or <code>export SHODAN_API_KEY=…</code>). " +
+            "If that file is missing, run Discover <strong>Update</strong> to create it from the template, " +
+            "then edit it and click <strong>Update</strong> here." +
+            "</div>"
+        );
+    }
+
     /** Panel title: linked "Shodan" → host page; Update when statusd-hosted. */
     function panelHeadHtml(ip) {
         var updateBtn = "";
         if (isDiscoverHostedPage()) {
+            var noKey = shodanApiKeyConfigured === false;
             updateBtn =
                 '<button type="button" class="inc-shodan-update-btn" data-ip="' +
                 esc(ip) +
-                '" title="Pull fresh data from Shodan for this IP">Update</button>';
+                '" title="' +
+                (noKey
+                    ? "Set SHODAN_API_KEY in ~/.discover/api-keys first"
+                    : "Pull fresh data from Shodan for this IP") +
+                '"' +
+                (noKey ? " disabled" : "") +
+                ">Update</button>";
         }
         return (
             '<div class="inc-shodan-panel-head">' +
@@ -308,6 +376,7 @@
             '" target="_blank" rel="noopener noreferrer"><strong>Shodan</strong></a>' +
             updateBtn +
             "</div>" +
+            noApiKeyNoticeHtml() +
             '<div class="inc-shodan-update-status" hidden></div>' +
             "</div>"
         );
@@ -472,7 +541,44 @@
                     var err =
                         (data && data.error) ||
                         (!pack.httpOk ? "Refresh failed" : "Shodan update failed");
+                    if (
+                        err &&
+                        /SHODAN_API_KEY|api key/i.test(String(err))
+                    ) {
+                        shodanApiKeyConfigured = false;
+                    }
                     setUpdateStatus(panelRow, err, true);
+                    // Re-paint head so the key-location notice appears when missing.
+                    if (shodanApiKeyConfigured === false) {
+                        var head = panelRow.querySelector(".inc-shodan-panel-head");
+                        if (head) {
+                            var notice = noApiKeyNoticeHtml();
+                            var statusEl = head.querySelector(
+                                ".inc-shodan-update-status"
+                            );
+                            var existing = head.querySelector(
+                                ".inc-shodan-key-notice"
+                            );
+                            if (!existing && notice) {
+                                if (statusEl) {
+                                    statusEl.insertAdjacentHTML(
+                                        "beforebegin",
+                                        notice
+                                    );
+                                } else {
+                                    head.insertAdjacentHTML("beforeend", notice);
+                                }
+                            }
+                            var liveBtn = panelRow.querySelector(
+                                ".inc-shodan-update-btn"
+                            );
+                            if (liveBtn) {
+                                liveBtn.disabled = true;
+                                liveBtn.title =
+                                    "Set SHODAN_API_KEY in ~/.discover/api-keys first";
+                            }
+                        }
+                    }
                     return;
                 }
 
@@ -513,7 +619,7 @@
                         panelHtmlFromIndex(ip, data.index)
                     );
                 }
-                setUpdateStatus(panelRow, "Updated from Shodan.", false);
+                setUpdateStatus(panelRow, "Updated info.", false);
             })
             .catch(function () {
                 setUpdateStatus(
@@ -585,7 +691,37 @@
         panelRow.setAttribute("data-for-ip", ip);
         var td = document.createElement("td");
         td.colSpan = row.cells.length;
-        td.innerHTML = panelHtmlFromIndex(ip, meta);
+        // Build after a fresh key check when statusd-hosted so the notice is current.
+        function paintPanel() {
+            if (!panelRow.parentNode) {
+                return;
+            }
+            td.innerHTML = panelHtmlFromIndex(ip, meta);
+            if (hostCache[ip]) {
+                setPanelHtml(panelRow, td, panelHtmlFromHost(ip, hostCache[ip]));
+                return;
+            }
+            var url =
+                HOST_URL_PREFIX + encodeURIComponent(safeIpFile(ip)) + ".json";
+            fetchJson(url)
+                .then(function (rec) {
+                    hostCache[ip] = rec;
+                    if (!panelRow.parentNode) {
+                        return;
+                    }
+                    setPanelHtml(panelRow, td, panelHtmlFromHost(ip, rec));
+                })
+                .catch(function () {
+                    // Keep index summary if full host file missing (common on file://)
+                });
+        }
+
+        td.innerHTML =
+            '<div class="inc-shodan-panel">' +
+            panelHeadHtml(ip) +
+            '<div class="inc-shodan-panel-body">' +
+            '<span class="inc-shodan-muted">Loading…</span>' +
+            "</div></div>";
         panelRow.appendChild(td);
 
         if (row.nextSibling) {
@@ -596,27 +732,13 @@
 
         bindUpdateClicks(table);
 
-        function setBody(html) {
-            setPanelHtml(panelRow, td, html);
-        }
-
-        if (hostCache[ip]) {
-            setBody(panelHtmlFromHost(ip, hostCache[ip]));
-            return;
-        }
-
-        var url = HOST_URL_PREFIX + encodeURIComponent(safeIpFile(ip)) + ".json";
-        fetchJson(url)
-            .then(function (rec) {
-                hostCache[ip] = rec;
-                if (!panelRow.parentNode) {
-                    return;
-                }
-                setBody(panelHtmlFromHost(ip, rec));
-            })
-            .catch(function () {
-                // Keep index summary if full host file missing (common on file://)
+        if (isDiscoverHostedPage()) {
+            loadShodanApiKeyStatus().then(function () {
+                paintPanel();
             });
+        } else {
+            paintPanel();
+        }
     }
 
     /**

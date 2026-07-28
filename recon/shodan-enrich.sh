@@ -4,7 +4,7 @@
 # Coded by Grok (xAI)
 #
 # Enrich an engagement report with Shodan host-by-IP data (membership API).
-# Requires SHODAN_API_KEY (shell export or private .env). Soft-skips without a key.
+# Requires SHODAN_API_KEY (shell export or ~/.discover/api-keys). Soft-skips without a key.
 # Reads unique public IPs from tools/httpx.jsonl (run Active first).
 
 BLUE=${BLUE:-'\033[1;34m'}
@@ -53,7 +53,29 @@ f_shodan_discover_root(){
     return 1
 }
 
-# Load private .env files without overriding non-empty shell exports.
+# Move legacy $DISCOVER/.env and ~/.discover/.env into ~/.discover/api-keys.
+f_shodan_migrate_api_keys(){
+    local py
+
+    py="${DISCOVER:-}/recon/software-cve.py"
+    [ -f "$py" ] || return 0
+    DISCOVER="$DISCOVER" python3 - "$py" <<'PY' 2>/dev/null || true
+import importlib.util
+import sys
+
+path = sys.argv[1]
+spec = importlib.util.spec_from_file_location("software_cve", path)
+if spec is None or spec.loader is None:
+    raise SystemExit(0)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+if hasattr(mod, "migrate_legacy_api_key_files"):
+    mod.migrate_legacy_api_key_files()
+PY
+}
+
+# Load private API key / env files without overriding non-empty shell exports.
+# Preferred: ~/.discover/api-keys (legacy .env files are migrated first).
 f_shodan_load_env(){
     local env_file line key value root
 
@@ -64,7 +86,9 @@ f_shodan_load_env(){
     DISCOVER="${DISCOVER:-$root}"
     export DISCOVER
 
-    for env_file in "$DISCOVER/.env" "$HOME/.discover/.env"; do
+    f_shodan_migrate_api_keys
+
+    for env_file in "$HOME/.discover/api-keys" "$DISCOVER/.env" "$HOME/.discover/.env"; do
         [ -f "$env_file" ] || continue
         while IFS= read -r line || [ -n "$line" ]; do
             line="${line#"${line%%[![:space:]]*}"}"
@@ -180,8 +204,8 @@ fi
 if [ -z "${SHODAN_API_KEY:-}" ]; then
     echo
     echo -e "${YELLOW}[!] SHODAN_API_KEY not set — enrichment will be skipped.${NC}"
-    echo "    export SHODAN_API_KEY=... or put it in \$DISCOVER/.env or ~/.discover/.env"
-    echo "    Template: \$DISCOVER/.env.example"
+    echo "    export SHODAN_API_KEY=... or put it in ~/.discover/api-keys"
+    echo "    Template: \$DISCOVER/resource/api-keys.example"
     echo
 fi
 

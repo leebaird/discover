@@ -10,6 +10,7 @@ Binds 127.0.0.1 only. Serves:
   GET /status  -> tools/host-scans/status.json
   GET /mode    -> assets/report-mode.json
   GET /health  -> ok
+  GET /shodan-status -> {"ok":true,"api_key":true|false} (never returns the key)
   POST /export -> run recon/export-report.sh (JSON body: {"kind":"client"|"defender"|"operator"})
   POST /shodan-refresh -> force-refresh one IP via recon/shodan-enrich.py --ip (JSON: {"ip":"..."})
   GET /*       -> files under report_root (operator browser via http://127.0.0.1:port/)
@@ -20,6 +21,7 @@ opened through this server (Import report / Active), not via file:// manual open
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import mimetypes
 import os
@@ -28,6 +30,28 @@ import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlparse
+
+
+def shodan_api_key_configured(discover_root: Path) -> bool:
+    """True when SHODAN_API_KEY is set in the environment or private key files.
+
+    Does not return or log the key value.
+    """
+    # Prefer enricher's loader (api-keys + legacy .env migration).
+    enrich = discover_root / "recon" / "shodan-enrich.py"
+    if enrich.is_file():
+        try:
+            spec = importlib.util.spec_from_file_location(
+                "discover_shodan_enrich", str(enrich)
+            )
+            if spec is not None and spec.loader is not None:
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                if hasattr(mod, "get_shodan_api_key"):
+                    return bool((mod.get_shodan_api_key() or "").strip())
+        except Exception:
+            pass
+    return bool((os.environ.get("SHODAN_API_KEY") or "").strip())
 
 
 def main(argv: list[str]) -> int:
@@ -314,6 +338,21 @@ def main(argv: list[str]) -> int:
                     self._send(200, status_path.read_bytes())
                 else:
                     self._send(200, b'{"running":false,"hosts":{}}\n')
+                return
+            if path == "/shodan-status":
+                # Presence only — never return the key material.
+                configured = shodan_api_key_configured(discover_root)
+                self._send(
+                    200,
+                    json.dumps(
+                        {
+                            "ok": True,
+                            "api_key": configured,
+                            "path": str(Path.home() / ".discover" / "api-keys"),
+                        }
+                    ).encode()
+                    + b"\n",
+                )
                 return
 
             if path == "/":

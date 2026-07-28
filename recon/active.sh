@@ -22,8 +22,33 @@ f_active_die(){
     exit 1
 }
 
-# Load private .env files without overriding non-empty shell exports.
-# Paths: $DISCOVER/.env then ~/.discover/.env
+# Move legacy $DISCOVER/.env and ~/.discover/.env into ~/.discover/api-keys.
+f_discover_migrate_api_keys(){
+    local py
+
+    if [ -z "${DISCOVER:-}" ]; then
+        DISCOVER="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    fi
+    py="$DISCOVER/recon/software-cve.py"
+    [ -f "$py" ] || return 0
+    # shellcheck disable=SC2090
+    DISCOVER="$DISCOVER" python3 - "$py" <<'PY' 2>/dev/null || true
+import importlib.util
+import sys
+
+path = sys.argv[1]
+spec = importlib.util.spec_from_file_location("software_cve", path)
+if spec is None or spec.loader is None:
+    raise SystemExit(0)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+if hasattr(mod, "migrate_legacy_api_key_files"):
+    mod.migrate_legacy_api_key_files()
+PY
+}
+
+# Load private API key / env files without overriding non-empty shell exports.
+# Preferred: ~/.discover/api-keys (legacy .env files are migrated first).
 f_discover_load_env(){
     local env_file line key value
 
@@ -31,7 +56,9 @@ f_discover_load_env(){
         DISCOVER="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
     fi
 
-    for env_file in "$DISCOVER/.env" "$HOME/.discover/.env"; do
+    f_discover_migrate_api_keys
+
+    for env_file in "$HOME/.discover/api-keys" "$DISCOVER/.env" "$HOME/.discover/.env"; do
         [ -f "$env_file" ] || continue
         while IFS= read -r line || [ -n "$line" ]; do
             # Trim whitespace
@@ -67,7 +94,7 @@ f_discover_load_env(){
                     value="${value:1:${#value}-2}"
                 fi
             fi
-            # Shell export wins over .env
+            # Shell export wins over file values
             if [ -n "${!key:-}" ]; then
                 continue
             fi
@@ -519,7 +546,7 @@ out.extend(
         '<script src="../assets/javascript/inc-subdomains-filter.js?v=13"></script>',
         '<script src="../tools/shodan/index.js"></script>',
         '<script src="../tools/shodan/kev-ids.js"></script>',
-        '<script src="../assets/javascript/inc-shodan.js?v=16"></script>',
+        '<script src="../assets/javascript/inc-shodan.js?v=18"></script>',
         '<script src="../assets/javascript/inc-host-scan.js?v=18"></script>',
         "</body>",
         "</html>",
@@ -775,10 +802,10 @@ f_discover_load_env
 
 echo -e "${BLUE}[*] Updating Active report (includes NVD CVSS lookup for software versions).${NC}"
 if [ -n "${NVD_API_KEY:-}" ]; then
-    echo -e "${BLUE}    NVD_API_KEY found (shell export or private .env) — using authenticated rate limits.${NC}"
+    echo -e "${BLUE}    NVD_API_KEY found (shell export or ~/.discover/api-keys) — using authenticated rate limits.${NC}"
 else
     echo -e "${BLUE}    No NVD_API_KEY — anonymous NVD rate limits (slower).${NC}"
-    echo -e "${BLUE}    Add export NVD_API_KEY=... or put it in $DISCOVER/.env or ~/.discover/.env${NC}"
+    echo -e "${BLUE}    Add export NVD_API_KEY=... or put it in ~/.discover/api-keys${NC}"
     echo -e "${BLUE}    Free key: https://nvd.nist.gov/developers/request-an-api-key${NC}"
     echo -e "${BLUE}    Skip lookups: DISCOVER_SKIP_CVE=1${NC}"
 fi

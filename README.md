@@ -397,23 +397,23 @@ export DISCOVER_SKIP_CVE=1
 
 1. [Request an NVD API key](https://nvd.nist.gov/developers/request-an-api-key)
 2. Confirm the email NIST sends
-3. Provide the key to Discover (shell export and/or private `.env` — see below)
+3. Provide the key to Discover (shell export and/or `~/.discover/api-keys` — see below)
 
 **How Discover finds the key** (non-empty values higher in the list win):
 
 1. Shell environment — `export NVD_API_KEY=...`
-2. Private `.env` in the Discover install — `$DISCOVER/.env`
-3. Private `.env` in your home config — `~/.discover/.env`
+2. Private file — `~/.discover/api-keys`
 
-Example `.env` line (no quotes required):
+Example line (no quotes required):
 
 ```
 NVD_API_KEY=your-key-here
 ```
 
-* Copy the template: `cp ~/discover/.env.example ~/discover/.env` or `mkdir -p ~/.discover && cp ~/discover/.env.example ~/.discover/.env`
-* `.env` is gitignored; never commit real keys
-* `.env.example` is tracked as documentation only
+* **Discover Update** seeds `~/.discover/api-keys` from `resource/api-keys.example` if the file is missing (`chmod 600`; under sudo, the invoking user’s home)
+* Manual: `mkdir -p ~/.discover && cp ~/discover/resource/api-keys.example ~/.discover/api-keys && chmod 600 ~/.discover/api-keys`
+* Never commit real keys; `~/.discover/` stays outside the repo
+* **Migration:** if you still have `$DISCOVER/.env` or `~/.discover/.env`, the next Active/Shodan/CVE run moves those keys into `~/.discover/api-keys` and deletes the old files (existing `api-keys` values are kept)
 
 | Variable | Purpose |
 |----------|---------|
@@ -443,7 +443,7 @@ After **Active** recon, look up unique **public** IPs from `tools/httpx.jsonl` i
 ```
 export SHODAN_API_KEY=...
 # or
-# SHODAN_API_KEY=...  in $DISCOVER/.env or ~/.discover/.env
+# SHODAN_API_KEY=...  in ~/.discover/api-keys
 ```
 
 **How it works**
