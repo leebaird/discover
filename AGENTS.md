@@ -58,3 +58,11 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Modal: Client / Defender / Operator radios + **Export** + **Cancel**; success shows the output path (`$HOME/data` by default).
 - Backend: statusd `POST /export` → `recon/export-report.sh --kind … --report … --out-dir … --quiet` (JSON path on stdout).
 - Assets: `inc-report-export.js`, `modern.css` (export classes); import-report syncs JS and injects the script on those three pages. Bust `inc-report-export.js?v=…` / `modern.css?v=export…` after changes.
+
+## Active page Update (Shodan + Software CVEs)
+
+- **Update** button on Active (statusd only), left of Export. Modal checkboxes (default both on):
+  - **Shodan** → `POST /shodan-refresh-all` → `shodan-enrich.py <report> --force --json-summary`
+  - **Software CVEs** → `POST /software-cve-refresh` → `active-tech.py <report> --refresh-cves --json` (re-queries NVD for missing/empty cache entries by default; `--force-all` optional; rebuilds `pages/active.htm` Software versions table + `cve-software-index.js`)
+- Software versions CVE data is **NVD CPE**, not Shodan host vulns. Permanent skips: Microsoft HTTPAPI, Java Servlet, JavaServer Pages (`SKIP_PRODUCTS` in `software-cve.py`).
+- Assets: `inc-active-refresh.js`; bust `?v=` and `modern.css` after UI changes. Restart statusd after endpoint changes.

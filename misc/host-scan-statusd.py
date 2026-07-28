@@ -13,10 +13,12 @@ Binds 127.0.0.1 only. Serves:
   GET /shodan-status -> {"ok":true,"api_key":true|false} (never returns the key)
   POST /export -> run recon/export-report.sh (JSON body: {"kind":"client"|"defender"|"operator"})
   POST /shodan-refresh -> force-refresh one IP via recon/shodan-enrich.py --ip (JSON: {"ip":"..."})
+  POST /shodan-refresh-all -> force Shodan enrich all public IPs (--force --json-summary)
+  POST /software-cve-refresh -> force NVD software CVEs + rebuild active.htm
   GET /*       -> files under report_root (operator browser via http://127.0.0.1:port/)
 
-Host-scan chevrons, Export, and Shodan Update only appear when the report is
-opened through this server (Import report / Active), not via file:// manual open.
+Host-scan chevrons, Export, Shodan Update, and Active Update only appear when
+the report is opened through this server (Import report / Active), not file://.
 """
 
 from __future__ import annotations
@@ -72,6 +74,7 @@ def main(argv: list[str]) -> int:
     discover_root = Path(__file__).resolve().parent.parent
     export_script = discover_root / "recon" / "export-report.sh"
     shodan_enrich = discover_root / "recon" / "shodan-enrich.py"
+    active_tech = discover_root / "recon" / "active-tech.py"
 
     def safe_report_file(url_path: str) -> Path | None:
         """Map URL path to a file under report_root, or None."""
@@ -122,7 +125,12 @@ def main(argv: list[str]) -> int:
         def do_POST(self):
             parsed = urlparse(self.path)
             path = parsed.path or "/"
-            if path not in {"/export", "/shodan-refresh"}:
+            if path not in {
+                "/export",
+                "/shodan-refresh",
+                "/shodan-refresh-all",
+                "/software-cve-refresh",
+            }:
                 self._send(404, b'{"ok":false,"error":"not found"}\n')
                 return
 
@@ -137,6 +145,142 @@ def main(argv: list[str]) -> int:
             env = os.environ.copy()
             env["DISCOVER"] = str(discover_root)
             env["HOME"] = str(Path.home())
+
+            def _parse_json_stdout(stdout: str) -> dict | None:
+                for ln in reversed(
+                    [x.strip() for x in (stdout or "").splitlines() if x.strip()]
+                ):
+                    try:
+                        cand = json.loads(ln)
+                        if isinstance(cand, dict):
+                            return cand
+                    except json.JSONDecodeError:
+                        continue
+                return None
+
+            if path == "/shodan-refresh-all":
+                if not shodan_enrich.is_file():
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": f"shodan-enrich missing: {shodan_enrich}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                try:
+                    proc = subprocess.run(
+                        [
+                            sys.executable,
+                            str(shodan_enrich),
+                            str(report_root),
+                            "--force",
+                            "--json-summary",
+                        ],
+                        capture_output=True,
+                        text=True,
+                        timeout=7200,
+                        env=env,
+                        cwd=str(discover_root),
+                    )
+                except subprocess.TimeoutExpired:
+                    self._send(
+                        504,
+                        b'{"ok":false,"error":"Shodan bulk refresh timed out"}\n',
+                    )
+                    return
+                except OSError as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)}).encode()
+                        + b"\n",
+                    )
+                    return
+                result = _parse_json_stdout(proc.stdout or "")
+                if not isinstance(result, dict):
+                    err = (proc.stderr or proc.stdout or "shodan bulk failed").strip()
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": err[:500]
+                                or f"shodan-enrich exit {proc.returncode}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                code = 200 if result.get("ok") else 400
+                self._send(code, json.dumps(result).encode() + b"\n")
+                return
+
+            if path == "/software-cve-refresh":
+                if not active_tech.is_file():
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": f"active-tech missing: {active_tech}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                force_all = bool(body.get("force_all"))
+                cmd = [
+                    sys.executable,
+                    str(active_tech),
+                    str(report_root),
+                    "--refresh-cves",
+                    "--json",
+                ]
+                if force_all:
+                    cmd.append("--force-all")
+                try:
+                    proc = subprocess.run(
+                        cmd,
+                        capture_output=True,
+                        text=True,
+                        timeout=3600,
+                        env=env,
+                        cwd=str(discover_root),
+                    )
+                except subprocess.TimeoutExpired:
+                    self._send(
+                        504,
+                        b'{"ok":false,"error":"Software CVE refresh timed out"}\n',
+                    )
+                    return
+                except OSError as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)}).encode()
+                        + b"\n",
+                    )
+                    return
+                result = _parse_json_stdout(proc.stdout or "")
+                if not isinstance(result, dict):
+                    err = (proc.stderr or proc.stdout or "cve refresh failed").strip()
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": err[:500]
+                                or f"active-tech exit {proc.returncode}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                code = 200 if result.get("ok") else 400
+                self._send(code, json.dumps(result).encode() + b"\n")
+                return
 
             if path == "/shodan-refresh":
                 ip = str(body.get("ip") or "").strip()

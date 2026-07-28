@@ -471,12 +471,15 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     gap: var(--space);
 }
 
-/* Active: title | CVE search (centered) | date */
+/* Active: title left | CVE search true-center | date right.
+ * Search is position:absolute so Update/Export padding-right does not
+ * shift it off the page center (under the main nav). */
 .inc-page-header--active {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: center;
     column-gap: 16px;
+    position: relative;
 }
 
 .inc-page-header--active h1,
@@ -487,6 +490,9 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 .inc-page-header--active h1 {
     justify-self: start;
     min-width: 0;
+    /* Keep title from sitting under the centered search */
+    padding-right: 8px;
+    max-width: calc(50% - 140px);
 }
 
 .inc-page-header--active .inc-active-scan-date,
@@ -500,6 +506,12 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 .inc-page-header--active .inc-active-scan-date {
     justify-self: end;
     margin-left: 0;
+    grid-column: 2;
+    /* Room for absolute Update + Export on the right */
+    padding-right: 4px;
+    max-width: calc(50% - 140px);
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .inc-page-header--active .inc-active-scan-date:empty,
@@ -507,14 +519,18 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     display: none;
 }
 
-/* CVE search bar (Active breadcrumb / page header) */
+/* CVE search bar (Active breadcrumb / page header) — center of full header */
 .inc-active-cve-search {
     display: inline-flex;
     align-items: stretch; /* equal height input + button */
     gap: 8px;
-    justify-self: center;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
     margin: 0;
-    max-width: 100%;
+    max-width: min(320px, calc(100% - 280px));
     height: 30px;
 }
 
@@ -2011,6 +2027,11 @@ body:not(.inc-iframe-parent) pre {
     box-sizing: border-box;
 }
 
+/* Active: Update + Export share the header (Update left of Export). */
+.inc-page-header.inc-page-header--with-active-update {
+    padding-right: 188px;
+}
+
 .inc-page-header .inc-report-export-btn {
     position: absolute;
     top: 50%;
@@ -2028,6 +2049,63 @@ body:not(.inc-iframe-parent) pre {
     letter-spacing: 0.02em;
     cursor: pointer;
     white-space: nowrap;
+}
+
+.inc-page-header .inc-active-refresh-btn {
+    position: absolute;
+    top: 50%;
+    right: 100px;
+    transform: translateY(-50%);
+    z-index: 2;
+    margin: 0;
+    padding: 6px 14px;
+    border: 1px solid #1a4a9e;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.inc-page-header .inc-active-refresh-btn:hover,
+.inc-page-header .inc-active-refresh-btn:focus {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    outline: none;
+}
+
+/* Active Update modal — multi-line change summary */
+#inc-active-refresh-status.is-summary {
+    white-space: normal;
+    line-height: 1.45;
+    font-size: 13px;
+    max-height: 280px;
+    overflow: auto;
+}
+
+#inc-active-refresh-status.is-summary strong {
+    color: #e8eef5;
+    font-weight: 600;
+}
+
+.inc-active-refresh-hr {
+    border: none;
+    border-top: 1px solid #2f3844;
+    margin: 10px 0;
+}
+
+.inc-active-refresh-reload-note {
+    margin: 0 0 10px;
+    color: #9aa3ad;
+}
+
+#inc-active-refresh-reload {
+    position: static;
+    transform: none;
+    display: inline-block;
 }
 
 .inc-page-header .inc-report-export-btn:hover,

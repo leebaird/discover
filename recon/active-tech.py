@@ -3,6 +3,7 @@ import importlib.util
 import json
 import os
 import re
+import sys
 from collections import Counter
 from urllib.parse import quote, urlparse
 
@@ -932,7 +933,13 @@ def _load_software_cve_module():
     return module
 
 
-def enrich_software_rows_for_report(software_version_rows, httpx_path):
+def enrich_software_rows_for_report(
+    software_version_rows,
+    httpx_path,
+    *,
+    force: bool = False,
+    force_missing_only: bool = False,
+):
     """Attach CVSS/CVE fields; degrade gracefully if NVD is unavailable."""
     if not software_version_rows:
         return []
@@ -961,12 +968,19 @@ def enrich_software_rows_for_report(software_version_rows, httpx_path):
             "true",
             "yes",
         }
-        return software_cve.enrich_software_version_rows(
+        rows_out = software_cve.enrich_software_version_rows(
             software_version_rows,
             cache_path,
             progress=progress,
+            force=force,
+            force_missing_only=force_missing_only,
         )
+        enrich_software_rows_for_report.last_stats = getattr(
+            software_cve.enrich_software_version_rows, "last_stats", {}
+        ) or {}
+        return rows_out
     except Exception:
+        enrich_software_rows_for_report.last_stats = {}
         return [
             (label, count, "", "", "", False)
             for label, count in software_version_rows
@@ -1088,7 +1102,16 @@ def load_httpx_status_counts(httpx_path):
     return counts
 
 
-def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_path, whatweb_path):
+def build_active_summary(
+    subdomains_path,
+    private_path,
+    alive_tsv_path,
+    httpx_path,
+    whatweb_path,
+    *,
+    force_cve: bool = False,
+    force_cve_missing_only: bool = False,
+):
     all_subdomain_rows = load_subdomain_rows(subdomains_path)
     # Scope "Public" must exclude RFC1918 rows that live in tools/subdomains.
     public_rows = [
@@ -1156,6 +1179,8 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
     software_version_enriched = enrich_software_rows_for_report(
         software_version_rows,
         httpx_path,
+        force=force_cve,
+        force_missing_only=force_cve_missing_only,
     )
 
     lines.extend(
@@ -1222,3 +1247,210 @@ def build_active_summary(subdomains_path, private_path, alive_tsv_path, httpx_pa
     )
 
     return "\n".join(lines)
+
+def _discover_root() -> str:
+    explicit = (os.environ.get("DISCOVER") or "").strip()
+    if explicit:
+        return explicit
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def rebuild_active_page(
+    report_dir: str,
+    *,
+    force_cve: bool = False,
+    force_cve_missing_only: bool = True,
+) -> dict:
+    """Rebuild pages/active.htm from existing tools/ artifacts + NVD enrich.
+
+    Used by statusd POST /software-cve-refresh (operator Update modal).
+    Does not re-run httpx/whatweb/gowitness.
+    """
+    report_dir = os.path.abspath(os.path.expanduser(report_dir))
+    tools = os.path.join(report_dir, "tools")
+    page = os.path.join(report_dir, "pages", "active.htm")
+    result = {
+        "ok": False,
+        "report": report_dir,
+        "page": page,
+        "force_cve": force_cve,
+        "force_cve_missing_only": force_cve_missing_only,
+    }
+
+    paths = {
+        "subdomains": os.path.join(tools, "subdomains"),
+        "private": os.path.join(tools, "private-subs"),
+        "alive": os.path.join(tools, "active-alive.tsv"),
+        "httpx": os.path.join(tools, "httpx.jsonl"),
+        "whatweb": os.path.join(tools, "whatweb.json"),
+    }
+    if not os.path.isfile(paths["httpx"]):
+        result["error"] = "missing tools/httpx.jsonl — run Active recon first"
+        return result
+    if not os.path.isfile(paths["subdomains"]):
+        result["error"] = "missing tools/subdomains"
+        return result
+
+    summary = build_active_summary(
+        paths["subdomains"],
+        paths["private"] if os.path.isfile(paths["private"]) else "",
+        paths["alive"] if os.path.isfile(paths["alive"]) else "",
+        paths["httpx"],
+        paths["whatweb"] if os.path.isfile(paths["whatweb"]) else "",
+        force_cve=force_cve,
+        force_cve_missing_only=force_cve_missing_only,
+    )
+    scan_date = httpx_scan_date(paths["httpx"])
+
+    template = os.path.join(_discover_root(), "report", "pages", "active.htm")
+    if os.path.isfile(template):
+        content = open(template, encoding="utf-8").read()
+    elif os.path.isfile(page):
+        # Fall back: replace body content block if markers missing
+        content = open(page, encoding="utf-8").read()
+        if "#ACTIVE_CONTENT#" not in content:
+            # Strip previous dynamic content between container markers is fragile;
+            # require template from Discover install.
+            result["error"] = f"Discover active.htm template not found at {template}"
+            return result
+    else:
+        result["error"] = "active.htm template and report page both missing"
+        return result
+
+    # Preserve company/domain from existing report index or page
+    company = ""
+    domain = ""
+    index_htm = os.path.join(report_dir, "index.htm")
+    for source in (page if os.path.isfile(page) else "", index_htm):
+        if not source or not os.path.isfile(source):
+            continue
+        text = open(source, encoding="utf-8", errors="replace").read()
+        import re
+
+        m = re.search(
+            r'inc-home-meta-label">Company</span>\s*<span class="value">([^<]*)</span>',
+            text,
+        )
+        if m and not company:
+            company = m.group(1).strip()
+        m = re.search(
+            r'inc-home-meta-label">Domain</span>\s*<span class="value">([^<]*)</span>',
+            text,
+        )
+        if m and not domain:
+            domain = m.group(1).strip()
+    if not domain:
+        domain = os.path.basename(report_dir.rstrip(os.sep))
+
+    content = content.replace("#ACTIVE_CONTENT#", summary)
+    content = content.replace("#ACTIVE_SCAN_DATE#", scan_date)
+    content = content.replace("#COMPANY#", company)
+    content = content.replace("#DOMAIN#", domain)
+
+    os.makedirs(os.path.dirname(page), exist_ok=True)
+    with open(page, "w", encoding="utf-8") as handle:
+        handle.write(content)
+
+    result["ok"] = True
+    result["scan_date"] = scan_date
+    result["stats"] = getattr(enrich_software_rows_for_report, "last_stats", {}) or {}
+    return result
+
+
+def _append_audit_refresh(report_dir: str, action: str) -> None:
+    """Best-effort audit line (operator name; egress may be unknown)."""
+    try:
+        software_cve = _load_software_cve_module()
+        if hasattr(software_cve, "load_discover_env_files"):
+            software_cve.load_discover_env_files()
+    except Exception:
+        pass
+    audit_dir = os.path.join(report_dir, "tools", "audit")
+    audit_log = os.path.join(audit_dir, "log.txt")
+    try:
+        os.makedirs(audit_dir, exist_ok=True)
+    except OSError:
+        return
+    from datetime import datetime, timezone
+
+    ts = datetime.now(timezone.utc).strftime("%m-%d-%Y - %H:%M Z")
+    op = "unknown"
+    try:
+        op_path = os.path.join(os.path.expanduser("~"), ".discover", "operator-name")
+        if os.path.isfile(op_path):
+            raw = open(op_path, encoding="utf-8", errors="replace").readline().strip()
+            cleaned = re.sub(r"[^A-Za-z]", "", raw)[:10]
+            if cleaned:
+                op = cleaned[0].upper() + cleaned[1:].lower() if len(cleaned) > 1 else cleaned.upper()
+    except OSError:
+        pass
+    if not action.endswith("."):
+        action = action + "."
+    line = f"{ts} | {op} | unknown | {action}\n"
+    try:
+        with open(audit_log, "a", encoding="utf-8") as handle:
+            handle.write(line)
+    except OSError:
+        pass
+
+
+if __name__ == "__main__":
+    import argparse
+    import json as _json
+
+    parser = argparse.ArgumentParser(
+        description="Rebuild Active page software CVEs from existing tools/ data.",
+    )
+    parser.add_argument(
+        "report_dir",
+        nargs="?",
+        help="Engagement report root (contains tools/ and pages/)",
+    )
+    parser.add_argument(
+        "--refresh-cves",
+        action="store_true",
+        help="Force re-query NVD for missing/zero-CVE software and rebuild active.htm",
+    )
+    parser.add_argument(
+        "--force-all",
+        action="store_true",
+        help="With --refresh-cves: re-query all CPE-mapped products (not only missing/empty)",
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Print machine-readable JSON result",
+    )
+    parser.add_argument(
+        "--skip-audit",
+        action="store_true",
+        help="Do not append audit log",
+    )
+    args = parser.parse_args()
+    if not args.refresh_cves or not args.report_dir:
+        parser.print_help()
+        raise SystemExit(2)
+
+    out = rebuild_active_page(
+        args.report_dir,
+        force_cve=bool(args.force_all),
+        force_cve_missing_only=not bool(args.force_all),
+    )
+    if out.get("ok") and not args.skip_audit:
+        stats = out.get("stats") or {}
+        looked = stats.get("looked_up", 0)
+        _append_audit_refresh(
+            args.report_dir,
+            f"Updated software CVE data ({looked} NVD lookups"
+            + (", force-all" if args.force_all else ", missing/empty only")
+            + ")",
+        )
+    if args.json:
+        print(_json.dumps(out, separators=(",", ":")))
+    else:
+        if out.get("ok"):
+            print(f"[*] Rebuilt {out.get('page')}")
+            print(f"    stats: {out.get('stats')}")
+        else:
+            print(f"[!] {out.get('error')}", file=sys.stderr)
+            raise SystemExit(1)

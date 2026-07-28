@@ -98,6 +98,7 @@ f_import_report_sync_assets(){
         inc-active-cve-tabs.js \
         inc-active-cve-search.js \
         inc-active-status-codes.js \
+        inc-active-refresh.js \
         inc-report-export.js
     do
         if [ -f "$src/javascript/$js" ]; then
@@ -122,11 +123,21 @@ f_import_report_sync_assets(){
         for page in passive.htm active.htm audit.htm; do
             if [ -f "$report/pages/$page" ]; then
                 sed -i \
-                    -e 's|modern\.css?v=[^"]*|modern.css?v=status2|g' \
+                    -e 's|modern\.css?v=[^"]*|modern.css?v=active-update3|g' \
                     -e 's|inc-report-export\.js?v=[0-9]*|inc-report-export.js?v=3|g' \
                     "$report/pages/$page" 2>/dev/null || true
                 if [ "$page" = "active.htm" ] && ! grep -q 'inc-active-status-codes.js' "$report/pages/$page" 2>/dev/null; then
                     sed -i 's|</body>|<script src="../assets/javascript/inc-active-status-codes.js?v=1"></script>\n</body>|' \
+                        "$report/pages/$page" 2>/dev/null || true
+                fi
+                if [ "$page" = "active.htm" ] && ! grep -q 'inc-active-refresh.js' "$report/pages/$page" 2>/dev/null; then
+                    sed -i 's|</body>|<script src="../assets/javascript/inc-active-refresh.js?v=2"></script>\n</body>|' \
+                        "$report/pages/$page" 2>/dev/null || true
+                fi
+                if [ "$page" = "active.htm" ]; then
+                    sed -i \
+                        -e 's|inc-active-refresh\.js?v=[0-9]*|inc-active-refresh.js?v=2|g' \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=active-update3|g' \
                         "$report/pages/$page" 2>/dev/null || true
                 fi
                 if ! grep -q 'inc-report-export.js' "$report/pages/$page" 2>/dev/null; then

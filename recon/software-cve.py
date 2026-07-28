@@ -584,11 +584,14 @@ def lookup_software(
     cache: dict[str, Any],
     sleep_seconds: float = DEFAULT_SLEEP_SECONDS,
     allow_keyword_fallback: bool = False,
+    force: bool = False,
 ) -> dict[str, Any]:
     key = cache_key(product_name, version)
     entries = cache.setdefault("entries", {})
-    if key in entries:
+    if key in entries and not force:
         return entries[key]
+    if force and key in entries:
+        del entries[key]
 
     result: dict[str, Any] = {
         "product": product_name,
@@ -645,12 +648,49 @@ def format_cvss(score: float | None) -> str:
     return f"{score:.1f}"
 
 
+def _should_requery_cached(
+    product_name: str,
+    cached: dict[str, Any] | None,
+    *,
+    force: bool,
+    force_missing_only: bool,
+) -> bool:
+    """Decide whether to re-hit NVD for a cache entry."""
+    if force:
+        # Permanent skips stay skipped unless we remove them from SKIP_PRODUCTS.
+        if product_key(product_name) in SKIP_PRODUCTS:
+            return False
+        return True
+    if not force_missing_only:
+        return cached is None
+    if cached is None:
+        return True
+    if product_key(product_name) in SKIP_PRODUCTS:
+        return False
+    err = (cached.get("error") or "").strip()
+    if err in {"skipped", "no-cpe"}:
+        return False
+    if err == "nvd-error":
+        return True
+    cve_count = cached.get("cve_count") or 0
+    try:
+        cve_n = int(cve_count)
+    except (TypeError, ValueError):
+        cve_n = 0
+    # Re-query empty results (may be stale zero from an earlier NVD miss).
+    if cve_n == 0 and not (cached.get("cves") or []):
+        return True
+    return False
+
+
 def enrich_software_version_rows(
     rows: list[tuple[str, int]],
     cache_path: str,
     sleep_seconds: float | None = None,
     progress: bool = False,
     kev_catalog_path: str | None = None,
+    force: bool = False,
+    force_missing_only: bool = False,
 ) -> list[tuple[str, int, str, str, str, bool]]:
     """Enrich (label, count) rows with CVSS fields.
 
@@ -658,6 +698,9 @@ def enrich_software_version_rows(
       (label, count, max_cvss_display, cve_count_display, top_cve, top_is_kev)
 
     Top CVE prefers CISA KEV matches when present; otherwise highest CVSS.
+
+    force: re-query all CPE-mapped products (except SKIP_PRODUCTS).
+    force_missing_only: re-query missing entries, nvd-error, and zero-CVE results.
     """
     if sleep_seconds is None:
         # Authenticated NVD allows ~50 req/30s; unauthenticated ~5/30s.
@@ -667,17 +710,119 @@ def enrich_software_version_rows(
     cache = load_cache(cache_path)
     enriched: list[tuple[str, int, str, str, str, bool]] = []
     dirty = False
+    stats: dict[str, Any] = {
+        "looked_up": 0,
+        "cached": 0,
+        "skipped": 0,
+        "changed": 0,
+        "newly_with_cves": 0,
+        "still_empty": 0,
+        "kev_gained": 0,
+        "kev_lost": 0,
+        "changes": [],  # compact per-label deltas (capped)
+    }
+    change_cap = 40
+
+    def _snap(
+        entry: dict[str, Any] | None,
+        *,
+        recompute_kev: bool = True,
+    ) -> dict[str, Any]:
+        entry = entry if isinstance(entry, dict) else {}
+        cves_list = entry.get("cves") or []
+        try:
+            cve_n = int(entry.get("cve_count") or 0)
+        except (TypeError, ValueError):
+            cve_n = 0
+        if recompute_kev:
+            top, is_kev = select_top_cve(cves_list, kev_ids)
+            if not top:
+                top = (entry.get("top_cve") or "").strip().upper()
+                is_kev = bool(top and top in kev_ids)
+        else:
+            top = (entry.get("top_cve") or "").strip().upper()
+            is_kev = bool(entry.get("top_is_kev"))
+            if top and not is_kev and top in kev_ids:
+                # stored flag may lag catalog
+                is_kev = True
+        return {
+            "cve_count": cve_n,
+            "top_cve": top,
+            "top_is_kev": bool(is_kev),
+            "error": (entry.get("error") or "").strip(),
+        }
+
+    def _record_change(label: str, before: dict[str, Any], after: dict[str, Any]) -> None:
+        if (
+            before["cve_count"] == after["cve_count"]
+            and before["top_cve"] == after["top_cve"]
+            and before["top_is_kev"] == after["top_is_kev"]
+        ):
+            return
+        stats["changed"] += 1
+        if before["cve_count"] == 0 and after["cve_count"] > 0:
+            stats["newly_with_cves"] += 1
+        if not before["top_is_kev"] and after["top_is_kev"]:
+            stats["kev_gained"] += 1
+        if before["top_is_kev"] and not after["top_is_kev"]:
+            stats["kev_lost"] += 1
+        if len(stats["changes"]) < change_cap:
+            stats["changes"].append(
+                {
+                    "label": label,
+                    "cve_count_before": before["cve_count"],
+                    "cve_count_after": after["cve_count"],
+                    "top_cve_before": before["top_cve"],
+                    "top_cve_after": after["top_cve"],
+                    "kev_before": before["top_is_kev"],
+                    "kev_after": after["top_is_kev"],
+                }
+            )
 
     for index, (label, count) in enumerate(rows, start=1):
         product, version = parse_software_label(label)
         key = cache_key(product, version)
         cached = cache.get("entries", {}).get(key)
-        if cached is None:
+        # "before" = what the Active table last showed (stored top_is_kev / counts)
+        before = _snap(
+            cached if isinstance(cached, dict) else None,
+            recompute_kev=False,
+        )
+        do_query = _should_requery_cached(
+            product,
+            cached if isinstance(cached, dict) else None,
+            force=force,
+            force_missing_only=force_missing_only,
+        )
+        if do_query:
             if progress:
-                print(f"[*] NVD lookup {index}/{len(rows)}: {label}")
-            lookup_software(product, version, cache, sleep_seconds=sleep_seconds)
+                print(f"[*] NVD lookup {index}/{len(rows)}: {label}", flush=True)
+            lookup_software(
+                product,
+                version,
+                cache,
+                sleep_seconds=sleep_seconds,
+                force=bool(cached is not None),
+            )
             dirty = True
+            stats["looked_up"] += 1
             cached = cache["entries"].get(key) or {}
+        else:
+            if cached is None:
+                # Should not happen often; treat as empty
+                cached = {}
+            if (cached.get("error") or "") in {"skipped", "no-cpe"}:
+                stats["skipped"] += 1
+            else:
+                stats["cached"] += 1
+
+        after = _snap(cached if isinstance(cached, dict) else None, recompute_kev=True)
+        if do_query and after["cve_count"] == 0 and after["error"] not in {
+            "skipped",
+            "no-cpe",
+        }:
+            stats["still_empty"] += 1
+        _record_change(label, before, after)
 
         error = cached.get("error") or ""
         max_cvss = format_cvss(cached.get("max_cvss"))
@@ -708,6 +853,8 @@ def enrich_software_version_rows(
     # Always refresh CVE → software map for Active CVE search / Subdomains ?cve=
     write_cve_software_index_js(cache_path)
 
+    # Stash stats for CLI / statusd callers
+    enrich_software_version_rows.last_stats = stats  # type: ignore[attr-defined]
     return enriched
 
 

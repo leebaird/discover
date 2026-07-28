@@ -737,6 +737,11 @@ def main(argv: list[str] | None = None) -> int:
         help="With --ip: print one JSON object on stdout (for statusd)",
     )
     parser.add_argument(
+        "--json-summary",
+        action="store_true",
+        help="After bulk enrich: print one JSON stats object on stdout (for statusd)",
+    )
+    parser.add_argument(
         "--limit",
         type=int,
         default=0,
@@ -893,11 +898,27 @@ def main(argv: list[str] | None = None) -> int:
         print("[!] SHODAN_API_KEY not set — skipping Shodan enrichment.", flush=True)
         print("    export SHODAN_API_KEY=... or add it to ~/.discover/api-keys", flush=True)
         print("    Template: resource/api-keys.example — see README (Shodan enrichment).", flush=True)
+        if getattr(args, "json_summary", False):
+            print(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "error": "SHODAN_API_KEY not set",
+                        "stats": {},
+                        "report": report_dir,
+                    },
+                    separators=(",", ":"),
+                ),
+                flush=True,
+            )
         return 0  # soft skip — not a hard failure
 
     shodan_dir = os.path.join(report_dir, "tools", "shodan")
     hosts_dir = os.path.join(shodan_dir, "hosts")
     os.makedirs(hosts_dir, exist_ok=True)
+
+    # Snapshot for operator change summary (statusd Update modal).
+    index_before = load_index_json(shodan_dir) if args.force or args.json_summary else {}
 
     to_query = ips
     if args.limit and args.limit > 0:
@@ -1030,10 +1051,94 @@ def main(argv: list[str] | None = None) -> int:
         rebuild_audit_page(report_dir)
 
     # Hard fail only if every live query errored and nothing useful remains
-    if stats["queried"] > 0 and stats["ok"] == 0 and stats["not_found"] == 0 and stats["error"] == stats["queried"]:
+    hard_fail = (
+        stats["queried"] > 0
+        and stats["ok"] == 0
+        and stats["not_found"] == 0
+        and stats["error"] == stats["queried"]
+    )
+    if hard_fail:
         eprint("[!] All Shodan queries failed — check API key and network.")
-        return 1
-    return 0
+
+    # Diff index for "what changed" (ports / last_update / vulns / status).
+    changes_summary: dict[str, Any] = {
+        "ips_updated": 0,
+        "ips_new_ok": 0,
+        "ips_now_missing": 0,
+        "ports_changed": 0,
+        "last_update_changed": 0,
+        "vuln_count_changed": 0,
+        "samples": [],
+    }
+    if args.force or args.json_summary:
+        index_after = load_index_json(shodan_dir)
+        sample_cap = 25
+        all_ips = set(index_before) | set(index_after)
+        for ip in sorted(all_ips):
+            b = index_before.get(ip) if isinstance(index_before.get(ip), dict) else {}
+            a = index_after.get(ip) if isinstance(index_after.get(ip), dict) else {}
+            if not b and a and (a.get("status") or "").lower() == "ok":
+                changes_summary["ips_new_ok"] += 1
+            if b and not a:
+                changes_summary["ips_now_missing"] += 1
+            if not a:
+                continue
+            if not b and a:
+                changes_summary["ips_updated"] += 1
+            ports_b = str(b.get("ports") or "")
+            ports_a = str(a.get("ports") or "")
+            lu_b = str(b.get("last_update") or "")
+            lu_a = str(a.get("last_update") or "")
+            vc_b = b.get("vuln_count")
+            vc_a = a.get("vuln_count")
+            if b and (
+                ports_b != ports_a
+                or lu_b != lu_a
+                or vc_b != vc_a
+                or (b.get("status") or "") != (a.get("status") or "")
+            ):
+                changes_summary["ips_updated"] += 1
+                if ports_b != ports_a:
+                    changes_summary["ports_changed"] += 1
+                if lu_b != lu_a:
+                    changes_summary["last_update_changed"] += 1
+                if vc_b != vc_a:
+                    changes_summary["vuln_count_changed"] += 1
+                if len(changes_summary["samples"]) < sample_cap:
+                    changes_summary["samples"].append(
+                        {
+                            "ip": ip,
+                            "ports_before": ports_b,
+                            "ports_after": ports_a,
+                            "last_update_before": lu_b,
+                            "last_update_after": lu_a,
+                            "vuln_count_before": vc_b,
+                            "vuln_count_after": vc_a,
+                        }
+                    )
+
+    if args.json_summary:
+        print(
+            json.dumps(
+                {
+                    "ok": not hard_fail,
+                    "stats": stats,
+                    "changes": changes_summary,
+                    "public_ips": len(ips),
+                    "report": report_dir,
+                    "force": bool(args.force),
+                    "error": (
+                        "all Shodan queries failed"
+                        if hard_fail
+                        else ""
+                    ),
+                },
+                separators=(",", ":"),
+            ),
+            flush=True,
+        )
+
+    return 1 if hard_fail else 0
 
 
 if __name__ == "__main__":
