@@ -268,7 +268,8 @@ PY
         ts=$(date -u +"%m-%d-%Y - %H:%M Z")
         op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
         [ -n "$op" ] || op=unknown
-        printf '%s | %s | unknown | %s.\n' "$ts" "$op" "$ACTION" >> "$DISCOVER_REPORT/tools/audit/log.txt" 2>/dev/null || true
+        # Shodan: no operator egress IP on Audit (dash placeholder).
+        printf '%s | %s | - | %s.\n' "$ts" "$op" "$ACTION" >> "$DISCOVER_REPORT/tools/audit/log.txt" 2>/dev/null || true
     fi
 
     if [ -f "$DISCOVER_ROOT/recon/audit-build.py" ]; then

@@ -17,6 +17,7 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - First name only, max 10 letters only, stored at `~/.discover/operator-name`.
 - Prompted once when Discover starts if missing/invalid (`f_ensure_operator_name` in `discover.sh`).
 - Audit lines: `mm-dd-yyyy - hh:mm Z | <name> | <egress IP> | <action>` (`f_audit_log` / host-scan `f_audit`). Legacy stamps (`mm-dd-yyyy Z - hh:mm`) and 3-field lines still parse on the Audit page.
+- **Shodan**, **Updated software CVE data**, and **Imported subdomains** / **Imported CSV list subdomains** audit actions: Operator IP is always a dash (`-` in the log, `—` on the Audit page). Do not record egress IP for those events.
 
 ## Report UI layout (CSS)
 

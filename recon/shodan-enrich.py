@@ -672,7 +672,7 @@ def append_audit_log(report_dir: str, action: str) -> None:
     ts = datetime.now(timezone.utc).strftime("%m-%d-%Y - %H:%M Z")
     if not action.endswith("."):
         action = action + "."
-    # Operator + egress IP: shell wrapper prefers f_audit_log; fallback name from ~/.discover.
+    # Operator name from ~/.discover; IP is always "-" for Shodan (no egress on Audit).
     op = "unknown"
     try:
         op_path = os.path.join(os.path.expanduser("~"), ".discover", "operator-name")
@@ -683,7 +683,7 @@ def append_audit_log(report_dir: str, action: str) -> None:
                 op = cleaned
     except OSError:
         pass
-    line = f"{ts} | {op} | unknown | {action}\n"
+    line = f"{ts} | {op} | - | {action}\n"
     try:
         with open(audit_log, "a", encoding="utf-8") as handle:
             handle.write(line)

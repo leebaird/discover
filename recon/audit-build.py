@@ -396,6 +396,28 @@ def _display_audit_action(
     return text + "."
 
 
+def _audit_action_hides_operator_ip(action: str) -> bool:
+    """Actions that must not show operator egress IP on the Audit page."""
+    a = (action or "").strip().lower()
+    if "shodan" in a:
+        return True
+    # Active Update → Software CVEs / NVD refresh
+    if "software cve" in a or "updated software cve" in a:
+        return True
+    # Domain → Import subdomains (existing sources or CSV list)
+    if a.startswith("imported subdomains") or a.startswith("imported csv list subdomains"):
+        return True
+    return False
+
+
+def _display_operator_ip(ip: str, action: str) -> str:
+    """Operator IP column; hide egress for selected recon actions (em dash)."""
+    if _audit_action_hides_operator_ip(action):
+        return "—"
+    text = (ip or "").strip()
+    return text if text else "—"
+
+
 def load_audit_lines(report_root: Path) -> list[tuple[str, str, str, str]]:
     """Return (time, operator, ip, action). Legacy 3-field lines use empty operator."""
     log = report_root / "tools" / "audit" / "log.txt"
@@ -509,8 +531,12 @@ def _hostname_from_url(url: str) -> str:
 
 
 def audit_target_from_action(action: str) -> str:
-    """Host/target for audit log Target column (host scans only)."""
-    m = _AUDIT_SCAN_ACTION_RE.search(action or "")
+    """Host/target for audit log Target column (host scans; batch Active → Multiple)."""
+    text = (action or "").strip()
+    # Import-batch Active probes many hosts — not a single Target cell.
+    if re.search(r"(?i)ran active recon on imported hosts\b", text):
+        return "Multiple"
+    m = _AUDIT_SCAN_ACTION_RE.search(text)
     if not m:
         return ""
     url = m.group("url").rstrip(".,;")
@@ -725,6 +751,7 @@ def build_html(report_root: Path) -> str:
             # Parse Target/Output from full action; show shortened Action text.
             out_cell = audit_output_cell(action, report_root, scan_output_index)
             op_disp = operator if operator else "—"
+            ip_disp = _display_operator_ip(ip, action)
             target = audit_target_from_action(action)
             target_disp = target if target else "—"
             action_disp = _display_audit_action(
@@ -737,7 +764,7 @@ def build_html(report_root: Path) -> str:
                 "<tr>"
                 f'<td class="inc-audit-col-time">{html.escape(ts)}</td>'
                 f'<td class="inc-audit-col-op">{html.escape(op_disp)}</td>'
-                f'<td class="inc-audit-col-ip">{html.escape(ip)}</td>'
+                f'<td class="inc-audit-col-ip">{html.escape(ip_disp)}</td>'
                 f'<td class="inc-audit-col-target">{html.escape(target_disp)}</td>'
                 f'<td class="inc-audit-col-action">{html.escape(action_disp)}</td>'
                 f'<td class="inc-audit-col-trail">{out_cell}</td>'

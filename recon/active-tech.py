@@ -1472,7 +1472,8 @@ def _append_audit_refresh(report_dir: str, action: str) -> None:
         pass
     if not action.endswith("."):
         action = action + "."
-    line = f"{ts} | {op} | unknown | {action}\n"
+    # Software CVE / NVD refresh: no operator egress IP on Audit (dash placeholder).
+    line = f"{ts} | {op} | - | {action}\n"
     try:
         with open(audit_log, "a", encoding="utf-8") as handle:
             handle.write(line)
