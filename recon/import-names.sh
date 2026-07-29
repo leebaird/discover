@@ -16,7 +16,7 @@ f_names_die(){
 
 f_names_read_report(){
     echo
-    echo -n "Enter the location of your previous passive scan: "
+    echo -n "Enter the location of a previous Discover scan: "
     read -r DISCOVER_REPORT
 
     DISCOVER_REPORT="${DISCOVER_REPORT#"${DISCOVER_REPORT%%[![:space:]]*}"}"

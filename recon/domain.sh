@@ -54,7 +54,7 @@ f_regdomain_filter_privacy_email(){
 
 f_regdomain_read_report(){
     echo
-    echo -n "Enter the location of your previous passive scan: "
+    echo -n "Enter the location of a previous Discover scan: "
     read -r DISCOVER_REPORT
 
     DISCOVER_REPORT="${DISCOVER_REPORT#"${DISCOVER_REPORT%%[![:space:]]*}"}"

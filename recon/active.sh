@@ -113,7 +113,7 @@ f_active_read_report(){
     fi
 
     echo
-    echo -n "Enter the location of your previous passive scan: "
+    echo -n "Enter the location of a previous Discover scan: "
     read -r DISCOVER_REPORT
 
     DISCOVER_REPORT="${DISCOVER_REPORT#"${DISCOVER_REPORT%%[![:space:]]*}"}"
@@ -706,9 +706,9 @@ ACTIVE_TXT_BATCH="$TMPDIR_ACTIVE/active-batch.txt"
 
 echo
 if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
-    echo -e "${BLUE}[*] Building active target list from last team CSV import (public hosts only).${NC}"
+    echo -e "${BLUE}[*] Building active target list from last CSV list import (public hosts only).${NC}"
     if [ ! -s "$BATCH_HOSTS_FILE" ]; then
-        f_active_die "No import-batch hosts at tools/import-batch-hosts.txt. Run Import subdomains (team CSV) first."
+        f_active_die "No import-batch hosts at tools/import-batch-hosts.txt. Run Import subdomains (CSV list) first."
     fi
     # Only hosts still public in tools/subdomains
     python3 - "$SUBDOMAINS_FILE" "$BATCH_HOSTS_FILE" "$TARGETS_FILE" <<'PY'

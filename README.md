@@ -217,7 +217,7 @@ Script: `recon/import-names.sh` (Domain menu **6**).
 Run after a passive scan to add or enrich contacts from manual research (LinkedIn, company sites, phone directories, etc.).
 
 ```
-Enter the location of your previous passive scan:
+Enter the location of a previous Discover scan:
 /home/user/data/example.com
 
 Enter manual contacts file (or press Enter for default):
@@ -249,7 +249,7 @@ Merge a separate names dump (with optional titles and emails) into an existing p
 Enter the location of the names file:
 /home/user/data/names-from-osint.txt
 
-Enter the location of your previous passive scan:
+Enter the location of a previous Discover scan:
 /home/user/data/example.com
 ```
 
@@ -267,17 +267,17 @@ Script: `recon/import-subdomains.sh` (Domain menu **8**).
 Run after a passive scan to add or enrich hosts. The menu offers **two choices**:
 
 1. **Existing sources** — Firefox / Pentest-Tools / manual TSV (previous behavior)
-2. **Team CSV** — `subdomain,ip,category` from teammate tools (one IPv4 per host)
+2. **CSV list** — `subdomain,ip,category` (one IPv4 per host; IP optional)
 
 ```
-Enter the location of your previous passive scan:
+Enter the location of a previous Discover scan:
 /home/user/data/example.com
 
 1. Existing sources (Firefox / Pentest-Tools / TSV)
-2. Team CSV (subdomain, IPv4, category)
+2. CSV list (subdomain, IPv4, category)
 Choice: 2
 
-Enter path to team CSV:
+Enter path to CSV list:
 /home/user/team-hosts.csv
 ```
 
@@ -290,9 +290,9 @@ Enter path to team CSV:
 * Tab-separated host/IP rows (full path required, e.g. `tools/subdomains-import.tsv`)
 * Empty or invalid paths error out (no auto-create)
 * Hosts without an IP are resolved with `dig`
-* Categories from Discover `old/subdomain-categories.tsv` only
+* Categories from Discover `recon/subdomain-categories.tsv` only
 
-**Choice 2 — team CSV**
+**Choice 2 — CSV list**
 
 * Format: `subdomain,ip,category` (header optional; comma or tab)
 * One IPv4 per subdomain; empty IP → `dig`
@@ -316,7 +316,7 @@ Script: `recon/active.sh` (Domain menu **9**).
 Run after a passive scan (and optionally Import subdomains) to probe which public hosts respond over HTTP/HTTPS, fingerprint technologies, and capture screenshots.
 
 ```
-Enter the location of your previous passive scan:
+Enter the location of a previous Discover scan:
 /home/user/data/example.com
 ```
 

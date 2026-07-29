@@ -6,6 +6,12 @@ Conventions agreed with the operator for Discover development. **Read and follow
 
 - **Only commit when the operator explicitly asks** (e.g. “do a commit”). Do not commit proactively after finishing a feature or when they only ask whether a commit is needed.
 
+## `old/` folder
+
+- **`old/` is not part of the Discover framework.** It holds personal/legacy scripts from earlier work that are unrelated to Discover’s recon/scan/report flow.
+- Do **not** put new Discover features, helpers, or data files under `old/`.
+- Live subdomain categorizer + rules live under **`recon/`** (`recon/subdomain-categorize.py`, `recon/subdomain-categories.tsv`). Do not reintroduce Discover paths that point at `old/`.
+
 ## Operator name (audit log)
 
 - First name only, max 10 letters only, stored at `~/.discover/operator-name`.
@@ -61,9 +67,9 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 
 ## Import subdomains (Domain menu 8)
 
-- Two choices: **(1)** existing Firefox/Pentest-Tools/TSV **(2)** team CSV (`subdomain,ip,category`).
-- Team CSV: one IPv4 per host (empty IP → dig). **Skip hosts already in `tools/subdomains`** (no overwrite). Category = **Discover rules first**, else CSV. Never write `old/subdomain-categories.tsv`.
-- After import: refresh `pages/subdomains.htm` and `pages/hosts.htm` (unique public IPs). Team CSV also writes `tools/import-batch-hosts.txt` (**new** public hosts only) and may offer Active on that batch only (`DISCOVER_ACTIVE_SCOPE=import-batch`).
+- Two choices: **(1)** existing Firefox/Pentest-Tools/TSV **(2)** CSV list (`subdomain,ip,category`).
+- CSV list: one IPv4 per host (empty IP → dig). **Skip hosts already in `tools/subdomains`** (no overwrite). Category = **Discover rules first**, else CSV. Never write `recon/subdomain-categories.tsv`.
+- After import: refresh `pages/subdomains.htm` and `pages/hosts.htm` (unique public IPs). CSV list also writes `tools/import-batch-hosts.txt` (**new** public hosts only) and may offer Active on that batch only (`DISCOVER_ACTIVE_SCOPE=import-batch`).
 
 ## Active page Update (Shodan + Software CVEs)
 
