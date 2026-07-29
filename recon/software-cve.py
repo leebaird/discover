@@ -62,6 +62,12 @@ SKIP_PRODUCTS = {
     "microsoft httpapi",
     "java servlet",
     "javaserver pages",
+    "passwordfield",
+    "emailfield",
+    "textfield",
+    "hiddenfield",
+    "metagenerator",
+    "poweredby",
 }
 
 

@@ -863,7 +863,6 @@ echo "[*] $ALIVE_COUNT alive responses across $ALIVE_HOST_COUNT hostnames ($URL_
 echo
 
 if [ "$URL_COUNT" -gt 0 ]; then
-    echo
     echo -e "${BLUE}[*] Running whatweb on alive URLs.${NC}"
     if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
         whatweb -a 3 -i "$WHATWEB_INPUT" \
@@ -931,7 +930,7 @@ PY
     echo
     echo -e "${BLUE}[*] Running gowitness on alive URLs.${NC}"
     if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
-        # Do not wipe existing screenshots; append batch jsonl
+        # Keep existing screenshots; merge jsonl by host (replace batch hosts, keep others).
         gowitness scan file -f "$GOWITNESS_INPUT" \
             --driver gorod \
             --chrome-path "$CHROME_PATH" \
@@ -939,7 +938,55 @@ PY
             --write-jsonl --write-jsonl-file "$GOWITNESS_BATCH" \
             --write-db --write-db-uri "sqlite://$GOWITNESS_DIR/gowitness.db"
         if [ -f "$GOWITNESS_BATCH" ]; then
-            cat "$GOWITNESS_BATCH" >> "$GOWITNESS_JSONL" 2>/dev/null || cp "$GOWITNESS_BATCH" "$GOWITNESS_JSONL"
+            python3 - "$GOWITNESS_JSONL" "$GOWITNESS_BATCH" "$TARGETS_FILE" <<'PY'
+import json
+import sys
+from pathlib import Path
+from urllib.parse import urlparse
+
+main_path, batch_path, targets_path = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
+batch_hosts = {
+    h.strip().lower()
+    for h in targets_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    if h.strip()
+}
+
+
+def host_of(entry):
+    if not isinstance(entry, dict):
+        return ""
+    url = entry.get("url") or entry.get("final_url") or ""
+    if "://" not in str(url):
+        url = "https://" + str(url)
+    return (urlparse(str(url)).hostname or "").lower()
+
+
+def load_jsonl(path):
+    rows = []
+    if not path.is_file():
+        return rows
+    for raw in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            rows.append(json.loads(raw))
+        except json.JSONDecodeError:
+            continue
+    return rows
+
+kept = []
+for entry in load_jsonl(main_path):
+    h = host_of(entry)
+    if h and h in batch_hosts:
+        continue
+    kept.append(entry)
+kept.extend(load_jsonl(batch_path))
+main_path.parent.mkdir(parents=True, exist_ok=True)
+with main_path.open("w", encoding="utf-8") as handle:
+    for entry in kept:
+        handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
+PY
         fi
     else
         rm -rf "$SCREENSHOTS_DIR"/*
@@ -960,6 +1007,57 @@ else
     fi
     echo
 fi
+
+# ---------------------------------------------------------------------------
+# Full report rebuild from merged tools/ (import-batch and full Active).
+# Scope / status / category / tech / software counts all come from these files.
+# ---------------------------------------------------------------------------
+# Re-parse entire httpx.jsonl so active-alive.tsv matches the merged inventory
+# (batch path already merged jsonl; full Active overwrote it).
+f_active_parse_httpx "$HTTPX_JSONL" "$ALIVE_TSV" "$ACTIVE_TXT"
+
+# Keep private-subs aligned with tools/subdomains (source of truth after import).
+python3 - "$SUBDOMAINS_FILE" "$PRIVATE_FILE" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+IPV4_RE = re.compile(r"^(\d{1,3}\.){3}\d{1,3}$")
+
+def is_private(ip: str) -> bool:
+    if not IPV4_RE.match(ip or ""):
+        return False
+    o = [int(x) for x in ip.split(".")]
+    if o[0] == 10:
+        return True
+    if o[0] == 172 and 16 <= o[1] <= 31:
+        return True
+    if o[0] == 192 and o[1] == 168:
+        return True
+    return False
+
+sub_path, priv_path = Path(sys.argv[1]), Path(sys.argv[2])
+rows = []
+if sub_path.is_file():
+    for raw in sub_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split("\t")
+        if len(parts) < 2:
+            continue
+        host, ip = parts[0].strip(), parts[1].strip()
+        if host and ip and is_private(ip):
+            cat = parts[2].strip() if len(parts) > 2 else ""
+            rows.append((host, ip, cat))
+priv_path.parent.mkdir(parents=True, exist_ok=True)
+with priv_path.open("w", encoding="utf-8", newline="") as handle:
+    for host, ip, cat in sorted(rows, key=lambda r: r[0].lower()):
+        if cat:
+            handle.write(f"{host}\t{ip}\t{cat}\n")
+        else:
+            handle.write(f"{host}\t{ip}\n")
+PY
 
 SCREENSHOT_COUNT=0
 if [ -d "$SCREENSHOTS_DIR" ]; then
@@ -1013,13 +1111,16 @@ f_discover_load_env
 
 echo -e "${BLUE}[*] Updating Active report (includes NVD CVSS lookup for software versions).${NC}"
 if [ -n "${NVD_API_KEY:-}" ]; then
-    echo -e "${BLUE}    NVD_API_KEY found (shell export or ~/.discover/api-keys) — using authenticated rate limits.${NC}"
+    echo -e "${BLUE}[*] NVD_API_KEY found (~/.discover/api-keys) — using authenticated rate limits.${NC}"
 else
-    echo -e "${BLUE}    No NVD_API_KEY — anonymous NVD rate limits (slower).${NC}"
-    echo -e "${BLUE}    Add export NVD_API_KEY=... or put it in ~/.discover/api-keys${NC}"
-    echo -e "${BLUE}    Free key: https://nvd.nist.gov/developers/request-an-api-key${NC}"
-    echo -e "${BLUE}    Skip lookups: DISCOVER_SKIP_CVE=1${NC}"
+    echo -e "${BLUE}[*] No NVD_API_KEY — anonymous NVD rate limits (slower).${NC}"
+    echo -e "${BLUE}[*] Add export NVD_API_KEY=... or put it in ~/.discover/api-keys${NC}"
+    echo -e "${BLUE}[*] Free key: https://nvd.nist.gov/developers/request-an-api-key${NC}"
+    echo -e "${BLUE}[*] Skip lookups: DISCOVER_SKIP_CVE=1${NC}"
 fi
+# Full Active page: Scope / status / category / CMS / web servers / tech / software
+# always rebuilt from tools/subdomains + private-subs + active-alive + httpx + whatweb
+# (import-batch merges into those files first, then this runs).
 f_active_write_active_page "$SUBDOMAINS_FILE" "$PRIVATE_FILE" "$ALIVE_TSV" "$HTTPX_JSONL" "$WHATWEB_JSON" "$ACTIVE_PAGE"
 echo
 

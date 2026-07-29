@@ -15,19 +15,35 @@ NOISE_PLUGINS = {
     "cookies",
     "country",
     "email",
+    "emailfield",
+    "hiddenfield",
     "html5",
     "httponly",
     "httpserver",
     "ip",
+    # HTML meta generator is marketing / multi-product blob noise, not a stack product.
+    "metagenerator",
+    "passwordfield",
     "redirectlocation",
     "script",
     "strict-transport-security",
+    "textfield",
     "title",
     "uncommonheaders",
     "via-proxy",
     "x-frame-options",
     "x-powered-by",
     "x-xss-protection",
+}
+
+# Product names that must never appear in the Software versions table.
+SOFTWARE_NOISE_PRODUCTS = {
+    "emailfield",
+    "hiddenfield",
+    "metagenerator",
+    "passwordfield",
+    "poweredby",
+    "textfield",
 }
 
 
@@ -108,9 +124,12 @@ def plugin_label(name, data):
             values.append(str(raw))
 
     values = [value for value in values if str(value).strip().upper() != "N/A"]
+    # Tech lists are comma-separated — never embed raw commas from WhatWeb strings
+    # (MetaGenerator marketing copy was splitting into fake "products").
+    values = [re.sub(r"\s*,\s*", " · ", str(value).strip()) for value in values]
+    values = [re.sub(r"\s*;\s*", " · ", value) for value in values]
 
     if values:
-        # Do not use commas — technology lists are comma-separated.
         return f"{name}:{'; '.join(values)}"
     return name
 
@@ -655,6 +674,8 @@ def load_alive_hosts(path):
 
 
 def httpx_scan_date(path):
+    """Latest httpx timestamp as mm-dd-yyyy (not first line — batch merges keep old rows first)."""
+    latest = ""
     if path and os.path.isfile(path):
         with open(path, encoding="utf-8") as handle:
             for raw in handle:
@@ -665,11 +686,15 @@ def httpx_scan_date(path):
                     entry = json.loads(raw)
                 except json.JSONDecodeError:
                     continue
-                timestamp = entry.get("timestamp") or ""
-                if "T" in timestamp:
-                    date_part = timestamp.split("T", 1)[0]
-                    year, month, day = date_part.split("-")
-                    return f"{month}-{day}-{year}"
+                timestamp = str(entry.get("timestamp") or "")
+                if "T" not in timestamp:
+                    continue
+                date_part = timestamp.split("T", 1)[0]
+                if len(date_part) >= 10 and (not latest or date_part > latest):
+                    latest = date_part
+    if latest:
+        year, month, day = latest.split("-", 2)
+        return f"{month}-{day}-{year}"
     return ""
 
 
@@ -1058,19 +1083,80 @@ def detect_cms_labels(technologies):
     return found
 
 
+def _is_clean_software_pair(name, version):
+    """Product + version pair suitable for the Software versions table."""
+    name = (name or "").strip()
+    version = (version or "").strip()
+    if not name or not version:
+        return False
+
+    name_key = normalize_tech_separators(name)
+    if not name_key or name_key in SOFTWARE_NOISE_PRODUCTS:
+        return False
+    if is_noise_technology(name):
+        return False
+
+    # Short product token (e.g. nginx, jQuery Migrate, Microsoft ASP.NET) — not prose.
+    if len(name) > 48 or len(name.split()) > 5:
+        return False
+    if re.search(r"[;]|plugin for|drag and drop|comfortable|mobile-friendly", name, re.I):
+        return False
+    if name_key.endswith(" ver") or name_key in {"ver", "version"}:
+        return False
+
+    # Real version-ish suffix (starts with digit or v1…); reject control ids / essays.
+    if len(version) > 40:
+        return False
+    if "$" in version or version.lower().startswith("ctl00"):
+        return False
+    if ";" in version or " · " in version:
+        return False
+    if not re.match(r"^v?\d", version, re.I):
+        return False
+    if not re.search(r"\d", version):
+        return False
+    # IIS:10 is too low-signal for this table (still shown as web server / tech).
+    if name_key == "iis" and re.fullmatch(r"10(\.0)?", version):
+        return False
+
+    return True
+
+
 def is_software_version_label(label):
-    """True for versioned product labels useful in the Software versions table."""
+    """True for versioned product labels useful in the Software versions table.
+
+    Accepts short Product:version / Product[version] only. Rejects WhatWeb form
+    fields, MetaGenerator marketing blobs, and comma-split prose fragments.
+    """
     label = (label or "").strip()
     if not label:
         return False
 
-    low = label.lower()
-    if low.startswith("x-ua-compatible"):
-        return False
-    if re.fullmatch(r"iis:\s*10(\.0)?", low):
+    if is_noise_technology(label):
         return False
 
-    return bool(re.search(r":\s*.*\d", label) or re.search(r"\[\s*.*\d", label))
+    low = label.lower()
+    if low.startswith("x-ua-compatible") or low.startswith("x-powered-by"):
+        return False
+    # Freeform / multi-product blobs (often MetaGenerator fragments after bad splits).
+    if len(label) > 80 or ";" in label or label.count(":") > 1:
+        return False
+    if re.search(
+        r"plugin for wordpress|drag and drop|comfortable|mobile-friendly slider|"
+        r"powered by slider|css_print_method|responsive,",
+        low,
+    ):
+        return False
+
+    bracket = re.match(r"^([^:\[]+)\[(.+)\]$", label)
+    if bracket:
+        return _is_clean_software_pair(bracket.group(1), bracket.group(2))
+
+    if ":" not in label:
+        return False
+
+    name, version = label.split(":", 1)
+    return _is_clean_software_pair(name, version)
 
 
 def ordered_status_rows(status_counter):
