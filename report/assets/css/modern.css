@@ -2152,6 +2152,11 @@ body:not(.inc-iframe-parent) pre {
     color: #aeb5bf;
 }
 
+/* Active Update modal: 25% wider than shared export dialog (480px → 600px). */
+.inc-active-refresh-modal .inc-report-export-dialog {
+    max-width: 600px;
+}
+
 .inc-report-export-header {
     display: flex;
     align-items: flex-start;

@@ -553,7 +553,22 @@ f_update(){
         # Blue header + git pull status; keep uv sync quiet (no Resolved/Checked spam).
         echo -e "${BLUE}Updating theHarvester.${NC}"
         cd "$HOME/theHarvester" || exit
-        git pull
+        # Prior "uv sync" can rewrite uv.lock (exclude-newer stamps, etc.) and block
+        # git pull. Discard lock dirt only — never stash operator source edits.
+        if ! git diff --quiet -- uv.lock 2>/dev/null \
+            || ! git diff --cached --quiet -- uv.lock 2>/dev/null; then
+            git restore --worktree --staged -- uv.lock 2>/dev/null \
+                || git checkout -- uv.lock 2>/dev/null \
+                || true
+        fi
+        if git pull; then
+            :
+        else
+            echo -e "${YELLOW}[!] theHarvester git pull failed (local changes?). Retrying after stash.${NC}"
+            git stash push -m "discover-update-theHarvester" --quiet 2>/dev/null || true
+            git pull || echo -e "${RED}[!] theHarvester update failed — check $HOME/theHarvester${NC}"
+            git stash pop --quiet 2>/dev/null || true
+        fi
         uv sync -q 2>/dev/null || uv sync -q || true
         echo
     else
