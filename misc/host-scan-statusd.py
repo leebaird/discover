@@ -12,12 +12,14 @@ Binds 127.0.0.1 only. Serves:
   GET /health  -> ok
   GET /shodan-status -> {"ok":true,"api_key":true|false} (never returns the key)
   POST /export -> run recon/export-report.sh (JSON body: {"kind":"client"|"defender"|"operator"})
+  POST /import-operator-package -> merge another operator report
+      (JSON: {"source":"/path/to/unpacked-report","operator":"Bob"})
   POST /shodan-refresh -> force-refresh one IP via recon/shodan-enrich.py --ip (JSON: {"ip":"..."})
   POST /shodan-refresh-all -> force Shodan enrich all public IPs (--force --json-summary)
   POST /software-cve-refresh -> force NVD software CVEs + rebuild active.htm
   GET /*       -> files under report_root (operator browser via http://127.0.0.1:port/)
 
-Host-scan chevrons, Export, Shodan Update, and Active Update only appear when
+Host-scan chevrons, Export, Import (Audit), Shodan Update, and Active Update only appear when
 the report is opened through this server (Import report / Active), not file://.
 """
 
@@ -73,6 +75,7 @@ def main(argv: list[str]) -> int:
     # Discover install root (…/discover) from this script: misc/ → parent
     discover_root = Path(__file__).resolve().parent.parent
     export_script = discover_root / "recon" / "export-report.sh"
+    import_operator_script = discover_root / "recon" / "import-operator-package.py"
     shodan_enrich = discover_root / "recon" / "shodan-enrich.py"
     active_tech = discover_root / "recon" / "active-tech.py"
 
@@ -127,6 +130,7 @@ def main(argv: list[str]) -> int:
             path = parsed.path or "/"
             if path not in {
                 "/export",
+                "/import-operator-package",
                 "/shodan-refresh",
                 "/shodan-refresh-all",
                 "/software-cve-refresh",
@@ -363,6 +367,95 @@ def main(argv: list[str]) -> int:
                         "error", f"shodan-enrich exit {proc.returncode}"
                     )
                     code = 500
+                self._send(code, json.dumps(result).encode() + b"\n")
+                return
+
+            # --- /import-operator-package ---
+            if path == "/import-operator-package":
+                source = str(body.get("source") or body.get("path") or "").strip()
+                operator = str(body.get("operator") or "").strip()
+                if not source:
+                    self._send(
+                        400,
+                        b'{"ok":false,"error":"source path is required"}\n',
+                    )
+                    return
+                if not operator:
+                    self._send(
+                        400,
+                        b'{"ok":false,"error":"operator name is required"}\n',
+                    )
+                    return
+                if not import_operator_script.is_file():
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": f"import script missing: {import_operator_script}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                try:
+                    proc = subprocess.run(
+                        [
+                            sys.executable,
+                            str(import_operator_script),
+                            "--dest",
+                            str(report_root),
+                            "--source",
+                            source,
+                            "--operator",
+                            operator,
+                            "--json",
+                        ],
+                        capture_output=True,
+                        text=True,
+                        timeout=3600,
+                        env=env,
+                        cwd=str(discover_root),
+                    )
+                except subprocess.TimeoutExpired:
+                    self._send(
+                        504,
+                        b'{"ok":false,"error":"import timed out"}\n',
+                    )
+                    return
+                except OSError as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)}).encode()
+                        + b"\n",
+                    )
+                    return
+                result = _parse_json_stdout(proc.stdout or "")
+                if not isinstance(result, dict):
+                    err = (proc.stderr or proc.stdout or "import failed").strip()
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": err[:800]
+                                or f"import exit {proc.returncode}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                code = 200 if result.get("ok") and proc.returncode == 0 else 400
+                if proc.returncode != 0 and result.get("ok"):
+                    result["ok"] = False
+                    result.setdefault(
+                        "error", f"import exit {proc.returncode}"
+                    )
+                    code = 500
+                if not result.get("ok") and proc.stderr:
+                    result.setdefault(
+                        "error_detail", (proc.stderr or "")[:400]
+                    )
                 self._send(code, json.dumps(result).encode() + b"\n")
                 return
 

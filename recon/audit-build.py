@@ -407,6 +407,9 @@ def _audit_action_hides_operator_ip(action: str) -> bool:
     # Domain → Import subdomains (existing sources or CSV list)
     if a.startswith("imported subdomains") or a.startswith("imported csv list subdomains"):
         return True
+    # Audit page → Import operator package
+    if a.startswith("imported operator package"):
+        return True
     return False
 
 

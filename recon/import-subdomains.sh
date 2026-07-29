@@ -1254,6 +1254,11 @@ if declare -F f_audit_log >/dev/null 2>&1; then
     fi
 fi
 
+# Homepage date tracks last meaningful report change.
+if [ -f "${DISCOVER:-}/recon/touch-report-date.py" ]; then
+    python3 "${DISCOVER}/recon/touch-report-date.py" "$DISCOVER_REPORT" >/dev/null 2>&1 || true
+fi
+
 echo "$MEDIUM"
 echo
 echo "[*] Subdomains import complete."

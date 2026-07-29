@@ -2157,6 +2157,61 @@ body:not(.inc-iframe-parent) pre {
     max-width: 600px;
 }
 
+/* Audit Import operator package modal (path + name fields). */
+.inc-audit-import-modal .inc-report-export-dialog {
+    max-width: 600px;
+}
+
+/* Audit: Import (left) + Export (right) in the page header. */
+.inc-page-header.inc-page-header--with-export.inc-page-header--with-audit-import {
+    padding-right: 200px;
+}
+
+.inc-page-header .inc-audit-import-btn {
+    position: absolute;
+    top: 50%;
+    right: 100px;
+    transform: translateY(-50%);
+    z-index: 2;
+}
+
+.inc-audit-import-field {
+    display: block;
+    margin: 0 0 12px;
+}
+
+.inc-audit-import-field > span {
+    display: block;
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: #aeb5bf;
+}
+
+.inc-audit-import-input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border: 1px solid #2f3844;
+    border-radius: 6px;
+    background: #151a20;
+    color: #e8eaed;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.inc-audit-import-input:focus {
+    outline: none;
+    border-color: #4a90d9;
+}
+
+.inc-audit-import-refresh-note {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #9aa3ad;
+    line-height: 1.4;
+}
+
 .inc-report-export-header {
     display: flex;
     align-items: flex-start;

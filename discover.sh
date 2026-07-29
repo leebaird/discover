@@ -222,9 +222,9 @@ f_audit_log(){
 
     ts=$(date -u +"%m-%d-%Y - %H:%M Z")
     op=$(f_audit_operator_name)
-    # Shodan / software CVE / subdomain import: do not record operator egress IP.
+    # Shodan / software CVE / subdomain or operator package import: no egress IP.
     case "${action,,}" in
-        *shodan*|*software\ cve*|*imported\ subdomains*|*imported\ csv\ list\ subdomains*) ip='-' ;;
+        *shodan*|*software\ cve*|*imported\ subdomains*|*imported\ csv\ list\ subdomains*|*imported\ operator\ package*) ip='-' ;;
         *) ip=$(f_audit_egress_ip) ;;
     esac
     # Ensure action ends with a period for consistent log style.

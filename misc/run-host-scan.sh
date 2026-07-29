@@ -1125,6 +1125,10 @@ if [ -f "$DISCOVER_ROOT/recon/audit-build.py" ]; then
         "$DISCOVER_ROOT/report/pages/audit.htm" >/dev/null 2>&1 || true
 fi
 
+if [ -f "$DISCOVER_ROOT/recon/touch-report-date.py" ]; then
+    python3 "$DISCOVER_ROOT/recon/touch-report-date.py" "$REPORT_ROOT" >/dev/null 2>&1 || true
+fi
+
 echo
 echo "============================================================"
 echo "[*] Done. Exit code: $EXIT_CODE"

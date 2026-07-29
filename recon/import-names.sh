@@ -451,6 +451,10 @@ f_names_update_report "$MERGED" "$REPORT_PAGE"
 WITH_TITLE=$(awk -F '\t' 'NF > 1 && $2 != "" { count++ } END { print count + 0 }' "$MERGED")
 WITH_PHONE=$(awk -F '\t' 'NF > 2 && $3 != "" { count++ } END { print count + 0 }' "$MERGED")
 
+if [ -f "${DISCOVER:-}/recon/touch-report-date.py" ]; then
+    python3 "${DISCOVER}/recon/touch-report-date.py" "$DISCOVER_REPORT" >/dev/null 2>&1 || true
+fi
+
 echo "$MEDIUM"
 echo
 echo "[*] Names import complete."

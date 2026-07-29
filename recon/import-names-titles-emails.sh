@@ -341,6 +341,10 @@ TOTAL_NAMES=$(sed -n '2p' "$STATS_FILE")
 ADDED_NAMES=$(sed -n '3p' "$STATS_FILE")
 TOTAL_EMAILS=$(sed -n '4p' "$STATS_FILE")
 
+if [ -f "${DISCOVER:-}/recon/touch-report-date.py" ]; then
+    python3 "${DISCOVER}/recon/touch-report-date.py" "$DISCOVER_REPORT" >/dev/null 2>&1 || true
+fi
+
 echo "$MEDIUM"
 echo
 echo "[*] Names, titles, and emails import complete."

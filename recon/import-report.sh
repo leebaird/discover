@@ -99,7 +99,8 @@ f_import_report_sync_assets(){
         inc-active-cve-search.js \
         inc-active-status-codes.js \
         inc-active-refresh.js \
-        inc-report-export.js
+        inc-report-export.js \
+        inc-audit-import.js
     do
         if [ -f "$src/javascript/$js" ]; then
             cp -f "$src/javascript/$js" "$report/assets/javascript/$js" 2>/dev/null || \
@@ -125,6 +126,7 @@ f_import_report_sync_assets(){
                 sed -i \
                     -e 's|modern\.css?v=[^"]*|modern.css?v=active-update4|g' \
                     -e 's|inc-report-export\.js?v=[0-9]*|inc-report-export.js?v=3|g' \
+                    -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=4|g' \
                     "$report/pages/$page" 2>/dev/null || true
                 if [ "$page" = "active.htm" ] && ! grep -q 'inc-active-status-codes.js' "$report/pages/$page" 2>/dev/null; then
                     sed -i 's|</body>|<script src="../assets/javascript/inc-active-status-codes.js?v=1"></script>\n</body>|' \
@@ -143,6 +145,16 @@ f_import_report_sync_assets(){
                 if ! grep -q 'inc-report-export.js' "$report/pages/$page" 2>/dev/null; then
                     sed -i 's|</body>|<script src="../assets/javascript/inc-report-export.js?v=3"></script>\n</body>|' \
                         "$report/pages/$page" 2>/dev/null || true
+                fi
+                if [ "$page" = "audit.htm" ]; then
+                    sed -i \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-import2|g' \
+                        -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=4|g' \
+                        "$report/pages/$page" 2>/dev/null || true
+                    if ! grep -q 'inc-audit-import.js' "$report/pages/$page" 2>/dev/null; then
+                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-import.js?v=4"></script>\n</body>|' \
+                            "$report/pages/$page" 2>/dev/null || true
+                    fi
                 fi
             fi
         done

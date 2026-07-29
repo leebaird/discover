@@ -570,6 +570,18 @@ After **Export**, the modal shows the output path (default directory `$HOME/data
 
 Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit**).
 
+**Import operator package (Discover-hosted only):** On **Reports → Audit**, use **Import** (left of Export). Modal asks for:
+
+1. Path to the **unpacked** other-operator report directory (`pages/` + `tools/`)
+2. Their **operator first name** (1–10 letters) — only audit lines for that name are appended
+
+Merges into the live engagement: host-scan runs, gowitness screenshots/jsonl, httpx/whatweb by host, new subdomains, and matching audit lines. Rebuilds Audit (and Active when Active data was present). Does **not** overwrite your HTML pages from theirs. CLI:
+
+```bash
+python3 recon/import-operator-package.py --dest /path/to/live-report \
+  --source /path/to/their-unpacked-report --operator Bob --json
+```
+
 | Section | Content |
 |---------|---------|
 | **Audit log** | Newest-first by default; **Time (UTC)**, **Operator**, **Operator IP**, **Target**, **Action** (**Started** = exact command; **Finished** = e.g. `Finished nikto in 5 min 14 sec.`), **Output**. Full log lines stay in `tools/audit/log.txt` |

@@ -1152,6 +1152,10 @@ if [ -f "$DISCOVER/recon/audit-build.py" ]; then
     python3 "$DISCOVER/recon/audit-build.py" "$DISCOVER_REPORT" "$DISCOVER/report/pages/audit.htm" >/dev/null 2>&1 || true
 fi
 
+if [ -f "$DISCOVER/recon/touch-report-date.py" ]; then
+    python3 "$DISCOVER/recon/touch-report-date.py" "$DISCOVER_REPORT" >/dev/null 2>&1 || true
+fi
+
 # Status helper for live host-scan UI (localhost only)
 if [ -f "$DISCOVER/misc/host-scan-statusd.py" ]; then
     if ! curl -fsS --connect-timeout 1 --max-time 2 "http://127.0.0.1:17322/health" >/dev/null 2>&1; then

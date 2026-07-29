@@ -17,7 +17,20 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - First name only, max 10 letters only, stored at `~/.discover/operator-name`.
 - Prompted once when Discover starts if missing/invalid (`f_ensure_operator_name` in `discover.sh`).
 - Audit lines: `mm-dd-yyyy - hh:mm Z | <name> | <egress IP> | <action>` (`f_audit_log` / host-scan `f_audit`). Legacy stamps (`mm-dd-yyyy Z - hh:mm`) and 3-field lines still parse on the Audit page.
-- **Shodan**, **Updated software CVE data**, and **Imported subdomains** / **Imported CSV list subdomains** audit actions: Operator IP is always a dash (`-` in the log, `—` on the Audit page). Do not record egress IP for those events.
+- **Shodan**, **Updated software CVE data**, **Imported subdomains** / **Imported CSV list subdomains**, and **Imported operator package**: Operator IP is always a dash (`-` in the log, `—` on the Audit page). Do not record egress IP for those events.
+
+## Report homepage date (`index.htm`)
+
+- Home hero date (`#DATE#` / first `inc-home-meta` value) is format `Month DD, YYYY` (same as Discover `DATESTAMP`).
+- **Update to today** whenever the engagement changes: Passive finish, Active, host-scan finish, Shodan enrich/Update, software CVE refresh, subdomain/names imports, operator package import.
+- Helper: `recon/touch-report-date.py <report_dir>` (also callable from Python via `touch_report_index_date`).
+
+## Import operator package (Audit page)
+
+- **Import** button on Audit only when Discover-hosted (`http://127.0.0.1:17322/…`). Modal: path to **unpacked** other-operator report + their first name (1–10 letters).
+- Backend: statusd `POST /import-operator-package` → `recon/import-operator-package.py --dest <live> --source <path> --operator <Name> --json`.
+- Merges `tools/host-scans` (copy missing run dirs), gowitness screenshots/jsonl, httpx/whatweb (by host), new `tools/subdomains` hosts, audit lines for that operator name. Rebuilds Audit (and Active when Active data merged). Never copies their `pages/*.htm` over the live tree.
+- Assets: `inc-audit-import.js`; bust `?v=` / `modern.css` on Audit after UI changes; import-report injects the script on `audit.htm`.
 
 ## Report UI layout (CSS)
 

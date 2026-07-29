@@ -621,6 +621,20 @@ def refresh_one_ip(
             err = rec.get("discover_error") or "error"
             append_audit_log(report_dir, f"Failed Shodan update for {ip} ({err})")
         rebuild_audit_page(report_dir)
+        try:
+            touch_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "touch-report-date.py"
+            )
+            if os.path.isfile(touch_path):
+                _spec = importlib.util.spec_from_file_location(
+                    "touch_report_date", touch_path
+                )
+                if _spec is not None and _spec.loader is not None:
+                    _mod = importlib.util.module_from_spec(_spec)
+                    _spec.loader.exec_module(_mod)
+                    _mod.touch_report_index_date(report_dir)
+        except Exception:
+            pass
 
     result["ok"] = status in {"ok", "not_found"}
     result["status"] = status
@@ -1049,6 +1063,21 @@ def main(argv: list[str] | None = None) -> int:
         )
         append_audit_log(report_dir, action)
         rebuild_audit_page(report_dir)
+
+    try:
+        touch_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "touch-report-date.py"
+        )
+        if os.path.isfile(touch_path):
+            _spec = importlib.util.spec_from_file_location(
+                "touch_report_date", touch_path
+            )
+            if _spec is not None and _spec.loader is not None:
+                _mod = importlib.util.module_from_spec(_spec)
+                _spec.loader.exec_module(_mod)
+                _mod.touch_report_index_date(report_dir)
+    except Exception:
+        pass
 
     # Hard fail only if every live query errored and nothing useful remains
     hard_fail = (

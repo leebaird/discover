@@ -1716,6 +1716,11 @@ fi
     mkdir -p "$HOME/data/$DOMAIN/tools"
     echo "$PASSIVE_DATE" > "$HOME/data/$DOMAIN/tools/passive-scan-date"
 
+    # Homepage date = day recon finished (not only when the tree was created).
+    if [ -f "${DISCOVER:-}/recon/touch-report-date.py" ]; then
+        python3 "${DISCOVER}/recon/touch-report-date.py" "$HOME/data/$DOMAIN" >/dev/null 2>&1 || true
+    fi
+
     rm tmp* zreport 2>/dev/null
 
     mkdir -p "$HOME/data/$DOMAIN/tools"

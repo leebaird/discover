@@ -278,6 +278,10 @@ PY
             "$DISCOVER_ROOT/report/pages/audit.htm" >/dev/null 2>&1 || true
     fi
 
+    if [ -f "$DISCOVER_ROOT/recon/touch-report-date.py" ]; then
+        python3 "$DISCOVER_ROOT/recon/touch-report-date.py" "$DISCOVER_REPORT" >/dev/null 2>&1 || true
+    fi
+
     echo
     echo -e "Artifacts: ${YELLOW}$DISCOVER_REPORT/tools/shodan/${NC}"
 fi

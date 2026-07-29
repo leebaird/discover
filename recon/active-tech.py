@@ -1437,6 +1437,17 @@ def rebuild_active_page(
     with open(page, "w", encoding="utf-8") as handle:
         handle.write(content)
 
+    try:
+        touch_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "touch-report-date.py")
+        if os.path.isfile(touch_path):
+            spec_t = importlib.util.spec_from_file_location("touch_report_date", touch_path)
+            if spec_t is not None and spec_t.loader is not None:
+                touch_mod = importlib.util.module_from_spec(spec_t)
+                spec_t.loader.exec_module(touch_mod)
+                touch_mod.touch_report_index_date(report_dir)
+    except Exception:
+        pass
+
     result["ok"] = True
     result["scan_date"] = scan_date
     result["stats"] = getattr(enrich_software_rows_for_report, "last_stats", {}) or {}
