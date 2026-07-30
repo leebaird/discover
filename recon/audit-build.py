@@ -396,6 +396,18 @@ def _display_audit_action(
     return text + "."
 
 
+def _is_finished_host_scan_action(action: str) -> bool:
+    """Finished nuclei/nikto/ffuf/… — Action shows tool + duration; no IP/Target."""
+    text = _normalize_audit_action(action)
+    return bool(
+        re.match(
+            r"(?i)^finished\s+"
+            r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|ffuf|nikto)\b",
+            text,
+        )
+    )
+
+
 def _audit_action_hides_operator_ip(action: str) -> bool:
     """Actions that must not show operator egress IP on the Audit page."""
     a = (action or "").strip().lower()
@@ -410,6 +422,9 @@ def _audit_action_hides_operator_ip(action: str) -> bool:
     # Audit page → Import operator package
     if a.startswith("imported operator package"):
         return True
+    # Finished host-scan: duration is in Action; IP not needed on the row
+    if _is_finished_host_scan_action(action):
+        return True
     return False
 
 
@@ -419,6 +434,14 @@ def _display_operator_ip(ip: str, action: str) -> str:
         return "—"
     text = (ip or "").strip()
     return text if text else "—"
+
+
+def _display_audit_target(action: str) -> str:
+    """Target column; hide for Finished host-scan rows (duration is in Action)."""
+    if _is_finished_host_scan_action(action):
+        return "—"
+    target = audit_target_from_action(action)
+    return target if target else "—"
 
 
 def load_audit_lines(report_root: Path) -> list[tuple[str, str, str, str]]:
@@ -755,8 +778,7 @@ def build_html(report_root: Path) -> str:
             out_cell = audit_output_cell(action, report_root, scan_output_index)
             op_disp = operator if operator else "—"
             ip_disp = _display_operator_ip(ip, action)
-            target = audit_target_from_action(action)
-            target_disp = target if target else "—"
+            target_disp = _display_audit_target(action)
             action_disp = _display_audit_action(
                 action,
                 report_root=report_root,
