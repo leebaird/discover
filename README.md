@@ -341,13 +341,15 @@ In **operator** mode only (report opened via **Import report** / Active at `http
 
 | Tool | Role | When shown |
 |------|------|------------|
-| **Nuclei** | Template recon (software tags) then auto **Pass 2** CVE/KEV templates from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | Always on expand |
-| **droopescan** | CMS enum (`scan drupal` / `wordpress` / …; `-e a -t 4`) | **Gated:** supported CMS from `?software=` filter **or** row Title/Technologies fingerprint (Drupal, WordPress, Joomla, Moodle, Silverstripe) |
-| **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** WordPress from `?software=` **or** row tech/title (e.g. tech list contains WordPress). Optional `WPSCAN_API_TOKEN` for vuln DB |
+| **Nuclei** | Template recon (product tags) then auto **Pass 2** CVE/KEV from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | **Gated:** product known via `?software=` **or** row fingerprint (Technologies / title / web server / hostname). Hidden when no product is known |
+| **droopescan** | CMS enum (`scan drupal` / …; `-e a -t 4`) | **Gated:** supported CMS from `?software=` **or** row fingerprint (Drupal, Joomla, Moodle, Silverstripe — not WordPress) |
+| **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** WordPress from `?software=` **or** row fingerprint. Optional `WPSCAN_API_TOKEN` for vuln DB |
 | **Nikto** | Web server checks; report **TXT** + **HTM** when the scan actually ran | Always on expand |
 | **ffuf** | Content discovery (quiet defaults); report **TXT** + **URL** (open each finding in Firefox) | Always on expand |
 
 Each box shows the tool name and a blue **Run** button on one line, plus last-run time and green output buttons (**TXT** / **HTM** / **URL** as applicable). A Unicode **ⓘ** in the top-right of each box opens a short modal (what the tool does, when it appears, what Run does, safety check, and outputs).
+
+**Software fingerprint (expand):** `?software=` wins (e.g. Active Software versions link). Otherwise Discover reads the row Technologies tokens (keeps version when present, e.g. `Kibana:9.4.2`), then title, web server, and hostname label. Priority products include CMS, Kibana, Grafana, Elasticsearch, Jenkins, Tomcat, IIS, nginx, Apache, PHP, Node.js. That product string is passed into `run-host-scan.sh` so nuclei Pass 1 uses product tags and Pass 2 can select CVE templates.
 
 **Reachability pre-check** (all expand tools): before nuclei, droopescan, wpscan, nikto, or ffuf launches, `misc/run-host-scan.sh` runs a **curl HTTP/1.1 GET** (15s max, same User-Agent as the scan). If the host does not answer HTTP, Discover **does not run the tool**. The run’s `output.txt` records the skip, `status.json` / `latest.json` set `skip_reason=host_unreachable`, and the box shows **Unreachable** (red) with a **TXT** note. **Nikto** does not show **HTM** on that skip (no report was written).
 

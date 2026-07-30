@@ -67,12 +67,13 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 
 ## Host-scan expand (Subdomains)
 
-
 - Host-scan chevrons appear **only** when the report is opened via Discover statusd HTTP (`http://127.0.0.1:17322/…`, Import report / Active). Manual `file://` open never shows chevrons, even if statusd is still running.
 - Chevrons on the **full** public Subdomains table (rows with HTTP status), not only `?software=` / `?cve=` filtered views.
-- **droopescan** / **wpscan** gate on the `software` query when present; otherwise infer from the row’s Title/Technologies text (e.g. tech list contains `WordPress`).
-- **WordPress → wpscan only.** Do not offer droopescan for WordPress (UI map and `run-host-scan.sh` both exclude WP/droopescan). Drupal / Joomla / Moodle / Silverstripe still use droopescan when matched.
-- Base tools (`nuclei`, `nikto`, `ffuf`) are always offered on expand when the UI is shown. Each tool box has a Unicode ⓘ that opens a short help modal. Bust `inc-host-scan.js?v=…` (and `modern.css?v=…` on Subdomains) after changes and sync via Import when testing live reports.
+- **Software for expand:** `?software=` query wins; else fingerprint the row (Technologies tokens with version when present, title, web server, hostname label). Priority products include CMS, Kibana, Grafana, Elasticsearch, Jenkins, Tomcat, IIS, nginx, Apache, PHP, Node.js.
+- **nuclei only when a product is known** (filter or fingerprint). Do not offer nuclei for blind `-tags tech` with empty software. Backend `run-host-scan.sh` refuses nuclei when SOFTWARE is empty.
+- **nikto** / **ffuf** always on expand when the UI is shown.
+- **droopescan** / **wpscan** gate on CMS software (query or fingerprint). **WordPress → wpscan only** (no droopescan for WP). Drupal / Joomla / Moodle / Silverstripe still use droopescan when matched.
+- Each tool box has a Unicode ⓘ help modal. Bust `inc-host-scan.js?v=…` (and `modern.css?v=…` on Subdomains) after changes and sync via Import when testing live reports.
 
 ## Shodan panel Update (Subdomains)
 

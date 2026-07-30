@@ -6,13 +6,13 @@
  * Chevrons only when the page is served by Discover statusd
  * (http://127.0.0.1:17322/… from Import report / Active) — not file:// manual open.
  * One tool at a time; live status via same origin /mode|/status when hosted.
- * droopescan / wpscan gate on software query when present, else row tech/title.
+ * Software: ?software= query wins, else fingerprint row tech/title/webserver/host.
+ * nuclei is shown only when a product is known; nikto/ffuf always on expand.
+ * droopescan / wpscan gate on CMS software (query or fingerprint).
  * Tool boxes: Unicode ⓘ opens a short modal (what / when / Run / outputs).
  */
 (function () {
     /** Host-scan expand panel logic. */
-    // Base tools quietest → loudest (CMS tools inserted when software matches).
-    var TOOLS_BASE = ["nuclei", "nikto", "ffuf"];
     // droopescan CMS label → plugin name (must match run-host-scan.sh).
     // WordPress is wpscan-only — do not offer droopescan for WP (poor results).
     var DROOPESCAN_CMS = {
@@ -22,6 +22,27 @@
         silverstripe: "silverstripe",
         ss: "silverstripe"
     };
+    /**
+     * Products we fingerprint from row tech (priority order: first match wins).
+     * label = software string passed to run-host-scan (optionally + :version).
+     */
+    var ROW_PRODUCT_PRIORITY = [
+        { id: "wordpress", label: "WordPress" },
+        { id: "drupal", label: "Drupal" },
+        { id: "joomla", label: "Joomla" },
+        { id: "moodle", label: "Moodle" },
+        { id: "silverstripe", label: "Silverstripe" },
+        { id: "kibana", label: "Kibana" },
+        { id: "grafana", label: "Grafana" },
+        { id: "elasticsearch", label: "Elasticsearch" },
+        { id: "jenkins", label: "Jenkins" },
+        { id: "tomcat", label: "Tomcat" },
+        { id: "iis", label: "IIS" },
+        { id: "nginx", label: "nginx" },
+        { id: "apache", label: "Apache" },
+        { id: "php", label: "PHP" },
+        { id: "nodejs", label: "Node.js" }
+    ];
     var STATUS_PORT_DEFAULT = 17322;
     var pollTimer = null;
     var infoModalBound = false;
@@ -45,12 +66,13 @@
                 },
                 {
                     h: "When shown",
-                    p: "Always on expand (every public host with an HTTP status)."
+                    p:
+                        "Only when a product is known: Active software filter (?software=) or fingerprint from the row Technologies / title / web server (for example Kibana:9.4.2). Hidden when no product is known so you never get a blind tech-only pass."
                 },
                 {
                     h: "What Run does",
                     p:
-                        "Launches via Discover. Prefer quieter defaults before louder tools such as Nikto or ffuf. Pass 2 runs only when runnable CVE templates exist for this software."
+                        "Launches via Discover with product tags for Pass 1. Prefer quieter defaults before louder tools such as Nikto or ffuf. Pass 2 runs only when runnable CVE templates exist for this software."
                 },
                 {
                     h: "Safety check",
@@ -188,7 +210,7 @@
 
     /** Nuclei pass-1 extra flags (mirrors run-host-scan.sh f_nuclei_args). */
     function nucleiPass1Extra(software) {
-        var softLc = (software || "").toLowerCase();
+        var softLc = (software || "").toLowerCase().replace(/\s+/g, "");
         if (softLc.indexOf("drupal") === 0) {
             return "-tags drupal -c 5 -rl 25";
         }
@@ -202,8 +224,26 @@
         if (softLc.indexOf("joomla") === 0) {
             return "-tags joomla -c 5 -rl 25";
         }
+        if (softLc.indexOf("moodle") === 0) {
+            return "-tags moodle -c 5 -rl 25";
+        }
+        if (softLc.indexOf("kibana") === 0) {
+            return "-tags kibana -c 5 -rl 25";
+        }
         if (softLc.indexOf("grafana") === 0) {
             return "-tags grafana -c 5 -rl 25";
+        }
+        if (softLc.indexOf("elasticsearch") === 0) {
+            return "-tags elasticsearch -c 5 -rl 25";
+        }
+        if (softLc.indexOf("jenkins") === 0) {
+            return "-tags jenkins -c 5 -rl 25";
+        }
+        if (softLc.indexOf("tomcat") === 0) {
+            return "-tags tomcat -c 5 -rl 25";
+        }
+        if (softLc.indexOf("iis") === 0 || softLc.indexOf("microsoft-iis") === 0) {
+            return "-tags iis -c 5 -rl 25";
         }
         if (softLc.indexOf("apache") === 0) {
             return "-tags apache -c 5 -rl 25";
@@ -211,6 +251,13 @@
         if (softLc.indexOf("nginx") === 0) {
             return "-tags nginx -c 5 -rl 25";
         }
+        if (softLc.indexOf("php") === 0) {
+            return "-tags php -c 5 -rl 25";
+        }
+        if (softLc.indexOf("node") === 0) {
+            return "-tags nodejs -c 5 -rl 25";
+        }
+        // Known product without a dedicated tag map: still product-scoped via Pass 2 when cache allows.
         return "-tags tech -c 5 -rl 20";
     }
 
@@ -346,9 +393,73 @@
         return s === "wordpress" || s === "wp";
     }
 
+    /** True when token suffix looks like a version (e.g. 9.4.2, v1.2). */
+    function isVersionish(v) {
+        return !!(v && /^v?\d/i.test(String(v).trim()));
+    }
+
     /**
-     * Infer software label from Subdomains row tech/title (unfiltered page).
-     * Prefer explicit product names so run-host-scan CMS gates still work.
+     * Map a tech token name (lower, no spaces) to a ROW_PRODUCT_PRIORITY id or "".
+     */
+    function productIdFromName(nameLc) {
+        var n = String(nameLc || "")
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .replace(/_/g, "-");
+        if (!n || n === "-" || n === "hsts" || n === "bootstrap" || n === "html5") {
+            return "";
+        }
+        if (n === "wordpress" || n === "wp" || n.indexOf("wordpress") === 0) {
+            return "wordpress";
+        }
+        if (n === "drupal" || n.indexOf("drupal") === 0) {
+            return "drupal";
+        }
+        if (n === "joomla" || n.indexOf("joomla") === 0) {
+            return "joomla";
+        }
+        if (n === "moodle" || n.indexOf("moodle") === 0) {
+            return "moodle";
+        }
+        if (n === "silverstripe" || n === "ss") {
+            return "silverstripe";
+        }
+        if (n === "kibana" || n.indexOf("kibana") === 0) {
+            return "kibana";
+        }
+        if (n === "grafana" || n.indexOf("grafana") === 0) {
+            return "grafana";
+        }
+        if (n === "elasticsearch" || n.indexOf("elasticsearch") === 0) {
+            return "elasticsearch";
+        }
+        if (n === "jenkins" || n.indexOf("jenkins") === 0) {
+            return "jenkins";
+        }
+        if (n.indexOf("tomcat") >= 0) {
+            return "tomcat";
+        }
+        if (n === "iis" || n === "microsoft-iis" || n.indexOf("microsoft-iis") === 0) {
+            return "iis";
+        }
+        if (n === "nginx" || n.indexOf("nginx") === 0) {
+            return "nginx";
+        }
+        if (n === "apache" || n.indexOf("apachehttp") === 0 || n.indexOf("apache/") === 0) {
+            return "apache";
+        }
+        if (n === "php" || n.indexOf("php/") === 0 || n.indexOf("php:") === 0) {
+            return "php";
+        }
+        if (n === "node.js" || n === "nodejs" || n === "node") {
+            return "nodejs";
+        }
+        return "";
+    }
+
+    /**
+     * Infer software label from Subdomains row (tech tokens preferred, with version).
+     * Fallback: title, webserver cell, then hostname label (e.g. kibana.oke-…).
      */
     function softwareFromRow(row) {
         if (!row) {
@@ -356,24 +467,103 @@
         }
         var techEl = row.querySelector(".inc-subdomain-techs");
         var titleEl = row.querySelector(".inc-subdomain-title");
+        var webEl = row.querySelector(".inc-subdomain-webserver");
+        var hostEl = row.querySelector(".inc-subdomain-host-link");
         var tech =
             (techEl && (techEl.getAttribute("title") || techEl.textContent || "")) || "";
-        var title = (titleEl && titleEl.textContent) || "";
-        var blob = (tech + " " + title).toLowerCase();
-        if (/\bwordpress\b/.test(blob) || /wp-login/.test(blob) || /— wordpress/.test(blob)) {
-            return "WordPress";
+        var title = ((titleEl && titleEl.textContent) || "").trim();
+        var web = ((webEl && webEl.textContent) || "").trim();
+        var host = ((hostEl && hostEl.textContent) || "").trim();
+
+        // id -> best version seen (prefer versioned token)
+        var found = {};
+        var tokens = String(tech)
+            .split(",")
+            .map(function (t) {
+                return t.trim();
+            })
+            .filter(Boolean);
+        var i;
+        var token;
+        var colon;
+        var namePart;
+        var verPart;
+        var pid;
+        for (i = 0; i < tokens.length; i++) {
+            token = tokens[i];
+            colon = token.indexOf(":");
+            if (colon > 0) {
+                namePart = token.slice(0, colon).trim();
+                verPart = token.slice(colon + 1).trim();
+            } else {
+                namePart = token;
+                verPart = "";
+            }
+            pid = productIdFromName(namePart);
+            if (!pid) {
+                continue;
+            }
+            if (!found[pid] || (isVersionish(verPart) && !isVersionish(found[pid]))) {
+                found[pid] = isVersionish(verPart) ? verPart : "";
+            }
         }
-        if (/\bdrupal\b/.test(blob)) {
-            return "Drupal";
+
+        // Title / webserver as unversioned signals (e.g. title "Elastic" is weak; "Grafana" ok)
+        [title, web].forEach(function (blob) {
+            if (!blob || blob === "-") {
+                return;
+            }
+            pid = productIdFromName(blob);
+            if (pid && found[pid] === undefined) {
+                found[pid] = "";
+            }
+            // Also scan words in webserver like "Apache/2.4.41"
+            var m = String(blob).match(/^([A-Za-z][A-Za-z0-9._-]*)\/?v?([\d][\d.]*)?/);
+            if (m) {
+                pid = productIdFromName(m[1]);
+                if (pid) {
+                    if (found[pid] === undefined) {
+                        found[pid] = "";
+                    }
+                    if (isVersionish(m[2]) && !isVersionish(found[pid])) {
+                        found[pid] = m[2];
+                    }
+                }
+            }
+        });
+
+        // Hostname first label: kibana.oke-011… → Kibana when tech missed it
+        if (host) {
+            var first = host.split(".")[0].toLowerCase();
+            pid = productIdFromName(first);
+            if (!pid) {
+                // first label may be kibana-devtest style
+                for (i = 0; i < ROW_PRODUCT_PRIORITY.length; i++) {
+                    if (first.indexOf(ROW_PRODUCT_PRIORITY[i].id) >= 0) {
+                        pid = ROW_PRODUCT_PRIORITY[i].id;
+                        break;
+                    }
+                }
+            }
+            if (pid && found[pid] === undefined) {
+                found[pid] = "";
+            }
         }
-        if (/\bjoomla\b/.test(blob)) {
-            return "Joomla";
+
+        // WordPress signals not always in tech tokens
+        var blobAll = (tech + " " + title).toLowerCase();
+        if (
+            (/\bwordpress\b/.test(blobAll) || /wp-login/.test(blobAll)) &&
+            found.wordpress === undefined
+        ) {
+            found.wordpress = "";
         }
-        if (/\bmoodle\b/.test(blob)) {
-            return "Moodle";
-        }
-        if (/\bsilverstripe\b/.test(blob)) {
-            return "Silverstripe";
+
+        for (i = 0; i < ROW_PRODUCT_PRIORITY.length; i++) {
+            var p = ROW_PRODUCT_PRIORITY[i];
+            if (found[p.id] !== undefined) {
+                return found[p.id] ? p.label + ":" + found[p.id] : p.label;
+            }
         }
         return "";
     }
@@ -386,9 +576,17 @@
         return softwareFromRow(row);
     }
 
-    /** Tools for this expand panel (CMS tools when software matches). */
+    /**
+     * Tools for this expand panel.
+     * nuclei only when a product is known (filter or fingerprint).
+     * nikto/ffuf always; CMS tools when matched.
+     */
     function toolsForSoftware(software) {
-        var tools = ["nuclei"];
+        var tools = [];
+        var soft = (software || "").trim();
+        if (soft) {
+            tools.push("nuclei");
+        }
         if (droopescanCms(software)) {
             tools.push("droopescan");
         }

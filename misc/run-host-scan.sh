@@ -280,10 +280,11 @@ f_audit(){
     printf '%s | %s | %s | %s\n' "$ts" "$op" "$ip" "$action" >> "$audit_log"
 }
 
-# Software-aware nuclei tags (pass-1 recon / fingerprint)
+# Software-aware nuclei tags (pass-1 recon / fingerprint).
+# Expand UI only offers nuclei when SOFTWARE is set (filter or row fingerprint).
 f_nuclei_args(){
     local soft_lc
-    soft_lc=$(printf '%s' "$SOFTWARE" | tr '[:upper:]' '[:lower:]')
+    soft_lc=$(printf '%s' "$SOFTWARE" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
     NUCLEI_EXTRA=()
     if [[ "$soft_lc" == drupal* ]]; then
         NUCLEI_EXTRA=(-tags drupal -c 5 -rl 25)
@@ -291,14 +292,30 @@ f_nuclei_args(){
         NUCLEI_EXTRA=(-tags wordpress -c 5 -rl 25)
     elif [[ "$soft_lc" == joomla* ]]; then
         NUCLEI_EXTRA=(-tags joomla -c 5 -rl 25)
+    elif [[ "$soft_lc" == moodle* ]]; then
+        NUCLEI_EXTRA=(-tags moodle -c 5 -rl 25)
+    elif [[ "$soft_lc" == kibana* ]]; then
+        NUCLEI_EXTRA=(-tags kibana -c 5 -rl 25)
     elif [[ "$soft_lc" == grafana* ]]; then
         NUCLEI_EXTRA=(-tags grafana -c 5 -rl 25)
+    elif [[ "$soft_lc" == elasticsearch* ]]; then
+        NUCLEI_EXTRA=(-tags elasticsearch -c 5 -rl 25)
+    elif [[ "$soft_lc" == jenkins* ]]; then
+        NUCLEI_EXTRA=(-tags jenkins -c 5 -rl 25)
+    elif [[ "$soft_lc" == tomcat* ]]; then
+        NUCLEI_EXTRA=(-tags tomcat -c 5 -rl 25)
+    elif [[ "$soft_lc" == iis* || "$soft_lc" == microsoft-iis* ]]; then
+        NUCLEI_EXTRA=(-tags iis -c 5 -rl 25)
     elif [[ "$soft_lc" == apache* ]]; then
         NUCLEI_EXTRA=(-tags apache -c 5 -rl 25)
     elif [[ "$soft_lc" == nginx* ]]; then
         NUCLEI_EXTRA=(-tags nginx -c 5 -rl 25)
+    elif [[ "$soft_lc" == php* ]]; then
+        NUCLEI_EXTRA=(-tags php -c 5 -rl 25)
+    elif [[ "$soft_lc" == node* ]]; then
+        NUCLEI_EXTRA=(-tags nodejs -c 5 -rl 25)
     else
-        # Quiet generic: tech detection / low noise only - not full CVE farm
+        # Product known but no dedicated tag map: quiet tech recon + Pass 2 when cache allows
         NUCLEI_EXTRA=(-tags tech -c 5 -rl 20)
     fi
 }
@@ -907,6 +924,10 @@ case "$TOOL" in
         ;;
     nuclei)
         # Pass 1: software-tagged recon. Pass 2: auto CVE/KEV from cache.
+        # Expand UI only offers nuclei when a product is known; refuse empty here.
+        if [ -z "${SOFTWARE// }" ]; then
+            f_die "nuclei requires a software product (Active ?software= filter or row tech fingerprint). Got: empty"
+        fi
         # output.txt layout is fixed (Command → Results/Findings → paths); do not tee
         # live nuclei lines into the report file.
         f_nuclei_args

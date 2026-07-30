@@ -9,6 +9,11 @@ NC='\033[0m'
 # Discover install root (parent of misc/) — reliable when this script is executed directly
 DISCOVER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# Quiet pip during Update: hide "[notice] A new release of pip is available" spam
+# (seen under DNSRecon / Sublist3r / other venvs). Not a failure.
+export PIP_DISABLE_PIP_VERSION_CHECK=1
+export PIP_ROOT_USER_ACTION=ignore
+
 f_disable_auto_updates(){
     local marker=/etc/apt/apt.conf.d/99discover-no-auto-updates
 
