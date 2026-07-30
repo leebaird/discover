@@ -53,6 +53,11 @@
                         "Launches via Discover. Prefer quieter defaults before louder tools such as Nikto or ffuf. Pass 2 runs only when runnable CVE templates exist for this software."
                 },
                 {
+                    h: "Safety check",
+                    p:
+                        "Before nuclei starts, Discover runs a curl HTTP/1.1 GET (15s). If the host does not answer HTTP, the scan is skipped and the box shows Unreachable (txt note only)."
+                },
+                {
                     h: "Outputs",
                     p:
                         "TXT under tools/host-scans/ for this host. Empty findings report “No vulnerabilities discovered.” Open TXT from the box when a run finishes."
@@ -78,6 +83,11 @@
                         "Runs droopescan against the host URL with the inferred or filtered CMS plugin."
                 },
                 {
+                    h: "Safety check",
+                    p:
+                        "Before droopescan starts, Discover runs a curl HTTP/1.1 GET (15s). If the host does not answer HTTP, the scan is skipped and the box shows Unreachable (txt note only)."
+                },
+                {
                     h: "Outputs",
                     p: "TXT (and related artifacts) under tools/host-scans/ for this host."
                 }
@@ -99,7 +109,12 @@
                 {
                     h: "What Run does",
                     p:
-                        "Runs WPScan against the host URL. Optional free API token (richer vuln DB matching): set WPSCAN_API_TOKEN in ~/.discover/api-keys (preferred), or export WPSCAN_API_TOKEN=…. Get a free token at https://wpscan.com/api. Without a token the scan still runs with local enumeration only."
+                        "Runs WPScan against the host URL. Optional free API token (richer vuln DB matching): set WPSCAN_API_TOKEN in ~/.discover/api-keys (preferred), or export WPSCAN_API_TOKEN. Get a free token at https://wpscan.com/api. Without a token the scan still runs with local enumeration only."
+                },
+                {
+                    h: "Safety check",
+                    p:
+                        "Before WPScan starts, Discover runs a curl HTTP/1.1 GET (15s). If the host does not answer HTTP, the scan is skipped and the box shows Unreachable (txt note only)."
                 },
                 {
                     h: "Outputs",
@@ -122,11 +137,17 @@
                 {
                     h: "What Run does",
                     p:
-                        "Runs Nikto non-interactively with Discover’s hardened defaults (HTTP pre-check, maxtime 15m, hard stop 16m, SNI-friendly HTTPS)."
+                        "Runs Nikto non-interactively with Discover hardened defaults (maxtime 15m, hard stop 16m, SNI-friendly HTTPS)."
+                },
+                {
+                    h: "Safety check",
+                    p:
+                        "Before Nikto starts, Discover runs a curl HTTP/1.1 GET (15s). If the host does not answer HTTP, Nikto is not launched. The box shows Unreachable and only the txt note (no HTM)."
                 },
                 {
                     h: "Outputs",
-                    p: "TXT and HTM when present. Open either button from the box after a run."
+                    p:
+                        "TXT after every attempt. HTM only when Nikto actually ran and wrote a report (not on Unreachable)."
                 }
             ]
         },
@@ -136,7 +157,7 @@
                 {
                     h: "What it does",
                     p:
-                        "Content discovery (directory/file fuzzing) with Discover’s quiet defaults—useful paths without a full aggressive wordlist blast."
+                        "Content discovery (directory/file fuzzing) with Discover quiet defaults: useful paths without a full aggressive wordlist blast."
                 },
                 {
                     h: "When shown",
@@ -146,6 +167,11 @@
                     h: "What Run does",
                     p:
                         "Runs ffuf against the host URL. Louder than nuclei; use after quieter checks when appropriate."
+                },
+                {
+                    h: "Safety check",
+                    p:
+                        "Before ffuf starts, Discover runs a curl HTTP/1.1 GET (15s). If the host does not answer HTTP, the scan is skipped and the box shows Unreachable (txt note only)."
                 },
                 {
                     h: "Outputs",
@@ -484,7 +510,7 @@
         return h[tool] || null;
     }
 
-    /** Build TXT (+ HTM for nikto) buttons for a finished tool run. */
+    /** Build TXT (+ HTM for nikto when a real HTML report exists) buttons. */
     function outputButtonsHtml(tool, st) {
         if (!st || !(st.output || st.output_rel)) {
             return "";
@@ -499,7 +525,9 @@
             '<a class="inc-host-scan-out" href="' +
             safe +
             '" target="_blank" rel="noopener">txt</a>';
-        if (tool === "nikto") {
+        // Nikto HTML report is only written when Nikto actually ran — not on
+        // reachability skip (host_unreachable).
+        if (tool === "nikto" && st.skip_reason !== "host_unreachable") {
             // nikto.htm lives next to output.txt in the run directory
             var htmRel = String(rel).replace(/[^/]+$/, "nikto.htm");
             html +=
@@ -547,19 +575,27 @@
         if (st && st.status === "running") {
             return "Running…";
         }
-        if (st && (st.finished_display || st.finished)) {
-            var last = st.finished_display || st.finished;
+        if (st && (st.finished_display || st.finished || st.skip_reason)) {
+            var last = st.finished_display || st.finished || "";
             var btns = outputButtonsHtml(tool, st);
-            if (btns) {
-                // Timestamp in its own span; buttons follow (CSS flex aligns them).
-                return (
-                    '<span class="inc-host-scan-last-time">' +
-                    last +
-                    "</span>" +
-                    btns
+            var parts = [];
+            if (last) {
+                parts.push(
+                    '<span class="inc-host-scan-last-time">' + last + "</span>"
                 );
             }
-            return '<span class="inc-host-scan-last-time">' + last + "</span>";
+            // Expand-panel note when reachability pre-check skipped this tool.
+            if (st.skip_reason === "host_unreachable") {
+                parts.push(
+                    '<span class="inc-host-scan-skip" title="curl pre-check: no HTTP response from this host within 15s">Unreachable</span>'
+                );
+            }
+            if (btns) {
+                parts.push(btns);
+            }
+            if (parts.length) {
+                return parts.join("");
+            }
         }
         return "Not run";
     }

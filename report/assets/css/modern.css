@@ -1719,6 +1719,15 @@ tr.inc-subdomains-filter-hide {
     vertical-align: middle;
 }
 
+/* Reachability pre-check skipped this tool (host not answering HTTP). */
+.inc-host-scan-tool .inc-host-scan-skip {
+    display: inline-block;
+    line-height: 1.4;
+    vertical-align: middle;
+    color: #ef5350;
+    font-weight: 600;
+}
+
 /* TXT button — same look as Audit scan/output buttons */
 .inc-host-scan-tool .inc-host-scan-btn-row {
     display: inline-flex;

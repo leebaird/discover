@@ -12,7 +12,7 @@
 # - One scan at a time (engagement lock)
 # - Software-aware nuclei/ffuf/droopescan/wpscan profiles
 # - Nuclei is two-pass auto: (1) software tags recon, (2) CVE/KEV IDs
-# - droopescan only when software is a supported CMS (Drupal, Joomla, …) — not WordPress
+# - droopescan only when software is a supported CMS (Drupal, Joomla, ...) - not WordPress
 # - wpscan only when software is WordPress
 
 set -euo pipefail
@@ -200,11 +200,13 @@ printf '%s %s\n' "$$" "$TOOL $HOST" > "$LOCK"
 # Status helpers
 f_write_status(){
     local running_flag="$1"
-    python3 - "$SCANS_DIR" "$HOST" "$TOOL" "$running_flag" "$STAMP_DISPLAY" "$OUT_REL" "$SOFTWARE" "$URL" <<'PY'
+    # Pass meta path so skip_reason (e.g. host_unreachable) surfaces in status.json / expand UI.
+    python3 - "$SCANS_DIR" "$HOST" "$TOOL" "$running_flag" "$STAMP_DISPLAY" "$OUT_REL" "$SOFTWARE" "$URL" "$META_FILE" <<'PY'
 import json, sys
 from pathlib import Path
 base = Path(sys.argv[1])
 host, tool, running, finished, out_rel, software, url = sys.argv[2:9]
+meta_path = Path(sys.argv[9]) if len(sys.argv) > 9 else None
 status_path = base / "status.json"
 try:
     status = json.loads(status_path.read_text(encoding="utf-8"))
@@ -212,8 +214,26 @@ except Exception:
     status = {}
 hosts = status.setdefault("hosts", {})
 h = hosts.setdefault(host, {})
+skip_reason = ""
+exit_code = None
+if meta_path and meta_path.is_file():
+    try:
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        skip_reason = str(meta.get("skip_reason") or "").strip()
+        if meta.get("exit_code") is not None:
+            exit_code = meta.get("exit_code")
+    except Exception:
+        pass
+if running == "1":
+    st = "running"
+elif skip_reason == "host_unreachable":
+    st = "failed"
+elif exit_code not in (None, 0, "0"):
+    st = "failed"
+else:
+    st = "done"
 entry = {
-    "status": "running" if running == "1" else "done",
+    "status": st,
     "finished": None if running == "1" else finished,
     "finished_display": None if running == "1" else finished,
     "output": out_rel,
@@ -221,6 +241,8 @@ entry = {
     "software": software or "",
     "url": url,
 }
+if skip_reason:
+    entry["skip_reason"] = skip_reason
 h[tool] = entry
 status["running"] = running == "1"
 if running == "1":
@@ -276,7 +298,7 @@ f_nuclei_args(){
     elif [[ "$soft_lc" == nginx* ]]; then
         NUCLEI_EXTRA=(-tags nginx -c 5 -rl 25)
     else
-        # Quiet generic: tech detection / low noise only — not full CVE farm
+        # Quiet generic: tech detection / low noise only - not full CVE farm
         NUCLEI_EXTRA=(-tags tech -c 5 -rl 20)
     fi
 }
@@ -708,17 +730,18 @@ PY
 }
 
 # Pre-flight: can curl reach the URL with HTTP/1.1?
-# Returns 0 = try Nikto, 1 = skip Nikto (unreachable / no HTTP response).
-f_nikto_precheck(){
+# Returns 0 = run the tool, 1 = skip (unreachable / no HTTP response).
+# Used for all host-scan tools so operators get a clear skip note in output.txt.
+f_host_reachable_precheck(){
     local url="$1"
     local code time_total http10
 
     if ! command -v curl >/dev/null 2>&1; then
-        echo "[*] curl not available — skipping pre-check."
+        echo "[*] curl not available - skipping reachability pre-check."
         return 0
     fi
 
-    echo "[*] Pre-check (curl HTTP/1.1 GET, 15s)…"
+    echo "[*] Reachability pre-check (curl HTTP/1.1 GET, 15s)."
     code=$(curl -sS -k -o /dev/null -w "%{http_code}" \
         --http1.1 --connect-timeout 8 --max-time 15 \
         -A "$UA" \
@@ -730,7 +753,7 @@ f_nikto_precheck(){
 
     if [ -z "$code" ] || [ "$code" = "000" ]; then
         echo "[!] Pre-check failed: no HTTP response from $url within 15s."
-        echo "    Skipping Nikto. Verify the host is reachable from this network."
+        echo "    Host is not reachable from this network (or not answering HTTP)."
         return 1
     fi
 
@@ -742,7 +765,7 @@ f_nikto_precheck(){
         "$url" 2>/dev/null) || http10="000"
     if [ "$http10" = "426" ]; then
         echo "[*] Note: HTTP/1.0 returns 426 Upgrade Required (common on Azure ALB)."
-        echo "    Discover uses DEFAULTHTTPVER=1.1 and CHECKMETHODS=GET."
+        echo "    Discover uses HTTP/1.1 + GET for this probe."
     fi
 
     return 0
@@ -753,7 +776,7 @@ echo "============================================================"
 echo " Discover host scan (quiet / Red Team defaults)"
 echo " Tool:     $TOOL"
 echo " Target:   $URL"
-echo " Software: ${SOFTWARE:-—}"
+echo " Software: ${SOFTWARE:--}"
 echo " Report:   $REPORT_ROOT"
 echo " Output:   $OUT_FILE"
 echo " UA:       $UA"
@@ -763,6 +786,48 @@ echo "[*] OPSEC: single host, one tool, low rate. Ctrl+C to abort."
 echo
 
 EXIT_CODE=0
+HOST_SKIPPED=0
+
+# Reachability first - do not fire nuclei/nikto/ffuf/... against a dead host.
+set +e
+PRECHECK_OUT=$(f_host_reachable_precheck "$URL" 2>&1)
+PRECHECK_RC=$?
+set -e
+printf '%s\n' "$PRECHECK_OUT"
+echo
+
+if [ "$PRECHECK_RC" -ne 0 ]; then
+    HOST_SKIPPED=1
+    EXIT_CODE=1
+    {
+        echo "Started: $STAMP_DISPLAY"
+        echo
+        echo "Tool:    $TOOL"
+        echo "Target:  $URL"
+        echo "Software: ${SOFTWARE:--}"
+        echo
+        printf '%s\n' "$PRECHECK_OUT"
+        echo
+        echo "[!] $TOOL skipped - host not reachable from this network."
+        echo "    Result: no scan (reachability pre-check failed)."
+        echo "    Re-run this tool when the host answers HTTP from your network."
+        echo
+    } > "$OUT_FILE"
+    # Record skip reason on meta for UI / later rebuilds
+    python3 - "$META_FILE" <<'PY'
+import json, sys
+path = sys.argv[1]
+try:
+    meta = json.load(open(path, encoding="utf-8"))
+except Exception:
+    meta = {}
+meta["status"] = "failed"
+meta["skip_reason"] = "host_unreachable"
+meta["exit_code"] = 1
+json.dump(meta, open(path, "w", encoding="utf-8"), indent=2)
+open(path, "a", encoding="utf-8").write("\n")
+PY
+else
 case "$TOOL" in
     nikto)
         # GitHub Nikto 2.5+/2.6 (update.sh → /opt/nikto): TLS SNI in bundled LW2,
@@ -784,68 +849,54 @@ case "$TOOL" in
                 NIKTO_SSL_FLAG="-ssl"
             fi
             f_nikto_write_config "$NIKTO_CONF" "$UA"
-            NIKTO_CMD="$(f_shell_quote "$NIKTO_BIN") -config $(f_shell_quote "$NIKTO_CONF") -host $(f_shell_quote "$URL")${NIKTO_SSL_FLAG:+ $NIKTO_SSL_FLAG} -useragent $(f_shell_quote "$UA") -nointeractive -nocheck -maxtime $NIKTO_MAXTIME -Format htm -output $(f_shell_quote "$NIKTO_HTM")"
+            # Display as "nikto" (not full path); still execute via $NIKTO_BIN.
+            NIKTO_CMD="nikto -config $(f_shell_quote "$NIKTO_CONF") -host $(f_shell_quote "$URL")${NIKTO_SSL_FLAG:+ $NIKTO_SSL_FLAG} -useragent $(f_shell_quote "$UA") -nointeractive -nocheck -maxtime $NIKTO_MAXTIME -Format htm -output $(f_shell_quote "$NIKTO_HTM")"
             f_write_run_header "$NIKTO_CMD"
             {
-                echo "[*] Nikto: $NIKTO_BIN"
                 echo "[*] Non-interactive (PROMPTS=no, UPDATES=no, -nointeractive -nocheck);"
                 echo "    HTTP/1.1 + GET; maxtime ${NIKTO_MAXTIME}; hard stop ${NIKTO_HARD_TIMEOUT}."
                 echo
             } | tee -a "$OUT_FILE"
 
+            # Reachability already verified above (shared pre-check for all tools).
             set +e
-            PRECHECK_OUT=$(f_nikto_precheck "$URL" 2>&1)
-            PRECHECK_RC=$?
+            # shellcheck disable=SC2086
+            if command -v timeout >/dev/null 2>&1; then
+                timeout --foreground --signal=TERM --kill-after=45s "$NIKTO_HARD_TIMEOUT" \
+                    "$NIKTO_BIN" -config "$NIKTO_CONF" -host "$URL" $NIKTO_SSL_FLAG \
+                    -useragent "$UA" -nointeractive -nocheck \
+                    -maxtime "$NIKTO_MAXTIME" \
+                    -Format htm -output "$NIKTO_HTM" \
+                    2>&1 | tee -a "$OUT_FILE"
+                EXIT_CODE=${PIPESTATUS[0]}
+            else
+                "$NIKTO_BIN" -config "$NIKTO_CONF" -host "$URL" $NIKTO_SSL_FLAG \
+                    -useragent "$UA" -nointeractive -nocheck \
+                    -maxtime "$NIKTO_MAXTIME" \
+                    -Format htm -output "$NIKTO_HTM" \
+                    2>&1 | tee -a "$OUT_FILE"
+                EXIT_CODE=${PIPESTATUS[0]}
+            fi
             set -e
-            printf '%s\n' "$PRECHECK_OUT" | tee -a "$OUT_FILE"
-            echo | tee -a "$OUT_FILE"
 
-            if [ "$PRECHECK_RC" -ne 0 ]; then
+            if [ "${EXIT_CODE:-0}" -eq 124 ]; then
                 {
-                    echo "[!] Nikto skipped after failed pre-check."
-                    echo "    Result: no scan (host not answering HTTP from this network)."
+                    echo
+                    echo "[*] Discover hard stop: Nikto exceeded ${NIKTO_HARD_TIMEOUT} wall clock (maxtime ${NIKTO_MAXTIME} + grace)."
+                    echo "    Scan stopped automatically - no operator input required."
+                } | tee -a "$OUT_FILE"
+                EXIT_CODE=0
+            fi
+
+            if grep -q 'No web server found on' "$OUT_FILE" 2>/dev/null; then
+                {
+                    echo
+                    echo "[!] Nikto host discovery failed: no web server found (0 hosts tested)."
+                    echo "    Pre-check may still have seen HTTP. Treat as inconclusive;"
+                    echo "    use nuclei/ffuf/manual review instead."
+                    echo "    (Maxtime ERROR lines can appear even on short runs when discovery fails.)"
                 } | tee -a "$OUT_FILE"
                 EXIT_CODE=1
-            else
-                set +e
-                # shellcheck disable=SC2086
-                if command -v timeout >/dev/null 2>&1; then
-                    timeout --foreground --signal=TERM --kill-after=45s "$NIKTO_HARD_TIMEOUT" \
-                        "$NIKTO_BIN" -config "$NIKTO_CONF" -host "$URL" $NIKTO_SSL_FLAG \
-                        -useragent "$UA" -nointeractive -nocheck \
-                        -maxtime "$NIKTO_MAXTIME" \
-                        -Format htm -output "$NIKTO_HTM" \
-                        2>&1 | tee -a "$OUT_FILE"
-                    EXIT_CODE=${PIPESTATUS[0]}
-                else
-                    "$NIKTO_BIN" -config "$NIKTO_CONF" -host "$URL" $NIKTO_SSL_FLAG \
-                        -useragent "$UA" -nointeractive -nocheck \
-                        -maxtime "$NIKTO_MAXTIME" \
-                        -Format htm -output "$NIKTO_HTM" \
-                        2>&1 | tee -a "$OUT_FILE"
-                    EXIT_CODE=${PIPESTATUS[0]}
-                fi
-                set -e
-
-                if [ "${EXIT_CODE:-0}" -eq 124 ]; then
-                    {
-                        echo
-                        echo "[*] Discover hard stop: Nikto exceeded ${NIKTO_HARD_TIMEOUT} wall clock (maxtime ${NIKTO_MAXTIME} + grace)."
-                        echo "    Scan stopped automatically — no operator input required."
-                    } | tee -a "$OUT_FILE"
-                    EXIT_CODE=0
-                fi
-
-                if grep -q 'No web server found on' "$OUT_FILE" 2>/dev/null; then
-                    {
-                        echo
-                        echo "[!] Nikto host discovery failed: no web server found (0 hosts tested)."
-                        echo "    Pre-check may still have seen HTTP. Treat as inconclusive;"
-                        echo "    use nuclei/ffuf/manual review instead."
-                        echo "    (Maxtime ERROR lines can appear even on short runs when discovery fails.)"
-                    } | tee -a "$OUT_FILE"
-                    EXIT_CODE=1
-                fi
             fi
 
             if [ -f "$NIKTO_HTM" ]; then
@@ -917,7 +968,7 @@ case "$TOOL" in
                 echo "=== Pass 2: CVE and KEV templates ==="
                 echo
                 echo "Software:"
-                echo "${SOFTWARE:-—}"
+                echo "${SOFTWARE:--}"
                 echo
                 echo "Templates (${PASS2_TOTAL:-?}, KEV ${PASS2_KEV_N:-?}):"
                 echo "$PASS2_IDS_DISPLAY"
@@ -931,7 +982,7 @@ case "$TOOL" in
             } >> "$OUT_FILE"
             echo
             echo "[*] Pass 2: CVE and KEV templates (${PASS2_TOTAL:-?} runnable, ${PASS2_KEV_N:-?} KEV)"
-            # Do not audit pass-2 start/finish — covered by parent nuclei Started/Finished + Output.
+            # Do not audit pass-2 start/finish - covered by parent nuclei Started/Finished + Output.
             set +e
             nuclei -u "$URL" -H "User-Agent: $UA" \
                 -id "$PASS2_IDS" \
@@ -950,7 +1001,7 @@ case "$TOOL" in
                 cat "$NUCLEI_PASS2_OUT"
                 echo
             } >> "$OUT_FILE"
-            # Do not audit "Finished nuclei pass-2 …" — redundant with parent Finished + Output.
+            # Do not audit "Finished nuclei pass-2 ..." - redundant with parent Finished + Output.
             python3 - "$META_FILE" "$PASS2_IDS" "${PASS2_KEV_N:-0}" "${PASS2_TOTAL:-0}" "${PASS2_CODE:-1}" "${PASS2_NOTE:-}" <<'PY'
 import json, sys
 path, ids, kev_n, total, code, note = sys.argv[1:7]
@@ -973,7 +1024,7 @@ PY
             {
                 echo "=== Pass 2: skipped ==="
                 echo
-                echo "No runnable CVE templates for software '${SOFTWARE:-—}'."
+                echo "No runnable CVE templates for software '${SOFTWARE:--}'."
                 echo "Need Active CVE cache and/or local nuclei-templates CVE YAML for this product."
                 echo
             } >> "$OUT_FILE"
@@ -982,7 +1033,7 @@ PY
         ;;
     droopescan)
         CMS=$(f_droopescan_cms)
-        [ -n "$CMS" ] || f_die "droopescan requires CMS software (Drupal, Joomla, Moodle, Silverstripe — not WordPress; use wpscan). Got: ${SOFTWARE:-none}"
+        [ -n "$CMS" ] || f_die "droopescan requires CMS software (Drupal, Joomla, Moodle, Silverstripe - not WordPress; use wpscan). Got: ${SOFTWARE:-none}"
         command -v droopescan >/dev/null 2>&1 || f_die "droopescan is not installed (or not on PATH). Run Discover Update; prefer ~/.local/bin after Python 3.14 patch."
         DROOP_OUT="$RUN_DIR/droopescan.txt"
         # Quiet-ish: all enums, modest threads, standard text output.
@@ -990,7 +1041,7 @@ PY
         f_write_run_header "$DROOP_CMD"
         {
             echo "CMS: $CMS"
-            echo "Software: ${SOFTWARE:-—}"
+            echo "Software: ${SOFTWARE:--}"
             echo
         } >> "$OUT_FILE"
         echo "[*] droopescan scan $CMS on $URL"
@@ -1014,18 +1065,18 @@ PY
         command -v wpscan >/dev/null 2>&1 || f_die "wpscan is not installed. Run Discover Update (gem install wpscan)."
         WPSCAN_OUT="$RUN_DIR/wpscan.txt"
         # Quiet-ish Red Team defaults: passive plugin detection + moderate enum.
-        # Optional free API token: export WPSCAN_API_TOKEN=… (vuln DB lookups).
+        # Optional free API token: export WPSCAN_API_TOKEN=... (vuln DB lookups).
         WPSCAN_CMD="wpscan --url $(f_shell_quote "$URL") --random-user-agent --user-agent $(f_shell_quote "$UA") --disable-tls-checks --plugins-detection passive --enumerate vp,vt,tt,cb,dbe,u --format cli-no-colour --no-banner"
         if [ -n "${WPSCAN_API_TOKEN:-}" ]; then
             WPSCAN_CMD+=" --api-token $(f_shell_quote "$WPSCAN_API_TOKEN")"
         fi
         f_write_run_header "$WPSCAN_CMD"
         {
-            echo "Software: ${SOFTWARE:-—}"
+            echo "Software: ${SOFTWARE:--}"
             if [ -n "${WPSCAN_API_TOKEN:-}" ]; then
                 echo "API token: set (WPSCAN_API_TOKEN)"
             else
-                echo "API token: not set (optional — free token improves vuln matching)"
+                echo "API token: not set (optional - free token improves vuln matching)"
             fi
             echo
         } >> "$OUT_FILE"
@@ -1068,10 +1119,10 @@ PY
             FFUF_URL="${FFUF_URL%/}/FUZZ"
         fi
         FFUF_JSON="$RUN_DIR/ffuf.json"
-        # Quiet default: no custom -mc (use ffuf defaults: 2xx,301,302,307,500,…)
+        # Quiet default: no custom -mc (use ffuf defaults: 2xx,301,302,307,500,...)
         # Filter noise with -fc. Keep 2xx + 500s (version banners). Drop auth/forbid,
         # empty, rate-limit, and redirects (301/302/307 are often real paths that still
-        # aren't useful to open anonymously — clutter for operators).
+        # aren't useful to open anonymously - clutter for operators).
         FFUF_FC="301,302,307,400,401,403,404,405,429"
         FFUF_CMD="ffuf -u $(f_shell_quote "$FFUF_URL") -w $(f_shell_quote "$FFUF_WL") -t 8 -rate 20 -H $(f_shell_quote "User-Agent: $UA") -of json -o $(f_shell_quote "$FFUF_JSON") -fc $FFUF_FC -noninteractive"
         f_write_run_header "$FFUF_CMD"
@@ -1096,13 +1147,21 @@ PY
         fi
         ;;
 esac
+fi  # HOST_SKIPPED reachability gate
 
 FINISHED=$(date -u +"%m-%d-%Y - %H:%M Z")
 python3 - "$META_FILE" "$FINISHED" "$EXIT_CODE" <<'PY'
 import json, sys
 path, finished, code = sys.argv[1], sys.argv[2], int(sys.argv[3])
-meta = json.load(open(path, encoding="utf-8"))
-meta["status"] = "done" if code == 0 else "failed"
+try:
+    meta = json.load(open(path, encoding="utf-8"))
+except Exception:
+    meta = {}
+# Keep skip_reason if pre-check already set it
+if meta.get("skip_reason") == "host_unreachable":
+    meta["status"] = "failed"
+else:
+    meta["status"] = "done" if code == 0 else "failed"
 meta["finished_display"] = finished
 from datetime import datetime, timezone
 meta["finished_utc"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -1112,7 +1171,7 @@ open(path, "a", encoding="utf-8").write("\n")
 PY
 
 f_write_status 0
-# Omit "(exit 0)" — success is the default; keep non-zero exits visible.
+# Omit "(exit 0)" - success is the default; keep non-zero exits visible.
 if [ "${EXIT_CODE:-1}" -eq 0 ]; then
     f_audit "Finished $TOOL on $URL$SOFT_NOTE"
 else

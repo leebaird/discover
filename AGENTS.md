@@ -2,6 +2,12 @@
 
 Conventions agreed with the operator for Discover development. **Read and follow this file.** When we discuss and agree on a durable rule (layout, install order, Update UX, host-scan gating, etc.), **add or update it here** in the same change set when practical—do not leave it only in chat history.
 
+## Writing (operator-facing text)
+
+- **Never use three periods in a row (`...`) at the end of a sentence.** End with a single period (`.`).
+- Same for Unicode ellipsis (`…`) in operator-facing text (logs, UI status lines, scan `output.txt`, help copy): use a single `.` when finishing a sentence. Do not write “Running…”, “Updating…”, or “pre-check (15s)…”.
+- Mid-list “and more” truncation in docs/comments is fine when not sentence-final (e.g. `2xx,301,302,...` as a list tail). Prefer plain ASCII over fancy punctuation in plain-text scan logs.
+
 ## Git commits
 
 - **Only commit when the operator explicitly asks** (e.g. “do a commit”). Do not commit proactively after finishing a feature or when they only ask whether a commit is needed.
@@ -49,7 +55,18 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Comments already mark some blocks this way (e.g. CISA KEV after chromium, before curl); follow that convention.
 - Same idea for README Update bullet lists when they mirror install order.
 
+## Host-scan reachability pre-check (expand dropdown only)
+
+- Applies only to tools launched from the Subdomains expand panel: **nuclei**, **nikto**, **ffuf**, plus **droopescan** / **wpscan** when shown.
+- Before the tool runs, `run-host-scan.sh` does a **curl HTTP/1.1 GET** (15s max, same UA as the tool).
+- If no HTTP response (`000` / timeout): **do not launch the tool**. Write skip note in that run’s `output.txt`, set `meta.skip_reason=host_unreachable` and the same on `status.json` / `latest.json`, exit 1.
+- Expand panel shows **Unreachable** (red) under that tool box (plus txt link when present).
+- **Nikto HTM** is omitted when `skip_reason=host_unreachable` (no HTML report was written).
+- Nikto has no second internal pre-check (shared gate only).
+- Help modals (ⓘ) and README host-scan section document this gate.
+
 ## Host-scan expand (Subdomains)
+
 
 - Host-scan chevrons appear **only** when the report is opened via Discover statusd HTTP (`http://127.0.0.1:17322/…`, Import report / Active). Manual `file://` open never shows chevrons, even if statusd is still running.
 - Chevrons on the **full** public Subdomains table (rows with HTTP status), not only `?software=` / `?cve=` filtered views.
