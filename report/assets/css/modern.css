@@ -850,12 +850,12 @@ tr.inc-subdomains-filter-hide {
  * Audit width: fixed px (NOT rem). Bootstrap sets html { font-size: 10px },
  * so 1rem = 10px and "82rem" was only 820px — looked like no change / too narrow.
  *
- * Wide enough for Target scans (Target 310 + 4× tool cols) without clipping ffuf.
+ * Wide enough for Target scans (Target 410 + 5× tool cols) without clipping ffuf.
  * Audit log stays full-width of this container (Action + Output visible).
  */
 .inc-iframe-parent:not(.inc-home-page) .container.inc-audit-page.inc-container-dynamic,
 .inc-audit-page.container.inc-container-dynamic {
-    width: 1500px;
+    width: 1550px;
     min-width: 0;
     max-width: 100%;
     margin-left: auto;
@@ -945,38 +945,43 @@ tr.inc-subdomains-filter-hide {
     color: var(--text);
 }
 
-.inc-audit-page .inc-audit-frame-wide table.inc-data-table {
+/* Wide tables fill the frame — except Target scans (fixed px layout below). */
+.inc-audit-page .inc-audit-frame-wide table.inc-data-table:not(.inc-audit-host-scans) {
     width: 100%;
     table-layout: auto;
 }
 
 /* Target scans columns (px).
- * Target 310 + 5 tool cols × 200 = 1310 (Nuclei, droopescan, WPScan, Nikto, ffuf).
- * table-layout:fixed + explicit table width so tool cols stay 200px (no stretch). */
+ * Target 410 + 5 tool cols × 200 = 1410 (Nuclei, droopescan, WPScan, Nikto, ffuf).
+ * Fixed layout + colgroup/class so Bootstrap .table { width:100% } cannot collapse Target. */
 .inc-audit-page .inc-audit-frame-wide table.inc-data-table.inc-audit-host-scans,
 .inc-audit-page table.inc-audit-host-scans {
-    width: 1310px;
-    min-width: 1310px;
-    max-width: 1310px;
-    table-layout: fixed;
+    width: 1410px !important;
+    min-width: 1410px !important;
+    max-width: 1410px !important;
+    table-layout: fixed !important;
     box-sizing: border-box;
 }
 
+.inc-audit-page table.inc-audit-host-scans col.inc-audit-host-target-col,
+.inc-audit-page table.inc-audit-host-scans > thead > tr > th.inc-audit-host-target,
+.inc-audit-page table.inc-audit-host-scans > tbody > tr > td.inc-audit-host-target,
 .inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(1),
 .inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(1) {
-    width: 310px;
-    min-width: 310px;
-    max-width: 310px;
+    width: 410px !important;
+    min-width: 410px !important;
+    max-width: 410px !important;
     white-space: nowrap;
     box-sizing: border-box;
 }
 
 /* Nuclei (2), droopescan (3), WPScan (4), Nikto (5), ffuf (6) — each 200px */
+.inc-audit-page table.inc-audit-host-scans col.inc-audit-host-tool-col,
 .inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(n+2),
 .inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(n+2) {
-    width: 200px;
-    min-width: 200px;
-    max-width: 200px;
+    width: 200px !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
     white-space: nowrap;
     overflow: hidden;
     box-sizing: border-box;
@@ -1073,12 +1078,15 @@ tr.inc-subdomains-filter-hide {
     vertical-align: middle;
 }
 
+/* Fixed px — wrap long hostnames (beat generic table nowrap). */
 .inc-audit-page #inc-audit-log-table > thead > tr > th.inc-audit-col-target,
 .inc-audit-page #inc-audit-log-table > tbody > tr > td.inc-audit-col-target {
-    width: 1%;
-    min-width: 140px;
-    max-width: 220px;
-    white-space: nowrap;
+    width: 340px;
+    min-width: 340px;
+    max-width: 340px;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
     box-sizing: border-box;
     text-align: center;
     vertical-align: middle;
@@ -2022,9 +2030,10 @@ body:not(.inc-iframe-parent) pre {
     width: 100%;
 }
 
-/* Audit: fixed px width (not Active full-bleed; rem is 10px under Bootstrap). */
+/* Audit: fixed px width (not Active full-bleed; rem is 10px under Bootstrap).
+ * Prefer the more specific .inc-container-dynamic rule (1550px) when both match. */
 .inc-iframe-parent:not(.inc-home-page) .container.inc-audit-page {
-    width: 1100px;
+    width: 1550px;
     min-width: 0;
     max-width: 100%;
 }
@@ -2166,7 +2175,7 @@ body:not(.inc-iframe-parent) pre {
     max-width: 600px;
 }
 
-/* Audit Import operator package modal (path + name fields). */
+/* Audit Import operator scans modal (path + name fields). */
 .inc-audit-import-modal .inc-report-export-dialog {
     max-width: 600px;
 }
@@ -2207,6 +2216,12 @@ body:not(.inc-iframe-parent) pre {
     color: #e8eaed;
     font-size: 13px;
     font-family: inherit;
+}
+
+/* Operator name: short first-name field (1–10 letters). */
+.inc-audit-import-input.inc-audit-import-input--name {
+    width: 25%;
+    max-width: 25%;
 }
 
 .inc-audit-import-input:focus {

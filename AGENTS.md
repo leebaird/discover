@@ -31,7 +31,7 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - **Update to today** whenever the engagement changes: Passive finish, Active, host-scan finish, Shodan enrich/Update, software CVE refresh, subdomain/names imports, operator package import.
 - Helper: `recon/touch-report-date.py <report_dir>` (also callable from Python via `touch_report_index_date`).
 
-## Import operator package (Audit page)
+## Import operator scans (Audit page)
 
 - **Import** button on Audit only when Discover-hosted (`http://127.0.0.1:17322/…`). Modal: path to **unpacked** other-operator report + their first name (1–10 letters).
 - Backend: statusd `POST /import-operator-package` → `recon/import-operator-package.py --dest <live> --source <path> --operator <Name> --json`.

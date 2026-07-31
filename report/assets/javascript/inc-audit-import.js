@@ -41,18 +41,18 @@
             '<div class="inc-report-export-backdrop" data-inc-audit-import-close="1"></div>' +
             '<div class="inc-report-export-dialog">' +
             '<div class="inc-report-export-header">' +
-            '<h2 id="inc-audit-import-title" class="inc-report-export-title">Import operator package</h2>' +
+            '<h2 id="inc-audit-import-title" class="inc-report-export-title">Import operator scans</h2>' +
             '<button type="button" class="inc-report-export-x" data-inc-audit-import-close="1" aria-label="Close">×</button>' +
             "</div>" +
-            '<p class="inc-report-export-lead">Merge host scans, screenshots, Active data, and audit lines from another operator’s report into this engagement.</p>' +
+            '<p class="inc-report-export-lead">Merge scans, screenshots, Active data, and audit lines from another operator’s report into this report.</p>' +
             '<label class="inc-audit-import-field" for="inc-audit-import-source">' +
             "<span>Path to their report (unpacked directory)</span>" +
             '<input type="text" id="inc-audit-import-source" class="inc-audit-import-input" ' +
             'autocomplete="off" spellcheck="false">' +
             "</label>" +
             '<label class="inc-audit-import-field" for="inc-audit-import-operator">' +
-            "<span>Their operator name (first name, max 10 letters — must match their Audit log)</span>" +
-            '<input type="text" id="inc-audit-import-operator" class="inc-audit-import-input" ' +
+            "<span>Operator name (must match their Audit log)</span>" +
+            '<input type="text" id="inc-audit-import-operator" class="inc-audit-import-input inc-audit-import-input--name" ' +
             'autocomplete="off" spellcheck="false">' +
             "</label>" +
             '<div class="inc-report-export-status" id="inc-audit-import-status" hidden></div>' +
@@ -253,7 +253,7 @@
         imp.type = "button";
         imp.className = "inc-report-export-btn inc-audit-import-btn";
         imp.textContent = "Import";
-        imp.title = "Import another operator’s report package";
+        imp.title = "Import another operator’s scans";
         imp.addEventListener("click", function (ev) {
             ev.preventDefault();
             ev.stopPropagation();

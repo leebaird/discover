@@ -771,7 +771,7 @@
 
     function lastRunHtml(tool, st) {
         if (st && st.status === "running") {
-            return "Running…";
+            return "Running.";
         }
         if (st && (st.finished_display || st.finished || st.skip_reason)) {
             var last = st.finished_display || st.finished || "";

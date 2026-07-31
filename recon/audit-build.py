@@ -483,6 +483,75 @@ def load_audit_lines(report_root: Path) -> list[tuple[str, str, str, str]]:
     return rows
 
 
+def _newest_host_scan_tool_meta(tool_dir: Path) -> dict:
+    """Pick the newest run meta under host/tool/ (stamp dirs). Prefer finished over running."""
+    best: dict | None = None
+    best_key: tuple = ("", -1)
+    if not tool_dir.is_dir():
+        return {}
+    for run_dir in tool_dir.iterdir():
+        if not run_dir.is_dir():
+            continue
+        meta_path = run_dir / "meta.json"
+        if not meta_path.is_file():
+            continue
+        meta = load_json(meta_path, {})
+        if not isinstance(meta, dict) or not meta:
+            continue
+        st = str(meta.get("status") or "").strip().lower() or "done"
+        rank = 0 if st == "running" else 1
+        key = (run_dir.name, rank)
+        if best is None or key >= best_key:
+            best_key = key
+            out = str(meta.get("output") or meta.get("output_rel") or "").strip()
+            if not out:
+                out = f"tools/host-scans/{tool_dir.parent.name}/{tool_dir.name}/{run_dir.name}/output.txt"
+            finished = str(
+                meta.get("finished_display") or meta.get("finished") or ""
+            ).strip()
+            best = {
+                "status": st,
+                "finished": finished,
+                "finished_display": finished,
+                "output": out,
+                "output_rel": out,
+                "software": meta.get("software") or "",
+                "url": meta.get("url") or "",
+            }
+            if meta.get("skip_reason"):
+                best["skip_reason"] = meta.get("skip_reason")
+    return best or {}
+
+
+def _reconcile_tool_meta(report_root: Path, host: str, tool: str, meta: dict) -> dict:
+    """If status.json says running but a newer finished run exists, use the finished one."""
+    if not isinstance(meta, dict):
+        meta = {}
+    tool_dir = report_root / "tools" / "host-scans" / host / tool
+    newest = _newest_host_scan_tool_meta(tool_dir)
+    if not newest:
+        return meta
+    st = str(meta.get("status") or "").lower()
+    if st == "running" or not meta:
+        # Prefer newest finished (or newest anything if still running).
+        return newest
+    # status.json may lag behind a finished re-run
+    out_old = str(meta.get("output") or "")
+    out_new = str(newest.get("output") or "")
+    if out_new and out_new != out_old and newest.get("status") != "running":
+        # Compare stamps from paths when possible
+        def stamp_from_out(path: str) -> str:
+            parts = Path(path).parts
+            # tools/host-scans/host/tool/stamp/output.txt
+            if len(parts) >= 2:
+                return parts[-2]
+            return ""
+
+        if stamp_from_out(out_new) >= stamp_from_out(out_old):
+            return newest
+    return meta
+
+
 def load_host_scan_summary(report_root: Path) -> list[dict]:
     base = report_root / "tools" / "host-scans"
     if not base.is_dir():
@@ -495,25 +564,36 @@ def load_host_scan_summary(report_root: Path) -> list[dict]:
         for host, tools in hosts.items():
             if not isinstance(tools, dict):
                 continue
+            fixed: dict[str, dict] = {}
+            for tool, meta in tools.items():
+                if not isinstance(meta, dict):
+                    continue
+                fixed[tool] = _reconcile_tool_meta(
+                    report_root, str(host).lower(), str(tool).lower(), meta
+                )
             rows.append(
                 {
                     "host": host,
-                    "tools": tools,
+                    "tools": fixed,
                 }
             )
         rows.sort(key=lambda r: r["host"])
         return rows
 
-    # Fallback: walk directories
+    # Fallback: walk directories (newest meta per tool)
     rows = []
     for host_dir in sorted(base.iterdir()):
         if not host_dir.is_dir() or host_dir.name.startswith("."):
             continue
         tools = {}
         for tool, _label in HOST_SCAN_TOOLS:
-            latest = host_dir / tool / "latest.json"
-            if latest.is_file():
-                tools[tool] = load_json(latest, {})
+            newest = _newest_host_scan_tool_meta(host_dir / tool)
+            if newest:
+                tools[tool] = newest
+            else:
+                latest = host_dir / tool / "latest.json"
+                if latest.is_file():
+                    tools[tool] = load_json(latest, {})
         if tools:
             rows.append({"host": host_dir.name, "tools": tools})
     return rows
@@ -614,8 +694,13 @@ def audit_output_cell(
     output = str(meta.get("output") or meta.get("output_rel") or "").strip()
     status = (meta.get("status") or "").lower()
 
+    # Do not leave Output stuck on "Running." for abandoned mid-runs (imported
+    # packages / killed scans). Prefer txt/htm when files exist; else muted dash.
+    # Live progress is shown on Subdomains expand, not the static Audit log.
     if status == "running" and not is_pass2:
-        return '<span class="inc-audit-running">Running…</span>'
+        if not output:
+            return '<span class="inc-audit-muted">—</span>'
+        # Fall through to link buttons when output path is known.
 
     links: list[str] = []
     if is_pass2:
@@ -670,8 +755,9 @@ def tool_cell(
     finished = tool_meta.get("finished") or tool_meta.get("finished_display") or ""
     status = (tool_meta.get("status") or "").lower()
     output = tool_meta.get("output") or tool_meta.get("output_rel") or ""
+    # Target scans: no live "Running." label — muted dash (same as empty).
     if status == "running":
-        return '<span class="inc-audit-running">Running…</span>'
+        return '<span class="inc-audit-muted">—</span>'
     if not finished and not output:
         return '<span class="inc-audit-muted">—</span>'
 
@@ -810,13 +896,23 @@ def build_html(report_root: Path) -> str:
     lines.append(
         '<table class="table table-bordered inc-data-table inc-audit-host-scans">'
     )
+    # colgroup locks Target / tool widths under table-layout:fixed (Bootstrap-safe).
+    tool_cols = "".join(
+        '<col class="inc-audit-host-tool-col" />' for _ in HOST_SCAN_TOOLS
+    )
+    lines.append(
+        "<colgroup>"
+        '<col class="inc-audit-host-target-col" />'
+        f"{tool_cols}"
+        "</colgroup>"
+    )
     tool_headers = "".join(
         f'<th scope="col" class="inc-sortable">{html.escape(label)}</th>'
         for _key, label in HOST_SCAN_TOOLS
     )
     lines.append(
         "<thead><tr>"
-        '<th scope="col" class="inc-sortable">Target</th>'
+        '<th scope="col" class="inc-sortable inc-audit-host-target">Target</th>'
         f"{tool_headers}"
         "</tr></thead><tbody>"
     )
@@ -835,7 +931,7 @@ def build_html(report_root: Path) -> str:
                 )
             lines.append(
                 "<tr>"
-                f"<td>{html.escape(row['host'])}</td>"
+                f'<td class="inc-audit-host-target">{html.escape(row["host"])}</td>'
                 + "".join(f"<td>{c}</td>" for c in cells)
                 + "</tr>"
             )

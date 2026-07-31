@@ -141,7 +141,12 @@ def merge_host_scans(dest: Path, source: Path) -> dict[str, int]:
 
 
 def rebuild_host_scan_status(scans_dir: Path) -> None:
-    """Rebuild status.json + latest.json from all meta.json under host-scans."""
+    """Rebuild status.json + latest.json from all meta.json under host-scans.
+
+    Prefer the newest run stamp (YYYYMMDDTHHMMSSZ). Never compare ISO finished_utc
+    to stamp names — that left stale status=running entries winning after import.
+    When stamps tie, prefer a finished meta over still-running.
+    """
     hosts: dict[str, dict[str, dict]] = {}
     for meta_path in scans_dir.rglob("meta.json"):
         try:
@@ -150,26 +155,42 @@ def rebuild_host_scan_status(scans_dir: Path) -> None:
             continue
         if not isinstance(meta, dict):
             continue
-        # path: …/host/tool/stamp/meta.json
+        # path: host/tool/stamp/meta.json
         parts = meta_path.relative_to(scans_dir).parts
-        host = str(meta.get("host") or (parts[0] if len(parts) >= 3 else "")).strip()
-        tool = str(meta.get("tool") or (parts[1] if len(parts) >= 3 else "")).strip()
+        if len(parts) < 3:
+            continue
+        host = str(meta.get("host") or parts[0]).strip().lower()
+        tool = str(meta.get("tool") or parts[1]).strip().lower()
+        stamp = parts[2]
         if not host or not tool:
             continue
-        host = host.lower()
-        finished = str(meta.get("finished_utc") or meta.get("finished") or "")
+        st = str(meta.get("status") or "").strip().lower()
+        if not st:
+            st = "done"
+        finished_disp = str(
+            meta.get("finished_display") or meta.get("finished") or ""
+        ).strip()
+        out = str(meta.get("output") or meta.get("output_rel") or "").strip()
+        if not out:
+            out = f"tools/host-scans/{host}/{tool}/{stamp}/output.txt"
+        # Sort: stamp first; finished ranks above running so a killed mid-run
+        # does not beat a completed rescan with the same stamp (should not happen)
+        # or lose incorrectly when finished_utc was used as sort key.
+        rank_finished = 0 if st == "running" else 1
         entry = {
-            "status": meta.get("status") or "done",
-            "finished": meta.get("finished_display") or meta.get("finished") or finished,
-            "finished_display": meta.get("finished_display") or meta.get("finished") or "",
-            "output": meta.get("output") or meta.get("output_rel") or "",
-            "output_rel": meta.get("output_rel") or meta.get("output") or "",
+            "status": st,
+            "finished": finished_disp,
+            "finished_display": finished_disp,
+            "output": out,
+            "output_rel": out,
             "software": meta.get("software") or "",
             "url": meta.get("url") or "",
-            "_sort": finished or meta_path.parent.name,
+            "_sort": (stamp, rank_finished),
         }
+        if meta.get("skip_reason"):
+            entry["skip_reason"] = meta.get("skip_reason")
         cur = hosts.setdefault(host, {}).get(tool)
-        if cur is None or str(entry["_sort"]) >= str(cur.get("_sort") or ""):
+        if cur is None or entry["_sort"] >= cur.get("_sort", ("", -1)):
             hosts.setdefault(host, {})[tool] = entry
 
     # strip internal sort key
