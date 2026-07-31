@@ -100,7 +100,8 @@ f_import_report_sync_assets(){
         inc-active-status-codes.js \
         inc-active-refresh.js \
         inc-report-export.js \
-        inc-audit-import.js
+        inc-audit-import.js \
+        inc-audit-config.js
     do
         if [ -f "$src/javascript/$js" ]; then
             cp -f "$src/javascript/$js" "$report/assets/javascript/$js" 2>/dev/null || \
@@ -115,7 +116,7 @@ f_import_report_sync_assets(){
         # Bust browser cache on Subdomains after layout / host-scan / Shodan fixes.
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
-                -e 's|modern\.css?v=[^"]*|modern.css?v=ws31|g' \
+                -e 's|modern\.css?v=[^"]*|modern.css?v=audit-config-lead2
                 -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=25|g' \
                 -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=18|g' \
                 "$report/pages/subdomains.htm" 2>/dev/null || true
@@ -124,7 +125,7 @@ f_import_report_sync_assets(){
         for page in passive.htm active.htm audit.htm; do
             if [ -f "$report/pages/$page" ]; then
                 sed -i \
-                    -e 's|modern\.css?v=[^"]*|modern.css?v=active-update4|g' \
+                    -e 's|modern\.css?v=[^"]*|modern.css?v=audit-config-lead2
                     -e 's|inc-report-export\.js?v=[0-9]*|inc-report-export.js?v=3|g' \
                     -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=9|g' \
                     "$report/pages/$page" 2>/dev/null || true
@@ -139,7 +140,7 @@ f_import_report_sync_assets(){
                 if [ "$page" = "active.htm" ]; then
                     sed -i \
                         -e 's|inc-active-refresh\.js?v=[0-9]*|inc-active-refresh.js?v=2|g' \
-                        -e 's|modern\.css?v=[^"]*|modern.css?v=active-update4|g' \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-config-lead2
                         "$report/pages/$page" 2>/dev/null || true
                 fi
                 if ! grep -q 'inc-report-export.js' "$report/pages/$page" 2>/dev/null; then
@@ -148,11 +149,16 @@ f_import_report_sync_assets(){
                 fi
                 if [ "$page" = "audit.htm" ]; then
                     sed -i \
-                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-import-name25|g' \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-config-lead2
                         -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=9|g' \
+                        -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=12|g' \
                         "$report/pages/$page" 2>/dev/null || true
                     if ! grep -q 'inc-audit-import.js' "$report/pages/$page" 2>/dev/null; then
                         sed -i 's|</body>|<script src="../assets/javascript/inc-audit-import.js?v=9"></script>\n</body>|' \
+                            "$report/pages/$page" 2>/dev/null || true
+                    fi
+                    if ! grep -q 'inc-audit-config.js' "$report/pages/$page" 2>/dev/null; then
+                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-config.js?v=12"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                 fi

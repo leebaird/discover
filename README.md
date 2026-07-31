@@ -574,7 +574,9 @@ After **Export**, the modal shows the output path (default directory `$HOME/data
 
 Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit**).
 
-**Import operator scans (Discover-hosted only):** On **Reports → Audit**, use **Import** (left of Export). Modal asks for:
+**Config (Discover-hosted only):** On **Reports → Audit**, use **Config** (left of Import). Hub with **APIs** (edit/save NVD, Shodan, WPScan keys in `~/.discover/api-keys`), **Operator name** (updates `~/.discover/operator-name` and rewrites this report’s audit log for that name), and **Time zone** (US zones + UTC for **viewing** only; all stamps stay UTC on disk).
+
+**Import operator scans (Discover-hosted only):** On **Reports → Audit**, use **Import** (between Config and Export). Modal asks for:
 
 1. Path to the **unpacked** other-operator report directory (`pages/` + `tools/`)
 2. Their **operator first name** (1–10 letters) — only audit lines for that name are appended

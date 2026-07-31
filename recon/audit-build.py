@@ -88,11 +88,29 @@ def _is_audit_display_ts(s: str) -> bool:
     )
 
 
+def normalize_audit_display_ts(s: str) -> str:
+    """Canonical display stamp: mm-dd-yyyy - hh:mm Z (fix legacy Z - hh:mm)."""
+    text = (s or "").strip()
+    m = re.fullmatch(
+        r"(\d{2}-\d{2}-\d{4})\s+Z\s+-\s+(\d{2}:\d{2})",
+        text,
+    )
+    if m:
+        return f"{m.group(1)} - {m.group(2)} Z"
+    m2 = re.fullmatch(
+        r"(\d{2}-\d{2}-\d{4})\s+-\s+(\d{2}:\d{2})\s+Z",
+        text,
+    )
+    if m2:
+        return f"{m2.group(1)} - {m2.group(2)} Z"
+    return text
+
+
 def format_export_time(exp: dict) -> str:
     """Match audit log times: mm-dd-yyyy - hh:mm Z (UTC)."""
     display = (exp.get("exported_at_display") or "").strip()
     if display and _is_audit_display_ts(display):
-        return display
+        return normalize_audit_display_ts(display)
 
     raw = (exp.get("exported_at_utc") or display or "").strip()
     if not raw:
@@ -752,7 +770,9 @@ def tool_cell(
 ) -> str:
     if not tool_meta:
         return '<span class="inc-audit-muted">—</span>'
-    finished = tool_meta.get("finished") or tool_meta.get("finished_display") or ""
+    finished = normalize_audit_display_ts(
+        str(tool_meta.get("finished") or tool_meta.get("finished_display") or "")
+    )
     status = (tool_meta.get("status") or "").lower()
     output = tool_meta.get("output") or tool_meta.get("output_rel") or ""
     # Target scans: no live "Running." label — muted dash (same as empty).
@@ -873,7 +893,7 @@ def build_html(report_root: Path) -> str:
             )
             lines.append(
                 "<tr>"
-                f'<td class="inc-audit-col-time">{html.escape(ts)}</td>'
+                f'<td class="inc-audit-col-time">{html.escape(normalize_audit_display_ts(ts))}</td>'
                 f'<td class="inc-audit-col-op">{html.escape(op_disp)}</td>'
                 f'<td class="inc-audit-col-ip">{html.escape(ip_disp)}</td>'
                 f'<td class="inc-audit-col-target">{html.escape(target_disp)}</td>'
@@ -953,8 +973,8 @@ def build_html(report_root: Path) -> str:
     )
     lines.append(
         "<thead><tr>"
+        '<th scope="col" class="inc-sortable inc-audit-col-exported">Time (UTC)</th>'
         '<th scope="col" class="inc-sortable">Type</th>'
-        '<th scope="col" class="inc-sortable">Exported (UTC)</th>'
         '<th scope="col" class="inc-sortable">Operator IPs</th>'
         '<th scope="col" class="inc-audit-col-file">File</th>'
         "</tr></thead><tbody>"
@@ -968,8 +988,8 @@ def build_html(report_root: Path) -> str:
             arch_cell = html.escape(os.path.basename(archive)) if archive else "—"
             lines.append(
                 "<tr>"
+                f'<td class="inc-audit-col-exported">{html.escape(exported)}</td>'
                 f"<td>{html.escape(kind)}</td>"
-                f"<td>{html.escape(exported)}</td>"
                 f"<td>{html.escape(ips)}</td>"
                 f'<td class="inc-audit-col-file">{arch_cell}</td>'
                 "</tr>"

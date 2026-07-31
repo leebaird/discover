@@ -25,6 +25,13 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - Audit lines: `mm-dd-yyyy - hh:mm Z | <name> | <egress IP> | <action>` (`f_audit_log` / host-scan `f_audit`). Legacy stamps (`mm-dd-yyyy Z - hh:mm`) and 3-field lines still parse on the Audit page.
 - **Shodan**, **Updated software CVE data**, **Imported subdomains** / **Imported CSV list subdomains**, and **Imported operator package**: Operator IP is always a dash (`-` in the log, `—` on the Audit page). Do not record egress IP for those events.
 
+## Timestamps (UTC write, view timezone)
+
+- **Always record timestamps in UTC** when a scan runs or any engagement event is written (audit log, host-scan meta `started`/`finished` / `*_utc`, status stamps, export times, etc.). Keep the existing `… Z` / UTC ISO forms on disk.
+- Operators may **choose a timezone for viewing** (e.g. Audit Config → Time zone). That preference is **display only**.
+- **View timezone must not change how data is written** — no local-time stamps in `tools/audit/log.txt`, meta.json, or other on-disk artifacts. Convert only when rendering the report UI (and label the column, e.g. Time (UTC) vs local).
+- Preference store: `~/.discover/timezone` (not inside a single engagement report), so it applies across engagements for that operator machine. UI: Audit **Config → Time zone**.
+
 ## Report homepage date (`index.htm`)
 
 - Home hero date (`#DATE#` / first `inc-home-meta` value) is format `Month DD, YYYY` (same as Discover `DATESTAMP`).
@@ -37,6 +44,16 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - Backend: statusd `POST /import-operator-package` → `recon/import-operator-package.py --dest <live> --source <path> --operator <Name> --json`.
 - Merges `tools/host-scans` (copy missing run dirs), gowitness screenshots/jsonl, httpx/whatweb (by host), new `tools/subdomains` hosts, audit lines for that operator name. Rebuilds Audit (and Active when Active data merged). Never copies their `pages/*.htm` over the live tree.
 - Assets: `inc-audit-import.js`; bust `?v=` / `modern.css` on Audit after UI changes; import-report injects the script on `audit.htm`.
+
+## Config (Audit page only)
+
+- **Config** button on Audit only when Discover-hosted (`http://127.0.0.1:17322/…`). Header order: **Config** · **Import** · **Export**.
+- Modal hub with **three choice rows**: **APIs**, **Operator name**, **Time zone**.
+- Backend: `recon/discover-config.py` via statusd `GET /config`, `POST /config/api-keys`, `POST /config/operator-name`, `POST /config/timezone`.
+- **APIs:** show/edit/save `NVD_API_KEY`, `SHODAN_API_KEY`, `WPSCAN_API_TOKEN` in `~/.discover/api-keys` (chmod 600). Localhost only.
+- **Operator name:** read/write `~/.discover/operator-name` (1–10 letters). On change, rewrite **only audit lines whose Operator field matches the previous name** (other operators’ lines untouched; do not rewrite names inside Action text). Rebuild Audit after rewrite.
+- **Time zone:** display preference only (`~/.discover/timezone`). UTC + US zones. **Does not change written stamps** (always UTC). Audit Time column converts in the browser.
+- Assets: `inc-audit-config.js`; bust `?v=` / `modern.css` on Audit after UI changes; import-report injects the script on `audit.htm`. Restart statusd after endpoint changes.
 
 ## Report UI layout (CSS)
 

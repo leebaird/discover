@@ -987,8 +987,8 @@ tr.inc-subdomains-filter-hide {
     box-sizing: border-box;
 }
 
-/* Exports table: all columns fixed px so File edits never reflow Type/Exported/IPs.
- * Type 110 + Exported 170 + Operator IPs 120 + File 400 = 800. */
+/* Exports table: Time | Type | Operator IPs | File
+ * Time 170 + Type 110 + Operator IPs 120 + File 400 = 800. */
 .inc-audit-page .inc-audit-frame-wide table.inc-data-table.inc-audit-deliverables,
 .inc-audit-page table.inc-audit-deliverables {
     width: 800px;
@@ -998,22 +998,24 @@ tr.inc-subdomains-filter-hide {
     box-sizing: border-box;
 }
 
-/* Type */
+/* Time (UTC) — first column */
+.inc-audit-page table.inc-audit-deliverables > thead > tr > th.inc-audit-col-exported,
+.inc-audit-page table.inc-audit-deliverables > tbody > tr > td.inc-audit-col-exported,
 .inc-audit-page table.inc-audit-deliverables > thead > tr > th:nth-child(1),
 .inc-audit-page table.inc-audit-deliverables > tbody > tr > td:nth-child(1) {
-    width: 110px;
-    min-width: 110px;
-    max-width: 110px;
+    width: 170px;
+    min-width: 170px;
+    max-width: 170px;
     white-space: nowrap;
     box-sizing: border-box;
 }
 
-/* Exported (UTC) — same stamp width as Audit log Time */
+/* Type */
 .inc-audit-page table.inc-audit-deliverables > thead > tr > th:nth-child(2),
 .inc-audit-page table.inc-audit-deliverables > tbody > tr > td:nth-child(2) {
-    width: 170px;
-    min-width: 170px;
-    max-width: 170px;
+    width: 110px;
+    min-width: 110px;
+    max-width: 110px;
     white-space: nowrap;
     box-sizing: border-box;
 }
@@ -2180,9 +2182,13 @@ body:not(.inc-iframe-parent) pre {
     max-width: 600px;
 }
 
-/* Audit: Import (left) + Export (right) in the page header. */
+/* Audit: Config + Import + Export in the page header (left → right). */
 .inc-page-header.inc-page-header--with-export.inc-page-header--with-audit-import {
     padding-right: 200px;
+}
+
+.inc-page-header.inc-page-header--with-export.inc-page-header--with-audit-import.inc-page-header--with-audit-config {
+    padding-right: 300px;
 }
 
 .inc-page-header .inc-audit-import-btn {
@@ -2191,6 +2197,104 @@ body:not(.inc-iframe-parent) pre {
     right: 100px;
     transform: translateY(-50%);
     z-index: 2;
+}
+
+.inc-page-header .inc-audit-config-btn {
+    position: absolute;
+    top: 50%;
+    right: 188px;
+    transform: translateY(-50%);
+    z-index: 2;
+}
+
+/* Config modal hub choices + timezone list */
+.inc-audit-config-modal .inc-audit-config-dialog {
+    max-width: 560px;
+}
+
+.inc-audit-config-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0 0 4px;
+}
+
+.inc-audit-config-choice {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 14px;
+    border: 1px solid #2f3844;
+    border-radius: 8px;
+    background: #151a20;
+    color: #e8eaed;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.inc-audit-config-choice:hover,
+.inc-audit-config-choice:focus {
+    border-color: #4a90d9;
+    outline: none;
+}
+
+.inc-audit-config-choice strong {
+    display: block;
+    font-size: 14px;
+    margin: 0 0 4px;
+    color: #f0f3f7;
+}
+
+.inc-audit-config-choice span {
+    display: block;
+    font-size: 12px;
+    color: #9aa3ad;
+    line-height: 1.35;
+}
+
+.inc-audit-config-tz-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0 0 4px;
+}
+
+.inc-audit-config-tz-choice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid #2f3844;
+    border-radius: 8px;
+    background: #151a20;
+    cursor: pointer;
+    color: #e8eaed;
+    font-size: 13px;
+}
+
+.inc-audit-config-tz-choice:hover {
+    border-color: var(--accent, #2264d6);
+}
+
+/* Blue radios (override OS theme red/orange) + selected card */
+.inc-audit-config-tz-choice input {
+    margin-top: 3px;
+    flex: 0 0 auto;
+    accent-color: var(--accent, #2264d6);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.inc-audit-config-tz-choice:has(input:checked) {
+    border-color: var(--accent, #2264d6);
+    background: #121a28;
+    box-shadow: 0 0 0 1px rgba(34, 100, 214, 0.35);
+}
+
+.inc-audit-config-tz-choice code {
+    font-size: 11px;
+    color: #8ab4f8;
 }
 
 .inc-audit-import-field {
@@ -2272,6 +2376,11 @@ body:not(.inc-iframe-parent) pre {
     margin: 0 0 12px;
     font-size: 13px;
     color: #9aa3ad;
+}
+
+/* Config panels: path line then description (tighter pair) */
+.inc-audit-config-body .inc-report-export-lead + .inc-report-export-lead {
+    margin-top: -6px;
 }
 
 .inc-report-export-choices {

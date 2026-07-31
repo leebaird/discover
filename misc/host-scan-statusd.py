@@ -17,9 +17,13 @@ Binds 127.0.0.1 only. Serves:
   POST /shodan-refresh -> force-refresh one IP via recon/shodan-enrich.py --ip (JSON: {"ip":"..."})
   POST /shodan-refresh-all -> force Shodan enrich all public IPs (--force --json-summary)
   POST /software-cve-refresh -> force NVD software CVEs + rebuild active.htm
+  GET  /config -> operator config (api keys values for edit, name, view timezone)
+  POST /config/api-keys -> save NVD/SHODAN/WPSCAN keys to ~/.discover/api-keys
+  POST /config/operator-name -> set name; rewrite this report audit log; rebuild Audit
+  POST /config/timezone -> set display timezone only (does not change written stamps)
   GET /*       -> files under report_root (operator browser via http://127.0.0.1:port/)
 
-Host-scan chevrons, Export, Import (Audit), Shodan Update, and Active Update only appear when
+Host-scan chevrons, Export, Import/Config (Audit), Shodan Update, and Active Update only appear when
 the report is opened through this server (Import report / Active), not file://.
 """
 
@@ -76,6 +80,7 @@ def main(argv: list[str]) -> int:
     discover_root = Path(__file__).resolve().parent.parent
     export_script = discover_root / "recon" / "export-report.sh"
     import_operator_script = discover_root / "recon" / "import-operator-package.py"
+    config_script = discover_root / "recon" / "discover-config.py"
     shodan_enrich = discover_root / "recon" / "shodan-enrich.py"
     active_tech = discover_root / "recon" / "active-tech.py"
 
@@ -134,6 +139,9 @@ def main(argv: list[str]) -> int:
                 "/shodan-refresh",
                 "/shodan-refresh-all",
                 "/software-cve-refresh",
+                "/config/api-keys",
+                "/config/operator-name",
+                "/config/timezone",
             }:
                 self._send(404, b'{"ok":false,"error":"not found"}\n')
                 return
@@ -370,6 +378,115 @@ def main(argv: list[str]) -> int:
                 self._send(code, json.dumps(result).encode() + b"\n")
                 return
 
+            # --- /config/* (operator machine settings under ~/.discover) ---
+            if path in {
+                "/config/api-keys",
+                "/config/operator-name",
+                "/config/timezone",
+            }:
+                if not config_script.is_file():
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": f"config script missing: {config_script}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                try:
+                    if path == "/config/api-keys":
+                        proc = subprocess.run(
+                            [
+                                sys.executable,
+                                str(config_script),
+                                "set-api-keys",
+                                "--json",
+                                "--body",
+                                json.dumps(body),
+                            ],
+                            capture_output=True,
+                            text=True,
+                            timeout=30,
+                            env=env,
+                            cwd=str(discover_root),
+                        )
+                    elif path == "/config/operator-name":
+                        name = str(
+                            body.get("name") or body.get("operator") or ""
+                        ).strip()
+                        proc = subprocess.run(
+                            [
+                                sys.executable,
+                                str(config_script),
+                                "set-operator-name",
+                                "--json",
+                                "--name",
+                                name,
+                                "--report",
+                                str(report_root),
+                            ],
+                            capture_output=True,
+                            text=True,
+                            timeout=120,
+                            env=env,
+                            cwd=str(discover_root),
+                        )
+                    else:
+                        tz = str(body.get("timezone") or body.get("tz") or "").strip()
+                        proc = subprocess.run(
+                            [
+                                sys.executable,
+                                str(config_script),
+                                "set-timezone",
+                                "--json",
+                                "--tz",
+                                tz,
+                            ],
+                            capture_output=True,
+                            text=True,
+                            timeout=30,
+                            env=env,
+                            cwd=str(discover_root),
+                        )
+                except subprocess.TimeoutExpired:
+                    self._send(
+                        504,
+                        b'{"ok":false,"error":"config update timed out"}\n',
+                    )
+                    return
+                except OSError as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)}).encode()
+                        + b"\n",
+                    )
+                    return
+                result = _parse_json_stdout(proc.stdout or "")
+                if not isinstance(result, dict):
+                    err = (proc.stderr or proc.stdout or "config failed").strip()
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": err[:800]
+                                or f"config exit {proc.returncode}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                code = 200 if result.get("ok") and proc.returncode == 0 else 400
+                if proc.returncode != 0 and result.get("ok"):
+                    result["ok"] = False
+                    result.setdefault("error", f"config exit {proc.returncode}")
+                    code = 500
+                self._send(code, json.dumps(result).encode() + b"\n")
+                return
+
             # --- /import-operator-package ---
             if path == "/import-operator-package":
                 source = str(body.get("source") or body.get("path") or "").strip()
@@ -590,6 +707,65 @@ def main(argv: list[str]) -> int:
                     ).encode()
                     + b"\n",
                 )
+                return
+            if path == "/config":
+                if not config_script.is_file():
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": f"config script missing: {config_script}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                try:
+                    proc = subprocess.run(
+                        [
+                            sys.executable,
+                            str(config_script),
+                            "get-all",
+                            "--json",
+                        ],
+                        capture_output=True,
+                        text=True,
+                        timeout=15,
+                        env={**os.environ, "HOME": str(Path.home())},
+                        cwd=str(discover_root),
+                    )
+                except (subprocess.TimeoutExpired, OSError) as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)}).encode()
+                        + b"\n",
+                    )
+                    return
+                result = None
+                for ln in reversed(
+                    [x.strip() for x in (proc.stdout or "").splitlines() if x.strip()]
+                ):
+                    try:
+                        cand = json.loads(ln)
+                        if isinstance(cand, dict):
+                            result = cand
+                            break
+                    except json.JSONDecodeError:
+                        continue
+                if not isinstance(result, dict):
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": (proc.stderr or "config get failed")[:400],
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                self._send(200, json.dumps(result).encode() + b"\n")
                 return
 
             if path == "/":
