@@ -126,7 +126,7 @@ f_import_report_sync_assets(){
             if [ -f "$report/pages/$page" ]; then
                 sed -i \
                     -e 's|modern\.css?v=[^"]*|modern.css?v=active-update4|g' \
-                    -e 's|inc-report-export\.js?v=[0-9]*|inc-report-export.js?v=3|g' \
+                    -e 's|inc-report-export\.js?v=[0-9]*|inc-report-export.js?v=4|g' \
                     -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=9|g' \
                     "$report/pages/$page" 2>/dev/null || true
                 if [ "$page" = "active.htm" ] && ! grep -q 'inc-active-status-codes.js' "$report/pages/$page" 2>/dev/null; then
@@ -144,7 +144,7 @@ f_import_report_sync_assets(){
                         "$report/pages/$page" 2>/dev/null || true
                 fi
                 if ! grep -q 'inc-report-export.js' "$report/pages/$page" 2>/dev/null; then
-                    sed -i 's|</body>|<script src="../assets/javascript/inc-report-export.js?v=3"></script>\n</body>|' \
+                    sed -i 's|</body>|<script src="../assets/javascript/inc-report-export.js?v=4"></script>\n</body>|' \
                         "$report/pages/$page" 2>/dev/null || true
                 fi
                 if [ "$page" = "audit.htm" ]; then

@@ -2,9 +2,10 @@
  * Planning by Lee Baird (@discoverscripts)
  * Coded by Grok (xAI)
  *
- * Report-section Export button (Passive / Active / Audit).
+ * Report Export button — Audit page only (Discover statusd).
  * Visible only when the report is served by Discover statusd
  * (http://127.0.0.1:17322/…). Opens a modal: Client / Defender / Operator.
+ * Not shown on Passive or Active.
  */
 (function () {
     var STATUS_PORT = 17322;
@@ -16,6 +17,13 @@
             return false;
         }
         return location.port === String(STATUS_PORT);
+    }
+
+    function isAuditPage() {
+        return (
+            document.body.classList.contains("inc-audit-page") ||
+            /\/audit\.htm/i.test(location.pathname || "")
+        );
     }
 
     function ensureModal() {
@@ -258,7 +266,7 @@
     }
 
     function init() {
-        if (!isDiscoverHostedPage()) {
+        if (!isDiscoverHostedPage() || !isAuditPage()) {
             return;
         }
         injectButton();

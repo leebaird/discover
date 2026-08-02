@@ -117,12 +117,12 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - **Update:** `misc/update.sh` ensures the file exists — if missing, copies `resource/api-keys.example` → `~/.discover/api-keys` (`chmod 600`). Under `sudo`, seeds the **invoking user’s** home (`SUDO_USER`), not only root. If already present, only re-applies `chmod 600` (quiet).
 - **Auto-migrate:** if `$DISCOVER/.env` or `~/.discover/.env` still exist, Discover merges them into `~/.discover/api-keys` (existing `api-keys` values win) and **removes** the legacy files. Implemented in `software-cve.migrate_legacy_api_key_files()` (also run from Active / Shodan shell loaders).
 
-## Report Export (Passive / Active / Audit)
+## Report Export (Audit only)
 
-- **No Domain menu item** for export. UI is an **Export** button at the top of Report → Passive / Active / Audit only when the page is Discover-hosted (`http://127.0.0.1:17322/…`). Manual `file://` never shows the button.
+- **No Domain menu item** for export. UI is an **Export** button at the top of **Report → Audit only** when the page is Discover-hosted (`http://127.0.0.1:17322/…`). **Not shown on Passive or Active.** Manual `file://` never shows the button.
 - Modal: Client / Defender / Operator radios + **Export** + **Cancel**; success shows the output path (`$HOME/data` by default).
 - Backend: statusd `POST /export` → `recon/export-report.sh --kind … --report … --out-dir … --quiet` (JSON path on stdout).
-- Assets: `inc-report-export.js`, `modern.css` (export classes); import-report syncs JS and injects the script on those three pages. Bust `inc-report-export.js?v=…` / `modern.css?v=export…` after changes.
+- Assets: `inc-report-export.js`, `modern.css` (export classes); import-report syncs JS. Bust `inc-report-export.js?v=…` after changes.
 
 ## Import subdomains (Domain menu 8)
 
@@ -133,7 +133,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 
 ## Active page Update (Shodan + Software CVEs)
 
-- **Update** button on Active (statusd only), left of Export. Modal checkboxes (default both on):
+- **Update** button on Active (statusd only). Modal checkboxes (default both on):
   - **Shodan** → `POST /shodan-refresh-all` → `shodan-enrich.py <report> --force --json-summary`
   - **Software CVEs** → `POST /software-cve-refresh` → `active-tech.py <report> --refresh-cves --json` (re-queries NVD for missing/empty cache entries by default; `--force-all` optional; rebuilds `pages/active.htm` Software versions table + `cve-software-index.js`)
 - Software versions CVE data is **NVD CPE**, not Shodan host vulns. Permanent skips: Microsoft HTTPAPI, Java Servlet, JavaServer Pages (`SKIP_PRODUCTS` in `software-cve.py`).

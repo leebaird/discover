@@ -192,7 +192,7 @@ Typical domain engagement path:
 4. **Enrich with Shodan** (optional) — host-by-IP OSINT for public IPs from Active httpx.
 5. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, WPScan when WordPress, Nikto, ffuf) in operator mode.
 6. **Import report** — reopen the live tree later for more testing (operator mode).
-7. **Export** — on Report → Passive / Active / Audit (Discover-hosted only): Client, Defender (audit CSV), or Operator package; path shown after export.
+7. **Export** — on Report → Audit (Discover-hosted only): Client, Defender (audit CSV), or Operator package; path shown after export.
 8. **Reports → Audit** in the HTML report — Target scans, Audit log, and Exports.
 
 ---
@@ -553,7 +553,7 @@ Empty or invalid paths show an error and exit (same style as Active / Import nam
 
 #### Export report
 
-**UI (preferred):** Open the engagement via **Import report** (or Active) so it is served at `http://127.0.0.1:17322/…`. On **Report → Passive**, **Active**, or **Audit**, use the **Export** button (top of the page; Discover-hosted only). A modal offers:
+**UI (preferred):** Open the engagement via **Import report** (or Active) so it is served at `http://127.0.0.1:17322/…`. On **Report → Audit**, use the **Export** button (top of the page; Discover-hosted only; not on Passive or Active). A modal offers:
 
 | Kind | Package |
 |------|---------|
