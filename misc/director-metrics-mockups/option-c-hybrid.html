@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Option C — Hybrid (dashboard + director export)</title>
+  <style>
+    :root {
+      --bg: #0b0e12;
+      --panel: #12161c;
+      --border: #2a3340;
+      --text: #e8eaed;
+      --muted: #9aa3ad;
+      --accent: #2264d6;
+      --accent-hover: #4d9aff;
+      --card: #151a20;
+      --warn: #ffb74d;
+      --font: Inter, system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.4;
+    }
+    .topbar {
+      background: #0f1318;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar h1 { margin: 0; font-size: 16px; font-weight: 600; }
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #2e7d32;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+    }
+    .option-intro {
+      border: 1px solid var(--border);
+      background: #10151c;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 22px;
+    }
+    .option-intro h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: #81c784;
+    }
+    .option-intro p { margin: 0 0 8px; color: var(--muted); }
+    .option-intro ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
+    .option-intro strong { color: var(--text); }
+    .phases {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 700px) { .phases { grid-template-columns: 1fr; } }
+    .phase {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: #121820;
+    }
+    .phase .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #a5d6a7;
+      margin-bottom: 6px;
+    }
+    .phase h3 { margin: 0 0 6px; font-size: 15px; }
+    .phase p { margin: 0; color: var(--muted); font-size: 13px; }
+    .nav-mock {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-bottom: 8px;
+    }
+    .nav-mock span {
+      padding: 6px 14px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .nav-mock span.hi {
+      box-shadow: 0 0 0 2px rgba(77, 154, 255, 0.45);
+    }
+    .page-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 0 0 16px;
+    }
+    .page-title span { color: var(--muted); font-weight: 500; }
+    .metrics {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 14px 16px 16px;
+      margin-bottom: 18px;
+    }
+    .metrics-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .metrics-head h3 {
+      margin: 0;
+      font-size: 15px;
+      color: var(--accent-hover);
+    }
+    .metrics-head small { color: var(--muted); font-size: 12px; }
+    .btn-export-week {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid #1a4a9e;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 900px) {
+      .cards { grid-template-columns: repeat(2, 1fr); }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .card .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .card .value {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .card.warn .value { color: var(--warn); }
+    .chart-one {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .chart-one h4 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #cfd6df;
+    }
+    .bars { display: flex; align-items: flex-end; gap: 8px; height: 88px; }
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .bar {
+      width: 100%;
+      max-width: 26px;
+      background: linear-gradient(180deg, var(--accent-hover), var(--accent));
+      border-radius: 4px 4px 2px 2px;
+    }
+    .bar-col span { font-size: 10px; color: var(--muted); }
+    .section h3 {
+      margin: 18px 0 8px;
+      font-size: 15px;
+      color: var(--accent-hover);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: var(--panel);
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+    }
+    th {
+      background: #343c47;
+      color: #e8f2ff;
+      font-weight: 500;
+      text-align: center;
+    }
+    .muted { color: var(--muted); }
+    .callout {
+      margin-top: 22px;
+      border: 1px dashed #2e7d32;
+      background: #0f1a12;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .callout h3 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      color: #a5d6a7;
+    }
+    .callout p { margin: 0; color: var(--muted); font-size: 13px; }
+    .footer-note {
+      margin-top: 28px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>Discover · Director metrics mockup</h1>
+    <span class="badge">Option C · Recommended hybrid</span>
+  </div>
+  <div class="wrap">
+    <div class="option-intro">
+      <h2>Option C — Hybrid</h2>
+      <p><strong>Idea:</strong> Light live strip on Audit for the team <em>and</em> a Director week export for the formal management send. One stats engine powers both.</p>
+      <ul>
+        <li><strong>Pros:</strong> internal awareness + clean handoff; can ship cards first, export second.</li>
+        <li><strong>Cons:</strong> two surfaces (keep shared calculation logic).</li>
+        <li><strong>Best if:</strong> you need both daily visibility and a weekly artifact for leadership.</li>
+      </ul>
+    </div>
+
+    <div class="phases">
+      <div class="phase">
+        <div class="tag">Phase 1</div>
+        <h3>Cards + one chart on Audit</h3>
+        <p>Low clutter: KPIs always visible. Optional single “scans per day” chart. Same data as Option A, lighter UI.</p>
+      </div>
+      <div class="phase">
+        <div class="tag">Phase 2</div>
+        <h3>Director week export</h3>
+        <p>From Export modal or a “Export week” control on the strip. CSV + short HTML for the director (Option B content).</p>
+      </div>
+    </div>
+
+    <div class="nav-mock">
+      <span>Config</span><span>Import</span><span class="hi">Export</span>
+    </div>
+    <div class="page-title">Report <span>›</span> Audit</div>
+
+    <div class="metrics">
+      <div class="metrics-head">
+        <div>
+          <h3>Last 7 days (UTC)</h3>
+          <small>Live strip for the team · lighter than full Option A</small>
+        </div>
+        <button type="button" class="btn-export-week">Export Director week</button>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <div class="label">Scans completed</div>
+          <div class="value">42</div>
+        </div>
+        <div class="card">
+          <div class="label">Targets scanned</div>
+          <div class="value">18</div>
+        </div>
+        <div class="card">
+          <div class="label">Operators</div>
+          <div class="value">3</div>
+        </div>
+        <div class="card warn">
+          <div class="label">Incomplete scans</div>
+          <div class="value">2</div>
+        </div>
+        <div class="card">
+          <div class="label">Exports</div>
+          <div class="value">3</div>
+        </div>
+      </div>
+      <div class="chart-one">
+        <h4>Scans per day (only chart on the page)</h4>
+        <div class="bars">
+          <div class="bar-col"><div class="bar" style="height:40%"></div><span>Mon</span></div>
+          <div class="bar-col"><div class="bar" style="height:55%"></div><span>Tue</span></div>
+          <div class="bar-col"><div class="bar" style="height:35%"></div><span>Wed</span></div>
+          <div class="bar-col"><div class="bar" style="height:90%"></div><span>Thu</span></div>
+          <div class="bar-col"><div class="bar" style="height:60%"></div><span>Fri</span></div>
+          <div class="bar-col"><div class="bar" style="height:25%"></div><span>Sat</span></div>
+          <div class="bar-col"><div class="bar" style="height:15%"></div><span>Sun</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Audit log</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Time (UTC)</th><th>Operator</th><th>Operator IP</th><th>Target</th><th>Action</th><th>Output</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>07-30-2026 - 19:52 Z</td><td>Carter</td><td class="muted">170.203.x.x</td>
+            <td>njoyn.com</td><td class="muted">Finished nuclei in 56 sec.</td><td>txt</td>
+          </tr>
+          <tr>
+            <td>07-30-2026 - 17:01 Z</td><td>Lee</td><td class="muted">—</td>
+            <td></td><td class="muted">Ran Shodan enrichment.</td><td class="muted">—</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="muted" style="font-size:12px;margin-top:8px;">…Target scans and Exports tables continue below as today…</p>
+    </div>
+
+    <div class="callout">
+      <h3>Director handoff (same numbers)</h3>
+      <p>
+        “Export Director week” produces the Option B package (CSV + short HTML) using the same 7-day calculator as the strip.
+        Team sees the strip daily; director gets a clean weekly file without scrolling Audit.
+      </p>
+    </div>
+
+    <div class="footer-note">
+      Mockup only · Option C · Compare with option-a-dashboard.html and option-b-export.html
+    </div>
+  </div>
+</body>
+</html>

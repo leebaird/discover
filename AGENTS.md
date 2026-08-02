@@ -45,6 +45,16 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - Merges `tools/host-scans` (copy missing run dirs), gowitness screenshots/jsonl, httpx/whatweb (by host), new `tools/subdomains` hosts, audit lines for that operator name. Rebuilds Audit (and Active when Active data merged). Never copies their `pages/*.htm` over the live tree.
 - Assets: `inc-audit-import.js`; bust `?v=` / `modern.css` on Audit after UI changes; import-report injects the script on `audit.htm`.
 
+## Audit last-7-days metrics (Option A strip)
+
+- Shown **above the Audit log** on `pages/audit.htm` (all report modes; built by `audit-build.py`).
+- Window: **last 7 UTC calendar days** (inclusive of today). Label: **Last 7 days** (no “(UTC)” in the heading).
+- **KPI cards** (half-width row, centered): **Targets scanned**, **Scans completed**, **Incomplete scans**.
+- **Charts:** Scans per day + By operator; then By CVE + By software + By tool (horizontal bars).
+- Data: host-scan **Finished** / **Started** lines in `tools/audit/log.txt`; software from `(software: …)` on Finished lines; CVEs from nuclei pass-2 `meta.pass2.ids` (canonical `CVE-YYYY-NNNN` only) for runs finished in the window.
+- Incomplete: Started in window with no Finished for the same tool+host at/after that start.
+- Rebuild with Audit (host-scan finish, Import report, Config name rewrite, etc.). Bust `modern.css?v=` on Audit after CSS changes.
+
 ## Config (Audit page only)
 
 - **Config** button on Audit only when Discover-hosted (`http://127.0.0.1:17322/…`). Header order: **Config** · **Import** · **Export**.

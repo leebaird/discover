@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Option B — Weekly director export</title>
+  <style>
+    :root {
+      --bg: #0b0e12;
+      --panel: #12161c;
+      --border: #2a3340;
+      --text: #e8eaed;
+      --muted: #9aa3ad;
+      --accent: #2264d6;
+      --accent-hover: #4d9aff;
+      --card: #151a20;
+      --font: Inter, system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+    .topbar {
+      background: #0f1318;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar h1 { margin: 0; font-size: 16px; font-weight: 600; }
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #6a1b9a;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+    }
+    .option-intro {
+      border: 1px solid var(--border);
+      background: #10151c;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 28px;
+    }
+    .option-intro h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: #ce93d8;
+    }
+    .option-intro p { margin: 0 0 8px; color: var(--muted); }
+    .option-intro ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
+    .option-intro strong { color: var(--text); }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 800px) {
+      .split { grid-template-columns: 1fr; }
+    }
+    .panel {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: var(--accent-hover);
+    }
+    .panel p { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
+    .modal {
+      border: 1px solid var(--border);
+      background: #151a20;
+      border-radius: 10px;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+    }
+    .modal-h {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-h strong { font-size: 16px; }
+    .modal-h button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 20px;
+      cursor: default;
+    }
+    .modal-b { padding: 16px; }
+    .choice {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: #12161c;
+    }
+    .choice.selected {
+      border-color: #9c27b0;
+      background: #1a1022;
+      box-shadow: 0 0 0 1px rgba(156, 39, 176, 0.35);
+    }
+    .choice input { margin-top: 3px; accent-color: #9c27b0; }
+    .choice span { font-size: 13px; color: #cfd6df; }
+    .choice strong { color: #fff; }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 16px 16px;
+    }
+    .btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid #1a4a9e;
+      cursor: default;
+    }
+    .btn.ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .deliverable {
+      border: 1px solid var(--border);
+      background: #0e1218;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .deliverable-h {
+      padding: 18px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      background: #141a22;
+    }
+    .deliverable-h h2 {
+      margin: 0 0 4px;
+      font-size: 18px;
+    }
+    .deliverable-h p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .deliverable-b { padding: 16px 20px 20px; }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .kpi {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      background: var(--card);
+    }
+    .kpi .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi .v { font-size: 22px; font-weight: 700; margin-top: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th { background: #343c47; color: #e8f2ff; font-weight: 500; }
+    .path {
+      margin-top: 14px;
+      font-size: 12px;
+      font-family: ui-monospace, monospace;
+      color: #a5d6a7;
+      background: #0f1a12;
+      border: 1px solid #2e7d32;
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .footer-note {
+      margin-top: 28px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>Discover · Director metrics mockup</h1>
+    <span class="badge">Option B</span>
+  </div>
+  <div class="wrap">
+    <div class="option-intro">
+      <h2>Option B — Weekly director export</h2>
+      <p><strong>Idea:</strong> No permanent charts on Audit. Operator uses Export (or a dedicated action) to generate a <strong>Director week</strong> package — CSV and/or short HTML — for the last 7 days.</p>
+      <ul>
+        <li><strong>Pros:</strong> clean handoff for management; Audit stays uncluttered; same numbers every week.</li>
+        <li><strong>Cons:</strong> not live on the page; someone must run the export (or schedule it).</li>
+        <li><strong>Best if:</strong> this is a recurring report for your director, not a living dashboard.</li>
+      </ul>
+    </div>
+
+    <div class="split">
+      <div class="panel">
+        <h3>1. How the operator triggers it</h3>
+        <p>Same Export modal pattern as Client / Defender / Operator — add a fourth package type (or a separate “Director week” button).</p>
+        <div class="modal">
+          <div class="modal-h">
+            <strong>Export report</strong>
+            <button type="button" aria-hidden="true">×</button>
+          </div>
+          <div class="modal-b">
+            <p style="margin:0 0 12px;color:var(--muted);font-size:13px;">Choose a package type, then Export.</p>
+            <label class="choice">
+              <input type="radio" name="k" disabled/>
+              <span><strong>Client</strong> — HTML report; removes operator IPs</span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="k" disabled/>
+              <span><strong>Defender</strong> — audit log only (CSV)</span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="k" disabled/>
+              <span><strong>Operator</strong> — full HTML with everything</span>
+            </label>
+            <label class="choice selected">
+              <input type="radio" name="k" checked disabled/>
+              <span><strong>Director week</strong> — last 7 days metrics (CSV + summary HTML)</span>
+            </label>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn ghost">Cancel</button>
+            <button type="button" class="btn primary">Export</button>
+          </div>
+        </div>
+        <p style="margin-top:12px;">Output path (example):</p>
+        <div class="path">~/data/cgi.com-director-week-20260724-20260730.csv<br/>~/data/cgi.com-director-week-20260724-20260730.html</div>
+      </div>
+
+      <div class="panel">
+        <h3>2. What the director receives</h3>
+        <p>Standalone summary — not the full Audit UI. Suitable for email or slides.</p>
+        <div class="deliverable">
+          <div class="deliverable-h">
+            <h2>Weekly testing summary</h2>
+            <p>Engagement: cgi.com · Window: 07-24-2026 → 07-30-2026 (UTC) · Generated: 07-30-2026 - 21:00 Z</p>
+          </div>
+          <div class="deliverable-b">
+            <div class="kpis">
+              <div class="kpi"><div class="l">Scans completed</div><div class="v">42</div></div>
+              <div class="kpi"><div class="l">Targets scanned</div><div class="v">18</div></div>
+              <div class="kpi"><div class="l">Operators</div><div class="v">3</div></div>
+              <div class="kpi"><div class="l">Incomplete scans</div><div class="v">2</div></div>
+            </div>
+            <table>
+              <thead>
+                <tr><th>Tool</th><th>Finished</th><th>Hosts</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>nuclei</td><td>18</td><td>16</td></tr>
+                <tr><td>nikto</td><td>14</td><td>12</td></tr>
+                <tr><td>ffuf</td><td>10</td><td>10</td></tr>
+              </tbody>
+            </table>
+            <table>
+              <thead>
+                <tr><th>Operator</th><th>Finished scans</th><th>Targets scanned</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Lee</td><td>16</td><td>9</td></tr>
+                <tr><td>Paul</td><td>12</td><td>7</td></tr>
+                <tr><td>Carter</td><td>10</td><td>6</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:14px 0 0;font-size:12px;color:var(--muted);">
+              Also in CSV: day-by-day counts, host list, failed exits, Active/Passive/Shodan/export events.
+              Findings and CVE severity are out of scope for this package (activity metrics only).
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      Mockup only · Option B · Audit page itself stays as today (no permanent chart strip).
+    </div>
+  </div>
+</body>
+</html>

@@ -836,6 +836,253 @@ def tool_cell(
     return '<span class="inc-audit-muted">—</span>'
 
 
+def _parse_audit_ts_utc(ts: str):
+    """Parse display stamp → aware UTC datetime, or None."""
+    from datetime import datetime, timezone
+
+    text = normalize_audit_display_ts(ts)
+    m = re.fullmatch(
+        r"(\d{2})-(\d{2})-(\d{4})\s+-\s+(\d{2}):(\d{2})\s+Z",
+        text,
+    )
+    if not m:
+        return None
+    mm, dd, yyyy, hh, mi = (int(m.group(i)) for i in range(1, 6))
+    try:
+        return datetime(yyyy, mm, dd, hh, mi, tzinfo=timezone.utc)
+    except ValueError:
+        return None
+
+
+def _software_product_from_action(action: str) -> str:
+    m = re.search(r"\(software:\s*([^)]+)\)", action or "", re.I)
+    if not m:
+        return ""
+    label = m.group(1).strip()
+    if not label or label in {"-", "—"}:
+        return ""
+    return re.split(r"[:\[]", label, maxsplit=1)[0].strip()
+
+
+def _normalize_scan_tool(tool_raw: str) -> str:
+    t = re.sub(r"\s+", " ", (tool_raw or "").strip().lower())
+    if t.startswith("nuclei"):
+        return "nuclei"
+    return t
+
+
+def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, str, str]]) -> dict:
+    """Aggregate host-scan activity for the last 7 UTC days (Option A dashboard)."""
+    from collections import Counter
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime.now(timezone.utc)
+    # Inclusive window: start of day (now-6) through now
+    start_day = (now - timedelta(days=6)).replace(hour=0, minute=0, second=0, microsecond=0)
+    day_keys = [(start_day + timedelta(days=i)).date() for i in range(7)]
+    day_counts = {d: 0 for d in day_keys}
+
+    finished_events: list[tuple] = []  # (dt, operator, tool, host, software)
+    started_events: list[tuple] = []  # (dt, tool, host)
+
+    for ts, operator, _ip, action in audit_rows:
+        dt = _parse_audit_ts_utc(ts)
+        if dt is None or dt < start_day:
+            continue
+        m = _AUDIT_SCAN_ACTION_RE.search(action or "")
+        if not m:
+            continue
+        verb = m.group("verb").lower()
+        tool = _normalize_scan_tool(m.group("tool"))
+        if tool not in {"nuclei", "nikto", "ffuf", "droopescan", "wpscan"}:
+            continue
+        host = _hostname_from_url(m.group("url").rstrip(".,;"))
+        if not host:
+            continue
+        if verb == "finished":
+            soft = _software_product_from_action(action)
+            finished_events.append((dt, operator or "—", tool, host, soft))
+            d = dt.date()
+            if d in day_counts:
+                day_counts[d] += 1
+        elif verb == "started":
+            started_events.append((dt, tool, host))
+
+    # Incomplete: Started in window with no Finished for same tool+host at/after start
+    finished_after: dict[tuple[str, str], list] = {}
+    for dt, _op, tool, host, _soft in finished_events:
+        finished_after.setdefault((tool, host), []).append(dt)
+    for key in finished_after:
+        finished_after[key].sort()
+
+    incomplete = 0
+    for dt, tool, host in started_events:
+        fins = finished_after.get((tool, host)) or []
+        if not any(f >= dt for f in fins):
+            incomplete += 1
+
+    by_tool = Counter(t for _d, _o, t, _h, _s in finished_events)
+    by_operator = Counter(o for _d, o, _t, _h, _s in finished_events)
+    by_software = Counter(
+        s for _d, _o, _t, _h, s in finished_events if s
+    )
+    targets = {h for _d, _o, _t, h, _s in finished_events}
+
+    # CVE counts from nuclei pass-2 meta for runs finished in window
+    by_cve: Counter = Counter()
+    scans_dir = report_root / "tools" / "host-scans"
+    if scans_dir.is_dir():
+        for meta_path in scans_dir.rglob("meta.json"):
+            meta = load_json(meta_path, {})
+            if not isinstance(meta, dict):
+                continue
+            fin = str(meta.get("finished_display") or meta.get("finished") or "").strip()
+            fin_dt = _parse_audit_ts_utc(fin) if fin else None
+            if fin_dt is None:
+                futc = str(meta.get("finished_utc") or "").strip()
+                if futc:
+                    try:
+                        cleaned = futc.replace("Z", "+00:00") if futc.endswith("Z") else futc
+                        fin_dt = datetime.fromisoformat(cleaned)
+                        if fin_dt.tzinfo is None:
+                            fin_dt = fin_dt.replace(tzinfo=timezone.utc)
+                        else:
+                            fin_dt = fin_dt.astimezone(timezone.utc)
+                    except Exception:
+                        fin_dt = None
+            if fin_dt is None or fin_dt < start_day:
+                continue
+            pass2 = meta.get("pass2") if isinstance(meta.get("pass2"), dict) else {}
+            ids = pass2.get("ids") if isinstance(pass2, dict) else None
+            if not isinstance(ids, list):
+                continue
+            for cid in ids:
+                c = str(cid or "").strip().upper()
+                # Canonical CVE-YYYY-NNNN only (skip template suffixes)
+                if re.fullmatch(r"CVE-\d{4}-\d{4,}", c):
+                    by_cve[c] += 1
+
+    def top_n(counter: Counter, n: int = 6) -> list[tuple[str, int]]:
+        return counter.most_common(n)
+
+    return {
+        "targets_scanned": len(targets),
+        "scans_completed": len(finished_events),
+        "incomplete_scans": incomplete,
+        "days": [
+            {
+                "key": d.isoformat(),
+                "label": d.strftime("%m-%d"),
+                "count": day_counts[d],
+            }
+            for d in day_keys
+        ],
+        "by_operator": top_n(by_operator),
+        "by_tool": top_n(by_tool),
+        "by_cve": top_n(by_cve),
+        "by_software": top_n(by_software),
+    }
+
+
+def _hbar_rows_html(rows: list[tuple[str, int]], empty_label: str = "No data") -> str:
+    if not rows:
+        return f'<p class="inc-audit-metrics-empty">{html.escape(empty_label)}</p>'
+    max_n = max((n for _l, n in rows), default=1) or 1
+    parts: list[str] = []
+    for label, n in rows:
+        pct = max(2, int(round(100.0 * n / max_n))) if n else 0
+        parts.append(
+            '<div class="inc-audit-metrics-hbar">'
+            f'<span class="inc-audit-metrics-hbar-label" title="{html.escape(label)}">'
+            f"{html.escape(label)}</span>"
+            '<span class="inc-audit-metrics-hbar-track">'
+            f'<span class="inc-audit-metrics-hbar-fill" style="width:{pct}%"></span>'
+            "</span>"
+            f'<span class="inc-audit-metrics-hbar-n">{n}</span>'
+            "</div>"
+        )
+    return "".join(parts)
+
+
+def _day_bars_html(days: list[dict]) -> str:
+    max_n = max((int(d.get("count") or 0) for d in days), default=1) or 1
+    parts: list[str] = ['<div class="inc-audit-metrics-bars">']
+    for d in days:
+        n = int(d.get("count") or 0)
+        pct = max(4, int(round(100.0 * n / max_n))) if n else 4
+        height = pct if n else 4
+        parts.append(
+            '<div class="inc-audit-metrics-bar-col">'
+            f'<div class="inc-audit-metrics-bar" style="height:{height}%" title="{n}"></div>'
+            f'<span>{html.escape(str(d.get("label") or ""))}</span>'
+            "</div>"
+        )
+    parts.append("</div>")
+    return "".join(parts)
+
+
+def render_last7_metrics_html(metrics: dict) -> str:
+    """Option A dashboard strip: KPIs + charts for last 7 days."""
+    lines: list[str] = [
+        '<section class="inc-audit-section inc-audit-section--metrics" '
+        'aria-label="Last 7 days activity">'
+        '<div class="inc-audit-metrics">'
+        '<div class="inc-audit-metrics-head">'
+        "<h3>Last 7 days</h3>"
+        "</div>"
+        # Row 1: three KPI cards, half width centered
+        '<div class="inc-audit-metrics-kpis">'
+        '<div class="inc-audit-metrics-card">'
+        '<div class="inc-audit-metrics-card-label">Targets scanned</div>'
+        f'<div class="inc-audit-metrics-card-value">{int(metrics.get("targets_scanned") or 0)}</div>'
+        "</div>"
+        '<div class="inc-audit-metrics-card">'
+        '<div class="inc-audit-metrics-card-label">Scans completed</div>'
+        f'<div class="inc-audit-metrics-card-value">{int(metrics.get("scans_completed") or 0)}</div>'
+        "</div>"
+        '<div class="inc-audit-metrics-card'
+        + (
+            " inc-audit-metrics-card--warn"
+            if int(metrics.get("incomplete_scans") or 0) > 0
+            else ""
+        )
+        + '">'
+        '<div class="inc-audit-metrics-card-label">Incomplete scans</div>'
+        f'<div class="inc-audit-metrics-card-value">{int(metrics.get("incomplete_scans") or 0)}</div>'
+        "</div>"
+        "</div>"
+        # Row 2: scans/day + by operator
+        '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--2">'
+        '<div class="inc-audit-metrics-chart">'
+        "<h4>Scans per day</h4>"
+        f'{_day_bars_html(list(metrics.get("days") or []))}'
+        "</div>"
+        '<div class="inc-audit-metrics-chart">'
+        "<h4>By operator</h4>"
+        f'{_hbar_rows_html(list(metrics.get("by_operator") or []))}'
+        "</div>"
+        "</div>"
+        # Row 3: by CVE, by software, by tool
+        '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--3">'
+        '<div class="inc-audit-metrics-chart">'
+        "<h4>By CVE</h4>"
+        f'{_hbar_rows_html(list(metrics.get("by_cve") or []), "No CVE scans")}'
+        "</div>"
+        '<div class="inc-audit-metrics-chart">'
+        "<h4>By software</h4>"
+        f'{_hbar_rows_html(list(metrics.get("by_software") or []), "No software-tagged scans")}'
+        "</div>"
+        '<div class="inc-audit-metrics-chart">'
+        "<h4>By tool</h4>"
+        f'{_hbar_rows_html(list(metrics.get("by_tool") or []))}'
+        "</div>"
+        "</div>"
+        "</div>"
+        "</section>",
+    ]
+    return "\n".join(lines)
+
+
 def build_html(report_root: Path) -> str:
     mode = load_json(report_root / "assets" / "report-mode.json", {})
     mode_name = (mode.get("mode") or "operator").lower()
@@ -844,6 +1091,7 @@ def build_html(report_root: Path) -> str:
     host_rows = load_host_scan_summary(report_root)
     scan_output_index = build_host_scan_output_index(report_root)
     exports = load_exports(report_root)
+    week_metrics = compute_last7_metrics(report_root, audit_rows)
 
     lines: list[str] = []
 
@@ -857,6 +1105,9 @@ def build_html(report_root: Path) -> str:
             '<p class="inc-audit-note">Defender package: operator egress IPs may be included in the audit log. '
             "Tool launches are disabled.</p>"
         )
+
+    # Option A: last-7-days metrics strip (above Audit log)
+    lines.append(render_last7_metrics_html(week_metrics))
 
     # Audit log (primary — above Target scans)
     lines.append('<section class="inc-audit-section inc-audit-section--log">')

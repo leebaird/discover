@@ -865,6 +865,193 @@ tr.inc-subdomains-filter-hide {
     box-sizing: border-box;
 }
 
+/* —— Last 7 days metrics (Option A strip above Audit log) —— */
+.inc-audit-page .inc-audit-section--metrics {
+    margin: 0 0 1.75rem;
+}
+
+.inc-audit-page .inc-audit-metrics {
+    border: 1px solid #2a3340;
+    background: #12161c;
+    border-radius: 10px;
+    padding: 16px 18px 18px;
+    box-sizing: border-box;
+}
+
+.inc-audit-page .inc-audit-metrics-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 0 0 14px;
+}
+
+.inc-audit-page .inc-audit-metrics-head h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent-hover);
+}
+
+/* Top KPI row: half width, centered */
+.inc-audit-page .inc-audit-metrics-kpis {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 50%;
+    max-width: 50%;
+    margin: 0 auto 16px;
+    box-sizing: border-box;
+}
+
+.inc-audit-page .inc-audit-metrics-card {
+    background: #151a20;
+    border: 1px solid #2a3340;
+    border-radius: 8px;
+    padding: 12px 12px 10px;
+    box-sizing: border-box;
+}
+
+.inc-audit-page .inc-audit-metrics-card-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #9aa3ad;
+    margin: 0 0 6px;
+}
+
+.inc-audit-page .inc-audit-metrics-card-value {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #e8eaed;
+}
+
+.inc-audit-page .inc-audit-metrics-card--warn .inc-audit-metrics-card-value {
+    color: #ffb74d;
+}
+
+.inc-audit-page .inc-audit-metrics-charts {
+    display: grid;
+    gap: 14px;
+}
+
+.inc-audit-page .inc-audit-metrics-charts--2 {
+    grid-template-columns: 1.2fr 1fr;
+}
+
+.inc-audit-page .inc-audit-metrics-charts--3 {
+    grid-template-columns: 1fr 1fr 1fr;
+    margin-top: 14px;
+}
+
+.inc-audit-page .inc-audit-metrics-chart {
+    background: #151a20;
+    border: 1px solid #2a3340;
+    border-radius: 8px;
+    padding: 12px;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.inc-audit-page .inc-audit-metrics-chart h4 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #cfd6df;
+}
+
+.inc-audit-page .inc-audit-metrics-empty {
+    margin: 0;
+    font-size: 12px;
+    color: #9aa3ad;
+}
+
+/* Vertical bars — scans per day */
+.inc-audit-page .inc-audit-metrics-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 110px;
+}
+
+.inc-audit-page .inc-audit-metrics-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    justify-content: flex-end;
+    min-width: 0;
+}
+
+.inc-audit-page .inc-audit-metrics-bar {
+    width: 100%;
+    max-width: 28px;
+    background: linear-gradient(180deg, var(--accent-hover, #4d9aff), var(--accent, #2264d6));
+    border-radius: 4px 4px 2px 2px;
+    min-height: 4px;
+}
+
+.inc-audit-page .inc-audit-metrics-bar-col span {
+    font-size: 10px;
+    color: #9aa3ad;
+}
+
+/* Horizontal bars — operator / tool / CVE / software */
+.inc-audit-page .inc-audit-metrics-hbar {
+    display: grid;
+    grid-template-columns: minmax(72px, 120px) 1fr 28px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.inc-audit-page .inc-audit-metrics-hbar:last-child {
+    margin-bottom: 0;
+}
+
+.inc-audit-page .inc-audit-metrics-hbar-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #cfd6df;
+}
+
+.inc-audit-page .inc-audit-metrics-hbar-track {
+    height: 10px;
+    background: #1c232d;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.inc-audit-page .inc-audit-metrics-hbar-fill {
+    display: block;
+    height: 100%;
+    background: var(--accent, #2264d6);
+    border-radius: 999px;
+    min-width: 0;
+}
+
+.inc-audit-page .inc-audit-metrics-hbar-n {
+    color: #9aa3ad;
+    text-align: right;
+}
+
+@media (max-width: 900px) {
+    .inc-audit-page .inc-audit-metrics-kpis {
+        width: 100%;
+        max-width: 100%;
+        grid-template-columns: 1fr;
+    }
+
+    .inc-audit-page .inc-audit-metrics-charts--2,
+    .inc-audit-page .inc-audit-metrics-charts--3 {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Audit page */
 .inc-audit-page .inc-audit-summary {
     display: flex;

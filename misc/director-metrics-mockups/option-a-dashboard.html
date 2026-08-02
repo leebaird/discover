@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Option A — Audit dashboard strip</title>
+  <style>
+    :root {
+      --bg: #0b0e12;
+      --panel: #12161c;
+      --border: #2a3340;
+      --text: #e8eaed;
+      --muted: #9aa3ad;
+      --accent: #2264d6;
+      --accent-hover: #4d9aff;
+      --card: #151a20;
+      --ok: #81c784;
+      --warn: #ffb74d;
+      --font: Inter, system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.4;
+    }
+    .topbar {
+      background: #0f1318;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .topbar h1 { margin: 0; font-size: 16px; font-weight: 600; }
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--accent);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+    }
+    .option-intro {
+      border: 1px solid var(--border);
+      background: #10151c;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 28px;
+    }
+    .option-intro h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: var(--accent-hover);
+    }
+    .option-intro p { margin: 0 0 8px; color: var(--muted); }
+    .option-intro ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
+    .option-intro strong { color: var(--text); }
+    .nav-mock {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-bottom: 8px;
+    }
+    .nav-mock span {
+      padding: 6px 14px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0.85;
+    }
+    .page-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 0 0 18px;
+    }
+    .page-title span { color: var(--muted); font-weight: 500; }
+    .metrics {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 16px 18px 18px;
+      margin-bottom: 22px;
+    }
+    .metrics-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+    .metrics-head h3 {
+      margin: 0;
+      font-size: 15px;
+      color: var(--accent-hover);
+    }
+    .metrics-head small { color: var(--muted); font-size: 12px; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .cards.cards-3 {
+      grid-template-columns: repeat(3, 1fr);
+      width: 50%;
+      max-width: 50%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cards.cards-2 {
+      grid-template-columns: repeat(2, 1fr);
+      margin-top: 16px;
+      margin-bottom: 0;
+    }
+    @media (max-width: 900px) {
+      .cards { grid-template-columns: repeat(3, 1fr); }
+      .cards.cards-3 {
+        grid-template-columns: 1fr;
+        width: 100%;
+        max-width: 100%;
+      }
+      .cards.cards-2 { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 12px 10px;
+    }
+    .card .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .card .value {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .card .hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .card.warn .value { color: var(--warn); }
+    .charts {
+      display: grid;
+      gap: 14px;
+    }
+    .charts.charts-2 {
+      grid-template-columns: 1.2fr 1fr;
+    }
+    .charts.charts-3 {
+      grid-template-columns: 1fr 1fr 1fr;
+      margin-top: 14px;
+    }
+    @media (max-width: 900px) {
+      .charts.charts-2,
+      .charts.charts-3 { grid-template-columns: 1fr; }
+    }
+    .chart {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .chart h4 {
+      margin: 0 0 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #cfd6df;
+    }
+    .bars { display: flex; align-items: flex-end; gap: 8px; height: 110px; }
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .bar {
+      width: 100%;
+      max-width: 28px;
+      background: linear-gradient(180deg, var(--accent-hover), var(--accent));
+      border-radius: 4px 4px 2px 2px;
+      min-height: 4px;
+    }
+    .bar-col span { font-size: 10px; color: var(--muted); }
+    .hbar { display: grid; grid-template-columns: 120px 1fr 28px; gap: 8px; align-items: center; margin-bottom: 8px; font-size: 12px; }
+    .chart .hbar span:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .hbar .track {
+      height: 10px;
+      background: #1c232d;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .hbar .fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+    }
+    .hbar .n { color: var(--muted); text-align: right; }
+    .section {
+      margin-top: 8px;
+    }
+    .section h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: var(--accent-hover);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: var(--panel);
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background: #343c47;
+      color: #e8f2ff;
+      font-weight: 500;
+      text-align: center;
+    }
+    td { color: var(--text); }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    .muted { color: var(--muted); }
+    .footer-note {
+      margin-top: 28px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>Discover · Director metrics mockup</h1>
+    <span class="badge">Option A</span>
+  </div>
+  <div class="wrap">
+    <div class="option-intro">
+      <h2>Option A — Audit dashboard strip</h2>
+      <p><strong>Idea:</strong> Live “Last 7 days” cards and charts sit permanently above the Audit log. The team sees management metrics whenever they open Audit.</p>
+      <ul>
+        <li><strong>Pros:</strong> always visible; refreshes when Audit rebuilds; no separate deliverable ritual.</li>
+        <li><strong>Cons:</strong> not a handout for the director; can clutter day-to-day Audit use.</li>
+        <li><strong>Best if:</strong> management wants continuous visibility, not only a weekly email.</li>
+      </ul>
+    </div>
+
+    <div class="nav-mock">
+      <span>Config</span><span>Import</span><span>Export</span>
+    </div>
+    <div class="page-title">Report <span>›</span> Audit</div>
+
+    <!-- NEW: metrics strip -->
+    <div class="metrics">
+      <div class="metrics-head">
+        <h3>Last 7 days</h3>
+        <small>Mock data · host-scan Finished lines + activity from audit log</small>
+      </div>
+      <div class="cards cards-3">
+        <div class="card">
+          <div class="label">Targets scanned</div>
+          <div class="value">18</div>
+        </div>
+        <div class="card">
+          <div class="label">Scans completed</div>
+          <div class="value">42</div>
+        </div>
+        <div class="card warn">
+          <div class="label">Incomplete scans</div>
+          <div class="value">2</div>
+        </div>
+      </div>
+      <div class="charts charts-2">
+        <div class="chart">
+          <h4>Scans per day</h4>
+          <div class="bars">
+            <div class="bar-col"><div class="bar" style="height:40%"></div><span>Mon</span></div>
+            <div class="bar-col"><div class="bar" style="height:55%"></div><span>Tue</span></div>
+            <div class="bar-col"><div class="bar" style="height:35%"></div><span>Wed</span></div>
+            <div class="bar-col"><div class="bar" style="height:90%"></div><span>Thu</span></div>
+            <div class="bar-col"><div class="bar" style="height:60%"></div><span>Fri</span></div>
+            <div class="bar-col"><div class="bar" style="height:25%"></div><span>Sat</span></div>
+            <div class="bar-col"><div class="bar" style="height:15%"></div><span>Sun</span></div>
+          </div>
+        </div>
+        <div class="chart">
+          <h4>By operator</h4>
+          <div class="hbar"><span>Lee</span><div class="track"><div class="fill" style="width:70%"></div></div><span class="n">16</span></div>
+          <div class="hbar"><span>Paul</span><div class="track"><div class="fill" style="width:55%"></div></div><span class="n">12</span></div>
+          <div class="hbar"><span>Carter</span><div class="track"><div class="fill" style="width:45%"></div></div><span class="n">10</span></div>
+          <div class="hbar"><span>Samuel</span><div class="track"><div class="fill" style="width:18%"></div></div><span class="n">4</span></div>
+        </div>
+      </div>
+      <div class="charts charts-3">
+        <div class="chart">
+          <h4>By CVE</h4>
+          <div class="hbar"><span>CVE-2021-44228</span><div class="track"><div class="fill" style="width:90%"></div></div><span class="n">9</span></div>
+          <div class="hbar"><span>CVE-2023-46604</span><div class="track"><div class="fill" style="width:55%"></div></div><span class="n">5</span></div>
+          <div class="hbar"><span>CVE-2024-23897</span><div class="track"><div class="fill" style="width:35%"></div></div><span class="n">3</span></div>
+          <div class="hbar"><span>CVE-2017-1000170</span><div class="track"><div class="fill" style="width:20%"></div></div><span class="n">2</span></div>
+        </div>
+        <div class="chart">
+          <h4>By software</h4>
+          <div class="hbar"><span>nginx</span><div class="track"><div class="fill" style="width:85%"></div></div><span class="n">14</span></div>
+          <div class="hbar"><span>Kibana</span><div class="track"><div class="fill" style="width:60%"></div></div><span class="n">10</span></div>
+          <div class="hbar"><span>jQuery</span><div class="track"><div class="fill" style="width:40%"></div></div><span class="n">6</span></div>
+          <div class="hbar"><span>Apache</span><div class="track"><div class="fill" style="width:30%"></div></div><span class="n">4</span></div>
+        </div>
+        <div class="chart">
+          <h4>By tool</h4>
+          <div class="hbar"><span>nuclei</span><div class="track"><div class="fill" style="width:88%"></div></div><span class="n">18</span></div>
+          <div class="hbar"><span>nikto</span><div class="track"><div class="fill" style="width:72%"></div></div><span class="n">14</span></div>
+          <div class="hbar"><span>ffuf</span><div class="track"><div class="fill" style="width:50%"></div></div><span class="n">10</span></div>
+          <div class="hbar"><span>wpscan</span><div class="track"><div class="fill" style="width:10%"></div></div><span class="n">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Audit log</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th><th>Operator</th><th>Operator IP</th><th>Target</th><th>Action</th><th>Output</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>07-30-2026 - 19:52 Z</td><td>Carter</td><td class="muted">170.203.x.x</td>
+            <td>njoyn.com</td><td class="muted">Finished nuclei in 56 sec.</td><td>txt</td>
+          </tr>
+          <tr>
+            <td>07-30-2026 - 19:26 Z</td><td>Carter</td><td class="muted">170.203.x.x</td>
+            <td>emtech-web…</td><td class="muted">ffuf -u "https://…/FUZZ" …</td><td>txt</td>
+          </tr>
+          <tr>
+            <td>07-30-2026 - 17:01 Z</td><td>Lee</td><td class="muted">—</td>
+            <td></td><td class="muted">Ran Shodan enrichment.</td><td class="muted">—</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="muted" style="font-size:12px;margin-top:8px;">…existing full audit log continues below…</p>
+    </div>
+
+    <div class="footer-note">
+      Mockup only · Option A · Not wired to live data · Open option-b and option-c in other tabs to compare.
+    </div>
+  </div>
+</body>
+</html>
