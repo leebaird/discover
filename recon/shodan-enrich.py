@@ -1089,19 +1089,43 @@ def main(argv: list[str] | None = None) -> int:
     if hard_fail:
         eprint("[!] All Shodan queries failed — check API key and network.")
 
+    def _port_set(raw: object) -> set[str]:
+        """Parse index ports field (comma-separated string or list) to a set of port strings."""
+        if raw is None:
+            return set()
+        if isinstance(raw, list):
+            return {str(p).strip() for p in raw if str(p).strip()}
+        text = str(raw).strip()
+        if not text:
+            return set()
+        return {p.strip() for p in text.replace(" ", "").split(",") if p.strip()}
+
+    def _sorted_ports(ports: set[str]) -> list[str]:
+        def key(p: str):
+            try:
+                return (0, int(p))
+            except ValueError:
+                return (1, p)
+
+        return sorted(ports, key=key)
+
     # Diff index for "what changed" (ports / last_update / vulns / status).
     changes_summary: dict[str, Any] = {
         "ips_updated": 0,
         "ips_new_ok": 0,
         "ips_now_missing": 0,
-        "ports_changed": 0,
+        "ports_changed": 0,  # IPs whose port set changed
+        "ports_added_total": 0,  # sum of newly seen ports across IPs
+        "ports_removed_total": 0,
         "last_update_changed": 0,
         "vuln_count_changed": 0,
-        "samples": [],
+        "samples": [],  # per-IP deltas (prefer port changes first)
+        "port_samples": [],  # IPs with port add/remove detail (full list, capped)
     }
     if args.force or args.json_summary:
         index_after = load_index_json(shodan_dir)
-        sample_cap = 25
+        sample_cap = 40
+        port_sample_cap = 80
         all_ips = set(index_before) | set(index_after)
         for ip in sorted(all_ips):
             b = index_before.get(ip) if isinstance(index_before.get(ip), dict) else {}
@@ -1112,39 +1136,62 @@ def main(argv: list[str] | None = None) -> int:
                 changes_summary["ips_now_missing"] += 1
             if not a:
                 continue
-            if not b and a:
-                changes_summary["ips_updated"] += 1
-            ports_b = str(b.get("ports") or "")
-            ports_a = str(a.get("ports") or "")
-            lu_b = str(b.get("last_update") or "")
+
+            ports_b_set = _port_set(b.get("ports") if b else "")
+            ports_a_set = _port_set(a.get("ports"))
+            added = _sorted_ports(ports_a_set - ports_b_set)
+            removed = _sorted_ports(ports_b_set - ports_a_set)
+            ports_b = ",".join(_sorted_ports(ports_b_set))
+            ports_a = ",".join(_sorted_ports(ports_a_set))
+            lu_b = str(b.get("last_update") or "") if b else ""
             lu_a = str(a.get("last_update") or "")
-            vc_b = b.get("vuln_count")
+            vc_b = b.get("vuln_count") if b else None
             vc_a = a.get("vuln_count")
-            if b and (
-                ports_b != ports_a
-                or lu_b != lu_a
-                or vc_b != vc_a
-                or (b.get("status") or "") != (a.get("status") or "")
-            ):
-                changes_summary["ips_updated"] += 1
-                if ports_b != ports_a:
-                    changes_summary["ports_changed"] += 1
-                if lu_b != lu_a:
-                    changes_summary["last_update_changed"] += 1
-                if vc_b != vc_a:
-                    changes_summary["vuln_count_changed"] += 1
-                if len(changes_summary["samples"]) < sample_cap:
-                    changes_summary["samples"].append(
-                        {
-                            "ip": ip,
-                            "ports_before": ports_b,
-                            "ports_after": ports_a,
-                            "last_update_before": lu_b,
-                            "last_update_after": lu_a,
-                            "vuln_count_before": vc_b,
-                            "vuln_count_after": vc_a,
-                        }
-                    )
+            status_changed = (b.get("status") or "") != (a.get("status") or "") if b else bool(a)
+
+            is_new_ok = not b and a
+            ports_changed = bool(added or removed)
+            lu_changed = bool(b) and lu_b != lu_a
+            vc_changed = bool(b) and vc_b != vc_a
+            meaningful = is_new_ok or (
+                b
+                and (
+                    ports_changed
+                    or lu_changed
+                    or vc_changed
+                    or status_changed
+                )
+            )
+            if not meaningful:
+                continue
+
+            changes_summary["ips_updated"] += 1
+            if ports_changed:
+                changes_summary["ports_changed"] += 1
+                changes_summary["ports_added_total"] += len(added)
+                changes_summary["ports_removed_total"] += len(removed)
+            if lu_changed:
+                changes_summary["last_update_changed"] += 1
+            if vc_changed:
+                changes_summary["vuln_count_changed"] += 1
+
+            sample = {
+                "ip": ip,
+                "ports_before": ports_b,
+                "ports_after": ports_a,
+                "ports_added": added,
+                "ports_removed": removed,
+                "last_update_before": lu_b,
+                "last_update_after": lu_a,
+                "vuln_count_before": vc_b,
+                "vuln_count_after": vc_a,
+                "is_new": bool(is_new_ok),
+            }
+            if ports_changed or is_new_ok:
+                if len(changes_summary["port_samples"]) < port_sample_cap:
+                    changes_summary["port_samples"].append(sample)
+            if len(changes_summary["samples"]) < sample_cap:
+                changes_summary["samples"].append(sample)
 
     if args.json_summary:
         print(

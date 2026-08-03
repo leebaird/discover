@@ -148,6 +148,31 @@
             .replace(/"/g, "&quot;");
     }
 
+    function formatPortDelta(s) {
+        var bits = [];
+        var added = s.ports_added;
+        var removed = s.ports_removed;
+        if (Array.isArray(added) && added.length) {
+            bits.push("+" + added.map(esc).join(",+"));
+        }
+        if (Array.isArray(removed) && removed.length) {
+            bits.push("-" + removed.map(esc).join(",-"));
+        }
+        if (bits.length) {
+            return bits.join(" ");
+        }
+        // Fallback when older statusd only sent before/after strings.
+        if (s.ports_before !== s.ports_after) {
+            return (
+                "ports " +
+                esc(s.ports_before || "—") +
+                " → " +
+                esc(s.ports_after || "—")
+            );
+        }
+        return "";
+    }
+
     function formatShodanSummary(j) {
         var st = j.stats || {};
         var ch = j.changes || {};
@@ -168,7 +193,17 @@
                 (ch.ips_updated != null ? ch.ips_updated : 0) +
                 " IP(s)" +
                 (ch.ips_new_ok ? " · " + ch.ips_new_ok + " newly found" : "") +
-                (ch.ports_changed ? " · " + ch.ports_changed + " port list(s)" : "") +
+                (ch.ports_changed
+                    ? " · " +
+                      ch.ports_changed +
+                      " IP(s) with port changes"
+                    : "") +
+                (ch.ports_added_total
+                    ? " · " + ch.ports_added_total + " port(s) newly seen"
+                    : "") +
+                (ch.ports_removed_total
+                    ? " · " + ch.ports_removed_total + " port(s) no longer seen"
+                    : "") +
                 (ch.last_update_changed
                     ? " · " + ch.last_update_changed + " last_update"
                     : "") +
@@ -179,34 +214,37 @@
         if (ch.ips_updated === 0 && (st.queried || 0) > 0) {
             lines.push("No port/last_update/vuln differences vs prior index.");
         }
-        var samples = ch.samples || [];
-        if (samples.length) {
-            lines.push("Examples:");
-            samples.slice(0, 8).forEach(function (s) {
-                var bits = [esc(s.ip)];
-                if (s.ports_before !== s.ports_after) {
-                    bits.push(
-                        "ports " +
-                            esc(s.ports_before || "—") +
-                            " → " +
-                            esc(s.ports_after || "—")
-                    );
-                }
-                if (s.last_update_before !== s.last_update_after) {
-                    bits.push("last_update changed");
-                }
-                if (s.vuln_count_before !== s.vuln_count_after) {
-                    bits.push(
-                        "vulns " +
-                            esc(s.vuln_count_before) +
-                            " → " +
-                            esc(s.vuln_count_after)
-                    );
-                }
-                lines.push("· " + bits.join(" · "));
+        // Prefer port_samples (host + added/removed); fall back to samples.
+        var portSamples = ch.port_samples || [];
+        if (!portSamples.length) {
+            portSamples = (ch.samples || []).filter(function (s) {
+                return (
+                    (s.ports_added && s.ports_added.length) ||
+                    (s.ports_removed && s.ports_removed.length) ||
+                    s.ports_before !== s.ports_after ||
+                    s.is_new
+                );
             });
-            if (samples.length > 8) {
-                lines.push("· …and " + (samples.length - 8) + " more");
+        }
+        if (portSamples.length) {
+            lines.push("Hosts / ports:");
+            portSamples.slice(0, 40).forEach(function (s) {
+                var delta = formatPortDelta(s);
+                if (s.is_new && !delta && s.ports_after) {
+                    delta = "new in Shodan · ports " + esc(s.ports_after);
+                } else if (s.is_new && delta) {
+                    delta = "new in Shodan · " + delta;
+                }
+                if (delta) {
+                    lines.push("· " + esc(s.ip) + " — " + delta);
+                } else {
+                    lines.push("· " + esc(s.ip));
+                }
+            });
+            if (portSamples.length > 40) {
+                lines.push(
+                    "· and " + (portSamples.length - 40) + " more host(s)"
+                );
             }
         }
         return lines.join("<br>");
