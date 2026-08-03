@@ -472,7 +472,7 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 }
 
 /* Active: title left | CVE search true-center | date right.
- * Search is position:absolute so Update/Export padding-right does not
+ * Search is position:absolute so Enrich/date padding-right does not
  * shift it off the page center (under the main nav). */
 .inc-page-header--active {
     display: grid;
@@ -507,7 +507,7 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     justify-self: end;
     margin-left: 0;
     grid-column: 2;
-    /* Room for absolute Update + Export on the right */
+    /* Room for Enrich + date on the right */
     padding-right: 4px;
     max-width: calc(50% - 140px);
     overflow: hidden;
@@ -2234,9 +2234,32 @@ body:not(.inc-iframe-parent) pre {
     box-sizing: border-box;
 }
 
-/* Active: Update + Export share the header (Update left of Export). */
+/* Active: room for Enrich + scan date on the right (no Export on Active). */
 .inc-page-header.inc-page-header--with-active-update {
-    padding-right: 188px;
+    padding-right: 220px;
+}
+
+/* Enrich then date, absolute right of Active header. */
+.inc-page-header .inc-active-header-actions {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+.inc-page-header .inc-active-header-actions .inc-active-scan-date {
+    position: static;
+    transform: none;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    grid-column: auto;
+    justify-self: auto;
 }
 
 .inc-page-header .inc-report-export-btn {
@@ -2258,11 +2281,12 @@ body:not(.inc-iframe-parent) pre {
     white-space: nowrap;
 }
 
-.inc-page-header .inc-active-refresh-btn {
-    position: absolute;
-    top: 50%;
-    right: 100px;
-    transform: translateY(-50%);
+.inc-page-header .inc-active-refresh-btn,
+.inc-page-header .inc-active-header-actions .inc-active-refresh-btn {
+    position: static;
+    top: auto;
+    right: auto;
+    transform: none;
     z-index: 2;
     margin: 0;
     padding: 6px 14px;

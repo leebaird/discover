@@ -2,7 +2,7 @@
  * Planning by Lee Baird (@discoverscripts)
  * Coded by Grok (xAI)
  *
- * Active page Update modal (Discover statusd only).
+ * Active page Enrich modal (Discover statusd only).
  * Optional: bulk Shodan force-refresh + Software CVE (NVD/KEV) refresh.
  */
 (function () {
@@ -38,12 +38,12 @@
             '<div class="inc-report-export-backdrop" data-inc-active-refresh-close="1"></div>' +
             '<div class="inc-report-export-dialog">' +
             '<div class="inc-report-export-header">' +
-            '<h2 id="inc-active-refresh-title" class="inc-report-export-title">Update engagement intel</h2>' +
+            '<h2 id="inc-active-refresh-title" class="inc-report-export-title">Enrich engagement intel</h2>' +
             '<button type="button" class="inc-report-export-x" data-inc-active-refresh-close="1" aria-label="Close">×</button>' +
             "</div>" +
             '<p class="inc-report-export-lead">Refresh data for this report without re-running Active recon. ' +
             "Both options are safe to leave checked.</p>" +
-            '<div class="inc-report-export-choices" role="group" aria-label="Update options">' +
+            '<div class="inc-report-export-choices" role="group" aria-label="Enrich options">' +
             '<label class="inc-report-export-choice">' +
             '<input type="checkbox" id="inc-active-refresh-shodan" checked>' +
             "<span><strong>Shodan</strong> — re-query all public IPs (ports, org, host vulns). " +
@@ -59,7 +59,7 @@
             '<div class="inc-report-export-status" id="inc-active-refresh-status" hidden></div>' +
             '<div class="inc-report-export-actions" id="inc-active-refresh-actions">' +
             '<button type="button" class="inc-report-export-cancel" data-inc-active-refresh-close="1">Cancel</button>' +
-            '<button type="button" class="inc-report-export-go" id="inc-active-refresh-go">Update</button>' +
+            '<button type="button" class="inc-report-export-go" id="inc-active-refresh-go">Enrich</button>' +
             "</div>" +
             "</div>";
         document.body.appendChild(el);
@@ -403,7 +403,7 @@
             })
             .catch(function (err) {
                 setStatus(
-                    "Update failed: " +
+                    "Enrich failed: " +
                         (err && err.message ? err.message : String(err)),
                     true
                 );
@@ -423,14 +423,25 @@
         var btn = document.createElement("button");
         btn.type = "button";
         btn.className = "inc-active-refresh-btn";
-        btn.textContent = "Update";
-        btn.title = "Refresh Shodan and/or Software CVEs for this engagement";
+        btn.textContent = "Enrich";
+        btn.title = "Enrich Shodan and/or Software CVEs for this engagement";
         btn.addEventListener("click", function (ev) {
             ev.preventDefault();
             ev.stopPropagation();
             openModal();
         });
-        header.appendChild(btn);
+        // Cluster: Enrich then scan date (date to the right of the button).
+        var actions = header.querySelector(".inc-active-header-actions");
+        if (!actions) {
+            actions = document.createElement("div");
+            actions.className = "inc-active-header-actions";
+            header.appendChild(actions);
+        }
+        actions.appendChild(btn);
+        var dateEl = header.querySelector(".inc-active-scan-date");
+        if (dateEl && dateEl.parentNode !== actions) {
+            actions.appendChild(dateEl);
+        }
     }
 
     function bindOnce() {

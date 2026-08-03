@@ -53,7 +53,7 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - **Charts:** Scans per day + By operator; then By CVE + By software + By tool (horizontal bars).
 - Data: host-scan **Finished** / **Started** lines in `tools/audit/log.txt`; software from `(software: …)` on Finished lines; CVEs from nuclei pass-2 `meta.pass2.ids` (canonical `CVE-YYYY-NNNN` only) for runs finished in the window.
 - Incomplete: Started in window with no Finished for the same tool+host at/after that start.
-- Rebuild with Audit (host-scan finish, Import report, Config name rewrite, etc.). Bust `modern.css?v=` on Audit after CSS changes.
+- Rebuild with Audit (host-scan finish, Open report, Config name rewrite, etc.). Bust `modern.css?v=` on Audit after CSS changes.
 
 ## Config (Audit page only)
 
@@ -94,7 +94,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 
 ## Host-scan expand (Subdomains)
 
-- Host-scan chevrons appear **only** when the report is opened via Discover statusd HTTP (`http://127.0.0.1:17322/…`, Import report / Active). Manual `file://` open never shows chevrons, even if statusd is still running.
+- Host-scan chevrons appear **only** when the report is opened via Discover statusd HTTP (`http://127.0.0.1:17322/…`, Open report / Active). Manual `file://` open never shows chevrons, even if statusd is still running.
 - Chevrons on the **full** public Subdomains table (rows with HTTP status), not only `?software=` / `?cve=` filtered views.
 - **Software for expand:** `?software=` query wins; else fingerprint the row (Technologies tokens with version when present, title, web server, hostname label). Priority products include CMS, Kibana, Grafana, Elasticsearch, Jenkins, Tomcat, IIS, nginx, Apache, PHP, Node.js.
 - **nuclei only when a product is known** (filter or fingerprint). Do not offer nuclei for blind `-tags tech` with empty software. Backend `run-host-scan.sh` refuses nuclei when SOFTWARE is empty.
@@ -106,7 +106,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 
 - Shodan ▸ expand panel shows an **Update** button **only** on Discover-hosted pages (`http://127.0.0.1:17322/…`). Manual `file://` never shows it.
 - Backend: statusd `POST /shodan-refresh` → `recon/shodan-enrich.py <report> --ip <IP> --json` (force host API lookup; rewrites that host cache + index; audit log line).
-- Requires `SHODAN_API_KEY` from shell or **`~/.discover/api-keys`**. Bust `inc-shodan.js?v=…` / `modern.css?v=…` after UI changes; restart statusd (Import report) so the new endpoint is live.
+- Requires `SHODAN_API_KEY` from shell or **`~/.discover/api-keys`**. Bust `inc-shodan.js?v=…` / `modern.css?v=…` after UI changes; restart statusd (Open report) so the new endpoint is live.
 - Opening the panel on statusd calls `GET /shodan-status` (`api_key` true/false only). If false, show where to add the key (`~/.discover/api-keys`) and disable **Update**.
 
 ## API keys
@@ -131,9 +131,9 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - After import: refresh `pages/subdomains.htm` and `pages/hosts.htm` (unique public IPs). CSV list also writes `tools/import-batch-hosts.txt` (**new** public hosts only) and may offer Active on that batch only (`DISCOVER_ACTIVE_SCOPE=import-batch`).
 - **After import + Active (full or import-batch):** rebuild the **entire** Active page from merged `tools/` artifacts — Scope (public/private/responding), status codes, alive-by-category, CMS, web servers, technologies, software versions + CVE enrichment, and scan date. Batch Active must merge httpx/whatweb/gowitness into the engagement files first, then call the same full `pages/active.htm` rebuild (not a batch-only summary). Scan date = **latest** httpx timestamp, not the first line.
 
-## Active page Update (Shodan + Software CVEs)
+## Active page Enrich (Shodan + Software CVEs)
 
-- **Update** button on Active (statusd only). Modal checkboxes (default both on):
+- **Enrich** button on Active (statusd only). Modal checkboxes (default both on):
   - **Shodan** → `POST /shodan-refresh-all` → `shodan-enrich.py <report> --force --json-summary`
   - **Software CVEs** → `POST /software-cve-refresh` → `active-tech.py <report> --refresh-cves --json` (re-queries NVD for missing/empty cache entries by default; `--force-all` optional; rebuilds `pages/active.htm` Software versions table + `cve-software-index.js`)
 - Software versions CVE data is **NVD CPE**, not Shodan host vulns. Permanent skips: Microsoft HTTPAPI, Java Servlet, JavaServer Pages (`SKIP_PRODUCTS` in `software-cve.py`).

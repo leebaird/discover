@@ -98,7 +98,7 @@ REPORT_ROOT="${REPORT_ROOT//$'\r'/}"
 REPORT_ROOT="${REPORT_ROOT#"${REPORT_ROOT%%[![:space:]]*}"}"
 REPORT_ROOT="${REPORT_ROOT%"${REPORT_ROOT##*[![:space:]]}"}"
 REPORT_ROOT="${REPORT_ROOT/#\~/$HOME}"
-[ -n "$REPORT_ROOT" ] || f_die "No engagement report (use Domain → Import report first)."
+[ -n "$REPORT_ROOT" ] || f_die "No engagement report (use Domain → Open report first)."
 [ -d "$REPORT_ROOT" ] || f_die "Report not found: $REPORT_ROOT"
 REPORT_ROOT="$(cd "$REPORT_ROOT" && pwd)"
 

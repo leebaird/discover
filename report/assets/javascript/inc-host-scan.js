@@ -4,7 +4,7 @@
  *
  * Subdomains expand host row → launch host-scan tools (operator mode only).
  * Chevrons only when the page is served by Discover statusd
- * (http://127.0.0.1:17322/… from Import report / Active) — not file:// manual open.
+ * (http://127.0.0.1:17322/… from Open report / Active) — not file:// manual open.
  * One tool at a time; live status via same origin /mode|/status when hosted.
  * Software: ?software= query wins, else fingerprint row tech/title/webserver/host.
  * nuclei is shown only when a product is known; nikto/ffuf always on expand.

@@ -450,9 +450,8 @@ f_domain_menu(){
     echo "8.  Import subdomains"
     echo
     echo "9.  Active"
-    echo "10. Import report"
-    echo "11. Enrich with Shodan"
-    echo "12. Previous menu"
+    echo "10. Open report"
+    echo "11. Previous menu"
     echo
     echo -n "Choice: "
     read -r CHOICE
@@ -638,12 +637,12 @@ f_domain_menu(){
         exit "$status"
         ;;
     9) "$RECON_DIR/active.sh"; exit 2 ;;
-    # Always exit 2 after Import/Shodan so Discover leaves the menu
+    # Always exit 2 after Import so Discover leaves the menu
     # (same as Active/Passive). Error paths already show [!] and sleep.
-    # Export is UI-only (Report → Passive/Active/Audit when opened via Discover).
+    # Export is UI-only (Report → Audit when opened via Discover).
+    # Shodan: Active page Update (or recon/shodan-enrich.sh CLI) — not a Domain menu item.
     10) "$RECON_DIR/import-report.sh"; exit 2 ;;
-    11) "$RECON_DIR/shodan-enrich.sh"; exit 2 ;;
-    12) exit 0 ;;
+    11) exit 0 ;;
     *) f_invalid ;;
     esac
     done

@@ -25,7 +25,7 @@ Kali Linux or Ubuntu.
     - [Active](#active)
     - [NVD API key](#nvd-api-key-optional-active-cvss)
     - [CISA KEV](#cisa-known-exploited-vulnerabilities-kev)
-    - [Import report](#import-report)
+    - [Open report](#open-report)
     - [Export report](#export-report)
     - [Enrich with Shodan](#enrich-with-shodan)
     - [Audit page](#audit-page)
@@ -173,9 +173,8 @@ RECON
 8.  Import subdomains
 
 9.  Active
-10. Import report
-11. Enrich with Shodan
-12. Previous menu
+10. Open report
+11. Previous menu
 ```
 
 Note: Passive and Active cannot be run as root.
@@ -189,9 +188,9 @@ Typical domain engagement path:
 1. **Passive** — build `$HOME/data/<domain>/` HTML report.
 2. **Import names** / **Import names, titles, and emails** / **Import subdomains** — enrich contacts and hosts.
 3. **Active** — httpx / whatweb / gowitness; Active and Subdomains pages; optional NVD CVSS.
-4. **Enrich with Shodan** (optional) — host-by-IP OSINT for public IPs from Active httpx.
+4. **Shodan** (optional) — Active page **Enrich** (Shodan checkbox) or `recon/shodan-enrich.sh` / `shodan-enrich.py` CLI; host-by-IP OSINT for public IPs from Active httpx.
 5. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, WPScan when WordPress, Nikto, ffuf) in operator mode.
-6. **Import report** — reopen the live tree later for more testing (operator mode).
+6. **Open report** — reopen the live tree later for more testing (operator mode via statusd).
 7. **Export** — on Report → Audit (Discover-hosted only): Client, Defender (audit CSV), or Operator package; path shown after export.
 8. **Reports → Audit** in the HTML report — Target scans, Audit log, and Exports.
 
@@ -337,7 +336,7 @@ HTML **Reports** menu: **Passive** (`pages/passive.htm`), **Active** (`pages/act
 
 On Active **Software versions**, versions that have NVD CVEs are linked to a filtered Subdomains view (`subdomains.htm?software=…`). **Alive by category** labels link to Subdomains filtered by that category (`subdomains.htm?category=Dev`, or `category=(none)` for empty). **CMS** lists Content Management Systems found on alive hosts (WordPress, Drupal, Joomla, Moodle, Silverstripe — same set as host-scan CMS tools) with counts and `?tech=` links. **Status codes** link to Subdomains with that HTTP status (`subdomains.htm?status=200`). **Top web servers** link by server name (`subdomains.htm?webserver=Apache`; parenthetical variants like `Apache (Debian)` match). **Top technologies** link by product name (`subdomains.htm?tech=jQuery`; also matches versioned tokens like `jQuery:3.4.1`). The Active page header also has a centered **CVE search** bar: enter `CVE-YYYY-NNNNN` (or `YYYY-NNNNN`) to open Subdomains filtered to hosts running software linked to that CVE in the engagement NVD cache (`tools/cve-software-index.js`). Same filter banner / host-scan layout as software links (`subdomains.htm?cve=…`).
 
-In **operator** mode only (report opened via **Import report** / Active at `http://127.0.0.1:17322/…`), Subdomains public rows with an HTTP status get a host-scan expand control (also on `?software=` / `?cve=` filtered views). Manual `file://` open never shows chevrons. Expandable rows show host-scan **boxes** (quietest → loudest):
+In **operator** mode only (report opened via **Open report** / Active at `http://127.0.0.1:17322/…`), Subdomains public rows with an HTTP status get a host-scan expand control (also on `?software=` / `?cve=` filtered views). Manual `file://` open never shows chevrons. Expandable rows show host-scan **boxes** (quietest → loudest):
 
 | Tool | Role | When shown |
 |------|------|------------|
@@ -363,7 +362,7 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 
 **Nuclei** writes a structured `output.txt` (Pass 1 / Pass 2). Empty findings files say `No vulnerabilities discovered.`
 
-Launches use the `discover-scan:` handler / `misc/run-host-scan.sh` (one tool at a time). Prefer `~/.local/bin` for **droopescan** on Python 3.12+ (Update runs `misc/patch-droopescan-py314.sh` for cement/`imp` + setuptools). **Import report** starts `misc/host-scan-statusd.py` (localhost static server + `/mode`/`/status`) and opens the report over `http://127.0.0.1:17322/` so host-scan chevrons work; opening the same tree as `file://` does not show them. Client/defender packages hide chevrons and disable launches.
+Launches use the `discover-scan:` handler / `misc/run-host-scan.sh` (one tool at a time). Prefer `~/.local/bin` for **droopescan** on Python 3.12+ (Update runs `misc/patch-droopescan-py314.sh` for cement/`imp` + setuptools). **Open report** starts `misc/host-scan-statusd.py` (localhost static server + `/mode`/`/status`) and opens the report over `http://127.0.0.1:17322/` so host-scan chevrons work; opening the same tree as `file://` does not show them. Client/defender packages hide chevrons and disable launches.
 
 ##### Active Scope metrics
 
@@ -443,7 +442,7 @@ NVD_API_KEY=your-key-here
 | `NVD_API_KEY` | Optional NVD API key for faster CVSS lookups |
 | `DISCOVER_SKIP_CVE=1` | Skip NVD queries; Software table still lists versions |
 | `DISCOVER_CVE_PROGRESS=1` | Print each product lookup while building Active |
-| `SHODAN_API_KEY` | Optional Shodan key for post-Active host enrichment (Domain menu **11**) |
+| `SHODAN_API_KEY` | Optional Shodan key for post-Active host enrichment (Active **Enrich** / CLI) |
 | `WPSCAN_API_TOKEN` | Optional WPScan API token for WordPress host scans (vuln DB) |
 
 Cache file: `<report>/tools/software-cves-cache.json`. CVSS values are **triage leads** from NVD CPE matches, not confirmed findings — validate before reporting to a client.
@@ -452,11 +451,11 @@ Cache file: `<report>/tools/software-cves-cache.json`. CVSS values are **triage 
 
 #### Enrich with Shodan
 
-Script: `recon/shodan-enrich.sh` + `recon/shodan-enrich.py` (Domain menu **11**).
+Scripts: `recon/shodan-enrich.sh` + `recon/shodan-enrich.py`. Prefer **Report → Active → Enrich** (Shodan checkbox) when the engagement is open via Open report / statusd. CLI still works for bulk/force enrich.
 
 After **Active** recon, look up unique **public** IPs from `tools/httpx.jsonl` in the [Shodan](https://www.shodan.io/) host database (org, ports, banners, vulns when present).
 
-**Requires a Shodan membership (or higher) API key.** Without a key the option soft-skips (prints how to add the key and exits cleanly). IP host lookups do **not** consume Shodan query credits.
+**Requires a Shodan membership (or higher) API key.** Without a key the flow soft-skips (prints how to add the key and exits cleanly). IP host lookups do **not** consume Shodan query credits.
 
 **Get a key**
 
@@ -472,7 +471,7 @@ export SHODAN_API_KEY=...
 
 **How it works**
 
-1. Prefers the current engagement from Import report / Active (`~/.discover/current-report`)
+1. Prefers the current engagement from Open report / Active (`~/.discover/current-report`)
 2. Collects unique public IPv4/IPv6 from `tools/httpx.jsonl` (`host_ip`, then `a[]`)
 3. Calls `GET https://api.shodan.io/shodan/host/{ip}` (rate-limited; default ~1.1s between requests)
 4. Resumes: skips IPs that already have a successful cache under `tools/shodan/hosts/`
@@ -491,7 +490,7 @@ export SHODAN_API_KEY=...
 
 Powered by `tools/shodan/index.js` and `tools/shodan/kev-ids.js` (works under local `file://`). `index.json` is the same data for tools/scripts. KEV IDs come from Discover’s CISA catalog (`resource/known_exploited_vulnerabilities.json`).
 
-**Keeping KEV badges current:** **Update** only refreshes the install-wide CISA catalog (reports can live on the Desktop or anywhere — Update cannot find them all). **Import report** rewrites `tools/shodan/kev-ids.js` for the report you open, using that catalog (no Shodan API re-query). Import any engagement after Update to pick up new KEV entries. No Shodan index → no toggles. Hard-refresh Subdomains after Import.
+**Keeping KEV badges current:** **Update** only refreshes the install-wide CISA catalog (reports can live on the Desktop or anywhere — Update cannot find them all). **Open report** rewrites `tools/shodan/kev-ids.js` for the report you open, using that catalog (no Shodan API re-query). Import any engagement after Update to pick up new KEV entries. No Shodan index → no toggles. Hard-refresh Subdomains after Import.
 
 **CLI** (outside the menu):
 
@@ -522,15 +521,15 @@ $DISCOVER/resource/known_exploited_vulnerabilities.json
 
 If the download fails, any previous local catalog is left in place. The file is gitignored (refreshed by Update, not committed).
 
-Reports may live under `$HOME/data/`, the Desktop, or elsewhere. Update does **not** rewrite every engagement’s `kev-ids.js`. After Update, **Import report** on each engagement that has Shodan data to refresh Subdomains **KEV** badges from the new catalog (no Shodan API re-query).
+Reports may live under `$HOME/data/`, the Desktop, or elsewhere. Update does **not** rewrite every engagement’s `kev-ids.js`. After Update, **Open report** on each engagement that has Shodan data to refresh Subdomains **KEV** badges from the new catalog (no Shodan API re-query).
 
 On the Active **Software versions** table, **Top CVE** prefers a CISA KEV match when any of the product’s NVD CVEs appear in the KEV catalog (highest CVSS among KEVs wins). Otherwise Top CVE is the highest-CVSS NVD result. KEV selections show an orange **KEV** badge next to the linked CVE ID.
 
 ---
 
-#### Import report
+#### Open report
 
-Script: `recon/import-report.sh` (Domain menu **10**).
+Script: `recon/import-report.sh` (Domain menu **10 · Open report**).
 
 Reopen an existing engagement HTML report for continued operator work (does not re-run Passive/Active).
 
@@ -553,7 +552,7 @@ Empty or invalid paths show an error and exit (same style as Active / Import nam
 
 #### Export report
 
-**UI (preferred):** Open the engagement via **Import report** (or Active) so it is served at `http://127.0.0.1:17322/…`. On **Report → Audit**, use the **Export** button (top of the page; Discover-hosted only; not on Passive or Active). A modal offers:
+**UI (preferred):** Open the engagement via **Open report** (or Active) so it is served at `http://127.0.0.1:17322/…`. On **Report → Audit**, use the **Export** button (top of the page; Discover-hosted only; not on Passive or Active). A modal offers:
 
 | Kind | Package |
 |------|---------|
@@ -594,7 +593,7 @@ python3 recon/import-operator-package.py --dest /path/to/live-report \
 | **Target scans** | Per-host history for **Nuclei**, **droopescan**, **WPScan**, **Nikto**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
 | **Exports** | Type (Client / Defender / Operator), exported time (UTC), operator IPs (Included / Redacted), file name |
 
-Import report rebuilds this page. Host scans and exports append data under `tools/` that appears on Audit after the next rebuild (Import, host-scan finish, or export path).
+Open report rebuilds this page. Host scans and exports append data under `tools/` that appears on Audit after the next rebuild (Import, host-scan finish, or export path).
 
 ---
 
@@ -847,7 +846,7 @@ Main menu option **18** (`misc/update.sh`).
 * Patches **droopescan** for modern Python (3.12+) via `misc/patch-droopescan-py314.sh` after pipx install (cement `imp` + setuptools/`distutils`)
 * Registers desktop handlers: `discover-scan:`, `discover-cve:`, `discover-ffuf:` (open ffuf finding URLs in Firefox)
 * Refreshes the default scanner User-Agent (Microsoft Edge) in `resource/user-agent.txt` for Nikto, Nmap, ffuf, Active, and related tools
-* Downloads/refreshes the CISA KEV catalog under `resource/` (Subdomains Shodan **KEV** badges pick up new catalog entries when you **Import report** that engagement)
+* Downloads/refreshes the CISA KEV catalog under `resource/` (Subdomains Shodan **KEV** badges pick up new catalog entries when you **Open report** that engagement)
 
 Main menu option **16. Dev** is documented in the [DEV](#dev) section below.
 

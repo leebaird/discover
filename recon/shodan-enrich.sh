@@ -141,7 +141,7 @@ echo
 
 f_shodan_load_env
 
-# Prefer session engagement from Import report / Active.
+# Prefer session engagement from Open report / Active.
 SESSION_FILE="${HOME}/.discover/current-report"
 DEFAULT_REPORT=""
 if [ -f "$SESSION_FILE" ]; then
