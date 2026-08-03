@@ -231,8 +231,12 @@
                 (st.newly_with_cves
                     ? " · " + st.newly_with_cves + " newly with CVEs"
                     : "") +
-                (st.kev_gained ? " · " + st.kev_gained + " gained KEV top" : "") +
-                (st.kev_lost ? " · " + st.kev_lost + " lost KEV top" : "") +
+                (st.kev_gained
+                    ? " · " + st.kev_gained + " product(s) newly KEV top"
+                    : "") +
+                (st.kev_lost
+                    ? " · " + st.kev_lost + " product(s) no longer KEV top"
+                    : "") +
                 (st.still_empty
                     ? " · " + st.still_empty + " still empty after re-query"
                     : "")
@@ -268,7 +272,9 @@
                 }
                 if (!!c.kev_before !== !!c.kev_after) {
                     parts.push(
-                        c.kev_after ? "KEV added" : "KEV removed"
+                        c.kev_after
+                            ? "top is now KEV"
+                            : "top no longer KEV"
                     );
                 }
                 lines.push("· " + parts.join(" · "));

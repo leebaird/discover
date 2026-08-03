@@ -741,16 +741,15 @@ def enrich_software_version_rows(
         except (TypeError, ValueError):
             cve_n = 0
         if recompute_kev:
+            # Same path Active uses when rendering Software versions (catalog-aware).
             top, is_kev = select_top_cve(cves_list, kev_ids)
             if not top:
                 top = (entry.get("top_cve") or "").strip().upper()
                 is_kev = bool(top and top in kev_ids)
         else:
+            # Raw cache fields only (may lag KEV catalog / prefer non-KEV top).
             top = (entry.get("top_cve") or "").strip().upper()
             is_kev = bool(entry.get("top_is_kev"))
-            if top and not is_kev and top in kev_ids:
-                # stored flag may lag catalog
-                is_kev = True
         return {
             "cve_count": cve_n,
             "top_cve": top,
@@ -789,10 +788,13 @@ def enrich_software_version_rows(
         product, version = parse_software_label(label)
         key = cache_key(product, version)
         cached = cache.get("entries", {}).get(key)
-        # "before" = what the Active table last showed (stored top_is_kev / counts)
+        # "before" = what Active already displays for this cache entry: recompute
+        # Top CVE / KEV against the current CISA catalog. Do not trust stored
+        # top_is_kev alone — NVD writes use kev_ids=None so the flag is often
+        # false even when the page already showed a KEV badge (false "gained").
         before = _snap(
             cached if isinstance(cached, dict) else None,
-            recompute_kev=False,
+            recompute_kev=True,
         )
         do_query = _should_requery_cached(
             product,
