@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import html
 import json
 import os
@@ -465,12 +466,19 @@ def _display_audit_target(action: str) -> str:
     return target if target else "—"
 
 
-def load_audit_lines(report_root: Path) -> list[tuple[str, str, str, str]]:
-    """Return (time, operator, ip, action). Legacy 3-field lines use empty operator."""
+def audit_line_hash(raw_line: str) -> str:
+    """Stable id for one on-disk audit log line (stripped)."""
+    return hashlib.sha256(raw_line.strip().encode("utf-8")).hexdigest()
+
+
+def load_audit_lines(
+    report_root: Path,
+) -> list[tuple[str, str, str, str, str]]:
+    """Return (time, operator, ip, action, raw_line). Legacy 3-field: empty operator."""
     log = report_root / "tools" / "audit" / "log.txt"
     if not log.is_file():
         return []
-    rows = []
+    rows: list[tuple[str, str, str, str, str]] = []
     for raw in log.read_text(encoding="utf-8", errors="replace").splitlines():
         raw = raw.strip()
         if not raw or raw.startswith("#"):
@@ -486,6 +494,7 @@ def load_audit_lines(report_root: Path) -> list[tuple[str, str, str, str]]:
                     m4.group(2).strip(),
                     m4.group(3).strip(),
                     action,
+                    raw,
                 )
             )
             continue
@@ -495,13 +504,88 @@ def load_audit_lines(report_root: Path) -> list[tuple[str, str, str, str]]:
             if _audit_action_hidden(action):
                 continue
             # Legacy: second field is IP (no operator name).
-            rows.append((m3.group(1), "", m3.group(2).strip(), action))
+            rows.append((m3.group(1), "", m3.group(2).strip(), action, raw))
         else:
             if _audit_action_hidden(raw):
                 continue
-            rows.append(("", "", "", _normalize_audit_action(raw)))
+            rows.append(("", "", "", _normalize_audit_action(raw), raw))
     rows.reverse()  # newest first
     return rows
+
+
+def delete_audit_line_by_hash(report_root: Path, line_hash: str) -> dict:
+    """Remove one log.txt line whose SHA-256 matches line_hash; rebuild Audit.
+
+    Returns a JSON-serializable dict with ok / error / summary.
+    """
+    report_root = Path(report_root).resolve()
+    want = (line_hash or "").strip().lower()
+    if not re.fullmatch(r"[0-9a-f]{64}", want):
+        return {"ok": False, "error": "Invalid line id."}
+
+    log = report_root / "tools" / "audit" / "log.txt"
+    if not log.is_file():
+        return {"ok": False, "error": "Audit log not found."}
+
+    try:
+        text = log.read_text(encoding="utf-8", errors="replace")
+    except OSError as exc:
+        return {"ok": False, "error": f"Could not read audit log: {exc}"}
+
+    out: list[str] = []
+    found = False
+    removed_preview = ""
+    for line in text.splitlines(keepends=True):
+        raw = line.rstrip("\n\r")
+        stripped = raw.strip()
+        if (
+            not found
+            and stripped
+            and not stripped.startswith("#")
+            and audit_line_hash(stripped) == want
+        ):
+            found = True
+            removed_preview = stripped
+            continue
+        out.append(line)
+
+    if not found:
+        return {"ok": False, "error": "Audit line not found (already deleted?)."}
+
+    new_text = "".join(out)
+    try:
+        log.write_text(new_text, encoding="utf-8")
+    except OSError as exc:
+        return {"ok": False, "error": f"Could not write audit log: {exc}"}
+
+    discover = Path(__file__).resolve().parent.parent
+    template = discover / "report" / "pages" / "audit.htm"
+    try:
+        write_audit_page(report_root, template if template.is_file() else None)
+    except Exception as exc:
+        return {
+            "ok": False,
+            "error": f"Line removed but Audit page rebuild failed: {exc}",
+        }
+
+    # Short preview for UI (time | action tail).
+    preview = removed_preview
+    m4 = LINE_RE4.match(removed_preview)
+    if m4:
+        preview = f"{m4.group(1)} | {m4.group(4).strip()}"
+    elif LINE_RE3.match(removed_preview):
+        m3 = LINE_RE3.match(removed_preview)
+        if m3:
+            preview = f"{m3.group(1)} | {m3.group(3).strip()}"
+    if len(preview) > 160:
+        preview = preview[:157] + "."
+
+    return {
+        "ok": True,
+        "summary": "Audit line deleted.",
+        "preview": preview,
+        "hash": want,
+    }
 
 
 def _newest_host_scan_tool_meta(tool_dir: Path) -> dict:
@@ -888,7 +972,7 @@ def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, st
     finished_events: list[tuple] = []  # (dt, operator, tool, host, software)
     started_events: list[tuple] = []  # (dt, tool, host)
 
-    for ts, operator, _ip, action in audit_rows:
+    for ts, operator, _ip, action, _raw in audit_rows:
         dt = _parse_audit_ts_utc(ts)
         if dt is None or dt < start_day:
             continue
@@ -1133,7 +1217,7 @@ def build_html(report_root: Path) -> str:
         "</tr></thead><tbody>"
     )
     if audit_rows:
-        for ts, operator, ip, action in audit_rows:
+        for ts, operator, ip, action, raw_line in audit_rows:
             # Parse Target/Output from full action; show shortened Action text.
             out_cell = audit_output_cell(action, report_root, scan_output_index)
             op_disp = operator if operator else "—"
@@ -1145,8 +1229,14 @@ def build_html(report_root: Path) -> str:
                 scan_index=scan_output_index,
                 ts=ts,
             )
+            line_hash = audit_line_hash(raw_line)
+            # Preview for delete confirm (time + short action).
+            preview = f"{normalize_audit_display_ts(ts)} · {action_disp}"
+            if len(preview) > 140:
+                preview = preview[:137] + "."
             lines.append(
-                "<tr>"
+                f'<tr data-audit-hash="{html.escape(line_hash, quote=True)}" '
+                f'data-audit-preview="{html.escape(preview, quote=True)}">'
                 f'<td class="inc-audit-col-time">{html.escape(normalize_audit_display_ts(ts))}</td>'
                 f'<td class="inc-audit-col-op">{html.escape(op_disp)}</td>'
                 f'<td class="inc-audit-col-ip">{html.escape(ip_disp)}</td>'
@@ -1269,7 +1359,7 @@ def write_defender_csv(report_root: Path, dest: Path) -> Path:
     dest = Path(dest)
     scan_index = build_host_scan_output_index(report_root)
     rows_out: list[dict[str, str]] = []
-    for ts, operator, ip, action in load_audit_lines(report_root):
+    for ts, operator, ip, action, _raw in load_audit_lines(report_root):
         action_disp = _display_audit_action(
             action,
             report_root=report_root,
@@ -1339,10 +1429,35 @@ def main(argv: list[str]) -> int:
         print(path)
         return 0
 
+    # Delete one audit line by hash: audit-build.py --delete-line <sha256> <report> [--json]
+    if len(argv) >= 2 and argv[1] in {"--delete-line", "--delete-audit-line"}:
+        want_json = "--json" in argv
+        args = [a for a in argv[2:] if a != "--json"]
+        if len(args) < 2:
+            print(
+                "Usage: audit-build.py --delete-line <sha256> <report_root> [--json]",
+                file=sys.stderr,
+            )
+            return 2
+        line_hash, report = args[0], args[1]
+        result = delete_audit_line_by_hash(Path(report), line_hash)
+        if want_json:
+            print(json.dumps(result, ensure_ascii=False))
+        else:
+            if result.get("ok"):
+                print(result.get("summary") or "Deleted.")
+            else:
+                print(result.get("error") or "Delete failed.", file=sys.stderr)
+        return 0 if result.get("ok") else 1
+
     if len(argv) < 2:
         print("Usage: audit-build.py <report_root> [template_audit.htm]", file=sys.stderr)
         print(
             "       audit-build.py --defender-csv <report_root> <out.csv>",
+            file=sys.stderr,
+        )
+        print(
+            "       audit-build.py --delete-line <sha256> <report_root> [--json]",
             file=sys.stderr,
         )
         return 2

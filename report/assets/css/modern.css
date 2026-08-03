@@ -1299,6 +1299,70 @@ tr.inc-subdomains-filter-hide {
     justify-content: center;
 }
 
+/* Delete column (injected only on Discover-hosted Audit). */
+.inc-audit-page #inc-audit-log-table > thead > tr > th.inc-audit-col-delete,
+.inc-audit-page #inc-audit-log-table > tbody > tr > td.inc-audit-col-delete {
+    width: 1%;
+    min-width: 72px;
+    max-width: 80px;
+    white-space: nowrap;
+    box-sizing: border-box;
+    text-align: center;
+    vertical-align: middle;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.inc-audit-line-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid #8b2e2e;
+    border-radius: 4px;
+    background: #3a1515;
+    color: #e74c3c;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: inherit;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.inc-audit-line-delete-btn:hover,
+.inc-audit-line-delete-btn:focus {
+    border-color: #e74c3c;
+    background: #4a1a1a;
+    color: #ff6b6b;
+    outline: none;
+}
+
+.inc-audit-line-delete-preview {
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border: 1px solid #2f3844;
+    border-radius: 6px;
+    background: #151a20;
+    color: #c5ccd4;
+    font-size: 12px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.inc-audit-line-delete-modal .inc-report-export-go.inc-audit-line-delete-confirm {
+    background: #8b2e2e;
+    border-color: #8b2e2e;
+}
+
+.inc-audit-line-delete-modal .inc-report-export-go.inc-audit-line-delete-confirm:hover,
+.inc-audit-line-delete-modal .inc-report-export-go.inc-audit-line-delete-confirm:focus {
+    background: #a33838;
+    border-color: #a33838;
+}
+
 .inc-audit-page #inc-audit-log-table > thead > tr > th.inc-audit-col-action {
     width: 99%;
     text-align: center; /* header only */

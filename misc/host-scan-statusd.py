@@ -27,10 +27,12 @@ Binds 127.0.0.1 only. Serves:
   POST /config/api-keys -> save NVD/SHODAN/WPSCAN keys to ~/.discover/api-keys
   POST /config/operator-name -> set name; rewrite this report audit log; rebuild Audit
   POST /config/timezone -> set display timezone only (does not change written stamps)
+  POST /audit-line-delete -> remove one tools/audit/log.txt line by SHA-256 hash
+      (JSON: {"hash":"<sha256 hex>"}; rebuilds pages/audit.htm)
   GET /*       -> files under report_root (operator browser via http://127.0.0.1:port/)
 
-Host-scan chevrons, Export, Import/Config (Audit), Shodan Update, and Active Update only appear when
-the report is opened through this server (Import report / Active), not file://.
+Host-scan chevrons, Export, Import/Config (Audit), audit line delete, Shodan Update, and Active
+Enrich only appear when the report is opened through this server (Open report / Active), not file://.
 """
 
 from __future__ import annotations
@@ -92,6 +94,7 @@ def main(argv: list[str]) -> int:
     config_script = discover_root / "recon" / "discover-config.py"
     shodan_enrich = discover_root / "recon" / "shodan-enrich.py"
     active_tech = discover_root / "recon" / "active-tech.py"
+    audit_build = discover_root / "recon" / "audit-build.py"
 
     def safe_report_file(url_path: str) -> Path | None:
         """Map URL path to a file under report_root, or None."""
@@ -154,6 +157,7 @@ def main(argv: list[str]) -> int:
                 "/config/api-keys",
                 "/config/operator-name",
                 "/config/timezone",
+                "/audit-line-delete",
             }:
                 self._send(404, b'{"ok":false,"error":"not found"}\n')
                 return
@@ -727,6 +731,83 @@ def main(argv: list[str]) -> int:
                 _run_import_json(
                     cmd, timeout=timeout, label="import subdomains"
                 )
+                return
+
+            # --- /audit-line-delete ---
+            if path == "/audit-line-delete":
+                line_hash = str(
+                    body.get("hash") or body.get("line_hash") or ""
+                ).strip()
+                if not line_hash:
+                    self._send(
+                        400,
+                        b'{"ok":false,"error":"hash is required"}\n',
+                    )
+                    return
+                if not audit_build.is_file():
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": f"audit-build missing: {audit_build}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                try:
+                    proc = subprocess.run(
+                        [
+                            sys.executable,
+                            str(audit_build),
+                            "--delete-line",
+                            line_hash,
+                            str(report_root),
+                            "--json",
+                        ],
+                        capture_output=True,
+                        text=True,
+                        timeout=120,
+                        env=env,
+                        cwd=str(discover_root),
+                    )
+                except subprocess.TimeoutExpired:
+                    self._send(
+                        504,
+                        b'{"ok":false,"error":"delete timed out"}\n',
+                    )
+                    return
+                except OSError as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)}).encode()
+                        + b"\n",
+                    )
+                    return
+                result = _parse_json_stdout(proc.stdout or "")
+                if not isinstance(result, dict):
+                    err = (proc.stderr or proc.stdout or "delete failed").strip()
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": err[:800]
+                                or f"delete exit {proc.returncode}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                code = 200 if result.get("ok") and proc.returncode == 0 else 400
+                if proc.returncode != 0 and result.get("ok"):
+                    result["ok"] = False
+                    result.setdefault(
+                        "error", f"delete exit {proc.returncode}"
+                    )
+                    code = 500
+                self._send(code, json.dumps(result).encode() + b"\n")
                 return
 
             # --- /export ---
