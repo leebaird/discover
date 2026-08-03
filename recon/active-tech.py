@@ -840,7 +840,7 @@ def cve_nvd_link_html(cve_id, is_kev=False):
             f'<a class="inc-cve-id" href="{html.escape(href, quote=True)}" '
             f'data-cve="{html.escape(cve_id, quote=True)}" target="_blank" '
             f'rel="noopener noreferrer" '
-            f'title="Open NVD, Rapid7, Tenable, Exploit-DB, and GitHub in Firefox">'
+            f'title="Open NVD, Rapid7, Tenable, Exploit-DB, Sploitus, CVEbase, and GitHub in Firefox">'
             f"{html.escape(cve_id)}</a>"
         )
     else:
@@ -1341,6 +1341,268 @@ def _discover_root() -> str:
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+def _load_photo_hosts(gowitness_jsonl: str, screenshots_dir: str) -> dict:
+    """host -> relative href for gowitness screenshot (https preferred)."""
+    photos: dict[str, str] = {}
+    if not gowitness_jsonl or not os.path.isfile(gowitness_jsonl) or not screenshots_dir:
+        return photos
+    with open(gowitness_jsonl, encoding="utf-8") as handle:
+        for raw in handle:
+            raw = raw.strip()
+            if not raw:
+                continue
+            try:
+                entry = json.loads(raw)
+            except json.JSONDecodeError:
+                continue
+            if entry.get("failed"):
+                continue
+            file_name = (entry.get("file_name") or "").strip()
+            if not file_name:
+                continue
+            screenshot_path = os.path.join(screenshots_dir, file_name)
+            if not os.path.isfile(screenshot_path):
+                continue
+            url_value = entry.get("url") or entry.get("final_url") or ""
+            if "://" not in url_value:
+                url_value = "https://" + url_value
+            parsed = urlparse(url_value)
+            host = (parsed.hostname or "").lower()
+            if not host:
+                continue
+            scheme = parsed.scheme
+            rel_href = f"../tools/gowitness/screenshots/{file_name}"
+            current = photos.get(host)
+            if not current or scheme == "https":
+                photos[host] = rel_href
+    return photos
+
+
+def write_subdomains_active_page(report_dir: str) -> dict:
+    """Rewrite pages/subdomains.htm Photo/Status/Web Server/Title/Tech from tools/.
+
+    Same data path as Domain Active (httpx + whatweb + gowitness). Keeps the
+    Software versions → Subdomains ?software= filter aligned with Active counts.
+    """
+    report_dir = os.path.abspath(os.path.expanduser(report_dir))
+    tools = os.path.join(report_dir, "tools")
+    page = os.path.join(report_dir, "pages", "subdomains.htm")
+    result: dict = {"ok": False, "report": report_dir, "page": page}
+
+    subdomains_file = os.path.join(tools, "subdomains")
+    private_file = os.path.join(tools, "private-subs")
+    httpx_path = os.path.join(tools, "httpx.jsonl")
+    whatweb_path = os.path.join(tools, "whatweb.json")
+    gowitness_jsonl = os.path.join(tools, "gowitness", "gowitness.jsonl")
+    screenshots_dir = os.path.join(tools, "gowitness", "screenshots")
+
+    if not os.path.isfile(subdomains_file):
+        result["error"] = "missing tools/subdomains"
+        return result
+    if not os.path.isfile(httpx_path):
+        result["error"] = "missing tools/httpx.jsonl"
+        return result
+
+    template = os.path.join(_discover_root(), "report", "pages", "subdomains.htm")
+    if not os.path.isfile(template):
+        result["error"] = f"missing template {template}"
+        return result
+
+    host_tech = load_host_tech(
+        httpx_path,
+        whatweb_path if os.path.isfile(whatweb_path) else "",
+    )
+    photo_hosts = _load_photo_hosts(
+        gowitness_jsonl if os.path.isfile(gowitness_jsonl) else "",
+        screenshots_dir if os.path.isdir(screenshots_dir) else "",
+    )
+
+    all_rows = load_subdomain_rows(subdomains_file)
+    private_rows = load_subdomain_rows(private_file) if os.path.isfile(private_file) else []
+    if not private_rows:
+        private_rows = [
+            (h, ip, cat) for h, ip, cat in all_rows if ip and is_private_ip(ip)
+        ]
+    public_rows = [
+        (h, ip, cat) for h, ip, cat in all_rows if ip and not is_private_ip(ip)
+    ]
+
+    def host_cell(subdomain: str, status: str, url: str) -> str:
+        text = html.escape(subdomain)
+        if not str(status or "").strip():
+            return f'<td class="inc-subdomain-host">{text}</td>'
+        href = (url or "").strip()
+        if not href:
+            href = f"https://{subdomain}"
+        elif "://" not in href:
+            href = f"https://{href}"
+        return (
+            f'<td class="inc-subdomain-host">'
+            f'<a class="inc-subdomain-host-link" href="{html.escape(href, quote=True)}" '
+            f'target="_blank" rel="noopener noreferrer">{text}</a>'
+            f"</td>"
+        )
+
+    def tech_cell(title: str, technologies: str) -> str:
+        title_text = (title or "").strip() or "-"
+        tech_title = (
+            f' title="{html.escape(technologies)}"' if technologies else ""
+        )
+        return (
+            f'<td class="inc-subdomain-tech">'
+            f'<div class="inc-subdomain-title" data-sort-field="title">'
+            f"{html.escape(title_text)}</div>"
+            f'<div class="inc-subdomain-techs" data-sort-field="tech"{tech_title}>'
+            f"{html.escape(technologies)}</div>"
+            f"</td>"
+        )
+
+    def photo_cell(subdomain: str) -> str:
+        href = photo_hosts.get(subdomain.lower())
+        if not href:
+            return ""
+        return f'<a href="{html.escape(href)}" target="_blank">Yes</a>'
+
+    def build_private_table(rows: list) -> list[str]:
+        lines = [
+            '        <table class="table table-bordered inc-data-table">',
+            "            <thead>",
+            "                <tr>",
+            '                    <th scope="col" class="inc-sortable">Subdomain</th>',
+            '                    <th scope="col" class="inc-sortable">Category</th>',
+            '                    <th scope="col" class="inc-sortable">Private IP Address</th>',
+            "                </tr>",
+            "            </thead>",
+            "            <tbody>",
+        ]
+        if rows:
+            for subdomain, ipaddr, category in rows:
+                lines.append(
+                    "                <tr>"
+                    f"<td>{html.escape(subdomain)}</td>"
+                    f"<td>{html.escape(category)}</td>"
+                    f"<td>{html.escape(ipaddr)}</td>"
+                    "</tr>"
+                )
+        else:
+            lines.append(
+                '<tr><td colspan="3">No private subdomains found.</td></tr>'
+            )
+        lines.extend(["            </tbody>", "        </table>"])
+        return lines
+
+    def build_public_table(rows: list) -> list[str]:
+        lines = [
+            '        <table class="table table-bordered inc-data-table">',
+            "            <thead>",
+            "                <tr>",
+            '                    <th scope="col" class="inc-sortable">Subdomain</th>',
+            '                    <th scope="col" class="inc-sortable">Category</th>',
+            '                    <th scope="col" class="inc-sortable">IP Address</th>',
+            '                    <th scope="col" class="inc-sortable inc-col-center" data-sort-then="4,5">Photo</th>',
+            '                    <th scope="col" class="inc-sortable inc-col-center">Status</th>',
+            '                    <th scope="col" class="inc-sortable inc-subdomain-webserver-h">Web Server</th>',
+            '                    <th scope="col" class="inc-subdomain-title-tech-header">',
+            '                        <span class="inc-sortable" data-sort-field="title">Title</span>',
+            '                        <span class="inc-sortable" data-sort-field="tech">Technologies</span>',
+            "                    </th>",
+            "                </tr>",
+            "            </thead>",
+            "            <tbody>",
+        ]
+        if rows:
+            for subdomain, ipaddr, category in rows:
+                tech = host_tech.get(subdomain.lower(), {})
+                status = tech.get("status", "")
+                webserver = tech.get("webserver", "")
+                title = tech.get("title", "")
+                technologies = tech.get("technologies", "")
+                lines.append(
+                    "                <tr>"
+                    f"{host_cell(subdomain, status, tech.get('url', ''))}"
+                    f"<td>{html.escape(category)}</td>"
+                    f'<td class="inc-subdomain-ip">{html.escape(ipaddr)}</td>'
+                    f'<td class="inc-col-center">{photo_cell(subdomain)}</td>'
+                    f'<td class="inc-col-center">{html.escape(status)}</td>'
+                    f'<td class="inc-subdomain-webserver">{html.escape(webserver)}</td>'
+                    f"{tech_cell(title, technologies)}"
+                    "</tr>"
+                )
+        else:
+            lines.append(
+                '<tr><td colspan="7">No data found.</td></tr>'
+            )
+        lines.extend(["            </tbody>", "        </table>"])
+        return lines
+
+    # Company / domain for template placeholders
+    company = ""
+    domain = os.path.basename(report_dir.rstrip(os.sep))
+    for source in (
+        os.path.join(report_dir, "pages", "active.htm"),
+        os.path.join(report_dir, "index.htm"),
+    ):
+        if not os.path.isfile(source):
+            continue
+        text = open(source, encoding="utf-8", errors="replace").read()
+        m = re.search(
+            r'inc-home-meta-label">Company</span>\s*<span class="value">([^<]*)</span>',
+            text,
+        )
+        if m and not company:
+            company = m.group(1).strip()
+        m = re.search(
+            r'inc-home-meta-label">Domain</span>\s*<span class="value">([^<]*)</span>',
+            text,
+        )
+        if m:
+            domain = m.group(1).strip() or domain
+
+    content = open(template, encoding="utf-8").read()
+    content = content.replace("#COMPANY#", company)
+    content = content.replace("#DOMAIN#", domain)
+    # Template ends before dynamic tables (same as Active: append after copy).
+    # Write template then append tables (mirrors f_active_write_report).
+    os.makedirs(os.path.dirname(page), exist_ok=True)
+    with open(page, "w", encoding="utf-8") as handle:
+        handle.write(content)
+
+    out: list[str] = []
+    if private_rows:
+        out.append('    <div class="inc-content-frame inc-content-frame--table">')
+        out.extend(build_private_table(private_rows))
+        out.append("    </div>")
+    if public_rows or not private_rows:
+        out.append(
+            '    <div class="inc-content-frame inc-content-frame--table inc-subdomains-public">'
+        )
+        out.extend(build_public_table(public_rows if public_rows else []))
+        out.append("    </div>")
+    out.extend(
+        [
+            "    </div>",
+            "</div>",
+            "",
+            '<script src="../assets/javascript/inc-data-table.js"></script>',
+            '<script src="../tools/cve-software-index.js"></script>',
+            '<script src="../assets/javascript/inc-subdomains-filter.js?v=13"></script>',
+            '<script src="../tools/shodan/index.js"></script>',
+            '<script src="../tools/shodan/kev-ids.js"></script>',
+            '<script src="../assets/javascript/inc-shodan.js?v=18"></script>',
+            '<script src="../assets/javascript/inc-host-scan.js?v=25"></script>',
+            "</body>",
+            "</html>",
+            "",
+        ]
+    )
+    with open(page, "a", encoding="utf-8") as handle:
+        handle.write("\n".join(out) + "\n")
+
+    result["ok"] = True
+    result["public_hosts"] = len(public_rows)
+    return result
+
+
 def rebuild_active_page(
     report_dir: str,
     *,
@@ -1351,6 +1613,8 @@ def rebuild_active_page(
 
     Used by statusd POST /software-cve-refresh (operator Update modal).
     Does not re-run httpx/whatweb/gowitness.
+    Also refreshes pages/subdomains.htm Active columns so software/tech filters
+    match Software versions counts.
     """
     report_dir = os.path.abspath(os.path.expanduser(report_dir))
     tools = os.path.join(report_dir, "tools")
@@ -1411,15 +1675,15 @@ def rebuild_active_page(
         if not source or not os.path.isfile(source):
             continue
         text = open(source, encoding="utf-8", errors="replace").read()
-        import re
+        import re as _re
 
-        m = re.search(
+        m = _re.search(
             r'inc-home-meta-label">Company</span>\s*<span class="value">([^<]*)</span>',
             text,
         )
         if m and not company:
             company = m.group(1).strip()
-        m = re.search(
+        m = _re.search(
             r'inc-home-meta-label">Domain</span>\s*<span class="value">([^<]*)</span>',
             text,
         )
@@ -1436,6 +1700,12 @@ def rebuild_active_page(
     os.makedirs(os.path.dirname(page), exist_ok=True)
     with open(page, "w", encoding="utf-8") as handle:
         handle.write(content)
+
+    # Keep Subdomains filter targets in sync with Active software/tech counts.
+    sub_result = write_subdomains_active_page(report_dir)
+    result["subdomains_rebuilt"] = bool(sub_result.get("ok"))
+    if not sub_result.get("ok"):
+        result["subdomains_error"] = sub_result.get("error") or "subdomains rebuild failed"
 
     try:
         touch_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "touch-report-date.py")

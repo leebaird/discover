@@ -1554,7 +1554,7 @@ f_install_discover_cve_handler(){
 Version=1.0
 Type=Application
 Name=Discover CVE Tabs
-Comment=Open NVD, Rapid7, Tenable, Exploit-DB, and GitHub for a CVE (Discover)
+Comment=Open NVD, Rapid7, Tenable, Exploit-DB, Sploitus, CVEbase, and GitHub for a CVE (Discover)
 Exec=$opener %u
 Terminal=false
 Categories=Network;Security;

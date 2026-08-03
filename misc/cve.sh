@@ -45,6 +45,8 @@ f_cve_open_tabs(){
         "https://www.rapid7.com/db/?q=$cve&type=nexpose"
         "https://www.tenable.com/cve/$cve"
         "https://www.exploit-db.com/search?cve=$cve_id"
+        "https://sploitus.com/?query=$cve"
+        "https://cvebase.io/cve/$cve"
         "https://www.google.com/search?q=site:http://github.com+%22$cve%22"
         "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?search=$cve&field_date_added_wrapper=all&field_cve=&sort_by=field_date_added&items_per_page=20&url="
     )
