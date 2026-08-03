@@ -23,7 +23,7 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - First name only, max 10 letters only, stored at `~/.discover/operator-name`.
 - Prompted once when Discover starts if missing/invalid (`f_ensure_operator_name` in `discover.sh`).
 - Audit lines: `mm-dd-yyyy - hh:mm Z | <name> | <egress IP> | <action>` (`f_audit_log` / host-scan `f_audit`). Legacy stamps (`mm-dd-yyyy Z - hh:mm`) and 3-field lines still parse on the Audit page.
-- **Shodan**, **Updated software CVE data**, **Imported subdomains** / **Imported CSV list subdomains**, and **Imported operator package**: Operator IP is always a dash (`-` in the log, `—` on the Audit page). Do not record egress IP for those events.
+- **Shodan**, **Updated software CVE data**, **Imported subdomains** / **Imported CSV list subdomains**, **Imported names** (incl. titles/emails), and **Imported operator package**: Operator IP is always a dash (`-` in the log, `—` on the Audit page). Do not record egress IP for those events.
 
 ## Timestamps (UTC write, view timezone)
 
@@ -38,12 +38,16 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - **Update to today** whenever the engagement changes: Passive finish, Active, host-scan finish, Shodan enrich/Update, software CVE refresh, subdomain/names imports, operator package import.
 - Helper: `recon/touch-report-date.py <report_dir>` (also callable from Python via `touch_report_index_date`).
 
-## Import operator scans (Audit page)
+## Import hub (Audit page)
 
-- **Import** button on Audit only when Discover-hosted (`http://127.0.0.1:17322/…`). Modal: path to **unpacked** other-operator report + their first name (1–10 letters).
-- Backend: statusd `POST /import-operator-package` → `recon/import-operator-package.py --dest <live> --source <path> --operator <Name> --json`.
-- Merges `tools/host-scans` (copy missing run dirs), gowitness screenshots/jsonl, httpx/whatweb (by host), new `tools/subdomains` hosts, audit lines for that operator name. Rebuilds Audit (and Active when Active data merged). Never copies their `pages/*.htm` over the live tree.
-- Assets: `inc-audit-import.js`; bust `?v=` / `modern.css` on Audit after UI changes; import-report injects the script on `audit.htm`.
+- **Import** button on Audit only when Discover-hosted (`http://127.0.0.1:17322/…`). Label stays **Import**. Always targets the **current** engagement (statusd `report_root`); no report path in the UI.
+- Hub choice rows: **Operator scans** · **Names** · **Names, titles, and emails** · **Subdomains**.
+- **Operator scans:** path to **unpacked** other-operator report + their first name (1–10 letters). Backend: `POST /import-operator-package` → `recon/import-operator-package.py --dest <live> --source <path> --operator <Name> --json`. Merges host-scans, gowitness, httpx/whatweb, new subdomains, audit lines for that name. Never copies their `pages/*.htm` over the live tree.
+- **Names:** optional manual TSV path (default `tools/names-manual.tsv` in the live report). `POST /import-names` → `recon/import-names.sh --report <live> [--manual …] --json`.
+- **Names, titles, and emails:** source file path. `POST /import-names-titles-emails` → `import-names-titles-emails.sh --report <live> --source … --json`.
+- **Subdomains:** mode `existing` | `team-csv`, import path (`firefox` allowed), optional `run_active` for CSV new public hosts. `POST /import-subdomains` → `import-subdomains.sh --report … --mode … --import … [--run-active] --json`.
+- Domain menu no longer lists import items 6–8; menu is **6 Active · 7 Open report · 8 Previous**. Scripts remain for CLI.
+- Assets: `inc-audit-import.js`; bust `?v=` / `modern.css` on Audit after UI changes; import-report injects the script on `audit.htm`. Restart statusd after endpoint changes.
 
 ## Audit last-7-days metrics (Option A strip)
 
@@ -124,9 +128,9 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Backend: statusd `POST /export` → `recon/export-report.sh --kind … --report … --out-dir … --quiet` (JSON path on stdout).
 - Assets: `inc-report-export.js`, `modern.css` (export classes); import-report syncs JS. Bust `inc-report-export.js?v=…` after changes.
 
-## Import subdomains (Domain menu 8)
+## Import subdomains (Audit Import hub / CLI)
 
-- Two choices: **(1)** existing Firefox/Pentest-Tools/TSV **(2)** CSV list (`subdomain,ip,category`).
+- Two modes: **existing** (Firefox/Pentest-Tools/TSV) or **team-csv** (`subdomain,ip,category`). UI: Audit → Import → Subdomains. CLI: `import-subdomains.sh --report … --mode … --import … [--run-active] [--json]`.
 - CSV list: one IPv4 per host (empty IP → dig). **Skip hosts already in `tools/subdomains`** (no overwrite). Category = **Discover rules first**, else CSV. Never write `recon/subdomain-categories.tsv`.
 - After import: refresh `pages/subdomains.htm` and `pages/hosts.htm` (unique public IPs). CSV list also writes `tools/import-batch-hosts.txt` (**new** public hosts only) and may offer Active on that batch only (`DISCOVER_ACTIVE_SCOPE=import-batch`).
 - **After import + Active (full or import-batch):** rebuild the **entire** Active page from merged `tools/` artifacts — Scope (public/private/responding), status codes, alive-by-category, CMS, web servers, technologies, software versions + CVE enrichment, and scan date. Batch Active must merge httpx/whatweb/gowitness into the engagement files first, then call the same full `pages/active.htm` rebuild (not a batch-only summary). Scan date = **latest** httpx timestamp, not the first line.

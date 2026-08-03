@@ -2388,9 +2388,32 @@ body:not(.inc-iframe-parent) pre {
     max-width: 600px;
 }
 
-/* Audit Import operator scans modal (path + name fields). */
+/* Audit Import hub modal (operator / names / NTE / subdomains). */
 .inc-audit-import-modal .inc-report-export-dialog {
     max-width: 600px;
+}
+
+.inc-audit-import-body {
+    margin: 0 0 4px;
+}
+
+.inc-audit-import-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: #aeb5bf;
+    cursor: pointer;
+}
+
+.inc-audit-import-check input {
+    margin-top: 2px;
+    flex: 0 0 auto;
+    accent-color: var(--accent, #2264d6);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
 }
 
 /* Audit: Config + Import + Export in the page header (left → right). */

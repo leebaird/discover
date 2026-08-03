@@ -1727,13 +1727,13 @@ fi
     if [ ! -f "$HOME/data/$DOMAIN/tools/names-manual.tsv" ]; then
         cat > "$HOME/data/$DOMAIN/tools/names-manual.tsv" <<'EOF'
 # Manual contacts — tab-separated: Name, Title, Phone
-# Add one person per line, then run Domain > Import names.
+# Add one person per line, then run Audit → Import → Names (or import-names.sh).
 EOF
     fi
     if [ ! -f "$HOME/data/$DOMAIN/tools/subdomains-import.tsv" ]; then
         cat > "$HOME/data/$DOMAIN/tools/subdomains-import.tsv" <<'EOF'
 # Manual subdomains — tab-separated: Subdomain, IP (IP optional)
-# Add one host per line, then run Domain > Import subdomains.
+# Add one host per line, then run Audit → Import → Subdomains (or import-subdomains.sh).
 EOF
     fi
     if [ ! -f "$HOME/data/$DOMAIN/tools/social-manual.tsv" ]; then

@@ -445,13 +445,9 @@ f_domain_menu(){
     echo "4.  Google dorks"
     echo "5.  Web search"
     echo
-    echo "6.  Import names"
-    echo "7.  Import names, titles, and emails"
-    echo "8.  Import subdomains"
-    echo
-    echo "9.  Active"
-    echo "10. Open report"
-    echo "11. Previous menu"
+    echo "6.  Active"
+    echo "7.  Open report"
+    echo "8.  Previous menu"
     echo
     echo -n "Choice: "
     read -r CHOICE
@@ -621,28 +617,14 @@ f_domain_menu(){
         echo
         exit 2
         ;;
-    6) "$RECON_DIR/import-names.sh"
-        status=$?
-        [ "$status" -eq 0 ] && exit 2
-        exit "$status"
-        ;;
-    7) "$RECON_DIR/import-names-titles-emails.sh"
-        status=$?
-        [ "$status" -eq 0 ] && exit 2
-        exit "$status"
-        ;;
-    8) "$RECON_DIR/import-subdomains.sh"
-        status=$?
-        [ "$status" -eq 0 ] && exit 2
-        exit "$status"
-        ;;
-    9) "$RECON_DIR/active.sh"; exit 2 ;;
-    # Always exit 2 after Import so Discover leaves the menu
+    6) "$RECON_DIR/active.sh"; exit 2 ;;
+    # Always exit 2 after Open report so Discover leaves the menu
     # (same as Active/Passive). Error paths already show [!] and sleep.
-    # Export is UI-only (Report → Audit when opened via Discover).
-    # Shodan: Active page Update (or recon/shodan-enrich.sh CLI) — not a Domain menu item.
-    10) "$RECON_DIR/import-report.sh"; exit 2 ;;
-    11) exit 0 ;;
+    # Export / Import (names, subdomains, operator scans): UI-only on
+    # Report → Audit when opened via Discover (statusd).
+    # Shodan: Active page Enrich (or recon/shodan-enrich.sh CLI).
+    7) "$RECON_DIR/import-report.sh"; exit 2 ;;
+    8) exit 0 ;;
     *) f_invalid ;;
     esac
     done

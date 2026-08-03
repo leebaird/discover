@@ -14,6 +14,12 @@ Binds 127.0.0.1 only. Serves:
   POST /export -> run recon/export-report.sh (JSON body: {"kind":"client"|"defender"|"operator"})
   POST /import-operator-package -> merge another operator report
       (JSON: {"source":"/path/to/unpacked-report","operator":"Bob"})
+  POST /import-names -> merge manual names TSV into current report
+      (JSON: {"manual":"/optional/path/names-manual.tsv"})
+  POST /import-names-titles-emails -> merge external names dump
+      (JSON: {"source":"/path/to/names.txt"})
+  POST /import-subdomains -> import hosts (existing sources or CSV list)
+      (JSON: {"mode":"existing"|"team-csv","path":"...","run_active":false})
   POST /shodan-refresh -> force-refresh one IP via recon/shodan-enrich.py --ip (JSON: {"ip":"..."})
   POST /shodan-refresh-all -> force Shodan enrich all public IPs (--force --json-summary)
   POST /software-cve-refresh -> force NVD software CVEs + rebuild active.htm
@@ -80,6 +86,9 @@ def main(argv: list[str]) -> int:
     discover_root = Path(__file__).resolve().parent.parent
     export_script = discover_root / "recon" / "export-report.sh"
     import_operator_script = discover_root / "recon" / "import-operator-package.py"
+    import_names_script = discover_root / "recon" / "import-names.sh"
+    import_nte_script = discover_root / "recon" / "import-names-titles-emails.sh"
+    import_subdomains_script = discover_root / "recon" / "import-subdomains.sh"
     config_script = discover_root / "recon" / "discover-config.py"
     shodan_enrich = discover_root / "recon" / "shodan-enrich.py"
     active_tech = discover_root / "recon" / "active-tech.py"
@@ -136,6 +145,9 @@ def main(argv: list[str]) -> int:
             if path not in {
                 "/export",
                 "/import-operator-package",
+                "/import-names",
+                "/import-names-titles-emails",
+                "/import-subdomains",
                 "/shodan-refresh",
                 "/shodan-refresh-all",
                 "/software-cve-refresh",
@@ -487,6 +499,71 @@ def main(argv: list[str]) -> int:
                 self._send(code, json.dumps(result).encode() + b"\n")
                 return
 
+            def _run_import_json(
+                cmd: list[str],
+                *,
+                timeout: int = 3600,
+                label: str = "import",
+            ) -> None:
+                try:
+                    proc = subprocess.run(
+                        cmd,
+                        capture_output=True,
+                        text=True,
+                        timeout=timeout,
+                        env=env,
+                        cwd=str(discover_root),
+                    )
+                except subprocess.TimeoutExpired:
+                    self._send(
+                        504,
+                        json.dumps(
+                            {"ok": False, "error": f"{label} timed out"}
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                except OSError as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)}).encode()
+                        + b"\n",
+                    )
+                    return
+                result = _parse_json_stdout(proc.stdout or "")
+                if not isinstance(result, dict):
+                    err = (proc.stderr or proc.stdout or f"{label} failed").strip()
+                    # Prefer last [!] line from bash scripts when no JSON.
+                    for ln in reversed((proc.stderr or "").splitlines()):
+                        s = ln.strip()
+                        if s.startswith("[!]"):
+                            err = s[3:].strip() or err
+                            break
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": err[:800]
+                                or f"{label} exit {proc.returncode}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                code = 200 if result.get("ok") and proc.returncode == 0 else 400
+                if proc.returncode != 0 and result.get("ok"):
+                    result["ok"] = False
+                    result.setdefault(
+                        "error", f"{label} exit {proc.returncode}"
+                    )
+                    code = 500
+                if not result.get("ok") and proc.stderr:
+                    result.setdefault(
+                        "error_detail", (proc.stderr or "")[:400]
+                    )
+                self._send(code, json.dumps(result).encode() + b"\n")
+
             # --- /import-operator-package ---
             if path == "/import-operator-package":
                 source = str(body.get("source") or body.get("path") or "").strip()
@@ -515,65 +592,141 @@ def main(argv: list[str]) -> int:
                         + b"\n",
                     )
                     return
-                try:
-                    proc = subprocess.run(
-                        [
-                            sys.executable,
-                            str(import_operator_script),
-                            "--dest",
-                            str(report_root),
-                            "--source",
-                            source,
-                            "--operator",
-                            operator,
-                            "--json",
-                        ],
-                        capture_output=True,
-                        text=True,
-                        timeout=3600,
-                        env=env,
-                        cwd=str(discover_root),
-                    )
-                except subprocess.TimeoutExpired:
-                    self._send(
-                        504,
-                        b'{"ok":false,"error":"import timed out"}\n',
-                    )
-                    return
-                except OSError as exc:
-                    self._send(
-                        500,
-                        json.dumps({"ok": False, "error": str(exc)}).encode()
-                        + b"\n",
-                    )
-                    return
-                result = _parse_json_stdout(proc.stdout or "")
-                if not isinstance(result, dict):
-                    err = (proc.stderr or proc.stdout or "import failed").strip()
+                _run_import_json(
+                    [
+                        sys.executable,
+                        str(import_operator_script),
+                        "--dest",
+                        str(report_root),
+                        "--source",
+                        source,
+                        "--operator",
+                        operator,
+                        "--json",
+                    ],
+                    timeout=3600,
+                    label="import",
+                )
+                return
+
+            # --- /import-names ---
+            if path == "/import-names":
+                if not import_names_script.is_file():
                     self._send(
                         500,
                         json.dumps(
                             {
                                 "ok": False,
-                                "error": err[:800]
-                                or f"import exit {proc.returncode}",
+                                "error": f"import script missing: {import_names_script}",
                             }
                         ).encode()
                         + b"\n",
                     )
                     return
-                code = 200 if result.get("ok") and proc.returncode == 0 else 400
-                if proc.returncode != 0 and result.get("ok"):
-                    result["ok"] = False
-                    result.setdefault(
-                        "error", f"import exit {proc.returncode}"
+                manual = str(body.get("manual") or body.get("path") or "").strip()
+                cmd = [
+                    "bash",
+                    str(import_names_script),
+                    "--report",
+                    str(report_root),
+                    "--json",
+                ]
+                if manual:
+                    cmd.extend(["--manual", manual])
+                _run_import_json(cmd, timeout=600, label="import names")
+                return
+
+            # --- /import-names-titles-emails ---
+            if path == "/import-names-titles-emails":
+                if not import_nte_script.is_file():
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": f"import script missing: {import_nte_script}",
+                            }
+                        ).encode()
+                        + b"\n",
                     )
-                    code = 500
-                if not result.get("ok") and proc.stderr:
-                    result.setdefault(
-                        "error_detail", (proc.stderr or "")[:400]
+                    return
+                source = str(body.get("source") or body.get("path") or "").strip()
+                if not source:
+                    self._send(
+                        400,
+                        b'{"ok":false,"error":"source path is required"}\n',
                     )
-                self._send(code, json.dumps(result).encode() + b"\n")
+                    return
+                _run_import_json(
+                    [
+                        "bash",
+                        str(import_nte_script),
+                        "--report",
+                        str(report_root),
+                        "--source",
+                        source,
+                        "--json",
+                    ],
+                    timeout=600,
+                    label="import names titles emails",
+                )
+                return
+
+            # --- /import-subdomains ---
+            if path == "/import-subdomains":
+                if not import_subdomains_script.is_file():
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": f"import script missing: {import_subdomains_script}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                mode = str(body.get("mode") or "").strip().lower()
+                import_path = str(
+                    body.get("path")
+                    or body.get("source")
+                    or body.get("import")
+                    or ""
+                ).strip()
+                run_active = body.get("run_active") in (True, 1, "1", "true", "yes")
+                if mode in {"1", "existing", "exist", "firefox", "tsv", "pt", "pentest"}:
+                    mode = "existing"
+                elif mode in {"2", "team-csv", "csv", "list"}:
+                    mode = "team-csv"
+                else:
+                    self._send(
+                        400,
+                        b'{"ok":false,"error":"mode must be existing or team-csv"}\n',
+                    )
+                    return
+                if not import_path:
+                    self._send(
+                        400,
+                        b'{"ok":false,"error":"path is required (file or firefox)"}\n',
+                    )
+                    return
+                cmd = [
+                    "bash",
+                    str(import_subdomains_script),
+                    "--report",
+                    str(report_root),
+                    "--mode",
+                    mode,
+                    "--import",
+                    import_path,
+                    "--json",
+                ]
+                if run_active and mode == "team-csv":
+                    cmd.append("--run-active")
+                timeout = 7200 if run_active else 1800
+                _run_import_json(
+                    cmd, timeout=timeout, label="import subdomains"
+                )
                 return
 
             # --- /export ---

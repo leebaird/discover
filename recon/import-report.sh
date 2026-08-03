@@ -127,7 +127,7 @@ f_import_report_sync_assets(){
                 sed -i \
                     -e 's|modern\.css?v=[^"]*|modern.css?v=active-enrich-date1|g' \
                     -e 's|inc-report-export\.js?v=[0-9]*|inc-report-export.js?v=4|g' \
-                    -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=9|g' \
+                    -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=11|g' \
                     "$report/pages/$page" 2>/dev/null || true
                 if [ "$page" = "active.htm" ] && ! grep -q 'inc-active-status-codes.js' "$report/pages/$page" 2>/dev/null; then
                     sed -i 's|</body>|<script src="../assets/javascript/inc-active-status-codes.js?v=1"></script>\n</body>|' \
@@ -149,12 +149,12 @@ f_import_report_sync_assets(){
                 fi
                 if [ "$page" = "audit.htm" ]; then
                     sed -i \
-                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-metrics1|g' \
-                        -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=9|g' \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-import-hub1|g' \
+                        -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=11|g' \
                         -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=12|g' \
                         "$report/pages/$page" 2>/dev/null || true
                     if ! grep -q 'inc-audit-import.js' "$report/pages/$page" 2>/dev/null; then
-                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-import.js?v=9"></script>\n</body>|' \
+                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-import.js?v=11"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                     if ! grep -q 'inc-audit-config.js' "$report/pages/$page" 2>/dev/null; then

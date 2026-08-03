@@ -14,17 +14,41 @@ NC=${NC:-'\033[0m'}
 SMALL=${SMALL:-'========================================'}
 MEDIUM=${MEDIUM:-'=================================================================='}
 
+SUBS_JSON=0
+SUBS_QUIET=0
+SUBS_NONINTERACTIVE=0
+SUBS_RUN_ACTIVE=0
+CLI_REPORT=""
+CLI_MODE=""
+CLI_IMPORT=""
+
+f_subdomains_usage(){
+    echo "Usage: import-subdomains.sh --report <path> --mode existing|team-csv --import <path|firefox> [--run-active] [--json]"
+    echo "  Interactive when --report is omitted. team-csv = CSV list; existing = Firefox/Pentest-Tools/TSV."
+}
+
+f_subdomains_json_fail(){
+    local msg="$1"
+    if [ "$SUBS_JSON" -eq 1 ]; then
+        python3 -c 'import json,sys; print(json.dumps({"ok":False,"error":sys.argv[1]}))' "$msg" 2>/dev/null || \
+            printf '{"ok":false,"error":%s}\n' "$(printf '%s' "$msg" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')"
+    fi
+}
+
 f_subdomains_die(){
     # Disable ERR trap so exit 1 does not re-enter.
     trap - ERR
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    echo -e "${RED}[!] $1${NC}"
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    sleep 2
+    f_subdomains_json_fail "$1"
+    if [ "$SUBS_JSON" -eq 0 ]; then
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        echo -e "${RED}[!] $1${NC}"
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        [ "$SUBS_NONINTERACTIVE" -eq 0 ] && sleep 2
+    fi
     exit 1
 }
 
@@ -35,18 +59,25 @@ f_subdomains_on_err(){
 
 trap 'f_subdomains_on_err $LINENO' ERR
 
-f_subdomains_read_report(){
-    echo
-    echo -n "Enter the location of a previous Discover scan: "
-    read -r DISCOVER_REPORT || f_subdomains_die "Incorrect file path."
-
+f_subdomains_validate_report(){
+    DISCOVER_REPORT="${DISCOVER_REPORT//$'\r'/}"
     DISCOVER_REPORT="${DISCOVER_REPORT#"${DISCOVER_REPORT%%[![:space:]]*}"}"
     DISCOVER_REPORT="${DISCOVER_REPORT%"${DISCOVER_REPORT##*[![:space:]]}"}"
     DISCOVER_REPORT="${DISCOVER_REPORT/#\~/$HOME}"
 
+    if [ -f "$DISCOVER_REPORT" ]; then
+        case "$DISCOVER_REPORT" in
+            */pages/*)
+                DISCOVER_REPORT="$(cd "$(dirname "$DISCOVER_REPORT")/.." && pwd)" || f_subdomains_die "Incorrect file path."
+                ;;
+            *)
+                DISCOVER_REPORT="$(cd "$(dirname "$DISCOVER_REPORT")" && pwd)" || f_subdomains_die "Incorrect file path."
+                ;;
+        esac
+    fi
+
     # Empty, missing, not a dir, unreadable, or not a passive report → same message.
     if [ -z "$DISCOVER_REPORT" ] \
-        || [ -f "$DISCOVER_REPORT" ] \
         || [ ! -d "$DISCOVER_REPORT" ] \
         || [ ! -r "$DISCOVER_REPORT" ] \
         || [ ! -x "$DISCOVER_REPORT" ] \
@@ -54,22 +85,19 @@ f_subdomains_read_report(){
         || [ ! -f "$DISCOVER_REPORT/pages/subdomains.htm" ]; then
         f_subdomains_die "Incorrect file path."
     fi
+    DISCOVER_REPORT="$(cd "$DISCOVER_REPORT" && pwd)" || f_subdomains_die "Incorrect file path."
 }
 
-f_subdomains_read_import(){
+f_subdomains_read_report(){
+    echo
+    echo -n "Enter the location of a previous Discover scan: "
+    read -r DISCOVER_REPORT || f_subdomains_die "Incorrect file path."
+    f_subdomains_validate_report
+}
+
+f_subdomains_set_import_path(){
     local domain="$1"
-
-    echo
-    echo "Supported imports:"
-    echo "  - firefox (pull pinia/scans from Firefox profile)"
-    echo "  - Firefox pinia/scans export (pinia-scans.json)"
-    echo "  - Pentest-Tools JSON (pentest-tools-${domain}.json)"
-    echo "  - Pentest-Tools text export (pentest-tools.txt)"
-    echo "  - Tab-separated host/IP rows (e.g. tools/subdomains-import.tsv)"
-    echo
-    echo -n "Location of file to import: "
-    read -r SUBDOMAINS_IMPORT || f_subdomains_die "Incorrect file path."
-
+    SUBDOMAINS_IMPORT="${SUBDOMAINS_IMPORT//$'\r'/}"
     SUBDOMAINS_IMPORT="${SUBDOMAINS_IMPORT#"${SUBDOMAINS_IMPORT%%[![:space:]]*}"}"
     SUBDOMAINS_IMPORT="${SUBDOMAINS_IMPORT%"${SUBDOMAINS_IMPORT##*[![:space:]]}"}"
     SUBDOMAINS_IMPORT="${SUBDOMAINS_IMPORT/#\~/$HOME}"
@@ -92,6 +120,55 @@ f_subdomains_read_import(){
     fi
     if [ ! -s "$SUBDOMAINS_IMPORT" ] || ! grep -qv '^[[:space:]]*#' "$SUBDOMAINS_IMPORT" 2>/dev/null; then
         f_subdomains_die "Incorrect file path."
+    fi
+    # Silence unused domain hint in noninteractive path.
+    : "${domain:=}"
+}
+
+f_subdomains_read_import(){
+    local domain="$1"
+
+    echo
+    echo "Supported imports:"
+    echo "  - firefox (pull pinia/scans from Firefox profile)"
+    echo "  - Firefox pinia/scans export (pinia-scans.json)"
+    echo "  - Pentest-Tools JSON (pentest-tools-${domain}.json)"
+    echo "  - Pentest-Tools text export (pentest-tools.txt)"
+    echo "  - Tab-separated host/IP rows (e.g. tools/subdomains-import.tsv)"
+    echo
+    echo -n "Location of file to import: "
+    read -r SUBDOMAINS_IMPORT || f_subdomains_die "Incorrect file path."
+    f_subdomains_set_import_path "$domain"
+}
+
+f_subdomains_write_audit_fallback(){
+    local action="$1"
+    if declare -F f_audit_log >/dev/null 2>&1; then
+        f_audit_log "$DISCOVER_REPORT" "$action" || true
+        return 0
+    fi
+    mkdir -p "$DISCOVER_REPORT/tools/audit" 2>/dev/null || return 0
+    local ts op
+    ts=$(date -u +"%m-%d-%Y - %H:%M Z")
+    op="Operator"
+    if [ -f "$HOME/.discover/operator-name" ]; then
+        op=$(tr -d '[:space:]' < "$HOME/.discover/operator-name" 2>/dev/null || true)
+        [ -n "$op" ] || op="Operator"
+    fi
+    case "$action" in
+        *.) ;;
+        *) action="${action}." ;;
+    esac
+    printf '%s | %s | - | %s\n' "$ts" "$op" "$action" >> "$DISCOVER_REPORT/tools/audit/log.txt" 2>/dev/null || true
+}
+
+f_subdomains_rebuild_audit(){
+    local root="${DISCOVER:-}"
+    if [ -z "$root" ] || [ ! -f "$root/recon/audit-build.py" ]; then
+        root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    fi
+    if [ -f "$root/recon/audit-build.py" ] && [ -f "$root/report/pages/audit.htm" ]; then
+        python3 "$root/recon/audit-build.py" "$DISCOVER_REPORT" "$root/report/pages/audit.htm" >/dev/null 2>&1 || true
     fi
 }
 
@@ -506,6 +583,48 @@ report_path.write_text(prefix + "\n".join(lines) + suffix)
 PY
 }
 
+# Parse optional CLI args (non-interactive / statusd).
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --report)
+            CLI_REPORT="${2:-}"
+            shift 2
+            ;;
+        --mode)
+            CLI_MODE="${2:-}"
+            shift 2
+            ;;
+        --import|--file|--source)
+            CLI_IMPORT="${2:-}"
+            shift 2
+            ;;
+        --run-active)
+            SUBS_RUN_ACTIVE=1
+            shift
+            ;;
+        --json)
+            SUBS_JSON=1
+            SUBS_NONINTERACTIVE=1
+            shift
+            ;;
+        --quiet|-q)
+            SUBS_QUIET=1
+            shift
+            ;;
+        -h|--help)
+            f_subdomains_usage
+            exit 0
+            ;;
+        *)
+            f_subdomains_die "Unknown option: $1"
+            ;;
+    esac
+done
+
+if [ -n "$CLI_REPORT" ]; then
+    SUBS_NONINTERACTIVE=1
+fi
+
 # Discover install root (templates / categorizer). Prefer env from menu; else repo parent of recon/.
 if [ -z "${DISCOVER:-}" ] || [ ! -d "${DISCOVER:-/}/report/pages" ]; then
     _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -523,29 +642,37 @@ if ! declare -F f_banner >/dev/null 2>&1; then
     f_banner(){ echo; }
 fi
 
-clear 2>/dev/null || true
-f_banner
+if [ "$SUBS_NONINTERACTIVE" -eq 0 ]; then
+    clear 2>/dev/null || true
+    f_banner
+    echo -e "${BLUE}Import subdomains.${NC}"
+    echo
+    echo "1. Existing sources (Firefox / Pentest-Tools / TSV)"
+    echo "2. CSV list (subdomain, IPv4, category)"
+    echo
+    echo -n "Choice: "
+    # Do not treat EOF alone as "command failed" under set -e; die with a clear message.
+    if ! read -r IMPORT_CHOICE; then
+        f_subdomains_die "No choice entered. Enter 1 or 2."
+    fi
+    IMPORT_CHOICE="${IMPORT_CHOICE//$'\r'/}"
+    IMPORT_CHOICE="${IMPORT_CHOICE#"${IMPORT_CHOICE%%[![:space:]]*}"}"
+    IMPORT_CHOICE="${IMPORT_CHOICE%"${IMPORT_CHOICE##*[![:space:]]}"}"
 
-echo -e "${BLUE}Import subdomains.${NC}"
-echo
-echo "1. Existing sources (Firefox / Pentest-Tools / TSV)"
-echo "2. CSV list (subdomain, IPv4, category)"
-echo
-echo -n "Choice: "
-# Do not treat EOF alone as "command failed" under set -e; die with a clear message.
-if ! read -r IMPORT_CHOICE; then
-    f_subdomains_die "No choice entered. Enter 1 or 2."
+    case "$IMPORT_CHOICE" in
+        1) IMPORT_MODE="existing" ;;
+        2) IMPORT_MODE="team-csv" ;;
+        "") f_subdomains_die "No choice entered. Enter 1 or 2." ;;
+        *) f_subdomains_die "Invalid choice. Enter 1 or 2." ;;
+    esac
+else
+    case "${CLI_MODE,,}" in
+        1|existing|exist|firefox|tsv|pt|pentest) IMPORT_MODE="existing" ;;
+        2|team-csv|csv|list) IMPORT_MODE="team-csv" ;;
+        "") f_subdomains_die "Non-interactive import requires --mode existing|team-csv." ;;
+        *) f_subdomains_die "Invalid --mode. Use existing or team-csv." ;;
+    esac
 fi
-IMPORT_CHOICE="${IMPORT_CHOICE//$'\r'/}"
-IMPORT_CHOICE="${IMPORT_CHOICE#"${IMPORT_CHOICE%%[![:space:]]*}"}"
-IMPORT_CHOICE="${IMPORT_CHOICE%"${IMPORT_CHOICE##*[![:space:]]}"}"
-
-case "$IMPORT_CHOICE" in
-    1) IMPORT_MODE="existing" ;;
-    2) IMPORT_MODE="team-csv" ;;
-    "") f_subdomains_die "No choice entered. Enter 1 or 2." ;;
-    *) f_subdomains_die "Invalid choice. Enter 1 or 2." ;;
-esac
 
 for CMD in python3 dig; do
     if ! command -v "$CMD" >/dev/null 2>&1; then
@@ -553,7 +680,12 @@ for CMD in python3 dig; do
     fi
 done
 
-f_subdomains_read_report
+if [ "$SUBS_NONINTERACTIVE" -eq 1 ]; then
+    DISCOVER_REPORT="$CLI_REPORT"
+    f_subdomains_validate_report
+else
+    f_subdomains_read_report
+fi
 
 REPORT_DOMAIN=$(basename "$DISCOVER_REPORT")
 TOOLS_DIR="$DISCOVER_REPORT/tools"
@@ -571,23 +703,38 @@ CSV_CATS="$TMPDIR/csv-categories.tsv"
 # Choice 2: CSV list (subdomain, IPv4, category)
 # ---------------------------------------------------------------------------
 if [ "$IMPORT_MODE" = "team-csv" ]; then
-    echo
-    echo "CSV format: subdomain,ip,category  (header optional; one IPv4 per host)"
-    echo "Category: Discover rules first; CSV used only when Discover has no match."
-    echo "Hosts already in the report are skipped (not re-imported)."
-    echo "Discover category patterns are never modified."
-    echo
-    echo -n "Enter path to CSV list: "
-    read -r TEAM_CSV || f_subdomains_die "Incorrect file path."
-    TEAM_CSV="${TEAM_CSV#"${TEAM_CSV%%[![:space:]]*}"}"
-    TEAM_CSV="${TEAM_CSV%"${TEAM_CSV##*[![:space:]]}"}"
-    TEAM_CSV="${TEAM_CSV/#\~/$HOME}"
-    if [ -z "$TEAM_CSV" ] \
-        || [ -d "$TEAM_CSV" ] \
-        || [ ! -f "$TEAM_CSV" ] \
-        || [ ! -r "$TEAM_CSV" ] \
-        || [ ! -s "$TEAM_CSV" ]; then
-        f_subdomains_die "Incorrect file path."
+    if [ "$SUBS_NONINTERACTIVE" -eq 1 ]; then
+        TEAM_CSV="${CLI_IMPORT:-}"
+        TEAM_CSV="${TEAM_CSV//$'\r'/}"
+        TEAM_CSV="${TEAM_CSV#"${TEAM_CSV%%[![:space:]]*}"}"
+        TEAM_CSV="${TEAM_CSV%"${TEAM_CSV##*[![:space:]]}"}"
+        TEAM_CSV="${TEAM_CSV/#\~/$HOME}"
+        if [ -z "$TEAM_CSV" ] \
+            || [ -d "$TEAM_CSV" ] \
+            || [ ! -f "$TEAM_CSV" ] \
+            || [ ! -r "$TEAM_CSV" ] \
+            || [ ! -s "$TEAM_CSV" ]; then
+            f_subdomains_die "Incorrect file path."
+        fi
+    else
+        echo
+        echo "CSV format: subdomain,ip,category  (header optional; one IPv4 per host)"
+        echo "Category: Discover rules first; CSV used only when Discover has no match."
+        echo "Hosts already in the report are skipped (not re-imported)."
+        echo "Discover category patterns are never modified."
+        echo
+        echo -n "Enter path to CSV list: "
+        read -r TEAM_CSV || f_subdomains_die "Incorrect file path."
+        TEAM_CSV="${TEAM_CSV#"${TEAM_CSV%%[![:space:]]*}"}"
+        TEAM_CSV="${TEAM_CSV%"${TEAM_CSV##*[![:space:]]}"}"
+        TEAM_CSV="${TEAM_CSV/#\~/$HOME}"
+        if [ -z "$TEAM_CSV" ] \
+            || [ -d "$TEAM_CSV" ] \
+            || [ ! -f "$TEAM_CSV" ] \
+            || [ ! -r "$TEAM_CSV" ] \
+            || [ ! -s "$TEAM_CSV" ]; then
+            f_subdomains_die "Incorrect file path."
+        fi
     fi
 
     SUBDOMAINS_SOURCE="$TEAM_CSV"
@@ -782,7 +929,12 @@ PY
 # Choice 1: Existing sources
 # ---------------------------------------------------------------------------
 else
-    f_subdomains_read_import "$REPORT_DOMAIN"
+    if [ "$SUBS_NONINTERACTIVE" -eq 1 ]; then
+        SUBDOMAINS_IMPORT="${CLI_IMPORT:-}"
+        f_subdomains_set_import_path "$REPORT_DOMAIN"
+    else
+        f_subdomains_read_import "$REPORT_DOMAIN"
+    fi
 
     SUBDOMAINS_SOURCE="$SUBDOMAINS_IMPORT"
     if [ "$SUBDOMAINS_IMPORT" = "firefox" ]; then
@@ -1011,14 +1163,18 @@ if [ "$MISSING" -gt 0 ]; then
     : > "$RESOLVED"
     CURRENT=0
 
-    echo
-    echo -e "${BLUE}[*] Resolving $MISSING subdomains without IPs using dig.${NC}"
+    if [ "$SUBS_JSON" -eq 0 ]; then
+        echo
+        echo -e "${BLUE}[*] Resolving $MISSING subdomains without IPs using dig.${NC}"
+    fi
     while IFS=$'\t' read -r HOST IP; do
         HOST="${HOST//$'\r'/}"
         IP="${IP//$'\r'/}"
         if [ -z "$IP" ]; then
             CURRENT=$((CURRENT + 1))
-            echo -ne "\r    $CURRENT of $MISSING"
+            if [ "$SUBS_JSON" -eq 0 ]; then
+                echo -ne "\r    $CURRENT of $MISSING"
+            fi
             # dig may return non-zero for NXDOMAIN — treat as empty IP, not script death.
             IP=$(dig +timeout=2 +tries=1 +short "$HOST" 2>/dev/null | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -n 1 || true)
             if [ "$IP" = "1.1.1.1" ] || [ "$IP" = "127.0.0.53" ]; then
@@ -1034,10 +1190,14 @@ if [ "$MISSING" -gt 0 ]; then
             printf '%s\t%s\n' "$HOST" "$IP" >> "$RESOLVED"
         fi
     done < "$MERGED"
-    echo
-    echo "[*] dig: $DIG_RESOLVED of $MISSING resolved to IPv4 ($DIG_FAILED unresolved)."
+    if [ "$SUBS_JSON" -eq 0 ]; then
+        echo
+        echo "[*] dig: $DIG_RESOLVED of $MISSING resolved to IPv4 ($DIG_FAILED unresolved)."
+    fi
 else
-    echo "[*] dig: not needed — all $HAD_IP host(s) already had IPv4 addresses."
+    if [ "$SUBS_JSON" -eq 0 ]; then
+        echo "[*] dig: not needed — all $HAD_IP host(s) already had IPv4 addresses."
+    fi
 fi
 
 FILTERED="$TMPDIR/subdomains-filtered.tsv"
@@ -1246,53 +1406,93 @@ if [ -f "$BATCH_HOSTS" ] && [ -s "$BATCH_HOSTS" ]; then
 fi
 BATCH_COUNT=${BATCH_COUNT:-0}
 
-if declare -F f_audit_log >/dev/null 2>&1; then
-    if [ "$IMPORT_MODE" = "team-csv" ]; then
-        f_audit_log "$DISCOVER_REPORT" "Imported CSV list subdomains ($FINAL_COUNT hosts, $BATCH_COUNT public in batch)"
-    else
-        f_audit_log "$DISCOVER_REPORT" "Imported subdomains ($FINAL_COUNT hosts)"
-    fi
+if [ "$IMPORT_MODE" = "team-csv" ]; then
+    AUDIT_ACTION="Imported CSV list subdomains ($FINAL_COUNT hosts, $BATCH_COUNT public in batch)"
+else
+    AUDIT_ACTION="Imported subdomains ($FINAL_COUNT hosts)"
 fi
+f_subdomains_write_audit_fallback "$AUDIT_ACTION"
+f_subdomains_rebuild_audit
 
 # Homepage date tracks last meaningful report change.
 if [ -f "${DISCOVER:-}/recon/touch-report-date.py" ]; then
     python3 "${DISCOVER}/recon/touch-report-date.py" "$DISCOVER_REPORT" >/dev/null 2>&1 || true
 fi
 
-echo "$MEDIUM"
-echo
-echo "[*] Subdomains import complete."
-echo "[*] $FINAL_COUNT subdomains in report ($PRIVATE_COUNT private, $CATEGORIZED categorized)."
-echo "[*] Hosts page: $PUBLIC_IP_COUNT unique public IPv4 address(es)."
-if [ "$MISSING" -gt 0 ]; then
-    echo "[*] dig: $DIG_RESOLVED of $MISSING host(s) resolved to IPv4 ($DIG_FAILED unresolved)."
-else
-    echo "[*] dig: 0 lookups — all hosts already had IPv4 addresses."
-fi
-if [ "$OMITTED" -gt 0 ]; then
-    echo "[*] $OMITTED host(s) without IPv4 were omitted from the report."
-fi
-echo
-echo -e "Merged data saved to ${YELLOW}$SUBDOMAINS_FILE${NC}"
-echo -e "Import source: ${YELLOW}$SUBDOMAINS_SOURCE${NC}"
-echo -e "HTML report updated: ${YELLOW}$DISCOVER_REPORT${NC}"
-echo
+SUMMARY="$FINAL_COUNT subdomains in report ($PRIVATE_COUNT private, $CATEGORIZED categorized); $PUBLIC_IP_COUNT public IPv4"
 
 # Offer Active on imported public hosts only (CSV list)
+ACTIVE_RAN=0
 if [ "$IMPORT_MODE" = "team-csv" ] && [ "${BATCH_COUNT:-0}" -gt 0 ]; then
-    echo -n "Run Active recon on newly imported public hosts only ($BATCH_COUNT)? (y/N) "
-    read -r RUN_ACTIVE
-    RUN_ACTIVE="${RUN_ACTIVE//$'\r'/}"
-    if [[ "$RUN_ACTIVE" =~ ^[Yy]$ ]]; then
+    DO_ACTIVE=0
+    if [ "$SUBS_NONINTERACTIVE" -eq 1 ]; then
+        [ "$SUBS_RUN_ACTIVE" -eq 1 ] && DO_ACTIVE=1
+    else
+        echo "$MEDIUM"
+        echo
+        echo "[*] Subdomains import complete."
+        echo "[*] $SUMMARY."
+        if [ "$MISSING" -gt 0 ]; then
+            echo "[*] dig: $DIG_RESOLVED of $MISSING host(s) resolved to IPv4 ($DIG_FAILED unresolved)."
+        else
+            echo "[*] dig: 0 lookups — all hosts already had IPv4 addresses."
+        fi
+        if [ "$OMITTED" -gt 0 ]; then
+            echo "[*] $OMITTED host(s) without IPv4 were omitted from the report."
+        fi
+        echo
+        echo -e "Merged data saved to ${YELLOW}$SUBDOMAINS_FILE${NC}"
+        echo -e "Import source: ${YELLOW}$SUBDOMAINS_SOURCE${NC}"
+        echo -e "HTML report updated: ${YELLOW}$DISCOVER_REPORT${NC}"
+        echo
+        echo -n "Run Active recon on newly imported public hosts only ($BATCH_COUNT)? (y/N) "
+        read -r RUN_ACTIVE
+        RUN_ACTIVE="${RUN_ACTIVE//$'\r'/}"
+        if [[ "$RUN_ACTIVE" =~ ^[Yy]$ ]]; then
+            DO_ACTIVE=1
+        fi
+    fi
+    if [ "$DO_ACTIVE" -eq 1 ]; then
         if [ -f "${DISCOVER:-}/recon/active.sh" ]; then
             export DISCOVER_REPORT
             export DISCOVER_ACTIVE_SCOPE=import-batch
             # shellcheck disable=SC1090
             bash "${DISCOVER}/recon/active.sh"
             unset DISCOVER_ACTIVE_SCOPE
+            ACTIVE_RAN=1
         else
-            echo "[!] active.sh not found — run Domain → Active manually."
+            if [ "$SUBS_JSON" -eq 0 ]; then
+                echo "[!] active.sh not found — run Domain → Active manually."
+            fi
         fi
     fi
+    if [ "$SUBS_NONINTERACTIVE" -eq 0 ]; then
+        echo
+    fi
+fi
+
+if [ "$SUBS_JSON" -eq 1 ]; then
+    python3 -c 'import json,sys; print(json.dumps({"ok":True,"summary":sys.argv[1],"total":int(sys.argv[2]),"private":int(sys.argv[3]),"categorized":int(sys.argv[4]),"public_ips":int(sys.argv[5]),"batch_public":int(sys.argv[6]),"mode":sys.argv[7],"source":sys.argv[8],"report":sys.argv[9],"active_ran":sys.argv[10]=="1"}))' \
+        "$SUMMARY" "$FINAL_COUNT" "$PRIVATE_COUNT" "$CATEGORIZED" "$PUBLIC_IP_COUNT" "$BATCH_COUNT" "$IMPORT_MODE" "$SUBDOMAINS_SOURCE" "$DISCOVER_REPORT" "$ACTIVE_RAN"
+    exit 0
+fi
+
+if [ "$SUBS_QUIET" -eq 0 ] && { [ "$IMPORT_MODE" != "team-csv" ] || [ "${BATCH_COUNT:-0}" -eq 0 ] || [ "$SUBS_NONINTERACTIVE" -eq 1 ]; }; then
+    echo "$MEDIUM"
+    echo
+    echo "[*] Subdomains import complete."
+    echo "[*] $SUMMARY."
+    if [ "$MISSING" -gt 0 ]; then
+        echo "[*] dig: $DIG_RESOLVED of $MISSING host(s) resolved to IPv4 ($DIG_FAILED unresolved)."
+    else
+        echo "[*] dig: 0 lookups — all hosts already had IPv4 addresses."
+    fi
+    if [ "$OMITTED" -gt 0 ]; then
+        echo "[*] $OMITTED host(s) without IPv4 were omitted from the report."
+    fi
+    echo
+    echo -e "Merged data saved to ${YELLOW}$SUBDOMAINS_FILE${NC}"
+    echo -e "Import source: ${YELLOW}$SUBDOMAINS_SOURCE${NC}"
+    echo -e "HTML report updated: ${YELLOW}$DISCOVER_REPORT${NC}"
     echo
 fi

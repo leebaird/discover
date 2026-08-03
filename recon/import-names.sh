@@ -1,24 +1,53 @@
 #!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
+#
+# Interactive (Domain menu legacy / CLI): prompts for report + manual TSV.
+# Non-interactive (statusd / UI): --report <path> [--manual <path>] [--json]
+
+# Colors when not launched from Discover menu.
+RED=${RED:-'\033[1;31m'}
+YELLOW=${YELLOW:-'\033[1;33m'}
+BLUE=${BLUE:-'\033[1;34m'}
+NC=${NC:-'\033[0m'}
+SMALL=${SMALL:-'========================================'}
+MEDIUM=${MEDIUM:-'=================================================================='}
+
+NAMES_JSON=0
+NAMES_QUIET=0
+NAMES_NONINTERACTIVE=0
+CLI_REPORT=""
+CLI_MANUAL=""
+
+f_names_usage(){
+    echo "Usage: import-names.sh [--report <path>] [--manual <path>] [--json]"
+    echo "  Interactive when --report is omitted. UI/statusd: pass --report (current engagement)."
+}
+
+f_names_json_fail(){
+    local msg="$1"
+    if [ "$NAMES_JSON" -eq 1 ]; then
+        python3 -c 'import json,sys; print(json.dumps({"ok":False,"error":sys.argv[1]}))' "$msg"
+    fi
+}
 
 f_names_die(){
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    echo -e "${RED}[!] $1${NC}"
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    sleep 2
+    f_names_json_fail "$1"
+    if [ "$NAMES_JSON" -eq 0 ]; then
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        echo -e "${RED}[!] $1${NC}"
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        [ "$NAMES_NONINTERACTIVE" -eq 0 ] && sleep 2
+    fi
     exit 1
 }
 
-f_names_read_report(){
-    echo
-    echo -n "Enter the location of a previous Discover scan: "
-    read -r DISCOVER_REPORT
-
+f_names_validate_report(){
+    DISCOVER_REPORT="${DISCOVER_REPORT//$'\r'/}"
     DISCOVER_REPORT="${DISCOVER_REPORT#"${DISCOVER_REPORT%%[![:space:]]*}"}"
     DISCOVER_REPORT="${DISCOVER_REPORT%"${DISCOVER_REPORT##*[![:space:]]}"}"
     DISCOVER_REPORT="${DISCOVER_REPORT/#\~/$HOME}"
@@ -27,13 +56,61 @@ f_names_read_report(){
         f_names_die "No scan location provided."
     fi
 
-    if [ -f "$DISCOVER_REPORT" ] \
-        || [ ! -d "$DISCOVER_REPORT" ] \
+    if [ -f "$DISCOVER_REPORT" ]; then
+        case "$DISCOVER_REPORT" in
+            */pages/*)
+                DISCOVER_REPORT="$(cd "$(dirname "$DISCOVER_REPORT")/.." && pwd)" || f_names_die "Passive scan not found."
+                ;;
+            *)
+                DISCOVER_REPORT="$(cd "$(dirname "$DISCOVER_REPORT")" && pwd)" || f_names_die "Passive scan not found."
+                ;;
+        esac
+    fi
+
+    if [ ! -d "$DISCOVER_REPORT" ] \
         || [ ! -r "$DISCOVER_REPORT" ] \
         || [ ! -x "$DISCOVER_REPORT" ] \
         || [ ! -d "$DISCOVER_REPORT/pages" ] \
         || [ ! -f "$DISCOVER_REPORT/pages/names.htm" ]; then
         f_names_die "Passive scan not found."
+    fi
+    DISCOVER_REPORT="$(cd "$DISCOVER_REPORT" && pwd)" || f_names_die "Passive scan not found."
+}
+
+f_names_read_report(){
+    echo
+    echo -n "Enter the location of a previous Discover scan: "
+    read -r DISCOVER_REPORT
+    f_names_validate_report
+}
+
+f_names_use_manual(){
+    local default="$DISCOVER_REPORT/tools/names-manual.tsv"
+    local create_ok="${1:-1}"
+
+    NAMES_MANUAL="${NAMES_MANUAL//$'\r'/}"
+    NAMES_MANUAL="${NAMES_MANUAL#"${NAMES_MANUAL%%[![:space:]]*}"}"
+    NAMES_MANUAL="${NAMES_MANUAL%"${NAMES_MANUAL##*[![:space:]]}"}"
+    NAMES_MANUAL="${NAMES_MANUAL/#\~/$HOME}"
+
+    if [ -z "$NAMES_MANUAL" ]; then
+        NAMES_MANUAL="$default"
+    fi
+
+    if [ ! -f "$NAMES_MANUAL" ]; then
+        if [ "$create_ok" -eq 1 ] && [ "$NAMES_NONINTERACTIVE" -eq 0 ]; then
+            mkdir -p "$DISCOVER_REPORT/tools"
+            cat > "$NAMES_MANUAL" <<'EOF'
+# Manual contacts — tab-separated: Name, Title, Phone
+# Add one person per line, then re-run Import names.
+EOF
+            f_names_die "Manual contacts file created. Add entries, then run Import names again."
+        fi
+        f_names_die "Manual contacts file not found: $NAMES_MANUAL"
+    fi
+
+    if [ ! -s "$NAMES_MANUAL" ] || ! grep -qv '^[[:space:]]*#' "$NAMES_MANUAL" 2>/dev/null; then
+        f_names_die "Manual contacts file is empty. Add tab-separated rows, then run Import names again."
     fi
 }
 
@@ -48,26 +125,38 @@ f_names_read_manual(){
     echo
     echo -n "Enter manual contacts file (or press Enter for default): "
     read -r NAMES_MANUAL
+    f_names_use_manual 1
+}
 
-    NAMES_MANUAL="${NAMES_MANUAL#"${NAMES_MANUAL%%[![:space:]]*}"}"
-    NAMES_MANUAL="${NAMES_MANUAL%"${NAMES_MANUAL##*[![:space:]]}"}"
-    NAMES_MANUAL="${NAMES_MANUAL/#\~/$HOME}"
-
-    if [ -z "$NAMES_MANUAL" ]; then
-        NAMES_MANUAL="$default"
+f_names_write_audit(){
+    local action="$1"
+    if declare -F f_audit_log >/dev/null 2>&1; then
+        f_audit_log "$DISCOVER_REPORT" "$action" || true
+        return 0
     fi
-
-    if [ ! -f "$NAMES_MANUAL" ]; then
-        mkdir -p "$DISCOVER_REPORT/tools"
-        cat > "$NAMES_MANUAL" <<'EOF'
-# Manual contacts — tab-separated: Name, Title, Phone
-# Add one person per line, then re-run Import names.
-EOF
-        f_names_die "Manual contacts file created. Add entries, then run Import names again."
+    mkdir -p "$DISCOVER_REPORT/tools/audit" 2>/dev/null || return 0
+    local ts op
+    ts=$(date -u +"%m-%d-%Y - %H:%M Z")
+    op="Operator"
+    if [ -f "$HOME/.discover/operator-name" ]; then
+        op=$(tr -d '[:space:]' < "$HOME/.discover/operator-name" 2>/dev/null || true)
+        [ -n "$op" ] || op="Operator"
     fi
+    case "$action" in
+        *.) ;;
+        *) action="${action}." ;;
+    esac
+    # Names import: no operator egress IP on Audit (dash placeholder).
+    printf '%s | %s | - | %s\n' "$ts" "$op" "$action" >> "$DISCOVER_REPORT/tools/audit/log.txt" 2>/dev/null || true
+}
 
-    if [ ! -s "$NAMES_MANUAL" ] || ! grep -qv '^[[:space:]]*#' "$NAMES_MANUAL" 2>/dev/null; then
-        f_names_die "Manual contacts file is empty. Add tab-separated rows, then run Import names again."
+f_names_rebuild_audit(){
+    local root="${DISCOVER:-}"
+    if [ -z "$root" ] || [ ! -f "$root/recon/audit-build.py" ]; then
+        root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    fi
+    if [ -f "$root/recon/audit-build.py" ] && [ -f "$root/report/pages/audit.htm" ]; then
+        python3 "$root/recon/audit-build.py" "$DISCOVER_REPORT" "$root/report/pages/audit.htm" >/dev/null 2>&1 || true
     fi
 }
 
@@ -412,17 +501,69 @@ report_path.write_text(prefix + "\n".join(lines) + suffix)
 PY
 }
 
-clear
-f_banner
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --report)
+            CLI_REPORT="${2:-}"
+            shift 2
+            ;;
+        --manual)
+            CLI_MANUAL="${2:-}"
+            shift 2
+            ;;
+        --json)
+            NAMES_JSON=1
+            NAMES_NONINTERACTIVE=1
+            shift
+            ;;
+        --quiet|-q)
+            NAMES_QUIET=1
+            shift
+            ;;
+        -h|--help)
+            f_names_usage
+            exit 0
+            ;;
+        *)
+            f_names_die "Unknown option: $1"
+            ;;
+    esac
+done
 
-echo -e "${BLUE}Import names.${NC}"
+if [ -n "$CLI_REPORT" ]; then
+    NAMES_NONINTERACTIVE=1
+    DISCOVER_REPORT="$CLI_REPORT"
+fi
+
+if [ -z "${DISCOVER:-}" ] || [ ! -d "${DISCOVER:-/}/report/pages" ]; then
+    _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [ -d "$_script_dir/../report/pages" ]; then
+        DISCOVER="$(cd "$_script_dir/.." && pwd)"
+    fi
+    unset _script_dir
+fi
+export DISCOVER="${DISCOVER:-}"
+
+if [ "$NAMES_NONINTERACTIVE" -eq 0 ]; then
+    if declare -F f_banner >/dev/null 2>&1; then
+        clear 2>/dev/null || true
+        f_banner
+    fi
+    echo -e "${BLUE}Import names.${NC}"
+fi
 
 if ! command -v python3 >/dev/null 2>&1; then
     f_names_die "python3 is not installed. Run Discover update to install dependencies."
 fi
 
-f_names_read_report
-f_names_read_manual
+if [ "$NAMES_NONINTERACTIVE" -eq 1 ]; then
+    f_names_validate_report
+    NAMES_MANUAL="${CLI_MANUAL:-}"
+    f_names_use_manual 0
+else
+    f_names_read_report
+    f_names_read_manual
+fi
 
 TOOLS_DIR="$DISCOVER_REPORT/tools"
 mkdir -p "$TOOLS_DIR"
@@ -455,12 +596,25 @@ if [ -f "${DISCOVER:-}/recon/touch-report-date.py" ]; then
     python3 "${DISCOVER}/recon/touch-report-date.py" "$DISCOVER_REPORT" >/dev/null 2>&1 || true
 fi
 
-echo "$MEDIUM"
-echo
-echo "[*] Names import complete."
-echo "[*] $TOTAL contacts in report ($WITH_TITLE with title, $WITH_PHONE with phone)."
-echo
-echo -e "Merged data saved to ${YELLOW}$TOOLS_DIR/names${NC}"
-echo -e "Manual entries file: ${YELLOW}$MANUAL${NC}"
-echo -e "HTML report updated: ${YELLOW}$DISCOVER_REPORT${NC}"
-echo
+f_names_write_audit "Imported names ($TOTAL contacts)"
+f_names_rebuild_audit
+
+SUMMARY="$TOTAL contacts in report ($WITH_TITLE with title, $WITH_PHONE with phone)"
+
+if [ "$NAMES_JSON" -eq 1 ]; then
+    python3 -c 'import json,sys; print(json.dumps({"ok":True,"summary":sys.argv[1],"total":int(sys.argv[2]),"with_title":int(sys.argv[3]),"with_phone":int(sys.argv[4]),"manual":sys.argv[5],"report":sys.argv[6]}))' \
+        "$SUMMARY" "$TOTAL" "$WITH_TITLE" "$WITH_PHONE" "$MANUAL" "$DISCOVER_REPORT"
+    exit 0
+fi
+
+if [ "$NAMES_QUIET" -eq 0 ]; then
+    echo "$MEDIUM"
+    echo
+    echo "[*] Names import complete."
+    echo "[*] $SUMMARY."
+    echo
+    echo -e "Merged data saved to ${YELLOW}$TOOLS_DIR/names${NC}"
+    echo -e "Manual entries file: ${YELLOW}$MANUAL${NC}"
+    echo -e "HTML report updated: ${YELLOW}$DISCOVER_REPORT${NC}"
+    echo
+fi

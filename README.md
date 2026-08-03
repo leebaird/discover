@@ -168,16 +168,14 @@ RECON
 4.  Google dorks
 5.  Web search
 
-6.  Import names
-7.  Import names, titles, and emails
-8.  Import subdomains
-
-9.  Active
-10. Open report
-11. Previous menu
+6.  Active
+7.  Open report
+8.  Previous menu
 ```
 
 Note: Passive and Active cannot be run as root.
+
+**Import** (names, names/titles/emails, subdomains, and other-operator scans) is on **Report → Audit → Import** when the engagement is open via Discover (`http://127.0.0.1:17322/…`). Scripts remain available for CLI / automation.
 
 ---
 
@@ -186,11 +184,11 @@ Note: Passive and Active cannot be run as root.
 Typical domain engagement path:
 
 1. **Passive** — build `$HOME/data/<domain>/` HTML report.
-2. **Import names** / **Import names, titles, and emails** / **Import subdomains** — enrich contacts and hosts.
-3. **Active** — httpx / whatweb / gowitness; Active and Subdomains pages; optional NVD CVSS.
-4. **Shodan** (optional) — Active page **Enrich** (Shodan checkbox) or `recon/shodan-enrich.sh` / `shodan-enrich.py` CLI; host-by-IP OSINT for public IPs from Active httpx.
-5. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, WPScan when WordPress, Nikto, ffuf) in operator mode.
-6. **Open report** — reopen the live tree later for more testing (operator mode via statusd).
+2. **Open report** (or finish Active) so the engagement is on statusd.
+3. **Audit → Import** — names, names/titles/emails, subdomains, or another operator’s package into the **current** report.
+4. **Active** — httpx / whatweb / gowitness; Active and Subdomains pages; optional NVD CVSS.
+5. **Shodan** (optional) — Active page **Enrich** (Shodan checkbox) or `recon/shodan-enrich.sh` / `shodan-enrich.py` CLI; host-by-IP OSINT for public IPs from Active httpx.
+6. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, WPScan when WordPress, Nikto, ffuf) in operator mode.
 7. **Export** — on Report → Audit (Discover-hosted only): Client, Defender (audit CSV), or Operator package; path shown after export.
 8. **Reports → Audit** in the HTML report — Target scans, Audit log, and Exports.
 
@@ -211,22 +209,20 @@ Uses Amass, ARIN, DNSRecon, dnstwist, Metasploit, subfinder, sublist3r, Shodan C
 
 #### Import names
 
-Script: `recon/import-names.sh` (Domain menu **6**).
+Script: `recon/import-names.sh`. **UI:** Report → Audit → **Import** → **Names** (statusd; uses the open engagement).
 
-Run after a passive scan to add or enrich contacts from manual research (LinkedIn, company sites, phone directories, etc.).
+Add or enrich contacts from manual research (LinkedIn, company sites, phone directories, etc.).
 
-```
-Enter the location of a previous Discover scan:
-/home/user/data/example.com
-
-Enter manual contacts file (or press Enter for default):
-```
-
-* Edit `$HOME/data/<domain>/tools/names-manual.tsv`
+* Edit `$HOME/data/<domain>/tools/names-manual.tsv` (or pass another path)
 * Format: Name, Title, Phone (tab-separated, one person per line)
 * Lines starting with `#` are comments
 * Title and phone may be left blank
 * Re-run Import names whenever you add rows to the manual file
+
+```bash
+bash recon/import-names.sh --report /home/user/data/example.com --json
+# optional: --manual /path/to/names-manual.tsv
+```
 
 Merges three sources, then refreshes `pages/names.htm`:
 
@@ -240,16 +236,14 @@ The merged TSV is saved back to `tools/names`. The Names page is a sortable thre
 
 #### Import names, titles, and emails
 
-Script: `recon/import-names-titles-emails.sh` (Domain menu **7**).
+Script: `recon/import-names-titles-emails.sh`. **UI:** Report → Audit → **Import** → **Names, titles, and emails**.
 
-Merge a separate names dump (with optional titles and emails) into an existing passive engagement.
+Merge a separate names dump (with optional titles and emails) into the open engagement.
 
-```
-Enter the location of the names file:
-/home/user/data/names-from-osint.txt
-
-Enter the location of a previous Discover scan:
-/home/user/data/example.com
+```bash
+bash recon/import-names-titles-emails.sh \
+  --report /home/user/data/example.com \
+  --source /home/user/data/names-from-osint.txt --json
 ```
 
 * Requires a readable source file and a report that already has `pages/names.htm`
@@ -261,26 +255,21 @@ Enter the location of a previous Discover scan:
 
 #### Import subdomains
 
-Script: `recon/import-subdomains.sh` (Domain menu **8**).
+Script: `recon/import-subdomains.sh`. **UI:** Report → Audit → **Import** → **Subdomains**.
 
-Run after a passive scan to add or enrich hosts. The menu offers **two choices**:
+Add or enrich hosts. Two modes:
 
-1. **Existing sources** — Firefox / Pentest-Tools / manual TSV (previous behavior)
+1. **Existing sources** — Firefox / Pentest-Tools / manual TSV
 2. **CSV list** — `subdomain,ip,category` (one IPv4 per host; IP optional)
 
-```
-Enter the location of a previous Discover scan:
-/home/user/data/example.com
-
-1. Existing sources (Firefox / Pentest-Tools / TSV)
-2. CSV list (subdomain, IPv4, category)
-Choice: 2
-
-Enter path to CSV list:
-/home/user/team-hosts.csv
+```bash
+bash recon/import-subdomains.sh --report /home/user/data/example.com \
+  --mode team-csv --import /home/user/team-hosts.csv --json
+# existing: --mode existing --import firefox|/path/to/export
+# optional CSV: --run-active  (Active on new public hosts only)
 ```
 
-**Choice 1 — existing sources**
+**Mode existing**
 
 * `firefox` — pull `pinia/scans` from your Firefox profile (free Pentest-Tools scans)
 * Firefox `pinia/scans` export (`pinia-scans.json`)
@@ -291,26 +280,26 @@ Enter path to CSV list:
 * Hosts without an IP are resolved with `dig`
 * Categories from Discover `recon/subdomain-categories.tsv` only
 
-**Choice 2 — CSV list**
+**Mode team-csv (CSV list)**
 
 * Format: `subdomain,ip,category` (header optional; comma or tab)
 * One IPv4 per subdomain; empty IP → `dig`
 * **Skip if already in the report** (`tools/subdomains`) — existing hosts are not re-imported or overwritten
 * **Category:** Discover patterns first; if no match, use CSV category. Discover’s category file is **never** modified.
 * Writes `tools/import-batch-hosts.txt` (**new** public hosts from this CSV only)
-* Optionally prompts to run **Active** on those imported public hosts only (merges into existing httpx/whatweb/gowitness)
+* Optional **Run Active** on those imported public hosts only (UI checkbox / `--run-active`; merges into existing httpx/whatweb/gowitness)
 
-**Both choices**
+**Both modes**
 
 * Merge into `tools/subdomains`, split private IPs to `tools/private-subs`
 * Refresh `pages/subdomains.htm` and `pages/hosts.htm` (unique public IPv4s)
-* Run full **Active** (menu 9) anytime to probe all public hosts
+* Run full **Active** (Domain menu **6**) anytime to probe all public hosts
 
 ---
 
 #### Active
 
-Script: `recon/active.sh` (Domain menu **9**).
+Script: `recon/active.sh` (Domain menu **6**).
 
 Run after a passive scan (and optionally Import subdomains) to probe which public hosts respond over HTTP/HTTPS, fingerprint technologies, and capture screenshots.
 
@@ -529,7 +518,7 @@ On the Active **Software versions** table, **Top CVE** prefers a CISA KEV match 
 
 #### Open report
 
-Script: `recon/import-report.sh` (Domain menu **10 · Open report**).
+Script: `recon/import-report.sh` (Domain menu **7 · Open report**).
 
 Reopen an existing engagement HTML report for continued operator work (does not re-run Passive/Active).
 
@@ -575,16 +564,23 @@ Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit
 
 **Config (Discover-hosted only):** On **Reports → Audit**, use **Config** (left of Import). Hub with **APIs** (edit/save NVD, Shodan, WPScan keys in `~/.discover/api-keys`), **Operator name** (updates `~/.discover/operator-name` and rewrites this report’s audit log for that name), and **Time zone** (US zones + UTC for **viewing** only; all stamps stay UTC on disk).
 
-**Import operator scans (Discover-hosted only):** On **Reports → Audit**, use **Import** (between Config and Export). Modal asks for:
+**Import (Discover-hosted only):** On **Reports → Audit**, use **Import** (between Config and Export). Hub for the **current** engagement (statusd report root):
 
-1. Path to the **unpacked** other-operator report directory (`pages/` + `tools/`)
-2. Their **operator first name** (1–10 letters) — only audit lines for that name are appended
+| Choice | What it does |
+|--------|----------------|
+| **Operator scans** | Merge another operator’s unpacked report (host-scans, screenshots, Active data, their audit lines) |
+| **Names** | Merge manual contacts TSV into Names |
+| **Names, titles, and emails** | Merge an external names dump |
+| **Subdomains** | Existing sources (Firefox / Pentest-Tools / TSV) or CSV list; optional Active on new public hosts |
 
-Merges into the live engagement: host-scan runs, gowitness screenshots/jsonl, httpx/whatweb by host, new subdomains, and matching audit lines. Rebuilds Audit (and Active when Active data was present). Does **not** overwrite your HTML pages from theirs. CLI:
+Operator scans: path to **unpacked** report + their first name (1–10 letters). Other kinds take the source file path (Names may use default `tools/names-manual.tsv`). CLI:
 
 ```bash
 python3 recon/import-operator-package.py --dest /path/to/live-report \
   --source /path/to/their-unpacked-report --operator Bob --json
+bash recon/import-names.sh --report /path/to/live-report --json
+bash recon/import-names-titles-emails.sh --report /path/to/live-report --source /path/to/names.txt --json
+bash recon/import-subdomains.sh --report /path/to/live-report --mode existing --import firefox --json
 ```
 
 | Section | Content |

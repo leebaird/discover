@@ -434,8 +434,11 @@ def _audit_action_hides_operator_ip(action: str) -> bool:
     # Active Update → Software CVEs / NVD refresh
     if "software cve" in a or "updated software cve" in a:
         return True
-    # Domain → Import subdomains (existing sources or CSV list)
+    # Import subdomains (existing sources or CSV list)
     if a.startswith("imported subdomains") or a.startswith("imported csv list subdomains"):
+        return True
+    # Import names / names+titles+emails
+    if a.startswith("imported names"):
         return True
     # Audit page → Import operator package
     if a.startswith("imported operator package"):

@@ -1,24 +1,52 @@
 #!/usr/bin/env bash
 
 # by Lee Baird (@discoverscripts)
+#
+# Interactive: prompts for source file + report.
+# Non-interactive (statusd / UI): --report <path> --source <path> [--json]
+
+RED=${RED:-'\033[1;31m'}
+YELLOW=${YELLOW:-'\033[1;33m'}
+BLUE=${BLUE:-'\033[1;34m'}
+NC=${NC:-'\033[0m'}
+SMALL=${SMALL:-'========================================'}
+MEDIUM=${MEDIUM:-'=================================================================='}
+
+NTE_JSON=0
+NTE_QUIET=0
+NTE_NONINTERACTIVE=0
+CLI_REPORT=""
+CLI_SOURCE=""
+
+f_nte_usage(){
+    echo "Usage: import-names-titles-emails.sh --report <path> --source <path> [--json]"
+    echo "  Interactive when --report/--source are omitted."
+}
+
+f_nte_json_fail(){
+    local msg="$1"
+    if [ "$NTE_JSON" -eq 1 ]; then
+        python3 -c 'import json,sys; print(json.dumps({"ok":False,"error":sys.argv[1]}))' "$msg"
+    fi
+}
 
 f_nte_die(){
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    echo -e "${RED}[!] $1${NC}"
-    echo
-    echo -e "${RED}$SMALL${NC}"
-    echo
-    sleep 2
+    f_nte_json_fail "$1"
+    if [ "$NTE_JSON" -eq 0 ]; then
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        echo -e "${RED}[!] $1${NC}"
+        echo
+        echo -e "${RED}$SMALL${NC}"
+        echo
+        [ "$NTE_NONINTERACTIVE" -eq 0 ] && sleep 2
+    fi
     exit 1
 }
 
-f_nte_read_source(){
-    echo
-    echo -n "Enter the location of the names file: "
-    read -r NAMES_FILE
-
+f_nte_validate_source(){
+    NAMES_FILE="${NAMES_FILE//$'\r'/}"
     NAMES_FILE="${NAMES_FILE#"${NAMES_FILE%%[![:space:]]*}"}"
     NAMES_FILE="${NAMES_FILE%"${NAMES_FILE##*[![:space:]]}"}"
     NAMES_FILE="${NAMES_FILE/#\~/$HOME}"
@@ -32,11 +60,8 @@ f_nte_read_source(){
     fi
 }
 
-f_nte_read_report(){
-    echo
-    echo -n "Enter the location of a previous Discover scan: "
-    read -r DISCOVER_REPORT
-
+f_nte_validate_report(){
+    DISCOVER_REPORT="${DISCOVER_REPORT//$'\r'/}"
     DISCOVER_REPORT="${DISCOVER_REPORT#"${DISCOVER_REPORT%%[![:space:]]*}"}"
     DISCOVER_REPORT="${DISCOVER_REPORT%"${DISCOVER_REPORT##*[![:space:]]}"}"
     DISCOVER_REPORT="${DISCOVER_REPORT/#\~/$HOME}"
@@ -45,27 +70,136 @@ f_nte_read_report(){
         f_nte_die "No scan location provided."
     fi
 
-    if [ -f "$DISCOVER_REPORT" ] \
-        || [ ! -d "$DISCOVER_REPORT" ] \
+    if [ -f "$DISCOVER_REPORT" ]; then
+        case "$DISCOVER_REPORT" in
+            */pages/*)
+                DISCOVER_REPORT="$(cd "$(dirname "$DISCOVER_REPORT")/.." && pwd)" || f_nte_die "Passive scan not found."
+                ;;
+            *)
+                DISCOVER_REPORT="$(cd "$(dirname "$DISCOVER_REPORT")" && pwd)" || f_nte_die "Passive scan not found."
+                ;;
+        esac
+    fi
+
+    if [ ! -d "$DISCOVER_REPORT" ] \
         || [ ! -r "$DISCOVER_REPORT" ] \
         || [ ! -x "$DISCOVER_REPORT" ] \
         || [ ! -d "$DISCOVER_REPORT/pages" ] \
         || [ ! -f "$DISCOVER_REPORT/pages/names.htm" ]; then
         f_nte_die "Passive scan not found."
     fi
+    DISCOVER_REPORT="$(cd "$DISCOVER_REPORT" && pwd)" || f_nte_die "Passive scan not found."
 }
 
-clear
-f_banner
+f_nte_read_source(){
+    echo
+    echo -n "Enter the location of the names file: "
+    read -r NAMES_FILE
+    f_nte_validate_source
+}
 
-echo -e "${BLUE}Import names, titles, and emails.${NC}"
+f_nte_read_report(){
+    echo
+    echo -n "Enter the location of a previous Discover scan: "
+    read -r DISCOVER_REPORT
+    f_nte_validate_report
+}
+
+f_nte_write_audit(){
+    local action="$1"
+    if declare -F f_audit_log >/dev/null 2>&1; then
+        f_audit_log "$DISCOVER_REPORT" "$action" || true
+        return 0
+    fi
+    mkdir -p "$DISCOVER_REPORT/tools/audit" 2>/dev/null || return 0
+    local ts op
+    ts=$(date -u +"%m-%d-%Y - %H:%M Z")
+    op="Operator"
+    if [ -f "$HOME/.discover/operator-name" ]; then
+        op=$(tr -d '[:space:]' < "$HOME/.discover/operator-name" 2>/dev/null || true)
+        [ -n "$op" ] || op="Operator"
+    fi
+    case "$action" in
+        *.) ;;
+        *) action="${action}." ;;
+    esac
+    printf '%s | %s | - | %s\n' "$ts" "$op" "$action" >> "$DISCOVER_REPORT/tools/audit/log.txt" 2>/dev/null || true
+}
+
+f_nte_rebuild_audit(){
+    local root="${DISCOVER:-}"
+    if [ -z "$root" ] || [ ! -f "$root/recon/audit-build.py" ]; then
+        root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    fi
+    if [ -f "$root/recon/audit-build.py" ] && [ -f "$root/report/pages/audit.htm" ]; then
+        python3 "$root/recon/audit-build.py" "$DISCOVER_REPORT" "$root/report/pages/audit.htm" >/dev/null 2>&1 || true
+    fi
+}
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --report)
+            CLI_REPORT="${2:-}"
+            shift 2
+            ;;
+        --source|--file)
+            CLI_SOURCE="${2:-}"
+            shift 2
+            ;;
+        --json)
+            NTE_JSON=1
+            NTE_NONINTERACTIVE=1
+            shift
+            ;;
+        --quiet|-q)
+            NTE_QUIET=1
+            shift
+            ;;
+        -h|--help)
+            f_nte_usage
+            exit 0
+            ;;
+        *)
+            f_nte_die "Unknown option: $1"
+            ;;
+    esac
+done
+
+if [ -n "$CLI_REPORT" ] || [ -n "$CLI_SOURCE" ]; then
+    NTE_NONINTERACTIVE=1
+fi
+
+if [ -z "${DISCOVER:-}" ] || [ ! -d "${DISCOVER:-/}/report/pages" ]; then
+    _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [ -d "$_script_dir/../report/pages" ]; then
+        DISCOVER="$(cd "$_script_dir/.." && pwd)"
+    fi
+    unset _script_dir
+fi
+export DISCOVER="${DISCOVER:-}"
+
+if [ "$NTE_NONINTERACTIVE" -eq 0 ]; then
+    if declare -F f_banner >/dev/null 2>&1; then
+        clear 2>/dev/null || true
+        f_banner
+    fi
+    echo -e "${BLUE}Import names, titles, and emails.${NC}"
+fi
 
 if ! command -v python3 >/dev/null 2>&1; then
     f_nte_die "python3 is not installed. Run Discover update to install dependencies."
 fi
 
-f_nte_read_source
-f_nte_read_report
+if [ "$NTE_NONINTERACTIVE" -eq 1 ]; then
+    DISCOVER_REPORT="${CLI_REPORT:-}"
+    NAMES_FILE="${CLI_SOURCE:-}"
+    f_nte_validate_report
+    f_nte_validate_source
+else
+    f_nte_read_source
+    f_nte_read_report
+fi
+
 
 STATS_FILE=$(mktemp)
 trap 'rm -f "$STATS_FILE"' EXIT
@@ -345,13 +479,26 @@ if [ -f "${DISCOVER:-}/recon/touch-report-date.py" ]; then
     python3 "${DISCOVER}/recon/touch-report-date.py" "$DISCOVER_REPORT" >/dev/null 2>&1 || true
 fi
 
-echo "$MEDIUM"
-echo
-echo "[*] Names, titles, and emails import complete."
-echo "[*] Names: $BEFORE_NAMES -> $TOTAL_NAMES (+$ADDED_NAMES)"
-echo "[*] Emails: $TOTAL_EMAILS"
-echo
-echo -e "Source file: ${YELLOW}$NAMES_FILE${NC}"
-echo -e "Merged data saved to ${YELLOW}$DISCOVER_REPORT/tools/names${NC}"
-echo -e "HTML report updated: ${YELLOW}$DISCOVER_REPORT${NC}"
-echo
+f_nte_write_audit "Imported names, titles, and emails (+$ADDED_NAMES names, $TOTAL_EMAILS emails)"
+f_nte_rebuild_audit
+
+SUMMARY="Names: $BEFORE_NAMES -> $TOTAL_NAMES (+$ADDED_NAMES); emails: $TOTAL_EMAILS"
+
+if [ "$NTE_JSON" -eq 1 ]; then
+    python3 -c 'import json,sys; print(json.dumps({"ok":True,"summary":sys.argv[1],"before_names":int(sys.argv[2]),"total_names":int(sys.argv[3]),"added_names":int(sys.argv[4]),"total_emails":int(sys.argv[5]),"source":sys.argv[6],"report":sys.argv[7]}))' \
+        "$SUMMARY" "$BEFORE_NAMES" "$TOTAL_NAMES" "$ADDED_NAMES" "$TOTAL_EMAILS" "$NAMES_FILE" "$DISCOVER_REPORT"
+    exit 0
+fi
+
+if [ "$NTE_QUIET" -eq 0 ]; then
+    echo "$MEDIUM"
+    echo
+    echo "[*] Names, titles, and emails import complete."
+    echo "[*] Names: $BEFORE_NAMES -> $TOTAL_NAMES (+$ADDED_NAMES)"
+    echo "[*] Emails: $TOTAL_EMAILS"
+    echo
+    echo -e "Source file: ${YELLOW}$NAMES_FILE${NC}"
+    echo -e "Merged data saved to ${YELLOW}$DISCOVER_REPORT/tools/names${NC}"
+    echo -e "HTML report updated: ${YELLOW}$DISCOVER_REPORT${NC}"
+    echo
+fi
