@@ -49,6 +49,12 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - Domain menu no longer lists import items 6–8; menu is **6 Active · 7 Open report · 8 Previous**. Scripts remain for CLI.
 - Assets: `inc-audit-import.js`; bust `?v=` / `modern.css` on Audit after UI changes; import-report injects the script on `audit.htm`. Restart statusd after endpoint changes.
 
+## Audit log operator filter
+
+- Client-side dropdown next to **Audit log** heading: **All operators** + each unique name from the table.
+- Rows use `data-audit-operator` (from `audit-build.py`). Optional URL `?operator=Name` (case-insensitive; updates via `history.replaceState`).
+- Works on statusd and `file://`. Asset: `inc-audit-log-filter.js`; bust `?v=` / `modern.css` on Audit after UI changes.
+
 ## Audit log line delete
 
 - **Delete** on each Audit log row only when Discover-hosted (`http://127.0.0.1:17322/…`). Manual `file://` never shows it.

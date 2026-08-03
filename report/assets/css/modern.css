@@ -1097,6 +1097,56 @@ tr.inc-subdomains-filter-hide {
     margin: 0 0 var(--space-xs);
 }
 
+/* Audit log: title + operator filter on one row */
+.inc-audit-page .inc-audit-log-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    margin: 0 0 var(--space-xs);
+}
+
+.inc-audit-page .inc-audit-log-header .inc-audit-section-title {
+    margin: 0;
+}
+
+.inc-audit-page .inc-audit-log-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inc-audit-page .inc-audit-op-filter-label {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #aeb5bf;
+    white-space: nowrap;
+}
+
+.inc-audit-page .inc-audit-op-filter-select {
+    min-width: 140px;
+    max-width: 220px;
+    padding: 5px 8px;
+    border: 1px solid #2f3844;
+    border-radius: 6px;
+    background: #151a20;
+    color: #e8eaed;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.inc-audit-page .inc-audit-op-filter-select:focus {
+    outline: none;
+    border-color: #4a90d9;
+}
+
+.inc-audit-page tr.inc-audit-log-filter-hide {
+    display: none !important;
+}
+
 .inc-audit-page .inc-audit-note {
     color: var(--text-muted);
     font-size: 15px;

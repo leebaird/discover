@@ -1198,7 +1198,14 @@ def build_html(report_root: Path) -> str:
 
     # Audit log (primary — above Target scans)
     lines.append('<section class="inc-audit-section inc-audit-section--log">')
+    lines.append('<div class="inc-audit-log-header">')
     lines.append('<h3 class="inc-audit-section-title">Audit log</h3>')
+    # Slot filled by inc-audit-log-filter.js (operator dropdown).
+    lines.append(
+        '<div class="inc-audit-log-filter" id="inc-audit-log-filter" '
+        'aria-label="Filter audit log by operator"></div>'
+    )
+    lines.append("</div>")
     lines.append(
         '<div class="inc-content-frame inc-content-frame--table inc-audit-frame-wide">'
     )
@@ -1234,9 +1241,12 @@ def build_html(report_root: Path) -> str:
             preview = f"{normalize_audit_display_ts(ts)} · {action_disp}"
             if len(preview) > 140:
                 preview = preview[:137] + "."
+            # data-audit-operator: raw name for filter (empty when legacy / missing).
+            op_attr = (operator or "").strip()
             lines.append(
                 f'<tr data-audit-hash="{html.escape(line_hash, quote=True)}" '
-                f'data-audit-preview="{html.escape(preview, quote=True)}">'
+                f'data-audit-preview="{html.escape(preview, quote=True)}" '
+                f'data-audit-operator="{html.escape(op_attr, quote=True)}">'
                 f'<td class="inc-audit-col-time">{html.escape(normalize_audit_display_ts(ts))}</td>'
                 f'<td class="inc-audit-col-op">{html.escape(op_disp)}</td>'
                 f'<td class="inc-audit-col-ip">{html.escape(ip_disp)}</td>'
