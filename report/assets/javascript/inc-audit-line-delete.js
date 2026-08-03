@@ -211,7 +211,7 @@
             var btn = document.createElement("button");
             btn.type = "button";
             btn.className = "inc-audit-line-delete-btn";
-            btn.textContent = "×";
+            btn.textContent = "X";
             btn.title = "Delete this audit log line";
             btn.setAttribute("aria-label", "Delete this audit log line");
             btn.setAttribute("data-inc-audit-line-delete", "1");

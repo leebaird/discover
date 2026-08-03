@@ -150,10 +150,10 @@ f_import_report_sync_assets(){
                 fi
                 if [ "$page" = "audit.htm" ]; then
                     sed -i \
-                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-line-del2|g' \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-line-del4|g' \
                         -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=11|g' \
                         -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=12|g' \
-                        -e 's|inc-audit-line-delete\.js?v=[0-9]*|inc-audit-line-delete.js?v=2|g' \
+                        -e 's|inc-audit-line-delete\.js?v=[0-9]*|inc-audit-line-delete.js?v=3|g' \
                         "$report/pages/$page" 2>/dev/null || true
                     if ! grep -q 'inc-audit-import.js' "$report/pages/$page" 2>/dev/null; then
                         sed -i 's|</body>|<script src="../assets/javascript/inc-audit-import.js?v=11"></script>\n</body>|' \
@@ -164,7 +164,7 @@ f_import_report_sync_assets(){
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                     if ! grep -q 'inc-audit-line-delete.js' "$report/pages/$page" 2>/dev/null; then
-                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-line-delete.js?v=2"></script>\n</body>|' \
+                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-line-delete.js?v=3"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                 fi

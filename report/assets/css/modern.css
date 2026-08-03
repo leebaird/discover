@@ -1318,14 +1318,14 @@ tr.inc-subdomains-filter-hide {
     align-items: center;
     justify-content: center;
     margin: 0;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     padding: 0;
-    border: 1px solid #8b2e2e;
+    border: 1px solid #c0392b;
     border-radius: 4px;
-    background: #3a1515;
-    color: #e74c3c;
-    font-size: 20px;
+    background: #e74c3c;
+    color: #ffffff;
+    font-size: 14px;
     font-weight: 600;
     font-family: inherit;
     line-height: 1;
@@ -1334,9 +1334,9 @@ tr.inc-subdomains-filter-hide {
 
 .inc-audit-line-delete-btn:hover,
 .inc-audit-line-delete-btn:focus {
-    border-color: #e74c3c;
-    background: #4a1a1a;
-    color: #ff6b6b;
+    border-color: #a93226;
+    background: #c0392b;
+    color: #ffffff;
     outline: none;
 }
 
