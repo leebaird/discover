@@ -294,12 +294,12 @@ def main(argv: list[str] | None = None) -> int:
         return redacted
 
     def emit(obj: dict, code: int = 0) -> int:
+        safe_obj = _redact_keys(obj)
         if args.json:
-            # Machine-readable output: full values intentionally included.
-            print(json.dumps(obj, ensure_ascii=False))
+            print(json.dumps(safe_obj, ensure_ascii=False))
         else:
             if obj.get("ok"):
-                print(json.dumps(_redact_keys(obj), indent=2, ensure_ascii=False))
+                print(json.dumps(safe_obj, indent=2, ensure_ascii=False))
             else:
                 print(obj.get("error") or "failed", file=sys.stderr)
         return code
