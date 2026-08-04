@@ -283,12 +283,23 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    def _redact_keys(obj: dict) -> dict:
+        """Return a copy of obj with api_keys values masked for human-readable output."""
+        if "api_keys" not in obj:
+            return obj
+        redacted = dict(obj)
+        redacted["api_keys"] = {
+            k: ("***" if v else "") for k, v in obj["api_keys"].items()
+        }
+        return redacted
+
     def emit(obj: dict, code: int = 0) -> int:
+        safe_obj = _redact_keys(obj)
         if args.json:
-            print(json.dumps(obj, ensure_ascii=False))
+            print(json.dumps(safe_obj, ensure_ascii=False))
         else:
             if obj.get("ok"):
-                print(json.dumps(obj, indent=2, ensure_ascii=False))
+                print(json.dumps(safe_obj, indent=2, ensure_ascii=False))
             else:
                 print(obj.get("error") or "failed", file=sys.stderr)
         return code
