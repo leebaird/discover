@@ -283,18 +283,24 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    def _redact_keys(obj: dict) -> dict:
-        """Return a copy of obj with api_keys values masked for human-readable output."""
-        if "api_keys" not in obj:
-            return obj
-        redacted = dict(obj)
-        redacted["api_keys"] = {
-            k: ("***" if v else "") for k, v in obj["api_keys"].items()
-        }
-        return redacted
+    def _redact_sensitive(obj):
+        """Return obj with sensitive values masked for output."""
+        if isinstance(obj, dict):
+            redacted = {}
+            for key, value in obj.items():
+                if key == "api_keys" and isinstance(value, dict):
+                    redacted[key] = {k: ("***" if v else "") for k, v in value.items()}
+                elif "password" in key.lower():
+                    redacted[key] = "***" if value else ""
+                else:
+                    redacted[key] = _redact_sensitive(value)
+            return redacted
+        if isinstance(obj, list):
+            return [_redact_sensitive(value) for value in obj]
+        return obj
 
     def emit(obj: dict, code: int = 0) -> int:
-        safe_obj = _redact_keys(obj)
+        safe_obj = _redact_sensitive(obj)
         if args.json:
             print(json.dumps(safe_obj, ensure_ascii=False))
         else:
