@@ -248,7 +248,7 @@
     function filterNavHtml() {
         return (
             '<a class="inc-filter-clear" href="' +
-            clearUrl() +
+            escapeHtml(clearUrl()) +
             '">Clear filter</a>' +
             ' <a class="inc-filter-back" href="active.htm">Back</a>'
         );
