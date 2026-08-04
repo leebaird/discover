@@ -41,6 +41,7 @@ import importlib.util
 import json
 import mimetypes
 import os
+import re
 import subprocess
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -584,6 +585,18 @@ def main(argv: list[str]) -> int:
                         b'{"ok":false,"error":"operator name is required"}\n',
                     )
                     return
+                if not re.fullmatch(r"[A-Za-z]{1,10}", operator):
+                    self._send(
+                        400,
+                        b'{"ok":false,"error":"operator name must be 1-10 letters"}\n',
+                    )
+                    return
+                if source.startswith("-"):
+                    self._send(
+                        400,
+                        b'{"ok":false,"error":"invalid source path"}\n',
+                    )
+                    return
                 if not import_operator_script.is_file():
                     self._send(
                         500,
@@ -628,6 +641,12 @@ def main(argv: list[str]) -> int:
                     )
                     return
                 manual = str(body.get("manual") or body.get("path") or "").strip()
+                if manual and manual.startswith("-"):
+                    self._send(
+                        400,
+                        b'{"ok":false,"error":"invalid manual path"}\n',
+                    )
+                    return
                 cmd = [
                     "bash",
                     str(import_names_script),
@@ -659,6 +678,12 @@ def main(argv: list[str]) -> int:
                     self._send(
                         400,
                         b'{"ok":false,"error":"source path is required"}\n',
+                    )
+                    return
+                if source.startswith("-"):
+                    self._send(
+                        400,
+                        b'{"ok":false,"error":"invalid source path"}\n',
                     )
                     return
                 _run_import_json(
@@ -712,6 +737,12 @@ def main(argv: list[str]) -> int:
                     self._send(
                         400,
                         b'{"ok":false,"error":"path is required (file or firefox)"}\n',
+                    )
+                    return
+                if import_path.startswith("-"):
+                    self._send(
+                        400,
+                        b'{"ok":false,"error":"invalid import path"}\n',
                     )
                     return
                 cmd = [
