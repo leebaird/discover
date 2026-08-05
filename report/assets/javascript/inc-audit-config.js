@@ -297,7 +297,9 @@
                     );
                 }
                 if (configCache) {
-                    configCache.api_keys = res.body.api_keys || payload;
+                    // Prefer form values: save response may only report presence
+                    // (set / empty), not secret material.
+                    configCache.api_keys = payload;
                 }
                 setStatus("API keys saved.", false);
             })
