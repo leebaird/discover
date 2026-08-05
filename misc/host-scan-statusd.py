@@ -39,7 +39,6 @@ from __future__ import annotations
 
 import importlib.util
 import json
-import mimetypes
 import os
 import re
 import subprocess
@@ -47,6 +46,116 @@ import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlparse
+
+# Content-Type allowlist / safe fallback (CodeQL http-response-splitting).
+_SAFE_CONTENT_TYPES = frozenset(
+    {
+        "application/json",
+        "application/javascript",
+        "application/javascript; charset=utf-8",
+        "application/octet-stream",
+        "text/css",
+        "text/css; charset=utf-8",
+        "text/html",
+        "text/html; charset=utf-8",
+        "text/javascript",
+        "text/javascript; charset=utf-8",
+        "text/plain",
+        "text/plain; charset=utf-8",
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/webp",
+        "image/svg+xml",
+        "font/woff",
+        "font/woff2",
+    }
+)
+
+
+def _safe_content_type(value: str) -> str:
+    """Sanitize Content-Type (no CR/LF; allowlist of MIME types)."""
+    text = str(value or "").replace("\r", "").replace("\n", "").strip()
+    if not text or len(text) > 128:
+        return "application/octet-stream"
+    low = text.lower()
+    base = low.split(";", 1)[0].strip()
+    allowed_base = {
+        "application/json",
+        "application/javascript",
+        "application/octet-stream",
+        "text/css",
+        "text/html",
+        "text/javascript",
+        "text/plain",
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/webp",
+        "image/svg+xml",
+        "font/woff",
+        "font/woff2",
+    }
+    if base not in allowed_base and low not in _SAFE_CONTENT_TYPES:
+        return "application/octet-stream"
+    if not re.fullmatch(
+        r"[A-Za-z0-9][A-Za-z0-9._+\-]+/[A-Za-z0-9][A-Za-z0-9._+\-]*(?:;\s*charset=utf-8)?",
+        text,
+    ):
+        return "application/octet-stream"
+    return text
+
+
+def _safe_cache_control(value: str) -> str:
+    """Sanitize Cache-Control header (no CR/LF)."""
+    text = str(value or "").replace("\r", "").replace("\n", "").strip()
+    if not text or len(text) > 64:
+        return "no-store"
+    if not re.fullmatch(r"[A-Za-z0-9 _\-,.=]+", text):
+        return "no-store"
+    return text
+
+
+def _safe_user_path(raw: str) -> str | None:
+    """Validate a user-supplied filesystem path for use as a subprocess argument.
+
+    Rejects empty values, NUL, option-like values (leading ``-``), and ensures
+    expanduser/resolve succeeds. Callers still check existence as needed.
+    """
+    text = str(raw or "").strip()
+    if not text or "\x00" in text:
+        return None
+    # Option injection (CWE-88 / command-line injection): never pass as argv.
+    if text.startswith("-"):
+        return None
+    try:
+        path = Path(text).expanduser()
+        # Do not require exists (import may create); resolve for normalization.
+        resolved = path.resolve(strict=False)
+    except (OSError, RuntimeError, ValueError):
+        return None
+    out = str(resolved)
+    if not out or out.startswith("-"):
+        return None
+    return out
+
+
+def load_discover_config_module(discover_root: Path):
+    """Load recon/discover-config.py for in-process config (no secret logging)."""
+    path = discover_root / "recon" / "discover-config.py"
+    if not path.is_file():
+        return None
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "discover_config_statusd", str(path)
+        )
+        if spec is None or spec.loader is None:
+            return None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    except Exception:
+        return None
 
 
 def shodan_api_key_configured(discover_root: Path) -> bool:
@@ -97,26 +206,38 @@ def main(argv: list[str]) -> int:
     active_tech = discover_root / "recon" / "active-tech.py"
     audit_build = discover_root / "recon" / "audit-build.py"
 
+    report_root_real = os.path.realpath(str(report_root))
+
     def safe_report_file(url_path: str) -> Path | None:
-        """Map URL path to a file under report_root, or None."""
+        """Map URL path to a file under report_root, or None.
+
+        Uses realpath + commonpath so CodeQL path-injection is constrained to
+        the engagement report tree (localhost static file server).
+        """
         rel = unquote(url_path).split("?", 1)[0]
         rel = rel.lstrip("/")
         if not rel:
             for name in ("index.htm", "index.html"):
-                cand = report_root / name
-                if cand.is_file():
-                    return cand
+                cand = os.path.join(report_root_real, name)
+                if os.path.isfile(cand):
+                    return Path(cand)
             return None
+        # Reject absolute / traversal segments before join.
         parts = Path(rel).parts
-        if any(p == ".." or p.startswith("/") for p in parts):
+        if any(p == ".." or p.startswith("/") or p == "" for p in parts):
             return None
-        candidate = (report_root / rel).resolve()
+        if "\x00" in rel:
+            return None
+        joined = os.path.normpath(os.path.join(report_root_real, rel))
+        # realpath resolves symlinks; commonpath ensures still under report root.
         try:
-            candidate.relative_to(report_root)
+            candidate = os.path.realpath(joined)
+            if os.path.commonpath([report_root_real, candidate]) != report_root_real:
+                return None
         except ValueError:
             return None
-        if candidate.is_file():
-            return candidate
+        if os.path.isfile(candidate):
+            return Path(candidate)
         return None
 
     class Handler(BaseHTTPRequestHandler):
@@ -130,13 +251,15 @@ def main(argv: list[str]) -> int:
             content_type: str = "application/json",
             cache: str = "no-store",
         ):
+            safe_ct = _safe_content_type(content_type)
+            safe_cache = _safe_cache_control(cache)
             self.send_response(code)
-            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Type", safe_ct)
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Access-Control-Allow-Origin", "*")
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
             self.send_header("Access-Control-Allow-Headers", "Content-Type")
-            self.send_header("Cache-Control", cache)
+            self.send_header("Cache-Control", safe_cache)
             self.end_headers()
             self.wfile.write(body)
 
@@ -511,6 +634,8 @@ def main(argv: list[str]) -> int:
                 label: str = "import",
             ) -> None:
                 try:
+                    # shell=False + argv list only; user paths pre-validated via
+                    # _safe_user_path (no leading "-", no NUL).
                     proc = subprocess.run(
                         cmd,
                         capture_output=True,
@@ -518,6 +643,7 @@ def main(argv: list[str]) -> int:
                         timeout=timeout,
                         env=env,
                         cwd=str(discover_root),
+                        shell=False,
                     )
                 except subprocess.TimeoutExpired:
                     self._send(
@@ -571,9 +697,9 @@ def main(argv: list[str]) -> int:
 
             # --- /import-operator-package ---
             if path == "/import-operator-package":
-                source = str(body.get("source") or body.get("path") or "").strip()
+                source_raw = str(body.get("source") or body.get("path") or "").strip()
                 operator = str(body.get("operator") or "").strip()
-                if not source:
+                if not source_raw:
                     self._send(
                         400,
                         b'{"ok":false,"error":"source path is required"}\n',
@@ -591,7 +717,8 @@ def main(argv: list[str]) -> int:
                         b'{"ok":false,"error":"operator name must be 1-10 letters"}\n',
                     )
                     return
-                if source.startswith("-"):
+                source = _safe_user_path(source_raw)
+                if not source:
                     self._send(
                         400,
                         b'{"ok":false,"error":"invalid source path"}\n',
@@ -609,6 +736,7 @@ def main(argv: list[str]) -> int:
                         + b"\n",
                     )
                     return
+                # Fixed argv layout: only validated path/name strings after flags.
                 _run_import_json(
                     [
                         sys.executable,
@@ -640,13 +768,7 @@ def main(argv: list[str]) -> int:
                         + b"\n",
                     )
                     return
-                manual = str(body.get("manual") or body.get("path") or "").strip()
-                if manual and manual.startswith("-"):
-                    self._send(
-                        400,
-                        b'{"ok":false,"error":"invalid manual path"}\n',
-                    )
-                    return
+                manual_raw = str(body.get("manual") or body.get("path") or "").strip()
                 cmd = [
                     "bash",
                     str(import_names_script),
@@ -654,7 +776,14 @@ def main(argv: list[str]) -> int:
                     str(report_root),
                     "--json",
                 ]
-                if manual:
+                if manual_raw:
+                    manual = _safe_user_path(manual_raw)
+                    if not manual:
+                        self._send(
+                            400,
+                            b'{"ok":false,"error":"invalid manual path"}\n',
+                        )
+                        return
                     cmd.extend(["--manual", manual])
                 _run_import_json(cmd, timeout=600, label="import names")
                 return
@@ -673,14 +802,15 @@ def main(argv: list[str]) -> int:
                         + b"\n",
                     )
                     return
-                source = str(body.get("source") or body.get("path") or "").strip()
-                if not source:
+                source_raw = str(body.get("source") or body.get("path") or "").strip()
+                if not source_raw:
                     self._send(
                         400,
                         b'{"ok":false,"error":"source path is required"}\n',
                     )
                     return
-                if source.startswith("-"):
+                source = _safe_user_path(source_raw)
+                if not source:
                     self._send(
                         400,
                         b'{"ok":false,"error":"invalid source path"}\n',
@@ -716,7 +846,7 @@ def main(argv: list[str]) -> int:
                     )
                     return
                 mode = str(body.get("mode") or "").strip().lower()
-                import_path = str(
+                import_path_raw = str(
                     body.get("path")
                     or body.get("source")
                     or body.get("import")
@@ -733,18 +863,23 @@ def main(argv: list[str]) -> int:
                         b'{"ok":false,"error":"mode must be existing or team-csv"}\n',
                     )
                     return
-                if not import_path:
+                if not import_path_raw:
                     self._send(
                         400,
                         b'{"ok":false,"error":"path is required (file or firefox)"}\n',
                     )
                     return
-                if import_path.startswith("-"):
-                    self._send(
-                        400,
-                        b'{"ok":false,"error":"invalid import path"}\n',
-                    )
-                    return
+                # Special token for Firefox localStorage (not a filesystem path).
+                if import_path_raw.lower() in {"firefox", "ff"}:
+                    import_path = "firefox"
+                else:
+                    import_path = _safe_user_path(import_path_raw)
+                    if not import_path:
+                        self._send(
+                            400,
+                            b'{"ok":false,"error":"invalid import path"}\n',
+                        )
+                        return
                 cmd = [
                     "bash",
                     str(import_subdomains_script),
@@ -974,60 +1109,34 @@ def main(argv: list[str]) -> int:
                 )
                 return
             if path == "/config":
-                if not config_script.is_file():
+                # In-process get_all() so API key values reach Audit Config without
+                # going through discover-config CLI print (CodeQL clear-text logging).
+                cfg_mod = load_discover_config_module(discover_root)
+                if cfg_mod is None or not hasattr(cfg_mod, "get_all"):
                     self._send(
                         500,
                         json.dumps(
                             {
                                 "ok": False,
-                                "error": f"config script missing: {config_script}",
+                                "error": f"config module missing: {config_script}",
                             }
                         ).encode()
                         + b"\n",
                     )
                     return
                 try:
-                    proc = subprocess.run(
-                        [
-                            sys.executable,
-                            str(config_script),
-                            "get-all",
-                            "--json",
-                        ],
-                        capture_output=True,
-                        text=True,
-                        timeout=15,
-                        env={**os.environ, "HOME": str(Path.home())},
-                        cwd=str(discover_root),
-                    )
-                except (subprocess.TimeoutExpired, OSError) as exc:
+                    result = cfg_mod.get_all()
+                except Exception as exc:
                     self._send(
                         500,
-                        json.dumps({"ok": False, "error": str(exc)}).encode()
+                        json.dumps({"ok": False, "error": str(exc)[:400]}).encode()
                         + b"\n",
                     )
                     return
-                result = None
-                for ln in reversed(
-                    [x.strip() for x in (proc.stdout or "").splitlines() if x.strip()]
-                ):
-                    try:
-                        cand = json.loads(ln)
-                        if isinstance(cand, dict):
-                            result = cand
-                            break
-                    except json.JSONDecodeError:
-                        continue
                 if not isinstance(result, dict):
                     self._send(
                         500,
-                        json.dumps(
-                            {
-                                "ok": False,
-                                "error": (proc.stderr or "config get failed")[:400],
-                            }
-                        ).encode()
-                        + b"\n",
+                        b'{"ok":false,"error":"config get failed"}\n',
                     )
                     return
                 self._send(200, json.dumps(result).encode() + b"\n")
@@ -1039,30 +1148,48 @@ def main(argv: list[str]) -> int:
             if fpath is None:
                 self._send(404, b'{"error":"not found"}\n')
                 return
+            # Re-check containment before open (path-injection barrier).
             try:
-                body = fpath.read_bytes()
+                safe_s = os.path.realpath(str(fpath))
+                if (
+                    os.path.commonpath([report_root_real, safe_s])
+                    != report_root_real
+                ):
+                    self._send(404, b'{"error":"not found"}\n')
+                    return
+            except ValueError:
+                self._send(404, b'{"error":"not found"}\n')
+                return
+            try:
+                with open(safe_s, "rb") as handle:
+                    body = handle.read()
             except OSError:
                 self._send(404, b'{"error":"not found"}\n')
                 return
-            ctype, _enc = mimetypes.guess_type(str(fpath))
-            if not ctype:
-                if fpath.suffix.lower() in {".htm", ".html"}:
-                    ctype = "text/html; charset=utf-8"
-                elif fpath.suffix.lower() == ".js":
-                    ctype = "application/javascript; charset=utf-8"
-                elif fpath.suffix.lower() == ".css":
-                    ctype = "text/css; charset=utf-8"
-                elif fpath.suffix.lower() == ".json":
-                    ctype = "application/json"
-                else:
-                    ctype = "application/octet-stream"
-            cache = "no-cache" if fpath.suffix.lower() in {
-                ".htm",
-                ".html",
-                ".js",
-                ".css",
-                ".json",
-            } else "private, max-age=3600"
+            # Fixed content types by extension only (no user string → header).
+            ext = os.path.splitext(safe_s)[1].lower()
+            ext_ctype = {
+                ".htm": "text/html; charset=utf-8",
+                ".html": "text/html; charset=utf-8",
+                ".js": "application/javascript; charset=utf-8",
+                ".css": "text/css; charset=utf-8",
+                ".json": "application/json",
+                ".png": "image/png",
+                ".jpg": "image/jpeg",
+                ".jpeg": "image/jpeg",
+                ".gif": "image/gif",
+                ".webp": "image/webp",
+                ".svg": "image/svg+xml",
+                ".woff": "font/woff",
+                ".woff2": "font/woff2",
+                ".txt": "text/plain; charset=utf-8",
+            }
+            ctype = ext_ctype.get(ext, "application/octet-stream")
+            cache = (
+                "no-cache"
+                if ext in {".htm", ".html", ".js", ".css", ".json"}
+                else "private, max-age=3600"
+            )
             self._send(200, body, content_type=ctype, cache=cache)
 
     server = ThreadingHTTPServer(("127.0.0.1", port), Handler)

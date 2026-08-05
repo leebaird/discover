@@ -3,11 +3,11 @@
 # Coded by Grok (xAI)
 """Discover operator config under ~/.discover (API keys, name, view timezone).
 
-Used by host-scan-statusd /config endpoints. JSON on stdout with --json.
+Used by host-scan-statusd /config endpoints. CLI JSON never prints secret
+values (presence only). statusd loads get_all() / write helpers in-process for
+localhost Audit Config so keys can be edited without clear-text logging sinks.
 
   python3 recon/discover-config.py get-all --json
-      # Full key values for statusd Audit Config (localhost). Interactive get-all
-      # (no --json) prints presence only (set / empty), not secrets.
   python3 recon/discover-config.py set-api-keys --json --body '{"NVD_API_KEY":"..."}'
   python3 recon/discover-config.py set-operator-name --name Carter --report /path/to/report --json
   python3 recon/discover-config.py set-timezone --tz America/Chicago --json
@@ -249,10 +249,32 @@ def write_timezone(tz_id: str) -> str:
 
 
 def get_all() -> dict:
+    """Full config including API key values (in-process use only — statusd Config).
+
+    Do not print this dict to logs/stdout. CLI uses get_all_public() instead.
+    """
     keys = read_api_keys()
     return {
         "ok": True,
         "api_keys": keys,
+        "operator_name": read_operator_name(),
+        "timezone": read_timezone(),
+        "timezones": [{"id": tid, "label": lab} for tid, lab in US_VIEW_TIMEZONES],
+        "paths": {
+            "api_keys": str(api_keys_path()),
+            "operator_name": str(operator_name_path()),
+            "timezone": str(timezone_path()),
+        },
+    }
+
+
+def get_all_public() -> dict:
+    """CLI-safe config view: API key presence only, never secret material."""
+    keys = read_api_keys()
+    # Literals "set"/"" only — values are never interpolated into output.
+    return {
+        "ok": True,
+        "api_keys": {k: ("set" if keys.get(k) else "") for k in API_KEY_NAMES},
         "operator_name": read_operator_name(),
         "timezone": read_timezone(),
         "timezones": [{"id": tid, "label": lab} for tid, lab in US_VIEW_TIMEZONES],
@@ -285,49 +307,25 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    def _redact_sensitive(obj: dict) -> dict:
-        """Mask api_keys / password fields for human CLI dumps (not statusd edit)."""
-        if not isinstance(obj, dict):
-            return obj
-        redacted: dict = {}
-        for key, value in obj.items():
-            if key == "api_keys" and isinstance(value, dict):
-                # Presence only — never echo secret material in redacted output.
-                redacted[key] = {k: ("set" if v else "") for k, v in value.items()}
-            elif isinstance(key, str) and "password" in key.lower():
-                redacted[key] = "set" if value else ""
-            elif isinstance(value, dict):
-                redacted[key] = _redact_sensitive(value)
-            elif isinstance(value, list):
-                redacted[key] = [
-                    _redact_sensitive(v) if isinstance(v, dict) else v for v in value
-                ]
-            else:
-                redacted[key] = value
-        return redacted
-
-    def emit(obj: dict, code: int = 0, *, redact: bool = False) -> int:
-        """Print result. redact=True masks secrets (interactive CLI).
-
-        statusd uses get-all --json without redact so Audit Config can show/edit
-        keys on localhost. Human pretty-print of get-all redacts. set-api-keys
-        never echoes key material back.
-        """
-        out = _redact_sensitive(obj) if redact else obj
+    def emit(obj: dict, code: int = 0) -> int:
+        """Print CLI result. Callers must never pass raw secret values in obj."""
         if args.json:
-            print(json.dumps(out, ensure_ascii=False))
+            print(json.dumps(obj, ensure_ascii=False))
         else:
             if obj.get("ok"):
-                print(json.dumps(out, indent=2, ensure_ascii=False))
+                print(json.dumps(obj, indent=2, ensure_ascii=False))
             else:
-                print(obj.get("error") or "failed", file=sys.stderr)
+                err = obj.get("error") or "failed"
+                if not isinstance(err, str):
+                    err = "failed"
+                # Never print dicts that might hold secrets.
+                print(err[:500], file=sys.stderr)
         return code
 
     try:
         if args.action == "get-all":
-            # --json: full keys for statusd GET /config (localhost Config UI).
-            # Interactive (no --json): redact so secrets are not dumped to the terminal.
-            return emit(get_all(), 0, redact=not args.json)
+            # Public view only — no secret strings reach print (CodeQL).
+            return emit(get_all_public(), 0)
 
         if args.action == "set-api-keys":
             raw = args.body.strip()
@@ -345,7 +343,6 @@ def main(argv: list[str] | None = None) -> int:
             for k in API_KEY_NAMES:
                 if k in body:
                     updates[k] = str(body.get(k) or "")
-                # also accept lower short names
                 aliases = {
                     "NVD_API_KEY": ("nvd", "nvd_api_key"),
                     "SHODAN_API_KEY": ("shodan", "shodan_api_key"),
@@ -364,11 +361,13 @@ def main(argv: list[str] | None = None) -> int:
                     2,
                 )
             keys = write_api_keys(updates)
-            # Do not echo secret values on stdout (CodeQL / logs). Report presence only.
+            # Presence only — do not put secret material into the printed object.
             return emit(
                 {
                     "ok": True,
-                    "api_keys": {k: ("set" if keys.get(k) else "") for k in API_KEY_NAMES},
+                    "api_keys": {
+                        k: ("set" if keys.get(k) else "") for k in API_KEY_NAMES
+                    },
                 },
                 0,
             )
