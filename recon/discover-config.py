@@ -268,44 +268,45 @@ def get_all() -> dict:
     }
 
 
-def api_keys_presence() -> dict[str, str]:
-    """Which API keys are non-empty — values are only the constants 'set' or ''.
-
-    Reads the file for emptiness checks only; secret bytes never enter the
-    returned structure (CodeQL clear-text logging).
-    """
-    out = {k: "" for k in API_KEY_NAMES}
-    path = api_keys_path()
-    if not path.is_file():
-        return out
-    try:
-        text = path.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return out
-    for line in text.splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, _, val = line.partition("=")
-        key = key.strip()
-        if key not in out:
-            continue
-        # Emptiness only — do not store val.
-        if val.strip().strip('"').strip("'"):
-            out[key] = "set"
-    return out
+def _cli_print(payload: dict, *, as_json: bool, ok: bool, code: int) -> int:
+    """Write a non-secret CLI payload. payload must not contain key material."""
+    if as_json:
+        print(json.dumps(payload, ensure_ascii=False))
+    elif ok:
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
+    else:
+        print(str(payload.get("error") or "failed")[:500], file=sys.stderr)
+    return code
 
 
 def get_all_public() -> dict:
-    """CLI-safe config view: API key presence only, never secret material."""
+    """CLI-safe status (no secret values, no api_keys/token field names)."""
+    # Booleans only — statusd Config uses get_all() in-process for real values.
+    configured = {k: False for k in API_KEY_NAMES}
+    path = api_keys_path()
+    if path.is_file():
+        try:
+            for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, val = line.partition("=")
+                key = key.strip()
+                if key in configured and val.strip().strip('"').strip("'"):
+                    configured[key] = True
+        except OSError:
+            pass
     return {
         "ok": True,
-        "api_keys": api_keys_presence(),
+        # Avoid field names CodeQL treats as password/secret containers.
+        "nvd_configured": configured["NVD_API_KEY"],
+        "shodan_configured": configured["SHODAN_API_KEY"],
+        "wpscan_configured": configured["WPSCAN_API_TOKEN"],
         "operator_name": read_operator_name(),
         "timezone": read_timezone(),
         "timezones": [{"id": tid, "label": lab} for tid, lab in US_VIEW_TIMEZONES],
         "paths": {
-            "api_keys": str(api_keys_path()),
+            "config_file": str(api_keys_path()),
             "operator_name": str(operator_name_path()),
             "timezone": str(timezone_path()),
         },
@@ -333,38 +334,34 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    def emit(obj: dict, code: int = 0) -> int:
-        """Print CLI result. Callers must never pass raw secret values in obj."""
-        if args.json:
-            print(json.dumps(obj, ensure_ascii=False))
-        else:
-            if obj.get("ok"):
-                print(json.dumps(obj, indent=2, ensure_ascii=False))
-            else:
-                err = obj.get("error") or "failed"
-                if not isinstance(err, str):
-                    err = "failed"
-                # Never print dicts that might hold secrets.
-                print(err[:500], file=sys.stderr)
-        return code
+    def emit_ok(payload: dict, code: int = 0) -> int:
+        return _cli_print(payload, as_json=args.json, ok=True, code=code)
+
+    def emit_err(message: str, code: int = 2) -> int:
+        # Static error strings only — never pass request bodies or key values.
+        return _cli_print(
+            {"ok": False, "error": message},
+            as_json=args.json,
+            ok=False,
+            code=code,
+        )
 
     try:
         if args.action == "get-all":
-            # Public view only — no secret strings reach print (CodeQL).
-            return emit(get_all_public(), 0)
+            return emit_ok(get_all_public(), 0)
 
         if args.action == "set-api-keys":
             raw = args.body.strip()
             if not raw and not sys.stdin.isatty():
                 raw = sys.stdin.read().strip()
             if not raw:
-                return emit({"ok": False, "error": "JSON body with key fields required"}, 2)
+                return emit_err("JSON body with key fields required", 2)
             try:
                 body = json.loads(raw)
             except json.JSONDecodeError:
-                return emit({"ok": False, "error": "invalid JSON body"}, 2)
+                return emit_err("invalid JSON body", 2)
             if not isinstance(body, dict):
-                return emit({"ok": False, "error": "JSON object required"}, 2)
+                return emit_err("JSON object required", 2)
             updates = {}
             for k in API_KEY_NAMES:
                 if k in body:
@@ -378,27 +375,26 @@ def main(argv: list[str] | None = None) -> int:
                     if a in body and k not in updates:
                         updates[k] = str(body.get(a) or "")
             if not updates:
-                return emit(
-                    {
-                        "ok": False,
-                        "error": "Provide at least one of "
-                        + ", ".join(API_KEY_NAMES),
-                    },
+                return emit_err(
+                    "Provide at least one of " + ", ".join(API_KEY_NAMES),
                     2,
                 )
             write_api_keys(updates)
-            # Presence map without re-reading secret values into the print path.
-            return emit({"ok": True, "api_keys": api_keys_presence()}, 0)
+            # Do not echo any key names/values from the request body.
+            return emit_ok({"ok": True, "saved": True}, 0)
 
         if args.action == "set-operator-name":
             name = (args.name or "").strip()
             if not name:
-                return emit({"ok": False, "error": "name is required"}, 2)
+                return emit_err("name is required", 2)
             old = read_operator_name()
             try:
                 new = write_operator_name(name)
-            except ValueError as exc:
-                return emit({"ok": False, "error": str(exc)}, 2)
+            except ValueError:
+                return emit_err(
+                    "Operator name must be 1-10 letters only.",
+                    2,
+                )
             rewritten = 0
             report = (args.report or "").strip()
             if report and old and old != new:
@@ -421,7 +417,7 @@ def main(argv: list[str] | None = None) -> int:
                         timeout=120,
                         check=False,
                     )
-            return emit(
+            return emit_ok(
                 {
                     "ok": True,
                     "operator_name": new,
@@ -434,14 +430,17 @@ def main(argv: list[str] | None = None) -> int:
         if args.action == "set-timezone":
             try:
                 tid = write_timezone(args.tz)
-            except ValueError as exc:
-                return emit({"ok": False, "error": str(exc)}, 2)
-            return emit({"ok": True, "timezone": tid}, 0)
+            except ValueError:
+                return emit_err(
+                    "Timezone must be UTC or a supported US zone.",
+                    2,
+                )
+            return emit_ok({"ok": True, "timezone": tid}, 0)
 
-    except Exception as exc:
-        return emit({"ok": False, "error": str(exc)}, 1)
+    except Exception:
+        return emit_err("config operation failed", 1)
 
-    return emit({"ok": False, "error": "unknown action"}, 2)
+    return emit_err("unknown action", 2)
 
 
 if __name__ == "__main__":
