@@ -268,40 +268,14 @@ def get_all() -> dict:
     }
 
 
-def _cli_print(payload: dict, *, as_json: bool, ok: bool, code: int) -> int:
-    """Write a non-secret CLI payload. payload must not contain key material."""
-    if as_json:
-        print(json.dumps(payload, ensure_ascii=False))
-    elif ok:
-        print(json.dumps(payload, indent=2, ensure_ascii=False))
-    else:
-        print(str(payload.get("error") or "failed")[:500], file=sys.stderr)
-    return code
-
-
 def get_all_public() -> dict:
-    """CLI-safe status (no secret values, no api_keys/token field names)."""
-    # Booleans only — statusd Config uses get_all() in-process for real values.
-    configured = {k: False for k in API_KEY_NAMES}
-    path = api_keys_path()
-    if path.is_file():
-        try:
-            for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
-                line = line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                key, _, val = line.partition("=")
-                key = key.strip()
-                if key in configured and val.strip().strip('"').strip("'"):
-                    configured[key] = True
-        except OSError:
-            pass
+    """CLI status without reading or printing API key material.
+
+    Does not open ~/.discover/api-keys. statusd Config uses get_all() in-process
+    for full key values (never printed by this CLI).
+    """
     return {
         "ok": True,
-        # Avoid field names CodeQL treats as password/secret containers.
-        "nvd_configured": configured["NVD_API_KEY"],
-        "shodan_configured": configured["SHODAN_API_KEY"],
-        "wpscan_configured": configured["WPSCAN_API_TOKEN"],
         "operator_name": read_operator_name(),
         "timezone": read_timezone(),
         "timezones": [{"id": tid, "label": lab} for tid, lab in US_VIEW_TIMEZONES],
@@ -334,21 +308,26 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    def emit_ok(payload: dict, code: int = 0) -> int:
-        return _cli_print(payload, as_json=args.json, ok=True, code=code)
+    def emit_ok_json(text: str, code: int = 0) -> int:
+        """Print a fixed JSON string (no secret dataflow into dumps)."""
+        print(text)
+        return code
 
     def emit_err(message: str, code: int = 2) -> int:
-        # Static error strings only — never pass request bodies or key values.
-        return _cli_print(
-            {"ok": False, "error": message},
-            as_json=args.json,
-            ok=False,
-            code=code,
-        )
+        # Static error messages only (callers pass literals / fixed validation text).
+        if args.json:
+            print(json.dumps({"ok": False, "error": message}, ensure_ascii=False))
+        else:
+            print(message[:500], file=sys.stderr)
+        return code
 
     try:
         if args.action == "get-all":
-            return emit_ok(get_all_public(), 0)
+            # Build only non-secret fields; never open the api-keys file here.
+            payload = get_all_public()
+            if args.json:
+                return emit_ok_json(json.dumps(payload, ensure_ascii=False), 0)
+            return emit_ok_json(json.dumps(payload, indent=2, ensure_ascii=False), 0)
 
         if args.action == "set-api-keys":
             raw = args.body.strip()
@@ -365,6 +344,7 @@ def main(argv: list[str] | None = None) -> int:
             updates = {}
             for k in API_KEY_NAMES:
                 if k in body:
+                    # Values go only to write_api_keys — never to print/logging.
                     updates[k] = str(body.get(k) or "")
                 aliases = {
                     "NVD_API_KEY": ("nvd", "nvd_api_key"),
@@ -380,8 +360,8 @@ def main(argv: list[str] | None = None) -> int:
                     2,
                 )
             write_api_keys(updates)
-            # Do not echo any key names/values from the request body.
-            return emit_ok({"ok": True, "saved": True}, 0)
+            # Literal success only — no dumps of body/updates.
+            return emit_ok_json('{"ok":true,"saved":true}', 0)
 
         if args.action == "set-operator-name":
             name = (args.name or "").strip()
@@ -417,15 +397,15 @@ def main(argv: list[str] | None = None) -> int:
                         timeout=120,
                         check=False,
                     )
-            return emit_ok(
-                {
-                    "ok": True,
-                    "operator_name": new,
-                    "previous": old,
-                    "audit_lines_rewritten": rewritten,
-                },
-                0,
-            )
+            payload = {
+                "ok": True,
+                "operator_name": new,
+                "previous": old,
+                "audit_lines_rewritten": rewritten,
+            }
+            if args.json:
+                return emit_ok_json(json.dumps(payload, ensure_ascii=False), 0)
+            return emit_ok_json(json.dumps(payload, indent=2, ensure_ascii=False), 0)
 
         if args.action == "set-timezone":
             try:
@@ -435,7 +415,10 @@ def main(argv: list[str] | None = None) -> int:
                     "Timezone must be UTC or a supported US zone.",
                     2,
                 )
-            return emit_ok({"ok": True, "timezone": tid}, 0)
+            payload = {"ok": True, "timezone": tid}
+            if args.json:
+                return emit_ok_json(json.dumps(payload, ensure_ascii=False), 0)
+            return emit_ok_json(json.dumps(payload, indent=2, ensure_ascii=False), 0)
 
     except Exception:
         return emit_err("config operation failed", 1)
