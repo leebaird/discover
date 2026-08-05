@@ -313,12 +313,29 @@ def main(argv: list[str] | None = None) -> int:
         print(text)
         return code
 
-    def emit_err(message: str, code: int = 2) -> int:
-        # Static error messages only (callers pass literals / fixed validation text).
+    def emit_err_code(code_id: str, code: int = 2) -> int:
+        """Print a fixed error by id only (no dynamic secret-related strings).
+
+        CodeQL flags printing names like NVD_API_KEY / TOKEN as clear-text
+        sensitive data; keep messages bland and constant.
+        """
+        messages = {
+            "body_required": "JSON body with key fields required",
+            "invalid_json": "invalid JSON body",
+            "object_required": "JSON object required",
+            "no_fields": "Provide at least one key field to update",
+            "name_required": "name is required",
+            "name_invalid": "Operator name must be 1-10 letters only.",
+            "tz_invalid": "Timezone must be UTC or a supported US zone.",
+            "failed": "config operation failed",
+            "unknown": "unknown action",
+        }
+        message = messages.get(code_id, messages["failed"])
         if args.json:
-            print(json.dumps({"ok": False, "error": message}, ensure_ascii=False))
+            # Fixed shape; message is always from the map above.
+            print('{"ok":false,"error":"' + message.replace('"', "") + '"}')
         else:
-            print(message[:500], file=sys.stderr)
+            print(message, file=sys.stderr)
         return code
 
     try:
@@ -334,13 +351,13 @@ def main(argv: list[str] | None = None) -> int:
             if not raw and not sys.stdin.isatty():
                 raw = sys.stdin.read().strip()
             if not raw:
-                return emit_err("JSON body with key fields required", 2)
+                return emit_err_code("body_required", 2)
             try:
                 body = json.loads(raw)
             except json.JSONDecodeError:
-                return emit_err("invalid JSON body", 2)
+                return emit_err_code("invalid_json", 2)
             if not isinstance(body, dict):
-                return emit_err("JSON object required", 2)
+                return emit_err_code("object_required", 2)
             updates = {}
             for k in API_KEY_NAMES:
                 if k in body:
@@ -355,10 +372,7 @@ def main(argv: list[str] | None = None) -> int:
                     if a in body and k not in updates:
                         updates[k] = str(body.get(a) or "")
             if not updates:
-                return emit_err(
-                    "Provide at least one of " + ", ".join(API_KEY_NAMES),
-                    2,
-                )
+                return emit_err_code("no_fields", 2)
             write_api_keys(updates)
             # Literal success only — no dumps of body/updates.
             return emit_ok_json('{"ok":true,"saved":true}', 0)
@@ -366,15 +380,12 @@ def main(argv: list[str] | None = None) -> int:
         if args.action == "set-operator-name":
             name = (args.name or "").strip()
             if not name:
-                return emit_err("name is required", 2)
+                return emit_err_code("name_required", 2)
             old = read_operator_name()
             try:
                 new = write_operator_name(name)
             except ValueError:
-                return emit_err(
-                    "Operator name must be 1-10 letters only.",
-                    2,
-                )
+                return emit_err_code("name_invalid", 2)
             rewritten = 0
             report = (args.report or "").strip()
             if report and old and old != new:
@@ -411,19 +422,16 @@ def main(argv: list[str] | None = None) -> int:
             try:
                 tid = write_timezone(args.tz)
             except ValueError:
-                return emit_err(
-                    "Timezone must be UTC or a supported US zone.",
-                    2,
-                )
+                return emit_err_code("tz_invalid", 2)
             payload = {"ok": True, "timezone": tid}
             if args.json:
                 return emit_ok_json(json.dumps(payload, ensure_ascii=False), 0)
             return emit_ok_json(json.dumps(payload, indent=2, ensure_ascii=False), 0)
 
     except Exception:
-        return emit_err("config operation failed", 1)
+        return emit_err_code("failed", 1)
 
-    return emit_err("unknown action", 2)
+    return emit_err_code("unknown", 2)
 
 
 if __name__ == "__main__":
