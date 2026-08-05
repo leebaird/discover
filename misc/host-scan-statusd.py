@@ -119,25 +119,39 @@ def _safe_cache_control(value: str) -> str:
 def _safe_user_path(raw: str) -> str | None:
     """Validate a user-supplied filesystem path for use as a subprocess argument.
 
-    Rejects empty values, NUL, option-like values (leading ``-``), and ensures
-    expanduser/resolve succeeds. Callers still check existence as needed.
+    Rejects empty values, NUL, option-like values (leading ``-``). Returns an
+    absolute real path only (CodeQL argument-injection: absolute non-option).
     """
     text = str(raw or "").strip()
     if not text or "\x00" in text:
         return None
-    # Option injection (CWE-88 / command-line injection): never pass as argv.
+    # Option injection (CWE-88): never pass as argv.
     if text.startswith("-"):
         return None
     try:
-        path = Path(text).expanduser()
-        # Do not require exists (import may create); resolve for normalization.
-        resolved = path.resolve(strict=False)
+        expanded = os.path.expanduser(text)
+        resolved = os.path.realpath(expanded)
     except (OSError, RuntimeError, ValueError):
         return None
-    out = str(resolved)
-    if not out or out.startswith("-"):
+    if not resolved or resolved.startswith("-"):
         return None
-    return out
+    # Absolute path only (Unix). Relative results are rejected.
+    if not os.path.isabs(resolved) or not resolved.startswith(os.sep):
+        return None
+    return resolved
+
+
+def _path_under_root(root_real: str, candidate_real: str) -> bool:
+    """True if candidate_real is root_real or a file/dir under it (after realpath)."""
+    if not root_real or not candidate_real:
+        return False
+    root_real = os.path.realpath(root_real)
+    candidate_real = os.path.realpath(candidate_real)
+    if candidate_real == root_real:
+        return True
+    prefix = root_real if root_real.endswith(os.sep) else root_real + os.sep
+    # startswith after realpath is the usual CodeQL path-injection barrier.
+    return candidate_real.startswith(prefix)
 
 
 def load_discover_config_module(discover_root: Path):
@@ -208,36 +222,32 @@ def main(argv: list[str]) -> int:
 
     report_root_real = os.path.realpath(str(report_root))
 
-    def safe_report_file(url_path: str) -> Path | None:
-        """Map URL path to a file under report_root, or None.
+    def safe_report_file(url_path: str) -> str | None:
+        """Map URL path to a realpath under report_root, or None.
 
-        Uses realpath + commonpath so CodeQL path-injection is constrained to
-        the engagement report tree (localhost static file server).
+        Returns a str path only after realpath + startswith containment check
+        (CodeQL path-injection barrier). Localhost static file server only.
         """
         rel = unquote(url_path).split("?", 1)[0]
         rel = rel.lstrip("/")
         if not rel:
             for name in ("index.htm", "index.html"):
-                cand = os.path.join(report_root_real, name)
-                if os.path.isfile(cand):
-                    return Path(cand)
+                cand = os.path.realpath(os.path.join(report_root_real, name))
+                if os.path.isfile(cand) and _path_under_root(report_root_real, cand):
+                    return cand
             return None
         # Reject absolute / traversal segments before join.
-        parts = Path(rel).parts
-        if any(p == ".." or p.startswith("/") or p == "" for p in parts):
+        parts = rel.replace("\\", "/").split("/")
+        if any(p == ".." or p == "" or p.startswith("/") for p in parts):
             return None
         if "\x00" in rel:
             return None
-        joined = os.path.normpath(os.path.join(report_root_real, rel))
-        # realpath resolves symlinks; commonpath ensures still under report root.
-        try:
-            candidate = os.path.realpath(joined)
-            if os.path.commonpath([report_root_real, candidate]) != report_root_real:
-                return None
-        except ValueError:
+        joined = os.path.join(report_root_real, *parts)
+        candidate = os.path.realpath(joined)
+        if not _path_under_root(report_root_real, candidate):
             return None
         if os.path.isfile(candidate):
-            return Path(candidate)
+            return candidate
         return None
 
     class Handler(BaseHTTPRequestHandler):
@@ -627,17 +637,71 @@ def main(argv: list[str]) -> int:
                 self._send(code, json.dumps(result).encode() + b"\n")
                 return
 
-            def _run_import_json(
-                cmd: list[str],
+            def _run_bash_import(
+                script: Path,
                 *,
+                report: str,
+                extra_args: list[str],
                 timeout: int = 3600,
                 label: str = "import",
             ) -> None:
+                """Run a Discover bash import script with a fixed argv shape.
+
+                extra_args must already be validated (absolute paths or fixed
+                tokens like firefox). Executable and script paths are not user input.
+                """
+                if not script.is_file():
+                    self._send(
+                        500,
+                        json.dumps(
+                            {"ok": False, "error": f"import script missing: {script}"}
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                # Only absolute report path (statusd-owned) + validated extras.
+                if not os.path.isabs(report) or not report.startswith(os.sep):
+                    self._send(
+                        500,
+                        b'{"ok":false,"error":"internal report path invalid"}\n',
+                    )
+                    return
+                known_flags = {
+                    "--manual",
+                    "--import",
+                    "--mode",
+                    "--source",
+                    "--run-active",
+                    "existing",
+                    "team-csv",
+                    "firefox",
+                }
+                for a in extra_args:
+                    if not isinstance(a, str) or not a or "\x00" in a:
+                        self._send(
+                            400,
+                            b'{"ok":false,"error":"invalid import argument"}\n',
+                        )
+                        return
+                    if a in known_flags or a.startswith("--"):
+                        continue
+                    # Path-like values: absolute only, never option-shaped.
+                    if a.startswith("-") or not os.path.isabs(a):
+                        self._send(
+                            400,
+                            b'{"ok":false,"error":"invalid import argument"}\n',
+                        )
+                        return
                 try:
-                    # shell=False + argv list only; user paths pre-validated via
-                    # _safe_user_path (no leading "-", no NUL).
                     proc = subprocess.run(
-                        cmd,
+                        [
+                            "bash",
+                            str(script),
+                            "--report",
+                            report,
+                            *extra_args,
+                            "--json",
+                        ],
                         capture_output=True,
                         text=True,
                         timeout=timeout,
@@ -664,7 +728,6 @@ def main(argv: list[str]) -> int:
                 result = _parse_json_stdout(proc.stdout or "")
                 if not isinstance(result, dict):
                     err = (proc.stderr or proc.stdout or f"{label} failed").strip()
-                    # Prefer last [!] line from bash scripts when no JSON.
                     for ln in reversed((proc.stderr or "").splitlines()):
                         s = ln.strip()
                         if s.startswith("[!]"):
@@ -724,58 +787,66 @@ def main(argv: list[str]) -> int:
                         b'{"ok":false,"error":"invalid source path"}\n',
                     )
                     return
-                if not import_operator_script.is_file():
+                # In-process Python (no shell/subprocess argv injection surface).
+                import io
+                from contextlib import redirect_stdout, redirect_stderr
+
+                try:
+                    spec = importlib.util.spec_from_file_location(
+                        "discover_import_operator",
+                        str(import_operator_script),
+                    )
+                    if spec is None or spec.loader is None:
+                        raise RuntimeError("import-operator module load failed")
+                    mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mod)
+                    buf_out = io.StringIO()
+                    buf_err = io.StringIO()
+                    with redirect_stdout(buf_out), redirect_stderr(buf_err):
+                        rc = mod.main(
+                            [
+                                "--dest",
+                                str(report_root),
+                                "--source",
+                                source,
+                                "--operator",
+                                operator,
+                                "--json",
+                            ]
+                        )
+                except Exception as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)[:800]}).encode()
+                        + b"\n",
+                    )
+                    return
+                result = _parse_json_stdout(buf_out.getvalue())
+                if not isinstance(result, dict):
+                    err = (buf_err.getvalue() or "import failed").strip()[:800]
                     self._send(
                         500,
                         json.dumps(
                             {
                                 "ok": False,
-                                "error": f"import script missing: {import_operator_script}",
+                                "error": err or f"import exit {rc}",
                             }
                         ).encode()
                         + b"\n",
                     )
                     return
-                # Fixed argv layout: only validated path/name strings after flags.
-                _run_import_json(
-                    [
-                        sys.executable,
-                        str(import_operator_script),
-                        "--dest",
-                        str(report_root),
-                        "--source",
-                        source,
-                        "--operator",
-                        operator,
-                        "--json",
-                    ],
-                    timeout=3600,
-                    label="import",
-                )
+                code = 200 if result.get("ok") and rc == 0 else 400
+                if rc != 0 and result.get("ok"):
+                    result["ok"] = False
+                    result.setdefault("error", f"import exit {rc}")
+                    code = 500
+                self._send(code, json.dumps(result).encode() + b"\n")
                 return
 
             # --- /import-names ---
             if path == "/import-names":
-                if not import_names_script.is_file():
-                    self._send(
-                        500,
-                        json.dumps(
-                            {
-                                "ok": False,
-                                "error": f"import script missing: {import_names_script}",
-                            }
-                        ).encode()
-                        + b"\n",
-                    )
-                    return
                 manual_raw = str(body.get("manual") or body.get("path") or "").strip()
-                cmd = [
-                    "bash",
-                    str(import_names_script),
-                    "--report",
-                    str(report_root),
-                    "--json",
-                ]
+                extra: list[str] = []
                 if manual_raw:
                     manual = _safe_user_path(manual_raw)
                     if not manual:
@@ -784,24 +855,18 @@ def main(argv: list[str]) -> int:
                             b'{"ok":false,"error":"invalid manual path"}\n',
                         )
                         return
-                    cmd.extend(["--manual", manual])
-                _run_import_json(cmd, timeout=600, label="import names")
+                    extra.extend(["--manual", manual])
+                _run_bash_import(
+                    import_names_script,
+                    report=str(report_root),
+                    extra_args=extra,
+                    timeout=600,
+                    label="import names",
+                )
                 return
 
             # --- /import-names-titles-emails ---
             if path == "/import-names-titles-emails":
-                if not import_nte_script.is_file():
-                    self._send(
-                        500,
-                        json.dumps(
-                            {
-                                "ok": False,
-                                "error": f"import script missing: {import_nte_script}",
-                            }
-                        ).encode()
-                        + b"\n",
-                    )
-                    return
                 source_raw = str(body.get("source") or body.get("path") or "").strip()
                 if not source_raw:
                     self._send(
@@ -816,16 +881,10 @@ def main(argv: list[str]) -> int:
                         b'{"ok":false,"error":"invalid source path"}\n',
                     )
                     return
-                _run_import_json(
-                    [
-                        "bash",
-                        str(import_nte_script),
-                        "--report",
-                        str(report_root),
-                        "--source",
-                        source,
-                        "--json",
-                    ],
+                _run_bash_import(
+                    import_nte_script,
+                    report=str(report_root),
+                    extra_args=["--source", source],
                     timeout=600,
                     label="import names titles emails",
                 )
@@ -833,18 +892,6 @@ def main(argv: list[str]) -> int:
 
             # --- /import-subdomains ---
             if path == "/import-subdomains":
-                if not import_subdomains_script.is_file():
-                    self._send(
-                        500,
-                        json.dumps(
-                            {
-                                "ok": False,
-                                "error": f"import script missing: {import_subdomains_script}",
-                            }
-                        ).encode()
-                        + b"\n",
-                    )
-                    return
                 mode = str(body.get("mode") or "").strip().lower()
                 import_path_raw = str(
                     body.get("path")
@@ -880,22 +927,16 @@ def main(argv: list[str]) -> int:
                             b'{"ok":false,"error":"invalid import path"}\n',
                         )
                         return
-                cmd = [
-                    "bash",
-                    str(import_subdomains_script),
-                    "--report",
-                    str(report_root),
-                    "--mode",
-                    mode,
-                    "--import",
-                    import_path,
-                    "--json",
-                ]
+                extra = ["--mode", mode, "--import", import_path]
                 if run_active and mode == "team-csv":
-                    cmd.append("--run-active")
+                    extra.append("--run-active")
                 timeout = 7200 if run_active else 1800
-                _run_import_json(
-                    cmd, timeout=timeout, label="import subdomains"
+                _run_bash_import(
+                    import_subdomains_script,
+                    report=str(report_root),
+                    extra_args=extra,
+                    timeout=timeout,
+                    label="import subdomains",
                 )
                 return
 
@@ -1144,20 +1185,12 @@ def main(argv: list[str]) -> int:
 
             if path == "/":
                 path = "/index.htm"
-            fpath = safe_report_file(path)
-            if fpath is None:
+            safe_s = safe_report_file(path)
+            if safe_s is None:
                 self._send(404, b'{"error":"not found"}\n')
                 return
-            # Re-check containment before open (path-injection barrier).
-            try:
-                safe_s = os.path.realpath(str(fpath))
-                if (
-                    os.path.commonpath([report_root_real, safe_s])
-                    != report_root_real
-                ):
-                    self._send(404, b'{"error":"not found"}\n')
-                    return
-            except ValueError:
+            # Containment already enforced; re-check startswith before open.
+            if not _path_under_root(report_root_real, safe_s):
                 self._send(404, b'{"error":"not found"}\n')
                 return
             try:

@@ -268,13 +268,39 @@ def get_all() -> dict:
     }
 
 
+def api_keys_presence() -> dict[str, str]:
+    """Which API keys are non-empty — values are only the constants 'set' or ''.
+
+    Reads the file for emptiness checks only; secret bytes never enter the
+    returned structure (CodeQL clear-text logging).
+    """
+    out = {k: "" for k in API_KEY_NAMES}
+    path = api_keys_path()
+    if not path.is_file():
+        return out
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return out
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, val = line.partition("=")
+        key = key.strip()
+        if key not in out:
+            continue
+        # Emptiness only — do not store val.
+        if val.strip().strip('"').strip("'"):
+            out[key] = "set"
+    return out
+
+
 def get_all_public() -> dict:
     """CLI-safe config view: API key presence only, never secret material."""
-    keys = read_api_keys()
-    # Literals "set"/"" only — values are never interpolated into output.
     return {
         "ok": True,
-        "api_keys": {k: ("set" if keys.get(k) else "") for k in API_KEY_NAMES},
+        "api_keys": api_keys_presence(),
         "operator_name": read_operator_name(),
         "timezone": read_timezone(),
         "timezones": [{"id": tid, "label": lab} for tid, lab in US_VIEW_TIMEZONES],
@@ -360,17 +386,9 @@ def main(argv: list[str] | None = None) -> int:
                     },
                     2,
                 )
-            keys = write_api_keys(updates)
-            # Presence only — do not put secret material into the printed object.
-            return emit(
-                {
-                    "ok": True,
-                    "api_keys": {
-                        k: ("set" if keys.get(k) else "") for k in API_KEY_NAMES
-                    },
-                },
-                0,
-            )
+            write_api_keys(updates)
+            # Presence map without re-reading secret values into the print path.
+            return emit({"ok": True, "api_keys": api_keys_presence()}, 0)
 
         if args.action == "set-operator-name":
             name = (args.name or "").strip()
