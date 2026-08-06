@@ -28,6 +28,7 @@ HOST_SCAN_TOOLS: list[tuple[str, str]] = [
     ("nuclei", "Nuclei"),
     ("droopescan", "droopescan"),
     ("wpscan", "WPScan"),
+    ("robots", "robots"),
     ("nikto", "Nikto"),
     ("ffuf", "ffuf"),
 ]
@@ -203,7 +204,7 @@ def _command_for_host_scan(
     tool = (tool or "").lower()
     if tool.startswith("nuclei pass"):
         tool = "nuclei"
-    if not host or tool not in {"ffuf", "nikto", "nuclei", "droopescan", "wpscan"}:
+    if not host or tool not in {"ffuf", "nikto", "nuclei", "droopescan", "wpscan", "robots"}:
         return ""
 
     base = report_root / "tools" / "host-scans" / host / tool
@@ -299,7 +300,7 @@ def _duration_for_finished_scan(
     tool = (tool or "").lower()
     if tool.startswith("nuclei pass"):
         tool = "nuclei"
-    if not host or tool not in {"ffuf", "nikto", "nuclei", "droopescan", "wpscan"}:
+    if not host or tool not in {"ffuf", "nikto", "nuclei", "droopescan", "wpscan", "robots"}:
         return ""
 
     audit_ts = (audit_ts or "").strip()
@@ -363,7 +364,7 @@ def _display_audit_action(
 
     m = re.match(
         r"(?i)^(started|finished)\s+"
-        r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|ffuf|nikto)\b",
+        r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|ffuf|nikto)\b",
         text,
     )
     if m:
@@ -421,7 +422,7 @@ def _is_finished_host_scan_action(action: str) -> bool:
     return bool(
         re.match(
             r"(?i)^finished\s+"
-            r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|ffuf|nikto)\b",
+            r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|ffuf|nikto)\b",
             text,
         )
     )
@@ -625,6 +626,8 @@ def _newest_host_scan_tool_meta(tool_dir: Path) -> dict:
             }
             if meta.get("skip_reason"):
                 best["skip_reason"] = meta.get("skip_reason")
+            if meta.get("disallow_count") is not None:
+                best["disallow_count"] = meta.get("disallow_count")
     return best or {}
 
 
@@ -732,7 +735,7 @@ def _pages_href(path_from_report_root: str) -> str:
 # Audit log Action → host-scan tool / pass-2 / URL (for Output column links).
 _AUDIT_SCAN_ACTION_RE = re.compile(
     r"(?i)\b(?P<verb>started|finished)\s+"
-    r"(?P<tool>nuclei\s+pass-2|droopescan|wpscan|ffuf|nikto|nuclei)\b"
+    r"(?P<tool>nuclei\s+pass-2|droopescan|wpscan|robots|ffuf|nikto|nuclei)\b"
     r".*?\bon\s+(?P<url>https?://[^\s)(]+)"
 )
 
@@ -792,7 +795,7 @@ def audit_output_cell(
 
     is_pass2 = tool_raw.startswith("nuclei pass-2") or tool_raw == "nuclei pass-2"
     tool = "nuclei" if is_pass2 or tool_raw == "nuclei" else tool_raw
-    if tool not in {"ffuf", "nikto", "nuclei", "droopescan", "wpscan"}:
+    if tool not in {"ffuf", "nikto", "nuclei", "droopescan", "wpscan", "robots"}:
         return '<span class="inc-audit-muted">—</span>'
 
     meta = (scan_index.get(host) or {}).get(tool) or {}
@@ -830,7 +833,14 @@ def audit_output_cell(
             return '<span class="inc-audit-muted">—</span>'
     else:
         if output:
-            href = _pages_href(output)
+            txt_rel = output
+            # robots: prefer raw robots.txt body for the green txt button
+            if tool == "robots":
+                robots_rel = str(Path(output).with_name("robots.txt")).replace("\\", "/")
+                robots_disk = report_root / robots_rel.lstrip("/")
+                if robots_disk.is_file():
+                    txt_rel = robots_rel
+            href = _pages_href(txt_rel)
             links.append(
                 f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
                 f'target="_blank" rel="noopener">txt</a>'
@@ -842,6 +852,19 @@ def audit_output_cell(
                     links.append(
                         f'<a class="inc-audit-btn" href="{html.escape(_pages_href(htm_rel), quote=True)}" '
                         f'target="_blank" rel="noopener">htm</a>'
+                    )
+            if tool == "robots":
+                list_rel = str(Path(output).with_name("disallow-urls.txt")).replace(
+                    "\\", "/"
+                )
+                list_disk = report_root / list_rel.lstrip("/")
+                if list_disk.is_file() and list_disk.stat().st_size > 0:
+                    abs_list = str(list_disk.resolve())
+                    robots_href = "discover-robots:" + quote(abs_list, safe="/:")
+                    links.append(
+                        f'<a class="inc-audit-btn" href="{html.escape(robots_href, quote=True)}" '
+                        f'title="Open each robots.txt Disallow directory in Firefox">'
+                        f"htm</a>"
                     )
         if not links:
             return '<span class="inc-audit-muted">—</span>'
@@ -870,7 +893,14 @@ def tool_cell(
 
     links: list[str] = []
     if output:
-        rel = _pages_href(str(output))
+        txt_path = str(output)
+        # robots: green txt opens the raw robots.txt body when present
+        if tool == "robots" and report_root is not None:
+            robots_rel = str(Path(str(output)).with_name("robots.txt")).replace("\\", "/")
+            robots_disk = report_root / robots_rel.lstrip("/")
+            if robots_disk.is_file():
+                txt_path = robots_rel
+        rel = _pages_href(txt_path)
         links.append(
             f'<a class="inc-audit-btn" href="{html.escape(rel, quote=True)}" '
             f'target="_blank" rel="noopener">txt</a>'
@@ -888,6 +918,20 @@ def tool_cell(
                 links.append(
                     f'<a class="inc-audit-btn" href="{html.escape(htm_href, quote=True)}" '
                     f'target="_blank" rel="noopener">htm</a>'
+                )
+        # robots: open each Disallow URL in Firefox (discover-robots: protocol)
+        if tool == "robots" and report_root is not None:
+            list_rel = str(Path(str(output)).with_name("disallow-urls.txt")).replace(
+                "\\", "/"
+            )
+            list_disk = report_root / list_rel.lstrip("/")
+            if list_disk.is_file() and list_disk.stat().st_size > 0:
+                abs_list = str(list_disk.resolve())
+                href = "discover-robots:" + quote(abs_list, safe="/:")
+                links.append(
+                    f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
+                    f'title="Open each robots.txt Disallow directory in Firefox">'
+                    f"htm</a>"
                 )
         # ffuf: open each finding URL in Firefox (discover-ffuf: protocol)
         if tool == "ffuf" and report_root is not None:
@@ -981,7 +1025,7 @@ def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, st
             continue
         verb = m.group("verb").lower()
         tool = _normalize_scan_tool(m.group("tool"))
-        if tool not in {"nuclei", "nikto", "ffuf", "droopescan", "wpscan"}:
+        if tool not in {"nuclei", "nikto", "ffuf", "droopescan", "wpscan", "robots"}:
             continue
         host = _hostname_from_url(m.group("url").rstrip(".,;"))
         if not host:

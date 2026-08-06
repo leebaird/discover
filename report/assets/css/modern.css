@@ -1829,8 +1829,9 @@ tr.inc-subdomains-filter-hide {
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 440px;
-    max-height: min(80vh, 560px);
+    max-width: 600px;
+    /* Tall enough for full tool help (sections + Command) without scrolling on normal screens */
+    max-height: min(96vh, 960px);
     overflow: auto;
     padding: 16px 18px 18px;
     border: 1px solid #2f3844;
@@ -1839,14 +1840,6 @@ tr.inc-subdomains-filter-hide {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
     box-sizing: border-box;
     color: #aeb5bf;
-}
-
-/* Longer tools: taller dialog so operator does not need to scroll */
-.inc-host-scan-info-modal--nuclei .inc-host-scan-info-dialog,
-.inc-host-scan-info-modal--nikto .inc-host-scan-info-dialog,
-.inc-host-scan-info-modal--ffuf .inc-host-scan-info-dialog {
-    max-width: 520px;
-    max-height: min(94vh, 820px);
 }
 
 .inc-host-scan-info-header {
@@ -1886,12 +1879,12 @@ tr.inc-subdomains-filter-hide {
 }
 
 .inc-host-scan-info-body {
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
 }
 
 .inc-host-scan-info-section {
-    margin: 0 0 12px;
+    margin: 0 0 22px;
 }
 
 .inc-host-scan-info-section:last-child {
@@ -1900,7 +1893,7 @@ tr.inc-subdomains-filter-hide {
 
 .inc-host-scan-info-section h3 {
     margin: 0 0 4px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     letter-spacing: 0.03em;
     text-transform: uppercase;
@@ -1909,6 +1902,7 @@ tr.inc-subdomains-filter-hide {
 
 .inc-host-scan-info-section p {
     margin: 0;
+    font-size: 14px;
     color: #aeb5bf;
 }
 
@@ -1936,7 +1930,7 @@ tr.inc-subdomains-filter-hide {
 
 .inc-host-scan-info-ua-note {
     margin: 0;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.45;
     color: #9aa3ad;
 }

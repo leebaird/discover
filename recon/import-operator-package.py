@@ -189,6 +189,8 @@ def rebuild_host_scan_status(scans_dir: Path) -> None:
         }
         if meta.get("skip_reason"):
             entry["skip_reason"] = meta.get("skip_reason")
+        if meta.get("disallow_count") is not None:
+            entry["disallow_count"] = meta.get("disallow_count")
         cur = hosts.setdefault(host, {}).get(tool)
         if cur is None or entry["_sort"] >= cur.get("_sort", ("", -1)):
             hosts.setdefault(host, {})[tool] = entry

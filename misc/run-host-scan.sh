@@ -7,13 +7,14 @@
 # Invoked via discover-scan: scheme or CLI:
 #   run-host-scan.sh <tool> <url> [software] [report_root]
 #
-# Tools: nuclei | droopescan | wpscan | nikto | ffuf  (quietest → loudest)
+# Tools: nuclei | droopescan | wpscan | robots | nikto | ffuf  (quietest → loudest)
 # - Visible terminal (desktop entry uses Terminal=true)
 # - One scan at a time (engagement lock)
 # - Software-aware nuclei/ffuf/droopescan/wpscan profiles
 # - Nuclei is two-pass auto: (1) software tags recon, (2) CVE/KEV IDs
 # - droopescan only when software is a supported CMS (Drupal, Joomla, ...) - not WordPress
 # - wpscan only when software is WordPress
+# - robots: fetch /robots.txt, parse Disallow paths (multiTabs option 3)
 
 set -euo pipefail
 
@@ -87,7 +88,7 @@ f_die(){
     exit 1
 }
 
-[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|droopescan|wpscan)$ ]] || f_die "Tool must be nuclei, droopescan, wpscan, nikto, or ffuf."
+[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|droopescan|wpscan|robots)$ ]] || f_die "Tool must be nuclei, droopescan, wpscan, robots, nikto, or ffuf."
 [ -n "$URL" ] || f_die "URL is required."
 
 # Resolve report root
@@ -216,12 +217,15 @@ hosts = status.setdefault("hosts", {})
 h = hosts.setdefault(host, {})
 skip_reason = ""
 exit_code = None
+disallow_count = None
 if meta_path and meta_path.is_file():
     try:
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
         skip_reason = str(meta.get("skip_reason") or "").strip()
         if meta.get("exit_code") is not None:
             exit_code = meta.get("exit_code")
+        if meta.get("disallow_count") is not None:
+            disallow_count = meta.get("disallow_count")
     except Exception:
         pass
 if running == "1":
@@ -243,6 +247,8 @@ entry = {
 }
 if skip_reason:
     entry["skip_reason"] = skip_reason
+if disallow_count is not None:
+    entry["disallow_count"] = disallow_count
 h[tool] = entry
 status["running"] = running == "1"
 if running == "1":
@@ -634,6 +640,8 @@ if [ "$TOOL" = "nikto" ]; then
         && ! command -v nikto >/dev/null 2>&1; then
         f_die "Nikto is not installed. Run Discover Update (GitHub sullo/nikto → /opt/nikto)."
     fi
+elif [ "$TOOL" = "robots" ]; then
+    command -v curl >/dev/null 2>&1 || f_die "curl is not installed (required for robots)."
 else
     command -v "$TOOL" >/dev/null 2>&1 || f_die "$TOOL is not installed. Run Discover Update."
 fi
@@ -1131,6 +1139,128 @@ PY
             echo "Output: $WPSCAN_OUT"
             echo
         } >> "$OUT_FILE"
+        ;;
+    robots)
+        # multiTabs.sh option 3: fetch robots.txt, parse Disallow paths.
+        # Run only fetches + parses; Firefox tabs open via discover-robots: (htm button).
+        ROBOTS_FILE="$RUN_DIR/robots.txt"
+        DISALLOW_FILE="$RUN_DIR/disallow-urls.txt"
+        BASE_URL=$(python3 - "$URL" <<'PY'
+from urllib.parse import urlparse
+import sys
+p = urlparse(sys.argv[1])
+scheme = (p.scheme or "https").lower()
+netloc = p.netloc or p.path.split("/")[0]
+print(f"{scheme}://{netloc}".rstrip("/"))
+PY
+)
+        ROBOTS_URL="${BASE_URL}/robots.txt"
+        ROBOTS_CMD="curl -kLsS --http1.1 --connect-timeout 8 --max-time 15 -A $(f_shell_quote "$UA") -o robots.txt $(f_shell_quote "$ROBOTS_URL")"
+        f_write_run_header "$ROBOTS_CMD"
+        {
+            echo "Robots URL: $ROBOTS_URL"
+            echo "Base:       $BASE_URL"
+            echo
+        } >> "$OUT_FILE"
+        echo "[*] Fetching $ROBOTS_URL"
+        set +e
+        HTTP_CODE=$(curl -kLsS --http1.1 --connect-timeout 8 --max-time 15 \
+            -A "$UA" \
+            -w "%{http_code}" \
+            -o "$ROBOTS_FILE" \
+            "$ROBOTS_URL" 2>/dev/null)
+        CURL_RC=$?
+        set -e
+        [ -n "$HTTP_CODE" ] || HTTP_CODE="000"
+        if [ ! -f "$ROBOTS_FILE" ]; then
+            : > "$ROBOTS_FILE"
+        fi
+        # Parse Disallow paths → absolute URLs (same idea as multiTabs.sh).
+        DISALLOW_COUNT=$(python3 - "$ROBOTS_FILE" "$DISALLOW_FILE" "$BASE_URL" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+robots_path = Path(sys.argv[1])
+out_path = Path(sys.argv[2])
+base = sys.argv[3].rstrip("/")
+text = robots_path.read_text(encoding="utf-8", errors="replace") if robots_path.is_file() else ""
+seen = set()
+urls = []
+for raw in text.splitlines():
+    line = raw.strip()
+    if not line or line.startswith("#"):
+        continue
+    # Strip trailing comment
+    if "#" in line:
+        line = line.split("#", 1)[0].strip()
+    m = re.match(r"(?i)^disallow\s*:\s*(.*)$", line)
+    if not m:
+        continue
+    path = (m.group(1) or "").strip()
+    if not path or path == "*":
+        continue
+    if path.lower() == "disallow":
+        continue
+    if path.startswith(("http://", "https://")):
+        full = path
+    else:
+        if not path.startswith("/"):
+            path = "/" + path
+        full = base + path
+    if full in seen:
+        continue
+    seen.add(full)
+    urls.append(full)
+out_path.write_text("\n".join(urls) + ("\n" if urls else ""), encoding="utf-8")
+print(len(urls))
+PY
+)
+        DISALLOW_COUNT="${DISALLOW_COUNT:-0}"
+        {
+            echo "HTTP status: $HTTP_CODE"
+            if [ "$CURL_RC" -ne 0 ]; then
+                echo "curl exit:   $CURL_RC"
+            fi
+            echo "Disallow:    $DISALLOW_COUNT unique path(s)"
+            echo "robots.txt:  $ROBOTS_FILE"
+            echo "URL list:    $DISALLOW_FILE"
+            echo
+            if [ "$DISALLOW_COUNT" -gt 0 ] 2>/dev/null; then
+                echo "Disallow URLs:"
+                cat "$DISALLOW_FILE"
+                echo
+            else
+                echo "No Disallow paths found (empty robots, missing file, or only Allow/*)."
+                echo
+            fi
+        } >> "$OUT_FILE"
+        # Soft success: fetch attempted; non-2xx still useful (body may be empty).
+        if [ "$CURL_RC" -ne 0 ] && [ "$HTTP_CODE" = "000" ]; then
+            EXIT_CODE=1
+            {
+                echo "[!] Failed to fetch robots.txt from $ROBOTS_URL."
+                echo
+            } >> "$OUT_FILE"
+        else
+            EXIT_CODE=0
+        fi
+        python3 - "$META_FILE" "$DISALLOW_COUNT" "$HTTP_CODE" <<'PY'
+import json, sys
+path, count, code = sys.argv[1], sys.argv[2], sys.argv[3]
+try:
+    meta = json.load(open(path, encoding="utf-8"))
+except Exception:
+    meta = {}
+try:
+    meta["disallow_count"] = int(count)
+except ValueError:
+    meta["disallow_count"] = 0
+meta["robots_http_status"] = code
+json.dump(meta, open(path, "w", encoding="utf-8"), indent=2)
+open(path, "a", encoding="utf-8").write("\n")
+PY
+        echo "[*] robots.txt HTTP $HTTP_CODE — $DISALLOW_COUNT Disallow path(s)"
         ;;
     ffuf)
         f_ffuf_wordlist

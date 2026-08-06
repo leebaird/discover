@@ -188,7 +188,7 @@ Typical domain engagement path:
 3. **Audit → Import** — names, names/titles/emails, subdomains, or another operator’s package into the **current** report.
 4. **Active** — httpx / whatweb / gowitness; Active and Subdomains pages; optional NVD CVSS.
 5. **Shodan** (optional) — Active page **Enrich** (Shodan checkbox) or `recon/shodan-enrich.sh` / `shodan-enrich.py` CLI; host-by-IP OSINT for public IPs from Active httpx.
-6. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, WPScan when WordPress, Nikto, ffuf) in operator mode.
+6. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, WPScan when WordPress, robots, Nikto, ffuf) in operator mode.
 7. **Export** — on Report → Audit (Discover-hosted only): Client, Defender (audit CSV), or Operator package; path shown after export.
 8. **Reports → Audit** in the HTML report — Target scans, Audit log, and Exports.
 
@@ -332,6 +332,7 @@ In **operator** mode only (report opened via **Open report** / Active at `http:/
 | **Nuclei** | Template recon (product tags) then auto **Pass 2** CVE/KEV from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | **Gated:** product known via `?software=` **or** row fingerprint (Technologies / title / web server / hostname). Hidden when no product is known |
 | **droopescan** | CMS enum (`scan drupal` / …; `-e a -t 4`) | **Gated:** supported CMS from `?software=` **or** row fingerprint (Drupal, Joomla, Moodle, Silverstripe — not WordPress) |
 | **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** WordPress from `?software=` **or** row fingerprint. Optional `WPSCAN_API_TOKEN` for vuln DB |
+| **robots** | Fetch `/robots.txt` and list **Disallow** paths (same idea as multiTabs → Directories in robots.txt); **TXT** = raw body, **HTM** = open Disallow dirs in Firefox | Always on expand |
 | **Nikto** | Web server checks; report **TXT** + **HTM** when the scan actually ran | Always on expand |
 | **ffuf** | Content discovery (quiet defaults); report **TXT** + **URL** (open each finding in Firefox) | Always on expand |
 
@@ -339,7 +340,14 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 
 **Software fingerprint (expand):** `?software=` wins (e.g. Active Software versions link). Otherwise Discover reads the row Technologies tokens (keeps version when present, e.g. `Kibana:9.4.2`), then title, web server, and hostname label. Priority products include CMS, Kibana, Grafana, Elasticsearch, Jenkins, Tomcat, IIS, nginx, Apache, PHP, Node.js. That product string is passed into `run-host-scan.sh` so nuclei Pass 1 uses product tags and Pass 2 can select CVE templates.
 
-**Reachability pre-check** (all expand tools): before nuclei, droopescan, wpscan, nikto, or ffuf launches, `misc/run-host-scan.sh` runs a **curl HTTP/1.1 GET** (15s max, same User-Agent as the scan). If the host does not answer HTTP, Discover **does not run the tool**. The run’s `output.txt` records the skip, `status.json` / `latest.json` set `skip_reason=host_unreachable`, and the box shows **Unreachable** (red) with a **TXT** note. **Nikto** does not show **HTM** on that skip (no report was written).
+**Reachability pre-check** (all expand tools): before nuclei, droopescan, wpscan, robots, nikto, or ffuf launches, `misc/run-host-scan.sh` runs a **curl HTTP/1.1 GET** (15s max, same User-Agent as the scan). If the host does not answer HTTP, Discover **does not run the tool**. The run’s `output.txt` records the skip, `status.json` / `latest.json` set `skip_reason=host_unreachable`, and the box shows **Unreachable** (red) with a **TXT** note. **Nikto** and **robots** do not show **HTM** on that skip (no report / no Disallow list).
+
+**robots** (`misc/run-host-scan.sh`):
+
+* One curl GET of `{base}/robots.txt` (scheme/host from the expand row URL)
+* Parses **Disallow** paths into full URLs under the run dir (`robots.txt`, `disallow-urls.txt`, summary `output.txt`)
+* **TXT** opens the raw robots body; **HTM** uses `discover-robots:` → `misc/open-robots-tabs.sh` (Firefox CLI, one tab per unique Disallow URL; cap 40). **HTM** is hidden when there are no Disallow paths
+* Run does not open Firefox — only the green **HTM** button does
 
 **ffuf quiet defaults** (`misc/run-host-scan.sh`):
 
@@ -588,7 +596,7 @@ bash recon/import-subdomains.sh --report /path/to/live-report --mode existing --
 | Section | Content |
 |---------|---------|
 | **Audit log** | Newest-first by default; **Time (UTC)**, **Operator**, **Operator IP**, **Target**, **Action** (**Started** = exact command; **Finished** = e.g. `Finished nikto in 5 min 14 sec.`), **Output**. Full log lines stay in `tools/audit/log.txt` |
-| **Target scans** | Per-host history for **Nuclei**, **droopescan**, **WPScan**, **Nikto**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
+| **Target scans** | Per-host history for **Nuclei**, **droopescan**, **WPScan**, **robots**, **Nikto**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
 | **Exports** | Type (Client / Defender / Operator), exported time (UTC), operator IPs (Included / Redacted), file name |
 
 Open report rebuilds this page. Host scans and exports append data under `tools/` that appears on Audit after the next rebuild (Import, host-scan finish, or export path).
@@ -842,7 +850,7 @@ Main menu option **18** (`misc/update.sh`).
 * Updates **Metasploit** via `snap refresh metasploit-framework` when already installed (installs the snap if missing; snap MSF does not use `msfupdate`)
 * Installs **WPScan** via RubyGems (`gem install wpscan`) for WordPress host scans; refreshes the local WPScan DB with `wpscan --update`
 * Patches **droopescan** for modern Python (3.12+) via `misc/patch-droopescan-py314.sh` after pipx install (cement `imp` + setuptools/`distutils`)
-* Registers desktop handlers: `discover-scan:`, `discover-cve:`, `discover-ffuf:` (open ffuf finding URLs in Firefox)
+* Registers desktop handlers: `discover-scan:`, `discover-cve:`, `discover-ffuf:` (open ffuf finding URLs in Firefox), `discover-robots:` (open robots.txt Disallow directories in Firefox)
 * Refreshes the default scanner User-Agent (Microsoft Edge) in `resource/user-agent.txt` for Nikto, Nmap, ffuf, Active, and related tools
 * Downloads/refreshes the CISA KEV catalog under `resource/` (Subdomains Shodan **KEV** badges pick up new catalog entries when you **Open report** that engagement)
 

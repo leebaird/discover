@@ -7,7 +7,7 @@
  * (http://127.0.0.1:17322/… from Open report / Active) — not file:// manual open.
  * One tool at a time; live status via same origin /mode|/status when hosted.
  * Software: ?software= query wins, else fingerprint row tech/title/webserver/host.
- * nuclei is shown only when a product is known; nikto/ffuf always on expand.
+ * nuclei is shown only when a product is known; robots/nikto/ffuf always on expand.
  * droopescan / wpscan gate on CMS software (query or fingerprint).
  * Tool boxes: Unicode ⓘ opens a short modal (what / when / Run / outputs).
  */
@@ -141,6 +141,35 @@
                 {
                     h: "Outputs",
                     p: "TXT under tools/host-scans/ for this host."
+                }
+            ]
+        },
+        robots: {
+            title: "robots",
+            sections: [
+                {
+                    h: "What it does",
+                    p:
+                        "Fetches /robots.txt and lists Disallow directories (same idea as Discover menu → Open multiple tabs in Firefox → Directories in robots.txt)."
+                },
+                {
+                    h: "When shown",
+                    p: "Always on expand."
+                },
+                {
+                    h: "What Run does",
+                    p:
+                        "One curl GET of robots.txt for this host. Parses Disallow paths into full URLs. Does not open Firefox during Run — use the green htm button after it finishes."
+                },
+                {
+                    h: "Safety check",
+                    p:
+                        "Before the fetch, Discover runs a curl HTTP/1.1 GET (15s). If the host does not answer HTTP, the run is skipped and the box shows Unreachable (txt note only)."
+                },
+                {
+                    h: "Outputs",
+                    p:
+                        "TXT is the raw robots.txt body. HTM opens each Disallow directory in Firefox (desktop handler; not shown when there are no Disallow paths or on Unreachable)."
                 }
             ]
         },
@@ -308,6 +337,14 @@
                 shellQuote(ua) +
                 " --disable-tls-checks --plugins-detection passive" +
                 " --enumerate vp,vt,tt,cb,dbe,u --format cli-no-colour --no-banner"
+            );
+        }
+        if (tool === "robots") {
+            return (
+                "curl -kLsS --http1.1 --connect-timeout 8 --max-time 15 -A " +
+                shellQuote(ua) +
+                " -o robots.txt " +
+                shellQuote(u.replace(/\/?$/, "") + "/robots.txt")
             );
         }
         if (tool === "nikto") {
@@ -579,7 +616,8 @@
     /**
      * Tools for this expand panel.
      * nuclei only when a product is known (filter or fingerprint).
-     * nikto/ffuf always; CMS tools when matched.
+     * robots/nikto/ffuf always; CMS tools when matched.
+     * Order: quietest → loudest.
      */
     function toolsForSoftware(software) {
         var tools = [];
@@ -593,7 +631,7 @@
         if (isWordpress(software)) {
             tools.push("wpscan");
         }
-        tools.push("nikto", "ffuf");
+        tools.push("robots", "nikto", "ffuf");
         return tools;
     }
 
@@ -708,7 +746,12 @@
         return h[tool] || null;
     }
 
-    /** Build TXT (+ HTM for nikto when a real HTML report exists) buttons. */
+    /**
+     * Build green output buttons.
+     * robots: txt → robots.txt body; htm → Firefox Disallow tabs.
+     * nikto: txt + htm when report exists.
+     * ffuf: txt + url (Firefox finding tabs).
+     */
     function outputButtonsHtml(tool, st) {
         if (!st || !(st.output || st.output_rel)) {
             return "";
@@ -717,7 +760,12 @@
         if (String(rel).indexOf("../") !== 0) {
             rel = "../" + String(rel).replace(/^\//, "");
         }
-        var safe = String(rel).replace(/"/g, "&quot;");
+        var txtRel = rel;
+        // robots txt shows the raw robots.txt body (not the summary output.txt).
+        if (tool === "robots" && st.skip_reason !== "host_unreachable") {
+            txtRel = String(rel).replace(/[^/]+$/, "robots.txt");
+        }
+        var safe = String(txtRel).replace(/"/g, "&quot;");
         var html =
             '<span class="inc-host-scan-btn-row">' +
             '<a class="inc-host-scan-out" href="' +
@@ -733,10 +781,25 @@
                 htmRel.replace(/"/g, "&quot;") +
                 '" target="_blank" rel="noopener">htm</a>';
         }
+        // robots: htm opens Disallow directories in Firefox (discover-robots:).
+        if (
+            tool === "robots" &&
+            st.skip_reason !== "host_unreachable" &&
+            Number(st.disallow_count) > 0
+        ) {
+            var listRel = String(rel).replace(/[^/]+$/, "disallow-urls.txt");
+            var absList = hostScanArtifactAbsolutePath(listRel);
+            if (absList) {
+                html +=
+                    '<a class="inc-host-scan-out" href="discover-robots:' +
+                    encodeURI(absList).replace(/"/g, "&quot;") +
+                    '" title="Open each robots.txt Disallow directory in Firefox">htm</a>';
+            }
+        }
         if (tool === "ffuf") {
             // Absolute path via discover-ffuf: → open-ffuf-tabs.sh (Firefox CLI)
             var jsonRel = String(rel).replace(/[^/]+$/, "ffuf.json");
-            var absJson = ffufJsonAbsolutePath(jsonRel);
+            var absJson = hostScanArtifactAbsolutePath(jsonRel);
             if (absJson) {
                 html +=
                     '<a class="inc-host-scan-out" href="discover-ffuf:' +
@@ -748,8 +811,11 @@
         return html;
     }
 
-    /** Best-effort absolute path for ffuf.json (for discover-ffuf: handler). */
-    function ffufJsonAbsolutePath(relFromPages) {
+    /**
+     * Best-effort absolute or report-relative path for desktop handlers
+     * (discover-ffuf: / discover-robots:).
+     */
+    function hostScanArtifactAbsolutePath(relFromPages) {
         try {
             var a = document.createElement("a");
             a.href = relFromPages;
