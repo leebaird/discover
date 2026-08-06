@@ -169,7 +169,7 @@
                 {
                     h: "Outputs",
                     p:
-                        "TXT is the raw robots.txt body. HTM opens each Disallow directory in Firefox (desktop handler; not shown when there are no Disallow paths or on Unreachable)."
+                        "TXT is the raw robots.txt body. HTM opens each Disallow directory in Firefox (desktop handler; not shown when there are no Disallow paths or on Unreachable). Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
                 }
             ]
         },
@@ -227,7 +227,7 @@
                 {
                     h: "Outputs",
                     p:
-                        "TXT of findings plus a URL control that opens each hit in Firefox when available."
+                        "TXT of findings plus a URL control that opens each hit in Firefox when available. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
                 }
             ]
         }

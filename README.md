@@ -346,7 +346,7 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 
 * One curl GET of `{base}/robots.txt` (scheme/host from the expand row URL)
 * Parses **Disallow** paths into full URLs under the run dir (`robots.txt`, `disallow-urls.txt`, summary `output.txt`)
-* **TXT** opens the raw robots body; **HTM** uses `discover-robots:` → `misc/open-robots-tabs.sh` (Firefox CLI, one tab per unique Disallow URL; cap 40). **HTM** is hidden when there are no Disallow paths
+* **TXT** opens the raw robots body; **HTM** uses `discover-robots:` → `misc/open-robots-tabs.sh` (Firefox CLI, one tab per unique Disallow URL; cap 40; ~1.5s ± 40% jitter between tabs). **HTM** is hidden when there are no Disallow paths
 * Run does not open Firefox — only the green **HTM** button does
 
 **ffuf quiet defaults** (`misc/run-host-scan.sh`):
@@ -355,7 +355,7 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 * `-fc 301,302,307,400,401,403,404,405,429` (drop redirects and common noise; keep 500s for version banners)
 * `-t 8 -rate 20 -noninteractive`; SecLists `common.txt` (or fallbacks)
 * Report text is ANSI-cleaned (no progress ESC junk); **Duration** stripped from hit lines
-* **URL** uses `discover-ffuf:` → `misc/open-ffuf-tabs.sh` (Firefox CLI, one tab per unique finding URL; cap 40)
+* **URL** uses `discover-ffuf:` → `misc/open-ffuf-tabs.sh` (Firefox CLI, one tab per unique finding URL; cap 40; ~1.5s ± 40% jitter between tabs)
 
 **Nuclei** writes a structured `output.txt` (Pass 1 / Pass 2). Empty findings files say `No vulnerabilities discovered.`
 

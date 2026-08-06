@@ -14,7 +14,21 @@
 set -euo pipefail
 
 MAX_TABS="${DISCOVER_FFUF_MAX_TABS:-40}"
-SLEEP_SECS="${DISCOVER_FFUF_TAB_SLEEP:-0.8}"
+# OPSEC: base delay between tabs; each wait is base * (1 ± jitter).
+# Default 1.5s ± 40% → roughly 0.9–2.1s (avoids a fixed robotic cadence).
+SLEEP_SECS="${DISCOVER_FFUF_TAB_SLEEP:-1.5}"
+JITTER_FRAC="${DISCOVER_FFUF_TAB_JITTER:-0.4}"
+
+# Sleep base*(1±jitter); floor 0.05s so empty/zero base still yields a pause.
+f_tab_sleep(){
+    python3 -c '
+import random, sys
+base = float(sys.argv[1])
+jitter = max(0.0, float(sys.argv[2]))
+delay = base * (1.0 + random.uniform(-jitter, jitter))
+print(f"{max(0.05, delay):.3f}")
+' "${1:-1.5}" "${2:-0.4}"
+}
 
 f_trim(){
     local value="$1"
@@ -131,7 +145,7 @@ for url in "${URLS[@]}"; do
     [ -n "$url" ] || continue
     [[ "$url" == \#* ]] && continue
     firefox "$url" 2>/dev/null &
-    sleep "$SLEEP_SECS"
+    sleep "$(f_tab_sleep "$SLEEP_SECS" "$JITTER_FRAC")"
 done
 
 exit 0
