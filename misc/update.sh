@@ -258,14 +258,72 @@ f_update_cisa_kev(){
         -A "Discover-update/1.0 (https://github.com/leebaird/discover)" \
         -o "$tmp_file" "$kev_url"; then
         if python3 -c "import json,sys; json.load(open(sys.argv[1], encoding='utf-8'))" "$tmp_file" 2>/dev/null; then
+            # Diff CVE IDs vs previous catalog (before replace) for "new KEV" count.
+            local had_prev=0
+            local prev_arg=""
+            local new_count=""
+            if [ -f "$kev_file" ]; then
+                had_prev=1
+                prev_arg="$kev_file"
+            fi
+            new_count=$(python3 - "$tmp_file" "$prev_arg" <<'PY' 2>/dev/null || true
+import json
+import sys
+from pathlib import Path
+
+def cve_ids(path: str) -> set[str]:
+    if not path or not Path(path).is_file():
+        return set()
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, TypeError):
+        return set()
+    out: set[str] = set()
+    for row in data.get("vulnerabilities") or []:
+        if not isinstance(row, dict):
+            continue
+        cid = (row.get("cveID") or row.get("cveId") or "").strip().upper()
+        if cid.startswith("CVE-"):
+            out.add(cid)
+    return out
+
+new_path = sys.argv[1]
+old_path = sys.argv[2] if len(sys.argv) > 2 else ""
+new_ids = cve_ids(new_path)
+old_ids = cve_ids(old_path)
+added = len(new_ids - old_ids)
+total = len(new_ids)
+# Prefer catalog count field when present and sensible; else unique cveID count.
+try:
+    catalog_count = json.loads(Path(new_path).read_text(encoding="utf-8")).get("count")
+    if isinstance(catalog_count, int) and catalog_count >= 0:
+        total = catalog_count
+except (OSError, json.JSONDecodeError, TypeError):
+    pass
+print(f"{added}")
+print(f"{total}")
+PY
+)
+            local added_n total_n
+            added_n=$(printf '%s\n' "$new_count" | sed -n '1p')
+            total_n=$(printf '%s\n' "$new_count" | sed -n '2p')
+            [ -n "$added_n" ] || added_n="?"
+            [ -n "$total_n" ] || total_n="?"
+
             mv "$tmp_file" "$kev_file"
             chmod 644 "$kev_file" 2>/dev/null || true
             if [ -n "$SUDO_USER" ]; then
                 chown "$SUDO_USER:" "$kev_file" 2>/dev/null || true
             fi
-            count=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1], encoding='utf-8')).get('count', '?'))" "$kev_file" 2>/dev/null || echo "?")
             echo "Saved $kev_file"
-            echo "$count vulnerabilities."
+            if [ "$had_prev" -eq 0 ]; then
+                echo "$added_n new KEV(s) added (first catalog on this install)."
+            elif [ "$added_n" = "0" ]; then
+                echo "No new KEVs added."
+            else
+                echo "$added_n new KEV(s) added."
+            fi
+            echo "$total_n vulnerabilities."
         else
             rm -f "$tmp_file"
             echo -e "${YELLOW}CISA KEV download was not valid JSON; keeping previous catalog if any.${NC}"
