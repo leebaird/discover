@@ -134,6 +134,11 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Lookup order: shell export → `~/.discover/api-keys` (first non-empty wins per key).
 - **Update:** `misc/update.sh` ensures the file exists — if missing, copies `resource/api-keys.example` → `~/.discover/api-keys` (`chmod 600`). Under `sudo`, seeds the **invoking user’s** home (`SUDO_USER`), not only root. If already present, only re-applies `chmod 600` (quiet).
 - **Auto-migrate:** if `$DISCOVER/.env` or `~/.discover/.env` still exist, Discover merges them into `~/.discover/api-keys` (existing `api-keys` values win) and **removes** the legacy files. Implemented in `software-cve.migrate_legacy_api_key_files()` (also run from Active / Shodan shell loaders).
+- **Agent / automation must never destroy live secrets:**
+  - Do **not** run `discover-config.py set-api-keys`, statusd `POST /config/api-keys`, or any write to `~/.discover/api-keys` (or legacy `.env` key files) with dummy/test values.
+  - Do **not** “verify” save paths against the operator’s real key file. Use a temp file, dry logic, or read-only checks.
+  - Do **not** clear, overwrite, or restore keys unless the operator **explicitly** asks to save or change a specific key.
+  - Tests may read presence only (configured / empty); never paste or rewrite real key material for convenience.
 
 ## Report Export (Audit only)
 

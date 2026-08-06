@@ -153,10 +153,10 @@
         var added = s.ports_added;
         var removed = s.ports_removed;
         if (Array.isArray(added) && added.length) {
-            bits.push("+" + added.map(esc).join(",+"));
+            bits.push(added.map(esc).join(","));
         }
         if (Array.isArray(removed) && removed.length) {
-            bits.push("-" + removed.map(esc).join(",-"));
+            bits.push(removed.map(esc).join(",") + " removed");
         }
         if (bits.length) {
             return bits.join(" ");
@@ -181,28 +181,38 @@
         lines.push(
             "Queried " +
                 (st.queried != null ? st.queried : "0") +
-                " · with data " +
+                " · " +
                 (st.ok != null ? st.ok : "0") +
-                " · not in Shodan " +
+                " with data · " +
                 (st.not_found != null ? st.not_found : "0") +
-                " · errors " +
-                (st.error != null ? st.error : "0")
+                " not in Shodan" +
+                (st.error
+                    ? " · errors " + st.error
+                    : "")
         );
         lines.push(
             "Changed: " +
                 (ch.ips_updated != null ? ch.ips_updated : 0) +
-                " IP(s)" +
+                " IPs" +
                 (ch.ips_new_ok ? " · " + ch.ips_new_ok + " newly found" : "") +
                 (ch.ports_changed
                     ? " · " +
                       ch.ports_changed +
-                      " IP(s) with port changes"
+                      " IPs with port changes"
                     : "") +
                 (ch.ports_added_total
-                    ? " · " + ch.ports_added_total + " port(s) newly seen"
+                    ? " · " +
+                      ch.ports_added_total +
+                      (ch.ports_added_total === 1
+                          ? " new port"
+                          : " new ports")
                     : "") +
                 (ch.ports_removed_total
-                    ? " · " + ch.ports_removed_total + " port(s) no longer seen"
+                    ? " · " +
+                      ch.ports_removed_total +
+                      (ch.ports_removed_total === 1
+                          ? " port no longer seen"
+                          : " ports no longer seen")
                     : "") +
                 (ch.last_update_changed
                     ? " · " + ch.last_update_changed + " last_update"
@@ -227,23 +237,31 @@
             });
         }
         if (portSamples.length) {
-            lines.push("Hosts / ports:");
+            portSamples = portSamples.slice().sort(function (a, b) {
+                return String(a.ip || "").localeCompare(
+                    String(b.ip || ""),
+                    undefined,
+                    { numeric: true }
+                );
+            });
             portSamples.slice(0, 40).forEach(function (s) {
                 var delta = formatPortDelta(s);
                 if (s.is_new && !delta && s.ports_after) {
-                    delta = "new in Shodan · ports " + esc(s.ports_after);
+                    delta = "new in Shodan " + esc(s.ports_after);
                 } else if (s.is_new && delta) {
-                    delta = "new in Shodan · " + delta;
+                    delta = "new in Shodan " + delta;
                 }
                 if (delta) {
-                    lines.push("· " + esc(s.ip) + " — " + delta);
+                    lines.push(
+                        esc(s.ip) + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + delta
+                    );
                 } else {
-                    lines.push("· " + esc(s.ip));
+                    lines.push(esc(s.ip));
                 }
             });
             if (portSamples.length > 40) {
                 lines.push(
-                    "· and " + (portSamples.length - 40) + " more host(s)"
+                    "and " + (portSamples.length - 40) + " more host(s)"
                 );
             }
         }
@@ -383,7 +401,7 @@
         if (wantShodan) {
             chain = chain.then(function () {
                 setStatus(
-                    "Updating Shodan for all public IPs… (may take several minutes)",
+                    "Updating Shodan data on public IPs.",
                     false
                 );
                 return postJson("/shodan-refresh-all", { force: true }).then(
@@ -405,7 +423,7 @@
 
         if (wantCves) {
             chain = chain.then(function () {
-                setStatus("Updating Software CVEs from NVD…", false);
+                setStatus("Updating software CVEs from NVD.", false);
                 return postJson("/software-cve-refresh", {
                     force_all: false,
                 }).then(function (res) {
