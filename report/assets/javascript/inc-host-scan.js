@@ -1070,7 +1070,13 @@
             var st = toolState(status, info.host, tool);
             var launchHtml;
             var label =
-                tool === "droopescan" ? "droopescan" : tool === "wpscan" ? "wpscan" : tool;
+                tool === "droopescan"
+                    ? "droopescan"
+                    : tool === "wpscan"
+                      ? "wpscan"
+                      : tool === "robots"
+                        ? "robots"
+                        : tool;
             if (canLaunch && !running) {
                 launchHtml =
                     '<a class="inc-host-scan-launch" href="' +

@@ -3,6 +3,7 @@ import importlib.util
 import json
 import os
 import re
+import shutil
 import sys
 from collections import Counter
 from urllib.parse import quote, urlparse
@@ -1341,6 +1342,42 @@ def _discover_root() -> str:
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+def sync_host_scan_ui_assets(report_dir: str) -> None:
+    """Copy current host-scan / Subdomains UI assets into the engagement tree.
+
+    Open report does this via import-report.sh; Active rebuild must too so
+    tools like robots appear without a separate Open report.
+    """
+    root = _discover_root()
+    src_js = os.path.join(root, "report", "assets", "javascript")
+    src_css = os.path.join(root, "report", "assets", "css")
+    dst_js = os.path.join(report_dir, "assets", "javascript")
+    dst_css = os.path.join(report_dir, "assets", "css")
+    try:
+        os.makedirs(dst_js, exist_ok=True)
+        os.makedirs(dst_css, exist_ok=True)
+    except OSError:
+        return
+    for name in (
+        "inc-host-scan.js",
+        "inc-shodan.js",
+        "inc-subdomains-filter.js",
+        "inc-data-table.js",
+    ):
+        src = os.path.join(src_js, name)
+        if os.path.isfile(src):
+            try:
+                shutil.copy2(src, os.path.join(dst_js, name))
+            except OSError:
+                pass
+    css = os.path.join(src_css, "modern.css")
+    if os.path.isfile(css):
+        try:
+            shutil.copy2(css, os.path.join(dst_css, "modern.css"))
+        except OSError:
+            pass
+
+
 def _load_photo_hosts(gowitness_jsonl: str, screenshots_dir: str) -> dict:
     """host -> relative href for gowitness screenshot (https preferred)."""
     photos: dict[str, str] = {}
@@ -1561,6 +1598,8 @@ def write_subdomains_active_page(report_dir: str) -> dict:
     content = open(template, encoding="utf-8").read()
     content = content.replace("#COMPANY#", company)
     content = content.replace("#DOMAIN#", domain)
+    # Keep host-scan expand assets current (robots tool, etc.).
+    sync_host_scan_ui_assets(report_dir)
     # Template ends before dynamic tables (same as Active: append after copy).
     # Write template then append tables (mirrors f_active_write_report).
     os.makedirs(os.path.dirname(page), exist_ok=True)
@@ -1589,7 +1628,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
             '<script src="../tools/shodan/index.js"></script>',
             '<script src="../tools/shodan/kev-ids.js"></script>',
             '<script src="../assets/javascript/inc-shodan.js?v=18"></script>',
-            '<script src="../assets/javascript/inc-host-scan.js?v=27"></script>',
+            '<script src="../assets/javascript/inc-host-scan.js?v=28"></script>',
             "</body>",
             "</html>",
             "",

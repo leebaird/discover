@@ -1585,11 +1585,19 @@ tr.inc-subdomains-filter-hide {
     color: #fff !important;
 }
 
-/* Filtered Subdomains host-scan expand panel */
+/* Host-scan expand panel (Subdomains public table).
+ * Beat .inc-content-frame--table … td { white-space: nowrap } so tool boxes
+ * wrap and stay visible (robots was easy to miss when scrolled off-screen). */
 .inc-subdomains-public tr.inc-host-scan-panel-row > td {
     background: #161616;
     border-top: none;
     padding: 0.75rem 1rem 1rem;
+    text-align: left;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: 0; /* force wrap inside full-width colspan cell */
+    width: 100%;
 }
 
 /* Shodan expand panel (Subdomains public table).

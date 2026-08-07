@@ -118,8 +118,8 @@ f_import_report_sync_assets(){
         # Bust browser cache on Subdomains after layout / host-scan / Shodan fixes.
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
-                -e 's|modern\.css?v=[^"]*|modern.css?v=ws36|g' \
-                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=27|g' \
+                -e 's|modern\.css?v=[^"]*|modern.css?v=ws38|g' \
+                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=28|g' \
                 -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=18|g' \
                 "$report/pages/subdomains.htm" 2>/dev/null || true
         fi
@@ -283,7 +283,7 @@ need = [
     ("tools/shodan/index.js", '<script src="../tools/shodan/index.js"></script>'),
     ("tools/shodan/kev-ids.js", '<script src="../tools/shodan/kev-ids.js"></script>'),
     ("inc-shodan.js", '<script src="../assets/javascript/inc-shodan.js?v=18"></script>'),
-    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=27"></script>'),
+    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=28"></script>'),
 ]
 insert = [tag for key, tag in need if key not in text]
 if insert:
@@ -294,6 +294,17 @@ if insert:
         text = text[:idx] + block + text[idx:]
     else:
         text = text.rstrip() + "\n" + block
+    changed = True
+
+# Always pin host-scan script to current cache-bust (robots tool, etc.).
+import re
+new_text, n = re.subn(
+    r'inc-host-scan\.js\?v=[0-9]+',
+    'inc-host-scan.js?v=28',
+    text,
+)
+if n:
+    text = new_text
     changed = True
 
 if changed:
