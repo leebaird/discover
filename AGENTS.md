@@ -68,8 +68,8 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - Shown **above the Audit log** on `pages/audit.htm` (all report modes; built by `audit-build.py`).
 - Window: **last 7 UTC calendar days** (inclusive of today). Label: **Last 7 days** (no “(UTC)” in the heading).
 - **KPI cards** (half-width row, centered): **Targets scanned**, **Scans completed**, **Incomplete scans**.
-- **Charts:** Scans per day + By operator; then By CVE + By software + By tool (horizontal bars).
-- Data: host-scan **Finished** / **Started** lines in `tools/audit/log.txt`; software from `(software: …)` on Finished lines; CVEs from nuclei pass-2 `meta.pass2.ids` (canonical `CVE-YYYY-NNNN` only) for runs finished in the window.
+- **Charts layout (top → bottom):** KPI trio; **By CVE** | **By software** (2 equal boxes); **By tool** | **By category** (2 equal boxes); **Scans per day** (full width of two-box row); **By operator** (full width of two-box row). Horizontal bar charts show **top 10** entries each.
+- Data: host-scan **Finished** / **Started** lines in `tools/audit/log.txt`; software from `(software: …)` on Finished lines; CVEs from nuclei pass-2 `meta.pass2.ids` (canonical `CVE-YYYY-NNNN` only) for runs finished in the window; category from `tools/subdomains` / `tools/private-subs` host→category lookup (empty → `(none)`).
 - Incomplete: Started in window with no Finished for the same tool+host at/after that start.
 - Rebuild with Audit (host-scan finish, Open report, Config name rewrite, etc.). Bust `modern.css?v=` on Audit after CSS changes.
 

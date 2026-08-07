@@ -1002,6 +1002,39 @@ def _normalize_scan_tool(tool_raw: str) -> str:
     return t
 
 
+def load_host_categories(report_root: Path) -> dict[str, str]:
+    """Map hostname → category from tools/subdomains and tools/private-subs.
+
+    File format: host\\tip[\\tcategory]. Empty/missing category → \"(none)\".
+    First non-empty category wins if a host appears more than once.
+    """
+    mapping: dict[str, str] = {}
+    for name in ("subdomains", "private-subs"):
+        path = report_root / "tools" / name
+        if not path.is_file():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for raw in text.splitlines():
+            raw = raw.strip()
+            if not raw or raw.startswith("#"):
+                continue
+            parts = raw.split("\t") if "\t" in raw else raw.split()
+            if not parts:
+                continue
+            host = (parts[0] or "").strip().lower()
+            if not host:
+                continue
+            cat = (parts[2] if len(parts) > 2 else "").strip() or "(none)"
+            prev = mapping.get(host)
+            # Prefer a real category over (none) when both exist.
+            if prev is None or (prev == "(none)" and cat != "(none)"):
+                mapping[host] = cat
+    return mapping
+
+
 def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, str, str]]) -> dict:
     """Aggregate host-scan activity for the last 7 UTC days (Option A dashboard)."""
     from collections import Counter
@@ -1015,6 +1048,7 @@ def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, st
 
     finished_events: list[tuple] = []  # (dt, operator, tool, host, software)
     started_events: list[tuple] = []  # (dt, tool, host)
+    host_cats = load_host_categories(report_root)
 
     for ts, operator, _ip, action, _raw in audit_rows:
         dt = _parse_audit_ts_utc(ts)
@@ -1057,6 +1091,10 @@ def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, st
     by_software = Counter(
         s for _d, _o, _t, _h, s in finished_events if s
     )
+    by_category = Counter(
+        host_cats.get(h, "(none)") or "(none)"
+        for _d, _o, _t, h, _s in finished_events
+    )
     targets = {h for _d, _o, _t, h, _s in finished_events}
 
     # CVE counts from nuclei pass-2 meta for runs finished in window
@@ -1093,7 +1131,7 @@ def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, st
                 if re.fullmatch(r"CVE-\d{4}-\d{4,}", c):
                     by_cve[c] += 1
 
-    def top_n(counter: Counter, n: int = 6) -> list[tuple[str, int]]:
+    def top_n(counter: Counter, n: int = 10) -> list[tuple[str, int]]:
         return counter.most_common(n)
 
     return {
@@ -1112,6 +1150,7 @@ def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, st
         "by_tool": top_n(by_tool),
         "by_cve": top_n(by_cve),
         "by_software": top_n(by_software),
+        "by_category": top_n(by_category),
     }
 
 
@@ -1153,7 +1192,15 @@ def _day_bars_html(days: list[dict]) -> str:
 
 
 def render_last7_metrics_html(metrics: dict) -> str:
-    """Option A dashboard strip: KPIs + charts for last 7 days."""
+    """Option A dashboard strip: KPIs + charts for last 7 days.
+
+    Layout (top → bottom):
+      1. KPI trio (Targets / Completed / Incomplete)
+      2. By CVE | By software  (two equal boxes)
+      3. By tool | By category (two equal boxes)
+      4. Scans per day         (full width of two-box row)
+      5. By operator           (full width of two-box row)
+    """
     lines: list[str] = [
         '<section class="inc-audit-section inc-audit-section--metrics" '
         'aria-label="Last 7 days activity">'
@@ -1161,7 +1208,7 @@ def render_last7_metrics_html(metrics: dict) -> str:
         '<div class="inc-audit-metrics-head">'
         "<h3>Last 7 days</h3>"
         "</div>"
-        # Row 1: three KPI cards, half width centered
+        # Row 1: three KPI cards, compact width centered
         '<div class="inc-audit-metrics-kpis">'
         '<div class="inc-audit-metrics-card">'
         '<div class="inc-audit-metrics-card-label">Targets scanned</div>'
@@ -1182,19 +1229,8 @@ def render_last7_metrics_html(metrics: dict) -> str:
         f'<div class="inc-audit-metrics-card-value">{int(metrics.get("incomplete_scans") or 0)}</div>'
         "</div>"
         "</div>"
-        # Row 2: scans/day + by operator
+        # Row 2: By CVE | By software
         '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--2">'
-        '<div class="inc-audit-metrics-chart">'
-        "<h4>Scans per day</h4>"
-        f'{_day_bars_html(list(metrics.get("days") or []))}'
-        "</div>"
-        '<div class="inc-audit-metrics-chart">'
-        "<h4>By operator</h4>"
-        f'{_hbar_rows_html(list(metrics.get("by_operator") or []))}'
-        "</div>"
-        "</div>"
-        # Row 3: by CVE, by software, by tool
-        '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--3">'
         '<div class="inc-audit-metrics-chart">'
         "<h4>By CVE</h4>"
         f'{_hbar_rows_html(list(metrics.get("by_cve") or []), "No CVE scans")}'
@@ -1203,9 +1239,30 @@ def render_last7_metrics_html(metrics: dict) -> str:
         "<h4>By software</h4>"
         f'{_hbar_rows_html(list(metrics.get("by_software") or []), "No software-tagged scans")}'
         "</div>"
+        "</div>"
+        # Row 3: By tool | By category
+        '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--2">'
         '<div class="inc-audit-metrics-chart">'
         "<h4>By tool</h4>"
         f'{_hbar_rows_html(list(metrics.get("by_tool") or []))}'
+        "</div>"
+        '<div class="inc-audit-metrics-chart">'
+        "<h4>By category</h4>"
+        f'{_hbar_rows_html(list(metrics.get("by_category") or []), "No category data")}'
+        "</div>"
+        "</div>"
+        # Row 4: Scans per day (full width of two-box row)
+        '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--1">'
+        '<div class="inc-audit-metrics-chart">'
+        "<h4>Scans per day</h4>"
+        f'{_day_bars_html(list(metrics.get("days") or []))}'
+        "</div>"
+        "</div>"
+        # Row 5: By operator (full width of two-box row)
+        '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--1">'
+        '<div class="inc-audit-metrics-chart">'
+        "<h4>By operator</h4>"
+        f'{_hbar_rows_html(list(metrics.get("by_operator") or []))}'
         "</div>"
         "</div>"
         "</div>"

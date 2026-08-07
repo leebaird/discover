@@ -151,7 +151,7 @@ f_import_report_sync_assets(){
                 fi
                 if [ "$page" = "audit.htm" ]; then
                     sed -i \
-                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-op-filter1|g' \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-metrics-center1|g' \
                         -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=11|g' \
                         -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=13|g' \
                         -e 's|inc-audit-line-delete\.js?v=[0-9]*|inc-audit-line-delete.js?v=3|g' \
