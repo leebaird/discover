@@ -486,7 +486,6 @@ if [ -n "$DISCOVER_ROOT" ] \
         || [ -f "$DISCOVER_REPORT/tools/shodan/index.json" ] \
         || [ -d "$DISCOVER_REPORT/tools/shodan/hosts" ]; }; then
     echo
-    echo -e "${BLUE}Refreshing Shodan KEV badges from CISA catalog.${NC}"
     if DISCOVER="$DISCOVER_ROOT" python3 "$DISCOVER_ROOT/recon/shodan-enrich.py" \
         --refresh-kev "$DISCOVER_REPORT"; then
         :
@@ -551,10 +550,8 @@ elif [ -f "$DISCOVER_REPORT/pages/passive.htm" ]; then
     OPEN_PAGE="$DISCOVER_REPORT/pages/passive.htm"
 fi
 
-echo
-echo -e "Report:  ${YELLOW}$DISCOVER_REPORT${NC}"
-echo -e "Session: ${YELLOW}$SESSION_DIR/current-report${NC}"
-echo
+echo -e "[*] Report:  ${YELLOW}$DISCOVER_REPORT${NC}"
+echo -e "[*] Session: ${YELLOW}$SESSION_DIR/current-report${NC}"
 
 if [ -n "$OPEN_PAGE" ]; then
     # Prefer statusd HTTP so host-scan chevrons only appear for Discover-opened
@@ -569,13 +566,9 @@ if [ -n "$OPEN_PAGE" ]; then
         fi
     fi
     if f_import_report_open_browser "$OPEN_URL"; then
-        echo "[*] Opening report in browser."
-        if [[ "$OPEN_URL" == http://127.0.0.1:* ]]; then
-            echo -e "    ${YELLOW}$OPEN_URL${NC}"
-        fi
+        echo -e "[*] Browser: ${YELLOW}$OPEN_URL${NC}"
     else
-        echo "[*] Open this file in a browser:"
-        echo "    $OPEN_PAGE"
+        echo -e "[*] Browser: ${YELLOW}$OPEN_PAGE${NC}"
     fi
 else
     f_import_report_warn "No index/active/subdomains/passive page found to open."

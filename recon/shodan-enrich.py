@@ -834,19 +834,14 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 0
 
-        print(
-            f"[*] Refreshing Shodan KEV badges from catalog ({len(catalog_ids)} IDs).",
-            flush=True,
-        )
+        print("[*] Refreshing Shodan KEV badges.", flush=True)
         ok_n = 0
         for report in targets:
             ok, _ = refresh_kev_for_report(report)
             if ok:
                 ok_n += 1
-                print(f"    {report}/tools/shodan/kev-ids.js", flush=True)
             else:
-                eprint(f"    [!] skipped {report} (no Shodan artifacts or write failed)")
-        print("[*] Updated report.", flush=True)
+                eprint(f"[!] skipped {report} (no Shodan artifacts or write failed)")
         return 0 if ok_n == len(targets) else (0 if ok_n > 0 else 1)
 
     if not args.report_dir:
