@@ -323,7 +323,7 @@ HTML **Reports** menu: **Passive** (`pages/passive.htm`), **Active** (`pages/act
 
 ##### Software filter and host scans
 
-On Active **Software versions**, versions that have NVD CVEs are linked to a filtered Subdomains view (`subdomains.htm?software=…`). **Alive by category** labels link to Subdomains filtered by that category (`subdomains.htm?category=Dev`, or `category=(none)` for empty). **CMS** lists Content Management Systems found on alive hosts (WordPress, Drupal, Joomla, Moodle, Silverstripe — same set as host-scan CMS tools) with counts and `?tech=` links. **Status codes** link to Subdomains with that HTTP status (`subdomains.htm?status=200`). **Top web servers** link by server name (`subdomains.htm?webserver=Apache`; parenthetical variants like `Apache (Debian)` match). **Top technologies** link by product name (`subdomains.htm?tech=jQuery`; also matches versioned tokens like `jQuery:3.4.1`). The Active page header also has a centered **CVE search** bar: enter `CVE-YYYY-NNNNN` (or `YYYY-NNNNN`) to open Subdomains filtered to hosts running software linked to that CVE in the engagement NVD cache (`tools/cve-software-index.js`). Same filter banner / host-scan layout as software links (`subdomains.htm?cve=…`).
+On Active **Software versions**, versions that have NVD CVEs are linked to a filtered Subdomains view (`subdomains.htm?software=…`). **Categories** labels link to Subdomains filtered by that category (`subdomains.htm?category=Dev`, or `category=(none)` for empty). **CMS** lists Content Management Systems found on alive hosts (WordPress, Drupal, Joomla, Moodle, Silverstripe — same set as host-scan CMS tools) with counts and `?tech=` links. **Status codes** link to Subdomains with that HTTP status (`subdomains.htm?status=200`). **Top web servers** link by server name (`subdomains.htm?webserver=Apache`; parenthetical variants like `Apache (Debian)` match). **Top technologies** link by product name (`subdomains.htm?tech=jQuery`; also matches versioned tokens like `jQuery:3.4.1`). The Active page header also has a centered **CVE search** bar: enter `CVE-YYYY-NNNNN` (or `YYYY-NNNNN`) to open Subdomains filtered to hosts running software linked to that CVE in the engagement NVD cache (`tools/cve-software-index.js`). Same filter banner / host-scan layout as software links (`subdomains.htm?cve=…`).
 
 In **operator** mode only (report opened via **Open report** / Active at `http://127.0.0.1:17322/…`), Subdomains public rows with an HTTP status get a host-scan expand control (also on `?software=` / `?cve=` filtered views). Manual `file://` open never shows chevrons. Expandable rows show host-scan **boxes** (quietest → loudest):
 
@@ -369,7 +369,7 @@ Launches use the `discover-scan:` handler / `misc/run-host-scan.sh` (one tool at
 | Private subdomains | Rows in `tools/private-subs` |
 | Responding hosts | Unique hosts with an httpx status (any code) |
 
-**Status codes** on the Active page count **all** httpx responses (including 404/5xx). Screenshots, whatweb, and **Alive by category** still use the alive subset only (status 200–399, 401, 403, or 405).
+**Status codes** on the Active page count **all** httpx responses (including 404/5xx). Screenshots, whatweb, and **Categories** still use the alive subset only (status 200–399, 401, 403, or 405).
 
 ##### Public subdomains table (after Active)
 

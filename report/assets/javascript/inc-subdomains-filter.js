@@ -6,7 +6,7 @@
  * web server, or technology.
  * Active Software versions:  subdomains.htm?software=Apache:2.4.37
  * Active CVE search:         subdomains.htm?cve=CVE-2024-38475
- * Active Alive by category:  subdomains.htm?category=Dev  (or category=(none))
+ * Active Categories:  subdomains.htm?category=Dev  (or category=(none))
  * Active Status codes:       subdomains.htm?status=200
  * Active Top web servers:    subdomains.htm?webserver=Apache
  * Active Top technologies:   subdomains.htm?tech=jQuery  (matches jQuery:3.x too)

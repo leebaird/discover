@@ -1293,7 +1293,7 @@ def build_active_summary(
                 ],
                 [
                     summary_table(
-                        "Alive by category",
+                        "Categories",
                         "Category",
                         counter_rows(category_counter),
                         sort_last_labels={"(none)"},
