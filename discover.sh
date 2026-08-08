@@ -590,10 +590,9 @@ f_update(){
     fi
     sudo "$MISC_DIR/update.sh"
 
+    # Quiet notes rebuild after Update (no operator-facing banner).
     if [ -f "$DISCOVER/notes/build.py" ]; then
-        echo -e "${BLUE}Rebuilding notes site.${NC}"
-        python3 "$DISCOVER/notes/build.py" >/dev/null || true
-        echo
+        python3 "$DISCOVER/notes/build.py" >/dev/null 2>&1 || true
     fi
 
     exit

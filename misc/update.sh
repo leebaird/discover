@@ -480,7 +480,6 @@ PY
         chown "$SUDO_USER:" "$ua_file" 2>/dev/null || true
     fi
     echo "Saved $ua_file"
-    echo "$ua"
 
     # Nikto — USERAGENT= when present (2.5+ also accepts -useragent CLI).
     if [ -n "$nikto_cfg" ] && [ -f "$nikto_cfg" ] && [ -w "$nikto_cfg" ]; then
@@ -983,8 +982,8 @@ f_install_nikto_github(){
     fi
 
     if [ -d "$nikto_root/.git" ]; then
-        # Same pattern as MAN-SPIDER / custom Nmap scripts:
-        # blue header + git pull ("Already up to date." or real pull).
+        # Same pattern as MAN-SPIDER: blue header + git pull
+        # ("Already up to date." or real pull).
         echo -e "${BLUE}Updating Nikto.${NC}"
         git -C "$nikto_root" fetch --force --prune origin >/dev/null 2>&1 || true
         git -C "$nikto_root" checkout -q main 2>/dev/null \
@@ -1064,19 +1063,17 @@ WRAP
 }
 f_install_nikto_github
 
-if [ -d /usr/share/nmap/scripts/custom/.git ]; then
-    echo -e "${BLUE}Updating custom Nmap scripts.${NC}"
-    cd /usr/share/nmap/scripts/custom/ || exit ; git pull
-    echo
-else
-    echo -e "${YELLOW}Installing custom Nmap scripts.${NC}"
-    git clone https://github.com/ibrahmsql/Custom-Nse /usr/share/nmap/scripts/custom/
-    echo
-fi
-
 if ! command -v nmap &> /dev/null; then
     echo -e "${YELLOW}Installing nmap.${NC}"
     apt install -y nmap
+    echo
+fi
+
+# Drop legacy third-party custom NSE tree (ibrahmsql/Custom-Nse) — no longer managed by Update.
+if [ -d /usr/share/nmap/scripts/custom ]; then
+    echo -e "${BLUE}Removing legacy custom Nmap scripts directory.${NC}"
+    rm -rf /usr/share/nmap/scripts/custom
+    echo "Removed /usr/share/nmap/scripts/custom."
     echo
 fi
 
