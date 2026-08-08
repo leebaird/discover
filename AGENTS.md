@@ -66,11 +66,14 @@ Conventions agreed with the operator for Discover development. **Read and follow
 
 
 - Shown **above the Audit log** on `pages/audit.htm` (all report modes; built by `audit-build.py`).
-- Window: **last 7 UTC calendar days** (inclusive of today). Label: **Last 7 days** (no “(UTC)” in the heading).
-- **KPI cards** (half-width row, centered): **Targets scanned**, **Scans completed**, **Incomplete scans**.
-- **Charts layout (top → bottom):** KPI trio; **By CVE** | **By software** (2 equal boxes); **By tool** | **By category** (2 equal boxes); **Scans per day** (full width of two-box row); **By operator** (full width of two-box row). Horizontal bar charts show **top 10** entries each.
+- Range dropdown (aligned with **By CVE** / **Targets scanned**): **Last 7 days** (default) · **Last week** · **All**. Asset: `inc-audit-metrics-range.js`.
+  - **Last 7 days:** last 7 UTC calendar days inclusive of today (start = today−6 00:00 UTC).
+  - **Last week:** previous full UTC calendar week (Monday 00:00 through next Monday 00:00).
+  - **All:** no date filter (Scans per day chart capped at newest 60 calendar days of activity).
+- **KPI cards** (compact row, centered): **Targets scanned**, **Scans completed**; **Incomplete scans** only when count > 0 (then three cards; otherwise two cards centered).
+- **Charts layout (top → bottom):** KPI row; **By CVE** | **By software** (2 equal boxes); **By tool** | **By category** (2 equal boxes); **Scans per day** (full width of two-box row); **By operator** (full width of two-box row). Horizontal bar charts show **top 10** entries each.
 - Data: host-scan **Finished** / **Started** lines in `tools/audit/log.txt`; software from `(software: …)` on Finished lines; CVEs from nuclei pass-2 `meta.pass2.ids` (canonical `CVE-YYYY-NNNN` only) for runs finished in the window; category from `tools/subdomains` / `tools/private-subs` host→category lookup (empty → `(none)`).
-- Incomplete: Started in window with no Finished for the same tool+host at/after that start.
+- Incomplete: **Started** in the selected window with no **Finished** for the same tool+host at/after that start (Finished may be outside the window — e.g. started last week, finished this week is complete for Last week).
 - Rebuild with Audit (host-scan finish, Open report, Config name rewrite, etc.). Bust `modern.css?v=` on Audit after CSS changes.
 
 ## Config (Audit page only)

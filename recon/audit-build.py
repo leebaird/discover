@@ -1035,24 +1035,78 @@ def load_host_categories(report_root: Path) -> dict[str, str]:
     return mapping
 
 
-def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, str, str]]) -> dict:
-    """Aggregate host-scan activity for the last 7 UTC days (Option A dashboard)."""
+def _metrics_window_bounds(window: str, now):
+    """Return (start_dt|None, end_dt|None exclusive, day_keys|None).
+
+    Windows (UTC):
+      7d   — last 7 calendar days inclusive of today (start = today-6 00:00)
+      week — previous full calendar week Monday 00:00 through next Monday 00:00
+      all  — no lower/upper bound (day_keys filled after events are known)
+    """
+    from datetime import datetime, timedelta, timezone
+
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    else:
+        now = now.astimezone(timezone.utc)
+
+    if window == "week":
+        today = now.date()
+        this_monday = today - timedelta(days=today.weekday())
+        last_monday = this_monday - timedelta(days=7)
+        start = datetime(
+            last_monday.year, last_monday.month, last_monday.day, tzinfo=timezone.utc
+        )
+        end = datetime(
+            this_monday.year, this_monday.month, this_monday.day, tzinfo=timezone.utc
+        )
+        day_keys = [last_monday + timedelta(days=i) for i in range(7)]
+        return start, end, day_keys
+
+    if window == "all":
+        return None, None, None
+
+    # Default: last 7 days (rolling UTC calendar days)
+    start = (now - timedelta(days=6)).replace(hour=0, minute=0, second=0, microsecond=0)
+    day_keys = [(start.date() + timedelta(days=i)) for i in range(7)]
+    return start, None, day_keys
+
+
+def _dt_in_metrics_window(dt, start, end) -> bool:
+    if dt is None:
+        return False
+    if start is not None and dt < start:
+        return False
+    if end is not None and dt >= end:
+        return False
+    return True
+
+
+def compute_metrics(
+    report_root: Path,
+    audit_rows: list,
+    window: str = "7d",
+) -> dict:
+    """Aggregate host-scan activity for a metrics window (7d | week | all)."""
     from collections import Counter
     from datetime import datetime, timedelta, timezone
 
     now = datetime.now(timezone.utc)
-    # Inclusive window: start of day (now-6) through now
-    start_day = (now - timedelta(days=6)).replace(hour=0, minute=0, second=0, microsecond=0)
-    day_keys = [(start_day + timedelta(days=i)).date() for i in range(7)]
-    day_counts = {d: 0 for d in day_keys}
+    start_bound, end_bound, day_keys = _metrics_window_bounds(window, now)
+    day_counts: dict = {}
+    if day_keys is not None:
+        day_counts = {d: 0 for d in day_keys}
 
-    finished_events: list[tuple] = []  # (dt, operator, tool, host, software)
-    started_events: list[tuple] = []  # (dt, tool, host)
+    finished_events: list[tuple] = []  # (dt, operator, tool, host, software) — in window
+    started_in_window: list[tuple] = []  # (dt, tool, host)
+    # All Finished stamps (any date) for incomplete matching — a run started in the
+    # window but finished later must not count as incomplete for that window.
+    finished_any: dict[tuple[str, str], list] = {}
     host_cats = load_host_categories(report_root)
 
     for ts, operator, _ip, action, _raw in audit_rows:
         dt = _parse_audit_ts_utc(ts)
-        if dt is None or dt < start_day:
+        if dt is None:
             continue
         m = _AUDIT_SCAN_ACTION_RE.search(action or "")
         if not m:
@@ -1065,24 +1119,29 @@ def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, st
         if not host:
             continue
         if verb == "finished":
+            finished_any.setdefault((tool, host), []).append(dt)
+            if not _dt_in_metrics_window(dt, start_bound, end_bound):
+                continue
             soft = _software_product_from_action(action)
             finished_events.append((dt, operator or "—", tool, host, soft))
             d = dt.date()
-            if d in day_counts:
-                day_counts[d] += 1
+            if day_keys is not None:
+                if d in day_counts:
+                    day_counts[d] += 1
+            else:
+                day_counts[d] = day_counts.get(d, 0) + 1
         elif verb == "started":
-            started_events.append((dt, tool, host))
+            if not _dt_in_metrics_window(dt, start_bound, end_bound):
+                continue
+            started_in_window.append((dt, tool, host))
 
-    # Incomplete: Started in window with no Finished for same tool+host at/after start
-    finished_after: dict[tuple[str, str], list] = {}
-    for dt, _op, tool, host, _soft in finished_events:
-        finished_after.setdefault((tool, host), []).append(dt)
-    for key in finished_after:
-        finished_after[key].sort()
+    for key in finished_any:
+        finished_any[key].sort()
 
+    # Incomplete: Started in window with no Finished (any time) for same tool+host at/after start
     incomplete = 0
-    for dt, tool, host in started_events:
-        fins = finished_after.get((tool, host)) or []
+    for dt, tool, host in started_in_window:
+        fins = finished_any.get((tool, host)) or []
         if not any(f >= dt for f in fins):
             incomplete += 1
 
@@ -1119,7 +1178,7 @@ def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, st
                             fin_dt = fin_dt.astimezone(timezone.utc)
                     except Exception:
                         fin_dt = None
-            if fin_dt is None or fin_dt < start_day:
+            if not _dt_in_metrics_window(fin_dt, start_bound, end_bound):
                 continue
             pass2 = meta.get("pass2") if isinstance(meta.get("pass2"), dict) else {}
             ids = pass2.get("ids") if isinstance(pass2, dict) else None
@@ -1131,10 +1190,22 @@ def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, st
                 if re.fullmatch(r"CVE-\d{4}-\d{4,}", c):
                     by_cve[c] += 1
 
+    # "All" day chart: calendar span of activity, capped at 60 days (newest)
+    if day_keys is None:
+        if day_counts:
+            dmax = max(day_counts)
+            dmin = min(day_counts)
+            if (dmax - dmin).days > 59:
+                dmin = dmax - timedelta(days=59)
+            day_keys = [dmin + timedelta(days=i) for i in range((dmax - dmin).days + 1)]
+        else:
+            day_keys = []
+
     def top_n(counter: Counter, n: int = 10) -> list[tuple[str, int]]:
         return counter.most_common(n)
 
     return {
+        "window": window,
         "targets_scanned": len(targets),
         "scans_completed": len(finished_events),
         "incomplete_scans": incomplete,
@@ -1142,7 +1213,7 @@ def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, st
             {
                 "key": d.isoformat(),
                 "label": d.strftime("%m-%d"),
-                "count": day_counts[d],
+                "count": int(day_counts.get(d, 0)),
             }
             for d in day_keys
         ],
@@ -1152,6 +1223,11 @@ def compute_last7_metrics(report_root: Path, audit_rows: list[tuple[str, str, st
         "by_software": top_n(by_software),
         "by_category": top_n(by_category),
     }
+
+
+def compute_last7_metrics(report_root: Path, audit_rows: list) -> dict:
+    """Backward-compatible alias: last 7 UTC calendar days."""
+    return compute_metrics(report_root, audit_rows, "7d")
 
 
 def _hbar_rows_html(rows: list[tuple[str, int]], empty_label: str = "No data") -> str:
@@ -1191,84 +1267,157 @@ def _day_bars_html(days: list[dict]) -> str:
     return "".join(parts)
 
 
-def render_last7_metrics_html(metrics: dict) -> str:
-    """Option A dashboard strip: KPIs + charts for last 7 days.
+_METRICS_RANGE_OPTIONS: list[tuple[str, str]] = [
+    ("7d", "Last 7 days"),
+    ("week", "Last week"),
+    ("all", "All"),
+]
 
-    Layout (top → bottom):
-      1. KPI trio (Targets / Completed / Incomplete)
-      2. By CVE | By software  (two equal boxes)
-      3. By tool | By category (two equal boxes)
-      4. Scans per day         (full width of two-box row)
-      5. By operator           (full width of two-box row)
-    """
-    lines: list[str] = [
-        '<section class="inc-audit-section inc-audit-section--metrics" '
-        'aria-label="Last 7 days activity">'
-        '<div class="inc-audit-metrics">'
-        '<div class="inc-audit-metrics-head">'
-        "<h3>Last 7 days</h3>"
-        "</div>"
-        # Row 1: three KPI cards, compact width centered
-        '<div class="inc-audit-metrics-kpis">'
-        '<div class="inc-audit-metrics-card">'
-        '<div class="inc-audit-metrics-card-label">Targets scanned</div>'
-        f'<div class="inc-audit-metrics-card-value">{int(metrics.get("targets_scanned") or 0)}</div>'
-        "</div>"
-        '<div class="inc-audit-metrics-card">'
-        '<div class="inc-audit-metrics-card-label">Scans completed</div>'
-        f'<div class="inc-audit-metrics-card-value">{int(metrics.get("scans_completed") or 0)}</div>'
-        "</div>"
-        '<div class="inc-audit-metrics-card'
-        + (
-            " inc-audit-metrics-card--warn"
-            if int(metrics.get("incomplete_scans") or 0) > 0
-            else ""
+
+def _metrics_range_select_html(selected: str) -> str:
+    """Dropdown replacing the old 'Last 7 days' heading."""
+    opts: list[str] = []
+    for value, label in _METRICS_RANGE_OPTIONS:
+        sel = " selected" if value == selected else ""
+        opts.append(
+            f'<option value="{html.escape(value, quote=True)}"{sel}>'
+            f"{html.escape(label)}</option>"
         )
-        + '">'
-        '<div class="inc-audit-metrics-card-label">Incomplete scans</div>'
-        f'<div class="inc-audit-metrics-card-value">{int(metrics.get("incomplete_scans") or 0)}</div>'
-        "</div>"
-        "</div>"
-        # Row 2: By CVE | By software
-        '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--2">'
-        '<div class="inc-audit-metrics-chart">'
-        "<h4>By CVE</h4>"
-        f'{_hbar_rows_html(list(metrics.get("by_cve") or []), "No CVE scans")}'
-        "</div>"
-        '<div class="inc-audit-metrics-chart">'
-        "<h4>By software</h4>"
-        f'{_hbar_rows_html(list(metrics.get("by_software") or []), "No software-tagged scans")}'
-        "</div>"
-        "</div>"
-        # Row 3: By tool | By category
-        '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--2">'
-        '<div class="inc-audit-metrics-chart">'
-        "<h4>By tool</h4>"
-        f'{_hbar_rows_html(list(metrics.get("by_tool") or []))}'
-        "</div>"
-        '<div class="inc-audit-metrics-chart">'
-        "<h4>By category</h4>"
-        f'{_hbar_rows_html(list(metrics.get("by_category") or []), "No category data")}'
-        "</div>"
-        "</div>"
-        # Row 4: Scans per day (full width of two-box row)
-        '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--1">'
-        '<div class="inc-audit-metrics-chart">'
-        "<h4>Scans per day</h4>"
-        f'{_day_bars_html(list(metrics.get("days") or []))}'
-        "</div>"
-        "</div>"
-        # Row 5: By operator (full width of two-box row)
-        '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--1">'
-        '<div class="inc-audit-metrics-chart">'
-        "<h4>By operator</h4>"
-        f'{_hbar_rows_html(list(metrics.get("by_operator") or []))}'
-        "</div>"
-        "</div>"
-        "</div>"
-        "</section>",
+    return (
+        '<label class="sr-only" for="inc-audit-metrics-range">Metrics time range</label>'
+        '<select id="inc-audit-metrics-range" class="inc-audit-metrics-range" '
+        'aria-label="Metrics time range">'
+        + "".join(opts)
+        + "</select>"
+    )
+
+
+def _render_metrics_panel_body(metrics: dict) -> str:
+    """KPI + chart rows for one metrics window (no outer section wrapper)."""
+    incomplete_n = int(metrics.get("incomplete_scans") or 0)
+    kpi_mod = (
+        "inc-audit-metrics-kpis--3" if incomplete_n > 0 else "inc-audit-metrics-kpis--2"
+    )
+    block_mod = (
+        "inc-audit-metrics-kpis-block--3"
+        if incomplete_n > 0
+        else "inc-audit-metrics-kpis-block--2"
+    )
+    kpi_html = [
+        f'<div class="inc-audit-metrics-kpis-block {block_mod}">',
+        f'<div class="inc-audit-metrics-kpis {kpi_mod}">',
+        '<div class="inc-audit-metrics-card">',
+        '<div class="inc-audit-metrics-card-label">Targets scanned</div>',
+        f'<div class="inc-audit-metrics-card-value">{int(metrics.get("targets_scanned") or 0)}</div>',
+        "</div>",
+        '<div class="inc-audit-metrics-card">',
+        '<div class="inc-audit-metrics-card-label">Scans completed</div>',
+        f'<div class="inc-audit-metrics-card-value">{int(metrics.get("scans_completed") or 0)}</div>',
+        "</div>",
     ]
-    return "\n".join(lines)
+    if incomplete_n > 0:
+        kpi_html.extend(
+            [
+                '<div class="inc-audit-metrics-card inc-audit-metrics-card--warn">',
+                '<div class="inc-audit-metrics-card-label">Incomplete scans</div>',
+                f'<div class="inc-audit-metrics-card-value">{incomplete_n}</div>',
+                "</div>",
+            ]
+        )
+    kpi_html.append("</div>")  # .inc-audit-metrics-kpis
+    kpi_html.append("</div>")  # .inc-audit-metrics-kpis-block
+
+    return "\n".join(
+        [
+            '<div class="inc-audit-metrics-top">',
+            '<div class="inc-audit-metrics-head">',
+            # Slot filled by shared range select (cloned into visible panel by JS)
+            '<div class="inc-audit-metrics-range-slot"></div>',
+            "</div>",
+            "".join(kpi_html),
+            "</div>",
+            # By CVE | By software
+            '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--2">',
+            '<div class="inc-audit-metrics-chart">',
+            "<h4>By CVE</h4>",
+            f'{_hbar_rows_html(list(metrics.get("by_cve") or []), "No CVE scans")}',
+            "</div>",
+            '<div class="inc-audit-metrics-chart">',
+            "<h4>By software</h4>",
+            f'{_hbar_rows_html(list(metrics.get("by_software") or []), "No software-tagged scans")}',
+            "</div>",
+            "</div>",
+            # By tool | By category
+            '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--2">',
+            '<div class="inc-audit-metrics-chart">',
+            "<h4>By tool</h4>",
+            f'{_hbar_rows_html(list(metrics.get("by_tool") or []))}',
+            "</div>",
+            '<div class="inc-audit-metrics-chart">',
+            "<h4>By category</h4>",
+            f'{_hbar_rows_html(list(metrics.get("by_category") or []), "No category data")}',
+            "</div>",
+            "</div>",
+            # Scans per day
+            '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--1">',
+            '<div class="inc-audit-metrics-chart">',
+            "<h4>Scans per day</h4>",
+            f'{_day_bars_html(list(metrics.get("days") or []))}',
+            "</div>",
+            "</div>",
+            # By operator
+            '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--1">',
+            '<div class="inc-audit-metrics-chart">',
+            "<h4>By operator</h4>",
+            f'{_hbar_rows_html(list(metrics.get("by_operator") or []))}',
+            "</div>",
+            "</div>",
+        ]
+    )
+
+
+def render_last7_metrics_html(metrics: dict | None = None, **panels: dict) -> str:
+    """Option A dashboard: range dropdown + KPI/chart panels.
+
+    Prefer calling render_metrics_dashboard() which builds all windows.
+    This name remains for callers that only have a single metrics dict.
+    """
+    if panels:
+        return render_metrics_dashboard(panels)
+    if metrics is None:
+        metrics = {}
+    return render_metrics_dashboard({"7d": metrics})
+
+
+def render_metrics_dashboard(by_window: dict[str, dict]) -> str:
+    """Render metrics section with Last 7 days / Last week / All panels."""
+    # Shared select sits once; JS moves it into the visible panel's range slot.
+    select_html = _metrics_range_select_html("7d")
+    panel_chunks: list[str] = []
+    for value, _label in _METRICS_RANGE_OPTIONS:
+        if value not in by_window:
+            continue
+        metrics = by_window[value]
+        hidden = " hidden" if value != "7d" else ""
+        panel_chunks.append(
+            f'<div class="inc-audit-metrics-panel" data-range="{html.escape(value, quote=True)}"'
+            f"{hidden}>"
+            f"{_render_metrics_panel_body(metrics)}"
+            "</div>"
+        )
+
+    return "\n".join(
+        [
+            '<section class="inc-audit-section inc-audit-section--metrics" '
+            'aria-label="Host-scan activity metrics">',
+            '<div class="inc-audit-metrics" id="inc-audit-metrics">',
+            # Select held here until JS places it in the visible panel head.
+            f'<div class="inc-audit-metrics-range-holder" hidden>{select_html}</div>',
+            *panel_chunks,
+            "</div>",
+            "</section>",
+        ]
+    )
 
 
 def build_html(report_root: Path) -> str:
@@ -1279,7 +1428,11 @@ def build_html(report_root: Path) -> str:
     host_rows = load_host_scan_summary(report_root)
     scan_output_index = build_host_scan_output_index(report_root)
     exports = load_exports(report_root)
-    week_metrics = compute_last7_metrics(report_root, audit_rows)
+    metrics_by_window = {
+        "7d": compute_metrics(report_root, audit_rows, "7d"),
+        "week": compute_metrics(report_root, audit_rows, "week"),
+        "all": compute_metrics(report_root, audit_rows, "all"),
+    }
 
     lines: list[str] = []
 
@@ -1294,8 +1447,8 @@ def build_html(report_root: Path) -> str:
             "Tool launches are disabled.</p>"
         )
 
-    # Option A: last-7-days metrics strip (above Audit log)
-    lines.append(render_last7_metrics_html(week_metrics))
+    # Metrics strip with range dropdown (above Audit log)
+    lines.append(render_metrics_dashboard(metrics_by_window))
 
     # Audit log (primary — above Target scans)
     lines.append('<section class="inc-audit-section inc-audit-section--log">')

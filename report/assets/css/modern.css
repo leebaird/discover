@@ -519,7 +519,8 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     display: none;
 }
 
-/* CVE search bar (Active breadcrumb / page header) — center of full header */
+/* CVE search bar (Active breadcrumb / page header) — center of full header.
+ * Search button matches Enrich (.inc-active-refresh-btn): 13px, padding 6px 14px. */
 .inc-active-cve-search {
     display: inline-flex;
     align-items: stretch; /* equal height input + button */
@@ -531,24 +532,23 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     z-index: 1;
     margin: 0;
     max-width: min(320px, calc(100% - 280px));
-    height: 30px;
+    height: auto;
 }
 
 .inc-active-cve-search-input {
     width: 200px;
     max-width: 40vw;
-    height: 30px;
-    min-height: 30px;
-    max-height: 30px;
+    height: auto;
     margin: 0;
-    padding: 0 10px;
+    padding: 6px 10px;
     border: 1px solid #555;
-    border-radius: 4px;
+    border-radius: 6px;
     background: #1a1a1a;
     color: #e8e8e8;
     font-family: var(--font);
     font-size: 13px;
-    line-height: 28px; /* height − border */
+    font-weight: 400;
+    line-height: 1.2;
     box-sizing: border-box;
     -webkit-appearance: none;
     appearance: none;
@@ -557,7 +557,6 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 
 .inc-active-cve-search-input::placeholder {
     color: #888;
-    line-height: 28px;
 }
 
 .inc-active-cve-search-input:focus {
@@ -570,21 +569,19 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     border-color: #c62828;
 }
 
+/* Match Active Enrich button size/typography */
 .inc-active-cve-search-btn {
-    height: 30px;
-    min-height: 30px;
-    max-height: 30px;
     margin: 0;
-    padding: 0 12px;
+    padding: 6px 14px;
     border: 1px solid #1a4a9e;
     border-radius: 6px;
     background: var(--accent, #2264d6);
     color: #fff;
     font-family: var(--font);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.02em;
-    line-height: 28px;
+    line-height: 1.2;
     cursor: pointer;
     white-space: nowrap;
     box-sizing: border-box;
@@ -595,6 +592,7 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 
 .inc-active-cve-search-btn:hover {
     background: var(--accent-hover, #3d7aeb);
+    border-color: var(--accent-hover, #3d7aeb);
 }
 
 /* Screen-reader-only label */
@@ -878,29 +876,147 @@ tr.inc-subdomains-filter-hide {
     box-sizing: border-box;
 }
 
+/*
+ * Top band: "Last 7 days" + KPI cards on one row.
+ * - Title left edge matches By CVE (col 2 of 0.5|1|1|0.5).
+ * - Title top aligns with KPI card tops (align-items: start).
+ */
+.inc-audit-page .inc-audit-metrics-top {
+    display: grid;
+    grid-template-columns: 0.5fr 1fr 1fr 0.5fr;
+    gap: 14px;
+    align-items: start;
+    margin: 0 0 16px;
+    box-sizing: border-box;
+}
+
 .inc-audit-page .inc-audit-metrics-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin: 0 0 14px;
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    min-width: 0;
+    /* Top: match KPI card padding so title lines up with "Targets scanned".
+     * Left: match chart box padding so title lines up with "By CVE" text. */
+    padding-top: 12px;
+    padding-left: 12px;
+    box-sizing: border-box;
 }
 
 .inc-audit-page .inc-audit-metrics-head h3 {
     margin: 0;
+    /* Same type as .inc-audit-metrics-card-label ("Targets scanned") */
     font-size: 15px;
     font-weight: 600;
+    line-height: 1.5;
     color: var(--accent-hover);
+    text-align: left;
 }
 
-/* Top KPI row: compact width, centered */
+/* Range dropdown (replaces static "Last 7 days" heading) */
+.inc-audit-page .inc-audit-metrics-range-slot {
+    display: block;
+    min-width: 0;
+}
+
+.inc-audit-page .inc-audit-metrics .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.inc-audit-page select.inc-audit-metrics-range {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+    padding: 0 22px 0 0;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%236eb6ff' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 2px center;
+    background-size: 10px 6px;
+    color: var(--accent-hover);
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: left;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    box-sizing: border-box;
+}
+
+.inc-audit-page select.inc-audit-metrics-range:hover,
+.inc-audit-page select.inc-audit-metrics-range:focus {
+    color: #fff;
+    outline: none;
+}
+
+.inc-audit-page select.inc-audit-metrics-range option {
+    color: #e8eaed;
+    background: #1e2329;
+    font-weight: 500;
+}
+
+.inc-audit-page .inc-audit-metrics-panel[hidden] {
+    display: none !important;
+}
+
+.inc-audit-page .inc-audit-metrics-range-holder[hidden] {
+    display: none !important;
+}
+
+/* KPI cards: centered on the full metrics width, same row as the title. */
+.inc-audit-page .inc-audit-metrics-kpis-block {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: center;
+    max-width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    z-index: 0;
+}
+
+.inc-audit-page .inc-audit-metrics-head {
+    z-index: 1;
+}
+
+.inc-audit-page .inc-audit-metrics-kpis-block--2 {
+    width: 360px;
+}
+
+.inc-audit-page .inc-audit-metrics-kpis-block--3 {
+    width: 540px;
+}
+
+/* Top KPI row: full width of the centered block (2 or 3 cards). */
 .inc-audit-page .inc-audit-metrics-kpis {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-    width: 540px;
+    width: 100%;
     max-width: 100%;
-    margin: 0 auto 16px;
+    margin: 0;
     box-sizing: border-box;
+}
+
+/* Three cards (includes Incomplete scans when count > 0). */
+.inc-audit-page .inc-audit-metrics-kpis--3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Two cards (Targets + Completed only). */
+.inc-audit-page .inc-audit-metrics-kpis--2 {
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .inc-audit-page .inc-audit-metrics-card {
@@ -1076,6 +1192,29 @@ tr.inc-subdomains-filter-hide {
 }
 
 @media (max-width: 900px) {
+    .inc-audit-page .inc-audit-metrics-top {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .inc-audit-page .inc-audit-metrics-head {
+        grid-column: auto;
+        grid-row: auto;
+    }
+
+    .inc-audit-page .inc-audit-metrics-kpis-block {
+        grid-column: auto;
+        grid-row: auto;
+        justify-self: stretch;
+    }
+
+    .inc-audit-page .inc-audit-metrics-kpis-block,
+    .inc-audit-page .inc-audit-metrics-kpis-block--2,
+    .inc-audit-page .inc-audit-metrics-kpis-block--3 {
+        width: 100%;
+        max-width: 100%;
+    }
+
     .inc-audit-page .inc-audit-metrics-kpis {
         width: 100%;
         max-width: 100%;
