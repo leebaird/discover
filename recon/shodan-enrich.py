@@ -361,7 +361,12 @@ def write_json(path: str, data: Any) -> None:
 
 def load_cisa_kev_ids() -> list[str]:
     """Sorted CVE IDs from Discover's CISA KEV catalog (for Subdomains UI)."""
-    catalog = os.path.join(_discover_root(), "resource", "known_exploited_vulnerabilities.json")
+    root = _discover_root()
+    catalog = os.path.join(root, "resource", "kevs.json")
+    if not os.path.isfile(catalog):
+        legacy = os.path.join(root, "resource", "known_exploited_vulnerabilities.json")
+        if os.path.isfile(legacy):
+            catalog = legacy
     if not os.path.isfile(catalog):
         return []
     try:
@@ -805,7 +810,7 @@ def main(argv: list[str] | None = None) -> int:
         catalog_ids = load_cisa_kev_ids()
         if not catalog_ids:
             eprint("[!] CISA KEV catalog not found or empty.")
-            eprint(f"    Expected: {_discover_root()}/resource/known_exploited_vulnerabilities.json")
+            eprint(f"    Expected: {_discover_root()}/resource/kevs.json")
             eprint("    Run Discover Update to download it.")
             return 1
 

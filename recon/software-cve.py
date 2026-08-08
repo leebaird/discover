@@ -499,7 +499,15 @@ def query_nvd_keyword(product: str, version: str, results_per_page: int = 50) ->
 
 
 def cisa_kev_catalog_path() -> str:
-    return os.path.join(discover_root(), "resource", "known_exploited_vulnerabilities.json")
+    root = discover_root()
+    preferred = os.path.join(root, "resource", "kevs.json")
+    if os.path.isfile(preferred):
+        return preferred
+    # Legacy name (pre-rename)
+    legacy = os.path.join(root, "resource", "known_exploited_vulnerabilities.json")
+    if os.path.isfile(legacy):
+        return legacy
+    return preferred
 
 
 def load_cisa_kev_ids(path: str | None = None) -> set[str]:

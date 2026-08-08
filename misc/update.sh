@@ -231,8 +231,10 @@ fi
 # curl is installed just below; use it if already present, otherwise soft-fail until curl installs.
 f_update_cisa_kev(){
     local kev_dir="$DISCOVER_ROOT/resource"
+    # CISA feed URL keeps the official filename; local store is resource/kevs.json.
     local kev_url="https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
-    local kev_file="$kev_dir/known_exploited_vulnerabilities.json"
+    local kev_file="$kev_dir/kevs.json"
+    local kev_legacy="$kev_dir/known_exploited_vulnerabilities.json"
     local tmp_file
     local count
 
@@ -254,6 +256,12 @@ f_update_cisa_kev(){
         return 0
     }
 
+    # One-time migrate legacy catalog name → kevs.json
+    if [ ! -f "$kev_file" ] && [ -f "$kev_legacy" ]; then
+        mv "$kev_legacy" "$kev_file" 2>/dev/null || cp -f "$kev_legacy" "$kev_file" 2>/dev/null || true
+        [ -f "$kev_file" ] && [ -f "$kev_legacy" ] && rm -f "$kev_legacy" 2>/dev/null || true
+    fi
+
     if curl -fsSL --connect-timeout 30 --max-time 180 \
         -A "Discover-update/1.0 (https://github.com/leebaird/discover)" \
         -o "$tmp_file" "$kev_url"; then
@@ -265,6 +273,9 @@ f_update_cisa_kev(){
             if [ -f "$kev_file" ]; then
                 had_prev=1
                 prev_arg="$kev_file"
+            elif [ -f "$kev_legacy" ]; then
+                had_prev=1
+                prev_arg="$kev_legacy"
             fi
             new_count=$(python3 - "$tmp_file" "$prev_arg" <<'PY' 2>/dev/null || true
 import json
@@ -291,7 +302,8 @@ new_path = sys.argv[1]
 old_path = sys.argv[2] if len(sys.argv) > 2 else ""
 new_ids = cve_ids(new_path)
 old_ids = cve_ids(old_path)
-added = len(new_ids - old_ids)
+gained = sorted(new_ids - old_ids)
+added = len(gained)
 total = len(new_ids)
 # Prefer catalog count field when present and sensible; else unique cveID count.
 try:
@@ -302,11 +314,15 @@ except (OSError, json.JSONDecodeError, TypeError):
     pass
 print(f"{added}")
 print(f"{total}")
+# One CVE ID per line after the two summary lines (empty when none).
+for cid in gained:
+    print(cid)
 PY
 )
-            local added_n total_n
+            local added_n total_n new_cve_list
             added_n=$(printf '%s\n' "$new_count" | sed -n '1p')
             total_n=$(printf '%s\n' "$new_count" | sed -n '2p')
+            new_cve_list=$(printf '%s\n' "$new_count" | sed -n '3,$p')
             [ -n "$added_n" ] || added_n="?"
             [ -n "$total_n" ] || total_n="?"
 
@@ -315,15 +331,27 @@ PY
             if [ -n "$SUDO_USER" ]; then
                 chown "$SUDO_USER:" "$kev_file" 2>/dev/null || true
             fi
-            echo "Saved $kev_file"
-            if [ "$had_prev" -eq 0 ]; then
-                echo "$added_n new KEV(s) added (first catalog on this install)."
-            elif [ "$added_n" = "0" ]; then
-                echo "No new KEVs added."
-            else
-                echo "$added_n new KEV(s) added."
+            # One summary line: new count + catalog size (path only on first seed).
+            local kev_word="KEVs"
+            if [ "$added_n" = "1" ]; then
+                kev_word="KEV"
             fi
-            echo "$total_n vulnerabilities."
+            if [ "$had_prev" -eq 0 ]; then
+                echo "Saved $kev_file"
+                echo "$added_n new $kev_word added (first catalog on this install, $total_n total)."
+                # Do not dump the full catalog on first seed (hundreds/thousands of IDs).
+            elif [ "$added_n" = "0" ]; then
+                echo "No new KEVs added ($total_n total)."
+            else
+                echo "$added_n new $kev_word added ($total_n total)."
+                # List each new CVE in yellow (only when we had a prior catalog to diff).
+                if [ -n "$new_cve_list" ]; then
+                    while IFS= read -r cid || [ -n "$cid" ]; do
+                        [ -z "$cid" ] && continue
+                        echo -e "${YELLOW}$cid${NC}"
+                    done <<< "$new_cve_list"
+                fi
+            fi
         else
             rm -f "$tmp_file"
             echo -e "${YELLOW}CISA KEV download was not valid JSON; keeping previous catalog if any.${NC}"

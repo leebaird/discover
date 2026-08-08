@@ -485,7 +485,7 @@ export SHODAN_API_KEY=...
 
 **Subdomains UI:** when enrichment has run, public rows whose IP is in Shodan show a small **▸** to the left of the subdomain. Click it for Hostnames, Location, Org, ISP, Ports, and NVD-linked CVEs. CVEs that appear in the CISA KEV catalog get a red **KEV** badge (links to the catalog search). Values are **IP-level** (same record on every hostname sharing that IP).
 
-Powered by `tools/shodan/index.js` and `tools/shodan/kev-ids.js` (works under local `file://`). `index.json` is the same data for tools/scripts. KEV IDs come from Discover’s CISA catalog (`resource/known_exploited_vulnerabilities.json`).
+Powered by `tools/shodan/index.js` and `tools/shodan/kev-ids.js` (works under local `file://`). `index.json` is the same data for tools/scripts. KEV IDs come from Discover’s CISA catalog (`resource/kevs.json`).
 
 **Keeping KEV badges current:** **Update** only refreshes the install-wide CISA catalog (reports can live on the Desktop or anywhere — Update cannot find them all). **Open report** rewrites `tools/shodan/kev-ids.js` for the report you open, using that catalog (no Shodan API re-query). Import any engagement after Update to pick up new KEV entries. No Shodan index → no toggles. Hard-refresh Subdomains after Import.
 
@@ -510,7 +510,7 @@ Shodan data can be stale — confirm open ports and services with live scans bef
 Discover **Update** (main menu option **18** / `misc/update.sh`) downloads the CISA KEV JSON catalog into Discover’s `resource/` folder:
 
 ```
-$DISCOVER/resource/known_exploited_vulnerabilities.json
+$DISCOVER/resource/kevs.json
 ```
 
 * Feed: [CISA KEV JSON](https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json)

@@ -428,7 +428,11 @@ if templates_root is not None:
 
 # --- KEV catalog ---
 kev_ids: set[str] = set()
-kev_path = discover_root / "resource" / "known_exploited_vulnerabilities.json"
+kev_path = discover_root / "resource" / "kevs.json"
+if not kev_path.is_file():
+    legacy = discover_root / "resource" / "known_exploited_vulnerabilities.json"
+    if legacy.is_file():
+        kev_path = legacy
 if kev_path.is_file():
     try:
         payload = json.loads(kev_path.read_text(encoding="utf-8"))
