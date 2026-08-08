@@ -127,13 +127,34 @@ n() {
 
     echo -e "${BLUE}Local connections${NC}"
     echo -e "${BLUE}----------------------------------------${NC}"
-    # Keep ss/netstat column alignment; drop TIME-WAIT only
+    # Fixed-width columns (ss pads inconsistently when State/address lengths vary).
+    # Drop TIME-WAIT; omit Process for clean 5-column layout.
     if command -v ss >/dev/null 2>&1; then
-        ss -antp 2>/dev/null | awk 'NR == 1 || $1 != "TIME-WAIT"' \
-            || ss -ant 2>/dev/null | awk 'NR == 1 || $1 != "TIME-WAIT"'
+        ss -ant 2>/dev/null | awk '
+            BEGIN {
+                # Two spaces between every column (equal gaps).
+                printf "%-11s  %6s  %6s  %-21s  %-22s\n", \
+                    "State", "Recv-Q", "Send-Q", "Local Address:Port", "Peer Address:Port"
+            }
+            NR == 1 { next }
+            $1 == "TIME-WAIT" { next }
+            {
+                printf "%-11s  %6s  %6s  %-21s  %-22s\n", $1, $2, $3, $4, $5
+            }
+        '
     else
-        netstat -antp 2>/dev/null | awk 'NR == 1 || $6 != "TIME_WAIT"' \
-            || netstat -ant 2>/dev/null | awk 'NR == 1 || $6 != "TIME_WAIT"'
+        netstat -ant 2>/dev/null | awk '
+            BEGIN {
+                printf "%-11s  %6s  %6s  %-21s  %-22s\n", \
+                    "State", "Recv-Q", "Send-Q", "Local Address:Port", "Peer Address:Port"
+            }
+            NR == 1 { next }
+            $6 == "TIME_WAIT" { next }
+            {
+                # netstat: Proto Recv-Q Send-Q Local Foreign State
+                printf "%-11s  %6s  %6s  %-21s  %-22s\n", $6, $2, $3, $4, $5
+            }
+        '
     fi
     echo
 
