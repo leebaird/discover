@@ -299,6 +299,10 @@ spec = importlib.util.spec_from_file_location("active_tech", tech_module_path)
 active_tech = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(active_tech)
 host_tech = active_tech.load_host_tech(httpx_path, whatweb_path)
+# Engagement root for ffuf path signals (pages/ → report root).
+report_root = os.path.dirname(os.path.dirname(os.path.abspath(page_path)))
+path_hosts = active_tech.collect_login_path_hosts(report_root)
+login_skip_hosts = active_tech.collect_login_skip_hosts(host_tech)
 
 IPV4_RE = re.compile(r"^(\d{1,3}\.){3}\d{1,3}$")
 
@@ -502,8 +506,11 @@ def build_public_table(rows, photo_hosts, host_tech, empty_message, ip_header="I
             webserver = tech.get("webserver", "")
             title = tech.get("title", "")
             technologies = tech.get("technologies", "")
+            row_attrs = active_tech.login_data_attrs(
+                subdomain, tech, path_hosts, skip_hosts=login_skip_hosts
+            )
             lines.append(
-                "                <tr>"
+                f"                <tr{row_attrs}>"
                 f"{host_cell(subdomain, status, tech.get('url', ''))}"
                 f"<td>{html.escape(category)}</td>"
                 f'<td class="inc-subdomain-ip">{html.escape(ipaddr)}</td>'
@@ -551,7 +558,7 @@ out.extend(
         "",
         '<script src="../assets/javascript/inc-data-table.js"></script>',
         '<script src="../tools/cve-software-index.js"></script>',
-        '<script src="../assets/javascript/inc-subdomains-filter.js?v=13"></script>',
+        '<script src="../assets/javascript/inc-subdomains-filter.js?v=17"></script>',
         '<script src="../tools/shodan/index.js"></script>',
         '<script src="../tools/shodan/kev-ids.js"></script>',
         '<script src="../assets/javascript/inc-shodan.js?v=18"></script>',

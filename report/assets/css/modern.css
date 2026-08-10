@@ -631,17 +631,19 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 }
 
 /*
- * CMS / Technologies only: frame width matched via JS (px).
+ * CMS / Login pages / Technologies: frame width matched via JS (px).
  * Specificity must beat .inc-active-column .inc-data-table { width:auto }.
  * table-layout:fixed + label column absorbs slack so Count stays shared px.
  * Do not alter Category or Web Servers layout beyond shared Count width.
  */
 .inc-active-page .inc-active-section--cms .inc-content-frame--table,
+.inc-active-page .inc-active-section--login .inc-content-frame--table,
 .inc-active-page .inc-active-section--technologies .inc-content-frame--table {
     box-sizing: border-box;
 }
 
 .inc-active-page .inc-active-column .inc-active-section--cms .inc-data-table,
+.inc-active-page .inc-active-column .inc-active-section--login .inc-data-table,
 .inc-active-page .inc-active-column .inc-active-section--technologies .inc-data-table {
     width: 100%;
     table-layout: fixed;
@@ -651,6 +653,8 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 /* Label column takes remaining width; Count is pinned below. */
 .inc-active-page .inc-active-column .inc-active-section--cms .inc-content-frame--table table.inc-data-table > thead > tr > th:first-child,
 .inc-active-page .inc-active-column .inc-active-section--cms .inc-content-frame--table table.inc-data-table > tbody > tr > td:first-child,
+.inc-active-page .inc-active-column .inc-active-section--login .inc-content-frame--table table.inc-data-table > thead > tr > th:first-child,
+.inc-active-page .inc-active-column .inc-active-section--login .inc-content-frame--table table.inc-data-table > tbody > tr > td:first-child,
 .inc-active-page .inc-active-column .inc-active-section--technologies .inc-content-frame--table table.inc-data-table > thead > tr > th:first-child,
 .inc-active-page .inc-active-column .inc-active-section--technologies .inc-content-frame--table table.inc-data-table > tbody > tr > td:first-child {
     width: auto;
@@ -3102,7 +3106,7 @@ body:not(.inc-iframe-parent) pre {
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 520px;
+    max-width: 570px;
     max-height: min(90vh, 720px);
     overflow: auto;
     padding: 16px 18px 18px;

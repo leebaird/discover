@@ -156,7 +156,18 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Two modes: **existing** (Firefox/Pentest-Tools/TSV) or **team-csv** (`subdomain,ip,category`). UI: Audit → Import → Subdomains. CLI: `import-subdomains.sh --report … --mode … --import … [--run-active] [--json]`.
 - CSV list: one IPv4 per host (empty IP → dig). **Skip hosts already in `tools/subdomains`** (no overwrite). Category = **Discover rules first**, else CSV. Never write `recon/subdomain-categories.tsv`.
 - After import: refresh `pages/subdomains.htm` and `pages/hosts.htm` (unique public IPs). CSV list also writes `tools/import-batch-hosts.txt` (**new** public hosts only) and may offer Active on that batch only (`DISCOVER_ACTIVE_SCOPE=import-batch`).
-- **After import + Active (full or import-batch):** rebuild the **entire** Active page from merged `tools/` artifacts — Scope (public/private/responding), status codes, alive-by-category, CMS, web servers, technologies, software versions + CVE enrichment, and scan date. Batch Active must merge httpx/whatweb/gowitness into the engagement files first, then call the same full `pages/active.htm` rebuild (not a batch-only summary). Scan date = **latest** httpx timestamp, not the first line.
+- **After import + Active (full or import-batch):** rebuild the **entire** Active page from merged `tools/` artifacts — Scope (public/private/responding), status codes, alive-by-category, CMS, web servers, technologies, software versions + CVE enrichment, Login pages, and scan date. Batch Active must merge httpx/whatweb/gowitness into the engagement files first, then call the same full `pages/active.htm` rebuild (not a batch-only summary). Scan date = **latest** httpx timestamp, not the first line.
+
+## Active Login pages (by signal)
+
+- **Login pages** table on Active (under CMS when any signal exists): rows **Path**, **Title**, **Tech**, **Status** with host counts; each links to Subdomains `?login=path|title|tech|status`.
+- **Signals** (host may match more than one; counts are unique hosts per signal, alive public hosts):
+  - **Path** — newest `tools/host-scans/<host>/ffuf/*/ffuf.json` FUZZ path matches high-confidence login paths (`login`, `wp-login.php`, `oauth`, `sso`, …). Avoid bare `admin`. **SPA filter:** when a run has many hits sharing one body length (≥50 results, mode count ≥20, mode ≥50% of results), login-named paths with that same length are ignored (soft-200 app shell).
+  - **Title** — httpx/page title matches login / sign-in / SSO / unauthorized / password phrases.
+  - **Tech** — fingerprint includes products that typically expose a login UI (CMS, Grafana, Kibana, GitLab/Gitea, Citrix, Keycloak, …).
+  - **Status** — HTTP **401** from httpx **and** an auth-related page title (SSO / Authorization Required / …). Bare **403** and bare **401** with empty title (API/tenant deny) are noise; real login pages still match Title/Path/Tech.
+  - **Skip Microsoft SSO:** if httpx `final_url` / `url` contains `login.microsoftonline.com` (or related Microsoft IdP hosts), the host gets **no** Login pages signals (all four). **Citrix:** short live probe `POST /p/u/doAuthentication.do` → follow `doSaml` when present; if the SAML hop is Microsoft, skip (covers NetScaler AAA that only show LogonPoint in httpx). **RNAS:** title `Unified Access RNAS` or hostname `rnas-*` / `.rnas.` — remote network access gateways, skip (not app logins).
+- Subdomains public rows get `data-login-path|title|tech|status="1"` when rebuilt (Active / `write_subdomains_active_page` / software-cve refresh). Filter: `inc-subdomains-filter.js` (`?login=`). Bust filter `?v=` after changes.
 
 ## Active page Enrich (Shodan + Software CVEs)
 

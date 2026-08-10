@@ -128,7 +128,7 @@ f_import_report_sync_assets(){
         for page in passive.htm active.htm audit.htm; do
             if [ -f "$report/pages/$page" ]; then
                 sed -i \
-                    -e 's|modern\.css?v=[^"]*|modern.css?v=active-search-btn1|g' \
+                    -e 's|modern\.css?v=[^"]*|modern.css?v=active-login-width1|g' \
                     -e 's|inc-report-export\.js?v=[0-9]*|inc-report-export.js?v=4|g' \
                     -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=11|g' \
                     "$report/pages/$page" 2>/dev/null || true
@@ -143,7 +143,7 @@ f_import_report_sync_assets(){
                 if [ "$page" = "active.htm" ]; then
                     sed -i \
                         -e 's|inc-active-refresh\.js?v=[0-9]*|inc-active-refresh.js?v=16|g' \
-                        -e 's|modern\.css?v=[^"]*|modern.css?v=active-search-btn1|g' \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=active-login-width1|g' \
                         "$report/pages/$page" 2>/dev/null || true
                 fi
                 if ! grep -q 'inc-report-export.js' "$report/pages/$page" 2>/dev/null; then
@@ -284,7 +284,7 @@ changed = False
 
 # Required scripts (idempotent: only insert when key filename is absent).
 need = [
-    ("inc-subdomains-filter.js", '<script src="../assets/javascript/inc-subdomains-filter.js?v=13"></script>'),
+    ("inc-subdomains-filter.js", '<script src="../assets/javascript/inc-subdomains-filter.js?v=17"></script>'),
     ("tools/cve-software-index.js", '<script src="../tools/cve-software-index.js"></script>'),
     ("tools/shodan/index.js", '<script src="../tools/shodan/index.js"></script>'),
     ("tools/shodan/kev-ids.js", '<script src="../tools/shodan/kev-ids.js"></script>'),

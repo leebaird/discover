@@ -3,17 +3,20 @@
  * Coded by Grok (xAI)
  *
  * Filter the public Subdomains table by software, CVE, category, status,
- * web server, or technology.
+ * web server, technology, or Login pages signal.
  * Active Software versions:  subdomains.htm?software=Apache:2.4.37
  * Active CVE search:         subdomains.htm?cve=CVE-2024-38475
  * Active Categories:  subdomains.htm?category=Dev  (or category=(none))
  * Active Status codes:       subdomains.htm?status=200
  * Active Top web servers:    subdomains.htm?webserver=Apache
  * Active Top technologies:   subdomains.htm?tech=jQuery  (matches jQuery:3.x too)
+ * Active Login pages:        subdomains.htm?login=path|title|tech|status
  *
  * CVE mode resolves software labels via tools/cve-software-index.js
  * (or software-cves-cache.json) then matches tech tokens like software=.
  * Category / status / webserver / tech match Subdomains row fields.
+ * Login mode uses data-login-* attrs written at Active rebuild (ffuf path,
+ * title, tech fingerprint, HTTP 401 with auth title).
  */
 (function () {
     function queryParam(name) {
@@ -62,6 +65,19 @@
         return queryParam("tech");
     }
 
+    function queryLogin() {
+        var raw = queryParam("login");
+        if (!raw) {
+            return "";
+        }
+        var s = String(raw).trim().toLowerCase();
+        // Accept display labels from Active table (Path, Title, Tech, Status).
+        if (s === "path" || s === "title" || s === "tech" || s === "status") {
+            return s;
+        }
+        return "";
+    }
+
     function queryCve() {
         var raw = queryParam("cve");
         if (!raw) {
@@ -76,6 +92,87 @@
             return raw.toUpperCase(); // still try display; match may fail
         }
         return s;
+    }
+
+    var LOGIN_SIGNAL_LABELS = {
+        path: "Path",
+        title: "Title",
+        tech: "Tech",
+        status: "Status",
+    };
+
+    /**
+     * Match Active Login pages signals. Prefer data-login-* written when
+     * Subdomains was rebuilt; fall back to row title/status/tech heuristics
+     * (path needs ffuf data attrs — no client-side path without them).
+     */
+    function rowHasLoginSignal(row, signal) {
+        var key = String(signal || "").toLowerCase();
+        if (!key) {
+            return false;
+        }
+        var attr = row.getAttribute("data-login-" + key);
+        if (attr === "1") {
+            return true;
+        }
+        if (attr === "0") {
+            return false;
+        }
+        // Legacy rows without attrs (except path, which needs ffuf).
+        if (key === "path") {
+            return false;
+        }
+        if (key === "title") {
+            var titleEl = row.querySelector(".inc-subdomain-title");
+            var title = titleEl
+                ? (titleEl.textContent || "").trim()
+                : "";
+            return /log\s*[\s_-]*in|log\s*[\s_-]*on|sign\s*[\s_-]*in|sign\s*[\s_-]*on|\bsso\b|single\s+sign|authentication|authorization\s+required|401\s+unauthori[sz]ed|\bunauthori[sz]ed\b|password/i.test(
+                title
+            );
+        }
+        if (key === "status") {
+            // Match Active: 401 + auth-ish title (data attrs preferred).
+            if (rowStatus(row) !== "401") {
+                return false;
+            }
+            var titleEl = row.querySelector(".inc-subdomain-title");
+            var title = titleEl
+                ? (titleEl.textContent || "").trim()
+                : "";
+            if (!title || title === "-") {
+                return false;
+            }
+            return /log\s*[\s_-]*in|log\s*[\s_-]*on|sign\s*[\s_-]*in|sign\s*[\s_-]*on|\bsso\b|single\s+sign|authentication|authorization\s+required|401\s+unauthori[sz]ed|\bunauthori[sz]ed\b|password/i.test(
+                title
+            );
+        }
+        if (key === "tech") {
+            var tokens = techTokens(row);
+            var i;
+            var bases = {
+                wordpress: 1,
+                drupal: 1,
+                joomla: 1,
+                moodle: 1,
+                grafana: 1,
+                kibana: 1,
+                jenkins: 1,
+                gitlab: 1,
+                gitea: 1,
+                keycloak: 1,
+                phpmyadmin: 1,
+                cpanel: 1,
+            };
+            for (i = 0; i < tokens.length; i++) {
+                var b = technologyBase(tokens[i]);
+                if (bases[b]) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
     }
 
     function techTokens(row) {
@@ -237,6 +334,7 @@
             url.searchParams.delete("status");
             url.searchParams.delete("webserver");
             url.searchParams.delete("tech");
+            url.searchParams.delete("login");
             var qs = url.searchParams.toString();
             return url.pathname + (qs ? "?" + qs : "") + url.hash;
         } catch (err) {
@@ -455,6 +553,27 @@
         }
     }
 
+    function applyLoginFilter(signal) {
+        var want = String(signal || "").toLowerCase();
+        var result = filterRows(function (row) {
+            return rowHasLoginSignal(row, want);
+        });
+        var banner = ensureBanner(result.publicFrame);
+        var display = LOGIN_SIGNAL_LABELS[want] || want;
+        banner.innerHTML =
+            "Showing <strong>" +
+            result.shown +
+            "</strong> subdomain" +
+            (result.shown === 1 ? "" : "s") +
+            " with Login pages signal " +
+            '<span class="inc-filter-applied"></span> ' +
+            filterNavHtml();
+        var applied = banner.querySelector(".inc-filter-applied");
+        if (applied) {
+            applied.textContent = display;
+        }
+    }
+
     function escapeHtml(s) {
         return String(s)
             .replace(/&/g, "&amp;")
@@ -550,6 +669,7 @@
         var status = queryStatus();
         var webserver = queryWebserver();
         var tech = queryTech();
+        var login = queryLogin();
 
         if (software) {
             applySoftwareFilter(software);
@@ -569,6 +689,10 @@
         }
         if (tech) {
             applyTechFilter(tech);
+            return;
+        }
+        if (login) {
+            applyLoginFilter(login);
             return;
         }
         if (!cve) {

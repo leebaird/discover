@@ -4,7 +4,10 @@ import json
 import os
 import re
 import shutil
+import ssl
 import sys
+import urllib.error
+import urllib.request
 from collections import Counter
 from urllib.parse import quote, urlparse
 
@@ -279,9 +282,11 @@ def load_httpx_rows(path):
             if not link_url and raw_url:
                 link_url = raw_url if "://" in raw_url else f"https://{raw_url}"
 
+            final_url = (entry.get("final_url") or link_url or "").strip()
             candidate = {
                 "host": host,
                 "url": link_url,
+                "final_url": final_url,
                 "status": entry.get("status_code"),
                 "webserver": (entry.get("webserver") or "").strip(),
                 "title": format_page_title(entry.get("title")),
@@ -591,10 +596,14 @@ def host_tech_row(httpx_row, whatweb_row):
     link_url = (httpx_row.get("url") or "").strip()
     if link_url and "://" not in link_url:
         link_url = f"https://{link_url}"
+    final_url = (httpx_row.get("final_url") or link_url or "").strip()
+    if final_url and "://" not in final_url:
+        final_url = f"https://{final_url}"
 
     return {
         "status": format_status(status),
         "url": link_url,
+        "final_url": final_url,
         "webserver": webserver,
         "title": format_page_title(httpx_row.get("title")),
         "technologies": technologies,
@@ -1084,6 +1093,579 @@ def detect_cms_labels(technologies):
     return found
 
 
+# --- Login pages signals (Active table + Subdomains ?login=) -----------------
+# Four signal keys: path (ffuf), title (httpx), tech (fingerprint), status (401).
+LOGIN_SIGNAL_ORDER = ("path", "title", "tech", "status")
+LOGIN_SIGNAL_LABELS = {
+    "path": "Path",
+    "title": "Title",
+    "tech": "Tech",
+    "status": "Status",
+}
+
+# High-confidence path basenames / short paths (avoid bare admin/portal SPA noise).
+LOGIN_PATH_EXACT = {
+    "login",
+    "logon",
+    "signin",
+    "sign-in",
+    "sign_in",
+    "signon",
+    "sign-on",
+    "wp-login.php",
+    "wp-admin",
+    "wp-admin/",
+    "user/login",
+    "users/sign_in",
+    "users/signin",
+    "account/login",
+    "auth/login",
+    "oauth",
+    "oauth/authorize",
+    "sso",
+    "sso/login",
+    "cas/login",
+    "owa",
+    "ecp",
+    "remote/login",
+}
+
+LOGIN_PATH_RE = re.compile(
+    r"(?i)(?:^|/)"
+    r"(?:"
+    r"login(?:\.(?:php|aspx|jsp|html?|cgi))?|"
+    r"logon(?:\.(?:php|aspx))?|"
+    r"sign[-_]?in(?:\.(?:php|aspx|jsp|html?))?|"
+    r"sign[-_]?on(?:\.(?:php|aspx))?|"
+    r"wp-login\.php|"
+    r"wp-admin(?:/index\.php)?|"
+    r"user/login|users/sign[-_]?in|"
+    r"account/login|auth/login|"
+    r"oauth(?:/authorize)?|"
+    r"sso(?:/login)?|"
+    r"cas/login|"
+    r"openid(?:-connect)?|"
+    r"owa(?:/auth(?:/logon\.aspx)?)?|"
+    r"remote/login"
+    r")"
+    r"(?:/|$|\?)"
+)
+
+LOGIN_TITLE_RE = re.compile(
+    r"(?i)\b(?:"
+    r"log\s*[\s_-]*in|log\s*[\s_-]*on|"
+    r"sign\s*[\s_-]*in|sign\s*[\s_-]*on|"
+    r"sso|single\s+sign|"
+    r"authentication|"
+    r"authorization\s+required|"
+    r"401\s+unauthori[sz]ed|"
+    r"unauthori[sz]ed|"
+    r"password\s*(?:required|protected)?"
+    r")\b"
+)
+
+# Tech bases that usually expose a login surface (matched via technology_label_key).
+LOGIN_TECH_BASES = {
+    "wordpress",
+    "drupal",
+    "joomla",
+    "moodle",
+    "silverstripe",
+    "grafana",
+    "kibana",
+    "jenkins",
+    "gitlab",
+    "gitea",
+    "gogs",
+    "keycloak",
+    "okta",
+    "auth0",
+    "phpmyadmin",
+    "cpanel",
+    "roundcube",
+    "zimbra",
+    "citrix",
+    "fortinet",
+    "sonicwall",
+    "pulse secure",
+    "ivanti",
+    "globalprotect",
+    "outlook web app",
+    "microsoft exchange",
+    "sharepoint",
+    "confluence",
+    "jira",
+    "sonarqube",
+    "nexus",
+    "artifactory",
+    "portainer",
+    "rancher",
+    "prometheus",
+}
+
+
+def is_login_path(path: str) -> bool:
+    """True when a fuzz path looks like a login / auth endpoint."""
+    raw = (path or "").strip().lstrip("/")
+    if not raw:
+        return False
+    # Drop query/fragment for exact basenames
+    bare = raw.split("?", 1)[0].split("#", 1)[0].rstrip("/")
+    low = bare.lower()
+    if low in LOGIN_PATH_EXACT or (low + "/") in LOGIN_PATH_EXACT:
+        return True
+    # basename exact (e.g. deep/path/login)
+    base = low.rsplit("/", 1)[-1]
+    if base in LOGIN_PATH_EXACT:
+        return True
+    return bool(LOGIN_PATH_RE.search(raw))
+
+
+def is_login_title(title: str) -> bool:
+    """True when page title suggests a login / auth page."""
+    t = (title or "").strip()
+    if not t or t == "-":
+        return False
+    return bool(LOGIN_TITLE_RE.search(t))
+
+
+def is_login_tech(technologies: str) -> bool:
+    """True when technologies include a product that typically has a login UI."""
+    if not technologies:
+        return False
+    for item in str(technologies).split(","):
+        item = item.strip()
+        if not item:
+            continue
+        key = technology_label_key(item).lower().strip()
+        if key in LOGIN_TECH_BASES:
+            return True
+        # CMS aliases share the same idea
+        compact = key.replace(" ", "")
+        if compact in CMS_ALIASES:
+            return True
+    return False
+
+
+def is_login_status(status, tech: dict | None = None) -> bool:
+    """True for HTTP 401 when the page title also looks like auth.
+
+    Bare 403 is out (WAF / API deny). Bare 401 with an empty title is usually
+    tenant/API gatekeeping (e.g. "Company sub-domain required"), not a login UI.
+    401 + auth-ish title (SSO, Authorization Required, …) still counts.
+    """
+    try:
+        code = int(str(status).strip())
+    except (TypeError, ValueError):
+        return False
+    if code != 401:
+        return False
+    tech = tech or {}
+    title = str(tech.get("title") or "").strip()
+    if not title or title == "-":
+        return False
+    return is_login_title(title)
+
+
+# External IdP login surfaces operators usually skip (hosted Microsoft SSO).
+MS_LOGIN_URL_RE = re.compile(
+    r"(?i)(?:"
+    r"login\.microsoftonline\.com|"
+    r"login\.microsoft\.com|"
+    r"login\.live\.com|"
+    r"login\.windows\.net|"
+    r"sts\.windows\.net|"
+    r"aadcdn\.msauth\.net|"
+    r"login\.partner\.microsoftonline\.cn"
+    r")"
+)
+
+
+def is_microsoft_login_redirect(tech: dict | None) -> bool:
+    """True when httpx landed on / embeds a Microsoft SSO login URL.
+
+    Covers direct redirects and app bounce URLs (e.g. ServiceNow
+    ``auth_redirect.do?...login.microsoftonline.com...``).
+    """
+    tech = tech or {}
+    blob = " ".join(
+        [
+            str(tech.get("final_url") or ""),
+            str(tech.get("url") or ""),
+        ]
+    )
+    return bool(blob and MS_LOGIN_URL_RE.search(blob))
+
+
+# Browser-like UA for short Citrix nFactor probes (not host-scan).
+_LOGIN_PROBE_UA = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
+
+
+def _login_probe_ssl_context():
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    return ctx
+
+
+def _http_request(
+    url: str,
+    *,
+    data: bytes | None = None,
+    timeout: float = 12.0,
+) -> tuple[int, str, str]:
+    """GET/POST; returns (status, body, final_url). Best-effort on errors."""
+    req = urllib.request.Request(
+        url,
+        data=data,
+        method="POST" if data is not None else "GET",
+        headers={"User-Agent": _LOGIN_PROBE_UA},
+    )
+    try:
+        with urllib.request.urlopen(
+            req, timeout=timeout, context=_login_probe_ssl_context()
+        ) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
+            return int(getattr(resp, "status", 200) or 200), body, resp.geturl()
+    except Exception:
+        return 0, "", ""
+
+
+def citrix_gateway_uses_microsoft_sso(host: str, timeout: float = 12.0) -> bool:
+    """True when Citrix nFactor auth posts into Microsoft SAML (login.microsoftonline.com).
+
+    httpx often stops at ``/logon/LogonPoint/tmindex.html``; the Microsoft hop only
+    appears after ``POST /p/u/doAuthentication.do`` → ``doSaml``. Best-effort network
+    probe — failures return False (host keeps Login pages signals).
+    """
+    host = (host or "").strip().lower()
+    if not host or "/" in host or "://" in host:
+        return False
+    auth_url = f"https://{host}/p/u/doAuthentication.do"
+    _status, body, _final = _http_request(
+        auth_url, data=b"login=&passwd=", timeout=timeout
+    )
+    if not body:
+        return False
+    if MS_LOGIN_URL_RE.search(body):
+        return True
+    m = re.search(r"<RedirectURL>([^<]+)</RedirectURL>", body, flags=re.I)
+    if not m:
+        return False
+    redir = (
+        m.group(1)
+        .strip()
+        .replace("&amp;", "&")
+        .replace("&#38;", "&")
+    )
+    if not redir:
+        return False
+    if MS_LOGIN_URL_RE.search(redir):
+        return True
+    # nFactor SAML bounce on the gateway itself.
+    if "doSaml" not in redir and "saml" not in redir.lower():
+        return False
+    if redir.startswith("/"):
+        redir = f"https://{host}{redir}"
+    elif "://" not in redir:
+        redir = f"https://{host}/{redir.lstrip('/')}"
+    _st2, body2, final2 = _http_request(redir, timeout=timeout)
+    blob = f"{body2} {final2}"
+    return bool(MS_LOGIN_URL_RE.search(blob))
+
+
+# RNAS = CGI remote network access Citrix gateways (LogonPoint only; not app logins).
+LOGIN_SKIP_TITLE_RE = re.compile(r"(?i)\bunified\s+access\s+rnas\b")
+
+
+def is_rnas_access_gateway(host: str, tech: dict | None) -> bool:
+    """True for Unified Access RNAS / rnas-* Citrix remote-access hosts."""
+    tech = tech or {}
+    title = str(tech.get("title") or "")
+    if LOGIN_SKIP_TITLE_RE.search(title):
+        return True
+    h = (host or "").lower().strip()
+    if not h:
+        return False
+    # rnas-mtl.ua.cgi.com, rnas.example.com, foo.rnas.bar
+    if h.startswith("rnas-") or h.startswith("rnas.") or ".rnas." in h:
+        return True
+    return False
+
+
+def collect_login_skip_hosts(host_tech: dict) -> set[str]:
+    """Hosts omitted from Login pages (Microsoft SSO / known noise gateways).
+
+    - httpx final_url / url embeds Microsoft IdP
+    - Unified Access RNAS / rnas-* remote-access Citrix hosts
+    - Citrix gateway nFactor → Microsoft SAML (short live probe)
+    """
+    skip: set[str] = set()
+    for host, tech in (host_tech or {}).items():
+        host_key = (host or "").lower().strip()
+        if not host_key:
+            continue
+        if is_microsoft_login_redirect(tech):
+            skip.add(host_key)
+            continue
+        if is_rnas_access_gateway(host_key, tech):
+            skip.add(host_key)
+            continue
+        techs = (tech.get("technologies") or "").lower()
+        if "citrix" not in techs:
+            continue
+        # Only probe when Citrix would contribute a tech signal (or already known).
+        if not is_login_tech(tech.get("technologies") or ""):
+            continue
+        try:
+            if citrix_gateway_uses_microsoft_sso(host_key):
+                skip.add(host_key)
+        except Exception:
+            continue
+    return skip
+
+
+# Path SPA / soft-200 filter: when most ffuf hits share one body length, that
+# length is treated as the catch-all app shell. Login-like paths with that same
+# length are ignored (e.g. client-side routers returning 200 for every path).
+# Small result sets (Grafana/Kibana with a few real hits) are not filtered.
+LOGIN_PATH_SPA_MIN_RESULTS = 50
+LOGIN_PATH_SPA_MIN_MODE_COUNT = 20
+LOGIN_PATH_SPA_MIN_MODE_SHARE = 0.5
+
+
+def _ffuf_result_fuzz(result: dict) -> str:
+    """FUZZ input or path from result URL."""
+    fuzz = ""
+    inp = result.get("input")
+    if isinstance(inp, dict):
+        fuzz = str(inp.get("FUZZ") or "").strip()
+    if fuzz:
+        return fuzz
+    url = str(result.get("url") or "")
+    if "://" in url:
+        try:
+            return urlparse(url).path.lstrip("/")
+        except Exception:
+            return ""
+    return ""
+
+
+def _ffuf_spa_shell_length(results: list) -> int | None:
+    """Dominant response length when it looks like a catch-all SPA shell.
+
+    Returns that length, or None when the run is too small / diverse to treat
+    as soft-200 noise.
+    """
+    lengths: list[int] = []
+    for result in results:
+        if not isinstance(result, dict):
+            continue
+        raw = result.get("length")
+        if raw is None or raw == "":
+            continue
+        try:
+            lengths.append(int(raw))
+        except (TypeError, ValueError):
+            continue
+    n = len(lengths)
+    if n < LOGIN_PATH_SPA_MIN_RESULTS:
+        return None
+    counts = Counter(lengths)
+    mode_len, mode_n = counts.most_common(1)[0]
+    if mode_n < LOGIN_PATH_SPA_MIN_MODE_COUNT:
+        return None
+    if (mode_n / n) < LOGIN_PATH_SPA_MIN_MODE_SHARE:
+        return None
+    return mode_len
+
+
+def collect_login_path_hosts(report_dir: str) -> dict[str, list[str]]:
+    """host.lower() → login-like FUZZ paths from newest tools/host-scans/.../ffuf.json.
+
+    Applies a mode-length filter: when most results share one body length
+    (SPA catch-all), login-named paths with that same length are dropped.
+    """
+    out: dict[str, list[str]] = {}
+    scans = os.path.join(
+        os.path.abspath(os.path.expanduser(report_dir or "")),
+        "tools",
+        "host-scans",
+    )
+    if not os.path.isdir(scans):
+        return out
+    try:
+        hosts = os.listdir(scans)
+    except OSError:
+        return out
+    for host_name in hosts:
+        host_dir = os.path.join(scans, host_name)
+        ffuf_root = os.path.join(host_dir, "ffuf")
+        if not os.path.isdir(ffuf_root):
+            continue
+        try:
+            stamps = sorted(
+                (
+                    d
+                    for d in os.listdir(ffuf_root)
+                    if os.path.isdir(os.path.join(ffuf_root, d))
+                ),
+                reverse=True,
+            )
+        except OSError:
+            continue
+        json_path = ""
+        for stamp in stamps:
+            candidate = os.path.join(ffuf_root, stamp, "ffuf.json")
+            if os.path.isfile(candidate):
+                json_path = candidate
+                break
+        if not json_path:
+            continue
+        try:
+            data = json.load(open(json_path, encoding="utf-8", errors="replace"))
+        except (OSError, json.JSONDecodeError, TypeError):
+            continue
+        results = data.get("results") or []
+        if not isinstance(results, list):
+            continue
+        spa_len = _ffuf_spa_shell_length(results)
+        paths: list[str] = []
+        seen: set[str] = set()
+        for result in results:
+            if not isinstance(result, dict):
+                continue
+            fuzz = _ffuf_result_fuzz(result)
+            if not fuzz or not is_login_path(fuzz):
+                continue
+            # SPA soft-200: same body length as the catch-all shell → ignore.
+            if spa_len is not None:
+                try:
+                    body_len = int(result.get("length"))
+                except (TypeError, ValueError):
+                    body_len = None
+                if body_len is not None and body_len == spa_len:
+                    continue
+            key = fuzz.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            paths.append(fuzz)
+        if paths:
+            out[host_name.lower()] = paths
+    return out
+
+
+def host_login_signals(
+    host: str,
+    tech: dict | None,
+    path_hosts: dict[str, list[str]] | None = None,
+    skip_hosts: set[str] | None = None,
+) -> set[str]:
+    """Return set of signal keys present for this host (path/title/tech/status)."""
+    signals: set[str] = set()
+    host_key = (host or "").lower().strip()
+    tech = tech or {}
+    path_hosts = path_hosts or {}
+    skip_hosts = skip_hosts or set()
+
+    # Skip Microsoft SSO, RNAS remote-access gateways, Citrix→MS SAML, etc.
+    if (
+        host_key in skip_hosts
+        or is_microsoft_login_redirect(tech)
+        or is_rnas_access_gateway(host_key, tech)
+    ):
+        return signals
+
+    if host_key in path_hosts and path_hosts[host_key]:
+        signals.add("path")
+
+    title = tech.get("title") or ""
+    if is_login_title(title):
+        signals.add("title")
+
+    technologies = tech.get("technologies") or ""
+    if is_login_tech(technologies):
+        signals.add("tech")
+
+    if is_login_status(tech.get("status"), tech):
+        signals.add("status")
+
+    return signals
+
+
+def login_data_attrs(
+    host: str,
+    tech: dict | None,
+    path_hosts: dict[str, list[str]] | None = None,
+    skip_hosts: set[str] | None = None,
+) -> str:
+    """HTML attributes for a public Subdomains row (data-login-path=1 …)."""
+    signals = host_login_signals(host, tech, path_hosts, skip_hosts=skip_hosts)
+    if not signals:
+        return ""
+    parts = []
+    for key in LOGIN_SIGNAL_ORDER:
+        if key in signals:
+            parts.append(f' data-login-{key}="1"')
+    return "".join(parts)
+
+
+def login_signal_counts(
+    public_rows: list,
+    host_tech: dict,
+    path_hosts: dict[str, list[str]] | None = None,
+    alive_hosts: set | None = None,
+    skip_hosts: set[str] | None = None,
+) -> list[tuple[str, int]]:
+    """Ordered (display_label, host_count) for Active Login pages table.
+
+    Counts unique public hosts per signal. When alive_hosts is set, only those
+    hosts are counted (same scope as Categories / tech tables).
+    """
+    path_hosts = path_hosts or {}
+    skip_hosts = skip_hosts or set()
+    counters = {key: 0 for key in LOGIN_SIGNAL_ORDER}
+    for host, _ip, _cat in public_rows:
+        host_key = (host or "").lower()
+        if alive_hosts is not None and host_key not in alive_hosts:
+            continue
+        tech = host_tech.get(host_key, {})
+        for key in host_login_signals(
+            host, tech, path_hosts, skip_hosts=skip_hosts
+        ):
+            counters[key] += 1
+    rows = []
+    for key in LOGIN_SIGNAL_ORDER:
+        n = counters[key]
+        if n:
+            rows.append((LOGIN_SIGNAL_LABELS[key], n))
+    return rows
+
+
+def login_label_html(label):
+    """Link Login pages signal labels to filtered Subdomains (?login=path)."""
+    label_text = str(label).strip()
+    # Map display → query key
+    key = label_text.lower()
+    if key not in LOGIN_SIGNAL_ORDER:
+        for k, disp in LOGIN_SIGNAL_LABELS.items():
+            if disp.lower() == key:
+                key = k
+                break
+    escaped = html.escape(label_text)
+    href = f"subdomains.htm?login={quote(key, safe='')}"
+    return (
+        f'<a class="inc-login-subdomains-link" '
+        f'href="{html.escape(href, quote=True)}" '
+        f'title="Show subdomains with this Login pages signal">'
+        f"{escaped}</a>"
+    )
+
+
 def _is_clean_software_pair(name, version):
     """Product + version pair suitable for the Software versions table."""
     name = (name or "").strip()
@@ -1198,6 +1780,7 @@ def build_active_summary(
     *,
     force_cve: bool = False,
     force_cve_missing_only: bool = False,
+    report_dir: str = "",
 ):
     all_subdomain_rows = load_subdomain_rows(subdomains_path)
     # Scope "Public" must exclude RFC1918 rows that live in tools/subdomains.
@@ -1209,6 +1792,14 @@ def build_active_summary(
     private_count = sum(1 for _ in load_subdomain_rows(private_path))
     alive_hosts = load_alive_hosts(alive_tsv_path)
     host_tech = load_host_tech(httpx_path, whatweb_path)
+
+    # Resolve engagement root for host-scans (ffuf path signals).
+    if not report_dir:
+        # tools/httpx.jsonl → report root
+        if httpx_path:
+            report_dir = os.path.dirname(os.path.dirname(os.path.abspath(httpx_path)))
+    path_hosts = collect_login_path_hosts(report_dir) if report_dir else {}
+    login_skip_hosts = collect_login_skip_hosts(host_tech)
 
     # Status codes: all httpx responses (includes 404/5xx filtered out of "alive").
     status_counter = load_httpx_status_counts(httpx_path)
@@ -1255,6 +1846,14 @@ def build_active_summary(
     software_version_counter = Counter(software_version_counts)
     cms_counter = Counter(cms_counts)
 
+    login_rows = login_signal_counts(
+        public_rows,
+        host_tech,
+        path_hosts=path_hosts,
+        alive_hosts=alive_hosts,
+        skip_hosts=login_skip_hosts,
+    )
+
     lines = []
 
     status_rows = ordered_status_rows(status_counter)
@@ -1269,6 +1868,35 @@ def build_active_summary(
         force=force_cve,
         force_missing_only=force_cve_missing_only,
     )
+
+    categories_column = [
+        summary_table(
+            "Categories",
+            "Category",
+            counter_rows(category_counter),
+            sort_last_labels={"(none)"},
+            section_class="inc-active-section--categories",
+            label_html_fn=category_label_html,
+        ),
+        # CMS products found on alive hosts (droopescan/wpscan set); links use ?tech=
+        summary_table(
+            "CMS",
+            "CMS",
+            counter_rows(cms_counter),
+            section_class="inc-active-section--cms",
+            label_html_fn=cms_label_html,
+        ),
+    ]
+    if login_rows:
+        categories_column.append(
+            summary_table(
+                "Login pages",
+                "Signal",
+                login_rows,
+                section_class="inc-active-section--login",
+                label_html_fn=login_label_html,
+            )
+        )
 
     lines.extend(
         active_grid(
@@ -1292,24 +1920,7 @@ def build_active_summary(
                         title_help=True,
                     ),
                 ],
-                [
-                    summary_table(
-                        "Categories",
-                        "Category",
-                        counter_rows(category_counter),
-                        sort_last_labels={"(none)"},
-                        section_class="inc-active-section--categories",
-                        label_html_fn=category_label_html,
-                    ),
-                    # CMS products found on alive hosts (droopescan/wpscan set); links use ?tech=
-                    summary_table(
-                        "CMS",
-                        "CMS",
-                        counter_rows(cms_counter),
-                        section_class="inc-active-section--cms",
-                        label_html_fn=cms_label_html,
-                    ),
-                ],
+                categories_column,
                 [
                     summary_table(
                         "Top web servers",
@@ -1453,6 +2064,8 @@ def write_subdomains_active_page(report_dir: str) -> dict:
         gowitness_jsonl if os.path.isfile(gowitness_jsonl) else "",
         screenshots_dir if os.path.isdir(screenshots_dir) else "",
     )
+    path_hosts = collect_login_path_hosts(report_dir)
+    login_skip_hosts = collect_login_skip_hosts(host_tech)
 
     all_rows = load_subdomain_rows(subdomains_file)
     private_rows = load_subdomain_rows(private_file) if os.path.isfile(private_file) else []
@@ -1554,8 +2167,11 @@ def write_subdomains_active_page(report_dir: str) -> dict:
                 webserver = tech.get("webserver", "")
                 title = tech.get("title", "")
                 technologies = tech.get("technologies", "")
+                row_attrs = login_data_attrs(
+                    subdomain, tech, path_hosts, skip_hosts=login_skip_hosts
+                )
                 lines.append(
-                    "                <tr>"
+                    f"                <tr{row_attrs}>"
                     f"{host_cell(subdomain, status, tech.get('url', ''))}"
                     f"<td>{html.escape(category)}</td>"
                     f'<td class="inc-subdomain-ip">{html.escape(ipaddr)}</td>'
@@ -1624,7 +2240,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
             "",
             '<script src="../assets/javascript/inc-data-table.js"></script>',
             '<script src="../tools/cve-software-index.js"></script>',
-            '<script src="../assets/javascript/inc-subdomains-filter.js?v=13"></script>',
+            '<script src="../assets/javascript/inc-subdomains-filter.js?v=17"></script>',
             '<script src="../tools/shodan/index.js"></script>',
             '<script src="../tools/shodan/kev-ids.js"></script>',
             '<script src="../assets/javascript/inc-shodan.js?v=18"></script>',

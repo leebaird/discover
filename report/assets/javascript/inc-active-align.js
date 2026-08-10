@@ -73,6 +73,15 @@
         matchFrameWidth('.inc-active-section--categories', '.inc-active-section--cms');
     }
 
+    /** Login pages under CMS: same outer frame width as CMS (and Categories). */
+    function matchLoginWidthToCms() {
+        // Prefer CMS when present; fall back to Categories if CMS is empty/missing.
+        var source = document.querySelector('.inc-active-section--cms')
+            ? '.inc-active-section--cms'
+            : '.inc-active-section--categories';
+        matchFrameWidth(source, '.inc-active-section--login');
+    }
+
     /**
      * Make Technology label column the same px width as Web Server label.
      * Web Servers layout is never modified.
@@ -160,6 +169,8 @@
     function runAlign() {
         pinActiveCountColumns();
         matchCmsWidthToCategory();
+        // After CMS is stretched to Categories, match Login pages to CMS.
+        matchLoginWidthToCms();
         matchTechnologiesWidthToWebservers();
         // Re-pin after frame stretch so Count does not absorb free width.
         pinActiveCountColumns();
