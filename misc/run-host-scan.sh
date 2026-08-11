@@ -1226,7 +1226,11 @@ PY
             if [ "$CURL_RC" -ne 0 ]; then
                 echo "curl exit:   $CURL_RC"
             fi
-            echo "Disallow:    $DISALLOW_COUNT unique path(s)"
+            if [ "$DISALLOW_COUNT" -eq 1 ] 2>/dev/null; then
+                echo "Disallow:    $DISALLOW_COUNT unique path"
+            else
+                echo "Disallow:    $DISALLOW_COUNT unique paths"
+            fi
             echo "robots.txt:  $ROBOTS_FILE"
             echo "URL list:    $DISALLOW_FILE"
             echo
@@ -1264,7 +1268,11 @@ meta["robots_http_status"] = code
 json.dump(meta, open(path, "w", encoding="utf-8"), indent=2)
 open(path, "a", encoding="utf-8").write("\n")
 PY
-        echo "[*] robots.txt HTTP $HTTP_CODE — $DISALLOW_COUNT Disallow path(s)"
+        if [ "$DISALLOW_COUNT" -eq 1 ] 2>/dev/null; then
+            echo "[*] robots.txt HTTP $HTTP_CODE — $DISALLOW_COUNT Disallow path"
+        else
+            echo "[*] robots.txt HTTP $HTTP_CODE — $DISALLOW_COUNT Disallow paths"
+        fi
         ;;
     ffuf)
         f_ffuf_wordlist
