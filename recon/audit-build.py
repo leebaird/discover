@@ -866,6 +866,18 @@ def audit_output_cell(
                         f'title="Open each robots.txt Disallow directory in Firefox">'
                         f"htm</a>"
                     )
+            # ffuf: open each finding URL in Firefox (same as Target scans / expand).
+            if tool == "ffuf":
+                json_rel = str(Path(output).with_name("ffuf.json")).replace("\\", "/")
+                json_disk = report_root / json_rel.lstrip("/")
+                if json_disk.is_file():
+                    abs_json = str(json_disk.resolve())
+                    ffuf_href = "discover-ffuf:" + quote(abs_json, safe="/:")
+                    links.append(
+                        f'<a class="inc-audit-btn" href="{html.escape(ffuf_href, quote=True)}" '
+                        f'title="Open each ffuf finding URL in Firefox">'
+                        f"url</a>"
+                    )
         if not links:
             return '<span class="inc-audit-muted">—</span>'
 
