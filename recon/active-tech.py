@@ -2244,7 +2244,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
             '<script src="../tools/shodan/index.js"></script>',
             '<script src="../tools/shodan/kev-ids.js"></script>',
             '<script src="../assets/javascript/inc-shodan.js?v=18"></script>',
-            '<script src="../assets/javascript/inc-host-scan.js?v=29"></script>',
+            '<script src="../assets/javascript/inc-host-scan.js?v=31"></script>',
             "</body>",
             "</html>",
             "",

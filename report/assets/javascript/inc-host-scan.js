@@ -188,7 +188,7 @@
                 {
                     h: "What Run does",
                     p:
-                        "Runs Nikto non-interactively with Discover hardened defaults (maxtime 15m, hard stop 16m, SNI-friendly HTTPS)."
+                        "Runs Nikto non-interactively with Discover hardened defaults (request timeout 5s, FAILURES=8, maxtime 10m, hard stop 11m, SNI-friendly HTTPS)."
                 },
                 {
                     h: "Safety check",
@@ -217,7 +217,7 @@
                 {
                     h: "What Run does",
                     p:
-                        "Runs ffuf against the host URL with a software-aware SecLists wordlist when a product is known (for example WordPress, Grafana, IIS, Apache); otherwise SecLists common.txt (or quiet fallbacks). Louder than nuclei; use after quieter checks when appropriate."
+                        "Runs ffuf against the host URL with a software-aware SecLists wordlist when a product is known (for example WordPress, Grafana, IIS, Apache); otherwise SecLists common.txt (or quiet fallbacks). Request timeout 5s, maxtime 10m, stop on spurious errors, hard stop 11m. Louder than nuclei; use after quieter checks when appropriate."
                 },
                 {
                     h: "Safety check",
@@ -415,13 +415,13 @@
         if (tool === "nikto") {
             sslFlag = /^https:\/\//i.test(u) ? " -ssl" : "";
             return (
-                "timeout --foreground --signal=TERM --kill-after=45s 16m nikto" +
+                "timeout --foreground --signal=TERM --kill-after=45s 11m nikto" +
                 " -config <run-dir>/nikto.conf -host " +
                 shellQuote(u) +
                 sslFlag +
                 " -useragent " +
                 shellQuote(ua) +
-                " -nointeractive -nocheck -maxtime 15m" +
+                " -nointeractive -nocheck -timeout 5 -maxtime 10m" +
                 " -Format htm -output <run-dir>/nikto.htm"
             );
         }
@@ -432,7 +432,7 @@
                 shellQuote(ffufUrl) +
                 " -w " +
                 shellQuote(ffufWordlistForSoftware(software)) +
-                " -t 8 -rate 20 -H " +
+                " -t 8 -rate 20 -timeout 5 -maxtime 600 -se -H " +
                 shellQuote("User-Agent: " + ua) +
                 " -of json -o ffuf.json" +
                 " -fc 301,302,307,400,401,403,404,405,429 -noninteractive"

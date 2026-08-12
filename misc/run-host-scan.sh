@@ -820,6 +820,8 @@ force = {
     "UPDATES": "no",
     "DEFAULTHTTPVER": "1.1",
     "CHECKMETHODS": "GET",
+    # Bail sooner on unresponsive / slow hosts (expand quiet profile).
+    "FAILURES": "8",
 }
 comment_keys = {"RFIURL"}
 
@@ -951,7 +953,8 @@ else
 case "$TOOL" in
     nikto)
         # GitHub Nikto 2.5+/2.6 (update.sh → /opt/nikto): TLS SNI in bundled LW2,
-        # -useragent / -nointeractive / -nocheck; hard wall via timeout 16m.
+        # -useragent / -nointeractive / -nocheck; per-request -timeout 5s; maxtime 10m;
+        # hard wall via timeout 11m; FAILURES=8 in run nikto.conf.
         NIKTO_BIN=$(f_nikto_bin)
         if [ -z "$NIKTO_BIN" ]; then
             {
@@ -961,8 +964,9 @@ case "$TOOL" in
         else
             NIKTO_HTM="$RUN_DIR/nikto.htm"
             NIKTO_CONF="$RUN_DIR/nikto.conf"
-            NIKTO_MAXTIME="15m"
-            NIKTO_HARD_TIMEOUT="16m"
+            NIKTO_REQ_TIMEOUT="5"
+            NIKTO_MAXTIME="10m"
+            NIKTO_HARD_TIMEOUT="11m"
             # -ssl skips plain-HTTP probe on :443.
             NIKTO_SSL_FLAG=""
             if [[ "$URL" =~ ^https:// ]]; then
@@ -970,11 +974,12 @@ case "$TOOL" in
             fi
             f_nikto_write_config "$NIKTO_CONF" "$UA"
             # Display as "nikto" (not full path); still execute via $NIKTO_BIN.
-            NIKTO_CMD="nikto -config $(f_shell_quote "$NIKTO_CONF") -host $(f_shell_quote "$URL")${NIKTO_SSL_FLAG:+ $NIKTO_SSL_FLAG} -useragent $(f_shell_quote "$UA") -nointeractive -nocheck -maxtime $NIKTO_MAXTIME -Format htm -output $(f_shell_quote "$NIKTO_HTM")"
+            NIKTO_CMD="nikto -config $(f_shell_quote "$NIKTO_CONF") -host $(f_shell_quote "$URL")${NIKTO_SSL_FLAG:+ $NIKTO_SSL_FLAG} -useragent $(f_shell_quote "$UA") -nointeractive -nocheck -timeout $NIKTO_REQ_TIMEOUT -maxtime $NIKTO_MAXTIME -Format htm -output $(f_shell_quote "$NIKTO_HTM")"
             f_write_run_header "$NIKTO_CMD"
             {
                 echo "[*] Non-interactive (PROMPTS=no, UPDATES=no, -nointeractive -nocheck);"
-                echo "    HTTP/1.1 + GET; maxtime ${NIKTO_MAXTIME}; hard stop ${NIKTO_HARD_TIMEOUT}."
+                echo "    HTTP/1.1 + GET; request timeout ${NIKTO_REQ_TIMEOUT}s; FAILURES=8;"
+                echo "    maxtime ${NIKTO_MAXTIME}; hard stop ${NIKTO_HARD_TIMEOUT}."
                 echo
             } | tee -a "$OUT_FILE"
 
@@ -985,6 +990,7 @@ case "$TOOL" in
                 timeout --foreground --signal=TERM --kill-after=45s "$NIKTO_HARD_TIMEOUT" \
                     "$NIKTO_BIN" -config "$NIKTO_CONF" -host "$URL" $NIKTO_SSL_FLAG \
                     -useragent "$UA" -nointeractive -nocheck \
+                    -timeout "$NIKTO_REQ_TIMEOUT" \
                     -maxtime "$NIKTO_MAXTIME" \
                     -Format htm -output "$NIKTO_HTM" \
                     2>&1 | tee -a "$OUT_FILE"
@@ -992,6 +998,7 @@ case "$TOOL" in
             else
                 "$NIKTO_BIN" -config "$NIKTO_CONF" -host "$URL" $NIKTO_SSL_FLAG \
                     -useragent "$UA" -nointeractive -nocheck \
+                    -timeout "$NIKTO_REQ_TIMEOUT" \
                     -maxtime "$NIKTO_MAXTIME" \
                     -Format htm -output "$NIKTO_HTM" \
                     2>&1 | tee -a "$OUT_FILE"
@@ -1378,19 +1385,51 @@ PY
         # Filter noise with -fc. Keep 2xx + 500s (version banners). Drop auth/forbid,
         # empty, rate-limit, and redirects (301/302/307 are often real paths that still
         # aren't useful to open anonymously - clutter for operators).
+        # Fail-fast on dead/slow hosts: 5s per request, 10m wall, stop on
+        # spurious errors (timeouts / connection errors) so expand does not
+        # sit on 600+ hanging requests. Hard stop 11m matches Nikto style.
         FFUF_FC="301,302,307,400,401,403,404,405,429"
-        FFUF_CMD="ffuf -u $(f_shell_quote "$FFUF_URL") -w $(f_shell_quote "$FFUF_WL") -t 8 -rate 20 -H $(f_shell_quote "User-Agent: $UA") -of json -o $(f_shell_quote "$FFUF_JSON") -fc $FFUF_FC -noninteractive"
+        FFUF_TIMEOUT="5"
+        FFUF_MAXTIME="600"
+        FFUF_HARD_TIMEOUT="11m"
+        FFUF_CMD="ffuf -u $(f_shell_quote "$FFUF_URL") -w $(f_shell_quote "$FFUF_WL") -t 8 -rate 20 -timeout $FFUF_TIMEOUT -maxtime $FFUF_MAXTIME -se -H $(f_shell_quote "User-Agent: $UA") -of json -o $(f_shell_quote "$FFUF_JSON") -fc $FFUF_FC -noninteractive"
         f_write_run_header "$FFUF_CMD"
+        {
+            echo "[*] Request timeout ${FFUF_TIMEOUT}s; maxtime ${FFUF_MAXTIME}s; stop on spurious errors;"
+            echo "    hard stop ${FFUF_HARD_TIMEOUT}."
+            echo
+        } | tee -a "$OUT_FILE"
         FFUF_RAW="$RUN_DIR/ffuf.raw.txt"
         set +e
-        ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 8 -rate 20 \
-            -H "User-Agent: $UA" \
-            -of json -o "$FFUF_JSON" \
-            -fc "$FFUF_FC" \
-            -noninteractive \
-            2>&1 | tee "$FFUF_RAW"
-        EXIT_CODE=${PIPESTATUS[0]}
+        if command -v timeout >/dev/null 2>&1; then
+            timeout --foreground --signal=TERM --kill-after=15s "$FFUF_HARD_TIMEOUT" \
+                ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 8 -rate 20 \
+                -timeout "$FFUF_TIMEOUT" -maxtime "$FFUF_MAXTIME" -se \
+                -H "User-Agent: $UA" \
+                -of json -o "$FFUF_JSON" \
+                -fc "$FFUF_FC" \
+                -noninteractive \
+                2>&1 | tee "$FFUF_RAW"
+            EXIT_CODE=${PIPESTATUS[0]}
+        else
+            ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 8 -rate 20 \
+                -timeout "$FFUF_TIMEOUT" -maxtime "$FFUF_MAXTIME" -se \
+                -H "User-Agent: $UA" \
+                -of json -o "$FFUF_JSON" \
+                -fc "$FFUF_FC" \
+                -noninteractive \
+                2>&1 | tee "$FFUF_RAW"
+            EXIT_CODE=${PIPESTATUS[0]}
+        fi
         set -e
+        if [ "${EXIT_CODE:-0}" -eq 124 ]; then
+            {
+                echo
+                echo "[*] Discover hard stop: ffuf exceeded ${FFUF_HARD_TIMEOUT} wall clock (maxtime ${FFUF_MAXTIME}s + grace)."
+                echo "    Scan stopped automatically - no operator input required."
+            } | tee -a "$OUT_FILE"
+            EXIT_CODE=0
+        fi
         # Append cleaned text to operator report (no ESC boxes / progress spam).
         if [ -f "$FFUF_RAW" ]; then
             f_clean_scan_text < "$FFUF_RAW" >> "$OUT_FILE"

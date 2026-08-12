@@ -333,7 +333,7 @@ In **operator** mode only (report opened via **Open report** / Active at `http:/
 | **droopescan** | CMS enum (`scan drupal` / …; `-e a -t 4`) | **Gated:** supported CMS from `?software=` **or** row fingerprint (Drupal, Joomla, Moodle, Silverstripe — not WordPress) |
 | **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** WordPress from `?software=` **or** row fingerprint. Optional `WPSCAN_API_TOKEN` for vuln DB |
 | **robots** | Fetch `/robots.txt` and list **Disallow** paths (same idea as multiTabs → Directories in robots.txt); **TXT** = raw body, **HTM** = open Disallow dirs in Firefox | Always on expand |
-| **Nikto** | Web server checks; report **TXT** + **HTM** when the scan actually ran | Always on expand |
+| **Nikto** | Web server checks (request timeout 5s, FAILURES=8, maxtime 10m, hard stop 11m); report **TXT** + **HTM** when the scan actually ran | Always on expand |
 | **ffuf** | Content discovery (quiet defaults); report **TXT** + **URL** (open each finding in Firefox) | Always on expand |
 
 Each box shows the tool name and a blue **Run** button on one line, plus last-run time and green output buttons (**TXT** / **HTM** / **URL** as applicable). A Unicode **ⓘ** in the top-right of each box opens a short modal (what the tool does, when it appears, what Run does, safety check, and outputs).
@@ -353,7 +353,7 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 
 * No custom `-mc` (ffuf defaults keep 2xx, 500, etc.)
 * `-fc 301,302,307,400,401,403,404,405,429` (drop redirects and common noise; keep 500s for version banners)
-* `-t 8 -rate 20 -noninteractive`
+* `-t 8 -rate 20 -timeout 5 -maxtime 600 -se -noninteractive` (5s per request; 10m wall; stop on spurious errors / connection timeouts). Hard stop 11m via `timeout`.
 * **Wordlist (software-aware)** under `/usr/share/wordlists/seclists/Discovery/Web-Content/` (or `/usr/share/seclists/…`): when expand knows a product (`?software=` / fingerprint), prefer a focused SecLists file (e.g. WordPress → `CMS/wordpress.fuzz.txt`, Grafana → `Service-Specific/Grafana.txt`, IIS → `Web-Servers/IIS.txt`, Apache → `Web-Servers/Apache.txt`). Huge dumps (e.g. `CMS/Drupal.txt`) stay on the quiet general list. With no product match: `common.txt` → `quickhits.txt` → `raft-small-directories.txt` → dirb `common.txt`. Chosen path is logged and passed as `-w`.
 * Report text is ANSI-cleaned (no progress ESC junk); **Duration** stripped from hit lines
 * **URL** uses `discover-ffuf:` → `misc/open-ffuf-tabs.sh` (Firefox CLI, one tab per unique finding URL; cap 40; ~1.5s ± 40% jitter between tabs)
