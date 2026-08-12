@@ -217,7 +217,7 @@
                 {
                     h: "What Run does",
                     p:
-                        "Runs ffuf against the host URL. Louder than nuclei; use after quieter checks when appropriate."
+                        "Runs ffuf against the host URL with a software-aware SecLists wordlist when a product is known (for example WordPress, Grafana, IIS, Apache); otherwise SecLists common.txt (or quiet fallbacks). Louder than nuclei; use after quieter checks when appropriate."
                 },
                 {
                     h: "Safety check",
@@ -288,6 +288,71 @@
         }
         // Known product without a dedicated tag map: still product-scoped via Pass 2 when cache allows.
         return "-tags tech -c 5 -rl 20";
+    }
+
+    /**
+     * Approximate SecLists path for the help modal (mirrors f_ffuf_wordlist).
+     * Runtime selection is in misc/run-host-scan.sh (may use alt SecLists root).
+     */
+    function ffufWordlistForSoftware(software) {
+        var base =
+            "/usr/share/wordlists/seclists/Discovery/Web-Content";
+        var soft = String(software || "")
+            .trim()
+            .toLowerCase();
+        var i = soft.indexOf(":");
+        if (i >= 0) {
+            soft = soft.slice(0, i);
+        }
+        i = soft.indexOf("[");
+        if (i >= 0) {
+            soft = soft.slice(0, i);
+        }
+        soft = soft.replace(/\s+/g, " ").trim();
+        var rel = "";
+        if (soft === "wordpress" || soft === "wp") {
+            rel = "CMS/wordpress.fuzz.txt";
+        } else if (
+            soft === "kibana" ||
+            soft === "elasticsearch" ||
+            soft === "elastic"
+        ) {
+            rel = "Service-Specific/Elasticsearch-Kibana.txt";
+        } else if (soft === "grafana") {
+            rel = "Service-Specific/Grafana.txt";
+        } else if (soft === "jenkins") {
+            rel = "Service-Specific/Jenkins-Hudson.txt";
+        } else if (soft === "gitlab" || soft === "gitea" || soft === "gogs") {
+            rel = "Service-Specific/GitLab.txt";
+        } else if (soft === "keycloak") {
+            rel = "Service-Specific/Keycloak-Identity-Access-Management.txt";
+        } else if (soft === "tomcat") {
+            rel = "Web-Servers/Apache-Tomcat.txt";
+        } else if (soft === "iis") {
+            rel = "Web-Servers/IIS.txt";
+        } else if (soft === "nginx") {
+            rel = "Web-Servers/nginx.txt";
+        } else if (soft === "apache") {
+            rel = "Web-Servers/Apache.txt";
+        } else if (soft === "php") {
+            rel = "Programming-Language-Specific/PHP.fuzz.txt";
+        } else if (
+            soft === "spring" ||
+            soft.indexOf("spring") === 0 ||
+            soft === "java"
+        ) {
+            rel = "Programming-Language-Specific/Java-Spring-Boot.txt";
+        } else if (soft === "sharepoint") {
+            rel = "CMS/Sharepoint.txt";
+        } else if (soft === "confluence") {
+            rel = "Service-Specific/confluence-administration.txt";
+        } else if (soft === "weblogic") {
+            rel = "Service-Specific/Oracle-WebLogic.txt";
+        }
+        if (rel) {
+            return base + "/" + rel;
+        }
+        return base + "/common.txt";
     }
 
     /**
@@ -365,7 +430,8 @@
             return (
                 "ffuf -u " +
                 shellQuote(ffufUrl) +
-                " -w /usr/share/wordlists/seclists/Discovery/Web-Content/common.txt" +
+                " -w " +
+                shellQuote(ffufWordlistForSoftware(software)) +
                 " -t 8 -rate 20 -H " +
                 shellQuote("User-Agent: " + ua) +
                 " -of json -o ffuf.json" +

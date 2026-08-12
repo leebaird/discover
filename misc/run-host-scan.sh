@@ -605,22 +605,113 @@ f_is_wordpress(){
     esac
 }
 
-# Quiet ffuf wordlist
-f_ffuf_wordlist(){
-    local soft_lc
-    soft_lc=$(printf '%s' "$SOFTWARE" | tr '[:upper:]' '[:lower:]')
-    FFUF_WL=""
-    for candidate in \
-        /usr/share/wordlists/seclists/Discovery/Web-Content/common.txt \
-        /usr/share/seclists/Discovery/Web-Content/common.txt \
-        /usr/share/wordlists/dirb/common.txt
+# Quiet ffuf wordlist under SecLists Discovery/Web-Content (software-aware).
+# Prefer focused product lists when SOFTWARE is known; otherwise small general lists.
+# Skip huge CMS dumps (e.g. Drupal.txt ~58k) that break quiet expand timing.
+f_ffuf_seclists_web_root(){
+    local d
+    for d in \
+        /usr/share/wordlists/seclists/Discovery/Web-Content \
+        /usr/share/seclists/Discovery/Web-Content
     do
-        if [ -f "$candidate" ]; then
-            FFUF_WL="$candidate"
-            break
+        if [ -d "$d" ]; then
+            printf '%s\n' "$d"
+            return 0
         fi
     done
-    [ -n "$FFUF_WL" ] || f_die "No small wordlist found (SecLists common.txt). Run Discover Update."
+    return 1
+}
+
+f_ffuf_wordlist(){
+    local soft_lc seclists_web rel candidate
+    # Product token only (Apache:2.4.37 → apache).
+    soft_lc=$(printf '%s' "${SOFTWARE:-}" | tr '[:upper:]' '[:lower:]')
+    soft_lc=${soft_lc%%:*}
+    soft_lc=${soft_lc%%\[*}
+    soft_lc=$(printf '%s' "$soft_lc" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+    seclists_web=""
+    seclists_web=$(f_ffuf_seclists_web_root) || seclists_web=""
+
+    FFUF_WL=""
+    rel=""
+    if [ -n "$seclists_web" ] && [ -n "$soft_lc" ]; then
+        case "$soft_lc" in
+            wordpress|wp)
+                rel="CMS/wordpress.fuzz.txt"
+                ;;
+            # Drupal.txt is ~58k entries — too large for quiet expand; use general fallback.
+            drupal) rel="" ;;
+            # Joomla only has large plugin/theme lists in SecLists.
+            joomla) rel="" ;;
+            kibana|elasticsearch|elastic)
+                rel="Service-Specific/Elasticsearch-Kibana.txt"
+                ;;
+            grafana)
+                rel="Service-Specific/Grafana.txt"
+                ;;
+            jenkins)
+                rel="Service-Specific/Jenkins-Hudson.txt"
+                ;;
+            gitlab|gitea|gogs)
+                rel="Service-Specific/GitLab.txt"
+                ;;
+            keycloak)
+                rel="Service-Specific/Keycloak-Identity-Access-Management.txt"
+                ;;
+            tomcat)
+                rel="Web-Servers/Apache-Tomcat.txt"
+                ;;
+            iis)
+                rel="Web-Servers/IIS.txt"
+                ;;
+            nginx)
+                rel="Web-Servers/nginx.txt"
+                ;;
+            apache)
+                rel="Web-Servers/Apache.txt"
+                ;;
+            php)
+                rel="Programming-Language-Specific/PHP.fuzz.txt"
+                ;;
+            spring|springboot|spring-boot|java)
+                rel="Programming-Language-Specific/Java-Spring-Boot.txt"
+                ;;
+            sharepoint)
+                rel="CMS/Sharepoint.txt"
+                ;;
+            confluence)
+                rel="Service-Specific/confluence-administration.txt"
+                ;;
+            weblogic)
+                rel="Service-Specific/Oracle-WebLogic.txt"
+                ;;
+            *)
+                rel=""
+                ;;
+        esac
+        if [ -n "$rel" ] && [ -f "$seclists_web/$rel" ]; then
+            FFUF_WL="$seclists_web/$rel"
+        fi
+    fi
+
+    # Quiet general fallbacks (first existing wins).
+    if [ -z "$FFUF_WL" ]; then
+        for candidate in \
+            ${seclists_web:+"$seclists_web/common.txt"} \
+            ${seclists_web:+"$seclists_web/quickhits.txt"} \
+            ${seclists_web:+"$seclists_web/raft-small-directories.txt"} \
+            /usr/share/wordlists/dirb/common.txt
+        do
+            [ -n "$candidate" ] || continue
+            if [ -f "$candidate" ]; then
+                FFUF_WL="$candidate"
+                break
+            fi
+        done
+    fi
+
+    [ -n "$FFUF_WL" ] || f_die "No ffuf wordlist found under SecLists Discovery/Web-Content (or dirb common.txt). Run Discover Update."
 }
 
 cleanup(){
@@ -1276,6 +1367,7 @@ PY
         ;;
     ffuf)
         f_ffuf_wordlist
+        echo "[*] ffuf wordlist: $FFUF_WL"
         # Ensure URL has FUZZ path
         FFUF_URL="$URL"
         if [[ "$FFUF_URL" != *FUZZ* ]]; then

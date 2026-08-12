@@ -353,7 +353,8 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 
 * No custom `-mc` (ffuf defaults keep 2xx, 500, etc.)
 * `-fc 301,302,307,400,401,403,404,405,429` (drop redirects and common noise; keep 500s for version banners)
-* `-t 8 -rate 20 -noninteractive`; SecLists `common.txt` (or fallbacks)
+* `-t 8 -rate 20 -noninteractive`
+* **Wordlist (software-aware)** under `/usr/share/wordlists/seclists/Discovery/Web-Content/` (or `/usr/share/seclists/…`): when expand knows a product (`?software=` / fingerprint), prefer a focused SecLists file (e.g. WordPress → `CMS/wordpress.fuzz.txt`, Grafana → `Service-Specific/Grafana.txt`, IIS → `Web-Servers/IIS.txt`, Apache → `Web-Servers/Apache.txt`). Huge dumps (e.g. `CMS/Drupal.txt`) stay on the quiet general list. With no product match: `common.txt` → `quickhits.txt` → `raft-small-directories.txt` → dirb `common.txt`. Chosen path is logged and passed as `-w`.
 * Report text is ANSI-cleaned (no progress ESC junk); **Duration** stripped from hit lines
 * **URL** uses `discover-ffuf:` → `misc/open-ffuf-tabs.sh` (Firefox CLI, one tab per unique finding URL; cap 40; ~1.5s ± 40% jitter between tabs)
 
