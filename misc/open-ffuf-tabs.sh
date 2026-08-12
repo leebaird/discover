@@ -9,7 +9,7 @@
 # Usage:
 #   open-ffuf-tabs.sh /path/to/ffuf.json
 #   open-ffuf-tabs.sh discover-ffuf:/path/to/ffuf.json
-#   open-ffuf-tabs.sh discover-ffuf://path/to/ffuf.json
+#   open-ffuf-tabs.sh discover-ferox:/path/to/ferox.json
 
 set -euo pipefail
 
@@ -42,6 +42,8 @@ f_resolve_json_path(){
     raw=$(f_trim "${1:-}")
     raw="${raw#discover-ffuf:}"
     raw="${raw#DISCOVER-FFUF:}"
+    raw="${raw#discover-ferox:}"
+    raw="${raw#DISCOVER-FEROX:}"
     raw="${raw#//}"
 
     # URL-decode (paths may contain %20 etc.)
@@ -51,10 +53,16 @@ f_resolve_json_path(){
         return 1
     fi
 
-    # If a run directory was passed, prefer ffuf.json inside it
-    if [ -d "$raw" ] && [ -f "$raw/ffuf.json" ]; then
-        printf '%s' "$raw/ffuf.json"
-        return 0
+    # If a run directory was passed, prefer ffuf.json / ferox.json inside it
+    if [ -d "$raw" ]; then
+        if [ -f "$raw/ffuf.json" ]; then
+            printf '%s' "$raw/ffuf.json"
+            return 0
+        fi
+        if [ -f "$raw/ferox.json" ]; then
+            printf '%s' "$raw/ferox.json"
+            return 0
+        fi
     fi
 
     # Relative path: resolve against current engagement report
@@ -94,20 +102,43 @@ max_tabs = int(sys.argv[2])
 try:
     data = json.loads(path.read_text(encoding="utf-8", errors="replace"))
 except Exception:
-    sys.exit(1)
+    data = None
 
 seen = set()
 urls = []
-for row in data.get("results") or []:
-    if not isinstance(row, dict):
-        continue
-    url = (row.get("url") or "").strip()
+
+def add_url(url):
+    url = (url or "").strip()
     if not url or not url.startswith(("http://", "https://")):
-        continue
+        return
     if url in seen:
-        continue
+        return
     seen.add(url)
     urls.append(url)
+
+# ffuf: { "results": [ { "url": "..." }, ... ] }
+if isinstance(data, dict):
+    for row in data.get("results") or []:
+        if isinstance(row, dict):
+            add_url(row.get("url"))
+    add_url(data.get("url"))
+elif isinstance(data, list):
+    for row in data:
+        if isinstance(row, dict):
+            add_url(row.get("url"))
+
+# feroxbuster --json: NDJSON (one object per line)
+if not urls:
+    for raw in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        raw = raw.strip()
+        if not raw or raw[0] not in "{[":
+            continue
+        try:
+            row = json.loads(raw)
+        except Exception:
+            continue
+        if isinstance(row, dict):
+            add_url(row.get("url") or row.get("original_url"))
 
 # Stable order: as in file
 for url in urls[:max_tabs]:

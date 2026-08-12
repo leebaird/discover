@@ -1780,6 +1780,58 @@ EOF
 
 f_install_discover_ffuf_handler
 
+# discover-ferox: — open each feroxbuster finding URL in Firefox (same opener as ffuf).
+f_install_discover_ferox_handler(){
+    local apps_dir="$USER_HOME/.local/share/applications"
+    local desktop="$apps_dir/discover-ferox.desktop"
+    local mimeapps="$USER_HOME/.config/mimeapps.list"
+    local opener="$DISCOVER_ROOT/misc/open-ffuf-tabs.sh"
+
+    [ -x "$opener" ] || chmod +x "$opener" 2>/dev/null || true
+    [ -f "$opener" ] || return 0
+
+    mkdir -p "$apps_dir" "$USER_HOME/.config"
+    cat > "$desktop" <<EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Discover feroxbuster Tabs
+Comment=Open each feroxbuster finding URL in Firefox (Discover)
+Exec=$opener %u
+Terminal=false
+Categories=Network;Security;
+MimeType=x-scheme-handler/discover-ferox;
+NoDisplay=true
+EOF
+
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$desktop" 2>/dev/null || true
+    fi
+
+    if [ -f "$mimeapps" ]; then
+        if grep -q 'x-scheme-handler/discover-ferox=' "$mimeapps" 2>/dev/null; then
+            sed -i 's|x-scheme-handler/discover-ferox=.*|x-scheme-handler/discover-ferox=discover-ferox.desktop|' "$mimeapps"
+        elif grep -q '^\[Default Applications\]' "$mimeapps"; then
+            sed -i '/^\[Default Applications\]/a x-scheme-handler/discover-ferox=discover-ferox.desktop' "$mimeapps"
+        else
+            printf '\n[Default Applications]\nx-scheme-handler/discover-ferox=discover-ferox.desktop\n' >> "$mimeapps"
+        fi
+    else
+        printf '[Default Applications]\nx-scheme-handler/discover-ferox=discover-ferox.desktop\n' > "$mimeapps"
+    fi
+
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$mimeapps" 2>/dev/null || true
+        sudo -u "$SUDO_USER" xdg-mime default discover-ferox.desktop x-scheme-handler/discover-ferox >/dev/null 2>&1 || true
+        sudo -u "$SUDO_USER" update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+    else
+        xdg-mime default discover-ferox.desktop x-scheme-handler/discover-ferox >/dev/null 2>&1 || true
+        update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+    fi
+}
+
+f_install_discover_ferox_handler
+
 # discover-robots: — open each robots.txt Disallow URL in Firefox from Subdomains / Audit.
 f_install_discover_robots_handler(){
     local apps_dir="$USER_HOME/.local/share/applications"

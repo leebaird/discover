@@ -7,7 +7,7 @@
  * (http://127.0.0.1:17322/… from Open report / Active) — not file:// manual open.
  * One tool at a time; live status via same origin /mode|/status when hosted.
  * Software: ?software= query wins, else fingerprint row tech/title/webserver/host.
- * nuclei is shown only when a product is known; robots/nikto/ffuf always on expand.
+ * nuclei is shown only when a product is known; robots/nikto/feroxbuster/ffuf always on expand.
  * droopescan / wpscan gate on CMS software (query or fingerprint).
  * Tool boxes: Unicode ⓘ opens a short modal (what / when / Run / outputs).
  */
@@ -230,6 +230,35 @@
                         "TXT of findings plus a URL control that opens each hit in Firefox when available. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
                 }
             ]
+        },
+        feroxbuster: {
+            title: "feroxbuster",
+            sections: [
+                {
+                    h: "What it does",
+                    p:
+                        "Content discovery (same idea as ffuf) with Discover quiet defaults: no recursion, no link crawl, software-aware SecLists wordlist."
+                },
+                {
+                    h: "When shown",
+                    p: "Always on expand (before ffuf)."
+                },
+                {
+                    h: "What Run does",
+                    p:
+                        "Runs feroxbuster against the host URL with the same wordlist picker as ffuf. Threads 10, 20 req/s, request timeout 5s, time-limit 10m, auto-tune then auto-bail, hard stop 11m."
+                },
+                {
+                    h: "Safety check",
+                    p:
+                        "Before feroxbuster starts, Discover runs a curl HTTP/1.1 GET (15s). If the host does not answer HTTP, the scan is skipped and the box shows Unreachable (txt note only)."
+                },
+                {
+                    h: "Outputs",
+                    p:
+                        "TXT of findings plus a URL control that opens each hit in Firefox when ferox.json exists. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
+                }
+            ]
         }
     };
 
@@ -432,10 +461,25 @@
                 shellQuote(ffufUrl) +
                 " -w " +
                 shellQuote(ffufWordlistForSoftware(software)) +
-                " -t 8 -rate 20 -timeout 5 -maxtime 600 -se -H " +
+                " -t 10 -rate 20 -timeout 5 -maxtime 600 -se -H " +
                 shellQuote("User-Agent: " + ua) +
                 " -of json -o ffuf.json" +
                 " -fc 301,302,307,400,401,403,404,405,429 -noninteractive"
+            );
+        }
+        if (tool === "feroxbuster") {
+            return (
+                "timeout --foreground --signal=TERM --kill-after=15s 11m feroxbuster" +
+                " -u " +
+                shellQuote(u) +
+                " -w " +
+                shellQuote(ffufWordlistForSoftware(software)) +
+                " -a " +
+                shellQuote(ua) +
+                " -t 10 --rate-limit 20 -T 5 --time-limit 10m" +
+                " --auto-tune --auto-bail -n --dont-extract-links -k" +
+                " -C 301,302,307,400,401,403,404,405,429" +
+                " -q --json -o ferox.json --no-state"
             );
         }
         return "";
@@ -682,7 +726,7 @@
     /**
      * Tools for this expand panel.
      * nuclei only when a product is known (filter or fingerprint).
-     * robots/nikto/ffuf always; CMS tools when matched.
+     * robots/nikto/ffuf/feroxbuster always; CMS tools when matched.
      * Order: quietest → loudest.
      */
     function toolsForSoftware(software) {
@@ -697,7 +741,7 @@
         if (isWordpress(software)) {
             tools.push("wpscan");
         }
-        tools.push("robots", "nikto", "ffuf");
+        tools.push("robots", "nikto", "feroxbuster", "ffuf");
         return tools;
     }
 
@@ -816,7 +860,7 @@
      * Build green output buttons.
      * robots: txt → robots.txt body; htm → Firefox Disallow tabs.
      * nikto: txt + htm when report exists.
-     * ffuf: txt + url (Firefox finding tabs).
+     * ffuf / feroxbuster: txt + url (Firefox finding tabs).
      */
     function outputButtonsHtml(tool, st) {
         if (!st || !(st.output || st.output_rel)) {
@@ -873,13 +917,23 @@
                     '" title="Open each ffuf finding URL in Firefox">url</a>';
             }
         }
+        if (tool === "feroxbuster") {
+            var feroxRel = String(rel).replace(/[^/]+$/, "ferox.json");
+            var absFerox = hostScanArtifactAbsolutePath(feroxRel);
+            if (absFerox) {
+                html +=
+                    '<a class="inc-host-scan-out" href="discover-ferox:' +
+                    encodeURI(absFerox).replace(/"/g, "&quot;") +
+                    '" title="Open each feroxbuster finding URL in Firefox">url</a>';
+            }
+        }
         html += "</span>";
         return html;
     }
 
     /**
      * Best-effort absolute or report-relative path for desktop handlers
-     * (discover-ffuf: / discover-robots:).
+     * (discover-ffuf: / discover-ferox: / discover-robots:).
      */
     function hostScanArtifactAbsolutePath(relFromPages) {
         try {
@@ -965,7 +1019,8 @@
         el.classList.remove(
             "inc-host-scan-info-modal--nuclei",
             "inc-host-scan-info-modal--nikto",
-            "inc-host-scan-info-modal--ffuf"
+            "inc-host-scan-info-modal--ffuf",
+            "inc-host-scan-info-modal--feroxbuster"
         );
     }
 
@@ -989,7 +1044,8 @@
         el.classList.remove(
             "inc-host-scan-info-modal--nuclei",
             "inc-host-scan-info-modal--nikto",
-            "inc-host-scan-info-modal--ffuf"
+            "inc-host-scan-info-modal--ffuf",
+            "inc-host-scan-info-modal--feroxbuster"
         );
         if (tool === "nuclei") {
             el.classList.add("inc-host-scan-info-modal--nuclei");
@@ -997,6 +1053,8 @@
             el.classList.add("inc-host-scan-info-modal--nikto");
         } else if (tool === "ffuf") {
             el.classList.add("inc-host-scan-info-modal--ffuf");
+        } else if (tool === "feroxbuster") {
+            el.classList.add("inc-host-scan-info-modal--feroxbuster");
         }
         if (bodyEl) {
             for (i = 0; i < meta.sections.length; i++) {

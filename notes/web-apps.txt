@@ -64,14 +64,17 @@ nuclei -u "https://$URL" -tags cve,exposure,misconfig,vuln -c 10 -rl 50
 - Default configurations and files
 nikto -h "https://$URL" -Format htm --output nikto.htm
 
-feroxbuster -u "https://$URL" -a "$AGENT" --auto-tune -C 500,502,503 --no-recursion \
-  -w "$SECLISTS/directory-list-2.3-small.txt" --output feroxbuster.txt
-
 - Directory enumeration
-ffuf -u "$URL/FUZZ" \
-  -w /usr/share/wordlists/seclists/Discovery/Web-Content/common.txt \
-  -t 8 -rate 20 -H "User-Agent: $UA" -of json -o "$RUN_DIR/ffuf.json" \
-  -fc 301,302,307,400,401,403,404,405,429 -noninteractive
+feroxbuster -u "https://TARGET" -w "/usr/share/wordlists/seclists/Discovery/Web-Content/common.txt" \
+    -t 10 --rate-limit 20 -T 5 --time-limit 10m \
+    -a "$UA" \
+    --auto-tune --auto-bail \
+    -n --dont-extract-links -k \
+    -C 301,302,307,400,401,403,404,405,429 \
+    -q --json -o ferox.json --no-state
+
+ffuf -u "https://$URL/FUZZ" -w "/usr/share/wordlists/seclists/Discovery/Web-Content/common.txt" -t 10 -rate 20 -timeout 5 -maxtime 600 -se -H "User-Agent: $UA" \
+  -of json -o ffuf.json -fc 301,302,307,400,401,403,404,405,429 -noninteractive
 
 - Application specific enumeration
 davtest -url "https://$URL"

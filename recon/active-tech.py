@@ -791,18 +791,21 @@ def summary_table(
     if section_class:
         class_names = f"{class_names} {section_class}"
     if title_help:
-        # Clickable section title (e.g. Status codes → HTTP reference modal).
+        # Title plus ⓘ (Status codes → HTTP reference modal).
         title_html = (
-            f'<button type="button" class="inc-active-section-title-btn" '
+            f"{html.escape(title)}"
+            f'<button type="button" class="inc-active-status-codes-info-btn" '
             f'data-inc-active-status-codes-help="1" '
-            f'title="HTTP status code reference">'
-            f"{html.escape(title)}</button>"
+            f'title="HTTP status code reference" '
+            f'aria-label="HTTP status code reference">ⓘ</button>'
         )
+        title_h3_class = "inc-active-section-title inc-active-section-title--with-help"
     else:
         title_html = html.escape(title)
+        title_h3_class = "inc-active-section-title"
     lines = [
         f'    <section class="{class_names}">',
-        f'        <h3 class="inc-active-section-title">{title_html}</h3>',
+        f'        <h3 class="{title_h3_class}">{title_html}</h3>',
         '        <div class="inc-content-frame inc-content-frame--table">',
         '        <table class="table table-bordered inc-data-table">',
         "            <thead>",
@@ -2244,7 +2247,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
             '<script src="../tools/shodan/index.js"></script>',
             '<script src="../tools/shodan/kev-ids.js"></script>',
             '<script src="../assets/javascript/inc-shodan.js?v=18"></script>',
-            '<script src="../assets/javascript/inc-host-scan.js?v=31"></script>',
+            '<script src="../assets/javascript/inc-host-scan.js?v=34"></script>',
             "</body>",
             "</html>",
             "",

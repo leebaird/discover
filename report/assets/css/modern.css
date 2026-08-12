@@ -853,7 +853,7 @@ tr.inc-subdomains-filter-hide {
  * Audit width: fixed px (NOT rem). Bootstrap sets html { font-size: 10px },
  * so 1rem = 10px and "82rem" was only 820px — looked like no change / too narrow.
  *
- * Wide enough for Target scans (Target 410 + 5× tool cols) without clipping ffuf.
+ * Wide enough for Target scans (Target + tool cols) without clipping ffuf/ferox.
  * Audit log stays full-width of this container (Action + Output visible).
  */
 .inc-iframe-parent:not(.inc-home-page) .container.inc-audit-page.inc-container-dynamic,
@@ -1376,13 +1376,13 @@ tr.inc-subdomains-filter-hide {
 }
 
 /* Target scans columns (px).
- * Target 410 + 6 tool cols × 200 = 1610 (Nuclei, droopescan, WPScan, robots, Nikto, ffuf).
+ * Target 410 + 7 tool cols × 200 = 1810 (Nuclei … ffuf, feroxbuster).
  * Fixed layout + colgroup/class so Bootstrap .table { width:100% } cannot collapse Target. */
 .inc-audit-page .inc-audit-frame-wide table.inc-data-table.inc-audit-host-scans,
 .inc-audit-page table.inc-audit-host-scans {
-    width: 1610px !important;
-    min-width: 1610px !important;
-    max-width: 1610px !important;
+    width: 1810px !important;
+    min-width: 1810px !important;
+    max-width: 1810px !important;
     table-layout: fixed !important;
     box-sizing: border-box;
 }
@@ -1399,7 +1399,7 @@ tr.inc-subdomains-filter-hide {
     box-sizing: border-box;
 }
 
-/* Nuclei (2), droopescan (3), WPScan (4), robots (5), Nikto (6), ffuf (7) — each 200px */
+/* Nuclei (2) … feroxbuster (7), ffuf (8) — each 200px */
 .inc-audit-page table.inc-audit-host-scans col.inc-audit-host-tool-col,
 .inc-audit-page table.inc-audit-host-scans > thead > tr > th:nth-child(n+2),
 .inc-audit-page table.inc-audit-host-scans > tbody > tr > td:nth-child(n+2) {
@@ -2024,7 +2024,7 @@ tr.inc-subdomains-filter-hide {
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 600px;
+    max-width: 700px;
     /* Tall enough for full tool help (sections + Command) without scrolling on normal screens */
     max-height: min(96vh, 960px);
     overflow: auto;
@@ -3060,25 +3060,32 @@ body:not(.inc-iframe-parent) pre {
     cursor: wait;
 }
 
-/* Active: Status codes title → help modal */
-.inc-active-page .inc-active-section-title-btn {
-    display: inline;
-    margin: 0;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    font-weight: inherit;
-    letter-spacing: inherit;
-    cursor: pointer;
-    text-decoration: none;
+/* Active: Status codes heading + ⓘ (opens HTTP reference modal). */
+.inc-active-page .inc-active-section-title--with-help {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
-.inc-active-page .inc-active-section-title-btn:hover,
-.inc-active-page .inc-active-section-title-btn:focus {
+.inc-active-page .inc-active-status-codes-info-btn {
+    margin: 0;
+    padding: 0;
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
     color: #fff;
-    text-decoration: underline;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.inc-active-page .inc-active-status-codes-info-btn:hover,
+.inc-active-page .inc-active-status-codes-info-btn:focus {
+    color: var(--accent-hover);
     outline: none;
 }
 

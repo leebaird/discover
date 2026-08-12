@@ -7,7 +7,7 @@
 # Invoked via discover-scan: scheme or CLI:
 #   run-host-scan.sh <tool> <url> [software] [report_root]
 #
-# Tools: nuclei | droopescan | wpscan | robots | nikto | ffuf  (quietest → loudest)
+# Tools: nuclei | droopescan | wpscan | robots | nikto | feroxbuster | ffuf  (quietest → loudest)
 # - Visible terminal (desktop entry uses Terminal=true)
 # - One scan at a time (engagement lock)
 # - Software-aware nuclei/ffuf/droopescan/wpscan profiles
@@ -88,7 +88,7 @@ f_die(){
     exit 1
 }
 
-[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|droopescan|wpscan|robots)$ ]] || f_die "Tool must be nuclei, droopescan, wpscan, robots, nikto, or ffuf."
+[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|feroxbuster|droopescan|wpscan|robots)$ ]] || f_die "Tool must be nuclei, droopescan, wpscan, robots, nikto, ffuf, or feroxbuster."
 [ -n "$URL" ] || f_die "URL is required."
 
 # Resolve report root
@@ -737,6 +737,8 @@ if [ "$TOOL" = "nikto" ]; then
     fi
 elif [ "$TOOL" = "robots" ]; then
     command -v curl >/dev/null 2>&1 || f_die "curl is not installed (required for robots)."
+elif [ "$TOOL" = "feroxbuster" ]; then
+    command -v feroxbuster >/dev/null 2>&1 || f_die "feroxbuster is not installed. Run Discover Update."
 else
     command -v "$TOOL" >/dev/null 2>&1 || f_die "$TOOL is not installed. Run Discover Update."
 fi
@@ -910,7 +912,7 @@ echo
 EXIT_CODE=0
 HOST_SKIPPED=0
 
-# Reachability first - do not fire nuclei/nikto/ffuf/... against a dead host.
+# Reachability first - do not fire nuclei/nikto/ffuf/feroxbuster/... against a dead host.
 set +e
 PRECHECK_OUT=$(f_host_reachable_precheck "$URL" 2>&1)
 PRECHECK_RC=$?
@@ -1392,7 +1394,7 @@ PY
         FFUF_TIMEOUT="5"
         FFUF_MAXTIME="600"
         FFUF_HARD_TIMEOUT="11m"
-        FFUF_CMD="ffuf -u $(f_shell_quote "$FFUF_URL") -w $(f_shell_quote "$FFUF_WL") -t 8 -rate 20 -timeout $FFUF_TIMEOUT -maxtime $FFUF_MAXTIME -se -H $(f_shell_quote "User-Agent: $UA") -of json -o $(f_shell_quote "$FFUF_JSON") -fc $FFUF_FC -noninteractive"
+        FFUF_CMD="ffuf -u $(f_shell_quote "$FFUF_URL") -w $(f_shell_quote "$FFUF_WL") -t 10 -rate 20 -timeout $FFUF_TIMEOUT -maxtime $FFUF_MAXTIME -se -H $(f_shell_quote "User-Agent: $UA") -of json -o $(f_shell_quote "$FFUF_JSON") -fc $FFUF_FC -noninteractive"
         f_write_run_header "$FFUF_CMD"
         {
             echo "[*] Request timeout ${FFUF_TIMEOUT}s; maxtime ${FFUF_MAXTIME}s; stop on spurious errors;"
@@ -1403,7 +1405,7 @@ PY
         set +e
         if command -v timeout >/dev/null 2>&1; then
             timeout --foreground --signal=TERM --kill-after=15s "$FFUF_HARD_TIMEOUT" \
-                ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 8 -rate 20 \
+                ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 10 -rate 20 \
                 -timeout "$FFUF_TIMEOUT" -maxtime "$FFUF_MAXTIME" -se \
                 -H "User-Agent: $UA" \
                 -of json -o "$FFUF_JSON" \
@@ -1412,7 +1414,7 @@ PY
                 2>&1 | tee "$FFUF_RAW"
             EXIT_CODE=${PIPESTATUS[0]}
         else
-            ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 8 -rate 20 \
+            ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 10 -rate 20 \
                 -timeout "$FFUF_TIMEOUT" -maxtime "$FFUF_MAXTIME" -se \
                 -H "User-Agent: $UA" \
                 -of json -o "$FFUF_JSON" \
@@ -1438,6 +1440,65 @@ PY
         if [ -f "$FFUF_JSON" ]; then
             echo "" >> "$OUT_FILE"
             echo "JSON results: $FFUF_JSON" >> "$OUT_FILE"
+        fi
+        ;;
+    feroxbuster)
+        # Same software-aware SecLists pick as ffuf (quiet expand).
+        f_ffuf_wordlist
+        echo "[*] feroxbuster wordlist: $FFUF_WL"
+        FEROX_JSON="$RUN_DIR/ferox.json"
+        FEROX_TIMEOUT="5"
+        FEROX_TIME_LIMIT="10m"
+        FEROX_HARD_TIMEOUT="11m"
+        FEROX_FC="301,302,307,400,401,403,404,405,429"
+        FEROX_CMD="feroxbuster -u $(f_shell_quote "$URL") -w $(f_shell_quote "$FFUF_WL") -a $(f_shell_quote "$UA") -t 10 --rate-limit 20 -T $FEROX_TIMEOUT --time-limit $FEROX_TIME_LIMIT --auto-tune --auto-bail -n --dont-extract-links -k -C $FEROX_FC -q --json -o $(f_shell_quote "$FEROX_JSON") --no-state"
+        f_write_run_header "$FEROX_CMD"
+        {
+            echo "[*] Threads 10; rate 20/s; request timeout ${FEROX_TIMEOUT}s;"
+            echo "    time-limit ${FEROX_TIME_LIMIT}; auto-tune + auto-bail; no recursion;"
+            echo "    hard stop ${FEROX_HARD_TIMEOUT}."
+            echo
+        } | tee -a "$OUT_FILE"
+        FEROX_RAW="$RUN_DIR/ferox.raw.txt"
+        set +e
+        if command -v timeout >/dev/null 2>&1; then
+            timeout --foreground --signal=TERM --kill-after=15s "$FEROX_HARD_TIMEOUT" \
+                feroxbuster -u "$URL" -w "$FFUF_WL" -a "$UA" \
+                -t 10 --rate-limit 20 -T "$FEROX_TIMEOUT" \
+                --time-limit "$FEROX_TIME_LIMIT" \
+                --auto-tune --auto-bail \
+                -n --dont-extract-links -k \
+                -C "$FEROX_FC" \
+                -q --json -o "$FEROX_JSON" --no-state \
+                2>&1 | tee "$FEROX_RAW"
+            EXIT_CODE=${PIPESTATUS[0]}
+        else
+            feroxbuster -u "$URL" -w "$FFUF_WL" -a "$UA" \
+                -t 10 --rate-limit 20 -T "$FEROX_TIMEOUT" \
+                --time-limit "$FEROX_TIME_LIMIT" \
+                --auto-tune --auto-bail \
+                -n --dont-extract-links -k \
+                -C "$FEROX_FC" \
+                -q --json -o "$FEROX_JSON" --no-state \
+                2>&1 | tee "$FEROX_RAW"
+            EXIT_CODE=${PIPESTATUS[0]}
+        fi
+        set -e
+        if [ "${EXIT_CODE:-0}" -eq 124 ]; then
+            {
+                echo
+                echo "[*] Discover hard stop: feroxbuster exceeded ${FEROX_HARD_TIMEOUT} wall clock (time-limit ${FEROX_TIME_LIMIT} + grace)."
+                echo "    Scan stopped automatically - no operator input required."
+            } | tee -a "$OUT_FILE"
+            EXIT_CODE=0
+        fi
+        if [ -f "$FEROX_RAW" ]; then
+            f_clean_scan_text < "$FEROX_RAW" >> "$OUT_FILE"
+            rm -f "$FEROX_RAW"
+        fi
+        if [ -f "$FEROX_JSON" ]; then
+            echo "" >> "$OUT_FILE"
+            echo "JSON results: $FEROX_JSON" >> "$OUT_FILE"
         fi
         ;;
 esac
