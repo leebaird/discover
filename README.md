@@ -334,7 +334,7 @@ In **operator** mode only (report opened via **Open report** / Active at `http:/
 | **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** WordPress from `?software=` **or** row fingerprint. Optional `WPSCAN_API_TOKEN` for vuln DB |
 | **robots** | Fetch `/robots.txt` and list **Disallow** paths (same idea as multiTabs → Directories in robots.txt); **TXT** = raw body, **HTM** = open Disallow dirs in Firefox | Always on expand |
 | **Nikto** | Web server checks (request timeout 5s, FAILURES=8, maxtime 10m, hard stop 11m); report **TXT** + **HTM** when the scan actually ran | Always on expand |
-| **feroxbuster** | Content discovery (same wordlist picker as ffuf; no recursion; auto-tune + auto-bail; 10 threads, 20 req/s, 5s timeout, 10m time-limit); report **TXT** + **URL** | Always on expand |
+| **feroxbuster** | Content discovery (same wordlist picker as ffuf; no recursion; auto-bail; 10 threads, 20 req/s, 5s timeout, 10m time-limit); report **TXT** + **URL** | Always on expand |
 | **ffuf** | Content discovery (quiet defaults); report **TXT** + **URL** (open each finding in Firefox) | Always on expand |
 
 Each box shows the tool name and a blue **Run** button on one line, plus last-run time and green output buttons (**TXT** / **HTM** / **URL** as applicable). A Unicode **ⓘ** in the top-right of each box opens a short modal (what the tool does, when it appears, what Run does, safety check, and outputs).
@@ -362,7 +362,7 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 **feroxbuster quiet defaults** (`misc/run-host-scan.sh`):
 
 * Same software-aware SecLists **wordlist** as ffuf (`f_ffuf_wordlist`)
-* `-t 10 --rate-limit 20 -T 5 --time-limit 10m --auto-tune --auto-bail`
+* `-t 10 --rate-limit 20 -T 5 --time-limit 10m --auto-bail`
 * `-n --dont-extract-links` (no recursion, no HTML/JS crawl)
 * `-k -C 301,302,307,400,401,403,404,405,429 -q --json -o ferox.json --no-state`
 * Hard stop 11m via `timeout`

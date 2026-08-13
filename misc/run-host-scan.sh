@@ -218,6 +218,7 @@ h = hosts.setdefault(host, {})
 skip_reason = ""
 exit_code = None
 disallow_count = None
+url_count = None
 if meta_path and meta_path.is_file():
     try:
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
@@ -226,6 +227,8 @@ if meta_path and meta_path.is_file():
             exit_code = meta.get("exit_code")
         if meta.get("disallow_count") is not None:
             disallow_count = meta.get("disallow_count")
+        if meta.get("url_count") is not None:
+            url_count = meta.get("url_count")
     except Exception:
         pass
 if running == "1":
@@ -249,6 +252,8 @@ if skip_reason:
     entry["skip_reason"] = skip_reason
 if disallow_count is not None:
     entry["disallow_count"] = disallow_count
+if url_count is not None:
+    entry["url_count"] = url_count
 h[tool] = entry
 status["running"] = running == "1"
 if running == "1":
@@ -895,12 +900,23 @@ f_host_reachable_precheck(){
     return 0
 }
 
+# Resolve wordlist before the live banner so ffuf/ferox show it under Software.
+FFUF_WL=""
+case "$TOOL" in
+    ffuf|feroxbuster)
+        f_ffuf_wordlist
+        ;;
+esac
+
 echo
 echo "============================================================"
 echo " Discover host scan (quiet / Red Team defaults)"
 echo " Tool:     $TOOL"
 echo " Target:   $URL"
 echo " Software: ${SOFTWARE:--}"
+if [ -n "$FFUF_WL" ]; then
+    echo " Wordlist: $FFUF_WL"
+fi
 echo " Report:   $REPORT_ROOT"
 echo " Output:   $OUT_FILE"
 echo " UA:       $UA"
@@ -1375,8 +1391,7 @@ PY
         fi
         ;;
     ffuf)
-        f_ffuf_wordlist
-        echo "[*] ffuf wordlist: $FFUF_WL"
+        [ -n "$FFUF_WL" ] || f_ffuf_wordlist
         # Ensure URL has FUZZ path
         FFUF_URL="$URL"
         if [[ "$FFUF_URL" != *FUZZ* ]]; then
@@ -1444,21 +1459,14 @@ PY
         ;;
     feroxbuster)
         # Same software-aware SecLists pick as ffuf (quiet expand).
-        f_ffuf_wordlist
-        echo "[*] feroxbuster wordlist: $FFUF_WL"
+        [ -n "$FFUF_WL" ] || f_ffuf_wordlist
         FEROX_JSON="$RUN_DIR/ferox.json"
         FEROX_TIMEOUT="5"
         FEROX_TIME_LIMIT="10m"
         FEROX_HARD_TIMEOUT="11m"
         FEROX_FC="301,302,307,400,401,403,404,405,429"
-        FEROX_CMD="feroxbuster -u $(f_shell_quote "$URL") -w $(f_shell_quote "$FFUF_WL") -a $(f_shell_quote "$UA") -t 10 --rate-limit 20 -T $FEROX_TIMEOUT --time-limit $FEROX_TIME_LIMIT --auto-tune --auto-bail -n --dont-extract-links -k -C $FEROX_FC -q --json -o $(f_shell_quote "$FEROX_JSON") --no-state"
+        FEROX_CMD="feroxbuster -u $(f_shell_quote "$URL") -w $(f_shell_quote "$FFUF_WL") -a $(f_shell_quote "$UA") -t 10 --rate-limit 20 -T $FEROX_TIMEOUT --time-limit $FEROX_TIME_LIMIT --auto-bail -n --dont-extract-links -k -C $FEROX_FC -q --json -o $(f_shell_quote "$FEROX_JSON") --no-state"
         f_write_run_header "$FEROX_CMD"
-        {
-            echo "[*] Threads 10; rate 20/s; request timeout ${FEROX_TIMEOUT}s;"
-            echo "    time-limit ${FEROX_TIME_LIMIT}; auto-tune + auto-bail; no recursion;"
-            echo "    hard stop ${FEROX_HARD_TIMEOUT}."
-            echo
-        } | tee -a "$OUT_FILE"
         FEROX_RAW="$RUN_DIR/ferox.raw.txt"
         set +e
         if command -v timeout >/dev/null 2>&1; then
@@ -1466,7 +1474,7 @@ PY
                 feroxbuster -u "$URL" -w "$FFUF_WL" -a "$UA" \
                 -t 10 --rate-limit 20 -T "$FEROX_TIMEOUT" \
                 --time-limit "$FEROX_TIME_LIMIT" \
-                --auto-tune --auto-bail \
+                --auto-bail \
                 -n --dont-extract-links -k \
                 -C "$FEROX_FC" \
                 -q --json -o "$FEROX_JSON" --no-state \
@@ -1476,7 +1484,7 @@ PY
             feroxbuster -u "$URL" -w "$FFUF_WL" -a "$UA" \
                 -t 10 --rate-limit 20 -T "$FEROX_TIMEOUT" \
                 --time-limit "$FEROX_TIME_LIMIT" \
-                --auto-tune --auto-bail \
+                --auto-bail \
                 -n --dont-extract-links -k \
                 -C "$FEROX_FC" \
                 -q --json -o "$FEROX_JSON" --no-state \
@@ -1505,9 +1513,16 @@ esac
 fi  # HOST_SKIPPED reachability gate
 
 FINISHED=$(date -u +"%m-%d-%Y - %H:%M Z")
-python3 - "$META_FILE" "$FINISHED" "$EXIT_CODE" <<'PY'
+COUNT_JSON=""
+case "$TOOL" in
+    ffuf) COUNT_JSON="$RUN_DIR/ffuf.json" ;;
+    feroxbuster) COUNT_JSON="$RUN_DIR/ferox.json" ;;
+esac
+python3 - "$META_FILE" "$FINISHED" "$EXIT_CODE" "$COUNT_JSON" <<'PY'
 import json, sys
+from pathlib import Path
 path, finished, code = sys.argv[1], sys.argv[2], int(sys.argv[3])
+json_path = Path(sys.argv[4]) if len(sys.argv) > 4 and sys.argv[4] else None
 try:
     meta = json.load(open(path, encoding="utf-8"))
 except Exception:
@@ -1521,6 +1536,48 @@ meta["finished_display"] = finished
 from datetime import datetime, timezone
 meta["finished_utc"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 meta["exit_code"] = code
+if json_path is not None:
+    seen = set()
+    text = ""
+    if json_path.is_file():
+        try:
+            text = json_path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            text = ""
+    data = None
+    try:
+        data = json.loads(text) if text else None
+    except Exception:
+        data = None
+
+    def add(url):
+        u = str(url or "").strip()
+        if u.startswith(("http://", "https://")):
+            seen.add(u)
+
+    if isinstance(data, dict):
+        for row in data.get("results") or []:
+            if isinstance(row, dict):
+                add(row.get("url"))
+    elif isinstance(data, list):
+        for row in data:
+            if isinstance(row, dict) and row.get("type") in (None, "response"):
+                add(row.get("url") or row.get("original_url"))
+    if not seen or data is None:
+        for raw in text.splitlines():
+            raw = raw.strip()
+            if not raw or raw[0] not in "{[":
+                continue
+            try:
+                row = json.loads(raw)
+            except Exception:
+                continue
+            if not isinstance(row, dict):
+                continue
+            if row.get("type") and row.get("type") != "response":
+                continue
+            add(row.get("url") or row.get("original_url"))
+    meta["url_count"] = len(seen)
 json.dump(meta, open(path, "w", encoding="utf-8"), indent=2)
 open(path, "a", encoding="utf-8").write("\n")
 PY

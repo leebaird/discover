@@ -629,6 +629,12 @@ def _newest_host_scan_tool_meta(tool_dir: Path) -> dict:
                 best["skip_reason"] = meta.get("skip_reason")
             if meta.get("disallow_count") is not None:
                 best["disallow_count"] = meta.get("disallow_count")
+            if meta.get("url_count") is not None:
+                best["url_count"] = meta.get("url_count")
+            elif tool_dir.name in {"ffuf", "feroxbuster"}:
+                json_name = "ffuf.json" if tool_dir.name == "ffuf" else "ferox.json"
+                json_disk = run_dir / json_name
+                best["url_count"] = _host_scan_finding_url_count(json_disk)
     return best or {}
 
 
@@ -743,6 +749,53 @@ _AUDIT_SCAN_ACTION_RE = re.compile(
 
 def _hostname_from_url(url: str) -> str:
     return (urlparse(url).hostname or "").lower()
+
+
+def _host_scan_finding_url_count(json_disk: Path) -> int:
+    """Unique HTTP(S) finding URLs in ffuf.json or ferox.json (not config/stats)."""
+    if not json_disk.is_file():
+        return 0
+    try:
+        text = json_disk.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return 0
+    seen: set[str] = set()
+
+    def add(url: object) -> None:
+        u = str(url or "").strip()
+        if u.startswith(("http://", "https://")):
+            seen.add(u)
+
+    data = None
+    try:
+        data = json.loads(text)
+    except Exception:
+        data = None
+    if isinstance(data, dict):
+        for row in data.get("results") or []:
+            if isinstance(row, dict):
+                add(row.get("url"))
+    elif isinstance(data, list):
+        for row in data:
+            if isinstance(row, dict) and row.get("type") in (None, "response"):
+                add(row.get("url") or row.get("original_url"))
+
+    # feroxbuster --json is NDJSON (configuration / response / statistics).
+    if not seen or data is None:
+        for raw in text.splitlines():
+            raw = raw.strip()
+            if not raw or raw[0] not in "{[":
+                continue
+            try:
+                row = json.loads(raw)
+            except Exception:
+                continue
+            if not isinstance(row, dict):
+                continue
+            if row.get("type") and row.get("type") != "response":
+                continue
+            add(row.get("url") or row.get("original_url"))
+    return len(seen)
 
 
 def audit_target_from_action(action: str) -> str:
@@ -871,7 +924,7 @@ def audit_output_cell(
             if tool == "ffuf":
                 json_rel = str(Path(output).with_name("ffuf.json")).replace("\\", "/")
                 json_disk = report_root / json_rel.lstrip("/")
-                if json_disk.is_file():
+                if json_disk.is_file() and _host_scan_finding_url_count(json_disk) > 0:
                     abs_json = str(json_disk.resolve())
                     ffuf_href = "discover-ffuf:" + quote(abs_json, safe="/:")
                     links.append(
@@ -882,7 +935,7 @@ def audit_output_cell(
             if tool == "feroxbuster":
                 json_rel = str(Path(output).with_name("ferox.json")).replace("\\", "/")
                 json_disk = report_root / json_rel.lstrip("/")
-                if json_disk.is_file():
+                if json_disk.is_file() and _host_scan_finding_url_count(json_disk) > 0:
                     abs_json = str(json_disk.resolve())
                     ferox_href = "discover-ferox:" + quote(abs_json, safe="/:")
                     links.append(
@@ -961,7 +1014,7 @@ def tool_cell(
         if tool == "ffuf" and report_root is not None:
             json_rel = str(Path(str(output)).with_name("ffuf.json")).replace("\\", "/")
             json_disk = report_root / json_rel.lstrip("/")
-            if json_disk.is_file():
+            if json_disk.is_file() and _host_scan_finding_url_count(json_disk) > 0:
                 # Absolute path so the desktop handler can open the JSON reliably
                 abs_json = str(json_disk.resolve())
                 href = "discover-ffuf:" + quote(abs_json, safe="/:")
@@ -973,7 +1026,7 @@ def tool_cell(
         if tool == "feroxbuster" and report_root is not None:
             json_rel = str(Path(str(output)).with_name("ferox.json")).replace("\\", "/")
             json_disk = report_root / json_rel.lstrip("/")
-            if json_disk.is_file():
+            if json_disk.is_file() and _host_scan_finding_url_count(json_disk) > 0:
                 abs_json = str(json_disk.resolve())
                 href = "discover-ferox:" + quote(abs_json, safe="/:")
                 links.append(

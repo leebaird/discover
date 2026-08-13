@@ -68,7 +68,7 @@ nikto -h "https://$URL" -Format htm --output nikto.htm
 feroxbuster -u "https://TARGET" -w "/usr/share/wordlists/seclists/Discovery/Web-Content/common.txt" \
     -t 10 --rate-limit 20 -T 5 --time-limit 10m \
     -a "$UA" \
-    --auto-tune --auto-bail \
+    --auto-bail \
     -n --dont-extract-links -k \
     -C 301,302,307,400,401,403,404,405,429 \
     -q --json -o ferox.json --no-state

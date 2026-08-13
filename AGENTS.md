@@ -121,6 +121,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - **nuclei only when a product is known** (filter or fingerprint). Do not offer nuclei for blind `-tags tech` with empty software. Backend `run-host-scan.sh` refuses nuclei when SOFTWARE is empty.
 - **robots** / **nikto** / **feroxbuster** / **ffuf** always on expand when the UI is shown. Order quietest → loudest: nuclei (if product) → CMS tools → **robots** → nikto → feroxbuster → ffuf.
 - **robots:** fetch `/robots.txt` (same idea as multiTabs → Directories in robots.txt). **txt** = raw `robots.txt` body; **htm** = open Disallow directories in Firefox via `discover-robots:` → `misc/open-robots-tabs.sh` (only when `disallow_count` > 0). Run does not open Firefox.
+- **ffuf / feroxbuster url:** green **url** (Firefox tabs) only when the run has at least one finding URL. Auto-filter-only / empty JSON → **txt** only. Count stored as `meta.url_count`.
 - **droopescan** / **wpscan** gate on CMS software (query or fingerprint). **WordPress → wpscan only** (no droopescan for WP). Drupal / Joomla / Moodle / Silverstripe still use droopescan when matched.
 - Each tool box has a Unicode ⓘ help modal. Bust `inc-host-scan.js?v=…` (and `modern.css?v=…` on Subdomains) after changes and sync via Import when testing live reports.
 

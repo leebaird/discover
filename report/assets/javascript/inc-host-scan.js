@@ -227,7 +227,7 @@
                 {
                     h: "Outputs",
                     p:
-                        "TXT of findings plus a URL control that opens each hit in Firefox when available. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
+                        "TXT of findings plus a URL control that opens each hit in Firefox when the run has at least one finding URL. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
                 }
             ]
         },
@@ -246,7 +246,7 @@
                 {
                     h: "What Run does",
                     p:
-                        "Runs feroxbuster against the host URL with the same wordlist picker as ffuf. Threads 10, 20 req/s, request timeout 5s, time-limit 10m, auto-tune then auto-bail, hard stop 11m."
+                        "Runs feroxbuster against the host URL with the same wordlist picker as ffuf. Threads 10, 20 req/s, request timeout 5s, time-limit 10m, auto-bail, hard stop 11m."
                 },
                 {
                     h: "Safety check",
@@ -256,7 +256,7 @@
                 {
                     h: "Outputs",
                     p:
-                        "TXT of findings plus a URL control that opens each hit in Firefox when ferox.json exists. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
+                        "TXT of findings plus a URL control that opens each hit in Firefox when the run has at least one finding URL. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
                 }
             ]
         }
@@ -477,7 +477,7 @@
                 " -a " +
                 shellQuote(ua) +
                 " -t 10 --rate-limit 20 -T 5 --time-limit 10m" +
-                " --auto-tune --auto-bail -n --dont-extract-links -k" +
+                " --auto-bail -n --dont-extract-links -k" +
                 " -C 301,302,307,400,401,403,404,405,429" +
                 " -q --json -o ferox.json --no-state"
             );
@@ -860,8 +860,16 @@
      * Build green output buttons.
      * robots: txt → robots.txt body; htm → Firefox Disallow tabs.
      * nikto: txt + htm when report exists.
-     * ffuf / feroxbuster: txt + url (Firefox finding tabs).
+     * ffuf / feroxbuster: txt + url when there is at least one finding URL.
      */
+    function findingUrlCount(st) {
+        if (!st || st.url_count == null || st.url_count === "") {
+            return null;
+        }
+        var n = Number(st.url_count);
+        return isNaN(n) ? null : n;
+    }
+
     function outputButtonsHtml(tool, st) {
         if (!st || !(st.output || st.output_rel)) {
             return "";
@@ -910,7 +918,8 @@
             // Absolute path via discover-ffuf: → open-ffuf-tabs.sh (Firefox CLI)
             var jsonRel = String(rel).replace(/[^/]+$/, "ffuf.json");
             var absJson = hostScanArtifactAbsolutePath(jsonRel);
-            if (absJson) {
+            var ffufUrls = findingUrlCount(st);
+            if (absJson && ffufUrls !== 0) {
                 html +=
                     '<a class="inc-host-scan-out" href="discover-ffuf:' +
                     encodeURI(absJson).replace(/"/g, "&quot;") +
@@ -920,7 +929,8 @@
         if (tool === "feroxbuster") {
             var feroxRel = String(rel).replace(/[^/]+$/, "ferox.json");
             var absFerox = hostScanArtifactAbsolutePath(feroxRel);
-            if (absFerox) {
+            var feroxUrls = findingUrlCount(st);
+            if (absFerox && feroxUrls !== 0) {
                 html +=
                     '<a class="inc-host-scan-out" href="discover-ferox:' +
                     encodeURI(absFerox).replace(/"/g, "&quot;") +

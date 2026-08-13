@@ -120,7 +120,7 @@ f_import_report_sync_assets(){
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
                 -e 's|modern\.css?v=[^"]*|modern.css?v=ws39|g' \
-                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=34|g' \
+                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=37|g' \
                 -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=18|g' \
                 "$report/pages/subdomains.htm" 2>/dev/null || true
         fi
@@ -129,7 +129,7 @@ f_import_report_sync_assets(){
             if [ -f "$report/pages/$page" ]; then
                 sed -i \
                     -e 's|modern\.css?v=[^"]*|modern.css?v=active-status-info1|g' \
-                    -e 's|inc-report-export\.js?v=[0-9]*|inc-report-export.js?v=4|g' \
+                    -e 's|inc-report-export\.js?v=[0-9]*|inc-report-export.js?v=5|g' \
                     -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=11|g' \
                     "$report/pages/$page" 2>/dev/null || true
                 if [ "$page" = "active.htm" ] && ! grep -q 'inc-active-status-codes.js' "$report/pages/$page" 2>/dev/null; then
@@ -147,7 +147,7 @@ f_import_report_sync_assets(){
                         "$report/pages/$page" 2>/dev/null || true
                 fi
                 if ! grep -q 'inc-report-export.js' "$report/pages/$page" 2>/dev/null; then
-                    sed -i 's|</body>|<script src="../assets/javascript/inc-report-export.js?v=4"></script>\n</body>|' \
+                    sed -i 's|</body>|<script src="../assets/javascript/inc-report-export.js?v=5"></script>\n</body>|' \
                         "$report/pages/$page" 2>/dev/null || true
                 fi
                 if [ "$page" = "audit.htm" ]; then
@@ -289,7 +289,7 @@ need = [
     ("tools/shodan/index.js", '<script src="../tools/shodan/index.js"></script>'),
     ("tools/shodan/kev-ids.js", '<script src="../tools/shodan/kev-ids.js"></script>'),
     ("inc-shodan.js", '<script src="../assets/javascript/inc-shodan.js?v=18"></script>'),
-    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=34"></script>'),
+    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=37"></script>'),
 ]
 insert = [tag for key, tag in need if key not in text]
 if insert:
@@ -306,7 +306,7 @@ if insert:
 import re
 new_text, n = re.subn(
     r'inc-host-scan\.js\?v=[0-9]+',
-    'inc-host-scan.js?v=34',
+    'inc-host-scan.js?v=37',
     text,
 )
 if n:

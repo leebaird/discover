@@ -48,7 +48,7 @@
             '<p class="inc-report-export-lead">Choose a package type, then Export.</p>' +
             '<div class="inc-report-export-choices" role="radiogroup" aria-label="Package type">' +
             '<label class="inc-report-export-choice">' +
-            '<input type="radio" name="inc-report-export-kind" value="client" checked>' +
+            '<input type="radio" name="inc-report-export-kind" value="client">' +
             "<span><strong>Client</strong> — HTML report; removes operator IPs; disables scans</span>" +
             "</label>" +
             '<label class="inc-report-export-choice">' +
@@ -56,7 +56,7 @@
             "<span><strong>Defender</strong> — audit log only (CSV)</span>" +
             "</label>" +
             '<label class="inc-report-export-choice">' +
-            '<input type="radio" name="inc-report-export-kind" value="operator">' +
+            '<input type="radio" name="inc-report-export-kind" value="operator" checked>' +
             "<span><strong>Operator</strong> — full HTML report with everything (IPs included)</span>" +
             "</label>" +
             "</div>" +
@@ -114,7 +114,7 @@
         var checked = document.querySelector(
             'input[name="inc-report-export-kind"]:checked'
         );
-        return checked ? checked.value : "client";
+        return checked ? checked.value : "operator";
     }
 
     function escapeHtml(s) {

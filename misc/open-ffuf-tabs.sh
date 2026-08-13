@@ -138,6 +138,9 @@ if not urls:
         except Exception:
             continue
         if isinstance(row, dict):
+            # ferox configuration/statistics lines are not findings
+            if row.get("type") and row.get("type") != "response":
+                continue
             add_url(row.get("url") or row.get("original_url"))
 
 # Stable order: as in file
