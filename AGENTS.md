@@ -66,9 +66,12 @@ Conventions agreed with the operator for Discover development. **Read and follow
 
 
 - Shown **above the Audit log** on `pages/audit.htm` (all report modes; built by `audit-build.py`).
-- Range dropdown (aligned with **By CVE** / **Targets scanned**): **Last 7 days** (default) · **Last week** · **All**. Asset: `inc-audit-metrics-range.js`.
-  - **Last 7 days:** last 7 UTC calendar days inclusive of today (start = today−6 00:00 UTC).
-  - **Last week:** previous full UTC calendar week (Monday 00:00 through next Monday 00:00).
+- Range dropdown (aligned with **By CVE** / **Targets scanned**): **Today** · **Yesterday** · **Last 7 days** (default) · **Last week** · **All**. Asset: `inc-audit-metrics-range.js`.
+  - Calendar windows use the operator **view timezone** (`~/.discover/timezone`). Audit stamps stay UTC on disk.
+  - **Today:** current calendar day in the view timezone (start = today 00:00).
+  - **Yesterday:** previous calendar day in the view timezone (yesterday 00:00 through today 00:00).
+  - **Last 7 days:** last 7 calendar days inclusive of today in the view timezone (start = today−6 00:00).
+  - **Last week:** previous full calendar week in the view timezone (Monday 00:00 through this Monday 00:00).
   - **All:** no date filter (Scans per day chart capped at newest 60 calendar days of activity).
 - **KPI cards** (compact row, centered): **Targets scanned**, **Scans completed**; **Incomplete scans** only when count > 0 (then three cards; otherwise two cards centered).
 - **Charts layout (top → bottom):** KPI row; **By CVE** | **By software** (2 equal boxes); **By tool** | **By category** (2 equal boxes); **Scans per day** (full width of two-box row); **By operator** (full width of two-box row). Horizontal bar charts show **top 10** entries each.
@@ -83,7 +86,7 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - Backend: `recon/discover-config.py` via statusd `GET /config`, `POST /config/api-keys`, `POST /config/operator-name`, `POST /config/timezone`.
 - **APIs:** show/edit/save `NVD_API_KEY`, `SHODAN_API_KEY`, `WPSCAN_API_TOKEN` in `~/.discover/api-keys` (chmod 600). Localhost only.
 - **Operator name:** read/write `~/.discover/operator-name` (1–10 letters). On change, rewrite **only audit lines whose Operator field matches the previous name** (other operators’ lines untouched; do not rewrite names inside Action text). Rebuild Audit after rewrite.
-- **Time zone:** display preference only (`~/.discover/timezone`). UTC + US zones. **Does not change written stamps** (always UTC). Audit Time column converts in the browser.
+- **Time zone:** display preference (`~/.discover/timezone`). UTC + US zones. **Does not change written stamps** (always UTC). Audit Time column converts in the browser. Metrics **Today** / **Yesterday** / **Last 7 days** / **Last week** use this timezone when Audit is built. Saving it rebuilds Audit.
 - Assets: `inc-audit-config.js`; bust `?v=` / `modern.css` on Audit after UI changes; import-report injects the script on `audit.htm`. Restart statusd after endpoint changes.
 
 ## Report UI layout (CSS)

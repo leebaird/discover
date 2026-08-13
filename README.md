@@ -581,9 +581,9 @@ After **Export**, the modal shows the output path (default directory `$HOME/data
 
 Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit**).
 
-**Config (Discover-hosted only):** On **Reports → Audit**, use **Config** (left of Import). Hub with **APIs** (edit/save NVD, Shodan, WPScan keys in `~/.discover/api-keys`), **Operator name** (updates `~/.discover/operator-name` and rewrites this report’s audit log for that name), and **Time zone** (US zones + UTC for **viewing** only; all stamps stay UTC on disk).
+**Config (Discover-hosted only):** On **Reports → Audit**, use **Config** (left of Import). Hub with **APIs** (edit/save NVD, Shodan, WPScan keys in `~/.discover/api-keys`), **Operator name** (updates `~/.discover/operator-name` and rewrites this report’s audit log for that name), and **Time zone** (US zones + UTC for **viewing** and metrics calendar windows; all stamps stay UTC on disk).
 
-**Delete audit log lines (Discover-hosted only):** Each Audit log row has **Delete**. Confirm with **`<Operator>, are you sure you want to delete this line?`** (plus a short preview). Removes that line from `tools/audit/log.txt` and rebuilds Audit (including last-7-days metrics).
+**Delete audit log lines (Discover-hosted only):** Each Audit log row has **Delete**. Confirm with **`<Operator>, are you sure you want to delete this line?`** (plus a short preview). Removes that line from `tools/audit/log.txt` and rebuilds Audit (including metrics).
 
 **Import (Discover-hosted only):** On **Reports → Audit**, use **Import** (between Config and Export). Hub for the **current** engagement (statusd report root):
 
@@ -606,6 +606,7 @@ bash recon/import-subdomains.sh --report /path/to/live-report --mode existing --
 
 | Section | Content |
 |---------|---------|
+| **Host-scan metrics** | Range dropdown above the log: **Today** · **Yesterday** · **Last 7 days** (default) · **Last week** · **All** (calendar windows in the Config view timezone) |
 | **Audit log** | Newest-first by default; **Time (UTC)**, **Operator**, **Operator IP**, **Target**, **Action** (**Started** = exact command; **Finished** = e.g. `Finished nikto in 5 min 14 sec.`), **Output**. Full log lines stay in `tools/audit/log.txt` |
 | **Target scans** | Per-host history for **Nuclei**, **droopescan**, **WPScan**, **robots**, **Nikto**, **feroxbuster**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
 | **Exports** | Type (Client / Defender / Operator), exported time (UTC), operator IPs (Included / Redacted), file name |

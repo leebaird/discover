@@ -26,7 +26,7 @@ Binds 127.0.0.1 only. Serves:
   GET  /config -> operator config (api keys values for edit, name, view timezone)
   POST /config/api-keys -> save NVD/SHODAN/WPSCAN keys to ~/.discover/api-keys
   POST /config/operator-name -> set name; rewrite this report audit log; rebuild Audit
-  POST /config/timezone -> set display timezone only (does not change written stamps)
+  POST /config/timezone -> set view timezone (display + metrics windows); stamps stay UTC
   POST /audit-line-delete -> remove one tools/audit/log.txt line by SHA-256 hash
       (JSON: {"hash":"<sha256 hex>"}; rebuilds pages/audit.htm)
   GET /*       -> files under report_root (operator browser via http://127.0.0.1:port/)
@@ -594,6 +594,8 @@ def main(argv: list[str]) -> int:
                                 "--json",
                                 "--tz",
                                 tz,
+                                "--report",
+                                str(report_root),
                             ],
                             capture_output=True,
                             text=True,

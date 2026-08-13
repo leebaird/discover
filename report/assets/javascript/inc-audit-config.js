@@ -362,7 +362,7 @@
                 setStatus(
                     "View timezone set to " +
                         (res.body.timezone || tz) +
-                        ". Audit times update on this page.",
+                        ". Audit times update on this page. Refresh Audit for Today and Yesterday metrics.",
                     false
                 );
             })

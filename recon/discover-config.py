@@ -231,6 +231,37 @@ def read_timezone() -> str:
     return tid
 
 
+def view_zoneinfo():
+    """ZoneInfo for metrics calendar windows. UTC if unset or invalid."""
+    from datetime import timezone
+    from zoneinfo import ZoneInfo
+
+    tid = read_timezone()
+    if tid == "UTC":
+        return timezone.utc
+    try:
+        return ZoneInfo(tid)
+    except Exception:
+        return timezone.utc
+
+
+def rebuild_audit_page(report: Path) -> None:
+    """Rebuild pages/audit.htm for an engagement (metrics use view timezone)."""
+    import subprocess
+
+    if not report.is_dir():
+        return
+    discover = Path(__file__).resolve().parent.parent
+    builder = discover / "recon" / "audit-build.py"
+    template = discover / "report" / "pages" / "audit.htm"
+    if not builder.is_file():
+        return
+    cmd = [sys.executable, str(builder), str(report.resolve())]
+    if template.is_file():
+        cmd.append(str(template))
+    subprocess.run(cmd, capture_output=True, timeout=120, check=False)
+
+
 def write_timezone(tz_id: str) -> str:
     tid = (tz_id or "").strip()
     if tid not in VALID_TZ_IDS:
@@ -298,7 +329,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--report",
         default="",
-        help="Engagement report root (rewrite audit log on name change)",
+        help="Engagement report root (rewrite audit log on name change; rebuild Audit on timezone change)",
     )
     parser.add_argument("--tz", default="", help="Timezone id for set-timezone")
     parser.add_argument(
@@ -390,24 +421,7 @@ def main(argv: list[str] | None = None) -> int:
             report = (args.report or "").strip()
             if report and old and old != new:
                 rewritten = rewrite_audit_operator_name(Path(report), old, new)
-                # Rebuild Audit page when possible
-                discover = Path(__file__).resolve().parent.parent
-                builder = discover / "recon" / "audit-build.py"
-                template = discover / "report" / "pages" / "audit.htm"
-                if builder.is_file() and Path(report).is_dir():
-                    import subprocess
-
-                    subprocess.run(
-                        [
-                            sys.executable,
-                            str(builder),
-                            str(Path(report).resolve()),
-                            str(template) if template.is_file() else "",
-                        ],
-                        capture_output=True,
-                        timeout=120,
-                        check=False,
-                    )
+                rebuild_audit_page(Path(report))
             payload = {
                 "ok": True,
                 "operator_name": new,
@@ -423,6 +437,9 @@ def main(argv: list[str] | None = None) -> int:
                 tid = write_timezone(args.tz)
             except ValueError:
                 return emit_err_code("tz_invalid", 2)
+            report = (args.report or "").strip()
+            if report:
+                rebuild_audit_page(Path(report))
             payload = {"ok": True, "timezone": tid}
             if args.json:
                 return emit_ok_json(json.dumps(payload, ensure_ascii=False), 0)

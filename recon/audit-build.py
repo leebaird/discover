@@ -1123,39 +1123,69 @@ def load_host_categories(report_root: Path) -> dict[str, str]:
     return mapping
 
 
+def _metrics_view_zoneinfo():
+    """Operator view timezone for metrics calendar windows (stamps stay UTC)."""
+    from datetime import timezone
+
+    try:
+        import importlib.util
+
+        path = Path(__file__).resolve().parent / "discover-config.py"
+        spec = importlib.util.spec_from_file_location(
+            "_discover_config_metrics", path
+        )
+        if spec and spec.loader:
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            return mod.view_zoneinfo()
+    except Exception:
+        pass
+    return timezone.utc
+
+
 def _metrics_window_bounds(window: str, now):
     """Return (start_dt|None, end_dt|None exclusive, day_keys|None).
 
-    Windows (UTC):
-      7d   — last 7 calendar days inclusive of today (start = today-6 00:00)
-      week — previous full calendar week Monday 00:00 through next Monday 00:00
-      all  — no lower/upper bound (day_keys filled after events are known)
+    Calendar windows use the operator view timezone (~/.discover/timezone).
+    Written audit stamps stay UTC; bounds are converted for comparison.
+
+      today     — today 00:00 through tomorrow 00:00
+      yesterday — yesterday 00:00 through today 00:00
+      7d        — last 7 calendar days inclusive of today (start = today-6 00:00)
+      week      — previous full calendar week Monday 00:00 through this Monday 00:00
+      all       — no lower/upper bound (day_keys filled after events are known)
     """
     from datetime import datetime, timedelta, timezone
 
+    tz = now.tzinfo or timezone.utc
     if now.tzinfo is None:
-        now = now.replace(tzinfo=timezone.utc)
+        now = now.replace(tzinfo=tz)
     else:
-        now = now.astimezone(timezone.utc)
+        now = now.astimezone(tz)
+
+    today = now.date()
+
+    def midnight(d):
+        return datetime(d.year, d.month, d.day, tzinfo=tz)
+
+    if window == "today":
+        return midnight(today), midnight(today + timedelta(days=1)), [today]
+
+    if window == "yesterday":
+        yday = today - timedelta(days=1)
+        return midnight(yday), midnight(today), [yday]
 
     if window == "week":
-        today = now.date()
         this_monday = today - timedelta(days=today.weekday())
         last_monday = this_monday - timedelta(days=7)
-        start = datetime(
-            last_monday.year, last_monday.month, last_monday.day, tzinfo=timezone.utc
-        )
-        end = datetime(
-            this_monday.year, this_monday.month, this_monday.day, tzinfo=timezone.utc
-        )
         day_keys = [last_monday + timedelta(days=i) for i in range(7)]
-        return start, end, day_keys
+        return midnight(last_monday), midnight(this_monday), day_keys
 
     if window == "all":
         return None, None, None
 
-    # Default: last 7 days (rolling UTC calendar days)
-    start = (now - timedelta(days=6)).replace(hour=0, minute=0, second=0, microsecond=0)
+    # Default: last 7 calendar days in the view timezone
+    start = midnight(today - timedelta(days=6))
     day_keys = [(start.date() + timedelta(days=i)) for i in range(7)]
     return start, None, day_keys
 
@@ -1175,11 +1205,11 @@ def compute_metrics(
     audit_rows: list,
     window: str = "7d",
 ) -> dict:
-    """Aggregate host-scan activity for a metrics window (7d | week | all)."""
+    """Aggregate host-scan activity for a metrics window (today | yesterday | 7d | week | all)."""
     from collections import Counter
     from datetime import datetime, timedelta, timezone
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(_metrics_view_zoneinfo())
     start_bound, end_bound, day_keys = _metrics_window_bounds(window, now)
     day_counts: dict = {}
     if day_keys is not None:
@@ -1356,6 +1386,8 @@ def _day_bars_html(days: list[dict]) -> str:
 
 
 _METRICS_RANGE_OPTIONS: list[tuple[str, str]] = [
+    ("today", "Today"),
+    ("yesterday", "Yesterday"),
     ("7d", "Last 7 days"),
     ("week", "Last week"),
     ("all", "All"),
@@ -1478,7 +1510,7 @@ def render_last7_metrics_html(metrics: dict | None = None, **panels: dict) -> st
 
 
 def render_metrics_dashboard(by_window: dict[str, dict]) -> str:
-    """Render metrics section with Last 7 days / Last week / All panels."""
+    """Render metrics section with Today / Yesterday / Last 7 days / Last week / All panels."""
     # Shared select sits once; JS moves it into the visible panel's range slot.
     select_html = _metrics_range_select_html("7d")
     panel_chunks: list[str] = []
@@ -1517,6 +1549,8 @@ def build_html(report_root: Path) -> str:
     scan_output_index = build_host_scan_output_index(report_root)
     exports = load_exports(report_root)
     metrics_by_window = {
+        "today": compute_metrics(report_root, audit_rows, "today"),
+        "yesterday": compute_metrics(report_root, audit_rows, "yesterday"),
         "7d": compute_metrics(report_root, audit_rows, "7d"),
         "week": compute_metrics(report_root, audit_rows, "week"),
         "all": compute_metrics(report_root, audit_rows, "all"),

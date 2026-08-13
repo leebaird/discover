@@ -154,17 +154,17 @@ f_import_report_sync_assets(){
                     sed -i \
                         -e 's|modern\.css?v=[^"]*|modern.css?v=audit-ferox1|g' \
                         -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=11|g' \
-                        -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=13|g' \
+                        -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=14|g' \
                         -e 's|inc-audit-line-delete\.js?v=[0-9]*|inc-audit-line-delete.js?v=3|g' \
                         -e 's|inc-audit-log-filter\.js?v=[0-9]*|inc-audit-log-filter.js?v=1|g' \
-                        -e 's|inc-audit-metrics-range\.js?v=[0-9]*|inc-audit-metrics-range.js?v=1|g' \
+                        -e 's|inc-audit-metrics-range\.js?v=[0-9]*|inc-audit-metrics-range.js?v=2|g' \
                         "$report/pages/$page" 2>/dev/null || true
                     if ! grep -q 'inc-audit-import.js' "$report/pages/$page" 2>/dev/null; then
                         sed -i 's|</body>|<script src="../assets/javascript/inc-audit-import.js?v=11"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                     if ! grep -q 'inc-audit-config.js' "$report/pages/$page" 2>/dev/null; then
-                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-config.js?v=13"></script>\n</body>|' \
+                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-config.js?v=14"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                     if ! grep -q 'inc-audit-line-delete.js' "$report/pages/$page" 2>/dev/null; then
@@ -176,7 +176,7 @@ f_import_report_sync_assets(){
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                     if ! grep -q 'inc-audit-metrics-range.js' "$report/pages/$page" 2>/dev/null; then
-                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-metrics-range.js?v=1"></script>\n</body>|' \
+                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-metrics-range.js?v=2"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                 fi

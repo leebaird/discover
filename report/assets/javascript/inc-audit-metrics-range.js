@@ -2,7 +2,7 @@
  * Planning by Lee Baird (@discoverscripts)
  * Coded by Grok (xAI)
  *
- * Audit metrics range dropdown: Last 7 days | Last week | All.
+ * Audit metrics range dropdown: Today | Yesterday | Last 7 days | Last week | All.
  * Switches pre-rendered panels and keeps the select in the visible panel head
  * (aligned with By CVE / Targets scanned).
  */
