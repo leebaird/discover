@@ -92,7 +92,7 @@ Preferences:
     Display Line Numbers: on
     Highlight Current Line: on
     Show Right Margin: on
-    Margin Position: 120
+    Margin Position: 130
     Auto Indentation: off
     Character: Space
     Spaces Per Tab: 4
