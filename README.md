@@ -581,7 +581,7 @@ After **Export**, the modal shows the output path (default directory `$HOME/data
 
 Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit**).
 
-**Config (Discover-hosted only):** On **Reports → Audit**, use **Config** (left of Import). Hub with **APIs** (edit/save NVD, Shodan, WPScan keys in `~/.discover/api-keys`), **Operator name** (updates `~/.discover/operator-name` and rewrites this report’s audit log for that name), and **Time zone** (US zones + UTC for **viewing** and metrics calendar windows; all stamps stay UTC on disk).
+**Config (Discover-hosted only):** On **Reports → Audit**, use **Config** (left of Import). Hub with **APIs** (edit/save NVD, Shodan, WPScan keys in `~/.discover/api-keys`; theHarvester opens `~/.theHarvester/api-keys.yaml`), **Operator name** (updates `~/.discover/operator-name` and rewrites this report’s audit log for that name), and **Time zone** (US zones + UTC for **viewing** and metrics calendar windows; all stamps stay UTC on disk).
 
 **Delete audit log lines (Discover-hosted only):** Each Audit log row has **Delete**. Confirm with **`<Operator>, are you sure you want to delete this line?`** (plus a short preview). Removes that line from `tools/audit/log.txt` and rebuilds Audit (including metrics).
 

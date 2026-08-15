@@ -112,7 +112,7 @@
             '<div class="inc-audit-config-choices" role="list">' +
             '<button type="button" class="inc-audit-config-choice" data-inc-audit-config-panel="apis">' +
             "<strong>APIs</strong>" +
-            "<span>NVD, Shodan, and WPScan keys for this machine</span>" +
+            "<span>NVD, Shodan, WPScan, and theHarvester</span>" +
             "</button>" +
             '<button type="button" class="inc-audit-config-choice" data-inc-audit-config-panel="operator">' +
             "<strong>Operator name</strong>" +
@@ -139,24 +139,27 @@
         setStatus("");
         body.innerHTML =
             '<p class="inc-report-export-lead">Stored in ~/.discover/api-keys.</p>' +
-            '<p class="inc-report-export-lead">Edit and Save.</p>' +
             '<label class="inc-audit-import-field" for="inc-audit-config-nvd">' +
-            "<span>NVD API key</span>" +
+            "<span>NVD</span>" +
             '<input type="text" id="inc-audit-config-nvd" class="inc-audit-import-input" autocomplete="off" spellcheck="false" value="' +
             escapeAttr(keys.NVD_API_KEY || "") +
             '">' +
             "</label>" +
             '<label class="inc-audit-import-field" for="inc-audit-config-shodan">' +
-            "<span>Shodan API key</span>" +
+            "<span>Shodan</span>" +
             '<input type="text" id="inc-audit-config-shodan" class="inc-audit-import-input" autocomplete="off" spellcheck="false" value="' +
             escapeAttr(keys.SHODAN_API_KEY || "") +
             '">' +
             "</label>" +
             '<label class="inc-audit-import-field" for="inc-audit-config-wpscan">' +
-            "<span>WPScan API token</span>" +
+            "<span>WPScan</span>" +
             '<input type="text" id="inc-audit-config-wpscan" class="inc-audit-import-input" autocomplete="off" spellcheck="false" value="' +
             escapeAttr(keys.WPSCAN_API_TOKEN || "") +
             '">' +
+            "</label>" +
+            '<label class="inc-audit-import-field">' +
+            "<span>theHarvester</span>" +
+            '<a class="inc-audit-config-open-link" id="inc-audit-config-open-th" href="discover-theharvester:">~/.theHarvester/api-keys.yaml</a>' +
             "</label>";
         actions.innerHTML =
             '<button type="button" class="inc-report-export-cancel" data-inc-audit-config-panel="hub">Back</button>' +
@@ -273,6 +276,19 @@
                 return { http: r.status, body: j };
             });
         });
+    }
+
+    function openTheHarvesterKeys() {
+        setStatus("");
+        postJson("/config/open-theharvester", {})
+            .then(function (res) {
+                if (!res.body || !res.body.ok) {
+                    throw new Error("open-theharvester failed");
+                }
+            })
+            .catch(function () {
+                window.location.href = "discover-theharvester:";
+            });
     }
 
     function saveApis() {
@@ -650,6 +666,11 @@
                     } else if (which === "timezone") {
                         renderTimezone();
                     }
+                    return;
+                }
+                if (t.closest("#inc-audit-config-open-th")) {
+                    ev.preventDefault();
+                    openTheHarvesterKeys();
                     return;
                 }
                 if (t.closest("#inc-audit-config-save-apis")) {

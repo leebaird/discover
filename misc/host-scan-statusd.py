@@ -27,6 +27,7 @@ Binds 127.0.0.1 only. Serves:
   POST /config/api-keys -> save NVD/SHODAN/WPSCAN keys to ~/.discover/api-keys
   POST /config/operator-name -> set name; rewrite this report audit log; rebuild Audit
   POST /config/timezone -> set view timezone (display + metrics windows); stamps stay UTC
+  POST /config/open-theharvester -> open ~/.theHarvester/api-keys.yaml (open / xdg-open)
   POST /audit-line-delete -> remove one tools/audit/log.txt line by SHA-256 hash
       (JSON: {"hash":"<sha256 hex>"}; rebuilds pages/audit.htm)
   GET /*       -> files under report_root (operator browser via http://127.0.0.1:port/)
@@ -291,6 +292,7 @@ def main(argv: list[str]) -> int:
                 "/config/api-keys",
                 "/config/operator-name",
                 "/config/timezone",
+                "/config/open-theharvester",
                 "/audit-line-delete",
             }:
                 self._send(404, b'{"ok":false,"error":"not found"}\n')
@@ -526,6 +528,57 @@ def main(argv: list[str]) -> int:
                     )
                     code = 500
                 self._send(code, json.dumps(result).encode() + b"\n")
+                return
+
+            # --- open theHarvester keys (fixed path only; no client path) ---
+            if path == "/config/open-theharvester":
+                opener = discover_root / "misc" / "open-theharvester-keys.sh"
+                if not opener.is_file():
+                    self._send(
+                        500,
+                        b'{"ok":false,"error":"open-theharvester-keys.sh missing"}\n',
+                    )
+                    return
+                try:
+                    proc = subprocess.run(
+                        ["bash", str(opener)],
+                        capture_output=True,
+                        text=True,
+                        timeout=15,
+                        env=env,
+                        cwd=str(Path.home()),
+                    )
+                except subprocess.TimeoutExpired:
+                    self._send(
+                        504,
+                        b'{"ok":false,"error":"open theHarvester keys timed out"}\n',
+                    )
+                    return
+                except OSError as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)}).encode()
+                        + b"\n",
+                    )
+                    return
+                if proc.returncode != 0:
+                    err = (proc.stderr or proc.stdout or "open failed").strip()
+                    self._send(
+                        400,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": err[:400]
+                                or "Could not open ~/.theHarvester/api-keys.yaml",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                self._send(
+                    200,
+                    b'{"ok":true,"opened":"~/.theHarvester/api-keys.yaml"}\n',
+                )
                 return
 
             # --- /config/* (operator machine settings under ~/.discover) ---

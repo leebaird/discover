@@ -2865,6 +2865,20 @@ body:not(.inc-iframe-parent) pre {
     max-width: 25%;
 }
 
+.inc-audit-page a.inc-audit-config-open-link {
+    display: inline-block;
+    color: var(--accent-hover);
+    font-size: 13px;
+    line-height: 1.5;
+    text-decoration: underline;
+}
+
+.inc-audit-page a.inc-audit-config-open-link:hover,
+.inc-audit-page a.inc-audit-config-open-link:focus {
+    color: #fff;
+    text-decoration: underline;
+}
+
 .inc-audit-import-input:focus {
     outline: none;
     border-color: #4a90d9;
