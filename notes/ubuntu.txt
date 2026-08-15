@@ -71,7 +71,7 @@ Patch again and refresh locate:
 
 ## Tab completion
 
-    sudo gedit /etc/inputrc
+    sudo open /etc/inputrc
 
 Uncomment: `set completion-ignore-case On`
 Save, close Terminal, and reopen.
@@ -84,9 +84,9 @@ Save, close Terminal, and reopen.
 
 Settings (top-right cog) > Power > Power Saving > Automatic Screen Blank: off
 
-## Text editor (gedit)
+## Text editor
 
-    touch tmp && gedit tmp
+    touch tmp && open tmp
 
 Preferences:
     Display Line Numbers: on
@@ -99,10 +99,11 @@ Preferences:
     Spaces Per Indent: 4
     Restore Session: off
 
-Close gedit and delete tmp.
+Close text editor.
+rm tmp
 
 
-# Discover Install
+# Install Discover
 
 ## Commands
 
@@ -112,7 +113,7 @@ Close gedit and delete tmp.
     ./install.sh
 
 Exit Terminal and reopen.
-Test network with Discover option that runs connection check, or `./discover.sh` and verify connectivity.
+Test network with new Discover alias for n
 
 Take a VM snapshot before further customization.
 
@@ -125,43 +126,3 @@ Take a VM snapshot before further customization.
     ./discover.sh
 
 Option 18 (Update) — installs tool updates via misc/update.sh and rebuilds notes HTML.
-
-
-# Scanner User Agents
-
-## Overview
-
-Discover Update refreshes a Microsoft Edge User-Agent into
-`resource/user-agent.txt` and applies it to Nikto, Nmap, and ffuf (`~/.config/ffuf/ffufrc`)
-when those configs are writable. Active (httpx/whatweb) and other Discover scripts
-read the same file via `f_discover_user_agent` / `$USER_AGENT`.
-
-Manual override or inspection:
-
-    cat /path/to/discover/resource/user-agent.txt
-
-Reference list (human):
-    https://www.whatismybrowser.com/guides/the-latest-user-agent/edge
-
-JSON source used by Update:
-    https://jnrbsn.github.io/user-agents/user-agents.json
-
-
-# Burp Browser Sandbox
-
-## Overview
-
-Fix Burp Suite Pro embedded browser sandbox permissions on Linux.
-
-## Commands
-
-    find / -name "chrome-sandbox" 2>/dev/null | grep Burp
-    sudo chown root:root /path/to/chrome-sandbox
-    sudo chmod 4755 /path/to/chrome-sandbox
-
-
-# Validation / False Positives
-
-uv install requires a new shell before `uv` is on PATH; reopen Terminal if command not found.
-Discover install.sh must finish before first `./discover.sh` run; missing config breaks menu options.
-Burp chrome-sandbox path changes per Burp version; re-run find after upgrades.
