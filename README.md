@@ -353,7 +353,7 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 **ffuf quiet defaults** (`misc/run-host-scan.sh`):
 
 * No custom `-mc` (ffuf defaults keep 2xx, 500, etc.)
-* `-fc 301,302,307,400,401,403,404,405,429` (drop redirects and common noise; keep 500s for version banners)
+* `-fc 301,302,307,400,403,404,405,429` (drop redirects and common noise; keep 401 and 500s)
 * `-t 10 -rate 20 -timeout 5 -maxtime 600 -se -noninteractive` (5s per request; 10m wall; stop on spurious errors / connection timeouts). Hard stop 11m via `timeout`.
 * **Wordlist (software-aware)** under `/usr/share/wordlists/seclists/Discovery/Web-Content/` (or `/usr/share/seclists/…`): when expand knows a product (`?software=` / fingerprint), prefer a focused SecLists file (e.g. WordPress → `CMS/wordpress.fuzz.txt`, Grafana → `Service-Specific/Grafana.txt`, IIS → `Web-Servers/IIS.txt`, Apache → `Web-Servers/Apache.txt`). Huge dumps (e.g. `CMS/Drupal.txt`) stay on the quiet general list. With no product match: `common.txt` → `quickhits.txt` → `raft-small-directories.txt` → dirb `common.txt`. Chosen path is logged and passed as `-w`.
 * Report text is ANSI-cleaned (no progress ESC junk); **Duration** stripped from hit lines
@@ -364,7 +364,7 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 * Same software-aware SecLists **wordlist** as ffuf (`f_ffuf_wordlist`)
 * `-t 10 --rate-limit 20 -T 5 --time-limit 10m --auto-bail`
 * `-n --dont-extract-links` (no recursion, no HTML/JS crawl)
-* `-k -C 301,302,307,400,401,403,404,405,429 -q --json -o ferox.json --no-state`
+* `-k -C 301,302,307,400,403,404,405,429 -q --json -o ferox.json --no-state`
 * Hard stop 11m via `timeout`
 * **URL** uses `discover-ferox:` → `misc/open-ffuf-tabs.sh` (same Firefox tab opener as ffuf)
 

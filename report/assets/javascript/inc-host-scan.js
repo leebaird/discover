@@ -464,7 +464,7 @@
                 " -t 10 -rate 20 -timeout 5 -maxtime 600 -se -H " +
                 shellQuote("User-Agent: " + ua) +
                 " -of json -o ffuf.json" +
-                " -fc 301,302,307,400,401,403,404,405,429 -noninteractive"
+                " -fc 301,302,307,400,403,404,405,429 -noninteractive"
             );
         }
         if (tool === "feroxbuster") {
@@ -478,7 +478,7 @@
                 shellQuote(ua) +
                 " -t 10 --rate-limit 20 -T 5 --time-limit 10m" +
                 " --auto-bail -n --dont-extract-links -k" +
-                " -C 301,302,307,400,401,403,404,405,429" +
+                " -C 301,302,307,400,403,404,405,429" +
                 " -q --json -o ferox.json --no-state"
             );
         }

@@ -1399,13 +1399,13 @@ PY
         fi
         FFUF_JSON="$RUN_DIR/ffuf.json"
         # Quiet default: no custom -mc (use ffuf defaults: 2xx,301,302,307,500,...)
-        # Filter noise with -fc. Keep 2xx + 500s (version banners). Drop auth/forbid,
-        # empty, rate-limit, and redirects (301/302/307 are often real paths that still
-        # aren't useful to open anonymously - clutter for operators).
+        # Filter noise with -fc. Keep 2xx, 401, and 500s (version banners). Drop
+        # forbid, empty, rate-limit, and redirects (301/302/307 are often real
+        # paths that still aren't useful to open anonymously - clutter).
         # Fail-fast on dead/slow hosts: 5s per request, 10m wall, stop on
         # spurious errors (timeouts / connection errors) so expand does not
         # sit on 600+ hanging requests. Hard stop 11m matches Nikto style.
-        FFUF_FC="301,302,307,400,401,403,404,405,429"
+        FFUF_FC="301,302,307,400,403,404,405,429"
         FFUF_TIMEOUT="5"
         FFUF_MAXTIME="600"
         FFUF_HARD_TIMEOUT="11m"
@@ -1464,7 +1464,7 @@ PY
         FEROX_TIMEOUT="5"
         FEROX_TIME_LIMIT="10m"
         FEROX_HARD_TIMEOUT="11m"
-        FEROX_FC="301,302,307,400,401,403,404,405,429"
+        FEROX_FC="301,302,307,400,403,404,405,429"
         FEROX_CMD="feroxbuster -u $(f_shell_quote "$URL") -w $(f_shell_quote "$FFUF_WL") -a $(f_shell_quote "$UA") -t 10 --rate-limit 20 -T $FEROX_TIMEOUT --time-limit $FEROX_TIME_LIMIT --auto-bail -n --dont-extract-links -k -C $FEROX_FC -q --json -o $(f_shell_quote "$FEROX_JSON") --no-state"
         f_write_run_header "$FEROX_CMD"
         FEROX_RAW="$RUN_DIR/ferox.raw.txt"

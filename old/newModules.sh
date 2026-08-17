@@ -41,23 +41,44 @@ echo
 echo -e "${BLUE}theHarvester modules available for passive.sh${NC}"
 echo -e "${BLUE}==============================================${NC}"
 
-if [ -f "$HOME/theHarvester/theHarvester/lib/core.py" ]; then
-    # Used sources
-    grep 'sources_' "$DISCOVER/recon/passive.sh" 2>/dev/null |
-        grep -v '\@' |
-        cut -d '(' -f2 | cut -d ')' -f1 |
-        tr ' ' '\n' | sort -u > /tmp/used_harv.txt
+TH_ROOT="$HOME/theHarvester"
+TH_CORE="$TH_ROOT/theHarvester/lib/core.py"
+TH_CATALOG="$TH_ROOT/theHarvester/lib/source_catalog.py"
+TH_PY="$TH_ROOT/.venv/bin/python"
 
-    # Available engines
-    sed -n '/def get_supportedengines/,/\]/p' "$HOME/theHarvester/theHarvester/lib/core.py" 2>/dev/null |
-        grep -oP "(?<=').*?(?=')" | sort -u > /tmp/avail_harv.txt
+# Used sources
+grep 'sources_' "$DISCOVER/recon/passive.sh" 2>/dev/null |
+    grep -v '\@' |
+    cut -d '(' -f2 | cut -d ')' -f1 |
+    tr ' ' '\n' | sed '/^$/d' | LC_ALL=C sort -u > /tmp/used_harv.txt
 
-    grep -vxFf /tmp/used_harv.txt /tmp/avail_harv.txt
-
-    rm -f /tmp/used_harv.txt /tmp/avail_harv.txt
+# Available engines: SOURCE_SPECS (current), else legacy quoted list in core.py
+if [ -x "$TH_PY" ]; then
+    (cd "$TH_ROOT" && "$TH_PY" -c 'from theHarvester.lib.core import Core; print("\n".join(Core.get_supportedengines()))') \
+        2>/dev/null | sed '/^$/d' | LC_ALL=C sort -u > /tmp/avail_harv.txt
+elif [ -f "$TH_CATALOG" ]; then
+    grep -oP "(?<=_spec\(')[^']+" "$TH_CATALOG" 2>/dev/null |
+        sed '/^$/d' | LC_ALL=C sort -u > /tmp/avail_harv.txt
+elif [ -f "$TH_CORE" ]; then
+    sed -n '/def get_supportedengines/,/\]/p' "$TH_CORE" 2>/dev/null |
+        grep -oP "(?<=').*?(?=')" | sed '/^$/d' | LC_ALL=C sort -u > /tmp/avail_harv.txt
 else
-    echo -e "${YELLOW}[!] $HOME/theHarvester/theHarvester/lib/core.py not found.${NC}"
+    echo -e "${YELLOW}[!] $TH_ROOT not found.${NC}"
+    rm -f /tmp/used_harv.txt
+    TH_CORE=""
 fi
+
+if [ -s /tmp/avail_harv.txt ]; then
+    echo "Available, not used in passive.sh:"
+    grep -vxFf /tmp/used_harv.txt /tmp/avail_harv.txt || echo "(none)"
+    echo
+    echo "Used in passive.sh, no longer supported:"
+    grep -vxFf /tmp/avail_harv.txt /tmp/used_harv.txt || echo "(none)"
+elif [ -n "$TH_CORE" ]; then
+    echo -e "${YELLOW}[!] Could not read theHarvester engine list.${NC}"
+fi
+
+rm -f /tmp/used_harv.txt /tmp/avail_harv.txt
 
 ###############################################################################################################################
 

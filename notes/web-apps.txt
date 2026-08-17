@@ -70,11 +70,11 @@ feroxbuster -u "https://TARGET" -w "/usr/share/wordlists/seclists/Discovery/Web-
     -a "$UA" \
     --auto-bail \
     -n --dont-extract-links -k \
-    -C 301,302,307,400,401,403,404,405,429 \
+    -C 301,302,307,400,403,404,405,429 \
     -q --json -o ferox.json --no-state
 
 ffuf -u "https://$URL/FUZZ" -w "/usr/share/wordlists/seclists/Discovery/Web-Content/common.txt" -t 10 -rate 20 -timeout 5 -maxtime 600 -se -H "User-Agent: $UA" \
-  -of json -o ffuf.json -fc 301,302,307,400,401,403,404,405,429 -noninteractive
+  -of json -o ffuf.json -fc 301,302,307,400,403,404,405,429 -noninteractive
 
 - Application specific enumeration
 davtest -url "https://$URL"
