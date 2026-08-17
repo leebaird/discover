@@ -164,12 +164,14 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 
 ## Active Login pages (by category)
 
-- **Login pages** table on Active (under CMS when any category exists): column **Category** (rows **Path**, **Title**, **Tech**, **Status**) with host counts; each links to Subdomains `?login=path|title|tech|status`.
-- **Categories** (host may match more than one; counts are unique hosts per category, alive public hosts):
+- **Login pages** table on Active (under CMS when any category exists). The Source / Type column icon (same look as sort) switches **By source** (default, ▲) · **By type** (▼). It does not sort that column. Unicode **ⓘ** next to the heading explains overlapping By source counts vs By type. Asset: `inc-active-login-view.js`.
+- **By source** column **Source**: **Path**, **Title**, **Tech**, **Status** with host counts; each links to Subdomains `?login=path|title|tech|status`.
+- **By type** column **Type**: **Basic** (HTTP challenge: Basic / Digest / NTLM / Negotiate, including 401 with empty title) · **Form** (Path / Title / Tech, or WhatWeb PasswordField). Generic `401 Authorization Required` titles with HTTP-challenge do not count as Form. Host may be both. Links: `?login=basic|form`. PasswordField stays out of Technologies / Software versions (`NOISE_PLUGINS`).
+- **Source categories** (host may match more than one; counts are unique hosts per category, alive public hosts):
   - **Path** — newest `tools/host-scans/<host>/ffuf/*/ffuf.json` FUZZ path matches high-confidence login paths (`login`, `wp-login.php`, `oauth`, `sso`, …). Avoid bare `admin`. **SPA filter:** when a run has many hits sharing one body length (≥50 results, mode count ≥20, mode ≥50% of results), login-named paths with that same length are ignored (soft-200 app shell).
   - **Title** — httpx/page title matches login / sign-in / SSO / unauthorized / password phrases.
   - **Tech** — fingerprint includes products that typically expose a login UI (CMS, Grafana, Kibana, GitLab/Gitea, Citrix, Keycloak, …).
-  - **Status** — HTTP **401** from httpx **and** an auth-related page title (SSO / Authorization Required / …). Bare **403** and bare **401** with empty title (API/tenant deny) are noise; real login pages still match Title/Path/Tech.
+  - **Status** — HTTP **401** from httpx **and** an auth-related page title, or **401** with HTTP-challenge tech (Basic / Digest / NTLM / Negotiate) even if the title is empty. Bare **403** and bare **401** with empty title and no challenge are noise.
   - **Skip Microsoft SSO:** if httpx `final_url` / `url` contains `login.microsoftonline.com` (or related Microsoft IdP hosts), the host gets **no** Login pages signals (all four). **Citrix:** short live probe `POST /p/u/doAuthentication.do` → follow `doSaml` when present; if the SAML hop is Microsoft, skip (covers NetScaler AAA that only show LogonPoint in httpx). **RNAS:** title `Unified Access RNAS` or hostname `rnas-*` / `.rnas.` — remote network access gateways, skip (not app logins).
 - Subdomains public rows get `data-login-path|title|tech|status="1"` when rebuilt (Active / `write_subdomains_active_page` / software-cve refresh). Filter: `inc-subdomains-filter.js` (`?login=`). Bust filter `?v=` after changes.
 

@@ -199,6 +199,13 @@ def whatweb_plugin_labels(plugins):
     return labels
 
 
+def whatweb_has_password_field(plugins) -> bool:
+    """True when WhatWeb recorded a PasswordField (kept out of product lists)."""
+    if not isinstance(plugins, dict):
+        return False
+    return any(str(name).lower() == "passwordfield" for name in plugins)
+
+
 def whatweb_webserver(plugins):
     if not isinstance(plugins, dict):
         return ""
@@ -607,6 +614,7 @@ def host_tech_row(httpx_row, whatweb_row):
         "webserver": webserver,
         "title": format_page_title(httpx_row.get("title")),
         "technologies": technologies,
+        "has_password_field": whatweb_has_password_field(whatweb_plugins),
     }
 
 
@@ -1105,6 +1113,17 @@ LOGIN_SIGNAL_LABELS = {
     "tech": "Tech",
     "status": "Status",
 }
+LOGIN_TYPE_ORDER = ("basic", "form")
+LOGIN_TYPE_LABELS = {
+    "basic": "Basic",
+    "form": "Form",
+}
+# HTTP challenge auth (browser popup), from httpx tech tokens.
+HTTP_AUTH_TECH = frozenset({"basic", "digest", "ntlm", "negotiate"})
+# Generic 401 page titles — not HTML form evidence when HTTP-challenge is present.
+LOGIN_HTTP_AUTH_TITLE_RE = re.compile(
+    r"(?i)\b(?:401\s+)?(?:authorization\s+required|unauthori[sz]ed)\b"
+)
 
 # High-confidence path basenames / short paths (avoid bare admin/portal SPA noise).
 LOGIN_PATH_EXACT = {
@@ -1251,11 +1270,11 @@ def is_login_tech(technologies: str) -> bool:
 
 
 def is_login_status(status, tech: dict | None = None) -> bool:
-    """True for HTTP 401 when the page title also looks like auth.
+    """True for HTTP 401 when the page looks like auth.
 
     Bare 403 is out (WAF / API deny). Bare 401 with an empty title is usually
-    tenant/API gatekeeping (e.g. "Company sub-domain required"), not a login UI.
-    401 + auth-ish title (SSO, Authorization Required, …) still counts.
+    tenant/API gatekeeping, unless httpx also shows HTTP-challenge auth
+    (Basic / Digest / NTLM / Negotiate). 401 + auth-ish title still counts.
     """
     try:
         code = int(str(status).strip())
@@ -1264,10 +1283,78 @@ def is_login_status(status, tech: dict | None = None) -> bool:
     if code != 401:
         return False
     tech = tech or {}
+    if is_http_challenge_auth(tech.get("technologies") or ""):
+        return True
     title = str(tech.get("title") or "").strip()
     if not title or title == "-":
         return False
     return is_login_title(title)
+
+
+def is_http_challenge_auth(technologies: str) -> bool:
+    """True when httpx/whatweb tech includes Basic, Digest, NTLM, or Negotiate."""
+    blob = f" {technologies or ''} ".lower()
+    if not blob.strip():
+        return False
+    for key in HTTP_AUTH_TECH:
+        if re.search(rf"(?<![a-z0-9]){re.escape(key)}(?![a-z0-9])", blob):
+            return True
+    return False
+
+
+def is_generic_http_auth_title(title: str) -> bool:
+    t = (title or "").strip()
+    if not t or t == "-":
+        return False
+    return bool(LOGIN_HTTP_AUTH_TITLE_RE.search(t))
+
+
+def host_skipped_login(host: str, tech: dict | None, skip_hosts: set[str] | None) -> bool:
+    host_key = (host or "").lower().strip()
+    tech = tech or {}
+    skip_hosts = skip_hosts or set()
+    return (
+        host_key in skip_hosts
+        or is_microsoft_login_redirect(tech)
+        or is_rnas_access_gateway(host_key, tech)
+    )
+
+
+def host_login_types(
+    host: str,
+    tech: dict | None,
+    path_hosts: dict[str, list[str]] | None = None,
+    skip_hosts: set[str] | None = None,
+) -> set[str]:
+    """Return {basic, form} for the Login pages type view."""
+    kinds: set[str] = set()
+    tech = tech or {}
+    if host_skipped_login(host, tech, skip_hosts):
+        return kinds
+
+    technologies = tech.get("technologies") or ""
+    challenge = is_http_challenge_auth(technologies)
+    if challenge:
+        kinds.add("basic")
+
+    host_key = (host or "").lower().strip()
+    path_hosts = path_hosts or {}
+    title = tech.get("title") or ""
+    form = False
+    if host_key in path_hosts and path_hosts[host_key]:
+        form = True
+    if is_login_tech(technologies):
+        form = True
+    if tech.get("has_password_field"):
+        form = True
+    if is_login_title(title):
+        if challenge and is_generic_http_auth_title(title):
+            pass
+        else:
+            form = True
+    if form:
+        kinds.add("form")
+    return kinds
 
 
 # External IdP login surfaces operators usually skip (hosted Microsoft SSO).
@@ -1576,18 +1663,14 @@ def host_login_signals(
     skip_hosts = skip_hosts or set()
 
     # Skip Microsoft SSO, RNAS remote-access gateways, Citrix→MS SAML, etc.
-    if (
-        host_key in skip_hosts
-        or is_microsoft_login_redirect(tech)
-        or is_rnas_access_gateway(host_key, tech)
-    ):
+    if host_skipped_login(host_key, tech, skip_hosts):
         return signals
 
     if host_key in path_hosts and path_hosts[host_key]:
         signals.add("path")
 
     title = tech.get("title") or ""
-    if is_login_title(title):
+    if is_login_title(title) or tech.get("has_password_field"):
         signals.add("title")
 
     technologies = tech.get("technologies") or ""
@@ -1608,11 +1691,15 @@ def login_data_attrs(
 ) -> str:
     """HTML attributes for a public Subdomains row (data-login-path=1 …)."""
     signals = host_login_signals(host, tech, path_hosts, skip_hosts=skip_hosts)
-    if not signals:
+    kinds = host_login_types(host, tech, path_hosts, skip_hosts=skip_hosts)
+    if not signals and not kinds:
         return ""
     parts = []
     for key in LOGIN_SIGNAL_ORDER:
         if key in signals:
+            parts.append(f' data-login-{key}="1"')
+    for key in LOGIN_TYPE_ORDER:
+        if key in kinds:
             parts.append(f' data-login-{key}="1"')
     return "".join(parts)
 
@@ -1649,13 +1736,40 @@ def login_signal_counts(
     return rows
 
 
+def login_type_counts(
+    public_rows: list,
+    host_tech: dict,
+    path_hosts: dict[str, list[str]] | None = None,
+    alive_hosts: set | None = None,
+    skip_hosts: set[str] | None = None,
+) -> list[tuple[str, int]]:
+    """Ordered (Basic/Form, host_count) for the Login pages type view."""
+    path_hosts = path_hosts or {}
+    skip_hosts = skip_hosts or set()
+    counters = {key: 0 for key in LOGIN_TYPE_ORDER}
+    for host, _ip, _cat in public_rows:
+        host_key = (host or "").lower()
+        if alive_hosts is not None and host_key not in alive_hosts:
+            continue
+        tech = host_tech.get(host_key, {})
+        for key in host_login_types(host, tech, path_hosts, skip_hosts=skip_hosts):
+            counters[key] += 1
+    rows = []
+    for key in LOGIN_TYPE_ORDER:
+        n = counters[key]
+        if n:
+            rows.append((LOGIN_TYPE_LABELS[key], n))
+    return rows
+
+
 def login_label_html(label):
-    """Link Login pages signal labels to filtered Subdomains (?login=path)."""
+    """Link Login pages labels to filtered Subdomains (?login=path|basic)."""
     label_text = str(label).strip()
     # Map display → query key
     key = label_text.lower()
-    if key not in LOGIN_SIGNAL_ORDER:
-        for k, disp in LOGIN_SIGNAL_LABELS.items():
+    known = set(LOGIN_SIGNAL_ORDER) | set(LOGIN_TYPE_ORDER)
+    if key not in known:
+        for k, disp in {**LOGIN_SIGNAL_LABELS, **LOGIN_TYPE_LABELS}.items():
             if disp.lower() == key:
                 key = k
                 break
@@ -1667,6 +1781,72 @@ def login_label_html(label):
         f'title="Show subdomains with this Login pages category">'
         f"{escaped}</a>"
     )
+
+
+def _login_table_html(
+    rows: list[tuple[str, int]], *, col_header: str = "Category"
+) -> list[str]:
+    lines = [
+        '        <div class="inc-content-frame inc-content-frame--table">',
+        '        <table class="table table-bordered inc-data-table">',
+        "            <thead>",
+        "                <tr>",
+        '                    <th scope="col" class="inc-login-view-toggle" '
+        'title="Switch Login pages view" role="button" tabindex="0">'
+        f"{html.escape(col_header)}</th>",
+        '                    <th scope="col" class="inc-col-center inc-active-count">Count</th>',
+        "                </tr>",
+        "            </thead>",
+        "            <tbody>",
+    ]
+    for label, count in rows:
+        lines.append(
+            "                <tr>"
+            f"<td>{login_label_html(label)}</td>"
+            f'<td class="inc-col-center inc-active-count">{format_count(count)}</td>'
+            "</tr>"
+        )
+    if not rows:
+        lines.append(
+            '<tr><td colspan="2">No login pages in this view.</td></tr>'
+        )
+    lines.extend(
+        [
+            "            </tbody>",
+            "        </table>",
+            "        </div>",
+        ]
+    )
+    return lines
+
+
+def login_pages_section_html(
+    source_rows: list[tuple[str, int]],
+    type_rows: list[tuple[str, int]],
+) -> list[str]:
+    """Login pages heading + By source / By type tables.
+
+    Category header icon switches views (not a column sort).
+    """
+    if not source_rows and not type_rows:
+        return []
+    return [
+        '    <section class="inc-active-section inc-active-section--login">',
+        '        <h3 class="inc-active-section-title inc-active-section-title--with-help">'
+        "Login pages"
+        '<button type="button" class="inc-active-status-codes-info-btn" '
+        'data-inc-active-login-help="1" '
+        'title="How Login pages counts work" '
+        'aria-label="How Login pages counts work">ⓘ</button>'
+        "</h3>",
+        '        <div class="inc-active-login-panel" data-login-view="source">',
+        *_login_table_html(source_rows, col_header="Source"),
+        "        </div>",
+        '        <div class="inc-active-login-panel" data-login-view="type" hidden>',
+        *_login_table_html(type_rows, col_header="Type"),
+        "        </div>",
+        "    </section>",
+    ]
 
 
 def _is_clean_software_pair(name, version):
@@ -1856,6 +2036,13 @@ def build_active_summary(
         alive_hosts=alive_hosts,
         skip_hosts=login_skip_hosts,
     )
+    login_type_rows = login_type_counts(
+        public_rows,
+        host_tech,
+        path_hosts=path_hosts,
+        alive_hosts=alive_hosts,
+        skip_hosts=login_skip_hosts,
+    )
 
     lines = []
 
@@ -1890,15 +2077,9 @@ def build_active_summary(
             label_html_fn=cms_label_html,
         ),
     ]
-    if login_rows:
+    if login_rows or login_type_rows:
         categories_column.append(
-            summary_table(
-                "Login pages",
-                "Category",
-                login_rows,
-                section_class="inc-active-section--login",
-                label_html_fn=login_label_html,
-            )
+            login_pages_section_html(login_rows, login_type_rows)
         )
 
     lines.extend(
@@ -2243,7 +2424,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
             "",
             '<script src="../assets/javascript/inc-data-table.js"></script>',
             '<script src="../tools/cve-software-index.js"></script>',
-            '<script src="../assets/javascript/inc-subdomains-filter.js?v=18"></script>',
+            '<script src="../assets/javascript/inc-subdomains-filter.js?v=20"></script>',
             '<script src="../tools/shodan/index.js"></script>',
             '<script src="../tools/shodan/kev-ids.js"></script>',
             '<script src="../assets/javascript/inc-shodan.js?v=18"></script>',

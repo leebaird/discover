@@ -10,7 +10,7 @@
  * Active Status codes:       subdomains.htm?status=200
  * Active Top web servers:    subdomains.htm?webserver=Apache
  * Active Top technologies:   subdomains.htm?tech=jQuery  (matches jQuery:3.x too)
- * Active Login pages:        subdomains.htm?login=path|title|tech|status
+ * Active Login pages:        subdomains.htm?login=path|title|tech|status|basic|form
  *
  * CVE mode resolves software labels via tools/cve-software-index.js
  * (or software-cves-cache.json) then matches tech tokens like software=.
@@ -72,7 +72,14 @@
         }
         var s = String(raw).trim().toLowerCase();
         // Accept display labels from Active table (Path, Title, Tech, Status).
-        if (s === "path" || s === "title" || s === "tech" || s === "status") {
+        if (
+            s === "path" ||
+            s === "title" ||
+            s === "tech" ||
+            s === "status" ||
+            s === "basic" ||
+            s === "form"
+        ) {
             return s;
         }
         return "";
@@ -99,6 +106,8 @@
         title: "Title",
         tech: "Tech",
         status: "Status",
+        basic: "Basic",
+        form: "Form",
     };
 
     /**
@@ -132,9 +141,14 @@
             );
         }
         if (key === "status") {
-            // Match Active: 401 + auth-ish title (data attrs preferred).
+            // Match Active: 401 + auth title, or 401 + HTTP-challenge tech.
             if (rowStatus(row) !== "401") {
                 return false;
+            }
+            var techText = (row.querySelector(".inc-subdomain-techs") || {})
+                .textContent || "";
+            if (/\b(basic|digest|ntlm|negotiate)\b/i.test(techText)) {
+                return true;
             }
             var titleEl = row.querySelector(".inc-subdomain-title");
             var title = titleEl
@@ -169,6 +183,20 @@
                 if (bases[b]) {
                     return true;
                 }
+            }
+            return false;
+        }
+        if (key === "basic") {
+            var techText = (row.querySelector(".inc-subdomain-techs") || {})
+                .textContent || "";
+            return /\b(basic|digest|ntlm|negotiate)\b/i.test(techText);
+        }
+        if (key === "form") {
+            if (rowHasLoginSignal(row, "path") || rowHasLoginSignal(row, "tech")) {
+                return true;
+            }
+            if (rowHasLoginSignal(row, "title") && !rowHasLoginSignal(row, "basic")) {
+                return true;
             }
             return false;
         }

@@ -637,7 +637,43 @@ body.inc-subdomains-page .container.inc-container-dynamic {
  * table-layout:fixed + label column absorbs slack so Count stays shared px.
  * Do not alter Category or Web Servers layout beyond shared Count width.
  */
-.inc-active-page .inc-active-section--cms .inc-content-frame--table,
+.inc-active-page .inc-active-section--cms .inc-content-frame--table {
+    box-sizing: border-box;
+}
+
+.inc-active-page .inc-data-table .inc-login-view-toggle {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.inc-active-page .inc-data-table .inc-login-view-toggle:hover {
+    color: var(--text-bright);
+}
+
+.inc-active-page .inc-data-table .inc-login-view-toggle::after {
+    content: "↕";
+    margin-left: 6px;
+    font-size: 11px;
+    opacity: 0.35;
+}
+
+.inc-active-page .inc-data-table .inc-login-view-toggle.inc-sort-asc::after {
+    content: "▲";
+    opacity: 1;
+    color: var(--accent-hover);
+}
+
+.inc-active-page .inc-data-table .inc-login-view-toggle.inc-sort-desc::after {
+    content: "▼";
+    opacity: 1;
+    color: var(--accent-hover);
+}
+
+.inc-active-page .inc-active-login-panel[hidden] {
+    display: none !important;
+}
+
 .inc-active-page .inc-active-section--login .inc-content-frame--table,
 .inc-active-page .inc-active-section--technologies .inc-content-frame--table {
     box-sizing: border-box;

@@ -472,7 +472,7 @@ out.extend(
         "</div>",
         "",
         '<script src="../assets/javascript/inc-data-table.js"></script>',
-        '<script src="../assets/javascript/inc-subdomains-filter.js?v=18"></script>',
+        '<script src="../assets/javascript/inc-subdomains-filter.js?v=20"></script>',
         "</body>",
         "</html>",
     ]

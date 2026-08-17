@@ -76,10 +76,27 @@
     /** Login pages under CMS: same outer frame width as CMS (and Categories). */
     function matchLoginWidthToCms() {
         // Prefer CMS when present; fall back to Categories if CMS is empty/missing.
-        var source = document.querySelector('.inc-active-section--cms')
+        var sourceSel = document.querySelector('.inc-active-section--cms')
             ? '.inc-active-section--cms'
             : '.inc-active-section--categories';
-        matchFrameWidth(source, '.inc-active-section--login');
+        var sourceSection = document.querySelector(sourceSel);
+        var loginSection = document.querySelector('.inc-active-section--login');
+        if (!sourceSection || !loginSection) {
+            return;
+        }
+        var sourceFrame = sourceSection.querySelector('.inc-content-frame--table');
+        if (!sourceFrame) {
+            return;
+        }
+        var w = Math.ceil(sourceFrame.getBoundingClientRect().width);
+        if (w < 1) {
+            return;
+        }
+        var frames = loginSection.querySelectorAll('.inc-content-frame--table');
+        var i;
+        for (i = 0; i < frames.length; i++) {
+            frames[i].style.width = w + 'px';
+        }
     }
 
     /**
