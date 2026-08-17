@@ -1664,7 +1664,7 @@ def login_label_html(label):
     return (
         f'<a class="inc-login-subdomains-link" '
         f'href="{html.escape(href, quote=True)}" '
-        f'title="Show subdomains with this Login pages signal">'
+        f'title="Show subdomains with this Login pages category">'
         f"{escaped}</a>"
     )
 
@@ -1894,7 +1894,7 @@ def build_active_summary(
         categories_column.append(
             summary_table(
                 "Login pages",
-                "Signal",
+                "Category",
                 login_rows,
                 section_class="inc-active-section--login",
                 label_html_fn=login_label_html,
@@ -2243,7 +2243,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
             "",
             '<script src="../assets/javascript/inc-data-table.js"></script>',
             '<script src="../tools/cve-software-index.js"></script>',
-            '<script src="../assets/javascript/inc-subdomains-filter.js?v=17"></script>',
+            '<script src="../assets/javascript/inc-subdomains-filter.js?v=18"></script>',
             '<script src="../tools/shodan/index.js"></script>',
             '<script src="../tools/shodan/kev-ids.js"></script>',
             '<script src="../assets/javascript/inc-shodan.js?v=18"></script>',

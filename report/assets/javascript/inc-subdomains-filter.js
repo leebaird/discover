@@ -565,7 +565,7 @@
             result.shown +
             "</strong> subdomain" +
             (result.shown === 1 ? "" : "s") +
-            " with Login pages signal " +
+            " with Login pages category " +
             '<span class="inc-filter-applied"></span> ' +
             filterNavHtml();
         var applied = banner.querySelector(".inc-filter-applied");
