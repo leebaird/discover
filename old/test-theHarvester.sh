@@ -48,8 +48,10 @@ fi
 TH_DIR="$HOME/theHarvester"
 WORK_DIR="$HOME/${DOMAIN}-test"
 
-sources_no_api=(baidu certspotter commoncrawl crtsh duckduckgo gitlab hudsonrock netcraft omnisint otx rapiddns robtex subdomaincenter subdomainfinderc99 thc threatcrowd urlscan waybackarchive yahoo)
-sources_api=(bevigil bitbucket brave bufferoverun builtwith censys chaos criminalip dehashed dnsdumpster fofa fullhunt github-code hackertarget haveibeenpwned hunter hunterhow intelx leakix leaklookup mojeek netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails tomba venacus virustotal whoisxml windvane zoomeye)
+# Keep in lockstep with recon/passive.sh. Split is theHarvester README "API key":
+# No → free; Required or Optional → api.
+sources_no_api=(apis-guru arquivo baidu certspotter commoncrawl crt-name crtsh duckduckgo gitlab haveibeenpwned hudsonrock otx rapiddns robtex shodanct shodanInternetDB sourcegraph subdomaincenter subdomainfinderc99 thc urlscan waybackarchive yahoo)
+sources_api=(bevigil brave bufferoverun builtwith censys criminalip dehashed dnsdb dnsdumpster dymo fofa fullhunt github-code hackertarget hibpverified hunter hunterhow intelx leakix leaklookup mojeek netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails sherlockeye shodan tomba virustotal whoisxml windvane zoomeye)
 
 ###############################################################################################################################
 

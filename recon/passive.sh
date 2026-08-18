@@ -76,7 +76,12 @@ fi
 
 # Number of tests
 COUNT=1
-TOTAL=67
+# theHarvester split: README "API key" column. No → free list; Required or
+# Optional → API list. Must match old/test-theHarvester.sh and SOURCE_SPECS.
+sources_no_api=(apis-guru arquivo baidu certspotter commoncrawl crt-name crtsh duckduckgo gitlab haveibeenpwned hudsonrock otx rapiddns robtex shodanct shodanInternetDB sourcegraph subdomaincenter subdomainfinderc99 thc urlscan waybackarchive yahoo)
+sources_api=(bevigil brave bufferoverun builtwith censys criminalip dehashed dnsdb dnsdumpster dymo fofa fullhunt github-code hackertarget hibpverified hunter hunterhow intelx leakix leaklookup mojeek netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails sherlockeye shodan tomba virustotal whoisxml windvane zoomeye)
+# 16 non-harvester COUNT++ steps (amass through social) + every source above.
+TOTAL=$((16 + ${#sources_no_api[@]} + ${#sources_api[@]}))
 
 ###############################################################################################################################
 
@@ -563,7 +568,6 @@ find_theharvester_dir() {
 }
 
 f_theharvester() {
-    local sources_no_api=(baidu certspotter commoncrawl crtsh duckduckgo gitlab hudsonrock netcraft omnisint otx rapiddns robtex subdomaincenter subdomainfinderc99 thc threatcrowd urlscan waybackarchive yahoo)
     local harvester_dir
     local source
 
@@ -590,12 +594,11 @@ f_theharvester() {
 }
 
 f_theharvester_api() {
-    local sources_api=(bevigil bitbucket brave bufferoverun builtwith censys chaos criminalip dehashed dnsdumpster fofa fullhunt github-code hackertarget haveibeenpwned hunter hunterhow intelx leakix leaklookup mojeek netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails tomba venacus virustotal whoisxml windvane zoomeye)
     local harvester_dir
     local source
 
     echo "theHarvester (API)"
-    echo "    These sources require API keys."
+    echo "    These sources use a provider API key (required or optional)."
     if ! harvester_dir=$(find_theharvester_dir); then
         echo "    [!] theHarvester directory not found under $HOME."
         echo
