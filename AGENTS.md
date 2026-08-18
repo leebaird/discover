@@ -27,9 +27,10 @@ Conventions agreed with the operator for Discover development. **Read and follow
 
 ## Timestamps (UTC write, view timezone)
 
-- **Always record timestamps in UTC** when a scan runs or any engagement event is written (audit log, host-scan meta `started`/`finished` / `*_utc`, status stamps, export times, etc.). Keep the existing `… Z` / UTC ISO forms on disk.
-- Operators may **choose a timezone for viewing** (e.g. Audit Config → Time zone). That preference is **display only**.
+- **Always record timestamps in UTC** when a scan runs or any engagement event is written (audit log, host-scan meta `started`/`finished` / `*_utc`, status stamps, export `exported_at_utc`, etc.). Keep the existing `… Z` / UTC ISO forms on disk.
+- Operators may **choose a timezone for viewing** (e.g. Audit Config → Time zone). That preference is **display only** for Audit/metrics.
 - **View timezone must not change how data is written** — no local-time stamps in `tools/audit/log.txt`, meta.json, or other on-disk artifacts. Convert only when rendering the report UI (and label the column, e.g. Time (UTC) vs local).
+- **Export filename** is the exception: `YYYYMMDD-HHMM` in `domain-kind-YYYYMMDD-HHMM.zip` (or `.csv`) uses the operator view timezone (`~/.discover/timezone`). Ledger `exported_at_utc` and the audit line stay UTC.
 - Preference store: `~/.discover/timezone` (not inside a single engagement report), so it applies across engagements for that operator machine. UI: Audit **Config → Time zone**.
 
 ## Report homepage date (`index.htm`)

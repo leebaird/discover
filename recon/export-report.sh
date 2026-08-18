@@ -55,6 +55,45 @@ f_export_report_usage(){
     echo "  Non-interactive packaging for Discover UI (statusd) or CLI."
 }
 
+# Filename stamp uses Config view timezone; audit/ledger stamps stay UTC.
+f_export_report_stamps(){
+    local cfg=""
+    local out=""
+    if [ -n "${DISCOVER:-}" ] && [ -f "$DISCOVER/recon/discover-config.py" ]; then
+        cfg="$DISCOVER/recon/discover-config.py"
+    elif [ -f "$(dirname "$0")/discover-config.py" ]; then
+        cfg="$(dirname "$0")/discover-config.py"
+    fi
+    if [ -n "$cfg" ]; then
+        out=$(python3 - "$cfg" <<'PY'
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+spec = importlib.util.spec_from_file_location("discover_config", path)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+stamp, utc_disp, utc_iso, tz_id = mod.export_filename_stamp()
+print(stamp)
+print(utc_disp)
+print(utc_iso)
+print(tz_id)
+PY
+        ) || out=""
+    fi
+    if [ -n "$out" ]; then
+        STAMP=$(printf '%s\n' "$out" | sed -n '1p')
+        EXPORT_TS_UTC=$(printf '%s\n' "$out" | sed -n '2p')
+        EXPORT_TS_ISO=$(printf '%s\n' "$out" | sed -n '3p')
+        EXPORT_TZ=$(printf '%s\n' "$out" | sed -n '4p')
+    fi
+    [ -n "${STAMP:-}" ] || STAMP=$(date -u +"%Y%m%d-%H%M")
+    [ -n "${EXPORT_TS_UTC:-}" ] || EXPORT_TS_UTC=$(date -u +"%m-%d-%Y - %H:%M Z")
+    [ -n "${EXPORT_TS_ISO:-}" ] || EXPORT_TS_ISO=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    [ -n "${EXPORT_TZ:-}" ] || EXPORT_TZ=UTC
+}
+
 # --- Args (required for UI-driven export; no Domain menu prompts) ---
 EXPORT_KIND=""
 DISCOVER_REPORT="${DISCOVER_REPORT:-}"
@@ -148,7 +187,7 @@ BASE_NAME=$(basename "$DISCOVER_REPORT")
 BASE_SLUG=$(f_export_report_slug "$BASE_NAME")
 [ -n "$BASE_SLUG" ] || BASE_SLUG=report
 
-STAMP=$(date -u +"%Y%m%d-%H%M")
+f_export_report_stamps
 case "$EXPORT_KIND" in
     defender)
         EXPORT_NAME="${BASE_SLUG}-defender-${STAMP}"
@@ -175,8 +214,6 @@ if [ "$QUIET" -eq 0 ]; then
     echo "[*] Export $EXPORT_KIND → $OUT_DIR"
 fi
 
-EXPORT_TS_UTC=$(date -u +"%m-%d-%Y - %H:%M Z")
-EXPORT_TS_ISO=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 AUDIT_IP=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
 [ -n "$AUDIT_IP" ] || AUDIT_IP=unknown
 
@@ -314,6 +351,7 @@ cat > "$STAGE_ROOT/export-meta.json" <<EOF
 {
   "exported_at_utc": "$EXPORT_TS_ISO",
   "exported_at_display": "$EXPORT_TS_UTC",
+  "filename_timezone": $(python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$EXPORT_TZ"),
   "source": $(python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$DISCOVER_REPORT"),
   "kind": $(python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$EXPORT_KIND"),
   "mode": $(python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$EXPORT_KIND"),

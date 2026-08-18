@@ -245,6 +245,26 @@ def view_zoneinfo():
         return timezone.utc
 
 
+def export_filename_stamp() -> tuple[str, str, str, str]:
+    """Filename stamp in view TZ; UTC strings for audit/ledger writes.
+
+    Returns (stamp, utc_display, utc_iso, tz_id).
+    stamp is YYYYMMDD-HHMM in ~/.discover/timezone (UTC if unset).
+    utc_display / utc_iso stay UTC for tools/audit and export-meta.
+    """
+    from datetime import datetime, timezone
+
+    tz_id = read_timezone()
+    now_utc = datetime.now(timezone.utc)
+    now_view = now_utc.astimezone(view_zoneinfo())
+    return (
+        now_view.strftime("%Y%m%d-%H%M"),
+        now_utc.strftime("%m-%d-%Y - %H:%M Z"),
+        now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        tz_id,
+    )
+
+
 def rebuild_audit_page(report: Path) -> None:
     """Rebuild pages/audit.htm for an engagement (metrics use view timezone)."""
     import subprocess

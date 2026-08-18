@@ -573,7 +573,8 @@ After **Export**, the modal shows the output path (default directory `$HOME/data
 **CLI / statusd:** `recon/export-report.sh --kind client|defender|operator --report <path> [--out-dir <path>] [--quiet]`
 
 * Live engagement stays operator mode
-* Writes an **Exports** entry under `tools/exports/` and an audit log line
+* Archive name uses the Config **Time zone** (`YYYYMMDD-HHMM` in that zone)
+* Writes an **Exports** entry under `tools/exports/` and an audit log line (UTC)
 
 ---
 
