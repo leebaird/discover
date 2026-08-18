@@ -1575,7 +1575,7 @@ def build_html(report_root: Path) -> str:
     # Audit log (primary — above Target scans)
     lines.append('<section class="inc-audit-section inc-audit-section--log">')
     lines.append('<div class="inc-audit-log-header">')
-    lines.append('<h3 class="inc-audit-section-title">Audit log</h3>')
+    lines.append('<h3 class="inc-audit-section-title">Audit Log</h3>')
     # Slot filled by inc-audit-log-filter.js (operator dropdown).
     lines.append(
         '<div class="inc-audit-log-filter" id="inc-audit-log-filter" '

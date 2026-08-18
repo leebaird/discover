@@ -118,7 +118,7 @@
             '<div class="inc-active-status-codes-backdrop" data-inc-active-status-codes-close="1"></div>' +
             '<div class="inc-active-status-codes-dialog">' +
             '<div class="inc-active-status-codes-header">' +
-            '<h2 id="inc-active-status-codes-title" class="inc-active-status-codes-title">HTTP status codes</h2>' +
+            '<h2 id="inc-active-status-codes-title" class="inc-active-status-codes-title">HTTP Status Codes</h2>' +
             '<button type="button" class="inc-active-status-codes-x" data-inc-active-status-codes-close="1" aria-label="Close">×</button>' +
             "</div>" +
             '<p class="inc-active-status-codes-lead">Common response codes seen in Active / httpx results.</p>' +

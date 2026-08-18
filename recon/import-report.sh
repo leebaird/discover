@@ -133,7 +133,7 @@ f_import_report_sync_assets(){
                     -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=11|g' \
                     "$report/pages/$page" 2>/dev/null || true
                 if [ "$page" = "active.htm" ] && ! grep -q 'inc-active-status-codes.js' "$report/pages/$page" 2>/dev/null; then
-                    sed -i 's|</body>|<script src="../assets/javascript/inc-active-status-codes.js?v=1"></script>\n</body>|' \
+                    sed -i 's|</body>|<script src="../assets/javascript/inc-active-status-codes.js?v=2"></script>\n</body>|' \
                         "$report/pages/$page" 2>/dev/null || true
                 fi
                 if [ "$page" = "active.htm" ] && ! grep -q 'inc-active-refresh.js' "$report/pages/$page" 2>/dev/null; then
@@ -147,7 +147,7 @@ f_import_report_sync_assets(){
                         -e 's|modern\.css?v=[^"]*|modern.css?v=active-login-view3|g' \
                         "$report/pages/$page" 2>/dev/null || true
                     if ! grep -q 'inc-active-login-view.js' "$report/pages/$page" 2>/dev/null; then
-                        sed -i 's|</body>|<script src="../assets/javascript/inc-active-login-view.js?v=5"></script>\n</body>|' \
+                        sed -i 's|</body>|<script src="../assets/javascript/inc-active-login-view.js?v=6"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                 fi

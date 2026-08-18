@@ -925,7 +925,7 @@ def software_versions_table(rows, section_class="inc-active-section--software-ve
         class_names = f"{class_names} {section_class}"
     lines = [
         f'    <section class="{class_names}">',
-        '        <h3 class="inc-active-section-title">Software versions</h3>',
+        '        <h3 class="inc-active-section-title">Software Versions</h3>',
         '        <div class="inc-content-frame inc-content-frame--table">',
         # Default sort: CVSS column (index 2) descending — highest risk first.
         '        <table class="table table-bordered inc-data-table" '
@@ -1778,7 +1778,7 @@ def login_label_html(label):
     return (
         f'<a class="inc-login-subdomains-link" '
         f'href="{html.escape(href, quote=True)}" '
-        f'title="Show subdomains with this Login pages category">'
+        f'title="Show subdomains with this Login Pages category">'
         f"{escaped}</a>"
     )
 
@@ -1792,7 +1792,7 @@ def _login_table_html(
         "            <thead>",
         "                <tr>",
         '                    <th scope="col" class="inc-login-view-toggle" '
-        'title="Switch Login pages view" role="button" tabindex="0">'
+        'title="Switch Login Pages view" role="button" tabindex="0">'
         f"{html.escape(col_header)}</th>",
         '                    <th scope="col" class="inc-col-center inc-active-count">Count</th>',
         "                </tr>",
@@ -1833,11 +1833,11 @@ def login_pages_section_html(
     return [
         '    <section class="inc-active-section inc-active-section--login">',
         '        <h3 class="inc-active-section-title inc-active-section-title--with-help">'
-        "Login pages"
+        "Login Pages"
         '<button type="button" class="inc-active-status-codes-info-btn" '
         'data-inc-active-login-help="1" '
-        'title="How Login pages counts work" '
-        'aria-label="How Login pages counts work">ⓘ</button>'
+        'title="How Login Pages counts work" '
+        'aria-label="How Login Pages counts work">ⓘ</button>'
         "</h3>",
         '        <div class="inc-active-login-panel" data-login-view="source">',
         *_login_table_html(source_rows, col_header="Source"),
@@ -2096,7 +2096,7 @@ def build_active_summary(
                         ],
                     ),
                     summary_table(
-                        "Status codes",
+                        "Status Codes",
                         "Status Code",
                         status_rows,
                         section_class="inc-active-section--status",
@@ -2107,14 +2107,14 @@ def build_active_summary(
                 categories_column,
                 [
                     summary_table(
-                        "Top web servers",
+                        "Top Web Servers",
                         "Web Server",
                         counter_rows(webserver_counter, 5),
                         section_class="inc-active-section--webservers",
                         label_html_fn=webserver_label_html,
                     ),
                     summary_table(
-                        "Top technologies",
+                        "Top Technologies",
                         "Technology",
                         counter_rows(technology_counter, 6),
                         section_class="inc-active-section--technologies",

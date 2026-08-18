@@ -44,8 +44,8 @@
             toggles[i].setAttribute(
                 "aria-label",
                 view === "type"
-                    ? "Login pages view: By type. Activate for By source."
-                    : "Login pages view: By source. Activate for By type."
+                    ? "Login Pages view: By type. Activate for By source."
+                    : "Login Pages view: By source. Activate for By type."
             );
         }
         try {
@@ -101,7 +101,7 @@
             '<div class="inc-active-status-codes-backdrop" data-inc-active-login-help-close="1"></div>' +
             '<div class="inc-active-status-codes-dialog">' +
             '<div class="inc-active-status-codes-header">' +
-            '<h2 id="inc-active-login-help-title" class="inc-active-status-codes-title">Login pages</h2>' +
+            '<h2 id="inc-active-login-help-title" class="inc-active-status-codes-title">Login Pages</h2>' +
             '<button type="button" class="inc-active-status-codes-x" data-inc-active-login-help-close="1" aria-label="Close">×</button>' +
             "</div>" +
             '<div class="inc-active-status-codes-body">' +
