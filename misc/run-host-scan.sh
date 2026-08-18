@@ -1347,8 +1347,6 @@ PY
             else
                 echo "Disallow:    $DISALLOW_COUNT unique paths"
             fi
-            echo "robots.txt:  $ROBOTS_FILE"
-            echo "URL list:    $DISALLOW_FILE"
             echo
             if [ "$DISALLOW_COUNT" -gt 0 ] 2>/dev/null; then
                 echo "Disallow URLs:"
@@ -1603,7 +1601,6 @@ fi
 echo
 echo "============================================================"
 echo "[*] Done. Exit code: $EXIT_CODE"
-echo "[*] Output: $OUT_FILE"
 echo "============================================================"
 echo
 echo "Press Enter to close this terminal."
