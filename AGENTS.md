@@ -22,12 +22,12 @@ Conventions agreed with the operator for Discover development. **Read and follow
 
 - First name only, max 10 letters only, stored at `~/.discover/operator-name`.
 - Prompted once when Discover starts if missing/invalid (`f_ensure_operator_name` in `discover.sh`).
-- Audit lines: `mm-dd-yyyy - hh:mm Z | <name> | <egress IP> | <action>` (`f_audit_log` / host-scan `f_audit`). Legacy stamps (`mm-dd-yyyy Z - hh:mm`) and 3-field lines still parse on the Audit page.
+- Audit lines: `mm/dd/yyyy - hh:mm Z | <name> | <egress IP> | <action>` (`f_audit_log` / host-scan `f_audit`). Dash-date stamps (`mm-dd-yyyy - hh:mm Z`), legacy (`mm-dd-yyyy Z - hh:mm`), and 3-field lines still parse on the Audit page.
 - **Shodan**, **Updated software CVE data**, **Imported subdomains** / **Imported CSV list subdomains**, **Imported names** (incl. titles/emails), and **Imported operator package**: Operator IP is always a dash (`-` in the log, `—` on the Audit page). Do not record egress IP for those events.
 
 ## Timestamps (UTC write, view timezone)
 
-- **Always record timestamps in UTC** when a scan runs or any engagement event is written (audit log, host-scan meta `started`/`finished` / `*_utc`, status stamps, export `exported_at_utc`, etc.). Keep the existing `… Z` / UTC ISO forms on disk.
+- **Always record timestamps in UTC** when a scan runs or any engagement event is written (audit log, host-scan meta `started`/`finished` / `*_utc`, status stamps, export `exported_at_utc`, etc.). Human stamps are `mm/dd/yyyy - hh:mm Z`; ISO fields stay `YYYY-MM-DDTHH:MM:SSZ`.
 - Operators may **choose a timezone for viewing** (e.g. Audit Config → Time zone). That preference is **display only** for Audit/metrics.
 - **View timezone must not change how data is written** — no local-time stamps in `tools/audit/log.txt`, meta.json, or other on-disk artifacts. Convert only when rendering the report UI (and label the column, e.g. Time (UTC) vs local).
 - **Export filename** is the exception: `YYYYMMDD-HHMM` in `domain-kind-YYYYMMDD-HHMM.zip` (or `.csv`) uses the operator view timezone (`~/.discover/timezone`). Ledger `exported_at_utc` and the audit line stay UTC.
@@ -128,7 +128,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - **robots:** fetch `/robots.txt` (same idea as multiTabs → Directories in robots.txt). **txt** = raw `robots.txt` body; **htm** = open Disallow directories in Firefox via `discover-robots:` → `misc/open-robots-tabs.sh` (only when `disallow_count` > 0). Run does not open Firefox.
 - **ffuf / feroxbuster url:** green **url** (Firefox tabs) only when the run has at least one finding URL. Auto-filter-only / empty JSON → **txt** only. Count stored as `meta.url_count`.
 - **droopescan** / **wpscan** gate on CMS software (query or fingerprint). **WordPress → wpscan only** (no droopescan for WP). Drupal / Joomla / Moodle / Silverstripe still use droopescan when matched.
-- Each tool box has a Unicode ⓘ help modal. Bust `inc-host-scan.js?v=…` (and `modern.css?v=…` on Subdomains) after changes and sync via Import when testing live reports.
+- Each tool box has a Unicode ⓘ help modal. Finished stamps use the Config **Time zone** (same display conversion as Audit; on-disk stamps stay UTC). Bust `inc-host-scan.js?v=…` (and `modern.css?v=…` on Subdomains) after changes and sync via Import when testing live reports.
 
 ## Shodan panel Update (Subdomains)
 

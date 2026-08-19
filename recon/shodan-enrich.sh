@@ -265,7 +265,7 @@ PY
         f_audit_log "$DISCOVER_REPORT" "$ACTION"
     else
         mkdir -p "$DISCOVER_REPORT/tools/audit" 2>/dev/null || true
-        ts=$(date -u +"%m-%d-%Y - %H:%M Z")
+        ts=$(date -u +"%m/%d/%Y - %H:%M Z")
         op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
         [ -n "$op" ] || op=unknown
         # Shodan: no operator egress IP on Audit (dash placeholder).

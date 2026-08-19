@@ -561,8 +561,8 @@ out.extend(
         '<script src="../assets/javascript/inc-subdomains-filter.js?v=20"></script>',
         '<script src="../tools/shodan/index.js"></script>',
         '<script src="../tools/shodan/kev-ids.js"></script>',
-        '<script src="../assets/javascript/inc-shodan.js?v=18"></script>',
-        '<script src="../assets/javascript/inc-host-scan.js?v=38"></script>',
+        '<script src="../assets/javascript/inc-shodan.js?v=19"></script>',
+        '<script src="../assets/javascript/inc-host-scan.js?v=40"></script>',
         "</body>",
         "</html>",
     ]
@@ -1147,7 +1147,7 @@ if declare -F f_audit_log >/dev/null 2>&1; then
         f_audit_log "$DISCOVER_REPORT" "Ran active recon"
     fi
 else
-    ts=$(date -u +"%m-%d-%Y - %H:%M Z")
+    ts=$(date -u +"%m/%d/%Y - %H:%M Z")
     op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
     [ -n "$op" ] || op=unknown
     ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')

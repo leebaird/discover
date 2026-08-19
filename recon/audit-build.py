@@ -14,8 +14,8 @@ import sys
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
-# Display stamp: "mm-dd-yyyy - hh:mm Z" (current) or legacy "mm-dd-yyyy Z - hh:mm"
-_AUDIT_TS = r"(\d{2}-\d{2}-\d{4}(?: - \d{2}:\d{2} Z| Z - \d{2}:\d{2}))"
+# Display stamp: "mm/dd/yyyy - hh:mm Z" (current); dash-date and legacy "Z - hh:mm" still parse
+_AUDIT_TS = r"(\d{2}[-/]\d{2}[-/]\d{4}(?: - \d{2}:\d{2} Z| Z - \d{2}:\d{2}))"
 # Current: time | operator | ip | action
 LINE_RE4 = re.compile(rf"^{_AUDIT_TS} \| ([^|]+) \| ([^|]+) \| (.*)$")
 # Legacy: time | ip | action
@@ -82,35 +82,35 @@ def format_export_label(label: str) -> str:
 
 
 def _is_audit_display_ts(s: str) -> bool:
-    """True if s is mm-dd-yyyy - hh:mm Z or legacy mm-dd-yyyy Z - hh:mm."""
+    """True if s is mm/dd/yyyy - hh:mm Z (or dash-date / legacy Z - hh:mm)."""
     return bool(
         re.fullmatch(
-            r"\d{2}-\d{2}-\d{4}(?: - \d{2}:\d{2} Z| Z - \d{2}:\d{2})",
+            r"\d{2}[-/]\d{2}[-/]\d{4}(?: - \d{2}:\d{2} Z| Z - \d{2}:\d{2})",
             (s or "").strip(),
         )
     )
 
 
 def normalize_audit_display_ts(s: str) -> str:
-    """Canonical display stamp: mm-dd-yyyy - hh:mm Z (fix legacy Z - hh:mm)."""
+    """Canonical display stamp: mm/dd/yyyy - hh:mm Z (fix legacy Z - hh:mm)."""
     text = (s or "").strip()
     m = re.fullmatch(
-        r"(\d{2}-\d{2}-\d{4})\s+Z\s+-\s+(\d{2}:\d{2})",
+        r"(\d{2})[-/](\d{2})[-/](\d{4})\s+Z\s+-\s+(\d{2}:\d{2})",
         text,
     )
     if m:
-        return f"{m.group(1)} - {m.group(2)} Z"
+        return f"{m.group(1)}/{m.group(2)}/{m.group(3)} - {m.group(4)} Z"
     m2 = re.fullmatch(
-        r"(\d{2}-\d{2}-\d{4})\s+-\s+(\d{2}:\d{2})\s+Z",
+        r"(\d{2})[-/](\d{2})[-/](\d{4})\s+-\s+(\d{2}:\d{2})\s+Z",
         text,
     )
     if m2:
-        return f"{m2.group(1)} - {m2.group(2)} Z"
+        return f"{m2.group(1)}/{m2.group(2)}/{m2.group(3)} - {m2.group(4)} Z"
     return text
 
 
 def format_export_time(exp: dict) -> str:
-    """Match audit log times: mm-dd-yyyy - hh:mm Z (UTC)."""
+    """Match audit log times: mm/dd/yyyy - hh:mm Z (UTC)."""
     display = (exp.get("exported_at_display") or "").strip()
     if display and _is_audit_display_ts(display):
         return normalize_audit_display_ts(display)
@@ -119,9 +119,9 @@ def format_export_time(exp: dict) -> str:
     if not raw:
         return "—"
 
-    # Already audit-log style (current or legacy)
+    # Already audit-log style (current, dash-date, or legacy)
     if _is_audit_display_ts(raw):
-        return raw
+        return normalize_audit_display_ts(raw)
 
     # ISO-8601 UTC: 2026-07-16T00:37:51Z or with offset
     try:
@@ -133,7 +133,7 @@ def format_export_time(exp: dict) -> str:
             dt = dt.replace(tzinfo=timezone.utc)
         else:
             dt = dt.astimezone(timezone.utc)
-        return dt.strftime("%m-%d-%Y - %H:%M Z")
+        return dt.strftime("%m/%d/%Y - %H:%M Z")
     except Exception:
         return raw
 
@@ -1061,7 +1061,7 @@ def _parse_audit_ts_utc(ts: str):
 
     text = normalize_audit_display_ts(ts)
     m = re.fullmatch(
-        r"(\d{2})-(\d{2})-(\d{4})\s+-\s+(\d{2}):(\d{2})\s+Z",
+        r"(\d{2})[-/](\d{2})[-/](\d{4})\s+-\s+(\d{2}):(\d{2})\s+Z",
         text,
     )
     if not m:
@@ -1754,7 +1754,7 @@ def write_defender_csv(report_root: Path, dest: Path) -> Path:
         )
         rows_out.append(
             {
-                "time_utc": ts,
+                "time_utc": normalize_audit_display_ts(ts),
                 "operator": operator,
                 "operator_ip": ip,
                 "target": audit_target_from_action(action) or "",

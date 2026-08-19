@@ -688,7 +688,7 @@ def append_audit_log(report_dir: str, action: str) -> None:
         os.makedirs(audit_dir, exist_ok=True)
     except OSError:
         return
-    ts = datetime.now(timezone.utc).strftime("%m-%d-%Y - %H:%M Z")
+    ts = datetime.now(timezone.utc).strftime("%m/%d/%Y - %H:%M Z")
     if not action.endswith("."):
         action = action + "."
     # Operator name from ~/.discover; IP is always "-" for Shodan (no egress on Audit).

@@ -202,7 +202,7 @@ f_ensure_operator_name(){
 }
 
 # Append one engagement audit line:
-#   mm-dd-yyyy - hh:mm Z | <operator> | <egress IP> | <action>
+#   mm/dd/yyyy - hh:mm Z | <operator> | <egress IP> | <action>
 # Usage: f_audit_log "$DISCOVER_REPORT" "Ran passive recon."
 f_audit_log(){
     local report_root="$1"
@@ -220,7 +220,7 @@ f_audit_log(){
     audit_log="$audit_dir/log.txt"
     mkdir -p "$audit_dir" 2>/dev/null || return 1
 
-    ts=$(date -u +"%m-%d-%Y - %H:%M Z")
+    ts=$(date -u +"%m/%d/%Y - %H:%M Z")
     op=$(f_audit_operator_name)
     # Shodan / software CVE / imports (subdomains, names, operator package): no egress IP.
     case "${action,,}" in

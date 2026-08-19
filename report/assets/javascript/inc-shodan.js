@@ -248,7 +248,7 @@
     }
 
     /**
-     * Format Shodan last_update (ISO) as "mm-dd-yyyy - hh:mm Z".
+     * Format Shodan last_update (ISO) as "mm/dd/yyyy - hh:mm Z".
      * Shodan timestamps are UTC (with or without a trailing Z).
      */
     function formatLastUpdate(raw) {
@@ -260,7 +260,7 @@
             /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::\d{2})?/
         );
         if (m) {
-            return m[2] + "-" + m[3] + "-" + m[1] + " - " + m[4] + ":" + m[5] + " Z";
+            return m[2] + "/" + m[3] + "/" + m[1] + " - " + m[4] + ":" + m[5] + " Z";
         }
         return s;
     }

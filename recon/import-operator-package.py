@@ -481,13 +481,13 @@ def merge_subdomains(dest: Path, source: Path) -> dict[str, int]:
 
 # --- audit ---
 
-# Current:  mm-dd-yyyy - hh:mm Z | op | ip | action
-# Legacy:   mm-dd-yyyy Z - hh:mm | op | ip | action  (Z before the dash)
+# Current:  mm/dd/yyyy - hh:mm Z | op | ip | action
+# Dash-date and legacy Z-before-dash stamps still parse
 _AUDIT_TS = (
     r"(?:"
-    r"\d{2}-\d{2}-\d{4}\s+-\s+\d{2}:\d{2}\s+Z"  # current
+    r"\d{2}[-/]\d{2}[-/]\d{4}\s+-\s+\d{2}:\d{2}\s+Z"
     r"|"
-    r"\d{2}-\d{2}-\d{4}\s+Z\s+-\s+\d{2}:\d{2}"  # legacy
+    r"\d{2}[-/]\d{2}[-/]\d{4}\s+Z\s+-\s+\d{2}:\d{2}"
     r")"
 )
 _AUDIT_LINE_RE = re.compile(
@@ -585,7 +585,7 @@ def append_import_audit(dest: Path, operator: str, summary: str) -> None:
     audit_dir = dest / "tools" / "audit"
     audit_log = audit_dir / "log.txt"
     audit_dir.mkdir(parents=True, exist_ok=True)
-    ts = datetime.now(timezone.utc).strftime("%m-%d-%Y - %H:%M Z")
+    ts = datetime.now(timezone.utc).strftime("%m/%d/%Y - %H:%M Z")
     op = "unknown"
     try:
         op_path = Path.home() / ".discover" / "operator-name"

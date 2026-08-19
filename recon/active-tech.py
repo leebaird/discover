@@ -692,7 +692,7 @@ def load_alive_hosts(path):
 
 
 def httpx_scan_date(path):
-    """Latest httpx timestamp as mm-dd-yyyy (not first line — batch merges keep old rows first)."""
+    """Latest httpx timestamp as mm/dd/yyyy (not first line — batch merges keep old rows first)."""
     latest = ""
     if path and os.path.isfile(path):
         with open(path, encoding="utf-8") as handle:
@@ -712,7 +712,7 @@ def httpx_scan_date(path):
                     latest = date_part
     if latest:
         year, month, day = latest.split("-", 2)
-        return f"{month}-{day}-{year}"
+        return f"{month}/{day}/{year}"
     return ""
 
 
@@ -2427,8 +2427,8 @@ def write_subdomains_active_page(report_dir: str) -> dict:
             '<script src="../assets/javascript/inc-subdomains-filter.js?v=20"></script>',
             '<script src="../tools/shodan/index.js"></script>',
             '<script src="../tools/shodan/kev-ids.js"></script>',
-            '<script src="../assets/javascript/inc-shodan.js?v=18"></script>',
-            '<script src="../assets/javascript/inc-host-scan.js?v=38"></script>',
+            '<script src="../assets/javascript/inc-shodan.js?v=19"></script>',
+            '<script src="../assets/javascript/inc-host-scan.js?v=40"></script>',
             "</body>",
             "</html>",
             "",
@@ -2579,7 +2579,7 @@ def _append_audit_refresh(report_dir: str, action: str) -> None:
         return
     from datetime import datetime, timezone
 
-    ts = datetime.now(timezone.utc).strftime("%m-%d-%Y - %H:%M Z")
+    ts = datetime.now(timezone.utc).strftime("%m/%d/%Y - %H:%M Z")
     op = "unknown"
     try:
         op_path = os.path.join(os.path.expanduser("~"), ".discover", "operator-name")

@@ -1009,7 +1009,7 @@ if not dates:
     raise SystemExit(1)
 
 scan_day = Counter(dates).most_common(1)[0][0]
-print(scan_day.strftime("%m-%d-%Y"))
+print(scan_day.strftime("%m/%d/%Y"))
 PY
 ) || true
 
@@ -1039,12 +1039,12 @@ if not match:
     raise SystemExit(1)
 
 parsed = datetime.strptime(match.group(1).strip(), "%B %d, %Y")
-print(parsed.strftime("%m-%d-%Y"))
+print(parsed.strftime("%m/%d/%Y"))
 PY
         return 0
     fi
 
-    date +"%m-%d-%Y"
+    date +"%m/%d/%Y"
 }
 
 f_report_append_pre_page(){
@@ -1753,7 +1753,7 @@ EOF
         f_audit_log "$HOME/data/$DOMAIN" "Ran passive recon"
     else
         mkdir -p "$HOME/data/$DOMAIN/tools/audit" 2>/dev/null || true
-        ts=$(date -u +"%m-%d-%Y - %H:%M Z")
+        ts=$(date -u +"%m/%d/%Y - %H:%M Z")
         op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
         [ -n "$op" ] || op=unknown
         ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')

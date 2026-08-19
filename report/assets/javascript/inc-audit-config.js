@@ -388,20 +388,20 @@
     }
 
     /**
-     * Canonical UTC display: mm-dd-yyyy - hh:mm Z
-     * Accepts legacy mm-dd-yyyy Z - hh:mm as well.
+     * Canonical UTC display: mm/dd/yyyy - hh:mm Z
+     * Accepts dash-date and legacy mm-dd-yyyy Z - hh:mm as well.
      */
     function normalizeUtcStamp(text) {
         var s = String(text || "").trim();
         var leg = s.match(
-            /^(\d{2})-(\d{2})-(\d{4})\s+Z\s+-\s+(\d{2}):(\d{2})$/
+            /^(\d{2})[-/](\d{2})[-/](\d{4})\s+Z\s+-\s+(\d{2}):(\d{2})$/
         );
         if (leg) {
             return (
                 leg[1] +
-                "-" +
+                "/" +
                 leg[2] +
-                "-" +
+                "/" +
                 leg[3] +
                 " - " +
                 leg[4] +
@@ -411,14 +411,14 @@
             );
         }
         var cur = s.match(
-            /^(\d{2})-(\d{2})-(\d{4})\s+-\s+(\d{2}):(\d{2})\s+Z$/
+            /^(\d{2})[-/](\d{2})[-/](\d{4})\s+-\s+(\d{2}):(\d{2})\s+Z$/
         );
         if (cur) {
             return (
                 cur[1] +
-                "-" +
+                "/" +
                 cur[2] +
-                "-" +
+                "/" +
                 cur[3] +
                 " - " +
                 cur[4] +
@@ -432,12 +432,12 @@
 
     /**
      * Convert Audit timestamps from UTC stamp to view timezone.
-     * Source forms: mm-dd-yyyy - hh:mm Z or legacy mm-dd-yyyy Z - hh:mm
+     * Source forms: mm/dd/yyyy - hh:mm Z, dash-date, or legacy Z - hh:mm
      */
     function parseAuditUtc(text) {
         var s = normalizeUtcStamp(text);
         var m = String(s || "").trim().match(
-            /^(\d{2})-(\d{2})-(\d{4})\s+-\s+(\d{2}):(\d{2})\s+Z$/
+            /^(\d{2})[-/](\d{2})[-/](\d{4})\s+-\s+(\d{2}):(\d{2})\s+Z$/
         );
         if (!m) {
             return null;
@@ -460,7 +460,7 @@
             var ye = dt.getUTCFullYear();
             var ho = String(dt.getUTCHours()).padStart(2, "0");
             var mi = String(dt.getUTCMinutes()).padStart(2, "0");
-            return mo + "-" + da + "-" + ye + " - " + ho + ":" + mi + " Z";
+            return mo + "/" + da + "/" + ye + " - " + ho + ":" + mi + " Z";
         }
         try {
             var parts = new Intl.DateTimeFormat("en-US", {
@@ -479,9 +479,9 @@
             // en-US month/day order
             return (
                 map.month +
-                "-" +
+                "/" +
                 map.day +
-                "-" +
+                "/" +
                 map.year +
                 " - " +
                 map.hour +

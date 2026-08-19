@@ -136,7 +136,7 @@ f_names_write_audit(){
     fi
     mkdir -p "$DISCOVER_REPORT/tools/audit" 2>/dev/null || return 0
     local ts op
-    ts=$(date -u +"%m-%d-%Y - %H:%M Z")
+    ts=$(date -u +"%m/%d/%Y - %H:%M Z")
     op="Operator"
     if [ -f "$HOME/.discover/operator-name" ]; then
         op=$(tr -d '[:space:]' < "$HOME/.discover/operator-name" 2>/dev/null || true)

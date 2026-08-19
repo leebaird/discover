@@ -120,8 +120,8 @@ f_import_report_sync_assets(){
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
                 -e 's|modern\.css?v=[^"]*|modern.css?v=ws39|g' \
-                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=38|g' \
-                -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=18|g' \
+                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=40|g' \
+                -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=19|g' \
                 "$report/pages/subdomains.htm" 2>/dev/null || true
         fi
         # Report section pages: Export UI + CSS bust
@@ -159,7 +159,7 @@ f_import_report_sync_assets(){
                     sed -i \
                         -e 's|modern\.css?v=[^"]*|modern.css?v=audit-th3|g' \
                         -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=11|g' \
-                        -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=18|g' \
+                        -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=19|g' \
                         -e 's|inc-audit-line-delete\.js?v=[0-9]*|inc-audit-line-delete.js?v=3|g' \
                         -e 's|inc-audit-log-filter\.js?v=[0-9]*|inc-audit-log-filter.js?v=1|g' \
                         -e 's|inc-audit-metrics-range\.js?v=[0-9]*|inc-audit-metrics-range.js?v=2|g' \
@@ -169,7 +169,7 @@ f_import_report_sync_assets(){
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                     if ! grep -q 'inc-audit-config.js' "$report/pages/$page" 2>/dev/null; then
-                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-config.js?v=18"></script>\n</body>|' \
+                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-config.js?v=19"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                     if ! grep -q 'inc-audit-line-delete.js' "$report/pages/$page" 2>/dev/null; then
@@ -293,8 +293,8 @@ need = [
     ("tools/cve-software-index.js", '<script src="../tools/cve-software-index.js"></script>'),
     ("tools/shodan/index.js", '<script src="../tools/shodan/index.js"></script>'),
     ("tools/shodan/kev-ids.js", '<script src="../tools/shodan/kev-ids.js"></script>'),
-    ("inc-shodan.js", '<script src="../assets/javascript/inc-shodan.js?v=18"></script>'),
-    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=38"></script>'),
+    ("inc-shodan.js", '<script src="../assets/javascript/inc-shodan.js?v=19"></script>'),
+    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=40"></script>'),
 ]
 insert = [tag for key, tag in need if key not in text]
 if insert:
@@ -311,7 +311,7 @@ if insert:
 import re
 new_text, n = re.subn(
     r'inc-host-scan\.js\?v=[0-9]+',
-    'inc-host-scan.js?v=38',
+    'inc-host-scan.js?v=40',
     text,
 )
 if n:

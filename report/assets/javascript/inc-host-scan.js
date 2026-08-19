@@ -46,6 +46,7 @@
     var STATUS_PORT_DEFAULT = 17322;
     var pollTimer = null;
     var infoModalBound = false;
+    var viewTimezone = "UTC";
 
     /** Default UA matches run-host-scan.sh fallback (resource/user-agent.txt preferred). */
     var HOST_SCAN_UA =
@@ -835,6 +836,100 @@
         });
     }
 
+    function loadViewTimezone() {
+        if (!isDiscoverHostedPage()) {
+            return Promise.resolve("UTC");
+        }
+        return fetchJson(statusdUrl("/config"))
+            .then(function (cfg) {
+                viewTimezone = (cfg && cfg.timezone) || "UTC";
+                return viewTimezone;
+            })
+            .catch(function () {
+                return "UTC";
+            });
+    }
+
+    function parseUtcStamp(text) {
+        var s = String(text || "").trim();
+        var m = s.match(
+            /^(\d{2})[-/](\d{2})[-/](\d{4})\s+Z\s+-\s+(\d{2}):(\d{2})$/
+        );
+        if (!m) {
+            m = s.match(
+                /^(\d{2})[-/](\d{2})[-/](\d{4})\s+-\s+(\d{2}):(\d{2})(?:\s+Z)?$/
+            );
+        }
+        if (!m) {
+            return null;
+        }
+        return new Date(
+            Date.UTC(
+                parseInt(m[3], 10),
+                parseInt(m[1], 10) - 1,
+                parseInt(m[2], 10),
+                parseInt(m[4], 10),
+                parseInt(m[5], 10),
+                0
+            )
+        );
+    }
+
+    function formatInViewZone(dt, tzId) {
+        if (!dt || isNaN(dt.getTime())) {
+            return "";
+        }
+        var tz = tzId || "UTC";
+        if (tz === "UTC") {
+            var mo = String(dt.getUTCMonth() + 1).padStart(2, "0");
+            var da = String(dt.getUTCDate()).padStart(2, "0");
+            var ye = dt.getUTCFullYear();
+            var ho = String(dt.getUTCHours()).padStart(2, "0");
+            var mi = String(dt.getUTCMinutes()).padStart(2, "0");
+            return mo + "/" + da + "/" + ye + " - " + ho + ":" + mi + " Z";
+        }
+        try {
+            var parts = new Intl.DateTimeFormat("en-US", {
+                timeZone: tz,
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+            }).formatToParts(dt);
+            var map = {};
+            parts.forEach(function (p) {
+                map[p.type] = p.value;
+            });
+            return (
+                map.month +
+                "/" +
+                map.day +
+                "/" +
+                map.year +
+                " - " +
+                map.hour +
+                ":" +
+                map.minute
+            );
+        } catch (e) {
+            return "";
+        }
+    }
+
+    function formatViewStamp(raw) {
+        var s = String(raw || "").trim();
+        if (!s) {
+            return s;
+        }
+        var dt = parseUtcStamp(s);
+        if (!dt) {
+            return s.replace(/^(\d{2})-(\d{2})-(\d{4})(\s+-)/, "$1/$2/$3$4");
+        }
+        return formatInViewZone(dt, viewTimezone) || s;
+    }
+
     function encodeQuery(obj) {
         return Object.keys(obj)
             .filter(function (k) {
@@ -975,7 +1070,9 @@
             var parts = [];
             if (last) {
                 parts.push(
-                    '<span class="inc-host-scan-last-time">' + last + "</span>"
+                    '<span class="inc-host-scan-last-time">' +
+                    formatViewStamp(last) +
+                    "</span>"
                 );
             }
             // Expand-panel note when reachability pre-check skipped this tool.
@@ -1307,7 +1404,7 @@
             td.addEventListener("click", function (ev) {
                 ev.preventDefault();
                 ev.stopPropagation();
-                Promise.all([loadMode(), loadStatus()]).then(function (pair) {
+                Promise.all([loadMode(), loadStatus(), loadViewTimezone()]).then(function (pair) {
                     var mode = pair[0];
                     var status = pair[1];
                     var allow = canLaunch && launchesAllowed(mode);
@@ -1373,7 +1470,8 @@
         }
         var software = querySoftware();
 
-        loadMode().then(function (mode) {
+        Promise.all([loadMode(), loadViewTimezone()]).then(function (pair) {
+            var mode = pair[0];
             if (!launchesAllowed(mode)) {
                 return;
             }

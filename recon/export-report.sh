@@ -89,7 +89,7 @@ PY
         EXPORT_TZ=$(printf '%s\n' "$out" | sed -n '4p')
     fi
     [ -n "${STAMP:-}" ] || STAMP=$(date -u +"%Y%m%d-%H%M")
-    [ -n "${EXPORT_TS_UTC:-}" ] || EXPORT_TS_UTC=$(date -u +"%m-%d-%Y - %H:%M Z")
+    [ -n "${EXPORT_TS_UTC:-}" ] || EXPORT_TS_UTC=$(date -u +"%m/%d/%Y - %H:%M Z")
     [ -n "${EXPORT_TS_ISO:-}" ] || EXPORT_TS_ISO=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     [ -n "${EXPORT_TZ:-}" ] || EXPORT_TZ=UTC
 }
@@ -367,9 +367,9 @@ import re, sys
 from pathlib import Path
 path = Path(sys.argv[1])
 text = path.read_text(encoding="utf-8", errors="replace")
-# Current: mm-dd-yyyy - hh:mm Z | operator | IP | action
-# Legacy stamp / 3-field: still accepted
-_ts = r"(\d{2}-\d{2}-\d{4}(?: - \d{2}:\d{2} Z| Z - \d{2}:\d{2}))"
+# Current: mm/dd/yyyy - hh:mm Z | operator | IP | action
+# Dash-date and legacy stamp / 3-field: still accepted
+_ts = r"(\d{2}[-/]\d{2}[-/]\d{4}(?: - \d{2}:\d{2} Z| Z - \d{2}:\d{2}))"
 line_re4 = re.compile(rf"^{_ts} \| ([^|]+) \| ([^|]+) \| (.*)$")
 line_re3 = re.compile(rf"^{_ts} \| ([^|]+) \| (.*)$")
 out = []

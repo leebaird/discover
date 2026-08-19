@@ -174,9 +174,9 @@ def rewrite_audit_operator_name(report_root: Path, old_name: str, new_name: str)
         return 0
 
     # Operator is field 2: time | Name | IP | action  (or legacy 3-field time | IP | action — skip)
-    # Current: mm-dd-yyyy - hh:mm Z | Name | …
+    # Current: mm/dd/yyyy - hh:mm Z | Name | …  (dash-date stamps still match)
     pat = re.compile(
-        r"^(\d{2}-\d{2}-\d{4}\s+-\s+\d{2}:\d{2}\s+Z\s+\|\s+)"
+        r"^(\d{2}[-/]\d{2}[-/]\d{4}\s+-\s+\d{2}:\d{2}\s+Z\s+\|\s+)"
         + r"("
         + re.escape(old_c)
         + r")"
@@ -185,7 +185,7 @@ def rewrite_audit_operator_name(report_root: Path, old_name: str, new_name: str)
     )
     # Legacy: mm-dd-yyyy Z - hh:mm | Name | …
     pat_legacy = re.compile(
-        r"^(\d{2}-\d{2}-\d{4}\s+Z\s+-\s+\d{2}:\d{2}\s+\|\s+)"
+        r"^(\d{2}[-/]\d{2}[-/]\d{4}\s+Z\s+-\s+\d{2}:\d{2}\s+\|\s+)"
         + r"("
         + re.escape(old_c)
         + r")"
@@ -259,7 +259,7 @@ def export_filename_stamp() -> tuple[str, str, str, str]:
     now_view = now_utc.astimezone(view_zoneinfo())
     return (
         now_view.strftime("%Y%m%d-%H%M"),
-        now_utc.strftime("%m-%d-%Y - %H:%M Z"),
+        now_utc.strftime("%m/%d/%Y - %H:%M Z"),
         now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
         tz_id,
     )
