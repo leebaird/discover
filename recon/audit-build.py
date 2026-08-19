@@ -918,7 +918,7 @@ def audit_output_cell(
                     links.append(
                         f'<a class="inc-audit-btn" href="{html.escape(robots_href, quote=True)}" '
                         f'title="Open each robots.txt Disallow directory in Firefox">'
-                        f"htm</a>"
+                        f"url</a>"
                     )
             # ffuf: open each finding URL in Firefox (same as Target scans / expand).
             if tool == "ffuf":
@@ -1008,7 +1008,7 @@ def tool_cell(
                 links.append(
                     f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
                     f'title="Open each robots.txt Disallow directory in Firefox">'
-                    f"htm</a>"
+                    f"url</a>"
                 )
         # ffuf: open each finding URL in Firefox (discover-ffuf: protocol)
         if tool == "ffuf" and report_root is not None:

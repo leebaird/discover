@@ -160,7 +160,7 @@
                 {
                     h: "What Run does",
                     p:
-                        "One curl GET of robots.txt for this host. Parses Disallow paths into full URLs. Does not open Firefox during Run — use the green htm button after it finishes."
+                        "One curl GET of robots.txt for this host. Parses Disallow paths into full URLs. Does not open Firefox during Run — use the green url button after it finishes."
                 },
                 {
                     h: "Safety check",
@@ -170,7 +170,7 @@
                 {
                     h: "Outputs",
                     p:
-                        "TXT is the raw robots.txt body. HTM opens each Disallow directory in Firefox (desktop handler; not shown when there are no Disallow paths or on Unreachable). Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
+                        "TXT is the raw robots.txt body. URL opens each Disallow directory in Firefox (desktop handler; not shown when there are no Disallow paths or on Unreachable). Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
                 }
             ]
         },
@@ -954,7 +954,7 @@
 
     /**
      * Build green output buttons.
-     * robots: txt → robots.txt body; htm → Firefox Disallow tabs.
+     * robots: txt → robots.txt body; url → Firefox Disallow tabs.
      * nikto: txt + htm when report exists.
      * ffuf / feroxbuster: txt + url when there is at least one finding URL.
      */
@@ -995,7 +995,7 @@
                 htmRel.replace(/"/g, "&quot;") +
                 '" target="_blank" rel="noopener">htm</a>';
         }
-        // robots: htm opens Disallow directories in Firefox (discover-robots:).
+        // robots: url opens Disallow directories in Firefox (discover-robots:).
         if (
             tool === "robots" &&
             st.skip_reason !== "host_unreachable" &&
@@ -1007,7 +1007,7 @@
                 html +=
                     '<a class="inc-host-scan-out" href="discover-robots:' +
                     encodeURI(absList).replace(/"/g, "&quot;") +
-                    '" title="Open each robots.txt Disallow directory in Firefox">htm</a>';
+                    '" title="Open each robots.txt Disallow directory in Firefox">url</a>';
             }
         }
         if (tool === "ffuf") {

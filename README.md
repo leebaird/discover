@@ -329,7 +329,7 @@ In **operator** mode only (report opened via **Open report** / Active at `http:/
 
 | Tool | Role | When shown |
 |------|------|------------|
-| **robots** | Fetch `/robots.txt` and list **Disallow** paths (same idea as multiTabs → Directories in robots.txt); **TXT** = raw body, **HTM** = open Disallow dirs in Firefox | Always on expand |
+| **robots** | Fetch `/robots.txt` and list **Disallow** paths (same idea as multiTabs → Directories in robots.txt); **TXT** = raw body, **URL** = open Disallow dirs in Firefox | Always on expand |
 | **Nuclei** | Template recon (product tags) then auto **Pass 2** CVE/KEV from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | **Gated:** product known via `?software=` **or** row fingerprint (Technologies / title / web server / hostname). Hidden when no product is known |
 | **droopescan** | CMS enum (`scan drupal` / …; `-e a -t 4`) | **Gated:** supported CMS from `?software=` **or** row fingerprint (Drupal, Joomla, Moodle, Silverstripe — not WordPress) |
 | **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** WordPress from `?software=` **or** row fingerprint. Optional `WPSCAN_API_TOKEN` for vuln DB |
@@ -341,14 +341,14 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 
 **Software fingerprint (expand):** `?software=` wins (e.g. Active Software versions link). Otherwise Discover reads the row Technologies tokens (keeps version when present, e.g. `Kibana:9.4.2`), then title, web server, and hostname label. Priority products include CMS, Kibana, Grafana, Elasticsearch, Jenkins, Tomcat, IIS, nginx, Apache, PHP, Node.js. That product string is passed into `run-host-scan.sh` so nuclei Pass 1 uses product tags and Pass 2 can select CVE templates.
 
-**Reachability pre-check** (all expand tools): before nuclei, droopescan, wpscan, robots, nikto, ffuf, or feroxbuster launches, `misc/run-host-scan.sh` runs a **curl HTTP/1.1 GET** (15s max, same User-Agent as the scan). If the host does not answer HTTP, Discover **does not run the tool**. The run’s `output.txt` records the skip, `status.json` / `latest.json` set `skip_reason=host_unreachable`, and the box shows **Unreachable** (red) with a **TXT** note. **Nikto** and **robots** do not show **HTM** on that skip (no report / no Disallow list).
+**Reachability pre-check** (all expand tools): before nuclei, droopescan, wpscan, robots, nikto, ffuf, or feroxbuster launches, `misc/run-host-scan.sh` runs a **curl HTTP/1.1 GET** (15s max, same User-Agent as the scan). If the host does not answer HTTP, Discover **does not run the tool**. The run’s `output.txt` records the skip, `status.json` / `latest.json` set `skip_reason=host_unreachable`, and the box shows **Unreachable** (red) with a **TXT** note. **Nikto** does not show **HTM** on that skip, and **robots** does not show **URL** (no report / no Disallow list).
 
 **robots** (`misc/run-host-scan.sh`):
 
 * One curl GET of `{base}/robots.txt` (scheme/host from the expand row URL)
 * Parses **Disallow** paths into full URLs under the run dir (`robots.txt`, `disallow-urls.txt`, summary `output.txt`)
-* **TXT** opens the raw robots body; **HTM** uses `discover-robots:` → `misc/open-robots-tabs.sh` (Firefox CLI, one tab per unique Disallow URL; cap 40; ~1.5s ± 40% jitter between tabs). **HTM** is hidden when there are no Disallow paths
-* Run does not open Firefox — only the green **HTM** button does
+* **TXT** opens the raw robots body; **URL** uses `discover-robots:` → `misc/open-robots-tabs.sh` (Firefox CLI, one tab per unique Disallow URL; cap 40; ~1.5s ± 40% jitter between tabs). **URL** is hidden when there are no Disallow paths
+* Run does not open Firefox — only the green **URL** button does
 
 **ffuf quiet defaults** (`misc/run-host-scan.sh`):
 

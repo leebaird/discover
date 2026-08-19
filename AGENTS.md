@@ -114,7 +114,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Before the tool runs, `run-host-scan.sh` does a **curl HTTP/1.1 GET** (15s max, same UA as the tool).
 - If no HTTP response (`000` / timeout): **do not launch the tool**. Write skip note in that run’s `output.txt`, set `meta.skip_reason=host_unreachable` and the same on `status.json` / `latest.json`, exit 1.
 - Expand panel shows **Unreachable** (red) under that tool box (plus txt link when present).
-- **Nikto HTM** and **robots HTM** are omitted when `skip_reason=host_unreachable` (no report / no Disallow list).
+- **Nikto HTM** and **robots URL** are omitted when `skip_reason=host_unreachable` (no report / no Disallow list).
 - Nikto has no second internal pre-check (shared gate only).
 - Help modals (ⓘ) and README host-scan section document this gate.
 
@@ -125,7 +125,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - **Software for expand:** `?software=` query wins; else fingerprint the row (Technologies tokens with version when present, title, web server, hostname label). Priority products include CMS, Kibana, Grafana, Elasticsearch, Jenkins, Tomcat, IIS, nginx, Apache, PHP, Node.js.
 - **nuclei only when a product is known** (filter or fingerprint). Do not offer nuclei for blind `-tags tech` with empty software. Backend `run-host-scan.sh` refuses nuclei when SOFTWARE is empty.
 - **robots** / **nikto** / **feroxbuster** / **ffuf** always on expand when the UI is shown. Order: **robots** → nuclei (if product) → CMS tools → nikto → feroxbuster → ffuf.
-- **robots:** fetch `/robots.txt` (same idea as multiTabs → Directories in robots.txt). **txt** = raw `robots.txt` body; **htm** = open Disallow directories in Firefox via `discover-robots:` → `misc/open-robots-tabs.sh` (only when `disallow_count` > 0). Run does not open Firefox.
+- **robots:** fetch `/robots.txt` (same idea as multiTabs → Directories in robots.txt). **txt** = raw `robots.txt` body; **url** = open Disallow directories in Firefox via `discover-robots:` → `misc/open-robots-tabs.sh` (only when `disallow_count` > 0). Run does not open Firefox.
 - **ffuf / feroxbuster url:** green **url** (Firefox tabs) only when the run has at least one finding URL. Auto-filter-only / empty JSON → **txt** only. Count stored as `meta.url_count`.
 - **droopescan** / **wpscan** gate on CMS software (query or fingerprint). **WordPress → wpscan only** (no droopescan for WP). Drupal / Joomla / Moodle / Silverstripe still use droopescan when matched.
 - Each tool box has a Unicode ⓘ help modal. Finished stamps use the Config **Time zone** (same display conversion as Audit; on-disk stamps stay UTC). Bust `inc-host-scan.js?v=…` (and `modern.css?v=…` on Subdomains) after changes and sync via Import when testing live reports.
