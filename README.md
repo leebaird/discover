@@ -859,6 +859,7 @@ Main menu option **18** (`misc/update.sh`).
 
 * Updates the operating system, git pull from various repos, and update the locate database
 * Installs tools used by recon and dev scanners (for example `ffuf`, `nuclei`, `droopescan`, `wpscan`, `feroxbuster`, `jq`, `trivy`, ProjectDiscovery stack)
+* Updates **nuclei** (`nuclei -up`) and **nuclei-templates** (`nuclei -ut` into `~/nuclei-templates`)
 * Installs **Nikto** from [sullo/nikto](https://github.com/sullo/nikto) under `/opt/nikto` (wrapper `/usr/local/bin/nikto`); removes the stale apt `2.1.5` package when present
 * Updates **Metasploit** via `snap refresh metasploit-framework` when already installed (installs the snap if missing; snap MSF does not use `msfupdate`)
 * Installs **WPScan** via RubyGems (`gem install wpscan`) for WordPress host scans; refreshes the local WPScan DB with `wpscan --update`

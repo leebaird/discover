@@ -1081,6 +1081,31 @@ echo -e "${BLUE}Updating Nmap scripts.${NC}"
 nmap --script-updatedb | grep -Eiv '(starting|seconds)' | sed 's/NSE: //'
 echo
 
+f_nuclei_update_templates(){
+    command -v nuclei >/dev/null 2>&1 || return 0
+    echo -e "${BLUE}Updating nuclei-templates.${NC}"
+    # -nc: NO_COLOR is ignored, so [INF] would be prefixed with ANSI and dropped.
+    # Do not use -silent: that hides the version line and changelog table.
+    templates_out=$(nuclei -nc -ut 2>&1) || true
+    if echo "$templates_out" | grep -qi 'Successfully updated'; then
+        printf '%s\n' "$templates_out" \
+            | grep -E '^\[INF\]|^Nuclei Templates|^[┌├└│]' \
+            | grep -viE 'no new updates' || true
+        additions="${HOME}/nuclei-templates/.new-additions"
+        if [ -s "$additions" ]; then
+            added=$(grep -c . "$additions" 2>/dev/null || echo 0)
+            echo
+            echo "New templates ($added):"
+            cat "$additions"
+        fi
+    elif echo "$templates_out" | grep -qiE 'already updated|no new updates|up to date'; then
+        echo "Already up to date."
+    else
+        echo "Updated."
+    fi
+    echo
+}
+
 if command -v nuclei &> /dev/null; then
     echo -e "${BLUE}Updating nuclei.${NC}"
     nuclei_out=$(NO_COLOR=1 nuclei -up -silent 2>&1) || true
@@ -1092,11 +1117,14 @@ if command -v nuclei &> /dev/null; then
         f_go_install_tool github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest nuclei
     fi
     echo
+    f_nuclei_update_templates
 elif [ -n "$(f_go_bin)" ]; then
     echo -e "${YELLOW}Installing nuclei.${NC}"
     f_go_install_tool github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest nuclei
     echo
+    f_nuclei_update_templates
 fi
+unset -f f_nuclei_update_templates
 
 if [ -d /opt/PEASS-ng/.git ]; then
     echo -e "${BLUE}Updating PEASS-ng.${NC}"
