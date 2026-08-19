@@ -70,10 +70,10 @@ fi
 
 if [ -s /tmp/avail_harv.txt ]; then
     echo "Available, not used in passive.sh:"
-    grep -vxFf /tmp/used_harv.txt /tmp/avail_harv.txt || echo "(none)"
+    grep -vxFf /tmp/used_harv.txt /tmp/avail_harv.txt || echo "Up to date."
     echo
     echo "Used in passive.sh, no longer supported:"
-    grep -vxFf /tmp/avail_harv.txt /tmp/used_harv.txt || echo "(none)"
+    grep -vxFf /tmp/avail_harv.txt /tmp/used_harv.txt || echo "Up to date."
 elif [ -n "$TH_CORE" ]; then
     echo -e "${YELLOW}[!] Could not read theHarvester engine list.${NC}"
 fi
