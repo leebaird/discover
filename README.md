@@ -329,10 +329,10 @@ In **operator** mode only (report opened via **Open report** / Active at `http:/
 
 | Tool | Role | When shown |
 |------|------|------------|
+| **robots** | Fetch `/robots.txt` and list **Disallow** paths (same idea as multiTabs → Directories in robots.txt); **TXT** = raw body, **HTM** = open Disallow dirs in Firefox | Always on expand |
 | **Nuclei** | Template recon (product tags) then auto **Pass 2** CVE/KEV from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | **Gated:** product known via `?software=` **or** row fingerprint (Technologies / title / web server / hostname). Hidden when no product is known |
 | **droopescan** | CMS enum (`scan drupal` / …; `-e a -t 4`) | **Gated:** supported CMS from `?software=` **or** row fingerprint (Drupal, Joomla, Moodle, Silverstripe — not WordPress) |
 | **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** WordPress from `?software=` **or** row fingerprint. Optional `WPSCAN_API_TOKEN` for vuln DB |
-| **robots** | Fetch `/robots.txt` and list **Disallow** paths (same idea as multiTabs → Directories in robots.txt); **TXT** = raw body, **HTM** = open Disallow dirs in Firefox | Always on expand |
 | **Nikto** | Web server checks (request timeout 5s, FAILURES=8, maxtime 10m, hard stop 11m); report **TXT** + **HTM** when the scan actually ran | Always on expand |
 | **feroxbuster** | Content discovery (same wordlist picker as ffuf; no recursion; auto-bail; 10 threads, 20 req/s, 5s timeout, 10m time-limit); report **TXT** + **URL** | Always on expand |
 | **ffuf** | Content discovery (quiet defaults); report **TXT** + **URL** (open each finding in Firefox) | Always on expand |
@@ -609,7 +609,7 @@ bash recon/import-subdomains.sh --report /path/to/live-report --mode existing --
 |---------|---------|
 | **Host-scan metrics** | Range dropdown above the log: **Today** · **Yesterday** · **Last 7 days** (default) · **Last week** · **All** (calendar windows in the Config view timezone) |
 | **Audit log** | Newest-first by default; **Time (UTC)**, **Operator**, **Operator IP**, **Target**, **Action** (**Started** = exact command; **Finished** = e.g. `Finished nikto in 5 min 14 sec.`), **Output**. Full log lines stay in `tools/audit/log.txt` |
-| **Target scans** | Per-host history for **Nuclei**, **droopescan**, **WPScan**, **robots**, **Nikto**, **feroxbuster**, **ffuf** (quietest → loudest columns). Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
+| **Target scans** | Per-host history for **robots**, **Nuclei**, **droopescan**, **WPScan**, **Nikto**, **feroxbuster**, **ffuf**. Timestamp plus **TXT** / **HTM** / **URL** buttons when outputs exist |
 | **Exports** | Type (Client / Defender / Operator), exported time (UTC), operator IPs (Included / Redacted), file name |
 
 Open report rebuilds this page. Host scans and exports append data under `tools/` that appears on Audit after the next rebuild (Import, host-scan finish, or export path).

@@ -25,10 +25,10 @@ LINE_RE3 = re.compile(rf"^{_AUDIT_TS} \| ([^|]+) \| (.*)$")
 # droopescan / wpscan are gated on the Subdomains panel (CMS / WordPress)
 # but always appear as Target scans columns so prior runs remain visible.
 HOST_SCAN_TOOLS: list[tuple[str, str]] = [
+    ("robots", "robots"),
     ("nuclei", "Nuclei"),
     ("droopescan", "droopescan"),
     ("wpscan", "WPScan"),
-    ("robots", "robots"),
     ("nikto", "Nikto"),
     ("feroxbuster", "feroxbuster"),
     ("ffuf", "ffuf"),

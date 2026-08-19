@@ -7,7 +7,7 @@
 # Invoked via discover-scan: scheme or CLI:
 #   run-host-scan.sh <tool> <url> [software] [report_root]
 #
-# Tools: nuclei | droopescan | wpscan | robots | nikto | feroxbuster | ffuf  (quietest → loudest)
+# Tools: robots | nuclei | droopescan | wpscan | nikto | feroxbuster | ffuf
 # - Visible terminal (desktop entry uses Terminal=true)
 # - One scan at a time (engagement lock)
 # - Software-aware nuclei/ffuf/droopescan/wpscan profiles

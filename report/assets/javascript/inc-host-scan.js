@@ -728,11 +728,12 @@
      * Tools for this expand panel.
      * nuclei only when a product is known (filter or fingerprint).
      * robots/nikto/ffuf/feroxbuster always; CMS tools when matched.
-     * Order: quietest → loudest.
+     * Order: robots, then nuclei (if product), CMS, then louder tools.
      */
     function toolsForSoftware(software) {
         var tools = [];
         var soft = (software || "").trim();
+        tools.push("robots");
         if (soft) {
             tools.push("nuclei");
         }
@@ -742,7 +743,7 @@
         if (isWordpress(software)) {
             tools.push("wpscan");
         }
-        tools.push("robots", "nikto", "feroxbuster", "ffuf");
+        tools.push("nikto", "feroxbuster", "ffuf");
         return tools;
     }
 
