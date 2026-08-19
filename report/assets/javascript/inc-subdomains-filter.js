@@ -6,7 +6,8 @@
  * web server, technology, or Login pages signal.
  * Active Software versions:  subdomains.htm?software=Apache:2.4.37
  * Active CVE search:         subdomains.htm?cve=CVE-2024-38475
- * Active Categories:  subdomains.htm?category=Dev  (or category=(none))
+ * Active Categories:  subdomains.htm?category=Dev  (or category=(none);
+ *                     alive public hosts only, same as the Active count)
  * Active Status codes:       subdomains.htm?status=200
  * Active Top web servers:    subdomains.htm?webserver=Apache
  * Active Top technologies:   subdomains.htm?tech=jQuery  (matches jQuery:3.x too)
@@ -229,6 +230,18 @@
      * HTTP status: prefer column index 4 (Photo=3, Status=4); fall back to any
      * centered cell that is exactly three digits.
      */
+    /**
+     * Same alive set as Active / active-alive.tsv: 2xx–3xx, plus 401/403/405.
+     */
+    function rowIsAlive(row) {
+        var s = rowStatus(row);
+        if (!/^\d{3}$/.test(s)) {
+            return false;
+        }
+        var n = parseInt(s, 10);
+        return (n >= 200 && n < 400) || n === 401 || n === 403 || n === 405;
+    }
+
     function rowStatus(row) {
         if (!row || !row.cells) {
             return "";
@@ -459,6 +472,9 @@
         // Active table uses "(none)" for empty category cells.
         var want = category === "(none)" ? "" : category;
         var result = filterRows(function (row) {
+            if (!rowIsAlive(row)) {
+                return false;
+            }
             var cat = rowCategory(row);
             if (want === "") {
                 return !cat;
