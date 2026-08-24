@@ -1300,6 +1300,7 @@ PY
 import re
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 robots_path = Path(sys.argv[1])
 out_path = Path(sys.argv[2])
@@ -1318,7 +1319,7 @@ for raw in text.splitlines():
     if not m:
         continue
     path = (m.group(1) or "").strip()
-    if not path or path == "*":
+    if not path or path == "*" or path == "/":
         continue
     if path.lower() == "disallow":
         continue
@@ -1327,7 +1328,13 @@ for raw in text.splitlines():
     else:
         if not path.startswith("/"):
             path = "/" + path
+        if path == "/":
+            continue
         full = base + path
+    parsed = urlparse(full) if full.startswith(("http://", "https://")) else None
+    parsed_path = (parsed.path or "/") if parsed else path
+    if parsed_path.rstrip("/") in ("",) or parsed_path == "/":
+        continue
     if full in seen:
         continue
     seen.add(full)
@@ -1353,7 +1360,7 @@ PY
                 cat "$DISALLOW_FILE"
                 echo
             else
-                echo "No Disallow paths found (empty robots, missing file, or only Allow/*)."
+                echo "No Disallow directories found (empty robots, missing file, Disallow: / only, or only Allow/*)."
                 echo
             fi
         } >> "$OUT_FILE"
@@ -1378,6 +1385,7 @@ try:
     meta["disallow_count"] = int(count)
 except ValueError:
     meta["disallow_count"] = 0
+meta["url_count"] = meta["disallow_count"]
 meta["robots_http_status"] = code
 json.dump(meta, open(path, "w", encoding="utf-8"), indent=2)
 open(path, "a", encoding="utf-8").write("\n")

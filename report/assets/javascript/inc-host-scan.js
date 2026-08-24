@@ -170,7 +170,7 @@
                 {
                     h: "Outputs",
                     p:
-                        "TXT is the raw robots.txt body. URL opens each Disallow directory in Firefox (desktop handler; not shown when there are no Disallow paths or on Unreachable). Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
+                        "TXT is the raw robots.txt body. URL opens each Disallow directory in Firefox (desktop handler; not shown when there are no directories, only Disallow: /, or Unreachable). Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
                 }
             ]
         },
@@ -996,10 +996,13 @@
                 '" target="_blank" rel="noopener">htm</a>';
         }
         // robots: url opens Disallow directories in Firefox (discover-robots:).
+        // url_count (preferred) and disallow_count skip Disallow: / only.
         if (
             tool === "robots" &&
             st.skip_reason !== "host_unreachable" &&
-            Number(st.disallow_count) > 0
+            (findingUrlCount(st) === null
+                ? Number(st.disallow_count) > 0
+                : findingUrlCount(st) > 0)
         ) {
             var listRel = String(rel).replace(/[^/]+$/, "disallow-urls.txt");
             var absList = hostScanArtifactAbsolutePath(listRel);

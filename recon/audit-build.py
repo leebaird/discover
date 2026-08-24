@@ -751,6 +751,24 @@ def _hostname_from_url(url: str) -> str:
     return (urlparse(url).hostname or "").lower()
 
 
+def _robots_disallow_has_dirs(list_disk: Path) -> bool:
+    """True when disallow-urls.txt has at least one path other than site root."""
+    if not list_disk.is_file():
+        return False
+    try:
+        text = list_disk.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+    for raw in text.splitlines():
+        url = raw.strip()
+        if not url:
+            continue
+        path = (urlparse(url).path or "/").rstrip("/") or "/"
+        if path != "/":
+            return True
+    return False
+
+
 def _host_scan_finding_url_count(json_disk: Path) -> int:
     """Unique HTTP(S) finding URLs in ffuf.json or ferox.json (not config/stats)."""
     if not json_disk.is_file():
@@ -912,7 +930,7 @@ def audit_output_cell(
                     "\\", "/"
                 )
                 list_disk = report_root / list_rel.lstrip("/")
-                if list_disk.is_file() and list_disk.stat().st_size > 0:
+                if _robots_disallow_has_dirs(list_disk):
                     abs_list = str(list_disk.resolve())
                     robots_href = "discover-robots:" + quote(abs_list, safe="/:")
                     links.append(
@@ -1002,7 +1020,7 @@ def tool_cell(
                 "\\", "/"
             )
             list_disk = report_root / list_rel.lstrip("/")
-            if list_disk.is_file() and list_disk.stat().st_size > 0:
+            if _robots_disallow_has_dirs(list_disk):
                 abs_list = str(list_disk.resolve())
                 href = "discover-robots:" + quote(abs_list, safe="/:")
                 links.append(

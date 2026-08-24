@@ -347,7 +347,7 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 
 * One curl GET of `{base}/robots.txt` (scheme/host from the expand row URL)
 * Parses **Disallow** paths into full URLs under the run dir (`robots.txt`, `disallow-urls.txt`, summary `output.txt`)
-* **TXT** opens the raw robots body; **URL** uses `discover-robots:` → `misc/open-robots-tabs.sh` (Firefox CLI, one tab per unique Disallow URL; cap 40; ~1.5s ± 40% jitter between tabs). **URL** is hidden when there are no Disallow paths
+* **TXT** opens the raw robots body; **URL** uses `discover-robots:` → `misc/open-robots-tabs.sh` (Firefox CLI, one tab per unique Disallow URL; cap 40; ~1.5s ± 40% jitter between tabs). **URL** is hidden when there are no Disallow directories (including `Disallow: /` only)
 * Run does not open Firefox — only the green **URL** button does
 
 **ffuf quiet defaults** (`misc/run-host-scan.sh`):
