@@ -117,6 +117,12 @@ f_import_report_sync_assets(){
         cp -f "$src/css/modern.css" "$report/assets/css/modern.css" 2>/dev/null || \
             f_import_report_warn "Could not copy modern.css into report assets."
         # Bust browser cache on Subdomains after layout / host-scan / Shodan fixes.
+        if [ -f "$report/pages/names.htm" ]; then
+            sed -i \
+                -e 's|modern\.css?v=[^"]*|modern.css?v=names-phone4|g' \
+                -e 's|modern\.css"|modern.css?v=names-phone4"|g' \
+                "$report/pages/names.htm" 2>/dev/null || true
+        fi
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
                 -e 's|modern\.css?v=[^"]*|modern.css?v=ws39|g' \

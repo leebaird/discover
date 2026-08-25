@@ -375,13 +375,15 @@ f_names_update_report(){
     [ -f "$REPORT_PAGE" ] || return 0
 
     python3 - "$REPORT_PAGE" "$NAMES_FILE" <<'PY'
+import csv
 import re
+import subprocess
 import sys
 from pathlib import Path
 
 report_path = Path(sys.argv[1])
 names_path = Path(sys.argv[2])
-separator = "=" * 40
+separator = "=" * 127
 
 SUMMARY_LABEL = re.compile(r"^[A-Za-z][A-Za-z ]+\s+\d+$")
 DETAIL_HEADER = re.compile(r"^[A-Za-z][A-Za-z ]+ \(\d+\)$")
@@ -395,15 +397,36 @@ def report_heading(text):
     return f'<span class="inc-report-heading">{text}</span>'
 
 
-def load_rows(path):
+def format_name_lines(path):
+    """Passive Names: name + title, column-aligned. Emails stay in Emails."""
     if not path.is_file() or path.stat().st_size == 0:
         return []
     rows = []
-    for raw in path.read_text().splitlines():
+    for raw in path.read_text(encoding="utf-8", errors="replace").splitlines():
         line = raw.strip()
-        if line:
+        if not line or line.startswith("#"):
+            continue
+        if "\t" in line:
+            parts = next(csv.reader([line], delimiter="\t"))
+            name = (parts[0] if parts else "").strip()
+            title = (parts[1] if len(parts) > 1 else "").strip()
+            if not name:
+                continue
+            rows.append(f"{name}\t{title}" if title else name)
+        else:
             rows.append(line)
-    return rows
+    if not rows:
+        return []
+    if not any("\t" in row for row in rows):
+        return rows
+    result = subprocess.run(
+        ["column", "-t", "-s", "\t"],
+        input="\n".join(rows) + "\n",
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return [line for line in result.stdout.splitlines() if line.strip()]
 
 
 def replace_section(lines, section_name, count, body_lines):
@@ -488,7 +511,7 @@ prefix = text[:body_start]
 suffix = text[close_at:]
 lines = text[body_start:close_at].splitlines()
 
-name_rows = load_rows(names_path)
+name_rows = format_name_lines(names_path)
 name_count = len(name_rows)
 
 if not update_summary_count(lines, "Names", name_count):

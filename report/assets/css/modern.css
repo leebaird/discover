@@ -2567,6 +2567,13 @@ body:not(.inc-iframe-parent) pre {
     min-width: 0;
     max-width: 100%;
 }
+
+/* Names: lift the 1200px container cap so Phone is not clipped. Column widths stay auto/nowrap. */
+.inc-iframe-parent.inc-names-page .container.inc-container-dynamic,
+.inc-iframe-parent:not(.inc-home-page) .container.inc-names-page {
+    max-width: none;
+    width: max-content;
+}
 /* Report Export button (Discover-hosted Passive / Active / Audit only).
    Absolute top-right so Active’s 3-col CVE grid and Passive flex stay intact. */
 .inc-page-header.inc-page-header--with-export {

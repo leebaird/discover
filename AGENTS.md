@@ -33,6 +33,11 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - **Export filename** is the exception: `YYYYMMDD-HHMM` in `domain-kind-YYYYMMDD-HHMM.zip` (or `.csv`) uses the operator view timezone (`~/.discover/timezone`). Ledger `exported_at_utc` and the audit line stay UTC.
 - Preference store: `~/.discover/timezone` (not inside a single engagement report), so it applies across engagements for that operator machine. UI: Audit **Config → Time zone**.
 
+## Passive Names section
+
+- Passive Names dump is **name + title**, aligned (`column -t`). Emails stay in the Emails section; phone is not shown there.
+- `import-names.sh` and `import-names-titles-emails.sh` both write that format when they refresh `pages/passive.htm`.
+
 ## Optional nav pages (General / Files)
 
 - Nav items are omitted when the matching `pages/*.htm` file is missing. Standard reports that include those pages keep the menu items.
@@ -104,6 +109,7 @@ When designing or tweaking **report page layouts** (especially Audit and other `
 - Prefer **`px`** for widths, min/max-widths, padding, and gaps you are dialing in with the operator.
 - **Do not use `rem` for layout sizing.** Bootstrap sets `html { font-size: 10px }`, so `1rem = 10px` (not 16px). That made earlier “rem” floors look far too narrow.
 - `%` / `width: 1%` + `nowrap` is fine for shrink-to-content columns; once a column needs a **fixed** size, use **px**.
+- **Names** table: lift the generic 1200px container cap (`width: max-content; max-width: none`) so Phone is not clipped. Do not assign column widths; Name / Title / Email stay auto/nowrap. Bust `modern.css?v=` on `names.htm` after CSS changes.
 - Bust `modern.css?v=…` on the affected page after CSS changes and deploy to the live engagement report when applicable.
 
 ## `misc/update.sh` tool install order
