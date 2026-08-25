@@ -33,6 +33,12 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - **Export filename** is the exception: `YYYYMMDD-HHMM` in `domain-kind-YYYYMMDD-HHMM.zip` (or `.csv`) uses the operator view timezone (`~/.discover/timezone`). Ledger `exported_at_utc` and the audit line stay UTC.
 - Preference store: `~/.discover/timezone` (not inside a single engagement report), so it applies across engagements for that operator machine. UI: Audit **Config → Time zone**.
 
+## Optional nav pages (General / Files)
+
+- Nav items are omitted when the matching `pages/*.htm` file is missing. Standard reports that include those pages keep the menu items.
+- Covered: General → **Emails** (`emails.htm`); Files → **Excel** (`xls.htm`), **PowerPoint** (`ppt.htm`), **Text** (`txt.htm`), **Word** (`doc.htm`), **PDF** (`pdf.htm`).
+- Rebuilds of Audit / Active / Subdomains / Hosts copy Discover templates (full menus); writers strip items whose pages are absent.
+
 ## Report homepage date (`index.htm`)
 
 - Home hero date (`#DATE#` / first `inc-home-meta` value) is format `Month DD, YYYY` (same as Discover `DATESTAMP`).

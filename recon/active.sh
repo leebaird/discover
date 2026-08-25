@@ -10,6 +10,36 @@ if [ $EUID -eq 0 ]; then
     exit 1
 fi
 
+# Drop nav links to optional pages that are not on disk (emails, xls, ppt, txt, doc, pdf).
+f_omit_missing_page_nav(){
+    local report_root="$1"
+    local page="$2"
+    python3 - "$report_root" "$page" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+OPTIONAL = ("emails.htm", "xls.htm", "ppt.htm", "txt.htm", "doc.htm", "pdf.htm")
+root, page = Path(sys.argv[1]), Path(sys.argv[2])
+if not page.is_file():
+    raise SystemExit(0)
+text = page.read_text(encoding="utf-8")
+new = text
+pages = root / "pages"
+for name in OPTIONAL:
+    if (pages / name).is_file():
+        continue
+    new = re.sub(
+        rf"[ \t]*<li><a href=\"(?:\.\./)?(?:pages/)?{re.escape(name)}\">[^<]*</a></li>[ \t]*\n?",
+        "",
+        new,
+        flags=re.IGNORECASE,
+    )
+if new != text:
+    page.write_text(new, encoding="utf-8")
+PY
+}
+
 f_active_die(){
     echo
     echo -e "${RED}$SMALL${NC}"
@@ -571,6 +601,7 @@ out.extend(
 with open(page_path, "a") as handle:
     handle.write("\n".join(out) + "\n")
 PY
+    f_omit_missing_page_nav "$(dirname "$(dirname "$page")")" "$page"
 }
 
 f_active_report_substitute_placeholders(){
@@ -650,6 +681,7 @@ with open(page_path, "w", encoding="utf-8") as handle:
 PY
 
     f_active_report_substitute_placeholders "$page" "$report_dir/index.htm"
+    f_omit_missing_page_nav "$report_dir" "$page"
 }
 
 clear

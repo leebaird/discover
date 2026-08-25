@@ -739,6 +739,33 @@ def _pages_href(path_from_report_root: str) -> str:
     return rel
 
 
+# Optional nav pages: keep the <li> only when pages/<file> exists.
+# index.htm uses pages/foo.htm; pages/*.htm use foo.htm.
+_OPTIONAL_NAV_PAGES = (
+    "emails.htm",
+    "xls.htm",
+    "ppt.htm",
+    "txt.htm",
+    "doc.htm",
+    "pdf.htm",
+)
+
+
+def omit_missing_page_nav(html: str, report_root: Path) -> str:
+    """Drop nav links to report pages that are not on disk (e.g. no emails.htm)."""
+    pages = Path(report_root) / "pages"
+    for name in _OPTIONAL_NAV_PAGES:
+        if (pages / name).is_file():
+            continue
+        html = re.sub(
+            rf"[ \t]*<li><a href=\"(?:\.\./)?(?:pages/)?{re.escape(name)}\">[^<]*</a></li>[ \t]*\n?",
+            "",
+            html,
+            flags=re.IGNORECASE,
+        )
+    return html
+
+
 # Audit log Action → host-scan tool / pass-2 / URL (for Output column links).
 _AUDIT_SCAN_ACTION_RE = re.compile(
     r"(?i)\b(?P<verb>started|finished)\s+"
@@ -1816,7 +1843,9 @@ def write_audit_page(report_root: Path, template_path: Path | None = None) -> Pa
         )
 
     page_path.parent.mkdir(parents=True, exist_ok=True)
-    page_path.write_text(template.replace("#AUDIT_CONTENT#", content), encoding="utf-8")
+    html = template.replace("#AUDIT_CONTENT#", content)
+    html = omit_missing_page_nav(html, report_root)
+    page_path.write_text(html, encoding="utf-8")
     return page_path
 
 

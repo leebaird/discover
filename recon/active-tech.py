@@ -40,6 +40,32 @@ NOISE_PLUGINS = {
     "x-xss-protection",
 }
 
+# Optional nav pages: keep the <li> only when pages/<file> exists.
+_OPTIONAL_NAV_PAGES = (
+    "emails.htm",
+    "xls.htm",
+    "ppt.htm",
+    "txt.htm",
+    "doc.htm",
+    "pdf.htm",
+)
+
+
+def omit_missing_page_nav(html: str, report_dir: str) -> str:
+    """Drop nav links to report pages that are not on disk (e.g. no xls.htm)."""
+    pages = os.path.join(report_dir, "pages")
+    for name in _OPTIONAL_NAV_PAGES:
+        if os.path.isfile(os.path.join(pages, name)):
+            continue
+        html = re.sub(
+            rf"[ \t]*<li><a href=\"(?:\.\./)?(?:pages/)?{re.escape(name)}\">[^<]*</a></li>[ \t]*\n?",
+            "",
+            html,
+            flags=re.IGNORECASE,
+        )
+    return html
+
+
 # Product names that must never appear in the Software versions table.
 SOFTWARE_NOISE_PRODUCTS = {
     "emailfield",
@@ -2398,6 +2424,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
     content = open(template, encoding="utf-8").read()
     content = content.replace("#COMPANY#", company)
     content = content.replace("#DOMAIN#", domain)
+    content = omit_missing_page_nav(content, report_dir)
     # Keep host-scan expand assets current (robots tool, etc.).
     sync_host_scan_ui_assets(report_dir)
     # Template ends before dynamic tables (same as Active: append after copy).
@@ -2535,6 +2562,7 @@ def rebuild_active_page(
     content = content.replace("#ACTIVE_SCAN_DATE#", scan_date)
     content = content.replace("#COMPANY#", company)
     content = content.replace("#DOMAIN#", domain)
+    content = omit_missing_page_nav(content, report_dir)
 
     os.makedirs(os.path.dirname(page), exist_ok=True)
     with open(page, "w", encoding="utf-8") as handle:
