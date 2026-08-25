@@ -1366,7 +1366,7 @@ def compute_last7_metrics(report_root: Path, audit_rows: list) -> dict:
     return compute_metrics(report_root, audit_rows, "7d")
 
 
-def _hbar_rows_html(rows: list[tuple[str, int]], empty_label: str = "No data") -> str:
+def _hbar_rows_html(rows: list[tuple[str, int]], empty_label: str = "No data.") -> str:
     if not rows:
         return f'<p class="inc-audit-metrics-empty">{html.escape(empty_label)}</p>'
     max_n = max((n for _l, n in rows), default=1) or 1
@@ -1478,22 +1478,22 @@ def _render_metrics_panel_body(metrics: dict) -> str:
             '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--2">',
             '<div class="inc-audit-metrics-chart">',
             "<h4>By CVE</h4>",
-            f'{_hbar_rows_html(list(metrics.get("by_cve") or []), "No CVE scans")}',
+            f'{_hbar_rows_html(list(metrics.get("by_cve") or []), "No data.")}',
             "</div>",
             '<div class="inc-audit-metrics-chart">',
             "<h4>By software</h4>",
-            f'{_hbar_rows_html(list(metrics.get("by_software") or []), "No software-tagged scans")}',
+            f'{_hbar_rows_html(list(metrics.get("by_software") or []), "No data.")}',
             "</div>",
             "</div>",
             # By tool | By category
             '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--2">',
             '<div class="inc-audit-metrics-chart">',
             "<h4>By tool</h4>",
-            f'{_hbar_rows_html(list(metrics.get("by_tool") or []))}',
+            f'{_hbar_rows_html(list(metrics.get("by_tool") or []), "No data.")}',
             "</div>",
             '<div class="inc-audit-metrics-chart">',
             "<h4>By category</h4>",
-            f'{_hbar_rows_html(list(metrics.get("by_category") or []), "No category data")}',
+            f'{_hbar_rows_html(list(metrics.get("by_category") or []), "No data.")}',
             "</div>",
             "</div>",
             # Scans per day
@@ -1507,7 +1507,7 @@ def _render_metrics_panel_body(metrics: dict) -> str:
             '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--1">',
             '<div class="inc-audit-metrics-chart">',
             "<h4>By operator</h4>",
-            f'{_hbar_rows_html(list(metrics.get("by_operator") or []))}',
+            f'{_hbar_rows_html(list(metrics.get("by_operator") or []), "No data.")}',
             "</div>",
             "</div>",
         ]
