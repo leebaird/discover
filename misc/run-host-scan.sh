@@ -546,6 +546,41 @@ f_nuclei_ensure_findings_message(){
     fi
 }
 
+# Append Findings: to output.txt. Prefix real nuclei match lines with [*].
+f_nuclei_append_findings(){
+    local src="$1"
+    python3 - "$src" <<'PY'
+from pathlib import Path
+import sys
+
+src = Path(sys.argv[1])
+placeholder = "No vulnerabilities discovered."
+print("Findings:")
+if not src.is_file():
+    print(placeholder)
+    print()
+    raise SystemExit(0)
+text = src.read_text(encoding="utf-8", errors="replace")
+if not text.strip():
+    print(placeholder)
+    print()
+    raise SystemExit(0)
+for line in text.splitlines():
+    s = line.rstrip()
+    if not s.strip():
+        print()
+        continue
+    if s.strip() == placeholder:
+        print(s.strip())
+        continue
+    if s.lstrip().startswith("[*]"):
+        print(s)
+        continue
+    print(f"[*] {s}")
+print()
+PY
+}
+
 # Strip ANSI / progress junk (ffuf draws progress with ESC sequences that show as
 # little boxes with stacked numbers in plain text viewers).
 f_clean_scan_text(){
@@ -1056,8 +1091,8 @@ case "$TOOL" in
         if [ -z "${SOFTWARE// }" ]; then
             f_die "nuclei requires a software product (Active ?software= filter or row tech fingerprint). Got: empty"
         fi
-        # output.txt layout is fixed (Command → Results/Findings → paths); do not tee
-        # live nuclei lines into the report file.
+        # output.txt layout is Command → Findings. Do not tee live nuclei
+        # lines into the report file, and do not print an Output: filesystem path.
         f_nuclei_args
         NUCLEI_OUT="$RUN_DIR/nuclei.txt"
         NUCLEI_CMD="nuclei -u $(f_shell_quote "$URL") -H $(f_shell_quote "User-Agent: $UA")"
@@ -1086,14 +1121,7 @@ case "$TOOL" in
         set -e
         EXIT_CODE=$PASS1_CODE
         f_nuclei_ensure_findings_message "$NUCLEI_OUT"
-        {
-            echo "Results:"
-            cat "$NUCLEI_OUT"
-            echo
-            echo "Output:"
-            echo "$NUCLEI_OUT"
-            echo
-        } >> "$OUT_FILE"
+        f_nuclei_append_findings "$NUCLEI_OUT" >> "$OUT_FILE"
 
         # Pass 2: CVE/KEV IDs that exist as local nuclei templates (+ product CVE YAMLs).
         PASS2_META=$(f_nuclei_pass2_ids || true)
@@ -1114,6 +1142,7 @@ case "$TOOL" in
             # Comma-space list for readability in the report
             PASS2_IDS_DISPLAY=$(printf '%s' "$PASS2_IDS" | sed 's/,/, /g')
             {
+                echo
                 echo "=== Pass 2: CVE and KEV templates ==="
                 echo
                 echo "Software:"
@@ -1145,11 +1174,7 @@ case "$TOOL" in
                 EXIT_CODE=$PASS2_CODE
             fi
             f_nuclei_ensure_findings_message "$NUCLEI_PASS2_OUT"
-            {
-                echo "Findings:"
-                cat "$NUCLEI_PASS2_OUT"
-                echo
-            } >> "$OUT_FILE"
+            f_nuclei_append_findings "$NUCLEI_PASS2_OUT" >> "$OUT_FILE"
             # Do not audit "Finished nuclei pass-2 ..." - redundant with parent Finished + Output.
             python3 - "$META_FILE" "$PASS2_IDS" "${PASS2_KEV_N:-0}" "${PASS2_TOTAL:-0}" "${PASS2_CODE:-1}" "${PASS2_NOTE:-}" <<'PY'
 import json, sys
@@ -1171,6 +1196,7 @@ open(path, "a", encoding="utf-8").write("\n")
 PY
         else
             {
+                echo
                 echo "=== Pass 2: skipped ==="
                 echo
                 echo "No runnable CVE templates for software '${SOFTWARE:--}'."
