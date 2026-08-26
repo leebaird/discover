@@ -1407,14 +1407,14 @@ PY
 )
         DISALLOW_COUNT="${DISALLOW_COUNT:-0}"
         {
-            echo "HTTP status: $HTTP_CODE"
+            echo "[*] robots.txt HTTP $HTTP_CODE"
             if [ "$CURL_RC" -ne 0 ]; then
                 echo "curl exit:   $CURL_RC"
             fi
             if [ "$DISALLOW_COUNT" -eq 1 ] 2>/dev/null; then
-                echo "Disallow:    $DISALLOW_COUNT unique path"
+                echo "[*] $DISALLOW_COUNT Disallow path"
             else
-                echo "Disallow:    $DISALLOW_COUNT unique paths"
+                echo "[*] $DISALLOW_COUNT Disallow paths"
             fi
             echo
             if [ "$DISALLOW_COUNT" -gt 0 ] 2>/dev/null; then
@@ -1452,10 +1452,11 @@ meta["robots_http_status"] = code
 json.dump(meta, open(path, "w", encoding="utf-8"), indent=2)
 open(path, "a", encoding="utf-8").write("\n")
 PY
+        echo "[*] robots.txt HTTP $HTTP_CODE"
         if [ "$DISALLOW_COUNT" -eq 1 ] 2>/dev/null; then
-            echo "[*] robots.txt HTTP $HTTP_CODE — $DISALLOW_COUNT Disallow path"
+            echo "[*] $DISALLOW_COUNT Disallow path"
         else
-            echo "[*] robots.txt HTTP $HTTP_CODE — $DISALLOW_COUNT Disallow paths"
+            echo "[*] $DISALLOW_COUNT Disallow paths"
         fi
         ;;
     ffuf)
