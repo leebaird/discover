@@ -331,7 +331,7 @@ In **operator** mode only (report opened via **Open report** / Active at `http:/
 |------|------|------------|
 | **robots** | Fetch `/robots.txt` and list **Disallow** paths (same idea as multiTabs → Directories in robots.txt); **TXT** = raw body, **URL** = open Disallow dirs in Firefox | Always on expand |
 | **Nuclei** | Template recon (product tags) then auto **Pass 2** CVE/KEV from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | **Gated:** product known via `?software=` **or** row fingerprint (Technologies / title / web server / hostname). Hidden when no product is known |
-| **droopescan** | CMS enum (`scan drupal` / …; `-e a -t 4`) | **Gated:** supported CMS from `?software=` **or** row fingerprint (Drupal, Joomla, Moodle, Silverstripe — not WordPress) |
+| **droopescan** | CMS enum (`scan drupal` / …; `-e a -t 4 --hide-progressbar`); TXT drops percent-bar lines | **Gated:** supported CMS from `?software=` **or** row fingerprint (Drupal, Joomla, Moodle, Silverstripe — not WordPress) |
 | **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** WordPress from `?software=` **or** row fingerprint. Optional `WPSCAN_API_TOKEN` for vuln DB |
 | **Nikto** | Web server checks (request timeout 5s, FAILURES=8, maxtime 10m, hard stop 11m); report **TXT** + **HTM** when the scan actually ran | Always on expand |
 | **feroxbuster** | Content discovery (same wordlist picker as ffuf; no recursion; auto-bail; 10 threads, 20 req/s, 5s timeout, 10m time-limit); report **TXT** + **URL** | Always on expand |
@@ -341,7 +341,7 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 
 **Software fingerprint (expand):** `?software=` wins (e.g. Active Software versions link). Otherwise Discover reads the row Technologies tokens (keeps version when present, e.g. `Kibana:9.4.2`), then title, web server, and hostname label. Priority products include CMS, Kibana, Grafana, Elasticsearch, Jenkins, Tomcat, IIS, nginx, Apache, PHP, Node.js. That product string is passed into `run-host-scan.sh` so nuclei Pass 1 uses product tags and Pass 2 can select CVE templates.
 
-**Reachability pre-check** (all expand tools): before nuclei, droopescan, wpscan, robots, nikto, ffuf, or feroxbuster launches, `misc/run-host-scan.sh` runs a **curl HTTP/1.1 GET** (15s max, same User-Agent as the scan). If the host does not answer HTTP, Discover **does not run the tool**. The run’s `output.txt` records the skip, `status.json` / `latest.json` set `skip_reason=host_unreachable`, and the box shows **Unreachable** (red) with a **TXT** note. **Nikto** does not show **HTM** on that skip, and **robots** does not show **URL** (no report / no Disallow list).
+**Reachability pre-check** (all expand tools): before nuclei, droopescan, wpscan, robots, nikto, ffuf, or feroxbuster launches, `misc/run-host-scan.sh` runs a **curl HTTP/1.1 GET** (15s max, same User-Agent as the scan). One request records status and time; a `000` result is retried once. **robots** probes `{origin}/robots.txt` (not the site root), so a slow or 403 homepage does not skip a working robots.txt. If the probe does not answer HTTP, Discover **does not run the tool**. The run’s `output.txt` records the skip, `status.json` / `latest.json` set `skip_reason=host_unreachable`, and the box shows **Unreachable** (red) with a **TXT** note. **Nikto** does not show **HTM** on that skip, and **robots** does not show **URL** (no report / no Disallow list).
 
 **robots** (`misc/run-host-scan.sh`):
 

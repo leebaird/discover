@@ -123,7 +123,8 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 ## Host-scan reachability pre-check (expand dropdown only)
 
 - Applies only to tools launched from the Subdomains expand panel: **nuclei**, **robots**, **nikto**, **ffuf**, **feroxbuster**, plus **droopescan** / **wpscan** when shown.
-- Before the tool runs, `run-host-scan.sh` does a **curl HTTP/1.1 GET** (15s max, same UA as the tool).
+- Before the tool runs, `run-host-scan.sh` does a **curl HTTP/1.1 GET** (15s max, same UA as the tool). One request records status and time (not two sequential GETs). Retry once on `000`.
+- **robots** probes `{origin}/robots.txt`, not the site root (a slow/403 homepage must not skip a working robots.txt).
 - If no HTTP response (`000` / timeout): **do not launch the tool**. Write skip note in that run’s `output.txt`, set `meta.skip_reason=host_unreachable` and the same on `status.json` / `latest.json`, exit 1.
 - Expand panel shows **Unreachable** (red) under that tool box (plus txt link when present).
 - **Nikto HTM** and **robots URL** are omitted when `skip_reason=host_unreachable` (no report / no Disallow list).
@@ -137,9 +138,9 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - **Software for expand:** `?software=` query wins; else fingerprint the row (Technologies tokens with version when present, title, web server, hostname label). Priority products include CMS, Kibana, Grafana, Elasticsearch, Jenkins, Tomcat, IIS, nginx, Apache, PHP, Node.js.
 - **nuclei only when a product is known** (filter or fingerprint). Do not offer nuclei for blind `-tags tech` with empty software. Backend `run-host-scan.sh` refuses nuclei when SOFTWARE is empty. Nuclei `output.txt` has no **Output:** filesystem path (Pass 1 and Pass 2 both use **Findings:**). Prefix real match lines with `[*]`; leave `No vulnerabilities discovered.` unprefixed. Blank line before `=== Pass 2`.
 - **robots** / **nikto** / **feroxbuster** / **ffuf** always on expand when the UI is shown. Order: **robots** → nuclei (if product) → CMS tools → nikto → feroxbuster → ffuf.
-- **robots:** fetch `/robots.txt` (same idea as multiTabs → Directories in robots.txt). **txt** = raw `robots.txt` body; **url** = open Disallow directories in Firefox via `discover-robots:` → `misc/open-robots-tabs.sh` (only when `disallow_count` > 0). Skip `Disallow: /` (site root is not a directory to open). Run does not open Firefox.
+- **robots:** fetch `/robots.txt` (same idea as multiTabs → Directories in robots.txt). **txt** = raw `robots.txt` body; **url** = open Disallow directories in Firefox via `discover-robots:` → `misc/open-robots-tabs.sh` (only when `disallow_count` > 0). Skip `Disallow: /` (site root is not a directory to open). Keep query-string Disallow paths (Drupal `/?q=admin/` is not site root). Run does not open Firefox.
 - **ffuf / feroxbuster url:** green **url** (Firefox tabs) only when the run has at least one finding URL. Auto-filter-only / empty JSON → **txt** only. Count stored as `meta.url_count`.
-- **droopescan** / **wpscan** gate on CMS software (query or fingerprint). **WordPress → wpscan only** (no droopescan for WP). Drupal / Joomla / Moodle / Silverstripe still use droopescan when matched.
+- **droopescan** / **wpscan** gate on CMS software (query or fingerprint). **WordPress → wpscan only** (no droopescan for WP). Drupal / Joomla / Moodle / Silverstripe still use droopescan when matched. Droopescan runs `--hide-progressbar`; report TXT drops percent-bar lines (`(0%)` / `12/4000`) and leading `[+]`, and writes **URLs found**.
 - Each tool box has a Unicode ⓘ help modal. Finished stamps use the Config **Time zone** (same display conversion as Audit; on-disk stamps stay UTC). Bust `inc-host-scan.js?v=…` (and `modern.css?v=…` on Subdomains) after changes and sync via Import when testing live reports.
 
 ## Shodan panel Update (Subdomains)

@@ -583,6 +583,7 @@ PY
 
 # Strip ANSI / progress junk (ffuf draws progress with ESC sequences that show as
 # little boxes with stacked numbers in plain text viewers).
+# Also drop droopescan-style percent bars (modules [ === ] 1/4000 (0%)).
 f_clean_scan_text(){
     python3 -c '
 import re, sys
@@ -602,11 +603,19 @@ for ln in raw.splitlines():
         continue
     if re.search(r"\bReq/sec\b", s) and re.search(r"\bErrors\b", s, re.I):
         continue
+    # droopescan progressbar: "modules [ === ] 12/4000 (0%)"
+    if re.search(r"\(\s*\d+%\s*\)", s):
+        continue
+    if re.search(r"\[\s*=+", s) and re.search(r"\d+\s*/\s*\d+", s):
+        continue
     empty = not s
     if empty and prev_empty:
         continue
     # Drop per-hit timing only (keep Status, Size, Words, Lines)
     ln = re.sub(r",\s*Duration:\s*\d+ms", "", ln, flags=re.I)
+    # droopescan headings: "[+] Plugins found:" → "Plugins found:"
+    ln = re.sub(r"^(\s*)\[\+\]\s+", r"\1", ln)
+    ln = re.sub(r"\burls found\b", "URLs found", ln, flags=re.I)
     out.append(ln.rstrip())
     prev_empty = empty
 sys.stdout.write("\n".join(out))
@@ -893,30 +902,63 @@ out.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 PY
 }
 
+# Origin only (scheme://host[:port]) — robots.txt lives at the host root.
+f_url_origin(){
+    python3 - "$1" <<'PY'
+from urllib.parse import urlparse
+import sys
+raw = sys.argv[1]
+p = urlparse(raw if "://" in raw else "https://" + raw)
+scheme = (p.scheme or "https").lower()
+if scheme not in ("http", "https"):
+    scheme = "https"
+netloc = p.netloc or (p.path.split("/")[0] if p.path else "")
+print(f"{scheme}://{netloc}".rstrip("/"))
+PY
+}
+
 # Pre-flight: can curl reach the URL with HTTP/1.1?
 # Returns 0 = run the tool, 1 = skip (unreachable / no HTTP response).
 # Used for all host-scan tools so operators get a clear skip note in output.txt.
+# robots probes {origin}/robots.txt (site root can 403/timeout while robots.txt is 200).
 f_host_reachable_precheck(){
     local url="$1"
-    local code time_total http10
+    local probe="$url"
+    local line code time_total http10 attempt
 
     if ! command -v curl >/dev/null 2>&1; then
         echo "[*] curl not available - skipping reachability pre-check."
         return 0
     fi
 
-    echo "[*] Reachability pre-check (curl HTTP/1.1 GET, 15s)."
-    code=$(curl -sS -k -o /dev/null -w "%{http_code}" \
-        --http1.1 --connect-timeout 8 --max-time 15 \
-        -A "$UA" \
-        "$url" 2>/dev/null) || code="000"
-    time_total=$(curl -sS -k -o /dev/null -w "%{time_total}" \
-        --http1.1 --connect-timeout 8 --max-time 15 \
-        -A "$UA" \
-        "$url" 2>/dev/null) || time_total="?"
+    if [ "${TOOL:-}" = "robots" ]; then
+        probe="$(f_url_origin "$url")/robots.txt"
+        echo "[*] Reachability pre-check (curl HTTP/1.1 GET, 15s) — $probe"
+    else
+        echo "[*] Reachability pre-check (curl HTTP/1.1 GET, 15s)."
+    fi
 
-    if [ -z "$code" ] || [ "$code" = "000" ]; then
-        echo "[!] Pre-check failed: no HTTP response from $url within 15s."
+    code="000"
+    time_total="?"
+    for attempt in 1 2; do
+        line=$(curl -sS -k -o /dev/null -w "%{http_code} %{time_total}" \
+            --http1.1 --connect-timeout 8 --max-time 15 \
+            -A "$UA" \
+            "$probe" 2>/dev/null) || true
+        code="${line%% *}"
+        time_total="${line#* }"
+        [ -n "$code" ] || code="000"
+        if [ "$code" != "000" ]; then
+            break
+        fi
+        if [ "$attempt" -eq 1 ]; then
+            echo "[*] Pre-check got no HTTP response; retrying once."
+            sleep 2
+        fi
+    done
+
+    if [ "$code" = "000" ]; then
+        echo "[!] Pre-check failed: no HTTP response from $probe within 15s."
         echo "    Host is not reachable from this network (or not answering HTTP)."
         return 1
     fi
@@ -926,7 +968,7 @@ f_host_reachable_precheck(){
     http10=$(curl -sS -k -o /dev/null -w "%{http_code}" \
         --http1.0 --connect-timeout 5 --max-time 10 \
         -A "$UA" \
-        "$url" 2>/dev/null) || http10="000"
+        "$probe" 2>/dev/null) || http10="000"
     if [ "$http10" = "426" ]; then
         echo "[*] Note: HTTP/1.0 returns 426 Upgrade Required (common on Azure ALB)."
         echo "    Discover uses HTTP/1.1 + GET for this probe."
@@ -1211,8 +1253,9 @@ PY
         [ -n "$CMS" ] || f_die "droopescan requires CMS software (Drupal, Joomla, Moodle, Silverstripe - not WordPress; use wpscan). Got: ${SOFTWARE:-none}"
         command -v droopescan >/dev/null 2>&1 || f_die "droopescan is not installed (or not on PATH). Run Discover Update; prefer ~/.local/bin after Python 3.14 patch."
         DROOP_OUT="$RUN_DIR/droopescan.txt"
-        # Quiet-ish: all enums, modest threads, standard text output.
-        DROOP_CMD="droopescan scan $CMS -u $(f_shell_quote "$URL") -e a -t 4 -o standard"
+        DROOP_RAW="$RUN_DIR/droopescan.raw"
+        # Quiet-ish: all enums, modest threads, no live percent bar in the TXT.
+        DROOP_CMD="droopescan scan $CMS -u $(f_shell_quote "$URL") -e a -t 4 -o standard --hide-progressbar"
         f_write_run_header "$DROOP_CMD"
         {
             echo "CMS: $CMS"
@@ -1221,19 +1264,18 @@ PY
         } >> "$OUT_FILE"
         echo "[*] droopescan scan $CMS on $URL"
         set +e
-        # Capture full text report (stdout+stderr); also keep a sidecar copy.
-        droopescan scan "$CMS" -u "$URL" -e a -t 4 -o standard \
-            2>&1 | tee "$DROOP_OUT" | tee -a "$OUT_FILE"
+        droopescan scan "$CMS" -u "$URL" -e a -t 4 -o standard --hide-progressbar \
+            2>&1 | tee "$DROOP_RAW"
         EXIT_CODE=${PIPESTATUS[0]}
         set -e
+        if [ -f "$DROOP_RAW" ]; then
+            f_clean_scan_text < "$DROOP_RAW" > "$DROOP_OUT"
+            f_clean_scan_text < "$DROOP_RAW" >> "$OUT_FILE"
+            rm -f "$DROOP_RAW"
+        fi
         if [ ! -s "$DROOP_OUT" ]; then
             printf '%s\n' "No droopescan output captured." > "$DROOP_OUT"
         fi
-        {
-            echo
-            echo "Output: $DROOP_OUT"
-            echo
-        } >> "$OUT_FILE"
         ;;
     wpscan)
         f_is_wordpress || f_die "wpscan requires WordPress software filter. Got: ${SOFTWARE:-none}"
@@ -1291,15 +1333,7 @@ PY
         # Run only fetches + parses; Firefox tabs open via discover-robots: (htm button).
         ROBOTS_FILE="$RUN_DIR/robots.txt"
         DISALLOW_FILE="$RUN_DIR/disallow-urls.txt"
-        BASE_URL=$(python3 - "$URL" <<'PY'
-from urllib.parse import urlparse
-import sys
-p = urlparse(sys.argv[1])
-scheme = (p.scheme or "https").lower()
-netloc = p.netloc or p.path.split("/")[0]
-print(f"{scheme}://{netloc}".rstrip("/"))
-PY
-)
+        BASE_URL=$(f_url_origin "$URL")
         ROBOTS_URL="${BASE_URL}/robots.txt"
         ROBOTS_CMD="curl -kLsS --http1.1 --connect-timeout 8 --max-time 15 -A $(f_shell_quote "$UA") -o robots.txt $(f_shell_quote "$ROBOTS_URL")"
         f_write_run_header "$ROBOTS_CMD"
@@ -1359,8 +1393,10 @@ for raw in text.splitlines():
         full = base + path
     parsed = urlparse(full) if full.startswith(("http://", "https://")) else None
     parsed_path = (parsed.path or "/") if parsed else path
+    # Skip Disallow: / (site root). Keep /?q=... (Drupal aliases).
     if parsed_path.rstrip("/") in ("",) or parsed_path == "/":
-        continue
+        if not (parsed and (parsed.query or parsed.fragment)):
+            continue
     if full in seen:
         continue
     seen.add(full)

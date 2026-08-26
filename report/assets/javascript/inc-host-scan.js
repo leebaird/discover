@@ -103,7 +103,7 @@
                 {
                     h: "What Run does",
                     p:
-                        "Runs droopescan against the host URL with the inferred or filtered CMS plugin."
+                        "Runs droopescan against the host URL with the inferred or filtered CMS plugin. Progress bars are omitted from the TXT."
                 },
                 {
                     h: "Safety check",
@@ -165,7 +165,7 @@
                 {
                     h: "Safety check",
                     p:
-                        "Before the fetch, Discover runs a curl HTTP/1.1 GET (15s). If the host does not answer HTTP, the run is skipped and the box shows Unreachable (txt note only)."
+                        "Before the fetch, Discover probes /robots.txt with curl HTTP/1.1 GET (15s). If that file does not answer HTTP, the run is skipped and the box shows Unreachable (txt note only). A slow or 403 site root does not skip robots when /robots.txt answers."
                 },
                 {
                     h: "Outputs",
@@ -421,7 +421,7 @@
                 cms +
                 " -u " +
                 shellQuote(u) +
-                " -e a -t 4 -o standard"
+                " -e a -t 4 -o standard --hide-progressbar"
             );
         }
         if (tool === "wpscan") {
