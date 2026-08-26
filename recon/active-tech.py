@@ -1208,7 +1208,16 @@ LOGIN_TITLE_RE = re.compile(
     r"authorization\s+required|"
     r"401\s+unauthori[sz]ed|"
     r"unauthori[sz]ed|"
-    r"password\s*(?:required|protected)?"
+    r"password\s*(?:required|protected)?|"
+    # Common non-English login titles (CGI hosts are often localized).
+    r"zaloguj|logowanie|"
+    r"anmelden|anmeldung|einloggen|"
+    r"connexion|"
+    r"iniciar\s+sesi[oó]n|"
+    r"accedi|"
+    r"inloggen|aanmelden|"
+    r"logga\s+in|"
+    r"kirjaudu"
     r")\b"
 )
 
@@ -1252,6 +1261,46 @@ LOGIN_TECH_BASES = {
 }
 
 
+def httpx_login_paths(tech: dict | None) -> list[str]:
+    """Login-like paths from httpx url / final_url (no ffuf required)."""
+    tech = tech or {}
+    found: list[str] = []
+    seen: set[str] = set()
+    for blob in (tech.get("final_url"), tech.get("url")):
+        raw = str(blob or "").strip()
+        if not raw:
+            continue
+        path = raw.split("?", 1)[0].split("#", 1)[0]
+        if "://" in raw:
+            try:
+                parsed = urlparse(raw)
+                path = parsed.path or ""
+            except ValueError:
+                pass
+        path = (path or "").strip() or "/"
+        if not is_login_path(path):
+            continue
+        key = path.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        found.append(path)
+    return found
+
+
+def host_has_login_path(
+    host: str,
+    tech: dict | None,
+    path_hosts: dict[str, list[str]] | None = None,
+) -> bool:
+    """True when ffuf or httpx landing URL looks like a login path."""
+    host_key = (host or "").lower().strip()
+    path_hosts = path_hosts or {}
+    if host_key in path_hosts and path_hosts[host_key]:
+        return True
+    return bool(httpx_login_paths(tech))
+
+
 def is_login_path(path: str) -> bool:
     """True when a fuzz path looks like a login / auth endpoint."""
     raw = (path or "").strip().lstrip("/")
@@ -1286,12 +1335,18 @@ def is_login_tech(technologies: str) -> bool:
         if not item:
             continue
         key = technology_label_key(item).lower().strip()
+        if not key:
+            continue
         if key in LOGIN_TECH_BASES:
             return True
         # CMS aliases share the same idea
         compact = key.replace(" ", "")
         if compact in CMS_ALIASES:
             return True
+        # httpx often emits "Atlassian Jira" / "Atlassian Confluence", not "Jira".
+        for base in LOGIN_TECH_BASES:
+            if re.search(rf"(?<![a-z0-9]){re.escape(base)}(?![a-z0-9])", key):
+                return True
     return False
 
 
@@ -1367,7 +1422,7 @@ def host_login_types(
     path_hosts = path_hosts or {}
     title = tech.get("title") or ""
     form = False
-    if host_key in path_hosts and path_hosts[host_key]:
+    if host_has_login_path(host_key, tech, path_hosts):
         form = True
     if is_login_tech(technologies):
         form = True
@@ -1692,7 +1747,7 @@ def host_login_signals(
     if host_skipped_login(host_key, tech, skip_hosts):
         return signals
 
-    if host_key in path_hosts and path_hosts[host_key]:
+    if host_has_login_path(host_key, tech, path_hosts):
         signals.add("path")
 
     title = tech.get("title") or ""
