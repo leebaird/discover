@@ -167,7 +167,13 @@ fi
 
 if ! command -v arp-scan &> /dev/null; then
     echo -e "${YELLOW}Installing arpscan.${NC}"
-    apt install -y arp-scan/questing
+    # Default suite first (Kali rolling, Debian, current Ubuntu). Ubuntu-only
+    # fallback: /questing when the default package name is missing.
+    if ! apt install -y arp-scan; then
+        if grep -qi '^ID=ubuntu' /etc/os-release; then
+            apt install -y arp-scan/questing
+        fi
+    fi
     echo
 fi
 
@@ -917,10 +923,15 @@ else
     echo
 fi
 
-# Metasploit (snap). Alphabetical: after MAN-SPIDER, before Nikto.
-# Snap installs do not support msfupdate — use snap refresh.
-if command -v msfconsole >/dev/null 2>&1 \
-    || snap list metasploit-framework >/dev/null 2>&1; then
+# Metasploit. Alphabetical: after MAN-SPIDER, before Nikto.
+# Snap MSF does not support msfupdate — use snap refresh only when the snap
+# is installed. Kali ships apt metasploit-framework and often has no snap.
+_msf_have_snap=false
+if command -v snap >/dev/null 2>&1 \
+    && snap list metasploit-framework >/dev/null 2>&1; then
+    _msf_have_snap=true
+fi
+if [ "$_msf_have_snap" = true ]; then
     echo -e "${BLUE}Updating Metasploit.${NC}"
     _msf_out=$(snap refresh metasploit-framework 2>&1) || true
     if echo "$_msf_out" | grep -qiE 'is up to date|already|no updates|no revisions|has no updates'; then
@@ -934,11 +945,31 @@ if command -v msfconsole >/dev/null 2>&1 \
     fi
     unset _msf_out
     echo
+elif command -v msfconsole >/dev/null 2>&1; then
+    echo -e "${BLUE}Updating Metasploit.${NC}"
+    _msf_out=$(apt-get -y install metasploit-framework 2>&1) || true
+    if echo "$_msf_out" | grep -qiE 'already the newest|is already the newest'; then
+        echo "Already up to date."
+    elif echo "$_msf_out" | grep -qiE 'error|failed|unable to'; then
+        echo "$_msf_out" | tail -5
+    elif [ -n "$_msf_out" ]; then
+        echo "$_msf_out" | grep -iE 'upgraded|newly installed|setting up metasploit' | tail -5 \
+            || echo "Updated."
+    else
+        echo "Already up to date."
+    fi
+    unset _msf_out
+    echo
 else
     echo -e "${YELLOW}Installing Metasploit.${NC}"
-    snap install metasploit-framework
+    if command -v snap >/dev/null 2>&1 && grep -qi '^ID=ubuntu' /etc/os-release; then
+        snap install metasploit-framework
+    else
+        apt install -y metasploit-framework
+    fi
     echo
 fi
+unset _msf_have_snap
 
 # Nikto from GitHub (sullo/nikto) — apt 2.1.5 is years behind (2.6.x has TLS SNI,
 # current tests DBs, -useragent / -nointeractive). Install under /opt/nikto.
