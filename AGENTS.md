@@ -59,6 +59,7 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - **Names, titles, and emails:** source file path. `POST /import-names-titles-emails` → `import-names-titles-emails.sh --report <live> --source … --json`.
 - **Subdomains:** mode `existing` | `team-csv`, import path (`firefox` allowed), optional `run_active` for CSV new public hosts. `POST /import-subdomains` → `import-subdomains.sh --report … --mode … --import … [--run-active] --json`.
 - Domain menu no longer lists import items 6–8; menu is **6 Active · 7 Open report · 8 Previous**. Scripts remain for CLI.
+- After a successful Import, the Audit page reloads so KPI totals, charts, Target scans, and the log match the rebuilt `audit.htm`.
 - Assets: `inc-audit-import.js`; bust `?v=` / `modern.css` on Audit after UI changes; import-report injects the script on `audit.htm`. Restart statusd after endpoint changes.
 
 ## Audit log operator filter

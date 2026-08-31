@@ -94,8 +94,7 @@
             escapeHtml(summary) +
             '">' +
             escapeHtml(summary) +
-            "</div>" +
-            '<div class="inc-audit-import-refresh-note">Refresh this page to see updated Audit and report pages.</div>';
+            "</div>";
     }
 
     function setActionsHtml(html) {
@@ -302,11 +301,16 @@
         });
     }
 
+    function reloadAuditPage() {
+        location.reload();
+    }
+
     function finishOk(summary) {
         setSuccess(summary);
         setActionsHtml(
             '<button type="button" class="inc-report-export-cancel" data-inc-audit-import-close="1">Close</button>'
         );
+        reloadAuditPage();
     }
 
     function finishErr(msg, runKind) {
