@@ -313,6 +313,12 @@ f_nuclei_args(){
         NUCLEI_EXTRA=(-tags elasticsearch -c 5 -rl 25)
     elif [[ "$soft_lc" == jenkins* ]]; then
         NUCLEI_EXTRA=(-tags jenkins -c 5 -rl 25)
+    elif [[ "$soft_lc" == gitlab* ]]; then
+        NUCLEI_EXTRA=(-tags gitlab -c 5 -rl 25)
+    elif [[ "$soft_lc" == gitea* ]]; then
+        NUCLEI_EXTRA=(-tags gitea -c 5 -rl 25)
+    elif [[ "$soft_lc" == gogs* ]]; then
+        NUCLEI_EXTRA=(-tags gogs -c 5 -rl 25)
     elif [[ "$soft_lc" == tomcat* ]]; then
         NUCLEI_EXTRA=(-tags tomcat -c 5 -rl 25)
     elif [[ "$soft_lc" == iis* || "$soft_lc" == microsoft-iis* ]]; then

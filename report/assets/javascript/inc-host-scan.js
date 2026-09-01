@@ -36,6 +36,9 @@
         { id: "grafana", label: "Grafana" },
         { id: "elasticsearch", label: "Elasticsearch" },
         { id: "jenkins", label: "Jenkins" },
+        { id: "gitlab", label: "GitLab" },
+        { id: "gitea", label: "Gitea" },
+        { id: "gogs", label: "Gogs" },
         { id: "tomcat", label: "Tomcat" },
         { id: "iis", label: "IIS" },
         { id: "nginx", label: "nginx" },
@@ -297,6 +300,15 @@
         }
         if (softLc.indexOf("jenkins") === 0) {
             return "-tags jenkins -c 5 -rl 25";
+        }
+        if (softLc.indexOf("gitlab") === 0) {
+            return "-tags gitlab -c 5 -rl 25";
+        }
+        if (softLc.indexOf("gitea") === 0) {
+            return "-tags gitea -c 5 -rl 25";
+        }
+        if (softLc.indexOf("gogs") === 0) {
+            return "-tags gogs -c 5 -rl 25";
         }
         if (softLc.indexOf("tomcat") === 0) {
             return "-tags tomcat -c 5 -rl 25";
@@ -584,6 +596,15 @@
         if (n === "jenkins" || n.indexOf("jenkins") === 0) {
             return "jenkins";
         }
+        if (n === "gitlab" || n.indexOf("gitlab") === 0) {
+            return "gitlab";
+        }
+        if (n === "gitea" || n.indexOf("gitea") === 0) {
+            return "gitea";
+        }
+        if (n === "gogs" || n.indexOf("gogs") === 0) {
+            return "gogs";
+        }
         if (n.indexOf("tomcat") >= 0) {
             return "tomcat";
         }
@@ -665,36 +686,50 @@
             if (pid && found[pid] === undefined) {
                 found[pid] = "";
             }
-            // Also scan words in webserver like "Apache/2.4.41"
-            var m = String(blob).match(/^([A-Za-z][A-Za-z0-9._-]*)\/?v?([\d][\d.]*)?/);
-            if (m) {
-                pid = productIdFromName(m[1]);
-                if (pid) {
+            // Words in "Welcome to nginx!" / "Apache/2.4.41 (Debian)"
+            String(blob)
+                .split(/[^A-Za-z0-9._-]+/)
+                .forEach(function (word) {
+                    if (!word) {
+                        return;
+                    }
+                    var wm = word.match(/^([A-Za-z][A-Za-z0-9._-]*)\/?v?([\d][\d.]*)?$/);
+                    var wname = wm ? wm[1] : word;
+                    var wver = wm ? wm[2] : "";
+                    pid = productIdFromName(wname);
+                    if (!pid) {
+                        return;
+                    }
                     if (found[pid] === undefined) {
                         found[pid] = "";
                     }
-                    if (isVersionish(m[2]) && !isVersionish(found[pid])) {
-                        found[pid] = m[2];
+                    if (isVersionish(wver) && !isVersionish(found[pid])) {
+                        found[pid] = wver;
                     }
-                }
-            }
+                });
         });
 
-        // Hostname first label: kibana.oke-011… → Kibana when tech missed it
+        // Hostname labels: kibana.oke-011… or uatapi.iis.cgi.com (not only the first label)
         if (host) {
-            var first = host.split(".")[0].toLowerCase();
-            pid = productIdFromName(first);
-            if (!pid) {
-                // first label may be kibana-devtest style
-                for (i = 0; i < ROW_PRODUCT_PRIORITY.length; i++) {
-                    if (first.indexOf(ROW_PRODUCT_PRIORITY[i].id) >= 0) {
-                        pid = ROW_PRODUCT_PRIORITY[i].id;
-                        break;
+            var labels = host.split(".");
+            var li;
+            for (li = 0; li < labels.length; li++) {
+                var lab = labels[li].toLowerCase();
+                if (!lab || lab.length < 2) {
+                    continue;
+                }
+                pid = productIdFromName(lab);
+                if (!pid) {
+                    for (i = 0; i < ROW_PRODUCT_PRIORITY.length; i++) {
+                        if (lab.indexOf(ROW_PRODUCT_PRIORITY[i].id) >= 0) {
+                            pid = ROW_PRODUCT_PRIORITY[i].id;
+                            break;
+                        }
                     }
                 }
-            }
-            if (pid && found[pid] === undefined) {
-                found[pid] = "";
+                if (pid && found[pid] === undefined) {
+                    found[pid] = "";
+                }
             }
         }
 
