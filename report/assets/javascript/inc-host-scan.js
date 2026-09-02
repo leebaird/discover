@@ -39,6 +39,7 @@
         { id: "gitlab", label: "GitLab" },
         { id: "gitea", label: "Gitea" },
         { id: "gogs", label: "Gogs" },
+        { id: "oracle", label: "Oracle" },
         { id: "tomcat", label: "Tomcat" },
         { id: "iis", label: "IIS" },
         { id: "nginx", label: "nginx" },
@@ -309,6 +310,9 @@
         }
         if (softLc.indexOf("gogs") === 0) {
             return "-tags gogs -c 5 -rl 25";
+        }
+        if (softLc.indexOf("oracle") === 0) {
+            return "-tags oracle -c 5 -rl 25";
         }
         if (softLc.indexOf("tomcat") === 0) {
             return "-tags tomcat -c 5 -rl 25";
@@ -605,6 +609,13 @@
         if (n === "gogs" || n.indexOf("gogs") === 0) {
             return "gogs";
         }
+        if (n === "oracle" || n.indexOf("oracle") === 0) {
+            return "oracle";
+        }
+        // oci-adb-control / adb-control — not the bare "oci" cluster label
+        if (n.indexOf("oci-adb") >= 0 || n.indexOf("adb-control") >= 0) {
+            return "oracle";
+        }
         if (n.indexOf("tomcat") >= 0) {
             return "tomcat";
         }
@@ -734,12 +745,19 @@
         }
 
         // WordPress signals not always in tech tokens
-        var blobAll = (tech + " " + title).toLowerCase();
+        var blobAll = (tech + " " + title + " " + host).toLowerCase();
         if (
             (/\bwordpress\b/.test(blobAll) || /wp-login/.test(blobAll)) &&
             found.wordpress === undefined
         ) {
             found.wordpress = "";
+        }
+        // Oracle ADB control: WWW-Authenticate realm / hostname oci-adb-control
+        if (
+            (/\boci[-_\s]?adb\b/.test(blobAll) || /\boracle\b/.test(blobAll)) &&
+            found.oracle === undefined
+        ) {
+            found.oracle = "";
         }
 
         for (i = 0; i < ROW_PRODUCT_PRIORITY.length; i++) {

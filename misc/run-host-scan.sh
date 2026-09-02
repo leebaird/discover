@@ -319,6 +319,8 @@ f_nuclei_args(){
         NUCLEI_EXTRA=(-tags gitea -c 5 -rl 25)
     elif [[ "$soft_lc" == gogs* ]]; then
         NUCLEI_EXTRA=(-tags gogs -c 5 -rl 25)
+    elif [[ "$soft_lc" == oracle* ]]; then
+        NUCLEI_EXTRA=(-tags oracle -c 5 -rl 25)
     elif [[ "$soft_lc" == tomcat* ]]; then
         NUCLEI_EXTRA=(-tags tomcat -c 5 -rl 25)
     elif [[ "$soft_lc" == iis* || "$soft_lc" == microsoft-iis* ]]; then
