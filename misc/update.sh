@@ -33,6 +33,7 @@ APT::Periodic::AutocleanInterval "0";
 EOF
 
     local unit
+
     for unit in unattended-upgrades apt-daily.timer apt-daily-upgrade.timer \
         update-notifier-download.timer update-notifier-motd.timer \
         fwupd-refresh.timer motd-news.timer ua-timer.timer snapd.snap-repair.timer; do
@@ -41,6 +42,7 @@ EOF
 
     mkdir -p /etc/xdg/autostart
     local desktop
+
     for desktop in update-notifier ubuntu-advantage-notification ubuntu-report-on-upgrade; do
         cat > "/etc/xdg/autostart/${desktop}.desktop" <<EOF
 [Desktop Entry]
@@ -72,6 +74,7 @@ f_update_os(){
     # Always include phased updates so Ubuntu does not leave packages "held".
     # dist-upgrade alone covers normal upgrades; avoids a second Summary block.
     local apt_phase=(-o APT::Get::Always-Include-Phased-Updates=true)
+
     if ! apt-get -y -qq \
         "${apt_phase[@]}" \
         -o APT::Get::Show-User-Simulation-Note=false \
@@ -80,16 +83,19 @@ f_update_os(){
         dist-upgrade 2>/dev/null; then
         apt-get -y "${apt_phase[@]}" dist-upgrade 2>&1 | tail -30 || true
     fi
+
     apt-get -y -qq autoremove >/dev/null 2>&1 || true
     apt-get -y -qq autoclean >/dev/null 2>&1 || true
     updatedb 2>/dev/null || true
 
     held=$(apt list --upgradable 2>/dev/null | awk 'NR > 1 && $0 ~ /\// { n++ } END { print n+0 }')
+
     if [ "${held:-0}" -gt 0 ]; then
         echo "OS: ${held} package(s) still upgradable."
     else
         echo "OS packages up to date."
     fi
+
     echo
 }
 f_update_os
@@ -101,6 +107,7 @@ f_ensure_discover_api_keys(){
     local template home_dir owner conf_dir dest
 
     template="$DISCOVER_ROOT/resource/api-keys.example"
+
     if [ ! -f "$template" ]; then
         return 0
     fi
@@ -125,27 +132,34 @@ f_ensure_discover_api_keys(){
     if [ -f "$dest" ]; then
         # Normalize permissions on every Update
         chmod 600 "$dest" 2>/dev/null || true
+
         if [ -n "$owner" ] && [ "$(id -u)" -eq 0 ]; then
             chown "$owner:$owner" "$dest" 2>/dev/null || true
         fi
+
         return 0
     fi
 
     echo -e "${BLUE}Creating operator API keys file.${NC}"
+
     if ! mkdir -p "$conf_dir" 2>/dev/null; then
         echo -e "${YELLOW}Could not create $conf_dir — skip api-keys template.${NC}"
         echo
         return 0
     fi
+
     if ! cp -f "$template" "$dest" 2>/dev/null; then
         echo -e "${YELLOW}Could not write $dest — skip api-keys template.${NC}"
         echo
         return 0
     fi
+
     chmod 600 "$dest" 2>/dev/null || true
+
     if [ "$(id -u)" -eq 0 ] && [ -n "$owner" ]; then
         chown "$owner:$owner" "$conf_dir" "$dest" 2>/dev/null || true
     fi
+
     echo "    $dest"
     echo "    Edit and set NVD_API_KEY / SHODAN_API_KEY / WPSCAN_API_TOKEN as needed."
     echo
@@ -174,6 +188,7 @@ if ! command -v arp-scan &> /dev/null; then
             apt install -y arp-scan/questing
         fi
     fi
+
     echo
 fi
 
@@ -193,6 +208,7 @@ f_go_install_tool() {
 if command -v asnmap &> /dev/null; then
     echo -e "${BLUE}Updating asnmap.${NC}"
     asnmap_out=$(NO_COLOR=1 asnmap -up -silent 2>&1) || true
+
     if echo "$asnmap_out" | grep -qi 'already updated'; then
         echo "Already up to date."
     elif echo "$asnmap_out" | grep -qE '^\[INF\]'; then
@@ -200,6 +216,7 @@ if command -v asnmap &> /dev/null; then
     else
         f_go_install_tool github.com/projectdiscovery/asnmap/cmd/asnmap@latest asnmap
     fi
+
     echo
 elif [ -n "$(f_go_bin)" ]; then
     echo -e "${YELLOW}Installing asnmap.${NC}"
@@ -215,9 +232,11 @@ fi
 
 if ! command -v az &> /dev/null; then
     echo -e "${YELLOW}Installing azure-cli.${NC}"
+
     if ! apt install -y azure-cli 2>/dev/null || ! command -v az &> /dev/null; then
         curl -sL https://aka.ms/InstallAzureCLIDeb | bash
     fi
+
     echo
 fi
 
@@ -226,9 +245,11 @@ if ! command -v chromium &> /dev/null && \
    ! command -v google-chrome &> /dev/null && \
    ! command -v google-chrome-stable &> /dev/null; then
     echo -e "${YELLOW}Installing chromium.${NC}"
+
     if ! apt install -y chromium 2>/dev/null || ! command -v chromium &> /dev/null; then
         apt install -y chromium-browser 2>/dev/null || true
     fi
+
     echo
 fi
 
@@ -245,11 +266,13 @@ f_update_cisa_kev(){
     local count
 
     echo -e "${BLUE}Updating CISA KEV catalog.${NC}"
+
     if ! command -v curl &> /dev/null; then
         echo -e "${YELLOW}curl not installed yet; skipping CISA KEV until curl is available.${NC}"
         echo
         return 0
     fi
+
     mkdir -p "$kev_dir" || {
         echo -e "${YELLOW}Could not create $kev_dir; skipping CISA KEV update.${NC}"
         echo
@@ -276,6 +299,7 @@ f_update_cisa_kev(){
             local had_prev=0
             local prev_arg=""
             local new_count=""
+
             if [ -f "$kev_file" ]; then
                 had_prev=1
                 prev_arg="$kev_file"
@@ -283,6 +307,7 @@ f_update_cisa_kev(){
                 had_prev=1
                 prev_arg="$kev_legacy"
             fi
+
             new_count=$(python3 - "$tmp_file" "$prev_arg" <<'PY' 2>/dev/null || true
 import json
 import sys
@@ -334,14 +359,18 @@ PY
 
             mv "$tmp_file" "$kev_file"
             chmod 644 "$kev_file" 2>/dev/null || true
+
             if [ -n "$SUDO_USER" ]; then
                 chown "$SUDO_USER:" "$kev_file" 2>/dev/null || true
             fi
+
             # One summary line: new count + catalog size (path only on first seed).
             local kev_word="KEVs"
+
             if [ "$added_n" = "1" ]; then
                 kev_word="KEV"
             fi
+
             if [ "$had_prev" -eq 0 ]; then
                 echo "Saved $kev_file"
                 echo "$added_n new $kev_word added (first catalog on this install, $total_n total)."
@@ -358,14 +387,17 @@ PY
                     done <<< "$new_cve_list"
                 fi
             fi
+
         else
             rm -f "$tmp_file"
             echo -e "${YELLOW}CISA KEV download was not valid JSON; keeping previous catalog if any.${NC}"
         fi
+
     else
         rm -f "$tmp_file"
         echo -e "${YELLOW}Failed to download CISA KEV catalog; keeping previous catalog if any.${NC}"
     fi
+
     echo
     # Engagement trees are not walked here (Desktop/external paths). Import
     # rewrites tools/shodan/kev-ids.js for the report the operator opens.
@@ -385,12 +417,14 @@ f_update_user_agent(){
     local ua=""
     # Prefer GitHub Nikto install; fall back to legacy apt paths.
     local nikto_cfg=""
+
     for candidate in /opt/nikto/program/nikto.conf /etc/nikto/config.txt /etc/nikto.conf; do
         if [ -f "$candidate" ]; then
             nikto_cfg="$candidate"
             break
         fi
     done
+
     local nmap_http=/usr/share/nmap/nselib/http.lua
 
     echo -e "${BLUE}Updating scanner User-Agent (Microsoft Edge).${NC}"
@@ -463,6 +497,7 @@ PY
             ua=$(f_ua_from_json "$tmp_file" 2>/dev/null || true)
         fi
     fi
+
     rm -f "$tmp_file"
 
     if [ -z "$ua" ] || [[ "$ua" != Mozilla/* ]]; then
@@ -471,6 +506,7 @@ PY
         else
             echo -e "${YELLOW}Could not refresh User-Agent; tools will use built-in Edge fallback.${NC}"
         fi
+
         echo
         return 0
     fi
@@ -482,9 +518,11 @@ PY
         echo "$ua"
     } > "$ua_file"
     chmod 644 "$ua_file" 2>/dev/null || true
+
     if [ -n "$SUDO_USER" ]; then
         chown "$SUDO_USER:" "$ua_file" 2>/dev/null || true
     fi
+
     echo "Saved $ua_file"
 
     # Nikto — USERAGENT= when present (2.5+ also accepts -useragent CLI).
@@ -495,6 +533,7 @@ PY
         else
             printf '\nUSERAGENT=%s\n' "$ua" >> "$nikto_cfg"
         fi
+
         echo "Updated Nikto USERAGENT in $nikto_cfg"
     elif [ -n "$nikto_cfg" ] && [ -f "$nikto_cfg" ]; then
         echo -e "${YELLOW}Nikto config not writable: $nikto_cfg${NC}"
@@ -527,6 +566,7 @@ PY
         else
             echo -e "${YELLOW}Could not patch Nmap http.lua User-Agent (pattern mismatch).${NC}"
         fi
+
     elif [ -f "$nmap_http" ]; then
         echo -e "${YELLOW}Nmap http.lua not writable: $nmap_http${NC}"
     fi
@@ -540,10 +580,12 @@ PY
         local conf_dir conf_file
 
         [ -n "$home_dir" ] && [ -d "$home_dir" ] || return 1
+
         # Never write root's ffuf config.
         if [ "$home_dir" = "/root" ] || [ "$owner" = "root" ]; then
             return 0
         fi
+
         conf_dir="$home_dir/.config/ffuf"
         conf_file="$conf_dir/ffufrc"
         mkdir -p "$conf_dir" || return 1
@@ -607,9 +649,11 @@ PY
             if [ -n "$owner" ] && [ "$owner" != "root" ]; then
                 chown -R "$owner:" "$conf_dir" 2>/dev/null || true
             fi
+
             echo "Updated ffuf User-Agent in $conf_file"
             return 0
         fi
+
         echo -e "${YELLOW}Could not update ffuf config: $conf_file${NC}"
         return 1
     }
@@ -652,16 +696,19 @@ elif f_dnsrecon_working; then
 elif python3 -c 'import sys; exit(0 if sys.version_info >= (3, 13) else 1)' 2>/dev/null; then
     echo -e "${YELLOW}Installing DNSRecon from upstream (apt package is incompatible with Python 3.13+).${NC}"
     apt remove -y dnsrecon 2>/dev/null
+
     if ! python3 -m venv /tmp/dnsrecon-venv-check 2>/dev/null; then
         apt install -y python3-venv
         rm -rf /tmp/dnsrecon-venv-check
     fi
+
     if [ -d /opt/dnsrecon/.git ]; then
         cd /opt/dnsrecon/ || exit
         git pull
     else
         git clone https://github.com/darkoperator/dnsrecon /opt/dnsrecon
     fi
+
     python3 -m venv /opt/dnsrecon-venv
     /opt/dnsrecon-venv/bin/python -m pip install -q -U pip
     /opt/dnsrecon-venv/bin/python -m pip install -q /opt/dnsrecon
@@ -730,11 +777,13 @@ if [ -d /opt/pipx/venvs/droopescan ]; then
     # Same look as DomainPasswordSpray / Egress-Assess: blue header + plain status line.
     echo -e "${BLUE}Updating droopescan.${NC}"
     _ds_out=$(_ds_pipx upgrade -q droopescan 2>&1) || true
+
     if [ -n "$_ds_out" ] && ! echo "$_ds_out" | grep -qiE 'already at latest|already installed'; then
         echo "$_ds_out"
     else
         echo "Already up to date."
     fi
+
     unset _ds_out
     echo
 elif command -v droopescan &> /dev/null; then
@@ -749,25 +798,31 @@ else
     _ds_pipx install droopescan
     echo
 fi
+
 unset -f _ds_pipx
 
 # Py3.12+ cement/imp patch — silent when already applied; prints only if it changes files.
 if [ -x "$DISCOVER_ROOT/misc/patch-droopescan-py314.sh" ]; then
     _ds_patch="$DISCOVER_ROOT/misc/patch-droopescan-py314.sh"
+
     if [ -d /opt/pipx/venvs/droopescan ]; then
         if ! bash "$_ds_patch" /opt/pipx/venvs/droopescan; then
             echo -e "${YELLOW}[!] System droopescan patch failed:${NC}"
             echo "    sudo $_ds_patch -v /opt/pipx/venvs/droopescan"
         fi
     fi
+
     # User pipx (PATH often prefers ~/.local/bin over /usr/local/bin)
     _ds_user_home="$HOME"
+
     if [ -n "${SUDO_USER:-}" ]; then
         _ds_user_home=$(getent passwd "$SUDO_USER" | cut -d: -f6)
     fi
+
     if [ -d "$_ds_user_home/.local/pipx/venvs/droopescan" ]; then
         bash "$_ds_patch" "$_ds_user_home/.local/pipx/venvs/droopescan" || true
     fi
+
     unset _ds_user_home _ds_patch
 fi
 
@@ -838,6 +893,7 @@ fi
 
 if ! command -v gcloud &> /dev/null || ! command -v gsutil &> /dev/null; then
     echo -e "${YELLOW}Installing google-cloud-cli.${NC}"
+
     if ! apt install -y google-cloud-cli 2>/dev/null || ! command -v gcloud &> /dev/null; then
         apt install -y apt-transport-https ca-certificates gnupg
         curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
@@ -845,20 +901,24 @@ if ! command -v gcloud &> /dev/null || ! command -v gsutil &> /dev/null; then
         apt update
         apt install -y google-cloud-cli
     fi
+
     echo
 fi
 
 if command -v gowitness &> /dev/null; then
     echo -e "${BLUE}Updating gowitness.${NC}"
     gowitness_before=$(sha256sum "$(command -v gowitness)" 2>/dev/null | awk '{print $1}')
+
     if f_go_install_tool github.com/sensepost/gowitness@latest gowitness; then
         gowitness_after=$(sha256sum "$(command -v gowitness)" 2>/dev/null | awk '{print $1}')
+
         if [ -n "$gowitness_before" ] && [ "$gowitness_before" = "$gowitness_after" ]; then
             echo "Already up to date."
         else
             echo "Updated."
         fi
     fi
+
     echo
 elif [ -n "$(f_go_bin)" ]; then
     echo -e "${YELLOW}Installing gowitness.${NC}"
@@ -869,6 +929,7 @@ fi
 if command -v httpx &> /dev/null; then
     echo -e "${BLUE}Updating httpx.${NC}"
     httpx_out=$(NO_COLOR=1 httpx -up -silent 2>&1) || true
+
     if echo "$httpx_out" | grep -qi 'already updated'; then
         echo "Already up to date."
     elif echo "$httpx_out" | grep -qE '^\[INF\]'; then
@@ -876,6 +937,7 @@ if command -v httpx &> /dev/null; then
     else
         f_go_install_tool github.com/projectdiscovery/httpx/cmd/httpx@latest httpx
     fi
+
     echo
 elif [ -n "$(f_go_bin)" ]; then
     echo -e "${YELLOW}Installing httpx.${NC}"
@@ -901,14 +963,17 @@ fi
 
 if ! command -v kubectl &> /dev/null; then
     echo -e "${YELLOW}Installing kubectl.${NC}"
+
     if command -v snap &> /dev/null; then
         snap install kubectl --classic 2>/dev/null || true
     fi
+
     if ! command -v kubectl &> /dev/null; then
         KUBECTL_VERSION=$(curl -fsSL https://dl.k8s.io/release/stable.txt)
         curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /usr/local/bin/kubectl
         chmod +x /usr/local/bin/kubectl
     fi
+
     echo
 fi
 
@@ -927,13 +992,16 @@ fi
 # Snap MSF does not support msfupdate — use snap refresh only when the snap
 # is installed. Kali ships apt metasploit-framework and often has no snap.
 _msf_have_snap=false
+
 if command -v snap >/dev/null 2>&1 \
     && snap list metasploit-framework >/dev/null 2>&1; then
     _msf_have_snap=true
 fi
+
 if [ "$_msf_have_snap" = true ]; then
     echo -e "${BLUE}Updating Metasploit.${NC}"
     _msf_out=$(snap refresh metasploit-framework 2>&1) || true
+
     if echo "$_msf_out" | grep -qiE 'is up to date|already|no updates|no revisions|has no updates'; then
         echo "Already up to date."
     elif echo "$_msf_out" | grep -qiE 'access denied|error:'; then
@@ -943,11 +1011,13 @@ if [ "$_msf_have_snap" = true ]; then
     else
         echo "Already up to date."
     fi
+
     unset _msf_out
     echo
 elif command -v msfconsole >/dev/null 2>&1; then
     echo -e "${BLUE}Updating Metasploit.${NC}"
     _msf_out=$(apt-get -y install metasploit-framework 2>&1) || true
+
     if echo "$_msf_out" | grep -qiE 'already the newest|is already the newest'; then
         echo "Already up to date."
     elif echo "$_msf_out" | grep -qiE 'error|failed|unable to'; then
@@ -958,17 +1028,21 @@ elif command -v msfconsole >/dev/null 2>&1; then
     else
         echo "Already up to date."
     fi
+
     unset _msf_out
     echo
 else
     echo -e "${YELLOW}Installing Metasploit.${NC}"
+
     if command -v snap >/dev/null 2>&1 && grep -qi '^ID=ubuntu' /etc/os-release; then
         snap install metasploit-framework
     else
         apt install -y metasploit-framework
     fi
+
     echo
 fi
+
 unset _msf_have_snap
 
 # Nikto from GitHub (sullo/nikto) — apt 2.1.5 is years behind (2.6.x has TLS SNI,
@@ -994,6 +1068,7 @@ f_install_nikto_github(){
     # Perl modules required by Nikto 2.5+/2.6 (see upstream Dockerfile).
     # Only apt-install what's missing so Update stays quiet on repeat runs.
     local pkg missing=()
+
     for pkg in \
         libnet-ssleay-perl \
         libio-socket-ssl-perl \
@@ -1006,6 +1081,7 @@ f_install_nikto_github(){
             missing+=("$pkg")
         fi
     done
+
     if [ "${#missing[@]}" -gt 0 ]; then
         echo -e "${YELLOW}Installing Nikto Perl deps: ${missing[*]}${NC}"
         apt install -y "${missing[@]}" || true
@@ -1025,11 +1101,13 @@ f_install_nikto_github(){
     else
         echo -e "${YELLOW}Installing Nikto.${NC}"
         rm -rf "$nikto_root"
+
         if ! git clone "$repo" "$nikto_root"; then
             echo -e "${YELLOW}Nikto git clone failed.${NC}"
             echo
             return 1
         fi
+
         git -C "$nikto_root" checkout -q main 2>/dev/null || true
         echo
     fi
@@ -1039,6 +1117,7 @@ f_install_nikto_github(){
         echo
         return 1
     fi
+
     chmod 755 "$nikto_pl" 2>/dev/null || true
 
     # Discover-owned site config — rewrite only when content changes (silent).
@@ -1090,6 +1169,7 @@ exec perl /opt/nikto/program/nikto.pl "$@"
 WRAP
         chmod 755 "$wrapper"
     fi
+
     hash -r 2>/dev/null || true
 }
 f_install_nikto_github
@@ -1112,34 +1192,128 @@ echo -e "${BLUE}Updating Nmap scripts.${NC}"
 nmap --script-updatedb | grep -Eiv '(starting|seconds)' | sed 's/NSE: //'
 echo
 
-f_nuclei_update_templates(){
-    command -v nuclei >/dev/null 2>&1 || return 0
-    echo -e "${BLUE}Updating nuclei-templates.${NC}"
-    # -nc: NO_COLOR is ignored, so [INF] would be prefixed with ANSI and dropped.
-    # Do not use -silent: that hides the version line and changelog table.
-    templates_out=$(nuclei -nc -ut 2>&1) || true
-    if echo "$templates_out" | grep -qi 'Successfully updated'; then
-        printf '%s\n' "$templates_out" \
-            | grep -E '^\[INF\]|^Nuclei Templates|^[┌├└│]' \
-            | grep -viE 'no new updates' || true
-        additions="${HOME}/nuclei-templates/.new-additions"
-        if [ -s "$additions" ]; then
-            added=$(grep -c . "$additions" 2>/dev/null || echo 0)
-            echo
-            echo "New templates ($added):"
-            cat "$additions"
-        fi
-    elif echo "$templates_out" | grep -qiE 'already updated|no new updates|up to date'; then
-        echo "Already up to date."
+# User-owned paths when Update is invoked via sudo (discover.sh option 18).
+f_operator_home(){
+    local home_dir=""
+
+    if [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ]; then
+        home_dir=$(getent passwd "$SUDO_USER" | cut -d: -f6)
     else
-        echo "Updated."
+        home_dir="${HOME:-}"
     fi
+
+    printf '%s' "$home_dir"
+}
+
+f_as_operator(){
+    local op_home
+    op_home=$(f_operator_home)
+    [ -n "$op_home" ] || return 1
+
+    if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ]; then
+        sudo -u "$SUDO_USER" -H env HOME="$op_home" PATH="/usr/local/bin:/usr/bin:/bin:${PATH:-}" \
+            GIT_TERMINAL_PROMPT=0 "$@"
+    else
+        GIT_TERMINAL_PROMPT=0 "$@"
+    fi
+}
+
+# Keep nuclei from zip-installing the last release over a git checkout.
+f_nuclei_disable_auto_template_update(){
+    local op_home cfg
+    op_home=$(f_operator_home)
+    cfg="${op_home}/.config/nuclei/config.yaml"
+    [ -f "$cfg" ] || return 0
+
+    if grep -qE '^disable-update-check:[[:space:]]*true[[:space:]]*$' "$cfg"; then
+        return 0
+    fi
+
+    if grep -qE '^#?disable-update-check:' "$cfg"; then
+        f_as_operator sed -i 's/^#*disable-update-check:.*/disable-update-check: true/' "$cfg"
+    else
+        f_as_operator sh -c "printf '\ndisable-update-check: true\n' >> \"\$1\"" _ "$cfg"
+    fi
+}
+
+f_nuclei_clone_templates(){
+    local tpl_dir=$1 tmp="" new_dir="" bak=""
+    tmp=$(f_as_operator mktemp -d) || return 1
+    new_dir="$tmp/nuclei-templates"
+    bak="${tpl_dir}.bak.$$"
+
+    if ! f_as_operator git clone --depth 1 \
+        https://github.com/projectdiscovery/nuclei-templates.git "$new_dir"; then
+        f_as_operator rm -rf "$tmp"
+        return 1
+    fi
+
+    if [ -e "$tpl_dir" ]; then
+        if ! f_as_operator mv "$tpl_dir" "$bak"; then
+            f_as_operator rm -rf "$tmp"
+            return 1
+        fi
+    fi
+
+    if ! f_as_operator mv "$new_dir" "$tpl_dir"; then
+        if [ -e "$bak" ]; then
+            f_as_operator mv "$bak" "$tpl_dir" 2>/dev/null || true
+        fi
+
+        f_as_operator rm -rf "$tmp"
+        return 1
+    fi
+
+    rm -rf "$bak"
+    f_as_operator rmdir "$tmp" 2>/dev/null || rm -rf "$tmp"
+    return 0
+}
+
+f_nuclei_update_templates(){
+    local op_home tpl_dir pull_out
+    op_home=$(f_operator_home)
+    [ -n "$op_home" ] || return 0
+    tpl_dir="${op_home}/nuclei-templates"
+
+    if ! command -v git >/dev/null 2>&1; then
+        echo "git not found; skipping nuclei templates."
+        echo
+        return 0
+    fi
+
+    echo -e "${BLUE}Updating nuclei templates.${NC}"
+
+    # Git main, not nuclei -ut (release tags only). Always as the operator, not root.
+    if [ ! -d "$tpl_dir/.git" ]; then
+        echo "Cloning nuclei templates."
+
+        if ! f_nuclei_clone_templates "$tpl_dir"; then
+            echo "Could not clone nuclei templates."
+            echo
+            return 0
+        fi
+
+        echo "Cloned."
+    else
+        pull_out=$(f_as_operator git -C "$tpl_dir" pull --ff-only 2>&1) || true
+
+        if echo "$pull_out" | grep -qi 'Already up to date'; then
+            echo "Already up to date."
+        elif echo "$pull_out" | grep -qiE '^fatal:'; then
+            printf '%s\n' "$pull_out"
+        else
+            printf '%s\n' "$pull_out"
+        fi
+    fi
+
+    f_nuclei_disable_auto_template_update
     echo
 }
 
 if command -v nuclei &> /dev/null; then
     echo -e "${BLUE}Updating nuclei.${NC}"
     nuclei_out=$(NO_COLOR=1 nuclei -up -silent 2>&1) || true
+
     if echo "$nuclei_out" | grep -qi 'already updated'; then
         echo "Already up to date."
     elif echo "$nuclei_out" | grep -qE '^\[INF\]'; then
@@ -1147,6 +1321,7 @@ if command -v nuclei &> /dev/null; then
     else
         f_go_install_tool github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest nuclei
     fi
+
     echo
     f_nuclei_update_templates
 elif [ -n "$(f_go_bin)" ]; then
@@ -1155,7 +1330,9 @@ elif [ -n "$(f_go_bin)" ]; then
     echo
     f_nuclei_update_templates
 fi
-unset -f f_nuclei_update_templates
+
+unset -f f_nuclei_update_templates f_nuclei_clone_templates \
+    f_nuclei_disable_auto_template_update f_as_operator f_operator_home
 
 if [ -d /opt/PEASS-ng/.git ]; then
     echo -e "${BLUE}Updating PEASS-ng.${NC}"
@@ -1261,6 +1438,7 @@ fi
 if command -v subfinder &> /dev/null; then
     echo -e "${BLUE}Updating subfinder.${NC}"
     subfinder_out=$(NO_COLOR=1 subfinder -up -silent 2>&1) || true
+
     if echo "$subfinder_out" | grep -qi 'already updated'; then
         echo "Already up to date."
     elif echo "$subfinder_out" | grep -qE '^\[INF\]'; then
@@ -1268,6 +1446,7 @@ if command -v subfinder &> /dev/null; then
     else
         f_go_install_tool github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest subfinder
     fi
+
     echo
 elif [ -n "$(f_go_bin)" ]; then
     echo -e "${YELLOW}Installing subfinder.${NC}"
@@ -1302,16 +1481,19 @@ elif f_sublist3r_working; then
 elif python3 -c 'import sys; exit(0 if sys.version_info >= (3, 13) else 1)' 2>/dev/null; then
     echo -e "${YELLOW}Installing Sublist3r from upstream (apt package is incompatible with Python 3.13+).${NC}"
     apt remove -y sublist3r 2>/dev/null
+
     if ! python3 -m venv /tmp/sublist3r-venv-check 2>/dev/null; then
         apt install -y python3-venv
         rm -rf /tmp/sublist3r-venv-check
     fi
+
     if [ -d /opt/Sublist3r/.git ]; then
         cd /opt/Sublist3r/ || exit
         git pull
     else
         git clone https://github.com/aboul3la/Sublist3r /opt/Sublist3r
     fi
+
     f_sublist3r_patch
     python3 -m venv /opt/Sublist3r-venv
     /opt/Sublist3r-venv/bin/python -m pip install -q -U pip
@@ -1335,6 +1517,7 @@ fi
 
 if ! command -v trivy &> /dev/null; then
     echo -e "${YELLOW}Installing trivy.${NC}"
+
     if ! apt install -y trivy 2>/dev/null || ! command -v trivy &> /dev/null; then
         apt install -y wget gnupg apt-transport-https
         wget -qO- https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor -o /usr/share/keyrings/trivy.gpg
@@ -1342,6 +1525,7 @@ if ! command -v trivy &> /dev/null; then
         apt update
         apt install -y trivy
     fi
+
     echo
 fi
 
@@ -1386,6 +1570,7 @@ f_whatweb_ensure_deps() {
         echo -e "${YELLOW}Installing Ruby for WhatWeb.${NC}"
         apt install -y ruby
     fi
+
     if ! ruby -e 'require "addressable"' >/dev/null 2>&1; then
         apt install -y ruby-addressable 2>/dev/null || true
     fi
@@ -1438,6 +1623,7 @@ f_whatweb_working() {
 }
 
 f_whatweb_remove_apt_package() {
+
     if dpkg-query -W -f='${Status}' whatweb 2>/dev/null | grep -q 'install ok installed'; then
         apt remove -y -qq whatweb
     fi
@@ -1449,11 +1635,13 @@ if [ -d /opt/WhatWeb/.git ]; then
     f_whatweb_restore_script
     cd /opt/WhatWeb/ || exit
     whatweb_pull=$(git pull 2>&1) || true
+
     if echo "$whatweb_pull" | grep -qi 'already up to date'; then
         echo "Already up to date."
     else
         echo "Updated."
     fi
+
     f_whatweb_restore_script
     f_whatweb_install_wrapper
     echo
@@ -1490,6 +1678,7 @@ f_install_wpscan(){
             missing+=("$pkg")
         fi
     done
+
     if [ "${#missing[@]}" -gt 0 ]; then
         echo -e "${YELLOW}Installing WPScan build deps: ${missing[*]}${NC}"
         apt install -y "${missing[@]}" || true
@@ -1505,6 +1694,7 @@ f_install_wpscan(){
     if command -v wpscan >/dev/null 2>&1; then
         echo -e "${BLUE}Updating wpscan.${NC}"
         out=$(gem update wpscan 2>&1) || true
+
         if echo "$out" | grep -qiE 'Nothing to update|already|up to date|latest|Gems already up-to-date'; then
             echo "Already up to date."
         elif echo "$out" | grep -qiE 'Successfully installed|Updating|updated|Fetching'; then
@@ -1513,6 +1703,7 @@ f_install_wpscan(){
         else
             echo "Already up to date."
         fi
+
     else
         echo -e "${YELLOW}Installing wpscan.${NC}"
         # -n /usr/local/bin so the binary is on PATH without gem env setup
@@ -1529,8 +1720,10 @@ f_install_wpscan(){
     if command -v wpscan >/dev/null 2>&1; then
         wpscan --update >/dev/null 2>&1 || true
     fi
+
     echo
 }
+
 f_install_wpscan
 unset -f f_install_wpscan
 
@@ -1613,6 +1806,7 @@ if [ -d /opt/bruteratel/ ] || [ -d /opt/cobaltstrike/ ]; then
         echo
     fi
 fi
+
 ###############################################################################################################################
 
 if [ -d /opt/cobaltstrike/ ]; then
@@ -1669,6 +1863,7 @@ if [ -d /opt/cobaltstrike/ ]; then
         echo
     fi
 fi
+
 ###############################################################################################################################
 
 # Get the original user's home directory even if run with sudo
@@ -1716,6 +1911,7 @@ EOF
         else
             printf '\n[Default Applications]\nx-scheme-handler/discover-cve=discover-cve.desktop\n' >> "$mimeapps"
         fi
+
     else
         printf '[Default Applications]\nx-scheme-handler/discover-cve=discover-cve.desktop\n' > "$mimeapps"
     fi
@@ -1875,6 +2071,7 @@ EOF
         else
             printf '\n[Default Applications]\nx-scheme-handler/discover-ferox=discover-ferox.desktop\n' >> "$mimeapps"
         fi
+
     else
         printf '[Default Applications]\nx-scheme-handler/discover-ferox=discover-ferox.desktop\n' > "$mimeapps"
     fi
@@ -1927,6 +2124,7 @@ EOF
         else
             printf '\n[Default Applications]\nx-scheme-handler/discover-robots=discover-robots.desktop\n' >> "$mimeapps"
         fi
+
     else
         printf '[Default Applications]\nx-scheme-handler/discover-robots=discover-robots.desktop\n' > "$mimeapps"
     fi
@@ -1979,6 +2177,7 @@ EOF
         else
             printf '\n[Default Applications]\nx-scheme-handler/discover-theharvester=discover-theharvester.desktop\n' >> "$mimeapps"
         fi
+
     else
         printf '[Default Applications]\nx-scheme-handler/discover-theharvester=discover-theharvester.desktop\n' > "$mimeapps"
     fi
@@ -2011,3 +2210,4 @@ updatedb
 echo
 
 exit
+

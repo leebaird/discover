@@ -8,6 +8,22 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - Same for Unicode ellipsis (`…`) in operator-facing text (logs, UI status lines, scan `output.txt`, help copy): use a single `.` when finishing a sentence. Do not write “Running…”, “Updating…”, or “pre-check (15s)…”.
 - Mid-list “and more” truncation in docs/comments is fine when not sentence-final (e.g. `2xx,301,302,...` as a list tail). Prefer plain ASCII over fancy punctuation in plain-text scan logs.
 
+## Shell (`if`)
+
+- Blank line **before** and **after** an `if` / `fi` block (`if` / `elif` / `else` / `fi` is one block).
+- Skip the blank line **before** `if` when a comment sits immediately above it. Keep a blank line after `fi`.
+- **Nested `if`:** keep it tight against the parent `then` / `else` and the parent `fi`. No blank line between `then` and the inner `if`, and none between the inner `fi` and the outer `fi`:
+
+```
+    if ! apt install -y arp-scan; then
+        if grep -qi '^ID=ubuntu' /etc/os-release; then
+            apt install -y arp-scan/questing
+        fi
+    fi
+```
+
+- Sibling `if` blocks (an inner `fi` followed by another `if` at the same level) still get a blank line between them.
+
 ## Git commits
 
 - **Only commit when the operator explicitly asks** (e.g. “do a commit”). Do not commit proactively after finishing a feature or when they only ask whether a commit is needed.
@@ -120,6 +136,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Do **not** group by feature (e.g. “CMS tools together”). Place new tools where the alphabet says, not next to a related tool.
 - Comments already mark some blocks this way (e.g. CISA KEV after chromium, before curl); follow that convention.
 - Same idea for README Update bullet lists when they mirror install order.
+- **nuclei-templates:** Update is `sudo misc/update.sh`. Keep `~/nuclei-templates` as a **git clone** of `projectdiscovery/nuclei-templates` (operator `SUDO_USER`, not root). Each Update does `git pull --ff-only` (first run clones if the tree is a nuclei `-ut` snapshot with no `.git`). Do **not** use `nuclei -ut` here: that only tracks release tags and would reset git HEAD. Set `disable-update-check: true` in the operator’s `~/.config/nuclei/config.yaml` so a later `nuclei -v` does not zip-install the last release over the clone. Print **Already up to date.** (no commit hash or subject).
 
 ## Host-scan reachability pre-check (expand dropdown only)
 
