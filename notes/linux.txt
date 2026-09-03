@@ -10,6 +10,7 @@ Linux and Unix command reference for Kali and lab targets: package management, n
 
 pwk.txt                  Netcat, socat, reverse shells, and lab recon
 bash.txt                 grep, awk, sed, and text processing
+docker.txt               Docker CLI, Compose, volumes, and socket risk
 Python/python.txt        Python 3 venv, http.server, and PTY upgrade
 egress.txt               Outbound callback testing
 windows.txt              SMB enumeration from Linux
@@ -419,7 +420,7 @@ systemctl disable <service>                             Disable at boot
 
 ## Overview
 
-Local vulnerable app containers for lab testing.
+Local vulnerable app containers for lab testing. Full Docker CLI is in docker.txt.
 
 ## Commands
 

@@ -1,0 +1,255 @@
+Docker
+
+
+# Overview
+
+Docker CLI for images, containers, networks, volumes, and Compose. Lab workflow on Kali or Ubuntu. Includes scanning local images for secrets with TruffleHog and Trivy. For spinning up DVWA and similar apps, see linux.txt.
+
+
+# Related Notes
+
+linux.txt                  Docker.io install and lab vulnerable-app containers
+kali.txt                   Kali VM setup
+ubuntu.txt                 Ubuntu VM setup
+bash.txt                   Shell one-liners
+
+
+# Contents
+
+Install and Daemon, Concepts, Images, Scan Images for Secrets, Run a Container, Lifecycle, Logs and Exec, Ports Env and Volumes, Build, Compose, Networks, Cleanup, Socket Risk
+
+
+# Install and Daemon
+
+## Overview
+
+Install the engine, start the service, and add your user to the docker group so you do not need sudo on every command.
+
+## Commands
+
+Kali or Ubuntu:
+    sudo apt install -y docker.io
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    sudo usermod -aG docker "$USER"
+    # Log out and back in for the group to apply
+
+Check:
+    docker version
+    docker info
+    docker compose version                                 Compose v2 plugin, if installed
+
+
+# Concepts
+
+Image: filesystem snapshot plus default command (what you pull or build).
+Container: a running (or stopped) instance of an image.
+Registry: where images live (Docker Hub by default).
+Tag: version label, often `:latest` if omitted.
+
+
+# Images
+
+## Commands
+
+    docker search nginx                                    Search Docker Hub
+    docker pull nginx:latest                               Download an image
+    docker images                                          Local images
+    docker image ls                                        Same as docker images
+    docker history nginx                                   Image layers
+    docker inspect nginx                                   Full image JSON
+    docker tag nginx:latest mynginx:lab                    Retag locally
+    docker rmi nginx:latest                                Remove an unused image
+    docker image prune                                     Remove dangling images
+
+
+# Scan Images for Secrets
+
+## Overview
+
+Scan a local or registry image for keys, tokens, and passwords baked into layers. Discover Update installs `trufflehog` and `trivy`. The Dev container scanner uses Trivy (`vuln,config,secret`) against Docker images. Gitleaks is file/repo oriented; use it on a build context or an extracted filesystem, not as a native image scanner.
+
+## Commands
+
+TruffleHog (preferred for verified secrets):
+    trufflehog docker --image nginx:latest
+    trufflehog docker --image docker://nginx:latest --results=verified
+    trufflehog docker --image file://nginx.tar --results=verified
+    docker save nginx:latest -o nginx.tar
+
+    # Only print verified findings, JSON:
+    trufflehog docker --image nginx:latest --results=verified --json
+
+Trivy (CVE plus secrets; same scanners Discover uses):
+    trivy image --scanners secret nginx:latest
+    trivy image --scanners vuln,config,secret nginx:latest
+    trivy image --scanners secret --format json -o nginx-secrets.json nginx:latest
+
+Gitleaks (directory, not an image):
+    mkdir -p /tmp/nginx-fs
+    docker create --name ntmp nginx:latest
+    docker export ntmp | tar -C /tmp/nginx-fs -xf -
+    docker rm ntmp
+    gitleaks detect --source /tmp/nginx-fs --no-git
+
+Discover:
+    # Main menu 16 Dev > Container scanner (Trivy on local images)
+    # Sensitive scanner --external auto|trufflehog|gitleaks (files and git, not image layers)
+
+
+# Run a Container
+
+## Overview
+
+`docker run` creates a container from an image. `-d` detaches. `--rm` deletes the container when it exits.
+
+## Commands
+
+    docker run hello-world                                 One-shot test
+    docker run -it debian bash                             Interactive shell (Ctrl-d to exit)
+    docker run -d --name web -p 8080:80 nginx              Background, name, publish port
+    docker run --rm alpine echo ok                         Remove container after exit
+    docker run -e FOO=bar alpine env                       Set an environment variable
+    docker run --network host nginx                        Use the host network (lab only)
+
+
+# Lifecycle
+
+## Commands
+
+    docker ps                                              Running containers
+    docker ps -a                                           All containers, including stopped
+    docker stop web                                        SIGTERM, then SIGKILL
+    docker start web                                       Start a stopped container
+    docker restart web                                     Stop then start
+    docker kill web                                        SIGKILL immediately
+    docker pause web                                       Freeze processes
+    docker unpause web                                     Resume
+    docker rm web                                          Delete a stopped container
+    docker rm -f web                                       Stop and delete
+    docker rename web web2                                 Rename
+    docker inspect web                                     Full container JSON
+    docker stats                                           Live CPU and memory
+    docker top web                                         Processes inside the container
+    docker port web                                        Published ports
+
+
+# Logs and Exec
+
+## Commands
+
+    docker logs web                                        Stdout and stderr
+    docker logs -f web                                     Follow
+    docker logs --tail 100 web                             Last 100 lines
+    docker exec -it web sh                                 Shell in a running container
+    docker exec -it web bash                               Bash when the image has it
+    docker exec web ls /etc                                One-shot command
+    docker cp web:/etc/nginx/nginx.conf .                  Copy out
+    docker cp ./index.html web:/usr/share/nginx/html/      Copy in
+    docker attach web                                      Attach to PID 1 (Ctrl-p Ctrl-q to detach)
+
+
+# Ports Env and Volumes
+
+## Overview
+
+`-p host:container` publishes a port. `-v` bind-mounts a host path or named volume.
+
+## Commands
+
+    docker run -d -p 80:80 nginx                           Host 80 to container 80
+    docker run -d -p 127.0.0.1:8080:80 nginx               Bind to localhost only
+    docker run -d -v /opt/html:/usr/share/nginx/html nginx Bind-mount a directory
+    docker volume create data                              Named volume
+    docker run -d -v data:/var/lib/mysql mysql:8           Mount the named volume
+    docker volume ls                                       List volumes
+    docker volume inspect data                             Volume details
+    docker volume rm data                                  Remove unused volume
+
+
+# Build
+
+## Overview
+
+A Dockerfile in the current directory defines the image. Tag it so you can run it later.
+
+## Commands
+
+Minimal Dockerfile:
+    FROM debian:bookworm-slim
+    RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+    CMD ["bash"]
+
+Build and run:
+    docker build -t mytool:lab .
+    docker build -t mytool:lab -f Dockerfile.lab .
+    docker run --rm -it mytool:lab
+
+
+# Compose
+
+## Overview
+
+`docker compose` (plugin, not the old `docker-compose` binary) starts multi-container labs from a YAML file.
+
+## Commands
+
+    docker compose up -d                                   Create and start in the background
+    docker compose ps                                      Service status
+    docker compose logs -f                                 Follow all service logs
+    docker compose exec web sh                             Exec into a service
+    docker compose down                                    Stop and remove containers
+    docker compose down -v                                 Also remove named volumes
+
+Example compose.yaml:
+    services:
+      web:
+        image: nginx:latest
+        ports:
+          - "8080:80"
+
+
+# Networks
+
+## Commands
+
+    docker network ls                                      List networks
+    docker network create labnet                           User-defined bridge
+    docker run -d --network labnet --name a nginx
+    docker run -d --network labnet --name b alpine sleep inf
+    docker exec b ping -c1 a                               Name resolution on the user network
+    docker network inspect labnet
+    docker network rm labnet                               Remove unused network
+
+
+# Cleanup
+
+## Commands
+
+    docker container prune                                 Remove stopped containers
+    docker image prune                                     Remove dangling images
+    docker image prune -a                                  Remove unused images
+    docker volume prune                                    Remove unused volumes
+    docker network prune                                   Remove unused networks
+    docker system df                                       Disk use
+    docker system prune                                    Stopped containers, dangling images, unused networks
+    docker system prune -a --volumes                       Aggressive. Confirm before running.
+
+
+# Socket Risk
+
+## Overview
+
+Whoever can talk to `/var/run/docker.sock` can start privileged containers and reach the host. Do not expose the socket to untrusted containers or the network.
+
+## Commands
+
+Permission denied:
+    sudo usermod -aG docker "$USER"
+    # Then log out and back in. Do not chmod 666 the socket except as a short lab workaround.
+
+Never:
+    docker run -v /var/run/docker.sock:/var/run/docker.sock some-image
+    # That is root on the host for anyone inside the container.
+
+See linux.txt for DVWA, Mutillidae, WebGoat, and bWAPP run lines.
