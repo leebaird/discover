@@ -511,7 +511,7 @@ PY
 
     {
         echo "# Discover scanner User-Agent (Microsoft Edge on Windows)."
-        echo "# Refreshed by misc/update.sh — do not commit secrets here."
+        echo "# Refreshed by misc/update.sh."
         echo "# Primary: $primary_url"
         echo "$ua"
     } > "$ua_file"
