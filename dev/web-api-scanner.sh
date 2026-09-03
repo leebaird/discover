@@ -25,9 +25,11 @@ source "${WEBAPI_ROOT}/lib/web-api-scanner/probe.sh"
 f_terminate(){
     echo
     echo -e "${YELLOW}[!] Interrupted — saving partial reports.${NC}"
+
     if [ -n "${OUTPUT_DIR:-}" ] && [ -d "${OUTPUT_DIR:-}" ]; then
         f_webapi_generate_reports 2>/dev/null || true
     fi
+
     echo
     exit 130
 }
@@ -107,9 +109,11 @@ f_webapi_main(){
         echo -e "${BLUE}Web and API Security Scanner${NC}"
         echo -e "${YELLOW}Authorized security testing only.${NC}"
         echo -e "${GREEN}[*] Tier: ${WEBAPI_TIER}${NC}"
+
         if [ "$WEBAPI_DRY_RUN" = "1" ]; then
             echo -e "${YELLOW}[*] Dry-run: building session plan without msfconsole${NC}"
         fi
+
         echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
     else
         f_webapi_log "CLI scan tier=$WEBAPI_TIER dry_run=$WEBAPI_DRY_RUN"
@@ -123,6 +127,7 @@ f_webapi_main(){
         echo -e "${YELLOW}[*] Scan log: ${OUTPUT_DIR}/scan.log${NC}"
         echo
     fi
+
 }
 
 f_webapi_main "$@"

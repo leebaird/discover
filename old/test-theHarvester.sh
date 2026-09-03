@@ -101,6 +101,7 @@ run_harvester() {
         rm -f "z${source}.tmp"
         printf "      └─ (no results)\n"
     fi
+
 }
 
 for src in "${sources[@]}"; do

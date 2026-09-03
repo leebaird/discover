@@ -59,6 +59,7 @@ f_resolve_json_path(){
             printf '%s' "$raw/ffuf.json"
             return 0
         fi
+
         if [ -f "$raw/ferox.json" ]; then
             printf '%s' "$raw/ferox.json"
             return 0
@@ -68,19 +69,23 @@ f_resolve_json_path(){
     # Relative path: resolve against current engagement report
     if [[ "$raw" != /* ]]; then
         local report=""
+
         if [ -f "${HOME}/.discover/current-report" ]; then
             report=$(head -n 1 "${HOME}/.discover/current-report" 2>/dev/null || true)
             report=$(f_trim "$report")
             report="${report/#\~/$HOME}"
         fi
+
         if [ -n "$report" ] && [ -f "$report/$raw" ]; then
             printf '%s' "$report/$raw"
             return 0
         fi
+
         if [ -f "$raw" ]; then
             printf '%s' "$(cd "$(dirname "$raw")" && pwd)/$(basename "$raw")"
             return 0
         fi
+
         return 1
     fi
 
@@ -88,6 +93,7 @@ f_resolve_json_path(){
         printf '%s' "$raw"
         return 0
     fi
+
     return 1
 }
 
@@ -152,6 +158,7 @@ PY
 }
 
 JSON_PATH=$(f_resolve_json_path "${1:-}" || true)
+
 if [ -z "$JSON_PATH" ] || [ ! -f "$JSON_PATH" ]; then
     echo "[!] ffuf JSON not found: ${1:-}"
     sleep 2
@@ -165,6 +172,7 @@ if ! command -v firefox >/dev/null 2>&1; then
 fi
 
 mapfile -t URLS < <(f_extract_urls "$JSON_PATH")
+
 if [ "${#URLS[@]}" -eq 0 ]; then
     echo "[!] No HTTP(S) finding URLs in $JSON_PATH"
     sleep 2

@@ -191,6 +191,11 @@ semicolon (;)                                                 Does not depend on
 double ampersand (&&)                                         Depends on the first command completing with no errors
 pipe (|)                                                      Uses output from the first command as input to the second command
 
+# Script validation
+
+bash -n script.sh                                               Check a script for syntax errors without running it
+bash -n /path/to/script.sh                                      Same, with a path
+
 # Check for root
 if [ "$EUID" -ne 0 ]; then
     echo

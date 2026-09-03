@@ -20,6 +20,7 @@ f_webapi_resolve_msf_data_file(){
         "/usr/share/metasploit-framework/data/wordlists/${leaf}"
         "/opt/metasploit-framework/embedded/framework/data/wordlists/${leaf}"
     )
+
     if command -v msfconsole >/dev/null 2>&1; then
         msf_bin=$(command -v msfconsole)
         msf_root=$(cd "$(dirname "$msf_bin")/.." && pwd)
@@ -43,6 +44,7 @@ f_webapi_msf_find_modules_root(){
         "/usr/share/metasploit-framework/modules"
         "/opt/metasploit-framework/embedded/framework/modules"
     )
+
     if command -v msfconsole >/dev/null 2>&1; then
         msf_bin=$(command -v msfconsole)
         msf_root=$(cd "$(dirname "$msf_bin")/.." && pwd)
@@ -52,6 +54,7 @@ f_webapi_msf_find_modules_root(){
             "${msf_root}/modules"
         )
     fi
+
     local c
     for c in "${candidates[@]}"; do
         [ -d "$c" ] && { WEBAPI_MSF_MODULES_ROOT="$c"; return 0; }
@@ -74,6 +77,7 @@ f_webapi_msf_prune_resource(){
         case "$line" in
             use\ *)
                 mod=$(printf '%s' "$line" | awk '{print $2}')
+
                 if [ "$WEBAPI_DRY_RUN" = "1" ] || [ -z "$WEBAPI_MSF_MODULES_ROOT" ] || f_webapi_msf_module_exists "$mod"; then
                     printf '%s\n' "$line" >> "$dst"
                     allow=1
@@ -83,6 +87,7 @@ f_webapi_msf_prune_resource(){
                         "MSF module not installed: $mod" "msf_engine/resources"
                     allow=0
                 fi
+
                 ;;
             check|run)
                 [ "$allow" = "1" ] && printf '%s\n' "$line" >> "$dst"
@@ -169,6 +174,7 @@ f_webapi_msf_resolve_wordlists(){
     else
         f_webapi_log "MSF wordlists: dir=${WEBAPI_MSF_WORDLIST_RESOLVED} userpass=${WEBAPI_MSF_USERPASS_RESOLVED}"
     fi
+
     return 0
 }
 
@@ -401,15 +407,19 @@ setg TARGETURI /
 setg VERBOSE false
 setg THREADS ${threads}
 EOF
+
     if [ -n "$WEBAPI_PROXY" ]; then
         printf 'setg Proxies %s\n' "$WEBAPI_PROXY" >> "${WEBAPI_MSF_RESOURCE_DIR}/master.rc"
     fi
+
     if [ -n "$WEBAPI_BEARER_TOKEN" ]; then
         printf 'setg HttpHeaders Authorization: Bearer %s\n' "$WEBAPI_BEARER_TOKEN" >> "${WEBAPI_MSF_RESOURCE_DIR}/master.rc"
     fi
+
     if [ -n "$WEBAPI_COOKIE_FILE" ] && [ -f "$WEBAPI_COOKIE_FILE" ]; then
         printf 'setg COOKIEJAR %s\nsetg VALIDCOOKIES true\n' "$WEBAPI_COOKIE_FILE" >> "${WEBAPI_MSF_RESOURCE_DIR}/master.rc"
     fi
+
 }
 
 f_webapi_msf_phase_resource(){
@@ -530,12 +540,14 @@ f_webapi_msf_run_one_phase(){
 
     f_webapi_msf_build_phase_session "$phase" || return 1
     f_webapi_say "${BLUE}[*] Phase: $(f_webapi_msf_phase_label "$phase") (${phase})${NC}"
+
     if command -v timeout >/dev/null 2>&1; then
         timeout --foreground "${WEBAPI_PHASE_TIMEOUT}" msfconsole -q -r "$session_rc" >> "$WEBAPI_SCAN_LOG" 2>&1 || rc=$?
         [ "$rc" -eq 124 ] && f_webapi_log "Phase timeout: $phase"
     else
         msfconsole -q -r "$session_rc" >> "$WEBAPI_SCAN_LOG" 2>&1 || rc=$?
     fi
+
     f_webapi_msf_parse_spool "$phase" "$spool_file" "$domain" "$target_url"
     f_webapi_sleep_between_phases
     return 0

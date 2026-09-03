@@ -75,9 +75,11 @@ f_openredirect_interactive_menu(){
                 read -r OPEN_REDIRECT_WORDLIST
                 OPEN_REDIRECT_WORDLIST=$(f_dev_trim "$OPEN_REDIRECT_WORDLIST")
                 OPEN_REDIRECT_WORDLIST="${OPEN_REDIRECT_WORDLIST/#\~/$HOME}"
+
                 if [ -n "$OPEN_REDIRECT_WORDLIST" ] && [ ! -f "$OPEN_REDIRECT_WORDLIST" ]; then
                     f_dev_die "Input file not found."
                 fi
+
                 echo -n "Crawl links from target? (y/n) [n]: "
                 read -r CRAWL_IN
                 [[ "$CRAWL_IN" =~ ^[Yy] ]] && OPEN_REDIRECT_CRAWL=1
@@ -93,9 +95,11 @@ f_openredirect_interactive_menu(){
                 echo -n "Also seed with a single URL (optional): "
                 read -r OPEN_REDIRECT_URL
                 OPEN_REDIRECT_URL=$(f_dev_trim "$OPEN_REDIRECT_URL")
+
                 if [ -n "$OPEN_REDIRECT_URL" ]; then
                     OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
                 fi
+
                 ;;
             6) f_dev_previous ;;
             *) f_dev_die "Invalid choice or entry." ;;
@@ -141,6 +145,7 @@ f_openredirect_main(){
     if [ -n "$OPEN_REDIRECT_URL" ]; then
         OPEN_REDIRECT_URL=$(f_openredirect_normalize_url "$OPEN_REDIRECT_URL")
     fi
+
     if [ -n "$OPEN_REDIRECT_DOMAIN" ]; then
         OPEN_REDIRECT_DOMAIN=$(f_openredirect_normalize_domain "$OPEN_REDIRECT_DOMAIN")
     fi

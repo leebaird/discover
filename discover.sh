@@ -87,9 +87,11 @@ USER_AGENT="$(f_discover_user_agent)"
 f_audit_egress_ip(){
     local ip
     ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
+
     if [ -z "$ip" ]; then
         ip=unknown
     fi
+
     printf '%s' "$ip"
 }
 
@@ -103,13 +105,16 @@ f_audit_operator_name(){
         name="${name#"${name%%[![:space:]]*}"}"
         name="${name%"${name##*[![:space:]]}"}"
     fi
+
     # Letters only; max 10; first letter capital for audit display.
     name=$(printf '%s' "$name" | tr -cd "A-Za-z" | cut -c1-10)
+
     if [ -z "$name" ]; then
         name=unknown
     else
         name=$(f_operator_name_canonical "$name")
     fi
+
     printf '%s' "$name"
 }
 
@@ -143,6 +148,7 @@ f_ensure_operator_name(){
 
     if [ -f "$file" ]; then
         name=$(head -n 1 "$file" 2>/dev/null | tr -d '\r')
+
         if f_operator_name_valid "$name"; then
             name=$(f_operator_name_canonical "$name")
             OPERATOR_NAME="$name"
@@ -152,8 +158,10 @@ f_ensure_operator_name(){
                 printf '%s\n' "$name" > "$file" 2>/dev/null || true
                 chmod 600 "$file" 2>/dev/null || true
             fi
+
             return 0
         fi
+
         name=""
     fi
 
@@ -168,26 +176,31 @@ f_ensure_operator_name(){
         # read would strip them and silently accept "   lee" as Lee).
         IFS= read -r name
         name="${name//$'\r'/}"
+
         if [ -z "$name" ]; then
             echo -e "${YELLOW}[!] Name is required (letters only).${NC}"
             echo
             continue
         fi
+
         if [[ "$name" =~ [[:space:]] ]]; then
             echo -e "${YELLOW}[!] No spaces allowed (including before or after the name).${NC}"
             echo
             continue
         fi
+
         if [ "${#name}" -gt 10 ]; then
             echo -e "${YELLOW}[!] Max 10 characters (you entered ${#name}).${NC}"
             echo
             continue
         fi
+
         if ! f_operator_name_valid "$name"; then
             echo -e "${YELLOW}[!] Letters only (A–Z, a–z).${NC}"
             echo
             continue
         fi
+
         name=$(f_operator_name_canonical "$name")
         break
     done
@@ -212,6 +225,7 @@ f_audit_log(){
     if [ -z "$report_root" ] || [ -z "$action" ]; then
         return 1
     fi
+
     if [ ! -d "$report_root" ]; then
         return 1
     fi
@@ -298,6 +312,7 @@ f_check(){
         echo
         exit 1
     fi
+
 }
 
 export -f f_check
@@ -322,6 +337,7 @@ f_run_script(){
     if [ "$status" -eq 0 ]; then
         exit 0
     fi
+
 }
 
 f_run_submenu(){
@@ -331,6 +347,7 @@ f_run_submenu(){
     if [ "$status" -eq 2 ]; then
         exit 0
     fi
+
 }
 
 f_error(){
@@ -363,6 +380,7 @@ export -f f_invalid f_error f_return_main f_dev_die f_dev_previous f_run_script 
 ###############################################################################################################################
 
 f_runlocally(){
+
     if [ -z "$DISPLAY" ]; then
         echo
         echo -e "${RED}$MEDIUM${NC}"
@@ -373,6 +391,7 @@ f_runlocally(){
         echo
         exit 1
     fi
+
 }
 
 export -f f_runlocally
@@ -387,6 +406,7 @@ f_firefox_running(){
 }
 
 f_firefox_check(){
+
     if f_firefox_running; then
         echo
         echo -e "${RED}$SMALL${NC}"
@@ -398,6 +418,7 @@ f_firefox_check(){
         sleep 2
         return 1
     fi
+
 }
 
 f_firefox_user_agents(){
@@ -503,6 +524,7 @@ f_update(){
         # Same look as other Update sections: blue header + plain status line.
         echo -e "${BLUE}Updating Grok.${NC}"
         _grok_out=$(grok update 2>&1) || true
+
         if echo "$_grok_out" | grep -qiE 'already up to date|up to date|already the latest'; then
             echo "Already up to date."
         elif [ -n "$_grok_out" ]; then
@@ -510,6 +532,7 @@ f_update(){
         else
             echo "Already up to date."
         fi
+
         unset _grok_out
         echo
     fi
@@ -529,17 +552,20 @@ f_update(){
         # uv self update is chatty (info:/success:/release URL) — collapse to one line.
         echo -e "${BLUE}Updating uv.${NC}"
         _uv_out=$(uv self update 2>&1) || true
+
         if echo "$_uv_out" | grep -qiE 'already on (the )?latest|already up to date|up to date|nothing to (do|update)'; then
             echo "Already up to date."
         elif echo "$_uv_out" | grep -qiE 'upgraded uv from|success:.*upgrad'; then
             # e.g. success: Upgraded uv from v0.11.33 to v0.12.0! https://...
             # Keep a single clean line: Upgraded uv from v0.11.33 to v0.12.0
             _uv_line=$(echo "$_uv_out" | grep -oiE 'Upgraded uv from v?[0-9]+\.[0-9]+(\.[0-9]+)? to v?[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)
+
             if [ -n "$_uv_line" ]; then
                 echo "$_uv_line"
             else
                 echo "Upgraded."
             fi
+
             unset _uv_line
         elif echo "$_uv_out" | grep -qiE 'error|failed|denied|permission'; then
             # Keep real failures visible (trimmed).
@@ -549,6 +575,7 @@ f_update(){
             # Unknown quiet success / no output
             echo "Already up to date."
         fi
+
         unset _uv_out
         echo
     fi
@@ -565,6 +592,7 @@ f_update(){
                 || git checkout -- uv.lock 2>/dev/null \
                 || true
         fi
+
         if git pull; then
             :
         else
@@ -573,6 +601,7 @@ f_update(){
             git pull || echo -e "${RED}[!] theHarvester update failed — check $HOME/theHarvester${NC}"
             git stash pop --quiet 2>/dev/null || true
         fi
+
         uv sync -q 2>/dev/null || uv sync -q || true
         echo
     else
@@ -588,6 +617,7 @@ f_update(){
         sudo -v || return 1
         echo
     fi
+
     sudo "$MISC_DIR/update.sh"
 
     # Quiet notes rebuild after Update (no operator-facing banner).
@@ -605,13 +635,16 @@ export -f f_update
 f_notes(){
     echo
     echo "[*] Building notes site."
+
     if ! python3 "$DISCOVER/notes/build.py"; then
         echo -e "${RED}[!] Notes build failed.${NC}"
         echo
         sleep 2
         return 0
     fi
+
     echo "[*] Opening notes in browser."
+
     if command -v xdg-open &> /dev/null; then
         xdg-open "$DISCOVER/notes/index.htm" >/dev/null 2>&1 &
     elif command -v sensible-browser &> /dev/null; then
@@ -619,6 +652,7 @@ f_notes(){
     else
         echo "$DISCOVER/notes/index.htm"
     fi
+
     echo
     exit 0
 }
@@ -633,16 +667,20 @@ f_dev_run(){
 
     "$script"
     status=$?
+
     if [ "$status" -eq 0 ]; then
         exit 0
     fi
+
     if [ "$status" -eq 2 ]; then
         f_dev
         return 0
     fi
+
     if [ "$status" -eq 3 ]; then
         exit 1
     fi
+
     return 0
 }
 
@@ -677,6 +715,7 @@ f_dev(){
     case "$CHOICE" in
         9) return 0 ;;
         *)
+
             if [ ! -d "$HOME"/data ]; then
                 mkdir -p "$HOME"/data
             fi
@@ -745,6 +784,7 @@ f_main(){
         18) f_update ;;
         19) echo && exit ;;
         *)
+
             if [ ! -d "$HOME"/data ]; then
                 mkdir -p "$HOME"/data
             fi

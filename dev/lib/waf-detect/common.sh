@@ -79,11 +79,13 @@ f_waf_log(){
 
 f_waf_finding_hash(){
     local domain="$1" resource="$2" check="$3" detail="$4"
+
     if [ "$check" = "waf_identified" ] || [ "$check" = "waf_possible" ] || [ "$check" = "cdn_present" ]; then
         local vendor="${detail%% |*}"
         printf '%s|%s|%s|%s' "$domain" "$resource" "$check" "$vendor" | sha256sum | awk '{print $1}'
         return 0
     fi
+
     printf '%s|%s|%s|%s' "$domain" "$resource" "$check" "$detail" | sha256sum | awk '{print $1}'
 }
 
@@ -110,6 +112,7 @@ f_waf_count_findings(){
     local severity="${1:-}"
     awk -F'\t' -v sev="$severity" '
         NR > 1 {
+
             if (sev != "" && $1 != sev) next
             n++
         }
@@ -131,10 +134,12 @@ f_waf_domain_from_url(){
 
 f_waf_detect_input_format(){
     local path="$1"
+
     if [ -n "$WAF_INPUT_FORMAT" ]; then
         printf '%s' "$WAF_INPUT_FORMAT"
         return 0
     fi
+
     case "$path" in
         *.csv) echo csv ;;
         *.json) echo json ;;
@@ -143,6 +148,7 @@ f_waf_detect_input_format(){
 }
 
 f_waf_setup_output(){
+
     if [ -n "$WAF_RESUME_DIR" ]; then
         OUTPUT_DIR="$WAF_RESUME_DIR"
         [ -d "$OUTPUT_DIR" ] || { echo -e "${RED}[!] Resume directory not found: $OUTPUT_DIR${NC}"; exit 1; }
@@ -155,6 +161,7 @@ f_waf_setup_output(){
     else
         OUTPUT_DIR="$HOME/data/waf-detection_$(date +%Y%m%d-%H%M)"
     fi
+
     mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR${NC}"; exit 1; }
     f_waf_init_scan 0
 }
@@ -231,6 +238,7 @@ EOF
 
     awk -F'\t' 'NR > 1 {
         printf "  [%s] %s — %s\n    Check: %s\n    Detail: %s\n", $1, $2, $3, $4, $5
+
         if ($6 != "") printf "    Evidence: %s\n", $6
         printf "\n"
     }' "$WAF_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.txt"
@@ -263,6 +271,7 @@ EOF
 
     awk -F'\t' 'NR > 1 {
         printf "### [%s] %s — %s\n- **Domain:** %s\n- **Detail:** %s\n", $1, $3, $4, $2, $5
+
         if ($6 != "") printf "- **Evidence:** \`%s\`\n", $6
         printf "\n"
     }' "$WAF_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.md"
@@ -281,10 +290,12 @@ f_waf_load_targets(){
     local -n _out=$1
     local src="$2" fmt
     _out=()
+
     if [ -n "$WAF_URL" ]; then
         _out+=("$WAF_URL")
         return 0
     fi
+
     [ -n "$src" ] && [ -f "$src" ] || return 0
     fmt=$(f_waf_detect_input_format "$src")
     case "$fmt" in
@@ -293,6 +304,7 @@ f_waf_load_targets(){
                 [ -n "$line" ] && _out+=("$line")
             done < <(awk -F',' 'NR==1{next} {print $1}' "$src" 2>/dev/null; \
                 awk -F',' '$0 ~ /https?:\/\// {print $1}' "$src")
+
             if [ ${#_out[@]} -eq 0 ]; then
                 while IFS= read -r u; do
                     [ -n "$u" ] && _out+=("$u")
@@ -307,6 +319,7 @@ with open(sys.argv[1], newline='', encoding='utf-8', errors='replace') as fh:
 PY
 )
             fi
+
             ;;
         json)
             while IFS= read -r u; do
@@ -328,6 +341,7 @@ PY
 f_waf_require_active_consent(){
     [ "$WAF_PASSIVE" = "1" ] && return 0
     [ "$WAF_I_UNDERSTAND" = "1" ] && return 0
+
     if [ -t 0 ] && [ -t 1 ]; then
         echo -e "${YELLOW}Active mode sends benign WAF triggers (wafw00f + supplemental). Authorized testing only.${NC}"
         echo -n "Continue? (y/n): "
@@ -335,6 +349,7 @@ f_waf_require_active_consent(){
         [[ "$ans" =~ ^[Yy] ]] || { echo "Aborted."; exit 1; }
         return 0
     fi
+
     echo -e "${RED}[!] Active scan requires --passive or --i-understand${NC}"
     exit 1
 }

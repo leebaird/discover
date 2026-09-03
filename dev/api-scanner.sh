@@ -51,6 +51,7 @@ f_api_phase_link_extract(){
             done < "${OUTPUT_DIR}/api_scanner/endpoints_html.txt"
         fi
     fi
+
     f_api_mark_phase "link_extract"
 }
 
@@ -85,6 +86,7 @@ f_api_phase_fuzzer(){
         f_api_log "feroxbuster User-Agent: $USER_AGENT"
         feroxbuster -u "$API_TARGET_URL" -w "$wordlist" -a "$USER_AGENT" -t "$API_MAX_PARALLEL" \
             -C 404 -q --no-recursion -o "${OUTPUT_DIR}/api_scanner/feroxbuster.txt" 2>>"$API_SCAN_LOG" || true
+
         if [ -s "${OUTPUT_DIR}/api_scanner/feroxbuster.txt" ]; then
             awk '{print $2}' "${OUTPUT_DIR}/api_scanner/feroxbuster.txt" | while read -r u; do
                 [ -n "$u" ] && echo "$u (200 - FEROX)" >> "${OUTPUT_DIR}/api_scanner/found_api_endpoints.txt"
@@ -93,6 +95,7 @@ f_api_phase_fuzzer(){
     else
         echo -e "${YELLOW}[*] Skipping fuzzer (ffuf/feroxbuster not installed).${NC}"
     fi
+
     rm -f "$wordlist"
     f_api_mark_phase "fuzzer"
 }
@@ -131,12 +134,14 @@ f_api_probe_single_path(){
     if curl "${curl_args[@]}" -i -H "Accept: application/json, text/plain, */*" "$url" > "$response_file" 2>"${OUTPUT_DIR}/api_scanner/curl_err_${safe}.txt"; then
         if grep -qi "Content-Type:.*json" "$response_file" 2>/dev/null; then
             sed -n '/^\r\{0,1\}$/,$p' "$response_file" | sed '1d' > "${response_file}.json" 2>/dev/null || cp "$response_file" "${response_file}.json"
+
             if [[ "$path" == *graphql* || "$path" == *gql* ]]; then
                 local intro='{"query":"{__schema{queryType{name}}}"}'
                 f_api_request POST "$url" -H "Content-Type: application/json" -d "$intro" \
                     -o "${OUTPUT_DIR}/api_scanner/responses/graphql_introspection_${safe}.json" 2>/dev/null || true
             fi
         fi
+
         if [ -f "${_API_SCANNER_DIR}/lib/sensitive-scanner/filescan.py" ]; then
             _api_sens_tmp=$(mktemp -d)
             python3 "${_API_SCANNER_DIR}/lib/sensitive-scanner/filescan.py" \
@@ -150,14 +155,17 @@ f_api_probe_single_path(){
             grep -i -E '(api[-_]?key[[:space:]:=]|apikey[[:space:]:=]|password[[:space:]:=]|secrettoken[[:space:]:=]|credential[[:space:]:=]|bearer[[:space:]]+[a-zA-Z0-9._-]{20,}|"secret"[[:space:]]*:)' \
                 "$response_file" > "${response_file}.sensitive" 2>/dev/null
         fi
+
         if [ -s "${response_file}.sensitive" ]; then
             f_api_record_finding "high" "likely" "sensitive" "$url" "$response_file.sensitive" "Potential sensitive data in response"
         fi
     fi
+
 }
 
 f_api_phase_path_probe(){
     f_api_should_run_phase "path_probe" || return 0
+
     if [ -f "${API_CHECKPOINT_DIR}/fuzzer.done" ] && \
        grep -q 'FFUF\|FEROX' "${OUTPUT_DIR}/api_scanner/found_api_endpoints.txt" 2>/dev/null && \
        [ "${API_FORCE_PATH_PROBE:-0}" != "1" ]; then
@@ -165,6 +173,7 @@ f_api_phase_path_probe(){
         f_api_mark_phase "path_probe"
         return 0
     fi
+
     echo -e "${BLUE}[*] Probing common API paths (parallel: $API_MAX_PARALLEL).${NC}"
     mkdir -p "${OUTPUT_DIR}/api_scanner/responses"
     local paths_file="${OUTPUT_DIR}/api_scanner/_paths_probe.txt"
@@ -216,6 +225,7 @@ f_api_phase_graphql(){
         f_api_request POST "$gql_url" -H "Content-Type: application/json" \
             -d '{"query":"{__typename __typename __typename __typename __typename __typename __typename __typename __typename __typename}"}' \
             -o "$depth_file" 2>/dev/null || true
+
         if f_graphql_has_data "$depth_file" 2>/dev/null || ! grep -q '"errors"' "$depth_file" 2>/dev/null; then
             [ -s "$depth_file" ] && f_api_record_finding "medium" "likely" "graphql" "$gql_url" "$depth_file" "GraphQL may lack depth limiting"
         fi
@@ -225,6 +235,7 @@ f_api_phase_graphql(){
         f_api_request POST "$gql_url" -H "Content-Type: application/json" \
             -d '[{"query":"{__typename}"},{"query":"{__schema{queryType{name}}}"}]' \
             -o "$batch_file" 2>/dev/null || true
+
         if f_graphql_has_data "$batch_file" 2>/dev/null; then
             f_api_record_finding "medium" "likely" "graphql" "$gql_url" "$batch_file" "GraphQL batch queries accepted"
         fi
@@ -234,6 +245,7 @@ f_api_phase_graphql(){
         f_api_request POST "$gql_url" -H "Content-Type: application/json" \
             -d '{"query":"{a1:__typename a2:__typename a3:__typename a4:__typename a5:__typename}"}' \
             -o "$alias_file" 2>/dev/null || true
+
         if f_graphql_has_data "$alias_file" 2>/dev/null; then
             f_api_record_finding "low" "inconclusive" "graphql" "$gql_url" "$alias_file" "GraphQL alias queries accepted"
         fi
@@ -271,6 +283,7 @@ f_api_phase_documentation(){
                     -o "${OUTPUT_DIR}/api_scanner/documentation/probe_${safe}_${method}.txt" 2>/dev/null || true
             done
         fi
+
     }
 
     : > "${OUTPUT_DIR}/api_scanner/_doc_hits.txt"
@@ -379,6 +392,7 @@ f_api_phase_http_methods(){
             local status
             status=$(f_api_request "$method" "$endpoint" -o "$mfile" -w "%{http_code}" 2>/dev/null || echo "000")
             [[ "$status" =~ ^(200|201|202|204)$ ]] || continue
+
             if [[ "$method" == "TRACE" || "$method" == "CONNECT" ]]; then
                 f_api_record_finding "high" "confirmed" "http_methods" "$endpoint" "$mfile" "Unsafe method $method returned $status"
             elif [[ "$method" != "GET" && "$method" != "HEAD" && "$method" != "OPTIONS" ]] && \
@@ -415,6 +429,7 @@ f_api_phase_rate_limit(){
     else
         f_api_record_finding "low" "inconclusive" "rate_limit" "$test_ep" "${OUTPUT_DIR}/api_scanner/security/rate_1.txt" "No rate limiting observed in 50-request burst"
     fi
+
     f_api_mark_phase "rate_limit"
 }
 
@@ -434,6 +449,7 @@ f_api_phase_jwt(){
         done < "${OUTPUT_DIR}/api_scanner/jwt_found.txt"
         echo -e "${YELLOW}[*] For OAuth/OIDC testing, also run: dev/oauth-jwt-scanner.sh${NC}"
     fi
+
     f_api_mark_phase "jwt"
 }
 
@@ -588,24 +604,31 @@ f_api_orchestrate(){
     echo
     echo -n "Run oauth-jwt-scanner on same target now? (y/n): "
     read -r run_oauth
+
     if [[ "$run_oauth" =~ ^[Yy] ]]; then
         echo -e "${YELLOW}[*] Run: ${_API_SCANNER_DIR}/oauth-jwt-scanner.sh --target $target${NC}"
     fi
+
     echo -n "Run open-redirect on api-scan output? (y/n): "
     read -r run_redirect
+
     if [[ "$run_redirect" =~ ^[Yy] ]]; then
         echo -e "${YELLOW}[*] Run: ${_API_SCANNER_DIR}/open-redirect.sh --scan-dir $OUTPUT_DIR --quick${NC}"
     fi
+
     echo -n "Run sensitive-scanner on same target? (y/n): "
     read -r run_sens
+
     if [[ "$run_sens" =~ ^[Yy] ]]; then
         _sens_args=(--url "$target" --scan-dir "$OUTPUT_DIR" --all --quick)
         [ -n "$API_BEARER_TOKEN" ] && _sens_args+=(--bearer-token "$API_BEARER_TOKEN")
         echo -e "${YELLOW}[*] Launching sensitive-scanner...${NC}"
         "${_API_SCANNER_DIR}/sensitive-scanner.sh" "${_sens_args[@]}"
     fi
+
     echo -n "Run waf-detect on same target? (y/n): "
     read -r run_waf
+
     if [[ "$run_waf" =~ ^[Yy] ]]; then
         echo "Probe mode:"
         echo "1. Passive (recommended — normal GET only)"
@@ -621,8 +644,10 @@ f_api_orchestrate(){
         echo -e "${YELLOW}[*] Launching waf-detect...${NC}"
         "${_API_SCANNER_DIR}/waf-detect.sh" "${_waf_args[@]}"
     fi
+
     echo -n "Run web-api-scanner on same target? (y/n): "
     read -r run_webapi
+
     if [[ "$run_webapi" =~ ^[Yy] ]]; then
         echo "Scan mode:"
         echo "1. Passive (MSF recon only — recommended)"
@@ -640,6 +665,7 @@ f_api_orchestrate(){
         echo -e "${YELLOW}[*] Launching web-api-scanner...${NC}"
         "${_API_SCANNER_DIR}/web-api-scanner.sh" "${_webapi_args[@]}"
     fi
+
 }
 
 ###############################################################################################################################
@@ -729,11 +755,13 @@ f_api_main(){
 
     if [ -n "$API_CLI_URL" ]; then
         [[ "$API_CLI_URL" =~ ^https?:// ]] || f_dev_die "Invalid URL."
+
         if [ "$API_CLI_MODE" = "orchestrate" ]; then
             f_api_orchestrate "$API_CLI_URL"
         else
             f_api_run_scan "$API_CLI_URL"
         fi
+
         echo -e "${YELLOW}[*] Results: ${OUTPUT_DIR}/api_scanner/${NC}"
         echo -e "${YELLOW}[*] Reports: report.txt, report.md, findings.json${NC}"
         echo -e "${YELLOW}[*] Request log: ${OUTPUT_DIR}/api_scanner/scan.log${NC}"

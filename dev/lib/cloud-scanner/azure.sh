@@ -1,10 +1,12 @@
 # Azure cloud security checks — sourced by dev/cloud-scanner.sh
 
 f_azure_auth_check(){
+
     if ! az account show > "$OUTPUT_DIR/azure/subscription_info.json" 2>>"$CLOUD_SCAN_LOG"; then
         echo -e "${RED}[!] Azure authentication failed. Run 'az login' and retry.${NC}"
         return 1
     fi
+
     local sub_name
     sub_name=$(jq -r '.name' "$OUTPUT_DIR/azure/subscription_info.json" 2>/dev/null)
     echo -e "${YELLOW}[*] Azure subscription: $sub_name${NC}"
@@ -53,9 +55,11 @@ f_azure_phase_nsg(){
     while IFS=$'\t' read -r nsg rule port src; do
         [ -z "$nsg" ] && continue
         local sev=warning
+
         if [ "$port" != "all" ] && [ "$port" != "*" ] && f_cloud_port_sensitive "${port%%-*}"; then
             sev=high
         fi
+
         f_cloud_record_finding "$sev" azure network "$nsg" nsg-inbound-open \
             "Inbound rule $rule allows $src on port $port" \
             "$OUTPUT_DIR/azure/network_security_groups.json"
@@ -98,10 +102,12 @@ f_azure_phase_keyvault(){
         name=$(echo "$kv" | jq -r '.name')
         pub=$(echo "$kv" | jq -r '.properties.publicNetworkAccess // "unknown"')
         soft=$(echo "$kv" | jq -r '.properties.enableSoftDelete // false')
+
         if [ "$pub" = "Enabled" ]; then
             f_cloud_record_finding warning azure keyvault "$name" public-network \
                 "Key Vault public network access enabled" "$OUTPUT_DIR/azure/keyvaults.json"
         fi
+
         if [ "$soft" != "true" ]; then
             f_cloud_record_finding warning azure keyvault "$name" soft-delete \
                 "Soft delete not enabled" "$OUTPUT_DIR/azure/keyvaults.json"

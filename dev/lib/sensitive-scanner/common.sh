@@ -110,9 +110,11 @@ f_sensitive_say(){
 
 f_sensitive_redact(){
     local text="$1"
+
     if [ "$SENSITIVE_REDACT_EMAILS" = "1" ]; then
         text=$(printf '%s' "$text" | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[EMAIL_REDACTED]/g')
     fi
+
     printf '%s' "$text" | sed -E \
         -e 's/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*/[JWT_REDACTED]/g' \
         -e 's/(aws[_-]?secret[_-]?access[_-]?key[[:space:]]*[=:][[:space:]]*)[^[:space:]'"'"']+/\1[REDACTED]/gi' \
@@ -174,7 +176,9 @@ f_sensitive_count_findings(){
     local severity="${1:-}" domain="${2:-}"
     awk -F'\t' -v sev="$severity" -v dom="$domain" '
         NR > 1 {
+
             if (sev != "" && $1 != sev) next
+
             if (dom != "" && $2 != dom) next
             n++
         }
@@ -183,6 +187,7 @@ f_sensitive_count_findings(){
 }
 
 f_sensitive_setup_output(){
+
     if [ -n "$SENSITIVE_RESUME_DIR" ]; then
         OUTPUT_DIR="$SENSITIVE_RESUME_DIR"
         [ -d "$OUTPUT_DIR" ] || { echo -e "${RED}[!] Resume directory not found: $OUTPUT_DIR${NC}"; exit 1; }
@@ -195,6 +200,7 @@ f_sensitive_setup_output(){
     else
         OUTPUT_DIR="$HOME/data/sensitive-scan_$(date +%Y%m%d-%H%M)"
     fi
+
     mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR${NC}"; exit 1; }
     f_sensitive_init_scan 0
 }
@@ -267,6 +273,7 @@ EOF
 
     awk -F'\t' 'NR > 1 {
         printf "  [%s] %s — %s\n    Check: %s\n    Detail: %s\n", $1, $2, $3, $4, $5
+
         if ($6 != "") printf "    Evidence: %s\n", $6
         printf "\n"
     }' "$SENSITIVE_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.txt"
@@ -298,6 +305,7 @@ EOF
 
     awk -F'\t' 'NR > 1 {
         printf "### [%s] %s — %s\n- **Domain:** %s\n- **Detail:** %s\n", $1, $3, $4, $2, $5
+
         if ($6 != "") printf "- **Evidence:** \`%s\`\n", $6
         printf "\n"
     }' "$SENSITIVE_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.md"
@@ -310,6 +318,7 @@ EOF
 f_sensitive_append_summary_section(){
     local title="$1" hits_file="$2" max="${3:-10}"
     echo "[$title]"
+
     if [ -s "$hits_file" ]; then
         local n
         n=$(wc -l < "$hits_file")
@@ -321,6 +330,7 @@ f_sensitive_append_summary_section(){
     else
         echo "  None found."
     fi
+
     echo
 }
 
@@ -466,6 +476,7 @@ f_sensitive_parse_cli(){
             SENSITIVE_SCAN_TYPES="files"
         fi
     fi
+
 }
 
 f_sensitive_normalize_url(){
@@ -477,6 +488,7 @@ f_sensitive_normalize_url(){
 f_sensitive_resolve_scan_roots(){
     local -n _out=$1
     _out=()
+
     if [ -n "$SENSITIVE_PATH" ]; then
         if [ -f "$SENSITIVE_PATH" ]; then
             _out+=("$SENSITIVE_PATH")
@@ -484,6 +496,7 @@ f_sensitive_resolve_scan_roots(){
             _out+=("$SENSITIVE_PATH")
         fi
     fi
+
     if [ -n "$SENSITIVE_SCAN_DIR" ] && [ -d "$SENSITIVE_SCAN_DIR" ]; then
         local extra="${OUTPUT_DIR}/extra_scan_paths.txt"
         : > "$extra"
@@ -492,4 +505,5 @@ f_sensitive_resolve_scan_roots(){
             [ -n "$p" ] && _out+=("$p")
         done < "$extra"
     fi
+
 }

@@ -6,15 +6,18 @@ f_sensitive_web_engine_py(){
 
 f_sensitive_build_web_paths_file(){
     local dest="$1"
+
     if [ -n "$SENSITIVE_WORDLIST" ] && [ -f "$SENSITIVE_WORDLIST" ]; then
         cp "$SENSITIVE_WORDLIST" "$dest"
         return 0
     fi
+
     if [ "$SENSITIVE_SCAN_MODE" = "quick" ]; then
         cp "${SENSITIVE_SCANNER_ROOT}/data/sensitive-web-paths-quick.txt" "$dest"
     else
         cp "${SENSITIVE_SCANNER_ROOT}/data/sensitive-web-paths-full.txt" "$dest"
     fi
+
 }
 
 f_sensitive_shred_web_content(){

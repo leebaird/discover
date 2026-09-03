@@ -60,19 +60,23 @@ f_resolve_list_path(){
     # Relative path: resolve against current engagement report
     if [[ "$raw" != /* ]]; then
         local report=""
+
         if [ -f "${HOME}/.discover/current-report" ]; then
             report=$(head -n 1 "${HOME}/.discover/current-report" 2>/dev/null || true)
             report=$(f_trim "$report")
             report="${report/#\~/$HOME}"
         fi
+
         if [ -n "$report" ] && [ -f "$report/$raw" ]; then
             printf '%s' "$report/$raw"
             return 0
         fi
+
         if [ -f "$raw" ]; then
             printf '%s' "$(cd "$(dirname "$raw")" && pwd)/$(basename "$raw")"
             return 0
         fi
+
         return 1
     fi
 
@@ -80,10 +84,12 @@ f_resolve_list_path(){
         printf '%s' "$raw"
         return 0
     fi
+
     return 1
 }
 
 LIST_PATH=$(f_resolve_list_path "${1:-}" || true)
+
 if [ -z "$LIST_PATH" ] || [ ! -f "$LIST_PATH" ]; then
     echo "[!] robots Disallow URL list not found: ${1:-}"
     sleep 2

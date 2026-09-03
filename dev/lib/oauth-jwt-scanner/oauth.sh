@@ -3,11 +3,13 @@
 f_oauth_jwt_probe_url(){
     local url="$1" out_body="$2" out_headers="$3"
     local status
+
     if [ -n "$out_headers" ]; then
         status=$(f_oauth_jwt_curl -D "$out_headers" -o "$out_body" -w "%{http_code}" "$url")
     else
         status=$(f_oauth_jwt_curl -o "$out_body" -w "%{http_code}" "$url")
     fi
+
     f_oauth_jwt_log "GET $url -> $status"
     echo "$status"
 }
@@ -41,6 +43,7 @@ f_oauth_jwt_analyze_oidc_metadata(){
         f_oauth_jwt_record_finding info oauth "$target" pkce_s256_missing \
             "S256 PKCE not advertised in discovery" "oauth_test/oidc_config_formatted.json"
     fi
+
 }
 
 f_oauth_jwt_fetch_jwks(){
@@ -59,6 +62,7 @@ f_oauth_jwt_fetch_jwks(){
         f_oauth_jwt_record_finding warning oauth "$jwks_uri" jwks_weak_alg \
             "JWKS contains none/HS256 key algorithms" "oauth_test/jwks_formatted.json"
     fi
+
 }
 
 f_oauth_jwt_test_redirect_uri(){
@@ -81,6 +85,7 @@ f_oauth_jwt_test_redirect_uri(){
         echo "$malicious_url" >> "$OUTPUT_DIR/oauth_test/redirect_uri_hits.txt"
         return 0
     fi
+
     return 1
 }
 
@@ -121,6 +126,7 @@ f_oauth_jwt_test_authorize_flows(){
         local no_pkce_url="$OUTPUT_DIR/oauth_test/no_pkce_headers.txt"
         local pkce_url="${auth_endpoint}?client_id=${enc_client}&response_type=code&redirect_uri=${enc_redirect}&state=pkce1"
         f_oauth_jwt_probe_url "$pkce_url" "$OUTPUT_DIR/oauth_test/no_pkce_body.txt" "$no_pkce_url" >/dev/null
+
         if ! grep -qiE 'code_challenge|invalid_request|error=' "$no_pkce_url" 2>/dev/null && \
            f_oauth_jwt_authorize_without_state "$no_pkce_url" "$OUTPUT_DIR/oauth_test/no_pkce_body.txt"; then
             f_oauth_jwt_record_finding warning oauth "$auth_endpoint" pkce_not_required \
@@ -130,11 +136,13 @@ f_oauth_jwt_test_authorize_flows(){
         echo -e "${BLUE}[*] Testing implicit response_type.${NC}"
         local implicit_url="${auth_endpoint}?client_id=${enc_client}&response_type=token&redirect_uri=${enc_redirect}&state=implicit1"
         f_oauth_jwt_probe_url "$implicit_url" "$OUTPUT_DIR/oauth_test/implicit_body.txt" "$OUTPUT_DIR/oauth_test/implicit_headers.txt" >/dev/null
+
         if grep -qiE '^location:.*access_token=' "$OUTPUT_DIR/oauth_test/implicit_headers.txt" 2>/dev/null; then
             f_oauth_jwt_record_finding high oauth "$auth_endpoint" implicit_flow_enabled \
                 "Implicit flow may return access_token in redirect" "oauth_test/implicit_headers.txt"
         fi
     fi
+
 }
 
 f_oauth_analyze(){
@@ -192,6 +200,7 @@ f_oauth_analyze(){
         url="${TARGET_URL%/}$endpoint"
         file_id=$(f_oauth_jwt_endpoint_file_id "$endpoint")
         status=$(f_oauth_jwt_probe_url "$url" "$OUTPUT_DIR/oauth_test/${file_id}_response.txt" "")
+
         if [[ "$status" == "200" || "$status" == "302" || "$status" == "401" || "$status" == "403" ]]; then
             echo "$url ($status)" >> "$OUTPUT_DIR/oauth_test/found_oauth_endpoints.txt"
         fi

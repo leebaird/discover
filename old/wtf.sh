@@ -67,6 +67,7 @@ dependencies(){
         echo
         exit 1
     fi
+
 }
 
 start_monitor_mode(){
@@ -195,6 +196,7 @@ crack_wep(){
         echo
         exit 1
     fi
+
 }
 
 crack_wpa(){
@@ -259,6 +261,7 @@ crack_wpa(){
         echo
         exit 1
     fi
+
 }
 
 cleanup(){

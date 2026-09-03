@@ -1,10 +1,12 @@
 # GCP cloud security checks — sourced by dev/cloud-scanner.sh
 
 f_gcp_auth_check(){
+
     if ! gcloud auth list --filter=status:ACTIVE --format='value(account)' 2>>"$CLOUD_SCAN_LOG" | grep -q .; then
         echo -e "${RED}[!] GCP authentication failed. Run 'gcloud auth login' and retry.${NC}"
         return 1
     fi
+
     return 0
 }
 
@@ -32,6 +34,7 @@ f_gcp_scan_project(){
         local short="${bucket##*/}"
         gcloud storage buckets get-iam-policy "$bucket" --format=json \
             > "$OUTPUT_DIR/gcp/projects/$project/iam/${short}-iam.json" 2>>"$CLOUD_SCAN_LOG" || true
+
         if jq -e '
             .bindings[]?
             | select(.members[]? == "allUsers" or .members[]? == "allAuthenticatedUsers")
@@ -81,6 +84,7 @@ f_gcp_scan_project(){
                 "Instance has external IP" "$OUTPUT_DIR/gcp/projects/$project/instances.json"
         done
     fi
+
 }
 
 f_gcp_phase_resources(){

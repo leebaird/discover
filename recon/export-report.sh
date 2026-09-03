@@ -13,15 +13,18 @@ RED=${RED:-'\033[1;31m'}
 NC=${NC:-'\033[0m'}
 SMALL=${SMALL:-'========================================'}
 MEDIUM=${MEDIUM:-'=================================================================='}
+
 if ! declare -F f_banner >/dev/null 2>&1; then
     f_banner(){ echo; }
 fi
 
 f_export_report_die(){
+
     if [ "${QUIET:-0}" -eq 1 ]; then
         python3 -c 'import json,sys; print(json.dumps({"ok": False, "error": sys.argv[1]}))' "$1"
         exit 1
     fi
+
     echo
     echo -e "${RED}$SMALL${NC}"
     echo
@@ -59,11 +62,13 @@ f_export_report_usage(){
 f_export_report_stamps(){
     local cfg=""
     local out=""
+
     if [ -n "${DISCOVER:-}" ] && [ -f "$DISCOVER/recon/discover-config.py" ]; then
         cfg="$DISCOVER/recon/discover-config.py"
     elif [ -f "$(dirname "$0")/discover-config.py" ]; then
         cfg="$(dirname "$0")/discover-config.py"
     fi
+
     if [ -n "$cfg" ]; then
         out=$(python3 - "$cfg" <<'PY'
 import importlib.util
@@ -82,12 +87,14 @@ print(tz_id)
 PY
         ) || out=""
     fi
+
     if [ -n "$out" ]; then
         STAMP=$(printf '%s\n' "$out" | sed -n '1p')
         EXPORT_TS_UTC=$(printf '%s\n' "$out" | sed -n '2p')
         EXPORT_TS_ISO=$(printf '%s\n' "$out" | sed -n '3p')
         EXPORT_TZ=$(printf '%s\n' "$out" | sed -n '4p')
     fi
+
     [ -n "${STAMP:-}" ] || STAMP=$(date -u +"%Y%m%d-%H%M")
     [ -n "${EXPORT_TS_UTC:-}" ] || EXPORT_TS_UTC=$(date -u +"%m/%d/%Y - %H:%M Z")
     [ -n "${EXPORT_TS_ISO:-}" ] || EXPORT_TS_ISO=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -165,14 +172,18 @@ DISCOVER_REPORT="${DISCOVER_REPORT/#\~/$HOME}"
 if [ -f "$DISCOVER_REPORT" ]; then
     case "$DISCOVER_REPORT" in
         */pages/*)
+
             if ! DISCOVER_REPORT="$(cd "$(dirname "$DISCOVER_REPORT")/.." && pwd)"; then
                 f_export_report_die "Report not found."
             fi
+
             ;;
         *)
+
             if ! DISCOVER_REPORT="$(cd "$(dirname "$DISCOVER_REPORT")" && pwd)"; then
                 f_export_report_die "Report not found."
             fi
+
             ;;
     esac
 fi
@@ -203,6 +214,7 @@ esac
 if [ -z "$OUT_DIR" ]; then
     OUT_DIR="$HOME/data"
 fi
+
 OUT_DIR="${OUT_DIR//$'\r'/}"
 OUT_DIR="${OUT_DIR#"${OUT_DIR%%[![:space:]]*}"}"
 OUT_DIR="${OUT_DIR%"${OUT_DIR##*[![:space:]]}"}"
@@ -221,20 +233,24 @@ AUDIT_IP=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/
 # Action column matches Audit HTML (Started → tool command; Finished → duration).
 if [ "$EXPORT_KIND" = "defender" ]; then
     LIVE_AUDIT="$DISCOVER_REPORT/tools/audit/log.txt"
+
     if [ ! -f "$LIVE_AUDIT" ] || [ ! -s "$LIVE_AUDIT" ]; then
         f_export_report_die "No audit log found at tools/audit/log.txt (nothing to export yet)."
     fi
 
     ARCHIVE="$OUT_DIR/${EXPORT_NAME}.csv"
     AUDIT_BUILD=""
+
     if [ -n "${DISCOVER:-}" ] && [ -f "$DISCOVER/recon/audit-build.py" ]; then
         AUDIT_BUILD="$DISCOVER/recon/audit-build.py"
     elif [ -f "$(dirname "$0")/audit-build.py" ]; then
         AUDIT_BUILD="$(dirname "$0")/audit-build.py"
     fi
+
     if [ -z "$AUDIT_BUILD" ]; then
         f_export_report_die "audit-build.py not found (needed for defender CSV)."
     fi
+
     python3 "$AUDIT_BUILD" --defender-csv "$DISCOVER_REPORT" "$ARCHIVE" \
         >/dev/null 2>&1 \
         || f_export_report_die "Could not write defender CSV."
@@ -260,6 +276,7 @@ PY
 
     AUDIT_LOG="$DISCOVER_REPORT/tools/audit/log.txt"
     touch "$AUDIT_LOG" 2>/dev/null || true
+
     if [ -w "$AUDIT_LOG" ]; then
         if declare -F f_audit_log >/dev/null 2>&1; then
             f_audit_log "$DISCOVER_REPORT" "Exported defender audit CSV"
@@ -287,6 +304,7 @@ PY
         echo -e "Columns: ${YELLOW}time_utc, operator, operator_ip, action${NC}"
         echo
     fi
+
     python3 -c 'import json,sys; print(json.dumps({"ok": True, "path": sys.argv[1], "kind": sys.argv[2]}))' \
         "$ARCHIVE" "defender"
     exit 0
@@ -324,6 +342,7 @@ fi
 
 # Stamp mode on the export only (live tree restored to operator below).
 mkdir -p "$STAGE_ROOT/assets"
+
 if [ "$EXPORT_KIND" = "operator" ]; then
     cat > "$STAGE_ROOT/assets/report-mode.json" <<'EOF'
 {
@@ -342,6 +361,7 @@ else
 }
 EOF
 fi
+
 chmod 644 "$STAGE_ROOT/assets/report-mode.json" 2>/dev/null || true
 
 # Export metadata for Audit / provenance.
@@ -389,6 +409,7 @@ fi
 
 # Package
 ARCHIVE=""
+
 if command -v zip >/dev/null 2>&1; then
     ARCHIVE="$OUT_DIR/${EXPORT_NAME}.zip"
     (
@@ -422,6 +443,7 @@ PY
 
 AUDIT_LOG="$DISCOVER_REPORT/tools/audit/log.txt"
 touch "$AUDIT_LOG" 2>/dev/null || true
+
 if [ -w "$AUDIT_LOG" ]; then
     if declare -F f_audit_log >/dev/null 2>&1; then
         if [ "$EXPORT_KIND" = "operator" ]; then
@@ -432,6 +454,7 @@ if [ -w "$AUDIT_LOG" ]; then
     else
         op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
         [ -n "$op" ] || op=unknown
+
         if [ "$EXPORT_KIND" = "operator" ]; then
             printf '%s | %s | %s | Exported operator report.\n' \
                 "$EXPORT_TS_UTC" "$op" "$AUDIT_IP" >> "$AUDIT_LOG" 2>/dev/null || true
@@ -467,6 +490,7 @@ if [ "$QUIET" -eq 0 ]; then
     echo -e "Archive:  ${YELLOW}$ARCHIVE${NC}"
     echo -e "Source:   ${YELLOW}$DISCOVER_REPORT${NC} (still operator mode)"
     echo -e "Kind:     ${YELLOW}$EXPORT_KIND${NC}"
+
     if [ "$EXPORT_KIND" = "operator" ]; then
         echo -e "Audit IPs:${YELLOW} included${NC}"
         echo -e "Launches: ${YELLOW} enabled in package stamp${NC}"
@@ -474,10 +498,12 @@ if [ "$QUIET" -eq 0 ]; then
         echo -e "Audit IPs:${YELLOW} redacted (client package)${NC}"
         echo -e "Launches: ${YELLOW} disabled${NC}"
     fi
+
     echo
     echo "Send the archive to the recipient. Continue testing from the live engagement."
     echo
 fi
+
 python3 -c 'import json,sys; print(json.dumps({"ok": True, "path": sys.argv[1], "kind": sys.argv[2]}))' \
     "$ARCHIVE" "$EXPORT_KIND"
 exit 0

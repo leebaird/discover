@@ -26,9 +26,11 @@ export PATH="${HOME}/.local/bin:/usr/local/bin:${PATH:-/usr/bin:/bin}"
 f_host_scan_load_api_keys(){
     local env_file line key value discover_root
     discover_root="${DISCOVER:-}"
+
     if [ -z "$discover_root" ] && [ -f "$(dirname "${BASH_SOURCE[0]}")/../discover.sh" ]; then
         discover_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
     fi
+
     for env_file in \
         "${HOME}/.discover/api-keys" \
         ${discover_root:+"$discover_root/.env"} \
@@ -58,6 +60,7 @@ f_host_scan_load_api_keys(){
             esac
             value="${value#"${value%%[![:space:]]*}"}"
             value="${value%"${value##*[![:space:]]}"}"
+
             if [ "${#value}" -ge 2 ]; then
                 if [ "${value:0:1}" = '"' ] && [ "${value: -1}" = '"' ]; then
                     value="${value:1:${#value}-2}"
@@ -65,9 +68,11 @@ f_host_scan_load_api_keys(){
                     value="${value:1:${#value}-2}"
                 fi
             fi
+
             if [ -n "${!key:-}" ]; then
                 continue
             fi
+
             export "$key=$value"
         done < "$env_file"
     done
@@ -95,6 +100,7 @@ f_die(){
 if [ -z "$REPORT_ROOT" ] && [ -f "${HOME}/.discover/current-report" ]; then
     REPORT_ROOT=$(head -n 1 "${HOME}/.discover/current-report" 2>/dev/null || true)
 fi
+
 REPORT_ROOT="${REPORT_ROOT//$'\r'/}"
 REPORT_ROOT="${REPORT_ROOT#"${REPORT_ROOT%%[![:space:]]*}"}"
 REPORT_ROOT="${REPORT_ROOT%"${REPORT_ROOT##*[![:space:]]}"}"
@@ -104,6 +110,7 @@ REPORT_ROOT="${REPORT_ROOT/#\~/$HOME}"
 REPORT_ROOT="$(cd "$REPORT_ROOT" && pwd)"
 
 MODE_FILE="$REPORT_ROOT/assets/report-mode.json"
+
 if [ -f "$MODE_FILE" ]; then
     if python3 - "$MODE_FILE" <<'PY'
 import json, sys
@@ -134,6 +141,7 @@ PY
 
 # Host must appear in engagement httpx data when available
 HTTPX_JSONL="$REPORT_ROOT/tools/httpx.jsonl"
+
 if [ -f "$HTTPX_JSONL" ]; then
     if ! python3 - "$HTTPX_JSONL" "$HOST" <<'PY'
 import json, sys
@@ -169,9 +177,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DISCOVER_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 UA_FILE="$DISCOVER_ROOT/resource/user-agent.txt"
 UA=""
+
 if [ -f "$UA_FILE" ]; then
     UA=$(grep -v '^[[:space:]]*#' "$UA_FILE" | sed '/^[[:space:]]*$/d' | head -n 1)
 fi
+
 if [ -z "$UA" ]; then
     UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
 fi
@@ -182,9 +192,11 @@ mkdir -p "$SCANS_DIR"
 
 if [ -f "$LOCK" ]; then
     LOCK_PID=$(cut -d' ' -f1 "$LOCK" 2>/dev/null || true)
+
     if [ -n "$LOCK_PID" ] && kill -0 "$LOCK_PID" 2>/dev/null; then
         f_die "Another host scan is already running (PID $LOCK_PID). One tool at a time."
     fi
+
     rm -f "$LOCK"
 fi
 
@@ -274,18 +286,21 @@ f_audit(){
     mkdir -p "$audit_dir"
     local ts ip op
     ts=$(date -u +"%m/%d/%Y - %H:%M Z")
+
     if declare -F f_audit_operator_name >/dev/null 2>&1; then
         op=$(f_audit_operator_name)
     else
         op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
         [ -n "$op" ] || op=unknown
     fi
+
     if declare -F f_audit_egress_ip >/dev/null 2>&1; then
         ip=$(f_audit_egress_ip)
     else
         ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
         [ -n "$ip" ] || ip=unknown
     fi
+
     case "$action" in *.) ;; *) action="${action}." ;; esac
     # mm/dd/yyyy - hh:mm Z | operator | egress IP | action
     printf '%s | %s | %s | %s\n' "$ts" "$op" "$ip" "$action" >> "$audit_log"
@@ -297,6 +312,7 @@ f_nuclei_args(){
     local soft_lc
     soft_lc=$(printf '%s' "$SOFTWARE" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
     NUCLEI_EXTRA=()
+
     if [[ "$soft_lc" == drupal* ]]; then
         NUCLEI_EXTRA=(-tags drupal -c 5 -rl 25)
     elif [[ "$soft_lc" == wordpress* || "$soft_lc" == wp* || "$soft_lc" == jquery* && "$soft_lc" == *wordpress* ]]; then
@@ -337,6 +353,7 @@ f_nuclei_args(){
         # Product known but no dedicated tag map: quiet tech recon + Pass 2 when cache allows
         NUCLEI_EXTRA=(-tags tech -c 5 -rl 20)
     fi
+
 }
 
 # Pass-2: CVE/KEV template IDs that nuclei can actually run.
@@ -549,9 +566,11 @@ PY
 # If nuclei wrote no findings, leave a clear operator-facing message (not a blank file).
 f_nuclei_ensure_findings_message(){
     local path="$1"
+
     if [ ! -f "$path" ] || [ ! -s "$path" ]; then
         printf '%s\n' "No vulnerabilities discovered." > "$path"
     fi
+
 }
 
 # Append Findings: to output.txt. Prefix real nuclei match lines with [*].
@@ -609,14 +628,17 @@ for ln in raw.splitlines():
     # Drop live progress lines
     if re.match(r"^::\s*Progress:", s, re.I) or re.match(r"^Progress:", s, re.I):
         continue
+
     if re.search(r"\bReq/sec\b", s) and re.search(r"\bErrors\b", s, re.I):
         continue
     # droopescan progressbar: "modules [ === ] 12/4000 (0%)"
     if re.search(r"\(\s*\d+%\s*\)", s):
         continue
+
     if re.search(r"\[\s*=+", s) and re.search(r"\d+\s*/\s*\d+", s):
         continue
     empty = not s
+
     if empty and prev_empty:
         continue
     # Drop per-hit timing only (keep Status, Size, Words, Lines)
@@ -627,6 +649,7 @@ for ln in raw.splitlines():
     out.append(ln.rstrip())
     prev_empty = empty
 sys.stdout.write("\n".join(out))
+
 if out:
     sys.stdout.write("\n")
 '
@@ -692,6 +715,7 @@ f_ffuf_wordlist(){
 
     FFUF_WL=""
     rel=""
+
     if [ -n "$seclists_web" ] && [ -n "$soft_lc" ]; then
         case "$soft_lc" in
             wordpress|wp)
@@ -747,6 +771,7 @@ f_ffuf_wordlist(){
                 rel=""
                 ;;
         esac
+
         if [ -n "$rel" ] && [ -f "$seclists_web/$rel" ]; then
             FFUF_WL="$seclists_web/$rel"
         fi
@@ -761,6 +786,7 @@ f_ffuf_wordlist(){
             /usr/share/wordlists/dirb/common.txt
         do
             [ -n "$candidate" ] || continue
+
             if [ -f "$candidate" ]; then
                 FFUF_WL="$candidate"
                 break
@@ -774,6 +800,7 @@ f_ffuf_wordlist(){
 cleanup(){
     local code=$?
     rm -f "$LOCK" 2>/dev/null || true
+
     if [ "${SCAN_STARTED:-0}" -eq 1 ]; then
         f_write_status 0
         # rebuild audit page if possible
@@ -782,6 +809,7 @@ cleanup(){
                 "$DISCOVER_ROOT/report/pages/audit.htm" >/dev/null 2>&1 || true
         fi
     fi
+
     exit "$code"
 }
 trap cleanup EXIT INT TERM
@@ -840,14 +868,17 @@ f_write_run_header(){
 
 # Resolve Nikto binary (GitHub install via update.sh → /usr/local/bin/nikto).
 f_nikto_bin(){
+
     if [ -x /usr/local/bin/nikto ]; then
         echo /usr/local/bin/nikto
         return 0
     fi
+
     if [ -f /opt/nikto/program/nikto.pl ]; then
         echo /opt/nikto/program/nikto.pl
         return 0
     fi
+
     command -v nikto 2>/dev/null || true
 }
 
@@ -956,9 +987,11 @@ f_host_reachable_precheck(){
         code="${line%% *}"
         time_total="${line#* }"
         [ -n "$code" ] || code="000"
+
         if [ "$code" != "000" ]; then
             break
         fi
+
         if [ "$attempt" -eq 1 ]; then
             echo "[*] Pre-check got no HTTP response; retrying once."
             sleep 2
@@ -977,6 +1010,7 @@ f_host_reachable_precheck(){
         --http1.0 --connect-timeout 5 --max-time 10 \
         -A "$UA" \
         "$probe" 2>/dev/null) || http10="000"
+
     if [ "$http10" = "426" ]; then
         echo "[*] Note: HTTP/1.0 returns 426 Upgrade Required (common on Azure ALB)."
         echo "    Discover uses HTTP/1.1 + GET for this probe."
@@ -999,9 +1033,11 @@ echo " Discover host scan (quiet / Red Team defaults)"
 echo " Tool:     $TOOL"
 echo " Target:   $URL"
 echo " Software: ${SOFTWARE:--}"
+
 if [ -n "$FFUF_WL" ]; then
     echo " Wordlist: $FFUF_WL"
 fi
+
 echo " Report:   $REPORT_ROOT"
 echo " Output:   $OUT_FILE"
 echo " UA:       $UA"
@@ -1059,6 +1095,7 @@ case "$TOOL" in
         # -useragent / -nointeractive / -nocheck; per-request -timeout 5s; maxtime 10m;
         # hard wall via timeout 11m; FAILURES=8 in run nikto.conf.
         NIKTO_BIN=$(f_nikto_bin)
+
         if [ -z "$NIKTO_BIN" ]; then
             {
                 echo "[!] Nikto not found. Run Discover Update (installs sullo/nikto to /opt/nikto)."
@@ -1072,9 +1109,11 @@ case "$TOOL" in
             NIKTO_HARD_TIMEOUT="11m"
             # -ssl skips plain-HTTP probe on :443.
             NIKTO_SSL_FLAG=""
+
             if [[ "$URL" =~ ^https:// ]]; then
                 NIKTO_SSL_FLAG="-ssl"
             fi
+
             f_nikto_write_config "$NIKTO_CONF" "$UA"
             # Display as "nikto" (not full path); still execute via $NIKTO_BIN.
             NIKTO_CMD="nikto -config $(f_shell_quote "$NIKTO_CONF") -host $(f_shell_quote "$URL")${NIKTO_SSL_FLAG:+ $NIKTO_SSL_FLAG} -useragent $(f_shell_quote "$UA") -nointeractive -nocheck -timeout $NIKTO_REQ_TIMEOUT -maxtime $NIKTO_MAXTIME -Format htm -output $(f_shell_quote "$NIKTO_HTM")"
@@ -1107,6 +1146,7 @@ case "$TOOL" in
                     2>&1 | tee -a "$OUT_FILE"
                 EXIT_CODE=${PIPESTATUS[0]}
             fi
+
             set -e
 
             if [ "${EXIT_CODE:-0}" -eq 124 ]; then
@@ -1134,6 +1174,7 @@ case "$TOOL" in
                 echo "HTML report: $NIKTO_HTM" >> "$OUT_FILE"
             fi
         fi
+
         ;;
     nuclei)
         # Pass 1: software-tagged recon. Pass 2: auto CVE/KEV from cache.
@@ -1141,14 +1182,17 @@ case "$TOOL" in
         if [ -z "${SOFTWARE// }" ]; then
             f_die "nuclei requires a software product (Active ?software= filter or row tech fingerprint). Got: empty"
         fi
+
         # output.txt layout is Command → Findings. Do not tee live nuclei
         # lines into the report file, and do not print an Output: filesystem path.
         f_nuclei_args
         NUCLEI_OUT="$RUN_DIR/nuclei.txt"
         NUCLEI_CMD="nuclei -u $(f_shell_quote "$URL") -H $(f_shell_quote "User-Agent: $UA")"
+
         if [ "${#NUCLEI_EXTRA[@]}" -gt 0 ]; then
             NUCLEI_CMD+=" ${NUCLEI_EXTRA[*]}"
         fi
+
         NUCLEI_CMD+=" -silent -nc -duc -o $(f_shell_quote "$NUCLEI_OUT")"
 
         {
@@ -1179,6 +1223,7 @@ case "$TOOL" in
         PASS2_KEV_N=0
         PASS2_TOTAL=0
         PASS2_NOTE=""
+
         if [ -n "$PASS2_META" ]; then
             PASS2_IDS=$(printf '%s' "$PASS2_META" | cut -d'|' -f1)
             PASS2_KEV_N=$(printf '%s' "$PASS2_META" | cut -d'|' -f2)
@@ -1220,9 +1265,11 @@ case "$TOOL" in
                 -o "$NUCLEI_PASS2_OUT"
             PASS2_CODE=$?
             set -e
+
             if [ "$PASS2_CODE" -ne 0 ] && [ "$EXIT_CODE" -eq 0 ]; then
                 EXIT_CODE=$PASS2_CODE
             fi
+
             f_nuclei_ensure_findings_message "$NUCLEI_PASS2_OUT"
             f_nuclei_append_findings "$NUCLEI_PASS2_OUT" >> "$OUT_FILE"
             # Do not audit "Finished nuclei pass-2 ..." - redundant with parent Finished + Output.
@@ -1255,6 +1302,7 @@ PY
             } >> "$OUT_FILE"
             echo "[*] Pass 2: skipped (no runnable CVE templates for this software)"
         fi
+
         ;;
     droopescan)
         CMS=$(f_droopescan_cms)
@@ -1276,14 +1324,17 @@ PY
             2>&1 | tee "$DROOP_RAW"
         EXIT_CODE=${PIPESTATUS[0]}
         set -e
+
         if [ -f "$DROOP_RAW" ]; then
             f_clean_scan_text < "$DROOP_RAW" > "$DROOP_OUT"
             f_clean_scan_text < "$DROOP_RAW" >> "$OUT_FILE"
             rm -f "$DROOP_RAW"
         fi
+
         if [ ! -s "$DROOP_OUT" ]; then
             printf '%s\n' "No droopescan output captured." > "$DROOP_OUT"
         fi
+
         ;;
     wpscan)
         f_is_wordpress || f_die "wpscan requires WordPress software filter. Got: ${SOFTWARE:-none}"
@@ -1292,21 +1343,26 @@ PY
         # Quiet-ish Red Team defaults: passive plugin detection + moderate enum.
         # Optional free API token: export WPSCAN_API_TOKEN=... (vuln DB lookups).
         WPSCAN_CMD="wpscan --url $(f_shell_quote "$URL") --random-user-agent --user-agent $(f_shell_quote "$UA") --disable-tls-checks --plugins-detection passive --enumerate vp,vt,tt,cb,dbe,u --format cli-no-colour --no-banner"
+
         if [ -n "${WPSCAN_API_TOKEN:-}" ]; then
             WPSCAN_CMD+=" --api-token $(f_shell_quote "$WPSCAN_API_TOKEN")"
         fi
+
         f_write_run_header "$WPSCAN_CMD"
         {
             echo "Software: ${SOFTWARE:--}"
+
             if [ -n "${WPSCAN_API_TOKEN:-}" ]; then
                 echo "API token: set (WPSCAN_API_TOKEN)"
             else
                 echo "API token: not set (optional - free token improves vuln matching)"
             fi
+
             echo
         } >> "$OUT_FILE"
         echo "[*] wpscan on $URL"
         set +e
+
         if [ -n "${WPSCAN_API_TOKEN:-}" ]; then
             wpscan --url "$URL" \
                 --random-user-agent --user-agent "$UA" \
@@ -1325,11 +1381,14 @@ PY
                 --format cli-no-colour --no-banner \
                 2>&1 | tee "$WPSCAN_OUT" | tee -a "$OUT_FILE"
         fi
+
         EXIT_CODE=${PIPESTATUS[0]}
         set -e
+
         if [ ! -s "$WPSCAN_OUT" ]; then
             printf '%s\n' "No wpscan output captured." > "$WPSCAN_OUT"
         fi
+
         {
             echo
             echo "Output: $WPSCAN_OUT"
@@ -1360,9 +1419,11 @@ PY
         CURL_RC=$?
         set -e
         [ -n "$HTTP_CODE" ] || HTTP_CODE="000"
+
         if [ ! -f "$ROBOTS_FILE" ]; then
             : > "$ROBOTS_FILE"
         fi
+
         # Parse Disallow paths → absolute URLs (same idea as multiTabs.sh).
         DISALLOW_COUNT=$(python3 - "$ROBOTS_FILE" "$DISALLOW_FILE" "$BASE_URL" <<'PY'
 import re
@@ -1416,15 +1477,19 @@ PY
         DISALLOW_COUNT="${DISALLOW_COUNT:-0}"
         {
             echo "[*] robots.txt HTTP $HTTP_CODE"
+
             if [ "$CURL_RC" -ne 0 ]; then
                 echo "curl exit:   $CURL_RC"
             fi
+
             if [ "$DISALLOW_COUNT" -eq 1 ] 2>/dev/null; then
                 echo "[*] $DISALLOW_COUNT Disallow path"
             else
                 echo "[*] $DISALLOW_COUNT Disallow paths"
             fi
+
             echo
+
             if [ "$DISALLOW_COUNT" -gt 0 ] 2>/dev/null; then
                 echo "Disallow URLs:"
                 cat "$DISALLOW_FILE"
@@ -1433,6 +1498,7 @@ PY
                 echo "No Disallow directories found (empty robots, missing file, Disallow: / only, or only Allow/*)."
                 echo
             fi
+
         } >> "$OUT_FILE"
         # Soft success: fetch attempted; non-2xx still useful (body may be empty).
         if [ "$CURL_RC" -ne 0 ] && [ "$HTTP_CODE" = "000" ]; then
@@ -1444,6 +1510,7 @@ PY
         else
             EXIT_CODE=0
         fi
+
         python3 - "$META_FILE" "$DISALLOW_COUNT" "$HTTP_CODE" <<'PY'
 import json, sys
 path, count, code = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -1461,19 +1528,23 @@ json.dump(meta, open(path, "w", encoding="utf-8"), indent=2)
 open(path, "a", encoding="utf-8").write("\n")
 PY
         echo "[*] robots.txt HTTP $HTTP_CODE"
+
         if [ "$DISALLOW_COUNT" -eq 1 ] 2>/dev/null; then
             echo "[*] $DISALLOW_COUNT Disallow path"
         else
             echo "[*] $DISALLOW_COUNT Disallow paths"
         fi
+
         ;;
     ffuf)
         [ -n "$FFUF_WL" ] || f_ffuf_wordlist
         # Ensure URL has FUZZ path
         FFUF_URL="$URL"
+
         if [[ "$FFUF_URL" != *FUZZ* ]]; then
             FFUF_URL="${FFUF_URL%/}/FUZZ"
         fi
+
         FFUF_JSON="$RUN_DIR/ffuf.json"
         # Quiet default: no custom -mc (use ffuf defaults: 2xx,301,302,307,500,...)
         # Filter noise with -fc. Keep 2xx, 401, and 500s (version banners). Drop
@@ -1495,6 +1566,7 @@ PY
         } | tee -a "$OUT_FILE"
         FFUF_RAW="$RUN_DIR/ffuf.raw.txt"
         set +e
+
         if command -v timeout >/dev/null 2>&1; then
             timeout --foreground --signal=TERM --kill-after=15s "$FFUF_HARD_TIMEOUT" \
                 ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 10 -rate 20 \
@@ -1515,7 +1587,9 @@ PY
                 2>&1 | tee "$FFUF_RAW"
             EXIT_CODE=${PIPESTATUS[0]}
         fi
+
         set -e
+
         if [ "${EXIT_CODE:-0}" -eq 124 ]; then
             {
                 echo
@@ -1524,15 +1598,18 @@ PY
             } | tee -a "$OUT_FILE"
             EXIT_CODE=0
         fi
+
         # Append cleaned text to operator report (no ESC boxes / progress spam).
         if [ -f "$FFUF_RAW" ]; then
             f_clean_scan_text < "$FFUF_RAW" >> "$OUT_FILE"
             rm -f "$FFUF_RAW"
         fi
+
         if [ -f "$FFUF_JSON" ]; then
             echo "" >> "$OUT_FILE"
             echo "JSON results: $FFUF_JSON" >> "$OUT_FILE"
         fi
+
         ;;
     feroxbuster)
         # Same software-aware SecLists pick as ffuf (quiet expand).
@@ -1546,6 +1623,7 @@ PY
         f_write_run_header "$FEROX_CMD"
         FEROX_RAW="$RUN_DIR/ferox.raw.txt"
         set +e
+
         if command -v timeout >/dev/null 2>&1; then
             timeout --foreground --signal=TERM --kill-after=15s "$FEROX_HARD_TIMEOUT" \
                 feroxbuster -u "$URL" -w "$FFUF_WL" -a "$UA" \
@@ -1568,7 +1646,9 @@ PY
                 2>&1 | tee "$FEROX_RAW"
             EXIT_CODE=${PIPESTATUS[0]}
         fi
+
         set -e
+
         if [ "${EXIT_CODE:-0}" -eq 124 ]; then
             {
                 echo
@@ -1577,14 +1657,17 @@ PY
             } | tee -a "$OUT_FILE"
             EXIT_CODE=0
         fi
+
         if [ -f "$FEROX_RAW" ]; then
             f_clean_scan_text < "$FEROX_RAW" >> "$OUT_FILE"
             rm -f "$FEROX_RAW"
         fi
+
         if [ -f "$FEROX_JSON" ]; then
             echo "" >> "$OUT_FILE"
             echo "JSON results: $FEROX_JSON" >> "$OUT_FILE"
         fi
+
         ;;
 esac
 fi  # HOST_SKIPPED reachability gate

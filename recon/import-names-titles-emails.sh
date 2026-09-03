@@ -25,13 +25,16 @@ f_nte_usage(){
 
 f_nte_json_fail(){
     local msg="$1"
+
     if [ "$NTE_JSON" -eq 1 ]; then
         python3 -c 'import json,sys; print(json.dumps({"ok":False,"error":sys.argv[1]}))' "$msg"
     fi
+
 }
 
 f_nte_die(){
     f_nte_json_fail "$1"
+
     if [ "$NTE_JSON" -eq 0 ]; then
         echo
         echo -e "${RED}$SMALL${NC}"
@@ -42,6 +45,7 @@ f_nte_die(){
         echo
         [ "$NTE_NONINTERACTIVE" -eq 0 ] && sleep 2
     fi
+
     exit 1
 }
 
@@ -58,6 +62,7 @@ f_nte_validate_source(){
     if [ ! -f "$NAMES_FILE" ] || [ ! -r "$NAMES_FILE" ]; then
         f_nte_die "Names file not found."
     fi
+
 }
 
 f_nte_validate_report(){
@@ -88,6 +93,7 @@ f_nte_validate_report(){
         || [ ! -f "$DISCOVER_REPORT/pages/names.htm" ]; then
         f_nte_die "Passive scan not found."
     fi
+
     DISCOVER_REPORT="$(cd "$DISCOVER_REPORT" && pwd)" || f_nte_die "Passive scan not found."
 }
 
@@ -107,18 +113,22 @@ f_nte_read_report(){
 
 f_nte_write_audit(){
     local action="$1"
+
     if declare -F f_audit_log >/dev/null 2>&1; then
         f_audit_log "$DISCOVER_REPORT" "$action" || true
         return 0
     fi
+
     mkdir -p "$DISCOVER_REPORT/tools/audit" 2>/dev/null || return 0
     local ts op
     ts=$(date -u +"%m/%d/%Y - %H:%M Z")
     op="Operator"
+
     if [ -f "$HOME/.discover/operator-name" ]; then
         op=$(tr -d '[:space:]' < "$HOME/.discover/operator-name" 2>/dev/null || true)
         [ -n "$op" ] || op="Operator"
     fi
+
     case "$action" in
         *.) ;;
         *) action="${action}." ;;
@@ -128,12 +138,15 @@ f_nte_write_audit(){
 
 f_nte_rebuild_audit(){
     local root="${DISCOVER:-}"
+
     if [ -z "$root" ] || [ ! -f "$root/recon/audit-build.py" ]; then
         root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
     fi
+
     if [ -f "$root/recon/audit-build.py" ] && [ -f "$root/report/pages/audit.htm" ]; then
         python3 "$root/recon/audit-build.py" "$DISCOVER_REPORT" "$root/report/pages/audit.htm" >/dev/null 2>&1 || true
     fi
+
 }
 
 while [ $# -gt 0 ]; do
@@ -171,11 +184,14 @@ fi
 
 if [ -z "${DISCOVER:-}" ] || [ ! -d "${DISCOVER:-/}/report/pages" ]; then
     _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
     if [ -d "$_script_dir/../report/pages" ]; then
         DISCOVER="$(cd "$_script_dir/.." && pwd)"
     fi
+
     unset _script_dir
 fi
+
 export DISCOVER="${DISCOVER:-}"
 
 if [ "$NTE_NONINTERACTIVE" -eq 0 ]; then
@@ -183,6 +199,7 @@ if [ "$NTE_NONINTERACTIVE" -eq 0 ]; then
         clear 2>/dev/null || true
         f_banner
     fi
+
     echo -e "${BLUE}Import names, titles, and emails.${NC}"
 fi
 

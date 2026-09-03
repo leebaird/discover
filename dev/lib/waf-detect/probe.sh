@@ -116,10 +116,12 @@ f_waf_hit_is_reportable(){
     local name="${WAF_HIT_NAME[$key]}"
 
     [ "$conf" = "low" ] && [ "$name" = "Unknown WAF (behavioral)" ] && return 1
+
     if [ "$WAF_WAF_ONLY" = "1" ]; then
         [ "$label" = "cdn" ] && return 1
         [ "$conf" = "low" ] && return 1
     fi
+
     return 0
 }
 
@@ -161,6 +163,7 @@ f_waf_urls_to_try(){
     local -n _out=$2
     _out=()
     raw="${raw// /}"
+
     if [[ "$raw" =~ ^https:// ]]; then
         _out+=("$raw")
     elif [[ "$raw" =~ ^http:// ]]; then
@@ -169,6 +172,7 @@ f_waf_urls_to_try(){
         _out+=("https://${raw}")
         _out+=("http://${raw}")
     fi
+
 }
 
 f_waf_trigger_has_waf_headers(){
@@ -178,9 +182,11 @@ f_waf_trigger_has_waf_headers(){
 
 f_waf_headers_delta_suggests_waf(){
     local normal_file="$1" trigger_file="$2"
+
     if f_waf_trigger_has_waf_headers "$trigger_file" && ! f_waf_trigger_has_waf_headers "$normal_file"; then
         return 0
     fi
+
     local n_lines t_lines
     n_lines=$(wc -l < "$normal_file" 2>/dev/null || echo 0)
     t_lines=$(wc -l < "$trigger_file" 2>/dev/null || echo 0)
@@ -197,6 +203,7 @@ f_waf_run_wafw00f(){
     f_waf_should_run_wafw00f || return 1
 
     runner="${WAF_DETECT_ROOT}/lib/waf-detect/wafw00f_run.py"
+
     if [ ! -f "$runner" ]; then
         runner="wafw00f"
         args=("$target" -a -o "$out_json" -f json)
@@ -253,11 +260,13 @@ f_waf_passive_probe(){
         [ -n "$name" ] && [ -n "$header_rx" ] || continue
         [ "$name" = "WAF Header Indicator" ] && continue
         local matched=0
+
         if grep -qiE "$header_rx" "$headers_file" 2>/dev/null; then
             matched=1
         elif [ -n "${body_rx:-}" ] && grep -qiE "$body_rx" "$body_file" 2>/dev/null; then
             matched=1
         fi
+
         if [ "$matched" = "1" ]; then
             f_waf_add_hit "$name" medium passive_signature "" "$(f_waf_label_for "$(f_waf_canonical_name "$name")")" ""
         fi
@@ -283,9 +292,11 @@ f_waf_supplemental_probe(){
     local curl_rc=0 run_sigs=0 run_behavioral=0
 
     f_waf_should_run_signatures && run_sigs=1
+
     if [ "$WAF_PASSIVE" != "1" ] && ! f_waf_has_confident_hit; then
         run_behavioral=1
     fi
+
     [ "$run_sigs" = "0" ] && [ "$run_behavioral" = "0" ] && {
         rm -f "$headers_file" "$body_file" "$trigger_headers"
         return 0
@@ -316,11 +327,13 @@ f_waf_supplemental_probe(){
             [ -n "$name" ] && [ -n "$header_rx" ] || continue
             [ "$name" = "WAF Header Indicator" ] && continue
             local matched=0
+
             if grep -qiE "$header_rx" "$combined" 2>/dev/null; then
                 matched=1
             elif [ -n "${body_rx:-}" ] && grep -qiE "$body_rx" "$body_file" 2>/dev/null; then
                 matched=1
             fi
+
             if [ "$matched" = "1" ]; then
                 f_waf_add_hit "$name" medium signature "" "$(f_waf_label_for "$(f_waf_canonical_name "$name")")" ""
             fi
@@ -332,6 +345,7 @@ f_waf_supplemental_probe(){
         normal_status=$(grep -E '^HTTP/[0-9]\.[0-9] [0-9]{3}' "$headers_file" | tail -1 | awk '{print $2}')
         trigger_status=$(grep -E '^HTTP/[0-9]\.[0-9] [0-9]{3}' "$trigger_headers" | tail -1 | awk '{print $2}')
         [[ "$normal_status" =~ ^403 ]] && normal_status=""
+
         if [[ "$trigger_status" =~ ^(403|406|429)$ ]] && [[ "$normal_status" =~ ^(200|301|302|307|308)$ ]]; then
             if f_waf_trigger_has_waf_headers "$trigger_headers" && \
                f_waf_headers_delta_suggests_waf "$headers_file" "$trigger_headers" && \
@@ -381,17 +395,21 @@ f_waf_record_consolidated_findings(){
         [ -n "$trig" ] && [ "$trig" != "null" ] && detail="${detail} trigger_url=${trig}"
 
         sev=info
+
         if [ "$label" = "cdn" ] && [ "$WAF_WAF_ONLY" = "1" ]; then
             f_waf_record_finding info "$domain" "$target" cdn_present "$detail" "waf_results.tsv"
             continue
         fi
+
         if ! f_waf_hit_is_reportable "$key"; then
             continue
         fi
+
         if [ "$conf" = "low" ]; then
             f_waf_record_finding info "$domain" "$target" waf_possible "$detail" "waf_results.tsv"
             continue
         fi
+
         f_waf_record_finding "$sev" "$domain" "$target" waf_identified "$detail" "waf_results.tsv"
         f_waf_append_structured_hit "$domain" "$target" "$key"
     done
@@ -472,13 +490,16 @@ f_waf_detect_one(){
         sup_rc=0
         f_waf_probe_single_url "$url" "$domain" || sup_rc=$?
         matched_url="$url"
+
         if [ "$sup_rc" = "2" ]; then
             [ "$url_idx" -lt ${#urls[@]} ] && f_waf_reset_hits && f_waf_load_labels && f_waf_load_aliases
             continue
         fi
+
         if f_waf_has_reportable_hit; then
             break
         fi
+
         if [ "$url_idx" -lt ${#urls[@]} ]; then
             f_waf_log "No reportable WAF on $url; trying alternate scheme"
             f_waf_reset_hits
@@ -511,6 +532,7 @@ f_waf_detect_one(){
         else
             f_waf_say "${YELLOW}[-] No WAF detected for $raw_target${NC}"
         fi
+
         joined="-"
     fi
 
@@ -563,6 +585,7 @@ f_waf_run_scan(){
             i=$((i + 1))
             f_waf_say "${YELLOW}[$i/$total]${NC} $t"
             ( f_waf_detect_one "$t" ) &
+
             if [ "$WAF_DELAY" != "0" ] && [ "${WAF_DELAY:-0}" -gt 0 ] 2>/dev/null; then
                 sleep "$WAF_DELAY"
             fi
@@ -573,6 +596,7 @@ f_waf_run_scan(){
             i=$((i + 1))
             f_waf_say "${YELLOW}[$i/$total]${NC} $t"
             f_waf_detect_one "$t" || rc=1
+
             if [ "$WAF_DELAY" != "0" ] && [ "${WAF_DELAY:-0}" -gt 0 ] 2>/dev/null; then
                 sleep "$WAF_DELAY"
             fi

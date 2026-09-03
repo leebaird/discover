@@ -25,9 +25,11 @@ API_COOKIE_FILE="${API_COOKIE_FILE:-}"
 API_REQUEST_COUNT=0
 
 f_api_note_discovery_tools(){
+
     if ! command -v ffuf >/dev/null 2>&1 && ! command -v feroxbuster >/dev/null 2>&1; then
         echo -e "${YELLOW}[*] ffuf/feroxbuster not found; using sequential path probing only.${NC}"
     fi
+
 }
 
 f_api_init_scan(){
@@ -43,6 +45,7 @@ f_api_init_scan(){
 
     mkdir -p "${OUTPUT_DIR}/api_scanner" "${API_CHECKPOINT_DIR}"
     touch "$API_SCAN_LOG"
+
     if [ "$resuming" = "1" ] && [ -s "$API_FINDINGS_FILE" ]; then
         touch "$API_VULN_URL_FILE"
     else
@@ -80,9 +83,11 @@ f_api_mark_phase(){
 
 f_url_authority(){
     local url="$1"
+
     if [[ "$url" =~ ^https?://([^/]+) ]]; then
         echo "${BASH_REMATCH[1]}"
     fi
+
 }
 
 f_url_normalize(){
@@ -150,12 +155,14 @@ f_api_request(){
 
 f_api_paths_file(){
     local dest="$1"
+
     if [ -f "${API_DATA_DIR}/api-paths.txt" ]; then
         grep -v '^[[:space:]]*#' "${API_DATA_DIR}/api-paths.txt" | grep -v '^[[:space:]]*$' > "$dest"
     else
         echo -e "${RED}[!] Missing ${API_DATA_DIR}/api-paths.txt${NC}"
         exit 1
     fi
+
 }
 
 f_api_swagger_paths(){
@@ -209,24 +216,30 @@ f_api_jwt_deep_check(){
     if echo "$header" | grep -qE '"alg"\s*:\s*"none"'; then
         f_api_record_finding "critical" "confirmed" "jwt" "inline" "${outdir}/jwt_header_${safe}.json" "JWT uses alg:none"
     fi
+
     if echo "$payload" | grep -qE '"password"|"api_key"|"secret"|"private"'; then
         f_api_record_finding "high" "confirmed" "jwt" "inline" "${outdir}/jwt_payload_${safe}.json" "JWT payload contains sensitive fields"
     fi
+
     if ! echo "$payload" | grep -q '"exp"'; then
         f_api_record_finding "medium" "confirmed" "jwt" "inline" "${outdir}/jwt_payload_${safe}.json" "JWT missing exp claim"
     else
         exp=$(echo "$payload" | jq -r '.exp // empty' 2>/dev/null)
         now=$(date +%s)
+
         if [ -n "$exp" ] && [ "$exp" -lt "$now" ]; then
             f_api_record_finding "low" "confirmed" "jwt" "inline" "${outdir}/jwt_payload_${safe}.json" "JWT is expired"
         fi
     fi
+
     if ! echo "$payload" | grep -q '"iss"'; then
         f_api_record_finding "low" "likely" "jwt" "inline" "${outdir}/jwt_payload_${safe}.json" "JWT missing iss claim"
     fi
+
     if ! echo "$payload" | grep -q '"aud"'; then
         f_api_record_finding "low" "likely" "jwt" "inline" "${outdir}/jwt_payload_${safe}.json" "JWT missing aud claim"
     fi
+
 }
 
 f_api_write_findings_json(){
@@ -284,10 +297,12 @@ f_api_write_findings_json(){
 f_api_count_findings(){
     local category="$1" confidence="${2:-}"
     local count
+
     if [ -n "$confidence" ]; then
         count=$(awk -F'\t' -v c="$category" -v cf="$confidence" '$3==c && $2==cf {n++} END{print n+0}' "$API_FINDINGS_FILE")
     else
         count=$(awk -F'\t' -v c="$category" '$3==c {n++} END{print n+0}' "$API_FINDINGS_FILE")
     fi
+
     echo "$count"
 }

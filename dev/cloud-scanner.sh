@@ -42,6 +42,7 @@ f_cloud_run_providers(){
             failed=1
         fi
     fi
+
     if [ -z "$CLOUD_PROVIDERS" ] || [[ "$CLOUD_PROVIDERS" == *azure* ]]; then
         if f_azure_security_check; then
             ran=1
@@ -49,6 +50,7 @@ f_cloud_run_providers(){
             failed=1
         fi
     fi
+
     if [ -z "$CLOUD_PROVIDERS" ] || [[ "$CLOUD_PROVIDERS" == *gcp* ]]; then
         if f_gcp_security_check; then
             ran=1
@@ -107,12 +109,14 @@ f_cloud_interactive_menu(){
     f_dev_read_scan_mode CLOUD_SCAN_MODE
 
     f_cloud_setup_output
+
     if ! f_cloud_run_providers; then
         rm -rf "$OUTPUT_DIR" 2>/dev/null
         echo
         sleep 2
         exit 3
     fi
+
     return 0
 }
 

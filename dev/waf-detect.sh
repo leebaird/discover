@@ -17,9 +17,11 @@ source "${WAF_DETECT_ROOT}/lib/waf-detect/probe.sh"
 f_terminate(){
     echo
     echo -e "${YELLOW}[!] Interrupted — saving partial reports.${NC}"
+
     if [ -n "${OUTPUT_DIR:-}" ] && [ -d "${OUTPUT_DIR:-}" ]; then
         f_waf_generate_reports 2>/dev/null || true
     fi
+
     echo
     exit 130
 }
@@ -68,9 +70,11 @@ f_waf_interactive_menu(){
         f_waf_setup_output
         f_waf_require_active_consent
         f_waf_say "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
+
         if [ "$WAF_PASSIVE" = "1" ]; then
             f_waf_say "${GREEN}[*] Passive mode: normal GET + header signatures only (no wafw00f)${NC}"
         fi
+
         f_waf_run_scan || true
         f_waf_say "${YELLOW}[*] Reports: report.txt, report.md, findings.json, waf_results.tsv${NC}"
         echo -n "Press Enter..."
@@ -104,9 +108,11 @@ f_waf_main(){
         f_banner
         echo -e "${BLUE}WAF Detection${NC}"
         echo -e "${YELLOW}Authorized security testing only. Active mode sends benign WAF triggers.${NC}"
+
         if [ "$WAF_PASSIVE" = "1" ]; then
             echo -e "${GREEN}[*] Passive mode: normal GET + header signatures only (no wafw00f)${NC}"
         fi
+
         echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
     else
         f_waf_log "CLI scan passive=$WAF_PASSIVE"
@@ -120,6 +126,7 @@ f_waf_main(){
         echo -e "${YELLOW}[*] Scan log: ${OUTPUT_DIR}/scan.log${NC}"
         echo
     fi
+
 }
 
 f_waf_main "$@"

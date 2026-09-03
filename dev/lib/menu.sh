@@ -25,6 +25,7 @@ f_dev_menu_validate(){
     if [ -z "$choice" ]; then
         f_dev_die "Invalid choice or entry."
     fi
+
 }
 
 f_dev_read_url(){
@@ -39,6 +40,7 @@ f_dev_read_url(){
     if [ -z "$__value" ]; then
         f_dev_die "No target URL provided."
     fi
+
     if [[ ! "$__value" =~ ^https?:// ]]; then
         f_dev_die "Invalid URL."
     fi
@@ -161,6 +163,7 @@ f_dev_read_jwt(){
     if [ -z "$__value" ]; then
         f_dev_die "No JWT token provided."
     fi
+
     if [[ ! "$__value" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]]; then
         f_dev_die "Invalid JWT."
     fi

@@ -59,6 +59,7 @@ f_discover_migrate_api_keys(){
     if [ -z "${DISCOVER:-}" ]; then
         DISCOVER="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
     fi
+
     py="$DISCOVER/recon/software-cve.py"
     [ -f "$py" ] || return 0
     # shellcheck disable=SC2090
@@ -124,10 +125,12 @@ f_discover_load_env(){
                     value="${value:1:${#value}-2}"
                 fi
             fi
+
             # Shell export wins over file values
             if [ -n "${!key:-}" ]; then
                 continue
             fi
+
             export "$key=$value"
         done < "$env_file"
     done
@@ -162,6 +165,7 @@ f_active_read_report(){
         || [ ! -f "$DISCOVER_REPORT/pages/subdomains.htm" ]; then
         f_active_die "Passive scan not found."
     fi
+
 }
 
 f_active_chrome_path(){
@@ -713,9 +717,11 @@ if [ -z "${USER_AGENT:-}" ] || [[ "$USER_AGENT" != Mozilla/* ]]; then
         USER_AGENT=$(grep -v '^[[:space:]]*#' "$DISCOVER/resource/user-agent.txt" | sed '/^[[:space:]]*$/d' | head -n 1)
     fi
 fi
+
 if [ -z "${USER_AGENT:-}" ] || [[ "$USER_AGENT" != Mozilla/* ]]; then
     USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0'
 fi
+
 WHATWEB_UA="$USER_AGENT"
 PAGE="$DISCOVER_REPORT/pages/subdomains.htm"
 ACTIVE_PAGE="$DISCOVER_REPORT/pages/active.htm"
@@ -744,11 +750,14 @@ GOWITNESS_BATCH="$TMPDIR_ACTIVE/gowitness-batch.jsonl"
 ACTIVE_TXT_BATCH="$TMPDIR_ACTIVE/active-batch.txt"
 
 echo
+
 if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
     echo -e "${BLUE}[*] Building active target list from last CSV list import (public hosts only).${NC}"
+
     if [ ! -s "$BATCH_HOSTS_FILE" ]; then
         f_active_die "No import-batch hosts at tools/import-batch-hosts.txt. Run Import subdomains (CSV list) first."
     fi
+
     # Only hosts still public in tools/subdomains
     python3 - "$SUBDOMAINS_FILE" "$BATCH_HOSTS_FILE" "$TARGETS_FILE" <<'PY'
 import csv, re, sys
@@ -792,6 +801,7 @@ echo -e "${BLUE}[*] Running httpx.${NC}"
 echo "[*] User-Agent: $USER_AGENT"
 
 HTTPX_OUT="$HTTPX_JSONL"
+
 if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
     HTTPX_OUT="$HTTPX_BATCH"
 fi
@@ -890,6 +900,7 @@ else
     GOWITNESS_INPUT="$ACTIVE_TXT"
     URL_COUNT=$(wc -l < "$ACTIVE_TXT" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 fi
+
 URL_COUNT=${URL_COUNT:-0}
 
 ALIVE_COUNT=$(wc -l < "$ALIVE_TSV" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
@@ -903,6 +914,7 @@ echo
 
 if [ "$URL_COUNT" -gt 0 ]; then
     echo -e "${BLUE}[*] Running whatweb on alive URLs.${NC}"
+
     if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
         whatweb -a 3 -i "$WHATWEB_INPUT" \
             -U "$WHATWEB_UA" \
@@ -968,6 +980,7 @@ PY
 
     echo
     echo -e "${BLUE}[*] Running gowitness on alive URLs.${NC}"
+
     if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
         # Keep existing screenshots; merge jsonl by host (replace batch hosts, keep others).
         gowitness scan file -f "$GOWITNESS_INPUT" \
@@ -976,6 +989,7 @@ PY
             --screenshot-path "$SCREENSHOTS_DIR" \
             --write-jsonl --write-jsonl-file "$GOWITNESS_BATCH" \
             --write-db --write-db-uri "sqlite://$GOWITNESS_DIR/gowitness.db"
+
         if [ -f "$GOWITNESS_BATCH" ]; then
             python3 - "$GOWITNESS_JSONL" "$GOWITNESS_BATCH" "$TARGETS_FILE" <<'PY'
 import json
@@ -1036,14 +1050,17 @@ PY
             --write-jsonl --write-jsonl-file "$GOWITNESS_JSONL" \
             --write-db --write-db-uri "sqlite://$GOWITNESS_DIR/gowitness.db"
     fi
+
     echo
 else
     echo
     echo "[*] No alive URLs found for this run. Skipping whatweb and gowitness."
+
     if [ "$ACTIVE_SCOPE" != "import-batch" ]; then
         rm -f "$WHATWEB_JSON" "$GOWITNESS_JSONL" "$GOWITNESS_DIR/gowitness.db" 2>/dev/null
         rm -rf "$SCREENSHOTS_DIR"/*
     fi
+
     echo
 fi
 
@@ -1099,6 +1116,7 @@ with priv_path.open("w", encoding="utf-8", newline="") as handle:
 PY
 
 SCREENSHOT_COUNT=0
+
 if [ -d "$SCREENSHOTS_DIR" ]; then
     SCREENSHOT_COUNT=$(find "$SCREENSHOTS_DIR" -type f \( -name '*.jpeg' -o -name '*.jpg' -o -name '*.png' \) 2>/dev/null | wc -l | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
     SCREENSHOT_COUNT=${SCREENSHOT_COUNT:-0}
@@ -1149,6 +1167,7 @@ f_active_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$GOWITNESS_JSONL" "$SC
 f_discover_load_env
 
 echo -e "${BLUE}[*] Updating Active report (includes NVD CVSS lookup for software versions).${NC}"
+
 if [ -n "${NVD_API_KEY:-}" ]; then
     echo -e "${BLUE}[*] NVD_API_KEY found (~/.discover/api-keys) — using authenticated rate limits.${NC}"
 else
@@ -1157,6 +1176,7 @@ else
     echo -e "${BLUE}[*] Free key: https://nvd.nist.gov/developers/request-an-api-key${NC}"
     echo -e "${BLUE}[*] Skip lookups: DISCOVER_SKIP_CVE=1${NC}"
 fi
+
 # Full Active page: Scope / status / category / CMS / web servers / tech / software
 # always rebuilt from tools/subdomains + private-subs + active-alive + httpx + whatweb
 # (import-batch merges into those files first, then this runs).
@@ -1172,6 +1192,7 @@ cat > "$DISCOVER_REPORT/assets/report-mode.json" <<'EOF'
   "launches": true
 }
 EOF
+
 if declare -F f_audit_log >/dev/null 2>&1; then
     if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
         f_audit_log "$DISCOVER_REPORT" "Ran active recon on imported hosts ($TARGET_COUNT targets)"
@@ -1207,9 +1228,11 @@ echo "$MEDIUM"
 echo
 echo "[*] Active scan complete."
 echo "[*] Probed $TARGET_COUNT hostnames; $ALIVE_HOST_COUNT with active probe data in report."
+
 if [ "$URL_COUNT" -gt 0 ]; then
     echo "[*] Captured $SCREENSHOT_COUNT screenshots; $PHOTO_HOST_COUNT linked in report."
 fi
+
 echo
 echo -e "Artifacts saved under ${YELLOW}$TOOLS_DIR${NC}"
 echo -e "HTML report updated: ${YELLOW}$DISCOVER_REPORT${NC}"

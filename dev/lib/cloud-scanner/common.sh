@@ -62,7 +62,9 @@ f_cloud_count_findings(){
     local severity="${1:-}" provider="${2:-}"
     awk -F'\t' -v sev="$severity" -v prov="$provider" '
         NR > 1 {
+
             if (sev != "" && $1 != sev) next
+
             if (prov != "" && $2 != prov) next
             n++
         }
@@ -120,6 +122,7 @@ f_cloud_aws_bucket_cloudtrail_logged(){
         [ -z "$trail" ] && continue
         selectors_file="$OUTPUT_DIR/aws/cloudtrail/${trail}_selectors.json"
         [ -f "$selectors_file" ] || continue
+
         if jq -e --arg bucket "$bucket" '
             .EventSelectors[]?
             | .DataResources[]?
@@ -145,6 +148,7 @@ f_cloud_aws_wait_credential_report(){
                 return 0
             fi
         fi
+
         sleep "$interval"
         elapsed=$((elapsed + interval))
         f_cloud_log "Waiting for IAM credential report (${elapsed}s)..."
@@ -242,6 +246,7 @@ EOF
         printf "  [%s] %s / %s — %s\n", $1, $2, $3, $4
         printf "    Check: %s\n", $5
         printf "    Detail: %s\n", $6
+
         if ($7 != "") printf "    Evidence: %s\n", $7
         printf "\n"
     }' "$CLOUD_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.txt"
@@ -273,6 +278,7 @@ EOF
         printf "### [%s] %s — %s (%s)\n", $1, $4, $5, $3
         printf "- **Provider:** %s\n", $2
         printf "- **Detail:** %s\n", $6
+
         if ($7 != "") printf "- **Evidence:** \`%s\`\n", $7
         printf "\n"
     }' "$CLOUD_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.md"
@@ -328,6 +334,7 @@ f_cloud_parse_cli(){
 }
 
 f_cloud_setup_output(){
+
     if [ -n "$CLOUD_RESUME_DIR" ]; then
         OUTPUT_DIR="$CLOUD_RESUME_DIR"
         [ -d "$OUTPUT_DIR" ] || { echo -e "${RED}[!] Resume directory not found: $OUTPUT_DIR${NC}"; exit 1; }
@@ -340,6 +347,7 @@ f_cloud_setup_output(){
     else
         OUTPUT_DIR="$HOME/data/cloud-scan_$(date +%Y%m%d-%H%M)"
     fi
+
     mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR${NC}"; exit 1; }
     # Isolated from Discover recon \$NAME / report.sh — scanner-owned directory only.
     f_cloud_init_scan 0

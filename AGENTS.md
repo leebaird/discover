@@ -12,7 +12,7 @@ Conventions agreed with the operator for Discover development. **Read and follow
 
 - Blank line **before** and **after** an `if` / `fi` block (`if` / `elif` / `else` / `fi` is one block).
 - Skip the blank line **before** `if` when a comment sits immediately above it. Keep a blank line after `fi`.
-- **Nested `if`:** keep it tight against the parent `then` / `else` and the parent `fi`. No blank line between `then` and the inner `if`, and none between the inner `fi` and the outer `fi`:
+- **Nested `if`:** keep it tight against the parent `then` / `else` / `elif` and the parent `fi`. No blank line between `then` and the inner `if`, and none between the inner `fi` and the outer `fi` / `else` / `elif`:
 
 ```
     if ! apt install -y arp-scan; then

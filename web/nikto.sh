@@ -14,18 +14,22 @@ fi
 
 # Prefer GitHub install from Discover Update.
 f_nikto_bin(){
+
     if [ -x /usr/local/bin/nikto ]; then
         echo /usr/local/bin/nikto
         return 0
     fi
+
     if [ -f /opt/nikto/program/nikto.pl ]; then
         echo /opt/nikto/program/nikto.pl
         return 0
     fi
+
     command -v nikto 2>/dev/null || true
 }
 
 NIKTO_BIN=$(f_nikto_bin)
+
 if [ -z "$NIKTO_BIN" ]; then
     echo
     echo -e "[!] Nikto not found. Run Discover ${YELLOW}Update${NC} (installs sullo/nikto from GitHub)."
@@ -34,6 +38,7 @@ if [ -z "$NIKTO_BIN" ]; then
 fi
 
 f_nikto_select_tool(){
+
     if command -v ydotool >/dev/null 2>&1 && pgrep ydotoold >/dev/null 2>&1; then
         XDOTOOL="sudo ydotool"
         ENTER="enter"
@@ -47,6 +52,7 @@ f_nikto_select_tool(){
     fi
 
     echo
+
     if command -v ydotool >/dev/null 2>&1; then
         echo -e "${YELLOW}[!] ydotool is installed but ydotoold is not running.${NC}"
         echo -e "${YELLOW}[!] Start the daemon (sudo ydotoold &) or install xdotool via Discover Update.${NC}"
@@ -54,6 +60,7 @@ f_nikto_select_tool(){
         echo -e "${YELLOW}[!] Neither xdotool nor ydotool is installed.${NC}"
         echo -e "${YELLOW}[!] Run the Update option from the main menu.${NC}"
     fi
+
     echo
     return 1
 }

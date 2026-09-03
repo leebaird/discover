@@ -387,12 +387,10 @@ PY
                     done <<< "$new_cve_list"
                 fi
             fi
-
         else
             rm -f "$tmp_file"
             echo -e "${YELLOW}CISA KEV download was not valid JSON; keeping previous catalog if any.${NC}"
         fi
-
     else
         rm -f "$tmp_file"
         echo -e "${YELLOW}Failed to download CISA KEV catalog; keeping previous catalog if any.${NC}"
@@ -566,7 +564,6 @@ PY
         else
             echo -e "${YELLOW}Could not patch Nmap http.lua User-Agent (pattern mismatch).${NC}"
         fi
-
     elif [ -f "$nmap_http" ]; then
         echo -e "${YELLOW}Nmap http.lua not writable: $nmap_http${NC}"
     fi
@@ -1216,6 +1213,7 @@ f_as_operator(){
     else
         GIT_TERMINAL_PROMPT=0 "$@"
     fi
+
 }
 
 # Keep nuclei from zip-installing the last release over a git checkout.
@@ -1234,6 +1232,7 @@ f_nuclei_disable_auto_template_update(){
     else
         f_as_operator sh -c "printf '\ndisable-update-check: true\n' >> \"\$1\"" _ "$cfg"
     fi
+
 }
 
 f_nuclei_clone_templates(){
@@ -1574,9 +1573,11 @@ f_whatweb_ensure_deps() {
     if ! ruby -e 'require "addressable"' >/dev/null 2>&1; then
         apt install -y ruby-addressable 2>/dev/null || true
     fi
+
 }
 
 f_whatweb_restore_script() {
+
     if [ ! -f /opt/WhatWeb/whatweb ]; then
         return 1
     fi
@@ -1627,6 +1628,7 @@ f_whatweb_remove_apt_package() {
     if dpkg-query -W -f='${Status}' whatweb 2>/dev/null | grep -q 'install ok installed'; then
         apt remove -y -qq whatweb
     fi
+
 }
 
 if [ -d /opt/WhatWeb/.git ]; then
@@ -1703,7 +1705,6 @@ f_install_wpscan(){
         else
             echo "Already up to date."
         fi
-
     else
         echo -e "${YELLOW}Installing wpscan.${NC}"
         # -n /usr/local/bin so the binary is on PATH without gem env setup
@@ -1911,7 +1912,6 @@ EOF
         else
             printf '\n[Default Applications]\nx-scheme-handler/discover-cve=discover-cve.desktop\n' >> "$mimeapps"
         fi
-
     else
         printf '[Default Applications]\nx-scheme-handler/discover-cve=discover-cve.desktop\n' > "$mimeapps"
     fi
@@ -1979,6 +1979,7 @@ EOF
         xdg-mime default discover-scan.desktop x-scheme-handler/discover-scan >/dev/null 2>&1 || true
         update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
     fi
+
 }
 
 f_install_discover_scan_handler
@@ -2031,6 +2032,7 @@ EOF
         xdg-mime default discover-ffuf.desktop x-scheme-handler/discover-ffuf >/dev/null 2>&1 || true
         update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
     fi
+
 }
 
 f_install_discover_ffuf_handler
@@ -2071,7 +2073,6 @@ EOF
         else
             printf '\n[Default Applications]\nx-scheme-handler/discover-ferox=discover-ferox.desktop\n' >> "$mimeapps"
         fi
-
     else
         printf '[Default Applications]\nx-scheme-handler/discover-ferox=discover-ferox.desktop\n' > "$mimeapps"
     fi
@@ -2084,6 +2085,7 @@ EOF
         xdg-mime default discover-ferox.desktop x-scheme-handler/discover-ferox >/dev/null 2>&1 || true
         update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
     fi
+
 }
 
 f_install_discover_ferox_handler
@@ -2124,7 +2126,6 @@ EOF
         else
             printf '\n[Default Applications]\nx-scheme-handler/discover-robots=discover-robots.desktop\n' >> "$mimeapps"
         fi
-
     else
         printf '[Default Applications]\nx-scheme-handler/discover-robots=discover-robots.desktop\n' > "$mimeapps"
     fi
@@ -2137,6 +2138,7 @@ EOF
         xdg-mime default discover-robots.desktop x-scheme-handler/discover-robots >/dev/null 2>&1 || true
         update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
     fi
+
 }
 
 f_install_discover_robots_handler
@@ -2177,7 +2179,6 @@ EOF
         else
             printf '\n[Default Applications]\nx-scheme-handler/discover-theharvester=discover-theharvester.desktop\n' >> "$mimeapps"
         fi
-
     else
         printf '[Default Applications]\nx-scheme-handler/discover-theharvester=discover-theharvester.desktop\n' > "$mimeapps"
     fi
@@ -2190,6 +2191,7 @@ EOF
         xdg-mime default discover-theharvester.desktop x-scheme-handler/discover-theharvester >/dev/null 2>&1 || true
         update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
     fi
+
 }
 
 f_install_discover_theharvester_handler

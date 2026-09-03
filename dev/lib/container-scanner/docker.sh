@@ -22,6 +22,7 @@ f_scan_docker_images(){
         :
     elif [ "$CONTAINER_SCAN_MODE" = "quick" ]; then
         docker ps --format "{{.Image}}" 2>/dev/null | sort -u > "$OUTPUT_DIR/docker/running_images_quick.txt" || : > "$OUTPUT_DIR/docker/running_images_quick.txt"
+
         if [ -s "$OUTPUT_DIR/docker/running_images_quick.txt" ]; then
             comm -12 <(sort "$OUTPUT_DIR/docker/image_list.txt") <(sort "$OUTPUT_DIR/docker/running_images_quick.txt") > "$OUTPUT_DIR/docker/image_list_quick.txt" || cp "$OUTPUT_DIR/docker/running_images_quick.txt" "$OUTPUT_DIR/docker/image_list_quick.txt"
             mv "$OUTPUT_DIR/docker/image_list_quick.txt" "$OUTPUT_DIR/docker/image_list.txt"
@@ -98,23 +99,28 @@ f_scan_docker_images(){
             f_container_record_finding critical docker-image "$image" trivy_critical_vulns \
                 "Found $CRITICAL_COUNT_IMG CRITICAL vulnerabilities" "docker/images/${image_name}.json"
         fi
+
         if [ "$HIGH_COUNT_IMG" -gt 0 ]; then
             f_container_record_finding high docker-image "$image" trivy_high_vulns \
                 "Found $HIGH_COUNT_IMG HIGH vulnerabilities" "docker/images/${image_name}.json"
         fi
+
         if [ "$SECRETS_COUNT" -gt 0 ]; then
             f_container_record_finding critical docker-image "$image" trivy_secrets \
                 "Found $SECRETS_COUNT potential secrets in image" "docker/images/${image_name}.json"
         fi
+
         if [ "$MISCONFIGS_COUNT" -gt 0 ]; then
             f_container_record_finding warning docker-image "$image" trivy_misconfig \
                 "Found $MISCONFIGS_COUNT misconfigurations" "docker/images/${image_name}.json"
         fi
 
         echo "$CRITICAL_COUNT_IMG $HIGH_COUNT_IMG $MEDIUM_COUNT_IMG $LOW_COUNT_IMG"
+
         if [ "$CRITICAL_COUNT_IMG" -gt 0 ] || [ "$HIGH_COUNT_IMG" -gt 0 ]; then
             echo "$image: Critical: $CRITICAL_COUNT_IMG, High: $HIGH_COUNT_IMG, Medium: $MEDIUM_COUNT_IMG, Low: $LOW_COUNT_IMG"
         fi
+
         echo "$image|$RISK_SCORE|$CRITICAL_COUNT_IMG|$HIGH_COUNT_IMG|$MEDIUM_COUNT_IMG|$LOW_COUNT_IMG|$SECRETS_COUNT|$MISCONFIGS_COUNT"
     }
 
@@ -127,6 +133,7 @@ f_scan_docker_images(){
             f_container_process_image "$image" "$OUTPUT_DIR" > "$OUTPUT_DIR/docker/images/.result_${COUNTER}.tmp"
         ) &
         _active_jobs=$((_active_jobs + 1))
+
         if [ "$_active_jobs" -ge "$CONTAINER_TRIVY_JOBS" ]; then
             wait -n 2>/dev/null || wait
             _active_jobs=$((_active_jobs - 1))
@@ -170,6 +177,7 @@ f_scan_docker_images(){
             echo "VULNERABLE IMAGES (Ordered by Risk):"
             sort -t'|' -k2,2nr "$OUTPUT_DIR/docker/image_risk_scores.txt" | awk -F'|' '{print $1 " (Risk: " $2 "/10, Critical: " $3 ", High: " $4 ")"}' | head -10
         fi
+
     } >> "$OUTPUT_DIR/docker/image_security_summary.txt"
 
     # Analyze Dockerfile security
@@ -285,8 +293,10 @@ f_scan_docker_images(){
                 echo "Medium-risk issues: $MEDIUM_ISSUES"
 
                 TOTAL_ISSUES=$((CRITICAL_ISSUES + HIGH_ISSUES + MEDIUM_ISSUES))
+
                 if [ "$TOTAL_ISSUES" -gt 0 ]; then
                     DOCKERFILE_RISK_SCORE=$(( (CRITICAL_ISSUES * 10 + HIGH_ISSUES * 5 + MEDIUM_ISSUES * 2) / TOTAL_ISSUES ))
+
                     if [ "$DOCKERFILE_RISK_SCORE" -gt 10 ]; then
                         DOCKERFILE_RISK_SCORE=10
                     fi
@@ -299,17 +309,20 @@ f_scan_docker_images(){
                 # Add recommendations
                 echo
                 echo "RECOMMENDATIONS:"
+
                 if [ "$CRITICAL_ISSUES" -gt 0 ] || [ "$HIGH_ISSUES" -gt 0 ]; then
                     echo "- Remove all secrets, tokens and credentials from Dockerfile"
                     echo "- Avoid running containers as root - use 'USER nonroot' or similar"
                     echo "- Never pipe curl/wget directly to shell - download first, verify, then execute"
                 fi
+
                 if [ "$MEDIUM_ISSUES" -gt 0 ]; then
                     echo "- Use specific version tags instead of 'latest'"
                     echo "- Add a HEALTHCHECK to ensure container availability"
                     echo "- Clean package cache after installations to reduce image size"
                     echo "- Use COPY instead of ADD when possible"
                 fi
+
                 echo "- Consider multi-stage builds to minimize attack surface"
                 echo "- Implement principle of least privilege for all operations"
 
@@ -317,8 +330,10 @@ f_scan_docker_images(){
             } > "$OUTPUT_DIR/docker/dockerfile_analysis/dockerfile_${dockerfile_name}_analysis.txt"
 
             trivy config --format json "$dockerfile" > "$OUTPUT_DIR/docker/dockerfile_analysis/dockerfile_${dockerfile_name}_trivy.json" 2>>"$OUTPUT_DIR/docker/trivy_errors.log" || true
+
             if [ -s "$OUTPUT_DIR/docker/dockerfile_analysis/dockerfile_${dockerfile_name}_trivy.json" ]; then
                 _df_mis=$(f_container_jq_count "$OUTPUT_DIR/docker/dockerfile_analysis/dockerfile_${dockerfile_name}_trivy.json" '[.Results[]?.Misconfigurations[]?] | length')
+
                 if [ "$_df_mis" -gt 0 ]; then
                     f_container_record_finding warning dockerfile "$dockerfile" trivy_config                         "Trivy reported $_df_mis Dockerfile misconfigurations" "docker/dockerfile_analysis/dockerfile_${dockerfile_name}_trivy.json"
                 fi
@@ -326,6 +341,7 @@ f_scan_docker_images(){
 
             _df_crit=$(grep "^Critical issues:" "$OUTPUT_DIR/docker/dockerfile_analysis/dockerfile_${dockerfile_name}_analysis.txt" | awk '{print $3}')
             _df_high=$(grep "^High-risk issues:" "$OUTPUT_DIR/docker/dockerfile_analysis/dockerfile_${dockerfile_name}_analysis.txt" | awk '{print $3}')
+
             if [ "${_df_crit:-0}" -gt 0 ]; then
                 f_container_record_finding critical dockerfile "$dockerfile" dockerfile_static_analysis \
                     "Critical Dockerfile issues: $_df_crit" "docker/dockerfile_analysis/dockerfile_${dockerfile_name}_analysis.txt"
@@ -356,6 +372,7 @@ f_scan_docker_images(){
                 echo "TOP RISKY DOCKERFILES:"
                 sort -t'|' -k2,2nr "$OUTPUT_DIR/docker/dockerfile_risk_scores.txt" | awk -F'|' '{print $1 " (Risk: " $2 "/10, Issues: " $3 ")"}' | head -5
             fi
+
         } >> "$OUTPUT_DIR/docker/image_security_summary.txt"
     fi
 
@@ -377,6 +394,7 @@ f_scan_docker_containers(){
     # List all Docker containers with additional metadata
     echo -e "${BLUE}[*] Gathering container inventory.${NC}"
     docker ps -a --format "{{.ID}}\t{{.Image}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Command}}" > "$OUTPUT_DIR/docker/container_inventory.tsv"
+
     if [ "$CONTAINER_SCAN_MODE" = "quick" ]; then
         docker ps --format "{{.ID}} {{.Image}} {{.Names}}" > "$OUTPUT_DIR/docker/container_list.txt"
     else
@@ -464,6 +482,7 @@ f_scan_docker_containers(){
 
             # Check if container is running in privileged mode
             privileged=$(jq -r '.[0].HostConfig.Privileged' "$inspect_file")
+
             if [ "$privileged" = "true" ]; then
                 echo "CRITICAL: Container is running in privileged mode (full access to host devices)"
                 echo "$container_name" >> "$OUTPUT_DIR/docker/privileged_containers.txt"
@@ -473,6 +492,7 @@ f_scan_docker_containers(){
 
             # Check for user running container (root vs non-root)
             user=$(jq -r '.[0].Config.User' "$inspect_file")
+
             if [ -z "$user" ] || [ "$user" = "0" ] || [ "$user" = "root" ]; then
                 echo "HIGH-RISK: Container is running as root user"
                 echo "$container_name" >> "$OUTPUT_DIR/docker/root_containers.txt"
@@ -484,6 +504,7 @@ f_scan_docker_containers(){
 
             # Check for additional Linux capabilities
             caps_add=$(jq -r '.[0].HostConfig.CapAdd[]' "$inspect_file" 2>/dev/null)
+
             if [ -n "$caps_add" ]; then
                 echo "HIGH-RISK: Container has additional Linux capabilities:"
                 echo "$caps_add" | sed 's/^/  /' 
@@ -501,6 +522,7 @@ f_scan_docker_containers(){
 
             # Check for sensitive env variables
             sensitive_env=$(jq -r '.[0].Config.Env[]' "$inspect_file" 2>/dev/null | grep -Ei "(password|token|key|secret|credential|api_key|apikey|access_key|auth)")
+
             if [ -n "$sensitive_env" ]; then
                 echo "CRITICAL: Container has sensitive environment variables (potential secret exposure):"
                 echo "$sensitive_env" | sed 's/^/  /' | cut -d'=' -f1
@@ -509,6 +531,7 @@ f_scan_docker_containers(){
 
             # Check for mounted sensitive directories
             sensitive_mounts=$(jq -r '.[0].Mounts[] | select(.Source | test("/etc|/var/run|/var/lib|/usr|/root|/.ssh|/.aws|/.kube|/docker.sock"))' "$inspect_file" 2>/dev/null)
+
             if [ -n "$sensitive_mounts" ]; then
                 echo "HIGH-RISK: Container has sensitive host directories mounted:"
                 jq -r '.[0].Mounts[] | select(.Source | test("/etc|/var/run|/var/lib|/usr|/root|/.ssh|/.aws|/.kube|/docker.sock")) | .Source + " -> " + .Destination' "$inspect_file" 2>/dev/null | sed 's/^/  /'
@@ -525,6 +548,7 @@ f_scan_docker_containers(){
 
             # Check for network mode
             network_mode=$(jq -r '.[0].HostConfig.NetworkMode' "$inspect_file")
+
             if [ "$network_mode" = "host" ]; then
                 echo "HIGH-RISK: Container is using host network mode (no network isolation)"
                 echo "$container_name" >> "$OUTPUT_DIR/docker/network_sensitive_containers.txt"
@@ -533,6 +557,7 @@ f_scan_docker_containers(){
 
             # Check for PID mode
             pid_mode=$(jq -r '.[0].HostConfig.PidMode' "$inspect_file")
+
             if [ "$pid_mode" = "host" ]; then
                 echo "HIGH-RISK: Container is using host PID mode (can see all processes on host)"
                 echo "$container_name" >> "$OUTPUT_DIR/docker/network_sensitive_containers.txt"
@@ -541,6 +566,7 @@ f_scan_docker_containers(){
 
             # Check for IPC mode
             ipc_mode=$(jq -r '.[0].HostConfig.IpcMode' "$inspect_file")
+
             if [ "$ipc_mode" = "host" ]; then
                 echo "MEDIUM-RISK: Container is using host IPC mode (shared memory with host)"
                 echo "$container_name" >> "$OUTPUT_DIR/docker/network_sensitive_containers.txt"
@@ -549,6 +575,7 @@ f_scan_docker_containers(){
 
             # Check for port bindings (especially sensitive ports)
             port_bindings=$(jq -r '.[0].HostConfig.PortBindings | keys[]' "$inspect_file" 2>/dev/null)
+
             if [ -n "$port_bindings" ]; then
                 echo "INFO: Container exposes the following ports:"
                 jq -r '.[0].HostConfig.PortBindings | to_entries[] | .key + " -> " + (.value[0].HostPort // "ephemeral")' "$inspect_file" 2>/dev/null | sed 's/^/  /'
@@ -562,6 +589,7 @@ f_scan_docker_containers(){
 
             # Check read-only filesystem
             readonly_fs=$(jq -r '.[0].HostConfig.ReadonlyRootfs' "$inspect_file")
+
             if [ "$readonly_fs" = "true" ]; then
                 echo "GOOD PRACTICE: Container uses read-only root filesystem"
             else
@@ -571,6 +599,7 @@ f_scan_docker_containers(){
 
             # Check for health checks
             health_check=$(jq -r '.[0].Config.Healthcheck' "$inspect_file" 2>/dev/null)
+
             if [ "$health_check" = "null" ] || [ -z "$health_check" ]; then
                 echo "MEDIUM-RISK: Container does not have a health check defined"
                 echo "$container_name" >> "$OUTPUT_DIR/docker/no_health_check_containers.txt"
@@ -581,6 +610,7 @@ f_scan_docker_containers(){
 
             # Check for restart policy
             restart_policy=$(jq -r '.[0].HostConfig.RestartPolicy.Name' "$inspect_file")
+
             if [ "$restart_policy" = "no" ] || [ -z "$restart_policy" ]; then
                 echo "INFO: Container has no restart policy defined"
             else
@@ -589,6 +619,7 @@ f_scan_docker_containers(){
 
             # Check for security options
             security_opts=$(jq -r '.[0].HostConfig.SecurityOpt[]' "$inspect_file" 2>/dev/null)
+
             if [ -n "$security_opts" ]; then
                 echo "GOOD PRACTICE: Container uses security options:"
                 echo "$security_opts" | sed 's/^/  /'
@@ -599,6 +630,7 @@ f_scan_docker_containers(){
 
             # Check for AppArmor profile
             apparmor_profile=$(jq -r '.[0].AppArmorProfile' "$inspect_file" 2>/dev/null)
+
             if [ -z "$apparmor_profile" ] || [ "$apparmor_profile" = "unconfined" ]; then
                 echo "MEDIUM-RISK: Container does not use AppArmor confinement"
                 ((MEDIUM_ISSUES++))
@@ -608,6 +640,7 @@ f_scan_docker_containers(){
 
             # Check for Seccomp profile
             seccomp_profile=$(jq -r '.[0].HostConfig.SecurityOpt[] | select(startswith("seccomp"))' "$inspect_file" 2>/dev/null)
+
             if [ -z "$seccomp_profile" ]; then
                 echo "MEDIUM-RISK: Container does not use custom Seccomp profile"
                 ((MEDIUM_ISSUES++))
@@ -617,6 +650,7 @@ f_scan_docker_containers(){
 
             # Check for memory limits
             memory_limit=$(jq -r '.[0].HostConfig.Memory' "$inspect_file")
+
             if [ "$memory_limit" = "0" ]; then
                 echo "MEDIUM-RISK: Container has no memory limits set (potential DoS vector)"
                 ((MEDIUM_ISSUES++))
@@ -627,6 +661,7 @@ f_scan_docker_containers(){
 
             # Check for CPU limits
             cpu_limit=$(jq -r '.[0].HostConfig.CpuShares' "$inspect_file")
+
             if [ "$cpu_limit" = "0" ]; then
                 echo "INFO: Container has no CPU limits set"
             else
@@ -647,6 +682,7 @@ f_scan_docker_containers(){
 
             # Check for tmpfs mounts (good security practice)
             tmpfs_mounts=$(jq -r '.[0].HostConfig.Tmpfs' "$inspect_file" 2>/dev/null)
+
             if [ -n "$tmpfs_mounts" ] && [ "$tmpfs_mounts" != "null" ]; then
                 echo "GOOD PRACTICE: Container uses tmpfs mounts for sensitive temporary data"
             fi
@@ -654,6 +690,7 @@ f_scan_docker_containers(){
             # Generate risk score (weighted calculation)
             # Scale: 1-10, with 10 being highest risk
             CONTAINER_RISK_SCORE=$(f_container_risk_score "$CRITICAL_ISSUES" "$HIGH_ISSUES" "$MEDIUM_ISSUES" 0)
+
             if [ "$CONTAINER_RISK_SCORE" -gt 10 ]; then
                 CONTAINER_RISK_SCORE=10
             fi
@@ -673,18 +710,23 @@ f_scan_docker_containers(){
                 if [ "$privileged" = "true" ]; then
                     echo "- Avoid running containers in privileged mode - use specific capabilities instead"
                 fi
+
                 if [ -z "$user" ] || [ "$user" = "0" ] || [ "$user" = "root" ]; then
                     echo "- Run container as non-root user by adding USER instruction to Dockerfile"
                 fi
+
                 if [ -n "$sensitive_mounts" ]; then
                     echo "- Avoid mounting sensitive host directories. Use volumes or bind mounts to specific required paths"
                 fi
+
                 if [ "$network_mode" = "host" ]; then
                     echo "- Use bridge network instead of host network mode"
                 fi
+
                 if [ -n "$sensitive_env" ]; then
                     echo "- Use Docker secrets or a secure vault solution instead of environment variables for sensitive data"
                 fi
+
                 if [ -n "$caps_add" ]; then
                     echo "- Remove unnecessary capabilities and use only those specifically required"
                 fi
@@ -694,12 +736,15 @@ f_scan_docker_containers(){
                 if [ "$readonly_fs" != "true" ]; then
                     echo "- Use read-only root filesystem (--read-only flag) where possible"
                 fi
+
                 if [ "$health_check" = "null" ] || [ -z "$health_check" ]; then
                     echo "- Add a HEALTHCHECK instruction to ensure container health monitoring"
                 fi
+
                 if [ -z "$security_opts" ]; then
                     echo "- Implement security options like seccomp and apparmor profiles"
                 fi
+
                 if [ "$memory_limit" = "0" ]; then
                     echo "- Set memory limits to prevent resource exhaustion attacks"
                 fi

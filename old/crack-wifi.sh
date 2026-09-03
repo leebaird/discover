@@ -138,7 +138,6 @@ if [ -f "$WORKDIR/keys" ]; then
         echo
         exit 1
     fi
-
 else
     echo "No^Network^Ch^Password^Encryption^IVs^Notes" > "$WORKDIR/keys"
 fi
@@ -300,6 +299,7 @@ elif [[ "$ZZ" =  "Join a network" ]]; then
         fi
     fi
 fi
+
 }
 
 ##############################################################################################################
@@ -353,6 +353,7 @@ if ! f_validMAC "$BSSID"; then
     read -p "Press <return> to continue."
     f_crackWEP
 fi
+
 }
 
 ##############################################################################################################
@@ -386,9 +387,11 @@ echo
 ##############################################################################################################
 
 f_validChannel(){
+
     if [[ "$1" -lt 1 || "$1" -gt 11 ]]; then
         f_error
     fi
+
 }
 
 ##############################################################################################################
@@ -466,6 +469,7 @@ else
         f_menu
     fi
 fi
+
 }
 
 ##############################################################################################################
@@ -625,6 +629,7 @@ f_connect
 
 f_connect(){
 echo
+
 if f_yes_no "Would you like to connect to the wireless network?"; then
     killall xterm 2>/dev/null
     ifconfig "$INTERFACE" down
@@ -639,6 +644,7 @@ else
     killall xterm 2>/dev/null
     f_menu
 fi
+
 }
 
 f_crackWPA(){
@@ -736,6 +742,7 @@ else
     killall xterm 2>/dev/null
     f_return
 fi
+
 }
 
 ##############################################################################################################

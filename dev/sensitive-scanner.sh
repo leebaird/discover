@@ -19,9 +19,11 @@ source "${SENSITIVE_SCANNER_ROOT}/lib/sensitive-scanner/web.sh"
 f_terminate(){
     echo
     echo -e "${YELLOW}[!] Interrupted — saving partial reports.${NC}"
+
     if [ -n "${OUTPUT_DIR:-}" ] && [ -d "${OUTPUT_DIR:-}" ]; then
         f_sensitive_generate_reports 2>/dev/null || true
     fi
+
     echo
     exit 130
 }
@@ -160,6 +162,7 @@ f_sensitive_main(){
         echo -e "${YELLOW}[*] Scan log: ${OUTPUT_DIR}/scan.log${NC}"
         echo
     fi
+
 }
 
 f_sensitive_main "$@"

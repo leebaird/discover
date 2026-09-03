@@ -42,9 +42,11 @@ f_webapi_probe_path(){
     f_webapi_curl_opts
     curl "${WEBAPI_CURL_OPTS[@]}" -o "$body_file" "${target_url%/}${path}" >/dev/null 2>&1 || return 1
     [ -s "$body_file" ] || return 1
+
     if [ "$match" = "." ] || [ -z "$match" ]; then
         return 0
     fi
+
     grep -qiE "$match" "$body_file" 2>/dev/null
 }
 

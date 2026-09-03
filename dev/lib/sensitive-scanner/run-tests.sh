@@ -48,5 +48,6 @@ if [ "$FAIL" -eq 0 ]; then
     echo "=== all tests passed ==="
     exit 0
 fi
+
 echo "=== tests failed ==="
 exit 1

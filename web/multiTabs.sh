@@ -45,6 +45,7 @@ f_firefox_tabs_from_list(){
         line="${line#"${line%%[![:space:]]*}"}"
         line="${line%"${line##*[![:space:]]}"}"
         [ -z "$line" ] && continue
+
         if [[ "$line" =~ ^https?:// ]]; then
             urls+=("$line")
         else

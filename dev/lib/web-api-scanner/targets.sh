@@ -7,10 +7,12 @@ WEBAPI_INPUT_FORMAT="${WEBAPI_INPUT_FORMAT:-}"
 
 f_webapi_detect_input_format(){
     local path="$1"
+
     if [ -n "$WEBAPI_INPUT_FORMAT" ]; then
         printf '%s' "$WEBAPI_INPUT_FORMAT"
         return 0
     fi
+
     case "$path" in
         *.csv) echo csv ;;
         *.json) echo json ;;
@@ -22,10 +24,12 @@ f_webapi_load_targets(){
     local -n _out=$1
     local src="$2" fmt
     _out=()
+
     if [ -n "$WEBAPI_URL" ]; then
         _out+=("$WEBAPI_URL")
         return 0
     fi
+
     [ -n "$src" ] && [ -f "$src" ] || return 0
     fmt=$(f_webapi_detect_input_format "$src")
     case "$fmt" in
@@ -64,6 +68,7 @@ f_webapi_run_all(){
     local targets=() t rc=0 i=0 total workers running
 
     f_webapi_load_targets targets "$WEBAPI_FILE"
+
     if [ ${#targets[@]} -eq 0 ]; then
         [ -n "$WEBAPI_URL" ] && f_webapi_run_scan "$WEBAPI_URL" && return $?
         echo -e "${RED}[!] No targets (--url or --file required)${NC}"
@@ -96,5 +101,6 @@ f_webapi_run_all(){
             f_webapi_run_scan "$t" || rc=1
         done
     fi
+
     return "$rc"
 }

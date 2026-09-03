@@ -1,10 +1,12 @@
 # AWS cloud security checks — sourced by dev/cloud-scanner.sh
 
 f_aws_auth_check(){
+
     if ! aws sts get-caller-identity > "$OUTPUT_DIR/aws/account_info.json" 2>>"$CLOUD_SCAN_LOG"; then
         echo -e "${RED}[!] AWS authentication failed. Configure credentials (aws configure / env vars / SSO) and retry.${NC}"
         return 1
     fi
+
     local account_id user_arn
     account_id=$(jq -r '.Account' "$OUTPUT_DIR/aws/account_info.json" 2>/dev/null)
     user_arn=$(jq -r '.Arn' "$OUTPUT_DIR/aws/account_info.json" 2>/dev/null)
@@ -25,11 +27,13 @@ f_aws_bucket_has_public_signal(){
             return 0
         fi
     fi
+
     if [ -s "$acl_file" ]; then
         if jq -e '.Grants[] | select(.Grantee.URI == "http://acs.amazonaws.com/groups/global/AllUsers" or .Grantee.URI == "http://acs.amazonaws.com/groups/global/AuthenticatedUsers")' "$acl_file" &>/dev/null; then
             return 0
         fi
     fi
+
     if [ -s "$pab_file" ]; then
         if jq -e '.PublicAccessBlockConfiguration | .BlockPublicAcls == false or .BlockPublicPolicy == false or .IgnorePublicAcls == false or .RestrictPublicBuckets == false' "$pab_file" &>/dev/null; then
             return 0
@@ -37,6 +41,7 @@ f_aws_bucket_has_public_signal(){
     elif [ ! -s "$pab_file" ]; then
         return 0
     fi
+
     return 1
 }
 
@@ -81,6 +86,7 @@ f_aws_phase_s3(){
 
     # Cache CloudTrail selectors once
     aws cloudtrail list-trails > "$OUTPUT_DIR/aws/cloudtrail/trails.json" 2>>"$CLOUD_SCAN_LOG" || true
+
     if [ -s "$OUTPUT_DIR/aws/cloudtrail/trails.json" ]; then
         while read -r trail; do
             [ -z "$trail" ] && continue
@@ -101,12 +107,14 @@ f_aws_phase_s3(){
         aws s3api get-public-access-block --bucket "$bucket" > "$OUTPUT_DIR/aws/buckets/$bucket/public_access_block.json" 2>>"$CLOUD_SCAN_LOG" || true
 
         local policy_file="$OUTPUT_DIR/aws/buckets/$bucket/policy.json"
+
         if [ -s "$policy_file" ]; then
             if f_cloud_aws_s3_policy_jq "$policy_file" '.Statement[]? | select(.Effect == "Allow" and (.Principal == "*" or .Principal.AWS == "*" or (.Principal.AWS? | type == "string" and . == "*")))' || \
                f_cloud_aws_s3_policy_jq "$policy_file" '.Statement[]? | select(.Effect == "Allow" and (.Principal.AWS? | type == "array" and index("*") != null))'; then
                 f_cloud_record_finding high aws s3 "$bucket" wildcard-principal \
                     "Bucket policy allows wildcard Principal" "$policy_file"
             fi
+
             if f_aws_bucket_has_public_signal "$bucket"; then
                 if ! f_cloud_aws_s3_policy_jq "$policy_file" '.Statement[]? | select(.Effect == "Deny" and .Condition.Bool."aws:SecureTransport" == "false")'; then
                     f_cloud_record_finding warning aws s3 "$bucket" secure-transport \
@@ -120,6 +128,7 @@ f_aws_phase_s3(){
                 f_cloud_record_finding high aws s3 "$bucket" public-acl \
                     "ACL grants AllUsers" "$OUTPUT_DIR/aws/buckets/$bucket/acl.json"
             fi
+
             if jq -e '.Grants[] | select(.Grantee.URI == "http://acs.amazonaws.com/groups/global/AuthenticatedUsers")' "$OUTPUT_DIR/aws/buckets/$bucket/acl.json" &>/dev/null; then
                 f_cloud_record_finding high aws s3 "$bucket" authenticated-acl \
                     "ACL grants AuthenticatedUsers" "$OUTPUT_DIR/aws/buckets/$bucket/acl.json"
@@ -139,6 +148,7 @@ f_aws_phase_s3(){
         if [ "$CLOUD_SCAN_MODE" = "full" ]; then
             local enc_result=0
             aws s3api get-bucket-encryption --bucket "$bucket" > "$OUTPUT_DIR/aws/buckets/$bucket/encryption.json" 2>>"$CLOUD_SCAN_LOG" || enc_result=$?
+
             if [ "$enc_result" -ne 0 ]; then
                 f_cloud_record_finding warning aws s3 "$bucket" no-encryption \
                     "No default encryption configured" ""
@@ -150,12 +160,14 @@ f_aws_phase_s3(){
             fi
 
             aws s3api get-bucket-versioning --bucket "$bucket" > "$OUTPUT_DIR/aws/buckets/$bucket/versioning.json" 2>>"$CLOUD_SCAN_LOG" || true
+
             if ! jq -e '.Status == "Enabled"' "$OUTPUT_DIR/aws/buckets/$bucket/versioning.json" &>/dev/null; then
                 f_cloud_record_finding info aws s3 "$bucket" versioning \
                     "Versioning not enabled" "$OUTPUT_DIR/aws/buckets/$bucket/versioning.json"
             fi
 
             aws s3api get-bucket-logging --bucket "$bucket" > "$OUTPUT_DIR/aws/buckets/$bucket/logging.json" 2>>"$CLOUD_SCAN_LOG" || true
+
             if ! jq -e '.LoggingEnabled' "$OUTPUT_DIR/aws/buckets/$bucket/logging.json" &>/dev/null; then
                 f_cloud_record_finding info aws s3 "$bucket" logging \
                     "Access logging not enabled" "$OUTPUT_DIR/aws/buckets/$bucket/logging.json"
@@ -200,6 +212,7 @@ f_aws_phase_ec2(){
     mkdir -p "$OUTPUT_DIR/aws/ec2"
 
     local regions=()
+
     if [ "$CLOUD_SCAN_MODE" = "full" ] && [ -s "$OUTPUT_DIR/aws/regions.json" ]; then
         mapfile -t regions < <(jq -r '.[]' "$OUTPUT_DIR/aws/regions.json" 2>/dev/null)
     else
@@ -224,14 +237,17 @@ f_aws_phase_ec2(){
         [ -z "$gid" ] && continue
         local sev=warning
         local from_port="${ports%%-*}"
+
         if [ "$from_port" != "all" ] && [ "$from_port" = "$ports" ] && f_cloud_port_sensitive "$from_port"; then
             sev=high
         elif [[ "$ports" == *"-"* ]]; then
             local to_port="${ports##*-}"
+
             if f_cloud_port_sensitive "$from_port" || f_cloud_port_sensitive "$to_port"; then
                 sev=high
             fi
         fi
+
         f_cloud_record_finding "$sev" aws ec2 "$gid" ingress-open \
             "Ingress $ports open to $cidr in $reg ($gname)" \
             "$OUTPUT_DIR/aws/ec2/security_groups_${reg}.json"
@@ -248,14 +264,17 @@ f_aws_iam_check_user_admin(){
     aws iam list-attached-user-policies --user-name "$user" > "$OUTPUT_DIR/aws/iam/users/${user}_attached.json" 2>>"$CLOUD_SCAN_LOG" || true
     while read -r policy_arn; do
         [ -z "$policy_arn" ] && continue
+
         if [[ "$policy_arn" == *":policy/AdministratorAccess" ]] || [[ "$policy_arn" == *":policy/PowerUserAccess" ]]; then
             f_cloud_record_finding high aws iam "$user" admin-policy \
                 "Attached policy: $policy_arn" "$OUTPUT_DIR/aws/iam/users/${user}_attached.json"
             seen_admin=1
             break
         fi
+
         local version_file
         version_file=$(f_cloud_cache_policy_version "$policy_arn" "$policy_dir" 2>/dev/null) || continue
+
         if f_cloud_policy_is_admin_document "$version_file"; then
             f_cloud_record_finding high aws iam "$user" admin-document \
                 "Policy document allows */* on $policy_arn" "$version_file"
@@ -270,6 +289,7 @@ f_aws_iam_check_user_admin(){
             [ -z "$inline_name" ] && continue
             aws iam get-user-policy --user-name "$user" --policy-name "$inline_name" \
                 > "$OUTPUT_DIR/aws/iam/users/${user}_inline_${inline_name}.json" 2>>"$CLOUD_SCAN_LOG" || continue
+
             if jq -e '
                 .PolicyDocument.Statement[]?
                 | select(.Effect == "Allow")
@@ -292,6 +312,7 @@ f_aws_iam_check_user_admin(){
         aws iam list-attached-group-policies --group-name "$group" > "$OUTPUT_DIR/aws/iam/groups/${group}_policies.json" 2>>"$CLOUD_SCAN_LOG" || true
         while read -r gpol; do
             [ -z "$gpol" ] && continue
+
             if [[ "$gpol" == *":policy/AdministratorAccess" ]] || [[ "$gpol" == *":policy/PowerUserAccess" ]]; then
                 f_cloud_record_finding high aws iam "$user" group-admin \
                     "Admin via group $group ($gpol)" "$OUTPUT_DIR/aws/iam/groups/${group}_policies.json"
@@ -308,13 +329,16 @@ f_aws_iam_check_role_admin(){
     aws iam list-attached-role-policies --role-name "$role" > "$OUTPUT_DIR/aws/iam/roles/${role}_attached.json" 2>>"$CLOUD_SCAN_LOG" || true
     while read -r policy_arn; do
         [ -z "$policy_arn" ] && continue
+
         if [[ "$policy_arn" == *":policy/AdministratorAccess" ]]; then
             f_cloud_record_finding high aws iam "$role" role-admin \
                 "Role has AdministratorAccess" "$OUTPUT_DIR/aws/iam/roles/${role}_attached.json"
             return 0
         fi
+
         local version_file
         version_file=$(f_cloud_cache_policy_version "$policy_arn" "$policy_dir" 2>/dev/null) || continue
+
         if f_cloud_policy_is_admin_document "$version_file"; then
             f_cloud_record_finding high aws iam "$role" role-admin-document \
                 "Role policy allows */* ($policy_arn)" "$version_file"
@@ -335,12 +359,15 @@ f_aws_phase_iam(){
     if aws iam get-account-password-policy > "$OUTPUT_DIR/aws/iam/password_policy.json" 2>>"$CLOUD_SCAN_LOG"; then
         local min_length reuse max_age
         min_length=$(jq -r '.PasswordPolicy.MinimumPasswordLength // 0' "$OUTPUT_DIR/aws/iam/password_policy.json" 2>/dev/null)
+
         if [[ "$min_length" =~ ^[0-9]+$ ]] && [ "$min_length" -lt 14 ]; then
             f_cloud_record_finding warning aws iam account password-length \
                 "Minimum password length $min_length (recommended 14)" \
                 "$OUTPUT_DIR/aws/iam/password_policy.json"
         fi
+
         reuse=$(jq -r '.PasswordPolicy.PasswordReusePrevention // 0' "$OUTPUT_DIR/aws/iam/password_policy.json" 2>/dev/null)
+
         if [[ "$reuse" =~ ^[0-9]+$ ]] && [ "$reuse" -lt 24 ]; then
             f_cloud_record_finding warning aws iam account password-reuse \
                 "Password reuse prevention $reuse (recommended 24)" \
@@ -352,11 +379,13 @@ f_aws_phase_iam(){
     fi
 
     local cred_csv="$OUTPUT_DIR/aws/iam/credential_report.csv"
+
     if f_cloud_aws_wait_credential_report "$cred_csv"; then
         if awk -F',' '$1=="root" && $8=="false"' "$cred_csv" | grep -q .; then
             f_cloud_record_finding critical aws iam root root-no-mfa \
                 "Root account MFA not enabled" "$cred_csv"
         fi
+
         if awk -F',' '$1=="root" && ($9=="true" || $12=="true")' "$cred_csv" | grep -q .; then
             f_cloud_record_finding critical aws iam root root-access-keys \
                 "Root account has active access keys" "$cred_csv"
@@ -375,16 +404,19 @@ f_aws_phase_iam(){
             current_date=$(date +%s)
             while IFS=',' read -r user _arn _uct password_enabled _plu password_last_changed _pnr _mfa access_key_1_active access_key_1_last_rotated _ak1u access_key_2_active access_key_2_last_rotated _ak2u _rest; do
                 [ "$user" = "user" ] || [ "$user" = "root" ] && continue
+
                 if [ "$access_key_1_active" = "true" ] && [ "$access_key_1_last_rotated" != "N/A" ]; then
                     local age
                     age=$(( (current_date - $(date -d "$access_key_1_last_rotated" +%s 2>/dev/null || echo 0)) / 86400 ))
                     [ "$age" -gt 90 ] && f_cloud_record_finding warning aws iam "$user" stale-key-1 \
                         "Access key 1 is ${age} days old" "$cred_csv"
                 fi
+
                 if [ "$access_key_1_active" = "true" ] && [ "$access_key_1_last_rotated" = "N/A" ]; then
                     f_cloud_record_finding warning aws iam "$user" unused-key-1 \
                         "Access key 1 active but never rotated/used" "$cred_csv"
                 fi
+
                 if [ "$password_enabled" = "true" ] && [ "$password_last_changed" != "N/A" ]; then
                     local page
                     page=$(( (current_date - $(date -d "$password_last_changed" +%s 2>/dev/null || echo 0)) / 86400 ))
@@ -413,6 +445,7 @@ f_aws_phase_iam(){
             [ -z "$policy_arn" ] && continue
             local version_file
             version_file=$(f_cloud_cache_policy_version "$policy_arn" "$OUTPUT_DIR/aws/iam/policies" 2>/dev/null) || continue
+
             if f_cloud_policy_is_admin_document "$version_file"; then
                 f_cloud_record_finding warning aws iam "$policy_arn" permissive-custom-policy \
                     "Custom policy allows */*" "$version_file"
@@ -472,6 +505,7 @@ f_aws_phase_extras(){
         [ -z "$fn" ] && continue
         aws lambda get-function-url-config --function-name "$fn" \
             > "$OUTPUT_DIR/aws/extras/lambda_${fn}_url.json" 2>>"$CLOUD_SCAN_LOG" || continue
+
         if jq -e '.AuthType == "NONE"' "$OUTPUT_DIR/aws/extras/lambda_${fn}_url.json" &>/dev/null; then
             f_cloud_record_finding high aws lambda "$fn" public-url \
                 "Lambda function URL with AuthType NONE" "$OUTPUT_DIR/aws/extras/lambda_${fn}_url.json"

@@ -39,6 +39,7 @@ f_scan_kubernetes(){
     # As of 2026-07, 1.33 and below are EOL; 1.34–1.36 are in the supported window.
     read -r K8S_EOL_MINOR K8S_CURRENT_MINOR <<< "$(f_container_k8s_version_thresholds)"
     K8S_VERSION_ISSUES=0
+
     if [ "$MAJOR_VERSION" -lt 1 ] || ([ "$MAJOR_VERSION" -eq 1 ] && [ "$MINOR_VERSION" -le "$K8S_EOL_MINOR" ]); then
         echo -e "${RED}[!] WARNING: Kubernetes version $SERVER_VERSION is end-of-life (no security patches)${NC}"
         echo "CRITICAL: Kubernetes version $SERVER_VERSION is end-of-life. Upgrade to 1.34+ (current stable: 1.${K8S_CURRENT_MINOR}+)." >> "$OUTPUT_DIR/kubernetes/cluster/version_issues.txt"
@@ -81,6 +82,7 @@ f_scan_kubernetes(){
     kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.nodeInfo.kubeletVersion}{"\n"}{end}' > "$OUTPUT_DIR/kubernetes/cluster/node_versions.txt" 2>/dev/null
 
     NODE_VERSION_COUNT=$(awk '{print $2}' "$OUTPUT_DIR/kubernetes/cluster/node_versions.txt" | sort | uniq | wc -l)
+
     if [ "$NODE_VERSION_COUNT" -gt 1 ]; then
         echo -e "${YELLOW}[!] Multiple Kubernetes versions detected across nodes. This could lead to unexpected behavior${NC}"
         echo "WARNING: Cluster has nodes running $NODE_VERSION_COUNT different Kubernetes versions" >> "$OUTPUT_DIR/kubernetes/cluster/node_issues.txt"
@@ -201,6 +203,7 @@ f_scan_kubernetes(){
         # Pod Security Standards (PSS) label check
         PSS_ENFORCE=$(jq -r --arg ns "$namespace" '.items[] | select(.metadata.name == $ns) | .metadata.labels["pod-security.kubernetes.io/enforce"] // "unset"' "$OUTPUT_DIR/kubernetes/resources/namespaces.json" 2>/dev/null)
         echo "PSS enforce label: $PSS_ENFORCE" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
+
         if [ "$POD_COUNT" -gt 0 ] && { [ -z "$PSS_ENFORCE" ] || [ "$PSS_ENFORCE" = "unset" ] || [ "$PSS_ENFORCE" = "privileged" ]; }; then
             f_container_record_finding warning kubernetes "namespace/$namespace" pss_not_enforced                 "Namespace lacks restrictive PSS enforce label (current: ${PSS_ENFORCE:-unset})" "kubernetes/security_reports/$namespace/summary.txt"
             echo "WARNING: Namespace should enforce Pod Security Standards (current: ${PSS_ENFORCE:-unset})" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
@@ -216,6 +219,7 @@ f_scan_kubernetes(){
 
             # Check for privileged containers
             PRIV_PODS=$(jq -r '.items[] | select(any(.spec.containers[]?; .securityContext.privileged == true)) | .metadata.name' "$pods_json" 2>/dev/null)
+
             if [ -n "$PRIV_PODS" ]; then
                 PRIV_POD_COUNT=$(echo "$PRIV_PODS" | wc -l)
                 echo "WARNING: Found $PRIV_POD_COUNT pods with privileged containers" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
@@ -230,6 +234,7 @@ f_scan_kubernetes(){
 
             # Check for hostNetwork
             HOSTNET_PODS=$(jq -r '.items[] | select(.spec.hostNetwork == true) | .metadata.name' "$pods_json" 2>/dev/null)
+
             if [ -n "$HOSTNET_PODS" ]; then
                 HOSTNET_POD_COUNT=$(echo "$HOSTNET_PODS" | wc -l)
                 echo "WARNING: Found $HOSTNET_POD_COUNT pods using host network" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
@@ -244,6 +249,7 @@ f_scan_kubernetes(){
 
             # Check for hostPath volumes
             HOSTPATH_PODS=$(jq -r '.items[] | select(any(.spec.volumes[]?; .hostPath != null)) | .metadata.name' "$pods_json" 2>/dev/null)
+
             if [ -n "$HOSTPATH_PODS" ]; then
                 HOSTPATH_POD_COUNT=$(echo "$HOSTPATH_PODS" | wc -l)
                 echo "WARNING: Found $HOSTPATH_POD_COUNT pods using hostPath volumes" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
@@ -257,6 +263,7 @@ f_scan_kubernetes(){
 
             # Check for root containers
             ROOT_PODS=$(jq -r '.items[] | select(any(.spec.containers[]?; .securityContext.runAsNonRoot != true and (.securityContext.runAsUser == null or .securityContext.runAsUser == 0))) | .metadata.name' "$pods_json" 2>/dev/null)
+
             if [ -n "$ROOT_PODS" ]; then
                 ROOT_POD_COUNT=$(echo "$ROOT_PODS" | wc -l)
                 echo "WARNING: Found $ROOT_POD_COUNT pods running as root" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
@@ -271,6 +278,7 @@ f_scan_kubernetes(){
 
             # Check for missing resource limits
             NOLIMIT_PODS=$(jq -r '.items[] | select(any(.spec.containers[]?; .resources.limits == null or .resources.limits.cpu == null or .resources.limits.memory == null)) | .metadata.name' "$pods_json" 2>/dev/null)
+
             if [ -n "$NOLIMIT_PODS" ]; then
                 NOLIMIT_POD_COUNT=$(echo "$NOLIMIT_PODS" | wc -l)
                 echo "WARNING: Found $NOLIMIT_POD_COUNT pods without complete resource limits" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
@@ -283,6 +291,7 @@ f_scan_kubernetes(){
 
             # Dangerous Linux capabilities
             INSECURE_CAP_PODS=$(jq -r '.items[] | select(any(.spec.containers[]?; (.securityContext.capabilities.add // []) | any(. == "SYS_ADMIN" or . == "NET_ADMIN" or . == "ALL" or . == "SYS_PTRACE" or . == "DAC_READ_SEARCH"))) | .metadata.name' "$pods_json" 2>/dev/null)
+
             if [ -n "$INSECURE_CAP_PODS" ]; then
                 echo "$INSECURE_CAP_PODS" | while read -r pod; do
                     caps=$(jq -r --arg p "$pod" '.items[] | select(.metadata.name == $p) | [.spec.containers[]?.securityContext.capabilities.add[]?] | join(",")' "$pods_json" 2>/dev/null)
@@ -295,6 +304,7 @@ f_scan_kubernetes(){
             # Deprecated API versions in cached workloads
             for _api in "${_CONTAINER_DEPRECATED_API_VERSIONS[@]}"; do
                 _hits=$(jq -r --arg api "$_api" '[.items[]? | select(.apiVersion == $api) | .kind + "/" + .metadata.name] | .[]' "$OUTPUT_DIR/kubernetes/workloads/$namespace/workloads.json" 2>/dev/null)
+
                 if [ -n "$_hits" ]; then
                     echo "$_hits" | while read -r hit; do
                         echo "$namespace/$hit ($_api)" >> "$OUTPUT_DIR/kubernetes/vulnerabilities/deprecated_apis.txt"
@@ -309,12 +319,14 @@ f_scan_kubernetes(){
 
         # Network Security Analysis
         NP_COUNT=$(jq '[.items[]? | select(.kind == "NetworkPolicy")] | length' "$network_json" 2>/dev/null || echo 0)
+
         if [ "$SERVICE_COUNT" -gt 0 ] || [ "$INGRESS_COUNT" -gt 0 ] || [ "$POD_COUNT" -gt 0 ]; then
             echo "NETWORK SECURITY ANALYSIS:" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
 
             if [ "$SERVICE_COUNT" -gt 0 ] || [ "$INGRESS_COUNT" -gt 0 ]; then
                 # Check for NodePort services
                 NODEPORT_SERVICES=$(jq -r '.items[] | select(.kind == "Service") | select(.spec.type == "NodePort") | .metadata.name' "$network_json" 2>/dev/null)
+
                 if [ -n "$NODEPORT_SERVICES" ]; then
                     NODEPORT_COUNT=$(echo "$NODEPORT_SERVICES" | wc -l)
                     echo "INFO: Found $NODEPORT_COUNT NodePort services (ensure these are properly secured)" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
@@ -322,6 +334,7 @@ f_scan_kubernetes(){
 
                 # Check for LoadBalancer services
                 LB_SERVICES=$(jq -r '.items[] | select(.kind == "Service") | select(.spec.type == "LoadBalancer") | .metadata.name' "$network_json" 2>/dev/null)
+
                 if [ -n "$LB_SERVICES" ]; then
                     LB_COUNT=$(echo "$LB_SERVICES" | wc -l)
                     echo "INFO: Found $LB_COUNT LoadBalancer services (ensure these are properly secured)" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
@@ -344,6 +357,7 @@ f_scan_kubernetes(){
 
             # Check for secrets mounted as environment variables (less secure than volumes)
             SECRET_ENV_PODS=$(jq -r '.items[] | select(any(.spec.containers[]?; any(.env[]?; .valueFrom.secretKeyRef != null))) | .metadata.name' "$pods_json" 2>/dev/null)
+
             if [ -n "$SECRET_ENV_PODS" ]; then
                 SECRET_ENV_COUNT=$(echo "$SECRET_ENV_PODS" | wc -l)
                 echo "INFO: Found $SECRET_ENV_COUNT pods using secrets as environment variables" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
@@ -354,6 +368,7 @@ f_scan_kubernetes(){
 
             # List any default-token secrets that might be automatically mounted
             DEFAULT_TOKEN=$(kubectl get secrets -n "$namespace" | grep -c "default-token")
+
             if [ "$DEFAULT_TOKEN" -gt 0 ]; then
                 echo "INFO: Found default-token secrets that are auto-mounted in pods" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
             fi
@@ -374,6 +389,7 @@ f_scan_kubernetes(){
              $cr[0].items[]? | select(.kind == "ClusterRole" and .metadata.name == $ref.name) |
              select(has_wildcard_rule) | "ClusterRole/\($ref.name)")
         ' "$OUTPUT_DIR/kubernetes/rbac/$namespace-rbac.json" 2>/dev/null)
+
         if [ -n "$PERMISSIVE_ROLES" ]; then
             echo "$PERMISSIVE_ROLES" | while read -r role; do
                 f_container_record_finding high kubernetes "namespace/$namespace" permissive_rbac "Overly permissive $role" "kubernetes/rbac/$namespace-rbac.json"
@@ -386,6 +402,7 @@ f_scan_kubernetes(){
 
         # Check service accounts with elevated permissions
         SA_WITH_BINDINGS=$(jq -r '.items[] | select(.kind == "RoleBinding") | select(.subjects[] | select(.kind == "ServiceAccount")) | .metadata.name' "$OUTPUT_DIR/kubernetes/rbac/$namespace-rbac.json" 2>/dev/null)
+
         if [ -n "$SA_WITH_BINDINGS" ]; then
             SA_BINDING_COUNT=$(echo "$SA_WITH_BINDINGS" | wc -l)
             echo "INFO: Found $SA_BINDING_COUNT role bindings to service accounts" >> "$OUTPUT_DIR/kubernetes/security_reports/$namespace/summary.txt"
@@ -401,10 +418,15 @@ f_scan_kubernetes(){
 
         # Deduct points for security issues
         if [ -n "$PRIV_PODS" ]; then SECURITY_SCORE=$((SECURITY_SCORE - 2)); fi
+
         if [ -n "$HOSTNET_PODS" ]; then SECURITY_SCORE=$((SECURITY_SCORE - 2)); fi
+
         if [ -n "$HOSTPATH_PODS" ]; then SECURITY_SCORE=$((SECURITY_SCORE - 2)); fi
+
         if [ -n "$ROOT_PODS" ]; then SECURITY_SCORE=$((SECURITY_SCORE - 1)); fi
+
         if [ "$NP_COUNT" -eq 0 ] && [ "$POD_COUNT" -gt 0 ]; then SECURITY_SCORE=$((SECURITY_SCORE - 1)); fi
+
         if [ -n "$PERMISSIVE_ROLES" ]; then SECURITY_SCORE=$((SECURITY_SCORE - 2)); fi
 
         # Ensure score doesn't go below 1
@@ -461,6 +483,7 @@ f_scan_kubernetes(){
         "$OUTPUT_DIR/kubernetes/rbac/cluster-roles.json" > "$OUTPUT_DIR/kubernetes/rbac/cluster-wide/permissive_cluster_roles.txt" 2>/dev/null
 
     PERMISSIVE_CLUSTER_ROLES=$(wc -l < "$OUTPUT_DIR/kubernetes/rbac/cluster-wide/permissive_cluster_roles.txt" 2>/dev/null || echo 0)
+
     if [ "$PERMISSIVE_CLUSTER_ROLES" -gt 0 ]; then
         while read -r cr; do
             [ -n "$cr" ] && f_container_record_finding critical kubernetes "clusterrole/$cr" permissive_cluster_role "ClusterRole has wildcard rules" "kubernetes/rbac/cluster-wide/permissive_cluster_roles.txt"
@@ -521,10 +544,12 @@ f_scan_kubernetes(){
         echo
 
         echo "NAMESPACE SECURITY SCORES (Highest Risk First):"
+
         if [ -f "$OUTPUT_DIR/kubernetes/namespace_security_scores.txt" ]; then
             sort -t'|' -k2,2n "$OUTPUT_DIR/kubernetes/namespace_security_scores.txt" | head -10 | \
                 awk -F'|' '{print $1 ": " $2 "/10 (" $3 " pods)"}'  
         fi
+
         echo
 
         echo "TOP SECURITY RECOMMENDATIONS:"

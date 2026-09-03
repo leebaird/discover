@@ -105,10 +105,12 @@ f_container_log(){
 }
 
 f_container_docker_available(){
+
     if ! command -v docker >/dev/null 2>&1; then
         echo -e "${RED}[!] Docker is not installed.${NC}"
         return 1
     fi
+
     if ! docker info >/dev/null 2>>"${CONTAINER_SCAN_LOG:-/dev/null}"; then
         if command -v systemctl >/dev/null 2>&1; then
             systemctl start containerd 2>/dev/null || sudo systemctl start containerd 2>/dev/null || true
@@ -120,22 +122,27 @@ f_container_docker_available(){
             sleep 2
         fi
     fi
+
     if ! docker info >/dev/null 2>>"${CONTAINER_SCAN_LOG:-/dev/null}"; then
         echo -e "${RED}[!] Cannot access Docker. Add your user to the docker group or use sudo.${NC}"
         return 1
     fi
+
     return 0
 }
 
 f_container_k8s_available(){
+
     if ! command -v kubectl >/dev/null 2>&1; then
         echo -e "${RED}[!] kubectl is not installed.${NC}"
         return 1
     fi
+
     if ! kubectl cluster-info >/dev/null 2>>"${CONTAINER_SCAN_LOG:-/dev/null}"; then
         echo -e "${RED}[!] Cannot connect to a Kubernetes cluster.${NC}"
         return 1
     fi
+
     return 0
 }
 
@@ -174,7 +181,9 @@ f_container_count_findings(){
     local severity="${1:-}" domain="${2:-}"
     awk -F'\t' -v sev="$severity" -v dom="$domain" '
         NR > 1 {
+
             if (sev != "" && $1 != sev) next
+
             if (dom != "" && $2 != dom) next
             n++
         }
@@ -184,6 +193,7 @@ f_container_count_findings(){
 
 f_container_ns_should_scan(){
     local ns="$1" inc exc item
+
     if [ -n "$CONTAINER_INCLUDE_NS" ]; then
         IFS=',' read -ra _inc <<< "$CONTAINER_INCLUDE_NS"
         for item in "${_inc[@]}"; do
@@ -193,6 +203,7 @@ f_container_ns_should_scan(){
         done
         return 1
     fi
+
     IFS=',' read -ra _exc <<< "$CONTAINER_EXCLUDE_NS"
     for item in "${_exc[@]}"; do
         item="${item#"${item%%[![:space:]]*}"}"
@@ -204,9 +215,11 @@ f_container_ns_should_scan(){
 
 f_container_k8s_version_thresholds(){
     local eol=33 current=35
+
     if command -v curl >/dev/null 2>&1; then
         local api_json
         api_json=$(curl -fsS --max-time 5 "https://endoflife.date/api/v1/products/kubernetes/" 2>/dev/null) || api_json=""
+
         if [ -n "$api_json" ]; then
             local latest_eol latest_supported
             latest_eol=$(echo "$api_json" | jq -r '[.result.releases[] | select(.isEol == true) | .name | ltrimstr("1.") | tonumber] | max // empty' 2>/dev/null)
@@ -216,10 +229,12 @@ f_container_k8s_version_thresholds(){
             f_container_log "K8s version policy from endoflife.date: EOL<=${eol} current>=${current}"
         fi
     fi
+
     echo "$eol $current"
 }
 
 f_container_setup_output(){
+
     if [ -n "$CONTAINER_RESUME_DIR" ]; then
         OUTPUT_DIR="$CONTAINER_RESUME_DIR"
         [ -d "$OUTPUT_DIR" ] || { echo -e "${RED}[!] Resume directory not found: $OUTPUT_DIR${NC}"; exit 1; }
@@ -232,6 +247,7 @@ f_container_setup_output(){
     else
         OUTPUT_DIR="$HOME/data/container-scan_$(date +%Y%m%d-%H%M)"
     fi
+
     mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR${NC}"; exit 1; }
     f_container_init_scan 0
 }
@@ -328,6 +344,7 @@ EOF
         printf "  [%s] %s — %s\n", $1, $2, $3
         printf "    Check: %s\n", $4
         printf "    Detail: %s\n", $5
+
         if ($6 != "") printf "    Evidence: %s\n", $6
         printf "\n"
     }' "$CONTAINER_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.txt"
@@ -360,6 +377,7 @@ EOF
         printf "### [%s] %s — %s\n", $1, $3, $4
         printf "- **Domain:** %s\n", $2
         printf "- **Detail:** %s\n", $5
+
         if ($6 != "") printf "- **Evidence:** \`%s\`\n", $6
         printf "\n"
     }' "$CONTAINER_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.md"
@@ -388,19 +406,23 @@ f_container_generate_legacy_report(){
         echo
         echo "1. Docker Image Analysis"
         echo "----------------------"
+
         if [ -f "$OUTPUT_DIR/docker/image_list.txt" ]; then
             echo "Total Docker Images: $(wc -l < "$OUTPUT_DIR/docker/image_list.txt")"
+
             if [ -f "$OUTPUT_DIR/docker/vulnerable_images.txt" ] && [ -s "$OUTPUT_DIR/docker/vulnerable_images.txt" ]; then
                 echo "WARNING: Images with HIGH or CRITICAL vulnerabilities:"
                 cat "$OUTPUT_DIR/docker/vulnerable_images.txt"
             else
                 echo "No images with HIGH or CRITICAL vulnerabilities detected."
             fi
+
             if [ -f "$OUTPUT_DIR/docker/trivy_failed_images.txt" ] && [ -s "$OUTPUT_DIR/docker/trivy_failed_images.txt" ]; then
                 echo "WARNING: Trivy scan failures:"
                 cat "$OUTPUT_DIR/docker/trivy_failed_images.txt"
                 echo "(see docker/trivy_errors.log)"
             fi
+
             if [ -f "$OUTPUT_DIR/docker/dockerfile_risk_scores.txt" ] && [ -s "$OUTPUT_DIR/docker/dockerfile_risk_scores.txt" ]; then
                 echo "Top risky Dockerfiles:"
                 sort -t'|' -k2,2nr "$OUTPUT_DIR/docker/dockerfile_risk_scores.txt" | head -5
@@ -408,15 +430,19 @@ f_container_generate_legacy_report(){
         else
             echo "No Docker image scan performed."
         fi
+
         echo
         echo "2. Docker Container Analysis"
         echo "--------------------------"
+
         if [ -f "$OUTPUT_DIR/docker/container_list.txt" ]; then
             echo "Total Docker Containers: $(wc -l < "$OUTPUT_DIR/docker/container_list.txt")"
+
             if [ -f "$OUTPUT_DIR/docker/privileged_containers.txt" ] && [ -s "$OUTPUT_DIR/docker/privileged_containers.txt" ]; then
                 echo "CRITICAL: Privileged containers:"
                 cat "$OUTPUT_DIR/docker/privileged_containers.txt"
             fi
+
             if [ -f "$OUTPUT_DIR/docker/container_risk_scores.txt" ] && [ -s "$OUTPUT_DIR/docker/container_risk_scores.txt" ]; then
                 echo "Top risky containers:"
                 sort -t'|' -k3,3nr "$OUTPUT_DIR/docker/container_risk_scores.txt" | head -5
@@ -424,25 +450,31 @@ f_container_generate_legacy_report(){
         else
             echo "No Docker container scan performed."
         fi
+
         echo
         echo "3. Kubernetes Analysis"
         echo "--------------------"
+
         if [ -f "$OUTPUT_DIR/kubernetes/resources/namespace_list.txt" ] && [ -s "$OUTPUT_DIR/kubernetes/resources/namespace_list.txt" ]; then
             echo "Namespaces scanned: $(wc -l < "$OUTPUT_DIR/kubernetes/resources/namespace_list.txt")"
+
             if [ -f "$OUTPUT_DIR/kubernetes/cluster/version_issues.txt" ] && [ -s "$OUTPUT_DIR/kubernetes/cluster/version_issues.txt" ]; then
                 echo "Kubernetes version issues:"
                 cat "$OUTPUT_DIR/kubernetes/cluster/version_issues.txt"
             fi
+
             for vuln_file in privileged_pods hostnetwork_pods hostpath_volumes root_pods insecure_capabilities deprecated_apis; do
                 if [ -f "$OUTPUT_DIR/kubernetes/vulnerabilities/${vuln_file}.txt" ] && [ -s "$OUTPUT_DIR/kubernetes/vulnerabilities/${vuln_file}.txt" ]; then
                     echo "WARNING: ${vuln_file}:"
                     head -20 "$OUTPUT_DIR/kubernetes/vulnerabilities/${vuln_file}.txt" | sed 's/^/  /'
                 fi
             done
+
             if [ -f "$OUTPUT_DIR/kubernetes/namespace_security_scores.txt" ] && [ -s "$OUTPUT_DIR/kubernetes/namespace_security_scores.txt" ]; then
                 echo "Namespace security scores (lowest first):"
                 sort -t'|' -k2,2n "$OUTPUT_DIR/kubernetes/namespace_security_scores.txt" | head -10
             fi
+
             if [ -f "$OUTPUT_DIR/kubernetes/rbac/cluster-wide/permissive_cluster_roles.txt" ] && [ -s "$OUTPUT_DIR/kubernetes/rbac/cluster-wide/permissive_cluster_roles.txt" ]; then
                 echo "CRITICAL: Permissive cluster roles:"
                 cat "$OUTPUT_DIR/kubernetes/rbac/cluster-wide/permissive_cluster_roles.txt" | sed 's/^/  /'
@@ -450,6 +482,7 @@ f_container_generate_legacy_report(){
         else
             echo "No Kubernetes scan performed or cluster unreachable."
         fi
+
         echo
         echo "See report.txt, report.md, and findings.json for structured findings."
     }

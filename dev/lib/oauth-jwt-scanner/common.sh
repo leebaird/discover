@@ -61,11 +61,13 @@ f_oauth_jwt_redact_token(){
     h=$(printf '%s' "$jwt" | cut -d. -f1)
     p=$(printf '%s' "$jwt" | cut -d. -f2)
     s=$(printf '%s' "$jwt" | cut -d. -f3-)
+
     if [ -n "$s" ]; then
         echo "${h}.${p}.[REDACTED_SIG]"
     else
         echo "${h}.${p}."
     fi
+
 }
 
 f_oauth_jwt_curl(){
@@ -95,15 +97,19 @@ f_oauth_jwt_redirect_accepted(){
     if [ -n "$location" ]; then
         case "$location" in
             "$evil_redirect"*|"$evil_redirect/?"*)
+
                 if ! printf '%s' "$location" | grep -qiE '[?&#]error='; then
                     return 0
                 fi
+
                 ;;
             *"$evil_host"*)
+
                 if printf '%s' "$location" | grep -qiE '[?&#](code|access_token)=' && \
                    ! printf '%s' "$location" | grep -qiE '[?&#]error='; then
                     return 0
                 fi
+
                 ;;
         esac
     fi
@@ -112,6 +118,7 @@ f_oauth_jwt_redirect_accepted(){
        ! grep -qiE 'invalid_redirect|redirect_uri|unsupported_response_type|error=' "$body_file"; then
         return 0
     fi
+
     return 1
 }
 
@@ -127,6 +134,7 @@ f_oauth_jwt_authorize_without_state(){
        ! grep -qiE 'invalid_request|missing.*state|error=' "$body_file"; then
         return 0
     fi
+
     return 1
 }
 
@@ -185,7 +193,9 @@ f_oauth_jwt_count_findings(){
     local severity="${1:-}" domain="${2:-}"
     awk -F'\t' -v sev="$severity" -v dom="$domain" '
         NR > 1 {
+
             if (sev != "" && $1 != sev) next
+
             if (dom != "" && $2 != dom) next
             n++
         }
@@ -194,6 +204,7 @@ f_oauth_jwt_count_findings(){
 }
 
 f_oauth_jwt_setup_output(){
+
     if [ -n "$OAUTH_JWT_RESUME_DIR" ]; then
         OUTPUT_DIR="$OAUTH_JWT_RESUME_DIR"
         [ -d "$OUTPUT_DIR" ] || { echo -e "${RED}[!] Resume directory not found: $OUTPUT_DIR${NC}"; exit 1; }
@@ -206,6 +217,7 @@ f_oauth_jwt_setup_output(){
     else
         OUTPUT_DIR="$HOME/data/oauth-jwt-scan_$(date +%Y%m%d-%H%M)"
     fi
+
     mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR${NC}"; exit 1; }
     f_oauth_jwt_init_scan 0
 }
@@ -277,6 +289,7 @@ EOF
 
     awk -F'\t' 'NR > 1 {
         printf "  [%s] %s — %s\n    Check: %s\n    Detail: %s\n", $1, $2, $3, $4, $5
+
         if ($6 != "") printf "    Evidence: %s\n", $6
         printf "\n"
     }' "$OAUTH_JWT_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.txt"
@@ -307,6 +320,7 @@ EOF
 
     awk -F'\t' 'NR > 1 {
         printf "### [%s] %s — %s\n- **Domain:** %s\n- **Detail:** %s\n", $1, $3, $4, $2, $5
+
         if ($6 != "") printf "- **Evidence:** \`%s\`\n", $6
         printf "\n"
     }' "$OAUTH_JWT_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.md"
@@ -377,23 +391,28 @@ f_oauth_jwt_parse_cli(){
             OAUTH_JWT_SCAN_TYPES="jwt"
         fi
     fi
+
 }
 
 f_oauth_jwt_collect_jwt_list(){
     local list_file="$OUTPUT_DIR/jwt_tokens_to_scan.txt"
     : > "$list_file"
+
     if [ -n "$OAUTH_JWT_TOKEN" ]; then
         echo "$OAUTH_JWT_TOKEN" >> "$list_file"
     fi
+
     if [ -n "$OAUTH_JWT_JWT_FILE" ] && [ -f "$OAUTH_JWT_JWT_FILE" ]; then
         while read -r t; do
             [ -n "$t" ] && echo "$t" >> "$list_file"
         done < "$OAUTH_JWT_JWT_FILE"
     fi
+
     if [ -n "$OAUTH_JWT_API_SCAN_DIR" ] && [ -f "$OAUTH_JWT_API_SCAN_DIR/api_scanner/jwt_found.txt" ]; then
         while read -r t; do
             [ -n "$t" ] && echo "$t" >> "$list_file"
         done < "$OAUTH_JWT_API_SCAN_DIR/api_scanner/jwt_found.txt"
     fi
+
     sort -u "$list_file" -o "$list_file"
 }

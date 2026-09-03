@@ -24,9 +24,11 @@ f_webapi_waf_from_signatures(){
     while IFS=$'\t' read -r name header_rx body_rx; do
         [[ "$name" =~ ^# ]] && continue
         [ -n "$name" ] && [ -n "$header_rx" ] || continue
+
         if grep -qiE "$header_rx" "$headers_file" 2>/dev/null; then
             return 0
         fi
+
         if [ -n "${body_rx:-}" ] && [ -s "$body_file" ] && grep -qiE "$body_rx" "$body_file" 2>/dev/null; then
             return 0
         fi
@@ -47,6 +49,7 @@ f_webapi_detect_waf_context(){
             "${WEBAPI_SCAN_DIR}/waf_engine/hits.jsonl" \
             "${WEBAPI_SCAN_DIR}/../waf-detection_"*/findings.json; do
             [ -f "$candidate" ] || continue
+
             if f_webapi_waf_from_findings_json "$candidate"; then
                 WEBAPI_WAF_PRESENT=1
                 f_webapi_log "WAF/CDN detected from $candidate"
@@ -59,4 +62,5 @@ f_webapi_detect_waf_context(){
         WEBAPI_WAF_PRESENT=1
         f_webapi_log "WAF/CDN detected from passive header signatures"
     fi
+
 }

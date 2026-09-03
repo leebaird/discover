@@ -42,14 +42,17 @@ f_shodan_is_report_dir(){
 }
 
 f_shodan_discover_root(){
+
     if [ -n "${DISCOVER:-}" ] && [ -d "$DISCOVER" ]; then
         printf '%s' "$DISCOVER"
         return 0
     fi
+
     if [ -f "$(dirname "$0")/../discover.sh" ]; then
         (cd "$(dirname "$0")/.." && pwd)
         return 0
     fi
+
     return 1
 }
 
@@ -80,9 +83,11 @@ f_shodan_load_env(){
     local env_file line key value root
 
     root="$(f_shodan_discover_root 2>/dev/null || true)"
+
     if [ -z "$root" ]; then
         root="$(cd "$(dirname "$0")/.." && pwd)"
     fi
+
     DISCOVER="${DISCOVER:-$root}"
     export DISCOVER
 
@@ -115,6 +120,7 @@ f_shodan_load_env(){
             esac
             value="${value#"${value%%[![:space:]]*}"}"
             value="${value%"${value##*[![:space:]]}"}"
+
             if [ "${#value}" -ge 2 ]; then
                 if [ "${value:0:1}" = '"' ] && [ "${value: -1}" = '"' ]; then
                     value="${value:1:${#value}-2}"
@@ -122,9 +128,11 @@ f_shodan_load_env(){
                     value="${value:1:${#value}-2}"
                 fi
             fi
+
             if [ -n "${!key:-}" ]; then
                 continue
             fi
+
             export "$key=$value"
         done < "$env_file"
     done
@@ -144,6 +152,7 @@ f_shodan_load_env
 # Prefer session engagement from Open report / Active.
 SESSION_FILE="${HOME}/.discover/current-report"
 DEFAULT_REPORT=""
+
 if [ -f "$SESSION_FILE" ]; then
     DEFAULT_REPORT=$(head -n 1 "$SESSION_FILE" 2>/dev/null)
     DEFAULT_REPORT="${DEFAULT_REPORT#"${DEFAULT_REPORT%%[![:space:]]*}"}"
@@ -151,12 +160,14 @@ if [ -f "$SESSION_FILE" ]; then
 fi
 
 DISCOVER_REPORT=""
+
 if [ -n "$DEFAULT_REPORT" ] && f_shodan_is_report_dir "$DEFAULT_REPORT"; then
     echo -e "Current engagement: ${YELLOW}$DEFAULT_REPORT${NC}"
     echo -n "Use this report? (Y/n) "
     read -r USE_DEFAULT
     USE_DEFAULT="${USE_DEFAULT#"${USE_DEFAULT%%[![:space:]]*}"}"
     USE_DEFAULT="${USE_DEFAULT%"${USE_DEFAULT##*[![:space:]]}"}"
+
     if [ -z "$USE_DEFAULT" ] || [[ "$USE_DEFAULT" =~ ^[Yy] ]]; then
         DISCOVER_REPORT="$DEFAULT_REPORT"
     fi
@@ -178,14 +189,18 @@ fi
 if [ -f "$DISCOVER_REPORT" ]; then
     case "$DISCOVER_REPORT" in
         */pages/*)
+
             if ! DISCOVER_REPORT="$(cd "$(dirname "$DISCOVER_REPORT")/.." && pwd)"; then
                 f_shodan_die "Report not found."
             fi
+
             ;;
         *)
+
             if ! DISCOVER_REPORT="$(cd "$(dirname "$DISCOVER_REPORT")" && pwd)"; then
                 f_shodan_die "Report not found."
             fi
+
             ;;
     esac
 fi
@@ -210,14 +225,17 @@ if [ -z "${SHODAN_API_KEY:-}" ]; then
 fi
 
 DISCOVER_ROOT=""
+
 if DISCOVER_ROOT="$(f_shodan_discover_root)"; then
     :
 else
     DISCOVER_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 fi
+
 export DISCOVER="${DISCOVER:-$DISCOVER_ROOT}"
 
 PY="$DISCOVER_ROOT/recon/shodan-enrich.py"
+
 if [ ! -f "$PY" ]; then
     f_shodan_die "Missing $PY"
 fi
@@ -239,6 +257,7 @@ fi
 # Soft-skip without key still exits 0 from Python; only log when artifacts exist.
 if [ -d "$DISCOVER_REPORT/tools/shodan" ] && [ -f "$DISCOVER_REPORT/tools/shodan/summary.json" ]; then
     ACTION="Ran Shodan enrichment"
+
     if command -v python3 >/dev/null 2>&1; then
         DETAIL=$(python3 - "$DISCOVER_REPORT/tools/shodan/summary.json" <<'PY' 2>/dev/null || true
 import json, sys
@@ -256,6 +275,7 @@ except Exception:
     pass
 PY
 )
+
         if [ -n "$DETAIL" ]; then
             ACTION="Ran Shodan enrichment ($DETAIL)"
         fi

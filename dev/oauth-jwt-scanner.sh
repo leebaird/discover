@@ -84,9 +84,11 @@ f_oauth_jwt_interactive_menu(){
 
         if [ "$OAUTH_JWT_SCAN_TYPES" != "oauth" ]; then
             f_dev_read_optional_jwt OAUTH_JWT_TOKEN "JWT token (leave blank to use jwt_found.txt from api-scanner dir): "
+
             if [ -z "$OAUTH_JWT_TOKEN" ]; then
                 f_dev_read_optional OAUTH_JWT_API_SCAN_DIR "API scanner output dir (optional): "
             fi
+
             f_dev_read_optional OAUTH_JWT_ENDPOINT "JWT live-test endpoint (optional): "
         fi
 

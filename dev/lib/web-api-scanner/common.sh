@@ -89,17 +89,21 @@ f_webapi_sleep_between_phases(){
     jitter="${WEBAPI_JITTER:-0}"
     [ "$base" = "0" ] && [ "$jitter" = "0" ] && return 0
     wait="$base"
+
     if [ "$jitter" -gt 0 ] 2>/dev/null; then
         wait=$((base + RANDOM % (jitter + 1)))
     fi
+
     [ "$wait" -gt 0 ] && sleep "$wait"
 }
 
 f_webapi_msf_threads_for_tier(){
+
     if [ "${WEBAPI_MSF_THREADS:-0}" -gt 0 ] 2>/dev/null; then
         printf '%s' "$WEBAPI_MSF_THREADS"
         return 0
     fi
+
     f_webapi_resolve_tier
     case "$WEBAPI_TIER" in
         passive) echo 2 ;;
@@ -124,6 +128,7 @@ f_webapi_init_scan(){
     mkdir -p "${OUTPUT_DIR}/msf_engine/spool" "$WEBAPI_MSF_RESOURCE_DIR"
     WEBAPI_HITS_JSONL="${OUTPUT_DIR}/msf_engine/hits.jsonl"
     touch "$WEBAPI_SCAN_LOG"
+
     if [ "$resuming" != "1" ]; then
         : > "$WEBAPI_HITS_JSONL"
     else
@@ -155,6 +160,7 @@ f_webapi_log(){
 }
 
 f_webapi_setup_output(){
+
     if [ -n "$WEBAPI_RESUME_DIR" ]; then
         OUTPUT_DIR="$WEBAPI_RESUME_DIR"
         [ -d "$OUTPUT_DIR" ] || { echo -e "${RED}[!] Resume directory not found: $OUTPUT_DIR${NC}"; exit 1; }
@@ -167,6 +173,7 @@ f_webapi_setup_output(){
     else
         OUTPUT_DIR="$HOME/data/web-api-scan_$(date +%Y%m%d-%H%M)"
     fi
+
     mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR${NC}"; exit 1; }
     f_webapi_init_scan 0
 }
@@ -199,6 +206,7 @@ f_webapi_count_findings(){
     local severity="${1:-}"
     awk -F'\t' -v sev="$severity" '
         NR > 1 {
+
             if (sev != "" && $1 != sev) next
             n++
         }
@@ -333,6 +341,7 @@ EOF
 
     awk -F'\t' 'NR > 1 {
         printf "  [%s] %s — %s\n    Check: %s\n    Detail: %s\n", $1, $2, $3, $4, $5
+
         if ($6 != "") printf "    Evidence: %s\n", $6
         printf "\n"
     }' "$WEBAPI_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.txt"
@@ -365,6 +374,7 @@ EOF
 
     awk -F'\t' 'NR > 1 {
         printf "### [%s] %s — %s\n- **Domain:** %s\n- **Detail:** %s\n", $1, $3, $4, $2, $5
+
         if ($6 != "") printf "- **Evidence:** \`%s\`\n", $6
         printf "\n"
     }' "$WEBAPI_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.md"
@@ -378,6 +388,7 @@ f_webapi_msf_db_connected(){
 }
 
 f_webapi_try_msf_db_bootstrap(){
+
     if command -v pg_isready >/dev/null 2>&1 && ! pg_isready -q 2>/dev/null; then
         if command -v systemctl >/dev/null 2>&1; then
             systemctl start postgresql 2>/dev/null || true
@@ -387,23 +398,29 @@ f_webapi_try_msf_db_bootstrap(){
             sleep 2
         fi
     fi
+
     if command -v msfdb >/dev/null 2>&1; then
         msfdb init 2>/dev/null || true
         sleep 2
     fi
+
 }
 
 f_webapi_try_msf_db_bootstrap_privileged(){
+
     if command -v systemctl >/dev/null 2>&1; then
         sudo systemctl start postgresql 2>/dev/null || true
     elif command -v service >/dev/null 2>&1; then
         sudo service postgresql start 2>/dev/null || true
     fi
+
     sleep 2
+
     if command -v msfdb >/dev/null 2>&1; then
         msfdb init 2>/dev/null || sudo msfdb init 2>/dev/null || true
         sleep 2
     fi
+
 }
 
 f_webapi_ensure_msf_db(){
@@ -412,6 +429,7 @@ f_webapi_ensure_msf_db(){
     f_webapi_msf_db_connected && return 0
 
     f_webapi_log "MSF DB not connected"
+
     if [ "$WEBAPI_MSF_DB_BOOTSTRAP" != "1" ]; then
         f_webapi_say "${YELLOW}[!] MSF database not connected. Scan continues without DB-backed modules.${NC}"
         f_webapi_say "${YELLOW}[*] Use --msf-db-bootstrap to attempt setup, or --skip-msf-db to silence.${NC}"
@@ -425,6 +443,7 @@ f_webapi_ensure_msf_db(){
     if [ -t 0 ] && [ -t 1 ]; then
         echo -n "Privileged PostgreSQL/msfdb bootstrap may be required. Continue with sudo? (y/n): "
         read -r ans
+
         if [[ "$ans" =~ ^[Yy] ]]; then
             f_webapi_try_msf_db_bootstrap_privileged
         fi
@@ -436,6 +455,7 @@ f_webapi_ensure_msf_db(){
         f_webapi_say "${YELLOW}[!] MSF database still not connected; scan continues without DB-backed modules.${NC}"
         f_webapi_log "MSF DB unavailable after bootstrap attempt"
     fi
+
 }
 
 f_webapi_cleanup_resources(){
@@ -455,6 +475,7 @@ f_webapi_resolve_ip(){
         printf '%s' "$domain"
         return 0
     fi
+
     if f_webapi_is_ipv6 "$domain"; then
         WEBAPI_TARGET_IS_IPV6=1
         printf '%s' "$domain"
@@ -464,9 +485,11 @@ f_webapi_resolve_ip(){
     if command -v getent >/dev/null 2>&1; then
         ip=$(getent ahostsv4 "$domain" 2>/dev/null | awk '{print $1; exit}')
     fi
+
     if [ -z "$ip" ] && command -v host >/dev/null 2>&1; then
         ip=$(host -t A "$domain" 2>/dev/null | awk '/has address/ {print $4; exit}')
     fi
+
     if [ -z "$ip" ] && command -v dig >/dev/null 2>&1; then
         ip=$(dig +short A "$domain" 2>/dev/null | grep -E '^[0-9]+\.' | head -1)
     fi
@@ -479,9 +502,11 @@ f_webapi_resolve_ip(){
     if command -v getent >/dev/null 2>&1; then
         ip=$(getent ahostsv6 "$domain" 2>/dev/null | awk '{print $1; exit}')
     fi
+
     if [ -z "$ip" ] && command -v host >/dev/null 2>&1; then
         ip=$(host -t AAAA "$domain" 2>/dev/null | awk '/has IPv6 address/ {print $5; exit}')
     fi
+
     if [ -z "$ip" ] && command -v dig >/dev/null 2>&1; then
         ip=$(dig +short AAAA "$domain" 2>/dev/null | grep ':' | head -1)
     fi

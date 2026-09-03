@@ -59,16 +59,19 @@ PY
 
 f_subdomains_json_fail(){
     local msg="$1"
+
     if [ "$SUBS_JSON" -eq 1 ]; then
         python3 -c 'import json,sys; print(json.dumps({"ok":False,"error":sys.argv[1]}))' "$msg" 2>/dev/null || \
             printf '{"ok":false,"error":%s}\n' "$(printf '%s' "$msg" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')"
     fi
+
 }
 
 f_subdomains_die(){
     # Disable ERR trap so exit 1 does not re-enter.
     trap - ERR
     f_subdomains_json_fail "$1"
+
     if [ "$SUBS_JSON" -eq 0 ]; then
         echo
         echo -e "${RED}$SMALL${NC}"
@@ -79,6 +82,7 @@ f_subdomains_die(){
         echo
         [ "$SUBS_NONINTERACTIVE" -eq 0 ] && sleep 2
     fi
+
     exit 1
 }
 
@@ -115,6 +119,7 @@ f_subdomains_validate_report(){
         || [ ! -f "$DISCOVER_REPORT/pages/subdomains.htm" ]; then
         f_subdomains_die "Incorrect file path."
     fi
+
     DISCOVER_REPORT="$(cd "$DISCOVER_REPORT" && pwd)" || f_subdomains_die "Incorrect file path."
 }
 
@@ -137,6 +142,7 @@ f_subdomains_set_import_path(){
     fi
 
     SUBDOMAINS_IMPORT_LOWER="${SUBDOMAINS_IMPORT,,}"
+
     if [ "$SUBDOMAINS_IMPORT_LOWER" = "firefox" ] || [ "$SUBDOMAINS_IMPORT_LOWER" = "ff" ]; then
         SUBDOMAINS_IMPORT="firefox"
         return 0
@@ -148,9 +154,11 @@ f_subdomains_set_import_path(){
         || [ ! -r "$SUBDOMAINS_IMPORT" ]; then
         f_subdomains_die "Incorrect file path."
     fi
+
     if [ ! -s "$SUBDOMAINS_IMPORT" ] || ! grep -qv '^[[:space:]]*#' "$SUBDOMAINS_IMPORT" 2>/dev/null; then
         f_subdomains_die "Incorrect file path."
     fi
+
     # Silence unused domain hint in noninteractive path.
     : "${domain:=}"
 }
@@ -173,18 +181,22 @@ f_subdomains_read_import(){
 
 f_subdomains_write_audit_fallback(){
     local action="$1"
+
     if declare -F f_audit_log >/dev/null 2>&1; then
         f_audit_log "$DISCOVER_REPORT" "$action" || true
         return 0
     fi
+
     mkdir -p "$DISCOVER_REPORT/tools/audit" 2>/dev/null || return 0
     local ts op
     ts=$(date -u +"%m/%d/%Y - %H:%M Z")
     op="Operator"
+
     if [ -f "$HOME/.discover/operator-name" ]; then
         op=$(tr -d '[:space:]' < "$HOME/.discover/operator-name" 2>/dev/null || true)
         [ -n "$op" ] || op="Operator"
     fi
+
     case "$action" in
         *.) ;;
         *) action="${action}." ;;
@@ -194,15 +206,19 @@ f_subdomains_write_audit_fallback(){
 
 f_subdomains_rebuild_audit(){
     local root="${DISCOVER:-}"
+
     if [ -z "$root" ] || [ ! -f "$root/recon/audit-build.py" ]; then
         root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
     fi
+
     if [ -f "$root/recon/audit-build.py" ] && [ -f "$root/report/pages/audit.htm" ]; then
         python3 "$root/recon/audit-build.py" "$DISCOVER_REPORT" "$root/report/pages/audit.htm" >/dev/null 2>&1 || true
     fi
+
 }
 
 f_subdomains_require_snappy(){
+
     if python3 -c 'import cramjam' 2>/dev/null || python3 -c 'import snappy' 2>/dev/null; then
         return 0
     fi
@@ -360,12 +376,15 @@ PY
         echo "[!] hosts.htm template missing — skip Hosts page."
         return 0
     fi
+
     cp -f "$template" "$page"
+
     if [ -s "$public_ips_file" ]; then
         cat "$public_ips_file" >> "$page"
     else
         echo "No data found." >> "$page"
     fi
+
     {
         echo "</pre>"
         echo "    </div>"
@@ -660,14 +679,18 @@ fi
 # Discover install root (templates / categorizer). Prefer env from menu; else repo parent of recon/.
 if [ -z "${DISCOVER:-}" ] || [ ! -d "${DISCOVER:-/}/report/pages" ]; then
     _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
     if [ -d "$_script_dir/../report/pages" ]; then
         DISCOVER="$(cd "$_script_dir/.." && pwd)"
     fi
+
     unset _script_dir
 fi
+
 if [ -z "${DISCOVER:-}" ] || [ ! -d "${DISCOVER}/report/pages" ]; then
     f_subdomains_die "DISCOVER install root not found (set DISCOVER or run from Discover menu)."
 fi
+
 export DISCOVER
 
 if ! declare -F f_banner >/dev/null 2>&1; then
@@ -687,6 +710,7 @@ if [ "$SUBS_NONINTERACTIVE" -eq 0 ]; then
     if ! read -r IMPORT_CHOICE; then
         f_subdomains_die "No choice entered. Enter 1 or 2."
     fi
+
     IMPORT_CHOICE="${IMPORT_CHOICE//$'\r'/}"
     IMPORT_CHOICE="${IMPORT_CHOICE#"${IMPORT_CHOICE%%[![:space:]]*}"}"
     IMPORT_CHOICE="${IMPORT_CHOICE%"${IMPORT_CHOICE##*[![:space:]]}"}"
@@ -741,6 +765,7 @@ if [ "$IMPORT_MODE" = "team-csv" ]; then
         TEAM_CSV="${TEAM_CSV#"${TEAM_CSV%%[![:space:]]*}"}"
         TEAM_CSV="${TEAM_CSV%"${TEAM_CSV##*[![:space:]]}"}"
         TEAM_CSV="${TEAM_CSV/#\~/$HOME}"
+
         if [ -z "$TEAM_CSV" ] \
             || [ -d "$TEAM_CSV" ] \
             || [ ! -f "$TEAM_CSV" ] \
@@ -760,6 +785,7 @@ if [ "$IMPORT_MODE" = "team-csv" ]; then
         TEAM_CSV="${TEAM_CSV#"${TEAM_CSV%%[![:space:]]*}"}"
         TEAM_CSV="${TEAM_CSV%"${TEAM_CSV##*[![:space:]]}"}"
         TEAM_CSV="${TEAM_CSV/#\~/$HOME}"
+
         if [ -z "$TEAM_CSV" ] \
             || [ -d "$TEAM_CSV" ] \
             || [ ! -f "$TEAM_CSV" ] \
@@ -942,14 +968,18 @@ print(
 PY
     then
         _err=$(head -n 8 "$TMPDIR/import.err" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]*$//')
+
         if [ -n "$_err" ]; then
             f_subdomains_die "Failed to parse CSV list: ${_err}"
         fi
+
         f_subdomains_die "Failed to parse CSV list."
     fi
+
     if [ -s "$TMPDIR/import.out" ]; then
         cat "$TMPDIR/import.out"
     fi
+
     if [ -f "$SKIP_STATS" ]; then
         TEAM_CSV_NEW=$(awk -F= '/^new=/ {print $2}' "$SKIP_STATS")
         TEAM_CSV_SKIP=$(awk -F= '/^skipped_existing=/ {print $2}' "$SKIP_STATS")
@@ -969,14 +999,17 @@ else
     fi
 
     SUBDOMAINS_SOURCE="$SUBDOMAINS_IMPORT"
+
     if [ "$SUBDOMAINS_IMPORT" = "firefox" ]; then
         SUBDOMAINS_IMPORT="$TMPDIR/pinia-scans.json"
         echo
         echo "[*] Reading pinia/scans from Firefox localStorage"
         echo
+
         if ! f_subdomains_extract_firefox_pinia "$SUBDOMAINS_IMPORT"; then
             f_subdomains_die "Failed to read pinia/scans from Firefox."
         fi
+
         SUBDOMAINS_SOURCE="Firefox localStorage (pinia/scans)"
     fi
 
@@ -1173,9 +1206,11 @@ with out_path.open("w", newline="") as handle:
 PY
     then
         _err=$(head -n 8 "$TMPDIR/import.err" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]*$//')
+
         if [ -n "$_err" ]; then
             f_subdomains_die "Failed to parse import file: ${_err}"
         fi
+
         f_subdomains_die "Failed to parse import file."
     fi
 fi
@@ -1199,29 +1234,37 @@ if [ "$MISSING" -gt 0 ]; then
         echo
         echo -e "${BLUE}[*] Resolving $MISSING subdomains without IPs using dig.${NC}"
     fi
+
     while IFS=$'\t' read -r HOST IP; do
         HOST="${HOST//$'\r'/}"
         IP="${IP//$'\r'/}"
+
         if [ -z "$IP" ]; then
             CURRENT=$((CURRENT + 1))
+
             if [ "$SUBS_JSON" -eq 0 ]; then
                 echo -ne "\r    $CURRENT of $MISSING"
             fi
+
             # dig may return non-zero for NXDOMAIN — treat as empty IP, not script death.
             IP=$(dig +timeout=2 +tries=1 +short "$HOST" 2>/dev/null | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -n 1 || true)
+
             if [ "$IP" = "1.1.1.1" ] || [ "$IP" = "127.0.0.53" ]; then
                 IP=""
             fi
+
             if [ -n "$IP" ]; then
                 DIG_RESOLVED=$((DIG_RESOLVED + 1))
             else
                 DIG_FAILED=$((DIG_FAILED + 1))
             fi
         fi
+
         if [ -n "$IP" ]; then
             printf '%s\t%s\n' "$HOST" "$IP" >> "$RESOLVED"
         fi
     done < "$MERGED"
+
     if [ "$SUBS_JSON" -eq 0 ]; then
         echo
         echo "[*] dig: $DIG_RESOLVED of $MISSING resolved to IPv4 ($DIG_FAILED unresolved)."
@@ -1345,6 +1388,7 @@ PY
     then
         f_subdomains_die "Failed to categorize CSV list import."
     fi
+
     [ -s "$TMPDIR/subdomains-categorized.tsv" ] \
         || f_subdomains_die "Categorize produced no output."
     cp "$TMPDIR/subdomains-categorized.tsv" "$SUBDOMAINS_FILE" \
@@ -1353,11 +1397,13 @@ else
     if [ ! -f "$DISCOVER/recon/subdomain-categorize.py" ]; then
         f_subdomains_die "Missing categorizer: $DISCOVER/recon/subdomain-categorize.py"
     fi
+
     if ! python3 "$DISCOVER/recon/subdomain-categorize.py" \
         "$FILTERED" > "$TMPDIR/subdomains-categorized.tsv" 2>"$TMPDIR/cat.err"; then
         _err=$(head -n 5 "$TMPDIR/cat.err" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]*$//')
         f_subdomains_die "Failed to categorize subdomains${_err:+: $_err}"
     fi
+
     [ -s "$TMPDIR/subdomains-categorized.tsv" ] \
         || f_subdomains_die "Categorize produced no output."
     cp "$TMPDIR/subdomains-categorized.tsv" "$SUBDOMAINS_FILE" \
@@ -1417,25 +1463,31 @@ fi
 if ! f_subdomains_write_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$PAGE"; then
     f_subdomains_die "Failed to update pages/subdomains.htm"
 fi
+
 # Passive summary is optional on some trees
 if [ -f "$REPORT_PAGE" ]; then
     f_subdomains_update_report "$PRIVATE_FILE" "$SUBDOMAINS_FILE" "$REPORT_PAGE" \
         || f_subdomains_die "Failed to update pages/passive.htm"
 fi
+
 if ! f_subdomains_write_hosts_page "$SUBDOMAINS_FILE" "$PUBLIC_IPS_FILE" "$HOSTS_PAGE"; then
     f_subdomains_die "Failed to update pages/hosts.htm"
 fi
 
 PRIVATE_COUNT=$(wc -l < "$PRIVATE_FILE" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 PUBLIC_IP_COUNT=0
+
 if [ -f "$PUBLIC_IPS_FILE" ]; then
     PUBLIC_IP_COUNT=$(wc -l < "$PUBLIC_IPS_FILE" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 fi
+
 PUBLIC_IP_COUNT=${PUBLIC_IP_COUNT:-0}
 BATCH_COUNT=0
+
 if [ -f "$BATCH_HOSTS" ] && [ -s "$BATCH_HOSTS" ]; then
     BATCH_COUNT=$(grep -cve '^[[:space:]]*$' "$BATCH_HOSTS" || true)
 fi
+
 BATCH_COUNT=${BATCH_COUNT:-0}
 
 if [ "$IMPORT_MODE" = "team-csv" ]; then
@@ -1443,6 +1495,7 @@ if [ "$IMPORT_MODE" = "team-csv" ]; then
 else
     AUDIT_ACTION="Imported subdomains ($FINAL_COUNT hosts)"
 fi
+
 f_subdomains_write_audit_fallback "$AUDIT_ACTION"
 f_subdomains_rebuild_audit
 
@@ -1455,8 +1508,10 @@ SUMMARY="$FINAL_COUNT subdomains in report ($PRIVATE_COUNT private, $CATEGORIZED
 
 # Offer Active on imported public hosts only (CSV list)
 ACTIVE_RAN=0
+
 if [ "$IMPORT_MODE" = "team-csv" ] && [ "${BATCH_COUNT:-0}" -gt 0 ]; then
     DO_ACTIVE=0
+
     if [ "$SUBS_NONINTERACTIVE" -eq 1 ]; then
         [ "$SUBS_RUN_ACTIVE" -eq 1 ] && DO_ACTIVE=1
     else
@@ -1464,14 +1519,17 @@ if [ "$IMPORT_MODE" = "team-csv" ] && [ "${BATCH_COUNT:-0}" -gt 0 ]; then
         echo
         echo "[*] Subdomains import complete."
         echo "[*] $SUMMARY."
+
         if [ "$MISSING" -gt 0 ]; then
             echo "[*] dig: $DIG_RESOLVED of $MISSING host(s) resolved to IPv4 ($DIG_FAILED unresolved)."
         else
             echo "[*] dig: 0 lookups — all hosts already had IPv4 addresses."
         fi
+
         if [ "$OMITTED" -gt 0 ]; then
             echo "[*] $OMITTED host(s) without IPv4 were omitted from the report."
         fi
+
         echo
         echo -e "Merged data saved to ${YELLOW}$SUBDOMAINS_FILE${NC}"
         echo -e "Import source: ${YELLOW}$SUBDOMAINS_SOURCE${NC}"
@@ -1480,10 +1538,12 @@ if [ "$IMPORT_MODE" = "team-csv" ] && [ "${BATCH_COUNT:-0}" -gt 0 ]; then
         echo -n "Run Active recon on newly imported public hosts only ($BATCH_COUNT)? (y/N) "
         read -r RUN_ACTIVE
         RUN_ACTIVE="${RUN_ACTIVE//$'\r'/}"
+
         if [[ "$RUN_ACTIVE" =~ ^[Yy]$ ]]; then
             DO_ACTIVE=1
         fi
     fi
+
     if [ "$DO_ACTIVE" -eq 1 ]; then
         if [ -f "${DISCOVER:-}/recon/active.sh" ]; then
             export DISCOVER_REPORT
@@ -1498,6 +1558,7 @@ if [ "$IMPORT_MODE" = "team-csv" ] && [ "${BATCH_COUNT:-0}" -gt 0 ]; then
             fi
         fi
     fi
+
     if [ "$SUBS_NONINTERACTIVE" -eq 0 ]; then
         echo
     fi
@@ -1514,14 +1575,17 @@ if [ "$SUBS_QUIET" -eq 0 ] && { [ "$IMPORT_MODE" != "team-csv" ] || [ "${BATCH_C
     echo
     echo "[*] Subdomains import complete."
     echo "[*] $SUMMARY."
+
     if [ "$MISSING" -gt 0 ]; then
         echo "[*] dig: $DIG_RESOLVED of $MISSING host(s) resolved to IPv4 ($DIG_FAILED unresolved)."
     else
         echo "[*] dig: 0 lookups — all hosts already had IPv4 addresses."
     fi
+
     if [ "$OMITTED" -gt 0 ]; then
         echo "[*] $OMITTED host(s) without IPv4 were omitted from the report."
     fi
+
     echo
     echo -e "Merged data saved to ${YELLOW}$SUBDOMAINS_FILE${NC}"
     echo -e "Import source: ${YELLOW}$SUBDOMAINS_SOURCE${NC}"

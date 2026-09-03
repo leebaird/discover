@@ -44,6 +44,7 @@ f_regdomain_filter_privacy_email(){
 
     if [ -n "$email" ]; then
         localpart="${email%%@*}"
+
         if [[ "$localpart" =~ ^[0-9a-f]{20,}$ ]]; then
             email=''
         fi
@@ -73,6 +74,7 @@ f_regdomain_read_report(){
         || [ ! -f "$DISCOVER_REPORT/pages/registered-domains.htm" ]; then
         f_regdomain_die "Passive scan not found."
     fi
+
 }
 
 f_regdomain_build_rows(){
@@ -172,6 +174,7 @@ f_regdomain_read_file(){
     if ! grep -q '^[0-9]' "$LOCATION" 2>/dev/null; then
         f_regdomain_die "No reversewhois.io entries found. Paste must include numbered rows (lines starting with a digit)."
     fi
+
 }
 
 f_regdomain_extract_search_email(){
@@ -212,8 +215,10 @@ f_regdomain_check_lookup_network(){
             sed 's/^/    /' "$REGDOMAIN_TMPDIR/whois.test.err" | head -3
             echo
         fi
+
         f_regdomain_die "WHOIS lookups are unreachable. Check network connectivity and try again."
     fi
+
 }
 
 f_regdomain_fetch_rdap_email(){
@@ -225,6 +230,7 @@ f_regdomain_fetch_rdap_email(){
     command -v curl >/dev/null 2>&1 || return 1
 
     json=$(curl -4 -fsS --max-time 5 "https://rdap.org/domain/${domain}" 2>/dev/null)
+
     if [ -z "$json" ] || echo "$json" | jq -e '.errorCode' >/dev/null 2>&1; then
         return 1
     fi
@@ -302,10 +308,12 @@ f_regdomain_wait_for_slot(){
             flock -x 300
             running=$(cat "$REGDOMAIN_TMPDIR/running" 2>/dev/null)
             running=${running:-0}
+
             if [ "$running" -lt "$WHOIS_JOBS" ]; then
                 echo $((running + 1)) > "$REGDOMAIN_TMPDIR/running"
                 exit 0
             fi
+
             exit 1
         ) 300>"$REGDOMAIN_TMPDIR/running.lock"; then
             return 0
@@ -320,11 +328,13 @@ f_regdomain_release_slot(){
         flock -x 300
         running=$(cat "$REGDOMAIN_TMPDIR/running" 2>/dev/null)
         running=${running:-1}
+
         if [ "$running" -gt 0 ]; then
             echo $((running - 1)) > "$REGDOMAIN_TMPDIR/running"
         else
             echo 0 > "$REGDOMAIN_TMPDIR/running"
         fi
+
     ) 300>"$REGDOMAIN_TMPDIR/running.lock"
 }
 
@@ -349,11 +359,14 @@ f_regdomain_report_progress(){
             echo "$completed" > "$REGDOMAIN_TMPDIR/progress"
             started=$(cat "$REGDOMAIN_TMPDIR/started" 2>/dev/null)
             started=${started:-0}
+
             if [ "$completed" -eq 1 ] || [ $((completed % 25)) -eq 0 ]; then
                 echo "[*] Lookup progress: $completed of $total completed"
             fi
+
             printf 'Lookup %s of %s (%s completed)\r' "$started" "$total" "$completed" >&2
         fi
+
     ) 201>"$REGDOMAIN_TMPDIR/progress.lock"
 }
 
@@ -511,6 +524,7 @@ f_domain_menu(){
         fi
 
         SEARCH_EMAIL=$(f_regdomain_extract_search_email "$LOCATION")
+
         if [ -n "$SEARCH_EMAIL" ]; then
             echo "[*] Using search email from paste: $SEARCH_EMAIL"
         fi
@@ -571,6 +585,7 @@ f_domain_menu(){
                 column -t -s ',' "$TMPDIR/errors.log" 2>/dev/null || cat "$TMPDIR/errors.log"
                 echo
             fi
+
             f_regdomain_die "No registration emails found. Check network connectivity and WHOIS/RDAP access."
         fi
 
@@ -592,9 +607,11 @@ f_domain_menu(){
         exit 2
         ;;
     4)  f_runlocally
+
         if ! f_firefox_check; then
             exit 1
         fi
+
         clear
         f_banner
 
@@ -605,9 +622,11 @@ f_domain_menu(){
         exit 2
         ;;
     5)  f_runlocally
+
         if ! f_firefox_check; then
             exit 1
         fi
+
         clear
         f_banner
 

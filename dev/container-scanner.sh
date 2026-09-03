@@ -56,11 +56,13 @@ f_container_run_scans(){
         all)
             f_scan_docker_images "$OUTPUT_DIR"
             f_scan_docker_containers "$OUTPUT_DIR"
+
             if f_container_k8s_available; then
                 f_scan_kubernetes "$OUTPUT_DIR"
             else
                 k8s_warn=1
             fi
+
             ;;
         *)
             echo -e "${RED}[!] Unknown scan type: $CONTAINER_SCAN_TYPES${NC}"
@@ -117,12 +119,14 @@ f_container_interactive_menu(){
     f_container_setup_output
     echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
     echo -e "${YELLOW}[*] Mode: $CONTAINER_SCAN_MODE | Scan: $CONTAINER_SCAN_TYPES${NC}"
+
     if ! f_container_run_scans; then
         rm -rf "$OUTPUT_DIR" 2>/dev/null
         echo
         sleep 2
         exit 3
     fi
+
     return 0
 }
 
@@ -136,12 +140,14 @@ f_container_main(){
         echo -e "${BLUE}Container Security Scanner${NC}"
         echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
         echo -e "${YELLOW}[*] Mode: $CONTAINER_SCAN_MODE | Scan: $CONTAINER_SCAN_TYPES${NC}"
+
         if ! f_container_run_scans; then
             rm -rf "$OUTPUT_DIR" 2>/dev/null
             echo
             sleep 2
             exit 3
         fi
+
         return 0
     fi
 

@@ -17,6 +17,7 @@ f_sensitive_run_external_scanners(){
        command -v gitleaks >/dev/null 2>&1; then
         f_sensitive_say "${BLUE}[*] Running gitleaks on $root.${NC}"
         gitleaks detect --source "$root" --no-git --report-path "$ext_out/gitleaks.json" --exit-code 0 2>/dev/null || true
+
         if [ -s "$ext_out/gitleaks.json" ] && command -v jq >/dev/null 2>&1; then
             jq -r '.[] | [.RuleID, .File, .StartLine, .Secret] | @tsv' "$ext_out/gitleaks.json" 2>/dev/null | \
             while IFS=$'\t' read -r rule file line secret; do
@@ -31,6 +32,7 @@ f_sensitive_run_external_scanners(){
        command -v trufflehog >/dev/null 2>&1; then
         f_sensitive_say "${BLUE}[*] Running trufflehog on $root.${NC}"
         trufflehog filesystem "$root" --json --no-update 2>/dev/null > "$ext_out/trufflehog.jsonl" || true
+
         if [ -s "$ext_out/trufflehog.jsonl" ]; then
             while IFS= read -r row; do
                 [ -n "$row" ] || continue
@@ -44,6 +46,7 @@ f_sensitive_run_external_scanners(){
             done < "$ext_out/trufflehog.jsonl"
         fi
     fi
+
 }
 
 f_sensitive_scan_one_root(){
@@ -80,6 +83,7 @@ f_sensitive_scan_one_root(){
     if [ -z "$out_override" ]; then
         f_sensitive_run_external_scanners "$SCAN_ROOT"
     fi
+
 }
 
 f_sensitive_scan_files(){

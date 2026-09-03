@@ -81,7 +81,9 @@ f_openredirect_count_findings(){
     local severity="${1:-}" domain="${2:-}"
     awk -F'\t' -v sev="$severity" -v dom="$domain" '
         NR > 1 {
+
             if (sev != "" && $1 != sev) next
+
             if (dom != "" && $2 != dom) next
             n++
         }
@@ -90,6 +92,7 @@ f_openredirect_count_findings(){
 }
 
 f_openredirect_setup_output(){
+
     if [ -n "$OPEN_REDIRECT_RESUME_DIR" ]; then
         OUTPUT_DIR="$OPEN_REDIRECT_RESUME_DIR"
         [ -d "$OUTPUT_DIR" ] || { echo -e "${RED}[!] Resume directory not found: $OUTPUT_DIR${NC}"; exit 1; }
@@ -102,6 +105,7 @@ f_openredirect_setup_output(){
     else
         OUTPUT_DIR="$HOME/data/openredirect-scan_$(date +%Y%m%d-%H%M)"
     fi
+
     mkdir -p "$OUTPUT_DIR" || { echo -e "${RED}[!] Cannot create $OUTPUT_DIR${NC}"; exit 1; }
     f_openredirect_init_scan 0
 }
@@ -175,6 +179,7 @@ EOF
 
     awk -F'\t' 'NR > 1 {
         printf "  [%s] %s — %s\n    Check: %s\n    Detail: %s\n", $1, $2, $3, $4, $5
+
         if ($6 != "") printf "    Evidence: %s\n", $6
         printf "\n"
     }' "$OPEN_REDIRECT_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.txt"
@@ -205,6 +210,7 @@ EOF
 
     awk -F'\t' 'NR > 1 {
         printf "### [%s] %s — %s\n- **Domain:** %s\n- **Detail:** %s\n", $1, $3, $4, $2, $5
+
         if ($6 != "") printf "- **Evidence:** \`%s\`\n", $6
         printf "\n"
     }' "$OPEN_REDIRECT_FINDINGS_FILE" >> "${OUTPUT_DIR}/report.md"
@@ -344,9 +350,11 @@ f_openredirect_parse_cli(){
 
 f_openredirect_normalize_url(){
     local target="$1"
+
     if [[ ! "$target" =~ ^https?:// ]]; then
         target="https://${target}"
     fi
+
     printf '%s' "$target"
 }
 

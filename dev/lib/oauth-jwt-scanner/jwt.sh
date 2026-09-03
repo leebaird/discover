@@ -2,11 +2,13 @@
 
 f_oauth_jwt_build_attack_token(){
     local header_b64="$1" payload_b64="$2" sig="${3:-}"
+
     if [ -n "$sig" ]; then
         echo "${header_b64}.${payload_b64}.${sig}"
     else
         echo "${header_b64}.${payload_b64}."
     fi
+
 }
 
 f_oauth_jwt_encode_json(){
@@ -40,6 +42,7 @@ f_oauth_jwt_verify_token_live(){
         echo "$label" >> "$OUTPUT_DIR/jwt_test/live_accepted.txt"
         return 0
     fi
+
     return 1
 }
 
@@ -56,11 +59,13 @@ f_oauth_jwt_check_sensitive_claims(){
             "JWT payload contains sensitive claim keys: $(echo "$hits" | tr '\n' ',' | sed 's/,$//')" \
             "jwt_test/sensitive_claims.txt"
     fi
+
 }
 
 f_oauth_jwt_build_privilege_payload(){
     local payload_file="$1" out_file="$2"
     jq '
+
         if type == "object" then
             (if has("role") and (.role == "user") then .role = "admin" else . end)
             | (if has("roles") and (.roles | type == "array") then .roles += ["admin"] else . end)
@@ -85,6 +90,7 @@ f_oauth_jwt_analyze_one_token(){
     SIGNATURE=$(printf '%s' "$JWT" | cut -d '.' -f3-)
 
     header_json=$(f_oauth_jwt_b64url_decode "$HEADER")
+
     if [ -n "$header_json" ] && echo "$header_json" | jq -e . >/dev/null 2>&1; then
         echo "$header_json" | jq . > "$token_dir/header.json"
     else
@@ -93,6 +99,7 @@ f_oauth_jwt_analyze_one_token(){
     fi
 
     payload_json=$(f_oauth_jwt_b64url_decode "$PAYLOAD")
+
     if [ -n "$payload_json" ] && echo "$payload_json" | jq -e . >/dev/null 2>&1; then
         echo "$payload_json" | jq . > "$token_dir/payload.json"
     else
@@ -170,6 +177,7 @@ f_oauth_jwt_analyze_one_token(){
         local exp now
         exp=$(jq -r '.exp' "$token_dir/payload.json")
         now=$(date +%s)
+
         if [ "$exp" -lt "$now" ]; then
             f_oauth_jwt_record_finding info jwt "token/$slug" expired "JWT is expired" "jwt_test/${slug}/payload.json"
         elif [ "$((exp - now))" -gt 86400 ]; then
@@ -237,10 +245,12 @@ f_jwt_security(){
         local list_file token count=0
         f_oauth_jwt_collect_jwt_list
         list_file="$OUTPUT_DIR/jwt_tokens_to_scan.txt"
+
         if [ ! -s "$list_file" ]; then
             echo -e "${RED}[!] No JWT tokens to analyze${NC}"
             return 1
         fi
+
         while read -r token; do
             f_oauth_jwt_valid_jwt "$token" || continue
             ((count++))

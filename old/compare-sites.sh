@@ -77,6 +77,7 @@ if ! "$DIFFONLY"; then
     while IFS= read -r URL; do
         HASH=$(echo -n "$URL" | sha256sum | tr -d " -")
         echo "[*] $URL"
+
         if ! wget -q "$URL" -O "$HDIR/$URL-$HASH-$VERSION"; then
             echo
             echo -e "${RED}[!] Failed to download $URL${NC}"

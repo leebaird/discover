@@ -22,6 +22,7 @@ if [ ! -f "$FILE" ]; then
         sleep 2
         exit 1
     fi
+
     mkdir -p "${HOME}/.theHarvester"
     cp -f "$SRC" "$FILE"
     chmod 600 "$FILE" 2>/dev/null || true

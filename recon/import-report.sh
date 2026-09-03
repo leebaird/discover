@@ -49,14 +49,17 @@ f_import_report_is_report_dir(){
 
 # Resolve Discover install root (for assets / helpers).
 f_import_report_discover_root(){
+
     if [ -n "${DISCOVER:-}" ] && [ -d "$DISCOVER" ]; then
         printf '%s' "$DISCOVER"
         return 0
     fi
+
     if [ -f "$(dirname "$0")/../discover.sh" ]; then
         (cd "$(dirname "$0")/.." && pwd)
         return 0
     fi
+
     return 1
 }
 
@@ -67,10 +70,12 @@ f_import_report_open_browser(){
         xdg-open "$page" >/dev/null 2>&1 &
         return 0
     fi
+
     if command -v sensible-browser >/dev/null 2>&1; then
         sensible-browser "$page" >/dev/null 2>&1 &
         return 0
     fi
+
     return 1
 }
 
@@ -123,6 +128,7 @@ f_import_report_sync_assets(){
                 -e 's|modern\.css"|modern.css?v=names-phone4"|g' \
                 "$report/pages/names.htm" 2>/dev/null || true
         fi
+
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
                 -e 's|modern\.css?v=[^"]*|modern.css?v=ws39|g' \
@@ -130,6 +136,7 @@ f_import_report_sync_assets(){
                 -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=19|g' \
                 "$report/pages/subdomains.htm" 2>/dev/null || true
         fi
+
         # Report section pages: Export UI + CSS bust
         for page in passive.htm active.htm audit.htm; do
             if [ -f "$report/pages/$page" ]; then
@@ -138,29 +145,35 @@ f_import_report_sync_assets(){
                     -e 's|inc-report-export\.js?v=[0-9]*|inc-report-export.js?v=5|g' \
                     -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=12|g' \
                     "$report/pages/$page" 2>/dev/null || true
+
                 if [ "$page" = "active.htm" ] && ! grep -q 'inc-active-status-codes.js' "$report/pages/$page" 2>/dev/null; then
                     sed -i 's|</body>|<script src="../assets/javascript/inc-active-status-codes.js?v=2"></script>\n</body>|' \
                         "$report/pages/$page" 2>/dev/null || true
                 fi
+
                 if [ "$page" = "active.htm" ] && ! grep -q 'inc-active-refresh.js' "$report/pages/$page" 2>/dev/null; then
                     sed -i 's|</body>|<script src="../assets/javascript/inc-active-refresh.js?v=16"></script>\n</body>|' \
                         "$report/pages/$page" 2>/dev/null || true
                 fi
+
                 if [ "$page" = "active.htm" ]; then
                     sed -i \
                         -e 's|inc-active-refresh\.js?v=[0-9]*|inc-active-refresh.js?v=16|g' \
                         -e 's|inc-active-align\.js?v=[0-9]*|inc-active-align.js?v=10|g' \
                         -e 's|modern\.css?v=[^"]*|modern.css?v=active-login-view3|g' \
                         "$report/pages/$page" 2>/dev/null || true
+
                     if ! grep -q 'inc-active-login-view.js' "$report/pages/$page" 2>/dev/null; then
                         sed -i 's|</body>|<script src="../assets/javascript/inc-active-login-view.js?v=6"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                 fi
+
                 if ! grep -q 'inc-report-export.js' "$report/pages/$page" 2>/dev/null; then
                     sed -i 's|</body>|<script src="../assets/javascript/inc-report-export.js?v=5"></script>\n</body>|' \
                         "$report/pages/$page" 2>/dev/null || true
                 fi
+
                 if [ "$page" = "audit.htm" ]; then
                     sed -i \
                         -e 's|modern\.css?v=[^"]*|modern.css?v=audit-th3|g' \
@@ -170,22 +183,27 @@ f_import_report_sync_assets(){
                         -e 's|inc-audit-log-filter\.js?v=[0-9]*|inc-audit-log-filter.js?v=1|g' \
                         -e 's|inc-audit-metrics-range\.js?v=[0-9]*|inc-audit-metrics-range.js?v=2|g' \
                         "$report/pages/$page" 2>/dev/null || true
+
                     if ! grep -q 'inc-audit-import.js' "$report/pages/$page" 2>/dev/null; then
                         sed -i 's|</body>|<script src="../assets/javascript/inc-audit-import.js?v=12"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
+
                     if ! grep -q 'inc-audit-config.js' "$report/pages/$page" 2>/dev/null; then
                         sed -i 's|</body>|<script src="../assets/javascript/inc-audit-config.js?v=19"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
+
                     if ! grep -q 'inc-audit-line-delete.js' "$report/pages/$page" 2>/dev/null; then
                         sed -i 's|</body>|<script src="../assets/javascript/inc-audit-line-delete.js?v=3"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
+
                     if ! grep -q 'inc-audit-log-filter.js' "$report/pages/$page" 2>/dev/null; then
                         sed -i 's|</body>|<script src="../assets/javascript/inc-audit-log-filter.js?v=1"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
+
                     if ! grep -q 'inc-audit-metrics-range.js' "$report/pages/$page" 2>/dev/null; then
                         sed -i 's|</body>|<script src="../assets/javascript/inc-audit-metrics-range.js?v=2"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
@@ -194,6 +212,7 @@ f_import_report_sync_assets(){
             fi
         done
     fi
+
 }
 
 # Add Audit under Reports → after Active (pages/*.htm and root index.htm).
@@ -403,6 +422,7 @@ f_import_report_restart_statusd(){
             fuser -k "${port}/tcp" >/dev/null 2>&1 || true
         elif command -v lsof >/dev/null 2>&1; then
             pid=$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true)
+
             if [ -n "$pid" ]; then
                 # shellcheck disable=SC2086
                 kill $pid >/dev/null 2>&1 || true
@@ -411,6 +431,7 @@ f_import_report_restart_statusd(){
             # Narrow pattern: script path + space (avoids matching this shell / pkill itself).
             pkill -f "host-scan-statusd\\.py " >/dev/null 2>&1 || true
         fi
+
         sleep 0.2
     fi
 
@@ -445,14 +466,18 @@ fi
 if [ -f "$DISCOVER_REPORT" ]; then
     case "$DISCOVER_REPORT" in
         */pages/*)
+
             if ! DISCOVER_REPORT="$(cd "$(dirname "$DISCOVER_REPORT")/.." && pwd)"; then
                 f_import_report_die "Report not found."
             fi
+
             ;;
         *)
+
             if ! DISCOVER_REPORT="$(cd "$(dirname "$DISCOVER_REPORT")" && pwd)"; then
                 f_import_report_die "Report not found."
             fi
+
             ;;
     esac
 fi
@@ -466,6 +491,7 @@ DISCOVER_REPORT="$(cd "$DISCOVER_REPORT" && pwd)" || f_import_report_die "Report
 export DISCOVER_REPORT
 
 DISCOVER_ROOT=""
+
 if DISCOVER_ROOT="$(f_import_report_discover_root)"; then
     :
 else
@@ -475,14 +501,17 @@ fi
 # Persist current engagement for helpers / future discover-scan bridge.
 SESSION_DIR="${HOME}/.discover"
 mkdir -p "$SESSION_DIR" || f_import_report_die "Could not create $SESSION_DIR."
+
 if ! printf '%s\n' "$DISCOVER_REPORT" > "$SESSION_DIR/current-report"; then
     f_import_report_die "Could not write $SESSION_DIR/current-report."
 fi
+
 chmod 600 "$SESSION_DIR/current-report" 2>/dev/null || true
 
 # Operator mode on the live tree (client exports stamp client mode only on copies).
 MODE_DIR="$DISCOVER_REPORT/assets"
 MODE_FILE="$MODE_DIR/report-mode.json"
+
 if mkdir -p "$MODE_DIR" 2>/dev/null \
     && cat > "$MODE_FILE" <<'EOF'
 {
@@ -514,6 +543,7 @@ if [ -n "$DISCOVER_ROOT" ] \
         || [ -f "$DISCOVER_REPORT/tools/shodan/index.json" ] \
         || [ -d "$DISCOVER_REPORT/tools/shodan/hosts" ]; }; then
     echo
+
     if DISCOVER="$DISCOVER_ROOT" python3 "$DISCOVER_ROOT/recon/shodan-enrich.py" \
         --refresh-kev "$DISCOVER_REPORT"; then
         :
@@ -524,6 +554,7 @@ fi
 
 # Seed audit log if missing (format locked for Audit page).
 AUDIT_LOG="$DISCOVER_REPORT/tools/audit/log.txt"
+
 if [ ! -f "$AUDIT_LOG" ]; then
     touch "$AUDIT_LOG" 2>/dev/null || true
 fi
@@ -558,16 +589,19 @@ fi
 
 # Localhost status helper for live host-scan UI (rebind to this engagement)
 STATUSD=""
+
 if [ -n "$DISCOVER_ROOT" ] && [ -f "$DISCOVER_ROOT/misc/host-scan-statusd.py" ]; then
     STATUSD="$DISCOVER_ROOT/misc/host-scan-statusd.py"
 elif [ -f "$(dirname "$0")/../misc/host-scan-statusd.py" ]; then
     STATUSD="$(cd "$(dirname "$0")/../misc" && pwd)/host-scan-statusd.py"
 fi
+
 if [ -n "$STATUSD" ]; then
     f_import_report_restart_statusd "$STATUSD" "$DISCOVER_REPORT" 17322
 fi
 
 OPEN_PAGE=""
+
 if [ -f "$DISCOVER_REPORT/index.htm" ]; then
     OPEN_PAGE="$DISCOVER_REPORT/index.htm"
 elif [ -f "$DISCOVER_REPORT/pages/active.htm" ]; then
@@ -586,13 +620,16 @@ if [ -n "$OPEN_PAGE" ]; then
     # reports (manual file:// open never gets the expand UI).
     OPEN_URL="$OPEN_PAGE"
     STATUSD_PORT=17322
+
     if [ -n "$STATUSD" ] && curl -fsS --connect-timeout 1 --max-time 2 \
         "http://127.0.0.1:${STATUSD_PORT}/health" >/dev/null 2>&1; then
         REL_PAGE="${OPEN_PAGE#"$DISCOVER_REPORT"/}"
+
         if [ "$REL_PAGE" != "$OPEN_PAGE" ] && [ -n "$REL_PAGE" ]; then
             OPEN_URL="http://127.0.0.1:${STATUSD_PORT}/${REL_PAGE}"
         fi
     fi
+
     if f_import_report_open_browser "$OPEN_URL"; then
         echo -e "[*] Browser: ${YELLOW}$OPEN_URL${NC}"
     else

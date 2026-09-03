@@ -14,6 +14,7 @@
 set -euo pipefail
 
 VERBOSE=0
+
 if [ "${1:-}" = "-v" ] || [ "${1:-}" = "--verbose" ]; then
     VERBOSE=1
     shift
@@ -22,9 +23,11 @@ fi
 VENV="${1:-/opt/pipx/venvs/droopescan}"
 
 log(){
+
     if [ "$VERBOSE" -eq 1 ]; then
         echo "$*"
     fi
+
 }
 
 if [ ! -d "$VENV" ]; then
@@ -33,12 +36,14 @@ if [ ! -d "$VENV" ]; then
 fi
 
 PY="$VENV/bin/python"
+
 if [ ! -x "$PY" ]; then
     echo "[!] python not found in $VENV"
     exit 1
 fi
 
 CEMENT=$(find "$VENV/lib" -type d -path '*/site-packages/cement' 2>/dev/null | head -1)
+
 if [ -z "$CEMENT" ]; then
     echo "[!] cement package not found under $VENV"
     exit 1
@@ -52,15 +57,19 @@ PLUGIN="$SITE/cement/ext/ext_plugin.py"
 # Already fully patched?
 need_setuptools=0
 need_cement=0
+
 if ! "$PY" -c 'from distutils.util import strtobool' 2>/dev/null; then
     need_setuptools=1
 fi
+
 if [ ! -f "$FOUNDATION" ] || ! grep -q 'Discover patch: Python 3.12+ removed imp' "$FOUNDATION" 2>/dev/null; then
     need_cement=1
 fi
+
 if [ ! -f "$EXTENSION" ] || ! grep -q 'Discover patch: Python 3.12+ removed imp' "$EXTENSION" 2>/dev/null; then
     need_cement=1
 fi
+
 if [ -f "$PLUGIN" ] && grep -qE '^import imp$' "$PLUGIN" 2>/dev/null \
     && ! grep -q 'class _ImpShim' "$PLUGIN" 2>/dev/null; then
     need_cement=1
@@ -73,6 +82,7 @@ if [ "$need_setuptools" -eq 0 ] && [ "$need_cement" -eq 0 ]; then
         "$VENV/bin/droopescan" --help 2>&1 | head -15 || true
         exit 1
     fi
+
     log "[*] droopescan already patched ($VENV)"
     exit 0
 fi

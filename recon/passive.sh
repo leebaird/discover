@@ -122,6 +122,7 @@ f_arin() {
 
     echo "    Names                ($COUNT/$TOTAL)"
     ((COUNT++))
+
     if [ -f zhandles ]; then
         : > tmp-pocs
         while read -r LINE; do
@@ -222,6 +223,7 @@ f_dnsrecon() {
     echo "DNSRecon                 ($COUNT/$TOTAL)"
     ((COUNT++))
     local DNSRECON=''
+
     if [ -x /opt/dnsrecon-venv/bin/dnsrecon ] && /opt/dnsrecon-venv/bin/dnsrecon --version >/dev/null 2>&1; then
         DNSRECON=/opt/dnsrecon-venv/bin/dnsrecon
     elif command -v dnsrecon >/dev/null 2>&1 && dnsrecon --version >/dev/null 2>&1; then
@@ -522,20 +524,24 @@ print(len(hosts), file=sys.stderr)
 PY
     then
         _err=$(head -n 1 "$err_file" 2>/dev/null | tr -d '\r')
+
         if [ -n "$_err" ]; then
             echo "    [!] Shodan CTL failed (${_err}) — skipping."
         else
             echo "    [!] Shodan CTL failed — skipping."
         fi
+
         rm -f "$err_file" "$out" 2>/dev/null
         echo
         return 0
     fi
 
     _count=$(tail -n 1 "$err_file" 2>/dev/null | tr -d '\r')
+
     if [[ "$_count" =~ ^[0-9]+$ ]]; then
         echo "    [*] ${_count} hostname(s)."
     fi
+
     rm -f "$err_file" 2>/dev/null
     unset _err _count
     echo
@@ -559,6 +565,7 @@ find_theharvester_dir() {
     fi
 
     harvester_dir=$(find "$HOME" -type d -name theHarvester 2>/dev/null | sort | head -n 1)
+
     if [ -n "$harvester_dir" ]; then
         printf '%s\n' "$harvester_dir"
         return 0
@@ -572,6 +579,7 @@ f_theharvester() {
     local source
 
     echo "theHarvester"
+
     if ! harvester_dir=$(find_theharvester_dir); then
         echo "    [!] theHarvester directory not found under $HOME."
         echo
@@ -599,6 +607,7 @@ f_theharvester_api() {
 
     echo "theHarvester (API)"
     echo "    These sources use a provider API key (required or optional)."
+
     if ! harvester_dir=$(find_theharvester_dir); then
         echo "    [!] theHarvester directory not found under $HOME."
         echo
@@ -671,6 +680,7 @@ f_whois_ip() {
     if ! grep -qiE '^(inetnum|inet6num|netrange|netname|orgname|organization|descr|org-name|cust-name|owner):' whois-ip; then
         rm -f whois-ip
     fi
+
 }
 
 ###############################################################################################################################
@@ -680,6 +690,7 @@ f_sec_people() {
     ((COUNT++))
 
     mkdir -p "$HOME/data/$DOMAIN/tools"
+
     if [ ! -f "$HOME/data/$DOMAIN/tools/sec-people-manual.tsv" ]; then
         cat > "$HOME/data/$DOMAIN/tools/sec-people-manual.tsv" <<'EOF'
 # Manual SEC leadership — tab-separated: Name, Title, Phone
@@ -922,8 +933,10 @@ PY
     while read -r col1 col2; do
         ((current++))
         echo -ne "\r    $current of $total"
+
         if [ -z "$col2" ]; then
             ip=$(dig +short "$col1" | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -n 1)
+
             if [ -n "$ip" ] && [ "$ip" != "1.1.1.1" ] && [ "$ip" != "127.0.0.53" ]; then
                 echo "$col1 $ip" >> tmp2
             fi
@@ -1478,6 +1491,7 @@ f_social() {
     ((COUNT++))
 
     mkdir -p "$HOME/data/$DOMAIN/tools"
+
     if [ ! -f "$HOME/data/$DOMAIN/tools/social-manual.tsv" ]; then
         cat > "$HOME/data/$DOMAIN/tools/social-manual.tsv" <<'EOF'
 # Manual social profiles — tab-separated: Platform, URL
@@ -1708,10 +1722,12 @@ else
 fi
 
     f_report_append_pre_page zreport "$HOME"/data/"$DOMAIN"/pages/passive.htm
+
     if [ -n "$PASSIVE_DATE" ]; then
         PASSIVE_DATE_SED=$(f_sed_replacement_escape "$PASSIVE_DATE")
         sed -i "s|#PASSIVE_SCAN_DATE#|$PASSIVE_DATE_SED|" "$HOME"/data/"$DOMAIN"/pages/passive.htm
     fi
+
     f_report_substitute_placeholders \
         "$HOME/data/$DOMAIN/pages/passive.htm" \
         "$HOME/data/$DOMAIN/index.htm"
@@ -1727,24 +1743,28 @@ fi
     rm tmp* zreport 2>/dev/null
 
     mkdir -p "$HOME/data/$DOMAIN/tools"
+
     if [ ! -f "$HOME/data/$DOMAIN/tools/names-manual.tsv" ]; then
         cat > "$HOME/data/$DOMAIN/tools/names-manual.tsv" <<'EOF'
 # Manual contacts — tab-separated: Name, Title, Phone
 # Add one person per line, then run Audit → Import → Names (or import-names.sh).
 EOF
     fi
+
     if [ ! -f "$HOME/data/$DOMAIN/tools/subdomains-import.tsv" ]; then
         cat > "$HOME/data/$DOMAIN/tools/subdomains-import.tsv" <<'EOF'
 # Manual subdomains — tab-separated: Subdomain, IP (IP optional)
 # Add one host per line, then run Audit → Import → Subdomains (or import-subdomains.sh).
 EOF
     fi
+
     if [ ! -f "$HOME/data/$DOMAIN/tools/social-manual.tsv" ]; then
         cat > "$HOME/data/$DOMAIN/tools/social-manual.tsv" <<'EOF'
 # Manual social profiles — tab-separated: Platform, URL
 # Use when the homepage is bot-blocked or a profile was missed.
 EOF
     fi
+
     mv names emails hosts hudsonrock*.json hudsonrock.txt private-ips private-subs public-ips records social.tsv company.json sec-company-tickers.json sec-people.json homepage.html squatting subdomains tmp* whois* z* doc pdf ppt txt xls "$HOME/data/$DOMAIN/tools/" 2>/dev/null
     cd "$PWD" || exit
 
@@ -1760,6 +1780,7 @@ EOF
         [ -n "$ip" ] || ip=unknown
         printf '%s | %s | %s | Ran passive recon.\n' "$ts" "$op" "$ip" >> "$HOME/data/$DOMAIN/tools/audit/log.txt" 2>/dev/null || true
     fi
+
     if [ -n "${DISCOVER:-}" ] && [ -f "$DISCOVER/recon/audit-build.py" ]; then
         python3 "$DISCOVER/recon/audit-build.py" "$HOME/data/$DOMAIN" "$DISCOVER/report/pages/audit.htm" >/dev/null 2>&1 || true
     fi
