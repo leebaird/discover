@@ -36,6 +36,7 @@
         { id: "grafana", label: "Grafana" },
         { id: "elasticsearch", label: "Elasticsearch" },
         { id: "jenkins", label: "Jenkins" },
+        { id: "kafka", label: "Kafka UI" },
         { id: "gitlab", label: "GitLab" },
         { id: "gitea", label: "Gitea" },
         { id: "gogs", label: "Gogs" },
@@ -44,8 +45,10 @@
         { id: "iis", label: "IIS" },
         { id: "nginx", label: "nginx" },
         { id: "apache", label: "Apache" },
+        { id: "aspnet", label: "Microsoft ASP.NET" },
         { id: "php", label: "PHP" },
-        { id: "nodejs", label: "Node.js" }
+        { id: "nodejs", label: "Node.js" },
+        { id: "java", label: "Java" }
     ];
     var STATUS_PORT_DEFAULT = 17322;
     var pollTimer = null;
@@ -302,6 +305,9 @@
         if (softLc.indexOf("jenkins") === 0) {
             return "-tags jenkins -c 5 -rl 25";
         }
+        if (softLc.indexOf("kafka") === 0 || softLc.indexOf("kafbat") === 0) {
+            return "-tags kafka -c 5 -rl 25";
+        }
         if (softLc.indexOf("gitlab") === 0) {
             return "-tags gitlab -c 5 -rl 25";
         }
@@ -320,6 +326,9 @@
         if (softLc.indexOf("iis") === 0 || softLc.indexOf("microsoft-iis") === 0) {
             return "-tags iis -c 5 -rl 25";
         }
+        if (softLc.indexOf("asp.net") >= 0 || softLc.indexOf("aspnet") === 0) {
+            return "-tags aspnet -c 5 -rl 25";
+        }
         if (softLc.indexOf("apache") === 0) {
             return "-tags apache -c 5 -rl 25";
         }
@@ -331,6 +340,9 @@
         }
         if (softLc.indexOf("node") === 0) {
             return "-tags nodejs -c 5 -rl 25";
+        }
+        if (softLc === "java" || softLc.indexOf("java:") === 0) {
+            return "-tags java -c 5 -rl 25";
         }
         // Known product without a dedicated tag map: still product-scoped via Pass 2 when cache allows.
         return "-tags tech -c 5 -rl 20";
@@ -374,7 +386,12 @@
             rel = "Service-Specific/Keycloak-Identity-Access-Management.txt";
         } else if (soft === "tomcat") {
             rel = "Web-Servers/Apache-Tomcat.txt";
-        } else if (soft === "iis") {
+        } else if (
+            soft === "iis" ||
+            soft === "aspnet" ||
+            soft === "asp.net" ||
+            soft === "microsoft asp.net"
+        ) {
             rel = "Web-Servers/IIS.txt";
         } else if (soft === "nginx") {
             rel = "Web-Servers/nginx.txt";
@@ -600,6 +617,9 @@
         if (n === "jenkins" || n.indexOf("jenkins") === 0) {
             return "jenkins";
         }
+        if (n.indexOf("kafka") === 0 || n === "kafbat" || n.indexOf("kafbat") === 0) {
+            return "kafka";
+        }
         if (n === "gitlab" || n.indexOf("gitlab") === 0) {
             return "gitlab";
         }
@@ -622,6 +642,9 @@
         if (n === "iis" || n === "microsoft-iis" || n.indexOf("microsoft-iis") === 0) {
             return "iis";
         }
+        if (n.indexOf("asp.net") >= 0 || n === "aspnet" || n.indexOf("microsoftasp") === 0) {
+            return "aspnet";
+        }
         if (n === "nginx" || n.indexOf("nginx") === 0) {
             return "nginx";
         }
@@ -633,6 +656,10 @@
         }
         if (n === "node.js" || n === "nodejs" || n === "node") {
             return "nodejs";
+        }
+        // Exact "java" only — not javascript / JavaServer Pages.
+        if (n === "java") {
+            return "java";
         }
         return "";
     }
@@ -732,10 +759,16 @@
                 pid = productIdFromName(lab);
                 if (!pid) {
                     for (i = 0; i < ROW_PRODUCT_PRIORITY.length; i++) {
-                        if (lab.indexOf(ROW_PRODUCT_PRIORITY[i].id) >= 0) {
-                            pid = ROW_PRODUCT_PRIORITY[i].id;
-                            break;
+                        var hid = ROW_PRODUCT_PRIORITY[i].id;
+                        if (lab.indexOf(hid) < 0) {
+                            continue;
                         }
+                        // "javascript" contains "java"; only the exact label counts.
+                        if (hid === "java" && lab !== "java") {
+                            continue;
+                        }
+                        pid = hid;
+                        break;
                     }
                 }
                 if (pid && found[pid] === undefined) {
@@ -758,6 +791,18 @@
             found.oracle === undefined
         ) {
             found.oracle = "";
+        }
+        if (
+            (/\basp\.net\b/.test(blobAll) || /\baspnet\b/.test(blobAll)) &&
+            found.aspnet === undefined
+        ) {
+            found.aspnet = "";
+        }
+        if (
+            (/\bkafka\b/.test(blobAll) || /\bkafbat\b/.test(blobAll) || /kafka-ui/.test(blobAll)) &&
+            found.kafka === undefined
+        ) {
+            found.kafka = "";
         }
 
         for (i = 0; i < ROW_PRODUCT_PRIORITY.length; i++) {

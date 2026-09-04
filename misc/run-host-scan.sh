@@ -329,6 +329,8 @@ f_nuclei_args(){
         NUCLEI_EXTRA=(-tags elasticsearch -c 5 -rl 25)
     elif [[ "$soft_lc" == jenkins* ]]; then
         NUCLEI_EXTRA=(-tags jenkins -c 5 -rl 25)
+    elif [[ "$soft_lc" == kafka* || "$soft_lc" == kafbat* ]]; then
+        NUCLEI_EXTRA=(-tags kafka -c 5 -rl 25)
     elif [[ "$soft_lc" == gitlab* ]]; then
         NUCLEI_EXTRA=(-tags gitlab -c 5 -rl 25)
     elif [[ "$soft_lc" == gitea* ]]; then
@@ -341,6 +343,8 @@ f_nuclei_args(){
         NUCLEI_EXTRA=(-tags tomcat -c 5 -rl 25)
     elif [[ "$soft_lc" == iis* || "$soft_lc" == microsoft-iis* ]]; then
         NUCLEI_EXTRA=(-tags iis -c 5 -rl 25)
+    elif [[ "$soft_lc" == *asp.net* || "$soft_lc" == aspnet* ]]; then
+        NUCLEI_EXTRA=(-tags aspnet -c 5 -rl 25)
     elif [[ "$soft_lc" == apache* ]]; then
         NUCLEI_EXTRA=(-tags apache -c 5 -rl 25)
     elif [[ "$soft_lc" == nginx* ]]; then
@@ -349,6 +353,8 @@ f_nuclei_args(){
         NUCLEI_EXTRA=(-tags php -c 5 -rl 25)
     elif [[ "$soft_lc" == node* ]]; then
         NUCLEI_EXTRA=(-tags nodejs -c 5 -rl 25)
+    elif [[ "$soft_lc" == java || "$soft_lc" == java:* ]]; then
+        NUCLEI_EXTRA=(-tags java -c 5 -rl 25)
     else
         # Product known but no dedicated tag map: quiet tech recon + Pass 2 when cache allows
         NUCLEI_EXTRA=(-tags tech -c 5 -rl 20)
@@ -743,7 +749,7 @@ f_ffuf_wordlist(){
             tomcat)
                 rel="Web-Servers/Apache-Tomcat.txt"
                 ;;
-            iis)
+            iis|aspnet|asp.net|"microsoft asp.net")
                 rel="Web-Servers/IIS.txt"
                 ;;
             nginx)
