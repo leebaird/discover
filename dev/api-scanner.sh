@@ -622,7 +622,7 @@ f_api_orchestrate(){
     if [[ "$run_sens" =~ ^[Yy] ]]; then
         _sens_args=(--url "$target" --scan-dir "$OUTPUT_DIR" --all --quick)
         [ -n "$API_BEARER_TOKEN" ] && _sens_args+=(--bearer-token "$API_BEARER_TOKEN")
-        echo -e "${YELLOW}[*] Launching sensitive-scanner...${NC}"
+        echo -e "${YELLOW}[*] Launching sensitive-scanner.${NC}"
         "${_API_SCANNER_DIR}/sensitive-scanner.sh" "${_sens_args[@]}"
     fi
 
@@ -641,7 +641,7 @@ f_api_orchestrate(){
             2) _waf_args+=(--i-understand) ;;
             *) _waf_args+=(--passive) ;;
         esac
-        echo -e "${YELLOW}[*] Launching waf-detect...${NC}"
+        echo -e "${YELLOW}[*] Launching waf-detect.${NC}"
         "${_API_SCANNER_DIR}/waf-detect.sh" "${_waf_args[@]}"
     fi
 
@@ -662,7 +662,7 @@ f_api_orchestrate(){
             2) _webapi_args+=(--tier intrusive --i-understand) ;;
             *) _webapi_args+=(--quick) ;;
         esac
-        echo -e "${YELLOW}[*] Launching web-api-scanner...${NC}"
+        echo -e "${YELLOW}[*] Launching web-api-scanner.${NC}"
         "${_API_SCANNER_DIR}/web-api-scanner.sh" "${_webapi_args[@]}"
     fi
 

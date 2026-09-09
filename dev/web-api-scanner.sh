@@ -72,7 +72,7 @@ f_webapi_interactive_menu(){
                 f_webapi_say "${GREEN}[*] Tier: ${WEBAPI_TIER}${NC}"
                 f_webapi_run_all || true
                 f_webapi_say "${YELLOW}[*] Reports: report.txt, report.md, findings.json${NC}"
-                echo -n "Press Enter..."
+                echo -n "Press Enter."
                 read -r _
                 ;;
             2) f_dev_previous ;;

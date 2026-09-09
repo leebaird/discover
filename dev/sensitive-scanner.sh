@@ -111,7 +111,7 @@ f_sensitive_interactive_menu(){
         echo -e "${YELLOW}[*] Mode: $SENSITIVE_SCAN_MODE | Scan: $SENSITIVE_SCAN_TYPES${NC}"
         f_sensitive_run_scans || true
         echo -e "${YELLOW}[*] Reports: report.txt, report.md, findings.json${NC}"
-        echo -n "Press Enter..."
+        echo -n "Press Enter."
         read -r _
     done
 }

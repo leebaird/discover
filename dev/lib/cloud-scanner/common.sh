@@ -151,7 +151,7 @@ f_cloud_aws_wait_credential_report(){
 
         sleep "$interval"
         elapsed=$((elapsed + interval))
-        f_cloud_log "Waiting for IAM credential report (${elapsed}s)..."
+        f_cloud_log "Waiting for IAM credential report (${elapsed}s)."
     done
     return 1
 }

@@ -6,7 +6,7 @@ f_msfvenom_run(){
     local output rc=0
 
     output=$(mktemp)
-    echo "[*] Generating payload..."
+    echo "[*] Generating payload."
     msfvenom "$@" > "$output" 2>&1 || rc=$?
     grep -E '^(Found |Attempting |Payload size:|[[:alnum:]_.+-]+ (succeeded|chosen))' "$output" || true
 

@@ -77,7 +77,7 @@ f_waf_interactive_menu(){
 
         f_waf_run_scan || true
         f_waf_say "${YELLOW}[*] Reports: report.txt, report.md, findings.json, waf_results.tsv${NC}"
-        echo -n "Press Enter..."
+        echo -n "Press Enter."
         read -r _
     done
 }

@@ -61,7 +61,7 @@ cd "$TH_DIR" || { echo -e "${RED}[!] Cannot cd to $TH_DIR${NC}" >&2; exit 3; }
 
 echo
 echo "[*] Updating packages."
-uv sync || echo -e "${YELLOW}Warning: uv sync failed – continuing...${NC}"
+uv sync || echo -e "${YELLOW}Warning: uv sync failed – continuing.${NC}"
 # shellcheck disable=SC1091
 source .venv/bin/activate || { echo -e "${RED}[!] Failed to activate venv.${NC}" >&2; exit 4; }
 

@@ -96,7 +96,7 @@ f_oauth_jwt_interactive_menu(){
         echo -e "${YELLOW}[*] Output: $OUTPUT_DIR${NC}"
         f_oauth_jwt_run_scans || true
         echo -e "${YELLOW}[*] Reports: report.txt, report.md, findings.json${NC}"
-        echo -n "Press Enter..."
+        echo -n "Press Enter."
         read -r _
     done
 }

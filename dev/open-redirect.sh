@@ -119,7 +119,7 @@ f_openredirect_interactive_menu(){
         echo -e "${YELLOW}[*] Mode: $OPEN_REDIRECT_SCAN_MODE | Canary: $OPEN_REDIRECT_CANARY_HOST${NC}"
         f_openredirect_run_scans || true
         echo -e "${YELLOW}[*] Reports: report.txt, report.md, findings.json${NC}"
-        echo -n "Press Enter..."
+        echo -n "Press Enter."
         read -r _
     done
 }

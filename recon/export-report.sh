@@ -325,7 +325,7 @@ mkdir -p "$STAGE_ROOT" || f_export_report_die "Could not create staging director
 
 if [ "$QUIET" -eq 0 ]; then
     echo
-    echo "[*] Copying report (this may take a moment)..."
+    echo "[*] Copying report (this may take a moment)."
 fi
 
 # Copy engagement tree; skip bulky/irrelevant paths if present.
