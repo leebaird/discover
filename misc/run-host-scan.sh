@@ -281,11 +281,13 @@ PY
 
 f_audit(){
     local action="$1"
+    # Optional arguments for Op Notes
+    local target="${2:-}"
+    local command="${3:-}"
     local audit_dir="$REPORT_ROOT/tools/audit"
     local audit_log="$audit_dir/log.txt"
     mkdir -p "$audit_dir"
-    local ts ip op
-    ts=$(date -u +"%m/%d/%Y - %H:%M Z")
+    local ip op
 
     if declare -F f_audit_operator_name >/dev/null 2>&1; then
         op=$(f_audit_operator_name)
@@ -303,7 +305,18 @@ f_audit(){
 
     case "$action" in *.) ;; *) action="${action}." ;; esac
     # mm/dd/yyyy - hh:mm Z | operator | egress IP | action
-    printf '%s | %s | %s | %s\n' "$ts" "$op" "$ip" "$action" >> "$audit_log"
+    printf '%s | %s | %s | %s\n' "$STAMP_DISPLAY" "$op" "$ip" "$action" >> "$audit_log"
+
+    if [ -f "$REPORT_ROOT/.env" ]; then
+        local sheets_url
+        sheets_url=$(grep '^OP_NOTES_URL=' "$REPORT_ROOT/.env" | cut -d'=' -f2- | sed "s/^['\"]//;s/['\"]$//;s/^[[:space:]]*//;s/[[:space:]]*$//" || true)
+        # If a command was specified and we have an Op Notes URL, log to Op Notes
+        if [ -n "$command" ] && [ -n "$sheets_url" ]; then
+            if ! uv run "$DISCOVER_ROOT/misc/op_notes.py" "$sheets_url" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command"; then
+                printf '\033[0;31m[!] Op Notes entry failed: check token/URL\033[0m\n' >&2
+            fi
+        fi
+    fi
 }
 
 # Software-aware nuclei tags (pass-1 recon / fingerprint).
@@ -332,6 +345,7 @@ f_nuclei_args(){
     elif [[ "$soft_lc" == jenkins* ]]; then
         NUCLEI_EXTRA=(-tags jenkins -c 5 -rl 25)
     elif [[ "$soft_lc" == kafka* || "$soft_lc" == kafbat* || "$soft_lc" == akhq* ]]; then
+        # shellcheck disable=SC2054
         NUCLEI_EXTRA=(-tags kafka,akhq -c 5 -rl 25)
     elif [[ "$soft_lc" == sonarqube* ]]; then
         NUCLEI_EXTRA=(-tags sonarqube -c 5 -rl 25)
@@ -368,6 +382,7 @@ f_nuclei_args(){
     elif [[ "$soft_lc" == nexus* || "$soft_lc" == sonatype* ]]; then
         NUCLEI_EXTRA=(-tags nexus -c 5 -rl 25)
     elif [[ "$soft_lc" == jfrog* || "$soft_lc" == artifactory* ]]; then
+        # shellcheck disable=SC2054
         NUCLEI_EXTRA=(-tags jfrog,artifactory -c 5 -rl 25)
     elif [[ "$soft_lc" == strapi* ]]; then
         NUCLEI_EXTRA=(-tags strapi -c 5 -rl 25)
@@ -382,6 +397,7 @@ f_nuclei_args(){
     elif [[ "$soft_lc" == tomcat* ]]; then
         NUCLEI_EXTRA=(-tags tomcat -c 5 -rl 25)
     elif [[ "$soft_lc" == wildfly* || "$soft_lc" == jboss* ]]; then
+        # shellcheck disable=SC2054
         NUCLEI_EXTRA=(-tags wildfly,jboss -c 5 -rl 25)
     elif [[ "$soft_lc" == sharepoint* ]]; then
         NUCLEI_EXTRA=(-tags sharepoint -c 5 -rl 25)
@@ -852,6 +868,7 @@ f_ffuf_wordlist(){
     [ -n "$FFUF_WL" ] || f_die "No ffuf wordlist found under SecLists Discovery/Web-Content (or dirb common.txt). Run Discover Update."
 }
 
+# shellcheck disable=SC2329
 cleanup(){
     local code=$?
     rm -f "$LOCK" 2>/dev/null || true
@@ -888,7 +905,6 @@ SOFT_NOTE=""
 
 f_write_status 1
 SCAN_STARTED=1
-f_audit "Started $TOOL on $URL$SOFT_NOTE"
 
 cat > "$META_FILE" <<EOF
 {
@@ -903,9 +919,25 @@ cat > "$META_FILE" <<EOF
 }
 EOF
 
-# Shell-quote a single argument for a reproducible Command: line.
-f_shell_quote(){
-    python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$1"
+# Clean up a command for logging without running Python or specifying the
+# command in multiple places (the specifications could "drift" and what's
+# logged could be something other than what was actually run)
+f_clean_cmd() {
+    local -n cmd_ref="$1"
+
+    echo -n "$(basename "${cmd_ref[0]}")"
+    for arg in "${cmd_ref[@]:1}"; do
+        # Trim REPORT_ROOT from absolute paths
+        arg="${arg#"${REPORT_ROOT}"/}"
+
+        # Quote if appropriate
+        if [[ "$arg" =~ [^-[:alnum:]://\.,] ]]; then
+            arg="${arg@Q}"
+        fi
+
+        echo -n " ${arg}"
+    done
+    echo
 }
 
 # Write Started timestamp + exact Command: header (tools append after this).
@@ -1162,17 +1194,26 @@ case "$TOOL" in
             NIKTO_REQ_TIMEOUT="5"
             NIKTO_MAXTIME="10m"
             NIKTO_HARD_TIMEOUT="11m"
-            # -ssl skips plain-HTTP probe on :443.
-            NIKTO_SSL_FLAG=""
-
-            if [[ "$URL" =~ ^https:// ]]; then
-                NIKTO_SSL_FLAG="-ssl"
-            fi
 
             f_nikto_write_config "$NIKTO_CONF" "$UA"
-            # Display as "nikto" (not full path); still execute via $NIKTO_BIN.
-            NIKTO_CMD="nikto -config $(f_shell_quote "$NIKTO_CONF") -host $(f_shell_quote "$URL")${NIKTO_SSL_FLAG:+ $NIKTO_SSL_FLAG} -useragent $(f_shell_quote "$UA") -nointeractive -nocheck -timeout $NIKTO_REQ_TIMEOUT -maxtime $NIKTO_MAXTIME -Format htm -output $(f_shell_quote "$NIKTO_HTM")"
-            f_write_run_header "$NIKTO_CMD"
+            NIKTO_CMD=(
+                "$NIKTO_BIN" -config "$NIKTO_CONF"
+                -host "$URL"
+                -useragent "$UA"
+                -nointeractive -nocheck
+                -timeout "$NIKTO_REQ_TIMEOUT"
+                -maxtime "$NIKTO_MAXTIME"
+                -Format htm
+                -output "$NIKTO_HTM"
+            )
+
+            if [[ "$URL" =~ ^https:// ]]; then
+                # -ssl skips plain-HTTP probe on :443.
+                NIKTO_CMD+=( -ssl )
+            fi
+
+            f_write_run_header "$(f_clean_cmd NIKTO_CMD)"
+            f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd NIKTO_CMD)"
             {
                 echo "[*] Non-interactive (PROMPTS=no, UPDATES=no, -nointeractive -nocheck);"
                 echo "    HTTP/1.1 + GET; request timeout ${NIKTO_REQ_TIMEOUT}s; FAILURES=8;"
@@ -1182,22 +1223,13 @@ case "$TOOL" in
 
             # Reachability already verified above (shared pre-check for all tools).
             set +e
-            # shellcheck disable=SC2086
             if command -v timeout >/dev/null 2>&1; then
                 timeout --foreground --signal=TERM --kill-after=45s "$NIKTO_HARD_TIMEOUT" \
-                    "$NIKTO_BIN" -config "$NIKTO_CONF" -host "$URL" $NIKTO_SSL_FLAG \
-                    -useragent "$UA" -nointeractive -nocheck \
-                    -timeout "$NIKTO_REQ_TIMEOUT" \
-                    -maxtime "$NIKTO_MAXTIME" \
-                    -Format htm -output "$NIKTO_HTM" \
+                    "${NIKTO_CMD[@]}" \
                     2>&1 | tee -a "$OUT_FILE"
                 EXIT_CODE=${PIPESTATUS[0]}
             else
-                "$NIKTO_BIN" -config "$NIKTO_CONF" -host "$URL" $NIKTO_SSL_FLAG \
-                    -useragent "$UA" -nointeractive -nocheck \
-                    -timeout "$NIKTO_REQ_TIMEOUT" \
-                    -maxtime "$NIKTO_MAXTIME" \
-                    -Format htm -output "$NIKTO_HTM" \
+                "${NIKTO_CMD[@]}" \
                     2>&1 | tee -a "$OUT_FILE"
                 EXIT_CODE=${PIPESTATUS[0]}
             fi
@@ -1242,30 +1274,28 @@ case "$TOOL" in
         # lines into the report file, and do not print an Output: filesystem path.
         f_nuclei_args
         NUCLEI_OUT="$RUN_DIR/nuclei.txt"
-        NUCLEI_CMD="nuclei -u $(f_shell_quote "$URL") -H $(f_shell_quote "User-Agent: $UA")"
+        NUCLEI_CMD=(
+            nuclei -u "$URL"
+            -H "User-Agent: $UA"
+            "${NUCLEI_EXTRA[@]}"
+            -silent -nc -duc -o "$NUCLEI_OUT"
+        )
 
-        if [ "${#NUCLEI_EXTRA[@]}" -gt 0 ]; then
-            NUCLEI_CMD+=" ${NUCLEI_EXTRA[*]}"
-        fi
-
-        NUCLEI_CMD+=" -silent -nc -duc -o $(f_shell_quote "$NUCLEI_OUT")"
-
+        f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd NUCLEI_CMD)"
         {
             echo "Started: $STAMP_DISPLAY"
             echo
             echo "=== Pass 1: software recon tags ==="
             echo
             echo "Command:"
-            echo "$NUCLEI_CMD"
+            f_clean_cmd NUCLEI_CMD
             echo
         } > "$OUT_FILE"
 
         echo "[*] Pass 1: software recon (${NUCLEI_EXTRA[*]:-tags tech})"
         set +e
         # Findings go to -o only; keep terminal visible but keep output.txt structured.
-        nuclei -u "$URL" -H "User-Agent: $UA" "${NUCLEI_EXTRA[@]}" \
-            -silent -nc -duc \
-            -o "$NUCLEI_OUT"
+        "${NUCLEI_CMD[@]}"
         PASS1_CODE=$?
         set -e
         EXIT_CODE=$PASS1_CODE
@@ -1288,7 +1318,13 @@ case "$TOOL" in
 
         if [ -n "$PASS2_IDS" ]; then
             NUCLEI_PASS2_OUT="$RUN_DIR/nuclei-pass2.txt"
-            NUCLEI_PASS2_CMD="nuclei -u $(f_shell_quote "$URL") -H $(f_shell_quote "User-Agent: $UA") -id $(f_shell_quote "$PASS2_IDS") -c 5 -rl 25 -timeout 15 -retries 1 -silent -nc -duc -o $(f_shell_quote "$NUCLEI_PASS2_OUT")"
+            NUCLEI_PASS2_CMD=(
+                nuclei -u "$URL"
+                -H "User-Agent: $UA"
+                -id "$PASS2_IDS"
+                -c 5 -rl 25 -timeout 15 -retries 1
+                -silent -nc -duc -o "$NUCLEI_PASS2_OUT"
+            )
             # Comma-space list for readability in the report
             PASS2_IDS_DISPLAY=$(printf '%s' "$PASS2_IDS" | sed 's/,/, /g')
             {
@@ -1305,19 +1341,14 @@ case "$TOOL" in
                 echo "${PASS2_NOTE:-(none)}"
                 echo
                 echo "Command:"
-                echo "$NUCLEI_PASS2_CMD"
+                f_clean_cmd NUCLEI_PASS2_CMD
                 echo
             } >> "$OUT_FILE"
             echo
             echo "[*] Pass 2: CVE and KEV templates (${PASS2_TOTAL:-?} runnable, ${PASS2_KEV_N:-?} KEV)"
             # Do not audit pass-2 start/finish - covered by parent nuclei Started/Finished + Output.
             set +e
-            nuclei -u "$URL" -H "User-Agent: $UA" \
-                -id "$PASS2_IDS" \
-                -c 5 -rl 25 \
-                -timeout 15 -retries 1 \
-                -silent -nc -duc \
-                -o "$NUCLEI_PASS2_OUT"
+            "${NUCLEI_PASS2_CMD[@]}"
             PASS2_CODE=$?
             set -e
 
@@ -1366,8 +1397,10 @@ PY
         DROOP_OUT="$RUN_DIR/droopescan.txt"
         DROOP_RAW="$RUN_DIR/droopescan.raw"
         # Quiet-ish: all enums, modest threads, no live percent bar in the TXT.
-        DROOP_CMD="droopescan scan $CMS -u $(f_shell_quote "$URL") -e a -t 4 -o standard --hide-progressbar"
-        f_write_run_header "$DROOP_CMD"
+        DROOP_CMD=(droopescan scan "$CMS" -u "$URL" -e a -t 4 -o standard --hide-progressbar)
+
+        f_write_run_header "$(f_clean_cmd DROOP_CMD)"
+        f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd DROOP_CMD)"
         {
             echo "CMS: $CMS"
             echo "Software: ${SOFTWARE:--}"
@@ -1375,8 +1408,7 @@ PY
         } >> "$OUT_FILE"
         echo "[*] droopescan scan $CMS on $URL"
         set +e
-        droopescan scan "$CMS" -u "$URL" -e a -t 4 -o standard --hide-progressbar \
-            2>&1 | tee "$DROOP_RAW"
+        "${DROOP_CMD[@]}" 2>&1 | tee "$DROOP_RAW"
         EXIT_CODE=${PIPESTATUS[0]}
         set -e
 
@@ -1397,13 +1429,15 @@ PY
         WPSCAN_OUT="$RUN_DIR/wpscan.txt"
         # Quiet-ish Red Team defaults: passive plugin detection + moderate enum.
         # Optional free API token: export WPSCAN_API_TOKEN=... (vuln DB lookups).
-        WPSCAN_CMD="wpscan --url $(f_shell_quote "$URL") --random-user-agent --user-agent $(f_shell_quote "$UA") --disable-tls-checks --plugins-detection passive --enumerate vp,vt,tt,cb,dbe,u --format cli-no-colour --no-banner"
+        # shellcheck disable=SC2054
+        WPSCAN_CMD=(wpscan --url "$URL" --random-user-agent --user-agent "$UA" --disable-tls-checks --plugins-detection passive --enumerate vp,vt,tt,cb,dbe,u --format cli-no-colour --no-banner)
 
         if [ -n "${WPSCAN_API_TOKEN:-}" ]; then
-            WPSCAN_CMD+=" --api-token $(f_shell_quote "$WPSCAN_API_TOKEN")"
+            WPSCAN_CMD+=( --api-token "$WPSCAN_API_TOKEN" )
         fi
 
-        f_write_run_header "$WPSCAN_CMD"
+        f_write_run_header "$(f_clean_cmd WPSCAN_CMD)"
+        f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd WPSCAN_CMD)"
         {
             echo "Software: ${SOFTWARE:--}"
 
@@ -1417,25 +1451,7 @@ PY
         } >> "$OUT_FILE"
         echo "[*] wpscan on $URL"
         set +e
-
-        if [ -n "${WPSCAN_API_TOKEN:-}" ]; then
-            wpscan --url "$URL" \
-                --random-user-agent --user-agent "$UA" \
-                --disable-tls-checks \
-                --plugins-detection passive \
-                --enumerate vp,vt,tt,cb,dbe,u \
-                --format cli-no-colour --no-banner \
-                --api-token "$WPSCAN_API_TOKEN" \
-                2>&1 | tee "$WPSCAN_OUT" | tee -a "$OUT_FILE"
-        else
-            wpscan --url "$URL" \
-                --random-user-agent --user-agent "$UA" \
-                --disable-tls-checks \
-                --plugins-detection passive \
-                --enumerate vp,vt,tt,cb,dbe,u \
-                --format cli-no-colour --no-banner \
-                2>&1 | tee "$WPSCAN_OUT" | tee -a "$OUT_FILE"
-        fi
+        "${WPSCAN_CMD[@]}" 2>&1 | tee "$WPSCAN_OUT" | tee -a "$OUT_FILE"
 
         EXIT_CODE=${PIPESTATUS[0]}
         set -e
@@ -1457,8 +1473,10 @@ PY
         DISALLOW_FILE="$RUN_DIR/disallow-urls.txt"
         BASE_URL=$(f_url_origin "$URL")
         ROBOTS_URL="${BASE_URL}/robots.txt"
-        ROBOTS_CMD="curl -kLsS --http1.1 --connect-timeout 8 --max-time 15 -A $(f_shell_quote "$UA") -o robots.txt $(f_shell_quote "$ROBOTS_URL")"
-        f_write_run_header "$ROBOTS_CMD"
+        ROBOTS_CMD=(curl -kLsS --http1.1 --connect-timeout 8 --max-time 15 -A "$UA" -w "%{http_code}" -o "$ROBOTS_FILE" "$ROBOTS_URL")
+
+        f_write_run_header "$(f_clean_cmd ROBOTS_CMD)"
+        f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd ROBOTS_CMD)"
         {
             echo "Robots URL: $ROBOTS_URL"
             echo "Base:       $BASE_URL"
@@ -1466,11 +1484,7 @@ PY
         } >> "$OUT_FILE"
         echo "[*] Fetching $ROBOTS_URL"
         set +e
-        HTTP_CODE=$(curl -kLsS --http1.1 --connect-timeout 8 --max-time 15 \
-            -A "$UA" \
-            -w "%{http_code}" \
-            -o "$ROBOTS_FILE" \
-            "$ROBOTS_URL" 2>/dev/null)
+        HTTP_CODE=$("${ROBOTS_CMD[@]}" 2>/dev/null)
         CURL_RC=$?
         set -e
         [ -n "$HTTP_CODE" ] || HTTP_CODE="000"
@@ -1612,8 +1626,10 @@ PY
         FFUF_TIMEOUT="5"
         FFUF_MAXTIME="600"
         FFUF_HARD_TIMEOUT="11m"
-        FFUF_CMD="ffuf -u $(f_shell_quote "$FFUF_URL") -w $(f_shell_quote "$FFUF_WL") -t 10 -rate 20 -timeout $FFUF_TIMEOUT -maxtime $FFUF_MAXTIME -se -H $(f_shell_quote "User-Agent: $UA") -of json -o $(f_shell_quote "$FFUF_JSON") -fc $FFUF_FC -noninteractive"
-        f_write_run_header "$FFUF_CMD"
+        FFUF_CMD=(ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 10 -rate 20 -timeout "$FFUF_TIMEOUT" -maxtime "$FFUF_MAXTIME" -se -H "User-Agent: $UA" -of json -o "$FFUF_JSON" -fc "$FFUF_FC" -noninteractive)
+
+        f_write_run_header "$(f_clean_cmd FFUF_CMD)"
+        f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd FFUF_CMD)"
         {
             echo "[*] Request timeout ${FFUF_TIMEOUT}s; maxtime ${FFUF_MAXTIME}s; stop on spurious errors;"
             echo "    hard stop ${FFUF_HARD_TIMEOUT}."
@@ -1624,22 +1640,10 @@ PY
 
         if command -v timeout >/dev/null 2>&1; then
             timeout --foreground --signal=TERM --kill-after=15s "$FFUF_HARD_TIMEOUT" \
-                ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 10 -rate 20 \
-                -timeout "$FFUF_TIMEOUT" -maxtime "$FFUF_MAXTIME" -se \
-                -H "User-Agent: $UA" \
-                -of json -o "$FFUF_JSON" \
-                -fc "$FFUF_FC" \
-                -noninteractive \
-                2>&1 | tee "$FFUF_RAW"
+                "${FFUF_CMD[@]}" 2>&1 | tee "$FFUF_RAW"
             EXIT_CODE=${PIPESTATUS[0]}
         else
-            ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 10 -rate 20 \
-                -timeout "$FFUF_TIMEOUT" -maxtime "$FFUF_MAXTIME" -se \
-                -H "User-Agent: $UA" \
-                -of json -o "$FFUF_JSON" \
-                -fc "$FFUF_FC" \
-                -noninteractive \
-                2>&1 | tee "$FFUF_RAW"
+            "${FFUF_CMD[@]}" 2>&1 | tee "$FFUF_RAW"
             EXIT_CODE=${PIPESTATUS[0]}
         fi
 
@@ -1674,30 +1678,20 @@ PY
         FEROX_TIME_LIMIT="10m"
         FEROX_HARD_TIMEOUT="11m"
         FEROX_FC="301,302,307,400,403,404,405,429"
-        FEROX_CMD="feroxbuster -u $(f_shell_quote "$URL") -w $(f_shell_quote "$FFUF_WL") -a $(f_shell_quote "$UA") -t 10 --rate-limit 20 -T $FEROX_TIMEOUT --time-limit $FEROX_TIME_LIMIT --auto-bail -n --dont-extract-links -k -C $FEROX_FC -q --json -o $(f_shell_quote "$FEROX_JSON") --no-state"
-        f_write_run_header "$FEROX_CMD"
+        FEROX_CMD=(feroxbuster -u "$URL" -w "$FFUF_WL" -a "$UA" -t 10 --rate-limit 20 -T "$FEROX_TIMEOUT" --time-limit "$FEROX_TIME_LIMIT" --auto-bail -n --dont-extract-links -k -C "$FEROX_FC" -q --json -o "$FEROX_JSON" --no-state)
+
+        f_write_run_header "$(f_clean_cmd FEROX_CMD)"
+        f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd FEROX_CMD)"
         FEROX_RAW="$RUN_DIR/ferox.raw.txt"
         set +e
 
         if command -v timeout >/dev/null 2>&1; then
             timeout --foreground --signal=TERM --kill-after=15s "$FEROX_HARD_TIMEOUT" \
-                feroxbuster -u "$URL" -w "$FFUF_WL" -a "$UA" \
-                -t 10 --rate-limit 20 -T "$FEROX_TIMEOUT" \
-                --time-limit "$FEROX_TIME_LIMIT" \
-                --auto-bail \
-                -n --dont-extract-links -k \
-                -C "$FEROX_FC" \
-                -q --json -o "$FEROX_JSON" --no-state \
+                "${FEROX_CMD[@]}" \
                 2>&1 | tee "$FEROX_RAW"
             EXIT_CODE=${PIPESTATUS[0]}
         else
-            feroxbuster -u "$URL" -w "$FFUF_WL" -a "$UA" \
-                -t 10 --rate-limit 20 -T "$FEROX_TIMEOUT" \
-                --time-limit "$FEROX_TIME_LIMIT" \
-                --auto-bail \
-                -n --dont-extract-links -k \
-                -C "$FEROX_FC" \
-                -q --json -o "$FEROX_JSON" --no-state \
+            "${FEROX_CMD[@]}" \
                 2>&1 | tee "$FEROX_RAW"
             EXIT_CODE=${PIPESTATUS[0]}
         fi
