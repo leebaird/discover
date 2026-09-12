@@ -7,110 +7,183 @@
 # ]
 # ///
 
-import sys
+"""Google Sheet helper for Discover host scans.
+
+Authorize from Audit Config (browser OAuth). Append during a scan never
+opens a browser: missing or invalid tokens skip the row.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
 import os
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
+
 import gspread
+import zoneinfo
+from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from datetime import datetime, timezone
-import zoneinfo
 
-# Scopes for Google Sheets API
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
-def get_credentials():
-    token_path = Path.home() / ".discover" / "google-token.json"
-    creds_path = Path.home() / ".discover" / "client_secret.json"
 
-    if not creds_path.exists():
-        print(f"Error: {creds_path} not found.", file=sys.stderr)
+def token_path() -> Path:
+    return Path.home() / ".discover" / "google-token.json"
+
+
+def creds_path() -> Path:
+    return Path.home() / ".discover" / "client_secret.json"
+
+
+def write_secret_file(path: Path, text: str) -> None:
+    """Create or replace a file at mode 0600 (including an existing world-readable file)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+    fd = os.open(path, flags, 0o600)
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w") as handle:
+            handle.write(text)
+    except Exception:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+        raise
+
+
+def tighten_mode(path: Path) -> None:
+    if path.is_file():
+        try:
+            path.chmod(0o600)
+        except OSError:
+            pass
+
+
+def get_credentials(*, interactive: bool) -> Credentials:
+    secret = creds_path()
+    saved = token_path()
+
+    if not secret.is_file():
+        print(f"Error: {secret} not found.", file=sys.stderr)
         sys.exit(1)
 
+    tighten_mode(secret)
+
     creds = None
-    if token_path.exists():
+    if saved.is_file():
         try:
-            creds = Credentials.from_authorized_user_file(str(token_path), SCOPES)
-        except Exception as e:
-            print(f"Warning: Failed to load existing token: {e}", file=sys.stderr)
+            creds = Credentials.from_authorized_user_file(str(saved), SCOPES)
+        except Exception as exc:
+            print(f"Warning: Failed to load existing token: {exc}", file=sys.stderr)
             creds = None
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             try:
                 creds.refresh(Request())
-            except Exception as e:
-                print(f"Error refreshing token: {e}", file=sys.stderr)
+            except Exception as exc:
+                print(f"Error refreshing token: {exc}", file=sys.stderr)
                 creds = None
 
         if not creds:
-            flow = InstalledAppFlow.from_client_secrets_file(str(creds_path), SCOPES)
+            if not interactive:
+                print(
+                    "Google Sheet: not authorized. Use Audit Config → Google Sheet → Authorize.",
+                    file=sys.stderr,
+                )
+                sys.exit(2)
+
+            flow = InstalledAppFlow.from_client_secrets_file(str(secret), SCOPES)
             creds = flow.run_local_server(port=0)
 
-        # Save the credentials for the next run
-        token_path.parent.mkdir(parents=True, exist_ok=True)
-
-        original_umask = os.umask(0)
-        try:
-            # Open low-level file descriptor with the exact mode we want
-            flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
-            fd = os.open(token_path, flags, mode=0o600)
-
-            with os.fdopen(fd, "w") as f:
-                f.write(creds.to_json())
-        finally:
-            os.umask(original_umask)
+        write_secret_file(saved, creds.to_json())
 
     return creds
 
-def main():
-    if len(sys.argv) < 7:
-        print(f"Usage: {sys.argv[0]} <sheets_url> <timestamp> <operator> <ip> <target> <command>", file=sys.stderr)
-        sys.exit(1)
 
-    sheets_url = sys.argv[1]
-    timestamp_str = sys.argv[2]
-    operator = sys.argv[3]
-    ip = sys.argv[4]
-    target_raw = sys.argv[5]
-    command = sys.argv[6]
+def cmd_authorize() -> int:
+    get_credentials(interactive=True)
+    print("Google Sheet authorization saved.")
+    return 0
+
+
+def cmd_append(args: argparse.Namespace) -> int:
+    creds = get_credentials(interactive=False)
+    client = gspread.authorize(creds)
+    sh = client.open_by_url(args.sheets_url)
+    metadata = sh.fetch_sheet_metadata()
+
+    dt_utc = datetime.strptime(args.timestamp, "%m/%d/%Y - %H:%M Z").replace(
+        tzinfo=timezone.utc
+    )
+    tz_name = (metadata.get("properties") or {}).get("timeZone") or "UTC"
+    sheet_tz = zoneinfo.ZoneInfo(tz_name)
+    date_str = dt_utc.astimezone(sheet_tz).strftime("%m/%d/%Y %H:%M:%S")
+
+    target_raw = args.target or ""
+    if target_raw.startswith(("http://", "https://")):
+        target_hostname = (urlparse(target_raw).hostname or "").lower()
+    else:
+        target_hostname = target_raw.strip()
+
+    # Col A: Date (sheet timezone), B: Operator, C: IP, D: Target, E: Command
+    worksheet = sh.get_worksheet(0)
+    worksheet.append_row(
+        [date_str, args.operator, args.ip, target_hostname, args.command]
+    )
+    return 0
+
+
+def cmd_status() -> int:
+    payload = {
+        "ok": True,
+        "has_client_secret": creds_path().is_file(),
+        "has_token": token_path().is_file(),
+        "client_secret_path": str(creds_path()),
+        "token_path": str(token_path()),
+    }
+    print(json.dumps(payload))
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Discover Google Sheet host-scan log")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    sub.add_parser("authorize", help="Browser OAuth; write ~/.discover/google-token.json")
+    sub.add_parser("status", help="JSON presence of client_secret and token")
+
+    ap = sub.add_parser("append", help="Append one host-scan row (no browser)")
+    ap.add_argument("sheets_url")
+    ap.add_argument("timestamp")
+    ap.add_argument("operator")
+    ap.add_argument("ip")
+    ap.add_argument("target")
+    ap.add_argument("command")
+
+    args = parser.parse_args(argv)
 
     try:
-        creds = get_credentials()
-        client = gspread.authorize(creds)
+        if args.cmd == "authorize":
+            return cmd_authorize()
+        if args.cmd == "status":
+            return cmd_status()
+        if args.cmd == "append":
+            return cmd_append(args)
+    except SystemExit:
+        raise
+    except Exception as exc:
+        print(f"Error syncing to Google Sheet: {exc}", file=sys.stderr)
+        return 1
 
-        sh = client.open_by_url(sheets_url)
-        metadata = sh.fetch_sheet_metadata()
+    return 2
 
-        # This format must be the same as in run-host-scan.sh
-        dt_utc = datetime.strptime(timestamp_str, "%m/%d/%Y - %H:%M Z").replace(tzinfo=timezone.utc)
-
-        # Convert to the spreadsheet's "native" time zone in File | Settings
-        sh_tz = zoneinfo.ZoneInfo(metadata['properties']['timeZone'])
-        dt_sh = dt_utc.astimezone(sh_tz)
-        date_sh_str = dt_sh.strftime("%m/%d/%Y %H:%M:%S")
-
-        # Derive target hostname
-        target_hostname = ""
-        if target_raw.startswith(("http://", "https://")):
-            parsed = urlparse(target_raw)
-            target_hostname = (parsed.hostname or "").lower()
-        else:
-            # Fallback for non-URL targets
-            target_hostname = target_raw.strip()
-
-
-        # Col A: Date (ET), B: Operator, C: IP, D: Target (Host), E: Command
-        worksheet = sh.get_worksheet(0)
-        worksheet.append_row([date_sh_str, operator, ip, target_hostname, command])
-
-    except Exception as e:
-        print(f"Error syncing to Google Sheet: {e}", file=sys.stderr)
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

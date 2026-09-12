@@ -340,6 +340,11 @@ else
     rm -f "$STAGE_ROOT/tools/gowitness/gowitness.db" "$STAGE_ROOT/tools/gowitness/"*.db 2>/dev/null || true
 fi
 
+# Client/defender packages must not include the engagement Google Sheet URL.
+if [ "$EXPORT_KIND" != "operator" ]; then
+    rm -f "$STAGE_ROOT/tools/op-notes-url" "$STAGE_ROOT/.env" 2>/dev/null || true
+fi
+
 # Stamp mode on the export only (live tree restored to operator below).
 mkdir -p "$STAGE_ROOT/assets"
 

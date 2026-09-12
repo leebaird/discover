@@ -368,6 +368,8 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 
 Launches use the `discover-scan:` handler / `misc/run-host-scan.sh` (one tool at a time). Prefer `~/.local/bin` for **droopescan** on Python 3.12+ (Update runs `misc/patch-droopescan-py314.sh` for cement/`imp` + setuptools). **Open report** starts `misc/host-scan-statusd.py` (localhost static server + `/mode`/`/status`) and opens the report over `http://127.0.0.1:17322/` so host-scan chevrons work; opening the same tree as `file://` does not show them. Client/defender packages hide chevrons and disable launches.
 
+**Google Sheet (optional):** if Audit **Config → Google Sheet** has a spreadsheet URL for this engagement (`tools/op-notes-url`), a host-scan Start appends one row (time, operator, egress IP, host, command). Google login is **Authorize** in that panel (`~/.discover/google-token.json`); the scan does not open a browser. Empty URL means off. Client/defender exports omit the URL file.
+
 ##### Active Scope metrics
 
 | Metric | Meaning |
@@ -578,7 +580,7 @@ After **Export**, the modal shows the output path (default directory `$HOME/data
 
 Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit**).
 
-**Config (Discover-hosted only):** On **Reports → Audit**, use **Config** (left of Import). Hub with **APIs** (edit/save NVD, Shodan, WPScan keys in `~/.discover/api-keys`; theHarvester opens `~/.theHarvester/api-keys.yaml`), **Operator name** (updates `~/.discover/operator-name` and rewrites this report’s audit log for that name), and **Time zone** (US zones + UTC for **viewing** and metrics calendar windows; all stamps stay UTC on disk).
+**Config (Discover-hosted only):** On **Reports → Audit**, use **Config** (left of Import). Hub with **Operator name** (updates `~/.discover/operator-name` and rewrites this report’s audit log for that name), **Time zone** (US zones + UTC for **viewing** and metrics calendar windows; all stamps stay UTC on disk), **APIs** (edit/save NVD, Shodan, WPScan keys in `~/.discover/api-keys`; theHarvester opens `~/.theHarvester/api-keys.yaml`), and **Google Sheet** (spreadsheet URL for **this** engagement in `tools/op-notes-url`; Google OAuth files stay in `~/.discover/`). Empty URL turns logging off. Client/defender exports omit that URL file.
 
 **Delete audit log lines (Discover-hosted only):** Each Audit log row has **Delete**. Confirm with **`<Operator>, are you sure you want to delete this line?`** (plus a short preview). Removes that line from `tools/audit/log.txt` and rebuilds Audit (including metrics).
 

@@ -3,8 +3,8 @@
  * Coded by Grok (xAI)
  *
  * Audit page Config button (Discover statusd only).
- * Hub with three choice rows: APIs, Operator name, Time zone.
- * APIs/operator/timezone read-write via /config endpoints.
+ * Hub with four choice rows: Operator name, Time zone, APIs, Google Sheet.
+ * Read-write via /config endpoints.
  * Timezone is display-only (stamps stay UTC on disk).
  */
 (function () {
@@ -59,6 +59,20 @@
         return el;
     }
 
+    function setSheetDialogWide(on) {
+        var dialog = document.querySelector(
+            "#inc-audit-config-modal .inc-audit-config-dialog"
+        );
+        if (!dialog) {
+            return;
+        }
+        if (on) {
+            dialog.classList.add("inc-audit-config-dialog--sheet");
+        } else {
+            dialog.classList.remove("inc-audit-config-dialog--sheet");
+        }
+    }
+
     function setStatus(msg, isError) {
         var el = document.getElementById("inc-audit-config-status");
         if (!el) {
@@ -100,6 +114,7 @@
 
     function renderHub() {
         panel = "hub";
+        setSheetDialogWide(false);
         var body = document.getElementById("inc-audit-config-body");
         var actions = document.getElementById("inc-audit-config-actions");
         var title = document.getElementById("inc-audit-config-title");
@@ -110,10 +125,6 @@
         body.innerHTML =
             '<p class="inc-report-export-lead">Choose a setting to view or change.</p>' +
             '<div class="inc-audit-config-choices" role="list">' +
-            '<button type="button" class="inc-audit-config-choice" data-inc-audit-config-panel="apis">' +
-            "<strong>APIs</strong>" +
-            "<span>NVD, Shodan, WPScan, and theHarvester</span>" +
-            "</button>" +
             '<button type="button" class="inc-audit-config-choice" data-inc-audit-config-panel="operator">' +
             "<strong>Operator name</strong>" +
             "<span>First name on audit log lines (updates this report if changed)</span>" +
@@ -122,6 +133,14 @@
             "<strong>Time zone</strong>" +
             "<span>How Audit times are shown (stamps stay UTC on disk)</span>" +
             "</button>" +
+            '<button type="button" class="inc-audit-config-choice" data-inc-audit-config-panel="apis">' +
+            "<strong>APIs</strong>" +
+            "<span>NVD, Shodan, WPScan, and theHarvester</span>" +
+            "</button>" +
+            '<button type="button" class="inc-audit-config-choice" data-inc-audit-config-panel="opnotes">' +
+            "<strong>Google Sheet</strong>" +
+            "<span>Spreadsheet URL for this engagement</span>" +
+            "</button>" +
             "</div>";
         actions.innerHTML =
             '<button type="button" class="inc-report-export-cancel" data-inc-audit-config-close="1">Close</button>';
@@ -129,6 +148,7 @@
 
     function renderApis() {
         panel = "apis";
+        setSheetDialogWide(false);
         var body = document.getElementById("inc-audit-config-body");
         var actions = document.getElementById("inc-audit-config-actions");
         var title = document.getElementById("inc-audit-config-title");
@@ -168,6 +188,7 @@
 
     function renderOperator() {
         panel = "operator";
+        setSheetDialogWide(false);
         var body = document.getElementById("inc-audit-config-body");
         var actions = document.getElementById("inc-audit-config-actions");
         var title = document.getElementById("inc-audit-config-title");
@@ -192,6 +213,7 @@
 
     function renderTimezone() {
         panel = "timezone";
+        setSheetDialogWide(false);
         var body = document.getElementById("inc-audit-config-body");
         var actions = document.getElementById("inc-audit-config-actions");
         var title = document.getElementById("inc-audit-config-title");
@@ -230,6 +252,58 @@
             '<button type="button" class="inc-report-export-go" id="inc-audit-config-save-tz">Save</button>';
     }
 
+    function opNotesStatusLines(notes) {
+        var secretOk = notes && notes.has_client_secret;
+        var tokenOk = notes && notes.has_token;
+        var secretPath = (notes && notes.client_secret_path) || "~/.discover/client_secret.json";
+        var secretLine = secretOk
+            ? "Google client secret: found."
+            : "Google client secret: missing. Place client_secret.json at " +
+              secretPath +
+              ".";
+        var tokenLine = tokenOk
+            ? "Google authorization: saved."
+            : "Google authorization: not yet. Click Authorize (opens a browser).";
+        return (
+            '<p class="inc-audit-config-note">' +
+            escapeHtml(secretLine) +
+            "</p>" +
+            '<p class="inc-audit-config-note">' +
+            escapeHtml(tokenLine) +
+            "</p>"
+        );
+    }
+
+    function renderOpNotes() {
+        panel = "opnotes";
+        setSheetDialogWide(true);
+        var body = document.getElementById("inc-audit-config-body");
+        var actions = document.getElementById("inc-audit-config-actions");
+        var title = document.getElementById("inc-audit-config-title");
+        if (title) {
+            title.textContent = "Google Sheet";
+        }
+        setStatus("");
+        var notes = (configCache && configCache.op_notes) || {};
+        var url = notes.url || "";
+        var secretOk = !!notes.has_client_secret;
+        body.innerHTML =
+            '<p class="inc-report-export-lead">Paste the spreadsheet URL for this engagement. Leave empty to disable. Use a native Google Sheet (File | Save as Google Sheets), not an Excel upload.</p>' +
+            '<label class="inc-audit-import-field" for="inc-audit-config-opnotes-url">' +
+            "<span>Spreadsheet URL</span>" +
+            '<input type="text" id="inc-audit-config-opnotes-url" class="inc-audit-import-input" autocomplete="off" spellcheck="false" placeholder="https://docs.google.com/spreadsheets/d/" value="' +
+            escapeAttr(url) +
+            '">' +
+            "</label>" +
+            opNotesStatusLines(notes);
+        actions.innerHTML =
+            '<button type="button" class="inc-report-export-cancel" data-inc-audit-config-panel="hub">Back</button>' +
+            '<button type="button" class="inc-report-export-cancel" id="inc-audit-config-opnotes-auth"' +
+            (secretOk ? "" : " disabled") +
+            ">Authorize</button>" +
+            '<button type="button" class="inc-report-export-go" id="inc-audit-config-save-opnotes">Save</button>';
+    }
+
     function escapeHtml(s) {
         return String(s || "")
             .replace(/&/g, "&amp;")
@@ -262,6 +336,7 @@
             el.setAttribute("hidden", "hidden");
         }
         panel = "hub";
+        setSheetDialogWide(false);
         setStatus("");
     }
 
@@ -381,6 +456,67 @@
                         ". Audit times update on this page. Refresh Audit for Today and Yesterday metrics.",
                     false
                 );
+            })
+            .catch(function (err) {
+                setStatus(String(err.message || err), true);
+            });
+    }
+
+    function saveOpNotes() {
+        var url = (
+            (document.getElementById("inc-audit-config-opnotes-url") || {})
+                .value || ""
+        ).trim();
+        setStatus("Saving.", false);
+        postJson("/config/op-notes", { url: url })
+            .then(function (res) {
+                if (!res.body || !res.body.ok) {
+                    throw new Error(
+                        (res.body && res.body.error) ||
+                            "Save failed (HTTP " + res.http + ")."
+                    );
+                }
+                if (configCache) {
+                    configCache.op_notes = res.body;
+                }
+                renderOpNotes();
+                if (url) {
+                    setStatus("Google Sheet URL saved for this engagement.", false);
+                } else {
+                    setStatus("Google Sheet logging disabled for this engagement.", false);
+                }
+            })
+            .catch(function (err) {
+                setStatus(String(err.message || err), true);
+            });
+    }
+
+    function authorizeOpNotes() {
+        var notes = (configCache && configCache.op_notes) || {};
+        if (!notes.has_client_secret) {
+            setStatus(
+                "Place client_secret.json at ~/.discover/client_secret.json first.",
+                true
+            );
+            return;
+        }
+        setStatus(
+            "A browser window will open for Google. Finish sign-in, then this page will update.",
+            false
+        );
+        postJson("/config/op-notes-authorize", {})
+            .then(function (res) {
+                if (!res.body || !res.body.ok) {
+                    throw new Error(
+                        (res.body && res.body.error) ||
+                            "Authorize failed (HTTP " + res.http + ")."
+                    );
+                }
+                if (configCache) {
+                    configCache.op_notes = res.body;
+                }
+                renderOpNotes();
+                setStatus("Google authorization saved.", false);
             })
             .catch(function (err) {
                 setStatus(String(err.message || err), true);
@@ -665,6 +801,8 @@
                         renderOperator();
                     } else if (which === "timezone") {
                         renderTimezone();
+                    } else if (which === "opnotes") {
+                        renderOpNotes();
                     }
                     return;
                 }
@@ -686,6 +824,16 @@
                 if (t.closest("#inc-audit-config-save-tz")) {
                     ev.preventDefault();
                     saveTimezone();
+                    return;
+                }
+                if (t.closest("#inc-audit-config-save-opnotes")) {
+                    ev.preventDefault();
+                    saveOpNotes();
+                    return;
+                }
+                if (t.closest("#inc-audit-config-opnotes-auth")) {
+                    ev.preventDefault();
+                    authorizeOpNotes();
                     return;
                 }
                 if (t.closest("[data-inc-audit-config-close]")) {

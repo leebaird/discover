@@ -23,10 +23,12 @@ Binds 127.0.0.1 only. Serves:
   POST /shodan-refresh -> force-refresh one IP via recon/shodan-enrich.py --ip (JSON: {"ip":"..."})
   POST /shodan-refresh-all -> force Shodan enrich all public IPs (--force --json-summary)
   POST /software-cve-refresh -> force NVD software CVEs + rebuild active.htm
-  GET  /config -> operator config (api keys values for edit, name, view timezone)
+  GET  /config -> operator config (api keys, name, view timezone, this report Google Sheet URL)
   POST /config/api-keys -> save NVD/SHODAN/WPSCAN keys to ~/.discover/api-keys
   POST /config/operator-name -> set name; rewrite this report audit log; rebuild Audit
   POST /config/timezone -> set view timezone (display + metrics windows); stamps stay UTC
+  POST /config/op-notes -> save this report Google Sheet URL (tools/op-notes-url)
+  POST /config/op-notes-authorize -> browser OAuth; write ~/.discover/google-token.json
   POST /config/open-theharvester -> open ~/.theHarvester/api-keys.yaml (open / xdg-open)
   POST /audit-line-delete -> remove one tools/audit/log.txt line by SHA-256 hash
       (JSON: {"hash":"<sha256 hex>"}; rebuilds pages/audit.htm)
@@ -292,6 +294,8 @@ def main(argv: list[str]) -> int:
                 "/config/api-keys",
                 "/config/operator-name",
                 "/config/timezone",
+                "/config/op-notes",
+                "/config/op-notes-authorize",
                 "/config/open-theharvester",
                 "/audit-line-delete",
             }:
@@ -528,6 +532,115 @@ def main(argv: list[str]) -> int:
                     )
                     code = 500
                 self._send(code, json.dumps(result).encode() + b"\n")
+                return
+
+            # --- Google Sheet URL for this engagement ---
+            if path == "/config/op-notes":
+                cfg_mod = load_discover_config_module(discover_root)
+                if cfg_mod is None or not hasattr(cfg_mod, "write_op_notes_url"):
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": f"config module missing: {config_script}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                url = str(body.get("url") or "")
+                try:
+                    cfg_mod.write_op_notes_url(report_root, url)
+                    result = cfg_mod.op_notes_status(report_root)
+                except ValueError as exc:
+                    self._send(
+                        400,
+                        json.dumps({"ok": False, "error": str(exc)[:200]}).encode()
+                        + b"\n",
+                    )
+                    return
+                except Exception as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)[:400]}).encode()
+                        + b"\n",
+                    )
+                    return
+                if not isinstance(result, dict):
+                    self._send(500, b'{"ok":false,"error":"config get failed"}\n')
+                    return
+                result["ok"] = True
+                result["saved"] = True
+                self._send(200, json.dumps(result).encode() + b"\n")
+                return
+
+            # --- Google Sheet OAuth (browser; token under ~/.discover) ---
+            if path == "/config/op-notes-authorize":
+                script = discover_root / "misc" / "op_notes.py"
+                if not script.is_file():
+                    self._send(
+                        500,
+                        b'{"ok":false,"error":"op_notes.py missing"}\n',
+                    )
+                    return
+                uv_bin = os.path.expanduser("~/.local/bin/uv")
+                if os.path.isfile(uv_bin) and os.access(uv_bin, os.X_OK):
+                    argv = [uv_bin, "run", str(script), "authorize"]
+                else:
+                    argv = ["uv", "run", str(script), "authorize"]
+                try:
+                    proc = subprocess.run(
+                        argv,
+                        capture_output=True,
+                        text=True,
+                        timeout=180,
+                        env=env,
+                        cwd=str(Path.home()),
+                    )
+                except subprocess.TimeoutExpired:
+                    self._send(
+                        504,
+                        b'{"ok":false,"error":"Google authorization timed out"}\n',
+                    )
+                    return
+                except FileNotFoundError:
+                    self._send(
+                        400,
+                        b'{"ok":false,"error":"uv is not installed. Run Discover (installs uv)."}\n',
+                    )
+                    return
+                except OSError as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)}).encode()
+                        + b"\n",
+                    )
+                    return
+                if proc.returncode != 0:
+                    err = (proc.stderr or proc.stdout or "authorize failed").strip()
+                    self._send(
+                        400,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": err[:400]
+                                or "Google authorization failed.",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                cfg_mod = load_discover_config_module(discover_root)
+                result = {"ok": True, "authorized": True}
+                if cfg_mod is not None and hasattr(cfg_mod, "op_notes_status"):
+                    try:
+                        result.update(cfg_mod.op_notes_status(report_root))
+                    except Exception:
+                        pass
+                    result["ok"] = True
+                    result["authorized"] = True
+                self._send(200, json.dumps(result).encode() + b"\n")
                 return
 
             # --- open theHarvester keys (fixed path only; no client path) ---
@@ -1222,6 +1335,8 @@ def main(argv: list[str]) -> int:
                     return
                 try:
                     result = cfg_mod.get_all()
+                    if hasattr(cfg_mod, "op_notes_status"):
+                        result["op_notes"] = cfg_mod.op_notes_status(report_root)
                 except Exception as exc:
                     self._send(
                         500,

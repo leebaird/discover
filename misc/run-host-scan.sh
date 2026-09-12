@@ -281,13 +281,16 @@ PY
 
 f_audit(){
     local action="$1"
-    # Optional arguments for Op Notes
-    local target="${2:-}"
-    local command="${3:-}"
     local audit_dir="$REPORT_ROOT/tools/audit"
     local audit_log="$audit_dir/log.txt"
     mkdir -p "$audit_dir"
-    local ip op
+    local ts ip op
+    ts=$(date -u +"%m/%d/%Y - %H:%M Z")
+
+    # Started uses the run stamp so audit-build can match output.txt Command.
+    case "$action" in
+        Started\ *) ts="$STAMP_DISPLAY" ;;
+    esac
 
     if declare -F f_audit_operator_name >/dev/null 2>&1; then
         op=$(f_audit_operator_name)
@@ -305,18 +308,76 @@ f_audit(){
 
     case "$action" in *.) ;; *) action="${action}." ;; esac
     # mm/dd/yyyy - hh:mm Z | operator | egress IP | action
-    printf '%s | %s | %s | %s\n' "$STAMP_DISPLAY" "$op" "$ip" "$action" >> "$audit_log"
+    printf '%s | %s | %s | %s\n' "$ts" "$op" "$ip" "$action" >> "$audit_log"
+}
 
-    if [ -f "$REPORT_ROOT/.env" ]; then
-        local sheets_url
-        sheets_url=$(grep '^OP_NOTES_URL=' "$REPORT_ROOT/.env" | cut -d'=' -f2- | sed "s/^['\"]//;s/['\"]$//;s/^[[:space:]]*//;s/[[:space:]]*$//" || true)
-        # If a command was specified and we have an Op Notes URL, log to Op Notes
-        if [ -n "$command" ] && [ -n "$sheets_url" ]; then
-            if ! uv run "$DISCOVER_ROOT/misc/op_notes.py" "$sheets_url" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command"; then
-                printf '\033[0;31m[!] Op Notes entry failed: check token/URL\033[0m\n' >&2
-            fi
-        fi
+# Append one Google Sheet row when this engagement has a sheet URL (Audit Config).
+# Never opens a browser; never fails the scan. Background + 25s cap.
+f_op_notes(){
+    local target="$1"
+    local command="$2"
+    local url_file="$REPORT_ROOT/tools/op-notes-url"
+    local sheets_url=""
+    local op ip script uv_bin
+
+    [ -n "$command" ] || return 0
+    [ -f "$url_file" ] || return 0
+
+    sheets_url=$(head -n 1 "$url_file" 2>/dev/null | tr -d '\r')
+    sheets_url="${sheets_url#"${sheets_url%%[![:space:]]*}"}"
+    sheets_url="${sheets_url%"${sheets_url##*[![:space:]]}"}"
+    sheets_url="${sheets_url#\"}"
+    sheets_url="${sheets_url%\"}"
+    sheets_url="${sheets_url#\'}"
+    sheets_url="${sheets_url%\'}"
+
+    [ -n "$sheets_url" ] || return 0
+
+    if [ ! -f "${HOME}/.discover/google-token.json" ]; then
+        printf '\033[0;31m[!] Google Sheet skipped: not authorized (Audit Config → Google Sheet).\033[0m\n' >&2
+        return 0
     fi
+
+    script="$DISCOVER_ROOT/misc/op_notes.py"
+    [ -f "$script" ] || return 0
+
+    uv_bin=""
+
+    if command -v uv >/dev/null 2>&1; then
+        uv_bin=$(command -v uv)
+    elif [ -x "${HOME}/.local/bin/uv" ]; then
+        uv_bin="${HOME}/.local/bin/uv"
+    fi
+
+    if [ -z "$uv_bin" ]; then
+        printf '\033[0;31m[!] Google Sheet skipped: uv is not installed.\033[0m\n' >&2
+        return 0
+    fi
+
+    if declare -F f_audit_operator_name >/dev/null 2>&1; then
+        op=$(f_audit_operator_name)
+    else
+        op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
+        [ -n "$op" ] || op=unknown
+    fi
+
+    if declare -F f_audit_egress_ip >/dev/null 2>&1; then
+        ip=$(f_audit_egress_ip)
+    else
+        ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
+        [ -n "$ip" ] || ip=unknown
+    fi
+
+    (
+        if command -v timeout >/dev/null 2>&1; then
+            timeout --signal=TERM --kill-after=5s 25s \
+                "$uv_bin" run "$script" append "$sheets_url" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" \
+                || printf '\033[0;31m[!] Google Sheet entry failed: check token/URL.\033[0m\n' >&2
+        else
+            "$uv_bin" run "$script" append "$sheets_url" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" \
+                || printf '\033[0;31m[!] Google Sheet entry failed: check token/URL.\033[0m\n' >&2
+        fi
+    ) >/dev/null 2>&1 &
 }
 
 # Software-aware nuclei tags (pass-1 recon / fingerprint).
@@ -905,6 +966,7 @@ SOFT_NOTE=""
 
 f_write_status 1
 SCAN_STARTED=1
+f_audit "Started $TOOL on $URL$SOFT_NOTE"
 
 cat > "$META_FILE" <<EOF
 {
@@ -924,9 +986,27 @@ EOF
 # logged could be something other than what was actually run)
 f_clean_cmd() {
     local -n cmd_ref="$1"
+    local arg skip_next=0
 
     echo -n "$(basename "${cmd_ref[0]}")"
     for arg in "${cmd_ref[@]:1}"; do
+        if [ "$skip_next" -eq 1 ]; then
+            skip_next=0
+            echo -n " REDACTED"
+            continue
+        fi
+
+        if [[ "$arg" == --api-token ]]; then
+            echo -n " --api-token"
+            skip_next=1
+            continue
+        fi
+
+        if [[ "$arg" == --api-token=* ]]; then
+            echo -n " --api-token=REDACTED"
+            continue
+        fi
+
         # Trim REPORT_ROOT from absolute paths
         arg="${arg#"${REPORT_ROOT}"/}"
 
@@ -1213,7 +1293,7 @@ case "$TOOL" in
             fi
 
             f_write_run_header "$(f_clean_cmd NIKTO_CMD)"
-            f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd NIKTO_CMD)"
+            f_op_notes "$URL" "$(f_clean_cmd NIKTO_CMD)"
             {
                 echo "[*] Non-interactive (PROMPTS=no, UPDATES=no, -nointeractive -nocheck);"
                 echo "    HTTP/1.1 + GET; request timeout ${NIKTO_REQ_TIMEOUT}s; FAILURES=8;"
@@ -1281,7 +1361,7 @@ case "$TOOL" in
             -silent -nc -duc -o "$NUCLEI_OUT"
         )
 
-        f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd NUCLEI_CMD)"
+        f_op_notes "$URL" "$(f_clean_cmd NUCLEI_CMD)"
         {
             echo "Started: $STAMP_DISPLAY"
             echo
@@ -1400,7 +1480,7 @@ PY
         DROOP_CMD=(droopescan scan "$CMS" -u "$URL" -e a -t 4 -o standard --hide-progressbar)
 
         f_write_run_header "$(f_clean_cmd DROOP_CMD)"
-        f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd DROOP_CMD)"
+        f_op_notes "$URL" "$(f_clean_cmd DROOP_CMD)"
         {
             echo "CMS: $CMS"
             echo "Software: ${SOFTWARE:--}"
@@ -1437,7 +1517,7 @@ PY
         fi
 
         f_write_run_header "$(f_clean_cmd WPSCAN_CMD)"
-        f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd WPSCAN_CMD)"
+        f_op_notes "$URL" "$(f_clean_cmd WPSCAN_CMD)"
         {
             echo "Software: ${SOFTWARE:--}"
 
@@ -1476,7 +1556,7 @@ PY
         ROBOTS_CMD=(curl -kLsS --http1.1 --connect-timeout 8 --max-time 15 -A "$UA" -w "%{http_code}" -o "$ROBOTS_FILE" "$ROBOTS_URL")
 
         f_write_run_header "$(f_clean_cmd ROBOTS_CMD)"
-        f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd ROBOTS_CMD)"
+        f_op_notes "$URL" "$(f_clean_cmd ROBOTS_CMD)"
         {
             echo "Robots URL: $ROBOTS_URL"
             echo "Base:       $BASE_URL"
@@ -1629,7 +1709,7 @@ PY
         FFUF_CMD=(ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 10 -rate 20 -timeout "$FFUF_TIMEOUT" -maxtime "$FFUF_MAXTIME" -se -H "User-Agent: $UA" -of json -o "$FFUF_JSON" -fc "$FFUF_FC" -noninteractive)
 
         f_write_run_header "$(f_clean_cmd FFUF_CMD)"
-        f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd FFUF_CMD)"
+        f_op_notes "$URL" "$(f_clean_cmd FFUF_CMD)"
         {
             echo "[*] Request timeout ${FFUF_TIMEOUT}s; maxtime ${FFUF_MAXTIME}s; stop on spurious errors;"
             echo "    hard stop ${FFUF_HARD_TIMEOUT}."
@@ -1681,7 +1761,7 @@ PY
         FEROX_CMD=(feroxbuster -u "$URL" -w "$FFUF_WL" -a "$UA" -t 10 --rate-limit 20 -T "$FEROX_TIMEOUT" --time-limit "$FEROX_TIME_LIMIT" --auto-bail -n --dont-extract-links -k -C "$FEROX_FC" -q --json -o "$FEROX_JSON" --no-state)
 
         f_write_run_header "$(f_clean_cmd FEROX_CMD)"
-        f_audit "Started $TOOL on $URL$SOFT_NOTE" "$URL" "$(f_clean_cmd FEROX_CMD)"
+        f_op_notes "$URL" "$(f_clean_cmd FEROX_CMD)"
         FEROX_RAW="$RUN_DIR/ferox.raw.txt"
         set +e
 

@@ -3,6 +3,8 @@
 # Coded by Grok (xAI)
 """Discover operator config under ~/.discover (API keys, name, view timezone).
 
+Google Sheet URL is per engagement (`<report>/tools/op-notes-url`), not here.
+
 Used by host-scan-statusd /config endpoints. CLI JSON never prints secret
 values (presence only). statusd loads get_all() / write helpers in-process for
 localhost Audit Config so keys can be edited without clear-text logging sinks.
@@ -11,6 +13,7 @@ localhost Audit Config so keys can be edited without clear-text logging sinks.
   python3 recon/discover-config.py set-api-keys --json --body '{"NVD_API_KEY":"..."}'
   python3 recon/discover-config.py set-operator-name --name Carter --report /path/to/report --json
   python3 recon/discover-config.py set-timezone --tz America/Chicago --json
+  python3 recon/discover-config.py set-op-notes --report /path/to/report --json --body '{"url":"..."}'
 """
 
 from __future__ import annotations
@@ -50,6 +53,24 @@ def operator_name_path() -> Path:
 
 def timezone_path() -> Path:
     return discover_home() / "timezone"
+
+
+def client_secret_path() -> Path:
+    return discover_home() / "client_secret.json"
+
+
+def google_token_path() -> Path:
+    return discover_home() / "google-token.json"
+
+
+# Per-engagement Google Sheet URL (not ~/.discover — each report has its own sheet).
+OP_NOTES_URL_REL = "tools/op-notes-url"
+
+# Native Google Sheets URLs only (File | Save as Google Sheets).
+_SHEET_URL_RE = re.compile(
+    r"^https://docs\.google\.com/spreadsheets/d/[A-Za-z0-9_-]+(?:/.*)?$",
+    re.IGNORECASE,
+)
 
 
 def ensure_discover_dir() -> None:
@@ -299,6 +320,74 @@ def write_timezone(tz_id: str) -> str:
     return tid
 
 
+def op_notes_url_path(report_root: Path) -> Path:
+    return Path(report_root) / OP_NOTES_URL_REL
+
+
+def normalize_op_notes_url(raw: str) -> str:
+    """Return a cleaned sheet URL, or empty to disable. Raises ValueError if invalid."""
+    text = (raw or "").strip().strip('"').strip("'")
+    if not text:
+        return ""
+    if not _SHEET_URL_RE.match(text):
+        raise ValueError("URL must be a Google Sheets link.")
+    return text
+
+
+def read_op_notes_url(report_root: Path) -> str:
+    """Sheet URL for this engagement, or empty if Google Sheet logging is off."""
+    path = op_notes_url_path(report_root)
+    if not path.is_file():
+        return ""
+    try:
+        raw = path.read_text(encoding="utf-8", errors="replace").splitlines()
+        value = (raw[0] if raw else "").strip()
+    except OSError:
+        return ""
+    if not value:
+        return ""
+    try:
+        return normalize_op_notes_url(value)
+    except ValueError:
+        return ""
+
+
+def write_op_notes_url(report_root: Path, url: str) -> str:
+    """Save or clear the engagement sheet URL. Empty url removes the file."""
+    report = Path(report_root)
+    if not report.is_dir():
+        raise ValueError("Report directory not found.")
+    cleaned = normalize_op_notes_url(url)
+    path = op_notes_url_path(report)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not cleaned:
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        return ""
+    path.write_text(cleaned + "\n", encoding="utf-8")
+    try:
+        path.chmod(0o600)
+    except OSError:
+        pass
+    return cleaned
+
+
+def op_notes_status(report_root: Path) -> dict:
+    """Config panel payload (URL + OAuth file presence). Never reads token JSON."""
+    url = read_op_notes_url(report_root)
+    return {
+        "url": url,
+        "enabled": bool(url),
+        "path": str(op_notes_url_path(report_root)),
+        "has_client_secret": client_secret_path().is_file(),
+        "has_token": google_token_path().is_file(),
+        "client_secret_path": str(client_secret_path()),
+        "token_path": str(google_token_path()),
+    }
+
+
 def get_all() -> dict:
     """Full config including API key values (in-process use only — statusd Config).
 
@@ -315,6 +404,8 @@ def get_all() -> dict:
             "api_keys": str(api_keys_path()),
             "operator_name": str(operator_name_path()),
             "timezone": str(timezone_path()),
+            "client_secret": str(client_secret_path()),
+            "google_token": str(google_token_path()),
         },
     }
 
@@ -342,7 +433,13 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Discover operator config")
     parser.add_argument(
         "action",
-        choices=("get-all", "set-api-keys", "set-operator-name", "set-timezone"),
+        choices=(
+            "get-all",
+            "set-api-keys",
+            "set-operator-name",
+            "set-timezone",
+            "set-op-notes",
+        ),
     )
     parser.add_argument("--json", action="store_true", help="JSON stdout")
     parser.add_argument("--name", default="", help="Operator name for set-operator-name")
@@ -378,6 +475,8 @@ def main(argv: list[str] | None = None) -> int:
             "name_required": "name is required",
             "name_invalid": "Operator name must be 1-10 letters only.",
             "tz_invalid": "Timezone must be UTC or a supported US zone.",
+            "url_invalid": "URL must be a Google Sheets link.",
+            "report_required": "report path is required",
             "failed": "config operation failed",
             "unknown": "unknown action",
         }
@@ -464,6 +563,33 @@ def main(argv: list[str] | None = None) -> int:
             if args.json:
                 return emit_ok_json(json.dumps(payload, ensure_ascii=False), 0)
             return emit_ok_json(json.dumps(payload, indent=2, ensure_ascii=False), 0)
+
+        if args.action == "set-op-notes":
+            report = (args.report or "").strip()
+            if not report:
+                return emit_err_code("report_required", 2)
+            raw = args.body.strip()
+            if not raw and not sys.stdin.isatty():
+                raw = sys.stdin.read().strip()
+            url = ""
+            if raw:
+                try:
+                    body = json.loads(raw)
+                except json.JSONDecodeError:
+                    return emit_err_code("invalid_json", 2)
+                if not isinstance(body, dict):
+                    return emit_err_code("object_required", 2)
+                url = str(body.get("url") or "")
+            try:
+                write_op_notes_url(Path(report), url)
+            except ValueError:
+                return emit_err_code("url_invalid", 2)
+            status = op_notes_status(Path(report))
+            status["ok"] = True
+            status["saved"] = True
+            if args.json:
+                return emit_ok_json(json.dumps(status, ensure_ascii=False), 0)
+            return emit_ok_json(json.dumps(status, indent=2, ensure_ascii=False), 0)
 
     except Exception:
         return emit_err_code("failed", 1)

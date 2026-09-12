@@ -2791,7 +2791,23 @@ body:not(.inc-iframe-parent) pre {
 
 /* Config modal hub choices + timezone list */
 .inc-audit-config-modal .inc-audit-config-dialog {
-    max-width: 560px;
+    max-width: 640px;
+}
+
+.inc-audit-config-modal .inc-audit-config-dialog--sheet {
+    max-width: 704px;
+}
+
+.inc-audit-config-note {
+    font-size: 12px;
+    color: #9aa3ad;
+    line-height: 1.35;
+    margin: 0 0 8px;
+}
+
+#inc-audit-config-opnotes-auth:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 .inc-audit-config-choices {
