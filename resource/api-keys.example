@@ -24,3 +24,10 @@
 # Used as --api-token when launching wpscan from Subdomains expand.
 #
 # WPSCAN_API_TOKEN=your-token-here
+#
+# Optional: Serply API key for running Google dorks through the search API
+# (Domain menu 4). With a key set, results are collected to google-dorks.txt
+# instead of opening 14 browser tabs; without one, the browser flow is used.
+# Free key: https://serply.io
+#
+# SERPLY_API_KEY=your-key-here

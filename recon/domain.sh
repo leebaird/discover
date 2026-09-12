@@ -392,12 +392,19 @@ f_breaches() {
     done
 }
 
+f_google_dorks_have_key(){
+
+    if [ -n "${SERPLY_API_KEY:-}" ]; then
+        return 0
+    fi
+
+    python3 "$DISCOVER/recon/google-dorks.py" --have-key >/dev/null 2>&1
+}
+
 f_google_dorks() {
     local USER_AGENTS GOOGLE_URLS GOOGLE_INTEXT_EXCLUDE url USER_AGENT
 
     GOOGLE_INTEXT_EXCLUDE='-intext:%22MANAGEMENT%27S+DISCUSSION+AND+ANALYSIS%22+-intext:%22General+Services+Administration%22+-intext:public'
-
-    f_firefox_user_agents
 
     GOOGLE_URLS=(
     "https://www.google.com/search?q=%22$COMPANYURL%22+logo"
@@ -415,6 +422,17 @@ f_google_dorks() {
     "https://www.google.com/search?q=site:$DOMAIN+intitle%3Alogin+%7C+inurl%3Alogin+%7C+intitle%3Asignin+%7C+inurl%3Asignin+%7C+inurl%3Asecure+$GOOGLE_INTEXT_EXCLUDE"
     "https://www.google.com/search?q=site:$DOMAIN+ext:log+%7C+ext:txt+%7C+ext:conf+%7C+ext:cnf+%7C+ext:ini+%7C+ext:env+%7C+ext:sh+%7C+ext:bak+%7C+ext:backup+%7C+ext:swp+%7C+ext:old+%7C+ext:~+%7C+ext:git+%7C+ext:svn+%7C+ext:htpasswd+%7C+ext:htaccess+%7C+ext:json"
     )
+
+    if f_google_dorks_have_key; then
+        echo
+        echo -e "${BLUE}Running the dorks through the Serply search API.${NC}"
+        echo
+
+        python3 "$DISCOVER/recon/google-dorks.py" --domain "$DOMAIN" "${GOOGLE_URLS[@]}"
+        return
+    fi
+
+    f_firefox_user_agents
 
     for url in "${GOOGLE_URLS[@]}"; do
         USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
@@ -608,7 +626,7 @@ f_domain_menu(){
         ;;
     4)  f_runlocally
 
-        if ! f_firefox_check; then
+        if ! f_google_dorks_have_key && ! f_firefox_check; then
             exit 1
         fi
 

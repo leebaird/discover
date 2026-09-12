@@ -171,6 +171,8 @@ RECON
 
 Note: Passive and Active cannot be run as root.
 
+**Google dorks** (menu 4) run through the [Serply](https://serply.io) search API when `SERPLY_API_KEY` is set: the same dork queries are collected to `<report>/google-dorks.txt` instead of opening one browser tab per dork. Without a key it falls back to the Firefox flow. Free key: https://serply.io (add it to `~/.discover/api-keys` like the other keys).
+
 **Import** (names, names/titles/emails, subdomains, and other-operator scans) is on **Report → Audit → Import** when the engagement is open via Discover (`http://127.0.0.1:17322/…`). Scripts remain available for CLI / automation.
 
 ---
@@ -450,6 +452,7 @@ NVD_API_KEY=your-key-here
 | `DISCOVER_CVE_PROGRESS=1` | Print each product lookup while building Active |
 | `SHODAN_API_KEY` | Optional Shodan key for post-Active host enrichment (Active **Enrich** / CLI) |
 | `WPSCAN_API_TOKEN` | Optional WPScan API token for WordPress host scans (vuln DB) |
+| `SERPLY_API_KEY` | Optional Serply key to run Google dorks (Domain menu 4) through the search API instead of the browser |
 
 Cache file: `<report>/tools/software-cves-cache.json`. CVSS values are **triage leads** from NVD CPE matches, not confirmed findings — validate before reporting to a client.
 
