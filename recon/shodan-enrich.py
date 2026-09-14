@@ -1099,6 +1099,21 @@ def main(argv: list[str] | None = None) -> int:
             return set()
         return {p.strip() for p in text.replace(" ", "").split(",") if p.strip()}
 
+    def _vuln_set(raw: object) -> set[str]:
+        if raw is None:
+            return set()
+        if isinstance(raw, dict):
+            raw = list(raw.keys())
+        if isinstance(raw, list):
+            return {str(v).strip().upper() for v in raw if str(v).strip()}
+        text = str(raw).strip()
+        if not text:
+            return set()
+        return {p.strip().upper() for p in text.split(",") if p.strip()}
+
+    def _sorted_cves(cves: set[str]) -> list[str]:
+        return sorted(cves)
+
     def _sorted_ports(ports: set[str]) -> list[str]:
         def key(p: str):
             try:
@@ -1120,11 +1135,13 @@ def main(argv: list[str] | None = None) -> int:
         "vuln_count_changed": 0,
         "samples": [],  # per-IP deltas (prefer port changes first)
         "port_samples": [],  # IPs with port add/remove detail (full list, capped)
+        "vuln_samples": [],  # IPs whose CVE set or count changed
     }
     if args.force or args.json_summary:
         index_after = load_index_json(shodan_dir)
         sample_cap = 40
         port_sample_cap = 80
+        vuln_sample_cap = 80
         all_ips = set(index_before) | set(index_after)
         for ip in sorted(all_ips):
             b = index_before.get(ip) if isinstance(index_before.get(ip), dict) else {}
@@ -1146,12 +1163,18 @@ def main(argv: list[str] | None = None) -> int:
             lu_a = str(a.get("last_update") or "")
             vc_b = b.get("vuln_count") if b else None
             vc_a = a.get("vuln_count")
+            vulns_b_set = _vuln_set(b.get("vulns") if b else [])
+            vulns_a_set = _vuln_set(a.get("vulns"))
+            vuln_added = _sorted_cves(vulns_a_set - vulns_b_set)
+            vuln_removed = _sorted_cves(vulns_b_set - vulns_a_set)
             status_changed = (b.get("status") or "") != (a.get("status") or "") if b else bool(a)
 
             is_new_ok = not b and a
             ports_changed = bool(added or removed)
             lu_changed = bool(b) and lu_b != lu_a
-            vc_changed = bool(b) and vc_b != vc_a
+            vc_changed = bool(b) and (
+                vc_b != vc_a or bool(vuln_added or vuln_removed)
+            )
             meaningful = is_new_ok or (
                 b
                 and (
@@ -1184,13 +1207,40 @@ def main(argv: list[str] | None = None) -> int:
                 "last_update_after": lu_a,
                 "vuln_count_before": vc_b,
                 "vuln_count_after": vc_a,
+                "vulns_added": vuln_added,
+                "vulns_removed": vuln_removed,
                 "is_new": bool(is_new_ok),
             }
             if ports_changed or is_new_ok:
                 if len(changes_summary["port_samples"]) < port_sample_cap:
                     changes_summary["port_samples"].append(sample)
+            if vc_changed:
+                if len(changes_summary["vuln_samples"]) < vuln_sample_cap:
+                    changes_summary["vuln_samples"].append(sample)
             if len(changes_summary["samples"]) < sample_cap:
                 changes_summary["samples"].append(sample)
+
+        vuln_now: list[dict[str, Any]] = []
+        for ip in sorted(index_after):
+            cur = index_after.get(ip)
+            if not isinstance(cur, dict):
+                continue
+            ids = _sorted_cves(_vuln_set(cur.get("vulns")))
+            try:
+                count = int(cur.get("vuln_count") or 0)
+            except (TypeError, ValueError):
+                count = 0
+            if count < 1 and not ids:
+                continue
+            vuln_now.append(
+                {
+                    "ip": ip,
+                    "vuln_count": count or len(ids),
+                    "vulns": ids,
+                }
+            )
+        changes_summary["vuln_now_total"] = len(vuln_now)
+        changes_summary["vuln_now"] = vuln_now[:80]
 
     if args.json_summary:
         print(

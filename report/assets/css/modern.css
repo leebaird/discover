@@ -2661,7 +2661,7 @@ body:not(.inc-iframe-parent) pre {
     white-space: normal;
     line-height: 1.45;
     font-size: 13px;
-    max-height: 280px;
+    max-height: 420px;
     overflow: auto;
 }
 
@@ -2733,7 +2733,40 @@ body:not(.inc-iframe-parent) pre {
 
 /* Active Update modal: 25% wider than shared export dialog (480px → 600px). */
 .inc-active-refresh-modal .inc-report-export-dialog {
-    max-width: 600px;
+    max-width: 820px;
+}
+
+.inc-active-refresh-h {
+    margin: 10px 0 0;
+    font-weight: 600;
+    color: #e8eef5;
+}
+
+.inc-active-refresh-iprow {
+    display: flex;
+    align-items: baseline;
+    gap: 3ch;
+    font-size: 12px;
+    line-height: 1.4;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.inc-active-refresh-ip {
+    flex: 0 0 15ch;
+    white-space: nowrap;
+    color: #c5ccd6;
+}
+
+.inc-active-refresh-ipdetail {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: #9aa3ad;
+}
+
+.inc-active-refresh-more {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #9aa3ad;
 }
 
 /* Audit Import hub modal (operator / names / NTE / subdomains). */

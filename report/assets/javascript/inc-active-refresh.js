@@ -153,24 +153,97 @@
         var added = s.ports_added;
         var removed = s.ports_removed;
         if (Array.isArray(added) && added.length) {
-            bits.push(added.map(esc).join(","));
+            bits.push("added " + added.map(esc).join(", "));
         }
         if (Array.isArray(removed) && removed.length) {
-            bits.push(removed.map(esc).join(",") + " removed");
+            bits.push("removed " + removed.map(esc).join(", "));
         }
         if (bits.length) {
-            return bits.join(" ");
+            return bits.join("; ");
         }
-        // Fallback when older statusd only sent before/after strings.
         if (s.ports_before !== s.ports_after) {
             return (
                 "ports " +
-                esc(s.ports_before || "—") +
-                " → " +
-                esc(s.ports_after || "—")
+                esc(s.ports_before || "-") +
+                " to " +
+                esc(s.ports_after || "-")
             );
         }
         return "";
+    }
+
+    function formatCveList(ids, limit) {
+        var list = Array.isArray(ids) ? ids.slice() : [];
+        var cap = limit || 9;
+        var shown = list.slice(0, cap).map(esc);
+        if (list.length > cap) {
+            shown.push("+" + (list.length - cap) + " more");
+        }
+        return shown.join(", ");
+    }
+
+    function formatVulnDelta(s) {
+        var bits = [];
+        var before = s.vuln_count_before;
+        var after = s.vuln_count_after;
+        if (before != null && after != null && before !== after) {
+            bits.push("CVEs " + esc(before) + " to " + esc(after));
+        }
+        var added = s.vulns_added;
+        var removed = s.vulns_removed;
+        if (Array.isArray(added) && added.length) {
+            bits.push("added " + formatCveList(added, 9));
+        }
+        if (Array.isArray(removed) && removed.length) {
+            bits.push("removed " + formatCveList(removed, 9));
+        }
+        if (bits.length) {
+            return bits.join("; ");
+        }
+        if (after != null && Number(after) > 0) {
+            return "CVEs " + esc(after);
+        }
+        return "";
+    }
+
+    function sortByIp(rows) {
+        return rows.slice().sort(function (a, b) {
+            return String(a.ip || "").localeCompare(String(b.ip || ""), undefined, {
+                numeric: true,
+            });
+        });
+    }
+
+    function formatIpRows(rows, detailFn, extra) {
+        var html = [];
+        var cap = 40;
+        sortByIp(rows)
+            .slice(0, cap)
+            .forEach(function (s) {
+                var detail = detailFn(s);
+                if (extra) {
+                    detail = extra(s, detail);
+                }
+                html.push(
+                    '<div class="inc-active-refresh-iprow">' +
+                        '<span class="inc-active-refresh-ip">' +
+                        esc(s.ip) +
+                        "</span> " +
+                        '<span class="inc-active-refresh-ipdetail">' +
+                        (detail || "-") +
+                        "</span>" +
+                        "</div>"
+                );
+            });
+        if (rows.length > cap) {
+            html.push(
+                '<div class="inc-active-refresh-more">' +
+                    "and " +
+                    (rows.length - cap) +
+                    " more</div>"
+            );
+        }
+        return html.join("");
     }
 
     function formatShodanSummary(j) {
@@ -186,9 +259,7 @@
                 " with data · " +
                 (st.not_found != null ? st.not_found : "0") +
                 " not in Shodan" +
-                (st.error
-                    ? " · errors " + st.error
-                    : "")
+                (st.error ? " · errors " + st.error : "")
         );
         lines.push(
             "Changed: " +
@@ -196,16 +267,12 @@
                 " IPs" +
                 (ch.ips_new_ok ? " · " + ch.ips_new_ok + " newly found" : "") +
                 (ch.ports_changed
-                    ? " · " +
-                      ch.ports_changed +
-                      " IPs with port changes"
+                    ? " · " + ch.ports_changed + " with port changes"
                     : "") +
                 (ch.ports_added_total
                     ? " · " +
                       ch.ports_added_total +
-                      (ch.ports_added_total === 1
-                          ? " new port"
-                          : " new ports")
+                      (ch.ports_added_total === 1 ? " new port" : " new ports")
                     : "") +
                 (ch.ports_removed_total
                     ? " · " +
@@ -215,16 +282,33 @@
                           : " ports no longer seen")
                     : "") +
                 (ch.last_update_changed
-                    ? " · " + ch.last_update_changed + " last_update"
+                    ? " · " + ch.last_update_changed + " Shodan timestamps"
                     : "") +
                 (ch.vuln_count_changed
-                    ? " · " + ch.vuln_count_changed + " vuln count"
+                    ? " · " +
+                      ch.vuln_count_changed +
+                      (ch.vuln_count_changed === 1
+                          ? " IP with CVE changes"
+                          : " IPs with CVE changes")
                     : "")
         );
         if (ch.ips_updated === 0 && (st.queried || 0) > 0) {
-            lines.push("No port/last_update/vuln differences vs prior index.");
+            lines.push("No port, timestamp, or CVE differences vs prior index.");
         }
-        // Prefer port_samples (host + added/removed); fall back to samples.
+        var vulnNowTotal =
+            ch.vuln_now_total != null
+                ? ch.vuln_now_total
+                : (ch.vuln_now || []).length;
+        if (vulnNowTotal) {
+            lines.push(
+                "Shodan CVEs on " +
+                    vulnNowTotal +
+                    (vulnNowTotal === 1 ? " IP." : " IPs.")
+            );
+        } else {
+            lines.push("No Shodan CVEs on these IPs.");
+        }
+
         var portSamples = ch.port_samples || [];
         if (!portSamples.length) {
             portSamples = (ch.samples || []).filter(function (s) {
@@ -237,34 +321,59 @@
             });
         }
         if (portSamples.length) {
-            portSamples = portSamples.slice().sort(function (a, b) {
-                return String(a.ip || "").localeCompare(
-                    String(b.ip || ""),
-                    undefined,
-                    { numeric: true }
-                );
-            });
-            portSamples.slice(0, 40).forEach(function (s) {
-                var delta = formatPortDelta(s);
-                if (s.is_new && !delta && s.ports_after) {
-                    delta = "new in Shodan " + esc(s.ports_after);
-                } else if (s.is_new && delta) {
-                    delta = "new in Shodan " + delta;
-                }
-                if (delta) {
-                    lines.push(
-                        esc(s.ip) + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + delta
-                    );
-                } else {
-                    lines.push(esc(s.ip));
-                }
-            });
-            if (portSamples.length > 40) {
-                lines.push(
-                    "and " + (portSamples.length - 40) + " more host(s)"
-                );
-            }
+            lines.push('<div class="inc-active-refresh-h">Ports</div>');
+            lines.push(
+                formatIpRows(portSamples, formatPortDelta, function (s, delta) {
+                    if (s.is_new && !delta && s.ports_after) {
+                        return "new in Shodan " + esc(s.ports_after);
+                    }
+                    if (s.is_new && delta) {
+                        return "new in Shodan; " + delta;
+                    }
+                    return delta;
+                })
+            );
         }
+
+        var vulnSamples = ch.vuln_samples || [];
+        if (!vulnSamples.length) {
+            vulnSamples = (ch.samples || []).filter(function (s) {
+                return (
+                    (s.vulns_added && s.vulns_added.length) ||
+                    (s.vulns_removed && s.vulns_removed.length) ||
+                    (s.vuln_count_before != null &&
+                        s.vuln_count_after != null &&
+                        s.vuln_count_before !== s.vuln_count_after)
+                );
+            });
+        }
+        if (vulnSamples.length) {
+            lines.push(
+                '<div class="inc-active-refresh-h">Vulnerabilities (changed this run)</div>'
+            );
+            lines.push(formatIpRows(vulnSamples, formatVulnDelta));
+        }
+
+        var vulnNow = ch.vuln_now || [];
+        if (vulnNow.length) {
+            lines.push(
+                '<div class="inc-active-refresh-h">Vulnerabilities</div>' +
+                formatIpRows(vulnNow, function (s) {
+                    var n =
+                        s.vuln_count != null
+                            ? s.vuln_count
+                            : (s.vulns || []).length;
+                    var bits = [
+                        n + (Number(n) === 1 ? " CVE" : " CVEs"),
+                    ];
+                    if (s.vulns && s.vulns.length) {
+                        bits.push(formatCveList(s.vulns, 9));
+                    }
+                    return bits.join("  ");
+                })
+            );
+        }
+
         return lines.join("<br>");
     }
 
