@@ -1631,12 +1631,32 @@ f_whatweb_remove_apt_package() {
 
 }
 
+# Maintained fork (upstream WhatWeb is stale).
+WHATWEB_GIT=https://github.com/leebaird/WhatWeb
+
+f_whatweb_ensure_origin() {
+
+    if [ ! -d /opt/WhatWeb/.git ]; then
+        return 1
+    fi
+
+    local current
+    current=$(git -C /opt/WhatWeb remote get-url origin 2>/dev/null || true)
+
+    if [ "$current" != "$WHATWEB_GIT" ] && [ "$current" != "${WHATWEB_GIT}.git" ]; then
+        echo -e "${YELLOW}Pointing WhatWeb origin at ${WHATWEB_GIT}${NC}"
+        git -C /opt/WhatWeb remote set-url origin "$WHATWEB_GIT"
+    fi
+
+}
+
 if [ -d /opt/WhatWeb/.git ]; then
     echo -e "${BLUE}Updating WhatWeb.${NC}"
     f_whatweb_ensure_deps
     f_whatweb_restore_script
+    f_whatweb_ensure_origin
     cd /opt/WhatWeb/ || exit
-    whatweb_pull=$(git pull 2>&1) || true
+    whatweb_pull=$(git pull --ff-only origin master 2>&1) || true
 
     if echo "$whatweb_pull" | grep -qi 'already up to date'; then
         echo "Already up to date."
@@ -1650,10 +1670,10 @@ if [ -d /opt/WhatWeb/.git ]; then
 elif f_whatweb_working; then
     :
 else
-    echo -e "${YELLOW}Installing WhatWeb from upstream (apt package is broken).${NC}"
+    echo -e "${YELLOW}Installing WhatWeb from ${WHATWEB_GIT} (apt package is broken).${NC}"
     f_whatweb_remove_apt_package
     f_whatweb_ensure_deps
-    git clone https://github.com/urbanadventurer/WhatWeb /opt/WhatWeb
+    git clone "$WHATWEB_GIT" /opt/WhatWeb
     f_whatweb_install_wrapper
     echo
 fi
