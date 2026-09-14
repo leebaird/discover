@@ -66,29 +66,29 @@ def tighten_mode(path: Path) -> None:
 
 
 def get_credentials(*, interactive: bool) -> Credentials:
-    secret = creds_path()
+    client_secret_file = creds_path()
     saved = token_path()
 
-    if not secret.is_file():
-        print(f"Error: {secret} not found.", file=sys.stderr)
+    if not client_secret_file.is_file():
+        print("Error: ~/.discover/client_secret.json not found.", file=sys.stderr)
         sys.exit(1)
 
-    tighten_mode(secret)
+    tighten_mode(client_secret_file)
 
     creds = None
     if saved.is_file():
         try:
             creds = Credentials.from_authorized_user_file(str(saved), SCOPES)
-        except Exception as exc:
-            print(f"Warning: Failed to load existing token: {exc}", file=sys.stderr)
+        except Exception:
+            print("Warning: Failed to load existing token.", file=sys.stderr)
             creds = None
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             try:
                 creds.refresh(Request())
-            except Exception as exc:
-                print(f"Error refreshing token: {exc}", file=sys.stderr)
+            except Exception:
+                print("Error refreshing token.", file=sys.stderr)
                 creds = None
 
         if not creds:
@@ -99,7 +99,9 @@ def get_credentials(*, interactive: bool) -> Credentials:
                 )
                 sys.exit(2)
 
-            flow = InstalledAppFlow.from_client_secrets_file(str(secret), SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(
+                str(client_secret_file), SCOPES
+            )
             creds = flow.run_local_server(port=0)
 
         write_secret_file(saved, creds.to_json())
