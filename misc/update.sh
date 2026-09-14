@@ -902,11 +902,29 @@ if ! command -v gcloud &> /dev/null || ! command -v gsutil &> /dev/null; then
     echo
 fi
 
-if command -v gowitness &> /dev/null; then
+# go install @latest fails: gowitness go.mod has replace directives (Go allows
+# those only in the main module). Clone and build instead.
+f_gowitness_from_source() {
+    local go_bin src=/opt/gowitness
+    go_bin=$(f_go_bin) || return 1
+
+    if [ -d "$src/.git" ]; then
+        git -C "$src" pull --ff-only --quiet
+    else
+        git clone --depth 1 https://github.com/sensepost/gowitness.git "$src"
+    fi
+
+    (
+        cd "$src" || exit 1
+        GO111MODULE=on "$go_bin" build -o /usr/local/bin/gowitness .
+    )
+}
+
+if command -v gowitness &> /dev/null || [ -d /opt/gowitness/.git ]; then
     echo -e "${BLUE}Updating gowitness.${NC}"
     gowitness_before=$(sha256sum "$(command -v gowitness)" 2>/dev/null | awk '{print $1}')
 
-    if f_go_install_tool github.com/sensepost/gowitness@latest gowitness; then
+    if f_gowitness_from_source; then
         gowitness_after=$(sha256sum "$(command -v gowitness)" 2>/dev/null | awk '{print $1}')
 
         if [ -n "$gowitness_before" ] && [ "$gowitness_before" = "$gowitness_after" ]; then
@@ -919,9 +937,11 @@ if command -v gowitness &> /dev/null; then
     echo
 elif [ -n "$(f_go_bin)" ]; then
     echo -e "${YELLOW}Installing gowitness.${NC}"
-    f_go_install_tool github.com/sensepost/gowitness@latest gowitness
+    f_gowitness_from_source
     echo
 fi
+
+unset -f f_gowitness_from_source
 
 if command -v httpx &> /dev/null; then
     echo -e "${BLUE}Updating httpx.${NC}"
