@@ -1242,6 +1242,26 @@ def main(argv: list[str] | None = None) -> int:
         changes_summary["vuln_now_total"] = len(vuln_now)
         changes_summary["vuln_now"] = vuln_now[:80]
 
+        common_http = {"80", "443"}
+        port_extra: list[dict[str, Any]] = []
+        port_http: list[dict[str, Any]] = []
+        for ip in sorted(index_after):
+            cur = index_after.get(ip)
+            if not isinstance(cur, dict):
+                continue
+            ports = _sorted_ports(_port_set(cur.get("ports")))
+            if not ports:
+                continue
+            row = {"ip": ip, "ports": ports}
+            if any(p not in common_http for p in ports):
+                port_extra.append(row)
+            else:
+                port_http.append(row)
+        port_now = port_extra + port_http
+        changes_summary["port_now_total"] = len(port_now)
+        changes_summary["port_now_extra"] = len(port_extra)
+        changes_summary["port_now"] = port_now[:80]
+
     if args.json_summary:
         print(
             json.dumps(

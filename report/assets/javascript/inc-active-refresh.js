@@ -214,10 +214,12 @@
         });
     }
 
-    function formatIpRows(rows, detailFn, extra) {
+    function formatIpRows(rows, detailFn, extra, nameClass, skipSort) {
         var html = [];
         var cap = 40;
-        sortByIp(rows)
+        var nameCls = nameClass || "inc-active-refresh-ip";
+        var list = skipSort ? rows.slice() : sortByIp(rows);
+        list
             .slice(0, cap)
             .forEach(function (s) {
                 var detail = detailFn(s);
@@ -226,8 +228,10 @@
                 }
                 html.push(
                     '<div class="inc-active-refresh-iprow">' +
-                        '<span class="inc-active-refresh-ip">' +
-                        esc(s.ip) +
+                        '<span class="' +
+                        nameCls +
+                        '">' +
+                        esc(s.ip || s.label || "") +
                         "</span> " +
                         '<span class="inc-active-refresh-ipdetail">' +
                         (detail || "-") +
@@ -301,12 +305,27 @@
                 : (ch.vuln_now || []).length;
         if (vulnNowTotal) {
             lines.push(
-                "Shodan CVEs on " +
+                "Shodan host vulns on " +
                     vulnNowTotal +
                     (vulnNowTotal === 1 ? " IP." : " IPs.")
             );
         } else {
-            lines.push("No Shodan CVEs on these IPs.");
+            lines.push("No Shodan host vulns on these IPs.");
+        }
+        var portNowTotal =
+            ch.port_now_total != null
+                ? ch.port_now_total
+                : (ch.port_now || []).length;
+        if (portNowTotal) {
+            var extraN = ch.port_now_extra || 0;
+            lines.push(
+                "Shodan ports on " +
+                    portNowTotal +
+                    (portNowTotal === 1 ? " IP" : " IPs") +
+                    (extraN
+                        ? " · " + extraN + " with ports besides 80/443."
+                        : ".")
+            );
         }
 
         var portSamples = ch.port_samples || [];
@@ -321,17 +340,31 @@
             });
         }
         if (portSamples.length) {
-            lines.push('<div class="inc-active-refresh-h">Ports</div>');
             lines.push(
-                formatIpRows(portSamples, formatPortDelta, function (s, delta) {
-                    if (s.is_new && !delta && s.ports_after) {
-                        return "new in Shodan " + esc(s.ports_after);
-                    }
-                    if (s.is_new && delta) {
-                        return "new in Shodan; " + delta;
-                    }
-                    return delta;
-                })
+                '<div class="inc-active-refresh-h">Ports (changed this run)</div>' +
+                    formatIpRows(portSamples, formatPortDelta, function (s, delta) {
+                        if (s.is_new && !delta && s.ports_after) {
+                            return "new in Shodan " + esc(s.ports_after);
+                        }
+                        if (s.is_new && delta) {
+                            return "new in Shodan; " + delta;
+                        }
+                        return delta;
+                    })
+            );
+        }
+
+        var portNow = ch.port_now || [];
+        if (portNow.length) {
+            lines.push(
+                '<div class="inc-active-refresh-h">Ports</div>' +
+                    formatIpRows(portNow, function (s) {
+                        var ports = s.ports;
+                        if (Array.isArray(ports) && ports.length) {
+                            return ports.map(esc).join(", ");
+                        }
+                        return esc(s.ports_after || s.ports_label || "-");
+                    })
             );
         }
 
@@ -349,7 +382,7 @@
         }
         if (vulnSamples.length) {
             lines.push(
-                '<div class="inc-active-refresh-h">Vulnerabilities (changed this run)</div>'
+                '<div class="inc-active-refresh-h">Shodan host vulns (changed this run)</div>'
             );
             lines.push(formatIpRows(vulnSamples, formatVulnDelta));
         }
@@ -357,7 +390,7 @@
         var vulnNow = ch.vuln_now || [];
         if (vulnNow.length) {
             lines.push(
-                '<div class="inc-active-refresh-h">Vulnerabilities</div>' +
+                '<div class="inc-active-refresh-h">Shodan host vulns</div>' +
                 formatIpRows(vulnNow, function (s) {
                     var n =
                         s.vuln_count != null
@@ -406,47 +439,123 @@
                     ? " · " + st.still_empty + " still empty after re-query"
                     : "")
         );
-        if ((st.changed || 0) === 0 && (st.looked_up || 0) > 0) {
-            lines.push(
-                "Re-queried products but NVD returned the same counts (no table deltas)."
-            );
-        }
         if ((st.looked_up || 0) === 0 && (st.changed || 0) === 0) {
-            lines.push("Nothing to re-query; KEV/display already current.");
+            lines.push("Cache already current. Showing products with NVD CVEs.");
         }
         var changes = st.changes || [];
         if (changes.length) {
-            lines.push("Examples:");
-            changes.slice(0, 12).forEach(function (c) {
-                var parts = [esc(c.label)];
-                if (c.cve_count_before !== c.cve_count_after) {
-                    parts.push(
-                        "CVEs " +
-                            esc(c.cve_count_before) +
-                            " → " +
-                            esc(c.cve_count_after)
-                    );
-                }
-                if (c.top_cve_before !== c.top_cve_after) {
-                    parts.push(
-                        "top " +
-                            esc(c.top_cve_before || "—") +
-                            " → " +
-                            esc(c.top_cve_after || "—")
-                    );
-                }
-                if (!!c.kev_before !== !!c.kev_after) {
-                    parts.push(
-                        c.kev_after
-                            ? "top is now KEV"
-                            : "top no longer KEV"
-                    );
-                }
-                lines.push("· " + parts.join(" · "));
-            });
-            if (changes.length > 12) {
-                lines.push("· …and " + (changes.length - 12) + " more");
-            }
+            lines.push(
+                '<div class="inc-active-refresh-h">Changed this run</div>' +
+                    formatIpRows(
+                        changes.map(function (c) {
+                            return {
+                                ip: c.label,
+                                cve_count_before: c.cve_count_before,
+                                cve_count_after: c.cve_count_after,
+                                top_cve_before: c.top_cve_before,
+                                top_cve_after: c.top_cve_after,
+                                kev_before: c.kev_before,
+                                kev_after: c.kev_after,
+                            };
+                        }),
+                        function (c) {
+                            var bits = [];
+                            if (c.cve_count_before !== c.cve_count_after) {
+                                bits.push(
+                                    "CVEs " +
+                                        esc(c.cve_count_before) +
+                                        " to " +
+                                        esc(c.cve_count_after)
+                                );
+                            }
+                            if (c.top_cve_before !== c.top_cve_after) {
+                                bits.push(
+                                    "top " +
+                                        esc(c.top_cve_before || "-") +
+                                        " to " +
+                                        esc(c.top_cve_after || "-")
+                                );
+                            }
+                            if (!!c.kev_before !== !!c.kev_after) {
+                                bits.push(
+                                    c.kev_after
+                                        ? "top is now KEV"
+                                        : "top no longer KEV"
+                                );
+                            }
+                            return bits.join("; ") || "updated";
+                        }
+                    )
+            );
+        }
+        var now = st.software_now || [];
+        var nowTotal =
+            st.software_now_total != null ? st.software_now_total : now.length;
+        if (nowTotal) {
+            lines.push(
+                "NVD CVEs on " +
+                    nowTotal +
+                    (nowTotal === 1 ? " product." : " products.")
+            );
+        } else {
+            lines.push("No NVD CVEs on software versions.");
+        }
+        var lists = "";
+        if (now.length) {
+            lists +=
+                '<div class="inc-active-refresh-h">Software versions</div>' +
+                formatIpRows(
+                    now.map(function (s) {
+                        var copy = {};
+                        Object.keys(s).forEach(function (k) {
+                            copy[k] = s[k];
+                        });
+                        copy.ip = s.label || s.ip;
+                        return copy;
+                    }),
+                    function (s) {
+                        var n = s.cve_count != null ? s.cve_count : 0;
+                        var bits = [
+                            n + (Number(n) === 1 ? " CVE" : " CVEs"),
+                        ];
+                        if (s.top_cve) {
+                            bits.push(esc(s.top_cve) + (s.kev ? " KEV" : ""));
+                        }
+                        if (s.cvss) {
+                            bits.push("CVSS " + esc(s.cvss));
+                        }
+                        if (s.hosts) {
+                            bits.push(
+                                esc(s.hosts) +
+                                    (Number(s.hosts) === 1
+                                        ? " host"
+                                        : " hosts")
+                            );
+                        }
+                        return bits.join("  ");
+                    },
+                    null,
+                    "inc-active-refresh-sw",
+                    true
+                );
+        }
+        var emptyLabels = st.still_empty_labels || [];
+        if (emptyLabels.length) {
+            lists +=
+                '<div class="inc-active-refresh-h">Still empty after NVD</div>' +
+                formatIpRows(
+                    emptyLabels.map(function (label) {
+                        return { ip: label };
+                    }),
+                    function () {
+                        return "no CVEs";
+                    },
+                    null,
+                    "inc-active-refresh-sw"
+                );
+        }
+        if (lists) {
+            lines.push(lists);
         }
         return lines.join("<br>");
     }

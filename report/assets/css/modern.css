@@ -2757,6 +2757,15 @@ body:not(.inc-iframe-parent) pre {
     color: #c5ccd6;
 }
 
+.inc-active-refresh-sw {
+    flex: 0 0 220px;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #c5ccd6;
+}
+
 .inc-active-refresh-ipdetail {
     flex: 1 1 auto;
     min-width: 0;

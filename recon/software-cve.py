@@ -731,11 +731,13 @@ def enrich_software_version_rows(
         "changed": 0,
         "newly_with_cves": 0,
         "still_empty": 0,
+        "still_empty_labels": [],
         "kev_gained": 0,
         "kev_lost": 0,
         "changes": [],  # compact per-label deltas (capped)
     }
     change_cap = 40
+    now: list[dict[str, Any]] = []
 
     def _snap(
         entry: dict[str, Any] | None,
@@ -838,16 +840,34 @@ def enrich_software_version_rows(
             "no-cpe",
         }:
             stats["still_empty"] += 1
+            if len(stats["still_empty_labels"]) < 80:
+                stats["still_empty_labels"].append(label)
         _record_change(label, before, after)
 
         error = cached.get("error") or ""
         max_cvss = format_cvss(cached.get("max_cvss"))
         cve_count = cached.get("cve_count") or 0
+        try:
+            cve_count = int(cve_count)
+        except (TypeError, ValueError):
+            cve_count = 0
         cves_list = cached.get("cves") or []
         top_cve, top_is_kev = select_top_cve(cves_list, kev_ids)
         if not top_cve:
             top_cve = (cached.get("top_cve") or "").strip().upper()
             top_is_kev = bool(top_cve and top_cve in kev_ids)
+
+        if cve_count > 0:
+            now.append(
+                {
+                    "label": label,
+                    "hosts": count,
+                    "cve_count": cve_count,
+                    "top_cve": top_cve or "",
+                    "kev": bool(top_is_kev),
+                    "cvss": max_cvss or "",
+                }
+            )
 
         if error in {"skipped", "no-cpe", "nvd-error"} or not max_cvss:
             max_cvss = ""
@@ -862,6 +882,10 @@ def enrich_software_version_rows(
         enriched.append(
             (label, count, max_cvss, cve_count_display, top_cve, top_is_kev)
         )
+
+    now.sort(key=lambda row: (-int(row["cve_count"]), str(row["label"]).lower()))
+    stats["software_now_total"] = len(now)
+    stats["software_now"] = now[:80]
 
     if dirty:
         save_cache(cache_path, cache)
