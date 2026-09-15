@@ -2432,6 +2432,7 @@ def sync_host_scan_ui_assets(report_dir: str) -> None:
         "inc-host-scan.js",
         "inc-shodan.js",
         "inc-subdomains-filter.js",
+        "inc-subdomains-ports.js",
         "inc-data-table.js",
     ):
         src = os.path.join(src_js, name)
@@ -2691,6 +2692,11 @@ def write_subdomains_active_page(report_dir: str) -> dict:
         out.append(
             '    <div class="inc-content-frame inc-content-frame--table inc-subdomains-public">'
         )
+        out.append('        <div class="inc-subdomains-ports-wrap">')
+        out.append(
+            '            <button type="button" class="inc-subdomains-ports-btn" id="inc-subdomains-ports-btn" title="Show Shodan ports for hosts in this table">Ports</button>'
+        )
+        out.append("        </div>")
         out.extend(build_public_table(public_rows if public_rows else []))
         out.append("    </div>")
     out.extend(
@@ -2704,6 +2710,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
             '<script src="../tools/shodan/index.js"></script>',
             '<script src="../tools/shodan/kev-ids.js"></script>',
             '<script src="../assets/javascript/inc-shodan.js?v=19"></script>',
+            '<script src="../assets/javascript/inc-subdomains-ports.js?v=10"></script>',
             '<script src="../assets/javascript/inc-host-scan.js?v=58"></script>',
             "</body>",
             "</html>",

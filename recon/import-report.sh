@@ -98,6 +98,7 @@ f_import_report_sync_assets(){
         inc-host-scan.js \
         inc-shodan.js \
         inc-subdomains-filter.js \
+        inc-subdomains-ports.js \
         inc-data-table.js \
         inc-audit-status.js \
         inc-active-cve-tabs.js \
@@ -131,11 +132,16 @@ f_import_report_sync_assets(){
 
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
-                -e 's|modern\.css?v=[^"]*|modern.css?v=ws39|g' \
+                -e 's|modern\.css?v=[^"]*|modern.css?v=ws-ports8|g' \
                 -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=58|g' \
                 -e 's|inc-subdomains-filter\.js?v=[0-9]*|inc-subdomains-filter.js?v=22|g' \
                 -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=19|g' \
+                -e 's|inc-subdomains-ports\.js?v=[0-9]*|inc-subdomains-ports.js?v=10|g' \
                 "$report/pages/subdomains.htm" 2>/dev/null || true
+            if ! grep -q 'inc-subdomains-ports.js' "$report/pages/subdomains.htm" 2>/dev/null; then
+                sed -i 's|</body>|<script src="../assets/javascript/inc-subdomains-ports.js?v=10"></script>\n</body>|' \
+                    "$report/pages/subdomains.htm" 2>/dev/null || true
+            fi
         fi
 
         # Report section pages: Export UI + CSS bust
@@ -321,6 +327,7 @@ need = [
     ("tools/shodan/index.js", '<script src="../tools/shodan/index.js"></script>'),
     ("tools/shodan/kev-ids.js", '<script src="../tools/shodan/kev-ids.js"></script>'),
     ("inc-shodan.js", '<script src="../assets/javascript/inc-shodan.js?v=19"></script>'),
+    ("inc-subdomains-ports.js", '<script src="../assets/javascript/inc-subdomains-ports.js?v=10"></script>'),
     ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=58"></script>'),
 ]
 insert = [tag for key, tag in need if key not in text]

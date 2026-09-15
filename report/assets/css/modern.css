@@ -284,6 +284,89 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     overflow-x: auto;
 }
 
+.inc-subdomains-ports-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    text-align: left;
+}
+
+.inc-subdomains-ports-btn {
+    padding: 6px 14px;
+    border: 1px solid #1a4a9e;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.inc-subdomains-ports-wrap .inc-subdomains-ports-btn:hover,
+.inc-subdomains-ports-wrap .inc-subdomains-ports-btn:focus-visible {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    outline: none;
+}
+
+.inc-subdomains-ports-btn:focus {
+    outline: none;
+}
+
+.inc-subdomains-ports-btn[aria-pressed="true"],
+.inc-subdomains-ports-btn[aria-pressed="true"]:hover,
+.inc-subdomains-ports-btn[aria-pressed="true"]:focus {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.inc-subdomains-ports-modal .inc-subdomains-ports-dialog {
+    width: max-content;
+    max-width: calc(100vw - 48px);
+}
+
+.inc-subdomains-ports-modal-bar {
+    margin: 0 0 10px;
+}
+
+.inc-subdomains-ports-body {
+    max-height: 420px;
+    overflow: auto;
+    padding-right: 22px;
+    scrollbar-gutter: stable;
+    box-sizing: content-box;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.inc-subdomains-ports-list {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    width: max-content;
+    max-width: 100%;
+    column-gap: 3ch;
+    row-gap: 2px;
+    align-items: baseline;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.inc-subdomains-ports-host {
+    white-space: nowrap;
+    overflow: visible;
+    color: #c5ccd6;
+}
+
+.inc-subdomains-ports-detail {
+    color: #9aa3ad;
+    overflow-wrap: anywhere;
+}
+
 .inc-subdomains-tables .inc-content-frame--table.inc-subdomains-public table.inc-data-table {
     width: 100%;
     table-layout: auto;
