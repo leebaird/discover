@@ -34,6 +34,7 @@ urldecode(){
 URL=""
 SOFTWARE=""
 REPORT=""
+PORTS=""
 
 if [ -n "$QUERY" ]; then
     IFS='&' read -ra PARTS <<< "$QUERY"
@@ -47,6 +48,7 @@ if [ -n "$QUERY" ]; then
             software|s) SOFTWARE="$val" ;;
             report|r) REPORT="$val" ;;
             tool|t) TOOL="$val" ;;
+            ports|p) PORTS="$val" ;;
         esac
     done
 fi
@@ -64,4 +66,4 @@ fi
 # Ensure executable
 chmod +x "$RUNNER" 2>/dev/null || true
 
-exec "$RUNNER" "$TOOL" "$URL" "$SOFTWARE" "$REPORT"
+exec "$RUNNER" "$TOOL" "$URL" "$SOFTWARE" "$REPORT" "$PORTS"

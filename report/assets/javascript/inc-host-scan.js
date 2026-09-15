@@ -8,6 +8,7 @@
  * One tool at a time; live status via same origin /mode|/status when hosted.
  * Software: ?software= query wins, else fingerprint row tech/title/webserver/host.
  * nuclei is shown only when a product is known; robots/nikto/feroxbuster/ffuf always on expand.
+ * nmap after robots when the row IP has Shodan ports.
  * droopescan / wpscan gate on CMS software (query or fingerprint).
  * Tool boxes: Unicode ⓘ opens a short modal (what / when / Run / outputs).
  */
@@ -170,6 +171,28 @@
                     h: "Safety check",
                     p:
                         "Before WPScan starts, Discover runs a curl HTTP/1.1 GET (15s). If the host does not answer HTTP, the scan is skipped and the box shows Unreachable (txt note only)."
+                },
+                {
+                    h: "Outputs",
+                    p: "TXT under tools/host-scans/ for this host."
+                }
+            ]
+        },
+        nmap: {
+            title: "nmap",
+            sections: [
+                {
+                    h: "What it does",
+                    p:
+                        "TCP connect scan with version detection, using ports seen in Shodan."
+                },
+                {
+                    h: "When shown",
+                    p: "When a subdomain has at least one port listed in the Shodan drop down."
+                },
+                {
+                    h: "What Run does",
+                    p: "nmap -Pn -n --open -sTV -p <Shodan ports> <hostname>."
                 },
                 {
                     h: "Outputs",
@@ -1125,13 +1148,51 @@
     /**
      * Tools for this expand panel.
      * nuclei only when a product is known (filter or fingerprint).
-     * robots/nikto/ffuf/feroxbuster always; CMS tools when matched.
-     * Order: robots, then nuclei (if product), CMS, then louder tools.
+     * robots/nikto/ffuf/feroxbuster always; nmap when Shodan has ports;
+     * CMS tools when matched.
+     * Order: robots, nmap (if Shodan ports), nuclei (if product), CMS, then louder tools.
      */
-    function toolsForSoftware(software) {
+    function shodanPortsFromRow(row) {
+        if (!row) {
+            return "";
+        }
+        var cell = row.querySelector("td.inc-subdomain-ip");
+        var ip = cell ? (cell.textContent || "").trim() : "";
+        var idx = window.DISCOVER_SHODAN_INDEX;
+        if (!ip || !idx || typeof idx !== "object") {
+            return "";
+        }
+        var rec = idx[ip];
+        if (!rec) {
+            return "";
+        }
+        var raw = rec.ports;
+        var parts = Array.isArray(raw)
+            ? raw
+            : String(raw || "").split(/[,\s]+/);
+        var seen = {};
+        var list = [];
+        parts.forEach(function (p) {
+            var n = parseInt(String(p).trim(), 10);
+            if (!n || n < 1 || n > 65535 || seen[n]) {
+                return;
+            }
+            seen[n] = true;
+            list.push(n);
+        });
+        list.sort(function (a, b) {
+            return a - b;
+        });
+        return list.join(",");
+    }
+
+    function toolsForSoftware(software, row) {
         var tools = [];
         var soft = (software || "").trim();
         tools.push("robots");
+        if (shodanPortsFromRow(row)) {
+            tools.push("nmap");
+        }
         if (soft) {
             tools.push("nuclei");
         }
@@ -1340,8 +1401,12 @@
             .join("&");
     }
 
-    function launchHref(tool, url, software) {
-        return "discover-scan://" + tool + "?" + encodeQuery({ url: url, software: software });
+    function launchHref(tool, url, software, ports) {
+        var q = { url: url, software: software };
+        if (tool === "nmap" && ports) {
+            q.ports = ports;
+        }
+        return "discover-scan://" + tool + "?" + encodeQuery(q);
     }
 
     function toolState(status, host, tool) {
@@ -1698,7 +1763,8 @@
         }
         html += '<div class="inc-host-scan-tools">';
 
-        var panelTools = toolsForSoftware(software);
+        var nmapPorts = shodanPortsFromRow(row);
+        var panelTools = toolsForSoftware(software, row);
         panelTools.forEach(function (tool) {
             var st = toolState(status, info.host, tool);
             var launchHtml;
@@ -1709,11 +1775,16 @@
                       ? "wpscan"
                       : tool === "robots"
                         ? "robots"
-                        : tool;
+                        : tool === "nmap"
+                          ? "nmap"
+                          : tool;
             if (canLaunch && !running) {
                 launchHtml =
                     '<a class="inc-host-scan-launch" href="' +
-                    launchHref(tool, info.url, software).replace(/"/g, "&quot;") +
+                    launchHref(tool, info.url, software, nmapPorts).replace(
+                        /"/g,
+                        "&quot;"
+                    ) +
                     '">Run</a>';
             } else {
                 launchHtml = '<span class="inc-host-scan-launch-disabled">Run</span>';

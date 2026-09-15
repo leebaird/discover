@@ -5,9 +5,10 @@
 #
 # Operator host scan launcher (Red Team quiet defaults).
 # Invoked via discover-scan: scheme or CLI:
-#   run-host-scan.sh <tool> <url> [software] [report_root]
+#   run-host-scan.sh <tool> <url> [software] [report_root] [ports]
 #
-# Tools: robots | nuclei | droopescan | wpscan | nikto | feroxbuster | ffuf
+# Tools: robots | nmap | nuclei | droopescan | wpscan | nikto | feroxbuster | ffuf
+# - nmap: -Pn -n --open -sTV -p <Shodan ports> <host> (no HTTP pre-check)
 # - Visible terminal (desktop entry uses Terminal=true)
 # - One scan at a time (engagement lock)
 # - Software-aware nuclei/ffuf/droopescan/wpscan profiles
@@ -84,6 +85,7 @@ TOOL="${1:-}"
 URL="${2:-}"
 SOFTWARE="${3:-}"
 REPORT_ROOT="${4:-}"
+PORTS="${5:-}"
 
 f_die(){
     echo
@@ -93,7 +95,7 @@ f_die(){
     exit 1
 }
 
-[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|feroxbuster|droopescan|wpscan|robots)$ ]] || f_die "Tool must be nuclei, droopescan, wpscan, robots, nikto, ffuf, or feroxbuster."
+[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|feroxbuster|droopescan|wpscan|robots|nmap)$ ]] || f_die "Tool must be nuclei, droopescan, wpscan, robots, nmap, nikto, ffuf, or feroxbuster."
 [ -n "$URL" ] || f_die "URL is required."
 
 # Resolve report root
@@ -1123,9 +1125,41 @@ print(f"{scheme}://{netloc}".rstrip("/"))
 PY
 }
 
+f_url_host(){
+    python3 - "$1" <<'PY'
+from urllib.parse import urlparse
+import sys
+raw = sys.argv[1]
+p = urlparse(raw if "://" in raw else "https://" + raw)
+host = (p.hostname or "").strip()
+print(host)
+PY
+}
+
+# Digits and commas only; unique, sorted, 1-65535.
+f_nmap_ports(){
+    python3 - "$1" <<'PY'
+import sys
+raw = (sys.argv[1] or "").replace(" ", "")
+seen = set()
+out = []
+for part in raw.split(","):
+    if not part.isdigit():
+        continue
+    n = int(part)
+    if n < 1 or n > 65535 or n in seen:
+        continue
+    seen.add(n)
+    out.append(n)
+out.sort()
+print(",".join(str(n) for n in out))
+PY
+}
+
 # Pre-flight: can curl reach the URL with HTTP/1.1?
 # Returns 0 = run the tool, 1 = skip (unreachable / no HTTP response).
-# Used for all host-scan tools so operators get a clear skip note in output.txt.
+# Used for HTTP expand tools so operators get a clear skip note in output.txt.
+# nmap does not use this (TCP to Shodan ports).
 # robots probes {origin}/robots.txt (site root can 403/timeout while robots.txt is 200).
 f_host_reachable_precheck(){
     local url="$1"
@@ -1201,6 +1235,10 @@ echo " Tool:     $TOOL"
 echo " Target:   $URL"
 echo " Software: ${SOFTWARE:--}"
 
+if [ "$TOOL" = "nmap" ]; then
+    echo " Ports:    ${PORTS:--}"
+fi
+
 if [ -n "$FFUF_WL" ]; then
     echo " Wordlist: $FFUF_WL"
 fi
@@ -1216,13 +1254,18 @@ echo
 EXIT_CODE=0
 HOST_SKIPPED=0
 
-# Reachability first - do not fire nuclei/nikto/ffuf/feroxbuster/... against a dead host.
-set +e
-PRECHECK_OUT=$(f_host_reachable_precheck "$URL" 2>&1)
-PRECHECK_RC=$?
-set -e
-printf '%s\n' "$PRECHECK_OUT"
-echo
+# Reachability first for HTTP tools. nmap uses Shodan TCP ports; skip curl GET.
+PRECHECK_RC=0
+PRECHECK_OUT=""
+
+if [ "$TOOL" != "nmap" ]; then
+    set +e
+    PRECHECK_OUT=$(f_host_reachable_precheck "$URL" 2>&1)
+    PRECHECK_RC=$?
+    set -e
+    printf '%s\n' "$PRECHECK_OUT"
+    echo
+fi
 
 if [ "$PRECHECK_RC" -ne 0 ]; then
     HOST_SKIPPED=1
@@ -1682,6 +1725,27 @@ PY
             echo "[*] $DISALLOW_COUNT Disallow path"
         else
             echo "[*] $DISALLOW_COUNT Disallow paths"
+        fi
+
+        ;;
+    nmap)
+        NMAP_HOST=$(f_url_host "$URL")
+        NMAP_PORTS=$(f_nmap_ports "$PORTS")
+
+        if [ -z "$NMAP_HOST" ]; then
+            echo "[!] Could not parse host from URL." | tee -a "$OUT_FILE"
+            EXIT_CODE=1
+        elif [ -z "$NMAP_PORTS" ]; then
+            echo "[!] No Shodan ports for this host. Run Active Enrich → Shodan first." | tee -a "$OUT_FILE"
+            EXIT_CODE=1
+        else
+            NMAP_CMD=(nmap -Pn -n --open -sTV -p "$NMAP_PORTS" "$NMAP_HOST")
+            f_write_run_header "$(f_clean_cmd NMAP_CMD)"
+            f_op_notes "$URL" "$(f_clean_cmd NMAP_CMD)"
+            set +e
+            "${NMAP_CMD[@]}" 2>&1 | tee -a "$OUT_FILE"
+            EXIT_CODE=${PIPESTATUS[0]}
+            set -e
         fi
 
         ;;

@@ -343,28 +343,21 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     line-height: 1.45;
 }
 
-.inc-subdomains-ports-list {
-    display: grid;
-    grid-template-columns: max-content max-content;
+.inc-subdomains-ports-modal pre.inc-subdomains-ports-pre {
+    margin: 0;
+    padding: 0;
     width: max-content;
     max-width: 100%;
-    column-gap: 3ch;
-    row-gap: 2px;
-    align-items: baseline;
+    background: transparent;
+    border: none;
+    box-shadow: none;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 12px;
     line-height: 1.4;
-}
-
-.inc-subdomains-ports-host {
-    white-space: nowrap;
-    overflow: visible;
     color: #c5ccd6;
-}
-
-.inc-subdomains-ports-detail {
-    color: #9aa3ad;
-    overflow-wrap: anywhere;
+    white-space: pre;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .inc-subdomains-tables .inc-content-frame--table.inc-subdomains-public table.inc-data-table {
@@ -1899,9 +1892,16 @@ tr.inc-subdomains-filter-hide {
 .inc-shodan-panel-head-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    justify-content: flex-start;
+    gap: 0;
     flex-wrap: wrap;
+}
+
+.inc-shodan-panel-head-row .inc-shodan-title-link {
+    display: inline-block;
+    min-width: 110px;
+    margin-right: calc(8px + 4ch);
+    flex: 0 0 auto;
 }
 
 .inc-shodan-panel-head a,
@@ -2012,7 +2012,7 @@ tr.inc-subdomains-filter-hide {
     /* Value column: existing 8px gap + four spaces */
     margin-right: calc(8px + 4ch);
     color: #9aa3ad;
-    font-weight: 600;
+    font-weight: 400;
     font-size: 15px;
     vertical-align: top;
 }

@@ -256,18 +256,27 @@
             body.innerHTML = html.join("");
             return;
         }
-        html.push('<div class="inc-subdomains-ports-list">');
+        var width = 0;
         withPorts.forEach(function (it) {
+            var name = String(it.host || it.ip || "");
+            if (name.length > width) {
+                width = name.length;
+            }
+        });
+        html.push('<pre class="inc-subdomains-ports-pre">');
+        withPorts.forEach(function (it) {
+            var name = String(it.host || it.ip || "");
+            var pad = width - name.length + 3;
+            var spaces = "";
+            var i;
+            for (i = 0; i < pad; i++) {
+                spaces += " ";
+            }
             html.push(
-                '<span class="inc-subdomains-ports-host">' +
-                    esc(it.host || it.ip) +
-                    "</span>" +
-                    '<span class="inc-subdomains-ports-detail">' +
-                    esc(it.ports.join(", ")) +
-                    "</span>"
+                esc(name) + spaces + esc(it.ports.join(", ")) + "\n"
             );
         });
-        html.push("</div>");
+        html.push("</pre>");
         body.innerHTML = html.join("");
     }
 
