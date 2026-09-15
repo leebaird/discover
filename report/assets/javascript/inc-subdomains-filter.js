@@ -91,13 +91,20 @@
         if (!raw) {
             return "";
         }
-        var s = raw.toUpperCase().replace(/\s+/g, "").replace(/_/g, "-");
-        if (/^\d{4}-\d+$/.test(s)) {
+        var s = String(raw)
+            .trim()
+            .toUpperCase()
+            .replace(/\s+/g, "")
+            .replace(/_/g, "-");
+        s = s.replace(/^CVE-/, "");
+        s = s.replace(/^CVE(?!-)/, "");
+        if (/^\d{4,}$/.test(s)) {
+            s = "CVE-" + String(new Date().getUTCFullYear()) + "-" + s;
+        } else if (/^\d{4}-\d{4,}$/.test(s)) {
             s = "CVE-" + s;
         }
-        s = s.replace(/^CVE(?!-)/, "CVE-").replace(/^CVE-+/, "CVE-");
-        if (!/^CVE-\d{4}-\d+$/.test(s)) {
-            return raw.toUpperCase(); // still try display; match may fail
+        if (!/^CVE-\d{4}-\d{4,}$/.test(s)) {
+            return raw.toUpperCase();
         }
         return s;
     }

@@ -133,6 +133,7 @@ f_import_report_sync_assets(){
             sed -i \
                 -e 's|modern\.css?v=[^"]*|modern.css?v=ws39|g' \
                 -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=58|g' \
+                -e 's|inc-subdomains-filter\.js?v=[0-9]*|inc-subdomains-filter.js?v=22|g' \
                 -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=19|g' \
                 "$report/pages/subdomains.htm" 2>/dev/null || true
         fi
@@ -159,6 +160,7 @@ f_import_report_sync_assets(){
                 if [ "$page" = "active.htm" ]; then
                     sed -i \
                         -e 's|inc-active-refresh\.js?v=[0-9]*|inc-active-refresh.js?v=26|g' \
+                        -e 's|inc-active-cve-search\.js?v=[0-9]*|inc-active-cve-search.js?v=2|g' \
                         -e 's|inc-active-align\.js?v=[0-9]*|inc-active-align.js?v=10|g' \
                         -e 's|modern\.css?v=[^"]*|modern.css?v=active-shodan-sum4|g' \
                         "$report/pages/$page" 2>/dev/null || true
@@ -314,7 +316,7 @@ changed = False
 
 # Required scripts (idempotent: only insert when key filename is absent).
 need = [
-    ("inc-subdomains-filter.js", '<script src="../assets/javascript/inc-subdomains-filter.js?v=21"></script>'),
+    ("inc-subdomains-filter.js", '<script src="../assets/javascript/inc-subdomains-filter.js?v=22"></script>'),
     ("tools/cve-software-index.js", '<script src="../tools/cve-software-index.js"></script>'),
     ("tools/shodan/index.js", '<script src="../tools/shodan/index.js"></script>'),
     ("tools/shodan/kev-ids.js", '<script src="../tools/shodan/kev-ids.js"></script>'),
@@ -377,7 +379,7 @@ if "inc-active-cve-search-form" not in text and "inc-page-header--active" in tex
         r'(<span class="inc-active-scan-date">)',
         r'''\1<form id="inc-active-cve-search-form" class="inc-active-cve-search" action="subdomains.htm" method="get" role="search">
             <label class="sr-only" for="inc-active-cve-search-input">Search CVE</label>
-            <input type="search" name="cve" id="inc-active-cve-search-input" class="inc-active-cve-search-input" placeholder="CVE-YYYY-NNNNN" autocomplete="off" spellcheck="false" title="Find subdomains running software linked to this CVE" />
+            <input type="search" name="cve" id="inc-active-cve-search-input" class="inc-active-cve-search-input" placeholder="CVE-YYYY-NNNNN" autocomplete="off" spellcheck="false" title="CVE-YYYY-NNNNN, YYYY-NNNNN, or a 4+ digit number for this year" />
             <button type="submit" class="inc-active-cve-search-btn">Search</button>
         </form>
         \2''',
@@ -392,7 +394,7 @@ if "inc-active-cve-search-form" not in text and "inc-page-header--active" in tex
 if "inc-active-cve-search.js" not in text:
     lower = text.lower()
     idx = lower.rfind("</body>")
-    tag = '<script src="../assets/javascript/inc-active-cve-search.js?v=1"></script>\n'
+    tag = '<script src="../assets/javascript/inc-active-cve-search.js?v=2"></script>\n'
     if idx != -1:
         text = text[:idx] + tag + text[idx:]
     else:
