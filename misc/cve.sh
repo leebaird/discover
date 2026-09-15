@@ -10,10 +10,19 @@ f_cve_trim(){
 }
 
 f_cve_normalize(){
-    local cve
+    local cve year
     cve=$(f_cve_trim "$1")
     cve="${cve^^}"
-    printf '%s' "$cve"
+    cve="${cve#CVE-}"
+
+    if [[ "$cve" =~ ^[0-9]{4,}$ ]]; then
+        year=$(date -u +%Y)
+        printf 'CVE-%s-%s' "$year" "$cve"
+    elif [[ "$cve" =~ ^[0-9]{4}-[0-9]{4,}$ ]]; then
+        printf 'CVE-%s' "$cve"
+    else
+        printf 'CVE-%s' "$cve"
+    fi
 }
 
 f_cve_valid(){
@@ -71,6 +80,8 @@ f_banner
 
 echo -e "${BLUE}CVE lookup.${NC}"
 echo
+echo "Full ID, year-number, or 4+ digit number for $(date -u +%Y)."
+echo
 echo -n "CVE: "
 read -r CVE
 CVE=$(f_cve_normalize "$CVE")
@@ -80,7 +91,7 @@ if [ -z "$CVE" ]; then
 fi
 
 if ! f_cve_valid "$CVE"; then
-    f_cve_fail "Invalid CVE format. Expected CVE-YYYY-NNNN."
+    f_cve_fail "Invalid CVE format. Use CVE-YYYY-NNNN, YYYY-NNNN, or a 4+ digit number for the current year."
 fi
 
 echo "[*] Opening CVE resources for $CVE."
