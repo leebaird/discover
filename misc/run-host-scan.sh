@@ -1210,6 +1210,9 @@ for line in text.splitlines():
         if not line.strip():
             in_table = False
 
+if mode == "sheet" and not ports:
+    print("No open ports.")
+    raise SystemExit(0)
 if mode != "sheet" and ver:
     print(f"Starting Nmap {ver}")
 w_port = max([10] + [len(p[0]) for p in ports])

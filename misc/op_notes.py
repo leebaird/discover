@@ -148,7 +148,7 @@ def cmd_append(args: argparse.Namespace) -> int:
         ],
         value_input_option="RAW",
     )
-    if result_text:
+    if result_text.lstrip().startswith("PORT"):
         try:
             last = len(worksheet.col_values(6))
             if last:
