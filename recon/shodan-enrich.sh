@@ -244,7 +244,7 @@ echo
 echo -e "Report: ${YELLOW}$DISCOVER_REPORT${NC}"
 echo
 
-# --skip-audit: shell owns audit line (with real egress IP via f_audit_log).
+# Bulk Shodan enrichment does not write an Audit log line.
 set +e
 python3 "$PY" "$DISCOVER_REPORT" --skip-audit
 status=$?
@@ -254,50 +254,7 @@ if [ "$status" -ne 0 ]; then
     f_shodan_die "Shodan enrichment failed (exit $status)."
 fi
 
-# Soft-skip without key still exits 0 from Python; only log when artifacts exist.
 if [ -d "$DISCOVER_REPORT/tools/shodan" ] && [ -f "$DISCOVER_REPORT/tools/shodan/summary.json" ]; then
-    ACTION="Ran Shodan enrichment"
-
-    if command -v python3 >/dev/null 2>&1; then
-        DETAIL=$(python3 - "$DISCOVER_REPORT/tools/shodan/summary.json" <<'PY' 2>/dev/null || true
-import json, sys
-try:
-    s = json.load(open(sys.argv[1]))
-    st = s.get("stats") or {}
-    print(
-        f"{st.get('ok', 0)} with data, "
-        f"{st.get('not_found', 0)} not in Shodan, "
-        f"{st.get('error', 0)} errors; "
-        f"{st.get('queried', 0)} queried, "
-        f"{st.get('cached', 0)} cached"
-    )
-except Exception:
-    pass
-PY
-)
-
-        if [ -n "$DETAIL" ]; then
-            ACTION="Ran Shodan enrichment ($DETAIL)"
-        fi
-    fi
-
-    if declare -F f_audit_log >/dev/null 2>&1; then
-        f_audit_log "$DISCOVER_REPORT" "$ACTION"
-    else
-        mkdir -p "$DISCOVER_REPORT/tools/audit" 2>/dev/null || true
-        ts=$(date -u +"%m/%d/%Y - %H:%M Z")
-        op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
-        [ -n "$op" ] || op=unknown
-        # Shodan: no operator egress IP on Audit (dash placeholder).
-        printf '%s | %s | - | %s.\n' "$ts" "$op" "$ACTION" >> "$DISCOVER_REPORT/tools/audit/log.txt" 2>/dev/null || true
-    fi
-
-    if [ -f "$DISCOVER_ROOT/recon/audit-build.py" ]; then
-        python3 "$DISCOVER_ROOT/recon/audit-build.py" \
-            "$DISCOVER_REPORT" \
-            "$DISCOVER_ROOT/report/pages/audit.htm" >/dev/null 2>&1 || true
-    fi
-
     if [ -f "$DISCOVER_ROOT/recon/touch-report-date.py" ]; then
         python3 "$DISCOVER_ROOT/recon/touch-report-date.py" "$DISCOVER_REPORT" >/dev/null 2>&1 || true
     fi

@@ -2847,44 +2847,6 @@ def rebuild_active_page(
     return result
 
 
-def _append_audit_refresh(report_dir: str, action: str) -> None:
-    """Best-effort audit line (operator name; egress may be unknown)."""
-    try:
-        software_cve = _load_software_cve_module()
-        if hasattr(software_cve, "load_discover_env_files"):
-            software_cve.load_discover_env_files()
-    except Exception:
-        pass
-    audit_dir = os.path.join(report_dir, "tools", "audit")
-    audit_log = os.path.join(audit_dir, "log.txt")
-    try:
-        os.makedirs(audit_dir, exist_ok=True)
-    except OSError:
-        return
-    from datetime import datetime, timezone
-
-    ts = datetime.now(timezone.utc).strftime("%m/%d/%Y - %H:%M Z")
-    op = "unknown"
-    try:
-        op_path = os.path.join(os.path.expanduser("~"), ".discover", "operator-name")
-        if os.path.isfile(op_path):
-            raw = open(op_path, encoding="utf-8", errors="replace").readline().strip()
-            cleaned = re.sub(r"[^A-Za-z]", "", raw)[:10]
-            if cleaned:
-                op = cleaned[0].upper() + cleaned[1:].lower() if len(cleaned) > 1 else cleaned.upper()
-    except OSError:
-        pass
-    if not action.endswith("."):
-        action = action + "."
-    # Software CVE / NVD refresh: no operator egress IP on Audit (dash placeholder).
-    line = f"{ts} | {op} | - | {action}\n"
-    try:
-        with open(audit_log, "a", encoding="utf-8") as handle:
-            handle.write(line)
-    except OSError:
-        pass
-
-
 if __name__ == "__main__":
     import argparse
     import json as _json
@@ -2927,15 +2889,6 @@ if __name__ == "__main__":
         force_cve=bool(args.force_all),
         force_cve_missing_only=not bool(args.force_all),
     )
-    if out.get("ok") and not args.skip_audit:
-        stats = out.get("stats") or {}
-        looked = stats.get("looked_up", 0)
-        _append_audit_refresh(
-            args.report_dir,
-            f"Updated software CVE data ({looked} NVD lookups"
-            + (", force-all" if args.force_all else ", missing/empty only")
-            + ")",
-        )
     if args.json:
         print(_json.dumps(out, separators=(",", ":")))
     else:

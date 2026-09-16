@@ -1054,15 +1054,6 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print("    kev-ids.js    (missing — run Discover Update for CISA KEV catalog)")
 
-    if not args.skip_audit:
-        action = (
-            f"Ran Shodan enrichment ({stats['ok']} with data, "
-            f"{stats['not_found']} not in Shodan, {stats['error']} errors; "
-            f"{stats['queried']} queried, {stats['cached']} cached)"
-        )
-        append_audit_log(report_dir, action)
-        rebuild_audit_page(report_dir)
-
     try:
         touch_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "touch-report-date.py"
