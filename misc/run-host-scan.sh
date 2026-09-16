@@ -1156,6 +1156,80 @@ print(",".join(str(n) for n in out))
 PY
 }
 
+# TXT body: Starting Nmap <ver>, aligned PORT table, Service Info, Nmap done.
+f_nmap_format_body(){
+    python3 - "$1" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+raw_path = Path(sys.argv[1])
+if not raw_path.is_file():
+    raise SystemExit(0)
+text = raw_path.read_text(encoding="utf-8", errors="replace")
+ver = ""
+elapsed = ""
+service_info = ""
+ports = []
+in_table = False
+port_re = re.compile(
+    r"^(\d+/(?:tcp|udp|sctp))\s+(\S+)\s+(\S+)(?:\s+(.*))?$"
+)
+for line in text.splitlines():
+    if line.startswith("Starting Nmap"):
+        m = re.match(r"Starting Nmap ([0-9][0-9.]*)", line)
+        if m:
+            ver = m.group(1)
+        continue
+    if line.startswith("Nmap done:"):
+        m = re.search(r"scanned in ([0-9.]+ seconds)", line)
+        if m:
+            elapsed = m.group(1)
+        continue
+    if line.startswith("Service Info:"):
+        service_info = line.rstrip()
+        in_table = False
+        continue
+    if re.match(r"^PORT\s+STATE\s+SERVICE", line):
+        in_table = True
+        continue
+    if in_table:
+        m = port_re.match(line)
+        if m:
+            ports.append(
+                (
+                    m.group(1),
+                    m.group(2),
+                    m.group(3),
+                    (m.group(4) or "").rstrip(),
+                )
+            )
+            continue
+        if not line.strip():
+            in_table = False
+
+if ver:
+    print(f"Starting Nmap {ver}")
+w_port = max([10] + [len(p[0]) for p in ports])
+w_state = max([7] + [len(p[1]) for p in ports])
+w_svc = max([10] + [len(p[2]) for p in ports])
+print(f"{'PORT':<{w_port}}{'STATE':<{w_state}}{'SERVICE':<{w_svc}}VERSION")
+for port, state, svc, version in ports:
+    if version:
+        print(f"{port:<{w_port}}{state:<{w_state}}{svc:<{w_svc}}{version}")
+    else:
+        print(f"{port:<{w_port}}{state:<{w_state}}{svc}")
+if service_info:
+    print()
+    print(service_info)
+print()
+if elapsed:
+    print(f"Nmap done: scanned in {elapsed}")
+else:
+    print("Nmap done.")
+PY
+}
+
 # Pre-flight: can curl reach the URL with HTTP/1.1?
 # Returns 0 = run the tool, 1 = skip (unreachable / no HTTP response).
 # Used for HTTP expand tools so operators get a clear skip note in output.txt.
@@ -1233,10 +1307,11 @@ echo "============================================================"
 echo " Discover host scan (quiet / Red Team defaults)"
 echo " Tool:     $TOOL"
 echo " Target:   $URL"
-echo " Software: ${SOFTWARE:--}"
 
 if [ "$TOOL" = "nmap" ]; then
     echo " Ports:    ${PORTS:--}"
+else
+    echo " Software: ${SOFTWARE:--}"
 fi
 
 if [ -n "$FFUF_WL" ]; then
@@ -1740,12 +1815,19 @@ PY
             EXIT_CODE=1
         else
             NMAP_CMD=(nmap -Pn -n --open -sTV -p "$NMAP_PORTS" "$NMAP_HOST")
-            f_write_run_header "$(f_clean_cmd NMAP_CMD)"
+            {
+                echo "Started: $STAMP_DISPLAY"
+                echo
+                echo "Command:"
+                echo "$(f_clean_cmd NMAP_CMD)"
+                echo
+            } > "$OUT_FILE"
             f_op_notes "$URL" "$(f_clean_cmd NMAP_CMD)"
             set +e
-            "${NMAP_CMD[@]}" 2>&1 | tee -a "$OUT_FILE"
+            "${NMAP_CMD[@]}" 2>&1 | tee "$RUN_DIR/nmap.raw"
             EXIT_CODE=${PIPESTATUS[0]}
             set -e
+            f_nmap_format_body "$RUN_DIR/nmap.raw" >> "$OUT_FILE"
         fi
 
         ;;
