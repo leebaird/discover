@@ -134,11 +134,34 @@ def cmd_append(args: argparse.Namespace) -> int:
     else:
         target_hostname = target_raw.strip()
 
-    # Col A: Date (sheet timezone), B: Operator, C: IP, D: Target, E: Command
+    # Col A: Date (sheet timezone), B: Operator, C: IP, D: Target, E: Command, F: Result
     worksheet = sh.get_worksheet(0)
+    result_text = args.result or ""
     worksheet.append_row(
-        [date_str, args.operator, args.ip, target_hostname, args.command]
+        [
+            date_str,
+            args.operator,
+            args.ip,
+            target_hostname,
+            args.command,
+            result_text,
+        ],
+        value_input_option="RAW",
     )
+    if result_text:
+        try:
+            last = len(worksheet.col_values(6))
+            if last:
+                worksheet.format(
+                    f"F{last}",
+                    {
+                        "wrapStrategy": "WRAP",
+                        "verticalAlignment": "TOP",
+                        "textFormat": {"fontFamily": "Courier New"},
+                    },
+                )
+        except Exception:
+            pass
     return 0
 
 
@@ -168,6 +191,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("ip")
     ap.add_argument("target")
     ap.add_argument("command")
+    ap.add_argument("result", nargs="?", default="")
 
     args = parser.parse_args(argv)
 

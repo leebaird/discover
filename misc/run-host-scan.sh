@@ -318,6 +318,7 @@ f_audit(){
 f_op_notes(){
     local target="$1"
     local command="$2"
+    local result="${3:-}"
     local url_file="$REPORT_ROOT/tools/op-notes-url"
     local sheets_url=""
     local op ip script uv_bin
@@ -372,11 +373,11 @@ f_op_notes(){
 
     (
         if command -v timeout >/dev/null 2>&1; then
-            timeout --signal=TERM --kill-after=5s 25s \
-                "$uv_bin" run "$script" append "$sheets_url" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" \
+            timeout --signal=TERM --kill-after=5s 40s \
+                "$uv_bin" run "$script" append "$sheets_url" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" "$result" \
                 || printf '\033[0;31m[!] Google Sheet entry failed: check token/URL.\033[0m\n' >&2
         else
-            "$uv_bin" run "$script" append "$sheets_url" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" \
+            "$uv_bin" run "$script" append "$sheets_url" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" "$result" \
                 || printf '\033[0;31m[!] Google Sheet entry failed: check token/URL.\033[0m\n' >&2
         fi
     ) >/dev/null 2>&1 &
@@ -1158,12 +1159,13 @@ PY
 
 # TXT body: Starting Nmap <ver>, aligned PORT table, Service Info, Nmap done.
 f_nmap_format_body(){
-    python3 - "$1" <<'PY'
+    python3 - "$1" "${2:-txt}" <<'PY'
 import re
 import sys
 from pathlib import Path
 
 raw_path = Path(sys.argv[1])
+mode = sys.argv[2] if len(sys.argv) > 2 else "txt"
 if not raw_path.is_file():
     raise SystemExit(0)
 text = raw_path.read_text(encoding="utf-8", errors="replace")
@@ -1208,7 +1210,7 @@ for line in text.splitlines():
         if not line.strip():
             in_table = False
 
-if ver:
+if mode != "sheet" and ver:
     print(f"Starting Nmap {ver}")
 w_port = max([10] + [len(p[0]) for p in ports])
 w_state = max([7] + [len(p[1]) for p in ports])
@@ -1219,14 +1221,15 @@ for port, state, svc, version in ports:
         print(f"{port:<{w_port}}{state:<{w_state}}{svc:<{w_svc}}{version}")
     else:
         print(f"{port:<{w_port}}{state:<{w_state}}{svc}")
-if service_info:
+if mode != "sheet" and service_info:
     print()
     print(service_info)
-print()
-if elapsed:
-    print(f"Nmap done: scanned in {elapsed}")
-else:
-    print("Nmap done.")
+if mode != "sheet":
+    print()
+    if elapsed:
+        print(f"Nmap done: scanned in {elapsed}")
+    else:
+        print("Nmap done.")
 PY
 }
 
@@ -1822,12 +1825,12 @@ PY
                 echo "$(f_clean_cmd NMAP_CMD)"
                 echo
             } > "$OUT_FILE"
-            f_op_notes "$URL" "$(f_clean_cmd NMAP_CMD)"
             set +e
             "${NMAP_CMD[@]}" 2>&1 | tee "$RUN_DIR/nmap.raw"
             EXIT_CODE=${PIPESTATUS[0]}
             set -e
             f_nmap_format_body "$RUN_DIR/nmap.raw" >> "$OUT_FILE"
+            f_op_notes "$URL" "$(f_clean_cmd NMAP_CMD)" "$(f_nmap_format_body "$RUN_DIR/nmap.raw" sheet)"
         fi
 
         ;;
