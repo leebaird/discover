@@ -989,6 +989,17 @@ def audit_output_cell(
                         f'title="Open each feroxbuster finding URL in Firefox">'
                         f"url</a>"
                     )
+            if tool == "nmap":
+                web_rel = str(Path(output).with_name("web-urls.txt")).replace("\\", "/")
+                web_disk = report_root / web_rel.lstrip("/")
+                if web_disk.is_file() and web_disk.stat().st_size > 0:
+                    abs_web = str(web_disk.resolve())
+                    nmap_href = "discover-nmap-web:" + quote(abs_web, safe="/:")
+                    links.append(
+                        f'<a class="inc-audit-btn" href="{html.escape(nmap_href, quote=True)}" '
+                        f'title="Open each nmap HTTP(S) port in Firefox">'
+                        f"web</a>"
+                    )
         if not links:
             return '<span class="inc-audit-muted">—</span>'
 
@@ -1079,6 +1090,17 @@ def tool_cell(
                     f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
                     f'title="Open each feroxbuster finding URL in Firefox">'
                     f"url</a>"
+                )
+        if tool == "nmap" and report_root is not None:
+            web_rel = str(Path(str(output)).with_name("web-urls.txt")).replace("\\", "/")
+            web_disk = report_root / web_rel.lstrip("/")
+            if web_disk.is_file() and web_disk.stat().st_size > 0:
+                abs_web = str(web_disk.resolve())
+                href = "discover-nmap-web:" + quote(abs_web, safe="/:")
+                links.append(
+                    f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
+                    f'title="Open each nmap HTTP(S) port in Firefox">'
+                    f"web</a>"
                 )
 
     btn_block = (

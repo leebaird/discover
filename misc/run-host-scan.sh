@@ -1233,6 +1233,57 @@ if mode != "sheet":
 PY
 }
 
+# HTTP(S) URLs from nmap open ports whose SERVICE is http/https (incl. ssl/http).
+f_nmap_write_web_urls(){
+    python3 - "$1" "$2" "$3" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+raw_path = Path(sys.argv[1])
+host = (sys.argv[2] or "").strip().lower()
+out_path = Path(sys.argv[3])
+if not host or not raw_path.is_file():
+    print("0")
+    raise SystemExit(0)
+text = raw_path.read_text(encoding="utf-8", errors="replace")
+port_re = re.compile(
+    r"^(\d+)/(?:tcp|udp|sctp)\s+(\S+)\s+(\S+)(?:\s+(.*))?$"
+)
+in_table = False
+urls = []
+seen = set()
+for line in text.splitlines():
+    if re.match(r"^PORT\s+STATE\s+SERVICE", line):
+        in_table = True
+        continue
+    if not in_table:
+        continue
+    m = port_re.match(line)
+    if not m:
+        if not line.strip() or line.startswith("Service Info:"):
+            in_table = False
+        continue
+    port, _state, svc = m.group(1), m.group(2), m.group(3)
+    svc_l = svc.lower()
+    if "https" in svc_l or "ssl/http" in svc_l:
+        scheme = "https"
+    elif svc_l in ("ssl", "ssl/unknown") or svc_l.startswith("ssl/unknown"):
+        scheme = "https"
+    elif "http" in svc_l:
+        scheme = "http"
+    else:
+        continue
+    url = f"{scheme}://{host}:{port}"
+    if url in seen:
+        continue
+    seen.add(url)
+    urls.append(url)
+out_path.write_text("\n".join(urls) + ("\n" if urls else ""), encoding="utf-8")
+print(str(len(urls)))
+PY
+}
+
 # Pre-flight: can curl reach the URL with HTTP/1.1?
 # Returns 0 = run the tool, 1 = skip (unreachable / no HTTP response).
 # Used for HTTP expand tools so operators get a clear skip note in output.txt.
@@ -1830,6 +1881,21 @@ PY
             EXIT_CODE=${PIPESTATUS[0]}
             set -e
             f_nmap_format_body "$RUN_DIR/nmap.raw" >> "$OUT_FILE"
+            NMAP_WEB_COUNT=$(f_nmap_write_web_urls "$RUN_DIR/nmap.raw" "$NMAP_HOST" "$RUN_DIR/web-urls.txt")
+            python3 - "$META_FILE" "${NMAP_WEB_COUNT:-0}" <<'PY'
+import json, sys
+path, count = sys.argv[1], sys.argv[2]
+try:
+    meta = json.load(open(path, encoding="utf-8"))
+except Exception:
+    meta = {}
+try:
+    meta["url_count"] = int(count)
+except ValueError:
+    meta["url_count"] = 0
+json.dump(meta, open(path, "w", encoding="utf-8"), indent=2)
+open(path, "a", encoding="utf-8").write("\n")
+PY
             f_op_notes "$URL" "$(f_clean_cmd NMAP_CMD)" "$(f_nmap_format_body "$RUN_DIR/nmap.raw" sheet)"
         fi
 

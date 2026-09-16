@@ -2183,6 +2183,59 @@ EOF
 
 f_install_discover_robots_handler
 
+# discover-nmap-web: — open each nmap HTTP(S) URL in Firefox from Subdomains / Audit.
+f_install_discover_nmap_web_handler(){
+    local apps_dir="$USER_HOME/.local/share/applications"
+    local desktop="$apps_dir/discover-nmap-web.desktop"
+    local mimeapps="$USER_HOME/.config/mimeapps.list"
+    local opener="$DISCOVER_ROOT/misc/open-nmap-web-tabs.sh"
+
+    [ -x "$opener" ] || chmod +x "$opener" 2>/dev/null || true
+    [ -f "$opener" ] || return 0
+
+    mkdir -p "$apps_dir" "$USER_HOME/.config"
+    cat > "$desktop" <<EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Discover Nmap Web Tabs
+Comment=Open each nmap HTTP(S) port in Firefox (Discover)
+Exec=$opener %u
+Terminal=false
+Categories=Network;Security;
+MimeType=x-scheme-handler/discover-nmap-web;
+NoDisplay=true
+EOF
+
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$desktop" 2>/dev/null || true
+    fi
+
+    if [ -f "$mimeapps" ]; then
+        if grep -q 'x-scheme-handler/discover-nmap-web=' "$mimeapps" 2>/dev/null; then
+            sed -i 's|x-scheme-handler/discover-nmap-web=.*|x-scheme-handler/discover-nmap-web=discover-nmap-web.desktop|' "$mimeapps"
+        elif grep -q '^\[Default Applications\]' "$mimeapps"; then
+            sed -i '/^\[Default Applications\]/a x-scheme-handler/discover-nmap-web=discover-nmap-web.desktop' "$mimeapps"
+        else
+            printf '\n[Default Applications]\nx-scheme-handler/discover-nmap-web=discover-nmap-web.desktop\n' >> "$mimeapps"
+        fi
+    else
+        printf '[Default Applications]\nx-scheme-handler/discover-nmap-web=discover-nmap-web.desktop\n' > "$mimeapps"
+    fi
+
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$mimeapps" 2>/dev/null || true
+        sudo -u "$SUDO_USER" xdg-mime default discover-nmap-web.desktop x-scheme-handler/discover-nmap-web >/dev/null 2>&1 || true
+        sudo -u "$SUDO_USER" update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+    else
+        xdg-mime default discover-nmap-web.desktop x-scheme-handler/discover-nmap-web >/dev/null 2>&1 || true
+        update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+    fi
+
+}
+
+f_install_discover_nmap_web_handler
+
 # discover-theharvester: — open ~/.theHarvester/api-keys.yaml (Audit Config → APIs).
 f_install_discover_theharvester_handler(){
     local apps_dir="$USER_HOME/.local/share/applications"

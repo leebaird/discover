@@ -196,7 +196,7 @@
                 },
                 {
                     h: "Outputs",
-                    p: "TXT under tools/host-scans/ for this host."
+                    p: "TXT under tools/host-scans/ for this host. WEB opens each http/https port in Firefox."
                 }
             ]
         },
@@ -1499,13 +1499,23 @@
                     '" title="Open each feroxbuster finding URL in Firefox">url</a>';
             }
         }
+        if (tool === "nmap" && findingUrlCount(st) !== 0) {
+            var webRel = String(rel).replace(/[^/]+$/, "web-urls.txt");
+            var absWeb = hostScanArtifactAbsolutePath(webRel);
+            if (absWeb) {
+                html +=
+                    '<a class="inc-host-scan-out" href="discover-nmap-web:' +
+                    encodeURI(absWeb).replace(/"/g, "&quot;") +
+                    '" title="Open each nmap HTTP(S) port in Firefox">web</a>';
+            }
+        }
         html += "</span>";
         return html;
     }
 
     /**
      * Best-effort absolute or report-relative path for desktop handlers
-     * (discover-ffuf: / discover-ferox: / discover-robots:).
+     * (discover-ffuf: / discover-ferox: / discover-robots: / discover-nmap-web:).
      */
     function hostScanArtifactAbsolutePath(relFromPages) {
         try {

@@ -326,7 +326,7 @@ In **operator** mode only (report opened via **Open report** / Active at `http:/
 | Tool | Role | When shown |
 |------|------|------------|
 | **robots** | Fetch `/robots.txt` and list **Disallow** paths (same idea as multiTabs → Directories in robots.txt); **TXT** = raw body, **URL** = open Disallow dirs in Firefox | Always on expand |
-| **nmap** | `nmap -Pn -n --open -sTV -p <Shodan ports> <host>` (TCP connect + version; includes 80/443 when Shodan listed them); **TXT** | **Gated:** that IP has at least one port in the engagement Shodan index. No HTTP pre-check |
+| **nmap** | `nmap -Pn -n --open -sTV -p <Shodan ports> <host>` (TCP connect + version); **TXT**; **web** opens each http/https SERVICE in Firefox (`ssl/unknown` as https) | **Gated:** that IP has at least one port listed in the Shodan drop down. No HTTP pre-check |
 | **Nuclei** | Template recon (product tags) then auto **Pass 2** CVE/KEV from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | **Gated:** product known via `?software=` **or** row fingerprint (Technologies / title / web server / hostname). Hidden when no product is known |
 | **droopescan** | CMS enum (`scan drupal` / …; `-e a -t 4 --hide-progressbar`); TXT drops percent-bar lines | **Gated:** supported CMS from `?software=` **or** row fingerprint (Drupal, Joomla, Moodle, Silverstripe — not WordPress) |
 | **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** WordPress from `?software=` **or** row fingerprint. Optional `WPSCAN_API_TOKEN` for vuln DB |
