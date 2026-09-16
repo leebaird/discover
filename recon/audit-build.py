@@ -26,6 +26,7 @@ LINE_RE3 = re.compile(rf"^{_AUDIT_TS} \| ([^|]+) \| (.*)$")
 # but always appear as Target scans columns so prior runs remain visible.
 HOST_SCAN_TOOLS: list[tuple[str, str]] = [
     ("robots", "robots"),
+    ("nmap", "nmap"),
     ("nuclei", "Nuclei"),
     ("droopescan", "droopescan"),
     ("wpscan", "WPScan"),
@@ -205,7 +206,7 @@ def _command_for_host_scan(
     tool = (tool or "").lower()
     if tool.startswith("nuclei pass"):
         tool = "nuclei"
-    if not host or tool not in {"ffuf", "feroxbuster", "nikto", "nuclei", "droopescan", "wpscan", "robots"}:
+    if not host or tool not in {"ffuf", "feroxbuster", "nikto", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
         return ""
 
     base = report_root / "tools" / "host-scans" / host / tool
@@ -301,7 +302,7 @@ def _duration_for_finished_scan(
     tool = (tool or "").lower()
     if tool.startswith("nuclei pass"):
         tool = "nuclei"
-    if not host or tool not in {"ffuf", "feroxbuster", "nikto", "nuclei", "droopescan", "wpscan", "robots"}:
+    if not host or tool not in {"ffuf", "feroxbuster", "nikto", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
         return ""
 
     audit_ts = (audit_ts or "").strip()
@@ -365,7 +366,7 @@ def _display_audit_action(
 
     m = re.match(
         r"(?i)^(started|finished)\s+"
-        r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|feroxbuster|ffuf|nikto)\b",
+        r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|nmap|feroxbuster|ffuf|nikto)\b",
         text,
     )
     if m:
@@ -423,7 +424,7 @@ def _is_finished_host_scan_action(action: str) -> bool:
     return bool(
         re.match(
             r"(?i)^finished\s+"
-            r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|feroxbuster|ffuf|nikto)\b",
+            r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|nmap|feroxbuster|ffuf|nikto)\b",
             text,
         )
     )
@@ -769,7 +770,7 @@ def omit_missing_page_nav(html: str, report_root: Path) -> str:
 # Audit log Action → host-scan tool / pass-2 / URL (for Output column links).
 _AUDIT_SCAN_ACTION_RE = re.compile(
     r"(?i)\b(?P<verb>started|finished)\s+"
-    r"(?P<tool>nuclei\s+pass-2|droopescan|wpscan|robots|feroxbuster|ffuf|nikto|nuclei)\b"
+    r"(?P<tool>nuclei\s+pass-2|droopescan|wpscan|robots|nmap|feroxbuster|ffuf|nikto|nuclei)\b"
     r".*?\bon\s+(?P<url>https?://[^\s)(]+)"
 )
 
@@ -894,7 +895,7 @@ def audit_output_cell(
 
     is_pass2 = tool_raw.startswith("nuclei pass-2") or tool_raw == "nuclei pass-2"
     tool = "nuclei" if is_pass2 or tool_raw == "nuclei" else tool_raw
-    if tool not in {"ffuf", "feroxbuster", "nikto", "nuclei", "droopescan", "wpscan", "robots"}:
+    if tool not in {"ffuf", "feroxbuster", "nikto", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
         return '<span class="inc-audit-muted">—</span>'
 
     meta = (scan_index.get(host) or {}).get(tool) or {}
@@ -1276,7 +1277,7 @@ def compute_metrics(
             continue
         verb = m.group("verb").lower()
         tool = _normalize_scan_tool(m.group("tool"))
-        if tool not in {"nuclei", "nikto", "ffuf", "feroxbuster", "droopescan", "wpscan", "robots"}:
+        if tool not in {"nuclei", "nikto", "ffuf", "feroxbuster", "droopescan", "wpscan", "robots", "nmap"}:
             continue
         host = _hostname_from_url(m.group("url").rstrip(".,;"))
         if not host:
