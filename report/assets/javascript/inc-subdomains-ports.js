@@ -179,6 +179,34 @@
         return true;
     }
 
+    function rowHasHttpStatus(row) {
+        if (!row || !row.cells) {
+            return false;
+        }
+        var t;
+        if (row.cells.length > 4) {
+            t = (row.cells[4].textContent || "").trim();
+            if (/^\d{3}$/.test(t)) {
+                return true;
+            }
+        }
+        if (row.cells.length > 5) {
+            t = (row.cells[5].textContent || "").trim();
+            if (/^\d{3}$/.test(t)) {
+                return true;
+            }
+        }
+        var tds = row.querySelectorAll("td.inc-col-center");
+        var i;
+        for (i = 0; i < tds.length; i++) {
+            t = (tds[i].textContent || "").trim();
+            if (/^\d{3}$/.test(t)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function collectRows(index) {
         var table = publicTable();
         if (!table || !table.tBodies[0]) {
@@ -189,6 +217,9 @@
         var seen = {};
         Array.prototype.forEach.call(table.tBodies[0].rows, function (row) {
             if (!rowVisible(row)) {
+                return;
+            }
+            if (!rowHasHttpStatus(row)) {
                 return;
             }
             var hostCell =
