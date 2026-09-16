@@ -1371,7 +1371,7 @@ echo " Target:   $URL"
 
 if [ "$TOOL" = "nmap" ]; then
     echo " Ports:    ${PORTS:--}"
-elif [ "$TOOL" != "robots" ]; then
+elif [ "$TOOL" != "robots" ] && [ "$TOOL" != "nikto" ]; then
     echo " Software: ${SOFTWARE:--}"
 fi
 
@@ -1418,7 +1418,7 @@ if [ "$PRECHECK_RC" -ne 0 ]; then
 
         echo "Target:  $URL"
 
-        if [ "$TOOL" != "robots" ]; then
+        if [ "$TOOL" != "robots" ] && [ "$TOOL" != "nikto" ]; then
             echo "Software: ${SOFTWARE:--}"
         fi
 
