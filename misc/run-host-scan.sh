@@ -1304,10 +1304,9 @@ f_host_reachable_precheck(){
 
     if [ "${TOOL:-}" = "robots" ]; then
         probe="$(f_url_origin "$url")/robots.txt"
-        echo "[*] Reachability pre-check (curl HTTP/1.1 GET, 15s) — $probe"
-    else
-        echo "[*] Reachability pre-check (curl HTTP/1.1 GET, 15s)."
     fi
+
+    echo "[*] Reachability pre-check (curl HTTP/1.1 GET, 15s)."
 
     code="000"
     time_total="?"
@@ -1325,14 +1324,14 @@ f_host_reachable_precheck(){
         fi
 
         if [ "$attempt" -eq 1 ]; then
-            echo "[*] Pre-check got no HTTP response; retrying once."
+            echo "[*] Pre-check received no HTTP response, retrying once."
             sleep 2
         fi
     done
 
     if [ "$code" = "000" ]; then
-        echo "[!] Pre-check failed: no HTTP response from $probe within 15s."
-        echo "    Host is not reachable from this network (or not answering HTTP)."
+        echo "[!] Pre-check failed. No HTTP response from the target within 15s."
+        echo "[!] The target is not reachable or not answering HTTP."
         return 1
     fi
 
@@ -1362,12 +1361,17 @@ esac
 echo
 echo "============================================================"
 echo " Discover host scan (quiet / Red Team defaults)"
-echo " Tool:     $TOOL"
+if [ "$TOOL" = "robots" ]; then
+    echo " Tool:     curl"
+else
+    echo " Tool:     $TOOL"
+fi
+
 echo " Target:   $URL"
 
 if [ "$TOOL" = "nmap" ]; then
     echo " Ports:    ${PORTS:--}"
-else
+elif [ "$TOOL" != "robots" ]; then
     echo " Software: ${SOFTWARE:--}"
 fi
 
@@ -1380,7 +1384,7 @@ echo " Output:   $OUT_FILE"
 echo " UA:       $UA"
 echo "============================================================"
 echo
-echo "[*] OPSEC: single host, one tool, low rate. Ctrl+C to abort."
+echo "[*] ctrl+c to abort."
 echo
 
 EXIT_CODE=0
@@ -1405,13 +1409,29 @@ if [ "$PRECHECK_RC" -ne 0 ]; then
     {
         echo "Started: $STAMP_DISPLAY"
         echo
-        echo "Tool:    $TOOL"
+
+        if [ "$TOOL" = "robots" ]; then
+            echo "Tool:    curl"
+        else
+            echo "Tool:    $TOOL"
+        fi
+
         echo "Target:  $URL"
-        echo "Software: ${SOFTWARE:--}"
+
+        if [ "$TOOL" != "robots" ]; then
+            echo "Software: ${SOFTWARE:--}"
+        fi
+
         echo
         printf '%s\n' "$PRECHECK_OUT"
         echo
-        echo "[!] $TOOL skipped - host not reachable from this network."
+
+        if [ "$TOOL" = "robots" ]; then
+            echo "[!] curl skipped - host not reachable from this network."
+        else
+            echo "[!] $TOOL skipped - host not reachable from this network."
+        fi
+
         echo "    Result: no scan (reachability pre-check failed)."
         echo "    Re-run this tool when the host answers HTTP from your network."
         echo
