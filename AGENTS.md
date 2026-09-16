@@ -39,7 +39,7 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - First name only, max 10 letters only, stored at `~/.discover/operator-name`.
 - Prompted once when Discover starts if missing/invalid (`f_ensure_operator_name` in `discover.sh`).
 - Audit lines: `mm/dd/yyyy - hh:mm Z | <name> | <egress IP> | <action>` (`f_audit_log` / host-scan `f_audit`). Dash-date stamps (`mm-dd-yyyy - hh:mm Z`), legacy (`mm-dd-yyyy Z - hh:mm`), and 3-field lines still parse on the Audit page.
-- **Updated Shodan data** (per-IP panel Update), **Imported subdomains** / **Imported CSV list subdomains**, **Imported names** (incl. titles/emails), and **Imported operator package**: Operator IP is always a dash (`-` in the log, `—` on the Audit page). Do not record egress IP for those events. Bulk **Ran Shodan enrichment** and **Updated software CVE data** are not written to the audit log.
+- **Imported subdomains** / **Imported CSV list subdomains**, **Imported names** (incl. titles/emails), and **Imported operator package**: Operator IP is always a dash (`-` in the log, `—` on the Audit page). Do not record egress IP for those events. **Ran Shodan enrichment**, **Updated Shodan data for** an IP, and **Updated software CVE data** are not written to the audit log.
 
 ## Timestamps (UTC write, view timezone)
 

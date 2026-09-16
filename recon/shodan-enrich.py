@@ -618,14 +618,6 @@ def refresh_one_ip(
     patch_summary_for_ip(shodan_dir, row)
 
     if audit:
-        if status == "ok":
-            append_audit_log(report_dir, f"Updated Shodan data for {ip}")
-        elif status == "not_found":
-            append_audit_log(report_dir, f"Updated Shodan data for {ip} (not in Shodan)")
-        else:
-            err = rec.get("discover_error") or "error"
-            append_audit_log(report_dir, f"Failed Shodan update for {ip} ({err})")
-        rebuild_audit_page(report_dir)
         try:
             touch_path = os.path.join(
                 os.path.dirname(os.path.abspath(__file__)), "touch-report-date.py"
