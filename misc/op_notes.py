@@ -126,7 +126,7 @@ def cmd_append(args: argparse.Namespace) -> int:
     )
     tz_name = (metadata.get("properties") or {}).get("timeZone") or "UTC"
     sheet_tz = zoneinfo.ZoneInfo(tz_name)
-    date_str = dt_utc.astimezone(sheet_tz).strftime("%m/%d/%Y %H:%M:%S")
+    date_str = dt_utc.astimezone(sheet_tz).strftime("%m/%d/%Y %H:%M")
 
     target_raw = args.target or ""
     if target_raw.startswith(("http://", "https://")):
