@@ -8,7 +8,10 @@
 #   run-host-scan.sh <tool> <url> [software] [report_root] [ports]
 #
 # Tools: robots | nmap | nuclei | droopescan | wpscan | nikto | feroxbuster | ffuf
-# - nmap: -Pn -n --open -sTV -p <Shodan ports> <host> (no HTTP pre-check)
+# - nmap: TCP-only: -Pn -n --open -sTV -p <ports> <host> (no sudo)
+#         UDP (Shodan transport, or UDP= fallback; port 53 always TCP+UDP):
+#         sudo nmap --privileged -Pn -n --open -sTV -sUV -p T:...,U:... <host>
+#         (no HTTP pre-check; sudo only when UDP; sudo -v in this terminal)
 # - Visible terminal (desktop entry uses Terminal=true)
 # - One scan at a time (engagement lock)
 # - Software-aware nuclei/ffuf/droopescan/wpscan profiles
@@ -1137,13 +1140,31 @@ print(host)
 PY
 }
 
-# Digits and commas only; unique, sorted, 1-65535.
-f_nmap_ports(){
-    python3 - "$1" <<'PY'
+# Split Shodan ports into TCP / UDP for nmap -p T:...,U:...
+# Prefer tools/shodan/hosts/<ip>.json data[].transport; else UDP= from scan/nmap.sh.
+# Port 53 is always both TCP and UDP when it is in the set.
+# Prints three lines: tcp list, udp list, nmap -p spec.
+f_nmap_split_ports(){
+    python3 - "$1" "$2" "$3" <<'PY'
+import json
+import re
 import sys
+from pathlib import Path
+
+# Keep in lockstep with scan/nmap.sh UDP=.
+UDP_FALLBACK = {
+    53, 67, 69, 123, 137, 161, 407, 500, 523, 623, 1434, 1604,
+    1900, 2302, 2362, 3478, 3671, 4800, 5353, 5683, 6481, 17185,
+    31337, 34964, 44818, 47808,
+}
+IPV4 = re.compile(r"^(?:\d{1,3}\.){3}\d{1,3}$")
+
 raw = (sys.argv[1] or "").replace(" ", "")
+report = Path(sys.argv[2] or "")
+host = (sys.argv[3] or "").strip().lower().rstrip(".")
+
 seen = set()
-out = []
+ports = []
 for part in raw.split(","):
     if not part.isdigit():
         continue
@@ -1151,13 +1172,150 @@ for part in raw.split(","):
     if n < 1 or n > 65535 or n in seen:
         continue
     seen.add(n)
-    out.append(n)
-out.sort()
-print(",".join(str(n) for n in out))
+    ports.append(n)
+ports.sort()
+
+
+def resolve_ip(report_dir: Path, hostname: str) -> str:
+    if not hostname:
+        return ""
+    if IPV4.fullmatch(hostname):
+        return hostname
+    for name in ("subdomains", "private-subs"):
+        path = report_dir / "tools" / name
+        if not path.is_file():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for line in text.splitlines():
+            parts = line.split("\t")
+            if len(parts) < 2:
+                continue
+            if parts[0].strip().lower().rstrip(".") != hostname:
+                continue
+            ip = parts[1].strip()
+            if IPV4.fullmatch(ip):
+                return ip
+    idx_path = report_dir / "tools" / "shodan" / "index.json"
+    if not idx_path.is_file():
+        return ""
+    try:
+        idx = json.loads(idx_path.read_text(encoding="utf-8", errors="replace"))
+    except (OSError, json.JSONDecodeError):
+        return ""
+    if not isinstance(idx, dict):
+        return ""
+    for ip, rec in idx.items():
+        if not IPV4.fullmatch(str(ip)) or not isinstance(rec, dict):
+            continue
+        names = rec.get("hostnames") or ""
+        if isinstance(names, str):
+            names = [n.strip() for n in names.split(",")]
+        elif not isinstance(names, list):
+            continue
+        for n in names:
+            if str(n).strip().lower().rstrip(".") == hostname:
+                return str(ip)
+    return ""
+
+
+def shodan_transports(report_dir, ip):
+    out = {}
+    if not ip:
+        return out
+    path = report_dir / "tools" / "shodan" / "hosts" / f"{ip}.json"
+    if not path.is_file():
+        return out
+    try:
+        rec = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+    except (OSError, json.JSONDecodeError):
+        return out
+    if not isinstance(rec, dict):
+        return out
+    payload = rec.get("shodan") if isinstance(rec.get("shodan"), dict) else rec
+    data = payload.get("data") if isinstance(payload, dict) else None
+    if not isinstance(data, list):
+        return out
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        port = item.get("port")
+        try:
+            port_n = int(port)
+        except (TypeError, ValueError):
+            continue
+        if port_n < 1 or port_n > 65535:
+            continue
+        t = str(item.get("transport") or "").strip().lower()
+        if t not in ("tcp", "udp"):
+            continue
+        out.setdefault(port_n, set()).add(t)
+    return out
+
+
+ip = resolve_ip(report, host)
+trans_map = shodan_transports(report, ip)
+tcp = []
+udp = []
+for n in ports:
+    trans = trans_map.get(n, set())
+    want_tcp = "tcp" in trans
+    want_udp = "udp" in trans
+    if n == 53:
+        want_tcp = True
+        want_udp = True
+    elif not want_tcp and not want_udp:
+        if n in UDP_FALLBACK:
+            want_udp = True
+        else:
+            want_tcp = True
+    if want_tcp:
+        tcp.append(n)
+    if want_udp:
+        udp.append(n)
+
+tcp_s = ",".join(str(n) for n in tcp)
+udp_s = ",".join(str(n) for n in udp)
+if tcp and udp:
+    spec = f"T:{tcp_s},U:{udp_s}"
+elif udp:
+    spec = f"U:{udp_s}"
+else:
+    spec = tcp_s
+print(tcp_s)
+print(udp_s)
+print(spec)
 PY
 }
 
+# Cached sudo ticket, or prompt in this terminal. No-op when already root.
+# Return 1 if the operator cancels / sudo fails (caller aborts; no TCP-only fallback).
+f_nmap_acquire_sudo(){
+    if [ "$(id -u)" -eq 0 ]; then
+        return 0
+    fi
+
+    if sudo -n true 2>/dev/null; then
+        return 0
+    fi
+
+    echo "[*] UDP nmap needs root. Enter your sudo password."
+    echo
+
+    if sudo -v; then
+        echo
+        return 0
+    fi
+
+    echo
+    echo "[!] UDP nmap needs sudo. Scan aborted."
+    return 1
+}
+
 # TXT body: Starting Nmap <ver>, aligned PORT table, Service Info, Nmap done.
+# When raw UDP sendto is blocked (VPN/TUN), warn and do not keep tcpwrapped as a fingerprint.
 f_nmap_format_body(){
     python3 - "$1" "${2:-txt}" <<'PY'
 import re
@@ -1176,6 +1334,10 @@ ports = []
 in_table = False
 port_re = re.compile(
     r"^(\d+/(?:tcp|udp|sctp))\s+(\S+)\s+(\S+)(?:\s+(.*))?$"
+)
+udp_blocked = bool(
+    re.search(r"sendto.*Operation not permitted", text)
+    or "Couldn't open a raw socket" in text
 )
 for line in text.splitlines():
     if line.startswith("Starting Nmap"):
@@ -1210,20 +1372,38 @@ for line in text.splitlines():
         if not line.strip():
             in_table = False
 
+fixed = []
+for port, state, svc, version in ports:
+    proto = port.rsplit("/", 1)[-1]
+    if udp_blocked and proto == "udp":
+        if svc.lower() == "tcpwrapped":
+            svc = "unknown"
+        version = "UDP probe blocked locally"
+    fixed.append((port, state, svc, version))
+ports = fixed
+
 if mode == "sheet" and not ports:
     print("No open ports.")
     raise SystemExit(0)
-if mode != "sheet" and ver:
-    print(f"Starting Nmap {ver}")
-w_port = max([10] + [len(p[0]) for p in ports])
-w_state = max([7] + [len(p[1]) for p in ports])
-w_svc = max([10] + [len(p[2]) for p in ports])
+if mode != "sheet":
+    if udp_blocked:
+        print("[!] UDP probes blocked: sendto Operation not permitted.")
+        print("    Raw UDP cannot be sent on this interface (often a VPN/TUN). TCP results are valid. UDP rows are not a real service fingerprint.")
+        print()
+    if ver:
+        print(f"Starting Nmap {ver}")
+w_port = max([10] + [len(p[0]) for p in ports]) + 1
+w_state = max([7] + [len(p[1]) for p in ports]) + 1
+w_svc = max([10] + [len(p[2]) for p in ports]) + 1
 print(f"{'PORT':<{w_port}}{'STATE':<{w_state}}{'SERVICE':<{w_svc}}VERSION")
 for port, state, svc, version in ports:
     if version:
         print(f"{port:<{w_port}}{state:<{w_state}}{svc:<{w_svc}}{version}")
     else:
         print(f"{port:<{w_port}}{state:<{w_state}}{svc}")
+if mode == "sheet" and udp_blocked:
+    print()
+    print("UDP probes blocked locally (VPN/TUN sendto).")
 if mode != "sheet" and service_info:
     print()
     print(service_info)
@@ -1290,7 +1470,7 @@ PY
 # Pre-flight: can curl reach the URL with HTTP/1.1?
 # Returns 0 = run the tool, 1 = skip (unreachable / no HTTP response).
 # Used for HTTP expand tools so operators get a clear skip note in output.txt.
-# nmap does not use this (TCP to Shodan ports).
+# nmap does not use this (Shodan TCP and/or UDP ports).
 # robots probes {origin}/robots.txt (site root can 403/timeout while robots.txt is 200).
 f_host_reachable_precheck(){
     local url="$1"
@@ -1358,6 +1538,17 @@ case "$TOOL" in
         ;;
 esac
 
+NMAP_TCP=""
+NMAP_UDP=""
+NMAP_SPEC=""
+
+if [ "$TOOL" = "nmap" ]; then
+    mapfile -t NMAP_SPLIT_LINES < <(f_nmap_split_ports "$PORTS" "$REPORT_ROOT" "$HOST")
+    NMAP_TCP="${NMAP_SPLIT_LINES[0]:-}"
+    NMAP_UDP="${NMAP_SPLIT_LINES[1]:-}"
+    NMAP_SPEC="${NMAP_SPLIT_LINES[2]:-}"
+fi
+
 echo
 echo "============================================================"
 echo " Discover host scan (quiet / Red Team defaults)"
@@ -1370,7 +1561,13 @@ fi
 echo " Target:   $URL"
 
 if [ "$TOOL" = "nmap" ]; then
-    echo " Ports:    ${PORTS:--}"
+    if [ -n "$NMAP_UDP" ] && [ -n "$NMAP_TCP" ]; then
+        echo " Ports:    T:$NMAP_TCP U:$NMAP_UDP"
+    elif [ -n "$NMAP_UDP" ]; then
+        echo " Ports:    U:$NMAP_UDP"
+    else
+        echo " Ports:    ${NMAP_TCP:-${PORTS:--}}"
+    fi
 elif [ "$TOOL" != "robots" ] && [ "$TOOL" != "nikto" ]; then
     echo " Software: ${SOFTWARE:--}"
 fi
@@ -1390,7 +1587,7 @@ echo
 EXIT_CODE=0
 HOST_SKIPPED=0
 
-# Reachability first for HTTP tools. nmap uses Shodan TCP ports; skip curl GET.
+# Reachability first for HTTP tools. nmap uses Shodan ports; skip curl GET.
 PRECHECK_RC=0
 PRECHECK_OUT=""
 
@@ -1882,16 +2079,44 @@ PY
         ;;
     nmap)
         NMAP_HOST=$(f_url_host "$URL")
-        NMAP_PORTS=$(f_nmap_ports "$PORTS")
 
         if [ -z "$NMAP_HOST" ]; then
             echo "[!] Could not parse host from URL." | tee -a "$OUT_FILE"
             EXIT_CODE=1
-        elif [ -z "$NMAP_PORTS" ]; then
+        elif [ -z "$NMAP_SPEC" ]; then
             echo "[!] No Shodan ports for this host. Run Active Enrich → Shodan first." | tee -a "$OUT_FILE"
             EXIT_CODE=1
+        elif [ -n "$NMAP_UDP" ] && ! f_nmap_acquire_sudo; then
+            {
+                echo "Started: $STAMP_DISPLAY"
+                echo
+                echo "[!] UDP nmap needs sudo. Scan aborted."
+                echo
+            } > "$OUT_FILE"
+            EXIT_CODE=1
         else
-            NMAP_CMD=(nmap -Pn -n --open -sTV -p "$NMAP_PORTS" "$NMAP_HOST")
+            NMAP_CMD=()
+
+            if [ -n "$NMAP_UDP" ]; then
+                if [ "$(id -u)" -eq 0 ]; then
+                    NMAP_CMD+=(nmap --privileged)
+                else
+                    NMAP_CMD+=(sudo nmap --privileged)
+                fi
+
+                NMAP_CMD+=(-Pn -n --open)
+
+                if [ -n "$NMAP_TCP" ]; then
+                    NMAP_CMD+=(-sTV -sUV)
+                else
+                    NMAP_CMD+=(-sUV)
+                fi
+
+                NMAP_CMD+=(-p "$NMAP_SPEC" "$NMAP_HOST")
+            else
+                NMAP_CMD=(nmap -Pn -n --open -sTV -p "$NMAP_SPEC" "$NMAP_HOST")
+            fi
+
             {
                 echo "Started: $STAMP_DISPLAY"
                 echo
@@ -1903,6 +2128,13 @@ PY
             "${NMAP_CMD[@]}" 2>&1 | tee "$RUN_DIR/nmap.raw"
             EXIT_CODE=${PIPESTATUS[0]}
             set -e
+
+            if grep -qE 'sendto.*Operation not permitted|Couldn.t open a raw socket' "$RUN_DIR/nmap.raw" 2>/dev/null; then
+                echo
+                echo "[!] UDP probes blocked: sendto Operation not permitted (often VPN/TUN). TCP results are valid."
+                echo
+            fi
+
             f_nmap_format_body "$RUN_DIR/nmap.raw" >> "$OUT_FILE"
             NMAP_WEB_COUNT=$(f_nmap_write_web_urls "$RUN_DIR/nmap.raw" "$NMAP_HOST" "$RUN_DIR/web-urls.txt")
             python3 - "$META_FILE" "${NMAP_WEB_COUNT:-0}" <<'PY'

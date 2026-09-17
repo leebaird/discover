@@ -184,7 +184,7 @@
                 {
                     h: "What it does",
                     p:
-                        "TCP connect scan with version detection, using ports seen in Shodan."
+                        "Connect scan with version detection on ports seen in Shodan. UDP uses Shodan transport when present, otherwise the Discover UDP list. Port 53 is always scanned as both TCP and UDP."
                 },
                 {
                     h: "When shown",
@@ -192,7 +192,13 @@
                 },
                 {
                     h: "What Run does",
-                    p: "nmap -Pn -n --open -sTV -p <Shodan ports> <hostname>."
+                    p:
+                        "TCP only: nmap -Pn -n --open -sTV -p <ports> <hostname>. With UDP: sudo nmap --privileged -Pn -n --open -sTV -sUV -p T:<tcp>,U:<udp> <hostname>. UDP needs root; this terminal prompts for sudo if there is no cached ticket. Cancelled sudo aborts (no TCP-only fallback)."
+                },
+                {
+                    h: "UDP on VPN",
+                    p:
+                        "Raw UDP often cannot be sent on a VPN/TUN interface (sendto Operation not permitted). TCP results are still valid. TXT warns and does not treat those UDP rows as a real service (not tcpwrapped)."
                 },
                 {
                     h: "Outputs",
