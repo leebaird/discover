@@ -110,7 +110,7 @@ fi
 echo
 echo "[*] Starting listener: $PAYLOAD on $LHOST:$LPORT"
 echo "[*] Metasploit database warnings can be ignored if the handler starts."
-echo "[*] Press Ctrl+C or type 'exit' in msfconsole to stop."
+echo "[*] ctrl+c or type 'exit' in msfconsole to stop."
 echo
 msfconsole -q -r "$LISTENER_RC"
 exit 0
