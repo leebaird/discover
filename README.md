@@ -822,7 +822,7 @@ CVE-2018-7600
 ```
 
 * Accepts `CVE-YYYY-NNNN` (normalized to uppercase), `YYYY-NNNN`, or a **4+ digit number** for the current UTC year (`112233` → `CVE-2026-112233` in 2026)
-* Opens Firefox tabs for NVD, Rapid7, Tenable, Exploit-DB, Sploitus, CVEbase, GitHub (site search), and CISA KEV search
+* Opens Firefox tabs for NVD, Rapid7, Tenable, Exploit-DB, Sploitus, CVEbase, GitHub (site search), and CISA KEV search. Works with a Discover report already open in Firefox.
 * Related: Active Top CVE multi-tab opens use `misc/open-cve-tabs.sh` / `discover-cve:` handler
 
 ---

@@ -46,7 +46,7 @@ f_cve_fail(){
 f_cve_open_tabs(){
     local cve="$1"
     local cve_id="${cve#CVE-}"   # Exploit-DB wants year-number only (e.g. 2018-7600)
-    local url user_agent
+    local url
     local -a urls
 
     urls=(
@@ -60,19 +60,17 @@ f_cve_open_tabs(){
         "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?search=$cve&field_date_added_wrapper=all&field_cve=&sort_by=field_date_added&items_per_page=20&url="
     )
 
-    f_firefox_user_agents
-
+    # Same as misc/open-cve-tabs.sh: attach to the running Firefox (open report).
     for url in "${urls[@]}"; do
-        user_agent="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
-        firefox "$url" --user-agent="$user_agent" 2>/dev/null &
+        firefox "$url" 2>/dev/null &
         sleep 1
     done
 }
 
 f_runlocally
 
-if ! f_firefox_check; then
-    exit 0
+if ! command -v firefox >/dev/null 2>&1; then
+    f_cve_fail "firefox is not installed."
 fi
 
 clear
