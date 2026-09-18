@@ -221,7 +221,7 @@
                 {
                     h: "What Run does",
                     p:
-                        "One curl GET of robots.txt for this host. Parses Disallow paths into full URLs. Does not open Firefox during Run — use the green url button after it finishes."
+                        "One curl GET of robots.txt for this host. Parses Disallow paths into full URLs. Does not open Firefox during Run — use the green WEB button after it finishes."
                 },
                 {
                     h: "Safety check",
@@ -231,7 +231,7 @@
                 {
                     h: "Outputs",
                     p:
-                        "TXT is the raw robots.txt body. URL opens each Disallow directory in Firefox (desktop handler; not shown when there are no directories, only Disallow: /, or Unreachable). Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
+                        "TXT is the raw robots.txt body. WEB opens each Disallow directory in Firefox (desktop handler; not shown when there are no directories, only Disallow: /, or Unreachable). Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
                 }
             ]
         },
@@ -289,7 +289,7 @@
                 {
                     h: "Outputs",
                     p:
-                        "TXT of findings plus a URL control that opens each hit in Firefox when the run has at least one finding URL. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
+                        "TXT of findings plus a WEB control that opens each hit in Firefox when the run has at least one finding URL. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
                 }
             ]
         },
@@ -318,7 +318,7 @@
                 {
                     h: "Outputs",
                     p:
-                        "TXT of findings plus a URL control that opens each hit in Firefox when the run has at least one finding URL. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
+                        "TXT of findings plus a WEB control that opens each hit in Firefox when the run has at least one finding URL. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
                 }
             ]
         }
@@ -1423,9 +1423,9 @@
 
     /**
      * Build green output buttons.
-     * robots: txt → robots.txt body; url → Firefox Disallow tabs.
+     * robots: txt → robots.txt body; web → Firefox Disallow tabs.
      * nikto: txt + htm when report exists.
-     * ffuf / feroxbuster: txt + url when there is at least one finding URL.
+     * ffuf / feroxbuster: txt + web when there is at least one finding URL.
      */
     function findingUrlCount(st) {
         if (!st || st.url_count == null || st.url_count === "") {
@@ -1464,7 +1464,7 @@
                 htmRel.replace(/"/g, "&quot;") +
                 '" target="_blank" rel="noopener">htm</a>';
         }
-        // robots: url opens Disallow directories in Firefox (discover-robots:).
+        // robots: web opens Disallow directories in Firefox (discover-robots:).
         // url_count (preferred) and disallow_count skip Disallow: / only.
         if (
             tool === "robots" &&
@@ -1479,7 +1479,7 @@
                 html +=
                     '<a class="inc-host-scan-out" href="discover-robots:' +
                     encodeURI(absList).replace(/"/g, "&quot;") +
-                    '" title="Open each robots.txt Disallow directory in Firefox">url</a>';
+                    '" title="Open each robots.txt Disallow directory in Firefox">web</a>';
             }
         }
         if (tool === "ffuf") {
@@ -1491,7 +1491,7 @@
                 html +=
                     '<a class="inc-host-scan-out" href="discover-ffuf:' +
                     encodeURI(absJson).replace(/"/g, "&quot;") +
-                    '" title="Open each ffuf finding URL in Firefox">url</a>';
+                    '" title="Open each ffuf finding URL in Firefox">web</a>';
             }
         }
         if (tool === "feroxbuster") {
@@ -1502,7 +1502,7 @@
                 html +=
                     '<a class="inc-host-scan-out" href="discover-ferox:' +
                     encodeURI(absFerox).replace(/"/g, "&quot;") +
-                    '" title="Open each feroxbuster finding URL in Firefox">url</a>';
+                    '" title="Open each feroxbuster finding URL in Firefox">web</a>';
             }
         }
         if (tool === "nmap" && findingUrlCount(st) !== 0) {
@@ -1790,7 +1790,7 @@
                     : tool === "wpscan"
                       ? "wpscan"
                       : tool === "robots"
-                        ? "robots"
+                        ? "robots.txt"
                         : tool === "nmap"
                           ? "nmap"
                           : tool;

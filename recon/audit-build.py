@@ -964,7 +964,7 @@ def audit_output_cell(
                     links.append(
                         f'<a class="inc-audit-btn" href="{html.escape(robots_href, quote=True)}" '
                         f'title="Open each robots.txt Disallow directory in Firefox">'
-                        f"url</a>"
+                        f"web</a>"
                     )
             # ffuf: open each finding URL in Firefox (same as Target scans / expand).
             if tool == "ffuf":
@@ -976,7 +976,7 @@ def audit_output_cell(
                     links.append(
                         f'<a class="inc-audit-btn" href="{html.escape(ffuf_href, quote=True)}" '
                         f'title="Open each ffuf finding URL in Firefox">'
-                        f"url</a>"
+                        f"web</a>"
                     )
             if tool == "feroxbuster":
                 json_rel = str(Path(output).with_name("ferox.json")).replace("\\", "/")
@@ -987,7 +987,7 @@ def audit_output_cell(
                     links.append(
                         f'<a class="inc-audit-btn" href="{html.escape(ferox_href, quote=True)}" '
                         f'title="Open each feroxbuster finding URL in Firefox">'
-                        f"url</a>"
+                        f"web</a>"
                     )
             if tool == "nmap":
                 web_rel = str(Path(output).with_name("web-urls.txt")).replace("\\", "/")
@@ -1065,7 +1065,7 @@ def tool_cell(
                 links.append(
                     f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
                     f'title="Open each robots.txt Disallow directory in Firefox">'
-                    f"url</a>"
+                    f"web</a>"
                 )
         # ffuf: open each finding URL in Firefox (discover-ffuf: protocol)
         if tool == "ffuf" and report_root is not None:
@@ -1078,7 +1078,7 @@ def tool_cell(
                 links.append(
                     f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
                     f'title="Open each ffuf finding URL in Firefox">'
-                    f"url</a>"
+                    f"web</a>"
                 )
         if tool == "feroxbuster" and report_root is not None:
             json_rel = str(Path(str(output)).with_name("ferox.json")).replace("\\", "/")
@@ -1089,7 +1089,7 @@ def tool_cell(
                 links.append(
                     f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
                     f'title="Open each feroxbuster finding URL in Firefox">'
-                    f"url</a>"
+                    f"web</a>"
                 )
         if tool == "nmap" and report_root is not None:
             web_rel = str(Path(str(output)).with_name("web-urls.txt")).replace("\\", "/")
