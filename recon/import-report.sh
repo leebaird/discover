@@ -133,7 +133,7 @@ f_import_report_sync_assets(){
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
                 -e 's|modern\.css?v=[^"]*|modern.css?v=ws-ports13|g' \
-                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=72|g' \
+                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=75|g' \
                 -e 's|inc-subdomains-filter\.js?v=[0-9]*|inc-subdomains-filter.js?v=22|g' \
                 -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=19|g' \
                 -e 's|inc-subdomains-ports\.js?v=[0-9]*|inc-subdomains-ports.js?v=12|g' \
@@ -328,7 +328,7 @@ need = [
     ("tools/shodan/kev-ids.js", '<script src="../tools/shodan/kev-ids.js"></script>'),
     ("inc-shodan.js", '<script src="../assets/javascript/inc-shodan.js?v=19"></script>'),
     ("inc-subdomains-ports.js", '<script src="../assets/javascript/inc-subdomains-ports.js?v=12"></script>'),
-    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=72"></script>'),
+    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=75"></script>'),
 ]
 insert = [tag for key, tag in need if key not in text]
 if insert:
@@ -345,7 +345,7 @@ if insert:
 import re
 new_text, n = re.subn(
     r'inc-host-scan\.js\?v=[0-9]+',
-    'inc-host-scan.js?v=72',
+    'inc-host-scan.js?v=75',
     text,
 )
 if n:

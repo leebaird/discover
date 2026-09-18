@@ -140,7 +140,7 @@ def format_export_time(exp: dict) -> str:
 
 
 def _audit_action_hidden(action: str) -> bool:
-    """Skip routine noise on the Audit page (action field or full raw line)."""
+    """Skip routine noise everywhere we parse the log (metrics + table)."""
     a = (action or "").strip().rstrip(".").lower()
     # Import / reopen noise — never show on Audit log.
     if a.startswith("opened report in discover") or "opened report in discover" in a:
@@ -150,6 +150,20 @@ def _audit_action_hidden(action: str) -> bool:
         return True
     # Pass-2 start/finish are redundant with the parent nuclei lines + Output links.
     if "nuclei pass-2" in a or "nuclei pass 2" in a:
+        return True
+    return False
+
+
+def _audit_log_table_hidden(action: str) -> bool:
+    """Omit from the Audit log table and defender CSV. Metrics still count these."""
+    if _audit_action_hidden(action):
+        return True
+    a = (action or "").strip().rstrip(".").lower()
+    # Summary only — imported lines are already in the log.
+    if a.startswith("imported operator package"):
+        return True
+    # Finished robots is a 1–2s curl; Started robots already has command + TXT/WEB.
+    if re.match(r"^finished\s+robots\b", a):
         return True
     return False
 
@@ -1667,8 +1681,9 @@ def build_html(report_root: Path) -> str:
         '<th scope="col" class="inc-audit-col-trail">Output</th>'
         "</tr></thead><tbody>"
     )
-    if audit_rows:
-        for ts, operator, ip, action, raw_line in audit_rows:
+    table_rows = [r for r in audit_rows if not _audit_log_table_hidden(r[3])]
+    if table_rows:
+        for ts, operator, ip, action, raw_line in table_rows:
             # Parse Target/Output from full action; show shortened Action text.
             out_cell = audit_output_cell(action, report_root, scan_output_index)
             op_disp = operator if operator else "—"
@@ -1814,6 +1829,8 @@ def write_defender_csv(report_root: Path, dest: Path) -> Path:
     scan_index = build_host_scan_output_index(report_root)
     rows_out: list[dict[str, str]] = []
     for ts, operator, ip, action, _raw in load_audit_lines(report_root):
+        if _audit_log_table_hidden(action):
+            continue
         action_disp = _display_audit_action(
             action,
             report_root=report_root,

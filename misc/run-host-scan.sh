@@ -436,6 +436,9 @@ f_nuclei_args(){
         NUCLEI_EXTRA=(-tags gogs -c 5 -rl 25)
     elif [[ "$soft_lc" == keycloak* ]]; then
         NUCLEI_EXTRA=(-tags keycloak -c 5 -rl 25)
+    elif [[ "$soft_lc" == citrix* || "$soft_lc" == netscaler* ]]; then
+        # shellcheck disable=SC2054
+        NUCLEI_EXTRA=(-tags citrix,netscaler -c 5 -rl 25)
     elif [[ "$soft_lc" == rancher* ]]; then
         NUCLEI_EXTRA=(-tags rancher -c 5 -rl 25)
     elif [[ "$soft_lc" == argocd* || "$soft_lc" == argo ]]; then

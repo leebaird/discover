@@ -8,7 +8,7 @@
  * One tool at a time; live status via same origin /mode|/status when hosted.
  * Software: ?software= query wins, else fingerprint row tech/title/webserver/host.
  * nuclei is shown only when a product is known; robots/nikto/feroxbuster/ffuf always on expand.
- * nmap after robots when the row IP has Shodan ports.
+ * nmap after robots when the row IP has Shodan ports, or the row URL is http/https (80/443).
  * droopescan / wpscan gate on CMS software (query or fingerprint).
  * Tool boxes: Unicode ⓘ opens a short modal (what / when / Run / outputs).
  */
@@ -51,6 +51,7 @@
         { id: "gitea", label: "Gitea" },
         { id: "gogs", label: "Gogs" },
         { id: "keycloak", label: "Keycloak" },
+        { id: "citrix", label: "Citrix" },
         { id: "rancher", label: "Rancher" },
         { id: "argocd", label: "Argo CD" },
         { id: "eureka", label: "Eureka" },
@@ -184,11 +185,12 @@
                 {
                     h: "What it does",
                     p:
-                        "Connect scan with version detection on ports seen in Shodan. UDP uses Shodan transport when present, otherwise the Discover UDP list. Port 53 is always scanned as both TCP and UDP."
+                        "Connect scan with version detection on Shodan ports plus the HTTP port from this row (80 or 443). UDP uses Shodan transport when present, otherwise the Discover UDP list. Port 53 is always scanned as both TCP and UDP."
                 },
                 {
                     h: "When shown",
-                    p: "When a subdomain has at least one port listed in the Shodan drop down."
+                    p:
+                        "When Shodan lists ports for this IP, or the row URL is http/https (then 80 or 443 is included even if Shodan has no ports)."
                 },
                 {
                     h: "What Run does",
@@ -800,6 +802,13 @@
         if (n === "keycloak" || n.indexOf("keycloak") === 0) {
             return "keycloak";
         }
+        if (
+            n.indexOf("citrix") === 0 ||
+            n === "netscaler" ||
+            n.indexOf("netscaler") === 0
+        ) {
+            return "citrix";
+        }
         if (n === "rancher" || n.indexOf("rancher") === 0) {
             return "rancher";
         }
@@ -839,7 +848,7 @@
         if (n === "pgadmin" || n.indexOf("pgadmin") >= 0 || n === "pg-admin") {
             return "pgadmin";
         }
-        if (n === "uipath" || n.indexOf("uipath") === 0) {
+        if (n === "uipath" || n.indexOf("uipath") === 0 || n === "accel360") {
             return "uipath";
         }
         if (n === "control-m" || n === "controlm" || n.indexOf("control-m") === 0) {
@@ -1065,6 +1074,14 @@
         if (/\bkeycloak\b/.test(blobAll) && found.keycloak === undefined) {
             found.keycloak = "";
         }
+        if (
+            (/\bcitrix\b/.test(blobAll) ||
+                /\bnetscaler\b/.test(blobAll) ||
+                /\bunified access\b/.test(blobAll)) &&
+            found.citrix === undefined
+        ) {
+            found.citrix = "";
+        }
         if (/\brancher\b/.test(blobAll) && found.rancher === undefined) {
             found.rancher = "";
         }
@@ -1112,7 +1129,10 @@
         if (/\bpgadmin\b/.test(blobAll) && found.pgadmin === undefined) {
             found.pgadmin = "";
         }
-        if (/\buipath\b/.test(blobAll) && found.uipath === undefined) {
+        if (
+            (/\buipath\b/.test(blobAll) || /\baccel360\b/.test(blobAll)) &&
+            found.uipath === undefined
+        ) {
             found.uipath = "";
         }
         if (/\bcontrol-?m\b/.test(blobAll) && found.controlm === undefined) {
@@ -1154,7 +1174,7 @@
     /**
      * Tools for this expand panel.
      * nuclei only when a product is known (filter or fingerprint).
-     * robots/nikto/ffuf/feroxbuster always; nmap when Shodan has ports;
+     * robots/nikto/ffuf/feroxbuster always; nmap when Shodan has ports or the row is http/https;
      * CMS tools when matched.
      * Order: robots, nmap (if Shodan ports), nuclei (if product), CMS, then louder tools.
      */
@@ -1192,11 +1212,52 @@
         return list.join(",");
     }
 
+    /** HTTP(S) port from the row link (80 or 443). Empty when the href is not http(s). */
+    function httpPortsFromRow(row) {
+        if (!row) {
+            return [];
+        }
+        var a = row.querySelector("a.inc-subdomain-host-link");
+        var href = a ? a.getAttribute("href") || "" : "";
+        if (/^https:/i.test(href)) {
+            return [443];
+        }
+        if (/^http:/i.test(href)) {
+            return [80];
+        }
+        return [];
+    }
+
+    /**
+     * Ports for expand nmap: Shodan set plus 80/443 from the row URL.
+     * So HTTP-alive hosts still get nmap when Shodan has no ports for this IP.
+     */
+    function nmapPortsFromRow(row) {
+        var seen = {};
+        var list = [];
+        function add(n) {
+            var p = parseInt(String(n).trim(), 10);
+            if (!p || p < 1 || p > 65535 || seen[p]) {
+                return;
+            }
+            seen[p] = true;
+            list.push(p);
+        }
+        String(shodanPortsFromRow(row) || "")
+            .split(",")
+            .forEach(add);
+        httpPortsFromRow(row).forEach(add);
+        list.sort(function (a, b) {
+            return a - b;
+        });
+        return list.join(",");
+    }
+
     function toolsForSoftware(software, row) {
         var tools = [];
         var soft = (software || "").trim();
         tools.push("robots");
-        if (shodanPortsFromRow(row)) {
+        if (nmapPortsFromRow(row)) {
             tools.push("nmap");
         }
         if (soft) {
@@ -1779,7 +1840,7 @@
         }
         html += '<div class="inc-host-scan-tools">';
 
-        var nmapPorts = shodanPortsFromRow(row);
+        var nmapPorts = nmapPortsFromRow(row);
         var panelTools = toolsForSoftware(software, row);
         panelTools.forEach(function (tool) {
             var st = toolState(status, info.host, tool);
