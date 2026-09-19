@@ -7,55 +7,6 @@ Custom Bash and Python scripts used to automate various penetration testing task
 * [![Twitter Follow](https://img.shields.io/twitter/follow/discoverscripts.svg?style=social&label=Follow)](https://twitter.com/discoverscripts) Lee Baird @discoverscripts
 * [![Twitter Follow](https://img.shields.io/twitter/follow/jay_townsend1.svg?style=social&label=Follow)](https://twitter.com/jay_townsend1) Jay "L1ghtn1ng" Townsend @jay_townsend1
 
-## Table of contents
-
-- [Setup and usage](#setup-and-usage)
-  - [Shell helpers](#shell-helpers-configzshrc)
-- [Main menu](#main-menu)
-- [RECON](#recon)
-  - [Domain](#domain)
-    - [Engagement workflow](#engagement-workflow)
-    - [Import names](#import-names)
-    - [Import names, titles, and emails](#import-names-titles-and-emails)
-    - [Import subdomains](#import-subdomains)
-    - [Active](#active)
-    - [NVD API key](#nvd-api-key-optional-active-cvss)
-    - [CISA KEV](#cisa-known-exploited-vulnerabilities-kev)
-    - [Open report](#open-report)
-    - [Export report](#export-report)
-    - [Enrich with Shodan](#enrich-with-shodan)
-    - [Audit page](#audit-page)
-    - [SEC leadership](#sec-leadership-names-page)
-    - [Company HQ](#company-hq-summary-page)
-    - [Social media](#social-media-summary-page)
-  - [Person](#person)
-- [SCANNING](#scanning)
-  - [Generate target list](#generate-target-list)
-  - [CIDR, List, IP, Range, or URL](#cidr-list-ip-range-or-url)
-- [WEB](#web)
-  - [Insecure direct object reference](#insecure-direct-object-reference)
-  - [Open multiple tabs in Firefox](#open-multiple-tabs-in-firefox)
-  - [Nikto](#nikto)
-  - [SSL](#ssl)
-- [MISC](#misc)
-  - [Generate a malicious payload](#generate-a-malicious-payload)
-  - [Start a Metasploit listener](#start-a-metasploit-listener)
-  - [CVE lookup](#cve-lookup)
-  - [Parse XML](#parse-xml)
-  - [Notes](#notes)
-  - [Update](#update)
-- [DEV](#dev)
-  - [Dev menu](#dev-menu)
-  - [Layout](#layout)
-  - [API Security Scanner](#api-security-scanner)
-  - [Cloud Security Scanner](#cloud-security-scanner)
-  - [Container Security Scanner](#container-security-scanner)
-  - [OAuth and JWT Security Scanner](#oauth-and-jwt-security-scanner)
-  - [Open Redirect Scanner](#open-redirect-scanner)
-  - [Sensitive Information Scanner](#sensitive-information-scanner)
-  - [WAF Detection](#waf-detection)
-  - [Web and API Security](#web-and-api-security)
-
 ----------------------------------------------------------------------------------------------
 
 ## Setup and usage
@@ -70,17 +21,12 @@ cd discover/
 ```
 
 * On first run, Discover asks for your **first name** (max 10 letters) and saves it to `~/.discover/operator-name`. That name is written on every engagement **audit log** line. To change it later, edit or delete that file and restart Discover.
-* Select **Update** (main menu option **18**) to update the operating system and install dependencies (`droopescan`, `feroxbuster`, `ffuf`, `jq`, `nuclei`, etc.).
+* Select main menu option **18 Update** to update the operating system and install dependencies.
 * Some options require root credentials to run.
-* Optional: install operator shell helpers from `config/` (see below).
 
 ---
 
-### Shell helpers (`config/zshrc`)
-
-Discover ships interactive shell helpers used on assessment workstations (network summary, Metasploit, Discover shortcuts, etc.). Source file: **`config/zshrc`** (shared by bash and zsh).
-
-**Install** from the config directory:
+### Optional shell helpers (`config/zshrc`)
 
 ```
 cd ~/discover/config/
@@ -89,10 +35,10 @@ cd ~/discover/config/
 
 | Host | What `install.sh` does |
 |------|-------------------------|
+| **Ubuntu / other** (incl. macOS) | Copies `zshrc` to `~/.bash_aliases` and sources it |
 | **Kali** (detected via `/etc/os-release`) | Appends `zshrc` to `~/.zshrc` |
-| **Other** (e.g. Ubuntu) | Copies `zshrc` to `~/.bash_aliases` and sources it |
 
-Also installs `tmux.conf` → `~/.tmux.conf` and `vimrc` → `~/.vimrc`.
+Also installs `tmux.conf` to `~/.tmux.conf` and `vimrc` to `~/.vimrc`.
 
 **Useful commands** (after install / new shell):
 
@@ -104,17 +50,15 @@ Also installs `tmux.conf` → `~/.tmux.conf` and `vimrc` → `~/.vimrc`.
 | `web` / `web2` | HTTP server on port 80 (sudo) / 8000 |
 | `now` | Formatted date/time (does not override `date`) |
 | `update` | Grok update + full apt upgrade chain |
-| `bh`, `th`, `smb`, `sip`, … | BloodHound, theHarvester, smbserver, IP sort, etc. |
+| `bh`, `th`, `smb`, `sip` | BloodHound, theHarvester, smbserver, IP sort |
 
 Network identity (IPs, DNS, MAC) is computed **when you run** `n` / `web` / `upload` — not at shell startup — so new shells stay fast and values stay current after VPN/wifi changes.
 
 **Notes**
 
+* On Ubuntu and other non-Kali hosts, re-running overwrites `~/.bash_aliases` with the repo copy.
 * On Kali, re-running `install.sh` **appends** again and can duplicate the block; edit `~/.zshrc` or install only once.
-* On non-Kali, re-running overwrites `~/.bash_aliases` with the repo copy.
 * Default zsh on macOS/Kali does not load `~/.bash_aliases` unless you source it from `~/.zshrc`.
-
-Also covered in the HTML notes: `notes/kali.txt`, `notes/ubuntu.txt`, `notes/macos.txt`.
 
 ---
 
@@ -171,22 +115,17 @@ RECON
 
 Note: Passive and Active cannot be run as root.
 
-**Import** (names, names/titles/emails, subdomains, and other-operator scans) is on **Report → Audit → Import** when the engagement is open via Discover (`http://127.0.0.1:17322/…`). Scripts remain available for CLI / automation.
-
 ---
 
 #### Engagement workflow
 
-Typical domain engagement path:
-
 1. **Passive** — build `$HOME/data/<domain>/` HTML report.
 2. **Open report** (or finish Active) so the engagement is on statusd.
-3. **Audit → Import** — names, names/titles/emails, subdomains, or another operator’s package into the **current** report.
+3. **Audit > Import** — names, names/titles/emails, subdomains, or another operator’s package into the **current** report.
 4. **Active** — httpx / whatweb / gowitness; Active and Subdomains pages; optional NVD CVSS.
-5. **Shodan** (optional) — Active page **Enrich** (Shodan checkbox) or `recon/shodan-enrich.sh` / `shodan-enrich.py` CLI; host-by-IP OSINT for public IPs from Active httpx.
-6. Software filter on Active → filtered Subdomains → host scans (Nuclei, droopescan when CMS, WPScan when WordPress, robots, Nikto, ffuf) in operator mode.
-7. **Export** — on Report → Audit (Discover-hosted only): Client, Defender (audit CSV), or Operator package; path shown after export.
-8. **Reports → Audit** in the HTML report — Target scans, Audit log, and Exports.
+5. **Shodan** (optional) — Active page **Enrich** (Shodan checkbox).
+6. Software filter on Active, then filtered Subdomains, then host scans in operator mode.
+7. **Export** — on Report > Audit (Discover-hosted only): Client, Defender, or Operator package.
 
 ---
 
@@ -194,459 +133,124 @@ Typical domain engagement path:
 
 Uses Amass, ARIN, DNSRecon, dnstwist, Metasploit, subfinder, sublist3r, Shodan CTL (free CT hostnames; no API key), theHarvester, Whois, and multiple websites.
 
-* Acquire free API keys for maximum results with theHarvester.
-* Add API keys to `$HOME/.theHarvester/api-keys.yaml`.
+* Acquire free API keys for maximum results with theHarvester (`$HOME/.theHarvester/api-keys.yaml`).
 * Passive builds an HTML report at `$HOME/data/<domain>/`.
 * Find registered domains updates `pages/registered-domains.htm` in an existing report.
-* Active uses httpx, whatweb, and gowitness; optional NVD API key speeds CVSS enrichment (see [NVD API key](#nvd-api-key-optional-active-cvss)).
 * HTML **Reports** menu: **Passive**, **Active**, and **Audit**.
+* Names: US public companies pull DEF 14A / Form 4 from SEC EDGAR.
+* Summary: HQ from 10-K then website footer (`tools/company-manual.tsv` override); social profile links when found.
 
 ---
 
-#### Import names
+#### Import
 
-Script: `recon/import-names.sh`. **UI:** Report → Audit → **Import** → **Names** (statusd; uses the open engagement).
+On **Reports > Audit**, **Import** (Discover-hosted only) targets the **current** engagement.
 
-Add or enrich contacts from manual research (LinkedIn, company sites, phone directories, etc.).
+| Choice | What it does |
+|--------|----------------|
+| **Operator scans** | Merge another operator’s unpacked report (host-scans, screenshots, Active data, their audit lines) |
+| **Names** | Merge `tools/names-manual.tsv` (Name, Title, Phone; `#` comments; filled title/phone win) |
+| **Names, titles, and emails** | Merge an external names dump into Names and Emails |
+| **Subdomains** | Existing sources (Firefox / Pentest-Tools / TSV) or CSV `subdomain,ip,category`; optional Active on **new** public hosts |
 
-* Edit `$HOME/data/<domain>/tools/names-manual.tsv` (or pass another path)
-* Format: Name, Title, Phone (tab-separated, one person per line)
-* Lines starting with `#` are comments
-* Title and phone may be left blank
-* Re-run Import names whenever you add rows to the manual file
+CLI (same backends):
 
-```bash
+```
 bash recon/import-names.sh --report /home/user/data/example.com --json
-# optional: --manual /path/to/names-manual.tsv
-```
-
-Merges three sources, then refreshes `pages/names.htm`:
-
-1. `tools/names` — auto-discovered names from the passive scan
-2. `pages/names.htm` — existing report table
-3. `tools/names-manual.tsv` — manual entries (wins for title/phone when filled in)
-
-The merged TSV is saved back to `tools/names`. The Names page is a sortable three-column table: Name, Title, Phone.
-
----
-
-#### Import names, titles, and emails
-
-Script: `recon/import-names-titles-emails.sh`. **UI:** Report → Audit → **Import** → **Names, titles, and emails**.
-
-Merge a separate names dump (with optional titles and emails) into the open engagement.
-
-```bash
-bash recon/import-names-titles-emails.sh \
-  --report /home/user/data/example.com \
-  --source /home/user/data/names-from-osint.txt --json
-```
-
-* Requires a readable source file and a report that already has `pages/names.htm`
-* Accepts free-form lines (`Name Title email@domain`) and tab-separated rows (`Name`, `Title`, `Email`, `Phone`)
-* Merges into `tools/names` and `tools/emails`, and refreshes `pages/names.htm` / passive summary counts
-* Useful when contacts come from a tool or export outside Discover’s manual TSV
-
----
-
-#### Import subdomains
-
-Script: `recon/import-subdomains.sh`. **UI:** Report → Audit → **Import** → **Subdomains**.
-
-Add or enrich hosts. Two modes:
-
-1. **Existing sources** — Firefox / Pentest-Tools / manual TSV
-2. **CSV list** — `subdomain,ip,category` (one IPv4 per host; IP optional)
-
-```bash
+bash recon/import-names-titles-emails.sh --report /home/user/data/example.com --source /path/to/dump --json
 bash recon/import-subdomains.sh --report /home/user/data/example.com \
   --mode team-csv --import /home/user/team-hosts.csv --json
 # existing: --mode existing --import firefox|/path/to/export
-# optional CSV: --run-active  (Active on new public hosts only)
+# optional CSV: --run-active
 ```
 
-**Mode existing**
-
-* `firefox` — pull `pinia/scans` from your Firefox profile (free Pentest-Tools scans)
-* Firefox `pinia/scans` export (`pinia-scans.json`)
-* Pentest-Tools JSON (`pentest-tools-<domain>.json`)
-* Pentest-Tools text export (`pentest-tools.txt`)
-* Tab-separated host/IP rows (full path required, e.g. `tools/subdomains-import.tsv`)
-* Empty or invalid paths error out (no auto-create)
-* Hosts without an IP are resolved with `dig`
-* Categories from Discover `recon/subdomain-categories.tsv` only
-
-**Mode team-csv (CSV list)**
-
-* Format: `subdomain,ip,category` (header optional; comma or tab)
-* One IPv4 per subdomain; empty IP → `dig`
-* **Skip if already in the report** (`tools/subdomains`) — existing hosts are not re-imported or overwritten
-* **Category:** Discover patterns first; if no match, use CSV category. Discover’s category file is **never** modified.
-* Writes `tools/import-batch-hosts.txt` (**new** public hosts from this CSV only)
-* Optional **Run Active** on those imported public hosts only (UI checkbox / `--run-active`; merges into existing httpx/whatweb/gowitness)
-
-**Both modes**
-
-* Merge into `tools/subdomains`, split private IPs to `tools/private-subs`
-* Refresh `pages/subdomains.htm` and `pages/hosts.htm` (unique public IPv4s)
-* Run full **Active** (Domain menu **6**) anytime to probe all public hosts
+CSV list skips hosts already in `tools/subdomains`. Empty IP then `dig`. Category: Discover rules first, else CSV. Never writes `recon/subdomain-categories.tsv`.
 
 ---
 
 #### Active
 
-Script: `recon/active.sh` (Domain menu **6**).
-
-Run after a passive scan (and optionally Import subdomains) to probe which public hosts respond over HTTP/HTTPS, fingerprint technologies, and capture screenshots.
+Domain menu option 6. Run after Passive (and optionally Import subdomains).
 
 ```
 Enter the location of a previous Discover scan:
 /home/user/data/example.com
 ```
 
-Requires `httpx`, `whatweb`, `gowitness`, `python3`, and Chrome or Chromium (install via **Update**).
+* Reads public hostnames from `tools/subdomains` (RFC1918 skipped).
+* httpx (`tools/httpx.jsonl`); alive = 200–399, 401, 403, or 405.
+* whatweb + gowitness on alive URLs; merge with `recon/active-tech.py`.
+* Re-run Active to replace those artifacts and rebuild Active / Subdomains.
 
-* Reads public hostnames from `tools/subdomains` (RFC1918 IPs are skipped)
-* Probes hostnames with httpx; writes `tools/httpx.jsonl`
-* Treats responses with status 200–399, 401, 403, or 405 as alive
-* Fingerprints alive URLs with whatweb; writes `tools/whatweb.json`
-* Screenshots alive URLs with gowitness (go-rod driver) under `tools/gowitness/`
-* Merges httpx and whatweb with `recon/active-tech.py` and refreshes `pages/subdomains.htm`
-* Writes an Active summary to `pages/active.htm` (Reports menu → Active), including software versions enriched with NVD CVSS when available
-* Re-run Active to replace httpx/whatweb/gowitness artifacts and rebuild Active columns
-
-HTML **Reports** menu: **Passive** (`pages/passive.htm`), **Active** (`pages/active.htm`), **Audit** (`pages/audit.htm`).
+Artifacts live under `tools/` (`httpx.jsonl`, `whatweb.json`, `gowitness/`, `software-cves-cache.json`).
 
 ##### Software filter and host scans
 
-On Active **Software versions**, versions that have NVD CVEs are linked to a filtered Subdomains view (`subdomains.htm?software=…`). **Categories** labels link to Subdomains filtered by that category (`subdomains.htm?category=Dev`, or `category=(none)` for empty). **CMS** lists Content Management Systems found on alive hosts (WordPress, Drupal, Joomla, Moodle, Silverstripe — same set as host-scan CMS tools) with counts and `?tech=` links. **Status codes** link to Subdomains with that HTTP status (`subdomains.htm?status=200`). **Top web servers** link by server name (`subdomains.htm?webserver=Apache`; parenthetical variants like `Apache (Debian)` match). **Top technologies** link by product name (`subdomains.htm?tech=jQuery`; also matches versioned tokens like `jQuery:3.4.1`). **Login pages** (under CMS when any category exists) switches **By source** / **By type** from the Source / Type column icon (not a sort). **By source** counts **Path** (ffuf login-like paths, or httpx landing URL such as `/login.jsp`; SPA soft-200 bodies that match the run’s dominant length are ignored), **Title** (login/sign-in page titles, including common non-English phrases such as Zaloguj), **Tech** (products that typically expose a login UI; `Atlassian Jira` matches Jira; page title and hostname count when httpx tech is only HSTS, e.g. Argo CD / Harbor / MinIO / Rancher / UiPath / pgAdmin / Control-M), **Status** (HTTP 401 with an auth-related title). **By type** counts **Basic** (HTTP challenge: Basic / Digest / NTLM / Negotiate) and **Form** (source hits that are not generic 401+Basic, plus WhatWeb PasswordField). Each row links to `subdomains.htm?login=path|title|tech|status|basic|form`. Hosts that redirect to **Microsoft SSO** (`login.microsoftonline.com` in httpx final URL, or Citrix nFactor → Microsoft SAML) are omitted. The Active page header also has a centered **CVE search** bar: enter `CVE-YYYY-NNNNN`, `YYYY-NNNNN`, or a **4+ digit number** for the current UTC year (`76461` → `CVE-2026-76461` in 2026) to open Subdomains filtered to hosts running software linked to that CVE in the engagement NVD cache (`tools/cve-software-index.js`). Same filter banner / host-scan layout as software links (`subdomains.htm?cve=…`). Same number shortcut as main menu **14**.
-
-In **operator** mode only (report opened via **Open report** / Active at `http://127.0.0.1:17322/…`), Subdomains public rows with an HTTP status get a host-scan expand control (also on `?software=` / `?cve=` filtered views). Manual `file://` open never shows chevrons. Expandable rows show host-scan **boxes** (quietest → loudest):
+In **operator** mode only (report opened via **Open report** / Active at `http://127.0.0.1:17322/…`), Subdomains public rows with an HTTP status get a host-scan expand control (also on `?software=` / `?cve=` filtered views). Manual `file://` open never shows chevrons. Expandable rows show host-scan **boxes** (quietest to loudest):
 
 | Tool | Role | When shown |
 |------|------|------------|
-| **robots** | Fetch `/robots.txt` and list **Disallow** paths (same idea as multiTabs → Directories in robots.txt); **TXT** = raw body, **WEB** = open Disallow dirs in Firefox | Always on expand |
+| **robots** | Fetch `/robots.txt` and list **Disallow** paths (same idea as multiTabs, then Directories in robots.txt); **TXT** = raw body, **WEB** = open Disallow dirs in Firefox | Always on expand |
 | **nmap** | TCP-only: `nmap -Pn -n --open -sTV -p <ports> <host>`. With UDP: `sudo nmap --privileged -Pn -n --open -sTV -sUV -p T:<tcp>,U:<udp> <host>` (Shodan transport, else Discover `UDP=` list; port 53 always TCP+UDP). UDP prompts for sudo in the host-scan terminal if needed. If raw UDP sendto is blocked (often VPN/TUN), TXT warns and does not keep `tcpwrapped` as a UDP fingerprint. **TXT**; **web** opens each http/https SERVICE in Firefox (`ssl/unknown` as https) | **Gated:** Shodan ports for that IP, or the row URL is http/https (80 or 443 even if Shodan is empty). No HTTP pre-check |
-| **Nuclei** | Template recon (product tags) then auto **Pass 2** CVE/KEV from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | **Gated:** product known via `?software=` **or** row fingerprint (Technologies / title / web server / hostname). Hidden when no product is known |
-| **droopescan** | CMS enum (`scan drupal` / …; `-e a -t 4 --hide-progressbar`); TXT drops percent-bar lines | **Gated:** supported CMS from `?software=` **or** row fingerprint (Drupal, Joomla, Moodle, Silverstripe — not WordPress) |
+| **nuclei** | Template recon (product tags) then auto **Pass 2** CVE/KEV from the engagement software-CVE cache + CISA KEV (local nuclei templates only) | **Gated:** product known via `?software=` **or** row fingerprint (Technologies / title / web server / hostname). Hidden when no product is known |
+| **droopescan** | CMS enum (`scan drupal` / ...; `-e a -t 4 --hide-progressbar`); TXT drops percent-bar lines | **Gated:** supported CMS from `?software=` **or** row fingerprint (Drupal, Joomla, Moodle, Silverstripe — not WordPress) |
 | **WPScan** | WordPress checks (passive plugin detection + moderate enum) | **Gated:** WordPress from `?software=` **or** row fingerprint. Optional `WPSCAN_API_TOKEN` for vuln DB |
-| **Nikto** | Web server checks (request timeout 5s, FAILURES=8, maxtime 10m, hard stop 11m); report **TXT** + **HTM** when the scan actually ran | Always on expand |
+| **nikto** | Web server checks (request timeout 5s, FAILURES=8, maxtime 10m, hard stop 11m); report **TXT** + **HTM** when the scan actually ran | Always on expand |
 | **feroxbuster** | Content discovery (same wordlist picker as ffuf; no recursion; auto-bail; 10 threads, 20 req/s, 5s timeout, 10m time-limit); report **TXT** + **WEB** | Always on expand |
 | **ffuf** | Content discovery (quiet defaults); report **TXT** + **WEB** (open each finding in Firefox) | Always on expand |
 
-Each box shows the tool name and a blue **Run** button on one line, plus last-run time and green output buttons (**TXT** / **HTM** / **WEB** as applicable). A Unicode **ⓘ** in the top-right of each box opens a short modal (what the tool does, when it appears, what Run does, safety check, and outputs).
+Each box shows the tool name and a blue **Run** button on one line, plus last-run time and green output buttons (**TXT** / **HTM** / **WEB** as applicable). A Unicode **ⓘ** in the top-right of each box opens a modal explaining what the tool does, when it appears, what Run does, safety check, and outputs.
 
-**Software fingerprint (expand):** `?software=` wins (e.g. Active Software versions link). Otherwise Discover reads the row Technologies tokens (keeps version when present, e.g. `Kibana:9.4.2`), then title, web server, and hostname labels (every label, e.g. `uatapi.iis.cgi.com` → IIS). Priority products include CMS, Kibana, Grafana, Prometheus, Elasticsearch, Jenkins, Kafka UI / Kafbat UI / AKHQ, Filebrowser, SonarQube, RabbitMQ, Redis Commander, Kiali, Kubecost, Superset, GitLab / Gitea / Gogs, Keycloak, Citrix / NetScaler AAA, Rancher, Argo CD (hostname `argocd` / `argo-*`), Eureka, Harbor, MinIO, Nexus, JFrog / Artifactory, Strapi, CloudBeaver, DBeaver, pgAdmin, UiPath (hostname `accel360`), Oracle (`oci-adb-control` / OCI ADB Control; not the bare `oci` label), Tomcat, WildFly / JBoss, SharePoint, IIS, nginx, Apache, ASP.NET, PHP, Node.js, CrafterCMS, Java (not JavaScript). Not Cisco ASA VPN. Citrix / NetScaler AAA is fingerprinted for nuclei (`-tags citrix,netscaler`). That product string is passed into `run-host-scan.sh` so nuclei Pass 1 uses product tags and Pass 2 can select CVE templates.
+**Software fingerprint (expand):** `?software=` wins (e.g. Active Software versions link). Otherwise Discover reads the row Technologies tokens (keeps version when present, e.g. `Kibana:9.4.2`), then title, web server, and hostname labels (every label, e.g. `uatapi.iis.cgi.com` to IIS). Priority products include CMS, Kibana, Grafana, Prometheus, Elasticsearch, Jenkins, Kafka UI / Kafbat UI / AKHQ, Filebrowser, SonarQube, RabbitMQ, Redis Commander, Kiali, Kubecost, Superset, GitLab / Gitea / Gogs, Keycloak, Citrix / NetScaler AAA, Rancher, Argo CD (hostname `argocd` / `argo-*`), Eureka, Harbor, MinIO, Nexus, JFrog / Artifactory, Strapi, CloudBeaver, DBeaver, pgAdmin, UiPath (hostname `accel360`), Oracle (`oci-adb-control` / OCI ADB Control; not the bare `oci` label), Tomcat, WildFly / JBoss, SharePoint, IIS, nginx, Apache, ASP.NET, PHP, Node.js, CrafterCMS, Java (not JavaScript). Not Cisco ASA VPN. Citrix / NetScaler AAA is fingerprinted for nuclei (`-tags citrix,netscaler`). That product string is passed into `run-host-scan.sh` so nuclei Pass 1 uses product tags and Pass 2 can select CVE templates.
 
-**Reachability pre-check** (HTTP expand tools): before nuclei, droopescan, wpscan, robots, nikto, ffuf, or feroxbuster launches, `misc/run-host-scan.sh` runs a **curl HTTP/1.1 GET** (15s max, same User-Agent as the scan). One request records status and time; a `000` result is retried once. **robots** probes `{origin}/robots.txt` (not the site root), so a slow or 403 homepage does not skip a working robots.txt. If the probe does not answer HTTP, Discover **does not run the tool**. The run’s `output.txt` records the skip, `status.json` / `latest.json` set `skip_reason=host_unreachable`, and the box shows **Unreachable** (red) with a **TXT** note. **Nikto** does not show **HTM** on that skip, and **robots** does not show **WEB** (no report / no Disallow list). **nmap** does not use this gate (Shodan TCP and/or UDP ports).
+**Reachability pre-check** (HTTP expand tools): before nuclei, droopescan, wpscan, robots, nikto, ffuf, or feroxbuster launches, `misc/run-host-scan.sh` runs a **curl HTTP/1.1 GET** (15s max, same User-Agent as the scan). One request records status and time; a `000` result is retried once. **robots** probes `{origin}/robots.txt` (not the site root), so a slow or 403 homepage does not skip a working robots.txt. If the probe does not answer HTTP, Discover **does not run the tool**. The run’s `output.txt` records the skip, `status.json` / `latest.json` set `skip_reason=host_unreachable`, and the box shows **Unreachable** (red) with a **TXT** note. **Nikto** does not show **HTM** on that skip, and **robots** does not show **WEB** (no report / no Disallow list). **nmap** does not use this gate (Shodan ports and/or the row HTTP port).
 
-**robots** (`misc/run-host-scan.sh`):
+**Google Sheet (optional):** Audit **Config > Google Sheet** stores a spreadsheet URL for this engagement (`tools/op-notes-url`). Host-scan Start appends one row. **Authorize** in that panel. Empty URL means off. Client/defender exports omit the URL file.
 
-* One curl GET of `{base}/robots.txt` (scheme/host from the expand row URL)
-* Parses **Disallow** paths into full URLs under the run dir (`robots.txt`, `disallow-urls.txt`, summary `output.txt`)
-* **TXT** opens the raw robots body; **WEB** uses `discover-robots:` → `misc/open-robots-tabs.sh` (Firefox CLI, one tab per unique Disallow URL; cap 40; ~1.5s ± 40% jitter between tabs). **WEB** is hidden when there are no Disallow directories (including `Disallow: /` only)
-* Run does not open Firefox — only the green **WEB** button does
-
-**ffuf quiet defaults** (`misc/run-host-scan.sh`):
-
-* No custom `-mc` (ffuf defaults keep 2xx, 500, etc.)
-* `-fc 301,302,307,400,403,404,405,429` (drop redirects and common noise; keep 401 and 500s)
-* `-t 10 -rate 20 -timeout 5 -maxtime 600 -se -noninteractive` (5s per request; 10m wall; stop on spurious errors / connection timeouts). Hard stop 11m via `timeout`.
-* **Wordlist (software-aware)** under `/usr/share/wordlists/seclists/Discovery/Web-Content/` (or `/usr/share/seclists/…`): when expand knows a product (`?software=` / fingerprint), prefer a focused SecLists file (e.g. WordPress → `CMS/wordpress.fuzz.txt`, Grafana → `Service-Specific/Grafana.txt`, IIS → `Web-Servers/IIS.txt`, Apache → `Web-Servers/Apache.txt`). Huge dumps (e.g. `CMS/Drupal.txt`) stay on the quiet general list. With no product match: `common.txt` → `quickhits.txt` → `raft-small-directories.txt` → dirb `common.txt`. Chosen path is logged and passed as `-w`.
-* Report text is ANSI-cleaned (no progress ESC junk); **Duration** stripped from hit lines
-* **WEB** uses `discover-ffuf:` → `misc/open-ffuf-tabs.sh` (Firefox CLI, one tab per unique finding URL; cap 40; ~1.5s ± 40% jitter between tabs)
-
-**feroxbuster quiet defaults** (`misc/run-host-scan.sh`):
-
-* Same software-aware SecLists **wordlist** as ffuf (`f_ffuf_wordlist`)
-* `-t 10 --rate-limit 20 -T 5 --time-limit 10m --auto-bail`
-* `-n --dont-extract-links` (no recursion, no HTML/JS crawl)
-* `-k -C 301,302,307,400,403,404,405,429 -q --json -o ferox.json --no-state`
-* Hard stop 11m via `timeout`
-* **WEB** uses `discover-ferox:` → `misc/open-ffuf-tabs.sh` (same Firefox tab opener as ffuf)
-
-**Nuclei** writes a structured `output.txt` (Pass 1 / Pass 2). Empty findings files say `No vulnerabilities discovered.`
-
-Launches use the `discover-scan:` handler / `misc/run-host-scan.sh` (one tool at a time). Prefer `~/.local/bin` for **droopescan** on Python 3.12+ (Update runs `misc/patch-droopescan-py314.sh` for cement/`imp` + setuptools). **Open report** starts `misc/host-scan-statusd.py` (localhost static server + `/mode`/`/status`) and opens the report over `http://127.0.0.1:17322/` so host-scan chevrons work; opening the same tree as `file://` does not show them. Client/defender packages hide chevrons and disable launches.
-
-**Google Sheet (optional):** if Audit **Config → Google Sheet** has a spreadsheet URL for this engagement (`tools/op-notes-url`), a host-scan Start appends one row (time, operator, egress IP, host, command). Google login is **Authorize** in that panel (`~/.discover/google-token.json`); the scan does not open a browser. Empty URL means off. Client/defender exports omit the URL file.
-
-##### Active Scope metrics
-
-| Metric | Meaning |
-|--------|---------|
-| Public subdomains | Hosts in `tools/subdomains` with non-RFC1918 IPs |
-| Private subdomains | Rows in `tools/private-subs` |
-| Responding hosts | Unique hosts with an httpx status (any code) |
-
-**Status codes** on the Active page count **all** httpx responses (including 404/5xx). Screenshots, whatweb, and **Categories** still use the alive subset only (status 200–399, 401, 403, or 405).
-
-##### Public subdomains table (after Active)
-
-| Column | Source |
-|--------|--------|
-| Subdomain, Category, IP | Passive scan / Import subdomains |
-| Photo | gowitness screenshot link when captured |
-| Status | httpx status code |
-| Web Server | httpx/whatweb Server header |
-| Title / Technologies | httpx page title (filtered) + httpx tech / whatweb plugins |
-
-The private subdomains table stays three columns (Subdomain, Category, Private IP Address).
-
-`active-tech.py` merges and deduplicates overlapping data between columns — for example, OpenSSL and mod_jk versions drop out of Web Server when already listed in Technologies, `Microsoft IIS/10` shortens to `Microsoft IIS` when `IIS:10` is present, `Apache/2.4.37` shortens to `Apache` when `Apache HTTP Server:2.4.37` is present, OS names such as Red Hat are removed from Technologies when already shown in the Web Server banner, and httpx `Nginx` labels are normalized to `nginx`.
-
-Artifacts under `tools/`:
-
-* `active-targets.txt` — public hostnames sent to httpx
-* `httpx.jsonl` — httpx JSON output
-* `active-alive.tsv` — host, URL, and status for alive responses
-* `active.txt` — alive URLs sent to whatweb and gowitness
-* `whatweb.json` — whatweb JSON output
-* `gowitness/screenshots/` — JPEG screenshots
-* `gowitness/gowitness.jsonl` and `gowitness/gowitness.db` — gowitness metadata
-* `software-cves-cache.json` — cached NVD CVSS/CVE lookups for the Active report
+Active **Scope:** public / private / responding hosts. Status codes count all httpx responses; screenshots, whatweb, and Categories use the alive subset.
 
 ---
 
-#### NVD API key (optional, Active CVSS)
+#### API keys, Shodan, and KEV
 
-Active recon can enrich the **Software versions** table on `pages/active.htm` with CVSS scores and CVE IDs from the [National Vulnerability Database](https://nvd.nist.gov/). Lookups are implemented in `recon/software-cve.py`.
-
-**Without a key:** enrichment still runs, but NVD’s anonymous rate limits apply (slower).
-
-**With a key:** authenticated rate limits (much faster).
-
-**Skip enrichment entirely:**
-
-```
-export DISCOVER_SKIP_CVE=1
-```
-
-**Get a free API key**
-
-1. [Request an NVD API key](https://nvd.nist.gov/developers/request-an-api-key)
-2. Confirm the email NIST sends
-3. Provide the key to Discover (shell export and/or `~/.discover/api-keys` — see below)
-
-**How Discover finds the key** (non-empty values higher in the list win):
-
-1. Shell environment — `export NVD_API_KEY=...`
-2. Private file — `~/.discover/api-keys`
-
-Example line (no quotes required):
-
-```
-NVD_API_KEY=your-key-here
-```
-
-* **Discover Update** seeds `~/.discover/api-keys` from `resource/api-keys.example` if the file is missing (`chmod 600`; under sudo, the invoking user’s home)
-* Manual: `mkdir -p ~/.discover && cp ~/discover/resource/api-keys.example ~/.discover/api-keys && chmod 600 ~/.discover/api-keys`
-* Never commit real keys; `~/.discover/` stays outside the repo
-* **Migration:** if you still have `$DISCOVER/.env` or `~/.discover/.env`, the next Active/Shodan/CVE run moves those keys into `~/.discover/api-keys` and deletes the old files (existing `api-keys` values are kept)
+Audit **Config > APIs** (or `~/.discover/api-keys`, `chmod 600`). Shell export wins if set. Update seeds the file from `resource/api-keys.example` when missing.
 
 | Variable | Purpose |
 |----------|---------|
-| `NVD_API_KEY` | Optional NVD API key for faster CVSS lookups |
+| `NVD_API_KEY` | Faster Active CVSS (still runs without a key, slower). [Request a key](https://nvd.nist.gov/developers/request-an-api-key) |
 | `DISCOVER_SKIP_CVE=1` | Skip NVD queries; Software table still lists versions |
-| `DISCOVER_CVE_PROGRESS=1` | Print each product lookup while building Active |
-| `SHODAN_API_KEY` | Optional Shodan key for post-Active host enrichment (Active **Enrich** / CLI) |
-| `WPSCAN_API_TOKEN` | Optional WPScan API token for WordPress host scans (vuln DB) |
+| `SHODAN_API_KEY` | Active **Enrich** (Shodan). Membership key; host lookups do not use query credits. [Account](https://account.shodan.io/) |
+| `WPSCAN_API_TOKEN` | Optional WPScan vuln DB |
 
-Cache file: `<report>/tools/software-cves-cache.json`. CVSS values are **triage leads** from NVD CPE matches, not confirmed findings — validate before reporting to a client.
+theHarvester keys stay in `~/.theHarvester/api-keys.yaml` (Config **APIs** has a link). CVSS values are triage leads from NVD CPE, not confirmed findings.
 
----
+**Shodan:** Report > Active > Enrich after Active. Looks up public IPs from `tools/httpx.jsonl`. Without a key the flow soft-skips.
 
-#### Enrich with Shodan
-
-Scripts: `recon/shodan-enrich.sh` + `recon/shodan-enrich.py`. Prefer **Report → Active → Enrich** (Shodan checkbox) when the engagement is open via Open report / statusd. CLI still works for bulk/force enrich.
-
-After **Active** recon, look up unique **public** IPs from `tools/httpx.jsonl` in the [Shodan](https://www.shodan.io/) host database (org, ports, banners, vulns when present).
-
-**Requires a Shodan membership (or higher) API key.** Without a key the flow soft-skips (prints how to add the key and exits cleanly). IP host lookups do **not** consume Shodan query credits.
-
-**Get a key**
-
-1. [Shodan account](https://account.shodan.io/) / [Membership](https://www.shodan.io/store/member)
-2. Copy the API key from the account page
-3. Provide it to Discover (same pattern as NVD):
-
-```
-export SHODAN_API_KEY=...
-# or
-# SHODAN_API_KEY=...  in ~/.discover/api-keys
-```
-
-**How it works**
-
-1. Prefers the current engagement from Open report / Active (`~/.discover/current-report`)
-2. Collects unique public IPv4/IPv6 from `tools/httpx.jsonl` (`host_ip`, then `a[]`)
-3. Calls `GET https://api.shodan.io/shodan/host/{ip}` (rate-limited; default ~1.1s between requests)
-4. Resumes: skips IPs that already have a successful cache under `tools/shodan/hosts/`
-5. Appends an Audit log line and refreshes `pages/audit.htm`
-
-**Artifacts** (`<report>/tools/shodan/`)
-
-| Path | Content |
-|------|---------|
-| `hosts/<ip>.json` | Per-IP raw Shodan response (wrapped with Discover status) |
-| `summary.json` | Aggregate stats + flattened host rows |
-| `summary.tsv` | Spreadsheet-friendly (org, ports, vulns, hostnames) |
-| `index.json` | Compact IP → org / ports / hostnames |
-
-**Subdomains UI:** when enrichment has run, public rows whose IP is in Shodan show a small **▸** to the left of the subdomain. Click it for Hostnames, Location, Org, ISP, Ports, and NVD-linked CVEs. CVEs that appear in the CISA KEV catalog get a red **KEV** badge (links to the catalog search). Values are **IP-level** (same record on every hostname sharing that IP).
-
-Powered by `tools/shodan/index.js` and `tools/shodan/kev-ids.js` (works under local `file://`). `index.json` is the same data for tools/scripts. KEV IDs come from Discover’s CISA catalog (`resource/kevs.json`).
-
-**Keeping KEV badges current:** **Update** only refreshes the install-wide CISA catalog (reports can live on the Desktop or anywhere — Update cannot find them all). **Open report** rewrites `tools/shodan/kev-ids.js` for the report you open, using that catalog (no Shodan API re-query). Import any engagement after Update to pick up new KEV entries. No Shodan index → no toggles. Hard-refresh Subdomains after Import.
-
-**CLI** (outside the menu):
-
-```
-python3 $DISCOVER/recon/shodan-enrich.py /path/to/report
-python3 $DISCOVER/recon/shodan-enrich.py /path/to/report --dry-run
-python3 $DISCOVER/recon/shodan-enrich.py /path/to/report --limit 5
-python3 $DISCOVER/recon/shodan-enrich.py /path/to/report --force
-# After Update (or manually): refresh KEV badges only
-python3 $DISCOVER/recon/shodan-enrich.py --refresh-kev --all-engagements
-python3 $DISCOVER/recon/shodan-enrich.py --refresh-kev /path/to/report
-```
-
-Shodan data can be stale — confirm open ports and services with live scans before reporting.
-
----
-
-#### CISA Known Exploited Vulnerabilities (KEV)
-
-Discover **Update** (main menu option **18** / `misc/update.sh`) downloads the CISA KEV JSON catalog into Discover’s `resource/` folder:
-
-```
-$DISCOVER/resource/kevs.json
-```
-
-* Feed: [CISA KEV JSON](https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json)
-* Catalog: [CISA Known Exploited Vulnerabilities](https://www.cisa.gov/known-exploited-vulnerabilities-catalog)
-
-If the download fails, any previous local catalog is left in place. The file is gitignored (refreshed by Update, not committed).
-
-Reports may live under `$HOME/data/`, the Desktop, or elsewhere. Update does **not** rewrite every engagement’s `kev-ids.js`. After Update, **Open report** on each engagement that has Shodan data to refresh Subdomains **KEV** badges from the new catalog (no Shodan API re-query).
-
-On the Active **Software versions** table, **Top CVE** prefers a CISA KEV match when any of the product’s NVD CVEs appear in the KEV catalog (highest CVSS among KEVs wins). Otherwise Top CVE is the highest-CVSS NVD result. KEV selections show an orange **KEV** badge next to the linked CVE ID.
+**KEV:** Update downloads CISA KEV to `resource/kevs.json`. Open report rewrites `tools/shodan/kev-ids.js` for that engagement (no Shodan re-query). Active Software **Top CVE** prefers a KEV match when present (orange **KEV** badge).
 
 ---
 
 #### Open report
 
-Script: `recon/import-report.sh` (Domain menu **7 · Open report**).
-
-Reopen an existing engagement HTML report for continued operator work (does not re-run Passive/Active).
-
-```
-Enter the location of your report:
-/home/user/data/example.com
-```
-
-* Accepts a report root directory (or a page under it such as `index.htm` / `pages/active.htm`) — any path (Desktop, `$HOME/data/`, external disk)
-* Marks the live tree as **operator** mode (`assets/report-mode.json`, launches enabled)
-* Saves the engagement path to `~/.discover/current-report` for host-scan helpers
-* Seeds `tools/audit/` and refreshes `pages/audit.htm`
-* Syncs host-scan UI assets and ensures **Reports → Audit** on all pages (including the homepage)
-* If the report has Shodan artifacts (`tools/shodan/`), rewrites `tools/shodan/kev-ids.js` from Discover’s CISA KEV catalog (keeps Subdomains **KEV** badges current after **Update**)
-* Opens the report in a browser when possible
-
-Empty or invalid paths show an error and exit (same style as Active / Import names).
+Domain menu **7**. Reopen an existing report (does not re-run Passive/Active). Saves the path to `~/.discover/current-report`, refreshes Audit, syncs host-scan assets, refreshes KEV badges if Shodan artifacts exist, and opens the report in a browser.
 
 ---
 
 #### Export report
 
-**UI (preferred):** Open the engagement via **Open report** (or Active) so it is served at `http://127.0.0.1:17322/…`. On **Report → Audit**, use the **Export** button (top of the page; Discover-hosted only; not on Passive or Active). A modal offers:
+Discover-hosted **Report > Audit > Export**. Default output directory `$HOME/data`. Filename `YYYYMMDD-HHMM` uses the Config **Time zone**. Ledger and audit line stay UTC.
 
 | Kind | Package |
 |------|---------|
 | **Client** | HTML ZIP; operator IPs redacted; scans disabled |
-| **Defender** | Audit log CSV only (`time_utc`, `operator`, `operator_ip`, `target`, `action`) — Action matches the Audit page (tool command / finished + duration) |
-| **Operator** | Full HTML ZIP; IPs included; launches enabled in package stamp |
-
-After **Export**, the modal shows the output path (default directory `$HOME/data`).
-
-**CLI / statusd:** `recon/export-report.sh --kind client|defender|operator --report <path> [--out-dir <path>] [--quiet]`
-
-* Live engagement stays operator mode
-* Archive name uses the Config **Time zone** (`YYYYMMDD-HHMM` in that zone)
-* Writes an **Exports** entry under `tools/exports/` and an audit log line (UTC)
+| **Defender** | Audit log CSV only |
+| **Operator** | Full HTML ZIP; IPs included; launches enabled |
 
 ---
 
 #### Audit page
 
-Built by `recon/audit-build.py` into `pages/audit.htm` (HTML **Reports → Audit**).
-
-**Config (Discover-hosted only):** On **Reports → Audit**, use **Config** (left of Import). Hub with **Operator name** (updates `~/.discover/operator-name` and rewrites this report’s audit log for that name), **Time zone** (US zones + UTC for **viewing** and metrics calendar windows; all stamps stay UTC on disk), **APIs** (edit/save NVD, Shodan, WPScan keys in `~/.discover/api-keys`; theHarvester opens `~/.theHarvester/api-keys.yaml`), and **Google Sheet** (spreadsheet URL for **this** engagement in `tools/op-notes-url`; Google OAuth files stay in `~/.discover/`). Empty URL turns logging off. Client/defender exports omit that URL file.
-
-**Delete audit log lines (Discover-hosted only):** Each Audit log row has **Delete**. Confirm with **`<Operator>, are you sure you want to delete this line?`** (plus a short preview). Removes that line from `tools/audit/log.txt` and rebuilds Audit (including metrics).
-
-**Import (Discover-hosted only):** On **Reports → Audit**, use **Import** (between Config and Export). Hub for the **current** engagement (statusd report root):
-
-| Choice | What it does |
-|--------|----------------|
-| **Operator scans** | Merge another operator’s unpacked report (host-scans, screenshots, Active data, their audit lines) |
-| **Names** | Merge manual contacts TSV into Names |
-| **Names, titles, and emails** | Merge an external names dump |
-| **Subdomains** | Existing sources (Firefox / Pentest-Tools / TSV) or CSV list; optional Active on new public hosts |
-
-Operator scans: path to **unpacked** report + their first name (1–10 letters). Other kinds take the source file path (Names may use default `tools/names-manual.tsv`). CLI:
-
-```bash
-python3 recon/import-operator-package.py --dest /path/to/live-report \
-  --source /path/to/their-unpacked-report --operator Bob --json
-bash recon/import-names.sh --report /path/to/live-report --json
-bash recon/import-names-titles-emails.sh --report /path/to/live-report --source /path/to/names.txt --json
-bash recon/import-subdomains.sh --report /path/to/live-report --mode existing --import firefox --json
-```
-
-| Section | Content |
-|---------|---------|
-| **Host-scan metrics** | Range dropdown above the log: **Today** · **Yesterday** · **Last 7 days** (default) · **Last week** · **All** (calendar windows in the Config view timezone) |
-| **Audit log** | Newest-first by default; **Time (UTC)**, **Operator**, **Operator IP**, **Target**, **Action** (**Started** = exact command; **Finished** = e.g. `Finished nikto in 5 min 14 sec.`), **Output**. Omits opened-report, exports, nuclei pass-2, **Imported operator package**, and **Finished robots** (Started robots stays). Full log lines stay in `tools/audit/log.txt` |
-| **Target scans** | Per-host history for **robots**, **Nuclei**, **droopescan**, **WPScan**, **Nikto**, **feroxbuster**, **ffuf**. Timestamp plus **TXT** / **HTM** / **WEB** buttons when outputs exist |
-| **Exports** | Type (Client / Defender / Operator), exported time (UTC), operator IPs (Included / Redacted), file name |
-
-Open report rebuilds this page. Host scans and exports append data under `tools/` that appears on Audit after the next rebuild (Import, host-scan finish, or export path).
-
----
-
-#### SEC leadership (Names page)
-
-For US public companies, Discover pulls executives and directors from SEC EDGAR before the names merge step:
-
-1. **DEF 14A** — proxy statement prose and board tables for full titles
-2. **Form 4** — recent insider filings to supplement officers and directors
-
-* Results are written to `zsec-people` and merged into `tools/names` (Name, Title, Phone; phone left blank).
-* SEC filings do not provide work emails or per-person phone numbers.
-* Manual override: `tools/sec-people-manual.tsv` (tab-separated: Name, Title, Phone).
-
----
-
-#### Company HQ (Summary page)
-
-During passive recon, Discover attempts to fill the address and phone block on `pages/summary.htm`:
-
-1. **SEC EDGAR 10-K** — principal executive office from the latest 10-K (inline XBRL `dei:` tags)
-2. **Website footer** — homepage footer / contact pages when SEC has no match
-3. **Manual override** — `tools/company-manual.tsv`
-
-Results go to `tools/company.json` and `pages/summary.htm`.
-
----
-
-#### Social media (Summary page)
-
-During passive recon, Discover extracts official social profile links (Facebook, Instagram, LinkedIn, X, YouTube) and attempts follower counts.
-
-* Results: `tools/social.tsv` → `pages/summary.htm`
-* Blocked platforms show **Blocked**
-* Manual URLs: `tools/social-manual.tsv` (Platform, URL)
+Reports > Audit. **Config** (hosted only): Operator name, Time zone (display and metrics only; stamps stay UTC), APIs, Google Sheet. **Delete** on log rows (hosted only). **Import** as above.
 
 ---
 
@@ -814,16 +418,15 @@ Metasploit Listeners
 
 ### CVE lookup
 
-Main menu option **14** (`misc/cve.sh`).
+Main menu option **14**.
 
 ```
 CVE:
 CVE-2018-7600
 ```
 
-* Accepts `CVE-YYYY-NNNN` (normalized to uppercase), `YYYY-NNNN`, or a **4+ digit number** for the current UTC year (`112233` → `CVE-2026-112233` in 2026)
-* Opens Firefox tabs for NVD, Rapid7, Tenable, Exploit-DB, Sploitus, CVEbase, GitHub (site search), and CISA KEV search. Works with a Discover report already open in Firefox.
-* Related: Active Top CVE multi-tab opens use `misc/open-cve-tabs.sh` / `discover-cve:` handler
+* Accepts `CVE-YYYY-NNNN`, `YYYY-NNNN`, or a **4+ digit number** for the current year.
+* Opens Firefox tabs for NVD, Rapid7, Tenable, Exploit-DB, Sploitus, CVEbase, GitHub, and CISA KEV search.
 
 ---
 
@@ -846,45 +449,30 @@ Parse XML to CSV.
 
 ### Notes
 
-Main menu option **17**.
-
-Opens Discover’s notes HTML (`notes/index.htm`) in a browser when available.
+Main menu option **17**. Opens `notes/index.htm` in a browser when available.
 
 ---
 
 ### Update
 
-Main menu option **18** (`misc/update.sh`).
+Main menu option **18** (`misc/update.sh`). OS packages, git pulls, locate DB, recon/dev tools, desktop handlers, Edge User-Agent, and CISA KEV catalog.
 
-* Updates the operating system, git pull from various repos, and update the locate database
-* Installs tools used by recon and dev scanners (for example `ffuf`, `nuclei`, `droopescan`, `wpscan`, `feroxbuster`, `jq`, `trivy`, ProjectDiscovery stack)
-* Updates **nuclei** (`nuclei -up`) and **nuclei-templates** (`git pull` of `projectdiscovery/nuclei-templates` into the invoking operator’s `~/nuclei-templates`; first Update clones if needed). Not `nuclei -ut` (release tags only)
-* Builds **gowitness** from [sensepost/gowitness](https://github.com/sensepost/gowitness) under `/opt/gowitness` (`/usr/local/bin/gowitness`). Not `go install @latest` (that module’s `go.mod` has `replace` directives)
-* Installs **Nikto** from [sullo/nikto](https://github.com/sullo/nikto) under `/opt/nikto` (wrapper `/usr/local/bin/nikto`); removes the stale apt `2.1.5` package when present
-* Updates **Metasploit**: `snap refresh metasploit-framework` when the snap is installed; otherwise `apt` when `msfconsole` is present (Kali). Fresh install uses snap on Ubuntu and apt elsewhere. Snap MSF does not use `msfupdate`.
-* Installs **WPScan** via RubyGems (`gem install wpscan`) for WordPress host scans; refreshes the local WPScan DB with `wpscan --update`
-* Patches **droopescan** for modern Python (3.12+) via `misc/patch-droopescan-py314.sh` after pipx install (cement `imp` + setuptools/`distutils`)
-* Registers desktop handlers: `discover-scan:`, `discover-cve:`, `discover-ffuf:` / `discover-ferox:` (open finding URLs in Firefox), `discover-robots:` (open robots.txt Disallow directories in Firefox)
-* Refreshes the default scanner User-Agent (Microsoft Edge) in `resource/user-agent.txt` for Nikto, Nmap, ffuf, Active, and related tools
-* Downloads/refreshes the CISA KEV catalog under `resource/` (Subdomains Shodan **KEV** badges pick up new catalog entries when you **Open report** that engagement)
+Gotchas:
 
-Main menu option **16. Dev** is documented in the [DEV](#dev) section below.
+* **nuclei-templates** — git clone + `git pull --ff-only` (not `nuclei -ut`).
+* **gowitness** — clone/build under `/opt/gowitness` (not `go install @latest`; that module uses `replace`).
+* **nikto** — git under `/opt/nikto` (not the stale apt 2.1.5 package).
+* **Metasploit** — snap refresh when snap is installed; otherwise apt. Snap MSF does not use `msfupdate`.
 
 ---
 
 ## DEV
 
-Security scanners by [Yiğit ibrahim (ibrahimsql)](https://github.com/ibrahimsql). Reachable from main menu option **16** or by running scripts under `dev/` directly.
+Security scanners by [Yiğit ibrahim (ibrahimsql)](https://github.com/ibrahimsql). Main menu **16**.
 
-Scan results are written under `$HOME/data/` unless noted otherwise. Dev scanners produce **standalone reports** in their own output directories (`api-scan_*`, `cloud-scan_*`, etc.). They source `discover.sh` for menu helpers and colors when needed, but **do not** write to or update Discover’s domain recon HTML report (`$HOME/data/<domain>/pages/*.htm`).
-
----
-
-### Dev menu
+Standalone reports under `$HOME/data/` (`api-scan_*`, `cloud-scan_*`, and so on). They **do not** write Discover’s domain HTML report (`$HOME/data/<domain>/pages/*.htm`). Flags and output files: each script’s `-h`.
 
 ```
-Dev scripts originally by ibrahimsql
-
 1. API Security
 2. Cloud Security
 3. Container Security
@@ -896,356 +484,13 @@ Dev scripts originally by ibrahimsql
 9. Previous menu
 ```
 
----
-
-### Layout
-
-```
-dev/
-├── api-scanner.sh
-├── cloud-scanner.sh
-├── container-scanner.sh
-├── oauth-jwt-scanner.sh
-├── open-redirect.sh
-├── sensitive-scanner.sh
-├── waf-detect.sh
-├── web-api-scanner.sh
-├── data/
-│   ├── api-paths.txt
-│   ├── openredirect-payloads.txt
-│   ├── sensitive-denylist.txt
-│   ├── sensitive-patterns.tsv
-│   ├── sensitive-skip-paths.txt
-│   ├── sensitive-web-paths-quick.txt
-│   ├── sensitive-web-paths-full.txt
-│   ├── waf-aliases.tsv
-│   ├── waf-labels.tsv
-│   ├── waf-signatures.tsv
-│   ├── web-api-phases.tsv
-│   ├── web-api-tech-signatures.tsv
-│   └── swagger-paths.txt
-└── lib/
-    ├── api-scanner/
-    │   └── common.sh
-    ├── cloud-scanner/
-    │   ├── common.sh
-    │   ├── aws.sh
-    │   ├── azure.sh
-    │   └── gcp.sh
-    ├── container-scanner/
-    │   ├── common.sh
-    │   ├── docker.sh
-    │   └── k8s.sh
-    ├── oauth-jwt-scanner/
-    │   ├── common.sh
-    │   ├── oauth.sh
-    │   └── jwt.sh
-    ├── open-redirect-scanner/
-    │   ├── common.sh
-    │   └── engine.py
-    ├── sensitive-scanner/
-    │   ├── common.sh
-    │   ├── files.sh
-    │   ├── web.sh
-    │   ├── filescan.py
-    │   ├── engine.py
-    │   ├── fixtures/
-    │   └── run-tests.sh
-    ├── waf-detect/
-    │   ├── common.sh
-    │   ├── probe.sh
-    │   ├── fixtures/
-    │   └── run-tests.sh
-    └── web-api-scanner/
-        ├── common.sh
-        ├── phases.sh
-        ├── waf.sh
-        ├── targets.sh
-        ├── msf.sh
-        ├── msf_parse.py
-        ├── probe.sh
-        ├── fixtures/
-        └── run-tests.sh
-```
-
----
-
-### API Security Scanner
-
-Script: `dev/api-scanner.sh`.
-
-Phased API discovery and security testing. Shared helpers and wordlists are in `dev/lib/api-scanner/` and `dev/data/`.
-
-**Interactive menu**
-
-```
-1. API Discovery and Testing (full)
-2. API Quick Scan (discovery + docs)
-3. JWT Token Analysis
-4. Full API Assessment (orchestrated)
-5. Previous menu
-```
-
-**CLI** (skips the menu when `-u` is set):
-
-```
-./dev/api-scanner.sh -u https://target.example --quick --authorized
-./dev/api-scanner.sh -u https://target.example --full --token 'eyJ…' --authorized
-./dev/api-scanner.sh --resume ~/data/api-scan_20260703-1200 -u https://target.example
-./dev/api-scanner.sh -u https://target.example --orchestrate --authorized
-./dev/api-scanner.sh --help
-```
-
-| Flag | Purpose |
-|------|---------|
-| `--quick` | Discovery and documentation only |
-| `--full` | All phases (default) |
-| `--orchestrate` | Full scan, then prompts for related scanners |
-| `--token` | Bearer token for authenticated requests |
-| `--cookie-file` | Netscape cookie jar |
-| `--max-parallel N` | Concurrent workers (default: 3) |
-| `--max-endpoints N` | Cap endpoints tested after merge |
-| `--skip PHASE` | Skip a phase (repeatable) |
-| `--resume DIR` | Resume using an existing output directory |
-| `--authorized` | Skip the authorization confirmation prompt |
-| `--aggressive-http` | Include TRACE/CONNECT method tests |
-
-**Phases (full scan):** HTML/JS link extraction, ffuf/feroxbuster fuzzing, path probing, OpenAPI/Swagger discovery, GraphQL tests (introspection, depth, batching), CORS (GET + preflight), HTTP method checks, rate-limit burst, JWT analysis.
-
-**Output:** `$HOME/data/api-scan_<timestamp>/api_scanner/`
-
-* `report.txt` and `report.md` — scanner-local findings (not merged into Discover recon report)
-* `findings.json` — consolidated JSON export of all findings
-* `findings_registry.tsv` — tab-separated finding log (source for JSON export)
-* `scan.log` — request audit trail
-* `.checkpoint/` — resume markers per phase
-
-Requires `curl` and `jq`. Uses `ffuf` or `feroxbuster` when installed (install via Discover **Update**). Sources `discover.sh` when run directly for `f_banner` / menu helpers.
-
----
-
-### Cloud Security Scanner
-
-Script: `dev/cloud-scanner.sh`.
-
-Phased cloud misconfiguration audit for AWS, Azure, and GCP. Shared helpers live in `dev/lib/cloud-scanner/`.
-
-**Interactive menu**
-
-```
-1. AWS (Amazon Web Services)
-2. Azure (Microsoft Azure)
-3. GCP (Google Cloud Platform)
-4. All providers
-5. Previous menu
-```
-
-**CLI** (skips the menu when provider flags are set):
-
-```
-./dev/cloud-scanner.sh --aws --quick
-./dev/cloud-scanner.sh --azure --gcp --full
-./dev/cloud-scanner.sh --aws --output-dir ~/data/cloud-scan_custom
-./dev/cloud-scanner.sh --resume ~/data/cloud-scan_20260704-1200 --aws
-./dev/cloud-scanner.sh --help
-```
-
-| Flag | Purpose |
-|------|---------|
-| `--aws` / `--azure` / `--gcp` | Run one provider (combine for multiple) |
-| `--quick` | Exposure-focused checks (public access, MFA, open ingress) |
-| `--full` | Comprehensive audit including IAM deep-dive, multi-region EC2/SG, extras |
-| `--output-dir DIR` | Custom output directory |
-| `--resume DIR` | Resume using an existing scan directory (skips completed phases) |
-| `-h`, `--help` | Show usage |
-
-Results are written under `$HOME/data/cloud-scan_YYYYMMDD-HHMM/` (or `--output-dir`):
-
-* `findings_registry.tsv` — severity, provider, service, resource, check, detail, evidence
-* `findings.json` — consolidated JSON export of all findings
-* `report.txt` / `report.md` — scanner-local rollup (not merged into Discover recon report)
-* `scan.log` — API activity and finding log
-* `.checkpoint/` — phase markers for `--resume`
-
-Requires `jq` and the relevant cloud CLI (`aws`, `az`, `gcloud`/`gsutil`) with credentials configured before scanning. The scanner does not auto-install CLIs or run interactive `aws configure` / `gcloud init`. Sources `discover.sh` when run directly for `f_banner` / menu helpers.
-
----
-
-### Container Security Scanner
-
-Script: `dev/container-scanner.sh`.
-
-Comprehensive Docker and Kubernetes security assessment using Trivy, Docker, and kubectl. Standalone output under `$HOME/data/container-scan_*` (does not update Discover recon HTML reports).
-
-* **Docker images** — Trivy vulnerability/secret/config scan, SBOM (full mode), Dockerfile analysis
-* **Docker containers** — privileged mode, mounts, capabilities, runtime checks (full mode)
-* **Kubernetes** — RBAC, NetworkPolicies, PSS labels, deprecated APIs, pod security
-
-**Scan types:** `docker-images`, `docker-containers`, `kubernetes`, or `all` (default when run from Discover menu).
-
-**CLI options:** `--quick`, `--full`, `--output-dir`, `--resume`, `--dockerfile-root`, `--include-ns`, `--exclude-ns`, `--trivy-jobs`, `--menu`, `-h`
-
-**Output artifacts:** `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `scan.log`, `container_security_report.txt`
-
-**Dependencies:** `docker`, `kubectl` (kubernetes scan), `trivy`, `jq`, `numfmt` — install via Discover Update; no auto-install.
-
-**Environment:** `CONTAINER_OUTPUT_DIR`, `CONTAINER_DOCKERFILE_ROOT`, `CONTAINER_SCAN_MODE`, `CONTAINER_EXCLUDE_NS`
-
----
-
-### OAuth and JWT Security Scanner
-
-Script: `dev/oauth-jwt-scanner.sh`.
-
-OAuth/OIDC discovery, live authorize probes, offline JWT analysis, and optional live token verification. Complements `api-scanner.sh` JWT checks. Standalone output under `$HOME/data/oauth-jwt-scan_*`.
-
-* **OAuth/OIDC** — discovery metadata, JWKS, redirect_uri/state/PKCE/implicit probes
-* **JWT offline** — alg=none, RS256→HS256 confusion, jku/x5u/kid attacks, claim hygiene, privilege-escalation payloads
-* **JWT live** — optional Bearer tests against `--jwt-endpoint` (auto-filled from userinfo when discovered)
-
-**Scan types:** `oauth`, `jwt`, or `all` (combined).
-
-**Menu:** OAuth test, JWT test, combined scan, or previous menu.
-
-**CLI examples:**
-```bash
-./dev/oauth-jwt-scanner.sh --target https://app.example.com --full
-./dev/oauth-jwt-scanner.sh --jwt 'eyJhbG...' --jwt-endpoint https://app.example.com/api/me
-./dev/oauth-jwt-scanner.sh --target https://app.example.com --api-scan-dir ~/data/api-scan_20260101-1200 --all
-```
-
-**Options:** `--target`, `--jwt`, `--jwt-file`, `--api-scan-dir`, `--jwt-endpoint`, `--client-id`, `--redirect-uri`, `--quick`, `--full`, `--oauth`, `--jwt-only`, `--all`, `--output-dir`, `--resume`, `--menu`, `-h`
-
-**Output:** `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `scan.log`
-
-**Dependencies:** `curl`, `jq`
-
----
-
-### Open Redirect Scanner
-
-Script: `dev/open-redirect.sh`.
-
-Fuzzes redirect parameters (inject + mutate existing query params) with configurable canary hosts. Detects 3xx `Location` (with one-hop follow), meta refresh, and JavaScript/body redirects. Full mode adds POST and header probes. Confirmation pass uses a second canary host to reduce false positives. Python engine: `dev/lib/open-redirect-scanner/engine.py`; payloads: `dev/data/openredirect-payloads.txt`. Standalone output under `$HOME/data/openredirect-scan_*`.
-
-**Menu:** Single URL, domain, URL file, advanced options, prior scan dir, or previous menu.
-
-**CLI examples:**
-```bash
-./dev/open-redirect.sh --url https://app.example.com/login?next=/home --full
-./dev/open-redirect.sh --domain example.com --quick
-./dev/open-redirect.sh --scan-dir ~/data/api-scan_20260101-1200 --crawl --quick
-./dev/open-redirect.sh --file ~/targets.txt --max-requests 500 --rps 5
-```
-
-**Options:** `--url`, `--domain`, `--file`, `--scan-dir`, `--wordlist`, `--canary-host`, `--quick`, `--full`, `--crawl`, `--workers`, `--delay`, `--rps`, `--max-requests`, `--no-confirm`, `--quiet`, `--output-dir`, `--resume`, `--menu`, `-h`
-
-**Output:** `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `scan.log`, `openredirect_engine/results.json`, `openredirect_engine/checkpoint.json`
-
-**Dependencies:** `python3`, `requests` (Discover Update installs `python3-requests`), `jq`
-
----
-
-### Sensitive Information Scanner
-
-Script: `dev/sensitive-scanner.sh`.
-
-Hunts for secrets, credentials, and PII in local files/directories and exposed web paths. Bash orchestration plus Python engines: `filescan.py` (single-pass file scan) and `engine.py` (parallel web probing). Pattern data: `dev/data/sensitive-patterns.tsv`, `sensitive-denylist.txt`, `sensitive-skip-paths.txt`. Standalone output under `$HOME/data/sensitive-scan_*`.
-
-* **File scan** — one pass per file via `filescan.py`; denylist, skip globs, entropy filter, Luhn/SSN/TC validation; optional `gitleaks` / `trufflehog` (`--external auto`)
-* **Web scan** — parallel workers/RPS, per-path checkpoint resume, robots disallow + sitemap paths, api-scanner endpoint import, soft-404 guard, directory listing detection, deep `filescan.py` on HTTP 200 bodies
-* **api-scanner hook** — inline response checks use `filescan.py`; orchestrator can auto-launch `--all` with bearer token
-* **Reports** — deduplicated `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`; `--no-store-content` / `--shred-content` for safer artifacts
-
-**Menu:** File or folder, URL, file/folder + prior scan dir, URL + api-scan output, or previous menu.
-
-**Examples:**
-
-```
-./dev/sensitive-scanner.sh --path ./myapp --files --full
-./dev/sensitive-scanner.sh --url https://app.example.com --web --quick --workers 8 --rps 5
-./dev/sensitive-scanner.sh --url https://app.example.com --scan-dir ~/data/api-scan_20260101-1200 --all --quick --bearer-token "$TOKEN"
-./dev/sensitive-scanner.sh --path /var/www/html/config.php --files --external gitleaks
-./dev/lib/sensitive-scanner/run-tests.sh
-```
-
-**Options:** `--path`, `--url`, `--scan-dir`, `--wordlist`, `--quick`, `--full`, `--workers`, `--delay`, `--rps`, `--max-paths`, `--bearer-token`, `--insecure`, `--no-store-content`, `--shred-content`, `--redact-emails`, `--entropy-min`, `--external`, `--files`, `--web`, `--all`, `--output-dir`, `--resume`, `--quiet`, `--menu`, `-h`
-
-**Output:** `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `scan.log`, `sensitive_info/`, `web_sensitive/engine/{results,checkpoint}.json`
-
-**Dependencies:** `python3`, `jq`, `find`; web scans need `python3-requests`; optional `gitleaks`, `trufflehog`, `rg`
-
----
-
-### WAF Detection
-
-Script: `dev/waf-detect.sh`.
-
-Identifies web application firewalls and CDN edge layers in front of targets. Modular library: `dev/lib/waf-detect/{common,probe}.sh`, `wafw00f_run.py`; data: `dev/data/waf-signatures.tsv`, `waf-aliases.tsv`, `waf-labels.tsv`. Standalone output under `$HOME/data/waf-detection_*`.
-
-* **True passive (default for api-scanner hook)** — `--passive` sends a normal HTTP GET only; matches response headers/body against `waf-signatures.tsv`. No wafw00f, no SQLi triggers, no `X-Forwarded-For` injection.
-* **Active mode** — wafw00f via `wafw00f_run.py` (primary, high confidence) plus supplemental signature/behavioral probes. Non-interactive active scans require `--i-understand`.
-* **Supplemental** — `--supplemental auto` skips redundant probes after a confident wafw00f hit; behavioral findings require WAF header corroboration
-* **Consolidated findings** — one row per vendor with confidence (`high`/`medium`/`low`), source, and type (`waf`/`cdn`/`both`)
-* **Structured hits** — `waf_engine/hits.jsonl` and `findings.json` `hits[]` for downstream tooling
-* **Resume** — `--resume DIR` continues from `waf_engine/checkpoint.json`
-* **Reports** — `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `waf_results.tsv`
-
-**Menu:** Single target, targets file, or previous menu (with active/passive choice).
-
-**Examples:**
-
-```
-./dev/waf-detect.sh --url https://app.example.com --passive
-./dev/waf-detect.sh --file ~/targets.txt --passive --delay 2
-./dev/waf-detect.sh --url example.com --i-understand --output-dir ~/data/waf-test
-./dev/waf-detect.sh --resume ~/data/waf-detection_20260704-1200 --workers 4
-./dev/lib/waf-detect/run-tests.sh
-```
-
-**Options:** `--url`, `--file`, `--output-dir`, `--resume`, `--passive`, `--i-understand`, `--waf-only`, `--insecure`, `--no-redirect`, `--proxy`, `--delay`, `--max-targets`, `--workers`, `--wafw00f`, `--supplemental`, `--input-format`, `--quiet`, `--menu`, `-h`
-
-**Output:** `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `waf_results.tsv`, `scan.log`, `waf_engine/{hits.jsonl,checkpoint.json,*.json}`
-
-**Dependencies:** `curl`, `jq`, `grep`, `python3`; optional `wafw00f` (active mode, recommended)
-
-**api-scanner integration:** `api-scanner.sh --orchestrate` prompts to run waf-detect after the main scan (passive by default).
-
----
-
-### Web and API Security
-
-Script: `dev/web-api-scanner.sh`.
-
-Metasploit-based web/API assessment. Modular library: `dev/lib/web-api-scanner/{common,phases,msf,probe,waf,targets}.sh`, `msf_parse.py`; data: `dev/data/web-api-{phases,tech-signatures}.tsv`. Standalone output under `$HOME/data/web-api-scan_*`.
-
-* **Tiers** — `passive` (recon) | `standard`/`--quick` (recon + tech scanners) | `intrusive` (+ SQLi/brute) | `exploit` (+ exploit checks)
-* **Phase control** — `--phases`, `--skip-phases`; per-phase `msfconsole` with `--phase-timeout`
-* **Technology fingerprint** — weighted `web-api-tech-signatures.tsv` (Laravel, Spring, Swagger, nginx, …)
-* **WAF-aware** — skips brute phases when WAF/CDN detected (`--scan-dir` or header signatures)
-* **Auth** — `--bearer-token`, `--cookie-file` for curl + MSF
-* **api-scanner integration** — `--scan-dir` loads `api_scanner/all_endpoints.txt` for `brute_dirs` paths
-* **Structured hits** — `msf_parse.py` → `msf_engine/hits.jsonl` + `findings.json` `hits[]`
-* **Multi-target** — `--file`, `--workers`, `--max-targets`
-* **Stealth** — `--delay`, `--jitter`, `--proxy`, tier-based `THREADS`
-* **MSF DB** — checks only by default; `--msf-db-bootstrap` for opt-in setup
-
-**Menu:** Scan URL (passive default) or previous menu.
-
-**Examples:**
-
-```
-./dev/web-api-scanner.sh --url https://app.example.com --passive
-./dev/web-api-scanner.sh --url example.com --quick --scan-dir ~/data/api-scan_*/ 
-./dev/web-api-scanner.sh --url example.com --tier exploit --i-understand --bearer-token "$TOKEN"
-./dev/web-api-scanner.sh --file ~/targets.txt --quick --workers 2 --max-targets 10
-WEBAPI_RUN_LIVE_MSF=1 ./dev/lib/web-api-scanner/run-tests.sh
-```
-
-**Options:** `--url`, `--file`, `--tier`, `--quick`, `--phases`, `--skip-phases`, `--scan-dir`, `--bearer-token`, `--cookie-file`, `--proxy`, `--phase-timeout`, `--workers`, `--threads`, `--jitter`, `--target-ip`, `--output-dir`, `--resume`, `--passive`, `--i-understand`, `--dry-run`, `--skip-msf-db`, `--msf-db-bootstrap`, `--keep-resources`, `--no-waf-aware`, `--insecure`, `--delay`, `--quiet`, `--menu`, `-h`
-
-**Output:** `findings_registry.tsv`, `findings.json`, `report.txt`, `report.md`, `scan.log`, `msf_engine/`
-
-**Dependencies:** `curl`, `jq`, `grep`, `msfconsole`; PostgreSQL recommended for MSF DB (optional with `--skip-msf-db`)
-
-**api-scanner integration:** `api-scanner.sh --orchestrate` prompts to run web-api-scanner (passive by default).
+| Menu | Script |
+|------|--------|
+| API Security | `dev/api-scanner.sh` |
+| Cloud Security | `dev/cloud-scanner.sh` |
+| Container Security | `dev/container-scanner.sh` |
+| OAuth and JWT Security | `dev/oauth-jwt-scanner.sh` |
+| Open Redirect Scanner | `dev/open-redirect.sh` |
+| Sensitive Information | `dev/sensitive-scanner.sh` |
+| WAF Detection | `dev/waf-detect.sh` |
+| Web and API Security | `dev/web-api-scanner.sh` |
