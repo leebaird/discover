@@ -78,8 +78,8 @@ fi
 COUNT=1
 # theHarvester split: README "API key" column. No → free list; Required or
 # Optional → API list. Must match old/test-theHarvester.sh and SOURCE_SPECS.
-sources_no_api=(apis-guru arquivo baidu certspotter commoncrawl crt-name crtsh duckduckgo gitlab haveibeenpwned hudsonrock otx rapiddns robtex shodanct shodanInternetDB sourcegraph subdomaincenter subdomainfinderc99 thc urlscan waybackarchive yahoo)
-sources_api=(bevigil brave bufferoverun builtwith censys criminalip dehashed dnsdb dnsdumpster dymo fofa fullhunt github-code hackertarget hibpverified hunter hunterhow intelx leakix leaklookup mojeek netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails sherlockeye shodan tomba virustotal whoisxml windvane zoomeye)
+sources_no_api=(apis-guru arquivo baidu certspotter commoncrawl crt-name crtsh duckduckgo gitlab haveibeenpwned hudsonrock otx rapiddns robtex shodanct shodanInternetDB sourcegraph subdomainapi subdomaincenter subdomainfinderc99 thc urlscan waybackarchive yahoo)
+sources_api=(bevigil brave bufferoverun builtwith censys criminalip dehashed dnsdb dnsdumpster dymo fofa fullhunt github-code hackertarget hibpverified hunter hunterhow intelx jsmon leakix leaklookup mojeek netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails sherlockeye shodan tomba virustotal whoisxml windvane zoomeye)
 # 16 non-harvester COUNT++ steps (amass through social) + every source above.
 TOTAL=$((16 + ${#sources_no_api[@]} + ${#sources_api[@]}))
 
