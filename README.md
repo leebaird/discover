@@ -205,7 +205,7 @@ Each box shows the tool name and a blue **Run** button on one line, plus last-ru
 
 **Reachability pre-check** (HTTP expand tools): before nuclei, droopescan, wpscan, robots, nikto, ffuf, or feroxbuster launches, `misc/run-host-scan.sh` runs a **curl HTTP/1.1 GET** (15s max, same User-Agent as the scan). One request records status and time; a `000` result is retried once. **robots** probes `{origin}/robots.txt` (not the site root), so a slow or 403 homepage does not skip a working robots.txt. If the probe does not answer HTTP, Discover **does not run the tool**. The run’s `output.txt` records the skip, `status.json` / `latest.json` set `skip_reason=host_unreachable`, and the box shows **Unreachable** (red) with a **TXT** note. **Nikto** does not show **HTM** on that skip, and **robots** does not show **WEB** (no report / no Disallow list). **nmap** does not use this gate (Shodan ports and/or the row HTTP port).
 
-**Google Sheet (optional):** Audit **Config > Google Sheet** stores a spreadsheet URL for this engagement (`tools/op-notes-url`). Host-scan Start appends one row. **Authorize** in that panel. Empty URL means off. Client/defender exports omit the URL file.
+**Google Sheet (optional):** Audit **Config > Google Sheet** stores a spreadsheet URL for this engagement (`tools/op-notes-url`). Host-scan Start appends one row. **Authorize** in that panel. Empty URL means off. Append uses `uv` (Discover install). A missing `uv`, missing token, or failed write prints on the scan and does not abort the tool. Client/defender exports omit the URL file.
 
 Active **Scope:** public / private / responding hosts. Status codes count all httpx responses; screenshots, whatweb, and Categories use the alive subset.
 

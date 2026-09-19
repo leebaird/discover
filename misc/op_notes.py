@@ -109,6 +109,21 @@ def get_credentials(*, interactive: bool) -> Credentials:
     return creds
 
 
+def result_a1_from_updated_range(updated_range: str) -> str:
+    """Map Sheets updatedRange (e.g. Sheet1!A12:F12) to this worksheet's F cell."""
+    text = (updated_range or "").split("!", 1)[-1].replace("$", "")
+    end = text.split(":")[-1]
+    digits = ""
+    for ch in reversed(end):
+        if ch.isdigit():
+            digits = ch + digits
+        else:
+            break
+    if not digits:
+        return ""
+    return f"F{digits}"
+
+
 def cmd_authorize() -> int:
     get_credentials(interactive=True)
     print("Google Sheet authorization saved.")
@@ -137,7 +152,7 @@ def cmd_append(args: argparse.Namespace) -> int:
     # Col A: Date (sheet timezone), B: Operator, C: IP, D: Target, E: Command, F: Result
     worksheet = sh.get_worksheet(0)
     result_text = args.result or ""
-    worksheet.append_row(
+    resp = worksheet.append_row(
         [
             date_str,
             args.operator,
@@ -150,10 +165,13 @@ def cmd_append(args: argparse.Namespace) -> int:
     )
     if result_text.lstrip().startswith("PORT"):
         try:
-            last = len(worksheet.col_values(6))
-            if last:
+            updated = ""
+            if isinstance(resp, dict):
+                updated = ((resp.get("updates") or {}).get("updatedRange") or "")
+            cell = result_a1_from_updated_range(updated)
+            if cell:
                 worksheet.format(
-                    f"F{last}",
+                    cell,
                     {
                         "wrapStrategy": "WRAP",
                         "verticalAlignment": "TOP",

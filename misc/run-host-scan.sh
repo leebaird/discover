@@ -317,7 +317,8 @@ f_audit(){
 }
 
 # Append one Google Sheet row when this engagement has a sheet URL (Audit Config).
-# Never opens a browser; never fails the scan. Background + 25s cap.
+# Never opens a browser; never fails the scan. Background + 40s cap.
+# uv stdout is discarded; stderr (skip/fail lines) still prints.
 f_op_notes(){
     local target="$1"
     local command="$2"
@@ -383,7 +384,7 @@ f_op_notes(){
             "$uv_bin" run "$script" append "$sheets_url" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" "$result" \
                 || printf '\033[0;31m[!] Google Sheet entry failed: check token/URL.\033[0m\n' >&2
         fi
-    ) >/dev/null 2>&1 &
+    ) >/dev/null &
 }
 
 # Software-aware nuclei tags (pass-1 recon / fingerprint).
