@@ -177,7 +177,8 @@ Enter the location of a previous Discover scan:
 /home/user/data/example.com
 ```
 
-* Reads public hostnames from `tools/subdomains` (RFC1918 skipped).
+* Reads public hostnames from `tools/subdomains` (stored RFC1918 skipped).
+* `dig A @1.1.1.1` before httpx. A private, loopback, link-local, or `0.0.0.0` answer is left out of httpx and added to `tools/private-subs` (`tools/dns-private.tsv`). The stored public IP is not changed. VPN DNS is not used.
 * httpx (`tools/httpx.jsonl`); alive = 200–399, 401, 403, or 405.
 * whatweb + gowitness on alive URLs; merge with `recon/active-tech.py`.
 * Re-run Active to replace those artifacts and rebuild Active / Subdomains.

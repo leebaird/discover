@@ -199,6 +199,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - CSV list: one IPv4 per host (empty IP → dig). **Skip hosts already in `tools/subdomains`** (no overwrite). Category = **Discover rules first**, else CSV. Never write `recon/subdomain-categories.tsv`.
 - After import: refresh `pages/subdomains.htm` and `pages/hosts.htm` (unique public IPs). CSV list also writes `tools/import-batch-hosts.txt` (**new** public hosts only) and may offer Active on that batch only (`DISCOVER_ACTIVE_SCOPE=import-batch`).
 - **After import + Active (full or import-batch):** rebuild the **entire** Active page from merged `tools/` artifacts — Scope (public/private/responding), status codes, alive-by-category, CMS, web servers, technologies, software versions + CVE enrichment, Login pages, and scan date. Batch Active must merge httpx/whatweb/gowitness into the engagement files first, then call the same full `pages/active.htm` rebuild (not a batch-only summary). Scan date = **latest** httpx timestamp, not the first line.
+- **Active public-DNS check:** before httpx, `dig +timeout=2 +tries=1 +short A <host> @1.1.1.1` (parallel). RFC1918, `127.0.0.0/8`, `169.254.0.0/16`, or `0.0.0.0` drops that host from httpx and records `host<TAB>ip` in `tools/dns-private.tsv`. `tools/private-subs` is stored-private rows plus those leaks (dig IP wins). Do not rewrite the public IP in `tools/subdomains`. Do not use the operator resolver (VPN split-horizon is not a finding).
 
 ## Active Login pages (by category)
 

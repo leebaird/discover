@@ -253,6 +253,90 @@ with open(targets_path, "w", newline="") as handle:
 PY
 }
 
+# Public DNS that returns an internal address is a leak, not a web target.
+# Query 1.1.1.1 only (VPN split-horizon must not count). Do not rewrite tools/subdomains.
+f_active_dns_private(){
+    local targets_file="$1"
+    local dns_file="$2"
+
+    if ! command -v dig >/dev/null 2>&1; then
+        echo "[*] dig is not installed. Skipping public-DNS private-address check." >&2
+        echo 0
+        return 0
+    fi
+
+    python3 - "$targets_file" "$dns_file" <<'PY'
+import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+
+IPV4_RE_S = __import__("re").compile(r"^(\d{1,3}\.){3}\d{1,3}$")
+
+def is_internal(ip: str) -> bool:
+    if not IPV4_RE_S.match(ip or ""):
+        return False
+    o = [int(x) for x in ip.split(".")]
+    if o == [0, 0, 0, 0]:
+        return True
+    if o[0] == 10 or o[0] == 127:
+        return True
+    if o[0] == 169 and o[1] == 254:
+        return True
+    if o[0] == 172 and 16 <= o[1] <= 31:
+        return True
+    if o[0] == 192 and o[1] == 168:
+        return True
+    return False
+
+def lookup(host: str):
+    try:
+        result = subprocess.run(
+            ["dig", "+timeout=2", "+tries=1", "+short", "A", host, "@1.1.1.1"],
+            capture_output=True,
+            text=True,
+            timeout=8,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return host, ""
+    private = ""
+    for line in (result.stdout or "").splitlines():
+        ip = line.strip()
+        if is_internal(ip):
+            private = ip
+            break
+    return host, private
+
+targets_path, dns_path = Path(sys.argv[1]), Path(sys.argv[2])
+hosts = []
+seen = set()
+for raw in targets_path.read_text(encoding="utf-8", errors="replace").splitlines():
+    host = raw.strip().lower()
+    if not host or host in seen:
+        continue
+    seen.add(host)
+    hosts.append(host)
+
+hits = {}
+workers = min(32, max(1, len(hosts)))
+if hosts:
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = [pool.submit(lookup, host) for host in hosts]
+        for future in as_completed(futures):
+            host, ip = future.result()
+            if ip:
+                hits[host] = ip
+
+kept = [host for host in hosts if host not in hits]
+targets_path.write_text("\n".join(kept) + ("\n" if kept else ""), encoding="utf-8")
+dns_path.parent.mkdir(parents=True, exist_ok=True)
+lines = [f"{host}\t{hits[host]}" for host in sorted(hits)]
+dns_path.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
+print(len(hits))
+PY
+}
+
 f_active_parse_httpx(){
     local jsonl_file="$1"
     local alive_tsv="$2"
@@ -693,7 +777,7 @@ f_banner
 
 echo -e "${BLUE}ACTIVE RECON${NC}"
 echo
-echo -e "${BLUE}Uses httpx, whatweb, and gowitness.${NC}"
+echo -e "${BLUE}Uses dig (public DNS), httpx, whatweb, and gowitness.${NC}"
 echo
 
 f_active_read_report
@@ -701,6 +785,7 @@ f_active_read_report
 TOOLS_DIR="$DISCOVER_REPORT/tools"
 SUBDOMAINS_FILE="$TOOLS_DIR/subdomains"
 PRIVATE_FILE="$TOOLS_DIR/private-subs"
+DNS_PRIVATE_FILE="$TOOLS_DIR/dns-private.tsv"
 TARGETS_FILE="$TOOLS_DIR/active-targets.txt"
 HTTPX_JSONL="$TOOLS_DIR/httpx.jsonl"
 ALIVE_TSV="$TOOLS_DIR/active-alive.tsv"
@@ -795,24 +880,44 @@ if [ "$TARGET_COUNT" -eq 0 ]; then
     f_active_die "No public subdomains found to probe."
 fi
 
-echo "[*] $TARGET_COUNT public hostnames queued for httpx."
-echo
-echo -e "${BLUE}[*] Running httpx.${NC}"
-echo "[*] User-Agent: $USER_AGENT"
+echo "[*] Checking $TARGET_COUNT hostname(s) for private answers on 1.1.1.1."
+DNS_PRIVATE_COUNT=$(f_active_dns_private "$TARGETS_FILE" "$DNS_PRIVATE_FILE" | tail -n 1)
+DNS_PRIVATE_COUNT=${DNS_PRIVATE_COUNT:-0}
 
-HTTPX_OUT="$HTTPX_JSONL"
-
-if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
-    HTTPX_OUT="$HTTPX_BATCH"
+if [ "$DNS_PRIVATE_COUNT" -gt 0 ]; then
+    echo "[*] $DNS_PRIVATE_COUNT hostname(s) resolve to a private address on 1.1.1.1. Left out of httpx."
+else
+    echo "[*] No private addresses on 1.1.1.1."
 fi
 
-httpx -l "$TARGETS_FILE" -silent -sc -title -server -td -cl -ip -cname -cdn \
-    -fhr -maxr 2 \
-    -H "User-Agent: $USER_AGENT" \
-    -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
-    -json -o "$HTTPX_OUT" >/dev/null
+TARGET_COUNT=$(wc -l < "$TARGETS_FILE" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
+TARGET_COUNT=${TARGET_COUNT:-0}
 
-if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
+if [ "$TARGET_COUNT" -eq 0 ]; then
+    echo "[*] No public hostnames left to probe."
+    echo
+else
+    echo "[*] $TARGET_COUNT public hostnames queued for httpx."
+fi
+
+if [ "$TARGET_COUNT" -gt 0 ]; then
+    echo
+    echo -e "${BLUE}[*] Running httpx.${NC}"
+    echo "[*] User-Agent: $USER_AGENT"
+
+    HTTPX_OUT="$HTTPX_JSONL"
+
+    if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
+        HTTPX_OUT="$HTTPX_BATCH"
+    fi
+
+    httpx -l "$TARGETS_FILE" -silent -sc -title -server -td -cl -ip -cname -cdn \
+        -fhr -maxr 2 \
+        -H "User-Agent: $USER_AGENT" \
+        -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+        -json -o "$HTTPX_OUT" >/dev/null
+
+    if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
     # Merge batch httpx into engagement jsonl (replace lines for batch hosts).
     python3 - "$HTTPX_JSONL" "$HTTPX_BATCH" "$TARGETS_FILE" <<'PY'
 import json, sys
@@ -860,6 +965,7 @@ if batch_path.is_file():
 main_path.parent.mkdir(parents=True, exist_ok=True)
 main_path.write_text("\n".join(kept) + ("\n" if kept else ""), encoding="utf-8")
 PY
+    fi
 fi
 
 echo
@@ -1072,8 +1178,9 @@ fi
 # (batch path already merged jsonl; full Active overwrote it).
 f_active_parse_httpx "$HTTPX_JSONL" "$ALIVE_TSV" "$ACTIVE_TXT"
 
-# Keep private-subs aligned with tools/subdomains (source of truth after import).
-python3 - "$SUBDOMAINS_FILE" "$PRIVATE_FILE" <<'PY'
+# private-subs = stored RFC1918 rows plus public-DNS leaks (tools/dns-private.tsv).
+# A leak keeps the public IP in tools/subdomains. The private table shows the dig answer.
+python3 - "$SUBDOMAINS_FILE" "$PRIVATE_FILE" "$DNS_PRIVATE_FILE" <<'PY'
 import re
 import sys
 from pathlib import Path
@@ -1092,8 +1199,9 @@ def is_private(ip: str) -> bool:
         return True
     return False
 
-sub_path, priv_path = Path(sys.argv[1]), Path(sys.argv[2])
-rows = []
+sub_path, priv_path, dns_path = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
+cats = {}
+rows = {}
 if sub_path.is_file():
     for raw in sub_path.read_text(encoding="utf-8", errors="replace").splitlines():
         line = raw.strip()
@@ -1103,12 +1211,30 @@ if sub_path.is_file():
         if len(parts) < 2:
             continue
         host, ip = parts[0].strip(), parts[1].strip()
-        if host and ip and is_private(ip):
-            cat = parts[2].strip() if len(parts) > 2 else ""
-            rows.append((host, ip, cat))
+        if not host:
+            continue
+        cat = parts[2].strip() if len(parts) > 2 else ""
+        cats[host.lower()] = (host, cat)
+        if ip and is_private(ip):
+            rows[host.lower()] = (host, ip, cat)
+if dns_path.is_file():
+    for raw in dns_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split("\t")
+        if len(parts) < 2:
+            continue
+        host, ip = parts[0].strip(), parts[1].strip()
+        if not host or not ip:
+            continue
+        stored = cats.get(host.lower())
+        name = stored[0] if stored else host
+        cat = stored[1] if stored else ""
+        rows[host.lower()] = (name, ip, cat)
 priv_path.parent.mkdir(parents=True, exist_ok=True)
 with priv_path.open("w", encoding="utf-8", newline="") as handle:
-    for host, ip, cat in sorted(rows, key=lambda r: r[0].lower()):
+    for host, ip, cat in sorted(rows.values(), key=lambda r: r[0].lower()):
         if cat:
             handle.write(f"{host}\t{ip}\t{cat}\n")
         else:
