@@ -237,6 +237,10 @@
         {
           "file": "web-vulns.txt",
           "title": "Web Vulnerabilities"
+        },
+        {
+          "file": "vulnerable-sites.txt",
+          "title": "Vulnerable Sites"
         }
       ]
     },

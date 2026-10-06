@@ -1,0 +1,147 @@
+Vulnerable Sites
+
+Authorized applications for scanner practice and manual testing.
+
+
+# Hosted web apps
+
+OWASP Juice Shop. The public demo is often unavailable. The project link is under Self-hosted.
+https://demo.owasp-juice.shop
+
+Altoro Mutual.
+http://demo.testfire.net
+
+PortSwigger Gin and Juice Shop.
+https://ginandjuice.shop
+
+Google Gruyere.
+https://google-gruyere.appspot.com
+
+Google Firing Range. Built for automated scanner checks.
+https://public-firing-range.appspot.com
+
+Google XSS game.
+https://xss-game.appspot.com
+
+bWAPP. This site is also the installer.
+http://www.itsecgames.com/
+
+
+# Invicti
+
+Angular.
+http://angular.testinvicti.com
+
+ASP.NET.
+http://aspnet.testinvicti.com
+
+PHP.
+http://php.testinvicti.com
+
+Python.
+http://python.testinvicti.com
+
+GraphQL.
+http://graphql.testinvicti.com
+
+REST.
+http://rest.testinvicti.com
+
+Vulnerable API.
+http://vulnapi.testinvicti.com
+
+
+# Acunetix
+
+Acuart. PHP and MySQL.
+http://testphp.vulnweb.com
+
+SecurityTweets. HTML5.
+http://testhtml5.vulnweb.com
+
+Acuforum. ASP.
+http://testasp.vulnweb.com
+
+Acublog. ASP.NET.
+http://testaspnet.vulnweb.com
+
+REST API.
+http://rest.vulnweb.com
+
+
+# Pentest-Ground
+
+Each application is destroyed and redeployed every 30 minutes.
+
+GuardianLeaks. XSS, SSRF, and code injection.
+https://pentest-ground.com:81
+
+DVWA. CSRF, XSS, and SQL injection.
+https://pentest-ground.com:4280
+
+Damn Vulnerable GraphQL Application. Command injection, XSS, and SQL injection.
+https://pentest-ground.com:5013
+
+CipherHeart. Redis remote code execution (CVE-2022-0543).
+pentest-ground.com:6379
+
+ShadowLogic. WebLogic remote code execution (CVE-2023-21839).
+https://pentest-ground.com:7001
+
+RestFlaw. REST API with SQL injection, code injection, and XXE.
+https://pentest-ground.com:9000
+
+
+# Practice APIs
+
+Public HTTP test services for client and parser checks.
+
+https://dummy.restapiexample.com
+
+https://gorest.co.in
+
+https://httpbin.org
+
+https://jsonplaceholder.typicode.com
+
+https://petstore.swagger.io
+
+https://restful-booker.herokuapp.com
+
+https://resttesttest.com
+
+
+# Other targets
+
+Challenge site with its own rules.
+https://hackthissite.org
+
+nmap scan-practice host.
+https://scanme.nmap.org
+
+
+# Self-hosted
+
+OWASP Juice Shop.
+https://github.com/juice-shop/juice-shop
+
+crAPI.
+https://github.com/OWASP/crAPI
+
+DVGA (Damn Vulnerable GraphQL Application).
+https://github.com/dolevf/Damn-Vulnerable-GraphQL-Application
+
+DVWA.
+https://github.com/digininja/DVWA
+
+Metasploitable.
+https://sourceforge.net/projects/metasploitable/
+
+Mutillidae II.
+https://github.com/webpwnized/mutillidae
+
+VAmPI.
+https://github.com/erev0s/VAmPI
+
+WebGoat.
+https://github.com/WebGoat/WebGoat
