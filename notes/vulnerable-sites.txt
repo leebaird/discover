@@ -6,67 +6,67 @@ Authorized applications for scanner practice and manual testing.
 # Hosted web apps
 
 OWASP Juice Shop. The public demo is often unavailable. The project link is under Self-hosted.
-https://demo.owasp-juice.shop
+demo.owasp-juice.shop
 
 Altoro Mutual.
-http://demo.testfire.net
+demo.testfire.net
 
 PortSwigger Gin and Juice Shop.
-https://ginandjuice.shop
+ginandjuice.shop
 
 Google Gruyere.
-https://google-gruyere.appspot.com
+google-gruyere.appspot.com
 
 Google Firing Range. Built for automated scanner checks.
-https://public-firing-range.appspot.com
+public-firing-range.appspot.com
 
 Google XSS game.
-https://xss-game.appspot.com
+xss-game.appspot.com
 
 bWAPP. This site is also the installer.
-http://www.itsecgames.com/
+www.itsecgames.com
 
 
 # Invicti
 
 Angular.
-http://angular.testinvicti.com
+angular.testinvicti.com
 
 ASP.NET.
-http://aspnet.testinvicti.com
+aspnet.testinvicti.com
 
 PHP.
-http://php.testinvicti.com
+php.testinvicti.com
 
 Python.
-http://python.testinvicti.com
+python.testinvicti.com
 
 GraphQL.
-http://graphql.testinvicti.com
+graphql.testinvicti.com
 
 REST.
-http://rest.testinvicti.com
+rest.testinvicti.com
 
 Vulnerable API.
-http://vulnapi.testinvicti.com
+vulnapi.testinvicti.com
 
 
 # Acunetix
 
 Acuart. PHP and MySQL.
-http://testphp.vulnweb.com
+testphp.vulnweb.com
 
 SecurityTweets. HTML5.
-http://testhtml5.vulnweb.com
+testhtml5.vulnweb.com
 
 Acuforum. ASP.
-http://testasp.vulnweb.com
+testasp.vulnweb.com
 
 Acublog. ASP.NET.
-http://testaspnet.vulnweb.com
+testaspnet.vulnweb.com
 
 REST API.
-http://rest.vulnweb.com
+rest.vulnweb.com
 
 
 # Pentest-Ground
@@ -74,74 +74,74 @@ http://rest.vulnweb.com
 Each application is destroyed and redeployed every 30 minutes.
 
 GuardianLeaks. XSS, SSRF, and code injection.
-https://pentest-ground.com:81
+pentest-ground.com:81
 
 DVWA. CSRF, XSS, and SQL injection.
-https://pentest-ground.com:4280
+pentest-ground.com:4280
 
 Damn Vulnerable GraphQL Application. Command injection, XSS, and SQL injection.
-https://pentest-ground.com:5013
+pentest-ground.com:5013
 
 CipherHeart. Redis remote code execution (CVE-2022-0543).
 pentest-ground.com:6379
 
 ShadowLogic. WebLogic remote code execution (CVE-2023-21839).
-https://pentest-ground.com:7001
+pentest-ground.com:7001
 
 RestFlaw. REST API with SQL injection, code injection, and XXE.
-https://pentest-ground.com:9000
+pentest-ground.com:9000
 
 
 # Practice APIs
 
 Public HTTP test services for client and parser checks.
 
-https://dummy.restapiexample.com
+dummy.restapiexample.com
 
-https://gorest.co.in
+gorest.co.in
 
-https://httpbin.org
+httpbin.org
 
-https://jsonplaceholder.typicode.com
+jsonplaceholder.typicode.com
 
-https://petstore.swagger.io
+petstore.swagger.io
 
-https://restful-booker.herokuapp.com
+restful-booker.herokuapp.com
 
-https://resttesttest.com
+resttesttest.com
 
 
 # Other targets
 
 Challenge site with its own rules.
-https://hackthissite.org
+hackthissite.org
 
 nmap scan-practice host.
-https://scanme.nmap.org
+scanme.nmap.org
 
 
 # Self-hosted
 
 OWASP Juice Shop.
-https://github.com/juice-shop/juice-shop
+github.com/juice-shop/juice-shop
 
 crAPI.
-https://github.com/OWASP/crAPI
+github.com/OWASP/crAPI
 
 DVGA (Damn Vulnerable GraphQL Application).
-https://github.com/dolevf/Damn-Vulnerable-GraphQL-Application
+github.com/dolevf/Damn-Vulnerable-GraphQL-Application
 
 DVWA.
-https://github.com/digininja/DVWA
+github.com/digininja/DVWA
 
 Metasploitable.
-https://sourceforge.net/projects/metasploitable/
+sourceforge.net/projects/metasploitable/
 
 Mutillidae II.
-https://github.com/webpwnized/mutillidae
+github.com/webpwnized/mutillidae
 
 VAmPI.
-https://github.com/erev0s/VAmPI
+github.com/erev0s/VAmPI
 
 WebGoat.
-https://github.com/WebGoat/WebGoat
+github.com/WebGoat/WebGoat
