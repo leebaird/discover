@@ -53,12 +53,6 @@ vulnapi.testinvicti.com
 
 # Acunetix
 
-Acuart. PHP and MySQL.
-testphp.vulnweb.com
-
-SecurityTweets. HTML5.
-testhtml5.vulnweb.com
-
 Acuforum. ASP.
 testasp.vulnweb.com
 
