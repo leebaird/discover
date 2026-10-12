@@ -76,9 +76,6 @@ pentest-ground.com:4280
 Damn Vulnerable GraphQL Application. Command injection, XSS, and SQL injection.
 pentest-ground.com:5013
 
-CipherHeart. Redis remote code execution (CVE-2022-0543).
-pentest-ground.com:6379
-
 ShadowLogic. WebLogic remote code execution (CVE-2023-21839).
 pentest-ground.com:7001
 
