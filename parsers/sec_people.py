@@ -410,7 +410,6 @@ def main() -> int:
 
     for row in rows:
         print(f"{row['name']}\t{row['title']}")
-    print(f"# {meta.get('count', 0)} leadership rows ({meta.get('source', 'sec')})", file=sys.stderr)
     return 0
 
 

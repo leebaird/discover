@@ -88,7 +88,10 @@ TOTAL=$((15 + ${#sources_no_api[@]} + ${#sources_api[@]}))
 f_amass() {
     echo "Amass                    ($COUNT/$TOTAL)"
     ((COUNT++))
-    amass enum -passive -d "$DOMAIN" | sed 's/www\.//g' | sort -u > zamass
+    # Names stay on stdout. These two stderr lines are Amass finish notices.
+    amass enum -passive -d "$DOMAIN" 2>tmp-amass.err | sed 's/www\.//g' | sort -u > zamass
+    sed 's/\x1B\[[0-9;]*m//g' tmp-amass.err | grep -Ev 'The enumeration has finished|Discoveries are being migrated into the |^[[:space:]]*$' || true
+    rm -f tmp-amass.err
     echo
 }
 
@@ -385,8 +388,6 @@ section(f"URLs ({len(urls)})")
 print_url_rows(urls)
 
 subdomain_file.write_text("\n".join(subdomains) + ("\n" if subdomains else ""))
-
-print()
 PY
     then
         cat hudsonrock.txt
@@ -529,7 +530,11 @@ PY
     _count=$(tail -n 1 "$err_file" 2>/dev/null | tr -d '\r')
 
     if [[ "$_count" =~ ^[0-9]+$ ]]; then
-        echo "    [*] ${_count} hostname(s)."
+        if [ "$_count" -eq 1 ]; then
+            echo "    [*] ${_count} hostname."
+        else
+            echo "    [*] ${_count} hostnames."
+        fi
     fi
 
     rm -f "$err_file" 2>/dev/null
@@ -649,7 +654,12 @@ f_whois_ip() {
     ((COUNT++))
     local DOMAINIP
     DOMAINIP=$(dig +short "$DOMAIN" | head -1)
-    [ -n "$DOMAINIP" ] || return 0
+
+    if [ -z "$DOMAINIP" ]; then
+        echo
+        return 0
+    fi
+
     whois "$DOMAINIP" > tmp
     grep -Eiv '(#|%|comment|remarks)' tmp | sed '/./,$!d' > tmp2
     sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' tmp2 > tmp3
@@ -659,11 +669,13 @@ f_whois_ip() {
 
     if [ ! -s whois-ip ]; then
         rm -f whois-ip
+        echo
         return 0
     fi
 
     if grep -qiE '^no[[:space:]]+whois' whois-ip; then
         rm -f whois-ip
+        echo
         return 0
     fi
 
@@ -671,6 +683,7 @@ f_whois_ip() {
         rm -f whois-ip
     fi
 
+    echo
 }
 
 ###############################################################################################################################
@@ -934,6 +947,7 @@ PY
             echo "$col1 $col2" >> tmp2
         fi
     done < tmp
+    echo
     echo
 
     awk '{print $1 "\t" $2}' tmp2 > subdomains
