@@ -49,6 +49,10 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - **Export filename** is the exception: `YYYYMMDD-HHMM` in `domain-kind-YYYYMMDD-HHMM.zip` (or `.csv`) uses the operator view timezone (`~/.discover/timezone`). Ledger `exported_at_utc` and the audit line stay UTC.
 - Preference store: `~/.discover/timezone` (not inside a single engagement report), so it applies across engagements for that operator machine. UI: Audit **Config → Time zone**.
 
+## Passive tools
+
+- Passive does not run Sublist3r. `misc/update.sh` does not install or update it.
+
 ## Passive Names section
 
 - Passive Names dump is **name + title**, aligned (`column -t`). Emails stay in the Emails section; phone is not shown there.

@@ -131,7 +131,7 @@ Note: Passive and Active cannot be run as root.
 
 #### Passive recon
 
-Uses Amass, ARIN, DNSRecon, dnstwist, Metasploit, subfinder, sublist3r, Shodan CTL (free CT hostnames; no API key), theHarvester, Whois, and multiple websites.
+Uses Amass, ARIN, DNSRecon, dnstwist, Metasploit, subfinder, Shodan CTL (free CT hostnames; no API key), theHarvester, Whois, and multiple websites.
 
 * Acquire free API keys for maximum results with theHarvester (`$HOME/.theHarvester/api-keys.yaml`).
 * Passive builds an HTML report at `$HOME/data/<domain>/`.

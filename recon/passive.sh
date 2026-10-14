@@ -38,7 +38,7 @@ f_banner
 echo -e "${BLUE}PASSIVE RECON${NC}"
 echo
 echo -e "${BLUE}Uses Amass, ARIN, DNSRecon, dnstwist, Metasploit, subfinder,${NC}"
-echo -e "${BLUE}sublist3r, Shodan CTL, theHarvester, Whois, and multiple websites.${NC}"
+echo -e "${BLUE}Shodan CTL, theHarvester, Whois, and multiple websites.${NC}"
 echo
 echo -e "${BLUE}[*] Acquire API keys for maximum results with theHarvester.${NC}"
 echo -e "${BLUE}[*] Add keys to $HOME/.theHarvester/api-keys.yaml${NC}"
@@ -80,8 +80,8 @@ COUNT=1
 # Optional → API list. Must match old/test-theHarvester.sh and SOURCE_SPECS.
 sources_no_api=(apis-guru arquivo baidu certspotter commoncrawl crt-name crtsh duckduckgo gitlab haveibeenpwned hudsonrock otx rapiddns robtex shodanct shodanInternetDB sourcegraph subdomainapi subdomaincenter subdomainfinderc99 thc urlscan waybackarchive yahoo)
 sources_api=(bevigil brave bufferoverun builtwith censys criminalip dehashed dnsdb dnsdumpster dymo fofa fullhunt github-code hackertarget hibpverified hunter hunterhow intelx jsmon leakix leaklookup mojeek netlas onyphe pentesttools projectdiscovery rocketreach securityscorecard securityTrails sherlockeye shodan tomba virustotal whoisxml windvane zoomeye)
-# 16 non-harvester COUNT++ steps (amass through social) + every source above.
-TOTAL=$((16 + ${#sources_no_api[@]} + ${#sources_api[@]}))
+# 15 non-harvester COUNT++ steps (amass through social) + every source above.
+TOTAL=$((15 + ${#sources_no_api[@]} + ${#sources_api[@]}))
 
 ###############################################################################################################################
 
@@ -445,17 +445,6 @@ f_subfinder() {
     ((COUNT++))
     subfinder -d "$DOMAIN" -silent | sort -u > zsubfinder
     echo
-}
-
-###############################################################################################################################
-
-f_sublist3r() {
-    echo "sublist3r                ($COUNT/$TOTAL)"
-    ((COUNT++))
-    sublist3r -d "$DOMAIN" > tmp 2>/dev/null
-    sed 's/\x1B\[[0-9;]*m//g' tmp | sed '/^ /d' | grep -Eiv '(!|enumerating|enumeration|searching|total unique)' | tr '[:upper:]' '[:lower:]' | sort -u > zsublist3r
-    echo
-    rm tmp 2>/dev/null
 }
 
 ###############################################################################################################################
@@ -993,7 +982,6 @@ MARKERS = (
     "zmsf",
     "zrapiddns",
     "zrobtex",
-    "zsublist3r",
     "zthc",
     "zurlscan",
     "zwaybackarchive",
@@ -1823,7 +1811,6 @@ f_hudsonrock
 f_intodns
 f_metasploit
 f_subfinder
-f_sublist3r
 f_shodan_ctl
 f_theharvester
 f_theharvester_api
