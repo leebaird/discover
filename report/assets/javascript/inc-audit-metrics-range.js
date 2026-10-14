@@ -61,10 +61,10 @@
         if (!sel) {
             return;
         }
-        var initial = sel.value || "7d";
+        var initial = sel.value || "all";
         showRange(metrics, initial);
         sel.addEventListener("change", function () {
-            showRange(metrics, sel.value || "7d");
+            showRange(metrics, sel.value || "all");
         });
     }
 

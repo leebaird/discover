@@ -4,13 +4,16 @@
  *
  * Subdomains expand host row → launch host-scan tools (operator mode only).
  * Chevrons only when the page is served by Discover statusd
- * (http://127.0.0.1:17322/… from Open report / Active) — not file:// manual open.
- * One tool at a time; live status via same origin /mode|/status when hosted.
+ * (http://127.0.0.1:17322/ from Open report / Active). Manual file:// open does not.
+ * Client export sets window.DISCOVER_CLIENT_VIEW and shows the tool menu
+ * without Run and without the info button. TXT, HTM, and WEB stay links.
+ * On the Discover host (browser not Windows), WEB still opens Firefox.
+ * Elsewhere WEB opens web.htm. A client package reads tools/host-scans/status.js.
  * Software: ?software= query wins, else fingerprint row tech/title/webserver/host.
  * nuclei is shown only when a product is known; robots/nikto/feroxbuster/ffuf always on expand.
  * nmap after robots when the row IP has Shodan ports, or the row URL is http/https (80/443).
  * droopescan / wpscan gate on CMS software (query or fingerprint).
- * Tool boxes: Unicode ⓘ opens a short modal (what / when / Run / outputs).
+ * Tool boxes: Unicode info button opens a short modal (what / when / Run / outputs).
  */
 (function () {
     /** Host-scan expand panel logic. */
@@ -204,7 +207,7 @@
                 },
                 {
                     h: "Outputs",
-                    p: "TXT under tools/host-scans/ for this host. WEB opens each http/https port in Firefox."
+                    p: "TXT under tools/host-scans/ for this host. On the Discover host, WEB opens each http/https port in Firefox. In Edge on Windows, WEB opens a page of those links."
                 }
             ]
         },
@@ -233,7 +236,7 @@
                 {
                     h: "Outputs",
                     p:
-                        "TXT is the raw robots.txt body. WEB opens each Disallow directory in Firefox (desktop handler; not shown when there are no directories, only Disallow: /, or Unreachable). Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
+                        "TXT is the raw robots.txt body. On the Discover host, WEB opens each Disallow directory in Firefox (desktop handler; not shown when there are no directories, only Disallow: /, or Unreachable). Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs). In Edge on Windows, WEB opens a page of those links."
                 }
             ]
         },
@@ -291,7 +294,7 @@
                 {
                     h: "Outputs",
                     p:
-                        "TXT of findings plus a WEB control that opens each hit in Firefox when the run has at least one finding URL. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
+                        "TXT of findings plus a WEB control. On the Discover host, WEB opens each hit in Firefox when the run has at least one finding URL. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs). In Edge on Windows, WEB opens a page of those links."
                 }
             ]
         },
@@ -320,7 +323,7 @@
                 {
                     h: "Outputs",
                     p:
-                        "TXT of findings plus a WEB control that opens each hit in Firefox when the run has at least one finding URL. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs)."
+                        "TXT of findings plus a WEB control. On the Discover host, WEB opens each hit in Firefox when the run has at least one finding URL. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs). In Edge on Windows, WEB opens a page of those links."
                 }
             ]
         }
@@ -1281,6 +1284,10 @@
         return null;
     }
 
+    function isClientView() {
+        return window.DISCOVER_CLIENT_VIEW === true;
+    }
+
     function launchesAllowed(modeObj) {
         if (modeObj && typeof modeObj.launches === "boolean") {
             return modeObj.launches;
@@ -1328,6 +1335,14 @@
         return port === String(statusPort());
     }
 
+    // Edge on Windows has no discover-* handler. WEB is a normal page there.
+    function useWebPage() {
+        if (!isDiscoverHostedPage()) {
+            return true;
+        }
+        return /Windows NT/i.test(navigator.userAgent || "");
+    }
+
     function statusdUrl(path) {
         if (isDiscoverHostedPage()) {
             return path;
@@ -1355,10 +1370,16 @@
     }
 
     function loadStatus() {
-        if (!isDiscoverHostedPage()) {
-            return Promise.resolve({ running: false, hosts: {} });
+        var embedded = window.DISCOVER_HOST_SCAN_STATUS;
+        if (isDiscoverHostedPage()) {
+            return fetchJson(statusdUrl("/status")).catch(function () {
+                return embedded || { running: false, hosts: {} };
+            });
         }
-        return fetchJson(statusdUrl("/status")).catch(function () {
+        if (embedded && embedded.hosts) {
+            return Promise.resolve(embedded);
+        }
+        return fetchJson("../tools/host-scans/status.json").catch(function () {
             return { running: false, hosts: {} };
         });
     }
@@ -1496,6 +1517,23 @@
         return isNaN(n) ? null : n;
     }
 
+    function webAnchor(pageRel, protocolHref, title) {
+        if (useWebPage()) {
+            return (
+                '<a class="inc-host-scan-out" href="' +
+                String(pageRel).replace(/"/g, "&quot;") +
+                '" target="_blank" rel="noopener" title="Open the list of URLs">web</a>'
+            );
+        }
+        return (
+            '<a class="inc-host-scan-out" href="' +
+            protocolHref +
+            '" title="' +
+            title +
+            '">web</a>'
+        );
+    }
+
     function outputButtonsHtml(tool, st) {
         if (!st || !(st.output || st.output_rel)) {
             return "";
@@ -1534,13 +1572,19 @@
                 ? Number(st.disallow_count) > 0
                 : findingUrlCount(st) > 0)
         ) {
-            var listRel = String(rel).replace(/[^/]+$/, "disallow-urls.txt");
-            var absList = hostScanArtifactAbsolutePath(listRel);
-            if (absList) {
-                html +=
-                    '<a class="inc-host-scan-out" href="discover-robots:' +
-                    encodeURI(absList).replace(/"/g, "&quot;") +
-                    '" title="Open each robots.txt Disallow directory in Firefox">web</a>';
+            var pageRel = String(rel).replace(/[^/]+$/, "web.htm");
+            if (useWebPage()) {
+                html += webAnchor(pageRel, "", "");
+            } else {
+                var listRel = String(rel).replace(/[^/]+$/, "disallow-urls.txt");
+                var absList = hostScanArtifactAbsolutePath(listRel);
+                if (absList) {
+                    html += webAnchor(
+                        pageRel,
+                        "discover-robots:" + encodeURI(absList).replace(/"/g, "&quot;"),
+                        "Open each robots.txt Disallow directory in Firefox"
+                    );
+                }
             }
         }
         if (tool === "ffuf") {
@@ -1548,32 +1592,44 @@
             var jsonRel = String(rel).replace(/[^/]+$/, "ffuf.json");
             var absJson = hostScanArtifactAbsolutePath(jsonRel);
             var ffufUrls = findingUrlCount(st);
-            if (absJson && ffufUrls !== 0) {
-                html +=
-                    '<a class="inc-host-scan-out" href="discover-ffuf:' +
-                    encodeURI(absJson).replace(/"/g, "&quot;") +
-                    '" title="Open each ffuf finding URL in Firefox">web</a>';
+            var ffufPage = String(rel).replace(/[^/]+$/, "web.htm");
+            if (useWebPage() && ffufUrls !== 0) {
+                html += webAnchor(ffufPage, "", "");
+            } else if (absJson && ffufUrls !== 0) {
+                html += webAnchor(
+                    ffufPage,
+                    "discover-ffuf:" + encodeURI(absJson).replace(/"/g, "&quot;"),
+                    "Open each ffuf finding URL in Firefox"
+                );
             }
         }
         if (tool === "feroxbuster") {
             var feroxRel = String(rel).replace(/[^/]+$/, "ferox.json");
             var absFerox = hostScanArtifactAbsolutePath(feroxRel);
             var feroxUrls = findingUrlCount(st);
-            if (absFerox && feroxUrls !== 0) {
-                html +=
-                    '<a class="inc-host-scan-out" href="discover-ferox:' +
-                    encodeURI(absFerox).replace(/"/g, "&quot;") +
-                    '" title="Open each feroxbuster finding URL in Firefox">web</a>';
+            var feroxPage = String(rel).replace(/[^/]+$/, "web.htm");
+            if (useWebPage() && feroxUrls !== 0) {
+                html += webAnchor(feroxPage, "", "");
+            } else if (absFerox && feroxUrls !== 0) {
+                html += webAnchor(
+                    feroxPage,
+                    "discover-ferox:" + encodeURI(absFerox).replace(/"/g, "&quot;"),
+                    "Open each feroxbuster finding URL in Firefox"
+                );
             }
         }
         if (tool === "nmap" && findingUrlCount(st) !== 0) {
+            var nmapPage = String(rel).replace(/[^/]+$/, "web.htm");
             var webRel = String(rel).replace(/[^/]+$/, "web-urls.txt");
             var absWeb = hostScanArtifactAbsolutePath(webRel);
-            if (absWeb) {
-                html +=
-                    '<a class="inc-host-scan-out" href="discover-nmap-web:' +
-                    encodeURI(absWeb).replace(/"/g, "&quot;") +
-                    '" title="Open each nmap HTTP(S) port in Firefox">web</a>';
+            if (useWebPage()) {
+                html += webAnchor(nmapPage, "", "");
+            } else if (absWeb) {
+                html += webAnchor(
+                    nmapPage,
+                    "discover-nmap-web:" + encodeURI(absWeb).replace(/"/g, "&quot;"),
+                    "Open each nmap HTTP(S) port in Firefox"
+                );
             }
         }
         html += "</span>";
@@ -1833,8 +1889,9 @@
         td.colSpan = row.cells.length;
 
         var running = !!(status && status.running);
+        var clientView = isClientView();
         var html = '<div class="inc-host-scan-panel">';
-        if (!canLaunch) {
+        if (!canLaunch && !clientView) {
             html +=
                 '<div class="inc-host-scan-panel-meta"><div class="inc-audit-note">Launches disabled (client/defender package or Discover session inactive).</div></div>';
         }
@@ -1844,7 +1901,7 @@
         var panelTools = toolsForSoftware(software, row);
         panelTools.forEach(function (tool) {
             var st = toolState(status, info.host, tool);
-            var launchHtml;
+            var launchHtml = "";
             var label =
                 tool === "droopescan"
                     ? "droopescan"
@@ -1855,31 +1912,35 @@
                         : tool === "nmap"
                           ? "nmap"
                           : tool;
-            if (canLaunch && !running) {
-                launchHtml =
-                    '<a class="inc-host-scan-launch" href="' +
-                    launchHref(tool, info.url, software, nmapPorts).replace(
-                        /"/g,
-                        "&quot;"
-                    ) +
-                    '">Run</a>';
-            } else {
-                launchHtml = '<span class="inc-host-scan-launch-disabled">Run</span>';
+            if (!clientView) {
+                if (canLaunch && !running) {
+                    launchHtml =
+                        '<a class="inc-host-scan-launch" href="' +
+                        launchHref(tool, info.url, software, nmapPorts).replace(
+                            /"/g,
+                            "&quot;"
+                        ) +
+                        '">Run</a>';
+                } else {
+                    launchHtml = '<span class="inc-host-scan-launch-disabled">Run</span>';
+                }
             }
 
             html += '<div class="inc-host-scan-tool" data-tool="' + tool + '">';
-            html +=
-                '<button type="button" class="inc-host-scan-info-btn" data-tool="' +
-                tool +
-                '" data-url="' +
-                attrEscape(info.url) +
-                '" data-software="' +
-                attrEscape(software || "") +
-                '" title="About ' +
-                label +
-                '" aria-label="About ' +
-                label +
-                '">ⓘ</button>';
+            if (!clientView) {
+                html +=
+                    '<button type="button" class="inc-host-scan-info-btn" data-tool="' +
+                    tool +
+                    '" data-url="' +
+                    attrEscape(info.url) +
+                    '" data-software="' +
+                    attrEscape(software || "") +
+                    '" title="About ' +
+                    label +
+                    '" aria-label="About ' +
+                    label +
+                    '">ⓘ</button>';
+            }
             html += '<div class="inc-host-scan-tool-head">';
             html += '<span class="inc-host-scan-tool-name">' + label + "</span>";
             html += launchHtml;
@@ -1899,7 +1960,9 @@
         } else {
             row.parentNode.appendChild(panelRow);
         }
-        bindInfoModalOnce();
+        if (!clientView) {
+            bindInfoModalOnce();
+        }
     }
 
     function addToggles(software, canLaunch) {
@@ -2013,13 +2076,16 @@
     }
 
     function init() {
-        // Chevrons only on http://127.0.0.1:<statusd>/… (Import opens this URL).
-        // Manual file:// open of the same tree: never show host-scan UI.
+        var software = querySoftware();
+        // Client export only. The live operator report stays launch-capable.
+        if (isClientView()) {
+            addToggles(software || "", false);
+            return;
+        }
+        // Chevrons only on http://127.0.0.1:<statusd>/ (Open report / Active).
         if (!isDiscoverHostedPage()) {
             return;
         }
-        var software = querySoftware();
-
         Promise.all([loadMode(), loadViewTimezone()]).then(function (pair) {
             var mode = pair[0];
             if (!launchesAllowed(mode)) {

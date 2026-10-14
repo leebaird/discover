@@ -12,7 +12,9 @@ import os
 import re
 import sys
 from pathlib import Path
-from urllib.parse import quote, urlparse
+from urllib.parse import urlparse
+
+import write_web_links
 
 # Display stamp: "mm/dd/yyyy - hh:mm Z" (current); dash-date and legacy "Z - hh:mm" still parse
 _AUDIT_TS = r"(\d{2}[-/]\d{2}[-/]\d{4}(?: - \d{2}:\d{2} Z| Z - \d{2}:\d{2}))"
@@ -858,6 +860,74 @@ def _host_scan_finding_url_count(json_disk: Path) -> int:
     return len(seen)
 
 
+# web.htm sits beside the artifact. Edge opens that page. The Discover host
+# still launches Firefox from data-discover-scheme when the browser is not Windows.
+_WEB_BUTTONS = {
+    "robots": (
+        "disallow-urls.txt",
+        "discover-robots",
+        "Open each robots.txt Disallow directory",
+        "robots.txt Disallow directories",
+    ),
+    "ffuf": (
+        "ffuf.json",
+        "discover-ffuf",
+        "Open each ffuf finding URL",
+        "ffuf findings",
+    ),
+    "feroxbuster": (
+        "ferox.json",
+        "discover-ferox",
+        "Open each feroxbuster finding URL",
+        "feroxbuster findings",
+    ),
+    "nmap": (
+        "web-urls.txt",
+        "discover-nmap-web",
+        "Open each nmap HTTP(S) port",
+        "nmap HTTP(S) ports",
+    ),
+}
+
+
+def _append_web_button(links: list[str], report_root: Path, output: str, tool: str) -> None:
+    """Add the green web control. Href is web.htm. Scheme is for the Linux host."""
+    spec = _WEB_BUTTONS.get(tool)
+    if spec is None or not output:
+        return
+    filename, scheme, title, heading = spec
+    rel = str(Path(output).with_name(filename)).replace("\\", "/")
+    disk = report_root / rel.lstrip("/")
+    if tool == "robots":
+        if not _robots_disallow_has_dirs(disk):
+            return
+    elif tool in ("ffuf", "feroxbuster"):
+        if _host_scan_finding_url_count(disk) <= 0:
+            return
+    elif tool == "nmap":
+        try:
+            if not disk.is_file() or disk.stat().st_size <= 0:
+                return
+        except OSError:
+            return
+    else:
+        return
+    urls = write_web_links.urls_for(disk, tool)
+    page_rel = str(Path(rel).with_name("web.htm")).replace("\\", "/")
+    page_disk = report_root / page_rel.lstrip("/")
+    if not write_web_links.write_page(page_disk, heading, urls):
+        return
+    href = _pages_href(page_rel)
+    artifact = str(disk.resolve())
+    links.append(
+        f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
+        f'target="_blank" rel="noopener" '
+        f'data-discover-scheme="{html.escape(scheme, quote=True)}" '
+        f'data-discover-artifact="{html.escape(artifact, quote=True)}" '
+        f'title="{html.escape(title, quote=True)}">web</a>'
+    )
+
+
 def audit_target_from_action(action: str) -> str:
     """Host/target for audit log Target column (host scans; batch Active → Multiple)."""
     text = (action or "").strip()
@@ -967,53 +1037,7 @@ def audit_output_cell(
                         f'<a class="inc-audit-btn" href="{html.escape(_pages_href(htm_rel), quote=True)}" '
                         f'target="_blank" rel="noopener">htm</a>'
                     )
-            if tool == "robots":
-                list_rel = str(Path(output).with_name("disallow-urls.txt")).replace(
-                    "\\", "/"
-                )
-                list_disk = report_root / list_rel.lstrip("/")
-                if _robots_disallow_has_dirs(list_disk):
-                    abs_list = str(list_disk.resolve())
-                    robots_href = "discover-robots:" + quote(abs_list, safe="/:")
-                    links.append(
-                        f'<a class="inc-audit-btn" href="{html.escape(robots_href, quote=True)}" '
-                        f'title="Open each robots.txt Disallow directory in Firefox">'
-                        f"web</a>"
-                    )
-            # ffuf: open each finding URL in Firefox (same as Target scans / expand).
-            if tool == "ffuf":
-                json_rel = str(Path(output).with_name("ffuf.json")).replace("\\", "/")
-                json_disk = report_root / json_rel.lstrip("/")
-                if json_disk.is_file() and _host_scan_finding_url_count(json_disk) > 0:
-                    abs_json = str(json_disk.resolve())
-                    ffuf_href = "discover-ffuf:" + quote(abs_json, safe="/:")
-                    links.append(
-                        f'<a class="inc-audit-btn" href="{html.escape(ffuf_href, quote=True)}" '
-                        f'title="Open each ffuf finding URL in Firefox">'
-                        f"web</a>"
-                    )
-            if tool == "feroxbuster":
-                json_rel = str(Path(output).with_name("ferox.json")).replace("\\", "/")
-                json_disk = report_root / json_rel.lstrip("/")
-                if json_disk.is_file() and _host_scan_finding_url_count(json_disk) > 0:
-                    abs_json = str(json_disk.resolve())
-                    ferox_href = "discover-ferox:" + quote(abs_json, safe="/:")
-                    links.append(
-                        f'<a class="inc-audit-btn" href="{html.escape(ferox_href, quote=True)}" '
-                        f'title="Open each feroxbuster finding URL in Firefox">'
-                        f"web</a>"
-                    )
-            if tool == "nmap":
-                web_rel = str(Path(output).with_name("web-urls.txt")).replace("\\", "/")
-                web_disk = report_root / web_rel.lstrip("/")
-                if web_disk.is_file() and web_disk.stat().st_size > 0:
-                    abs_web = str(web_disk.resolve())
-                    nmap_href = "discover-nmap-web:" + quote(abs_web, safe="/:")
-                    links.append(
-                        f'<a class="inc-audit-btn" href="{html.escape(nmap_href, quote=True)}" '
-                        f'title="Open each nmap HTTP(S) port in Firefox">'
-                        f"web</a>"
-                    )
+            _append_web_button(links, report_root, output, tool)
         if not links:
             return '<span class="inc-audit-muted">—</span>'
 
@@ -1067,55 +1091,8 @@ def tool_cell(
                     f'<a class="inc-audit-btn" href="{html.escape(htm_href, quote=True)}" '
                     f'target="_blank" rel="noopener">htm</a>'
                 )
-        # robots: open each Disallow URL in Firefox (discover-robots: protocol)
-        if tool == "robots" and report_root is not None:
-            list_rel = str(Path(str(output)).with_name("disallow-urls.txt")).replace(
-                "\\", "/"
-            )
-            list_disk = report_root / list_rel.lstrip("/")
-            if _robots_disallow_has_dirs(list_disk):
-                abs_list = str(list_disk.resolve())
-                href = "discover-robots:" + quote(abs_list, safe="/:")
-                links.append(
-                    f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
-                    f'title="Open each robots.txt Disallow directory in Firefox">'
-                    f"web</a>"
-                )
-        # ffuf: open each finding URL in Firefox (discover-ffuf: protocol)
-        if tool == "ffuf" and report_root is not None:
-            json_rel = str(Path(str(output)).with_name("ffuf.json")).replace("\\", "/")
-            json_disk = report_root / json_rel.lstrip("/")
-            if json_disk.is_file() and _host_scan_finding_url_count(json_disk) > 0:
-                # Absolute path so the desktop handler can open the JSON reliably
-                abs_json = str(json_disk.resolve())
-                href = "discover-ffuf:" + quote(abs_json, safe="/:")
-                links.append(
-                    f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
-                    f'title="Open each ffuf finding URL in Firefox">'
-                    f"web</a>"
-                )
-        if tool == "feroxbuster" and report_root is not None:
-            json_rel = str(Path(str(output)).with_name("ferox.json")).replace("\\", "/")
-            json_disk = report_root / json_rel.lstrip("/")
-            if json_disk.is_file() and _host_scan_finding_url_count(json_disk) > 0:
-                abs_json = str(json_disk.resolve())
-                href = "discover-ferox:" + quote(abs_json, safe="/:")
-                links.append(
-                    f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
-                    f'title="Open each feroxbuster finding URL in Firefox">'
-                    f"web</a>"
-                )
-        if tool == "nmap" and report_root is not None:
-            web_rel = str(Path(str(output)).with_name("web-urls.txt")).replace("\\", "/")
-            web_disk = report_root / web_rel.lstrip("/")
-            if web_disk.is_file() and web_disk.stat().st_size > 0:
-                abs_web = str(web_disk.resolve())
-                href = "discover-nmap-web:" + quote(abs_web, safe="/:")
-                links.append(
-                    f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
-                    f'title="Open each nmap HTTP(S) port in Firefox">'
-                    f"web</a>"
-                )
+        if report_root is not None:
+            _append_web_button(links, report_root, str(output), tool)
 
     btn_block = (
         '<span class="inc-audit-btn-row">' + "".join(links) + "</span>" if links else ""
@@ -1282,6 +1259,44 @@ def _dt_in_metrics_window(dt, start, end) -> bool:
     return True
 
 
+def _operator_performed_counts(
+    launches: list[tuple],
+    finishes: list[tuple],
+    start_bound,
+    end_bound,
+) -> Counter:
+    """Scans each operator launched in the window.
+
+    Count every Started line in the window. A Finished line with no Started
+    line for that operator, tool, and host still counts when the finish is
+    in the window.
+    """
+    from collections import Counter, defaultdict
+
+    pending: dict[tuple[str, str, str], list] = defaultdict(list)
+    for dt, op, tool, host in sorted(launches, key=lambda row: row[0]):
+        pending[(op, tool, host)].append(dt)
+
+    counts: Counter = Counter()
+    for dt, op, _tool, _host in launches:
+        if _dt_in_metrics_window(dt, start_bound, end_bound):
+            counts[op] += 1
+
+    for dt, op, tool, host in sorted(finishes, key=lambda row: row[0]):
+        opts = pending[(op, tool, host)]
+        paired = False
+        for i, sdt in enumerate(opts):
+            if sdt <= dt:
+                opts.pop(i)
+                paired = True
+                break
+        if paired:
+            continue
+        if _dt_in_metrics_window(dt, start_bound, end_bound):
+            counts[op] += 1
+    return counts
+
+
 def compute_metrics(
     report_root: Path,
     audit_rows: list,
@@ -1302,6 +1317,9 @@ def compute_metrics(
     # All Finished stamps (any date) for incomplete matching — a run started in the
     # window but finished later must not count as incomplete for that window.
     finished_any: dict[tuple[str, str], list] = {}
+    # Any-date launches and finishes. By operator counts launches in the window.
+    launches: list[tuple] = []  # (dt, operator, tool, host)
+    finishes: list[tuple] = []
     host_cats = load_host_categories(report_root)
 
     for ts, operator, _ip, action, _raw in audit_rows:
@@ -1318,12 +1336,14 @@ def compute_metrics(
         host = _hostname_from_url(m.group("url").rstrip(".,;"))
         if not host:
             continue
+        op_name = operator or "—"
         if verb == "finished":
             finished_any.setdefault((tool, host), []).append(dt)
+            finishes.append((dt, op_name, tool, host))
             if not _dt_in_metrics_window(dt, start_bound, end_bound):
                 continue
             soft = _software_product_from_action(action)
-            finished_events.append((dt, operator or "—", tool, host, soft))
+            finished_events.append((dt, op_name, tool, host, soft))
             d = dt.date()
             if day_keys is not None:
                 if d in day_counts:
@@ -1331,6 +1351,7 @@ def compute_metrics(
             else:
                 day_counts[d] = day_counts.get(d, 0) + 1
         elif verb == "started":
+            launches.append((dt, op_name, tool, host))
             if not _dt_in_metrics_window(dt, start_bound, end_bound):
                 continue
             started_in_window.append((dt, tool, host))
@@ -1346,7 +1367,9 @@ def compute_metrics(
             incomplete += 1
 
     by_tool = Counter(t for _d, _o, t, _h, _s in finished_events)
-    by_operator = Counter(o for _d, o, _t, _h, _s in finished_events)
+    by_operator = _operator_performed_counts(
+        launches, finishes, start_bound, end_bound
+    )
     by_software = Counter(
         s for _d, _o, _t, _h, s in finished_events if s
     )
@@ -1412,7 +1435,7 @@ def compute_metrics(
         "days": [
             {
                 "key": d.isoformat(),
-                "label": d.strftime("%m-%d"),
+                "label": f"{d.month}-{d.day}",
                 "count": int(day_counts.get(d, 0)),
             }
             for d in day_keys
@@ -1450,21 +1473,67 @@ def _hbar_rows_html(rows: list[tuple[str, int]], empty_label: str = "No data.") 
     return "".join(parts)
 
 
+def _day_label_indexes(count: int) -> list[int]:
+    """Axis dates to print. A long range keeps a weekly cadence so labels do not overlap."""
+    if count <= 12:
+        return list(range(count))
+    indexes = list(range(0, count, 7))
+    last = count - 1
+    if indexes[-1] != last:
+        if last - indexes[-1] < 7:
+            indexes[-1] = last
+        else:
+            indexes.append(last)
+    return indexes
+
+
 def _day_bars_html(days: list[dict]) -> str:
+    count = len(days)
+    if count == 0:
+        return '<div class="inc-audit-metrics-daychart"></div>'
     max_n = max((int(d.get("count") or 0) for d in days), default=1) or 1
-    parts: list[str] = ['<div class="inc-audit-metrics-bars">']
+    dense = count > 12
+    dense_cls = " inc-audit-metrics-bars--dense" if dense else ""
+    label_dense = " inc-audit-metrics-daylabels--dense" if dense else ""
+    columns = f"grid-template-columns:repeat({count},minmax(0,1fr))"
+    indexes = _day_label_indexes(count)
+    spans: list[tuple[int, int]] = []
+    for pos, idx in enumerate(indexes):
+        nxt = indexes[pos + 1] if pos + 1 < len(indexes) else count
+        spans.append((idx, max(1, nxt - idx)))
+
+    bars: list[str] = [
+        f'<div class="inc-audit-metrics-bars{dense_cls}" style="{columns}">'
+    ]
     for d in days:
         n = int(d.get("count") or 0)
         pct = max(4, int(round(100.0 * n / max_n))) if n else 4
-        height = pct if n else 4
-        parts.append(
-            '<div class="inc-audit-metrics-bar-col">'
-            f'<div class="inc-audit-metrics-bar" style="height:{height}%" title="{n}"></div>'
-            f'<span>{html.escape(str(d.get("label") or ""))}</span>'
+        label = str(d.get("label") or "")
+        tip = html.escape(f"{label}: {n}", quote=True)
+        bars.append(
+            f'<div class="inc-audit-metrics-bar-col" title="{tip}">'
+            f'<div class="inc-audit-metrics-bar" style="height:{pct}%"></div>'
             "</div>"
         )
-    parts.append("</div>")
-    return "".join(parts)
+    bars.append("</div>")
+
+    labels: list[str] = [
+        f'<div class="inc-audit-metrics-daylabels{label_dense}" style="{columns}">'
+    ]
+    for idx, span in spans:
+        label = html.escape(str(days[idx].get("label") or ""))
+        align = " inc-audit-metrics-daylabel--end" if dense and idx == count - 1 else ""
+        labels.append(
+            f'<span class="inc-audit-metrics-daylabel{align}" '
+            f'style="grid-column:{idx + 1} / span {span}">{label}</span>'
+        )
+    labels.append("</div>")
+    return (
+        '<div class="inc-audit-metrics-daychart">'
+        + "".join(bars)
+        + "".join(labels)
+        + "</div>"
+    )
 
 
 _METRICS_RANGE_OPTIONS: list[tuple[str, str]] = [
@@ -1594,13 +1663,13 @@ def render_last7_metrics_html(metrics: dict | None = None, **panels: dict) -> st
 def render_metrics_dashboard(by_window: dict[str, dict]) -> str:
     """Render metrics section with Today / Yesterday / Last 7 days / Last week / All panels."""
     # Shared select sits once; JS moves it into the visible panel's range slot.
-    select_html = _metrics_range_select_html("7d")
+    select_html = _metrics_range_select_html("all")
     panel_chunks: list[str] = []
     for value, _label in _METRICS_RANGE_OPTIONS:
         if value not in by_window:
             continue
         metrics = by_window[value]
-        hidden = " hidden" if value != "7d" else ""
+        hidden = " hidden" if value != "all" else ""
         panel_chunks.append(
             f'<div class="inc-audit-metrics-panel" data-range="{html.escape(value, quote=True)}"'
             f"{hidden}>"
@@ -1848,13 +1917,20 @@ def write_defender_csv(report_root: Path, dest: Path) -> Path:
         )
 
     dest.parent.mkdir(parents=True, exist_ok=True)
+    fields = [
+        ("time_utc", "Time UTC"),
+        ("operator", "Operator"),
+        ("operator_ip", "Operator IP"),
+        ("target", "Target"),
+        ("action", "Action"),
+    ]
     with dest.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=["time_utc", "operator", "operator_ip", "target", "action"],
+            fieldnames=[key for key, _label in fields],
             quoting=csv.QUOTE_MINIMAL,
         )
-        writer.writeheader()
+        writer.writerow({key: label for key, label in fields})
         writer.writerows(rows_out)
     return dest
 

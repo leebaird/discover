@@ -49,7 +49,7 @@
             '<div class="inc-report-export-choices" role="radiogroup" aria-label="Package type">' +
             '<label class="inc-report-export-choice">' +
             '<input type="radio" name="inc-report-export-kind" value="client">' +
-            "<span><strong>Client</strong> — HTML report; removes operator IPs; disables scans</span>" +
+            "<span><strong>Client</strong> — HTML report with disabled scans</span>" +
             "</label>" +
             '<label class="inc-report-export-choice">' +
             '<input type="radio" name="inc-report-export-kind" value="defender">' +
@@ -57,7 +57,7 @@
             "</label>" +
             '<label class="inc-report-export-choice">' +
             '<input type="radio" name="inc-report-export-kind" value="operator" checked>' +
-            "<span><strong>Operator</strong> — full HTML report with everything (IPs included)</span>" +
+            "<span><strong>Operator</strong> — full HTML report</span>" +
             "</label>" +
             "</div>" +
             '<div class="inc-report-export-status" id="inc-report-export-status" hidden></div>' +

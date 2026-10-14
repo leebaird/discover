@@ -31,4 +31,31 @@
 
     tick();
     setInterval(tick, 3000);
+
+    // On the Discover host, web still opens Firefox via the desktop handler.
+    // Edge on Windows has no handler, so the href (web.htm) is left alone.
+    document.addEventListener("click", function (ev) {
+        var host = location.hostname;
+        var hosted =
+            (host === "127.0.0.1" || host === "localhost") &&
+            location.port === "17322";
+        if (!hosted || /Windows NT/i.test(navigator.userAgent || "")) {
+            return;
+        }
+        var node = ev.target;
+        var anchor = null;
+        if (node && node.closest) {
+            anchor = node.closest("a[data-discover-scheme]");
+        }
+        if (!anchor) {
+            return;
+        }
+        var scheme = anchor.getAttribute("data-discover-scheme") || "";
+        var artifact = anchor.getAttribute("data-discover-artifact") || "";
+        if (!scheme || !artifact) {
+            return;
+        }
+        ev.preventDefault();
+        window.location.href = scheme + ":" + encodeURI(artifact);
+    });
 })();

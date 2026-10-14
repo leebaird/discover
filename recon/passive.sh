@@ -1078,7 +1078,7 @@ f_report_append_pre_page(){
         # Discover-hosted Export on Report → Passive only
         case "$PAGE" in
             *passive.htm)
-                echo '<script src="../assets/javascript/inc-report-export.js?v=5"></script>'
+                echo '<script src="../assets/javascript/inc-report-export.js?v=8"></script>'
                 ;;
         esac
         echo "</body>"

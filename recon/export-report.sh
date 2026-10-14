@@ -301,7 +301,7 @@ PY
         echo "[*] Defender audit CSV export complete."
         echo -e "File:    ${YELLOW}$ARCHIVE${NC}"
         echo -e "Source:  ${YELLOW}$DISCOVER_REPORT${NC}"
-        echo -e "Columns: ${YELLOW}time_utc, operator, operator_ip, action${NC}"
+        echo -e "Columns: ${YELLOW}Time UTC, Operator, Operator IP, Target, Action${NC}"
         echo
     fi
 
@@ -345,6 +345,12 @@ if [ "$EXPORT_KIND" != "operator" ]; then
     rm -f "$STAGE_ROOT/tools/op-notes-url" "$STAGE_ROOT/.env" 2>/dev/null || true
 fi
 
+# Client package: Yes links already point at the screenshot JPEGs.
+# gowitness.jsonl is only used to rebuild those links.
+if [ "$EXPORT_KIND" = "client" ]; then
+    rm -f "$STAGE_ROOT/tools/gowitness/gowitness.jsonl"
+fi
+
 # Stamp mode on the export only (live tree restored to operator below).
 mkdir -p "$STAGE_ROOT/assets"
 
@@ -365,9 +371,112 @@ else
   "include_operator_ips": false
 }
 EOF
+    # Client export keeps the Audit range on All and drops Scans per day / By operator.
+    python3 - "$STAGE_ROOT/pages/audit.htm" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+if not path.is_file():
+    raise SystemExit(0)
+text = path.read_text(encoding="utf-8", errors="replace")
+select_re = re.compile(
+    r'<select id="inc-audit-metrics-range"[^>]*>.*?</select>',
+    re.DOTALL,
+)
+match = select_re.search(text)
+if match and 'value="all"' in match.group(0):
+    block = re.sub(r"\s+selected(?=[\s>])", "", match.group(0))
+    block = block.replace(
+        '<option value="all">',
+        '<option value="all" selected>',
+        1,
+    )
+    text = text[: match.start()] + block + text[match.end() :]
+
+    def fix_panel(panel):
+        tag = panel.group(0)
+        range_match = re.search(r'data-range="([^"]+)"', tag)
+        if not range_match:
+            return tag
+        tag = re.sub(r"\s+hidden(?=[\s>])", "", tag)
+        if range_match.group(1) != "all":
+            tag = tag[:-1] + " hidden>"
+        return tag
+
+    text = re.sub(
+        r'<div class="inc-audit-metrics-panel" data-range="[^"]*"(?: hidden)?>',
+        fix_panel,
+        text,
+    )
+
+def strip_full_width_charts(html):
+    """Drop Scans per day and By operator. Other charts stay."""
+    needle = '<div class="inc-audit-metrics-charts inc-audit-metrics-charts--1">'
+    out = []
+    i = 0
+    while True:
+        j = html.find(needle, i)
+        if j < 0:
+            out.append(html[i:])
+            break
+        out.append(html[i:j])
+        depth = 0
+        k = j
+        end = None
+        while k < len(html):
+            if html.startswith("<div", k):
+                depth += 1
+                gt = html.find(">", k)
+                if gt < 0:
+                    break
+                k = gt + 1
+                continue
+            if html.startswith("</div>", k):
+                depth -= 1
+                k += len("</div>")
+                if depth == 0:
+                    end = k
+                    break
+                continue
+            k += 1
+        if end is None:
+            out.append(html[j:])
+            break
+        block = html[j:end]
+        if "<h4>Scans per day</h4>" in block or "<h4>By operator</h4>" in block:
+            if out and out[-1].endswith("\n"):
+                out[-1] = out[-1][:-1]
+            i = end
+            if html[i:i + 1] == "\n":
+                i += 1
+        else:
+            out.append(block)
+            i = end
+    return "".join(out)
+
+text = strip_full_width_charts(text)
+path.write_text(text, encoding="utf-8")
+PY
 fi
 
 chmod 644 "$STAGE_ROOT/assets/report-mode.json" 2>/dev/null || true
+
+# Client export only: Subdomains tool menu without Run or the info button.
+# The staged copy gets status.js and web.htm. The live operator report is not modified.
+if [ "$EXPORT_KIND" = "client" ]; then
+    RECON_DIR="$(cd "$(dirname "$0")" && pwd)"
+    python3 - "$STAGE_ROOT" "$RECON_DIR" <<'PY'
+import sys
+from pathlib import Path
+
+sys.path.insert(0, sys.argv[2])
+import write_web_links
+
+write_web_links.prepare_client_subdomains(Path(sys.argv[1]))
+PY
+fi
 
 # Export metadata for Audit / provenance.
 LAUNCHES_JSON=false
