@@ -243,7 +243,7 @@ Discover-hosted **Report > Audit > Export**. Default output directory `$HOME/dat
 
 | Kind | Package |
 |------|---------|
-| **Client** | HTML ZIP; operator IPs redacted; scans disabled |
+| **Client** | HTML ZIP; operator IPs included; scans disabled |
 | **Defender** | Audit log CSV only |
 | **Operator** | Full HTML ZIP; IPs included; launches enabled |
 

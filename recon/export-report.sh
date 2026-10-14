@@ -4,7 +4,7 @@
 # Coded by Grok (xAI)
 #
 # Package a client-ready snapshot of a Discover engagement report.
-# Live tree stays operator mode; only the export is stamped client/read-only.
+# Live tree stays operator mode. Client packages omit assets/report-mode.json.
 
 # Colors / separators: inherit from Discover when launched from the menu.
 BLUE=${BLUE:-'\033[1;34m'}
@@ -154,7 +154,7 @@ case "$EXPORT_KIND" in
         EXPORT_KIND=operator
         ;;
     client|c)
-        INCLUDE_OPERATOR_IPS=0
+        INCLUDE_OPERATOR_IPS=1
         EXPORT_LAUNCHES=0
         EXPORT_KIND=client
         ;;
@@ -351,7 +351,21 @@ if [ "$EXPORT_KIND" = "client" ]; then
     rm -f "$STAGE_ROOT/tools/gowitness/gowitness.jsonl"
 fi
 
-# Stamp mode on the export only (live tree restored to operator below).
+# Client Audit already lists exports in pages/audit.htm.
+# tools/exports/log.jsonl stays on the live engagement.
+if [ "$EXPORT_KIND" = "client" ]; then
+    rm -rf "$STAGE_ROOT/tools/exports"
+fi
+
+# Raw Passive dumps (zsubfinder, zcrtsh, zarin-emails, and the rest).
+# Pages are already built from the parsed tools files.
+if [ "$EXPORT_KIND" = "client" ]; then
+    if [ -d "$STAGE_ROOT/tools" ]; then
+        find "$STAGE_ROOT/tools" -mindepth 1 -maxdepth 1 -name 'z*' -exec rm -f {} +
+    fi
+fi
+
+# Operator export keeps the mode stamp. Client HTML does not read it.
 mkdir -p "$STAGE_ROOT/assets"
 
 if [ "$EXPORT_KIND" = "operator" ]; then
@@ -362,15 +376,10 @@ if [ "$EXPORT_KIND" = "operator" ]; then
   "include_operator_ips": true
 }
 EOF
+    chmod 644 "$STAGE_ROOT/assets/report-mode.json" 2>/dev/null || true
 else
-    # Client package
-    cat > "$STAGE_ROOT/assets/report-mode.json" <<'EOF'
-{
-  "mode": "client",
-  "launches": false,
-  "include_operator_ips": false
-}
-EOF
+    rm -f "$STAGE_ROOT/assets/report-mode.json"
+
     # Client export keeps the Audit range on All and drops Scans per day / By operator.
     python3 - "$STAGE_ROOT/pages/audit.htm" <<'PY'
 import re
@@ -461,8 +470,6 @@ path.write_text(text, encoding="utf-8")
 PY
 fi
 
-chmod 644 "$STAGE_ROOT/assets/report-mode.json" 2>/dev/null || true
-
 # Client export only: Subdomains tool menu without Run or the info button.
 # The staged copy gets status.js and web.htm. The live operator report is not modified.
 if [ "$EXPORT_KIND" = "client" ]; then
@@ -478,10 +485,58 @@ write_web_links.prepare_client_subdomains(Path(sys.argv[1]))
 PY
 fi
 
-# Export metadata for Audit / provenance.
-LAUNCHES_JSON=false
-[ "$EXPORT_LAUNCHES" -eq 1 ] && LAUNCHES_JSON=true
-cat > "$STAGE_ROOT/export-meta.json" <<EOF
+# Client pages already contain this data. Host-scan JSON is read above
+# while web.htm is written. Operator export keeps the source files.
+if [ "$EXPORT_KIND" = "client" ]; then
+    rm -f \
+        "$STAGE_ROOT/tools/whatweb.json" \
+        "$STAGE_ROOT/tools/httpx.jsonl" \
+        "$STAGE_ROOT/tools/active-alive.tsv" \
+        "$STAGE_ROOT/tools/active.txt" \
+        "$STAGE_ROOT/tools/active-targets.txt" \
+        "$STAGE_ROOT/tools/import-batch-hosts.txt" \
+        "$STAGE_ROOT/tools/subdomains" \
+        "$STAGE_ROOT/tools/subdomains-import.tsv" \
+        "$STAGE_ROOT/tools/emails" \
+        "$STAGE_ROOT/tools/names" \
+        "$STAGE_ROOT/tools/names-phones.tsv" \
+        "$STAGE_ROOT/tools/names-manual.tsv" \
+        "$STAGE_ROOT/tools/hosts" \
+        "$STAGE_ROOT/tools/public-ips" \
+        "$STAGE_ROOT/tools/private-ips" \
+        "$STAGE_ROOT/tools/private-subs" \
+        "$STAGE_ROOT/tools/dns-private.tsv" \
+        "$STAGE_ROOT/tools/squatting" \
+        "$STAGE_ROOT/tools/records" \
+        "$STAGE_ROOT/tools/whois-domain" \
+        "$STAGE_ROOT/tools/whois-ip" \
+        "$STAGE_ROOT/tools/passive-scan-date" \
+        "$STAGE_ROOT/tools/shodan/summary.json" \
+        "$STAGE_ROOT/tools/shodan/summary.tsv" \
+        "$STAGE_ROOT/tools/shodan/index.json" \
+        "$STAGE_ROOT/tools/audit/log.txt" \
+        "$STAGE_ROOT/tools/audit"/log.txt.bak-*
+    rmdir "$STAGE_ROOT/tools/audit" 2>/dev/null || true
+
+    if [ -d "$STAGE_ROOT/tools/host-scans" ]; then
+        find "$STAGE_ROOT/tools/host-scans" -type f \
+            ! -name 'output.txt' \
+            ! -name 'robots.txt' \
+            ! -name 'nikto.htm' \
+            ! -name 'web.htm' \
+            ! -name 'status.js' \
+            -delete
+    fi
+
+    find "$STAGE_ROOT" -name '.DS_Store' -delete
+fi
+
+# Export metadata stays on the operator package. Client packages omit it.
+# The live engagement still records the export in tools/exports/log.jsonl.
+if [ "$EXPORT_KIND" != "client" ]; then
+    LAUNCHES_JSON=false
+    [ "$EXPORT_LAUNCHES" -eq 1 ] && LAUNCHES_JSON=true
+    cat > "$STAGE_ROOT/export-meta.json" <<EOF
 {
   "exported_at_utc": "$EXPORT_TS_ISO",
   "exported_at_display": "$EXPORT_TS_UTC",
@@ -493,32 +548,8 @@ cat > "$STAGE_ROOT/export-meta.json" <<EOF
   "include_operator_ips": $([ "$INCLUDE_OPERATOR_IPS" -eq 1 ] && echo true || echo false)
 }
 EOF
-
-# Redact consultant egress IPs in shipped HTML audit log for client packages only.
-if [ "$INCLUDE_OPERATOR_IPS" -eq 0 ] && [ -f "$STAGE_ROOT/tools/audit/log.txt" ]; then
-    python3 - "$STAGE_ROOT/tools/audit/log.txt" <<'PY'
-import re, sys
-from pathlib import Path
-path = Path(sys.argv[1])
-text = path.read_text(encoding="utf-8", errors="replace")
-# Current: mm/dd/yyyy - hh:mm Z | operator | IP | action
-# Dash-date and legacy stamp / 3-field: still accepted
-_ts = r"(\d{2}[-/]\d{2}[-/]\d{4}(?: - \d{2}:\d{2} Z| Z - \d{2}:\d{2}))"
-line_re4 = re.compile(rf"^{_ts} \| ([^|]+) \| ([^|]+) \| (.*)$")
-line_re3 = re.compile(rf"^{_ts} \| ([^|]+) \| (.*)$")
-out = []
-for line in text.splitlines():
-    m4 = line_re4.match(line)
-    if m4:
-        out.append(f"{m4.group(1)} | {m4.group(2).strip()} | redacted | {m4.group(4)}")
-        continue
-    m3 = line_re3.match(line)
-    if m3:
-        out.append(f"{m3.group(1)} | redacted | {m3.group(3)}")
-    else:
-        out.append(line)
-path.write_text("\n".join(out) + ("\n" if out else ""), encoding="utf-8")
-PY
+else
+    rm -f "$STAGE_ROOT/export-meta.json"
 fi
 
 # Package
@@ -604,12 +635,10 @@ if [ "$QUIET" -eq 0 ]; then
     echo -e "Archive:  ${YELLOW}$ARCHIVE${NC}"
     echo -e "Source:   ${YELLOW}$DISCOVER_REPORT${NC} (still operator mode)"
     echo -e "Kind:     ${YELLOW}$EXPORT_KIND${NC}"
-
+    echo -e "Audit IPs:${YELLOW} included${NC}"
     if [ "$EXPORT_KIND" = "operator" ]; then
-        echo -e "Audit IPs:${YELLOW} included${NC}"
         echo -e "Launches: ${YELLOW} enabled in package stamp${NC}"
     else
-        echo -e "Audit IPs:${YELLOW} redacted (client package)${NC}"
         echo -e "Launches: ${YELLOW} disabled${NC}"
     fi
 

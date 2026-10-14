@@ -711,9 +711,24 @@ def main(argv: list[str] | None = None) -> int:
     if dest == source:
         return fail("Source and destination are the same path.")
 
-    # Soft check: export-meta kind
+    # Client packages omit export-meta.json and assets/report-mode.json.
+    # Refuse those, plus the Subdomains flag the client packager still writes.
     meta = load_json(source / "export-meta.json", {})
-    if isinstance(meta, dict) and meta.get("kind") and str(meta.get("kind")).lower() == "client":
+    mode = load_json(source / "assets" / "report-mode.json", {})
+    kind = ""
+    if isinstance(meta, dict) and meta.get("kind"):
+        kind = str(meta.get("kind")).lower()
+    if isinstance(mode, dict) and str(mode.get("mode") or "").lower() == "client":
+        kind = "client"
+    subs = source / "pages" / "subdomains.htm"
+    if subs.is_file():
+        try:
+            subs_text = subs.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            subs_text = ""
+        if "window.DISCOVER_CLIENT_VIEW=true" in subs_text:
+            kind = "client"
+    if kind == "client":
         return fail("Refusing client export (use an Operator package with full tools/).")
 
     # Operator must appear in their audit log (prevents Samuelasdf → silent 0 lines).

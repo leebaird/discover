@@ -523,7 +523,7 @@ fi
 
 chmod 600 "$SESSION_DIR/current-report" 2>/dev/null || true
 
-# Operator mode on the live tree (client exports stamp client mode only on copies).
+# Operator mode on the live tree. Client exports omit assets/report-mode.json.
 MODE_DIR="$DISCOVER_REPORT/assets"
 MODE_FILE="$MODE_DIR/report-mode.json"
 
