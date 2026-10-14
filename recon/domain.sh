@@ -393,11 +393,9 @@ f_breaches() {
 }
 
 f_google_dorks() {
-    local USER_AGENTS GOOGLE_URLS GOOGLE_INTEXT_EXCLUDE url USER_AGENT
+    local GOOGLE_URLS GOOGLE_INTEXT_EXCLUDE url count total
 
     GOOGLE_INTEXT_EXCLUDE='-intext:%22MANAGEMENT%27S+DISCUSSION+AND+ANALYSIS%22+-intext:%22General+Services+Administration%22+-intext:public'
-
-    f_firefox_user_agents
 
     GOOGLE_URLS=(
     "https://www.google.com/search?q=%22$COMPANYURL%22+logo"
@@ -416,9 +414,17 @@ f_google_dorks() {
     "https://www.google.com/search?q=site:$DOMAIN+ext:log+%7C+ext:txt+%7C+ext:conf+%7C+ext:cnf+%7C+ext:ini+%7C+ext:env+%7C+ext:sh+%7C+ext:bak+%7C+ext:backup+%7C+ext:swp+%7C+ext:old+%7C+ext:~+%7C+ext:git+%7C+ext:svn+%7C+ext:htpasswd+%7C+ext:htaccess+%7C+ext:json"
     )
 
+    count=0
+    total=${#GOOGLE_URLS[@]}
+
+    echo
+    echo "[*] Be patient while searches are performed."
+
+    # A running Firefox rejects --user-agent and the tab never opens.
     for url in "${GOOGLE_URLS[@]}"; do
-        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
-        MOZ_DISABLE_ATK_BRIDGE=1 GTK_A11Y=none firefox "$url" --user-agent="$USER_AGENT" >/dev/null 2>&1 &
+        count=$((count + 1))
+        echo "    ($count/$total)"
+        firefox "$url" >/dev/null 2>&1 &
         sleep $((RANDOM % 8 + 8))
     done
 }
@@ -607,10 +613,6 @@ f_domain_menu(){
         exit 2
         ;;
     4)  f_runlocally
-
-        if ! f_firefox_check; then
-            exit 1
-        fi
 
         clear
         f_banner
