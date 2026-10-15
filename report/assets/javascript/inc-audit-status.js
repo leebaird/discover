@@ -52,10 +52,21 @@
         }
         var scheme = anchor.getAttribute("data-discover-scheme") || "";
         var artifact = anchor.getAttribute("data-discover-artifact") || "";
-        if (!scheme || !artifact) {
+        // Literal prefixes only. The attribute value is not copied into the URL.
+        var prefix = "";
+        if (scheme === "discover-robots") {
+            prefix = "discover-robots:";
+        } else if (scheme === "discover-ffuf") {
+            prefix = "discover-ffuf:";
+        } else if (scheme === "discover-ferox") {
+            prefix = "discover-ferox:";
+        } else if (scheme === "discover-nmap-web") {
+            prefix = "discover-nmap-web:";
+        }
+        if (!prefix || !artifact) {
             return;
         }
         ev.preventDefault();
-        window.location.href = scheme + ":" + encodeURI(artifact);
+        window.location.href = prefix + encodeURI(artifact);
     });
 })();
