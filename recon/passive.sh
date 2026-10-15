@@ -257,6 +257,7 @@ f_dnstwist() {
     $6 == "" || $6 == "!ServFail" { next }
     {
         ip = ($3 != "" && $3 != "!ServFail") ? $3 : ""
+        if (ip == "") next
         ns = $6
         mx = ($5 != "" && $5 != "!ServFail") ? $5 : ""
         if (tolower(mx) == "localhost" || tolower(mx) == "localhost.") mx = ""
@@ -1296,9 +1297,6 @@ def parse_row(raw):
             mx = ipaddr
         ipaddr = ""
 
-    if not domain:
-        return None
-
     def strip_role_prefix(value):
         text = value.strip()
         upper = text.upper()
@@ -1312,7 +1310,11 @@ def parse_row(raw):
             return ""
         return text
 
-    return fuzzer, domain, strip_role_prefix(ipaddr), strip_role_prefix(ns), usable_mx(mx)
+    ipaddr = strip_role_prefix(ipaddr)
+    if not domain or not ipaddr:
+        return None
+
+    return fuzzer, domain, ipaddr, strip_role_prefix(ns), usable_mx(mx)
 
 
 def format_fuzzer(value):
