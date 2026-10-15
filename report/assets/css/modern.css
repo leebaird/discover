@@ -97,10 +97,22 @@ body.inc-home-page {
     box-shadow: none;
 }
 
-/* Whois — shrink frame to column-aligned pre width */
+/* Whois — title bar and body share one width, so a short body is not narrower than the title. */
+.inc-whois-page.container.inc-container-dynamic {
+    display: grid;
+    grid-template-columns: max-content;
+    justify-content: center;
+}
+
+.inc-whois-page .inc-content-frame--fit {
+    width: auto;
+}
+
 .inc-whois-page .inc-content-frame--fit .inc-pre {
-    width: max-content;
+    width: auto;
+    min-width: 100%;
     max-width: 100%;
+    box-sizing: border-box;
     white-space: pre;
     overflow-x: auto;
     word-break: normal;
