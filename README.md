@@ -135,7 +135,7 @@ Uses Amass, ARIN, DNSRecon, dnstwist, Metasploit, subfinder, Shodan CTL (free CT
 
 * Acquire free API keys for maximum results with theHarvester (`$HOME/.theHarvester/api-keys.yaml`).
 * Passive builds an HTML report at `$HOME/data/<domain>/`.
-* Find registered domains updates `pages/registered-domains.htm` in an existing report.
+* Find registered domains updates `pages/registered-domains.htm` in an existing report. A domain with no registration email is left off the page.
 * HTML **Reports** menu: **Passive**, **Active**, and **Audit**.
 * Names: US public companies pull DEF 14A / Form 4 from SEC EDGAR.
 * Summary: HQ from 10-K then website footer (`tools/company-manual.tsv` override); social profile links when found.

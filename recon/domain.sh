@@ -98,7 +98,7 @@ with open(results_path, newline="") as handle:
         if len(row) < 2:
             continue
         domain, email = row[0].strip(), row[1].strip() if len(row) > 1 else ""
-        if domain.lower() == "domain" or not domain:
+        if domain.lower() == "domain" or not domain or not email:
             continue
         lines.append(
             "                <tr>"
