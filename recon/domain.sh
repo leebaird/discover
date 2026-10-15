@@ -430,9 +430,7 @@ f_google_dorks() {
 }
 
 f_web_search() {
-    local USER_AGENTS OTHER_URLS url USER_AGENT
-
-    f_firefox_user_agents
+    local OTHER_URLS url count total
 
     OTHER_URLS=(
     "https://dnsdumpster.com"
@@ -444,10 +442,26 @@ f_web_search() {
     "https://viewdns.info"
     )
 
+    count=0
+    total=${#OTHER_URLS[@]}
+
+    echo
+    echo "[*] Be patient while searches are performed."
+
+    # A running Firefox rejects --user-agent and the tab never opens.
+    # The last tab stays in the foreground so this terminal can raise Firefox.
     for url in "${OTHER_URLS[@]}"; do
-        USER_AGENT="${USER_AGENTS[$((RANDOM % ${#USER_AGENTS[@]}))]}"
-        firefox "$url" --user-agent="$USER_AGENT" 2>/dev/null &
-        sleep $((RANDOM % 4 + 3))
+        count=$((count + 1))
+        echo "    ($count/$total)"
+
+        if [ "$count" -eq "$total" ] && f_firefox_running; then
+            firefox "$url" >/dev/null 2>&1
+            sleep 1
+        else
+            firefox "$url" >/dev/null 2>&1 &
+            sleep $((RANDOM % 4 + 3))
+        fi
+
     done
 }
 
@@ -624,10 +638,6 @@ f_domain_menu(){
         exit 2
         ;;
     5)  f_runlocally
-
-        if ! f_firefox_check; then
-            exit 1
-        fi
 
         clear
         f_banner
