@@ -993,7 +993,6 @@
                 });
         });
 
-        // Hostname labels: kibana.oke-011… or uatapi.iis.cgi.com (not only the first label)
         if (host) {
             var labels = host.split(".");
             var li;

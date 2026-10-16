@@ -1755,7 +1755,7 @@ def is_rnas_access_gateway(host: str, tech: dict | None) -> bool:
     h = (host or "").lower().strip()
     if not h:
         return False
-    # rnas-mtl.ua.cgi.com, rnas.example.com, foo.rnas.bar
+    # rnas-mtl.ua.example.com, rnas.example.com, foo.rnas.bar
     if h.startswith("rnas-") or h.startswith("rnas.") or ".rnas." in h:
         return True
     return False
