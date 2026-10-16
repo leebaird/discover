@@ -168,6 +168,12 @@ def title_case_name(last_first):
         name = last_first
     return " ".join(word[:1].upper() + word[1:].lower() if word else "" for word in name.split())
 
+def strip_leading_nanp(phone):
+    phone = phone.strip()
+    if phone.startswith("+1-"):
+        return phone[3:]
+    return phone
+
 def pick_office_phone(block):
     phones = []
     for line in block.splitlines():
@@ -175,9 +181,10 @@ def pick_office_phone(block):
             continue
         value = line.split(":", 1)[1].strip()
         if "(Office)" in value:
-            return re.sub(r"\s*\(Office\)\s*$", "", value).strip()
+            value = re.sub(r"\s*\(Office\)\s*$", "", value).strip()
+            return strip_leading_nanp(value)
         phones.append(re.sub(r"\s*\([^)]+\)\s*$", "", value).strip())
-    return phones[0] if phones else ""
+    return strip_leading_nanp(phones[0]) if phones else ""
 
 rows = []
 plain_names = []
@@ -762,6 +769,12 @@ def normalize_whitespace(value):
     return " ".join(value.split()).strip()
 
 
+def strip_leading_nanp(phone):
+    if phone.startswith("+1-"):
+        return phone[3:]
+    return phone
+
+
 def normalize_name(name):
     name = normalize_whitespace(name)
     for pattern, replacement in NAME_MC_RE:
@@ -792,7 +805,7 @@ def upsert(store, name, title="", phone=""):
     key = merge_key(name)
     row = store.setdefault(key, {"name": name, "title": "", "phone": ""})
     title = normalize_whitespace(title)
-    phone = normalize_whitespace(phone)
+    phone = strip_leading_nanp(normalize_whitespace(phone))
     if title and (not row["title"] or len(title) > len(row["title"])):
         row["title"] = title
     if phone and not row["phone"]:
