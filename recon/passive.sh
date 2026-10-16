@@ -939,7 +939,32 @@ PY
         fi
     done < hosts
 
-    cat z* | grep -Eiv '(•|@|\+|;|::|,|>|//|\b1\.1\.1\.1\b|\b127\.0\.0\.53\b|failed to|no response|www)' | sed '/^[0-9]\|^\.\|^-/d' | sed '/\.$/d' | grep '\.' | sed 's/:/ /g' | column -t | tr '[:upper:]' '[:lower:]' | sort -u | awk '$2 ~ /[a-z]/ {next} NF==1{if(a) print l; a=$1; l=$0; next} $1==a{print; a=""; next} a{print l; a=""} 1; END{if(a) print l}' | sed 's/[ \t]*$//' > tmp
+    cat z* | grep -Eiv '(•|@|\+|;|::|,|>|//|\b1\.1\.1\.1\b|\b127\.0\.0\.53\b|failed to|no response|www)' | sed '/^[0-9]\|^\.\|^-/d' | sed '/\.$/d' | grep '\.' | sed 's/:/ /g' | column -t | tr '[:upper:]' '[:lower:]' | sort -u | awk '
+        function is_ip(value) {
+            return value ~ /^([0-9]{1,3}\.){3}[0-9]{1,3}$/
+        }
+        $2 ~ /[a-z]/ { next }
+        {
+            host = $1
+            if (!(host in seen)) {
+                seen[host] = ++count
+                order[count] = host
+            }
+            if (NF >= 2 && is_ip($2) && !(host in addr)) {
+                addr[host] = $2
+            }
+        }
+        END {
+            for (i = 1; i <= count; i++) {
+                host = order[i]
+                if (host in addr) {
+                    print host, addr[host]
+                } else {
+                    print host
+                }
+            }
+        }
+    ' | sed 's/[ \t]*$//' > tmp
 
     echo -e "${BLUE}[*] Resolving subdomains with no IPs using dig.${NC}"
 
