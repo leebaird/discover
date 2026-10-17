@@ -33,6 +33,7 @@ HOST_SCAN_TOOLS: list[tuple[str, str]] = [
     ("droopescan", "droopescan"),
     ("wpscan", "WPScan"),
     ("nikto", "Nikto"),
+    ("transom", "Transom"),
     ("feroxbuster", "feroxbuster"),
     ("ffuf", "ffuf"),
 ]
@@ -222,7 +223,7 @@ def _command_for_host_scan(
     tool = (tool or "").lower()
     if tool.startswith("nuclei pass"):
         tool = "nuclei"
-    if not host or tool not in {"ffuf", "feroxbuster", "nikto", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
+    if not host or tool not in {"ffuf", "feroxbuster", "nikto", "transom", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
         return ""
 
     base = report_root / "tools" / "host-scans" / host / tool
@@ -318,7 +319,7 @@ def _duration_for_finished_scan(
     tool = (tool or "").lower()
     if tool.startswith("nuclei pass"):
         tool = "nuclei"
-    if not host or tool not in {"ffuf", "feroxbuster", "nikto", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
+    if not host or tool not in {"ffuf", "feroxbuster", "nikto", "transom", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
         return ""
 
     audit_ts = (audit_ts or "").strip()
@@ -382,7 +383,7 @@ def _display_audit_action(
 
     m = re.match(
         r"(?i)^(started|finished)\s+"
-        r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|nmap|feroxbuster|ffuf|nikto)\b",
+        r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|nmap|feroxbuster|ffuf|nikto|transom)\b",
         text,
     )
     if m:
@@ -440,7 +441,7 @@ def _is_finished_host_scan_action(action: str) -> bool:
     return bool(
         re.match(
             r"(?i)^finished\s+"
-            r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|nmap|feroxbuster|ffuf|nikto)\b",
+            r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|nmap|feroxbuster|ffuf|nikto|transom)\b",
             text,
         )
     )
@@ -786,7 +787,7 @@ def omit_missing_page_nav(html: str, report_root: Path) -> str:
 # Audit log Action → host-scan tool / pass-2 / URL (for Output column links).
 _AUDIT_SCAN_ACTION_RE = re.compile(
     r"(?i)\b(?P<verb>started|finished)\s+"
-    r"(?P<tool>nuclei\s+pass-2|droopescan|wpscan|robots|nmap|feroxbuster|ffuf|nikto|nuclei)\b"
+    r"(?P<tool>nuclei\s+pass-2|droopescan|wpscan|robots|nmap|feroxbuster|ffuf|nikto|transom|nuclei)\b"
     r".*?\bon\s+(?P<url>https?://[^\s)(]+)"
 )
 
@@ -979,7 +980,7 @@ def audit_output_cell(
 
     is_pass2 = tool_raw.startswith("nuclei pass-2") or tool_raw == "nuclei pass-2"
     tool = "nuclei" if is_pass2 or tool_raw == "nuclei" else tool_raw
-    if tool not in {"ffuf", "feroxbuster", "nikto", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
+    if tool not in {"ffuf", "feroxbuster", "nikto", "transom", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
         return '<span class="inc-audit-muted">—</span>'
 
     meta = (scan_index.get(host) or {}).get(tool) or {}
@@ -1029,8 +1030,9 @@ def audit_output_cell(
                 f'<a class="inc-audit-btn" href="{html.escape(href, quote=True)}" '
                 f'target="_blank" rel="noopener">txt</a>'
             )
-            if tool == "nikto":
-                htm_rel = str(Path(output).with_name("nikto.htm")).replace("\\", "/")
+            htm_name = "nikto.htm" if tool == "nikto" else "transom.htm" if tool == "transom" else ""
+            if htm_name:
+                htm_rel = str(Path(output).with_name(htm_name)).replace("\\", "/")
                 htm_disk = report_root / htm_rel.lstrip("/")
                 if htm_disk.is_file():
                     links.append(
@@ -1077,11 +1079,12 @@ def tool_cell(
             f'<a class="inc-audit-btn" href="{html.escape(rel, quote=True)}" '
             f'target="_blank" rel="noopener">txt</a>'
         )
-        # Nikto HTML report lives next to output.txt as nikto.htm
-        if tool == "nikto":
-            htm_rel_root = str(Path(str(output)).with_name("nikto.htm")).replace("\\", "/")
+        # Nikto / Transom HTML report lives next to output.txt.
+        htm_name = "nikto.htm" if tool == "nikto" else "transom.htm" if tool == "transom" else ""
+        if htm_name:
+            htm_rel_root = str(Path(str(output)).with_name(htm_name)).replace("\\", "/")
             htm_disk = (
-                (report_root / str(output).lstrip("/")).with_name("nikto.htm")
+                (report_root / str(output).lstrip("/")).with_name(htm_name)
                 if report_root is not None
                 else None
             )
@@ -1331,7 +1334,7 @@ def compute_metrics(
             continue
         verb = m.group("verb").lower()
         tool = _normalize_scan_tool(m.group("tool"))
-        if tool not in {"nuclei", "nikto", "ffuf", "feroxbuster", "droopescan", "wpscan", "robots", "nmap"}:
+        if tool not in {"nuclei", "nikto", "transom", "ffuf", "feroxbuster", "droopescan", "wpscan", "robots", "nmap"}:
             continue
         host = _hostname_from_url(m.group("url").rstrip(".,;"))
         if not host:

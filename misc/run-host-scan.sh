@@ -7,7 +7,7 @@
 # Invoked via discover-scan: scheme or CLI:
 #   run-host-scan.sh <tool> <url> [software] [report_root] [ports]
 #
-# Tools: robots | nmap | nuclei | droopescan | wpscan | nikto | feroxbuster | ffuf
+# Tools: robots | nmap | nuclei | droopescan | wpscan | nikto | transom | feroxbuster | ffuf
 # - nmap: TCP-only: -Pn -n --open -sTV -p <ports> <host> (no sudo)
 #         UDP (Shodan transport, or UDP= fallback; port 53 always TCP+UDP):
 #         sudo nmap --privileged -Pn -n --open -sTV -sUV -p T:...,U:... <host>
@@ -98,7 +98,7 @@ f_die(){
     exit 1
 }
 
-[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|feroxbuster|droopescan|wpscan|robots|nmap)$ ]] || f_die "Tool must be nuclei, droopescan, wpscan, robots, nmap, nikto, ffuf, or feroxbuster."
+[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|feroxbuster|droopescan|wpscan|robots|nmap|transom)$ ]] || f_die "Tool must be nuclei, droopescan, wpscan, robots, nmap, nikto, transom, ffuf, or feroxbuster."
 [ -n "$URL" ] || f_die "URL is required."
 
 # Resolve report root
@@ -963,6 +963,12 @@ if [ "$TOOL" = "nikto" ]; then
         && ! command -v nikto >/dev/null 2>&1; then
         f_die "Nikto is not installed. Run Discover Update (GitHub sullo/nikto → /opt/nikto)."
     fi
+elif [ "$TOOL" = "transom" ]; then
+    # Git clone under /opt/transom, linked at /usr/local/bin/transom (see update.sh).
+    if [ ! -x /opt/transom/transom ] && [ ! -x /usr/local/bin/transom ] \
+        && ! command -v transom >/dev/null 2>&1; then
+        f_die "Transom is not installed. Run Discover Update (git clone → /opt/transom)."
+    fi
 elif [ "$TOOL" = "robots" ]; then
     command -v curl >/dev/null 2>&1 || f_die "curl is not installed (required for robots)."
 elif [ "$TOOL" = "feroxbuster" ]; then
@@ -1057,6 +1063,22 @@ f_nikto_bin(){
     fi
 
     command -v nikto 2>/dev/null || true
+}
+
+# Resolve Transom binary (update.sh → /opt/transom/transom, linked in /usr/local/bin).
+f_transom_bin(){
+
+    if [ -x /opt/transom/transom ]; then
+        echo /opt/transom/transom
+        return 0
+    fi
+
+    if [ -x /usr/local/bin/transom ]; then
+        echo /usr/local/bin/transom
+        return 0
+    fi
+
+    command -v transom 2>/dev/null || true
 }
 
 # Per-run config: non-interactive, no telemetry/RFI, HTTP/1.1 + GET discovery.
@@ -1572,7 +1594,7 @@ if [ "$TOOL" = "nmap" ]; then
     else
         echo " Ports:    ${NMAP_TCP:-${PORTS:--}}"
     fi
-elif [ "$TOOL" != "robots" ] && [ "$TOOL" != "nikto" ]; then
+elif [ "$TOOL" != "robots" ] && [ "$TOOL" != "nikto" ] && [ "$TOOL" != "transom" ]; then
     echo " Software: ${SOFTWARE:--}"
 fi
 
@@ -1619,7 +1641,7 @@ if [ "$PRECHECK_RC" -ne 0 ]; then
 
         echo "Target:  $URL"
 
-        if [ "$TOOL" != "robots" ] && [ "$TOOL" != "nikto" ]; then
+        if [ "$TOOL" != "robots" ] && [ "$TOOL" != "nikto" ] && [ "$TOOL" != "transom" ]; then
             echo "Software: ${SOFTWARE:--}"
         fi
 
@@ -1735,6 +1757,77 @@ case "$TOOL" in
             if [ -f "$NIKTO_HTM" ]; then
                 echo "" >> "$OUT_FILE"
                 echo "HTML report: $NIKTO_HTM" >> "$OUT_FILE"
+            fi
+        fi
+
+        ;;
+    transom)
+        # Git clone under /opt/transom. A full URL scans that origin only.
+        # Per-request --timeout 10s; hard wall 11m. HTML report is transom.htm.
+        # Transom catches SIGTERM and exits 2 after writing the report, so a
+        # wall-clock stop is exit 2 when transom.htm exists (timeout's 124
+        # only if the process is killed outright).
+        TRANSOM_BIN=$(f_transom_bin)
+
+        if [ -z "$TRANSOM_BIN" ]; then
+            {
+                echo "[!] Transom not found. Run Discover Update (git clone → /opt/transom)."
+            } | tee -a "$OUT_FILE"
+            EXIT_CODE=1
+        else
+            TRANSOM_HTM="$RUN_DIR/transom.htm"
+            TRANSOM_REQ_TIMEOUT="10s"
+            TRANSOM_HARD_TIMEOUT="11m"
+            TRANSOM_CMD=(
+                "$TRANSOM_BIN"
+                --timeout "$TRANSOM_REQ_TIMEOUT"
+                --user-agent "$UA"
+                -o "$TRANSOM_HTM"
+                "$URL"
+            )
+
+            f_write_run_header "$(f_clean_cmd TRANSOM_CMD)"
+            f_op_notes "$URL" "$(f_clean_cmd TRANSOM_CMD)"
+            {
+                echo "[*] Request timeout ${TRANSOM_REQ_TIMEOUT}; hard stop ${TRANSOM_HARD_TIMEOUT}."
+                echo "    Full URL scans this origin only."
+                echo
+            } | tee -a "$OUT_FILE"
+
+            set +e
+
+            if command -v timeout >/dev/null 2>&1; then
+                timeout --foreground --signal=TERM --kill-after=45s "$TRANSOM_HARD_TIMEOUT" \
+                    "${TRANSOM_CMD[@]}" \
+                    2>&1 | tee -a "$OUT_FILE"
+                EXIT_CODE=${PIPESTATUS[0]}
+            else
+                "${TRANSOM_CMD[@]}" \
+                    2>&1 | tee -a "$OUT_FILE"
+                EXIT_CODE=${PIPESTATUS[0]}
+            fi
+
+            set -e
+
+            if [ "${EXIT_CODE:-0}" -eq 124 ]; then
+                {
+                    echo
+                    echo "[*] Discover hard stop: transom exceeded ${TRANSOM_HARD_TIMEOUT} wall clock."
+                    echo "    Scan stopped automatically - no operator input required."
+                } | tee -a "$OUT_FILE"
+                EXIT_CODE=0
+            elif [ "${EXIT_CODE:-0}" -eq 2 ] && [ -f "$TRANSOM_HTM" ]; then
+                {
+                    echo
+                    echo "[*] Discover hard stop: transom stopped and wrote the HTML report."
+                    echo "    Scan stopped automatically - no operator input required."
+                } | tee -a "$OUT_FILE"
+                EXIT_CODE=0
+            fi
+
+            if [ -f "$TRANSOM_HTM" ]; then
+                echo "" >> "$OUT_FILE"
+                echo "HTML report: $TRANSOM_HTM" >> "$OUT_FILE"
             fi
         fi
 

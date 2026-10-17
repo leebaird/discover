@@ -10,7 +10,7 @@
  * On the Discover host (browser not Windows), WEB still opens Firefox.
  * Elsewhere WEB opens web.htm. A client package reads tools/host-scans/status.js.
  * Software: ?software= query wins, else fingerprint row tech/title/webserver/host.
- * nuclei is shown only when a product is known; robots/nikto/feroxbuster/ffuf always on expand.
+ * nuclei is shown only when a product is known; robots/nikto/transom/feroxbuster/ffuf always on expand.
  * nmap after robots when the row IP has Shodan ports, or the row URL is http/https (80/443).
  * droopescan / wpscan gate on CMS software (query or fingerprint).
  * Tool boxes: Unicode info button opens a short modal (what / when / Run / outputs).
@@ -266,6 +266,35 @@
                     h: "Outputs",
                     p:
                         "TXT after every attempt. HTM only when Nikto actually ran and wrote a report (not on Unreachable)."
+                }
+            ]
+        },
+        transom: {
+            title: "transom",
+            sections: [
+                {
+                    h: "What it does",
+                    p:
+                        "Web server scanner for headers, cookies, TLS, and common paths. It does not send exploit payloads. A full URL scans only that origin."
+                },
+                {
+                    h: "When shown",
+                    p: "Always on expand (after nikto)."
+                },
+                {
+                    h: "What Run does",
+                    p:
+                        "Runs transom against the row URL with a 10s request timeout and an 11m hard stop. The report is HTML."
+                },
+                {
+                    h: "Safety check",
+                    p:
+                        "Before transom starts, Discover runs a curl HTTP/1.1 GET (15s). If the host does not answer HTTP, transom is not launched. The box shows Unreachable and only the txt note (no HTM)."
+                },
+                {
+                    h: "Outputs",
+                    p:
+                        "TXT after every attempt. HTM only when transom actually ran and wrote a report (not on Unreachable)."
                 }
             ]
         },
@@ -626,6 +655,15 @@
                 shellQuote(ua) +
                 " -nointeractive -nocheck -timeout 5 -maxtime 10m" +
                 " -Format htm -output <run-dir>/nikto.htm"
+            );
+        }
+        if (tool === "transom") {
+            return (
+                "timeout --foreground --signal=TERM --kill-after=45s 11m transom" +
+                " --timeout 10s --user-agent " +
+                shellQuote(ua) +
+                " -o <run-dir>/transom.htm " +
+                shellQuote(u)
             );
         }
         if (tool === "ffuf") {
@@ -1176,7 +1214,7 @@
     /**
      * Tools for this expand panel.
      * nuclei only when a product is known (filter or fingerprint).
-     * robots/nikto/ffuf/feroxbuster always; nmap when Shodan has ports or the row is http/https;
+     * robots/nikto/transom/ffuf/feroxbuster always; nmap when Shodan has ports or the row is http/https;
      * CMS tools when matched.
      * Order: robots, nmap (if Shodan ports), nuclei (if product), CMS, then louder tools.
      */
@@ -1271,7 +1309,7 @@
         if (isWordpress(software)) {
             tools.push("wpscan");
         }
-        tools.push("nikto", "feroxbuster", "ffuf");
+        tools.push("nikto", "transom", "feroxbuster", "ffuf");
         return tools;
     }
 
@@ -1505,7 +1543,7 @@
     /**
      * Build green output buttons.
      * robots: txt → robots.txt body; web → Firefox Disallow tabs.
-     * nikto: txt + htm when report exists.
+     * nikto / transom: txt + htm when the scan ran (not on Unreachable).
      * ffuf / feroxbuster: txt + web when there is at least one finding URL.
      */
     function findingUrlCount(st) {
@@ -1554,9 +1592,13 @@
             '" target="_blank" rel="noopener">txt</a>';
         // Nikto HTML report is only written when Nikto actually ran — not on
         // reachability skip (host_unreachable).
-        if (tool === "nikto" && st.skip_reason !== "host_unreachable") {
-            // nikto.htm lives next to output.txt in the run directory
-            var htmRel = String(rel).replace(/[^/]+$/, "nikto.htm");
+        if (
+            (tool === "nikto" || tool === "transom") &&
+            st.skip_reason !== "host_unreachable"
+        ) {
+            // nikto.htm / transom.htm live next to output.txt in the run directory
+            var htmName = tool === "transom" ? "transom.htm" : "nikto.htm";
+            var htmRel = String(rel).replace(/[^/]+$/, htmName);
             html +=
                 '<a class="inc-host-scan-out" href="' +
                 htmRel.replace(/"/g, "&quot;") +

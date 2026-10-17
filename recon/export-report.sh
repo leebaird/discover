@@ -523,6 +523,7 @@ if [ "$EXPORT_KIND" = "client" ]; then
             ! -name 'output.txt' \
             ! -name 'robots.txt' \
             ! -name 'nikto.htm' \
+            ! -name 'transom.htm' \
             ! -name 'web.htm' \
             ! -name 'status.js' \
             -delete
