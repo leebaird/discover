@@ -1480,6 +1480,53 @@ if ! command -v vncviewer >/dev/null 2>&1 && ! command -v xtigervncviewer >/dev/
     echo
 fi
 
+# Transom — web server scanner. Alphabetical: after TigerVNC, before trivy.
+# https://github.com/leebaird/transom
+f_transom_build() {
+    local go_bin src=/opt/transom
+
+    go_bin=$(f_go_bin) || return 1
+
+    if [ -d "$src/.git" ]; then
+        git -C "$src" pull --ff-only --quiet || return 1
+    else
+        git clone --depth 1 https://github.com/leebaird/transom.git "$src" || return 1
+    fi
+
+    if ! (
+        cd "$src" || exit 1
+        GO111MODULE=on "$go_bin" build -o "$src/transom" ./cmd/transom
+    ); then
+        echo "Transom build failed."
+        return 1
+    fi
+
+    ln -sf "$src/transom" /usr/local/bin/transom
+}
+
+if [ -x /opt/transom/transom ] || [ -d /opt/transom/.git ]; then
+    echo -e "${BLUE}Updating transom.${NC}"
+    transom_before=$(sha256sum /opt/transom/transom 2>/dev/null | awk '{print $1}')
+
+    if f_transom_build; then
+        transom_after=$(sha256sum /opt/transom/transom 2>/dev/null | awk '{print $1}')
+
+        if [ -n "$transom_before" ] && [ "$transom_before" = "$transom_after" ]; then
+            echo "Already up to date."
+        else
+            echo "Updated."
+        fi
+    fi
+
+    echo
+elif [ -n "$(f_go_bin)" ]; then
+    echo -e "${YELLOW}Installing transom.${NC}"
+    f_transom_build
+    echo
+fi
+
+unset -f f_transom_build
+
 if ! command -v trivy &> /dev/null; then
     echo -e "${YELLOW}Installing trivy.${NC}"
 

@@ -460,6 +460,7 @@ Gotchas:
 
 * **nuclei-templates** — git clone + `git pull --ff-only` (not `nuclei -ut`).
 * **gowitness** — clone/build under `/opt/gowitness` (not `go install @latest`; that module uses `replace`).
+* **transom** — git clone and build under `/opt/transom` (Go 1.27 or newer). Linked as `/usr/local/bin/transom`.
 * **nikto** — git under `/opt/nikto` (not the stale apt 2.1.5 package).
 * **Metasploit** — snap refresh when snap is installed; otherwise apt. Snap MSF does not use `msfupdate`.
 
