@@ -413,26 +413,56 @@ PY
 f_intodns() {
     echo "intodns.com              ($COUNT/$TOTAL)"
     ((COUNT++))
-    wget -q http://www.intodns.com/"$DOMAIN" -O tmp
-    # shellcheck disable=SC2002
-    cat tmp | sed '1,32d; s/<table width="99%" cellspacing="1" class="tabular">/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/g; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<center><table width="85%" cellspacing="1" class="tabular"><\/center>/<table class="inc-dns-config table">/; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' | sed '/footer/I,+3 d; /google-analytics/I,+5 d' > tmp2
-    cat tmp2 >> "$HOME"/data/"$DOMAIN"/pages/config.htm
 
-    sed -i 's|/static/images/error.gif|\.\./assets/images/icons/fail.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    sed -i 's|/static/images/fail.gif|\.\./assets/images/icons/fail.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    sed -i 's|/static/images/info.gif|\.\./assets/images/icons/info.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    sed -i 's|/static/images/pass.gif|\.\./assets/images/icons/pass.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    sed -i 's|/static/images/warn.gif|\.\./assets/images/icons/warn.png|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    sed -i 's|\.\.\.\.|\.\.|g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    sed -i 's/<table border="4">/<table class="inc-dns-config table">/g; s/<table class="table table-bordered">/<table class="inc-dns-config table">/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    grep -q 'inc-dns-config' "$HOME"/data/"$DOMAIN"/pages/config.htm || \
-        sed -i '0,/<thead>/{s/<thead>/    <table class="inc-dns-config table">\n<thead>/}' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    sed -i '/Math\.random/I,+6 d' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    sed -i 's/I could use the nameservers/The nameservers/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
-    sed -i 's/below to performe/below can perform/g; s/ERROR: //g; s/FAIL: //g; s/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/Oh well, //g; s/This can be ok if you know what you are doing.//g; s/That is NOT OK//g; s/That is not so ok//g; s/The reverse (PTR) record://g; s/the same ip./the same IP./g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/use on having/use in having/g; s/You must be/Be/g; s/Your/The/g; s/your/the/g' "$HOME"/data/"$DOMAIN"/pages/config.htm
+    local page="$HOME/data/$DOMAIN/pages/config.htm"
+
+    if [ -n "${DISCOVER:-}" ] && [ -f "$DISCOVER/report/pages/config.htm" ]; then
+        cp "$DISCOVER/report/pages/config.htm" "$page"
+    fi
+
+    if ! wget -q http://www.intodns.com/"$DOMAIN" -O tmp; then
+        echo "[!] intoDNS did not return a page."
+        echo
+        rm -f tmp
+        return
+    fi
+
+    # Keep the results table. A fixed "delete the first 32 lines" used to land
+    # before that tag; intoDNS now puts <table> on that line, so the tag was dropped.
+    sed -n '/<table width="99%" cellspacing="1" class="tabular">/,/<\/table>/p' tmp \
+        | sed 's/<table width="99%" cellspacing="1" class="tabular">/<table class="inc-dns-config table">/; s/Test name/Test/g; s/ <a href="feedback\/?KeepThis=true&amp;TB_iframe=true&amp;height=300&amp;width=240" title="intoDNS feedback" class="thickbox feedback">send feedback<\/a>//g; s/ background-color: #ffffff;//; s/<td class="icon">/<td class="inc-table-cell-status">/g; s/<tr class="info">/<tr>/g' \
+        | grep -Eiv '(processed in|ua-2900375-1|urchintracker|script|work in progress)' \
+        | sed '/footer/I,+3 d; /google-analytics/I,+5 d; /id="banner[12]"/d' > tmp2
+
+    if ! grep -q '<table' tmp2; then
+        echo "[!] intoDNS did not return a results table."
+        echo
+        rm -f tmp tmp2
+        return
+    fi
+
+    cat tmp2 >> "$page"
+
+    sed -i 's|\.\./static/images/error.gif|../assets/images/icons/fail.png|g; s|/static/images/error.gif|../assets/images/icons/fail.png|g' "$page"
+    sed -i 's|\.\./static/images/fail.gif|../assets/images/icons/fail.png|g; s|/static/images/fail.gif|../assets/images/icons/fail.png|g' "$page"
+    sed -i 's|\.\./static/images/info.gif|../assets/images/icons/info.png|g; s|/static/images/info.gif|../assets/images/icons/info.png|g' "$page"
+    sed -i 's|\.\./static/images/pass.gif|../assets/images/icons/pass.png|g; s|/static/images/pass.gif|../assets/images/icons/pass.png|g' "$page"
+    sed -i 's|\.\./static/images/warn.gif|../assets/images/icons/warn.png|g; s|/static/images/warn.gif|../assets/images/icons/warn.png|g' "$page"
+    sed -i 's|\.\.\.\.|\.\.|g' "$page"
+    sed -i 's/<table border="4">/<table class="inc-dns-config table">/g; s/<table class="table table-bordered">/<table class="inc-dns-config table">/g' "$page"
+    grep -q 'inc-dns-config' "$page" || \
+        sed -i '0,/<thead>/{s/<thead>/    <table class="inc-dns-config table">\n<thead>/}' "$page"
+    sed -i 's/.*<\/table>.*/&\n<br>\n<br>/' "$page"
+    sed -i '/Math\.random/I,+6 d' "$page"
+    sed -i 's/I could use the nameservers/The nameservers/g' "$page"
+    sed -i 's/below to performe/below can perform/g; s/ERROR: //g; s/FAIL: //g; s/I did not detect/Unable to detect/g; s/I have not found/Unable to find/g; s/It may be that I am wrong but the chances of that are low.//g; s/Good.//g; s/Ok. //g; s/OK. //g; s/Oh well, //g; s/This can be ok if you know what you are doing.//g; s/That is NOT OK//g; s/That is not so ok//g; s/The reverse (PTR) record://g; s/the same ip./the same IP./g; s/The SOA record is://g; s/WARNING: //g; s/You have/There are/g; s/you have/there are/g; s/use on having/use in having/g; s/You must be/Be/g; s/Your/The/g; s/your/the/g' "$page"
+
+    if ! grep -q '</html>' "$page"; then
+        printf '\n</div>\n</body>\n</html>\n' >> "$page"
+    fi
+
     echo
-    rm tmp* 2>/dev/null
+    rm -f tmp tmp2
 }
 
 ###############################################################################################################################
