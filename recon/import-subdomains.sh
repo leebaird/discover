@@ -1329,16 +1329,26 @@ def load_rules(path):
             rules.append((category, pattern))
     return rules
 
+def _suffix_match(label, suffix):
+    if label.endswith(suffix):
+        return True
+    # almdev2 still matches a *dev suffix.
+    stem = label.rstrip("0123456789")
+    return bool(stem) and stem != label and stem.endswith(suffix)
+
 def label_matches(label, pattern):
     if pattern.startswith("*") and pattern.endswith("*") and len(pattern) > 2:
         return pattern[1:-1] in label
     if pattern.startswith("*"):
-        return label.endswith(pattern[1:])
+        return _suffix_match(label, pattern[1:])
     if pattern.endswith("*"):
         return label.startswith(pattern[:-1])
     if pattern.startswith("-"):
         return label.endswith(pattern)
-    return label == pattern
+    if label == pattern:
+        return True
+    # aj-dns-02 matches the exact pattern dns.
+    return pattern in label.split("-")
 
 def categorize_host(host, rules):
     host = host.strip().lower()

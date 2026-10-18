@@ -33,6 +33,8 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - **`old/` is not part of the Discover framework.** It holds personal/legacy scripts from earlier work that are unrelated to Discover’s recon/scan/report flow.
 - Do **not** put new Discover features, helpers, or data files under `old/`.
 - Live subdomain categorizer + rules live under **`recon/`** (`recon/subdomain-categorize.py`, `recon/subdomain-categories.tsv`). Do not reintroduce Discover paths that point at `old/`.
+- Exact patterns match a whole hostname label or one hyphen-separated piece of a label. `dns` matches `dns.example.com` and `aj-dns-02.example.com`. First match still wins, so Dev is checked before Infrastructure. The same matcher is inlined in `recon/import-subdomains.sh`.
+- A star suffix ignores trailing digits. `*dev` matches `almdev.example.com` and `almdev2.example.com`. `development.example.com` stays on the exact `development` rule. `device` and `devops` do not match.
 
 ## Operator name (audit log)
 

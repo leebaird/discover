@@ -1,8 +1,8 @@
 # Subdomain label patterns for category enrichment (Category<TAB>Pattern)
 # Pattern types (first match wins, any hostname label):
-#   exact       mail
+#   exact       dns         whole label, or one hyphen piece (aj-dns-02)
 #   prefix*     api-*       (api-v2)
-#   *suffix     *-api       (foo-api)
+#   *suffix     *dev        label end; trailing digits still match (almdev, almdev2)
 #   *contains*  *cloud*     (mycloud)
 #   -suffix     -admin      (portal-admin)
 #   host.label  admin.pilot (admin.pilot.example.com; dotted patterns match full hostname)
@@ -188,9 +188,11 @@ Dev	ws.pilot3.efrikort
 Dev	x2rqa.mdc
 Dev	yp-uat-myit
 Dev	*demo
+Dev	*dev
 Dev	*test
 Dev	beta
 Dev	demo
+Dev	demo1-*
 Dev	dev
 Dev	dev-*
 Dev	development
@@ -259,6 +261,7 @@ Email	mailb
 Email	owa
 Email	pop
 Email	smtp
+Email	smtp2
 Email	smtpgto
 Email	smtprelay
 Email	webmail
@@ -326,6 +329,7 @@ Service	ssoauth
 Service	supportportal
 Service	supportwebportal
 Service	syslog
+Service	ussyslog
 Service	transfer
 Service	video
 Service	webportal.edm
@@ -340,6 +344,7 @@ Vendor	cisco
 Vendor	citrix
 Vendor	concur
 Vendor	confluence
+Vendor	deltek
 Vendor	docker
 Vendor	elastic
 Vendor	geauxjobs
@@ -356,6 +361,7 @@ Vendor	nessus
 Vendor	netsparker
 Vendor	palantir
 Vendor	phishme
+Vendor	rsa
 Vendor	sailpoint
 Vendor	smartanalytix
 Vendor	smartimpact
