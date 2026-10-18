@@ -442,6 +442,7 @@
 
                 sortTable(table, col, state.dir, field, getTiebreakerCols(el));
                 updateHeaders(table, state.el, state.dir);
+                alignSubdomainTables();
             }
 
             el.addEventListener('click', function (event) {
@@ -458,5 +459,54 @@
         });
     }
 
+    function alignSubdomainTables() {
+        var wrap = document.querySelector('.inc-subdomains-tables');
+        var tables;
+        var top;
+        var bottom;
+        var topHead;
+        var bottomHead;
+        var widths;
+        var c;
+        var width;
+
+        if (!wrap) {
+            return;
+        }
+
+        tables = wrap.querySelectorAll('table.inc-data-table');
+        if (tables.length < 2) {
+            return;
+        }
+
+        top = tables[0];
+        bottom = tables[tables.length - 1];
+        topHead = top.tHead && top.tHead.rows[0];
+        bottomHead = bottom.tHead && bottom.tHead.rows[0];
+        if (!topHead || !bottomHead || topHead.cells.length !== bottomHead.cells.length) {
+            return;
+        }
+
+        top.classList.remove('inc-subdomains-matched');
+        top.style.width = '';
+        for (c = 0; c < topHead.cells.length; c++) {
+            topHead.cells[c].style.width = '';
+        }
+
+        widths = [];
+        for (c = 0; c < bottomHead.cells.length; c++) {
+            widths.push(bottomHead.cells[c].getBoundingClientRect().width);
+        }
+        width = bottom.getBoundingClientRect().width;
+
+        top.classList.add('inc-subdomains-matched');
+        top.style.width = width + 'px';
+        for (c = 0; c < topHead.cells.length; c++) {
+            topHead.cells[c].style.width = widths[c] + 'px';
+        }
+    }
+
     document.querySelectorAll('table.inc-data-table').forEach(initTable);
+    alignSubdomainTables();
+    window.addEventListener('resize', alignSubdomainTables);
 })();

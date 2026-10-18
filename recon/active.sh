@@ -658,10 +658,12 @@ photo_hosts = load_photo_hosts(gowitness_jsonl, screenshots_dir)
 out = []
 if private_rows:
     out.append('    <div class="inc-content-frame inc-content-frame--table">')
-    out.extend(build_private_table(private_rows, "No private subdomains found.", "Private IP Address"))
+    out.extend(build_private_table(private_rows, "No private subdomains found.", "IP Address"))
     out.append("    </div>")
 
 if public_rows or not private_rows:
+    if private_rows:
+        out.append("")
     out.append('    <div class="inc-content-frame inc-content-frame--table inc-subdomains-public">')
     if public_rows:
         out.extend(build_public_table(public_rows, photo_hosts, host_tech, "No data found."))
@@ -674,7 +676,7 @@ out.extend(
         "    </div>",
         "</div>",
         "",
-        '<script src="../assets/javascript/inc-data-table.js"></script>',
+        '<script src="../assets/javascript/inc-data-table.js?v=2"></script>',
         '<script src="../tools/cve-software-index.js"></script>',
         '<script src="../assets/javascript/inc-subdomains-filter.js?v=22"></script>',
         '<script src="../tools/shodan/index.js"></script>',

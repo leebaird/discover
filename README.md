@@ -164,7 +164,7 @@ bash recon/import-subdomains.sh --report /home/user/data/example.com \
 # optional CSV: --run-active
 ```
 
-CSV list skips hosts already in `tools/subdomains`. Empty IP then `dig`. Category: Discover rules first, else CSV. Never writes `recon/subdomain-categories.tsv`.
+CSV list skips hosts already in `tools/subdomains`. Empty IP then `dig`. A host addressed `1.1.1.1`, or one that resolves to `1.1.1.1`, is left out. Category: Discover rules first, else CSV. Never writes `recon/subdomain-categories.tsv`.
 
 ---
 

@@ -1535,10 +1535,12 @@ public_rows = [
 out = []
 if private_rows:
     out.append('    <div class="inc-content-frame inc-content-frame--table">')
-    out.extend(build_table(private_rows, "No private subdomains found.", "Private IP Address"))
+    out.extend(build_table(private_rows, "No private subdomains found.", "IP Address"))
     out.append("    </div>")
 
 if public_rows or not private_rows:
+    if private_rows:
+        out.append("")
     out.append('    <div class="inc-content-frame inc-content-frame--table">')
     if public_rows:
         out.extend(build_table(public_rows, "No data found."))
@@ -1554,7 +1556,7 @@ PY
         echo "    </div>"
         echo "</div>"
         echo
-        echo '<script src="../assets/javascript/inc-data-table.js"></script>'
+        echo '<script src="../assets/javascript/inc-data-table.js?v=2"></script>'
         echo "</body>"
         echo "</html>"
     } >> "$PAGE"

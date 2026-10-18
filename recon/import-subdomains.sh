@@ -505,10 +505,12 @@ public_rows = [
 out = []
 if private_rows:
     out.append('    <div class="inc-content-frame inc-content-frame--table">')
-    out.extend(build_table(private_rows, "No private subdomains found.", "Private IP Address"))
+    out.extend(build_table(private_rows, "No private subdomains found.", "IP Address"))
     out.append("    </div>")
 
 if public_rows or not private_rows:
+    if private_rows:
+        out.append("")
     out.append('    <div class="inc-content-frame inc-content-frame--table">')
     if public_rows:
         out.extend(build_table(public_rows, "No data found."))
@@ -521,7 +523,7 @@ out.extend(
         "    </div>",
         "</div>",
         "",
-        '<script src="../assets/javascript/inc-data-table.js"></script>',
+        '<script src="../assets/javascript/inc-data-table.js?v=2"></script>',
         '<script src="../assets/javascript/inc-subdomains-filter.js?v=22"></script>',
         "</body>",
         "</html>",
@@ -1225,6 +1227,7 @@ MISSING=$(awk -F '\t' 'NF < 2 || $2 == "" { count++ } END { print count + 0 }' "
 HAD_IP=$(awk -F '\t' 'NF >= 2 && $2 != "" { count++ } END { print count + 0 }' "$MERGED")
 DIG_RESOLVED=0
 DIG_FAILED=0
+CLOUDFLARE_OMITTED=0
 
 if [ "$MISSING" -gt 0 ]; then
     : > "$RESOLVED"
@@ -1239,7 +1242,11 @@ if [ "$MISSING" -gt 0 ]; then
         HOST="${HOST//$'\r'/}"
         IP="${IP//$'\r'/}"
 
-        if [ -z "$IP" ]; then
+        # A listed 1.1.1.1 is not a host address. Do not look up a replacement.
+        if [ "$IP" = "1.1.1.1" ]; then
+            CLOUDFLARE_OMITTED=$((CLOUDFLARE_OMITTED + 1))
+            IP=""
+        elif [ -z "$IP" ]; then
             CURRENT=$((CURRENT + 1))
 
             if [ "$SUBS_JSON" -eq 0 ]; then
@@ -1247,16 +1254,25 @@ if [ "$MISSING" -gt 0 ]; then
             fi
 
             # dig may return non-zero for NXDOMAIN — treat as empty IP, not script death.
-            IP=$(dig +timeout=2 +tries=1 +short "$HOST" 2>/dev/null | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -n 1 || true)
+            DIG_OUT=$(dig +timeout=2 +tries=1 +short "$HOST" 2>/dev/null || true)
 
-            if [ "$IP" = "1.1.1.1" ] || [ "$IP" = "127.0.0.53" ]; then
+            if printf '%s\n' "$DIG_OUT" | grep -Eq '\b1\.1\.1\.1\b'; then
+                CLOUDFLARE_OMITTED=$((CLOUDFLARE_OMITTED + 1))
                 IP=""
+            else
+                IP=$(printf '%s\n' "$DIG_OUT" | grep -Eo '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -n 1 || true)
+
+                if [ "$IP" = "127.0.0.53" ]; then
+                    IP=""
+                fi
             fi
 
             if [ -n "$IP" ]; then
                 DIG_RESOLVED=$((DIG_RESOLVED + 1))
             else
-                DIG_FAILED=$((DIG_FAILED + 1))
+                if ! printf '%s\n' "$DIG_OUT" | grep -Eq '\b1\.1\.1\.1\b'; then
+                    DIG_FAILED=$((DIG_FAILED + 1))
+                fi
             fi
         fi
 
@@ -1275,12 +1291,21 @@ else
     fi
 fi
 
+FILE_CF=$(awk -F '\t' '$2 == "1.1.1.1" { c++ } END { print c + 0 }' "$RESOLVED")
+CLOUDFLARE_OMITTED=$((CLOUDFLARE_OMITTED + FILE_CF))
+
+if [ "$FILE_CF" -gt 0 ]; then
+    awk -F '\t' 'NF < 2 || $2 != "1.1.1.1" { print }' "$RESOLVED" > "$RESOLVED.drop"
+    mv "$RESOLVED.drop" "$RESOLVED"
+fi
+
 FILTERED="$TMPDIR/subdomains-filtered.tsv"
 awk -F '\t' 'NF >= 2 && $2 != "" { print }' "$RESOLVED" > "$FILTERED"
 
 IMPORTED_COUNT=$(wc -l < "$MERGED" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 FINAL_COUNT=$(wc -l < "$FILTERED" | sed -e 's/^[ \t]*//' | cut -d ' ' -f1)
 OMITTED=$((IMPORTED_COUNT - FINAL_COUNT))
+WITHOUT_IPV4=$((OMITTED - CLOUDFLARE_OMITTED))
 
 if [ "$FINAL_COUNT" -eq 0 ]; then
     f_subdomains_die "No subdomains with resolvable IPs found."
@@ -1516,6 +1541,10 @@ fi
 
 SUMMARY="$FINAL_COUNT subdomains in report ($PRIVATE_COUNT private, $CATEGORIZED categorized); $PUBLIC_IP_COUNT public IPv4"
 
+if [ "$CLOUDFLARE_OMITTED" -gt 0 ]; then
+    SUMMARY="$SUMMARY; $CLOUDFLARE_OMITTED omitted (address 1.1.1.1)"
+fi
+
 # Offer Active on imported public hosts only (CSV list)
 ACTIVE_RAN=0
 
@@ -1536,8 +1565,12 @@ if [ "$IMPORT_MODE" = "team-csv" ] && [ "${BATCH_COUNT:-0}" -gt 0 ]; then
             echo "[*] dig: 0 lookups — all hosts already had IPv4 addresses."
         fi
 
-        if [ "$OMITTED" -gt 0 ]; then
-            echo "[*] $OMITTED host(s) without IPv4 were omitted from the report."
+        if [ "$CLOUDFLARE_OMITTED" -gt 0 ]; then
+            echo "[*] $CLOUDFLARE_OMITTED host(s) omitted (address 1.1.1.1)."
+        fi
+
+        if [ "$WITHOUT_IPV4" -gt 0 ]; then
+            echo "[*] $WITHOUT_IPV4 host(s) without IPv4 were omitted from the report."
         fi
 
         echo
@@ -1592,8 +1625,12 @@ if [ "$SUBS_QUIET" -eq 0 ] && { [ "$IMPORT_MODE" != "team-csv" ] || [ "${BATCH_C
         echo "[*] dig: 0 lookups — all hosts already had IPv4 addresses."
     fi
 
-    if [ "$OMITTED" -gt 0 ]; then
-        echo "[*] $OMITTED host(s) without IPv4 were omitted from the report."
+    if [ "$CLOUDFLARE_OMITTED" -gt 0 ]; then
+        echo "[*] $CLOUDFLARE_OMITTED host(s) omitted (address 1.1.1.1)."
+    fi
+
+    if [ "$WITHOUT_IPV4" -gt 0 ]; then
+        echo "[*] $WITHOUT_IPV4 host(s) without IPv4 were omitted from the report."
     fi
 
     echo

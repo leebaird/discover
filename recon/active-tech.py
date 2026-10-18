@@ -2580,7 +2580,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
             "                <tr>",
             '                    <th scope="col" class="inc-sortable">Subdomain</th>',
             '                    <th scope="col" class="inc-sortable">Category</th>',
-            '                    <th scope="col" class="inc-sortable">Private IP Address</th>',
+            '                    <th scope="col" class="inc-sortable">IP Address</th>',
             "                </tr>",
             "            </thead>",
             "            <tbody>",
@@ -2689,6 +2689,8 @@ def write_subdomains_active_page(report_dir: str) -> dict:
         out.extend(build_private_table(private_rows))
         out.append("    </div>")
     if public_rows or not private_rows:
+        if private_rows:
+            out.append("")
         out.append(
             '    <div class="inc-content-frame inc-content-frame--table inc-subdomains-public">'
         )
@@ -2704,7 +2706,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
             "    </div>",
             "</div>",
             "",
-            '<script src="../assets/javascript/inc-data-table.js"></script>',
+            '<script src="../assets/javascript/inc-data-table.js?v=2"></script>',
             '<script src="../tools/cve-software-index.js"></script>',
             '<script src="../assets/javascript/inc-subdomains-filter.js?v=22"></script>',
             '<script src="../tools/shodan/index.js"></script>',

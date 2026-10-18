@@ -290,6 +290,15 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     table-layout: auto;
 }
 
+.inc-subdomains-tables table.inc-subdomains-matched {
+    table-layout: fixed;
+}
+
+.inc-subdomains-tables table.inc-subdomains-matched > thead > tr > th,
+.inc-subdomains-tables table.inc-subdomains-matched > tbody > tr > td {
+    box-sizing: border-box;
+}
+
 .inc-subdomains-tables .inc-content-frame--table.inc-subdomains-public {
     width: 100%;
     max-width: 100%;
@@ -378,7 +387,7 @@ body.inc-subdomains-page .container.inc-container-dynamic {
 }
 
 .inc-subdomains-tables .inc-content-frame--table + .inc-content-frame--table {
-    margin-top: 32px;
+    margin-top: 56px;
 }
 
 .inc-subdomains-public .inc-data-table > thead > tr > th.inc-col-center,
