@@ -724,10 +724,6 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     margin-bottom: 0;
 }
 
-.inc-active-page .inc-active-section--technologies {
-    margin-top: calc(var(--space-lg) + 4px);
-}
-
 /*
  * CMS / Login pages / Technologies: frame width matched via JS (px).
  * Specificity must beat .inc-active-column .inc-data-table { width:auto }.
@@ -834,6 +830,12 @@ body.inc-subdomains-page .container.inc-container-dynamic {
     width: 1%;
     white-space: nowrap;
     vertical-align: top;
+}
+
+/* Technology names stay inside the Web Servers column width. */
+.inc-active-page .inc-active-column .inc-active-section--technologies .inc-content-frame--table table.inc-data-table > tbody > tr > td:first-child,
+.inc-active-page .inc-active-column .inc-active-section--technologies .inc-content-frame--table table.inc-data-table > tbody > tr > td:first-child a {
+    white-space: normal;
 }
 
 .inc-active-page .inc-data-table > thead > tr > th.inc-col-center,

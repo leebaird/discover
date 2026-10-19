@@ -183,6 +183,53 @@
         statusSection.style.marginTop = delta + 'px';
     }
 
+    /**
+     * Line up the Top Technologies table with Status Codes (else CMS).
+     * Web Servers is often shorter than Scope / Categories, so Technologies
+     * would otherwise start higher than those two tables.
+     */
+    function alignTechnologiesWithStatus() {
+        var techSection = document.querySelector('.inc-active-section--technologies');
+        var statusSection = document.querySelector('.inc-active-section--status');
+        var cmsSection = document.querySelector('.inc-active-section--cms');
+        var refSection = statusSection || cmsSection;
+        var techFrame;
+        var refFrame;
+        var prev;
+        var delta;
+        var room;
+
+        if (!techSection || !refSection) {
+            return;
+        }
+
+        techFrame = techSection.querySelector('.inc-content-frame--table');
+        refFrame = refSection.querySelector('.inc-content-frame--table');
+        if (!techFrame || !refFrame) {
+            return;
+        }
+
+        techSection.style.marginTop = '0px';
+        delta = refFrame.getBoundingClientRect().top - techFrame.getBoundingClientRect().top;
+        if (Math.abs(delta) < 0.5) {
+            techSection.style.marginTop = '';
+            return;
+        }
+
+        // Do not pull the table up through Top Web Servers.
+        if (delta < 0) {
+            prev = techSection.previousElementSibling;
+            if (prev) {
+                room = techSection.getBoundingClientRect().top - prev.getBoundingClientRect().bottom;
+                if (-delta > room) {
+                    delta = -room;
+                }
+            }
+        }
+
+        techSection.style.marginTop = Math.round(delta) + 'px';
+    }
+
     function runAlign() {
         pinActiveCountColumns();
         matchCmsWidthToCategory();
@@ -192,6 +239,7 @@
         // Re-pin after frame stretch so Count does not absorb free width.
         pinActiveCountColumns();
         alignStatusWithLegacy();
+        alignTechnologiesWithStatus();
     }
 
     function scheduleAlign() {
