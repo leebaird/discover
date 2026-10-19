@@ -40,6 +40,8 @@ NOISE_PLUGINS = {
     "title",
     "uncommonheaders",
     "via-proxy",
+    # httpx tags the IIS start page with this OS label. It is not a product.
+    "windows-server",
     "x-frame-options",
     "x-powered-by",
     "x-ua-compatible",
@@ -412,6 +414,8 @@ SUPPRESSED_PAGE_TITLES = {
     "it works!",
     "it works! apache httpd",
     "http status 404 - not found",
+    # Default IIS start page (iisstart.htm).
+    "iis windows server",
     "loading...",
     "not found",
     "object moved",
@@ -2713,7 +2717,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
             '<script src="../tools/shodan/kev-ids.js"></script>',
             '<script src="../assets/javascript/inc-shodan.js?v=19"></script>',
             '<script src="../assets/javascript/inc-subdomains-ports.js?v=12"></script>',
-            '<script src="../assets/javascript/inc-host-scan.js?v=77"></script>',
+            '<script src="../assets/javascript/inc-host-scan.js?v=78"></script>',
             "</body>",
             "</html>",
             "",

@@ -136,6 +136,109 @@ f_discover_load_env(){
     done
 }
 
+# One Google Sheet row when Active finishes. Empty URL is off. Failures print and do not abort.
+f_active_sheet_target(){
+    local index domain
+
+    index="$DISCOVER_REPORT/pages/index.htm"
+    domain=""
+
+    if [ -f "$index" ]; then
+        domain=$(python3 - "$index" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+text = Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
+match = re.search(
+    r'inc-home-meta-label">Domain</span>\s*<span class="value">([^<]*)</span>',
+    text,
+)
+print(match.group(1).strip() if match else "")
+PY
+)
+    fi
+
+    if [ -z "$domain" ]; then
+        domain=$(basename "$DISCOVER_REPORT")
+    fi
+
+    printf '%s\n' "$domain"
+}
+
+f_active_op_notes(){
+    local target="$1"
+    local command="$2"
+    local result="${3:-}"
+    local url_file sheets_url op ip script uv_bin ts
+
+    [ -n "$command" ] || return 0
+    [ -n "${DISCOVER_REPORT:-}" ] || return 0
+
+    url_file="$DISCOVER_REPORT/tools/op-notes-url"
+    [ -f "$url_file" ] || return 0
+
+    sheets_url=$(head -n 1 "$url_file" 2>/dev/null | tr -d '\r')
+    sheets_url="${sheets_url#"${sheets_url%%[![:space:]]*}"}"
+    sheets_url="${sheets_url%"${sheets_url##*[![:space:]]}"}"
+    sheets_url="${sheets_url#\"}"
+    sheets_url="${sheets_url%\"}"
+    sheets_url="${sheets_url#\'}"
+    sheets_url="${sheets_url%\'}"
+
+    [ -n "$sheets_url" ] || return 0
+
+    if [ ! -f "${HOME}/.discover/google-token.json" ]; then
+        printf '\033[0;31m[!] Google Sheet skipped: not authorized (Audit Config → Google Sheet).\033[0m\n' >&2
+        return 0
+    fi
+
+    if [ -z "${DISCOVER:-}" ]; then
+        DISCOVER="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    fi
+
+    script="$DISCOVER/misc/op_notes.py"
+    [ -f "$script" ] || return 0
+
+    uv_bin=""
+
+    if command -v uv >/dev/null 2>&1; then
+        uv_bin=$(command -v uv)
+    elif [ -x "${HOME}/.local/bin/uv" ]; then
+        uv_bin="${HOME}/.local/bin/uv"
+    fi
+
+    if [ -z "$uv_bin" ]; then
+        printf '\033[0;31m[!] Google Sheet skipped: uv is not installed.\033[0m\n' >&2
+        return 0
+    fi
+
+    if declare -F f_audit_operator_name >/dev/null 2>&1; then
+        op=$(f_audit_operator_name)
+    else
+        op=$(head -n 1 "${HOME}/.discover/operator-name" 2>/dev/null | tr -d '\r' | tr -cd "A-Za-z" | cut -c1-10)
+        [ -n "$op" ] || op=unknown
+    fi
+
+    if declare -F f_audit_egress_ip >/dev/null 2>&1; then
+        ip=$(f_audit_egress_ip)
+    else
+        ip=$(curl -4 -fsS --connect-timeout 5 --max-time 10 http://ifconfig.me 2>/dev/null | tr -d '[:space:]')
+        [ -n "$ip" ] || ip=unknown
+    fi
+
+    ts=$(date -u +"%m/%d/%Y - %H:%M Z")
+
+    if command -v timeout >/dev/null 2>&1; then
+        timeout --signal=TERM --kill-after=5s 40s \
+            "$uv_bin" run "$script" append "$sheets_url" "$ts" "$op" "$ip" "$target" "$command" "$result" \
+            || printf '\033[0;31m[!] Google Sheet entry failed: check token/URL.\033[0m\n' >&2
+    else
+        "$uv_bin" run "$script" append "$sheets_url" "$ts" "$op" "$ip" "$target" "$command" "$result" \
+            || printf '\033[0;31m[!] Google Sheet entry failed: check token/URL.\033[0m\n' >&2
+    fi
+}
+
 f_active_read_report(){
     # Allow caller (Import subdomains) to pre-set DISCOVER_REPORT.
     if [ -n "${DISCOVER_REPORT:-}" ] \
@@ -682,7 +785,7 @@ out.extend(
         '<script src="../tools/shodan/index.js"></script>',
         '<script src="../tools/shodan/kev-ids.js"></script>',
         '<script src="../assets/javascript/inc-shodan.js?v=19"></script>',
-        '<script src="../assets/javascript/inc-host-scan.js?v=77"></script>',
+        '<script src="../assets/javascript/inc-host-scan.js?v=78"></script>',
         "</body>",
         "</html>",
     ]
@@ -1335,6 +1438,16 @@ else
     [ -n "$ip" ] || ip=unknown
     printf '%s | %s | %s | Ran active recon.\n' "$ts" "$op" "$ip" >> "$DISCOVER_REPORT/tools/audit/log.txt" 2>/dev/null || true
 fi
+
+sheet_target=$(f_active_sheet_target)
+sheet_cmd="active recon"
+sheet_result="Probed ${TARGET_COUNT} hostnames; ${ALIVE_HOST_COUNT} with active probe data."
+
+if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
+    sheet_cmd="active recon on imported hosts"
+fi
+
+f_active_op_notes "$sheet_target" "$sheet_cmd" "$sheet_result"
 
 if [ -f "$DISCOVER/recon/audit-build.py" ]; then
     python3 "$DISCOVER/recon/audit-build.py" "$DISCOVER_REPORT" "$DISCOVER/report/pages/audit.htm" >/dev/null 2>&1 || true

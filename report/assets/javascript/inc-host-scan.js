@@ -279,7 +279,7 @@
                 },
                 {
                     h: "When shown",
-                    p: "Always on expand (after nikto)."
+                    p: "Always on expand."
                 },
                 {
                     h: "What Run does",
