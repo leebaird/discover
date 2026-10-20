@@ -1255,44 +1255,107 @@ f_nuclei_disable_auto_template_update(){
 
 }
 
+# Drop the operator's home checkout. A symlink is removed without following it.
+f_nuclei_remove_home_templates(){
+    local op_home home_tpl
+    op_home=$(f_operator_home)
+    [ -n "$op_home" ] || return 0
+    home_tpl="${op_home}/nuclei-templates"
+
+    if [ "$home_tpl" = "/opt/nuclei-templates" ]; then
+        return 0
+    fi
+
+    if [ -L "$home_tpl" ]; then
+        echo "Removing ${home_tpl}."
+        rm -f "$home_tpl"
+    elif [ -d "$home_tpl" ]; then
+        echo "Removing ${home_tpl}."
+        rm -rf "$home_tpl"
+    fi
+}
+
 f_nuclei_clone_templates(){
     local tpl_dir=$1 tmp="" new_dir="" bak=""
-    tmp=$(f_as_operator mktemp -d) || return 1
+    tmp=$(mktemp -d) || return 1
     new_dir="$tmp/nuclei-templates"
     bak="${tpl_dir}.bak.$$"
 
-    if ! f_as_operator git clone --depth 1 \
+    if ! git clone --depth 1 \
         https://github.com/projectdiscovery/nuclei-templates.git "$new_dir"; then
-        f_as_operator rm -rf "$tmp"
+        rm -rf "$tmp"
         return 1
     fi
 
     if [ -e "$tpl_dir" ]; then
-        if ! f_as_operator mv "$tpl_dir" "$bak"; then
-            f_as_operator rm -rf "$tmp"
+        if ! mv "$tpl_dir" "$bak"; then
+            rm -rf "$tmp"
             return 1
         fi
     fi
 
-    if ! f_as_operator mv "$new_dir" "$tpl_dir"; then
+    if ! mv "$new_dir" "$tpl_dir"; then
         if [ -e "$bak" ]; then
-            f_as_operator mv "$bak" "$tpl_dir" 2>/dev/null || true
+            mv "$bak" "$tpl_dir" 2>/dev/null || true
         fi
 
-        f_as_operator rm -rf "$tmp"
+        rm -rf "$tmp"
         return 1
     fi
 
     rm -rf "$bak"
-    f_as_operator rmdir "$tmp" 2>/dev/null || rm -rf "$tmp"
+    rmdir "$tmp" 2>/dev/null || rm -rf "$tmp"
     return 0
 }
 
-f_nuclei_update_templates(){
-    local op_home tpl_dir pull_out
+# Nuclei reads this file for the template tree. Scans keep using /opt after the home directory is gone.
+f_nuclei_point_templates_at_opt(){
+    local op_home cfg
     op_home=$(f_operator_home)
     [ -n "$op_home" ] || return 0
-    tpl_dir="${op_home}/nuclei-templates"
+    cfg="${op_home}/.config/nuclei/.templates-config.json"
+    f_as_operator mkdir -p "${op_home}/.config/nuclei" || return 0
+
+    if ! f_as_operator python3 - "$cfg" <<'PY'
+import json
+import os
+import sys
+
+path = sys.argv[1]
+root = "/opt/nuclei-templates"
+data = {}
+
+if os.path.isfile(path):
+    try:
+        with open(path, encoding="utf-8") as handle:
+            loaded = json.load(handle)
+        if isinstance(loaded, dict):
+            data = loaded
+    except (OSError, json.JSONDecodeError):
+        data = {}
+
+data["nuclei-templates-directory"] = root
+
+for name in ("s3", "github", "gitlab", "azure"):
+    data[f"custom-{name}-templates-directory"] = f"{root}/{name}"
+
+tmp = path + ".tmp"
+
+with open(tmp, "w", encoding="utf-8") as handle:
+    json.dump(data, handle, separators=(",", ":"))
+    handle.write("\n")
+
+os.chmod(tmp, 0o600)
+os.replace(tmp, path)
+PY
+    then
+        echo "Could not point nuclei at /opt/nuclei-templates."
+    fi
+}
+
+f_nuclei_update_templates(){
+    local tpl_dir pull_out
+    tpl_dir="/opt/nuclei-templates"
 
     if ! command -v git >/dev/null 2>&1; then
         echo "git not found; skipping nuclei templates."
@@ -1301,8 +1364,9 @@ f_nuclei_update_templates(){
     fi
 
     echo -e "${BLUE}Updating nuclei templates.${NC}"
+    f_nuclei_remove_home_templates
 
-    # Git main, not nuclei -ut (release tags only). Always as the operator, not root.
+    # Git main, not nuclei -ut (release tags only).
     if [ ! -d "$tpl_dir/.git" ]; then
         echo "Cloning nuclei templates."
 
@@ -1314,7 +1378,7 @@ f_nuclei_update_templates(){
 
         echo "Cloned."
     else
-        pull_out=$(f_as_operator git -C "$tpl_dir" pull --ff-only 2>&1) || true
+        pull_out=$(git -C "$tpl_dir" pull --ff-only 2>&1) || true
 
         if echo "$pull_out" | grep -qi 'Already up to date'; then
             echo "Already up to date."
@@ -1325,6 +1389,7 @@ f_nuclei_update_templates(){
         fi
     fi
 
+    f_nuclei_point_templates_at_opt
     f_nuclei_disable_auto_template_update
     echo
 }
@@ -1351,6 +1416,7 @@ elif [ -n "$(f_go_bin)" ]; then
 fi
 
 unset -f f_nuclei_update_templates f_nuclei_clone_templates \
+    f_nuclei_remove_home_templates f_nuclei_point_templates_at_opt \
     f_nuclei_disable_auto_template_update f_as_operator f_operator_home
 
 if [ -d /opt/PEASS-ng/.git ]; then

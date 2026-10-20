@@ -533,12 +533,11 @@ cache_key = f"{prod_key}|{version}" if version else prod_key
 
 # --- local nuclei templates (only IDs that can actually run) ---
 def find_templates_root() -> Path | None:
-    env = (Path.home() / "nuclei-templates")
     candidates = [
+        Path("/opt/nuclei-templates"),
         Path.home() / "nuclei-templates",
         Path.home() / ".local" / "nuclei-templates",
         Path.home() / ".local" / "share" / "nuclei" / "templates",
-        Path("/opt/nuclei-templates"),
         Path("/usr/share/nuclei-templates"),
     ]
     # config may point at custom dir

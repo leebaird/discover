@@ -459,7 +459,7 @@ Main menu option **18** (`misc/update.sh`). OS packages, git pulls, locate DB, r
 
 Gotchas:
 
-* **nuclei-templates** — git clone + `git pull --ff-only` (not `nuclei -ut`).
+* **nuclei-templates** — git clone at `/opt/nuclei-templates` + `git pull --ff-only` (not `nuclei -ut`). A `~/nuclei-templates` checkout is removed.
 * **gowitness** — clone/build under `/opt/gowitness` (not `go install @latest`; that module uses `replace`).
 * **transom** — git clone and build under `/opt/transom` (Go 1.27 or newer). Linked as `/usr/local/bin/transom`.
 * **nikto** — git under `/opt/nikto` (not the stale apt 2.1.5 package).
