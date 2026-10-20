@@ -66,6 +66,39 @@
         return el;
     }
 
+    var ACTIONS_IDLE =
+        '<button type="button" class="inc-report-export-cancel" data-inc-active-refresh-close="1">Cancel</button>' +
+        '<button type="button" class="inc-report-export-go" id="inc-active-refresh-go">Enrich</button>';
+
+    function restoreActions() {
+        var actions = document.getElementById("inc-active-refresh-actions");
+        if (!actions) {
+            return;
+        }
+        actions.innerHTML = ACTIONS_IDLE;
+    }
+
+    function bindReload(reload) {
+        if (!reload) {
+            return;
+        }
+        reload.addEventListener("click", function (ev) {
+            ev.preventDefault();
+            location.reload();
+        });
+    }
+
+    function showReloadAction() {
+        var actions = document.getElementById("inc-active-refresh-actions");
+        if (!actions) {
+            return;
+        }
+        actions.innerHTML =
+            '<button type="button" class="inc-report-export-go" id="inc-active-refresh-reload">' +
+            "Reload Active page</button>";
+        bindReload(document.getElementById("inc-active-refresh-reload"));
+    }
+
     function setActionsVisible(visible) {
         var actions = document.getElementById("inc-active-refresh-actions");
         if (!actions) {
@@ -88,6 +121,7 @@
             status.textContent = "";
             status.classList.remove("is-error", "is-ok");
         }
+        restoreActions();
         var go = el.querySelector("#inc-active-refresh-go");
         if (go) {
             go.disabled = false;
@@ -662,23 +696,25 @@
 
         chain
             .then(function () {
+                var both = wantShodan && wantCves;
                 var html = blocks.join("<hr class=\"inc-active-refresh-hr\">");
                 if (cveOk) {
                     html +=
                         '<hr class="inc-active-refresh-hr">' +
                         '<p class="inc-active-refresh-reload-note">' +
-                        "Active page was rebuilt. Reload to see the Software versions table.</p>" +
-                        '<button type="button" class="inc-report-export-go" id="inc-active-refresh-reload">' +
-                        "Reload Active page</button>";
+                        "Active page was rebuilt. Reload to see the Software versions table.</p>";
+                    if (!both) {
+                        html +=
+                            '<button type="button" class="inc-report-export-go" id="inc-active-refresh-reload">' +
+                            "Reload Active page</button>";
+                    }
                 }
                 setStatusHtml(html, anyFail);
-                reenableControls();
-                var reload = document.getElementById("inc-active-refresh-reload");
-                if (reload) {
-                    reload.addEventListener("click", function (ev) {
-                        ev.preventDefault();
-                        location.reload();
-                    });
+                if (both) {
+                    showReloadAction();
+                } else {
+                    reenableControls();
+                    bindReload(document.getElementById("inc-active-refresh-reload"));
                 }
             })
             .catch(function (err) {
@@ -687,7 +723,11 @@
                         (err && err.message ? err.message : String(err)),
                     true
                 );
-                reenableControls();
+                if (wantShodan && wantCves) {
+                    showReloadAction();
+                } else {
+                    reenableControls();
+                }
             });
     }
 

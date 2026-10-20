@@ -240,7 +240,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 
 ## Active page Enrich (Shodan + Software CVEs)
 
-- **Enrich** button on Active (statusd only). Modal checkboxes (default both on):
+- **Enrich** button on Active (statusd only). Modal checkboxes (default both on). When both run from one click, the finished modal replaces **Cancel** and **Enrich** with **Reload Active page**. One option leaves **Cancel** and **Enrich**.
   - **Shodan** → `POST /shodan-refresh-all` → `shodan-enrich.py <report> --force --json-summary`
   - **Software CVEs** → `POST /software-cve-refresh` → `active-tech.py <report> --refresh-cves --json` (re-queries NVD for missing/empty cache entries by default; `--force-all` optional; rebuilds `pages/active.htm` Software versions table + `cve-software-index.js`)
 - Software versions CVE data is **NVD CPE**, not Shodan host vulns. Permanent skips: Microsoft HTTPAPI, Java Servlet, JavaServer Pages (`SKIP_PRODUCTS` in `software-cve.py`).

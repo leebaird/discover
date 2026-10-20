@@ -164,13 +164,13 @@ f_import_report_sync_assets(){
                 fi
 
                 if [ "$page" = "active.htm" ] && ! grep -q 'inc-active-refresh.js' "$report/pages/$page" 2>/dev/null; then
-                    sed -i 's|</body>|<script src="../assets/javascript/inc-active-refresh.js?v=26"></script>\n</body>|' \
+                    sed -i 's|</body>|<script src="../assets/javascript/inc-active-refresh.js?v=27"></script>\n</body>|' \
                         "$report/pages/$page" 2>/dev/null || true
                 fi
 
                 if [ "$page" = "active.htm" ]; then
                     sed -i \
-                        -e 's|inc-active-refresh\.js?v=[0-9]*|inc-active-refresh.js?v=26|g' \
+                        -e 's|inc-active-refresh\.js?v=[0-9]*|inc-active-refresh.js?v=27|g' \
                         -e 's|inc-active-cve-search\.js?v=[0-9]*|inc-active-cve-search.js?v=2|g' \
                         -e 's|inc-active-cve-tabs\.js?v=[0-9]*|inc-active-cve-tabs.js?v=11|g' \
                         -e 's|inc-active-align\.js?v=[0-9]*|inc-active-align.js?v=11|g' \
