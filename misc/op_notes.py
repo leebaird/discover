@@ -109,8 +109,8 @@ def get_credentials(*, interactive: bool) -> Credentials:
     return creds
 
 
-def result_a1_from_updated_range(updated_range: str) -> str:
-    """Map Sheets updatedRange (e.g. Sheet1!A12:F12) to this worksheet's F cell."""
+def row_from_updated_range(updated_range: str) -> str:
+    """Row number from a Sheets updatedRange such as Sheet1!A12:F12."""
     text = (updated_range or "").split("!", 1)[-1].replace("$", "")
     end = text.split(":")[-1]
     digits = ""
@@ -119,9 +119,27 @@ def result_a1_from_updated_range(updated_range: str) -> str:
             digits = ch + digits
         else:
             break
+    return digits
+
+
+def result_a1_from_updated_range(updated_range: str) -> str:
+    """Map Sheets updatedRange (e.g. Sheet1!A12:F12) to this worksheet's F cell."""
+    digits = row_from_updated_range(updated_range)
     if not digits:
         return ""
     return f"F{digits}"
+
+
+def plain_text_target(worksheet: gspread.Worksheet, a1: str) -> None:
+    """Keep a hostname as text. Sheets otherwise links anything ending in .com."""
+    worksheet.format(
+        a1,
+        {
+            "numberFormat": {"type": "TEXT"},
+            "hyperlinkDisplayType": "PLAIN_TEXT",
+            "textFormat": {},
+        },
+    )
 
 
 def cmd_authorize() -> int:
@@ -149,7 +167,7 @@ def cmd_append(args: argparse.Namespace) -> int:
     )
     tz_name = (metadata.get("properties") or {}).get("timeZone") or "UTC"
     sheet_tz = zoneinfo.ZoneInfo(tz_name)
-    date_str = dt_utc.astimezone(sheet_tz).strftime("%m/%d/%Y %H:%M")
+    date_str = dt_utc.astimezone(sheet_tz).strftime("%m/%d/%Y - %H:%M")
 
     target_raw = args.target or ""
     if target_raw.startswith(("http://", "https://")):
@@ -171,11 +189,17 @@ def cmd_append(args: argparse.Namespace) -> int:
         ],
         value_input_option="RAW",
     )
+    updated = ""
+    if isinstance(resp, dict):
+        updated = ((resp.get("updates") or {}).get("updatedRange") or "")
+    row = row_from_updated_range(updated)
+    if row and target_hostname:
+        try:
+            plain_text_target(worksheet, f"D{row}")
+        except Exception:
+            pass
     if result_text.lstrip().startswith("PORT"):
         try:
-            updated = ""
-            if isinstance(resp, dict):
-                updated = ((resp.get("updates") or {}).get("updatedRange") or "")
             cell = result_a1_from_updated_range(updated)
             if cell:
                 worksheet.format(
