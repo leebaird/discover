@@ -198,7 +198,7 @@
                 {
                     h: "What Run does",
                     p:
-                        "TCP only: nmap -Pn -n --open -sTV -p <ports> <hostname>. With UDP: sudo nmap --privileged -Pn -n --open -sTV -sUV -p T:<tcp>,U:<udp> <hostname>. UDP needs root; this terminal prompts for sudo if there is no cached ticket. Cancelled sudo aborts (no TCP-only fallback)."
+                        "TCP only: nmap -Pn -n --open -sTV -p <ports> --stats-every 20 <hostname>. With UDP: sudo nmap --privileged -Pn -n --open -sTV -sUV -p T:<tcp>,U:<udp> --stats-every 20 <hostname>. UDP needs root; this terminal prompts for sudo if there is no cached ticket. Cancelled sudo aborts (no TCP-only fallback)."
                 },
                 {
                     h: "UDP on VPN",

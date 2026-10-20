@@ -796,7 +796,7 @@ out.extend(
         '<script src="../tools/shodan/index.js"></script>',
         '<script src="../tools/shodan/kev-ids.js"></script>',
         '<script src="../assets/javascript/inc-shodan.js?v=19"></script>',
-        '<script src="../assets/javascript/inc-host-scan.js?v=78"></script>',
+        '<script src="../assets/javascript/inc-host-scan.js?v=80"></script>',
         "</body>",
         "</html>",
     ]

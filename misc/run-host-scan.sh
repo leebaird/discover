@@ -8,9 +8,9 @@
 #   run-host-scan.sh <tool> <url> [software] [report_root] [ports]
 #
 # Tools: robots | nmap | nuclei | droopescan | wpscan | nikto | transom | feroxbuster | ffuf
-# - nmap: TCP-only: -Pn -n --open -sTV -p <ports> <host> (no sudo)
+# - nmap: TCP-only: -Pn -n --open -sTV -p <ports> --stats-every 20 <host> (no sudo)
 #         UDP (Shodan transport, or UDP= fallback; port 53 always TCP+UDP):
-#         sudo nmap --privileged -Pn -n --open -sTV -sUV -p T:...,U:... <host>
+#         sudo nmap --privileged -Pn -n --open -sTV -sUV -p T:...,U:... --stats-every 20 <host>
 #         (no HTTP pre-check; sudo only when UDP; sudo -v in this terminal)
 # - Visible terminal (desktop entry uses Terminal=true)
 # - One scan at a time (engagement lock)
@@ -2208,9 +2208,9 @@ PY
                     NMAP_CMD+=(-sUV)
                 fi
 
-                NMAP_CMD+=(-p "$NMAP_SPEC" "$NMAP_HOST")
+                NMAP_CMD+=(-p "$NMAP_SPEC" --stats-every 20 "$NMAP_HOST")
             else
-                NMAP_CMD=(nmap -Pn -n --open -sTV -p "$NMAP_SPEC" "$NMAP_HOST")
+                NMAP_CMD=(nmap -Pn -n --open -sTV -p "$NMAP_SPEC" --stats-every 20 "$NMAP_HOST")
             fi
 
             {
