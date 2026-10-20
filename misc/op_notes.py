@@ -16,9 +16,11 @@ opens a browser. A configured sheet that cannot be written stops the scan.
 from __future__ import annotations
 
 import argparse
+import fcntl
 import json
 import os
 import sys
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
@@ -107,27 +109,6 @@ def get_credentials(*, interactive: bool) -> Credentials:
         write_secret_file(saved, creds.to_json())
 
     return creds
-
-
-def row_from_updated_range(updated_range: str) -> str:
-    """Row number from a Sheets updatedRange such as Sheet1!A12:F12."""
-    text = (updated_range or "").split("!", 1)[-1].replace("$", "")
-    end = text.split(":")[-1]
-    digits = ""
-    for ch in reversed(end):
-        if ch.isdigit():
-            digits = ch + digits
-        else:
-            break
-    return digits
-
-
-def result_a1_from_updated_range(updated_range: str) -> str:
-    """Map Sheets updatedRange (e.g. Sheet1!A12:F12) to this worksheet's F cell."""
-    digits = row_from_updated_range(updated_range)
-    if not digits:
-        return ""
-    return f"F{digits}"
 
 
 def plain_text_target(worksheet: gspread.Worksheet, a1: str) -> None:
@@ -226,6 +207,50 @@ def action_column_width(worksheet: gspread.Worksheet) -> int:
     return int(cols[0].get("pixelSize") or 100)
 
 
+def next_log_row(column_a: list) -> int:
+    """1-based row under the last date. Does not reuse that row."""
+    last = 0
+    for index, value in enumerate(column_a, start=1):
+        if value is not None and str(value).strip():
+            last = index
+    return last + 1
+
+
+@contextmanager
+def sheet_write_lock():
+    """One local scan writes the sheet at a time, so two starts cannot pick the same row."""
+    path = Path.home() / ".discover" / "op-notes.lock"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle = open(path, "a")
+    try:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        yield
+    finally:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        handle.close()
+
+
+def write_new_log_row(worksheet: gspread.Worksheet, values: list[str]) -> int:
+    """Write under the last filled date. Never replace that row."""
+    row = next_log_row(worksheet.col_values(1))
+    occupied = worksheet.acell(f"A{row}").value
+    if occupied:
+        at_bottom = row > worksheet.row_count
+        worksheet.insert_row(
+            values,
+            index=row,
+            value_input_option="RAW",
+            inherit_from_before=at_bottom,
+        )
+        return row
+    worksheet.update(
+        [values],
+        f"A{row}:F{row}",
+        value_input_option="RAW",
+    )
+    return row
+
+
 def expand_action_rows(worksheet: gspread.Worksheet, heights: dict[int, int]) -> None:
     """Grow rows whose Action cell wraps past one line. heights: 1-based row to pixels."""
     if not heights:
@@ -286,24 +311,24 @@ def cmd_append(args: argparse.Namespace) -> int:
     else:
         target_hostname = target_raw.strip()
 
-    # Col A: Date (sheet timezone), B: Operator, C: IP, D: Target, E: Command, F: Result
+    # Col A: Date (sheet timezone), B: Operator, C: IP, D: Target, E: Command, F: Result.
+    # Write the next empty row. append_row follows Sheets' table detector and
+    # was replacing the last scan.
     worksheet = sh.get_worksheet(0)
     result_text = args.result or ""
-    resp = worksheet.append_row(
-        [
-            date_str,
-            args.operator,
-            args.ip,
-            target_hostname,
-            args.command,
-            result_text,
-        ],
-        value_input_option="RAW",
-    )
-    updated = ""
-    if isinstance(resp, dict):
-        updated = ((resp.get("updates") or {}).get("updatedRange") or "")
-    row = row_from_updated_range(updated)
+    with sheet_write_lock():
+        row_num = write_new_log_row(
+            worksheet,
+            [
+                date_str,
+                args.operator,
+                args.ip,
+                target_hostname,
+                args.command,
+                result_text,
+            ],
+        )
+    row = str(row_num)
     if row and target_hostname:
         try:
             plain_text_target(worksheet, f"D{row}")
@@ -311,16 +336,14 @@ def cmd_append(args: argparse.Namespace) -> int:
             pass
     if result_text.lstrip().startswith("PORT"):
         try:
-            cell = result_a1_from_updated_range(updated)
-            if cell:
-                worksheet.format(
-                    cell,
-                    {
-                        "wrapStrategy": "WRAP",
-                        "verticalAlignment": "TOP",
-                        "textFormat": {"fontFamily": "Courier New"},
-                    },
-                )
+            worksheet.format(
+                f"F{row}",
+                {
+                    "wrapStrategy": "WRAP",
+                    "verticalAlignment": "TOP",
+                    "textFormat": {"fontFamily": "Courier New"},
+                },
+            )
         except Exception:
             pass
     if row and args.command:

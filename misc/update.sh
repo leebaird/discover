@@ -1549,15 +1549,22 @@ fi
 # Transom — web server scanner. Alphabetical: after TigerVNC, before trivy.
 # https://github.com/leebaird/transom
 f_transom_build() {
-    local go_bin src=/opt/transom
+    local go_bin src=/opt/transom before after
 
     go_bin=$(f_go_bin) || return 1
 
     if [ -d "$src/.git" ]; then
-        git -C "$src" pull --ff-only --quiet || return 1
+        before=$(git -C "$src" rev-parse HEAD 2>/dev/null || true)
+        git -C "$src" pull --ff-only || return 1
+        after=$(git -C "$src" rev-parse HEAD 2>/dev/null || true)
+        if [ -x "$src/transom" ] && [ -n "$before" ] && [ "$before" = "$after" ]; then
+            return 0
+        fi
     else
         git clone --depth 1 https://github.com/leebaird/transom.git "$src" || return 1
     fi
+
+    echo "Building transom."
 
     if ! (
         cd "$src" || exit 1
@@ -1572,18 +1579,7 @@ f_transom_build() {
 
 if [ -x /opt/transom/transom ] || [ -d /opt/transom/.git ]; then
     echo -e "${BLUE}Updating transom.${NC}"
-    transom_before=$(sha256sum /opt/transom/transom 2>/dev/null | awk '{print $1}')
-
-    if f_transom_build; then
-        transom_after=$(sha256sum /opt/transom/transom 2>/dev/null | awk '{print $1}')
-
-        if [ -n "$transom_before" ] && [ "$transom_before" = "$transom_after" ]; then
-            echo "Already up to date."
-        else
-            echo "Updated."
-        fi
-    fi
-
+    f_transom_build
     echo
 elif [ -n "$(f_go_bin)" ]; then
     echo -e "${YELLOW}Installing transom.${NC}"
