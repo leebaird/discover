@@ -52,6 +52,17 @@ for name in OPTIONAL:
         new,
         flags=re.IGNORECASE,
     )
+if (root / "tools" / "omit-files-nav").is_file():
+    new = re.sub(
+        r"\n[ \t]*<li class=\"(?:active )?dropdown\">\s*"
+        r"<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">Files <b class=\"caret\"></b></a>\s*"
+        r"<ul class=\"dropdown-menu\">.*?</ul>\s*"
+        r"</li>",
+        "",
+        new,
+        count=1,
+        flags=re.S,
+    )
 if new != text:
     page.write_text(new, encoding="utf-8")
 PY
