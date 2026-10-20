@@ -65,7 +65,6 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - Nav items are omitted when the matching `pages/*.htm` file is missing. Standard reports that include those pages keep the menu items.
 - Covered: General → **Emails** (`emails.htm`); Files → **Excel** (`xls.htm`), **PowerPoint** (`ppt.htm`), **Text** (`txt.htm`), **Word** (`doc.htm`), **PDF** (`pdf.htm`).
 - Rebuilds of Audit / Active / Subdomains / Hosts copy Discover templates (full menus); writers strip items whose pages are absent.
-- An empty `tools/omit-files-nav` in one engagement hides the **Files** menu when those pages are rebuilt. Other reports keep the menu.
 
 ## Report homepage date (`index.htm`)
 

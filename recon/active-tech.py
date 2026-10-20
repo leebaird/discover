@@ -62,15 +62,6 @@ _OPTIONAL_NAV_PAGES = (
 )
 
 
-_FILES_NAV_RE = re.compile(
-    r"\n[ \t]*<li class=\"(?:active )?dropdown\">\s*"
-    r"<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">Files <b class=\"caret\"></b></a>\s*"
-    r"<ul class=\"dropdown-menu\">.*?</ul>\s*"
-    r"</li>",
-    re.S,
-)
-
-
 def omit_missing_page_nav(html: str, report_dir: str) -> str:
     """Drop nav links to report pages that are not on disk (e.g. no xls.htm)."""
     pages = os.path.join(report_dir, "pages")
@@ -83,9 +74,6 @@ def omit_missing_page_nav(html: str, report_dir: str) -> str:
             html,
             flags=re.IGNORECASE,
         )
-    # This engagement only: tools/omit-files-nav hides the Files menu on rebuild.
-    if os.path.isfile(os.path.join(report_dir, "tools", "omit-files-nav")):
-        html = _FILES_NAV_RE.sub("", html, count=1)
     return html
 
 
