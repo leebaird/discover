@@ -3,8 +3,98 @@
  * Coded by Grok (xAI)
  *
  * Poll localhost statusd for Audit "Scan running" card when available.
+ * On the Discover-hosted Audit page, reload when pages/audit.htm is rebuilt
+ * so a new log line shows up, then scroll to that row.
  */
 (function () {
+    var SHOW_KEY = "discover-audit-show-log";
+    var RANGE_KEY = "discover-audit-range";
+    var seenRev = null;
+    var reloading = false;
+
+    function hostedAudit() {
+        var host = location.hostname;
+        var onPort =
+            (host === "127.0.0.1" || host === "localhost") &&
+            location.port === "17322";
+        if (!onPort) {
+            return false;
+        }
+        return /\/audit\.htm$/i.test(location.pathname || "");
+    }
+
+    function dialogOpen() {
+        var nodes = document.querySelectorAll('[aria-modal="true"]');
+        var i;
+        for (i = 0; i < nodes.length; i++) {
+            if (!nodes[i].hasAttribute("hidden")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function rememberRange() {
+        var sel = document.getElementById("inc-audit-metrics-range");
+        if (!sel || !sel.value) {
+            return;
+        }
+        try {
+            sessionStorage.setItem(RANGE_KEY, sel.value);
+        } catch (err) {
+            /* private mode */
+        }
+    }
+
+    function scrollToNewest() {
+        var row = document.querySelector("#inc-audit-log-table tbody tr");
+        if (row && row.scrollIntoView) {
+            row.scrollIntoView({ block: "center" });
+        }
+    }
+
+    // Metrics reads the flag during its init. Clear it on the next turn,
+    // after that init has restored the range.
+    var pendingShow = false;
+    if (hostedAudit()) {
+        try {
+            pendingShow = sessionStorage.getItem(SHOW_KEY) === "1";
+        } catch (err) {
+            pendingShow = false;
+        }
+        var armShow = function () {
+            setTimeout(function () {
+                if (pendingShow) {
+                    scrollToNewest();
+                }
+                try {
+                    sessionStorage.removeItem(SHOW_KEY);
+                } catch (err) {
+                    /* private mode */
+                }
+            }, 0);
+        };
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", armShow);
+        } else {
+            armShow();
+        }
+    }
+
+    function reloadForNewLine() {
+        if (reloading) {
+            return;
+        }
+        reloading = true;
+        rememberRange();
+        try {
+            sessionStorage.setItem(SHOW_KEY, "1");
+        } catch (err) {
+            /* still reload */
+        }
+        location.reload();
+    }
+
     function tick() {
         fetch("http://127.0.0.1:17322/status", { cache: "no-store" })
             .then(function (r) {
@@ -12,17 +102,28 @@
             })
             .then(function (status) {
                 var el = document.getElementById("inc-audit-running");
-                if (!el) {
+                if (el) {
+                    if (status && status.running && status.current) {
+                        el.textContent =
+                            (status.current.tool || "?") +
+                            " @ " +
+                            (status.current.host || "?");
+                    } else {
+                        el.textContent = "No";
+                    }
+                }
+                if (!hostedAudit() || !status || status.audit_rev == null) {
                     return;
                 }
-                if (status && status.running && status.current) {
-                    el.textContent =
-                        (status.current.tool || "?") +
-                        " @ " +
-                        (status.current.host || "?");
-                } else {
-                    el.textContent = "No";
+                var rev = String(status.audit_rev);
+                if (seenRev === null) {
+                    seenRev = rev;
+                    return;
                 }
+                if (rev === seenRev || dialogOpen()) {
+                    return;
+                }
+                reloadForNewLine();
             })
             .catch(function () {
                 /* statusd not running — leave static HTML */

@@ -101,6 +101,13 @@ Conventions agreed with the operator for Discover development. **Read and follow
 - Backend: statusd `POST /audit-line-delete` → `audit-build.py --delete-line <sha256> <report> --json`. Removes **one** matching line from `tools/audit/log.txt` (hash of stripped raw line), rebuilds `pages/audit.htm` (metrics + log).
 - Row markup: `data-audit-hash` / `data-audit-preview` on each log `<tr>` from `audit-build.py`. Assets: `inc-audit-line-delete.js`; bust `?v=` / `modern.css` on Audit; import-report injects the script. Restart statusd after endpoint changes.
 
+## Audit page refresh
+
+- Discover-hosted Audit (`http://127.0.0.1:17322/`) reloads when `pages/audit.htm` is rebuilt, so a new log line shows up, then scrolls to that newest row. The first status poll only records the revision.
+- An open Config, Import, Export, or delete dialog waits. The page reloads after it closes.
+- The metrics range (Today, Yesterday, Last 7 days, Last week, All) is kept across that reload. A normal open still starts on **All** and stays at the top of the page.
+- Manual `file://` does not reload. `GET /status` adds `audit_rev` (page mtime and size). Asset: `inc-audit-status.js`. Bust `?v=` on Audit after the script changes. Restart statusd after the `/status` change.
+
 ## Audit last-7-days metrics (Option A strip)
 
 

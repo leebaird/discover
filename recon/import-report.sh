@@ -195,7 +195,8 @@ f_import_report_sync_assets(){
                         -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=23|g' \
                         -e 's|inc-audit-line-delete\.js?v=[0-9]*|inc-audit-line-delete.js?v=3|g' \
                         -e 's|inc-audit-log-filter\.js?v=[0-9]*|inc-audit-log-filter.js?v=1|g' \
-                        -e 's|inc-audit-metrics-range\.js?v=[0-9]*|inc-audit-metrics-range.js?v=3|g' \
+                        -e 's|inc-audit-status\.js?v=[0-9]*|inc-audit-status.js?v=4|g' \
+                        -e 's|inc-audit-metrics-range\.js?v=[0-9]*|inc-audit-metrics-range.js?v=4|g' \
                         "$report/pages/$page" 2>/dev/null || true
 
                     if ! grep -q 'inc-audit-import.js' "$report/pages/$page" 2>/dev/null; then
@@ -219,7 +220,7 @@ f_import_report_sync_assets(){
                     fi
 
                     if ! grep -q 'inc-audit-metrics-range.js' "$report/pages/$page" 2>/dev/null; then
-                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-metrics-range.js?v=3"></script>\n</body>|' \
+                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-metrics-range.js?v=4"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
                 fi

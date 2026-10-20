@@ -52,6 +52,23 @@
         placeSelect(metrics, range);
     }
 
+    var RANGE_OK = { today: 1, yesterday: 1, "7d": 1, week: 1, all: 1 };
+
+    function rangeKeptForReload() {
+        try {
+            if (sessionStorage.getItem("discover-audit-show-log") !== "1") {
+                return "";
+            }
+            var saved = sessionStorage.getItem("discover-audit-range") || "";
+            if (RANGE_OK[saved]) {
+                return saved;
+            }
+        } catch (err) {
+            return "";
+        }
+        return "";
+    }
+
     function init() {
         var metrics = root();
         if (!metrics) {
@@ -61,10 +78,20 @@
         if (!sel) {
             return;
         }
+        var kept = rangeKeptForReload();
         var initial = sel.value || "all";
+        if (kept) {
+            initial = kept;
+        }
         showRange(metrics, initial);
         sel.addEventListener("change", function () {
-            showRange(metrics, sel.value || "all");
+            var range = sel.value || "all";
+            showRange(metrics, range);
+            try {
+                sessionStorage.setItem("discover-audit-range", range);
+            } catch (err) {
+                /* private mode */
+            }
         });
     }
 

@@ -7,7 +7,7 @@ Usage:
   host-scan-statusd.py <report_root> [port]
 
 Binds 127.0.0.1 only. Serves:
-  GET /status  -> tools/host-scans/status.json
+  GET /status  -> tools/host-scans/status.json plus audit_rev (pages/audit.htm mtime and size)
   GET /mode    -> assets/report-mode.json
   GET /health  -> ok
   GET /shodan-status -> {"ok":true,"api_key":true|false} (never returns the key)
@@ -195,6 +195,45 @@ def shodan_api_key_configured(discover_root: Path) -> bool:
         except Exception:
             pass
     return bool((os.environ.get("SHODAN_API_KEY") or "").strip())
+
+
+def audit_page_rev(report_root: Path) -> str:
+    """mtime_ns and size of pages/audit.htm. Changes when Audit is rebuilt."""
+    page = report_root / "pages" / "audit.htm"
+    try:
+        st = page.stat()
+    except OSError:
+        return "0:0"
+    mtime_ns = getattr(st, "st_mtime_ns", int(st.st_mtime * 1_000_000_000))
+    return f"{mtime_ns}:{st.st_size}"
+
+
+def status_with_audit_rev(status_path: Path, report_root: Path) -> bytes:
+    """Host-scan status plus audit_rev so a hosted Audit page can reload.
+
+    A missing status file still returns a small object. Bytes that are not a
+    JSON object are returned unchanged.
+    """
+    rev = audit_page_rev(report_root)
+    raw: bytes | None = None
+    if status_path.is_file():
+        try:
+            raw = status_path.read_bytes()
+        except OSError:
+            raw = None
+    parsed: dict | None
+    if raw:
+        try:
+            loaded = json.loads(raw.decode("utf-8"))
+        except (UnicodeError, json.JSONDecodeError):
+            return raw if raw.endswith(b"\n") else raw + b"\n"
+        if not isinstance(loaded, dict):
+            return raw if raw.endswith(b"\n") else raw + b"\n"
+        parsed = loaded
+    else:
+        parsed = {"running": False, "hosts": {}}
+    parsed["audit_rev"] = rev
+    return json.dumps(parsed).encode() + b"\n"
 
 
 def main(argv: list[str]) -> int:
@@ -1297,10 +1336,7 @@ def main(argv: list[str]) -> int:
                     )
                 return
             if path == "/status":
-                if status_path.is_file():
-                    self._send(200, status_path.read_bytes())
-                else:
-                    self._send(200, b'{"running":false,"hosts":{}}\n')
+                self._send(200, status_with_audit_rev(status_path, report_root))
                 return
             if path == "/shodan-status":
                 # Presence only — never return the key material.
