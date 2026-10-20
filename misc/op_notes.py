@@ -230,6 +230,11 @@ def sheet_write_lock():
         handle.close()
 
 
+def top_align_log_row(worksheet: gspread.Worksheet, row: int) -> None:
+    """Date, operator, IP, target, command, and result sit at the top of the row."""
+    worksheet.format(f"A{row}:F{row}", {"verticalAlignment": "TOP"})
+
+
 def write_new_log_row(worksheet: gspread.Worksheet, values: list[str]) -> int:
     """Write under the last filled date. Never replace that row."""
     row = next_log_row(worksheet.col_values(1))
@@ -359,6 +364,10 @@ def cmd_append(args: argparse.Namespace) -> int:
                 expand_action_rows(worksheet, {int(row): pixels})
         except Exception:
             pass
+    try:
+        top_align_log_row(worksheet, int(row))
+    except Exception:
+        pass
     return 0
 
 
