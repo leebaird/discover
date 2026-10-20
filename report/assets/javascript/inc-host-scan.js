@@ -255,7 +255,7 @@
                 {
                     h: "What Run does",
                     p:
-                        "Runs Nikto non-interactively with Discover hardened defaults (request timeout 5s, FAILURES=8, maxtime 10m, hard stop 11m, SNI-friendly HTTPS)."
+                        "Runs Nikto non-interactively with Discover hardened defaults (request timeout 5s, FAILURES=8, maxtime 8m, hard stop 9m, SNI-friendly HTTPS)."
                 },
                 {
                     h: "Safety check",
@@ -647,13 +647,13 @@
         if (tool === "nikto") {
             sslFlag = /^https:\/\//i.test(u) ? " -ssl" : "";
             return (
-                "timeout --foreground --signal=TERM --kill-after=45s 11m nikto" +
+                "timeout --foreground --signal=TERM --kill-after=45s 9m nikto" +
                 " -config <run-dir>/nikto.conf -host " +
                 shellQuote(u) +
                 sslFlag +
                 " -useragent " +
                 shellQuote(ua) +
-                " -nointeractive -nocheck -timeout 5 -maxtime 10m" +
+                " -nointeractive -nocheck -timeout 5 -maxtime 8m" +
                 " -Format htm -output <run-dir>/nikto.htm"
             );
         }

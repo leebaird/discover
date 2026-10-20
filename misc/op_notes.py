@@ -10,7 +10,7 @@
 """Google Sheet helper for Discover host scans.
 
 Authorize from Audit Config (browser OAuth). Append during a scan never
-opens a browser: missing or invalid tokens skip the row.
+opens a browser. A configured sheet that cannot be written stops the scan.
 """
 
 from __future__ import annotations
@@ -130,6 +130,14 @@ def cmd_authorize() -> int:
     return 0
 
 
+def cmd_check(args: argparse.Namespace) -> int:
+    """Open the sheet without appending a row."""
+    creds = get_credentials(interactive=False)
+    client = gspread.authorize(creds)
+    client.open_by_url(args.sheets_url)
+    return 0
+
+
 def cmd_append(args: argparse.Namespace) -> int:
     creds = get_credentials(interactive=False)
     client = gspread.authorize(creds)
@@ -202,6 +210,9 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("authorize", help="Browser OAuth; write ~/.discover/google-token.json")
     sub.add_parser("status", help="JSON presence of client_secret and token")
 
+    ck = sub.add_parser("check", help="Open the sheet without appending a row")
+    ck.add_argument("sheets_url")
+
     ap = sub.add_parser("append", help="Append one host-scan row (no browser)")
     ap.add_argument("sheets_url")
     ap.add_argument("timestamp")
@@ -218,6 +229,8 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_authorize()
         if args.cmd == "status":
             return cmd_status()
+        if args.cmd == "check":
+            return cmd_check(args)
         if args.cmd == "append":
             return cmd_append(args)
     except SystemExit:

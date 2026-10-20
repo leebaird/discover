@@ -147,7 +147,10 @@ f_discover_load_env(){
     done
 }
 
-# One Google Sheet row when Active finishes. Empty URL is off. Failures print and do not abort.
+# Google Sheet for this engagement (tools/op-notes-url).
+# Empty URL is off and does not stop Active.
+# A configured sheet that cannot be opened stops Active before probes.
+# The finished scan still appends one row. A failed append exits non-zero.
 f_active_sheet_target(){
     local index domain
 
@@ -177,13 +180,22 @@ PY
     printf '%s\n' "$domain"
 }
 
-f_active_op_notes(){
-    local target="$1"
-    local command="$2"
-    local result="${3:-}"
-    local url_file sheets_url op ip script uv_bin ts
+f_active_sheet_fail(){
+    SHEET_ERROR="$1"
+    return 1
+}
 
-    [ -n "$command" ] || return 0
+# Sets ACTIVE_SHEET_URL, ACTIVE_SHEET_UV, and ACTIVE_SHEET_SCRIPT.
+# Return 0 when logging is off or local setup is ready.
+# Return 1 when a URL is set and token, uv, or op_notes.py is missing.
+f_active_sheet_prepare(){
+    local url_file sheets_url
+
+    ACTIVE_SHEET_URL=""
+    ACTIVE_SHEET_UV=""
+    ACTIVE_SHEET_SCRIPT=""
+    SHEET_ERROR=""
+
     [ -n "${DISCOVER_REPORT:-}" ] || return 0
 
     url_file="$DISCOVER_REPORT/tools/op-notes-url"
@@ -200,29 +212,75 @@ f_active_op_notes(){
     [ -n "$sheets_url" ] || return 0
 
     if [ ! -f "${HOME}/.discover/google-token.json" ]; then
-        printf '\033[0;31m[!] Google Sheet skipped: not authorized (Audit Config → Google Sheet).\033[0m\n' >&2
-        return 0
+        f_active_sheet_fail "Google Sheet error: not authorized (Audit Config → Google Sheet). Scan stopped."
+        return 1
     fi
 
     if [ -z "${DISCOVER:-}" ]; then
         DISCOVER="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
     fi
 
-    script="$DISCOVER/misc/op_notes.py"
-    [ -f "$script" ] || return 0
+    ACTIVE_SHEET_SCRIPT="$DISCOVER/misc/op_notes.py"
 
-    uv_bin=""
+    if [ ! -f "$ACTIVE_SHEET_SCRIPT" ]; then
+        f_active_sheet_fail "Google Sheet error: op_notes.py is missing. Scan stopped."
+        return 1
+    fi
 
     if command -v uv >/dev/null 2>&1; then
-        uv_bin=$(command -v uv)
+        ACTIVE_SHEET_UV=$(command -v uv)
     elif [ -x "${HOME}/.local/bin/uv" ]; then
-        uv_bin="${HOME}/.local/bin/uv"
+        ACTIVE_SHEET_UV="${HOME}/.local/bin/uv"
     fi
 
-    if [ -z "$uv_bin" ]; then
-        printf '\033[0;31m[!] Google Sheet skipped: uv is not installed.\033[0m\n' >&2
-        return 0
+    if [ -z "$ACTIVE_SHEET_UV" ]; then
+        f_active_sheet_fail "Google Sheet error: uv is not installed. Scan stopped."
+        return 1
     fi
+
+    ACTIVE_SHEET_URL="$sheets_url"
+    return 0
+}
+
+# Open the sheet without appending a row. Return 1 when a configured sheet cannot be opened.
+f_active_sheet_gate(){
+
+    if ! f_active_sheet_prepare; then
+        return 1
+    fi
+
+    [ -n "$ACTIVE_SHEET_URL" ] || return 0
+
+    if command -v timeout >/dev/null 2>&1; then
+        if ! timeout --signal=TERM --kill-after=5s 40s \
+            "$ACTIVE_SHEET_UV" run "$ACTIVE_SHEET_SCRIPT" check "$ACTIVE_SHEET_URL" >/dev/null; then
+            f_active_sheet_fail "Google Sheet error: check token/URL. Scan stopped."
+            return 1
+        fi
+    else
+        if ! "$ACTIVE_SHEET_UV" run "$ACTIVE_SHEET_SCRIPT" check "$ACTIVE_SHEET_URL" >/dev/null; then
+            f_active_sheet_fail "Google Sheet error: check token/URL. Scan stopped."
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
+f_active_op_notes(){
+    local target="$1"
+    local command="$2"
+    local result="${3:-}"
+    local op ip ts
+
+    [ -n "$command" ] || return 0
+
+    if ! f_active_sheet_prepare; then
+        printf '\033[0;31m[!] %s\033[0m\n' "$SHEET_ERROR" >&2
+        return 1
+    fi
+
+    [ -n "$ACTIVE_SHEET_URL" ] || return 0
 
     if declare -F f_audit_operator_name >/dev/null 2>&1; then
         op=$(f_audit_operator_name)
@@ -241,13 +299,25 @@ f_active_op_notes(){
     ts=$(date -u +"%m/%d/%Y - %H:%M Z")
 
     if command -v timeout >/dev/null 2>&1; then
-        timeout --signal=TERM --kill-after=5s 40s \
-            "$uv_bin" run "$script" append "$sheets_url" "$ts" "$op" "$ip" "$target" "$command" "$result" \
-            || printf '\033[0;31m[!] Google Sheet entry failed: check token/URL.\033[0m\n' >&2
+        if ! timeout --signal=TERM --kill-after=5s 40s \
+            "$ACTIVE_SHEET_UV" run "$ACTIVE_SHEET_SCRIPT" append \
+            "$ACTIVE_SHEET_URL" "$ts" "$op" "$ip" "$target" "$command" "$result" \
+            >/dev/null; then
+            f_active_sheet_fail "Google Sheet error: check token/URL. Scan stopped."
+            printf '\033[0;31m[!] %s\033[0m\n' "$SHEET_ERROR" >&2
+            return 1
+        fi
     else
-        "$uv_bin" run "$script" append "$sheets_url" "$ts" "$op" "$ip" "$target" "$command" "$result" \
-            || printf '\033[0;31m[!] Google Sheet entry failed: check token/URL.\033[0m\n' >&2
+        if ! "$ACTIVE_SHEET_UV" run "$ACTIVE_SHEET_SCRIPT" append \
+            "$ACTIVE_SHEET_URL" "$ts" "$op" "$ip" "$target" "$command" "$result" \
+            >/dev/null; then
+            f_active_sheet_fail "Google Sheet error: check token/URL. Scan stopped."
+            printf '\033[0;31m[!] %s\033[0m\n' "$SHEET_ERROR" >&2
+            return 1
+        fi
     fi
+
+    return 0
 }
 
 f_active_read_report(){
@@ -796,7 +866,7 @@ out.extend(
         '<script src="../tools/shodan/index.js"></script>',
         '<script src="../tools/shodan/kev-ids.js"></script>',
         '<script src="../assets/javascript/inc-shodan.js?v=19"></script>',
-        '<script src="../assets/javascript/inc-host-scan.js?v=80"></script>',
+        '<script src="../assets/javascript/inc-host-scan.js?v=81"></script>',
         "</body>",
         "</html>",
     ]
@@ -994,6 +1064,10 @@ TARGET_COUNT=${TARGET_COUNT:-0}
 
 if [ "$TARGET_COUNT" -eq 0 ]; then
     f_active_die "No public subdomains found to probe."
+fi
+
+if ! f_active_sheet_gate; then
+    f_active_die "${SHEET_ERROR:-Google Sheet error. Scan stopped.}"
 fi
 
 echo "[*] Checking $TARGET_COUNT hostname(s) for private answers on 1.1.1.1."
@@ -1458,7 +1532,11 @@ if [ "$ACTIVE_SCOPE" = "import-batch" ]; then
     sheet_cmd="active recon on imported hosts"
 fi
 
-f_active_op_notes "$sheet_target" "$sheet_cmd" "$sheet_result"
+sheet_ok=1
+
+if ! f_active_op_notes "$sheet_target" "$sheet_cmd" "$sheet_result"; then
+    sheet_ok=0
+fi
 
 if [ -f "$DISCOVER/recon/audit-build.py" ]; then
     python3 "$DISCOVER/recon/audit-build.py" "$DISCOVER_REPORT" "$DISCOVER/report/pages/audit.htm" >/dev/null 2>&1 || true
@@ -1474,6 +1552,13 @@ if [ -f "$DISCOVER/misc/host-scan-statusd.py" ]; then
         nohup python3 "$DISCOVER/misc/host-scan-statusd.py" "$DISCOVER_REPORT" 17322 \
             >/dev/null 2>&1 &
     fi
+fi
+
+if [ "$sheet_ok" -eq 0 ]; then
+    echo
+    echo -e "${RED}[!] Active results were saved.${NC}"
+    echo
+    exit 1
 fi
 
 echo "$MEDIUM"

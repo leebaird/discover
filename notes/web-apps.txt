@@ -38,7 +38,7 @@ ping -c 3 $URL
 traceroute $URL
 
 - Discover open ports and perform service enumeration
-nmap -Pn -n -T4 --open -sTVC --stats-every 20s $URL -oA nmap
+nmap -Pn -n -T4 --open -sTVC --stats-every 15s $URL -oA nmap
 
 - SSL/TLS enumeration
 See ssl.txt for sslscan, sslyze, nmap scripts, and certificate checks.

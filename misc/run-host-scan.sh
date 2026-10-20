@@ -316,18 +316,27 @@ f_audit(){
     printf '%s | %s | %s | %s\n' "$ts" "$op" "$ip" "$action" >> "$audit_log"
 }
 
-# Append one Google Sheet row when this engagement has a sheet URL (Audit Config).
-# Never opens a browser; never fails the scan. Background + 40s cap.
-# uv stdout is discarded; stderr (skip/fail lines) still prints.
-f_op_notes(){
-    local target="$1"
-    local command="$2"
-    local result="${3:-}"
-    local url_file="$REPORT_ROOT/tools/op-notes-url"
-    local sheets_url=""
-    local op ip script uv_bin
+# Google Sheet for this engagement (Audit Config → tools/op-notes-url).
+# Empty or missing URL is off and does not stop the scan.
+# A configured sheet that cannot be written stops the scan (return 1).
+# Never opens a browser. Each Google call waits up to 40s. uv stdout is discarded.
 
-    [ -n "$command" ] || return 0
+f_op_notes_fail(){
+    printf '\033[0;31m[!] %s\033[0m\n' "$1" >&2
+    return 1
+}
+
+# Sets OP_NOTES_URL, OP_NOTES_UV, and OP_NOTES_SCRIPT.
+# Return 0 when logging is off (URL empty) or the local setup is ready.
+# Return 1 when a URL is set and token, uv, or op_notes.py is missing.
+f_op_notes_prepare(){
+    local url_file sheets_url
+
+    OP_NOTES_URL=""
+    OP_NOTES_UV=""
+    OP_NOTES_SCRIPT=""
+
+    url_file="$REPORT_ROOT/tools/op-notes-url"
     [ -f "$url_file" ] || return 0
 
     sheets_url=$(head -n 1 "$url_file" 2>/dev/null | tr -d '\r')
@@ -341,25 +350,73 @@ f_op_notes(){
     [ -n "$sheets_url" ] || return 0
 
     if [ ! -f "${HOME}/.discover/google-token.json" ]; then
-        printf '\033[0;31m[!] Google Sheet skipped: not authorized (Audit Config → Google Sheet).\033[0m\n' >&2
-        return 0
+        f_op_notes_fail "Google Sheet error: not authorized (Audit Config → Google Sheet). Scan stopped."
+        return 1
     fi
 
-    script="$DISCOVER_ROOT/misc/op_notes.py"
-    [ -f "$script" ] || return 0
+    OP_NOTES_SCRIPT="$DISCOVER_ROOT/misc/op_notes.py"
 
-    uv_bin=""
+    if [ ! -f "$OP_NOTES_SCRIPT" ]; then
+        f_op_notes_fail "Google Sheet error: op_notes.py is missing. Scan stopped."
+        return 1
+    fi
 
     if command -v uv >/dev/null 2>&1; then
-        uv_bin=$(command -v uv)
+        OP_NOTES_UV=$(command -v uv)
     elif [ -x "${HOME}/.local/bin/uv" ]; then
-        uv_bin="${HOME}/.local/bin/uv"
+        OP_NOTES_UV="${HOME}/.local/bin/uv"
     fi
 
-    if [ -z "$uv_bin" ]; then
-        printf '\033[0;31m[!] Google Sheet skipped: uv is not installed.\033[0m\n' >&2
-        return 0
+    if [ -z "$OP_NOTES_UV" ]; then
+        f_op_notes_fail "Google Sheet error: uv is not installed. Scan stopped."
+        return 1
     fi
+
+    OP_NOTES_URL="$sheets_url"
+    return 0
+}
+
+# Open the sheet without appending a row.
+# Return 0 when logging is off or the sheet opens. Return 1 when a URL is set and it does not.
+f_op_notes_ready(){
+
+    if ! f_op_notes_prepare; then
+        return 1
+    fi
+
+    [ -n "$OP_NOTES_URL" ] || return 0
+
+    if command -v timeout >/dev/null 2>&1; then
+        if ! timeout --signal=TERM --kill-after=5s 40s \
+            "$OP_NOTES_UV" run "$OP_NOTES_SCRIPT" check "$OP_NOTES_URL" >/dev/null; then
+            f_op_notes_fail "Google Sheet error: check token/URL. Scan stopped."
+            return 1
+        fi
+    else
+        if ! "$OP_NOTES_UV" run "$OP_NOTES_SCRIPT" check "$OP_NOTES_URL" >/dev/null; then
+            f_op_notes_fail "Google Sheet error: check token/URL. Scan stopped."
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
+# Append one row. Return 0 when logging is off or the row was written.
+# Return 1 when a URL is set and the write failed. Caller must not start the tool.
+f_op_notes(){
+    local target="$1"
+    local command="$2"
+    local result="${3:-}"
+    local op ip
+
+    [ -n "$command" ] || return 0
+
+    if ! f_op_notes_prepare; then
+        return 1
+    fi
+
+    [ -n "$OP_NOTES_URL" ] || return 0
 
     if declare -F f_audit_operator_name >/dev/null 2>&1; then
         op=$(f_audit_operator_name)
@@ -375,16 +432,33 @@ f_op_notes(){
         [ -n "$ip" ] || ip=unknown
     fi
 
-    (
-        if command -v timeout >/dev/null 2>&1; then
-            timeout --signal=TERM --kill-after=5s 40s \
-                "$uv_bin" run "$script" append "$sheets_url" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" "$result" \
-                || printf '\033[0;31m[!] Google Sheet entry failed: check token/URL.\033[0m\n' >&2
-        else
-            "$uv_bin" run "$script" append "$sheets_url" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" "$result" \
-                || printf '\033[0;31m[!] Google Sheet entry failed: check token/URL.\033[0m\n' >&2
+    if command -v timeout >/dev/null 2>&1; then
+        if ! timeout --signal=TERM --kill-after=5s 40s \
+            "$OP_NOTES_UV" run "$OP_NOTES_SCRIPT" append \
+            "$OP_NOTES_URL" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" "$result" \
+            >/dev/null; then
+            f_op_notes_fail "Google Sheet error: check token/URL. Scan stopped."
+            return 1
         fi
-    ) >/dev/null &
+    else
+        if ! "$OP_NOTES_UV" run "$OP_NOTES_SCRIPT" append \
+            "$OP_NOTES_URL" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" "$result" \
+            >/dev/null; then
+            f_op_notes_fail "Google Sheet error: check token/URL. Scan stopped."
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
+f_sheet_stopped(){
+    {
+        echo
+        echo "[!] Scan stopped: Google Sheet write failed."
+        echo
+    } | tee -a "$OUT_FILE"
+    EXIT_CODE=1
 }
 
 # Software-aware nuclei tags (pass-1 recon / fingerprint).
@@ -1676,8 +1750,8 @@ else
 case "$TOOL" in
     nikto)
         # GitHub Nikto 2.5+/2.6 (update.sh → /opt/nikto): TLS SNI in bundled LW2,
-        # -useragent / -nointeractive / -nocheck; per-request -timeout 5s; maxtime 10m;
-        # hard wall via timeout 11m; FAILURES=8 in run nikto.conf.
+        # -useragent / -nointeractive / -nocheck; per-request -timeout 5s; maxtime 8m;
+        # hard wall via timeout 9m; FAILURES=8 in run nikto.conf.
         NIKTO_BIN=$(f_nikto_bin)
 
         if [ -z "$NIKTO_BIN" ]; then
@@ -1689,8 +1763,8 @@ case "$TOOL" in
             NIKTO_HTM="$RUN_DIR/nikto.htm"
             NIKTO_CONF="$RUN_DIR/nikto.conf"
             NIKTO_REQ_TIMEOUT="5"
-            NIKTO_MAXTIME="10m"
-            NIKTO_HARD_TIMEOUT="11m"
+            NIKTO_MAXTIME="8m"
+            NIKTO_HARD_TIMEOUT="9m"
 
             f_nikto_write_config "$NIKTO_CONF" "$UA"
             NIKTO_CMD=(
@@ -1710,7 +1784,8 @@ case "$TOOL" in
             fi
 
             f_write_run_header "$(f_clean_cmd NIKTO_CMD)"
-            f_op_notes "$URL" "$(f_clean_cmd NIKTO_CMD)"
+
+            if f_op_notes "$URL" "$(f_clean_cmd NIKTO_CMD)"; then
             {
                 echo "[*] Non-interactive (PROMPTS=no, UPDATES=no, -nointeractive -nocheck);"
                 echo "    HTTP/1.1 + GET; request timeout ${NIKTO_REQ_TIMEOUT}s; FAILURES=8;"
@@ -1757,6 +1832,9 @@ case "$TOOL" in
                 echo "" >> "$OUT_FILE"
                 echo "HTML report: $NIKTO_HTM" >> "$OUT_FILE"
             fi
+            else
+                f_sheet_stopped
+            fi
         fi
 
         ;;
@@ -1786,7 +1864,8 @@ case "$TOOL" in
             )
 
             f_write_run_header "$(f_clean_cmd TRANSOM_CMD)"
-            f_op_notes "$URL" "$(f_clean_cmd TRANSOM_CMD)"
+
+            if f_op_notes "$URL" "$(f_clean_cmd TRANSOM_CMD)"; then
             {
                 echo "[*] Request timeout ${TRANSOM_REQ_TIMEOUT}; hard stop ${TRANSOM_HARD_TIMEOUT}."
                 echo "    Full URL scans this origin only."
@@ -1828,6 +1907,9 @@ case "$TOOL" in
                 echo "" >> "$OUT_FILE"
                 echo "HTML report: $TRANSOM_HTM" >> "$OUT_FILE"
             fi
+            else
+                f_sheet_stopped
+            fi
         fi
 
         ;;
@@ -1849,7 +1931,7 @@ case "$TOOL" in
             -silent -nc -duc -o "$NUCLEI_OUT"
         )
 
-        f_op_notes "$URL" "$(f_clean_cmd NUCLEI_CMD)"
+        if f_op_notes "$URL" "$(f_clean_cmd NUCLEI_CMD)"; then
         {
             echo "Started: $STAMP_DISPLAY"
             echo
@@ -1956,6 +2038,15 @@ PY
             } >> "$OUT_FILE"
             echo "[*] Pass 2: skipped (no runnable CVE templates for this software)"
         fi
+        else
+            {
+                echo "Started: $STAMP_DISPLAY"
+                echo
+                echo "[!] Scan stopped: Google Sheet write failed."
+                echo
+            } | tee "$OUT_FILE"
+            EXIT_CODE=1
+        fi
 
         ;;
     droopescan)
@@ -1968,7 +2059,8 @@ PY
         DROOP_CMD=(droopescan scan "$CMS" -u "$URL" -e a -t 4 -o standard --hide-progressbar)
 
         f_write_run_header "$(f_clean_cmd DROOP_CMD)"
-        f_op_notes "$URL" "$(f_clean_cmd DROOP_CMD)"
+
+        if f_op_notes "$URL" "$(f_clean_cmd DROOP_CMD)"; then
         {
             echo "CMS: $CMS"
             echo "Software: ${SOFTWARE:--}"
@@ -1989,6 +2081,9 @@ PY
         if [ ! -s "$DROOP_OUT" ]; then
             printf '%s\n' "No droopescan output captured." > "$DROOP_OUT"
         fi
+        else
+            f_sheet_stopped
+        fi
 
         ;;
     wpscan)
@@ -2005,7 +2100,8 @@ PY
         fi
 
         f_write_run_header "$(f_clean_cmd WPSCAN_CMD)"
-        f_op_notes "$URL" "$(f_clean_cmd WPSCAN_CMD)"
+
+        if f_op_notes "$URL" "$(f_clean_cmd WPSCAN_CMD)"; then
         {
             echo "Software: ${SOFTWARE:--}"
 
@@ -2033,6 +2129,10 @@ PY
             echo "Output: $WPSCAN_OUT"
             echo
         } >> "$OUT_FILE"
+        else
+            f_sheet_stopped
+        fi
+
         ;;
     robots)
         # multiTabs.sh option 3: fetch robots.txt, parse Disallow paths.
@@ -2044,7 +2144,8 @@ PY
         ROBOTS_CMD=(curl -kLsS --http1.1 --connect-timeout 8 --max-time 15 -A "$UA" -w "%{http_code}" -o "$ROBOTS_FILE" "$ROBOTS_URL")
 
         f_write_run_header "$(f_clean_cmd ROBOTS_CMD)"
-        f_op_notes "$URL" "$(f_clean_cmd ROBOTS_CMD)"
+
+        if f_op_notes "$URL" "$(f_clean_cmd ROBOTS_CMD)"; then
         {
             echo "Robots URL: $ROBOTS_URL"
             echo "Base:       $BASE_URL"
@@ -2171,6 +2272,9 @@ PY
         else
             echo "[*] $DISALLOW_COUNT Disallow paths"
         fi
+        else
+            f_sheet_stopped
+        fi
 
         ;;
     nmap)
@@ -2181,6 +2285,14 @@ PY
             EXIT_CODE=1
         elif [ -z "$NMAP_SPEC" ]; then
             echo "[!] No Shodan ports for this host. Run Active Enrich → Shodan first." | tee -a "$OUT_FILE"
+            EXIT_CODE=1
+        elif ! f_op_notes_ready; then
+            {
+                echo "Started: $STAMP_DISPLAY"
+                echo
+                echo "[!] Scan stopped: Google Sheet write failed."
+                echo
+            } | tee -a "$OUT_FILE"
             EXIT_CODE=1
         elif [ -n "$NMAP_UDP" ] && ! f_nmap_acquire_sudo; then
             {
@@ -2247,7 +2359,18 @@ except ValueError:
 json.dump(meta, open(path, "w", encoding="utf-8"), indent=2)
 open(path, "a", encoding="utf-8").write("\n")
 PY
-            f_op_notes "$URL" "$(f_clean_cmd NMAP_CMD)" "$(f_nmap_format_body "$RUN_DIR/nmap.raw" sheet)"
+
+            if ! f_op_notes "$URL" "$(f_clean_cmd NMAP_CMD)" "$(f_nmap_format_body "$RUN_DIR/nmap.raw" sheet)"; then
+                {
+                    echo
+                    echo "[!] Scan stopped: Google Sheet write failed."
+                    echo
+                } | tee -a "$OUT_FILE"
+
+                if [ "${EXIT_CODE:-0}" -eq 0 ]; then
+                    EXIT_CODE=1
+                fi
+            fi
         fi
 
         ;;
@@ -2275,7 +2398,8 @@ PY
         FFUF_CMD=(ffuf -u "$FFUF_URL" -w "$FFUF_WL" -t 10 -rate 20 -timeout "$FFUF_TIMEOUT" -maxtime "$FFUF_MAXTIME" -se -H "User-Agent: $UA" -of json -o "$FFUF_JSON" -fc "$FFUF_FC" -noninteractive)
 
         f_write_run_header "$(f_clean_cmd FFUF_CMD)"
-        f_op_notes "$URL" "$(f_clean_cmd FFUF_CMD)"
+
+        if f_op_notes "$URL" "$(f_clean_cmd FFUF_CMD)"; then
         {
             echo "[*] Request timeout ${FFUF_TIMEOUT}s; maxtime ${FFUF_MAXTIME}s; stop on spurious errors;"
             echo "    hard stop ${FFUF_HARD_TIMEOUT}."
@@ -2314,6 +2438,9 @@ PY
             echo "" >> "$OUT_FILE"
             echo "JSON results: $FFUF_JSON" >> "$OUT_FILE"
         fi
+        else
+            f_sheet_stopped
+        fi
 
         ;;
     feroxbuster)
@@ -2327,7 +2454,8 @@ PY
         FEROX_CMD=(feroxbuster -u "$URL" -w "$FFUF_WL" -a "$UA" -t 10 --rate-limit 20 -T "$FEROX_TIMEOUT" --time-limit "$FEROX_TIME_LIMIT" --auto-bail -n --dont-extract-links -k -C "$FEROX_FC" -q --json -o "$FEROX_JSON" --no-state)
 
         f_write_run_header "$(f_clean_cmd FEROX_CMD)"
-        f_op_notes "$URL" "$(f_clean_cmd FEROX_CMD)"
+
+        if f_op_notes "$URL" "$(f_clean_cmd FEROX_CMD)"; then
         FEROX_RAW="$RUN_DIR/ferox.raw.txt"
         set +e
 
@@ -2361,6 +2489,9 @@ PY
         if [ -f "$FEROX_JSON" ]; then
             echo "" >> "$OUT_FILE"
             echo "JSON results: $FEROX_JSON" >> "$OUT_FILE"
+        fi
+        else
+            f_sheet_stopped
         fi
 
         ;;

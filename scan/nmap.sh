@@ -105,7 +105,7 @@ f_scan(){
     echo "$MEDIUM"
     echo
 
-    sudo nmap --randomize-hosts -iL "$LOCATION" --excludefile "$EXCLUDEFILE" --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -"$S" -"$U" -p T:"$TCP",U:"$UDP" -O --osscan-guess --max-os-tries 1 --max-retries 2 --min-rtt-timeout 100ms --max-rtt-timeout "$MAXRTT" --initial-rtt-timeout 500ms --min-rate 450 --max-rate 5000 --open --stats-every 20s --scan-delay "$DELAY" -oA "$NAME"/nmap
+    sudo nmap --randomize-hosts -iL "$LOCATION" --excludefile "$EXCLUDEFILE" --privileged -n -PE -PS21-23,25,53,80,110-111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080 -PU53,67-69,123,135,137-139,161-162,445,500,514,520,631,1434,1900,4500,49152 -"$S" -"$U" -p T:"$TCP",U:"$UDP" -O --osscan-guess --max-os-tries 1 --max-retries 2 --min-rtt-timeout 100ms --max-rtt-timeout "$MAXRTT" --initial-rtt-timeout 500ms --min-rate 450 --max-rate 5000 --open --stats-every 15s --scan-delay "$DELAY" -oA "$NAME"/nmap
 
     if grep -q '(0 hosts up)' "$NAME"/nmap.nmap; then
         rm -rf "$NAME" tmp*

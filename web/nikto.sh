@@ -204,7 +204,7 @@ case "$CHOICE" in
         while IFS= read -r LINE; do
             [ -z "$LINE" ] && continue
             $XDOTOOL key ctrl+shift+t
-            $XDOTOOL type "$NIKTO_BIN -config $NIKTO_CONF -host $LINE -port $PORT -useragent '$NIKTO_UA' -nointeractive -nocheck -timeout 5 -maxtime 10m -Format htm -output $HOME/data/nikto-$PORT/$LINE.htm ; exit"
+            $XDOTOOL type "$NIKTO_BIN -config $NIKTO_CONF -host $LINE -port $PORT -useragent '$NIKTO_UA' -nointeractive -nocheck -timeout 5 -maxtime 8m -Format htm -output $HOME/data/nikto-$PORT/$LINE.htm ; exit"
             sleep 2
             $XDOTOOL key $ENTER
         done < "$LOCATION"
@@ -222,7 +222,7 @@ case "$CHOICE" in
             [ -z "$HOST" ] || [ -z "$PORT" ] && continue
             $XDOTOOL key ctrl+shift+t
             sleep 2
-            $XDOTOOL type "$NIKTO_BIN -config $NIKTO_CONF -host $HOST -port $PORT -useragent '$NIKTO_UA' -nointeractive -nocheck -timeout 5 -maxtime 10m -Format htm -output $HOME/data/nikto/$HOST-$PORT.htm ; exit"
+            $XDOTOOL type "$NIKTO_BIN -config $NIKTO_CONF -host $HOST -port $PORT -useragent '$NIKTO_UA' -nointeractive -nocheck -timeout 5 -maxtime 8m -Format htm -output $HOME/data/nikto/$HOST-$PORT.htm ; exit"
             sleep 2
             $XDOTOOL key $ENTER
         done < "$LOCATION"
