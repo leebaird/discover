@@ -142,6 +142,117 @@ def plain_text_target(worksheet: gspread.Worksheet, a1: str) -> None:
     )
 
 
+# Hundredths of a pixel for ASCII 32..126. Liberation Sans at 13px matches
+# Arial 10pt, which is the spreadsheet default. Used only to count wraps.
+_ACTION_CHAR_WIDTHS = (
+    361, 361, 461, 723, 723, 1156, 867, 248, 433, 433, 506, 759, 361, 433, 361, 361,
+    723, 723, 723, 723, 723, 723, 723, 723, 723, 723, 361, 361, 759, 759, 759, 723,
+    1320, 867, 867, 939, 939, 867, 794, 1011, 939, 361, 650, 867, 723, 1083, 939, 1011,
+    867, 1011, 939, 867, 794, 939, 867, 1227, 867, 867, 794, 361, 361, 361, 609, 723,
+    433, 723, 723, 650, 723, 723, 361, 723, 723, 289, 289, 650, 289, 1083, 723, 723,
+    723, 723, 433, 650, 361, 723, 650, 939, 650, 650, 650, 434, 338, 434, 759,
+)
+
+
+def _char_width(ch: str) -> int:
+    code = ord(ch)
+    if 32 <= code <= 126:
+        return _ACTION_CHAR_WIDTHS[code - 32]
+    return 1083
+
+
+def action_line_count(text: str, column_px: int, pad_px: int = 6) -> int:
+    """Wrapped lines column E will show. Hard newlines count, and so does wrap."""
+    usable = max(_char_width("M"), (column_px - pad_px) * 100)
+    total = 0
+    for para in (text or "").split("\n"):
+        if para == "":
+            total += 1
+            continue
+        count = 0
+        current = ""
+        current_w = 0
+        for word in para.split(" "):
+            word_w = sum(_char_width(ch) for ch in word)
+            space_w = _char_width(" ") if current else 0
+            if current and current_w + space_w + word_w <= usable:
+                current = current + " " + word
+                current_w += space_w + word_w
+                continue
+            if current:
+                count += 1
+                current = ""
+                current_w = 0
+            if word_w <= usable:
+                current = word
+                current_w = word_w
+                continue
+            chunk = ""
+            chunk_w = 0
+            for ch in word:
+                cw = _char_width(ch)
+                if chunk and chunk_w + cw > usable:
+                    count += 1
+                    chunk = ch
+                    chunk_w = cw
+                else:
+                    chunk += ch
+                    chunk_w += cw
+            current = chunk
+            current_w = chunk_w
+        if current:
+            count += 1
+        total += max(count, 1)
+    return max(total, 1)
+
+
+def action_row_pixels(lines: int) -> int:
+    """Row height when Action wraps. One line keeps the default row."""
+    if lines <= 1:
+        return 0
+    # Default row is 20px for one line of Arial 10. Each further line is 18px,
+    # plus a few pixels so the last line is not clipped.
+    return 20 + (lines - 1) * 18 + 4
+
+
+def action_column_width(worksheet: gspread.Worksheet) -> int:
+    title = "'" + worksheet.title.replace("'", "''") + "'"
+    meta = worksheet.spreadsheet.fetch_sheet_metadata(params={
+        "includeGridData": "true",
+        "ranges": [f"{title}!E1"],
+        "fields": "sheets.data.columnMetadata.pixelSize",
+    })
+    cols = meta["sheets"][0]["data"][0].get("columnMetadata") or [{}]
+    return int(cols[0].get("pixelSize") or 100)
+
+
+def expand_action_rows(worksheet: gspread.Worksheet, heights: dict[int, int]) -> None:
+    """Grow rows whose Action cell wraps past one line. heights: 1-based row to pixels."""
+    if not heights:
+        return
+    worksheet.format(
+        [f"E{row}" for row in heights],
+        {"wrapStrategy": "WRAP", "verticalAlignment": "TOP"},
+    )
+    worksheet.spreadsheet.batch_update({
+        "requests": [
+            {
+                "updateDimensionProperties": {
+                    "range": {
+                        "sheetId": worksheet.id,
+                        "dimension": "ROWS",
+                        "startIndex": row - 1,
+                        "endIndex": row,
+                    },
+                    "properties": {"pixelSize": pixels},
+                    "fields": "pixelSize",
+                }
+            }
+            for row, pixels in heights.items()
+        ]
+    })
+
+
 def cmd_authorize() -> int:
     get_credentials(interactive=True)
     print("Google Sheet authorization saved.")
@@ -210,6 +321,19 @@ def cmd_append(args: argparse.Namespace) -> int:
                         "textFormat": {"fontFamily": "Courier New"},
                     },
                 )
+        except Exception:
+            pass
+    if row and args.command:
+        try:
+            padding = ((metadata.get("properties") or {}).get("defaultFormat") or {}).get("padding") or {}
+            pad = int(padding.get("left") or 0) + int(padding.get("right") or 0)
+            if pad <= 0:
+                pad = 6
+            width = action_column_width(worksheet)
+            lines = action_line_count(args.command, width, pad)
+            pixels = action_row_pixels(lines)
+            if pixels:
+                expand_action_rows(worksheet, {int(row): pixels})
         except Exception:
             pass
     return 0
