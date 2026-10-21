@@ -1187,6 +1187,7 @@ def enrich_software_rows_for_report(
     *,
     force: bool = False,
     force_missing_only: bool = False,
+    allow_nvd: bool = True,
 ):
     """Attach CVSS/CVE fields; degrade gracefully if NVD is unavailable."""
     if not software_version_rows:
@@ -1222,6 +1223,7 @@ def enrich_software_rows_for_report(
             progress=progress,
             force=force,
             force_missing_only=force_missing_only,
+            allow_nvd=allow_nvd,
         )
         enrich_software_rows_for_report.last_stats = getattr(
             software_cve.enrich_software_version_rows, "last_stats", {}
@@ -2242,6 +2244,7 @@ def build_active_summary(
     *,
     force_cve: bool = False,
     force_cve_missing_only: bool = False,
+    allow_nvd: bool = True,
     report_dir: str = "",
 ):
     all_subdomain_rows = load_subdomain_rows(subdomains_path)
@@ -2336,6 +2339,7 @@ def build_active_summary(
         httpx_path,
         force=force_cve,
         force_missing_only=force_cve_missing_only,
+        allow_nvd=allow_nvd,
     )
 
     categories_column = [
@@ -2731,11 +2735,81 @@ def write_subdomains_active_page(report_dir: str) -> dict:
     return result
 
 
+def _load_shodan_enrich_module():
+    module_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "shodan-enrich.py")
+    spec = importlib.util.spec_from_file_location("shodan_enrich_kev", module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def refresh_kev_catalog(report_dir: str) -> dict:
+    """Download the CISA KEV catalog and apply it to one engagement.
+
+    Same feed as Discover Update. Rewrites tools/shodan/kev-ids.js and rebuilds
+    Active from the cache so Top CVE badges follow the new catalog. No NVD
+    queries and no Shodan API calls.
+    """
+    report_dir = os.path.abspath(os.path.expanduser(report_dir))
+    software_cve = _load_software_cve_module()
+    downloaded = software_cve.download_cisa_kev_catalog()
+    result = {
+        "ok": bool(downloaded.get("ok")),
+        "added": int(downloaded.get("added") or 0),
+        "removed": int(downloaded.get("removed") or 0),
+        "total": int(downloaded.get("total") or 0),
+        "new_ids": list(downloaded.get("new_ids") or []),
+        "first_catalog": bool(downloaded.get("first_catalog")),
+        "on_report": [],
+        "kev_ids_written": False,
+        "kev_id_count": 0,
+        "active_rebuilt": False,
+        "active_skipped": False,
+    }
+    if downloaded.get("error"):
+        result["error"] = downloaded["error"]
+    if not result["ok"]:
+        return result
+
+    if not result["first_catalog"] and result["new_ids"]:
+        cache_path = os.path.join(report_dir, "tools", "software-cves-cache.json")
+        result["on_report"] = software_cve.software_cache_kev_hits(
+            cache_path,
+            set(result["new_ids"]),
+        )
+
+    shodan_dir = os.path.join(report_dir, "tools", "shodan")
+    try:
+        shodan_mod = _load_shodan_enrich_module()
+        count = int(shodan_mod.write_kev_ids_js(shodan_dir) or 0)
+        result["kev_id_count"] = count
+        result["kev_ids_written"] = count > 0
+    except Exception as exc:
+        result["kev_ids_error"] = str(exc)
+
+    httpx_path = os.path.join(report_dir, "tools", "httpx.jsonl")
+    if not os.path.isfile(httpx_path):
+        result["active_skipped"] = True
+        return result
+
+    rebuilt = rebuild_active_page(
+        report_dir,
+        force_cve=False,
+        force_cve_missing_only=False,
+        allow_nvd=False,
+    )
+    result["active_rebuilt"] = bool(rebuilt.get("ok"))
+    if not rebuilt.get("ok") and rebuilt.get("error"):
+        result["active_error"] = rebuilt.get("error")
+    return result
+
+
 def rebuild_active_page(
     report_dir: str,
     *,
     force_cve: bool = False,
     force_cve_missing_only: bool = True,
+    allow_nvd: bool = True,
 ) -> dict:
     """Rebuild pages/active.htm from existing tools/ artifacts + NVD enrich.
 
@@ -2777,6 +2851,7 @@ def rebuild_active_page(
         paths["whatweb"] if os.path.isfile(paths["whatweb"]) else "",
         force_cve=force_cve,
         force_cve_missing_only=force_cve_missing_only,
+        allow_nvd=allow_nvd,
     )
     scan_date = httpx_scan_date(paths["httpx"])
 
@@ -2871,6 +2946,11 @@ if __name__ == "__main__":
         help="Force re-query NVD for missing/zero-CVE software and rebuild active.htm",
     )
     parser.add_argument(
+        "--refresh-kev",
+        action="store_true",
+        help="Download the CISA KEV catalog and refresh badges on this report",
+    )
+    parser.add_argument(
         "--force-all",
         action="store_true",
         help="With --refresh-cves: re-query all CPE-mapped products (not only missing/empty)",
@@ -2886,17 +2966,29 @@ if __name__ == "__main__":
         help="Do not append audit log",
     )
     args = parser.parse_args()
-    if not args.refresh_cves or not args.report_dir:
+    if not args.report_dir or not (args.refresh_cves or args.refresh_kev):
         parser.print_help()
         raise SystemExit(2)
 
-    out = rebuild_active_page(
-        args.report_dir,
-        force_cve=bool(args.force_all),
-        force_cve_missing_only=not bool(args.force_all),
-    )
+    if args.refresh_kev:
+        out = refresh_kev_catalog(args.report_dir)
+    else:
+        out = rebuild_active_page(
+            args.report_dir,
+            force_cve=bool(args.force_all),
+            force_cve_missing_only=not bool(args.force_all),
+        )
     if args.json:
         print(_json.dumps(out, separators=(",", ":")))
+    elif args.refresh_kev:
+        if out.get("ok"):
+            print(
+                f"[*] CISA KEV catalog: {out.get('added')} new "
+                f"({out.get('total')} total)."
+            )
+        else:
+            print(f"[!] {out.get('error')}", file=sys.stderr)
+            raise SystemExit(1)
     else:
         if out.get("ok"):
             print(f"[*] Rebuilt {out.get('page')}")

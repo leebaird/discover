@@ -510,6 +510,20 @@ def cisa_kev_catalog_path() -> str:
     return preferred
 
 
+def kev_ids_from_payload(payload: Any) -> set[str]:
+    """CVE IDs from a CISA KEV catalog object."""
+    ids: set[str] = set()
+    if not isinstance(payload, dict):
+        return ids
+    for entry in payload.get("vulnerabilities") or []:
+        if not isinstance(entry, dict):
+            continue
+        cve_id = (entry.get("cveID") or entry.get("cve_id") or "").strip().upper()
+        if cve_id.startswith("CVE-"):
+            ids.add(cve_id)
+    return ids
+
+
 def load_cisa_kev_ids(path: str | None = None) -> set[str]:
     """Load CVE IDs from the CISA KEV catalog (resource/ or explicit path)."""
     catalog = path or cisa_kev_catalog_path()
@@ -521,15 +535,169 @@ def load_cisa_kev_ids(path: str | None = None) -> set[str]:
             payload = json.load(handle)
     except (OSError, json.JSONDecodeError):
         return set()
+    return kev_ids_from_payload(payload)
 
-    ids: set[str] = set()
-    for entry in payload.get("vulnerabilities") or []:
+
+CISA_KEV_URL = (
+    "https://www.cisa.gov/sites/default/files/feeds/"
+    "known_exploited_vulnerabilities.json"
+)
+CISA_KEV_UA = "Discover-update/1.0 (https://github.com/leebaird/discover)"
+
+
+def _read_kev_payload(path: str) -> dict[str, Any] | None:
+    if not path or not os.path.isfile(path):
+        return None
+    try:
+        with open(path, encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def kev_catalog_total(payload: dict[str, Any], ids: set[str]) -> int:
+    count = payload.get("count")
+    if isinstance(count, int) and count >= 0:
+        return count
+    return len(ids)
+
+
+def software_cache_kev_hits(cache_path: str, ids: set[str]) -> list[str]:
+    """CVE IDs from ``ids`` that already appear in the software CVE cache."""
+    if not ids or not cache_path or not os.path.isfile(cache_path):
+        return []
+    payload = _read_kev_payload(cache_path)
+    if not payload:
+        return []
+    entries = payload.get("entries") or {}
+    if not isinstance(entries, dict):
+        return []
+    hits: set[str] = set()
+    for entry in entries.values():
         if not isinstance(entry, dict):
             continue
-        cve_id = (entry.get("cveID") or entry.get("cve_id") or "").strip().upper()
-        if cve_id.startswith("CVE-"):
-            ids.add(cve_id)
-    return ids
+        top = (entry.get("top_cve") or "").strip().upper()
+        if top in ids:
+            hits.add(top)
+        for row in entry.get("cves") or []:
+            if not isinstance(row, dict):
+                continue
+            cve_id = (row.get("id") or "").strip().upper()
+            if cve_id in ids:
+                hits.add(cve_id)
+    return sorted(hits)
+
+
+def install_cisa_kev_catalog(raw: bytes, dest_dir: str) -> dict[str, Any]:
+    """Validate a CISA catalog download and replace kevs.json in ``dest_dir``.
+
+    A bad payload leaves the previous file in place. The returned ``new_ids``
+    list is empty on the first catalog so a full feed is not echoed back.
+    """
+    result: dict[str, Any] = {
+        "ok": False,
+        "added": 0,
+        "total": 0,
+        "new_ids": [],
+        "first_catalog": False,
+        "removed": 0,
+    }
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeError, json.JSONDecodeError, TypeError, ValueError):
+        result["error"] = (
+            "CISA KEV download was not valid JSON. Previous catalog kept."
+        )
+        return result
+    if not isinstance(payload, dict):
+        result["error"] = (
+            "CISA KEV download was not a catalog. Previous catalog kept."
+        )
+        return result
+    new_ids = kev_ids_from_payload(payload)
+    if not new_ids:
+        result["error"] = (
+            "CISA KEV download had no CVE ids. Previous catalog kept."
+        )
+        return result
+
+    os.makedirs(dest_dir, exist_ok=True)
+    kev_file = os.path.join(dest_dir, "kevs.json")
+    legacy = os.path.join(dest_dir, "known_exploited_vulnerabilities.json")
+    prev_path = ""
+    if os.path.isfile(kev_file):
+        prev_path = kev_file
+    elif os.path.isfile(legacy):
+        prev_path = legacy
+    first = not prev_path
+    old_ids: set[str] = set()
+    if prev_path:
+        old_payload = _read_kev_payload(prev_path)
+        if old_payload:
+            old_ids = kev_ids_from_payload(old_payload)
+    gained = sorted(new_ids - old_ids)
+    removed = len(old_ids - new_ids)
+
+    tmp_path = kev_file + ".tmp"
+    body = raw if raw.endswith(b"\n") else raw + b"\n"
+    try:
+        with open(tmp_path, "wb") as handle:
+            handle.write(body)
+        os.chmod(tmp_path, 0o644)
+        os.replace(tmp_path, kev_file)
+    except OSError as exc:
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+        result["error"] = f"Could not save the CISA KEV catalog. {exc}"
+        return result
+
+    if os.path.isfile(legacy) and os.path.abspath(legacy) != os.path.abspath(kev_file):
+        try:
+            os.remove(legacy)
+        except OSError:
+            pass
+
+    result["ok"] = True
+    result["added"] = len(gained)
+    result["removed"] = removed
+    result["total"] = kev_catalog_total(payload, new_ids)
+    result["first_catalog"] = first
+    result["new_ids"] = [] if first else gained
+    return result
+
+
+def download_cisa_kev_catalog(
+    dest_dir: str | None = None,
+    *,
+    timeout: int = 180,
+) -> dict[str, Any]:
+    """Download the CISA KEV feed into resource/kevs.json (or ``dest_dir``)."""
+    if not dest_dir:
+        dest_dir = os.path.join(discover_root(), "resource")
+    request = urllib.request.Request(
+        CISA_KEV_URL,
+        headers={"User-Agent": CISA_KEV_UA, "Accept": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            raw = response.read()
+    except (OSError, urllib.error.URLError) as exc:
+        return {
+            "ok": False,
+            "added": 0,
+            "total": 0,
+            "new_ids": [],
+            "first_catalog": False,
+            "removed": 0,
+            "error": (
+                "Failed to download the CISA KEV catalog. "
+                f"Previous catalog kept. {exc}"
+            ),
+        }
+    return install_cisa_kev_catalog(raw, dest_dir)
 
 
 def _cve_sort_key(item: dict[str, Any]) -> tuple:
@@ -668,8 +836,11 @@ def _should_requery_cached(
     *,
     force: bool,
     force_missing_only: bool,
+    allow_nvd: bool = True,
 ) -> bool:
     """Decide whether to re-hit NVD for a cache entry."""
+    if not allow_nvd:
+        return False
     if force:
         # Permanent skips stay skipped unless we remove them from SKIP_PRODUCTS.
         if product_key(product_name) in SKIP_PRODUCTS:
@@ -705,6 +876,7 @@ def enrich_software_version_rows(
     kev_catalog_path: str | None = None,
     force: bool = False,
     force_missing_only: bool = False,
+    allow_nvd: bool = True,
 ) -> list[tuple[str, int, str, str, str, bool]]:
     """Enrich (label, count) rows with CVSS fields.
 
@@ -715,6 +887,7 @@ def enrich_software_version_rows(
 
     force: re-query all CPE-mapped products (except SKIP_PRODUCTS).
     force_missing_only: re-query missing entries, nvd-error, and zero-CVE results.
+    allow_nvd: when false, render from the cache and the current KEV catalog only.
     """
     if sleep_seconds is None:
         # Authenticated NVD allows ~50 req/30s; unauthenticated ~5/30s.
@@ -811,6 +984,7 @@ def enrich_software_version_rows(
             cached if isinstance(cached, dict) else None,
             force=force,
             force_missing_only=force_missing_only,
+            allow_nvd=allow_nvd,
         )
         if do_query:
             if progress:

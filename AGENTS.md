@@ -69,7 +69,7 @@ Conventions agreed with the operator for Discover development. **Read and follow
 ## Report homepage date (`index.htm`)
 
 - Home hero date (`#DATE#` / first `inc-home-meta` value) is format `Month DD, YYYY` (same as Discover `DATESTAMP`).
-- **Update to today** whenever the engagement changes: Passive finish, Active, host-scan finish, Shodan enrich/Update, software CVE refresh, subdomain/names imports, operator package import.
+- **Update to today** whenever the engagement changes: Passive finish, Active, host-scan finish, Shodan enrich/Update, software CVE refresh, KEV catalog refresh, subdomain/names imports, operator package import.
 - Helper: `recon/touch-report-date.py <report_dir>` (also callable from Python via `touch_report_index_date`).
 
 ## Import hub (Audit page)
@@ -247,7 +247,8 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 
 ## Active page Enrich (Shodan + Software CVEs)
 
-- **Enrich** button on Active (statusd only). Modal checkboxes (default both on). When both run from one click, the finished modal replaces **Cancel** and **Enrich** with **Reload Active page**. One option leaves **Cancel** and **Enrich**.
+- **Enrich** button on Active (statusd only). Modal title **Enrich Engagement Data**. Checkboxes, default all on, top to bottom: **KEVs**, **Shodan**, **Software CVEs**. When more than one option runs and the Active page was rebuilt, the finished modal replaces **Cancel** and **Enrich** with **Reload Active page**. One option leaves **Cancel** and **Enrich**, and shows **Reload Active page** in the results when the page was rebuilt.
+  - **KEVs** → `POST /kev-refresh` → `active-tech.py <report> --refresh-kev --json`. Downloads the CISA catalog to `resource/kevs.json` (same feed as Update), rewrites `tools/shodan/kev-ids.js`, and rebuilds Active so Top CVE badges use the new catalog. No NVD queries. No API key.
   - **Shodan** → `POST /shodan-refresh-all` → `shodan-enrich.py <report> --force --json-summary`
   - **Software CVEs** → `POST /software-cve-refresh` → `active-tech.py <report> --refresh-cves --json` (re-queries NVD for missing/empty cache entries by default; `--force-all` optional; rebuilds `pages/active.htm` Software versions table + `cve-software-index.js`)
 - Software versions CVE data is **NVD CPE**, not Shodan host vulns. Permanent skips: Microsoft HTTPAPI, Java Servlet, JavaServer Pages (`SKIP_PRODUCTS` in `software-cve.py`).

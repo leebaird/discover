@@ -23,6 +23,7 @@ Binds 127.0.0.1 only. Serves:
   POST /shodan-refresh -> force-refresh one IP via recon/shodan-enrich.py --ip (JSON: {"ip":"..."})
   POST /shodan-refresh-all -> force Shodan enrich all public IPs (--force --json-summary)
   POST /software-cve-refresh -> force NVD software CVEs + rebuild active.htm
+  POST /kev-refresh -> download CISA KEV catalog and refresh badges on this report
   GET  /config -> operator config (api keys, name, view timezone, this report Google Sheet URL)
   POST /config/api-keys -> save NVD/SHODAN/WPSCAN keys to ~/.discover/api-keys
   POST /config/operator-name -> set name; rewrite this report audit log; rebuild Audit
@@ -330,6 +331,7 @@ def main(argv: list[str]) -> int:
                 "/shodan-refresh",
                 "/shodan-refresh-all",
                 "/software-cve-refresh",
+                "/kev-refresh",
                 "/config/api-keys",
                 "/config/operator-name",
                 "/config/timezone",
@@ -416,6 +418,66 @@ def main(argv: list[str]) -> int:
                                 "ok": False,
                                 "error": err[:500]
                                 or f"shodan-enrich exit {proc.returncode}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                code = 200 if result.get("ok") else 400
+                self._send(code, json.dumps(result).encode() + b"\n")
+                return
+
+            if path == "/kev-refresh":
+                if not active_tech.is_file():
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": f"active-tech missing: {active_tech}",
+                            }
+                        ).encode()
+                        + b"\n",
+                    )
+                    return
+                try:
+                    proc = subprocess.run(
+                        [
+                            sys.executable,
+                            str(active_tech),
+                            str(report_root),
+                            "--refresh-kev",
+                            "--json",
+                        ],
+                        capture_output=True,
+                        text=True,
+                        timeout=900,
+                        env=env,
+                        cwd=str(discover_root),
+                    )
+                except subprocess.TimeoutExpired:
+                    self._send(
+                        504,
+                        b'{"ok":false,"error":"CISA KEV download timed out."}\n',
+                    )
+                    return
+                except OSError as exc:
+                    self._send(
+                        500,
+                        json.dumps({"ok": False, "error": str(exc)}).encode()
+                        + b"\n",
+                    )
+                    return
+                result = _parse_json_stdout(proc.stdout or "")
+                if not isinstance(result, dict):
+                    err = (proc.stderr or proc.stdout or "kev refresh failed").strip()
+                    self._send(
+                        500,
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "error": err[:500]
+                                or f"active-tech exit {proc.returncode}",
                             }
                         ).encode()
                         + b"\n",

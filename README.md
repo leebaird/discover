@@ -226,7 +226,7 @@ theHarvester keys stay in `~/.theHarvester/api-keys.yaml` (Config **APIs** has a
 
 **Shodan:** Report > Active > Enrich after Active. Looks up public IPs from `tools/httpx.jsonl`. Without a key the flow soft-skips.
 
-**KEV:** Update downloads CISA KEV to `resource/kevs.json`. Open report rewrites `tools/shodan/kev-ids.js` for that engagement (no Shodan re-query). Active Software **Top CVE** prefers a KEV match when present (orange **KEV** badge).
+**KEV:** Active **Enrich** (KEVs checkbox) or Update downloads CISA KEV to `resource/kevs.json`. Enrich also rewrites `tools/shodan/kev-ids.js` for the open report and refreshes Active badges. Open report rewrites that file when Shodan artifacts exist (no Shodan re-query). Active Software **Top CVE** prefers a KEV match when present (orange **KEV** badge).
 
 ---
 

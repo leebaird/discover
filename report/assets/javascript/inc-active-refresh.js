@@ -3,7 +3,7 @@
  * Coded by Grok (xAI)
  *
  * Active page Enrich modal (Discover statusd only).
- * Optional: bulk Shodan force-refresh + Software CVE (NVD/KEV) refresh.
+ * Optional: CISA KEV catalog, bulk Shodan force-refresh, Software CVE refresh.
  */
 (function () {
     var STATUS_PORT = 17322;
@@ -38,12 +38,17 @@
             '<div class="inc-report-export-backdrop" data-inc-active-refresh-close="1"></div>' +
             '<div class="inc-report-export-dialog">' +
             '<div class="inc-report-export-header">' +
-            '<h2 id="inc-active-refresh-title" class="inc-report-export-title">Enrich engagement intel</h2>' +
+            '<h2 id="inc-active-refresh-title" class="inc-report-export-title">Enrich Engagement Data</h2>' +
             '<button type="button" class="inc-report-export-x" data-inc-active-refresh-close="1" aria-label="Close">×</button>' +
             "</div>" +
             '<p class="inc-report-export-lead">Refresh data for this report without re-running Active recon. ' +
-            "Both options are safe to leave checked.</p>" +
+            "These options are safe to leave checked.</p>" +
             '<div class="inc-report-export-choices" role="group" aria-label="Enrich options">' +
+            '<label class="inc-report-export-choice">' +
+            '<input type="checkbox" id="inc-active-refresh-kev" checked>' +
+            "<span><strong>KEVs</strong> — download the CISA Known Exploited Vulnerabilities catalog " +
+            "and refresh badges on this report. No API key.</span>" +
+            "</label>" +
             '<label class="inc-report-export-choice">' +
             '<input type="checkbox" id="inc-active-refresh-shodan" checked>' +
             "<span><strong>Shodan</strong> — re-query all public IPs (ports, org, host vulns). " +
@@ -126,16 +131,16 @@
         if (go) {
             go.disabled = false;
         }
-        var sh = document.getElementById("inc-active-refresh-shodan");
-        var cv = document.getElementById("inc-active-refresh-cves");
-        if (sh) {
-            sh.checked = true;
-            sh.disabled = false;
-        }
-        if (cv) {
-            cv.checked = true;
-            cv.disabled = false;
-        }
+        ["inc-active-refresh-kev", "inc-active-refresh-shodan", "inc-active-refresh-cves"].forEach(
+            function (id) {
+                var box = document.getElementById(id);
+                if (!box) {
+                    return;
+                }
+                box.checked = true;
+                box.disabled = false;
+            }
+        );
         setActionsVisible(true);
         el.removeAttribute("hidden");
         el.classList.add("is-open");
@@ -594,6 +599,44 @@
         return lines.join("<br>");
     }
 
+    function formatKevSummary(j) {
+        var lines = ["<strong>KEVs</strong>"];
+        var added = Number(j.added || 0);
+        var total = j.total != null ? j.total : 0;
+        var word = added === 1 ? "KEV" : "KEVs";
+        if (j.first_catalog) {
+            lines.push("Saved resource/kevs.json.");
+            lines.push(
+                added +
+                    " new " +
+                    word +
+                    " added (first catalog on this install, " +
+                    total +
+                    " total)."
+            );
+        } else if (added === 0) {
+            lines.push("No new KEVs added (" + total + " total).");
+        } else {
+            lines.push(added + " new " + word + " added (" + total + " total).");
+            var ids = Array.isArray(j.new_ids) ? j.new_ids : [];
+            ids.forEach(function (id) {
+                lines.push(esc(id));
+            });
+            var onReport = Array.isArray(j.on_report) ? j.on_report : [];
+            if (onReport.length) {
+                lines.push("On this report: " + onReport.map(esc).join(", ") + ".");
+            } else {
+                lines.push("None of the new KEVs are in this report's software versions.");
+            }
+        }
+        if (j.active_rebuilt) {
+            lines.push("KEV badges refreshed on this report.");
+        } else if (j.active_skipped) {
+            lines.push("Catalog saved. This report has no Active scan to refresh.");
+        }
+        return lines.join("<br>");
+    }
+
     function postJson(path, body) {
         return fetch(path, {
             method: "POST",
@@ -613,16 +656,22 @@
         if (go) {
             go.disabled = false;
         }
-        ["inc-active-refresh-shodan", "inc-active-refresh-cves"].forEach(function (id) {
-            var el = document.getElementById(id);
-            if (el) {
-                el.disabled = false;
+        ["inc-active-refresh-kev", "inc-active-refresh-shodan", "inc-active-refresh-cves"].forEach(
+            function (id) {
+                var el = document.getElementById(id);
+                if (el) {
+                    el.disabled = false;
+                }
             }
-        });
+        );
     }
 
     function runUpdate() {
         var go = document.getElementById("inc-active-refresh-go");
+        var wantKev = !!(
+            document.getElementById("inc-active-refresh-kev") &&
+            document.getElementById("inc-active-refresh-kev").checked
+        );
         var wantShodan = !!(
             document.getElementById("inc-active-refresh-shodan") &&
             document.getElementById("inc-active-refresh-shodan").checked
@@ -631,24 +680,48 @@
             document.getElementById("inc-active-refresh-cves") &&
             document.getElementById("inc-active-refresh-cves").checked
         );
-        if (!wantShodan && !wantCves) {
-            setStatus("Select Shodan and/or Software CVEs.", true);
+        var optionCount = (wantKev ? 1 : 0) + (wantShodan ? 1 : 0) + (wantCves ? 1 : 0);
+        if (!optionCount) {
+            setStatus("Select KEVs, Shodan, and/or Software CVEs.", true);
             return;
         }
         if (go) {
             go.disabled = true;
         }
-        ["inc-active-refresh-shodan", "inc-active-refresh-cves"].forEach(function (id) {
-            var el = document.getElementById(id);
-            if (el) {
-                el.disabled = true;
+        ["inc-active-refresh-kev", "inc-active-refresh-shodan", "inc-active-refresh-cves"].forEach(
+            function (id) {
+                var el = document.getElementById(id);
+                if (el) {
+                    el.disabled = true;
+                }
             }
-        });
+        );
 
         var blocks = [];
         var anyFail = false;
-        var cveOk = false;
+        var pageRebuilt = false;
         var chain = Promise.resolve();
+
+        if (wantKev) {
+            chain = chain.then(function () {
+                setStatus("Downloading the CISA KEV catalog.", false);
+                return postJson("/kev-refresh", {}).then(function (res) {
+                    var j = res.body || {};
+                    if (j.ok) {
+                        if (j.active_rebuilt) {
+                            pageRebuilt = true;
+                        }
+                        blocks.push(formatKevSummary(j));
+                    } else {
+                        anyFail = true;
+                        blocks.push(
+                            "<strong>KEVs</strong><br>Failed: " +
+                                esc(j.error || "HTTP " + res.http)
+                        );
+                    }
+                });
+            });
+        }
 
         if (wantShodan) {
             chain = chain.then(function () {
@@ -681,7 +754,7 @@
                 }).then(function (res) {
                     var j = res.body || {};
                     if (j.ok) {
-                        cveOk = true;
+                        pageRebuilt = true;
                         blocks.push(formatCveSummary(j));
                     } else {
                         anyFail = true;
@@ -696,21 +769,21 @@
 
         chain
             .then(function () {
-                var both = wantShodan && wantCves;
+                var multi = optionCount > 1;
                 var html = blocks.join("<hr class=\"inc-active-refresh-hr\">");
-                if (cveOk) {
+                if (pageRebuilt) {
                     html +=
                         '<hr class="inc-active-refresh-hr">' +
                         '<p class="inc-active-refresh-reload-note">' +
-                        "Active page was rebuilt. Reload to see the Software versions table.</p>";
-                    if (!both) {
+                        "Active page was rebuilt. Reload to see the new data.</p>";
+                    if (!multi) {
                         html +=
                             '<button type="button" class="inc-report-export-go" id="inc-active-refresh-reload">' +
                             "Reload Active page</button>";
                     }
                 }
                 setStatusHtml(html, anyFail);
-                if (both) {
+                if (multi && (pageRebuilt || anyFail)) {
                     showReloadAction();
                 } else {
                     reenableControls();
@@ -723,7 +796,7 @@
                         (err && err.message ? err.message : String(err)),
                     true
                 );
-                if (wantShodan && wantCves) {
+                if (optionCount > 1) {
                     showReloadAction();
                 } else {
                     reenableControls();
@@ -744,7 +817,7 @@
         btn.type = "button";
         btn.className = "inc-active-refresh-btn";
         btn.textContent = "Enrich";
-        btn.title = "Enrich Shodan and/or Software CVEs for this engagement";
+        btn.title = "Enrich KEVs, Shodan, and/or Software CVEs for this engagement";
         btn.addEventListener("click", function (ev) {
             ev.preventDefault();
             ev.stopPropagation();
