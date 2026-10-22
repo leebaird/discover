@@ -142,9 +142,23 @@ def _char_width(ch: str) -> int:
     return 1083
 
 
-def action_line_count(text: str, column_px: int, pad_px: int = 6) -> int:
-    """Wrapped lines column E will show. Hard newlines count, and so does wrap."""
-    usable = max(_char_width("M"), (column_px - pad_px) * 100)
+# Liberation Mono 13px is 7.8px per glyph. That matches Courier New 10pt,
+# which is what an nmap PORT table uses in column F.
+_COURIER_CHAR_WIDTH = 780
+
+
+def _courier_width(_ch: str) -> int:
+    return _COURIER_CHAR_WIDTH
+
+
+def action_line_count(
+    text: str,
+    column_px: int,
+    pad_px: int = 6,
+    width_of=_char_width,
+) -> int:
+    """Wrapped lines a cell will show. Hard newlines count, and so does wrap."""
+    usable = max(width_of("M"), (column_px - pad_px) * 100)
     total = 0
     for para in (text or "").split("\n"):
         if para == "":
@@ -154,8 +168,8 @@ def action_line_count(text: str, column_px: int, pad_px: int = 6) -> int:
         current = ""
         current_w = 0
         for word in para.split(" "):
-            word_w = sum(_char_width(ch) for ch in word)
-            space_w = _char_width(" ") if current else 0
+            word_w = sum(width_of(ch) for ch in word)
+            space_w = width_of(" ") if current else 0
             if current and current_w + space_w + word_w <= usable:
                 current = current + " " + word
                 current_w += space_w + word_w
@@ -171,7 +185,7 @@ def action_line_count(text: str, column_px: int, pad_px: int = 6) -> int:
             chunk = ""
             chunk_w = 0
             for ch in word:
-                cw = _char_width(ch)
+                cw = width_of(ch)
                 if chunk and chunk_w + cw > usable:
                     count += 1
                     chunk = ch
@@ -196,15 +210,19 @@ def action_row_pixels(lines: int) -> int:
     return 20 + (lines - 1) * 18 + 4
 
 
-def action_column_width(worksheet: gspread.Worksheet) -> int:
+def column_pixel_width(worksheet: gspread.Worksheet, column: str) -> int:
     title = "'" + worksheet.title.replace("'", "''") + "'"
     meta = worksheet.spreadsheet.fetch_sheet_metadata(params={
         "includeGridData": "true",
-        "ranges": [f"{title}!E1"],
+        "ranges": [f"{title}!{column}1"],
         "fields": "sheets.data.columnMetadata.pixelSize",
     })
     cols = meta["sheets"][0]["data"][0].get("columnMetadata") or [{}]
     return int(cols[0].get("pixelSize") or 100)
+
+
+def action_column_width(worksheet: gspread.Worksheet) -> int:
+    return column_pixel_width(worksheet, "E")
 
 
 def next_log_row(column_a: list) -> int:
@@ -256,14 +274,10 @@ def write_new_log_row(worksheet: gspread.Worksheet, values: list[str]) -> int:
     return row
 
 
-def expand_action_rows(worksheet: gspread.Worksheet, heights: dict[int, int]) -> None:
-    """Grow rows whose Action cell wraps past one line. heights: 1-based row to pixels."""
+def set_row_heights(worksheet: gspread.Worksheet, heights: dict[int, int]) -> None:
+    """Set 1-based row heights in pixels."""
     if not heights:
         return
-    worksheet.format(
-        [f"E{row}" for row in heights],
-        {"wrapStrategy": "WRAP", "verticalAlignment": "TOP"},
-    )
     worksheet.spreadsheet.batch_update({
         "requests": [
             {
@@ -281,6 +295,43 @@ def expand_action_rows(worksheet: gspread.Worksheet, heights: dict[int, int]) ->
             for row, pixels in heights.items()
         ]
     })
+
+
+def expand_action_rows(worksheet: gspread.Worksheet, heights: dict[int, int]) -> None:
+    """Grow rows whose Action cell wraps past one line. heights: 1-based row to pixels."""
+    if not heights:
+        return
+    worksheet.format(
+        [f"E{row}" for row in heights],
+        {"wrapStrategy": "WRAP", "verticalAlignment": "TOP"},
+    )
+    set_row_heights(worksheet, heights)
+
+
+def log_row_height(
+    command: str,
+    result: str,
+    *,
+    action_px: int,
+    result_px: int,
+    pad_px: int,
+) -> tuple[int, int]:
+    """Pixels for the row, and whether column E itself needs wrap.
+
+    The row uses the taller of a wrapped command and a multi-line nmap table.
+    One line in both columns keeps the sheet's default row height (returns 0).
+    """
+    action_lines = action_line_count(command or "", action_px, pad_px) if command else 1
+    result_lines = 1
+    if (result or "").lstrip().startswith("PORT"):
+        result_lines = action_line_count(
+            result,
+            result_px,
+            pad_px,
+            width_of=_courier_width,
+        )
+    pixels = max(action_row_pixels(action_lines), action_row_pixels(result_lines))
+    return pixels, action_row_pixels(action_lines)
 
 
 def cmd_authorize() -> int:
@@ -351,17 +402,26 @@ def cmd_append(args: argparse.Namespace) -> int:
             )
         except Exception:
             pass
-    if row and args.command:
+    if row and (args.command or result_text.lstrip().startswith("PORT")):
         try:
             padding = ((metadata.get("properties") or {}).get("defaultFormat") or {}).get("padding") or {}
             pad = int(padding.get("left") or 0) + int(padding.get("right") or 0)
             if pad <= 0:
                 pad = 6
-            width = action_column_width(worksheet)
-            lines = action_line_count(args.command, width, pad)
-            pixels = action_row_pixels(lines)
+            pixels, action_pixels = log_row_height(
+                args.command or "",
+                result_text,
+                action_px=column_pixel_width(worksheet, "E"),
+                result_px=column_pixel_width(worksheet, "F"),
+                pad_px=pad,
+            )
+            if action_pixels:
+                worksheet.format(
+                    f"E{row}",
+                    {"wrapStrategy": "WRAP", "verticalAlignment": "TOP"},
+                )
             if pixels:
-                expand_action_rows(worksheet, {int(row): pixels})
+                set_row_heights(worksheet, {int(row): pixels})
         except Exception:
             pass
     try:
