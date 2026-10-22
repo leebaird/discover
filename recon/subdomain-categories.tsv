@@ -272,6 +272,7 @@ Infrastructure	dns
 Infrastructure	dns01
 Infrastructure	dns02
 Infrastructure	gateway
+Infrastructure	guestwifi
 Infrastructure	gw
 Infrastructure	intranet
 Infrastructure	ns
@@ -280,6 +281,7 @@ Infrastructure	ns2.imfr
 Infrastructure	proxy
 Infrastructure	sslvpn
 Infrastructure	vpn
+Infrastructure	wifi
 Legacy	*archive*
 Legacy	archive
 Legacy	backup
