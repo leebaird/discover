@@ -2312,6 +2312,12 @@ PY
             } >> "$OUT_FILE"
         else
             EXIT_CODE=0
+            # A completed fetch with no Disallow paths is an empty result.
+            if [ "$DISALLOW_COUNT" -eq 0 ] 2>/dev/null; then
+                if ! f_op_notes_set_result "None"; then
+                    f_sheet_stopped
+                fi
+            fi
         fi
 
         python3 - "$META_FILE" "$DISALLOW_COUNT" "$HTTP_CODE" <<'PY'
