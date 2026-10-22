@@ -319,7 +319,8 @@ f_audit(){
 # Google Sheet for this engagement (Audit Config → tools/op-notes-url).
 # Empty or missing URL is off and does not stop the scan.
 # A configured sheet that cannot be written stops the scan (return 1).
-# Never opens a browser. Each Google call waits up to 40s. uv stdout is discarded.
+# Never opens a browser. Each Google call waits up to 40s.
+# append prints DISCOVER_ROW on stdout. The scan keeps that number and does not show it.
 
 f_op_notes_fail(){
     printf '\033[0;31m[!] %s\033[0m\n' "$1" >&2
@@ -408,7 +409,9 @@ f_op_notes(){
     local target="$1"
     local command="$2"
     local result="${3:-}"
-    local op ip
+    local op ip sheet_out
+
+    OP_NOTES_ROW=""
 
     [ -n "$command" ] || return 0
 
@@ -433,17 +436,51 @@ f_op_notes(){
     fi
 
     if command -v timeout >/dev/null 2>&1; then
-        if ! timeout --signal=TERM --kill-after=5s 40s \
+        if ! sheet_out=$(timeout --signal=TERM --kill-after=5s 40s \
             "$OP_NOTES_UV" run "$OP_NOTES_SCRIPT" append \
-            "$OP_NOTES_URL" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" "$result" \
-            >/dev/null; then
+            "$OP_NOTES_URL" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" "$result"); then
             f_op_notes_fail "Google Sheet error: check token/URL. Scan stopped."
             return 1
         fi
     else
-        if ! "$OP_NOTES_UV" run "$OP_NOTES_SCRIPT" append \
-            "$OP_NOTES_URL" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" "$result" \
-            >/dev/null; then
+        if ! sheet_out=$("$OP_NOTES_UV" run "$OP_NOTES_SCRIPT" append \
+            "$OP_NOTES_URL" "$STAMP_DISPLAY" "$op" "$ip" "$target" "$command" "$result"); then
+            f_op_notes_fail "Google Sheet error: check token/URL. Scan stopped."
+            return 1
+        fi
+    fi
+
+    OP_NOTES_ROW=$(printf '%s\n' "$sheet_out" | sed -n 's/^DISCOVER_ROW //p' | head -n 1)
+    OP_NOTES_ROW=$(printf '%s' "$OP_NOTES_ROW" | tr -cd '0-9')
+    return 0
+}
+
+# Write column F on the row this scan already appended.
+# Empty URL is off. A configured sheet with no row number fails.
+f_op_notes_set_result(){
+    local result="$1"
+
+    if ! f_op_notes_prepare; then
+        return 1
+    fi
+
+    [ -n "$OP_NOTES_URL" ] || return 0
+
+    if [ -z "${OP_NOTES_ROW:-}" ]; then
+        f_op_notes_fail "Google Sheet error: missing row. Scan stopped."
+        return 1
+    fi
+
+    if command -v timeout >/dev/null 2>&1; then
+        if ! timeout --signal=TERM --kill-after=5s 40s \
+            "$OP_NOTES_UV" run "$OP_NOTES_SCRIPT" set-result \
+            "$OP_NOTES_URL" "$OP_NOTES_ROW" "$result" >/dev/null; then
+            f_op_notes_fail "Google Sheet error: check token/URL. Scan stopped."
+            return 1
+        fi
+    else
+        if ! "$OP_NOTES_UV" run "$OP_NOTES_SCRIPT" set-result \
+            "$OP_NOTES_URL" "$OP_NOTES_ROW" "$result" >/dev/null; then
             f_op_notes_fail "Google Sheet error: check token/URL. Scan stopped."
             return 1
         fi
@@ -818,6 +855,28 @@ for line in text.splitlines():
     print(f"[*] {s}")
 print()
 PY
+}
+
+# True when the nuclei report's last non-empty line is the no-findings placeholder.
+f_nuclei_no_vulnerabilities(){
+    local path="$1"
+    local last=""
+
+    [ -f "$path" ] || return 1
+
+    last=$(awk '
+        {
+            sub(/\r$/, "")
+        }
+        NF {
+            line = $0
+        }
+        END {
+            gsub(/^[ \t]+|[ \t]+$/, "", line)
+            print line
+        }
+    ' "$path")
+    [ "$last" = "No vulnerabilities discovered." ]
 }
 
 # Strip ANSI / progress junk (ffuf draws progress with ESC sequences that show as
@@ -2037,6 +2096,12 @@ PY
                 echo
             } >> "$OUT_FILE"
             echo "[*] Pass 2: skipped (no runnable CVE templates for this software)"
+        fi
+
+        if f_nuclei_no_vulnerabilities "$OUT_FILE"; then
+            if ! f_op_notes_set_result "None"; then
+                f_sheet_stopped
+            fi
         fi
         else
             {

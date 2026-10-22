@@ -428,6 +428,29 @@ def cmd_append(args: argparse.Namespace) -> int:
         top_align_log_row(worksheet, int(row))
     except Exception:
         pass
+    # Host-scan captures this and does not show it. It is the row to update later.
+    print(f"DISCOVER_ROW {row}")
+    return 0
+
+
+def cmd_set_result(args: argparse.Namespace) -> int:
+    """Write column F on a row this scan already appended. Do not add a row."""
+    row_text = str(args.row).strip()
+    if not row_text.isdigit() or int(row_text) < 2:
+        print("Error syncing to Google Sheet: bad row.", file=sys.stderr)
+        return 1
+    row = int(row_text)
+    creds = get_credentials(interactive=False)
+    client = gspread.authorize(creds)
+    sh = client.open_by_url(args.sheets_url)
+    worksheet = sh.get_worksheet(0)
+    result = args.result or ""
+    with sheet_write_lock():
+        occupied = worksheet.acell(f"A{row}").value
+        if not occupied or not str(occupied).strip():
+            print("Error syncing to Google Sheet: row has no date.", file=sys.stderr)
+            return 1
+        worksheet.update([[result]], f"F{row}", value_input_option="RAW")
     return 0
 
 
@@ -462,6 +485,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("command")
     ap.add_argument("result", nargs="?", default="")
 
+    sr = sub.add_parser("set-result", help="Write column F on an existing scan row")
+    sr.add_argument("sheets_url")
+    sr.add_argument("row")
+    sr.add_argument("result", nargs="?", default="")
+
     args = parser.parse_args(argv)
 
     try:
@@ -473,6 +501,8 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_check(args)
         if args.cmd == "append":
             return cmd_append(args)
+        if args.cmd == "set-result":
+            return cmd_set_result(args)
     except SystemExit:
         raise
     except Exception as exc:
