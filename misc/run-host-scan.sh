@@ -1650,7 +1650,7 @@ fi
 
 echo
 echo "============================================================"
-echo " Discover host scan (quiet / Red Team defaults)"
+
 if [ "$TOOL" = "robots" ]; then
     echo " Tool:     curl"
 else
