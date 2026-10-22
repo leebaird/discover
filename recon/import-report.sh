@@ -174,7 +174,7 @@ f_import_report_sync_assets(){
                         -e 's|inc-active-cve-search\.js?v=[0-9]*|inc-active-cve-search.js?v=2|g' \
                         -e 's|inc-active-cve-tabs\.js?v=[0-9]*|inc-active-cve-tabs.js?v=11|g' \
                         -e 's|inc-active-align\.js?v=[0-9]*|inc-active-align.js?v=11|g' \
-                        -e 's|modern\.css?v=[^"]*|modern.css?v=active-tech-wrap1|g' \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=active-enrich-tall2|g' \
                         "$report/pages/$page" 2>/dev/null || true
 
                     if ! grep -q 'inc-active-login-view.js' "$report/pages/$page" 2>/dev/null; then

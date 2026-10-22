@@ -2797,12 +2797,16 @@ body:not(.inc-iframe-parent) pre {
     outline: none;
 }
 
-/* Active Update modal — multi-line change summary */
+/* Active Update modal — multi-line change summary.
+   Before results, the shared dialog cap (640px) stays. With a summary, the
+   dialog uses the viewport and this pane fills the space under the choices. */
 #inc-active-refresh-status.is-summary {
     white-space: normal;
     line-height: 1.45;
     font-size: 13px;
-    max-height: 420px;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
     overflow: auto;
 }
 
@@ -2872,9 +2876,21 @@ body:not(.inc-iframe-parent) pre {
     color: #aeb5bf;
 }
 
-/* Active Update modal: 25% wider than shared export dialog (480px → 600px). */
+/* Active Update modal: wider than the shared export dialog.
+   With results, use the viewport and keep Cancel / Enrich on screen. */
 .inc-active-refresh-modal .inc-report-export-dialog {
     max-width: 820px;
+}
+
+.inc-active-refresh-modal .inc-report-export-dialog:has(#inc-active-refresh-status.is-summary) {
+    max-height: calc(100vh - 48px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.inc-active-refresh-modal .inc-report-export-dialog:has(#inc-active-refresh-status.is-summary) > :not(#inc-active-refresh-status) {
+    flex: 0 0 auto;
 }
 
 .inc-active-refresh-h {
