@@ -39,6 +39,7 @@ CPE_PRODUCT_MAP = {
     "bootstrap": ("getbootstrap", "bootstrap"),
     "drupal": ("drupal", "drupal"),
     "grafana": ("grafana", "grafana"),
+    "iis": ("microsoft", "internet_information_services"),
     "java servlet": ("oracle", "java_servlet"),
     "javaserver pages": ("oracle", "jsp"),
     "jquery": ("jquery", "jquery"),
@@ -853,8 +854,12 @@ def _should_requery_cached(
     if product_key(product_name) in SKIP_PRODUCTS:
         return False
     err = (cached.get("error") or "").strip()
-    if err in {"skipped", "no-cpe"}:
+    if err == "skipped":
         return False
+    # A later CPE mapping can cover a product that was stored as no-cpe.
+    if err == "no-cpe":
+        version = str((cached or {}).get("version") or "").strip()
+        return build_cpe23(product_name, version) is not None
     if err == "nvd-error":
         return True
     cve_count = cached.get("cve_count") or 0
