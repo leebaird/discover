@@ -1729,7 +1729,6 @@ if [ "$TOOL" = "nmap" ]; then
 fi
 
 echo
-echo "============================================================"
 
 if [ "$TOOL" = "robots" ]; then
     echo " Tool:     curl"
@@ -1755,7 +1754,6 @@ if [ -n "$FFUF_WL" ]; then
     echo " Wordlist: $FFUF_WL"
 fi
 
-echo " Report:   $REPORT_ROOT"
 echo " Output:   $OUT_FILE"
 echo " UA:       $UA"
 echo "============================================================"
