@@ -1088,26 +1088,10 @@ def cve_nvd_link_html(cve_id, is_kev=False):
     return f'<span class="inc-cve-cell-inner">{link}</span>'
 
 
-def software_has_cves(cve_count, top_cve):
-    """True when NVD enrichment found at least one CVE for this software."""
-    if str(top_cve or "").strip():
-        return True
-    raw = str(cve_count or "").strip()
-    if not raw or raw in {"-", "—", "n/a", "N/A"}:
-        return False
-    try:
-        return float(raw) > 0
-    except ValueError:
-        return bool(raw)
-
-
-def software_label_html(label, cve_count, top_cve):
-    """Link versioned software with CVEs to a filtered Subdomains list."""
+def software_label_html(label):
+    """Link a software version to the Subdomains list for that label."""
     label_text = str(label)
     escaped = html.escape(label_text)
-    if not software_has_cves(cve_count, top_cve):
-        return escaped
-    # Hosts carry software tokens in tech; CVEs attach at the version level.
     href = f"subdomains.htm?software={quote(label_text, safe='')}"
     return (
         f'<a class="inc-software-subdomains-link" '
@@ -1151,7 +1135,7 @@ def software_versions_table(rows, section_class="inc-active-section--software-ve
             label, count, max_cvss, cve_count, top_cve = row[:5]
             top_is_kev = False
         cve_cell = cve_nvd_link_html(top_cve, is_kev=bool(top_is_kev))
-        label_cell = software_label_html(label, cve_count, top_cve)
+        label_cell = software_label_html(label)
         lines.append(
             "                <tr>"
             f"<td>{label_cell}</td>"
@@ -2235,6 +2219,140 @@ def load_httpx_status_counts(httpx_path):
     return counts
 
 
+_TRANSOM_FINDING_RE = re.compile(
+    r"<tr><th>Finding</th><td>(.*?)</td></tr>\s*"
+    r"<tr><th>Check</th><td>(.*?)</td></tr>",
+    re.IGNORECASE | re.DOTALL,
+)
+_ASPNET_VERSION_RE = re.compile(
+    r"(?i)^(X-AspNetMvc-Version|X-AspNet-Version)(?:\s+discloses)?\s+(\d[\w.\-]*)\s*$"
+)
+_OUTDATED_BANNER_RE = re.compile(
+    r"(?i)^(Apache|PHP|nginx|Microsoft-IIS)/(\d+(?:\.\d+)*)\s+is older than\b"
+)
+_POWERED_BY_VERSION_RE = re.compile(
+    r"(?i)^X-Powered-By discloses\s+(.+)[/ ](\d+(?:\.\d+)*)$"
+)
+
+
+def _plain_transom_cell(value):
+    text = html.unescape(re.sub(r"<[^>]+>", "", value or ""))
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def transom_finding_software_label(check_id, message):
+    """Product:version from one Transom finding, or empty when it has no version."""
+    check_id = _plain_transom_cell(check_id).lower()
+    message = _plain_transom_cell(message)
+    raw = ""
+
+    if check_id == "header-aspnet-version":
+        match = _ASPNET_VERSION_RE.match(message)
+        if not match:
+            return ""
+        product = "ASP.NET MVC" if "mvc" in match.group(1).lower() else "Microsoft ASP.NET"
+        raw = f"{product}:{match.group(2)}"
+    elif check_id.startswith("outdated-"):
+        match = _OUTDATED_BANNER_RE.match(message)
+        if not match:
+            return ""
+        raw = f"{match.group(1)}:{match.group(2)}"
+    elif check_id == "header-powered-by":
+        match = _POWERED_BY_VERSION_RE.match(message)
+        if not match:
+            return ""
+        raw = f"{match.group(1).strip()}:{match.group(2)}"
+    else:
+        return ""
+
+    label = format_technology_label(raw)
+    if not is_software_version_label(label):
+        return ""
+    return label
+
+
+def load_transom_software_by_host(report_dir):
+    """Newest transom.htm per host, limited to version findings."""
+    root = os.path.join(report_dir or "", "tools", "host-scans")
+    if not report_dir or not os.path.isdir(root):
+        return {}
+
+    found = {}
+    for host in os.listdir(root):
+        transom_root = os.path.join(root, host, "transom")
+        if not os.path.isdir(transom_root):
+            continue
+        reports = []
+        for stamp in os.listdir(transom_root):
+            path = os.path.join(transom_root, stamp, "transom.htm")
+            if os.path.isfile(path):
+                reports.append((stamp, path))
+        if not reports:
+            continue
+        reports.sort()
+        try:
+            text = open(reports[-1][1], encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        labels = []
+        seen = set()
+        for finding, check in _TRANSOM_FINDING_RE.findall(text):
+            label = transom_finding_software_label(check, finding)
+            key = label.lower()
+            if not label or key in seen:
+                continue
+            seen.add(key)
+            labels.append(label)
+        if labels:
+            found[host.lower()] = labels
+    return found
+
+
+def merge_transom_software_labels(host_tech, report_dir):
+    """Add Transom product versions to each host's technology list.
+
+    The same Product:version is kept once. An unversioned token for that
+    product is replaced, so Software versions, Top Technologies, and the
+    Subdomains Technologies column all show the version.
+    """
+    found = load_transom_software_by_host(report_dir)
+    if not found:
+        return host_tech
+
+    for host, labels in found.items():
+        row = host_tech.get(host)
+        if row is None:
+            row = {"technologies": ""}
+            host_tech[host] = row
+        tokens = [
+            token.strip()
+            for token in str(row.get("technologies") or "").split(",")
+            if token.strip()
+        ]
+        for label in labels:
+            key = tech_key(label)
+            _name, version = tech_name_and_version(label)
+            exact = False
+            unversioned_at = None
+            for index, token in enumerate(tokens):
+                if tech_key(token) != key:
+                    continue
+                _token_name, token_version = tech_name_and_version(token)
+                if token_version == version:
+                    exact = True
+                    break
+                if not token_version and unversioned_at is None:
+                    unversioned_at = index
+            if exact:
+                continue
+            if unversioned_at is not None:
+                tokens[unversioned_at] = label
+            else:
+                tokens.append(label)
+        row["technologies"] = ", ".join(tokens)
+    return host_tech
+
+
 def build_active_summary(
     subdomains_path,
     private_path,
@@ -2263,6 +2381,7 @@ def build_active_summary(
         # tools/httpx.jsonl → report root
         if httpx_path:
             report_dir = os.path.dirname(os.path.dirname(os.path.abspath(httpx_path)))
+    merge_transom_software_labels(host_tech, report_dir)
     path_hosts = collect_login_path_hosts(report_dir) if report_dir else {}
     login_skip_hosts = collect_login_skip_hosts(host_tech)
 
@@ -2528,6 +2647,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
         httpx_path,
         whatweb_path if os.path.isfile(whatweb_path) else "",
     )
+    merge_transom_software_labels(host_tech, report_dir)
     photo_hosts = _load_photo_hosts(
         gowitness_jsonl if os.path.isfile(gowitness_jsonl) else "",
         screenshots_dir if os.path.isdir(screenshots_dir) else "",
