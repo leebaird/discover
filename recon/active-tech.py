@@ -2233,6 +2233,13 @@ _OUTDATED_BANNER_RE = re.compile(
 _POWERED_BY_VERSION_RE = re.compile(
     r"(?i)^X-Powered-By discloses\s+(.+)[/ ](\d+(?:\.\d+)*)$"
 )
+_INTERNAL_IP_RE = re.compile(
+    r"(?i)^Location discloses internal address\s+"
+    r"(10\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+    r"|192\.168\.\d{1,3}\.\d{1,3}"
+    r"|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})"
+    r"\s*$"
+)
 
 
 def _plain_transom_cell(value):
@@ -2271,6 +2278,48 @@ def transom_finding_software_label(check_id, message):
     return label
 
 
+def transom_finding_sheet_line(check_id, message):
+    """One Google Sheet result line from a Transom finding, or empty.
+
+    Software versions use the Active Product:version label. A disclosed
+    internal address is the address itself.
+    """
+    check_id = _plain_transom_cell(check_id).lower()
+    message = _plain_transom_cell(message)
+    if check_id == "internal-ip":
+        match = _INTERNAL_IP_RE.match(message)
+        return match.group(1) if match else ""
+    return transom_finding_software_label(check_id, message)
+
+
+def transom_software_labels(text):
+    """Product:version labels from one transom.htm, in report order."""
+    labels = []
+    seen = set()
+    for finding, check in _TRANSOM_FINDING_RE.findall(text or ""):
+        label = transom_finding_software_label(check, finding)
+        key = label.lower()
+        if not label or key in seen:
+            continue
+        seen.add(key)
+        labels.append(label)
+    return labels
+
+
+def transom_sheet_results(text):
+    """Column F lines from one transom.htm, in report order."""
+    lines = []
+    seen = set()
+    for finding, check in _TRANSOM_FINDING_RE.findall(text or ""):
+        line = transom_finding_sheet_line(check, finding)
+        key = line.lower()
+        if not line or key in seen:
+            continue
+        seen.add(key)
+        lines.append(line)
+    return lines
+
+
 def load_transom_software_by_host(report_dir):
     """Newest transom.htm per host, limited to version findings."""
     root = os.path.join(report_dir or "", "tools", "host-scans")
@@ -2294,15 +2343,7 @@ def load_transom_software_by_host(report_dir):
             text = open(reports[-1][1], encoding="utf-8", errors="replace").read()
         except OSError:
             continue
-        labels = []
-        seen = set()
-        for finding, check in _TRANSOM_FINDING_RE.findall(text):
-            label = transom_finding_software_label(check, finding)
-            key = label.lower()
-            if not label or key in seen:
-                continue
-            seen.add(key)
-            labels.append(label)
+        labels = transom_software_labels(text)
         if labels:
             found[host.lower()] = labels
     return found

@@ -274,6 +274,18 @@ def write_new_log_row(worksheet: gspread.Worksheet, values: list[str]) -> int:
     return row
 
 
+def row_pixel_height(worksheet: gspread.Worksheet, row: int) -> int:
+    """Current height of one 1-based row, or 0 when Sheets omits it."""
+    title = "'" + worksheet.title.replace("'", "''") + "'"
+    meta = worksheet.spreadsheet.fetch_sheet_metadata(params={
+        "includeGridData": "true",
+        "ranges": [f"{title}!A{row}"],
+        "fields": "sheets.data.rowMetadata.pixelSize",
+    })
+    rows = meta["sheets"][0]["data"][0].get("rowMetadata") or [{}]
+    return int(rows[0].get("pixelSize") or 0)
+
+
 def set_row_heights(worksheet: gspread.Worksheet, heights: dict[int, int]) -> None:
     """Set 1-based row heights in pixels."""
     if not heights:
@@ -451,6 +463,31 @@ def cmd_set_result(args: argparse.Namespace) -> int:
             print("Error syncing to Google Sheet: row has no date.", file=sys.stderr)
             return 1
         worksheet.update([[result]], f"F{row}", value_input_option="RAW")
+    # A single label keeps the row as it is. Several lines use the taller of
+    # the command and the result. A result never shrinks the row.
+    version_lines = result.count("\n") + (1 if result else 0)
+    if version_lines > 1 and not result.lstrip().startswith("PORT"):
+        try:
+            worksheet.format(
+                f"F{row}",
+                {"wrapStrategy": "WRAP", "verticalAlignment": "TOP"},
+            )
+            command = worksheet.acell(f"E{row}").value or ""
+            metadata = sh.fetch_sheet_metadata()
+            padding = ((metadata.get("properties") or {}).get("defaultFormat") or {}).get("padding") or {}
+            pad = int(padding.get("left") or 0) + int(padding.get("right") or 0)
+            if pad <= 0:
+                pad = 6
+            pixels = max(
+                action_row_pixels(version_lines),
+                action_row_pixels(
+                    action_line_count(command, column_pixel_width(worksheet, "E"), pad)
+                ),
+            )
+            if pixels > row_pixel_height(worksheet, row):
+                set_row_heights(worksheet, {row: pixels})
+        except Exception:
+            pass
     return 0
 
 

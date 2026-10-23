@@ -857,6 +857,27 @@ print()
 PY
 }
 
+# Software versions and disclosed internal addresses from one transom.htm.
+# One result per line, in report order. Empty when the report has neither.
+f_transom_sheet_results(){
+    python3 - "$1" "$DISCOVER_ROOT/recon/active-tech.py" <<'PY'
+import importlib.util
+import sys
+
+path, module_path = sys.argv[1], sys.argv[2]
+spec = importlib.util.spec_from_file_location("active_tech", module_path)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+try:
+    text = open(path, encoding="utf-8", errors="replace").read()
+except OSError:
+    raise SystemExit(0)
+lines = mod.transom_sheet_results(text)
+if lines:
+    print("\n".join(lines))
+PY
+}
+
 # True when the nuclei report's last non-empty line is the no-findings placeholder.
 f_nuclei_no_vulnerabilities(){
     local path="$1"
@@ -1965,6 +1986,13 @@ case "$TOOL" in
             if [ -f "$TRANSOM_HTM" ]; then
                 echo "" >> "$OUT_FILE"
                 echo "HTML report: $TRANSOM_HTM" >> "$OUT_FILE"
+                TRANSOM_RESULTS=$(f_transom_sheet_results "$TRANSOM_HTM")
+
+                if [ -n "$TRANSOM_RESULTS" ]; then
+                    if ! f_op_notes_set_result "$TRANSOM_RESULTS"; then
+                        f_sheet_stopped
+                    fi
+                fi
             fi
             else
                 f_sheet_stopped
