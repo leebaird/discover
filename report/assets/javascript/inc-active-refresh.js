@@ -459,7 +459,10 @@
                 " · cache reused " +
                 (st.cached != null ? st.cached : "0") +
                 " · skipped " +
-                (st.skipped != null ? st.skipped : "0")
+                (st.skipped != null ? st.skipped : "0") +
+                (st.unmapped
+                    ? " · " + st.unmapped + " not looked up"
+                    : "")
         );
         lines.push(
             "Changed " +
@@ -588,6 +591,21 @@
                     }),
                     function () {
                         return "no CVEs";
+                    },
+                    null,
+                    "inc-active-refresh-sw"
+                );
+        }
+        var unmappedLabels = st.unmapped_labels || [];
+        if (unmappedLabels.length) {
+            lists +=
+                '<div class="inc-active-refresh-h">Not looked up</div>' +
+                formatIpRows(
+                    unmappedLabels.map(function (label) {
+                        return { ip: label };
+                    }),
+                    function () {
+                        return "not looked up";
                     },
                     null,
                     "inc-active-refresh-sw"

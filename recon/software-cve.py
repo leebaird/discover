@@ -44,7 +44,8 @@ CPE_PRODUCT_MAP = {
     "javaserver pages": ("oracle", "jsp"),
     "jquery": ("jquery", "jquery"),
     "jquery migrate": ("jquery", "jquery_migrate"),
-    "jquery ui": ("jquery", "jquery_ui"),
+    # NVD vendor is jqueryui. jquery:jquery_ui returns no CVEs.
+    "jquery ui": ("jqueryui", "jquery_ui"),
     "kibana": ("elastic", "kibana"),
     "microsoft asp.net": ("microsoft", "asp.net"),
     "asp.net": ("microsoft", "asp.net"),
@@ -54,9 +55,25 @@ CPE_PRODUCT_MAP = {
     "nginx": ("f5", "nginx"),
     "openssl": ("openssl", "openssl"),
     "php": ("php", "php"),
+    # SharePoint build numbers stay unmapped. NVD also matches those
+    # strings against older SharePoint releases such as 2007.
+    "slider revolution": ("themepunch", "slider_revolution"),
     "underscore.js": ("jashkenas", "underscore"),
     "varnish": ("varnish_cache", "varnish"),
+    "wordpress": ("wordpress", "wordpress"),
+    "wpml": ("wpml", "wpml"),
+    "yoast seo": ("yoast", "yoast_seo"),
 }
+
+# One known version per product. A wrong vendor fails this check.
+PINNED_CPE = (
+    ("jQuery UI", "1.12.1", "cpe:2.3:a:jqueryui:jquery_ui:1.12.1:*:*:*:*:*:*:*"),
+    ("WordPress", "6.8.6", "cpe:2.3:a:wordpress:wordpress:6.8.6:*:*:*:*:*:*:*"),
+    ("Slider Revolution", "5.4.8.3", "cpe:2.3:a:themepunch:slider_revolution:5.4.8.3:*:*:*:*:*:*:*"),
+    ("Yoast SEO", "19.10", "cpe:2.3:a:yoast:yoast_seo:19.10:*:*:*:*:*:*:*"),
+    ("WPML", "4.4.6", "cpe:2.3:a:wpml:wpml:4.4.6:*:*:*:*:*:*:*"),
+    ("IIS", "8.5", "cpe:2.3:a:microsoft:internet_information_services:8.5:*:*:*:*:*:*:*"),
+)
 
 # Skip low-signal or poorly CPE-mapped banners.
 SKIP_PRODUCTS = {
@@ -107,6 +124,88 @@ def build_cpe23(product_name: str, version: str) -> str | None:
     # CPE 2.3 component escaping: keep simple versions as-is.
     ver = version.replace(":", "\\:")
     return f"cpe:2.3:a:{vendor}:{product}:{ver}:*:*:*:*:*:*:*"
+
+
+def pinned_cpe_errors() -> list[str]:
+    """Return mismatches for the pinned product versions."""
+    errors = []
+    for name, version, expected in PINNED_CPE:
+        got = build_cpe23(name, version)
+        if got != expected:
+            errors.append(f"{name}:{version} -> {got or 'unmapped'}")
+    if build_cpe23("Microsoft SharePoint", "16.0.0.10417") is not None:
+        errors.append("SharePoint build 16.0.0.10417 must stay unmapped")
+    return errors
+
+
+def version_shape(version: str) -> str:
+    """year, release, build, other, or empty for a wildcard."""
+    text = (version or "").strip()
+    if not text or text in {"*", "-"}:
+        return ""
+    nums: list[int] = []
+    for part in text.split("."):
+        if part.isdigit():
+            nums.append(int(part))
+            continue
+        if len(part) >= 2 and part[:-1].isdigit() and part[-1].isalpha():
+            nums.append(int(part[:-1]))
+            continue
+        return "other"
+    if not nums:
+        return ""
+    if len(nums) == 1 and 1990 <= nums[0] <= 2099:
+        return "year"
+    if len(nums) >= 4 or any(num >= 10000 for num in nums):
+        return "build"
+    return "release"
+
+
+def _cpe_identity(criteria: str) -> tuple[str, str, str]:
+    parts = (criteria or "").split(":")
+    if len(parts) < 6:
+        return "", "", ""
+    return parts[3].lower(), parts[4].lower(), parts[5]
+
+
+def cve_version_fits(queried_cpe: str, cve: dict[str, Any]) -> bool:
+    """True when a vulnerable bound uses the same version shape as the query.
+
+    NVD's range match can attach a dotted build to a year-style product
+    version. Those CVEs are dropped.
+    """
+    vendor, product, queried_version = _cpe_identity(queried_cpe)
+    want = version_shape(queried_version)
+    if not vendor or not product or not want:
+        return False
+
+    def walk(node: dict[str, Any]) -> bool:
+        for match in node.get("cpeMatch") or []:
+            if match.get("vulnerable") is False:
+                continue
+            match_vendor, match_product, match_version = _cpe_identity(
+                match.get("criteria") or ""
+            )
+            if match_vendor != vendor or match_product != product:
+                continue
+            tokens = [
+                match_version,
+                match.get("versionStartIncluding") or "",
+                match.get("versionStartExcluding") or "",
+                match.get("versionEndIncluding") or "",
+                match.get("versionEndExcluding") or "",
+            ]
+            if any(version_shape(token) == want for token in tokens):
+                return True
+        for child in node.get("nodes") or []:
+            if isinstance(child, dict) and walk(child):
+                return True
+        return False
+
+    for node in cve.get("configurations") or []:
+        if isinstance(node, dict) and walk(node):
+            return True
+    return False
 
 
 def cache_key(product_name: str, version: str) -> str:
@@ -435,14 +534,20 @@ def query_nvd_for_cpe(
     results_per_page: int = NVD_RESULTS_PER_PAGE,
     sleep_seconds: float = 0.0,
 ) -> list[dict[str, Any]]:
-    """Return simplified CVE records for a CPE name (paginated)."""
+    """Return CVEs whose version range includes this CPE.
+
+    ``virtualMatchString`` is the range query. An exact ``cpeName`` search
+    counts every record that mentions the version string. A match is kept
+    only when a vulnerable bound uses the same version shape as the query.
+    When every match is dropped, the result is an empty list.
+    """
     out: list[dict[str, Any]] = []
     start_index = 0
     total_results = None
 
     while True:
         params = {
-            "cpeName": cpe23,
+            "virtualMatchString": cpe23,
             "resultsPerPage": str(results_per_page),
             "startIndex": str(start_index),
         }
@@ -450,16 +555,27 @@ def query_nvd_for_cpe(
         if not payload:
             break
 
-        batch = _parse_nvd_vulnerabilities(payload)
-        out.extend(batch)
+        raw = payload.get("vulnerabilities") or []
+        if not isinstance(raw, list):
+            raw = []
+        for item in raw:
+            cve = item.get("cve") if isinstance(item, dict) else None
+            if not isinstance(cve, dict):
+                continue
+            if not cve_version_fits(cpe23, cve):
+                continue
+            out.extend(_parse_nvd_vulnerabilities({"vulnerabilities": [item]}))
+
         if total_results is None:
             try:
                 total_results = int(payload.get("totalResults") or 0)
             except (TypeError, ValueError):
                 total_results = 0
 
-        start_index += len(batch)
-        if not batch or start_index >= total_results:
+        # Advance by the raw page, not the filtered count, or the next
+        # startIndex skips records.
+        start_index += len(raw)
+        if not raw or start_index >= total_results:
             break
         if sleep_seconds > 0:
             time.sleep(sleep_seconds)
@@ -910,6 +1026,8 @@ def enrich_software_version_rows(
         "newly_with_cves": 0,
         "still_empty": 0,
         "still_empty_labels": [],
+        "unmapped": 0,
+        "unmapped_labels": [],
         "kev_gained": 0,
         "kev_lost": 0,
         "changes": [],  # compact per-label deltas (capped)
@@ -972,6 +1090,11 @@ def enrich_software_version_rows(
                 }
             )
 
+    def _note_unmapped(label: str) -> None:
+        stats["unmapped"] += 1
+        if len(stats["unmapped_labels"]) < 80:
+            stats["unmapped_labels"].append(label)
+
     for index, (label, count) in enumerate(rows, start=1):
         product, version = parse_software_label(label)
         key = cache_key(product, version)
@@ -1002,14 +1125,22 @@ def enrich_software_version_rows(
                 force=bool(cached is not None),
             )
             dirty = True
-            stats["looked_up"] += 1
             cached = cache["entries"].get(key) or {}
+            err_now = (cached.get("error") or "") if isinstance(cached, dict) else ""
+            # no-cpe never called NVD. Name it instead of counting a lookup.
+            if err_now == "no-cpe":
+                _note_unmapped(label)
+            else:
+                stats["looked_up"] += 1
         else:
             if cached is None:
                 # Should not happen often; treat as empty
                 cached = {}
-            if (cached.get("error") or "") in {"skipped", "no-cpe"}:
+            err_now = (cached.get("error") or "") if isinstance(cached, dict) else ""
+            if err_now == "skipped":
                 stats["skipped"] += 1
+            elif err_now == "no-cpe":
+                _note_unmapped(label)
             else:
                 stats["cached"] += 1
 
