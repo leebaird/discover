@@ -841,7 +841,7 @@
             ev.stopPropagation();
             openModal();
         });
-        // Cluster: Enrich then scan date (date to the right of the button).
+        // Cluster: Alerts (added by inc-threat-feed.js), Enrich, then scan date.
         var actions = header.querySelector(".inc-active-header-actions");
         if (!actions) {
             actions = document.createElement("div");

@@ -3,7 +3,8 @@
  * Coded by Grok (xAI)
  *
  * Audit page Config button (Discover statusd only).
- * Hub with four choice rows: Operator name, Time zone, APIs, Google Sheet.
+ * Hub with five choice rows: Operator name, Time zone, APIs, Google Sheet, X.
+ * X opens a second modal for this user's bearer token and watched accounts.
  * Read-write via /config endpoints.
  * Timezone is display-only (stamps stay UTC on disk).
  */
@@ -12,6 +13,7 @@
     var bound = false;
     var configCache = null;
     var panel = "hub";
+    var xDraft = [];
 
     function isDiscoverHostedPage() {
         var host = location.hostname;
@@ -140,6 +142,10 @@
             '<button type="button" class="inc-audit-config-choice" data-inc-audit-config-panel="opnotes">' +
             "<strong>Google Sheet</strong>" +
             "<span>Spreadsheet URL for this engagement</span>" +
+            "</button>" +
+            '<button type="button" class="inc-audit-config-choice" data-inc-audit-config-panel="x">' +
+            "<strong>X</strong>" +
+            "<span>Bearer token and accounts for this user</span>" +
             "</button>" +
             "</div>";
         actions.innerHTML =
@@ -331,6 +337,7 @@
     }
 
     function closeModal() {
+        closeXModal();
         var el = document.getElementById("inc-audit-config-modal");
         if (el) {
             el.setAttribute("hidden", "hidden");
@@ -338,6 +345,247 @@
         panel = "hub";
         setSheetDialogWide(false);
         setStatus("");
+    }
+
+    function ensureXModal() {
+        var el = document.getElementById("inc-audit-x-modal");
+        if (el) {
+            return el;
+        }
+        el = document.createElement("div");
+        el.id = "inc-audit-x-modal";
+        el.className = "inc-report-export-modal inc-audit-x-modal";
+        el.setAttribute("hidden", "hidden");
+        el.setAttribute("role", "dialog");
+        el.setAttribute("aria-modal", "true");
+        el.setAttribute("aria-labelledby", "inc-audit-x-title");
+        el.innerHTML =
+            '<div class="inc-report-export-backdrop" data-inc-audit-x-close="1"></div>' +
+            '<div class="inc-report-export-dialog inc-audit-x-dialog">' +
+            '<div class="inc-report-export-header">' +
+            '<h2 id="inc-audit-x-title" class="inc-report-export-title">X</h2>' +
+            '<button type="button" class="inc-report-export-x" data-inc-audit-x-close="1" aria-label="Close">×</button>' +
+            "</div>" +
+            '<p class="inc-report-export-lead">Stored for this user in ~/.discover/api-keys and ~/.discover/x-accounts.</p>' +
+            '<label class="inc-audit-import-field" for="inc-audit-x-key">' +
+            "<span>Bearer token</span>" +
+            '<input type="text" id="inc-audit-x-key" class="inc-audit-import-input" autocomplete="off" spellcheck="false">' +
+            "</label>" +
+            '<div class="inc-audit-x-accounts-head">Accounts</div>' +
+            '<div id="inc-audit-x-list" class="inc-audit-x-list"></div>' +
+            '<div class="inc-audit-x-add">' +
+            '<input type="text" id="inc-audit-x-account" class="inc-audit-import-input" autocomplete="off" spellcheck="false" placeholder="name or @name" maxlength="80">' +
+            '<button type="button" class="inc-report-export-cancel" id="inc-audit-x-add">Add</button>' +
+            "</div>" +
+            '<div class="inc-report-export-status" id="inc-audit-x-status" hidden></div>' +
+            '<div class="inc-report-export-actions" id="inc-audit-x-actions">' +
+            xActionButtons() +
+            "</div>" +
+            "</div>";
+        document.body.appendChild(el);
+        return el;
+    }
+
+    function xActionButtons() {
+        return (
+            '<button type="button" class="inc-report-export-cancel" data-inc-audit-x-close="1">Cancel</button>' +
+            '<button type="button" class="inc-report-export-go" id="inc-audit-x-save">Save</button>'
+        );
+    }
+
+    function hideSaveActions(root) {
+        if (!root) {
+            return;
+        }
+        var actions = root.querySelector(".inc-report-export-actions");
+        if (actions) {
+            actions.innerHTML = "";
+        }
+    }
+
+    function setXStatus(msg, isError) {
+        var el = document.getElementById("inc-audit-x-status");
+        if (!el) {
+            return;
+        }
+        if (!msg) {
+            el.hidden = true;
+            el.textContent = "";
+            el.classList.remove("is-error");
+            return;
+        }
+        el.hidden = false;
+        el.textContent = msg;
+        if (isError) {
+            el.classList.add("is-error");
+        } else {
+            el.classList.remove("is-error");
+        }
+    }
+
+    function xModalOpen() {
+        var el = document.getElementById("inc-audit-x-modal");
+        return !!(el && !el.hasAttribute("hidden"));
+    }
+
+    function normalizeXAccount(raw) {
+        var text = String(raw || "").trim();
+        if (text.charAt(0) === "@") {
+            text = text.slice(1).trim();
+        }
+        var url = text.match(
+            /^(?:https?:\/\/)?(?:www\.)?(?:x|twitter)\.com\/([A-Za-z0-9_]{1,15})\/?$/i
+        );
+        if (url) {
+            text = url[1];
+        }
+        return text;
+    }
+
+    function sortXAccounts(list) {
+        return list.slice().sort(function (a, b) {
+            var left = String(a).toLowerCase();
+            var right = String(b).toLowerCase();
+            if (left < right) {
+                return -1;
+            }
+            if (left > right) {
+                return 1;
+            }
+            return 0;
+        });
+    }
+
+    function renderXAccountList() {
+        var list = document.getElementById("inc-audit-x-list");
+        if (!list) {
+            return;
+        }
+        xDraft = sortXAccounts(xDraft);
+        if (!xDraft.length) {
+            list.innerHTML = '<p class="inc-audit-x-empty">No accounts yet.</p>';
+            return;
+        }
+        var html = "";
+        xDraft.forEach(function (handle) {
+            html +=
+                '<div class="inc-audit-x-account">' +
+                '<span class="inc-audit-x-account-name">@' +
+                escapeHtml(handle) +
+                "</span>" +
+                '<button type="button" class="inc-audit-x-delete" data-inc-audit-x-delete="' +
+                escapeAttr(handle) +
+                '">Delete</button>' +
+                "</div>";
+        });
+        list.innerHTML = html;
+    }
+
+    function openXModal() {
+        ensureXModal();
+        var key =
+            (configCache &&
+                configCache.api_keys &&
+                configCache.api_keys.X_API_KEY) ||
+            "";
+        var keyInput = document.getElementById("inc-audit-x-key");
+        if (keyInput) {
+            keyInput.value = key;
+        }
+        var addInput = document.getElementById("inc-audit-x-account");
+        if (addInput) {
+            addInput.value = "";
+        }
+        xDraft = ((configCache && configCache.x_accounts) || []).slice();
+        renderXAccountList();
+        var xActions = document.getElementById("inc-audit-x-actions");
+        if (xActions) {
+            xActions.innerHTML = xActionButtons();
+        }
+        setXStatus("");
+        var el = document.getElementById("inc-audit-x-modal");
+        if (el) {
+            el.removeAttribute("hidden");
+        }
+        if (keyInput) {
+            keyInput.focus();
+        }
+    }
+
+    function closeXModal() {
+        var el = document.getElementById("inc-audit-x-modal");
+        if (el) {
+            el.setAttribute("hidden", "hidden");
+        }
+        setXStatus("");
+    }
+
+    function addXAccount() {
+        var input = document.getElementById("inc-audit-x-account");
+        var handle = normalizeXAccount(input && input.value);
+        if (!handle) {
+            setXStatus("Enter an account.", true);
+            return;
+        }
+        if (!/^[A-Za-z0-9_]{1,15}$/.test(handle)) {
+            setXStatus("Use 1-15 letters, numbers, or underscores.", true);
+            return;
+        }
+        if (xDraft.length >= 40) {
+            setXStatus("At most 40 accounts.", true);
+            return;
+        }
+        var folded = handle.toLowerCase();
+        var i;
+        for (i = 0; i < xDraft.length; i++) {
+            if (String(xDraft[i]).toLowerCase() === folded) {
+                setXStatus("That account is already listed.", true);
+                return;
+            }
+        }
+        xDraft.push(handle);
+        if (input) {
+            input.value = "";
+        }
+        setXStatus("");
+        renderXAccountList();
+    }
+
+    function deleteXAccount(handle) {
+        xDraft = xDraft.filter(function (item) {
+            return item !== handle;
+        });
+        setXStatus("");
+        renderXAccountList();
+    }
+
+    function saveX() {
+        var key = ((document.getElementById("inc-audit-x-key") || {}).value || "");
+        setXStatus("Saving.", false);
+        postJson("/config/x", { X_API_KEY: key, accounts: xDraft.slice() })
+            .then(function (res) {
+                if (!res.body || !res.body.ok) {
+                    throw new Error(
+                        (res.body && res.body.error) ||
+                            "Save failed (HTTP " + res.http + ")."
+                    );
+                }
+                if (!configCache) {
+                    configCache = { api_keys: {} };
+                }
+                if (!configCache.api_keys) {
+                    configCache.api_keys = {};
+                }
+                configCache.api_keys.X_API_KEY = key;
+                configCache.x_accounts = (res.body.accounts || xDraft).slice();
+                xDraft = configCache.x_accounts.slice();
+                renderXAccountList();
+                hideSaveActions(document.getElementById("inc-audit-x-modal"));
+                setXStatus("X settings saved.", false);
+            })
+            .catch(function (err) {
+                setXStatus(String(err.message || err), true);
+            });
     }
 
     function postJson(path, payload) {
@@ -389,9 +637,15 @@
                 }
                 if (configCache) {
                     // Prefer form values: save response may only report presence
-                    // (set / empty), not secret material.
+                    // (set / empty), not secret material. Keep the X key, which
+                    // this panel does not edit.
+                    var xKey =
+                        (configCache.api_keys && configCache.api_keys.X_API_KEY) ||
+                        "";
                     configCache.api_keys = payload;
+                    configCache.api_keys.X_API_KEY = xKey;
                 }
+                hideSaveActions(document.getElementById("inc-audit-config-modal"));
                 setStatus("API keys saved.", false);
             })
             .catch(function (err) {
@@ -425,6 +679,7 @@
                         (n === 1 ? "" : "s") +
                         ". Refresh Audit to see the name change.";
                 }
+                hideSaveActions(document.getElementById("inc-audit-config-modal"));
                 setStatus(msg, false);
             })
             .catch(function (err) {
@@ -450,6 +705,7 @@
                     configCache.timezone = res.body.timezone || tz;
                 }
                 applyTimezoneView(res.body.timezone || tz);
+                hideSaveActions(document.getElementById("inc-audit-config-modal"));
                 setStatus(
                     "View timezone set to " +
                         (res.body.timezone || tz) +
@@ -480,6 +736,7 @@
                     configCache.op_notes = res.body;
                 }
                 renderOpNotes();
+                hideSaveActions(document.getElementById("inc-audit-config-modal"));
                 if (url) {
                     setStatus("Google Sheet URL saved for this engagement.", false);
                 } else {
@@ -755,7 +1012,7 @@
         btn.type = "button";
         btn.className = "inc-report-export-btn inc-audit-config-btn";
         btn.textContent = "Config";
-        btn.title = "APIs, operator name, and view timezone";
+        btn.title = "Operator name, time zone, APIs, Google Sheet, and X";
         btn.addEventListener("click", function (ev) {
             ev.preventDefault();
             ev.stopPropagation();
@@ -803,8 +1060,34 @@
                         renderTimezone();
                     } else if (which === "opnotes") {
                         renderOpNotes();
+                    } else if (which === "x") {
+                        openXModal();
                     }
                     return;
+                }
+                if (t.closest("[data-inc-audit-x-close]")) {
+                    ev.preventDefault();
+                    closeXModal();
+                    return;
+                }
+                if (t.closest("#inc-audit-x-add")) {
+                    ev.preventDefault();
+                    addXAccount();
+                    return;
+                }
+                var deleteBtn = t.closest("[data-inc-audit-x-delete]");
+                if (deleteBtn) {
+                    ev.preventDefault();
+                    deleteXAccount(deleteBtn.getAttribute("data-inc-audit-x-delete") || "");
+                    return;
+                }
+                if (t.closest("#inc-audit-x-save")) {
+                    ev.preventDefault();
+                    saveX();
+                    return;
+                }
+                if (t.closest("#inc-audit-x-modal")) {
+                    ev.stopPropagation();
                 }
                 if (t.closest("#inc-audit-config-open-th")) {
                     ev.preventDefault();
@@ -848,7 +1131,23 @@
             true
         );
         document.addEventListener("keydown", function (ev) {
+            var target = ev.target;
+            if (
+                (ev.key === "Enter" || ev.keyCode === 13) &&
+                target &&
+                target.id === "inc-audit-x-account" &&
+                xModalOpen()
+            ) {
+                ev.preventDefault();
+                addXAccount();
+                return;
+            }
             if (ev.key === "Escape" || ev.keyCode === 27) {
+                if (xModalOpen()) {
+                    ev.preventDefault();
+                    closeXModal();
+                    return;
+                }
                 var el = document.getElementById("inc-audit-config-modal");
                 if (el && !el.hasAttribute("hidden")) {
                     ev.preventDefault();

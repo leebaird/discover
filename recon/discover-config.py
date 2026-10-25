@@ -14,6 +14,7 @@ localhost Audit Config so keys can be edited without clear-text logging sinks.
   python3 recon/discover-config.py set-operator-name --name Carter --report /path/to/report --json
   python3 recon/discover-config.py set-timezone --tz America/Chicago --json
   python3 recon/discover-config.py set-op-notes --report /path/to/report --json --body '{"url":"..."}'
+  python3 recon/discover-config.py set-x --json --body '{"accounts":["example"]}'
 """
 
 from __future__ import annotations
@@ -24,7 +25,21 @@ import re
 import sys
 from pathlib import Path
 
-API_KEY_NAMES = ("NVD_API_KEY", "SHODAN_API_KEY", "WPSCAN_API_TOKEN")
+API_KEY_NAMES = (
+    "NVD_API_KEY",
+    "SHODAN_API_KEY",
+    "WPSCAN_API_TOKEN",
+    "X_API_KEY",
+    "GITHUB_TOKEN",
+)
+
+# X handles: 1–15 letters, numbers, or underscores. Stored without a leading @.
+X_ACCOUNT_RE = re.compile(r"^[A-Za-z0-9_]{1,15}$")
+X_ACCOUNT_URL_RE = re.compile(
+    r"^(?:https?://)?(?:www\.)?(?:x|twitter)\.com/([A-Za-z0-9_]{1,15})/?$",
+    re.IGNORECASE,
+)
+X_ACCOUNT_MAX = 40
 
 # Display-only timezone IDs (UTC write is mandatory; see AGENTS.md).
 US_VIEW_TIMEZONES = (
@@ -53,6 +68,14 @@ def operator_name_path() -> Path:
 
 def timezone_path() -> Path:
     return discover_home() / "timezone"
+
+
+def threat_feed_time_path() -> Path:
+    return discover_home() / "threat-feed-time"
+
+
+def x_accounts_path() -> Path:
+    return discover_home() / "x-accounts"
 
 
 def client_secret_path() -> Path:
@@ -122,6 +145,8 @@ def write_api_keys(updates: dict[str, str]) -> dict[str, str]:
         "# NVD: https://nvd.nist.gov/developers/request-an-api-key",
         "# Shodan: https://account.shodan.io",
         "# WPScan: https://wpscan.com/api",
+        "# X: https://developer.x.com  (Config → X, not the APIs panel)",
+        "# GitHub: optional token for the threat-feed exploit search (not the APIs panel)",
         "#",
     ]
     for k in API_KEY_NAMES:
@@ -137,6 +162,85 @@ def write_api_keys(updates: dict[str, str]) -> dict[str, str]:
     except OSError:
         pass
     return current
+
+
+def normalize_x_account(raw: str) -> str:
+    """Return a bare handle, or '' when the text is empty."""
+    text = (raw or "").strip()
+    if text.startswith("@"):
+        text = text[1:].strip()
+    match = X_ACCOUNT_URL_RE.match(text)
+    if match:
+        text = match.group(1)
+    return text
+
+
+def parse_x_accounts(items: object) -> list[str]:
+    """Validate a full account list. Raises ValueError with a short code."""
+    if not isinstance(items, list):
+        raise ValueError("accounts_invalid")
+    if len(items) > X_ACCOUNT_MAX:
+        raise ValueError("accounts_limit")
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in items:
+        if not isinstance(item, str):
+            raise ValueError("accounts_invalid")
+        handle = normalize_x_account(item)
+        if not X_ACCOUNT_RE.fullmatch(handle):
+            raise ValueError("accounts_invalid")
+        key = handle.casefold()
+        if key in seen:
+            raise ValueError("accounts_duplicate")
+        seen.add(key)
+        out.append(handle)
+    return sorted(out, key=lambda handle: handle.casefold())
+
+
+def read_x_accounts() -> list[str]:
+    """Handles from ~/.discover/x-accounts. Invalid lines are skipped."""
+    path = x_accounts_path()
+    if not path.is_file():
+        return []
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+    out: list[str] = []
+    seen: set[str] = set()
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        handle = normalize_x_account(line)
+        if not X_ACCOUNT_RE.fullmatch(handle):
+            continue
+        key = handle.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(handle)
+    return sorted(out, key=lambda handle: handle.casefold())
+
+
+def write_x_accounts(items: object) -> list[str]:
+    """Replace ~/.discover/x-accounts. Validates before writing."""
+    accounts = parse_x_accounts(items)
+    ensure_discover_dir()
+    path = x_accounts_path()
+    lines = [
+        "# X accounts watched by Audit Config → X.",
+        "# One handle per line. chmod 600.",
+        "#",
+    ]
+    lines.extend(accounts)
+    lines.append("")
+    path.write_text("\n".join(lines), encoding="utf-8")
+    try:
+        path.chmod(0o600)
+    except OSError:
+        pass
+    return accounts
 
 
 def operator_name_valid(name: str) -> bool:
@@ -320,6 +424,41 @@ def write_timezone(tz_id: str) -> str:
     return tid
 
 
+THREAT_FEED_TIME_RE = re.compile(r"^([01]\d|2[0-3]):([0-5]\d)$")
+
+
+def read_threat_feed_time() -> str:
+    """Stored clock from the retired Config row. A check does not read it."""
+    path = threat_feed_time_path()
+    if not path.is_file():
+        return ""
+    try:
+        raw = path.read_text(encoding="utf-8", errors="replace").splitlines()
+        text = (raw[0] if raw else "").strip()
+    except OSError:
+        return ""
+    if text.lower() == "off" or not THREAT_FEED_TIME_RE.match(text):
+        return ""
+    return text
+
+
+def write_threat_feed_time(value: str) -> str:
+    """Store HH:MM, or off when value is empty. Nothing starts a check from it."""
+    text = (value or "").strip()
+    if text.lower() == "off":
+        text = ""
+    if text and not THREAT_FEED_TIME_RE.match(text):
+        raise ValueError("time_invalid")
+    ensure_discover_dir()
+    path = threat_feed_time_path()
+    path.write_text((text or "off") + "\n", encoding="utf-8")
+    try:
+        path.chmod(0o600)
+    except OSError:
+        pass
+    return text
+
+
 def op_notes_url_path(report_root: Path) -> Path:
     return Path(report_root) / OP_NOTES_URL_REL
 
@@ -400,10 +539,14 @@ def get_all() -> dict:
         "operator_name": read_operator_name(),
         "timezone": read_timezone(),
         "timezones": [{"id": tid, "label": lab} for tid, lab in US_VIEW_TIMEZONES],
+        "x_accounts": read_x_accounts(),
+        "threat_feed_time": read_threat_feed_time(),
         "paths": {
             "api_keys": str(api_keys_path()),
             "operator_name": str(operator_name_path()),
             "timezone": str(timezone_path()),
+            "x_accounts": str(x_accounts_path()),
+            "threat_feed_time": str(threat_feed_time_path()),
             "client_secret": str(client_secret_path()),
             "google_token": str(google_token_path()),
         },
@@ -421,10 +564,14 @@ def get_all_public() -> dict:
         "operator_name": read_operator_name(),
         "timezone": read_timezone(),
         "timezones": [{"id": tid, "label": lab} for tid, lab in US_VIEW_TIMEZONES],
+        "x_accounts": read_x_accounts(),
+        "threat_feed_time": read_threat_feed_time(),
         "paths": {
             "config_file": str(api_keys_path()),
             "operator_name": str(operator_name_path()),
             "timezone": str(timezone_path()),
+            "x_accounts": str(x_accounts_path()),
+            "threat_feed_time": str(threat_feed_time_path()),
         },
     }
 
@@ -439,6 +586,8 @@ def main(argv: list[str] | None = None) -> int:
             "set-operator-name",
             "set-timezone",
             "set-op-notes",
+            "set-x",
+            "set-threat-feed",
         ),
     )
     parser.add_argument("--json", action="store_true", help="JSON stdout")
@@ -477,6 +626,10 @@ def main(argv: list[str] | None = None) -> int:
             "tz_invalid": "Timezone must be UTC or a supported US zone.",
             "url_invalid": "URL must be a Google Sheets link.",
             "report_required": "report path is required",
+            "accounts_invalid": "Use 1-15 letters, numbers, or underscores.",
+            "accounts_duplicate": "That account is already listed.",
+            "accounts_limit": "At most 40 accounts.",
+            "time_invalid": "Use a time like 08:00, or leave it empty to turn the check off.",
             "failed": "config operation failed",
             "unknown": "unknown action",
         }
@@ -517,6 +670,7 @@ def main(argv: list[str] | None = None) -> int:
                     "NVD_API_KEY": ("nvd", "nvd_api_key"),
                     "SHODAN_API_KEY": ("shodan", "shodan_api_key"),
                     "WPSCAN_API_TOKEN": ("wpscan", "wpscan_api_token"),
+                    "X_API_KEY": ("x", "x_api_key", "X_BEARER_TOKEN"),
                 }
                 for a in aliases.get(k, ()):
                     if a in body and k not in updates:
@@ -590,6 +744,66 @@ def main(argv: list[str] | None = None) -> int:
             if args.json:
                 return emit_ok_json(json.dumps(status, ensure_ascii=False), 0)
             return emit_ok_json(json.dumps(status, indent=2, ensure_ascii=False), 0)
+
+        if args.action == "set-x":
+            raw = args.body.strip()
+            if not raw and not sys.stdin.isatty():
+                raw = sys.stdin.read().strip()
+            if not raw:
+                return emit_err_code("body_required", 2)
+            try:
+                body = json.loads(raw)
+            except json.JSONDecodeError:
+                return emit_err_code("invalid_json", 2)
+            if not isinstance(body, dict):
+                return emit_err_code("object_required", 2)
+            updates = {}
+            for key_name in ("X_API_KEY", "x_api_key", "x", "X_BEARER_TOKEN"):
+                if key_name in body:
+                    updates["X_API_KEY"] = str(body.get(key_name) or "")
+                    break
+            accounts = None
+            if "accounts" in body:
+                try:
+                    accounts = parse_x_accounts(body.get("accounts"))
+                except ValueError as exc:
+                    code_id = str(exc) if str(exc) in {
+                        "accounts_invalid",
+                        "accounts_duplicate",
+                        "accounts_limit",
+                    } else "accounts_invalid"
+                    return emit_err_code(code_id, 2)
+            if not updates and accounts is None:
+                return emit_err_code("no_fields", 2)
+            if accounts is not None:
+                write_x_accounts(accounts)
+            if updates:
+                write_api_keys(updates)
+            saved_accounts = read_x_accounts()
+            payload = {"ok": True, "saved": True, "accounts": saved_accounts}
+            return emit_ok_json(json.dumps(payload, ensure_ascii=False), 0)
+
+        if args.action == "set-threat-feed":
+            raw = args.body.strip()
+            if not raw and not sys.stdin.isatty():
+                raw = sys.stdin.read().strip()
+            if not raw:
+                return emit_err_code("body_required", 2)
+            try:
+                body = json.loads(raw)
+            except json.JSONDecodeError:
+                return emit_err_code("invalid_json", 2)
+            if not isinstance(body, dict):
+                return emit_err_code("object_required", 2)
+            if "time" not in body and "threat_feed_time" not in body:
+                return emit_err_code("no_fields", 2)
+            value = body.get("time", body.get("threat_feed_time"))
+            try:
+                saved = write_threat_feed_time(str(value or ""))
+            except ValueError:
+                return emit_err_code("time_invalid", 2)
+            payload = {"ok": True, "saved": True, "threat_feed_time": saved}
+            return emit_ok_json(json.dumps(payload, ensure_ascii=False), 0)
 
     except Exception:
         return emit_err_code("failed", 1)

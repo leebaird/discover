@@ -105,6 +105,7 @@ f_import_report_sync_assets(){
         inc-active-cve-search.js \
         inc-active-status-codes.js \
         inc-active-refresh.js \
+        inc-threat-feed.js \
         inc-report-export.js \
         inc-audit-import.js \
         inc-audit-config.js \
@@ -168,13 +169,19 @@ f_import_report_sync_assets(){
                         "$report/pages/$page" 2>/dev/null || true
                 fi
 
+                if [ "$page" = "active.htm" ] && ! grep -q 'inc-threat-feed.js' "$report/pages/$page" 2>/dev/null; then
+                    sed -i 's|</body>|<script src="../assets/javascript/inc-threat-feed.js?v=13"></script>\n</body>|' \
+                        "$report/pages/$page" 2>/dev/null || true
+                fi
+
                 if [ "$page" = "active.htm" ]; then
                     sed -i \
                         -e 's|inc-active-refresh\.js?v=[0-9]*|inc-active-refresh.js?v=30|g' \
                         -e 's|inc-active-cve-search\.js?v=[0-9]*|inc-active-cve-search.js?v=2|g' \
                         -e 's|inc-active-cve-tabs\.js?v=[0-9]*|inc-active-cve-tabs.js?v=11|g' \
                         -e 's|inc-active-align\.js?v=[0-9]*|inc-active-align.js?v=11|g' \
-                        -e 's|modern\.css?v=[^"]*|modern.css?v=active-enrich-tall2|g' \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=active-threat4|g' \
+                        -e 's|inc-threat-feed\.js?v=[0-9]*|inc-threat-feed.js?v=13|g' \
                         "$report/pages/$page" 2>/dev/null || true
 
                     if ! grep -q 'inc-active-login-view.js' "$report/pages/$page" 2>/dev/null; then
@@ -190,9 +197,9 @@ f_import_report_sync_assets(){
 
                 if [ "$page" = "audit.htm" ]; then
                     sed -i \
-                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-days2|g' \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-x1|g' \
                         -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=12|g' \
-                        -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=23|g' \
+                        -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=29|g' \
                         -e 's|inc-audit-line-delete\.js?v=[0-9]*|inc-audit-line-delete.js?v=3|g' \
                         -e 's|inc-audit-log-filter\.js?v=[0-9]*|inc-audit-log-filter.js?v=1|g' \
                         -e 's|inc-audit-status\.js?v=[0-9]*|inc-audit-status.js?v=4|g' \
@@ -205,7 +212,7 @@ f_import_report_sync_assets(){
                     fi
 
                     if ! grep -q 'inc-audit-config.js' "$report/pages/$page" 2>/dev/null; then
-                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-config.js?v=23"></script>\n</body>|' \
+                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-config.js?v=29"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
 

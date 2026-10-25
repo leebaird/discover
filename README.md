@@ -124,8 +124,9 @@ Note: Passive and Active cannot be run as root.
 3. **Audit > Import** — names, names/titles/emails, subdomains, or another operator’s package into the **current** report.
 4. **Active** — httpx / whatweb / gowitness; Active and Subdomains pages; optional NVD CVSS.
 5. **Shodan** (optional) — Active page **Enrich** (Shodan checkbox).
-6. Software filter on Active, then filtered Subdomains, then host scans in operator mode.
-7. **Export** — on Report > Audit (Discover-hosted only): Client, Defender, or Operator package.
+6. **Alerts** (optional) — Active page, left of **Enrich**. **Check now** watches Software versions.
+7. Software filter on Active, then filtered Subdomains, then host scans in operator mode.
+8. **Export** — on Report > Audit (Discover-hosted only): Client, Defender, or Operator package.
 
 ---
 
@@ -221,12 +222,30 @@ Audit **Config > APIs** (or `~/.discover/api-keys`, `chmod 600`). Shell export w
 | `DISCOVER_SKIP_CVE=1` | Skip NVD queries; Software table still lists versions |
 | `SHODAN_API_KEY` | Active **Enrich** (Shodan). Membership key; host lookups do not use query credits. [Account](https://account.shodan.io/) |
 | `WPSCAN_API_TOKEN` | Optional WPScan vuln DB |
+| `X_API_KEY` | Optional X bearer token for **Alerts**. Set in Audit **Config > X**, not the APIs panel. [Developer account](https://developer.x.com) |
+| `GITHUB_TOKEN` | Optional. Raises the **Alerts** GitHub search limit. Edit `~/.discover/api-keys`. The check runs without it. A token that can read public repositories is enough |
 
-theHarvester keys stay in `~/.theHarvester/api-keys.yaml` (Config **APIs** has a link). CVSS values are triage leads from NVD CPE, not confirmed findings.
+theHarvester keys stay in `~/.theHarvester/api-keys.yaml` (Config **APIs** has a link). Saving **APIs** leaves `X_API_KEY` and `GITHUB_TOKEN` unchanged. CVSS values are triage leads from NVD CPE, not confirmed findings.
 
 **Shodan:** Report > Active > Enrich after Active. Looks up public IPs from `tools/httpx.jsonl`. Without a key the flow soft-skips.
 
 **KEV:** Active **Enrich** (KEVs checkbox) or Update downloads CISA KEV to `resource/kevs.json`. Enrich also rewrites `tools/shodan/kev-ids.js` for the open report and refreshes Active badges. Open report rewrites that file when Shodan artifacts exist (no Shodan re-query). Active Software **Top CVE** prefers a KEV match when present (orange **KEV** badge).
+
+---
+
+#### Alerts
+
+Report > Active, when the report is open through Discover (`http://127.0.0.1:17322/`). **Alerts** sits immediately left of **Enrich**. The label shows the unreviewed count (`Alerts 3`). A manual `file://` open and **Export → Client** do not show the button.
+
+The list covers software already in this report's Software versions. It shows **Last check** as `mm/dd/yyyy - hh:mm` in the Config time zone (`Z` when that zone is UTC). No check yet says **No check yet.** An empty list says **No alerts yet.**
+
+**Check now** is the only way a check starts. Opening the report, opening Active, and opening the list do not start one. While it runs, the status adds one line per source: `[*] Checking NVD.` then KEV, advisories, GitHub, Metasploit, and the X accounts configured for this user (`[*] Checking 4 X accounts.` One account uses the singular). **Check now** stays disabled. **Close** stays available. When the check finishes, a blank line and then **Check finished** are added under those lines. The source lines stay.
+
+A row opens that alert. **Back**, the header close, or Escape marks it reviewed and returns to the list. **Close** on the list leaves it unreviewed.
+
+Sources: NVD, CISA KEV, CISA advisories, Exploit-DB, WordPress and Drupal security feeds when that product is in the report, public GitHub exploit repositories, Metasploit exploit modules installed on this machine, and posts from the X accounts in Config. A Metasploit alert means the local module list names that CVE. The check reads that list. Advisories are the CISA feed and Exploit-DB on every check. WordPress and Drupal are added only when that product is in Software versions. The first check only records what is already public. Later checks add alerts. Lookups use product and CVE identifiers. The client domain is not sent. Nothing is written to the audit log.
+
+**Config > X** stores the bearer token and the account list (`~/.discover/x-accounts`) for this user. Optional `GITHUB_TOKEN` in `~/.discover/api-keys` raises the GitHub search limit.
 
 ---
 
@@ -246,11 +265,13 @@ Discover-hosted **Report > Audit > Export**. Default output directory `$HOME/dat
 | **Defender** | Audit log CSV only |
 | **Operator** | Full HTML ZIP; IPs included; launches enabled |
 
+Client and Defender packages omit `tools/threat-feed/`. Operator export keeps it.
+
 ---
 
 #### Audit page
 
-Reports > Audit. **Config** (hosted only): Operator name, Time zone (display and metrics only; stamps stay UTC), APIs, Google Sheet. **Delete** on log rows (hosted only). **Import** as above.
+Reports > Audit. **Config** (hosted only): Operator name, Time zone (display and metrics only; stamps stay UTC), APIs, Google Sheet, X. **X** opens its own modal for this user's bearer token and the accounts to watch. **Delete** on log rows (hosted only). **Import** as above.
 
 ---
 

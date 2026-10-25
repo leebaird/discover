@@ -24,3 +24,15 @@
 # Used as --api-token when launching wpscan from Subdomains expand.
 #
 # WPSCAN_API_TOKEN=your-token-here
+#
+# Optional: X API bearer token for the threat-feed account watch.
+# Audit Config → X. Accounts are a separate file, ~/.discover/x-accounts.
+# Create a token at https://developer.x.com
+#
+# X_API_KEY=your-token-here
+#
+# Optional: GitHub token for the threat-feed exploit search.
+# A personal access token with public repository read is enough.
+# The Alerts check works without it, with a lower rate limit.
+#
+# GITHUB_TOKEN=your-token-here

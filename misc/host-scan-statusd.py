@@ -158,6 +158,24 @@ def _path_under_root(root_real: str, candidate_real: str) -> bool:
     return candidate_real.startswith(prefix)
 
 
+def load_threat_feed_module(discover_root: Path):
+    """Load recon/threat-feed.py. Status payloads do not include API keys."""
+    path = discover_root / "recon" / "threat-feed.py"
+    if not path.is_file():
+        return None
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "discover_threat_feed_statusd", str(path)
+        )
+        if spec is None or spec.loader is None:
+            return None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    except Exception:
+        return None
+
+
 def load_discover_config_module(discover_root: Path):
     """Load recon/discover-config.py for in-process config (no secret logging)."""
     path = discover_root / "recon" / "discover-config.py"
@@ -335,6 +353,10 @@ def main(argv: list[str]) -> int:
                 "/config/api-keys",
                 "/config/operator-name",
                 "/config/timezone",
+                "/config/x",
+                "/config/threat-feed",
+                "/threat-feed/check",
+                "/threat-feed/reviewed",
                 "/config/op-notes",
                 "/config/op-notes-authorize",
                 "/config/open-theharvester",
@@ -795,11 +817,51 @@ def main(argv: list[str]) -> int:
                 )
                 return
 
+            if path == "/threat-feed/check":
+                feed_mod = load_threat_feed_module(discover_root)
+                script = discover_root / "recon" / "threat-feed.py"
+                if feed_mod is None or not script.is_file():
+                    self._send(500, b'{"ok": false, "error": "threat feed module missing"}\n')
+                    return
+                if feed_mod.check_running(report_root):
+                    self._send(200, b'{"ok": true, "running": true, "added": 0, "notes": []}\n')
+                    return
+                cmd = [sys.executable, str(script), "check", "--report", str(report_root), "--json"]
+                if body.get("force"):
+                    cmd.append("--force")
+                subprocess.Popen(
+                    cmd,
+                    cwd=str(discover_root),
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True,
+                )
+                self._send(200, b'{"ok": true, "running": true, "added": 0, "notes": []}\n')
+                return
+
+            if path == "/threat-feed/reviewed":
+                feed_mod = load_threat_feed_module(discover_root)
+                if feed_mod is None:
+                    self._send(500, b'{"ok": false, "error": "threat feed module missing"}\n')
+                    return
+                alert_id = str(body.get("id") or "").strip()
+                if not alert_id:
+                    self._send(400, b'{"ok": false, "error": "Missing alert id."}\n')
+                    return
+                found = feed_mod.mark_reviewed(report_root, alert_id)
+                if not found:
+                    self._send(404, b'{"ok": false, "error": "Alert not found."}\n')
+                    return
+                self._send(200, b'{"ok": true, "saved": true}\n')
+                return
+
             # --- /config/* (operator machine settings under ~/.discover) ---
             if path in {
                 "/config/api-keys",
                 "/config/operator-name",
                 "/config/timezone",
+                "/config/x",
+                "/config/threat-feed",
             }:
                 if not config_script.is_file():
                     self._send(
@@ -814,7 +876,39 @@ def main(argv: list[str]) -> int:
                     )
                     return
                 try:
-                    if path == "/config/api-keys":
+                    if path == "/config/threat-feed":
+                        proc = subprocess.run(
+                            [
+                                sys.executable,
+                                str(config_script),
+                                "set-threat-feed",
+                                "--json",
+                                "--body",
+                                json.dumps(body),
+                            ],
+                            capture_output=True,
+                            text=True,
+                            timeout=30,
+                            env=env,
+                            cwd=str(discover_root),
+                        )
+                    elif path == "/config/x":
+                        proc = subprocess.run(
+                            [
+                                sys.executable,
+                                str(config_script),
+                                "set-x",
+                                "--json",
+                                "--body",
+                                json.dumps(body),
+                            ],
+                            capture_output=True,
+                            text=True,
+                            timeout=30,
+                            env=env,
+                            cwd=str(discover_root),
+                        )
+                    elif path == "/config/api-keys":
                         proc = subprocess.run(
                             [
                                 sys.executable,
@@ -1414,6 +1508,21 @@ def main(argv: list[str]) -> int:
                     ).encode()
                     + b"\n",
                 )
+                return
+            if path == "/threat-feed":
+                feed_mod = load_threat_feed_module(discover_root)
+                if feed_mod is None or not hasattr(feed_mod, "public_status"):
+                    self._send(
+                        500,
+                        b'{"ok": false, "error": "threat feed module missing"}\n',
+                    )
+                    return
+                try:
+                    payload = feed_mod.public_status(report_root)
+                except Exception:
+                    self._send(500, b'{"ok": false, "error": "threat feed status failed"}\n')
+                    return
+                self._send(200, json.dumps(payload).encode() + b"\n")
                 return
             if path == "/config":
                 # In-process get_all() so API key values reach Audit Config without

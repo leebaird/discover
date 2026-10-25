@@ -2728,6 +2728,11 @@ body:not(.inc-iframe-parent) pre {
     padding-right: 220px;
 }
 
+/* Alerts sits left of Enrich, same button size. */
+.inc-page-header.inc-page-header--with-active-update.inc-page-header--with-alerts {
+    padding-right: 310px;
+}
+
 /* Enrich then date, absolute right of Active header. */
 .inc-page-header .inc-active-header-actions {
     position: absolute;
@@ -2995,6 +3000,88 @@ body:not(.inc-iframe-parent) pre {
 
 .inc-audit-config-modal .inc-audit-config-dialog--sheet {
     max-width: 704px;
+}
+
+/* X settings sit above the Config hub. */
+.inc-audit-x-modal {
+    z-index: 10080;
+}
+
+.inc-audit-x-modal .inc-audit-x-dialog {
+    max-width: 640px;
+}
+
+.inc-audit-x-accounts-head {
+    display: block;
+    margin: 4px 0 8px;
+    font-size: 13px;
+    color: #aeb5bf;
+}
+
+.inc-audit-x-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0 0 12px;
+    max-height: 220px;
+    overflow: auto;
+}
+
+.inc-audit-x-empty {
+    margin: 0;
+    font-size: 13px;
+    color: #9aa3ad;
+}
+
+.inc-audit-x-account {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 10px;
+    border: 1px solid #2f3844;
+    border-radius: 6px;
+    background: #151a20;
+}
+
+.inc-audit-x-account-name {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 13px;
+    color: #e8eaed;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.inc-audit-x-delete {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 4px 10px;
+    border: 1px solid #2f3844;
+    border-radius: 6px;
+    background: transparent;
+    color: #e8eaed;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.inc-audit-x-delete:hover,
+.inc-audit-x-delete:focus {
+    border-color: #4a90d9;
+    outline: none;
+}
+
+.inc-audit-x-add {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+}
+
+.inc-audit-x-add .inc-audit-import-input {
+    flex: 1 1 auto;
+    width: auto;
+    margin: 0;
 }
 
 .inc-audit-config-note {
@@ -3340,6 +3427,67 @@ body:not(.inc-iframe-parent) pre {
     align-items: center;
     justify-content: center;
     gap: 6px;
+}
+
+.inc-threat-feed-modal .inc-threat-feed-dialog {
+    max-width: 640px;
+}
+
+.inc-threat-feed-modal .inc-report-export-status {
+    white-space: pre-wrap;
+}
+
+.inc-threat-feed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0 0 12px;
+    max-height: 360px;
+    overflow: auto;
+}
+
+.inc-threat-feed-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    width: 100%;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid #2f3844;
+    border-radius: 6px;
+    background: #151a20;
+    color: #e8eaed;
+    text-align: left;
+    cursor: pointer;
+}
+
+.inc-threat-feed-row strong {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.inc-threat-feed-row span {
+    font-size: 12px;
+    color: #9aa3ad;
+}
+
+.inc-threat-feed-row--new {
+    border-color: #1a4a9e;
+}
+
+.inc-threat-feed-row:hover,
+.inc-threat-feed-row:focus {
+    border-color: #4a90d9;
+    outline: none;
+}
+
+.inc-threat-feed-summary {
+    margin: 0 0 12px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #e8eaed;
+    white-space: pre-wrap;
 }
 
 .inc-active-page .inc-active-status-codes-info-btn {

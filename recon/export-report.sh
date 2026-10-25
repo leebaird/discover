@@ -340,9 +340,11 @@ else
     rm -f "$STAGE_ROOT/tools/gowitness/gowitness.db" "$STAGE_ROOT/tools/gowitness/"*.db 2>/dev/null || true
 fi
 
-# Client/defender packages must not include the engagement Google Sheet URL.
+# Client/defender packages must not include the engagement Google Sheet URL
+# or the operator threat-intel alert store.
 if [ "$EXPORT_KIND" != "operator" ]; then
     rm -f "$STAGE_ROOT/tools/op-notes-url" "$STAGE_ROOT/.env" 2>/dev/null || true
+    rm -rf "$STAGE_ROOT/tools/threat-feed" 2>/dev/null || true
 fi
 
 # Client package: Yes links already point at the screenshot JPEGs.
