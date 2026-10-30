@@ -3193,6 +3193,21 @@ body:not(.inc-iframe-parent) pre {
     color: #aeb5bf;
 }
 
+.inc-audit-config-field-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 6px;
+}
+
+.inc-audit-config-field-head > label {
+    margin: 0;
+    font-size: 13px;
+    color: #aeb5bf;
+    white-space: nowrap;
+}
+
 .inc-audit-import-input {
     display: block;
     width: 100%;

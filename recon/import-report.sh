@@ -197,9 +197,9 @@ f_import_report_sync_assets(){
 
                 if [ "$page" = "audit.htm" ]; then
                     sed -i \
-                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-x1|g' \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-wpscan1|g' \
                         -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=12|g' \
-                        -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=29|g' \
+                        -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=33|g' \
                         -e 's|inc-audit-line-delete\.js?v=[0-9]*|inc-audit-line-delete.js?v=3|g' \
                         -e 's|inc-audit-log-filter\.js?v=[0-9]*|inc-audit-log-filter.js?v=1|g' \
                         -e 's|inc-audit-status\.js?v=[0-9]*|inc-audit-status.js?v=4|g' \
@@ -212,7 +212,7 @@ f_import_report_sync_assets(){
                     fi
 
                     if ! grep -q 'inc-audit-config.js' "$report/pages/$page" 2>/dev/null; then
-                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-config.js?v=29"></script>\n</body>|' \
+                        sed -i 's|</body>|<script src="../assets/javascript/inc-audit-config.js?v=33"></script>\n</body>|' \
                             "$report/pages/$page" 2>/dev/null || true
                     fi
 

@@ -165,24 +165,33 @@
         setStatus("");
         body.innerHTML =
             '<p class="inc-report-export-lead">Stored in ~/.discover/api-keys.</p>' +
-            '<label class="inc-audit-import-field" for="inc-audit-config-nvd">' +
-            "<span>NVD</span>" +
+            '<div class="inc-audit-import-field">' +
+            '<div class="inc-audit-config-field-head">' +
+            '<label for="inc-audit-config-nvd">NIST National Vulnerability Database (NVD)</label>' +
+            '<a class="inc-audit-config-open-link" href="https://nvd.nist.gov" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov</a>' +
+            "</div>" +
             '<input type="text" id="inc-audit-config-nvd" class="inc-audit-import-input" autocomplete="off" spellcheck="false" value="' +
             escapeAttr(keys.NVD_API_KEY || "") +
             '">' +
-            "</label>" +
-            '<label class="inc-audit-import-field" for="inc-audit-config-shodan">' +
-            "<span>Shodan</span>" +
+            "</div>" +
+            '<div class="inc-audit-import-field">' +
+            '<div class="inc-audit-config-field-head">' +
+            '<label for="inc-audit-config-shodan">Shodan</label>' +
+            '<a class="inc-audit-config-open-link" href="https://www.shodan.io/" target="_blank" rel="noopener noreferrer">https://www.shodan.io/</a>' +
+            "</div>" +
             '<input type="text" id="inc-audit-config-shodan" class="inc-audit-import-input" autocomplete="off" spellcheck="false" value="' +
             escapeAttr(keys.SHODAN_API_KEY || "") +
             '">' +
-            "</label>" +
-            '<label class="inc-audit-import-field" for="inc-audit-config-wpscan">' +
-            "<span>WPScan</span>" +
+            "</div>" +
+            '<div class="inc-audit-import-field">' +
+            '<div class="inc-audit-config-field-head">' +
+            '<label for="inc-audit-config-wpscan">WPScan</label>' +
+            '<a class="inc-audit-config-open-link" href="https://wpscan.com/register/" target="_blank" rel="noopener noreferrer">https://wpscan.com/register/</a>' +
+            "</div>" +
             '<input type="text" id="inc-audit-config-wpscan" class="inc-audit-import-input" autocomplete="off" spellcheck="false" value="' +
             escapeAttr(keys.WPSCAN_API_TOKEN || "") +
             '">' +
-            "</label>" +
+            "</div>" +
             '<label class="inc-audit-import-field">' +
             "<span>theHarvester</span>" +
             '<a class="inc-audit-config-open-link" id="inc-audit-config-open-th" href="discover-theharvester:">~/.theHarvester/api-keys.yaml</a>' +
