@@ -119,3 +119,89 @@ Import output into BloodHound CE alongside on-prem SharpHound data.
 ## Validation / False Positives
 
 Cloud edges depend on sync and app permissions — correlate with portal configuration before reporting.
+
+# BloodHound MCP 
+
+## Overview
+
+A Model Context Protocol (MCP) server that connects LLMs to BloodHound that allow to ask questions in natural language, get attack path analysis, run Cypher queries, and explore Active Directory, Azure/Entra ID, and OpenGraph environments
+
+## Setup
+
+From BloodHound:
+    Administration > Managed Users > Generate/Revoke API Tokens > Copy down Key and ID generated
+
+Clone the BloodHound-mcp repository:
+    git clone https://github.com/mwnickerson/bloodhound_mcp.git
+    cd bloodhound-mcp
+    uv sync
+
+Create a .env file in the project root then add Key and ID:
+    BLOODHOUND_DOMAIN=your-bloodhound-instance.domain.com
+    BLOODHOUND_TOKEN_ID=your-token-id
+    BLOODHOUND_TOKEN_KEY=your-token-key
+    BLOODHOUND_PORT=your-bloodhound-port
+
+## MCP with Claude Desktop
+
+From Claude Desktop:
+    Settings > Developer > Edit config (Or create config if you haven’t)
+
+Add to claude_desktop_config.json
+        {
+          "mcpServers": {
+            "bloodhound_mcp": {
+              "command": "uvx",
+              "args": [
+                "--from",
+                "git+https://github.com/mwnickerson/bloodhound_mcp",
+                "bloodhound-mcp"
+              ]
+            }
+          }
+        }
+
+Another way adding to claude_desktop_config.json that run directly from file 
+        {
+          "mcpServers": {
+            "bloodhound_mcp": {
+              "command": "python.exe",
+              "args": [
+                "<path-to>\\bloodhound_mcp\\main.py"
+              ],
+              "env": {
+                    BLOODHOUND_DOMAIN=your-bloodhound-instance.domain.com
+                    BLOODHOUND_TOKEN_ID=your-token-id
+                    BLOODHOUND_TOKEN_KEY=your-token-key
+                    BLOODHOUND_PORT=your-bloodhound-port
+              }
+            }
+          }
+        }
+
+## MCP with Local LLMs using LM Studio
+
+From LM Studio:
+    Setting > Developer > Turn on Developer Mode
+    Developer Tab > Local Server > mcp.json
+
+Add to mcp.json
+    {
+          "mcpServers": {
+            "bloodhound_mcp": {
+              "command": "python.exe",
+              "args": [
+                "<path-to>\\bloodhound_mcp\\main.py"
+              ],
+              "env": {
+                    BLOODHOUND_DOMAIN=your-bloodhound-instance.domain.com
+                    BLOODHOUND_TOKEN_ID=your-token-id
+                    BLOODHOUND_TOKEN_KEY=your-token-key
+                    BLOODHOUND_PORT=your-bloodhound-port
+              }
+            }
+          }
+        }
+
+Interact with BloodHound MCP
+    Chat > Integration > Turn on bloodhound-mcp > Start chatting
