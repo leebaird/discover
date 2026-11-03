@@ -871,6 +871,12 @@ if ! command -v ffuf &> /dev/null; then
     echo
 fi
 
+if ! command -v gedit &> /dev/null; then
+    echo -e "${YELLOW}Installing gedit.${NC}"
+    apt install -y gedit
+    echo
+fi
+
 if ! command -v gitleaks &> /dev/null; then
     echo -e "${YELLOW}Installing gitleaks.${NC}"
     apt install -y gitleaks
