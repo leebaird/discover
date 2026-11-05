@@ -310,44 +310,93 @@ f_update_cisa_kev(){
 
             new_count=$(python3 - "$tmp_file" "$prev_arg" <<'PY' 2>/dev/null || true
 import json
+import re
 import sys
 from pathlib import Path
 
-def cve_ids(path: str) -> set[str]:
+def load_catalog(path: str) -> dict:
     if not path or not Path(path).is_file():
-        return set()
+        return {}
     try:
         data = json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError, TypeError):
-        return set()
-    out: set[str] = set()
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    return data
+
+def cve_id(row) -> str:
+    if not isinstance(row, dict):
+        return ""
+    cid = (row.get("cveID") or row.get("cveId") or "").strip().upper()
+    if cid.startswith("CVE-"):
+        return cid
+    return ""
+
+def rows_by_id(data: dict) -> dict:
+    out = {}
     for row in data.get("vulnerabilities") or []:
-        if not isinstance(row, dict):
-            continue
-        cid = (row.get("cveID") or row.get("cveId") or "").strip().upper()
-        if cid.startswith("CVE-"):
-            out.add(cid)
+        cid = cve_id(row)
+        if cid:
+            out[cid] = row
     return out
 
-new_path = sys.argv[1]
+def one_line(text) -> str:
+    return " ".join(str(text or "").split())
+
+def product_label(row: dict) -> str:
+    vendor = one_line(row.get("vendorProject") or "")
+    product = one_line(row.get("product") or "")
+    if vendor and product:
+        if product.lower().startswith(vendor.lower()):
+            return product.rstrip(".")
+        return f"{vendor} {product}".rstrip(".")
+    return (product or vendor or "Unknown product").rstrip(".")
+
+def added_stamp(raw) -> str:
+    match = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", str(raw or "").strip())
+    if not match:
+        return ""
+    year, month, day = match.group(1), match.group(2), match.group(3)
+    return f"{month}/{day}/{year}"
+
+def date_rank(row: dict) -> int:
+    digits = re.sub(r"\D", "", str(row.get("dateAdded") or ""))
+    if len(digits) != 8:
+        return 0
+    return int(digits)
+
+new_data = load_catalog(sys.argv[1])
 old_path = sys.argv[2] if len(sys.argv) > 2 else ""
-new_ids = cve_ids(new_path)
-old_ids = cve_ids(old_path)
-gained = sorted(new_ids - old_ids)
+old_data = load_catalog(old_path)
+new_rows = rows_by_id(new_data)
+old_ids = set(rows_by_id(old_data))
+gained_ids = set(new_rows) - old_ids
+gained = sorted(gained_ids, key=lambda cid: (-date_rank(new_rows[cid]), cid))
 added = len(gained)
-total = len(new_ids)
+total = len(new_rows)
 # Prefer catalog count field when present and sensible; else unique cveID count.
-try:
-    catalog_count = json.loads(Path(new_path).read_text(encoding="utf-8")).get("count")
-    if isinstance(catalog_count, int) and catalog_count >= 0:
-        total = catalog_count
-except (OSError, json.JSONDecodeError, TypeError):
-    pass
+catalog_count = new_data.get("count")
+if isinstance(catalog_count, int) and catalog_count >= 0:
+    total = catalog_count
 print(f"{added}")
 print(f"{total}")
-# One CVE ID per line after the two summary lines (empty when none).
-for cid in gained:
+# After the two summary lines: CVE id, product line, short description.
+# A blank line separates entries. Indented lines stay uncolored.
+for index, cid in enumerate(gained):
+    if index:
+        print()
+    row = new_rows[cid]
+    stamp = added_stamp(row.get("dateAdded"))
+    label = product_label(row)
     print(cid)
+    if stamp:
+        print(f"  {label}. Added {stamp}.")
+    else:
+        print(f"  {label}.")
+    description = one_line(row.get("shortDescription") or "")
+    if description:
+        print(f"  {description}")
 PY
 )
             local added_n total_n new_cve_list
@@ -379,11 +428,15 @@ PY
                 echo "No new KEVs added ($total_n total)."
             else
                 echo "$added_n new $kev_word added ($total_n total)."
-                # List each new CVE in yellow (only when we had a prior catalog to diff).
+                # Yellow CVE id, then product and CISA's short description.
+                # Only when a prior catalog exists, so the first seed stays a count.
                 if [ -n "$new_cve_list" ]; then
-                    while IFS= read -r cid || [ -n "$cid" ]; do
-                        [ -z "$cid" ] && continue
-                        echo -e "${YELLOW}$cid${NC}"
+                    while IFS= read -r line || [ -n "$line" ]; do
+                        if [[ "$line" =~ ^CVE- ]]; then
+                            echo -e "${YELLOW}${line}${NC}"
+                        else
+                            printf '%s\n' "$line"
+                        fi
                     done <<< "$new_cve_list"
                 fi
             fi

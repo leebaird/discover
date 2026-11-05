@@ -159,6 +159,7 @@ Tool install/update blocks in **`misc/update.sh` must stay in case-insensitive a
 - Comments already mark some blocks this way (e.g. CISA KEV after chromium, before curl); follow that convention.
 - Same idea for README Update bullet lists when they mirror install order.
 - **nuclei-templates:** Update is `sudo misc/update.sh`. If `~/nuclei-templates` exists, delete it (a symlink is removed without following it). Keep `/opt/nuclei-templates` as a **git clone** of `projectdiscovery/nuclei-templates`. Each Update clones that path when it is missing or has no `.git`, otherwise `git pull --ff-only`. Do **not** use `nuclei -ut` here: that only tracks release tags and would reset git HEAD. Point the operator’s `~/.config/nuclei/.templates-config.json` at `/opt/nuclei-templates`. Set `disable-update-check: true` in `~/.config/nuclei/config.yaml` so a later `nuclei -v` does not zip-install the last release over the clone. Print **Already up to date.** (no commit hash or subject).
+- **CISA KEV:** When Update already has a catalog and the feed adds CVE ids, print the count, then each new id in yellow. The next line is indented: product, then `Added mm/dd/yyyy.` A second indented line is CISA's short description. When the product name already begins with the vendor, the vendor is not repeated. No due date. A blank line separates entries. The first catalog on an install prints the count only.
 
 ## Host-scan reachability pre-check (expand dropdown only)
 
