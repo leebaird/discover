@@ -2414,6 +2414,82 @@ if command -v snap &> /dev/null; then
     echo
 fi
 
+# Operator caches only. Go modules, ~/go/bin, and Playwright stay.
+f_run_as_operator(){
+    local home_dir=$1
+    local owner=$2
+    shift 2
+
+    if [ "$(id -u)" -eq 0 ] && [ -n "$owner" ] && [ "$owner" != "root" ]; then
+        sudo -u "$owner" -H env HOME="$home_dir" \
+            PATH="${home_dir}/.local/bin:/usr/local/go/bin:/usr/local/bin:/usr/bin:/bin" \
+            "$@"
+    else
+        env HOME="$home_dir" \
+            PATH="${home_dir}/.local/bin:/usr/local/go/bin:/usr/local/bin:/usr/bin:/bin" \
+            "$@"
+    fi
+}
+
+f_clear_operator_caches(){
+    local home_dir="" owner="" go_bin="" uv_bin="" pip_bin=""
+
+    if [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ]; then
+        home_dir=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+        owner="$SUDO_USER"
+    elif [ "$(id -u)" -ne 0 ]; then
+        home_dir="${HOME:-}"
+        owner="$(id -un)"
+    else
+        return 0
+    fi
+
+    if [ -z "$home_dir" ] || [ ! -d "$home_dir" ]; then
+        return 0
+    fi
+
+    echo -e "${BLUE}Clearing package caches.${NC}"
+    go_bin=$(f_go_bin || true)
+
+    if [ -n "$go_bin" ]; then
+        f_run_as_operator "$home_dir" "$owner" "$go_bin" clean -cache || true
+        echo "Go build cache cleared."
+    fi
+
+    if command -v npm >/dev/null 2>&1; then
+        f_run_as_operator "$home_dir" "$owner" npm cache clean --force >/dev/null 2>&1 || true
+        echo "npm cache cleared."
+    fi
+
+    pip_bin=$(command -v pip 2>/dev/null || command -v pip3 2>/dev/null || true)
+
+    if [ -n "$pip_bin" ]; then
+        f_run_as_operator "$home_dir" "$owner" "$pip_bin" cache purge >/dev/null 2>&1 || true
+        echo "pip cache cleared."
+    fi
+
+    if [ -d "$home_dir/.cache/tracker3" ]; then
+        rm -rf "$home_dir/.cache/tracker3"
+        echo "GNOME search cache cleared."
+    fi
+
+    if [ -x "$home_dir/.local/bin/uv" ]; then
+        uv_bin="$home_dir/.local/bin/uv"
+    elif command -v uv >/dev/null 2>&1; then
+        uv_bin=$(command -v uv)
+    fi
+
+    if [ -n "$uv_bin" ]; then
+        f_run_as_operator "$home_dir" "$owner" "$uv_bin" cache clean >/dev/null 2>&1 || true
+        echo "uv cache cleared."
+    fi
+
+    echo
+}
+
+f_clear_operator_caches
+unset -f f_run_as_operator f_clear_operator_caches
+
 echo -e "${BLUE}Updating locate database.${NC}"
 updatedb
 echo

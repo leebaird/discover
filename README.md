@@ -476,7 +476,7 @@ Main menu option **17**. Opens `notes/index.htm` in a browser when available.
 
 ### Update
 
-Main menu option **18** (`misc/update.sh`). OS packages, git pulls, locate DB, recon/dev tools, desktop handlers, Edge User-Agent, and CISA KEV catalog. LLM checkouts live in `/opt/llm` and are refreshed by `sudo misc/ai-update.sh`, separate from option 18.
+Main menu option **18** (`misc/update.sh`). OS packages, git pulls, locate DB, recon/dev tools, desktop handlers, Edge User-Agent, and CISA KEV catalog. At the end it clears the operator's Go build cache, npm cache, pip cache, GNOME search cache, and uv cache. LLM checkouts live in `/opt/llm` and are refreshed by `sudo misc/ai-update.sh`, separate from option 18.
 
 Gotchas:
 
