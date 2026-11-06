@@ -1528,6 +1528,12 @@ else
     echo
 fi
 
+if ! command -v psql &> /dev/null; then
+    echo -e "${YELLOW}Installing psql.${NC}"
+    apt install -y postgresql-client
+    echo
+fi
+
 if ! python3 -c 'import requests' &> /dev/null; then
     echo -e "${YELLOW}Installing python3-requests.${NC}"
     apt install -y python3-requests
