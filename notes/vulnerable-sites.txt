@@ -51,6 +51,21 @@ Vulnerable API.
 vulnapi.testinvicti.com
 
 
+# Testsparker
+
+ASP.NET. Windows, IIS, and Microsoft SQL Server.
+aspnet.testsparker.com
+
+PHP. Windows, Apache, and MySQL.
+php.testsparker.com
+
+Angular. Ubuntu, Apache, PHP, and Angular 5.
+angular.testsparker.com
+
+REST. Ubuntu, Apache, PHP, and MySQL.
+rest.testsparker.com
+
+
 # Acunetix
 
 Acuforum. ASP.
