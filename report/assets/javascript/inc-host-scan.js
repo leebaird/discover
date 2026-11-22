@@ -10,7 +10,7 @@
  * On the Discover host (browser not Windows), WEB still opens Firefox.
  * Elsewhere WEB opens web.htm. A client package reads tools/host-scans/status.js.
  * Software: ?software= query wins, else fingerprint row tech/title/webserver/host.
- * nuclei is shown only when a product is known; robots/nikto/transom/feroxbuster/ffuf always on expand.
+ * nuclei is shown only when a product is known; robots/nikto/transom/katana/feroxbuster/ffuf always on expand.
  * nmap after robots when the row IP has Shodan ports, or the row URL is http/https (80/443).
  * droopescan / wpscan gate on CMS software (query or fingerprint).
  * Tool boxes: Unicode info button opens a short modal (what / when / Run / outputs).
@@ -295,6 +295,35 @@
                     h: "Outputs",
                     p:
                         "TXT after every attempt. HTM only when transom actually ran and wrote a report (not on Unreachable)."
+                }
+            ]
+        },
+        katana: {
+            title: "katana",
+            sections: [
+                {
+                    h: "What it does",
+                    p:
+                        "Crawls the row URL and records the URLs the site links: paths, forms, and script files. Depth 2, headless Chromium, and the crawl stays on this hostname. A login page or an API host may mostly return the start URL. feroxbuster and ffuf stay the wordlist tools."
+                },
+                {
+                    h: "When shown",
+                    p: "Always on expand (before feroxbuster)."
+                },
+                {
+                    h: "What Run does",
+                    p:
+                        "Runs katana against the row URL. Depth 2, headless, the Chromium installed by Update, JavaScript endpoint parsing, scope limited to this hostname, 10s request timeout, 20 req/s, crawl duration 10m, hard stop 11m. When the scan runs as root, -nos is added."
+                },
+                {
+                    h: "Safety check",
+                    p:
+                        "Before katana starts, Discover runs a curl HTTP/1.1 GET (15s). If the host does not answer HTTP, the scan is skipped and the box shows Unreachable (txt note only)."
+                },
+                {
+                    h: "Outputs",
+                    p:
+                        "TXT of URLs plus a WEB control. On the Discover host, WEB opens each URL in Firefox when the run recorded at least one. Tabs open one at a time with about 1.5s between them, plus up to 40% jitter for OPSEC (cap 40 tabs). In Edge on Windows, WEB opens a page of those links."
                 }
             ]
         },
@@ -664,6 +693,17 @@
                 shellQuote(ua) +
                 " -o <run-dir>/transom.htm " +
                 shellQuote(u)
+            );
+        }
+        if (tool === "katana") {
+            return (
+                "timeout --foreground --signal=TERM --kill-after=15s 11m katana" +
+                " -u " +
+                shellQuote(u) +
+                " -d 2 -hl -sc -jc -fs fqdn -timeout 10 -ct 10m -c 10 -rl 20 -H " +
+                shellQuote("User-Agent: " + ua) +
+                " -silent -nc -duc -j -ob -or -o katana.jsonl\n" +
+                "# Discover adds -scp when Chromium is on PATH, and -nos when the scan runs as root."
             );
         }
         if (tool === "ffuf") {
@@ -1214,7 +1254,7 @@
     /**
      * Tools for this expand panel.
      * nuclei only when a product is known (filter or fingerprint).
-     * robots/nikto/transom/ffuf/feroxbuster always; nmap when Shodan has ports or the row is http/https;
+     * robots/nikto/transom/katana/ffuf/feroxbuster always; nmap when Shodan has ports or the row is http/https;
      * CMS tools when matched.
      * Order: robots, nmap (if Shodan ports), nuclei (if product), CMS, then louder tools.
      */
@@ -1309,7 +1349,7 @@
         if (isWordpress(software)) {
             tools.push("wpscan");
         }
-        tools.push("nikto", "transom", "feroxbuster", "ffuf");
+        tools.push("nikto", "transom", "katana", "feroxbuster", "ffuf");
         return tools;
     }
 
@@ -1544,7 +1584,7 @@
      * Build green output buttons.
      * robots: txt → robots.txt body; web → Firefox Disallow tabs.
      * nikto / transom: txt + htm when the scan ran (not on Unreachable).
-     * ffuf / feroxbuster: txt + web when there is at least one finding URL.
+     * katana / ffuf / feroxbuster: txt + web when there is at least one finding URL.
      */
     function findingUrlCount(st) {
         if (!st || st.url_count == null || st.url_count === "") {
@@ -1628,6 +1668,21 @@
                 }
             }
         }
+        if (tool === "katana") {
+            var katanaRel = String(rel).replace(/[^/]+$/, "katana.jsonl");
+            var absKatana = hostScanArtifactAbsolutePath(katanaRel);
+            var katanaUrls = findingUrlCount(st);
+            var katanaPage = String(rel).replace(/[^/]+$/, "web.htm");
+            if (useWebPage() && katanaUrls !== 0) {
+                html += webAnchor(katanaPage, "", "");
+            } else if (absKatana && katanaUrls !== 0) {
+                html += webAnchor(
+                    katanaPage,
+                    "discover-katana:" + encodeURI(absKatana).replace(/"/g, "&quot;"),
+                    "Open each katana URL in Firefox"
+                );
+            }
+        }
         if (tool === "ffuf") {
             // Absolute path via discover-ffuf: → open-ffuf-tabs.sh (Firefox CLI)
             var jsonRel = String(rel).replace(/[^/]+$/, "ffuf.json");
@@ -1679,7 +1734,7 @@
 
     /**
      * Best-effort absolute or report-relative path for desktop handlers
-     * (discover-ffuf: / discover-ferox: / discover-robots: / discover-nmap-web:).
+     * (discover-katana: / discover-ffuf: / discover-ferox: / discover-robots: / discover-nmap-web:).
      */
     function hostScanArtifactAbsolutePath(relFromPages) {
         try {

@@ -7,7 +7,7 @@
 # Invoked via discover-scan: scheme or CLI:
 #   run-host-scan.sh <tool> <url> [software] [report_root] [ports]
 #
-# Tools: robots | nmap | nuclei | droopescan | wpscan | nikto | transom | feroxbuster | ffuf
+# Tools: robots | nmap | nuclei | droopescan | wpscan | nikto | transom | katana | feroxbuster | ffuf
 # - nmap: TCP-only: -Pn -n --open -sTV -p <ports> --stats-every 20 <host> (no sudo)
 #         UDP (Shodan transport, or UDP= fallback; port 53 always TCP+UDP):
 #         sudo nmap --privileged -Pn -n --open -sTV -sUV -p T:...,U:... --stats-every 20 <host>
@@ -98,7 +98,7 @@ f_die(){
     exit 1
 }
 
-[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|feroxbuster|droopescan|wpscan|robots|nmap|transom)$ ]] || f_die "Tool must be nuclei, droopescan, wpscan, robots, nmap, nikto, transom, ffuf, or feroxbuster."
+[[ "$TOOL" =~ ^(nikto|nuclei|ffuf|feroxbuster|katana|droopescan|wpscan|robots|nmap|transom)$ ]] || f_die "Tool must be nuclei, droopescan, wpscan, robots, nmap, nikto, transom, katana, ffuf, or feroxbuster."
 [ -n "$URL" ] || f_die "URL is required."
 
 # Resolve report root
@@ -2540,6 +2540,158 @@ PY
         fi
 
         ;;
+    katana)
+        # Linked crawl of the row URL. Depth 2, headless Chromium, this hostname
+        # only. feroxbuster and ffuf stay the wordlist tools. Hard stop 11m.
+        KATANA_JSON="$RUN_DIR/katana.jsonl"
+        KATANA_TIMEOUT="10"
+        KATANA_CRAWL="10m"
+        KATANA_HARD_TIMEOUT="11m"
+        KATANA_CMD=(
+            katana
+            -u "$URL"
+            -d 2
+            -hl
+            -sc
+            -jc
+            -fs fqdn
+            -timeout "$KATANA_TIMEOUT"
+            -ct "$KATANA_CRAWL"
+            -c 10
+            -rl 20
+            -H "User-Agent: $UA"
+            -silent
+            -nc
+            -duc
+            -j
+            -ob
+            -or
+            -o "$KATANA_JSON"
+        )
+        CHROME_BIN=$(command -v chromium || command -v chromium-browser || command -v google-chrome || command -v google-chrome-stable || true)
+
+        if [ -n "$CHROME_BIN" ]; then
+            KATANA_CMD+=(-scp "$CHROME_BIN")
+        fi
+
+        if [ "$(id -u)" -eq 0 ]; then
+            KATANA_CMD+=(-nos)
+        fi
+
+        f_write_run_header "$(f_clean_cmd KATANA_CMD)"
+
+        if [ -z "$CHROME_BIN" ]; then
+            {
+                echo "[!] Chromium was not found. Run Discover Update."
+            } | tee -a "$OUT_FILE"
+            EXIT_CODE=1
+        elif f_op_notes "$URL" "$(f_clean_cmd KATANA_CMD)"; then
+            {
+                echo "[*] Depth 2, headless, this hostname only, 20 req/s."
+                    echo "    Request timeout ${KATANA_TIMEOUT}s; crawl duration ${KATANA_CRAWL}; hard stop ${KATANA_HARD_TIMEOUT}."
+                    echo
+                } | tee -a "$OUT_FILE"
+                KATANA_RAW="$RUN_DIR/katana.raw.txt"
+                set +e
+
+                if command -v timeout >/dev/null 2>&1; then
+                    timeout --foreground --signal=TERM --kill-after=15s "$KATANA_HARD_TIMEOUT" \
+                        "${KATANA_CMD[@]}" \
+                        >"$KATANA_RAW" 2>&1
+                    EXIT_CODE=$?
+                else
+                    "${KATANA_CMD[@]}" \
+                        >"$KATANA_RAW" 2>&1
+                    EXIT_CODE=$?
+                fi
+
+                set -e
+
+                if [ "${EXIT_CODE:-0}" -eq 124 ]; then
+                    {
+                        echo
+                        echo "[*] Discover hard stop: katana exceeded ${KATANA_HARD_TIMEOUT} wall clock (crawl duration ${KATANA_CRAWL} + grace)."
+                        echo "    Scan stopped automatically - no operator input required."
+                    } | tee -a "$OUT_FILE"
+                    EXIT_CODE=0
+                fi
+
+                if [ -f "$KATANA_RAW" ]; then
+                    python3 - "$KATANA_RAW" <<'PY' >> "$OUT_FILE"
+import re
+import sys
+from pathlib import Path
+text = Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
+text = re.sub(r"\x1b\[[0-9;?]*[ -/]*[@-~]", "", text)
+kept = []
+for raw in text.splitlines():
+    s = raw.strip()
+    if not s or s[0] in "{[":
+        continue
+    if s.startswith(("http://", "https://")):
+        continue
+    kept.append(s)
+if kept:
+    sys.stdout.write("\n".join(kept) + "\n")
+PY
+                    rm -f "$KATANA_RAW"
+                fi
+
+                python3 - "$KATANA_JSON" <<'PY' >> "$OUT_FILE"
+import json
+import sys
+from pathlib import Path
+path = Path(sys.argv[1])
+seen = []
+found = set()
+
+def add(url):
+    u = str(url or "").strip()
+    if not u.startswith(("http://", "https://")):
+        return
+    if u in found:
+        return
+    found.add(u)
+    seen.append(u)
+
+text = ""
+if path.is_file():
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        text = ""
+for raw in text.splitlines():
+    raw = raw.strip()
+    if not raw or raw[0] not in "{[":
+        continue
+    try:
+        row = json.loads(raw)
+    except Exception:
+        continue
+    if not isinstance(row, dict):
+        continue
+    req = row.get("request")
+    if isinstance(req, dict):
+        add(req.get("endpoint") or req.get("url"))
+    add(row.get("url"))
+print()
+if seen:
+    print("URLs:")
+    for url in seen:
+        print(url)
+else:
+    print("No URLs recorded.")
+PY
+
+                if [ -f "$KATANA_JSON" ]; then
+                    echo "" >> "$OUT_FILE"
+                    echo "JSON results: $KATANA_JSON" >> "$OUT_FILE"
+                fi
+        else
+            f_sheet_stopped
+        fi
+
+        ;;
     feroxbuster)
         # Same software-aware SecLists pick as ffuf (quiet expand).
         [ -n "$FFUF_WL" ] || f_ffuf_wordlist
@@ -2600,6 +2752,7 @@ COUNT_JSON=""
 case "$TOOL" in
     ffuf) COUNT_JSON="$RUN_DIR/ffuf.json" ;;
     feroxbuster) COUNT_JSON="$RUN_DIR/ferox.json" ;;
+    katana) COUNT_JSON="$RUN_DIR/katana.jsonl" ;;
 esac
 python3 - "$META_FILE" "$FINISHED" "$EXIT_CODE" "$COUNT_JSON" <<'PY'
 import json, sys
@@ -2642,10 +2795,16 @@ if json_path is not None:
         for row in data.get("results") or []:
             if isinstance(row, dict):
                 add(row.get("url"))
+        req = data.get("request")
+        if isinstance(req, dict):
+            add(req.get("endpoint") or req.get("url"))
     elif isinstance(data, list):
         for row in data:
             if isinstance(row, dict) and row.get("type") in (None, "response"):
                 add(row.get("url") or row.get("original_url"))
+                req = row.get("request")
+                if isinstance(req, dict):
+                    add(req.get("endpoint") or req.get("url"))
     if not seen or data is None:
         for raw in text.splitlines():
             raw = raw.strip()
@@ -2660,6 +2819,9 @@ if json_path is not None:
             if row.get("type") and row.get("type") != "response":
                 continue
             add(row.get("url") or row.get("original_url"))
+            req = row.get("request")
+            if isinstance(req, dict):
+                add(req.get("endpoint") or req.get("url"))
     meta["url_count"] = len(seen)
 json.dump(meta, open(path, "w", encoding="utf-8"), indent=2)
 open(path, "a", encoding="utf-8").write("\n")

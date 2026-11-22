@@ -10,6 +10,7 @@
 #   open-ffuf-tabs.sh /path/to/ffuf.json
 #   open-ffuf-tabs.sh discover-ffuf:/path/to/ffuf.json
 #   open-ffuf-tabs.sh discover-ferox:/path/to/ferox.json
+#   open-ffuf-tabs.sh discover-katana:/path/to/katana.jsonl
 
 set -euo pipefail
 
@@ -44,6 +45,8 @@ f_resolve_json_path(){
     raw="${raw#DISCOVER-FFUF:}"
     raw="${raw#discover-ferox:}"
     raw="${raw#DISCOVER-FEROX:}"
+    raw="${raw#discover-katana:}"
+    raw="${raw#DISCOVER-KATANA:}"
     raw="${raw#//}"
 
     # URL-decode (paths may contain %20 etc.)
@@ -53,7 +56,7 @@ f_resolve_json_path(){
         return 1
     fi
 
-    # If a run directory was passed, prefer ffuf.json / ferox.json inside it
+    # If a run directory was passed, prefer the tool results file inside it
     if [ -d "$raw" ]; then
         if [ -f "$raw/ffuf.json" ]; then
             printf '%s' "$raw/ffuf.json"
@@ -62,6 +65,11 @@ f_resolve_json_path(){
 
         if [ -f "$raw/ferox.json" ]; then
             printf '%s' "$raw/ferox.json"
+            return 0
+        fi
+
+        if [ -f "$raw/katana.jsonl" ]; then
+            printf '%s' "$raw/katana.jsonl"
             return 0
         fi
     fi
@@ -123,17 +131,24 @@ def add_url(url):
     urls.append(url)
 
 # ffuf: { "results": [ { "url": "..." }, ... ] }
+# katana -jsonl: { "request": { "endpoint": "https://..." } }
 if isinstance(data, dict):
     for row in data.get("results") or []:
         if isinstance(row, dict):
             add_url(row.get("url"))
     add_url(data.get("url"))
+    req = data.get("request")
+    if isinstance(req, dict):
+        add_url(req.get("endpoint") or req.get("url"))
 elif isinstance(data, list):
     for row in data:
         if isinstance(row, dict):
             add_url(row.get("url"))
+            req = row.get("request")
+            if isinstance(req, dict):
+                add_url(req.get("endpoint") or req.get("url"))
 
-# feroxbuster --json: NDJSON (one object per line)
+# feroxbuster --json and katana -jsonl are one object per line.
 if not urls:
     for raw in path.read_text(encoding="utf-8", errors="replace").splitlines():
         raw = raw.strip()
@@ -148,6 +163,9 @@ if not urls:
             if row.get("type") and row.get("type") != "response":
                 continue
             add_url(row.get("url") or row.get("original_url"))
+            req = row.get("request")
+            if isinstance(req, dict):
+                add_url(req.get("endpoint") or req.get("url"))
 
 # Stable order: as in file
 for url in urls[:max_tabs]:
@@ -160,7 +178,7 @@ PY
 JSON_PATH=$(f_resolve_json_path "${1:-}" || true)
 
 if [ -z "$JSON_PATH" ] || [ ! -f "$JSON_PATH" ]; then
-    echo "[!] ffuf JSON not found: ${1:-}"
+    echo "[!] Results file not found: ${1:-}"
     sleep 2
     exit 1
 fi

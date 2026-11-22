@@ -157,6 +157,8 @@
         var prefix = "";
         if (scheme === "discover-robots") {
             prefix = "discover-robots:";
+        } else if (scheme === "discover-katana") {
+            prefix = "discover-katana:";
         } else if (scheme === "discover-ffuf") {
             prefix = "discover-ffuf:";
         } else if (scheme === "discover-ferox") {

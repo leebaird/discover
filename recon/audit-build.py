@@ -34,6 +34,7 @@ HOST_SCAN_TOOLS: list[tuple[str, str]] = [
     ("wpscan", "WPScan"),
     ("nikto", "Nikto"),
     ("transom", "Transom"),
+    ("katana", "katana"),
     ("feroxbuster", "feroxbuster"),
     ("ffuf", "ffuf"),
 ]
@@ -223,7 +224,7 @@ def _command_for_host_scan(
     tool = (tool or "").lower()
     if tool.startswith("nuclei pass"):
         tool = "nuclei"
-    if not host or tool not in {"ffuf", "feroxbuster", "nikto", "transom", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
+    if not host or tool not in {"ffuf", "feroxbuster", "katana", "nikto", "transom", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
         return ""
 
     base = report_root / "tools" / "host-scans" / host / tool
@@ -319,7 +320,7 @@ def _duration_for_finished_scan(
     tool = (tool or "").lower()
     if tool.startswith("nuclei pass"):
         tool = "nuclei"
-    if not host or tool not in {"ffuf", "feroxbuster", "nikto", "transom", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
+    if not host or tool not in {"ffuf", "feroxbuster", "katana", "nikto", "transom", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
         return ""
 
     audit_ts = (audit_ts or "").strip()
@@ -383,7 +384,7 @@ def _display_audit_action(
 
     m = re.match(
         r"(?i)^(started|finished)\s+"
-        r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|nmap|feroxbuster|ffuf|nikto|transom)\b",
+        r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|nmap|katana|feroxbuster|ffuf|nikto|transom)\b",
         text,
     )
     if m:
@@ -441,7 +442,7 @@ def _is_finished_host_scan_action(action: str) -> bool:
     return bool(
         re.match(
             r"(?i)^finished\s+"
-            r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|nmap|feroxbuster|ffuf|nikto|transom)\b",
+            r"(nuclei(?:\s+pass-2)?|droopescan|wpscan|robots|nmap|katana|feroxbuster|ffuf|nikto|transom)\b",
             text,
         )
     )
@@ -649,8 +650,12 @@ def _newest_host_scan_tool_meta(tool_dir: Path) -> dict:
                 best["disallow_count"] = meta.get("disallow_count")
             if meta.get("url_count") is not None:
                 best["url_count"] = meta.get("url_count")
-            elif tool_dir.name in {"ffuf", "feroxbuster"}:
-                json_name = "ffuf.json" if tool_dir.name == "ffuf" else "ferox.json"
+            elif tool_dir.name in {"ffuf", "feroxbuster", "katana"}:
+                json_name = {
+                    "ffuf": "ffuf.json",
+                    "feroxbuster": "ferox.json",
+                    "katana": "katana.jsonl",
+                }[tool_dir.name]
                 json_disk = run_dir / json_name
                 best["url_count"] = _host_scan_finding_url_count(json_disk)
     return best or {}
@@ -787,7 +792,7 @@ def omit_missing_page_nav(html: str, report_root: Path) -> str:
 # Audit log Action → host-scan tool / pass-2 / URL (for Output column links).
 _AUDIT_SCAN_ACTION_RE = re.compile(
     r"(?i)\b(?P<verb>started|finished)\s+"
-    r"(?P<tool>nuclei\s+pass-2|droopescan|wpscan|robots|nmap|feroxbuster|ffuf|nikto|transom|nuclei)\b"
+    r"(?P<tool>nuclei\s+pass-2|droopescan|wpscan|robots|nmap|katana|feroxbuster|ffuf|nikto|transom|nuclei)\b"
     r".*?\bon\s+(?P<url>https?://[^\s)(]+)"
 )
 
@@ -815,7 +820,7 @@ def _robots_disallow_has_dirs(list_disk: Path) -> bool:
 
 
 def _host_scan_finding_url_count(json_disk: Path) -> int:
-    """Unique HTTP(S) finding URLs in ffuf.json or ferox.json (not config/stats)."""
+    """Unique HTTP(S) URLs in ffuf.json, ferox.json, or katana.jsonl."""
     if not json_disk.is_file():
         return 0
     try:
@@ -838,12 +843,18 @@ def _host_scan_finding_url_count(json_disk: Path) -> int:
         for row in data.get("results") or []:
             if isinstance(row, dict):
                 add(row.get("url"))
+        req = data.get("request")
+        if isinstance(req, dict):
+            add(req.get("endpoint") or req.get("url"))
     elif isinstance(data, list):
         for row in data:
             if isinstance(row, dict) and row.get("type") in (None, "response"):
                 add(row.get("url") or row.get("original_url"))
+                req = row.get("request")
+                if isinstance(req, dict):
+                    add(req.get("endpoint") or req.get("url"))
 
-    # feroxbuster --json is NDJSON (configuration / response / statistics).
+    # feroxbuster --json and katana -jsonl are one object per line.
     if not seen or data is None:
         for raw in text.splitlines():
             raw = raw.strip()
@@ -858,6 +869,9 @@ def _host_scan_finding_url_count(json_disk: Path) -> int:
             if row.get("type") and row.get("type") != "response":
                 continue
             add(row.get("url") or row.get("original_url"))
+            req = row.get("request")
+            if isinstance(req, dict):
+                add(req.get("endpoint") or req.get("url"))
     return len(seen)
 
 
@@ -882,6 +896,12 @@ _WEB_BUTTONS = {
         "Open each feroxbuster finding URL",
         "feroxbuster findings",
     ),
+    "katana": (
+        "katana.jsonl",
+        "discover-katana",
+        "Open each katana URL",
+        "katana URLs",
+    ),
     "nmap": (
         "web-urls.txt",
         "discover-nmap-web",
@@ -902,7 +922,7 @@ def _append_web_button(links: list[str], report_root: Path, output: str, tool: s
     if tool == "robots":
         if not _robots_disallow_has_dirs(disk):
             return
-    elif tool in ("ffuf", "feroxbuster"):
+    elif tool in ("ffuf", "feroxbuster", "katana"):
         if _host_scan_finding_url_count(disk) <= 0:
             return
     elif tool == "nmap":
@@ -980,7 +1000,7 @@ def audit_output_cell(
 
     is_pass2 = tool_raw.startswith("nuclei pass-2") or tool_raw == "nuclei pass-2"
     tool = "nuclei" if is_pass2 or tool_raw == "nuclei" else tool_raw
-    if tool not in {"ffuf", "feroxbuster", "nikto", "transom", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
+    if tool not in {"ffuf", "feroxbuster", "katana", "nikto", "transom", "nuclei", "droopescan", "wpscan", "robots", "nmap"}:
         return '<span class="inc-audit-muted">—</span>'
 
     meta = (scan_index.get(host) or {}).get(tool) or {}
@@ -1334,7 +1354,7 @@ def compute_metrics(
             continue
         verb = m.group("verb").lower()
         tool = _normalize_scan_tool(m.group("tool"))
-        if tool not in {"nuclei", "nikto", "transom", "ffuf", "feroxbuster", "droopescan", "wpscan", "robots", "nmap"}:
+        if tool not in {"nuclei", "nikto", "transom", "katana", "ffuf", "feroxbuster", "droopescan", "wpscan", "robots", "nmap"}:
             continue
         host = _hostname_from_url(m.group("url").rstrip(".,;"))
         if not host:

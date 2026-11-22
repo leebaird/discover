@@ -139,7 +139,7 @@ f_import_report_sync_assets(){
         if [ -f "$report/pages/subdomains.htm" ]; then
             sed -i \
                 -e 's|modern\.css?v=[^"]*|modern.css?v=ws-ports13|g' \
-                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=81|g' \
+                -e 's|inc-host-scan\.js?v=[0-9]*|inc-host-scan.js?v=82|g' \
                 -e 's|inc-subdomains-filter\.js?v=[0-9]*|inc-subdomains-filter.js?v=22|g' \
                 -e 's|inc-shodan\.js?v=[0-9]*|inc-shodan.js?v=19|g' \
                 -e 's|inc-subdomains-ports\.js?v=[0-9]*|inc-subdomains-ports.js?v=12|g' \
@@ -197,12 +197,12 @@ f_import_report_sync_assets(){
 
                 if [ "$page" = "audit.htm" ]; then
                     sed -i \
-                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-wpscan1|g' \
+                        -e 's|modern\.css?v=[^"]*|modern.css?v=audit-katana1|g' \
                         -e 's|inc-audit-import\.js?v=[0-9]*|inc-audit-import.js?v=12|g' \
                         -e 's|inc-audit-config\.js?v=[0-9]*|inc-audit-config.js?v=33|g' \
                         -e 's|inc-audit-line-delete\.js?v=[0-9]*|inc-audit-line-delete.js?v=3|g' \
                         -e 's|inc-audit-log-filter\.js?v=[0-9]*|inc-audit-log-filter.js?v=1|g' \
-                        -e 's|inc-audit-status\.js?v=[0-9]*|inc-audit-status.js?v=4|g' \
+                        -e 's|inc-audit-status\.js?v=[0-9]*|inc-audit-status.js?v=5|g' \
                         -e 's|inc-audit-metrics-range\.js?v=[0-9]*|inc-audit-metrics-range.js?v=4|g' \
                         "$report/pages/$page" 2>/dev/null || true
 
@@ -342,7 +342,7 @@ need = [
     ("tools/shodan/kev-ids.js", '<script src="../tools/shodan/kev-ids.js"></script>'),
     ("inc-shodan.js", '<script src="../assets/javascript/inc-shodan.js?v=19"></script>'),
     ("inc-subdomains-ports.js", '<script src="../assets/javascript/inc-subdomains-ports.js?v=12"></script>'),
-    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=81"></script>'),
+    ("inc-host-scan.js", '<script src="../assets/javascript/inc-host-scan.js?v=82"></script>'),
 ]
 insert = [tag for key, tag in need if key not in text]
 if insert:
@@ -359,7 +359,7 @@ if insert:
 import re
 new_text, n = re.subn(
     r'inc-host-scan\.js\?v=[0-9]+',
-    'inc-host-scan.js?v=81',
+    'inc-host-scan.js?v=82',
     text,
 )
 if n:

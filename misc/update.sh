@@ -1027,6 +1027,26 @@ if ! command -v jq &> /dev/null; then
     echo
 fi
 
+# Headless crawl needs CGO. Chromium is installed earlier in this script.
+if command -v katana &> /dev/null; then
+    echo -e "${BLUE}Updating katana.${NC}"
+    katana_out=$(NO_COLOR=1 katana -up -silent 2>&1) || true
+
+    if echo "$katana_out" | grep -qi 'already updated'; then
+        echo "Already up to date."
+    elif echo "$katana_out" | grep -qE '^\[INF\]'; then
+        echo "Updated."
+    else
+        CGO_ENABLED=1 f_go_install_tool github.com/projectdiscovery/katana/cmd/katana@latest katana
+    fi
+
+    echo
+elif [ -n "$(f_go_bin)" ]; then
+    echo -e "${YELLOW}Installing katana.${NC}"
+    CGO_ENABLED=1 f_go_install_tool github.com/projectdiscovery/katana/cmd/katana@latest katana
+    echo
+fi
+
 if [ -d /opt/krbrelayx/.git ]; then
     echo -e "${BLUE}Updating krbrelayx.${NC}"
     cd /opt/krbrelayx/ || exit ; git pull
@@ -2249,6 +2269,59 @@ EOF
 }
 
 f_install_discover_ferox_handler
+
+# discover-katana: — open each katana URL in Firefox (same opener as ffuf).
+f_install_discover_katana_handler(){
+    local apps_dir="$USER_HOME/.local/share/applications"
+    local desktop="$apps_dir/discover-katana.desktop"
+    local mimeapps="$USER_HOME/.config/mimeapps.list"
+    local opener="$DISCOVER_ROOT/misc/open-ffuf-tabs.sh"
+
+    [ -x "$opener" ] || chmod +x "$opener" 2>/dev/null || true
+    [ -f "$opener" ] || return 0
+
+    mkdir -p "$apps_dir" "$USER_HOME/.config"
+    cat > "$desktop" <<EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Discover katana Tabs
+Comment=Open each katana URL in Firefox (Discover)
+Exec=$opener %u
+Terminal=false
+Categories=Network;Security;
+MimeType=x-scheme-handler/discover-katana;
+NoDisplay=true
+EOF
+
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$desktop" 2>/dev/null || true
+    fi
+
+    if [ -f "$mimeapps" ]; then
+        if grep -q 'x-scheme-handler/discover-katana=' "$mimeapps" 2>/dev/null; then
+            sed -i 's|x-scheme-handler/discover-katana=.*|x-scheme-handler/discover-katana=discover-katana.desktop|' "$mimeapps"
+        elif grep -q '^\[Default Applications\]' "$mimeapps"; then
+            sed -i '/^\[Default Applications\]/a x-scheme-handler/discover-katana=discover-katana.desktop' "$mimeapps"
+        else
+            printf '\n[Default Applications]\nx-scheme-handler/discover-katana=discover-katana.desktop\n' >> "$mimeapps"
+        fi
+    else
+        printf '[Default Applications]\nx-scheme-handler/discover-katana=discover-katana.desktop\n' > "$mimeapps"
+    fi
+
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:" "$mimeapps" 2>/dev/null || true
+        sudo -u "$SUDO_USER" xdg-mime default discover-katana.desktop x-scheme-handler/discover-katana >/dev/null 2>&1 || true
+        sudo -u "$SUDO_USER" update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+    else
+        xdg-mime default discover-katana.desktop x-scheme-handler/discover-katana >/dev/null 2>&1 || true
+        update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+    fi
+
+}
+
+f_install_discover_katana_handler
 
 # discover-robots: — open each robots.txt Disallow URL in Firefox from Subdomains / Audit.
 f_install_discover_robots_handler(){

@@ -40,7 +40,7 @@ def urls_from_lines(path: Path) -> list[str]:
 
 
 def urls_from_findings_json(path: Path) -> list[str]:
-    """ffuf results JSON, or feroxbuster NDJSON. Same rules as open-ffuf-tabs.sh."""
+    """ffuf JSON, feroxbuster NDJSON, or katana JSONL. Same rules as open-ffuf-tabs.sh."""
     try:
         text = path.read_text(encoding="utf-8", errors="replace")
     except OSError:
@@ -68,10 +68,16 @@ def urls_from_findings_json(path: Path) -> list[str]:
             if isinstance(row, dict):
                 add(row.get("url"))
         add(data.get("url"))
+        req = data.get("request")
+        if isinstance(req, dict):
+            add(req.get("endpoint") or req.get("url"))
     elif isinstance(data, list):
         for row in data:
             if isinstance(row, dict):
                 add(row.get("url"))
+                req = row.get("request")
+                if isinstance(req, dict):
+                    add(req.get("endpoint") or req.get("url"))
 
     if not urls:
         for raw in text.splitlines():
@@ -87,11 +93,14 @@ def urls_from_findings_json(path: Path) -> list[str]:
             if row.get("type") and row.get("type") != "response":
                 continue
             add(row.get("url") or row.get("original_url"))
+            req = row.get("request")
+            if isinstance(req, dict):
+                add(req.get("endpoint") or req.get("url"))
     return urls
 
 
 def urls_for(path: Path, tool: str) -> list[str]:
-    if tool in ("ffuf", "feroxbuster"):
+    if tool in ("ffuf", "feroxbuster", "katana"):
         return urls_from_findings_json(path)
     return urls_from_lines(path)
 
@@ -150,11 +159,13 @@ _HEADINGS = {
     "robots": "robots.txt Disallow directories",
     "ffuf": "ffuf findings",
     "feroxbuster": "feroxbuster findings",
+    "katana": "katana URLs",
     "nmap": "nmap HTTP(S) ports",
 }
 _SOURCES = {
     "ffuf": "ffuf.json",
     "feroxbuster": "ferox.json",
+    "katana": "katana.jsonl",
     "nmap": "web-urls.txt",
 }
 
